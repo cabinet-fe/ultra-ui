@@ -1,0 +1,11 @@
+{
+  "name": "bundler",
+
+  "dependencies": {
+    "rollup": "^3.12.0",
+    "gulp": "^4.0.2",
+    "esbuild": "^0.17.5",
+    "fs-extra": "^11.1.0",
+    "rollup-plugin-esbuild": "^5.0.0"
+  }
+}

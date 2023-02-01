@@ -1,0 +1,9 @@
+{
+  "name": "sample",
+  "scripts": {
+
+  },
+  "devDependencies": {
+    "vite": "^4.0.4"
+  }
+}
