@@ -3,7 +3,10 @@ lockfileVersion: 5.4
 importers:
 
   .:
-    specifiers: {}
+    specifiers:
+      ts-conf-base: ^1.0.1
+    devDependencies:
+      ts-conf-base: 1.0.1
 
   bundler:
     specifiers:
@@ -2799,6 +2802,12 @@ packages:
     dependencies:
       through2: 2.0.5
     dev: false
+
+  /ts-conf-base/1.0.1:
+    resolution: {integrity: sha512-+JraCZQufEMhZiGGxb9VXZZnexCtRkUWKDvVf9tpDXOmi7ygPS+hysd+twWFGCbNX+CUEsaw/1jr9tao/Gnezw==}
+    peerDependencies:
+      '@types/node': '*'
+    dev: true
 
   /type/1.2.0:
     resolution: {integrity: sha512-+5nt5AAniqsCnu2cEQQdpzCAh33kVx8n0VoFidKpB1dVVLAN/F+bgVOqOJqOnEnrhp222clB5p3vUlD+1QAnfg==}

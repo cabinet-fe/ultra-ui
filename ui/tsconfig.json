@@ -1,0 +1,6 @@
+{
+  "extends": "ts-conf-base/tsconfig.vue.json",
+  "compilerOptions": {
+    "composite": true,
+  }
+}
