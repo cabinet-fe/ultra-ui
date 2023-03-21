@@ -1,8 +1,9 @@
 {
   "name": "ultra-ui",
   "main": "./index.ts",
+  "type": "module",
   "dependencies": {
-    "vue": "^3.2.45",
-    "@vanilla-extract/css": "^1.9.3"
+    "vue": "^3.2.47",
+    "@vanilla-extract/css": "^1.10.0"
   }
 }

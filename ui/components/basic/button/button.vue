@@ -8,6 +8,8 @@
 import { buttonProps } from './type'
 
 const props = defineProps(buttonProps)
+
+
 </script>
 
 <script lang="ts">

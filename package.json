@@ -8,6 +8,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ts-conf-base": "^1.0.1"
+    "ts-conf-base": "^2.0.1",
+    "@types/node": "^18.15.5",
+    "typescript": "^5.0.2"
   }
 }

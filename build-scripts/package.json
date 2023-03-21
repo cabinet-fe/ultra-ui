@@ -1,5 +1,5 @@
 {
-  "name": "bundler",
+  "name": "build-scripts",
 
   "dependencies": {
     "rollup": "^3.12.0",

@@ -1,4 +1,5 @@
 packages:
   - ui # 源码
   - sample # 示例
-  - bundler # 构建器
+  - build-scripts # 构建脚本
+  - cli # 命令行工具
