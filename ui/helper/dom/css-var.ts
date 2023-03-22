@@ -1,3 +1,6 @@
+import bem from './class-name'
+
+
 const theme = {
   base: {
     color1: '',

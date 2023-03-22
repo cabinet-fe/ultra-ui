@@ -1,8 +1,7 @@
 {
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
-    "composite": true,
-    "moduleResolution": "node"
+    "composite": true
   },
   "include": ["**/*"]
 }
