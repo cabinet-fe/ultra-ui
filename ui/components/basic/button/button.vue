@@ -5,10 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-import { buttonProps } from './type'
+import { ButtonProps } from './button.type'
 
-const props = defineProps(buttonProps)
-
+const props = defineProps<ButtonProps>()
 
 </script>
 
