@@ -1,0 +1,7 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "脚本命令",
+  "main": "index.ts",
+  "author": "whj"
+}

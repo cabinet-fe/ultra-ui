@@ -1,16 +1,24 @@
 {
   "name": "ultra-ui",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "组件库",
   "scripts": {},
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "whj",
+  "peerDependencies": {
+    "vue": "^3.2.47"
+  },
   "devDependencies": {
     "ts-conf-base": "^2.0.1",
     "@types/node": "^18.15.5",
     "typescript": "^5.0.2",
-    "vite": "^4.2.1"
+    "vite": "^4.2.1",
+    "@changesets/cli": "^2.26.1"
+  },
+  "exports": {
+    ".": {
+      "import": "./ui/index.ts"
+    },
+    "./hooks": "./ui-packages/hooks/index.ts"
   }
 }

@@ -3,3 +3,4 @@ packages:
   - sample # 示例
   - build-scripts # 构建脚本
   - cli # 命令行工具
+  - ui-packages/* # 提供给UI使用的包

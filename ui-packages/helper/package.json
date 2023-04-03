@@ -1,0 +1,7 @@
+{
+  "name": "@ui/helper",
+  "version": "1.0.0",
+  "description": "UI库帮助库",
+  "main": "index.ts",
+  "author": "whj"
+}

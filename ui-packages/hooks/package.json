@@ -1,0 +1,7 @@
+{
+  "name": "@ui/hooks",
+  "version": "1.0.0",
+  "description": "UI 组合式方法",
+  "main": "index.ts",
+  "author": "whj"
+}

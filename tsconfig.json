@@ -1,6 +1,11 @@
 {
   "references": [
     { "path": "./build-scripts/tsconfig.json" },
-    { "path": "./ui/tsconfig.json" }
+    { "path": "./ui/tsconfig.json" },
+
+    { "path": "./ui-packages/helper/tsconfig.json" },
+    { "path": "./ui-packages/directives/tsconfig.json" },
+    { "path": "./ui-packages/hooks/tsconfig.json" },
+    { "path": "./ui-packages/theme/tsconfig.json" },
   ]
 }

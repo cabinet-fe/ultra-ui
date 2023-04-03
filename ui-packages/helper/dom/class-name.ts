@@ -46,4 +46,6 @@ function is<N extends string>(name: N, condition?: boolean) {
 
 bem.is = is
 
-export default bem
+export {
+  bem
+}

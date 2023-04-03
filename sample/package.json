@@ -1,6 +1,9 @@
 {
   "name": "sample",
   "scripts": {
-
+    "play": "vite dev"
+  },
+  "dependencies": {
+    "ui": "workspace:*"
   }
 }

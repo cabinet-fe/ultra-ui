@@ -1,6 +1,7 @@
 {
   "name": "build-scripts",
-
+  "description": "构建脚本",
+  "author": "whj",
   "dependencies": {
     "rollup": "^3.12.0",
     "gulp": "^4.0.2",

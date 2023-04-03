@@ -1,0 +1,7 @@
+{
+  "name": "@ui/directives",
+  "version": "1.0.0",
+  "description": "vue组件指令",
+  "main": "index.ts",
+  "author": "whj"
+}
