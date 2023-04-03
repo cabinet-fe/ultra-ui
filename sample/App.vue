@@ -1,5 +1,7 @@
 <template>
-  <UButton type="primary" />
+  <UButton type="primary">
+    <template #default="{ name }"></template>
+  </UButton>
 </template>
 
 <script lang="ts" setup>
