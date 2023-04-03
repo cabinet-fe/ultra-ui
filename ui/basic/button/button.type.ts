@@ -1,5 +1,3 @@
-import { PropType, ExtractPropTypes } from 'vue'
-
 /** 按钮类型 */
 type ButtonType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 

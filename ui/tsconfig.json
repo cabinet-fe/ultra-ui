@@ -2,7 +2,8 @@
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
-    "types": ["vite/client", "@vue/runtime-core"]
+    "types": ["vite/client", "@vue/runtime-core"],
+    "outDir": "dist"
   },
   "include": ["."]
 }

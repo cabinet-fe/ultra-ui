@@ -2,7 +2,9 @@
   "name": "ultra-ui",
   "version": "1.0.0",
   "description": "组件库",
-  "scripts": {},
+  "scripts": {
+    "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ui/tsconfig.json"
+  },
   "keywords": [],
   "author": "whj",
   "peerDependencies": {
@@ -13,7 +15,8 @@
     "@types/node": "^18.15.5",
     "typescript": "^5.0.2",
     "vite": "^4.2.1",
-    "@changesets/cli": "^2.26.1"
+    "@changesets/cli": "^2.26.1",
+    "vue-tsc": "^1.2.0"
   },
   "exports": {
     ".": {
