@@ -2,9 +2,6 @@
   "name": "ui",
   "main": "index.ts",
   "type": "module",
-  "peerDependencies": {
-    "@vue/runtime-core": "^3.2.47"
-  },
   "dependencies": {
     "@vanilla-extract/css": "^1.10.0",
     "@ui/helper": "workspace:*",

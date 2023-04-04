@@ -1,9 +1,15 @@
 <template>
-  <UButton type="primary">
-    <template #default="{ name }"></template>
-  </UButton>
+  <main>
+    <aside></aside>
+
+    <div></div>
+  </main>
 </template>
 
 <script lang="ts" setup>
-import { UButton } from 'ui'
+
 </script>
+
+<style lang="scss">
+
+</style>

@@ -3,5 +3,9 @@
   "version": "1.0.0",
   "description": "脚本命令",
   "main": "index.ts",
-  "author": "whj"
+  "author": "whj",
+  "type": "module",
+  "devDependencies": {
+    "zx": "7.2.1"
+  }
 }
