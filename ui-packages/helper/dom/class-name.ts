@@ -1,4 +1,4 @@
-import { CLS_PREFIX } from '../constants'
+import { CLS_PREFIX } from 'shared'
 
 /**
  * css类命名辅助
@@ -39,13 +39,14 @@ function is<const N extends string>(name: N): `is-${N}`
  * @param name 辅助类名称
  * @param condition 辅助类显示条件
  */
-function is<N extends string, C extends boolean>(name: N, condition: C): C extends true ? `is-${N}` : ''
+function is<N extends string, C extends boolean>(
+  name: N,
+  condition: C
+): C extends true ? `is-${N}` : ''
 function is<N extends string>(name: N, condition?: boolean) {
-  return condition === false ? '' : `is-${name}` as const
+  return condition === false ? '' : (`is-${name}` as const)
 }
 
 bem.is = is
 
-export {
-  bem
-}
+export { bem }

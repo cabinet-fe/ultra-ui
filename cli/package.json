@@ -6,6 +6,11 @@
   "author": "whj",
   "type": "module",
   "devDependencies": {
-    "zx": "7.2.1"
+    "inquirer": "^9.1.5",
+    "@types/inquirer": "^9.0.3",
+    "prettier": "^2.8.7",
+    "@types/prettier": "^2.7.2",
+    "chalk": "^5.2.0",
+    "shared": "workspace:*"
   }
 }

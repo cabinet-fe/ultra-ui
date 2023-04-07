@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "description": "UI库帮助库",
   "main": "index.ts",
-  "author": "whj"
+  "author": "whj",
+  "dependencies": {
+    "shared": "workspace:*"
+  }
 }
