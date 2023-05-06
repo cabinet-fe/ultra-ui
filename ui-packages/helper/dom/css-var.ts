@@ -1,6 +1,3 @@
-import bem from './class-name'
-
-
 const theme = {
   base: {
     color1: '',
@@ -13,6 +10,9 @@ const theme = {
 
 type Theme = typeof theme
 
-export default function cssVar<K extends keyof Theme, KK extends keyof Theme[K]>(key: K, key2: KK) {
+export default function cssVar<
+  K extends keyof Theme,
+  KK extends keyof Theme[K]
+>(key: K, key2: KK) {
   return
 }
