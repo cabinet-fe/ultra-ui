@@ -1,6 +1,6 @@
 <template>
   <button :class="cls.b">
-    <slot v-for="item of a" v-bind="item" />
+    <slot />
   </button>
 </template>
 
@@ -8,15 +8,11 @@
 import { ButtonProps } from './button.type'
 import { bem } from '@ui/helper'
 
+defineOptions({
+  name: 'UButton'
+})
+
 defineProps<ButtonProps>()
 
 const cls = bem('button')
-
-const  a = [{ name: '' }]
-</script>
-
-<script lang="ts">
-export default {
-  name: 'UButton'
-}
 </script>

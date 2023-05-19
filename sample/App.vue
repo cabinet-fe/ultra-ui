@@ -1,9 +1,8 @@
 <template>
-  <main>
-    <aside></aside>
-
-    <div></div>
-  </main>
+  <u-layout>
+    <u-aside></u-aside>
+    <u-main></u-main>
+  </u-layout>
 </template>
 
 <script lang="ts" setup>

@@ -65,14 +65,12 @@ export function renderVueFile(ctx: Ctx) {
   <script lang="ts" setup>
   import { ${componentProps} } from './${ctx.componentName}.type'
 
+  defineOptions({
+    name: '${NAME_SPACE}${upperCamelCase}'
+  })
+
   defineProps<${componentProps}>()
 
-  </script>
-
-  <script lang="ts">
-  export default {
-    name: '${NAME_SPACE}${upperCamelCase}'
-  }
   </script>
   `
 
@@ -86,7 +84,7 @@ export function renderTypeFile(ctx: Ctx) {
 
   const content = `
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
-  export type ${PropsName} = {}
+  export interface ${PropsName} {}
   `
 
   write(ctx, content, '.type.ts')

@@ -9,19 +9,19 @@
   "keywords": [],
   "author": "whj",
   "peerDependencies": {
-    "vue": "^3.2.47",
-    "@vue/runtime-core": "^3.2.47"
+    "vue": "^3.3.4",
+    "@vue/runtime-core": "^3.3.4"
   },
 
   "devDependencies": {
     "ts-conf-base": "^2.0.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^20.2.1",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1",
+    "vite": "^4.3.8",
     "@changesets/cli": "^2.26.1",
-    "vue-tsc": "^1.6.4",
+    "vue-tsc": "^1.6.5",
     "tsx": "^3.12.7",
-    "cat-kit": "^3.0.1"
+    "cat-kit": "^3.0.2"
   },
   "exports": {
     ".": {

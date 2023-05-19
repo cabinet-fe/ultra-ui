@@ -5,6 +5,7 @@
   "dependencies": {
     "@vanilla-extract/css": "^1.10.0",
     "@ui/helper": "workspace:*",
-    "@ui/hooks": "workspace:*"
+    "@ui/hooks": "workspace:*",
+    "shared": "workspace:*"
   }
 }
