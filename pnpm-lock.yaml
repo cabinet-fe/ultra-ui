@@ -15,14 +15,14 @@ importers:
         specifier: ^2.26.1
         version: 2.26.1
       '@types/node':
-        specifier: ^20.2.1
-        version: 20.2.1
+        specifier: ^20.2.3
+        version: 20.2.3
       cat-kit:
         specifier: ^3.0.2
         version: 3.0.2
       ts-conf-base:
         specifier: ^2.0.1
-        version: 2.0.1(@types/node@20.2.1)
+        version: 2.0.1(@types/node@20.2.3)
       tsx:
         specifier: ^3.12.7
         version: 3.12.7
@@ -31,7 +31,7 @@ importers:
         version: 5.0.4
       vite:
         specifier: ^4.3.8
-        version: 4.3.8(@types/node@20.2.1)
+        version: 4.3.8(@types/node@20.2.3)
       vue-tsc:
         specifier: ^1.6.5
         version: 1.6.5(typescript@5.0.4)
@@ -630,8 +630,8 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-  /@types/node@20.2.1:
-    resolution: {integrity: sha512-DqJociPbZP1lbZ5SQPk4oag6W7AyaGMO6gSfRwq3PWl4PXTwJpRQJhDq4W0kzrg3w6tJ1SwlvGZ5uKFHY13LIg==}
+  /@types/node@20.2.3:
+    resolution: {integrity: sha512-pg9d0yC4rVNWQzX8U7xb4olIOFuuVL9za3bzMT2pu2SU0SNEi66i2qrvhE2qt0HvkhuCaWJu7pLNOt/Pj8BIrw==}
     dev: true
 
   /@types/normalize-package-data@2.4.1:
@@ -649,7 +649,7 @@ packages:
   /@types/through@0.0.30:
     resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.3
     dev: true
 
   /@vanilla-extract/css@1.10.0:
@@ -4274,12 +4274,12 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /ts-conf-base@2.0.1(@types/node@20.2.1):
+  /ts-conf-base@2.0.1(@types/node@20.2.3):
     resolution: {integrity: sha512-OW86H3odozGy0v1CQUOVBQka8/AeuU3n3slLvhttwyR0q2z0tqL3aiR4U5QEUcOT7/ioMLz+tv1A+k20+PcAvw==}
     peerDependencies:
       '@types/node': '*'
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.3
     dev: true
 
   /tslib@2.5.0:
@@ -4511,7 +4511,7 @@ packages:
       replace-ext: 1.0.1
     dev: false
 
-  /vite@4.3.8(@types/node@20.2.1):
+  /vite@4.3.8(@types/node@20.2.3):
     resolution: {integrity: sha512-uYB8PwN7hbMrf4j1xzGDk/lqjsZvCDbt/JC5dyfxc19Pg8kRm14LinK/uq+HSLNswZEoKmweGdtpbnxRtrAXiQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -4536,7 +4536,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.3
       esbuild: 0.17.12
       postcss: 8.4.23
       rollup: 3.22.0
