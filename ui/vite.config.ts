@@ -33,6 +33,7 @@ export default defineConfig({
       // 确保外部化处理那些你不想打包进库的依赖
       external: ['vue'],
       // preserveEntrySignatures: 'strict',
+
       output: {
         preserveModules: true,
         assetFileNames({ name }) {
