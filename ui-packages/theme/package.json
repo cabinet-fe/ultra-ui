@@ -3,5 +3,6 @@
   "version": "1.0.0",
   "description": "UI主题",
   "main": "index.ts",
-  "author": "whj"
+  "author": "whj",
+  "type": "module"
 }

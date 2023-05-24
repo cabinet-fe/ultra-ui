@@ -3,9 +3,9 @@ import { resolve } from 'node:path'
 import inquirer from 'inquirer'
 import fs from 'fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
-import { renderIndexFile, renderTypeFile, renderVueFile } from './gen-component/render-file'
-import { UI_PATH } from './constants'
-import chalk from 'chalk'
+import { renderIndexFile, renderTypeFile, renderVueFile } from './render-file'
+import { UI_PATH } from '../shared'
+import pc from 'picocolors'
 
 // 组件类型目录
 const componentDirs = await fs.readdir(UI_PATH, {
@@ -46,7 +46,7 @@ const answer = await inquirer.prompt<{
     name: 'componentType',
     message: '选择该文件的类型?',
     choices: componentTypeChoices,
-    prefix: chalk.green('必填')
+    prefix: pc.green('必填')
   },
   {
     type: 'input',
@@ -58,13 +58,13 @@ const answer = await inquirer.prompt<{
       if (!isLower) return '文件名称应满足英文小写，多个单词使用中划线拼接'
       return true
     },
-    prefix: chalk.green('必填')
+    prefix: pc.green('必填')
   },
   {
     type: 'input',
     name: 'componentDesc',
     message: '文件描述:',
-    prefix: chalk.gray('选填')
+    prefix: pc.gray('选填')
   }
 ])
 

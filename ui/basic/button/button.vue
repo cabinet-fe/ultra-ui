@@ -1,18 +1,16 @@
 <template>
-  <button :class="cls.b">
+  <button type="button" :class="button">
     <slot />
   </button>
 </template>
 
 <script lang="ts" setup>
 import { ButtonProps } from './button.type'
-import { bem } from '@ui/helper'
+import { button } from './style.css'
 
 defineOptions({
   name: 'UButton'
 })
 
 defineProps<ButtonProps>()
-
-const cls = bem('button')
 </script>

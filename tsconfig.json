@@ -1,6 +1,5 @@
 {
   "references": [
-    { "path": "./build-scripts/tsconfig.json" },
     { "path": "./cli/tsconfig.json" },
     { "path": "./shared/tsconfig.json" },
 

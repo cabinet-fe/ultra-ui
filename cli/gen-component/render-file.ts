@@ -1,7 +1,7 @@
 import { camelCase } from 'cat-kit/be'
 import { mkdir, writeFile } from 'fs/promises'
 import { resolve } from 'path'
-import { UI_PATH } from '../constants'
+import { UI_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
 import { NAME_SPACE } from 'shared'

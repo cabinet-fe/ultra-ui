@@ -1,11 +1,25 @@
 {
   "name": "ui",
-  "main": "index.ts",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
-    "@vanilla-extract/css": "^1.10.0",
     "@ui/helper": "workspace:*",
     "@ui/hooks": "workspace:*",
-    "shared": "workspace:*"
+    "shared": "workspace:*",
+    "@ui/theme": "workspace:*"
+  },
+  "module": "./dist/index.js",
+  "main": "./dist/index.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
   }
 }
