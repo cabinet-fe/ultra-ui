@@ -1,4 +1,4 @@
-import { CLS_PREFIX } from 'shared'
+import { CLS_PREFIX } from '@ui/shared'
 
 /**
  * css类命名辅助

@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 
 export default defineConfig({
   base: '/',
@@ -14,10 +13,7 @@ export default defineConfig({
 
   plugins: [
     vue(),
-    vueJsx(),
-    vanillaExtractPlugin({
-      identifiers: 'debug'
-    })
+    vueJsx()
   ],
 
   build: {
@@ -41,10 +37,5 @@ export default defineConfig({
         }
       }
     }
-  },
-
-  server: {
-    port: 7788,
-    host: true
   }
 })

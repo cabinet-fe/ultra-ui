@@ -1,6 +1,5 @@
 packages:
   - ui # 源码
-  - shared # 共享文件
   - sample # 示例
   - cli # 命令行工具
   - ui-packages/* # 提供给UI使用的包

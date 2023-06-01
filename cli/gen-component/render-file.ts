@@ -4,7 +4,7 @@ import { resolve } from 'path'
 import { UI_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
-import { NAME_SPACE } from 'shared'
+import { NAME_SPACE } from '@ui/shared'
 
 interface Ctx {
   /** 组件名称 */

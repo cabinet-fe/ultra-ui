@@ -1,4 +1,4 @@
-import { ComponentProps } from "shared"
+import { ComponentProps } from "@ui/shared"
 
 /** 按钮类型 */
 type ButtonType = 'primary' | 'info' | 'success' | 'warning' | 'danger'

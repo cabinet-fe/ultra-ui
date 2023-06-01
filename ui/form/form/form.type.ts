@@ -1,4 +1,4 @@
-import { FormComponentProps } from 'shared'
+import { FormComponentProps } from '@ui/shared'
 
 /** 表单组件属性 */
 export interface FormProps extends FormComponentProps {

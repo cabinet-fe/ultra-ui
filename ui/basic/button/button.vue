@@ -1,12 +1,14 @@
 <template>
-  <button type="button" :class="button">
+  <button type="button" :class="cls.b">
     <slot />
   </button>
 </template>
 
 <script lang="ts" setup>
+import { bem } from '@ui/helper'
 import { ButtonProps } from './button.type'
-import { button } from './style.css'
+
+const cls = bem('button')
 
 defineOptions({
   name: 'UButton'

@@ -1,4 +1,4 @@
-import type { FormComponentProps } from "shared"
+import type { FormComponentProps } from '@ui/shared'
 
 /** 选择器组件属性 */
 export interface SelectProps extends FormComponentProps {

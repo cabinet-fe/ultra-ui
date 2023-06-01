@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "ultra-ui",
   "type": "module",
   "files": [
     "dist"
@@ -7,8 +7,8 @@
   "dependencies": {
     "@ui/helper": "workspace:*",
     "@ui/hooks": "workspace:*",
-    "shared": "workspace:*",
-    "@ui/theme": "workspace:*"
+    "@ui/shared": "workspace:*",
+    "@ui/styles": "workspace:*"
   },
   "module": "./dist/index.js",
   "main": "./dist/index.ts",

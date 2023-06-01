@@ -1,4 +1,4 @@
-import { PropsWithServerQuery } from "shared"
+import { PropsWithServerQuery } from "@ui/shared"
 
 /** 列表组件属性 */
 export interface ListProps extends PropsWithServerQuery {

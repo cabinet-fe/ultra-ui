@@ -1,7 +1,7 @@
 {
-  "name": "@ui/theme",
+  "name": "@ui/styles",
   "version": "1.0.0",
-  "description": "UI主题",
+  "description": "UI样式",
   "main": "index.ts",
   "author": "whj",
   "type": "module"

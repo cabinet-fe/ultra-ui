@@ -5,6 +5,6 @@
   "main": "index.ts",
   "author": "whj",
   "dependencies": {
-    "shared": "workspace:*"
+    "@ui/shared": "workspace:*"
   }
 }

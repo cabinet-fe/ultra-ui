@@ -4,6 +4,7 @@
     "play": "vite dev"
   },
   "dependencies": {
-    "ui": "workspace:*"
+    "ultra-ui": "workspace:*",
+    "vue-router": "^4.2.2"
   }
 }

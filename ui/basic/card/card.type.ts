@@ -1,4 +1,4 @@
-import { ComponentProps } from "shared"
+import { ComponentProps } from "@ui/shared"
 
 /** 卡片组件属性 */
 export interface CardProps extends ComponentProps {

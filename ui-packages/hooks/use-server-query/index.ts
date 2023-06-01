@@ -1,4 +1,4 @@
-import { PropsWithServerQuery } from 'shared'
+import { PropsWithServerQuery } from '@ui/shared'
 import { reactive, ref, shallowReactive, shallowRef } from 'vue'
 
 interface Config<T> {

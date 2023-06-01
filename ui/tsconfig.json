@@ -6,5 +6,5 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["./**/*.ts", "./**/*.vue", "main.tsx"]
+  "include": ["./**/*.ts", "./**/*.vue", "main.ts"]
 }
