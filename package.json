@@ -21,7 +21,9 @@
     "tsx": "^3.12.7",
     "cat-kit": "^3.0.2",
     "@vitejs/plugin-vue": "^4.2.3",
-    "@vitejs/plugin-vue-jsx": "^3.0.1"
+    "@vitejs/plugin-vue-jsx": "^3.0.1",
+    "unplugin-vue-components": "^0.25.1",
+    "sass": "^1.63.2"
   },
   "exports": {
     ".": {

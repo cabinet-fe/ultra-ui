@@ -19,6 +19,14 @@ function bem<N extends string>(name: N) {
     },
     /**
      * 获取CSS元素与修饰符
+     * @param m 修饰符名
+     * @returns
+     */
+    m<M extends string>(m?: M) {
+      return m ? `${b}--${m}` as const : undefined
+    },
+    /**
+     * 获取CSS元素与修饰符
      * @param e 元素名
      * @param m 修饰符名
      * @returns

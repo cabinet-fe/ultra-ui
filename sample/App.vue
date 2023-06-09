@@ -1,16 +1,96 @@
 <template>
-  <!-- <u-layout>
-    <u-aside>
-
-    </u-aside>
-
-    <u-main>
-
-    </u-main>
-  </u-layout> -->
-  <ButtonPlay />
+  <div class="container">
+    <aside>
+      <ul>
+        <li
+          v-for="{ name, path } of routes"
+          :key="name"
+          @click="handleClick(path)"
+          :class="{
+            active: path === route.path
+          }"
+        >
+          <div>
+            {{ name }}
+          </div>
+        </li>
+      </ul>
+    </aside>
+    <main>
+      <router-view v-slot="{ Component }">
+        <transition>
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </main>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import ButtonPlay from './src/button.vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { routes } from './router'
+
+const router = useRouter()
+const route = useRoute()
+const handleClick = (path: string) => {
+  router.push(path)
+}
 </script>
+
+<style lang="scss" scoped>
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+}
+
+$width: 240px;
+aside {
+  width: $width;
+  border-right: 1px solid #eee;
+
+  overflow: auto;
+}
+
+li {
+  height: 40px;
+  padding: 2px 6px;
+  cursor: pointer;
+
+  div {
+    border-radius: 4px;
+    padding: 0 6px;
+    line-height: 32px;
+    height: 100%;
+
+    &:hover {
+      background-color: #f2f2f2;
+    }
+  }
+}
+
+main {
+  width: calc(100% - $width);
+}
+
+.active {
+  div {
+    background-color: #f2f2f2;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

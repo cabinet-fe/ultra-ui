@@ -1,5 +1,5 @@
 <template>
-  <button type="button" :class="cls.b">
+  <button type="button" :class="className">
     <slot />
   </button>
 </template>
@@ -7,12 +7,19 @@
 <script lang="ts" setup>
 import { bem } from '@ui/helper'
 import { ButtonProps } from './button.type'
-
-const cls = bem('button')
+import { computed } from 'vue'
 
 defineOptions({
   name: 'UButton'
 })
 
-defineProps<ButtonProps>()
+const props = withDefaults(defineProps<ButtonProps>(), {
+  size: 'default'
+})
+
+const cls = bem('button')
+
+const className = computed(() => {
+  return [cls.b, cls.m(props.size), cls.m(props.type)]
+})
 </script>

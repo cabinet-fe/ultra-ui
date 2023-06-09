@@ -1,16 +1,14 @@
 <template>
-  <teleport to="body">
-    <div :class="cls.b">
-      <div :class="cls.e('header')" v-if="title || slots.header">
-        <slot name="header">
-          {{ title }}
-        </slot>
-      </div>
-      <div :class="cls.e('body')">
-        <slot />
-      </div>
+  <div :class="cls.b">
+    <div :class="cls.e('header')" v-if="title || slots.header">
+      <slot name="header">
+        {{ title }}
+      </slot>
     </div>
-  </teleport>
+    <div :class="cls.e('body')">
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>

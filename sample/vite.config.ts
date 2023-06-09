@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
+import Vue from '@vitejs/plugin-vue'
+import VueJSX from '@vitejs/plugin-vue-jsx'
+import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   base: '/',
@@ -9,7 +10,7 @@ export default defineConfig({
     extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
-  plugins: [vue(), vueJsx()],
+  plugins: [Vue(), VueJSX(), UnoCSS()],
 
   server: {
     port: 7788,
