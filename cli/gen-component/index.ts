@@ -7,47 +7,38 @@ import { renderIndexFile, renderTypeFile, renderVueFile } from './render-file'
 import { UI_PATH } from '../shared'
 import pc from 'picocolors'
 
-// 组件类型目录
-const componentDirs = await fs.readdir(UI_PATH, {
-  withFileTypes: true,
-  encoding: 'utf-8'
-})
+// // 组件类型目录
+// const componentDirs = await fs.readdir(UI_PATH, {
+//   withFileTypes: true,
+//   encoding: 'utf-8'
+// })
 
-// 组件类型选项
-const componentTypeChoices = componentDirs
-  .filter(dirent => {
-    return dirent.isDirectory()
-  })
-  .map(dirent => {
-    const descPath = resolve(UI_PATH, dirent.name, 'desc.json')
+// // 组件类型选项
+// const componentTypeChoices = componentDirs
+//   .filter(dirent => {
+//     return dirent.isDirectory()
+//   })
+//   .map(dirent => {
+//     const descPath = resolve(UI_PATH, dirent.name, 'desc.json')
 
-    if (!existsSync(descPath)) return null
-    let json = JSON.parse(readFileSync(descPath, 'utf-8'))
+//     if (!existsSync(descPath)) return null
+//     let json = JSON.parse(readFileSync(descPath, 'utf-8'))
 
-    return {
-      name: json.name,
-      value: dirent.name,
-      short: json.name
-    }
-  })
-  .filter(item => !!item)
+//     return {
+//       name: json.name,
+//       value: dirent.name,
+//       short: json.name
+//     }
+//   })
+//   .filter(item => !!item)
 
 // 交互问题
 const answer = await inquirer.prompt<{
-  /** 类型 */
-  componentType: string
   /** 名称 */
   componentName: string
   /** 备注 */
   componentDesc?: string
 }>([
-  {
-    type: 'list',
-    name: 'componentType',
-    message: '选择该文件的类型?',
-    choices: componentTypeChoices,
-    prefix: pc.green('必填')
-  },
   {
     type: 'input',
     name: 'componentName',

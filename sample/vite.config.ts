@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJSX from '@vitejs/plugin-vue-jsx'
-import UnoCSS from 'unocss/vite'
+import Components from 'unplugin-vue-components/vite'
 
+function UIResolver(componentName: string) {
+  if (componentName.startsWith('U')) {
+    return {
+      name: componentName,
+      from: '..',
+      sideEffects: `../style.scss`
+    }
+  }
+}
 export default defineConfig({
   base: '/',
 
@@ -10,7 +19,15 @@ export default defineConfig({
     extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
-  plugins: [Vue(), VueJSX(), UnoCSS()],
+  plugins: [
+    Vue(),
+    VueJSX(),
+    Components({
+      resolvers: [UIResolver],
+      dts: true,
+      include: [/\.vue$/]
+    })
+  ],
 
   server: {
     port: 7788,

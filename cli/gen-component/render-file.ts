@@ -9,8 +9,6 @@ import { NAME_SPACE } from '@ui/shared'
 interface Ctx {
   /** 组件名称 */
   componentName: string
-  /** 组件类型 */
-  componentType: string
   /** 组件描述 */
   componentDesc?: string
 }
@@ -30,7 +28,7 @@ const extMap = {
  * @returns
  */
 async function write(ctx: Ctx, content: string, ext: string) {
-  const targetDir = resolve(UI_PATH, ctx.componentType, ctx.componentName)
+  const targetDir = resolve(UI_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
     await mkdir(targetDir, {
       recursive: true

@@ -1,0 +1,17 @@
+{
+  "name": "@ui/components",
+  "type": "module",
+  "version": "1.0.0",
+  "module": "./index.ts",
+  "main": "./index.ts",
+  "dependencies": {
+    "@ui/utils": "workspace:*",
+    "@ui/compositions": "workspace:*",
+    "@ui/shared": "workspace:*",
+    "@ui/styles": "workspace:*"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*/index.ts"
+  }
+}

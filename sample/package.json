@@ -3,8 +3,10 @@
   "scripts": {
     "play": "vite dev"
   },
+  "type": "module",
   "dependencies": {
     "ultra-ui": "workspace:*",
+    "vite-helper": "workspace:*",
     "vue-router": "^4.2.2"
   }
 }

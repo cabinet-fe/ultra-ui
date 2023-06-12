@@ -1,0 +1,30 @@
+$namespace: 'u-';
+
+
+/** 表单组件尺寸 */
+$form-sizes: (
+  small: (
+    height: 24px,
+    padding: 0 8px,
+    font-size: 12px
+  ),
+
+  default: (
+    height: 32px,
+    padding: 0 12px
+  ),
+
+  large: (
+    height: 40px,
+    padding: 0 16px
+  )
+);
+
+
+$colors: (
+  primary: var(),
+  success: var(),
+  warning: var(),
+  danger: var(),
+  info: var()
+)

@@ -1,9 +1,9 @@
 {
-  "name": "ultra-ui",
+  "name": "ultra",
   "version": "1.0.0",
   "description": "组件库",
   "scripts": {
-    "gen": "tsx cli/gen-component.ts"
+    "gen": "tsx cli/gen-component"
   },
   "keywords": [],
   "author": "whj",
@@ -24,11 +24,5 @@
     "@vitejs/plugin-vue-jsx": "^3.0.1",
     "unplugin-vue-components": "^0.25.1",
     "sass": "^1.63.2"
-  },
-  "exports": {
-    ".": {
-      "import": "./ui/index.ts"
-    },
-    "./hooks": "./ui-packages/hooks/index.ts"
   }
 }

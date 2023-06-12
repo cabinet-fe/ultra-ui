@@ -4,5 +4,9 @@
   "description": "UI样式",
   "main": "index.ts",
   "author": "whj",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./theme-vars.scss",
+    "./mixins": "./_mixins.scss"
+  }
 }

@@ -1,17 +1,19 @@
 import { createRouter, createWebHistory, RouteComponent } from 'vue-router'
 
 const modules = import.meta.glob<true, string, { default: RouteComponent }>(
-  '../**/example/index.vue',
+  '../ui-packages/components/**/example/index.vue',
   { eager: true }
 )
 
 const paths = Object.keys(modules)
 
+
+
 export const routes = paths.map(path => {
   return {
-    name: path.match(/ui\/[A-z-]+\/([A-z]+)\/example/)![1]!,
+    name: path.match(/components\/([A-z-]+)\/example/)![1]!,
     component: modules[path]!.default,
-    path: path.replace(/^\.*/g, '').replace(/\.vue$/, '')
+    path: path.replace(/^\.*\/ui-packages\/[A-z]+([\s\S]+)\.vue$/g, '$1')
   }
 })
 

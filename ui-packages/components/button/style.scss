@@ -1,0 +1,14 @@
+@use '@ui/styles/mixins' as m;
+
+@include m.b(button) {
+  @include m.flex($display: inline-flex);
+
+  outline: none;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-color: #ccc;
+  box-sizing: border-box;
+
+  @include m.form-size(height, padding);
+}

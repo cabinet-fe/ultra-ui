@@ -86,42 +86,65 @@ importers:
       ultra-ui:
         specifier: workspace:*
         version: link:..
+      vite-helper:
+        specifier: workspace:*
+        version: link:../vite-helper
       vue-router:
         specifier: ^4.2.2
         version: 4.2.2(vue@3.3.4)
 
   ui:
     dependencies:
-      '@ui/helper':
+      '@ui/components':
         specifier: workspace:*
-        version: link:../ui-packages/helper
-      '@ui/hooks':
+        version: link:../ui-packages/components
+      '@ui/compositions':
         specifier: workspace:*
-        version: link:../ui-packages/hooks
+        version: link:../ui-packages/compositions
       '@ui/shared':
         specifier: workspace:*
         version: link:../ui-packages/shared
       '@ui/styles':
         specifier: workspace:*
         version: link:../ui-packages/styles
+      '@ui/utils':
+        specifier: workspace:*
+        version: link:../ui-packages/utils
+
+  ui-packages/components:
+    dependencies:
+      '@ui/compositions':
+        specifier: workspace:*
+        version: link:../compositions
+      '@ui/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@ui/styles':
+        specifier: workspace:*
+        version: link:../styles
+      '@ui/utils':
+        specifier: workspace:*
+        version: link:../utils
+
+  ui-packages/compositions:
+    dependencies:
+      '@ui/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   ui-packages/directives: {}
-
-  ui-packages/helper:
-    dependencies:
-      '@ui/shared':
-        specifier: workspace:*
-        version: link:../shared
-
-  ui-packages/hooks:
-    dependencies:
-      '@ui/shared':
-        specifier: workspace:*
-        version: link:../shared
 
   ui-packages/shared: {}
 
   ui-packages/styles: {}
+
+  ui-packages/utils:
+    dependencies:
+      '@ui/shared':
+        specifier: workspace:*
+        version: link:../shared
+
+  vite-helper: {}
 
 packages:
 

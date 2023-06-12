@@ -1,0 +1,50 @@
+@use 'vars';
+@use 'sass:list';
+
+/** flex布局 */
+@mixin flex($display: flex, $justify: flex-start, $align: center) {
+  display: $display;
+  justify-content: $justify;
+  align-items: $align;
+  align-content: $align;
+}
+
+/*
+* 表单尺寸
+* 参数为生效的form-size属性, 目前有height和padding
+*/
+@mixin form-size($props...) {
+  @each $size, $sizes in vars.$form-sizes {
+    &--#{$size} {
+      @each $prop, $size in $sizes {
+        @if list.index($props, $prop) != null {
+          #{$prop}: $size;
+        }
+      }
+    }
+  }
+}
+
+@mixin b($block) {
+  .#{vars.$namespace}#{$block} {
+    @content;
+  }
+}
+
+@mixin e($element) {
+  &__#{$element} {
+    @content;
+  }
+}
+
+@mixin m($modifier) {
+  &--#{$modifier} {
+    @content;
+  }
+}
+
+@mixin css-var($prefix, $list) {
+  @each $type, $color in $list {
+    --#{vars.$namespace}#{$prefix}-#{$type}: $color;
+  }
+}

@@ -2,4 +2,5 @@ packages:
   - ui # 源码
   - sample # 示例
   - cli # 命令行工具
+  - vite-helper # vite相关插件
   - ui-packages/* # 提供给UI使用的包

@@ -11,29 +11,37 @@ export default defineConfig({
     extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
-  plugins: [
-    vue(),
-    vueJsx()
-  ],
+  plugins: [vue(), vueJsx()],
+
+  css: {
+    preprocessorOptions: {
+      scss: {}
+    }
+  },
 
   build: {
     lib: {
-      entry: resolve(fileURLToPath(new URL('./index.ts', import.meta.url))),
+      entry: [
+        resolve(fileURLToPath(new URL('./index.ts', import.meta.url))),
+        resolve(fileURLToPath(new URL('./theme.ts', import.meta.url)))
+      ],
       name: 'ultra-ui',
       fileName(format, entryName) {
         return `${entryName}.js`
       },
       formats: ['es']
     },
+
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
       external: ['vue'],
-      // preserveEntrySignatures: 'strict',
+      preserveEntrySignatures: 'strict',
 
       output: {
         preserveModules: true,
-        assetFileNames({ name }) {
-          return name || ''
+
+        assetFileNames(ctx) {
+          return ctx.name || ''
         }
       }
     }

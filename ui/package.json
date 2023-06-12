@@ -5,17 +5,21 @@
     "dist"
   ],
   "dependencies": {
-    "@ui/helper": "workspace:*",
-    "@ui/hooks": "workspace:*",
+    "@ui/utils": "workspace:*",
+    "@ui/compositions": "workspace:*",
     "@ui/shared": "workspace:*",
-    "@ui/styles": "workspace:*"
+    "@ui/styles": "workspace:*",
+    "@ui/components": "workspace:*"
   },
   "module": "./dist/index.js",
   "main": "./dist/index.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/ui/index.js",
+      "types": "./dist/ui/index.d.ts"
+    },
+    "./theme": {
+      "import": "./dist/style.css"
     }
   },
   "scripts": {

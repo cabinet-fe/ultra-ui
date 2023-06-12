@@ -1,0 +1,12 @@
+{
+  "name": "@ui/compositions",
+  "version": "1.0.0",
+  "description": "UI 组合式方法",
+  "main": "index.ts",
+  "module": "index.ts",
+  "type": "module",
+  "author": "whj",
+  "dependencies": {
+    "@ui/shared": "workspace:*"
+  }
+}
