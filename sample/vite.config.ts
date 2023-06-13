@@ -2,13 +2,16 @@ import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
+import { kebabCase } from 'cat-kit'
 
 function UIResolver(componentName: string) {
   if (componentName.startsWith('U')) {
     return {
       name: componentName,
-      from: '..',
-      sideEffects: `../style.scss`
+      from: 'ultra-ui',
+      sideEffects: `@ui/components/${kebabCase(
+        componentName.slice(1)
+      )}/style.scss`
     }
   }
 }

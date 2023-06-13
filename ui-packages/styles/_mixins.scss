@@ -14,11 +14,12 @@
 * 参数为生效的form-size属性, 目前有height和padding
 */
 @mixin form-size($props...) {
-  @each $size, $sizes in vars.$form-sizes {
+  @each $size, $size-types in vars.$form-sizes {
     &--#{$size} {
-      @each $prop, $size in $sizes {
+      @content($size, $size-types);
+      @each $prop, $size-val in $size-types {
         @if list.index($props, $prop) != null {
-          #{$prop}: $size;
+          #{$prop}: $size-val;
         }
       }
     }
@@ -43,8 +44,21 @@
   }
 }
 
-@mixin css-var($prefix, $list) {
-  @each $type, $color in $list {
-    --#{vars.$namespace}#{$prefix}-#{$type}: $color;
+@mixin is($type) {
+  &.is-#{$type} {
+    @content;
   }
 }
+
+@mixin css-var($prefix, $list) {
+  @each $type, $color in $list {
+    @if $color == null {
+      --#{vars.$namespace}#{$prefix}: #{$type};
+    }
+    @else {
+      --#{vars.$namespace}#{$prefix}-#{$type}: #{$color};
+    }
+  }
+}
+
+

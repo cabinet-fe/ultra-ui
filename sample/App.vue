@@ -18,7 +18,7 @@
     </aside>
     <main>
       <router-view v-slot="{ Component }">
-        <transition>
+        <transition name="fade">
           <component :is="Component" />
         </transition>
       </router-view>
@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { RouterView, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 
 const router = useRouter()
@@ -38,11 +38,7 @@ const handleClick = (path: string) => {
 </script>
 
 <style lang="scss" scoped>
-ul,
-li {
-  margin: 0;
-  padding: 0;
-}
+@use '@ui/styles/functions' as fn;
 
 .container {
   height: 100%;
@@ -52,8 +48,7 @@ li {
 $width: 240px;
 aside {
   width: $width;
-  border-right: 1px solid #eee;
-
+  border-right: fn.use-var(border);
   overflow: auto;
 }
 

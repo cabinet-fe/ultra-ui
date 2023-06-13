@@ -1,9 +1,6 @@
 {
   "name": "ultra-ui",
   "type": "module",
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@ui/utils": "workspace:*",
     "@ui/compositions": "workspace:*",
@@ -11,16 +8,11 @@
     "@ui/styles": "workspace:*",
     "@ui/components": "workspace:*"
   },
-  "module": "./dist/index.js",
-  "main": "./dist/index.ts",
+  "module": "./index.ts",
+  "main": "./index.ts",
   "exports": {
-    ".": {
-      "import": "./dist/ui/index.js",
-      "types": "./dist/ui/index.d.ts"
-    },
-    "./theme": {
-      "import": "./dist/style.css"
-    }
+    ".": "./index.ts",
+    "./theme": "./theme.ts"
   },
   "scripts": {
     "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json",

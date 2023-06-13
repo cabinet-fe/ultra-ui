@@ -1,7 +1,6 @@
 $namespace: 'u-';
 
-
-/** 表单组件尺寸 */
+// 表单组件尺寸
 $form-sizes: (
   small: (
     height: 24px,
@@ -11,20 +10,16 @@ $form-sizes: (
 
   default: (
     height: 32px,
-    padding: 0 12px
+    padding: 0 12px,
+    font-size: 14px
   ),
 
   large: (
     height: 40px,
-    padding: 0 16px
+    padding: 0 16px,
+    font-size: 14px
   )
 );
 
-
-$colors: (
-  primary: var(),
-  success: var(),
-  warning: var(),
-  danger: var(),
-  info: var()
-)
+// 颜色类别
+$color-types: (primary, success, warning, danger, info);

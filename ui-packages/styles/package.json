@@ -2,11 +2,12 @@
   "name": "@ui/styles",
   "version": "1.0.0",
   "description": "UI样式",
-  "main": "index.ts",
   "author": "whj",
   "type": "module",
   "exports": {
-    ".": "./theme-vars.scss",
-    "./mixins": "./_mixins.scss"
+    ".": "./theme.scss",
+    "./mixins": "./_mixins.scss",
+    "./functions": "./_functions.scss",
+    "./vars": "./_vars.scss"
   }
 }

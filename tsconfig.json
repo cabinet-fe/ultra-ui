@@ -2,6 +2,7 @@
   "references": [
     { "path": "./cli/tsconfig.json" },
     { "path": "./ui/tsconfig.json" },
+    { "path": "./sample/tsconfig.json" },
     { "path": "./vite-helper/tsconfig.json" },
 
     { "path": "./ui-packages/components/tsconfig.json" },

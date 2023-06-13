@@ -1,0 +1,26 @@
+@use 'vars';
+@use 'sass:list';
+
+// 使用单个变量
+@function use-var($basename, $nodes...) {
+  $suffix: '';
+
+  @each $node in $nodes {
+    $suffix: $suffix + '-' + $node;
+  }
+
+  @return var(--#{vars.$namespace}#{$basename}#{$suffix});
+}
+
+// 使用多个变量
+@function use-vars($vars, $separator: ' ') {
+  $result: '';
+  $len: list.length($vars);
+  @for $i from 1 to $len {
+    $result: $result + use-var(list.nth($vars, $i)) + $separator;
+  }
+
+  $result: $result + use-var(list.nth($vars, $len));
+
+  @return $result;
+}
