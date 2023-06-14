@@ -1,0 +1,33 @@
+@use '@ui/styles/mixins' as m;
+
+@keyframes rotating {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@include m.b(icon) {
+  height: 1em;
+  width: 1em;
+  line-height: 1em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  fill: currentColor;
+  font-size: inherit;
+  color: inherit;
+
+  // 加载转圈
+  @include m.is(loading) {
+    animation: rotating 2s linear infinite;
+  }
+
+  svg {
+    height: 1em;
+    width: 1em;
+  }
+}

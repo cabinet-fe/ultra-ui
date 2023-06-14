@@ -22,4 +22,15 @@ $form-sizes: (
 );
 
 // 颜色类别
-$color-types: (primary, success, warning, danger, info);
+$color-types: (
+  // 品牌色
+  primary: #409eff,
+  // 成功色
+  success: #67c23a,
+  // 警告色
+  warning: #e6a23c,
+  // 危险色
+  danger: #f56c6c,
+  // 信息色
+  info: #909399
+);

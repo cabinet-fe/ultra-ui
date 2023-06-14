@@ -4,7 +4,11 @@
   "description": "UI库帮助库",
   "main": "index.ts",
   "author": "whj",
+  "type": "module",
   "dependencies": {
     "@ui/shared": "workspace:*"
+  },
+  "exports": {
+    ".": "./index.ts"
   }
 }

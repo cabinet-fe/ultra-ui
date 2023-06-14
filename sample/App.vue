@@ -16,9 +16,9 @@
         </li>
       </ul>
     </aside>
-    <main>
+    <main style="padding: var(--u-gap-default)">
       <router-view v-slot="{ Component }">
-        <transition name="fade">
+        <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>

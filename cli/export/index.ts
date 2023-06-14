@@ -21,19 +21,22 @@ const { packageName } = await inquirer.prompt<{
 ])
 
 async function exportEntry() {
-  const dirs = await readDir(join(PKG_PATH, packageName), {
+  const targetPackage = join(PKG_PATH, packageName)
+  const dirs = await readDir(targetPackage, {
     readType: 'dir'
   })
 
   let entryContent = ''
   dirs.forEach(dir => {
     const existEntry = existsSync(join(dir.path, 'index.ts'))
+
+
     if (existEntry) {
-      entryContent += `export * from './${dir.name}'`
+      entryContent += `export * from './${dir.name}' \n\n`
     }
   })
 
-  writeFile(join(PKG_PATH, 'index.ts'), entryContent)
+  writeFile(join(targetPackage, 'index.ts'), entryContent)
 }
 
 exportEntry()

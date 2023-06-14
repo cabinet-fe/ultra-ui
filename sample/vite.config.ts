@@ -11,7 +11,7 @@ function UIResolver(componentName: string) {
       from: 'ultra-ui',
       sideEffects: `@ui/components/${kebabCase(
         componentName.slice(1)
-      )}/style.scss`
+      )}/style`
     }
   }
 }

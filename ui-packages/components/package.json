@@ -10,6 +10,10 @@
     "@ui/shared": "workspace:*",
     "@ui/styles": "workspace:*"
   },
+  "devDependencies": {
+    "icon-ultra": "^2.0.16",
+    "gsap": "^3.12.1"
+  },
   "exports": {
     ".": "./index.ts",
     "./*": "./*"

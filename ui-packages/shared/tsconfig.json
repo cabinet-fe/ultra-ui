@@ -1,8 +1,7 @@
 {
   "extends": "ts-conf-base/tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "types": ["@types/node"]
+    "composite": true
   },
-  "include": ["."]
+  "include": ["**/*"]
 }

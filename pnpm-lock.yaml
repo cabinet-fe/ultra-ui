@@ -93,6 +93,9 @@ importers:
       '@ui/styles':
         specifier: workspace:*
         version: link:../ui-packages/styles
+      icon-ultra:
+        specifier: ^2.0.16
+        version: 2.0.16(vue@3.3.4)
       ultra-ui:
         specifier: workspace:*
         version: link:../ui
@@ -135,6 +138,13 @@ importers:
       '@ui/utils':
         specifier: workspace:*
         version: link:../utils
+    devDependencies:
+      gsap:
+        specifier: ^3.12.1
+        version: 3.12.1
+      icon-ultra:
+        specifier: ^2.0.16
+        version: 2.0.16(vue@3.3.4)
 
   ui-packages/compositions:
     dependencies:
@@ -1930,6 +1940,10 @@ packages:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
 
+  /gsap@3.12.1:
+    resolution: {integrity: sha512-FXtb2YbBE9l8I9Pl5DFLpCMedaiMPztRlr0Ln0CMSnJn+pbTaeKlzgth8cLNPc7PzNwIZe+SEQiBBAWaBKJdVA==}
+    dev: true
+
   /hard-rejection@2.1.0:
     resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}
     engines: {node: '>=6'}
@@ -1996,6 +2010,13 @@ packages:
   /human-id@1.0.2:
     resolution: {integrity: sha512-UNopramDEhHJD+VR+ehk8rOslwSfByxPIZyJRfV739NDhN5LF1fa1MqnzKm2lGTQRjNrjK19Q5fhkgIfjlVUKw==}
     dev: true
+
+  /icon-ultra@2.0.16(vue@3.3.4):
+    resolution: {integrity: sha512-YMKX+lVrs8KriWmqy5wuChW4Yl5wljDNnMl+NDSLpyG3aRpqxqPEnYl3Nt/c+8InN6Pn1zn5ImzyS+jc6SJf+Q==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      vue: 3.3.4
 
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}

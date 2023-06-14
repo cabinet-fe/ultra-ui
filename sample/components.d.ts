@@ -11,5 +11,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
+    UScrollbar: typeof import('ultra-ui')['UScrollbar']
   }
 }

@@ -16,7 +16,7 @@
 @mixin form-size($props...) {
   @each $size, $size-types in vars.$form-sizes {
     &--#{$size} {
-      @content($size, $size-types);
+      @content ($size, $size-types);
       @each $prop, $size-val in $size-types {
         @if list.index($props, $prop) != null {
           #{$prop}: $size-val;
@@ -32,15 +32,19 @@
   }
 }
 
-@mixin e($element) {
-  &__#{$element} {
-    @content;
+@mixin e($elements...) {
+  @each $element in $elements {
+    &__#{$element} {
+      @content;
+    }
   }
 }
 
-@mixin m($modifier) {
-  &--#{$modifier} {
-    @content;
+@mixin m($modifiers) {
+  @each $modifier in $modifiers {
+    &--#{$modifier} {
+      @content;
+    }
   }
 }
 
@@ -54,11 +58,8 @@
   @each $type, $color in $list {
     @if $color == null {
       --#{vars.$namespace}#{$prefix}: #{$type};
-    }
-    @else {
+    } @else {
       --#{vars.$namespace}#{$prefix}-#{$type}: #{$color};
     }
   }
 }
-
-

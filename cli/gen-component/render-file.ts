@@ -83,6 +83,11 @@ export function renderTypeFile(ctx: Ctx) {
   const content = `
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {}
+
+  /** ${ctx.componentDesc || ctx.componentName}暴露的属性和方法 */
+  export interface ${upperCamelCase}Exposed {
+
+  }
   `
 
   write(ctx, content, '.type.ts')
@@ -97,4 +102,22 @@ export function renderIndexFile(ctx: Ctx) {
   `
 
   write(ctx, content, 'index.ts')
+}
+
+export function renderStyleFile(ctx: Ctx) {
+  const scssContent = `
+  @use '@ui/styles/mixins' as m;
+  @use '@ui/styles/functions' as fn;
+  @use '@ui/styles/vars';
+
+  @include m.b(${ctx.componentName}) {}
+  `
+
+  write(ctx, scssContent, 'style.scss')
+
+  const styleEntryContent = `
+  import './style.scss'
+  `
+
+  write(ctx, styleEntryContent, 'style.ts')
 }

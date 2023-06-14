@@ -8,4 +8,6 @@ export interface CardProps extends ComponentProps {
   shadow?: 'none' | 'always' | 'hover'
   /** 边框 */
   border?: boolean
+  /** 宽度 */
+  width?: string | number
 }

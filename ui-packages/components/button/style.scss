@@ -25,13 +25,24 @@
   }
 
   // 颜色
-  @each $type in vars.$color-types {
+  @each $type, $_ in vars.$color-types {
     @include m.m($type) {
       background-color: fn.use-var(color, $type);
       color: #fff; // CSS_VAR
       border-color: fn.use-var(color, $type);
 
       @include m.is(ghost) {
+      }
+
+      &:hover {
+        background-color: fn.use-var(color, $type, 'dark-1');
+        border-color: fn.use-var(color, $type, 'dark-1');
+      }
+
+      // 禁用
+      @include m.is(disabled) {
+        background-color: fn.use-var(color, $type, 'light-3');
+        border-color: fn.use-var(color, $type, 'light-3');
       }
     }
   }
@@ -40,5 +51,17 @@
   @include m.is(circle) {
     border-radius: 50%;
     padding: 0;
+  }
+
+  // 禁用
+  @include m.is(disabled) {
+    cursor: not-allowed;
+  }
+
+  @include m.e(icon-left) {
+    margin-right: fn.use-var(gap-small);
+  }
+  @include m.e(icon-right) {
+    margin-left: fn.use-var(gap-small);
   }
 }

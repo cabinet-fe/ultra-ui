@@ -11,9 +11,9 @@ export interface FormComponentProps extends ComponentProps {
   /** 在表单控件内时的提示 */
   tips?: string
   /** 所占列的大小 */
-  span?: string | number | 'max';
+  span?: string | number | 'max'
   /** 表单标签文字 */
-  label?: string;
+  label?: string
   /** 表单项字段 */
   field?: string
   /** 是否禁用 */

@@ -1,10 +1,10 @@
 // 生成一个初始化的组件
-import { resolve } from 'node:path'
+// import { resolve } from 'node:path'
 import inquirer from 'inquirer'
-import fs from 'fs/promises'
-import { existsSync, readFileSync } from 'node:fs'
-import { renderIndexFile, renderTypeFile, renderVueFile } from './render-file'
-import { UI_PATH } from '../shared'
+// import fs from 'fs/promises'
+// import { existsSync, readFileSync } from 'node:fs'
+import { renderIndexFile, renderStyleFile, renderTypeFile, renderVueFile } from './render-file'
+// import { UI_PATH } from '../shared'
 import pc from 'picocolors'
 
 // // 组件类型目录
@@ -62,3 +62,4 @@ const answer = await inquirer.prompt<{
 renderVueFile(answer)
 renderTypeFile(answer)
 renderIndexFile(answer)
+renderStyleFile(answer)

@@ -1,5 +1,5 @@
 <template>
-  <i :class="cls.b" v-bind="$attrs">
+  <i :class="cls.b" :style="style" v-bind="$attrs">
     <slot></slot>
   </i>
 </template>
@@ -7,12 +7,20 @@
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
 import { IconProps } from './icon.type'
+import { CSSProperties, computed } from 'vue'
+import {  withUnit } from '@ui/utils'
 
 defineOptions({
   name: 'UIcon'
 })
 
-defineProps<IconProps>()
+const props = defineProps<IconProps>()
 
 const cls = bem('icon')
+
+const style = computed<CSSProperties>(() => {
+  return {
+    fontSize: withUnit(props.size, 'px')
+  }
+})
 </script>

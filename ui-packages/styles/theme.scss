@@ -2,25 +2,22 @@
 // 其中色彩又分为文字颜色, 背景颜色
 @use 'mixins' as m;
 @use 'functions' as fn;
+@use 'vars';
 
 // theme-vars
 :root {
   // 颜色类别
-  @include m.css-var(
-    color,
-    (
-      // 品牌色
-      primary: #409eff,
-      // 成功色
-      success: #67c23a,
-      // 警告色
-      warning: #e6a23c,
-      // 危险色
-      danger: #f56c6c,
-      // 信息色
-      info: #909399
-    )
-  );
+  // 品牌色
+  // primary: #409eff,
+  // 成功色
+  // success: #67c23a,
+  // 警告色
+  // warning: #e6a23c,
+  // 危险色
+  // danger: #f56c6c,
+  // 信息色
+  // info: #909399
+  @include m.css-var(color, vars.$color-types);
 
   // 背景色
   @include m.css-var(
