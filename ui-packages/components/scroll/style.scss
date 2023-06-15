@@ -1,0 +1,89 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+$root-name: scroll;
+
+@include m.b($root-name) {
+  height: 100%;
+  position: relative;
+
+  // 滚动容器
+  @include m.e(container) {
+    overflow: auto;
+    height: 100%;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+
+  // 悬浮
+  &:hover {
+    .#{vars.$namespace}#{$root-name}__bar-x,
+    .#{vars.$namespace}#{$root-name}__bar-y {
+      opacity: 1;
+    }
+  }
+
+  // 滚动条悬浮拖拽时的背景色
+  $active-bg: rgba(
+    $color: #ccc,
+    $alpha: 0.5
+  );
+
+  // 滚动条默认尺寸(宽度)
+  $bar-size: 6px;
+  // 滚动条滚动或者悬浮时的尺寸
+  $bar-active-size: $bar-size + 4px;
+
+  // 滚动条
+  @include m.e(bar-x, bar-y) {
+    opacity: 0;
+    position: absolute;
+    border-radius: $bar-size;
+    background-color: rgba($color: #ccc, $alpha: 0.3);
+    transition: opacity 0.3s ease-in, background-color 0.3s ease-in,
+      height 0.15s ease-in, width 0.15s ease-in;
+
+    &:hover {
+      background-color: $active-bg;
+      border-radius: $bar-active-size;
+    }
+
+    @include m.is(active) {
+      opacity: 1;
+      background-color: $active-bg;
+      border-radius: $bar-active-size;
+    }
+  }
+
+  @include m.e(bar-y) {
+    width: $bar-size;
+    height: 100%;
+    top: 0;
+    right: 0;
+
+    &:hover {
+      width: $bar-active-size;
+    }
+
+    @include m.is(active) {
+      width: $bar-active-size;
+    }
+  }
+
+  @include m.e(bar-x) {
+    height: $bar-size;
+    bottom: 0;
+    left: 0;
+
+    &:hover {
+      height: $bar-active-size;
+    }
+    @include m.is(active) {
+      height: $bar-active-size;
+    }
+  }
+}

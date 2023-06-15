@@ -2,7 +2,7 @@ import { type Ref, type ShallowRef, onBeforeUnmount, watch } from 'vue'
 
 interface ResizeObserverOptions {
   /** 目标节点 */
-  target: ShallowRef<HTMLElement> | Ref<HTMLElement>
+  target: ShallowRef<HTMLElement | undefined> | Ref<HTMLElement | undefined>
   /** resize事件 */
   onResize: ResizeObserverCallback
 }
@@ -23,10 +23,16 @@ export function useResizeObserver(
 
   const observer = new ResizeObserver(onResize)
 
-  watch(target, (val, oldVal) => {
-    oldVal && observer.unobserve(oldVal)
-    val && observer.observe(val)
-  })
+  watch(
+    target,
+    (val, oldVal) => {
+      oldVal && observer.unobserve(oldVal)
+      val && observer.observe(val)
+    },
+    {
+      immediate: true
+    }
+  )
 
   onBeforeUnmount(() => {
     if (!target.value) return
