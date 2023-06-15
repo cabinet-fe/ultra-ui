@@ -20,6 +20,7 @@
   fill: currentColor;
   font-size: inherit;
   color: inherit;
+  vertical-align: middle;
 
   // 加载转圈
   @include m.is(loading) {
