@@ -6,7 +6,7 @@ export function UIResolver(componentName: string) {
     return {
       name: componentName.slice(1),
       from: 'ultra-ui',
-      sideEffects: `ultra-ui/components/${dirname}/style.scss`
+      sideEffects: `ultra-ui/components/${dirname}/style`
     }
   }
 }

@@ -23,7 +23,11 @@ export default defineConfig({
   },
 
   plugins: [
-    Vue(),
+    Vue({
+      script: {
+        defineModel: true
+      }
+    }),
     VueJSX(),
     Components({
       resolvers: [UIResolver],

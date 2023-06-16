@@ -1,0 +1,6 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(theme) {
+}
