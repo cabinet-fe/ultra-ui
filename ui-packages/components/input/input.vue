@@ -1,20 +1,30 @@
 <template>
   <u-form-component-wrapper>
-    <div>
-      <input type="text" v-model="model" />
-    </div>
+    <input type="text" v-model="model" />
   </u-form-component-wrapper>
 </template>
 
 <script lang="ts" setup>
 import { InputProps } from './input.type'
 import { UFormComponentWrapper } from '../form-component-wrapper'
+import { shallowRef, watch } from 'vue'
 
 defineOptions({
   name: 'UInput'
 })
 
-defineProps<InputProps>()
+const props = defineProps<InputProps>()
 
-const model = defineModel<string>({})
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
+
+const model = shallowRef('')
+
+watch(model, () => {
+
+})
+
+
 </script>

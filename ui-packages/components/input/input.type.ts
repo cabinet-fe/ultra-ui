@@ -1,2 +1,4 @@
 /** 输入框组件组件属性 */
-export interface InputProps {}
+export interface InputProps {
+  modelValue?: string
+}

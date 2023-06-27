@@ -13,6 +13,7 @@ declare module 'vue' {
     UCard: typeof import('ultra-ui')['UCard']
     UContext: typeof import('ultra-ui')['UContext']
     UIcon: typeof import('ultra-ui')['UIcon']
+    UInput: typeof import('ultra-ui')['UInput']
     UPopup: typeof import('ultra-ui')['UPopup']
     UScroll: typeof import('ultra-ui')['UScroll']
   }
