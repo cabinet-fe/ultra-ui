@@ -113,6 +113,9 @@ importers:
       '@ui/compositions':
         specifier: workspace:*
         version: link:../ui-packages/compositions
+      '@ui/directives':
+        specifier: workspace:*
+        version: link:../ui-packages/directives
       '@ui/shared':
         specifier: workspace:*
         version: link:../ui-packages/shared

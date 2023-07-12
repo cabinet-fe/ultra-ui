@@ -49,7 +49,7 @@ const showEvent = (e: MouseEvent) => {
 }
 
 const addEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
-  if (!binding.value) return
+  if (binding.value === false) return
   if (typeof binding.value === 'string') {
     el.dataset.rippleClass = binding.value
   }

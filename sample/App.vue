@@ -9,6 +9,7 @@
           :class="{
             active: path === route.path
           }"
+          v-ripple
         >
           <div>
             {{ name }}
@@ -29,6 +30,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
+import { vRipple } from 'ultra-ui'
 
 const router = useRouter()
 const route = useRoute()
