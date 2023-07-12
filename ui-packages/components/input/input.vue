@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { InputProps } from './input.type'
 import { UFormComponentWrapper } from '../form-component-wrapper'
-import { shallowRef, watch } from 'vue'
+import { useModel } from '@ui/compositions'
 
 defineOptions({
   name: 'UInput'
@@ -19,12 +19,9 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-
-const model = shallowRef('')
-
-watch(model, () => {
-
+const model = useModel({
+  props,
+  propName: 'modelValue',
+  emit
 })
-
-
 </script>

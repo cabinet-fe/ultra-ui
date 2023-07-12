@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-input />
+    <u-input  />
     {{ value }}
     <u-button @click="value += '1'">点击</u-button>
   </div>
