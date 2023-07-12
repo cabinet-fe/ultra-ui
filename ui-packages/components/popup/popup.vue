@@ -1,5 +1,5 @@
 <template>
-  <component :is="renderTrigger()" @click="pop" />
+  <UNodeRender :content="renderTrigger()" @click="pop" />
 
   <Teleport to="body">
     <section
@@ -18,6 +18,7 @@
 import { onBeforeUnmount, Text, computed, VNode } from 'vue'
 import { PopupProps } from './popup.type'
 import { bem, zIndex } from '@ui/utils'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'UPopup'

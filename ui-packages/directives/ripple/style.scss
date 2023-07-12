@@ -1,0 +1,18 @@
+@use '@ui/styles/mixins' as m;
+
+@include m.b(ripple) {
+  position: relative;
+  overflow: hidden;
+
+  @include m.e(wrap) {
+    position: absolute;
+    background-color: rgba($color: #000, $alpha: 0.2);
+    pointer-events: none;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    will-change: transform;
+    transition: transform 0.25s ease-out;
+    z-index: 0;
+  }
+}

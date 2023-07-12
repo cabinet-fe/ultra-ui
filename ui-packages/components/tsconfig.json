@@ -4,5 +4,5 @@
     "composite": true,
     "types": ["vite/client", "@vue/runtime-core"]
   },
-  "include": ["./**/*.ts", "./**/*.vue"]
+  "include": ["./**/*.ts", "./**/*.vue", "./**/*.tsx"]
 }

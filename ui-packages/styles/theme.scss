@@ -17,6 +17,7 @@
   // danger: #f56c6c,
   // 信息色
   // info: #909399
+
   @include m.css-var(color, vars.$color-types);
 
   // 背景色

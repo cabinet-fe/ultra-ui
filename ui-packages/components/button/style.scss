@@ -11,11 +11,12 @@
   text-decoration: none;
   white-space: nowrap;
   vertical-align: middle;
-  background-color: #fff; // CSS_VAR
-  border: fn.use-var(border);
   border-radius: fn.use-var(radius);
   cursor: pointer;
   -webkit-appearance: none;
+
+  background-color: fn.use-var(bg-color, top);
+  border: fn.use-var(border);
 
   // 尺寸
   @include m.form-size(height, padding, font-size) using ($size, $types) {
@@ -24,15 +25,23 @@
     }
   }
 
+  @include m.is(disabled, loading) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, second);
+  }
+
   // 颜色
   @each $type, $_ in vars.$color-types {
+
+    .is-ripple-#{$type} {
+      background-color: fn.use-var(color, $type);
+      opacity: 0.2;
+    }
+
     @include m.m($type) {
       background-color: fn.use-var(color, $type);
       color: #fff; // CSS_VAR
       border-color: fn.use-var(color, $type);
-
-      @include m.is(ghost) {
-      }
 
       &:hover {
         background-color: fn.use-var(color, $type, 'dark-1');
@@ -40,9 +49,25 @@
       }
 
       // 禁用
-      @include m.is(disabled) {
+      @include m.is(disabled, loading) {
         background-color: fn.use-var(color, $type, 'light-3');
         border-color: fn.use-var(color, $type, 'light-3');
+        color: #fff;
+      }
+
+      @include m.is(plain) {
+        color: fn.use-var(color, $type);
+        background-color: fn.use-var(bg-color, top);
+
+        &:hover {
+          color: fn.use-var(color, $type, 'dark-1');
+          border-color: fn.use-var(color, $type, 'dark-1');
+        }
+
+        &.is-disabled {
+          border-color: fn.use-var(color, $type, 'light-3');
+          color: fn.use-var(color, $type, 'light-3');
+        }
       }
     }
   }
@@ -53,15 +78,12 @@
     padding: 0;
   }
 
-  // 禁用
-  @include m.is(disabled) {
-    cursor: not-allowed;
-  }
-
   @include m.e(icon-left) {
     margin-right: fn.use-var(gap-small);
   }
   @include m.e(icon-right) {
     margin-left: fn.use-var(gap-small);
   }
+
+
 }

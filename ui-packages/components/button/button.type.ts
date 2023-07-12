@@ -10,8 +10,8 @@ export interface ButtonProps extends ComponentProps {
   type?: ButtonType
   /** 是否以文本形式展示 */
   text?: boolean
-  /** 是否显示幽灵模式 */
-  ghost?: boolean
+  /** 朴素模式 */
+  plain?: boolean
   /** 加载中 */
   loading?: boolean
   /** 加载图标 */

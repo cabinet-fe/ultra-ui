@@ -7,9 +7,11 @@ export type BEM<N extends string, B extends string = `${CLSType}${N}`> = {
   b: B
   e<const E extends string>(name: E): `${B}__${E}`
 
-  be<const Block extends string, const E extends string>(b: Block, e: E): `${B}-${Block}__${E}`
+  be<const Block extends string, const E extends string>(
+    b: Block,
+    e: E
+  ): `${B}-${Block}__${E}`
 
-  m(m?: undefined): undefined
   m<const M extends string>(m: M): `${B}--${M}`
 
   em<const E extends string, const M extends string>(
@@ -49,10 +51,10 @@ function bem<N extends string, B extends `${CLSType}${N}` = `${CLSType}${N}`>(
     /**
      * 获取CSS元素与修饰符
      * @param m 修饰符名
-     * @returns
+     * @returns CSS元素与修饰符
      */
-    m(m: any): any {
-      return m === undefined ? undefined : `${b}--${m}`
+    m(m) {
+      return `${b}--${m}`
     },
     /**
      * 获取CSS元素与修饰符

@@ -48,10 +48,13 @@
   }
 }
 
-@mixin is($type) {
-  &.is-#{$type} {
-    @content;
+@mixin is($types...) {
+  @each $type in $types {
+    &.is-#{$type} {
+      @content;
+    }
   }
+
 }
 
 @mixin css-var($prefix, $list) {

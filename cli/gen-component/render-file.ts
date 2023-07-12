@@ -37,15 +37,17 @@ async function write(ctx: Ctx, content: string, ext: string) {
 
   const extRE = /\.([A-z\d]+)$/
 
+  const contentFormatted = await prettier.format(content, {
+    parser: extMap[ext.match(extRE)![1]!] || 'html',
+    singleQuote: true,
+    semi: false,
+
+    trailingComma: 'none'
+  })
+
   return writeFile(
     resolve(targetDir, ext.startsWith('.') ? ctx.componentName + ext : ext),
-    prettier.format(content, {
-      parser: extMap[ext.match(extRE)![1]!] || 'html',
-      singleQuote: true,
-      semi: false,
-
-      trailingComma: 'none'
-    }),
+    contentFormatted,
     'utf-8'
   )
 }

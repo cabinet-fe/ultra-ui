@@ -3,5 +3,9 @@
   "version": "1.0.0",
   "description": "vue组件指令",
   "main": "index.ts",
-  "author": "whj"
+  "author": "whj",
+  "dependencies": {
+    "@ui/styles": "workspace:*",
+    "@ui/utils": "workspace:*"
+  }
 }

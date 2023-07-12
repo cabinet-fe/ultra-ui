@@ -8,11 +8,12 @@
     "@ui/utils": "workspace:*",
     "@ui/compositions": "workspace:*",
     "@ui/shared": "workspace:*",
-    "@ui/styles": "workspace:*"
+    "@ui/styles": "workspace:*",
+    "@ui/directives": "workspace:*"
   },
   "devDependencies": {
     "icon-ultra": "^2.0.16",
-    "gsap": "^3.12.1"
+    "gsap": "^3.12.2"
   },
   "exports": {
     ".": "./index.ts",
