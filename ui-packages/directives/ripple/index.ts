@@ -1,24 +1,32 @@
-import './style.scss'
 import { DirectiveBinding, ObjectDirective } from 'vue'
 import { bem } from '@ui/utils'
+import { debounce } from 'cat-kit/fe'
 
 const cls = bem('ripple')
-const clsE = cls.e('wrap')
+const clsWrap = cls.e('wrap')
+
+const removeClass = debounce(
+  (el: HTMLElement) => {
+    el.classList.remove(cls.b)
+    console.log(el.classList)
+  },
+  300,
+  false
+)
 
 const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
-  el.classList.add(cls.b)
+  !el.classList.contains(cls.b) && el.classList.add(cls.b)
   const rect = el.getBoundingClientRect()
 
   const wrapSize = Math.max(rect.width, rect.height)
   const wrap = document.createElement('span')
-  // 初始样式
-  wrap.classList.add(clsE)
+  wrap.classList.add(clsWrap)
 
   wrap.style.width = `${wrapSize}px`
   wrap.style.height = `${wrapSize}px`
   let transX = offsetX - wrapSize / 2
   let transY = offsetY - wrapSize / 2
-  wrap.style.transform = `translate(${transX}px, ${transY}px) scale(0, 0)`
+  wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(0.3, 0.3, 0.3)`
 
   if (el.dataset.rippleClass) {
     wrap.classList.add(el.dataset.rippleClass)
@@ -27,18 +35,19 @@ const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   el.appendChild(wrap)
 
   // 在下一帧添加动画
-  setTimeout(() => {
-    wrap.style.transform = `translate(${transX}px, ${transY}px) scale(2, 2)`
+  requestAnimationFrame(() => {
+    wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(2, 2, 2)`
   })
 
   setTimeout(() => {
     hideRipple(el)
-  }, 300)
+  }, 250)
+
+  removeClass(el)
 }
 
 const hideRipple = (el: HTMLElement) => {
-  const wrap = el.getElementsByClassName(clsE)
-
+  const wrap = el.getElementsByClassName(clsWrap)
   Array.prototype.forEach.call(wrap, item => {
     item.parentNode?.removeChild(item)
   })
@@ -55,13 +64,10 @@ const addEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
   }
 
   el.addEventListener('mousedown', showEvent)
-
-  // el.addEventListener('mouseup', hideRipple)
 }
 
 const removeEvents = (el: HTMLElement) => {
   el.removeEventListener('mousedown', showEvent)
-  // el.removeEventListener('mouseup', hideRipple)
 }
 
 const Ripple: ObjectDirective<HTMLElement> = {
