@@ -1,7 +1,7 @@
 export {}
 
 declare module 'vue' {
-  export interface ComponentCustomProperties {
+  interface ComponentCustomProperties {
     c: Console
   }
 }

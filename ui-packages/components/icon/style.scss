@@ -21,6 +21,7 @@
   font-size: inherit;
   color: inherit;
   vertical-align: middle;
+  user-select: none;
 
   // 加载转圈
   @include m.is(loading) {

@@ -11,10 +11,13 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
+    UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UContext: typeof import('ultra-ui')['UContext']
     UIcon: typeof import('ultra-ui')['UIcon']
     UInput: typeof import('ultra-ui')['UInput']
     UPopup: typeof import('ultra-ui')['UPopup']
     UScroll: typeof import('ultra-ui')['UScroll']
+    UTree: typeof import('ultra-ui')['UTree']
+    UTreeNode: typeof import('ultra-ui')['UTreeNode']
   }
 }

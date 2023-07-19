@@ -1,0 +1,19 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+
+@include m.b('tree') {
+  @include m.e('node') {
+    height: 24px;
+    @include m.flex($align: center);
+  }
+
+  @include m.e('expand-icon') {
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-right: fn.use-var(gap, small);
+
+    @include m.is('expanded') {
+      transform: rotate(90deg);
+    }
+  }
+}

@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { ButtonProps } from './button.type'
+import type { ButtonEmits, ButtonProps } from './button.type'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'
@@ -49,9 +49,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   loadingIcon: () => Loading
 })
 
-const emit = defineEmits<{
-  click: [e: MouseEvent]
-}>()
+const emit = defineEmits<ButtonEmits>()
 
 const cls = bem('button')
 

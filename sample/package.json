@@ -9,7 +9,7 @@
     "@ui/styles": "workspace:*",
     "@ui/components": "workspace:*",
     "vite-helper": "workspace:*",
-    "vue-router": "^4.2.2",
+    "vue-router": "^4.2.4",
     "icon-ultra": "^2.0.16"
   }
 }

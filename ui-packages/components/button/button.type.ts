@@ -1,5 +1,5 @@
-import type { ComponentProps } from "@ui/shared"
-import type { Component } from "vue"
+import type { ComponentProps } from '@ui/shared'
+import type { Component } from 'vue'
 
 /** 按钮类型 */
 type ButtonType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -26,7 +26,10 @@ export interface ButtonProps extends ComponentProps {
   iconPosition?: 'left' | 'right'
 }
 
-/** 按钮暴露的属性和方法 */
-export interface ButtonExposed {
-
+export interface ButtonEmits {
+  /** 点击事件 */
+  (name: 'click', e: MouseEvent): void
 }
+
+/** 按钮暴露的属性和方法 */
+export interface ButtonExposed {}

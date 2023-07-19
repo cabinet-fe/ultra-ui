@@ -1,0 +1,8 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(checkbox) {
+  @include m.flex(inline-flex);
+  user-select: none;
+}
