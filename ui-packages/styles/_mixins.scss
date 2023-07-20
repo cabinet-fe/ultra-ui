@@ -54,15 +54,28 @@
       @content;
     }
   }
-
 }
 
+/**
+* 设置css变量
+* 参数1:变量前缀
+* 参数2: 一个由值组成的列表或者由key, value组成的map
+* css-var(height, (
+*   large: 40px
+*   default: 32px
+*   small: 24px
+* ))
+* 生成的css变量:
+* --u-height-large: 40px;
+* --u-height-default: 32px;
+* --u-height-small: 24px;
+*/
 @mixin css-var($prefix, $list) {
-  @each $type, $color in $list {
-    @if $color == null {
+  @each $type, $value in $list {
+    @if $value == null {
       --#{vars.$namespace}#{$prefix}: #{$type};
     } @else {
-      --#{vars.$namespace}#{$prefix}-#{$type}: #{$color};
+      --#{vars.$namespace}#{$prefix}-#{$type}: #{$value};
     }
   }
 }

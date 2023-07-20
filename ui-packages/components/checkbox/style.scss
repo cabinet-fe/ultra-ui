@@ -5,4 +5,23 @@
 @include m.b(checkbox) {
   @include m.flex(inline-flex);
   user-select: none;
+
+  @include m.e(wrap) {
+    height: 16px;
+    width: 16px;
+    border: 1px solid #ccc;
+    // box-shadow: fn.use-var(shadow);
+    border-radius: fn.use-var(radius);
+    color: #fff;
+    transition: background-color 0.3s ease;
+
+    @include m.is(checked) {
+      background-color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(label) {
+    margin-left: fn.use-var(gap, default);
+  }
 }

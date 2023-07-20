@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { Ref, ref, watch } from 'vue'
 
 interface ModelOptions<
   P extends Record<string, unknown>,
@@ -33,7 +33,7 @@ export function useModel<
 
   if (local) {
     // 创建一个响应式对象
-    const value = ref<P[N]>()
+    const value = ref<P[N]>(props[propName]) as Ref<P[N]>
 
     // 监听属性的变更
     watch(
