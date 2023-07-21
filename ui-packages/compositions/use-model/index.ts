@@ -3,16 +3,16 @@ import { Ref, ref, watch } from 'vue'
 interface ModelOptions<
   P extends Record<string, unknown>,
   N extends keyof P,
-  F extends Function
+  Local extends boolean = true
 > {
   /** 组件定义的属性 */
   props: P
   /** 属性名称 */
-  propName: N
+  propName?: N
   /** 事件触发函数 */
-  emit: F
+  emit: (...args: any[]) => void
   /** 是否为本地模式, 本地模式允许组件不受控赋值 */
-  local?: boolean
+  local?: Local
 }
 
 /**
@@ -23,17 +23,31 @@ interface ModelOptions<
  * @param options - 选项
  * @returns - 一个模型值
  */
+
 export function useModel<
-  P extends Record<string, unknown>,
-  N extends keyof P,
-  F extends Function
->(options: ModelOptions<P, N, F>) {
+  P extends Record<string, any>,
+  N extends keyof P = 'modelValue'
+>(options: ModelOptions<P, N, true>): Ref<P[N]>
+export function useModel<
+  P extends Record<string, any>,
+  N extends keyof P = 'modelValue'
+>(
+  options: ModelOptions<P, N, false>
+): {
+  __v_isRef: boolean
+  value: P[N]
+}
+export function useModel<
+  P extends Record<string, any>,
+  N extends keyof P = 'modelValue',
+  Local extends boolean = true
+>(options: ModelOptions<P, N, Local>): any {
   // Destructure the options object
-  const { props, propName, emit, local = true } = options
+  const { props, propName = 'modelValue', emit, local = true } = options
 
   if (local) {
     // 创建一个响应式对象
-    const value = ref<P[N]>(props[propName]) as Ref<P[N]>
+    const value = ref<P[N]>(props[propName] as P[N])
 
     // 监听属性的变更
     watch(
@@ -55,8 +69,8 @@ export function useModel<
   const value = {
     __v_isRef: true,
 
-    get value() {
-      return props[propName]
+    get value(): P[N] {
+      return props[propName] as P[N]
     },
 
     set value(v: P[N]) {

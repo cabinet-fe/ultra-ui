@@ -82,11 +82,16 @@ export function renderTypeFile(ctx: Ctx) {
 
   const PropsName = `${upperCamelCase}Props`
 
+  const EmitsName = `${upperCamelCase}Emits`
+
   const content = `
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {}
 
-  /** ${ctx.componentDesc || ctx.componentName}暴露的属性和方法 */
+  /** ${ctx.componentDesc || ctx.componentName}组件定义的事件 */
+  export interface ${EmitsName} {}
+
+  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法 */
   export interface ${upperCamelCase}Exposed {
 
   }

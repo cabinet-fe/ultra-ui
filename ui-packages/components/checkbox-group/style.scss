@@ -1,0 +1,13 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(checkbox-group) {
+  @include m.flex(inline-flex);
+  line-height: 1;
+  vertical-align: middle;
+
+  @include m.b(checkbox) {
+    margin-right: fn.use-var(gap, large);
+  }
+}

@@ -13,10 +13,16 @@ $root-name: scroll;
     overflow: auto;
     height: 100%;
 
+    // 隐藏webkit的滚动条
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
     }
+
+    // 隐藏火狐的滚动条
+    scrollbar-color: transparent transparent;
+    scrollbar-track-color: transparent;
+    -ms-scrollbar-track-color: transparent;
   }
 
   // 悬浮
@@ -44,8 +50,11 @@ $root-name: scroll;
     position: absolute;
     border-radius: $bar-size;
     background-color: rgba($color: #ccc, $alpha: 0.3);
-    transition: opacity 0.3s ease-in, background-color 0.3s ease-in,
-      height 0.15s ease-in, width 0.15s ease-in;
+    transition:
+      opacity 0.3s ease-in,
+      background-color 0.3s ease-in,
+      height 0.15s ease-in,
+      width 0.15s ease-in;
 
     &:hover {
       background-color: $active-bg;

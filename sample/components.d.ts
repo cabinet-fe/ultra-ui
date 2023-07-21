@@ -12,6 +12,7 @@ declare module 'vue' {
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
+    UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
     UContext: typeof import('ultra-ui')['UContext']
     UIcon: typeof import('ultra-ui')['UIcon']
     UInput: typeof import('ultra-ui')['UInput']
@@ -19,5 +20,6 @@ declare module 'vue' {
     UScroll: typeof import('ultra-ui')['UScroll']
     UTree: typeof import('ultra-ui')['UTree']
     UTreeNode: typeof import('ultra-ui')['UTreeNode']
+    UVirtualScroll: typeof import('ultra-ui')['UVirtualScroll']
   }
 }

@@ -8,7 +8,6 @@ const clsWrap = cls.e('wrap')
 const removeClass = debounce(
   (el: HTMLElement) => {
     el.classList.remove(cls.b)
-    console.log(el.classList)
   },
   300,
   false

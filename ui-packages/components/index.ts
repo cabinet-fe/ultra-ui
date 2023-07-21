@@ -4,6 +4,8 @@ export * from './card'
 
 export * from './checkbox' 
 
+export * from './checkbox-group' 
+
 export * from './context' 
 
 export * from './form' 
@@ -39,4 +41,6 @@ export * from './theme'
 export * from './tip' 
 
 export * from './tree' 
+
+export * from './virtual-scroll' 
 

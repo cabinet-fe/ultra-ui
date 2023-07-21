@@ -5,23 +5,32 @@
 @include m.b(checkbox) {
   @include m.flex(inline-flex);
   user-select: none;
+  vertical-align: middle;
 
   @include m.e(wrap) {
     height: 16px;
     width: 16px;
-    border: 1px solid #ccc;
-    // box-shadow: fn.use-var(shadow);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border-color);
     border-radius: fn.use-var(radius);
     color: #fff;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.25s ease;
+    @include m.flex(inline-flex, center);
 
-    @include m.is(checked) {
+    // checked或者indeterminate
+    @include m.is(active) {
       background-color: fn.use-var(color, primary);
-      border-color: fn.use-var(color, primary);
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
     }
   }
 
   @include m.e(label) {
-    margin-left: fn.use-var(gap, default);
+    margin-left: fn.use-var(gap, small);
+  }
+
+  @include m.m(indeterminate) {
+    background-color: #fff;
+    width: 10px;
+    height: 2px;
+    vertical-align: middle;
   }
 }

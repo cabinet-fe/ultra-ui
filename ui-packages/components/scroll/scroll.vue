@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { ScrollPosition, ScrollExposed, ScrollProps } from './scroll.type'
+import type { ScrollPosition, ScrollExposed, ScrollProps, ScrollEmits } from './scroll.type'
 import { CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import type { DefineEvent } from '@ui/utils'
@@ -42,6 +42,8 @@ defineOptions({
 const props = withDefaults(defineProps<ScrollProps>(), {
   tag: 'div'
 })
+
+const emit = defineEmits<ScrollEmits>()
 
 const cls = bem('scroll')
 const className = computed(() => {
@@ -72,6 +74,8 @@ const updateBar = (target: HTMLElement) => {
     offsetWidth,
     scrollLeft
   } = target
+
+  emit('scroll', { x: scrollLeft, y: scrollTop })
 
   let barYHeight = 0
   let barYTop = 0

@@ -1,15 +1,21 @@
+import { FormComponentProps } from "@ui/shared"
+
+type Val = boolean | string | number
+
 /** 复选框组件属性 */
-export interface CheckboxProps<Val extends boolean | string | number = boolean> {
+export interface CheckboxProps<V extends Val = boolean> extends FormComponentProps {
   /** 是否选中 */
-  modelValue?: Val
+  modelValue: V
   /** 自定义真值 */
-  trueValue?: Val
+  trueValue?: V
   /** 自定义假值 */
-  falseValue?: Val
+  falseValue?: V
+  /** 部分选中 */
+  indeterminate?: boolean
 }
 
-export interface CheckboxEmits<Val extends boolean | string | number = boolean> {
-  (name: 'update:modelValue', value: Val): void
+export interface CheckboxEmits<V extends Val = boolean> {
+  (name: 'update:modelValue', value: V): void
 }
 
 /** 复选框暴露的属性和方法 */
