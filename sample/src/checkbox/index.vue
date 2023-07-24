@@ -25,7 +25,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const check = ref(true)
+const check = ref(false)
 
 const data = [
   { name: '张三', id: 1 },

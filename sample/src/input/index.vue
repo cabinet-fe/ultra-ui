@@ -10,4 +10,6 @@
 import { shallowRef } from 'vue'
 
 const value = shallowRef('')
+
+useFormComponent
 </script>

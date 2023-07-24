@@ -22,7 +22,6 @@ import { computed, provide, shallowRef } from 'vue'
 import { bem } from '@ui/utils'
 import { VirtualScrollDIKey } from './di'
 import UVirtualScrollItem from './virtual-scroll-item.vue'
-import { debounce } from 'cat-kit/fe'
 
 defineOptions({
   name: 'UVirtualScroll'

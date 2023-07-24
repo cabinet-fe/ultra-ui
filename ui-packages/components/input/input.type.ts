@@ -3,5 +3,6 @@ export interface InputProps {
   /** modelValue */
   modelValue?: string
 
-
+  /** 占位符 */
+  placeholder?: string
 }

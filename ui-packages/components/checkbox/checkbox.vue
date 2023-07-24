@@ -33,6 +33,19 @@ const props = defineProps<CheckboxProps<Val>>()
 const emit = defineEmits<CheckboxEmits<Val>>()
 const cls = bem('checkbox')
 
+const model = useModel<CheckboxProps<Val>, 'modelValue'>({
+  props,
+  emit,
+  propName: 'modelValue',
+  local: false
+})
+
+const indeterminate = useModel({
+  props,
+  emit,
+  propName: 'indeterminate'
+})
+
 const trueVal = computed(() => {
   return props.trueValue ?? (true as Val)
 })
@@ -46,18 +59,15 @@ const checked = computed(() => {
 })
 
 const wrapClass = computed(() => {
-  return [cls.e('wrap'), bem.is('active', checked.value || props.indeterminate)] as const
-})
-
-const model = useModel<CheckboxProps<Val>, 'modelValue'>({
-  props,
-  emit,
-  propName: 'modelValue',
-  local: false
+  return [
+    cls.e('wrap'),
+    bem.is('active', checked.value || indeterminate.value)
+  ] as const
 })
 
 const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   model.value = target.checked ? trueVal.value : falseVal.value
+  indeterminate.value = false
 }
 </script>

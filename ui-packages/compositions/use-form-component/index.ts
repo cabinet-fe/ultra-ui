@@ -1,6 +1,19 @@
-import { inject } from "vue"
+import { type InjectionKey, inject, provide } from 'vue'
 
-export function useFormComponent() {
+type DIContent = {
+  inForm: boolean
+}
 
-  inject<boolean>('form', false)
+const FormComponentDIKey: InjectionKey<DIContent> = Symbol('FormComponentDIKey')
+
+export function useFormComponent(isForm: true): void
+export function useFormComponent(isForm: false): DIContent
+export function useFormComponent(isForm: boolean) {
+  if (isForm) {
+    return provide(FormComponentDIKey, {
+      inForm: true
+    })
+  }
+
+  return inject(FormComponentDIKey, undefined) || {}
 }

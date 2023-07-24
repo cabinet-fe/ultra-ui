@@ -3,4 +3,9 @@
 @use '@ui/styles/vars';
 
 @include m.b(form-item) {
+  @include m.flex(inline-flex);
+
+  @include m.e(label) {
+    flex-shrink: 0;
+  }
 }

@@ -2,11 +2,17 @@
 @use 'sass:list';
 
 /** flex布局 */
-@mixin flex($display: flex, $justify: flex-start, $align: center) {
+@mixin flex(
+  $display: flex,
+  $justify: flex-start,
+  $align: center,
+  $wrap: nowrap
+) {
   display: $display;
   justify-content: $justify;
   align-items: $align;
   align-content: $align;
+  flex-wrap: $wrap;
 }
 
 /*
