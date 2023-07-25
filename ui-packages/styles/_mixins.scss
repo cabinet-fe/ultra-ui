@@ -1,5 +1,7 @@
 @use 'vars';
 @use 'sass:list';
+@use 'sass:map';
+@use 'functions' as fn;
 
 /** flex布局 */
 @mixin flex(
@@ -83,5 +85,39 @@
     } @else {
       --#{vars.$namespace}#{$prefix}-#{$type}: #{$value};
     }
+  }
+}
+
+@mixin form-component {
+  border-radius: fn.use-var(radius);
+  box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+  transition: box-shadow 0.25s ease;
+  padding: 0 4px;
+
+  &:hover {
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @each $size-name, $size-types in vars.$form-sizes {
+    &--#{$size-name} {
+      height: map.get($size-types, height);
+    }
+
+    @include e(native) {
+      height: 100%;
+      font-size: fn.use-var(font-size, main);
+    }
+  }
+
+  @include e(native) {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    flex-grow: 1;
+  }
+
+  @include is(focus) {
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
   }
 }

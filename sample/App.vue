@@ -62,7 +62,7 @@ li {
   div {
     border-radius: 4px;
     padding: 0 6px;
-    line-height: 32px;
+    line-height: 36px;
     height: 100%;
 
     &:hover {

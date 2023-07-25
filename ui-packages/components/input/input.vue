@@ -1,42 +1,122 @@
 <template>
   <u-form-item v-if="inForm" v-bind="getFormItemProps(props)">
-    <div :class="cls.b">
-      <input
-        :class="cls.e('native')"
-        :placeholder="placeholder"
-        type="text"
-        v-model="model"
-      />
-    </div>
+    <component :is="renderInput()" />
   </u-form-item>
+  <component v-else :is="renderInput()" />
 </template>
 
-<script lang="ts" setup>
-import { InputProps } from './input.type'
+<script lang="tsx" setup>
+import type { InputEmits, InputProps } from './input.type'
 import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
-import { useModel, useFormComponent } from '@ui/compositions'
+import { useModel, useFormComponent, useFocus } from '@ui/compositions'
 import { bem } from '@ui/utils'
+import { computed, getCurrentInstance, ref, useSlots, Transition } from 'vue'
+import { CircleClose } from 'icon-ultra'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'UInput'
 })
 
 const props = withDefaults(defineProps<InputProps>(), {
-  placeholder: '请输入'
+  placeholder: '请输入',
+  size: 'default'
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
-
-const cls = bem('input')
-
-const { inForm } = useFormComponent(false)
+const emit = defineEmits<InputEmits>()
 
 const model = useModel({
   props,
   propName: 'modelValue',
   emit
 })
+
+const inst = getCurrentInstance()
+
+const cls = bem('input')
+
+const { focus, handleBlur, handleFocus } = useFocus()
+
+const slots = useSlots()
+
+const inputClass = computed(() => {
+  return [cls.b, cls.m(props.size), bem.is('focus', focus.value)]
+})
+const prefixClass = [
+  cls.e('prefix'),
+  bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])
+]
+
+const suffixClass = [
+  cls.e('suffix'),
+  bem.is('clickable', !!inst?.vnode.props?.['onSuffix:click'])
+]
+
+const handleInput = (e: Event) => {
+  model.value = (e.target as HTMLInputElement).value
+}
+
+const handlePrefixClick = () => {
+  emit('prefix:click', model.value)
+}
+
+const handleSuffixClick = () => {
+  emit('suffix:click', model.value)
+}
+
+const clearModelValue = () => {
+  model.value = ''
+}
+
+const hovered = ref(false)
+const handleMouseEnter = () => {
+  hovered.value = true
+}
+
+const handleMouseLeave = () => {
+  hovered.value = false
+}
+
+const renderInput = () => {
+  return (
+    <div
+      class={inputClass.value}
+      onMouseenter={handleMouseEnter}
+      onMouseleave={handleMouseLeave}
+    >
+      {slots.prefix || props.prefix ? (
+        <span class={prefixClass} onClick={handlePrefixClick}>
+          {slots.prefix?.() || props.prefix}
+        </span>
+      ) : null}
+
+      <input
+        class={cls.e('native')}
+        placeholder={props.placeholder}
+        type='text'
+        value={model.value}
+        onInput={handleInput}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+
+      <Transition name="fade">
+        {props.clearable && model.value && (hovered.value || focus.value) ? (
+          <UIcon size={14} onClick={clearModelValue}>
+            <CircleClose />
+          </UIcon>
+        ) : null}
+      </Transition>
+
+      {slots.suffix || props.suffix ? (
+        <span class={suffixClass} onClick={handleSuffixClick}>
+          {slots.suffix?.() || props.suffix}
+        </span>
+      ) : null}
+    </div>
+  )
+}
+
+const { inForm } = useFormComponent(false)
 </script>
