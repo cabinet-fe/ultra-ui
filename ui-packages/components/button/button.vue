@@ -61,7 +61,8 @@ const className = computed(() => {
     bem.is('circle', props.circle),
     bem.is('disabled', props.disabled),
     bem.is('loading', props.loading),
-    bem.is('plain', props.plain)
+    bem.is('plain', props.plain),
+    bem.is('text', props.text),
   ]
 })
 

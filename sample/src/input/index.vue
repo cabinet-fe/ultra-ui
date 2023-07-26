@@ -9,7 +9,6 @@
         </template>
       </u-input>
     </div>
-
   </div>
 </template>
 
@@ -17,6 +16,11 @@
 import { shallowRef } from 'vue'
 import { Search } from 'icon-ultra'
 
-
 const value = shallowRef('')
+
+const number = shallowRef(0)
+
+setTimeout(() => {
+  number.value = 10000
+}, 200)
 </script>

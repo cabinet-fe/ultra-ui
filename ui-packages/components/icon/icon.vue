@@ -14,6 +14,8 @@ defineOptions({
   name: 'UIcon'
 })
 
+defineEmits(['click'])
+
 const props = defineProps<IconProps>()
 
 const cls = bem('icon')

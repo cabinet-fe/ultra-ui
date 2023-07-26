@@ -16,21 +16,16 @@
     @include m.flex(inline-flex, $justify: center, $align: center);
     color: fn.use-var(text-color, main);
     flex-shrink: 0;
-    min-width: 30px;
+    min-width: 24px;
     height: 100%;
 
     @include m.is(clickable) {
       cursor: pointer;
     }
   }
-}
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+  @include m.e(clear) {
+    cursor: pointer;
+    color: fn.use-var(text-color, main);
+  }
 }

@@ -24,6 +24,10 @@ export * from './list'
 
 export * from './node-render' 
 
+export * from './number' 
+
+export * from './number-input' 
+
 export * from './popup' 
 
 export * from './scroll' 

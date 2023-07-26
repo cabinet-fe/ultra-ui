@@ -101,9 +101,9 @@ const renderInput = () => {
         onBlur={handleBlur}
       />
 
-      <Transition name="fade">
-        {props.clearable && model.value && (hovered.value || focus.value) ? (
-          <UIcon size={14} onClick={clearModelValue}>
+      <Transition name='fade'>
+        {props.clearable && model.value && hovered.value ? (
+          <UIcon class={cls.e('clear')} size={14} onClick={clearModelValue}>
             <CircleClose />
           </UIcon>
         ) : null}

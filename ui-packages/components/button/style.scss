@@ -18,6 +18,10 @@
   background-color: fn.use-var(bg-color, top);
   border: fn.use-var(border);
 
+  & + & {
+    margin-left: fn.use-var(gap, small);
+  }
+
   // 尺寸
   @include m.form-size(height, padding, font-size) using ($size, $types) {
     @include m.is(circle) {
@@ -29,6 +33,8 @@
     cursor: not-allowed;
     color: fn.use-var(text-color, second);
   }
+
+
 
   // 颜色
   @each $type, $_ in vars.$color-types {
@@ -76,6 +82,12 @@
   @include m.is(circle) {
     border-radius: 50%;
     padding: 0;
+  }
+
+  // 文本形态
+  @include m.is(text) {
+    background-color: fn.use-var(bg-color, top);
+    border: none;
   }
 
   @include m.e(icon-left) {
