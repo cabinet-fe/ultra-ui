@@ -6,7 +6,7 @@
 </template>
 
 <script lang="tsx" setup>
-import type { InputEmits, InputProps } from './input.type'
+import type { InputEmits, InputProps, _InputExposed } from './input.type'
 import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
 import { useModel, useFormComponent, useFocus } from '@ui/compositions'
@@ -21,7 +21,6 @@ import {
 } from 'vue'
 import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
-import { InputExposed } from '.'
 
 defineOptions({
   name: 'UInput'
@@ -131,7 +130,7 @@ const renderInput = () => {
   )
 }
 
-defineExpose<InputExposed>({
+defineExpose<_InputExposed>({
   el
 })
 </script>
