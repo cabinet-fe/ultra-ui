@@ -1,11 +1,11 @@
 <template>
-  {{ tween.state.number }}
+  {{ formatted }}
 </template>
 
 <script lang="ts" setup>
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { NumberProps } from './number.type'
-import { Tween } from 'cat-kit/fe'
+import { Tween, n } from 'cat-kit/fe'
 
 defineOptions({
   name: 'UNumber'
@@ -13,17 +13,31 @@ defineOptions({
 
 const props = defineProps<NumberProps>()
 
-const tween = new Tween(
-  reactive({
-    number: props.value
-  })
+const number = reactive({
+  value: props.value
+})
+
+const tween = computed(() =>
+  props.tween
+    ? new Tween(number)
+    : null
 )
+
+const formatter = n.formatter({
+  currency: 'CNY',
+  precision: props.precision
+})
+
+const formatted = computed(() => {
+  return formatter.format(number.value)
+})
 
 watch(
   () => props.value,
-  v => {
-    tween.to({ number: v })
-  },
-  { immediate: true }
+  () => {
+    props.tween
+      ? tween.value?.to({ value: props.value })
+      : (number.value = props.value)
+  }
 )
 </script>

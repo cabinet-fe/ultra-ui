@@ -1,4 +1,6 @@
-import { FormComponentProps } from "@ui/shared"
+import type { FormComponentProps } from '@ui/shared'
+import type { DeconstructValue } from '@ui/utils'
+import type { ShallowRef } from 'vue'
 
 /** 输入框组件组件属性 */
 export interface InputProps extends FormComponentProps {
@@ -15,9 +17,15 @@ export interface InputProps extends FormComponentProps {
 }
 
 export interface InputEmits {
-  (e: 'update:modelValue', value?: string): void
+  (e: 'update:modelValue', value: string): void
   (e: 'suffix:click', value?: string): void
   (e: 'prefix:click', value?: string): void
   (e: 'focus', value?: string): void
   (e: 'blur', value?: string): void
 }
+
+export interface _InputExposed {
+  el: ShallowRef<HTMLInputElement | undefined>
+}
+
+export type InputExposed = DeconstructValue<_InputExposed>

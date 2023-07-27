@@ -8,6 +8,8 @@ export interface NumberProps {
   align?: 'left' | 'center' | 'right'
   /** 开启补间动画 */
   tween?: boolean
+  /** 精度 */
+  precision?: number
 }
 
 /** 数字组件组件定义的事件 */

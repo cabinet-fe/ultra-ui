@@ -27,8 +27,8 @@ importers:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.27)
       cat-kit:
-        specifier: ^3.2.0
-        version: 3.2.0
+        specifier: ^3.3.0
+        version: 3.3.0
       sass:
         specifier: ^1.64.1
         version: 1.64.1
@@ -1603,8 +1603,8 @@ packages:
     resolution: {integrity: sha512-sdQZOJdmt3GJs1UMNpCCCyeuS2IEGLXnHyAo9yIO5JJDjbjoVRij4M1qep6P6gFpptD1PqIYgzM+gwJbOi92mw==}
     dev: true
 
-  /cat-kit@3.2.0:
-    resolution: {integrity: sha512-UBHWVSnj7fHzdrhFly0WIjBA01B0I/Ra0MZS9hYWqqkcb5W6UodmE5Shx70LvagjSU+sWe/hXoRK/lLYhcOCkA==}
+  /cat-kit@3.3.0:
+    resolution: {integrity: sha512-LTQTUYqNA1JIRb4M8F1OnfvAmrJgxbk4IseMhLOaxpHHpvsz24mcUzCrXgXgo2eypalFtVN/X7yq32v+FPhBCQ==}
     dev: true
 
   /chalk@2.4.2:

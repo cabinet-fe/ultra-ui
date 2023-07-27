@@ -11,9 +11,17 @@ import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
 import { useModel, useFormComponent, useFocus } from '@ui/compositions'
 import { bem } from '@ui/utils'
-import { computed, getCurrentInstance, ref, useSlots, Transition } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  ref,
+  useSlots,
+  Transition,
+  shallowRef
+} from 'vue'
 import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
+import { InputExposed } from '.'
 
 defineOptions({
   name: 'UInput'
@@ -35,6 +43,8 @@ const model = useModel({
 const inst = getCurrentInstance()
 
 const cls = bem('input')
+
+const { inForm } = useFormComponent(false)
 
 const { focus, handleBlur, handleFocus } = useFocus()
 
@@ -78,6 +88,8 @@ const handleMouseLeave = () => {
   hovered.value = false
 }
 
+const el = shallowRef<HTMLInputElement>()
+
 const renderInput = () => {
   return (
     <div
@@ -99,6 +111,7 @@ const renderInput = () => {
         onInput={handleInput}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        ref={el}
       />
 
       <Transition name='fade'>
@@ -118,5 +131,7 @@ const renderInput = () => {
   )
 }
 
-const { inForm } = useFormComponent(false)
+defineExpose<InputExposed>({
+  el
+})
 </script>

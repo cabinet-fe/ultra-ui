@@ -12,13 +12,13 @@
           margin: 0 10px;
         "
       >
-        <u-number :value="number" />
+        <u-number :value="number" tween :precision="2" />
       </div>
-      <u-button type="primary" plain size="small" @click="number -= 100">
-        -100
+      <u-button type="primary" plain size="small" @click="number -= 1000">
+        -1000
       </u-button>
-      <u-button type="primary" plain size="small" @click="number += 100">
-        +100
+      <u-button type="primary" plain size="small" @click="number += 1000">
+        +1000
       </u-button>
     </div>
 

@@ -86,12 +86,21 @@ export function renderTypeFile(ctx: Ctx) {
 
   const content = `
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
-  export interface ${PropsName} {}
+  export interface ${PropsName} {
+    modelValue?: string
+  }
 
   /** ${ctx.componentDesc || ctx.componentName}组件定义的事件 */
-  export interface ${EmitsName} {}
+  export interface ${EmitsName} {
+    (e: 'update:modelValue', value: string): void
+  }
 
-  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法 */
+  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件内部使用) */
+  export interface _${upperCamelCase}Exposed {
+
+  }
+
+  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
   export interface ${upperCamelCase}Exposed {
 
   }
@@ -105,7 +114,7 @@ export function renderIndexFile(ctx: Ctx) {
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
-  export * from './${ctx.componentName}.type'
+  export { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from './${ctx.componentName}.type'
   `
 
   write(ctx, content, 'index.ts')

@@ -1,5 +1,5 @@
 <template>
-  <i :class="cls.b" :style="style" v-bind="$attrs">
+  <i :class="cls.b" :style="style" v-bind="$attrs" @click="emit('click')">
     <slot></slot>
   </i>
 </template>
@@ -14,7 +14,7 @@ defineOptions({
   name: 'UIcon'
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click'])
 
 const props = defineProps<IconProps>()
 

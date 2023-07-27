@@ -25,7 +25,7 @@ const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   wrap.style.height = `${wrapSize}px`
   let transX = offsetX - wrapSize / 2
   let transY = offsetY - wrapSize / 2
-  wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(0.3, 0.3, 0.3)`
+  wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(0, 0, 0)`
 
   if (el.dataset.rippleClass) {
     wrap.classList.add(el.dataset.rippleClass)

@@ -6,3 +6,8 @@ export type Undef<T> = undefined | T
 export interface DefineEvent<T = HTMLElement> extends Omit<Event, 'target'> {
   target: T
 }
+
+/** 解构VueExpose中被引用的实例 */
+export type DeconstructValue<E extends Record<string, any>> = {
+  [K in keyof E]: E[K] extends { value: infer V } ? V : E[K]
+}
