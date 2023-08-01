@@ -17,7 +17,10 @@ export interface InputProps extends FormComponentProps {
 }
 
 export interface InputEmits {
+  /** 输入时持续更新 */
   (e: 'update:modelValue', value: string): void
+  /** 在输入框失焦时触发更新 */
+  (e: 'change', value: string): void
   (e: 'suffix:click', value?: string): void
   (e: 'prefix:click', value?: string): void
   (e: 'focus', value?: string): void

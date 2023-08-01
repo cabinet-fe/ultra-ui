@@ -33,11 +33,7 @@ const props = withDefaults(defineProps<InputProps>(), {
 
 const emit = defineEmits<InputEmits>()
 
-const model = useModel({
-  props,
-  propName: 'modelValue',
-  emit
-})
+const model = useModel({ props, emit })
 
 const inst = getCurrentInstance()
 
@@ -87,6 +83,10 @@ const handleMouseLeave = () => {
   hovered.value = false
 }
 
+const handleChange = (e: Event) => {
+  emit('change', (e.target as HTMLInputElement).value)
+}
+
 const el = shallowRef<HTMLInputElement>()
 
 const renderInput = () => {
@@ -108,6 +108,7 @@ const renderInput = () => {
         type='text'
         value={model.value}
         onInput={handleInput}
+        onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         ref={el}

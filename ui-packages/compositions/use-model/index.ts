@@ -11,7 +11,7 @@ interface ModelOptions<
   propName?: N
   /** 事件触发函数 */
   emit: (...args: any[]) => void
-  /** 是否为本地模式, 本地模式允许组件不受控赋值 */
+  /** 是否为本地模式, 默认为true, 本地模式允许组件不受控来触发视图更新 */
   local?: Local
 }
 
@@ -53,13 +53,14 @@ export function useModel<
     watch(
       () => props[propName],
       v => {
-        if (value.value === v) return
         value.value = v
       }
     )
 
     watch(value, v => {
-      emit(`update:${propName as string}`, v)
+      if (value !== props[propName]) {
+        emit(`update:${propName as string}`, v)
+      }
     })
 
     return value

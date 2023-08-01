@@ -8,5 +8,5 @@
 import { ref } from 'vue'
 import {  } from 'ultra-ui'
 
-const number = ref(0)
+const number = ref()
 </script>

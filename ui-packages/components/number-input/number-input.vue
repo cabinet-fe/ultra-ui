@@ -1,28 +1,36 @@
 <template>
   <u-input
     :model-value="displayed"
-    ref="inputRef"
     @update:model-value="handleUpdateModelValue"
-  />
+    @change="handleChange"
+    ref="inputRef"
+    :clearable="clearable"
+  >
+    <template #suffix> </template>
+  </u-input>
 </template>
 
 <script lang="ts" setup>
 import type { NumberInputEmits, NumberInputProps } from './number-input.type'
 import { UInput, type InputExposed } from '../input'
-import { computed, shallowRef } from 'vue'
+import { nextTick, shallowRef, watch } from 'vue'
 import { n } from 'cat-kit/fe'
+import { useModel } from '@ui/compositions'
 
 defineOptions({
   name: 'UNumberInput'
 })
 
 const props = defineProps<NumberInputProps>()
+const emit = defineEmits<NumberInputEmits>()
 
 const inputRef = shallowRef<InputExposed>()
 
 const displayed = shallowRef('')
 
-const emit = defineEmits<NumberInputEmits>()
+const model = useModel({ props, emit })
+
+
 
 const setCursorPosition = (totalLen: number, cursorIndex: number) => {
   setTimeout(() => {
@@ -34,16 +42,37 @@ const setCursorPosition = (totalLen: number, cursorIndex: number) => {
   })
 }
 
+/** 获取数字的显示内容 */
+const getDisplayed = (value?: number): string => {
+  if (value === undefined) return ''
+  if (props.currency) {
+    return n(value).currency('CNY', {
+      precision: props.precision,
+      minPrecision: props.minPrecision,
+      maxPrecision: props.maxPrecision
+    })
+  }
+  return String(value)
+}
+
+watch(model, (v) => {
+  displayed.value = getDisplayed(v)
+}, { immediate: true })
+
 const handleUpdateModelValue = (value: string) => {
+  displayed.value = value
+  // 非货币
+  if (!props.currency) {
+    const number = +value
+    if (!isNaN(number)) {
+      model.value = number
+    }
+    return
+  }
+
   const number = value ? +value.replace(/\,/g, '') : undefined
 
-  const formatter = n.formatter({
-    currency: 'CNY',
-    precision: props.precision,
-    maximumFractionDigits: props.maxPrecision,
-    minimumFractionDigits: props.minPrecision
-  })
-  displayed.value = number !== undefined ? formatter.format(number) : ''
+  displayed.value = number !== undefined ? n(number).currency('CNY') : ''
 
   const cursorIndex = inputRef.value?.el?.selectionStart ?? 0
 
@@ -51,10 +80,19 @@ const handleUpdateModelValue = (value: string) => {
   // console.log(cursorIndex)
 
   if (number !== props.modelValue) {
-
     emit('update:modelValue', number)
   } else {
+  }
+}
 
+const handleChange = (value: string) => {
+  const number = +value
+  if (isNaN(number)) {
+    nextTick(() => {
+      displayed.value = getDisplayed(model.value)
+    })
+  } else {
+    displayed.value = getDisplayed(number)
   }
 }
 </script>

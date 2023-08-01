@@ -11,6 +11,8 @@ export interface NumberInputProps extends FormComponentProps {
   minPrecision?: number
   /** 最大精度 */
   maxPrecision?: number
+  /** 可清除 */
+  clearable?: boolean
 }
 
 /** 数字输入组件定义的事件 */
