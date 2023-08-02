@@ -26,25 +26,11 @@ const emit = defineEmits<NumberInputEmits>()
 
 const inputRef = shallowRef<InputExposed>()
 
-const displayed = shallowRef('')
-
-const model = useModel({ props, emit })
-
-
-
-const setCursorPosition = (totalLen: number, cursorIndex: number) => {
-  setTimeout(() => {
-    let lastCursorIndex = totalLen - cursorIndex
-    let index = totalLen - lastCursorIndex
-    if (!inputRef.value?.el) return
-    inputRef.value.el.selectionStart = index
-    inputRef.value.el.selectionEnd = index
-  })
-}
-
 /** 获取数字的显示内容 */
 const getDisplayed = (value?: number): string => {
-  if (value === undefined) return ''
+  if (value === undefined) {
+    return ''
+  }
   if (props.currency) {
     return n(value).currency('CNY', {
       precision: props.precision,
@@ -55,44 +41,52 @@ const getDisplayed = (value?: number): string => {
   return String(value)
 }
 
-watch(model, (v) => {
+const model = useModel({ props, emit })
+
+const displayed = shallowRef(getDisplayed(model.value))
+
+watch(model, v => {
   displayed.value = getDisplayed(v)
-}, { immediate: true })
+})
+
+const setCursorPosition = (cursorLastIndex: number) => {
+  setTimeout(() => {
+    let index = displayed.value.length - cursorLastIndex - 1
+    if (!inputRef.value?.el) return
+    inputRef.value.el.selectionStart = index
+    inputRef.value.el.selectionEnd = index
+  })
+}
 
 const handleUpdateModelValue = (value: string) => {
-  displayed.value = value
-  // 非货币
-  if (!props.currency) {
-    const number = +value
-    if (!isNaN(number)) {
-      model.value = number
-    }
-    return
-  }
-
+  if (value === displayed.value) return
   const number = value ? +value.replace(/\,/g, '') : undefined
 
-  displayed.value = number !== undefined ? n(number).currency('CNY') : ''
-
-  const cursorIndex = inputRef.value?.el?.selectionStart ?? 0
-
-  setCursorPosition(displayed.value.length, cursorIndex)
-  // console.log(cursorIndex)
-
-  if (number !== props.modelValue) {
-    emit('update:modelValue', number)
-  } else {
+  if (number === undefined) {
+    return emit('update:modelValue', number)
   }
+
+  if (isNaN(number)) return
+
+
+
+  // 获取光标位置
+  const cursorIndex = displayed.value.length - (inputRef.value?.el?.selectionStart ?? 0)
+
+  setCursorPosition( cursorIndex)
+
+  emit('update:modelValue', number)
 }
 
 const handleChange = (value: string) => {
   const number = +value
+
+  displayed.value = getDisplayed(number)
+
   if (isNaN(number)) {
     nextTick(() => {
       displayed.value = getDisplayed(model.value)
     })
-  } else {
-    displayed.value = getDisplayed(number)
   }
 }
 </script>
