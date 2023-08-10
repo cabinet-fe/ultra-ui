@@ -9,7 +9,7 @@
 
     <div>
       货币
-      <u-number-input v-model="number" currency :min-precision="2" />
+      <u-number-input v-model="number" currency :max-precision="2" />
     </div>
   </div>
 </template>

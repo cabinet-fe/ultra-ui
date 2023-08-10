@@ -105,7 +105,7 @@ const renderInput = () => {
       <input
         class={cls.e('native')}
         placeholder={props.placeholder}
-        type='text'
+        type={props.password ? 'password' : 'text'}
         value={model.value}
         onInput={handleInput}
         onChange={handleChange}

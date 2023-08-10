@@ -49,9 +49,9 @@ watch(model, v => {
   displayed.value = getDisplayed(v)
 })
 
-const setCursorPosition = (cursorLastIndex: number) => {
+const setCursorPosition = (cursorLastIndex: number, isFirst = false) => {
   setTimeout(() => {
-    let index = displayed.value.length - cursorLastIndex - 1
+    let index = isFirst ? 1 : displayed.value.length - cursorLastIndex - 1
     if (!inputRef.value?.el) return
     inputRef.value.el.selectionStart = index
     inputRef.value.el.selectionEnd = index
@@ -59,31 +59,47 @@ const setCursorPosition = (cursorLastIndex: number) => {
 }
 
 const handleUpdateModelValue = (value: string) => {
+  // displayed.value的更新会触发input组件的update:modelValue事件,
+  // 此时value和displayed.value的值是一致的, 直接过滤
   if (value === displayed.value) return
-  const number = value ? +value.replace(/\,/g, '') : undefined
 
-  if (number === undefined) {
-    return emit('update:modelValue', number)
+  // 非货币
+  if (!props.currency) {
+    const number = +value
+    if (!isNaN(number)) model.value = number
   }
+
+  if (value === '') {
+    return (model.value = undefined)
+  }
+
+  // 货币
+  const number = +value.replace(/\,/g, '')
 
   if (isNaN(number)) return
 
-
-
   // 获取光标位置
-  const cursorIndex = displayed.value.length - (inputRef.value?.el?.selectionStart ?? 0)
+  const cursorIndex =
+    displayed.value.length - (inputRef.value?.el?.selectionStart ?? 0)
 
-  setCursorPosition( cursorIndex)
+  setCursorPosition(cursorIndex, value.length === 1)
 
-  emit('update:modelValue', number)
+  // 更新值
+  model.value = number
 }
 
+/**
+ * 处理输入值变化的函数, 该函数仅在输入框失去焦点时触发,
+ * 主要用于在输入非数字的情况下的回正处理
+ * @param value 输入的值
+ */
 const handleChange = (value: string) => {
   const number = +value
 
-  displayed.value = getDisplayed(number)
-
   if (isNaN(number)) {
+    // 更新一次值
+    displayed.value = getDisplayed(number)
+    // 随后将显示内容重置到之前的状态
     nextTick(() => {
       displayed.value = getDisplayed(model.value)
     })

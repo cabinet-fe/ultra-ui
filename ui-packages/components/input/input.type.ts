@@ -14,6 +14,8 @@ export interface InputProps extends FormComponentProps {
   suffix?: string
   /** 是否可清除 */
   clearable?: boolean
+  /** 密码 */
+  password?: boolean
 }
 
 export interface InputEmits {

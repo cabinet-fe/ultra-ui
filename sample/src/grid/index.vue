@@ -1,7 +1,10 @@
 <template>
   <div>
     <div>
-      自定义栅格 {{ columns }} 一行列数: {{ cols }} <u-input v-model="cols" />
+      自定义栅格
+      <div>
+       列属性 {{ columns }} 一行列数: {{ cols }} <u-number-input v-model="cols" />
+      </div>
     </div>
     <u-grid :cols="cols" :gap="8">
       <!-- 1121 -->
