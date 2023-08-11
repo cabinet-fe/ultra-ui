@@ -3,4 +3,19 @@
 @use '@ui/styles/vars';
 
 @include m.b(number-input) {
+  @include m.e(step) {
+    display: flex;
+    flex-direction: column;
+
+    & > #{fn.bem(icon)} {
+      cursor: pointer;
+      transition: color 0.25s;
+      width: 20px;
+      border-radius: fn.use-var(radius);
+
+      &:hover {
+        color: fn.use-var(color, primary);
+      }
+    }
+  }
 }

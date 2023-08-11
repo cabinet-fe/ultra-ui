@@ -11,6 +11,11 @@
       货币
       <u-number-input v-model="number" currency :max-precision="2" />
     </div>
+
+    <div>
+      步进
+      <u-number-input v-model="number" currency :step="100" />
+    </div>
   </div>
 </template>
 

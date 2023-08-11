@@ -13,6 +13,8 @@ export interface NumberInputProps extends FormComponentProps {
   maxPrecision?: number
   /** 可清除 */
   clearable?: boolean
+  /** 步进, 指定为数字时开启累加按钮并将该值作为累加的步长, 为true则步长默认为1 */
+  step?: boolean | number
 }
 
 /** 数字输入组件定义的事件 */

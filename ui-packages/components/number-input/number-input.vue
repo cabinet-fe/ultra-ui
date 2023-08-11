@@ -6,7 +6,12 @@
     ref="inputRef"
     :clearable="clearable"
   >
-    <template #suffix> </template>
+    <template #suffix v-if="step !== undefined && step !== false">
+      <div :class="cls.e('step')">
+        <u-icon @click="increase"><ArrowUp /></u-icon>
+        <u-icon @click="decrease"><ArrowDown /></u-icon>
+      </div>
+    </template>
   </u-input>
 </template>
 
@@ -14,8 +19,11 @@
 import type { NumberInputEmits, NumberInputProps } from './number-input.type'
 import { UInput, type InputExposed } from '../input'
 import { nextTick, shallowRef, watch } from 'vue'
-import { n } from 'cat-kit/fe'
+import { n, Tween } from 'cat-kit/fe'
 import { useModel } from '@ui/compositions'
+import { ArrowUp, ArrowDown } from 'icon-ultra'
+import { UIcon } from '../icon'
+import { bem } from '@ui/utils'
 
 defineOptions({
   name: 'UNumberInput'
@@ -25,6 +33,8 @@ const props = defineProps<NumberInputProps>()
 const emit = defineEmits<NumberInputEmits>()
 
 const inputRef = shallowRef<InputExposed>()
+
+const cls = bem('number-input')
 
 /** 获取数字的显示内容 */
 const getDisplayed = (value?: number): string => {
@@ -104,5 +114,32 @@ const handleChange = (value: string) => {
       displayed.value = getDisplayed(model.value)
     })
   }
+}
+
+const getStepValue = () => {
+  const { step } = props
+  if (step === undefined) return 1
+  return typeof step === 'boolean' ? 1 : step
+}
+
+const tween = new Tween({
+  n: model.value ?? 0
+}, {
+  onUpdate(state) {
+    if (!inputRef.value?.el) return
+    inputRef.value.el.value = getDisplayed(state.n)
+  },
+})
+
+const increase = () => {
+  tween.state.n = model.value ?? 0
+  model.value = n.plus(model.value ?? 0, getStepValue())
+  tween.to({ n: model.value })
+}
+
+const decrease = () => {
+  tween.state.n = model.value ?? 0
+  model.value = n.minus(model.value ?? 0, getStepValue())
+  tween.to({ n: model.value })
 }
 </script>
