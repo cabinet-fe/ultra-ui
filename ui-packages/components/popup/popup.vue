@@ -3,7 +3,7 @@
 
   <Teleport to="body">
     <section
-      v-if="model"
+      v-if="visible"
       :class="className"
       :style="{
         zIndex: zIndex()
@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, Text, computed, VNode } from 'vue'
+import { onBeforeUnmount, Text, computed, VNode, shallowRef } from 'vue'
 import { PopupProps } from './popup.type'
 import { bem, zIndex } from '@ui/utils'
 import { UNodeRender } from '../node-render'
@@ -26,10 +26,9 @@ defineOptions({
 
 const props = defineProps<PopupProps>()
 
-const model = defineModel({
-  local: true,
-  default: false
-})
+// const emit = defineEmits()
+
+const visible = shallowRef(false)
 
 const cls = bem('popup')
 
@@ -47,11 +46,11 @@ const renderTrigger = () => {
 }
 
 const hide = () => {
-  model.value = false
+  visible.value = false
 }
 
 const pop = () => {
-  model.value = !model.value
+  visible.value = !visible.value
 
   // const { context } = props
   // if (!context) return

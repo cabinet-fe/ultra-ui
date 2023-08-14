@@ -36,7 +36,6 @@ const cls = bem('checkbox')
 const model = useModel<CheckboxProps<Val>, 'modelValue'>({
   props,
   emit,
-  propName: 'modelValue',
   local: false
 })
 

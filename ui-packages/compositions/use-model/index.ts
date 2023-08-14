@@ -13,6 +13,8 @@ interface ModelOptions<
   emit: (...args: any[]) => void
   /** 是否为本地模式, 默认为true, 本地模式允许组件不受控来触发视图更新 */
   local?: Local
+  /** 默认值 */
+  defaultValue?: P[N]
 }
 
 /**
@@ -43,11 +45,19 @@ export function useModel<
   Local extends boolean = true
 >(options: ModelOptions<P, N, Local>): any {
   // Destructure the options object
-  const { props, propName = 'modelValue', emit, local = true } = options
+  const {
+    props,
+    propName = 'modelValue',
+    emit,
+    local = true,
+    defaultValue
+  } = options
 
   if (local) {
+    const _value = props[propName] ?? defaultValue
     // 创建一个响应式对象
-    const value = ref<P[N]>(props[propName] as P[N])
+    const value: Ref<P[N] | undefined> =
+      _value !== undefined ? ref(_value) : ref()
 
     // 监听属性的变更
     watch(

@@ -8,3 +8,8 @@ export type PopupProps = {
     }>
   }
 }
+
+/** 弹框组件定义的事件 */
+export interface PopupEmits {
+  (event: 'update:modelValue', value?: number): void
+}
