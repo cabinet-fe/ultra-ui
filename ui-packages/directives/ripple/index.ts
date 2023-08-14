@@ -15,6 +15,8 @@ const removeClass = debounce(
 
 const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
+
+
   const rect = el.getBoundingClientRect()
 
   const wrapSize = Math.max(rect.width, rect.height)
@@ -52,8 +54,8 @@ const hideRipple = (el: HTMLElement) => {
   })
 }
 
-const showEvent = (e: MouseEvent) => {
-  showRipple(e.target as HTMLElement, e.offsetX, e.offsetY)
+function showEvent(this: HTMLElement, e: MouseEvent) {
+  showRipple(this, e.offsetX, e.offsetY)
 }
 
 const addEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
@@ -61,7 +63,6 @@ const addEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
   if (typeof binding.value === 'string') {
     el.dataset.rippleClass = binding.value
   }
-
   el.addEventListener('mousedown', showEvent)
 }
 

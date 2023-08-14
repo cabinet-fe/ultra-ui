@@ -1,5 +1,5 @@
 <template>
-  <i :class="cls.b" :style="style" v-bind="$attrs" @click="emit('click')">
+  <i :class="cls.b" :style="style" v-bind="$attrs" @click.stop="emit('click')">
     <slot></slot>
   </i>
 </template>
