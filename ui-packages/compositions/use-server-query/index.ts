@@ -1,5 +1,5 @@
 import { PropsWithServerQuery } from '@ui/shared'
-import { reactive, ref, shallowReactive, shallowRef } from 'vue'
+import { reactive } from 'vue'
 
 interface Config<T> {
   /** 初始值 */

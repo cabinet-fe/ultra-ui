@@ -45,9 +45,9 @@ const renderTrigger = () => {
   return nodes?.filter(node => node.type !== Text)?.[0]
 }
 
-const hide = () => {
-  visible.value = false
-}
+// const hide = () => {
+//   visible.value = false
+// }
 
 const pop = () => {
   visible.value = !visible.value

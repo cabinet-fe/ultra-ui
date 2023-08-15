@@ -37,7 +37,9 @@ const tree = computed(() => {
   return root
 })
 
+
 provide(TreeDIKey, {
+  // @ts-ignore
   treeProps: props,
   cls
 })

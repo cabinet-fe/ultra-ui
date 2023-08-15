@@ -13,7 +13,7 @@ const props = defineProps<ContextProps<R>>()
 
 const ctx = props.scope()
 
-defineSlots<{
-  default?(props: { ctx: R }): any
-}>()
+// defineSlots<{
+//   default?(props: { ctx: R }): any
+// }>()
 </script>

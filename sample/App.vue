@@ -9,9 +9,9 @@
           :class="{
             active: path === route.path
           }"
-          v-ripple
         >
-          <div>
+          <div v-ripple>
+            {{ c.log(11) }}
             {{ name }}
           </div>
         </li>
@@ -34,7 +34,6 @@ import { vRipple } from 'ultra-ui'
 
 const router = useRouter()
 const route = useRoute()
-
 
 const handleClick = (path: string) => {
   router.push(path)
@@ -60,6 +59,7 @@ li {
   height: 40px;
   padding: 2px 6px;
   cursor: pointer;
+  user-select: none;
 
   div {
     border-radius: 4px;

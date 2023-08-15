@@ -2,7 +2,7 @@ import { PropsWithServerQuery } from "@ui/shared"
 import type { CustomTreeNode } from "./tree-node"
 
 /** 树组件属性 */
-export interface TreeProps<DataItem extends Record<string, any>> extends PropsWithServerQuery {
+export interface TreeProps<DataItem extends Record<string, any> = Record<string, any>> extends PropsWithServerQuery {
   /** 是否展开所有节点 */
   expandAll?: boolean
   /** label键 */
