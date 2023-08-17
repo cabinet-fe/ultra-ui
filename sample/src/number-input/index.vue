@@ -14,7 +14,7 @@
 
     <div>
       步进
-      <u-number-input v-model="number" currency :step="100" />
+      <u-number-input v-model="number" currency :step="100.12" />
     </div>
   </div>
 </template>

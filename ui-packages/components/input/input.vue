@@ -17,7 +17,8 @@ import {
   ref,
   useSlots,
   Transition,
-  shallowRef
+  shallowRef,
+useAttrs
 } from 'vue'
 import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -89,6 +90,8 @@ const handleChange = (e: Event) => {
 
 const el = shallowRef<HTMLInputElement>()
 
+const attrs = useAttrs()
+
 const renderInput = () => {
   return (
     <div
@@ -112,6 +115,7 @@ const renderInput = () => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         ref={el}
+        {...attrs}
       />
 
       <Transition name='fade'>

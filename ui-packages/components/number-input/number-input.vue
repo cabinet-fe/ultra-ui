@@ -5,6 +5,7 @@
     @change="handleChange"
     ref="inputRef"
     :clearable="clearable"
+    @keydown="handleKeydown"
   >
     <template #suffix v-if="step !== undefined && step !== false">
       <div :class="cls.e('step')">
@@ -122,14 +123,17 @@ const getStepValue = () => {
   return typeof step === 'boolean' ? 1 : step
 }
 
-const tween = new Tween({
-  n: model.value ?? 0
-}, {
-  onUpdate(state) {
-    if (!inputRef.value?.el) return
-    inputRef.value.el.value = getDisplayed(state.n)
+const tween = new Tween(
+  {
+    n: model.value ?? 0
   },
-})
+  {
+    onUpdate(state) {
+      if (!inputRef.value?.el) return
+      inputRef.value.el.value = getDisplayed(+n(state.n).fixed(2))
+    }
+  }
+)
 
 const increase = () => {
   tween.state.n = model.value ?? 0
@@ -141,5 +145,16 @@ const decrease = () => {
   tween.state.n = model.value ?? 0
   model.value = n.minus(model.value ?? 0, getStepValue())
   tween.to({ n: model.value })
+}
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (!props.step) return
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    model.value = n.plus(model.value ?? 0, getStepValue())
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    model.value = n.minus(model.value ?? 0, getStepValue())
+  }
 }
 </script>
