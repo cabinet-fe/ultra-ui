@@ -1,4 +1,4 @@
-import { FormComponentProps } from "@ui/shared"
+import { FormComponentProps } from '@ui/shared'
 
 /** 数字输入组件属性 */
 export interface NumberInputProps extends FormComponentProps {
