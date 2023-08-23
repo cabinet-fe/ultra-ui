@@ -11,7 +11,7 @@ import { CSSProperties, computed } from 'vue'
 import {  withUnit } from '@ui/utils'
 
 defineOptions({
-  name: 'UIcon'
+  name: 'Icon'
 })
 
 const emit = defineEmits(['click'])

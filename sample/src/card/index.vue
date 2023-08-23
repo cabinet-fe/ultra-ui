@@ -1,6 +1,10 @@
 <template>
   <div>
-    <u-card title="aaa"> </u-card>
+    <u-card>
+      <u-card-header></u-card-header>
+      <u-card-body></u-card-body>
+      <u-card-footer></u-card-footer>
+    </u-card>
   </div>
 </template>
 

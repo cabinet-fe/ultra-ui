@@ -4,7 +4,7 @@
 import { TextareaProps } from './textarea.type'
 
 defineOptions({
-  name: 'UTextarea'
+  name: 'Textarea'
 })
 
 defineProps<TextareaProps>()

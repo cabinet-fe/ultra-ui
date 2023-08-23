@@ -4,7 +4,7 @@
 import { TabsProps } from './tabs.type'
 
 defineOptions({
-  name: 'UTabs'
+  name: 'Tabs'
 })
 
 defineProps<TabsProps>()

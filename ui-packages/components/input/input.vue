@@ -24,7 +24,7 @@ import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
 
 defineOptions({
-  name: 'UInput'
+  name: 'Input'
 })
 
 const props = withDefaults(defineProps<InputProps>(), {

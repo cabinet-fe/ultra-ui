@@ -36,7 +36,7 @@ import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
 
 defineOptions({
-  name: 'UScroll'
+  name: 'Scroll'
 })
 
 const props = withDefaults(defineProps<ScrollProps>(), {

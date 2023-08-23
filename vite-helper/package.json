@@ -5,7 +5,7 @@
   "author": "whj",
   "type": "module",
   "exports": {
-    "./resolver": "./resolver.ts"
+    "./resolver": "./resolver.js"
   },
   "scripts": {
     "build": "tsc"

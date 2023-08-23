@@ -6,7 +6,7 @@
 import { ContextProps } from './context.type'
 
 defineOptions({
-  name: 'UContext'
+  name: 'Context'
 })
 
 const props = defineProps<ContextProps<R>>()

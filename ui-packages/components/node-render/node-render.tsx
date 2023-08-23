@@ -1,7 +1,7 @@
 import { type PropType, type VNode, type VNodeArrayChildren, cloneVNode, defineComponent, isVNode } from 'vue'
 
 export default defineComponent({
-  name: 'UNodeRender',
+  name: 'NodeRender',
 
   props: {
     content: {

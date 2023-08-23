@@ -1,0 +1,20 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/vars';
+@use '@ui/styles/functions' as fn;
+
+@include m.b(card) {
+  border-radius: fn.use-var(radius);
+  box-shadow: fn.use-var(box-shadow);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size);
+
+  @include m.e(header) {
+  }
+
+  @include m.e(body) {
+  }
+
+  @include m.e(footer) {
+  }
+}

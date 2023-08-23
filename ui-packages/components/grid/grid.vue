@@ -20,7 +20,7 @@ import {
 import { UNodeRender } from '../node-render'
 
 defineOptions({
-  name: 'UGrid'
+  name: 'Grid'
 })
 
 const props = withDefaults(defineProps<GridProps>(), {

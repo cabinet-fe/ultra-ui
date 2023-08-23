@@ -15,7 +15,7 @@ import { UIcon } from '../icon'
 import { InfoFilled } from 'icon-ultra'
 
 defineOptions({
-  name: 'UFormItem'
+  name: 'FormItem'
 })
 
 defineProps<FormItemProps>()

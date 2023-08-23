@@ -40,7 +40,7 @@ import { Loading } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 
 defineOptions({
-  name: 'UButton'
+  name: 'Button'
 })
 
 const props = withDefaults(defineProps<ButtonProps>(), {

@@ -11,7 +11,7 @@ import { useModel } from '@ui/compositions'
 import { SelectEmits, SelectProps } from './select.type'
 
 defineOptions({
-  name: 'USelect'
+  name: 'Select'
 })
 
 const props = defineProps<SelectProps>()

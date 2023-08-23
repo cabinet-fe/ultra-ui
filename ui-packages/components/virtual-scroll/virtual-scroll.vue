@@ -24,7 +24,7 @@ import { VirtualScrollDIKey } from './di'
 import UVirtualScrollItem from './virtual-scroll-item.vue'
 
 defineOptions({
-  name: 'UVirtualScroll'
+  name: 'VirtualScroll'
 })
 
 const props = withDefaults(defineProps<VirtualScrollProps<DataItem>>(), {

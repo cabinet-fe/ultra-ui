@@ -27,7 +27,7 @@ import { bem } from '@ui/utils'
 import { computed } from 'vue'
 
 defineOptions({
-  name: 'UCheckbox'
+  name: 'Checkbox'
 })
 const props = defineProps<CheckboxProps<Val>>()
 const emit = defineEmits<CheckboxEmits<Val>>()

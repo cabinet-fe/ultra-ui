@@ -1,12 +1,25 @@
-import { kebabCase } from 'cat-kit/be'
+import { kebabCase, readDir } from 'cat-kit/be'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+let components = new Set<string>()
+
+readDir(resolve(__dirname, '../ui-packages/components'), {
+  readType: 'dir'
+}).then(dirs => {
+  components = new Set(dirs.map(dir => dir.name))
+})
 
 export function UIResolver(componentName: string) {
+  const kebName = kebabCase(componentName.slice(1))
+  const kebNamePrefix = kebName.split('-')[0]!
   if (componentName.startsWith('U')) {
-    const dirname = kebabCase(componentName.slice(1))
     return {
-      name: componentName.slice(1),
+      name: componentName,
       from: 'ultra-ui',
-      sideEffects: `ultra-ui/components/${dirname}/style`
+      sideEffects: `@ui/components/${components.has(kebNamePrefix) ? kebNamePrefix : kebName}/style`
     }
   }
 }

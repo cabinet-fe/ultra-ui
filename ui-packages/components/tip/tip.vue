@@ -6,7 +6,7 @@ import { TipProps } from './tip.type'
 // 此组件要在父组件消失时同时消失
 
 defineOptions({
-  name: 'UTip'
+  name: 'Tip'
 })
 
 defineProps<TipProps>()

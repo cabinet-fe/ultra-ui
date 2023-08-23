@@ -2,18 +2,24 @@ import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
-import { kebabCase } from 'cat-kit'
 import autoprefixer from 'autoprefixer'
+import { UIResolver } from 'vite-helper/resolver'
 
-function UIResolver(componentName: string) {
-  if (componentName.startsWith('U')) {
-    return {
-      name: componentName,
-      from: 'ultra-ui',
-      sideEffects: `@ui/components/${kebabCase(componentName.slice(1))}/style`
-    }
-  }
-}
+// const components = new Set([
+
+// ])
+
+// function UIResolver(componentName: string) {
+
+//   const kebName = kebabCase(componentName.slice(1))
+//   if (componentName.startsWith('U')) {
+//     return {
+//       name: componentName,
+//       from: 'ultra-ui',
+//       sideEffects: `@ui/components/${kebName}/style`
+//     }
+//   }
+// }
 export default defineConfig({
   base: '/',
 

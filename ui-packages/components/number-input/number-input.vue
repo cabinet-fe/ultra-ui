@@ -27,7 +27,7 @@ import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
 
 defineOptions({
-  name: 'UNumberInput'
+  name: 'NumberInput'
 })
 
 const props = defineProps<NumberInputProps>()

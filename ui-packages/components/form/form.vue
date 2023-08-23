@@ -7,7 +7,7 @@ import { FormProps } from './form.type'
 import { provide } from 'vue'
 
 defineOptions({
-  name: 'UForm'
+  name: 'Form'
 })
 
 const props = defineProps<FormProps>()

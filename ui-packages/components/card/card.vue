@@ -1,34 +1,32 @@
 <template>
-  <div :class="cls.b">
-    <div :class="cls.e('header')" v-if="title || slots.header">
-      <slot name="header">
-        {{ title }}
-      </slot>
-    </div>
-    <div :class="cls.e('body')">
-      <slot />
-    </div>
+  <div :class="classList">
+    <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
 import { CardProps } from './card.type'
-import { VNode } from 'vue'
+import { computed, provide } from 'vue'
+import { CardDIKey } from './di'
 
 defineOptions({
-  name: 'UCard'
+  name: 'Card'
 })
-// TODO测试属性继承是否生效
 
-const slots = defineSlots<{
-  /** 头部插槽, 如果指定将会覆盖title */
-  header?: () => VNode[]
-  /** 默认插槽 */
-  default: () => VNode[]
-}>()
-
-defineProps<CardProps>()
+const props = withDefaults(defineProps<CardProps>(), {
+  size: 'default'
+})
 
 const cls = bem('card')
+
+const classList = computed(() => {
+
+  return [
+    cls.b,
+    cls.m(props.size),
+  ]
+})
+
+provide(CardDIKey, { cls, cardProps: props })
 </script>
