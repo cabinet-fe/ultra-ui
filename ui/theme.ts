@@ -25,7 +25,7 @@ const HEXToRGB = (color: `#${string}`): ColorRGB => {
   if (hex.length === 3) {
     let i = 0
     while (i < hex.length) {
-      RGB[i] = parseInt(hex[i].repeat(2), 16)
+      RGB[i] = parseInt(hex[i]!.repeat(2), 16)
       i++
     }
     return RGB

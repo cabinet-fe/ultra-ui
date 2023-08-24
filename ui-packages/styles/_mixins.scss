@@ -18,25 +18,25 @@
 }
 
 /*
-* 表单尺寸
-* 参数为生效的form-size属性, 目前有height和padding
+* 组件尺寸
+* 参数为生效的form-size属性
+* 例如:
+* 使用$form-component-sizes中的属性, 表示使用表单组件中的sizes
+* @include component-size($form-component-sizes)
 */
-@mixin form-size($props...) {
-  @each $size, $size-types in vars.$form-sizes {
+@mixin component-size($sizes) {
+  @each $size, $size-types in $sizes {
     &--#{$size} {
       @content ($size, $size-types);
-      @each $prop, $size-val in $size-types {
-        @if list.index($props, $prop) != null {
-          #{$prop}: $size-val;
-        }
-      }
     }
   }
 }
 
-@mixin b($block) {
-  .#{vars.$namespace}#{$block} {
-    @content;
+@mixin b($blocks...) {
+  @each $block in $blocks {
+    .#{vars.$namespace}#{$block} {
+      @content;
+    }
   }
 }
 
@@ -85,39 +85,5 @@
     } @else {
       --#{vars.$namespace}#{$prefix}-#{$type}: #{$value};
     }
-  }
-}
-
-@mixin form-component {
-  border-radius: fn.use-var(radius);
-  box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-  transition: box-shadow 0.25s ease;
-  padding: 0 4px;
-
-  &:hover {
-    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-  }
-
-  @each $size-name, $size-types in vars.$form-sizes {
-    &--#{$size-name} {
-      height: map.get($size-types, height);
-    }
-
-    @include e(native) {
-      height: 100%;
-      font-size: fn.use-var(font-size, main);
-    }
-  }
-
-  @include e(native) {
-    outline: none;
-    border: none;
-    background-color: transparent;
-    width: 100%;
-    flex-grow: 1;
-  }
-
-  @include is(focus) {
-    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
   }
 }

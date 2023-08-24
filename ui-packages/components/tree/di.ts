@@ -1,6 +1,6 @@
-import { InjectionKey } from 'vue'
+import type { InjectionKey } from 'vue'
 import type { TreeProps } from './tree.type'
-import { BEM } from '@ui/utils'
+import type { BEM } from '@ui/utils'
 
 /** 树依赖注入key */
 export const TreeDIKey: InjectionKey<{
@@ -8,4 +8,4 @@ export const TreeDIKey: InjectionKey<{
   treeProps: TreeProps
   /** BEM */
   cls: BEM<'tree'>
-}> = Symbol()
+}> = Symbol('TreeDIKey')

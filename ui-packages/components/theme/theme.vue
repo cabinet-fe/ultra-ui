@@ -4,7 +4,7 @@
 import { ThemeProps } from './theme.type'
 
 defineOptions({
-  name: 'UTheme'
+  name: 'Theme'
 })
 
 defineProps<ThemeProps>()

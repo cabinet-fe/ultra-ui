@@ -5,7 +5,7 @@ import { useServerQuery } from '@ui/compositions'
 import { ListProps } from './list.type'
 
 defineOptions({
-  name: 'UList'
+  name: 'List'
 })
 
 const props= defineProps<ListProps>()

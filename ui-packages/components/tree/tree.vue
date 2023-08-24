@@ -14,7 +14,7 @@ import { Tree } from 'cat-kit/fe'
 import { CustomTreeNode } from './tree-node'
 
 defineOptions({
-  name: 'UTree'
+  name: 'Tree'
 })
 
 const props = withDefaults(defineProps<TreeProps<DataItem>>(), {

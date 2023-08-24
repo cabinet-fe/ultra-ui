@@ -52,7 +52,7 @@
   @include m.css-var(radius, 4px);
 
   // 阴影
-  @include m.css-var(shadow, '0 2px 12px #ccc');
+  @include m.css-var(shadow, '0 1px 4px 0 #ccc');
 
   // 字体
   @include m.css-var(

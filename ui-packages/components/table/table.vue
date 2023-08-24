@@ -4,7 +4,7 @@
 import { TableProps } from './table.type'
 
 defineOptions({
-  name: 'UTable'
+  name: 'Table'
 })
 
 defineProps<TableProps>()

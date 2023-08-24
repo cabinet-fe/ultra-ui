@@ -18,7 +18,7 @@ import { bem } from '@ui/utils'
 import { useModel } from '@ui/compositions'
 
 defineOptions({
-  name: 'UCheckboxGroup'
+  name: 'CheckboxGroup'
 })
 
 const props = withDefaults(defineProps<CheckboxGroupProps<Data>>(), {

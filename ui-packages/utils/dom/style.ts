@@ -7,7 +7,7 @@
 export function withUnit(value: number | string | undefined, unit: string) {
   return value === undefined
     ? undefined
-    : typeof value === 'number'
+    : (typeof value === 'number' || !isNaN(+value))
     ? String(value) + unit
     : value
 }

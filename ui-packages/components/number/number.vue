@@ -8,7 +8,7 @@ import { NumberProps } from './number.type'
 import { Tween, n } from 'cat-kit/fe'
 
 defineOptions({
-  name: 'UNumber'
+  name: 'Number'
 })
 
 const props = defineProps<NumberProps>()

@@ -22,7 +22,7 @@ import { UIcon } from '../icon'
 import { CaretRight } from 'icon-ultra'
 
 defineOptions({
-  name: 'UTreeNode'
+  name: 'TreeNode'
 })
 
 const props = defineProps<{

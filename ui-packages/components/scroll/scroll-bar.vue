@@ -9,7 +9,7 @@ import { ScrollDIKey } from './di'
 import { bem } from '@ui/utils'
 
 defineOptions({
-  name: 'UScrollBar'
+  name: 'ScrollBar'
 })
 
 const props = defineProps<{

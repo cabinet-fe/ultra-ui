@@ -9,7 +9,7 @@ import { inject } from 'vue'
 import { VirtualScrollDIKey } from './di'
 
 defineOptions({
-  name: 'UVirtualScrollItem'
+  name: 'VirtualScrollItem'
 })
 
 defineProps<{

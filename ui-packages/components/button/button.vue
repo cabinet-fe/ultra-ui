@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    :class="className"
+    :class="classList"
     v-bind="$attrs"
     @click="handleClick"
     v-ripple="ripple"
@@ -40,7 +40,7 @@ import { Loading } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 
 defineOptions({
-  name: 'UButton'
+  name: 'Button'
 })
 
 const props = withDefaults(defineProps<ButtonProps>(), {
@@ -53,7 +53,7 @@ const emit = defineEmits<ButtonEmits>()
 
 const cls = bem('button')
 
-const className = computed(() => {
+const classList = computed(() => {
   return [
     cls.b,
     cls.m(props.size),
@@ -68,8 +68,10 @@ const className = computed(() => {
 
 const ripple = computed(() => {
   if (props.disabled || props.loading) return false
-  if (!(props.plain && props.type)) return true
-  return bem.is(`ripple-${props.type}`)
+  if ((props.plain || props.text) && props.type) {
+    return bem.is(`ripple-${props.type}`)
+  }
+  return true
 })
 
 const handleClick = (e: MouseEvent) => {

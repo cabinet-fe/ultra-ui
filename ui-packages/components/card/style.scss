@@ -1,0 +1,42 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/vars';
+@use '@ui/styles/functions' as fn;
+
+@include m.b(card) {
+  border-radius: fn.use-var(radius);
+  // border: fn.use-var(border);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size);
+  box-shadow: fn.use-var(shadow);
+
+  @include m.component-size(vars.$card-sizes) using ($size, $types) {
+    @include m.b(card__header, card__body, card__footer) {
+      @each $type, $val in $types {
+        #{$type}: $val;
+      }
+    }
+  }
+
+  @include m.e(header) {
+    border-bottom: fn.use-var(border);
+  }
+
+  @include m.e(body) {
+  }
+
+  @include m.e(footer) {
+    border-top: fn.use-var(border);
+  }
+
+  // @include m.is(always-shadow) {
+  //   box-shadow: fn.use-var(shadow);
+  // }
+
+  // @include m.is(hover-shadow) {
+  //   transition: box-shadow 0.25s ease;
+  //   &:hover {
+  //     box-shadow: fn.use-var(shadow);
+  //   }
+  // }
+}

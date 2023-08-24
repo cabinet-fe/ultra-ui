@@ -4,7 +4,7 @@
 import { TagProps } from './tag.type'
 
 defineOptions({
-  name: 'UTag'
+  name: 'Tag'
 })
 
 defineProps<TagProps>()

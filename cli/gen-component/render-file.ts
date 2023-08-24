@@ -66,7 +66,7 @@ export function renderVueFile(ctx: Ctx) {
   import { ${componentProps} } from './${ctx.componentName}.type'
 
   defineOptions({
-    name: '${NAME_SPACE}${upperCamelCase}'
+    name: '${upperCamelCase}'
   })
 
   defineProps<${componentProps}>()

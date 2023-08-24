@@ -21,7 +21,7 @@ import { bem, zIndex } from '@ui/utils'
 import { UNodeRender } from '../node-render'
 
 defineOptions({
-  name: 'UPopup'
+  name: 'Popup'
 })
 
 const props = defineProps<PopupProps>()

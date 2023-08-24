@@ -1,19 +1,17 @@
 <template>
-  <slot v-bind="{ ctx }" />
+  <slot v-bind="scope" />
 </template>
 
-<script setup lang="ts"  generic="R">
+<script setup lang="ts" generic="R extends any">
 import { ContextProps } from './context.type'
 
 defineOptions({
-  name: 'UContext'
+  name: 'Context'
 })
 
-const props = defineProps<ContextProps<R>>()
+defineProps<ContextProps<R>>()
 
-const ctx = props.scope()
-
-// defineSlots<{
-//   default?(props: { ctx: R }): any
-// }>()
+defineSlots<{
+  default(props: R): any
+}>()
 </script>
