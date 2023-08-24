@@ -9,17 +9,16 @@ const removeClass = debounce(
   (el: HTMLElement) => {
     el.classList.remove(cls.b)
   },
-  300,
+  350,
   false
 )
 
 const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
 
-
   const rect = el.getBoundingClientRect()
 
-  const wrapSize = Math.max(rect.width, rect.height)
+  const wrapSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
   const wrap = document.createElement('span')
   wrap.classList.add(clsWrap)
 
@@ -40,14 +39,20 @@ const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
     wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(2, 2, 2)`
   })
 
+  // 延迟300移除波纹
   setTimeout(() => {
-    hideRipple(el)
-  }, 250)
+    removeRipple(el)
+  }, 340)
 
+  // 显示完之后移除
   removeClass(el)
 }
 
-const hideRipple = (el: HTMLElement) => {
+/**
+ * 移除波纹元素
+ * 首先要保证波纹被移除才能够移除rippleClass
+ */
+const removeRipple = (el: HTMLElement) => {
   const wrap = el.getElementsByClassName(clsWrap)
   Array.prototype.forEach.call(wrap, item => {
     item.parentNode?.removeChild(item)

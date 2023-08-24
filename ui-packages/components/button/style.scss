@@ -14,7 +14,6 @@
   border-radius: fn.use-var(radius);
   cursor: pointer;
   -webkit-appearance: none;
-
   background-color: fn.use-var(bg-color, top);
   border: fn.use-var(border);
 
@@ -23,7 +22,10 @@
   }
 
   // 尺寸
-  @include m.form-size(height, padding, font-size) using ($size, $types) {
+  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+    @each $type, $val in $types {
+      #{$type}: $val;
+    }
     @include m.is(circle) {
       width: map.get($types, height);
     }
@@ -34,11 +36,8 @@
     color: fn.use-var(text-color, second);
   }
 
-
-
   // 颜色
   @each $type, $_ in vars.$color-types {
-
     .is-ripple-#{$type} {
       background-color: fn.use-var(color, $type);
       opacity: 0.2;
@@ -48,10 +47,15 @@
       background-color: fn.use-var(color, $type);
       color: #fff; // CSS_VAR
       border-color: fn.use-var(color, $type);
+      box-shadow: 0px 1px 2px 0 fn.use-var(color, $type);
 
       &:hover {
         background-color: fn.use-var(color, $type, 'dark-1');
         border-color: fn.use-var(color, $type, 'dark-1');
+      }
+
+      &:active {
+        box-shadow: none;
       }
 
       // 禁用
@@ -59,11 +63,18 @@
         background-color: fn.use-var(color, $type, 'light-3');
         border-color: fn.use-var(color, $type, 'light-3');
         color: #fff;
+        box-shadow: none;
+      }
+
+      @include m.is(text) {
+        color: fn.use-var(color, $type);
+        box-shadow: none;
       }
 
       @include m.is(plain) {
         color: fn.use-var(color, $type);
         background-color: fn.use-var(bg-color, top);
+
 
         &:hover {
           color: fn.use-var(color, $type, 'dark-1');
@@ -96,6 +107,4 @@
   @include m.e(icon-right) {
     margin-left: fn.use-var(gap-small);
   }
-
-
 }

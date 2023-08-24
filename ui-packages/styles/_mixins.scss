@@ -18,25 +18,25 @@
 }
 
 /*
-* 表单尺寸
+* 组件尺寸
 * 参数为生效的form-size属性, 目前有height和padding
+* 例如:
+* 使用$form-component-sizes中的属性, 表示使用表单组件中的sizes
+* @include component-size(height, padding, font-size)
 */
-@mixin form-size($props...) {
-  @each $size, $size-types in vars.$form-sizes {
+@mixin component-size($sizes) {
+  @each $size, $size-types in $sizes {
     &--#{$size} {
       @content ($size, $size-types);
-      @each $prop, $size-val in $size-types {
-        @if list.index($props, $prop) != null {
-          #{$prop}: $size-val;
-        }
-      }
     }
   }
 }
 
-@mixin b($block) {
-  .#{vars.$namespace}#{$block} {
-    @content;
+@mixin b($blocks...) {
+  @each $block in $blocks {
+    .#{vars.$namespace}#{$block} {
+      @content;
+    }
   }
 }
 
@@ -88,28 +88,41 @@
   }
 }
 
+// 这是一个混合宏，用于生成表单组件样式
 @mixin form-component {
+  // 使用变量 radius 设置边框半径
   border-radius: fn.use-var(radius);
+  // 使用变量 border 和 color 设置内阴影和边框颜色
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+  // 设置过渡效果
   transition: box-shadow 0.25s ease;
+  // 设置左右边距
   padding: 0 4px;
 
+  // 鼠标悬停时的样式
   &:hover {
+    // 使用变量 color 和 primary 设置内阴影和边框颜色
     box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
   }
 
-  @each $size-name, $size-types in vars.$form-sizes {
+  // 遍历 vars.$sizes 中的每个键和值
+  @each $size-name, $size-types in vars.$form-component-sizes {
+    // 根据 $size-name 动态生成类名，并设置高度
     &--#{$size-name} {
       height: map.get($size-types, height);
     }
 
+    // 在 e(native) 上下文中应用样式
     @include e(native) {
+      // 设置高度为100%和主要字体大小
       height: 100%;
       font-size: fn.use-var(font-size, main);
     }
   }
 
+  // 在 e(native) 上下文中应用样式
   @include e(native) {
+    // 清除默认样式
     outline: none;
     border: none;
     background-color: transparent;
@@ -117,7 +130,9 @@
     flex-grow: 1;
   }
 
+  // 在 is(focus) 上下文中应用样式
   @include is(focus) {
+    // 使用变量 color 和 primary 设置内阴影和边框颜色
     box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
   }
 }

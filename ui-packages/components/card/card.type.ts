@@ -3,10 +3,6 @@ import { DeconstructValue } from '@ui/utils'
 
 /** 卡片组件属性 */
 export interface CardProps extends ComponentProps {
-  /** 阴影 */
-  shadow?: 'none' | 'always' | 'hover'
-  /** 边框 */
-  border?: boolean
   /** 宽度 */
   width?: string | number
 }
