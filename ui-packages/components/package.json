@@ -11,6 +11,9 @@
     "@ui/styles": "workspace:*",
     "@ui/directives": "workspace:*"
   },
+  "scripts": {
+    "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json --outDir ./dist"
+  },
   "devDependencies": {
     "icon-ultra": "^2.0.16",
     "gsap": "^3.12.2"
