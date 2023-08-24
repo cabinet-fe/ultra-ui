@@ -1,7 +1,6 @@
 {
   "extends": "ts-conf-base/tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
     "composite": true
   },
   "include": ["."]

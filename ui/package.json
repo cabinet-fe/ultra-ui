@@ -16,8 +16,6 @@
     "./theme": "./theme.ts"
   },
   "scripts": {
-    "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json",
-    "dev": "vite",
     "build": "vite build"
   }
 }

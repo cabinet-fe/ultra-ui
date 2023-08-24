@@ -56,7 +56,8 @@ const validatePresets = {
     if (value === null || value === undefined) return ''
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须大于等于${_rule}`
-    if (!Array.isArray(value) && typeof value !== 'string') return `${value}不是一个字符串或数组`
+    if (!Array.isArray(value) && typeof value !== 'string')
+      return `${value}不是一个字符串或数组`
     if (value.length < _rule) return errMsg
     return ''
   },
@@ -64,7 +65,8 @@ const validatePresets = {
     if (value === null || value === undefined) return ''
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须小于等于:${_rule}`
-    if (!Array.isArray(value) && typeof value !== 'string') return `${value}不是一个字符串或数组`
+    if (!Array.isArray(value) && typeof value !== 'string')
+      return `${value}不是一个字符串或数组`
     if (value.length > _rule) return errMsg
     return ''
   },
@@ -72,7 +74,7 @@ const validatePresets = {
     if (value === null || value === undefined) return ''
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项不匹配正则:${_rule}`
-    if ( typeof value !== 'string') return `${value}不是一个字符串`
+    if (typeof value !== 'string') return `${value}不是一个字符串`
     if (!_rule.test(value)) return errMsg
     return ''
   }
@@ -89,11 +91,11 @@ interface ValidatorConfig<Data extends ValidatorData> {
 class Validator<Data extends ValidatorData> {
   #data: Data
 
-  #rules?: ValidatorConfig<Data>['rules']
+  #dataRules?: ValidatorConfig<Data>['rules']
 
   constructor(config: ValidatorConfig<Data>) {
     this['#data'] = config.data
-    this['#rules'] = config.rules
+    this['#dataRules'] = config.rules
   }
 
   private async validateManyData(): Promise<boolean> {
@@ -101,36 +103,40 @@ class Validator<Data extends ValidatorData> {
     let i = 0
     while (i < data.length) {
       const item = data[i]!
-
+      this.validateSingleData(item)
       i++
     }
 
     return true
   }
 
-  private async validateSingleData(
-    data: Record<string, any>
-  ): Promise<boolean> {
-    if (!this.#rules) return true
+  private async validateSingleData(data: Record<string, any>): Promise<string> {
+    if (!this.#dataRules) return ''
 
-    for (const key in this.#rules) {
-      let value = data[key]
-      let valueRule = this.#rules[key] as ValidateRule
+    for (const key in this.#dataRules) {
+      const value = data[key]
+      const rules = this.#dataRules[key] as ValidateRule
+      const { validator, ...normalRules } = rules
 
-
-      for (const ruleName in valueRule) {
-
-        const errMsg = validatePresets[ruleName](value, valueRule[ruleName])
+      for (const ruleName in normalRules) {
+        const errMsg = validatePresets[
+          ruleName as keyof typeof validatePresets
+        ](value, normalRules[ruleName])
+        if (errMsg) return errMsg
       }
 
-
+      if (validator) {
+        const errMsg = await validator(value, data)
+        if (errMsg) return errMsg
+      }
     }
+    return ''
   }
 
-  async validate(field: string): Promise<boolean>
+  async validate(field: keyof Data): Promise<boolean>
   async validate(): Promise<boolean>
-  async validate(field: string[]): Promise<boolean>
-  async validate(field?: string | string[]): Promise<boolean> {
+  async validate(field: (keyof Data)[]): Promise<boolean>
+  async validate(field?: keyof Data | (keyof Data)[]): Promise<boolean> {
     if (!field) {
       for (const key in this.#rules) {
         validatePresets[key](this.#rules[key], rule[key])
@@ -154,5 +160,4 @@ const validator = new Validator({
 })
 
 // 要满足下面的用法
-validator.validate('field')
-validator.validate(['field1', 'field2'])
+validator.validate('name')
