@@ -38,6 +38,7 @@
 
   // 颜色
   @each $type, $_ in vars.$color-types {
+    // 用于指定波纹颜色
     .is-ripple-#{$type} {
       background-color: fn.use-var(color, $type);
       opacity: 0.2;

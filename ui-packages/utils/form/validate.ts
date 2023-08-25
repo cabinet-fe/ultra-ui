@@ -98,24 +98,30 @@ class Validator<Data extends ValidatorData> {
     this['#dataRules'] = config.rules
   }
 
-  private async validateManyData(): Promise<boolean> {
+  private async validateManyData(
+    field?: keyof Data | (keyof Data)[]
+  ): Promise<string> {
     const data = this.#data as Record<string, any>[]
     let i = 0
     while (i < data.length) {
       const item = data[i]!
-      this.validateSingleData(item)
+      const errMsg = await this.validateSingleData(item, field)
+      if (errMsg) return errMsg
       i++
     }
 
-    return true
+    return ''
   }
 
-  private async validateSingleData(data: Record<string, any>): Promise<string> {
+  private async validateSingleData(
+    data: Record<string, any>,
+    field?: keyof Data | (keyof Data)[]
+  ): Promise<string> {
     if (!this.#dataRules) return ''
 
-    for (const key in this.#dataRules) {
-      const value = data[key]
-      const rules = this.#dataRules[key] as ValidateRule
+    if (typeof field === 'string') {
+      const value = data[field]
+      const rules = this.#dataRules[field] as ValidateRule
       const { validator, ...normalRules } = rules
 
       for (const ruleName in normalRules) {
@@ -129,7 +135,25 @@ class Validator<Data extends ValidatorData> {
         const errMsg = await validator(value, data)
         if (errMsg) return errMsg
       }
+
+      return ''
     }
+
+    if (Array.isArray(field)) {
+      let i = 0
+      while (i < field.length) {
+        const errMsg = await this.validateSingleData(data, field[i])
+        if (errMsg) return errMsg
+        i++
+      }
+      return ''
+    }
+
+    for (const key in this.#dataRules) {
+      const errMsg = await this.validateSingleData(data, key as keyof Data)
+      if (errMsg) return errMsg
+    }
+
     return ''
   }
 
@@ -137,13 +161,14 @@ class Validator<Data extends ValidatorData> {
   async validate(): Promise<boolean>
   async validate(field: (keyof Data)[]): Promise<boolean>
   async validate(field?: keyof Data | (keyof Data)[]): Promise<boolean> {
-    if (!field) {
-      for (const key in this.#rules) {
-        validatePresets[key](this.#rules[key], rule[key])
-      }
+    if (Array.isArray(this.#data)) {
+      const errMsg = await this.validateManyData(field)
+      return errMsg ? false : true
     }
 
-    return true
+    const errMsg = await this.validateSingleData(this.#data, field)
+
+    return errMsg ? false : true
   }
 }
 
