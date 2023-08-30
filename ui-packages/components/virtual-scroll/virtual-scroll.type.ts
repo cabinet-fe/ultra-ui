@@ -1,9 +1,9 @@
+import type { ScrollProps } from "../scroll/scroll.type"
+
 /** 虚拟滚动组件属性 */
-export interface VirtualScrollProps<DataItem> {
+export interface VirtualScrollProps<DataItem> extends ScrollProps {
   data: DataItem[]
   itemSize?: number
-  /** 渲染池大小, 默认200 */
-  poolSize?: number
 }
 
 /** 虚拟滚动组件定义的事件 */

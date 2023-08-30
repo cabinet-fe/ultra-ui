@@ -1,21 +1,21 @@
 <template>
   <div>
     <div>普通滚动</div>
-    <u-scroll tag="ul" class="bar" :height="200" ref="scrollbarRef">
-      {{ c.log(123) }}
-      <li style="width: 2000px" v-for="i of 200" :key="i">{{ i }}</li>
+    <u-scroll tag="ul" class="bar" height="200" ref="scrollbarRef">
+      <li style="width: 2000px" v-for="i of 200" :key="i">
+        {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}
+      </li>
     </u-scroll>
 
     <div>虚拟滚动</div>
     <u-virtual-scroll
       class="bar"
       :data="data"
-      v-slot:default="{ item }"
-      :height="500"
+      height="400"
+      tag="ul"
+      #default="{ item }"
     >
-      <u-button type="primary" v-for="i of 20" :key="i">
-        {{ item.name }}
-      </u-button>
+      <list-item :item="item" />
     </u-virtual-scroll>
   </div>
 </template>
@@ -23,10 +23,11 @@
 <script lang="ts" setup>
 import { ScrollExposed } from 'ultra-ui'
 import { shallowRef } from 'vue'
+import ListItem from './list-item.vue'
 
 const scrollbarRef = shallowRef<ScrollExposed>()
 
-const data = Array.from({ length: 100000 }).map((_, i) => {
+const data = Array.from({ length: 1000 }).map((_, i) => {
   return {
     name: 'name' + i,
     id: i
