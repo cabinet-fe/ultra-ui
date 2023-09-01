@@ -2,5 +2,5 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(virtual-scroll) {
+@include m.b(virtual-list) {
 }
