@@ -1,12 +1,47 @@
 <template>
   <div>
-    <u-card width="400" shadow="hover">
-      <u-card-header> 这是一个标题 </u-card-header>
-      <u-card-body> 这是一个body </u-card-body>
-      <u-card-footer>
+    <u-card width="400">
+      <u-card-header> 卡片标题 </u-card-header>
+
+      <u-card-content> 卡片内容 </u-card-content>
+
+      <u-card-action>
         <u-button type="primary" text>返回</u-button>
         <u-button plain type="primary">操作</u-button>
-      </u-card-footer>
+      </u-card-action>
+    </u-card>
+
+    <u-card width="400">
+      <u-card-cover
+        src="https://img1.baidu.com/it/u=4250406567,15377877&fm=253&fmt=auto&app=120&f=JPEG?w=1422&h=800"
+      />
+
+      <u-card-action align-right>
+        <button-common-props tag="span">
+          <u-button :icon="Select" />
+          <u-button :icon="MoreFilled" />
+        </button-common-props>
+      </u-card-action>
     </u-card>
   </div>
 </template>
+
+<script setup lang="ts">
+import { MoreFilled, Select } from 'icon-ultra'
+import { type ButtonProps, useComponentProps } from 'ultra-ui'
+
+const ButtonCommonProps = useComponentProps<ButtonProps>({
+  circle: true,
+  type: 'primary',
+  text: true,
+  iconSize: 18
+})
+</script>
+
+<style lang="scss" scoped>
+div {
+  & > .u-card {
+    margin-bottom: 10px;
+  }
+}
+</style>

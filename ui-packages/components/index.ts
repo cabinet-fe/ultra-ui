@@ -38,6 +38,8 @@ export * from './tabs'
 
 export * from './tag' 
 
+export * from './text' 
+
 export * from './textarea' 
 
 export * from './theme' 

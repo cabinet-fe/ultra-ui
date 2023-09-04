@@ -7,6 +7,22 @@ export interface CardProps extends ComponentProps {
   width?: string | number
 }
 
+export interface CardActionProps {
+  /** 右对齐 */
+  alignRight?: boolean
+}
+
+export interface CardContentProps {
+  /** 封面模式 */
+  cover?: boolean
+}
+
+export interface CardCoverProps {
+  /** 封面图片地址 */
+  src: string
+}
+
+
 export interface CardEmits {}
 
 export interface _CardExposed {}

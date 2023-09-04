@@ -22,6 +22,8 @@ export interface ButtonProps extends ComponentProps {
   disabled?: boolean
   /** 图标 */
   icon?: Component
+  /** 图标大小, 单位px */
+  iconSize?: number
   /** 图标位置 */
   iconPosition?: 'left' | 'right'
 }

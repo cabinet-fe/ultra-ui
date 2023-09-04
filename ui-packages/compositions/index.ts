@@ -1,3 +1,5 @@
+export * from './use-component-props' 
+
 export * from './use-config' 
 
 export * from './use-drag' 

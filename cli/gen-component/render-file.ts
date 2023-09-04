@@ -5,13 +5,9 @@ import { UI_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
 import { NAME_SPACE } from '@ui/shared'
+import type { ComponentCtx } from './type'
 
-interface Ctx {
-  /** 组件名称 */
-  componentName: string
-  /** 组件描述 */
-  componentDesc?: string
-}
+
 
 const extMap = {
   ts: 'typescript',
@@ -27,7 +23,7 @@ const extMap = {
  * @param ext 可以是一个文件名或者以.开头的文件后缀， 为文件后缀时会自动拼接组件名
  * @returns
  */
-async function write(ctx: Ctx, content: string, ext: string) {
+async function write(ctx: ComponentCtx, content: string, ext: string) {
   const targetDir = resolve(UI_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
     await mkdir(targetDir, {
@@ -52,18 +48,23 @@ async function write(ctx: Ctx, content: string, ext: string) {
   )
 }
 
-export function renderVueFile(ctx: Ctx) {
+export function renderVueFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const componentProps = `${upperCamelCase}Props`
 
+  const rootEle = ctx.rootElement || 'div'
+
   const content = `
   <template>
+    <${rootEle} :class="cls.b">
 
+    </${rootEle}>
   </template>
 
   <script lang="ts" setup>
   import { ${componentProps} } from './${ctx.componentName}.type'
+  import { bem } from '@ui/utils'
 
   defineOptions({
     name: '${upperCamelCase}'
@@ -71,13 +72,14 @@ export function renderVueFile(ctx: Ctx) {
 
   defineProps<${componentProps}>()
 
+  const cls = bem('${ctx.componentName}')
   </script>
   `
 
   write(ctx, content, '.vue')
 }
 
-export function renderTypeFile(ctx: Ctx) {
+export function renderTypeFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const PropsName = `${upperCamelCase}Props`
@@ -109,18 +111,18 @@ export function renderTypeFile(ctx: Ctx) {
   write(ctx, content, '.type.ts')
 }
 
-export function renderIndexFile(ctx: Ctx) {
+export function renderIndexFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
-  export { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from './${ctx.componentName}.type'
+  export type { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from './${ctx.componentName}.type'
   `
 
   write(ctx, content, 'index.ts')
 }
 
-export function renderStyleFile(ctx: Ctx) {
+export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
   @use '@ui/styles/mixins' as m;
   @use '@ui/styles/functions' as fn;

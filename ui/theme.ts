@@ -19,6 +19,7 @@ const colors = getColorVars(['primary', 'success', 'warning', 'danger', 'info'])
 
 type ColorRGB = [number, number, number]
 
+/** 十六进制转RGB */
 const HEXToRGB = (color: `#${string}`): ColorRGB => {
   let hex = color.slice(1)
   const RGB: ColorRGB = [0, 0, 0]
@@ -43,6 +44,13 @@ const HEXToRGB = (color: `#${string}`): ColorRGB => {
   return RGB
 }
 
+/**
+ * 混合两个颜色，并返回混合结果的十六进制表示。
+ * @param color1 - 第一个颜色，格式为`#RRGGBB`。
+ * @param color2 - 第二个颜色，格式为`#RRGGBB`。
+ * @param ratio - 颜色混合的比例，取值范围为0到1。
+ * @returns 混合结果的十六进制表示。
+ */
 function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
   if (ratio > 1) throw new Error('ratio的值在0-1之间')
   const color1RGB = HEXToRGB(color1)
@@ -53,9 +61,9 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
   return (
     '#' +
     color1RGB
-      .map((n, i) => {
-        return Math.floor(color1Ratio * n + color2RGB[i]! * ratio).toString(16)
-      })
+      .map((n, i) =>
+        Math.floor(color1Ratio * n + color2RGB[i]! * ratio).toString(16)
+      )
       .join('')
   )
 }
@@ -63,8 +71,12 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
 const colorMixedType: `${'light' | 'dark'}-${number}`[] = [
   'light-1',
   'light-3',
+  'light-7',
+  'light-9',
   'dark-1',
-  'dark-3'
+  'dark-3',
+  'dark-7',
+  'dark-9'
 ]
 
 const styleID = 'theme-style'

@@ -6,6 +6,7 @@ import inquirer from 'inquirer'
 import { renderIndexFile, renderStyleFile, renderTypeFile, renderVueFile } from './render-file'
 // import { UI_PATH } from '../shared'
 import pc from 'picocolors'
+import type { ComponentCtx } from './type'
 
 // // 组件类型目录
 // const componentDirs = await fs.readdir(UI_PATH, {
@@ -32,13 +33,15 @@ import pc from 'picocolors'
 //   })
 //   .filter(item => !!item)
 
+const validTag = new Set([
+  'div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'button', 'a', 'span', 'input', 'textarea',
+  'li', 'ul', 'ol', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
+  'select', 'option'
+])
+
 // 交互问题
-const answer = await inquirer.prompt<{
-  /** 名称 */
-  componentName: string
-  /** 备注 */
-  componentDesc?: string
-}>([
+const answer = await inquirer.prompt<ComponentCtx>([
   {
     type: 'input',
     name: 'componentName',
@@ -50,6 +53,15 @@ const answer = await inquirer.prompt<{
       return true
     },
     prefix: pc.green('必填')
+  },
+  {
+    type: 'input',
+    name: 'rootElement',
+    message: '根元素(默认div):',
+    validate(input) {
+      if (input && !validTag.has(input)) return '元素名不合法'
+      return true
+    }
   },
   {
     type: 'input',
