@@ -16,7 +16,7 @@
   -webkit-appearance: none;
   background-color: fn.use-var(bg-color, top);
   border: fn.use-var(border);
-  transition: background-color 0.25s;
+  transition: background-color 0.25s, box-shadow .25s;
 
   & + & {
     margin-left: fn.use-var(gap, small);
@@ -49,11 +49,11 @@
       background-color: fn.use-var(color, $type);
       color: #fff; // CSS_VAR
       border-color: fn.use-var(color, $type);
-      box-shadow: 0px 0px 3px 0 fn.use-var(color, $type);
-
+      box-shadow: 0px 0px 2px 0px fn.use-var(color, $type);
       &:hover {
         background-color: fn.use-var(color, $type, 'dark-1');
         border-color: fn.use-var(color, $type, 'dark-1');
+        box-shadow: 0px 0px 3px 1px fn.use-var(color, $type);
       }
 
       &:active {

@@ -20,10 +20,14 @@ export interface CardContentProps {
 export interface CardCoverProps {
   /** 封面图片地址 */
   src: string
+  /** 封面高度 */
+  height?: string | number
 }
 
 
-export interface CardEmits {}
+export interface CardEmits {
+
+}
 
 export interface _CardExposed {}
 

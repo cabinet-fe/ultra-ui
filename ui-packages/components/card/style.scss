@@ -4,7 +4,6 @@
 
 @include m.b(card) {
   border-radius: fn.use-var(radius);
-  // border: fn.use-var(border);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
   font-size: fn.use-var(font-size);
@@ -24,10 +23,20 @@
   }
 
   @include m.e(cover) {
-    font-size: 0;
+    position: relative;
+    overflow: hidden;
 
     & > img {
       width: 100%;
+      overflow: hidden;
+      display: block;
+
+      @include m.is(height-fixed) {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
     }
   }
 

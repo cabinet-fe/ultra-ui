@@ -1,22 +1,40 @@
 <template>
-  <div :class="cls?.e('cover')">
-    <img v-if="src" :src="src" alt="封面" />
+  <div :class="cls?.e('cover')" :style="style">
+    <img
+      v-if="src"
+      :src="src"
+      draggable="false"
+      alt="封面"
+      :class="bem.is('height-fixed', props.height !== undefined)"
+      @load="handleImgLoad"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import { CardDIKey } from './di'
 import type { CardCoverProps } from './card.type'
+import { withUnit, bem } from '@ui/utils'
 
 defineOptions({ name: 'CardCover' })
 
-defineProps<CardCoverProps>()
+const props = defineProps<CardCoverProps>()
 
 const injected = inject(CardDIKey)
 const { cls } = injected || {}
 
 if (!injected) {
   console.warn('CardCover组件仅能在Card组件中使用')
+}
+
+const style = computed(() => {
+  return {
+    height: withUnit(props.height, 'px')
+  }
+})
+
+const handleImgLoad = e => {
+  console.log(e)
 }
 </script>

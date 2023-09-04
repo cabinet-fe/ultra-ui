@@ -2,5 +2,34 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
+$role-size: (
+  title: (
+    font-size: 16px,
+    font-weight: 600,
+    color: #333
+  ),
+  sub-title: (
+    font-size: 14px,
+    font-weight: 400,
+    color: #999
+  ),
+  content: (
+    font-size: 14px,
+    font-weight: 300,
+    color: #666
+  )
+);
+
 @include m.b(text) {
+  margin: 0;
+  line-height: 1;
+  height: 1em;
+
+  @each $role, $styles in $role-size {
+    @include m.is(#{$role}) {
+      @each $prop, $val in $styles {
+        #{$prop}: $val;
+      }
+    }
+  }
 }

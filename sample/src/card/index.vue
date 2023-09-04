@@ -16,9 +16,11 @@
         src="https://img1.baidu.com/it/u=4250406567,15377877&fm=253&fmt=auto&app=120&f=JPEG?w=1422&h=800"
       />
 
-      <u-card-action align-right>
+      <u-card-action style="display: flex; justify-content: space-between; align-items: center">
+        <u-text :max-rows="1" role="title"> 测试文本 </u-text>
         <button-common-props tag="span">
-          <u-button :icon="Select" />
+          <u-button :icon="Star" />
+          <u-button :icon="Lock" />
           <u-button :icon="MoreFilled" />
         </button-common-props>
       </u-card-action>
@@ -27,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreFilled, Select } from 'icon-ultra'
+import { MoreFilled, Star, Lock } from 'icon-ultra'
 import { type ButtonProps, useComponentProps } from 'ultra-ui'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({

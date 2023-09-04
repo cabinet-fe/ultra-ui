@@ -1,6 +1,11 @@
 /** 文本组件属性 */
 export interface TextProps {
-  modelValue?: string
+  /** 文本最大行数, 超出的部分会被隐藏 */
+  maxRows?: number
+  /** 文本角色, 默认content正文 */
+  role?: 'title' | 'sub-title' | 'content'
+  /** 文本大小, 与role同时指定时会覆盖role */
+  fontSize?: string | number
 }
 
 /** 文本组件定义的事件 */
