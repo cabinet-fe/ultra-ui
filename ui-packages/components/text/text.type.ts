@@ -1,7 +1,5 @@
 /** 文本组件属性 */
 export interface TextProps {
-  /** 文本最大行数, 超出的部分会被隐藏 */
-  maxRows?: number
   /** 使用预设文本类型, 默认content正文 */
   as?: 'main-title' | 'title' | 'sub-title' | 'content' | 'additional'
   /** 文本大小, 与as同时指定时会覆盖as */

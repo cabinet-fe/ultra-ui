@@ -50,18 +50,5 @@ $role-size: (
 
   @include m.is(bold) {
     font-weight: bold;
-
   }
-
-  @include m.is(overflow) {
-    &::after {
-      content: ' ... ';
-      background-color: #fff;
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      height: 1.3em;
-    }
-  }
-
 }

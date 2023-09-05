@@ -1,11 +1,18 @@
 <template>
-  <p :class="classList" :style="style" ref="textRef">
+  <p :class="classList" :style="style">
     <UNodeRender :content="getTextVNode()" />
   </p>
 </template>
 
 <script lang="ts" setup>
-import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode, shallowRef } from 'vue'
+import {
+  type CSSProperties,
+  type VNode,
+  computed,
+  useSlots,
+  h,
+  createTextVNode
+} from 'vue'
 import { TextProps } from './text.type'
 import { bem, withUnit, isTextNode, getHighlightChunks } from '@ui/utils'
 import { UNodeRender } from '../node-render'
@@ -20,46 +27,25 @@ const props = withDefaults(defineProps<TextProps>(), {
 
 const cls = bem('text')
 
-const isOverflow = shallowRef(false)
-
 const classList = computed(() => {
   return [
     cls.b,
     bem.is(props.as),
     bem.is('bold', props.bold),
-    bem.is('italic', props.italic),
-    bem.is('overflow', isOverflow.value)
+    bem.is('italic', props.italic)
   ]
 })
-
-const textRef = shallowRef<HTMLParagraphElement>()
-
 
 const style = computed(() => {
   const style: CSSProperties = {
     fontSize: withUnit(props.fontSize, 'px')
   }
-  const { deleted, underline, maxRows } = props
+  const { deleted, underline } = props
   if (deleted) {
     style.textDecoration = 'line-through'
   }
   if (underline) {
     style.textDecoration = 'underline'
-  }
-
-  if (maxRows) {
-    if (textRef.value) {
-      const h = parseFloat(getComputedStyle(textRef.value).height)
-      const targetH = +(maxRows * 14 * 1.3).toFixed(2)
-      if (h > targetH) {
-        isOverflow.value = true
-      } else {
-        isOverflow.value = false
-      }
-
-      style.height = targetH + 'px'
-    }
-
   }
 
   return style
@@ -76,7 +62,6 @@ const getTextVNode = () => {
   const { highlight } = props
 
   if (!highlight) return textNodes
-
 
   return textNodes.reduce((nodes, textNode) => {
     const chunks = getHighlightChunks(
