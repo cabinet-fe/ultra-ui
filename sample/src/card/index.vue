@@ -17,7 +17,7 @@
       />
 
       <u-card-action style="display: flex; justify-content: space-between; align-items: center">
-        <u-text :max-rows="1" role="title"> 测试文本 </u-text>
+        <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
         <button-common-props tag="span">
           <u-button :icon="Star" />
           <u-button :icon="Lock" />

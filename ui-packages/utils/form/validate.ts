@@ -88,7 +88,7 @@ interface ValidatorConfig<Data extends ValidatorData> {
 }
 
 /**  */
-class Validator<Data extends ValidatorData> {
+export class Validator<Data extends ValidatorData> {
   #data: Data
 
   #dataRules?: ValidatorConfig<Data>['rules']

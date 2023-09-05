@@ -6,7 +6,6 @@
       draggable="false"
       alt="封面"
       :class="bem.is('height-fixed', props.height !== undefined)"
-      @load="handleImgLoad"
     />
   </div>
 </template>
@@ -33,8 +32,4 @@ const style = computed(() => {
     height: withUnit(props.height, 'px')
   }
 })
-
-const handleImgLoad = e => {
-  console.log(e)
-}
 </script>

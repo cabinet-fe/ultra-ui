@@ -1,31 +1,98 @@
 <template>
-  <p :class="classList" :style="style">
-    <slot />
+  <p :class="classList" :style="style" ref="textRef">
+    <UNodeRender :content="getTextVNode()" />
   </p>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode, shallowRef } from 'vue'
 import { TextProps } from './text.type'
-import { bem, withUnit } from '@ui/utils'
+import { bem, withUnit, isTextNode, getHighlightChunks } from '@ui/utils'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'Text'
 })
 
 const props = withDefaults(defineProps<TextProps>(), {
-  role: 'content'
+  as: 'content'
 })
 
 const cls = bem('text')
 
+const isOverflow = shallowRef(false)
+
 const classList = computed(() => {
-  return [cls.b, bem.is(props.role)]
+  return [
+    cls.b,
+    bem.is(props.as),
+    bem.is('bold', props.bold),
+    bem.is('italic', props.italic),
+    bem.is('overflow', isOverflow.value)
+  ]
 })
 
+const textRef = shallowRef<HTMLParagraphElement>()
+
+
 const style = computed(() => {
-  return {
+  const style: CSSProperties = {
     fontSize: withUnit(props.fontSize, 'px')
   }
+  const { deleted, underline, maxRows } = props
+  if (deleted) {
+    style.textDecoration = 'line-through'
+  }
+  if (underline) {
+    style.textDecoration = 'underline'
+  }
+
+  if (maxRows) {
+    if (textRef.value) {
+      const h = parseFloat(getComputedStyle(textRef.value).height)
+      const targetH = +(maxRows * 14 * 1.3).toFixed(2)
+      if (h > targetH) {
+        isOverflow.value = true
+      } else {
+        isOverflow.value = false
+      }
+
+      style.height = targetH + 'px'
+    }
+
+  }
+
+  return style
 })
+
+const slots = useSlots()
+const getTextVNode = () => {
+  const nodes = slots.default?.()
+  if (!nodes?.length) return undefined
+
+  // 只允许渲染文本
+  const textNodes = nodes.filter(node => isTextNode(node))
+
+  const { highlight } = props
+
+  if (!highlight) return textNodes
+
+
+  return textNodes.reduce((nodes, textNode) => {
+    const chunks = getHighlightChunks(
+      textNode.children as string,
+      Array.isArray(highlight) ? highlight : [highlight]
+    )
+
+    chunks.forEach(chunk => {
+      if (chunk.highlight) {
+        nodes.push(h('mark', chunk.text))
+      } else {
+        nodes.push(createTextVNode(chunk.text))
+      }
+    })
+
+    return nodes
+  }, [] as VNode[])
+}
 </script>
