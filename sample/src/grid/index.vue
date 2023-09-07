@@ -26,7 +26,7 @@
     </u-grid>
 
     <div>嵌套</div>
-    <u-grid cols="200px 1fr" :gap="8">
+    <u-grid :cols="['200px', '1fr']" :gap="8">
       <div class="col-item">侧边栏</div>
 
       <u-grid cols="200px 1fr" :gap="8">

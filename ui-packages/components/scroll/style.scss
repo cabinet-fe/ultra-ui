@@ -33,11 +33,8 @@ $root-name: scroll;
     }
   }
 
-  // 滚动条悬浮拖拽时的背景色
-  $active-bg: rgba(
-    $color: #ccc,
-    $alpha: 0.5
-  );
+  // 滚动条背景色
+  $bar-color: #ccc;
 
   // 滚动条默认尺寸(宽度)
   $bar-size: 6px;
@@ -49,7 +46,7 @@ $root-name: scroll;
     opacity: 0;
     position: absolute;
     border-radius: $bar-size;
-    background-color: rgba($color: #ccc, $alpha: 0.3);
+    background-color: rgba($color: $bar-color, $alpha: 0.4);
     transition:
       opacity 0.3s ease-in,
       background-color 0.3s ease-in,
@@ -57,13 +54,13 @@ $root-name: scroll;
       width 0.15s ease-in;
 
     &:hover {
-      background-color: $active-bg;
+      background-color: rgba($color: $bar-color, $alpha: 0.6);
       border-radius: $bar-active-size;
     }
 
     @include m.is(active) {
       opacity: 1;
-      background-color: $active-bg;
+      background-color:  $bar-color;
       border-radius: $bar-active-size;
     }
   }
