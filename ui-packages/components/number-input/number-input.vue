@@ -1,11 +1,14 @@
 <template>
   <u-input
+    ref="inputRef"
+    :class="cls.b"
     :model-value="displayed"
+    v-bind="inputProps"
     @update:model-value="handleUpdateModelValue"
     @change="handleChange"
-    ref="inputRef"
-    :clearable="clearable"
     @keydown="handleKeydown"
+    @focus="focused = true"
+    @blur="focused = false"
   >
     <template #suffix v-if="step !== undefined && step !== false">
       <div :class="cls.e('step')">
@@ -19,8 +22,8 @@
 <script lang="ts" setup>
 import type { NumberInputEmits, NumberInputProps } from './number-input.type'
 import { UInput, type InputExposed } from '../input'
-import { nextTick, shallowRef, watch } from 'vue'
-import { n, Tween } from 'cat-kit/fe'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+import { n, Tween, obj } from 'cat-kit/fe'
 import { useModel } from '@ui/compositions'
 import { ArrowUp, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -33,100 +36,81 @@ defineOptions({
 const props = defineProps<NumberInputProps>()
 const emit = defineEmits<NumberInputEmits>()
 
+const inputProps = computed(() => {
+  return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
+})
+
 const inputRef = shallowRef<InputExposed>()
 
 const cls = bem('number-input')
 
-/** 获取数字的显示内容 */
-const getDisplayed = (value?: number): string => {
-  if (value === undefined) {
-    return ''
-  }
-  if (props.currency) {
-    return n(value).currency('CNY', {
-      precision: props.precision,
-      minPrecision: props.minPrecision,
-      maxPrecision: props.maxPrecision
-    })
-  }
-  return String(value)
-}
-
+// 实际值
 const model = useModel({ props, emit })
+// 展示值
+const displayed = shallowRef('')
 
-const displayed = shallowRef(getDisplayed(model.value))
+const focused = shallowRef(false)
 
-watch(model, v => {
-  displayed.value = getDisplayed(v)
+watch(model, () => {
+  displayed.value = getDisplayed(model.value)
 })
 
-const setCursorPosition = (cursorLastIndex: number, isFirst = false) => {
-  setTimeout(() => {
-    let index = isFirst ? 1 : displayed.value.length - cursorLastIndex - 1
-    if (!inputRef.value?.el) return
-    inputRef.value.el.selectionStart = index
-    inputRef.value.el.selectionEnd = index
-  })
+/**
+ * 获取展示值
+ * @param num 实际值
+ */
+const getDisplayed = (num?: number) => {
+  const { currency, precision, minPrecision, maxPrecision } = props
+  if (num === undefined) return ''
+
+  if (focused.value) return String(num)
+
+  return currency
+    ? n(num).currency('CNY', {
+        precision,
+        minPrecision,
+        maxPrecision
+      })
+    : String(num)
 }
 
-const handleUpdateModelValue = (value: string) => {
-  // displayed.value的更新会触发input组件的update:modelValue事件,
-  // 此时value和displayed.value的值是一致的, 直接过滤
-  if (value === displayed.value) return
+/**
+ * 解析展示值
+ * @param str 展示值
+ */
+const parseDisplayed = (str: string) => {
+  if (str === '') return undefined
+  // 将货币格式去掉再转化为数字
+  const number = +str.replace(/\,/g, '')
+  return isNaN(number) ? model.value : number
+}
 
-  // 非货币
-  if (!props.currency) {
-    const number = +value
-    if (!isNaN(number)) model.value = number
-  }
-
-  if (value === '') {
-    return (model.value = undefined)
-  }
-
-  // 货币
-  const number = +value.replace(/\,/g, '')
-
-  if (isNaN(number)) return
-
-  // 获取光标位置
-  const cursorIndex =
-    displayed.value.length - (inputRef.value?.el?.selectionStart ?? 0)
-
-  setCursorPosition(cursorIndex, value.length === 1)
-
-  // 更新值
-  model.value = number
+const handleUpdateModelValue = (input: string) => {
+  if (input === String(model.value ?? '')) return
+  model.value = parseDisplayed(input)
 }
 
 /**
  * 处理输入值变化的函数, 该函数仅在输入框失去焦点时触发,
- * 主要用于在输入非数字的情况下的回正处理
- * @param value 输入的值
+ * 主要用于在输入非数字的情况下的修正处理
+ * @param input 输入的值
  */
-const handleChange = (value: string) => {
-  const number = +value
-
-  if (isNaN(number)) {
-    // 更新一次值
-    displayed.value = getDisplayed(number)
-    // 随后将显示内容重置到之前的状态
-    nextTick(() => {
-      displayed.value = getDisplayed(model.value)
-    })
-  }
+const handleChange = (input: string) => {
+  emit('change', model.value)
+  displayed.value = input
+  nextTick(() => {
+    displayed.value = getDisplayed(model.value)
+  })
 }
 
-const getStepValue = () => {
+const stepVal = computed(() => {
   const { step } = props
   if (step === undefined) return 1
   return typeof step === 'boolean' ? 1 : step
-}
+})
 
 const tween = new Tween(
-  {
-    n: model.value ?? 0
-  },
+  { n: model.value ?? 0 },
   {
     onUpdate(state) {
       if (!inputRef.value?.el) return
@@ -136,25 +120,28 @@ const tween = new Tween(
 )
 
 const increase = () => {
-  tween.state.n = model.value ?? 0
-  model.value = n.plus(model.value ?? 0, getStepValue())
-  tween.to({ n: model.value })
+  const val = model.value ?? 0
+  tween.state.n = val
+  model.value = n.plus(val, stepVal.value)
+  tween.to({ n: val })
 }
 
 const decrease = () => {
-  tween.state.n = model.value ?? 0
-  model.value = n.minus(model.value ?? 0, getStepValue())
-  tween.to({ n: model.value })
+  const val = model.value ?? 0
+  tween.state.n = val
+  model.value = n.minus(val, stepVal.value)
+  tween.to({ n: val })
 }
 
 const handleKeydown = (e: KeyboardEvent) => {
   if (!props.step) return
   if (e.key === 'ArrowUp') {
     e.preventDefault()
-    model.value = n.plus(model.value ?? 0, getStepValue())
-  } else if (e.key === 'ArrowDown') {
+    return increase()
+  }
+  if (e.key === 'ArrowDown') {
     e.preventDefault()
-    model.value = n.minus(model.value ?? 0, getStepValue())
+    return decrease()
   }
 }
 </script>

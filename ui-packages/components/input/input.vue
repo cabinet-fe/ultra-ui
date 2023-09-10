@@ -18,7 +18,7 @@ import {
   useSlots,
   Transition,
   shallowRef,
-useAttrs
+  useAttrs
 } from 'vue'
 import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -42,7 +42,9 @@ const cls = bem('input')
 
 const { inForm } = useFormComponent(false)
 
-const { focus, handleBlur, handleFocus } = useFocus()
+const { focus, handleBlur, handleFocus } = useFocus(focused => {
+  focused ? emit('focus') : emit('blur')
+})
 
 const slots = useSlots()
 
