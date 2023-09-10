@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import type { NumberInputEmits, NumberInputProps } from './number-input.type'
 import { UInput, type InputExposed } from '../input'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj } from 'cat-kit/fe'
 import { useModel } from '@ui/compositions'
 import { ArrowUp, ArrowDown } from 'icon-ultra'
@@ -51,19 +51,15 @@ const displayed = shallowRef('')
 
 const focused = shallowRef(false)
 
-watch(model, () => {
-  displayed.value = getDisplayed(model.value)
-})
-
 /**
  * 获取展示值
  * @param num 实际值
  */
 const getDisplayed = (num?: number) => {
-  const { currency, precision, minPrecision, maxPrecision } = props
   if (num === undefined) return ''
-
   if (focused.value) return String(num)
+
+  const { currency, precision, minPrecision, maxPrecision } = props
 
   return currency
     ? n(num).currency('CNY', {
@@ -71,22 +67,45 @@ const getDisplayed = (num?: number) => {
         minPrecision,
         maxPrecision
       })
-    : String(num)
+    : n(num).fixed(
+        precision ?? {
+          minPrecision,
+          maxPrecision
+        }
+      )
 }
+
+watch(
+  [model, focused],
+  ([model, focused]) => {
+    if (focused) return
+    displayed.value = getDisplayed(model)
+  },
+  { immediate: true }
+)
 
 /**
  * 解析展示值
  * @param str 展示值
  */
 const parseDisplayed = (str: string) => {
-  if (str === '') return undefined
   // 将货币格式去掉再转化为数字
   const number = +str.replace(/\,/g, '')
-  return isNaN(number) ? model.value : number
+  const result = isNaN(number) ? model.value : number
+  if (result === undefined) return undefined
+
+  const { precision, maxPrecision, minPrecision } = props
+
+  return +n(result).fixed(
+    precision ?? {
+      minPrecision,
+      maxPrecision
+    }
+  )
 }
 
 const handleUpdateModelValue = (input: string) => {
-  if (input === String(model.value ?? '')) return
+  displayed.value = input
   model.value = parseDisplayed(input)
 }
 
@@ -97,10 +116,6 @@ const handleUpdateModelValue = (input: string) => {
  */
 const handleChange = (input: string) => {
   emit('change', model.value)
-  displayed.value = input
-  nextTick(() => {
-    displayed.value = getDisplayed(model.value)
-  })
 }
 
 const stepVal = computed(() => {
@@ -114,7 +129,7 @@ const tween = new Tween(
   {
     onUpdate(state) {
       if (!inputRef.value?.el) return
-      inputRef.value.el.value = getDisplayed(+n(state.n).fixed(2))
+      inputRef.value.el.value = getDisplayed(state.n)
     }
   }
 )
@@ -123,14 +138,14 @@ const increase = () => {
   const val = model.value ?? 0
   tween.state.n = val
   model.value = n.plus(val, stepVal.value)
-  tween.to({ n: val })
+  tween.to({ n: model.value })
 }
 
 const decrease = () => {
   const val = model.value ?? 0
   tween.state.n = val
   model.value = n.minus(val, stepVal.value)
-  tween.to({ n: val })
+  tween.to({ n: model.value })
 }
 
 const handleKeydown = (e: KeyboardEvent) => {

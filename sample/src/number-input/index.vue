@@ -1,10 +1,10 @@
 <template>
   <div>
     <div>值: {{ number }}</div>
-<!--
-    <div>
+
+    <!-- <div>
       普通
-      <u-number-input disabled v-model="number" />
+      <u-number-input disabled v-model="number" :precision="2" />
     </div>
 
     <div>
@@ -23,5 +23,5 @@
 import { ref } from 'vue'
 import {} from 'ultra-ui'
 
-const number = ref()
+const number = ref(2.999)
 </script>

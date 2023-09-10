@@ -68,9 +68,7 @@ export function useModel<
     )
 
     watch(value, v => {
-      if (value !== props[propName]) {
-        emit(`update:${propName as string}`, v)
-      }
+      v !== props[propName] && emit(`update:${propName as string}`, v)
     })
 
     return value
