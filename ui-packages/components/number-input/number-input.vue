@@ -129,7 +129,20 @@ const tween = new Tween(
   {
     onUpdate(state) {
       if (!inputRef.value?.el) return
-      inputRef.value.el.value = getDisplayed(state.n)
+      const { precision, maxPrecision } = props
+
+      if (precision === undefined && maxPrecision === undefined) {
+        inputRef.value.el.value = getDisplayed(
+          +n(state.n).fixed({
+            maxPrecision: Math.max(
+              String(model.value).split('.')[1]?.length ?? 0,
+              String(stepVal.value).split('.')[1]?.length ?? 0
+            )
+          })
+        )
+      } else {
+        inputRef.value.el.value = getDisplayed(state.n)
+      }
     }
   }
 )
