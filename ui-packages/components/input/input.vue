@@ -29,7 +29,8 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  size: 'default'
+  size: 'default',
+  clearable: true
 })
 
 const emit = defineEmits<InputEmits>()
