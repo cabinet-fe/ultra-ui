@@ -24,7 +24,7 @@ interface ValidateRule<
 
 /** 校验预设 */
 const validatePresets = {
-  require(value: any, rule: ValidateRule['required']): string {
+  required(value: any, rule: ValidateRule['required']): string {
     if (rule === false) return ''
 
     const errMsg = typeof rule === 'string' ? rule : '该项不能为空'
@@ -94,8 +94,8 @@ export class Validator<Data extends ValidatorData> {
   #dataRules?: ValidatorConfig<Data>['rules']
 
   constructor(config: ValidatorConfig<Data>) {
-    this['#data'] = config.data
-    this['#dataRules'] = config.rules
+    this.#data = config.data
+    this.#dataRules = config.rules
   }
 
   private async validateManyData(
@@ -125,6 +125,7 @@ export class Validator<Data extends ValidatorData> {
       const { validator, ...normalRules } = rules
 
       for (const ruleName in normalRules) {
+        console.log(validatePresets, ruleName)
         const errMsg = validatePresets[
           ruleName as keyof typeof validatePresets
         ](value, normalRules[ruleName])
@@ -171,18 +172,3 @@ export class Validator<Data extends ValidatorData> {
     return errMsg ? false : true
   }
 }
-
-const validator = new Validator({
-  data: { name: 'aaa' },
-  rules: {
-    name: {
-      required: true,
-      validator(v, data) {
-        return ''
-      }
-    }
-  }
-})
-
-// 要满足下面的用法
-validator.validate('name')
