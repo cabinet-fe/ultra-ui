@@ -1,0 +1,6 @@
+{
+  "name": "@ui/types",
+  "exports": {
+    "./*": "./*.d.ts"
+  }
+}

@@ -143,6 +143,9 @@ importers:
       '@ui/styles':
         specifier: workspace:*
         version: link:../styles
+      '@ui/types':
+        specifier: workspace:*
+        version: link:../types
       '@ui/utils':
         specifier: workspace:*
         version: link:../utils
@@ -159,6 +162,9 @@ importers:
       '@ui/shared':
         specifier: workspace:*
         version: link:../shared
+      '@ui/types':
+        specifier: workspace:*
+        version: link:../types
 
   ui-packages/directives:
     dependencies:
@@ -172,6 +178,8 @@ importers:
   ui-packages/shared: {}
 
   ui-packages/styles: {}
+
+  ui-packages/types: {}
 
   ui-packages/utils:
     dependencies:

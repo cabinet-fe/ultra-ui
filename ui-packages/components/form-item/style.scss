@@ -7,5 +7,6 @@
 
   @include m.e(label) {
     flex-shrink: 0;
+    padding-right: 8px;
   }
 }

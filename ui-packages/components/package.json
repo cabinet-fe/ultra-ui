@@ -9,7 +9,8 @@
     "@ui/compositions": "workspace:*",
     "@ui/shared": "workspace:*",
     "@ui/styles": "workspace:*",
-    "@ui/directives": "workspace:*"
+    "@ui/directives": "workspace:*",
+    "@ui/types": "workspace:*"
   },
   "scripts": {
     "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json --outDir ./dist"

@@ -1,5 +1,5 @@
-import type { FormComponentProps } from '@ui/shared'
-import type { DeconstructValue } from '@ui/utils'
+import { FormComponentProps } from '../component-common'
+import { DeconstructValue } from '../helper'
 
 export type FormModelItem<Val = unknown> = {
   value?: Val

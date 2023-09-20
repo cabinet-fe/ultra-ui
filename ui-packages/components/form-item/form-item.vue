@@ -2,7 +2,7 @@
   <div :class="cls.b">
     <label :class="cls.e('label')">
       {{ label }}
-      <UIcon><InfoFilled /></UIcon>
+      <UIcon v-if="tips"><InfoFilled /></UIcon>
     </label>
     <slot />
   </div>
