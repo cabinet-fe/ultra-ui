@@ -1,9 +1,11 @@
 <template>
-  <u-form :data="data" :rules="rules" ref="formRef">
-    <u-input field="aa" label="测试" tips="提示" />
-  </u-form>
+  <div>
+    <u-form :data="data" :rules="rules" ref="formRef" label-width="200lx">
+      <u-input field="aa" label="测试" tips="提示" />
+    </u-form>
 
-  <u-button @click="validate">校验</u-button>
+    <u-button @click="validate">校验</u-button>
+  </div>
 </template>
 
 <script lang="ts" setup>

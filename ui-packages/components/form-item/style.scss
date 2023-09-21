@@ -1,9 +1,17 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
 @include m.b(form-item) {
   @include m.flex(inline-flex);
+
+  @include m.component-size(vars.$form-component-sizes) using ($type, $sizes) {
+    @include m.b(form-item__label) {
+      height: map.get($sizes, height);
+      line-height: map.get($sizes, height);
+    }
+  }
 
   @include m.e(label) {
     flex-shrink: 0;

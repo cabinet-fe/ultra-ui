@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup generic="Data extends Record<string, any>">
-import { FormProps } from './form.type'
+import { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
 import { Validator } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
@@ -21,7 +21,7 @@ const validator = new Validator({
   rules: props.rules
 })
 
-useFormComponent(true)
+useFormComponent(true, props)
 
 defineExpose({
   /** 表单校验 */

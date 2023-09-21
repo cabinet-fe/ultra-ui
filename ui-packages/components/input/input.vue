@@ -41,7 +41,7 @@ const inst = getCurrentInstance()
 
 const cls = bem('input')
 
-const { inForm } = useFormComponent(false)
+const { inForm, formProps } = useFormComponent(false)
 
 const { focus, handleBlur, handleFocus } = useFocus(focused => {
   focused ? emit('focus') : emit('blur')
@@ -52,6 +52,8 @@ const slots = useSlots()
 const inputClass = computed(() => {
   return [cls.b, cls.m(props.size), bem.is('focus', focus.value)]
 })
+
+// inst?.vnode.props?.['onPrefix:click']来获取当前组件是否绑定了点击事件
 const prefixClass = [
   cls.e('prefix'),
   bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])

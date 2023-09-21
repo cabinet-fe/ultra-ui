@@ -17,7 +17,7 @@ export type ModelRules<Model extends Record<string, FormModelItem>> = {
 }
 
 /** 表单组件属性 */
-export interface FormProps<Data extends Record<string, any>>
+export interface FormProps<Data extends Record<string, any> = Record<string, any>>
   extends FormComponentProps {
   /** 表单模式, edit为编辑模式, view为查看模式 */
   mode?: 'edit' | 'view'
