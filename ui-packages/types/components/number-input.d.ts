@@ -1,4 +1,4 @@
-import { InputProps } from '../input/input.type'
+import { InputProps } from '../input'
 
 /** 数字输入组件属性 */
 export interface NumberInputProps extends Omit<InputProps, 'modelValue' > {

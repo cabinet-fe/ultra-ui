@@ -1,4 +1,4 @@
-import { DirectiveBinding, ObjectDirective } from 'vue'
+import type { DirectiveBinding, ObjectDirective } from 'vue'
 import { bem } from '@ui/utils'
 import { debounce } from 'cat-kit/fe'
 

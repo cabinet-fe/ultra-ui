@@ -1,4 +1,4 @@
-import { Ref, ref, watch } from 'vue'
+import { type Ref, ref, watch } from 'vue'
 
 interface ModelOptions<
   P extends Record<string, unknown>,

@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NumberInputEmits, NumberInputProps } from './number-input.type'
+import type { NumberInputEmits, NumberInputProps } from '@ui/types/components/number-input'
 import { UInput, type InputExposed } from '../input'
 import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj } from 'cat-kit/fe'

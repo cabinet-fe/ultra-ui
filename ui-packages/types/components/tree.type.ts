@@ -1,5 +1,5 @@
-import { PropsWithServerQuery } from "@ui/shared"
-import type { CustomTreeNode } from "./tree-node"
+import { PropsWithServerQuery } from "../component-common"
+
 
 /** 树组件属性 */
 export interface TreeProps<DataItem extends Record<string, any> = Record<string, any>> extends PropsWithServerQuery {

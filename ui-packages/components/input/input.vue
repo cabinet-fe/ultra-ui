@@ -6,7 +6,7 @@
 </template>
 
 <script lang="tsx" setup>
-import type { InputEmits, InputProps, _InputExposed } from './input.type'
+import type { InputEmits, InputProps, _InputExposed } from '@ui/types/components/input'
 import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
 import { useModel, useFormComponent, useFocus } from '@ui/compositions'

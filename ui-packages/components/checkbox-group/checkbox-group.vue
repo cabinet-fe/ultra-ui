@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup generic="Data extends Record<string, string | number>">
-import { CheckboxGroupProps, CheckboxGroupEmits } from './checkbox-group.type'
+import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types/components/checkbox-group'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
 import { useModel } from '@ui/compositions'

@@ -1,5 +1,5 @@
 import { type InjectionKey, inject, provide } from 'vue'
-import { FormProps } from '@ui/types/components/form'
+import type { FormProps } from '@ui/types/components/form'
 type DIContext = {
   inForm: boolean,
   formProps: FormProps

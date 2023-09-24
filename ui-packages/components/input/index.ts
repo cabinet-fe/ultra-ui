@@ -1,3 +1,3 @@
 export { default as UInput } from './input.vue'
 
-export type { InputProps, InputExposed, InputEmits } from './input.type'
+export  type { InputProps, InputExposed, InputEmits } from '@ui/types/components/input'

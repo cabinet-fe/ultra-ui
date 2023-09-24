@@ -5,9 +5,9 @@
       同时减少, dom的渲染开销 简而言之就是, 所有pop中的
     </div>
 
-    <u-context :scope="scope" #default="{ ctx }">
-      <u-button @click="ctx.visible = !ctx.visible">提示框</u-button>
-      <u-popup v-model="ctx.visible">啊说服对方</u-popup>
+    <u-context :scope="scope" #default="{ visible }">
+      <u-button @click="visible = !visible">提示框</u-button>
+      <u-popup v-model="visible">啊说服对方</u-popup>
     </u-context>
 
     <u-popup>

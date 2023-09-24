@@ -13,7 +13,7 @@ import {
   h,
   createTextVNode
 } from 'vue'
-import { TextProps } from './text.type'
+import type { TextProps } from '@ui/types/components/text'
 import { bem, withUnit, isTextNode, getHighlightChunks } from '@ui/utils'
 import { UNodeRender } from '../node-render'
 

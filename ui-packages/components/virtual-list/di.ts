@@ -1,5 +1,5 @@
-import { BEM } from '@ui/utils'
-import { InjectionKey } from 'vue'
+import type { BEM } from '@ui/utils'
+import type { InjectionKey } from 'vue'
 
 export const VirtualListDIKey: InjectionKey<{
   cls: BEM<'virtual-list'>

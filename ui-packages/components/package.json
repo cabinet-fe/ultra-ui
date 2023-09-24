@@ -13,7 +13,8 @@
     "@ui/types": "workspace:*"
   },
   "scripts": {
-    "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json --outDir ./dist"
+    "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json --outDir ./dist",
+    "type-check": "pnpm vue-tsc --noEmit"
   },
   "devDependencies": {
     "icon-ultra": "^2.0.16",

@@ -2,8 +2,8 @@ import {
   defineComponent,
   isRef,
   shallowRef,
-  VNode,
-  MaybeRef,
+  type VNode,
+  type MaybeRef,
   watchEffect,
   h
 } from 'vue'

@@ -1,8 +1,9 @@
-import { FormComponentProps } from '@ui/shared'
+import type { FormComponentProps } from "../component-common"
 
 /** 复选框组, 用来选择一组数据组件属性 */
-export interface CheckboxGroupProps<Data extends Record<string, string | number>>
-  extends FormComponentProps {
+export interface CheckboxGroupProps<
+  Data extends Record<string, string | number>
+> extends FormComponentProps {
   modelValue?: Array<string | number>
   data: Data[]
   labelKey?: string
