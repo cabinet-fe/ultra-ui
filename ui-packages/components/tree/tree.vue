@@ -6,7 +6,7 @@
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
-import { TreeProps } from './tree.type'
+import type { TreeProps } from '@ui/types/components/tree'
 import { computed, provide, shallowReactive } from 'vue'
 import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'

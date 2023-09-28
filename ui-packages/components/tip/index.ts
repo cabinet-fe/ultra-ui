@@ -1,2 +1,2 @@
 export { default as UTip } from './tip.vue'
-export * from './tip.type'
+export * from '@ui/types/components/tip'

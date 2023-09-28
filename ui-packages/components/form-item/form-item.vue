@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import { FormItemProps } from '@ui/types/components/form-item'
+import type { FormItemProps } from '@ui/types/components/form-item'
 import { UIcon } from '../icon'
 import { InfoFilled } from 'icon-ultra'
 import { type CSSProperties, computed } from 'vue'

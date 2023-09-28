@@ -1,2 +1,2 @@
 export { default as UNodeRender } from './node-render'
-export * from './node-render.type'
+export * from '@ui/types/components/node-render'

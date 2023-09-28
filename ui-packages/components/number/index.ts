@@ -1,2 +1,2 @@
 export { default as UNumber } from './number.vue'
-export * from './number.type'
+export * from '@ui/types/components/number'

@@ -1,2 +1,2 @@
 export { default as UTree } from './tree.vue'
-export * from './tree.type'
+export * from '@ui/types/components/tree'

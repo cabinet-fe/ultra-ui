@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup>
-import { TableProps } from './table.type'
+import type { TableProps } from '@ui/types/components/table'
 
 defineOptions({
   name: 'Table'

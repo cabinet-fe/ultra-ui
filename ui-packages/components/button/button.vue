@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { ButtonEmits, ButtonProps } from './button.type'
+import type { ButtonEmits, ButtonProps } from '@ui/types/components/button'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'

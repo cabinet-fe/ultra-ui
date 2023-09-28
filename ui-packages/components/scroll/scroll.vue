@@ -28,8 +28,8 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { ScrollPosition, ScrollExposed, ScrollProps, ScrollEmits } from './scroll.type'
-import { CSSProperties, computed, provide, shallowRef } from 'vue'
+import type { ScrollPosition, ScrollExposed, ScrollProps, ScrollEmits } from '@ui/types/components/scroll'
+import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import type { DefineEvent } from '@ui/utils'
 import { useResizeObserver } from '@ui/compositions'

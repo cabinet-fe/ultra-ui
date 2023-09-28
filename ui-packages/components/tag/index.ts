@@ -1,2 +1,2 @@
 export { default as UTag } from './tag.vue'
-export * from './tag.type'
+export * from '@ui/types/components/tag'

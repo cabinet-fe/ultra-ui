@@ -1,13 +1,11 @@
 import { camelCase } from 'cat-kit/be'
-import { mkdir, writeFile } from 'fs/promises'
-import { resolve } from 'path'
-import { UI_PATH } from '../shared'
+import { cp, mkdir, rm, writeFile } from 'fs/promises'
+import { join, resolve } from 'path'
+import { UI_PATH, PKG_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
 import { NAME_SPACE } from '@ui/shared'
 import type { ComponentCtx } from './type'
-
-
 
 const extMap = {
   ts: 'typescript',
@@ -41,11 +39,14 @@ async function write(ctx: ComponentCtx, content: string, ext: string) {
     trailingComma: 'none'
   })
 
-  return writeFile(
-    resolve(targetDir, ext.startsWith('.') ? ctx.componentName + ext : ext),
-    contentFormatted,
-    'utf-8'
+  const filePath = resolve(
+    targetDir,
+    ext.startsWith('.') ? ctx.componentName + ext : ext
   )
+
+  await writeFile(filePath, contentFormatted, 'utf-8')
+
+  return filePath
 }
 
 export function renderVueFile(ctx: ComponentCtx) {
@@ -63,7 +64,7 @@ export function renderVueFile(ctx: ComponentCtx) {
   </template>
 
   <script lang="ts" setup>
-  import { ${componentProps} } from './${ctx.componentName}.type'
+  import type { ${componentProps} } from '@ui/types/components/${ctx.componentName}'
   import { bem } from '@ui/utils'
 
   defineOptions({
@@ -97,18 +98,25 @@ export function renderTypeFile(ctx: ComponentCtx) {
     (e: 'update:modelValue', value: string): void
   }
 
-  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件内部使用) */
+  /** ${
+    ctx.componentDesc || ctx.componentName
+  }组件暴露的属性和方法(组件内部使用) */
   export interface _${upperCamelCase}Exposed {
 
   }
 
-  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+  /** ${
+    ctx.componentDesc || ctx.componentName
+  }组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
   export interface ${upperCamelCase}Exposed {
 
   }
   `
 
-  write(ctx, content, '.type.ts')
+  write(ctx, content, '.d.ts').then(async filePath => {
+    await cp(filePath, join(PKG_PATH, 'types/components', ctx.componentName + '.d.ts'))
+    rm(filePath)
+  })
 }
 
 export function renderIndexFile(ctx: ComponentCtx) {

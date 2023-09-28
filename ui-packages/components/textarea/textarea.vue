@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup>
-import { TextareaProps } from './textarea.type'
+import type { TextareaProps } from '@ui/types/components/textarea'
 
 defineOptions({
   name: 'Textarea'

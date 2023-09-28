@@ -1,5 +1,5 @@
 import { type ShallowRef, watch } from 'vue'
-import type { VirtualListProps } from './virtual-list.type'
+import type { VirtualListProps } from '@ui/types/components/virtual-list'
 
 interface Options {
   /** 容器模板引用 */

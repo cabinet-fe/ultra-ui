@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, Text, computed, VNode, shallowRef } from 'vue'
-import { PopupProps } from './popup.type'
+import { onBeforeUnmount, Text, computed, type VNode, shallowRef } from 'vue'
+import type { PopupProps } from '@ui/types/components/popup'
 import { bem, zIndex } from '@ui/utils'
 import { UNodeRender } from '../node-render'
 

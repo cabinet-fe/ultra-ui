@@ -1,2 +1,2 @@
 export { default as UVirtualList } from './virtual-list.vue'
-export * from './virtual-list.type'
+export * from '@ui/types/components/virtual-list'

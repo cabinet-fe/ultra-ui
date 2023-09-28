@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup generic="TabsItems extends string[] | Array<{ name: string; key: string | number }>">
-import { TabsProps } from './tabs.type'
+import type { TabsProps } from '@ui/types/components/tabs'
 
 defineOptions({
   name: 'Tabs'

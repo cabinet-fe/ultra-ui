@@ -1,4 +1,4 @@
-import { VNode } from "vue"
+import type { VNode } from "vue"
 
 /** 虚拟dom渲染组件属性 */
 export interface NodeRenderProps {

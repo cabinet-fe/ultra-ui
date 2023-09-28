@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup generic="Data extends Record<string, any>">
-import { FormProps } from '@ui/types/components/form'
+import type { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
 import { Validator } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'

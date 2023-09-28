@@ -6,8 +6,8 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import { IconProps } from './icon.type'
-import { CSSProperties, computed } from 'vue'
+import type { IconProps } from '@ui/types/components/icon'
+import { type CSSProperties, computed } from 'vue'
 import {  withUnit } from '@ui/utils'
 
 defineOptions({

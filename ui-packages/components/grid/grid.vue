@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, isFragment } from '@ui/utils'
-import type { GridProps } from './grid.type'
+import type { GridProps } from '@ui/types/components/grid'
 import {
   type CSSProperties,
   type VNodeArrayChildren,

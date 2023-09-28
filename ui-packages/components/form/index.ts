@@ -1,2 +1,2 @@
 export { default as UForm } from './form.vue'
-export * from './form.type'
+export * from '@ui/types/components/form'

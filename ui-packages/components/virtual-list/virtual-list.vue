@@ -9,8 +9,9 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import type { VirtualListProps } from './virtual-list.type'
-import { UScroll, type ScrollPosition } from '../scroll'
+import type { VirtualListProps } from '@ui/types/components/virtual-list'
+import { UScroll } from '../scroll'
+import type { ScrollPosition } from '@ui/types/components/scroll'
 import { computed, provide, shallowRef, watch } from 'vue'
 import { bem } from '@ui/utils'
 import { VirtualListDIKey } from './di'

@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup>
-import { TagProps } from './tag.type'
+import type { TagProps } from '@ui/types/components/tag'
 
 defineOptions({
   name: 'Tag'

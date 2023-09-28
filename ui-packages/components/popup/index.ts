@@ -1,2 +1,2 @@
 export { default as UPopup } from './popup.vue'
-export * from './popup.type'
+export * from '@ui/types/components/popup'
