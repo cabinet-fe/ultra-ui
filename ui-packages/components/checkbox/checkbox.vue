@@ -22,7 +22,10 @@
   generic="Val extends string | number | boolean = boolean"
 >
 import { useModel } from '@ui/compositions'
-import type { CheckboxProps, CheckboxEmits } from '@ui/types/components/checkbox'
+import type {
+  CheckboxProps,
+  CheckboxEmits
+} from '@ui/types/components/checkbox'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 

@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import type { VirtualListProps } from '@ui/types/components/virtual-list'
+// import type { VirtualListProps } from '@ui/types/components/virtual-list'
 import { UScroll } from '../scroll'
 import type { ScrollPosition } from '@ui/types/components/scroll'
 import { computed, provide, shallowRef, watch } from 'vue'
@@ -22,7 +22,7 @@ defineOptions({
   name: 'VirtualScroll'
 })
 
-const props = withDefaults(defineProps<VirtualListProps<DataItem>>(), {
+const props = withDefaults(defineProps<{}>(), {
   tag: 'div'
 })
 

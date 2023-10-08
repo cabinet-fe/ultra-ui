@@ -5,8 +5,8 @@
       同时减少, dom的渲染开销 简而言之就是, 所有pop中的
     </div>
 
-    <u-context :scope="scope" #default="{ visible }">
-      <u-button @click="visible = !visible">提示框</u-button>
+    <u-context :scope="scope" #default="scope">
+      <!-- <u-button @click="visible = !visible">提示框</u-button> -->
       <u-popup v-model="visible">啊说服对方</u-popup>
     </u-context>
 
@@ -31,9 +31,7 @@
 <script lang="ts" setup>
 import { shallowReactive } from 'vue'
 
-const scope = () => {
-  return shallowReactive({
-    visible: true
-  })
-}
+const scope = shallowReactive({
+  visible: true
+})
 </script>
