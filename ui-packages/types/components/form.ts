@@ -1,5 +1,5 @@
-import { FormComponentProps } from '../component-common'
-import { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 export type FormModelItem<Val = unknown> = {
   value?: Val

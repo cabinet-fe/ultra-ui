@@ -1,4 +1,4 @@
-import type { ScrollProps } from '../scroll/scroll.type'
+import type { ScrollProps } from './scroll'
 
 /** 虚拟滚动组件属性 */
 export interface VirtualListProps<

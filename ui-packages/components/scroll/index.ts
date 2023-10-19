@@ -1,2 +1,3 @@
 export { default as UScroll } from './scroll.vue'
-export * from '@ui/types/components/number-input'
+
+export * from '@ui/types/components/scroll'

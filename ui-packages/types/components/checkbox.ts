@@ -1,4 +1,4 @@
-import { FormComponentProps } from '@ui/shared'
+import type { FormComponentProps } from '../component-common'
 
 type Val = boolean | string | number
 

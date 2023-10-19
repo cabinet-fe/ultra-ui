@@ -20,8 +20,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { NumberInputEmits, NumberInputProps } from '@ui/types/components/number-input'
-import { UInput, type InputExposed } from '../input'
+import type {
+  NumberInputEmits,
+  NumberInputProps
+} from '@ui/types/components/number-input'
+import type { InputExposed } from '@ui/types/components/input'
+import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj } from 'cat-kit/fe'
 import { useModel } from '@ui/compositions'
@@ -156,7 +160,7 @@ const tween = new Tween(
       const _rawInput = inputDom.value
       if (!_rawInput) return
       _rawInput.value = getDisplayed(model.value)
-    },
+    }
   }
 )
 

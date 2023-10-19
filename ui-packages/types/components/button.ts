@@ -1,4 +1,4 @@
-import type { ComponentProps } from '@ui/shared'
+import type { ComponentProps } from '../component-common'
 import type { Component } from 'vue'
 
 /** 按钮类型 */
