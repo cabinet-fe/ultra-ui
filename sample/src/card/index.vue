@@ -1,11 +1,11 @@
 <template>
   <div>
-    <u-card width="400" size="aaa">
+    <u-card width="400" size="small">
       <u-card-header> 卡片标题 </u-card-header>
 
       <u-card-content> 卡片内容 </u-card-content>
 
-      <u-card-action>
+      <u-card-action align-right>
         <u-button type="primary" text>返回</u-button>
         <u-button plain type="primary">操作</u-button>
       </u-card-action>
