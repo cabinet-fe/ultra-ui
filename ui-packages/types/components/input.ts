@@ -3,7 +3,7 @@ import type { DeconstructValue } from '../helper'
 import type { ShallowRef } from 'vue'
 
 /** 输入框组件组件属性 */
-export interface InputProps extends /*@vue-ignore*/ FormComponentProps {
+export interface InputProps extends  FormComponentProps {
   /** modelValue */
   modelValue?: string
   /** 占位符 */

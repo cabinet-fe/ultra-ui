@@ -1,7 +1,7 @@
 import type { InputProps } from './input'
 
 /** 数字输入组件属性 */
-export interface NumberInputProps extends /*@vue-ignore*/ Omit<InputProps, 'modelValue' > {
+export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
   modelValue?: number
   /** 是否为货币模式 */
   currency?: boolean
