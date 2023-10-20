@@ -7,8 +7,9 @@
 <script lang="ts" setup generic="Data extends Record<string, any>">
 import type { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
-import { Validator } from '@ui/utils'
+import { isFragment, Validator } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
+import { isVNode, useSlots, type VNode } from 'vue'
 
 defineOptions({
   name: 'Form'
@@ -22,6 +23,8 @@ const validator = new Validator({
 })
 
 useFormComponent(true, props)
+
+const slots = useSlots()
 
 defineExpose({
   /** 表单校验 */

@@ -11,14 +11,15 @@
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 import type { FormExposed } from 'ultra-ui'
+import { shallowReactive } from 'vue'
 
 defineOptions({
   inheritAttrs: false
 })
 
-const data = {
+const data = shallowReactive({
   a: undefined
-}
+})
 
 const rules = {
   a: {

@@ -24,7 +24,7 @@ import type {
   NumberInputEmits,
   NumberInputProps
 } from '@ui/types/components/number-input'
-import type { InputExposed } from '@ui/types/components/input'
+import type { InputExposed } from '../input'
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj } from 'cat-kit/fe'
