@@ -7,9 +7,9 @@
 <script lang="ts" setup generic="Data extends Record<string, any>">
 import type { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
-import { isFragment, Validator } from '@ui/utils'
+import { Validator } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
-import { isVNode, useSlots, type VNode } from 'vue'
+import { useSlots } from 'vue'
 
 defineOptions({
   name: 'Form'

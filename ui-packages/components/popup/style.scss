@@ -1,8 +1,36 @@
 @use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
 
 @include m.b(popup) {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #ccc;
+  opacity: 0;
+  position: absolute;
+  background-color: fn.use-var(bg-color, top);
+  transform: scale3d(0, 0, 1) skewX(60deg);
+
+  transition-property: opacity, transform;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
+  transform-origin: 0 0;
+  border-radius: fn.use-var(radius);
+
+  @include m.e(overlay) {
+    pointer-events: auto;
+    background: rgba($color: #000000, $alpha: 0.32);
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    transition: opacity 0.5s;
+    opacity: 0;
+  }
+
+  @include m.m(visible) {
+
+    opacity: 1;
+  }
+
+  @include m.m(hide) {
+    transform: scale3d(0.8, 0.8, 1);
+  }
 }

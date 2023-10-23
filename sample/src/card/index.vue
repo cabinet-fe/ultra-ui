@@ -13,10 +13,10 @@
 
     <u-card width="400">
       <u-card-cover
-        src="https://img1.baidu.com/it/u=4250406567,15377877&fm=253&fmt=auto&app=120&f=JPEG?w=1422&h=800"
+        src="http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg"
       />
 
-      <u-card-action style="display: flex; justify-content: space-between; align-items: center">
+      <u-card-action style="display: flex; justify-content: space-between">
         <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
         <button-common-props tag="span">
           <u-button :icon="Star" />
