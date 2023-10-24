@@ -12,7 +12,7 @@
         zIndex: zIndex()
       }"
     >
-      <div ref="popRef" v-bind="$attrs" :class="cls.b" :style="style">
+      <div ref="popRef" v-bind="$attrs" :class="cls.b" :style="style" @click.stop>
         <slot />
       </div>
     </div>
