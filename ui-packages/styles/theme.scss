@@ -25,7 +25,7 @@
     bg-color,
     (
       // 底部图层背景色
-      bottom: #eeeeee,
+      bottom: #f6f6f6,
       // 中部图层背景色
       medium: #fefefe,
       // 顶部图层背景色
@@ -49,7 +49,14 @@
   );
 
   // 圆角
-  @include m.css-var(radius, 4px);
+  @include m.css-var(
+    radius,
+    (
+      small: 2px,
+      default: 4px,
+      large: 8px
+    )
+  );
 
   // 阴影
   @include m.css-var(shadow, '0 1px 4px 0 #ccc');

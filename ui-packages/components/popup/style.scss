@@ -8,10 +8,10 @@
   transform: scale3d(0, 0, 1);
 
   transition-property: opacity, transform;
-  transition-duration: 0.5s;
+  transition-duration: 0.25s;
   transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
   transform-origin: 0 0;
-  border-radius: fn.use-var(radius);
+  border-radius: fn.use-var(radius, default);
 
   // 透明层
   @include m.e(overlay) {
@@ -22,7 +22,7 @@
     top: 0;
     width: 100vw;
     height: 100vh;
-    transition: opacity 0.5s;
+    transition: opacity 0.25s;
     // opacity: 0;
   }
 

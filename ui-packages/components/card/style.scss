@@ -3,7 +3,7 @@
 @use '@ui/styles/functions' as fn;
 
 @include m.b(card) {
-  border-radius: fn.use-var(radius);
+  border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
   font-size: fn.use-var(font-size);

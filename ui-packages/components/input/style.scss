@@ -9,7 +9,7 @@
   font-size: 0;
   line-height: 1;
   width: 200px;
-  border-radius: fn.use-var(radius);
+  border-radius: fn.use-var(radius, default);
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   padding: 0 4px;

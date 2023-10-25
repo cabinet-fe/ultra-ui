@@ -13,7 +13,7 @@
       cursor: pointer;
       transition: color 0.25s;
       width: 20px;
-      border-radius: fn.use-var(radius);
+      border-radius: fn.use-var(radius, default);
 
       &:hover {
         color: fn.use-var(color, primary);

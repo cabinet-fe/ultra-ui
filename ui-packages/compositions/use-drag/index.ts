@@ -1,12 +1,20 @@
 import { type Ref, type ShallowRef, watch, onBeforeUnmount } from 'vue'
 
 interface DragOptions {
+  /** 拖动目标 */
   target: ShallowRef<HTMLElement | undefined> | Ref<HTMLElement | undefined>
+  /** 拖动开始 */
   onDragStart?(e: MouseEvent): void
-  onDragEnd?(e: MouseEvent): void
-  onDrag?(x: number, y: number): void
+  /** 拖动结束 */
+  onDragEnd?(x: number, y: number, e: MouseEvent): void
+  /** 拖动时 */
+  onDrag?(x: number, y: number, e: MouseEvent): void
 }
 
+/**
+ * 拖动组合式方法
+ * @param options 拖动选项
+ */
 export function useDrag(options: DragOptions) {
   const { target, onDragStart, onDrag, onDragEnd } = options
 
@@ -47,13 +55,13 @@ export function useDrag(options: DragOptions) {
     offsetX = e.x - originX
     offsetY = e.y - originY
 
-    onDrag?.(offsetX, offsetY)
+    onDrag?.(offsetX, offsetY, e)
   }
 
   const handleMouseup = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleMousemove)
     document.removeEventListener('mouseup', handleMouseup)
-    onDragEnd?.(e)
+    onDragEnd?.(e.x - originX, e.y - originY, e)
     document.onselectstart = onselectstart
   }
 
