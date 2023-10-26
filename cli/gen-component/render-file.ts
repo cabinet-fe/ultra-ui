@@ -88,6 +88,8 @@ export function renderTypeFile(ctx: ComponentCtx) {
   const EmitsName = `${upperCamelCase}Emits`
 
   const content = `
+  import type { DeconstructValue } from "../helper"
+
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {
     modelValue?: string
@@ -108,9 +110,8 @@ export function renderTypeFile(ctx: ComponentCtx) {
   /** ${
     ctx.componentDesc || ctx.componentName
   }组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-  export interface ${upperCamelCase}Exposed {
+  export type ${upperCamelCase}Exposed = DeconstructValue<_${upperCamelCase}Exposed>
 
-  }
   `
 
   write(ctx, content, '.d.ts').then(async filePath => {
@@ -124,7 +125,8 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
-  export type { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from './${ctx.componentName}.type'
+
+  export type { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from '@ui/types/components/${ctx.componentName}'
   `
 
   write(ctx, content, 'index.ts')

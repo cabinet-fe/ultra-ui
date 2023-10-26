@@ -1,4 +1,4 @@
-/** 数字组件组件属性 */
+/** 数字组件属性 */
 export interface NumberProps {
   /** 数字数值 */
   value: number
@@ -12,8 +12,8 @@ export interface NumberProps {
   precision?: number
 }
 
-/** 数字组件组件定义的事件 */
+/** 数字组件定义的事件 */
 export interface NumberEmits {}
 
-/** 数字组件组件暴露的属性和方法 */
+/** 数字组件暴露的属性和方法 */
 export interface NumberExposed {}

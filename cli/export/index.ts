@@ -31,7 +31,7 @@ async function exportEntry() {
       const existEntry = existsSync(join(dir.path, 'index.ts'))
 
       if (existEntry) {
-        return `export * from './${dir.name}' \n\n`
+        return `export * from './${dir.name}'`
       } else {
         const childDirs = await readDir(dir.path, {
           readType: 'file'

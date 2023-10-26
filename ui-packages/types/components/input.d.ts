@@ -2,7 +2,7 @@ import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 import type { ShallowRef } from 'vue'
 
-/** 输入框组件组件属性 */
+/** 输入框组件属性 */
 export interface InputProps extends  FormComponentProps {
   /** modelValue */
   modelValue?: string

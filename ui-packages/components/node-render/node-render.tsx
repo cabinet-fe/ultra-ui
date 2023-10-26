@@ -1,4 +1,11 @@
-import { type PropType, type VNode, type VNodeArrayChildren, cloneVNode, defineComponent, isVNode } from 'vue'
+import {
+  type PropType,
+  type VNode,
+  type VNodeArrayChildren,
+  cloneVNode,
+  defineComponent,
+  isVNode
+} from 'vue'
 
 export default defineComponent({
   name: 'NodeRender',
@@ -23,7 +30,7 @@ export default defineComponent({
         return props.content
       }
       if (isVNode(props.content)) {
-        cloneVNode(props.content, attrs, true)
+        return cloneVNode(props.content, attrs, true)
       }
       return props.content
     }

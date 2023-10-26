@@ -14,6 +14,8 @@ export * from './form'
 
 export * from './form-item'
 
+export * from './gantt-chart'
+
 export * from './grid'
 
 export * from './icon'
@@ -49,6 +51,8 @@ export * from './textarea'
 export * from './theme'
 
 export * from './tip'
+
+export * from './css-transition'
 
 export * from './tree'
 

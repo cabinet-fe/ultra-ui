@@ -81,13 +81,6 @@ let opened = false
 /** 样式 */
 const style = shallowReactive({})
 
-const show = () => {
-  dialogRef.value?.classList.add(cls.m('visible'))
-}
-const hide = () => {
-  dialogRef.value?.classList.remove(cls.m('visible'))
-}
-
 watch(visible, v => {
   // if (!v) return requestAnimationFrame(hide)
 
@@ -106,16 +99,19 @@ let transformed = {
   x: 0,
   y: 0
 }
+
+/** 更新弹框位置 */
+const updateDialogTransform = (x: number, y: number) => {
+  const dom = dialogRef.value
+  if (!dom) return
+  dom.style.transform = `translate(${x}px,${y}px)`
+}
+
 useDrag({
   target: headerRef,
 
   onDrag(x, y) {
-
-    const dom = dialogRef.value
-    if (!dom) return
-    dom.style.transform = `translate(${transformed.x + x}px,${
-      transformed.y + y
-    }px)`
+    updateDialogTransform(transformed.x + x, transformed.y + y)
   },
 
   onDragEnd(x, y) {
@@ -128,6 +124,7 @@ useDrag({
 const toggleMaximize = () => {
   const dom = dialogRef.value
   if (!dom) return
+
   const targetCls = cls.m('maximum')
   if (dom.classList.contains(targetCls)) {
     requestAnimationFrame(() => {
