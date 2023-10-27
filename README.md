@@ -1,4 +1,4 @@
-[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=anuraghazra)](https://github.com/HodgeWen/github-readme-stats)
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=HodgeWen)](https://github.com/HodgeWen/github-readme-stats)
 
 # ultra-ui
 
