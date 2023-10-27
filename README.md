@@ -1,3 +1,5 @@
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=anuraghazra)](https://github.com/HodgeWen/github-readme-stats)
+
 # ultra-ui
 
 给你带来极致性能, 极致代码, 极致体验的 Vue3 组件库

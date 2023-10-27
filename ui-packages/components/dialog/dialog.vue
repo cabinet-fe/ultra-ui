@@ -1,15 +1,15 @@
 <template>
   <!-- dom解耦 -->
   <Teleport to="body">
-    <div
-      v-show="visible"
-      :class="cls.e('overlay')"
-      @click="close"
-      :style="{
-        zIndex: zIndex()
-      }"
-    >
-      <transition name="dialog">
+    <transition name="dialog">
+      <div
+        v-show="visible"
+        :class="cls.e('overlay')"
+        @click="close"
+        :style="{
+          zIndex: zIndex()
+        }"
+      >
         <div
           v-if="visible || opened"
           v-show="visible"
@@ -28,9 +28,9 @@
 
             <div :class="cls.e('buttons')">
               <u-icon :class="cls.e('btn-minimize')"><Minus /></u-icon>
-              <u-icon :class="cls.e('btn-maximize')" @click="toggleMaximize"
-                ><Plus
-              /></u-icon>
+              <u-icon :class="cls.e('btn-maximize')" @click="toggleMaximize">
+                <Plus />
+              </u-icon>
               <u-icon :class="cls.e('btn-close')"><CloseBold /></u-icon>
             </div>
           </section>
@@ -39,8 +39,8 @@
             <slot />
           </section>
         </div>
-      </transition>
-    </div>
+      </div>
+    </transition>
   </Teleport>
 </template>
 

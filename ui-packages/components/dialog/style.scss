@@ -93,13 +93,13 @@
 
 .dialog-enter-active,
 .dialog-leave-active {
-  transition-property: opacity, transform;
+  transition-property: opacity;
   transition-duration: 0.35s;
-  transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
+  // transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
 }
 
 .dialog-enter-from,
 .dialog-leave-to {
   opacity: 0;
-  transform: scale3d(0, 0, 1);
+  // transform: scale3d(0, 0, 1);
 }
