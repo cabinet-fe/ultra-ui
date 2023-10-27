@@ -5,7 +5,8 @@
 <script lang="ts" setup>
 import type {
   CssTransitionProps,
-  CssTransitionExposed
+  CssTransitionExposed,
+  CssTransitionEmits
 } from '@ui/types/components/css-transition'
 import { isComment, isFragment, isTextNode } from '@ui/utils'
 import {
@@ -26,6 +27,8 @@ defineOptions({
 
 const props = defineProps<CssTransitionProps>()
 
+const emit = defineEmits<CssTransitionEmits>()
+
 let _active = props.active
 
 const childRef = shallowRef<{
@@ -44,19 +47,21 @@ const classes = computed(() => {
 const transitionActive = () => {
   const { enterActive, enterTo } = classes.value
   const dom = childRef.value?.$el
-
+  // 标记进入动画激活状态
   dom?.classList.add(enterActive)
-
+  // 在下一帧插入动画运动目标状态
   requestAnimationFrame(() => {
     dom?.classList.add(enterTo)
   })
 }
 
 const transitionInactive = () => {
-  const { enterActive, enterTo, leaveActive } = classes.value
+  const { enterTo, leaveActive } = classes.value
   const dom = childRef.value?.$el
-  dom?.classList.remove(enterActive)
+
+  // 标记动画进入离开状态
   dom?.classList.add(leaveActive)
+  // 在下一帧移除动画运动目标状态恢复原点
   requestAnimationFrame(() => {
     dom?.classList.remove(enterTo)
   })
@@ -65,36 +70,55 @@ const transitionInactive = () => {
 watch(
   () => props.active,
   active => {
-    active ? transitionActive() : transitionInactive()
+    _active = active
+    _active ? transitionActive() : transitionInactive()
   }
 )
 
 const transitionEndHandler = () => {
-  const { active } = props
   const { leaveActive, enterActive } = classes.value
   const dom = childRef.value?.$el
-  // 如果是激活状态，则移除enter-active类
-
-  if (active) {
+  // 激活状态，移除enter-active类
+  if (_active) {
     dom?.classList.remove(enterActive)
+    emit('after-enter')
   } else {
     dom?.classList.remove(leaveActive)
+    emit('after-leave')
   }
 }
 
-watch(childRef, (child, oldChild) => {
-  if (!child) {
-    return oldChild?.$el.removeEventListener(
-      'transitionend',
-      transitionEndHandler
-    )
+const transitionCancelHandler = () => {
+  const { leaveActive, enterActive } = classes.value
+  const dom = childRef.value?.$el
+  // 激活状态，移除enter-active类
+  if (_active) {
+    dom?.classList.remove(enterActive)
+    emit('enter-canceled')
+  } else {
+    dom?.classList.remove(leaveActive)
+    emit('leave-canceled')
   }
+}
 
-  child.$el.addEventListener('transitionend', transitionEndHandler)
+/** 添加事件 */
+const addEvent = (el?: HTMLElement) => {
+  el?.addEventListener('transitioncancel', transitionCancelHandler)
+  el?.addEventListener('transitionend', transitionEndHandler)
+}
+
+/** 移除事件 */
+const removeEvent = (el?: HTMLElement) => {
+  el?.removeEventListener('transitioncancel', transitionCancelHandler)
+  el?.removeEventListener('transitionend', transitionEndHandler)
+}
+
+watch(childRef, (child, oldChild) => {
+  child ? addEvent(child.$el) : removeEvent(oldChild?.$el)
 })
 
 onBeforeUnmount(() => {
-  childRef.value?.$el.removeEventListener('transitionend', transitionEndHandler)
+  removeEvent(childRef.value?.$el)
 })
 
 const slots = useSlots()
@@ -118,7 +142,9 @@ defineExpose<CssTransitionExposed>({
       _active = active(_active)
       return this.toggle(_active)
     }
-    active ? transitionActive() : transitionInactive()
+    _active = active
+    console.log(_active)
+    _active ? transitionActive() : transitionInactive()
   }
 })
 </script>

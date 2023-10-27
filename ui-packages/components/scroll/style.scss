@@ -47,6 +47,7 @@ $root-name: scroll;
     position: absolute;
     border-radius: $bar-size;
     background-color: rgba($color: $bar-color, $alpha: 0.4);
+    will-change: transform;
     transition:
       opacity 0.3s ease-in,
       background-color 0.3s ease-in,

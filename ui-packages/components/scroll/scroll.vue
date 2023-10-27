@@ -5,7 +5,6 @@
       ref="containerRef"
       :class="cls.e('container')"
       :is="tag"
-      v-bind="$attrs"
       @scroll.passive="handleScroll"
     >
       <slot />
@@ -28,7 +27,12 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { ScrollPosition, ScrollExposed, ScrollProps, ScrollEmits } from '@ui/types/components/scroll'
+import type {
+  ScrollPosition,
+  ScrollExposed,
+  ScrollProps,
+  ScrollEmits
+} from '@ui/types/components/scroll'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import type { DefineEvent } from '@ui/utils'
