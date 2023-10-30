@@ -25,7 +25,7 @@ importers:
         version: 3.3.7
       autoprefixer:
         specifier: 10.4.16
-        version: 10.4.16(postcss@8.4.27)
+        version: 10.4.16(postcss@8.4.31)
       cat-kit:
         specifier: ^3.4.13
         version: 3.4.13
@@ -96,8 +96,8 @@ importers:
         specifier: workspace:*
         version: link:../ui-packages/styles
       icon-ultra:
-        specifier: ^2.0.16
-        version: 2.0.16(vue@3.3.7)
+        specifier: ^2.1.0
+        version: 2.1.0(vue@3.3.7)
       ultra-ui:
         specifier: workspace:*
         version: link:../ui
@@ -1549,7 +1549,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /autoprefixer@10.4.16(postcss@8.4.27):
+  /autoprefixer@10.4.16(postcss@8.4.31):
     resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -1561,7 +1561,7 @@ packages:
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.27
+      postcss: 8.4.31
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -2349,6 +2349,15 @@ packages:
       vue: ^3.2.0
     dependencies:
       vue: 3.3.7(typescript@5.2.2)
+    dev: true
+
+  /icon-ultra@2.1.0(vue@3.3.7):
+    resolution: {integrity: sha512-cgWn6wmL+rElCH8/rgAl/aZyJoYCjo58dgz22dpRqMvWNdhHVjmbNXN0sj8FrGY9QV/X6sILT5vAfiQupaQdAA==}
+    peerDependencies:
+      vue: ^3.3.7
+    dependencies:
+      vue: 3.3.7(typescript@5.2.2)
+    dev: false
 
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}

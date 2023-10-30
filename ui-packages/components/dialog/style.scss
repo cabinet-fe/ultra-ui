@@ -35,7 +35,6 @@
 
   @include m.e(body) {
     padding: 0 8px;
-    height: calc(90vh - 49px)!important;
   }
 
   @include m.e(buttons) {
@@ -91,9 +90,12 @@
 
     width: 100vw !important;
     height: 100vh !important;
+
+    max-height: 100vh;
   }
 }
 
+// 弹框透明层动画进入和离开时应用的类
 .dialog-overlay-enter-active,
 .dialog-overlay-leave-active {
   transition: opacity 0.35s;

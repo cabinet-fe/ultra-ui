@@ -14,6 +14,9 @@
     </div>
 
     <u-button @click="visible = true">打开</u-button>
+    <div v-show="visible">
+      {{ getContent() }}
+    </div>
 
     <u-dialog v-model="visible" style="width: 900px;" title="弹框">
       <p>内容</p>
@@ -69,6 +72,10 @@
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 const visible = shallowRef(false)
+
+const getContent = () => {
+  return Math.random() + ''
+}
 </script>
 
 <style lang="scss" scoped></style>

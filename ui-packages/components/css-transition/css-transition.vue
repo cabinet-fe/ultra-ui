@@ -143,7 +143,6 @@ defineExpose<CssTransitionExposed>({
       return this.toggle(_active)
     }
     _active = active
-    console.log(_active)
     _active ? transitionActive() : transitionInactive()
   }
 })

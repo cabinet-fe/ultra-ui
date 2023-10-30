@@ -1,3 +1,6 @@
+import type { Ref, ShallowRef } from 'vue'
+import type { DeconstructValue } from '../helper'
+
 export type ScrollPosition = {
   /** 横向位置 */
   x?: number
@@ -23,10 +26,18 @@ export interface ScrollEmits {
   (e: 'scroll', position: Required<ScrollPosition>): void
 }
 
-export interface ScrollExposed {
+export interface _ScrollExposed {
   /**
    * 滚动至
    * @param position 位置
    */
   scrollTo(position: ScrollPosition): void
+
+  /** Scroll模板元素 */
+  scrollRef: ShallowRef<HTMLElement | undefined>
+
+  /** ScrollContainer模板元素 */
+  containerRef: ShallowRef<HTMLElement | undefined>
 }
+
+export type ScrollExposed = DeconstructValue<_ScrollExposed>
