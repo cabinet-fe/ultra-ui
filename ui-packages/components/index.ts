@@ -52,8 +52,6 @@ export * from './theme'
 
 export * from './tip'
 
-export * from './css-transition'
-
 export * from './tree'
 
 export * from './virtual-list'

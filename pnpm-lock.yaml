@@ -154,8 +154,8 @@ importers:
         specifier: ^3.12.2
         version: 3.12.2
       icon-ultra:
-        specifier: ^2.0.16
-        version: 2.0.16(vue@3.3.7)
+        specifier: ^2.1.0
+        version: 2.1.0(vue@3.3.7)
 
   ui-packages/compositions:
     dependencies:
@@ -2343,21 +2343,12 @@ packages:
     resolution: {integrity: sha512-UNopramDEhHJD+VR+ehk8rOslwSfByxPIZyJRfV739NDhN5LF1fa1MqnzKm2lGTQRjNrjK19Q5fhkgIfjlVUKw==}
     dev: true
 
-  /icon-ultra@2.0.16(vue@3.3.7):
-    resolution: {integrity: sha512-YMKX+lVrs8KriWmqy5wuChW4Yl5wljDNnMl+NDSLpyG3aRpqxqPEnYl3Nt/c+8InN6Pn1zn5ImzyS+jc6SJf+Q==}
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      vue: 3.3.7(typescript@5.2.2)
-    dev: true
-
   /icon-ultra@2.1.0(vue@3.3.7):
     resolution: {integrity: sha512-cgWn6wmL+rElCH8/rgAl/aZyJoYCjo58dgz22dpRqMvWNdhHVjmbNXN0sj8FrGY9QV/X6sILT5vAfiQupaQdAA==}
     peerDependencies:
       vue: ^3.3.7
     dependencies:
       vue: 3.3.7(typescript@5.2.2)
-    dev: false
 
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}

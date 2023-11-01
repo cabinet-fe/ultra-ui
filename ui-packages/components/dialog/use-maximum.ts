@@ -20,6 +20,7 @@ export function useMaximum(options: Options): Returned {
     const dom = dialogRef.value
     if (!dom) return
     if (maximized) {
+      // 先设置一个高度才会有过渡动画
       dom.style.height = dom.offsetHeight + 'px'
       requestAnimationFrame(() => {
         dom.classList.add(maximumCls)

@@ -6,7 +6,7 @@
   background-color: fn.use-var(bg-color, bottom);
   border-radius: fn.use-var(radius, large);
   overflow: hidden;
-  transform: scale3d(0, 0, 1);
+  transform: scale3d(0, 0, 1) translate(0, 0);
   max-height: 90vh;
   will-change: transform;
 
@@ -74,15 +74,6 @@
     background-color: #34c759;
   }
 
-  @include m.m(visible) {
-    opacity: 1;
-    transform: scale3d(1, 1, 1);
-  }
-
-  @include m.m(hide) {
-    transform: scale3d(0.8, 0.8, 1);
-  }
-
   @include m.m(maximum) {
     transition-property: width, height;
     transition-duration: 0.25s;
@@ -90,7 +81,7 @@
 
     width: 100vw !important;
     height: 100vh !important;
-
+    transform: scale3d(1, 1, 1) translate(0, 0) !important;
     max-height: 100vh;
   }
 }
@@ -106,11 +97,11 @@
   opacity: 0;
 }
 
-.dialog-enter-to {
-  transform: scale3d(1, 1, 1);
-}
+// .dialog-enter-to {
+//   transform: scale3d(1, 1, 1);
+// }
 
-.dialog-enter-active,
-.dialog-leave-active {
-  transition: transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35);
-}
+// .dialog-enter-active,
+// .dialog-leave-active {
+//   transition: transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35);
+// }
