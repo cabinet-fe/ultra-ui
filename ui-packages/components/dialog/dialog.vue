@@ -174,10 +174,10 @@ const dialogTransition = useTransition('style', {
     transform: 'scale3d(1, 1, 1) translate(0, 0) '
   },
   transitionInStyle: {
-    transition: 'transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
   transitionOutStyle: {
-    transition: 'transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
 })
 
