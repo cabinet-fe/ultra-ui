@@ -31,6 +31,7 @@ declare module 'vue' {
     UScroll: typeof import('ultra-ui')['UScroll']
     UText: typeof import('ultra-ui')['UText']
     UTree: typeof import('ultra-ui')['UTree']
+    UUploader: typeof import('ultra-ui')['UUploader']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']
   }
 }

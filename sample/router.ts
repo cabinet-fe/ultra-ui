@@ -39,5 +39,9 @@ export const router = createRouter({
       : []),
     ...routes
   ],
-  history: createWebHistory('/')
+  history: createWebHistory('/abc')
+})
+
+router.beforeEach((to, from, next) => {
+  next()
 })
