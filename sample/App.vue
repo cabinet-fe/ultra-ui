@@ -11,7 +11,6 @@
           }"
         >
           <div v-ripple>
-            {{ c.log(11) }}
             {{ name }}
           </div>
         </li>

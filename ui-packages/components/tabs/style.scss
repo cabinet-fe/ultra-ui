@@ -3,4 +3,30 @@
 @use '@ui/styles/vars';
 
 @include m.b(tabs) {
+  @include m.e(header) {
+    display: flex;
+    border-bottom: fn.use-var(border);
+    margin-bottom: 10px;
+    &--label {
+      cursor: pointer;
+      border: fn.use-var(border);
+      border-right: 0;
+      background-color: fn.use-var(bg-color, top);
+      padding: 4px 8px;
+      font-size: fn.use-var(font-size, title);
+      color: fn.use-var(color, info);
+      @include m.is('active') {
+        color: fn.use-var(color, primary);
+      }
+    }
+    &--label:last-of-type {
+      border-right: fn.use-var(border);
+    }
+    &--label:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+  @include m.e(content) {
+    border: 1px solid gray;
+  }
 }

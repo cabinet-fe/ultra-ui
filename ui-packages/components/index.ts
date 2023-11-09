@@ -46,3 +46,5 @@ export * from './tree'
 
 export * from './virtual-scroll'
 
+export * from './tabs'
+
