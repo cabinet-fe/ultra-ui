@@ -8,7 +8,7 @@ export interface Item {
 export interface TabsProps {
   modelValue?: string | number
   items: Array<Item | string>
-  tabPosition?: 'left' | 'right' | 'top' | 'bottom'
+  position?: 'left' | 'right' | 'top' | 'bottom'
 }
 
 /** 标签页组件组件定义的事件 */

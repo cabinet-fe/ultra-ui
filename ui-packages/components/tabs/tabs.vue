@@ -1,13 +1,10 @@
 <template>
-  <div :class="[cls.b, cls.e(tabPosition)]">
-    <div :class="[cls.e('header'), cls.em('header', tabPosition)]">
+  <div :class="[cls.b, cls.e(props.position)]">
+    <div :class="[cls.e('header'), cls.em('header', props.position)]">
       <div
         v-for="item in standardItems"
         :key="item.key"
-        :class="[
-          cls.em('header', 'label'),
-          bem.is('active', modelValue === item.key)
-        ]"
+        :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
         @click="changeTab(item.key!)"
       >
         <slot :name="`${item?.name}-label`">
@@ -27,22 +24,18 @@
   </div>
 </template>
 
-<script
-  lang="ts"
-  setup
-  generic="TabsItems extends string[] | Array<{ name: string; key: string | number }>"
->
-import type { Item } from '@ui/types/components/tabs'
-import type { TabsProps } from '@ui/types/components/tabs'
+<script lang="ts" setup>
+import type { Item, TabsProps } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import {
-  computed,
-  getCurrentInstance
-} from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 
 defineOptions({
   name: 'Tabs'
+})
+
+const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
+  position: 'right'
 })
 
 const instance = getCurrentInstance()!
@@ -65,11 +58,9 @@ const showContent = computed(() => {
   }
 })
 
-const { items, tabPosition = 'top' } = defineProps<TabsProps>()
-
 const standardItems = computed<Array<Item>>(() => {
-  if (items.length) {
-    return items.map(item => {
+  if (props.items.length) {
+    return props.items.map((item: any) => {
       if (isObj(item)) {
         item.key = item.key || item.name
         return item
