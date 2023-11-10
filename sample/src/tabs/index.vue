@@ -1,5 +1,8 @@
 <template>
-  <u-tabs :items="items" v-model="active">
+  <div>
+    <u-button v-for="item in positions" @click="setPosition(item)">{{ item }}</u-button>
+  </div>
+  <u-tabs :items="items" v-model="active" :tabPosition="tabPosition">
     <template #赵-label>+赵</template>
     <template #赵>第一页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template>
     <template #钱>第二页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template>
@@ -13,4 +16,12 @@ import { ref } from 'vue'
 let items = ref(['赵', '钱', '孙', '李'])
 
 const active = ref('钱')
+
+const positions = ['top', 'bottom', 'left', 'right']
+
+let tabPosition: any = ref('top')
+
+const setPosition = (position: any) => {
+  tabPosition.value = position
+}
 </script>

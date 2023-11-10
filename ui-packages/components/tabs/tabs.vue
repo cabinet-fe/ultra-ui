@@ -1,10 +1,13 @@
 <template>
-  <div :class="cls.b">
-    <div :class="cls.e('header')">
+  <div :class="[cls.b, cls.e(tabPosition)]">
+    <div :class="[cls.e('header'), cls.em('header', tabPosition)]">
       <div
         v-for="item in standardItems"
         :key="item.key"
-        :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
+        :class="[
+          cls.em('header', 'label'),
+          bem.is('active', modelValue === item.key)
+        ]"
         @click="changeTab(item.key!)"
       >
         <slot :name="`${item?.name}-label`">

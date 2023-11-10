@@ -3,10 +3,32 @@
 @use '@ui/styles/vars';
 
 @include m.b(tabs) {
+  display: flex;
+  @each $position in top, left, right, bottom {
+    @include m.e($position) {
+      @if $position == top {
+        flex-direction: column;
+      } @else if $position == bottom {
+        flex-direction: column-reverse;
+      } @else if $position == left {
+        flex-direction: row;
+      } @else if $position == right {
+        flex-direction: row-reverse;
+      }
+    }
+  }
   @include m.e(header) {
     display: flex;
     border-bottom: fn.use-var(border);
-    margin-bottom: 10px;
+    @each $position in top, left, right, bottom {
+      &--#{$position} {
+        @if $position == left {
+          flex-direction: column;
+        } @else if $position == right {
+          flex-direction: column;
+        }
+      }
+    }
     &--label {
       cursor: pointer;
       border: fn.use-var(border);
@@ -27,6 +49,7 @@
     }
   }
   @include m.e(content) {
+    width: 100%;
     border: 1px solid gray;
   }
 }
