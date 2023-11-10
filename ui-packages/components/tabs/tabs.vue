@@ -27,11 +27,8 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { computed, getCurrentInstance } from 'vue'
-import { TabsProps, type Item } from './tabs.type'
-import { isObj } from 'cat-kit'
-import { bem } from '@ui/utils'
+<script lang="ts" setup generic="TabsItems extends string[] | Array<{ name: string; key: string | number }>">
+import type { TabsProps } from '@ui/types/components/tabs'
 
 defineOptions({
   name: 'Tabs'

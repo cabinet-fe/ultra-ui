@@ -8,7 +8,7 @@
   generic="M extends string | number | Array<string | number>"
 >
 import { useModel } from '@ui/compositions'
-import { SelectEmits, SelectProps } from './select.type'
+import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 
 defineOptions({
   name: 'Select'

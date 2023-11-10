@@ -1,11 +1,10 @@
 <template>
-  <div :class="className" :style="style">
+  <div :class="className" :style="style" ref="scrollRef">
     <!-- 实际滚动的容器 -->
     <component
       ref="containerRef"
       :class="cls.e('container')"
       :is="tag"
-      v-bind="$attrs"
       @scroll.passive="handleScroll"
     >
       <slot />
@@ -28,8 +27,13 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { ScrollPosition, ScrollExposed, ScrollProps, ScrollEmits } from './scroll.type'
-import { CSSProperties, computed, provide, shallowRef } from 'vue'
+import type {
+  ScrollPosition,
+  _ScrollExposed,
+  ScrollProps,
+  ScrollEmits
+} from '@ui/types/components/scroll'
+import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import type { DefineEvent } from '@ui/utils'
 import { useResizeObserver } from '@ui/compositions'
@@ -58,6 +62,7 @@ const style = computed<CSSProperties>(() => {
 })
 
 // 模板引用------------------------------------------------
+const scrollRef = shallowRef<HTMLElement>()
 const containerRef = shallowRef<HTMLElement>()
 const barX = shallowRef<InstanceType<typeof UScrollBar>>()
 const barY = shallowRef<InstanceType<typeof UScrollBar>>()
@@ -169,7 +174,10 @@ provide(ScrollDIKey, {
   cls
 })
 
-const exposed: ScrollExposed = {
+const exposed: _ScrollExposed = {
+  scrollRef,
+  containerRef,
+
   scrollTo
 }
 

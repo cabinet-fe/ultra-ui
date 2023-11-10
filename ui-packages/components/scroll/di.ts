@@ -1,4 +1,4 @@
-import { BEM } from '@ui/utils'
+import type { BEM } from '@ui/utils'
 import type { InjectionKey } from 'vue'
 
 /** 滚动条依赖注入 */

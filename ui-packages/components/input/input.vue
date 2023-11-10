@@ -6,7 +6,7 @@
 </template>
 
 <script lang="tsx" setup>
-import type { InputEmits, InputProps, _InputExposed } from './input.type'
+import type { InputEmits, InputProps, _InputExposed } from '@ui/types/components/input'
 import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
 import { useModel, useFormComponent, useFocus } from '@ui/compositions'
@@ -18,7 +18,7 @@ import {
   useSlots,
   Transition,
   shallowRef,
-useAttrs
+  useAttrs
 } from 'vue'
 import { CircleClose } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -29,7 +29,8 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  size: 'default'
+  size: 'default',
+  clearable: true
 })
 
 const emit = defineEmits<InputEmits>()
@@ -40,15 +41,19 @@ const inst = getCurrentInstance()
 
 const cls = bem('input')
 
-const { inForm } = useFormComponent(false)
+const { inForm, formProps } = useFormComponent(false)
 
-const { focus, handleBlur, handleFocus } = useFocus()
+const { focus, handleBlur, handleFocus } = useFocus(focused => {
+  focused ? emit('focus') : emit('blur')
+})
 
 const slots = useSlots()
 
 const inputClass = computed(() => {
   return [cls.b, cls.m(props.size), bem.is('focus', focus.value)]
 })
+
+// inst?.vnode.props?.['onPrefix:click']来获取当前组件是否绑定了点击事件
 const prefixClass = [
   cls.e('prefix'),
   bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])

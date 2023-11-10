@@ -1,17 +1,11 @@
 import { camelCase } from 'cat-kit/be'
-import { mkdir, writeFile } from 'fs/promises'
-import { resolve } from 'path'
-import { UI_PATH } from '../shared'
+import { cp, mkdir, rm, writeFile } from 'fs/promises'
+import { join, resolve } from 'path'
+import { UI_PATH, PKG_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
 import { NAME_SPACE } from '@ui/shared'
-
-interface Ctx {
-  /** 组件名称 */
-  componentName: string
-  /** 组件描述 */
-  componentDesc?: string
-}
+import type { ComponentCtx } from './type'
 
 const extMap = {
   ts: 'typescript',
@@ -27,7 +21,7 @@ const extMap = {
  * @param ext 可以是一个文件名或者以.开头的文件后缀， 为文件后缀时会自动拼接组件名
  * @returns
  */
-async function write(ctx: Ctx, content: string, ext: string) {
+async function write(ctx: ComponentCtx, content: string, ext: string) {
   const targetDir = resolve(UI_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
     await mkdir(targetDir, {
@@ -45,25 +39,33 @@ async function write(ctx: Ctx, content: string, ext: string) {
     trailingComma: 'none'
   })
 
-  return writeFile(
-    resolve(targetDir, ext.startsWith('.') ? ctx.componentName + ext : ext),
-    contentFormatted,
-    'utf-8'
+  const filePath = resolve(
+    targetDir,
+    ext.startsWith('.') ? ctx.componentName + ext : ext
   )
+
+  await writeFile(filePath, contentFormatted, 'utf-8')
+
+  return filePath
 }
 
-export function renderVueFile(ctx: Ctx) {
+export function renderVueFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const componentProps = `${upperCamelCase}Props`
 
+  const rootEle = ctx.rootElement || 'div'
+
   const content = `
   <template>
+    <${rootEle} :class="cls.b">
 
+    </${rootEle}>
   </template>
 
   <script lang="ts" setup>
-  import { ${componentProps} } from './${ctx.componentName}.type'
+  import type { ${componentProps} } from '@ui/types/components/${ctx.componentName}'
+  import { bem } from '@ui/utils'
 
   defineOptions({
     name: '${upperCamelCase}'
@@ -71,13 +73,14 @@ export function renderVueFile(ctx: Ctx) {
 
   defineProps<${componentProps}>()
 
+  const cls = bem('${ctx.componentName}')
   </script>
   `
 
   write(ctx, content, '.vue')
 }
 
-export function renderTypeFile(ctx: Ctx) {
+export function renderTypeFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const PropsName = `${upperCamelCase}Props`
@@ -85,6 +88,8 @@ export function renderTypeFile(ctx: Ctx) {
   const EmitsName = `${upperCamelCase}Emits`
 
   const content = `
+  import type { DeconstructValue } from "../helper"
+
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {
     modelValue?: string
@@ -95,32 +100,39 @@ export function renderTypeFile(ctx: Ctx) {
     (e: 'update:modelValue', value: string): void
   }
 
-  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件内部使用) */
+  /** ${
+    ctx.componentDesc || ctx.componentName
+  }组件暴露的属性和方法(组件内部使用) */
   export interface _${upperCamelCase}Exposed {
 
   }
 
-  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-  export interface ${upperCamelCase}Exposed {
+  /** ${
+    ctx.componentDesc || ctx.componentName
+  }组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+  export type ${upperCamelCase}Exposed = DeconstructValue<_${upperCamelCase}Exposed>
 
-  }
   `
 
-  write(ctx, content, '.type.ts')
+  write(ctx, content, '.d.ts').then(async filePath => {
+    await cp(filePath, join(PKG_PATH, 'types/components', ctx.componentName + '.d.ts'))
+    rm(filePath)
+  })
 }
 
-export function renderIndexFile(ctx: Ctx) {
+export function renderIndexFile(ctx: ComponentCtx) {
   const upperCamelCase = camelCase(ctx.componentName, 'upper')
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
-  export { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from './${ctx.componentName}.type'
+
+  export type { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from '@ui/types/components/${ctx.componentName}'
   `
 
   write(ctx, content, 'index.ts')
 }
 
-export function renderStyleFile(ctx: Ctx) {
+export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
   @use '@ui/styles/mixins' as m;
   @use '@ui/styles/functions' as fn;

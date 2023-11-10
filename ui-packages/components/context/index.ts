@@ -1,2 +1,3 @@
 export { default as UContext } from './context.vue'
-export * from './context.type'
+
+export type * from '@ui/types/components/context'

@@ -1,2 +1,2 @@
 export { default as UGrid } from './grid.vue'
-export * from './grid.type'
+export * from '@ui/types/components/grid'

@@ -6,6 +6,11 @@
     </div>
 
     <div>
+      <div>单个自定义值</div>
+      <u-checkbox v-model="check2" :true-value="false" false-value="1"> 是否 </u-checkbox>
+    </div>
+
+    <div>
       <div>中间状态</div>
       <u-checkbox v-model="check" indeterminate> 是否 </u-checkbox>
     </div>
@@ -26,6 +31,7 @@
 import { ref } from 'vue'
 
 const check = ref(false)
+const check2 = ref('1')
 
 const data = [
   { name: '张三', id: 1 },

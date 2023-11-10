@@ -1,3 +1,1 @@
-export * from './src/constants'
-
-export * from './src/type'
+export * from './constants'

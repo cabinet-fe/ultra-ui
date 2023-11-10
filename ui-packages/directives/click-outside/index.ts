@@ -1,5 +1,5 @@
 import './style.scss'
-import { ObjectDirective } from 'vue'
+import type { ObjectDirective } from 'vue'
 
 type DirectiveHandler = () => void
 

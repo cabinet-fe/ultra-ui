@@ -4,7 +4,7 @@
 
     <div>
       普通
-      <u-number-input v-model="number" />
+      <u-number-input disabled v-model="number" :precision="2" />
     </div>
 
     <div>
@@ -14,7 +14,7 @@
 
     <div>
       步进
-      <u-number-input v-model="number" currency :step="100.12" />
+      <u-number-input v-model="number" currency :step="100.89" clearable />
     </div>
   </div>
 </template>
@@ -23,5 +23,5 @@
 import { ref } from 'vue'
 import {} from 'ultra-ui'
 
-const number = ref()
+const number = ref(2.999)
 </script>

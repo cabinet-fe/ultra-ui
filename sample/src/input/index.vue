@@ -3,7 +3,13 @@
     <div>普通: <u-input v-model="value" /></div>
     <div>
       前缀和后缀以及可清空:
-      <u-input v-model="value" @suffix:click="c.log" prefix="前缀" clearable>
+      <u-input
+        v-model="value"
+        @suffix:click="c.log"
+        prefix="前缀"
+        clearable
+        disabled
+      >
         <template #suffix>
           <u-icon :size="14"><Search /></u-icon>
         </template>

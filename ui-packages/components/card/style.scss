@@ -3,15 +3,15 @@
 @use '@ui/styles/functions' as fn;
 
 @include m.b(card) {
-  border-radius: fn.use-var(radius);
-  // border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
   font-size: fn.use-var(font-size);
   box-shadow: fn.use-var(shadow);
+  overflow: hidden;
 
   @include m.component-size(vars.$card-sizes) using ($size, $types) {
-    @include m.b(card__header, card__body, card__footer) {
+    @include m.b(card__header, card__content, card__action) {
       @each $type, $val in $types {
         #{$type}: $val;
       }
@@ -22,10 +22,28 @@
     border-bottom: fn.use-var(border);
   }
 
-  @include m.e(body) {
+  @include m.e(cover) {
+    position: relative;
+    overflow: hidden;
+
+    & > img {
+      width: 100%;
+      overflow: hidden;
+      display: block;
+
+      @include m.is(height-fixed) {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
   }
 
-  @include m.e(footer) {
+  @include m.e(content) {
+  }
+
+  @include m.e(action) {
     border-top: fn.use-var(border);
   }
 

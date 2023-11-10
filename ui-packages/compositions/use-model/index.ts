@@ -1,4 +1,4 @@
-import { Ref, ref, watch } from 'vue'
+import { type Ref, ref, watch } from 'vue'
 
 interface ModelOptions<
   P extends Record<string, unknown>,
@@ -19,7 +19,7 @@ interface ModelOptions<
 
 /**
  * 返回一个基于提供的选项的响应式模型值。
- * 该方法在将来可能会被替代, 目前使用时为了类型提示可用
+ * 该方法在将来可能会被替代, 目前使用是为了类型提示可用
  * 如果 local 选项为true, 模型值将是响应式的，并与属性值同步。
  * 如果 local 选项为 false，则模型值将是一个代理对象，具有 getter 和 setter。当值发生更改时，它会触发一个更新事件。
  * @param options - 选项
@@ -68,9 +68,7 @@ export function useModel<
     )
 
     watch(value, v => {
-      if (value !== props[propName]) {
-        emit(`update:${propName as string}`, v)
-      }
+      v !== props[propName] && emit(`update:${propName as string}`, v)
     })
 
     return value

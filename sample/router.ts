@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteComponent } from 'vue-router'
+import { createRouter, createWebHistory, type RouteComponent } from 'vue-router'
 
 // const modules = import.meta.glob<true, string, { default: RouteComponent }>(
 //   '../ui-packages/components/**/example/index.vue',
@@ -39,5 +39,9 @@ export const router = createRouter({
       : []),
     ...routes
   ],
-  history: createWebHistory('/')
+  history: createWebHistory('/abc')
+})
+
+router.beforeEach((to, from, next) => {
+  next()
 })

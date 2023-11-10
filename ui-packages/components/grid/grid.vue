@@ -5,16 +5,14 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
-import type { GridProps } from './grid.type'
+import { bem, isFragment } from '@ui/utils'
+import type { GridProps } from '@ui/types/components/grid'
 import {
   type CSSProperties,
   type VNodeArrayChildren,
   cloneVNode,
   computed,
   useSlots,
-  Fragment,
-  Comment,
   isVNode
 } from 'vue'
 import { UNodeRender } from '../node-render'
@@ -43,23 +41,15 @@ const style = computed<CSSProperties>(() => {
 })
 
 /**
- *
+ * 获取除片段以外的vnode
  * @param vNodes
  */
 const getNormalNode = (vNodes: VNodeArrayChildren) => {
   let result: VNodeArrayChildren = []
   for (let i = 0; i < vNodes.length; i++) {
     const node = vNodes[i]!
-    if (isVNode(node)) {
-      if (node.type === Fragment || node.type === Comment) {
-        if (Array.isArray(node.children)) {
-          result = result.concat(getNormalNode(node.children))
-        } else {
-          result.push(node)
-        }
-      } else {
-        result.push(node)
-      }
+    if (isVNode(node) && isFragment(node) && Array.isArray(node.children)) {
+      result = result.concat(getNormalNode(node.children))
     } else {
       result.push(node)
     }
@@ -72,7 +62,6 @@ const renderSlots = () => {
   const contents = slots.default?.()
 
   if (!contents) return null
-
   const vNodes = getNormalNode(contents)
 
   if (typeof props.cols !== 'number') return vNodes

@@ -1,0 +1,107 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(dialog) {
+  background-color: fn.use-var(bg-color, bottom);
+  border-radius: fn.use-var(radius, large);
+  overflow: hidden;
+  transform: scale3d(0, 0, 1) translate(0, 0);
+  max-height: 90vh;
+  will-change: transform;
+
+  // 透明层
+  @include m.e(overlay) {
+    pointer-events: auto;
+    background: rgba($color: #000000, $alpha: 0.32);
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+
+    @include m.flex($justify: center);
+  }
+
+  // 弹框头
+  @include m.e(header) {
+    height: 49px;
+    padding: 0 8px;
+    border-bottom: fn.use-var(border);
+    background-color: fn.use-var(bg-color, top);
+
+    @include m.flex($justify: space-between);
+  }
+
+  @include m.e(body) {
+    padding: 0 8px;
+  }
+
+  @include m.e(buttons) {
+    & > #{fn.bem(icon)} {
+      &:not(:first-child) {
+        margin-left: fn.use-var(gap, default);
+      }
+    }
+  }
+  @include m.e(btn-close, btn-minimize, btn-maximize) {
+    border-radius: 50%;
+    overflow: hidden;
+    color: #fff;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+
+    & > svg {
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    &:hover {
+      & > svg {
+        opacity: 1;
+      }
+    }
+  }
+  @include m.e(btn-close) {
+    background-color: #ff7330;
+  }
+  @include m.e(btn-minimize) {
+    background-color: #e4bf2e;
+  }
+  @include m.e(btn-maximize) {
+    background-color: #34c759;
+  }
+
+  @include m.m(maximum) {
+    transition-property: width, height;
+    transition-duration: 0.25s;
+    transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.3);
+
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: scale3d(1, 1, 1) translate(0, 0) !important;
+    max-height: 100vh;
+  }
+}
+
+// 弹框透明层动画进入和离开时应用的类
+.dialog-overlay-enter-active,
+.dialog-overlay-leave-active {
+  transition: opacity 0.35s;
+}
+
+.dialog-overlay-enter-from,
+.dialog-overlay-leave-to {
+  opacity: 0;
+}
+
+// .dialog-enter-to {
+//   transform: scale3d(1, 1, 1);
+// }
+
+// .dialog-enter-active,
+// .dialog-leave-active {
+//   transition: transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35);
+// }

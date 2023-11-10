@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { CardExposed, CardProps } from './card.type'
+import type { CardExposed, CardProps } from '@ui/types/components/card'
 import { computed, provide } from 'vue'
 import { CardDIKey } from './di'
 

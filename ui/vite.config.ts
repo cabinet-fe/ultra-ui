@@ -3,21 +3,15 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import dts from 'vite-plugin-dts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   resolve: {
-    extensions: ['.ts', '.js', '.json', '.tsx'],
-    alias: {
-      '@ui': resolve(__dirname, '../ui-packages')
-    }
+    extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
-  plugins: [vue(), vueJsx(), dts({
-    entryRoot: __dirname
-  })],
+  plugins: [vue(), vueJsx()],
 
   build: {
     lib: {

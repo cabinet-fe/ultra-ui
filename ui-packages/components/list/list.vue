@@ -2,7 +2,7 @@
 
 <script lang="ts" setup>
 import { useServerQuery } from '@ui/compositions'
-import { ListProps } from './list.type'
+import type { ListProps } from '@ui/types/components/list'
 
 defineOptions({
   name: 'List'

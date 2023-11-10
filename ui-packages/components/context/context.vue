@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts" generic="R extends any">
-import { ContextProps } from './context.type'
+import type { ContextProps } from '@ui/types/components/context'
 
 defineOptions({
   name: 'Context'

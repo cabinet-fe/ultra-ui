@@ -24,10 +24,10 @@ interface ValidateRule<
 
 /** 校验预设 */
 const validatePresets = {
-  require(value: any, rule: ValidateRule['required']): string {
-    if (rule === false) return ''
+  required(value: any, required: ValidateRule['required']): string {
+    if (required === false) return ''
 
-    const errMsg = typeof rule === 'string' ? rule : '该项不能为空'
+    const errMsg = typeof required === 'string' ? required : '该项不能为空'
     if (value === null || value === undefined) return errMsg
 
     if (Array.isArray(value) && !value.length) return errMsg
@@ -88,48 +88,62 @@ interface ValidatorConfig<Data extends ValidatorData> {
 }
 
 /**  */
-class Validator<Data extends ValidatorData> {
+export class Validator<Data extends ValidatorData> {
   #data: Data
 
-  #dataRules?: ValidatorConfig<Data>['rules']
+  #rules?: ValidatorConfig<Data>['rules']
 
   constructor(config: ValidatorConfig<Data>) {
-    this['#data'] = config.data
-    this['#dataRules'] = config.rules
+    this.#data = config.data
+    this.#rules = config.rules
   }
 
-  private async validateManyData(): Promise<boolean> {
+  /**
+   * 校验单条数据
+   * @param data 数据
+   */
+  private async validateSingleData(data: Record<string, any>): Promise<string> {
+    let errMsg = ''
+    if (!this.#rules) return errMsg
+
+    for (const key in this.#rules) {
+      // 单个字段的规则
+      const fieldRules = this.#rules[key]
+
+      if (!(key in data)) {
+        console.warn(`字段${key}不存在, 这可能会引起一些错误`)
+        continue
+      }
+      const value = data[key]
+
+      for (const ruleKey in fieldRules) {
+        errMsg = validatePresets[ruleKey as keyof ValidateRule](
+          value,
+          fieldRules[ruleKey as string]
+        )
+        console.log(errMsg)
+      }
+    }
+
+    return ''
+  }
+
+  /**
+   * 校验多条数据
+   * @param field 需要校验的字段
+   */
+  private async validateManyData(
+    field?: keyof Data | (keyof Data)[]
+  ): Promise<string> {
     const data = this.#data as Record<string, any>[]
     let i = 0
     while (i < data.length) {
       const item = data[i]!
-      this.validateSingleData(item)
+      const errMsg = await this.validateSingleData(item, field)
+      if (errMsg) return errMsg
       i++
     }
 
-    return true
-  }
-
-  private async validateSingleData(data: Record<string, any>): Promise<string> {
-    if (!this.#dataRules) return ''
-
-    for (const key in this.#dataRules) {
-      const value = data[key]
-      const rules = this.#dataRules[key] as ValidateRule
-      const { validator, ...normalRules } = rules
-
-      for (const ruleName in normalRules) {
-        const errMsg = validatePresets[
-          ruleName as keyof typeof validatePresets
-        ](value, normalRules[ruleName])
-        if (errMsg) return errMsg
-      }
-
-      if (validator) {
-        const errMsg = await validator(value, data)
-        if (errMsg) return errMsg
-      }
-    }
     return ''
   }
 
@@ -137,27 +151,13 @@ class Validator<Data extends ValidatorData> {
   async validate(): Promise<boolean>
   async validate(field: (keyof Data)[]): Promise<boolean>
   async validate(field?: keyof Data | (keyof Data)[]): Promise<boolean> {
-    if (!field) {
-      for (const key in this.#rules) {
-        validatePresets[key](this.#rules[key], rule[key])
-      }
+    if (Array.isArray(this.#data)) {
+      const errMsg = await this.validateManyData(field)
+      return errMsg ? false : true
     }
 
-    return true
+    const errMsg = await this.validateSingleData(this.#data, field)
+
+    return errMsg ? false : true
   }
 }
-
-const validator = new Validator({
-  data: { name: 'aaa' },
-  rules: {
-    name: {
-      required: true,
-      validator(v, data) {
-        return ''
-      }
-    }
-  }
-})
-
-// 要满足下面的用法
-validator.validate('name')

@@ -1,5 +1,5 @@
 import type { InjectionKey } from 'vue'
-import type { TreeProps } from './tree.type'
+import type { TreeProps } from '@ui/types/components/tree'
 import type { BEM } from '@ui/utils'
 
 /** 树依赖注入key */

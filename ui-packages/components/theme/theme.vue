@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup>
-import { ThemeProps } from './theme.type'
+import type { ThemeProps } from '@ui/types/components/theme'
 
 defineOptions({
   name: 'Theme'

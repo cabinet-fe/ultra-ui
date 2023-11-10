@@ -7,7 +7,7 @@
     v-ripple="ripple"
   >
     <!-- 加载图标 -->
-    <u-icon v-if="loading" :class="[bem.is('loading'), cls.e('icon-left')]">
+    <u-icon v-if="loading" :class="[bem.is('loading'), cls.e('icon-left')]" :size="iconSize">
       <component :is="loadingIcon" />
     </u-icon>
 
@@ -15,6 +15,7 @@
     <u-icon
       v-if="!!icon && iconPosition === 'left' && !loading"
       :class="$slots.default && cls.e('icon-left')"
+      :size="iconSize"
     >
       <component :is="icon" />
     </u-icon>
@@ -25,6 +26,7 @@
     <u-icon
       v-if="!!icon && iconPosition === 'right'"
       :class="$slots.default && cls.e('icon-right')"
+      :size="iconSize"
     >
       <component :is="icon" />
     </u-icon>
@@ -33,7 +35,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { ButtonEmits, ButtonProps } from './button.type'
+import type { ButtonEmits, ButtonProps } from '@ui/types/components/button'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'
