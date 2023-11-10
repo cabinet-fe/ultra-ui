@@ -27,14 +27,31 @@
   </div>
 </template>
 
-<script lang="ts" setup generic="TabsItems extends string[] | Array<{ name: string; key: string | number }>">
+<script
+  lang="ts"
+  setup
+  generic="TabsItems extends string[] | Array<{ name: string; key: string | number }>"
+>
+import type { Item } from '@ui/types/components/tabs'
 import type { TabsProps } from '@ui/types/components/tabs'
+import { bem } from '@ui/utils'
+import { isObj } from 'cat-kit'
+import {
+  computed,
+  getCurrentInstance
+} from 'vue'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const instance = getCurrentInstance()
+const instance = getCurrentInstance()!
+
+const cls = bem('tabs')
+
+const emit = defineEmits<{
+  'update:modelValue': [key: string | number]
+}>()
 
 const showContent = computed(() => {
   if (instance?.slots) {
@@ -52,7 +69,7 @@ const { items, tabPosition = 'top' } = defineProps<TabsProps>()
 
 const standardItems = computed<Array<Item>>(() => {
   if (items.length) {
-    return items.map((item) => {
+    return items.map(item => {
       if (isObj(item)) {
         item.key = item.key || item.name
         return item
@@ -65,13 +82,7 @@ const standardItems = computed<Array<Item>>(() => {
   }
 })
 
-const cls = bem('tabs')
-
-const emits = defineEmits<{
-  'update:modelValue': [key: string | number]
-}>()
-
 const changeTab = (key: string | number) => {
-  emits('update:modelValue', key)
+  emit('update:modelValue', key)
 }
 </script>

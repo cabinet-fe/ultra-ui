@@ -20,6 +20,7 @@
         <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
         <button-common-props tag="span">
           <u-button :icon="Star" />
+          <u-button :icon="Star" />
           <u-button :icon="Lock" />
           <u-button :icon="MoreFilled" />
         </button-common-props>
@@ -36,7 +37,8 @@ const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
   type: 'primary',
   text: true,
-  iconSize: 18
+  iconSize: 18,
+  loading: true,
 })
 </script>
 
