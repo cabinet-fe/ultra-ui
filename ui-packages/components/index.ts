@@ -44,8 +44,6 @@ export * from './tabs'
 
 export * from './tag'
 
-export * from './table-editor'
-
 export * from './text'
 
 export * from './textarea'

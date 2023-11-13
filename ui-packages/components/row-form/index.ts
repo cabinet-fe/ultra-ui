@@ -1,6 +1,7 @@
 export { default as URowForm } from './row-form.vue'
 export type {
+  RowFormColumn,
   RowFormProps,
   RowFormEmits,
   RowFormExposed
-} from '@ui/types/components/row-form'
+} from './row-form.type'

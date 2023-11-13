@@ -12,17 +12,15 @@
 </template>
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type {
-TableEditorColumn
-} from '../table-editor/table-editor.type'
+import type { RowFormColumn } from '../row-form/row-form.type'
 
 defineProps({
-  columns: { type: Array as PropType<TableEditorColumn[]> }
+  columns: { type: Array as PropType<RowFormColumn[]> }
 })
 
 import { bem } from '@ui/utils'
 
-const cls = bem('table-editor')
+const cls = bem('row-form')
 </script>
 <style scoped>
 th {
