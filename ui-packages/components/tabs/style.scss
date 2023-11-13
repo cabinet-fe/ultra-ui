@@ -19,6 +19,7 @@
   }
   @include m.e(header) {
     display: flex;
+    position: relative;
     @each $position in top, left, right, bottom {
       &--#{$position} {
         @if $position == left {
@@ -43,16 +44,13 @@
       align-items: center;
       justify-content: space-around;
       cursor: pointer;
-
       // border-right: 0;
       background-color: fn.use-var(bg-color, top);
       padding: 4px 8px;
       font-size: fn.use-var(font-size, title);
       color: fn.use-var(color, info);
-      margin-bottom: -1px;
       @include m.is('active') {
         color: fn.use-var(color, primary);
-        border-bottom: 2px solid fn.use-var(color, primary);
       }
     }
     // &--label:last-of-type {
@@ -60,6 +58,30 @@
     // }
     &--label:hover {
       color: fn.use-var(color, primary);
+    }
+    &--line {
+      background-color: fn.use-var(color, primary);
+      transition: transform 0.3s ease-in, width 0.3s ease-out;
+      position: absolute;
+      width: 50px;
+      height: 2px;
+      left: 0px;
+      bottom: -2px;
+      @each $position in top, left, right, bottom {
+        @include m.is(#{$position}) {
+          @if $position == left {
+            width: 2px!important;
+            height: 50px;
+            top: 0px;
+            right: -2px;
+          }@else if $position == right {
+            width: 2px!important;
+            height: 50px;
+            top: 0px;
+            left: -2px;
+          }
+        }
+      }
     }
   }
   @include m.e(content) {

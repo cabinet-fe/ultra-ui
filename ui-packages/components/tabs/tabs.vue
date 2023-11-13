@@ -1,18 +1,19 @@
 <template>
-  {{ props }}
   <div :class="[cls.b, cls.e(position!)]">
     <div :class="[cls.e('header'), cls.em('header', position!)]">
       <div
-        v-for="item in standardItems"
+        v-for="(item, index) in standardItems"
         :key="item.key"
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
-        @click="changeTab(item.key!)"
+        @click="changeTab(item.key!, index)"
+        ref="labRef"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
         </slot>
         <span v-if="closable" :class="bem.is('close')">x</span>
       </div>
+      <div :class="[cls.em('header', 'line'), bem.is(position)]" :style="lineStyle"></div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
       <div v-for="item in standardItems" :key="item.key">
@@ -30,7 +31,7 @@
 import type { Item, TabsProps } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import { computed, getCurrentInstance } from 'vue'
+import { computed, getCurrentInstance, shallowRef, ref } from 'vue'
 
 defineOptions({
   name: 'Tabs'
@@ -78,7 +79,30 @@ const standardItems = computed<Array<Item>>(() => {
   }
 })
 
-const changeTab = (key: string | number) => {
+let labIndex = ref<number>(0)
+
+const changeTab = (key: string | number, index: number) => {
   emit('update:modelValue', key)
+  labIndex.value = index
 }
+
+const labRef = shallowRef<HTMLDivElement>()
+
+const lineStyle = computed(() => {
+  if (!labRef.value) return
+  const target = labRef.value[labIndex.value]!
+  if (['top', 'bottom'].includes(props.position!)) {
+    return {
+      transform: `translate(${target.offsetLeft}px)`,
+      width: `${target.offsetWidth}px`
+    }
+  } else if (['left', 'right'].includes(props.position!)) {
+    return {
+      transform: `translate(${props.position === 'left' ? target.offsetWidth + 1 : 0}px, ${
+        target.offsetTop
+      }px)`,
+      height: `${target.offsetHeight}px`
+    }
+  }
+})
 </script>
