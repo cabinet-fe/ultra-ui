@@ -24,7 +24,7 @@
         </td>
 
         <!-- 操作栏 -->
-        <td :class="cls.e('td-action-data')">
+        <td :class="cls.em('tbody', 'data')">
           <slot name="action">
             {{ dataItem?.obj?.edit }}
             <span @click="onSave(dataItem)">

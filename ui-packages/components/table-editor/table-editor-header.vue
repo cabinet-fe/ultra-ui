@@ -12,9 +12,7 @@
 </template>
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type {
-TableEditorColumn
-} from '../table-editor/table-editor.type'
+import type { TableEditorColumn } from '../table-editor/table-editor.type'
 
 defineProps({
   columns: { type: Array as PropType<TableEditorColumn[]> }
