@@ -9,6 +9,7 @@ export interface TabsProps {
   modelValue?: string | number
   items: Array<Item | string>
   position?: 'left' | 'right' | 'top' | 'bottom'
+  closable?: boolean
 }
 
 /** 标签页组件组件定义的事件 */

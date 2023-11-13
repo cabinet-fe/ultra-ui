@@ -19,32 +19,45 @@
   }
   @include m.e(header) {
     display: flex;
-    border-bottom: fn.use-var(border);
     @each $position in top, left, right, bottom {
       &--#{$position} {
         @if $position == left {
           flex-direction: column;
+          border-right: 2px solid fn.use-var(border-color);
+          margin-right: 10px;
         } @else if $position == right {
           flex-direction: column;
+          border-left: 2px solid fn.use-var(border-color);
+          margin-left: 10px;
+        } @else if $position == bottom {
+          border-bottom: 2px solid fn.use-var(border-color);
+          margin-top: 10px;
+        } @else {
+          border-bottom: 2px solid fn.use-var(border-color);
+          margin-bottom: 10px;
         }
       }
     }
     &--label {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
       cursor: pointer;
-      border: fn.use-var(border);
-      border-right: 0;
+
+      // border-right: 0;
       background-color: fn.use-var(bg-color, top);
       padding: 4px 8px;
       font-size: fn.use-var(font-size, title);
       color: fn.use-var(color, info);
-      text-align: center;
+      margin-bottom: -1px;
       @include m.is('active') {
         color: fn.use-var(color, primary);
+        border-bottom: 2px solid fn.use-var(color, primary);
       }
     }
-    &--label:last-of-type {
-      border-right: fn.use-var(border);
-    }
+    // &--label:last-of-type {
+    //   border-right: fn.use-var(border);
+    // }
     &--label:hover {
       color: fn.use-var(color, primary);
     }
