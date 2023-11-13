@@ -1,5 +1,5 @@
 /** 表格编辑组件表头属性 */
-export interface TableEditorColumn {
+export interface RowFormColumn {
   /** 键值 */
   key: string,
   /** 名称 */
@@ -23,13 +23,13 @@ export interface ValidatorRule {
 }
 
 /** 表格编辑组件组件属性 */
-export interface TableEditorProps<T> {
+export interface RowFormProps<T> {
   /** 是否禁止编辑 */
   disabled?: boolean
   /** 双向绑定的值 */
   modelValue: T[]
   /** columns */
-  columns: TableEditorColumn[]
+  columns: RowFormColumn[]
   /** 是否是tree */
   tree?: boolean
   /** childrenKey='children' */
@@ -37,7 +37,7 @@ export interface TableEditorProps<T> {
 }
 
 /** 表格编辑组件组件定义的事件 */
-export interface TableEditorEmits {
+export interface RowFormEmits {
   (e: 'update:modelValue', value: any[]): void
   /** 校验 */
   (e: 'validator'): void
@@ -45,10 +45,10 @@ export interface TableEditorEmits {
 }
 
 /** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
-export interface _TableEditorExposed {}
+export interface _RowFormExposed {}
 
 /** 表格编辑组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-export interface TableEditorExposed {
+export interface RowFormExposed {
   delete(index: number): void
   delete(indexes: number[]): void
 
@@ -58,15 +58,15 @@ export interface TableEditorExposed {
 }
 
 /** 每一条数据的状态属性 */
-export interface TableEditorRowStatus {
+export interface RowFormRowStatus {
   /** 是否可编辑 */
   edit: Boolean,
   /** 校验状态是否开启 */
   isValidator: Boolean
 }
 
-/** table-editor-button按钮  */
-export interface tableEditorType {
+/** row-form-button按钮  */
+export interface RowFormType {
   /** 点击事件 */
   (name: 'click'): void
 }
