@@ -36,9 +36,9 @@ import { type ButtonProps, useComponentProps } from 'ultra-ui'
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
   type: 'primary',
-  text: true,
+  // text: true,
   iconSize: 18,
-  loading: true,
+  loading: true
 })
 </script>
 
