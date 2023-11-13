@@ -1,6 +1,7 @@
 <template>
-  <div :class="[cls.b, cls.e(props.position)]">
-    <div :class="[cls.e('header'), cls.em('header', props.position)]">
+  {{ props }}
+  <div :class="[cls.b, cls.e(position!)]">
+    <div :class="[cls.e('header'), cls.em('header', position!)]">
       <div
         v-for="item in standardItems"
         :key="item.key"
@@ -10,6 +11,7 @@
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
         </slot>
+        <span v-if="closable" :class="bem.is('close')">x</span>
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
@@ -35,7 +37,8 @@ defineOptions({
 })
 
 const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
-  position: 'right'
+  position: 'right',
+  closable: false
 })
 
 const instance = getCurrentInstance()!
@@ -60,14 +63,16 @@ const showContent = computed(() => {
 
 const standardItems = computed<Array<Item>>(() => {
   if (props.items.length) {
-    return props.items.map((item: any) => {
-      if (isObj(item)) {
+    if (isObj(props.items[0])) {
+      return props.items.map((item: any) => {
         item.key = item.key || item.name
         return item
-      } else {
+      })
+    } else {
+      return props.items.map((item: any) => {
         return { name: item, key: item }
-      }
-    })
+      })
+    }
   } else {
     return []
   }
