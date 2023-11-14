@@ -1,5 +1,4 @@
 <template>
-  {{ modelValue }}
   <div :class="[cls.b, cls.e(position!)]">
     <div :class="[cls.e('header'), cls.em('header', position!)]">
       <div
