@@ -5,10 +5,10 @@
     @mouseleave.stop="handleMouseOut"
     @click="handleClick"
   >
-    <div v-if="visible" class="u-tip-content" :style="dynamicStyle">
-      {{ modelValue }}
-    </div>
     <slot />
+  </div>
+  <div class="u-tip-content" :style="dynamicStyle">
+    {{ modelValue }}
   </div>
 </template>
 
@@ -28,12 +28,16 @@ const props = withDefaults(defineProps<TipProps>(), {
 })
 
 let visible = ref(false)
-console.log(props)
+
+let timeClick = null as any
+
+let timeMouseOut = null as any
+
+let timeMouseOver = null as any
 
 const handleMouseOver = () => {
   if (props.triggerPopUpMode !== "hover") return
-  let timeMouseOver = null as any
-
+  clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
     visible.value = true
     clearTimeout(timeMouseOver)
@@ -42,9 +46,7 @@ const handleMouseOver = () => {
 
 const handleMouseOut = () => {
   if (props.triggerPopUpMode !== "hover") return
-
-  let timeMouseOut = null as any
-
+  clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
     visible.value = false
     clearTimeout(timeMouseOut)
@@ -53,8 +55,6 @@ const handleMouseOut = () => {
 
 const handleClick = () => {
   if (props.triggerPopUpMode !== "click") return
-
-  let timeClick = null as any
 
   timeClick = setTimeout(() => {
     visible.value = !visible.value

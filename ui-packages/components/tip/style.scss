@@ -6,6 +6,9 @@
     position: relative;
 
     &-content {
+        position: fixed;
+        top: 10px;
+        left: 20px;
         border-radius: 4px;
         border: 1px solid #000;
         padding: 10px;
