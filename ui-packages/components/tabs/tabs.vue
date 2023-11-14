@@ -37,7 +37,8 @@
 import type { Item, TabsProps } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import { computed, getCurrentInstance, shallowRef, ref, watch } from 'vue'
+import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
+import { useDrag } from '@ui/compositions'
 
 defineOptions({
   name: 'Tabs'
@@ -102,7 +103,7 @@ const changeTab = (key: string | number, index: number) => {
   labIndex.value = index
 }
 
-const labRef = shallowRef<HTMLDivElement>()
+const labRef = shallowRef<HTMLDivElement[]>()
 /** 标签下面那根蓝条 */
 const lineStyle = computed(() => {
   if (!labRef.value) return
@@ -131,4 +132,32 @@ const handleClose = (item: Item) => {
     changeTab(standardItems.value[index]?.key!, index)
   }
 }
+
+const translated = reactive<Array<Record<string, any>>>([])
+
+watch(
+  () => labRef,
+  (ref) => {
+    if (ref) {
+      ref.value?.forEach((item, index) => {
+        translated.push({ x: 0, y: 0 })
+        useDrag({
+          target: shallowRef(item),
+          onDrag(x, y) {
+            if (!labRef.value) return
+            const target = labRef.value[index]!
+            target.style.transform = `translate(${translated[index]!.x + x}px,${
+              translated[index]!.y + y
+            }px)`
+          },
+          onDragEnd(x, y) {
+            translated[index]!.x += x
+            translated[index]!.y += y
+          }
+        })
+      })
+    }
+  },
+  { deep: true }
+)
 </script>

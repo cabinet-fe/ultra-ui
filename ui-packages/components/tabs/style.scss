@@ -49,6 +49,7 @@
       padding: 4px 8px;
       font-size: fn.use-var(font-size, title);
       color: fn.use-var(color, info);
+      user-select:none;
       @include m.is('active') {
         color: fn.use-var(color, primary);
       }
