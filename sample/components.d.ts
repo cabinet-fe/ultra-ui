@@ -28,7 +28,6 @@ declare module 'vue' {
     UPopup: typeof import('ultra-ui')['UPopup']
     URowForm: typeof import('ultra-ui')['URowForm']
     UScroll: typeof import('ultra-ui')['UScroll']
-    UTableEditor: typeof import('ultra-ui')['UTableEditor']
     UTabs: typeof import('ultra-ui')['UTabs']
     UText: typeof import('ultra-ui')['UText']
     UTree: typeof import('ultra-ui')['UTree']
