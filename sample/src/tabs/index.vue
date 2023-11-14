@@ -6,7 +6,7 @@
   </div>
 
   <div class="wrapper">
-    <u-tabs :items="items" v-model="active" :position="tabPosition">
+    <u-tabs :items="items" v-model="active" :position="tabPosition" closable>
     <template #赵-label>+赵</template>
     <template #赵
       >第一页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template
