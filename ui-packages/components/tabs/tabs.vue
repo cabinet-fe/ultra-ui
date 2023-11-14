@@ -146,9 +146,11 @@ watch(
           onDrag(x, y) {
             if (!labRef.value) return
             const target = labRef.value[index]!
-            target.style.transform = `translate(${translated[index]!.x + x}px,${
-              translated[index]!.y + y
-            }px)`
+            if (['top', 'bottom'].includes(props.position!)) {
+              target.style.transform = `translate(${translated[index]!.x + x}px, 0)`
+            } else {
+              target.style.transform = `translate(0, ${translated[index]!.y + y}px)`
+            }
           },
           onDragEnd(x, y) {
             translated[index]!.x += x
