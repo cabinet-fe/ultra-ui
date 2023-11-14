@@ -52,6 +52,17 @@
       @include m.is('active') {
         color: fn.use-var(color, primary);
       }
+     .is-close {
+        width: 16px;
+        height: 16px;
+        line-height: 13px;
+        text-align: center;
+        border-radius: 50px;
+      }
+      .is-close:hover {
+        background-color: fn.use-var(color, info);
+        color: #fff;
+      }
     }
     // &--label:last-of-type {
     //   border-right: fn.use-var(border);

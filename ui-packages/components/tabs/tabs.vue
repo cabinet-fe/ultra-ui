@@ -11,7 +11,13 @@
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
         </slot>
-        <span v-if="closable" :class="bem.is('close')">x</span>
+        <div
+          v-if="closable && standardItems.length > 1"
+          :class="bem.is('close')"
+          @click.stop="handleClose(item)"
+        >
+          x
+        </div>
       </div>
       <div :class="[cls.em('header', 'line'), bem.is(position)]" :style="lineStyle"></div>
     </div>
@@ -31,7 +37,7 @@
 import type { Item, TabsProps } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import { computed, getCurrentInstance, shallowRef, ref } from 'vue'
+import { computed, getCurrentInstance, shallowRef, ref, watch } from 'vue'
 
 defineOptions({
   name: 'Tabs'
@@ -41,6 +47,14 @@ const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
   position: 'right',
   closable: false
 })
+/** 切换position回归初始状态 */
+watch(
+  () => props.position,
+  () => {
+    labIndex.value = 0
+    emit('update:modelValue', standardItems.value[0]?.key!)
+  }
+)
 
 const instance = getCurrentInstance()!
 
@@ -49,7 +63,7 @@ const cls = bem('tabs')
 const emit = defineEmits<{
   'update:modelValue': [key: string | number]
 }>()
-
+/** 是否显示除标签以外的内容 */
 const showContent = computed(() => {
   if (instance?.slots) {
     const keys = Object.keys(instance?.slots)
@@ -61,33 +75,35 @@ const showContent = computed(() => {
     return false
   }
 })
-
+/** 将传入的items进行标准化处理 */
 const standardItems = computed<Array<Item>>(() => {
+  let res: Item[] = []
   if (props.items.length) {
     if (isObj(props.items[0])) {
-      return props.items.map((item: any) => {
+      res = props.items.map((item: any) => {
         item.key = item.key || item.name
         return item
       })
     } else {
-      return props.items.map((item: any) => {
+      res = props.items.map((item: any) => {
         return { name: item, key: item }
       })
     }
   } else {
-    return []
+    res = []
   }
+  return res.filter((item: any) => !closedList.value.includes(item.key))
 })
 
 let labIndex = ref<number>(0)
-
+/** 切换标签页 */
 const changeTab = (key: string | number, index: number) => {
   emit('update:modelValue', key)
   labIndex.value = index
 }
 
 const labRef = shallowRef<HTMLDivElement>()
-
+/** 标签下面那根蓝条 */
 const lineStyle = computed(() => {
   if (!labRef.value) return
   const target = labRef.value[labIndex.value]!
@@ -105,4 +121,14 @@ const lineStyle = computed(() => {
     }
   }
 })
+
+let closedList = ref<Array<string | number>>([])
+/** 关闭标签 */
+const handleClose = (item: Item) => {
+  closedList.value.push(item.key!)
+  if (item.key === props.modelValue) {
+    let index = standardItems.value.length - 1
+    changeTab(standardItems.value[index]?.key!, index)
+  }
+}
 </script>
