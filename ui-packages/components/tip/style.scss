@@ -1,0 +1,28 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(tip) {
+    position: relative;
+
+    &-content {
+        border-radius: 4px;
+        border: 1px solid #000;
+        padding: 10px;
+        font-size: 14px;
+        line-height: 1.2;
+        min-width: 10px;
+        word-wrap: break-word;
+    }
+
+    &-content::before {
+        content: "";
+        position: absolute;
+        border-style: solid;
+        border-width: 10px;
+        border-color: transparent transparent #ddd transparent;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}

@@ -1,2 +1,3 @@
 export { default as UTip } from './tip.vue'
-export * from '@ui/types/components/tip'
+
+export type { TipProps, TipEmits, TipExposed } from '@ui/types/components/tip'

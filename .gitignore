@@ -104,3 +104,8 @@ dist
 .tern-port
 
 *script*.js
+
+dist/*
+.idea
+.history
+.vscode
