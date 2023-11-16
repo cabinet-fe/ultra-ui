@@ -8,7 +8,7 @@
     <tbody :class="cls.e('tbody')">
       <tr
         :class="cls.e('tr')"
-        v-for="(dataItem, dataIndex) in values"
+        v-for="(dataItem, dataIndex) in data"
         :key="dataIndex"
       >
         <!-- 内容 -->
@@ -61,10 +61,17 @@ import type {
 
 import RowFormHeader from './row-form-header.vue'
 // import { obj } from 'cat-kit'
-import { reactive, watch } from 'vue'
+import {
+  computed,
+  reactive,
+  shallowRef,
+  watch,
+  type ShallowReactive
+} from 'vue'
 import { obj } from 'cat-kit'
 import RowFormButton from './row-form-button.vue'
 import RowFormFooter from './row-form-footer.vue'
+import { useModel } from '@ui/compositions'
 // import { watch } from 'vue'
 
 defineOptions({
@@ -77,24 +84,30 @@ const props = defineProps<RowFormProps<Record<string, any>>>()
 
 const emit = defineEmits<RowFormEmits>()
 
+const finalColumns = computed(() => {
+  return [...props.columns]
+})
+
 /** 表头 */
 let modeColumns = props.columns
 
 /** 和modelValue同步的数组 可以存放modelValue不能存放的状态（编辑，校验） */
-let values: Record<string, any>[] = reactive([])
+const values = shallowRef<any[]>(props.modelValue)
+
+interface Row {
+  edited: boolean
+  index: number
+  data: ShallowReactive<Record<string, any>>
+  children: Row[]
+  depth: number
+}
 
 /** 父组件没修改一次值 就同步一次values */
-watch(
-  () => props.modelValue,
-  value => {
-    values = value
-    // console.log('modelValue')
-    // emit('update:modelValue', )
-  },
-  { immediate: true }
-)
+
+const data = useModel({ props, emit, local: true })
 
 /** 保存 */
+
 const onSave = (dataItem: Record<string, any>) => {
   dataItem.obj.edit = !dataItem.obj?.edit ?? true
   // validator(dataItem)
@@ -102,6 +115,8 @@ const onSave = (dataItem: Record<string, any>) => {
   emit('save', obj(dataItem.obj).omit(['edit', 'isValidator']))
   // emit('update:modelValue', reactive([{ aa: 'xxxx' }]))
 }
+
+// handler 句柄
 
 /** 校验 */
 // const validator = (dataItem: any) => {
@@ -117,7 +132,7 @@ const onCreateData = async () => {
     isValidator: false
   }
 
-  values?.push({ obj })
+  data.value = [...(data.value ?? []), obj]
 
   // let array = [{ edit: true, dd: 'xxx', cc: 'xxx', isValidator: true }]
 
