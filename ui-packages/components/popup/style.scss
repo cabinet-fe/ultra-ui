@@ -2,36 +2,31 @@
 @use '@ui/styles/functions' as fn;
 
 @include m.b(popup) {
-  opacity: 0;
-  position: absolute;
-  background-color: fn.use-var(bg-color, top);
-  transform: scale3d(0, 0, 1);
+  position: relative;
+  display: inline;
 
-  transition-property: opacity, transform;
-  transition-duration: 0.25s;
-  transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
-  transform-origin: 0 0;
-  border-radius: fn.use-var(radius, default);
+  @include m.e(content) {
+    position: absolute;
 
-  // 透明层
-  @include m.e(overlay) {
-    pointer-events: auto;
-    background: rgba($color: #000000, $alpha: 0.32);
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    transition: opacity 0.25s;
-    // opacity: 0;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow);
+    padding: fn.use-var(gap, default);
+
   }
 
-  @include m.m(visible) {
-
-    opacity: 1;
+  // vue过渡动画
+  &-enter-from,
+  &-leave-to {
+    // transform: scale(0);
+    opacity: 0;
   }
 
-  @include m.m(hide) {
-    transform: scale3d(0.8, 0.8, 1);
+  &-enter-active,
+  &-leave-active {
+    // transform-origin: 50% 0;
+    transition:
+      transform 0.25s,
+      opacity .3s;
   }
 }

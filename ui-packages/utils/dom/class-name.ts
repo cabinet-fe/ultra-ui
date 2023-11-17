@@ -4,16 +4,40 @@ type CLSType = typeof CLS_PREFIX
 
 /** BEM实例 */
 export type BEM<N extends string, B extends string = `${CLSType}${N}`> = {
+  /** BEM中的块 */
   b: B
+
+  /**
+   * BEM中的元素(E)
+   * @param name 元素名称
+   * @returns
+   */
   e<const E extends string>(name: E): `${B}__${E}`
 
+  /**
+   * 块和元素组合(B-E)
+   * @param block
+   * @param e
+   * @returns
+   */
   be<const Block extends string, const E extends string>(
     b: Block,
     e: E
   ): `${B}-${Block}__${E}`
 
+  /**
+   * BEM中的修饰符(M)
+   * @param m 修饰符名
+   * @returns 修饰符
+   */
   m<const M extends string>(m: M): `${B}--${M}`
 
+  /**
+   * BEM中的元素与修饰符(E--M)
+   * @param e 元素名
+   * @param m 修饰符名
+   * @returns
+   */
   em<const E extends string, const M extends string>(
     e: E,
     m: M
@@ -29,39 +53,20 @@ function bem<N extends string, B extends `${CLSType}${N}` = `${CLSType}${N}`>(
 ): BEM<N, B> {
   const b = `${CLS_PREFIX}${name}` as B
   return {
-    /** CSS块 */
     b,
-    /**
-     * 获取CSS元素
-     * @param name 元素名称
-     * @returns
-     */
+
     e(name) {
       return `${b}__${name}`
     },
-    /**
-     * 块和元素组合
-     * @param block
-     * @param e
-     * @returns
-     */
+
     be(block, e) {
       return `${b}-${block}__${e}`
     },
-    /**
-     * 获取CSS元素与修饰符
-     * @param m 修饰符名
-     * @returns CSS元素与修饰符
-     */
+
     m(m) {
       return `${b}--${m}`
     },
-    /**
-     * 获取CSS元素与修饰符
-     * @param e 元素名
-     * @param m 修饰符名
-     * @returns
-     */
+
     em(e, m) {
       return `${b}__${e}--${m}`
     }
