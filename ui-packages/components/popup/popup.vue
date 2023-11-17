@@ -16,17 +16,9 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  onBeforeUnmount,
-  Text,
-  type VNode,
-  shallowRef,
-  shallowReactive,
-  watch,
-  useSlots
-} from 'vue'
+import { Text, shallowReactive, useSlots } from 'vue'
 import type { PopupProps, PopupEmits } from '@ui/types/components/popup'
-import { bem, withUnit, zIndex } from '@ui/utils'
+import { bem, zIndex } from '@ui/utils'
 import { UNodeRender } from '../node-render'
 import { useModel } from '@ui/compositions'
 
