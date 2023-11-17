@@ -70,6 +70,7 @@
 
 <script lang="ts" setup>
 import { Edit } from 'icon-ultra'
+
 </script>
 
 <style lang="scss">
