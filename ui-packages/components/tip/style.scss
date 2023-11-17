@@ -3,29 +3,29 @@
 @use '@ui/styles/vars';
 
 @include m.b(tip) {
-    position: relative;
+  position: relative;
 
-    &-content {
-        position: fixed;
-        top: 10px;
-        left: 20px;
-        border-radius: 4px;
-        border: 1px solid #000;
-        padding: 10px;
-        font-size: 14px;
-        line-height: 1.2;
-        min-width: 10px;
-        word-wrap: break-word;
-    }
+  @include m.e(content) {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    border-radius: fn.use-var(radius, default);
+    border: fn.use-var(border);
+    padding: 10px;
+    font-size: 14px;
+    line-height: 1.2;
+    min-width: 10px;
+    word-wrap: break-word;
 
-    &-content::before {
-        content: "";
-        position: absolute;
-        border-style: solid;
-        border-width: 10px;
-        border-color: transparent transparent #ddd transparent;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
+    &::before {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 10px;
+      border-color: transparent transparent #ddd transparent;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
     }
+  }
 }

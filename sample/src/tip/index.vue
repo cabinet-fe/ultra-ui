@@ -49,7 +49,11 @@
     </div>
     <h4 class="pd20">Click</h4>
     <div class="tip-row flex-row">
-      <u-tip model-value="自定义样式" :customStyle="styleValue" :trigger-pop-up-mode="'click'">
+      <u-tip
+        content="自定义样式"
+        :customStyle="styleValue"
+        :trigger-pop-up-mode="'click'"
+      >
         <u-button>点击上左</u-button>
       </u-tip>
       <u-tip model-value="上中" :trigger-pop-up-mode="'click'">
@@ -59,14 +63,16 @@
         <u-button>点击上右</u-button>
       </u-tip>
     </div>
+
+    <div style="height: 100vh"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {shallowReactive} from "vue"
+import { shallowReactive } from 'vue'
 const styleValue = shallowReactive({
-  background: "#000",
-  color:'#fff',
+  background: '#000',
+  color: '#fff'
   // display:'block'
 })
 </script>
@@ -109,7 +115,7 @@ const styleValue = shallowReactive({
   height: 160px;
   padding: 10px 0;
 }
-.pd20{
+.pd20 {
   padding: 20px;
 }
 </style>
