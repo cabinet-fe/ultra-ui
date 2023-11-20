@@ -1,6 +1,6 @@
 <template>
   <div :class="[cls.b, cls.e(position!)]">
-    <div :class="[cls.e('header'), cls.em('header', position!)]">
+    <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
       <div
         v-for="(item, index) in standardItems"
         :key="item.key"
@@ -37,8 +37,15 @@
 import type { Item, TabsProps } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
-import { useDrag } from '@ui/compositions'
+import {
+  computed,
+  getCurrentInstance,
+  shallowRef,
+  ref,
+  watch,
+  reactive,
+  type ShallowRef
+} from 'vue'
 
 defineOptions({
   name: 'Tabs'
@@ -96,6 +103,30 @@ const standardItems = computed<Array<Item>>(() => {
   return res.filter((item: any) => !closedList.value.includes(item.key))
 })
 
+const headerRef = shallowRef<HTMLDivElement>()
+
+const useSort = (target: ShallowRef<HTMLElement | undefined>, mode: 'horizontal' | 'vertical') => {
+  const active = reactive({
+    index: 0
+  })
+  watch(target, (dom) => {
+    Array.from(dom?.children!).forEach((child: any, index) => {
+      if (child.getAttribute('draggable') === 'false') return
+      child.setAttribute('draggable', 'true')
+      child.setAttribute('style', 'transition: transform 0.25s')
+      child.addEventListener('dragstart', (e) => {
+        active.index = index
+      })
+      child.addEventListener('drag', (e) => {})
+      child.addEventListener('dragenter', (e) => {})
+      child.addEventListener('dragover', (e) => {})
+      child.addEventListener('dragend', (e) => {})
+    })
+  })
+}
+
+useSort(headerRef, 'horizontal')
+
 let labIndex = ref<number>(0)
 /** 切换标签页 */
 const changeTab = (key: string | number, index: number) => {
@@ -133,33 +164,4 @@ const handleClose = (item: Item) => {
   }
 }
 
-const translated = reactive<Array<Record<string, any>>>([])
-
-watch(
-  () => labRef,
-  (ref) => {
-    if (ref) {
-      ref.value?.forEach((item, index) => {
-        translated.push({ x: 0, y: 0 })
-        useDrag({
-          target: shallowRef(item),
-          onDrag(x, y) {
-            if (!labRef.value) return
-            const target = labRef.value[index]!
-            if (['top', 'bottom'].includes(props.position!)) {
-              target.style.transform = `translate(${translated[index]!.x + x}px, 0)`
-            } else {
-              target.style.transform = `translate(0, ${translated[index]!.y + y}px)`
-            }
-          },
-          onDragEnd(x, y) {
-            translated[index]!.x += x
-            translated[index]!.y += y
-          }
-        })
-      })
-    }
-  },
-  { deep: true }
-)
 </script>
