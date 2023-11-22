@@ -1,97 +1,107 @@
 import type { DirectiveBinding, ObjectDirective } from 'vue'
 import { bem } from '@ui/utils'
-import { debounce } from 'cat-kit/fe'
 
 const cls = bem('ripple')
 const clsWrap = cls.e('wrap')
 
-const removeClass = debounce(
-  (el: HTMLElement) => {
-    el.classList.remove(cls.b)
-  },
-  350,
-  false
-)
+const duration = 300
 
-const showRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
+/**
+ *
+ * @param el 目标dom
+ * @param offsetX 触发点在目标dom中的x轴偏移量
+ * @param offsetY 触发点在目标dom中的y轴偏移量
+ */
+const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
+  // 添加波纹类
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
 
+  const _duration = el.dataset.duration ? Number(el.dataset.duration) : duration
+
+  // 计算波纹大小
   const rect = el.getBoundingClientRect()
+  // 通过勾股定理计算波纹的最大直径
+  const rippleSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
+  const rippleWrap = document.createElement('span')
+  rippleWrap.classList.add(clsWrap)
+  rippleWrap.style.transition = `transform ${_duration}ms ease-in`
+  rippleWrap.style.width = `${rippleSize}px`
+  rippleWrap.style.height = `${rippleSize}px`
 
-  const wrapSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
-  const wrap = document.createElement('span')
-  wrap.classList.add(clsWrap)
+  const radius = rippleSize / 2
+  // 计算波纹圆心位置
+  const center = `translate3d(${offsetX - radius}px, ${offsetY - radius}px, 0)`
 
-  wrap.style.width = `${wrapSize}px`
-  wrap.style.height = `${wrapSize}px`
-  let transX = offsetX - wrapSize / 2
-  let transY = offsetY - wrapSize / 2
-  wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(0, 0, 0)`
+  rippleWrap.style.transform = `${center} scale3d(0, 0, 0)`
 
   if (el.dataset.rippleClass) {
-    wrap.classList.add(el.dataset.rippleClass)
+    rippleWrap.classList.add(el.dataset.rippleClass)
   }
 
-  el.appendChild(wrap)
+  el.appendChild(rippleWrap)
 
-  // 在下一帧添加动画
+  // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
   requestAnimationFrame(() => {
-    wrap.style.transform = `translate(${transX}px, ${transY}px) scale3d(2, 2, 2)`
+    rippleWrap.style.transform = `${center} scale3d(2, 2, 2)`
   })
 
-  // 延迟300移除波纹
+  // 效果完成后移除波纹元素
   setTimeout(() => {
-    removeRipple(el)
-  }, 340)
+    rippleWrap.parentNode?.removeChild(rippleWrap)
 
-  // 显示完之后移除
-  removeClass(el)
+    // 所有的波纹被清除后移除波纹类
+    el.getElementsByClassName(clsWrap).length === 0 && el.classList.remove(cls.b)
+  }, _duration)
+}
+
+function mousedownHandler(this: HTMLElement, e: MouseEvent) {
+  triggerRipple(this, e.offsetX, e.offsetY)
 }
 
 /**
- * 移除波纹元素
- * 首先要保证波纹被移除才能够移除rippleClass
+ * 注册按下事件
+ * @param el
+ * @param binding
+ * @todo 如有必要将来可添加触摸事件
  */
-const removeRipple = (el: HTMLElement) => {
-  const wrap = el.getElementsByClassName(clsWrap)
-  Array.prototype.forEach.call(wrap, item => {
-    item.parentNode?.removeChild(item)
-  })
-}
-
-function showEvent(this: HTMLElement, e: MouseEvent) {
-  showRipple(this, e.offsetX, e.offsetY)
-}
-
-const addEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
+const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
+  // 如果指令绑定的值为false则不应用该事件. eg: v-ripple="false"
   if (binding.value === false) return
+
+  // 如果指令绑定的值为字符串则为类名，将在波纹触发时应用于波纹上
   if (typeof binding.value === 'string') {
     el.dataset.rippleClass = binding.value
   }
-  el.addEventListener('mousedown', showEvent)
+
+  if (binding.arg) {
+    el.dataset.duration = binding.arg
+  }
+
+  el.addEventListener('mousedown', mousedownHandler)
 }
 
-const removeEvents = (el: HTMLElement) => {
-  el.removeEventListener('mousedown', showEvent)
+/**
+ * 注销按下事件
+ * @param el 元素
+ */
+const unregisterEvents = (el: HTMLElement) => {
+  delete el.dataset.rippleClass
+  delete el.dataset.duration
+  el.removeEventListener('mousedown', mousedownHandler)
 }
 
 const Ripple: ObjectDirective<HTMLElement> = {
-  // 挂载
-  mounted(el, binding) {
-    addEvents(el, binding)
-  },
-  // 卸载
-  unmounted(el) {
-    removeEvents(el)
-  },
+  // 元素的dom挂载后注册按下事件
+  mounted: registerEvents,
 
-  // 更新
-  updated(el, binding) {
-    // hideRipple(el)
-    removeEvents(el)
-    addEvents(el, binding)
+  // 元素卸载前注销事件
+  beforeUnmount: unregisterEvents,
+
+  // 元素更新时移除旧有事件并重新添加事件
+  updated(el, binding, vNode, preVNode) {
+    unregisterEvents(el)
+    registerEvents(el, binding)
   }
 }
 
-// 实现一个vue3的波纹指令
 export default Ripple
