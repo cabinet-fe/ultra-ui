@@ -1,0 +1,45 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(list) {
+  @include m.e(item) {
+    & > li {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      box-sizing: border-box;
+      &:hover {
+        background-color: fn.use-var(color-info-light-9);
+      }
+    }
+  }
+
+  @include m.e(left) {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-right: 10px;
+    & > div {
+      margin-right: 5px;
+    }
+  }
+
+  @include m.e(checkbox) {
+  }
+
+  @include m.e(avatar) {
+    img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+  }
+  @include m.e(content) {
+    flex: 1;
+  }
+
+  @include m.e(action) {
+    align-self: center;
+  }
+}
