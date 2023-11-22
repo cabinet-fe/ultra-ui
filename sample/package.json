@@ -10,6 +10,6 @@
     "@ui/components": "workspace:*",
     "vite-helper": "workspace:*",
     "vue-router": "^4.2.5",
-    "icon-ultra": "^2.1.0"
+    "icon-ultra": "2.1.3"
   }
 }
