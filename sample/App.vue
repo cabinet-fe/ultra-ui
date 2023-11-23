@@ -75,14 +75,14 @@ aside {
   overflow: auto;
 }
 
-aside :deep {
-  .active {
+aside  {
+  :deep(.active) {
     div {
       background-color: #f2f2f2;
     }
   }
 
-  li {
+  :deep(li) {
     height: 40px;
     padding: 2px 6px;
     cursor: pointer;
