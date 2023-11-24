@@ -2,7 +2,8 @@
   <div :class="cls.b">
     <ul :class="cls.e('item')">
       <li v-for="(item, index) in data">
-        <slot name="content">
+        <slot name="content" v-if="$slots.content" :data="item" />
+        <div v-else>
           <!-- left  -->
           <div :class="cls.e('left')">
             <!-- TODO v-model 值有点问题 -->
@@ -37,7 +38,7 @@
             <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>
           </div>
           <!-- action end-->
-        </slot>
+        </div>
       </li>
     </ul>
   </div>
@@ -45,7 +46,7 @@
 
 <script lang="ts" setup>
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
-
+import { useSlots } from 'vue'
 import { UIcon } from '../icon'
 import { UCheckbox } from '../checkbox'
 import { Delete, Message, Warning } from 'icon-ultra'
@@ -58,6 +59,8 @@ defineOptions({
 const emit = defineEmits<ListEmits>()
 
 const props = withDefaults(defineProps<Partial<ListProps>>(), {})
+
+const slots = useSlots()
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {
