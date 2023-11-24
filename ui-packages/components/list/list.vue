@@ -1,19 +1,22 @@
 <template>
   <div :class="cls.b">
-    <ul v-for="(item, index) in data" :class="cls.e('item')">
-      <li>
+    <ul :class="cls.e('item')">
+      <li v-for="(item, index) in data">
         <slot name="content">
           <!-- left  -->
           <div :class="cls.e('left')">
-            <!-- TODO v-model 值没想好如何处理 -->
-            <!-- <div :class="cls.e('checkbox')">
-              <input type="radio" v-if="showRadio" v-model="item.checked" />
-              <input type="checkbox" v-if="showCheckbox" v-model="item.checked" />
-            </div> -->
+            <!-- TODO v-model 值有点问题 -->
+            <div :class="cls.e('checkbox')">
+              <u-checkbox
+                v-model="item.checked"
+                v-if="showCheck"
+                @update:model-value="handleUpdate(item, index)"
+              ></u-checkbox>
+            </div>
 
             <div :clsaa="cls.e('star')"></div>
 
-            <div :class="cls.e('avatar')">
+            <div :class="cls.e('avatar')" v-if="item.avatar">
               <img :src="item.avatar" alt="" />
             </div>
           </div>
@@ -28,14 +31,10 @@
           <!-- content end -->
 
           <!-- action -->
-          <div :class="cls.e('action')">
-            <button @click="handleDelete(item, index)">删除</button>
-            <button @click="handleMessage(item, index)">message</button>
-            <button @click="handleTip(item, index)">tip</button>
-
-            <u-button size="small" :icon="Delete" @click="handleDelete(item, index)"></u-button>
-            <u-button size="small" :icon="Message" @click="handleMessage(item, index)"></u-button>
-            <u-button size="small" :icon="Warning" @click="handleTip(item, index)"></u-button>
+          <div :class="cls.e('action')" v-if="showActions">
+            <u-icon :size="16"><Delete @click="handleDelete(item, index)" /></u-icon>
+            <u-icon :size="16"><Message @click="handleMessage(item, index)" /></u-icon>
+            <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>
           </div>
           <!-- action end-->
         </slot>
@@ -45,55 +44,34 @@
 </template>
 
 <script lang="ts" setup>
-import type { ActionOptions, DataSourceOptions } from '@ui/types/components/list'
-import { UButton } from '../button'
+import { type ListProps, type ListEmits } from '@ui/types/components/list'
+
+import { UIcon } from '../icon'
+import { UCheckbox } from '../checkbox'
 import { Delete, Message, Warning } from 'icon-ultra'
 import { bem } from '@ui/utils'
-import type { PropType } from 'vue'
 
 defineOptions({
   name: 'List'
 })
 
-const emit = defineEmits(['delete', 'message', 'tip'])
+const emit = defineEmits<ListEmits>()
 
-const props = defineProps({
-  /** 显示单选框 */
-  showRadio: {
-    type: Boolean,
-    default: false
-  },
-
-  /** 显示复选框 */
-  showCheckbox: {
-    type: Boolean,
-    defaut: false
-  },
-
-  /** 列表数据 */
-  data: {
-    type: Array as PropType<DataSourceOptions[]>
-  },
-
-  /** 操作组 */
-  action: {
-    type: Array as PropType<ActionOptions[]>,
-    defaule: () => []
-  }
-})
+const props = withDefaults(defineProps<Partial<ListProps>>(), {})
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {
-  console.log(item, index)
   emit('delete', item, index)
 }
 const handleMessage = (item: any, index: number) => {
-  console.log(item, index)
   emit('message', item, index)
 }
 const handleTip = (item: any, index: number) => {
-  console.log(item, index)
   emit('tip', item, index)
+}
+const handleUpdate = (item: any, index: number) => {
+  let list = props.data?.filter(item => item.checked)
+  emit('update:check', list)
 }
 
 const cls = bem('list')

@@ -3,6 +3,8 @@
 @use '@ui/styles/vars';
 
 @include m.b(list) {
+  border-radius: 5px;
+  border: 1px solid fn.use-var(border-color);
   @include m.e(item) {
     & > li {
       display: flex;
@@ -30,8 +32,8 @@
 
   @include m.e(avatar) {
     img {
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       margin-right: 10px;
     }
   }
@@ -41,5 +43,12 @@
 
   @include m.e(action) {
     align-self: center;
+    & > .u-icon {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    & > .u-icon:last-child {
+      margin-right: 0px;
+    }
   }
 }
