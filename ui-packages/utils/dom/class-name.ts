@@ -82,7 +82,7 @@ function is<N extends string, C extends boolean>(
   name: N,
   condition: C
 ): C extends true ? `is-${N}` : ''
-function is<N extends string>(name: N, condition?: boolean) {
+function is<N extends string>(name: N, condition?: undefined | boolean) {
   return condition === false ? '' : (`is-${name}` as const)
 }
 
