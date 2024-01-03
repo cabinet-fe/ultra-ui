@@ -79,6 +79,7 @@ const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   trigger?(): VNode[] | undefined
 }>()
+
 const cls = bem('dialog')
 
 /** 弹框模板引用 */

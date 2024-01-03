@@ -1,13 +1,18 @@
 <template>
   <button
-    type="button"
     :class="classList"
+    type="button"
     v-bind="$attrs"
+    aria-label="button"
     @click="handleClick"
     v-ripple="ripple"
   >
     <!-- 加载图标 -->
-    <u-icon v-if="loading" :class="[bem.is('loading'), cls.e('icon-left')]" :size="iconSize">
+    <u-icon
+      v-if="loading"
+      :class="[bem.is('loading'), $slots.default ? cls.e('icon-left') : null]"
+      :size="iconSize"
+    >
       <component :is="loadingIcon" />
     </u-icon>
 

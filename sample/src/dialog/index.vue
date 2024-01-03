@@ -18,7 +18,7 @@
       {{ getContent() }}
     </div>
 
-    <u-dialog v-model="visible" style="width: 900px;" title="弹框">
+    <u-dialog v-model="visible" style="width: 900px" title="弹框">
       <p>内容</p>
       <p>内容</p>
       <p>内容</p>
@@ -64,7 +64,6 @@
       <p>内容</p>
       <p>内容</p>
       <p>内容</p>
-
     </u-dialog>
   </div>
 </template>

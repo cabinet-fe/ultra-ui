@@ -3,4 +3,101 @@
 @use '@ui/styles/vars';
 
 @include m.b(tabs) {
+  display: flex;
+  @each $position in top, left, right, bottom {
+    @include m.e($position) {
+      @if $position == top {
+        flex-direction: column;
+      } @else if $position == bottom {
+        flex-direction: column-reverse;
+      } @else if $position == left {
+        flex-direction: row;
+      } @else if $position == right {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+  @include m.e(header) {
+    display: flex;
+    position: relative;
+    @each $position in top, left, right, bottom {
+      &--#{$position} {
+        @if $position == left {
+          flex-direction: column;
+          border-right: 2px solid fn.use-var(border-color);
+          margin-right: 10px;
+        } @else if $position == right {
+          flex-direction: column;
+          border-left: 2px solid fn.use-var(border-color);
+          margin-left: 10px;
+        } @else if $position == bottom {
+          border-bottom: 2px solid fn.use-var(border-color);
+          margin-top: 10px;
+        } @else {
+          border-bottom: 2px solid fn.use-var(border-color);
+          margin-bottom: 10px;
+        }
+      }
+    }
+    &--label {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      cursor: pointer;
+      // border-right: 0;
+      background-color: fn.use-var(bg-color, top);
+      padding: 4px 8px;
+      font-size: fn.use-var(font-size, title);
+      color: fn.use-var(color, info);
+      user-select:none;
+      @include m.is('active') {
+        color: fn.use-var(color, primary);
+      }
+     .is-close {
+        width: 16px;
+        height: 16px;
+        line-height: 13px;
+        text-align: center;
+        border-radius: 50px;
+      }
+      .is-close:hover {
+        background-color: fn.use-var(color, info);
+        color: #fff;
+      }
+    }
+    // &--label:last-of-type {
+    //   border-right: fn.use-var(border);
+    // }
+    &--label:hover {
+      color: fn.use-var(color, primary);
+    }
+    &--line {
+      background-color: fn.use-var(color, primary);
+      transition: transform 0.3s ease-in, width 0.3s ease-out;
+      position: absolute;
+      width: 50px;
+      height: 2px;
+      left: 0px;
+      bottom: -2px;
+      @each $position in top, left, right, bottom {
+        @include m.is(#{$position}) {
+          @if $position == left {
+            width: 2px!important;
+            height: 50px;
+            top: 0px;
+            right: -2px;
+          }@else if $position == right {
+            width: 2px!important;
+            height: 50px;
+            top: 0px;
+            left: -2px;
+          }
+        }
+      }
+    }
+  }
+  @include m.e(content) {
+    width: 100%;
+    border: 1px solid gray;
+  }
 }
