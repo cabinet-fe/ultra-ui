@@ -61,9 +61,12 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
   return (
     '#' +
     color1RGB
-      .map((n, i) =>
-        Math.floor(color1Ratio * n + color2RGB[i]! * ratio).toString(16)
-      )
+      .map((n, i) => {
+        const hex = Math.floor(
+          color1Ratio * n + color2RGB[i]! * ratio
+        ).toString(16)
+        return hex.length === 1 ? '0' + hex : hex
+      })
       .join('')
   )
 }
