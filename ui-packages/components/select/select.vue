@@ -19,7 +19,8 @@ const props = defineProps<SelectProps>()
 const emit = defineEmits<SelectEmits>()
 
 const model = useModel({ props, emit })
-useModel({ props, emit, propName: 'label' })
+
+const label = useModel({ props, emit, propName: 'label' })
 
 const handleChange = (e: Event) => {}
 </script>
