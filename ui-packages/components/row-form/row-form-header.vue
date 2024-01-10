@@ -6,8 +6,6 @@
         *
       </span>
     </th>
-
-    <th :class="cls.e('th-action-columns')">操作</th>
   </thead>
 </template>
 <script lang="ts" setup>

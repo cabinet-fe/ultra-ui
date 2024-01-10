@@ -8,7 +8,6 @@
         @suffix:click="c.log"
         prefix="前缀"
         clearable
-
       >
         <template #suffix>
           <u-icon :size="14"><Search /></u-icon>
