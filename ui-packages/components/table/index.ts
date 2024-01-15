@@ -1,2 +1,7 @@
 export { default as UTable } from './table.vue'
-export * from '@ui/types/components/table'
+
+export type {
+  TableProps,
+  TableEmits,
+  TableExposed
+} from '@ui/types/components/table'

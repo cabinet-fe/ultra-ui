@@ -1,7 +1,7 @@
 <template>
-  <u-scroll @scroll="handleScroll" v-bind="scrollProps">
+  <u-scroll @scroll="handleScroll" v-bind="scrollProps" ref="scrollRef">
     <component :is="tag" ref="containerRef">
-      <template v-for="item of renderList">
+      <template v-for="item of renderList" :key="item.id">
         <slot v-bind="{ item }" />
       </template>
     </component>
@@ -9,21 +9,22 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-// import type { VirtualListProps } from '@ui/types/components/virtual-list'
-import { UScroll } from '../scroll'
-import type { ScrollPosition } from '@ui/types/components/scroll'
 import { computed, provide, shallowRef, watch } from 'vue'
+import { UScroll } from '../scroll'
+import type { VirtualListProps } from '@ui/types/components/virtual-list'
+import type { ScrollPosition } from '@ui/types/components/scroll'
 import { bem } from '@ui/utils'
 import { VirtualListDIKey } from './di'
-import { obj } from 'cat-kit/fe'
+import { debounce, obj } from 'cat-kit/fe'
 import { useContainerHeight } from './use-container-height'
 
 defineOptions({
   name: 'VirtualScroll'
 })
 
-const props = withDefaults(defineProps<{}>(), {
-  tag: 'div'
+const props = withDefaults(defineProps<VirtualListProps>(), {
+  tag: 'div',
+  placeTag: 'div'
 })
 
 const scrollProps = computed(() => obj(props).pick(['height']))
@@ -51,6 +52,7 @@ const renderList = shallowRef(
 
 watch(containerRef, container => {
   if (!container?.parentElement) return
+
   renderNumber.value =
     container.parentElement.offsetHeight / (props.itemSize ?? 32)
 })
@@ -59,18 +61,19 @@ const getRenderList = (position: Required<ScrollPosition>) => {
   const { itemSize, data } = props
   let start = Math.floor(position.y / (itemSize ?? 32))
   renderStart.value = start
-  renderList.value = data.slice(start, start + renderNumber.value)
+  renderList.value = data.slice(start, start + renderNumber.value + 100)
+  console.log(renderList.value[0])
 }
 
-let timer: number
+const scrollRef = shallowRef()
 
-const handleScroll = (position: Required<ScrollPosition>) => {
+const scroll = debounce((position: Required<ScrollPosition>) => {
   containerRef.value!.style.paddingTop = `${position.y}px`
   containerRef.value!.style.paddingLeft = `${position.x}px`
+}, 50)
+const handleScroll = (position: Required<ScrollPosition>) => {
+  // scroll(position)
 
-  timer = requestIdleCallback(() => {
-    getRenderList(position)
-    cancelIdleCallback(timer)
-  })
+  getRenderList(position)
 }
 </script>

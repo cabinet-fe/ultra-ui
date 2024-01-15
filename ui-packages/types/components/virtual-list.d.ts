@@ -6,6 +6,8 @@ export interface VirtualListProps<
 > extends ScrollProps {
   data: DataItem[]
   itemSize?: number
+  /** 缓冲数量 */
+  bufferSize?: number
 }
 
 /** 虚拟滚动组件定义的事件 */

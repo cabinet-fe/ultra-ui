@@ -29,20 +29,22 @@ export function useContainerHeight(options: Options) {
     )
   }
 
-  watch([() => props.data, () => props.itemSize, () => containerRef.value], ([data, itemSize, container]) => {
-    if (!data.length || !container) return
+  watch(
+    [() => props.data, () => props.itemSize, () => containerRef.value],
+    ([data, itemSize, container]) => {
+      if (!data.length || !container) return
 
-
-    if (itemSize) {
-      updateHeight(data.length * itemSize)
-    } else {
-
-      // 给个推算的高度, 当
-      updateHeight(data.length * 32)
+      if (itemSize) {
+        updateHeight(data.length * itemSize)
+      } else {
+        // 给个推算的高度, 当
+        updateHeight(data.length * 32)
+      }
+    },
+    {
+      immediate: true
     }
-  }, {
-    immediate: true
-  })
+  )
 
   return updateItemHeight
 }
