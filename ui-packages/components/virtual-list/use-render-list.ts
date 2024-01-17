@@ -1,10 +1,4 @@
-import {
-  shallowRef,
-  watch,
-  type ShallowRef,
-  computed,
-  shallowReactive
-} from 'vue'
+import { shallowRef, watch, type ShallowRef, computed } from 'vue'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
 import type { ScrollPosition } from '@ui/types/components/scroll'
 interface Options {
