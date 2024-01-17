@@ -1,7 +1,6 @@
 <template>
   <div @click="handleChange" :class="classList">
     <span :class="cls.e('input')">
-      <input type="radio" />
       <span :class="cls.m('inner')"></span>
     </span>
     <span :class="cls.e('label')">
