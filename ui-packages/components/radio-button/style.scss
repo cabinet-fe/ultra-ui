@@ -64,8 +64,10 @@
 
 .isChecked {
     color: var(--u-color-primary);
-    // border-color: var(--u-bg-color-primary);
+    transition: all .3s ease-in-out;
+
     @include m.b(radio-button) {
+
         @include m.m(inner) {
             background: var(--u-color-primary);
 
