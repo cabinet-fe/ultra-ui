@@ -3,7 +3,7 @@
 @use '@ui/styles/vars';
 
 @include m.b(radio-button) {
-    pointer-events: none;
+    // pointer-events: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -83,20 +83,20 @@
     cursor: not-allowed;
     opacity: 0.8;
     pointer-events: none;
-    color: var(--u-text-color-assist);
+    color: var(--u-text-color-second);
     &:hover {
-        color: var(--u-text-color-assist);
+        color: var(--u-text-color-second);
     }
     @include m.b(radio-button) {
 
         @include m.m(inner) {
             background: none;
-            border-color: var(--u-text-color-assist);
+            border-color: var(--u-text-color-second);
 
             &::after {
                 width: 6px;
                 height: 6px;
-                background-color: var(--u-text-color-assist);
+                background-color: var(--u-text-color-second);
             }
         }
     }
