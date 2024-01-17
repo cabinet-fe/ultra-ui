@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ data.length }}条数据
     <u-button @click="addData">加100条数据</u-button>
     <u-button @click="removeData">减100条数据</u-button>
     <u-virtual-list

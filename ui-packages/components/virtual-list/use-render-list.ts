@@ -1,19 +1,23 @@
-import { shallowRef, watch, type ShallowRef, computed } from 'vue'
+import {
+  shallowRef,
+  watch,
+  type ShallowRef,
+  computed,
+  shallowReactive
+} from 'vue'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
-import type { ScrollExposed, ScrollPosition } from '@ui/types/components/scroll'
+import type { ScrollPosition } from '@ui/types/components/scroll'
 interface Options {
   /** 容器模板引用 */
   containerRef: ShallowRef<HTMLElement | undefined>
   /** 虚拟列表组件的props */
   props: VirtualListProps
-  /** 滚动容器模板引用 */
-  scrollRef: ShallowRef<ScrollExposed | undefined>
   /** 虚拟化 */
   virtualization: ShallowRef<boolean>
 }
 
 export function useRenderList(options: Options) {
-  const { props, containerRef, scrollRef, virtualization } = options
+  const { props, containerRef, virtualization } = options
 
   /** 容器中最大可渲染数量 */
   const renderCounts = computed(() => {
@@ -59,14 +63,25 @@ export function useRenderList(options: Options) {
     renderList.value = data.slice(startWithBuffer, endWithBuffer)
   }
 
-  const scroll = (position: Required<ScrollPosition>) => {
-    containerRef.value!.style.paddingTop = `${position.y}px`
-    containerRef.value!.style.paddingLeft = `${position.x}px`
+  // 避免不必要的dom操作而做出的性能优化
+  const paddingTop = shallowRef('0')
+  const paddingLeft = shallowRef('0')
+
+  watch(paddingTop, paddingTop => {
+    containerRef.value!.style.paddingTop = paddingTop
+  })
+  watch(paddingLeft, paddingLeft => {
+    containerRef.value!.style.paddingLeft = paddingLeft
+  })
+
+  const setPadding = (position: Required<ScrollPosition>) => {
+    paddingTop.value = `${position.y}px`
+    paddingLeft.value = `${position.x}px`
   }
   const handleScroll = (position: Required<ScrollPosition>) => {
-    if (!virtualization.value) return
+    if (!virtualization.value) return setPadding({ x: 0, y: 0 })
     getRenderList(position)
-    scroll(position)
+    setPadding(position)
   }
 
   return {

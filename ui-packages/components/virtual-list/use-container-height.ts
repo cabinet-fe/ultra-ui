@@ -16,7 +16,7 @@ interface Options {
 export function useContainerHeight(options: Options) {
   const { containerRef, props } = options
 
-  const updateHeight = (height?: number ) => {
+  const updateHeight = (height?: number) => {
     if (!containerRef.value) return
     containerRef.value.style.height = height ? height + 'px' : ''
   }
@@ -42,7 +42,9 @@ export function useContainerHeight(options: Options) {
       return updateHeight()
     }
     if (itemHeight) {
-      return updateHeight(data?.length !== undefined ? data.length * itemHeight : undefined)
+      return updateHeight(
+        data?.length !== undefined ? data.length * itemHeight : undefined
+      )
     }
 
     updateHeight(data!.length * 32)

@@ -38,9 +38,11 @@
   }
 
   @include m.e(buttons) {
-    & > #{fn.bem(icon)} {
-      &:not(:first-child) {
-        margin-left: fn.use-var(gap, default);
+    & > {
+      @include m.bem(icon) {
+        &:not(:first-child) {
+          margin-left: fn.use-var(gap, default);
+        }
       }
     }
   }

@@ -1,5 +1,11 @@
 <template>
-  <u-scroll @scroll="handleScroll" v-bind="scrollProps" ref="scrollRef" :class="cls.b">
+  <u-scroll
+    @scroll="handleScroll"
+    v-bind="scrollProps"
+    ref="scrollRef"
+    :class="cls.b"
+    always
+  >
     <component :is="tag" ref="containerRef">
       <template v-for="item of renderList" :key="item.id">
         <slot v-bind="{ item }" />
@@ -9,7 +15,7 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import { computed, provide, shallowRef } from 'vue'
+import { computed, nextTick, provide, shallowRef, watch } from 'vue'
 import { UScroll, type ScrollExposed } from '../scroll'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
 import { bem } from '@ui/utils'
@@ -63,7 +69,12 @@ useContainerHeight({
 const { handleScroll, renderList } = useRenderList({
   props,
   containerRef,
-  scrollRef,
   virtualization
+})
+
+// 更新滚动条
+watch([scrollRef, virtualization, () => props.data], ([scrollRef]) => {
+  // 等数据渲染完之后更新滚动条
+  nextTick(() => scrollRef?.update())
 })
 </script>
