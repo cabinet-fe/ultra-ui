@@ -4,6 +4,7 @@
 
 @include m.b(dialog) {
   background-color: fn.use-var(bg-color, bottom);
+  backdrop-filter: blur(10px);
   border-radius: fn.use-var(radius, large);
   overflow: hidden;
   transform: scale3d(0, 0, 1) translate(0, 0);
@@ -35,6 +36,7 @@
 
   @include m.e(body) {
     padding: 0 8px;
+
   }
 
   @include m.e(buttons) {
