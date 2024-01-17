@@ -1,5 +1,5 @@
 <template>
-  <div @click="handleChange" :class="[...classList,isChecked ? 'isChecked' : '']">
+  <div @click="handleChange" :class="classList">
     <span :class="cls.e('input')">
       <input type="radio" />
       <span :class="cls.m('inner')"></span>
@@ -34,6 +34,7 @@ let isChecked = shallowRef<boolean | number | undefined>(
 const classList = computed(() => {
   return [
     cls.b,
+    isChecked.value ? "isChecked" : undefined,
     props.disabled || props.disabledAll ? "isDisabled" : "",
   ]
 })
