@@ -1,0 +1,103 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(radio-button) {
+    pointer-events: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px;
+    background-color: var(--u-bg-color-top);
+    border: var(--u-border);
+    border-color: var(--u-border-color);
+    border-radius: var(--u-radius-default);
+
+    &:hover {
+        color: var(--u-color-primary);
+    }
+
+    @include m.e(input) {
+        width: var(--u-font-size-main);
+        height: var(--u-font-size-main);
+        position: relative;
+        pointer-events: auto;
+        margin-right: 8px;
+    }
+
+    @include m.e(label) {
+        pointer-events: auto;
+    }
+
+
+
+    @include m.m(inner) {
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        border: var(--u-border);
+        border-radius: 50%;
+        position: relative;
+
+        &::after {
+            width: 4px;
+            height: 4px;
+            border-radius: 100%;
+            background-color: var(--u-bg-color-top);
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform .15s ease-in;
+        }
+
+        &:hover {
+            color: var(--u-color-primary);
+            border-color: var(--u-color-primary);
+        }
+    }
+}
+
+
+
+.isChecked {
+    color: var(--u-color-primary);
+
+    @include m.b(radio-button) {
+        @include m.m(inner) {
+            border-color: var(--u-color-primary);
+            background: var(--u-color-primary);
+
+            &::after {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    }
+
+}
+
+.isDisabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+    pointer-events: none;
+    color: var(--u-color-info);
+    &:hover {
+        color: var(--u-color-info);
+    }
+    @include m.b(radio-button) {
+
+        @include m.m(inner) {
+            background: none;
+            border-color: var(--u-color-info);
+
+            &::after {
+                width: 6px;
+                height: 6px;
+                background-color: var(--u-color-info);
+            }
+        }
+    }
+}
