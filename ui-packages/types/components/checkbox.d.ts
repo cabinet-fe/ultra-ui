@@ -11,6 +11,8 @@ export interface CheckboxProps<V extends Val = boolean>
   falseValue?: V
   /** 部分选中 */
   indeterminate?: boolean
+  /** 是否选中  */
+  modelValue?: V
 }
 
 export interface CheckboxEmits<V extends Val = boolean> {

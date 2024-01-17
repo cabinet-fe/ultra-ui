@@ -57,14 +57,6 @@ export interface RowFormExposed {
   validate(): Promise<boolean>
 }
 
-/** 每一条数据的状态属性 */
-export interface RowFormRowStatus {
-  /** 是否可编辑 */
-  edit: Boolean,
-  /** 校验状态是否开启 */
-  isValidator: Boolean
-}
-
 /** row-form-button按钮  */
 export interface RowFormType {
   /** 点击事件 */

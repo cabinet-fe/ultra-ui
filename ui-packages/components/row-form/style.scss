@@ -33,12 +33,18 @@
     tr {
       min-height: 80px;
     }
+
+    tr:hover {
+      background-color: fn.use-var(color-info-light-9);
+    }
+
+    //
   }
   // color: #f00;
   &--data {
     width: 200px;
     position: static;
-    background-color: #fff;
+    background-color: fn.use-var(color-info-light-1);
   }
 
   // @include cls.em('operate', 'data') {
@@ -48,7 +54,7 @@
   @include m.e(th-action-columns) {
     width: 200px;
     position: static;
-    background: #fff;
+    background: fn.use-var(color-info-light-1);
     box-shadow: 10px;
     display: inline-block;
     @extend .header;
@@ -60,8 +66,6 @@
   height: 35px;
   line-height: 33px;
   border-radius: fn.use-var(radius);
-  // background: fn.use-var(bg-color, top);
-  // border-radius: 5px;
   border: 1px solid #dcdfe6;
   cursor: pointer;
 }
