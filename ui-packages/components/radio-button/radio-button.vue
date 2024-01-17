@@ -1,8 +1,8 @@
 <template>
   <button
     @click="handleChange"
-    :class="[cls.b, isChecked ? 'isChecked' : '',disabled||disabledAll?'isDisabled':'']"
-    :style="isChecked ? {backgroundColor: checkedColor,color: checkedColor?'#fff':''} : {}"
+    :class="[...classList,isChecked ? 'isChecked' : '']"
+    :style="isChecked ? {backgroundColor: props.checkedColor,color: props.checkedColor?'#fff':''} : {}"
   >
     <span :class="cls.e('input')" v-if="!checkedColor">
       <span :class="cls.m('inner')"></span>
@@ -19,7 +19,7 @@ import type {
   RadioButtonEmits,
 } from "@ui/types/components/radio-button"
 import {bem} from "@ui/utils"
-import {shallowRef, watch} from "vue"
+import {shallowRef, watch,computed} from "vue"
 
 defineOptions({
   name: "RadioButton",
@@ -33,9 +33,18 @@ const props = withDefaults(defineProps<RadioButtonProps>(), {})
 
 const cls = bem("radio-button")
 
+
+
 let isChecked = shallowRef<boolean | number | undefined>(
   typeof model.value == "boolean" ? model.value : false
 )
+
+const classList = computed(() => {
+  return [
+    cls.b,
+    props.disabled || props.disabledAll ? "isDisabled" : "",
+  ]
+})
 
 const handleChange = () => {
   if(props.disabledAll) return

@@ -1,8 +1,5 @@
 <template>
-  <div
-    @click="handleChange"
-    :class="[cls.b, isChecked ? 'isChecked' : '', disabled || disabledAll ? 'isDisabled' : '']"
-  >
+  <div @click="handleChange" :class="[...classList,isChecked ? 'isChecked' : '']">
     <span :class="cls.e('input')">
       <input type="radio" />
       <span :class="cls.m('inner')"></span>
@@ -16,7 +13,7 @@
 <script lang="ts" setup generic="Val extends number | boolean = boolean">
 import type {RadioProps, RadioEmits} from "@ui/types/components/radio"
 import {bem} from "@ui/utils"
-import {shallowRef, watch} from "vue"
+import {shallowRef, watch, computed} from "vue"
 
 defineOptions({
   name: "Radio",
@@ -34,8 +31,15 @@ let isChecked = shallowRef<boolean | number | undefined>(
   typeof model.value == "boolean" ? model.value : false
 )
 
+const classList = computed(() => {
+  return [
+    cls.b,
+    props.disabled || props.disabledAll ? "isDisabled" : "",
+  ]
+})
+
 const handleChange = () => {
-  if(props.disabledAll) return
+  if (props.disabledAll) return
   if (props.disabled) return
   isChecked.value = true
   emit("update:modelValue", isChecked.value)
