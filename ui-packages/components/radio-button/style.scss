@@ -21,7 +21,6 @@
     @include m.e(input) {
         width: var(--u-font-size-main);
         height: var(--u-font-size-main);
-        position: relative;
         pointer-events: auto;
         margin-right: 8px;
     }
@@ -65,10 +64,9 @@
 
 .isChecked {
     color: var(--u-color-primary);
-
+    // border-color: var(--u-bg-color-primary);
     @include m.b(radio-button) {
         @include m.m(inner) {
-            border-color: var(--u-color-primary);
             background: var(--u-color-primary);
 
             &::after {
@@ -84,9 +82,11 @@
     opacity: 0.8;
     pointer-events: none;
     color: var(--u-text-color-second);
+
     &:hover {
         color: var(--u-text-color-second);
     }
+
     @include m.b(radio-button) {
 
         @include m.m(inner) {

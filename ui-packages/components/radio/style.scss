@@ -17,27 +17,13 @@
     @include m.e(input) {
         display: inline-flex;
         align-items: center;
-        position: relative;
         pointer-events: auto;
-
-        input {
-            opacity: 0;
-            position: absolute;
-            z-index: -1;
-            cursor: pointer;
-            margin: 0;
-            padding: 0;
-            outline: none;
-        }
-
     }
 
     @include m.e(label) {
         pointer-events: auto;
         padding-left: 8px;
     }
-
-
 
     @include m.m(inner) {
         display: inline-block;
@@ -65,8 +51,6 @@
         }
     }
 }
-
-
 
 .isChecked {
     @include m.b(radio) {
