@@ -20,6 +20,7 @@ declare module 'vue' {
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
     UContext: typeof import('ultra-ui')['UContext']
     UDialog: typeof import('ultra-ui')['UDialog']
+    UFloatButton: typeof import('ultra-ui')['UFloatButton']
     UForm: typeof import('ultra-ui')['UForm']
     UGrid: typeof import('ultra-ui')['UGrid']
     UIcon: typeof import('ultra-ui')['UIcon']

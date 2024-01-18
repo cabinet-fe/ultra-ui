@@ -17,8 +17,7 @@
     "type-check": "pnpm vue-tsc --noEmit"
   },
   "devDependencies": {
-    "gsap": "^3.12.2",
-    "icon-ultra": "^2.1.0"
+    "icon-ultra": "^2.1.5"
   },
   "exports": {
     ".": "./index.ts",

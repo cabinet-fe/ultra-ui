@@ -10,6 +10,8 @@ export * from './context'
 
 export * from './dialog'
 
+export * from './float-button'
+
 export * from './form'
 
 export * from './form-item'
@@ -63,5 +65,3 @@ export * from './tree'
 export * from './uploader'
 
 export * from './virtual-list'
-
-export * from './list'

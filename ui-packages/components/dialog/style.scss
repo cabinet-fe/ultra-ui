@@ -3,13 +3,23 @@
 @use '@ui/styles/vars';
 
 @include m.b(dialog) {
-  background-color: fn.use-var(bg-color, bottom);
-  backdrop-filter: blur(10px);
   border-radius: fn.use-var(radius, large);
   overflow: hidden;
-  transform: scale3d(0, 0, 1) translate(0, 0);
+  transform: scale(0.5, 0.5) translate(0, 0);
   max-height: 90vh;
   will-change: transform;
+  position: relative;
+
+  @include m.e(background) {
+    position: absolute;
+    background-color: fn.use-var(bg-color, bottom, alpha);
+    backdrop-filter: blur(8px);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
 
   // 透明层
   @include m.e(overlay) {
@@ -34,9 +44,12 @@
     @include m.flex($justify: space-between);
   }
 
+  @include m.e(title) {
+    font-size: fn.use-var(font-size, title);
+  }
+
   @include m.e(body) {
     padding: 0 8px;
-
   }
 
   @include m.e(buttons) {
@@ -48,7 +61,7 @@
       }
     }
   }
-  @include m.e(btn-close, btn-minimize, btn-maximize) {
+  @include m.e(btn-close, btn-minimize, btn-maximize, btn-recover) {
     border-radius: 50%;
     overflow: hidden;
     color: #fff;
@@ -74,7 +87,7 @@
   @include m.e(btn-minimize) {
     background-color: #e4bf2e;
   }
-  @include m.e(btn-maximize) {
+  @include m.e(btn-maximize, btn-recover) {
     background-color: #34c759;
   }
 
@@ -93,7 +106,7 @@
 // 弹框透明层动画进入和离开时应用的类
 .dialog-overlay-enter-active,
 .dialog-overlay-leave-active {
-  transition: opacity 0.35s;
+  transition: opacity 0.25s;
 }
 
 .dialog-overlay-enter-from,

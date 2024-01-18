@@ -27,13 +27,28 @@
               <u-icon
                 :class="cls.e('btn-minimize')"
                 @click="toggleMinimize(true)"
+                title="最小化"
               >
                 <Minus />
               </u-icon>
-              <u-icon :class="cls.e('btn-maximize')" @click="toggleMaximize">
+
+              <u-icon
+                v-if="maximized"
+                :class="cls.e('btn-recover')"
+                @click="toggleMaximize(false)"
+                title="还原"
+              >
+                <Recover />
+              </u-icon>
+              <u-icon
+                v-else
+                :class="cls.e('btn-maximize')"
+                @click="toggleMaximize(true)"
+                title="最大化"
+              >
                 <Maximum />
               </u-icon>
-              <u-icon :class="cls.e('btn-close')" @click="close">
+              <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
                 <CloseBold />
               </u-icon>
             </div>
@@ -48,6 +63,9 @@
           >
             <slot />
           </u-scroll>
+
+          <!-- 背景模糊 -->
+          <div :class="cls.e('background')"></div>
         </div>
       </div>
     </transition>
@@ -66,12 +84,13 @@ import {
 } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { CloseBold, Minus, Maximum } from 'icon-ultra'
+import { CloseBold, Minus, Maximum, Recover } from 'icon-ultra'
 import { debounce } from 'cat-kit'
 import { useMaximum } from './use-maximum'
 
 defineOptions({
-  name: 'Dialog'
+  name: 'Dialog',
+  inheritAttrs: false
 })
 
 const props = defineProps<DialogProps>()
