@@ -7,8 +7,10 @@ interface Options {
 }
 
 interface Returned {
+  /** 是否为最大状态 */
   maximized: ShallowRef<boolean>
-  toggleMaximize: () => void
+  /** 切换最大状态 */
+  toggleMaximize: (maxim: boolean) => void
 }
 
 export function useMaximum(options: Options): Returned {
@@ -32,8 +34,8 @@ export function useMaximum(options: Options): Returned {
     }
   })
   /** 切换最大化 */
-  const toggleMaximize = (): void => {
-    maximized.value = !maximized.value
+  const toggleMaximize = (maxim: boolean): void => {
+    maximized.value = maxim
   }
 
   return {

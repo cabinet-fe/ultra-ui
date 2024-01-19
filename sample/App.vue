@@ -1,15 +1,13 @@
 <template>
   <div class="container">
-    <aside>
-      <ul>
-        <ListItem
-          v-for="item in routes"
-          :key="item.name"
-          :route="item"
-          :active="route.path === item.path"
-        />
-      </ul>
-    </aside>
+    <u-scroll class="aside" tag="ul">
+      <ListItem
+        v-for="item in routes"
+        :key="item.name"
+        :route="item"
+        :active="route.path === item.path"
+      />
+    </u-scroll>
     <main style="padding: var(--u-gap-default)">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -52,7 +50,7 @@ const ListItem = defineComponent({
           onClick={() => handleClick(route.path)}
           class={active ? 'active' : ''}
         >
-          <div v-ripple>{route.name}</div>
+          <div v-ripple='ripple-color'>{route.name}</div>
         </li>
       )
     }
@@ -69,22 +67,23 @@ const ListItem = defineComponent({
 }
 
 $width: 240px;
-aside {
+.aside {
   width: $width;
   border-right: fn.use-var(border);
   overflow: auto;
+  padding: 4px 0;
 }
 
-aside  {
+.aside {
   :deep(.active) {
     div {
-      background-color: #f2f2f2;
+      background-color: fn.use-var(color, primary, light-9);
     }
   }
 
   :deep(li) {
     height: 40px;
-    padding: 2px 6px;
+    padding: 2px 14px;
     cursor: pointer;
     user-select: none;
 
@@ -95,9 +94,13 @@ aside  {
       height: 100%;
 
       &:hover {
-        background-color: #f2f2f2;
+        background-color: fn.use-var(color, primary, light-9);
       }
     }
+  }
+
+  :deep(.ripple-color) {
+    background-color: rgba($color: #3F51B5, $alpha: 0.2);
   }
 }
 

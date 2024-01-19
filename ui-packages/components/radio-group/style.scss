@@ -1,0 +1,27 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(radio-group) {
+    display: flex;
+    align-items: center;
+
+    @include m.m(button) {
+        // border: var(--u-border);
+    }
+
+    @include m.m(button-item) {
+        margin: 0px !important;
+        border-right: 0 !important;
+        border-radius: 0 !important;
+        &:first-child {
+            border-radius: var(--u-radius-default)0 0 var(--u-radius-default) !important;
+        }
+        &:last-child {
+            border-right: var(--u-border) !important;
+            border-radius: 0 var(--u-radius-default) var(--u-radius-default) 0 !important;
+        }
+
+       
+    }
+}

@@ -63,6 +63,30 @@
   }
 }
 
+@mixin bem($b, $e: null, $m: null) {
+  $b: '.' + vars.$namespace + $b;
+
+  @if ($e != null) {
+    @each $ei in $e {
+      @if ($m != null) {
+        @each $mi in $m {
+          #{$b + '__' + $ei + '--' + $mi} {
+            @content;
+          }
+        }
+      } @else {
+        #{$b + '__' + $ei} {
+          @content;
+        }
+      }
+    }
+  } @else {
+    #{$b} {
+      @content;
+    }
+  }
+}
+
 /**
 * 设置css变量
 * 参数1:变量前缀

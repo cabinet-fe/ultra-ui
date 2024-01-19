@@ -27,8 +27,7 @@ $root-name: scroll;
 
   // 悬浮
   &:hover {
-    .#{vars.$namespace}#{$root-name}__bar-x,
-    .#{vars.$namespace}#{$root-name}__bar-y {
+    @include m.bem($root-name, (bar-x, bar-y)) {
       opacity: 1;
     }
   }
@@ -61,8 +60,14 @@ $root-name: scroll;
 
     @include m.is(active) {
       opacity: 1;
-      background-color:  $bar-color;
+      background-color: $bar-color;
       border-radius: $bar-active-size;
+    }
+  }
+
+  @include m.is(always) {
+    @include m.bem($root-name, (bar-y, bar-x)) {
+      opacity: 1;
     }
   }
 
