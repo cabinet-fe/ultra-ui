@@ -18,6 +18,8 @@ export interface RadioButtonProps {
   disabled?: boolean
   /**全部禁用 */
   disabledAll?: boolean
+  /**单选框尺寸 */
+  size?:string
 }
 
 /** 单选框按钮样式组件定义的事件 */

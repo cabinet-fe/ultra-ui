@@ -36,7 +36,6 @@
         keyValue="age"
         v-model="dataGroup2Value"
         disabledAll
-        disabled-index="2"
       />
       <!-- <p>{{ "返回值:" + dataGroup2Value }}</p> -->
     </div>
@@ -84,6 +83,13 @@
       />
       <!-- <p>{{ "返回值:" + dataGroup5Value }}</p> -->
     </div>
+    <div class="item">
+      <h6>尺寸</h6>
+      <u-radio-button v-model="radio3" size="large">大</u-radio-button>
+      <u-radio-button v-model="radio4">默认</u-radio-button>
+      <u-radio-button v-model="radio5" size="small">小</u-radio-button>
+    </div>
+
     <br /><br /><br />
     <u-button @click="btn">获取</u-button>
     {{ back }}
@@ -94,6 +100,9 @@
 import {ref} from "vue"
 
 let radio1 = ref(false)
+let radio3 = ref(false)
+let radio4 = ref(false)
+let radio5 = ref(false)
 
 const dataGroup = [
   {name: "张三", id: 1},

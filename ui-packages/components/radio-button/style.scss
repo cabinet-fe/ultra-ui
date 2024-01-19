@@ -1,3 +1,4 @@
+@use 'sass:map';
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
@@ -7,7 +8,6 @@
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    padding: 8px 12px;
     margin: 4px;
     background-color: var(--u-bg-color-top);
     border: var(--u-border);
@@ -58,6 +58,13 @@
             border-color: var(--u-color-primary);
         }
     }
+
+    // 按钮尺寸
+    @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+        @each $type, $val in $types {
+            #{$type}: $val;
+        }
+    }
 }
 
 
@@ -70,13 +77,12 @@
 
         @include m.m(inner) {
             background: var(--u-color-primary);
-
+            
             &::after {
                 transform: translate(-50%, -50%) scale(1);
             }
         }
     }
-
 }
 
 .isDisabled {

@@ -14,7 +14,7 @@ export interface RadioGroupProps {
   labelValue?: string
   /**按钮样式选中背景色 */
   checkedColor?: string
-  /**禁用某一个或多个或禁用时选中某个值 */
+  /**禁用某一个或多个 */
   disabledIndex?: number | number[] | string
   /**全部禁用 */
   disabledAll?:boolean

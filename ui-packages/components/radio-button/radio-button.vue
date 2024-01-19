@@ -25,7 +25,9 @@ const model = defineModel<Val>()
 
 const emit = defineEmits<RadioButtonEmits>()
 
-const props = withDefaults(defineProps<RadioButtonProps>(), {})
+const props = withDefaults(defineProps<RadioButtonProps>(), {
+  size: "default",
+})
 
 const cls = bem("radio-button")
 
@@ -36,6 +38,7 @@ let isChecked = shallowRef<boolean | number | undefined>(
 const classList = computed(() => {
   return [
     cls.b,
+    cls.m(props.size),
     props.disabled || props.disabledAll ? "isDisabled" : "",
     isChecked.value ? "isChecked" : "",
   ]
