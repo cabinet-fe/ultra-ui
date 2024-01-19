@@ -1,7 +1,7 @@
 <template>
   <u-row-form :columns="columns" v-model="modelValue">
     <template #dd="{ row }">
-      <u-input v-model="row.dd" @blur="$emit('blur')" />
+      <u-input v-model="row.dd" />
     </template>
 
     <template #ff="{ row }">
