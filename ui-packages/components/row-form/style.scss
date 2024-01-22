@@ -6,12 +6,13 @@
 @include m.b(row-form) {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #dcdfe6;
+  border: var(--u-border);
   overflow-x: scroll;
 
   .header {
-    background-color: #f5f7fa;
-    border-bottom: 1px solid #dcdfe6;
+    // var(--u-bg-color-top)
+    background-color: fn.use-var(color-primary-light-9);
+    border-bottom: var(--u-border);
   }
 
   @include m.e(thead) {
@@ -19,7 +20,7 @@
   }
 
   @include m.e(th) {
-    border-bottom: 1px solid #dcdfe6;
+    border-bottom: var(--u-border);
 
     .u-row-form-require__th {
       color: #f00;
@@ -37,19 +38,13 @@
     tr:hover {
       background-color: fn.use-var(color-info-light-9);
     }
-
-    //
   }
-  // color: #f00;
+
   &--data {
     width: 200px;
     position: static;
     background-color: fn.use-var(color-info-light-1);
   }
-
-  // @include cls.em('operate', 'data') {
-
-  // }
 
   @include m.e(th-action-columns) {
     width: 200px;
