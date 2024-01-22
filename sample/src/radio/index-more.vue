@@ -27,7 +27,7 @@
           labelValue="name"
           keyValue="age"
           v-model="dataGroup2Value"
-          disabledAll
+          disabled
         />
         <p>{{ "返回值:" + dataGroup2Value }}</p>
       </div>

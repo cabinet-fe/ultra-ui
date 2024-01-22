@@ -13,9 +13,9 @@ export interface RadioProps {
   /**多个按钮时的item */
   itemValue?: Record<string, any>
   /**是否禁用 */
-  disabled?: boolean
+  disabledIndex?: boolean
   /**全部禁用 */
-  disabledAll?: boolean
+  disabled?: boolean
 }
 
 /** 单选框组件定义的事件 */

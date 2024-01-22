@@ -6,8 +6,8 @@
       v-model="item.check"
       :itemValue="item"
       @update:modelDataValue="onUpdate"
-      :disabled="compareDisabled(index)"
-      :disabled-all="disabledAll"
+      :disabledIndex="compareDisabled(index)"
+      :disabled="disabled"
     >
       {{ item[labelValue] }}{{ item[keyValue] }}
     </u-radio>
@@ -19,8 +19,8 @@
       :itemValue="itemBtn"
       @update:modelDataValue="onUpdate"
       :checked-color="checkedColor"
-      :disabled="compareDisabled(index)"
-      :disabled-all="disabledAll"
+      :disabledIndex="compareDisabled(index)"
+      :disabled="disabled"
     >
       {{ itemBtn[labelValue] }}{{ itemBtn[keyValue] }}
     </u-radio-button>

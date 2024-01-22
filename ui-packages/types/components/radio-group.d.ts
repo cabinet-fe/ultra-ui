@@ -17,7 +17,7 @@ export interface RadioGroupProps {
   /**禁用某一个或多个 */
   disabledIndex?: number | number[] | string
   /**全部禁用 */
-  disabledAll?:boolean
+  disabled?:boolean
 }
 
 /** 单选框默认父组件组件定义的事件 */

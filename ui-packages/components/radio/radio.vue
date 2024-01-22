@@ -34,13 +34,13 @@ const classList = computed(() => {
   return [
     cls.b,
     isChecked.value ? "isChecked" : undefined,
-    props.disabled || props.disabledAll ? "isDisabled" : "",
+    props.disabledIndex || props.disabled ? "isDisabled" : "",
   ]
 })
 
 const handleChange = () => {
-  if (props.disabledAll) return
   if (props.disabled) return
+  if (props.disabledIndex) return
   isChecked.value = true
   emit("update:modelValue", isChecked.value)
 
