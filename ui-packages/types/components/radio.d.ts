@@ -12,7 +12,7 @@ export interface RadioProps {
   isChecked?: boolean
   /**多个按钮时的item */
   itemValue?: Record<string, any>
-  /**是否禁用 */
+  /**是否禁用指定项*/
   disabledIndex?: boolean
   /**全部禁用 */
   disabled?: boolean
