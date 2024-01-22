@@ -3,25 +3,21 @@
 @use '@ui/styles/vars';
 
 @include m.b(radio-group) {
-    display: flex;
-    align-items: center;
-
-    @include m.m(button) {
-        // border: var(--u-border);
-    }
+    @include m.flex($display: inline-flex, $align: center);
 
     @include m.m(button-item) {
         margin: 0px !important;
         border-right: 0 !important;
         border-radius: 0 !important;
+
         &:first-child {
-            border-radius: var(--u-radius-default)0 0 var(--u-radius-default) !important;
-        }
-        &:last-child {
-            border-right: var(--u-border) !important;
-            border-radius: 0 var(--u-radius-default) var(--u-radius-default) 0 !important;
+            border-radius: fn.use-var(radius, default)0 0 fn.use-var(radius, default) !important;
         }
 
-       
+        &:last-child {
+            border-right: fn.use-var(border) !important;
+            border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0 !important;
+        }
+
     }
 }

@@ -19,9 +19,8 @@
 <script lang="ts" setup>
 import type { TipProps } from '@ui/types/components/tip'
 import type { Undef } from '@ui/utils'
-import type { Null } from '@ui/utils'
 import { bem, zIndex } from '@ui/utils'
-import { shallowReactive, watch, ref } from 'vue'
+import { shallowReactive, ref } from 'vue'
 
 
 
@@ -40,9 +39,9 @@ let visible = ref(false)
 
 let timeClick: Undef<number> = undefined
 
-let timeMouseOut = null as any
+let timeMouseOut: Undef<number> = undefined
 
-let timeMouseOver = null as any
+let timeMouseOver:Undef<number> = undefined
 
 const handleMouseOver = () => {
   if (props.triggerPopUpMode !== 'hover') return
@@ -84,13 +83,4 @@ const dynamicStyle = shallowReactive({
   ...(props.customStyle || {})
 })
 
-/**监听提示框显示/隐藏 */
-
-watch(visible, value => {
-  if (value) {
-    dynamicStyle.display = 'block'
-  } else {
-    dynamicStyle.display = 'none'
-  }
-})
 </script>
