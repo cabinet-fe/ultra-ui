@@ -15,9 +15,9 @@ export interface RadioGroupProps {
   /**按钮样式选中背景色 */
   checkedColor?: string
   /**禁用某一个或多个 */
-  disabledIndex?: number | number[] | string
+  disabledIndex?: number | number[]
   /**全部禁用 */
-  disabledAll?:boolean
+  disabled?:boolean
 }
 
 /** 单选框默认父组件组件定义的事件 */

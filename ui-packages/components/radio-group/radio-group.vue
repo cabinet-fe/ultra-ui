@@ -1,29 +1,30 @@
 <template>
   <div :class="[cls.b, radioType == 'btn' ? cls.m('button') : '']">
-    <u-radio
-      v-if="radioType == 'radio'"
-      v-for="(item, index) in modelData"
-      v-model="item.check"
-      :itemValue="item"
-      @update:modelDataValue="onUpdate"
-      :disabled="compareDisabled(index)"
-      :disabled-all="disabledAll"
-    >
-      {{ item[labelValue] }}{{ item[keyValue] }}
-    </u-radio>
-    <u-radio-button
-      :class="cls.m('button-item')"
-      v-else
-      v-for="(itemBtn, index) in modelData"
-      v-model="itemBtn.check"
-      :itemValue="itemBtn"
-      @update:modelDataValue="onUpdate"
-      :checked-color="checkedColor"
-      :disabled="compareDisabled(index)"
-      :disabled-all="disabledAll"
-    >
-      {{ itemBtn[labelValue] }}{{ itemBtn[keyValue] }}
-    </u-radio-button>
+    <template v-if="radioType == 'radio'">
+      <u-radio
+        v-for="(item, index) in modelData"
+        v-model="item.check"
+        :itemValue="item"
+        @update:modelDataValue="onUpdate"
+        :disabled="disabled || compareDisabled(index)"
+      >
+        {{ item[labelValue] }}{{ item[keyValue] }}
+      </u-radio>
+    </template>
+
+    <template v-else>
+      <u-radio-button
+        :class="cls.m('button-item')"
+        v-for="(itemBtn, index) in modelData"
+        v-model="itemBtn.check"
+        :itemValue="itemBtn"
+        @update:modelDataValue="onUpdate"
+        :checked-color="checkedColor"
+        :disabled="disabled || compareDisabled(index)"
+      >
+        {{ itemBtn[labelValue] }}{{ itemBtn[keyValue] }}
+      </u-radio-button>
+    </template>
   </div>
 </template>
 

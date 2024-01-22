@@ -3,8 +3,9 @@
       <h2>单选框</h2>
       <div class="item">
         <h6>基础展示</h6>
-        <u-radio v-model="radio1" disabled>汉字1{{ radio1 }}</u-radio>
-        <u-radio v-model="radio1">汉字2</u-radio>
+        <u-radio v-model="radio1" value="1"></u-radio>
+        <u-radio v-model="radio1" value="2"></u-radio>
+        {{ radio1 }}
       </div>
   
       <div class="item">
@@ -27,7 +28,7 @@
           labelValue="name"
           keyValue="age"
           v-model="dataGroup2Value"
-          disabledAll
+          disabled
         />
         <p>{{ "返回值:" + dataGroup2Value }}</p>
       </div>
@@ -39,7 +40,7 @@
   <script setup lang="ts">
   import {ref} from "vue"
   
-  let radio1 = ref(false)
+  let radio1 = ref('')
   
   const dataGroup = [
     {name: "张三", id: 1},

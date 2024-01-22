@@ -14,10 +14,8 @@ export interface RadioButtonProps {
   itemValue?: Record<string, any>
   /**选中背景色 */
   checkedColor?: string
-  /**是否禁用 */
-  disabled?: boolean
   /**全部禁用 */
-  disabledAll?: boolean
+  disabled?: boolean
   /**单选框尺寸 */
   size?:string
 }
