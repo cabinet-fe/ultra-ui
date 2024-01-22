@@ -5,22 +5,17 @@
 
 
 @include m.b(radio) {
-    pointer-events: none;
+    @include m.flex($display: inline-flex, $align: center);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    outline: none;
     height: 30px;
     margin-right: 30px;
 
     @include m.e(input) {
+        margin: 0;
         @include m.flex($display: inline-flex, $align: center);
-        pointer-events: auto;
     }
 
     @include m.e(label) {
-        pointer-events: auto;
         padding-left: 8px;
     }
 

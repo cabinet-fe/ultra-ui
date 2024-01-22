@@ -2,14 +2,13 @@ import type {DeconstructValue} from "../helper"
 
 /** 单选框组件属性 */
 export interface RadioProps {
+  value?: number | string 
+  /**绑定值 */
+  modelValue?: number | string | boolean
   /** 原始 name 属性 */
   name?: string
-  /** 是否禁用 */
-  disabled?: boolean
   /** 单选框的值 */
   label?: string
-  /**是否选中 */
-  isChecked?: boolean
   /**多个按钮时的item */
   itemValue?: Record<string, any>
   /**全部禁用 */

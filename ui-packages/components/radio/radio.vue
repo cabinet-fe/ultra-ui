@@ -1,18 +1,27 @@
 <template>
-  <label @click="handleChange" :class="classList">
-    <span :class="cls.e('input')">
+  <label  :class="classList">
+    <input
+      type="radio"
+      :class="cls.e('input')"
+      :value="value"
+      v-model="model"
+      @input="emit('update:modelValue', value === model)"
+    />
+    <!-- <span >
       <span :class="cls.e('inner')"></span>
-    </span>
+    </span> -->
     <span :class="cls.e('label')">
-      <slot />
+      <slot name="value">
+        {{ value }}
+      </slot>
     </span>
   </label>
 </template>
 
-<script lang="ts" setup generic="Val extends boolean = boolean">
+<script lang="ts" setup generic="Val extends number| string| boolean = boolean">
 import type {RadioProps, RadioEmits} from "@ui/types/components/radio"
 import {bem} from "@ui/utils"
-import {shallowRef, watch, computed} from "vue"
+import {shallowRef, computed} from "vue"
 
 defineOptions({
   name: "Radio",
@@ -23,7 +32,7 @@ const model = defineModel<Val>()
 const emit = defineEmits<RadioEmits>()
 
 const props = withDefaults(defineProps<RadioProps>(), {
-  disabled:false
+  disabled: false,
 })
 
 const cls = bem("radio")
@@ -35,22 +44,9 @@ let checked = shallowRef<boolean | undefined>(
 const classList = computed(() => {
   return [
     cls.b,
-    bem.is("checked",checked.value),
-    bem.is("disabled",props.disabled)
+    bem.is("checked", checked.value),
+    bem.is("disabled", props.disabled),
   ]
 })
 
-const handleChange = () => {
-  if (props.disabled) return
-  checked.value = true
-  emit("update:modelValue", checked.value)
-
-  emit("update:modelDataValue", checked.value, props.itemValue!)
-}
-watch(
-  () => model.value,
-  (val) => {
-    checked.value = val
-  }
-)
 </script>
