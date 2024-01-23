@@ -2,8 +2,6 @@ import type {DeconstructValue} from "../helper"
 import type {FormComponentProps} from "../component-common"
 /** 单选框默认父组件组件属性 */
 export interface RadioGroupProps extends FormComponentProps {
-  /**绑定值 */
-  modelValue?: string
   /**按钮类型 */
   radioType?: string
   /**数据 */

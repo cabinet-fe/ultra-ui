@@ -1,5 +1,6 @@
 <template>
   <u-radio-group :data="columns" v-model="size"></u-radio-group>
+  {{ size }}
 </template>
 <script lang="ts" setup>
 import {shallowRef} from "vue"
