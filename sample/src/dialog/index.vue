@@ -10,7 +10,7 @@
         只能在组件外部用v-if配合使用，而且会有每一次打开都会重新渲染数据渲染的问题
       </p>
 
-      <p>2. 弹框不支持缩小和缓存</p>
+      <p>2. 美观度不好</p>
     </div>
 
     <u-button @click="visible = true">打开</u-button>
@@ -26,6 +26,7 @@
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
+
 const visible = shallowRef(false)
 
 const getContent = () => {

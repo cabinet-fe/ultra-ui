@@ -24,6 +24,7 @@ export function useMaximum(options: Options): Returned {
     if (maximized) {
       // 先设置一个高度才会有过渡动画
       dom.style.height = dom.offsetHeight + 'px'
+      dom.style.transitionProperty = 'width, height, transform'
       requestAnimationFrame(() => {
         dom.classList.add(maximumCls)
       })
