@@ -18,6 +18,10 @@ const columns = shallowRef([
   { key: 'gg', name: '依托答辩' }
 ])
 
-const modelValue = reactive([{ dd: '123',ff: '333' }])
-
+const modelValue = reactive([
+  { dd: '第一条', ff: '333' },
+  { dd: '第二条', ff: '123213' },
+  { dd: '第三条', ff: '123213', ll: 123123 },
+  { dd: '2222', ff: '333' },
+])
 </script>

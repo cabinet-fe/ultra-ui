@@ -1,6 +1,3 @@
-import type { BEM } from '@ui/utils'
-import type { ComputedRef, InjectionKey, Ref } from 'vue'
-
 /** 表格编辑组件表头属性 */
 export interface RowFormColumn {
   /** 键值 */
@@ -12,15 +9,6 @@ export interface RowFormColumn {
   /** 是否校验状态 */
   isValidator?: Boolean
 }
-
-/** 表格编辑器的依赖注入类型 */
-export const RowFormStoreType: InjectionKey<{
-  /** 表头 */
-  columns: RowFormColumn[]
-  /** 双向绑定的值 */
-  data: Record<string, any>[]
-  cls: BEM<'row-form'>
-}> = Symbol('RowFormStoreType')
 
 /** 表格编辑器校验的属性 */
 export interface ValidatorRule {
