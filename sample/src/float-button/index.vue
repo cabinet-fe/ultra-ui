@@ -22,5 +22,5 @@ const sizes = [
 
 const size = shallowRef('medium')
 
-const items: FloatButtonItem[] = [{ key: 'a', name: '你好' }, { key: 'b' }]
+const items: FloatButtonItem[] = [{ key: 'a', name: '你好' }, { key: 'b', name: '世界' }]
 </script>
