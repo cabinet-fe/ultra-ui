@@ -5,31 +5,25 @@
 
 
 @include m.b(radio) {
-    pointer-events: none;
+    @include m.flex($display: inline-flex, $align: center);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    outline: none;
     height: 30px;
     margin-right: 30px;
 
     @include m.e(input) {
-        display: inline-flex;
-        align-items: center;
-        pointer-events: auto;
+        margin: 0;
+        @include m.flex($display: inline-flex, $align: center);
     }
 
     @include m.e(label) {
-        pointer-events: auto;
         padding-left: 8px;
     }
 
-    @include m.m(inner) {
+    @include m.e(inner) {
         display: inline-block;
-        width: var(--u-font-size-main);
-        height: var(--u-font-size-main);
-        border: 1px solid var(--u-border-color);
+        width: fn.use-var(font-size-main);
+        height: fn.use-var(font-size-main);
+        border: 1px solid fn.use-var(border-color);
         border-radius: 50%;
         position: relative;
 
@@ -37,7 +31,7 @@
             width: 4px;
             height: 4px;
             border-radius: 100%;
-            background-color: var(--u-bg-color-top);
+            background-color: fn.use-var(bg-color-top);
             content: "";
             position: absolute;
             left: 50%;
@@ -47,16 +41,14 @@
         }
 
         &:hover {
-            border: 1px solid var(--u-color-primary);
+            border: 1px solid fn.use-var(color-primary);
         }
     }
-}
 
-.isChecked {
-    @include m.b(radio) {
-        @include m.m(inner) {
-            border-color: var(--u-color-primary);
-            background: var(--u-color-primary);
+    @include m.is(checked) {
+        @include m.bem(radio,inner) {
+            border-color: fn.use-var(color-primary);
+            background: fn.use-var(color-primary);
 
             &::after {
                 transform: translate(-50%, -50%) scale(1);
@@ -64,28 +56,25 @@
         }
     }
 
-}
+    @include m.is(disabled) {
+        cursor: not-allowed;
+        opacity: 0.8;
+        pointer-events: none;
+        color: fn.use-var(text-color-second);
 
-.isDisabled {
-    cursor: not-allowed;
-    opacity: 0.8;
-    pointer-events: none;
-    color: var(--u-text-color-second);
+        &:hover {
+            color: fn.use-var(text-color-second);
+        }
 
-    &:hover {
-        color: var(--u-text-color-second);
-    }
+        @include m.bem(radio, inner) {
 
-    @include m.b(radio) {
-
-        @include m.m(inner) {
             background: none;
-            border-color: var(--u-text-color-second);
+            border-color: fn.use-var(text-color-second);
 
             &::after {
                 width: 6px;
                 height: 6px;
-                background-color: var(--u-text-color-second);
+                background-color: fn.use-var(text-color-second);
             }
         }
     }

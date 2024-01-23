@@ -1,23 +1,35 @@
+import type { BEM } from '@ui/utils'
+import type { ComputedRef, InjectionKey, Ref } from 'vue'
+
 /** 表格编辑组件表头属性 */
 export interface RowFormColumn {
   /** 键值 */
-  key: string,
+  key: string
   /** 名称 */
-  name: string,
+  name: string
   /** 校验规则 */
-  rule?: ValidatorRule,
+  rule?: ValidatorRule
   /** 是否校验状态 */
   isValidator?: Boolean
 }
 
+/** 表格编辑器的依赖注入类型 */
+export const RowFormStoreType: InjectionKey<{
+  /** 表头 */
+  columns: RowFormColumn[]
+  /** 双向绑定的值 */
+  data: Record<string, any>[]
+  cls: BEM<'row-form'>
+}> = Symbol('RowFormStoreType')
+
 /** 表格编辑器校验的属性 */
 export interface ValidatorRule {
   /** 是否必填 */
-  require?: Boolean,
+  require?: Boolean
   /** 预设校验 可以跟require一起使用，但不能跟match一起用 */
-  default?: 'id' | 'phone',
+  default?: 'id' | 'phone'
   /** 正则 */
-  match?: String,
+  match?: String
   /** 是否校验状态 */
   isValidator: Boolean
 }
@@ -41,7 +53,7 @@ export interface RowFormEmits {
   (e: 'update:modelValue', value: any[]): void
   /** 校验 */
   (e: 'validator'): void
-  (e: 'save', value: Record<string,any>): void
+  (e: 'save', value: Record<string, any>): void
 }
 
 /** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
