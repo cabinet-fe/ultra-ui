@@ -4,7 +4,7 @@
       <u-radio
         v-for="(item, index) in data"
         v-model="model"
-        :value="item.name"
+        :value="item[labelKey]"
         :itemValue="item"
         @update:modelDataValue="onUpdate"
         :disabled="disabled || compareDisabled(index)"
@@ -16,7 +16,7 @@
         :class="cls.m('button-item')"
         v-for="(itemBtn, index) in data"
         v-model="model"
-        :value="itemBtn[labelValue]"
+        :value="itemBtn[labelKey]"
         :itemValue="itemBtn"
         @update:modelValue="onUpdate"
         :checked-color="checkedColor"
@@ -44,8 +44,8 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<RadioGroupProps>(), {
-  labelValue: "label", //默认值
-  keyValue: "value", //默认值
+  labelKey: "label", //默认值
+  valueKey: "value", //默认值
   radioType: "radio",
 })
 
@@ -55,16 +55,16 @@ const emit = defineEmits<RadioGroupEmits>()
 
 const cls = bem("radio-group")
 
-props.data.forEach((item) => {
+props.data!.forEach((item) => {
   item.check = false
-  if (props.modelValue === item[props.keyValue]) {
-    emit("onChange", props.keyValue, item)
+  if (props.modelValue === item[props.labelKey]) {
+    emit("onChange", props.labelKey, item)
   }
 })
 
 const onUpdate = (value: boolean, item: Record<string, any>) => {
-  console.log(value);
-  model.value = item[props.labelValue]!
+  console.log(value)
+  model.value = item[props.labelKey]!
   // modelData.value.forEach((dataItem) => {
   //   model.value = dataItem === item && value
   //   if (dataItem.check) {

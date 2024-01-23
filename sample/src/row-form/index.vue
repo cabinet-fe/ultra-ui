@@ -1,23 +1,14 @@
 <template>
-  <u-row-form :columns="columns" v-model="modelValue">
-    <template #dd="{ row }">
-      <u-input v-model="row.dd" />
-    </template>
-
-    <template #ff="{ row }">
-      <u-input v-model="row.ff" />
-    </template>
-  </u-row-form>
+  <u-radio-group :data="columns" v-model="size"></u-radio-group>
 </template>
 <script lang="ts" setup>
-import { reactive, shallowRef } from 'vue'
+import {shallowRef} from "vue"
 
 const columns = shallowRef([
-  { key: 'dd', name: '哈哈哈1' },
-  { key: 'ff', name: '共用一个数据' },
-  { key: 'gg', name: '依托答辩' }
+  {label: "小", value: "large"},
+  {label: "中", value: "medium"},
+  {label: "大", value: "small"},
 ])
 
-const modelValue = reactive([{ dd: '123',ff: '333' }])
-
+const size = shallowRef("large")
 </script>

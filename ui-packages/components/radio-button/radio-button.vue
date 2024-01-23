@@ -14,7 +14,8 @@
         @input="emit('update:modelValue', value === model, itemValue!)"
         :disabled="props.disabled"
       />
-      <span :class="cls.e('label')">
+      {{ model }}
+      <span>
         <slot name="value">
           {{ value }}
         </slot>
@@ -40,6 +41,7 @@ defineOptions({
 })
 
 const model = defineModel<Val>()
+console.log(model.value,'modelmodelmodelmodel');
 
 const emit = defineEmits<RadioButtonEmits>()
 

@@ -18,8 +18,8 @@
       <u-radio-group
         radioType="btn"
         :data="dataGroup"
-        labelValue="name"
-        keyValue="id"
+        labelKey="name"
+        valueKey="id"
         v-model="dataGroup1Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup1Value }}</p> -->
@@ -31,8 +31,8 @@
       <u-radio-group
         radioType="btn"
         :data="dataGroup2"
-        labelValue="name"
-        keyValue="age"
+        labelKey="name"
+        valueKey="age"
         v-model="dataGroup2Value"
         disabled
       />
@@ -46,8 +46,8 @@
         :checkedColor="'rgba(144,115,255,0.5)'"
         radioType="btn"
         :data="dataGroup3"
-        labelValue="name"
-        keyValue="age"
+        labelKey="name"
+        valueKey="age"
         v-model="dataGroup3Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup3Value }}</p> -->
@@ -60,8 +60,8 @@
         :checkedColor="'rgba(144,115,255,0.5)'"
         radioType="btn"
         :data="dataGroup4"
-        labelValue="name"
-        keyValue="age"
+        labelKey="name"
+        valueKey="age"
         v-model="dataGroup4Value"
         :disabled-index="4"
       />
@@ -75,8 +75,8 @@
         :checkedColor="'rgba(144,115,255,0.5)'"
         radioType="btn"
         :data="dataGroup5"
-        labelValue="name"
-        keyValue="age"
+        labelKey="name"
+        valueKey="age"
         v-model="dataGroup5Value"
         :disabled-index="[1, 3]"
       />
