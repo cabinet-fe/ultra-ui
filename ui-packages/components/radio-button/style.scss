@@ -5,31 +5,27 @@
 
 @include m.b(radio-button) {
     // pointer-events: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
+    @include m.flex($display: flex, $align: center);
     margin: 4px;
     background-color: fn.use-var(bg, color, top);
     border: fn.use-var(border);
     border-color: fn.use-var(border, color);
     border-radius: fn.use-var(radius, default);
+    cursor: pointer;
 
     &:hover {
         color: fn.use-var(color, primary);
     }
-
+    @include m.m(label) {
+        @include m.flex($display: flex, $align: center);
+    }
     @include m.e(input) {
+        margin: 0;
         width: fn.use-var(font-size-main);
         height: fn.use-var(font-size-main);
         pointer-events: auto;
         margin-right: 8px;
     }
-
-    @include m.e(label) {
-        pointer-events: auto;
-    }
-
-
 
     @include m.e(inner) {
         display: inline-flex;

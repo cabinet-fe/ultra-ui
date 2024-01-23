@@ -13,6 +13,9 @@
     @include m.e(input) {
         margin: 0;
         @include m.flex($display: inline-flex, $align: center);
+        input[type="radio"]{
+            background-color: fn.use-var(bg-color-top);
+        }
     }
 
     @include m.e(label) {
@@ -66,8 +69,8 @@
             color: fn.use-var(text-color-second);
         }
 
-        @include m.bem(radio, inner) {
-
+        @include m.bem(radio, input) {
+            cursor: not-allowed;
             background: none;
             border-color: fn.use-var(text-color-second);
 

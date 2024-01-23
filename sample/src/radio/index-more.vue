@@ -3,9 +3,9 @@
       <h2>单选框</h2>
       <div class="item">
         <h6>基础展示</h6>
-        <u-radio v-model="radio1" value="1"></u-radio>
-        <u-radio v-model="radio1" value="2"></u-radio>
         {{ radio1 }}
+        <u-radio v-model="radio1" value="1" ></u-radio>
+        <u-radio v-model="radio1" value="2" ></u-radio>
       </div>
   
       <div class="item">
@@ -40,7 +40,7 @@
   <script setup lang="ts">
   import {ref} from "vue"
   
-  let radio1 = ref('')
+  let radio1 = ref('2')
   
   const dataGroup = [
     {name: "张三", id: 1},

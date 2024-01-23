@@ -1,21 +1,39 @@
 <template>
-  <button @click="handleChange" :class="classList" :style="styleObj">
-    <span :class="cls.e('input')" v-if="!checkedColor">
-      <span :class="cls.e('inner')"></span>
-    </span>
-    <span :class="cls.e('label')">
-      <slot />
-    </span>
+  <button
+    @click="handleChange(value === model, itemValue!)"
+    :class="classList"
+    :style="styleObj"
+  >
+    <label :class="cls.m('label')">
+      <input
+        v-if="!checkedColor"
+        type="radio"
+        :class="cls.e('input')"
+        :value="value"
+        v-model="model"
+        @input="emit('update:modelValue', value === model, itemValue!)"
+        :disabled="props.disabled"
+      />
+      <span :class="cls.e('label')">
+        <slot name="value">
+          {{ value }}
+        </slot>
+      </span>
+    </label>
   </button>
 </template>
 
-<script lang="ts" setup generic="Val extends boolean = boolean">
+<script
+  lang="ts"
+  setup
+  generic="Val extends number | string | boolean = boolean"
+>
 import type {
   RadioButtonProps,
   RadioButtonEmits,
 } from "@ui/types/components/radio-button"
 import {bem} from "@ui/utils"
-import {shallowRef, watch, computed} from "vue"
+import {computed} from "vue"
 
 defineOptions({
   name: "RadioButton",
@@ -27,26 +45,22 @@ const emit = defineEmits<RadioButtonEmits>()
 
 const props = withDefaults(defineProps<RadioButtonProps>(), {
   size: "default",
-  disabled:false
+  disabled: false,
 })
 
 const cls = bem("radio-button")
-
-let checked = shallowRef<boolean | undefined>(
-  typeof model.value == "boolean" ? model.value : false
-)
 
 const classList = computed(() => {
   return [
     cls.b,
     cls.m(props.size),
     bem.is("disabled", props.disabled),
-    bem.is("checked", checked.value),
+    bem.is("checked", model.value === props.value),
   ]
 })
 
 const styleObj = computed(() => {
-  return checked.value
+  return model.value === props.value
     ? {
         backgroundColor: props.checkedColor,
         color: props.checkedColor ? "#fff" : "",
@@ -54,17 +68,12 @@ const styleObj = computed(() => {
     : {}
 })
 
-const handleChange = () => {
+const handleChange = (
+  value: number | string | boolean,
+  item: Record<string, any>
+) => {
+  if (!props.checkedColor) return
   if (props.disabled) return
-  checked.value = true
-  emit("update:modelValue", checked.value)
-
-  emit("update:modelDataValue", checked.value, props.itemValue!)
+  emit("update:modelValue", !value, item!)
 }
-watch(
-  () => model.value,
-  (val) => {
-    checked.value = val
-  }
-)
 </script>
