@@ -6,34 +6,23 @@
       @mouseleave="handleMouseLeave"
       ref="floatButtonRef"
     >
-      <!-- 默认项 -->
-      <u-button
-        :size="size"
-        type="primary"
-        circle
-        :class="[cls.e('item'), bem.is('default')]"
-      >
-        <u-icon v-if="icon"> <component :is="icon" /> </u-icon>
-      </u-button>
-
-      <!-- 其他更多项 -->
       <u-button
         v-for="(item, index) of items"
         :key="item.key"
-        :class="cls.e('item')"
+        :class="[cls.e('item'), bem.is('first', index === 0)]"
         circle
         :size="size"
-        type="primary"
+        :type="item.type ?? 'primary'"
         ref="itemsRef"
         :style="{
-          backgroundColor: item.color,
           transitionDelay: index * 0.1 + 's'
         }"
         @transitionend="handleTransitionEnd(index, $event)"
         @click="emit('click', item.key)"
+        :title="item.name ?? item.key"
       >
-        <u-icon v-if="item.icon"> <component :is="icon" /> </u-icon>
-        <span v-else>{{ index + 1 }}</span>
+        <u-icon v-if="item.icon"> <component :is="item.icon" /> </u-icon>
+        <span v-else>{{ item.name?.[0] ?? item.key[0] }}</span>
       </u-button>
     </div>
   </Teleport>
@@ -93,7 +82,7 @@ const handleMouseLeave = () => {
  * @param e 事件
  */
 const handleTransitionEnd = (index: number, e: TransitionEvent) => {
-  if (index !== 0 || hovered.value) return
+  if (index !== 1 || hovered.value) return
 
   itemsRef.value?.forEach(item => {
     item.el!.style.display = ''

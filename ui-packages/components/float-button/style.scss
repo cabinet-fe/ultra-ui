@@ -25,12 +25,12 @@ $root-name: 'float-button';
       margin-bottom: 6px;
     }
 
-    @include m.is(hovered, default) {
+    @include m.is(hovered, first) {
       opacity: 1;
       transform: scale(1);
     }
 
-    @include m.is(default) {
+    @include m.is(first) {
       display: flex;
     }
   }

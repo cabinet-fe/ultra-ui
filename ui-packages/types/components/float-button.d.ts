@@ -1,21 +1,21 @@
 import type { Component } from 'vue'
 import type { DeconstructValue } from '../helper'
 import type { ComponentProps } from '../component-common'
+import type { ButtonType } from './button'
 
 export interface FloatButtonItem {
   /** 一个图标 */
   icon?: Component
-  /** 颜色 */
-  color?: string
-  /** 标识，用来决定唯一性 */
+  /** 名称 */
+  name?: string
+  /** 按钮颜色类别 */
+  type?: ButtonType
+  /** 标识，用来确定唯一性 */
   key: string
 }
 
 /** 悬浮按钮组件属性 */
 export interface FloatButtonProps extends ComponentProps {
-  /** 图标 */
-  icon?: Component
-
   /** 操作项 */
   items?: FloatButtonItem[]
 }
