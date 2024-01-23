@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import type { DeconstructValue } from '../helper'
+import type { ComponentProps } from '../component-common'
 
 export interface FloatButtonItem {
   /** 一个图标 */
@@ -11,7 +12,7 @@ export interface FloatButtonItem {
 }
 
 /** 悬浮按钮组件属性 */
-export interface FloatButtonProps {
+export interface FloatButtonProps extends ComponentProps {
   /** 图标 */
   icon?: Component
 
@@ -20,7 +21,9 @@ export interface FloatButtonProps {
 }
 
 /** 悬浮按钮组件定义的事件 */
-export interface FloatButtonEmits {}
+export interface FloatButtonEmits {
+  (e: 'click', key: string): void
+}
 
 /** 悬浮按钮组件暴露的属性和方法(组件内部使用) */
 export interface _FloatButtonExposed {}

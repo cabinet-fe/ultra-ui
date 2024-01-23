@@ -5,6 +5,7 @@
     v-bind="$attrs"
     aria-label="button"
     @click="handleClick"
+    ref="buttonRef"
     v-ripple="ripple"
   >
     <!-- 加载图标 -->
@@ -40,8 +41,12 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { ButtonEmits, ButtonProps } from '@ui/types/components/button'
-import { computed } from 'vue'
+import type {
+  ButtonEmits,
+  ButtonProps,
+  _ButtonExposed
+} from '@ui/types/components/button'
+import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
@@ -85,4 +90,12 @@ const handleClick = (e: MouseEvent) => {
   if (props.disabled || props.loading) return
   emit('click', e)
 }
+
+const buttonRef = shallowRef<HTMLButtonElement>()
+
+const exposed: _ButtonExposed = {
+  el: buttonRef
+}
+
+defineExpose(exposed)
 </script>
