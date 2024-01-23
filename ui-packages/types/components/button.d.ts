@@ -1,5 +1,6 @@
 import type { ComponentProps } from '../component-common'
-import type { Component } from 'vue'
+import type { Component, ShallowRef } from 'vue'
+import type { DeconstructValue } from '../helper'
 
 /** 按钮类型 */
 type ButtonType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -33,5 +34,11 @@ export interface ButtonEmits {
   (name: 'click', e: MouseEvent): void
 }
 
+/** 在组件内部引用 */
+export interface _ButtonExposed {
+  el: ShallowRef<HTMLButtonElement | undefined>
+}
+
 /** 按钮暴露的属性和方法 */
-export interface ButtonExposed {}
+export type ButtonExposed = DeconstructValue<_ButtonExposed>
+

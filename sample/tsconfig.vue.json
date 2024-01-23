@@ -1,0 +1,9 @@
+{
+  "extends": "ts-conf-base/tsconfig.vue.json",
+  "compilerOptions": {
+    "composite": true,
+    "target": "ESNext",
+    "types": ["vite/client", "@vue/runtime-core"],
+  },
+  "include": ["src/**/*.vue", "src/**/*.ts", "components.d.ts", "main.ts", "router.ts"]
+}

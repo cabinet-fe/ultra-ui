@@ -1,23 +1,21 @@
 import type {DeconstructValue} from "../helper"
-
+import type {FormComponentProps} from "../component-common"
 /** 单选框默认父组件组件属性 */
-export interface RadioGroupProps {
+export interface RadioGroupProps extends FormComponentProps {
   /**按钮类型 */
   radioType?: string
   /**数据 */
-  data: Record<string, any>[]
-  /**绑定值 */
-  modelValue?: string | number | boolean
+  data?: Record<string, any>[]
   /**选项值 */
-  keyValue?: string
+  valueKey?: string
   /**文字 */
-  labelValue?: string
+  labelKey?: string
   /**按钮样式选中背景色 */
   checkedColor?: string
   /**禁用某一个或多个 */
   disabledIndex?: number | number[]
   /**全部禁用 */
-  disabled?:boolean
+  disabled?: boolean
 }
 
 /** 单选框默认父组件组件定义的事件 */
@@ -25,7 +23,7 @@ export interface RadioGroupEmits {
   (
     e: "onChange",
     keyValue: string | number | boolean,
-    item: Record<string, any>,
+    item: Record<string, any>
   ): void
   (
     e: "update:modelValue",

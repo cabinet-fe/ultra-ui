@@ -2,19 +2,36 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(float-button) {
-  $size: 40px;
+$root-name: 'float-button';
 
+@include m.b($root-name) {
   position: fixed;
   right: 10px;
   bottom: 10px;
-  border-radius: 50%;
-  background-color: fn.use-var(color, primary);
-  width: $size;
-  height: $size;
-  color: #fff;
-  box-shadow: 0 0 5px 1px #{fn.use-var(color, primary, light-3)};
+  display: flex;
+  justify-items: flex-end;
+  flex-direction: column-reverse;
+  flex-wrap: nowrap;
 
-  cursor: pointer;
-  @include m.flex($justify: center);
+  @include m.e(item) {
+    box-shadow: 0 0 5px 1px #{fn.use-var(color, primary, light-3)};
+    transition-property: transform, opacity;
+    transition-duration: 0.2s;
+    transform: scale(0.4);
+    opacity: 0;
+    display: none;
+
+    &:not(:first-child) {
+      margin-bottom: 6px;
+    }
+
+    @include m.is(hovered, first) {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @include m.is(first) {
+      display: flex;
+    }
+  }
 }

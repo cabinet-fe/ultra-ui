@@ -5,21 +5,6 @@ import Components from 'unplugin-vue-components/vite'
 import autoprefixer from 'autoprefixer'
 import { UIResolver } from 'vite-helper/resolver'
 
-// const components = new Set([
-
-// ])
-
-// function UIResolver(componentName: string) {
-
-//   const kebName = kebabCase(componentName.slice(1))
-//   if (componentName.startsWith('U')) {
-//     return {
-//       name: componentName,
-//       from: 'ultra-ui',
-//       sideEffects: `@ui/components/${kebName}/style`
-//     }
-//   }
-// }
 export default defineConfig(() => {
   return {
     base: '/',
@@ -47,13 +32,13 @@ export default defineConfig(() => {
         plugins: [
           autoprefixer({
             overrideBrowserslist: [
-              "ie >= 11",
-              "chrome >= 50",
-              "firefox >= 40",
-              "safari >= 10",
-              "edge >= 13",
-              "ios >= 10",
-              "android >= 5"
+              'ie >= 11',
+              'chrome >= 50',
+              'firefox >= 40',
+              'safari >= 10',
+              'edge >= 13',
+              'ios >= 10',
+              'android >= 5'
             ]
           }) as any
         ]

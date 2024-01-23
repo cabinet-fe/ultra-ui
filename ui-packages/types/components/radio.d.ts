@@ -1,7 +1,7 @@
 import type {DeconstructValue} from "../helper"
-
+import type {FormComponentProps} from "../component-common"
 /** 单选框组件属性 */
-export interface RadioProps {
+export interface RadioProps extends FormComponentProps {
   value?: number | string 
   /**绑定值 */
   modelValue?: number | string | boolean

@@ -25,14 +25,6 @@
 
             <div :class="cls.e('buttons')">
               <u-icon
-                :class="cls.e('btn-minimize')"
-                @click="toggleMinimize(true)"
-                title="最小化"
-              >
-                <Minus />
-              </u-icon>
-
-              <u-icon
                 v-if="maximized"
                 :class="cls.e('btn-recover')"
                 @click="toggleMaximize(false)"
@@ -84,7 +76,7 @@ import {
 } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { CloseBold, Minus, Maximum, Recover } from 'icon-ultra'
+import { CloseBold, Maximum, Recover } from 'icon-ultra'
 import { debounce } from 'cat-kit'
 import { useMaximum } from './use-maximum'
 
@@ -177,11 +169,6 @@ const { toggleMaximize, maximized } = useMaximum({
   dialogRef,
   cls
 })
-
-const toggleMinimize = (minimum: boolean): void => {
-  const dom = dialogRef.value
-  if (!dom) return
-}
 
 /** 关闭 */
 const close = () => {

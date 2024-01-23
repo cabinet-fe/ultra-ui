@@ -22,9 +22,9 @@
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
 
-  & + & {
-    margin-left: fn.use-var(gap, small);
-  }
+  // & + & {
+  //   margin-left: fn.use-var(gap, small);
+  // }
 
   // 尺寸
   @include m.component-size(vars.$form-component-sizes) using ($size, $types) {

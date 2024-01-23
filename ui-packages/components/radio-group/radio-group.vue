@@ -2,33 +2,35 @@
   <div :class="[cls.b, radioType == 'btn' ? cls.m('button') : '']">
     <template v-if="radioType == 'radio'">
       <u-radio
-        v-for="(item, index) in modelData"
-        v-model="item.check"
+        v-for="(item, index) in data"
+        v-model="model"
+        :value="item[labelKey]"
         :itemValue="item"
         @update:modelDataValue="onUpdate"
         :disabled="disabled || compareDisabled(index)"
-      >
-        {{ item[labelValue] }}{{ item[keyValue] }}
-      </u-radio>
+      />
     </template>
 
     <template v-else>
       <u-radio-button
         :class="cls.m('button-item')"
-        v-for="(itemBtn, index) in modelData"
-        v-model="itemBtn.check"
+        v-for="(itemBtn, index) in data"
+        v-model="model"
+        :value="itemBtn[labelKey]"
         :itemValue="itemBtn"
-        @update:modelDataValue="onUpdate"
+        @update:modelValue="onUpdate"
         :checked-color="checkedColor"
         :disabled="disabled || compareDisabled(index)"
-      >
-        {{ itemBtn[labelValue] }}{{ itemBtn[keyValue] }}
-      </u-radio-button>
+      />
     </template>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script
+  lang="ts"
+  setup
+  generic="Val extends number | string | boolean = boolean"
+>
 import type {
   RadioGroupProps,
   RadioGroupEmits,
@@ -37,50 +39,45 @@ import {bem} from "@ui/utils"
 import URadio from "../radio/radio.vue"
 import URadioButton from "../radio-button/radio-button.vue"
 
-import {ref} from "vue"
-
 defineOptions({
   name: "RadioGroup",
 })
 
 const props = withDefaults(defineProps<RadioGroupProps>(), {
-  labelValue: "label", //默认值
-  keyValue: "value", //默认值
+  labelKey: "label", //默认值
+  valueKey: "value", //默认值
   radioType: "radio",
 })
+
+const model = defineModel<Val>()
 
 const emit = defineEmits<RadioGroupEmits>()
 
 const cls = bem("radio-group")
 
-props.data.forEach((item) => {
+props.data!.forEach((item) => {
   item.check = false
-  if (props.modelValue === item[props.keyValue]) {
-    item.check = true
-    emit("onChange", props.keyValue, item)
+  if (model.value === item[props.labelKey]) {
+    emit("onChange", props.labelKey, item)
   }
 })
 
-let modelData = ref(props.data)
-
-let modelDataValue = ref(props.modelValue)
-
 const onUpdate = (value: boolean, item: Record<string, any>) => {
-  modelData.value.forEach((dataItem) => {
-    dataItem.check = dataItem === item && value
-    if (dataItem.check) {
-      modelDataValue.value = dataItem[props.keyValue]
-      emit("onChange", props.keyValue, dataItem)
-      emit("update:modelValue", modelDataValue.value)
-    }
-  })
+  console.log(value)
+  model.value = item[props.labelKey]!
+  // modelData.value.forEach((dataItem) => {
+  //   model.value = dataItem === item && value
+  //   if (dataItem.check) {
+  //     modelDataValue.value = dataItem[props.keyValue]
+  //     emit("onChange", props.keyValue, dataItem)
+  //     emit("update:modelValue", modelDataValue.value)
+  //   }
+  // })
 }
 
 const compareDisabled = (index: number) => {
-  if (typeof props.disabledIndex == "object") {
-    if (props.disabledIndex.indexOf(index) != -1) {
-      return true
-    }
+  if (props.disabledIndex instanceof Array) {
+    return props.disabledIndex.includes(index)
   }
   if (Number(props.disabledIndex) == index + 1) {
     return true
