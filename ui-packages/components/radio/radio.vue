@@ -1,11 +1,12 @@
 <template>
-  <label  :class="classList">
+  <label :class="classList">
     <input
       type="radio"
       :class="cls.e('input')"
       :value="value"
       v-model="model"
       @input="emit('update:modelValue', value === model)"
+      :disabled="props.disabled"
     />
     <!-- <span >
       <span :class="cls.e('inner')"></span>
@@ -38,7 +39,7 @@ const props = withDefaults(defineProps<RadioProps>(), {
 const cls = bem("radio")
 
 let checked = shallowRef<boolean | undefined>(
-  typeof model.value == "boolean" ? model.value : false
+  typeof model.value === "boolean" ? model.value : false
 )
 
 const classList = computed(() => {

@@ -3,14 +3,13 @@
     <h2>单选框按钮样式</h2>
     <div class="item">
       <h6>基础展示/背景btn选中、radio选中</h6>
-      <u-radio-button v-model="radio1" checkedColor="rgba(144, 115, 255, 0.5)"
-        >汉字1{{ radio1 }}</u-radio-button
-      >
-      <u-radio-button v-model="radio1">汉字2</u-radio-button>
+      {{ radio1 }}
+      <u-radio-button v-model="radio1" value="汉字1" />
+      <u-radio-button v-model="radio1" value="汉字2" />
     </div>
     <div class="item">
       <h6>基础展示 禁用</h6>
-      <u-radio-button disabled>汉字2</u-radio-button>
+      <u-radio-button value="汉字2" v-model="radio2" disabled></u-radio-button>
     </div>
 
     <div class="item">
@@ -85,9 +84,9 @@
     </div>
     <div class="item">
       <h6>尺寸</h6>
-      <u-radio-button v-model="radio3" size="large">大</u-radio-button>
-      <u-radio-button v-model="radio4">默认</u-radio-button>
-      <u-radio-button v-model="radio5" size="small">小</u-radio-button>
+      <u-radio-button v-model="radio3" value="大" size="large"></u-radio-button>
+      <u-radio-button v-model="radio3" value="默认"></u-radio-button>
+      <u-radio-button v-model="radio3" value="小" size="small"></u-radio-button>
     </div>
 
     <br /><br /><br />
@@ -99,10 +98,9 @@
 <script setup lang="ts">
 import {ref} from "vue"
 
-let radio1 = ref(false)
-let radio3 = ref(false)
-let radio4 = ref(false)
-let radio5 = ref(false)
+let radio1 = ref("")
+let radio2 = ref("汉字2")
+let radio3 = ref("")
 
 const dataGroup = [
   {name: "张三", id: 1},
@@ -113,33 +111,33 @@ const dataGroup = [
 const dataGroup2 = [
   {name: "张三", age: 18},
   {name: "李四", age: 22},
-  {name: "张三", age: 1},
-  {name: "李四", age: 2},
+  {name: "王五", age: 1},
+  {name: "老六", age: 2},
 ]
 
 const dataGroup3 = [
   {name: "张三", age: 18},
   {name: "李四", age: 22},
-  {name: "李四", age: 2},
+  {name: "王五", age: 2},
 ]
 
 const dataGroup4 = [
   {name: "张三", age: 1},
   {name: "李四", age: 2},
-  {name: "李四", age: 3},
-  {name: "张三", age: 4},
+  {name: "王五", age: 3},
+  {name: "老六", age: 4},
 ]
 
 const dataGroup5 = [
   {name: "张三", age: 1},
   {name: "李四", age: 2},
-  {name: "李四", age: 3},
-  {name: "张三", age: 4},
+  {name: "王五", age: 3},
+  {name: "老六", age: 4},
 ]
 
-let dataGroup1Value = ref("")
+let dataGroup1Value = ref("王五")
 
-let dataGroup2Value = ref(22)
+let dataGroup2Value = ref("老六")
 
 let dataGroup3Value = ref("")
 
@@ -151,11 +149,21 @@ let back = ref("")
 
 const btn = () => {
   back.value = `radio1:
-      ${radio1.value},
+      ${radio1.value}··················,
+      radio2:
+      ${radio2.value}··················,
+      radio3:
+      ${radio3.value}··················,
       dataGroup1Value:
-      ${dataGroup1Value.value},
+      ${dataGroup1Value.value}··················,
       dataGroup2Value:
-      ${dataGroup2Value.value}`
+      ${dataGroup2Value.value}··················
+      dataGroup3Value:
+      ${dataGroup3Value.value}··················
+      dataGroup4Value:
+      ${dataGroup4Value.value}··················
+      dataGroup5Value:
+      ${dataGroup5Value.value}··················`
 }
 btn()
 </script>
