@@ -57,7 +57,7 @@ const cls = bem("radio-group")
 
 props.data!.forEach((item) => {
   item.check = false
-  if (props.modelValue === item[props.labelKey]) {
+  if (model.value === item[props.labelKey]) {
     emit("onChange", props.labelKey, item)
   }
 })

@@ -14,7 +14,6 @@
         @input="emit('update:modelValue', value === model, itemValue!)"
         :disabled="props.disabled"
       />
-      {{ model }}
       <span>
         <slot name="value">
           {{ value }}
