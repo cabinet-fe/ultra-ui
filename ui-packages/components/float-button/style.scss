@@ -4,17 +4,27 @@
 
 @include m.b(float-button) {
   $size: 40px;
-
   position: fixed;
   right: 10px;
   bottom: 10px;
-  border-radius: 50%;
-  background-color: fn.use-var(color, primary);
   width: $size;
-  height: $size;
-  color: #fff;
-  box-shadow: 0 0 5px 1px #{fn.use-var(color, primary, light-3)};
 
-  cursor: pointer;
-  @include m.flex($justify: center);
+  @include m.e(item) {
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background-color: fn.use-var(color, primary);
+    width: $size;
+    height: $size;
+    color: #fff;
+    box-shadow: 0 0 5px 1px #{fn.use-var(color, primary, light-3)};
+    cursor: pointer;
+    transition-property: transform;
+    transition-duration: .2s;
+
+    @include m.flex($justify: center);
+  }
+
 }

@@ -1,30 +1,13 @@
 <template>
   <table :class="cls.b">
     <!-- 表头 start -->
-    <row-form-header :columns="finalColumns" />
+    <row-form-header />
     <!-- 表头 end -->
 
     <!-- 表体 start -->
-    <tbody :class="cls.e('tbody')">
-      <tr
-        :class="cls.e('tr')"
-        v-for="(dataItem, dataIndex) in data"
-        :key="dataIndex"
-      >
-        <!-- 内容 -->
-        <td
-          v-for="(columnsItem, columnsIndex) in finalColumns"
-          :key="columnsIndex"
-        >
-          <slot
-            ref="slotsRef"
-            :name="columnsItem.key"
-            :row="dataItem"
-            @blur="handleIsInputBlur"
-          />
-        </td>
-      </tr>
-    </tbody>
+    <row-form-body>
+
+    </row-form-body>
     <!-- 表体 end -->
 
     <!-- 表尾 start -->
@@ -36,10 +19,9 @@
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from './row-form.type'
-
-import RowFormHeader from './row-form-header.vue'
-import { computed, provide, shallowRef, useSlots } from 'vue'
-import RowFormFooter from './row-form-footer.vue'
+import { RowFormStoreType } from './row-form.type'
+import { RowFormHeader, RowFormFooter, RowFormBody } from './index'
+import { computed, provide, shallowReactive } from 'vue'
 import { useModel } from '@ui/compositions'
 
 defineOptions({
@@ -52,35 +34,22 @@ const props = defineProps<RowFormProps<Record<string, any>>>()
 
 const emit = defineEmits<RowFormEmits>()
 
-let store = {}
-
-provide('store', store)
-
-/** 父组件每修改一次值 就同步一次values */
+/** 值 */
 const data = useModel({ props, emit, local: true })
 
+/** 表头 */
 const finalColumns = computed(() => {
   return [...props.columns]
 })
 
-const slot = useSlots()
-
-let slotsRef = shallowRef()
-setTimeout(() => {
-  console.log(slot.dd, 'slotsRef')
+/** 需要传入子组件的对象 */
+let store = shallowReactive({
+  columns: finalColumns.value,
+  data: data.value,
+  cls
 })
 
-const handleIsInputBlur = () => {
-  console.log('input失去焦点了')
-}
-
-// interface Row {
-//   edited: boolean
-//   index: number
-//   data: ShallowReactive<Record<string, any>>
-//   children: Row[]
-//   depth: number
-// }
+provide(RowFormStoreType, store)
 </script>
 <style lang="scss" scoped>
 td {
