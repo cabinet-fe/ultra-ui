@@ -22,8 +22,6 @@ import type { Undef } from '@ui/utils'
 import { bem, zIndex } from '@ui/utils'
 import { shallowReactive, ref } from 'vue'
 
-
-
 defineOptions({
   name: 'Tip'
 })
