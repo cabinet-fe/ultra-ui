@@ -3,24 +3,28 @@
     <template v-if="radioType == 'radio'">
       <u-radio
         v-for="(item, index) in data"
-        v-model="model"
+        :key="index"
+        v-model="radioModels[index]"
         :value="item[labelKey]"
         :itemValue="item"
-        @update:modelDataValue="onUpdate"
+        @update:model-value="handleUpdate($event, item, index)"
         :disabled="disabled || compareDisabled(index)"
+        :size="size"
       />
     </template>
 
     <template v-else>
       <u-radio-button
         :class="cls.m('button-item')"
-        v-for="(itemBtn, index) in data"
-        v-model="model"
+        v-for="(itemBtn, indexBtn) in data"
+        :key="indexBtn"
+        v-model="radioModels[indexBtn]"
         :value="itemBtn[labelKey]"
         :itemValue="itemBtn"
-        @update:modelValue="onUpdate"
+        @update:modelValue="handleUpdate($event, itemBtn, indexBtn)"
         :checked-color="checkedColor"
-        :disabled="disabled || compareDisabled(index)"
+        :disabled="disabled || compareDisabled(indexBtn)"
+        :size="size"
       />
     </template>
   </div>
@@ -38,6 +42,7 @@ import type {
 import {bem} from "@ui/utils"
 import URadio from "../radio/radio.vue"
 import URadioButton from "../radio-button/radio-button.vue"
+import {onMounted, ref} from "vue"
 
 defineOptions({
   name: "RadioGroup",
@@ -55,24 +60,18 @@ const emit = defineEmits<RadioGroupEmits>()
 
 const cls = bem("radio-group")
 
-props.data!.forEach((item) => {
-  item.check = false
-  if (model.value === item[props.labelKey]) {
-    emit("onChange", props.labelKey, item)
-  }
-})
+const radioModels = ref<boolean[]>([])
 
-const onUpdate = (value: boolean, item: Record<string, any>) => {
-  console.log(value)
-  model.value = item[props.labelKey]!
-  // modelData.value.forEach((dataItem) => {
-  //   model.value = dataItem === item && value
-  //   if (dataItem.check) {
-  //     modelDataValue.value = dataItem[props.keyValue]
-  //     emit("onChange", props.keyValue, dataItem)
-  //     emit("update:modelValue", modelDataValue.value)
-  //   }
-  // })
+const handleUpdate = (
+  checked: boolean,
+  item: Record<string, any>,
+  index: number
+) => {
+  model.value = item[props.valueKey]
+  radioModels.value = radioModels.value.map((_, i) =>
+    i === index ? checked : false
+  )
+  emit("onChange", model.value!, item)
 }
 
 const compareDisabled = (index: number) => {
@@ -83,4 +82,19 @@ const compareDisabled = (index: number) => {
     return true
   }
 }
+
+onMounted(() => {
+  radioModels.value = Array(props.data?.length ?? 0).fill(false) // 初始化数组
+  const selectedIndex = props.data?.findIndex(
+    (item) => item?.[props.valueKey] === model.value
+  )
+
+  if (selectedIndex != -1) {
+    const labelValue = props.data![selectedIndex!]?.[props.labelKey]
+    if (labelValue !== undefined) {
+      radioModels.value[selectedIndex!] = labelValue
+    }
+  }
+
+})
 </script>

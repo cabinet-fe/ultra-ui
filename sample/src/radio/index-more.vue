@@ -4,8 +4,8 @@
     <div class="item">
       <h6>基础展示</h6>
       {{ radio1 }}
-      <u-radio v-model="radio1" value="1"></u-radio>
-      <u-radio v-model="radio1" value="2"></u-radio>
+      <u-radio v-model="radio1" value="1" :size="dataGroup3Value"></u-radio>
+      <u-radio v-model="radio1" value="2" :size="dataGroup3Value"></u-radio>
     </div>
 
     <div class="item">
@@ -16,6 +16,7 @@
         labelKey="name"
         valueKey="id"
         v-model="dataGroup1Value"
+        :size="dataGroup3Value"
       />
       <p>{{ "返回值:" + dataGroup1Value }}</p>
     </div>
@@ -29,8 +30,22 @@
         valueKey="age"
         v-model="dataGroup2Value"
         disabled
+        :size="dataGroup3Value"
       />
       <p>{{ "返回值:" + dataGroup2Value }}</p>
+    </div>
+
+    <div class="item">
+      <h6>尺寸</h6>
+      <p>{{ dataGroup3 }}</p>
+      <u-radio-group
+        :data="dataGroup3"
+        labelKey="name"
+        valueKey="size"
+        v-model="dataGroup3Value"
+        :size="dataGroup3Value"
+      />
+      <p>{{ "返回值:" + dataGroup3Value }}</p>
     </div>
     <u-button @click="btn">获取</u-button>
     {{ back }}
@@ -51,9 +66,19 @@ const dataGroup2 = [
   {name: "张三", age: 18},
   {name: "李四", age: 22},
 ]
+
+const dataGroup3 = [
+  {name: "大号", size: 'large'},
+  {name: "默认", size: 'default'},
+  {name: "小号", size: 'small'},
+
+]
 let dataGroup1Value = ref("")
 
-let dataGroup2Value = ref("张三")
+let dataGroup2Value = ref(18)
+
+let dataGroup3Value = ref('default')
+
 
 let back = ref("")
 

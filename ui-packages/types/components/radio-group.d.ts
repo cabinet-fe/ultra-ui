@@ -16,6 +16,8 @@ export interface RadioGroupProps extends FormComponentProps {
   disabledIndex?: number | number[]
   /**全部禁用 */
   disabled?: boolean
+  /**尺寸 */
+  size?: string
 }
 
 /** 单选框默认父组件组件定义的事件 */
@@ -24,10 +26,6 @@ export interface RadioGroupEmits {
     e: "onChange",
     keyValue: string | number | boolean,
     item: Record<string, any>
-  ): void
-  (
-    e: "update:modelValue",
-    modelValue: string | number | boolean | undefined
   ): void
 }
 

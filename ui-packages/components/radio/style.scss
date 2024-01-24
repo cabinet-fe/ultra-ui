@@ -5,6 +5,13 @@
 
 
 @include m.b(radio) {
+    // 尺寸
+    @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+        @each $type, $val in $types {
+            #{$type}: $val;
+        }
+    }
+
     @include m.flex($display: inline-flex, $align: center);
     cursor: pointer;
     height: 30px;

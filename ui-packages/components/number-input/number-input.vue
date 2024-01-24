@@ -28,7 +28,6 @@ import type { InputExposed } from '../input'
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj } from 'cat-kit/fe'
-import { useModel } from '@ui/compositions'
 import { ArrowUp, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
@@ -55,7 +54,7 @@ const inputDom = computed(() => inputRef.value?.el)
 const cls = bem('number-input')
 
 // 实际值
-const model = useModel({ props, emit })
+const model = defineModel<NumberInputProps['modelValue']>()
 
 // 展示值
 const displayed = shallowRef('')

@@ -2,11 +2,17 @@
   <div>
     右下角查看
 
-    <u-radio-group v-model="size" :data="sizes"> </u-radio-group>
+    <input
+      type="radio"
+      v-model="size"
+      v-for="item in sizes"
+      :key="item.value"
+      :value="item.value"
+    />
 
     <div>浮动按钮</div>
 
-    <u-float-button :items="items"> </u-float-button>
+    <u-float-button :items="items" :size="size"> </u-float-button>
   </div>
 </template>
 
@@ -16,11 +22,14 @@ import { shallowRef } from 'vue'
 
 const sizes = [
   { label: '大', value: 'large' },
-  { label: '中', value: 'medium' },
+  { label: '中', value: 'default' },
   { label: '小', value: 'small' }
 ]
 
-const size = shallowRef('medium')
+const size = shallowRef('default')
 
-const items: FloatButtonItem[] = [{ key: 'a', name: '你好' }, { key: 'b', name: '世界' }]
+const items: FloatButtonItem[] = [
+  { key: 'a', name: '你好' },
+  { key: 'b', name: '世界' }
+]
 </script>

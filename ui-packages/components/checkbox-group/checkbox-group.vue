@@ -15,7 +15,6 @@
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types/components/checkbox-group'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
-import { useModel } from '@ui/compositions'
 
 defineOptions({
   name: 'CheckboxGroup'
@@ -28,10 +27,7 @@ const props = withDefaults(defineProps<CheckboxGroupProps<Data>>(), {
 
 const emit = defineEmits<CheckboxGroupEmits>()
 
-const model = useModel({
-  props,
-  emit
-})
+const model = defineModel<(string | number)[]>()
 
 const cls = bem('checkbox-group')
 

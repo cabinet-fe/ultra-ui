@@ -23,6 +23,7 @@ interface ModelOptions<
  * 如果 local 选项为true, 模型值将是响应式的，并与属性值同步。
  * 如果 local 选项为 false，则模型值将是一个代理对象，具有 getter 和 setter。当值发生更改时，它会触发一个更新事件。
  * @param options - 选项
+ * @deprecated 已经废弃，请使用defineModel替代
  * @returns - 一个模型值
  */
 

@@ -4,12 +4,12 @@
     <div class="item">
       <h6>基础展示/背景btn选中、radio选中</h6>
       {{ radio1 }}
-      <u-radio-button v-model="radio1" value="汉字1" />
-      <u-radio-button v-model="radio1" value="汉字2" />
+      <u-radio-button v-model="radio1" value="汉字1" :size="radio3"/>
+      <u-radio-button v-model="radio1" value="汉字2" :size="radio3"/>
     </div>
     <div class="item">
       <h6>基础展示 禁用</h6>
-      <u-radio-button value="汉字2" v-model="radio2" disabled></u-radio-button>
+      <u-radio-button value="汉字2" v-model="radio2" :size="radio3" disabled></u-radio-button>
     </div>
 
     <div class="item">
@@ -21,6 +21,7 @@
         labelKey="name"
         valueKey="id"
         v-model="dataGroup1Value"
+        :size="radio3"
       />
       <!-- <p>{{ "返回值:" + dataGroup1Value }}</p> -->
     </div>
@@ -35,6 +36,7 @@
         valueKey="age"
         v-model="dataGroup2Value"
         disabled
+        :size="radio3"
       />
       <!-- <p>{{ "返回值:" + dataGroup2Value }}</p> -->
     </div>
@@ -49,6 +51,7 @@
         labelKey="name"
         valueKey="age"
         v-model="dataGroup3Value"
+        :size="radio3"
       />
       <!-- <p>{{ "返回值:" + dataGroup3Value }}</p> -->
     </div>
@@ -64,6 +67,7 @@
         valueKey="age"
         v-model="dataGroup4Value"
         :disabled-index="4"
+        :size="radio3"
       />
       <!-- <p>{{ "返回值:" + dataGroup4Value }}</p> -->
     </div>
@@ -79,14 +83,16 @@
         valueKey="age"
         v-model="dataGroup5Value"
         :disabled-index="[1, 3]"
+        :size="radio3"
       />
       <!-- <p>{{ "返回值:" + dataGroup5Value }}</p> -->
     </div>
     <div class="item">
       <h6>尺寸</h6>
-      <u-radio-button v-model="radio3" value="大" size="large"></u-radio-button>
-      <u-radio-button v-model="radio3" value="默认"></u-radio-button>
-      <u-radio-button v-model="radio3" value="小" size="small"></u-radio-button>
+      <u-radio-button v-model="radio3" value="large" size="large">默认</u-radio-button>
+      <u-radio-button v-model="radio3" value="default"></u-radio-button>
+      <u-radio-button v-model="radio3" value="small" size="small"></u-radio-button>
+      {{ radio3 }}
     </div>
 
     <br /><br /><br />
@@ -100,7 +106,7 @@ import {ref} from "vue"
 
 let radio1 = ref("")
 let radio2 = ref("汉字2")
-let radio3 = ref("")
+let radio3 = ref("default")
 
 const dataGroup = [
   {name: "张三", id: 1},
@@ -137,7 +143,7 @@ const dataGroup5 = [
 
 let dataGroup1Value = ref("王五")
 
-let dataGroup2Value = ref("老六")
+let dataGroup2Value = ref(22)
 
 let dataGroup3Value = ref("")
 

@@ -1,18 +1,15 @@
 <template>
-  <button
-    @click="handleChange(value === model, itemValue!)"
-    :class="classList"
-    :style="styleObj"
-  >
+  <button :class="classList" :style="styleObj">
     <label :class="cls.m('label')">
       <input
-        v-if="!checkedColor"
+        :hidden="exist"
         type="radio"
         :class="cls.e('input')"
-        :value="value"
+        :value="checked"
         v-model="model"
-        @input="emit('update:modelValue', value === model, itemValue!)"
+        @input.stop="emit('update:modelValue', value === model, itemValue!)"
         :disabled="props.disabled"
+        ref="input"
       />
       <span>
         <slot name="value">
@@ -33,14 +30,13 @@ import type {
   RadioButtonEmits,
 } from "@ui/types/components/radio-button"
 import {bem} from "@ui/utils"
-import {computed} from "vue"
+import {computed, ref} from "vue"
 
 defineOptions({
   name: "RadioButton",
 })
 
 const model = defineModel<Val>()
-console.log(model.value,'modelmodelmodelmodel');
 
 const emit = defineEmits<RadioButtonEmits>()
 
@@ -50,6 +46,10 @@ const props = withDefaults(defineProps<RadioButtonProps>(), {
 })
 
 const cls = bem("radio-button")
+
+const input = ref<HTMLInputElement>()
+
+let checked = ref(props.value)
 
 const classList = computed(() => {
   return [
@@ -69,12 +69,7 @@ const styleObj = computed(() => {
     : {}
 })
 
-const handleChange = (
-  value: number | string | boolean,
-  item: Record<string, any>
-) => {
-  if (!props.checkedColor) return
-  if (props.disabled) return
-  emit("update:modelValue", !value, item!)
-}
+const exist = computed(() => {
+  return props.checkedColor ? true : false
+})
 </script>

@@ -18,20 +18,30 @@ export function useMaximum(options: Options): Returned {
 
   const maximized = shallowRef(false)
   const maximumCls = cls.m('maximum')
+
   watch(maximized, maximized => {
     const dom = dialogRef.value
     if (!dom) return
     if (maximized) {
       // 先设置一个高度才会有过渡动画
-      dom.style.height = dom.offsetHeight + 'px'
-      dom.style.transitionProperty = 'width, height, transform'
+
+      const cssTexts = [
+        `height: ${dom.offsetHeight}px`,
+        'transition-property: width, height, transform',
+        'transition-duration: 0.25s',
+
+        'transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.3)'
+      ]
+      dom.style.cssText += cssTexts.join(';')
+
       requestAnimationFrame(() => {
-        dom.classList.add(maximumCls)
+        requestAnimationFrame(() => {
+          dom.classList.add(maximumCls)
+        })
       })
     } else {
-      requestAnimationFrame(() => {
-        dom.classList.remove(maximumCls)
-      })
+      dom.classList.remove(maximumCls)
+
     }
   })
   /** 切换最大化 */
