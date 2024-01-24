@@ -3,11 +3,16 @@
     <u-card width="400" size="small">
       <u-card-header> 卡片标题 </u-card-header>
 
-      <u-card-content> 卡片内容 </u-card-content>
+      <u-card-content>
+        愿您在新的一年里，龙飞凤舞 龙潭虎穴， 龙腾虎跃， 龙马精神， 龙钟虎踞，
+        龙争虎斗， 龙章凤函， 一龙一飞， 亢龙有悔， 龙潭虎渊， 龙行虎步，
+        龙神凤雏， 龙战虎争， 龙屈虎伏， 龙腾虎跃， 龙蟠虎踞， 龙腾虎踞，
+        龙腾虎跃， 龙腾凤集， 龙腾虎跃！
+      </u-card-content>
 
       <u-card-action align-right>
         <u-button type="primary" text>返回</u-button>
-        <u-button plain type="primary">操作</u-button>
+        <u-button type="primary">确认</u-button>
       </u-card-action>
     </u-card>
 
@@ -16,12 +21,17 @@
         src="http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg"
       />
 
-      <u-card-action style="display: flex; justify-content: space-between">
+      <u-card-action
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
         <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
         <button-common-props tag="span">
-          <u-button :icon="Star" />
-          <u-button :icon="Star" />
-          <u-button :icon="Lock" />
+          <u-button :icon="Star" type="primary" />
+          <u-button :icon="Lock" type="warning" />
           <u-button :icon="MoreFilled" />
         </button-common-props>
       </u-card-action>
@@ -35,10 +45,10 @@ import { type ButtonProps, useComponentProps } from 'ultra-ui'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
-  type: 'primary',
+  // type: 'primary',
   // text: true,
   iconSize: 18,
-  loading: true
+  loading: false
 })
 </script>
 
