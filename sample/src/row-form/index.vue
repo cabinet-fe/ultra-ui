@@ -1,6 +1,7 @@
 <template>
-  <u-radio-group :data="columns" v-model="size"></u-radio-group>
-  {{ size }}
+  <div>
+    <u-radio-group :data="columns" v-model="size" @on-change="handleChange"></u-radio-group> {{ size }}
+  </div>
 </template>
 <script lang="ts" setup>
 import {shallowRef} from "vue"
@@ -12,4 +13,8 @@ const columns = shallowRef([
 ])
 
 const size = shallowRef("large")
+
+const handleChange = (value:any,item:Record<string,any>) => {
+  console.log(item);
+}
 </script>

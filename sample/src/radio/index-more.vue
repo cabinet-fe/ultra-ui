@@ -53,7 +53,7 @@ const dataGroup2 = [
 ]
 let dataGroup1Value = ref("")
 
-let dataGroup2Value = ref("张三")
+let dataGroup2Value = ref(18)
 
 let back = ref("")
 

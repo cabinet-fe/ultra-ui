@@ -25,10 +25,6 @@ export interface RadioGroupEmits {
     keyValue: string | number | boolean,
     item: Record<string, any>
   ): void
-  (
-    e: "update:modelValue",
-    modelValue: string | number | boolean | undefined
-  ): void
 }
 
 /** 单选框默认父组件组件暴露的属性和方法(组件内部使用) */
