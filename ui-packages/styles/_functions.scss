@@ -24,3 +24,17 @@
 
   @return $result;
 }
+
+// bem的函数
+@function bem($b, $e: null, $m: null) {
+  $b: '.' + vars.$namespace + $b;
+  @if ($e != null) {
+    $b: $b + '__' + $e;
+  }
+
+  @if ($m != null) {
+    $b: $b + '--' + $m;
+  }
+
+  @return $b;
+}

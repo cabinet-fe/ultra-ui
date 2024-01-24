@@ -7,7 +7,7 @@
   setup
   generic="M extends string | number | Array<string | number>"
 >
-import { useModel } from '@ui/compositions'
+
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 
 defineOptions({
@@ -18,9 +18,9 @@ const props = defineProps<SelectProps>()
 
 const emit = defineEmits<SelectEmits>()
 
-const model = useModel({ props, emit })
+const model = defineModel<SelectProps['modelValue']>()
 
-const label = useModel({ props, emit, propName: 'label' })
+const label = defineModel('label')
 
 const handleChange = (e: Event) => {}
 </script>

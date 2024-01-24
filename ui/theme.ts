@@ -123,7 +123,7 @@ const colorVars = colors
   })
   .join(';')
 
-const bgColorVars = getColorVars('bg-color', ['top', 'medium', 'bottom'])
+const bgColorVars = getColorVars('bg-color', ['top', 'middle', 'bottom'])
   .map(item => {
     const { name, color } = item
     return `--${CLS_PREFIX}bg-color-${name}-alpha: ${color}cc`

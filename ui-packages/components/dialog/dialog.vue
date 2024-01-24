@@ -56,8 +56,9 @@
             <slot />
           </u-scroll>
 
-          <!-- 背景模糊 -->
-          <div :class="cls.e('background')"></div>
+          <section :class="cls.e('footer')" v-if="$slots.footer">
+            <slot name="footer" />
+          </section>
         </div>
       </div>
     </transition>
@@ -68,16 +69,10 @@
 import { type VNode, shallowRef, watch, shallowReactive } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, zIndex } from '@ui/utils'
-import {
-  useDrag,
-  useModel,
-  useResizeObserver,
-  useTransition
-} from '@ui/compositions'
+import { useDrag, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { CloseBold, Maximum, Recover } from 'icon-ultra'
-import { debounce } from 'cat-kit'
 import { useMaximum } from './use-maximum'
 
 defineOptions({
@@ -85,10 +80,10 @@ defineOptions({
   inheritAttrs: false
 })
 
-const props = defineProps<DialogProps>()
+defineProps<DialogProps>()
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
-  trigger?(): VNode[] | undefined
+  footer?(): VNode[] | undefined
 }>()
 
 const cls = bem('dialog')
@@ -99,10 +94,10 @@ const dialogRef = shallowRef<HTMLDivElement>()
 /** 弹框头部模板引用 */
 const headerRef = shallowRef<HTMLDivElement>()
 
-/** 弹框头部模板引用 */
+/** 弹框body模板引用 */
 const bodyRef = shallowRef<ScrollExposed>()
 
-const visible = useModel({ props, emit })
+const visible = defineModel<boolean>()
 
 const style = shallowReactive({
   zIndex: zIndex()
@@ -112,6 +107,7 @@ const style = shallowReactive({
 let opened = false
 
 watch(visible, v => {
+  console.log(v)
   if (!v) {
     return dialogTransition.toggle(false)
   }
@@ -136,7 +132,7 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  dom.style.transform = `scale3d(1, 1, 1) translate(${x}px,${y}px)`
+  dom.style.transform = `translate3d(${x}px,${y}px, 0)`
 }
 
 // 运用拖拽
@@ -155,15 +151,16 @@ useDrag({
   }
 })
 
-// 因为弹框的最大高度为500px
-useResizeObserver({
-  target: dialogRef,
-  onResize: debounce(([entry]) => {
-    if (!entry || !bodyRef.value?.containerRef) return
-    const target = entry.target as HTMLDivElement
-    bodyRef.value.containerRef.style.height = `${target.offsetHeight - 49}px`
-  }, 20)
-})
+// 监听弹框size变化
+// useResizeObserver({
+//   target: dialogRef,
+//   onResize: debounce(([entry]) => {
+//     if (!entry || !bodyRef.value?.containerRef) return
+//     if (entry.contentRect.height < window.innerHeight * 0.9) return
+//     const target = entry.target as HTMLDivElement
+//     // bodyRef.value.containerRef.style.height = `${target.offsetHeight - 49}px`
+//   }, 20)
+// })
 
 const { toggleMaximize, maximized } = useMaximum({
   dialogRef,

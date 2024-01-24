@@ -20,12 +20,11 @@ import { Text, shallowReactive, useSlots } from 'vue'
 import type { PopupProps, PopupEmits } from '@ui/types/components/popup'
 import { bem, zIndex } from '@ui/utils'
 import { UNodeRender } from '../node-render'
-import { useModel } from '@ui/compositions'
 
 defineOptions({
   name: 'Popup'
 })
-const props = withDefaults(defineProps<PopupProps>(), {
+withDefaults(defineProps<PopupProps>(), {
   arrow: true
 })
 const emit = defineEmits<PopupEmits>()
@@ -33,7 +32,7 @@ const slots = useSlots()
 
 const cls = bem('popup')
 
-const visible = useModel({ props, propName: 'visible', emit, local: true })
+const visible = defineModel<PopupProps['visible']>('visible')
 
 const renderTrigger = () => {
   const trigger = slots.trigger?.()
