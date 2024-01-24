@@ -10,8 +10,9 @@
 </template>
 <script lang="ts" setup>
 import { inject, type PropType } from 'vue'
-import { RowFormStoreType, type RowFormColumn } from '../row-form/row-form.type'
+import { type RowFormColumn } from '../row-form/row-form.type'
 import { bem } from '@ui/utils'
+import { RowFormStoreType } from './di'
 
 defineProps({
   columns: { type: Array as PropType<RowFormColumn[]> }
