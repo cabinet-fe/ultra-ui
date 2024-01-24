@@ -2,38 +2,45 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@mixin blur {
-  &::before {
-    content: '';
-    position: absolute;
-    background-color: fn.use-var(bg-color, middle, alpha);
-    backdrop-filter: blur(8px);
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-  }
+$root-name: dialog;
+
+@include m.bem($root-name, overlay) {
+  pointer-events: auto;
+  background: rgba($color: #000000, $alpha: 0.32);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+
+  @include m.flex($justify: center);
 }
 
-@include m.b(dialog) {
+@include m.b($root-name) {
   border-radius: fn.use-var(radius, large);
   overflow: hidden;
   transform: scale(0.5, 0.5) translate(0, 0);
   will-change: transform;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 
-  // 透明层
-  @include m.e(overlay) {
-    pointer-events: auto;
-    background: rgba($color: #000000, $alpha: 0.32);
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-
-    @include m.flex($justify: center);
+  @include m.e(header, footer) {
+    @include m.is(background-blur) {
+      &::before {
+        content: '';
+        position: absolute;
+        background-color: fn.use-var(bg-color, middle, alpha);
+        backdrop-filter: blur(6px);
+        transform: translate3d(0, 0, 0);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+    }
   }
 
   // 弹框头
@@ -43,7 +50,10 @@
     border-bottom: fn.use-var(border);
     position: relative;
 
-    @include blur;
+    &:active {
+      cursor: move;
+    }
+
     @include m.flex($justify: space-between);
   }
 
@@ -52,16 +62,14 @@
   }
 
   @include m.e(body) {
-    padding: 4px 8px;
+    padding: 8px;
     background-color: fn.use-var(bg-color, top);
-    max-height: calc(90vh - 49px);
+    flex-grow: 1;
   }
 
   @include m.e(footer) {
     padding: 8px;
     border-top: fn.use-var(border);
-    // background-color: fn.use-var(bg-color, top);
-    @include blur;
     text-align: right;
     position: relative;
 
@@ -110,14 +118,16 @@
   }
 
   @include m.m(maximum) {
-    transition-property: width, height;
-    transition-duration: 0.25s;
-    transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.3);
-
     width: 100vw !important;
     height: 100vh !important;
-    transform: scale3d(1, 1, 1) translate(0, 0) !important;
     max-height: 100vh;
+    transform: scale3d(1, 1, 1) translate(0, 0) !important;
+
+    @include m.bem($root-name, header) {
+      &:active {
+        cursor: default;
+      }
+    }
   }
 }
 

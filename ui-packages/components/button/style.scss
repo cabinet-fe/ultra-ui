@@ -18,7 +18,7 @@
   border: fn.use-var(border);
   transition:
     background-color 0.25s,
-    box-shadow 0.25s;
+    box-shadow 0.2s;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
 
@@ -53,7 +53,6 @@
       &:hover {
         background-color: fn.use-var(color, $type, 'dark-1');
         border-color: fn.use-var(color, $type, 'dark-1');
-        box-shadow: 0px 0px 3px 1px fn.use-var(color, $type);
       }
 
       &:active {

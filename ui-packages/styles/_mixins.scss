@@ -40,10 +40,18 @@
 }
 
 @mixin e($elements...) {
+  $selector-list: null;
+
   @each $element in $elements {
-    &__#{$element} {
-      @content;
+    @if ($selector-list != null) {
+      $selector-list: $selector-list + ', &__' + $element;
+    } @else {
+      $selector-list: '&__' + #{$element};
     }
+  }
+
+  #{$selector-list} {
+    @content;
   }
 }
 

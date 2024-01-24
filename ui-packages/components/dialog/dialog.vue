@@ -12,18 +12,18 @@
       >
         <div v-bind="$attrs" :class="cls.b" ref="dialogRef" @click.stop>
           <section
-            :class="cls.e('header')"
+            :class="headerCls"
             ref="headerRef"
             @transitionend.stop
             @transitioncancel.stop
           >
-            <div :class="cls.e('title')">
+            <div :class="cls.e('title')" @mousedown.stop>
               <slot name="header">
                 {{ header || title }}
               </slot>
             </div>
 
-            <div :class="cls.e('buttons')">
+            <div :class="cls.e('buttons')" @mousedown.stop>
               <u-icon
                 v-if="maximized"
                 :class="cls.e('btn-recover')"
@@ -56,7 +56,7 @@
             <slot />
           </u-scroll>
 
-          <section :class="cls.e('footer')" v-if="$slots.footer">
+          <section :class="footerCls" v-if="$slots.footer">
             <slot name="footer" />
           </section>
         </div>
@@ -87,6 +87,9 @@ const slots = defineSlots<{
 }>()
 
 const cls = bem('dialog')
+const blurCls = bem.is('background-blur')
+const headerCls = [cls.e('header'), blurCls]
+const footerCls = [cls.e('footer'), blurCls]
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
@@ -150,17 +153,6 @@ useDrag({
     translated.y += y
   }
 })
-
-// 监听弹框size变化
-// useResizeObserver({
-//   target: dialogRef,
-//   onResize: debounce(([entry]) => {
-//     if (!entry || !bodyRef.value?.containerRef) return
-//     if (entry.contentRect.height < window.innerHeight * 0.9) return
-//     const target = entry.target as HTMLDivElement
-//     // bodyRef.value.containerRef.style.height = `${target.offsetHeight - 49}px`
-//   }, 20)
-// })
 
 const { toggleMaximize, maximized } = useMaximum({
   dialogRef,
