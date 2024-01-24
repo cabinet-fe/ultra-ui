@@ -9,6 +9,7 @@
         :itemValue="item"
         @update:model-value="handleUpdate($event, item, index)"
         :disabled="disabled || compareDisabled(index)"
+        :size="size"
       />
     </template>
 
@@ -23,6 +24,7 @@
         @update:modelValue="handleUpdate($event, itemBtn, indexBtn)"
         :checked-color="checkedColor"
         :disabled="disabled || compareDisabled(indexBtn)"
+        :size="size"
       />
     </template>
   </div>

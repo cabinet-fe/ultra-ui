@@ -35,6 +35,7 @@ const emit = defineEmits<RadioEmits>()
 
 const props = withDefaults(defineProps<RadioProps>(), {
   disabled: false,
+  size: "large"
 })
 
 const cls = bem("radio")
@@ -46,6 +47,7 @@ let checked = shallowRef<boolean | undefined>(
 const classList = computed(() => {
   return [
     cls.b,
+    cls.m(props.size),
     bem.is("checked", checked.value),
     bem.is("disabled", props.disabled),
   ]
