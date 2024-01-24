@@ -137,7 +137,7 @@ const dataGroup5 = [
 
 let dataGroup1Value = ref("王五")
 
-let dataGroup2Value = ref("老六")
+let dataGroup2Value = ref(22)
 
 let dataGroup3Value = ref("")
 

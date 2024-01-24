@@ -5,12 +5,9 @@
       :class="cls.e('input')"
       :value="value"
       v-model="model"
-      @input="emit('update:modelValue', value === model)"
+      @input="emit('update:modelValue', value === model, itemValue!)"
       :disabled="props.disabled"
     />
-    <!-- <span >
-      <span :class="cls.e('inner')"></span>
-    </span> -->
     <span :class="cls.e('label')">
       <slot name="value">
         {{ value }}
@@ -19,7 +16,11 @@
   </label>
 </template>
 
-<script lang="ts" setup generic="Val extends number| string| boolean = boolean">
+<script
+  lang="ts"
+  setup
+  generic="Val extends number | string | boolean = boolean"
+>
 import type {RadioProps, RadioEmits} from "@ui/types/components/radio"
 import {bem} from "@ui/utils"
 import {shallowRef, computed} from "vue"
@@ -49,5 +50,4 @@ const classList = computed(() => {
     bem.is("disabled", props.disabled),
   ]
 })
-
 </script>
