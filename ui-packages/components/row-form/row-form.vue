@@ -68,39 +68,24 @@ const initData = () => {
   /** 获取最后一条下标 */
   let dataLength = data.value.length - 1
 
-  let call = false
+  /** 最后一条是否为有值 */
+  let valuable: Boolean = false
 
   data.value.forEach((item: Record<string, any>, index: number) => {
     if (index !== dataLength) return
 
     let keyArray = finalColumns.value.map(k => k.key)
 
-    keyArray.forEach((k) => {
+    /** 最后一条任何一个字段有值就把valuable = true */
+    keyArray.forEach(k => {
       if (item[k]) {
-        call = true
+        valuable = true
       }
     })
   })
 
-  if (!call) return
+  if (!valuable) return
   data.value.push({})
 }
 initData()
 </script>
-<style lang="scss" scoped>
-td {
-  text-align: center;
-  padding: 10px 0;
-  min-width: 150px;
-}
-
-table thead tr {
-  background-color: #008c8c;
-  color: #fff;
-}
-
-table tfoot tr td {
-  text-align: right;
-  padding-right: 20px;
-}
-</style>

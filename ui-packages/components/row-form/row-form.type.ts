@@ -36,6 +36,12 @@ export interface RowFormProps<T> {
   childrenKey?: string
 }
 
+/** body里面的操作栏 */
+export interface RowFormOperation {
+  key: string,
+  name: string
+}
+
 /** 表格编辑组件组件定义的事件 */
 export interface RowFormEmits {
   (e: 'update:modelValue', value: any[]): void

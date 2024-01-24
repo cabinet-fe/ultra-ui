@@ -1,42 +1,54 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
-// @use '@ui/styles/functions' as fn;
 
 @include m.b(row-form) {
   width: 100%;
   border-collapse: collapse;
   border: var(--u-border);
   overflow-x: scroll;
+  position: relative;
 
   .header {
-    // var(--u-bg-color-top)
     background-color: fn.use-var(color-primary-light-9);
     border-bottom: var(--u-border);
   }
 
   @include m.e(thead) {
     @extend .header;
-  }
-
-  @include m.e(th) {
-    border-bottom: var(--u-border);
-
-    .u-row-form-require__th {
-      color: #f00;
+    &--th {
+      text-align: center;
+      padding: 15px;
     }
   }
-  //
+
   @include m.e(tbody) {
     width: 100%;
-    max-height: 500px;
 
-    tr {
+    &--hover {
       min-height: 80px;
+      &:hover {
+        background-color: fn.use-var(color-info-light-9);
+      }
     }
+  }
 
-    tr:hover {
-      background-color: fn.use-var(color-info-light-9);
+  @include m.e(context-info) {
+    position: absolute;
+
+
+    border: 1px solid var(--u-border);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(color-info-light-1);
+    opacity: 0.6;
+    &--operation {
+      width: 100%;
+      padding: 10px;
+      color: #fff;
+    }
+    &--operation:hover {
+      background-color: black;
+      border-radius: fn.use-var(radius, default);
     }
   }
 
@@ -45,22 +57,4 @@
     position: static;
     background-color: fn.use-var(color-info-light-1);
   }
-
-  @include m.e(th-action-columns) {
-    width: 200px;
-    position: static;
-    background: fn.use-var(color-info-light-1);
-    box-shadow: 10px;
-    display: inline-block;
-    @extend .header;
-  }
-}
-
-@include m.b(row-form-button) {
-  width: 100%;
-  height: 35px;
-  line-height: 33px;
-  border-radius: fn.use-var(radius);
-  border: 1px solid #dcdfe6;
-  cursor: pointer;
 }

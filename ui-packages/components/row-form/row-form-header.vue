@@ -1,6 +1,6 @@
 <template>
   <thead :class="cls.e('thead')">
-    <th :class="cls.e('th')" v-for="item in store.columns">
+    <th :class="cls.em('thead','th')" v-for="item in store.columns">
       {{ item.name }}
       <span v-if="item.rule?.require" :class="cls.be('require', 'th')">
         *
@@ -24,7 +24,6 @@ let store = inject(RowFormStoreType)!
 </script>
 <style scoped>
 th {
-  text-align: center;
-  padding: 15px;
+
 }
 </style>

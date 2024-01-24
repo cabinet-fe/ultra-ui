@@ -1,13 +1,16 @@
 <template>
-  <u-row-form :columns="columns" v-model="modelValue">
-    <template #dd="{ row }">
-      <u-input v-model="row.dd" />
-    </template>
+  <div>
+    删除和插入请右击
+    <u-row-form :columns="columns" v-model="modelValue">
+      <template #dd="{ row }">
+        <u-input v-model="row.dd" />
+      </template>
 
-    <template #ff="{ row }">
-      <u-input v-model="row.ff" />
-    </template>
-  </u-row-form>
+      <template #ff="{ row }">
+        <u-input v-model="row.ff" />
+      </template>
+    </u-row-form>
+  </div>
 </template>
 <script lang="ts" setup>
 import { reactive, shallowRef } from 'vue'
@@ -22,6 +25,6 @@ const modelValue = reactive([
   { dd: '第一条', ff: '333' },
   { dd: '第二条', ff: '123213' },
   { dd: '第三条', ff: '123213', ll: 123123 },
-  { dd: '2222', ff: '333' },
+  { dd: '', ff: '' }
 ])
 </script>
