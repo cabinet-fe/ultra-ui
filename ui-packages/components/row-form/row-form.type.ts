@@ -33,7 +33,8 @@ export interface RowFormProps<T> {
   /** 是否是tree */
   tree?: boolean
   /** childrenKey='children' */
-  childrenKey?: string
+  childrenKey?: string,
+  showSummary?: Boolean
 }
 
 /** body里面的操作栏 */
@@ -55,6 +56,9 @@ export interface _RowFormExposed {}
 
 /** 表格编辑组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export interface RowFormExposed {
+  /** 获取值 */
+  getValue(): void
+
   delete(index: number): void
   delete(indexes: number[]): void
 
