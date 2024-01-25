@@ -11,6 +11,7 @@
         v-for="(columnsItem, columnsIndex) of store.columns"
         :key="columnsIndex"
       >
+      <div></div>
         <div
           @click="value => handleClick(value, dataIndex, dataItem, columnsItem)"
         >
@@ -108,7 +109,7 @@ const handleOperationData = (item: Record<string, any>) => {
 
     store.modelData = newData
   } else if (item['key'] === 'insert') {
-    alert('插入')
+    alert('插入还没写')
   }
 }
 

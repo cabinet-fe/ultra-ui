@@ -11,7 +11,7 @@
           finalColumns => !!finalColumns.key
         )"
         :key="finalColumns.key"
-        v-slot:[finalColumns.key!]="row"
+        v-slot:[finalColumns.key]="row"
       >
         <slot
           v-if="useSlots()[finalColumns.key]"
@@ -32,9 +32,11 @@
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from './row-form.type'
-import { RowFormHeader, RowFormFooter, RowFormBody } from './index'
 import { computed, provide, shallowReactive, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
+import RowFormHeader from './row-form-header.vue'
+import RowFormFooter from './row-form-footer.vue'
+import RowFormBody from './row-form-body.vue'
 
 defineOptions({
   name: 'URowForm'
@@ -70,6 +72,7 @@ let keyArray = finalColumns.value.map(k => k.key)
 
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = () => {
+  console.log(111)
   if (!data.value.length) return data.value.push({})
 
   /** 获取最后一条下标 */

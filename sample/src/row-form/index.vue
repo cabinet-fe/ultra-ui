@@ -23,12 +23,18 @@ const columns = shallowRef([
   { key: 'dd', name: '回家' },
   { key: 'ff', name: '抢不到票' },
   { key: 'gg', name: '秒无' },
-  { key: 'kk', name: '2024新年好' },
+  { key: 'kk', name: '2024新年好' }
 ])
 
 const modelValue = reactive([
   { dd: '第一条', ff: '333' },
   { dd: '第二条', ff: '123213' },
-  { dd: '第三条', ff: '123213', ll: 123123, gg: '测试不写插槽' },
+  {
+    dd: '第三条',
+    ff: '123213',
+    ll: 123123,
+    gg: '测试不写插槽',
+    children: [{ dd: '树形结构' }]
+  }
 ])
 </script>
