@@ -34,7 +34,8 @@ export interface RowFormProps<T> {
   tree?: boolean
   /** childrenKey='children' */
   childrenKey?: string,
-  showSummary?: Boolean
+  showSummary?: boolean,
+  border?: boolean
 }
 
 /** body里面的操作栏 */

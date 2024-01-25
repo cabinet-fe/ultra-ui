@@ -1,5 +1,5 @@
 <template>
-  <table :class="cls.b" border="1" cellspacing="0" cellpadding="0">
+  <table :class="cls.b" :border="border ? 1 : 0">
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
