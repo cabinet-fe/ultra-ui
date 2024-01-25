@@ -1,5 +1,5 @@
 <template>
-  <table :class="cls.b">
+  <table :class="cls.b" border="1" cellspacing="0" cellpadding="0">
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
@@ -13,13 +13,18 @@
         :key="finalColumns.key"
         v-slot:[finalColumns.key!]="row"
       >
-        <slot :name="finalColumns.key" v-bind="row" />
+        <slot
+          v-if="useSlots()[finalColumns.key]"
+          :name="finalColumns.key"
+          v-bind="row"
+        />
+        <div v-else>{{ row.row[finalColumns.key] }}</div>
       </template>
     </row-form-body>
     <!-- 表体 end -->
 
     <!-- 表尾 start -->
-    <row-form-footer />
+    <row-form-footer v-if="showSummary" />
     <!-- 表位 end -->
   </table>
 </template>
@@ -28,8 +33,7 @@
 import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from './row-form.type'
 import { RowFormHeader, RowFormFooter, RowFormBody } from './index'
-import { computed, provide, shallowReactive } from 'vue'
-import { useModel } from '@ui/compositions'
+import { computed, provide, shallowReactive, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 
 defineOptions({
@@ -45,7 +49,7 @@ const props = defineProps<RowFormProps<Record<string, any>>>()
 const emit = defineEmits<RowFormEmits>()
 
 /** 值 */
-const data = useModel({ props, emit, local: true })
+const data = defineModel<Record<string, any>[]>({ required: true })
 
 /** 表头 */
 const finalColumns = computed(() => {
@@ -61,6 +65,9 @@ let store = shallowReactive({
 
 provide(RowFormStoreType, store)
 
+/** 表头所有key */
+let keyArray = finalColumns.value.map(k => k.key)
+
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = () => {
   if (!data.value.length) return data.value.push({})
@@ -74,8 +81,6 @@ const initData = () => {
   data.value.forEach((item: Record<string, any>, index: number) => {
     if (index !== dataLength) return
 
-    let keyArray = finalColumns.value.map(k => k.key)
-
     /** 最后一条任何一个字段有值就把valuable = true */
     keyArray.forEach(k => {
       if (item[k]) {
@@ -88,4 +93,13 @@ const initData = () => {
   data.value.push({})
 }
 initData()
+
+/** 获取数据 */
+const getValue = () => {
+  console.log(keyArray)
+}
+
+defineExpose({
+  getValue
+})
 </script>
