@@ -5,9 +5,7 @@
         v-if="visible || opened"
         v-show="visible"
         :class="cls.e('overlay')"
-        :style="{
-          zIndex: zIndex()
-        }"
+        :style="style"
         @click="close"
       >
         <div v-bind="$attrs" :class="cls.b" ref="dialogRef" @click.stop>
@@ -66,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, shallowReactive } from 'vue'
+import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, zIndex } from '@ui/utils'
 import { useDrag, useTransition } from '@ui/compositions'
@@ -110,7 +108,6 @@ const style = shallowReactive({
 let opened = false
 
 watch(visible, v => {
-  console.log(v)
   if (!v) {
     return dialogTransition.toggle(false)
   }
@@ -119,9 +116,13 @@ watch(visible, v => {
   style.zIndex = zIndex()
   translated.x = 0
   translated.y = 0
+
   // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
-  requestAnimationFrame(() => {
-    dialogTransition.toggle(true)
+  // 渲染后的下一帧
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      dialogTransition.toggle(true)
+    })
   })
 })
 
@@ -167,10 +168,12 @@ const close = () => {
 const dialogTransition = useTransition('style', {
   target: dialogRef,
   enterToStyle: {
-    transform: 'scale3d(1, 1, 1) translate(0, 0) '
+    transform: 'scale3d(1, 1, 1) translate(0, 0)'
   },
+
   transitionInStyle: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
+    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
   transitionOutStyle: {
     transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'

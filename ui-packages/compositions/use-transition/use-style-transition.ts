@@ -53,6 +53,15 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     Object.keys(transitionInStyle).forEach(key => {
       dom.style[key] = transitionInStyle[key]
     })
+    // dom.setAttribute(
+    //   'style',
+    //   dom.style.cssText +
+    //     Object.keys(transitionInStyle)
+    //       .map(key => {
+    //         return `${key}: ${transitionInStyle[key]}`
+    //       })
+    //       .join(';')
+    // )
   }
 
   /**
@@ -113,7 +122,9 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     addTransitionInStyle(dom)
     // 在下一帧插入动画运动目标状态
     requestAnimationFrame(() => {
-      addEnterToStyle(dom)
+      requestAnimationFrame(() => {
+        addEnterToStyle(dom)
+      })
     })
   }
 

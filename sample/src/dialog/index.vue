@@ -16,7 +16,7 @@
     <u-button @click="visible = true">打开</u-button>
 
     <u-dialog v-model="visible" style="width: 900px" title="对话框标题">
-      <u-card v-for="i in 1" :key="i">
+      <u-card v-for="i in 3" :key="i">
         <u-card-cover
           src="http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg"
         />
