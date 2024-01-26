@@ -18,7 +18,7 @@
     @extend .header;
     &--th {
       text-align: center;
-      padding: 15px;
+      padding: 10px;
     }
   }
 
@@ -30,13 +30,16 @@
       &:hover {
         background-color: fn.use-var(color-info-light-9);
       }
+      td {
+        text-align: center;
+        padding: 5px 0;
+        min-width: 150px;
+      }
     }
   }
 
   @include m.e(context-info) {
     position: absolute;
-
-
     border: 1px solid var(--u-border);
     border-radius: fn.use-var(radius, default);
     background-color: fn.use-var(color-info-light-1);
@@ -56,5 +59,9 @@
     width: 200px;
     position: static;
     background-color: fn.use-var(color-info-light-1);
+  }
+
+  @include m.e(tfoot) {
+    padding: 5px 0;
   }
 }

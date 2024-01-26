@@ -19,7 +19,7 @@ $root-name: dialog;
 @include m.b($root-name) {
   border-radius: fn.use-var(radius, large);
   overflow: hidden;
-  transform: scale(0.5, 0.5) translate(0, 0);
+  // transform: scale(0.5, 0.5) translate(0, 0);
   will-change: transform;
   position: relative;
   display: flex;
@@ -27,6 +27,8 @@ $root-name: dialog;
   max-height: 90vh;
 
   @include m.e(header, footer) {
+    // flex-shrink: 0;
+
     @include m.is(background-blur) {
       &::before {
         content: '';
@@ -116,37 +118,41 @@ $root-name: dialog;
   @include m.e(btn-maximize, btn-recover) {
     background-color: #34c759;
   }
+}
 
-  @include m.m(maximum) {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh;
-    transform: scale3d(1, 1, 1) translate(0, 0) !important;
+// 弹框透明层动画进入和离开时应用的类
+.#{$root-name}-overlay-enter-active,
+.#{$root-name}-overlay-leave-active {
+  transition: opacity 0.25s;
+}
 
-    @include m.bem($root-name, header) {
-      &:active {
-        cursor: default;
-      }
+.#{$root-name}-overlay-enter-from,
+.#{$root-name}-overlay-leave-to {
+  opacity: 0;
+}
+
+// 弹框最大化动画进入后的类
+.#{$root-name}-maximize-enter-to {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh;
+  transform: translate(0, 0) scale3d(1, 1, 1) !important;
+  @include m.bem($root-name, header) {
+    &:active {
+      cursor: default;
     }
   }
 }
 
-// 弹框透明层动画进入和离开时应用的类
-.dialog-overlay-enter-active,
-.dialog-overlay-leave-active {
-  transition: opacity 0.25s;
+// 弹框最大化动画激活时的类
+.#{$root-name}-maximize-enter-active,
+.#{$root-name}-maximize-leave-active {
+  transition-property: width, height, transform;
+  transition-duration: 0.25s;
+  // transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
 }
 
-.dialog-overlay-enter-from,
-.dialog-overlay-leave-to {
-  opacity: 0;
+// 移除动画激活时保证最大高度为100vh
+.#{$root-name}-maximize-leave-active {
+  max-height: 100vh;
 }
-
-// .dialog-enter-to {
-//   transform: scale3d(1, 1, 1);
-// }
-
-// .dialog-enter-active,
-// .dialog-leave-active {
-//   transition: transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35);
-// }

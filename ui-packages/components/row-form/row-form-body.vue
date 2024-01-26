@@ -4,13 +4,14 @@
       v-for="(dataItem, dataIndex) of store.modelData"
       :key="dataIndex"
       :class="store.cls.em('tbody', 'hover')"
-      @contextmenu.prevent="handleDblClick"
+      @contextmenu.prevent="e => handleDblClick(e, dataIndex)"
     >
       <!-- 内容 -->
       <td
         v-for="(columnsItem, columnsIndex) of store.columns"
         :key="columnsIndex"
       >
+        <!-- <div></div> -->
         <div
           @click="value => handleClick(value, dataIndex, dataItem, columnsItem)"
         >
@@ -19,20 +20,22 @@
       </td>
     </tr>
 
-    <div
-      v-if="visible"
-      ref="operationRef"
-      :style="`left: ${layerX}px; top: ${layerY}px`"
-      :class="store.cls.e('context-info')"
-    >
+    <Teleport to="body">
       <div
-        v-for="(item, index) of operationArray"
-        :class="store.cls.em('context-info', 'operation')"
-        @click="handleOperationData(item, index)"
+        v-if="visible"
+        ref="operationRef"
+        :style="`left: ${layerX}px; top: ${layerY}px`"
+        :class="store.cls.e('context-info')"
       >
-        {{ item['name'] }}
+        <div
+          v-for="item of operationArray"
+          :class="store.cls.em('context-info', 'operation')"
+          @click="handleOperationData(item)"
+        >
+          {{ item['name'] }}
+        </div>
       </div>
-    </div>
+    </Teleport>
   </tbody>
 </template>
 <script lang="ts" setup>
@@ -43,12 +46,14 @@ import type { RowFormColumn, RowFormOperation } from './row-form.type'
 let store = inject(RowFormStoreType)!
 
 const operationArray: RowFormOperation[] = [
-  { key: 'delete', name: '删除' },
-  { key: 'insert', name: '插入' }
+  { key: 'delete', name: '删除当前条' },
+  { key: 'insert', name: '向下插入' }
 ]
 
 /** 操作栏信息的ref */
 const operationRef = shallowRef<InstanceType<typeof HTMLDivElement>>()
+/** 操作栏信息 */
+let visible = ref(false)
 
 /** 失去焦点后modelData的下表 */
 let currentDataIndex: number = 0
@@ -56,6 +61,20 @@ let currentDataIndex: number = 0
 let currentDataItem: Record<string, any> = {}
 /** 失去焦点后columns当前的数据 */
 let currentColumnsItem: RowFormColumn
+
+/** 获取右键信息位置 */
+let layerX = ref(0)
+let layerY = ref(0)
+
+/** 右击事件 */
+const handleDblClick = (event: MouseEvent, index: number) => {
+  layerX.value = event.x
+  layerY.value = event.y
+
+  dbIndex.value = index
+
+  visible.value = true
+}
 
 /**
  * 点击事件
@@ -89,27 +108,30 @@ const blurForm = (event: Event) => {
   event.target?.removeEventListener('blur', blurForm)
 }
 
-/** 获取右键信息 */
-let layerX = ref<number>(0)
-let layerY = ref<number>(0)
+/** 右键事件的下标 */
+let dbIndex = ref(0)
 
-/** 操作栏删除 */
-const handleOperationData = (item: Record<string, any>, index: number) => {
+/** 操作栏 */
+const handleOperationData = (item: Record<string, any>) => {
   if (item['key'] === 'delete') {
-    if (store.modelData.length === 1) return alert('求你了别删除最后一条')
-    store.modelData.splice(index, 1)
+    handleDeleteData()
+  } else if (item['key'] === 'insert') {
+    alert('插入还没写')
   }
 }
 
-/** 操作栏信息 */
-let visible = ref(false)
+/** 删除 */
+const handleDeleteData = () => {
+  let modelData = store.modelData
+  let newData =
+    modelData.length === 1
+      ? [{}]
+      : [
+          ...store.modelData.slice(0, dbIndex.value),
+          ...store.modelData.slice(dbIndex.value + 1)
+        ]
 
-/** 右击事件 */
-const handleDblClick = (event: any) => {
-  layerX.value = event.layerX
-  layerY.value = event.layerY
-
-  visible.value = true
+  store.modelData = newData
 }
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */
@@ -126,10 +148,4 @@ onUnmounted(() => {
   document.removeEventListener('click', watchOperationViable)
 })
 </script>
-<style lang="scss" scoped>
-td {
-  text-align: center;
-  padding: 10px 0;
-  min-width: 150px;
-}
-</style>
+<style lang="scss" scoped></style>

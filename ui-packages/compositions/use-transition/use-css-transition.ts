@@ -1,17 +1,5 @@
-import {
-  isRef,
-  watch,
-  onBeforeUnmount,
-  type ShallowRef,
-  type Ref,
-  computed
-} from 'vue'
-import type { TransitionBase, Returned } from './type'
-
-interface CssTransitionOptions extends TransitionBase {
-  /** 类的名称 */
-  name: ShallowRef<string> | string | Ref<string>
-}
+import { isRef, watch, onBeforeUnmount, computed } from 'vue'
+import type { Returned, CssTransitionOptions } from './type'
 
 /**
  * 使用css过渡
@@ -125,6 +113,12 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   })
 
   return {
-    toggle
+    toggle,
+    enter() {
+      toggle(true)
+    },
+    leave() {
+      toggle(false)
+    }
   }
 }

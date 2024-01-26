@@ -4,7 +4,7 @@
 
     <div class="list-row">
       <h3>基础列表</h3>
-      <u-list :data="list" />
+      <u-list :data="list" :draggable="true" />
     </div>
 
     <div class="list-row">
