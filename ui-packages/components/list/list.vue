@@ -4,7 +4,7 @@
       <li
         v-for="(item, index) in visibleItems"
         :draggable="props.draggable"
-        @dragstart="onDragStart"
+        @dragstart="onDragStart($event, item)"
         @dragover.prevent="onDragOver"
         @drop="onDrop($event, index)"
         @dragend="onDragEnd"
@@ -128,36 +128,45 @@ const handleUpdate = (item: any, index: number) => {
 
 let listText = ref()
 
-const onDragStart = (event: DragEvent) => {
+const onDragStart = (event: DragEvent, text) => {
   console.log(event, 'onDragStart')
-  event.dataTransfer?.setData('drag_text', (event.target as HTMLElement).innerHTML)
+
+  listText.value = text
 }
 
 const onDragOver = (event: DragEvent) => {
   console.log(event, 'onDragOver')
+
   event.preventDefault()
 }
+
 const onDrop = (event: DragEvent, index: number) => {
+  console.log(event, index, 'onDrop')
   event.preventDefault()
 
-  listText.value = (event.target as HTMLElement).innerHTML
-  console.log(listText.value, 'listText.value')
+  // listText.value = (event.target as HTMLElement).innerHTML
+  // console.log(listText.value, 'listText.value')
 
-  const dragText = event.dataTransfer?.getData('drag_text')
+  // const dragText = event.dataTransfer?.getData('drag_text')
+  // console.log(dragText, 'dragText')
+
+  const dragText = listText.value
 
   if (dragText !== undefined) {
     visibleItems.value.splice(index, 1, dragText)
   }
 }
+
 const onDragEnd = (event: DragEvent) => {
   event.preventDefault()
 
-  const index = visibleItems.value.indexOf(listText.value)
-  console.log(index)
+  listText.value = ''
+  // const index = visibleItems.value.indexOf(listText.value)
+  // console.log(index)
 
-  if (index !== -1) {
-    visibleItems.value.splice(index, 1, listText.value)
-    console.log(visibleItems.value, 'if-index-1')
-  }
+  // if (index !== -1) {
+  //   visibleItems.value.splice(index, 1, listText.value)
+  //   console.log(visibleItems.value, 'if-index-1')
+  // }
 }
 </script>
