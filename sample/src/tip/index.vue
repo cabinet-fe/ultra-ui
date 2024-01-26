@@ -2,48 +2,52 @@
   <div class="tip-box">
     <h4>Hover</h4>
     <div class="tip-row flex-row">
-      <u-tip model-value="自定义样式" :customStyle="styleValue">
-        <u-button>上左</u-button>
+      <u-tip
+        model-value="式式式式式式式式式式"
+        :customStyle="styleValue"
+        position="top-start"
+      >
+        <u-button>上左上左上左上左上左</u-button>
       </u-tip>
-      <u-tip model-value="上中">
+      <!-- <u-tip model-value="上中" position="top">
         <u-button>上中</u-button>
       </u-tip>
-      <u-tip model-value="上右">
+      <u-tip model-value="上右" position="top-end">
         <u-button>上右</u-button>
-      </u-tip>
+      </u-tip> -->
     </div>
     <div class="tip-center">
       <div class="tip-column flex-column">
-        <u-tip model-value="右上">
-          <u-button>右上</u-button>
+        <u-tip model-value="左上" position="left-start">
+          <u-button>左上</u-button>
         </u-tip>
-        <u-tip model-value="右中">
-          <u-button>右中</u-button>
+        <u-tip model-value="左中" position="left">
+          <u-button>左中</u-button>
         </u-tip>
-        <u-tip model-value="右下">
-          <u-button>右下</u-button>
+        <u-tip model-value="左下" position="left-end">
+          <u-button>左下</u-button>
         </u-tip>
       </div>
       <div class="tip-column flex-column">
-        <u-tip model-value="左上">
-          <u-button>左上</u-button>
+        <u-tip model-value="右上" position="right-start">
+          <u-button>右上</u-button>
         </u-tip>
-        <u-tip model-value="左中">
-          <u-button>左中</u-button>
+        <u-tip model-value="右中" position="right">
+          <u-button>右中</u-button>
         </u-tip>
-        <u-tip model-value="左下">
-          <u-button>左下</u-button>
+        <u-tip model-value="右下" position="right-end">
+          <u-button>右下</u-button>
         </u-tip>
       </div>
     </div>
     <div class="tip-row flex-row">
-      <u-tip model-value="下左">
+      <u-tip model-value="下左" position="bottom-start">
         <u-button>下左</u-button>
       </u-tip>
-      <u-tip model-value="下中">
+      <u-tip model-value="下中" position="bottom">
         <u-button>下中</u-button>
       </u-tip>
-      <u-tip model-value="下右">
+      <u-tip model-value="下右" position="bottom-end">
         <u-button>下右</u-button>
       </u-tip>
     </div>
@@ -69,10 +73,10 @@
 </template>
 
 <script setup lang="ts">
-import { shallowReactive } from 'vue'
+import {shallowReactive} from "vue"
 const styleValue = shallowReactive({
-  background: '#000',
-  color: '#fff'
+  background: "#000",
+  color: "#fff",
   // display:'block'
 })
 </script>
@@ -90,6 +94,7 @@ const styleValue = shallowReactive({
   justify-content: space-around;
 }
 .tip-box {
+  padding-top: 100px;
   width: 400px;
   h4 {
     text-align: center;
@@ -99,10 +104,10 @@ const styleValue = shallowReactive({
 .tip-row {
   padding: 0 20px;
   .u-tip:nth-child(1) {
-    padding-left: 50px;
+    margin-left: 50px;
   }
   .u-tip:nth-child(3) {
-    padding-right: 50px;
+    margin-right: 50px;
   }
 }
 .tip-center {
