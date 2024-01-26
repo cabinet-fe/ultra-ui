@@ -1,4 +1,4 @@
-import type { CSSProperties, Ref, ShallowRef } from "vue"
+import type { CSSProperties, Ref, ShallowRef } from 'vue'
 
 export interface TransitionBase {
   /** 被应用的目标元素 */
@@ -14,7 +14,7 @@ export interface TransitionBase {
 }
 
 export interface CssTransitionOptions extends TransitionBase {
-  /** 类的名称 */
+  /** 类的名称, 会生成 `${name}-enter-to`, `${name}-enter-active`, `${name}-leave-active这几种类` */
   name: ShallowRef<string> | string | Ref<string>
 }
 
@@ -27,11 +27,18 @@ export interface StyleTransitionOptions extends TransitionBase {
   transitionOutStyle: CSSProperties
 }
 
-
 export interface Returned {
   /**
    * 切换进入/离开动画
    * @param active 是否激活
    */
   toggle(active: boolean | ((active: boolean) => boolean)): void
+  /**
+   * 标记进入动画, toggle(true)的别名
+   */
+  enter(): void
+  /**
+   * 标记离开动画, toggle(false)的别名
+   */
+  leave(): void
 }

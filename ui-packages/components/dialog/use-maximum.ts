@@ -1,5 +1,6 @@
+import { useTransition } from '@ui/compositions'
 import type { BEM } from '@ui/utils'
-import { shallowRef, watch, type ShallowRef } from 'vue'
+import { shallowRef, type ShallowRef } from 'vue'
 
 interface Options {
   cls: BEM<'dialog'>
@@ -14,39 +15,31 @@ interface Returned {
 }
 
 export function useMaximum(options: Options): Returned {
-  const { cls, dialogRef } = options
+  const { dialogRef } = options
 
   const maximized = shallowRef(false)
-  const maximumCls = cls.m('maximum')
 
-  watch(maximized, maximized => {
-    const dom = dialogRef.value
-    if (!dom) return
-    if (maximized) {
-      // 先设置一个高度才会有过渡动画
-
-      const cssTexts = [
-        `height: ${dom.offsetHeight}px`,
-        'transition-property: width, height, transform',
-        'transition-duration: 0.25s',
-
-        'transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.3)'
-      ]
-      dom.style.cssText += cssTexts.join(';')
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          dom.classList.add(maximumCls)
-        })
-      })
-    } else {
-      dom.classList.remove(maximumCls)
-
+  const maximizeTransition = useTransition('css', {
+    target: dialogRef,
+    name: 'dialog-maximize',
+    afterLeave() {
+      dialogRef.value?.style.removeProperty('height')
     }
   })
+
   /** 切换最大化 */
   const toggleMaximize = (maxim: boolean): void => {
     maximized.value = maxim
+
+    const dom = dialogRef.value
+    if (!dom) return
+    if (maxim) {
+      // 先设置一个高度才会有过渡动画
+      dom.style.height = `${dom.offsetHeight}px`
+      maximizeTransition.enter()
+    } else {
+      maximizeTransition.leave()
+    }
   }
 
   return {
