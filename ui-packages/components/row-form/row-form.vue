@@ -72,7 +72,6 @@ let keyArray = finalColumns.value.map(k => k.key)
 
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = () => {
-  console.log(111)
   if (!data.value.length) return data.value.push({})
 
   /** 获取最后一条下标 */
