@@ -41,6 +41,8 @@
   }
 
   @include m.e(action) {
+    margin-left: 20px;
+    color: fn.use-var(color-primary);
     align-self: center;
     & > .u-icon {
       margin-right: 10px;

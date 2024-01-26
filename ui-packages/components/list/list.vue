@@ -1,7 +1,14 @@
 <template>
   <div :class="cls.b">
     <ul :class="cls.e('item')">
-      <li v-for="(item, index) in visibleItems">
+      <li
+        v-for="(item, index) in visibleItems"
+        :draggable="props.draggable"
+        @dragstart="onDragStart"
+        @dragover.prevent="onDragOver"
+        @drop="onDrop($event, index)"
+        @dragend="onDragEnd"
+      >
         <slot name="content" v-if="$slots.content" :item="item" :index="index" />
 
         <div v-else :class="cls.e('list')">
@@ -73,6 +80,9 @@ const props = withDefaults(defineProps<Partial<ListProps>>(), {
   itemsPerPage: 10
 })
 
+/** 是否拖拽 */
+// let draggable = ref(true)
+
 /** 所有列表 */
 const items = ref<any>(props.data)
 
@@ -87,6 +97,7 @@ const visibleItems = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value
 
   const endIndex = startIndex + itemsPerPage.value
+
   return items.value?.slice(0, endIndex)
 })
 
@@ -95,25 +106,9 @@ const showLoadMoreButton = computed(() => {
   return visibleItems.value.length < items.value.length
 })
 
-/** 更新可见项目 */
-// const updateVisibleItems = () => {
-//   const startIndex = (currentPage.value - 1) * itemsPerPage.value
-//   console.log(startIndex, 'startIndex')
-
-//   const endIndex = startIndex + itemsPerPage.value
-//   console.log(endIndex, 'endIndex')
-
-//   // 使用切片更新可见项目数组
-//   visibleItems.value = items.value?.slice(startIndex, endIndex)
-//   console.log(visibleItems.value, '000')
-// }
-// updateVisibleItems()
-
 /** 加载更多 */
 const loadMore = () => {
   currentPage.value++
-
-  // updateVisibleItems()
 }
 
 /** 删除 */
@@ -129,5 +124,40 @@ const handleTip = (item: any, index: number) => {
 const handleUpdate = (item: any, index: number) => {
   let list = props.data?.filter(item => item.checked)
   emit('update:check', list)
+}
+
+let listText = ref()
+
+const onDragStart = (event: DragEvent) => {
+  console.log(event, 'onDragStart')
+  event.dataTransfer?.setData('drag_text', (event.target as HTMLElement).innerHTML)
+}
+
+const onDragOver = (event: DragEvent) => {
+  console.log(event, 'onDragOver')
+  event.preventDefault()
+}
+const onDrop = (event: DragEvent, index: number) => {
+  event.preventDefault()
+
+  listText.value = (event.target as HTMLElement).innerHTML
+  console.log(listText.value, 'listText.value')
+
+  const dragText = event.dataTransfer?.getData('drag_text')
+
+  if (dragText !== undefined) {
+    visibleItems.value.splice(index, 1, dragText)
+  }
+}
+const onDragEnd = (event: DragEvent) => {
+  event.preventDefault()
+
+  const index = visibleItems.value.indexOf(listText.value)
+  console.log(index)
+
+  if (index !== -1) {
+    visibleItems.value.splice(index, 1, listText.value)
+    console.log(visibleItems.value, 'if-index-1')
+  }
 }
 </script>

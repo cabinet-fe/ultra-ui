@@ -49,6 +49,9 @@ export interface ListProps {
 
   /** 显示加载更多 */
   showLoadMore?: boolean
+
+  /** 是否拖拽 */
+  draggable?: boolean
 }
 
 export interface ListEmits {
