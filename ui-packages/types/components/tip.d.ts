@@ -35,6 +35,9 @@ export interface TipProps {
     | "right-start"
     | "right"
     | "right-end"
+  /**主题 */
+  theme?: "dark" | "light"
+
 }
 
 /** tip提示组件组件定义的事件 */

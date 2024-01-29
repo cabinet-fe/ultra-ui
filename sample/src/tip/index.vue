@@ -4,7 +4,6 @@
     <div class="tip-row flex-row">
       <u-tip
       model-value="上左上左"
-        :customStyle="styleValue"
         position="top-start"
       >
         <u-button>上左上左上左上左上左</u-button>
@@ -12,20 +11,20 @@
       <u-tip model-value="上中" position="top">
         <u-button>上中上中上中上中上中上中</u-button>
       </u-tip>
-      <u-tip model-value="上右" position="top-end">
-        <u-button>上右上右上右上右</u-button>
+      <u-tip model-value="上右" position="top-end" theme="light">
+        <u-button>上右上右  Light</u-button>
       </u-tip>
     </div>
     <div class="tip-center">
       <div class="tip-column flex-column">
-        <u-tip model-value="左上" position="left-start">
-          <u-button>左上</u-button>
+        <u-tip model-value="火男宝宝会颠勺好厉害" position="left-start">
+          <p>左上左上左上</p>
         </u-tip>
         <u-tip model-value="左中" position="left">
-          <u-button>左中</u-button>
+          <p>左中左中左中</p>
         </u-tip>
-        <u-tip model-value="左下" position="left-end">
-          <u-button>左下</u-button>
+        <u-tip model-value="左下" position="left-end" theme="light">
+          <p>左下左下  Light</p>
         </u-tip>
       </div>
       <div class="tip-column flex-column">
@@ -35,20 +34,20 @@
         <u-tip model-value="右中" position="right">
           <p>右中右中右中右中</p>
         </u-tip>
-        <u-tip model-value="右下" position="right-end">
-          <p>右下右下右下右下右下</p>
+        <u-tip model-value="右下" position="right-end" theme="light">
+          <p>右下右下  Light</p>
         </u-tip>
       </div>
     </div>
     <div class="tip-row flex-row">
-      <u-tip model-value="下左" position="bottom-start">
-        <u-button>下左</u-button>
+      <u-tip model-value="下左下左下左下左下左下左下左" position="bottom-start">
+        <p>下左下左下左下左</p>
       </u-tip>
       <u-tip model-value="下中" position="bottom">
-        <u-button>下中</u-button>
+        <p>下中下中下中下中</p>
       </u-tip>
-      <u-tip model-value="下右" position="bottom-end">
-        <u-button>下右</u-button>
+      <u-tip model-value="下右" position="bottom-end" theme="light">
+        <p>下右下右  Light</p>
       </u-tip>
     </div>
     <h4 class="pd20">Click</h4>

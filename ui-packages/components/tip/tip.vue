@@ -8,7 +8,7 @@
   >
     <slot />
     <div
-      :class="[cls.e('content'), cls.e(position)]"
+      :class="contentClass"
       v-show="visible"
       :style="dynamicStyle"
       ref="tipContentRef"
@@ -18,7 +18,7 @@
         {{ modelValue }}
       </slot>
       <!-- 箭头 -->
-      <span :class="[cls.e('arrow')]" :style="arrowStyle"></span>
+      <span :class="arrowClass" :style="arrowStyle"></span>
     </div>
   </div>
 </template>
@@ -27,7 +27,7 @@
 import type {TipProps} from "@ui/types/components/tip"
 import type {Undef} from "@ui/utils"
 import {bem} from "@ui/utils"
-import {ref, shallowRef, nextTick} from "vue"
+import {ref, shallowRef, nextTick, computed} from "vue"
 import countPosition from "./position"
 
 defineOptions({
@@ -38,9 +38,31 @@ const props = withDefaults(defineProps<TipProps>(), {
   modelValue: "提示内容",
   triggerPopUpMode: "hover",
   position: "top",
+  theme: "dark",
 })
 
 const cls = bem("tip")
+
+const isLightTheme = props.theme === "light"
+
+const contentClass = computed(() => {
+  return [
+    cls.e("content"),
+    bem.is("content-light", isLightTheme),
+    bem.is(props.position),
+  ]
+})
+
+const arrowClass = computed(() => {
+  return [
+    cls.e("arrow"),
+    bem.is("arrow-light", isLightTheme),
+    bem.is("arrow-bottom", isLightTheme && props.position.indexOf("top") > -1),
+    bem.is("arrow-left", isLightTheme && props.position.indexOf("right") > -1),
+    bem.is("arrow-top", isLightTheme && props.position.indexOf("bottom") > -1),
+    bem.is("arrow-right", isLightTheme && props.position.indexOf("left") > -1),
+  ]
+})
 
 /**页面元素的DOM信息 */
 let tipRef = shallowRef<HTMLElement>()
@@ -62,7 +84,6 @@ let dynamicStyle = shallowRef<Record<string, any>>({})
 let arrowStyle = shallowRef<Record<string, any>>({})
 
 const handleMouseOver = () => {
-  console.log(props.position)
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
@@ -110,7 +131,6 @@ const mouseEventDom = () => {
     elementWidth: clientWidth,
     tipContentRefDom,
   }
-  console.log(positionParams.tipContentRefDom.clientWidth)
 
   nextTick(async () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
