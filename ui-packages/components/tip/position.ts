@@ -24,7 +24,6 @@ let arrowCss = shallowRef<Record<string, any>>({})
  * @param elementWidth 页面元素宽度
  * @param tipContentRefDom tip提示的DOM信息
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
- *
  */
 function countPosition({
   position,

@@ -9,7 +9,7 @@
     <slot />
     <div
       :class="contentClass"
-      v-show="visible"
+      v-if="visible"
       :style="dynamicStyle"
       ref="tipContentRef"
     >
@@ -43,8 +43,10 @@ const props = withDefaults(defineProps<TipProps>(), {
 
 const cls = bem("tip")
 
+/**是否浅色主题 */
 const isLightTheme = props.theme === "light"
 
+/**tip弹窗class */
 const contentClass = computed(() => {
   return [
     cls.e("content"),
@@ -53,6 +55,7 @@ const contentClass = computed(() => {
   ]
 })
 
+/**箭头浅色样式 */
 const arrowClass = computed(() => {
   return [
     cls.e("arrow"),
@@ -70,6 +73,7 @@ let tipRef = shallowRef<HTMLElement>()
 /**弹窗显示的DOM信息 */
 let tipContentRef = shallowRef<HTMLElement>()
 
+/**是否显示 */
 let visible = ref(false)
 
 let timeClick: Undef<number> = undefined
@@ -79,10 +83,13 @@ console.log(timeMouseOut)
 
 let timeMouseOver: Undef<number> = undefined
 
+/**弹窗style样式 */
 let dynamicStyle = shallowRef<Record<string, any>>({})
 
+/**箭头style样式 */
 let arrowStyle = shallowRef<Record<string, any>>({})
 
+/**鼠标移入元素 */
 const handleMouseOver = () => {
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOver)
@@ -94,14 +101,15 @@ const handleMouseOver = () => {
   }, 300)
 }
 
+/**鼠标离开元素 */
 const handleMouseOut = () => {
-  if (props.triggerPopUpMode !== "hover") return
-  clearTimeout(timeMouseOut)
-  timeMouseOut = setTimeout(() => {
-    visible.value = false
-    dynamicStyle.value = {}
-    arrowStyle.value = {}
-  }, 300)
+  // if (props.triggerPopUpMode !== "hover") return
+  // clearTimeout(timeMouseOut)
+  // timeMouseOut = setTimeout(() => {
+  //   visible.value = false
+  //   dynamicStyle.value = {}
+  //   arrowStyle.value = {}
+  // }, 300)
 }
 
 const handleClick = () => {
@@ -109,7 +117,14 @@ const handleClick = () => {
   clearTimeout(timeClick)
   timeClick = setTimeout(() => {
     visible.value = !visible.value
-    if (visible.value) mouseEventDom()
+    if (visible.value) {
+      nextTick(() => {
+        mouseEventDom()
+      })
+    } else {
+      dynamicStyle.value = {}
+      arrowStyle.value = {}
+    }
   }, 300)
 }
 
@@ -131,6 +146,8 @@ const mouseEventDom = () => {
     elementWidth: clientWidth,
     tipContentRefDom,
   }
+  console.log(positionParams);
+  
 
   nextTick(async () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
