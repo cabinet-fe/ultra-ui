@@ -11,12 +11,23 @@
         v-for="(columnsItem, columnsIndex) of store.columns"
         :key="columnsIndex"
       >
-        <!-- <div></div> -->
-        <div
-          @click="value => handleClick(value, dataIndex, dataItem, columnsItem)"
+        <row-form-item-body
+          @click="
+            (value: Event) =>
+              handleClick(value, dataIndex, dataItem, columnsItem)
+          "
+          :columnsItem="columnsItem"
+          :dataItem="dataItem"
         >
-          <slot ref="slotsRef" :name="columnsItem.key" :row="dataItem" />
-        </div>
+          <template :key="columnsItem.key" v-slot:[columnsItem.key]="row">
+            <slot
+              v-if="useSlots()[columnsItem.key]"
+              :name="columnsItem.key"
+              v-bind="row"
+            />
+            <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
+          </template>
+        </row-form-item-body>
       </td>
     </tr>
 
@@ -39,9 +50,10 @@
   </tbody>
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 import type { RowFormColumn, RowFormOperation } from './row-form.type'
+import RowFormItemBody from './row-form-item-body.vue'
 
 let store = inject(RowFormStoreType)!
 
