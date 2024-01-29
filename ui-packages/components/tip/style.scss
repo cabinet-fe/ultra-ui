@@ -44,10 +44,10 @@
   @include m.e(content) {
     position: absolute;
     border-radius: fn.use-var(radius, default);
-    border: fn.use-var(border);
     padding: 10px;
     font-size: 14px;
     line-height: 1.2;
+    width: max-content;
 
  
 

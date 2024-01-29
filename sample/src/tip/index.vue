@@ -3,18 +3,18 @@
     <h4>Hover</h4>
     <div class="tip-row flex-row">
       <u-tip
-        model-value="式式式式式式式式式式"
+      model-value="上左上左"
         :customStyle="styleValue"
         position="top-start"
       >
         <u-button>上左上左上左上左上左</u-button>
       </u-tip>
-      <!-- <u-tip model-value="上中" position="top">
-        <u-button>上中</u-button>
+      <u-tip model-value="上中" position="top">
+        <u-button>上中上中上中上中上中上中</u-button>
       </u-tip>
       <u-tip model-value="上右" position="top-end">
-        <u-button>上右</u-button>
-      </u-tip> -->
+        <u-button>上右上右上右上右</u-button>
+      </u-tip>
     </div>
     <div class="tip-center">
       <div class="tip-column flex-column">
@@ -30,13 +30,13 @@
       </div>
       <div class="tip-column flex-column">
         <u-tip model-value="右上" position="right-start">
-          <u-button>右上</u-button>
+          <p style="width: 50px;">右上右上右上</p>
         </u-tip>
         <u-tip model-value="右中" position="right">
-          <u-button>右中</u-button>
+          <p>右中右中右中右中</p>
         </u-tip>
         <u-tip model-value="右下" position="right-end">
-          <u-button>右下</u-button>
+          <p>右下右下右下右下右下</p>
         </u-tip>
       </div>
     </div>
@@ -95,7 +95,7 @@ const styleValue = shallowReactive({
 }
 .tip-box {
   padding-top: 100px;
-  width: 400px;
+  width: 600px;
   h4 {
     text-align: center;
     padding-bottom: 20px;
@@ -117,7 +117,6 @@ const styleValue = shallowReactive({
 }
 .tip-column {
   width: 60px;
-  height: 160px;
   padding: 10px 0;
 }
 .pd20 {

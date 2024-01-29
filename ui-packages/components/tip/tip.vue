@@ -1,5 +1,4 @@
 <template>
-  <!-- <div style="position: relative;width: auto;"> -->
   <div
     :class="cls.b"
     ref="tipRef"
@@ -22,8 +21,6 @@
       <span :class="[cls.e('arrow')]" :style="arrowStyle"></span>
     </div>
   </div>
-
-  <!-- </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -70,18 +67,20 @@ const handleMouseOver = () => {
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
     visible.value = true
-    mouseEventDom()
+    nextTick(() => {
+      mouseEventDom()
+    })
   }, 300)
 }
 
 const handleMouseOut = () => {
   if (props.triggerPopUpMode !== "hover") return
-  // clearTimeout(timeMouseOut)
-  // timeMouseOut = setTimeout(() => {
-  //   visible.value = false
-  //   dynamicStyle.value = {}
-  //   arrowStyle.value = {}
-  // }, 300)
+  clearTimeout(timeMouseOut)
+  timeMouseOut = setTimeout(() => {
+    visible.value = false
+    dynamicStyle.value = {}
+    arrowStyle.value = {}
+  }, 300)
 }
 
 const handleClick = () => {
@@ -101,18 +100,19 @@ const mouseEventDom = () => {
 
   let {clientHeight, clientWidth} = tipRefDom
 
+  /**tip提示的DOM信息 */
+  const tipContentRefDom = tipContentRef.value
+  if (!tipContentRefDom) return
+
+  const positionParams = {
+    position: props.position,
+    elementHeight: clientHeight,
+    elementWidth: clientWidth,
+    tipContentRefDom,
+  }
+  console.log(positionParams.tipContentRefDom.clientWidth)
+
   nextTick(async () => {
-    /**tip提示的DOM信息 */
-    const tipContentRefDom = tipContentRef.value
-    if (!tipContentRefDom) return
-
-    const positionParams = {
-      position: props.position,
-      elementHeight: clientHeight,
-      elementWidth: clientWidth,
-      tipContentRefDom,
-    }
-
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
     dynamicStyle.value = {...dynamicCss.value, ...props.customStyle}
     arrowStyle.value = {...arrowCss.value, ...props.customStyle}
