@@ -52,6 +52,11 @@ export interface RowFormEmits {
   (e: 'save', value: Record<string, any>): void
 }
 
+/** row-form-item-body的事件 */
+export interface RowFormItemEmits {
+  (e: 'item-click', value: Event): void
+}
+
 /** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
 export interface _RowFormExposed {}
 

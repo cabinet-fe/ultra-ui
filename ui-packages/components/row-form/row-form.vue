@@ -7,18 +7,18 @@
     <!-- 表体 start -->
     <row-form-body>
       <template
-        v-for="finalColumns of props.columns.filter(
-          finalColumns => !!finalColumns.key
+        v-for="columnsItem of props.columns.filter(
+          columnsItem => !!columnsItem.key
         )"
-        :key="finalColumns.key"
-        v-slot:[finalColumns.key]="row"
+        :key="columnsItem.key"
+        v-slot:[columnsItem.key]="row"
       >
         <slot
-          v-if="useSlots()[finalColumns.key]"
-          :name="finalColumns.key"
+          v-if="useSlots()[columnsItem.key]"
+          :name="columnsItem.key"
           v-bind="row"
         />
-        <div v-else>{{ row.row[finalColumns.key] }}</div>
+        <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
       </template>
     </row-form-body>
     <!-- 表体 end -->
