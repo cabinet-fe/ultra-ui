@@ -12,6 +12,8 @@
       v-if="visible"
       :style="dynamicStyle"
       ref="tipContentRef"
+      @mouseenter="handleContentMouseOver"
+      @mouseleave="handleMouseOut"
     >
       {{ position }}
       <slot name="content">
@@ -39,6 +41,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   triggerPopUpMode: "hover",
   position: "top",
   theme: "dark",
+  mouseEnterable: true,
 })
 
 const cls = bem("tip")
@@ -79,7 +82,6 @@ let visible = ref(false)
 let timeClick: Undef<number> = undefined
 
 let timeMouseOut: Undef<number> = undefined
-console.log(timeMouseOut)
 
 let timeMouseOver: Undef<number> = undefined
 
@@ -91,8 +93,6 @@ let arrowStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
 const handleMouseOver = () => {
-  console.log("handleMouseOver")
-
   if (props.triggerPopUpMode !== "hover") return
   if (visible.value) return
   clearTimeout(timeMouseOver)
@@ -106,17 +106,19 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  console.log("handleMouseOut")
-
   if (props.triggerPopUpMode !== "hover") return
-  if (!visible.value) return
-
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
     visible.value = false
     dynamicStyle.value = {}
     arrowStyle.value = {}
   }, 300)
+}
+
+/**鼠标移入弹窗内容区域 */
+const handleContentMouseOver = () => {
+  if (!props.mouseEnterable) return
+  clearTimeout(timeMouseOut)
 }
 
 const handleClick = () => {

@@ -5,8 +5,8 @@
       <u-tip model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
         <u-button>上左上左上左上左上左</u-button>
       </u-tip>
-      <u-tip model-value="上中" position="top">
-        <u-button>上中上中上中上中上中上中</u-button>
+      <u-tip model-value="上中-鼠标不可进入tip区域" position="top" :mouse-enterable="false">
+        <u-button>鼠标不可进入tip区域</u-button>
       </u-tip>
       <u-tip model-value="上右" position="top-end" theme="light">
         <u-button>上右上右 Light</u-button>
@@ -14,7 +14,7 @@
     </div>
     <div class="tip-center">
       <div class="tip-column flex-column">
-        <u-tip model-value="火男宝宝会颠勺好厉害火男宝宝会颠勺好厉害" position="left-start">
+        <u-tip model-value="金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害" position="left-start">
           <p>左上左上左上</p>
         </u-tip>
         <u-tip model-value="左中" position="left">
