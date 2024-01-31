@@ -92,6 +92,7 @@ const styleValue = shallowReactive({
 .tip-box {
   padding-top: 100px;
   width: 600px;
+  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;
