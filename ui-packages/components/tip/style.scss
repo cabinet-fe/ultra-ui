@@ -50,10 +50,12 @@
       border-top-color: transparent !important;
       border-right-color: transparent !important;
     }
+
     @include m.is(arrow-top) {
       border-right-color: transparent !important;
       border-bottom-color: transparent !important;
     }
+
     @include m.is(arrow-right) {
       border-bottom-color: transparent !important;
       border-left-color: transparent !important;

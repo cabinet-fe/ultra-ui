@@ -2,8 +2,8 @@
   <div
     :class="cls.b"
     ref="tipRef"
-    @mouseenter.stop="handleMouseOver"
-    @mouseleave.stop="handleMouseOut"
+    @mouseenter.self="handleMouseOver"
+    @mouseleave.self="handleMouseOut"
     @click="handleClick"
   >
     <slot />
@@ -84,32 +84,39 @@ console.log(timeMouseOut)
 let timeMouseOver: Undef<number> = undefined
 
 /**弹窗style样式 */
-let dynamicStyle = shallowRef<Record<string, any>>({})
+let dynamicStyle = ref<Record<string, any>>({})
 
 /**箭头style样式 */
 let arrowStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
 const handleMouseOver = () => {
+  console.log("handleMouseOver")
+
   if (props.triggerPopUpMode !== "hover") return
+  if (visible.value) return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
     visible.value = true
     nextTick(() => {
       mouseEventDom()
     })
-  }, 300)
+  }, 100)
 }
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  // if (props.triggerPopUpMode !== "hover") return
-  // clearTimeout(timeMouseOut)
-  // timeMouseOut = setTimeout(() => {
-  //   visible.value = false
-  //   dynamicStyle.value = {}
-  //   arrowStyle.value = {}
-  // }, 300)
+  console.log("handleMouseOut")
+
+  if (props.triggerPopUpMode !== "hover") return
+  if (!visible.value) return
+
+  clearTimeout(timeMouseOut)
+  timeMouseOut = setTimeout(() => {
+    visible.value = false
+    dynamicStyle.value = {}
+    arrowStyle.value = {}
+  }, 300)
 }
 
 const handleClick = () => {
@@ -133,8 +140,15 @@ const mouseEventDom = () => {
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
   if (!tipRefDom) return
+  let {clientWidth, offsetLeft} = tipRefDom
 
-  let {clientHeight, clientWidth} = tipRefDom
+  /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
+  if (
+    props.position.indexOf("top") > -1 ||
+    props.position.indexOf("bottom") > -1
+  ) {
+    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 100}px)`
+  }
 
   /**tip提示的DOM信息 */
   const tipContentRefDom = tipContentRef.value
@@ -142,16 +156,24 @@ const mouseEventDom = () => {
 
   const positionParams = {
     position: props.position,
-    elementHeight: clientHeight,
     elementWidth: clientWidth,
+    tipRefDom,
     tipContentRefDom,
   }
-  console.log(positionParams);
-  
 
   nextTick(async () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
-    dynamicStyle.value = {...dynamicCss.value, ...props.customStyle}
+    dynamicStyle.value = {
+      ...dynamicCss.value,
+      ...props.customStyle,
+      ...{
+        maxWidth:
+          props.position.indexOf("top") > -1 ||
+          props.position.indexOf("bottom") > -1
+            ? `calc(100vw - ${offsetLeft + 100}px)`
+            : dynamicCss.value.maxWidth,
+      },
+    }
     arrowStyle.value = {...arrowCss.value, ...props.customStyle}
   })
 }

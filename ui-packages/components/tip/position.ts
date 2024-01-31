@@ -20,20 +20,20 @@ let arrowCss = shallowRef<Record<string, any>>({})
 /**
  * 计算弹窗显示位置
  * @param position 弹窗位置
- * @param elementHeight 页面元素高度
  * @param elementWidth 页面元素宽度
+ * @param tipRefDom 页面元素DOM信息
  * @param tipContentRefDom tip提示的DOM信息
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
  */
 function countPosition({
   position,
-  elementHeight,
   elementWidth,
+  tipRefDom,
   tipContentRefDom,
 }: {
   position: string
-  elementHeight: number
   elementWidth: number
+  tipRefDom: HTMLElement
   tipContentRefDom: HTMLElement
 }): Promise<PositionResult> {
   componentCss = {
@@ -50,6 +50,9 @@ function countPosition({
       arrowCss.value = componentCss
       dynamicCss.value = {...dynamicCss.value, ...componentCss}
 
+      //页面元素的DOM信息
+      let {offsetLeft} = tipRefDom
+
       // 弹窗显示的DOM信息
       let {clientWidth, clientHeight} = tipContentRefDom
       if (position) {
@@ -62,11 +65,16 @@ function countPosition({
         position.indexOf("top") > -1 &&
           topCount(position, clientHeight, clientWidth, elementWidth)
         position.indexOf("left") > -1 &&
-          leftCount(position, clientHeight, elementWidth)
+          leftCount(position, clientHeight, elementWidth, offsetLeft)
         position.indexOf("right") > -1 &&
-          rightCount(position, clientHeight, elementWidth)
+          rightCount(position, clientHeight, elementWidth, offsetLeft)
         position.indexOf("bottom") > -1 &&
-          bottomCount(position, clientHeight, clientWidth, elementWidth)
+          bottomCount(
+            position,
+            clientHeight,
+            clientWidth,
+            elementWidth,
+          )
       }
       resolve({dynamicCss, arrowCss})
     })
@@ -117,11 +125,13 @@ function topCount(
  * @param position 位置
  * @param clientHeight tip元素高度
  * @param elementWidth 页面元素宽度
+ * @param offsetLeft 页面元素距离左边的距离
  */
 function rightCount(
   position: string,
   clientHeight: number,
-  elementWidth: number
+  elementWidth: number,
+  offsetLeft: number
 ): void {
   dynamicCss.value.left = elementWidth + 14 + "px"
   arrowCss.value.left = -5 + "px"
@@ -139,6 +149,7 @@ function rightCount(
   if (position === "right-end") {
     dynamicCss.value.bottom = 0 + "px"
   }
+  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft + 100}px)`
 }
 
 /**
@@ -146,11 +157,14 @@ function rightCount(
  * @param position 位置
  * @param clientHeight tip元素高度
  * @param elementWidth 页面元素宽度
+ * @param offsetLeft 页面元素距离左边的距离
+ *
  */
 function leftCount(
   position: string,
   clientHeight: number,
-  elementWidth: number
+  elementWidth: number,
+  offsetLeft: number
 ): void {
   dynamicCss.value.right = elementWidth + 14 + "px"
   arrowCss.value.right = -5 + "px"
@@ -168,6 +182,7 @@ function leftCount(
   if (position === "left-end") {
     dynamicCss.value.bottom = 0 + "px"
   }
+  dynamicCss.value.maxWidth = offsetLeft - 20 + "px"
 }
 
 /**
@@ -181,9 +196,9 @@ function bottomCount(
   position: string,
   clientHeight: number,
   clientWidth: number,
-  elementWidth: number
+  elementWidth: number,
 ): void {
-  arrowCss.value.bottom = clientHeight - 5 + "px"
+  arrowCss.value.bottom = clientHeight - 6 + "px"
 
   // tip提示靠下 左
   if (position === "bottom-start") {

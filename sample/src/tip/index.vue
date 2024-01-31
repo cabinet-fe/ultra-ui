@@ -2,7 +2,7 @@
   <div class="tip-box">
     <h4>Hover</h4>
     <div class="tip-row flex-row">
-      <u-tip model-value="上左上左" position="top-start">
+      <u-tip model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
         <u-button>上左上左上左上左上左</u-button>
       </u-tip>
       <u-tip model-value="上中" position="top">
@@ -14,7 +14,7 @@
     </div>
     <div class="tip-center">
       <div class="tip-column flex-column">
-        <u-tip model-value="火男宝宝会颠勺好厉害" position="left-start">
+        <u-tip model-value="火男宝宝会颠勺好厉害火男宝宝会颠勺好厉害" position="left-start">
           <p>左上左上左上</p>
         </u-tip>
         <u-tip model-value="左中" position="left">
@@ -25,7 +25,7 @@
         </u-tip>
       </div>
       <div class="tip-column flex-column">
-        <u-tip model-value="右上" position="right-start">
+        <u-tip model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上" position="right-start">
           <p style="width: 50px">右上右上右上</p>
         </u-tip>
         <u-tip model-value="右中" position="right">
@@ -37,7 +37,7 @@
       </div>
     </div>
     <div class="tip-row flex-row">
-      <u-tip model-value="下左下左下左下左下左下左下左" position="bottom-start">
+      <u-tip model-value="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左" position="bottom-start">
         <p>下左下左下左下左</p>
       </u-tip>
       <u-tip model-value="下中" position="bottom">
