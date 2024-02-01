@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   modelValue: "提示内容",
   triggerPopUpMode: "hover",
   position: "top",
-  theme: "light",
+  theme: "dark",
   mouseEnterable: true,
 })
 
@@ -105,6 +105,7 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
+  return
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
@@ -142,7 +143,7 @@ const mouseEventDom = () => {
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
   if (!tipRefDom) return
-  let {clientWidth, offsetLeft} = tipRefDom
+  let {clientWidth, clientHeight,offsetLeft} = tipRefDom
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (
@@ -159,6 +160,7 @@ const mouseEventDom = () => {
   const positionParams = {
     position: props.position,
     elementWidth: clientWidth,
+    elementHeight: clientHeight,
     tipRefDom,
     tipContentRefDom,
   }

@@ -15,38 +15,39 @@
     <div class="tip-center">
       <div class="tip-column flex-column">
         <u-tip model-value="金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害" position="left-start">
-          <p>左上左上左上</p>
+          <u-button>左上左上左上</u-button>
         </u-tip>
         <u-tip model-value="左中" position="left">
-          <p>左中左中左中</p>
+          <u-button>左中左中左中</u-button>
         </u-tip>
         <u-tip model-value="左下" position="left-end" theme="light">
-          <p>左下左下 Light</p>
+          <u-button>左下左下 Light</u-button>
         </u-tip>
       </div>
       <div class="tip-column flex-column">
         <u-tip model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上" position="right-start">
-          <p style="width: 50px">右上右上右上</p>
+          <u-button>右上右上右上</u-button>
         </u-tip>
         <u-tip model-value="右中" position="right">
-          <p>右中右中右中右中</p>
+          <u-button>右中右中右中右中</u-button>
         </u-tip>
         <u-tip model-value="右下" position="right-end" theme="light">
-          <p>右下右下 Light</p>
+          <u-button>右下右下 Light</u-button>
         </u-tip>
       </div>
     </div>
     <div class="tip-row flex-row">
       <u-tip model-value="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左" position="bottom-start">
-        <p>下左下左下左下左</p>
+        <u-button>下左下左下左下左</u-button>
       </u-tip>
       <u-tip model-value="下中" position="bottom">
-        <p>下中下中下中下中</p>
+        <u-button>下中下中下中下中</u-button>
       </u-tip>
       <u-tip model-value="下右" position="bottom-end" theme="light">
-        <p>下右下右 Light</p>
+        <u-button>下右下右 Light</u-button>
       </u-tip>
     </div>
+    <br><br><br>
     <h4 class="pd20">Click</h4>
     <div class="tip-row flex-row">
       <u-tip
@@ -65,16 +66,16 @@
         <u-button>点击上右</u-button>
       </u-tip>
     </div>
-    <br><br><br><br><br><br>
+    <br><br><br>
     <div class="tip-row flex-row" >
       <u-tip :trigger-pop-up-mode="'click'" model-value="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左" position="bottom-start">
-        <p>点击下左下左下左下左</p>
+        <u-button>点击下左下左下左下左</u-button>
       </u-tip>
       <u-tip model-value="下中" position="bottom" :trigger-pop-up-mode="'click'">
-        <p>点击下中下中下中下中</p>
+        <u-button>点击下中下中下中下中</u-button>
       </u-tip>
       <u-tip model-value="下右" position="bottom-end" theme="light" :trigger-pop-up-mode="'click'">
-        <p>点击下右下右 Light</p>
+        <u-button>点击下右下右 Light</u-button>
       </u-tip>
     </div>
 
@@ -92,9 +93,7 @@ const styleValue = shallowReactive({
 </script>
 
 <style lang="scss" scoped>
-p{
-  cursor: pointer;
-}
+
 .flex-row {
   display: flex;
   align-items: center;
@@ -130,8 +129,11 @@ p{
   justify-content: space-between;
 }
 .tip-column {
-  width: 60px;
+  width: max-content;
   padding: 10px 0;
+  .u-tip{
+    margin: 20px 0;
+  }
 }
 .pd20 {
   margin-bottom: 80px;
