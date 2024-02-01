@@ -117,7 +117,6 @@ function topCount(
   if (position === "top-end") {
     dynamicCss.value.right = 0
     arrowCss.value.top = `calc(${clientHeight - 6}px + 0.5px)`
-    console.log("arrowCss:", arrowCss.value.top)
 
     if (clientWidth > elementWidth) {
       arrowCss.value.right = elementWidth / 2 - 7 + "px"
@@ -190,7 +189,6 @@ function leftCount(
   if (position === "left-end") {
     dynamicCss.value.bottom = 0 + "px"
   }
-  console.log(offsetLeft)
 
   dynamicCss.value.maxWidth = `calc(${offsetLeft - (elementWidth/2/2)}px)`
 }
