@@ -109,7 +109,9 @@ const handleMouseOut = () => {
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
     visible.value = false
-    dynamicStyle.value = {}
+    dynamicStyle.value = {
+      opacity: 0,
+    }
     arrowStyle.value = {}
   }, 300)
 }
@@ -142,7 +144,7 @@ const mouseEventDom = () => {
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
   if (!tipRefDom) return
-  let {clientWidth, clientHeight,offsetLeft} = tipRefDom
+  let {clientWidth, clientHeight, offsetLeft} = tipRefDom
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (

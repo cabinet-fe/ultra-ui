@@ -6,6 +6,7 @@
   position: relative;
   width: max-content;
   height: 100%;
+
   @include m.e(content) {
     position: absolute;
     border-radius: fn.use-var(radius, default);
@@ -17,6 +18,8 @@
     visibility: visible;
     background: fn.use-var(color-primary);
     color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 
     @include m.is(content-light) {
       background: #fff;

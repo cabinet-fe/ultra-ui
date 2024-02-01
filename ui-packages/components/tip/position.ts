@@ -80,6 +80,7 @@ function countPosition({
             elementHeight
           )
       }
+      dynamicCss.value.opacity = 1
       resolve({dynamicCss, arrowCss})
     })
   })
@@ -116,7 +117,7 @@ function topCount(
   // tip提示靠上 右
   if (position === "top-end") {
     dynamicCss.value.right = 0
-    arrowCss.value.top = `calc(${clientHeight - 6}px + 0.5px)`
+    arrowCss.value.top = `calc(${clientHeight - 5}px + 0.5px)`
 
     if (clientWidth > elementWidth) {
       arrowCss.value.right = elementWidth / 2 - 7 + "px"
