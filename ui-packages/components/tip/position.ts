@@ -55,10 +55,9 @@ function countPosition({
 
       // 弹窗显示的DOM信息
       let {clientWidth, clientHeight} = tipContentRefDom
-      console.log('弹窗显示的DOM信息:',clientWidth, clientHeight,);
-      console.log('页面元素DOM信息:',elementWidth);
+      console.log("弹窗显示的DOM信息:", clientWidth, clientHeight)
+      console.log("页面元素DOM信息:", elementWidth)
 
-      
       if (position) {
         if (position === "top" || position === "bottom") {
           dynamicCss.value.left = "50%"
@@ -73,12 +72,7 @@ function countPosition({
         position.indexOf("right") > -1 &&
           rightCount(position, clientHeight, elementWidth, offsetLeft)
         position.indexOf("bottom") > -1 &&
-          bottomCount(
-            position,
-            clientHeight,
-            clientWidth,
-            elementWidth,
-          )
+          bottomCount(position, clientHeight, clientWidth, elementWidth)
       }
       resolve({dynamicCss, arrowCss})
     })
@@ -97,14 +91,14 @@ function topCount(
   clientWidth: number,
   elementWidth: number
 ): void {
-  console.log(clientHeight,'clientHeight');
-  
+  console.log(clientHeight, "clientHeight")
+
   dynamicCss.value.top = -(clientHeight + 16) + "px"
 
   // tip提示靠上 左
   if (position === "top-start") {
     // 箭头样式
-    arrowCss.value.top = `calc(${clientHeight - 5}px)`;
+    arrowCss.value.top = `calc(${clientHeight - 5}px)`
     if (clientWidth > elementWidth) {
       arrowCss.value.left = elementWidth / 2 - 7 + "px"
     } else {
@@ -113,14 +107,14 @@ function topCount(
   }
   // tip提示靠上 居中
   if (position === "top") {
-    arrowCss.value.top = `calc(${clientHeight - 2}px + 0.5px)`;
+    arrowCss.value.top = `calc(${clientHeight - 2}px + 0.5px)`
   }
   // tip提示靠上 右
   if (position === "top-end") {
     dynamicCss.value.right = 0
-    arrowCss.value.top = `calc(${clientHeight - 6}px + 0.5px)`;
-    console.log('arrowCss:',arrowCss.value.top);
-    
+    arrowCss.value.top = `calc(${clientHeight - 6}px + 0.5px)`
+    console.log("arrowCss:", arrowCss.value.top)
+
     if (clientWidth > elementWidth) {
       arrowCss.value.right = elementWidth / 2 - 7 + "px"
     } else {
@@ -143,7 +137,7 @@ function rightCount(
   offsetLeft: number
 ): void {
   dynamicCss.value.left = elementWidth + 14 + "px"
-  arrowCss.value.left = -5 + "px"
+  arrowCss.value.left = `calc(-6px + 0.5px)`
   arrowCss.value.top = clientHeight / 2 - 5 + "px"
 
   if (position === "right-start") {
@@ -176,7 +170,7 @@ function leftCount(
   offsetLeft: number
 ): void {
   dynamicCss.value.right = elementWidth + 14 + "px"
-  arrowCss.value.right = -5 + "px"
+  arrowCss.value.right = `calc(-6px + 0.5px)`
   arrowCss.value.top = clientHeight / 2 - 5 + "px"
 
   if (position === "left-start") {
@@ -205,13 +199,11 @@ function bottomCount(
   position: string,
   clientHeight: number,
   clientWidth: number,
-  elementWidth: number,
+  elementWidth: number
 ): void {
-  arrowCss.value.bottom = `calc(${clientHeight - 6}px + 0.5px)`;
-
   // tip提示靠下 左
   if (position === "bottom-start") {
-    arrowCss.value.bottom = `calc(${clientHeight - 5}px + 0.5px)`;
+    arrowCss.value.bottom = `calc(${clientHeight - 5}px + 0.5px)`
     // 箭头样式
     if (clientWidth > elementWidth) {
       arrowCss.value.left = elementWidth / 2 - 7 + "px"
@@ -221,10 +213,11 @@ function bottomCount(
   }
   // tip提示靠下 居中
   if (position === "bottom") {
-    arrowCss.value.bottom = clientHeight - 8 + "px"
+    arrowCss.value.bottom = `calc(${clientHeight - 9}px + 0.5px)`
   }
   // tip提示靠下 右
   if (position === "bottom-end") {
+    arrowCss.value.bottom = `calc(${clientHeight - 5}px + 0.5px)`
     dynamicCss.value.right = 0
     if (clientWidth > elementWidth) {
       arrowCss.value.right = elementWidth / 2 - 7 + "px"

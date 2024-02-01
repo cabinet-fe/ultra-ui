@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   modelValue: "提示内容",
   triggerPopUpMode: "hover",
   position: "top",
-  theme: "dark",
+  theme: "light",
   mouseEnterable: true,
 })
 
@@ -170,7 +170,7 @@ const mouseEventDom = () => {
       ...(isLightTheme ? {} : props.customStyle),
       ...{
         maxWidth:
-          props.position.indexOf("top" || "bottom") > -1 ||
+          props.position.indexOf("top") > -1 ||
           props.position.indexOf("bottom") > -1
             ? `calc(100vw - ${offsetLeft + 20}px)`
             : dynamicCss.value.maxWidth,
