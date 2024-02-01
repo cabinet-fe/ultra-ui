@@ -15,7 +15,6 @@
       @mouseenter="handleContentMouseOver"
       @mouseleave="handleMouseOut"
     >
-      {{ position }}
       <slot name="content">
         {{ modelValue }}
       </slot>
@@ -123,6 +122,7 @@ const handleContentMouseOver = () => {
 
 const handleClick = () => {
   if (props.triggerPopUpMode !== "click") return
+
   clearTimeout(timeClick)
   timeClick = setTimeout(() => {
     visible.value = !visible.value
@@ -149,7 +149,7 @@ const mouseEventDom = () => {
     props.position.indexOf("top") > -1 ||
     props.position.indexOf("bottom") > -1
   ) {
-    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 100}px)`
+    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 20}px)`
   }
 
   /**tip提示的DOM信息 */
@@ -167,16 +167,19 @@ const mouseEventDom = () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
     dynamicStyle.value = {
       ...dynamicCss.value,
-      ...props.customStyle,
+      ...(isLightTheme ? {} : props.customStyle),
       ...{
         maxWidth:
-          props.position.indexOf("top") > -1 ||
+          props.position.indexOf("top" || "bottom") > -1 ||
           props.position.indexOf("bottom") > -1
-            ? `calc(100vw - ${offsetLeft + 100}px)`
+            ? `calc(100vw - ${offsetLeft + 20}px)`
             : dynamicCss.value.maxWidth,
       },
     }
-    arrowStyle.value = {...arrowCss.value, ...props.customStyle}
+    arrowStyle.value = {
+      ...arrowCss.value,
+      ...(isLightTheme ? {} : props.customStyle),
+    }
   })
 }
 </script>

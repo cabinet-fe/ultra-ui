@@ -2,7 +2,7 @@
   <div>
     <h2>单选框按钮样式</h2>
     <div class="item">
-      <h6>基础展示/背景btn选中、radio选中</h6>
+      <h6>基础展示</h6>
       {{ radio1 }}
       <u-radio-button v-model="radio1" value="汉字1" :size="radio3"/>
       <u-radio-button v-model="radio1" value="汉字2" :size="radio3"/>
@@ -89,7 +89,7 @@
     </div>
     <div class="item">
       <h6>尺寸</h6>
-      <u-radio-button v-model="radio3" value="large" size="large">默认</u-radio-button>
+      <u-radio-button v-model="radio3" value="large" size="large"></u-radio-button>
       <u-radio-button v-model="radio3" value="default"></u-radio-button>
       <u-radio-button v-model="radio3" value="small" size="small"></u-radio-button>
       {{ radio3 }}

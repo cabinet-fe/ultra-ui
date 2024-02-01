@@ -2,7 +2,7 @@
   <div class="tip-box">
     <h4>Hover</h4>
     <div class="tip-row flex-row">
-      <u-tip model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
+      <u-tip :custom-style="styleValue" model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
         <u-button>上左上左上左上左上左</u-button>
       </u-tip>
       <u-tip model-value="上中-鼠标不可进入tip区域" position="top" :mouse-enterable="false">
@@ -53,6 +53,8 @@
         content="自定义样式"
         :trigger-pop-up-mode="'click'"
         theme="light"
+        position="top-start"
+        model-value="点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左"
       >
         <u-button>点击上左</u-button>
       </u-tip>
@@ -63,6 +65,18 @@
         <u-button>点击上右</u-button>
       </u-tip>
     </div>
+    <br><br><br><br><br><br>
+    <div class="tip-row flex-row" >
+      <u-tip :trigger-pop-up-mode="'click'" model-value="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左" position="bottom-start">
+        <p>点击下左下左下左下左</p>
+      </u-tip>
+      <u-tip model-value="下中" position="bottom" :trigger-pop-up-mode="'click'">
+        <p>点击下中下中下中下中</p>
+      </u-tip>
+      <u-tip model-value="下右" position="bottom-end" theme="light" :trigger-pop-up-mode="'click'">
+        <p>点击下右下右 Light</p>
+      </u-tip>
+    </div>
 
     <div style="height: 100vh"></div>
   </div>
@@ -71,13 +85,16 @@
 <script setup lang="ts">
 import {shallowReactive} from "vue"
 const styleValue = shallowReactive({
-  background: "#000",
+  background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
   color: "#fff",
   // display:'block'
 })
 </script>
 
 <style lang="scss" scoped>
+p{
+  cursor: pointer;
+}
 .flex-row {
   display: flex;
   align-items: center;
