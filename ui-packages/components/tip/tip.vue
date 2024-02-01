@@ -173,7 +173,7 @@ const mouseEventDom = () => {
         maxWidth:
           props.position.indexOf("top") > -1 ||
           props.position.indexOf("bottom") > -1
-            ? `calc(100vw - ${offsetLeft + 20}px)`
+            ? `calc(100vw - ${offsetLeft + 24}px)`
             : dynamicCss.value.maxWidth,
       },
     }

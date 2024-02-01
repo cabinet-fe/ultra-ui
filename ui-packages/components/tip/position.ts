@@ -45,7 +45,7 @@ function countPosition({
   }
   arrowCss.value = {}
   dynamicCss.value = {
-    zIndex: zIndex()
+    zIndex: zIndex(),
   }
 
   return new Promise((resolve) => {
@@ -156,7 +156,8 @@ function rightCount(
   if (position === "right-end") {
     dynamicCss.value.bottom = 0 + "px"
   }
-  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft + 100}px)`
+
+  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft + 150}px)`
 }
 
 /**
@@ -189,7 +190,9 @@ function leftCount(
   if (position === "left-end") {
     dynamicCss.value.bottom = 0 + "px"
   }
-  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft - 20}px)`
+  console.log(offsetLeft)
+
+  dynamicCss.value.maxWidth = `calc(${offsetLeft - (elementWidth/2/2)}px)`
 }
 
 /**
@@ -207,7 +210,6 @@ function bottomCount(
   elementWidth: number,
   elementHeight: number
 ): void {
-
   dynamicCss.value.bottom = `calc(-${clientHeight + 14}px + 0.5px)`
   // tip提示靠下 左
   if (position === "bottom-start") {
