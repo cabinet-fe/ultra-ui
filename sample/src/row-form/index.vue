@@ -34,7 +34,7 @@ const modelValue = reactive([
     ff: '123213',
     ll: 123123,
     gg: '测试不写插槽',
-    children: [{ dd: '树形结构' }]
+    children: [{ dd: '树形结构',ff: '123123', ll: '1223', gg: '123' }]
   }
 ])
 </script>

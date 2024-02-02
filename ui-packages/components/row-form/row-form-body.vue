@@ -1,35 +1,25 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
-    <tr
-      v-for="(dataItem, dataIndex) of store.modelData"
-      :key="dataIndex"
-      :class="store.cls.em('tbody', 'hover')"
-      @contextmenu.prevent="e => handleDblClick(e, dataIndex)"
+    <row-form-item-body
+      @click="(value: Event) => handleClick"
+      @contextmenu="handleDblClick"
+      :modelData="store.modelData"
     >
-      <!-- 内容 -->
-      <td
-        v-for="(columnsItem, columnsIndex) of store.columns"
-        :key="columnsIndex"
+      <template
+        v-for="columnsItem of store.columns.filter(
+          columnsItem => !!columnsItem.key
+        )"
+        :key="columnsItem.key"
+        v-slot:[columnsItem.key]="row"
       >
-        <row-form-item-body
-          @click="
-            (value: Event) =>
-              handleClick(value, dataIndex, dataItem, columnsItem)
-          "
-          :columnsItem="columnsItem"
-          :dataItem="dataItem"
-        >
-          <template :key="columnsItem.key" v-slot:[columnsItem.key]="row">
-            <slot
-              v-if="useSlots()[columnsItem.key]"
-              :name="columnsItem.key"
-              v-bind="row"
-            />
-            <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
-          </template>
-        </row-form-item-body>
-      </td>
-    </tr>
+        <slot
+          v-if="useSlots()[columnsItem.key]"
+          :name="columnsItem.key"
+          v-bind="row"
+        />
+        <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
+      </template>
+    </row-form-item-body>
 
     <Teleport to="body">
       <div
@@ -53,7 +43,7 @@
 import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 import type { RowFormColumn, RowFormOperation } from './row-form.type'
-import RowFormItemBody from './row-form-item-body.vue'
+import RowFormItemBody from './row-form-body-item.vue'
 
 let store = inject(RowFormStoreType)!
 

@@ -36,6 +36,23 @@
         min-width: 150px;
       }
     }
+
+    &-item {
+      @include m.m(tree) {
+        padding: 10px;
+        cursor: pointer;
+        display: inline-block;
+
+        @include m.is(launch) {
+          transform: rotate(90deg);
+          transition: margin-right 4s ease-in-out 1s;
+        }
+        @include m.is(put-it-away) {
+          transform: rotate(0deg);
+          transition: margin-right 4s ease-in-out 1s;
+        }
+      }
+    }
   }
 
   @include m.e(context-info) {
@@ -64,4 +81,8 @@
   @include m.e(tfoot) {
     padding: 5px 0;
   }
+
+  // .is-launch {
+  //   transform: rotate(90deg);
+  // }
 }
