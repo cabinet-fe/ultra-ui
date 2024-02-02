@@ -17,8 +17,14 @@ const scrollbarRef = shallowRef<ScrollExposed>()
 </script>
 
 <style lang="scss" scoped>
+.header,
+.footer {
+  height: 60px;
+  flex-shrink: 0;
+}
 .bar {
   border: var(--u-border);
-  max-height: 90vh;
+  flex-grow: 1;
+  height: 90vh;
 }
 </style>

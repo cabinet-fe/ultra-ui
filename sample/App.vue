@@ -70,7 +70,6 @@ $width: 240px;
 .aside {
   width: $width;
   border-right: fn.use-var(border);
-  overflow: auto;
   padding: 4px 0;
 }
 
@@ -100,7 +99,7 @@ $width: 240px;
   }
 
   :deep(.ripple-color) {
-    background-color: rgba($color: #3F51B5, $alpha: 0.2);
+    background-color: rgba($color: #3f51b5, $alpha: 0.2);
   }
 }
 

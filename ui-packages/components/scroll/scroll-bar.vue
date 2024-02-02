@@ -72,6 +72,7 @@ useDrag({
   onDrag(x, y) {
     const target = getTarget(x, y)
     const maxOffset = trackSize - size.value
+
     if (target < 0) {
       offset.value = 0
     } else if (target > maxOffset) {

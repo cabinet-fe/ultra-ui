@@ -3,7 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "target": "ESNext",
+    "jsx": "preserve",
     "types": ["vite/client", "@vue/runtime-core"],
   },
-  "include": ["src/**/*.vue", "src/**/*.ts", "components.d.ts", "main.ts", "router.ts"]
+  "include": ["src/**/*.vue", "src/**/*.ts", "./App.vue", "components.d.ts", "main.ts", "router.ts"]
 }

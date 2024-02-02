@@ -53,7 +53,7 @@ const inputDom = computed(() => inputRef.value?.el)
 
 const cls = bem('number-input')
 
-// 实际值
+/** 实际值 */
 const model = defineModel<NumberInputProps['modelValue']>()
 
 // 展示值
@@ -166,17 +166,21 @@ const tween = new Tween(
 /** 增 */
 const increase = () => {
   const val = model.value ?? 0
+
   tween.state.n = val
-  model.value = n.plus(val, stepVal.value)
-  tween.to({ n: model.value })
+  const target = n.plus(val, stepVal.value)
+  model.value = target
+
+  tween.to({ n: target })
 }
 
 /** 减 */
 const decrease = () => {
   const val = model.value ?? 0
   tween.state.n = val
-  model.value = n.minus(val, stepVal.value)
-  tween.to({ n: model.value })
+  const target =  n.minus(val, stepVal.value)
+  model.value = target
+  tween.to({ n: target })
 }
 
 const handleKeydown = (e: KeyboardEvent) => {

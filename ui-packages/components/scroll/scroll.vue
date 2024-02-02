@@ -129,8 +129,10 @@ useResizeObserver({
   target: containerRef,
   onResize(entries) {
     const target = entries[0]!.target as HTMLElement
-    barX.value?.setTrackSize(target.offsetWidth)
-    barY.value?.setTrackSize(target.offsetHeight)
+    const { height, width } = target.getBoundingClientRect()
+
+    barX.value?.setTrackSize(width)
+    barY.value?.setTrackSize(height)
     updateBar(target)
   }
 })
