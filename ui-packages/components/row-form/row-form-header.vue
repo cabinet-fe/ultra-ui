@@ -22,8 +22,3 @@ const cls = bem('row-form')
 
 let store = inject(RowFormStoreType)!
 </script>
-<style scoped>
-th {
-
-}
-</style>

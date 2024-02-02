@@ -33,14 +33,14 @@ export interface RowFormProps<T> {
   /** 是否是tree */
   tree?: boolean
   /** childrenKey='children' */
-  childrenKey?: string,
-  showSummary?: boolean,
+  childrenKey?: string
+  showSummary?: boolean
   border?: boolean
 }
 
 /** body里面的操作栏 */
 export interface RowFormOperation {
-  key: string,
+  key: string
   name: string
 }
 
@@ -54,7 +54,19 @@ export interface RowFormEmits {
 
 /** row-form-item-body的事件 */
 export interface RowFormItemEmits {
-  (e: 'item-click', value: Event): void
+  (
+    e: 'item-click',
+    value: Event,
+    index: number,
+    dataItem: Record<string, any>,
+    columnsItem: RowFormColumn
+  ): void
+  (
+    e: 'contextmenu',
+    value: MouseEvent,
+    index: number,
+    dataItem?: Record<string, any>
+  ): void
 }
 
 /** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
