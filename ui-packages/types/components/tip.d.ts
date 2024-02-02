@@ -37,7 +37,8 @@ export interface TipProps {
     | "right-end"
   /**主题 */
   theme?: "dark" | "light"
-
+  /**鼠标是否可进入到tip区域*/
+  mouseEnterable?: boolean
 }
 
 /** tip提示组件组件定义的事件 */

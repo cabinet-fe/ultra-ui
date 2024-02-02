@@ -2,14 +2,23 @@
   <div>
     <h2>单选框按钮样式</h2>
     <div class="item">
-      <h6>基础展示/背景btn选中、radio选中</h6>
+      <h6>基础展示</h6>
       {{ radio1 }}
-      <u-radio-button v-model="radio1" value="汉字1" :size="radio3"/>
-      <u-radio-button v-model="radio1" value="汉字2" :size="radio3"/>
+      <u-tip model-value="model:radio1 value:汉字1" position="right">
+        <u-radio-button v-model="radio1" value="汉字1" :size="radio3" />
+      </u-tip>
+      <u-tip model-value="model:radio1 value:汉字2" position="bottom">
+        <u-radio-button v-model="radio1" value="汉字2" :size="radio3" />
+      </u-tip>
     </div>
     <div class="item">
       <h6>基础展示 禁用</h6>
-      <u-radio-button value="汉字2" v-model="radio2" :size="radio3" disabled></u-radio-button>
+      <u-radio-button
+        value="汉字2"
+        v-model="radio2"
+        :size="radio3"
+        disabled
+      ></u-radio-button>
     </div>
 
     <div class="item">
@@ -89,9 +98,17 @@
     </div>
     <div class="item">
       <h6>尺寸</h6>
-      <u-radio-button v-model="radio3" value="large" size="large">默认</u-radio-button>
+      <u-radio-button
+        v-model="radio3"
+        value="large"
+        size="large"
+      ></u-radio-button>
       <u-radio-button v-model="radio3" value="default"></u-radio-button>
-      <u-radio-button v-model="radio3" value="small" size="small"></u-radio-button>
+      <u-radio-button
+        v-model="radio3"
+        value="small"
+        size="small"
+      ></u-radio-button>
       {{ radio3 }}
     </div>
 
@@ -178,7 +195,7 @@ btn()
 .item {
   h6 {
     font-size: 16px;
-    padding: 10px 0;
+    margin: 10px 0;
   }
 }
 </style>

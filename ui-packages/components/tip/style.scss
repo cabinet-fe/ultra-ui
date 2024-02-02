@@ -4,6 +4,8 @@
 
 @include m.b(tip) {
   position: relative;
+  width: max-content;
+  height: 100%;
 
   @include m.e(content) {
     position: absolute;
@@ -16,6 +18,8 @@
     visibility: visible;
     background: fn.use-var(color-primary);
     color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 
     @include m.is(content-light) {
       background: #fff;
@@ -50,10 +54,12 @@
       border-top-color: transparent !important;
       border-right-color: transparent !important;
     }
+
     @include m.is(arrow-top) {
       border-right-color: transparent !important;
       border-bottom-color: transparent !important;
     }
+
     @include m.is(arrow-right) {
       border-bottom-color: transparent !important;
       border-left-color: transparent !important;
