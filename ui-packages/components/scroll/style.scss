@@ -11,9 +11,11 @@ $root-name: scroll;
   @include m.e(container) {
     overflow: auto;
     height: 100%;
+
+    // 隐藏滚动条
     scrollbar-width: none;
 
-    // 隐藏webkit的滚动条
+    // 兼容隐藏webkit的滚动条
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
