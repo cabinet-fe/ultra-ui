@@ -46,13 +46,13 @@ const props = withDefaults(defineProps<TipProps>(), {
 const cls = bem("tip")
 
 /**是否浅色主题 */
-const isLightTheme = props.theme === "light"
+const whetherLightTheme = props.theme === "light"
 
 /**tip弹窗class */
 const contentClass = computed(() => {
   return [
     cls.e("content"),
-    bem.is("content-light", isLightTheme),
+    bem.is("content-light", whetherLightTheme),
     bem.is(props.position),
   ]
 })
@@ -61,11 +61,11 @@ const contentClass = computed(() => {
 const arrowClass = computed(() => {
   return [
     cls.e("arrow"),
-    bem.is("arrow-light", isLightTheme),
-    bem.is("arrow-bottom", isLightTheme && props.position.indexOf("top") > -1),
-    bem.is("arrow-left", isLightTheme && props.position.indexOf("right") > -1),
-    bem.is("arrow-top", isLightTheme && props.position.indexOf("bottom") > -1),
-    bem.is("arrow-right", isLightTheme && props.position.indexOf("left") > -1),
+    bem.is("arrow-light", whetherLightTheme),
+    bem.is("arrow-bottom", whetherLightTheme && props.position.indexOf("top") > -1),
+    bem.is("arrow-left", whetherLightTheme && props.position.indexOf("right") > -1),
+    bem.is("arrow-top", whetherLightTheme && props.position.indexOf("bottom") > -1),
+    bem.is("arrow-right", whetherLightTheme && props.position.indexOf("left") > -1),
   ]
 })
 
@@ -93,7 +93,6 @@ let arrowStyle = shallowRef<Record<string, any>>({})
 /**鼠标移入元素 */
 const handleMouseOver = () => {
   if (props.triggerPopUpMode !== "hover") return
-  if (visible.value) return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
     visible.value = true
@@ -170,7 +169,7 @@ const mouseEventDom = () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
     dynamicStyle.value = {
       ...dynamicCss.value,
-      ...(isLightTheme ? {} : props.customStyle),
+      ...(whetherLightTheme ? {} : props.customStyle),
       ...{
         maxWidth:
           props.position.indexOf("top") > -1 ||
@@ -181,7 +180,7 @@ const mouseEventDom = () => {
     }
     arrowStyle.value = {
       ...arrowCss.value,
-      ...(isLightTheme ? {} : props.customStyle),
+      ...(whetherLightTheme ? {} : props.customStyle),
     }
   })
 }
