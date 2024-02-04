@@ -92,8 +92,10 @@ const updateBar = (target: HTMLElement) => {
 
   let barXWidth = 0
   let barXLeft = 0
+
   if (scrollWidth !== offsetWidth) {
     barXWidth = Math.max((offsetWidth * offsetWidth) / scrollWidth, minSize)
+
     barXLeft =
       (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - barXWidth)
   }

@@ -6,12 +6,12 @@ $root-name: scroll;
 
 @include m.b($root-name) {
   position: relative;
-  height: 100%;
 
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
     height: 100%;
+    scrollbar-width: none;
 
     // 隐藏webkit的滚动条
     &::-webkit-scrollbar {
