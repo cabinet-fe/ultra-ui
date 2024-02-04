@@ -6,11 +6,14 @@ $root-name: scroll;
 
 @include m.b($root-name) {
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
     height: 100%;
+
 
     // 隐藏滚动条
     scrollbar-width: none;

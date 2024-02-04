@@ -54,7 +54,7 @@
             <slot />
           </u-scroll>
 
-          <section :class="footerCls" v-if="$slots.footer">
+          <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
             <slot name="footer" />
           </section>
         </div>
@@ -67,7 +67,7 @@
 import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, zIndex } from '@ui/utils'
-import { useDrag, useTransition } from '@ui/compositions'
+import { useDrag, useResizeObserver, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { CloseBold, Maximum, Recover } from 'icon-ultra'
@@ -98,10 +98,27 @@ const headerRef = shallowRef<HTMLDivElement>()
 /** 弹框body模板引用 */
 const bodyRef = shallowRef<ScrollExposed>()
 
+/** 弹框footer模板引用 */
+const footerRef = shallowRef<HTMLDivElement>()
+
 const visible = defineModel<boolean>()
 
 const style = shallowReactive({
   zIndex: zIndex()
+})
+
+useResizeObserver({
+  target: dialogRef,
+  onResize(entries) {
+    const target = entries[0]!.target as HTMLElement
+    const { height } = target.getBoundingClientRect()
+
+    bodyRef.value!.scrollRef!.style.height = `${
+      height -
+      (headerRef.value?.offsetHeight ?? 0) -
+      (footerRef.value?.offsetHeight ?? 0)
+    }px`
+  }
 })
 
 /** 是否弹出过 */

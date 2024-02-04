@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { FloatButtonItem } from 'ultra-ui'
+import type { ComponentSize, FloatButtonItem } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const sizes = [
@@ -26,10 +26,12 @@ const sizes = [
   { label: '小', value: 'small' }
 ]
 
-const size = shallowRef('default')
+const size = shallowRef<ComponentSize>('default')
 
 const items: FloatButtonItem[] = [
-  { key: 'a', name: '你好' },
-  { key: 'b', name: '世界' }
+  { key: 'a', name: '你' },
+  { key: 'b', name: '好' },
+  { key: 'c', name: '世' },
+  { key: 'd', name: '界' }
 ]
 </script>

@@ -19,7 +19,6 @@ $root-name: dialog;
 @include m.b($root-name) {
   border-radius: fn.use-var(radius, large);
   will-change: transform;
-
   display: flex;
   flex-direction: column;
   max-height: 90vh;
@@ -62,6 +61,7 @@ $root-name: dialog;
 
   @include m.e(title) {
     font-size: fn.use-var(font-size, title);
+    line-height: 1em;
   }
 
   @include m.e(body) {
@@ -71,10 +71,10 @@ $root-name: dialog;
   }
 
   @include m.e(footer) {
-    padding: 8px;
     border-top: fn.use-var(border);
+    padding: 8px;
     text-align: right;
-    border-radius: 0 0 fn.use-var(gap, default) fn.use-var(gap, default) ;
+    border-radius: 0 0 fn.use-var(gap, default) fn.use-var(gap, default);
 
     #{fn.bem(button)} + #{fn.bem(button)} {
       margin-left: fn.use-var(gap, default);
@@ -82,6 +82,7 @@ $root-name: dialog;
   }
 
   @include m.e(buttons) {
+    font-size: 0;
     & > {
       @include m.bem(icon) {
         &:not(:first-child) {

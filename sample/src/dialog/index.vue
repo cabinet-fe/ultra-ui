@@ -22,10 +22,10 @@
         />
       </u-card>
 
-      <!-- <template #footer>
+      <template #footer>
         <u-button type="primary" text @click="visible = false">取消</u-button>
         <u-button type="primary" @click="visible = false">确认</u-button>
-      </template> -->
+      </template>
     </u-dialog>
   </div>
 </template>
@@ -34,10 +34,6 @@
 import { shallowRef } from 'vue'
 
 const visible = shallowRef(false)
-
-const getContent = () => {
-  return Math.random() + ''
-}
 </script>
 
 <style lang="scss" scoped></style>
