@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
-import { bem, zIndex } from '@ui/utils'
+import { bem, nextFrame, zIndex } from '@ui/utils'
 import { useDrag, useResizeObserver, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
@@ -113,11 +113,11 @@ useResizeObserver({
     const target = entries[0]!.target as HTMLElement
     const { height } = target.getBoundingClientRect()
 
-    bodyRef.value!.scrollRef!.style.height = `${
-      height -
-      (headerRef.value?.offsetHeight ?? 0) -
-      (footerRef.value?.offsetHeight ?? 0)
-    }px`
+    // bodyRef.value!.scrollRef!.style.height = `${
+    //   height -
+    //   (headerRef.value?.offsetHeight ?? 0) -
+    //   (footerRef.value?.offsetHeight ?? 0)
+    // }px`
   }
 })
 
@@ -137,7 +137,7 @@ watch(visible, v => {
   // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
   // 渲染后的下一帧
   nextTick(() => {
-    requestAnimationFrame(() => {
+    nextFrame(() => {
       dialogTransition.toggle(true)
     })
   })

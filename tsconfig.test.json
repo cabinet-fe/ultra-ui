@@ -1,10 +1,9 @@
 {
-  "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "outDir": "dist",
+    "types": ["vitest/globals"],
     "rootDir": "."
   },
-  "include": ["./*.ts"]
+  "include": ["./vitest.config.ts", "./ui-packages/**/*.ts"]
 }

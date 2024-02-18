@@ -10,7 +10,8 @@
     { "path": "./ui-packages/utils/tsconfig.json" },
     { "path": "./ui-packages/directives/tsconfig.json" },
     { "path": "./ui-packages/types/tsconfig.json" },
+    { "path": "./ui-packages/compositions/tsconfig.json" },
 
-    { "path": "./ui-packages/compositions/tsconfig.json" }
+    { "path": "./tsconfig.test.json" }
   ]
 }

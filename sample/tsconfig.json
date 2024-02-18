@@ -3,6 +3,9 @@
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.vue.json" },
   ],
+  "compilerOptions": {
+    "composite": true
+  },
   "exclude": [
     "node_modules"
   ]

@@ -156,5 +156,5 @@ $root-name: dialog;
 
 // 移除动画激活时保证最大高度为100vh
 .#{$root-name}-maximize-leave-active {
-  max-height: 100vh;
+  // max-height: 100vh;
 }

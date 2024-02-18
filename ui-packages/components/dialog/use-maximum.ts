@@ -14,6 +14,11 @@ interface Returned {
   toggleMaximize: (maxim: boolean) => void
 }
 
+// 最大化过程
+// 1. 先设置一个高度才会有过渡动画
+// 2. 在下一个帧应用最大化时的类名
+// 3. 在进入动画结束时移除高度
+
 export function useMaximum(options: Options): Returned {
   const { dialogRef } = options
 

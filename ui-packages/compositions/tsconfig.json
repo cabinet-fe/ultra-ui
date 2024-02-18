@@ -2,6 +2,7 @@
   "extends": "ts-conf-base/tsconfig.json",
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
     "types": ["@vue/runtime-core"]
   },
   "include": ["./**/*.ts", "./**/*.tsx", "./index.ts"],

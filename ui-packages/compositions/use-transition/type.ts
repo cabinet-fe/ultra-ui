@@ -3,13 +3,13 @@ import type { CSSProperties, Ref, ShallowRef } from 'vue'
 export interface TransitionBase {
   /** 被应用的目标元素 */
   target: ShallowRef<HTMLElement | undefined> | HTMLElement
-  /** 进入动画结束 */
+  /** 进入动画结束回调 */
   afterEnter?: () => void
-  /** 进入动画被取消 */
+  /** 进入动画被取消回调 */
   enterCanceled?: () => void
-  /** 离开动画结束 */
+  /** 离开动画结束回调 */
   afterLeave?: () => void
-  /** 离开动画被取消 */
+  /** 离开动画被取消回调 */
   leaveCanceled?: () => void
 }
 
