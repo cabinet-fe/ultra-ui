@@ -15,8 +15,8 @@
         <div @click="e => handleClick(e, dataIndex, dataItem, columnsItem)">
           <span
             :class="[store.cls.em('tbody-item', 'tree'), isClass]"
-            v-if="columnsIndex === 0 && dataItem?.children"
             @click="handleChildClass"
+            v-if="columnsIndex === 0 && dataItem?.children"
           >
             >
           </span>
@@ -38,18 +38,19 @@ defineProps({
 })
 
 /** 事件 */
-const emit = defineEmits<RowFormItemEmits>()
+const emits = defineEmits<RowFormItemEmits>()
 
 let store = inject(RowFormStoreType)!
 
 /** 点击内容 */
 const handleClick = (
-  e: Event,
+  event: Event,
   dataIndex: number,
   dataItem: Record<string, any>,
   columnsItem: RowFormColumn
 ) => {
-  emit('item-click', e, dataIndex, dataItem, columnsItem)
+
+  emits('item-click', event, dataIndex, dataItem, columnsItem)
 }
 /** 是否是展开的 */
 const launch = ref(false)
@@ -66,11 +67,10 @@ const handleChildClass = () => {
 
 /** 右击 */
 const handleContextmenuClick = (
-  e: MouseEvent,
+  event: MouseEvent,
   index: number,
   dataItem: Record<string, any>
 ) => {
-  emit('contextmenu', e, index, dataItem)
+  emits('contextmenu', event, index, dataItem)
 }
 </script>
-<style lang="scss" scoped></style>

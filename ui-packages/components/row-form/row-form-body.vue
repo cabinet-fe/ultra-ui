@@ -1,7 +1,7 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
-    <row-form-item-body
-      @click="(value: Event) => handleClick"
+    <row-form-body-item
+      @item-click="handleClick"
       @contextmenu="handleDblClick"
       :modelData="store.modelData"
     >
@@ -19,13 +19,14 @@
         />
         <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
       </template>
-    </row-form-item-body>
+
+    </row-form-body-item>
 
     <Teleport to="body">
       <div
         v-if="visible"
         ref="operationRef"
-        :style="`left: ${layerX}px; top: ${layerY}px`"
+        :style="`left: ${x}px; top: ${y}px`"
         :class="store.cls.e('context-info')"
       >
         <div
@@ -43,7 +44,7 @@
 import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 import type { RowFormColumn, RowFormOperation } from './row-form.type'
-import RowFormItemBody from './row-form-body-item.vue'
+import RowFormBodyItem from './row-form-body-item.vue'
 
 let store = inject(RowFormStoreType)!
 
@@ -65,13 +66,13 @@ let currentDataItem: Record<string, any> = {}
 let currentColumnsItem: RowFormColumn
 
 /** 获取右键信息位置 */
-let layerX = ref(0)
-let layerY = ref(0)
+let x = ref(0)
+let y = ref(0)
 
 /** 右击事件 */
 const handleDblClick = (event: MouseEvent, index: number) => {
-  layerX.value = event.x
-  layerY.value = event.y
+  x.value = event.x
+  y.value = event.y
 
   dbIndex.value = index
 
@@ -118,7 +119,7 @@ const handleOperationData = (item: Record<string, any>) => {
   if (item['key'] === 'delete') {
     handleDeleteData()
   } else if (item['key'] === 'insert') {
-    alert('插入还没写')
+    handleDeleteInsertData()
   }
 }
 
@@ -134,6 +135,11 @@ const handleDeleteData = () => {
         ]
 
   store.modelData = newData
+}
+
+/** 插入 */
+const handleDeleteInsertData = () => {
+  console.log('插入')
 }
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */

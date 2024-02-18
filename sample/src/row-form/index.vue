@@ -9,9 +9,11 @@
       <template #ff="{ row }">
         <u-input v-model="row.ff" />
       </template>
+
+      <template #kk="{ row }">
+        <u-input v-model="row.kk" />
+      </template>
     </u-row-form>
-    <!-- {{ rowFormRef?.getValue() }} -->
-    <!-- {{ modelValue }} -->
   </div>
 </template>
 <script lang="ts" setup>

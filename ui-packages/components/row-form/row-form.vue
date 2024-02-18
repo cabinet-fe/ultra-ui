@@ -48,7 +48,7 @@ const cls = bem('row-form')
 const props = defineProps<RowFormProps<Record<string, any>>>()
 
 /** 事件 */
-const emit = defineEmits<RowFormEmits>()
+const emits = defineEmits<RowFormEmits>()
 
 /** 值 */
 const data = defineModel<Record<string, any>[]>({ required: true })
