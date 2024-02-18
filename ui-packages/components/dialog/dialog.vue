@@ -67,7 +67,7 @@
 import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, nextFrame, zIndex } from '@ui/utils'
-import { useDrag, useResizeObserver, useTransition } from '@ui/compositions'
+import { useDrag, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { CloseBold, Maximum, Recover } from 'icon-ultra'
@@ -107,17 +107,18 @@ const style = shallowReactive({
   zIndex: zIndex()
 })
 
-useResizeObserver({
+const dialogTransition = useTransition('style', {
   target: dialogRef,
-  onResize(entries) {
-    const target = entries[0]!.target as HTMLElement
-    const { height } = target.getBoundingClientRect()
+  enterToStyle: {
+    transform: 'scale3d(1, 1, 1) translate(0, 0)'
+  },
 
-    // bodyRef.value!.scrollRef!.style.height = `${
-    //   height -
-    //   (headerRef.value?.offsetHeight ?? 0) -
-    //   (footerRef.value?.offsetHeight ?? 0)
-    // }px`
+  transitionInStyle: {
+    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
+    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  },
+  transitionOutStyle: {
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
 })
 
@@ -181,21 +182,6 @@ const { toggleMaximize, maximized } = useMaximum({
 const close = () => {
   visible.value = false
 }
-
-const dialogTransition = useTransition('style', {
-  target: dialogRef,
-  enterToStyle: {
-    transform: 'scale3d(1, 1, 1) translate(0, 0)'
-  },
-
-  transitionInStyle: {
-    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
-    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  },
-  transitionOutStyle: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  }
-})
 
 defineExpose({
   close

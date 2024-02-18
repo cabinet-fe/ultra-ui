@@ -68,6 +68,7 @@ $root-name: dialog;
     padding: 8px;
     background-color: fn.use-var(bg-color, top);
     flex-grow: 1;
+    overflow: auto;
   }
 
   @include m.e(footer) {
@@ -151,10 +152,9 @@ $root-name: dialog;
 .#{$root-name}-maximize-leave-active {
   transition-property: width, height, transform;
   transition-duration: 0.25s;
-  // transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.35);
 }
 
 // 移除动画激活时保证最大高度为100vh
 .#{$root-name}-maximize-leave-active {
-  // max-height: 100vh;
+  max-height: 100vh;
 }

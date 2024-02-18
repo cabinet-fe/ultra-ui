@@ -27,6 +27,23 @@
         <u-button type="primary" @click="visible = false">确认</u-button>
       </template>
     </u-dialog>
+
+    <div class="box">
+      <section class="section1">
+        <p>1</p>
+      </section>
+      <section class="section2">
+        <p>2</p>
+        <p>2</p>
+        <p>2</p>
+        <p>2</p>
+        <p>2</p>
+        <p>2</p>
+      </section>
+      <section class="section3">
+        <p>3</p>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -36,4 +53,32 @@ import { shallowRef } from 'vue'
 const visible = shallowRef(false)
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.box {
+  display: flex;
+  flex-direction: column;
+  max-height: 200px;
+  overflow: auto;
+  border: 1px solid #ccc;
+
+  p {
+    height: 32px;
+    margin: 0;
+  }
+}
+
+.section1 {
+  background-color: #ccc;
+  flex-shrink: 0;
+
+}
+.section2 {
+  background-color: cadetblue;
+  flex-grow: 1;
+  overflow: auto;
+}
+.section3 {
+  background-color: #ccc;
+  flex-shrink: 0;
+}
+</style>
