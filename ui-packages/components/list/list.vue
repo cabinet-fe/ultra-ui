@@ -41,6 +41,7 @@
 
           <!-- action -->
           <div :class="cls.e('action')" v-if="showActions">
+
             <u-icon :size="16"><Delete @click="handleDelete(item, index)" /></u-icon>
             <u-icon :size="16"><Message @click="handleMessage(item, index)" /></u-icon>
             <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>

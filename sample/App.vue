@@ -8,13 +8,15 @@
         :active="route.path === item.path"
       />
     </u-scroll>
-    <main style="padding: var(--u-gap-default)">
+
+    <u-scroll tag="main" style="padding: var(--u-gap-default)">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
-    </main>
+    </u-scroll>
+
   </div>
 </template>
 
