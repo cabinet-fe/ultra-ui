@@ -3,7 +3,8 @@
     <h4>Hover</h4>
     <div class="tip-row flex-row">
       <u-tip :custom-style="styleValue" model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
-        <u-button>上左上左上左上左上左</u-button>
+        <u-button @click="() => c.log(123)">上左上左上左上左上左</u-button>
+
       </u-tip>
       <u-tip model-value="上中-鼠标不可进入tip区域" position="top" :mouse-enterable="false">
         <u-button>鼠标不可进入tip区域</u-button>
