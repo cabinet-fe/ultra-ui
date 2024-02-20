@@ -1,6 +1,6 @@
 <template>
   <div :class="cls.b">
-    <ul :class="cls.e('item')">
+    <ul :class="cls.e('item')" id="list">
       <li
         v-for="(item, index) in visibleItems"
         :draggable="props.draggable"
@@ -41,7 +41,6 @@
 
           <!-- action -->
           <div :class="cls.e('action')" v-if="showActions">
-
             <u-icon :size="16"><Delete @click="handleDelete(item, index)" /></u-icon>
             <u-icon :size="16"><Message @click="handleMessage(item, index)" /></u-icon>
             <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>
@@ -50,14 +49,6 @@
         </div>
       </li>
     </ul>
-
-    <!-- 加载更多 -->
-    <div :class="cls.e('loadMore')">
-      <u-button @click="loadMore" v-if="props.showLoadMore && showLoadMoreButton">
-        加载更多
-      </u-button>
-    </div>
-    <!-- 加载更多 end -->
   </div>
 </template>
 
@@ -68,7 +59,7 @@ import { UCheckbox } from '../checkbox'
 import { UButton } from '../button'
 import { Delete, Message, Warning } from 'icon-ultra'
 import { bem } from '@ui/utils'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 defineOptions({
   name: 'List'
@@ -109,8 +100,26 @@ const showLoadMoreButton = computed(() => {
 
 /** 加载更多 */
 const loadMore = () => {
-  currentPage.value++
+  // visibleItems.value.length < items.value.length
+  // console.log(1)
+
+  // currentPage.value++
+
+  console.log(visibleItems.value.length, 'visibleItems.value.length')
+  console.log(items.value.length, 'items.value.length')
+  if (visibleItems.value.length < items.value.length) {
+    console.log('没有更多了...')
+  } else {
+    console.log('else')
+    currentPage.value++
+  }
 }
+
+nextTick(() => {
+  let ulElement = document.getElementById('list')
+  console.log(ulElement, 'ulElement')
+  ulElement?.addEventListener('scroll', loadMore)
+})
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {

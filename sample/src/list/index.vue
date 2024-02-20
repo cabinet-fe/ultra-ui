@@ -3,6 +3,15 @@
     <h2>List 列表</h2>
 
     <div class="list-row">
+      <h3>无限滚动</h3>
+      <!-- 显示加载更多 -->
+
+      <!-- <p>可以通过属性<span class="tip">show-load-more</span>显示，默认false;</p> -->
+
+      <u-list :data="list3" :show-load-more="true"> </u-list>
+    </div>
+
+    <div class="list-row">
       <h3>基础列表</h3>
       <u-list :data="list" :draggable="true" />
     </div>
@@ -46,14 +55,6 @@
           </div>
         </template>
       </u-list>
-    </div>
-
-    <div class="list-row">
-      <h3>显示加载更多</h3>
-
-      <p>可以通过属性<span class="tip">show-load-more</span>显示，默认false;</p>
-
-      <u-list :data="list3" :show-load-more="true"> </u-list>
     </div>
 
     <!-- API  -->
