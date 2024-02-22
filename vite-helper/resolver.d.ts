@@ -1,5 +1,1 @@
-export declare function UIResolver(componentName: string): {
-    name: string;
-    from: string;
-    sideEffects: string | undefined;
-} | undefined;
+export declare function UIResolver(componentName: string): Record<string, string> | undefined;

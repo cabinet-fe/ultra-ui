@@ -2,11 +2,7 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-
-
-@include m.b(grid) {
+@include m.b(layout) {
   display: grid;
-
-
-
+  position: relative;
 }

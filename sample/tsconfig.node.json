@@ -1,9 +1,0 @@
-{
-  "extends": "ts-conf-base/tsconfig.node.json",
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "target": "ESNext",
-  },
-  "include": ["vite.config.ts"]
-}

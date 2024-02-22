@@ -15,5 +15,3 @@ export * from './helper/create-toggle'
 export * from './helper/vue'
 
 export * from './helper/frame'
-
-export * from './types/types'

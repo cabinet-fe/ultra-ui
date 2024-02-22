@@ -24,6 +24,8 @@ export * from './icon'
 
 export * from './input'
 
+export * from './layout'
+
 export * from './list'
 
 export * from './node-render'
@@ -39,6 +41,8 @@ export * from './radio'
 export * from './radio-button'
 
 export * from './radio-group'
+
+export * from './resize-container'
 
 export * from './row-form'
 
