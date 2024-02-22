@@ -42,8 +42,6 @@ export * from './radio-button'
 
 export * from './radio-group'
 
-export * from './resize-container'
-
 export * from './row-form'
 
 export * from './scroll'

@@ -30,14 +30,21 @@ function matchComponentDir(kebabName: string): string | null {
   return null
 }
 
-export function UIResolver(componentName: string) {
+interface ComponentInfo {
+  as?: string
+  name?: string
+  from: string
+  sideEffects?: string
+}
+
+export function UIResolver(componentName: string): ComponentInfo | void {
   // 组件名称示例: UButton
   if (componentName.startsWith('U')) {
     // u-component
     const kebabName = kebabCase(componentName.slice(1))
     const componentDirName = matchComponentDir(kebabName)
 
-    const info: Record<string, string> = {
+    const info: ComponentInfo = {
       name: componentName,
       from: 'ultra-ui'
     }
