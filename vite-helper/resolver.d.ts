@@ -1,5 +1,8 @@
-export declare function UIResolver(componentName: string): {
-    name: string;
+interface ComponentInfo {
+    as?: string;
+    name?: string;
     from: string;
-    sideEffects: string | undefined;
-} | undefined;
+    sideEffects?: string;
+}
+export declare function UIResolver(componentName: string): ComponentInfo | void;
+export {};

@@ -1,3 +1,4 @@
+// 生成css变量
 // 主题主要由色彩, 大小, 圆角, 阴影, 字体, 边框构成
 // 其中色彩又分为文字颜色, 背景颜色
 @use 'mixins' as m;
@@ -12,57 +13,16 @@
 // theme-vars
 :root {
   // 颜色类别
-  // 品牌色
-  // primary: #409eff,
-  // 成功色
-  // success: #67c23a,
-  // 警告色
-  // warning: #e6a23c,
-  // 危险色
-  // danger: #f56c6c,
-  // 信息色
-  // info: #909399
-
   @include m.css-var(color, vars.$color-types);
 
   // 背景色
-  @include m.css-var(
-    bg-color,
-    (
-      // 底部图层背景色
-      bottom: #fdfdfd,
-      // 中部图层背景色
-      middle: #fefefe,
-      // 顶部图层背景色
-      top: #ffffff
-    )
-  );
+  @include m.css-var(bg-color, vars.$bg-colors);
 
   // 文字颜色
-  @include m.css-var(
-    text-color,
-    (
-      // 标题文字
-      title: #303133,
-      // 正文文字
-      main: #606266,
-
-      // 次级文字
-      second: #979797,
-      // 辅助文字
-      assist: #c0c4cc
-    )
-  );
+  @include m.css-var(text-color, vars.$text-colors);
 
   // 圆角
-  @include m.css-var(
-    radius,
-    (
-      small: 2px,
-      default: 4px,
-      large: 8px
-    )
-  );
+  @include m.css-var(radius, vars.$border-radius);
 
   // 阴影
   @include m.css-var(shadow, '0 1px 4px 0 #ccc');
@@ -76,14 +36,7 @@
   );
 
   // 字体大小
-  @include m.css-var(
-    font-size,
-    (
-      title: 16px,
-      main: 14px,
-      assist: 12px
-    )
-  );
+  @include m.css-var(font-size, vars.$font-sizes);
 
   // 边框
   @include m.css-var(
@@ -101,14 +54,7 @@
   );
 
   // 间距
-  @include m.css-var(
-    gap,
-    (
-      small: 4px,
-      default: 6px,
-      large: 8px
-    )
-  );
+  @include m.css-var(gap, vars.$gap);
 }
 
 // 初始化

@@ -9,14 +9,13 @@
       />
     </u-scroll>
 
-    <u-scroll tag="main" style="padding: var(--u-gap-default)">
+    <u-scroll tag="main" style="flex-grow: 1; padding: var(--u-gap-default)">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </u-scroll>
-
   </div>
 </template>
 
@@ -73,6 +72,7 @@ $width: 240px;
   width: $width;
   border-right: fn.use-var(border);
   padding: 4px 0;
+  flex-shrink: 0;
 }
 
 .aside {

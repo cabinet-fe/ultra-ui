@@ -118,3 +118,39 @@
     }
   }
 }
+
+@function breakpoint($point) {
+  @return map.get(vars.$breakpoints, $point);
+}
+
+@mixin xs {
+  @media screen and (min-width: 0) and (max-width: breakpoint(xs)) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media screen and (min-width: breakpoint(xs)) and (max-width: breakpoint(sm)) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media screen and (min-width: breakpoint(sm)) and (max-width: breakpoint(md)) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media screen and (min-width: breakpoint( md)) and (max-width: breakpoint(lg)) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media screen and (min-width: breakpoint(lg)) {
+    @content;
+  }
+}
+
+
