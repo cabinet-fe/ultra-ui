@@ -22,6 +22,13 @@
         <div class="content"></div>
       </main>
     </u-layout>
+
+    <h3>尺寸可调节</h3>
+    <u-layout cols="200px 1fr 300px" resizable>
+      <div class="nav"></div>
+      <aside class="aside"></aside>
+      <main class="main"></main>
+    </u-layout>
   </div>
 </template>
 
@@ -48,11 +55,9 @@
   height: 60px;
   box-shadow: 0 2px 4px rgba($color: #000000, $alpha: 0.1);
   background-color: #fff;
-
 }
 
 .content {
   height: calc(100% - 60px);
-
 }
 </style>
