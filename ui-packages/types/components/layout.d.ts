@@ -2,6 +2,11 @@ import type { DeconstructValue } from '../helper'
 
 /** 布局组件属性 */
 export interface LayoutProps {
+  /**
+   * 元素标签
+   * @default "div"
+   */
+  tag?: string
   /** 间距 */
   gap?: number | string
   /**
@@ -27,7 +32,7 @@ export interface LayoutProps {
    * [fr是什么?](https://developer.mozilla.org/zh-CN/docs/Web/CSS/flex_value)
    */
   rows?: string[] | string
-  /** 尺寸是否可调节 */
+  /** 尺寸是否可调节, 当为true时，可以拖拽控制条并且gap固定 */
   resizable?: boolean
 }
 
