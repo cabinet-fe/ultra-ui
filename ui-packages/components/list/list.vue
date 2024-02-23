@@ -1,6 +1,10 @@
 <template>
   <div :class="cls.b">
-    <ul :class="cls.e('item')" id="list">
+    <ul
+      :class="cls.e('item')"
+      @scroll="loadMore"
+      :style="{ height: props.infiniteScroll == true ? height + 'px' : '' }"
+    >
       <li
         v-for="(item, index) in visibleItems"
         :draggable="props.draggable"
@@ -9,12 +13,12 @@
         @drop="onDrop($event, index)"
         @dragend="onDragEnd"
       >
+        <!-- 自定义样式 -->
         <slot name="content" v-if="$slots.content" :item="item" :index="index" />
-
-        <div v-else :class="cls.e('list')">
+        <!-- 默认样式 -->
+        <div v-else :class="cls.e('container')">
           <!-- left  -->
           <div :class="cls.e('left')">
-            <!-- TODO v-model 值有点问题 -->
             <div :class="cls.e('checkbox')">
               <u-checkbox
                 v-model="item.checked"
@@ -41,25 +45,40 @@
 
           <!-- action -->
           <div :class="cls.e('action')" v-if="showActions">
-            <u-icon :size="16"><Delete @click="handleDelete(item, index)" /></u-icon>
-            <u-icon :size="16"><Message @click="handleMessage(item, index)" /></u-icon>
-            <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>
+            <u-button
+              circle
+              :icon="Delete"
+              size="small"
+              @click="handleDelete(item, index)"
+            ></u-button>
+            <u-button
+              circle
+              :icon="Message"
+              size="small"
+              @click="handleMessage(item, index)"
+            ></u-button>
+            <u-button
+              circle
+              :icon="Warning"
+              size="small"
+              @click="handleTip(item, index)"
+            ></u-button>
           </div>
           <!-- action end-->
         </div>
       </li>
+      <p v-if="props.infiniteScroll == true && noMore" :class="cls.e('loadMore')">没有更多了...</p>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
-import { UIcon } from '../icon'
 import { UCheckbox } from '../checkbox'
 import { UButton } from '../button'
 import { Delete, Message, Warning } from 'icon-ultra'
 import { bem } from '@ui/utils'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 defineOptions({
   name: 'List'
@@ -69,11 +88,19 @@ const cls = bem('list')
 const emit = defineEmits<ListEmits>()
 
 const props = withDefaults(defineProps<Partial<ListProps>>(), {
-  itemsPerPage: 10
+  /** 每页显示多少条 */
+  itemsPerPage: 20,
+
+  /** 是否无限滚动 */
+  infiniteScroll: false
 })
 
+const height = document.documentElement.clientHeight
 /** 是否拖拽 */
 // let draggable = ref(true)
+
+/** 没有更多了 */
+const noMore = ref(false)
 
 /** 所有列表 */
 const items = ref<any>(props.data)
@@ -99,27 +126,24 @@ const showLoadMoreButton = computed(() => {
 })
 
 /** 加载更多 */
-const loadMore = () => {
-  // visibleItems.value.length < items.value.length
-  // console.log(1)
+const loadMore = e => {
+  if (props.infiniteScroll == false) return
+  let scrollTop = e.target.scrollTop
 
-  // currentPage.value++
+  let scrollHeight = e.target.scrollHeight
 
-  console.log(visibleItems.value.length, 'visibleItems.value.length')
-  console.log(items.value.length, 'items.value.length')
-  if (visibleItems.value.length < items.value.length) {
-    console.log('没有更多了...')
+  let clientHeight = e.target.clientHeight
+
+  console.log(scrollTop, 'scrollTop', clientHeight, 'clientHeight', scrollHeight, 'scrollHeight')
+
+  if (scrollTop + clientHeight == scrollHeight) {
+    console.log('没有更多了')
+    noMore.value = true
   } else {
-    console.log('else')
+    // loading.value = true
     currentPage.value++
   }
 }
-
-nextTick(() => {
-  let ulElement = document.getElementById('list')
-  console.log(ulElement, 'ulElement')
-  ulElement?.addEventListener('scroll', loadMore)
-})
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {

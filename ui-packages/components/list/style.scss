@@ -7,10 +7,9 @@
   border: 1px solid fn.use-var(border-color);
 
   @include m.e('item') {
-    height: 300px;
-    overflow-y: scroll;
+    overflow: auto;
   }
-  @include m.e(list) {
+  @include m.e(container) {
     display: flex;
     flex-wrap: wrap;
     padding: 10px;
