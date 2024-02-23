@@ -14,7 +14,7 @@
       <div :class="store.cls.e('tbody-item')">
         <div @click="e => handleClick(e, dataIndex, dataItem, columnsItem)">
           <span
-            :class="[store.cls.em('tbody-item', 'tree'), isClass]"
+            :class="classList"
             @click="handleChildClass"
             v-if="columnsIndex === 0 && dataItem?.children"
           >
@@ -49,16 +49,13 @@ const handleClick = (
   dataItem: Record<string, any>,
   columnsItem: RowFormColumn
 ) => {
-
   emits('item-click', event, dataIndex, dataItem, columnsItem)
 }
 /** 是否是展开的 */
 const launch = ref(false)
 
-const isClass = computed(() => {
-  return launch.value
-    ? bem.is('launch', launch.value)
-    : bem.is('put-it-away', launch.value)
+const classList = computed(() => {
+  return [store.cls.em('tbody-item', 'tree'), bem.is('launch', launch.value)]
 })
 
 const handleChildClass = () => {

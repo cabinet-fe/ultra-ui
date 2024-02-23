@@ -19,7 +19,6 @@
         />
         <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
       </template>
-
     </row-form-body-item>
 
     <Teleport to="body">
@@ -30,9 +29,9 @@
         :class="store.cls.e('context-info')"
       >
         <div
-          v-for="item of operationArray"
+          v-for="(item, index) of operationArray"
           :class="store.cls.em('context-info', 'operation')"
-          @click="handleOperationData(item)"
+          @click="handleOperationData(item, index)"
         >
           {{ item['name'] }}
         </div>
@@ -115,11 +114,11 @@ const blurForm = (event: Event) => {
 let dbIndex = ref(0)
 
 /** 操作栏 */
-const handleOperationData = (item: Record<string, any>) => {
+const handleOperationData = (item: Record<string, any>, index: number) => {
   if (item['key'] === 'delete') {
     handleDeleteData()
   } else if (item['key'] === 'insert') {
-    handleDeleteInsertData()
+    handleDeleteInsertData(index)
   }
 }
 
@@ -138,8 +137,9 @@ const handleDeleteData = () => {
 }
 
 /** 插入 */
-const handleDeleteInsertData = () => {
+const handleDeleteInsertData = (index: number) => {
   console.log('插入')
+  // store.modelData.splice(index, {})
 }
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */

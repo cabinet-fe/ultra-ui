@@ -5,7 +5,11 @@
 @include m.b(list) {
   border-radius: 5px;
   border: 1px solid fn.use-var(border-color);
-  @include m.e(list) {
+
+  @include m.e('item') {
+    overflow: auto;
+  }
+  @include m.e(container) {
     display: flex;
     flex-wrap: wrap;
     padding: 10px;

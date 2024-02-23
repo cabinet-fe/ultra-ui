@@ -48,10 +48,13 @@ export interface ListProps {
   itemsPerPage: number
 
   /** 显示加载更多 */
-  showLoadMore?: boolean
+  // showLoadMore?: boolean
 
   /** 是否拖拽 */
   draggable?: boolean
+
+  /** 是否无限滚动 */
+  infiniteScroll?: boolean
 }
 
 export interface ListEmits {

@@ -24,6 +24,8 @@ export * from './icon'
 
 export * from './input'
 
+export * from './layout'
+
 export * from './list'
 
 export * from './node-render'
