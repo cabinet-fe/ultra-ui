@@ -38,6 +38,7 @@ declare module 'vue' {
     UTabs: typeof import('ultra-ui')['UTabs']
     UText: typeof import('ultra-ui')['UText']
     UTip: typeof import('ultra-ui')['UTip']
+    UTipV2: typeof import('ultra-ui')['UTipV2']
     UTree: typeof import('ultra-ui')['UTree']
     UUploader: typeof import('ultra-ui')['UUploader']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']

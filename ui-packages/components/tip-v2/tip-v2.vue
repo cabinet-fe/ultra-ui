@@ -1,6 +1,13 @@
 <template>
-  <!-- <newSlot :vnode="defaultSlot" /> -->
-  <div
+  <newSlot
+    :vnode="defaultSlot"
+    @mouseenter.self="handleMouseOver"
+    @mouseleave.self="handleMouseOut"
+    @click="handleClick"
+    :class="cls.b"
+    ref="tipRef"
+  />
+  <!-- <div
     :class="cls.b"
     ref="tipRef"
     @mouseenter.self="handleMouseOver"
@@ -8,7 +15,8 @@
     @click="handleClick"
   >
     <slot></slot>
-  </div>
+  </div> -->
+
   <!-- 传送门 -->
   <teleport to="body">
     <div
@@ -48,7 +56,6 @@ const props = withDefaults(defineProps<TipProps>(), {
   mouseEnterable: true,
 })
 
-
 const cls = bem("tip-v2")
 
 const slots = useSlots()
@@ -58,7 +65,7 @@ const defaultSlot = slots.default && slots.default()[0]
 /**是否浅色主题 */
 const whetherLightTheme = props.theme === "light"
 
-/**tip弹窗class */        
+/**tip弹窗class */
 const contentClass = computed(() => {
   return [
     cls.e("content"),
@@ -98,7 +105,7 @@ let tipRef = shallowRef<HTMLElement>()
 let tipContentRef = shallowRef<HTMLElement>()
 
 /**是否显示 */
-let visible = ref(true)
+let visible = ref(false)
 
 let timeClick: Undef<number> = undefined
 
@@ -114,8 +121,6 @@ let arrowStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
 const handleMouseOver = (e) => {
-  console.log(e, "handleMouseOverhandleMouseOver")
-
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
@@ -128,17 +133,15 @@ const handleMouseOver = (e) => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  return
-
-  if (props.triggerPopUpMode !== "hover") return
-  clearTimeout(timeMouseOut)
-  timeMouseOut = setTimeout(() => {
-    visible.value = false
-    dynamicStyle.value = {
-      opacity: 0,
-    }
-    arrowStyle.value = {}
-  }, 300)
+  // if (props.triggerPopUpMode !== "hover") return
+  // clearTimeout(timeMouseOut)
+  // timeMouseOut = setTimeout(() => {
+  //   visible.value = false
+  //   dynamicStyle.value = {
+  //     opacity: 0,
+  //   }
+  //   arrowStyle.value = {}
+  // }, 300)
 }
 
 /**鼠标移入弹窗内容区域 */
@@ -165,17 +168,19 @@ const handleClick = (e) => {
 }
 
 /**鼠标移入/点击元素的dom信息 */
-const mouseEventDom = (e) => {
-  console.log(e)
-
+const mouseEventDom = async(e) => {
+  await nextTick()
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
-
+  
   if (!tipRefDom) return
+  console.log(tipRefDom.vnode);
+
   let {x} = tipRefDom?.getBoundingClientRect()
 
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
-
+  console.log(clientWidth, clientHeight, offsetLeft);
+  
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (
     props.position.indexOf("top") > -1 ||
@@ -222,7 +227,5 @@ const mouseEventDom = (e) => {
 const newSlot = createSlot({handleMouseOver, handleMouseOut, handleClick})
 
 // 在组件挂载后调用
-onMounted(() => {
-  // registerDirective()
-})
+onMounted(() => {})
 </script>
