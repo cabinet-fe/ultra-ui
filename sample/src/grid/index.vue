@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      自定义栅格
+      <h3>自定义栅格</h3>
       <div>
         列属性 {{ columns }} 一行列数: {{ cols }}
         <u-number-input v-model="cols" />
@@ -19,27 +19,20 @@
       </div>
     </u-grid>
 
-    <div>两栏布局</div>
-    <u-grid cols="200px 1fr" :gap="8">
-      <div class="col-item">侧边栏</div>
-
-      <div class="col-item">内容</div>
-    </u-grid>
-
     <div>嵌套</div>
 
-    <u-grid :cols="['200px', '1fr']" :gap="8">
-      <div class="col-item">侧边栏</div>
+    <u-grid :cols="2" :gap="8">
+      <div class="col-item"></div>
 
-      <u-grid cols="200px 1fr" :gap="8">
-        <div class="col-item">二级侧边栏</div>
-        <div class="col-item">内容</div>
+      <u-grid :cols="2" :gap="8">
+        <div class="col-item"></div>
+        <div class="col-item"></div>
       </u-grid>
     </u-grid>
 
     <div>响应式布局, 基于容器自身 {{ width }}</div>
-    <u-grid :gap="8" @resize="width = $event.width">
-      <u-grid-item :span="2" :xs="0" v-for="i of 6">
+    <u-grid :gap="8" :cols="{ xs: 12, default: 24 }" @resize="width = $event.width">
+      <u-grid-item :span="2" class="col-item" :xs="0" v-for="i of 6">
         <div class="col-item">{{ i + 1 }}</div>
       </u-grid-item>
     </u-grid>
