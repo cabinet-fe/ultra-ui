@@ -104,7 +104,9 @@ const styleValue = shallowReactive({
   justify-content: space-around;
 }
 .tip-box {
+  width: 800px;
   padding-top: 100px;
+  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;

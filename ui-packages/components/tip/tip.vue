@@ -171,13 +171,14 @@ const mouseEventDom = () => {
   const tipRefDom = tipRef.value
   if (!tipRefDom) return
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
-
+  console.log(offsetLeft + 240,'---');
+  
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (
     props.position.indexOf("top") > -1 ||
     props.position.indexOf("bottom") > -1
   ) {
-    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 20}px)`
+    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
   }
 
   /**tip提示的DOM信息 */
@@ -201,10 +202,12 @@ const mouseEventDom = () => {
         maxWidth:
           props.position.indexOf("top") > -1 ||
           props.position.indexOf("bottom") > -1
-            ? `calc(100vw - ${offsetLeft + 24}px)`
+            ? `calc(100vw - ${offsetLeft + 256}px)`
             : dynamicCss.value.maxWidth,
       },
     }
+    console.log(dynamicStyle.value);
+    
     arrowStyle.value = {
       ...arrowCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),

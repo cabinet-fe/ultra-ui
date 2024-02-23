@@ -157,7 +157,7 @@ function rightCount(
     dynamicCss.value.bottom = 0 + "px"
   }
 
-  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft + 150}px)`
+  dynamicCss.value.maxWidth = `calc(100vw - ${offsetLeft + 140 + 240}px)`
 }
 
 /**
@@ -191,7 +191,7 @@ function leftCount(
     dynamicCss.value.bottom = 0 + "px"
   }
 
-  dynamicCss.value.maxWidth = `calc(${offsetLeft - (elementWidth/2/2)}px)`
+  dynamicCss.value.maxWidth = `calc(${offsetLeft - elementWidth / 2 / 2}px)`
 }
 
 /**
