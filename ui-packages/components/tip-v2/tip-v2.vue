@@ -1,4 +1,5 @@
 <template>
+  <!-- <newSlot :vnode="defaultSlot" /> -->
   <div
     :class="cls.b"
     ref="tipRef"
@@ -6,9 +7,10 @@
     @mouseleave.self="handleMouseOut"
     @click="handleClick"
   >
-    <!-- 点击元素 -->
-    <slot />
-    <!-- tip提示框 -->
+    <slot></slot>
+  </div>
+  <!-- 传送门 -->
+  <teleport to="body">
     <div
       :class="contentClass"
       v-if="visible"
@@ -16,12 +18,6 @@
       ref="tipContentRef"
       @mouseenter="handleContentMouseOver"
       @mouseleave="handleMouseOut"
-      @click="
-        (e) => {
-          e.stopPropagation()
-        }
-      "
-      v-click-outside="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -29,16 +25,16 @@
       <!-- 箭头 -->
       <span :class="arrowClass" :style="arrowStyle"></span>
     </div>
-  </div>
+  </teleport>
 </template>
 
 <script lang="ts" setup>
 import type {TipProps} from "@ui/types/components/tip"
 import type {Undef} from "@ui/utils"
+import createSlot from "./createSlot"
 import {bem} from "@ui/utils"
-import {ref, shallowRef, nextTick, computed} from "vue"
+import {ref, shallowRef, nextTick, computed, useSlots, onMounted} from "vue"
 import countPosition from "./position"
-import vClickOutside from "@ui/directives/click-outside"
 
 defineOptions({
   name: "Tip",
@@ -52,12 +48,17 @@ const props = withDefaults(defineProps<TipProps>(), {
   mouseEnterable: true,
 })
 
-const cls = bem("tip")
 
+const cls = bem("tip-v2")
+
+const slots = useSlots()
+
+// 这里获取到的是默认插槽的vnode，但拿不到对应的dom实例
+const defaultSlot = slots.default && slots.default()[0]
 /**是否浅色主题 */
 const whetherLightTheme = props.theme === "light"
 
-/**tip弹窗class */
+/**tip弹窗class */        
 const contentClass = computed(() => {
   return [
     cls.e("content"),
@@ -97,7 +98,7 @@ let tipRef = shallowRef<HTMLElement>()
 let tipContentRef = shallowRef<HTMLElement>()
 
 /**是否显示 */
-let visible = ref(false)
+let visible = ref(true)
 
 let timeClick: Undef<number> = undefined
 
@@ -112,19 +113,23 @@ let dynamicStyle = ref<Record<string, any>>({})
 let arrowStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
-const handleMouseOver = () => {
+const handleMouseOver = (e) => {
+  console.log(e, "handleMouseOverhandleMouseOver")
+
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(() => {
     visible.value = true
     nextTick(() => {
-      mouseEventDom()
+      mouseEventDom(e)
     })
   }, 100)
 }
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
+  return
+
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
@@ -142,15 +147,15 @@ const handleContentMouseOver = () => {
   clearTimeout(timeMouseOut)
 }
 
-const handleClick = () => {
+const handleClick = (e) => {
   if (props.triggerPopUpMode !== "click") return
-
+  if (visible.value) return
   clearTimeout(timeClick)
   timeClick = setTimeout(() => {
-    visible.value = !visible.value
+    visible.value = true
     if (visible.value) {
       nextTick(() => {
-        mouseEventDom()
+        mouseEventDom(e)
       })
     } else {
       dynamicStyle.value = {}
@@ -159,17 +164,16 @@ const handleClick = () => {
   }, 300)
 }
 
-const handleClickOutside = () => {
-  if (props.triggerPopUpMode === "hover") return
-  console.log("隐藏弹窗")
-  visible.value = false
-}
-
 /**鼠标移入/点击元素的dom信息 */
-const mouseEventDom = () => {
+const mouseEventDom = (e) => {
+  console.log(e)
+
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
+
   if (!tipRefDom) return
+  let {x} = tipRefDom?.getBoundingClientRect()
+
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
@@ -177,7 +181,9 @@ const mouseEventDom = () => {
     props.position.indexOf("top") > -1 ||
     props.position.indexOf("bottom") > -1
   ) {
-    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 20}px)`
+    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 20 + 240}px)`
+  } else {
+    dynamicStyle.value.maxWidth = `calc(${x - 26}px)`
   }
 
   /**tip提示的DOM信息 */
@@ -194,21 +200,29 @@ const mouseEventDom = () => {
 
   nextTick(async () => {
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
+
     dynamicStyle.value = {
       ...dynamicCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),
-      ...{
-        maxWidth:
-          props.position.indexOf("top") > -1 ||
-          props.position.indexOf("bottom") > -1
-            ? `calc(100vw - ${offsetLeft + 24}px)`
-            : dynamicCss.value.maxWidth,
-      },
+      // ...{
+      //   maxWidth:
+      //     props.position.indexOf("top") > -1 ||
+      //     props.position.indexOf("bottom") > -1
+      //       ? `calc(100vw - ${offsetLeft + 24 + 240}px)`
+      //       : dynamicCss.value.maxWidth,
+      // },
     }
     arrowStyle.value = {
       ...arrowCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),
     }
+    console.log(dynamicStyle.value, "dynamicStyledynamicStyle")
   })
 }
+const newSlot = createSlot({handleMouseOver, handleMouseOut, handleClick})
+
+// 在组件挂载后调用
+onMounted(() => {
+  // registerDirective()
+})
 </script>

@@ -3,13 +3,12 @@
     <h4>Hover</h4>
     <div class="tip-row flex-row">
       <u-tip :custom-style="styleValue" model-value="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左" position="top-start">
-        <u-button @click="() => c.log(123)">上左上左上左上左上左</u-button>
-
+        <u-button>上左上左上左上左上左</u-button>
       </u-tip>
       <u-tip model-value="上中-鼠标不可进入tip区域" position="top" :mouse-enterable="false">
         <u-button>鼠标不可进入tip区域</u-button>
       </u-tip>
-      <u-tip model-value="上右" position="top-end" theme="light">
+      <u-tip model-value="上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右" position="top-end" theme="light">
         <u-button>上右上右 Light</u-button>
       </u-tip>
     </div>
@@ -27,13 +26,13 @@
       </div>
       <div class="tip-column flex-column">
         <u-tip model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上" position="right-start">
-          <u-button>右上右上右上</u-button>
+          <u-button >右上右上右上</u-button>
         </u-tip>
         <u-tip model-value="右中" position="right">
           <u-button>右中右中右中右中</u-button>
         </u-tip>
         <u-tip model-value="右下" position="right-end" theme="light">
-          <u-button>右下右下 Light</u-button>
+          <u-button>右下右下Light</u-button>
         </u-tip>
       </div>
     </div>
@@ -52,7 +51,6 @@
     <h4 class="pd20">Click</h4>
     <div class="tip-row flex-row">
       <u-tip
-        content="自定义样式"
         :trigger-pop-up-mode="'click'"
         theme="light"
         position="top-start"
@@ -79,8 +77,7 @@
         <u-button>点击下右下右 Light</u-button>
       </u-tip>
     </div>
-
-    <div style="height: 100vh"></div>
+    <div style="height: 100vh;"></div>
   </div>
 </template>
 
@@ -108,8 +105,6 @@ const styleValue = shallowReactive({
 }
 .tip-box {
   padding-top: 100px;
-  width: 600px;
-  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;
