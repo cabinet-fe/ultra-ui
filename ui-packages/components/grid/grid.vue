@@ -6,7 +6,12 @@
 
 <script lang="ts" setup>
 import { bem, isFragment } from '@ui/utils'
-import type { GridProps, GridEmits } from '@ui/types/components/grid'
+import type {
+  GridProps,
+  GridEmits,
+  Breakpoint,
+  BreakpointName
+} from '@ui/types/components/grid'
 import { GridDIKey } from './di'
 import {
   type CSSProperties,
@@ -37,6 +42,8 @@ const cls = bem('grid')
 
 const slots = useSlots()
 
+const currentBreakpoint = shallowRef<Breakpoint>()
+
 const style = computed<CSSProperties>(() => {
   const { cols, gap } = props
   const styles: CSSProperties = {}
@@ -44,12 +51,20 @@ const style = computed<CSSProperties>(() => {
     styles.columnGap = gap + 'px'
   }
   if (cols) {
-    if (Array.isArray(cols)) {
-      styles.gridTemplateColumns = cols.join(' ')
-    } else if (typeof cols === 'string') {
-      styles.gridTemplateColumns = cols
-    } else {
+    if (typeof cols === 'number') {
       styles.gridTemplateColumns = `repeat(${cols}, 1fr)`
+    } else if (typeof cols === 'function') {
+      if (currentBreakpoint.value) {
+        styles.gridTemplateColumns = `repeat(${cols(
+          currentBreakpoint.value
+        )}, 1fr)`
+      }
+    } else {
+      if (currentBreakpoint.value) {
+        const breakpoint =
+          cols[currentBreakpoint.value.name] || (cols.default ?? 24)
+        styles.gridTemplateColumns = `repeat(${breakpoint}, 1fr)`
+      }
     }
   }
   return styles
@@ -110,16 +125,50 @@ const setResponsive = (enable: boolean) => {
   responsive.value = enable
 }
 
+/**
+ * 获取容器断点
+ * @param width
+ */
+const getContainerBreakpoint = (width: number): Breakpoint => {
+  let name: BreakpointName
+  let level: number
+  if (width < 600) {
+    name = 'xs'
+    level = 1
+  } else if (width < 960) {
+    name = 'sm'
+    level = 2
+  } else if (width < 1280) {
+    name = 'md'
+    level = 3
+  } else if (width < 1920) {
+    name = 'lg'
+    level = 4
+  } else {
+    name = 'xl'
+    level = 5
+  }
+  return {
+    name,
+    level,
+    width
+  }
+}
+
 /** 容器尺寸监听器 */
 let observer: Undef<ResizeObserverReturn>
 watchEffect(() => {
-  console.log(responsive.value)
+  if (props.cols && typeof props.cols !== 'number') {
+    setResponsive(true)
+  }
+
   if (responsive.value) {
     observer = useResizeObserver({
       target: gridRef,
       onResize([entry]) {
         const target = entry!.target as HTMLElement
         const rect = target.getBoundingClientRect()
+        currentBreakpoint.value = getContainerBreakpoint(rect.width)
         emit('resize', rect)
       }
     })
