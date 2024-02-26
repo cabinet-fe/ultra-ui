@@ -5,15 +5,17 @@
 @include m.b(list) {
   border-radius: 5px;
   border: 1px solid fn.use-var(border-color);
-  @include m.e(item) {
-    & > li {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 10px;
-      box-sizing: border-box;
-      &:hover {
-        background-color: fn.use-var(color-info-light-9);
-      }
+
+  @include m.e('item') {
+    overflow: auto;
+  }
+  @include m.e(container) {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    box-sizing: border-box;
+    &:hover {
+      background-color: fn.use-var(color-info-light-9);
     }
   }
 
@@ -43,6 +45,8 @@
   }
 
   @include m.e(action) {
+    margin-left: 20px;
+    color: fn.use-var(color-primary);
     align-self: center;
     & > .u-icon {
       margin-right: 10px;
@@ -51,5 +55,10 @@
     & > .u-icon:last-child {
       margin-right: 0px;
     }
+  }
+
+  @include m.e(loadMore) {
+    text-align: center;
+    margin: 10px 0;
   }
 }

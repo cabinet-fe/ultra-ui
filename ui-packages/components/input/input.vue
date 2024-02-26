@@ -9,7 +9,7 @@
 import type { InputEmits, InputProps, _InputExposed } from '@ui/types/components/input'
 import { UFormItem } from '../form-item'
 import { getFormItemProps } from '../form-item/utils'
-import { useModel, useFormComponent, useFocus } from '@ui/compositions'
+import { useFormComponent, useFocus } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import {
   computed,
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<InputProps>(), {
 
 const emit = defineEmits<InputEmits>()
 
-const model = useModel({ props, emit })
+const model = defineModel()
 
 const inst = getCurrentInstance()
 

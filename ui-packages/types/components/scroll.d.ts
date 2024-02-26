@@ -20,6 +20,12 @@ export interface ScrollProps {
    * @default 100%
    */
   height?: string | number
+
+  /**
+   * 总是显示滚动条
+   * @default false
+   */
+  always?: boolean
 }
 
 export interface ScrollEmits {
@@ -32,6 +38,11 @@ export interface _ScrollExposed {
    * @param position 位置
    */
   scrollTo(position: ScrollPosition): void
+
+  /**
+   * 更新滚动条状态
+   */
+  update(): void
 
   /** Scroll模板元素 */
   scrollRef: ShallowRef<HTMLElement | undefined>

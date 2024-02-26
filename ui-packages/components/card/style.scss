@@ -45,6 +45,11 @@
 
   @include m.e(action) {
     border-top: fn.use-var(border);
+
+    #{fn.bem(button)} + #{fn.bem(button)} {
+      margin-left: fn.use-var(gap, default);
+    }
+
   }
 
   // @include m.is(always-shadow) {

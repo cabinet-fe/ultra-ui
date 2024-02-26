@@ -7,7 +7,8 @@
     "@ui/shared": "workspace:*",
     "@ui/styles": "workspace:*",
     "@ui/components": "workspace:*",
-    "@ui/directives": "workspace:*"
+    "@ui/directives": "workspace:*",
+    "@ui/types": "workspace:*"
   },
   "module": "./index.ts",
   "main": "./index.ts",

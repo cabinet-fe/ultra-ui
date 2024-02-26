@@ -35,7 +35,7 @@ export function useDrag(options: DragOptions) {
     if (e.button !== 0) return
     // 放置拖拽时选择内容
     window.getSelection()?.removeAllRanges()
-    // 组织后续的事件监听器被执行
+    // 阻止后续的事件监听器被执行
     e.stopImmediatePropagation()
 
     originX = e.x

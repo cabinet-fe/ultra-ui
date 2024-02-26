@@ -1,21 +1,33 @@
 import '@ui/styles'
 import { CLS_PREFIX } from '@ui/shared'
 
-type ColorTypes = 'primary' | 'info' | 'success' | 'warning' | 'danger'
-
 // 设置颜色类别的派生色, 分别和黑色和白色混合
 const computedStyles = getComputedStyle(document.documentElement)
 
-function getColorVars(names: ColorTypes[]) {
+type ColorType = 'text-color' | 'bg-color' | 'color'
+
+/**
+ * 获取颜色的变量值列表
+ * @param type 颜色类型
+ * @param names 颜色名称
+ * @returns
+ */
+function getColorVars(type: ColorType, names: string[]) {
   return names.map(name => ({
     name,
     color: computedStyles
-      .getPropertyValue(`--u-color-${name}`)
+      .getPropertyValue(`--u-${type}-${name}`)
       .trim() as `#${string}`
   }))
 }
 
-const colors = getColorVars(['primary', 'success', 'warning', 'danger', 'info'])
+const colors = getColorVars('color', [
+  'primary',
+  'success',
+  'warning',
+  'danger',
+  'info'
+])
 
 type ColorRGB = [number, number, number]
 
@@ -61,9 +73,12 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
   return (
     '#' +
     color1RGB
-      .map((n, i) =>
-        Math.floor(color1Ratio * n + color2RGB[i]! * ratio).toString(16)
-      )
+      .map((n, i) => {
+        const hex = Math.floor(
+          color1Ratio * n + color2RGB[i]! * ratio
+        ).toString(16)
+        return hex.length === 1 ? '0' + hex : hex
+      })
       .join('')
   )
 }
@@ -88,7 +103,7 @@ if (originStyleEle) {
 const styleEle = document.createElement('style')
 styleEle.id = styleID
 
-const vars = colors
+const colorVars = colors
   .map(({ name, color }) => {
     // 多类型混合
     return colorMixedType
@@ -108,6 +123,13 @@ const vars = colors
   })
   .join(';')
 
-styleEle.innerText = `:root {${vars}}`
+const bgColorVars = getColorVars('bg-color', ['top', 'middle', 'bottom'])
+  .map(item => {
+    const { name, color } = item
+    return `--${CLS_PREFIX}bg-color-${name}-alpha: ${color}cc`
+  })
+  .join(';')
+
+styleEle.innerText = `:root {${colorVars}; ${bgColorVars};`
 
 document.head.append(styleEle)

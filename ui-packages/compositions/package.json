@@ -8,6 +8,7 @@
   "author": "whj",
   "dependencies": {
     "@ui/shared": "workspace:*",
-    "@ui/types": "workspace:*"
+    "@ui/types": "workspace:*",
+    "@ui/utils": "workspace:*"
   }
 }

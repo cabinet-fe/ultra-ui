@@ -2,25 +2,47 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(dialog) {
-  background-color: fn.use-var(bg-color, bottom);
+$root-name: dialog;
+
+@include m.bem($root-name, overlay) {
+  pointer-events: auto;
+  background: rgba($color: #000000, $alpha: 0.32);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+
+  @include m.flex($justify: center);
+}
+
+@include m.b($root-name) {
   border-radius: fn.use-var(radius, large);
-  overflow: hidden;
-  transform: scale3d(0, 0, 1) translate(0, 0);
-  max-height: 90vh;
   will-change: transform;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  flex-wrap: nowrap;
 
-  // 透明层
-  @include m.e(overlay) {
-    pointer-events: auto;
-    background: rgba($color: #000000, $alpha: 0.32);
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
+  @include m.e(header, footer) {
+    flex-shrink: 0;
+    overflow: hidden;
 
-    @include m.flex($justify: center);
+    @include m.is(background-blur) {
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        background-color: fn.use-var(bg-color, middle, alpha);
+        backdrop-filter: blur(6px);
+        transform: translate3d(0, 0, 0);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+    }
   }
 
   // 弹框头
@@ -28,23 +50,49 @@
     height: 49px;
     padding: 0 8px;
     border-bottom: fn.use-var(border);
-    background-color: fn.use-var(bg-color, top);
+    border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
+
+    &:active {
+      cursor: move;
+    }
 
     @include m.flex($justify: space-between);
   }
 
+  @include m.e(title) {
+    font-size: fn.use-var(font-size, title);
+    line-height: 1em;
+  }
+
   @include m.e(body) {
-    padding: 0 8px;
+    padding: 8px;
+    background-color: fn.use-var(bg-color, top);
+    flex-grow: 1;
+    overflow: auto;
+  }
+
+  @include m.e(footer) {
+    border-top: fn.use-var(border);
+    padding: 8px;
+    text-align: right;
+    border-radius: 0 0 fn.use-var(gap, default) fn.use-var(gap, default);
+
+    #{fn.bem(button)} + #{fn.bem(button)} {
+      margin-left: fn.use-var(gap, default);
+    }
   }
 
   @include m.e(buttons) {
-    & > #{fn.bem(icon)} {
-      &:not(:first-child) {
-        margin-left: fn.use-var(gap, default);
+    font-size: 0;
+    & > {
+      @include m.bem(icon) {
+        &:not(:first-child) {
+          margin-left: fn.use-var(gap, default);
+        }
       }
     }
   }
-  @include m.e(btn-close, btn-minimize, btn-maximize) {
+  @include m.e(btn-close, btn-minimize, btn-maximize, btn-recover) {
     border-radius: 50%;
     overflow: hidden;
     color: #fff;
@@ -70,38 +118,43 @@
   @include m.e(btn-minimize) {
     background-color: #e4bf2e;
   }
-  @include m.e(btn-maximize) {
+  @include m.e(btn-maximize, btn-recover) {
     background-color: #34c759;
-  }
-
-  @include m.m(maximum) {
-    transition-property: width, height;
-    transition-duration: 0.25s;
-    transition-timing-function: cubic-bezier(0.76, 0, 0.44, 1.3);
-
-    width: 100vw !important;
-    height: 100vh !important;
-    transform: scale3d(1, 1, 1) translate(0, 0) !important;
-    max-height: 100vh;
   }
 }
 
 // 弹框透明层动画进入和离开时应用的类
-.dialog-overlay-enter-active,
-.dialog-overlay-leave-active {
-  transition: opacity 0.35s;
+.#{$root-name}-overlay-enter-active,
+.#{$root-name}-overlay-leave-active {
+  transition: opacity 0.25s;
 }
 
-.dialog-overlay-enter-from,
-.dialog-overlay-leave-to {
+.#{$root-name}-overlay-enter-from,
+.#{$root-name}-overlay-leave-to {
   opacity: 0;
 }
 
-// .dialog-enter-to {
-//   transform: scale3d(1, 1, 1);
-// }
+// 弹框最大化动画进入后的类
+.#{$root-name}-maximize-enter-to {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh;
+  transform: translate(0, 0) scale3d(1, 1, 1) !important;
+  @include m.bem($root-name, header) {
+    &:active {
+      cursor: default;
+    }
+  }
+}
 
-// .dialog-enter-active,
-// .dialog-leave-active {
-//   transition: transform 0.35s cubic-bezier(0.76, 0, 0.44, 1.35);
-// }
+// 弹框最大化动画激活时的类
+.#{$root-name}-maximize-enter-active,
+.#{$root-name}-maximize-leave-active {
+  transition-property: width, height, transform;
+  transition-duration: 0.25s;
+}
+
+// 移除动画激活时保证最大高度为100vh
+.#{$root-name}-maximize-leave-active {
+  max-height: 100vh;
+}

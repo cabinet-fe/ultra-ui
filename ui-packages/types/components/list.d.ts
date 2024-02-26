@@ -43,6 +43,18 @@ export interface ListProps {
 
   /** 操作组 */
   action?: ActionOptions[]
+
+  /** 每页显示多少条 */
+  itemsPerPage: number
+
+  /** 显示加载更多 */
+  // showLoadMore?: boolean
+
+  /** 是否拖拽 */
+  draggable?: boolean
+
+  /** 是否无限滚动 */
+  infiniteScroll?: boolean
 }
 
 export interface ListEmits {

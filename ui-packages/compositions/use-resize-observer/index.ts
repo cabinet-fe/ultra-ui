@@ -7,7 +7,8 @@ interface ResizeObserverOptions {
   onResize: ResizeObserverCallback
 }
 
-type ResizeObserverReturn = {
+/** 监听器 */
+export type ResizeObserverReturn = {
   /** 终止监听 */
   disconnect: () => void
 }
@@ -42,6 +43,9 @@ export function useResizeObserver(
 
   return {
     disconnect() {
+      if (target.value) {
+        observer.unobserve(target.value)
+      }
       observer.disconnect()
     }
   }

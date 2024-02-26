@@ -1,0 +1,102 @@
+@use 'sass:map';
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(radio-button) {
+    @include m.flex($display: flex, $align: center);
+    margin: 4px;
+    background-color: fn.use-var(bg, color, top);
+    border: fn.use-var(border);
+    border-color: fn.use-var(border, color);
+    border-radius: fn.use-var(radius, default);
+    &:hover {
+        color: fn.use-var(color, primary);
+    }
+    @include m.m(label) {
+        cursor: pointer;
+        @include m.flex($display: flex, $align: center);
+    }
+    @include m.e(input) {
+        margin: 0;
+        width: fn.use-var(font-size-main);
+        height: fn.use-var(font-size-main);
+        margin-right: 8px;
+        cursor: pointer;
+
+    }
+
+    @include m.e(inner) {
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        border: fn.use-var(border);
+        border-radius: 50%;
+        position: relative;
+
+        &::after {
+            width: 4px;
+            height: 4px;
+            border-radius: 100%;
+            background-color: fn.use-var(bg-color-top);
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform .15s ease-in;
+        }
+
+        &:hover {
+            color: fn.use-var(color, primary);
+            border-color: fn.use-var(color, primary);
+        }
+    }
+
+    // 按钮尺寸
+    @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+        @each $type, $val in $types {
+            #{$type}: $val;
+        }
+    }
+
+    @include m.is(checked) {
+        color: fn.use-var(color, primary);
+        transition: all .3s ease-in-out;
+
+        @include m.bem(radio-button, inner) {
+            background: fn.use-var(color, primary);
+
+            &::after {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    }
+
+    @include m.is(disabled) {
+        cursor: not-allowed;
+        opacity: 0.8;
+        pointer-events: none;
+        color: fn.use-var(text, color, second);
+
+        &:hover {
+            color: fn.use-var(text, color, second);
+        }
+
+        @include m.bem(radio-button, inner) {
+            background: none;
+            border-color: fn.use-var(text, color, second);
+
+            &:hover {
+                border-color: fn.use-var(text, color, second);
+            }
+
+            &::after {
+                width: 6px;
+                height: 6px;
+                background-color: fn.use-var(text, color, second);
+            }
+        }
+    }
+}

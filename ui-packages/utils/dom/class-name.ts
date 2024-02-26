@@ -74,20 +74,21 @@ function bem<N extends string, B extends `${CLSType}${N}` = `${CLSType}${N}`>(
 }
 
 /**
- * 生成辅助
+ * 生成is辅助类
  * @param name 辅助类名称
  */
 function is<const N extends string>(name: N): `is-${N}`
 /**
- * 生成辅助类
+ * 生成is辅助类
  * @param name 辅助类名称
  * @param condition 辅助类显示条件
  */
-function is<N extends string, C extends boolean>(
+function is<const N extends string, C extends boolean | undefined>(
   name: N,
   condition: C
 ): C extends true ? `is-${N}` : ''
-function is<N extends string>(name: N, condition?: undefined | boolean) {
+
+function is<N extends string>(name: N, condition?: boolean): any {
   return condition === false ? '' : (`is-${name}` as const)
 }
 

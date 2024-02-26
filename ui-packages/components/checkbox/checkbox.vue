@@ -54,7 +54,7 @@ const checked = computed(() => {
 const wrapClass = computed(() => {
   return [
     cls.e('wrap'),
-    bem.is('active', checked.value || indeterminate.value)
+    bem.is('active', checked.value || indeterminate.value || false)
   ] as const
 })
 

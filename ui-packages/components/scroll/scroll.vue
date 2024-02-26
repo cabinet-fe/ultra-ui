@@ -51,7 +51,7 @@ const emit = defineEmits<ScrollEmits>()
 
 const cls = bem('scroll')
 const className = computed(() => {
-  return [cls.b]
+  return [cls.b, bem.is('always', props.always)]
 })
 
 // 样式-------------------------------------------------------------
@@ -92,8 +92,10 @@ const updateBar = (target: HTMLElement) => {
 
   let barXWidth = 0
   let barXLeft = 0
+
   if (scrollWidth !== offsetWidth) {
     barXWidth = Math.max((offsetWidth * offsetWidth) / scrollWidth, minSize)
+
     barXLeft =
       (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - barXWidth)
   }
@@ -101,13 +103,13 @@ const updateBar = (target: HTMLElement) => {
   barX.value?.update(barXWidth, barXLeft)
   barY.value?.update(barYHeight, barYTop)
 
-  return {
-    barYHeight,
-    barYTop,
+  // return {
+  //   barYHeight,
+  //   barYTop,
 
-    barXWidth,
-    barXLeft
-  }
+  //   barXWidth,
+  //   barXLeft
+  // }
 }
 
 // 滚动条拖拽
@@ -129,14 +131,11 @@ useResizeObserver({
   target: containerRef,
   onResize(entries) {
     const target = entries[0]!.target as HTMLElement
-    const {
-      barYHeight,
+    const { height, width } = target.getBoundingClientRect()
 
-      barXWidth
-    } = updateBar(target)
-
-    barX.value?.setMaxOffset(target.offsetWidth - barXWidth)
-    barY.value?.setMaxOffset(target.offsetHeight - barYHeight)
+    barX.value?.setTrackSize(width)
+    barY.value?.setTrackSize(height)
+    updateBar(target)
   }
 })
 
@@ -178,7 +177,10 @@ const exposed: _ScrollExposed = {
   scrollRef,
   containerRef,
 
-  scrollTo
+  scrollTo,
+  update() {
+    containerRef.value && updateBar(containerRef.value)
+  }
 }
 
 defineExpose(exposed)

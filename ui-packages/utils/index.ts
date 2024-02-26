@@ -10,6 +10,8 @@ export * from './form/validate'
 
 export * from './helper/create-increase'
 
+export * from './helper/create-toggle'
+
 export * from './helper/vue'
 
-export * from './types/types'
+export * from './helper/frame'

@@ -1,5 +1,6 @@
 import { isRef, watch, type CSSProperties, onBeforeUnmount } from 'vue'
 import type { Returned, TransitionBase } from './type'
+import { createToggle, nextFrame } from '@ui/utils'
 
 interface StyleTransitionOptions extends TransitionBase {
   /** 进入后的样式 */
@@ -53,6 +54,15 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     Object.keys(transitionInStyle).forEach(key => {
       dom.style[key] = transitionInStyle[key]
     })
+    // dom.setAttribute(
+    //   'style',
+    //   dom.style.cssText +
+    //     Object.keys(transitionInStyle)
+    //       .map(key => {
+    //         return `${key}: ${transitionInStyle[key]}`
+    //       })
+    //       .join(';')
+    // )
   }
 
   /**
@@ -112,7 +122,8 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
 
     addTransitionInStyle(dom)
     // 在下一帧插入动画运动目标状态
-    requestAnimationFrame(() => {
+
+    nextFrame(() => {
       addEnterToStyle(dom)
     })
   }
@@ -126,10 +137,14 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     addTransitionOutStyle(dom)
 
     // 在下一帧移除动画运动目标状态恢复原状或者应用新的状态
-    requestAnimationFrame(() => {
+    nextFrame(() => {
       removeEnterToStyle(dom)
     })
   }
+
+  const [active, toggle] = createToggle(false, active => {
+    active ? startTransitionIn() : startTransitionOut()
+  })
 
   const transitionEndHandler = (e: TransitionEvent) => {
     e.stopPropagation()
@@ -137,7 +152,7 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     const dom = getDom()
     if (!dom) return
     // 激活状态，移除enter-active类
-    if (_active) {
+    if (active.value) {
       removeTransitionInStyle(dom)
       afterEnter?.()
     } else {
@@ -152,23 +167,13 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     const dom = getDom()
     if (!dom) return
     // 激活状态，移除enter-active类
-    if (_active) {
+    if (active.value) {
       removeTransitionInStyle(dom)
       enterCanceled?.()
     } else {
       removeTransitionOutStyle(dom)
       leaveCanceled?.()
     }
-  }
-
-  let _active = false
-  const toggle = (active: boolean | ((active: boolean) => boolean)): void => {
-    if (typeof active === 'function') {
-      _active = active(_active)
-      return toggle(_active)
-    }
-    _active = active
-    _active ? startTransitionIn() : startTransitionOut()
   }
 
   /** 添加事件 */
@@ -197,6 +202,8 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   })
 
   return {
-    toggle
+    toggle,
+    enter: () => toggle(true),
+    leave: () => toggle(false)
   }
 }

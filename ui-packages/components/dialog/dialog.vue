@@ -5,35 +5,40 @@
         v-if="visible || opened"
         v-show="visible"
         :class="cls.e('overlay')"
-        :style="{
-          zIndex: zIndex()
-        }"
+        :style="style"
         @click="close"
       >
         <div v-bind="$attrs" :class="cls.b" ref="dialogRef" @click.stop>
           <section
-            :class="cls.e('header')"
+            :class="headerCls"
             ref="headerRef"
             @transitionend.stop
             @transitioncancel.stop
           >
-            <div :class="cls.e('title')">
+            <div :class="cls.e('title')" @mousedown.stop>
               <slot name="header">
                 {{ header || title }}
               </slot>
             </div>
 
-            <div :class="cls.e('buttons')">
+            <div :class="cls.e('buttons')" @mousedown.stop>
               <u-icon
-                :class="cls.e('btn-minimize')"
-                @click="toggleMinimize(true)"
+                v-if="maximized"
+                :class="cls.e('btn-recover')"
+                @click="toggleMaximize(false)"
+                title="还原"
               >
-                <Minus />
+                <Recover />
               </u-icon>
-              <u-icon :class="cls.e('btn-maximize')" @click="toggleMaximize">
+              <u-icon
+                v-else
+                :class="cls.e('btn-maximize')"
+                @click="toggleMaximize(true)"
+                title="最大化"
+              >
                 <Maximum />
               </u-icon>
-              <u-icon :class="cls.e('btn-close')" @click="close">
+              <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
                 <CloseBold />
               </u-icon>
             </div>
@@ -48,6 +53,10 @@
           >
             <slot />
           </u-scroll>
+
+          <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
+            <slot name="footer" />
+          </section>
         </div>
       </div>
     </transition>
@@ -55,32 +64,30 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, shallowReactive } from 'vue'
+import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
-import { bem, zIndex } from '@ui/utils'
-import {
-  useDrag,
-  useModel,
-  useResizeObserver,
-  useTransition
-} from '@ui/compositions'
+import { bem, nextFrame, zIndex } from '@ui/utils'
+import { useDrag, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { CloseBold, Minus, Maximum } from 'icon-ultra'
-import { debounce } from 'cat-kit'
+import { CloseBold, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 
 defineOptions({
-  name: 'Dialog'
+  name: 'Dialog',
+  inheritAttrs: false
 })
 
-const props = defineProps<DialogProps>()
+defineProps<DialogProps>()
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
-  trigger?(): VNode[] | undefined
+  footer?(): VNode[] | undefined
 }>()
 
 const cls = bem('dialog')
+const blurCls = bem.is('background-blur')
+const headerCls = [cls.e('header'), blurCls]
+const footerCls = [cls.e('footer'), blurCls]
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
@@ -88,13 +95,31 @@ const dialogRef = shallowRef<HTMLDivElement>()
 /** 弹框头部模板引用 */
 const headerRef = shallowRef<HTMLDivElement>()
 
-/** 弹框头部模板引用 */
+/** 弹框body模板引用 */
 const bodyRef = shallowRef<ScrollExposed>()
 
-const visible = useModel({ props, emit })
+/** 弹框footer模板引用 */
+const footerRef = shallowRef<HTMLDivElement>()
+
+const visible = defineModel<boolean>()
 
 const style = shallowReactive({
   zIndex: zIndex()
+})
+
+const dialogTransition = useTransition('style', {
+  target: dialogRef,
+  enterToStyle: {
+    transform: 'scale3d(1, 1, 1) translate(0, 0)'
+  },
+
+  transitionInStyle: {
+    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
+    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  },
+  transitionOutStyle: {
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  }
 })
 
 /** 是否弹出过 */
@@ -109,9 +134,13 @@ watch(visible, v => {
   style.zIndex = zIndex()
   translated.x = 0
   translated.y = 0
+
   // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
-  requestAnimationFrame(() => {
-    dialogTransition.toggle(true)
+  // 渲染后的下一帧
+  nextTick(() => {
+    nextFrame(() => {
+      dialogTransition.toggle(true)
+    })
   })
 })
 
@@ -125,7 +154,7 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  dom.style.transform = `scale3d(1, 1, 1) translate(${x}px,${y}px)`
+  dom.style.transform = `translate3d(${x}px,${y}px, 0)`
 }
 
 // 运用拖拽
@@ -144,43 +173,15 @@ useDrag({
   }
 })
 
-// 因为弹框的最大高度为500px
-useResizeObserver({
-  target: dialogRef,
-  onResize: debounce(([entry]) => {
-    if (!entry || !bodyRef.value?.containerRef) return
-    const target = entry.target as HTMLDivElement
-    bodyRef.value.containerRef.style.height = `${target.offsetHeight - 49}px`
-  }, 20)
-})
-
 const { toggleMaximize, maximized } = useMaximum({
   dialogRef,
   cls
 })
 
-const toggleMinimize = (minimum: boolean): void => {
-  const dom = dialogRef.value
-  if (!dom) return
-}
-
 /** 关闭 */
 const close = () => {
   visible.value = false
 }
-
-const dialogTransition = useTransition('style', {
-  target: dialogRef,
-  enterToStyle: {
-    transform: 'scale3d(1, 1, 1) translate(0, 0) '
-  },
-  transitionInStyle: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  },
-  transitionOutStyle: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  }
-})
 
 defineExpose({
   close

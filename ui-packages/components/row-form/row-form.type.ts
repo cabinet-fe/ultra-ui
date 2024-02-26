@@ -1,11 +1,11 @@
 /** 表格编辑组件表头属性 */
 export interface RowFormColumn {
   /** 键值 */
-  key: string,
+  key: string
   /** 名称 */
-  name: string,
+  name: string
   /** 校验规则 */
-  rule?: ValidatorRule,
+  rule?: ValidatorRule
   /** 是否校验状态 */
   isValidator?: Boolean
 }
@@ -13,11 +13,11 @@ export interface RowFormColumn {
 /** 表格编辑器校验的属性 */
 export interface ValidatorRule {
   /** 是否必填 */
-  require?: Boolean,
+  require?: Boolean
   /** 预设校验 可以跟require一起使用，但不能跟match一起用 */
-  default?: 'id' | 'phone',
+  default?: 'id' | 'phone'
   /** 正则 */
-  match?: String,
+  match?: String
   /** 是否校验状态 */
   isValidator: Boolean
 }
@@ -34,6 +34,14 @@ export interface RowFormProps<T> {
   tree?: boolean
   /** childrenKey='children' */
   childrenKey?: string
+  showSummary?: boolean
+  border?: boolean
+}
+
+/** body里面的操作栏 */
+export interface RowFormOperation {
+  key: string
+  name: string
 }
 
 /** 表格编辑组件组件定义的事件 */
@@ -41,7 +49,24 @@ export interface RowFormEmits {
   (e: 'update:modelValue', value: any[]): void
   /** 校验 */
   (e: 'validator'): void
-  (e: 'save', value: Record<string,any>): void
+  (e: 'save', value: Record<string, any>): void
+}
+
+/** row-form-item-body的事件 */
+export interface RowFormItemEmits {
+  (
+    e: 'item-click',
+    value: Event,
+    index: number,
+    dataItem: Record<string, any>,
+    columnsItem: RowFormColumn
+  ): void
+  (
+    e: 'contextmenu',
+    value: MouseEvent,
+    index: number,
+    dataItem?: Record<string, any>
+  ): void
 }
 
 /** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
@@ -49,20 +74,15 @@ export interface _RowFormExposed {}
 
 /** 表格编辑组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export interface RowFormExposed {
+  /** 获取值 */
+  getValue(): void
+
   delete(index: number): void
   delete(indexes: number[]): void
 
   insert(index: number): void
 
   validate(): Promise<boolean>
-}
-
-/** 每一条数据的状态属性 */
-export interface RowFormRowStatus {
-  /** 是否可编辑 */
-  edit: Boolean,
-  /** 校验状态是否开启 */
-  isValidator: Boolean
 }
 
 /** row-form-button按钮  */

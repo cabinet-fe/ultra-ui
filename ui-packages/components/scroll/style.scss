@@ -5,15 +5,20 @@
 $root-name: scroll;
 
 @include m.b($root-name) {
-  height: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
     height: 100%;
 
-    // 隐藏webkit的滚动条
+
+    // 隐藏滚动条
+    scrollbar-width: none;
+
+    // 兼容隐藏webkit的滚动条
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
@@ -27,8 +32,7 @@ $root-name: scroll;
 
   // 悬浮
   &:hover {
-    .#{vars.$namespace}#{$root-name}__bar-x,
-    .#{vars.$namespace}#{$root-name}__bar-y {
+    @include m.bem($root-name, (bar-x, bar-y)) {
       opacity: 1;
     }
   }
@@ -61,8 +65,14 @@ $root-name: scroll;
 
     @include m.is(active) {
       opacity: 1;
-      background-color:  $bar-color;
+      background-color: $bar-color;
       border-radius: $bar-active-size;
+    }
+  }
+
+  @include m.is(always) {
+    @include m.bem($root-name, (bar-y, bar-x)) {
+      opacity: 1;
     }
   }
 

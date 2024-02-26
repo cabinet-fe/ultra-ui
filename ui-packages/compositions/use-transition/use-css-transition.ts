@@ -1,17 +1,6 @@
-import {
-  isRef,
-  watch,
-  onBeforeUnmount,
-  type ShallowRef,
-  type Ref,
-  computed
-} from 'vue'
-import type { TransitionBase, Returned } from './type'
-
-interface CssTransitionOptions extends TransitionBase {
-  /** 类的名称 */
-  name: ShallowRef<string> | string | Ref<string>
-}
+import { isRef, watch, onBeforeUnmount, computed } from 'vue'
+import type { Returned, CssTransitionOptions } from './type'
+import { createToggle, nextFrame } from '@ui/utils'
 
 /**
  * 使用css过渡
@@ -27,8 +16,11 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const classes = computed(() => {
     const _name = typeof name === 'string' ? name : name.value
     return {
+      /** 进入后最终的类 */
       enterTo: `${_name}-enter-to`,
+      /** 【进入动画】持续时的类 */
       enterActive: `${_name}-enter-active`,
+      /** 【离开动画】持续时的类 */
       leaveActive: `${_name}-leave-active`
     }
   })
@@ -37,10 +29,10 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const startTransitionIn = () => {
     const { enterActive, enterTo } = classes.value
     const dom = getDom()
-    // 标记进入动画激活状态
+
     dom?.classList.add(enterActive)
     // 在下一帧插入动画运动目标状态
-    requestAnimationFrame(() => {
+    nextFrame(() => {
       dom?.classList.add(enterTo)
     })
   }
@@ -54,7 +46,7 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     dom?.classList.add(leaveActive)
 
     // 在下一帧移除动画运动目标状态恢复原点
-    requestAnimationFrame(() => {
+    nextFrame(() => {
       dom?.classList.remove(enterTo)
     })
   }
@@ -65,7 +57,7 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     const { leaveActive, enterActive } = classes.value
     const dom = getDom()
     // 激活状态，移除enter-active类
-    if (_active) {
+    if (active.value) {
       dom?.classList.remove(enterActive)
       afterEnter?.()
     } else {
@@ -80,7 +72,7 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     const { leaveActive, enterActive } = classes.value
     const dom = getDom()
     // 激活状态，移除enter-active类
-    if (_active) {
+    if (active.value) {
       dom?.classList.remove(enterActive)
       enterCanceled?.()
     } else {
@@ -89,15 +81,9 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     }
   }
 
-  let _active = false
-  const toggle = (active: boolean | ((active: boolean) => boolean)): void => {
-    if (typeof active === 'function') {
-      _active = active(_active)
-      return toggle(_active)
-    }
-    _active = active
-    _active ? startTransitionIn() : startTransitionOut()
-  }
+  const [active, toggle] = createToggle(false, active => {
+    active ? startTransitionIn() : startTransitionOut()
+  })
 
   /** 添加事件 */
   const addEvent = (el?: HTMLElement) => {
@@ -125,6 +111,12 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   })
 
   return {
-    toggle
+    toggle,
+    enter() {
+      toggle(true)
+    },
+    leave() {
+      toggle(false)
+    }
   }
 }

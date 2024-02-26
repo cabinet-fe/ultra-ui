@@ -2,8 +2,11 @@
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
     "target": "ESNext",
-    "types": ["vite/client", "@vue/runtime-core"],
+    "jsx": "preserve",
+    "types": ["vite/client", "@vue/runtime-core"]
   },
-  "include": ["**/*.vue", "**/*", "components.d.ts"]
+  "include": ["**/*.vue", "**/*.ts"],
+  "exclude": ["node_modules"]
 }

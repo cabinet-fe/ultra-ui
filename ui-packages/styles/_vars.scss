@@ -2,7 +2,11 @@
 
 $namespace: 'u-';
 
-// 定义size的函数, 保证size-type的统一性
+// 定义size映射的函数, 保证尺寸的统一性, size-vars(small, default, large)
+// 例子：
+// size-vars((height: 24px), (height: 32px), (height: 40px))
+// 生成:
+//  (small: (height: 24px), default: (height: 32px), large: (height: 40px))
 @function size-vars($sizes...) {
   $size-types: (small, default, large);
   $size-result: ();
@@ -51,13 +55,70 @@ $card-sizes: size-vars(
 // 颜色类别
 $color-types: (
   // 品牌色
-  primary: #409eff,
+  primary: #3f51b5,
   // 成功色
-  success: #67c23a,
+  success: #4caf50,
   // 警告色
-  warning: #e6a23c,
+  warning: #ffc107,
   // 危险色
-  danger: #f56c6c,
+  danger: #f44336,
   // 信息色
-  info: #909399
+  info: #009688
 );
+
+// 背景层级颜色
+$bg-colors: (
+  // 底部图层背景色
+  bottom: #fdfdfd,
+  // 中部图层背景色
+  middle: #fefefe,
+  // 顶部图层背景色
+  top: #ffffff
+);
+
+// 文字颜色
+$text-colors: (
+  // 标题文字
+  title: #303133,
+  // 正文文字
+  main: #606266,
+
+  // 次级文字
+  second: #979797,
+  // 辅助文字
+  assist: #c0c4cc
+);
+
+// 圆角半径
+$border-radius: (
+  small: 2px,
+  default: 4px,
+  large: 8px
+);
+
+// 字体大小
+$font-sizes: (
+  title: 16px,
+  main: 14px,
+  assist: 12px
+);
+
+// 间隔大小
+$gap: (
+  small: 4px,
+  default: 6px,
+  large: 8px
+);
+
+// 响应式断点
+$breakpoints: (
+  // 0 ~ 600px 超小
+  xs: 600px,
+  // 600px ~ 960px 小
+  sm: 960px,
+  // 960px ~ 1280px 中
+  md: 1280px,
+  // 1280px ~ 1920px 大
+  lg: 1920px
+  // 超大
+)
