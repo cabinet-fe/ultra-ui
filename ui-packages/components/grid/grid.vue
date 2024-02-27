@@ -10,6 +10,7 @@ import type { GridProps, GridEmits } from '@ui/types/components/grid'
 import { GridDIKey } from './di'
 import { type CSSProperties, computed, shallowRef, provide } from 'vue'
 import { useResponsive } from './use-responsive'
+import { getBreakpointCols } from './breakpoint'
 
 defineOptions({
   name: 'Grid'
@@ -49,9 +50,9 @@ const style = computed<CSSProperties>(() => {
       )}, 1fr)`
       break
     case 'object':
-      const breakpointName = currentBreakpoint.value?.name
-      const breakpoint = breakpointName ? cols[breakpointName] : cols.default
-      styles.gridTemplateColumns = `repeat(${breakpoint ?? 24}, 1fr)`
+      const breakpoint = currentBreakpoint.value
+      const amount = getBreakpointCols(cols, breakpoint)
+      styles.gridTemplateColumns = `repeat(${amount}, 1fr)`
   }
 
   return styles
