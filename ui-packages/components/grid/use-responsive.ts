@@ -50,7 +50,8 @@ export function useResponsive(options: ResponsiveOptions) {
             const breakpoint = getContainerBreakpoint(rect.width)
             if (equal(currentBreakpoint.value, breakpoint)) return
             currentBreakpoint.value = breakpoint
-          }, 50)
+            emit('breakpoint-change', breakpoint)
+          }, 0)
         )
         observer.observe(dom)
       } else {

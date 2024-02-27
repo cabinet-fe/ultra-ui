@@ -59,6 +59,8 @@ export interface GridProps {
 export interface GridEmits {
   /** 尺寸变更 */
   (e: 'resize', rect: DOMRect): void
+  /** 断点变更 */
+  (e: 'breakpoint-change', breakpoint: Breakpoint): void
 }
 
 /** 网格布局项组件属性 */
