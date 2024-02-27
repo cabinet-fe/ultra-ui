@@ -16,6 +16,8 @@ readDir(componentsDir, {
  */
 function matchComponentDir(kebabName) {
     const parts = kebabName.split('-');
+    if (components.has(kebabName))
+        return kebabName;
     for (let i = 0; i < parts.length; i++) {
         const componentDir = parts.slice(0, i + 1).join('-');
         if (components.has(componentDir)) {

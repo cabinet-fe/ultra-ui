@@ -3,7 +3,6 @@ export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 export interface Breakpoint {
   name: BreakpointName
-  width: number
   level: number
 }
 
@@ -47,7 +46,7 @@ export interface GridProps {
    * }
    * ```
    */
-  cols?: number | BreakCols | ((breakpoint: Breakpoint) => number)
+  cols?: number | BreakCols | ((breakpoint?: Breakpoint) => number)
   /** 渲染标签 */
   tag?: string
   /** 间隔, 单位px */
@@ -65,15 +64,12 @@ export interface GridEmits {
 /** 网格布局项组件属性 */
 export interface GridItemProps {
   /** 跨距，当指定为0时，则代表隐藏, 默认为1 */
-  span?: number | 'full'
-  /** 容器为xs的跨距 */
-  xs?: number | 'full'
-  /** 容器为sm的跨距 */
-  sm?: number | 'full'
-  /** 容器为md的跨距 */
-  md?: number | 'full'
-  /** 容器为lg的跨距 */
-  lg?: number | 'full'
-  /** 容器为xl的跨距 */
-  xl?: number | 'full'
+  span?:
+    | number
+    | 'full'
+    | ({
+        [key in BreakpointName]?: 'full' | number
+      } & { default: number | 'full' })
+  /** 容器标签 */
+  tag?: string
 }
