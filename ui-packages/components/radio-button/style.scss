@@ -75,9 +75,9 @@
     }
 
     @include m.is(disabled) {
-        cursor: not-allowed;
+        cursor: not-allowed !important;
         opacity: 0.8;
-        pointer-events: none;
+        pointer-events: none !important;
         color: fn.use-var(text, color, second);
 
         &:hover {

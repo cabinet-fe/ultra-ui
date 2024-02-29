@@ -20,7 +20,6 @@ const ClickOutside = {
     document.addEventListener("click", el.clickOutsideEvent)
   },
   unmounted(el: HTMLElement) {
-    console.log("卸载了")
     document.removeEventListener("click", el.clickOutsideEvent)
     delete el.clickOutsideEvent
   },

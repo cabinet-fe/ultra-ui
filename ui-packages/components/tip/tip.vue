@@ -14,8 +14,8 @@
       v-if="visible"
       :style="dynamicStyle"
       ref="tipContentRef"
-      @mouseenter="handleContentMouseOver"
-      @mouseleave="handleMouseOut"
+      @mouseenter.stop="handleContentMouseOver"
+      @mouseleave.stop="handleMouseOut"
       @click="
         (e) => {
           e.stopPropagation()
@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import type {TipProps} from "@ui/types/components/tip"
-import type {Undef} from "@ui/utils"
+// import {Undef} from "@ui/utils"
 import {bem} from "@ui/utils"
 import {ref, shallowRef, nextTick, computed} from "vue"
 import countPosition from "./position"
@@ -99,11 +99,11 @@ let tipContentRef = shallowRef<HTMLElement>()
 /**是否显示 */
 let visible = ref(false)
 
-let timeClick: Undef<number> = undefined
+let timeClick = Number(0)
 
-let timeMouseOut: Undef<number> = undefined
+let timeMouseOut = Number(0)
 
-let timeMouseOver: Undef<number> = undefined
+let timeMouseOver = Number(0)
 
 /**弹窗style样式 */
 let dynamicStyle = ref<Record<string, any>>({})
@@ -140,6 +140,7 @@ const handleMouseOut = () => {
 const handleContentMouseOver = () => {
   if (!props.mouseEnterable) return
   clearTimeout(timeMouseOut)
+  clearTimeout(timeMouseOver)
 }
 
 const handleClick = () => {
@@ -161,7 +162,6 @@ const handleClick = () => {
 
 const handleClickOutside = () => {
   if (props.triggerPopUpMode === "hover") return
-  console.log("隐藏弹窗")
   visible.value = false
 }
 
@@ -171,8 +171,7 @@ const mouseEventDom = () => {
   const tipRefDom = tipRef.value
   if (!tipRefDom) return
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
-  console.log(offsetLeft + 240,'---');
-  
+
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (
     props.position.indexOf("top") > -1 ||
@@ -206,8 +205,6 @@ const mouseEventDom = () => {
             : dynamicCss.value.maxWidth,
       },
     }
-    console.log(dynamicStyle.value);
-    
     arrowStyle.value = {
       ...arrowCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),

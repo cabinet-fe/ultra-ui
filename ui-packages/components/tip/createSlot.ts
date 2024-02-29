@@ -29,7 +29,6 @@ export default function createSlot({
     // 渲染函数，用于动态渲染组件的子节点
     render(props: any, ctx: any) {
       // 返回传入的 vnode，实现动态渲染
-      
       return props.vnode
     },
   })

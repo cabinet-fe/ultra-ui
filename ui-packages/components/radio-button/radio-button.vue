@@ -1,6 +1,14 @@
 <template>
-  <button :class="classList" :style="styleObj">
-    <label :class="cls.m('label')">
+  <u-button
+    :class="classList"
+    :style="styleObj"
+    :size="size"
+    :disabled="disabled"
+  >
+    <label
+      :class="cls.m('label')"
+      :style="disabled ? {cursor: 'not-allowed'} : ''"
+    >
       <input
         :hidden="exist"
         type="radio"
@@ -8,8 +16,9 @@
         :value="checked"
         v-model="model"
         @input.stop="emit('update:modelValue', value === model, itemValue!)"
-        :disabled="props.disabled"
+        :disabled="disabled"
         ref="input"
+        :style="disabled ? {cursor: 'not-allowed'} : ''"
       />
       <span>
         <slot name="value">
@@ -17,7 +26,7 @@
         </slot>
       </span>
     </label>
-  </button>
+  </u-button>
 </template>
 
 <script
@@ -31,6 +40,7 @@ import type {
 } from "@ui/types/components/radio-button"
 import {bem} from "@ui/utils"
 import {computed, ref} from "vue"
+import {UButton} from "../button"
 
 defineOptions({
   name: "RadioButton",

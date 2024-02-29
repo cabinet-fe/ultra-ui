@@ -62,8 +62,6 @@ export * from './theme'
 
 export * from './tip'
 
-export * from './tip-v2'
-
 export * from './tree'
 
 export * from './uploader'

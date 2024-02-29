@@ -119,11 +119,14 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue"
+import type {ComponentSize} from "ultra-ui"
+import {ref, shallowRef} from "vue"
 
 let radio1 = ref("")
+
 let radio2 = ref("汉字2")
-let radio3 = ref("default")
+
+let radio3 = shallowRef<ComponentSize>("default")
 
 const dataGroup = [
   {name: "张三", id: 1},

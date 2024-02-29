@@ -13,8 +13,6 @@ export interface RadioProps extends FormComponentProps {
   itemValue?: Record<string, any>
   /**全部禁用 */
   disabled?: boolean
-  /**单选框尺寸 */
-  size?: string
 }
 
 /** 单选框组件定义的事件 */

@@ -53,7 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue"
+import type { ComponentSize } from "ultra-ui";
+import {ref, shallowRef} from "vue"
 
 let radio1 = ref("2")
 
@@ -77,7 +78,7 @@ let dataGroup1Value = ref("")
 
 let dataGroup2Value = ref(18)
 
-let dataGroup3Value = ref('default')
+let dataGroup3Value = shallowRef<ComponentSize>("default")
 
 
 let back = ref("")
