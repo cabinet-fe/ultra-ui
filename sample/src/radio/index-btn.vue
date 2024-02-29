@@ -5,10 +5,18 @@
       <h6>基础展示</h6>
       {{ radio1 }}
       <u-tip model-value="model:radio1 value:汉字1" position="right">
-        <u-radio-button v-model="radio1" value="汉字1" :size="radio3" />
+        <u-radio-button
+          v-model="radio1"
+          value="汉字1"
+          :size="dataGroup6Value"
+        />
       </u-tip>
       <u-tip model-value="model:radio1 value:汉字2" position="bottom">
-        <u-radio-button v-model="radio1" value="汉字2" :size="radio3" />
+        <u-radio-button
+          v-model="radio1"
+          value="汉字2"
+          :size="dataGroup6Value"
+        />
       </u-tip>
     </div>
     <div class="item">
@@ -16,7 +24,7 @@
       <u-radio-button
         value="汉字2"
         v-model="radio2"
-        :size="radio3"
+        :size="dataGroup6Value"
         disabled
       ></u-radio-button>
     </div>
@@ -30,7 +38,7 @@
         labelKey="name"
         valueKey="id"
         v-model="dataGroup1Value"
-        :size="radio3"
+        :size="dataGroup6Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup1Value }}</p> -->
     </div>
@@ -45,7 +53,7 @@
         valueKey="age"
         v-model="dataGroup2Value"
         disabled
-        :size="radio3"
+        :size="dataGroup6Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup2Value }}</p> -->
     </div>
@@ -60,7 +68,7 @@
         labelKey="name"
         valueKey="age"
         v-model="dataGroup3Value"
-        :size="radio3"
+        :size="dataGroup6Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup3Value }}</p> -->
     </div>
@@ -76,7 +84,7 @@
         valueKey="age"
         v-model="dataGroup4Value"
         :disabled-index="4"
-        :size="radio3"
+        :size="dataGroup6Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup4Value }}</p> -->
     </div>
@@ -92,24 +100,22 @@
         valueKey="age"
         v-model="dataGroup5Value"
         :disabled-index="[1, 3]"
-        :size="radio3"
+        :size="dataGroup6Value"
       />
       <!-- <p>{{ "返回值:" + dataGroup5Value }}</p> -->
     </div>
     <div class="item">
       <h6>尺寸</h6>
-      <u-radio-button
-        v-model="radio3"
-        value="large"
-        size="large"
-      ></u-radio-button>
-      <u-radio-button v-model="radio3" value="default"></u-radio-button>
-      <u-radio-button
-        v-model="radio3"
-        value="small"
-        size="small"
-      ></u-radio-button>
-      {{ radio3 }}
+      <u-radio-group
+        radioType="btn"
+        :data="dataGroup6"
+        labelKey="name"
+        valueKey="size"
+        v-model="dataGroup6Value"
+        :size="dataGroup6Value"
+      >
+      </u-radio-group>
+      {{ dataGroup6Value }}
     </div>
 
     <br /><br /><br />
@@ -125,8 +131,6 @@ import {ref, shallowRef} from "vue"
 let radio1 = ref("")
 
 let radio2 = ref("汉字2")
-
-let radio3 = shallowRef<ComponentSize>("default")
 
 const dataGroup = [
   {name: "张三", id: 1},
@@ -161,6 +165,12 @@ const dataGroup5 = [
   {name: "老六", age: 4},
 ]
 
+const dataGroup6 = [
+  {name: "小", size: "small"},
+  {name: "大", size: "large"},
+  {name: "默认", size: "default"},
+]
+
 let dataGroup1Value = ref("王五")
 
 let dataGroup2Value = ref(22)
@@ -171,6 +181,8 @@ let dataGroup4Value = ref("")
 
 let dataGroup5Value = ref("")
 
+let dataGroup6Value = shallowRef<ComponentSize>("default")
+
 let back = ref("")
 
 const btn = () => {
@@ -178,8 +190,8 @@ const btn = () => {
       ${radio1.value}··················,
       radio2:
       ${radio2.value}··················,
-      radio3:
-      ${radio3.value}··················,
+      dataGroup6Value:
+      ${dataGroup6Value.value}··················,
       dataGroup1Value:
       ${dataGroup1Value.value}··················,
       dataGroup2Value:
@@ -192,6 +204,11 @@ const btn = () => {
       ${dataGroup5Value.value}··················`
 }
 btn()
+</script>
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+}
 </script>
 
 <style lang="scss" scoped>

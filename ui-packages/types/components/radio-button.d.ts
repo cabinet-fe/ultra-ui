@@ -2,8 +2,8 @@ import type {DeconstructValue} from "../helper"
 import type {FormComponentProps} from "../component-common"
 /** 单选框按钮样式组件属性 */
 export interface RadioButtonProps extends FormComponentProps {
-   /**绑定值 */
-   modelValue?: number | string | boolean
+  /**绑定值 */
+  modelValue?: number | string | boolean
   /** 选项值 */
   value?: number | string | boolean
   /**多个按钮时的item */
