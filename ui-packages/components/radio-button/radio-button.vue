@@ -1,5 +1,5 @@
 <template>
-  <u-button
+  <button
     :class="classList"
     :style="styleObj"
     :size="size"
@@ -26,7 +26,7 @@
         </slot>
       </span>
     </label>
-  </u-button>
+  </button>
 </template>
 
 <script
@@ -40,7 +40,6 @@ import type {
 } from "@ui/types/components/radio-button"
 import {bem} from "@ui/utils"
 import {computed, ref} from "vue"
-import {UButton} from "../button"
 
 defineOptions({
   name: "RadioButton",
