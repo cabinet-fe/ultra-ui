@@ -1,0 +1,12 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(textarea) {
+    display: block;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    outline: none;
+    text-decoration: none;
+    margin-bottom: 4px;
+}

@@ -64,6 +64,8 @@ export * from './tip'
 
 export * from './tree'
 
+export * from './textarea'
+
 export * from './uploader'
 
 export * from './virtual-list'
