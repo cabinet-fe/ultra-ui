@@ -1,3 +1,5 @@
+import { shallowReactive } from 'vue'
+
 type ValidatorData = Record<string, any> | Record<string, any>[]
 
 interface ValidateRule<

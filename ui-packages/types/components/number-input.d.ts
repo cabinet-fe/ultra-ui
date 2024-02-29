@@ -13,6 +13,10 @@ export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
   maxPrecision?: number
   /** 步进, 指定为数字时开启累加按钮并将该值作为累加的步长, 为true则步长默认为1 */
   step?: boolean | number
+  /** 最大值 */
+  max?: number
+  /** 最小值 */
+  min?: number
 }
 
 /** 数字输入组件定义的事件 */

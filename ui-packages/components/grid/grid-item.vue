@@ -1,41 +1,59 @@
 <template>
-  <UNodeRender :content="getNode()" />
+  <component :is="tag" :style="style" :class="cls.b" v-if="span !== 0">
+    <slot />
+  </component>
 </template>
 
 <script lang="ts" setup>
 import type { GridItemProps } from '@ui/types/components/grid'
-import type { UNodeRender } from '../node-render'
-import { inject, useSlots, watchEffect } from 'vue'
+import { computed, inject, type CSSProperties, watch } from 'vue'
 import { GridDIKey } from './di'
+import { bem } from '@ui/utils'
 
 defineOptions({
   name: 'GridItem'
 })
 
-const props = defineProps<GridItemProps>()
+const props = withDefaults(defineProps<GridItemProps>(), {
+  tag: 'div'
+})
 
-const injected = inject(GridDIKey)
+const cls = bem('grid-item')
 
-if (!injected) {
-  console.warn('GridItem组件仅能在Grid组件中使用')
+const { currentBreakpoint, gridItemsProps } = inject(GridDIKey) ?? {}
+
+if (!currentBreakpoint) {
+  console.error('GridItem组件仅能在Grid组件中使用')
 }
 
-const slots = useSlots()
-const getNode = () => {
-  const nodes = slots.default?.()
-  if (!nodes) return null
+const span = computed<number | 'full'>(() => {
+  let { span } = props
+  if (span === undefined) return 1
+  if (span === 'full') return 'full'
 
-  if (nodes.length === 1) {
-    return nodes[0]
-  }
-}
+  if (typeof span === 'number') return span
 
-watchEffect(() => {
-  const { xs, sm, md, lg, xl } = props
-  if (xs ?? sm ?? md ?? lg ?? xl) {
-    injected?.setResponsive(true)
-  } else {
-    injected?.setResponsive(false)
+  const breakpoint = currentBreakpoint?.value
+
+  if (!breakpoint) return span.default
+  return span[breakpoint.name] ?? span.default
+})
+
+const style = computed<CSSProperties>(() => {
+  return {
+    gridColumn: span.value === 'full' ? '1 / -1' : `span ${span.value}`
   }
 })
+
+watch(
+  () => props.span,
+  span => {
+    if (typeof span === 'object') {
+      gridItemsProps?.add(props)
+    } else {
+      gridItemsProps?.delete(props)
+    }
+  },
+  { immediate: true }
+)
 </script>

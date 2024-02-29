@@ -1,65 +1,57 @@
 <template>
   <div>
-    <div>
-      <h3>自定义栅格</h3>
-      <div>
-        列属性 {{ columns }} 一行列数: {{ cols }}
-        <u-number-input v-model="cols" />
-      </div>
-    </div>
-    <u-grid :cols="cols" :gap="8">
-      <!-- 1121 -->
-      <div
-        v-for="(col, index) of columns"
-        class="col-item"
-        :span="col.span"
-        :key="index"
-      >
-        跨度: {{ col.span ?? 1 }}列
-      </div>
-    </u-grid>
+    <div></div>
 
-    <div>嵌套</div>
+    <u-card>
+      <u-card-header>
+        <h3>
+          <span style="vertical-align: middle">自定义栅格 列数: </span>
+          <u-number-input :step="1" :min="1" v-model="cols" />
+        </h3>
+      </u-card-header>
+      <u-card-content>
+        <u-grid :cols="cols" :gap="8">
+          <div v-for="i of 12" class="col-item" :key="i">
+            {{ i }}
+          </div>
+        </u-grid>
+      </u-card-content>
+    </u-card>
 
-    <u-grid :cols="2" :gap="8">
-      <div class="col-item"></div>
+    <br />
+    <br />
 
-      <u-grid :cols="2" :gap="8">
-        <div class="col-item"></div>
-        <div class="col-item"></div>
-      </u-grid>
-    </u-grid>
+    <u-card>
+      <u-card-header>
+        <h3>
+          基于容器自身的响应式布局。改变浏览器尺寸查看， 当前尺寸:{{
+            point?.name
+          }}
+        </h3>
+      </u-card-header>
 
-    <div>响应式布局, 基于容器自身 {{ width }}</div>
-    <u-grid :gap="8" :cols="{ xs: 12, default: 24 }" @resize="width = $event.width">
-      <u-grid-item :span="2" class="col-item" :xs="0" v-for="i of 6">
-        <div class="col-item">{{ i + 1 }}</div>
-      </u-grid-item>
-    </u-grid>
+      <u-card-content>
+        <u-grid :gap="8" :cols="24" @breakpoint-change="point = $event">
+          <u-grid-item
+            :span="{ default: 4, xs: 12, sm: 8, md: 6 }"
+            class="col-item"
+            v-for="i of 6"
+            :key="i"
+          >
+            {{ i }}
+          </u-grid-item>
+        </u-grid>
+      </u-card-content>
+    </u-card>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const columns = [
-  { span: 2 },
-  { span: 1 },
-  {},
-  {},
-  { span: 'full' },
-  {},
-  {},
-  {},
-  {},
-  {},
-  {},
-  {}
-]
-
 const cols = ref(8)
 
-const width = ref(0)
+const point = ref()
 </script>
 
 <style lang="scss" scoped>
