@@ -55,10 +55,6 @@ export interface TextareaProps extends FormComponentProps {
    * 是否显示字符数
    */
   showCount?: boolean
-  /**
-   * 字符数的显示类型
-   */
-  countType?: "text" | "textarea"
 }
 
 /** textarea组件定义的事件 */
