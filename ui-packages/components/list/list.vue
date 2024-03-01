@@ -8,10 +8,9 @@
       <li
         v-for="(item, index) in visibleItems"
         :draggable="props.draggable"
-        @dragstart="onDragStart($event, item)"
+        @dragstart="onDragStart(item, index)"
         @dragover.prevent="onDragOver"
-        @drop="onDrop($event, index)"
-        @dragend="onDragEnd"
+        @drop="onDrop($event, item, index)"
       >
         <!-- 自定义样式 -->
         <slot name="content" v-if="$slots.content" :item="item" :index="index" />
@@ -96,8 +95,8 @@ const props = withDefaults(defineProps<Partial<ListProps>>(), {
 })
 
 const height = document.documentElement.clientHeight
-/** 是否拖拽 */
-// let draggable = ref(true)
+
+let dragIndex: any = ref(null)
 
 /** 没有更多了 */
 const noMore = ref(false)
@@ -121,9 +120,9 @@ const visibleItems = computed(() => {
 })
 
 /** 显示加载更多按钮 */
-const showLoadMoreButton = computed(() => {
-  return visibleItems.value.length < items.value.length
-})
+// const showLoadMoreButton = computed(() => {
+//   return visibleItems.value.length < items.value.length
+// })
 
 /** 加载更多 */
 const loadMore = e => {
@@ -140,67 +139,65 @@ const loadMore = e => {
     console.log('没有更多了')
     noMore.value = true
   } else {
-    // loading.value = true
     currentPage.value++
   }
+}
+
+/**
+ * 拖动元素触发
+ * @param item
+ * @param index
+ */
+const onDragStart = (item: any, index: number) => {
+  console.log(item, 'item', index, 'index')
+
+  dragIndex.value = index
+  console.log(dragIndex.value, 'dragIndex.value')
+}
+
+/**
+ * ondragover事件在拖动元素在目标元素上方时触发，通常用于防止默认的拖放行为。
+ * 可以通过event.preventDefault()方法阻止默认行为。
+ */
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault()
+}
+/**
+ * ondrop事件在拖动元素在目标元素上释放时触发，通常用于实现拖放功能。
+ * */
+const onDrop = (e: any, item: any, index: number) => {
+  console.log(e, 'e', e.target.dataset.index, '11')
+  const draggItem: any = items.value[dragIndex.value]
+
+  console.log(draggItem, 'draggItem')
+
+  items.value.splice(dragIndex.value, 1)
+  console.log(items.value, 'items.value')
+
+  items.value.splice(index, 0, draggItem)
+  console.log(items.value, 'items.value++')
+
+  dragIndex.value = null
 }
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {
   emit('delete', item, index)
 }
+
+/** 消息 */
 const handleMessage = (item: any, index: number) => {
   emit('message', item, index)
 }
+
+/** 提示 */
 const handleTip = (item: any, index: number) => {
   emit('tip', item, index)
 }
+
+/** 更新 */
 const handleUpdate = (item: any, index: number) => {
   let list = props.data?.filter(item => item.checked)
   emit('update:check', list)
-}
-
-let listText = ref()
-
-const onDragStart = (event: DragEvent, text) => {
-  console.log(event, 'onDragStart')
-
-  listText.value = text
-}
-
-const onDragOver = (event: DragEvent) => {
-  console.log(event, 'onDragOver')
-
-  event.preventDefault()
-}
-
-const onDrop = (event: DragEvent, index: number) => {
-  console.log(event, index, 'onDrop')
-  event.preventDefault()
-
-  // listText.value = (event.target as HTMLElement).innerHTML
-  // console.log(listText.value, 'listText.value')
-
-  // const dragText = event.dataTransfer?.getData('drag_text')
-  // console.log(dragText, 'dragText')
-
-  const dragText = listText.value
-
-  if (dragText !== undefined) {
-    visibleItems.value.splice(index, 1, dragText)
-  }
-}
-
-const onDragEnd = (event: DragEvent) => {
-  event.preventDefault()
-
-  listText.value = ''
-  // const index = visibleItems.value.indexOf(listText.value)
-  // console.log(index)
-
-  // if (index !== -1) {
-  //   visibleItems.value.splice(index, 1, listText.value)
-  //   console.log(visibleItems.value, 'if-index-1')
-  // }
 }
 </script>
