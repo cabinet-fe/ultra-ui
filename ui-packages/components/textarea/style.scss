@@ -16,30 +16,35 @@
         text-decoration: none;
         margin-bottom: 4px;
         padding: 4px;
+
+
+        @include m.m(resize-none) {
+            resize: none;
+        }
+
+        @include m.m(resize-vertical) {
+            resize: vertical;
+        }
+
+        @include m.m(resize-horizontal) {
+            resize: horizontal;
+        }
+
+        @include m.is(textarea-disabled) {
+            cursor: not-allowed;
+            resize: none;
+            background-color: #f5f7fa;
+            color: fn.use-var(text-color, disabled);
+        }
     }
 
-    @include m.m(resize-none) {
-        resize: none;
-    }
-
-    @include m.m(resize-vertical) {
-        resize: vertical;
-    }
-
-    @include m.m(resize-horizontal) {
-        resize: horizontal;
-    }
 
     @include m.m(count) {
         display: block;
         position: absolute;
-        bottom: 4px;
+        bottom: 8px;
         right: 4px;
-        background: fn.use-var(bg-color,middle);
-    }
-
-    @include m.is(textarea-disabled) {
-        cursor: not-allowed;
-        color: fn.use-var(text-color, disabled);
+        font-size: 12px;
+        background: fn.use-var(bg-color, middle);
     }
 }

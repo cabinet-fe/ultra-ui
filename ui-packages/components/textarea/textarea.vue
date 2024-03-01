@@ -8,6 +8,7 @@
       :maxlength="props.maxlength"
       :rows="props.rows"
       @input="updateModelValue"
+      :readonly="props.disabled"
     >
     </textarea>
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
