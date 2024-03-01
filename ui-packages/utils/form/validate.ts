@@ -1,31 +1,12 @@
-import { shallowReactive } from 'vue'
+import type {
+  ValidateResult,
+  ValidateRule,
+  Data,
+  ValidatorConfig
+} from '@ui/types/utils/form/validate'
 
-type ValidatorData = Record<string, any> | Record<string, any>[]
-
-interface ValidateRule<
-  Value extends any = any,
-  Data extends Record<string, any> = Record<string, any>
-> {
-  /** 是否必填 */
-  required?: boolean | string
-  /** 长度单位 */
-  length?: number | [number, string]
-  /** 最小值 */
-  min?: number | [number, string]
-  /** 最大值 */
-  max?: number | [number, string]
-  /** 最小长度 */
-  minLen?: number | [number, string]
-  /** 最大长度 */
-  maxLen?: number | [number, string]
-  /** 匹配 */
-  match?: RegExp | [RegExp, string]
-  /** 自定义校验 */
-  validator?: (value: Value, data: Data) => Promise<string> | string
-}
-
-/** 校验预设 */
-const validatePresets = {
+/** 预设规则 */
+const presetRules = {
   required(value: any, required: ValidateRule['required']): string {
     if (required === false) return ''
 
@@ -82,52 +63,71 @@ const validatePresets = {
   }
 }
 
-interface ValidatorConfig<Data extends ValidatorData> {
-  data: Data
-  rules?: Data extends Record<string, any>[]
-    ? { [key in keyof Data[number]]?: ValidateRule<Data[number][key], Data> }
-    : { [key in keyof Data]?: ValidateRule<Data[key], Data> }
-}
-
 /**  */
-export class Validator<Data extends ValidatorData> {
-  #data: Data
+export class Validator<
+  Rules extends Record<string, ValidateRule> = Record<string, ValidateRule>,
+  Fields extends keyof Rules = keyof Rules
+> {
+  #rules: Rules
 
-  #rules?: ValidatorConfig<Data>['rules']
+  #errorsDict: { [key in Fields]?: string[] } = {}
 
-  constructor(config: ValidatorConfig<Data>) {
-    this.#data = config.data
-    this.#rules = config.rules
+  #config?: ValidatorConfig
+
+  constructor(rules: Rules, config?: ValidatorConfig) {
+    this.#rules = rules
+    if (config) {
+      this.#config = config
+    }
+  }
+
+  private _existRules?: boolean
+
+  private get existRules() {
+    if (this._existRules !== undefined) {
+      return this._existRules
+    }
+    return Object.keys(this.#rules).length > 0
   }
 
   /**
    * 校验单条数据
    * @param data 数据
    */
-  private async validateSingleData(data: Record<string, any>): Promise<string> {
+  private async validateSingleData(
+    data: Record<any, any>,
+    fields?: Fields | Fields[]
+  ): Promise<string> {
     let errMsg = ''
-    if (!this.#rules) return errMsg
+    if (!this.existRules) return errMsg
+    const lazy = this.#config?.lazy ?? true
 
-    for (const key in this.#rules) {
-      // 单个字段的规则
-      const fieldRules = this.#rules[key]
+    const rulesKeys = (
+      fields
+        ? Array.isArray(fields)
+          ? fields
+          : [fields]
+        : Object.keys(this.#rules)
+    ) as Fields[]
 
-      if (!(key in data)) {
-        console.warn(`字段${key}不存在, 这可能会引起一些错误`)
-        continue
-      }
+    for (let i = 0; i < rulesKeys.length; i++) {
+      const key = rulesKeys[i]!
+      const rules = this.#rules[key]
       const value = data[key]
+      const { validator, ...normalRules } = rules!
+      for (const ruleKey in normalRules) {
+        errMsg = presetRules[ruleKey](value, normalRules[ruleKey])
 
-      for (const ruleKey in fieldRules) {
-        errMsg = validatePresets[ruleKey as keyof ValidateRule](
-          value,
-          fieldRules[ruleKey as string]
-        )
-        console.log(errMsg)
+        if (errMsg) return errMsg
+      }
+
+      if (validator) {
+        errMsg = await validator(value, data)
+        if (errMsg) return errMsg
       }
     }
 
-    return ''
+    return errMsg
   }
 
   /**
@@ -135,9 +135,9 @@ export class Validator<Data extends ValidatorData> {
    * @param field 需要校验的字段
    */
   private async validateManyData(
-    field?: keyof Data | (keyof Data)[]
+    data: Data,
+    field?: Fields | Fields[]
   ): Promise<string> {
-    const data = this.#data as Record<string, any>[]
     let i = 0
     while (i < data.length) {
       const item = data[i]!
@@ -149,17 +149,23 @@ export class Validator<Data extends ValidatorData> {
     return ''
   }
 
-  async validate(field: keyof Data): Promise<boolean>
-  async validate(): Promise<boolean>
-  async validate(field: (keyof Data)[]): Promise<boolean>
-  async validate(field?: keyof Data | (keyof Data)[]): Promise<boolean> {
-    if (Array.isArray(this.#data)) {
-      const errMsg = await this.validateManyData(field)
-      return errMsg ? false : true
+  /**
+   * 校验
+   * @param data 数据
+   * @param fields 字段
+   * @returns
+   */
+  async validate(
+    data: Data,
+    fields?: Fields | Fields[]
+  ): Promise<ValidateResult> {
+    const errMsg = await (Array.isArray(data)
+      ? this.validateManyData(data, fields)
+      : this.validateSingleData(data, fields))
+
+    return {
+      success: !errMsg,
+      errMsg
     }
-
-    const errMsg = await this.validateSingleData(this.#data, field)
-
-    return errMsg ? false : true
   }
 }

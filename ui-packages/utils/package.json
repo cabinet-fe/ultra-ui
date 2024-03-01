@@ -6,7 +6,8 @@
   "author": "whj",
   "type": "module",
   "dependencies": {
-    "@ui/shared": "workspace:*"
+    "@ui/shared": "workspace:*",
+    "@ui/types": "workspace:*"
   },
   "exports": {
     ".": "./index.ts"
