@@ -15,7 +15,7 @@
 
     <template v-else>
       <u-radio-button
-        :class="cls.m('button-item')"
+        :class="cls.e('button-item')"
         v-for="(itemBtn, indexBtn) in data"
         :key="indexBtn"
         v-model="radioModels[indexBtn]"

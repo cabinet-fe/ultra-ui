@@ -1,0 +1,50 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(textarea) {
+
+    position: relative;
+    width: max-content;
+    font-family: fn.use-var(font-family);
+
+    @include m.m(more) {
+        display: block;
+        border: fn.use-var(border);
+        border-radius: fn.use-var(radius, default);
+        outline: none;
+        text-decoration: none;
+        margin-bottom: 4px;
+        padding: 4px;
+
+
+        @include m.m(resize-none) {
+            resize: none;
+        }
+
+        @include m.m(resize-vertical) {
+            resize: vertical;
+        }
+
+        @include m.m(resize-horizontal) {
+            resize: horizontal;
+        }
+
+        @include m.is(textarea-disabled) {
+            cursor: not-allowed;
+            resize: none;
+            background-color: #f5f7fa;
+            color: fn.use-var(text-color, disabled);
+        }
+    }
+
+
+    @include m.m(count) {
+        display: block;
+        position: absolute;
+        bottom: 8px;
+        right: 4px;
+        font-size: 12px;
+        background: fn.use-var(bg-color, middle);
+    }
+}

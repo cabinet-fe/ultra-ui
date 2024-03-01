@@ -1,5 +1,5 @@
 <template>
-  <u-grid tag="form">
+  <u-grid tag="form" :cols="{ xs: 1, sm: 2, xl: 3, default: 4 }">
     <slot />
   </u-grid>
 </template>
@@ -22,7 +22,7 @@ const validator = new Validator({
   rules: props.rules
 })
 
-useFormComponent(true, props)
+const injected = useFormComponent(true, props)!
 
 const slots = useSlots()
 

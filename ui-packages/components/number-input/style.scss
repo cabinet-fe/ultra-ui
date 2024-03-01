@@ -19,6 +19,11 @@
         &:hover {
           color: fn.use-var(color, primary);
         }
+
+        @include m.is(disabled) {
+          cursor: not-allowed;
+          color: fn.use-var(text-color, disabled);
+        }
       }
     }
   }

@@ -27,5 +27,5 @@ export function useFormComponent(isForm: boolean, props?: any) {
     })
   }
 
-  return inject(FormComponentDIKey, undefined) || {}
+  return inject(FormComponentDIKey) || {}
 }
