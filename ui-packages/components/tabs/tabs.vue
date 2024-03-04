@@ -84,115 +84,27 @@ const showContent = computed(() => {
   }
 })
 let closedList = ref<Array<string | number>>([])
-/** 将传入的items进行标准化处理 */
-let standardItems = ref<any[]>([])
 
-watch(
-  () => [props.items, closedList],
-  ([items, closed]) => {
-    let res: Item[] = []
-    if (items && items.length) {
-      if (isObj(items[0])) {
-        res = items.map((item: any) => {
-          item.key = item.key || item.name
-          return item
-        })
-      } else {
-        res = items.map((item: any) => {
-          return { name: item, key: item }
-        })
-      }
+const standardItems = computed<Array<Item>>(() => {
+  let res: Item[] = []
+  if (props.items.length) {
+    if (isObj(props.items[0])) {
+      res = props.items.map((item: any) => {
+        item.key = item.key || item.name
+        return item
+      })
     } else {
-      res = []
+      res = props.items.map((item: any) => {
+        return { name: item, key: item }
+      })
     }
-    standardItems.value = res.filter((item: any) => !closed.value.includes(item.key))
-  },
-  { immediate: true, deep: true }
-)
-// const standardItems = computed<Array<Item>>(() => {
-//   let res: Item[] = []
-//   if (props.items.length) {
-//     if (isObj(props.items[0])) {
-//       res = props.items.map((item: any) => {
-//         item.key = item.key || item.name
-//         return item
-//       })
-//     } else {
-//       res = props.items.map((item: any) => {
-//         return { name: item, key: item }
-//       })
-//     }
-//   } else {
-//     res = []
-//   }
-//   return res.filter((item: any) => !closedList.value.includes(item.key))
-// })
-
-const headerRef = shallowRef<HTMLDivElement>()
-const active = reactive({
-  index: 0,
-  targetIndex: 0,
-  width: 0,
-  clientX: 0,
-  domList: new Set()
+  } else {
+    res = []
+  }
+  return res.filter((item: any) => !closedList.value.includes(item.key))
 })
 
-const useSort = (target: ShallowRef<HTMLElement | undefined>, mode: 'horizontal' | 'vertical') => {
-  watch(target, (dom) => {
-    let children = Array.from(dom?.children!)
-    children.forEach((child: any, index) => {
-      if (child.getAttribute('draggable') === 'false') return
-      child.setAttribute('draggable', 'true')
-      child.setAttribute('style', 'transition: transform 0.3s ease-out')
-      child.addEventListener('dragstart', (e) => {
-        console.log(e.target, children.findIndex((item) => item === e.target))
-        e.stopPropagation()
-        active.index = children.findIndex((item) => item === e.target)
-        active.width = e.target.offsetWidth
-      })
-      child.addEventListener('drag', (e) => {})
-      child.addEventListener('dragenter', (e) => {
-        const index = children.findIndex((item) => item === e.target)
-        e.preventDefault()
-        if (index === -1 || index === active.index) return
-        console.log(e.clientX, active.clientX)
-        e.target.style.transform = `translate(${
-          e.clientX > active.clientX ? -active.width : active.width
-        }px)`
-        active.domList.add(e.target)
-        active.targetIndex = index
-        active.clientX = e.clientX
-      })
-      child.addEventListener('dragleave', (e) => {
-        e.preventDefault()
-      })
-      child.addEventListener('dragover', (e) => {
-        e.preventDefault()
-      })
-      child.addEventListener('drop', (e) => {
-        console.log('drop')
-      })
-      child.addEventListener('dragend', (e) => {
-        active.domList.forEach((dom: any) => {
-          dom.style.transform = ''
-        })
-        if (active.index !== active.targetIndex) {
-          const source = standardItems.value[active.index]
-          standardItems.value.splice(active.index, 1)
-          standardItems.value.splice(active.targetIndex, 0, source!)
-        }
-
-        active.index = 0
-        active.targetIndex = 0
-        active.width = 0
-        active.clientX = 0
-        active.domList.clear()
-      })
-    })
-  })
-}
-
-useSort(headerRef, 'horizontal')
+const headerRef = shallowRef<HTMLDivElement>()
 
 let labIndex = ref<number>(0)
 /** 切换标签页 */

@@ -20,6 +20,7 @@
   @include m.e(header) {
     display: flex;
     position: relative;
+    overflow: hidden;
     @each $position in top, left, right, bottom {
       &--#{$position} {
         @if $position == left {
@@ -46,6 +47,7 @@
       cursor: pointer;
       // border-right: 0;
       background-color: fn.use-var(bg-color, top);
+      // border: 1px solid blue;
       padding: 4px 8px;
       font-size: fn.use-var(font-size, title);
       color: fn.use-var(color, info);
