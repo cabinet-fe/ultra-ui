@@ -1,6 +1,7 @@
 import { shallowRef, watch, type ShallowRef, computed } from 'vue'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
 import type { ScrollPosition } from '@ui/types/components/scroll'
+import { setStyles } from '@ui/utils'
 interface Options {
   /** 容器模板引用 */
   containerRef: ShallowRef<HTMLElement | undefined>
@@ -62,10 +63,10 @@ export function useRenderList(options: Options) {
   const paddingLeft = shallowRef('0')
 
   watch(paddingTop, paddingTop => {
-    containerRef.value!.style.paddingTop = paddingTop
+    setStyles(containerRef.value!, { paddingTop })
   })
   watch(paddingLeft, paddingLeft => {
-    containerRef.value!.style.paddingLeft = paddingLeft
+    setStyles(containerRef.value!, { paddingLeft })
   })
 
   const setPadding = (position: Required<ScrollPosition>) => {

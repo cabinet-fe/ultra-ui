@@ -1,5 +1,5 @@
 import { useTransition } from '@ui/compositions'
-import type { BEM } from '@ui/utils'
+import { type BEM, removeStyles, setStyles } from '@ui/utils'
 import { shallowRef, type ShallowRef } from 'vue'
 
 interface Options {
@@ -28,7 +28,7 @@ export function useMaximum(options: Options): Returned {
     target: dialogRef,
     name: 'dialog-maximize',
     afterLeave() {
-      dialogRef.value?.style.removeProperty('height')
+      dialogRef.value && removeStyles(dialogRef.value, ['height'])
     }
   })
 
@@ -40,7 +40,7 @@ export function useMaximum(options: Options): Returned {
     if (!dom) return
     if (maxim) {
       // 先设置一个高度才会有过渡动画
-      dom.style.height = `${dom.offsetHeight}px`
+      setStyles(dom, { height: `${dom.offsetHeight}px` })
       maximizeTransition.enter()
     } else {
       maximizeTransition.leave()

@@ -4,73 +4,100 @@
 
 @include m.b(tabs) {
   display: flex;
+
   @each $position in top, left, right, bottom {
     @include m.e($position) {
-      @if $position == top {
+      @if $position ==top {
         flex-direction: column;
-      } @else if $position == bottom {
+      }
+
+      @else if $position ==bottom {
         flex-direction: column-reverse;
-      } @else if $position == left {
+      }
+
+      @else if $position ==left {
         flex-direction: row;
-      } @else if $position == right {
+      }
+
+      @else if $position ==right {
         flex-direction: row-reverse;
       }
     }
   }
+
   @include m.e(header) {
     display: flex;
+    justify-content: space-around;
     position: relative;
+    background-color: fn.use-var(color, primary-light-9);
+    border-radius: fn.use-var(radius, default);
+    padding: fn.use-var(gap, small);
+
     @each $position in top, left, right, bottom {
       &--#{$position} {
-        @if $position == left {
+        @if $position ==left {
           flex-direction: column;
           border-right: 2px solid fn.use-var(border-color);
           margin-right: 10px;
-        } @else if $position == right {
+        }
+
+        @else if $position ==right {
           flex-direction: column;
           border-left: 2px solid fn.use-var(border-color);
           margin-left: 10px;
-        } @else if $position == bottom {
+        }
+
+        @else if $position ==bottom {
           border-bottom: 2px solid fn.use-var(border-color);
           margin-top: 10px;
-        } @else {
+        }
+
+        @else {
           border-bottom: 2px solid fn.use-var(border-color);
           margin-bottom: 10px;
         }
       }
     }
+
     &--label {
+      flex: 1;
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: center;
       cursor: pointer;
-      // border-right: 0;
-      background-color: fn.use-var(bg-color, top);
-      padding: 4px 8px;
+      padding: fn.use-var(gap, large);
       font-size: fn.use-var(font-size, title);
-      color: fn.use-var(color, info);
-      user-select:none;
+      font-weight: bold;
+      color: fn.use-var(text-color, main);
+      user-select: none;
+      border-radius: fn.use-var(radius, default);
+      width: 100%;
+
       @include m.is('active') {
-        color: fn.use-var(color, primary);
+        color: fn.use-var(text-color, title);
+        background-color: fn.use-var(bg-color, top);
       }
-     .is-close {
+
+      .is-close {
         width: 16px;
         height: 16px;
         line-height: 13px;
-        text-align: center;
         border-radius: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
+
       .is-close:hover {
-        background-color: fn.use-var(color, info);
+        background-color: fn.use-var(color, primary);
         color: #fff;
       }
     }
-    // &--label:last-of-type {
-    //   border-right: fn.use-var(border);
-    // }
+
     &--label:hover {
       color: fn.use-var(color, primary);
     }
+
     &--line {
       background-color: fn.use-var(color, primary);
       transition: transform 0.3s ease-in, width 0.3s ease-out;
@@ -79,15 +106,18 @@
       height: 2px;
       left: 0px;
       bottom: -2px;
+
       @each $position in top, left, right, bottom {
         @include m.is(#{$position}) {
-          @if $position == left {
-            width: 2px!important;
+          @if $position ==left {
+            width: 2px !important;
             height: 50px;
             top: 0px;
             right: -2px;
-          }@else if $position == right {
-            width: 2px!important;
+          }
+
+          @else if $position ==right {
+            width: 2px !important;
             height: 50px;
             top: 0px;
             left: -2px;
@@ -96,8 +126,10 @@
       }
     }
   }
+
   @include m.e(content) {
     width: 100%;
-    border: 1px solid gray;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
   }
 }

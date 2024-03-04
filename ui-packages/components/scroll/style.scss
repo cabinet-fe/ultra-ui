@@ -8,12 +8,12 @@ $root-name: scroll;
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
     height: 100%;
-
 
     // 隐藏滚动条
     scrollbar-width: none;
@@ -38,7 +38,7 @@ $root-name: scroll;
   }
 
   // 滚动条背景色
-  $bar-color: #ccc;
+  $bar-color: #aaa;
 
   // 滚动条默认尺寸(宽度)
   $bar-size: 6px;
