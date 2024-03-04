@@ -11,3 +11,8 @@ export interface DefineEvent<T = HTMLElement> extends Omit<Event, 'target'> {
 export type DeconstructValue<E extends Record<string, any>> = {
   [K in keyof E]: E[K] extends { value: infer V } ? V : E[K]
 }
+
+/** 索引类型 */
+export type Index<Keys extends string, Val> = {
+  [key in Keys]?: Val
+}

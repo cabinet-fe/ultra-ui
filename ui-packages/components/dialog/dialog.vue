@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
-import { bem, nextFrame, zIndex } from '@ui/utils'
+import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import { useDrag, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
@@ -154,7 +154,7 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  dom.style.transform = `translate3d(${x}px,${y}px, 0)`
+  setStyles(dom, { transform: `translate3d(${x}px, ${y}px, 0)` })
 }
 
 // 运用拖拽

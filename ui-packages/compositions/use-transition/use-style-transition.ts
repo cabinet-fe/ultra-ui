@@ -1,6 +1,6 @@
 import { isRef, watch, type CSSProperties, onBeforeUnmount } from 'vue'
 import type { Returned, TransitionBase } from './type'
-import { createToggle, nextFrame } from '@ui/utils'
+import { createToggle, nextFrame, setStyles } from '@ui/utils'
 
 interface StyleTransitionOptions extends TransitionBase {
   /** 进入后的样式 */
@@ -51,18 +51,7 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
    * @param dom 元素
    */
   const addTransitionInStyle = (dom: HTMLElement) => {
-    Object.keys(transitionInStyle).forEach(key => {
-      dom.style[key] = transitionInStyle[key]
-    })
-    // dom.setAttribute(
-    //   'style',
-    //   dom.style.cssText +
-    //     Object.keys(transitionInStyle)
-    //       .map(key => {
-    //         return `${key}: ${transitionInStyle[key]}`
-    //       })
-    //       .join(';')
-    // )
+    setStyles(dom, transitionInStyle)
   }
 
   /**
