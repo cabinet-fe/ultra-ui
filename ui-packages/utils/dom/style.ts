@@ -40,7 +40,7 @@ export function setStyles(el: HTMLElement, styles: CSSProperties) {
 export function removeStyles(el: HTMLElement, props: string[]) {
   if (el.attributeStyleMap) {
     props.forEach(key => {
-      el.attributeStyleMap.delete(key)
+      el.attributeStyleMap.delete(kebabCase(key))
     })
   } else {
     props.forEach(key => {
