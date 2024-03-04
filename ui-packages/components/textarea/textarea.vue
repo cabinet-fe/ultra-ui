@@ -7,6 +7,7 @@
       v-model="model"
       :maxlength="props.maxlength"
       :rows="props.rows"
+      :cols="props.cols"
       @input="updateModelValue"
       :readonly="props.disabled"
     >
@@ -28,9 +29,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
-  width: "200px",
+  width: "100%",
   height: "100px",
-  resize: "none",
+  resize: "vertical",
 })
 
 const cls = bem("textarea")
