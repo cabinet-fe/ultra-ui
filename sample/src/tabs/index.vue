@@ -18,8 +18,6 @@ const active = ref<string[]>(['TabOne', 'TabOne', 'TabOne', 'TabOne'])
 
 const positions: any[] = ['top', 'bottom', 'left', 'right']
 
-let tabPosition: any = ref('top')
-
 </script>
 
 <style lang="scss" scoped>

@@ -7,12 +7,14 @@
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
         @click="changeTab(item.key!, index)"
         ref="labRef"
+        @mouseover="active.hover = item.key!"
+        @mouseout="active.hover = ''"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
         </slot>
         <div
-          v-if="closable && standardItems.length > 1"
+          v-if="showClose(item.key!)"
           :class="bem.is('close')"
           @click.stop="handleClose(item)"
         >
@@ -59,7 +61,7 @@ const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
 watch(
   () => props.position,
   () => {
-    labIndex.value = 0
+    active.index = 0
     emit('update:modelValue', standardItems.value[0]?.key!)
   }
 )
@@ -106,18 +108,23 @@ const standardItems = computed<Array<Item>>(() => {
 
 const headerRef = shallowRef<HTMLDivElement>()
 
-let labIndex = ref<number>(0)
+const active = reactive({
+  lab: props.modelValue as string | number,
+  index: 0,
+  hover: '' as string | number
+})
 /** 切换标签页 */
 const changeTab = (key: string | number, index: number) => {
   emit('update:modelValue', key)
-  labIndex.value = index
+  active.lab = key
+  active.index = index
 }
 
 const labRef = shallowRef<HTMLDivElement[]>()
 /** 标签下面那根蓝条 */
 const lineStyle = computed(() => {
   if (!labRef.value) return
-  const target = labRef.value[labIndex.value]!
+  const target = labRef.value[active.index]!
   if (['top', 'bottom'].includes(props.position!)) {
     return {
       transform: `translate(${target.offsetLeft}px)`,
@@ -139,6 +146,18 @@ const handleClose = (item: Item) => {
   if (item.key === props.modelValue) {
     let index = standardItems.value.length - 1
     changeTab(standardItems.value[index]?.key!, index)
+  }
+}
+
+const showClose = (key: string | number) => {
+  if (props.closable && standardItems.value.length > 1) {
+    if (active.lab === key || active.hover === key) {
+      return true
+    }else {
+      return false
+    }
+  }else {
+    return false
   }
 }
 </script>
