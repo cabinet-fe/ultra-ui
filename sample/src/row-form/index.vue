@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div class="box">
     删除和插入请右击
+    <u-button @click="getValues">123</u-button>
     <u-row-form ref="rowFormRef" :columns="columns" v-model="modelValue">
       <template #dd="{ row }">
         <u-input v-model="row.dd" />
@@ -17,6 +18,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { onMounted } from 'vue'
 import { reactive, shallowRef } from 'vue'
 
 const rowFormRef = shallowRef()
@@ -36,7 +38,22 @@ const modelValue = reactive([
     ff: '123213',
     ll: 123123,
     gg: '测试不写插槽',
-    children: [{ dd: '树形结构',ff: '123123', ll: '1223', gg: '123' }]
+    kk: '新年好',
+    children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
   }
 ])
+
+const getValues = () => {
+  console.log(rowFormRef.value.getValue())
+}
+
+onMounted(() => {
+  // getValues()
+})
 </script>
+<style scoped lang="scss">
+.box {
+  width: 1000px;
+
+}
+</style>
