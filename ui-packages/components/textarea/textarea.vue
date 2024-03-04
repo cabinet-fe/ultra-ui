@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import type {TextareaProps, TextareaEmits} from "@ui/types/components/textarea"
 import {bem} from "@ui/utils"
-import {computed, shallowRef} from "vue"
+import {computed, onMounted, ref, shallowRef} from "vue"
 
 defineOptions({
   name: "Textarea",
@@ -57,7 +57,7 @@ const styleObj = computed(() => {
 })
 
 /** 限制字符初始化 */
-let initNum = 0 || String(props.modelValue).length
+let initNum = ref(0)
 
 const updateModelValue = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
@@ -73,9 +73,12 @@ const updateModelValue = (e: Event) => {
   }
 }
 
-const countWordNum = (value: string) => {
+const countWordNum = (value: string | number) => {
   if (props.maxlength) {
-    initNum = props.maxlength - value.length
+    initNum.value = props.maxlength - String(value).length
   }
 }
+onMounted(() => {
+  countWordNum(props.modelValue!)
+})
 </script>
