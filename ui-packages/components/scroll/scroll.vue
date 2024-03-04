@@ -35,9 +35,9 @@ import type {
 } from '@ui/types/components/scroll'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
-import type { DefineEvent } from '@ui/utils'
 import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
+import type { DefineEvent } from '@ui/types/helper'
 
 defineOptions({
   name: 'Scroll'

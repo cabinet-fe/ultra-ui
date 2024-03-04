@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'vue'
+import { kebabCase } from 'cat-kit'
 
 /**
  * 给数值加上单位
@@ -22,11 +23,11 @@ export function withUnit(value: number | string | undefined, unit: string) {
 export function setStyles(el: HTMLElement, styles: CSSProperties) {
   if (el.attributeStyleMap) {
     Object.keys(styles).forEach(key => {
-      el.attributeStyleMap.set(key, String(styles[key]))
+      styles[key] && el.attributeStyleMap.set(kebabCase(key), styles[key])
     })
   } else {
     Object.keys(styles).forEach(key => {
-      el.style[key] = String(styles[key])
+      styles[key] && (el.style[key] = styles[key])
     })
   }
 }
@@ -39,7 +40,7 @@ export function setStyles(el: HTMLElement, styles: CSSProperties) {
 export function removeStyles(el: HTMLElement, props: string[]) {
   if (el.attributeStyleMap) {
     props.forEach(key => {
-      el.attributeStyleMap.delete(key)
+      el.attributeStyleMap.delete(kebabCase(key))
     })
   } else {
     props.forEach(key => {
