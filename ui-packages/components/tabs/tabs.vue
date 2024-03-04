@@ -7,8 +7,6 @@
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
         @click="changeTab(item.key!, index)"
         ref="labRef"
-        @mouseover="active.hover = item.key!"
-        @mouseout="active.hover = ''"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
@@ -21,7 +19,6 @@
           x
         </div>
       </div>
-      <div :class="[cls.em('header', 'line'), bem.is(position)]" :style="lineStyle"></div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
       <div v-for="item in standardItems" :key="item.key">
@@ -110,8 +107,7 @@ const headerRef = shallowRef<HTMLDivElement>()
 
 const active = reactive({
   lab: props.modelValue as string | number,
-  index: 0,
-  hover: '' as string | number
+  index: 0
 })
 /** 切换标签页 */
 const changeTab = (key: string | number, index: number) => {
@@ -151,11 +147,7 @@ const handleClose = (item: Item) => {
 
 const showClose = (key: string | number) => {
   if (props.closable && standardItems.value.length > 1) {
-    if (active.lab === key || active.hover === key) {
-      return true
-    }else {
-      return false
-    }
+    return active.lab === key
   }else {
     return false
   }
