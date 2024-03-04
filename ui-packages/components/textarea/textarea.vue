@@ -53,6 +53,7 @@ const classList = computed(() => {
 const styleObj = computed(() => {
   return {
     width: props.width,
+    overflow: props.autosize ? 'hidden':'auto',
     paddingBottom: props.maxlength && props.showCount ? "30px" : "",
   }
 })
@@ -78,6 +79,7 @@ const handleInput = (e: Event) => {
     emit("update:modelValue", value)
     countWordNum(value)
   }
+  if(!props.autosize) return
   scrollHight.value = "auto"
   countHeight()
 }

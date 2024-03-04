@@ -19,7 +19,7 @@
         min-height: 30px;
         box-sizing: border-box;
         height: auto;
-        overflow: hidden;
+        
 
         @include m.is(textarea-disabled) {
             cursor: not-allowed;
