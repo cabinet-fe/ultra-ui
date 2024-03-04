@@ -78,7 +78,7 @@
         background-color: fn.use-var(bg-color, top);
       }
 
-      .is-close {
+      .is-close, .is-close--placeholder {
         width: 16px;
         height: 16px;
         line-height: 13px;

@@ -18,6 +18,11 @@
         >
           x
         </div>
+        <div
+          v-if="closable && !showClose(item.key!)"
+          :class="bem.is('close--placeholder')"
+        >
+        </div>
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
