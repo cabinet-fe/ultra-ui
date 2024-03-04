@@ -1,9 +1,10 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
+    <!-- {{ store.modelData }} -->
     <row-form-body-item
       @item-click="handleClick"
       @contextmenu="handleDblClick"
-      :modelData="store.modelData"
+      :model-data="store.modelData"
     >
       <template
         v-for="columnsItem of store.columns.filter(
@@ -139,7 +140,6 @@ const handleDeleteData = () => {
 /** 插入 */
 const handleDeleteInsertData = (index: number) => {
   console.log('插入')
-  // store.modelData.splice(index, {})
 }
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */
@@ -156,4 +156,3 @@ onUnmounted(() => {
   document.removeEventListener('click', watchOperationViable)
 })
 </script>
-<style lang="scss" scoped></style>
