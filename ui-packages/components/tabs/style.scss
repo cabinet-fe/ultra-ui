@@ -129,6 +129,7 @@
 
   @include m.e(content) {
     width: 100%;
-    border: 1px solid gray;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
   }
 }
