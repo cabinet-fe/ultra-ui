@@ -1,5 +1,5 @@
+import type { Undef, Index } from '@ui/types/helper'
 import type {
-  ValidateResult,
   ValidateRule,
   Data,
   ValidatorConfig
@@ -7,70 +7,60 @@ import type {
 
 /** 预设规则 */
 const presetRules = {
-  required(value: any, required: ValidateRule['required']): string {
-    if (required === false) return ''
+  required(value: any, required: ValidateRule['required']): Undef<string> {
+    if (required === false) return
 
     const errMsg = typeof required === 'string' ? required : '该项不能为空'
     if (value === null || value === undefined) return errMsg
 
     if (Array.isArray(value) && !value.length) return errMsg
     if (typeof value === 'string' && !value) return errMsg
-
-    return ''
   },
-  min(value: any, rule: ValidateRule['min']): string {
-    if (value === null || value === undefined) return ''
+  min(value: any, rule: ValidateRule['min']): Undef<string> {
+    if (value === null || value === undefined) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项必须大于等于${_rule}`
     if (typeof value !== 'number') return `${value}不是一个数字`
     if (value < _rule) return errMsg
-    return ''
   },
-  max(value: any, rule: ValidateRule['max']): string {
-    if (value === null || value === undefined) return ''
+  max(value: any, rule: ValidateRule['max']): Undef<string> {
+    if (value === null || value === undefined) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项必须小于等于${_rule}`
     if (typeof value !== 'number') return `${value}不是一个数字`
     if (value > _rule) return errMsg
-    return ''
   },
 
-  minLen(value: any, rule: ValidateRule['minLen']): string {
-    if (value === null || value === undefined) return ''
+  minLen(value: any, rule: ValidateRule['minLen']): Undef<string> {
+    if (value === null || value === undefined) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须大于等于${_rule}`
     if (!Array.isArray(value) && typeof value !== 'string')
       return `${value}不是一个字符串或数组`
     if (value.length < _rule) return errMsg
-    return ''
   },
-  maxLen(value: any, rule: ValidateRule['maxLen']): string {
-    if (value === null || value === undefined) return ''
+  maxLen(value: any, rule: ValidateRule['maxLen']): Undef<string> {
+    if (value === null || value === undefined) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须小于等于:${_rule}`
     if (!Array.isArray(value) && typeof value !== 'string')
       return `${value}不是一个字符串或数组`
     if (value.length > _rule) return errMsg
-    return ''
   },
-  match(value: any, rule: ValidateRule['match']): string {
-    if (value === null || value === undefined) return ''
+  match(value: any, rule: ValidateRule['match']): Undef<string> {
+    if (value === null || value === undefined) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项不匹配正则:${_rule}`
     if (typeof value !== 'string') return `${value}不是一个字符串`
     if (!_rule.test(value)) return errMsg
-    return ''
   }
 }
-
 /**  */
 export class Validator<
   Rules extends Record<string, ValidateRule> = Record<string, ValidateRule>,
-  Fields extends keyof Rules = keyof Rules
+  Field extends keyof Rules = keyof Rules
 > {
   #rules: Rules
-
-  #errorsDict: { [key in Fields]?: string[] } = {}
 
   #config?: ValidatorConfig
 
@@ -96,38 +86,112 @@ export class Validator<
    */
   private async validateSingleData(
     data: Record<any, any>,
-    fields?: Fields | Fields[]
-  ): Promise<string> {
-    let errMsg = ''
-    if (!this.existRules) return errMsg
+    fields?: Field | Field[]
+  ): Promise<{ [key in Field]?: string[] }> {
+    const fieldErrors: { [key in Field]?: string[] } = {}
+
+    if (!this.existRules) return fieldErrors
+
     const lazy = this.#config?.lazy ?? true
 
-    const rulesKeys = (
-      fields
-        ? Array.isArray(fields)
-          ? fields
-          : [fields]
-        : Object.keys(this.#rules)
-    ) as Fields[]
+    fields = fields
+      ? Array.isArray(fields)
+        ? fields
+        : [fields]
+      : (Object.keys(this.#rules) as Field[])
 
-    for (let i = 0; i < rulesKeys.length; i++) {
-      const key = rulesKeys[i]!
-      const rules = this.#rules[key]
-      const value = data[key]
-      const { validator, ...normalRules } = rules!
-      for (const ruleKey in normalRules) {
-        errMsg = presetRules[ruleKey](value, normalRules[ruleKey])
-
-        if (errMsg) return errMsg
+    // 懒校验，当有一个规则不通过，剩下的规则不再校验
+    if (lazy) {
+      // 校验字段
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i]!
+        const errors = await this.validateValueLazy(data, field)
+        if (errors.length === 0) continue
+        fieldErrors[field] = errors
+      }
+      return fieldErrors
+    } else {
+      // 校验字段
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i]!
+        const errors = await this.validateValue(data, field)
+        if (errors.length === 0) continue
+        fieldErrors[field] = errors
       }
 
-      if (validator) {
-        errMsg = await validator(value, data)
-        if (errMsg) return errMsg
+      return fieldErrors
+    }
+  }
+
+  private async validateValue(data: Record<any, any>, field: Field) {
+    const rules = this.#rules[field]!
+    const value = data[field]
+
+    const { validator, required, ...normalRules } = rules
+
+    let errors: string[] = []
+
+    // 必填要先去校验
+    if (required) {
+      const err = presetRules.required(value, required)
+      err && errors.push(err)
+    }
+
+    // 校验规则
+    for (const ruleKey in normalRules) {
+      const err = presetRules[ruleKey](value, normalRules[ruleKey])
+      err && errors.push(err)
+    }
+
+    // 自定义校验最火校验
+    if (validator) {
+      const err = await validator(value, data)
+      err && errors.push(err)
+    }
+
+    return errors
+  }
+
+  private async validateValueLazy(
+    data: Record<any, any>,
+    field: Field
+  ): Promise<string[]> {
+    const rules = this.#rules[field]!
+    const value = data[field]
+
+    const { validator, required, ...normalRules } = rules
+
+    let errors: string[] = []
+
+    // 必填要先去校验
+    if (required) {
+      const err = presetRules.required(value, required)
+      if (err) {
+        errors.push(err)
+        return errors
       }
     }
 
-    return errMsg
+    // 校验规则
+    for (const ruleKey in normalRules) {
+      const err = presetRules[ruleKey](value, normalRules[ruleKey])
+
+      if (err) {
+        errors.push(err)
+        return errors
+      }
+    }
+
+    // 自定义校验最火校验
+    if (validator) {
+      const err = await validator(value, data)
+      if (err) {
+        errors.push(err)
+        return errors
+      }
+    }
+
+    return errors
   }
 
   /**
@@ -136,17 +200,19 @@ export class Validator<
    */
   private async validateManyData(
     data: Data,
-    field?: Fields | Fields[]
-  ): Promise<string> {
+    field?: Field | Field[]
+  ): Promise<{ [key in Field]?: string[] }> {
     let i = 0
     while (i < data.length) {
       const item = data[i]!
-      const errMsg = await this.validateSingleData(item, field)
-      if (errMsg) return errMsg
+      const fieldErrors = await this.validateSingleData(item, field)
+      if (Object.keys(fieldErrors).length > 0) {
+        return fieldErrors
+      }
       i++
     }
 
-    return ''
+    return {}
   }
 
   /**
@@ -157,15 +223,10 @@ export class Validator<
    */
   async validate(
     data: Data,
-    fields?: Fields | Fields[]
-  ): Promise<ValidateResult> {
-    const errMsg = await (Array.isArray(data)
+    fields?: Field | Field[]
+  ): Promise<{ [key in Field]?: string[] }> {
+    return Array.isArray(data)
       ? this.validateManyData(data, fields)
-      : this.validateSingleData(data, fields))
-
-    return {
-      success: !errMsg,
-      errMsg
-    }
+      : this.validateSingleData(data, fields)
   }
 }

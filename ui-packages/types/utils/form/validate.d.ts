@@ -27,11 +27,3 @@ export interface ValidatorConfig {
    */
   lazy?: boolean
 }
-
-/** 校验结果 */
-export interface ValidateResult {
-  /** 校验是否成功 */
-  success: boolean
-  /** 校验错误消息 */
-  errMsg?: string
-}

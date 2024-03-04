@@ -4,6 +4,6 @@
     "composite": true,
     "declaration": true
   },
-  "include": ["./index.ts", "./**/*.ts"],
-  "exclude": ["./**/*.test.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["__test__/*.test.ts"]
 }
