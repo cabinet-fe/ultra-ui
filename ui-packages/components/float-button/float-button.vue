@@ -33,7 +33,7 @@ import type {
   FloatButtonProps,
   FloatButtonEmits
 } from '@ui/types/components/float-button'
-import { bem } from '@ui/utils'
+import { bem, removeStyles, setStyles } from '@ui/utils'
 import { UIcon } from '../icon'
 import { shallowRef } from 'vue'
 import { UButton, type ButtonExposed } from '../button'
@@ -58,7 +58,7 @@ const handleMouseEnter = () => {
   hovered.value = true
 
   itemsRef.value?.forEach(item => {
-    item.el!.style.display = 'flex'
+    setStyles(item.el!, { display: 'flex' })
   })
 
   requestAnimationFrame(() => {
@@ -85,7 +85,7 @@ const handleTransitionEnd = (index: number, e: TransitionEvent) => {
   if (index !== 1 || hovered.value) return
 
   itemsRef.value?.forEach(item => {
-    item.el!.style.display = ''
+    removeStyles(item.el!, ['display'])
   })
 }
 </script>

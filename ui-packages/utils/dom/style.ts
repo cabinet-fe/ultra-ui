@@ -30,3 +30,20 @@ export function setStyles(el: HTMLElement, styles: CSSProperties) {
     })
   }
 }
+
+/**
+ * 移除样式
+ * @param el dom元素
+ * @param props 要移除的样式属性
+ */
+export function removeStyles(el: HTMLElement, props: string[]) {
+  if (el.attributeStyleMap) {
+    props.forEach(key => {
+      el.attributeStyleMap.delete(key)
+    })
+  } else {
+    props.forEach(key => {
+      el.style.removeProperty(key)
+    })
+  }
+}

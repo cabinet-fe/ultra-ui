@@ -25,17 +25,16 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   const rippleWrap = document.createElement('span')
   rippleWrap.classList.add(clsWrap)
 
-  setStyles(rippleWrap, {
-    transition: `transform ${_duration}ms ease-in`,
-    width: `${rippleSize}px`,
-    height: `${rippleSize}px`
-  })
-
   const radius = rippleSize / 2
   // 计算波纹圆心位置
   const center = `translate3d(${offsetX - radius}px, ${offsetY - radius}px, 0)`
 
-  rippleWrap.style.transform = `${center} scale3d(0, 0, 0)`
+  setStyles(rippleWrap, {
+    transition: `transform ${_duration}ms ease-in`,
+    width: `${rippleSize}px`,
+    height: `${rippleSize}px`,
+    transform: `${center} scale3d(0, 0, 0)`
+  })
 
   if (el.dataset.rippleClass) {
     rippleWrap.classList.add(el.dataset.rippleClass)
@@ -45,7 +44,9 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
 
   // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
   requestAnimationFrame(() => {
-    rippleWrap.style.transform = `${center} scale3d(2, 2, 2)`
+    setStyles(rippleWrap, {
+      transform: `${center} scale3d(2, 2, 2)`
+    })
   })
 
   // 效果完成后移除波纹元素

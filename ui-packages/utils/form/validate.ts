@@ -1,4 +1,4 @@
-import type { Undef, Index } from '@ui/types/helper'
+import type { Undef } from '@ui/types/helper'
 import type {
   ValidateRule,
   Data,
