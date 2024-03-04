@@ -1,5 +1,5 @@
 import type { DirectiveBinding, ObjectDirective } from 'vue'
-import { bem } from '@ui/utils'
+import { bem, setStyles } from '@ui/utils'
 
 const cls = bem('ripple')
 const clsWrap = cls.e('wrap')
@@ -24,9 +24,12 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   const rippleSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
   const rippleWrap = document.createElement('span')
   rippleWrap.classList.add(clsWrap)
-  rippleWrap.style.transition = `transform ${_duration}ms ease-in`
-  rippleWrap.style.width = `${rippleSize}px`
-  rippleWrap.style.height = `${rippleSize}px`
+
+  setStyles(rippleWrap, {
+    transition: `transform ${_duration}ms ease-in`,
+    width: `${rippleSize}px`,
+    height: `${rippleSize}px`
+  })
 
   const radius = rippleSize / 2
   // 计算波纹圆心位置
@@ -50,7 +53,8 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
     rippleWrap.parentNode?.removeChild(rippleWrap)
 
     // 所有的波纹被清除后移除波纹类
-    el.getElementsByClassName(clsWrap).length === 0 && el.classList.remove(cls.b)
+    el.getElementsByClassName(clsWrap).length === 0 &&
+      el.classList.remove(cls.b)
   }, _duration)
 }
 
