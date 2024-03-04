@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-textarea v-model="textareaValue1"></u-textarea>
+    <u-textarea v-model="textareaValue1" autosize height="200px"></u-textarea>
     <u-textarea v-model="textareaValue2" disabled></u-textarea>
     <u-textarea v-model="textareaValue3" resize="vertical"></u-textarea>
     <u-textarea v-model="textareaValue4" resize="horizontal"></u-textarea>
