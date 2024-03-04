@@ -44,7 +44,6 @@
       align-items: center;
       justify-content: space-around;
       cursor: pointer;
-      // border-right: 0;
       background-color: fn.use-var(bg-color, top);
       padding: 4px 8px;
       font-size: fn.use-var(font-size, title);
@@ -65,9 +64,6 @@
         color: #fff;
       }
     }
-    // &--label:last-of-type {
-    //   border-right: fn.use-var(border);
-    // }
     &--label:hover {
       color: fn.use-var(color, primary);
     }
