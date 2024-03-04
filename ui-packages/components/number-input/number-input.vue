@@ -12,8 +12,18 @@
   >
     <template #suffix v-if="step !== undefined && step !== false">
       <div :class="cls.e('step')">
-        <u-icon @click="increase"><ArrowUp /></u-icon>
-        <u-icon @click="decrease"><ArrowDown /></u-icon>
+        <u-icon
+          @click="increase"
+          :class="bem.is('disabled', disabled || !increasable)"
+        >
+          <ArrowUp />
+        </u-icon>
+        <u-icon
+          @click="decrease"
+          :class="bem.is('disabled', disabled || !reducible)"
+        >
+          <ArrowDown />
+        </u-icon>
       </div>
     </template>
   </u-input>
@@ -27,8 +37,7 @@ import type {
 import type { InputExposed } from '../input'
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
-import { n, Tween, obj } from 'cat-kit/fe'
-import { useModel } from '@ui/compositions'
+import { n, Tween, obj, isUndef } from 'cat-kit/fe'
 import { ArrowUp, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
@@ -54,8 +63,8 @@ const inputDom = computed(() => inputRef.value?.el)
 
 const cls = bem('number-input')
 
-// 实际值
-const model = useModel({ props, emit })
+/** 实际值 */
+const model = defineModel<NumberInputProps['modelValue']>()
 
 // 展示值
 const displayed = shallowRef('')
@@ -63,17 +72,31 @@ const displayed = shallowRef('')
 const focused = shallowRef(false)
 
 /** 步长 */
-const stepVal = computed(() => {
+const stepVal = computed<number>(() => {
   const { step } = props
   if (step === undefined) return 1
   return typeof step === 'boolean' ? 1 : step
+})
+
+/** 是否可增 */
+const increasable = computed(() => {
+  const { max } = props
+  if (isUndef(max) || isUndef(model.value)) return true
+  return model.value < max
+})
+
+/** 是否可减 */
+const reducible = computed(() => {
+  const { min } = props
+  if (isUndef(min) || isUndef(model.value)) return true
+  return model.value > min
 })
 
 /**
  * 获取展示值
  * @param num 实际值
  */
-const getDisplayed = (num?: number) => {
+function getDisplayed(num?: number): string {
   if (num === undefined) return ''
   if (focused.value) return String(num)
 
@@ -115,7 +138,7 @@ watch(
  * 解析展示值
  * @param str 展示值
  */
-const parseDisplayed = (str: string) => {
+function parseDisplayed(str: string): number | undefined {
   if (!str) return undefined
 
   // 将货币格式去掉再转化为数字
@@ -133,9 +156,22 @@ const parseDisplayed = (str: string) => {
   )
 }
 
-const handleUpdateModelValue = (input: string) => {
+/**
+ * 获取有效值
+ * @param val 值
+ */
+function getValidValue<T extends undefined | number>(val: T): T {
+  if (val === undefined) return val
+  const { min, max } = props
+  if (min !== undefined && val < min) return min as T
+  if (max !== undefined && val > max) return max as T
+  return val
+}
+
+function handleUpdateModelValue(input: string): void {
+  const newVal = parseDisplayed(input)
+  model.value = getValidValue(newVal)
   displayed.value = input
-  model.value = parseDisplayed(input)
 }
 
 /**
@@ -143,7 +179,7 @@ const handleUpdateModelValue = (input: string) => {
  * 主要用于在输入非数字的情况下的修正处理
  * @param input 输入的值
  */
-const handleChange = (input: string) => {
+function handleChange(input: string) {
   emit('change', model.value)
 }
 
@@ -165,22 +201,26 @@ const tween = new Tween(
 )
 
 /** 增 */
-const increase = () => {
+function increase(): void {
   const val = model.value ?? 0
+
   tween.state.n = val
-  model.value = n.plus(val, stepVal.value)
-  tween.to({ n: model.value })
+  const target = getValidValue(n.plus(val, stepVal.value))
+  model.value = target
+
+  tween.to({ n: target })
 }
 
 /** 减 */
-const decrease = () => {
+function decrease(): void {
   const val = model.value ?? 0
   tween.state.n = val
-  model.value = n.minus(val, stepVal.value)
-  tween.to({ n: model.value })
+  const target = getValidValue(n.minus(val, stepVal.value))
+  model.value = target
+  tween.to({ n: target })
 }
 
-const handleKeydown = (e: KeyboardEvent) => {
+function handleKeydown(e: KeyboardEvent): void {
   if (!props.step) return
   if (e.key === 'ArrowUp') {
     e.preventDefault()
@@ -192,7 +232,7 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-const handleFocus = () => {
+function handleFocus(): void {
   focused.value = true
 
   // 如果初始值和当前设置的精度不匹配则进行精度修正
@@ -207,7 +247,7 @@ const handleFocus = () => {
   )
 }
 
-const handleBlur = () => {
+function handleBlur(): void {
   focused.value = false
 }
 </script>

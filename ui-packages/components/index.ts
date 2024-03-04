@@ -10,6 +10,8 @@ export * from './context'
 
 export * from './dialog'
 
+export * from './float-button'
+
 export * from './form'
 
 export * from './form-item'
@@ -22,6 +24,8 @@ export * from './icon'
 
 export * from './input'
 
+export * from './layout'
+
 export * from './list'
 
 export * from './node-render'
@@ -31,6 +35,12 @@ export * from './number'
 export * from './number-input'
 
 export * from './popup'
+
+export * from './radio'
+
+export * from './radio-button'
+
+export * from './radio-group'
 
 export * from './row-form'
 
@@ -54,8 +64,8 @@ export * from './tip'
 
 export * from './tree'
 
+export * from './textarea'
+
 export * from './uploader'
 
 export * from './virtual-list'
-
-export * from './list'

@@ -1,21 +1,16 @@
 <template>
-  <component :is="tag" :class="cls.b" :style="style">
-    <UNodeRender :content="renderSlots()" />
+  <component :is="tag" :class="cls.b" :style="style" ref="gridRef">
+    <slot />
   </component>
 </template>
 
 <script lang="ts" setup>
-import { bem, isFragment } from '@ui/utils'
-import type { GridProps } from '@ui/types/components/grid'
-import {
-  type CSSProperties,
-  type VNodeArrayChildren,
-  cloneVNode,
-  computed,
-  useSlots,
-  isVNode
-} from 'vue'
-import { UNodeRender } from '../node-render'
+import { bem } from '@ui/utils'
+import type { GridProps, GridEmits } from '@ui/types/components/grid'
+import { GridDIKey } from './di'
+import { type CSSProperties, computed, shallowRef, provide } from 'vue'
+import { useResponsive } from './use-responsive'
+import { getBreakpointCols } from './breakpoint'
 
 defineOptions({
   name: 'Grid'
@@ -25,58 +20,46 @@ const props = withDefaults(defineProps<GridProps>(), {
   tag: 'div'
 })
 
+const emit = defineEmits<GridEmits>()
+
 const cls = bem('grid')
 
-const slots = useSlots()
+const gridRef = shallowRef<HTMLElement>()
 
-const style = computed<CSSProperties>(() => {
-  return {
-    gridTemplateColumns: Array.isArray(props.cols)
-      ? props.cols.join(' ')
-      : typeof props.cols === 'string'
-      ? props.cols
-      : `repeat(${props.cols}, 1fr)`,
-    columnGap: props.gap ? props.gap + 'px' : 0
-  }
+const { currentBreakpoint, gridItemsProps } = useResponsive({
+  props,
+  emit,
+  gridRef
 })
 
-/**
- * 获取除片段以外的vnode
- * @param vNodes
- */
-const getNormalNode = (vNodes: VNodeArrayChildren) => {
-  let result: VNodeArrayChildren = []
-  for (let i = 0; i < vNodes.length; i++) {
-    const node = vNodes[i]!
-    if (isVNode(node) && isFragment(node) && Array.isArray(node.children)) {
-      result = result.concat(getNormalNode(node.children))
-    } else {
-      result.push(node)
-    }
+const style = computed<CSSProperties>(() => {
+  const { cols, gap } = props
+  const styles: CSSProperties = {}
+  if (gap) {
+    styles.columnGap = gap + 'px'
+  }
+  if (!cols) return styles
+
+  switch (typeof cols) {
+    case 'number':
+      styles.gridTemplateColumns = `repeat(${cols}, 1fr)`
+      break
+    case 'function':
+      styles.gridTemplateColumns = `repeat(${cols(
+        currentBreakpoint.value
+      )}, 1fr)`
+      break
+    case 'object':
+      const breakpoint = currentBreakpoint.value
+      const amount = getBreakpointCols(cols, breakpoint)
+      styles.gridTemplateColumns = `repeat(${amount}, 1fr)`
   }
 
-  return result
-}
+  return styles
+})
 
-const renderSlots = () => {
-  const contents = slots.default?.()
-
-  if (!contents) return null
-  const vNodes = getNormalNode(contents)
-
-  if (typeof props.cols !== 'number') return vNodes
-
-  return vNodes.map(node => {
-    if (isVNode(node)) {
-      const { span } = node.props || {}
-      return cloneVNode(node, {
-        style: {
-          gridColumn: span === 'full' ? '1 / -1' : `span ${span || 1} / auto`
-        }
-      })
-    }
-
-    return node
-  })
-}
+provide(GridDIKey, {
+  currentBreakpoint,
+  gridItemsProps
+})
 </script>

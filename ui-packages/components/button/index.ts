@@ -1,3 +1,3 @@
 export { default as UButton } from './button.vue'
 
-export * from '@ui/types/components/button'
+export type { ButtonProps, ButtonEmits, ButtonExposed } from '@ui/types/components/button'

@@ -21,7 +21,6 @@
   setup
   generic="Val extends string | number | boolean = boolean"
 >
-import { useModel } from '@ui/compositions'
 import type {
   CheckboxProps,
   CheckboxEmits
@@ -36,17 +35,9 @@ const props = defineProps<CheckboxProps<Val>>()
 const emit = defineEmits<CheckboxEmits<Val>>()
 const cls = bem('checkbox')
 
-const model = useModel<CheckboxProps<Val>, 'modelValue'>({
-  props,
-  emit,
-  local: false
-})
+const model = defineModel<Val>()
 
-const indeterminate = useModel({
-  props,
-  emit,
-  propName: 'indeterminate'
-})
+const indeterminate = defineModel<boolean>('indeterminate')
 
 const trueVal = computed(() => {
   return props.trueValue ?? (true as Val)
@@ -63,7 +54,7 @@ const checked = computed(() => {
 const wrapClass = computed(() => {
   return [
     cls.e('wrap'),
-    bem.is('active', checked.value || indeterminate.value)
+    bem.is('active', checked.value || indeterminate.value || false)
   ] as const
 })
 

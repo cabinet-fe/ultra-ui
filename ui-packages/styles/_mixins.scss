@@ -40,10 +40,18 @@
 }
 
 @mixin e($elements...) {
+  $selector-list: null;
+
   @each $element in $elements {
-    &__#{$element} {
-      @content;
+    @if ($selector-list != null) {
+      $selector-list: $selector-list + ', &__' + $element;
+    } @else {
+      $selector-list: '&__' + #{$element};
     }
+  }
+
+  #{$selector-list} {
+    @content;
   }
 }
 
@@ -58,6 +66,30 @@
 @mixin is($types...) {
   @each $type in $types {
     &.is-#{$type} {
+      @content;
+    }
+  }
+}
+
+@mixin bem($b, $e: null, $m: null) {
+  $b: '.' + vars.$namespace + $b;
+
+  @if ($e != null) {
+    @each $ei in $e {
+      @if ($m != null) {
+        @each $mi in $m {
+          #{$b + '__' + $ei + '--' + $mi} {
+            @content;
+          }
+        }
+      } @else {
+        #{$b + '__' + $ei} {
+          @content;
+        }
+      }
+    }
+  } @else {
+    #{$b} {
       @content;
     }
   }
@@ -86,3 +118,39 @@
     }
   }
 }
+
+@function breakpoint($point) {
+  @return map.get(vars.$breakpoints, $point);
+}
+
+@mixin xs {
+  @media screen and (min-width: 0) and (max-width: breakpoint(xs)) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media screen and (min-width: breakpoint(xs)) and (max-width: breakpoint(sm)) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media screen and (min-width: breakpoint(sm)) and (max-width: breakpoint(md)) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media screen and (min-width: breakpoint( md)) and (max-width: breakpoint(lg)) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media screen and (min-width: breakpoint(lg)) {
+    @content;
+  }
+}
+
+

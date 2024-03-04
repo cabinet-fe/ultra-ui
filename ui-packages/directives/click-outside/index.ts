@@ -1,44 +1,28 @@
-import './style.scss'
-import type { ObjectDirective } from 'vue'
+import type {DirectiveBinding} from "vue"
 
-type DirectiveHandler = () => void
+const ClickOutside = {
+  async beforeMount(el: HTMLElement, binding: DirectiveBinding) {
+    
+    el.clickOutsideEvent = (event: MouseEvent) => {
+      let targetNode = event.target as HTMLElement
+      console.log(targetNode)
+      console.log(!el.contains(targetNode))
 
-const nodeHandlers = new Map<HTMLElement, DirectiveHandler>()
-
-function clickHandler(ev: MouseEvent) {
-  const target = ev.target as HTMLElement
-  if (nodeHandlers.get(target)) return
-  nodeHandlers.forEach(v => v())
-}
-
-// 是否已注册document事件
-let registered = false
-
-function register(el: HTMLElement, handler: DirectiveHandler) {
-  nodeHandlers.set(el, handler)
-  // 防止多次添加
-  if (registered) return
-  document.addEventListener('click', clickHandler)
-  registered = true
-}
-
-function unregister(el: HTMLElement) {
-  nodeHandlers.delete(el)
-  if (!nodeHandlers.size) {
-    document.removeEventListener('click', clickHandler)
-    registered = false
-  }
-}
-
-const ClickOutside: ObjectDirective<HTMLElement, DirectiveHandler> = {
-  // 挂载前
-  beforeMount(el, binding, vNode, preVNode) {
-    register(el, binding.value)
+      if (
+        !el.contains(targetNode) &&
+        targetNode !== el &&
+        !el.parentElement?.contains(targetNode)
+      ) {
+        // 如果点击事件不是发生在元素及其父级内部，则执行绑定的方法
+        binding.value()
+      }
+    }
+    document.addEventListener("click", el.clickOutsideEvent)
   },
-  // 卸载
-  unmounted(el) {
-    unregister(el)
-  }
+  unmounted(el: HTMLElement) {
+    document.removeEventListener("click", el.clickOutsideEvent)
+    delete el.clickOutsideEvent
+  },
 }
 
 export default ClickOutside

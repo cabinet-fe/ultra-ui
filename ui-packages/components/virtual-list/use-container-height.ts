@@ -1,4 +1,4 @@
-import { type ShallowRef, watch } from 'vue'
+import { type ShallowRef, watchEffect } from 'vue'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
 
 interface Options {
@@ -8,19 +8,24 @@ interface Options {
   props: VirtualListProps
 }
 
+/**
+ * 容器高度控制
+ * @param options 选项
+ * @returns
+ */
 export function useContainerHeight(options: Options) {
   const { containerRef, props } = options
 
-  const updateHeight = (height: number) => {
+  const updateHeight = (height?: number) => {
     if (!containerRef.value) return
-    containerRef.value.style.height = `${height}px`
+    containerRef.value.style.height = height ? height + 'px' : ''
   }
 
   let renderedHeight = 0
   const heightRenderedIndex = new Set<number>()
 
   function updateItemHeight(index: number, height: number) {
-    if (heightRenderedIndex.has(index)) return
+    if (heightRenderedIndex.has(index) || !props.data) return
 
     renderedHeight += height
     heightRenderedIndex.add(index)
@@ -29,20 +34,23 @@ export function useContainerHeight(options: Options) {
     )
   }
 
-  watch([() => props.data, () => props.itemSize, () => containerRef.value], ([data, itemSize, container]) => {
-    if (!data.length || !container) return
+  watchEffect(() => {
+    const { data, itemHeight, virtualThreshold } = props
+    if (!containerRef.value) return
 
-
-    if (itemSize) {
-      updateHeight(data.length * itemSize)
-    } else {
-
-      // 给个推算的高度, 当
-      updateHeight(data.length * 32)
+    if ((data?.length ?? 0) < virtualThreshold!) {
+      return updateHeight()
     }
-  }, {
-    immediate: true
+    if (itemHeight) {
+      return updateHeight(
+        data?.length !== undefined ? data.length * itemHeight : undefined
+      )
+    }
+
+    updateHeight(data!.length * 32)
   })
 
-  return updateItemHeight
+  return {
+    updateItemHeight
+  }
 }

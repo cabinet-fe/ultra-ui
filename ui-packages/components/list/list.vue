@@ -1,12 +1,23 @@
 <template>
   <div :class="cls.b">
-    <ul :class="cls.e('item')">
-      <li v-for="(item, index) in data">
-        <slot name="content" v-if="$slots.content" :data="item" />
-        <div v-else>
+    <ul
+      :class="cls.e('item')"
+      @scroll="loadMore"
+      :style="{ height: props.infiniteScroll == true ? height + 'px' : '' }"
+    >
+      <li
+        v-for="(item, index) in visibleItems"
+        :draggable="props.draggable"
+        @dragstart="onDragStart(item, index)"
+        @dragover.prevent="onDragOver"
+        @drop="onDrop($event, item, index)"
+      >
+        <!-- 自定义样式 -->
+        <slot name="content" v-if="$slots.content" :item="item" :index="index" />
+        <!-- 默认样式 -->
+        <div v-else :class="cls.e('container')">
           <!-- left  -->
           <div :class="cls.e('left')">
-            <!-- TODO v-model 值有点问题 -->
             <div :class="cls.e('checkbox')">
               <u-checkbox
                 v-model="item.checked"
@@ -33,49 +44,160 @@
 
           <!-- action -->
           <div :class="cls.e('action')" v-if="showActions">
-            <u-icon :size="16"><Delete @click="handleDelete(item, index)" /></u-icon>
-            <u-icon :size="16"><Message @click="handleMessage(item, index)" /></u-icon>
-            <u-icon :size="16"><Warning @click="handleTip(item, index)" /></u-icon>
+            <u-button
+              circle
+              :icon="Delete"
+              size="small"
+              @click="handleDelete(item, index)"
+            ></u-button>
+            <u-button
+              circle
+              :icon="Message"
+              size="small"
+              @click="handleMessage(item, index)"
+            ></u-button>
+            <u-button
+              circle
+              :icon="Warning"
+              size="small"
+              @click="handleTip(item, index)"
+            ></u-button>
           </div>
           <!-- action end-->
         </div>
       </li>
+      <p v-if="props.infiniteScroll == true && noMore" :class="cls.e('loadMore')">没有更多了...</p>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
-import { useSlots } from 'vue'
-import { UIcon } from '../icon'
 import { UCheckbox } from '../checkbox'
+import { UButton } from '../button'
 import { Delete, Message, Warning } from 'icon-ultra'
 import { bem } from '@ui/utils'
+import { computed, ref } from 'vue'
 
 defineOptions({
   name: 'List'
 })
+const cls = bem('list')
 
 const emit = defineEmits<ListEmits>()
 
-const props = withDefaults(defineProps<Partial<ListProps>>(), {})
+const props = withDefaults(defineProps<Partial<ListProps>>(), {
+  /** 每页显示多少条 */
+  itemsPerPage: 20,
 
-const slots = useSlots()
+  /** 是否无限滚动 */
+  infiniteScroll: false
+})
+
+const height = document.documentElement.clientHeight
+
+let dragIndex: any = ref(null)
+
+/** 没有更多了 */
+const noMore = ref(false)
+
+/** 所有列表 */
+const items = ref<any>(props.data)
+
+/** 当前页码 */
+const currentPage = ref(1)
+
+/** 每页显示多少条 */
+const itemsPerPage = ref(props.itemsPerPage || 10)
+
+/** 要显示的列表 */
+const visibleItems = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value
+
+  const endIndex = startIndex + itemsPerPage.value
+
+  return items.value?.slice(0, endIndex)
+})
+
+/** 显示加载更多按钮 */
+// const showLoadMoreButton = computed(() => {
+//   return visibleItems.value.length < items.value.length
+// })
+
+/** 加载更多 */
+const loadMore = e => {
+  if (props.infiniteScroll == false) return
+  let scrollTop = e.target.scrollTop
+
+  let scrollHeight = e.target.scrollHeight
+
+  let clientHeight = e.target.clientHeight
+
+  console.log(scrollTop, 'scrollTop', clientHeight, 'clientHeight', scrollHeight, 'scrollHeight')
+
+  if (scrollTop + clientHeight == scrollHeight) {
+    console.log('没有更多了')
+    noMore.value = true
+  } else {
+    currentPage.value++
+  }
+}
+
+/**
+ * 拖动元素触发
+ * @param item
+ * @param index
+ */
+const onDragStart = (item: any, index: number) => {
+  console.log(item, 'item', index, 'index')
+
+  dragIndex.value = index
+  console.log(dragIndex.value, 'dragIndex.value')
+}
+
+/**
+ * ondragover事件在拖动元素在目标元素上方时触发，通常用于防止默认的拖放行为。
+ * 可以通过event.preventDefault()方法阻止默认行为。
+ */
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault()
+}
+/**
+ * ondrop事件在拖动元素在目标元素上释放时触发，通常用于实现拖放功能。
+ * */
+const onDrop = (e: any, item: any, index: number) => {
+  console.log(e, 'e', e.target.dataset.index, '11')
+  const draggItem: any = items.value[dragIndex.value]
+
+  console.log(draggItem, 'draggItem')
+
+  items.value.splice(dragIndex.value, 1)
+  console.log(items.value, 'items.value')
+
+  items.value.splice(index, 0, draggItem)
+  console.log(items.value, 'items.value++')
+
+  dragIndex.value = null
+}
 
 /** 删除 */
 const handleDelete = (item: any, index: number) => {
   emit('delete', item, index)
 }
+
+/** 消息 */
 const handleMessage = (item: any, index: number) => {
   emit('message', item, index)
 }
+
+/** 提示 */
 const handleTip = (item: any, index: number) => {
   emit('tip', item, index)
 }
+
+/** 更新 */
 const handleUpdate = (item: any, index: number) => {
   let list = props.data?.filter(item => item.checked)
   emit('update:check', list)
 }
-
-const cls = bem('list')
 </script>
