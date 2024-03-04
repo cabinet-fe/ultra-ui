@@ -11,8 +11,8 @@
   "keywords": ["完全TS开发的Vue3组件库", "Vue组件", "Vue3", "Vue", "前端框架", "Vue UI"],
   "author": "cabinet-fe",
   "devDependencies": {
-    "vue": "^3.4.20",
-    "@vue/runtime-core": "^3.4.20",
+    "vue": "^3.4.21",
+    "@vue/runtime-core": "^3.4.21",
     "ts-conf-base": "^2.2.0",
     "@types/node": "^20.11.19",
     "typescript": "5.3.3",

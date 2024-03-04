@@ -13,7 +13,7 @@
       <p>可以通过属性<span class="tip">show-check</span>显示，默认false</p>
       {{ checkArr }}
 
-      <u-list :data="list2" :show-check="true" v-model:check="checkArr" />
+      <u-list :data="list2" :show-check="true" v-model:check="checkArr" :draggable="true" />
     </div>
 
     <div class="list-row">

@@ -32,9 +32,9 @@ const rules = {
   }
 }
 
-const formRef = shallowRef<FormExposed>()
+const formRef = shallowRef<FormExposed<(keyof typeof rules)[]>>()
 
 const validate = async () => {
-  formRef.value?.validate()
+  formRef.value?.validate(['a'])
 }
 </script>
