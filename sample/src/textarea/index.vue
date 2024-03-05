@@ -1,5 +1,4 @@
 <template>
-  <div>
     <u-textarea v-model="textareaValue1" autosize height="200px"></u-textarea>
     <u-textarea v-model="textareaValue2" disabled></u-textarea>
     <u-textarea v-model="textareaValue3" resize="vertical"></u-textarea>
@@ -7,7 +6,6 @@
     <u-textarea v-model="textareaValue5" :maxlength="20" show-count></u-textarea>
 
     <u-button @click="btn()">获取</u-button>
-  </div>
 </template>
 
 <script setup lang="ts">

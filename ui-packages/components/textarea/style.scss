@@ -5,7 +5,7 @@
 @include m.b(textarea) {
 
     position: relative;
-    // width: max-content;
+    display: block;
     font-family: fn.use-var(font-family);
 
     @include m.m(more) {
