@@ -5,7 +5,7 @@
         v-for="(item, index) in standardItems"
         :key="item.key"
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
-        @click="changeTab(item.key!, index)"
+        @click="changeTab(item, index)"
         ref="labRef"
       >
         <slot :name="`${item?.name}-label`">
@@ -14,15 +14,11 @@
         <div
           v-if="showClose(item.key!)"
           :class="bem.is('close')"
-          @click.stop="handleClose(item)"
+          @click.stop="handleClose(item, index)"
         >
-          x
+          <Close />
         </div>
-        <div
-          v-if="closable && !showClose(item.key!)"
-          :class="bem.is('close--placeholder')"
-        >
-        </div>
+        <div v-if="closable && !showClose(item.key!)" :class="bem.is('close--placeholder')"></div>
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
@@ -38,24 +34,17 @@
 </template>
 
 <script lang="ts" setup>
-import type { Item, TabsProps } from '@ui/types/components/tabs'
+import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj } from 'cat-kit'
-import {
-  computed,
-  getCurrentInstance,
-  shallowRef,
-  ref,
-  watch,
-  reactive,
-  type ShallowRef
-} from 'vue'
+import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
+import { Close } from 'icon-ultra'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
+const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
   position: 'right',
   closable: false
 })
@@ -72,9 +61,7 @@ const instance = getCurrentInstance()!
 
 const cls = bem('tabs')
 
-const emit = defineEmits<{
-  'update:modelValue': [key: string | number]
-}>()
+const emit = defineEmits<TabsEmits<TabsItems>>()
 /** 是否显示除标签以外的内容 */
 const showContent = computed(() => {
   if (instance?.slots) {
@@ -115,45 +102,49 @@ const active = reactive({
   index: 0
 })
 /** 切换标签页 */
-const changeTab = (key: string | number, index: number) => {
-  emit('update:modelValue', key)
-  active.lab = key
+const changeTab = (item: Item, index: number) => {
+  emit('update:modelValue', item.key!)
+  active.lab = item.key!
   active.index = index
+  emit('click', item, index)
 }
 
 const labRef = shallowRef<HTMLDivElement[]>()
-/** 标签下面那根蓝条 */
-const lineStyle = computed(() => {
-  if (!labRef.value) return
-  const target = labRef.value[active.index]!
-  if (['top', 'bottom'].includes(props.position!)) {
-    return {
-      transform: `translate(${target.offsetLeft}px)`,
-      width: `${target.offsetWidth}px`
-    }
-  } else if (['left', 'right'].includes(props.position!)) {
-    return {
-      transform: `translate(${props.position === 'left' ? target.offsetWidth + 1 : 0}px, ${
-        target.offsetTop
-      }px)`,
-      height: `${target.offsetHeight}px`
-    }
-  }
-})
+
+// const lineStyle = computed(() => {
+//   if (!labRef.value) return
+//   const target = labRef.value[active.index]!
+//   if (['top', 'bottom'].includes(props.position!)) {
+//     return {
+//       transform: `translate(${target.offsetLeft}px)`,
+//       width: `${target.offsetWidth}px`
+//     }
+//   } else if (['left', 'right'].includes(props.position!)) {
+//     return {
+//       transform: `translate(${props.position === 'left' ? target.offsetWidth + 1 : 0}px, ${
+//         target.offsetTop
+//       }px)`,
+//       height: `${target.offsetHeight}px`
+//     }
+//   }
+// })
 
 /** 关闭标签 */
-const handleClose = (item: Item) => {
+const handleClose = (item: Item, index: number) => {
   closedList.value.push(item.key!)
   if (item.key === props.modelValue) {
-    let index = standardItems.value.length - 1
-    changeTab(standardItems.value[index]?.key!, index)
+    const item = standardItems.value[0]!
+    emit('update:modelValue', item.key!)
+    active.lab = item.key!
+    active.index = index
   }
+  emit('delete', item, index)
 }
 
 const showClose = (key: string | number) => {
   if (props.closable && standardItems.value.length > 1) {
     return active.lab === key
-  }else {
+  } else {
     return false
   }
 }

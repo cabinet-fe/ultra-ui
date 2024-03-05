@@ -106,15 +106,14 @@
       .is-close--placeholder {
         width: 16px;
         height: 16px;
-        line-height: 13px;
-        border-radius: 50px;
-        display: flex;
+        border-radius: 50%;
+        display: inline-flex;
         justify-content: center;
         align-items: center;
       }
 
       .is-close:hover {
-        background-color: fn.use-var(color, primary);
+        background-color: fn.use-var(color, primary-light-1);
         color: #fff;
       }
     }
