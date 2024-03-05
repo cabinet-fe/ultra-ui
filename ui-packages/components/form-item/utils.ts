@@ -1,4 +1,5 @@
-import type { FormComponentProps } from "@ui/shared"
+
+import type { FormComponentProps } from "@ui/types/component-common"
 import { pick } from "cat-kit/fe"
 
 /**
