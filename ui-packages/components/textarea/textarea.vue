@@ -11,8 +11,7 @@
       @input="handleInput"
       :readonly="props.disabled"
       ref="textAreaRef"
-    >
-    </textarea>
+    />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
     </span>
@@ -32,8 +31,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
   width: "100%",
   rows: 5,
-  cols: 20,
-  resizable:'vertical'
+  resizable: "vertical",
 })
 
 const cls = bem("textarea")

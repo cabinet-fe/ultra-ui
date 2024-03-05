@@ -6,7 +6,6 @@
 
     position: relative;
     display: block;
-    font-family: fn.use-var(font-family);
 
     @include m.m(more) {
         display: block;
@@ -18,7 +17,7 @@
         padding: 5px 10px;
         min-height: 30px;
         box-sizing: border-box;
-        height: auto;
+        font-family: fn.use-var(font-family);
 
 
         @include m.is(textarea-disabled) {
