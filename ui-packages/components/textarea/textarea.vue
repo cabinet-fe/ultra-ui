@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   width: "100%",
   rows: 5,
   cols: 20,
+  resizable:'vertical'
 })
 
 const cls = bem("textarea")
@@ -44,7 +45,7 @@ const emit = defineEmits<TextareaEmits>()
 const classList = computed(() => {
   return [
     cls.m(`more`),
-    cls.m(`resize-${props.autosize ? "none" : props.resize}`),
+    cls.m(`resize-${props.resizable}`),
     bem.is("textarea-disabled", props.disabled),
   ]
 })
