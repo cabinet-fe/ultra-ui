@@ -1,8 +1,9 @@
 <template>
   <tr
-    v-for="(dataItem, dataIndex) of modelData"
+    v-for="(dataItem, dataIndex) of store.modelData"
     :key="dataIndex"
     :class="store.cls.em('tbody', 'hover')"
+    v-contextmenu-operation
     @contextmenu.prevent="e => handleContextmenuClick(e, dataIndex, dataItem)"
   >
     <!-- 内容 -->
@@ -21,7 +22,17 @@
             >
           </span>
 
-          <slot ref="slotsRef" :name="columnsItem.key" :row="dataItem" />
+          <slot
+            ref="slotsRef"
+            :name="columnsItem.key"
+            :data="dataItem"
+            :index="columnsIndex"
+          />
+
+          <!-- <row-form-body-item
+            v-if="dataItem?.children"
+            :modelData="dataItem?.children"
+          /> -->
         </div>
       </div>
     </td>
@@ -29,9 +40,13 @@
 </template>
 <script lang="ts" setup>
 import { inject, ref, computed, type PropType } from 'vue'
-import type { RowFormColumn, RowFormItemEmits } from './row-form.type'
+import type {
+  RowFormColumn,
+  RowFormItemEmits
+} from '@ui/types/components/row-form'
 import { RowFormStoreType } from './di'
 import { bem } from '@ui/utils'
+import vContextmenuOperation from "@ui/directives/contextmenu-operation"
 
 defineProps({
   modelData: { type: Array as PropType<Record<string, any>[]> }
@@ -68,6 +83,7 @@ const handleContextmenuClick = (
   index: number,
   dataItem: Record<string, any>
 ) => {
+  // console.log(event,'handleContextmenuClick')
   emits('contextmenu', event, index, dataItem)
 }
 </script>
