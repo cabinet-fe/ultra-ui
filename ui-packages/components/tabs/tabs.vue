@@ -83,7 +83,7 @@ let closedList = ref<Array<string | number>>([])
 
 const standardItems = ref<Array<Item>>([])
 
-const propItems = ref<Array<Item>>(props.items)
+const propItems = ref<TabsItems[]>(deepCopy(props.items))
 
 watch(
   () => props.items,
@@ -119,7 +119,7 @@ const changeTab = (item: Item, index: number) => {
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
-  emit('click', item, index)
+  emit('click', { ...item }, index)
 }
 
 const labRef = shallowRef<HTMLDivElement[]>()
@@ -133,7 +133,7 @@ const handleClose = (item: Item, index: number) => {
     active.lab = item.key!
     active.index = index
   }
-  emit('delete', item, index)
+  emit('delete', { ...item }, index)
 }
 
 const showClose = (key: string | number) => {
@@ -153,7 +153,7 @@ const exchange = () => {
   propItems.value.splice(
     dragState.active,
     1,
-    ...propItems.value.splice(dragState.target, 1, propItems.value[dragState.active])
+    ...propItems.value.splice(dragState.target, 1, propItems.value[dragState.active]!)
   )
   standardItems.value.splice(
     dragState.active,
