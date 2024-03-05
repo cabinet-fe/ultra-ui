@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
+let items = ref(['TabOne', 'TabTwo', 'TabThreeTabThree', 'TabFour'])
 
 const active = ref<string[]>(['TabOne', 'TabOne', 'TabOne', 'TabOne'])
 

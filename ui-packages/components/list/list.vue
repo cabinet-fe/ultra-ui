@@ -11,9 +11,15 @@
         @dragstart="onDragStart(item, index)"
         @dragover.prevent="onDragOver"
         @drop="onDrop($event, item, index)"
+        :data-index="index"
       >
         <!-- 自定义样式 -->
-        <slot name="content" v-if="$slots.content" :item="item" :index="index" />
+        <slot
+          name="content"
+          v-if="$slots.content"
+          :item="item"
+          :index="index"
+        />
         <!-- 默认样式 -->
         <div v-else :class="cls.e('container')">
           <!-- left  -->
@@ -26,7 +32,7 @@
               ></u-checkbox>
             </div>
 
-            <div :clsaa="cls.e('star')"></div>
+            <div :class="cls.e('star')"></div>
 
             <div :class="cls.e('avatar')" v-if="item.avatar">
               <img :src="item.avatar" alt="" />
@@ -44,29 +50,30 @@
 
           <!-- action -->
           <div :class="cls.e('action')" v-if="showActions">
-            <u-button
-              circle
-              :icon="Delete"
-              size="small"
-              @click="handleDelete(item, index)"
-            ></u-button>
-            <u-button
-              circle
-              :icon="Message"
-              size="small"
-              @click="handleMessage(item, index)"
-            ></u-button>
-            <u-button
-              circle
-              :icon="Warning"
-              size="small"
-              @click="handleTip(item, index)"
-            ></u-button>
+            <ButtonCommonProps>
+              <u-button
+                :icon="Delete"
+                @click="handleDelete(item, index)"
+              ></u-button>
+              <u-button
+                :icon="Message"
+                @click="handleMessage(item, index)"
+              ></u-button>
+              <u-button
+                :icon="Warning"
+                @click="handleTip(item, index)"
+              ></u-button>
+            </ButtonCommonProps>
           </div>
           <!-- action end-->
         </div>
       </li>
-      <p v-if="props.infiniteScroll == true && noMore" :class="cls.e('loadMore')">没有更多了...</p>
+      <p
+        v-if="props.infiniteScroll == true && noMore"
+        :class="cls.e('loadMore')"
+      >
+        没有更多了...
+      </p>
     </ul>
   </div>
 </template>
@@ -74,10 +81,11 @@
 <script lang="ts" setup>
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
 import { UCheckbox } from '../checkbox'
-import { UButton } from '../button'
+import { UButton, type ButtonProps } from '../button'
 import { Delete, Message, Warning } from 'icon-ultra'
 import { bem } from '@ui/utils'
 import { computed, ref } from 'vue'
+import { useComponentProps } from '@ui/compositions'
 
 defineOptions({
   name: 'List'
@@ -92,6 +100,13 @@ const props = withDefaults(defineProps<Partial<ListProps>>(), {
 
   /** 是否无限滚动 */
   infiniteScroll: false
+})
+
+const ButtonCommonProps = useComponentProps<ButtonProps>({
+  type: 'primary',
+  text: true,
+  size: 'small',
+  circle: true
 })
 
 const height = document.documentElement.clientHeight
@@ -133,7 +148,14 @@ const loadMore = e => {
 
   let clientHeight = e.target.clientHeight
 
-  console.log(scrollTop, 'scrollTop', clientHeight, 'clientHeight', scrollHeight, 'scrollHeight')
+  console.log(
+    scrollTop,
+    'scrollTop',
+    clientHeight,
+    'clientHeight',
+    scrollHeight,
+    'scrollHeight'
+  )
 
   if (scrollTop + clientHeight == scrollHeight) {
     console.log('没有更多了')

@@ -2,12 +2,17 @@
   <div>
     删除和插入请右击
     <u-button @click="getValues">获取数据</u-button>
+    <u-button @click="toggleColumns">切换columns</u-button>
+    {{ columns }}
     <u-row-form
       style="margin-top: 10px"
       ref="rowFormRef"
       :columns="columns"
       v-model="modelValue"
+      @update:model-value=""
     >
+      <template #header></template>
+
       <template #dd="{ data, index }">
         <u-input v-model="data.dd" />
         {{ index }}
@@ -23,7 +28,7 @@
     </u-row-form>
   </div>
 
-  <div style="margin-top: 10px">
+  <!-- <div style="margin-top: 10px">
     <div>禁用</div>
     <u-row-form
       style="margin-top: 10px"
@@ -39,7 +44,7 @@
         <u-input v-model="row.ff" />
       </template>
     </u-row-form>
-  </div>
+  </div> -->
 </template>
 <script lang="ts" setup>
 import { onMounted } from 'vue'
@@ -76,6 +81,12 @@ const getValues = () => {
   console.log(rowFormRef.value.getValue())
 }
 
+const toggleColumns = () => {
+  columns.value = [
+    ...columns.value,
+    { name: Math.random() + '', key: Date.now() + '' }
+  ]
+}
 onMounted(() => {
   // getValues()
 })

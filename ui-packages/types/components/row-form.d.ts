@@ -11,11 +11,11 @@ export interface RowFormColumn {
 }
 
 /** 表格编辑组件组件属性 */
-export interface RowFormProps<T> {
+export interface RowFormProps {
   /** 是否禁止编辑 */
   disabled?: boolean
   /** 双向绑定的值 */
-  modelValue: T[]
+  modelValue: Record<string, any>[]
   /** columns */
   columns: RowFormColumn[]
   /** 是否是tree */
