@@ -19,7 +19,7 @@
         min-height: 30px;
         box-sizing: border-box;
         height: auto;
-        
+
 
         @include m.is(textarea-disabled) {
             cursor: not-allowed;
@@ -52,19 +52,4 @@
         font-size: 12px;
         background: fn.use-var(bg-color, middle);
     }
-
-
-    /* 隐藏拖拽调整大小的标志，不同浏览器可能需要不同的前缀 */
-    // textarea::-webkit-resizer {
-    //     border-top: none;
-    // }
-
-    // textarea::-moz-resizer {
-    //     border-top: none;
-    // }
-
-    // textarea::-ms-resizer {
-    //     border-top: none;
-    // }
-
 }
