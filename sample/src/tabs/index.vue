@@ -1,7 +1,16 @@
 <template>
   <ul class="list">
     <li class="item" v-for="(position, index) in positions">
-      <u-tabs :items="items" v-model="active[index]" :position="position" closable>
+      <u-tabs
+        :items="items"
+        v-model="active[index]"
+        :position="position"
+        :closable="true"
+        @click="handleClick"
+        @delete="handleDelete"
+        @update:items="handleUpdate"
+        :sortable="true"
+      >
         <template v-for="item in items" #[item]>{{ item }}</template>
       </u-tabs>
     </li>
@@ -17,6 +26,17 @@ const active = ref<string[]>(['TabOne', 'TabOne', 'TabOne', 'TabOne'])
 
 const positions: any[] = ['top', 'bottom', 'left', 'right']
 
+const handleClick = (item, index) => {
+  console.log(item, index)
+}
+
+const handleDelete = (item, index) => {
+  console.log(item, index)
+}
+
+const handleUpdate = (item) => {
+  console.log(item)
+}
 </script>
 
 <style lang="scss" scoped>

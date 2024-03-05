@@ -5,8 +5,12 @@
         v-for="(item, index) in standardItems"
         :key="item.key"
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
-        @click="changeTab(item.key!, index)"
+        @click="changeTab(item, index)"
         ref="labRef"
+        :draggable="sortable"
+        @dragstart="(e) => dragstart(e, index)"
+        @dragover="(e) => dragover(e, index)"
+        @drop="drop"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
@@ -14,15 +18,11 @@
         <div
           v-if="showClose(item.key!)"
           :class="bem.is('close')"
-          @click.stop="handleClose(item)"
+          @click.stop="handleClose(item, index)"
         >
-          x
+          <Close />
         </div>
-        <div
-          v-if="closable && !showClose(item.key!)"
-          :class="bem.is('close--placeholder')"
-        >
-        </div>
+        <div v-if="closable && !showClose(item.key!)" :class="bem.is('close--placeholder')"></div>
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
@@ -38,26 +38,20 @@
 </template>
 
 <script lang="ts" setup>
-import type { Item, TabsProps } from '@ui/types/components/tabs'
+import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
-import { isObj } from 'cat-kit'
-import {
-  computed,
-  getCurrentInstance,
-  shallowRef,
-  ref,
-  watch,
-  reactive,
-  type ShallowRef
-} from 'vue'
+import { isObj, deepCopy } from 'cat-kit'
+import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
+import { Close } from 'icon-ultra'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps = withDefaults(defineProps<TabsProps>(), {
+const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
   position: 'right',
-  closable: false
+  closable: false,
+  sortable: false
 })
 /** 切换position回归初始状态 */
 watch(
@@ -72,9 +66,7 @@ const instance = getCurrentInstance()!
 
 const cls = bem('tabs')
 
-const emit = defineEmits<{
-  'update:modelValue': [key: string | number]
-}>()
+const emit = defineEmits<TabsEmits<TabsItems>>()
 /** 是否显示除标签以外的内容 */
 const showContent = computed(() => {
   if (instance?.slots) {
@@ -89,24 +81,32 @@ const showContent = computed(() => {
 })
 let closedList = ref<Array<string | number>>([])
 
-const standardItems = computed<Array<Item>>(() => {
-  let res: Item[] = []
-  if (props.items.length) {
-    if (isObj(props.items[0])) {
-      res = props.items.map((item: any) => {
-        item.key = item.key || item.name
-        return item
-      })
+const standardItems = ref<Array<Item>>([])
+
+const propItems = ref<TabsItems[]>(deepCopy(props.items))
+
+watch(
+  () => props.items,
+  (items) => {
+    let res: Item[] = []
+    if (items.length) {
+      if (isObj(items[0])) {
+        res = items.map((item: any) => {
+          item.key = item.key || item.name
+          return item
+        })
+      } else {
+        res = items.map((item: any) => {
+          return { name: item, key: item }
+        })
+      }
     } else {
-      res = props.items.map((item: any) => {
-        return { name: item, key: item }
-      })
+      res = []
     }
-  } else {
-    res = []
-  }
-  return res.filter((item: any) => !closedList.value.includes(item.key))
-})
+    standardItems.value = res.filter((item: any) => !closedList.value.includes(item.key))
+  },
+  { immediate: true }
+)
 
 const headerRef = shallowRef<HTMLDivElement>()
 
@@ -115,46 +115,62 @@ const active = reactive({
   index: 0
 })
 /** 切换标签页 */
-const changeTab = (key: string | number, index: number) => {
-  emit('update:modelValue', key)
-  active.lab = key
+const changeTab = (item: Item, index: number) => {
+  emit('update:modelValue', item.key!)
+  active.lab = item.key!
   active.index = index
+  emit('click', { ...item }, index)
 }
 
 const labRef = shallowRef<HTMLDivElement[]>()
-/** 标签下面那根蓝条 */
-const lineStyle = computed(() => {
-  if (!labRef.value) return
-  const target = labRef.value[active.index]!
-  if (['top', 'bottom'].includes(props.position!)) {
-    return {
-      transform: `translate(${target.offsetLeft}px)`,
-      width: `${target.offsetWidth}px`
-    }
-  } else if (['left', 'right'].includes(props.position!)) {
-    return {
-      transform: `translate(${props.position === 'left' ? target.offsetWidth + 1 : 0}px, ${
-        target.offsetTop
-      }px)`,
-      height: `${target.offsetHeight}px`
-    }
-  }
-})
 
 /** 关闭标签 */
-const handleClose = (item: Item) => {
+const handleClose = (item: Item, index: number) => {
   closedList.value.push(item.key!)
   if (item.key === props.modelValue) {
-    let index = standardItems.value.length - 1
-    changeTab(standardItems.value[index]?.key!, index)
+    const item = standardItems.value[0]!
+    emit('update:modelValue', item.key!)
+    active.lab = item.key!
+    active.index = index
   }
+  emit('delete', { ...item }, index)
 }
 
 const showClose = (key: string | number) => {
   if (props.closable && standardItems.value.length > 1) {
     return active.lab === key
-  }else {
+  } else {
     return false
   }
+}
+
+// 拖拽排序
+const dragState = reactive({
+  active: 0,
+  target: 0
+})
+const exchange = () => {
+  propItems.value.splice(
+    dragState.active,
+    1,
+    ...propItems.value.splice(dragState.target, 1, propItems.value[dragState.active]!)
+  )
+  standardItems.value.splice(
+    dragState.active,
+    1,
+    ...standardItems.value.splice(dragState.target, 1, standardItems.value[dragState.active]!)
+  )
+}
+const dragstart = (e: MouseEvent, index: number) => {
+  dragState.active = index
+}
+const dragover = (e: MouseEvent, index: number) => {
+  e.preventDefault()
+  dragState.target = index
+}
+const drop = (e: MouseEvent) => {
+  e.preventDefault()
+  exchange()
+  emit('update:items', [...propItems.value])
 }
 </script>

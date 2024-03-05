@@ -20,6 +20,9 @@
       text-align: center;
       padding: 10px;
     }
+    &--required {
+      color: var(--u-color-danger);
+    }
   }
 
   @include m.e(tbody) {

@@ -34,7 +34,7 @@ export interface TextareaProps extends FormComponentProps {
   /**
    * 是否允许垂直和水平方向的调整
    */
-  resize?: "none" | "both" | "horizontal" | "vertical"
+  resizable?: "none"  | "vertical"
   /**
    * 文本域的行数
    */
@@ -44,13 +44,9 @@ export interface TextareaProps extends FormComponentProps {
    */
   cols?: number
   /**
-   * 文本域的最大长度
+   * 文本域的最大字数
    */
   maxlength?: number
-  /**
-   * 文本域的最小长度
-   */
-  minlength?: number
   /**
    * 是否显示字符数
    */

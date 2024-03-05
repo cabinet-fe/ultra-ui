@@ -11,8 +11,7 @@
       @input="handleInput"
       :readonly="props.disabled"
       ref="textAreaRef"
-    >
-    </textarea>
+    />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
     </span>
@@ -31,9 +30,8 @@ defineOptions({
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
   width: "100%",
-  resize: "vertical",
   rows: 5,
-  cols: 20,
+  resizable: "vertical",
 })
 
 const cls = bem("textarea")
@@ -45,7 +43,7 @@ const emit = defineEmits<TextareaEmits>()
 const classList = computed(() => {
   return [
     cls.m(`more`),
-    cls.m(`resize-${props.resize}`),
+    cls.m(`resize-${props.resizable}`),
     bem.is("textarea-disabled", props.disabled),
   ]
 })
@@ -53,7 +51,7 @@ const classList = computed(() => {
 const styleObj = computed(() => {
   return {
     width: props.width,
-    overflow: props.autosize ? 'hidden':'auto',
+    overflow: props.autosize ? "hidden" : "auto",
     paddingBottom: props.maxlength && props.showCount ? "30px" : "",
   }
 })
@@ -79,13 +77,13 @@ const handleInput = (e: Event) => {
     emit("update:modelValue", value)
     countWordNum(value)
   }
-  if(!props.autosize) return
+  if (!props.autosize) return
   scrollHight.value = "auto"
   countHeight()
 }
-const countHeight = async() => {
- await nextTick()
- const el = textAreaRef.value!
+const countHeight = async () => {
+  await nextTick()
+  const el = textAreaRef.value!
   let height = heightAuto(el, moreElementHeight.value)
   scrollHight.value = height + "px"
 }
