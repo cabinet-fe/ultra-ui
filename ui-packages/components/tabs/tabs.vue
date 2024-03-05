@@ -7,6 +7,10 @@
         :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
         @click="changeTab(item, index)"
         ref="labRef"
+        :draggable="sortable"
+        @dragstart="(e) => dragstart(e, index)"
+        @dragover="(e) => dragover(e, index)"
+        @drop="drop"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
@@ -36,7 +40,7 @@
 <script lang="ts" setup>
 import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
-import { isObj } from 'cat-kit'
+import { isObj, deepCopy } from 'cat-kit'
 import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
 import { Close } from 'icon-ultra'
 
@@ -46,7 +50,8 @@ defineOptions({
 
 const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
   position: 'right',
-  closable: false
+  closable: false,
+  sortable: false
 })
 /** 切换position回归初始状态 */
 watch(
@@ -76,24 +81,32 @@ const showContent = computed(() => {
 })
 let closedList = ref<Array<string | number>>([])
 
-const standardItems = computed<Array<Item>>(() => {
-  let res: Item[] = []
-  if (props.items.length) {
-    if (isObj(props.items[0])) {
-      res = props.items.map((item: any) => {
-        item.key = item.key || item.name
-        return item
-      })
+const standardItems = ref<Array<Item>>([])
+
+const propItems = ref<TabsItems[]>(deepCopy(props.items))
+
+watch(
+  () => props.items,
+  (items) => {
+    let res: Item[] = []
+    if (items.length) {
+      if (isObj(items[0])) {
+        res = items.map((item: any) => {
+          item.key = item.key || item.name
+          return item
+        })
+      } else {
+        res = items.map((item: any) => {
+          return { name: item, key: item }
+        })
+      }
     } else {
-      res = props.items.map((item: any) => {
-        return { name: item, key: item }
-      })
+      res = []
     }
-  } else {
-    res = []
-  }
-  return res.filter((item: any) => !closedList.value.includes(item.key))
-})
+    standardItems.value = res.filter((item: any) => !closedList.value.includes(item.key))
+  },
+  { immediate: true }
+)
 
 const headerRef = shallowRef<HTMLDivElement>()
 
@@ -106,28 +119,10 @@ const changeTab = (item: Item, index: number) => {
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
-  emit('click', item, index)
+  emit('click', { ...item }, index)
 }
 
 const labRef = shallowRef<HTMLDivElement[]>()
-
-// const lineStyle = computed(() => {
-//   if (!labRef.value) return
-//   const target = labRef.value[active.index]!
-//   if (['top', 'bottom'].includes(props.position!)) {
-//     return {
-//       transform: `translate(${target.offsetLeft}px)`,
-//       width: `${target.offsetWidth}px`
-//     }
-//   } else if (['left', 'right'].includes(props.position!)) {
-//     return {
-//       transform: `translate(${props.position === 'left' ? target.offsetWidth + 1 : 0}px, ${
-//         target.offsetTop
-//       }px)`,
-//       height: `${target.offsetHeight}px`
-//     }
-//   }
-// })
 
 /** 关闭标签 */
 const handleClose = (item: Item, index: number) => {
@@ -138,7 +133,7 @@ const handleClose = (item: Item, index: number) => {
     active.lab = item.key!
     active.index = index
   }
-  emit('delete', item, index)
+  emit('delete', { ...item }, index)
 }
 
 const showClose = (key: string | number) => {
@@ -147,5 +142,35 @@ const showClose = (key: string | number) => {
   } else {
     return false
   }
+}
+
+// 拖拽排序
+const dragState = reactive({
+  active: 0,
+  target: 0
+})
+const exchange = () => {
+  propItems.value.splice(
+    dragState.active,
+    1,
+    ...propItems.value.splice(dragState.target, 1, propItems.value[dragState.active]!)
+  )
+  standardItems.value.splice(
+    dragState.active,
+    1,
+    ...standardItems.value.splice(dragState.target, 1, standardItems.value[dragState.active]!)
+  )
+}
+const dragstart = (e: MouseEvent, index: number) => {
+  dragState.active = index
+}
+const dragover = (e: MouseEvent, index: number) => {
+  e.preventDefault()
+  dragState.target = index
+}
+const drop = (e: MouseEvent) => {
+  e.preventDefault()
+  exchange()
+  emit('update:items', [...propItems.value])
 }
 </script>
