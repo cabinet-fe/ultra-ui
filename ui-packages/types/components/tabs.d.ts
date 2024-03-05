@@ -12,6 +12,7 @@ export interface TabsProps<Items extends TabsItems> {
   items: Items
   position?: 'left' | 'right' | 'top' | 'bottom'
   closable?: boolean
+  sortable?: booolean
 }
 
 /** 标签页组件组件定义的事件 */
