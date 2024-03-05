@@ -66,19 +66,44 @@
       justify-content: center;
       cursor: pointer;
       padding: fn.use-var(gap, large);
+      margin: 1px;
       font-size: fn.use-var(font-size, title);
       font-weight: bold;
       color: fn.use-var(text-color, main);
       user-select: none;
       border-radius: fn.use-var(radius, default);
-      width: 100%;
+      animation: fadeOutAnimation 1s forwards;
+      box-shadow: 1px 1px 4px fn.use-var(color, primary-light-7);
+
+      @keyframes fadeOutAnimation {
+        from {
+          background-color: fn.use-var(bg-color, top);
+        }
+
+        to {
+          background-color: fn.use-var(color, primary-light-9);
+        }
+      }
 
       @include m.is('active') {
         color: fn.use-var(text-color, title);
-        background-color: fn.use-var(bg-color, top);
+        box-shadow: -1px -1px 4px fn.use-var(color, primary-light-7);
+        // background-color: fn.use-var(bg-color, top);
+        animation: fadeInAnimation 1s forwards;
+
+        @keyframes fadeInAnimation {
+          from {
+            background-color: fn.use-var(color, primary-light-9);
+          }
+
+          to {
+            background-color: fn.use-var(bg-color, top);
+          }
+        }
       }
 
-      .is-close, .is-close--placeholder {
+      .is-close,
+      .is-close--placeholder {
         width: 16px;
         height: 16px;
         line-height: 13px;

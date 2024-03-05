@@ -1,7 +1,7 @@
 <template>
   <ul class="list">
     <li class="item" v-for="(position, index) in positions">
-      <u-tabs :items="items" v-model="active[index]" :position="position" closable>
+      <u-tabs :items="items" v-model="active[index]" :position="position" :closable="false">
         <template v-for="item in items" #[item]>{{ item }}</template>
       </u-tabs>
     </li>
