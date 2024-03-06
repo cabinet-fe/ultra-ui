@@ -2,39 +2,32 @@
   <div>
     {{ data }}
 
-    <u-form :data="data" :rules="rules" ref="formRef" label-width="200lx">
-      <u-input field="aa" label="测试" tips="提示" />
-      <u-input field="bb" label="测试" tips="提示" />
-      <u-input field="cc" label="测试" tips="提示" />
-      <u-input field="dd" label="测试" tips="提示" />
+    <u-form label-width="100px" :use="form.key">
+      <u-input field="aa" label="测试a" tips="提示" />
+      <u-input field="bb" label="测试b" tips="提示" />
+      <u-input field="cc" label="测试c" tips="提示" />
+      <u-input field="dd" label="测试d" tips="提示" />
     </u-form>
 
-    <u-button @click="validate">校验</u-button>
+    <u-button @click="form.validate()">校验</u-button>
+
+    <u-dialog>
+      <u-form></u-form>
+    </u-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
-import type { FormExposed } from 'ultra-ui'
-import { shallowReactive } from 'vue'
+import { UForm, useForm } from 'ultra-ui/components'
 
-defineOptions({
-  inheritAttrs: false
-})
-
-const data = shallowReactive({
-  a: undefined
-})
-
-const rules = {
-  a: {
+const [data, form] = useForm('form', {
+  aa: {
+    value: '',
     required: true
-  }
-}
+  },
 
-const formRef = shallowRef<FormExposed<(keyof typeof rules)[]>>()
-
-const validate = async () => {
-  formRef.value?.validate(['a'])
-}
+  bb: {},
+  cc: {},
+  dd: {}
+})
 </script>

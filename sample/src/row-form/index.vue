@@ -1,8 +1,41 @@
 <template>
-  <div class="box">
+  <div>
     删除和插入请右击
-    <u-button @click="getValues">123</u-button>
-    <u-row-form ref="rowFormRef" :columns="columns" v-model="modelValue">
+    <u-button @click="getValues">获取数据</u-button>
+    <u-button @click="toggleColumns">切换columns</u-button>
+    {{ columns }}
+    <u-row-form
+      style="margin-top: 10px"
+      ref="rowFormRef"
+      :columns="columns"
+      v-model="modelValue"
+      @update:model-value=""
+    >
+      <template #header></template>
+
+      <template #dd="{ data, index }">
+        <u-input v-model="data.dd" />
+        {{ index }}
+      </template>
+
+      <template #ff="{ data }">
+        <u-input v-model="data.ff" />
+      </template>
+
+      <template #kk="{ data }">
+        <u-input v-model="data.kk" />
+      </template>
+    </u-row-form>
+  </div>
+
+  <!-- <div style="margin-top: 10px">
+    <div>禁用</div>
+    <u-row-form
+      style="margin-top: 10px"
+      :columns="columns"
+      v-model="modelDisabledValue"
+      :disabled="true"
+    >
       <template #dd="{ row }">
         <u-input v-model="row.dd" />
       </template>
@@ -10,24 +43,20 @@
       <template #ff="{ row }">
         <u-input v-model="row.ff" />
       </template>
-
-      <template #kk="{ row }">
-        <u-input v-model="row.kk" />
-      </template>
     </u-row-form>
-  </div>
+  </div> -->
 </template>
 <script lang="ts" setup>
 import { onMounted } from 'vue'
-import { reactive, shallowRef } from 'vue'
+import { shallowRef, reactive } from 'vue'
 
 const rowFormRef = shallowRef()
 
 const columns = shallowRef([
-  { key: 'dd', name: '回家' },
-  { key: 'ff', name: '抢不到票' },
-  { key: 'gg', name: '秒无' },
-  { key: 'kk', name: '2024新年好' }
+  { key: 'dd', name: '1', rules: { required: true } },
+  { key: 'ff', name: '2' },
+  { key: 'gg', name: '3' },
+  { key: 'kk', name: '4' }
 ])
 
 const modelValue = reactive([
@@ -43,10 +72,21 @@ const modelValue = reactive([
   }
 ])
 
+const modelDisabledValue = reactive([
+  { dd: 'dd', ff: '2' },
+  { dd: '第二条', ff: '123213' }
+])
+
 const getValues = () => {
   console.log(rowFormRef.value.getValue())
 }
 
+const toggleColumns = () => {
+  columns.value = [
+    ...columns.value,
+    { name: Math.random() + '', key: Date.now() + '' }
+  ]
+}
 onMounted(() => {
   // getValues()
 })
@@ -54,6 +94,5 @@ onMounted(() => {
 <style scoped lang="scss">
 .box {
   width: 1000px;
-
 }
 </style>

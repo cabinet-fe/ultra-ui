@@ -11,14 +11,17 @@
           columnsItem => !!columnsItem.key
         )"
         :key="columnsItem.key"
-        v-slot:[columnsItem.key]="row"
+        v-slot:[columnsItem.key]="data"
       >
         <slot
-          v-if="useSlots()[columnsItem.key]"
+          v-if="!disabled && useSlots()[columnsItem.key]"
           :name="columnsItem.key"
-          v-bind="row"
+          v-bind="data"
         />
-        <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
+
+        <div v-else>
+          {{ data['data']?.[columnsItem.key] }}
+        </div>
       </template>
     </row-form-body>
     <!-- 表体 end -->
@@ -31,9 +34,10 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { RowFormProps, RowFormEmits } from './row-form.type'
-import { computed, nextTick, provide, shallowReactive, useSlots } from 'vue'
+import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
+import { computed, provide, shallowReactive, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
+// import type { ValidateRule } from '@ui/types/utils/form/validate'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
@@ -62,8 +66,9 @@ const cls = bem('row-form')
 let store = shallowReactive({
   columns: finalColumns.value,
   modelData: data.value,
+  props,
   cls
-}) ?? {}
+})
 
 provide(RowFormStoreType, store)!
 
@@ -74,9 +79,7 @@ let lastItem = data.value[data.value.length - 1] ?? []
 
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = async () => {
-  await nextTick()
-
-  if (Object.keys(lastItem).length !== 0) {
+  if (Object.keys(lastItem).length !== 0 && !props.disabled) {
     data.value.push({})
   }
 }
@@ -88,6 +91,11 @@ const getValue = () => {
     return data.value?.slice(0, data.value.length - 1)
   }
 }
+
+// /** 校验 */
+// const validate = () => {
+//   console.log('校验')
+// }
 
 defineExpose({
   getValue

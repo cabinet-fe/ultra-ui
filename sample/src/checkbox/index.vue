@@ -31,7 +31,7 @@
 import { ref } from 'vue'
 
 const check = ref(false)
-const check2 = ref(false)
+const check2 = ref('')
 
 const data = [
   { name: '张三', id: 1 },

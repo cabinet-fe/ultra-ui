@@ -6,12 +6,11 @@
 
 <script lang="ts" setup generic="Rules extends Record<string, ValidateRule>">
 import type { FormProps } from '@ui/types/components/form'
-import type { ValidateRule, Data } from '@ui/types/utils/form/validate'
+import type { ValidateRule } from '@ui/types/utils/form/validate'
 import { UGrid } from '../grid'
 import { Validator } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
-import { useSlots } from 'vue'
-import { computed } from '@vue/runtime-core'
+import {  computed, inject } from 'vue'
 
 defineOptions({
   name: 'Form'
@@ -25,12 +24,20 @@ const validator = computed(() => {
 
 const injected = useFormComponent(true, props)!
 
-const slots = useSlots()
+if (props.use) {
+  // 注入useForm组合式方法中提供的表单方法和数据
+  const formInjected = inject(props.use!)
+}
 
 defineExpose({
   /** 表单校验 */
-  validate(fields?: keyof Rules | keyof Rules[]) {
-    return validator.value?.validate(props.data, fields)
+  async validate(fields?: keyof Rules | (keyof Rules)[]) {
+    const errors = await validator.value?.validate(props.data, fields)
+
+    for (const _ in errors) {
+      return false
+    }
+    return true
   }
 })
 </script>

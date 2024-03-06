@@ -1,24 +1,24 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
-    <!-- {{ store.modelData }} -->
     <row-form-body-item
       @item-click="handleClick"
-      @contextmenu="handleDblClick"
       :model-data="store.modelData"
+      @contextmenu="handleDblClick"
     >
       <template
         v-for="columnsItem of store.columns.filter(
           columnsItem => !!columnsItem.key
         )"
         :key="columnsItem.key"
-        v-slot:[columnsItem.key]="row"
+        v-slot:[columnsItem.key]="data"
       >
         <slot
           v-if="useSlots()[columnsItem.key]"
           :name="columnsItem.key"
-          v-bind="row"
+          v-bind="data"
         />
-        <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
+
+        <div v-else>{{ data['data']?.[columnsItem.key] }}</div>
       </template>
     </row-form-body-item>
 
@@ -43,7 +43,7 @@
 <script lang="ts" setup>
 import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
-import type { RowFormColumn, RowFormOperation } from './row-form.type'
+import type { RowFormColumn, RowFormOperation } from '@ui/types/components/row-form'
 import RowFormBodyItem from './row-form-body-item.vue'
 
 let store = inject(RowFormStoreType)!
