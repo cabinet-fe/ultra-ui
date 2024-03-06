@@ -1,5 +1,5 @@
 <template>
-  <u-form-item v-if="inForm" v-bind="getFormItemProps(props)">
+  <u-form-item v-if="inForm" :label-width="formProps.labelWidth" v-bind="getFormItemProps(props)">
     <component :is="renderInput()" />
   </u-form-item>
   <component v-else :is="renderInput()" />
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<InputProps>(), {
 
 const emit = defineEmits<InputEmits>()
 
-const model = defineModel()
+const model = defineModel<string>()
 
 const inst = getCurrentInstance()
 

@@ -1,16 +1,20 @@
 <template>
   <thead :class="cls.e('thead')">
-    <th :class="cls.em('thead','th')" v-for="item in store.columns">
+    <th :class="cls.em('thead', 'th')" v-for="item in store.columns">
       {{ item.name }}
-      <span v-if="item.rule?.require" :class="cls.be('require', 'th')">
+      <span
+        v-if="item.rules?.required"
+        :class="cls.em('thead','required')"
+      >
         *
       </span>
     </th>
+    <th>操作</th>
   </thead>
 </template>
 <script lang="ts" setup>
 import { inject, type PropType } from 'vue'
-import { type RowFormColumn } from '../row-form/row-form.type'
+import { type RowFormColumn } from '@ui/types/components/row-form'
 import { bem } from '@ui/utils'
 import { RowFormStoreType } from './di'
 

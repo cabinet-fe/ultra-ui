@@ -14,7 +14,8 @@
   "main": "./index.ts",
   "exports": {
     ".": "./index.ts",
-    "./theme": "./theme.ts"
+    "./theme": "./theme.ts",
+    "./components": "./components.ts"
   },
   "scripts": {
     "build": "vite build"

@@ -1,11 +1,82 @@
-/** 行表单组件属性 */
-export interface RowFormProps {
-  modelValue?: string
+import type { ValidateRule } from '@ui/types/utils/form/validate'
+
+/** 表格编辑组件表头属性 */
+export interface RowFormColumn {
+  /** 键值 */
+  key: string
+  /** 名称 */
+  name: string
+  /** 校验规则 */
+  rules?: ValidateRule
 }
 
-/** 行表单组件定义的事件 */
+/** 表格编辑组件组件属性 */
+export interface RowFormProps {
+  /** 是否禁止编辑 */
+  disabled?: boolean
+  /** 双向绑定的值 */
+  modelValue: Record<string, any>[]
+  /** columns */
+  columns: RowFormColumn[]
+  /** 是否是tree */
+  tree?: boolean
+  /** childrenKey='children' */
+  childrenKey?: string
+  showSummary?: boolean
+  border?: boolean
+}
+
+/** body里面的操作栏 */
+export interface RowFormOperation {
+  key: string
+  name: string
+}
+
+/** 表格编辑组件组件定义的事件 */
 export interface RowFormEmits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: any[]): void
+  /** 校验 */
+  (e: 'validator'): void
+  (e: 'save', value: Record<string, any>): void
+}
+
+/** row-form-item-body的事件 */
+export interface RowFormItemEmits {
+  (
+    e: 'item-click',
+    value: Event,
+    index: number,
+    dataItem: Record<string, any>,
+    columnsItem: RowFormColumn
+  ): void
+  (
+    e: 'contextmenu',
+    value: MouseEvent,
+    index: number,
+    dataItem?: Record<string, any>
+  ): void
+}
+
+/** 表格编辑组件组件暴露的属性和方法(组件内部使用) */
+export interface _RowFormExposed {}
+
+/** 表格编辑组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export interface RowFormExposed {
+  /** 获取值 */
+  getValue(): void
+
+  delete(index: number): void
+  delete(indexes: number[]): void
+
+  insert(index: number): void
+
+  validate(): Promise<boolean>
+}
+
+/** row-form-button按钮  */
+export interface RowFormType {
+  /** 点击事件 */
+  (name: 'click'): void
 }
 
 /** 行表单组件暴露的属性和方法(组件内部使用) */

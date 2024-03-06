@@ -7,6 +7,7 @@ $root-name: scroll;
 @include m.b($root-name) {
   position: relative;
   display: flex;
+  // 弹性布局方向为列方向，以便于父级设置最大高度时能应用滚动
   flex-direction: column;
   overflow: auto;
 

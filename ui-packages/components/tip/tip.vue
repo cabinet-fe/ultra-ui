@@ -9,11 +9,13 @@
     <!-- 点击元素 -->
     <slot />
     <!-- tip提示框 -->
+    <!--  -->
+
     <div
       :class="contentClass"
       v-if="visible"
-      :style="dynamicStyle"
       ref="tipContentRef"
+      :style="dynamicStyle"
       @mouseenter.stop="handleContentMouseOver"
       @mouseleave.stop="handleMouseOut"
       @click="
@@ -35,7 +37,7 @@
 <script lang="ts" setup>
 import type {TipProps} from "@ui/types/components/tip"
 // import {Undef} from "@ui/utils"
-import {bem} from "@ui/utils"
+import {bem, setStyles} from "@ui/utils"
 import {ref, shallowRef, nextTick, computed} from "vue"
 import countPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
@@ -106,7 +108,7 @@ let timeMouseOut = Number(0)
 let timeMouseOver = Number(0)
 
 /**弹窗style样式 */
-let dynamicStyle = ref<Record<string, any>>({})
+let dynamicStyle = shallowRef<Record<string, any>>({})
 
 /**箭头style样式 */
 let arrowStyle = shallowRef<Record<string, any>>({})
@@ -193,18 +195,27 @@ const mouseEventDom = () => {
   }
 
   nextTick(async () => {
+
     const {dynamicCss, arrowCss} = await countPosition(positionParams)
+    // console.log(dynamicCss.value)
+
     dynamicStyle.value = {
       ...dynamicCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),
-      ...{
-        maxWidth:
-          props.position.indexOf("top") > -1 ||
-          props.position.indexOf("bottom") > -1
-            ? `calc(100vw - ${offsetLeft + 256}px)`
-            : dynamicCss.value.maxWidth,
-      },
+      maxWidth:
+        props.position.indexOf("top") > -1 ||
+        props.position.indexOf("bottom") > -1
+          ? `calc(100vw - ${offsetLeft + 256}px)`
+          : dynamicCss.value.maxWidth,
     }
+
+    // console.log(tipContentRefDom)
+    console.log(dynamicStyle.value)
+
+    setStyles(tipContentRefDom, dynamicStyle.value)
+    
+    await nextTick()
+
     arrowStyle.value = {
       ...arrowCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),

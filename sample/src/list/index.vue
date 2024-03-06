@@ -5,6 +5,15 @@
     <div class="list-row">
       <h3>基础列表</h3>
       <u-list :data="list" :draggable="true" />
+
+
+      <u-list>
+        <template #default="{ item, index }">
+
+
+
+        </template>
+      </u-list>
     </div>
 
     <div class="list-row">
@@ -13,7 +22,12 @@
       <p>可以通过属性<span class="tip">show-check</span>显示，默认false</p>
       {{ checkArr }}
 
-      <u-list :data="list2" :show-check="true" v-model:check="checkArr" :draggable="true" />
+      <u-list
+        :data="list2"
+        :show-check="true"
+        v-model:check="checkArr"
+        :draggable="true"
+      />
     </div>
 
     <div class="list-row">
@@ -52,9 +66,16 @@
       <h3>无限滚动</h3>
       <!-- 显示加载更多 -->
 
-      <p>可以通过属性<span class="tip">infinite-scroll</span>显示，默认false;</p>
+      <p>
+        可以通过属性<span class="tip">infinite-scroll</span>显示，默认false;
+      </p>
 
-      <u-list :data="newList" :infinite-scroll="true"></u-list>
+      <u-list
+        :data="newList"
+        @load="loadData"
+        :total="1000"
+        :infinite-scroll="true"
+      ></u-list>
     </div>
 
     <!-- API  -->
@@ -88,38 +109,47 @@
       </ul>
     </div> -->
     <!-- API end  -->
+
+    <ul ref="containerRef">
+      <li></li>
+    </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from '@vue/runtime-core'
-import { reactive } from 'vue'
+import { isRef, ref, type ShallowRef } from '@vue/runtime-core'
+import { reactive, watch } from 'vue'
 
 const checkArr = ref([])
 
 const list = reactive([
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表1',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表2',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表3',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表4',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表5',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   }
@@ -127,17 +157,20 @@ const list = reactive([
 
 const list2 = reactive([
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '显示单选框列表1',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '显示单选框列表2',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar:
+      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '显示单选框列表3',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   }
@@ -190,6 +223,16 @@ const handleMessage = (val: any, index: number) => {
 
 const handleTip = (val: any, index: number) => {
   console.log(val, index)
+}
+
+const loadData = async (current: number) => {
+  const { data } = await http.get('/xxxx/page', {
+    params: {
+      current
+    }
+  })
+
+  newList.value = [...newList.value, ...data]
 }
 </script>
 
