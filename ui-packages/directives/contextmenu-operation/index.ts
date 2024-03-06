@@ -9,6 +9,7 @@ function contextmenuHandler() {
  */
 const contextmenuEvent = (
   el: HTMLElement,
+
   binding: DirectiveBinding<any>,
   vnode,
   prevVnode

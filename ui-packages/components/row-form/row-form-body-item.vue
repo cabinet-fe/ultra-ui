@@ -1,6 +1,6 @@
 <template>
   <tr
-    v-for="(dataItem, dataIndex) of store.modelData"
+    v-for="(dataItem, dataIndex) of store.modelData.value"
     :key="dataIndex"
     :class="store.cls.em('tbody', 'hover')"
     v-contextmenu-operation
@@ -8,7 +8,7 @@
   >
     <!-- 内容 -->
     <td
-      v-for="(columnsItem, columnsIndex) of store.columns"
+      v-for="(columnsItem, columnsIndex) of store.columns.value"
       :key="columnsIndex"
     >
       <!-- 内容 -->

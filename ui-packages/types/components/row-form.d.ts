@@ -1,4 +1,5 @@
 import type { ValidateRule } from '@ui/types/utils/form/validate'
+import type { ModelRef } from 'vue'
 
 /** 表格编辑组件表头属性 */
 export interface RowFormColumn {
@@ -11,11 +12,11 @@ export interface RowFormColumn {
 }
 
 /** 表格编辑组件组件属性 */
-export interface RowFormProps {
+export interface RowFormProps<T> {
   /** 是否禁止编辑 */
   disabled?: boolean
   /** 双向绑定的值 */
-  modelValue: Record<string, any>[]
+  modelValue:  T,
   /** columns */
   columns: RowFormColumn[]
   /** 是否是tree */
@@ -33,8 +34,8 @@ export interface RowFormOperation {
 }
 
 /** 表格编辑组件组件定义的事件 */
-export interface RowFormEmits {
-  (e: 'update:modelValue', value: any[]): void
+export interface RowFormEmits<T> {
+  (e: 'update:modelValue', value: T[]): void
   /** 校验 */
   (e: 'validator'): void
   (e: 'save', value: Record<string, any>): void

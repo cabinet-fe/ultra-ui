@@ -3,7 +3,7 @@
     删除和插入请右击
     <u-button @click="getValues">获取数据</u-button>
     <u-button @click="toggleColumns">切换columns</u-button>
-    {{ columns }}
+    <!-- {{ columns }} -->
     <u-row-form
       style="margin-top: 10px"
       ref="rowFormRef"
@@ -13,9 +13,8 @@
     >
       <template #header></template>
 
-      <template #dd="{ data, index }">
+      <template #dd="{ data }">
         <u-input v-model="data.dd" />
-        {{ index }}
       </template>
 
       <template #ff="{ data }">
@@ -28,7 +27,7 @@
     </u-row-form>
   </div>
 
-  <!-- <div style="margin-top: 10px">
+  <div style="margin-top: 10px">
     <div>禁用</div>
     <u-row-form
       style="margin-top: 10px"
@@ -36,15 +35,15 @@
       v-model="modelDisabledValue"
       :disabled="true"
     >
-      <template #dd="{ row }">
+      <template #dd="{ data }">
         <u-input v-model="row.dd" />
       </template>
 
-      <template #ff="{ row }">
+      <template #ff="{ data }">
         <u-input v-model="row.ff" />
       </template>
     </u-row-form>
-  </div> -->
+  </div>
 </template>
 <script lang="ts" setup>
 import { onMounted } from 'vue'
@@ -87,6 +86,7 @@ const toggleColumns = () => {
     { name: Math.random() + '', key: Date.now() + '' }
   ]
 }
+
 onMounted(() => {
   // getValues()
 })
