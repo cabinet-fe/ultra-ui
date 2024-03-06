@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
-let items = ref(['TabOne', 'TabTwo', 'TabThreeTabThree', 'TabFour'])
+let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
 
 const active = ref<string>('TabOne')
 
@@ -63,7 +63,7 @@ const configList = [
   { label: '排序', key: 'sortable' }
 ]
 const config = reactive({
-  closable: true,
+  closable: false,
   sortable: false,
   position: 'top' as any
 })
