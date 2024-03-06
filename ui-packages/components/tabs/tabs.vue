@@ -9,7 +9,8 @@
         ref="labRef"
         :draggable="sortable"
         @dragstart="(e) => dragstart(e, index)"
-        @dragover="(e) => dragover(e, index)"
+        @dragenter="(e) => dragenter(e, index)"
+        @dragover="dragover"
         @drop="drop"
       >
         <slot :name="`${item?.name}-label`">
@@ -22,7 +23,7 @@
         >
           <Close />
         </div>
-        <div v-if="closable && !showClose(item.key!)" :class="bem.is('close--placeholder')"></div>
+        <div v-else :class="bem.is('close--placeholder')"></div>
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
@@ -79,7 +80,6 @@ const showContent = computed(() => {
     return false
   }
 })
-let closedList = ref<Array<string | number>>([])
 
 const standardItems = ref<Array<Item>>([])
 
@@ -88,22 +88,20 @@ const propItems = ref<TabsItems[]>(deepCopy(props.items))
 watch(
   () => props.items,
   (items) => {
-    let res: Item[] = []
     if (items.length) {
       if (isObj(items[0])) {
-        res = items.map((item: any) => {
+        standardItems.value = items.map((item: any) => {
           item.key = item.key || item.name
           return item
         })
       } else {
-        res = items.map((item: any) => {
+        standardItems.value = items.map((item: any) => {
           return { name: item, key: item }
         })
       }
     } else {
-      res = []
+      standardItems.value = []
     }
-    standardItems.value = res.filter((item: any) => !closedList.value.includes(item.key))
   },
   { immediate: true }
 )
@@ -126,7 +124,7 @@ const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
 const handleClose = (item: Item, index: number) => {
-  closedList.value.push(item.key!)
+  standardItems.value = standardItems.value.filter((row: any) => row.key !== item.key)
   if (item.key === props.modelValue) {
     const item = standardItems.value[0]!
     emit('update:modelValue', item.key!)
@@ -164,7 +162,11 @@ const exchange = () => {
 const dragstart = (e: MouseEvent, index: number) => {
   dragState.active = index
 }
-const dragover = (e: MouseEvent, index: number) => {
+// 不写dragover不触发drop事件
+const dragover = (e: MouseEvent) => {
+  e.preventDefault()
+}
+const dragenter = (e: MouseEvent, index: number) => {
   e.preventDefault()
   dragState.target = index
 }
