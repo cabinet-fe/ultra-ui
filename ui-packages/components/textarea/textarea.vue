@@ -81,6 +81,7 @@ const handleInput = (e: Event) => {
   scrollHight.value = "auto"
   countHeight()
 }
+
 const countHeight = async () => {
   await nextTick()
   const el = textAreaRef.value!
@@ -93,6 +94,7 @@ const countWordNum = (value: string | number) => {
     initNum.value = props.maxlength - String(value).length
   }
 }
+
 onMounted(() => {
   countWordNum(props.modelValue!)
   moreElementHeight.value = textAreaRef.value?.offsetHeight!

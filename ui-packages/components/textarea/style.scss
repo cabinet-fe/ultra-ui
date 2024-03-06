@@ -3,7 +3,6 @@
 @use '@ui/styles/vars';
 
 @include m.b(textarea) {
-
     position: relative;
     display: block;
 
@@ -19,7 +18,6 @@
         box-sizing: border-box;
         font-family: fn.use-var(font-family);
 
-
         @include m.is(textarea-disabled) {
             cursor: not-allowed;
             resize: none;
@@ -28,10 +26,8 @@
         }
     }
 
-
-
     @include m.m(resize-none) {
-        resize: none;
+        resize: none !important;
     }
 
     @include m.m(resize-vertical) {
@@ -41,7 +37,6 @@
     @include m.m(resize-horizontal) {
         resize: horizontal;
     }
-
 
     @include m.m(count) {
         display: block;
