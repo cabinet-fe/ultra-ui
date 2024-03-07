@@ -5,6 +5,12 @@ export interface SelectProps extends FormComponentProps {
   /** 是否多选 */
   multiple?: boolean
   modelValue: string
+  options: Array<{
+    label: string
+    value: string
+  }>
+  valueKey?: string
+  labelKey?: string
 }
 
 export interface SelectEmits {
