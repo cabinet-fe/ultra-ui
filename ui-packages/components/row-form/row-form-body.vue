@@ -1,5 +1,6 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
+    <!-- {{ store.slot }} -->
     <row-form-body-item
       @item-click="handleClick"
       :model-data="store.modelData.value"
@@ -41,7 +42,15 @@
   </tbody>
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
+import {
+  inject,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowReactive,
+  shallowRef,
+  useSlots
+} from 'vue'
 import { RowFormStoreType } from './di'
 import type {
   RowFormColumn,
@@ -108,7 +117,8 @@ const blurForm = (event: Event) => {
 
   if (!currentDataItem[currentColumnsItem.key]) return
 
-  store.modelData.value.push({})
+  store.modelData.value.push(shallowReactive({}))
+  // console.log(store.modelData.value, 'modelData')
 
   /** 结束时候清除事件 */
   event.target?.removeEventListener('blur', blurForm)
@@ -129,13 +139,14 @@ const handleOperationData = (item: Record<string, any>, index: number) => {
 /** 删除 */
 const handleDeleteData = () => {
   let modelData = store.modelData.value
+
   let newData =
     modelData.length === 1
-      ? [{}]
-      : [
+      ? shallowReactive([{}])
+      : shallowReactive([
           ...store.modelData.value.slice(0, dbIndex.value),
           ...store.modelData.value.slice(dbIndex.value + 1)
-        ]
+        ])
 
   store.modelData.value = newData
 }

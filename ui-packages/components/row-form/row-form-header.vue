@@ -6,7 +6,7 @@
         *
       </span>
     </th>
-    <th>操作</th>
+    <th v-if="!store.props.disabled">操作</th>
   </thead>
 </template>
 <script lang="ts" setup>

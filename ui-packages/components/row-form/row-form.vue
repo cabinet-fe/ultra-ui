@@ -3,9 +3,11 @@
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
-
+    <!-- {{
+      data
+    }} -->
     <!-- 表体 start -->
-    <row-form-body>
+    <row-form-body >
       <template
         v-for="columnsItem of props.columns.filter(
           columnsItem => !!columnsItem.key
@@ -37,7 +39,6 @@ import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
 import { computed, provide, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
-// import type { ValidateRule } from '@ui/types/utils/form/validate'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
@@ -64,8 +65,9 @@ const finalColumns = computed(() => {
 
 provide(RowFormStoreType, {
   columns: finalColumns,
-  modelData: data as Record<string, any>,
+  modelData: data,
   props,
+  slots: useSlots(),
   cls
 })
 

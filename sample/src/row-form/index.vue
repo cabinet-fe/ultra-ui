@@ -11,7 +11,9 @@
       v-model="modelValue"
       @update:model-value=""
     >
-      <template #header></template>
+      <template #header>
+        <u-input  />
+      </template>
 
       <template #dd="{ data }">
         <u-input v-model="data.dd" />
@@ -36,11 +38,11 @@
       :disabled="true"
     >
       <template #dd="{ data }">
-        <u-input v-model="row.dd" />
+        <u-input v-model="data.dd" />
       </template>
 
       <template #ff="{ data }">
-        <u-input v-model="row.ff" />
+        <u-input v-model="data.ff" />
       </template>
     </u-row-form>
   </div>
@@ -58,7 +60,7 @@ const columns = shallowRef([
   { key: 'kk', name: '4' }
 ])
 
-const modelValue = reactive([
+const modelValue = shallowRef([
   { dd: '第一条', ff: '333' },
   { dd: '第二条', ff: '123213' },
   {
