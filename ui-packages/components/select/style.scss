@@ -1,0 +1,36 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(select) {
+  position: relative;
+
+  @include m.e('input') {
+    display: block;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none; /* 默认不显示选项列表 */
+    max-height: 200px;
+    overflow-y: auto;
+    li {
+      cursor: pointer;
+      padding: 5px 8px;
+    }
+  }
+  .show {
+    display: block;
+  }
+
+  .actived {
+    background-color: #eee;
+  }
+}

@@ -3,9 +3,11 @@
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
-
+    <!-- {{
+      data
+    }} -->
     <!-- 表体 start -->
-    <row-form-body>
+    <row-form-body >
       <template
         v-for="columnsItem of props.columns.filter(
           columnsItem => !!columnsItem.key
@@ -32,12 +34,11 @@
   </table>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="Val extends Record<string, any>">
 import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
-import { computed, provide, shallowReactive, useSlots } from 'vue'
+import { computed, provide, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
-// import type { ValidateRule } from '@ui/types/utils/form/validate'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
@@ -47,33 +48,28 @@ defineOptions({
 })
 
 /** 接收的参数 */
-const props = defineProps<RowFormProps<Record<string, any>>>()
+const props = defineProps<RowFormProps<Val>>()
+
+const cls = bem('row-form')
 
 /** 事件 */
-const emits = defineEmits<RowFormEmits>()
+const emits = defineEmits<RowFormEmits<Val>>()
 
 /** 值 */
-const data = defineModel<Record<string, any>[]>({ required: true })
+const data = defineModel<Val>({ required: true })
 
 /** 表头 */
 const finalColumns = computed(() => {
   return [...props.columns]
 })
 
-const cls = bem('row-form')
-
-/** 需要传入子组件的对象 */
-let store = shallowReactive({
-  columns: finalColumns.value,
-  modelData: data.value,
+provide(RowFormStoreType, {
+  columns: finalColumns,
+  modelData: data,
   props,
+  slots: useSlots(),
   cls
 })
-
-provide(RowFormStoreType, store)!
-
-/** 表头所有key */
-// let keyColumns = finalColumns.value.map(k => k.key)
 
 let lastItem = data.value[data.value.length - 1] ?? []
 

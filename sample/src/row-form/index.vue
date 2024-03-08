@@ -3,7 +3,7 @@
     删除和插入请右击
     <u-button @click="getValues">获取数据</u-button>
     <u-button @click="toggleColumns">切换columns</u-button>
-    {{ columns }}
+    <!-- {{ columns }} -->
     <u-row-form
       style="margin-top: 10px"
       ref="rowFormRef"
@@ -11,11 +11,12 @@
       v-model="modelValue"
       @update:model-value=""
     >
-      <template #header></template>
+      <template #header>
+        <u-input  />
+      </template>
 
-      <template #dd="{ data, index }">
+      <template #dd="{ data }">
         <u-input v-model="data.dd" />
-        {{ index }}
       </template>
 
       <template #ff="{ data }">
@@ -28,7 +29,7 @@
     </u-row-form>
   </div>
 
-  <!-- <div style="margin-top: 10px">
+  <div style="margin-top: 10px">
     <div>禁用</div>
     <u-row-form
       style="margin-top: 10px"
@@ -36,15 +37,15 @@
       v-model="modelDisabledValue"
       :disabled="true"
     >
-      <template #dd="{ row }">
-        <u-input v-model="row.dd" />
+      <template #dd="{ data }">
+        <u-input v-model="data.dd" />
       </template>
 
-      <template #ff="{ row }">
-        <u-input v-model="row.ff" />
+      <template #ff="{ data }">
+        <u-input v-model="data.ff" />
       </template>
     </u-row-form>
-  </div> -->
+  </div>
 </template>
 <script lang="ts" setup>
 import { onMounted } from 'vue'
@@ -59,7 +60,7 @@ const columns = shallowRef([
   { key: 'kk', name: '4' }
 ])
 
-const modelValue = reactive([
+const modelValue = shallowRef([
   { dd: '第一条', ff: '333' },
   { dd: '第二条', ff: '123213' },
   {
@@ -87,6 +88,7 @@ const toggleColumns = () => {
     { name: Math.random() + '', key: Date.now() + '' }
   ]
 }
+
 onMounted(() => {
   // getValues()
 })

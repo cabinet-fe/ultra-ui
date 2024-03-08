@@ -1,15 +1,12 @@
 <template>
   <thead :class="cls.e('thead')">
-    <th :class="cls.em('thead', 'th')" v-for="item in store.columns">
+    <th :class="cls.em('thead', 'th')" v-for="item in store.columns.value">
       {{ item.name }}
-      <span
-        v-if="item.rules?.required"
-        :class="cls.em('thead','required')"
-      >
+      <span v-if="item.rules?.required" :class="cls.em('thead', 'required')">
         *
       </span>
     </th>
-    <th>操作</th>
+    <th v-if="!store.props.disabled">操作</th>
   </thead>
 </template>
 <script lang="ts" setup>
