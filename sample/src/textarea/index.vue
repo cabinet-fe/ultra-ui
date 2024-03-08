@@ -5,6 +5,7 @@
     <u-textarea v-model="textareaValue3" />
     <u-textarea v-model="textareaValue4" resizable="none" />
     <u-textarea v-model="textareaValue5" :maxlength="20" show-count />
+    <u-textarea v-model="textareaValue6" clearable :maxlength="200" show-count />
 
     <u-button @click="btn()">获取</u-button>
   </div>
@@ -18,6 +19,7 @@ let textareaValue2 = ref("回显")
 let textareaValue3 = ref("垂直拖")
 let textareaValue4 = ref("禁止拖拽")
 let textareaValue5 = ref("输入长度限制")
+let textareaValue6 = ref("可清空")
 
 const btn = () => {
   let str = `
@@ -26,6 +28,7 @@ const btn = () => {
   textareaValue3: ${textareaValue3.value}
   textareaValue4: ${textareaValue4.value}
   textareaValue5: ${textareaValue5.value}
+  textareaValue6: ${textareaValue6.value}
   `
   alert(str)
 }

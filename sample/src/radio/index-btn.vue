@@ -59,10 +59,10 @@
     </div>
 
     <div class="item">
-      <h6>单选框组 背景色</h6>
+      <h6>单选框组 隐藏按钮</h6>
       <!-- <p>{{ dataGroup3 }}</p> -->
       <u-radio-group
-        :checkedColor="'rgba(144,115,255,0.5)'"
+        hidden
         radioType="btn"
         :data="dataGroup3"
         labelKey="name"
@@ -77,7 +77,7 @@
       <h6>单选框组 禁用单个</h6>
       <!-- <p>{{ dataGroup4 }}</p> -->
       <u-radio-group
-        :checkedColor="'rgba(144,115,255,0.5)'"
+        hidden
         radioType="btn"
         :data="dataGroup4"
         labelKey="name"
@@ -93,7 +93,7 @@
       <h6>单选框组 禁用多个</h6>
       <!-- <p>{{ dataGroup5 }}</p> -->
       <u-radio-group
-        :checkedColor="'rgba(144,115,255,0.5)'"
+        hidden
         radioType="btn"
         :data="dataGroup5"
         labelKey="name"
@@ -134,7 +134,7 @@ let radio2 = ref("汉字2")
 
 const dataGroup = [
   {name: "张三", id: 1},
-  {name: "李四", id: 2},
+  {name: "李四", id: 2, disabled: true},
   {name: "王五", id: 3},
 ]
 
@@ -204,6 +204,7 @@ const btn = () => {
       ${dataGroup5Value.value}··················`
 }
 btn()
+
 </script>
 <script lang="ts">
 export default {

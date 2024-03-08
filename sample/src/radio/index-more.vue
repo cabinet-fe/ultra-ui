@@ -3,7 +3,6 @@
     <h2>单选框</h2>
     <div class="item">
       <h6>基础展示</h6>
-      {{ radio1 }}
       <u-radio v-model="radio1" value="1" :size="dataGroup3Value"></u-radio>
       <u-radio v-model="radio1" value="2" :size="dataGroup3Value"></u-radio>
     </div>

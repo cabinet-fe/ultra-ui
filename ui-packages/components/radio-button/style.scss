@@ -98,4 +98,19 @@
             }
         }
     }
+    input[type="radio"]:checked {
+        animation: scaleRadio 0.3s ;
+        accent-color: fn.use-var(color, primary);
+    }
+
+    /* 定义动画效果 */
+    @keyframes scaleRadio {
+        0% {
+            transform: scale(0);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
 }

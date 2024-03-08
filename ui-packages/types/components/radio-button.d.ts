@@ -8,8 +8,8 @@ export interface RadioButtonProps extends FormComponentProps {
   value?: number | string | boolean
   /**多个按钮时的item */
   itemValue?: Record<string, any>
-  /**选中背景色 */
-  checkedColor?: string
+  /**是否隐藏按钮 */
+  hidden?: boolean
   /**全部禁用 */
   disabled?: boolean
 }
