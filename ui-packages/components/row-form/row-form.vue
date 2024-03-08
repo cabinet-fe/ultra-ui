@@ -1,13 +1,14 @@
 <template>
   <table :class="cls.b" :border="border ? 1 : 0">
+    {{
+      data
+    }}
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
-    <!-- {{
-      data
-    }} -->
+
     <!-- 表体 start -->
-    <row-form-body >
+    <row-form-body>
       <template
         v-for="columnsItem of props.columns.filter(
           columnsItem => !!columnsItem.key
@@ -34,29 +35,30 @@
   </table>
 </template>
 
-<script lang="ts" setup generic="Val extends Record<string, any>">
+<script lang="ts" setup generic="T">
 import { bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
-import { computed, provide, useSlots } from 'vue'
+import { computed, provide, useSlots, watch } from 'vue'
 import { RowFormStoreType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
+import { wrapDataRows } from './row-forms'
 
 defineOptions({
   name: 'URowForm'
 })
 
 /** 接收的参数 */
-const props = defineProps<RowFormProps<Val>>()
+const props = defineProps<RowFormProps<T>>()
 
 const cls = bem('row-form')
 
 /** 事件 */
-const emits = defineEmits<RowFormEmits<Val>>()
+const emits = defineEmits<RowFormEmits<T>>()
 
 /** 值 */
-const data = defineModel<Val>({ required: true })
+const data = defineModel<T[]>({ required: true })
 
 /** 表头 */
 const finalColumns = computed(() => {
@@ -76,7 +78,7 @@ let lastItem = data.value[data.value.length - 1] ?? []
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = async () => {
   if (Object.keys(lastItem).length !== 0 && !props.disabled) {
-    data.value.push({})
+    data.value = [...data.value, {}]
   }
 }
 initData()
@@ -85,8 +87,22 @@ initData()
 const getValue = () => {
   if (Object.keys(lastItem).length !== 0) {
     return data.value?.slice(0, data.value.length - 1)
+  } else {
+    return data.value
   }
 }
+
+let a = []
+
+watch(
+  () => data.value,
+  () => {
+    a = wrapDataRows(data.value)
+    console.log(a, 'a')
+    // console.log(data.value, 'value')
+    // data.value = wrapDataRows(data.value)
+  }
+)
 
 // /** 校验 */
 // const validate = () => {
