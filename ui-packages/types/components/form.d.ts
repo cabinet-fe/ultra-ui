@@ -31,6 +31,8 @@ export interface FormProps<
   rules?: Rules
   /** 表单项label宽度 */
   labelWidth?: string | number
+  /** 是否不显示tips */
+  noTips?: boolean
 }
 
 export interface _FormExposed<Fields> {

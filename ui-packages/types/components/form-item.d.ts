@@ -2,7 +2,10 @@ import type { FormComponentProps } from "../component-common"
 
 /** 组件项组件属性 */
 export interface FormItemProps extends FormComponentProps {
+  /** 标签宽度 */
   labelWidth?: string | number
+  /** 是否不显示提示信息 */
+  noTips?: boolean
 }
 
 /** 组件项组件定义的事件 */
