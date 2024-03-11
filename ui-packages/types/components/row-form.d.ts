@@ -16,7 +16,7 @@ export interface RowFormProps<T> {
   /** 是否禁止编辑 */
   disabled?: boolean
   /** 双向绑定的值 */
-  modelValue:  T,
+  modelValue:  T[],
   /** columns */
   columns: RowFormColumn[]
   /** 是否是tree */
@@ -49,6 +49,11 @@ export interface RowFormItemEmits {
     index: number,
     dataItem: Record<string, any>,
     columnsItem: RowFormColumn
+  ): void
+  (
+    e: 'delete',
+    value: Record<string, any>[],
+    index: number
   ): void
   (
     e: 'contextmenu',

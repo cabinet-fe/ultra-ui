@@ -8,7 +8,7 @@
         :value="item[labelKey]"
         :itemValue="item"
         @update:model-value="handleUpdate($event, item, index)"
-        :disabled="disabled || compareDisabled(index)"
+        :disabled="disabled || compareDisabled(item, index)"
         :size="size"
       />
     </template>
@@ -22,8 +22,8 @@
         :value="itemBtn[labelKey]"
         :itemValue="itemBtn"
         @update:modelValue="handleUpdate($event, itemBtn, indexBtn)"
-        :checked-color="checkedColor"
-        :disabled="disabled || compareDisabled(indexBtn)"
+        :hidden="hidden"
+        :disabled="disabled || compareDisabled(itemBtn, indexBtn)"
         :size="size"
       />
     </template>
@@ -74,7 +74,12 @@ const handleUpdate = (
   emit("onChange", model.value!, item)
 }
 
-const compareDisabled = (index: number) => {
+const compareDisabled = (itemBtn: Record<string, any>, index: number) => {
+  /**数据中的disabled属性 > props.disabledIndex数据  */
+  /**数据中如果有disabled属性，就返回true */
+  if (itemBtn.disabled) return true
+
+  /** 如果有disabledIndex属性，就返回true */
   if (props.disabledIndex instanceof Array) {
     return props.disabledIndex.includes(index)
   }
@@ -95,6 +100,5 @@ onMounted(() => {
       radioModels.value[selectedIndex!] = labelValue
     }
   }
-
 })
 </script>

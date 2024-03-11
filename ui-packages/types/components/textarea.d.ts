@@ -6,7 +6,7 @@ export interface TextareaProps extends FormComponentProps {
   /**
    * 文本域的值
    */
-  modelValue?: string | number
+  modelValue?: string
   /**
    * 文本域的宽度
    */
@@ -51,6 +51,10 @@ export interface TextareaProps extends FormComponentProps {
    * 是否显示字符数
    */
   showCount?: boolean
+  /**
+   * 清空
+   */
+  clearable?: boolean
 }
 
 /** textarea组件定义的事件 */

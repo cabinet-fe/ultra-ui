@@ -10,7 +10,7 @@
       :style="disabled ? {cursor: 'not-allowed'} : ''"
     >
       <input
-        :hidden="exist"
+        :hidden="props.hidden"
         type="radio"
         :class="cls.e('input')"
         :value="checked"
@@ -72,13 +72,9 @@ const classList = computed(() => {
 const styleObj = computed(() => {
   return model.value === props.value
     ? {
-        backgroundColor: props.checkedColor,
-        color: props.checkedColor ? "#fff" : "",
+        backgroundColor: props.hidden ? "var(--u-color-primary)" : "",
+        color: props.hidden ? "#fff" : "",
       }
     : {}
-})
-
-const exist = computed(() => {
-  return props.checkedColor ? true : false
 })
 </script>

@@ -2,11 +2,8 @@ import type {DirectiveBinding} from "vue"
 
 const ClickOutside = {
   async beforeMount(el: HTMLElement, binding: DirectiveBinding) {
-    
     el.clickOutsideEvent = (event: MouseEvent) => {
       let targetNode = event.target as HTMLElement
-      console.log(targetNode)
-      console.log(!el.contains(targetNode))
 
       if (
         !el.contains(targetNode) &&
