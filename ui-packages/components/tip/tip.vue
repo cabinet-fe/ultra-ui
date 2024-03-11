@@ -9,8 +9,6 @@
     <!-- 点击元素 -->
     <slot />
     <!-- tip提示框 -->
-    <!--  -->
-
     <div
       :class="contentClass"
       ref="tipContentRef"
@@ -23,20 +21,15 @@
       <slot name="content">
         {{ modelValue }}
       </slot>
-      <!-- 箭头 -->
-      <!-- <span :class="arrowClass" :style="arrowStyle"></span> -->
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type {TipProps} from "@ui/types/components/tip"
-import {useTransition} from "@ui/compositions"
-
-// import {Undef} from "@ui/utils"
 import {bem, nextFrame, setStyles} from "@ui/utils"
 import {ref, shallowRef, nextTick, computed} from "vue"
-import countPosition from "./position"
+import calcPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
 
 defineOptions({
@@ -65,30 +58,6 @@ const contentClass = computed(() => {
   ]
 })
 
-/**箭头浅色样式 */
-// const arrowClass = computed(() => {
-//   return [
-//     cls.e("arrow"),
-//     bem.is("arrow-light", whetherLightTheme),
-//     bem.is(
-//       "arrow-bottom",
-//       whetherLightTheme && props.position.indexOf("top") > -1
-//     ),
-//     bem.is(
-//       "arrow-left",
-//       whetherLightTheme && props.position.indexOf("right") > -1
-//     ),
-//     bem.is(
-//       "arrow-top",
-//       whetherLightTheme && props.position.indexOf("bottom") > -1
-//     ),
-//     bem.is(
-//       "arrow-right",
-//       whetherLightTheme && props.position.indexOf("left") > -1
-//     ),
-//   ]
-// })
-
 /**页面元素的DOM信息 */
 let tipRef = shallowRef<HTMLElement>()
 
@@ -107,9 +76,6 @@ let timeMouseOver = Number(0)
 /**弹窗style样式 */
 let dynamicStyle = shallowRef<Record<string, any>>({})
 
-/**箭头style样式 */
-let arrowStyle = shallowRef<Record<string, any>>({})
-
 /**鼠标移入元素 */
 const handleMouseOver = () => {
   if (props.triggerPopUpMode !== "hover") return
@@ -123,13 +89,13 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  return
+  // return
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
+    tipContentRef.value!.style.opacity = "0"
     visible.value = false
     dynamicStyle.value = {}
-    arrowStyle.value = {}
   }, 300)
 }
 
@@ -142,7 +108,6 @@ const handleContentMouseOver = () => {
 
 const handleClick = () => {
   if (props.triggerPopUpMode !== "click") return
-
   clearTimeout(timeClick)
   timeClick = setTimeout(async () => {
     visible.value = !visible.value
@@ -150,45 +115,36 @@ const handleClick = () => {
       await nextTick()
       mouseEventDom()
     } else {
+      tipContentRef.value!.style.opacity = "0"
       dynamicStyle.value = {}
-      arrowStyle.value = {}
     }
   }, 300)
-} 
+}
 
 const handleClickOutside = () => {
   if (props.triggerPopUpMode === "hover") return
   visible.value = false
 }
 
-// const transition = useTransition("style", {
-//   target: tipContentRef,
-//   enterToStyle: {
-//     transform: "scale3d(1, 1, 1) translate(0, 0)",
-//   },
-// })
-
 /**鼠标移入/点击元素的dom信息 */
 const mouseEventDom = async () => {
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
+
   if (!tipRefDom) return
+  let tipContentRefDom = tipContentRef.value
+
+  if (!tipContentRefDom) return
+
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
-
   if (props.position.match(/bottom|top/)) {
-    dynamicStyle.value.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
+    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
   }
 
   nextFrame(async () => {
-    await nextTick()
-    let tipContentRefDom = tipContentRef.value
-
-    if (!tipContentRefDom) return
     /**tip提示的DOM信息 */
-    console.log(tipContentRefDom.getBoundingClientRect().height, "-----")
-
     const positionParams = {
       position: props.position,
       elementWidth: clientWidth,
@@ -196,26 +152,15 @@ const mouseEventDom = async () => {
       tipRefDom,
       tipContentRefDom,
     }
-    // transition.toggle(false)
-    const {dynamicCss} = await countPosition(positionParams)
-    // console.log(dynamicCss.value);
+    const {dynamicCss} = await calcPosition(positionParams)
 
-    dynamicStyle.value = {
+    setStyles(tipContentRefDom, {
       ...dynamicCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),
       maxWidth: props.position.match(/bottom|top/)
         ? `calc(100vw - ${offsetLeft + 256}px)`
         : dynamicCss.value.maxWidth,
-    }
-
-    // console.log(dynamicStyle.value)
-
-    setStyles(tipContentRefDom, dynamicStyle.value)
-
-    // arrowStyle.value = {
-    //   ...arrowCss.value,
-    //   ...(whetherLightTheme ? {} : props.customStyle),
-    // }
+    })
   })
 }
 </script>
