@@ -38,9 +38,13 @@
         </div>
       </div>
     </td>
-    <td v-if="!store.props.disabled">
+    <td v-if="!store.props?.disabled">
       <button-common-props tag="span">
-        <u-button :icon="Delete" type="primary" />
+        <u-button
+          :icon="Delete"
+          type="primary"
+          @click="() => handleDelete(dataItem, dataIndex)"
+        />
       </button-common-props>
     </td>
   </tr>
@@ -58,7 +62,7 @@ import { Delete } from 'icon-ultra'
 import { UButton } from '../button'
 import { useComponentProps } from '@ui/compositions'
 import type { ButtonProps } from '@ui/types/components/button'
-import { wrapDataRows } from './row-forms'
+// import { wrapDataRows } from './row-forms'
 
 defineProps({
   modelData: { type: Array as PropType<Record<string, any>[]> }
@@ -91,19 +95,12 @@ const classList = computed(() => {
   return [store.cls.em('tbody-item', 'tree'), bem.is('launch', launch.value)]
 })
 
-watch(
-  () => store.modelData.value,
-  item => {
-    store.modelData.value = wrapDataRows(item)
-    console.log(store.modelData.value, wrapDataRows(item), 'item')
-  },
-  {
-    immediate: true
-  }
-)
-
 const handleChildClass = () => {
   launch.value = !launch.value
+}
+
+const handleDelete = (data: Record<string, any>[], index: number) => {
+  emits('delete', data, index)
 }
 
 /** 右击 */
@@ -112,7 +109,7 @@ const handleContextmenuClick = (
   index: number,
   dataItem: Record<string, any>
 ) => {
-  console.log(index, 'index')
+  // console.log(index, 'index')
   emits('contextmenu', event, index, dataItem)
 }
 </script>

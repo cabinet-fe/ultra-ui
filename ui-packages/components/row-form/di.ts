@@ -8,7 +8,7 @@ export const RowFormStoreType: InjectionKey<{
   columns: ComputedRef<RowFormColumn[]>
   /** 双向绑定的值 */
   modelData: Record<string, any>,
-  props: RowFormProps<Record<string, any>>,
+  props?: Record<string, any>,
   slots?: Record<string, any>,
   cls: BEM<'row-form'>
 }> = Symbol('RowFormStoreType')
