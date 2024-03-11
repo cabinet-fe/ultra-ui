@@ -17,22 +17,16 @@ let spacing = 16
 /**
  * 计算弹窗显示位置
  * @param position 弹窗位置
- * @param elementWidth 页面元素宽度
- * @param elementHeight 页面元素高度
  * @param tipRefDom 页面元素DOM信息
  * @param tipContentRefDom tip提示的DOM信息
  * @returns dynamicCss: 弹窗样式
  */
 function calcPosition({
   position,
-  elementWidth,
-  elementHeight,
   tipRefDom,
   tipContentRefDom,
 }: {
   position: string
-  elementWidth: number
-  elementHeight: number
   tipRefDom: HTMLElement
   tipContentRefDom: HTMLElement
 }): Promise<PositionResult> {
@@ -51,7 +45,7 @@ function calcPosition({
       dynamicCss.value = {...dynamicCss.value, ...componentCss}
 
       //页面元素的DOM信息
-      let {offsetLeft} = tipRefDom
+      let {clientWidth,offsetLeft} = tipRefDom
 
       // 弹窗显示的DOM信息
       let {clientHeight} = tipContentRefDom
@@ -62,9 +56,9 @@ function calcPosition({
         }
         position.includes("top") && topCount(position, clientHeight)
         position.includes("left") &&
-          leftCount(position, elementWidth, offsetLeft)
+          leftCount(position, clientWidth, offsetLeft)
         position.includes("right") &&
-          rightCount(position, elementWidth, offsetLeft)
+          rightCount(position, clientWidth, offsetLeft)
         position.includes("bottom") && bottomCount(position, clientHeight)
       }
       dynamicCss.value.opacity = 1
@@ -94,10 +88,10 @@ function topCount(position: string, clientHeight: number): void {
  */
 function rightCount(
   position: string,
-  elementWidth: number,
+  clientWidth: number,
   offsetLeft: number
 ): void {
-  dynamicCss.value.left = elementWidth + spacing + "px"
+  dynamicCss.value.left = clientWidth + spacing + "px"
 
   if (position === "right-start") {
     dynamicCss.value.top = "0px"
@@ -120,14 +114,13 @@ function rightCount(
  * @param position 位置
  * @param elementWidth 页面元素宽度
  * @param offsetLeft 页面元素距离左边的距离
- *
  */
 function leftCount(
   position: string,
-  elementWidth: number,
+  clientWidth: number,
   offsetLeft: number
 ): void {
-  dynamicCss.value.right = elementWidth + spacing + "px"
+  dynamicCss.value.right = clientWidth + spacing + "px"
 
   if (position === "left-start") {
     dynamicCss.value.top = "0px"
@@ -142,7 +135,7 @@ function leftCount(
     dynamicCss.value.bottom = "0px"
   }
 
-  dynamicCss.value.maxWidth = `calc(${offsetLeft - elementWidth / 2 / 2}px)`
+  dynamicCss.value.maxWidth = `calc(${offsetLeft - clientWidth / 2 / 2}px)`
 }
 
 /**

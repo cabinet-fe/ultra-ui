@@ -89,7 +89,6 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  // return
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
@@ -130,14 +129,12 @@ const handleClickOutside = () => {
 const mouseEventDom = async () => {
   /**页面元素的DOM信息 */
   const tipRefDom = tipRef.value
-
   if (!tipRefDom) return
-  let tipContentRefDom = tipContentRef.value
 
+  let tipContentRefDom = tipContentRef.value
   if (!tipContentRefDom) return
 
-  let {clientWidth, clientHeight, offsetLeft} = tipRefDom
-
+  let {offsetLeft} = tipRefDom
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (props.position.match(/bottom|top/)) {
     tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
@@ -147,8 +144,6 @@ const mouseEventDom = async () => {
     /**tip提示的DOM信息 */
     const positionParams = {
       position: props.position,
-      elementWidth: clientWidth,
-      elementHeight: clientHeight,
       tipRefDom,
       tipContentRefDom,
     }
