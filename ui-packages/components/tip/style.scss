@@ -5,7 +5,6 @@
 @include m.b(tip) {
   position: relative;
   width: max-content;
-  height: 100%;
 
   @include m.e(content) {
     position: absolute;
