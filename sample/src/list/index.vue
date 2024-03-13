@@ -4,48 +4,39 @@
 
     <div class="list-row">
       <h3>基础列表</h3>
-      <u-list :data="list" :draggable="true" />
-
-
-      <u-list>
-        <template #default="{ item, index }">
-
-
-
-        </template>
-      </u-list>
-    </div>
-
-    <div class="list-row">
-      <h3>显示单选框列表</h3>
-
-      <p>可以通过属性<span class="tip">show-check</span>显示，默认false</p>
-      {{ checkArr }}
-
       <u-list
-        :data="list2"
-        :show-check="true"
-        v-model:check="checkArr"
+        :data="listData"
         :draggable="true"
+        :infinite-scroll="true"
+        :total="total"
+        @load-more="loadMore"
+        :page-size="20"
       />
     </div>
 
-    <div class="list-row">
-      <h3>带操作按钮列表</h3>
+    <!-- <div class="list-row">
+      <h3>无限滚动</h3>
 
-      <p>可以通过属性<span class="tip">show-actions</span>显示，默认false;</p>
+      <p>可以通过属性<span class="tip">infinite-scroll</span>显示，默认false;</p>
 
-      <u-list
-        :data="list"
-        :show-actions="true"
-        @delete="handleDelete"
-        @message="handleMessage"
-        @tip="handleTip"
-      >
+      <u-list :data="newList" @load-more="loadMore" :total="total" :infinite-scroll="true"></u-list>
+    </div> -->
+
+    <!-- <div class="list-row">
+      <h3>默认插槽</h3>
+
+      <p>获取<span class="tip">item、index</span>属性</p>
+      {{ checkArr }}
+
+      <u-list :data="list2" :draggable="true">
+        <template #default="{ item, index }">
+          <u-checkbox v-model="item.checked"></u-checkbox>
+          <img :src="item.avatar" alt="" style="width: 100px; height: 100px" />
+        </template>
       </u-list>
-    </div>
+    </div> -->
 
-    <div class="list-row">
+    <!-- <div class="list-row">
       <h3>自定义样式</h3>
 
       <p>加slot<span class="tip">#content</span>显示，默认false;</p>
@@ -60,23 +51,7 @@
           </div>
         </template>
       </u-list>
-    </div>
-
-    <div class="list-row">
-      <h3>无限滚动</h3>
-      <!-- 显示加载更多 -->
-
-      <p>
-        可以通过属性<span class="tip">infinite-scroll</span>显示，默认false;
-      </p>
-
-      <u-list
-        :data="newList"
-        @load="loadData"
-        :total="1000"
-        :infinite-scroll="true"
-      ></u-list>
-    </div>
+    </div> -->
 
     <!-- API  -->
     <!-- <div>
@@ -122,66 +97,62 @@ import { reactive, watch } from 'vue'
 
 const checkArr = ref([])
 
-const list = reactive([
+const listData = ref<any>([
   {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表1',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表2',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表3',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表4',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   },
   {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     title: '基础列表5',
     desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
   }
 ])
 
-const list2 = reactive([
-  {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-    title: '显示单选框列表1',
-    desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
-  },
-  {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-    title: '显示单选框列表2',
-    desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
-  },
-  {
-    avatar:
-      'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-    title: '显示单选框列表3',
-    desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、"inner" 和 "next"分别表示放置在目标节点前、插入至目标节点和放置在目标节点后'
-  }
-])
-
-const n = 10
-const newList = reactive([])
-for (let i = 0; i < n; i++) {
-  newList.push(...list2)
+const total = ref<number>(200)
+let newList = reactive<any>([])
+for (let i = 1; i <= 10; i++) {
+  newList.push({
+    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    title: '基础列表' + i,
+    desc: '判定目标节点能否成为拖动目标位置。 如果返回 false ，拖动节点不能被拖放到目标节点。 type 参数有三种情况："prev"、'
+  })
 }
 
+/** 加载更多 */
+const loadMore = () => {
+  setTimeout(() => {
+    if (listData.value.length >= total.value) return
+
+    let newData = ref<any>([])
+
+    for (let i = 1; i <= 100; i++) {
+      newData.value.push({
+        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+        title: '新增列表' + i,
+        desc: '判定目标节点能否成为拖动目标位置' + i
+      })
+    }
+    listData.value = [...listData.value, ...newData.value]
+  }, 500)
+}
+loadMore()
 /** 属性 */
 const attributeList = [
   { parameter: 'data', explain: '数据源', type: 'Array', defaultValue: '[]' },

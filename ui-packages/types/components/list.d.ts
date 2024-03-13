@@ -2,9 +2,6 @@ import type { PropsWithServerQuery } from '../component-common'
 
 /** 列表数据源属性 */
 export interface DataSourceOptions {
-  /** 选中 */
-  checked?: boolean
-
   /** 头像 */
   avatar?: string
 
@@ -22,33 +19,21 @@ export interface DataSourceOptions {
   tagType?: '' | 'success' | 'info' | 'warning' | 'danger' | 'primary'
 }
 
-/** 按钮属性 */
-export interface ActionOptions {
-  /** 文字 */
-  text?: string
-
-  /** 图标 */
-  icon?: string
-}
-
 export interface ListProps {
-  /** 显示单选框/复选框 */
-  showCheck?: boolean
-
   /** 列表数据 */
   data: DataSourceOptions[]
 
-  /** 显示操作按钮 */
-  showActions?: boolean
-
-  /** 操作组 */
-  action?: ActionOptions[]
+  /** 当前页码 */
+  currentPage?: number
 
   /** 每页显示多少条 */
-  itemsPerPage: number
+  pageSize?: number
 
-  /** 显示加载更多 */
-  // showLoadMore?: boolean
+  /** 每页显示多少条 */
+  pageSize?: number
+
+  /** 总数量 */
+  total: number
 
   /** 是否拖拽 */
   draggable?: boolean
@@ -58,17 +43,7 @@ export interface ListProps {
 }
 
 export interface ListEmits {
-  /** 删除 */
-  (e: 'delete', value: any, index: number): void
-
-  /** 信息 */
-  (e: 'message', value: any, index: number): void
-
-  /** 提示 */
-  (e: 'tip', value: any, index: number): void
-
-  /** checkbox事件 */
-  (e: 'update:check', value: any): void
+  (e: 'loadMore'): void
 }
 
 export interface ListExposed {}
