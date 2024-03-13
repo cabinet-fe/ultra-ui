@@ -4,7 +4,7 @@
 @use 'sass:map';
 
 @include m.b(form-item) {
-  @include m.flex(inline-flex);
+  @include m.flex(inline-flex, $align: flex-start);
 
   @include m.component-size(vars.$form-component-sizes) using ($type, $sizes) {
     @include m.b(form-item__label) {
@@ -16,5 +16,20 @@
   @include m.e(label) {
     flex-shrink: 0;
     padding-right: 8px;
+  }
+  @include m.e(content) {
+    flex-grow: 1;
+    padding-right: 8px;
+  }
+
+  @include m.e(tips) {
+    width: 100%;
+    --height: #{fn.use-var(font-size, main)};
+    height: calc(var(--height) + 2px);
+    line-height: calc(var(--height) + 2px);
+
+    @include m.is(error) {
+      color: fn.use-var(color, danger);
+    }
   }
 }

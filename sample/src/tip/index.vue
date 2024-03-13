@@ -1,7 +1,7 @@
 <template>
   <div class="tip-box">
     <div class="anime-test" ref="divRef">11111</div>
-    <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button>
+    <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
 
     <h4>Hover</h4>
     <div class="tip-row flex-row">
@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTransition } from 'ultra-ui'
+// import { useTransition } from 'ultra-ui'
 import { shallowReactive, shallowRef } from 'vue'
 const styleValue = shallowReactive({
   background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
@@ -132,24 +132,24 @@ const styleValue = shallowReactive({
   // display:'block'
 })
 const divRef = shallowRef()
-const transition = useTransition('style', {
-  target: divRef,
-  enterToStyle: {
-    transform: 'translate(100px, 0)',
-    opacity: 1
-  },
-  transitionInStyle: {
-    transition: 'all 3s'
-  },
-  transitionOutStyle: {
-    transition: 'all 3s'
-  },
+// const transition = useTransition('style', {
+//   target: divRef,
+//   enterToStyle: {
+//     transform: 'translate(100px, 0)',
+//     opacity: 1
+//   },
+//   transitionInStyle: {
+//     transition: 'all 3s'
+//   },
+//   transitionOutStyle: {
+//     transition: 'all 3s'
+//   },
 
-  afterLeave() {
-    divRef.value.style.display = 'none'
-  }
+//   afterLeave() {
+//     divRef.value.style.display = 'none'
+//   }
 
-})
+// })
 
 </script>
 

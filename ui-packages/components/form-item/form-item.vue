@@ -4,7 +4,13 @@
       {{ label }}
       <UIcon v-if="tips"><InfoFilled /></UIcon>
     </label>
-    <slot />
+
+    <section :class="cls.e('content')">
+      <slot />
+      <section v-if="showTips" :class="[cls.e('tips'), bem.is('error')]">
+        1111
+      </section>
+    </section>
   </div>
 </template>
 
@@ -13,7 +19,7 @@ import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
 import { UIcon } from '../icon'
 import { InfoFilled } from 'icon-ultra'
-import { type CSSProperties, computed } from 'vue'
+import { type CSSProperties, computed, inject } from 'vue'
 import { useFormComponent } from '@ui/compositions'
 
 defineOptions({
@@ -26,6 +32,7 @@ const props = withDefaults(defineProps<FormItemProps>(), {
 
 const cls = bem('form-item')
 
+/** 表单组件上下文 */
 const { formProps } = useFormComponent(false)
 
 const className = computed(() => {
@@ -36,5 +43,9 @@ const labelStyles = computed<CSSProperties>(() => {
   return {
     width: withUnit(props.labelWidth ?? formProps.labelWidth, 'px')
   }
+})
+
+const showTips = computed<boolean>(() => {
+  return !props.noTips && !formProps.noTips
 })
 </script>

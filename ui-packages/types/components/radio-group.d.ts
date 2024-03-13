@@ -10,8 +10,8 @@ export interface RadioGroupProps extends FormComponentProps {
   valueKey?: string
   /**文字 */
   labelKey?: string
-  /**按钮样式选中背景色 */
-  checkedColor?: string
+  /**隐藏按钮 */
+  hidden?: boolean
   /**禁用某一个或多个 */
   disabledIndex?: number | number[]
   /**全部禁用 */

@@ -1,9 +1,11 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
+    <!-- {{ store.slot }} -->
     <row-form-body-item
       @item-click="handleClick"
       :model-data="store.modelData.value"
       @contextmenu="handleDblClick"
+      @delete="(_, index) => handleDeleteData(index)"
     >
       <template
         v-for="columnsItem of store.columns.value.filter(
@@ -41,13 +43,23 @@
   </tbody>
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, onUnmounted, ref, shallowRef, useSlots } from 'vue'
+import {
+  inject,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowReactive,
+  shallowRef,
+  useSlots,
+  watch
+} from 'vue'
 import { RowFormStoreType } from './di'
 import type {
   RowFormColumn,
   RowFormOperation
 } from '@ui/types/components/row-form'
 import RowFormBodyItem from './row-form-body-item.vue'
+import { deleteIndex, wrapDataRows } from './row-forms'
 
 let store = inject(RowFormStoreType)!
 
@@ -108,8 +120,7 @@ const blurForm = (event: Event) => {
 
   if (!currentDataItem[currentColumnsItem.key]) return
 
-  store.modelData.value.push({})
-
+  store.modelData.value = [...store.modelData.value, shallowReactive({})]
   /** 结束时候清除事件 */
   event.target?.removeEventListener('blur', blurForm)
 }
@@ -120,24 +131,16 @@ let dbIndex = ref(0)
 /** 操作栏 */
 const handleOperationData = (item: Record<string, any>, index: number) => {
   if (item['key'] === 'delete') {
-    handleDeleteData()
+    handleDeleteData(dbIndex.value)
   } else if (item['key'] === 'insert') {
     handleDeleteInsertData(index)
   }
 }
 
 /** 删除 */
-const handleDeleteData = () => {
-  let modelData = store.modelData.value
-  let newData =
-    modelData.length === 1
-      ? [{}]
-      : [
-          ...store.modelData.value.slice(0, dbIndex.value),
-          ...store.modelData.value.slice(dbIndex.value + 1)
-        ]
-
-  store.modelData.value = newData
+const handleDeleteData = (index: number) => {
+  // console.log(index, 'index')
+  store.modelData.value = deleteIndex(store.modelData.value, index)
 }
 
 /** 插入 */
@@ -151,6 +154,18 @@ const watchOperationViable = (e: Event) => {
     visible.value = false
   }
 }
+
+// watch(
+//   () => store.modelData.value,
+//   item => {
+//     store.modelData.value = wrapDataRows(item)
+//     console.log(item, '触发')
+//     // console.log(store.modelData.value, wrapDataRows(item), 'item')
+//   },
+//   {
+//     immediate: true
+//   }
+// )
 
 onMounted(() => {
   document.addEventListener('click', watchOperationViable)
