@@ -4,14 +4,15 @@
 
     <div class="list-row">
       <h3>基础列表</h3>
-      <u-list
+      <u-list :data="listData" :draggable="true" />
+      <!-- <u-list
         :data="listData"
         :draggable="true"
         :infinite-scroll="true"
         :total="total"
         @load-more="loadMore"
         :page-size="20"
-      />
+      /> -->
     </div>
 
     <!-- <div class="list-row">

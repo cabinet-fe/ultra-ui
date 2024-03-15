@@ -15,7 +15,7 @@
     padding: 10px;
     box-sizing: border-box;
     &:hover {
-      background-color: fn.use-var(color-info-light-9);
+      background-color: fn.use-var(color-danger-light-9);
     }
   }
 
@@ -60,5 +60,35 @@
   @include m.e(loadMore) {
     text-align: center;
     margin: 10px 0;
+  }
+
+  /* 定义淡出动画 */
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* 定义淡入动画 */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* 应用淡出动画 */
+  .fade-out {
+    animation: fadeOut 2s ease-in-out forwards;
+  }
+
+  /* 应用淡入动画 */
+  .fade-in {
+    animation: fadeIn 2s ease-in-out forwards;
   }
 }
