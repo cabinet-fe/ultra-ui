@@ -6,6 +6,7 @@
       :model-data="store.modelData.value"
       @contextmenu="handleDblClick"
       @delete="(_, index) => handleDeleteData(index)"
+      @insert="(_, index) => handleDeleteInsertData(index)"
     >
       <template
         v-for="columnsItem of store.columns.value.filter(
@@ -48,7 +49,6 @@ import {
   onMounted,
   onUnmounted,
   ref,
-  shallowReactive,
   shallowRef,
   useSlots,
   watch
@@ -59,7 +59,7 @@ import type {
   RowFormOperation
 } from '@ui/types/components/row-form'
 import RowFormBodyItem from './row-form-body-item.vue'
-import { deleteIndex, wrapDataRows } from './row-forms'
+import { deleteIndex, insetTo, wrapDataRows } from './row-forms'
 
 let store = inject(RowFormStoreType)!
 
@@ -120,7 +120,7 @@ const blurForm = (event: Event) => {
 
   if (!currentDataItem[currentColumnsItem.key]) return
 
-  store.modelData.value = [...store.modelData.value, shallowReactive({})]
+  store.modelData.value = [...store.modelData.value, {}]
   /** 结束时候清除事件 */
   event.target?.removeEventListener('blur', blurForm)
 }
@@ -139,14 +139,20 @@ const handleOperationData = (item: Record<string, any>, index: number) => {
 
 /** 删除 */
 const handleDeleteData = (index: number) => {
-  // console.log(index, 'index')
   store.modelData.value = deleteIndex(store.modelData.value, index)
 }
 
 /** 插入 */
 const handleDeleteInsertData = (index: number) => {
-  console.log('插入')
+  store.modelData.value = wrapDataRows(insetTo(store.modelData.value, index))
 }
+
+watch(
+  () => store.modelData.value,
+  val => {
+    console.log(val, 'emptyData')
+  }
+)
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */
 const watchOperationViable = (e: Event) => {
@@ -166,6 +172,8 @@ const watchOperationViable = (e: Event) => {
 //     immediate: true
 //   }
 // )
+
+//
 
 onMounted(() => {
   document.addEventListener('click', watchOperationViable)

@@ -5,6 +5,7 @@
       <u-button @click="getValues">获取数据</u-button>
       <u-button @click="toggleColumns">切换columns</u-button>
       <u-button @click="addInfo">添加数据</u-button>
+      <u-button @click=""></u-button>
       <!-- {{ columns }} -->
       <u-row-form
         style="margin-top: 10px"
