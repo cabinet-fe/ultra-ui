@@ -20,7 +20,7 @@
         <u-button>鼠标不可进入tip区域</u-button>
       </u-tip>
       <u-tip
-        model-value="上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右"
+        model-value="上右上右上右上右上右上右上右上右"
         position="top-end"
         theme="light"
       >
@@ -44,15 +44,15 @@
       </div>
       <div class="tip-column flex-column">
         <u-tip
-          model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上"
+          model-value="右上右上右上右上右上右上"
           position="right-start"
         >
           <u-button>右上右上右上</u-button>
         </u-tip>
-        <u-tip model-value="右中" position="right">
+        <u-tip model-value="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中" position="right">
           <u-button>右中右中右中右中</u-button>
         </u-tip>
-        <u-tip model-value="右下" position="right-end" theme="light">
+        <u-tip model-value="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下" position="right-end" theme="light">
           <u-button>右下右下Light</u-button>
         </u-tip>
       </div>
@@ -166,7 +166,7 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  width: 800px;
+  width: 1500px;
   padding-top: 100px;
   margin: 0 auto;
   h4 {

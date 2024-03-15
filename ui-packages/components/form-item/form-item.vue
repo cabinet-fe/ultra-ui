@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<FormItemProps>(), {
 const cls = bem('form-item')
 
 /** 表单组件上下文 */
-const { formProps } = useFormComponent(false)
+const { formProps } = useFormComponent()
 
 const className = computed(() => {
   return [cls.b, cls.m(props.size)]
@@ -41,11 +41,11 @@ const className = computed(() => {
 
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(props.labelWidth ?? formProps.labelWidth, 'px')
+    width: withUnit(props.labelWidth ?? formProps?.labelWidth, 'px')
   }
 })
 
 const showTips = computed<boolean>(() => {
-  return !props.noTips && !formProps.noTips
+  return !props.noTips && !formProps?.noTips
 })
 </script>

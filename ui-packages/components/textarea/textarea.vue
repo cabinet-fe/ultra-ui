@@ -12,9 +12,7 @@
       :maxlength="props.maxlength"
       :rows="props.rows"
       :cols="props.cols"
-      @input="handleInput"
-      @focus="handleFocus"
-      @blur="handleBlur"
+      @input.stop="handleInput"
       :readonly="props.disabled"
       autofocus
     />
@@ -121,10 +119,6 @@ const handleClear = () => {
   countWordNum(model.value)
   emit("update:modelValue", model.value)
 }
-
-const handleBlur = () => {}
-
-const handleFocus = () => {}
 
 const handleMouseEnter = () => {
   mouse.value = true

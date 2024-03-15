@@ -1,21 +1,15 @@
-import { isRef, watch, type CSSProperties, onBeforeUnmount } from 'vue'
-import type { Returned, TransitionBase } from './type'
+import { isRef, watch, type CSSProperties } from 'vue'
+import type { Returned, StyleTransitionOptions } from './type'
 import { createToggle, nextFrame, setStyles } from '@ui/utils'
-
-interface StyleTransitionOptions extends TransitionBase {
-  /** 进入后的样式 */
-  enterToStyle: CSSProperties
-  /** 进入过渡时的样式 */
-  transitionInStyle: CSSProperties
-  /** 离开过渡时的样式 */
-  transitionOutStyle: CSSProperties
-}
+import { watchTransition } from './utils'
 
 export function useStyleTransition(options: StyleTransitionOptions): Returned {
   const {
-    enterToStyle,
-    transitionInStyle,
-    transitionOutStyle,
+    // enterFrom,
+    // leaveTo,
+    enterTo,
+    enterActive,
+    leaveActive,
     target,
     afterEnter,
     afterLeave,
@@ -29,15 +23,28 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   /** 进入动画前的初始状态 */
   const transitionOriginStyle: CSSProperties = {}
 
+  /** 获取过渡样式的初始样式 */
+  const getOriginStyles = (styles: CSSProperties) => {
+    return Object.fromEntries(
+      Object.keys(styles).map(key => {
+        return [key, transitionOriginStyle[key]]
+      })
+    )
+  }
+  // 监听dom并获取dom在进入动画之前的样式
+  // ...Object.keys(enterFrom ?? {}),
+  // ...Object.keys(leaveTo ?? {}),
   watch(
     () => getDom(),
     dom => {
       if (dom) {
-        Object.keys(enterToStyle).forEach(key => {
-          transitionOriginStyle[key] = dom.style[key]
+        const map = dom.attributeStyleMap
+        ~[...Object.keys(enterTo), ...Object.keys(enterActive)].forEach(key => {
+          transitionOriginStyle[key] = map.get(key)
         })
-        Object.keys(transitionInStyle).forEach(key => {
-          transitionOriginStyle[key] = dom.style[key]
+      } else {
+        Object.keys(transitionOriginStyle).forEach(key => {
+          delete transitionOriginStyle[key]
         })
       }
     },
@@ -50,48 +57,64 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
    * 添加过渡进入时并持续时的样式
    * @param dom 元素
    */
-  const addTransitionInStyle = (dom: HTMLElement) => {
-    setStyles(dom, transitionInStyle)
+  const addEnterActive = (dom: HTMLElement) => {
+    setStyles(dom, enterActive)
   }
 
   /**
    * 移除过渡进入时并持续时的样式
    * @param dom 元素
    */
-  const removeTransitionInStyle = (dom: HTMLElement) => {
-    Object.keys(transitionInStyle).forEach(key => {
-      dom.style[key] = transitionOriginStyle[key]
-    })
+  const removeEnterActive = (dom: HTMLElement) => {
+    setStyles(dom, getOriginStyles(enterActive))
   }
 
   /**
    * 添加过渡离开并持续时的样式
    * @param dom 元素
    */
-  const addTransitionOutStyle = (dom: HTMLElement) => {
-    Object.keys(transitionOutStyle).forEach(key => {
-      dom.style[key] = transitionOutStyle[key]
-    })
+  const addLeaveActive = (dom: HTMLElement) => {
+    setStyles(dom, leaveActive)
   }
 
   /**
    * 移除过渡离开并持续时的样式
    * @param dom 元素
    */
-  const removeTransitionOutStyle = (dom: HTMLElement) => {
-    Object.keys(transitionOutStyle).forEach(key => {
-      dom.style[key] = transitionOriginStyle[key]
-    })
+  const removeLeaveActive = (dom: HTMLElement) => {
+    setStyles(dom, getOriginStyles(leaveActive))
   }
 
   /**
    * 添加过渡目标样式
    * @param dom 元素
    */
+  // const addEnterFromStyle = (dom: HTMLElement) => {
+  //   enterFrom && setStyles(dom, enterFrom)
+  // }
+
+  /**
+   * 移除过渡目标样式
+   * @param dom 元素
+   */
+  // const removeEnterFromStyle = (dom: HTMLElement) => {
+  //   if (!enterFrom) return
+
+  //   const canRemovedStyles = {}
+
+  //   for (const key in enterFrom) {
+  //     if (key in enterTo) continue
+  //     canRemovedStyles[key] = enterFrom[key]
+  //   }
+
+  //   setStyles(dom, getOriginStyles(canRemovedStyles))
+  // }
+  /**
+   * 添加过渡目标样式
+   * @param dom 元素
+   */
   const addEnterToStyle = (dom: HTMLElement) => {
-    Object.keys(enterToStyle).forEach(key => {
-      dom.style[key] = enterToStyle[key]
-    })
+    setStyles(dom, enterTo)
   }
 
   /**
@@ -99,31 +122,27 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
    * @param dom 元素
    */
   const removeEnterToStyle = (dom: HTMLElement) => {
-    Object.keys(enterToStyle).forEach(key => {
-      dom.style[key] = transitionOriginStyle[key]
-    })
+    setStyles(dom, getOriginStyles(enterTo))
   }
 
   /** 开始进入动画 */
-  const startTransitionIn = () => {
+  const startEnter = () => {
     const dom = getDom()
     if (!dom) return
-
-    addTransitionInStyle(dom)
+    addEnterActive(dom)
     // 在下一帧插入动画运动目标状态
-
     nextFrame(() => {
       addEnterToStyle(dom)
     })
   }
 
   /** 开始离开动画 */
-  const startTransitionOut = () => {
+  const startLeave = () => {
     const dom = getDom()
     if (!dom) return
 
     // 标记动画进入离开状态
-    addTransitionOutStyle(dom)
+    addLeaveActive(dom)
 
     // 在下一帧移除动画运动目标状态恢复原状或者应用新的状态
     nextFrame(() => {
@@ -132,62 +151,33 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   }
 
   const [active, toggle] = createToggle(false, active => {
-    active ? startTransitionIn() : startTransitionOut()
+    active ? startEnter() : startLeave()
   })
 
-  const transitionEndHandler = (e: TransitionEvent) => {
-    e.stopPropagation()
+  watchTransition(getDom, {
+    styleKeys: Object.keys(enterTo),
+    onCancel(el) {
+      // 激活状态，移除enter-active类
+      if (active.value) {
+        removeEnterActive(el)
+        enterCanceled?.()
+      } else {
+        removeLeaveActive(el)
+        leaveCanceled?.()
+      }
+    },
 
-    const dom = getDom()
-    if (!dom) return
-    // 激活状态，移除enter-active类
-    if (active.value) {
-      removeTransitionInStyle(dom)
-      afterEnter?.()
-    } else {
-      removeTransitionOutStyle(dom)
-      afterLeave?.()
+    onEnd(el) {
+      if (active.value) {
+        removeEnterActive(el)
+        // removeEnterFromStyle(el)
+        afterEnter?.()
+      } else {
+        removeLeaveActive(el)
+
+        afterLeave?.()
+      }
     }
-  }
-
-  const transitionCancelHandler = (e: TransitionEvent) => {
-    e.stopPropagation()
-
-    const dom = getDom()
-    if (!dom) return
-    // 激活状态，移除enter-active类
-    if (active.value) {
-      removeTransitionInStyle(dom)
-      enterCanceled?.()
-    } else {
-      removeTransitionOutStyle(dom)
-      leaveCanceled?.()
-    }
-  }
-
-  /** 添加事件 */
-  const addEvent = (el?: HTMLElement) => {
-    el?.addEventListener('transitioncancel', transitionCancelHandler)
-    el?.addEventListener('transitionend', transitionEndHandler)
-  }
-
-  /** 移除事件 */
-  const removeEvent = (el?: HTMLElement) => {
-    el?.removeEventListener('transitioncancel', transitionCancelHandler)
-    el?.removeEventListener('transitionend', transitionEndHandler)
-  }
-
-  if (isRef(target)) {
-    watch(target, (target, oldTarget) => {
-      target ? addEvent(target) : removeEvent(oldTarget)
-    })
-  } else if (target) {
-    addEvent(target)
-  }
-
-  onBeforeUnmount(() => {
-    const dom = getDom()
-    removeEvent(dom)
   })
 
   return {

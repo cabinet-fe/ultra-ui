@@ -5,21 +5,15 @@
       @scroll="handleScroll"
       :style="{ height: props.infiniteScroll == true ? height + 'px' : '' }"
     >
-      <!-- <li
-        v-for="(item, index) in visibleItems"
-        :draggable="props.draggable"
-        @dragstart="onDragStart(item, index)"
-        @dragover.prevent="onDragOver"
-        @drop="onDrop($event, item, index)"
-        :data-index="index"
-      > -->
       <li
         v-for="(item, index) in props.data"
         :draggable="props.draggable"
-        @dragstart="onDragStart(item, index)"
-        @dragover.prevent="onDragOver"
+        @dragstart="onDragStart($event, index)"
+        @dragover.prevent="onDragOver($event)"
+        @dragenter="ondragenter($event, index)"
         @drop="onDrop($event, item, index)"
         :data-index="index"
+        :class="index === dragIndex ? cls.e('dragging') : ''"
       >
         <!-- 自定义样式 -->
         <slot name="content" v-if="$slots.content" :item="item" :index="index" />
@@ -47,7 +41,7 @@
 <script lang="ts" setup>
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
 import { bem } from '@ui/utils'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'List'
@@ -60,38 +54,20 @@ const props = withDefaults(defineProps<ListProps>(), {})
 
 const height = document.documentElement.clientHeight
 
-let dragIndex: any = ref(null)
+/** 拖动元素索引 */
+let dragIndex = ref<number>()
+/** 目标对象元素索引 */
+let enterIndex = ref<number>()
 
 /** 没有更多了 */
 const noMore = ref(false)
 
-/** 所有列表 */
-const items = ref<any>(props.data)
-
 /** 当前页码 */
 const currentPage = ref(1)
-
-/** 每页显示多少条 */
-const pageSize = ref(props.pageSize)
 
 /** 总数量 */
 const total = ref(props.total)
 
-/** 要显示的列表 */
-let visibleItems = computed(() => {
-  const startIndex = (currentPage.value - 1) * pageSize.value
-
-  const endIndex = startIndex + pageSize.value
-
-  return items.value?.slice(0, endIndex)
-})
-
-/** 显示加载更多按钮 */
-// const showLoadMoreButton = computed(() => {
-//   return visibleItems.value.length < items.value.length
-// })
-
-/** 加载更多 */
 const handleScroll = e => {
   if (props.infiniteScroll == false) return
 
@@ -108,14 +84,6 @@ const handleScroll = e => {
   } else {
     console.log('else')
   }
-
-  // if (scrollTop + clientHeight == scrollHeight) {
-  //   console.log('没有更多了')
-  //   noMore.value = true
-  // } else {
-  //   currentPage.value++
-  //   emit('handleScroll', visibleItems.value)
-  // }
 }
 
 /** 加载更多 */
@@ -124,24 +92,33 @@ const loadMore = () => {
   emit('loadMore')
   currentPage.value++
 
-  if (props.data?.length > props.total) {
+  if (props.data?.length > props.total!) {
     noMore.value = true
     props.data = props.data.slice(0, total.value)
   }
-
-  // emit('handleScroll', visibleItems.value)
 }
-// loadMore()
+
 /**
  * 拖动元素触发
  * @param item
  * @param index
  */
-const onDragStart = (item: any, index: number) => {
-  console.log(item, 'item', index, 'index')
-
+const onDragStart = (e: any, index: number) => {
   dragIndex.value = index
-  console.log(dragIndex.value, 'dragIndex.value')
+
+  const dragItem = e.target.closest('li')
+
+  if (dragItem) {
+    dragItem.classList.add('fade-in')
+
+    requestAnimationFrame(() => {
+      dragItem.classList.add('fade-out')
+
+      setTimeout(() => {
+        dragItem.classList.remove('fade-out')
+      }, 300)
+    })
+  }
 }
 
 /**
@@ -151,21 +128,32 @@ const onDragStart = (item: any, index: number) => {
 const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 }
+
+const ondragenter = (e: any, index: number) => {
+  enterIndex.value = index
+}
+
 /**
  * ondrop事件在拖动元素在目标元素上释放时触发，通常用于实现拖放功能。
  * */
 const onDrop = (e: any, item: any, index: number) => {
-  console.log(e, 'e', e.target.dataset.index, '11')
-  const draggItem: any = items.value[dragIndex.value]
+  props.data.splice(
+    dragIndex.value!,
+    1,
+    ...props.data.splice(enterIndex?.value!, 1, props.data[dragIndex.value!]!)
+  )
+  const dragItem = e.target.closest('li')
 
-  console.log(draggItem, 'draggItem')
+  if (dragItem) {
+    dragItem.classList.remove('fade-in')
 
-  items.value.splice(dragIndex.value, 1)
-  console.log(items.value, 'items.value')
+    requestAnimationFrame(() => {
+      dragItem.classList.remove('fade-out')
 
-  items.value.splice(index, 0, draggItem)
-  console.log(items.value, 'items.value++')
-
-  dragIndex.value = null
+      setTimeout(() => {
+        dragItem.classList.add('fade-in')
+      }, 300)
+    })
+  }
 }
 </script>

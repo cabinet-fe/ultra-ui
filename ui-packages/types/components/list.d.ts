@@ -33,7 +33,7 @@ export interface ListProps {
   pageSize?: number
 
   /** 总数量 */
-  total: number
+  total?: number
 
   /** 是否拖拽 */
   draggable?: boolean

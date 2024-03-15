@@ -6,8 +6,6 @@ export * from './checkbox'
 
 export * from './checkbox-group'
 
-export * from './context'
-
 export * from './dialog'
 
 export * from './float-button'
