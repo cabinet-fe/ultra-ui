@@ -20,7 +20,6 @@ declare module 'vue' {
     UContext: typeof import('ultra-ui')['UContext']
     UDialog: typeof import('ultra-ui')['UDialog']
     UFloatButton: typeof import('ultra-ui')['UFloatButton']
-    UForm: typeof import('ultra-ui')['UForm']
     UGrid: typeof import('ultra-ui')['UGrid']
     UGridItem: typeof import('ultra-ui')['UGridItem']
     UIcon: typeof import('ultra-ui')['UIcon']
