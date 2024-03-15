@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="dialog-overlay">
+    <transition name="fade">
       <div
         v-if="visible || opened"
         v-show="visible"
@@ -109,15 +109,15 @@ const style = shallowReactive({
 
 const dialogTransition = useTransition('style', {
   target: dialogRef,
-  enterToStyle: {
+
+  enterTo: {
     transform: 'scale3d(1, 1, 1) translate(0, 0)'
   },
 
-  transitionInStyle: {
-    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
-    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  enterActive: {
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
-  transitionOutStyle: {
+  leaveActive: {
     transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
 })
@@ -127,7 +127,14 @@ let opened = false
 
 watch(visible, v => {
   if (!v) {
-    return dialogTransition.toggle(false)
+    dialogTransition.leave()
+    nextFrame(() => {
+      dialogRef.value &&
+        setStyles(dialogRef.value, {
+          transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+        })
+    })
+    return
   }
   if (!opened) opened = true
 
@@ -135,11 +142,14 @@ watch(visible, v => {
   translated.x = 0
   translated.y = 0
 
-  // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
-  // 渲染后的下一帧
   nextTick(() => {
+    dialogRef.value &&
+      setStyles(dialogRef.value, {
+        transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+      })
+    // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
     nextFrame(() => {
-      dialogTransition.toggle(true)
+      dialogTransition.enter()
     })
   })
 })

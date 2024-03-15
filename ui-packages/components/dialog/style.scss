@@ -123,17 +123,6 @@ $root-name: dialog;
   }
 }
 
-// 弹框透明层动画进入和离开时应用的类
-.#{$root-name}-overlay-enter-active,
-.#{$root-name}-overlay-leave-active {
-  transition: opacity 0.25s;
-}
-
-.#{$root-name}-overlay-enter-from,
-.#{$root-name}-overlay-leave-to {
-  opacity: 0;
-}
-
 // 弹框最大化动画进入后的类
 .#{$root-name}-maximize-enter-to {
   width: 100vw !important;

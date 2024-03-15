@@ -2,7 +2,7 @@
   <div>
     {{ data }}
 
-    <u-form label-width="100px" :use="form.key" no-tips>
+    <u-form label-width="100px" :use="form.key" >
       <u-input field="aa" label="测试a" tips="提示" />
       <u-input field="bb" label="测试b" tips="提示" />
       <u-input field="cc" label="测试c" tips="提示" />

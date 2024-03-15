@@ -8,6 +8,7 @@
     ".": "./theme.scss",
     "./mixins": "./_mixins.scss",
     "./functions": "./_functions.scss",
-    "./vars": "./_vars.scss"
+    "./vars": "./_vars.scss",
+    "./anime/*": "./anime/*.scss"
   }
 }

@@ -23,11 +23,16 @@ export function withUnit(value: number | string | undefined, unit: string) {
 export function setStyles(el: HTMLElement, styles: CSSProperties) {
   if (el.attributeStyleMap) {
     Object.keys(styles).forEach(key => {
-      styles[key] && el.attributeStyleMap.set(kebabCase(key), styles[key])
+      const value = styles[key]
+      if (!value && value !== 0) {
+        el.attributeStyleMap.delete(kebabCase(key))
+      } else {
+        el.attributeStyleMap.set(kebabCase(key), value)
+      }
     })
   } else {
     Object.keys(styles).forEach(key => {
-      styles[key] && (el.style[key] = styles[key])
+      el.style[key] = styles[key]
     })
   }
 }
