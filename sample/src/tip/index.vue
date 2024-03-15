@@ -20,7 +20,7 @@
         <u-button>鼠标不可进入tip区域</u-button>
       </u-tip>
       <u-tip
-        model-value="上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右"
+        model-value="上右上右上右上右上右上右上右上右"
         position="top-end"
         theme="light"
       >
@@ -166,7 +166,7 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  width: 800px;
+  // width: 800px;
   padding-top: 100px;
   margin: 0 auto;
   h4 {
