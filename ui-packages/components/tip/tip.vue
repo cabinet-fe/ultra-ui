@@ -159,13 +159,27 @@ const mouseEventDom = async () => {
   if (!tipContentRefDom) return
 
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
+  console.log(offsetLeft);
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
-  if (props.position.match(/top-start|bottom/)) {
+  if (props.position.match(/top-start|bottom|/)) {
     tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
   }
   if (props.position.match(/top-end/)) {
     tipContentRefDom.style.maxWidth = `${offsetLeft + clientWidth + 240 - 16}px`
+  }
+  if (props.position.match(/right/)) {
+    
+    let rect = tipRefDom.getBoundingClientRect()
+    if (rect.width > window.innerWidth - (rect.x + rect.width)) {
+      tipContentRefDom.style.maxWidth = `calc(${offsetLeft + 240 - 32}px)`
+    } else {
+      tipContentRefDom.style.maxWidth = `calc(100vw - ${
+        tipRefDom.getBoundingClientRect().x + clientWidth + 32
+      }px)`
+    }
+    console.log(tipContentRefDom.style.maxWidth,'tipContentRefDom.style.maxWidthtipContentRefDom.style.maxWidth');
+    
   }
 
   nextFrame(async () => {
