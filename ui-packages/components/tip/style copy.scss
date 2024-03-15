@@ -3,13 +3,11 @@
 @use '@ui/styles/vars';
 
 @include m.b(tip) {
-  // position: relative;
+  position: relative;
   width: max-content;
 
   @include m.e(content) {
     position: absolute;
-    left: 0;
-    top: 0;
     border-radius: fn.use-var(radius, default);
     padding: 10px;
     font-size: 14px;
