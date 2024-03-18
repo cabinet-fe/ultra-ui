@@ -45,6 +45,7 @@ import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
 import { wrapDataRows } from './row-forms'
+import { Validator } from '@ui/utils'
 
 defineOptions({
   name: 'URowForm'
@@ -122,11 +123,12 @@ init()
 // )
 
 // /** 校验 */
-// const validate = () => {
-//   console.log('校验')
-// }
+const validate = () => {
+  // return new Validator()
+}
 
 defineExpose({
-  getValue
+  getValue,
+  validate
 })
 </script>

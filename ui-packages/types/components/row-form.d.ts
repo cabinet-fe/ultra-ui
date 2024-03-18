@@ -7,9 +7,12 @@ export interface RowFormColumn {
   key: string
   /** 名称 */
   name: string
+  width?: number
   /** 校验规则 */
-  rules?: ValidateRule
+  rules?: RowFormValidateRule
 }
+
+export interface RowFormValidateRule extends ValidateRule {}
 
 /** 表格编辑组件组件属性 */
 export interface RowFormProps<T> {
@@ -36,7 +39,7 @@ export interface RowFormOperation {
 /** 每一条的内容 */
 export interface rowType {
   // children: rowType[];
-  [key: string]: any;
+  [key: string]: any
 }
 
 /** 表格编辑组件组件定义的事件 */
