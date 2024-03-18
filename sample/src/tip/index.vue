@@ -44,15 +44,15 @@
       </div>
       <div class="tip-column flex-column">
         <u-tip
-          model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上"
+          model-value="右上右上右上右上右上右上"
           position="right-start"
         >
           <u-button>右上右上右上</u-button>
         </u-tip>
-        <u-tip model-value="右中" position="right">
+        <u-tip model-value="315，消费者权益日，提醒我们维护自身权益，共同创造诚信社会。在这个特殊的日子里，我们更加关注产品质量和服务质量，用我们的力量推动市场健康发展。让诚信成为社会的底色，让每一位消费者都能享受到公平、透明、安全的消费环境。315，消费者权益日，提醒我们维护自身权益，共同创造诚信社会。在这个特殊的日子里，我们更加关注产品质量和服务质量，用我们的力量推动市场健康发展。让诚信成为社会的底色，让每一位消费者都能享受到公平、透明、安全的消费环境。" position="right">
           <u-button>右中右中右中右中</u-button>
         </u-tip>
-        <u-tip model-value="右下" position="right-end" theme="light">
+        <u-tip model-value="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下" position="right-end" theme="light">
           <u-button>右下右下Light</u-button>
         </u-tip>
       </div>
@@ -166,8 +166,8 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  // width: 800px;
-  padding-top: 100px;
+  width: 1500px;
+  padding-top: 540px;
   margin: 0 auto;
   h4 {
     text-align: center;

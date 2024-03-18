@@ -14,13 +14,13 @@
       <!-- 内容 -->
       <div :class="store.cls.e('tbody-item')">
         <div @click="e => handleClick(e, dataIndex, dataItem, columnsItem)">
-          <span
+          <!-- <span
             :class="classList"
             @click="handleChildClass"
-            v-if="columnsIndex === 0 && dataItem?.children"
+            v-if="columnsIndex === 0 && dataItem?.children?.length > 0"
           >
             >
-          </span>
+          </span> -->
 
           <slot
             ref="slotsRef"
@@ -41,16 +41,23 @@
     <td v-if="!store.props?.disabled">
       <button-common-props tag="span">
         <u-button
+          :class="store.cls.m('interval')"
           :icon="Delete"
           type="primary"
-          @click="() => handleDelete(dataItem, dataIndex)"
+          @click="handleDelete(dataItem, dataIndex)"
+        />
+
+        <u-button
+          :icon="DocumentAdd"
+          type="primary"
+          @click="handleInsertTo(dataItem, dataIndex)"
         />
       </button-common-props>
     </td>
   </tr>
 </template>
 <script lang="ts" setup>
-import { inject, ref, computed, type PropType, watch } from 'vue'
+import { inject, ref, computed, type PropType } from 'vue'
 import type {
   RowFormColumn,
   RowFormItemEmits
@@ -58,7 +65,7 @@ import type {
 import { RowFormStoreType } from './di'
 import { bem } from '@ui/utils'
 import vContextmenuOperation from '@ui/directives/contextmenu-operation'
-import { Delete } from 'icon-ultra'
+import { Delete, DocumentAdd } from 'icon-ultra'
 import { UButton } from '../button'
 import { useComponentProps } from '@ui/compositions'
 import type { ButtonProps } from '@ui/types/components/button'
@@ -99,8 +106,13 @@ const handleChildClass = () => {
   launch.value = !launch.value
 }
 
+/** 删除 */
 const handleDelete = (data: Record<string, any>[], index: number) => {
   emits('delete', data, index)
+}
+/** 插入 */
+const handleInsertTo = (data: Record<string, any>[], index: number) => {
+  emits('insert', data, index)
 }
 
 /** 右击 */

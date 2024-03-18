@@ -1,8 +1,5 @@
 <template>
   <table :class="cls.b" :border="border ? 1 : 0">
-    {{
-      data
-    }}
     <!-- 表头 start -->
     <row-form-header />
     <!-- 表头 end -->
@@ -35,15 +32,20 @@
   </table>
 </template>
 
-<script lang="ts" setup generic="T">
+<script lang="ts" setup generic="T extends rowType">
 import { bem } from '@ui/utils'
-import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
-import { computed, provide, useSlots, watch } from 'vue'
+import type {
+  RowFormProps,
+  RowFormEmits,
+  rowType
+} from '@ui/types/components/row-form'
+import { computed, provide, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
 import { wrapDataRows } from './row-forms'
+import { Validator } from '@ui/utils'
 
 defineOptions({
   name: 'URowForm'
@@ -65,6 +67,7 @@ const finalColumns = computed(() => {
   return [...props.columns]
 })
 
+let copyData = data
 provide(RowFormStoreType, {
   columns: finalColumns,
   modelData: data,
@@ -78,7 +81,7 @@ let lastItem = data.value[data.value.length - 1] ?? []
 /** 如果一开始最后一条不为空的话,就增加一条 */
 const initData = async () => {
   if (Object.keys(lastItem).length !== 0 && !props.disabled) {
-    data.value = [...data.value, {}]
+    data.value.push({} as T)
   }
 }
 initData()
@@ -92,24 +95,40 @@ const getValue = () => {
   }
 }
 
-let a = []
+/** TODO 暂时这么做先往后做 */
+const init = () => {
+  data.value = wrapDataRows(data.value) as T[]
+  console.log(data.value)
+}
+init()
 
-watch(
-  () => data.value,
-  () => {
-    a = wrapDataRows(data.value)
-    console.log(a, 'a')
-    // console.log(data.value, 'value')
-    // data.value = wrapDataRows(data.value)
-  }
-)
+// watch(
+//   () => data.value,
+//   (val: any[]) => {
+//     copyData.value = wrapDataRows(val) as T[]
+
+//     console.log(copyData.value, 'copyData')
+//   },
+//   { immediate: true }
+// )
+
+// let a: any[] = []
+
+// watch(
+//   () => data.value,
+//   () => {
+//     a = wrapDataRows(data.value)
+//     console.log(a, 'a')
+//   }
+// )
 
 // /** 校验 */
-// const validate = () => {
-//   console.log('校验')
-// }
+const validate = () => {
+  // return new Validator()
+}
 
 defineExpose({
-  getValue
+  getValue,
+  validate
 })
 </script>
