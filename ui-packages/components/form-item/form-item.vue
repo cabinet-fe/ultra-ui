@@ -1,15 +1,18 @@
 <template>
   <div :class="className">
-    <label :class="cls.e('label')" :style="labelStyles">
+    <label
+      :class="[cls.e('label'), bem.is('required', fieldRequired)]"
+      :style="labelStyles"
+    >
       {{ label }}
-      <!-- <UIcon v-if="tips"><InfoFilled /></UIcon> -->
     </label>
 
-    <section :class="cls.e('content')">
+    <section :class="[cls.e('content'),bem.is('error', !!errorTips)]">
       <slot />
-      <section v-if="showTips" :class="[cls.e('tips'), bem.is('error')]">
-        <transition name="form-item-tips">
-          <span v-if="!!errorTips">{{ errorTips }}</span>
+      <section v-if="showTips" :class="cls.e('tips')">
+        <transition name="form-item-tips" mode="out-in">
+          <span :class="cls.em('tips', 'error')" v-if="!!errorTips">{{ errorTips }}</span>
+          <span :class="cls.em('tips', 'info')" v-else>{{ tips }}</span>
         </transition>
       </section>
     </section>
@@ -19,9 +22,7 @@
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
-// import { UIcon } from '../icon'
-// import { InfoFilled } from 'icon-ultra'
-import { type CSSProperties, computed, shallowRef, watch } from 'vue'
+import { type CSSProperties, computed } from 'vue'
 import { useFormComponent } from '@ui/compositions'
 
 defineOptions({
@@ -41,6 +42,7 @@ const className = computed(() => {
   return [cls.b, cls.m(props.size)]
 })
 
+/** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
     width: withUnit(props.labelWidth ?? formProps?.labelWidth, 'px')
@@ -54,7 +56,15 @@ const showTips = computed<boolean>(() => {
 /** 错误提示 */
 const errorTips = computed<string | undefined>(() => {
   if (props.field) {
-    return formProps?.model.errors.value?.[props.field]?.[0]
+    return formProps?.model.errors.get(props.field)?.[0]
   }
+})
+
+/** 字段是否必须 */
+const fieldRequired = computed<boolean>(() => {
+  const { field } = props
+  if (!field) return false
+  const required = formProps?.model?.rules[field]?.required
+  return required ? true : false
 })
 </script>
