@@ -1,4 +1,4 @@
-import { provide, shallowReactive, shallowRef, type InjectionKey } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 import type { ValidateRule } from '@ui/types/utils/form/validate'
 import { Validator } from '@ui/utils'
 
@@ -71,7 +71,7 @@ export function useForm<Model extends Record<string, FormModelItem>>(
 
   const validator = new Validator(rules)
 
-  const errors = shallowRef<{ [key in keyof Model]?: string[] | undefined; }>()
+  const errors = shallowRef<{ [key in keyof Model]?: string[] | undefined }>()
 
   async function validate(
     fields?: (keyof Model)[] | keyof Model
