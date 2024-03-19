@@ -2,6 +2,7 @@ import type {
   RowFormColumn,
   RowFormValidateRule
 } from '@ui/types/components/row-form'
+import { shallowRef, type ShallowRef } from 'vue'
 
 /**
  * @param 传入的表头列
@@ -10,13 +11,12 @@ import type {
 export function defineRowFormColumns(
   columns: RowFormColumn[],
   config?: Conf
-): RowFormColumn[] {
+): ShallowRef<RowFormColumn[]> {
   // let tactics: Record<ColumnPreset, (col: RowFormColumn) => void> = {}
-
-  return columns.map(column => {
+  let columnsMap = columns.map(column => {
     let ret = { ...column }
 
-    /** 所有条目的配置 列优先 */
+    /** 所有条目的配置 列优先级别比这个高 */
     if (config) {
       Object.keys(config).forEach(key => {
         if (!ret[key]) {
@@ -27,6 +27,8 @@ export function defineRowFormColumns(
 
     return ret
   })
+
+  return shallowRef(columnsMap)
 }
 
 // type ColumnPreset = ''
