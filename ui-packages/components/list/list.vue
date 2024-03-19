@@ -10,10 +10,11 @@
         :draggable="props.draggable"
         @dragstart="onDragStart($event, index)"
         @dragover.prevent="onDragOver($event)"
-        @dragenter="ondragenter($event, index)"
-        @drop="onDrop($event, item, index)"
+        @dragenter="onDragEnter($event, index)"
+        @drop="onDrop($event)"
         :data-index="index"
         :class="index === dragIndex ? cls.e('dragging') : ''"
+        ref="liRef"
       >
         <!-- 自定义样式 -->
         <slot name="content" v-if="$slots.content" :item="item" :index="index" />
@@ -39,9 +40,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useTransition } from '@ui/compositions'
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
 import { bem } from '@ui/utils'
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
+// import useDrag from './useDrag'
 
 defineOptions({
   name: 'List'
@@ -54,10 +57,29 @@ const props = withDefaults(defineProps<ListProps>(), {})
 
 const height = document.documentElement.clientHeight
 
+const liRef = shallowRef<HTMLElement>()
+
 /** 拖动元素索引 */
 let dragIndex = ref<number>()
 /** 目标对象元素索引 */
 let enterIndex = ref<number>()
+
+// const { onDragStart, onDragOver, onDragEnter, onDrop } = useDrag(props.data, dragIndex, enterIndex)
+
+const liTransition = useTransition('style', {
+  target: liRef,
+  enterToStyle: {
+    transform: 'scale3d(1, 1, 1) translate(0, 0)'
+  },
+
+  transitionInStyle: {
+    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
+    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  },
+  transitionOutStyle: {
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  }
+})
 
 /** 没有更多了 */
 const noMore = ref(false)
@@ -108,17 +130,17 @@ const onDragStart = (e: any, index: number) => {
 
   const dragItem = e.target.closest('li')
 
-  if (dragItem) {
-    dragItem.classList.add('fade-in')
+  // if (dragItem) {
+  //   dragItem.classList.add('fade-in')
 
-    requestAnimationFrame(() => {
-      dragItem.classList.add('fade-out')
+  //   requestAnimationFrame(() => {
+  //     dragItem.classList.add('fade-out')
 
-      setTimeout(() => {
-        dragItem.classList.remove('fade-out')
-      }, 300)
-    })
-  }
+  //     setTimeout(() => {
+  //       dragItem.classList.remove('fade-out')
+  //     }, 300)
+  //   })
+  // }
 }
 
 /**
@@ -129,31 +151,31 @@ const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 }
 
-const ondragenter = (e: any, index: number) => {
+const onDragEnter = (e: any, index: number) => {
   enterIndex.value = index
 }
 
 /**
  * ondrop事件在拖动元素在目标元素上释放时触发，通常用于实现拖放功能。
  * */
-const onDrop = (e: any, item: any, index: number) => {
+const onDrop = (e: any) => {
   props.data.splice(
     dragIndex.value!,
     1,
     ...props.data.splice(enterIndex?.value!, 1, props.data[dragIndex.value!]!)
   )
   const dragItem = e.target.closest('li')
+  // liTransition.toggle(true)
+  // if (dragItem) {
+  //   dragItem.classList.remove('fade-in')
 
-  if (dragItem) {
-    dragItem.classList.remove('fade-in')
+  //   requestAnimationFrame(() => {
+  //     dragItem.classList.remove('fade-out')
 
-    requestAnimationFrame(() => {
-      dragItem.classList.remove('fade-out')
-
-      setTimeout(() => {
-        dragItem.classList.add('fade-in')
-      }, 300)
-    })
-  }
+  //     setTimeout(() => {
+  //       dragItem.classList.add('fade-in')
+  //     }, 300)
+  //   })
+  // }
 }
 </script>
