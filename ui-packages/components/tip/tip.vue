@@ -8,6 +8,7 @@
     :data-outSide="visible"
     ref="tipRef"
   />
+
   <!-- v-click-outside="handleClickOutside" -->
   <teleport to="body">
     <div
@@ -155,7 +156,9 @@ const mouseEventDom = async () => {
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
   if (props.position.match(/top-start|bottom|/)) {
-    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 266}px)`
+    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 246}px)`
+    console.log(tipContentRefDom.style.maxWidth,'-------------------------------');
+    
   }
   if (props.position.match(/top-end/)) {
     tipContentRefDom.style.maxWidth = `${offsetLeft + clientWidth + 240 - 16}px`

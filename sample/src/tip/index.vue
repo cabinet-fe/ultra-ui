@@ -1,4 +1,5 @@
 <template>
+    <div style="height: 80vh"></div>
   <div class="tip-box">
     <div class="anime-test" ref="divRef">11111</div>
     <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
@@ -166,9 +167,6 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  width: 1500px;
-  padding-top: 540px;
-  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;
