@@ -1,4 +1,5 @@
 <template>
+    <div style="height: 80vh"></div>
   <div class="tip-box">
     <div class="anime-test" ref="divRef">11111</div>
     <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
@@ -44,15 +45,15 @@
       </div>
       <div class="tip-column flex-column">
         <u-tip
-          model-value="右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上"
+          model-value="右上右上右上右上右上右上"
           position="right-start"
         >
           <u-button>右上右上右上</u-button>
         </u-tip>
-        <u-tip model-value="右中" position="right">
+        <u-tip model-value="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中" position="right">
           <u-button>右中右中右中右中</u-button>
         </u-tip>
-        <u-tip model-value="右下" position="right-end" theme="light">
+        <u-tip model-value="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下" position="right-end" theme="light">
           <u-button>右下右下Light</u-button>
         </u-tip>
       </div>
@@ -166,9 +167,6 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  // width: 800px;
-  padding-top: 100px;
-  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;

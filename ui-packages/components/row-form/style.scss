@@ -9,6 +9,10 @@
   overflow-x: scroll;
   position: relative;
 
+  &--interval {
+    margin-right: 10px;
+  }
+
   .header {
     background-color: fn.use-var(color-primary-light-9);
     border-bottom: var(--u-border);

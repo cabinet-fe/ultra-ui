@@ -3,20 +3,13 @@
     :vnode="defaultSlot"
     @mouseenter.self="handleMouseOver"
     @mouseleave.self="handleMouseOut"
-    @click="handleClick"
+    @click.stop="handleClick"
     :class="cls.b"
+    :data-outSide="visible"
     ref="tipRef"
   />
-  <!-- <div
-    :class="cls.b"
-    ref="tipRef"
-    @mouseenter.self="handleMouseOver"
-    @mouseleave.self="handleMouseOut"
-    @click="handleClick"
-  >
-    <slot></slot>
-  </div> -->
-  <!-- {{ dynamicStyle }} -->
+
+  <!-- v-click-outside="handleClickOutside" -->
   <teleport to="body">
     <div
       :class="contentClass"
@@ -24,8 +17,7 @@
       v-if="visible"
       @mouseenter.stop="handleContentMouseOver"
       @mouseleave.stop="handleMouseOut"
-      @clic.stop
-      v-click-outside="handleClickOutside"
+      @click.stop
     >
       <slot name="content">
         {{ modelValue }}
@@ -145,6 +137,7 @@ const handleClick = () => {
 }
 
 const handleClickOutside = () => {
+  console.log("Clicked outside")
   if (props.triggerPopUpMode === "hover") return
   visible.value = false
 }
@@ -159,13 +152,42 @@ const mouseEventDom = async () => {
   if (!tipContentRefDom) return
 
   let {clientWidth, clientHeight, offsetLeft} = tipRefDom
+  let rect = tipRefDom.getBoundingClientRect()
 
   /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
-  if (props.position.match(/top-start|bottom/)) {
-    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 256}px)`
+  if (props.position.match(/top-start|bottom|/)) {
+    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 246}px)`
+    console.log(tipContentRefDom.style.maxWidth,'-------------------------------');
+    
   }
   if (props.position.match(/top-end/)) {
     tipContentRefDom.style.maxWidth = `${offsetLeft + clientWidth + 240 - 16}px`
+  }
+  if (props.position.match(/right/)) {
+    tipContentRefDom.style.maxHeight = `calc(${
+      window.innerHeight - rect.y - 16
+    }px)`
+    tipContentRefDom.style.overflow = `auto`
+    if (rect.width > window.innerWidth - (rect.x + rect.width)) {
+      tipContentRefDom.style.maxWidth = `calc(${rect.x - 32}px)`
+    } else {
+      tipContentRefDom.style.maxWidth = `calc(100vw - ${
+        rect.x + clientWidth + 32
+      }px)`
+    }
+  }
+  if (props.position.match(/left/)) {
+    tipContentRefDom.style.maxHeight = `calc(${
+      window.innerHeight - rect.y - 16
+    }px)`
+    tipContentRefDom.style.overflow = `auto`
+    if (rect.width > window.innerWidth - (rect.x + rect.width)) {
+      tipContentRefDom.style.maxWidth = `calc(100vw - ${rect.x - 16}px)`
+    } else {
+      tipContentRefDom.style.maxWidth = `calc(${
+        window.innerWidth - rect.x - rect.width - 32
+      }px)`
+    }
   }
 
   nextFrame(async () => {

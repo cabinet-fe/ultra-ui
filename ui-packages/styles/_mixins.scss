@@ -95,6 +95,12 @@
   }
 }
 
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /**
 * 设置css变量
 * 参数1:变量前缀

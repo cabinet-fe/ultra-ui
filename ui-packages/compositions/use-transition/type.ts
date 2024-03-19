@@ -19,12 +19,16 @@ export interface CssTransitionOptions extends TransitionBase {
 }
 
 export interface StyleTransitionOptions extends TransitionBase {
+  // /** 动画进入前的样式 */
+  // enterFrom?: CSSProperties
+  // /** 动画离开后的样式 */
+  // leaveTo?: CSSProperties
   /** 进入后的样式 */
-  enterToStyle: CSSProperties
+  enterTo: CSSProperties
   /** 进入过渡时的样式 */
-  transitionInStyle: CSSProperties
+  enterActive: CSSProperties
   /** 离开过渡时的样式 */
-  transitionOutStyle: CSSProperties
+  leaveActive: CSSProperties
 }
 
 export interface Returned {

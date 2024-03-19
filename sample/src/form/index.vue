@@ -1,35 +1,31 @@
 <template>
   <div>
-    {{ data }}
-
-    <u-form label-width="100px" :use="form.key" no-tips>
+    <u-form :model="model" label-width="100px">
       <u-input field="aa" label="测试a" tips="提示" />
-      <u-input field="bb" label="测试b" tips="提示" />
-      <u-input field="cc" label="测试c" tips="提示" />
-      <u-input field="dd" label="测试d" tips="提示" />
+      <u-input field="bb" label="测试b" />
+      <u-input field="cc" label="测试c" />
+      <u-input field="dd" label="测试d" />
     </u-form>
 
-    <u-button @click="() => c.log(form.validate())">校验</u-button>
+    <u-button @click="model.validate()">校验</u-button>
+    <u-button @click="model.clearValidate()">重置</u-button>
 
-    <u-dialog>
-      <u-form></u-form>
-    </u-dialog>
-
-    <div ref="previewRef"></div>
+    {{ model.data }}
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useForm } from 'ultra-ui/components'
+import { field, FormModel } from 'ultra-ui/components'
 
-const [data, form] = useForm('form', {
+const model = new FormModel({
   aa: {
     value: '',
-    required: true
+    required: true,
+    maxLen: 4
   },
 
-  bb: {},
-  cc: {},
-  dd: {}
+  bb: field<string>({ required: true }),
+  cc: { required: true },
+  dd: { required: true }
 })
 </script>

@@ -24,9 +24,10 @@ export function useTransition(
   type: 'style',
   options: StyleTransitionOptions
 ): Returned
-export function useTransition(type: 'css' | 'style', options: any): Returned {
+export function useTransition(type: string, options: any): Returned {
   if (type === 'css') {
     return useCssTransition(options)
   }
   return useStyleTransition(options)
 }
+

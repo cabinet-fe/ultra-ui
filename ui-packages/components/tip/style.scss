@@ -7,7 +7,7 @@
   width: max-content;
 
   @include m.e(content) {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     border-radius: fn.use-var(radius, default);

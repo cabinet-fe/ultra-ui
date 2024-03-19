@@ -1,25 +1,26 @@
-import type {DirectiveBinding} from "vue"
+// ClickOutsideDirective.ts
+import type { DirectiveBinding } from "vue";
 
 const ClickOutside = {
-  async beforeMount(el: HTMLElement, binding: DirectiveBinding) {
-    el.clickOutsideEvent = (event: MouseEvent) => {
-      let targetNode = event.target as HTMLElement
-
-      if (
-        !el.contains(targetNode) &&
-        targetNode !== el &&
-        !el.parentElement?.contains(targetNode)
-      ) {
-        // 如果点击事件不是发生在元素及其父级内部，则执行绑定的方法
-        binding.value()
+  beforeMount(el: HTMLElement, binding: DirectiveBinding) {
+    const handleClick = (event: MouseEvent) => {
+      if (!el.contains(event.target as Node)) {
+        // 如果点击事件不发生在元素及其内部，则执行绑定的方法
+        binding.value();
       }
-    }
-    document.addEventListener("click", el.clickOutsideEvent)
-  },
-  unmounted(el: HTMLElement) {
-    document.removeEventListener("click", el.clickOutsideEvent)
-    delete el.clickOutsideEvent
-  },
-}
+    };
 
-export default ClickOutside
+    // 监听全局点击事件
+    document.addEventListener("click", handleClick);
+
+    // 将处理函数保存在元素上，以便在 unmounted 时移除监听器
+    el._clickOutsideHandler = handleClick;
+  },
+
+  unmounted(el: HTMLElement) {
+    // 移除全局点击事件的监听器
+    document.removeEventListener("click", el._clickOutsideHandler);
+  },
+};
+
+export default ClickOutside;

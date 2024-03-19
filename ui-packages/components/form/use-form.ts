@@ -45,11 +45,13 @@ function model<Model extends Record<string, FormModelItem>>(
  * @param item 表单项
  * @returns
  */
-function item<Val = unknown>(item?: FormModelItem<Val>): FormModelItem<Val> {
-  if (!item)
-    return {
-      value: undefined
-    }
+export function field<Val = unknown>(
+  item?: FormModelItem<Val>
+): FormModelItem<Val> {
+  if (!item) {
+    return {}
+  }
+
   return item
 }
 
@@ -59,24 +61,17 @@ function item<Val = unknown>(item?: FormModelItem<Val>): FormModelItem<Val> {
  * @param modelData 模型数据
  * @returns
  */
-export function useForm<
-  Key extends string | Symbol,
-  Model extends Record<string, FormModelItem>
->(
-  key: Key,
+export function useForm<Model extends Record<string, FormModelItem>>(
   modelData: Model
 ): [
-  ModelData<Model>,
-  {
-    key: Key
-    validate: (fields?: (keyof Model)[] | keyof Model) => Promise<boolean>
-  }
+  { data: ModelData<Model>; rules: ModelRules<Model> },
+  (fields?: (keyof Model)[] | keyof Model) => Promise<boolean>
 ] {
   const [data, rules] = model(modelData)
 
   const validator = new Validator(rules)
 
-  const errors = shallowRef()
+  const errors = shallowRef<{ [key in keyof Model]?: string[] | undefined; }>()
 
   async function validate(
     fields?: (keyof Model)[] | keyof Model
@@ -88,17 +83,5 @@ export function useForm<
     return true
   }
 
-  provide<any>(key, {
-    data,
-    errors,
-    validate
-  })
-
-  return [
-    data,
-    {
-      validate,
-      key
-    }
-  ]
+  return [{ data, rules }, validate]
 }

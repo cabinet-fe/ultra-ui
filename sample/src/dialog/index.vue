@@ -28,29 +28,33 @@
       </template>
     </u-dialog>
 
-    <div class="box">
-      <section class="section1">
-        <p>1</p>
-      </section>
-      <section class="section2">
-        <p>2</p>
-        <p>2</p>
-        <p>2</p>
-        <p>2</p>
-        <p>2</p>
-        <p>2</p>
-      </section>
-      <section class="section3">
-        <p>3</p>
-      </section>
-    </div>
+    <u-button ref="buttonRef" @click="transition.toggle(a => !a)">移动</u-button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
+import { useTransition, type ButtonExposed } from 'ultra-ui'
+import { computed, shallowRef } from 'vue'
 
 const visible = shallowRef(false)
+
+const buttonRef = shallowRef<ButtonExposed>()
+const buttonDom = computed(() => {
+  return buttonRef.value?.el
+})
+
+const transition = useTransition('style', {
+  target: buttonDom,
+  enterTo: {
+    transform: 'translate(100px, 0)'
+  },
+  enterActive: {
+    transition: 'transform 0.3s'
+  },
+  leaveActive: {
+    transition: 'transform 0.3s'
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -70,7 +74,6 @@ const visible = shallowRef(false)
 .section1 {
   background-color: #ccc;
   flex-shrink: 0;
-
 }
 .section2 {
   background-color: cadetblue;
