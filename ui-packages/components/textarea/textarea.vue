@@ -1,10 +1,8 @@
 <template>
-  <div
-    :class="cls.b"
-    @mouseenter.self="handleMouseEnter"
-    @mouseleave.self="handleMouseLeave"
-  >
+  <div :class="cls.b">
     <textarea
+      @mousemove.self="handleMouseEnter"
+      @mouseleave.self="handleMouseLeave"
       :class="classList"
       :style="{...styleObj, height: scrollHight}"
       :placeholder="props.placeholder"
@@ -14,7 +12,6 @@
       :cols="props.cols"
       @input.stop="handleInput"
       :readonly="props.disabled"
-      autofocus
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
