@@ -14,9 +14,6 @@ let componentCss = {}
 /**弹出样式 */
 let dynamicCss = shallowRef<Record<string, any>>({})
 
-/**箭头位置/朝向 */
-let arrowCss = shallowRef<Record<string, any>>({})
-
 /**保留整数 */
 function countPositionInt(num: number | string) {
   return Math.floor(Number(num))
@@ -58,9 +55,6 @@ function countPosition({
   return new Promise((resolve) => {
     nextTick(() => {
       dynamicCss.value = {...dynamicCss.value, ...componentCss}
-
-      //页面元素的DOM信息
-      let {offsetLeft} = tipRefDom
 
       // 弹窗显示的DOM信息
       let {clientWidth, clientHeight} = tipContentRefDom
@@ -137,6 +131,10 @@ function topCount(
   }
   // tip提示靠上 居中
   if (position === "top") {
+    if (clientWidth === window.innerWidth - 32) {
+      dynamicCss.value.transform = `translate(${elementDistance}px, ${translateY}px)`
+      return
+    }
     dynamicCss.value.transform = `translate(${countPositionInt(
       offsetLeft + 240 - (clientWidth - elementWidth) / 2
     )}px, ${countPositionInt(translateY)}px)`
@@ -365,8 +363,9 @@ function bottomCount(
     if (position === "bottom") {
       if (clientWidth > elementWidth) {
         dynamicCss.value.transform = `translate(${
-          x - (clientWidth - elementWidth) / 2
-        }px, ${bottomTop}px)`
+          countPositionInt(window.innerWidth - clientWidth - 16) / 2 +
+          elementWidth
+        }px, ${countPositionInt(bottomTop)}px)`
       } else {
         dynamicCss.value.transform = `translate(${
           x + (elementWidth - clientWidth) / 2
@@ -393,15 +392,13 @@ function bottomCount(
     }
     // tip提示靠下 居中
     if (position === "bottom") {
-      if (clientWidth > elementWidth) {
-        dynamicCss.value.transform = `translate(${
-          x - (clientWidth - elementWidth) / 2
-        }px, ${bottomY}px)`
-      } else {
-        dynamicCss.value.transform = `translate(${
-          x + (elementWidth - clientWidth) / 2
-        }px, ${bottomY}px)`
+      if (clientWidth === window.innerWidth - 32) {
+        dynamicCss.value.transform = `translate(${elementDistance}px, ${bottomY}px)`
+        return
       }
+      dynamicCss.value.transform = `translate(${
+        x - (clientWidth - elementWidth) / 2
+      }px, ${bottomY}px)`
     }
     // tip提示靠下 右
     if (position === "bottom-end") {
@@ -434,7 +431,7 @@ function ifTopViewport(tipContentRefDom, tipRefDom) {
 }
 
 /**
- * tip靠上是否在视窗内
+ * tip靠下是否在视窗内
  * @param tipContentRefDom tip内容元素
  * @param tipRefDom  tip元素
  * @returns  tip是否在视窗内
@@ -443,7 +440,7 @@ function ifBottomViewport(tipContentRefDom, tipRefDom) {
   let rect = tipContentRefDom.getBoundingClientRect()
   let rect2 = tipRefDom.getBoundingClientRect()
   if (
-    countPositionInt(window.innerHeight - rect2.y - rect2.height) >
+    countPositionInt(window.innerHeight - rect2.y - rect2.height - 16) >
     countPositionInt(rect.height)
   ) {
     return true

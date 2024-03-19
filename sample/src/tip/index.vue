@@ -1,6 +1,7 @@
 <template>
+    <div style="height: 80vh"></div>
   <div class="tip-box">
-    <div class="anime-test" ref="divRef">11111</div>
+    <!-- <div class="anime-test" ref="divRef">11111</div> -->
     <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
 
     <h4>Hover</h4>
@@ -49,7 +50,7 @@
         >
           <u-button>右上右上右上</u-button>
         </u-tip>
-        <u-tip model-value="315，消费者权益日，提醒我们维护自身权益，共同创造诚信社会。在这个特殊的日子里，我们更加关注产品质量和服务质量，用我们的力量推动市场健康发展。让诚信成为社会的底色，让每一位消费者都能享受到公平、透明、安全的消费环境。315，消费者权益日，提醒我们维护自身权益，共同创造诚信社会。在这个特殊的日子里，我们更加关注产品质量和服务质量，用我们的力量推动市场健康发展。让诚信成为社会的底色，让每一位消费者都能享受到公平、透明、安全的消费环境。" position="right">
+        <u-tip model-value="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中" position="right">
           <u-button>右中右中右中右中</u-button>
         </u-tip>
         <u-tip model-value="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下" position="right-end" theme="light">
@@ -64,10 +65,10 @@
       >
         <u-button>下左下左下左下左</u-button>
       </u-tip>
-      <u-tip model-value="下中" position="bottom">
+      <u-tip model-value="下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中" position="bottom">
         <u-button>下中下中下中下中</u-button>
       </u-tip>
-      <u-tip model-value="下右" position="bottom-end" theme="light">
+      <u-tip model-value="下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右" position="bottom-end" theme="light">
         <u-button>下右下右 Light</u-button>
       </u-tip>
     </div>
@@ -125,13 +126,13 @@
 
 <script setup lang="ts">
 // import { useTransition } from 'ultra-ui'
-import { shallowReactive, shallowRef } from 'vue'
+import { shallowReactive, } from 'vue'
 const styleValue = shallowReactive({
   background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
   color: '#fff'
   // display:'block'
 })
-const divRef = shallowRef()
+// const divRef = shallowRef()
 // const transition = useTransition('style', {
 //   target: divRef,
 //   enterToStyle: {
@@ -166,9 +167,6 @@ const divRef = shallowRef()
   justify-content: space-around;
 }
 .tip-box {
-  width: 1500px;
-  padding-top: 540px;
-  margin: 0 auto;
   h4 {
     text-align: center;
     padding-bottom: 20px;
