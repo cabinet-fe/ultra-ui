@@ -14,9 +14,6 @@ let componentCss = {}
 /**弹出样式 */
 let dynamicCss = shallowRef<Record<string, any>>({})
 
-/**箭头位置/朝向 */
-let arrowCss = shallowRef<Record<string, any>>({})
-
 /**保留整数 */
 function countPositionInt(num: number | string) {
   return Math.floor(Number(num))
@@ -58,9 +55,6 @@ function countPosition({
   return new Promise((resolve) => {
     nextTick(() => {
       dynamicCss.value = {...dynamicCss.value, ...componentCss}
-
-      //页面元素的DOM信息
-      let {offsetLeft} = tipRefDom
 
       // 弹窗显示的DOM信息
       let {clientWidth, clientHeight} = tipContentRefDom
@@ -434,7 +428,7 @@ function ifTopViewport(tipContentRefDom, tipRefDom) {
 }
 
 /**
- * tip靠上是否在视窗内
+ * tip靠下是否在视窗内
  * @param tipContentRefDom tip内容元素
  * @param tipRefDom  tip元素
  * @returns  tip是否在视窗内
@@ -443,7 +437,7 @@ function ifBottomViewport(tipContentRefDom, tipRefDom) {
   let rect = tipContentRefDom.getBoundingClientRect()
   let rect2 = tipRefDom.getBoundingClientRect()
   if (
-    countPositionInt(window.innerHeight - rect2.y - rect2.height) >
+    countPositionInt(window.innerHeight - rect2.y - rect2.height - 16) >
     countPositionInt(rect.height)
   ) {
     return true

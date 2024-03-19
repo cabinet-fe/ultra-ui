@@ -3,20 +3,12 @@
     :vnode="defaultSlot"
     @mouseenter.self="handleMouseOver"
     @mouseleave.self="handleMouseOut"
-    @click="handleClick"
+    @click.stop="handleClick"
     :class="cls.b"
+    :data-outSide="visible"
     ref="tipRef"
   />
-  <!-- <div
-    :class="cls.b"
-    ref="tipRef"
-    @mouseenter.self="handleMouseOver"
-    @mouseleave.self="handleMouseOut"
-    @click="handleClick"
-  >
-    <slot></slot>
-  </div> -->
-  <!-- {{ dynamicStyle }} -->
+  <!-- v-click-outside="handleClickOutside" -->
   <teleport to="body">
     <div
       :class="contentClass"
@@ -24,8 +16,7 @@
       v-if="visible"
       @mouseenter.stop="handleContentMouseOver"
       @mouseleave.stop="handleMouseOut"
-      @clic.stop
-      v-click-outside="handleClickOutside"
+      @click.stop
     >
       <slot name="content">
         {{ modelValue }}
@@ -145,6 +136,7 @@ const handleClick = () => {
 }
 
 const handleClickOutside = () => {
+  console.log("Clicked outside")
   if (props.triggerPopUpMode === "hover") return
   visible.value = false
 }
