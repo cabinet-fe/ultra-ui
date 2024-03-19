@@ -68,8 +68,8 @@ const finalColumns = computed(() => {
 })
 
 provide(RowFormStoreType, {
-  columns: toRef(finalColumns),
-  modelData: toRef(data),
+  columns: finalColumns,
+  modelData: data,
   props,
   slots: useSlots(),
   cls
