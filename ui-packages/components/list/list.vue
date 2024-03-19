@@ -66,20 +66,20 @@ let enterIndex = ref<number>()
 
 // const { onDragStart, onDragOver, onDragEnter, onDrop } = useDrag(props.data, dragIndex, enterIndex)
 
-const liTransition = useTransition('style', {
-  target: liRef,
-  enterToStyle: {
-    transform: 'scale3d(1, 1, 1) translate(0, 0)'
-  },
+// const liTransition = useTransition('style', {
+//   target: liRef,
+//   enterToStyle: {
+//     transform: 'scale3d(1, 1, 1) translate(0, 0)'
+//   },
 
-  transitionInStyle: {
-    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
-    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  },
-  transitionOutStyle: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-  }
-})
+//   transitionInStyle: {
+//     transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
+//     transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+//   },
+//   transitionOutStyle: {
+//     transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+//   }
+// })
 
 /** 没有更多了 */
 const noMore = ref(false)
