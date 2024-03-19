@@ -24,9 +24,7 @@ export type IFormModel<
   /** 字段校验规则 */
   readonly rules: ModelRules<Fields>
   /** 错误 */
-  readonly errors: ShallowRef<
-    { [key in keyof Fields]?: string[] | undefined } | undefined
-  >
+  readonly errors: Map<keyof Fields, string[] | undefined>
   /** 字段校验 */
   validate: (fields?: keyof Fields | (keyof Fields)[]) => Promise<boolean>
 }
@@ -36,6 +34,7 @@ export interface FormProps<Model extends IFormModel = IFormModel>
   extends FormComponentProps {
   /** 表单模式, edit为编辑模式, view为查看模式 */
   mode?: 'edit' | 'view'
+  /** 表单数据模型 */
   model: Model
   /** 表单项label宽度 */
   labelWidth?: string | number

@@ -131,6 +131,10 @@ function topCount(
   }
   // tip提示靠上 居中
   if (position === "top") {
+    if (clientWidth === window.innerWidth - 32) {
+      dynamicCss.value.transform = `translate(${elementDistance}px, ${translateY}px)`
+      return
+    }
     dynamicCss.value.transform = `translate(${countPositionInt(
       offsetLeft + 240 - (clientWidth - elementWidth) / 2
     )}px, ${countPositionInt(translateY)}px)`
@@ -359,8 +363,9 @@ function bottomCount(
     if (position === "bottom") {
       if (clientWidth > elementWidth) {
         dynamicCss.value.transform = `translate(${
-          x - (clientWidth - elementWidth) / 2
-        }px, ${bottomTop}px)`
+          countPositionInt(window.innerWidth - clientWidth - 16) / 2 +
+          elementWidth
+        }px, ${countPositionInt(bottomTop)}px)`
       } else {
         dynamicCss.value.transform = `translate(${
           x + (elementWidth - clientWidth) / 2
@@ -387,15 +392,13 @@ function bottomCount(
     }
     // tip提示靠下 居中
     if (position === "bottom") {
-      if (clientWidth > elementWidth) {
-        dynamicCss.value.transform = `translate(${
-          x - (clientWidth - elementWidth) / 2
-        }px, ${bottomY}px)`
-      } else {
-        dynamicCss.value.transform = `translate(${
-          x + (elementWidth - clientWidth) / 2
-        }px, ${bottomY}px)`
+      if (clientWidth === window.innerWidth - 32) {
+        dynamicCss.value.transform = `translate(${elementDistance}px, ${bottomY}px)`
+        return
       }
+      dynamicCss.value.transform = `translate(${
+        x - (clientWidth - elementWidth) / 2
+      }px, ${bottomY}px)`
     }
     // tip提示靠下 右
     if (position === "bottom-end") {

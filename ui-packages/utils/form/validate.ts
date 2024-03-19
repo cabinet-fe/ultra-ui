@@ -5,26 +5,30 @@ import type {
   ValidatorConfig
 } from '@ui/types/utils/form/validate'
 
+const isEmpty = (value: any): value is null | undefined => {
+  return value === null || value === undefined
+}
+
 /** 预设规则 */
 const presetRules = {
   required(value: any, required: ValidateRule['required']): Undef<string> {
     if (required === false) return
 
     const errMsg = typeof required === 'string' ? required : '该项不能为空'
-    if (value === null || value === undefined) return errMsg
+    if (isEmpty(value)) return errMsg
 
     if (Array.isArray(value) && !value.length) return errMsg
     if (typeof value === 'string' && !value) return errMsg
   },
   min(value: any, rule: ValidateRule['min']): Undef<string> {
-    if (value === null || value === undefined) return
+    if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项必须大于等于${_rule}`
     if (typeof value !== 'number') return `${value}不是一个数字`
     if (value < _rule) return errMsg
   },
   max(value: any, rule: ValidateRule['max']): Undef<string> {
-    if (value === null || value === undefined) return
+    if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项必须小于等于${_rule}`
     if (typeof value !== 'number') return `${value}不是一个数字`
@@ -32,7 +36,7 @@ const presetRules = {
   },
 
   minLen(value: any, rule: ValidateRule['minLen']): Undef<string> {
-    if (value === null || value === undefined) return
+    if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须大于等于${_rule}`
     if (!Array.isArray(value) && typeof value !== 'string')
@@ -40,7 +44,7 @@ const presetRules = {
     if (value.length < _rule) return errMsg
   },
   maxLen(value: any, rule: ValidateRule['maxLen']): Undef<string> {
-    if (value === null || value === undefined) return
+    if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须小于等于:${_rule}`
     if (!Array.isArray(value) && typeof value !== 'string')
@@ -48,7 +52,7 @@ const presetRules = {
     if (value.length > _rule) return errMsg
   },
   match(value: any, rule: ValidateRule['match']): Undef<string> {
-    if (value === null || value === undefined) return
+    if (isEmpty(value) || value === '') return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项不匹配正则:${_rule}`
     if (typeof value !== 'string') return `${value}不是一个字符串`

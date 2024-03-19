@@ -1,7 +1,7 @@
 <template>
     <div style="height: 80vh"></div>
   <div class="tip-box">
-    <div class="anime-test" ref="divRef">11111</div>
+    <!-- <div class="anime-test" ref="divRef">11111</div> -->
     <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
 
     <h4>Hover</h4>
@@ -65,10 +65,10 @@
       >
         <u-button>下左下左下左下左</u-button>
       </u-tip>
-      <u-tip model-value="下中" position="bottom">
+      <u-tip model-value="下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中" position="bottom">
         <u-button>下中下中下中下中</u-button>
       </u-tip>
-      <u-tip model-value="下右" position="bottom-end" theme="light">
+      <u-tip model-value="下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右" position="bottom-end" theme="light">
         <u-button>下右下右 Light</u-button>
       </u-tip>
     </div>
@@ -126,13 +126,13 @@
 
 <script setup lang="ts">
 // import { useTransition } from 'ultra-ui'
-import { shallowReactive, shallowRef } from 'vue'
+import { shallowReactive, } from 'vue'
 const styleValue = shallowReactive({
   background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
   color: '#fff'
   // display:'block'
 })
-const divRef = shallowRef()
+// const divRef = shallowRef()
 // const transition = useTransition('style', {
 //   target: divRef,
 //   enterToStyle: {

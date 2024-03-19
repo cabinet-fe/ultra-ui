@@ -103,14 +103,12 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  return
-
   if (props.triggerPopUpMode !== "hover") return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
     tipContentRef.value!.style.opacity = "0"
-    visible.value = false
     dynamicStyle.value = {}
+    visible.value = false
   }, 300)
 }
 
@@ -136,62 +134,69 @@ const handleClick = () => {
   }, 300)
 }
 
-const handleClickOutside = () => {
-  console.log("Clicked outside")
-  if (props.triggerPopUpMode === "hover") return
-  visible.value = false
-}
+// const handleClickOutside = () => {
+//   console.log("Clicked outside")
+//   if (props.triggerPopUpMode === "hover") return
+//   visible.value = false
+// }
 
 /**鼠标移入/点击元素的dom信息 */
 const mouseEventDom = async () => {
-  /**页面元素的DOM信息 */
+  // 获取页面元素的DOM信息
   const tipRefDom = tipRef.value?.$el
-  if (!tipRefDom) return
+  const tipContentRefDom = tipContentRef.value
+  if (!tipRefDom || !tipContentRefDom) return
 
-  let tipContentRefDom = tipContentRef.value
-  if (!tipContentRefDom) return
+  // 获取元素的位置和大小信息
+  const {clientWidth, clientHeight, offsetLeft} = tipRefDom
+  const rect = tipRefDom.getBoundingClientRect()
 
-  let {clientWidth, clientHeight, offsetLeft} = tipRefDom
-  let rect = tipRefDom.getBoundingClientRect()
-
-  /**赋值为了计算元素超出屏幕设置宽度后的真实高度 */
-  if (props.position.match(/top-start|bottom|/)) {
-    tipContentRefDom.style.maxWidth = `calc(100vw - ${offsetLeft + 246}px)`
-    console.log(tipContentRefDom.style.maxWidth,'-------------------------------');
-    
-  }
-  if (props.position.match(/top-end/)) {
-    tipContentRefDom.style.maxWidth = `${offsetLeft + clientWidth + 240 - 16}px`
-  }
-  if (props.position.match(/right/)) {
-    tipContentRefDom.style.maxHeight = `calc(${
-      window.innerHeight - rect.y - 16
-    }px)`
-    tipContentRefDom.style.overflow = `auto`
-    if (rect.width > window.innerWidth - (rect.x + rect.width)) {
-      tipContentRefDom.style.maxWidth = `calc(${rect.x - 32}px)`
-    } else {
-      tipContentRefDom.style.maxWidth = `calc(100vw - ${
-        rect.x + clientWidth + 32
-      }px)`
-    }
-  }
-  if (props.position.match(/left/)) {
-    tipContentRefDom.style.maxHeight = `calc(${
-      window.innerHeight - rect.y - 16
-    }px)`
-    tipContentRefDom.style.overflow = `auto`
-    if (rect.width > window.innerWidth - (rect.x + rect.width)) {
-      tipContentRefDom.style.maxWidth = `calc(100vw - ${rect.x - 16}px)`
-    } else {
-      tipContentRefDom.style.maxWidth = `calc(${
-        window.innerWidth - rect.x - rect.width - 32
-      }px)`
-    }
+  // 设置元素位置和样式
+  const setPositionParams = (maxWidth, maxHeight, overflow) => {
+    tipContentRefDom.style.maxWidth = maxWidth
+    tipContentRefDom.style.maxHeight = maxHeight
+    tipContentRefDom.style.overflow = overflow
   }
 
+  // 处理顶部和底部位置的样式
+  if (props.position.match(/^(top|bottom)/)) {
+    const maxWidth = props.position.includes("start")
+      ? `calc(100vw - ${offsetLeft + 246}px)`
+      : props.position.includes("end")
+        ? `${offsetLeft + clientWidth + 240 - 16}px`
+        : `calc(${window.innerWidth - 32}px)`
+    setPositionParams(maxWidth, "none", "visible")
+  }
+
+  // 处理右侧位置的样式
+  if (props.position.match(/^right/)) {
+    const maxWidth =
+      rect.width > window.innerWidth - (rect.x + rect.width)
+        ? `calc(${rect.x - 32}px)`
+        : `calc(100vw - ${rect.x + clientWidth + 32}px)`
+    setPositionParams(
+      maxWidth,
+      `calc(${window.innerHeight - rect.y - 16}px)`,
+      "auto"
+    )
+  }
+
+  // 处理左侧位置的样式
+  if (props.position.match(/^left/)) {
+    const maxWidth =
+      rect.width > window.innerWidth - (rect.x + rect.width)
+        ? `calc(100vw - ${rect.x - 16}px)`
+        : `calc(${window.innerWidth - rect.x - rect.width - 32}px)`
+    setPositionParams(
+      maxWidth,
+      `calc(${window.innerHeight - rect.y - 16}px)`,
+      "auto"
+    )
+  }
+
+  // 使用requestAnimationFrame以确保在下一帧进行更新
   nextFrame(async () => {
-    /**tip提示的DOM信息 */
+    // 计算位置参数
     const positionParams = {
       position: props.position,
       elementWidth: clientWidth,
@@ -199,15 +204,19 @@ const mouseEventDom = async () => {
       tipRefDom,
       tipContentRefDom,
     }
+    // 计算动态样式
     const {dynamicCss} = await calcPosition(positionParams)
+    // 设置样式
     dynamicStyle.value = {
       ...dynamicCss.value,
       ...(whetherLightTheme ? {} : props.customStyle),
     }
     setStyles(tipContentRefDom, dynamicStyle.value)
+    // 处理滚动事件
     onScroll(tipRefDom)
   })
 }
+
 const newSlot = createSlot({handleMouseOver, handleMouseOut, handleClick})
 
 let scrollDom = shallowRef<HTMLElement | null>()
