@@ -3,7 +3,9 @@
 @use '@ui/styles/vars';
 @use 'sass:map';
 
-@include m.b(form-item) {
+$root-name: form-item;
+
+@include m.b($root-name) {
   @include m.flex(inline-flex, $align: flex-start);
 
   @include m.component-size(vars.$form-component-sizes) using ($type, $sizes) {
@@ -16,20 +18,44 @@
   @include m.e(label) {
     flex-shrink: 0;
     padding-right: 8px;
+    color: #666;
   }
   @include m.e(content) {
     flex-grow: 1;
     padding-right: 8px;
+
+    & > *[class^=#{vars.$namespace}] {
+      width: 100%;
+    }
   }
 
   @include m.e(tips) {
     width: 100%;
     --height: #{fn.use-var(font-size, main)};
-    height: calc(var(--height) + 2px);
+    height: calc(var(--height) + 4px);
     line-height: calc(var(--height) + 2px);
+    overflow: hidden;
+
+
+    & > span {
+      display: inline-block
+    }
+
+    @include m.ellipsis;
 
     @include m.is(error) {
       color: fn.use-var(color, danger);
     }
   }
+}
+
+.#{$root-name}-tips-enter-from,
+.#{$root-name}-tips-leave-to {
+  transform: scaleY(0);
+}
+
+.#{$root-name}-tips-enter-active,
+.#{$root-name}-tips-leave-active {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(.2,.74,.37,.98);
 }

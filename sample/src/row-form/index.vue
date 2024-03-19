@@ -2,11 +2,11 @@
   <div>
     <div>
       删除和插入请右击
-      <u-button @click="getValues">获取数据</u-button>
+      <u-button @click="handleGetValue">获取数据</u-button>
       <u-button @click="toggleColumns">切换columns</u-button>
       <u-button @click="addInfo">添加数据</u-button>
-      <u-button @click=""></u-button>
-      <!-- {{ columns }} -->
+      <u-button @click="handleValidate">校验</u-button>
+      {{ columns }}
       <u-row-form
         style="margin-top: 10px"
         ref="rowFormRef"
@@ -52,17 +52,21 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { defineRowFormColumns } from 'ultra-ui'
 import { onMounted, shallowReactive } from 'vue'
 import { shallowRef, reactive } from 'vue'
 
 const rowFormRef = shallowRef()
 
-const columns = shallowRef([
-  { key: 'dd', name: '1', rules: { required: true } },
-  { key: 'ff', name: '2' },
-  { key: 'gg', name: '3' },
-  { key: 'kk', name: '4' }
-])
+const columns = defineRowFormColumns(
+  [
+    { key: 'dd', name: '1', rules: { required: false } },
+    { key: 'ff', name: '2' },
+    { key: 'gg', name: '3' },
+    { key: 'kk', name: '4' }
+  ],
+  { rules: { required: true } }
+)
 
 let modelValue = shallowRef([
   { dd: '第一条', ff: '333' },
@@ -82,15 +86,15 @@ const modelDisabledValue = shallowRef([
   { dd: '第二条', ff: '123213' }
 ])
 
-const getValues = () => {
+const handleGetValue = () => {
   console.log(rowFormRef.value.getValue())
 }
 
 const toggleColumns = () => {
-  columns.value = [
-    ...columns.value,
-    { name: Math.random() + '', key: Date.now() + '' }
-  ]
+  // columns.value = [
+  //   ...columns.value,
+  //   { name: Math.random() + '', key: Date.now() + '' }
+  // ]
 }
 
 const addInfo = () => {
@@ -104,6 +108,11 @@ const addInfo = () => {
   })
 
   // console.log(modelValue.value, ' modelValue.value')
+}
+
+/** 校验 */
+const handleValidate = () => {
+  console.log(rowFormRef.value.validate())
 }
 
 onMounted(() => {
