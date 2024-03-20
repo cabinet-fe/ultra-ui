@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-form :model="model" label-width="100px" readonly>
+    <u-form size="large" :model="model" label-width="100px" readonly>
       <u-input field="name" label="姓名" tips="四个字以内" />
       <u-number-input field="age" label="年龄" />
       <u-input field="phone" label="手机" />
