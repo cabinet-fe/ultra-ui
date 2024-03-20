@@ -33,19 +33,19 @@
 </template>
 
 <script lang="ts" setup generic="T extends rowType">
-import { bem } from '@ui/utils'
+import { Validator, bem } from '@ui/utils'
 import type {
   RowFormProps,
   RowFormEmits,
   rowType
 } from '@ui/types/components/row-form'
-import { computed, provide, useSlots } from 'vue'
+import { computed, provide, toRef, useSlots } from 'vue'
 import { RowFormStoreType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
 import { wrapDataRows } from './row-forms'
-import { Validator } from '@ui/utils'
+// import { Validator } from '@ui/utils'
 
 defineOptions({
   name: 'URowForm'
@@ -67,7 +67,6 @@ const finalColumns = computed(() => {
   return [...props.columns]
 })
 
-let copyData = data
 provide(RowFormStoreType, {
   columns: finalColumns,
   modelData: data,
@@ -122,9 +121,17 @@ init()
 //   }
 // )
 
-// /** 校验 */
+// const validator = computed(() => {
+// })
+
+/** 校验 */
 const validate = () => {
-  // return new Validator()
+  finalColumns.value.map(async (item: any) => {
+    console.log(data.value, item.key, 'key')
+    return await new Validator(item.rules).validate(data.value)
+    // const errors = await new Validator(item.rules)?.validate(dsata.value, item.key)
+    // console.log(errors)
+  })
 }
 
 defineExpose({

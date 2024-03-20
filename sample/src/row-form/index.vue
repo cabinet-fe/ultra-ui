@@ -40,11 +40,11 @@
         v-model="modelDisabledValue"
         :disabled="true"
       >
-        <template #dd="{ data }">
+        <template #columns.dd="{ data }">
           <u-input v-model="data.dd" />
         </template>
 
-        <template #ff="{ data }">
+        <template #columns.ff="{ data }">
           <u-input v-model="data.ff" />
         </template>
       </u-row-form>
@@ -53,31 +53,31 @@
 </template>
 <script lang="ts" setup>
 import { defineRowFormColumns } from 'ultra-ui'
-import { onMounted, shallowReactive } from 'vue'
-import { shallowRef, reactive } from 'vue'
+import { onMounted } from 'vue'
+import { shallowRef } from 'vue'
 
 const rowFormRef = shallowRef()
 
-const columns = defineRowFormColumns(
-  [
-    { key: 'dd', name: '1', rules: { required: false } },
-    { key: 'ff', name: '2' },
-    { key: 'gg', name: '3' },
-    { key: 'kk', name: '4' }
-  ],
-  { rules: { required: true } }
-)
+let columns = defineRowFormColumns([
+  { key: 'dd', name: '1', rules: { required: true } },
+  { key: 'ff', name: '2' },
+  { key: 'gg', name: '3' },
+  { key: 'kk', name: '4' }
+])
 
 let modelValue = shallowRef([
-  { dd: '第一条', ff: '333' },
+  {
+    dd: '第一条',
+    ff: '333',
+    children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
+  },
   { dd: '第二条', ff: '123213' },
   {
     dd: '第三条',
     ff: '123213',
     ll: 123123,
     gg: '测试不写插槽',
-    kk: '新年好',
-    children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
+    kk: '新年好'
   }
 ])
 
@@ -91,21 +91,25 @@ const handleGetValue = () => {
 }
 
 const toggleColumns = () => {
-  // columns.value = [
-  //   ...columns.value,
-  //   { name: Math.random() + '', key: Date.now() + '' }
-  // ]
+  columns.value = [
+    ...columns.value,
+    { name: Math.random() + '', key: Date.now() + '' }
+  ]
+
+  console.log(columns.value, 'columns')
 }
 
 const addInfo = () => {
-  modelValue.value.push({
-    dd: '第三条',
-    ff: '123213',
-    ll: 123123,
-    gg: '测试不写插槽',
-    kk: '新年好',
-    children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
-  })
+  modelValue.value = [
+    ...modelValue.value,
+    {
+      dd: '第三条',
+      ff: '123213',
+      ll: 123123,
+      gg: '测试不写插槽',
+      kk: '新年好'
+    }
+  ]
 
   // console.log(modelValue.value, ' modelValue.value')
 }

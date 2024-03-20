@@ -1,22 +1,29 @@
 import type { rowType } from '@ui/types/components/row-form'
-import { isReactive, shallowReactive } from 'vue'
+import { isReactive, ref, shallowReactive } from 'vue'
 
 /** 将里面的对象变成响应式 */
 export function wrapDataRows(data: rowType[]) {
   return data.map(item => {
-    const row: rowType = isReactive(item) ? item : shallowReactive(item)
-    // console.log({...row, children: row.children ? row.children : []},'123')
+    const rows: rowType = isReactive(item)
+      ? { ...item, ...createRow(data) }
+      : shallowReactive({ ...item, ...createRow(data) })
 
-    return row
+    return rows
   })
 }
 
 /** 创建row
  * @param 当前条
  */
-export function createRow(row: rowType) {
-  // const newRow = { ...row, children: row.children ? row.children : [] }
-  // return shallowReactive(newRow)
+const createRow = (data: rowType) => {
+  const row = {
+    /** 所有数据 */
+    // data,
+    /** 是否展开 */
+    isLunch: ref(false)
+  }
+
+  return { row }
 }
 
 /** 单条删除

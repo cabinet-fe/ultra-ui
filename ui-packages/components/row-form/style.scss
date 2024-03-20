@@ -46,7 +46,7 @@
 
     &-item {
       @include m.m(tree) {
-        padding: 10px;
+        padding-right: 10px;
         cursor: pointer;
         display: inline-block;
 
