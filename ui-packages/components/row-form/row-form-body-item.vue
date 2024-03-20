@@ -1,6 +1,6 @@
 <template>
   <tr
-    v-for="(dataItem, dataIndex) of store.modelData.value"
+    v-for="(dataItem, dataIndex) of modelData"
     :key="dataIndex"
     :class="store.cls.em('tbody', 'hover')"
     v-contextmenu-operation
@@ -21,12 +21,18 @@
           >
             <CaretRight />
           </u-icon>
-          <slot
+
+          <UNodeRender
+            :content="
+              getRowFormSlotsNodes(columnsItem.key, dataItem.data, dataIndex)
+            "
+          />
+          <!-- <slot
             ref="slotsRef"
             :name="columnsItem.key"
-            :data="dataItem"
+            :data="dataItem.data"
             :index="columnsIndex"
-          />
+          /> -->
         </div>
       </div>
     </td>
@@ -66,6 +72,7 @@ import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { useComponentProps } from '@ui/compositions'
 import type { ButtonProps } from '@ui/types/components/button'
+import { UNodeRender } from '../node-render'
 
 defineProps({
   modelData: { type: Array as PropType<Record<string, any>[]> }
@@ -75,6 +82,8 @@ defineProps({
 const emits = defineEmits<RowFormItemEmits>()
 
 let store = inject(RowFormStoreType)!
+
+const { rowFormSlots } = store
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
@@ -96,8 +105,12 @@ const classList = computed(() => {
   return [store.cls.em('tbody-item', 'tree')]
 })
 
-const handleLunchClick = (item) => {
+const handleLunchClick = item => {
   item.row.isLunch.value = !item.row.isLunch.value
+}
+
+const getRowFormSlotsNodes = (key: string, data, index) => {
+  return rowFormSlots!['column:' + key]?.({ data, index })
 }
 
 /** 删除 */

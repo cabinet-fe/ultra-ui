@@ -6,7 +6,8 @@
       <u-button @click="toggleColumns">切换columns</u-button>
       <u-button @click="addInfo">添加数据</u-button>
       <u-button @click="handleValidate">校验</u-button>
-      {{ columns }}
+      <!-- {{ columns }} -->
+      {{ modelValue }}
       <u-row-form
         style="margin-top: 10px"
         ref="rowFormRef"
@@ -18,15 +19,15 @@
           <u-input />
         </template>
 
-        <template #dd="{ data }">
-          <u-input v-model="data.dd" />
+        <template #column:dd="{ data }">
+          <u-input v-model="data.kk" @update:model-value="c.log(modelValue)" />
         </template>
 
-        <template #ff="{ data }">
+        <template #column:ff="{ data }">
           <u-input v-model="data.ff" />
         </template>
 
-        <template #kk="{ data }">
+        <template #column:kk="{ data }">
           <u-input v-model="data.kk" />
         </template>
       </u-row-form>
@@ -53,7 +54,7 @@
 </template>
 <script lang="ts" setup>
 import { defineRowFormColumns } from 'ultra-ui'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { shallowRef } from 'vue'
 
 const rowFormRef = shallowRef()
@@ -69,7 +70,7 @@ let modelValue = shallowRef([
   {
     dd: '第一条',
     ff: '333',
-    children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
+    // children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
   },
   { dd: '第二条', ff: '123213' },
   {

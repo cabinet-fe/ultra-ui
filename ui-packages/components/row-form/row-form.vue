@@ -5,25 +5,7 @@
     <!-- 表头 end -->
 
     <!-- 表体 start -->
-    <row-form-body>
-      <template
-        v-for="columnsItem of props.columns.filter(
-          columnsItem => !!columnsItem.key
-        )"
-        :key="columnsItem.key"
-        v-slot:[columnsItem.key]="data"
-      >
-        <slot
-          v-if="!disabled && useSlots()[columnsItem.key]"
-          :name="columnsItem.key"
-          v-bind="data"
-        />
-
-        <div v-else>
-          {{ data['data']?.[columnsItem.key] }}
-        </div>
-      </template>
-    </row-form-body>
+    <row-form-body />
     <!-- 表体 end -->
 
     <!-- 表尾 start -->
@@ -32,14 +14,19 @@
   </table>
 </template>
 
-<script lang="ts" setup generic="T extends rowType">
+<script lang="ts" setup generic="T extends Record<string, any>">
 import { Validator, bem } from '@ui/utils'
-import type {
-  RowFormProps,
-  RowFormEmits,
-  rowType
-} from '@ui/types/components/row-form'
-import { computed, provide, toRef, useSlots } from 'vue'
+import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
+import {
+  computed,
+  nextTick,
+  provide,
+  shallowReactive,
+  shallowRef,
+  toRef,
+  useSlots,
+  watch
+} from 'vue'
 import { RowFormStoreType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
@@ -67,11 +54,23 @@ const finalColumns = computed(() => {
   return [...props.columns]
 })
 
+const rows = shallowRef([])
+
+watch(
+  data,
+  () => {
+    rows.value = wrapDataRows(data.value)
+
+    data.value = rows.value.map(row => row.data)
+  },
+  { immediate: true, once: true }
+)
+
 provide(RowFormStoreType, {
   columns: finalColumns,
-  modelData: data,
+  modelData: rows,
   props,
-  slots: useSlots(),
+  rowFormSlots: useSlots(),
   cls
 })
 
@@ -95,11 +94,11 @@ const getValue = () => {
 }
 
 /** TODO 暂时这么做先往后做 */
-const init = () => {
-  data.value = wrapDataRows(data.value) as T[]
-  console.log(data.value)
-}
-init()
+// const init = () => {
+//   data.value = wrapDataRows(data.value) as T[]
+//   console.log(data.value)
+// }
+// init()
 
 // watch(
 //   () => data.value,

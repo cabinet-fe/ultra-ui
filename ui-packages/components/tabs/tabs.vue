@@ -1,15 +1,21 @@
 <template>
   <div :class="[cls.b, cls.e(position!)]">
-    <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
+    <div
+      :class="[cls.e('header'), cls.em('header', position!)]"
+      ref="headerRef"
+    >
       <div
         v-for="(item, index) in standardItems"
         :key="item.key"
-        :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
+        :class="[
+          cls.em('header', 'label'),
+          bem.is('active', modelValue === item.key)
+        ]"
         @click="changeTab(item, index)"
         ref="labRef"
         :draggable="sortable"
-        @dragstart="(e) => dragstart(e, index)"
-        @dragenter="(e) => dragenter(e, index)"
+        @dragstart="e => dragstart(e, index)"
+        @dragenter="e => dragenter(e, index)"
         @dragover="dragover"
         @drop="drop"
       >
@@ -27,33 +33,55 @@
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
+      <!-- <slot v-if="standardItems.find(item => item.key === modelValue)?.key" :name="standardItems.find(item => item.key === modelValue)?.key">
+        </slot
+      ></Transition> -->
+
       <div v-for="item in standardItems" :key="item.key">
-        <div :class="cls.e('content')" v-if="modelValue === item.name">
-          <slot :name="item?.name">
-            <span>暂无内容~</span>
-          </slot>
-        </div>
+        <Transition mode="out-in" name="fade">
+          <div :class="cls.e('content')" v-if="modelValue === item.name">
+            <slot :name="item?.name">
+              <span>暂无内容~</span>
+            </slot>
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
+import type {
+  Item,
+  TabsItems,
+  TabsProps,
+  TabsEmits
+} from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj, deepCopy } from 'cat-kit'
-import { computed, getCurrentInstance, shallowRef, ref, watch, reactive } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  shallowRef,
+  ref,
+  watch,
+  reactive,
+  useSlots
+} from 'vue'
 import { Close } from 'icon-ultra'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
-  position: 'right',
-  closable: false,
-  sortable: false
-})
+const props: TabsProps<TabsItems> = withDefaults(
+  defineProps<TabsProps<TabsItems>>(),
+  {
+    position: 'right',
+    closable: false,
+    sortable: false
+  }
+)
 /** 切换position回归初始状态 */
 watch(
   () => props.position,
@@ -64,6 +92,8 @@ watch(
 )
 
 const instance = getCurrentInstance()!
+
+const slots = useSlots()
 
 const cls = bem('tabs')
 
@@ -87,7 +117,7 @@ const propItems = ref<TabsItems[]>(deepCopy(props.items))
 
 watch(
   () => props.items,
-  (items) => {
+  items => {
     if (items.length) {
       if (isObj(items[0])) {
         standardItems.value = items.map((item: any) => {
@@ -124,7 +154,9 @@ const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
 const handleClose = (item: Item, index: number) => {
-  standardItems.value = standardItems.value.filter((row: any) => row.key !== item.key)
+  standardItems.value = standardItems.value.filter(
+    (row: any) => row.key !== item.key
+  )
   if (item.key === props.modelValue) {
     const item = standardItems.value[0]!
     emit('update:modelValue', item.key!)
@@ -151,14 +183,23 @@ const exchange = () => {
   propItems.value.splice(
     dragState.active,
     1,
-    ...propItems.value.splice(dragState.target, 1, propItems.value[dragState.active]!)
+    ...propItems.value.splice(
+      dragState.target,
+      1,
+      propItems.value[dragState.active]!
+    )
   )
   standardItems.value.splice(
     dragState.active,
     1,
-    ...standardItems.value.splice(dragState.target, 1, standardItems.value[dragState.active]!)
+    ...standardItems.value.splice(
+      dragState.target,
+      1,
+      standardItems.value[dragState.active]!
+    )
   )
 }
+
 const dragstart = (e: MouseEvent, index: number) => {
   dragState.active = index
 }

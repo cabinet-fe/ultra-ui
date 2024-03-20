@@ -28,7 +28,7 @@ export function useFormComponent(props?: any): any {
       formProps: props
     })
   }
-  const context = inject(FormComponentDIKey)
+  const context = inject(FormComponentDIKey, undefined) || {}
   return {
     inForm: !!context,
     ...context

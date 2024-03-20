@@ -15,47 +15,47 @@
     padding: 10px;
     box-sizing: border-box;
     &:hover {
-      background-color: fn.use-var(color-danger-light-9);
+      background-color: fn.use-var(color, primary, light-9);
     }
   }
 
-  @include m.e(left) {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    margin-right: 10px;
-    & > div {
-      margin-right: 5px;
-    }
-  }
+  // @include m.e(left) {
+  //   display: flex;
+  //   flex-wrap: nowrap;
+  //   align-items: center;
+  //   margin-right: 10px;
+  //   & > div {
+  //     margin-right: 5px;
+  //   }
+  // }
 
-  @include m.e(checkbox) {
-  }
+  // @include m.e(checkbox) {
+  // }
 
-  @include m.e(avatar) {
-    img {
-      width: 35px;
-      height: 35px;
-      margin-right: 10px;
-      border-radius: 50%;
-    }
-  }
+  // @include m.e(avatar) {
+  //   img {
+  //     width: 35px;
+  //     height: 35px;
+  //     margin-right: 10px;
+  //     border-radius: 50%;
+  //   }
+  // }
   @include m.e(content) {
     flex: 1;
   }
 
-  @include m.e(action) {
-    margin-left: 20px;
-    color: fn.use-var(color-primary);
-    align-self: center;
-    & > .u-icon {
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    & > .u-icon:last-child {
-      margin-right: 0px;
-    }
-  }
+  // @include m.e(action) {
+  //   margin-left: 20px;
+  //   color: fn.use-var(color-primary);
+  //   align-self: center;
+  //   & > .u-icon {
+  //     margin-right: 10px;
+  //     cursor: pointer;
+  //   }
+  //   & > .u-icon:last-child {
+  //     margin-right: 0px;
+  //   }
+  // }
 
   @include m.e(loadMore) {
     text-align: center;

@@ -40,10 +40,14 @@ export interface ListProps {
 
   /** 是否无限滚动 */
   infiniteScroll?: boolean
+
+  /** 容器标签元素 */
+  tag?: string
 }
 
 export interface ListEmits {
-  (e: 'loadMore'): void
+  (e: 'load-more', context: { current: number }): void
+
 }
 
 export interface ListExposed {}

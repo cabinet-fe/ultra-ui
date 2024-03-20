@@ -42,6 +42,16 @@ export interface rowType {
   [key: string]: any
 }
 
+export interface Row<Data extends Record<string, any>> {
+  data: Data
+  index: number
+  isLeaf: boolean
+  expanded: boolean
+  loading: boolean
+  uid: number
+  depth: number
+}
+
 /** 表格编辑组件组件定义的事件 */
 export interface RowFormEmits<T> {
   (e: 'update:modelValue', value: T[]): void

@@ -35,10 +35,8 @@ export function useFallbackProps<Names extends string[]>(
  * @param propsList props列表
  * @returns
  */
-export function useFormFallbackProps(
-  propsList: Record<string, any>[],
-) {
-  const propNames =  ['size', 'disabled', 'readonly']
+export function useFormFallbackProps(propsList: Record<string, any>[]) {
+  const propNames = ['size', 'disabled', 'readonly']
   const result = useFallbackProps(propsList, propNames)
 
   return propNames.reduce((acc, cur, index) => {

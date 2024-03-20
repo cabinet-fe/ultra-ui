@@ -4,26 +4,25 @@ import { isReactive, ref, shallowReactive } from 'vue'
 /** 将里面的对象变成响应式 */
 export function wrapDataRows(data: rowType[]) {
   return data.map(item => {
-    const rows: rowType = isReactive(item)
-      ? { ...item, ...createRow(data) }
-      : shallowReactive({ ...item, ...createRow(data) })
-
-    return rows
+    return createRow(item)
   })
 }
 
+interface Row {
+  // expanded: boolean
+  data: Record<string, any>
+  // isLeaf: boolean
+  loading: boolean
+}
 /** 创建row
  * @param 当前条
  */
-const createRow = (data: rowType) => {
-  const row = {
-    /** 所有数据 */
-    // data,
-    /** 是否展开 */
-    isLunch: ref(false)
-  }
-
-  return { row }
+const createRow = (data: rowType): Row => {
+  return shallowReactive({
+    data: isReactive(data) ? data : shallowReactive(data),
+    // isLeaf: true,
+    loading: false
+  })
 }
 
 /** 单条删除

@@ -1,6 +1,6 @@
 <template>
-  <newSlot
-    :vnode="defaultSlot"
+  <UNodeRender
+    :content="slots.default?.()?.[0]"
     @mouseenter.self="handleMouseOver"
     @mouseleave.self="handleMouseOut"
     @click.stop="handleClick"
@@ -27,48 +27,52 @@
 </template>
 
 <script lang="ts" setup>
-import type {TipProps} from "@ui/types/components/tip"
-import {bem, nextFrame, setStyles} from "@ui/utils"
+import type { TipProps } from '@ui/types/components/tip'
+import { bem, nextFrame, setStyles } from '@ui/utils'
 import {
   ref,
   shallowRef,
   nextTick,
   computed,
   useSlots,
-  onBeforeUnmount,
-} from "vue"
-import calcPosition from "./position"
-import vClickOutside from "@ui/directives/click-outside"
-import createSlot from "./createSlot"
+  onBeforeUnmount
+} from 'vue'
+import calcPosition from './position'
+import vClickOutside from '@ui/directives/click-outside'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
-  name: "Tip",
+  name: 'Tip'
 })
+
+// 修改建议
+// 去除dark
+// 建议triggerPopupMode为trigger
+// 一些命名的优化
 
 const props = withDefaults(defineProps<TipProps>(), {
-  modelValue: "提示内容",
-  triggerPopUpMode: "hover",
-  position: "top",
-  theme: "dark",
-  mouseEnterable: true,
+  modelValue: '提示内容',
+  triggerPopUpMode: 'hover',
+  position: 'top',
+  theme: 'dark',
+  mouseEnterable: true
 })
 
-const cls = bem("tip")
+const cls = bem('tip')
 
 const slots = useSlots()
 
-// 这里获取到的是默认插槽的vnode，但拿不到对应的dom实例
-const defaultSlot = slots.default && slots.default()[0]
-
 /**是否浅色主题 */
-const whetherLightTheme = props.theme === "light"
+const whetherLightTheme = computed(() => {
+  return props.theme === 'light'
+})
 
 /**tip弹窗class */
 const contentClass = computed(() => {
   return [
-    cls.e("content"),
-    bem.is("content-light", whetherLightTheme),
-    bem.is(props.position),
+    cls.e('content'),
+    bem.is('content-light', whetherLightTheme.value),
+    bem.is(props.position)
   ]
 })
 
@@ -81,18 +85,18 @@ let tipContentRef = shallowRef<HTMLElement>()
 /**是否显示 */
 let visible = ref(false)
 
-let timeClick = Number(0)
+let timeClick = 0
 
-let timeMouseOut = Number(0)
+let timeMouseOut = 0
 
-let timeMouseOver = Number(0)
+let timeMouseOver = 0
 
 /**弹窗style样式 */
 let dynamicStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
 const handleMouseOver = () => {
-  if (props.triggerPopUpMode !== "hover") return
+  if (props.triggerPopUpMode !== 'hover') return
   clearTimeout(timeMouseOver)
   timeMouseOver = setTimeout(async () => {
     visible.value = true
@@ -103,10 +107,10 @@ const handleMouseOver = () => {
 
 /**鼠标离开元素 */
 const handleMouseOut = () => {
-  if (props.triggerPopUpMode !== "hover") return
+  if (props.triggerPopUpMode !== 'hover') return
   clearTimeout(timeMouseOut)
   timeMouseOut = setTimeout(() => {
-    tipContentRef.value!.style.opacity = "0"
+    tipContentRef.value!.style.opacity = '0'
     dynamicStyle.value = {}
     visible.value = false
   }, 300)
@@ -120,7 +124,8 @@ const handleContentMouseOver = () => {
 }
 
 const handleClick = () => {
-  if (props.triggerPopUpMode !== "click") return
+  console.log(1111)
+  if (props.triggerPopUpMode !== 'click') return
   clearTimeout(timeClick)
   timeClick = setTimeout(async () => {
     visible.value = !visible.value
@@ -128,7 +133,7 @@ const handleClick = () => {
       await nextTick()
       mouseEventDom()
     } else {
-      tipContentRef.value!.style.opacity = "0"
+      tipContentRef.value!.style.opacity = '0'
       dynamicStyle.value = {}
     }
   }, 300)
@@ -140,32 +145,45 @@ const handleClick = () => {
 //   visible.value = false
 // }
 
+const setPositionParams = (maxWidth, maxHeight, overflow) => {
+  const tipContentRefDom = tipContentRef.value
+  setStyles(tipContentRefDom!, {
+    maxWidth,
+    maxHeight,
+    overflow
+  })
+}
+
+/** 提示框到屏幕边缘的间距 */
+const gap = 10
+
+/** 弹出 */
+const popup = () => {
+  // 计算弹出层样式
+
+  // 将计算出的样式作用于弹出内容元素上， 并显示
+}
+
 /**鼠标移入/点击元素的dom信息 */
 const mouseEventDom = async () => {
   // 获取页面元素的DOM信息
-  const tipRefDom = tipRef.value?.$el
+  const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
   if (!tipRefDom || !tipContentRefDom) return
 
   // 获取元素的位置和大小信息
-  const {clientWidth, clientHeight, offsetLeft} = tipRefDom
+  const { clientWidth, clientHeight } = tipRefDom
   const rect = tipRefDom.getBoundingClientRect()
 
   // 设置元素位置和样式
-  const setPositionParams = (maxWidth, maxHeight, overflow) => {
-    tipContentRefDom.style.maxWidth = maxWidth
-    tipContentRefDom.style.maxHeight = maxHeight
-    tipContentRefDom.style.overflow = overflow
-  }
-
   // 处理顶部和底部位置的样式
   if (props.position.match(/^(top|bottom)/)) {
-    const maxWidth = props.position.includes("start")
-      ? `calc(100vw - ${offsetLeft + 246}px)`
-      : props.position.includes("end")
-        ? `${offsetLeft + clientWidth + 240 - 16}px`
-        : `calc(${window.innerWidth - 32}px)`
-    setPositionParams(maxWidth, "none", "visible")
+    const maxWidth = props.position.includes('start')
+      ? `calc(100vw - ${rect.left + gap}px)`
+      : props.position.includes('end')
+        ? `${rect.right - gap}px`
+        : `${window.innerWidth - gap * 2}px`
+    setPositionParams(maxWidth, 'none', 'visible')
   }
 
   // 处理右侧位置的样式
@@ -177,10 +195,9 @@ const mouseEventDom = async () => {
     setPositionParams(
       maxWidth,
       `calc(${window.innerHeight - rect.y - 16}px)`,
-      "auto"
+      'auto'
     )
   }
-
   // 处理左侧位置的样式
   if (props.position.match(/^left/)) {
     const maxWidth =
@@ -190,7 +207,7 @@ const mouseEventDom = async () => {
     setPositionParams(
       maxWidth,
       `calc(${window.innerHeight - rect.y - 16}px)`,
-      "auto"
+      'visible'
     )
   }
 
@@ -202,14 +219,14 @@ const mouseEventDom = async () => {
       elementWidth: clientWidth,
       elementHeight: clientHeight,
       tipRefDom,
-      tipContentRefDom,
+      tipContentRefDom
     }
     // 计算动态样式
-    const {dynamicCss} = await calcPosition(positionParams)
+    const { dynamicCss } = await calcPosition(positionParams)
     // 设置样式
     dynamicStyle.value = {
       ...dynamicCss.value,
-      ...(whetherLightTheme ? {} : props.customStyle),
+      ...(whetherLightTheme ? {} : props.customStyle)
     }
     setStyles(tipContentRefDom, dynamicStyle.value)
     // 处理滚动事件
@@ -217,19 +234,17 @@ const mouseEventDom = async () => {
   })
 }
 
-const newSlot = createSlot({handleMouseOver, handleMouseOut, handleClick})
-
 let scrollDom = shallowRef<HTMLElement | null>()
 
 const onScroll = (content: HTMLElement) => {
-  scrollDom.value = content.closest("main")
+  scrollDom.value = content.closest('main')
   if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", mouseEventDom)
+  scrollDom.value.addEventListener('scroll', mouseEventDom)
 }
 
 onBeforeUnmount(() => {
   if (scrollDom.value) {
-    scrollDom.value.removeEventListener("scroll", mouseEventDom)
+    scrollDom.value.removeEventListener('scroll', mouseEventDom)
   }
 })
 </script>

@@ -33,7 +33,7 @@
         @update:items="handleUpdate"
         :sortable="config.sortable"
       >
-        <template v-for="item in items" #[item]>{{ item }}</template>
+        <template v-for="item in items.slice(0, -1)" #[item]>{{ item }}</template>
       </u-tabs>
     </div>
   </div>

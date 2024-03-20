@@ -1,13 +1,13 @@
 <template>
-  <div :class="cls.b">
+  <component :is="tag" :class="cls.b">
     <ul
       :class="cls.e('item')"
       @scroll="handleScroll"
-      :style="{ height: props.infiniteScroll == true ? height + 'px' : '' }"
+      :style="{ height: infiniteScroll == true ? height + 'px' : '' }"
     >
       <li
-        v-for="(item, index) in props.data"
-        :draggable="props.draggable"
+        v-for="(item, index) in data"
+        :draggable="draggable"
         @dragstart="onDragStart($event, index)"
         @dragover.prevent="onDragOver($event)"
         @dragenter="onDragEnter($event, index)"
@@ -17,7 +17,12 @@
         ref="liRef"
       >
         <!-- 自定义样式 -->
-        <slot name="content" v-if="$slots.content" :item="item" :index="index" />
+        <slot
+          name="content"
+          v-if="$slots.content"
+          :item="item"
+          :index="index"
+        />
 
         <!-- 默认样式 -->
         <div v-else :class="cls.e('container')">
@@ -32,11 +37,11 @@
           </div>
         </div>
       </li>
-      <p v-if="props.infiniteScroll == true && noMore" :class="cls.e('handleScroll')">
+      <p v-if="infiniteScroll == true && noMore" :class="cls.e('handleScroll')">
         没有更多了...
       </p>
     </ul>
-  </div>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -53,7 +58,9 @@ const cls = bem('list')
 
 const emit = defineEmits<ListEmits>()
 
-const props = withDefaults(defineProps<ListProps>(), {})
+const props = withDefaults(defineProps<ListProps>(), {
+  tag: 'div'
+})
 
 const height = document.documentElement.clientHeight
 
@@ -87,10 +94,9 @@ const noMore = ref(false)
 /** 当前页码 */
 const currentPage = ref(1)
 
-/** 总数量 */
-const total = ref(props.total)
-
 const handleScroll = e => {
+  if (noMore.value) return
+
   if (props.infiniteScroll == false) return
 
   let scrollTop = e.target.scrollTop
@@ -99,7 +105,14 @@ const handleScroll = e => {
 
   let clientHeight = e.target.clientHeight
 
-  console.log(scrollTop, 'scrollTop', clientHeight, 'clientHeight', scrollHeight, 'scrollHeight')
+  console.log(
+    scrollTop,
+    'scrollTop',
+    clientHeight,
+    'clientHeight',
+    scrollHeight,
+    'scrollHeight'
+  )
 
   if (scrollTop + clientHeight >= scrollHeight - 10) {
     loadMore()
@@ -110,14 +123,13 @@ const handleScroll = e => {
 
 /** 加载更多 */
 const loadMore = () => {
-  console.log('loadMore')
-  emit('loadMore')
-  currentPage.value++
-
-  if (props.data?.length > props.total!) {
+  if (props.data?.length >= props.total!) {
     noMore.value = true
-    props.data = props.data.slice(0, total.value)
+    return
   }
+
+  console.log(11)
+  emit('load-more', { current: currentPage.value++ })
 }
 
 /**

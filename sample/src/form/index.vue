@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-form size="large" :model="model" label-width="100px" readonly>
+    <u-form size="large" readonly disabled :model="model" label-width="100px">
       <u-input field="name" label="姓名" tips="四个字以内" />
       <u-number-input field="age" label="年龄" />
       <u-input field="phone" label="手机" />
@@ -16,10 +16,12 @@
 
 <script lang="ts" setup>
 import { field, FormModel } from 'ultra-ui/components'
+import { shallowRef } from 'vue'
 
 const model = new FormModel({
-  name: { maxLen: 4,  required: true },
+  name: { maxLen: 4, required: true },
   age: field<string>({ required: '年龄是必填的' }),
+  aa: { required: true },
   phone: {
     validator(value) {
       if (!value) return ''

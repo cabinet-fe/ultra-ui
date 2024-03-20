@@ -1,28 +1,14 @@
 <template>
   <tbody :class="store.cls.e('tbody')">
     <!-- {{ store.slot }} -->
+
     <row-form-body-item
       @item-click="handleClick"
-      :model-data="store.modelData.value"
+      :model-data="modelData"
       @contextmenu="handleDblClick"
       @delete="(_, index) => handleDeleteData(index)"
       @insert="(_, index) => handleDeleteInsertData(index)"
     >
-      <template
-        v-for="columnsItem of store.columns.value.filter(
-          columnsItem => !!columnsItem.key
-        )"
-        :key="columnsItem.key"
-        v-slot:[columnsItem.key]="data"
-      >
-        <slot
-          v-if="useSlots()[columnsItem.key]"
-          :name="columnsItem.key"
-          v-bind="data"
-        />
-
-        <div v-else>{{ data['data']?.[columnsItem.key] }}</div>
-      </template>
     </row-form-body-item>
 
     <Teleport to="body">
@@ -49,6 +35,7 @@ import {
   onMounted,
   onUnmounted,
   ref,
+  shallowReactive,
   shallowRef,
   useSlots,
   watch
@@ -61,7 +48,7 @@ import type {
 import RowFormBodyItem from './row-form-body-item.vue'
 import { deleteIndex, insetTo, wrapDataRows } from './row-forms'
 
-let store = inject(RowFormStoreType)!
+const store = inject(RowFormStoreType)!
 
 const operationArray: RowFormOperation[] = [
   { key: 'delete', name: '删除当前条' },
