@@ -23,6 +23,8 @@
       @blur="handleBlur"
       ref="el"
       v-bind="attrs"
+      :disabled="disabled"
+      :readonly="readonly"
     />
 
     <Transition name="fade">
@@ -52,7 +54,11 @@ import type {
   InputProps,
   _InputExposed
 } from '@ui/types/components/input'
-import { useFocus } from '@ui/compositions'
+import {
+  useFocus,
+  useFormComponent,
+  useFormFallbackProps
+} from '@ui/compositions'
 import { bem } from '@ui/utils'
 import {
   computed,
@@ -71,7 +77,6 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  size: 'default',
   clearable: true
 })
 
@@ -83,12 +88,19 @@ const inst = getCurrentInstance()
 
 const cls = bem('input')
 
+const { formProps } = useFormComponent()
+
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
+
 const { focus, handleBlur, handleFocus } = useFocus(focused => {
   focused ? emit('focus') : emit('blur')
 })
 
 const inputClass = computed(() => {
-  return [cls.b, cls.m(props.size), bem.is('focus', focus.value)]
+  return [cls.b, cls.m(size.value), bem.is('focus', focus.value)]
 })
 
 const prefixClass = [

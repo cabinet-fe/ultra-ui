@@ -42,6 +42,8 @@
     background-color: transparent;
     width: 100%;
     flex-grow: 1;
+
+
   }
 
   @include m.e(prefix, suffix) {

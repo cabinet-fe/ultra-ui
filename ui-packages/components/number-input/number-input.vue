@@ -9,6 +9,9 @@
     @keydown="handleKeydown"
     @focus="handleFocus"
     @blur="handleBlur"
+    :size="size"
+    :readonly="readonly"
+    :disabled="disabled"
   >
     <template #suffix v-if="step !== undefined && step !== false">
       <div :class="cls.e('step')">
@@ -41,6 +44,7 @@ import { n, Tween, obj, isUndef } from 'cat-kit/fe'
 import { ArrowUp, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'NumberInput'
@@ -48,14 +52,22 @@ defineOptions({
 
 const props = withDefaults(defineProps<NumberInputProps>(), {
   placeholder: '请输入',
-  size: 'default',
   clearable: true
 })
 const emit = defineEmits<NumberInputEmits>()
 
+const { formProps } = useFormComponent()
+
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
+
 const inputProps = computed(() => {
   return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
 })
+
+
 
 const inputRef = shallowRef<InputExposed>()
 

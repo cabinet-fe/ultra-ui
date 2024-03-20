@@ -29,3 +29,22 @@ export function useFallbackProps<Names extends string[]>(
     })
   }) as MapTuple<Names, ComputedRef<any>>
 }
+
+/**
+ * 表单组件的回滚属性
+ * @param propsList props列表
+ * @returns
+ */
+export function useFormFallbackProps(
+  propsList: Record<string, any>[],
+) {
+  const propNames =  ['size', 'disabled', 'readonly']
+  const result = useFallbackProps(propsList, propNames)
+
+  return propNames.reduce((acc, cur, index) => {
+    acc[cur] = result[index]
+    return acc
+  }, {}) as {
+    [key in 'size' | 'disabled' | 'readonly']: ComputedRef<any>
+  }
+}
