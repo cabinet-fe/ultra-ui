@@ -29,14 +29,7 @@
 <script lang="ts" setup>
 import type { TipProps } from '@ui/types/components/tip'
 import { bem, nextFrame, setStyles } from '@ui/utils'
-import {
-  ref,
-  shallowRef,
-  nextTick,
-  computed,
-  useSlots,
-  onBeforeUnmount
-} from 'vue'
+import { ref, shallowRef, nextTick, computed, useSlots, onBeforeUnmount } from 'vue'
 import calcPosition from './position'
 import vClickOutside from '@ui/directives/click-outside'
 import { UNodeRender } from '../node-render'
@@ -160,7 +153,6 @@ const gap = 10
 /** 弹出 */
 const popup = () => {
   // 计算弹出层样式
-
   // 将计算出的样式作用于弹出内容元素上， 并显示
 }
 
@@ -192,11 +184,7 @@ const mouseEventDom = async () => {
       rect.width > window.innerWidth - (rect.x + rect.width)
         ? `calc(${rect.x - 32}px)`
         : `calc(100vw - ${rect.x + clientWidth + 32}px)`
-    setPositionParams(
-      maxWidth,
-      `calc(${window.innerHeight - rect.y - 16}px)`,
-      'auto'
-    )
+    setPositionParams(maxWidth, `calc(${window.innerHeight - rect.y - 16}px)`, 'auto')
   }
   // 处理左侧位置的样式
   if (props.position.match(/^left/)) {
@@ -204,11 +192,7 @@ const mouseEventDom = async () => {
       rect.width > window.innerWidth - (rect.x + rect.width)
         ? `calc(100vw - ${rect.x - 16}px)`
         : `calc(${window.innerWidth - rect.x - rect.width - 32}px)`
-    setPositionParams(
-      maxWidth,
-      `calc(${window.innerHeight - rect.y - 16}px)`,
-      'visible'
-    )
+    setPositionParams(maxWidth, `calc(${window.innerHeight - rect.y - 16}px)`, 'visible')
   }
 
   // 使用requestAnimationFrame以确保在下一帧进行更新
