@@ -9,7 +9,7 @@
     <!-- 表体 end -->
 
     <!-- 表尾 start -->
-    <row-form-footer v-if="showSummary" />
+    <row-form-footer />
     <!-- 表位 end -->
   </table>
 </template>
@@ -17,22 +17,12 @@
 <script lang="ts" setup generic="T extends Record<string, any>">
 import { Validator, bem } from '@ui/utils'
 import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
-import {
-  computed,
-  nextTick,
-  provide,
-  shallowReactive,
-  shallowRef,
-  toRef,
-  useSlots,
-  watch
-} from 'vue'
-import { RowFormStoreType } from './di'
+import { computed, provide, shallowRef, useSlots, watch } from 'vue'
+import { RowFormInjectType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
 import { wrapDataRows } from './row-forms'
-// import { Validator } from '@ui/utils'
 
 defineOptions({
   name: 'URowForm'
@@ -54,82 +44,75 @@ const finalColumns = computed(() => {
   return [...props.columns]
 })
 
-const rows = shallowRef([])
+/** 数据 */
+const rows = shallowRef<any[]>([])
+
+defineSlots<{
+  header(): any
+}>()
+
+provide(RowFormInjectType, {
+  cls,
+  columns: finalColumns,
+  rows: rows,
+  rowFormSlots: useSlots(),
+  props,
+  emits: emits as RowFormEmits<Record<string, any>>
+})
 
 watch(
   data,
   () => {
-    rows.value = wrapDataRows(data.value)
+    if (props.disabled) {
+      rows.value = wrapDataRows(data.value)
+    } else {
+      rows.value = wrapDataRows([...data.value, {}])
+    }
 
     data.value = rows.value.map(row => row.data)
   },
   { immediate: true, once: true }
 )
 
-provide(RowFormStoreType, {
-  columns: finalColumns,
-  modelData: rows,
-  props,
-  rowFormSlots: useSlots(),
-  cls
-})
 
-let lastItem = data.value[data.value.length - 1] ?? []
-
-/** 如果一开始最后一条不为空的话,就增加一条 */
-const initData = async () => {
-  if (Object.keys(lastItem).length !== 0 && !props.disabled) {
-    data.value.push({} as T)
-  }
-}
-initData()
-
-/** 获取数据 */
-const getValue = () => {
-  if (Object.keys(lastItem).length !== 0) {
-    return data.value?.slice(0, data.value.length - 1)
-  } else {
-    return data.value
-  }
-}
-
-/** TODO 暂时这么做先往后做 */
-// const init = () => {
-//   data.value = wrapDataRows(data.value) as T[]
-//   console.log(data.value)
-// }
-// init()
 
 // watch(
 //   () => data.value,
-//   (val: any[]) => {
-//     copyData.value = wrapDataRows(val) as T[]
-
-//     console.log(copyData.value, 'copyData')
-//   },
-//   { immediate: true }
-// )
-
-// let a: any[] = []
-
-// watch(
-//   () => data.value,
-//   () => {
-//     a = wrapDataRows(data.value)
-//     console.log(a, 'a')
+//   value => {
+//     rows.value = wrapDataRows(data.value)
+//     console.log(value,'value')
 //   }
 // )
 
-// const validator = computed(() => {
-// })
+// const
+// let lastItem = data.value[data.value.length - 1] ?? []
+
+// /** 如果一开始最后一条不为空的话,就增加一条 */
+// const initData = async () => {
+//   if (Object.keys(lastItem).length !== 0 && !props.disabled) {
+//     data.value.push({} as T)
+//   }
+// }
+// initData()
+
+/** 获取数据 */
+// const getValue = () => {
+//   if (Object.keys(lastItem).length !== 0) {
+//     return data.value?.slice(0, data.value.length - 1)
+//   } else {
+//     return data.value
+//   }
+// }
+
+/** 获取数据 */
+const getValue = () => {}
 
 /** 校验 */
 const validate = () => {
   finalColumns.value.map(async (item: any) => {
-    console.log(data.value, item.key, 'key')
+    // { name: { required } }
+    // console.log(data.value, item.key, 'key')
     return await new Validator(item.rules).validate(data.value)
-    // const errors = await new Validator(item.rules)?.validate(dsata.value, item.key)
-    // console.log(errors)
   })
 }
 

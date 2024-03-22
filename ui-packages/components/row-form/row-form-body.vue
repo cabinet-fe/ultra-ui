@@ -1,10 +1,12 @@
 <template>
-  <tbody :class="store.cls.e('tbody')">
-    <!-- {{ store.slot }} -->
-
+  <tbody :class="cls.e('tbody')">
+    {{
+      rows
+    }}
     <row-form-body-item
-      @item-click="handleClick"
-      :model-data="modelData"
+      v-for="row in rows"
+      :row="row"
+      @click="handleClick"
       @contextmenu="handleDblClick"
       @delete="(_, index) => handleDeleteData(index)"
       @insert="(_, index) => handleDeleteInsertData(index)"
@@ -16,11 +18,11 @@
         v-if="visible"
         ref="operationRef"
         :style="`left: ${x}px; top: ${y}px`"
-        :class="store.cls.e('context-info')"
+        :class="cls.e('context-info')"
       >
         <div
           v-for="(item, index) of operationArray"
-          :class="store.cls.em('context-info', 'operation')"
+          :class="cls.em('context-info', 'operation')"
           @click="handleOperationData(item, index)"
         >
           {{ item['name'] }}
@@ -30,39 +32,32 @@
   </tbody>
 </template>
 <script lang="ts" setup>
-import {
-  inject,
-  onMounted,
-  onUnmounted,
-  ref,
-  shallowReactive,
-  shallowRef,
-  useSlots,
-  watch
-} from 'vue'
-import { RowFormStoreType } from './di'
+import { inject, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { RowFormInjectType } from './di'
 import type {
   RowFormColumn,
   RowFormOperation
 } from '@ui/types/components/row-form'
 import RowFormBodyItem from './row-form-body-item.vue'
-import { deleteIndex, insetTo, wrapDataRows } from './row-forms'
-
-const store = inject(RowFormStoreType)!
+import { wrapDataRows } from './row-forms'
 
 const operationArray: RowFormOperation[] = [
   { key: 'delete', name: '删除当前条' },
   { key: 'insert', name: '向下插入' }
 ]
 
+const injected = inject(RowFormInjectType)!
+
+let { rows, cls, emits } = injected
+
 /** 操作栏信息的ref */
 const operationRef = shallowRef<InstanceType<typeof HTMLDivElement>>()
 /** 操作栏信息 */
 let visible = ref(false)
 
-/** 失去焦点后modelData的下表 */
+/** 失去焦点后rows的下表 */
 let currentDataIndex: number = 0
-/** 失去焦点后当前modelData的数据 */
+/** 失去焦点后当前rows的数据 */
 let currentDataItem: Record<string, any> = {}
 /** 失去焦点后columns当前的数据 */
 let currentColumnsItem: RowFormColumn
@@ -84,8 +79,8 @@ const handleDblClick = (event: MouseEvent, index: number) => {
 /**
  * 点击事件
  * @param event
- * @param modelData的下标
- * @param modelData的数据
+ * @param rows的下标
+ * @param rows的数据
  * @param columns的数据
  */
 const handleClick = (
@@ -98,18 +93,25 @@ const handleClick = (
   currentDataItem = dataItem
   currentColumnsItem = columnsItem
 
-  event.target?.addEventListener('blur', blurForm)
+  event.target?.addEventListener('blur', blurEventHandler)
 }
 
-/** blur事件的函数 */
-const blurForm = (event: Event) => {
-  if (store.modelData.value.length - 1 !== currentDataIndex) return
+/** 处理blur事件的函数 */
+const blurEventHandler = (event: Event) => {
+  if (rows.value.length - 1 !== currentDataIndex) return
 
   if (!currentDataItem[currentColumnsItem.key]) return
 
-  store.modelData.value = [...store.modelData.value, {}]
+  // console.log(rows.value)
+  // rows.value = wrapDataRows([props.modelValue, {}])
+
+  // let a = rows.value.map((item: any) => {
+  //   return item.data
+  // })
+  // emits('update:modelValue', a)
+
   /** 结束时候清除事件 */
-  event.target?.removeEventListener('blur', blurForm)
+  event.target?.removeEventListener('blur', blurEventHandler)
 }
 
 /** 右键事件的下标 */
@@ -126,20 +128,13 @@ const handleOperationData = (item: Record<string, any>, index: number) => {
 
 /** 删除 */
 const handleDeleteData = (index: number) => {
-  store.modelData.value = deleteIndex(store.modelData.value, index)
+  // rows.value = deleteIndex(rows.value, index)
 }
 
 /** 插入 */
 const handleDeleteInsertData = (index: number) => {
-  store.modelData.value = wrapDataRows(insetTo(store.modelData.value, index))
+  // rows.value = wrapDataRows(insetTo(rows.value, index))
 }
-
-watch(
-  () => store.modelData.value,
-  val => {
-    console.log(val, 'emptyData')
-  }
-)
 
 /** 监听操作栏，点击除操作栏的任何位置隐藏操作栏 */
 const watchOperationViable = (e: Event) => {
@@ -147,20 +142,6 @@ const watchOperationViable = (e: Event) => {
     visible.value = false
   }
 }
-
-// watch(
-//   () => store.modelData.value,
-//   item => {
-//     store.modelData.value = wrapDataRows(item)
-//     console.log(item, '触发')
-//     // console.log(store.modelData.value, wrapDataRows(item), 'item')
-//   },
-//   {
-//     immediate: true
-//   }
-// )
-
-//
 
 onMounted(() => {
   document.addEventListener('click', watchOperationViable)
