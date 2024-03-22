@@ -4,6 +4,7 @@ export type TabsItems = string[] | Array<{ name: string; key: string | number }>
 export interface Item {
   name: string
   key?: string | number
+  disabled?: boolean
 }
 
 /** 标签页组件组件属性 */

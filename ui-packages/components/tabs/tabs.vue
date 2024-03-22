@@ -4,7 +4,11 @@
       <div
         v-for="(item, index) in standardItems"
         :key="item.key"
-        :class="[cls.em('header', 'label'), bem.is('active', modelValue === item.key)]"
+        :class="[
+          cls.em('header', 'label'),
+          bem.is('active', modelValue === item.key),
+          bem.is('disabled', item.disabled === true)
+        ]"
         @click="changeTab(item, index)"
         ref="labRef"
         :draggable="sortable"
@@ -24,7 +28,7 @@
     </div>
     <div :class="cls.e('content')" v-if="showContent">
       <div v-for="item in standardItems" :key="item.key">
-        <div :class="cls.e('content')" v-if="modelValue === item.name">
+        <div :class="cls.e('content')" v-if="modelValue === item.key">
           <slot :name="item?.name">
             <span>暂无内容~</span>
           </slot>
@@ -38,14 +42,7 @@
 import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj, deepCopy } from 'cat-kit'
-import {
-  computed,
-  shallowRef,
-  ref,
-  watch,
-  reactive,
-  useSlots
-} from 'vue'
+import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
 
@@ -77,7 +74,7 @@ const showContent = computed(() => {
   if (slots) {
     const keys = Object.keys(slots)
     const tabs = standardItems.value.filter((item: any) => {
-      return keys.includes(item.key)
+      return keys.includes(item.name)
     })
     return !!tabs.length
   } else {
@@ -107,7 +104,7 @@ watch(
       standardItems.value = []
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 const headerRef = shallowRef<HTMLDivElement>()
@@ -118,6 +115,7 @@ const active = reactive({
 })
 /** 切换标签页 */
 const changeTab = (item: Item, index: number) => {
+  if (item.disabled) return
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
@@ -167,6 +165,6 @@ const exchange = (newIndex: number, oldIndex: number) => {
     propItems.value[oldIndex]!
   )
   propItems.value.splice(newIndex > oldIndex ? oldIndex : oldIndex + 1, 1)
-  emit('update:items', [...propItems.value])
+  emit('update:items', toRaw(propItems.value))
 }
 </script>

@@ -54,6 +54,8 @@ export * from './tabs'
 
 export * from './tag'
 
+export * from './check-tag'
+
 export * from './text'
 
 export * from './textarea'
