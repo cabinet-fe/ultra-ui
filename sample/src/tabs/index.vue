@@ -33,7 +33,7 @@
         @update:items="handleUpdate"
         :sortable="config.sortable"
       >
-        <template v-for="item in items.slice(0, -1)" #[item]>{{ item }}</template>
+        <template v-for="item in items" #[item]>{{ item }}</template>
       </u-tabs>
     </div>
   </div>
@@ -43,8 +43,13 @@
 import { ref, reactive } from 'vue'
 
 let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
+// let items = [
+//   { key: '1', name: 'TabOne' },
+//   { key: '2', name: 'TabTwo', disabled: true },
+//   { key: '3', name: 'TabThree' }
+// ]
 
-const active = ref<string>('TabOne')
+const active = ref<string>('1')
 
 const handleClick = (item, index) => {
   console.log(item, index)
