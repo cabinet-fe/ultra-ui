@@ -52,7 +52,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<NumberInputProps>(), {
   placeholder: '请输入',
-  clearable: true
+  clearable: true,
+  disabled: undefined,
+  readonly: undefined
 })
 const emit = defineEmits<NumberInputEmits>()
 

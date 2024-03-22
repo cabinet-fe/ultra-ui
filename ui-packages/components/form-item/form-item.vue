@@ -7,11 +7,13 @@
       {{ label }}
     </label>
 
-    <section :class="[cls.e('content'),bem.is('error', !!errorTips)]">
+    <section :class="[cls.e('content'), bem.is('error', !!errorTips)]">
       <slot />
       <section v-if="showTips" :class="cls.e('tips')">
         <transition name="form-item-tips" mode="out-in">
-          <span :class="cls.em('tips', 'error')" v-if="!!errorTips">{{ errorTips }}</span>
+          <span :class="cls.em('tips', 'error')" v-if="!!errorTips">{{
+            errorTips
+          }}</span>
           <span :class="cls.em('tips', 'info')" v-else>{{ tips }}</span>
         </transition>
       </section>
@@ -23,14 +25,14 @@
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
 import { type CSSProperties, computed } from 'vue'
-import { useFormComponent } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'FormItem'
 })
 
-const props = withDefaults(defineProps<FormItemProps>(), {
-  size: 'default'
+const props =  withDefaults(defineProps<FormItemProps>(), {
+  readonly: undefined
 })
 
 const cls = bem('form-item')
@@ -38,8 +40,13 @@ const cls = bem('form-item')
 /** 表单组件上下文 */
 const { formProps } = useFormComponent()
 
+const { size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  readonly: false
+})
+
 const className = computed(() => {
-  return [cls.b, cls.m(props.size)]
+  return [cls.b, cls.m(size.value)]
 })
 
 /** label样式 */
@@ -50,7 +57,7 @@ const labelStyles = computed<CSSProperties>(() => {
 })
 
 const showTips = computed<boolean>(() => {
-  return !props.noTips && !formProps?.noTips
+  return !props.noTips && !formProps?.noTips && !readonly.value
 })
 
 /** 错误提示 */

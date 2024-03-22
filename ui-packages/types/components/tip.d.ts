@@ -20,7 +20,7 @@ export interface TipProps {
   /**自定义tip样式 */
   customStyle?: Record<string, any>
   /**触发tip方式 */
-  triggerPopUpMode?: "hover" | "click"
+  trigger?: "hover" | "click"
   /**tip出现位置 */
   position?:
     | "top-start"
@@ -35,8 +35,6 @@ export interface TipProps {
     | "right-start"
     | "right"
     | "right-end"
-  /**主题 */
-  theme?: "dark" | "light"
   /**鼠标是否可进入到tip区域*/
   mouseEnterable?: boolean
 }

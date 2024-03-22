@@ -1,23 +1,17 @@
 <template>
   <div :class="[cls.b, cls.e(position!)]">
-    <div
-      :class="[cls.e('header'), cls.em('header', position!)]"
-      ref="headerRef"
-    >
+    <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
       <div
         v-for="(item, index) in standardItems"
         :key="item.key"
         :class="[
           cls.em('header', 'label'),
-          bem.is('active', modelValue === item.key)
+          bem.is('active', modelValue === item.key),
+          bem.is('disabled', item.disabled === true)
         ]"
         @click="changeTab(item, index)"
         ref="labRef"
         :draggable="sortable"
-        @dragstart="e => dragstart(e, index)"
-        @dragenter="e => dragenter(e, index)"
-        @dragover="dragover"
-        @drop="drop"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
@@ -33,55 +27,34 @@
       </div>
     </div>
     <div :class="cls.e('content')" v-if="showContent">
-      <!-- <slot v-if="standardItems.find(item => item.key === modelValue)?.key" :name="standardItems.find(item => item.key === modelValue)?.key">
-        </slot
-      ></Transition> -->
-
       <div v-for="item in standardItems" :key="item.key">
-        <Transition mode="out-in" name="fade">
-          <div :class="cls.e('content')" v-if="modelValue === item.name">
-            <slot :name="item?.name">
-              <span>暂无内容~</span>
-            </slot>
-          </div>
-        </Transition>
+        <div :class="cls.e('content')" v-if="modelValue === item.key">
+          <slot :name="item?.name">
+            <span>暂无内容~</span>
+          </slot>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type {
-  Item,
-  TabsItems,
-  TabsProps,
-  TabsEmits
-} from '@ui/types/components/tabs'
+import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj, deepCopy } from 'cat-kit'
-import {
-  computed,
-  getCurrentInstance,
-  shallowRef,
-  ref,
-  watch,
-  reactive,
-  useSlots
-} from 'vue'
+import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
+import { useSort } from '@ui/compositions'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps<TabsItems> = withDefaults(
-  defineProps<TabsProps<TabsItems>>(),
-  {
-    position: 'right',
-    closable: false,
-    sortable: false
-  }
-)
+const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
+  position: 'right',
+  closable: false,
+  sortable: false
+})
 /** 切换position回归初始状态 */
 watch(
   () => props.position,
@@ -91,8 +64,6 @@ watch(
   }
 )
 
-const instance = getCurrentInstance()!
-
 const slots = useSlots()
 
 const cls = bem('tabs')
@@ -100,12 +71,12 @@ const cls = bem('tabs')
 const emit = defineEmits<TabsEmits<TabsItems>>()
 /** 是否显示除标签以外的内容 */
 const showContent = computed(() => {
-  if (instance?.slots) {
-    const keys = Object.keys(instance?.slots)
-    const slots = standardItems.value.filter((item: any) => {
-      return keys.includes(item.key)
+  if (slots) {
+    const keys = Object.keys(slots)
+    const tabs = standardItems.value.filter((item: any) => {
+      return keys.includes(item.name)
     })
-    return !!slots.length
+    return !!tabs.length
   } else {
     return false
   }
@@ -117,7 +88,7 @@ const propItems = ref<TabsItems[]>(deepCopy(props.items))
 
 watch(
   () => props.items,
-  items => {
+  (items) => {
     if (items.length) {
       if (isObj(items[0])) {
         standardItems.value = items.map((item: any) => {
@@ -133,7 +104,7 @@ watch(
       standardItems.value = []
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 
 const headerRef = shallowRef<HTMLDivElement>()
@@ -144,6 +115,7 @@ const active = reactive({
 })
 /** 切换标签页 */
 const changeTab = (item: Item, index: number) => {
+  if (item.disabled) return
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
@@ -154,9 +126,7 @@ const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
 const handleClose = (item: Item, index: number) => {
-  standardItems.value = standardItems.value.filter(
-    (row: any) => row.key !== item.key
-  )
+  standardItems.value = standardItems.value.filter((row: any) => row.key !== item.key)
   if (item.key === props.modelValue) {
     const item = standardItems.value[0]!
     emit('update:modelValue', item.key!)
@@ -174,46 +144,27 @@ const showClose = (key: string | number) => {
   }
 }
 
-// 拖拽排序
-const dragState = reactive({
-  active: 0,
-  target: 0
+useSort({
+  target: headerRef,
+  onChange: ({ newIndex, oldIndex }) => {
+    exchange(newIndex, oldIndex)
+  }
 })
-const exchange = () => {
-  propItems.value.splice(
-    dragState.active,
-    1,
-    ...propItems.value.splice(
-      dragState.target,
-      1,
-      propItems.value[dragState.active]!
-    )
-  )
-  standardItems.value.splice(
-    dragState.active,
-    1,
-    ...standardItems.value.splice(
-      dragState.target,
-      1,
-      standardItems.value[dragState.active]!
-    )
-  )
-}
 
-const dragstart = (e: MouseEvent, index: number) => {
-  dragState.active = index
-}
-// 不写dragover不触发drop事件
-const dragover = (e: MouseEvent) => {
-  e.preventDefault()
-}
-const dragenter = (e: MouseEvent, index: number) => {
-  e.preventDefault()
-  dragState.target = index
-}
-const drop = (e: MouseEvent) => {
-  e.preventDefault()
-  exchange()
-  emit('update:items', [...propItems.value])
+const exchange = (newIndex: number, oldIndex: number) => {
+  standardItems.value.splice(
+    newIndex > oldIndex ? newIndex + 1 : newIndex,
+    0,
+    standardItems.value[oldIndex]!
+  )
+  standardItems.value.splice(newIndex > oldIndex ? oldIndex : oldIndex + 1, 1)
+
+  propItems.value.splice(
+    newIndex > oldIndex ? newIndex + 1 : newIndex,
+    0,
+    propItems.value[oldIndex]!
+  )
+  propItems.value.splice(newIndex > oldIndex ? oldIndex : oldIndex + 1, 1)
+  emit('update:items', toRaw(propItems.value))
 }
 </script>
