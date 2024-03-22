@@ -24,7 +24,6 @@
       ref="el"
       v-bind="attrs"
       :disabled="disabled"
-      :readonly="readonly"
     />
 
     <Transition name="fade">
@@ -77,7 +76,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  clearable: true
+  clearable: true,
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<InputEmits>()
@@ -100,7 +101,13 @@ const { focus, handleBlur, handleFocus } = useFocus(focused => {
 })
 
 const inputClass = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('focus', focus.value)]
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value),
+    bem.is('focus', focus.value)
+  ]
 })
 
 const prefixClass = [

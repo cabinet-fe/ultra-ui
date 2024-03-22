@@ -16,4 +16,6 @@ export * from './use-resize-observer'
 
 export * from './use-server-query'
 
+export * from './use-sort'
+
 export * from './use-transition'
