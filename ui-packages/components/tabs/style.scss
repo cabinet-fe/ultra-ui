@@ -38,23 +38,23 @@
         @if $position ==left {
           flex-direction: column;
           border-right: 2px solid fn.use-var(border-color);
-          margin-right: 10px;
+          // margin-right: 10px;
         }
 
         @else if $position ==right {
           flex-direction: column;
           border-left: 2px solid fn.use-var(border-color);
-          margin-left: 10px;
+          // margin-left: 10px;
         }
 
         @else if $position ==bottom {
           border-bottom: 2px solid fn.use-var(border-color);
-          margin-top: 10px;
+          // margin-top: 10px;
         }
 
         @else {
           border-bottom: 2px solid fn.use-var(border-color);
-          margin-bottom: 10px;
+          // margin-bottom: 10px;
         }
       }
     }
@@ -100,6 +100,10 @@
             background-color: fn.use-var(bg-color, top);
           }
         }
+      }
+
+      @include m.is('disabled') {
+        cursor: not-allowed;
       }
 
       .is-close,

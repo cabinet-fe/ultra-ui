@@ -8,10 +8,15 @@ $root-name: form-item;
 @include m.b($root-name) {
   @include m.flex(inline-flex, $align: flex-start);
 
-  @include m.component-size(vars.$form-component-sizes) using ($type, $sizes) {
-    @include m.b(form-item__label) {
-      height: map.get($sizes, height);
-      line-height: map.get($sizes, height);
+  @include m.size using ($size) {
+    @include m.bem($root-name, label) {
+      height: fn.use-var(form-component-height, $size);
+      line-height: fn.use-var(form-component-height, $size);
+      font-size: fn.use-var(form-component-font-size, $size);
+    }
+
+    @include m.bem($root-name, tips) {
+      font-size: fn.use-var(form-component-font-size, $size);
     }
   }
 
@@ -30,6 +35,8 @@ $root-name: form-item;
   }
   @include m.e(content) {
     flex-grow: 1;
+    word-break: break-all;
+
     & > *[class^='#{vars.$namespace}'] {
       width: 100%;
     }
@@ -47,6 +54,8 @@ $root-name: form-item;
     height: calc(var(--height) + 4px);
     line-height: calc(var(--height) + 2px);
     overflow: hidden;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size, assist);
 
     @include m.m(error) {
       color: fn.use-var(color, danger);

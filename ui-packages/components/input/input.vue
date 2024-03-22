@@ -15,21 +15,21 @@
     <input
       :class="cls.e('native')"
       :placeholder="props.placeholder"
-      :type="props.password ? 'password' : 'text'"
+      type="text"
       :value="model"
       @input="handleInput"
       @change="handleChange"
       @focus="handleFocus"
       @blur="handleBlur"
+      autocomplete="off"
       ref="el"
       v-bind="attrs"
       :disabled="disabled"
-      :readonly="readonly"
     />
 
     <Transition name="fade">
       <UIcon
-        v-if="props.clearable && model && hovered"
+        v-if="clearable && model && hovered"
         :class="cls.e('clear')"
         :size="14"
         @click="clearModelValue"
@@ -77,7 +77,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  clearable: true
+  clearable: true,
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<InputEmits>()
@@ -100,7 +102,13 @@ const { focus, handleBlur, handleFocus } = useFocus(focused => {
 })
 
 const inputClass = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('focus', focus.value)]
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value),
+    bem.is('focus', focus.value)
+  ]
 })
 
 const prefixClass = [
@@ -114,6 +122,7 @@ const suffixClass = [
 ]
 
 const handleInput = (e: Event) => {
+  emit('native:input', e)
   model.value = (e.target as HTMLInputElement).value
 }
 
