@@ -17,12 +17,7 @@
         ref="liRef"
       >
         <!-- 自定义样式 -->
-        <slot
-          name="content"
-          v-if="$slots.content"
-          :item="item"
-          :index="index"
-        />
+        <slot name="content" v-if="$slots.content" :item="item" :index="index" />
 
         <!-- 默认样式 -->
         <div v-else :class="cls.e('container')">
@@ -37,19 +32,15 @@
           </div>
         </div>
       </li>
-      <p v-if="infiniteScroll == true && noMore" :class="cls.e('handleScroll')">
-        没有更多了...
-      </p>
+      <p v-if="infiniteScroll == true && noMore" :class="cls.e('handleScroll')">没有更多了...</p>
     </ul>
   </component>
 </template>
 
 <script lang="ts" setup>
-import { useTransition } from '@ui/compositions'
 import { type ListProps, type ListEmits } from '@ui/types/components/list'
 import { bem } from '@ui/utils'
 import { ref, shallowRef } from 'vue'
-// import useDrag from './useDrag'
 
 defineOptions({
   name: 'List'
@@ -71,23 +62,6 @@ let dragIndex = ref<number>()
 /** 目标对象元素索引 */
 let enterIndex = ref<number>()
 
-// const { onDragStart, onDragOver, onDragEnter, onDrop } = useDrag(props.data, dragIndex, enterIndex)
-
-// const liTransition = useTransition('style', {
-//   target: liRef,
-//   enterToStyle: {
-//     transform: 'scale3d(1, 1, 1) translate(0, 0)'
-//   },
-
-//   transitionInStyle: {
-//     transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
-//     transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-//   },
-//   transitionOutStyle: {
-//     transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
-//   }
-// })
-
 /** 没有更多了 */
 const noMore = ref(false)
 
@@ -105,15 +79,6 @@ const handleScroll = e => {
 
   let clientHeight = e.target.clientHeight
 
-  console.log(
-    scrollTop,
-    'scrollTop',
-    clientHeight,
-    'clientHeight',
-    scrollHeight,
-    'scrollHeight'
-  )
-
   if (scrollTop + clientHeight >= scrollHeight - 10) {
     loadMore()
   } else {
@@ -128,7 +93,6 @@ const loadMore = () => {
     return
   }
 
-  console.log(11)
   emit('load-more', { current: currentPage.value++ })
 }
 
@@ -142,17 +106,17 @@ const onDragStart = (e: any, index: number) => {
 
   const dragItem = e.target.closest('li')
 
-  // if (dragItem) {
-  //   dragItem.classList.add('fade-in')
+  if (dragItem) {
+    dragItem.classList.add('fade-in')
 
-  //   requestAnimationFrame(() => {
-  //     dragItem.classList.add('fade-out')
+    requestAnimationFrame(() => {
+      dragItem.classList.add('fade-out')
 
-  //     setTimeout(() => {
-  //       dragItem.classList.remove('fade-out')
-  //     }, 300)
-  //   })
-  // }
+      setTimeout(() => {
+        dragItem.classList.remove('fade-out')
+      }, 300)
+    })
+  }
 }
 
 /**
@@ -177,17 +141,17 @@ const onDrop = (e: any) => {
     ...props.data.splice(enterIndex?.value!, 1, props.data[dragIndex.value!]!)
   )
   const dragItem = e.target.closest('li')
-  // liTransition.toggle(true)
-  // if (dragItem) {
-  //   dragItem.classList.remove('fade-in')
 
-  //   requestAnimationFrame(() => {
-  //     dragItem.classList.remove('fade-out')
+  if (dragItem) {
+    dragItem.classList.remove('fade-in')
 
-  //     setTimeout(() => {
-  //       dragItem.classList.add('fade-in')
-  //     }, 300)
-  //   })
-  // }
+    requestAnimationFrame(() => {
+      dragItem.classList.remove('fade-out')
+
+      setTimeout(() => {
+        dragItem.classList.add('fade-in')
+      }, 300)
+    })
+  }
 }
 </script>

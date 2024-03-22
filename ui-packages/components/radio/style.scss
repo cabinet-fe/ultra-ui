@@ -15,8 +15,6 @@
 
     @include m.flex($display: inline-flex, $align: center);
     cursor: pointer;
-    height: 30px;
-    margin-right: 30px;
 
     @include m.e(input) {
         margin: 0;
