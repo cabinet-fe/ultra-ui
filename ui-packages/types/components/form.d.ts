@@ -1,5 +1,5 @@
 import type { ShallowRef, shallowReadonly } from 'vue'
-import type { FormComponentProps } from '../component-common'
+import type { ComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 import type { ValidateRule, Data } from '../utils/form/validate'
 
@@ -31,7 +31,7 @@ export type IFormModel<
 
 /** 表单组件属性 */
 export interface FormProps<Model extends IFormModel = IFormModel>
-  extends FormComponentProps {
+  extends ComponentProps {
   /** 表单模式, edit为编辑模式, view为查看模式 */
   mode?: 'edit' | 'view'
   /** 表单数据模型 */
@@ -40,6 +40,10 @@ export interface FormProps<Model extends IFormModel = IFormModel>
   labelWidth?: string | number
   /** 是否不显示tips */
   noTips?: boolean
+  /** 是否只读 */
+  readonly?: boolean
+  /** 是否禁用 */
+  disabled?: boolean
 }
 
 export interface _FormExposed<Fields> {

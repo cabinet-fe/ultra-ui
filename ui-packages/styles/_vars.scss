@@ -20,6 +20,8 @@ $namespace: 'u-';
   @return $size-result;
 }
 
+$sizes: (small, default, large);
+
 // 表单组件尺寸
 $form-component-sizes: size-vars(
   (
@@ -98,6 +100,20 @@ $border-radius: (
   large: 8px
 );
 
+// 高度尺寸
+$form-component-height: (
+  small: 24px,
+  default: 32px,
+  large: 40px
+);
+
+// 字体大小尺寸
+$form-component-font-size: (
+  small: 12px,
+  default: 14px,
+  large: 16px
+);
+
 // 字体大小
 $font-sizes: (
   title: 16px,
@@ -121,6 +137,5 @@ $breakpoints: (
   // 960px ~ 1280px 中
   md: 1280px,
   // 1280px ~ 1920px 大
-  lg: 1920px
-  // 超大
+  lg: 1920px // 超大
 );
