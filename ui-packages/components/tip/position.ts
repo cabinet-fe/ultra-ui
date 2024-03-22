@@ -26,6 +26,7 @@ function countPositionInt(num: number | string) {
  * @param elementHeight 页面元素高度
  * @param tipRefDom 页面元素DOM信息
  * @param tipContentRefDom tip提示的DOM信息
+ * @param scrollDirection 屏幕滚动方向
  *
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
  */
@@ -74,9 +75,8 @@ function countPosition({
             clientHeight,
             clientWidth,
             elementHeight,
-            elementWidth,
             tipContentRefDom,
-            tipRefDom
+            tipRefDom,
           )
         position.indexOf("right") > -1 &&
           rightCount(
@@ -257,9 +257,7 @@ function rightCount(
  * @param clientHeight tip元素高度
  * @param clientWidth tip元素宽度
  * @param elementHeight 页面元素高度
- * @param elementWidth 页面元素宽度
- * @param offsetLeft 页面元素距离左边的距离
- * @param tipContentRefDom tip元素DOM信息
+ * @param tipContentRefDom  tip元素DOM信息
  * @param tipRefDom 页面DOM信息
  */
 function leftCount(
@@ -267,38 +265,62 @@ function leftCount(
   clientHeight: number,
   clientWidth: number,
   elementHeight: number,
-  elementWidth: number,
+  tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  tipContentRefDom: HTMLElement
 ): void {
   //鼠标获取到的元素dom信息
-  let {x, width, top} = tipContentRefDom.getBoundingClientRect()
+  let {x, width, top} = tipRefDom.getBoundingClientRect()
 
-  if (ifRightOrLeftViewport(tipRefDom)) {
+  if (ifRightOrLeftViewport(tipContentRefDom)) {
     let rightLeft = countPositionInt(`${x + width + elementDistance}`)
-    if (position === "left-start") {
-      dynamicCss.value.transform = `translate(${rightLeft}px, ${top}px)`
-    }
-    if (position === "left") {
-      if (clientHeight > elementHeight) {
-        dynamicCss.value.transform = `translate(${rightLeft}px, ${
-          top - (clientHeight - elementHeight) / 2
-        }px)`
-      } else {
-        dynamicCss.value.transform = `translate(${rightLeft}px, ${
-          top + (elementHeight - clientHeight) / 2
-        }px)`
+
+    /**再次判断上下是否溢出屏幕 */
+    if (!ifRightOrLeftUpViewport(tipContentRefDom, tipRefDom)) {
+      let rightUp = countPositionInt(
+        `${tipRefDom.getBoundingClientRect().y - clientHeight + elementHeight}`
+      )
+      if (position === "left-start") {
+        dynamicCss.value.transform = `translate(${rightLeft}px, ${rightUp}px)`
       }
-    }
-    if (position === "left-end") {
-      if (clientHeight > elementHeight) {
-        dynamicCss.value.transform = `translate(${rightLeft}px, ${
-          top - (clientHeight - elementHeight) - 2
-        }px)`
-      } else {
-        dynamicCss.value.transform = `translate(${rightLeft}px, ${
-          top + (elementHeight - clientHeight) - 2
-        }px)`
+      if (position === "left") {
+        if (clientHeight > elementHeight) {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${rightUp}px)`
+        } else {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${rightUp}px)`
+        }
+      }
+      if (position === "left-end") {
+        if (clientHeight > elementHeight) {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${rightUp}px)`
+        } else {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${rightUp}px)`
+        }
+      }
+    } else {
+      if (position === "left-start") {
+        dynamicCss.value.transform = `translate(${rightLeft}px, ${top}px)`
+      }
+      if (position === "left") {
+        if (clientHeight > elementHeight) {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${
+            top - (clientHeight - elementHeight) / 2
+          }px)`
+        } else {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${
+            top + (elementHeight - clientHeight) / 2
+          }px)`
+        }
+      }
+      if (position === "left-end") {
+        if (clientHeight > elementHeight) {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${
+            top - (clientHeight - elementHeight) - 2
+          }px)`
+        } else {
+          dynamicCss.value.transform = `translate(${rightLeft}px, ${
+            top + (elementHeight - clientHeight) - 2
+          }px)`
+        }
       }
     }
   } else {
@@ -450,7 +472,7 @@ function ifBottomViewport(tipContentRefDom, tipRefDom) {
 }
 
 /**
- * tip靠左、靠右是否在视窗内
+ * tip靠左、靠右 左右是否在视窗内
  * @param tipRefDom tip内容元素
  * @returns  tip是否在视窗内
  */
@@ -463,6 +485,28 @@ function ifRightOrLeftViewport(tipRefDom) {
     countPositionInt(rect.width) >
     countPositionInt(window.innerWidth - (rect.x + rect.width))
   ) {
+    return true
+  } else {
+    return false
+  }
+}
+
+/**
+ * tip靠左、靠右   上下是否在视窗内
+ * @param tipContentRefDom tip内容dom信息
+ * @param tipRefDom 页面dom信息
+ * @param scrollDirection 滚动方向
+ * @returns  tip是否在视窗内
+ */
+function ifRightOrLeftUpViewport(tipContentRefDom, tipRefDom) {
+  let rect = tipContentRefDom.getBoundingClientRect()
+  let rect2 = tipRefDom.getBoundingClientRect()
+  
+  /**
+   * 判断元素此时距离上下的距离
+   */
+
+  if (countPositionInt(window.innerHeight - rect2.y) > rect.height) {
     return true
   } else {
     return false
