@@ -15,12 +15,13 @@
     <input
       :class="cls.e('native')"
       :placeholder="props.placeholder"
-      :type="props.password ? 'password' : 'text'"
+      type="text"
       :value="model"
       @input="handleInput"
       @change="handleChange"
       @focus="handleFocus"
       @blur="handleBlur"
+      autocomplete="off"
       ref="el"
       v-bind="attrs"
       :disabled="disabled"
@@ -28,7 +29,7 @@
 
     <Transition name="fade">
       <UIcon
-        v-if="props.clearable && model && hovered"
+        v-if="clearable && model && hovered"
         :class="cls.e('clear')"
         :size="14"
         @click="clearModelValue"
@@ -121,6 +122,7 @@ const suffixClass = [
 ]
 
 const handleInput = (e: Event) => {
+  emit('native:input', e)
   model.value = (e.target as HTMLInputElement).value
 }
 

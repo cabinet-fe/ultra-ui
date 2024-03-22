@@ -32,6 +32,8 @@ export * from './number'
 
 export * from './number-input'
 
+export * from './password-input'
+
 export * from './popup'
 
 export * from './radio'
@@ -61,8 +63,6 @@ export * from './theme'
 export * from './tip'
 
 export * from './tree'
-
-export * from './textarea'
 
 export * from './uploader'
 
