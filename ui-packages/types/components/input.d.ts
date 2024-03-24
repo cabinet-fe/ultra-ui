@@ -27,6 +27,8 @@ export interface InputEmits {
   (e: 'prefix:click', value?: string): void
   /** 聚焦事件 */
   (e: 'focus', value?: string): void
+  /** 清除事件 */
+  (e: 'clear'): void
   /** 失焦事件 */
   (e: 'blur', value?: string): void
   /** 原生输入事件 */

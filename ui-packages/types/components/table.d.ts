@@ -1,22 +1,38 @@
+import type { TreeNode } from 'cat-kit'
 import type { DeconstructValue } from '../helper'
+import type { VNode } from 'vue'
 
 export interface TableColumn {
   key: string
   name: string
   width?: number
   minWidth?: number
+  fixed?: 'left' | 'right'
+  render?: () => VNode,
+  children?: TableColumn[]
 }
 
 /** 表格组件属性 */
-export interface TableProps<DataItem extends Record<string, any>> {
+export interface TableProps<
+  DataItem extends Record<string, any> = Record<string, any>
+> {
   /** 表格数据 */
   data?: DataItem[]
   /** 表格列 */
   columns?: TableColumn[]
   /** 多选时的已选项 */
-  checked: DataItem[]
+  checked?: DataItem[]
   /** 单选时的已选项 */
   selected?: DataItem
+  /** 多选 */
+  checkable?: boolean
+  /** 单选 */
+  selectable?: boolean
+  /** 单元格合并 */
+  mergeCell?: () => {
+    rowspan: number
+    colspan: number
+  }
 }
 
 /** 表格组件定义的事件 */

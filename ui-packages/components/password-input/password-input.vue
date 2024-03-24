@@ -3,6 +3,7 @@
     :class="cls.b"
     :model-value="passwordText"
     @native:input="handleUpdatePwd"
+    @update:model-value="!$event && handleClear()"
     @suffix:click="toggleVisible"
   >
     <template #suffix>
@@ -36,10 +37,13 @@ const model = defineModel<string>()
 
 const passwordChar = '●'
 
-const handleUpdatePwd = (e: Event) => {
+const handleUpdatePwd = (e: Event): void => {
   const target = e.target as HTMLInputElement
   const val = target.value
-  if (!val) return (model.value = val)
+  if (!val) {
+    model.value = val
+    return
+  }
 
   // 字符从无到有
   if (!model.value) {
@@ -48,19 +52,18 @@ const handleUpdatePwd = (e: Event) => {
   }
 
   const pointIndex = target.selectionStart!
-  const inputChar = val[pointIndex - 1]!
+  let inputChar = pointIndex === 0 ? '' : val[pointIndex - 1]!
+  if (inputChar === passwordChar) inputChar = ''
 
-  // 光标右侧字符数量，以此来将左侧的字符切割出来
+  // 光标右侧字符数量（当前字符长度减去光标位置）
   const rightLen = val.length - pointIndex
+  // 光标左侧字符数量 （当光标前的字符是刚刚输入的，则为这个字符前的所有的字符，否则为光标前的所有赐福）
+  const leftLen = inputChar === '' ? pointIndex : pointIndex - 1
 
-
-  const leftVal = model.value.slice(0, (inputChar === passwordChar || inputChar === '') ? pointIndex : pointIndex - 1)
+  const leftVal = model.value.slice(0, leftLen)
   const rightVal = rightLen === 0 ? '' : model.value.slice(-rightLen)
 
-  console.log(pointIndex, leftVal)
-
-  model.value =
-    leftVal + (inputChar === passwordChar ? '' : inputChar) + rightVal
+  model.value = leftVal + inputChar + rightVal
 
   nextTick(() => {
     target.selectionStart = pointIndex
@@ -68,11 +71,15 @@ const handleUpdatePwd = (e: Event) => {
   })
 }
 
+const handleClear = (): void => {
+  model.value = ''
+}
+
 const pwdVisible = shallowRef(false)
 
-const passwordText = computed(() => {
+const passwordText = computed<string | undefined>(() => {
   if (pwdVisible.value) return model.value
-  return model.value ? passwordChar.repeat(model.value.length) : undefined
+  return model.value ? passwordChar.repeat(model.value.length) : ''
 })
 
 const toggleVisible = () => {

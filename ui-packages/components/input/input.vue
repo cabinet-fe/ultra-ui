@@ -136,6 +136,7 @@ const handleSuffixClick = () => {
 
 const clearModelValue = () => {
   model.value = ''
+  emit('clear')
 }
 
 const hovered = ref(false)
