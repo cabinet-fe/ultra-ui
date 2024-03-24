@@ -13,14 +13,11 @@
         ref="rowFormRef"
         :columns="columns"
         v-model="modelValue"
-        @update:model-value=""
       >
-        <template #header>
-          <u-input />
-        </template>
+        <template #header> </template>
 
-        <template #column:dd="{ data }">
-          <u-input v-model="data.kk" @update:model-value="c.log(modelValue)" />
+        <template #column:dd="{ data, row }">
+          <u-input v-model="data.dd" @update:model-value="c.log(modelValue)" />
         </template>
 
         <template #column:ff="{ data }">
@@ -33,7 +30,7 @@
       </u-row-form>
     </div>
 
-    <div style="margin-top: 10px">
+    <!-- <div style="margin-top: 10px">
       <div>禁用</div>
       <u-row-form
         style="margin-top: 10px"
@@ -49,7 +46,7 @@
           <u-input v-model="data.ff" />
         </template>
       </u-row-form>
-    </div>
+    </div> -->
   </div>
 </template>
 <script lang="ts" setup>
@@ -69,7 +66,7 @@ let columns = defineRowFormColumns([
 let modelValue = shallowRef([
   {
     dd: '第一条',
-    ff: '333',
+    ff: '333'
     // children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
   },
   { dd: '第二条', ff: '123213' },

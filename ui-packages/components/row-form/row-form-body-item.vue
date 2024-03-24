@@ -1,89 +1,71 @@
 <template>
   <tr
-    v-for="(dataItem, dataIndex) of modelData"
-    :key="dataIndex"
-    :class="store.cls.em('tbody', 'hover')"
-    v-contextmenu-operation
-    @contextmenu.prevent="e => handleContextmenuClick(e, dataIndex, dataItem)"
+    :class="cls.em('tbody', 'hover')"
+    @contextmenu.prevent="e => handleContextmenuClick(e, row.index, row.data)"
   >
-    <!-- 内容 -->
-    <td
-      v-for="(columnsItem, columnsIndex) of store.columns.value"
-      :key="columnsIndex"
-    >
-      <div :class="store.cls.e('tbody-item')">
-        <div @click="e => handleClick(e, dataIndex, dataItem, columnsItem)">
-          <u-icon
-            :size="16"
-            v-if="columnsIndex === 0 && dataItem.children"
-            :class="[...classList, bem.is('launch', dataItem.row?.isLunch)]"
-            @click="handleLunchClick(dataItem)"
-          >
-            <CaretRight />
-          </u-icon>
-
-          <UNodeRender
-            :content="
-              getRowFormSlotsNodes(columnsItem.key, dataItem.data, dataIndex)
-            "
-          />
-          <!-- <slot
-            ref="slotsRef"
-            :name="columnsItem.key"
-            :data="dataItem.data"
-            :index="columnsIndex"
-          /> -->
-        </div>
-      </div>
-    </td>
+    <ItemRender
+      :custom-row="row"
+      @click="(e, key) => handleClick(e, row.index, row.data, key)"
+    />
 
     <!-- 操作栏 -->
-    <td v-if="!store.props?.disabled">
+    <td v-if="!injected.props?.disabled">
       <button-common-props tag="span">
         <u-button
-          :class="store.cls.m('interval')"
+          :class="cls.m('interval')"
           :icon="Delete"
           type="primary"
-          @click="handleDelete(dataItem, dataIndex)"
+          @click="handleDelete(row.data, row.index)"
         />
 
         <u-button
           :icon="DocumentAdd"
           type="primary"
-          @click="handleInsertTo(dataItem, dataIndex)"
+          @click="handleInsertTo(row.data, row.index)"
         />
       </button-common-props>
     </td>
-  </tr>
 
-  <!-- <tr>123123</tr> -->
+    <!-- <u-icon
+            :size="16"
+            v-if="index === 0 && dataItem.children"
+            :class="[...classList, bem.is('launch', dataItem.extends)]"
+            @click="handleLunchClick(dataItem)"
+          >
+            <CaretRight />
+          </u-icon> -->
+  </tr>
 </template>
 <script lang="ts" setup>
-import { inject, computed, type PropType } from 'vue'
+import { inject } from 'vue'
+import type { PropType } from 'vue'
 import type {
+  Row,
   RowFormColumn,
   RowFormItemEmits
 } from '@ui/types/components/row-form'
-import { bem } from '@ui/utils'
-import { RowFormStoreType } from './di'
-import vContextmenuOperation from '@ui/directives/contextmenu-operation'
-import { Delete, DocumentAdd, CaretRight } from 'icon-ultra'
+import { RowFormInjectType } from './di'
+// import vContextmenuOperation from '@ui/directives/contextmenu-operation'
+import { Delete, DocumentAdd } from 'icon-ultra'
 import { UButton } from '../button'
-import { UIcon } from '../icon'
+// import { UIcon } from '../icon'
 import { useComponentProps } from '@ui/compositions'
 import type { ButtonProps } from '@ui/types/components/button'
-import { UNodeRender } from '../node-render'
+import ItemRender from './item-render'
 
 defineProps({
-  modelData: { type: Array as PropType<Record<string, any>[]> }
+  row: {
+    type: Object as PropType<Row<Record<string, any>>>,
+    required: true
+  }
 })
 
 /** 事件 */
 const emits = defineEmits<RowFormItemEmits>()
 
-let store = inject(RowFormStoreType)!
+let injected = inject(RowFormInjectType)!
 
-const { rowFormSlots } = store
+const { cls } = injected
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
@@ -98,29 +80,31 @@ const handleClick = (
   dataItem: Record<string, any>,
   columnsItem: RowFormColumn
 ) => {
-  emits('item-click', event, dataIndex, dataItem, columnsItem)
+  emits('click', event, dataIndex, dataItem, columnsItem)
+  console.log('click')
 }
 
-const classList = computed(() => {
-  return [store.cls.em('tbody-item', 'tree')]
-})
+// const classList = computed(() => {
+//   return [cls.em('tbody-item', 'tree')]
+// })
 
-const handleLunchClick = item => {
-  item.row.isLunch.value = !item.row.isLunch.value
-}
+// const handleLunchClick = item => {
+//   // item.row.isLunch.value = !item.row.isLunch.value
+// }
 
-const getRowFormSlotsNodes = (key: string, data, index) => {
-  return rowFormSlots!['column:' + key]?.({ data, index })
-}
+/** 获取插槽 */
+// const getRowFormSlotsNodes = (key: string, data: Record<string, any>) => {
+//   return rowFormSlots!['column:' + key]?.({ data, row: props.row })
+// }
 
 /** 删除 */
-const handleDelete = (data: Record<string, any>[], index: number) => {
-  emits('delete', data, index)
+const handleDelete = (data: Record<string, any>, index: number) => {
+  // emits('delete', data, index)
 }
 
 /** 插入 */
-const handleInsertTo = (data: Record<string, any>[], index: number) => {
-  emits('insert', data, index)
+const handleInsertTo = (data: Record<string, any>, index: number) => {
+  // emits('insert', data, index)
 }
 
 /** 右击 */
@@ -132,3 +116,4 @@ const handleContextmenuClick = (
   emits('contextmenu', event, index, dataItem)
 }
 </script>
+./item-render./item-render

@@ -26,7 +26,6 @@ export interface RowFormProps<T> {
   tree?: boolean
   /** childrenKey='children' */
   childrenKey?: string
-  showSummary?: boolean
   border?: boolean
 }
 
@@ -37,10 +36,10 @@ export interface RowFormOperation {
 }
 
 /** 每一条的内容 */
-export interface rowType {
-  // children: rowType[];
-  [key: string]: any
-}
+// export interface rowType {
+//   // children: rowType[];
+//   [key: string]: any
+// }
 
 export interface Row<Data extends Record<string, any>> {
   data: Data
@@ -63,7 +62,7 @@ export interface RowFormEmits<T> {
 /** row-form-item-body的事件 */
 export interface RowFormItemEmits {
   (
-    e: 'item-click',
+    e: 'click',
     value: Event,
     index: number,
     dataItem: Record<string, any>,
