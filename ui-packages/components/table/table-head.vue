@@ -1,8 +1,8 @@
 <template>
   <thead :class="cls.e('head')">
-    <tr v-for="">
+    <!-- <tr v-for="">
       <th></th>
-    </tr>
+    </tr> -->
   </thead>
 </template>
 
