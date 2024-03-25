@@ -1,0 +1,36 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: paginator;
+
+@include m.b($root-name) {
+  display: flex;
+  @include m.e(btn) {
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: fn.use-var(gap, small);
+    color: fn.use-var(text, color, title);
+    user-select: none;
+    &:hover {
+      background-color: fn.use-var(color, primary, 'light-7');
+    }
+  }
+  .is-active {
+    background-color: fn.use-var(color, primary, 'light-3');
+  }
+  @include m.e(pages) {
+    display: flex;
+    justify-content: space-between;
+    @include m.e(page) {
+
+    }
+  }
+
+}

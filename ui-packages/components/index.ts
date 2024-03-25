@@ -69,3 +69,5 @@ export * from './tree'
 export * from './uploader'
 
 export * from './virtual-list'
+
+export * from './paginator'

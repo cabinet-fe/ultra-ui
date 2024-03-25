@@ -29,6 +29,7 @@ declare module 'vue' {
     UList: typeof import('ultra-ui')['UList']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
+    UPaginator: typeof import('ultra-ui')['UPaginator']
     UPasswordInput: typeof import('ultra-ui')['UPasswordInput']
     UPopup: typeof import('ultra-ui')['UPopup']
     URadio: typeof import('ultra-ui')['URadio']
