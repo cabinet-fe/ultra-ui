@@ -1,5 +1,5 @@
 <template>
-  <thead :class="cls.e('head')">
+  <thead :class="cls.e('head')" ref="">
     <!-- <tr v-for="">
       <th></th>
     </tr> -->
