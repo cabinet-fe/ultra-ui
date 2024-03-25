@@ -1,10 +1,12 @@
 <template>
-  <div :class="[cls.b, type ? cls.e(type) : '', size ? cls.e(size) : '', classRound]">
+  <div :class="classList">
+    <!-- <div :class="[cls.b, type ? cls.e(type) : '', size ? cls.e(size) : '', classRound]"> -->
     <div :class="cls.e('content')">
       <slot />
-      <u-button circle size="small" text :type="type" v-if="closable" @click="handleClose"
-        >x</u-button
-      >
+      <u-button circle size="small" text :type="type" v-if="closable" @click.prevent="handleClose">
+        x
+        <!-- <u-icon name="close" /> -->
+      </u-button>
     </div>
   </div>
 </template>
@@ -29,7 +31,16 @@ const handleClose = () => {
   emits('close')
 }
 
-const classRound = computed(() => {
-  return [bem.is('round', props.round)]
+const classList = computed(() => {
+  return [
+    cls.b,
+    props.type ? cls.e(props.type) : '',
+    props.size ? cls.m(props.size) : '',
+    props.round ? bem.is('round') : ''
+  ]
 })
+
+// const classRound = computed(() => {
+//   return [bem.is('round', props.round)]
+// })
 </script>

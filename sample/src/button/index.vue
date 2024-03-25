@@ -3,11 +3,15 @@
     <div class="space">
       <div>类别展示</div>
       <u-button>默认</u-button>
-      <u-button type="primary">主题</u-button>
-      <u-button type="success">成功</u-button>
-      <u-button type="warning">警告</u-button>
-      <u-button type="danger">危险</u-button>
-      <u-button type="info">信息</u-button>
+
+      <u-button
+        :type="button.type"
+        v-for="(button, index) of buttons"
+        :class="bem.is('active', index === active)"
+        @click="active = index"
+      >
+        {{ button.text }}
+      </u-button>
     </div>
 
     <div class="space">
@@ -70,7 +74,18 @@
 
 <script lang="ts" setup>
 import { Edit } from 'icon-ultra'
+import { bem } from 'ultra-ui'
+import { shallowRef } from 'vue'
 
+const buttons = [
+  { type: 'primary', text: '主题' },
+  { type: 'success', text: '成功' },
+  { type: 'warning', text: '警告' },
+  { type: 'danger', text: '危险' },
+  { type: 'info', text: '信息' }
+] as Array<{ type: any; text: string }>
+
+const active = shallowRef(0)
 </script>
 
 <style lang="scss">
@@ -79,5 +94,9 @@ import { Edit } from 'icon-ultra'
   & > * {
     margin-right: 8px;
   }
+}
+
+.is-active {
+  background-color: #ccc;
 }
 </style>

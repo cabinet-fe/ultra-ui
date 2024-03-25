@@ -1,5 +1,5 @@
-import type { DirectiveBinding, ObjectDirective } from 'vue'
-import { bem, setStyles } from '@ui/utils'
+import { type DirectiveBinding, type ObjectDirective } from 'vue'
+import { bem, nextFrame, removeStyles, setStyles } from '@ui/utils'
 
 const cls = bem('ripple')
 const clsWrap = cls.e('wrap')
@@ -15,6 +15,7 @@ const duration = 300
 const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   // 添加波纹类
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
+  el.dataset.class = cls.b
 
   const _duration = el.dataset.duration ? Number(el.dataset.duration) : duration
 
@@ -43,7 +44,7 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   el.appendChild(rippleWrap)
 
   // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
-  requestAnimationFrame(() => {
+  nextFrame(() => {
     setStyles(rippleWrap, {
       transform: `${center} scale3d(2, 2, 2)`
     })
@@ -56,6 +57,8 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
     // 所有的波纹被清除后移除波纹类
     el.getElementsByClassName(clsWrap).length === 0 &&
       el.classList.remove(cls.b)
+
+    delete el.dataset.class
   }, _duration)
 }
 
@@ -100,12 +103,18 @@ const Ripple: ObjectDirective<HTMLElement> = {
   mounted: registerEvents,
 
   // 元素卸载前注销事件
-  beforeUnmount: unregisterEvents,
+  unmounted: unregisterEvents,
 
   // 元素更新时移除旧有事件并重新添加事件
-  updated(el, binding, vNode, preVNode) {
-    unregisterEvents(el)
-    registerEvents(el, binding)
+  updated(el, binding) {
+    el.classList.add(el.dataset.class!)
+
+    const registered = !!binding.oldValue
+    if (binding.value && !registered) {
+      registerEvents(el, binding)
+    } else if (!binding.value && registered) {
+      unregisterEvents(el)
+    }
   }
 }
 
