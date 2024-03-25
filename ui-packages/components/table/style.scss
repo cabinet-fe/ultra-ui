@@ -2,5 +2,33 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(table) {
+$root-name: table;
+
+@include m.b($root-name) {
+  width: 100%;
+  position: relative;
+
+
+  @include m.e(wrap) {
+    width: 100%;
+    border-spacing: 0;
+  }
+
+  @include m.e(row) {
+    &:hover {
+      @include m.bem($root-name, cell) {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+
+  @include m.e(cell) {
+    box-shadow: 0px -1px #eee inset;
+    padding: 8px;
+  }
+
+  @include m.e(resizer) {
+    position: absolute;
+    visibility: hidden;
+  }
 }

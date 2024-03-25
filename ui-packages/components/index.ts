@@ -32,6 +32,8 @@ export * from './number'
 
 export * from './number-input'
 
+export * from './password-input'
+
 export * from './popup'
 
 export * from './radio'
@@ -52,6 +54,8 @@ export * from './tabs'
 
 export * from './tag'
 
+export * from './check-tag'
+
 export * from './text'
 
 export * from './textarea'
@@ -62,8 +66,8 @@ export * from './tip'
 
 export * from './tree'
 
-export * from './textarea'
-
 export * from './uploader'
 
 export * from './virtual-list'
+
+export * from './paginator'

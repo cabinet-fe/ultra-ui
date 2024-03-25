@@ -138,7 +138,10 @@ export function renderStyleFile(ctx: ComponentCtx) {
   @use '@ui/styles/functions' as fn;
   @use '@ui/styles/vars';
 
-  @include m.b(${ctx.componentName}) {}
+  // 方便拼接
+  $root-name: ${ctx.componentName};
+
+  @include m.b($root-name) {}
   `
 
   write(ctx, scssContent, 'style.scss')

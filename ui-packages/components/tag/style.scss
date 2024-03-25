@@ -1,0 +1,86 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+@include m.b(tag) {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  height: 24px;
+  padding: 0 9px;
+  color: #333;
+  border: 1px solid fn.use-var(color-default);
+  border-radius: fn.use-var(radius-default);
+  background: fn.use-var(color-default-light-9);
+
+  // 颜色样式
+  @each $type, $_ in vars.$color-types {
+    @include m.e($type) {
+      color: fn.use-var(color, $type);
+      border: 1px solid fn.use-var(color, $type);
+      border-radius: fn.use-var(radius-default);
+      background-color: fn.use-var(color, $type, light-9);
+    }
+  }
+
+  // 尺寸大小
+  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+    @each $type, $val in $types {
+      #{$type}: $val;
+    }
+  }
+
+  @include m.is(round) {
+    border-radius: 50px;
+  }
+
+  // @each$size in large,small,default {
+  //   @include m.e($size) {
+  //     @if $size == large {
+  //       height: 40px;
+  //       padding: 0 16px;
+  //       font-size: 14px;
+  //     } @else if $size == small {
+  //       height: 32px;
+  //       padding: 0 2px;
+  //       font-size: 14px;
+  //     } @else if $size == default {
+  //       height: 24px;
+  //       padding: 0 8px;
+  //       font-size: 12px;
+  //     }
+  //   }
+  // }
+
+  // @include m.e(primary) {
+  //   color: fn.use-var(color-primary);
+  //   border: 1px solid fn.use-var(color-primary);
+  //   border-radius: fn.use-var(radius-default);
+  //   background: fn.use-var(color-primary-light-9);
+  // }
+  // @include m.e(success) {
+  //   color: fn.use-var(color-success);
+  //   border: 1px solid fn.use-var(color-success);
+  //   border-radius: fn.use-var(radius-default);
+  //   background: fn.use-var(color-success-light-9);
+  // }
+  // @include m.e(info) {
+  //   color: fn.use-var(color-info);
+  //   border: 1px solid fn.use-var(color-info);
+  //   border-radius: fn.use-var(radius-default);
+  //   background: fn.use-var(color-info-light-9);
+  // }
+  // @include m.e(warning) {
+  //   color: fn.use-var(color-warning);
+  //   border: 1px solid fn.use-var(color-warning);
+  //   border-radius: fn.use-var(radius-default);
+  //   background: fn.use-var(color-warning-light-9);
+  // }
+  // @include m.e(danger) {
+  //   color: fn.use-var(color-danger);
+  //   border: 1px solid fn.use-var(color-danger);
+  //   border-radius: fn.use-var(radius-default);
+  //   background: fn.use-var(color-danger-light-9);
+  // }
+}

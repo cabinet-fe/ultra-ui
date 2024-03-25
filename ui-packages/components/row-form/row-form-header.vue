@@ -13,7 +13,7 @@
 import { inject, type PropType } from 'vue'
 import { type RowFormColumn } from '@ui/types/components/row-form'
 import { bem } from '@ui/utils'
-import { RowFormStoreType } from './di'
+import { RowFormInjectType } from './di'
 
 defineProps({
   columns: { type: Array as PropType<RowFormColumn[]> }
@@ -21,5 +21,5 @@ defineProps({
 
 const cls = bem('row-form')
 
-let store = inject(RowFormStoreType)!
+let store = inject(RowFormInjectType)!
 </script>

@@ -14,6 +14,7 @@
       label-width="100px"
     >
       <u-input field="name" label="姓名" tips="四个字以内" />
+      <u-password-input field="pwd" label="密码" />
       <u-number-input field="age" label="年龄" />
       <u-number-input field="debt" currency label="借款" :step="1" />
       <u-input field="phone" label="手机" />
@@ -63,6 +64,7 @@ const model = new FormModel({
       return '你得输入一个手机号'
     }
   },
+  pwd: {},
   debt: {},
   email: {
     match: [

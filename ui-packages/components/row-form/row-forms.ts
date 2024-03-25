@@ -1,53 +1,68 @@
-import type { rowType } from '@ui/types/components/row-form'
-import { isReactive, ref, shallowReactive } from 'vue'
+import type { Row } from '@ui/types/components/row-form'
+import { isReactive, shallowReactive } from 'vue'
 
 /** 将里面的对象变成响应式 */
-export function wrapDataRows(data: rowType[]) {
-  return data.map(item => {
-    return createRow(item)
+export function wrapDataRows(data: Record<string, any>[]) {
+  return data.map((item: Record<string, any>, index: number) => {
+    return createRow(item, index)
   })
 }
 
-interface Row {
-  // expanded: boolean
-  data: Record<string, any>
-  // isLeaf: boolean
-  loading: boolean
-}
+let uid = 0
+
 /** 创建row
  * @param 当前条
  */
-const createRow = (data: rowType): Row => {
+const createRow = (
+  data: Record<string, any>,
+  index: number
+): Row<Record<string, any>> => {
   return shallowReactive({
+    /** 数据 */
     data: isReactive(data) ? data : shallowReactive(data),
-    // isLeaf: true,
-    loading: false
+    /** 下标 */
+    index,
+    /** 叶子节点 */
+    isLeaf: false,
+    /** 加载 */
+    loading: false,
+    /** 是否展开 */
+    expanded: false,
+    /** 数据的id */
+    uid: uid++,
+    /** 树深度 */
+    depth: 0
   })
 }
 
-/** 单条删除
- * @param modelData 数据
- * @param index 要删除的下标
- */
-export function deleteIndex(modelData: rowType[], index: number) {
-  let newData =
-    modelData.length === 1
-      ? [{}]
-      : [...modelData.slice(0, index), ...modelData.slice(index + 1)]
+const getIndexes = (indexes: number | number[]) => {
+  if (Array.isArray(indexes)) {
+    return indexes
+  }
+  if (typeof indexes === 'number') {
+    return [indexes]
+  }
 
-  return newData
+  throw new Error('参数indexes类型错误')
 }
+
+/**
+ *
+ */
+export function find(indexes: number) {
+  let a = getIndexes(indexes)
+  console.log(a, 'a')
+}
+
+/** 删除
+ * @param indexes下标
+ */
+export function delRow(indexes: number | number[]) {}
 
 /** 插入
  * @param modelData 数据
  * @param index 下标
  */
-export function insetTo(modelData: rowType[], index: number) {
-  // console.log(modelData, index, 'modelData: rowType[]')
-  // 创建一个空数据对象
-  const emptyData = { dd: '新条目', cc: '' }
-  // let a = modelData
-  modelData.splice(index + 1, 0, emptyData)
-
+export function insetTo(modelData: Row<Record<string, any>>[], index: number) {
   return modelData
 }

@@ -42,23 +42,23 @@ import vClickOutside from "@ui/directives/click-outside"
 import {UNodeRender} from "../node-render"
 
 defineOptions({
-  name: "Tip",
+  name: 'Tip'
 })
 
 const props = withDefaults(defineProps<TipProps>(), {
-  modelValue: "提示内容",
-  trigger: "hover",
-  position: "top",
-  mouseEnterable: true,
+  modelValue: '提示内容',
+  trigger: 'hover',
+  position: 'top',
+  mouseEnterable: true
 })
 
-const cls = bem("tip")
+const cls = bem('tip')
 
 const slots = useSlots()
 
 /**tip弹窗class */
 const contentClass = computed(() => {
-  return [cls.e("content"), bem.is(props.position)]
+  return [cls.e('content'), bem.is(props.position)]
 })
 
 /**页面元素的DOM信息 */
@@ -81,7 +81,7 @@ let dynamicStyle = shallowRef<Record<string, any>>({})
 
 /**鼠标移入元素 */
 const handleMouseEnter = () => {
-  if (props.trigger !== "hover") return
+  if (props.trigger !== 'hover') return
   clearTimeout(timerMouseEnter)
   timerMouseEnter = setTimeout(async () => {
     visible.value = true
@@ -93,10 +93,10 @@ const handleMouseEnter = () => {
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
   return
-  if (props.trigger !== "hover") return
+  if (props.trigger !== 'hover') return
   clearTimeout(timerMouseLeave)
   timerMouseLeave = setTimeout(() => {
-    tipContentRef.value!.style.opacity = "0"
+    tipContentRef.value!.style.opacity = '0'
     dynamicStyle.value = {}
     visible.value = false
   }, 300)
@@ -110,7 +110,7 @@ const handleContentMouseEnter = () => {
 }
 
 const handleClick = () => {
-  if (props.trigger !== "click") return
+  if (props.trigger !== 'click') return
   clearTimeout(timerTip)
   timerTip = setTimeout(async () => {
     visible.value = !visible.value
@@ -118,7 +118,7 @@ const handleClick = () => {
       await nextTick()
       popup()
     } else {
-      tipContentRef.value!.style.opacity = "0"
+      tipContentRef.value!.style.opacity = '0'
       dynamicStyle.value = {}
     }
   }, 300)
@@ -134,7 +134,7 @@ const setPositionParams = (maxWidth, maxHeight?) => {
   const tipContentRefDom = tipContentRef.value
   setStyles(tipContentRefDom!, {
     maxWidth,
-    maxHeight,
+    maxHeight
   })
 }
 
@@ -144,7 +144,7 @@ const gap = 16
 /**屏幕大小 */
 const screenSize = {
   width: window.innerWidth,
-  height: window.innerHeight,
+  height: window.innerHeight
 }
 
 /**tip弹出 */
@@ -155,17 +155,17 @@ const popup = (scrollDirection?: string) => {
   if (!tipRefDom || !tipContentRefDom) return
 
   // 获取元素的位置和大小信息
-  const {clientWidth, clientHeight} = tipRefDom
+  const { clientWidth, clientHeight } = tipRefDom
   const rect = tipRefDom.getBoundingClientRect()
 
   // 计算弹出层样式
   if (props.position.match(/^(top|bottom)/)) {
-    const maxWidth = props.position.includes("start")
+    const maxWidth = props.position.includes('start')
       ? `calc(100vw - ${rect.left + gap}px)`
-      : props.position.includes("end")
+      : props.position.includes('end')
         ? `${rect.right - gap}px`
         : `${screenSize.width - gap * 2}px`
-    setPositionParams(maxWidth, "none")
+    setPositionParams(maxWidth, 'none')
   } else if (props.position.match(/^right/)) {
     const maxWidth =
       rect.width > screenSize.width - (rect.x + rect.width)
@@ -190,10 +190,10 @@ const popup = (scrollDirection?: string) => {
       tipContentRefDom,
       scrollDirection: scrollDirection!,
     }
-    const {dynamicCss} = await calcPosition(positionParams)
+    const { dynamicCss } = await calcPosition(positionParams)
     dynamicStyle.value = {
       ...dynamicCss.value,
-      ...props.customStyle,
+      ...props.customStyle
     }
     setStyles(tipContentRefDom, dynamicStyle.value)
   })
