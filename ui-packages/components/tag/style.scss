@@ -14,38 +14,44 @@
   border-radius: fn.use-var(radius-default);
   background: fn.use-var(color-default-light-9);
 
+  // 颜色样式
   @each $type, $_ in vars.$color-types {
     @include m.e($type) {
       color: fn.use-var(color, $type);
       border: 1px solid fn.use-var(color, $type);
-      // color: #fff;
-      // border-color: fn.use-var(color, $type);
       border-radius: fn.use-var(radius-default);
       background-color: fn.use-var(color, $type, light-9);
     }
   }
 
-  @each$size in large,small,default {
-    @include m.e($size) {
-      @if $size == large {
-        height: 40px;
-        padding: 0 16px;
-        font-size: 14px;
-      } @else if $size == small {
-        height: 32px;
-        padding: 0 2px;
-        font-size: 14px;
-      } @else if $size == default {
-        height: 24px;
-        padding: 0 8px;
-        font-size: 12px;
-      }
+  // 尺寸大小
+  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
+    @each $type, $val in $types {
+      #{$type}: $val;
     }
   }
 
   @include m.is(round) {
     border-radius: 50px;
   }
+
+  // @each$size in large,small,default {
+  //   @include m.e($size) {
+  //     @if $size == large {
+  //       height: 40px;
+  //       padding: 0 16px;
+  //       font-size: 14px;
+  //     } @else if $size == small {
+  //       height: 32px;
+  //       padding: 0 2px;
+  //       font-size: 14px;
+  //     } @else if $size == default {
+  //       height: 24px;
+  //       padding: 0 8px;
+  //       font-size: 12px;
+  //     }
+  //   }
+  // }
 
   // @include m.e(primary) {
   //   color: fn.use-var(color-primary);
