@@ -41,7 +41,7 @@
 <script lang="ts" setup>
 import type { Item, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
-import { isObj, deepCopy } from 'cat-kit'
+import { isObj, deepCopy } from 'cat-kit/fe'
 import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'

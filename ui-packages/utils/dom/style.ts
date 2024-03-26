@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'vue'
-import { kebabCase } from 'cat-kit'
+import { kebabCase } from 'cat-kit/fe'
 
 /**
  * 给数值加上单位
