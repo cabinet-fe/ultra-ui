@@ -1,8 +1,10 @@
 <template>
-  <div :class="cls.b" @mouseenter="mouse = true" @mouseleave="mouse = false">
+  <div :class="cls.b">
     <textarea
+      @mouseenter="mouse = true"
+      @mouseleave="mouse = false"
       :class="classList"
-      :style="{...styleObj, height: scrollHight}"
+      :style="{width: props.width}"
       :placeholder="props.placeholder"
       v-model="model"
       :maxlength="props.maxlength"
@@ -31,7 +33,7 @@
 
 <script lang="ts" setup>
 import type {TextareaProps, TextareaEmits} from "@ui/types/components/textarea"
-import {bem} from "@ui/utils"
+import {bem, setStyles} from "@ui/utils"
 import {computed, nextTick, onMounted, ref, shallowRef} from "vue"
 import heightAuto from "./height-auto"
 import {UIcon} from "../icon"
@@ -58,11 +60,11 @@ const emit = defineEmits<TextareaEmits>()
 const textAreaRef = ref<HTMLTextAreaElement | null>(null)
 
 /** 限制字符初始化 */
-let initNum = ref(0)
+let initNum = shallowRef(0)
 
-let scrollHight = ref(props.height)
+let scrollHight = shallowRef(props.height)
 
-let moreElementHeight = ref(0)
+let moreElementHeight = shallowRef(0)
 
 let mouse = shallowRef(false)
 
@@ -74,13 +76,6 @@ const classList = computed(() => {
     bem.is("textarea-disabled", props.disabled),
     bem.is("mouse", mouse.value),
   ]
-})
-
-const styleObj = computed(() => {
-  return {
-    width: props.width,
-    paddingBottom: props.maxlength && props.showCount ? "30px" : "",
-  }
 })
 
 const handleInput = (e: Event) => {
@@ -96,7 +91,7 @@ const handleInput = (e: Event) => {
     countWordNum(value)
   }
   if (!props.autosize) return
-  scrollHight.value = "auto"
+  setStyles(textAreaRef.value!, {height: "auto"})
   countHeight()
 }
 
@@ -105,6 +100,7 @@ const countHeight = async () => {
   const el = textAreaRef.value!
   let height = heightAuto(el, moreElementHeight.value)
   scrollHight.value = height + "px"
+  setStyles(el, {height: scrollHight.value})
 }
 
 const countWordNum = (value: string | number) => {
@@ -130,6 +126,7 @@ const handleBlur = () => {
 
 onMounted(() => {
   countWordNum(props.modelValue!)
+  if (!props.autosize) return
   moreElementHeight.value = textAreaRef.value?.offsetHeight!
 })
 </script>

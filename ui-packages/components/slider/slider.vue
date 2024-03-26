@@ -1,11 +1,10 @@
 <template>
   <div :class="cls.b">
     <!-- 跑道 -->
-    <div
-      :class="cls.e('runway')"
-      @mousedown="handleSliderDown"
-      @touchstart="handleSliderDown"
-    >
+    <div :class="cls.e('runway')">
+      <!-- @mousedown="handleSliderDown"
+      @touchstart="handleSliderDown" -->
+
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')"></div>
 
@@ -38,13 +37,16 @@ const emit = defineEmits<SliderEmits>()
 const cls = bem('slider')
 
 const initData = reactive<SliderInitData>({
-  dragging: false
+  dragging: false,
+  currentX: 0,
+  currentY: 0
 })
 
-const { handleSliderDown } = useSlide(props, initData, emit)
+// const { handleSliderDown } = useSlide(props, initData, emit)
 
 provide(sliderContextKey, {
   ...toRefs(props),
-  cls
+  cls,
+  initData
 })
 </script>

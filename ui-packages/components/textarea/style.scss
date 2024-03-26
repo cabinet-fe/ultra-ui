@@ -4,8 +4,6 @@
 
 @include m.b(textarea) {
     position: relative;
-    display: block;
-
     @include m.m(more) {
         display: block;
         border: fn.use-var(border);
