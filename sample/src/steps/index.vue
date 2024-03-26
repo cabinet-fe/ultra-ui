@@ -15,12 +15,23 @@
       <br />
       <u-radio-group
         radioType="btn"
-        :data="[{ label: '水平', value: 'horizontal' }, { label: '垂直', value: 'vertical' }]"
+        :data="[
+          { label: '水平', value: 'horizontal' },
+          { label: '垂直', value: 'vertical' }
+        ]"
         v-model="config.mode"
       />
     </div>
     <div class="wrap">
-      <u-steps v-model:active="config.active" :items="items" :readonly="config.readonly" :mode="config.mode"></u-steps>
+      <u-steps
+        v-model:active="config.active"
+        :items="items"
+        :readonly="config.readonly"
+        :mode="config.mode"
+      >
+        <template #1-icon="{ data }">{{ data.key }}</template>
+        <template #3-desc="{ data }">{{ data.label }}{{ data.label }}</template>
+      </u-steps>
     </div>
   </div>
 </template>
@@ -54,5 +65,4 @@ let items = ref([
   height: 600px;
   border: 1px solid gold;
 }
-
 </style>

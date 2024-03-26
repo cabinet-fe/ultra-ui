@@ -25,8 +25,6 @@ $root-name: steps;
       color: fn.use-var(color, primary)
     }
 
-    &--content {}
-
     @include m.is(vertical) {
       width: 100%;
       flex-direction: row;
@@ -37,10 +35,11 @@ $root-name: steps;
     }
   }
 
-  @include m.e(index) {
+  @include m.e(icon) {
     width: 100%;
     display: flex;
     align-items: center;
+    height: 36px;
 
     &--number {
       display: flex;
@@ -66,10 +65,14 @@ $root-name: steps;
     }
 
     @include m.is(vertical) {
-      width: 30px;
+      width: 36px;
       height: 100%;
       flex-direction: column;
     }
+  }
+
+  @include m.e(description) {
+    flex: 1;
   }
 
   @include m.is(vertical) {

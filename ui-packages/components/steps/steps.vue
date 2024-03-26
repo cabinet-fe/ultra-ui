@@ -11,22 +11,26 @@
     >
       <div
         :class="[
-          cls.e('index'),
+          cls.e('icon'),
           bem.is('active', active === item.key),
           bem.is('vertical', mode === 'vertical')
         ]"
       >
-        <div :class="cls.em('index', 'line')" v-if="index !== 0"></div>
-        <div :class="cls.em('index', 'placeholder')" v-else></div>
-        <div :class="[cls.em('index', 'number'), bem.is('active', active === item.key)]">
-          {{ index + 1 }}
+        <div :class="cls.em('icon', 'line')" v-if="index !== 0"></div>
+        <div :class="cls.em('icon', 'placeholder')" v-else></div>
+        <slot :name="`${item.key}-icon`" :data="item">
+          <div :class="[cls.em('icon', 'number'), bem.is('active', active === item.key)]">
+            {{ index + 1 }}
+          </div>
+        </slot>
+        <div :class="cls.em('icon', 'line')" v-if="index !== items.length - 1"></div>
+        <div :class="cls.em('icon', 'placeholder')" v-else></div>
+      </div>
+      <slot :name="`${item.key}-desc`" :data="item">
+        <div :class="[cls.e('description'), bem.is('active', active === item.key)]">
+          {{ item.label }}
         </div>
-        <div :class="cls.em('index', 'line')" v-if="index !== items.length - 1"></div>
-        <div :class="cls.em('index', 'placeholder')" v-else></div>
-      </div>
-      <div :class="[cls.e('content'), bem.is('active', active === item.key)]">
-        {{ item.label }}
-      </div>
+      </slot>
     </li>
   </ol>
 </template>
