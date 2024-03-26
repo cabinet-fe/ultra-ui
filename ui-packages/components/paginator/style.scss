@@ -23,17 +23,17 @@ $root-name: paginator;
     &:hover {
       background-color: fn.use-var(color, primary, 'light-7');
     }
-  }
 
-  .is-active {
-    background-color: fn.use-var(color, primary, 'light-3');
-  }
+    @include m.is(active) {
+      background-color: fn.use-var(color, primary, 'light-3');
+    }
 
-  .is-disabled {
-    cursor: default;
+    @include m.is(disabled) {
+      cursor: default;
 
-    &:hover {
-      background: none;
+      &:hover {
+        background: none;
+      }
     }
   }
 

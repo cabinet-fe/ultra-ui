@@ -1,0 +1,81 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: steps;
+
+@include m.b($root-name) {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+
+  @include m.e(step) {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    font-weight: 600;
+
+    .is-active {
+      background: none;
+      color: fn.use-var(color, primary)
+    }
+
+    @include m.is(vertical) {
+      width: 100%;
+      flex-direction: row;
+    }
+
+    @include m.is(readonly) {
+      cursor: default;
+    }
+  }
+
+  @include m.e(icon) {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    height: 36px;
+
+    &--number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 28px;
+      height: 28px;
+      border: 2px solid fn.use-var(border, color);
+      border-radius: 50%;
+      color: fn.use-var(text, color, second);
+      box-sizing: border-box;
+      @include m.is(active) {
+        border: 2px solid fn.use-var(color, primary);
+      }
+    }
+
+    &--line {
+      border: 1px solid fn.use-var(border, color);
+      flex: 1;
+    }
+    &--placeholder {
+      flex: 1;
+    }
+
+    @include m.is(vertical) {
+      width: 36px;
+      height: 100%;
+      flex-direction: column;
+    }
+  }
+
+  @include m.e(description) {
+    flex: 1;
+  }
+
+  @include m.is(vertical) {
+    flex-direction: column;
+  }
+}

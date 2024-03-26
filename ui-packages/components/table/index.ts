@@ -5,3 +5,5 @@ export type {
   TableEmits,
   TableExposed
 } from '@ui/types/components/table'
+
+export { defineTableColumns } from './use-columns'

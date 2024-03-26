@@ -97,6 +97,6 @@ const active = shallowRef(0)
 }
 
 .is-active {
-  background-color: #ccc;
+  // background-color: #ccc;
 }
 </style>
