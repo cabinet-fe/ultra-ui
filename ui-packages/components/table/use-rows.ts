@@ -1,5 +1,5 @@
 import type { TableProps } from '@ui/types/components/table'
-import { Tree, TreeNode } from 'cat-kit/fe'
+import { Forest, TreeNode } from 'cat-kit/fe'
 import { computed, shallowReactive } from 'vue'
 
 interface Options {
@@ -11,7 +11,15 @@ let uid = 0
 export class TableRow<
   Data extends Record<string, any> = Record<string, any>
 > extends TreeNode<Data> {
-  indexes: number[]
+  get indexes(): number[] {
+    let ret: number[] = []
+    let node: TableRow | null = this
+    while (node) {
+      ret.unshift(node.index)
+      node = this.parent
+    }
+    return ret
+  }
 
   expanded = true
 
@@ -21,15 +29,16 @@ export class TableRow<
 
   override parent: TableRow<Data> | null = null
 
-  constructor(data: Data, index: number, parent?: TableRow<Data>) {
-    super(data, index)
+  override createNode<Val extends Record<string, any>>(
+    val: Val,
+    index: number
+  ): TableRow<Val> {
+    return new TableRow(val, index)
+  }
 
-    if (parent) {
-      this.parent = parent
-      this.indexes = parent.indexes.concat(index)
-    } else {
-      this.indexes = [index]
-    }
+  constructor(data: Data, index: number) {
+    super(data, index)
+    return shallowReactive(this)
   }
 }
 
@@ -39,12 +48,9 @@ export function useRows(options: Options) {
   const rows = computed(() => {
     const { data } = props
     if (!data) return []
-    const rootData = { children: data }
-    const result = Tree.create(rootData, (data, index, parent) => {
-      return shallowReactive(new TableRow(data, index, parent))
-    })
+    const result = Forest.create(data, TableRow)
 
-    return result.children!
+    return result.nodes!
   })
 
   return rows

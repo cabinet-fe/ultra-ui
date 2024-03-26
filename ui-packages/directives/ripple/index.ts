@@ -26,7 +26,7 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   const rippleWrap = document.createElement('span')
   rippleWrap.classList.add(clsWrap)
 
-  const radius = rippleSize / 2
+  const radius = rippleSize
   // 计算波纹圆心位置
   const center = `translate3d(${offsetX - radius}px, ${offsetY - radius}px, 0)`
 
@@ -46,7 +46,7 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
   // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
   nextFrame(() => {
     setStyles(rippleWrap, {
-      transform: `${center} scale3d(2, 2, 2)`
+      transform: `${center} scale3d(1, 1, 1)`
     })
   })
 
@@ -59,7 +59,7 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
       el.classList.remove(cls.b)
 
     delete el.dataset.class
-  }, _duration)
+  }, _duration + 10)
 }
 
 function mousedownHandler(this: HTMLElement, e: MouseEvent) {

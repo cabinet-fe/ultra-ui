@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -27,8 +27,8 @@ importers:
         specifier: 10.4.19
         version: 10.4.19(postcss@8.4.38)
       cat-kit:
-        specifier: ^3.4.14
-        version: 3.4.14
+        specifier: ^3.4.15
+        version: 3.4.15
       sass:
         specifier: ^1.72.0
         version: 1.72.0
@@ -1992,8 +1992,8 @@ packages:
     resolution: {integrity: sha512-LRAQHZ4yT1+f9LemSMeqdMpMxZcc4RMWdj4tiFe3G8tNkWK+E58g+/tzotb5cU6TbcVJLr4fySiAW7XmxQvZQA==}
     dev: true
 
-  /cat-kit@3.4.14:
-    resolution: {integrity: sha512-Qu70rrrakNh2ILLp6GsGuAgGheAQ1UltEZnjygBhm8C/QZKGi9/S/gCmAL3E/i2PI89/XEx3+8q3fbGngiSAng==}
+  /cat-kit@3.4.15:
+    resolution: {integrity: sha512-NWCWPDPt/fAQ+oa2AZHnLNccC/cHljckRME64OC7mBWtleSvRGZj+/X/d6fqOq9KCB6jqXk0YDbFMzl29duFFA==}
     dev: true
 
   /chai@4.4.1:
