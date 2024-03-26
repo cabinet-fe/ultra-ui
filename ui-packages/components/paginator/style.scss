@@ -25,6 +25,12 @@ $root-name: paginator;
   .is-active {
     background-color: fn.use-var(color, primary, 'light-3');
   }
+  @include m.e(input) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+  }
   @include m.e(pages) {
     display: flex;
     justify-content: space-between;

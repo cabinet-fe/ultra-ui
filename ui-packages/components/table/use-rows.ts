@@ -1,5 +1,5 @@
 import type { TableProps } from '@ui/types/components/table'
-import { Tree, TreeNode } from 'cat-kit'
+import { Tree, TreeNode } from 'cat-kit/fe'
 import { computed, shallowReactive } from 'vue'
 
 interface Options {

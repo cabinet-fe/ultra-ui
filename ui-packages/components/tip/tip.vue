@@ -9,7 +9,6 @@
     ref="tipRef"
   />
 
-  <!-- v-click-outside="handleClickOutside" -->
   <teleport to="body">
     <div
       :class="contentClass"
@@ -18,6 +17,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
+      v-click-outside="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -27,12 +27,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { TipProps } from '@ui/types/components/tip'
-import { bem, nextFrame, setStyles } from '@ui/utils'
-import { shallowRef, nextTick, computed, useSlots, onBeforeUnmount } from 'vue'
-import calcPosition from './position'
-import vClickOutside from '@ui/directives/click-outside'
-import { UNodeRender } from '../node-render'
+import type {TipProps} from "@ui/types/components/tip"
+import {bem, nextFrame, setStyles} from "@ui/utils"
+import {
+  shallowRef,
+  nextTick,
+  computed,
+  useSlots,
+  onBeforeUnmount,
+  onMounted,
+} from "vue"
+import calcPosition from "./position"
+import vClickOutside from "@ui/directives/click-outside"
+import {UNodeRender} from "../node-render"
 
 defineOptions({
   name: 'Tip'
@@ -85,7 +92,6 @@ const handleMouseEnter = () => {
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
-  return
   if (props.trigger !== 'hover') return
   clearTimeout(timerMouseLeave)
   timerMouseLeave = setTimeout(() => {
@@ -117,17 +123,16 @@ const handleClick = () => {
   }, 300)
 }
 
-// const handleClickOutside = () => {
-//   console.log("Clicked outside")
-//   if (props.triggerPopUpMode === "hover") return
-//   visible.value = false
-// }
+const handleClickOutside = () => {
+  console.log("Clicked outside")
+  if (props.trigger === "hover") return
+  visible.value = false
+}
 
-const setPositionParams = (maxWidth, maxHeight?) => {
+const setPositionParams = (maxWidth) => {
   const tipContentRefDom = tipContentRef.value
   setStyles(tipContentRefDom!, {
-    maxWidth,
-    maxHeight
+    maxWidth
   })
 }
 
@@ -141,7 +146,7 @@ const screenSize = {
 }
 
 /**tip弹出 */
-const popup = () => {
+const popup = (scrollDirection?: string) => {
   // 获取页面元素的DOM信息
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
@@ -158,17 +163,17 @@ const popup = () => {
       : props.position.includes('end')
         ? `${rect.right - gap}px`
         : `${screenSize.width - gap * 2}px`
-    setPositionParams(maxWidth, 'none')
+    setPositionParams(maxWidth)
   } else if (props.position.match(/^right/)) {
     const maxWidth =
       rect.width > screenSize.width - (rect.x + rect.width)
         ? `calc(${rect.x - gap * 2}px)`
-        : `calc(100vw - ${rect.x + clientWidth + gap * 2}px)`
-    setPositionParams(maxWidth, `calc(${screenSize.height - rect.y - gap}px)`)
+        : `${rect.x + clientWidth + gap * 2}px`
+    setPositionParams(maxWidth)
   } else if (props.position.match(/^left/)) {
     const maxWidth =
       rect.width > screenSize.width - (rect.x + rect.width)
-        ? `calc(100vw - ${rect.x - gap}px)`
+        ? `${rect.x - gap}px`
         : `${screenSize.width - rect.x - rect.width - gap * 2}px`
     setPositionParams(maxWidth)
   }
@@ -180,7 +185,8 @@ const popup = () => {
       elementWidth: clientWidth,
       elementHeight: clientHeight,
       tipRefDom,
-      tipContentRefDom
+      tipContentRefDom,
+      scrollDirection: scrollDirection!,
     }
     const { dynamicCss } = await calcPosition(positionParams)
     dynamicStyle.value = {
@@ -188,22 +194,31 @@ const popup = () => {
       ...props.customStyle
     }
     setStyles(tipContentRefDom, dynamicStyle.value)
-    // 处理滚动事件
-    onScroll(tipRefDom)
   })
 }
 
 let scrollDom = shallowRef<HTMLElement | null>()
-// let lastScrollTop = 0
-const onScroll = (content: HTMLElement) => {
-  scrollDom.value = content.closest('main')
+
+let lastScrollTop = 0
+
+const onScroll = () => {
+  const tipRefDom = tipRef.value?.$el as HTMLElement
+  scrollDom.value = tipRefDom.closest("main")
   if (!scrollDom.value) return
-  scrollDom.value.addEventListener('scroll', popup)
+  scrollDom.value.addEventListener("scroll", () => {
+    const currentScrollTop = scrollDom.value ? scrollDom.value.scrollTop : 0
+    const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
+    popup(scrollDirection)
+    lastScrollTop = currentScrollTop
+  })
 }
+onMounted(() => {
+  onScroll()
+})
 
 onBeforeUnmount(() => {
   if (scrollDom.value) {
-    scrollDom.value.removeEventListener('scroll', popup)
+    scrollDom.value.removeEventListener("scroll", () => {})
   }
 })
 </script>
