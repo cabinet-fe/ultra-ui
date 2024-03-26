@@ -9,6 +9,7 @@ $root-name: slider;
   height: 32px;
   display: flex;
   align-items: center;
+  padding: 10px;
   &__runway {
     flex: 1;
     height: 10px;
@@ -37,7 +38,7 @@ $root-name: slider;
     z-index: 1;
     line-height: 36px;
     user-select: none;
-    transform: translate(-20%);
+    transform: translate(-50%);
     text-align: center;
   }
 

@@ -8,6 +8,7 @@ export interface SliderProps {
   vertical?: Boolean
   min?: number
   max?: number
+  step?: number
 }
 
 /** 滑块组件定义的事件 */
@@ -22,9 +23,15 @@ export interface SliderButtonEmits {
 
 export interface SliderInitData {
   /** 是否正在拖拽 */
-  dragging: Boolean,
-  currentX: Number,
-  currentY: Number
+  dragging: Boolean
+  currentX?: number
+  currentY?: number
+  newPosition?: number
+  oldValue: number
+  startX: number
+  startY?: number
+  startPosition: number
+  sliderSize: number
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */
