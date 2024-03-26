@@ -8,7 +8,7 @@
         <UIcon :size="14"><ArrowLeft /></UIcon>
       </li>
       <li
-        v-if="size !== 'small'"
+        v-if="size === 'large'"
         v-for="page in showPages"
         :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
         @click="jump(page)"
@@ -23,7 +23,7 @@
           :precision="0"
           v-model="currentPage"
           :clearable="false"
-          @change="(val) => jump(val)"
+          @change="(val) => jump(val as number)"
         />/{{ pages.length }}
       </li>
       <li :class="cls.e('btn')" @click="jump('next')">
