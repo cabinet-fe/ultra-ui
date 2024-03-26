@@ -9,7 +9,6 @@
     ref="tipRef"
   />
 
-  <!-- v-click-outside="handleClickOutside" -->
   <teleport to="body">
     <div
       :class="contentClass"
@@ -18,6 +17,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
+      v-click-outside="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -92,7 +92,6 @@ const handleMouseEnter = () => {
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
-  return
   if (props.trigger !== 'hover') return
   clearTimeout(timerMouseLeave)
   timerMouseLeave = setTimeout(() => {
@@ -124,17 +123,16 @@ const handleClick = () => {
   }, 300)
 }
 
-// const handleClickOutside = () => {
-//   console.log("Clicked outside")
-//   if (props.triggerPopUpMode === "hover") return
-//   visible.value = false
-// }
+const handleClickOutside = () => {
+  console.log("Clicked outside")
+  if (props.trigger === "hover") return
+  visible.value = false
+}
 
-const setPositionParams = (maxWidth, maxHeight?) => {
+const setPositionParams = (maxWidth) => {
   const tipContentRefDom = tipContentRef.value
   setStyles(tipContentRefDom!, {
-    maxWidth,
-    maxHeight
+    maxWidth
   })
 }
 
@@ -165,7 +163,7 @@ const popup = (scrollDirection?: string) => {
       : props.position.includes('end')
         ? `${rect.right - gap}px`
         : `${screenSize.width - gap * 2}px`
-    setPositionParams(maxWidth, 'none')
+    setPositionParams(maxWidth)
   } else if (props.position.match(/^right/)) {
     const maxWidth =
       rect.width > screenSize.width - (rect.x + rect.width)
