@@ -29,11 +29,12 @@
         :readonly="config.readonly"
         :mode="config.mode"
       >
-
-        <template #item:desc></template>
-        <template #1-icon="{ data }">{{ data.key }}</template>
-        <template #3-desc="{ data }">{{ data.label }}{{ data.label }}</template>
-        <template #1-desc="{ data }">{{ data.label }}{{ data.label }}</template>
+        <template #1-icon="{ data }">
+          <u-button :type="config.active === data.key ? 'primary' : 'info'">{{
+            data.key
+          }}</u-button>
+        </template>
+        <template #3-desc="{ data }"> {{ data.label }}{{ data.label }} </template>
       </u-steps>
     </div>
   </div>
@@ -46,7 +47,6 @@ import { CirclePlus, TopRight } from 'icon-ultra'
 const config = reactive({
   active: '1',
   readonly: false,
-  // 'horizontal' | 'vertical'
   mode: 'horizontal' as 'horizontal' | 'vertical'
 })
 

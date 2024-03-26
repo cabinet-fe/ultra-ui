@@ -10,25 +10,25 @@ export const useSlide = (
   initData: SliderInitData,
   emit: SetupContext<SliderEmits>['emit']
 ) => {
-  const slider = shallowRef<HTMLElement>()
-
-  const sliderPointerEvent = (event: MouseEvent | TouchEvent) => {
-    if (!initData.dragging || props.disable) return
-    let newPercent = ref(0)
-
-    const clientX =
-      (event as TouchEvent).touches?.item(0)?.clientX ??
-      (event as MouseEvent).clientX
-
-    console.log(clientX, 'clientX')
-    return newPercent
-  }
+  /** 跑道ref */
+  let sliderRef = shallowRef<HTMLElement>()
 
   const handleSliderDown = async (event: MouseEvent | TouchEvent) => {
     initData.dragging = true
   }
 
+  /** 获取跑道大小 */
+  const resetSize = () => {
+    if (sliderRef.value) {
+      initData.sliderSize =
+        sliderRef.value[`client${props.vertical ? 'Height' : 'Width'}`]
+        console.log(123123)
+    }
+  }
+
   return {
-    handleSliderDown
+    handleSliderDown,
+    resetSize,
+    sliderRef
   }
 }

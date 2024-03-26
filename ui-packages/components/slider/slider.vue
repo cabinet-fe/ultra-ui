@@ -1,10 +1,7 @@
 <template>
-  <div :class="cls.b">
+  <div :class="cls.b" ref="sliderRef">
     <!-- 跑道 -->
-    <div :class="cls.e('runway')">
-      <!-- @mousedown="handleSliderDown"
-      @touchstart="handleSliderDown" -->
-
+    <div :class="cls.e('runway')" ref="sliderRef" @mousedown="handleSliderDown">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')"></div>
 
@@ -30,7 +27,11 @@ defineOptions({
   name: 'Slider'
 })
 
-const props = defineProps<SliderProps>()
+const props = withDefaults(defineProps<SliderProps>(), {
+  min: 0,
+  max: 100,
+  step: 1
+})
 
 const emit = defineEmits<SliderEmits>()
 
@@ -38,15 +39,24 @@ const cls = bem('slider')
 
 const initData = reactive<SliderInitData>({
   dragging: false,
-  currentX: 0,
-  currentY: 0
+  newPosition: 0,
+  oldValue: 0,
+  sliderSize: 1,
+  startPosition: 0,
+  startX: 0
 })
 
-// const { handleSliderDown } = useSlide(props, initData, emit)
+const { resetSize, handleSliderDown, sliderRef } = useSlide(
+  props,
+  initData,
+  emit
+)
 
 provide(sliderContextKey, {
   ...toRefs(props),
   cls,
-  initData
+  initData,
+  emit,
+  resetSize
 })
 </script>

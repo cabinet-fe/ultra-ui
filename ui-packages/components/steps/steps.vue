@@ -26,11 +26,12 @@
         <div :class="cls.em('icon', 'line')" v-if="index !== items.length - 1"></div>
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
       </div>
-      <slot :name="`${item.key}-desc`" :data="item">
-        <div :class="[cls.e('description'), bem.is('active', active === item.key)]">
+
+      <div :class="[cls.e('description'), bem.is('active', active === item.key)]">
+        <slot :name="`${item.key}-desc`" :data="item">
           {{ item.label }}
-        </div>
-      </slot>
+        </slot>
+      </div>
     </li>
   </ol>
 
