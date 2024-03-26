@@ -10,7 +10,8 @@ export interface StepsProps {
   modelValue?: string
   active: string
   items: Item[]
-  mode: 'horizontal' | 'vertical'
+  mode?: 'horizontal' | 'vertical'
+  readonly?: boolean
 }
 
 /** 步骤组件组件定义的事件 */

@@ -1,18 +1,39 @@
 <template>
   <div>
-    <div class="wrap1">
-      <u-steps v-model:active="active" :items="items"></u-steps>
+    <div class="config">
+      <u-radio-group
+        radioType="btn"
+        :data="
+          items.map((item) => {
+            return { label: item.label, value: item.key }
+          })
+        "
+        v-model="config.active"
+      />
+      <br />
+      <u-checkbox v-model="config.readonly">readonly</u-checkbox>
+      <br />
+      <u-radio-group
+        radioType="btn"
+        :data="[{ label: '水平', value: 'horizontal' }, { label: '垂直', value: 'vertical' }]"
+        v-model="config.mode"
+      />
     </div>
-    <div class="wrap2">
-      <u-steps v-model:active="active" :items="items" mode="vertical"></u-steps>
+    <div class="wrap">
+      <u-steps v-model:active="config.active" :items="items" :readonly="config.readonly" :mode="config.mode"></u-steps>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 
-const active = ref<string>('2')
+const config = reactive({
+  active: '1',
+  readonly: false,
+  // 'horizontal' | 'vertical'
+  mode: 'horizontal' as 'horizontal' | 'vertical'
+})
 
 let items = ref([
   { label: '开始', key: '1' },
@@ -23,14 +44,15 @@ let items = ref([
 </script>
 
 <style lang="scss" scoped>
-.wrap1 {
-  width: 800px;
-  height: 200px;
-  border: 1px solid gold;
+.config {
+  border: 1px dashed #eee;
+  padding: 10px;
+  margin: 10px;
 }
-.wrap2 {
-  border: 1px solid gold;
-  width: 200px;
+.wrap {
+  width: 600px;
   height: 600px;
+  border: 1px solid gold;
 }
+
 </style>

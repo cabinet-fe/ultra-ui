@@ -1,7 +1,11 @@
 <template>
   <ol :class="[cls.b, bem.is('vertical', mode === 'vertical')]">
     <li
-      :class="[cls.e('step'), bem.is('vertical', mode === 'vertical')]"
+      :class="[
+        cls.e('step'),
+        bem.is('vertical', mode === 'vertical'),
+        bem.is('readonly', readonly)
+      ]"
       v-for="(item, index) in items"
       @click="selectStep(item.key)"
     >
@@ -37,18 +41,19 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<StepsProps>(), {
-  mode: 'horizontal'
+  mode: 'horizontal',
+  readonly: undefined
 })
 
 const emit = defineEmits<StepsEmits>()
 
 const { formProps } = useFormComponent()
 
-const {} = useFormFallbackProps([formProps ?? {}, props])
+const { readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const cls = bem('steps')
 
 const selectStep = (key: string) => {
-  emit('update:active', key)
+  if (!readonly.value) emit('update:active', key)
 }
 </script>
