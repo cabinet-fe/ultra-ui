@@ -6,4 +6,47 @@
 $root-name: steps;
 
 @include m.b($root-name) {
+  display: flex;
+
+  @include m.e(step) {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    font-weight: 600;
+
+    .is-active {
+      background: none;
+      color: fn.use-var(color, primary)
+    }
+
+    &--content {}
+  }
+
+  @include m.e(index) {
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    &--number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 28px;
+      height: 28px;
+      border: 2px solid fn.use-var(border, color);
+      border-radius: 50%;
+      color: fn.use-var(text, color, second);
+      box-sizing: border-box;
+    }
+
+    &--line {
+      border: 1px solid fn.use-var(border, color);
+      flex: 1;
+    }
+    &--placeholder {
+      flex: 1;
+    }
+  }
 }
