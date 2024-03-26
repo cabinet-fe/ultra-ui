@@ -1,7 +1,11 @@
 <template>
   <div>
-    <u-steps v-model:active="active" :items="items"></u-steps>
-    <u-steps v-model:active="active" :items="items" mode="vertical"></u-steps>
+    <div class="wrap1">
+      <u-steps v-model:active="active" :items="items"></u-steps>
+    </div>
+    <div class="wrap2">
+      <u-steps v-model:active="active" :items="items" mode="vertical"></u-steps>
+    </div>
   </div>
 </template>
 
@@ -17,3 +21,16 @@ let items = ref([
   { label: '结束', key: '4' }
 ])
 </script>
+
+<style lang="scss" scoped>
+.wrap1 {
+  width: 800px;
+  height: 200px;
+  border: 1px solid gold;
+}
+.wrap2 {
+  border: 1px solid gold;
+  width: 200px;
+  height: 600px;
+}
+</style>
