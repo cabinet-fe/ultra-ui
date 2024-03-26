@@ -4,7 +4,7 @@
       <u-radio-group
         radioType="btn"
         :data="
-          items.map((item) => {
+          items.map(item => {
             return { label: item.label, value: item.key }
           })
         "
@@ -29,8 +29,11 @@
         :readonly="config.readonly"
         :mode="config.mode"
       >
+
+        <template #item:desc></template>
         <template #1-icon="{ data }">{{ data.key }}</template>
         <template #3-desc="{ data }">{{ data.label }}{{ data.label }}</template>
+        <template #1-desc="{ data }">{{ data.label }}{{ data.label }}</template>
       </u-steps>
     </div>
   </div>
@@ -38,6 +41,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { CirclePlus, TopRight } from 'icon-ultra'
 
 const config = reactive({
   active: '1',
@@ -45,6 +49,11 @@ const config = reactive({
   // 'horizontal' | 'vertical'
   mode: 'horizontal' as 'horizontal' | 'vertical'
 })
+
+const icons = {
+  1: CirclePlus,
+  2: TopRight
+}
 
 let items = ref([
   { label: '开始', key: '1' },

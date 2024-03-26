@@ -22,7 +22,7 @@ $root-name: steps;
 
     .is-active {
       background: none;
-      color: fn.use-var(color, primary)
+      color: fn.use-var(color, primary);
     }
 
     @include m.is(vertical) {

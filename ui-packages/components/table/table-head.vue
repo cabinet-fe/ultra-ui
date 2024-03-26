@@ -3,6 +3,7 @@
     <!-- <tr v-for="">
       <th></th>
     </tr> -->
+    {{ c.log(headers) }}
   </thead>
 </template>
 
@@ -16,5 +17,5 @@ defineOptions({
 
 const { cls, columns } = inject(TableDIKey)!
 
-const { fixedOnLeft, unfixed, fixedOnRight } = columns
+const { fixedOnLeft, unfixed, fixedOnRight, headers } = columns
 </script>

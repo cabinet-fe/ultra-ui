@@ -13,6 +13,8 @@ export interface PaginatorProps {
   total: number
   /** 每页显示数量选项 */
   pageSizeOptions: Array<number>
+  /** 简洁模式 */
+  simple?: boolean
 }
 
 /** 分页器组件组件定义的事件 */

@@ -1,5 +1,5 @@
 import type { TableColumn, TableProps } from '@ui/types/components/table'
-import { Forest, Tree, TreeNode } from 'cat-kit/fe'
+import { Forest, TreeNode } from 'cat-kit/fe'
 import { computed, type ComputedRef } from 'vue'
 
 interface Options {
@@ -13,6 +13,8 @@ export interface StructColumns {
   unfixed: ComputedRef<TableColumn[]>
   /** 固定到右侧的列 */
   fixedOnRight: ComputedRef<TableColumn[]>
+
+  headers: ComputedRef<ColumnNode<TableColumn>[][]>
 }
 
 /**
@@ -56,8 +58,6 @@ export function useColumns(options: Options): StructColumns {
     return columns
   })
 
-  const headers = computed(() => {})
-
   /** 固定到左侧的列 */
   const fixedOnLeft = computed<TableColumn[]>(() => {
     const fixedOnLeft = props.columns?.filter(column => column.fixed === 'left')
@@ -85,11 +85,26 @@ export function useColumns(options: Options): StructColumns {
     )
   })
 
-  columnTree.value.bft(node => {
-    console.log(node)
-  })
+  const headers = computed(() => {
+    const headers: ColumnNode<TableColumn>[][] = []
+    let currentLayer: ColumnNode<TableColumn>[] = []
+    let layerDepth = -1
+    columnTree.value.bft(node => {
+      if (layerDepth !== node.depth) {
+        if (currentLayer.length) {
+          headers.push(currentLayer)
+        }
+        layerDepth = node.depth
+        currentLayer = [node]
+      } else {
+        currentLayer.push(node)
+      }
+    })
+    currentLayer.length && headers.push(currentLayer)
+    currentLayer = []
 
-  console.log(columnTree.value)
+    return headers
+  })
 
   return {
     /** 固定到左侧的列 */
@@ -97,6 +112,9 @@ export function useColumns(options: Options): StructColumns {
     /** 未固定的列 */
     unfixed,
     /** 固定到右侧的列 */
-    fixedOnRight
+    fixedOnRight,
+
+    /** 表格头的分层展示 */
+    headers
   }
 }

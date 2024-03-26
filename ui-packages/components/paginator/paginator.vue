@@ -3,24 +3,32 @@
     <ul :class="cls.e('pages')">
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
-        @click="jump('first')"
+        @click="jump.first()"
         @mouseenter="mouseEvent('first', true)"
         @mouseleave="mouseEvent('first', false)"
       >
         <span v-if="mouseState.first">1</span>
         <UIcon :size="14" v-else><DArrowLeft /></UIcon>
       </li>
-      <li :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]" @click="jump('prev')">
+
+      <li
+        :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
+        @click="jump('prev')"
+      >
         <UIcon :size="14"><ArrowLeft /></UIcon>
       </li>
-      <li
-        v-if="size === 'large'"
-        v-for="page in showPages"
-        :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
-        @click="jump(page)"
-      >
-        {{ page }}
-      </li>
+
+      <!-- todo:if和for的优先级 -->
+      <template v-if="size === 'large'">
+        <li
+          v-for="page in showPages"
+          :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
+          @click="jump(page)"
+        >
+          {{ page }}
+        </li>
+      </template>
+
       <li v-else :class="cls.e('input')">
         <UNumberInput
           size="small"
@@ -29,7 +37,7 @@
           :precision="0"
           v-model="currentPage"
           :clearable="false"
-          @change="(val) => jump(val as number)"
+          @change="val => jump(val as number)"
         />/{{ pages.length }}
       </li>
       <li
@@ -52,7 +60,7 @@
     <u-select
       :model-value="String(pageSize)"
       :options="
-        pageSizeOptions.map((item) => {
+        pageSizeOptions.map(item => {
           return { label: String(item), value: String(item) }
         })
       "
@@ -62,34 +70,45 @@
 </template>
 
 <script lang="ts" setup>
-import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/paginator'
+import type {
+  PaginatorProps,
+  PaginatorEmits
+} from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { n } from 'cat-kit/fe'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
 
+// todo:
+// 增加size的css样式配置
+// 增加simple简洁模式
+
 defineOptions({
   name: 'Paginator'
 })
 
-const props = withDefaults(defineProps<PaginatorProps>(), {
-  size: 'large'
-})
+const props = defineProps<PaginatorProps>()
 
 const emit = defineEmits<PaginatorEmits>()
 
 const { formProps } = useFormComponent()
 
-const {} = useFormFallbackProps([formProps ?? {}, props])
+const { size } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default'
+})
 
 const cls = bem('paginator')
 /** 完整页码 */
 const pages = computed(() => {
-  return Array.from({ length: n.div(props.total, props.pageSize) }, (_, index) => index + 1)
+  // todo: 简洁化代码
+  return Array.from(
+    { length: n.div(props.total, props.pageSize) },
+    (_, index) => index + 1
+  )
 })
 /** 始终展示5个页码 */
 const showPages = computed(() => {
@@ -103,16 +122,27 @@ const showPages = computed(() => {
   }
   return pages.value.slice(
     startIndex,
-    props.pageNumber + 2 > pages.value.length ? pages.value.length : startIndex + 5
+    props.pageNumber + 2 > pages.value.length
+      ? pages.value.length
+      : startIndex + 5
   )
 })
 
 /** 切换每页显示数据量 */
-const changePageSize = (data) => {
+const changePageSize = data => {
   console.log(data)
 }
 
 const currentPage = ref<number>(props.pageNumber)
+
+const jumps = {
+  first() {
+    currentPage.value = 1
+  },
+  last() {
+    currentPage.value = pages.value.length
+  }
+}
 
 /** 跳转页码 */
 const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
@@ -128,11 +158,15 @@ const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
       break
     case 'next':
       currentPage.value =
-        props.pageNumber === pages.value.length ? pages.value.length : props.pageNumber + 1
+        props.pageNumber === pages.value.length
+          ? pages.value.length
+          : props.pageNumber + 1
       break
     default:
       currentPage.value = key
   }
+
+  jumps[key]()
   emit('update:pageNumber', currentPage.value)
 }
 
@@ -141,7 +175,10 @@ const mouseState = reactive({
   last: false
 })
 
-const mouseEvent = (key: 'first' | 'last' | 'prev' | 'next' | number, value: boolean) => {
+const mouseEvent = (
+  key: 'first' | 'last' | 'prev' | 'next' | number,
+  value: boolean
+) => {
   mouseState[key] = value
 }
 </script>

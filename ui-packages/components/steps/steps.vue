@@ -1,5 +1,5 @@
 <template>
-  <ol :class="[cls.b, bem.is('vertical', mode === 'vertical')]">
+  <ol v-if="mode ==='vertical'" :class="[cls.b, bem.is('vertical', mode === 'vertical')]">
     <li
       :class="[
         cls.e('step'),
@@ -33,6 +33,10 @@
       </slot>
     </li>
   </ol>
+
+  <ol v-else>
+
+  </ol>
 </template>
 
 <script lang="ts" setup>
@@ -43,6 +47,12 @@ import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 defineOptions({
   name: 'Steps'
 })
+
+// todo: 优化
+// 1. 增加泛型提示
+// 2. 优化Slots
+// 3. mode -> direction
+// 4. 优化方向渲染的优先级逻辑
 
 const props = withDefaults(defineProps<StepsProps>(), {
   mode: 'horizontal',
