@@ -1,10 +1,16 @@
 <template>
   <div :class="cls.b">
     <ul :class="cls.e('pages')">
-      <li :class="cls.e('btn')" @click="jump('first')">
-        <UIcon :size="14"><DArrowLeft /></UIcon>
+      <li
+        :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
+        @click="jump('first')"
+        @mouseenter="mouseEvent('first', true)"
+        @mouseleave="mouseEvent('first', false)"
+      >
+        <span v-if="mouseState.first">1</span>
+        <UIcon :size="14" v-else><DArrowLeft /></UIcon>
       </li>
-      <li :class="cls.e('btn')" @click="jump('prev')">
+      <li :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]" @click="jump('prev')">
         <UIcon :size="14"><ArrowLeft /></UIcon>
       </li>
       <li
@@ -26,11 +32,20 @@
           @change="(val) => jump(val as number)"
         />/{{ pages.length }}
       </li>
-      <li :class="cls.e('btn')" @click="jump('next')">
+      <li
+        :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
+        @click="jump('next')"
+      >
         <UIcon :size="14"><ArrowRight /></UIcon>
       </li>
-      <li :class="cls.e('btn')" @click="jump('last')">
-        <UIcon :size="14"><DArrowRight /></UIcon>
+      <li
+        :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
+        @click="jump('last')"
+        @mouseenter="mouseEvent('last', true)"
+        @mouseleave="mouseEvent('last', false)"
+      >
+        <span v-if="mouseState.last">{{ pages.length }}</span>
+        <UIcon :size="14" v-else><DArrowRight /></UIcon>
       </li>
     </ul>
 
@@ -50,10 +65,12 @@
 import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { n } from 'cat-kit/fe'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
-import { USelect, UIcon, UNumberInput } from '..'
+import { UNumberInput } from '../number-input'
+import { USelect } from '../select'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'Paginator'
@@ -117,5 +134,14 @@ const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
       currentPage.value = key
   }
   emit('update:pageNumber', currentPage.value)
+}
+
+const mouseState = reactive({
+  first: false,
+  last: false
+})
+
+const mouseEvent = (key: 'first' | 'last' | 'prev' | 'next' | number, value: boolean) => {
+  mouseState[key] = value
 }
 </script>
