@@ -1,4 +1,4 @@
-import type { TreeNode } from 'cat-kit'
+import type { TreeNode } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
 import type { VNode } from 'vue'
 

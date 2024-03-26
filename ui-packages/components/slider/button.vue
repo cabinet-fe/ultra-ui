@@ -1,5 +1,9 @@
 <template>
-  <div :class="cls.e('button-wrap')" :style="wrapperStyle">
+  <div
+    :class="cls.e('button-wrap')"
+    :style="wrapperStyle"
+    @mousedown="handleButtonDown"
+  >
     <div :class="cls.e('button')" />
   </div>
 </template>
@@ -12,5 +16,5 @@ let injected = inject(sliderContextKey)!
 
 let { cls } = injected
 
-const { wrapperStyle } = useSlideButton()
+const { wrapperStyle, handleButtonDown } = useSlideButton()
 </script>

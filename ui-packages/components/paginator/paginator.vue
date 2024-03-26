@@ -51,7 +51,7 @@ import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/pagina
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 import { computed, ref } from 'vue'
-import { n } from 'cat-kit'
+import { n } from 'cat-kit/fe'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { USelect, UIcon, UNumberInput } from '..'
 

@@ -1,7 +1,7 @@
 import type { FormProps } from '@ui/types/components/form'
 import { useSlots, h } from 'vue'
 import FormItem from '../form-item/form-item.vue'
-import { pick } from 'cat-kit'
+import { pick } from 'cat-kit/fe'
 
 interface Options {
   props: FormProps
