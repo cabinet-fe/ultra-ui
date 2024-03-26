@@ -1,12 +1,12 @@
 <template>
-  <div :class="cls.b">
+  <u-scroll :class="cls.b">
     <table :class="cls.e('wrap')">
       <UTableHead />
       <UTableBody />
     </table>
 
     <div :class="cls.e('resizer')"></div>
-  </div>
+  </u-scroll>
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
@@ -22,6 +22,7 @@ import { TableRow, useRows } from './use-rows'
 import { useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
+import { UScroll } from '../scroll'
 
 defineOptions({
   name: 'Table'

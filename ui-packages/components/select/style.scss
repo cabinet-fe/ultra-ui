@@ -9,15 +9,21 @@
     display: block;
     padding: 10px 10px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    border: fn.use-var(border);
+    // border-width: fn.use-var(border-width);
+    // border-style: fn.use-var(border-style);
+    // border-color: fn.use-var(border-color);
   }
   ul {
     list-style: none;
     padding: 0;
     margin: 0;
     background-color: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: fn.use-var(border);
+    // border-width: fn.use-var(border-width);
+    // border-style: fn.use-var(border-style);
+    // border-color: fn.use-var(border-color);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
     display: none; /* 默认不显示选项列表 */
     max-height: 200px;
     overflow-y: auto;
