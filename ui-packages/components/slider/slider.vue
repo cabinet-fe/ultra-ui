@@ -1,7 +1,7 @@
 <template>
   <div :class="cls.b" ref="sliderRef">
     <!-- 跑道 -->
-    <div :class="cls.e('runway')" ref="sliderRef" @mousedown="handleSliderDown">
+    <div :class="cls.e('runway')" ref="sliderRef">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')"></div>
 
@@ -18,11 +18,15 @@ import type {
   SliderInitData
 } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
-import { provide, reactive, toRefs } from 'vue'
+import { computed, provide, reactive, shallowRef, toRefs } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
 import { useSlide } from './_compositions'
+import { useDrag } from '@ui/compositions'
 
+// todo 优化
+// 1. 使用useDrag完成
+// 2. 优化依赖注入的使用
 defineOptions({
   name: 'Slider'
 })

@@ -17,7 +17,7 @@
       ref="textAreaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
-      {{ initNum }}/{{ props.maxlength }}
+      {{ initNum2 }}/{{ props.maxlength }}
     </span>
     <span
       v-if="props.clearable && model!.length && mouse"
@@ -39,6 +39,12 @@ import heightAuto from "./height-auto"
 import {UIcon} from "../icon"
 import {Close} from "icon-ultra"
 
+// todo: 优化
+// 1. 使用useFormFallbackProps来控制表单组件的props（disabled..）
+// 2. 去除resizable
+// 3. 去除width
+// 4. 使用defineModel来定义值
+// 5. 使用计算属性来控制字符剩余长度(以及其他可能这样使用的代码)
 defineOptions({
   name: "Textarea",
 })
@@ -103,11 +109,16 @@ const countHeight = async () => {
   setStyles(el, {height: scrollHight.value})
 }
 
-const countWordNum = (value: string | number) => {
+const countWordNum = (value: string) => {
   if (props.maxlength) {
-    initNum.value = props.maxlength - String(value).length
+    initNum.value = props.maxlength - value.length ?? 0
   }
 }
+
+const initNum2 = computed(() => {
+  if (!props.maxlength) return 0
+  return props.maxlength - (model.value?.length ?? 0)
+})
 
 const handleClear = () => {
   model.value = ""

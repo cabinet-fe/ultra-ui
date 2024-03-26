@@ -1,11 +1,11 @@
 <template>
   <div>
     <u-textarea v-model="textareaValue1" :rows="10" autosize/>
-    <!-- <u-textarea v-model="textareaValue2" disabled />
+    <u-textarea v-model="textareaValue2" disabled />
     <u-textarea v-model="textareaValue3" />
     <u-textarea v-model="textareaValue4" resizable="none" />
     <u-textarea v-model="textareaValue5" :maxlength="20" show-count />
-    <u-textarea v-model="textareaValue6" clearable :maxlength="200" show-count /> -->
+    <u-textarea v-model="textareaValue6" clearable :maxlength="200" show-count />
     <u-button @click="btn()">获取</u-button>
   </div>
 </template>
