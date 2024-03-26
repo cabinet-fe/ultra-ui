@@ -122,55 +122,48 @@ function topCount(
   elementWidth: number,
   tipRefDom: HTMLElement,
   tipContentRefDom: HTMLElement
-): void {
-  //鼠标获取到的元素dom信息
+) {
+  // 获取tip元素位置信息
   let {x, y} = tipRefDom.getBoundingClientRect()
   let {offsetLeft} = tipRefDom
-  let translateY = `${y - clientHeight - elementDistance}`
 
+  // 计算tip元素需要向上偏移的距离
+  let translateY = y - clientHeight - elementDistance
+  // 计算tip元素需要向下偏移的距离
+  let topDown = y + tipRefDom.offsetHeight + elementDistance
+
+  // 根据不同的位置属性设置transform样式
   if (position === "top-start") {
-    dynamicCss.value.transform = `translate(${countPositionInt(
-      x
-    )}px,${countPositionInt(translateY)}px)`
-  }
-  // tip提示靠上 居中
-  if (position === "top") {
+    // tip提示靠上开始位置
+    dynamicCss.value.transform = `translate(${x}px, ${translateY}px)`
+  } else if (position === "top") {
+    // tip提示靠上居中位置
     if (clientWidth === window.innerWidth - 32) {
       dynamicCss.value.transform = `translate(${elementDistance}px, ${translateY}px)`
-      return
+    } else {
+      dynamicCss.value.transform = `translate(${
+        offsetLeft + 240 - (clientWidth - elementWidth) / 2
+      }px, ${translateY}px)`
     }
-    dynamicCss.value.transform = `translate(${countPositionInt(
-      offsetLeft + 240 - (clientWidth - elementWidth) / 2
-    )}px, ${countPositionInt(translateY)}px)`
-  }
-  // tip提示靠上 右
-  if (position === "top-end") {
-    dynamicCss.value.transform = `translate(${countPositionInt(
-      tipRefDom.getBoundingClientRect().x - clientWidth + elementWidth
-    )}px, ${countPositionInt(translateY)}px)`
+  } else if (position === "top-end") {
+    // tip提示靠上结束位置
+    dynamicCss.value.transform = `translate(${
+      x - clientWidth + elementWidth
+    }px, ${translateY}px)`
   }
 
-  /**tip是否在视窗内 */
+  // 如果tip元素超出视窗上边界，则将tip元素定位到鼠标下方
   if (!ifTopViewport(tipContentRefDom, tipRefDom)) {
-    let topDown = `${countPositionInt(
-      tipRefDom.getBoundingClientRect().y +
-        tipRefDom.offsetHeight +
-        elementDistance
-    )}`
     if (position === "top-start") {
-      dynamicCss.value.transform = `translate(${countPositionInt(
-        x
-      )}px,${topDown}px)`
-    }
-    if (position === "top") {
-      dynamicCss.value.transform = `translate(${countPositionInt(
+      dynamicCss.value.transform = `translate(${x}px, ${topDown}px)`
+    } else if (position === "top") {
+      dynamicCss.value.transform = `translate(${
         offsetLeft + 240 - (clientWidth - elementWidth) / 2
-      )}px, ${topDown}px)`
-    }
-    if (position === "top-end") {
-      dynamicCss.value.transform = `translate(${countPositionInt(
-        tipRefDom.getBoundingClientRect().x - clientWidth + elementWidth
-      )}px,${topDown}px)`
+      }px, ${topDown}px)`
+    } else if (position === "top-end") {
+      dynamicCss.value.transform = `translate(${
+        x - clientWidth + elementWidth
+      }px, ${topDown}px)`
     }
   }
 }
@@ -204,11 +197,7 @@ function rightCount(
       !ifRightOrLeftUpViewport(tipContentRefDom, tipRefDom, scrollDirection)
     ) {
       let rightUp = 0
-      if (
-        scrollDirection!
-          ? scrollDirection === "down"
-          : firstShowInViewport(tipContentRefDom, tipRefDom)
-      ) {
+      if ( scrollDirection! ? scrollDirection === "down" : firstShowInViewport(tipContentRefDom, tipRefDom)) {
         rightUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y}`)
       } else {
         rightUp = countPositionInt(
