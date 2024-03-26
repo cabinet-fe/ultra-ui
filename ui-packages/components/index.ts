@@ -48,6 +48,8 @@ export * from './scroll'
 
 export * from './select'
 
+export * from './slider'
+
 export * from './table'
 
 export * from './tabs'

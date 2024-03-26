@@ -2,7 +2,9 @@
   <div :class="cls.b">
     <!-- 显示当前选中项 -->
     <span :class="cls.e('input')" @click.stop="toggleOptions">
-      {{ selectedOption }}
+      {{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}
+
+      <span :class="cls.e('clear')" @click.stop="clearOption">x</span>
     </span>
 
     <!-- 展开/收起选项列表 -->
@@ -14,14 +16,14 @@
         @click.stop="selectOption(item, index)"
         :class="{ actived: selectedIndex === index }"
       >
-        {{ item.label }}-{{ index }}
+        {{ labelKey ? item[labelKey] : item }}
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 
@@ -36,16 +38,12 @@ const props = defineProps<SelectProps>()
 const emit = defineEmits<SelectEmits>()
 
 /** 当前选中的选项 */
-const selectedOption = ref('')
+const selectedOption = ref<Record<any, string>>({})
 
 let selectedIndex = ref(0)
 
 /** 是否显示选项列表 */
 const showOptions = ref(false)
-
-// const showOptions = computed(() => {
-//   return [showOptions.value == true ? 'show' : cls.m('options')]
-// })
 
 /** 展开/收起选项列表 */
 const toggleOptions = () => {
@@ -55,16 +53,17 @@ const toggleOptions = () => {
 /** 选中选项 */
 const selectOption = (option: any, index: number) => {
   selectedOption.value = option
+
   showOptions.value = false
+
   selectedIndex.value = index
+
   emit('update:modelValue', option)
 }
 
-// const model = defineModel<SelectProps['modelValue']>()
-
-// const label = defineModel('label')
-
-// const handleChange = (data: any) => {
-//   console.log(data, 'data')
-// }
+/** 清除选项 */
+const clearOption = () => {
+  selectedOption.value = {}
+  selectedIndex.value = -1
+}
 </script>
