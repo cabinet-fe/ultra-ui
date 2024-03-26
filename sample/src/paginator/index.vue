@@ -4,6 +4,7 @@
     v-model:page-size="pageState.size"
     :total="120"
     :page-size-options="[10, 20, 50, 200]"
+    size="large"
   />
 </template>
 

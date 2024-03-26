@@ -8,11 +8,23 @@
         <UIcon :size="14"><ArrowLeft /></UIcon>
       </li>
       <li
+        v-if="size !== 'small'"
         v-for="page in showPages"
         :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
         @click="jump(page)"
       >
         {{ page }}
+      </li>
+      <li v-else :class="cls.e('input')">
+        <UNumberInput
+          size="small"
+          :min="1"
+          :max="pages.length"
+          :precision="0"
+          v-model="currentPage"
+          :clearable="false"
+          @change="(val) => jump(val)"
+        />/{{ pages.length }}
       </li>
       <li :class="cls.e('btn')" @click="jump('next')">
         <UIcon :size="14"><ArrowRight /></UIcon>
@@ -38,10 +50,10 @@
 import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { n } from 'cat-kit'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
-import { USelect, UIcon } from '..'
+import { USelect, UIcon, UNumberInput } from '..'
 
 defineOptions({
   name: 'Paginator'
@@ -83,26 +95,27 @@ const changePageSize = (data) => {
   console.log(data)
 }
 
+const currentPage = ref<number>(props.pageNumber)
+
 /** 跳转页码 */
 const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
   switch (key) {
     case 'first':
-      emit('update:pageNumber', 1)
+      currentPage.value = 1
       break
     case 'last':
-      emit('update:pageNumber', pages.value.length)
+      currentPage.value = pages.value.length
       break
     case 'prev':
-      emit('update:pageNumber', props.pageNumber > 1 ? props.pageNumber - 1 : 1)
+      currentPage.value = props.pageNumber > 1 ? props.pageNumber - 1 : 1
       break
     case 'next':
-      emit(
-        'update:pageNumber',
+      currentPage.value =
         props.pageNumber === pages.value.length ? pages.value.length : props.pageNumber + 1
-      )
       break
     default:
-      emit('update:pageNumber', key)
+      currentPage.value = key
   }
+  emit('update:pageNumber', currentPage.value)
 }
 </script>
