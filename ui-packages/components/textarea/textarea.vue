@@ -1,8 +1,6 @@
 <template>
-  <div :class="cls.b">
+  <div :class="cls.b" @mouseenter="mouse = true" @mouseleave="mouse = false">
     <textarea
-      @mousemove.self="handleMouseEnter"
-      @mouseleave.self="handleMouseLeave"
       :class="classList"
       :style="{...styleObj, height: scrollHight}"
       :placeholder="props.placeholder"
@@ -10,8 +8,11 @@
       :maxlength="props.maxlength"
       :rows="props.rows"
       :cols="props.cols"
-      @input.stop="handleInput"
+      @input="handleInput"
+      @focus="handleFocus"
+      @blur="handleBlur"
       :readonly="props.disabled"
+      ref="textAreaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
@@ -45,6 +46,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   width: "100%",
   rows: 5,
   resizable: "vertical",
+  size: "default",
 })
 
 const cls = bem("textarea")
@@ -53,24 +55,7 @@ const model = shallowRef(props.modelValue)
 
 const emit = defineEmits<TextareaEmits>()
 
-const classList = computed(() => {
-  return [
-    cls.m(`more`),
-    cls.m(`resize-${props.resizable}`),
-    bem.is("textarea-disabled", props.disabled),
-    bem.is("hover", mouse.value),
-  ]
-})
-
-const styleObj = computed(() => {
-  return {
-    width: props.width,
-    overflow: props.autosize ? "hidden" : "auto",
-    paddingBottom: props.maxlength && props.showCount ? "30px" : "",
-  }
-})
-
-const textAreaRef = ref<HTMLInputElement | null>(null)
+const textAreaRef = ref<HTMLTextAreaElement | null>(null)
 
 /** 限制字符初始化 */
 let initNum = ref(0)
@@ -80,6 +65,23 @@ let scrollHight = ref(props.height)
 let moreElementHeight = ref(0)
 
 let mouse = shallowRef(false)
+
+const classList = computed(() => {
+  return [
+    cls.m(`more`),
+    cls.m(props.size),
+    cls.m(`resize-${props.resizable}`),
+    bem.is("textarea-disabled", props.disabled),
+    bem.is("mouse", mouse.value),
+  ]
+})
+
+const styleObj = computed(() => {
+  return {
+    width: props.width,
+    paddingBottom: props.maxlength && props.showCount ? "30px" : "",
+  }
+})
 
 const handleInput = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
@@ -115,13 +117,15 @@ const handleClear = () => {
   model.value = ""
   countWordNum(model.value)
   emit("update:modelValue", model.value)
+  emit("clear", model.value)
 }
 
-const handleMouseEnter = () => {
-  mouse.value = true
+const handleFocus = () => {
+  emit("focus")
 }
-const handleMouseLeave = () => {
-  mouse.value = false
+
+const handleBlur = () => {
+  emit("blur")
 }
 
 onMounted(() => {
