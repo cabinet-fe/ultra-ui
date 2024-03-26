@@ -45,6 +45,7 @@ import {
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
 } from "./calculate"
+import type { ScrollDirection } from './type'
 
 defineOptions({
   name: "Tip",
@@ -97,7 +98,6 @@ const handleMouseEnter = () => {
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
-  return
   if (props.trigger !== "hover") return
   clearTimeout(timerMouseLeave)
   timerMouseLeave = setTimeout(() => {
@@ -151,7 +151,7 @@ const setPositionParams = (maxWidth) => {
   })
 }
 /**tip弹出 */
-const popup = (scrollDirection?: string) => {
+const popup = (scrollDirection?: ScrollDirection) => {
   // 获取页面元素的DOM信息
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
