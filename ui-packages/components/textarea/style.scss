@@ -4,8 +4,6 @@
 
 @include m.b(textarea) {
     position: relative;
-    display: block;
-
     @include m.m(more) {
         display: block;
         border: fn.use-var(border);
@@ -19,7 +17,12 @@
         font-family: fn.use-var(font-family);
         transition: box-shadow 0.2s ease;
 
-        @include m.is(hover) {
+        @include m.is(mouse) {
+            border-color: fn.use-var(color, primary);
+            box-shadow: 0 0 0 0.5px fn.use-var(color, primary) inset;
+        }
+
+        &:focus {
             border-color: fn.use-var(color, primary);
             box-shadow: 0 0 0 0.5px fn.use-var(color, primary) inset;
         }

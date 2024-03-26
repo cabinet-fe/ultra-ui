@@ -15,9 +15,16 @@ export interface SliderEmits {
   (e: 'update:modelValue', value: number): void
 }
 
+export interface SliderButtonEmits {
+  (e: 'mousedown', e: MouseEvent): void
+  (e: 'touchstart', e: TouchEvent): void
+}
+
 export interface SliderInitData {
   /** 是否正在拖拽 */
-  dragging: Boolean
+  dragging: Boolean,
+  currentX: Number,
+  currentY: Number
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */

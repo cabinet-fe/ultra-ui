@@ -12,7 +12,7 @@ import type {
   GridItemProps,
   GridProps
 } from '@ui/types/components/grid'
-import { debounce, equal } from 'cat-kit'
+import { debounce, equal } from 'cat-kit/fe'
 import { getContainerBreakpoint } from './breakpoint'
 import type { Undef } from '@ui/types/helper'
 

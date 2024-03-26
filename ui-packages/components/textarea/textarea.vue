@@ -1,17 +1,20 @@
 <template>
   <div :class="cls.b">
     <textarea
-      @mousemove.self="handleMouseEnter"
-      @mouseleave.self="handleMouseLeave"
+      @mouseenter="mouse = true"
+      @mouseleave="mouse = false"
       :class="classList"
-      :style="{...styleObj, height: scrollHight}"
+      :style="{width: props.width}"
       :placeholder="props.placeholder"
       v-model="model"
       :maxlength="props.maxlength"
       :rows="props.rows"
       :cols="props.cols"
-      @input.stop="handleInput"
+      @input="handleInput"
+      @focus="handleFocus"
+      @blur="handleBlur"
       :readonly="props.disabled"
+      ref="textAreaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
@@ -30,7 +33,7 @@
 
 <script lang="ts" setup>
 import type {TextareaProps, TextareaEmits} from "@ui/types/components/textarea"
-import {bem} from "@ui/utils"
+import {bem, setStyles} from "@ui/utils"
 import {computed, nextTick, onMounted, ref, shallowRef} from "vue"
 import heightAuto from "./height-auto"
 import {UIcon} from "../icon"
@@ -45,6 +48,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   width: "100%",
   rows: 5,
   resizable: "vertical",
+  size: "default",
 })
 
 const cls = bem("textarea")
@@ -53,33 +57,26 @@ const model = shallowRef(props.modelValue)
 
 const emit = defineEmits<TextareaEmits>()
 
+const textAreaRef = ref<HTMLTextAreaElement | null>(null)
+
+/** 限制字符初始化 */
+let initNum = shallowRef(0)
+
+let scrollHight = shallowRef(props.height)
+
+let moreElementHeight = shallowRef(0)
+
+let mouse = shallowRef(false)
+
 const classList = computed(() => {
   return [
     cls.m(`more`),
+    cls.m(props.size),
     cls.m(`resize-${props.resizable}`),
     bem.is("textarea-disabled", props.disabled),
-    bem.is("hover", mouse.value),
+    bem.is("mouse", mouse.value),
   ]
 })
-
-const styleObj = computed(() => {
-  return {
-    width: props.width,
-    overflow: props.autosize ? "hidden" : "auto",
-    paddingBottom: props.maxlength && props.showCount ? "30px" : "",
-  }
-})
-
-const textAreaRef = ref<HTMLInputElement | null>(null)
-
-/** 限制字符初始化 */
-let initNum = ref(0)
-
-let scrollHight = ref(props.height)
-
-let moreElementHeight = ref(0)
-
-let mouse = shallowRef(false)
 
 const handleInput = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
@@ -94,7 +91,7 @@ const handleInput = (e: Event) => {
     countWordNum(value)
   }
   if (!props.autosize) return
-  scrollHight.value = "auto"
+  setStyles(textAreaRef.value!, {height: "auto"})
   countHeight()
 }
 
@@ -103,6 +100,7 @@ const countHeight = async () => {
   const el = textAreaRef.value!
   let height = heightAuto(el, moreElementHeight.value)
   scrollHight.value = height + "px"
+  setStyles(el, {height: scrollHight.value})
 }
 
 const countWordNum = (value: string | number) => {
@@ -115,17 +113,20 @@ const handleClear = () => {
   model.value = ""
   countWordNum(model.value)
   emit("update:modelValue", model.value)
+  emit("clear", model.value)
 }
 
-const handleMouseEnter = () => {
-  mouse.value = true
+const handleFocus = () => {
+  emit("focus")
 }
-const handleMouseLeave = () => {
-  mouse.value = false
+
+const handleBlur = () => {
+  emit("blur")
 }
 
 onMounted(() => {
   countWordNum(props.modelValue!)
+  if (!props.autosize) return
   moreElementHeight.value = textAreaRef.value?.offsetHeight!
 })
 </script>
