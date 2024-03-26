@@ -1,5 +1,8 @@
 <template>
-  <u-steps v-model:active="active" :items="items"></u-steps>
+  <div>
+    <u-steps v-model:active="active" :items="items"></u-steps>
+    <u-steps v-model:active="active" :items="items" mode="vertical"></u-steps>
+  </div>
 </template>
 
 <script setup lang="ts">

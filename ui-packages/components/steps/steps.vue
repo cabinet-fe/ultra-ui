@@ -1,7 +1,17 @@
 <template>
-  <ol :class="cls.b">
-    <li :class="cls.e('step')" v-for="(item, index) in items" @click="selectStep(item.key)">
-      <div :class="[cls.e('index'), bem.is('active', active === item.key)]">
+  <ol :class="[cls.b, bem.is('vertical', mode === 'vertical')]">
+    <li
+      :class="[cls.e('step'), bem.is('vertical', mode === 'vertical')]"
+      v-for="(item, index) in items"
+      @click="selectStep(item.key)"
+    >
+      <div
+        :class="[
+          cls.e('index'),
+          bem.is('active', active === item.key),
+          bem.is('vertical', mode === 'vertical')
+        ]"
+      >
         <div :class="cls.em('index', 'line')" v-if="index !== 0"></div>
         <div :class="cls.em('index', 'placeholder')" v-else></div>
         <div :class="[cls.em('index', 'number'), bem.is('active', active === item.key)]">
@@ -26,7 +36,9 @@ defineOptions({
   name: 'Steps'
 })
 
-const props = withDefaults(defineProps<StepsProps>(), {})
+const props = withDefaults(defineProps<StepsProps>(), {
+  mode: 'horizontal'
+})
 
 const emit = defineEmits<StepsEmits>()
 
