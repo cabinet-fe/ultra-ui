@@ -21,16 +21,11 @@ export const useSlide = (
       (event as MouseEvent).clientX
 
     console.log(clientX, 'clientX')
-    // const sliderOffsetLeft = slider.value!.getBoundingClientRect().left
-    // newPercent.value = clientX - sliderOffsetLeft
-
     return newPercent
   }
 
   const handleSliderDown = async (event: MouseEvent | TouchEvent) => {
     initData.dragging = true
-
-    console.log(sliderPointerEvent(event))
   }
 
   return {
