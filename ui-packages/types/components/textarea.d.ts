@@ -34,7 +34,7 @@ export interface TextareaProps extends FormComponentProps {
   /**
    * 是否允许垂直和水平方向的调整
    */
-  resizable?: "none"  | "vertical"
+  resizable?: "none" | "vertical"
   /**
    * 文本域的行数
    */
@@ -60,6 +60,10 @@ export interface TextareaProps extends FormComponentProps {
 /** textarea组件定义的事件 */
 export interface TextareaEmits {
   (e: "update:modelValue", value: string): void
+  (e: "change", value: string): void
+  (e: "focus"): void
+  (e: "blur"): void
+  (e: "clear",value: string): void
 }
 
 /** textarea组件暴露的属性和方法(组件内部使用) */

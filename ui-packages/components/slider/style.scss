@@ -6,4 +6,54 @@
 $root-name: slider;
 
 @include m.b($root-name) {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  &__runway {
+    flex: 1;
+    height: 10px;
+    background-color: fn.use-var(color, primary, light-9);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  &__bar {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #007bff;
+  }
+
+  @include m.e('button-wrap') {
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    top: -15px;
+    text-align: center;
+    z-index: 1;
+    line-height: 36px;
+    user-select: none;
+    transform: translate(-20%);
+    text-align: center;
+  }
+
+  @include m.e('button') {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    border: solid 2px fn.use-var(color-primary);
+    background-color: fn.use-var(bg-color-top);
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: 0.2s;
+    user-select: none;
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+  }
 }
