@@ -49,8 +49,7 @@ defineOptions({
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
   rows: 5,
-  resize: true,
-  
+  resize: true 
 })
 
 const cls = bem("textarea")
@@ -78,7 +77,8 @@ const classList = computed(() => {
   return [
     cls.m(`more`),
     bem.is("resize-none", !props.resize),
-    bem.is("textarea-disabled", disabled.value),
+    bem.is("disabled", disabled.value),
+    bem.is("readonly", readonly.value),
     bem.is("mouse", mouse.value),
   ]
 })

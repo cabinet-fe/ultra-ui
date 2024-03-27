@@ -30,7 +30,7 @@
             box-shadow: 0 0 0 0.5px fn.use-var(color, primary) inset;
         }
 
-        @include m.is(textarea-disabled) {
+        @include m.is(disabled) {
             cursor: not-allowed;
             resize: none;
             background-color: #f5f7fa;
@@ -40,6 +40,10 @@
         }
 
         @include m.is(resize-none) {
+            resize: none;
+        }
+        @include m.is(readonly) {
+            cursor: default;
             resize: none;
         }
     }
