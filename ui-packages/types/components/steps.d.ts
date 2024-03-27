@@ -10,7 +10,7 @@ export interface StepsProps {
   modelValue?: string
   active: string
   items: Item[]
-  mode?: 'horizontal' | 'vertical'
+  direction?: 'horizontal' | 'vertical'
   readonly?: boolean
 }
 

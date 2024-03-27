@@ -12,6 +12,21 @@ $root-name: steps;
   padding: 0;
   margin: 0;
 
+  @include m.e(vertical) {
+    flex-direction: column;
+
+    @include m.bem($root-name, step) {
+      width: 100%;
+      flex-direction: row;
+    }
+
+    @include m.bem($root-name, icon) {
+      flex-direction: column;
+      width: 36px;
+      height: 100%;
+    }
+  }
+
   @include m.e(step) {
     flex: 1;
     display: flex;
@@ -20,20 +35,12 @@ $root-name: steps;
     cursor: pointer;
     font-weight: 600;
 
-    .is-active {
-      background: none;
-      color: fn.use-var(color, primary);
-    }
-
-    @include m.is(vertical) {
-      width: 100%;
-      flex-direction: row;
-    }
-
     @include m.is(readonly) {
       cursor: default;
     }
   }
+
+
 
   @include m.e(icon) {
     width: 100%;
@@ -51,31 +58,42 @@ $root-name: steps;
       border-radius: 50%;
       color: fn.use-var(text, color, second);
       box-sizing: border-box;
+
       @include m.is(active) {
         border: 2px solid fn.use-var(color, primary);
+      }
+
+      @include m.is(success) {
+        color: fn.use-var(color, success);
+        border-color: fn.use-var(color, success);
       }
     }
 
     &--line {
       border: 1px solid fn.use-var(border, color);
       flex: 1;
-    }
-    &--placeholder {
-      flex: 1;
+      @include m.is(success) {
+        border-color: fn.use-var(color, success);
+      }
     }
 
-    @include m.is(vertical) {
-      width: 36px;
-      height: 100%;
-      flex-direction: column;
+    &--placeholder {
+      flex: 1;
     }
   }
 
   @include m.e(description) {
     flex: 1;
-  }
+    color: fn.use-var(text, color, second);
 
-  @include m.is(vertical) {
-    flex-direction: column;
+    @include m.is(active) {
+      background: none;
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(success) {
+      color: fn.use-var(color, success);
+      border-color: fn.use-var(color, success);
+    }
   }
 }
