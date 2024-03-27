@@ -5,11 +5,18 @@
 // 方便拼接
 $root-name: slider;
 
+.is-vertical {
+  width: 10px;
+  @include m.b($root-name) {
+    @include m.e('button-wrap') {
+      margin-left: 5px;
+    }
+  }
+}
+
 @include m.b($root-name) {
-  height: 32px;
-  display: flex;
-  align-items: center;
   padding: 10px;
+
   &__runway {
     flex: 1;
     height: 10px;
@@ -20,6 +27,8 @@ $root-name: slider;
   }
 
   &__bar {
+    width: 100%;
+    border-radius: 3px;
     position: absolute;
     z-index: 1;
     top: 0;
@@ -29,17 +38,20 @@ $root-name: slider;
   }
 
   @include m.e('button-wrap') {
-    width: 36px;
+    // width: 36px;
     height: 36px;
     position: absolute;
-    cursor: auto;
+    cursor: pointer;
     top: -15px;
-    text-align: center;
     z-index: 1;
     line-height: 36px;
     user-select: none;
-    transform: translate(-50%);
     text-align: center;
+  }
+
+  @include m.e('button-back') {
+    transform: translate(-50%);
+    // width: 36px;
   }
 
   @include m.e('button') {
@@ -54,8 +66,13 @@ $root-name: slider;
     transition: 0.2s;
     user-select: none;
     cursor: grab;
+
     &:active {
       cursor: grabbing;
+      transform: scale(1.2);
+    }
+    &:hover {
+      transform: scale(1.2);
     }
   }
 }
