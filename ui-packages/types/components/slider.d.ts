@@ -1,3 +1,4 @@
+import type { ShallowReactive } from 'vue'
 import type { DeconstructValue } from '../helper'
 
 /** 滑块组件属性 */
@@ -5,10 +6,11 @@ export interface SliderProps {
   modelValue: number
   disable?: Boolean
   /** 是否垂直 */
-  vertical?: Boolean
+  vertical?: boolean
   min?: number
   max?: number
   step?: number
+  height?: number
 }
 
 /** 滑块组件定义的事件 */
@@ -21,6 +23,10 @@ export interface SliderButtonEmits {
   (e: 'touchstart', e: TouchEvent): void
 }
 
+export interface SliderButtonTransform {
+  x: number
+  y: number
+}
 export interface SliderInitData {
   /** 是否正在拖拽 */
   dragging: Boolean
@@ -28,10 +34,9 @@ export interface SliderInitData {
   currentY?: number
   newPosition?: number
   oldValue: number
-  startX: number
-  startY?: number
-  startPosition: number
   sliderSize: number
+  transform: ShallowReactive<SliderButtonTransform>
+  currentTransform: SliderButtonTransform
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */

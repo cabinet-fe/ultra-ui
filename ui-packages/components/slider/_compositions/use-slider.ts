@@ -3,18 +3,35 @@ import type {
   SliderInitData,
   SliderProps
 } from '@ui/types/components/slider'
-import { ref, shallowRef, type SetupContext } from 'vue'
+import { shallowRef, computed } from 'vue'
 
 export const useSlide = (
   props: SliderProps,
   initData: SliderInitData,
-  emit: SetupContext<SliderEmits>['emit']
+  emit: SliderEmits
 ) => {
   /** 跑道ref */
   let sliderRef = shallowRef<HTMLElement>()
+  /** 按钮ref */
+  let sliderButtonRef = shallowRef<HTMLElement>()
 
-  const handleSliderDown = async (event: MouseEvent | TouchEvent) => {
-    initData.dragging = true
+  /** 点击 */
+  const handleSliderDown = async (event: MouseEvent) => {
+    if (props.vertical) {
+      initData.transform.y = event.offsetY
+    } else {
+      initData.transform.x = event.offsetX
+    }
+
+    // emit('update:modelValue', convertToPercentage(initData.sliderSize, offset))
+    // emit(
+    //   'update:modelValue',
+    //   convertToPercentage(
+    //     initData.sliderSize,
+    //     offset,
+    //     props.vertical ? initData.transform.y : initData.transform.x
+    //   )
+    // )
   }
 
   /** 获取跑道大小 */
@@ -22,13 +39,25 @@ export const useSlide = (
     if (sliderRef.value) {
       initData.sliderSize =
         sliderRef.value[`client${props.vertical ? 'Height' : 'Width'}`]
-        console.log(123123)
     }
   }
+
+  const barSize = computed(() => {
+    return props.vertical
+      ? `${initData.transform.y}px`
+      : `${initData.transform.x}px`
+  })
+
+  /** bar的宽度或者长度 */
+  const barStyles = computed(() => {
+    return props.vertical ? { height: barSize.value } : { width: barSize.value }
+  })
 
   return {
     handleSliderDown,
     resetSize,
-    sliderRef
+    barStyles,
+    sliderRef,
+    sliderButtonRef
   }
 }
