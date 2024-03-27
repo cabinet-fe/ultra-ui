@@ -16,7 +16,7 @@
       </li>
 
       <!-- todo:if和for的优先级 -->
-      <template v-if="size === 'large'">
+      <template v-if="!simple">
         <li
           v-for="page in showPages"
           :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
@@ -71,7 +71,6 @@ import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/pagina
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 import { computed, reactive, ref } from 'vue'
-import { n } from 'cat-kit/fe'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
@@ -92,14 +91,14 @@ const emit = defineEmits<PaginatorEmits>()
 const { formProps } = useFormComponent()
 
 const { size } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default'
+  size: 'default',
+  simple: false
 })
 
 const cls = bem('paginator')
 /** 完整页码 */
 const pages = computed(() => {
-  // todo: 简洁化代码
-  return Array.from({ length: n.div(props.total, props.pageSize) }, (_, index) => index + 1)
+  return Array.from({ length: Math.ceil(props.total / props.pageSize) }, (_, index) => index + 1)
 })
 /** 始终展示5个页码 */
 const showPages = computed(() => {
@@ -145,8 +144,9 @@ const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
     }
   }
 
-  jumps[key]()
+  jumps[key] ? jumps[key]() : jumps.default(key as number)
   emit('update:pageNumber', currentPage.value)
+  return
 }
 
 const mouseState = reactive({
