@@ -30,11 +30,17 @@ export const useSlideButton = (
   const convertToPercentage = (
     runway: number,
     button: number,
-    currentX: number
+    currentXY: number
   ) => {
-    let percent = (currentX / (runway - button)) * 100
-    /** 将百分比转换成位置 */
-    return Math.floor(percent)
+    if (sliderProps.vertical) {
+      let percent = (currentXY / (button - runway)) * 100 + 100
+      /** 将百分比转换成位置 */
+      return Math.floor(percent)
+    } else {
+      let percent = (currentXY / (runway - button)) * 100
+
+      return Math.floor(percent)
+    }
   }
 
   /** 将百分比转换为位置

@@ -20,7 +20,7 @@ let injected = inject(sliderContextKey)!
 
 let { resetSize, initData, emit, sliderProps } = injected
 
-let { modelValue, vertical } = sliderProps
+let { modelValue, vertical, height } = sliderProps
 
 let { cls } = injected
 
@@ -47,8 +47,8 @@ const handleButtonPosition = async () => {
     slideButtonRef.value?.offsetWidth!
   )
   if (vertical) {
-    initData.transform.y = position
-    initData.currentTransform.y = position
+    initData.transform.y = height! - position
+    initData.currentTransform.y = height! - position
   } else {
     initData.transform.x = position
     initData.currentTransform.x = position
@@ -73,7 +73,7 @@ useDrag({
     let newPosition: number
 
     if (vertical) {
-      newPosition = y + initData.currentTransform.y
+      newPosition = initData.currentTransform.y + y
       initData.transform.y = Math.min(Math.max(0, newPosition), runwayMax)
     } else {
       newPosition = x + initData.currentTransform.x

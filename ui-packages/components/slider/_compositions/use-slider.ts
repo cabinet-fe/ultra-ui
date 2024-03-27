@@ -21,6 +21,7 @@ export const useSlide = (
   /** 点击 */
   const handleSliderDown = async (event: MouseEvent) => {
     if (props.vertical) {
+      // console.log(event.target?.dispatchEvent, 'event.target', 'initData.transform.y')
       initData.transform.y = event.offsetY
       initData.currentTransform.y = event.offsetY
     } else {
@@ -47,7 +48,7 @@ export const useSlide = (
 
   const barSize = computed(() => {
     return props.vertical
-      ? `${initData.transform.y}px`
+      ? `${props.height! - initData.transform.y}px`
       : `${initData.transform.x}px`
   })
 
