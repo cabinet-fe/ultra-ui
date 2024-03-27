@@ -1,11 +1,11 @@
 <template>
-  <ol :class="[cls.b, cls.e(direction)]">
+  <ol :class="[cls.b, cls.e(direction!)]">
     <li
       :class="[
         cls.e('step'),
         bem.is('readonly', readonly),
-        bem.is(processStatus, active === item.key),
-        bem.is(finishStatus, index < currentIndex)
+        bem.is(processStatus!, active === item.key),
+        bem.is(finishStatus!, index < currentIndex)
       ]"
       v-for="(item, index) in items"
       @click="readonly ? void 0 : selectStep(item.key)"
@@ -14,8 +14,8 @@
         <div
           :class="[
             cls.em('icon', 'line'),
-            bem.is(processStatus, active === item.key),
-            bem.is(finishStatus, index < currentIndex)
+            bem.is(processStatus!, active === item.key),
+            bem.is(finishStatus!, index < currentIndex)
           ]"
           v-if="index !== 0"
         ></div>
@@ -28,8 +28,8 @@
         <div
           :class="[
             cls.em('icon', 'line'),
-            bem.is(processStatus, index === currentIndex - 1),
-            bem.is(finishStatus, index < currentIndex - 1)
+            bem.is(processStatus!, index === currentIndex - 1),
+            bem.is(finishStatus!, index < currentIndex - 1)
           ]"
           v-if="index !== items.length - 1"
         ></div>
@@ -67,21 +67,23 @@ const descs = computed(() => {
 })
 
 const currentIndex = computed(() => {
-  return props.items.findIndex((item) => item.key === props.active)
+  return props.active
+    ? props.items.findIndex((item) => item.key === props.active)
+    : props.items.length + 1
 })
 
-const props = withDefaults(defineProps<StepsProps>(), {
-  direction: 'horizontal',
-  readonly: undefined,
-  processStatus: 'primary',
-  finishStatus: 'success'
-})
+const props = defineProps<StepsProps>()
 
 const emit = defineEmits<StepsEmits>()
 
 const { formProps } = useFormComponent()
 
-const { readonly } = useFormFallbackProps([formProps ?? {}, props])
+const { readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  direction: 'horizontal',
+  readonly: true,
+  processStatus: 'primary',
+  finishStatus: 'success'
+})
 
 const cls = bem('steps')
 

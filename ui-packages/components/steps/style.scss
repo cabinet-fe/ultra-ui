@@ -6,13 +6,6 @@
 // 方便拼接
 $root-name: steps;
 
-// @each $type, $_ in vars.$color-types {
-//   @include m.is($type) {
-//     color: fn.use-var(color, $type);
-//     border-color: fn.use-var(color, $type);
-//   }
-// }
-
 @include m.b($root-name) {
   display: flex;
   width: 100%;
@@ -56,9 +49,6 @@ $root-name: steps;
             color: fn.use-var(color, $type);
             border-color: fn.use-var(color, $type);
           }
-          // &--line {
-          //   border-color: fn.use-var(color, $type);
-          // }
         }
         @include m.bem($root-name, description) {
           color: fn.use-var(color, $type);

@@ -11,6 +11,8 @@
         v-model="config.active"
       />
       <br />
+      <u-checkbox v-model="config.finished">finished</u-checkbox>
+      <br />
       <u-checkbox v-model="config.readonly">readonly</u-checkbox>
       <br />
       <u-radio-group
@@ -28,11 +30,13 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
-        finish-status="danger"
-        process-status="success"
+        finish-status="success"
+        process-status="primary"
       >
         <template #desc>
-          <div v-for="item in items">{{ item.label }}</div>
+          <div v-for="item in items">
+            {{item.key}} {{ item.label }}
+          </div>
         </template>
       </u-steps>
     </div>
@@ -40,16 +44,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { reactive, watch } from 'vue'
+import { defineSteps } from 'ultra-ui'
 
 const config = reactive({
-  active: '1',
-  readonly: false,
-  direction: 'horizontal' as 'horizontal' | 'vertical'
+  active: '1' as any,
+  readonly: true,
+  direction: 'horizontal' as 'horizontal' | 'vertical',
+  finished: false
 })
 
-let items = ref([
-  { label: '开始', key: '1' },
+watch(() => config.finished, (val) => {
+  val ? config.active = null : config.active = '1'
+})
+
+let items = defineSteps([
+  { label: '开始', key: '1', cc: 'asdasd' },
   { label: '过程x', key: '2' },
   { label: '过程y', key: '3' },
   { label: '结束', key: '4' }

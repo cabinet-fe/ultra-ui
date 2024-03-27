@@ -3,12 +3,13 @@ import type { DeconstructValue } from '../helper'
 interface Item {
   label: string
   key: string
+  [x: string]: any
 }
 
 /** 步骤组件组件属性 */
 export interface StepsProps {
   modelValue?: string
-  active: string
+  active: string | null | undefined
   items: Item[]
   direction?: 'horizontal' | 'vertical'
   readonly?: boolean
