@@ -30,8 +30,8 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
-        finish-status="danger"
-        process-status="success"
+        finish-status="success"
+        process-status="primary"
       >
         <template #desc>
           <div v-for="item in items">
@@ -44,7 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { reactive, watch } from 'vue'
+import { defineSteps } from 'ultra-ui'
 
 const config = reactive({
   active: '1' as any,
@@ -57,8 +58,8 @@ watch(() => config.finished, (val) => {
   val ? config.active = null : config.active = '1'
 })
 
-let items = ref([
-  { label: '开始', key: '1' },
+let items = defineSteps([
+  { label: '开始', key: '1', cc: 'asdasd' },
   { label: '过程x', key: '2' },
   { label: '过程y', key: '3' },
   { label: '结束', key: '4' }

@@ -3,6 +3,7 @@ import type { DeconstructValue } from '../helper'
 interface Item {
   label: string
   key: string
+  [x: string]: any
 }
 
 /** 步骤组件组件属性 */

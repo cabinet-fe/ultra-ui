@@ -1,11 +1,11 @@
 <template>
-  <ol :class="[cls.b, cls.e(direction)]">
+  <ol :class="[cls.b, cls.e(direction!)]">
     <li
       :class="[
         cls.e('step'),
         bem.is('readonly', readonly),
-        bem.is(processStatus, active === item.key),
-        bem.is(finishStatus, index < currentIndex)
+        bem.is(processStatus!, active === item.key),
+        bem.is(finishStatus!, index < currentIndex)
       ]"
       v-for="(item, index) in items"
       @click="readonly ? void 0 : selectStep(item.key)"
@@ -14,8 +14,8 @@
         <div
           :class="[
             cls.em('icon', 'line'),
-            bem.is(processStatus, active === item.key),
-            bem.is(finishStatus, index < currentIndex)
+            bem.is(processStatus!, active === item.key),
+            bem.is(finishStatus!, index < currentIndex)
           ]"
           v-if="index !== 0"
         ></div>
@@ -28,8 +28,8 @@
         <div
           :class="[
             cls.em('icon', 'line'),
-            bem.is(processStatus, index === currentIndex - 1),
-            bem.is(finishStatus, index < currentIndex - 1)
+            bem.is(processStatus!, index === currentIndex - 1),
+            bem.is(finishStatus!, index < currentIndex - 1)
           ]"
           v-if="index !== items.length - 1"
         ></div>
