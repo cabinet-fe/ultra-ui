@@ -3,10 +3,10 @@
     :content="slots.default?.()?.[0]"
     @mouseenter.self="handleMouseEnter"
     @mouseleave.self="handleMouseLeave"
-    @click.stop="handleClick"
+    @click.self="handleClick"
     :class="cls.b"
-    :data-outSide="visible"
     ref="tipRef"
+    :data-outSide="visible"
   />
 
   <teleport to="body">
@@ -17,7 +17,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
-      v-click-outside="handleClickOutside"
+      v-click-outside:visible="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -45,7 +45,7 @@ import {
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
 } from "./calculate"
-import type { ScrollDirection } from './type'
+import type {ScrollDirection} from "./type"
 
 defineOptions({
   name: "Tip",
@@ -118,6 +118,8 @@ const handleClick = () => {
   if (props.trigger !== "click") return
   clearTimeout(timerTip)
   timerTip = setTimeout(async () => {
+    console.log("123123")
+
     visible.value = !visible.value
     if (visible.value) {
       await nextTick()
@@ -126,11 +128,11 @@ const handleClick = () => {
       tipContentRef.value!.style.opacity = "0"
       dynamicStyle.value = {}
     }
-  }, 300)
+  }, 100)
 }
 
 const handleClickOutside = () => {
-  console.log("Clicked outside")
+  if (timerTip) clearInterval(timerTip)
   if (props.trigger === "hover") return
   visible.value = false
 }
