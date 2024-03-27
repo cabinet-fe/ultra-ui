@@ -11,7 +11,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { inject, nextTick, shallowRef } from 'vue'
+import { inject, nextTick } from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
 import { useSlideButton } from './_compositions'
@@ -24,7 +24,14 @@ let { modelValue, vertical } = sliderProps
 
 let { cls } = injected
 
-const { convertToPosition, convertToPercentage, warpStyles, slideButtonRef } = useSlideButton()
+const {
+  convertToPosition,
+  convertToPercentage,
+  warpStyles,
+  slideButtonRef,
+  buttonOffset,
+  resetButtonOffset
+} = useSlideButton(initData, sliderProps)
 
 // const sliderButtonRef = shallowRef<HTMLDivElement>()
 
@@ -54,13 +61,14 @@ useDrag({
   target: slideButtonRef,
   onDrag(x, y, e) {
     if (!slideButtonRef.value?.offsetWidth) return
-    /** 获取宽高 */
-    const offset = vertical
-      ? slideButtonRef.value?.offsetHeight
-      : slideButtonRef.value?.offsetWidth
-    if (!offset) return
 
-    const runwayMax = initData.sliderSize - offset
+    if (buttonOffset.value === 0) {
+      resetButtonOffset()
+    }
+
+    if (!buttonOffset.value) return
+
+    const runwayMax = initData.sliderSize - buttonOffset.value
 
     let newPosition: number
 
@@ -76,7 +84,7 @@ useDrag({
       'update:modelValue',
       convertToPercentage(
         initData.sliderSize,
-        offset,
+        buttonOffset.value,
         vertical ? initData.transform.y : initData.transform.x
       )
     )
