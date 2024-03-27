@@ -9,7 +9,6 @@ $root-name: paginator;
 @include m.b($root-name) {
   display: flex;
   align-items: center;
-  border: 1px solid red;
 
   @each $size in large, default, small {
     @include m.e($size) {

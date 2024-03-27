@@ -4,9 +4,9 @@
       <u-radio-group
         radioType="btn"
         :data="[
+          { label: 'small', value: 'small' },
           { label: 'default', value: 'default' },
-          { label: 'large', value: 'large' },
-          { label: 'small', value: 'small' }
+          { label: 'large', value: 'large' }
         ]"
         v-model="config.size"
       />
