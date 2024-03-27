@@ -1,12 +1,25 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
 // 方便拼接
 $root-name: paginator;
 
 @include m.b($root-name) {
   display: flex;
+  align-items: center;
+
+  @each $size in large, default, small {
+    @include m.e($size) {
+      height: map.get(vars.$form-component-height, $size);
+      @include m.bem($root-name, btn) {
+        width: map.get(vars.$form-component-height, $size);
+        height: map.get(vars.$form-component-height, $size);
+      }
+    }
+
+  }
 
   @include m.e(btn) {
     border-radius: 50%;
@@ -14,8 +27,6 @@ $root-name: paginator;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
     margin: fn.use-var(gap, small);
     color: fn.use-var(text, color, title);
     user-select: none;

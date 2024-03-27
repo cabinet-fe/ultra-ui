@@ -10,8 +10,10 @@ export interface StepsProps {
   modelValue?: string
   active: string
   items: Item[]
-  mode?: 'horizontal' | 'vertical'
+  direction?: 'horizontal' | 'vertical'
   readonly?: boolean
+  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
 }
 
 /** 步骤组件组件定义的事件 */

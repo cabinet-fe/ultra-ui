@@ -8,10 +8,6 @@ export interface TextareaProps extends FormComponentProps {
    */
   modelValue?: string
   /**
-   * 文本域的宽度
-   */
-  width?: string
-  /**
    * 文本域的高度
    */
   height?: string
@@ -32,9 +28,9 @@ export interface TextareaProps extends FormComponentProps {
    */
   autosize?: boolean
   /**
-   * 是否允许垂直和水平方向的调整
+   * 是否能被缩放
    */
-  resizable?: "none" | "vertical"
+  resize?: boolean
   /**
    * 文本域的行数
    */
@@ -59,11 +55,16 @@ export interface TextareaProps extends FormComponentProps {
 
 /** textarea组件定义的事件 */
 export interface TextareaEmits {
+  /**modelValue值改变时触发 */
   (e: "update:modelValue", value: string): void
+  /**当 modelValue 改变时，并且文本框失去焦点或用户按Enter时触发 */
   (e: "change", value: string): void
+  /**文本框获取焦点时触发 */
   (e: "focus"): void
+  /**文本框失去焦点时触发 */
   (e: "blur"): void
-  (e: "clear",value: string): void
+  /**清空按钮时触发 */
+  (e: "clear"): void
 }
 
 /** textarea组件暴露的属性和方法(组件内部使用) */
