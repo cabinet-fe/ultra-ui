@@ -1,5 +1,11 @@
 <template>
-  <u-scroll tag="ul" class="bar" ref="scrollbarRef">
+  <u-scroll
+    style="padding: 10px"
+    tag="ul"
+    class="scroll"
+    ref="scrollbarRef"
+    always
+  >
     <li style="width: 2000px" v-for="i of 200" :key="i">
       {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
       }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
@@ -16,13 +22,13 @@ import { shallowRef } from 'vue'
 const scrollbarRef = shallowRef<ScrollExposed>()
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .header,
 .footer {
   height: 60px;
   flex-shrink: 0;
 }
-.bar {
+.scroll {
   border: var(--u-border);
   flex-grow: 1;
   height: 90vh;

@@ -4,12 +4,14 @@
       <u-radio-group
         radioType="btn"
         :data="
-          items.map(item => {
+          items.map((item) => {
             return { label: item.label, value: item.key }
           })
         "
         v-model="config.active"
       />
+      <br />
+      <u-checkbox v-model="config.finished">finished</u-checkbox>
       <br />
       <u-checkbox v-model="config.readonly">readonly</u-checkbox>
       <br />
@@ -19,7 +21,7 @@
           { label: '水平', value: 'horizontal' },
           { label: '垂直', value: 'vertical' }
         ]"
-        v-model="config.mode"
+        v-model="config.direction"
       />
     </div>
     <div class="wrap">
@@ -27,36 +29,37 @@
         v-model:active="config.active"
         :items="items"
         :readonly="config.readonly"
-        :mode="config.mode"
+        :direction="config.direction"
+        finish-status="success"
+        process-status="primary"
       >
-        <template #1-icon="{ data }">
-          <u-button :type="config.active === data.key ? 'primary' : 'info'">{{
-            data.key
-          }}</u-button>
+        <template #desc>
+          <div v-for="item in items">
+            {{item.key}} {{ item.label }}
+          </div>
         </template>
-        <template #3-desc="{ data }"> {{ data.label }}{{ data.label }} </template>
       </u-steps>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { CirclePlus, TopRight } from 'icon-ultra'
+import { reactive, watch } from 'vue'
+import { defineSteps } from 'ultra-ui'
 
 const config = reactive({
-  active: '1',
-  readonly: false,
-  mode: 'horizontal' as 'horizontal' | 'vertical'
+  active: '1' as any,
+  readonly: true,
+  direction: 'horizontal' as 'horizontal' | 'vertical',
+  finished: false
 })
 
-const icons = {
-  1: CirclePlus,
-  2: TopRight
-}
+watch(() => config.finished, (val) => {
+  val ? config.active = null : config.active = '1'
+})
 
-let items = ref([
-  { label: '开始', key: '1' },
+let items = defineSteps([
+  { label: '开始', key: '1', cc: 'asdasd' },
   { label: '过程x', key: '2' },
   { label: '过程y', key: '3' },
   { label: '结束', key: '4' }

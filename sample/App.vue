@@ -9,7 +9,7 @@
       />
     </u-scroll>
 
-    <u-scroll tag="main" style="flex-grow: 1; padding: var(--u-gap-default)">
+    <u-scroll tag="main" class="main">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -105,8 +105,12 @@ $width: 240px;
   }
 }
 
-main {
+.main {
   width: calc(100% - $width);
+
+  :deep(main) {
+    padding: 10px;
+  }
 }
 
 .fade-enter-active,

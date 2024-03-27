@@ -1,12 +1,11 @@
-import type {DeconstructValue} from "../helper"
-import type {FormComponentProps} from "../component-common"
+import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '../component-common'
 /** 单选框组件属性 */
 export interface RadioProps extends FormComponentProps {
-  value?: number | string 
+  /** 单选框值 */
+  value?: number | string
   /**绑定值 */
   modelValue?: number | string | boolean | Array
-  /** 原始 name 属性 */
-  name?: string
   /** 单选框的值 */
   label?: string
   /**多个按钮时的item */
@@ -17,7 +16,7 @@ export interface RadioProps extends FormComponentProps {
 
 /** 单选框组件定义的事件 */
 export interface RadioEmits {
-  (e: "update:modelValue", value: boolean,item: Record<string, any>): void
+  (e: 'update:modelValue', value: boolean, item: Record<string, any>): void
 }
 
 /** 单选框组件暴露的属性和方法(组件内部使用) */
