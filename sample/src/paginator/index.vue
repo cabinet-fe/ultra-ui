@@ -16,6 +16,7 @@
       :total="120"
       :page-size-options="[10, 20, 50, 200]"
       size="small"
+      simple
     />
   </div>
 </template>
