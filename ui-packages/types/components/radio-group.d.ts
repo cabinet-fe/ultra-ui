@@ -1,30 +1,30 @@
-import type {DeconstructValue} from "../helper"
-import type {FormComponentProps} from "../component-common"
+import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '../component-common'
 /** 单选框默认父组件组件属性 */
-export interface RadioGroupProps extends FormComponentProps {
-  /**按钮类型 */
-  radioType?: string
-  /**数据 */
-  data?: Record<string, any>[]
-  /**选项值 */
-  valueKey?: string
-  /**文字 */
-  labelKey?: string
-  /**隐藏按钮 */
-  hidden?: boolean
-  /**禁用某一个或多个 */
-  disabledIndex?: number | number[]
-  /**全部禁用 */
-  disabled?: boolean
+export interface RadioGroupProps<Item extends Record<string, any>>
+  extends FormComponentProps {
+  /** 单选框项 */
+  items?: Item[]
+  /**
+   * 选项值key
+   * @default 'value'
+   */
+  valueKey?: keyof Item
+  /**
+   * 标签文本key
+   * @default 'label'
+   */
+  labelKey?: keyof Item
+  /** 禁用 */
+  disabled?: boolean | ((item: Item) => boolean)
 }
 
 /** 单选框默认父组件组件定义的事件 */
-export interface RadioGroupEmits {
-  (
-    e: "onChange",
-    keyValue: string | number | boolean,
-    item: Record<string, any>
-  ): void
+export interface RadioGroupEmits<Item extends Record<string, any>> {
+  /** 值更新 */
+  (e: 'update:modelValue', modelValue: string | number | boolean): void
+  /** 选项更新事件 */
+  (e: 'change', item: Item): void
 }
 
 /** 单选框默认父组件组件暴露的属性和方法(组件内部使用) */
