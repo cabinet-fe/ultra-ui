@@ -10,6 +10,7 @@
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"
+      @change="handleChange"
       :readonly="readonly"
       ref="textAreaRef"
     />
@@ -35,7 +36,11 @@ import {computed, nextTick, onMounted, ref, shallowRef} from "vue"
 import heightAuto from "./height-auto"
 import {UIcon} from "../icon"
 import {Close} from "icon-ultra"
-import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
+import {
+  useFocus,
+  useFormComponent,
+  useFormFallbackProps,
+} from "@ui/compositions"
 // todo: 优化
 // 1. 使用useFormFallbackProps来控制表单组件的props（disabled..）
 // 2. 去除resizable
@@ -49,14 +54,14 @@ defineOptions({
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
   rows: 5,
-  resize: true 
+  resize: true,
 })
 
 const cls = bem("textarea")
 
 const {formProps} = useFormComponent()
 
-const {disabled,readonly} = useFormFallbackProps([formProps ?? {}, props], {
+const {disabled, readonly} = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false,
   readonly: false,
 })
@@ -113,14 +118,15 @@ const initNum = computed(() => {
 
 const handleClear = () => {
   model.value = ""
+  emit("clear")
 }
 
-const handleFocus = () => {
-  emit("focus")
-}
+const {handleBlur, handleFocus} = useFocus((focused) => {
+  focused ? emit("focus") : emit("blur")
+})
 
-const handleBlur = () => {
-  emit("blur")
+const handleChange = (e: Event) => {
+  emit("change", (e.target as HTMLTextAreaElement).value)
 }
 
 onMounted(() => {

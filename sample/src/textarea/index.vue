@@ -4,7 +4,7 @@
     <u-textarea v-model="textareaValue2" disabled />
     <u-textarea v-model="textareaValue3" readonly/>
     <u-textarea v-model="textareaValue4" :resize="false"/>
-    <u-textarea v-model="textareaValue5" :maxlength="maxlength" show-count />
+    <u-textarea v-model="textareaValue5" :maxlength="maxlength" show-count/>
     <u-textarea v-model="textareaValue6" clearable :maxlength="maxlength" show-count />
     <u-button @click="btn()">获取</u-button>
     <u-button @click="maxlength += 10">改变maxlength</u-button>
