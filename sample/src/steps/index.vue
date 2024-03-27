@@ -11,6 +11,8 @@
         v-model="config.active"
       />
       <br />
+      <u-checkbox v-model="config.finished">finished</u-checkbox>
+      <br />
       <u-checkbox v-model="config.readonly">readonly</u-checkbox>
       <br />
       <u-radio-group
@@ -32,7 +34,9 @@
         process-status="success"
       >
         <template #desc>
-          <div v-for="item in items">{{ item.label }}</div>
+          <div v-for="item in items">
+            {{item.key}} {{ item.label }}
+          </div>
         </template>
       </u-steps>
     </div>
@@ -40,12 +44,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 
 const config = reactive({
-  active: '1',
-  readonly: false,
-  direction: 'horizontal' as 'horizontal' | 'vertical'
+  active: '1' as any,
+  readonly: true,
+  direction: 'horizontal' as 'horizontal' | 'vertical',
+  finished: false
+})
+
+watch(() => config.finished, (val) => {
+  val ? config.active = null : config.active = '1'
 })
 
 let items = ref([

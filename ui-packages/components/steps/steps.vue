@@ -67,21 +67,23 @@ const descs = computed(() => {
 })
 
 const currentIndex = computed(() => {
-  return props.items.findIndex((item) => item.key === props.active)
+  return props.active
+    ? props.items.findIndex((item) => item.key === props.active)
+    : props.items.length + 1
 })
 
-const props = withDefaults(defineProps<StepsProps>(), {
-  direction: 'horizontal',
-  readonly: undefined,
-  processStatus: 'primary',
-  finishStatus: 'success'
-})
+const props = defineProps<StepsProps>()
 
 const emit = defineEmits<StepsEmits>()
 
 const { formProps } = useFormComponent()
 
-const { readonly } = useFormFallbackProps([formProps ?? {}, props])
+const { readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  direction: 'horizontal',
+  readonly: true,
+  processStatus: 'primary',
+  finishStatus: 'success'
+})
 
 const cls = bem('steps')
 

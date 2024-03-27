@@ -8,7 +8,7 @@ interface Item {
 /** 步骤组件组件属性 */
 export interface StepsProps {
   modelValue?: string
-  active: string
+  active: string | null | undefined
   items: Item[]
   direction?: 'horizontal' | 'vertical'
   readonly?: boolean
