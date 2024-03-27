@@ -1,14 +1,15 @@
 <template>
   <div :class="className" :style="style" ref="scrollRef">
     <!-- 实际滚动的容器 -->
-    <component
+    <div
       ref="containerRef"
       :class="cls.e('container')"
-      :is="tag"
       @scroll.passive="handleScroll"
     >
-      <slot />
-    </component>
+      <component ref="contentRef" :class="cls.e('content')" :is="tag">
+        <slot />
+      </component>
+    </div>
 
     <u-scroll-bar
       type="y"
@@ -37,7 +38,6 @@ import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
-import type { DefineEvent } from '@ui/types/helper'
 
 defineOptions({
   name: 'Scroll'
@@ -62,104 +62,117 @@ const style = computed<CSSProperties>(() => {
 })
 
 // 模板引用------------------------------------------------
+/** 内容引用 */
+const contentRef = shallowRef<HTMLElement>()
+/** 滚动根元素引用 */
 const scrollRef = shallowRef<HTMLElement>()
+/** 容器引用 */
 const containerRef = shallowRef<HTMLElement>()
 const barX = shallowRef<InstanceType<typeof UScrollBar>>()
 const barY = shallowRef<InstanceType<typeof UScrollBar>>()
 const minSize = 20
 
+const trackSize = {
+  width: 0,
+  height: 0
+}
+
+useResizeObserver({
+  target: contentRef,
+  onResize([entry]) {
+    if (entry && scrollRef.value) {
+      const { clientHeight, clientWidth } = scrollRef.value
+
+      trackSize.width = clientWidth
+      trackSize.height = clientHeight
+
+      barX.value?.setTrackSize(clientWidth)
+      barY.value?.setTrackSize(clientHeight)
+      updateBar()
+    }
+  }
+})
+
 // 更新滚动条
-const updateBar = (target: HTMLElement) => {
+const updateBar = () => {
+  if (!containerRef.value) return
   const {
     scrollHeight,
-    offsetHeight,
+    clientHeight,
     scrollTop,
 
     scrollWidth,
-    offsetWidth,
+    clientWidth,
     scrollLeft
-  } = target
+  } = containerRef.value
 
   emit('scroll', { x: scrollLeft, y: scrollTop })
 
-  let barYHeight = 0
-  let barYTop = 0
-  if (scrollHeight !== offsetHeight) {
-    barYHeight = Math.max((offsetHeight * offsetHeight) / scrollHeight, minSize)
-    barYTop =
-      (scrollTop / (scrollHeight - offsetHeight)) * (offsetHeight - barYHeight)
+  if (scrollHeight !== clientHeight) {
+    const barYHeight = Math.max(
+      (clientHeight / scrollHeight) * trackSize.height,
+      minSize
+    )
+
+    const barYTop =
+      (scrollTop / (scrollHeight - clientHeight)) *
+      (trackSize.height - barYHeight)
+
+    barY.value?.update(barYHeight, barYTop)
+  } else {
+    barY.value?.update(0, 0)
   }
 
-  let barXWidth = 0
-  let barXLeft = 0
+  if (scrollWidth !== clientWidth) {
+    const barXWidth = Math.max(
+      (clientWidth / scrollWidth) * trackSize.width,
+      minSize
+    )
 
-  if (scrollWidth !== offsetWidth) {
-    barXWidth = Math.max((offsetWidth * offsetWidth) / scrollWidth, minSize)
+    const barXLeft =
+      (scrollLeft / (scrollWidth - clientWidth)) * (trackSize.width - barXWidth)
 
-    barXLeft =
-      (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - barXWidth)
+    barX.value?.update(barXWidth, barXLeft)
+  } else {
+    barX.value?.update(0, 0)
   }
-
-  barX.value?.update(barXWidth, barXLeft)
-  barY.value?.update(barYHeight, barYTop)
-
-  // return {
-  //   barYHeight,
-  //   barYTop,
-
-  //   barXWidth,
-  //   barXLeft
-  // }
 }
 
 // 滚动条拖拽
 const handleDragX = (offset: number, size: number) => {
   const container = containerRef.value!
-  const { offsetWidth, scrollWidth } = container
-  containerRef.value!.scrollLeft =
-    (offset / (offsetWidth - size)) * (scrollWidth - offsetWidth)
+  const { clientWidth, scrollWidth } = container
+  container.scrollLeft =
+    (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
 }
 const handleDragY = (offset: number, size: number) => {
   const container = containerRef.value!
-  const { offsetHeight, scrollHeight } = container
-  containerRef.value!.scrollTop =
-    (offset / (offsetHeight - size)) * (scrollHeight - offsetHeight)
+  const { clientHeight, scrollHeight } = container
+  container.scrollTop =
+    (offset / (trackSize.height - size)) * (scrollHeight - clientHeight)
 }
 
-// 此处进行纯dom操作来防止重新渲染
-useResizeObserver({
-  target: containerRef,
-  onResize(entries) {
-    const target = entries[0]!.target as HTMLElement
-    const { height, width } = target.getBoundingClientRect()
-
-    barX.value?.setTrackSize(width)
-    barY.value?.setTrackSize(height)
-    updateBar(target)
-  }
-})
-
 // 滚动事件
-const handleScroll = (e: DefineEvent<HTMLElement>) => {
-  updateBar(e.target)
+const handleScroll = (e: UIEvent) => {
+  updateBar()
 }
 
 // 滚动至------------------------------------------------
-const scrollToLeft = (target: number) => {
+const scrollToLeft = (left: number) => {
   const container = containerRef.value
   if (!container) return
 
   container.scrollTo({
-    left: target,
+    left,
     behavior: 'smooth'
   })
 }
 
-const scrollToTop = (target: number) => {
+const scrollToTop = (top: number) => {
   const container = containerRef.value
   if (!container) return
   container.scrollTo({
-    top: target,
+    top,
     behavior: 'smooth'
   })
 }
@@ -174,13 +187,11 @@ provide(ScrollDIKey, {
 })
 
 const exposed: _ScrollExposed = {
-  scrollRef,
+  contentRef,
   containerRef,
 
   scrollTo,
-  update() {
-    containerRef.value && updateBar(containerRef.value)
-  }
+  update: updateBar
 }
 
 defineExpose(exposed)

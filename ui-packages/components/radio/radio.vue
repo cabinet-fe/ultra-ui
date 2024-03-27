@@ -21,12 +21,13 @@
   setup
   generic="Val extends number | string | boolean = boolean"
 >
-import type {RadioProps, RadioEmits} from "@ui/types/components/radio"
-import {bem} from "@ui/utils"
-import {computed} from "vue"
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import type { RadioProps, RadioEmits } from '@ui/types/components/radio'
+import { bem } from '@ui/utils'
+import { computed } from 'vue'
 
 defineOptions({
-  name: "Radio",
+  name: 'Radio'
 })
 
 const model = defineModel<Val>()
@@ -34,13 +35,19 @@ const model = defineModel<Val>()
 const emit = defineEmits<RadioEmits>()
 
 const props = withDefaults(defineProps<RadioProps>(), {
-  disabled: false,
-  size: "default",
+  disabled: undefined
 })
 
-const cls = bem("radio")
+const cls = bem('radio')
+
+const { formProps } = useFormComponent()
+
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false
+})
 
 const classList = computed(() => {
-  return [cls.b, cls.m(props.size), bem.is("disabled", props.disabled)]
+  return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
 })
 </script>
