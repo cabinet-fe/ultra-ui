@@ -15,6 +15,7 @@ $root-name: scroll;
   @include m.e(container) {
     overflow: auto;
     height: 100%;
+    flex-grow: 1;
 
     // 隐藏滚动条
     scrollbar-width: none;

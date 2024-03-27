@@ -8,10 +8,12 @@ interface Item {
 /** 步骤组件组件属性 */
 export interface StepsProps {
   modelValue?: string
-  active: string
+  active: string | null | undefined
   items: Item[]
-  mode?: 'horizontal' | 'vertical'
+  direction?: 'horizontal' | 'vertical'
   readonly?: boolean
+  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
 }
 
 /** 步骤组件组件定义的事件 */

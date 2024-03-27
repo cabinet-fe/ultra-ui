@@ -1,5 +1,5 @@
 import { type DirectiveBinding, type ObjectDirective } from 'vue'
-import { bem, nextFrame, removeStyles, setStyles } from '@ui/utils'
+import { bem, nextFrame, setStyles } from '@ui/utils'
 
 const cls = bem('ripple')
 const clsWrap = cls.e('wrap')
@@ -21,20 +21,20 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
 
   // 计算波纹大小
   const rect = el.getBoundingClientRect()
-  // 通过勾股定理计算波纹的最大直径
-  const rippleSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
+  // 通过勾股定理计算波纹的最大半径
+  const radius = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
+  const diameter = radius * 2
   const rippleWrap = document.createElement('span')
   rippleWrap.classList.add(clsWrap)
 
-  const radius = rippleSize
   // 计算波纹圆心位置
   const center = `translate3d(${offsetX - radius}px, ${offsetY - radius}px, 0)`
 
   setStyles(rippleWrap, {
-    transition: `transform ${_duration}ms ease-in`,
-    width: `${rippleSize}px`,
-    height: `${rippleSize}px`,
-    transform: `${center} scale3d(0, 0, 0)`
+    transition: `transform ${_duration}ms linear`,
+    width: `${diameter}px`,
+    height: `${diameter}px`,
+    transform: `${center} scale3d(0.2, 0.2, 1)`
   })
 
   if (el.dataset.rippleClass) {
@@ -59,7 +59,7 @@ const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
       el.classList.remove(cls.b)
 
     delete el.dataset.class
-  }, _duration + 10)
+  }, _duration + 1)
 }
 
 function mousedownHandler(this: HTMLElement, e: MouseEvent) {
