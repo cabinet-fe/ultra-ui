@@ -1,104 +1,60 @@
 <template>
-  <div :class="[cls.b, radioType == 'btn' ? cls.m('button') : '']">
-    <template v-if="radioType == 'radio'">
-      <u-radio
-        v-for="(item, index) in data"
-        :key="index"
-        v-model="radioModels[index]"
-        :value="item[labelKey]"
-        :itemValue="item"
-        @update:model-value="handleUpdate($event, item, index)"
-        :disabled="disabled || compareDisabled(item, index)"
-        :size="size"
-      />
-    </template>
-
-    <template v-else>
-      <u-radio-button
-        :class="cls.e('button-item')"
-        v-for="(itemBtn, indexBtn) in data"
-        :key="indexBtn"
-        v-model="radioModels[indexBtn]"
-        :value="itemBtn[labelKey]"
-        :itemValue="itemBtn"
-        @update:modelValue="handleUpdate($event, itemBtn, indexBtn)"
-        :hidden="hidden"
-        :disabled="disabled || compareDisabled(itemBtn, indexBtn)"
-        :size="size"
-      />
-    </template>
+  <div :class="cls.b">
+    <u-radio
+      v-for="item in items"
+      :key="item[valueKey]"
+      :value="item[valueKey]"
+      @update:model-value="handleUpdate"
+      :disabled="disabled"
+      :size="size"
+      :checked="item[valueKey] === model"
+    >
+      {{ item[labelKey] }}
+    </u-radio>
   </div>
 </template>
 
 <script
   lang="ts"
   setup
-  generic="Val extends number | string | boolean = boolean"
+  generic="
+    Item extends Record<string, string | number | boolean>,
+    Val extends Item[keyof Item]
+  "
 >
 import type {
   RadioGroupProps,
-  RadioGroupEmits,
-} from "@ui/types/components/radio-group"
-import {bem} from "@ui/utils"
-import URadio from "../radio/radio.vue"
-import URadioButton from "../radio-button/radio-button.vue"
-import {onMounted, ref} from "vue"
+  RadioGroupEmits
+} from '@ui/types/components/radio-group'
+import { bem } from '@ui/utils'
+import URadio from '../radio/radio.vue'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
-  name: "RadioGroup",
+  name: 'RadioGroup'
 })
 
-const props = withDefaults(defineProps<RadioGroupProps>(), {
-  labelKey: "label", //默认值
-  valueKey: "value", //默认值
-  radioType: "radio",
+const props = withDefaults(defineProps<RadioGroupProps<Item>>(), {
+  labelKey: 'label',
+  valueKey: 'value',
+  disabled: undefined
+})
+
+const { formProps } = useFormComponent()
+
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false
 })
 
 const model = defineModel<Val>()
 
-const emit = defineEmits<RadioGroupEmits>()
+const emit = defineEmits<RadioGroupEmits<Item>>()
 
-const cls = bem("radio-group")
+const cls = bem('radio-group')
 
-const radioModels = ref<boolean[]>([])
-
-const handleUpdate = (
-  checked: boolean,
-  item: Record<string, any>,
-  index: number
-) => {
-  model.value = item[props.valueKey]
-  radioModels.value = radioModels.value.map((_, i) =>
-    i === index ? checked : false
-  )
-  emit("onChange", model.value!, item)
+const handleUpdate = (value: any) => {
+  model.value = value
+  // emit('change', )
 }
-
-const compareDisabled = (itemBtn: Record<string, any>, index: number) => {
-  /**数据中的disabled属性 > props.disabledIndex数据  */
-  /**数据中如果有disabled属性，就返回true */
-  if (itemBtn.disabled) return true
-
-  /** 如果有disabledIndex属性，就返回true */
-  if (props.disabledIndex instanceof Array) {
-    return props.disabledIndex.includes(index)
-  }
-  if (Number(props.disabledIndex) == index + 1) {
-    return true
-  }
-}
-
-onMounted(() => {
-  radioModels.value = Array(props.data?.length ?? 0).fill(false) // 初始化数组
-  const selectedIndex = props.data?.findIndex(
-    (item) => item?.[props.valueKey] === model.value
-  )
-
-  if (selectedIndex != -1) {
-    const labelValue = props.data![selectedIndex!]?.[props.labelKey]
-    if (labelValue !== undefined) {
-      radioModels.value[selectedIndex!] = labelValue
-    }
-  }
-})
 </script>
