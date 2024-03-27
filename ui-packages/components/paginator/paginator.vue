@@ -1,6 +1,6 @@
 <template>
-  <div :class="cls.b">
-    <ul :class="cls.e('pages')">
+  <div :class="[cls.b, cls.e(size)]">
+    <ul :class="[cls.e('pages')]">
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
         @click="jump('first')"
@@ -75,10 +75,6 @@ import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
-
-// todo:
-// 增加size的css样式配置
-// 增加simple简洁模式
 
 defineOptions({
   name: 'Paginator'

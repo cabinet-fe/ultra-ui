@@ -25,6 +25,8 @@
       <div>圆形</div>
       <u-button type="primary" circle :icon="Edit"></u-button>
       <u-button size="small" circle>主</u-button>
+      <u-button size="default" circle>主</u-button>
+      <u-button size="large" circle>主</u-button>
     </div>
 
     <!-- disabled -->
