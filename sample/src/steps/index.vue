@@ -28,6 +28,8 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
+        finish-status="danger"
+        process-status="success"
       >
         <template #desc>
           <div v-for="item in items">{{ item.label }}</div>

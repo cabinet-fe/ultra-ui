@@ -1,48 +1,42 @@
 <template>
-  <ol :class="[cls.b, bem.is('vertical', direction === 'vertical'), cls.e(direction)]">
+  <ol :class="[cls.b, cls.e(direction)]">
     <li
-      :class="[cls.e('step'), bem.is('readonly', readonly)]"
+      :class="[
+        cls.e('step'),
+        bem.is('readonly', readonly),
+        bem.is(processStatus, active === item.key),
+        bem.is(finishStatus, index < currentIndex)
+      ]"
       v-for="(item, index) in items"
       @click="readonly ? void 0 : selectStep(item.key)"
     >
-      <div
-        :class="[
-          cls.e('icon'),
-          bem.is('active', active === item.key),
-          bem.is('success', index < currentIndex)
-        ]"
-      >
+      <div :class="[cls.e('icon'), bem.is('active', active === item.key)]">
         <div
-          :class="[cls.em('icon', 'line'), bem.is('success', index < currentIndex)]"
+          :class="[
+            cls.em('icon', 'line'),
+            bem.is(processStatus, active === item.key),
+            bem.is(finishStatus, index < currentIndex)
+          ]"
           v-if="index !== 0"
         ></div>
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
         <component v-if="slots.icon" :is="icons[index]"></component>
-        <div
-          v-else
-          :class="[
-            cls.em('icon', 'number'),
-            bem.is('active', active === item.key),
-            bem.is('success', index < currentIndex)
-          ]"
-        >
+        <div v-else :class="[cls.em('icon', 'number'), bem.is('active', active === item.key)]">
           <UIcon v-if="index < currentIndex" :size="16"><Check /></UIcon>
           <span v-else>{{ index + 1 }}</span>
         </div>
         <div
-          :class="[cls.em('icon', 'line'), bem.is('success', index < currentIndex - 1)]"
+          :class="[
+            cls.em('icon', 'line'),
+            bem.is(processStatus, index === currentIndex - 1),
+            bem.is(finishStatus, index < currentIndex - 1)
+          ]"
           v-if="index !== items.length - 1"
         ></div>
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
       </div>
 
-      <div
-        :class="[
-          cls.e('description'),
-          bem.is('active', active === item.key),
-          bem.is('success', index < currentIndex)
-        ]"
-      >
+      <div :class="[cls.e('description'), bem.is('active', active === item.key)]">
         <component v-if="slots.desc && descs[index]" :is="descs[index]"></component>
         <span v-else>{{ item.label }}</span>
       </div>
@@ -78,7 +72,9 @@ const currentIndex = computed(() => {
 
 const props = withDefaults(defineProps<StepsProps>(), {
   direction: 'horizontal',
-  readonly: undefined
+  readonly: undefined,
+  processStatus: 'primary',
+  finishStatus: 'success'
 })
 
 const emit = defineEmits<StepsEmits>()
