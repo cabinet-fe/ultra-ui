@@ -44,10 +44,10 @@ export interface _ScrollExposed {
    */
   update(): void
 
-  /** Scroll模板元素 */
-  scrollRef: ShallowRef<HTMLElement | undefined>
+  /** 滚动内容元素引用 */
+  contentRef: ShallowRef<HTMLElement | undefined>
 
-  /** ScrollContainer模板元素 */
+  /** 滚动容器元素引用 */
   containerRef: ShallowRef<HTMLElement | undefined>
 }
 
