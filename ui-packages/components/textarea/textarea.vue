@@ -1,10 +1,7 @@
 <template>
-  <div :class="cls.b">
+  <div :class="cls.b" @mouseenter="mouse = true" @mouseleave="mouse = false">
     <textarea
-      @mouseenter="mouse = true"
-      @mouseleave="mouse = false"
       :class="classList"
-      :style="{width: props.width}"
       :placeholder="props.placeholder"
       v-model="model"
       :maxlength="props.maxlength"
@@ -13,16 +10,16 @@
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"
-      :readonly="props.disabled"
+      :readonly="readonly"
       ref="textAreaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
-      {{ initNum2 }}/{{ props.maxlength }}
+      {{ initNum }}/{{ props.maxlength }}
     </span>
     <span
       v-if="props.clearable && model!.length && mouse"
       :class="cls.m('clear')"
-      @click="handleClear"
+      @click.stop="handleClear"
     >
       <u-icon :size="12">
         <Close />
@@ -38,7 +35,7 @@ import {computed, nextTick, onMounted, ref, shallowRef} from "vue"
 import heightAuto from "./height-auto"
 import {UIcon} from "../icon"
 import {Close} from "icon-ultra"
-
+import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
 // todo: 优化
 // 1. 使用useFormFallbackProps来控制表单组件的props（disabled..）
 // 2. 去除resizable
@@ -51,22 +48,25 @@ defineOptions({
 
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
-  width: "100%",
   rows: 5,
-  resizable: "vertical",
-  size: "default",
+  resize: true,
+  
 })
 
 const cls = bem("textarea")
 
-const model = shallowRef(props.modelValue)
+const {formProps} = useFormComponent()
+
+const {disabled,readonly} = useFormFallbackProps([formProps ?? {}, props], {
+  disabled: false,
+  readonly: false,
+})
 
 const emit = defineEmits<TextareaEmits>()
 
 const textAreaRef = ref<HTMLTextAreaElement | null>(null)
 
-/** 限制字符初始化 */
-let initNum = shallowRef(0)
+const model = defineModel<string>()
 
 let scrollHight = shallowRef(props.height)
 
@@ -77,9 +77,8 @@ let mouse = shallowRef(false)
 const classList = computed(() => {
   return [
     cls.m(`more`),
-    cls.m(props.size),
-    cls.m(`resize-${props.resizable}`),
-    bem.is("textarea-disabled", props.disabled),
+    bem.is("resize-none", !props.resize),
+    bem.is("textarea-disabled", disabled.value),
     bem.is("mouse", mouse.value),
   ]
 })
@@ -90,11 +89,9 @@ const handleInput = (e: Event) => {
     // 如果输入的字符数超过了最大长度，截取字符串到最大长度
     const truncatedValue = value.slice(0, props.maxlength)
     emit("update:modelValue", truncatedValue)
-    countWordNum(truncatedValue)
   } else {
     // 如果没有超过最大长度，则正常更新模型值
     emit("update:modelValue", value)
-    countWordNum(value)
   }
   if (!props.autosize) return
   setStyles(textAreaRef.value!, {height: "auto"})
@@ -109,22 +106,13 @@ const countHeight = async () => {
   setStyles(el, {height: scrollHight.value})
 }
 
-const countWordNum = (value: string) => {
-  if (props.maxlength) {
-    initNum.value = props.maxlength - value.length ?? 0
-  }
-}
-
-const initNum2 = computed(() => {
+const initNum = computed(() => {
   if (!props.maxlength) return 0
   return props.maxlength - (model.value?.length ?? 0)
 })
 
 const handleClear = () => {
   model.value = ""
-  countWordNum(model.value)
-  emit("update:modelValue", model.value)
-  emit("clear", model.value)
 }
 
 const handleFocus = () => {
@@ -136,7 +124,6 @@ const handleBlur = () => {
 }
 
 onMounted(() => {
-  countWordNum(props.modelValue!)
   if (!props.autosize) return
   moreElementHeight.value = textAreaRef.value?.offsetHeight!
 })

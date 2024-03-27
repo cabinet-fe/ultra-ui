@@ -4,7 +4,9 @@
 
 @include m.b(textarea) {
     position: relative;
+
     @include m.m(more) {
+        width: 100%;
         display: block;
         border: fn.use-var(border);
         border-radius: fn.use-var(radius, default);
@@ -16,6 +18,7 @@
         box-sizing: border-box;
         font-family: fn.use-var(font-family);
         transition: box-shadow 0.2s ease;
+        resize: vertical;
 
         @include m.is(mouse) {
             border-color: fn.use-var(color, primary);
@@ -35,18 +38,10 @@
             border-color: fn.use-var(border, color);
             box-shadow: 0 0 0 0.5px fn.use-var(border, color) inset;
         }
-    }
 
-    @include m.m(resize-none) {
-        resize: none !important;
-    }
-
-    @include m.m(resize-vertical) {
-        resize: vertical;
-    }
-
-    @include m.m(resize-horizontal) {
-        resize: horizontal;
+        @include m.is(resize-none) {
+            resize: none;
+        }
     }
 
     @include m.m(count) {
