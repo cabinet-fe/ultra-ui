@@ -5,6 +5,10 @@
 
 // 方便拼接
 $root-name: steps;
+$color-default: (
+  default: fn.use-var(text, color, main)
+);
+$color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
 
 @include m.b($root-name) {
   display: flex;
@@ -40,18 +44,38 @@ $root-name: steps;
       cursor: default;
     }
 
-    @each $type, $_ in vars.$color-types {
+    @each $type, $_ in $color-types {
       @include m.is($type) {
-        color: fn.use-var(color, $type);
-        border-color: fn.use-var(color, $type);
-        @include m.bem($root-name, icon) {
-          &--number {
-            color: fn.use-var(color, $type);
-            border-color: fn.use-var(color, $type);
+        @if $type ==default {
+          color: fn.use-var(text, color, main);
+          border-color: fn.use-var(text, color, main);
+
+          @include m.bem($root-name, icon) {
+            &--number {
+              color: fn.use-var(text, color, main);
+              border-color: fn.use-var(text, color, main);
+            }
+          }
+
+          @include m.bem($root-name, description) {
+            color: fn.use-var(text, color, main);
           }
         }
-        @include m.bem($root-name, description) {
+
+        @else {
           color: fn.use-var(color, $type);
+          border-color: fn.use-var(color, $type);
+
+          @include m.bem($root-name, icon) {
+            &--number {
+              color: fn.use-var(color, $type);
+              border-color: fn.use-var(color, $type);
+            }
+          }
+
+          @include m.bem($root-name, description) {
+            color: fn.use-var(color, $type);
+          }
         }
       }
     }
@@ -74,20 +98,22 @@ $root-name: steps;
       border-radius: 50%;
       color: fn.use-var(text, color, second);
       box-sizing: border-box;
-
-      @include m.is(active) {
-        color: fn.use-var(color, primary);
-        border-color: fn.use-var(color, primary);
-      }
     }
 
     &--line {
       border: 1px solid fn.use-var(border, color);
       flex: 1;
-      @each $type, $_ in vars.$color-types {
+
+      @each $type, $_ in $color-types {
         @include m.is($type) {
-          color: fn.use-var(color, $type);
-          border-color: fn.use-var(color, $type);
+          @if $type ==default {
+            border-color: fn.use-var(text, color, main);
+          }
+
+          @else {
+            border-color: fn.use-var(color, $type);
+          }
+
         }
       }
     }
@@ -101,10 +127,5 @@ $root-name: steps;
   @include m.e(description) {
     flex: 1;
     color: fn.use-var(text, color, second);
-
-    @include m.is(active) {
-      background: none;
-      color: fn.use-var(color, primary);
-    }
   }
 }

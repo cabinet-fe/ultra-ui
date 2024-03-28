@@ -4,110 +4,80 @@
 
 $root-name: radio;
 @include m.b($root-name) {
-  // 尺寸
-  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
-    @each $type, $val in $types {
-        @debug $type, $val;
-      #{$type}: $val;
-    }
-  }
-
-//   @include m.size using ($size) {
-//     @include m.bem($root-name, input) {
-//       width: $size;
-//       height: $size;
-//     }
-//   }
-
-  @include m.flex($display: inline-flex, $align: center);
   cursor: pointer;
+  vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
 
-  @include m.e(input) {
-    margin: 0;
-    @include m.flex($display: inline-flex, $align: center);
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    & + & {
+      margin-left: calc(fn.use-var(gap, $size) * 2);
+    }
 
-    input[type='radio'] {
-      background-color: fn.use-var(bg-color-top);
+    @include m.bem($root-name, button) {
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      padding: 2px;
+
+      @if ($size == large) {
+        padding: 3px;
+      }
     }
   }
 
-  @include m.e(label) {
-    padding-left: 8px;
-  }
-
-  @include m.e(inner) {
-    display: inline-block;
-    width: fn.use-var(font-size-main);
-    height: fn.use-var(font-size-main);
-    border: 1px solid fn.use-var(border-color);
+  @include m.e(button) {
     border-radius: 50%;
-    position: relative;
-
-    &::after {
-      width: 4px;
-      height: 4px;
-      border-radius: 100%;
-      background-color: fn.use-var(bg-color-top);
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 0.15s ease-in;
-    }
-
-    &:hover {
-      border: 1px solid fn.use-var(color-primary);
-    }
+    border: 1px solid #666;
+    overflow: hidden;
   }
 
   @include m.is(checked) {
-    @include m.bem(radio, inner) {
-      border-color: fn.use-var(color-primary);
-      background: fn.use-var(color-primary);
-
-      &::after {
-        transform: translate(-50%, -50%) scale(1);
-      }
+    @include m.bem($root-name, button) {
+      border-color: fn.use-var(color, primary);
     }
+  }
+
+  @include m.e(native) {
+    opacity: 0;
+  }
+
+  @include m.e(label) {
+    padding-left: 4px;
+  }
+
+  @include m.e(inner) {
+    background-color: fn.use-var(color, primary);
+    border-radius: 50%;
+    display: block;
+    height: 100%;
   }
 
   @include m.is(disabled) {
-    cursor: not-allowed !important;
-    opacity: 0.8;
-    // pointer-events: none;
-    color: fn.use-var(text-color-second);
-
-    &:hover {
-      color: fn.use-var(text-color-second);
+    color: fn.use-var(text-color, disabled);
+    cursor: not-allowed;
+    @include m.bem($root-name, button) {
+      border-color: fn.use-var(color, disabled);
     }
 
-    @include m.bem(radio, input) {
-      cursor: not-allowed;
-      background: none;
-      border-color: fn.use-var(text-color-second);
-
-      &::after {
-        width: 6px;
-        height: 6px;
-        background-color: fn.use-var(text-color-second);
-      }
+    @include m.bem($root-name, inner) {
+      background-color: fn.use-var(color, disabled);
     }
   }
+}
 
-  input[type='radio']:checked {
-    animation: scaleRadio 0.3s;
-    accent-color: fn.use-var(color, primary);
-  }
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
 
-  /* 定义动画效果 */
-  @keyframes scaleRadio {
-    0% {
-      transform: scale(0);
-    }
-
-    100% {
-      transform: scale(1);
-    }
-  }
+.#{$root-name}-enter-active {
+  transition:
+    opacity 0.15s ease-in,
+    transform 0.15s ease-in;
+}
+.#{$root-name}-leave-active {
+  transition:
+    opacity 0.15s ease-in,
+    transform 0.15s ease-in;
 }

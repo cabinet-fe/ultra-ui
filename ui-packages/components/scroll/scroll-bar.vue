@@ -65,10 +65,10 @@ useDrag({
   target: domRef,
   onDragStart() {
     dragging.value = true
+    currentOffset = offset.value
   },
   onDragEnd() {
     dragging.value = false
-    currentOffset = offset.value
   },
   onDrag(x, y) {
     const newOffset = getDragOffset(x, y)

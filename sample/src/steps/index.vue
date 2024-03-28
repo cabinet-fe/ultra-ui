@@ -30,14 +30,13 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
-        finish-status="success"
-        process-status="primary"
       >
-        <template #desc>
-          <div v-for="item in items">
-            {{item.key}} {{ item.label }}
-          </div>
-        </template>
+        <!-- <template #icon>
+          <span v-for="item in items">
+            <UIcon :size="16" v-if="config.active === item.key"><Edit /></UIcon>
+            <span v-else>{{ item.key }}</span>
+          </span>
+        </template> -->
       </u-steps>
     </div>
   </div>
@@ -45,7 +44,8 @@
 
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import { defineSteps } from 'ultra-ui'
+import { defineSteps, UIcon } from 'ultra-ui'
+import { Edit } from 'icon-ultra'
 
 const config = reactive({
   active: '1' as any,

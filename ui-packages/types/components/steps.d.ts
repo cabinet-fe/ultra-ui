@@ -13,8 +13,8 @@ export interface StepsProps {
   items: Item[]
   direction?: 'horizontal' | 'vertical'
   readonly?: boolean
-  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
-  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
+  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
 }
 
 /** 步骤组件组件定义的事件 */
