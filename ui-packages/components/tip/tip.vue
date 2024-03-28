@@ -35,7 +35,7 @@ import {
   computed,
   useSlots,
   onBeforeUnmount,
-  onMounted,
+  onMounted
 } from "vue"
 import calcPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
@@ -118,8 +118,6 @@ const handleClick = () => {
   if (props.trigger !== "click") return
   clearTimeout(timerTip)
   timerTip = setTimeout(async () => {
-    console.log("123123")
-
     visible.value = !visible.value
     if (visible.value) {
       await nextTick()
@@ -158,7 +156,6 @@ const popup = (scrollDirection?: ScrollDirection) => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
   if (!tipRefDom || !tipContentRefDom) return
-
   // 获取元素的位置和大小信息
   const {clientWidth, clientHeight} = tipRefDom
   const rect = tipRefDom.getBoundingClientRect()
@@ -199,11 +196,16 @@ const popup = (scrollDirection?: ScrollDirection) => {
 let scrollDom = shallowRef<HTMLElement | null>()
 
 let lastScrollTop = 0
-
+/**
+ * 借鉴此篇文档
+ * https://ayase.moe/2018/11/20/scroll-event/
+ */
 const onScroll = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
-  scrollDom.value = tipRefDom.closest("main")
+  if (!tipRefDom) return
+  scrollDom.value = document.querySelector('.main')!.childNodes[1]
   if (!scrollDom.value) return
+  
   scrollDom.value.addEventListener("scroll", () => {
     const currentScrollTop = scrollDom.value ? scrollDom.value.scrollTop : 0
     const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
@@ -211,9 +213,11 @@ const onScroll = () => {
     lastScrollTop = currentScrollTop
   })
 }
+
 onMounted(() => {
   onScroll()
 })
+
 
 onBeforeUnmount(() => {
   if (scrollDom.value) {
