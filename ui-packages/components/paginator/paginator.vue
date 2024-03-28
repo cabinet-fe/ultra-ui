@@ -1,6 +1,6 @@
 <template>
   <div :class="[cls.b, cls.e(size)]">
-    <ul :class="[cls.e('pages')]">
+    <ul :class="[cls.e('pages'), cls.m(size)]">
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
         @click="jump('first')"
@@ -8,11 +8,11 @@
         @mouseleave="mouseEvent('first', false)"
       >
         <span v-if="mouseState.first">1</span>
-        <UIcon :size="14" v-else><DArrowLeft /></UIcon>
+        <UIcon v-else><DArrowLeft /></UIcon>
       </li>
 
       <li :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]" @click="jump('prev')">
-        <UIcon :size="14"><ArrowLeft /></UIcon>
+        <UIcon><ArrowLeft /></UIcon>
       </li>
 
       <!-- todo:if和for的优先级 -->
@@ -41,7 +41,7 @@
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
         @click="jump('next')"
       >
-        <UIcon :size="14"><ArrowRight /></UIcon>
+        <UIcon><ArrowRight /></UIcon>
       </li>
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
@@ -50,7 +50,7 @@
         @mouseleave="mouseEvent('last', false)"
       >
         <span v-if="mouseState.last">{{ pages.length }}</span>
-        <UIcon :size="14" v-else><DArrowRight /></UIcon>
+        <UIcon v-else><DArrowRight /></UIcon>
       </li>
     </ul>
 
@@ -86,7 +86,7 @@ const emit = defineEmits<PaginatorEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, simple } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
   simple: false
 })

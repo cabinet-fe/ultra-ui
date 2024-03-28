@@ -17,18 +17,42 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
   padding: 0;
   margin: 0;
 
+  @include m.size using ($size) {
+    font-size: fn.use-var(form-component-font-size, $size);
+
+    @include m.bem($root-name, icon, number) {
+      width: map.get(vars.$form-component-height, $size);
+      height: map.get(vars.$form-component-height, $size);
+    }
+
+    @include m.bem($root-name, icon) {
+      @each $direction in horizontal, vertical {
+        @if $direction == horizontal {
+          @include m.is($direction) {
+            width: 100%;
+            height: map.get(vars.$form-component-height, $size);
+            margin: map.get(vars.$gap, $size);
+          }
+        }
+        @else {
+          @include m.is($direction) {
+            width: map.get(vars.$form-component-height, $size);
+            height: 100%;
+            margin: map.get(vars.$gap, $size);
+            flex-direction: column;
+          }
+        }
+      }
+    }
+
+  }
+
   @include m.e(vertical) {
     flex-direction: column;
 
     @include m.bem($root-name, step) {
       width: 100%;
       flex-direction: row;
-    }
-
-    @include m.bem($root-name, icon) {
-      flex-direction: column;
-      width: 36px;
-      height: 100%;
     }
   }
 
@@ -83,17 +107,13 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
 
 
   @include m.e(icon) {
-    width: 100%;
     display: flex;
     align-items: center;
-    height: 36px;
 
     &--number {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 28px;
-      height: 28px;
       border: 2px solid fn.use-var(border, color);
       border-radius: 50%;
       color: fn.use-var(text, color, second);
@@ -113,7 +133,6 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
           @else {
             border-color: fn.use-var(color, $type);
           }
-
         }
       }
     }
