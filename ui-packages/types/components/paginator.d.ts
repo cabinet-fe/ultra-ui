@@ -8,7 +8,7 @@ export interface PaginatorProps {
   /** 每页显示的数量 */
   pageSize: number
   /** 大小模式 */
-  // size?: 'large' | 'small'
+  size?: 'large' | 'default' | 'small'
   /** 数据总数 */
   total: number
   /** 每页显示数量选项 */
