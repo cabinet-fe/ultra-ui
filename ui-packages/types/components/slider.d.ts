@@ -7,10 +7,12 @@ export interface SliderProps {
   disable?: Boolean
   /** 是否垂直 */
   vertical?: boolean
+  height?: number
   min?: number
   max?: number
   step?: number
-  height?: number
+  /** 是否显示断点 */
+  showStops?: Boolean
 }
 
 /** 滑块组件定义的事件 */

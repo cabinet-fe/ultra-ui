@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, bem.is('vertical', props.vertical)]" ref="sliderRef">
+  <div :class="[cls.b, bem.is('vertical', vertical)]" ref="sliderRef">
     <!-- 跑道 -->
     <div
       :class="runwayClass"
@@ -11,6 +11,16 @@
 
       <!-- 手柄 -->
       <slider-button />
+
+      <!-- 断点 -->
+      <template v-if="showStops">
+        <div
+          v-for="(item, key) in stops"
+          :key="key"
+          :class="cls.e('stop')"
+          :style="getStopStyle(item)"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -25,7 +35,7 @@ import { bem } from '@ui/utils'
 import { computed, provide, reactive, shallowReactive } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
-import { useSlide } from './_compositions'
+import { useSlide, useStops } from './_compositions'
 
 // todo 优化
 // 1. 使用useDrag完成
@@ -37,7 +47,7 @@ defineOptions({
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
   max: 100,
-  step: 1,
+  step: 0,
   vertical: false,
   height: 300
 })
@@ -60,6 +70,7 @@ const initData = reactive<SliderInitData>({
   dragging: false,
   newPosition: 0,
   oldValue: 0,
+  /** 跑道大小 */
   sliderSize: 1,
   transform,
   currentTransform
@@ -71,6 +82,12 @@ const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(
   emit
 )
 
+const { stops, getStopStyle } = useStops(props, initData)
+
+const runwayClass = computed(() => {
+  return [cls.e('runway'), bem.is('vertical', props.vertical)]
+})
+
 provide(sliderContextKey, {
   sliderProps: props,
   cls,
@@ -79,7 +96,5 @@ provide(sliderContextKey, {
   resetSize
 })
 
-const runwayClass = computed(() => {
-  return [cls.e('runway'), bem.is('vertical', props.vertical)]
-})
+
 </script>
