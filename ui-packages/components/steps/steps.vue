@@ -1,5 +1,5 @@
 <template>
-  <ol :class="[cls.b, cls.e(direction!)]">
+  <ol :class="[cls.b, cls.e(direction!), cls.m(size)]">
     <li
       :class="[
         cls.e('step'),
@@ -10,7 +10,7 @@
       v-for="(item, index) in items"
       @click="readonly ? void 0 : selectStep(item.key)"
     >
-      <div :class="[cls.e('icon'), bem.is('active', active === item.key)]">
+      <div :class="[cls.e('icon'), bem.is(direction)]">
         <div
           :class="[
             cls.em('icon', 'line'),
@@ -21,8 +21,8 @@
         ></div>
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
         <component v-if="slots.icon" :is="icons[index]"></component>
-        <div v-else :class="[cls.em('icon', 'number'), bem.is('active', active === item.key)]">
-          <UIcon v-if="index < currentIndex" :size="16"><Check /></UIcon>
+        <div v-else :class="[cls.em('icon', 'number')]">
+          <UIcon v-if="index < currentIndex"><Check /></UIcon>
           <span v-else>{{ index + 1 }}</span>
         </div>
         <div
@@ -36,7 +36,7 @@
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
       </div>
 
-      <div :class="[cls.e('description'), bem.is('active', active === item.key)]">
+      <div :class="[cls.e('description')]">
         <component v-if="slots.desc && descs[index]" :is="descs[index]"></component>
         <span v-else>{{ item.label }}</span>
       </div>
@@ -78,13 +78,14 @@ const emit = defineEmits<StepsEmits>()
 
 const { formProps } = useFormComponent()
 
-const { direction, readonly, processStatus, finishStatus } = useFormFallbackProps(
+const { direction, readonly, processStatus, finishStatus, size } = useFormFallbackProps(
   [formProps ?? {}, props],
   {
     direction: 'horizontal',
     readonly: true,
     processStatus: 'default',
-    finishStatus: 'success'
+    finishStatus: 'success',
+    size: 'default'
   }
 )
 

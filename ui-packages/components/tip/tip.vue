@@ -35,7 +35,7 @@ import {
   computed,
   useSlots,
   onBeforeUnmount,
-  onMounted
+  onMounted,
 } from "vue"
 import calcPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
@@ -217,7 +217,20 @@ const onScroll = () => {
 onMounted(() => {
   onScroll()
 })
+// const intersectionObserver = new IntersectionObserver((entries: any) => {
+//   console.log(entries[0].target);
+//   if(!visible) return
+//   if (entries[0]?.intersectionRatio <= 0) return
 
+//   console.log('在可视窗口监听到滚动了');
+//   popup('down')
+
+// })
+// // 开始监听
+// nextTick(() => {
+//   const tipRefDom = tipRef.value?.$el as HTMLElement
+//   intersectionObserver.observe(tipRefDom)
+// })
 
 onBeforeUnmount(() => {
   if (scrollDom.value) {

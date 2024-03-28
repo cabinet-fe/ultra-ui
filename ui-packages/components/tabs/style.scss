@@ -1,9 +1,27 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
-@include m.b(tabs) {
+$root-name: tabs;
+
+@include m.b($root-name) {
   display: flex;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      padding: 2px;
+      &--label {
+        border-radius: map.get(vars.$border-radius, $size);
+        padding: map.get(vars.$gap, $size);
+        font-size: map.get(vars.$form-component-font-size, $size);
+        .is-close, .is-close--placeholder {
+          width: map.get(vars.$form-component-font-size, $size) * 1.5;
+          height: map.get(vars.$form-component-font-size, $size) * 1.5;
+        }
+      }
+    }
+  }
 
   @each $position in top, left, right, bottom {
     @include m.e($position) {
@@ -30,31 +48,25 @@
     justify-content: space-around;
     position: relative;
     background-color: fn.use-var(color, primary-light-9);
-    border-radius: fn.use-var(radius, default);
-    padding: fn.use-var(gap, small);
 
     @each $position in top, left, right, bottom {
       &--#{$position} {
         @if $position ==left {
           flex-direction: column;
           border-right: 2px solid fn.use-var(border-color);
-          // margin-right: 10px;
         }
 
         @else if $position ==right {
           flex-direction: column;
           border-left: 2px solid fn.use-var(border-color);
-          // margin-left: 10px;
         }
 
         @else if $position ==bottom {
           border-bottom: 2px solid fn.use-var(border-color);
-          // margin-top: 10px;
         }
 
         @else {
           border-bottom: 2px solid fn.use-var(border-color);
-          // margin-bottom: 10px;
         }
       }
     }
@@ -65,15 +77,12 @@
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      padding: fn.use-var(gap, large);
       margin: 1px;
       font-size: fn.use-var(font-size-title, default);
       font-weight: bold;
       color: fn.use-var(text-color, main);
       user-select: none;
-      border-radius: fn.use-var(radius, default);
       animation: fadeOutAnimation 1s forwards;
-      // box-shadow: 1px 1px 4px fn.use-var(color, primary-light-7);
 
       @keyframes fadeOutAnimation {
         from {
@@ -87,8 +96,6 @@
 
       @include m.is('active') {
         color: fn.use-var(text-color, title);
-        // box-shadow: -1px -1px 4px fn.use-var(color, primary-light-7);
-        // background-color: fn.use-var(bg-color, top);
         animation: fadeInAnimation 0.25s forwards;
 
         @keyframes fadeInAnimation {
@@ -108,8 +115,7 @@
 
       .is-close,
       .is-close--placeholder {
-        width: 16px;
-        height: 16px;
+        padding: 2px;
         border-radius: 50%;
         display: inline-flex;
         justify-content: center;
@@ -132,12 +138,4 @@
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
   }
-}
-
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.25s;
 }

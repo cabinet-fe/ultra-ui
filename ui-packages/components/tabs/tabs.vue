@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.e(position!)]">
+  <div :class="[cls.b, cls.e(position!), cls.m(size)]">
     <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
       <div
         v-for="(item, index) in standardItems"
@@ -21,7 +21,7 @@
           :class="bem.is('close')"
           @click.stop="handleClose(item, index)"
         >
-          <Close />
+          <UIcon><Close /></UIcon>
         </div>
         <div v-else :class="bem.is('close--placeholder')"></div>
       </div>
@@ -45,24 +45,23 @@ import { isObj, deepCopy } from 'cat-kit/fe'
 import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
+import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
+const props = defineProps<TabsProps<TabsItems>>()
+
+const { formProps } = useFormComponent()
+
+const { size, position, closable, sortable } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
   position: 'right',
   closable: false,
   sortable: false
 })
-/** 切换position回归初始状态 */
-watch(
-  () => props.position,
-  () => {
-    active.index = 0
-    emit('update:modelValue', standardItems.value[0]?.key!)
-  }
-)
 
 const slots = useSlots()
 
@@ -137,7 +136,7 @@ const handleClose = (item: Item, index: number) => {
 }
 
 const showClose = (key: string | number) => {
-  if (props.closable && standardItems.value.length > 1) {
+  if (closable && standardItems.value.length > 1) {
     return active.lab === key
   } else {
     return false

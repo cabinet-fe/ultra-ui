@@ -10,15 +10,14 @@ $root-name: paginator;
   display: flex;
   align-items: center;
 
-  @each $size in large, default, small {
-    @include m.e($size) {
-      height: map.get(vars.$form-component-height, $size);
-      @include m.bem($root-name, btn) {
-        width: map.get(vars.$form-component-height, $size);
-        height: map.get(vars.$form-component-height, $size);
-      }
-    }
+  @include m.size using ($size) {
+    height: map.get(vars.$form-component-height, $size);
+    font-size: fn.use-var(form-component-font-size, $size);
 
+    @include m.bem($root-name, btn) {
+      width: map.get(vars.$form-component-height, $size);
+      height: map.get(vars.$form-component-height, $size);
+    }
   }
 
   @include m.e(btn) {

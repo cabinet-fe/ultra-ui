@@ -4,7 +4,7 @@ function countPositionInt(num: number | string): number {
 }
 
 /**
- * tip靠上是否在视窗内
+ * 靠上是否在视窗内
  * @param tipContentRefDom tip内容元素
  * @param tipRefDom  页面dom信息
  * @returns  tip是否在视窗内
@@ -19,7 +19,7 @@ function isTopInViewport(
 }
 
 /**
- * tip靠下是否在视窗内
+ * 靠下是否在视窗内
  * @param tipContentRefDom tip内容元素
  * @param tipRefDom  页面dom信息
  * @returns  tip是否在视窗内
@@ -37,7 +37,7 @@ function isBottomInViewport(
 }
 
 /**
- * tip靠左、靠右 左右是否在视窗内
+ * 靠左、靠右 左右是否在视窗内
  * @param tipRefDom tip内容元素
  * @returns  tip是否在视窗内
  */
@@ -53,7 +53,7 @@ function isRightOrLeftInViewport(tipRefDom: HTMLElement): boolean {
 }
 
 /**
- * tip靠左、靠右   上下是否在视窗内
+ * 靠左、靠右   上下是否在视窗内
  * @param tipContentRefDom tip内容dom信息
  * @param tipRefDom 页面dom信息
  * @param scrollDirection 滚动方向

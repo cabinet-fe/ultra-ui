@@ -10,7 +10,7 @@
           <div>方位：position</div>
           <u-radio-group
             radioType="btn"
-            :data="[
+            :items="[
               { label: '上', value: 'top' },
               { label: '下', value: 'bottom' },
               { label: '左', value: 'left' },

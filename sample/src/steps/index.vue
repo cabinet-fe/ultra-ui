@@ -3,7 +3,7 @@
     <div class="config">
       <u-radio-group
         radioType="btn"
-        :data="
+        :items="
           items.map((item) => {
             return { label: item.label, value: item.key }
           })
@@ -17,7 +17,7 @@
       <br />
       <u-radio-group
         radioType="btn"
-        :data="[
+        :items="[
           { label: '水平', value: 'horizontal' },
           { label: '垂直', value: 'vertical' }
         ]"
