@@ -15,8 +15,9 @@ $root-name: tabs;
         border-radius: map.get(vars.$border-radius, $size);
         padding: map.get(vars.$gap, $size);
         font-size: map.get(vars.$form-component-font-size, $size);
-        .is-close {
-          padding: map.get(vars.$gap, $size);
+        .is-close, .is-close--placeholder {
+          width: map.get(vars.$form-component-font-size, $size) * 1.5;
+          height: map.get(vars.$form-component-font-size, $size) * 1.5;
         }
       }
     }
@@ -113,6 +114,7 @@ $root-name: tabs;
 
       .is-close,
       .is-close--placeholder {
+        padding: 2px;
         border-radius: 50%;
         display: inline-flex;
         justify-content: center;
