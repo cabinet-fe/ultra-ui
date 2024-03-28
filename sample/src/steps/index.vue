@@ -30,15 +30,13 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
-        finish-status="success"
-        process-status="primary"
       >
-        <template #icon>
+        <!-- <template #icon>
           <span v-for="item in items">
             <UIcon :size="16" v-if="config.active === item.key"><Edit /></UIcon>
             <span v-else>{{ item.key }}</span>
           </span>
-        </template>
+        </template> -->
       </u-steps>
     </div>
   </div>
