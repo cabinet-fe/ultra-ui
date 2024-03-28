@@ -27,7 +27,7 @@ $root-name: radio;
 
   @include m.e(button) {
     border-radius: 50%;
-    border: 1px solid #666;
+    border: fn.use-var(border);
     overflow: hidden;
   }
 
@@ -56,28 +56,12 @@ $root-name: radio;
     color: fn.use-var(text-color, disabled);
     cursor: not-allowed;
     @include m.bem($root-name, button) {
-      border-color: fn.use-var(color, disabled);
+      border-color: fn.use-var(border, color);
+      background-color: fn.use-var(color, disabled);
     }
 
     @include m.bem($root-name, inner) {
-      background-color: fn.use-var(color, disabled);
+      background-color: fn.use-var(text-color, disabled);
     }
   }
-}
-
-.#{$root-name}-enter-from,
-.#{$root-name}-leave-to {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.#{$root-name}-enter-active {
-  transition:
-    opacity 0.15s ease-in,
-    transform 0.15s ease-in;
-}
-.#{$root-name}-leave-active {
-  transition:
-    opacity 0.15s ease-in,
-    transform 0.15s ease-in;
 }
