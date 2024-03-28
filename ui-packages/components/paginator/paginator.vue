@@ -1,6 +1,6 @@
 <template>
-  <div :class="[cls.b, cls.e(size)]">
-    <ul :class="[cls.e('pages'), cls.m(size)]">
+  <div :class="[cls.b, cls.m(size)]">
+    <ul :class="[cls.e('pages')]">
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
         @click="jump('first')"
