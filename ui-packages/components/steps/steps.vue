@@ -78,12 +78,15 @@ const emit = defineEmits<StepsEmits>()
 
 const { formProps } = useFormComponent()
 
-const { readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  direction: 'horizontal',
-  readonly: true,
-  processStatus: 'primary',
-  finishStatus: 'success'
-})
+const { direction, readonly, processStatus, finishStatus } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    direction: 'horizontal',
+    readonly: true,
+    processStatus: 'default',
+    finishStatus: 'success'
+  }
+)
 
 const cls = bem('steps')
 
