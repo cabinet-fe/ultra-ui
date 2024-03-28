@@ -10,6 +10,12 @@ $root-name: slider;
   @include m.b($root-name) {
     @include m.e('button-wrap') {
       margin-left: 5px;
+
+    }
+
+    &__bar {
+      bottom: 0;
+      pointer-events: none;
     }
   }
 }
@@ -31,7 +37,6 @@ $root-name: slider;
     border-radius: 3px;
     position: absolute;
     z-index: 1;
-    top: 0;
     left: 0;
     height: 100%;
     background-color: #007bff;
