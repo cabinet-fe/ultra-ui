@@ -1,55 +1,101 @@
 <template>
-  <div :class="cls.e('button-wrap')" :style="styles" ref="slideButtonRef"
-    @mousedown="handleButtonDown"
+  <div
+    :style="warpStyles"
+    ref="slideButtonRef"
+    @click.stop
+    :class="cls.e('button-wrap')"
   >
-    <div :class="cls.e('button')" />
+    <div :class="cls.e('button-back')">
+      <div :class="cls.e('button')" />
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, inject, shallowReactive, shallowRef } from 'vue'
+import { inject, nextTick } from 'vue'
 import { sliderContextKey } from './di'
-import { useSlideButton } from './_compositions'
 import { useDrag } from '@ui/compositions'
-import countPosition from '../tip/position'
+import { useSlideButton } from './_compositions'
 
 let injected = inject(sliderContextKey)!
 
+let { resetSize, initData, emit, sliderProps } = injected
+
+let { modelValue, vertical, height } = sliderProps
+
 let { cls } = injected
 
-// const { wrapperStyle, handleButtonDown } = useSlideButton()
+const {
+  convertToPosition,
+  convertToPercentage,
+  warpStyles,
+  slideButtonRef,
+  buttonOffset,
+  resetButtonOffset
+} = useSlideButton(initData, sliderProps)
 
-const mouseDownHandler = computed(() => {
-  return injected.disable?.value ? undefined : handleButtonDown
-})
+// const sliderButtonRef = shallowRef<HTMLDivElement>()
 
-const slideButtonRef = shallowRef<HTMLDivElement>()
+/** 页面加载时获取手柄位置 */
+const handleButtonPosition = async () => {
+  await nextTick()
+  /** 执行这个获取轨道宽度 */
+  resetSize()
 
-const transform = shallowReactive({
-  x: 0,
-  y: 0
-})
-
-const styles = computed(() => {
-  return {
-    transform: `translate(${transform.x}px, ${transform.y}px)`
+  let position = convertToPosition(
+    modelValue,
+    initData.sliderSize,
+    slideButtonRef.value?.offsetWidth!
+  )
+  if (vertical) {
+    initData.transform.y = height! - position
+    initData.currentTransform.y = height! - position
+  } else {
+    initData.transform.x = position
+    initData.currentTransform.x = position
   }
-})
-
-const currentTransform = {
-  x: 0,
-  y: 0
 }
+handleButtonPosition()
 
+/** 拖拽手柄 */
 useDrag({
   target: slideButtonRef,
   onDrag(x, y, e) {
-    x = x + currentTransform.x
-    transform.x = x < 0 ? 0 : x
-    //  transform.y = y
+    if (!slideButtonRef.value?.offsetWidth) return
+
+    if (buttonOffset.value === 0) {
+      resetButtonOffset()
+    }
+
+    if (!buttonOffset.value) return
+
+    const runwayMax = initData.sliderSize - buttonOffset.value
+
+    let newPosition: number
+
+    if (vertical) {
+      newPosition = initData.currentTransform.y + y
+      initData.transform.y = Math.min(Math.max(0, newPosition), runwayMax)
+    } else {
+      newPosition = x + initData.currentTransform.x
+      initData.transform.x = Math.min(Math.max(0, newPosition), runwayMax)
+    }
+
+    emit(
+      'update:modelValue',
+      convertToPercentage(
+        initData.sliderSize,
+        buttonOffset.value,
+        vertical ? initData.transform.y : initData.transform.x
+      )
+    )
   },
 
   onDragEnd(x, y, e) {
-    currentTransform.x += x
+    if (vertical) {
+      initData.currentTransform.y += y
+    } else {
+      initData.currentTransform.x += x
+    }
   }
 })
 </script>

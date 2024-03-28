@@ -17,12 +17,14 @@
       <div :class="cls.e('step')">
         <u-icon
           @click="increase"
+          v-ripple
           :class="bem.is('disabled', disabled || !increasable)"
         >
           <ArrowUp />
         </u-icon>
         <u-icon
           @click="decrease"
+          v-ripple
           :class="bem.is('disabled', disabled || !reducible)"
         >
           <ArrowDown />
@@ -45,6 +47,7 @@ import { ArrowUp, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'NumberInput'
@@ -68,8 +71,6 @@ const { size, disabled, readonly } = useFormFallbackProps([
 const inputProps = computed(() => {
   return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
 })
-
-
 
 const inputRef = shallowRef<InputExposed>()
 
@@ -216,6 +217,7 @@ const tween = new Tween(
 
 /** 增 */
 function increase(): void {
+  if (disabled.value) return
   const val = model.value ?? 0
 
   tween.state.n = val
@@ -227,6 +229,7 @@ function increase(): void {
 
 /** 减 */
 function decrease(): void {
+  if (disabled.value) return
   const val = model.value ?? 0
   tween.state.n = val
   const target = getValidValue(n.minus(val, stepVal.value))

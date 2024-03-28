@@ -3,15 +3,18 @@ import type { DeconstructValue } from '../helper'
 interface Item {
   label: string
   key: string
+  [x: string]: any
 }
 
 /** 步骤组件组件属性 */
 export interface StepsProps {
   modelValue?: string
-  active: string
+  active: string | null | undefined
   items: Item[]
-  mode?: 'horizontal' | 'vertical'
+  direction?: 'horizontal' | 'vertical'
   readonly?: boolean
+  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
+  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
 }
 
 /** 步骤组件组件定义的事件 */

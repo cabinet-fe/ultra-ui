@@ -65,7 +65,9 @@ $color-types: (
   // 危险色
   danger: #f44336,
   // 信息色
-  info: #009688
+  info: #009688,
+  // 禁用色
+  disabled: #f5f7fa
 );
 
 // 背景层级颜色
@@ -90,7 +92,7 @@ $text-colors: (
   // 辅助文字
   assist: #c0c4cc,
   // 禁用文字
-  disabled: #909399
+  disabled: #a8abb2
 );
 
 // 圆角半径

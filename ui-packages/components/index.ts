@@ -38,8 +38,6 @@ export * from './popup'
 
 export * from './radio'
 
-export * from './radio-button'
-
 export * from './radio-group'
 
 export * from './row-form'

@@ -1,27 +1,35 @@
 <template>
   <div class="box">
-    <div class="box-item">
-      <IndexMore />
-    </div>
+    <CustomCard title="禁用">
+      <u-radio
+        v-for="{ label, value } of items"
+        v-model="radio1"
+        :value="value"
+        :disabled="value === '3'"
+      >
+        {{ label }}
+      </u-radio>
+    </CustomCard>
 
-    <div class="box-item">
-      <IndexBtn />
-    </div>
+    <CustomCard title="单选框组">
+      <u-radio-group :items="items" v-model="radio1" />
+    </CustomCard>
+
+    <CustomCard title="单选框组某项禁用">
+      <u-radio-group :items="items" v-model="radio1" :disabled-item="item => item.value === '2'" />
+    </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import IndexMore from "./index-more.vue"
+import { shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
 
-import IndexBtn from "./index-btn.vue"
+const radio1 = shallowRef('1')
+
+const items = [
+  { label: '选项一', value: '1' },
+  { label: '选项二', value: '2' },
+  { label: '选项三', value: '3' }
+]
 </script>
-
-<style lang="scss" scoped>
-.box {
-  display: flex;
-  div {
-    flex: 1;
-    margin-left: 10px;
-  }
-}
-</style>

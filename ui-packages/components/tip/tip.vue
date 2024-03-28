@@ -3,10 +3,10 @@
     :content="slots.default?.()?.[0]"
     @mouseenter.self="handleMouseEnter"
     @mouseleave.self="handleMouseLeave"
-    @click.stop="handleClick"
+    @click.self="handleClick"
     :class="cls.b"
-    :data-outSide="visible"
     ref="tipRef"
+    :data-outSide="visible"
   />
 
   <teleport to="body">
@@ -17,7 +17,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
-      v-click-outside="handleClickOutside"
+      v-click-outside:visible="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -35,7 +35,7 @@ import {
   computed,
   useSlots,
   onBeforeUnmount,
-  onMounted,
+  onMounted
 } from "vue"
 import calcPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
@@ -45,7 +45,7 @@ import {
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
 } from "./calculate"
-import type { ScrollDirection } from './type'
+import type {ScrollDirection} from "./type"
 
 defineOptions({
   name: "Tip",
@@ -126,11 +126,11 @@ const handleClick = () => {
       tipContentRef.value!.style.opacity = "0"
       dynamicStyle.value = {}
     }
-  }, 300)
+  }, 100)
 }
 
 const handleClickOutside = () => {
-  console.log("Clicked outside")
+  if (timerTip) clearInterval(timerTip)
   if (props.trigger === "hover") return
   visible.value = false
 }
@@ -156,7 +156,6 @@ const popup = (scrollDirection?: ScrollDirection) => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
   if (!tipRefDom || !tipContentRefDom) return
-
   // 获取元素的位置和大小信息
   const {clientWidth, clientHeight} = tipRefDom
   const rect = tipRefDom.getBoundingClientRect()
@@ -197,11 +196,16 @@ const popup = (scrollDirection?: ScrollDirection) => {
 let scrollDom = shallowRef<HTMLElement | null>()
 
 let lastScrollTop = 0
-
+/**
+ * 借鉴此篇文档
+ * https://ayase.moe/2018/11/20/scroll-event/
+ */
 const onScroll = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
-  scrollDom.value = tipRefDom.closest("main")
+  if (!tipRefDom) return
+  scrollDom.value = document.querySelector('.main')!.childNodes[1]
   if (!scrollDom.value) return
+  
   scrollDom.value.addEventListener("scroll", () => {
     const currentScrollTop = scrollDom.value ? scrollDom.value.scrollTop : 0
     const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
@@ -209,9 +213,11 @@ const onScroll = () => {
     lastScrollTop = currentScrollTop
   })
 }
+
 onMounted(() => {
   onScroll()
 })
+
 
 onBeforeUnmount(() => {
   if (scrollDom.value) {
