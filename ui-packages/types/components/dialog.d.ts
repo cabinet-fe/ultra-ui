@@ -1,3 +1,5 @@
+import type { ComponentSize } from "../component-common"
+
 /** 对话框组件属性 */
 export interface DialogProps {
   /** 显示或隐藏 */
@@ -6,6 +8,8 @@ export interface DialogProps {
   title?: string
   /** 弹框头部内容，别名是header */
   header?: string
+  /** 大小尺寸 */
+  size?: ComponentSize
 }
 
 /** 对话框组件定义的事件 */

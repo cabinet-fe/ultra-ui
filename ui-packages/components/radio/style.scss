@@ -23,6 +23,10 @@ $root-name: radio;
         padding: 3px;
       }
     }
+
+    @include m.bem($root-name, label) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
   }
 
   @include m.e(button) {
@@ -42,7 +46,7 @@ $root-name: radio;
   }
 
   @include m.e(label) {
-    padding-left: 4px;
+    padding-left: fn.use-var(gap, small);
   }
 
   @include m.e(inner) {

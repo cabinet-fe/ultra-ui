@@ -17,14 +17,14 @@
       <div :class="cls.e('step')">
         <u-icon
           @click="increase"
-          v-ripple
+          v-ripple="!disabled && increasable"
           :class="bem.is('disabled', disabled || !increasable)"
         >
           <ArrowUp />
         </u-icon>
         <u-icon
           @click="decrease"
-          v-ripple
+          v-ripple="!disabled && increasable"
           :class="bem.is('disabled', disabled || !reducible)"
         >
           <ArrowDown />

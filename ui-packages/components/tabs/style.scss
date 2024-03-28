@@ -67,7 +67,7 @@
       cursor: pointer;
       padding: fn.use-var(gap, large);
       margin: 1px;
-      font-size: fn.use-var(font-size, title);
+      font-size: fn.use-var(font-size-title, default);
       font-weight: bold;
       color: fn.use-var(text-color, main);
       user-select: none;

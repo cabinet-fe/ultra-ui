@@ -30,8 +30,10 @@
   // 表单组件高度
   @include m.css-var(form-component-height, vars.$form-component-height);
 
-  // 表单组件font-size
-  @include m.css-var(form-component-font-size, vars.$form-component-font-size);
+  // 字体大小
+  @include m.css-var(font-size-title, vars.$font-size-title);
+  @include m.css-var(font-size-main, vars.$font-size-main);
+  @include m.css-var(font-size-assist, vars.$font-size-assist);
 
   // 字体
   // 西文字体优先使用Inter由外部导入
@@ -40,9 +42,6 @@
     font-family,
     'Inter,"Roboto","Segoe UI",-apple-system,BlinkMacSystemFont,"Microsoft YaHei","PingFang SC",sans-serif'
   );
-
-  // 字体大小
-  @include m.css-var(font-size, vars.$font-sizes);
 
   // 边框
   @include m.css-var(
@@ -66,7 +65,7 @@
 // 初始化
 html {
   font-family: fn.use-var(font-family);
-  font-size: fn.use-var(font-size, main);
+  font-size: fn.use-var(font-size-main, default);
   font-weight: normal;
   color: #303133;
   line-height: 1.4;
