@@ -14,10 +14,10 @@ $root-name: tabs;
       &--label {
         border-radius: map.get(vars.$border-radius, $size);
         padding: map.get(vars.$gap, $size);
-        font-size: map.get(vars.$form-component-font-size, $size);
+        // font-size: map.get(vars.$form-component-font-size, $size);
         .is-close, .is-close--placeholder {
-          width: map.get(vars.$form-component-font-size, $size) * 1.5;
-          height: map.get(vars.$form-component-font-size, $size) * 1.5;
+          // width: map.get(vars.$form-component-font-size, $size) * 1.5;
+          // height: map.get(vars.$form-component-font-size, $size) * 1.5;
         }
       }
     }
