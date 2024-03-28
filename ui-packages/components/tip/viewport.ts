@@ -4,56 +4,56 @@ function countPositionInt(num: number | string): number {
 }
 
 /**
- * tip靠上是否在视窗内
+ * 靠上是否在视窗内
  * @param tipContentRefDom tip内容元素
- * @param tipRefDom  tip元素
+ * @param tipRefDom  页面dom信息
  * @returns  tip是否在视窗内
  */
 function isTopInViewport(
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement
 ): boolean {
-  let rect = tipContentRefDom.getBoundingClientRect()
-  let rect2 = tipRefDom.getBoundingClientRect()
-  return countPositionInt(rect2.top - 16) > countPositionInt(rect.height)
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+  let pageRect = tipRefDom.getBoundingClientRect()
+  return countPositionInt(pageRect.top - 16) > countPositionInt(contentRect.height)
 }
 
 /**
- * tip靠下是否在视窗内
+ * 靠下是否在视窗内
  * @param tipContentRefDom tip内容元素
- * @param tipRefDom  tip元素
+ * @param tipRefDom  页面dom信息
  * @returns  tip是否在视窗内
  */
 function isBottomInViewport(
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement
 ): boolean {
-  let rect = tipContentRefDom.getBoundingClientRect()
-  let rect2 = tipRefDom.getBoundingClientRect()
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+  let pageRect = tipRefDom.getBoundingClientRect()
   return (
-    countPositionInt(window.innerHeight - rect2.y - rect2.height - 16) >
-    countPositionInt(rect.height)
+    countPositionInt(window.innerHeight - pageRect.y - pageRect.height - 16) >
+    countPositionInt(contentRect.height)
   )
 }
 
 /**
- * tip靠左、靠右 左右是否在视窗内
+ * 靠左、靠右 左右是否在视窗内
  * @param tipRefDom tip内容元素
  * @returns  tip是否在视窗内
  */
 function isRightOrLeftInViewport(tipRefDom: HTMLElement): boolean {
-  let rect = tipRefDom.getBoundingClientRect()
+  let contentRect = tipRefDom.getBoundingClientRect()
   /**
    * 鼠标移入元素的宽度  是否小于 可视窗口减去 元素的宽度 及 自身宽度
    */
   return (
-    countPositionInt(rect.width) >
-    countPositionInt(window.innerWidth - (rect.x + rect.width))
+    countPositionInt(contentRect.width) >
+    countPositionInt(window.innerWidth - (contentRect.x + contentRect.width))
   )
 }
 
 /**
- * tip靠左、靠右   上下是否在视窗内
+ * 靠左、靠右   上下是否在视窗内
  * @param tipContentRefDom tip内容dom信息
  * @param tipRefDom 页面dom信息
  * @param scrollDirection 滚动方向
@@ -64,23 +64,23 @@ function isRightOrLeftUpInViewport(
   tipRefDom: HTMLElement,
   scrollDirection?: string
 ): boolean {
-  let rect = tipContentRefDom.getBoundingClientRect()
-  let rect2 = tipRefDom.getBoundingClientRect()
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+  let pageRect = tipRefDom.getBoundingClientRect()
 
   if (!scrollDirection) {
     /**
      * 页面还没有开始滚动，判断此时rect2页面元素距离上下可视区域的距离是否够展示rect元素
      */
     if (firstShowInViewport(tipContentRefDom, tipRefDom) === "top") {
-      return scrollDirectionUpOrDown(rect, rect2, "down")
+      return scrollDirectionUpOrDown(contentRect, pageRect, "down")
     } else {
-      return scrollDirectionUpOrDown(rect, rect2, "up")
+      return scrollDirectionUpOrDown(contentRect, pageRect, "up")
     }
   } else {
     /**
      * 判断元素此时距离上下的距离
      */
-    return scrollDirectionUpOrDown(rect, rect2, scrollDirection)
+    return scrollDirectionUpOrDown(contentRect, pageRect, scrollDirection)
   }
 }
 /**
@@ -93,32 +93,32 @@ function firstShowInViewport(
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement
 ) {
-  let rect = tipContentRefDom.getBoundingClientRect()
-  let rect2 = tipRefDom.getBoundingClientRect()
-  if (rect2.top < rect.height) {
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+  let pageRect = tipRefDom.getBoundingClientRect()
+  if (pageRect.top < contentRect.height) {
     return "top"
-  } else if (rect2.top + rect2.height > window.innerHeight - rect.height) {
+  } else if (pageRect.top + pageRect.height > window.innerHeight - contentRect.height) {
     return "bottom"
   }
 }
 /**
  * 根据屏幕滚动方向（上下）计算元素是否在屏幕内
- * @param rect tip内容dom信息
- * @param rect2 页面dom信息
+ * @param contentRect tip内容dom信息
+ * @param pageRect 页面dom信息
  * @param scrollDirection 滚动方向
  * @returns  tip是否在视窗内
  */
 function scrollDirectionUpOrDown(
-  rect: Record<string, any>,
-  rect2: Record<string, any>,
+  contentRect: Record<string, any>,
+  pageRect: Record<string, any>,
   scrollDirection: string
 ): boolean {
   if (scrollDirection === "down") {
     return (
-      countPositionInt(rect2.y + rect2.height) >= countPositionInt(rect.height)
+      countPositionInt(pageRect.y + pageRect.height) >= countPositionInt(contentRect.height)
     )
   } else {
-    return countPositionInt(window.innerHeight - rect2.y) > rect.height
+    return countPositionInt(window.innerHeight - pageRect.y) > contentRect.height
   }
 }
 export {

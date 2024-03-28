@@ -3,7 +3,7 @@
     <div class="config">
       <u-radio-group
         radioType="btn"
-        :data="
+        :items="
           items.map((item) => {
             return { label: item.label, value: item.key }
           })
@@ -17,7 +17,7 @@
       <br />
       <u-radio-group
         radioType="btn"
-        :data="[
+        :items="[
           { label: '水平', value: 'horizontal' },
           { label: '垂直', value: 'vertical' }
         ]"
@@ -30,15 +30,13 @@
         :items="items"
         :readonly="config.readonly"
         :direction="config.direction"
-        finish-status="success"
-        process-status="primary"
       >
-        <template #icon>
+        <!-- <template #icon>
           <span v-for="item in items">
             <UIcon :size="16" v-if="config.active === item.key"><Edit /></UIcon>
             <span v-else>{{ item.key }}</span>
           </span>
-        </template>
+        </template> -->
       </u-steps>
     </div>
   </div>

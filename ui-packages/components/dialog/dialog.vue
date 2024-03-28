@@ -8,7 +8,7 @@
         :style="style"
         @click="close"
       >
-        <div v-bind="$attrs" :class="cls.b" ref="dialogRef" @click.stop>
+        <div v-bind="$attrs" :class="className" ref="dialogRef" @click.stop>
           <section
             :class="headerCls"
             ref="headerRef"
@@ -64,21 +64,29 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
+import {
+  type VNode,
+  shallowRef,
+  watch,
+  shallowReactive,
+  nextTick,
+  computed
+} from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
-import { useDrag, useTransition } from '@ui/compositions'
+import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { CloseBold, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
+import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Dialog',
   inheritAttrs: false
 })
 
-defineProps<DialogProps>()
+const props = defineProps<DialogProps>()
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?(): VNode[] | undefined
@@ -88,6 +96,12 @@ const cls = bem('dialog')
 const blurCls = bem.is('background-blur')
 const headerCls = [cls.e('header'), blurCls]
 const footerCls = [cls.e('footer'), blurCls]
+
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
+
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
+})
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()

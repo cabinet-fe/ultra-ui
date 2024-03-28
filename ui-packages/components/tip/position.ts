@@ -10,7 +10,7 @@ import {
 } from "./viewport"
 import type {ScrollDirection, PositionResult} from "./type"
 
-/**弹窗位置距离元素的距离 */
+/**弹窗位置距离屏幕边缘的距离 */
 let elementDistance = 16
 
 /**每次初始化默认 */
