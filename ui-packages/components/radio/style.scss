@@ -5,8 +5,8 @@
 $root-name: radio;
 @include m.b($root-name) {
   cursor: pointer;
-  @include m.flex($display: inline-flex, $align: center);
   vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
 
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
@@ -17,10 +17,9 @@ $root-name: radio;
     @include m.bem($root-name, button) {
       width: calc(fn.use-var(form-component-height, $size) / 2);
       height: calc(fn.use-var(form-component-height, $size) / 2);
+      padding: 2px;
 
-      @if($size == small) {
-        padding: 2px;
-      } @else {
+      @if ($size == large) {
         padding: 3px;
       }
     }
@@ -28,7 +27,8 @@ $root-name: radio;
 
   @include m.e(button) {
     border-radius: 50%;
-    border: fn.use-var(border);
+    border: 1px solid #666;
+    overflow: hidden;
   }
 
   @include m.is(checked) {
@@ -50,6 +50,18 @@ $root-name: radio;
     border-radius: 50%;
     display: block;
     height: 100%;
+  }
+
+  @include m.is(disabled) {
+    color: fn.use-var(text-color, disabled);
+    cursor: not-allowed;
+    @include m.bem($root-name, button) {
+      border-color: fn.use-var(color, disabled);
+    }
+
+    @include m.bem($root-name, inner) {
+      background-color: fn.use-var(color, disabled);
+    }
   }
 }
 
