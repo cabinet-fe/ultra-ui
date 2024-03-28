@@ -1,12 +1,15 @@
 <template>
   <div>
-    <u-select
-      :model-value="value"
-      :options="options"
-      label-key="codeAndLabel"
-      value-key="defaultTravelPlace"
-      @update:model-value="onChange"
-    />
+    <div>
+      <u-select
+        multiple
+        :model-value="value"
+        :options="options"
+        label-key="codeAndLabel"
+        value-key="defaultTravelPlace"
+        @update:model-value="onChange"
+      />
+    </div>
   </div>
 </template>
 
