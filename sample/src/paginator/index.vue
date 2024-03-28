@@ -3,7 +3,7 @@
     <div class="config">
       <u-radio-group
         radioType="btn"
-        :data="[
+        :items="[
           { label: 'small', value: 'small' },
           { label: 'default', value: 'default' },
           { label: 'large', value: 'large' }
@@ -33,7 +33,7 @@ const pageState = reactive({
 })
 
 const config = reactive({
-  size: 'default',
+  size: 'default' as any,
   simple: false
 })
 </script>

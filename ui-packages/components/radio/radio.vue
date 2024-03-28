@@ -12,7 +12,7 @@
         hidden
       />
 
-      <transition name="radio">
+      <transition name="zoom-in">
         <span :class="cls.e('inner')" v-if="radioChecked"></span>
       </transition>
     </section>

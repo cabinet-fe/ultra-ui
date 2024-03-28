@@ -6,8 +6,4 @@
   @include m.flex(inline-flex);
   line-height: 1;
   vertical-align: middle;
-
-  @include m.b(checkbox) {
-    margin-right: fn.use-var(gap, large);
-  }
 }
