@@ -9,7 +9,7 @@
           bem.is('active', modelValue === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="item.disabled ? void 0 : changeTab(item, index)"
+        @click="item.disabled || active.index === index ? void 0 : clickTab(item, index)"
         ref="labRef"
         :draggable="sortable"
       >
@@ -47,6 +47,7 @@ import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 import { UIcon } from '../icon'
+import { isPromise } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Tabs'
@@ -118,6 +119,17 @@ const changeTab = (item: Item, index: number) => {
   active.lab = item.key!
   active.index = index
   emit('click', { ...item }, index)
+}
+/** 点击标签页 */
+const clickTab = (item: Item, index: number) => {
+  const canEnter = props.beforeLeave ? props.beforeLeave(active.lab, item.key!) : () => true
+  if (isPromise(canEnter)) {
+    canEnter.then(() => {
+      changeTab(item, index)
+    })
+  } else if (canEnter !== false) {
+    changeTab(item, index)
+  }
 }
 /** 标签ref */
 const labRef = shallowRef<HTMLDivElement[]>()

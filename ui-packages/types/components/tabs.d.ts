@@ -14,6 +14,7 @@ export interface TabsProps<Items extends TabsItems> {
   position?: 'left' | 'right' | 'top' | 'bottom'
   closable?: boolean
   sortable?: booolean
+  beforeLeave?: ((prev: string | number, next: string | number) => boolean)
 }
 
 /** 标签页组件组件定义的事件 */
