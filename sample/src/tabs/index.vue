@@ -1,7 +1,6 @@
 <template>
   <div class="wrapper">
     <div class="config">
-      <div class="title">config</div>
       <ul>
         <li v-for="item in configList">
           <u-checkbox v-model="config[item.key]">{{ item.label }}：{{ item.key }}</u-checkbox>
@@ -22,15 +21,11 @@
       </ul>
     </div>
     <div class="display">
-      <div class="title">display</div>
       <u-tabs
         :items="items"
         v-model="active"
         :position="config.position"
         :closable="config.closable"
-        @click="handleClick"
-        @delete="handleDelete"
-        @update:items="handleUpdate"
         :sortable="config.sortable"
       >
         <template v-for="item in items" #[item.name]>{{ item }}</template>
@@ -52,18 +47,6 @@ let items = [
 
 const active = ref<string>('1')
 
-const handleClick = (item, index) => {
-  console.log(item, index)
-}
-
-const handleDelete = (item, index) => {
-  console.log(item, index)
-}
-
-const handleUpdate = (item) => {
-  console.log(item)
-}
-
 const configList = [
   { label: '可关闭', key: 'closable' },
   { label: '排序', key: 'sortable' }
@@ -77,15 +60,13 @@ const config = reactive({
 
 <style lang="scss" scoped>
 .wrapper {
-  height: 100%;
-  display: flex;
-  justify-content: space-around;
   .config {
-    flex: 1;
-    border-right: 1px solid #eee;
+    border: 1px dashed #eee;
   }
   .display {
-    flex: 2;
+    width: 600px;
+    height: 400px;
+    border: 1px solid gold;
   }
   .title {
     font-size: 20px;

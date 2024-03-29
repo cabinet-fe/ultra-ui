@@ -12,6 +12,7 @@
       />
       <br /> -->
       <u-checkbox v-model="config.simple">simple</u-checkbox>
+      <u-checkbox v-model="config.disabled">disabled</u-checkbox>
     </div>
     <u-paginator
       v-model:page-number="pageState.current"
@@ -19,6 +20,9 @@
       :total="120"
       :page-size-options="[10, 20, 50, 200]"
       :simple="config.simple"
+      :disabled="config.disabled"
+      @first-click="handleFirstClick"
+      @last-click="handleLastClick"
     />
   </div>
 </template>
@@ -33,8 +37,16 @@ const pageState = reactive({
 
 const config = reactive({
   size: 'default' as any,
-  simple: false
+  simple: false,
+  disabled: false
 })
+
+const handleFirstClick = (val: number) => {
+  console.log(val)
+}
+const handleLastClick = (val : number) => {
+  console.log(val)
+}
 </script>
 
 <style lang="scss" scoped>

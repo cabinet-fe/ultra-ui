@@ -9,7 +9,7 @@
           bem.is('active', modelValue === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="changeTab(item, index)"
+        @click="item.disabled || active.index === index ? void 0 : clickTab(item, index)"
         ref="labRef"
         :draggable="sortable"
       >
@@ -47,6 +47,7 @@ import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 import { UIcon } from '../icon'
+import { isPromise } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Tabs'
@@ -114,11 +115,21 @@ const active = reactive({
 })
 /** 切换标签页 */
 const changeTab = (item: Item, index: number) => {
-  if (item.disabled) return
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
   emit('click', { ...item }, index)
+}
+/** 点击标签页 */
+const clickTab = (item: Item, index: number) => {
+  const canEnter = props.beforeLeave ? props.beforeLeave(active.lab, item.key!) : () => true
+  if (isPromise(canEnter)) {
+    canEnter.then(() => {
+      changeTab(item, index)
+    })
+  } else if (canEnter !== false) {
+    changeTab(item, index)
+  }
 }
 /** 标签ref */
 const labRef = shallowRef<HTMLDivElement[]>()
@@ -137,7 +148,14 @@ const handleClose = (item: Item, index: number) => {
 /** 展示关闭按钮 */
 const showClose = (key: string | number) => {
   if (closable && standardItems.value.length > 1) {
-    return active.lab === key
+    return (
+      active.lab === key &&
+      standardItems.value.find((item) => {
+        if (item.key === key) {
+          return !item.disabled
+        }
+      })
+    )
   } else {
     return false
   }

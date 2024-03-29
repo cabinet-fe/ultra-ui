@@ -10,6 +10,7 @@ $root-name: radio;
 
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
+
     & + & {
       margin-left: calc(fn.use-var(gap, $size) * 2);
     }

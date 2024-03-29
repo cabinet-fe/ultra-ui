@@ -10,7 +10,7 @@
     </u-scroll>
 
     <u-scroll tag="main" class="main">
-      <div style="border-bottom: 1px solid #eee; margin-bottom: 10px;">
+      <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
         组件尺寸
         <u-radio value="small" v-model="size">小</u-radio>
         <u-radio value="default" v-model="size">中</u-radio>

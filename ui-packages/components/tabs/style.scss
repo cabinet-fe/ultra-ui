@@ -4,6 +4,7 @@
 @use 'sass:map';
 
 $root-name: tabs;
+$position-types: (top, right, bottom, left);
 
 @include m.b($root-name) {
   display: flex;
@@ -26,7 +27,7 @@ $root-name: tabs;
     }
   }
 
-  @each $position in top, left, right, bottom {
+  @each $position in $position-types {
     @include m.e($position) {
       @if $position ==top {
         flex-direction: column;
@@ -52,7 +53,7 @@ $root-name: tabs;
     position: relative;
     background-color: fn.use-var(color, primary-light-9);
 
-    @each $position in top, left, right, bottom {
+    @each $position in $position-types {
       &--#{$position} {
         @if $position ==left {
           flex-direction: column;
