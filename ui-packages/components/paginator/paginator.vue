@@ -32,7 +32,7 @@
           :min="1"
           :max="pages.length"
           :precision="0"
-          v-model="currentPage"
+          v-model="current.pageNumber"
           :clearable="false"
           @change="(val) => jump(val as number)"
         />/{{ pages.length }}
@@ -55,7 +55,13 @@
     </ul>
 
     <u-select
-      :model-value="String(pageSize)"
+      :model-value="String(current.pageNumber)"
+      :options="pages"
+      @update:model-value="changePageNumber"
+    />
+
+    <u-select
+      :model-value="String(current.pageSize)"
       :options="
         pageSizeOptions.map((item) => {
           return { label: String(item), value: String(item) }
@@ -70,7 +76,7 @@
 import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
@@ -94,7 +100,16 @@ const { size, simple } = useFormFallbackProps([formProps ?? {}, props], {
 const cls = bem('paginator')
 /** 完整页码 */
 const pages = computed(() => {
-  return Array.from({ length: Math.ceil(props.total / props.pageSize) }, (_, index) => index + 1)
+  const res = Array.from(
+    { length: Math.ceil(props.total / props.pageSize) },
+    (_, index) => index + 1
+  )
+  // 当前页码大于总页数的时候回到第一页
+  if (!res.includes(props.pageNumber)) {
+    current.pageNumber = 1
+    emit('update:pageNumber', 1)
+  }
+  return res
 })
 /** 始终展示5个页码 */
 const showPages = computed(() => {
@@ -111,45 +126,52 @@ const showPages = computed(() => {
     props.pageNumber + 2 > pages.value.length ? pages.value.length : startIndex + 5
   )
 })
-
 /** 切换每页显示数据量 */
 const changePageSize = (data) => {
   console.log(data)
+  emit('update:pageSize', Number(data.value))
 }
-
-const currentPage = ref<number>(props.pageNumber)
-
+/** 切换页码 */
+const changePageNumber = (data) => {
+  console.log(data)
+  emit('update:pageNumber', Number(data))
+}
+/** 组件内状态 */
+const current = reactive({
+  pageNumber: props.pageNumber,
+  pageSize: 10
+})
 /** 跳转页码 */
 const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
   const jumps = {
     first() {
-      currentPage.value = 1
+      current.pageNumber = 1
     },
     last() {
-      currentPage.value = pages.value.length
+      current.pageNumber = pages.value.length
     },
     prev() {
-      currentPage.value = props.pageNumber > 1 ? props.pageNumber - 1 : 1
+      current.pageNumber = props.pageNumber > 1 ? props.pageNumber - 1 : 1
     },
     next() {
-      currentPage.value =
+      current.pageNumber =
         props.pageNumber === pages.value.length ? pages.value.length : props.pageNumber + 1
     },
     default(key: number) {
-      currentPage.value = key
+      current.pageNumber = key
     }
   }
 
   jumps[key] ? jumps[key]() : jumps.default(key as number)
-  emit('update:pageNumber', currentPage.value)
+  emit('update:pageNumber', current.pageNumber)
   return
 }
-
+/** 鼠标停留位置 */
 const mouseState = reactive({
   first: false,
   last: false
 })
-
+/** 用于鼠标停留期间图标和页码切换显示 */
 const mouseEvent = (key: 'first' | 'last' | 'prev' | 'next' | number, value: boolean) => {
   mouseState[key] = value
 }
