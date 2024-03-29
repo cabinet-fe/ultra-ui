@@ -17,8 +17,12 @@ export const useSlide = (
   /** 按钮ref */
   let sliderButtonRef = shallowRef<HTMLElement>()
 
-  const { buttonOffset, convertToPercentage, resetButtonOffset } =
-    useSlideButton(props, initData)
+  const {
+    buttonOffset,
+    convertToPercentage,
+    convertToPosition,
+    resetButtonOffset
+  } = useSlideButton(props, initData)
 
   const { setStepButtonPosition } = useStops(props, initData)
 
@@ -32,11 +36,12 @@ export const useSlide = (
       initData.transform.y = event.offsetY
       initData.currentTransform.y = event.offsetY
     } else {
-      /** 最大边界 */
-      const runwayMax = initData.sliderSize - buttonOffset.value
+      /** 最大边界 30是按钮大小 */
+      const runwayMax = initData.sliderSize - buttonOffset.value - 30
 
-      if ((props.step ?? 0) > 0) {
+      if (props.step && props.step > 0) {
         let position = setStepButtonPosition(event.offsetX)
+        console.log(position, 'position')
         initData.transform.x = Math.min(Math.max(0, position), runwayMax)
         initData.currentTransform.x = Math.min(Math.max(0, position), runwayMax)
       } else {

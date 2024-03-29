@@ -73,6 +73,12 @@ useDrag({
       newPosition = x + initData.currentTransform.x
     }
 
+    // let percentage = convertToPercentage(
+    //   initData.sliderSize,
+    //   buttonOffset.value,
+    //   newPosition
+    // )
+
     // 是否使用步长
     if (sliderProps.step && sliderProps.step > 0) {
       newPosition = setStepButtonPosition(newPosition)

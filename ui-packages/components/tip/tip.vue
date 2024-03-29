@@ -76,11 +76,8 @@ let tipContentRef = shallowRef<HTMLElement>()
 /**是否显示 */
 let visible = shallowRef(false)
 
-let timerTip = 0
-
-let timerMouseEnter = 0
-
-let timerMouseLeave = 0
+// 使用Map管理所有定时器，便于统一清理
+const timers = new Map<string, number>()
 
 /**弹窗style样式 */
 let dynamicStyle = shallowRef<Record<string, any>>({})
@@ -88,49 +85,57 @@ let dynamicStyle = shallowRef<Record<string, any>>({})
 /**鼠标移入元素 */
 const handleMouseEnter = () => {
   if (props.trigger !== "hover") return
-  clearTimeout(timerMouseEnter)
-  timerMouseEnter = setTimeout(async () => {
-    visible.value = true
-    await nextTick()
-    popup()
-  }, 100)
+  clearTimeout(timers.get("timerMouseEnter"))
+  timers.set(
+    "timerMouseEnter",
+    setTimeout(async () => {
+      visible.value = true
+      await nextTick()
+      popup()
+    }, 100)
+  )
 }
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
   if (props.trigger !== "hover") return
-  clearTimeout(timerMouseLeave)
-  timerMouseLeave = setTimeout(() => {
-    tipContentRef.value!.style.opacity = "0"
-    dynamicStyle.value = {}
-    visible.value = false
-  }, 300)
+  clearTimeout(timers.get("timerMouseLeave"))
+  timers.set(
+    "timerMouseLeave",
+    setTimeout(() => {
+      tipContentRef.value!.style.opacity = "0"
+      dynamicStyle.value = {}
+      visible.value = false
+    }, 300)
+  )
 }
 
 /**鼠标移入弹窗内容区域 */
 const handleContentMouseEnter = () => {
   if (!props.mouseEnterable) return
-  clearTimeout(timerMouseLeave)
-  clearTimeout(timerMouseEnter)
+  timers.forEach(clearTimeout)
 }
 
 const handleClick = () => {
   if (props.trigger !== "click") return
-  clearTimeout(timerTip)
-  timerTip = setTimeout(async () => {
-    visible.value = !visible.value
-    if (visible.value) {
-      await nextTick()
-      popup()
-    } else {
-      tipContentRef.value!.style.opacity = "0"
-      dynamicStyle.value = {}
-    }
-  }, 100)
+  clearTimeout(timers.get("timerTip"))
+  timers.set(
+    "timerTip",
+    setTimeout(async () => {
+      visible.value = !visible.value
+      if (visible.value) {
+        await nextTick()
+        popup()
+      } else {
+        tipContentRef.value!.style.opacity = "0"
+        dynamicStyle.value = {}
+      }
+    }, 100)
+  )
 }
 
 const handleClickOutside = () => {
-  if (timerTip) clearInterval(timerTip)
+  clearInterval(timers.get("timerTip"))
   if (props.trigger === "hover") return
   visible.value = false
 }
@@ -196,45 +201,30 @@ const popup = (scrollDirection?: ScrollDirection) => {
 let scrollDom = shallowRef<HTMLElement | null>()
 
 let lastScrollTop = 0
-/**
- * 借鉴此篇文档
- * https://ayase.moe/2018/11/20/scroll-event/
- */
+
 const onScroll = () => {
-  const tipRefDom = tipRef.value?.$el as HTMLElement
+  const tipRefDom = tipRef.value as HTMLElement
   if (!tipRefDom) return
-  scrollDom.value = document.querySelector('.main')!.childNodes[1]
+  scrollDom.value = document.querySelector(".main")!.childNodes[1] as HTMLElement
   if (!scrollDom.value) return
-  
-  scrollDom.value.addEventListener("scroll", () => {
-    const currentScrollTop = scrollDom.value ? scrollDom.value.scrollTop : 0
-    const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
-    popup(scrollDirection)
-    lastScrollTop = currentScrollTop
-  })
+  scrollDom.value.addEventListener("scroll", scrollEvent)
+}
+
+const scrollEvent = () => {
+  const currentScrollTop = scrollDom.value ? scrollDom.value?.scrollTop : 0
+  const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
+  popup(scrollDirection)
+  lastScrollTop = currentScrollTop
 }
 
 onMounted(() => {
   onScroll()
 })
-// const intersectionObserver = new IntersectionObserver((entries: any) => {
-//   console.log(entries[0].target);
-//   if(!visible) return
-//   if (entries[0]?.intersectionRatio <= 0) return
-
-//   console.log('在可视窗口监听到滚动了');
-//   popup('down')
-
-// })
-// // 开始监听
-// nextTick(() => {
-//   const tipRefDom = tipRef.value?.$el as HTMLElement
-//   intersectionObserver.observe(tipRefDom)
-// })
 
 onBeforeUnmount(() => {
+  timers.forEach(clearTimeout)
   if (scrollDom.value) {
-    scrollDom.value.removeEventListener("scroll", () => {})
+    scrollDom.value.removeEventListener("scroll", scrollEvent)
   }
 })
 </script>

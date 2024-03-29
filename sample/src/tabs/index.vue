@@ -26,9 +26,6 @@
         v-model="active"
         :position="config.position"
         :closable="config.closable"
-        @click="handleClick"
-        @delete="handleDelete"
-        @update:items="handleUpdate"
         :sortable="config.sortable"
       >
         <template v-for="item in items" #[item.name]>{{ item }}</template>
@@ -49,18 +46,6 @@ let items = [
 ]
 
 const active = ref<string>('1')
-
-const handleClick = (item, index) => {
-  console.log(item, index)
-}
-
-const handleDelete = (item, index) => {
-  console.log(item, index)
-}
-
-const handleUpdate = (item) => {
-  console.log(item)
-}
 
 const configList = [
   { label: '可关闭', key: 'closable' },

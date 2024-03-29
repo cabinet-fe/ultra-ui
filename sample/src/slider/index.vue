@@ -21,13 +21,16 @@
       <u-slider
         v-model="stepVerticalValue"
         :vertical="true"
-        :height="300"
+        :height="500"
         :step="10"
         :show-stops="true"
       ></u-slider>
       <p>Parent Value: {{ stepVerticalValue }}</p>
     </div>
   </div>
+
+  范围
+  <div></div>
 </template>
 
 <script lang="ts" setup>
