@@ -19,8 +19,9 @@ export interface StepsProps {
 
 /** 步骤组件组件定义的事件 */
 export interface StepsEmits {
-  (e: 'update:modelValue', value: string): void
+  // (e: 'update:modelValue', value: string): void
   (e: 'update:active', value: string): void
+  (e: 'stepClick', item: Item): void
 }
 
 /** 步骤组件组件暴露的属性和方法(组件内部使用) */

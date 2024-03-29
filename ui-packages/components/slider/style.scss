@@ -9,7 +9,8 @@ $root-name: slider;
   width: 10px;
   @include m.b($root-name) {
     @include m.e('button-wrap') {
-      margin-left: 5px;
+      margin-left: -2px;
+      top: -10px;
     }
 
     &__bar {
@@ -42,7 +43,7 @@ $root-name: slider;
   }
 
   @include m.e('button-wrap') {
-    // width: 36px;
+    width: 36px;
     height: 36px;
     position: absolute;
     cursor: pointer;
@@ -51,6 +52,7 @@ $root-name: slider;
     line-height: 36px;
     user-select: none;
     text-align: center;
+    left: -10px;
   }
 
   @include m.e('button-back') {

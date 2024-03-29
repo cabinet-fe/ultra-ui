@@ -4,6 +4,7 @@
 @use 'sass:map';
 
 $root-name: tabs;
+$position-types: (top, right, bottom, left);
 
 @include m.b($root-name) {
   display: flex;
@@ -11,19 +12,22 @@ $root-name: tabs;
   @include m.size using ($size) {
     @include m.bem($root-name, header) {
       padding: 2px;
+
       &--label {
         border-radius: map.get(vars.$border-radius, $size);
         padding: map.get(vars.$gap, $size);
-        // font-size: map.get(vars.$form-component-font-size, $size);
-        .is-close, .is-close--placeholder {
-          // width: map.get(vars.$form-component-font-size, $size) * 1.5;
-          // height: map.get(vars.$form-component-font-size, $size) * 1.5;
+        font-size: map.get(vars.$font-size-main, $size);
+
+        .is-close,
+        .is-close--placeholder {
+          width: map.get(vars.$font-size-main, $size) * 1.5;
+          height: map.get(vars.$font-size-main, $size) * 1.5;
         }
       }
     }
   }
 
-  @each $position in top, left, right, bottom {
+  @each $position in $position-types {
     @include m.e($position) {
       @if $position ==top {
         flex-direction: column;
@@ -49,7 +53,7 @@ $root-name: tabs;
     position: relative;
     background-color: fn.use-var(color, primary-light-9);
 
-    @each $position in top, left, right, bottom {
+    @each $position in $position-types {
       &--#{$position} {
         @if $position ==left {
           flex-direction: column;
@@ -130,7 +134,12 @@ $root-name: tabs;
 
     &--label:hover {
       color: fn.use-var(color, primary);
+
+      @include m.is(disabled) {
+        color: fn.use-var(text-color, main);
+      }
     }
+
   }
 
   @include m.e(content) {
