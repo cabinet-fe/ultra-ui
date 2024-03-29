@@ -23,7 +23,7 @@ $root-name: table;
   }
 
   @include m.e(cell) {
-    box-shadow: 0px -1px #eee inset;
+    box-shadow: -1px -1px #eee inset;
     padding: 8px;
   }
 

@@ -1,9 +1,17 @@
 <template>
   <thead :class="cls.e('head')" ref="">
-    <!-- <tr v-for="">
-      <th></th>
-    </tr> -->
-    {{ c.log(headers) }}
+    <tr v-for="(header, headerIndex) of headers">
+      <th
+        :class="cls.e('cell')"
+        v-for="col of header"
+        :colspan="col.leafs"
+        :rowspan="
+          col.children?.length ? undefined : headers.length - headerIndex
+        "
+      >
+        {{ col.colName }}
+      </th>
+    </tr>
   </thead>
 </template>
 
@@ -15,7 +23,7 @@ defineOptions({
   name: 'TableHead'
 })
 
-const { cls, columns } = inject(TableDIKey)!
+const { cls, columnConfig } = inject(TableDIKey)!
 
-const { fixedOnLeft, unfixed, fixedOnRight, headers } = columns
+const { headers } = columnConfig
 </script>

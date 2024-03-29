@@ -1,34 +1,12 @@
 <template>
-  <tr :class="cls.e('row')" >
-    <td v-for="column of fixedOnLeft" :class="cellClass">
+  <tr :class="cls.e('row')">
+    <td :class="cellClass" v-for="column of columns">
       <u-node-render
         :content="
-          getColumnSlotsNode(column.key, {
+          getColumnSlotsNode(column.colKey, {
             row,
             column,
-            val: row.value[column.key]
-          })
-        "
-      />
-    </td>
-    <td v-for="column of unfixed" :class="cellClass">
-      <u-node-render
-        :content="
-          getColumnSlotsNode(column.key, {
-            row,
-            column,
-            val: row.value[column.key]
-          })
-        "
-      />
-    </td>
-    <td v-for="column of fixedOnRight" :class="cellClass">
-      <u-node-render
-        :content="
-          getColumnSlotsNode(column.key, {
-            row,
-            column,
-            val: row.value[column.key]
+            val: row.value[column.colKey]
           })
         "
       />
@@ -50,9 +28,9 @@ defineProps<{
   row: TableRow
 }>()
 
-const { cls, columns, getColumnSlotsNode } = inject(TableDIKey)!
+const { cls, columnConfig, getColumnSlotsNode } = inject(TableDIKey)!
 
 const cellClass = cls.e('cell')
 
-const { fixedOnLeft, unfixed, fixedOnRight } = columns
+const { columns } = columnConfig
 </script>
