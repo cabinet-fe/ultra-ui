@@ -1,5 +1,4 @@
-import { computed, inject, ref, shallowRef } from 'vue'
-import { sliderContextKey } from '../di'
+import { computed, ref, shallowRef } from 'vue'
 import type { SliderInitData, SliderProps } from '@ui/types/components/slider'
 
 export const useSlideButton = (
@@ -20,19 +19,16 @@ export const useSlideButton = (
 
   /** 更新按钮宽高 */
   const resetButtonOffset = () => {
-    // console.log(slideButtonRef.value, 'slideButtonRef')
     if (slideButtonRef.value) {
       buttonOffset.value = sliderProps.vertical
         ? slideButtonRef.value?.offsetHeight
         : slideButtonRef.value?.offsetWidth
-
-      console.log(buttonOffset.value, 'slideButtonRef.value')
     }
   }
 
   /** 转换百分比
    * @param 跑道大小
-   * @param 按钮大小
+   * @param 手柄宽度
    * @param 当前的位置
    */
   const convertToPercentage = (
@@ -63,7 +59,7 @@ export const useSlideButton = (
   ) => {
     let position = (percent / 100) * (sliderSize - button)
 
-    return Math.floor(position)
+    return position
   }
 
   return {
