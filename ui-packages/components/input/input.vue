@@ -29,7 +29,7 @@
 
     <Transition name="fade">
       <UIcon
-        v-if="clearable && model && hovered"
+        v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"
         :size="14"
         @click="clearModelValue"

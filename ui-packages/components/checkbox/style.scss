@@ -12,11 +12,13 @@ $root-name: checkbox;
   @include m.is(checked) {
     @include m.bem($root-name, wrap) {
       background-color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
     }
 
     @include m.is(disabled) {
       @include m.bem($root-name, wrap) {
         background-color: fn.use-var(text-color, disabled);
+        border-color: fn.use-var(border, color);
       }
     }
   }
@@ -42,9 +44,8 @@ $root-name: checkbox;
   }
 
   @include m.e(wrap) {
-    height: 16px;
-    width: 16px;
-    box-shadow: inset 0 0 1px 1px fn.use-var(border-color);
+    border: 1;
+    border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     color: #fff;
     transition: background-color 0.25s ease;
