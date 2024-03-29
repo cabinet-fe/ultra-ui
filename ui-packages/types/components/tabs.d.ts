@@ -13,7 +13,7 @@ export interface TabsProps<Items extends TabsItems> {
   items: Items
   position?: 'left' | 'right' | 'top' | 'bottom'
   closable?: boolean
-  sortable?: booolean
+  sortable?: boolean
   beforeLeave?: ((prev: string | number, next: string | number) => void | boolean | Promise<void | boolean>)
 }
 
