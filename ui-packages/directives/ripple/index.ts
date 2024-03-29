@@ -6,6 +6,7 @@ const clsWrap = cls.e('wrap')
 
 const duration = 300
 
+/** 创建波纹元素 */
 const createRipple = (e: MouseEvent) => {
   const parentEl = e.currentTarget as HTMLElement
   const parentRect = parentEl.getBoundingClientRect()

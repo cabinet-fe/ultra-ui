@@ -6,17 +6,6 @@ interface Options {
   props: TableProps
 }
 
-export interface StructColumns {
-  /** 固定到左侧的列 */
-  fixedOnLeft: ComputedRef<TableColumn[]>
-  /** 未固定的列 */
-  unfixed: ComputedRef<TableColumn[]>
-  /** 固定到右侧的列 */
-  fixedOnRight: ComputedRef<TableColumn[]>
-
-  headers: ComputedRef<ColumnNode<TableColumn>[][]>
-}
-
 /**
  * 定义表格列
  * @param columns 表格列
@@ -25,20 +14,41 @@ export function defineTableColumns(columns: TableColumn[]) {
   return columns
 }
 
-class ColumnNode<Val extends Record<string, any>> extends TreeNode<Val> {
-  children?: ColumnNode<Val>[] | undefined
+export class ColumnNode extends TreeNode<TableColumn> {
+  children?: ColumnNode[] | undefined
 
-  parent: ColumnNode<Val> | null = null
+  parent: ColumnNode | null = null
 
-  override createNode<Val extends Record<string, any>>(
-    val: Val,
-    index: number
-  ): ColumnNode<Val> {
+  /** 叶子节点数量 */
+  leafs?: number
+
+  /** 列key */
+  colKey: string
+
+  /** 列名 */
+  colName: string
+
+  constructor(val: TableColumn, index: number) {
+    super(val, index)
+
+    this.colKey = val.key
+    this.colName = val.name
+  }
+
+  override createNode(val: TableColumn, index: number): ColumnNode {
     return new ColumnNode(val, index)
   }
 }
 
-export function useColumns(options: Options): StructColumns {
+export interface ColumnConfig {
+  /** 表头 */
+  headers: ComputedRef<ColumnNode[][]>
+
+  /** 列 */
+  columns: ComputedRef<ColumnNode[]>
+}
+
+export function useColumns(options: Options): ColumnConfig {
   const { props } = options
 
   const preColumns = computed<TableColumn[]>(() => {
@@ -78,18 +88,20 @@ export function useColumns(options: Options): StructColumns {
     return fixedOnRight ?? []
   })
 
-  const columnTree = computed(() => {
-    return Forest.create(
+  const forest = computed(() => {
+    const result = Forest.create(
       [...fixedOnLeft.value, ...unfixed.value, ...fixedOnRight.value],
       ColumnNode
     )
+
+    return result
   })
 
   const headers = computed(() => {
-    const headers: ColumnNode<TableColumn>[][] = []
-    let currentLayer: ColumnNode<TableColumn>[] = []
+    const headers: ColumnNode[][] = []
+    let currentLayer: ColumnNode[] = []
     let layerDepth = -1
-    columnTree.value.bft(node => {
+    forest.value.bft(node => {
       if (layerDepth !== node.depth) {
         if (currentLayer.length) {
           headers.push(currentLayer)
@@ -103,16 +115,35 @@ export function useColumns(options: Options): StructColumns {
     currentLayer.length && headers.push(currentLayer)
     currentLayer = []
 
+    // 从叶子节点开始回溯计算每个节点的累计叶子节点数量，叶子节点数量代表表头的宽度
+    for (let i = headers.length - 1; i > 0; i--) {
+      const header = headers[i]!
+
+      header.forEach(node => {
+        const parent = node.parent!
+        if (parent.leafs !== undefined) return
+        parent.leafs = parent.children!.reduce((sum, node) => {
+          return sum + (node.leafs ?? 1)
+        }, 0)
+      })
+    }
+
     return headers
   })
 
+  const columns = computed(() => {
+    const columns: ColumnNode[] = []
+    forest.value.dft(node => {
+      if (node.isLeaf) {
+        columns.push(node)
+      }
+    })
+    return columns
+  })
+
   return {
-    /** 固定到左侧的列 */
-    fixedOnLeft,
-    /** 未固定的列 */
-    unfixed,
-    /** 固定到右侧的列 */
-    fixedOnRight,
+    /** 列 */
+    columns,
 
     /** 表格头的分层展示 */
     headers

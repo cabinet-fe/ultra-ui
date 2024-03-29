@@ -47,7 +47,7 @@ const cls = bem('table')
 
 const rows = useRows({ props })
 
-const columns = useColumns({ props })
+const columnConfig = useColumns({ props })
 
 const slots = useSlots()
 
@@ -59,7 +59,7 @@ provide(TableDIKey, {
   tableProps: props,
   cls,
   rows,
-  columns,
+  columnConfig,
   getColumnSlotsNode
 })
 </script>
