@@ -3,7 +3,7 @@
     <ul :class="[cls.e('pages')]">
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
-        @click="jump('first')"
+        @click="disabled || pageNumber === 1 ? void 0 : jump('firstClick')"
         @mouseenter="mouseEvent('first', true)"
         @mouseleave="mouseEvent('first', false)"
       >
@@ -11,7 +11,10 @@
         <UIcon v-else><DArrowLeft /></UIcon>
       </li>
 
-      <li :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]" @click="jump('prev')">
+      <li
+        :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
+        @click="disabled || pageNumber === 1 ? void 0 : jump('prevClick')"
+      >
         <UIcon><ArrowLeft /></UIcon>
       </li>
 
@@ -20,7 +23,7 @@
         <li
           v-for="page in showPages"
           :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
-          @click="jump(page)"
+          @click="disabled ? void 0 : jump(page)"
         >
           {{ page }}
         </li>
@@ -35,17 +38,18 @@
           v-model="current.pageNumber"
           :clearable="false"
           @change="(val) => jump(val as number)"
+          :disabled="disabled"
         />/{{ pages.length }}
       </li>
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
-        @click="jump('next')"
+        @click="disabled || pageNumber === pages.length ? void 0 : jump('nextClick')"
       >
         <UIcon><ArrowRight /></UIcon>
       </li>
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
-        @click="jump('last')"
+        @click="disabled || pageNumber === pages.length ? void 0 : jump('lastClick')"
         @mouseenter="mouseEvent('last', true)"
         @mouseleave="mouseEvent('last', false)"
       >
@@ -58,6 +62,7 @@
       :model-value="String(current.pageNumber)"
       :options="pages"
       @update:model-value="changePageNumber"
+      :disabled="disabled"
     />
 
     <u-select
@@ -68,6 +73,7 @@
         })
       "
       @update:model-value="changePageSize"
+      :disabled="disabled"
     />
   </div>
 </template>
@@ -92,9 +98,10 @@ const emit = defineEmits<PaginatorEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, simple } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, simple, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  simple: false
+  simple: false,
+  disabled: false
 })
 
 const cls = bem('paginator')
@@ -142,18 +149,18 @@ const current = reactive({
   pageSize: 10
 })
 /** 跳转页码 */
-const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
+const jump = (key: 'firstClick' | 'lastClick' | 'prevClick' | 'nextClick' | number) => {
   const jumps = {
-    first() {
+    firstClick() {
       current.pageNumber = 1
     },
-    last() {
+    lastClick() {
       current.pageNumber = pages.value.length
     },
-    prev() {
+    prevClick() {
       current.pageNumber = props.pageNumber > 1 ? props.pageNumber - 1 : 1
     },
-    next() {
+    nextClick() {
       current.pageNumber =
         props.pageNumber === pages.value.length ? pages.value.length : props.pageNumber + 1
     },
@@ -162,7 +169,12 @@ const jump = (key: 'first' | 'last' | 'prev' | 'next' | number) => {
     }
   }
 
-  jumps[key] ? jumps[key]() : jumps.default(key as number)
+  if (jumps[key]) {
+    jumps[key]()
+    emit(key as any, current.pageNumber)
+  } else {
+    jumps.default(key as number)
+  }
   emit('update:pageNumber', current.pageNumber)
   return
 }

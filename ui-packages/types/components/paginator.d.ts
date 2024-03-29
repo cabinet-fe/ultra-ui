@@ -15,13 +15,19 @@ export interface PaginatorProps {
   pageSizeOptions: Array<number>
   /** 简洁模式 */
   simple?: boolean
+  /** 禁用 */
+  disabled?: boolean
 }
 
 /** 分页器组件组件定义的事件 */
 export interface PaginatorEmits {
-  (e: 'update:modelValue', value: string): void
+  // (e: 'update:modelValue', value: string): void
   (e: 'update:pageNumber', value: number): void
   (e: 'update:pageSize', value: number): void
+  (e: 'firstClick', value: number): void
+  (e: 'lastClick', value: number): void
+  (e: 'prevClick', value: number): void
+  (e: 'nextClick', value: number): void
 }
 
 /** 分页器组件组件暴露的属性和方法(组件内部使用) */

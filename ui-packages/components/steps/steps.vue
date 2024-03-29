@@ -8,7 +8,7 @@
         bem.is(finishStatus!, index < currentIndex)
       ]"
       v-for="(item, index) in items"
-      @click="readonly ? void 0 : selectStep(item.key)"
+      @click="readonly ? void 0 : stepClick(item)"
     >
       <div :class="[cls.e('icon'), bem.is(direction)]">
         <div
@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 import { useSlots, computed } from 'vue'
-import type { StepsProps, StepsEmits } from '@ui/types/components/steps'
+import type { StepsProps, StepsEmits, Item } from '@ui/types/components/steps'
 import { bem } from '@ui/utils'
 import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
 import { Check } from 'icon-ultra'
@@ -91,7 +91,8 @@ const { direction, readonly, processStatus, finishStatus, size } = useFormFallba
 
 const cls = bem('steps')
 /** 点击步骤切换活动序号 */
-const selectStep = (key: string) => {
-  emit('update:active', key)
+const stepClick = (item: Item) => {
+  emit('stepClick', item)
+  emit('update:active', item.key)
 }
 </script>
