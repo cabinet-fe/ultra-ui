@@ -142,14 +142,18 @@ function topCount(
     setTransform(`translate(${x}px, ${translateY}px)`)
   } else if (position === "top") {
     // tip提示靠上居中位置
-    if (clientWidth === window.innerWidth - elementDistance*2) {
+    if (clientWidth === window.innerWidth - elementDistance * 2) {
       setTransform(`translate(${elementDistance}px, ${translateY}px)`)
     } else {
-      setTransform(`translate(${x - (clientWidth - elementWidth) / 2}px, ${translateY}px)`)
+      setTransform(
+        `translate(${x - (clientWidth - elementWidth) / 2}px, ${translateY}px)`
+      )
     }
   } else if (position === "top-end") {
     // tip提示靠上结束位置
-    setTransform(`translate(${x - clientWidth + elementWidth}px, ${translateY}px)`)
+    setTransform(
+      `translate(${x - clientWidth + elementWidth}px, ${translateY}px)`
+    )
   }
 
   // 如果tip元素超出视窗上边界，则将tip元素定位到鼠标下方
@@ -157,10 +161,13 @@ function topCount(
     if (position === "top-start") {
       setTransform(`translate(${x}px, ${topDown}px)`)
     } else if (position === "top") {
-      setTransform(`translate(${
-        x - (clientWidth - elementWidth) / 2}px, ${topDown}px)`)
+      setTransform(
+        `translate(${x - (clientWidth - elementWidth) / 2}px, ${topDown}px)`
+      )
     } else if (position === "top-end") {
-      setTransform(`translate(${x - clientWidth + elementWidth}px, ${topDown}px)`)
+      setTransform(
+        `translate(${x - clientWidth + elementWidth}px, ${topDown}px)`
+      )
     }
   }
 }
@@ -194,11 +201,18 @@ function rightCount(
       !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom, scrollDirection)
     ) {
       let rightUp = 0
-      scrollDirection =firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"? "up": "down"
+      scrollDirection =
+        firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"
+          ? "up"
+          : "down"
       if (scrollDirection === "down") {
         rightUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y}`)
       } else {
-        rightUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y - clientHeight + elementHeight}`)
+        rightUp = countPositionInt(
+          `${
+            tipRefDom.getBoundingClientRect().y - clientHeight + elementHeight
+          }`
+        )
       }
       if (position === "right-start") {
         setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
@@ -223,16 +237,32 @@ function rightCount(
       }
       if (position === "right") {
         if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${top - (clientHeight - elementHeight) / 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top - (clientHeight - elementHeight) / 2
+            }px)`
+          )
         } else {
-          setTransform(`translate(${rightLeft}px, ${top + (elementHeight - clientHeight) / 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top + (elementHeight - clientHeight) / 2
+            }px)`
+          )
         }
       }
       if (position === "right-end") {
         if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${top - (clientHeight - elementHeight)}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top - (clientHeight - elementHeight)
+            }px)`
+          )
         } else {
-          setTransform(`translate(${rightLeft}px, ${top + (elementHeight - clientHeight)}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top + (elementHeight - clientHeight)
+            }px)`
+          )
         }
       }
     }
@@ -244,17 +274,29 @@ function rightCount(
 
     if (position === "right") {
       if (clientHeight > elementHeight) {
-        setTransform(`translate(${rightX}px, ${top - (clientHeight - elementHeight) / 2}px)`)
+        setTransform(
+          `translate(${rightX}px, ${
+            top - (clientHeight - elementHeight) / 2
+          }px)`
+        )
       } else {
-        setTransform(`translate(${rightX}px, ${top + (elementHeight - clientHeight) / 2}px)`)
+        setTransform(
+          `translate(${rightX}px, ${
+            top + (elementHeight - clientHeight) / 2
+          }px)`
+        )
       }
     }
 
     if (position === "right-end") {
       if (clientHeight > elementHeight) {
-        setTransform(`translate(${rightX}px, ${top - (clientHeight - elementHeight)}px)`)
+        setTransform(
+          `translate(${rightX}px, ${top - (clientHeight - elementHeight)}px)`
+        )
       } else {
-        setTransform(`translate(${rightX}px, ${top + (elementHeight - clientHeight)}px)`)
+        setTransform(
+          `translate(${rightX}px, ${top + (elementHeight - clientHeight)}px)`
+        )
       }
     }
   }
@@ -289,11 +331,17 @@ function leftCount(
       !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom, scrollDirection)
     ) {
       let leftUp = 0
-      scrollDirection = firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"? "up": "down"
+      scrollDirection =
+        firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"
+          ? "up"
+          : "down"
       if (scrollDirection === "down") {
         leftUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y}`)
       } else {
-        leftUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y - clientHeight + elementHeight}`
+        leftUp = countPositionInt(
+          `${
+            tipRefDom.getBoundingClientRect().y - clientHeight + elementHeight
+          }`
         )
       }
 
@@ -320,16 +368,32 @@ function leftCount(
       }
       if (position === "left") {
         if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${top - (clientHeight - elementHeight) / 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top - (clientHeight - elementHeight) / 2
+            }px)`
+          )
         } else {
-          setTransform(`translate(${rightLeft}px, ${top + (elementHeight - clientHeight) / 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top + (elementHeight - clientHeight) / 2
+            }px)`
+          )
         }
       }
       if (position === "left-end") {
         if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${top - (clientHeight - elementHeight) - 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top - (clientHeight - elementHeight) - 2
+            }px)`
+          )
         } else {
-          setTransform(`translate(${rightLeft}px, ${top + (elementHeight - clientHeight) - 2}px)`)
+          setTransform(
+            `translate(${rightLeft}px, ${
+              top + (elementHeight - clientHeight) - 2
+            }px)`
+          )
         }
       }
     }
@@ -340,16 +404,32 @@ function leftCount(
     }
     if (position === "left") {
       if (clientHeight > elementHeight) {
-        setTransform(`translate(${leftX}px, ${countPositionInt(top - (clientHeight - elementHeight) / 2)}px)`)
+        setTransform(
+          `translate(${leftX}px, ${countPositionInt(
+            top - (clientHeight - elementHeight) / 2
+          )}px)`
+        )
       } else {
-        setTransform(`translate(${leftX}px, ${countPositionInt(top + (elementHeight - clientHeight) / 2)}px)`)
+        setTransform(
+          `translate(${leftX}px, ${countPositionInt(
+            top + (elementHeight - clientHeight) / 2
+          )}px)`
+        )
       }
     }
     if (position === "left-end") {
       if (clientHeight > elementHeight) {
-        setTransform(`translate(${leftX}px, ${countPositionInt(top - (clientHeight - elementHeight))}px)`)
+        setTransform(
+          `translate(${leftX}px, ${countPositionInt(
+            top - (clientHeight - elementHeight)
+          )}px)`
+        )
       } else {
-        setTransform(`translate(${leftX}px, ${countPositionInt(top + (elementHeight - clientHeight))}px)`)
+        setTransform(
+          `translate(${leftX}px, ${countPositionInt(
+            top + (elementHeight - clientHeight)
+          )}px)`
+        )
       }
     }
   }
@@ -384,57 +464,59 @@ function bottomCount(
   const bottomTop = `${top - contentRect.height - elementDistanceDefined}`
 
   // 判断是否在视图底部
-  if (!isBottomInViewport(tipContentRefDom, tipRefDom)) {
+  if (isBottomInViewport(tipContentRefDom, tipRefDom)) {
     if (position === "bottom-start") {
-      setTransform(`translate(${x}px, ${bottomTop}px)`);
+      setTransform(`translate(${x}px, ${bottomTop}px)`)
     } else if (position === "bottom") {
       if (clientWidth > elementWidth) {
         setTransform(
           `translate(${
-            countPositionInt(window.innerWidth - clientWidth - elementDistance) / 2 +
+            countPositionInt(
+              window.innerWidth - clientWidth - elementDistance
+            ) /
+              2 +
             elementWidth
           }px, ${countPositionInt(bottomTop)}px)`
-        );
+        )
       } else {
         setTransform(
-          `translate(${
-            x + (elementWidth - clientWidth) / 2
-          }px, ${bottomTop}px)`
-        );
+          `translate(${x + (elementWidth - clientWidth) / 2}px, ${bottomTop}px)`
+        )
       }
     } else if (position === "bottom-end") {
       if (clientWidth > elementWidth) {
         setTransform(
           `translate(${x - (clientWidth - elementWidth)}px,${bottomTop}px)`
-        );
+        )
       } else {
         setTransform(
           `translate(${x + (elementWidth - clientWidth)}px, ${bottomTop}px)`
-        );
+        )
       }
     }
   } else {
     if (position === "bottom-start") {
-      setTransform(`translate(${x}px, ${bottomY}px)`);
+      setTransform(`translate(${x}px, ${bottomY}px)`)
     } else if (position === "bottom") {
-      if (clientWidth === window.innerWidth - elementDistance*2) {
-        setTransform(`translate(${elementDistanceDefined}px, ${bottomY}px)`);
-        return;
+      if (clientWidth === window.innerWidth - elementDistance * 2) {
+        setTransform(`translate(${elementDistanceDefined}px, ${bottomY}px)`)
+        return
       }
       setTransform(
         `translate(${x - (clientWidth - elementWidth) / 2}px, ${bottomY}px)`
-      );
+      )
     } else if (position === "bottom-end") {
       if (clientWidth > elementWidth) {
         setTransform(
           `translate(${x - (clientWidth - elementWidth)}px,${bottomY}px)`
-        );
+        )
       } else {
         setTransform(
           `translate(${x + (elementWidth - clientWidth)}px, ${bottomY}px)`
-        );
+        )
       }
     }
+    
   }
 }
 

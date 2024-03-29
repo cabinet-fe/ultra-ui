@@ -8,6 +8,8 @@ export * from './checkbox-group'
 
 export * from './dialog'
 
+export * from './dropdown'
+
 export * from './float-button'
 
 export * from './form'
