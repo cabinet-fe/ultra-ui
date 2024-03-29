@@ -5,9 +5,7 @@
     @click.stop
     :class="cls.e('button-wrap')"
   >
-    <div :class="cls.e('button-back')">
-      <div :class="cls.e('button')" />
-    </div>
+    <div :class="cls.e('button')" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -58,34 +56,34 @@ handleButtonPosition()
 useDrag({
   target: slideButtonRef,
   onDrag(x, y, e) {
-    if (!slideButtonRef.value?.offsetWidth) return;
+    if (!slideButtonRef.value?.offsetWidth) return
 
     if (buttonOffset.value === 0) {
-      resetButtonOffset();
+      resetButtonOffset()
     }
 
-    if (!buttonOffset.value) return;
+    if (!buttonOffset.value) return
 
-    const runwayMax = initData.sliderSize - buttonOffset.value;
-    let newPosition: number;
+    const runwayMax = initData.sliderSize - buttonOffset.value
+    let newPosition: number
 
     if (vertical) {
-      newPosition = initData.currentTransform.y + y;
+      newPosition = initData.currentTransform.y + y
     } else {
-      newPosition = x + initData.currentTransform.x;
+      newPosition = x + initData.currentTransform.x
     }
 
     // 是否使用步长
     if (sliderProps.step && sliderProps.step > 0) {
-      newPosition = setStepButtonPosition(newPosition);
+      newPosition = setStepButtonPosition(newPosition)
     }
 
-    const boundedPosition = Math.min(Math.max(0, newPosition), runwayMax);
+    const boundedPosition = Math.min(Math.max(0, newPosition), runwayMax)
 
     if (vertical) {
-      initData.transform.y = boundedPosition;
+      initData.transform.y = boundedPosition
     } else {
-      initData.transform.x = boundedPosition;
+      initData.transform.x = boundedPosition
     }
 
     emit(
@@ -95,15 +93,15 @@ useDrag({
         buttonOffset.value,
         vertical ? initData.transform.y : initData.transform.x
       )
-    );
+    )
   },
 
   onDragEnd(x, y, e) {
     if (vertical) {
-      initData.currentTransform.y += y;
+      initData.currentTransform.y = initData.transform.y
     } else {
-      initData.currentTransform.x += x;
+      initData.currentTransform.x = initData.transform.x
     }
   }
-});
+})
 </script>
