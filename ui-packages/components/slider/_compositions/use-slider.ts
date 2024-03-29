@@ -5,6 +5,7 @@ import type {
 } from '@ui/types/components/slider'
 import { shallowRef, computed } from 'vue'
 import { useSlideButton } from './use-slider-button'
+import { useStops } from '.'
 
 export const useSlide = (
   props: SliderProps,
@@ -16,17 +17,32 @@ export const useSlide = (
   /** 按钮ref */
   let sliderButtonRef = shallowRef<HTMLElement>()
 
-  const { buttonOffset, convertToPercentage } = useSlideButton(initData, props)
+  const { buttonOffset, convertToPercentage, resetButtonOffset } =
+    useSlideButton(props, initData)
+
+  const { setStepButtonPosition } = useStops(props, initData)
 
   /** 点击 */
   const handleSliderDown = async (event: MouseEvent) => {
+    if (buttonOffset.value === 0) {
+      resetButtonOffset()
+    }
+
     if (props.vertical) {
-      // console.log(event.target?.dispatchEvent, 'event.target', 'initData.transform.y')
       initData.transform.y = event.offsetY
       initData.currentTransform.y = event.offsetY
     } else {
-      initData.transform.x = event.offsetX
-      initData.currentTransform.x = event.offsetX
+      /** 最大边界 */
+      const runwayMax = initData.sliderSize - buttonOffset.value
+
+      if ((props.step ?? 0) > 0) {
+        let position = setStepButtonPosition(event.offsetX)
+        initData.transform.x = Math.min(Math.max(0, position), runwayMax)
+        initData.currentTransform.x = Math.min(Math.max(0, position), runwayMax)
+      } else {
+        initData.transform.x = event.offsetX
+        initData.currentTransform.x = event.offsetX
+      }
     }
     emit(
       'update:modelValue',

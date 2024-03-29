@@ -10,7 +10,6 @@ $root-name: slider;
   @include m.b($root-name) {
     @include m.e('button-wrap') {
       margin-left: 5px;
-
     }
 
     &__bar {
@@ -79,5 +78,14 @@ $root-name: slider;
     &:hover {
       transform: scale(1.2);
     }
+  }
+
+  @include m.e('stop') {
+    position: absolute;
+    pointer-events: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: fn.use-var('color', primary, light-3);
   }
 }

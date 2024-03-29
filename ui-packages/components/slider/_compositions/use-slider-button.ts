@@ -3,14 +3,15 @@ import { sliderContextKey } from '../di'
 import type { SliderInitData, SliderProps } from '@ui/types/components/slider'
 
 export const useSlideButton = (
-  initData: SliderInitData,
-  sliderProps: SliderProps
+  sliderProps: SliderProps,
+  initData: SliderInitData
 ) => {
   let slideButtonRef = shallowRef<HTMLDivElement>()
 
-  /** 按钮的宽高 */
+  /** 按钮的大小 */
   let buttonOffset = ref(0)
 
+  /** button的位移距离 */
   const warpStyles = computed(() => {
     return {
       transform: `translate(${initData.transform.x}px, ${initData.transform.y}px)`
@@ -19,6 +20,7 @@ export const useSlideButton = (
 
   /** 更新按钮宽高 */
   const resetButtonOffset = () => {
+    console.log(slideButtonRef.value, 'slideButtonRef')
     if (slideButtonRef.value) {
       buttonOffset.value = sliderProps.vertical
         ? slideButtonRef.value?.offsetHeight
@@ -26,18 +28,22 @@ export const useSlideButton = (
     }
   }
 
-  /** 转换百分比 */
+  /** 转换百分比
+   * @param 跑道大小
+   * @param 按钮大小
+   * @param 当前的位置
+   */
   const convertToPercentage = (
     runway: number,
     button: number,
-    currentXY: number
+    position: number
   ) => {
     if (sliderProps.vertical) {
-      let percent = (currentXY / (button - runway)) * 100 + 100
+      let percent = (position / (button - runway)) * 100 + 100
       /** 将百分比转换成位置 */
       return Math.floor(percent)
     } else {
-      let percent = (currentXY / (runway - button)) * 100
+      let percent = (position / (runway - button)) * 100
 
       return Math.floor(percent)
     }
