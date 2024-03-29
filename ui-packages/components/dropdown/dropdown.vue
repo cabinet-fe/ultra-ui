@@ -172,6 +172,7 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
 }
 /** 根据是否超出屏幕添加隐藏动画 */
 const hideAnimation = () => {
+  if (!contentRef.value) return
   setStyles(contentRef.value!, {
     animation: `${animationName}-hide 0.25s linear`,
     opacity: 0,
