@@ -4,6 +4,7 @@ import type { DeconstructValue } from '../helper'
 /** 滑块组件属性 */
 export interface SliderProps {
   modelValue: number
+  range: Boolean
   disable?: Boolean
   /** 是否垂直 */
   vertical?: boolean

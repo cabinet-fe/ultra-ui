@@ -12,6 +12,8 @@
       <!-- 手柄 -->
       <slider-button />
 
+      <!-- <slider-button v-if="range" /> -->
+
       <!-- 断点 -->
       <template v-if="showStops">
         <div
@@ -49,7 +51,8 @@ const props = withDefaults(defineProps<SliderProps>(), {
   max: 100,
   step: 0,
   vertical: false,
-  height: 300
+  height: 300,
+  range: false
 })
 
 const emit = defineEmits<SliderEmits>()

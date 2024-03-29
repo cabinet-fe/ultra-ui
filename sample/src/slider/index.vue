@@ -30,7 +30,9 @@
   </div>
 
   范围
-  <div></div>
+  <div>
+    <u-slider v-model="rangeValue" :range="true"> </u-slider>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -43,5 +45,8 @@ const verticalValue = ref(40)
 const stepValue = ref(0)
 
 const stepVerticalValue = ref(0)
+
+/** 范围 */
+const rangeValue = ref(0)
 </script>
 <style lang="scss" scoped></style>
