@@ -52,9 +52,7 @@ const slots = useSlots()
 
 const renderTrigger = () => {
   const trigger = slots.trigger?.()
-  trigger?.forEach((node) => {
-    console.log(node)
-  })
+
   return trigger?.filter((node) => node.type !== Text)?.[0]
 }
 
