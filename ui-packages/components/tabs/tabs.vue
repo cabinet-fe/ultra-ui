@@ -9,7 +9,7 @@
           bem.is('active', modelValue === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="changeTab(item, index)"
+        @click="item.disabled ? void 0 : changeTab(item, index)"
         ref="labRef"
         :draggable="sortable"
       >
@@ -114,7 +114,6 @@ const active = reactive({
 })
 /** 切换标签页 */
 const changeTab = (item: Item, index: number) => {
-  if (item.disabled) return
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
@@ -137,7 +136,14 @@ const handleClose = (item: Item, index: number) => {
 /** 展示关闭按钮 */
 const showClose = (key: string | number) => {
   if (closable && standardItems.value.length > 1) {
-    return active.lab === key
+    return (
+      active.lab === key &&
+      standardItems.value.find((item) => {
+        if (item.key === key) {
+          return !item.disabled
+        }
+      })
+    )
   } else {
     return false
   }
