@@ -33,7 +33,7 @@
         @update:items="handleUpdate"
         :sortable="config.sortable"
       >
-        <template v-for="item in items" #[item]>{{ item }}</template>
+        <template v-for="item in items" #[item.name]>{{ item }}</template>
       </u-tabs>
     </div>
   </div>
@@ -42,12 +42,13 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
-let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
-// let items = [
-//   { key: '1', name: 'TabOne' },
-//   { key: '2', name: 'TabTwo', disabled: true },
-//   { key: '3', name: 'TabThree' }
-// ]
+// let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
+let items = [
+  { key: '1', name: 'TabOne' },
+  { key: '2', name: 'TabTwo', disabled: true },
+  { key: '3', name: 'TabThree' },
+  { key: '4', name: 'TabFour' }
+]
 
 const active = ref<string>('1')
 

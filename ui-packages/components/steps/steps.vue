@@ -57,15 +57,15 @@ defineOptions({
 })
 
 const slots = useSlots()
-
+/** 图标位插槽 */
 const icons = computed(() => {
   return slots.icon ? slots.icon()[0]?.children || [] : []
 })
-
+/** 描述位插槽 */
 const descs = computed(() => {
   return slots.desc ? slots.desc()[0]?.children || [] : []
 })
-
+/** 当前活动序号 */
 const currentIndex = computed(() => {
   return props.active
     ? props.items.findIndex((item) => item.key === props.active)
@@ -90,7 +90,7 @@ const { direction, readonly, processStatus, finishStatus, size } = useFormFallba
 )
 
 const cls = bem('steps')
-
+/** 点击步骤切换活动序号 */
 const selectStep = (key: string) => {
   emit('update:active', key)
 }

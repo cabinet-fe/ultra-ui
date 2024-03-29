@@ -80,11 +80,11 @@ const showContent = computed(() => {
     return false
   }
 })
-
+/** 标准化传入items */
 const standardItems = ref<Array<Item>>([])
-
+/** 用于回传用户的原始格式数据 */
 const propItems = ref<TabsItems[]>(deepCopy(props.items))
-
+/** 监听传入的items，进行标准化处理 */
 watch(
   () => props.items,
   (items) => {
@@ -105,9 +105,9 @@ watch(
   },
   { immediate: true, deep: true }
 )
-
+/** 标签栏ref */
 const headerRef = shallowRef<HTMLDivElement>()
-
+/** 当前活动标签 */
 const active = reactive({
   lab: props.modelValue as string | number,
   index: 0
@@ -120,7 +120,7 @@ const changeTab = (item: Item, index: number) => {
   active.index = index
   emit('click', { ...item }, index)
 }
-
+/** 标签ref */
 const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
@@ -134,7 +134,7 @@ const handleClose = (item: Item, index: number) => {
   }
   emit('delete', { ...item }, index)
 }
-
+/** 展示关闭按钮 */
 const showClose = (key: string | number) => {
   if (closable && standardItems.value.length > 1) {
     return active.lab === key
@@ -142,14 +142,14 @@ const showClose = (key: string | number) => {
     return false
   }
 }
-
+/** 使用拖拽排序 */
 useSort({
   target: headerRef,
   onChange: ({ newIndex, oldIndex }) => {
     exchange(newIndex, oldIndex)
   }
 })
-
+/** 根据排序结果重排数据 */
 const exchange = (newIndex: number, oldIndex: number) => {
   standardItems.value.splice(
     newIndex > oldIndex ? newIndex + 1 : newIndex,
