@@ -20,11 +20,13 @@ export const useSlideButton = (
 
   /** 更新按钮宽高 */
   const resetButtonOffset = () => {
-    console.log(slideButtonRef.value, 'slideButtonRef')
+    // console.log(slideButtonRef.value, 'slideButtonRef')
     if (slideButtonRef.value) {
       buttonOffset.value = sliderProps.vertical
         ? slideButtonRef.value?.offsetHeight
         : slideButtonRef.value?.offsetWidth
+
+      console.log(buttonOffset.value, 'slideButtonRef.value')
     }
   }
 

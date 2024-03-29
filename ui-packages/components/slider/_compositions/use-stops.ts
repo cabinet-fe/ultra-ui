@@ -4,21 +4,25 @@ import type { SliderInitData } from '@ui/types/components/slider'
 import { useSlideButton } from '.'
 
 export const useStops = (props: SliderProps, initData: SliderInitData) => {
-  const { convertToPosition, buttonOffset } = useSlideButton(props, initData)
+  const { convertToPosition, resetButtonOffset, buttonOffset } = useSlideButton(
+    props,
+    initData
+  )
 
-  /** 断点位置(%) */
+  /** 断点位置(px) */
   let stops = computed(() => {
     if (props.step === 0) {
       console.error('step不应该为0')
       return []
     }
 
+    let sliderSize = initData.sliderSize
+
     const stopCount = (props.max! - props.min!) / props.step!
+    const stepWidth = (sliderSize * props.step!) / (props.max! - props.min!)
 
-    const stepWidth = (100 * props.step!) / (props.max! - props.min!)
-
-    const result = Array.from<number>({ length: stopCount - 1 }).map(
-      (_, index) => (index + 1) * stepWidth
+    const result = Array.from<number>({ length: stopCount }).map(
+      (_, index) => index * stepWidth
     )
 
     return result
@@ -27,24 +31,24 @@ export const useStops = (props: SliderProps, initData: SliderInitData) => {
   /** 断点就位 */
   let getStopStyle = (position: number) => {
     return props.vertical
-      ? { bottom: `${position}%` }
-      : { left: `${position}%` }
+      ? { bottom: `${position}px` }
+      : { left: `${position}px` }
   }
 
-  /** 将stops转换具体的位置
-   * @param 跑道大小
-   * @param button大小
-   */
-  let stopsToPosition = (runway: number, buttonOffset: number) => {
-    return stops.value.map((item: any) => {
-      return convertToPosition(item, runway, buttonOffset)
-    })
-  }
+  // /** 将stops转换具体的位置
+  //  * @param 跑道大小
+  //  * @param button大小
+  //  */
+  // let stopsToPosition = (runway: number, buttonOffset: number) => {
+  //   return stops.value.map((item: any) => {
+  //     return convertToPosition(item, runway, buttonOffset)
+  //   })
+  // }
 
-  /** 断点位置（px） */
-  const stopsPosition = computed(() => {
-    return stopsToPosition(initData.sliderSize, buttonOffset.value)
-  })
+  // /** 断点位置（px） */
+  // const stopsPercentage = computed(() => {
+  //   return stopsToPosition(initData.sliderSize, buttonOffset.value)
+  // })
   // 如果接近0就跳到0，如果接近最大值
 
   /**
@@ -52,7 +56,7 @@ export const useStops = (props: SliderProps, initData: SliderInitData) => {
    * @param 当前位置
    */
   const setStepButtonPosition = (newPosition: number) => {
-    let position = [...stopsPosition.value, 0, initData.sliderSize]
+    let position = [...stops.value, 0, initData.sliderSize]
 
     const differences = position.map(value => Math.abs(value - newPosition))
 
@@ -74,5 +78,5 @@ export const useStops = (props: SliderProps, initData: SliderInitData) => {
     return closestValue
   }
 
-  return { stops, getStopStyle, stopsToPosition, setStepButtonPosition }
+  return { stops, getStopStyle, setStepButtonPosition }
 }
