@@ -22,7 +22,7 @@ $namespace: 'u-';
 
 $sizes: (small, default, large);
 
-// 表单组件尺寸
+// 表单组件尺寸(已经废弃)
 $form-component-sizes: size-vars(
   (
     height: 24px,
@@ -37,20 +37,7 @@ $form-component-sizes: size-vars(
   (
     height: 40px,
     padding: 0 16px,
-    font-size: 14px
-  )
-);
-
-// 卡片组件尺寸
-$card-sizes: size-vars(
-  (
-    padding: 6px
-  ),
-  (
-    padding: 8px
-  ),
-  (
-    padding: 12px
+    font-size: 16px
   )
 );
 
@@ -109,25 +96,29 @@ $form-component-height: (
   large: 40px
 );
 
-// 字体大小尺寸
-$form-component-font-size: (
+// 字体大小
+$font-size-title: (
+  small: 16px,
+  default: 16px,
+  large: 18px
+);
+$font-size-main: (
   small: 12px,
   default: 14px,
   large: 16px
 );
 
-// 字体大小
-$font-sizes: (
-  title: 16px,
-  main: 14px,
-  assist: 12px
+$font-size-assist: (
+  small: 12px,
+  default: 12px,
+  large: 14px
 );
 
 // 间隔大小
 $gap: (
-  small: 4px,
-  default: 6px,
-  large: 8px
+  small: 6px,
+  default: 8px,
+  large: 12px
 );
 
 // 响应式断点

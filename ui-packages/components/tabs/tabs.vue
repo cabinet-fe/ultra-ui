@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.e(position!)]">
+  <div :class="[cls.b, cls.e(position!), cls.m(size)]">
     <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
       <div
         v-for="(item, index) in standardItems"
@@ -9,7 +9,7 @@
           bem.is('active', modelValue === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="changeTab(item, index)"
+        @click="item.disabled || active.index === index ? void 0 : clickTab(item, index)"
         ref="labRef"
         :draggable="sortable"
       >
@@ -21,7 +21,7 @@
           :class="bem.is('close')"
           @click.stop="handleClose(item, index)"
         >
-          <Close />
+          <UIcon><Close /></UIcon>
         </div>
         <div v-else :class="bem.is('close--placeholder')"></div>
       </div>
@@ -45,24 +45,24 @@ import { isObj, deepCopy } from 'cat-kit/fe'
 import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
+import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
+import { UIcon } from '../icon'
+import { isPromise } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Tabs'
 })
 
-const props: TabsProps<TabsItems> = withDefaults(defineProps<TabsProps<TabsItems>>(), {
+const props = defineProps<TabsProps<TabsItems>>()
+
+const { formProps } = useFormComponent()
+
+const { size, position, closable, sortable } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
   position: 'right',
   closable: false,
   sortable: false
 })
-/** 切换position回归初始状态 */
-watch(
-  () => props.position,
-  () => {
-    active.index = 0
-    emit('update:modelValue', standardItems.value[0]?.key!)
-  }
-)
 
 const slots = useSlots()
 
@@ -81,11 +81,11 @@ const showContent = computed(() => {
     return false
   }
 })
-
+/** 标准化传入items */
 const standardItems = ref<Array<Item>>([])
-
+/** 用于回传用户的原始格式数据 */
 const propItems = ref<TabsItems[]>(deepCopy(props.items))
-
+/** 监听传入的items，进行标准化处理 */
 watch(
   () => props.items,
   (items) => {
@@ -106,22 +106,32 @@ watch(
   },
   { immediate: true, deep: true }
 )
-
+/** 标签栏ref */
 const headerRef = shallowRef<HTMLDivElement>()
-
+/** 当前活动标签 */
 const active = reactive({
   lab: props.modelValue as string | number,
   index: 0
 })
 /** 切换标签页 */
 const changeTab = (item: Item, index: number) => {
-  if (item.disabled) return
   emit('update:modelValue', item.key!)
   active.lab = item.key!
   active.index = index
   emit('click', { ...item }, index)
 }
-
+/** 点击标签页 */
+const clickTab = (item: Item, index: number) => {
+  const canEnter = props.beforeLeave ? props.beforeLeave(active.lab, item.key!) : () => true
+  if (isPromise(canEnter)) {
+    canEnter.then(() => {
+      changeTab(item, index)
+    })
+  } else if (canEnter !== false) {
+    changeTab(item, index)
+  }
+}
+/** 标签ref */
 const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
@@ -135,22 +145,29 @@ const handleClose = (item: Item, index: number) => {
   }
   emit('delete', { ...item }, index)
 }
-
+/** 展示关闭按钮 */
 const showClose = (key: string | number) => {
-  if (props.closable && standardItems.value.length > 1) {
-    return active.lab === key
+  if (closable && standardItems.value.length > 1) {
+    return (
+      active.lab === key &&
+      standardItems.value.find((item) => {
+        if (item.key === key) {
+          return !item.disabled
+        }
+      })
+    )
   } else {
     return false
   }
 }
-
+/** 使用拖拽排序 */
 useSort({
   target: headerRef,
   onChange: ({ newIndex, oldIndex }) => {
     exchange(newIndex, oldIndex)
   }
 })
-
+/** 根据排序结果重排数据 */
 const exchange = (newIndex: number, oldIndex: number) => {
   standardItems.value.splice(
     newIndex > oldIndex ? newIndex + 1 : newIndex,

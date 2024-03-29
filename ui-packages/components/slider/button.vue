@@ -5,9 +5,7 @@
     @click.stop
     :class="cls.e('button-wrap')"
   >
-    <div :class="cls.e('button-back')">
-      <div :class="cls.e('button')" />
-    </div>
+    <div :class="cls.e('button')" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -15,25 +13,24 @@ import { inject, nextTick } from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
 import { useSlideButton } from './_compositions'
+import { useStops } from './_compositions'
 
 let injected = inject(sliderContextKey)!
 
-let { resetSize, initData, emit, sliderProps } = injected
+let { cls, resetSize, emit, initData, sliderProps } = injected
 
 let { modelValue, vertical, height } = sliderProps
-
-let { cls } = injected
 
 const {
   convertToPosition,
   convertToPercentage,
+  resetButtonOffset,
   warpStyles,
   slideButtonRef,
-  buttonOffset,
-  resetButtonOffset
-} = useSlideButton(initData, sliderProps)
+  buttonOffset
+} = useSlideButton(sliderProps, initData)
 
-// const sliderButtonRef = shallowRef<HTMLDivElement>()
+const { setStepButtonPosition } = useStops(sliderProps, initData)
 
 /** 页面加载时获取手柄位置 */
 const handleButtonPosition = async () => {
@@ -56,7 +53,6 @@ const handleButtonPosition = async () => {
 }
 handleButtonPosition()
 
-/** 拖拽手柄 */
 useDrag({
   target: slideButtonRef,
   onDrag(x, y, e) {
@@ -69,15 +65,31 @@ useDrag({
     if (!buttonOffset.value) return
 
     const runwayMax = initData.sliderSize - buttonOffset.value
-
     let newPosition: number
 
     if (vertical) {
       newPosition = initData.currentTransform.y + y
-      initData.transform.y = Math.min(Math.max(0, newPosition), runwayMax)
     } else {
       newPosition = x + initData.currentTransform.x
-      initData.transform.x = Math.min(Math.max(0, newPosition), runwayMax)
+    }
+
+    // let percentage = convertToPercentage(
+    //   initData.sliderSize,
+    //   buttonOffset.value,
+    //   newPosition
+    // )
+
+    // 是否使用步长
+    if (sliderProps.step && sliderProps.step > 0) {
+      newPosition = setStepButtonPosition(newPosition)
+    }
+
+    const boundedPosition = Math.min(Math.max(0, newPosition), runwayMax)
+
+    if (vertical) {
+      initData.transform.y = boundedPosition
+    } else {
+      initData.transform.x = boundedPosition
     }
 
     emit(
@@ -92,9 +104,9 @@ useDrag({
 
   onDragEnd(x, y, e) {
     if (vertical) {
-      initData.currentTransform.y += y
+      initData.currentTransform.y = initData.transform.y
     } else {
-      initData.currentTransform.x += x
+      initData.currentTransform.x = initData.transform.x
     }
   }
 })

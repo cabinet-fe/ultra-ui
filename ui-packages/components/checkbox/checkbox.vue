@@ -11,7 +11,13 @@
       </transition>
     </span>
 
-    <input type="checkbox" :checked="checked" :disabled="disabled" hidden @input="handleInput" />
+    <input
+      type="checkbox"
+      :checked="checked"
+      :disabled="disabled"
+      hidden
+      @input="handleInput"
+    />
 
     <span :class="cls.e('label')"><slot /></span>
   </label>

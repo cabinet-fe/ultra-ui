@@ -1,12 +1,12 @@
 <template>
   <u-input
     ref="inputRef"
-    :class="cls.b"
+    :class="className"
     :model-value="displayed"
     v-bind="inputProps"
     @update:model-value="handleUpdateModelValue"
     @change="handleChange"
-    @keydown="handleKeydown"
+    @keydown.stop="handleKeydown"
     @focus="handleFocus"
     @blur="handleBlur"
     :size="size"
@@ -17,14 +17,14 @@
       <div :class="cls.e('step')">
         <u-icon
           @click="increase"
-          v-ripple
+          v-ripple="!disabled && increasable"
           :class="bem.is('disabled', disabled || !increasable)"
         >
           <ArrowUp />
         </u-icon>
         <u-icon
           @click="decrease"
-          v-ripple
+          v-ripple="!disabled && reducible"
           :class="bem.is('disabled', disabled || !reducible)"
         >
           <ArrowDown />
@@ -63,10 +63,13 @@ const emit = defineEmits<NumberInputEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
+const { size, disabled } = useFormFallbackProps([
   formProps ?? {},
   props
-])
+], {
+  size: 'default',
+  disabled: false
+})
 
 const inputProps = computed(() => {
   return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
@@ -77,6 +80,10 @@ const inputRef = shallowRef<InputExposed>()
 const inputDom = computed(() => inputRef.value?.el)
 
 const cls = bem('number-input')
+
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
+})
 
 /** 实际值 */
 const model = defineModel<NumberInputProps['modelValue']>()
@@ -113,7 +120,6 @@ const reducible = computed(() => {
  */
 function getDisplayed(num?: number): string {
   if (num === undefined) return ''
-  if (focused.value) return String(num)
 
   const {
     currency,
@@ -219,7 +225,6 @@ const tween = new Tween(
 function increase(): void {
   if (disabled.value) return
   const val = model.value ?? 0
-
   tween.state.n = val
   const target = getValidValue(n.plus(val, stepVal.value))
   model.value = target
