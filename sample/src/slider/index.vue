@@ -49,6 +49,6 @@ const stepValue = ref(0)
 const stepVerticalValue = ref(0)
 
 /** 范围 */
-const rangeValue = ref(20)
+const rangeValue = ref([20,40])
 </script>
 <style lang="scss" scoped></style>
