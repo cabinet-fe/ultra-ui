@@ -45,7 +45,7 @@ import { isObj, deepCopy } from 'cat-kit/fe'
 import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
-import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
+import { useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { isPromise } from 'cat-kit/fe'
 
@@ -55,9 +55,7 @@ defineOptions({
 
 const props = defineProps<TabsProps<TabsItems>>()
 
-const { formProps } = useFormComponent()
-
-const { size, position, closable, sortable } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, position, closable, sortable } = useFallbackProps([props], {
   size: 'default',
   position: 'right',
   closable: false,
@@ -147,7 +145,7 @@ const handleClose = (item: Item, index: number) => {
 }
 /** 展示关闭按钮 */
 const showClose = (key: string | number) => {
-  if (closable && standardItems.value.length > 1) {
+  if (closable.value && standardItems.value.length > 1) {
     return (
       active.lab === key &&
       standardItems.value.find((item) => {

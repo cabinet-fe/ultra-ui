@@ -41,7 +41,7 @@ export const useSlide = (
 
       if (props.step && props.step > 0) {
         let position = setStepButtonPosition(event.offsetX)
-        console.log(position, 'position')
+
         initData.transform.x = Math.min(Math.max(0, position), runwayMax)
         initData.currentTransform.x = Math.min(Math.max(0, position), runwayMax)
       } else {

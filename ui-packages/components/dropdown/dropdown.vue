@@ -2,19 +2,22 @@
   <div :class="cls.b">
     <UNodeRender
       :content="renderTrigger()"
-      @mouseenter.self="handleMouseEnter"
-      @mouseleave.self="handleMouseLeave"
-      @click.self="toggleDropdown"
       ref="dropdownRef"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @click="toggleDropdown"
     />
     <div
       v-if="visible"
       :class="[cls.e('content'), bem.is('max-content', maxContent)]"
       ref="contentRef"
       @mouseenter.self="handleContentMouseEnter"
+      @mouseleave.self="handleMouseLeave"
       v-click-outside:visible="handleClickOutside"
     >
-      <slot name="content" />
+      <Scroll :class="cls.e('scroll')">
+        <slot name="content" />
+      </Scroll>
     </div>
   </div>
 </template>
@@ -33,6 +36,7 @@ import {
 import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
 import {UNodeRender} from "../node-render"
+import Scroll from "../scroll/scroll.vue"
 defineOptions({
   name: "Dropdown",
 })
@@ -52,7 +56,6 @@ const slots = useSlots()
 
 const renderTrigger = () => {
   const trigger = slots.trigger?.()
-
   return trigger?.filter((node) => node.type !== Text)?.[0]
 }
 
@@ -105,10 +108,12 @@ const handleMouseLeave = () => {
 
 /**点击空白区域隐藏 */
 const handleClickOutside = () => {
+  if (props.trigger === "hover") return
   clearTimeout(timers.get("mouseEnter"))
   hideAnimation()
   setTimeout(() => {
     visible.value = false
+    timers.forEach(clearTimeout)
   }, 300)
 }
 
@@ -196,6 +201,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
+  console.log(timers.size)
+
   if (scrollDom.value) {
     scrollDom.value.removeEventListener("scroll", popup)
   }
