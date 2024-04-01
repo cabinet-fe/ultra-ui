@@ -5,7 +5,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, inject, nextTick, shallowReactive } from 'vue'
+import {
+  computed,
+  inject,
+  nextTick,
+  shallowReactive,
+  watch,
+  watchEffect
+} from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
 import { useSlideButton } from './_compositions'

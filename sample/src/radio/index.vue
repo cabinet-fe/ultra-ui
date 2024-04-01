@@ -16,7 +16,11 @@
     </CustomCard>
 
     <CustomCard title="单选框组某项禁用">
-      <u-radio-group :items="items" v-model="radio1" :disabled-item="item => item.value === '2'" />
+      <u-radio-group
+        :items="items"
+        v-model="radio1"
+        :disabled-item="item => item.value === '1'"
+      />
     </CustomCard>
   </div>
 </template>

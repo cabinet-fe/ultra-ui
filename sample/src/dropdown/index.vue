@@ -20,7 +20,7 @@
         </template>
       </u-dropdown>
 
-      <u-dropdown trigger="click">
+      <u-dropdown trigger="click" v-for="i in 30" :key="i">
         <template #trigger><u-button>dropdown-click</u-button> </template>
 
         <template #content>

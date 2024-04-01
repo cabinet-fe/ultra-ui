@@ -23,7 +23,6 @@ $root-name: input;
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
     @include m.bem($root-name, native) {
-      font-size: fn.use-var(form-component-font-size, $size);
       height: fn.use-var(form-component-height, $size);
       line-height: fn.use-var(form-component-height, $size);
       padding: 0 6px;
@@ -43,6 +42,7 @@ $root-name: input;
     width: 100%;
     flex-grow: 1;
     color: fn.use-var(text-color, main);
+    font-size: 1em;
 
     &:-webkit-autofill {
       color: #fff !important;

@@ -1,7 +1,11 @@
 <template>
   <div>
     <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0, 2)"> </u-table>
+      <u-table :data="data" :columns="columns.slice(0, 2)">
+        <template #column:name="{ row }">
+          {{ row.value.name }}1111
+        </template>
+      </u-table>
     </CustomCard>
 
     <CustomCard title="多级表头和表头冻结">
@@ -16,6 +20,12 @@
       <u-table :data="data" :columns="columns">
         <template #column:name="{ row }">
           <u-input v-model="row.value.name" />
+        </template>
+
+        <template #header:name="{ column }">
+          <span style="color: red">
+            {{ column.key }}
+          </span>
         </template>
       </u-table>
     </CustomCard>
@@ -38,7 +48,14 @@ const columns = defineTableColumns([
       { name: '市', key: 'city' },
       { name: '区', key: 'area' },
       { name: '街道', key: 'street' },
-      { name: '小区', key: 'community' }
+      {
+        name: '小区',
+        key: 'community',
+        children: [
+          { name: 'a', key: 'a' },
+          { name: 'b', key: 'b' }
+        ]
+      }
     ]
   }
 ])
@@ -46,7 +63,7 @@ const columns = defineTableColumns([
 const data = shallowRef(
   Array.from({ length: 20 }).map((_, index) => {
     return {
-      name: 'name' + index,
+      name: 'name1' + index,
       age: Math.random() * 100,
       province: '江苏省' + index,
       city: '苏州市' + index,

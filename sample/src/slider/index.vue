@@ -1,13 +1,14 @@
 <template>
   <div>
+    {{ getRandom() }}
     基础用法:
     <u-slider v-model="sliderValue"></u-slider>
-    <p>Parent Value: {{ sliderValue }}</p>
+    <p>值: {{ sliderValue }}</p>
 
     垂直 (需要传入height)
     <div>
-      <u-slider v-model="verticalValue" :vertical="true"></u-slider>
-      <p>Parent Value: {{ verticalValue }}</p>
+      <u-slider v-model="sliderValue" vertical></u-slider>
+      <!-- <p>Parent Value: {{ verticalValue }}</p> -->
     </div>
 
     step 步长(x)
@@ -27,16 +28,17 @@
       ></u-slider>
       <p>Parent Value: {{ stepVerticalValue }}</p>
     </div> -->
-  </div>
-
-  范围
-  <div>
-    <u-slider v-model="rangeValue" :range="true"> </u-slider>
+    范围
+    <div>
+      <u-slider v-model="rangeValue" :range="true"> </u-slider>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from '@vue/runtime-core'
+
+const getRandom = () => Math.random()
 
 const sliderValue = ref(40)
 
