@@ -55,6 +55,8 @@ const props = withDefaults(defineProps<SliderProps>(), {
   height: 300
 })
 
+const model = defineModel()
+
 const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')

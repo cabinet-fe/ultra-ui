@@ -23,8 +23,8 @@
 </template>
 
 <script lang="ts" setup>
-import type {DropdownProps} from "@ui/types/components/dropdown"
-import {bem, nextFrame, setStyles, zIndex} from "@ui/utils"
+import type { DropdownProps } from '@ui/types/components/dropdown'
+import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import {
   nextTick,
   onBeforeUnmount,
@@ -32,23 +32,25 @@ import {
   shallowRef,
   useSlots,
   Text,
-} from "vue"
-import vClickOutside from "@ui/directives/click-outside"
-import {isBottomInViewport} from "../tip/viewport"
-import {UNodeRender} from "../node-render"
-import Scroll from "../scroll/scroll.vue"
+  watch
+} from 'vue'
+import vClickOutside from '@ui/directives/click-outside'
+import { isBottomInViewport } from '../tip/viewport'
+import { UNodeRender } from '../node-render'
+import Scroll from '../scroll/scroll.vue'
+import countPosition from '../tip/position'
 defineOptions({
-  name: "Dropdown",
+  name: 'Dropdown'
 })
 
 const props = withDefaults(defineProps<DropdownProps>(), {
-  trigger: "hover",
-  mouseEnterable: true,
+  trigger: 'hover',
+  mouseEnterable: true
 })
 
-const cls = bem("dropdown")
+const cls = bem('dropdown')
 
-const dropdownRef = shallowRef<HTMLElement>()
+const dropdownRef = shallowRef<InstanceType<typeof UNodeRender>>()
 
 const contentRef = shallowRef<HTMLElement>()
 
@@ -56,7 +58,7 @@ const slots = useSlots()
 
 const renderTrigger = () => {
   const trigger = slots.trigger?.()
-  return trigger?.filter((node) => node.type !== Text)?.[0]
+  return trigger?.filter(node => node.type !== Text)?.[0]
 }
 
 /**使用Map管理所有定时器，便于统一清理 */
@@ -72,34 +74,34 @@ let distance = 10
 let exceed = false
 
 /**动画方向 */
-let animationName = ""
+let animationName = ''
 
 /**鼠标移入元素 */
 const handleMouseEnter = () => {
-  if (props.trigger !== "hover") return
+  if (props.trigger !== 'hover') return
   displayPopups()
 }
 /**鼠标按下 */
 const toggleDropdown = () => {
-  if (props.trigger !== "click") return
+  if (props.trigger !== 'click') return
   displayPopups()
 }
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
-  if (props.trigger !== "hover") return
+  if (props.trigger !== 'hover') return
   // 先触发隐藏动画，再隐藏
-  clearTimeout(timers.get("mouseLeave"))
+  clearTimeout(timers.get('mouseLeave'))
   timers.set(
-    "mouseLeave",
+    'mouseLeave',
     setTimeout(() => {
       hideAnimation()
     }, 300)
   )
 
-  clearTimeout(timers.get("hide"))
+  clearTimeout(timers.get('hide'))
   timers.set(
-    "hide",
+    'hide',
     setTimeout(() => {
       visible.value = false
     }, 600)
@@ -108,8 +110,8 @@ const handleMouseLeave = () => {
 
 /**点击空白区域隐藏 */
 const handleClickOutside = () => {
-  if (props.trigger === "hover") return
-  clearTimeout(timers.get("mouseEnter"))
+  if (props.trigger === 'hover') return
+  clearTimeout(timers.get('mouseEnter'))
   hideAnimation()
   setTimeout(() => {
     visible.value = false
@@ -125,9 +127,9 @@ const handleContentMouseEnter = () => {
 
 /**展示弹窗 */
 const displayPopups = () => {
-  clearTimeout(timers.get("mouseEnter"))
+  clearTimeout(timers.get('mouseEnter'))
   timers.set(
-    "mouseEnter",
+    'mouseEnter',
     setTimeout(async () => {
       visible.value = true
       await nextTick()
@@ -138,9 +140,10 @@ const displayPopups = () => {
 
 /**展示 */
 const popup = () => {
+  console.log(1)
   if (!dropdownRef.value || !contentRef.value) return
   // 页面元素
-  const dropDom = dropdownRef.value.$el as HTMLElement
+  const dropDom = dropdownRef.value.$el
   // 展示元素
   const contentDom = contentRef.value as HTMLElement
   // 判断元素超出屏幕
@@ -157,21 +160,21 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
   // 页面元素Rect信息
   const dropDomRect = dropDom.getBoundingClientRect()
   const contentDomRect = contentDom.getBoundingClientRect()
-  let top = ""
+  let top = ''
 
   if (exceed) {
     top = `-${contentDomRect.height + distance}px`
   } else {
     top = `${dropDomRect.height + distance}px`
   }
-  animationName = exceed ? "up" : "down"
+  animationName = exceed ? 'up' : 'down'
   nextFrame(() => {
     setStyles(contentRef.value!, {
       top,
       // 根据是否超出屏幕添加显示动画
       animation: `${animationName} 0.25s linear`,
       opacity: 1,
-      zIndex: zIndex(),
+      zIndex: zIndex()
     })
   })
 }
@@ -180,7 +183,7 @@ const hideAnimation = () => {
   if (!contentRef.value) return
   setStyles(contentRef.value!, {
     animation: `${animationName}-hide 0.25s linear`,
-    opacity: 0,
+    opacity: 0
   })
 }
 
@@ -190,21 +193,22 @@ const onScroll = () => {
   if (!dropdownRef.value) return
   const tipRefDom = dropdownRef.value.$el as HTMLElement
   if (!tipRefDom) return
-  scrollDom.value = document.querySelector(".main")!.childNodes[1]
+  scrollDom.value = document.querySelector('.main')!.childNodes[1]
   if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", popup)
+  scrollDom.value.addEventListener('scroll', popup)
 }
 
 onMounted(() => {
   onScroll()
 })
 
+
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
   console.log(timers.size)
 
   if (scrollDom.value) {
-    scrollDom.value.removeEventListener("scroll", popup)
+    scrollDom.value.removeEventListener('scroll', popup)
   }
 })
 </script>

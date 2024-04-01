@@ -2,5 +2,8 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(uploader) {
+// 方便拼接
+$root-name: message;
+
+@include m.b($root-name) {
 }
