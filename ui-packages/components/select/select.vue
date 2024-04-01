@@ -1,23 +1,15 @@
 <template>
-  <div :class="cls.b">
-    <!-- <select
-      v-model="selected"
-      :multiple="props.multiple"
-      :clearable="props.clearable"
-      :class="cls.e('input')"
-      @change="toggleOptions"
-    >
-      <option v-for="option in props.options" :key="option.value" :value="option.value">
-        {{ option.label }}
-      </option>
-    </select> -->
-
+  <div :class="classList">
     <!-- 多选 -->
     <template v-if="props.multiple">
-      <div :class="cls.e('input-multiple')" @click="toggleOptions">
+      <div
+        :class="[cls.e('input-multiple')]"
+        @click="toggleOptions"
+        v-click-outside="handleToggleOptions"
+      >
         <div v-for="(item, index) in multipleOptions">
           <span>{{ item }}</span>
-          <UIcon>
+          <UIcon :class="cls.e('clear-multiple')">
             <CircleClose @click.stop="removeMultipleOption(index)" />
           </UIcon>
         </div>
@@ -65,11 +57,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 import { CircleClose, Check } from 'icon-ultra'
 import { UIcon } from '../icon'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { vClickOutside } from '@ui/directives'
 
 defineOptions({
   name: 'Select'
@@ -80,6 +74,16 @@ const cls = bem('select')
 const props = withDefaults(defineProps<SelectProps>(), {})
 
 const emit = defineEmits<SelectEmits>()
+
+const { formProps } = useFormComponent()
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false
+})
+
+const classList = computed(() => {
+  return [cls.b, cls.m(size.value)]
+})
 
 /** 当前选中的选项 */
 const selectedOption = ref<Record<any, string>>({})
@@ -117,6 +121,7 @@ const multipleOptions = ref<Record<string, any>>([])
 /** 多选是否被选中 */
 const multipleSelected = ref<boolean>(false)
 
+/** 多选选中 */
 const selectMultipleOption = (item: any, index: number) => {
   console.log(item, 'item')
   if (multipleIndex.value.includes(index)) return
@@ -124,9 +129,14 @@ const selectMultipleOption = (item: any, index: number) => {
   multipleOptions.value.push(item.label)
   console.log(multipleIndex.value, 'multipleIndex.value')
 }
-
+/** 删除多选选项 */
 const removeMultipleOption = (index: number) => {
   multipleIndex.value.splice(index, 1)
   multipleOptions.value.splice(index, 1)
+}
+
+/** 点击外部隐藏选项列表 */
+const handleToggleOptions = () => {
+  showOptions.value = false
 }
 </script>

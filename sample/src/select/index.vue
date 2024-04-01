@@ -1,6 +1,10 @@
 <template>
   <div>
+    <div class="demoList">
+      <h2>单选</h2>
+    </div>
     <div>
+      <h2>多选</h2>
       <u-select
         multiple
         :model-value="value"
@@ -68,4 +72,12 @@ const onChange = (val: any) => {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.demoList {
+  margin-bottom: 30px;
+  & > div {
+    margin-right: 10px;
+    // margin-bottom: 10px;
+  }
+}
+</style>

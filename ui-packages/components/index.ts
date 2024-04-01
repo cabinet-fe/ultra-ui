@@ -68,10 +68,12 @@ export * from './tip'
 
 export * from './tree'
 
-export * from './uploader'
+export * from './file-picker'
 
 export * from './virtual-list'
 
 export * from './paginator'
 
 export * from './steps'
+
+export * from './message'

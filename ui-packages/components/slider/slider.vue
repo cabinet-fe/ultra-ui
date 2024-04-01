@@ -7,12 +7,12 @@
       @mousedown="handleSliderDown"
     >
       <!-- 拖动覆盖条 -->
-      <div :class="cls.e('bar')" :style="barStyles" />
+      <div :class="cls.e('bar')" v-if="!range" :style="barStyles" />
 
       <!-- 手柄 -->
-      <slider-button />
+      <slider-button @update:modelValue="setFirstValue" />
 
-      <!-- <slider-button v-if="range" /> -->
+      <slider-button v-if="range" @update:modelValue="setSecondValue" />
 
       <!-- 断点 -->
       <template v-if="showStops">
@@ -31,7 +31,8 @@
 import type {
   SliderProps,
   SliderEmits,
-  SliderInitData
+  SliderInitData,
+  SliderButtonTransform
 } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
 import { computed, provide, reactive, shallowReactive } from 'vue'
@@ -51,9 +52,10 @@ const props = withDefaults(defineProps<SliderProps>(), {
   max: 100,
   step: 0,
   vertical: false,
-  height: 300,
-  range: false
+  height: 300
 })
+
+const model = defineModel()
 
 const emit = defineEmits<SliderEmits>()
 
@@ -70,14 +72,36 @@ const currentTransform = {
 }
 
 const initData = reactive<SliderInitData>({
-  dragging: false,
-  newPosition: 0,
-  oldValue: 0,
   /** 跑道大小 */
   sliderSize: 1,
+  /** 范围第一个值 **/
+  firstValue: 0,
+  /** 范围的第二个值 */
+  secondValue: 0,
   transform,
   currentTransform
 })
+
+/** 获取第一个按钮的值 */
+const setFirstValue = (
+  transform: SliderButtonTransform,
+  currentTransform: SliderButtonTransform
+) => {
+  initData.transform = transform
+  initData.currentTransform = currentTransform
+
+  initData.firstValue = transform.x
+}
+
+/** 获取第二个按钮的值 */
+const setSecondValue = (
+  transform: SliderButtonTransform,
+  currentTransform: SliderButtonTransform
+) => {
+  initData.secondValue = transform.x
+
+  console.log(initData.secondValue, 'secondValue')
+}
 
 const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(
   props,
@@ -98,6 +122,4 @@ provide(sliderContextKey, {
   emit,
   resetSize
 })
-
-
 </script>

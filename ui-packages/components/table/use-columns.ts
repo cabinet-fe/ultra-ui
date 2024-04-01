@@ -1,4 +1,4 @@
-import type { TableColumn, TableProps } from '@ui/types/components/table'
+import type { TableColumn, TableColumnAlign, TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode } from 'cat-kit/fe'
 import { computed, type ComputedRef } from 'vue'
 
@@ -23,16 +23,22 @@ export class ColumnNode extends TreeNode<TableColumn> {
   leafs?: number
 
   /** 列key */
-  colKey: string
+  key: string
 
   /** 列名 */
-  colName: string
+  name: string
+
+  /** 列对齐方式 */
+  align: TableColumnAlign = 'left'
 
   constructor(val: TableColumn, index: number) {
     super(val, index)
 
-    this.colKey = val.key
-    this.colName = val.name
+    this.key = val.key
+    this.name = val.name
+    if (val.align) {
+      this.align = val.align
+    }
   }
 
   override createNode(val: TableColumn, index: number): ColumnNode {
