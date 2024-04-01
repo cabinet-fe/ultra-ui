@@ -68,7 +68,7 @@ export * from './tip'
 
 export * from './tree'
 
-export * from './uploader'
+export * from './file-picker'
 
 export * from './virtual-list'
 
