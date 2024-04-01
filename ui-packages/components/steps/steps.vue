@@ -48,7 +48,7 @@
 import { useSlots, computed } from 'vue'
 import type { StepsProps, StepsEmits, Item } from '@ui/types/components/steps'
 import { bem } from '@ui/utils'
-import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
+import { useFallbackProps } from '@ui/compositions'
 import { Check } from 'icon-ultra'
 import { UIcon } from '../icon'
 
@@ -76,18 +76,13 @@ const props = defineProps<StepsProps>()
 
 const emit = defineEmits<StepsEmits>()
 
-const { formProps } = useFormComponent()
-
-const { direction, readonly, processStatus, finishStatus, size } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    direction: 'horizontal',
-    readonly: true,
-    processStatus: 'default',
-    finishStatus: 'success',
-    size: 'default'
-  }
-)
+const { direction, readonly, processStatus, finishStatus, size } = useFallbackProps([props], {
+  direction: 'horizontal',
+  readonly: true,
+  processStatus: 'default',
+  finishStatus: 'success',
+  size: 'default'
+})
 
 const cls = bem('steps')
 /** 点击步骤切换活动序号 */

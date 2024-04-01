@@ -1,12 +1,16 @@
 <template>
-  <tr :class="cls.e('row')">
-    <td :class="cellClass" v-for="column of columns">
+  <tr :class="cls.e('row')" @click="eventHandlers.handleRowClick(row)">
+    <td
+      v-for="(column, index) of columns"
+      :class="[cls.e('cell'), cls.em('cell', column.align)]"
+      :data-col-index="index"
+    >
       <u-node-render
         :content="
-          getColumnSlotsNode(column.colKey, {
+          getColumnSlotsNode(column.key, {
             row,
             column,
-            val: row.value[column.colKey]
+            val: row.value[column.key]
           })
         "
       />
@@ -28,9 +32,8 @@ defineProps<{
   row: TableRow
 }>()
 
-const { cls, columnConfig, getColumnSlotsNode } = inject(TableDIKey)!
-
-const cellClass = cls.e('cell')
+const { cls, columnConfig, getColumnSlotsNode, eventHandlers } =
+  inject(TableDIKey)!
 
 const { columns } = columnConfig
 </script>

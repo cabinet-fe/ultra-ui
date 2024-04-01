@@ -20,7 +20,6 @@ export const useSlide = (
   const {
     buttonOffset,
     convertToPercentage,
-    convertToPosition,
     resetButtonOffset
   } = useSlideButton(props, initData)
 
@@ -31,6 +30,8 @@ export const useSlide = (
     if (buttonOffset.value === 0) {
       resetButtonOffset()
     }
+    /** 范围模式暂时不执行 */
+    if (props.range) return
 
     if (props.vertical) {
       initData.transform.y = event.offsetY
@@ -41,7 +42,7 @@ export const useSlide = (
 
       if (props.step && props.step > 0) {
         let position = setStepButtonPosition(event.offsetX)
-        console.log(position, 'position')
+
         initData.transform.x = Math.min(Math.max(0, position), runwayMax)
         initData.currentTransform.x = Math.min(Math.max(0, position), runwayMax)
       } else {

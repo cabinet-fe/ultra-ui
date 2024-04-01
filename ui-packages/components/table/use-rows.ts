@@ -37,7 +37,7 @@ export class TableRow<
   }
 
   constructor(data: Data, index: number) {
-    super(data, index)
+    super(shallowReactive(data), index)
     return shallowReactive(this)
   }
 }

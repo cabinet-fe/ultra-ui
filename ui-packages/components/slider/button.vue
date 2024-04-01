@@ -1,19 +1,15 @@
 <template>
-  <div
-    :style="warpStyles"
-    ref="slideButtonRef"
-    @click.stop
-    :class="cls.e('button-wrap')"
-  >
+  <div :style="warpStyles" ref="slideButtonRef" :class="cls.e('button-wrap')">
     <div :class="cls.e('button')" />
   </div>
 </template>
 <script lang="ts" setup>
-import { inject, nextTick } from 'vue'
+import { computed, inject, nextTick, shallowReactive } from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
 import { useSlideButton } from './_compositions'
 import { useStops } from './_compositions'
+import type { SliderButtonEmits } from '@ui/types/components/slider'
 
 let injected = inject(sliderContextKey)!
 
@@ -21,16 +17,34 @@ let { cls, resetSize, emit, initData, sliderProps } = injected
 
 let { modelValue, vertical, height } = sliderProps
 
+const buttonEmit = defineEmits<SliderButtonEmits>()
+
 const {
   convertToPosition,
   convertToPercentage,
   resetButtonOffset,
-  warpStyles,
   slideButtonRef,
   buttonOffset
 } = useSlideButton(sliderProps, initData)
 
 const { setStepButtonPosition } = useStops(sliderProps, initData)
+
+const transform = shallowReactive({
+  x: 0,
+  y: 0
+})
+
+const currentTransform = {
+  x: 0,
+  y: 0
+}
+
+/** button的位移距离 */
+const warpStyles = computed(() => {
+  return {
+    transform: `translate(${transform.x}px, ${transform.y}px)`
+  }
+})
 
 /** 页面加载时获取手柄位置 */
 const handleButtonPosition = async () => {
@@ -44,12 +58,14 @@ const handleButtonPosition = async () => {
     slideButtonRef.value?.offsetWidth!
   )
   if (vertical) {
-    initData.transform.y = height! - position
-    initData.currentTransform.y = height! - position
+    transform.y = height! - position
+    currentTransform.y = height! - position
   } else {
-    initData.transform.x = position
-    initData.currentTransform.x = position
+    transform.x = position
+    currentTransform.x = position
   }
+
+  buttonEmit('update:modelValue', transform, currentTransform)
 }
 handleButtonPosition()
 
@@ -68,16 +84,10 @@ useDrag({
     let newPosition: number
 
     if (vertical) {
-      newPosition = initData.currentTransform.y + y
+      newPosition = currentTransform.y + y
     } else {
-      newPosition = x + initData.currentTransform.x
+      newPosition = x + currentTransform.x
     }
-
-    // let percentage = convertToPercentage(
-    //   initData.sliderSize,
-    //   buttonOffset.value,
-    //   newPosition
-    // )
 
     // 是否使用步长
     if (sliderProps.step && sliderProps.step > 0) {
@@ -87,9 +97,12 @@ useDrag({
     const boundedPosition = Math.min(Math.max(0, newPosition), runwayMax)
 
     if (vertical) {
-      initData.transform.y = boundedPosition
+      transform.y = boundedPosition
+      buttonEmit('update:modelValue', transform, currentTransform)
     } else {
-      initData.transform.x = boundedPosition
+      transform.x = boundedPosition
+      buttonEmit('update:modelValue', transform, currentTransform)
+      // console.log(transform.x, currentTransform.x, 'firstValue')
     }
 
     emit(
@@ -104,9 +117,11 @@ useDrag({
 
   onDragEnd(x, y, e) {
     if (vertical) {
-      initData.currentTransform.y = initData.transform.y
+      currentTransform.y = transform.y
+      buttonEmit('update:modelValue', transform, currentTransform)
     } else {
-      initData.currentTransform.x = initData.transform.x
+      currentTransform.x = transform.x
+      buttonEmit('update:modelValue', transform, currentTransform)
     }
   }
 })

@@ -3,15 +3,17 @@ import type { DeconstructValue } from '../helper'
 
 /** 滑块组件属性 */
 export interface SliderProps {
-  modelValue: number
-  range: Boolean
+  modelValue: number | number[]
   disable?: Boolean
   /** 是否垂直 */
   vertical?: boolean
   height?: number
   min?: number
   max?: number
+  /** 步长模式 */
   step?: number
+  /** 是否是范围模式 */
+  range?: Boolean
   /** 是否显示断点 */
   showStops?: Boolean
 }
@@ -22,7 +24,12 @@ export interface SliderEmits {
 }
 
 export interface SliderButtonEmits {
-  (e: 'mousedown', e: MouseEvent): void
+  (
+    e: 'update:modelValue',
+    transform: SliderButtonTransform,
+    currentTransform: SliderButtonTransform
+  ): void
+  (e: 'mouse', e: number): void
   (e: 'touchstart', e: TouchEvent): void
 }
 
@@ -31,6 +38,8 @@ export interface SliderButtonTransform {
   y: number
 }
 export interface SliderInitData {
+  firstValue: number
+  secondValue: number
   /** 是否正在拖拽 */
   dragging: Boolean
   currentX?: number

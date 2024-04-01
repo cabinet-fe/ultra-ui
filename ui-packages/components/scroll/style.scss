@@ -33,7 +33,7 @@ $root-name: scroll;
   }
 
   // 悬浮
-  &:hover {
+  &:hover > {
     @include m.bem($root-name, (bar-x, bar-y)) {
       opacity: 1;
     }

@@ -8,6 +8,11 @@ $root-name: table;
   width: 100%;
   position: relative;
 
+  @include m.size using ($size) {
+    @include m.bem($root-name, cell) {
+      padding: fn.use-var(gap, $size);
+    }
+  }
 
   @include m.e(wrap) {
     width: 100%;
@@ -22,9 +27,27 @@ $root-name: table;
     }
   }
 
+  @include m.e(head) {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    background-color: fn.use-var(bg-color, top);
+  }
+
   @include m.e(cell) {
-    box-shadow: -1px -1px #eee inset;
-    padding: 8px;
+    box-shadow: 0px -1px #eee inset;
+
+    @include m.m(left) {
+      text-align: left;
+    }
+
+    @include m.m(center) {
+      text-align: center;
+    }
+
+    @include m.m(right) {
+      text-align: right;
+    }
   }
 
   @include m.e(resizer) {
