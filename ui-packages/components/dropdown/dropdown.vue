@@ -28,10 +28,11 @@ import {bem, nextFrame, setStyles, zIndex} from "@ui/utils"
 import {
   nextTick,
   onBeforeUnmount,
-  onMounted,
   shallowRef,
   useSlots,
   Text,
+  watch,
+  onMounted,
 } from "vue"
 import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
@@ -48,7 +49,7 @@ const props = withDefaults(defineProps<DropdownProps>(), {
 
 const cls = bem("dropdown")
 
-const dropdownRef = shallowRef<HTMLElement>()
+const dropdownRef = shallowRef<InstanceType<typeof UNodeRender>>()
 
 const contentRef = shallowRef<HTMLElement>()
 
@@ -145,6 +146,8 @@ const popup = () => {
   const contentDom = contentRef.value as HTMLElement
   // 判断元素超出屏幕
   exceed = isBottomInViewport(contentDom, dropDom)
+  console.log(exceed, "----")
+
   setDistance(dropDom, contentDom)
 }
 
@@ -164,6 +167,7 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
   } else {
     top = `${dropDomRect.height + distance}px`
   }
+
   animationName = exceed ? "up" : "down"
   nextFrame(() => {
     setStyles(contentRef.value!, {
@@ -184,27 +188,32 @@ const hideAnimation = () => {
   })
 }
 
-let scrollDom = shallowRef<ChildNode | null>()
+let observer: IntersectionObserver
 
-const onScroll = () => {
-  if (!dropdownRef.value) return
-  const tipRefDom = dropdownRef.value.$el as HTMLElement
-  if (!tipRefDom) return
-  scrollDom.value = document.querySelector(".main")!.childNodes[1]
-  if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", popup)
-}
-
+// 开始监听
 onMounted(() => {
-  onScroll()
+  observer = new IntersectionObserver(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0]?.intersectionRatio! <= 0) return
+      popup()
+    },
+    {
+      threshold: 1,
+    }
+  )
+})
+
+watch(contentRef, (content, OldContent) => {
+  if (OldContent) {
+    observer.unobserve(OldContent)
+  }
+  if (content) {
+    observer.observe(content)
+  }
 })
 
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
-  console.log(timers.size)
-
-  if (scrollDom.value) {
-    scrollDom.value.removeEventListener("scroll", popup)
-  }
+  observer.disconnect()
 })
 </script>
