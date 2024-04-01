@@ -30,7 +30,7 @@ import {
   onMounted,
   shallowRef,
   useSlots,
-  Text,
+  Text
 } from "vue"
 import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
@@ -107,10 +107,12 @@ const handleMouseLeave = () => {
 
 /**点击空白区域隐藏 */
 const handleClickOutside = () => {
+  if (props.trigger === "hover") return
   clearTimeout(timers.get("mouseEnter"))
   hideAnimation()
   setTimeout(() => {
     visible.value = false
+    timers.forEach(clearTimeout)
   }, 300)
 }
 
