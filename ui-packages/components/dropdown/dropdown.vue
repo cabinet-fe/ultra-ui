@@ -14,7 +14,9 @@
       @mouseenter.self="handleContentMouseEnter"
       v-click-outside:visible="handleClickOutside"
     >
-      <slot name="content" />
+      <Scroll :class="cls.e('scroll')">
+        <slot name="content" />
+      </Scroll>
     </div>
   </div>
 </template>
@@ -33,6 +35,7 @@ import {
 import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
 import {UNodeRender} from "../node-render"
+import Scroll from "../scroll/scroll.vue"
 defineOptions({
   name: "Dropdown",
 })
@@ -52,7 +55,6 @@ const slots = useSlots()
 
 const renderTrigger = () => {
   const trigger = slots.trigger?.()
-
   return trigger?.filter((node) => node.type !== Text)?.[0]
 }
 
