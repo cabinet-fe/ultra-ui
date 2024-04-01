@@ -1,5 +1,4 @@
 <template>
-  {{}}
   <div :style="warpStyles" ref="slideButtonRef" :class="cls.e('button-wrap')">
     <div :class="cls.e('button')" />
   </div>
@@ -73,7 +72,7 @@ const handleButtonPosition = async () => {
     currentTransform.x = position
   }
 
-  buttonEmit('firstValue', transform, currentTransform)
+  buttonEmit('update:modelValue', transform, currentTransform)
 }
 handleButtonPosition()
 
@@ -106,10 +105,10 @@ useDrag({
 
     if (vertical) {
       transform.y = boundedPosition
-      buttonEmit('firstValue', transform, currentTransform)
+      buttonEmit('update:modelValue', transform, currentTransform)
     } else {
       transform.x = boundedPosition
-      buttonEmit('firstValue', transform, currentTransform)
+      buttonEmit('update:modelValue', transform, currentTransform)
       // console.log(transform.x, currentTransform.x, 'firstValue')
     }
 
@@ -126,10 +125,10 @@ useDrag({
   onDragEnd(x, y, e) {
     if (vertical) {
       currentTransform.y = transform.y
-      buttonEmit('firstValue', transform, currentTransform)
+      buttonEmit('update:modelValue', transform, currentTransform)
     } else {
       currentTransform.x = transform.x
-      buttonEmit('firstValue', transform, currentTransform)
+      buttonEmit('update:modelValue', transform, currentTransform)
     }
   }
 })
