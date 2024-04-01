@@ -10,9 +10,9 @@
       <div :class="cls.e('bar')" v-if="!range" :style="barStyles" />
 
       <!-- 手柄 -->
-      <slider-button @firstValue="setFirstValue" />
+      <slider-button @update:modelValue="setFirstValue" />
 
-      <slider-button v-if="range" />
+      <slider-button v-if="range" @update:modelValue="setSecondValue" />
 
       <!-- 断点 -->
       <template v-if="showStops">
@@ -75,17 +75,35 @@ const initData = reactive<SliderInitData>({
   oldValue: 0,
   /** 跑道大小 */
   sliderSize: 1,
+  /** 范围第一个值 **/
+  firstValue: 0,
+  /** 范围的第二个值 */
+  secondValue: 0,
   transform,
   currentTransform
 })
 
-/**  */
+/** 获取第一个按钮的值 */
 const setFirstValue = (
   transform: SliderButtonTransform,
   currentTransform: SliderButtonTransform
 ) => {
   initData.transform = transform
   initData.currentTransform = currentTransform
+
+  initData.firstValue = transform.x
+  console.log(initData.firstValue, 'initData.firstValue')
+  // console.log(transform.x, currentTransform.x, 'first')
+}
+
+/** 获取第二个按钮的值 */
+const setSecondValue = (
+  transform: SliderButtonTransform,
+  currentTransform: SliderButtonTransform
+) => {
+  initData.secondValue = transform.x
+
+  console.log(initData.secondValue, 'secondValue')
 }
 
 const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(

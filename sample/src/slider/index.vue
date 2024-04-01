@@ -32,6 +32,8 @@
   范围
   <div>
     <u-slider v-model="rangeValue" :range="true"> </u-slider>
+
+    {{ rangeValue }}
   </div>
 </template>
 

@@ -25,7 +25,7 @@ export interface SliderEmits {
 
 export interface SliderButtonEmits {
   (
-    e: 'firstValue',
+    e: 'update:modelValue',
     transform: SliderButtonTransform,
     currentTransform: SliderButtonTransform
   ): void
