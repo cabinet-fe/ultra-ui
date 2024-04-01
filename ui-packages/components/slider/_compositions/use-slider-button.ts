@@ -10,13 +10,6 @@ export const useSlideButton = (
   /** 按钮的大小 */
   let buttonOffset = ref(0)
 
-  /** button的位移距离 */
-  const warpStyles = computed(() => {
-    return {
-      transform: `translate(${initData.transform.x}px, ${initData.transform.y}px)`
-    }
-  })
-
   /** 更新按钮宽高 */
   const resetButtonOffset = () => {
     if (slideButtonRef.value) {
@@ -63,7 +56,6 @@ export const useSlideButton = (
   }
 
   return {
-    warpStyles,
     slideButtonRef,
     buttonOffset,
     resetButtonOffset,

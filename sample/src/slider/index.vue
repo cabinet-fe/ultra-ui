@@ -15,7 +15,7 @@
       <u-slider v-model="stepValue" :step="10" :show-stops="true"></u-slider>
       <p>Parent Value: {{ stepValue }}</p>
     </div>
-
+    <!--
     step 步长(y)
     <div>
       <u-slider
@@ -26,7 +26,7 @@
         :show-stops="true"
       ></u-slider>
       <p>Parent Value: {{ stepVerticalValue }}</p>
-    </div>
+    </div> -->
   </div>
 
   范围
@@ -47,6 +47,6 @@ const stepValue = ref(0)
 const stepVerticalValue = ref(0)
 
 /** 范围 */
-const rangeValue = ref(0)
+const rangeValue = ref(20)
 </script>
 <style lang="scss" scoped></style>

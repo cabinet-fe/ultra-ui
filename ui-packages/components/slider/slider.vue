@@ -7,12 +7,12 @@
       @mousedown="handleSliderDown"
     >
       <!-- 拖动覆盖条 -->
-      <div :class="cls.e('bar')" :style="barStyles" />
+      <div :class="cls.e('bar')" v-if="!range" :style="barStyles" />
 
       <!-- 手柄 -->
-      <slider-button />
+      <slider-button @firstValue="setFirstValue" />
 
-      <!-- <slider-button v-if="range" /> -->
+      <slider-button v-if="range" />
 
       <!-- 断点 -->
       <template v-if="showStops">
@@ -31,7 +31,8 @@
 import type {
   SliderProps,
   SliderEmits,
-  SliderInitData
+  SliderInitData,
+  SliderButtonTransform
 } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
 import { computed, provide, reactive, shallowReactive } from 'vue'
@@ -51,8 +52,7 @@ const props = withDefaults(defineProps<SliderProps>(), {
   max: 100,
   step: 0,
   vertical: false,
-  height: 300,
-  range: false
+  height: 300
 })
 
 const emit = defineEmits<SliderEmits>()
@@ -79,6 +79,15 @@ const initData = reactive<SliderInitData>({
   currentTransform
 })
 
+/**  */
+const setFirstValue = (
+  transform: SliderButtonTransform,
+  currentTransform: SliderButtonTransform
+) => {
+  initData.transform = transform
+  initData.currentTransform = currentTransform
+}
+
 const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(
   props,
   initData,
@@ -98,6 +107,4 @@ provide(sliderContextKey, {
   emit,
   resetSize
 })
-
-
 </script>
