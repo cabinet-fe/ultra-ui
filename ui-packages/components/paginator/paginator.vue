@@ -81,7 +81,7 @@
 <script lang="ts" setup>
 import type { PaginatorProps, PaginatorEmits } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
-import { useFormFallbackProps, useFormComponent } from '@ui/compositions'
+import { useFallbackProps } from '@ui/compositions'
 import { computed, reactive } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
@@ -96,9 +96,7 @@ const props = defineProps<PaginatorProps>()
 
 const emit = defineEmits<PaginatorEmits>()
 
-const { formProps } = useFormComponent()
-
-const { size, simple, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, simple, disabled } = useFallbackProps([props], {
   size: 'default',
   simple: false,
   disabled: false

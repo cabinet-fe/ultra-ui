@@ -24,8 +24,11 @@ $root-name: dropdown;
 
         @include m.is(max-content) {
             width: max-content;
-            white-space: nowrap;
         }
+    }
+
+    @include m.e(scroll){
+        max-height: 200px;
     }
 
     /* 定义下拉动画 */
