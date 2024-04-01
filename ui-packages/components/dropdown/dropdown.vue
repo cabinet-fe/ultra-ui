@@ -2,16 +2,17 @@
   <div :class="cls.b">
     <UNodeRender
       :content="renderTrigger()"
-      @mouseenter.self="handleMouseEnter"
-      @mouseleave.self="handleMouseLeave"
-      @click.self="toggleDropdown"
       ref="dropdownRef"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @click="toggleDropdown"
     />
     <div
       v-if="visible"
       :class="[cls.e('content'), bem.is('max-content', maxContent)]"
       ref="contentRef"
       @mouseenter.self="handleContentMouseEnter"
+      @mouseleave.self="handleMouseLeave"
       v-click-outside:visible="handleClickOutside"
     >
       <Scroll :class="cls.e('scroll')">
@@ -30,7 +31,7 @@ import {
   onMounted,
   shallowRef,
   useSlots,
-  Text
+  Text,
 } from "vue"
 import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
@@ -200,6 +201,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
+  console.log(timers.size)
+
   if (scrollDom.value) {
     scrollDom.value.removeEventListener("scroll", popup)
   }
