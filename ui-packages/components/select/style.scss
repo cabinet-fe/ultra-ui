@@ -2,12 +2,34 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(select) {
+$root-name: select;
+@include m.b($root-name) {
   position: relative;
-  // width: 240px;
   padding: 10px 10px;
   box-sizing: border-box;
-  // height: fn.use-var(form-component-height-default);
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+
+    & + & {
+      margin-left: calc(fn.use-var(gap, $size) * 2);
+    }
+
+    @include m.bem($root-name, button) {
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      padding: 2px;
+
+      @if ($size == large) {
+        padding: 3px;
+      }
+    }
+
+    @include m.bem($root-name, label) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
   @include m.e('input') {
     width: 240px;
     height: fn.use-var(form-component-height-default);
@@ -37,6 +59,9 @@
       display: inline-block;
       padding: 0 5px;
     }
+  }
+  @include m.e('clear-multiple') {
+    cursor: pointer;
   }
 
   @include m.e('clear') {
