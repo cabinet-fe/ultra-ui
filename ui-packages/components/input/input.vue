@@ -27,7 +27,7 @@
       :disabled="disabled"
     />
 
-    <Transition name="fade">
+    <Transition name="zoom-in">
       <UIcon
         v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"

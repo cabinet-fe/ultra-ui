@@ -1,6 +1,18 @@
 <template>
   <u-scroll :class="[cls.b, cls.m(size)]">
-    <table :class="cls.e('wrap')" @mouseenter.capture="eventHandlers.handleMouseEnter">
+    <table
+      :class="cls.e('wrap')"
+      @mouseenter.capture="eventHandlers.handleMouseEnter"
+    >
+      <colgroup ref="colgroupRef">
+        <col
+          v-for="column of columnConfig.columns.value"
+          :style="{
+            width: withUnit(column.width, 'px'),
+            minWidth: withUnit(column.minWidth, 'px')
+          }"
+        />
+      </colgroup>
       <UTableHead />
       <UTableBody />
     </table>
@@ -11,8 +23,8 @@
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import type { TableProps, TableEmits } from '@ui/types/components/table'
-import { bem } from '@ui/utils'
-import { provide, useSlots, type VNode } from 'vue'
+import { bem, withUnit } from '@ui/utils'
+import { provide, shallowRef, useSlots, type VNode } from 'vue'
 import { TableDIKey } from './di'
 import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
@@ -20,7 +32,7 @@ import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
 import { UScroll } from '../scroll'
 import { useEvents } from './use-events'
-import { useFallbackProps } from '@ui/compositions'
+import { useFallbackProps, useResizeObserver } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
@@ -77,6 +89,15 @@ const getHeaderSlotsNode = (
 
 /** 事件处理 */
 const eventHandlers = useEvents({ emit })
+
+const colgroupRef = shallowRef<HTMLElement>()
+
+useResizeObserver({
+  target: colgroupRef,
+  onResize: ([entry]) => {
+    console.log(colgroupRef.value?.getBoundingClientRect())
+  }
+})
 
 provide(TableDIKey, {
   tableProps: props,
