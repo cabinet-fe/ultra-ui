@@ -34,7 +34,7 @@
           </ul>
         </template>
       </u-dropdown>
-      <u-dropdown trigger="click" maxContent  v-for="i in 30" :key="i">
+      <u-dropdown trigger="click" maxContent  v-for="i in 5" :key="i">
         <template #trigger><u-button>maxContent</u-button> </template>
 
         <template #content>
