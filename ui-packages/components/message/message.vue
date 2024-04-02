@@ -1,6 +1,6 @@
 <template>
-  <transition name="fade">
-    <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible">
+  <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
+    <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible" :style="customStyle">
       <!-- <div :class="cls.e('icon')"></div> -->
       <div :class="cls.e('message')">{{ message }}</div>
       <div :class="cls.e('close')" v-if="closable" @click="close">
@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import type { MessageProps, MessageExposed } from '@ui/types/components/message'
 import { bem } from '@ui/utils'
-import { reactive, onMounted, ref } from 'vue'
+import { onMounted, ref, computed, type CSSProperties } from 'vue'
 import { useFallbackProps } from '@ui/compositions'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -24,10 +24,12 @@ defineOptions({
 
 const props = defineProps<MessageProps>()
 
-const { type, size, closable } = useFallbackProps([props], {
+const { type, size, closable, duration, offset } = useFallbackProps([props], {
   type: 'primary',
   size: 'default',
-  closable: true
+  closable: false,
+  duration: 3000,
+  offset: 20
 })
 
 const cls = bem('message')
@@ -36,11 +38,24 @@ const visible = ref<boolean>(false)
 
 onMounted(() => {
   visible.value = true
+  startTimer()
 })
 
 const close = () => {
   visible.value = false
 }
 
-defineExpose<MessageExposed>({ })
+const customStyle = computed<CSSProperties>(() => ({
+  top: `${offset.value}px`
+}))
+
+const startTimer = () => {
+  if (duration.value) {
+    setTimeout(() => {
+      close()
+    }, duration.value)
+  }
+}
+
+defineExpose<MessageExposed>({})
 </script>
