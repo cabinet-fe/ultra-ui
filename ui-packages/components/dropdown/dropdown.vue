@@ -5,7 +5,7 @@
       ref="dropdownRef"
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
-      @click="toggleDropdown"
+      @click.self="toggleDropdown"
     />
     <div
       v-if="visible"
@@ -67,7 +67,7 @@ const timers = new Map<string, number>()
 let visible = shallowRef(false)
 
 /**弹窗距离元素的距离 */
-let distance = 10
+let distance = 6
 
 /**判断元素超出屏幕 */
 let exceed = false
@@ -89,13 +89,30 @@ const toggleDropdown = () => {
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
   if (props.trigger !== "hover") return
+  close()
+}
+
+/**点击空白区域隐藏 */
+const handleClickOutside = () => {
+  if (props.trigger === "hover") return
+  close()
+}
+
+/**鼠标移入弹窗内容区域 */
+const handleContentMouseEnter = () => {
+  if (!props.mouseEnterable) return
+  timers.forEach(clearTimeout)
+}
+/**关闭 */
+const close = () => {
+  resizeObserver.unobserve(dropdownRef.value?.$el!)
   // 先触发隐藏动画，再隐藏
   clearTimeout(timers.get("mouseLeave"))
   timers.set(
     "mouseLeave",
     setTimeout(() => {
       hideAnimation()
-    }, 300)
+    }, 250)
   )
 
   clearTimeout(timers.get("hide"))
@@ -103,25 +120,8 @@ const handleMouseLeave = () => {
     "hide",
     setTimeout(() => {
       visible.value = false
-    }, 600)
+    }, 500)
   )
-}
-
-/**点击空白区域隐藏 */
-const handleClickOutside = () => {
-  if (props.trigger === "hover") return
-  clearTimeout(timers.get("mouseEnter"))
-  hideAnimation()
-  setTimeout(() => {
-    visible.value = false
-    timers.forEach(clearTimeout)
-  }, 300)
-}
-
-/**鼠标移入弹窗内容区域 */
-const handleContentMouseEnter = () => {
-  if (!props.mouseEnterable) return
-  timers.forEach(clearTimeout)
 }
 
 /**展示弹窗 */
@@ -130,23 +130,34 @@ const displayPopups = () => {
   timers.set(
     "mouseEnter",
     setTimeout(async () => {
-      visible.value = true
-      await nextTick()
-      popup()
-    }, 350)
+      if (props.trigger !== "hover") {
+        visible.value = true
+      } else {
+        visible.value = !visible.value
+      }
+      if (visible.value) {
+        await nextTick()
+        resizeObserver.observe(dropdownRef.value?.$el!)
+        popup()
+      } else {
+        close()
+      }
+    }, 200)
   )
 }
 
 /**展示 */
 const popup = () => {
-  if (!dropdownRef.value || !contentRef.value) return
+  if (!dropdownRef.value && !contentRef.value) return
   // 页面元素
-  const dropDom = dropdownRef.value.$el
+  const dropDom = dropdownRef.value?.$el
   // 展示元素
   const contentDom = contentRef.value as HTMLElement
   // 判断元素超出屏幕
   exceed = isBottomInViewport(contentDom, dropDom)
-  setDistance(dropDom, contentDom)
+  nextFrame(() => {
+    setDistance(dropDom, contentDom)
+  })
 }
 
 /**
@@ -167,11 +178,12 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
   }
 
   animationName = exceed ? "up" : "down"
+
   nextFrame(() => {
     setStyles(contentRef.value!, {
       top,
       // 根据是否超出屏幕添加显示动画
-      animation: `${animationName} 0.25s linear`,
+      animation: `${animationName} 0.3s linear`,
       opacity: 1,
       zIndex: zIndex(),
     })
@@ -182,7 +194,7 @@ const hideAnimation = () => {
   if (!contentRef.value) return
   nextFrame(() => {
     setStyles(contentRef.value!, {
-      animation: `${animationName}-hide 0.25s linear`,
+      animation: `${animationName}-hide 0.2s linear`,
       opacity: 0,
     })
   })
@@ -194,7 +206,7 @@ let observer: IntersectionObserver
 onMounted(() => {
   observer = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0]?.intersectionRatio! <= 0) return
+      if (entries[0]?.intersectionRatio! > 1) return
       popup()
     },
     {
@@ -212,8 +224,17 @@ watch(contentRef, (content, OldContent) => {
   }
 })
 
+const resizeObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.contentRect) {
+      popup()
+    }
+  }
+})
+
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
   observer.disconnect()
+  resizeObserver.disconnect()
 })
 </script>

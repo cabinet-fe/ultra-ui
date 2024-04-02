@@ -3,6 +3,13 @@ import type { DeconstructValue } from '../helper'
 /** 消息弹框组件组件属性 */
 export interface MessageProps {
   modelValue?: string
+  message: string
+  type?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  closable?: boolean
+  duration?: number
+  offset?: number
+  onClose?: () => void
+  id?: string
 }
 
 /** 消息弹框组件组件定义的事件 */
