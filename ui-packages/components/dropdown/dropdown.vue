@@ -132,9 +132,7 @@ const displayPopups = () => {
     setTimeout(async () => {
       visible.value = true
       await nextTick()
-      nextFrame(() => {
-        popup()
-      })
+      popup()
     }, 350)
   )
 }
@@ -181,12 +179,12 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
 }
 /** 根据是否超出屏幕添加隐藏动画 */
 const hideAnimation = () => {
-  console.log(animationName, "-----")
-
   if (!contentRef.value) return
-  setStyles(contentRef.value!, {
-    animation: `${animationName}-hide 0.25s linear`,
-    opacity: 0,
+  nextFrame(() => {
+    setStyles(contentRef.value!, {
+      animation: `${animationName}-hide 0.25s linear`,
+      opacity: 0,
+    })
   })
 }
 
