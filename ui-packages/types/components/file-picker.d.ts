@@ -1,7 +1,7 @@
 import type { DeconstructValue } from '../helper'
 
 /** 文件上传器组件属性 */
-export interface UploaderProps<Multi extends boolean> {
+export interface UploaderProps<Multi extends boolean | undefined> {
   /** 允许上传的文件类型 */
   accept?: string
 
@@ -10,9 +10,9 @@ export interface UploaderProps<Multi extends boolean> {
 }
 
 /** 文件上传器组件定义的事件 */
-export interface UploaderEmits<M extends boolean> {
+export interface UploaderEmits {
   /** 拾取 */
-  (e: 'pick', files: M extends true ? File[] : File): void
+  (e: 'pick', files: File[]): void
 }
 
 /** 文件上传器组件暴露的属性和方法(组件内部使用) */
