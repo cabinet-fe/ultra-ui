@@ -105,6 +105,7 @@ const handleContentMouseEnter = () => {
 }
 /**关闭 */
 const close = () => {
+  resizeObserver.unobserve(dropdownRef.value?.$el!)
   // 先触发隐藏动画，再隐藏
   clearTimeout(timers.get("mouseLeave"))
   timers.set(
@@ -136,6 +137,7 @@ const displayPopups = () => {
       }
       if (visible.value) {
         await nextTick()
+        resizeObserver.observe(dropdownRef.value?.$el!)
         popup()
       } else {
         close()
@@ -176,8 +178,7 @@ const setDistance = (dropDom: HTMLElement, contentDom: HTMLElement) => {
   }
 
   animationName = exceed ? "up" : "down"
-  console.log(animationName,'animationNameanimationName');
-  
+
   nextFrame(() => {
     setStyles(contentRef.value!, {
       top,
@@ -205,7 +206,7 @@ let observer: IntersectionObserver
 onMounted(() => {
   observer = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0]?.intersectionRatio! >1 ) return
+      if (entries[0]?.intersectionRatio! > 1) return
       popup()
     },
     {
@@ -223,8 +224,17 @@ watch(contentRef, (content, OldContent) => {
   }
 })
 
+const resizeObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.contentRect) {
+      popup()
+    }
+  }
+})
+
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
   observer.disconnect()
+  resizeObserver.disconnect()
 })
 </script>
