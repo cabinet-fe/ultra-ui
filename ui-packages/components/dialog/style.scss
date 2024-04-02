@@ -24,6 +24,13 @@ $root-name: dialog;
   max-height: 90vh;
   flex-wrap: nowrap;
 
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      padding: 0 fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-title, $size);
+    }
+  }
+
   @include m.e(header, footer) {
     flex-shrink: 0;
     overflow: hidden;
@@ -48,7 +55,7 @@ $root-name: dialog;
   // 弹框头
   @include m.e(header) {
     height: 49px;
-    padding: 0 8px;
+
     border-bottom: fn.use-var(border);
     border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
 
@@ -60,7 +67,6 @@ $root-name: dialog;
   }
 
   @include m.e(title) {
-    font-size: fn.use-var(font-size, title);
     line-height: 1em;
   }
 
@@ -121,17 +127,6 @@ $root-name: dialog;
   @include m.e(btn-maximize, btn-recover) {
     background-color: #34c759;
   }
-}
-
-// 弹框透明层动画进入和离开时应用的类
-.#{$root-name}-overlay-enter-active,
-.#{$root-name}-overlay-leave-active {
-  transition: opacity 0.25s;
-}
-
-.#{$root-name}-overlay-enter-from,
-.#{$root-name}-overlay-leave-to {
-  opacity: 0;
 }
 
 // 弹框最大化动画进入后的类

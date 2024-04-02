@@ -1,35 +1,27 @@
 <template>
-  <u-grid tag="form">
-    <slot />
+  <u-grid tag="form" :cols="{ xs: 1, sm: 2, xl: 3, default: 4 }" :class="cls.b">
+    <UNodeRender :content="getSlotsNodes()" />
   </u-grid>
 </template>
 
-<script lang="ts" setup generic="Data extends Record<string, any>">
+<script lang="ts" setup generic="Model extends FormModel">
 import type { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
-import { Validator } from '@ui/utils'
+import {  bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
-import { useSlots } from 'vue'
+import { UNodeRender } from '../node-render'
+import { useNodeInterceptor } from './use-node-interceptor'
+import type { FormModel } from './form-model'
 
 defineOptions({
   name: 'Form'
 })
 
-const props = defineProps<FormProps<Data>>()
+const props = defineProps<FormProps<Model>>()
 
-const validator = new Validator({
-  data: props.data,
-  rules: props.rules
-})
+const cls = bem('form')
 
-useFormComponent(true, props)
+useFormComponent(props)
 
-const slots = useSlots()
-
-defineExpose({
-  /** 表单校验 */
-  validate() {
-    return validator.validate()
-  }
-})
+const getSlotsNodes = useNodeInterceptor({ props })
 </script>

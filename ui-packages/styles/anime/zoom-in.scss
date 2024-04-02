@@ -1,0 +1,19 @@
+
+$root-name: zoom-in;
+
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.#{$root-name}-enter-active {
+  transition:
+    opacity 0.15s ease-in,
+    transform 0.15s ease-in;
+}
+.#{$root-name}-leave-active {
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}

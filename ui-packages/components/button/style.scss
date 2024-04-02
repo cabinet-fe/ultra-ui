@@ -23,12 +23,14 @@
   -webkit-tap-highlight-color: transparent; /* For some Androids */
 
   // 尺寸
-  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
-    @each $type, $val in $types {
-      #{$type}: $val;
-    }
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    line-height: fn.use-var(form-component-height, $size);
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 1em;
+
     @include m.is(circle) {
-      width: map.get($types, height);
+      width:fn.use-var(form-component-height, $size);
     }
   }
 

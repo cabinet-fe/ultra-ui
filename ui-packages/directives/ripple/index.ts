@@ -1,61 +1,89 @@
-import type { DirectiveBinding, ObjectDirective } from 'vue'
-import { bem } from '@ui/utils'
+import { type DirectiveBinding, type ObjectDirective } from 'vue'
+import { bem, nextFrame, setStyles } from '@ui/utils'
 
 const cls = bem('ripple')
 const clsWrap = cls.e('wrap')
 
 const duration = 300
 
-/**
- *
- * @param el 目标dom
- * @param offsetX 触发点在目标dom中的x轴偏移量
- * @param offsetY 触发点在目标dom中的y轴偏移量
- */
-const triggerRipple = (el: HTMLElement, offsetX: number, offsetY: number) => {
+/** 创建波纹元素 */
+const createRipple = (e: MouseEvent) => {
+  const parentEl = e.currentTarget as HTMLElement
+  const parentRect = parentEl.getBoundingClientRect()
+
+  // 鼠标位置就是圆心
+  const centerX = e.clientX - parentRect.left
+  const centerY = e.clientY - parentRect.top
+
+  const edgeA =
+    centerX < parentRect.width / 2 ? parentRect.width - centerX : centerX
+  const edgeB =
+    centerY < parentRect.height / 2 ? parentRect.height - centerY : centerY
+
+  /** 半径 */
+  const radius = Math.ceil(Math.sqrt(edgeA ** 2 + edgeB ** 2))
+  const diameter = radius * 2
+
+  /** 波纹元素 */
+  const rippleEl = document.createElement('span')
+
+  rippleEl.classList.add(clsWrap)
+
+  const _duration = parentEl.dataset.duration
+    ? Number(parentEl.dataset.duration)
+    : duration
+  setStyles(rippleEl, {
+    width: `${diameter}px`,
+    height: `${diameter}px`,
+    left: `${centerX - radius}px`,
+    top: `${centerY - radius}px`,
+    transition: `transform ${_duration}ms cubic-bezier(1,.5,.29,.87)`,
+    transform: `scale3d(0.2, 0.2, 1)`
+  })
+
+  if (parentEl.dataset.rippleClass) {
+    rippleEl.classList.add(parentEl.dataset.rippleClass)
+  }
+
+  return rippleEl
+}
+
+const transitionEndHandler = (e: TransitionEvent) => {
+  const rippleWrap = e.currentTarget as HTMLElement
+  if (e.propertyName !== 'transform') return
+  rippleWrap.removeEventListener('transitionend', transitionEndHandler)
+
+  const parentEl = rippleWrap.parentElement
+  if (!parentEl) return
+
+  parentEl.removeChild(rippleWrap)
+
+  // 所有的波纹被清除后移除波纹类
+  if (parentEl.getElementsByClassName(clsWrap).length === 0) {
+    parentEl.classList.remove(cls.b)
+    delete parentEl.dataset.class
+  }
+}
+
+const showRipple = (e: MouseEvent) => {
+  const el = e.currentTarget as HTMLElement
+
   // 添加波纹类
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
+  el.dataset.class = cls.b
 
-  const _duration = el.dataset.duration ? Number(el.dataset.duration) : duration
-
-  // 计算波纹大小
-  const rect = el.getBoundingClientRect()
-  // 通过勾股定理计算波纹的最大直径
-  const rippleSize = Math.ceil(Math.sqrt(rect.width ** 2 + rect.height ** 2))
-  const rippleWrap = document.createElement('span')
-  rippleWrap.classList.add(clsWrap)
-  rippleWrap.style.transition = `transform ${_duration}ms ease-in`
-  rippleWrap.style.width = `${rippleSize}px`
-  rippleWrap.style.height = `${rippleSize}px`
-
-  const radius = rippleSize / 2
-  // 计算波纹圆心位置
-  const center = `translate3d(${offsetX - radius}px, ${offsetY - radius}px, 0)`
-
-  rippleWrap.style.transform = `${center} scale3d(0, 0, 0)`
-
-  if (el.dataset.rippleClass) {
-    rippleWrap.classList.add(el.dataset.rippleClass)
-  }
+  const rippleWrap = createRipple(e)
 
   el.appendChild(rippleWrap)
 
+  rippleWrap.addEventListener('transitionend', transitionEndHandler)
+
   // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
-  requestAnimationFrame(() => {
-    rippleWrap.style.transform = `${center} scale3d(2, 2, 2)`
+  nextFrame(() => {
+    setStyles(rippleWrap, {
+      transform: 'scale3d(1, 1, 1)'
+    })
   })
-
-  // 效果完成后移除波纹元素
-  setTimeout(() => {
-    rippleWrap.parentNode?.removeChild(rippleWrap)
-
-    // 所有的波纹被清除后移除波纹类
-    el.getElementsByClassName(clsWrap).length === 0 && el.classList.remove(cls.b)
-  }, _duration)
-}
-
-function mousedownHandler(this: HTMLElement, e: MouseEvent) {
-  triggerRipple(this, e.offsetX, e.offsetY)
 }
 
 /**
@@ -77,7 +105,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
     el.dataset.duration = binding.arg
   }
 
-  el.addEventListener('mousedown', mousedownHandler)
+  el.addEventListener('mousedown', showRipple)
 }
 
 /**
@@ -87,7 +115,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
 const unregisterEvents = (el: HTMLElement) => {
   delete el.dataset.rippleClass
   delete el.dataset.duration
-  el.removeEventListener('mousedown', mousedownHandler)
+  el.removeEventListener('mousedown', showRipple)
 }
 
 const Ripple: ObjectDirective<HTMLElement> = {
@@ -95,12 +123,19 @@ const Ripple: ObjectDirective<HTMLElement> = {
   mounted: registerEvents,
 
   // 元素卸载前注销事件
-  beforeUnmount: unregisterEvents,
+  unmounted: unregisterEvents,
 
   // 元素更新时移除旧有事件并重新添加事件
-  updated(el, binding, vNode, preVNode) {
-    unregisterEvents(el)
-    registerEvents(el, binding)
+  updated(el, binding) {
+    el.dataset.class && el.classList.add(el.dataset.class)
+
+    const registered = !!binding.oldValue
+    if (binding.value && !registered) {
+
+      registerEvents(el, binding)
+    } else if (!binding.value && registered) {
+      unregisterEvents(el)
+    }
   }
 }
 

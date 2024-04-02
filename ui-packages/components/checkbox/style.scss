@@ -2,25 +2,54 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(checkbox) {
+$root-name: checkbox;
+@include m.b($root-name) {
   @include m.flex(inline-flex);
   user-select: none;
   vertical-align: middle;
+  cursor: pointer;
+
+  @include m.is(checked) {
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(disabled) {
+      @include m.bem($root-name, wrap) {
+        background-color: fn.use-var(text-color, disabled);
+        border-color: fn.use-var(border, color);
+      }
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, disabled);
+    }
+  }
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    & + & {
+      margin-left: calc(fn.use-var(gap, $size) * 2);
+    }
+
+    @include m.bem($root-name, wrap) {
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+    }
+  }
 
   @include m.e(wrap) {
-    height: 16px;
-    width: 16px;
-    box-shadow: inset 0 0 1px 1px fn.use-var(border-color);
+    border: 1;
+    border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     color: #fff;
     transition: background-color 0.25s ease;
     @include m.flex(inline-flex, center);
-
-    // checked或者indeterminate
-    @include m.is(active) {
-      background-color: fn.use-var(color, primary);
-      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-    }
   }
 
   @include m.e(label) {

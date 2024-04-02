@@ -1,21 +1,69 @@
 <template>
-  <u-form-item v-if="inForm" v-bind="getFormItemProps(props)">
-    <component :is="renderInput()" />
-  </u-form-item>
-  <component v-else :is="renderInput()" />
+  <div
+    :class="inputClass"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+  >
+    <span
+      v-if="$slots.prefix || prefix"
+      :class="prefixClass"
+      @click="handlePrefixClick"
+    >
+      <slot name="prefix">{{ prefix }}</slot>
+    </span>
+
+    <input
+      :class="cls.e('native')"
+      :placeholder="props.placeholder"
+      type="text"
+      :value="model"
+      @input="handleInput"
+      @change="handleChange"
+      @focus="handleFocus"
+      @blur="handleBlur"
+      autocomplete="off"
+      ref="el"
+      v-bind="attrs"
+      :disabled="disabled"
+    />
+
+    <Transition name="zoom-in">
+      <UIcon
+        v-if="clearable && model && hovered && !disabled"
+        :class="cls.e('clear')"
+        :size="14"
+        @click="clearModelValue"
+      >
+        <CircleClose />
+      </UIcon>
+    </Transition>
+
+    <span
+      v-if="$slots.suffix || suffix"
+      :class="suffixClass"
+      @click="handleSuffixClick"
+    >
+      <slot name="suffix">{{ suffix }}</slot>
+    </span>
+  </div>
 </template>
 
 <script lang="tsx" setup>
-import type { InputEmits, InputProps, _InputExposed } from '@ui/types/components/input'
-import { UFormItem } from '../form-item'
-import { getFormItemProps } from '../form-item/utils'
-import { useFormComponent, useFocus } from '@ui/compositions'
+import type {
+  InputEmits,
+  InputProps,
+  _InputExposed
+} from '@ui/types/components/input'
+import {
+  useFocus,
+  useFormComponent,
+  useFormFallbackProps
+} from '@ui/compositions'
 import { bem } from '@ui/utils'
 import {
   computed,
   getCurrentInstance,
   ref,
-  useSlots,
   Transition,
   shallowRef,
   useAttrs
@@ -29,31 +77,40 @@ defineOptions({
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
-  size: 'default',
-  clearable: true
+  clearable: true,
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<InputEmits>()
 
-const model = defineModel()
+const model = defineModel<string>()
 
 const inst = getCurrentInstance()
 
 const cls = bem('input')
 
-const { inForm, formProps } = useFormComponent(false)
+const { formProps } = useFormComponent()
+
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 const { focus, handleBlur, handleFocus } = useFocus(focused => {
   focused ? emit('focus') : emit('blur')
 })
 
-const slots = useSlots()
-
 const inputClass = computed(() => {
-  return [cls.b, cls.m(props.size), bem.is('focus', focus.value)]
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value),
+    bem.is('focus', focus.value)
+  ]
 })
 
-// inst?.vnode.props?.['onPrefix:click']来获取当前组件是否绑定了点击事件
 const prefixClass = [
   cls.e('prefix'),
   bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])
@@ -65,6 +122,7 @@ const suffixClass = [
 ]
 
 const handleInput = (e: Event) => {
+  emit('native:input', e)
   model.value = (e.target as HTMLInputElement).value
 }
 
@@ -78,6 +136,7 @@ const handleSuffixClick = () => {
 
 const clearModelValue = () => {
   model.value = ''
+  emit('clear')
 }
 
 const hovered = ref(false)
@@ -96,49 +155,6 @@ const handleChange = (e: Event) => {
 const el = shallowRef<HTMLInputElement>()
 
 const attrs = useAttrs()
-
-const renderInput = () => {
-  return (
-    <div
-      class={inputClass.value}
-      onMouseenter={handleMouseEnter}
-      onMouseleave={handleMouseLeave}
-    >
-      {slots.prefix || props.prefix ? (
-        <span class={prefixClass} onClick={handlePrefixClick}>
-          {slots.prefix?.() || props.prefix}
-        </span>
-      ) : null}
-
-      <input
-        class={cls.e('native')}
-        placeholder={props.placeholder}
-        type={props.password ? 'password' : 'text'}
-        value={model.value}
-        onInput={handleInput}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        ref={el}
-        {...attrs}
-      />
-
-      <Transition name='fade'>
-        {props.clearable && model.value && hovered.value ? (
-          <UIcon class={cls.e('clear')} size={14} onClick={clearModelValue}>
-            <CircleClose />
-          </UIcon>
-        ) : null}
-      </Transition>
-
-      {slots.suffix || props.suffix ? (
-        <span class={suffixClass} onClick={handleSuffixClick}>
-          {slots.suffix?.() || props.suffix}
-        </span>
-      ) : null}
-    </div>
-  )
-}
 
 defineExpose<_InputExposed>({
   el

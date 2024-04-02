@@ -29,6 +29,7 @@ export default defineComponent({
       if (Array.isArray(props.content)) {
         return props.content
       }
+
       if (isVNode(props.content)) {
         return cloneVNode(props.content, attrs, true)
       }

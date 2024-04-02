@@ -54,7 +54,8 @@ const style =
 
 const domRef = shallowRef<HTMLElement>()
 
-const getTarget =
+/** 获取拖拽偏移量 */
+const getDragOffset =
   props.type === 'x'
     ? (x: number, y: number) => currentOffset + x
     : (x: number, y: number) => currentOffset + y
@@ -63,22 +64,22 @@ const getTarget =
 useDrag({
   target: domRef,
   onDragStart() {
-    currentOffset = offset.value
     dragging.value = true
+    currentOffset = offset.value
   },
   onDragEnd() {
     dragging.value = false
   },
   onDrag(x, y) {
-    const target = getTarget(x, y)
+    const newOffset = getDragOffset(x, y)
     const maxOffset = trackSize - size.value
 
-    if (target < 0) {
+    if (newOffset < 0) {
       offset.value = 0
-    } else if (target > maxOffset) {
+    } else if (newOffset > maxOffset) {
       offset.value = maxOffset
     } else {
-      offset.value = target
+      offset.value = newOffset
     }
 
     emit('drag', offset.value, size.value)

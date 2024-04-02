@@ -1,44 +1,78 @@
 <template>
-  <div>
-    <u-button v-for="item in positions" @click="setPosition(item)">{{
-      item
-    }}</u-button>
-  </div>
-
   <div class="wrapper">
-    <u-tabs :items="items" v-model="active" :position="tabPosition" closable>
-    <template #赵-label>+赵</template>
-    <template #赵
-      >第一页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template
-    >
-    <template #钱
-      >第二页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template
-    >
-    <template #孙 v-if="tabPosition === 'right'">第三页xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</template>
-  </u-tabs>
+    <div class="config">
+      <ul>
+        <li v-for="item in configList">
+          <u-checkbox v-model="config[item.key]">{{ item.label }}：{{ item.key }}</u-checkbox>
+        </li>
+        <li>
+          <div>方位：position</div>
+          <u-radio-group
+            radioType="btn"
+            :items="[
+              { label: '上', value: 'top' },
+              { label: '下', value: 'bottom' },
+              { label: '左', value: 'left' },
+              { label: '右', value: 'right' }
+            ]"
+            v-model="config.position"
+          />
+        </li>
+      </ul>
+    </div>
+    <div class="display">
+      <u-tabs
+        :items="items"
+        v-model="active"
+        :position="config.position"
+        :closable="config.closable"
+        :sortable="config.sortable"
+      >
+        <template v-for="item in items" #[item.name]>{{ item }}</template>
+      </u-tabs>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 
-let items = ref(['赵', '钱', '孙', '李'])
+// let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
+let items = [
+  { key: '1', name: 'TabOne' },
+  { key: '2', name: 'TabTwo', disabled: true },
+  { key: '3', name: 'TabThree' },
+  { key: '4', name: 'TabFour' }
+]
 
-const active = ref('赵')
+const active = ref<string>('1')
 
-const positions = ['top', 'bottom', 'left', 'right']
-
-let tabPosition: any = ref('top')
-
-const setPosition = (position: any) => {
-  tabPosition.value = position
-}
+const configList = [
+  { label: '可关闭', key: 'closable' },
+  { label: '排序', key: 'sortable' }
+]
+const config = reactive({
+  closable: false,
+  sortable: false,
+  position: 'top' as any
+})
 </script>
 
 <style lang="scss" scoped>
 .wrapper {
-  border: 2px solid gold;
-  width: 500px;
-  height: 400px;
+  .config {
+    border: 1px dashed #eee;
+  }
+  .display {
+    width: 600px;
+    height: 400px;
+    border: 1px solid gold;
+  }
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 50px;
+  }
 }
 </style>

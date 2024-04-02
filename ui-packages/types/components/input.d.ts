@@ -14,8 +14,6 @@ export interface InputProps extends  FormComponentProps {
   suffix?: string
   /** 是否可清除 */
   clearable?: boolean
-  /** 密码 */
-  password?: boolean
 }
 
 export interface InputEmits {
@@ -23,10 +21,18 @@ export interface InputEmits {
   (e: 'update:modelValue', value: string): void
   /** 在输入框失焦时触发更新 */
   (e: 'change', value: string): void
+  /** 后缀点击事件 */
   (e: 'suffix:click', value?: string): void
+  /** 前缀点击事件 */
   (e: 'prefix:click', value?: string): void
+  /** 聚焦事件 */
   (e: 'focus', value?: string): void
+  /** 清除事件 */
+  (e: 'clear'): void
+  /** 失焦事件 */
   (e: 'blur', value?: string): void
+  /** 原生输入事件 */
+  (e: 'native:input', e: Event): void
 }
 
 export interface _InputExposed {

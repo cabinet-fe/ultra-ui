@@ -9,7 +9,14 @@
       />
     </u-scroll>
 
-    <u-scroll tag="main" style="flex-grow: 1; padding: var(--u-gap-default)">
+    <u-scroll tag="main" class="main">
+      <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
+        组件尺寸
+        <u-radio value="small" v-model="size">小</u-radio>
+        <u-radio value="default" v-model="size">中</u-radio>
+        <u-radio value="large" v-model="size">大</u-radio>
+      </div>
+
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -22,8 +29,8 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { vRipple } from 'ultra-ui'
-import { defineComponent } from 'vue'
+import { useConfig, vRipple, type ComponentSize } from 'ultra-ui'
+import { defineComponent, shallowRef, watchEffect } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -31,6 +38,14 @@ const route = useRoute()
 const handleClick = (path: string) => {
   router.push(path)
 }
+const { setConfig } = useConfig()
+const size = shallowRef<ComponentSize>('default')
+
+watchEffect(() => {
+  setConfig({
+    size: size.value
+  })
+})
 
 const ListItem = defineComponent({
   directives: {
@@ -90,7 +105,7 @@ $width: 240px;
 
     div {
       border-radius: 4px;
-      padding: 0 6px;
+      padding: 0 12px;
       line-height: 36px;
       height: 100%;
 
@@ -105,8 +120,12 @@ $width: 240px;
   }
 }
 
-main {
+.main {
   width: calc(100% - $width);
+
+  :deep(main) {
+    padding: 10px;
+  }
 }
 
 .fade-enter-active,

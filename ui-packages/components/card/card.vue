@@ -9,19 +9,20 @@ import { bem, withUnit } from '@ui/utils'
 import type { CardExposed, CardProps } from '@ui/types/components/card'
 import { computed, provide } from 'vue'
 import { CardDIKey } from './di'
+import { useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'Card'
 })
 
-const props = withDefaults(defineProps<CardProps>(), {
-  size: 'default'
-})
+const props = defineProps<CardProps>()
 
 const cls = bem('card')
 
+const { size } = useFormFallbackProps([props], { size: 'default' })
+
 const classList = computed(() => {
-  return [cls.b, cls.m(props.size)]
+  return [cls.b, cls.m(size.value)]
 })
 
 const styles = computed(() => {

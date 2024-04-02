@@ -1,0 +1,93 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: slider;
+
+.is-vertical {
+  width: 10px;
+  @include m.b($root-name) {
+    @include m.e('button-wrap') {
+      margin-left: -2px;
+      top: -10px;
+    }
+
+    &__bar {
+      bottom: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+@include m.b($root-name) {
+  padding: 10px;
+
+  &__runway {
+    flex: 1;
+    height: 10px;
+    background-color: fn.use-var(color, primary, light-9);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  &__bar {
+    width: 100%;
+    border-radius: 3px;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    height: 100%;
+    background-color: #007bff;
+  }
+
+  @include m.e('button-wrap') {
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    cursor: pointer;
+    top: -15px;
+    z-index: 1;
+    line-height: 36px;
+    user-select: none;
+    text-align: center;
+    left: -10px;
+  }
+
+  @include m.e('button-back') {
+    transform: translate(-50%);
+    // width: 36px;
+  }
+
+  @include m.e('button') {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    border: solid 2px fn.use-var(color-primary);
+    background-color: fn.use-var(bg-color-top);
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: 0.2s;
+    user-select: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+    }
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  @include m.e('stop') {
+    position: absolute;
+    pointer-events: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: fn.use-var('color', primary, light-3);
+  }
+}

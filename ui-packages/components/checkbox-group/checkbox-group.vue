@@ -1,35 +1,56 @@
 <template>
   <div :class="cls.b">
     <u-checkbox
-      v-for="item of data"
+      v-for="item of items"
       :key="item[valueKey]"
       :model-value="getCheckStatus(item)"
       @update:model-value="handleUpdate($event, item)"
+      :disabled="disabled"
+      :size="size"
     >
       {{ item[labelKey] }}
     </u-checkbox>
   </div>
 </template>
 
-<script lang="ts" setup generic="Data extends Record<string, string | number>">
-import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types/components/checkbox-group'
+<script
+  lang="ts"
+  setup
+  generic="
+    Item extends Record<string, string | number>,
+    Val extends string | number
+  "
+>
+import type {
+  CheckboxGroupProps,
+  CheckboxGroupEmits
+} from '@ui/types/components/checkbox-group'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'CheckboxGroup'
 })
 
-const props = withDefaults(defineProps<CheckboxGroupProps<Data>>(), {
+const props = withDefaults(defineProps<CheckboxGroupProps<Item, Val>>(), {
   labelKey: 'label',
-  valueKey: 'value'
+  valueKey: 'value',
+  disabled: undefined
 })
 
-const emit = defineEmits<CheckboxGroupEmits>()
+const emit = defineEmits<CheckboxGroupEmits<Val>>()
 
-const model = defineModel<(string | number)[]>()
+const model = defineModel<Val[]>()
 
 const cls = bem('checkbox-group')
+
+const { formProps } = useFormComponent()
+
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false
+})
 
 /**
  * 获取checkbox的选中状态
@@ -38,7 +59,7 @@ const cls = bem('checkbox-group')
  */
 const getCheckStatus = (item: Record<string, string | number>): boolean => {
   const { valueKey } = props
-  const value = item[valueKey]
+  const value = item[valueKey] as Val
   if (!value || !model.value) return false
   return model.value.includes(value)
 }
@@ -53,7 +74,7 @@ const handleUpdate = (
   item: Record<string, string | number>
 ) => {
   const { valueKey } = props
-  const value = item[valueKey]
+  const value = item[valueKey] as Val
   if (!value) return
   if (checked) {
     model.value = [...(model.value ?? []), value]

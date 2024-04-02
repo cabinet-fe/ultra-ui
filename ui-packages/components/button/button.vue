@@ -50,15 +50,20 @@ import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
+import { useFallbackProps } from '@ui/compositions'
+import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Button'
 })
 
 const props = withDefaults(defineProps<ButtonProps>(), {
-  size: 'default',
   iconPosition: 'left',
   loadingIcon: () => Loading
+})
+
+const { size } = useFallbackProps([props], {
+  size: 'default' as ComponentSize
 })
 
 const emit = defineEmits<ButtonEmits>()
@@ -68,7 +73,7 @@ const cls = bem('button')
 const classList = computed(() => {
   return [
     cls.b,
-    cls.m(props.size),
+    cls.m(size.value),
     props.type && cls.m(props.type),
     bem.is('circle', props.circle),
     bem.is('disabled', props.disabled),

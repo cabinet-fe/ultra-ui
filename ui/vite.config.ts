@@ -25,7 +25,7 @@ export default defineConfig({
 
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
-      external: ['vue', 'cat-kit', 'icon-ultra', 'cat-kit/fe'],
+      external: ['vue', 'icon-ultra', 'cat-kit/fe'],
 
       output: {
         preserveModules: true,

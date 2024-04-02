@@ -31,6 +31,14 @@
   }
 }
 
+@mixin size {
+  @each $size in vars.$sizes {
+    &--#{$size} {
+      @content ($size);
+    }
+  }
+}
+
 @mixin b($blocks...) {
   @each $block in $blocks {
     .#{vars.$namespace}#{$block} {
@@ -93,6 +101,12 @@
       @content;
     }
   }
+}
+
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /**

@@ -7,13 +7,15 @@ $root-name: scroll;
 @include m.b($root-name) {
   position: relative;
   display: flex;
+  // 弹性布局方向为列方向，以便于父级设置最大高度时能应用滚动
   flex-direction: column;
+  overflow: auto;
 
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
     height: 100%;
-
+    flex-grow: 1;
 
     // 隐藏滚动条
     scrollbar-width: none;
@@ -31,14 +33,14 @@ $root-name: scroll;
   }
 
   // 悬浮
-  &:hover {
+  &:hover > {
     @include m.bem($root-name, (bar-x, bar-y)) {
       opacity: 1;
     }
   }
 
   // 滚动条背景色
-  $bar-color: #ccc;
+  $bar-color: #aaa;
 
   // 滚动条默认尺寸(宽度)
   $bar-size: 6px;

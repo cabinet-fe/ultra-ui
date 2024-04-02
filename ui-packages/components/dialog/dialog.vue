@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="dialog-overlay">
+    <transition name="fade">
       <div
         v-if="visible || opened"
         v-show="visible"
@@ -8,7 +8,7 @@
         :style="style"
         @click="close"
       >
-        <div v-bind="$attrs" :class="cls.b" ref="dialogRef" @click.stop>
+        <div v-bind="$attrs" :class="className" ref="dialogRef" @click.stop>
           <section
             :class="headerCls"
             ref="headerRef"
@@ -64,21 +64,29 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, shallowReactive, nextTick } from 'vue'
+import {
+  type VNode,
+  shallowRef,
+  watch,
+  shallowReactive,
+  nextTick,
+  computed
+} from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
-import { bem, nextFrame, zIndex } from '@ui/utils'
-import { useDrag, useTransition } from '@ui/compositions'
+import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
+import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { CloseBold, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
+import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Dialog',
   inheritAttrs: false
 })
 
-defineProps<DialogProps>()
+const props = defineProps<DialogProps>()
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?(): VNode[] | undefined
@@ -88,6 +96,12 @@ const cls = bem('dialog')
 const blurCls = bem.is('background-blur')
 const headerCls = [cls.e('header'), blurCls]
 const footerCls = [cls.e('footer'), blurCls]
+
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
+
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
+})
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
@@ -109,15 +123,15 @@ const style = shallowReactive({
 
 const dialogTransition = useTransition('style', {
   target: dialogRef,
-  enterToStyle: {
+
+  enterTo: {
     transform: 'scale3d(1, 1, 1) translate(0, 0)'
   },
 
-  transitionInStyle: {
-    transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)',
-    transition: 'transform 25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+  enterActive: {
+    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
-  transitionOutStyle: {
+  leaveActive: {
     transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
 })
@@ -127,7 +141,14 @@ let opened = false
 
 watch(visible, v => {
   if (!v) {
-    return dialogTransition.toggle(false)
+    dialogTransition.leave()
+    nextFrame(() => {
+      dialogRef.value &&
+        setStyles(dialogRef.value, {
+          transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+        })
+    })
+    return
   }
   if (!opened) opened = true
 
@@ -135,11 +156,14 @@ watch(visible, v => {
   translated.x = 0
   translated.y = 0
 
-  // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
-  // 渲染后的下一帧
   nextTick(() => {
+    dialogRef.value &&
+      setStyles(dialogRef.value, {
+        transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+      })
+    // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
     nextFrame(() => {
-      dialogTransition.toggle(true)
+      dialogTransition.enter()
     })
   })
 })
@@ -154,7 +178,7 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  dom.style.transform = `translate3d(${x}px,${y}px, 0)`
+  setStyles(dom, { transform: `translate3d(${x}px, ${y}px, 0)` })
 }
 
 // 运用拖拽

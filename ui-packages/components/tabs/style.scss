@@ -1,103 +1,150 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
-@include m.b(tabs) {
+$root-name: tabs;
+$position-types: (top, right, bottom, left);
+
+@include m.b($root-name) {
   display: flex;
-  @each $position in top, left, right, bottom {
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      padding: 2px;
+
+      &--label {
+        border-radius: map.get(vars.$border-radius, $size);
+        padding: map.get(vars.$gap, $size);
+        font-size: map.get(vars.$font-size-main, $size);
+
+        .is-close,
+        .is-close--placeholder {
+          width: map.get(vars.$font-size-main, $size) * 1.5;
+          height: map.get(vars.$font-size-main, $size) * 1.5;
+        }
+      }
+    }
+  }
+
+  @each $position in $position-types {
     @include m.e($position) {
-      @if $position == top {
+      @if $position ==top {
         flex-direction: column;
-      } @else if $position == bottom {
+      }
+
+      @else if $position ==bottom {
         flex-direction: column-reverse;
-      } @else if $position == left {
+      }
+
+      @else if $position ==left {
         flex-direction: row;
-      } @else if $position == right {
+      }
+
+      @else if $position ==right {
         flex-direction: row-reverse;
       }
     }
   }
+
   @include m.e(header) {
     display: flex;
+    justify-content: space-around;
     position: relative;
-    @each $position in top, left, right, bottom {
+    background-color: fn.use-var(color, primary-light-9);
+
+    @each $position in $position-types {
       &--#{$position} {
-        @if $position == left {
+        @if $position ==left {
           flex-direction: column;
           border-right: 2px solid fn.use-var(border-color);
-          margin-right: 10px;
-        } @else if $position == right {
+        }
+
+        @else if $position ==right {
           flex-direction: column;
           border-left: 2px solid fn.use-var(border-color);
-          margin-left: 10px;
-        } @else if $position == bottom {
+        }
+
+        @else if $position ==bottom {
           border-bottom: 2px solid fn.use-var(border-color);
-          margin-top: 10px;
-        } @else {
+        }
+
+        @else {
           border-bottom: 2px solid fn.use-var(border-color);
-          margin-bottom: 10px;
         }
       }
     }
+
     &--label {
+      flex: 1;
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
       cursor: pointer;
-      // border-right: 0;
-      background-color: fn.use-var(bg-color, top);
-      padding: 4px 8px;
-      font-size: fn.use-var(font-size, title);
-      color: fn.use-var(color, info);
-      user-select:none;
+      margin: 1px;
+      font-size: fn.use-var(font-size-title, default);
+      font-weight: bold;
+      color: fn.use-var(text-color, main);
+      user-select: none;
+      animation: fadeOutAnimation 1s forwards;
+
+      @keyframes fadeOutAnimation {
+        from {
+          background-color: fn.use-var(bg-color, top);
+        }
+
+        to {
+          background-color: fn.use-var(color, primary-light-9);
+        }
+      }
+
       @include m.is('active') {
-        color: fn.use-var(color, primary);
-      }
-     .is-close {
-        width: 16px;
-        height: 16px;
-        line-height: 13px;
-        text-align: center;
-        border-radius: 50px;
-      }
-      .is-close:hover {
-        background-color: fn.use-var(color, info);
-        color: #fff;
-      }
-    }
-    // &--label:last-of-type {
-    //   border-right: fn.use-var(border);
-    // }
-    &--label:hover {
-      color: fn.use-var(color, primary);
-    }
-    &--line {
-      background-color: fn.use-var(color, primary);
-      transition: transform 0.3s ease-in, width 0.3s ease-out;
-      position: absolute;
-      width: 50px;
-      height: 2px;
-      left: 0px;
-      bottom: -2px;
-      @each $position in top, left, right, bottom {
-        @include m.is(#{$position}) {
-          @if $position == left {
-            width: 2px!important;
-            height: 50px;
-            top: 0px;
-            right: -2px;
-          }@else if $position == right {
-            width: 2px!important;
-            height: 50px;
-            top: 0px;
-            left: -2px;
+        color: fn.use-var(text-color, title);
+        animation: fadeInAnimation 0.25s forwards;
+
+        @keyframes fadeInAnimation {
+          from {
+            background-color: fn.use-var(color, primary-light-9);
+          }
+
+          to {
+            background-color: fn.use-var(bg-color, top);
           }
         }
       }
+
+      @include m.is('disabled') {
+        cursor: not-allowed;
+      }
+
+      .is-close,
+      .is-close--placeholder {
+        padding: 2px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .is-close:hover {
+        background-color: fn.use-var(color, primary-light-1);
+        color: #fff;
+      }
     }
+
+    &--label:hover {
+      color: fn.use-var(color, primary);
+
+      @include m.is(disabled) {
+        color: fn.use-var(text-color, main);
+      }
+    }
+
   }
+
   @include m.e(content) {
     width: 100%;
-    border: 1px solid gray;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
   }
 }

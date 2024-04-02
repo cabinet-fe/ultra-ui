@@ -1,0 +1,105 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+$root-name: select;
+@include m.b($root-name) {
+  position: relative;
+  padding: 10px 10px;
+  box-sizing: border-box;
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+
+    & + & {
+      margin-left: calc(fn.use-var(gap, $size) * 2);
+    }
+
+    @include m.bem($root-name, button) {
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      padding: 2px;
+
+      @if ($size == large) {
+        padding: 3px;
+      }
+    }
+
+    @include m.bem($root-name, label) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e('input') {
+    width: 240px;
+    height: fn.use-var(form-component-height-default);
+    display: block;
+    padding: 10px 10px;
+    // box-sizing: border-box;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius-default);
+    &:hover {
+      // 悬浮时边框颜色为 var(--u-color-primary);
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e('input-multiple') {
+    width: 240px;
+    min-height: 30px;
+    padding: 10px 10px;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius-default);
+    &:hover {
+      // 悬浮时边框颜色为 var(--u-color-primary);
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
+
+    & > div {
+      display: inline-block;
+      padding: 0 5px;
+    }
+  }
+  @include m.e('clear-multiple') {
+    cursor: pointer;
+  }
+
+  @include m.e('clear') {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+  }
+  ul {
+    width: 240px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    border: fn.use-var(border);
+
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    display: none; /* 默认不显示选项列表 */
+    max-height: 200px;
+    overflow-y: auto;
+    li {
+      cursor: pointer;
+      padding: 5px 8px;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+    }
+    li.actived {
+      color: fn.use-var(color, primary);
+    }
+  }
+  .show {
+    display: block;
+  }
+
+  .showSelected {
+    display: block;
+  }
+  // .actived {
+  //   background-color: #eee;
+  // }
+}

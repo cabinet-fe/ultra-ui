@@ -20,7 +20,9 @@ $namespace: 'u-';
   @return $size-result;
 }
 
-// 表单组件尺寸
+$sizes: (small, default, large);
+
+// 表单组件尺寸(已经废弃)
 $form-component-sizes: size-vars(
   (
     height: 24px,
@@ -35,20 +37,7 @@ $form-component-sizes: size-vars(
   (
     height: 40px,
     padding: 0 16px,
-    font-size: 14px
-  )
-);
-
-// 卡片组件尺寸
-$card-sizes: size-vars(
-  (
-    padding: 6px
-  ),
-  (
-    padding: 8px
-  ),
-  (
-    padding: 12px
+    font-size: 16px
   )
 );
 
@@ -63,7 +52,9 @@ $color-types: (
   // 危险色
   danger: #f44336,
   // 信息色
-  info: #009688
+  info: #009688,
+  // 禁用色
+  disabled: #f5f7fa
 );
 
 // 背景层级颜色
@@ -88,7 +79,7 @@ $text-colors: (
   // 辅助文字
   assist: #c0c4cc,
   // 禁用文字
-  disabled: #909399
+  disabled: #a8abb2
 );
 
 // 圆角半径
@@ -98,18 +89,36 @@ $border-radius: (
   large: 8px
 );
 
+// 高度尺寸
+$form-component-height: (
+  small: 24px,
+  default: 32px,
+  large: 40px
+);
+
 // 字体大小
-$font-sizes: (
-  title: 16px,
-  main: 14px,
-  assist: 12px
+$font-size-title: (
+  small: 16px,
+  default: 16px,
+  large: 18px
+);
+$font-size-main: (
+  small: 12px,
+  default: 14px,
+  large: 16px
+);
+
+$font-size-assist: (
+  small: 12px,
+  default: 12px,
+  large: 14px
 );
 
 // 间隔大小
 $gap: (
-  small: 4px,
-  default: 6px,
-  large: 8px
+  small: 6px,
+  default: 8px,
+  large: 12px
 );
 
 // 响应式断点
@@ -121,6 +130,5 @@ $breakpoints: (
   // 960px ~ 1280px 中
   md: 1280px,
   // 1280px ~ 1920px 大
-  lg: 1920px
-  // 超大
-)
+  lg: 1920px // 超大
+);

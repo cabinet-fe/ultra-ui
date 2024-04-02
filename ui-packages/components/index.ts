@@ -1,14 +1,16 @@
 export * from './button'
 
+export * from './badge'
+
 export * from './card'
 
 export * from './checkbox'
 
 export * from './checkbox-group'
 
-export * from './context'
-
 export * from './dialog'
+
+export * from './dropdown'
 
 export * from './float-button'
 
@@ -34,11 +36,11 @@ export * from './number'
 
 export * from './number-input'
 
+export * from './password-input'
+
 export * from './popup'
 
 export * from './radio'
-
-export * from './radio-button'
 
 export * from './radio-group'
 
@@ -48,11 +50,15 @@ export * from './scroll'
 
 export * from './select'
 
+export * from './slider'
+
 export * from './table'
 
 export * from './tabs'
 
 export * from './tag'
+
+export * from './check-tag'
 
 export * from './text'
 
@@ -62,10 +68,14 @@ export * from './theme'
 
 export * from './tip'
 
-export * from './tip-v2'
-
 export * from './tree'
 
-export * from './uploader'
+export * from './file-picker'
 
 export * from './virtual-list'
+
+export * from './paginator'
+
+export * from './steps'
+
+export * from './message'

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-card width="400" size="small">
+    <u-card width="400" >
       <u-card-header> 卡片标题 </u-card-header>
 
       <u-card-content>

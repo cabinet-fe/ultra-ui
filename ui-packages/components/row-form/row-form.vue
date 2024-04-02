@@ -5,103 +5,119 @@
     <!-- 表头 end -->
 
     <!-- 表体 start -->
-    <row-form-body>
-      <template
-        v-for="columnsItem of props.columns.filter(
-          columnsItem => !!columnsItem.key
-        )"
-        :key="columnsItem.key"
-        v-slot:[columnsItem.key]="row"
-      >
-        <slot
-          v-if="useSlots()[columnsItem.key]"
-          :name="columnsItem.key"
-          v-bind="row"
-        />
-        <div v-else>{{ row['row']?.[columnsItem.key] }}</div>
-      </template>
-    </row-form-body>
+    <row-form-body />
     <!-- 表体 end -->
 
     <!-- 表尾 start -->
-    <row-form-footer v-if="showSummary" />
+    <row-form-footer />
     <!-- 表位 end -->
   </table>
 </template>
 
-<script lang="ts" setup>
-import { bem } from '@ui/utils'
-import type { RowFormProps, RowFormEmits } from './row-form.type'
-import { computed, provide, shallowReactive, useSlots } from 'vue'
-import { RowFormStoreType } from './di'
+<script lang="ts" setup generic="T extends Record<string, any>">
+import { Validator, bem } from '@ui/utils'
+import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
+import { computed, provide, shallowRef, useSlots, watch } from 'vue'
+import { RowFormInjectType } from './di'
 import RowFormHeader from './row-form-header.vue'
 import RowFormFooter from './row-form-footer.vue'
 import RowFormBody from './row-form-body.vue'
+import { wrapDataRows } from './row-forms'
 
 defineOptions({
   name: 'URowForm'
 })
 
+/** 接收的参数 */
+const props = defineProps<RowFormProps<T>>()
+
 const cls = bem('row-form')
 
-/** 接收的参数 */
-const props = defineProps<RowFormProps<Record<string, any>>>()
-
 /** 事件 */
-const emits = defineEmits<RowFormEmits>()
+const emits = defineEmits<RowFormEmits<T>>()
 
 /** 值 */
-const data = defineModel<Record<string, any>[]>({ required: true })
+const data = defineModel<T[]>({ required: true })
 
 /** 表头 */
 const finalColumns = computed(() => {
   return [...props.columns]
 })
 
-/** 需要传入子组件的对象 */
-let store = shallowReactive({
-  columns: finalColumns.value,
-  modelData: data.value,
-  cls
+/** 数据 */
+const rows = shallowRef<any[]>([])
+
+defineSlots<{
+  header(): any
+}>()
+
+provide(RowFormInjectType, {
+  cls,
+  columns: finalColumns,
+  rows: rows,
+  rowFormSlots: useSlots(),
+  props,
+  emits: emits as RowFormEmits<Record<string, any>>
 })
 
-provide(RowFormStoreType, store)
+watch(
+  data,
+  () => {
+    if (props.disabled) {
+      rows.value = wrapDataRows(data.value)
+    } else {
+      rows.value = wrapDataRows([...data.value, {}])
+    }
 
-/** 表头所有key */
-let keyArray = finalColumns.value.map(k => k.key)
+    data.value = rows.value.map(row => row.data)
+  },
+  { immediate: true, once: true }
+)
 
-/** 如果一开始最后一条不为空的话,就增加一条 */
-const initData = () => {
-  if (!data.value.length) return data.value.push({})
 
-  /** 获取最后一条下标 */
-  let dataLength = data.value.length - 1
 
-  /** 最后一条是否为有值 */
-  let valuable: Boolean = false
+// watch(
+//   () => data.value,
+//   value => {
+//     rows.value = wrapDataRows(data.value)
+//     console.log(value,'value')
+//   }
+// )
 
-  data.value.forEach((item: Record<string, any>, index: number) => {
-    if (index !== dataLength) return
+// const
+// let lastItem = data.value[data.value.length - 1] ?? []
 
-    /** 最后一条任何一个字段有值就把valuable = true */
-    keyArray.forEach(k => {
-      if (item[k]) {
-        valuable = true
-      }
-    })
-  })
-
-  if (!valuable) return
-  data.value.push({})
-}
-initData()
+// /** 如果一开始最后一条不为空的话,就增加一条 */
+// const initData = async () => {
+//   if (Object.keys(lastItem).length !== 0 && !props.disabled) {
+//     data.value.push({} as T)
+//   }
+// }
+// initData()
 
 /** 获取数据 */
-const getValue = () => {
-  console.log(keyArray)
+// const getValue = () => {
+//   if (Object.keys(lastItem).length !== 0) {
+//     return data.value?.slice(0, data.value.length - 1)
+//   } else {
+//     return data.value
+//   }
+// }
+
+/** 获取数据 */
+const getValue = () => {}
+
+/** 校验 */
+const validate = () => {
+  finalColumns.value.map(async (item: any) => {
+    // { name: { required } }
+    // console.log(data.value, item.key, 'key')
+    return await new Validator(item.rules).validate(data.value)
+  })
 }
 
 defineExpose({
-  getValue
+  getValue,
+  validate
 })
 </script>
