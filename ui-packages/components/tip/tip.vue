@@ -29,14 +29,7 @@
 <script lang="ts" setup>
 import type {TipProps} from "@ui/types/components/tip"
 import {bem, nextFrame, setStyles} from "@ui/utils"
-import {
-  shallowRef,
-  nextTick,
-  computed,
-  useSlots,
-  onBeforeUnmount,
-  onMounted,
-} from "vue"
+import {shallowRef, nextTick, computed, useSlots, onBeforeUnmount} from "vue"
 import calcPosition from "./position"
 import vClickOutside from "@ui/directives/click-outside"
 import {UNodeRender} from "../node-render"
@@ -68,7 +61,7 @@ const contentClass = computed(() => {
 })
 
 /**页面元素的DOM信息 */
-let tipRef = shallowRef<HTMLElement>()
+let tipRef = shallowRef<InstanceType<typeof UNodeRender>>()
 
 /**弹窗显示的DOM信息 */
 let tipContentRef = shallowRef<HTMLElement>()
@@ -91,8 +84,9 @@ const handleMouseEnter = () => {
     setTimeout(async () => {
       visible.value = true
       await nextTick()
+      addListener()
       popup()
-    }, 100)
+    }, 300)
   )
 }
 
@@ -103,9 +97,7 @@ const handleMouseLeave = () => {
   timers.set(
     "timerMouseLeave",
     setTimeout(() => {
-      tipContentRef.value!.style.opacity = "0"
-      dynamicStyle.value = {}
-      visible.value = false
+      removeListener()
     }, 300)
   )
 }
@@ -125,19 +117,19 @@ const handleClick = () => {
       visible.value = !visible.value
       if (visible.value) {
         await nextTick()
+        addListener()
         popup()
       } else {
-        tipContentRef.value!.style.opacity = "0"
-        dynamicStyle.value = {}
+        removeListener()
       }
-    }, 100)
+    }, 300)
   )
 }
 
 const handleClickOutside = () => {
   clearInterval(timers.get("timerTip"))
   if (props.trigger === "hover") return
-  visible.value = false
+  removeListener()
 }
 
 /** 提示框到屏幕边缘的间距 */
@@ -202,29 +194,31 @@ let scrollDom = shallowRef<HTMLElement | null>()
 
 let lastScrollTop = 0
 
-const onScroll = () => {
-  const tipRefDom = tipRef.value as HTMLElement
+/**监听屏幕滚动 */
+const addListener = () => {
+  const tipRefDom = tipRef.value?.$el as HTMLElement
   if (!tipRefDom) return
   scrollDom.value = document.querySelector(".main")!.childNodes[1] as HTMLElement
   if (!scrollDom.value) return
   scrollDom.value.addEventListener("scroll", scrollEvent)
 }
 
-const scrollEvent = () => {
-  const currentScrollTop = scrollDom.value ? scrollDom.value?.scrollTop : 0
-  const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
-  popup(scrollDirection)
-  lastScrollTop = currentScrollTop
+const removeListener = () => {
+  scrollDom.value?.removeEventListener("scroll", scrollEvent)
+  tipContentRef.value!.style.opacity = "0"
+  dynamicStyle.value = {}
+  visible.value = false
 }
 
-onMounted(() => {
-  onScroll()
-})
+const scrollEvent = () => {
+    const currentScrollTop = scrollDom.value ? scrollDom.value?.scrollTop : 0
+    const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
+    popup(scrollDirection)
+    lastScrollTop = currentScrollTop
+}
 
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
-  if (scrollDom.value) {
-    scrollDom.value.removeEventListener("scroll", scrollEvent)
-  }
+  scrollDom.value?.removeEventListener("scroll", scrollEvent)
 })
 </script>

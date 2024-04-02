@@ -8,6 +8,7 @@ $root-name: table;
   width: 100%;
   position: relative;
 
+
   @include m.size using ($size) {
     @include m.bem($root-name, cell) {
       padding: fn.use-var(gap, $size);
@@ -17,6 +18,8 @@ $root-name: table;
   @include m.e(wrap) {
     width: 100%;
     border-spacing: 0;
+    table-layout: fixed;
+    border-collapse: separate;
   }
 
   @include m.e(row) {

@@ -1,7 +1,7 @@
 <template>
   <div :class="cls.b" @click="fileRef?.click()">
     <input
-      :multiple="multiple"
+      :multiple="props.multiple"
       type="file"
       :accept="accept"
       hidden
@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script lang="ts" setup generic="M extends boolean">
+<script lang="ts" setup generic="M extends boolean | undefined">
 import type {
   UploaderProps,
   UploaderEmits
@@ -27,7 +27,7 @@ defineOptions({
 
 const props = defineProps<UploaderProps<M>>()
 
-const emit = defineEmits<UploaderEmits<M>>()
+const emit = defineEmits<UploaderEmits>()
 
 const cls = bem('file-picker')
 
@@ -36,11 +36,7 @@ const fileRef = shallowRef<HTMLInputElement>()
 const handleChange = (e: Event) => {
   const target = e.target as HTMLInputElement
 
-  emit(
-    'pick',
-    props.multiple ? Array.prototype.slice.call(target.files) : target.files[0]!
-  )
-
+  emit('pick', Array.prototype.slice.call(target.files) as File[])
   target.value = ''
 }
 </script>

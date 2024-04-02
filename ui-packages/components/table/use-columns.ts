@@ -1,5 +1,9 @@
-import type { TableColumn, TableColumnAlign, TableProps } from '@ui/types/components/table'
-import { Forest, TreeNode } from 'cat-kit/fe'
+import type {
+  TableColumn,
+  TableColumnAlign,
+  TableProps
+} from '@ui/types/components/table'
+import { Forest, Tree, TreeNode } from 'cat-kit/fe'
 import { computed, type ComputedRef } from 'vue'
 
 interface Options {
@@ -10,32 +14,44 @@ interface Options {
  * 定义表格列
  * @param columns 表格列
  */
-export function defineTableColumns(columns: TableColumn[]) {
+export function defineTableColumns(
+  columns: TableColumn[],
+  commonProps?: Partial<Pick<TableColumn, 'align' | 'minWidth'>>
+) {
+  columns.forEach(col => {
+    Tree.dft(col, node => {
+      for (const key in commonProps) {
+        if (node[key] !== undefined) continue
+        node[key] = commonProps[key]
+      }
+    })
+  })
   return columns
 }
 
 export class ColumnNode extends TreeNode<TableColumn> {
   children?: ColumnNode[] | undefined
-
   parent: ColumnNode | null = null
-
   /** 叶子节点数量 */
   leafs?: number
-
   /** 列key */
   key: string
-
   /** 列名 */
   name: string
-
   /** 列对齐方式 */
   align: TableColumnAlign = 'left'
+  /** 宽度 */
+  width?: number
+  /** 最小宽度 */
+  minWidth?: number
 
   constructor(val: TableColumn, index: number) {
     super(val, index)
 
     this.key = val.key
     this.name = val.name
+    this.width = val.width
+    this.minWidth = val.minWidth
     if (val.align) {
       this.align = val.align
     }
