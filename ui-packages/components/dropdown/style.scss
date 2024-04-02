@@ -35,12 +35,12 @@ $root-name: dropdown;
     @keyframes down {
         0% {
             opacity: 0;
-            transform: translateY(-20px);
+            transform: translateY(-10px);
         }
 
         50% {
             opacity: 0.5;
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
 
         100% {
@@ -58,12 +58,12 @@ $root-name: dropdown;
 
         50% {
             opacity: 0.5;
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
 
         100% {
             opacity: 0;
-            transform: translateY(-20px);
+            transform: translateY(-10px);
         }
     }
 
@@ -71,12 +71,12 @@ $root-name: dropdown;
     @keyframes up {
         0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(10px);
         }
 
         50% {
             opacity: 0.5;
-            transform: translateY(10px);
+            transform: translateY(5px);
         }
 
         100% {
@@ -94,12 +94,12 @@ $root-name: dropdown;
 
         50% {
             opacity: 0.5;
-            transform: translateY(10px);
+            transform: translateY(5px);
         }
 
         100% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(10px);
         }
     }
 }

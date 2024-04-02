@@ -30,9 +30,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 import { useConfig, vRipple, type ComponentSize } from 'ultra-ui'
-import { defineComponent } from 'vue'
-import { shallowRef } from 'vue'
-import { watchEffect } from 'vue'
+import { defineComponent, shallowRef, watchEffect } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -107,7 +105,7 @@ $width: 240px;
 
     div {
       border-radius: 4px;
-      padding: 0 6px;
+      padding: 0 12px;
       line-height: 36px;
       height: 100%;
 

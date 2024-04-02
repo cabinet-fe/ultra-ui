@@ -1,16 +1,18 @@
 import type { DeconstructValue } from '../helper'
 
 /** 文件上传器组件属性 */
-export interface UploaderProps {
-  modelValue?: string
-
+export interface UploaderProps<Multi extends boolean | undefined> {
   /** 允许上传的文件类型 */
   accept?: string
+
+  /** 是否允许多选 */
+  multiple?: Multi
 }
 
 /** 文件上传器组件定义的事件 */
 export interface UploaderEmits {
-  (e: 'update:modelValue', value: string): void
+  /** 拾取 */
+  (e: 'pick', files: File[]): void
 }
 
 /** 文件上传器组件暴露的属性和方法(组件内部使用) */

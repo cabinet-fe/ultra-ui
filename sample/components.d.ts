@@ -20,6 +20,7 @@ declare module 'vue' {
     UCheckTag: typeof import('ultra-ui')['UCheckTag']
     UDialog: typeof import('ultra-ui')['UDialog']
     UDropdown: typeof import('ultra-ui')['UDropdown']
+    UFilePicker: typeof import('ultra-ui')['UFilePicker']
     UFloatButton: typeof import('ultra-ui')['UFloatButton']
     UForm: typeof import('ultra-ui')['UForm']
     UGrid: typeof import('ultra-ui')['UGrid']
@@ -48,7 +49,6 @@ declare module 'vue' {
     UTextarea: typeof import('ultra-ui')['UTextarea']
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
-    UUploader: typeof import('ultra-ui')['UUploader']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']
   }
 }

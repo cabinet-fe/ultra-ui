@@ -2,5 +2,6 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(uploader) {
+$root-name: file-picker;
+@include m.b($root-name) {
 }

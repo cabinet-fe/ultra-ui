@@ -40,12 +40,6 @@ export interface SliderButtonTransform {
 export interface SliderInitData {
   firstValue: number
   secondValue: number
-  /** 是否正在拖拽 */
-  dragging: Boolean
-  currentX?: number
-  currentY?: number
-  newPosition?: number
-  oldValue: number
   sliderSize: number
   transform: ShallowReactive<SliderButtonTransform>
   currentTransform: SliderButtonTransform

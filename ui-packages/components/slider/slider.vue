@@ -72,9 +72,6 @@ const currentTransform = {
 }
 
 const initData = reactive<SliderInitData>({
-  dragging: false,
-  newPosition: 0,
-  oldValue: 0,
   /** 跑道大小 */
   sliderSize: 1,
   /** 范围第一个值 **/
@@ -94,8 +91,6 @@ const setFirstValue = (
   initData.currentTransform = currentTransform
 
   initData.firstValue = transform.x
-  console.log(initData.firstValue, 'initData.firstValue')
-  // console.log(transform.x, currentTransform.x, 'first')
 }
 
 /** 获取第二个按钮的值 */
