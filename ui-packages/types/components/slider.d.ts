@@ -3,8 +3,8 @@ import type { DeconstructValue } from '../helper'
 
 /** 滑块组件属性 */
 export interface SliderProps {
-  modelValue: number | number[]
-  disable?: Boolean
+  modelValue: number[] | number
+  disable?: boolean
   /** 是否垂直 */
   vertical?: boolean
   height?: number
@@ -13,14 +13,14 @@ export interface SliderProps {
   /** 步长模式 */
   step?: number
   /** 是否是范围模式 */
-  range?: Boolean
+  range?: boolean
   /** 是否显示断点 */
-  showStops?: Boolean
+  showStops?: boolean
 }
 
 /** 滑块组件定义的事件 */
 export interface SliderEmits {
-  (e: 'update:modelValue', value: number): void
+  (e: 'update:modelValue', value: number[] | number): void
 }
 
 export interface SliderButtonEmits {
@@ -38,11 +38,11 @@ export interface SliderButtonTransform {
   y: number
 }
 export interface SliderInitData {
-  firstValue: number
-  secondValue: number
+  // firstValue: number
+  // secondValue: number
   sliderSize: number
-  transform: ShallowReactive<SliderButtonTransform>
-  currentTransform: SliderButtonTransform
+  // transform: ShallowReactive<SliderButtonTransform>
+  // currentTransform: SliderButtonTransform
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */
