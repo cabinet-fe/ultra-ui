@@ -15,10 +15,13 @@ import {
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
 import type { SliderButtonTransform } from '@ui/types/components/slider'
+import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!
 
 let { cls, sliderSize, model, sliderProps, setSliderSize } = injected
+
+const { setStepButtonPosition } = useStops({ sliderProps, sliderSize })
 
 let slideButtonRef = shallowRef<HTMLDivElement>()
 
@@ -43,8 +46,12 @@ const warpStyles = computed(() => {
   }
 })
 
+/** 百分比 */
 const percentage = shallowRef(0)
+
+/** 是否拖拽 */
 let isDragging = false
+
 watch([percentage, sliderSize], ([p, sliderSize]) => {
   if (!sliderSize) return
   if (isDragging) {
@@ -65,7 +72,8 @@ watch(
   model,
   value => {
     percentage.value =
-      (value - sliderProps.min!) / (sliderProps.max! - sliderProps.min!)
+      ((value as number) - sliderProps.min!) /
+      (sliderProps.max! - sliderProps.min!)
   },
   {
     immediate: true
@@ -100,6 +108,15 @@ useDrag({
     } else {
       transform.x = newPosition
     }
+
+    /** step */
+    if (sliderProps.step && sliderProps.step > 0) {
+      if (sliderProps.vertical) {
+        transform.y = -setStepButtonPosition(Math.abs(newPosition))
+      } else {
+        transform.x = setStepButtonPosition(newPosition)
+      }
+    }
   },
 
   onDragEnd(x, y, e) {
@@ -111,7 +128,6 @@ useDrag({
       ? -currentTransform.y / sliderSize.value
       : currentTransform.x / sliderSize.value
 
-    // model.value = Math.floor(percentage)
     nextTick(() => {
       isDragging = false
     })

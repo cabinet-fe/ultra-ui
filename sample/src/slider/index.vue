@@ -9,27 +9,28 @@
 
     垂直 (需要传入height)
     <div>
-      <u-slider v-model="sliderValue" :max="100" :min="20" vertical></u-slider>
+      <u-slider
+        v-model="sliderValue"
+        :step="10"
+        :max="100"
+        :min="0"
+        vertical
+        show-stops
+      ></u-slider>
       <p>{{ verticalValue }}</p>
     </div>
 
     step 步长(x)
     <div>
-      <u-slider v-model="stepValue" :step="10" :show-stops="true"></u-slider>
-      <p>{{ stepValue }}</p>
-    </div>
-    <!--
-    step 步长(y)
-    <div>
       <u-slider
-        v-model="stepVerticalValue"
-        :vertical="true"
-        :height="500"
+        v-model="sliderValue"
+        :min="0"
+        :max="100"
         :step="10"
         :show-stops="true"
       ></u-slider>
-      <p>Parent Value: {{ stepVerticalValue }}</p>
-    </div> -->
+      <p>{{ sliderValue }}</p>
+    </div>
 
     <!-- 范围
     <div>
