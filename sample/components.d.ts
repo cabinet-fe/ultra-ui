@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UBadage: typeof import('ultra-ui')['UBadage']
+    UBadge: typeof import('ultra-ui')['UBadge']
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
     UCardAction: typeof import('ultra-ui')['UCardAction']
