@@ -5,7 +5,7 @@
     :style="vertical ? { height: `${height}px` } : undefined"
   >
     <!-- 跑道 -->
-    <div ref="runwayRef" :class="runwayClass" @mousedown="handleSliderDown">
+    <div ref="runwayRef" :class="runwayClass">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
-import { computed, provide, ref, shallowReactive, shallowRef, watch } from 'vue'
+import { computed, provide, ref, shallowRef, watch } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
 import { useSlide } from './use-slide'
@@ -77,7 +77,11 @@ useResizeObserver({
   }
 })
 
-const { handleSliderDown } = useSlide(props, emit, sliderSize)
+const { barStyles, onePx, twoPx, updateSliderBarSize, minValue ,maxValue } = useSlide(
+  props,
+  emit,
+  sliderSize
+)
 
 const { stops, getStopStyle } = useStops({
   sliderProps: props,
@@ -94,16 +98,6 @@ const model = defineModel<number[] | number>()
 let onePercentageValue = ref(0)
 /** 第二个百分比的值 */
 let twoPercentageValue = ref(0)
-
-/** 范围最小值 */
-let minValue = 0
-/** 范围最大值 */
-let maxValue = 0
-
-/** 第一个像素值 */
-let onePx = ref(0)
-
-let twoPx = ref(0)
 
 const handleSetOneToPxChange = (value: number) => {
   onePx.value = value
@@ -135,52 +129,23 @@ const handleOneDown = (value: number) => {
   if (props.range && isArray(model.value)) {
     if (props.range && isArray(model.value)) {
       /** 最小值 */
-      minValue = Math.min(
+      minValue.value = Math.min(
         onePercentageValue?.value!,
         twoPercentageValue?.value!
       )
 
       /** 最大值*/
-      maxValue = Math.max(
+      maxValue.value = Math.max(
         onePercentageValue?.value!,
         twoPercentageValue?.value!
       )
 
-      model.value = [minValue, maxValue]
+      model.value = [minValue.value, maxValue.value]
     } else {
       model.value = onePercentageValue?.value
     }
   } else {
     model.value = value
-  }
-}
-
-const barStyles = shallowReactive({
-  width: '0px',
-  height: '0px',
-  left: `0px`,
-  bottom: `0px`
-})
-
-const updateSliderSize = ({ x, y }) => {
-  if (props.range) {
-    let minPx = Math.min(onePx.value, twoPx.value)
-
-    let maxPx = Math.max(onePx.value, twoPx.value)
-
-    if (props.vertical) {
-
-      barStyles.bottom = `${-maxPx}px`
-
-      barStyles.width = `10px`
-      barStyles.height = `${maxPx - minPx}px`
-    } else {
-      barStyles.left = `${minPx}px`
-      barStyles.width = `${maxPx - minPx}px`
-    }
-  } else {
-    barStyles.height = `${-y || 10}px`
-    barStyles.width = `${x || 10}px`
   }
 }
 
@@ -191,6 +156,6 @@ provide(sliderContextKey, {
   model,
   cls,
   emit,
-  setSliderSize: updateSliderSize
+  setSliderBarSize: updateSliderBarSize
 })
 </script>

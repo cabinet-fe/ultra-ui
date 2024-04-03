@@ -22,7 +22,7 @@ import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!
 
-let { cls, sliderSize, sliderProps, setSliderSize } = injected
+let { cls, sliderSize, sliderProps, setSliderBarSize } = injected
 
 const buttonValue = defineModel<number>()
 
@@ -43,7 +43,7 @@ const currentTransform = {
 }
 
 watch(transform, transform => {
-  setSliderSize(transform)
+  setSliderBarSize(transform)
 })
 
 /** button的位移距离 */
