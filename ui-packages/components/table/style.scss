@@ -8,7 +8,6 @@ $root-name: table;
   width: 100%;
   position: relative;
 
-
   @include m.size using ($size) {
     @include m.bem($root-name, cell) {
       padding: fn.use-var(gap, $size);
@@ -33,23 +32,21 @@ $root-name: table;
   @include m.e(head) {
     position: sticky;
     top: 0;
-    z-index: 0;
-    background-color: fn.use-var(bg-color, top);
+    z-index: 1;
   }
 
   @include m.e(cell) {
     box-shadow: 0px -1px #eee inset;
+    background-color: fn.use-var(bg-color, top);
 
-    @include m.m(left) {
-      text-align: left;
+    @each $position in (left, center, right) {
+      @include m.is($position) {
+        text-align: $position;
+      }
     }
 
-    @include m.m(center) {
-      text-align: center;
-    }
-
-    @include m.m(right) {
-      text-align: right;
+    @include m.is(fixed-left, fixed-right) {
+      position: sticky;
     }
   }
 

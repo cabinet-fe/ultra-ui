@@ -35,7 +35,7 @@ const config = reactive({
 
 const showMsg = () => {
   Message({
-    message: 'asdasdasdasda',
+    message: 'asdasdasdasda!',
     type: config.type,
     duration: config.duration,
     closable: config.closable,

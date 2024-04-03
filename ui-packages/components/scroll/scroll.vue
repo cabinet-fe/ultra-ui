@@ -89,6 +89,8 @@ useResizeObserver({
       barX.value?.setTrackSize(clientWidth)
       barY.value?.setTrackSize(clientHeight)
       updateBar()
+
+      emit('resize', entry.target as HTMLElement)
     }
   }
 })

@@ -16,29 +16,28 @@ $root-name: message;
   transition: opacity 0.3s, transform 0.4s, top 0.4s;
   border: fn.use-var(border);
 
-  @include m.e(icon) {
-    flex: 1;
-  }
-
-  @include m.e(content) {
-    flex: 8;
-    word-wrap: break-word;
-  }
-
-  @include m.e(close) {
-    flex: 1;
-    cursor: pointer;
-    text-align: right;
-  }
-
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
-    padding: fn.use-var(gap, $size);
+    padding: map.get(vars.$gap, $size)*2;
+
+    @include m.bem($root-name, icon) {}
+
     @include m.bem($root-name, content) {
-      display: flex;
+      max-width: 400px;
       word-wrap: break-word;
-      margin: 0 fn.use-var(gap, $size);
+      margin-left: fn.use-var(gap, $size);
+      margin-right: map.get(vars.$gap, $size)+12;
+    }
+
+    @include m.bem($root-name, close) {
+      cursor: pointer;
+      position: absolute;
+      right: fn.use-var(gap, $size);
+      top: fn.use-var(gap, $size);
+      &:hover {
+        color: fn.use-var(color, primary, 'dark-9');
+      }
     }
   }
 
