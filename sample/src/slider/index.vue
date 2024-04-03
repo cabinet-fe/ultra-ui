@@ -34,9 +34,13 @@
 
     范围
     <div>
-      <u-slider v-model="rangeValue" range> </u-slider>
+      <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
 
       {{ rangeValue }}
+    </div>
+
+    <div>
+      <u-slider v-model="rangeValue" range vertical> </u-slider>
     </div>
   </div>
 </template>

@@ -113,8 +113,6 @@ const handleSetTwoToPxChange = (value: number) => {
   twoPx.value = value
 }
 
-// let shouldUpdateModel = ref(false)
-
 watch(
   () => model.value,
   val => {
@@ -134,7 +132,6 @@ watch(
 
 /** 放下 */
 const handleOneDown = (value: number) => {
-  // console.log(value, 'value')
   if (props.range && isArray(model.value)) {
     if (props.range && isArray(model.value)) {
       /** 最小值 */
@@ -158,25 +155,34 @@ const handleOneDown = (value: number) => {
   }
 }
 
-// const handleTwoDown = (value: number) => {
-//   console.log(value, 'value')
-// }
-
-// watch(
-//   () => [onePercentageValue, twoPercentageValue],
-//   ([one, two]) => {
-
-//   },
-//   {
-//     deep: true
-//   }
-// )
-
 const barStyles = shallowReactive({
   width: '0px',
   height: '0px',
-  left: `0px`
+  left: `0px`,
+  bottom: `0px`
 })
+
+const updateSliderSize = ({ x, y }) => {
+  if (props.range) {
+    let minPx = Math.min(onePx.value, twoPx.value)
+
+    let maxPx = Math.max(onePx.value, twoPx.value)
+
+    if (props.vertical) {
+
+      barStyles.bottom = `${-maxPx}px`
+
+      barStyles.width = `10px`
+      barStyles.height = `${maxPx - minPx}px`
+    } else {
+      barStyles.left = `${minPx}px`
+      barStyles.width = `${maxPx - minPx}px`
+    }
+  } else {
+    barStyles.height = `${-y || 10}px`
+    barStyles.width = `${x || 10}px`
+  }
+}
 
 provide(sliderContextKey, {
   sliderProps: props,
@@ -185,22 +191,6 @@ provide(sliderContextKey, {
   model,
   cls,
   emit,
-  setSliderSize({ x, y }) {
-    if (props.range) {
-      // console.log(onePx, 'onePx')
-      let minPx = Math.min(onePx.value, twoPx.value)
-
-      let maxPx = Math.max(onePx.value, twoPx.value)
-
-      barStyles.left = `${minPx}px`
-
-      barStyles.width = `${maxPx - minPx}px`
-      // console.log(maxPx, minPx, 'x')
-      barStyles.height = `${-y || 10}px`
-    } else {
-      barStyles.height = `${-y || 10}px`
-      barStyles.width = `${x || 10}px`
-    }
-  }
+  setSliderSize: updateSliderSize
 })
 </script>

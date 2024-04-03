@@ -6,6 +6,7 @@ export const useSlide = (
   emit: SliderEmits,
   sliderSize: ShallowRef<number>
 ) => {
+
   // const barSize = () => {
   //   // console.log(props.modelValue, 'value')
   //   if (typeof props.modelValue === 'number') {
