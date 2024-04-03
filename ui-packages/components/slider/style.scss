@@ -12,11 +12,10 @@ $button-size: 36;
   padding: #{math.div($button-size, 2)}px;
   height: $button-size + 10 + px;
 
-
   @include m.size using ($size) {
-    @debug $size;
+    // @debug $size;
 
-    height:  fn.use-var(gap, $size);
+    height: fn.use-var(gap, $size);
   }
 
   @include m.is(vertical) {

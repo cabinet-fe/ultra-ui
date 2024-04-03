@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- {{ getRandom() }} -->
+    {{ getRandom() }}
     基础用法: (min: 20 max: 100)
     <u-slider v-model="sliderValue" :max="100" :min="20"></u-slider>
     <p>值: {{ sliderValue }}</p>
