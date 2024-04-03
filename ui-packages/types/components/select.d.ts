@@ -3,7 +3,7 @@ import type { FormComponentProps } from '../component-common'
 /** 选择器组件属性 */
 export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
-  modelValue: string
+  modelValue: string | Array<number>
   /** 列表选项 */
   options: Array<{
     label: string
@@ -26,4 +26,8 @@ export interface SelectEmits {
   (e: 'update:label', label?: string): void
   (e: 'update:modelValue', option?: object): void
   (e: 'clear'): void
+}
+
+export interface SelectExposed {
+  multipleOptions: Ref<Array<object>>
 }

@@ -16,15 +16,9 @@
 <script
   lang="ts"
   setup
-  generic="
-    Item extends Record<string, string | number>,
-    Val extends string | number
-  "
+  generic="Item extends Record<string, string | number>, Val extends string | number"
 >
-import type {
-  CheckboxGroupProps,
-  CheckboxGroupEmits
-} from '@ui/types/components/checkbox-group'
+import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types/components/checkbox-group'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
@@ -40,7 +34,6 @@ const props = withDefaults(defineProps<CheckboxGroupProps<Item, Val>>(), {
 })
 
 const emit = defineEmits<CheckboxGroupEmits<Val>>()
-
 const model = defineModel<Val[]>()
 
 const cls = bem('checkbox-group')
@@ -69,10 +62,7 @@ const getCheckStatus = (item: Record<string, string | number>): boolean => {
  * @param  checked - 指示是否选中
  * @param item - 更新的项
  */
-const handleUpdate = (
-  checked: boolean,
-  item: Record<string, string | number>
-) => {
+const handleUpdate = (checked: boolean, item: Record<string, string | number>) => {
   const { valueKey } = props
   const value = item[valueKey] as Val
   if (!value) return
@@ -81,5 +71,6 @@ const handleUpdate = (
   } else {
     model.value = model.value?.filter(v => v !== value)
   }
+  console.log(model.value, 'model.value')
 }
 </script>

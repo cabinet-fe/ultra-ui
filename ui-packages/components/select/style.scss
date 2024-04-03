@@ -60,6 +60,7 @@ $root-name: select;
       padding: 0 5px;
     }
   }
+
   @include m.e('clear-multiple') {
     cursor: pointer;
   }
@@ -69,6 +70,7 @@ $root-name: select;
     position: absolute;
     right: 10px;
   }
+
   ul {
     width: 240px;
     list-style: none;
@@ -99,7 +101,4 @@ $root-name: select;
   .showSelected {
     display: block;
   }
-  // .actived {
-  //   background-color: #eee;
-  // }
 }
