@@ -1,7 +1,4 @@
-import type {
-  SliderProps,
-  SliderEmits
-} from '@ui/types/components/slider'
+import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
 import { computed, type ShallowRef } from 'vue'
 
 export const useSlide = (
@@ -9,22 +6,24 @@ export const useSlide = (
   emit: SliderEmits,
   sliderSize: ShallowRef<number>
 ) => {
-  const barSize = () => {
-    if (typeof props.modelValue === 'number') {
-      return `${
-        ((props.modelValue! - props.min!) / (props.max! - props.min!)) *
-        sliderSize?.value!
-      }px`
-    }
-    return {}
-  }
+  // const barSize = () => {
+  //   // console.log(props.modelValue, 'value')
+  //   if (typeof props.modelValue === 'number') {
+  //     return `${
+  //       ((props.modelValue! - props.min!) / (props.max! - props.min!)) *
+  //       sliderSize?.value!
+  //     }px`
+  //   } else {
 
-  /** bar的长度 */
-  const barStyles = computed(() => {
-    return props.vertical ? { height: barSize() } : { width: barSize() }
-  })
+  //   }
+  // }
+
+  // /** bar的长度 */
+  // const barStyles = computed(() => {
+  //   return props.vertical ? { height: barSize() } : { width: barSize() }
+  // })
 
   const handleSliderDown = () => {}
 
-  return { barStyles, handleSliderDown }
+  return { handleSliderDown }
 }

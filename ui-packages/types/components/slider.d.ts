@@ -24,25 +24,16 @@ export interface SliderEmits {
 }
 
 export interface SliderButtonEmits {
-  (
-    e: 'update:modelValue',
-    transform: SliderButtonTransform,
-    currentTransform: SliderButtonTransform
-  ): void
-  (e: 'mouse', e: number): void
-  (e: 'touchstart', e: TouchEvent): void
+  (e: 'update:modelValue', value: number): void
+
+  (e: 'one', value: number): void
+
+  (e: 'two', value: number): void
 }
 
 export interface SliderButtonTransform {
   x: number
   y: number
-}
-export interface SliderInitData {
-  // firstValue: number
-  // secondValue: number
-  sliderSize: number
-  // transform: ShallowReactive<SliderButtonTransform>
-  // currentTransform: SliderButtonTransform
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */

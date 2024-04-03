@@ -14,24 +14,27 @@ import {
 } from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
-import type { SliderButtonTransform } from '@ui/types/components/slider'
+import type {
+  SliderButtonEmits,
+  SliderButtonTransform
+} from '@ui/types/components/slider'
 import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!
 
-let { cls, sliderSize, model, sliderProps, setSliderSize } = injected
+let { cls, sliderSize, sliderProps, setSliderSize } = injected
+
+const buttonValue = defineModel()
 
 const { setStepButtonPosition } = useStops({ sliderProps, sliderSize })
 
 let slideButtonRef = shallowRef<HTMLDivElement>()
 
+let emit = defineEmits<SliderButtonEmits>()
+
 const transform = shallowReactive<SliderButtonTransform>({
   x: 0,
   y: 0
-})
-
-watch(transform, transform => {
-  setSliderSize(transform)
 })
 
 const currentTransform = {
@@ -39,8 +42,13 @@ const currentTransform = {
   y: 0
 }
 
+watch(transform, transform => {
+  setSliderSize(transform)
+})
+
 /** button的位移距离 */
 const warpStyles = computed(() => {
+  // console.log(transform, 'transform')
   return {
     transform: `translate(${transform.x}px, ${transform.y}px)`
   }
@@ -56,7 +64,7 @@ watch([percentage, sliderSize], ([p, sliderSize]) => {
   if (!sliderSize) return
   if (isDragging) {
     const { min, max } = sliderProps
-    model.value = Math.round(min! + (max! - min!) * p)
+    buttonValue.value = Math.round(min! + (max! - min!) * p)
   } else {
     if (sliderProps.vertical) {
       transform.y = -p * sliderSize
@@ -66,10 +74,19 @@ watch([percentage, sliderSize], ([p, sliderSize]) => {
       currentTransform.x = transform.x
     }
   }
+
+  if (!sliderProps.range) return
+  if (sliderProps.vertical) {
+    emit('one', transform.y)
+    emit('two', transform.y)
+  } else {
+    emit('one', transform.x)
+    emit('two', transform.x)
+  }
 })
 
 watch(
-  model,
+  buttonValue,
   value => {
     percentage.value =
       ((value as number) - sliderProps.min!) /
@@ -116,6 +133,15 @@ useDrag({
       } else {
         transform.x = setStepButtonPosition(newPosition)
       }
+    }
+
+    if (!sliderProps.range) return
+    if (sliderProps.vertical) {
+      emit('one', transform.y)
+      emit('two', transform.y)
+    } else {
+      emit('one', transform.x)
+      emit('two', transform.x)
     }
   },
 
