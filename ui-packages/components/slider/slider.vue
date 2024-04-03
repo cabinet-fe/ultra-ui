@@ -114,25 +114,23 @@ watch(
 /** 放下 */
 const handleOneDown = async (value: number) => {
   await nextTick()
-  if (props.range && isArray(model.value)) {
-    if (props.range && isArray(model.value)) {
-      /** 最小值 */
-      minValue.value = Math.min(
-        onePercentageValue?.value!,
-        twoPercentageValue?.value!
-      )
 
-      /** 最大值*/
-      maxValue.value = Math.max(
-        onePercentageValue?.value!,
-        twoPercentageValue?.value!
-      )
-      model.value = [minValue.value, maxValue.value]
-    } else {
-      model.value = onePercentageValue?.value
-    }
+  if (props.range && isArray(model.value)) {
+    /** 最小值 */
+    minValue.value = Math.min(
+      onePercentageValue?.value!,
+      twoPercentageValue?.value!
+    )
+
+    /** 最大值*/
+    maxValue.value = Math.max(
+      onePercentageValue?.value!,
+      twoPercentageValue?.value!
+    )
+    model.value = [minValue.value, maxValue.value]
   } else {
-    model.value = value
+    console.log(model.value, 'model.value')
+    model.value = onePercentageValue?.value
   }
 }
 
