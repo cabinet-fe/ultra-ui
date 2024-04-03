@@ -8,17 +8,18 @@
     <div ref="runwayRef" :class="runwayClass" @mousedown="handleSliderDown">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
-
       <!-- 手柄 -->
       <slider-button
         v-model="onePercentageValue"
         @one="handleSetOneToPxChange"
+        @dragEnd="handleOneDown"
       />
 
       <slider-button
         v-model="twoPercentageValue"
         v-if="range"
         @two="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown"
       />
 
       <!-- 断点 -->
@@ -112,56 +113,64 @@ const handleSetTwoToPxChange = (value: number) => {
   twoPx.value = value
 }
 
-// 声明一个标志位，用来控制回调的执行
-const isChangingModelValue = ref(false)
+// let shouldUpdateModel = ref(false)
 
 watch(
   () => model.value,
   val => {
-    if (!isChangingModelValue.value) {
-      isChangingModelValue.value = true // 设置标志位为 true，表示回调正在执行
-
-      if (props.range && isArray(model.value)) {
-        onePercentageValue.value = model.value[0]!
-        onePercentageValue.value = model.value[1]!
-      } else {
-        onePercentageValue.value = model.value as number
-      }
-
-      isChangingModelValue.value = false // 执行完毕后将标志位设为 false
+    if (props.range && isArray(model.value)) {
+      onePercentageValue.value = model.value[0]!
+      onePercentageValue.value = model.value[1]!
+    } else {
+      onePercentageValue.value = model.value as number
     }
   },
   {
     deep: true,
-    immediate: true
+    immediate: true,
+    once: true
   }
 )
 
-watch(
-  () => [onePercentageValue, twoPercentageValue],
-  ([one, two]) => {
-    if (!isChangingModelValue.value) {
-      isChangingModelValue.value = true // 设置标志位为 true，表示回调正在执行
+/** 放下 */
+const handleOneDown = (value: number) => {
+  // console.log(value, 'value')
+  if (props.range && isArray(model.value)) {
+    if (props.range && isArray(model.value)) {
+      /** 最小值 */
+      minValue = Math.min(
+        onePercentageValue?.value!,
+        twoPercentageValue?.value!
+      )
 
-      if (props.range && isArray(model.value)) {
-        /** 最小值 */
-        minValue = Math.min(one?.value!, two?.value!)
+      /** 最大值*/
+      maxValue = Math.max(
+        onePercentageValue?.value!,
+        twoPercentageValue?.value!
+      )
 
-        /** 最大值*/
-        maxValue = Math.max(one?.value!, two?.value!)
-
-        model.value = [minValue, maxValue]
-      } else {
-        model.value = one?.value
-      }
-
-      isChangingModelValue.value = false // 执行完毕后将标志位设为 false
+      model.value = [minValue, maxValue]
+    } else {
+      model.value = onePercentageValue?.value
     }
-  },
-  {
-    deep: true
+  } else {
+    model.value = value
   }
-)
+}
+
+// const handleTwoDown = (value: number) => {
+//   console.log(value, 'value')
+// }
+
+// watch(
+//   () => [onePercentageValue, twoPercentageValue],
+//   ([one, two]) => {
+
+//   },
+//   {
+//     deep: true
+//   }
+// )
 
 const barStyles = shallowReactive({
   width: '0px',
