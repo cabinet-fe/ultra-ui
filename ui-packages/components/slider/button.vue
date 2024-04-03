@@ -24,7 +24,7 @@ let injected = inject(sliderContextKey)!
 
 let { cls, sliderSize, sliderProps, setSliderSize } = injected
 
-const buttonValue = defineModel()
+const buttonValue = defineModel<number>()
 
 const { setStepButtonPosition } = useStops({ sliderProps, sliderSize })
 
@@ -75,7 +75,11 @@ watch([percentage, sliderSize], ([p, sliderSize]) => {
     }
   }
 
+  /** 拖拽结束之后的事件 */
+  emit('dragEnd', buttonValue.value!)
+
   if (!sliderProps.range) return
+
   if (sliderProps.vertical) {
     emit('one', transform.y)
     emit('two', transform.y)

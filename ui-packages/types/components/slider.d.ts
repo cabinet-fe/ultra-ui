@@ -29,6 +29,10 @@ export interface SliderButtonEmits {
   (e: 'one', value: number): void
 
   (e: 'two', value: number): void
+
+  (e: 'dragEnd', value: number): void
+
+  (e: 'getDragPx', value: number): void
 }
 
 export interface SliderButtonTransform {
