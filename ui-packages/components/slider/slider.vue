@@ -106,8 +106,7 @@ watch(
     }
   },
   {
-    immediate: true,
-    once: true
+    immediate: true
   }
 )
 
