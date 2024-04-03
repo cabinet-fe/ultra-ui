@@ -1,9 +1,15 @@
 <template>
   <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
     <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible" :style="customStyle">
-      <!-- <div :class="cls.e('icon')"></div> -->
-      <div :class="cls.e('message')">{{ message }}</div>
-      <div :class="cls.e('close')" v-if="closable" @click="close">
+      <div :class="cls.e('icon')">
+        <UIcon>
+          <component :is="typeIcon" />
+        </UIcon>
+      </div>
+      <div :class="cls.e('content')">
+        {{ message }}
+      </div>
+      <div :class="cls.e('close')" v-if="closable" @click.stop="close">
         <UIcon><Close /></UIcon>
       </div>
     </div>
@@ -15,7 +21,14 @@ import type { MessageProps, MessageExposed } from '@ui/types/components/message'
 import { bem } from '@ui/utils'
 import { onMounted, ref, computed, type CSSProperties } from 'vue'
 import { useFallbackProps } from '@ui/compositions'
-import { Close } from 'icon-ultra'
+import {
+  Close,
+  CircleCheckFilled,
+  InfoFilled,
+  WarningFilled,
+  CircleCloseFilled,
+  QuestionFilled
+} from 'icon-ultra'
 import { UIcon } from '../icon'
 
 defineOptions({
@@ -30,6 +43,19 @@ const { type, size, closable, duration, offset } = useFallbackProps([props], {
   closable: false,
   duration: 3000,
   offset: 20
+})
+
+const typeIcon = computed(() => {
+  return (
+    props.icon ||
+    {
+      primary: InfoFilled,
+      info: QuestionFilled,
+      success: CircleCheckFilled,
+      warning: WarningFilled,
+      danger: CircleCloseFilled
+    }[type.value]
+  )
 })
 
 const cls = bem('message')

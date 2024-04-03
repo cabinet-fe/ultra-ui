@@ -61,9 +61,10 @@ const cls = bem("textarea")
 
 const {formProps} = useFormComponent()
 
-const {disabled, readonly} = useFormFallbackProps([formProps ?? {}, props], {
+const {size,disabled, readonly} = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false,
   readonly: false,
+  size:'default'
 })
 
 const emit = defineEmits<TextareaEmits>()
@@ -81,6 +82,7 @@ let mouse = shallowRef(false)
 const classList = computed(() => {
   return [
     cls.m(`more`),
+    cls.m(size.value),
     bem.is("resize-none", !props.resize),
     bem.is("disabled", disabled.value),
     bem.is("readonly", readonly.value),
