@@ -24,7 +24,7 @@ $button-size: 36;
     height: initial;
 
     @include m.bem($root-name, button-wrap) {
-      bottom: #{math.div(-$button-size, 2)}px;
+      bottom: #{math.div(-$button-size, 2.5)}px;
       top: unset;
     }
 

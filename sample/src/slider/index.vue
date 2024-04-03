@@ -13,11 +13,10 @@
         v-model="sliderValue"
         :step="10"
         :max="100"
-        :min="0"
+        :min="20"
         vertical
         show-stops
       ></u-slider>
-      <p>{{ verticalValue }}</p>
     </div>
 
     step 步长(x)
@@ -29,7 +28,6 @@
         :step="10"
         :show-stops="true"
       ></u-slider>
-      <p>{{ sliderValue }}</p>
     </div>
 
     范围
@@ -39,6 +37,7 @@
       {{ rangeValue }}
     </div>
 
+    垂直范围
     <div>
       <u-slider v-model="rangeValue" range vertical> </u-slider>
     </div>

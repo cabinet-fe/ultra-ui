@@ -128,7 +128,6 @@ const handleOneDown = async (value: number) => {
     )
     model.value = [minValue.value, maxValue.value]
   } else {
-    console.log(model.value, 'model.value')
     model.value = onePercentageValue?.value
   }
 }
