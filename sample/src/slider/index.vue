@@ -32,12 +32,12 @@
       <p>{{ sliderValue }}</p>
     </div>
 
-    <!-- 范围
+    范围
     <div>
-      <u-slider v-model="rangeValue" :range="true"> </u-slider>
+      <u-slider v-model="rangeValue" range> </u-slider>
 
       {{ rangeValue }}
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -50,11 +50,11 @@ const sliderValue = ref(50)
 
 const verticalValue = ref(40)
 
+/** 范围 */
+const rangeValue = ref([20, 40])
+
 const stepValue = ref(0)
 
 const stepVerticalValue = ref(0)
-
-/** 范围 */
-const rangeValue = ref([20, 40])
 </script>
 <style lang="scss" scoped></style>

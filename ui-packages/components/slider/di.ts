@@ -1,10 +1,9 @@
 import type {
   SliderEmits,
-  SliderInitData,
   SliderProps
 } from '@ui/types/components/slider'
 import type { BEM } from '@ui/utils'
-import type { ComputedRef, InjectionKey, ModelRef, ShallowRef } from 'vue'
+import type { InjectionKey, ModelRef, ShallowRef } from 'vue'
 
 // export interface SliderContext {
 //   cls: BEM<'slider', 'u-slider'>
