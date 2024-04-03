@@ -140,6 +140,7 @@ watch(
 watch(
   () => [onePercentageValue, twoPercentageValue],
   ([one, two]) => {
+    console.log(one, two)
     if (!isChangingModelValue.value) {
       isChangingModelValue.value = true // 设置标志位为 true，表示回调正在执行
 
