@@ -15,14 +15,19 @@ export const TableDIKey: InjectionKey<{
   /** 结构化列 */
   columnConfig: ColumnConfig
   /** 事件处理方法 */
-  eventHandlers: EventHandlers<any>,
+  eventHandlers: EventHandlers<any>
   /** 表格列插槽node */
   getColumnSlotsNode: (
     key: string,
     ctx: {
       row: TableRow
+      rowData: Record<string, any>
       column: ColumnNode
-      val: Record<string, any>
+      val: any
+      model: {
+        modelValue: any
+        'onUpdate:modelValue': (val: any) => void
+      }
     }
   ) => VNode[] | undefined
   /** 表头插槽node */
@@ -30,4 +35,7 @@ export const TableDIKey: InjectionKey<{
     key: string,
     ctx: { column: ColumnNode }
   ) => VNode[] | string | undefined
+
+  /** 获取单元格的类 */
+  getCellClass: (column: ColumnNode) => string[]
 }> = Symbol('TableDIKey')

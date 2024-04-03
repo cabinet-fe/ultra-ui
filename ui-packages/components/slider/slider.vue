@@ -1,18 +1,26 @@
 <template>
-  <div :class="[cls.b, bem.is('vertical', vertical)]" ref="sliderRef">
+  <div
+    :class="[cls.b, bem.is('vertical', vertical)]"
+    ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined"
+  >
     <!-- 跑道 -->
-    <div
-      :class="runwayClass"
-      :style="vertical ? { height: `${height}px` } : undefined"
-      @mousedown="handleSliderDown"
-    >
+    <div ref="runwayRef" :class="runwayClass">
       <!-- 拖动覆盖条 -->
-      <div :class="cls.e('bar')" v-if="!range" :style="barStyles" />
-
+      <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button @update:modelValue="setFirstValue" />
+      <slider-button
+        v-model="onePercentageValue"
+        @one="handleSetOneToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
-      <slider-button v-if="range" @update:modelValue="setSecondValue" />
+      <slider-button
+        v-model="twoPercentageValue"
+        v-if="range"
+        @two="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
       <!-- 断点 -->
       <template v-if="showStops">
@@ -28,98 +36,109 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  SliderProps,
-  SliderEmits,
-  SliderInitData,
-  SliderButtonTransform
-} from '@ui/types/components/slider'
+import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
-import { computed, provide, reactive, shallowReactive } from 'vue'
+import { computed, nextTick, provide, ref, shallowRef, watch } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
-import { useSlide, useStops } from './_compositions'
-
-// todo 优化
-// 1. 使用useDrag完成
-// 2. 优化依赖注入的使用
-defineOptions({
-  name: 'Slider'
-})
+import { useSlide } from './use-slide'
+import { useStops } from './use-stops'
+import { isArray } from 'cat-kit/fe'
 
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
   max: 100,
   step: 0,
   vertical: false,
-  height: 300
+  height: 300,
+  range: false
 })
-
-const model = defineModel()
 
 const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')
 
-const transform = shallowReactive({
-  x: 0,
-  y: 0
+/** slider大小 */
+const sliderSize = shallowRef(0)
+
+const {
+  barStyles,
+  onePosition,
+  twoPosition,
+  updateSliderBarSize,
+  runwayRef,
+  minValue,
+  maxValue
+} = useSlide(props, emit, sliderSize)
+
+const { stops, getStopStyle } = useStops({
+  sliderProps: props,
+  sliderSize
 })
-
-const currentTransform = {
-  x: 0,
-  y: 0
-}
-
-const initData = reactive<SliderInitData>({
-  /** 跑道大小 */
-  sliderSize: 1,
-  /** 范围第一个值 **/
-  firstValue: 0,
-  /** 范围的第二个值 */
-  secondValue: 0,
-  transform,
-  currentTransform
-})
-
-/** 获取第一个按钮的值 */
-const setFirstValue = (
-  transform: SliderButtonTransform,
-  currentTransform: SliderButtonTransform
-) => {
-  initData.transform = transform
-  initData.currentTransform = currentTransform
-
-  initData.firstValue = transform.x
-}
-
-/** 获取第二个按钮的值 */
-const setSecondValue = (
-  transform: SliderButtonTransform,
-  currentTransform: SliderButtonTransform
-) => {
-  initData.secondValue = transform.x
-
-  console.log(initData.secondValue, 'secondValue')
-}
-
-const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(
-  props,
-  initData,
-  emit
-)
-
-const { stops, getStopStyle } = useStops(props, initData)
 
 const runwayClass = computed(() => {
-  return [cls.e('runway'), bem.is('vertical', props.vertical)]
+  return [cls.e('runway')]
 })
+
+const model = defineModel<number[] | number>()
+
+/** 第一个百分比的值 */
+let onePercentageValue = ref(0)
+/** 第二个百分比的值 */
+let twoPercentageValue = ref(0)
+
+const handleSetOneToPxChange = (value: number) => {
+  onePosition.value = value
+}
+
+const handleSetTwoToPxChange = (value: number) => {
+  twoPosition.value = value
+}
+
+watch(
+  () => model.value,
+  _ => {
+    if (props.range && isArray(model.value)) {
+      onePercentageValue.value = model.value[0]!
+      twoPercentageValue.value = model.value[1]!
+    } else {
+      onePercentageValue.value = model.value as number
+    }
+  },
+  {
+    immediate: true
+  }
+)
+
+/** 放下 */
+const handleOneDown = async (value: number) => {
+  await nextTick()
+
+  if (props.range && isArray(model.value)) {
+    /** 最小值 */
+    minValue.value = Math.min(
+      onePercentageValue?.value!,
+      twoPercentageValue?.value!
+    )
+
+    /** 最大值*/
+    maxValue.value = Math.max(
+      onePercentageValue?.value!,
+      twoPercentageValue?.value!
+    )
+    model.value = [minValue.value, maxValue.value]
+  } else {
+    model.value = onePercentageValue?.value
+  }
+}
 
 provide(sliderContextKey, {
   sliderProps: props,
+  runwayRef,
+  sliderSize,
+  model,
   cls,
-  initData,
   emit,
-  resetSize
+  setSliderBarSize: updateSliderBarSize
 })
 </script>

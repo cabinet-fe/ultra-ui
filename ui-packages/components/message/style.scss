@@ -1,13 +1,13 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
 // 方便拼接
 $root-name: message;
 
 @include m.b($root-name) {
   display: flex;
-  justify-content: space-between;
   min-width: 380px;
   position: fixed;
   left: 50%;
@@ -19,7 +19,26 @@ $root-name: message;
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
-    padding: fn.use-var(gap, $size);
+    padding: map.get(vars.$gap, $size)*2;
+
+    @include m.bem($root-name, icon) {}
+
+    @include m.bem($root-name, content) {
+      max-width: 400px;
+      word-wrap: break-word;
+      margin-left: fn.use-var(gap, $size);
+      margin-right: map.get(vars.$gap, $size)+12;
+    }
+
+    @include m.bem($root-name, close) {
+      cursor: pointer;
+      position: absolute;
+      right: fn.use-var(gap, $size);
+      top: fn.use-var(gap, $size);
+      &:hover {
+        color: fn.use-var(color, primary, 'dark-9');
+      }
+    }
   }
 
   @each $type, $_ in vars.$color-types {
@@ -27,10 +46,6 @@ $root-name: message;
       background-color: fn.use-var(color, $type, 'light-7');
       color: fn.use-var(color, $type);
     }
-  }
-
-  @include m.e(close) {
-    cursor: pointer;
   }
 }
 

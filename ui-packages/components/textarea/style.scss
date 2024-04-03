@@ -47,6 +47,10 @@
             resize: none;
         }
     }
+    @include m.size using ($size) {
+        font-size: fn.use-var('font-size', main, $size);
+        padding: fn.use-var(gap, $size);
+    }
 
     @include m.m(count) {
         display: block;

@@ -39,6 +39,7 @@ import {
   calculateLeftMaxWidth,
 } from "./calculate"
 import type {ScrollDirection} from "./type"
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 
 defineOptions({
   name: "Tip",
@@ -55,9 +56,15 @@ const cls = bem("tip")
 
 const slots = useSlots()
 
+const {formProps} = useFormComponent()
+
+const {size} = useFormFallbackProps([formProps ?? {}, props], {
+  size:'default'
+})
+
 /**tip弹窗class */
 const contentClass = computed(() => {
-  return [cls.e("content"), bem.is(props.position)]
+  return [cls.e("content"), bem.is(props.position),cls.m(size.value),]
 })
 
 /**页面元素的DOM信息 */

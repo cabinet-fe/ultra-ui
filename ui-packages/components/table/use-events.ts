@@ -5,7 +5,9 @@ interface Options<DataItem extends Record<string, any>> {
 }
 
 export type EventHandlers<DataItem extends Record<string, any>> = {
+  /** 鼠标移入事件 */
   handleMouseEnter: (e: MouseEvent) => void
+  /** 行点击事件 */
   handleRowClick: (row: TableRow<DataItem>) => void
 }
 

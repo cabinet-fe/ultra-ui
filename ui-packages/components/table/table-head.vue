@@ -2,18 +2,22 @@
   <thead :class="cls.e('head')" ref="">
     <tr v-for="(header, headerIndex) of headers">
       <th
-        v-for="col of header"
-        :class="[cls.e('cell'), cls.em('cell', col.align)]"
-        :key="col.key"
-        :colspan="col.leafs"
+        v-for="column of header"
+        :class="getCellClass(column)"
+        :key="column.key"
+        :colspan="column.leafs"
         :rowspan="
-          col.children?.length ? undefined : headers.length - headerIndex
+          column.children?.length ? undefined : headers.length - headerIndex
         "
+        :style="{
+          left: withUnit(column.style.left, 'px'),
+          right: withUnit(column.style.right, 'px')
+        }"
       >
         <u-node-render
           :content="
-            getHeaderSlotsNode(col.key, {
-              column: col
+            getHeaderSlotsNode(column.key, {
+              column
             })
           "
         />
@@ -26,12 +30,13 @@
 import { inject } from 'vue'
 import { TableDIKey } from './di'
 import { UNodeRender } from '../node-render'
+import { withUnit } from '@ui/utils'
 
 defineOptions({
   name: 'TableHead'
 })
 
-const { cls, columnConfig, getHeaderSlotsNode } = inject(TableDIKey)!
+const { cls, columnConfig, getHeaderSlotsNode, getCellClass } = inject(TableDIKey)!
 
 const { headers } = columnConfig
 </script>
