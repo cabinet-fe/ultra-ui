@@ -8,11 +8,12 @@
           { label: 'info', value: 'info' },
           { label: 'success', value: 'success' },
           { label: 'warning', value: 'warning' },
-          { label: 'danger', value: 'danger' },
+          { label: 'danger', value: 'danger' }
         ]"
         v-model="config.type"
       />
       <u-number-input v-model="config.duration" :step="1000" :min="0"></u-number-input>
+      <u-checkbox v-model="config.closable">closable</u-checkbox>
     </div>
     <div class="btn">
       <u-button type="primary" @click="showMsg">showMessage</u-button>
@@ -24,14 +25,25 @@
 import { Message } from '@ui/components'
 import '@ui/components/message/style.scss'
 import { reactive } from 'vue'
+import { Edit } from 'icon-ultra'
 
 const config = reactive({
-  type: 'primary',
-  duration: 0
+  type: 'primary' as any,
+  duration: 3000,
+  closable: false
 })
 
 const showMsg = () => {
-  Message({ message: 'asdasdasd!', type: config.type, duration: config.duration })
+  Message({
+    message: 'asdasdasd!',
+    type: config.type,
+    duration: config.duration,
+    closable: config.closable,
+    icon: Edit,
+    onClose: (vm) => {
+      console.log(123, vm)
+    }
+  })
 }
 </script>
 
