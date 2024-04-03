@@ -112,18 +112,23 @@ const handleSetTwoToPxChange = (value: number) => {
   twoPx.value = value
 }
 
-// let shouldUpdateModel = ref(false)
+// 声明一个标志位，用来控制回调的执行
+const isChangingModelValue = ref(false)
 
 watch(
   () => model.value,
   val => {
-    if (props.range && isArray(model.value)) {
-      // if (shouldUpdateModel) return
-      onePercentageValue.value = model.value[0]!
-      onePercentageValue.value = model.value[1]!
-    } else {
-      onePercentageValue.value = model.value as number
-      console.log(onePercentageValue.value, 'onePercentageValue.value')
+    if (!isChangingModelValue.value) {
+      isChangingModelValue.value = true // 设置标志位为 true，表示回调正在执行
+
+      if (props.range && isArray(model.value)) {
+        onePercentageValue.value = model.value[0]!
+        onePercentageValue.value = model.value[1]!
+      } else {
+        onePercentageValue.value = model.value as number
+      }
+
+      isChangingModelValue.value = false // 执行完毕后将标志位设为 false
     }
   },
   {
@@ -135,16 +140,22 @@ watch(
 watch(
   () => [onePercentageValue, twoPercentageValue],
   ([one, two]) => {
-    if (props.range && isArray(model.value)) {
-      /** 最小值 */
-      minValue = Math.min(one?.value!, two?.value!)
+    if (!isChangingModelValue.value) {
+      isChangingModelValue.value = true // 设置标志位为 true，表示回调正在执行
 
-      /** 最大值*/
-      maxValue = Math.max(one?.value!, two?.value!)
+      if (props.range && isArray(model.value)) {
+        /** 最小值 */
+        minValue = Math.min(one?.value!, two?.value!)
 
-      model.value = [minValue, maxValue]
-    } else {
-      model.value = one?.value
+        /** 最大值*/
+        maxValue = Math.max(one?.value!, two?.value!)
+
+        model.value = [minValue, maxValue]
+      } else {
+        model.value = one?.value
+      }
+
+      isChangingModelValue.value = false // 执行完毕后将标志位设为 false
     }
   },
   {
