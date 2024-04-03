@@ -25,7 +25,7 @@
 import { Message } from '@ui/components'
 import '@ui/components/message/style.scss'
 import { reactive } from 'vue'
-import { Edit } from 'icon-ultra'
+import { Edit, CircleCheckFilled } from 'icon-ultra'
 
 const config = reactive({
   type: 'primary' as any,
@@ -35,11 +35,11 @@ const config = reactive({
 
 const showMsg = () => {
   Message({
-    message: 'asdasdasd!',
+    message: 'asdasdasdasda',
     type: config.type,
     duration: config.duration,
     closable: config.closable,
-    icon: Edit,
+    // icon: CircleCheckFilled,
     onClose: (vm) => {
       console.log(123, vm)
     }
