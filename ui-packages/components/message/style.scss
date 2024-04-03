@@ -20,6 +20,13 @@ $root-name: message;
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
     padding: fn.use-var(gap, $size);
+    @include m.bem($root-name, content) {
+      flex: 9;
+      display: flex;
+      &--message {
+        margin-left: fn.use-var(gap, $size);
+      }
+    }
   }
 
   @each $type, $_ in vars.$color-types {
@@ -30,7 +37,9 @@ $root-name: message;
   }
 
   @include m.e(close) {
+    flex: 1;
     cursor: pointer;
+    text-align: right;
   }
 }
 

@@ -1,15 +1,17 @@
 import type { DeconstructValue } from '../helper'
+import type { DefineComponent, VNode } from 'vue'
 
 /** 消息弹框组件组件属性 */
 export interface MessageProps {
   modelValue?: string
-  message: string
+  message?: string
   type?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
   closable?: boolean
   duration?: number
   offset?: number
-  onClose?: () => void
+  onClose?: (vm: VNode) => void
   id?: string
+  icon?: DefineComponent
 }
 
 /** 消息弹框组件组件定义的事件 */

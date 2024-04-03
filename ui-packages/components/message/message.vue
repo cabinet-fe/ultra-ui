@@ -1,9 +1,15 @@
 <template>
   <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
     <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible" :style="customStyle">
-      <!-- <div :class="cls.e('icon')"></div> -->
-      <div :class="cls.e('message')">{{ message }}</div>
-      <div :class="cls.e('close')" v-if="closable" @click="close">
+      <div :class="cls.e('content')">
+        <div :class="cls.em('content', 'icon')">
+          <UIcon>
+            <component :is="icon" />
+          </UIcon>
+        </div>
+        <div :class="cls.em('content', 'message')">{{ message }}</div>
+      </div>
+      <div :class="cls.e('close')" v-if="closable" @click.stop="close">
         <UIcon><Close /></UIcon>
       </div>
     </div>

@@ -1,18 +1,18 @@
 <template>
-  <div :class="[cls.b, bem.is('vertical', vertical)]" ref="sliderRef">
+  <div
+    :class="[cls.b, bem.is('vertical', vertical)]"
+    ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined"
+  >
     <!-- 跑道 -->
-    <div
-      :class="runwayClass"
-      :style="vertical ? { height: `${height}px` } : undefined"
-      @mousedown="handleSliderDown"
-    >
+    <div ref="runwayRef" :class="runwayClass" @mousedown="handleSliderDown">
       <!-- 拖动覆盖条 -->
-      <div :class="cls.e('bar')" v-if="!range" :style="barStyles" />
+      <div :class="cls.e('bar')" :style="barStyles" />
 
       <!-- 手柄 -->
-      <slider-button @update:modelValue="setFirstValue" />
+      <slider-button />
 
-      <slider-button v-if="range" @update:modelValue="setSecondValue" />
+      <slider-button v-if="range" />
 
       <!-- 断点 -->
       <template v-if="showStops">
@@ -28,98 +28,74 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  SliderProps,
-  SliderEmits,
-  SliderInitData,
-  SliderButtonTransform
-} from '@ui/types/components/slider'
+import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
-import { computed, provide, reactive, shallowReactive } from 'vue'
+import { computed, provide, shallowReactive, shallowRef } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
-import { useSlide, useStops } from './_compositions'
-
-// todo 优化
-// 1. 使用useDrag完成
-// 2. 优化依赖注入的使用
-defineOptions({
-  name: 'Slider'
-})
+import { useSlide } from './use-slide'
+import { useStops } from './use-stops'
+import { useResizeObserver } from '@ui/compositions'
 
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
   max: 100,
   step: 0,
   vertical: false,
-  height: 300
+  height: 300,
+  range: false
 })
-
-const model = defineModel()
 
 const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')
 
-const transform = shallowReactive({
-  x: 0,
-  y: 0
+const runwayRef = shallowRef<HTMLElement>()
+
+/** slider大小 */
+const sliderSize = shallowRef(0)
+
+/** 根据页面实时响应 */
+useResizeObserver({
+  target: runwayRef,
+  onResize([entry]) {
+    const rect = entry!.target.getBoundingClientRect()
+    if (props.vertical) {
+      sliderSize.value = rect.height
+    } else {
+      sliderSize.value = rect.width
+    }
+  }
 })
 
-const currentTransform = {
-  x: 0,
-  y: 0
-}
+const { handleSliderDown } = useSlide(props, emit, sliderSize)
 
-const initData = reactive<SliderInitData>({
-  /** 跑道大小 */
-  sliderSize: 1,
-  /** 范围第一个值 **/
-  firstValue: 0,
-  /** 范围的第二个值 */
-  secondValue: 0,
-  transform,
-  currentTransform
+const { stops, getStopStyle } = useStops({
+  sliderProps: props,
+  sliderSize
 })
-
-/** 获取第一个按钮的值 */
-const setFirstValue = (
-  transform: SliderButtonTransform,
-  currentTransform: SliderButtonTransform
-) => {
-  initData.transform = transform
-  initData.currentTransform = currentTransform
-
-  initData.firstValue = transform.x
-}
-
-/** 获取第二个按钮的值 */
-const setSecondValue = (
-  transform: SliderButtonTransform,
-  currentTransform: SliderButtonTransform
-) => {
-  initData.secondValue = transform.x
-
-  console.log(initData.secondValue, 'secondValue')
-}
-
-const { resetSize, handleSliderDown, sliderRef, barStyles } = useSlide(
-  props,
-  initData,
-  emit
-)
-
-const { stops, getStopStyle } = useStops(props, initData)
 
 const runwayClass = computed(() => {
-  return [cls.e('runway'), bem.is('vertical', props.vertical)]
+  return [cls.e('runway')]
+})
+
+const model = defineModel<number[] | number>()
+
+const barStyles = shallowReactive({
+  width: '0px',
+  height: '0px'
 })
 
 provide(sliderContextKey, {
   sliderProps: props,
+  runwayRef,
+  sliderSize,
+  model,
   cls,
-  initData,
   emit,
-  resetSize
+  setSliderSize({ x, y }) {
+    barStyles.height = `${-y || 10}px`
+    barStyles.width = `${x || 10}px`
+  }
 })
 </script>
