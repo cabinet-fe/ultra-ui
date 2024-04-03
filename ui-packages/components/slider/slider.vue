@@ -38,12 +38,11 @@
 <script lang="ts" setup>
 import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
 import { bem } from '@ui/utils'
-import { computed, provide, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, provide, ref, shallowRef, watch } from 'vue'
 import { sliderContextKey } from './di'
 import SliderButton from './button.vue'
 import { useSlide } from './use-slide'
 import { useStops } from './use-stops'
-import { useResizeObserver } from '@ui/compositions'
 import { isArray } from 'cat-kit/fe'
 
 const props = withDefaults(defineProps<SliderProps>(), {
@@ -59,29 +58,18 @@ const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')
 
-const runwayRef = shallowRef<HTMLElement>()
-
 /** slider大小 */
 const sliderSize = shallowRef(0)
 
-/** 根据页面实时响应 */
-useResizeObserver({
-  target: runwayRef,
-  onResize([entry]) {
-    const rect = entry!.target.getBoundingClientRect()
-    if (props.vertical) {
-      sliderSize.value = rect.height
-    } else {
-      sliderSize.value = rect.width
-    }
-  }
-})
-
-const { barStyles, onePx, twoPx, updateSliderBarSize, minValue ,maxValue } = useSlide(
-  props,
-  emit,
-  sliderSize
-)
+const {
+  barStyles,
+  onePosition,
+  twoPosition,
+  updateSliderBarSize,
+  runwayRef,
+  minValue,
+  maxValue
+} = useSlide(props, emit, sliderSize)
 
 const { stops, getStopStyle } = useStops({
   sliderProps: props,
@@ -100,32 +88,32 @@ let onePercentageValue = ref(0)
 let twoPercentageValue = ref(0)
 
 const handleSetOneToPxChange = (value: number) => {
-  onePx.value = value
+  onePosition.value = value
 }
 
 const handleSetTwoToPxChange = (value: number) => {
-  twoPx.value = value
+  twoPosition.value = value
 }
 
 watch(
   () => model.value,
-  val => {
+  _ => {
     if (props.range && isArray(model.value)) {
       onePercentageValue.value = model.value[0]!
-      onePercentageValue.value = model.value[1]!
+      twoPercentageValue.value = model.value[1]!
     } else {
       onePercentageValue.value = model.value as number
     }
   },
   {
-    deep: true,
     immediate: true,
     once: true
   }
 )
 
 /** 放下 */
-const handleOneDown = (value: number) => {
+const handleOneDown = async (value: number) => {
+  await nextTick()
   if (props.range && isArray(model.value)) {
     if (props.range && isArray(model.value)) {
       /** 最小值 */
@@ -139,7 +127,6 @@ const handleOneDown = (value: number) => {
         onePercentageValue?.value!,
         twoPercentageValue?.value!
       )
-
       model.value = [minValue.value, maxValue.value]
     } else {
       model.value = onePercentageValue?.value
