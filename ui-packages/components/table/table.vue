@@ -1,16 +1,17 @@
 <template>
-  <u-scroll :class="[cls.b, cls.m(size)]">
+  <u-scroll :class="[cls.b, cls.m(size)]" @resize="handleTableResize">
     <table
       :class="cls.e('wrap')"
       @mouseenter.capture="eventHandlers.handleMouseEnter"
     >
       <colgroup ref="colgroupRef">
         <col
-          v-for="column of columnConfig.columns.value"
+          v-for="column of columns"
           :style="{
             width: withUnit(column.width, 'px'),
             minWidth: withUnit(column.minWidth, 'px')
           }"
+          :class="column.fixed"
         />
       </colgroup>
       <UTableHead />
@@ -32,7 +33,7 @@ import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
 import { UScroll } from '../scroll'
 import { useEvents } from './use-events'
-import { useFallbackProps, useResizeObserver } from '@ui/compositions'
+import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
@@ -42,13 +43,21 @@ defineOptions({
 const props = defineProps<TableProps<DataItem>>()
 const emit = defineEmits<TableEmits<DataItem>>()
 
+/** 表格列插槽作用域 */
+interface TableColumnSlotsScope {
+  row: TableRow
+  rowData: Record<string, any>
+  column: ColumnNode
+  val: any
+  model: {
+    modelValue: any
+    'onUpdate:modelValue': (val: any) => void
+  }
+}
+
 defineSlots<
   {
-    [key: `column:${string}`]: (props: {
-      row: TableRow
-      column: ColumnNode
-      val: any
-    }) => any
+    [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
     [key: `header:${string}`]: (props: { column: ColumnNode }) => any
   } & {
     [key: string]: () => any
@@ -61,6 +70,8 @@ const rows = useRows({ props })
 
 const columnConfig = useColumns({ props })
 
+const { columns } = columnConfig
+
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
@@ -70,11 +81,7 @@ const slots = useSlots()
 /** 获取列插槽vnode */
 const getColumnSlotsNode = (
   key: string,
-  ctx: {
-    row: TableRow
-    column: ColumnNode
-    val: any
-  }
+  ctx: TableColumnSlotsScope
 ): VNode[] | undefined => {
   return slots[`column:${key}`]?.(ctx) ?? ctx.val
 }
@@ -87,17 +94,55 @@ const getHeaderSlotsNode = (
   return slots[`header:${key}`]?.(ctx) ?? ctx.column.name
 }
 
+/** 获取单元格类名 */
+const getCellClass = (column: ColumnNode): string[] => {
+  const classList: string[] = [cls.e('cell'), bem.is(column.align)]
+  column.fixed && classList.push(bem.is('fixed-' + column.fixed))
+  return classList
+}
+
 /** 事件处理 */
 const eventHandlers = useEvents({ emit })
 
 const colgroupRef = shallowRef<HTMLElement>()
 
-useResizeObserver({
-  target: colgroupRef,
-  onResize: ([entry]) => {
-    console.log(colgroupRef.value?.getBoundingClientRect())
-  }
-})
+const handleTableResize = (el: HTMLElement) => {
+  const colgroup = colgroupRef.value
+
+  if (!colgroup) return
+  const fixedOnLeft = Array.from(
+    colgroup.getElementsByClassName('left')
+  ) as HTMLElement[]
+
+  const fixedOnRight = Array.from(
+    colgroup.getElementsByClassName('right')
+  ) as HTMLElement[]
+
+  fixedOnLeft.reduce((acc, col, colIndex) => {
+    if (colIndex === 0) {
+      columns.value[0]!.style.left = 0
+      return acc
+    }
+
+    const left = acc + fixedOnLeft[colIndex - 1]!.offsetWidth
+    columns.value[colIndex]!.style.left = left
+    return left
+  }, 0)
+
+  const rightColumns = columns.value.slice(-fixedOnRight.length)
+
+  fixedOnRight.reduceRight((acc, col, colIndex) => {
+    if (colIndex === fixedOnRight.length - 1) {
+      rightColumns[colIndex]!.style.right = 0
+
+      return acc
+    }
+    const right = acc + fixedOnRight[colIndex + 1]!.offsetWidth
+    rightColumns[colIndex]!.style.right = right
+
+    return right
+  }, 0)
+}
 
 provide(TableDIKey, {
   tableProps: props,
@@ -107,6 +152,7 @@ provide(TableDIKey, {
   eventHandlers,
 
   getColumnSlotsNode,
-  getHeaderSlotsNode
+  getHeaderSlotsNode,
+  getCellClass
 })
 </script>

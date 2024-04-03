@@ -4,7 +4,7 @@ import type {
   TableProps
 } from '@ui/types/components/table'
 import { Forest, Tree, TreeNode } from 'cat-kit/fe'
-import { computed, type ComputedRef } from 'vue'
+import { computed, shallowReactive, type ComputedRef } from 'vue'
 
 interface Options {
   props: TableProps
@@ -35,26 +35,59 @@ export class ColumnNode extends TreeNode<TableColumn> {
   /** 叶子节点数量 */
   leafs?: number
   /** 列key */
-  key: string
+  get key(): string {
+    return this.value.key
+  }
+  set key(val) {
+    this.value.key = val
+  }
   /** 列名 */
-  name: string
-  /** 列对齐方式 */
-  align: TableColumnAlign = 'left'
+  get name(): string {
+    return this.value.name
+  }
+  set name(val) {
+    this.value.name = val
+  }
+
+  /**
+   * 列对齐方式
+   * @default 'left'
+   */
+  get align(): TableColumnAlign {
+    return this.value.align ?? 'left'
+  }
+  set align(val) {
+    this.value.align = val
+  }
+
   /** 宽度 */
-  width?: number
+  get width(): number | undefined {
+    return this.value.width
+  }
+  set width(val) {
+    this.value.width = val
+  }
   /** 最小宽度 */
-  minWidth?: number
+  get minWidth(): number | undefined {
+    return this.value.minWidth
+  }
+  set minWidth(val) {
+    this.value.minWidth = val
+  }
+
+  /** 列固定方向 */
+  get fixed(): 'left' | 'right' | undefined {
+    if (this.depth > 1) return
+    return  this.value.fixed
+  }
+  set fixed(val) {
+    this.value.fixed = val
+  }
+
+  style: Record<string, number> = shallowReactive({})
 
   constructor(val: TableColumn, index: number) {
-    super(val, index)
-
-    this.key = val.key
-    this.name = val.name
-    this.width = val.width
-    this.minWidth = val.minWidth
-    if (val.align) {
-      this.align = val.align
-    }
+    super(shallowReactive(val), index)
   }
 
   override createNode(val: TableColumn, index: number): ColumnNode {
