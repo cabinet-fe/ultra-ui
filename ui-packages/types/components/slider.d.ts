@@ -26,9 +26,7 @@ export interface SliderEmits {
 export interface SliderButtonEmits {
   (e: 'update:modelValue', value: number): void
 
-  (e: 'one', value: number): void
-
-  (e: 'two', value: number): void
+  (e: 'dragPosition', value: number): void
 
   (e: 'dragEnd', value: number): void
 

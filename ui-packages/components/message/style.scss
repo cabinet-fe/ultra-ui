@@ -18,7 +18,7 @@ $root-name: message;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
-    font-size: fn.use-var('font-size', title, $size);
+    font-size: fn.use-var('font-size', title, );
     padding: map.get(vars.$gap, $size)*2;
 
     @include m.bem($root-name, icon) {}

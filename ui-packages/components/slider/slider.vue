@@ -11,14 +11,14 @@
       <!-- 手柄 -->
       <slider-button
         v-model="onePercentageValue"
-        @one="handleSetOneToPxChange"
+        @dragPosition="handleSetOneToPxChange"
         @dragEnd="handleOneDown"
       />
 
       <slider-button
         v-model="twoPercentageValue"
         v-if="range"
-        @two="handleSetTwoToPxChange"
+        @dragPosition="handleSetTwoToPxChange"
         @dragEnd="handleOneDown"
       />
 
