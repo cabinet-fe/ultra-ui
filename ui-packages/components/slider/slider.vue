@@ -1,35 +1,19 @@
 <template>
-  <div
-    :class="[cls.b, bem.is('vertical', vertical)]"
-    ref="sliderRef"
-    :style="vertical ? { height: `${height}px` } : undefined"
-  >
+  <div :class="[cls.b, cls.m(size), bem.is('vertical', vertical)]" ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined">
     <!-- 跑道 -->
     <div ref="runwayRef" :class="runwayClass">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button
-        v-model="onePercentageValue"
-        @dragPosition="handleSetOneToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
 
-      <slider-button
-        v-model="twoPercentageValue"
-        v-if="range"
-        @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown" />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div
-          v-for="(item, key) in stops"
-          :key="key"
-          :class="cls.e('stop')"
-          :style="getStopStyle(item)"
-        />
+        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
       </template>
     </div>
   </div>
@@ -44,6 +28,7 @@ import SliderButton from './button.vue'
 import { useSlide } from './use-slide'
 import { useStops } from './use-stops'
 import { isArray } from 'cat-kit/fe'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
@@ -57,6 +42,12 @@ const props = withDefaults(defineProps<SliderProps>(), {
 const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')
+
+const { formProps } = useFormComponent()
+
+const { size } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default'
+})
 
 /** slider大小 */
 const sliderSize = shallowRef(0)

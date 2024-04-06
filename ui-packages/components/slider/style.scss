@@ -2,6 +2,7 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 @use 'sass:math';
+@use 'sass:map';
 
 // 方便拼接
 $root-name: slider;
@@ -13,9 +14,10 @@ $button-size: 36;
   height: $button-size + 10 + px;
 
   @include m.size using ($size) {
-    // @debug $size;
-
-    height: fn.use-var(gap, $size);
+    @include m.bem($root-name, button) {
+      width: map.get(vars.$form-component-height, $size);
+      height: map.get(vars.$form-component-height, $size);
+    }
   }
 
   @include m.is(vertical) {
@@ -70,8 +72,6 @@ $button-size: 36;
 
   @include m.e(button) {
     display: inline-block;
-    width: 20px;
-    height: 20px;
     vertical-align: middle;
     border: solid 2px fn.use-var(color-primary);
     background-color: fn.use-var(bg-color-top);
