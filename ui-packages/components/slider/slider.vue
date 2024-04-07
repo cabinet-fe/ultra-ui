@@ -123,7 +123,7 @@ watch(
   () => [sliderRef.value, props.min],
   _ => {
     if (!model.value) {
-      model.value = props.min ?? 0
+      model.value = props.range ? [props.min, props.min] : props.min ?? 0
     }
   }
 )
