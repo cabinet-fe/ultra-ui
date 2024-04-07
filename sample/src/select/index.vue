@@ -1,6 +1,15 @@
 <template>
-  <div>
+  <div class="demoList">
     <div>
+      <h2>单选</h2>
+      <u-select
+        :model-value="singleValue"
+        :options="options"
+        label-key="codeAndLabel"
+        value-key="deptId"
+      ></u-select>
+    </div>
+    <!-- <div>
       <h2>多选</h2>
       <u-select
         multiple
@@ -10,21 +19,15 @@
         value-key="deptId"
         @update:model-value="onChange"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+const singleValue = ref('')
 
-const value = ref('')
-
-const multipleValue = ref<any>([
-  '1701050425886236672',
-  '1701050425886236674',
-  '1701050425886236673',
-  '1701050425886236675'
-])
+const multipleValue = ref<any>(['1701050425886236672', '1701050425886236674'])
 
 const options = ref([
   {
@@ -81,8 +84,8 @@ const onChange = (val: any) => {
 .demoList {
   margin-bottom: 30px;
   & > div {
-    margin-right: 10px;
-    // margin-bottom: 10px;
+    padding: 10px 0;
+    box-sizing: border-box;
   }
 }
 </style>

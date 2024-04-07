@@ -1,5 +1,7 @@
 <template>
   <div :class="classList">
+    {{ props.multiple }}
+    {{ props.options }}
     <!-- 多选 -->
     <template v-if="props.multiple">
       <UDropdown :class="[cls.e('dropdown')]" v-if="props.multiple" trigger="click">
@@ -45,13 +47,35 @@
 
     <!-- 显示当前选中项 -->
     <template v-else>
-      <span :class="cls.e('input')" @click="toggleOptions">
+      <UDropdown trigger="click">
+        <template #trigger>
+          <div :class="[cls.e('input')]">
+            <span>{{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}</span>
+          </div>
+        </template>
+
+        <template #content>
+          <div :class="cls.e('content')">
+            <ul>
+              <li
+                v-for="(item, index) in props.options"
+                :key="index"
+                @click.stop="selectOption(item, index)"
+                :class="{ actived: selectedIndex === index }"
+              >
+                <span> {{ labelKey ? item[labelKey] : item }}</span>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </UDropdown>
+      <!-- <span :class="cls.e('input')" @click="toggleOptions">
         {{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}
 
         <UIcon :class="cls.e('clear')" v-if="props.clearable">
           <CircleClose @click.stop="clearOption" />
         </UIcon>
-      </span>
+      </span> -->
     </template>
   </div>
 </template>
@@ -131,7 +155,7 @@ const multipleIndex = ref<number[]>(props.modelValue)
 /** 多选列表 */
 const multipleOptions = ref<Record<string, any>>([])
 
-const model = defineModel<Val[]>()
+// const model = defineModel<Val[]>()
 
 const getCheckStatus = (item: Record<string, any>) => {
   const { valueKey } = props
@@ -159,6 +183,7 @@ const selectMultipleOption = (
 }
 
 watchEffect(() => {
+  if (props.multiple == false) return
   console.log('multipleIndex.value,', multipleIndex.value)
   multipleOptions.value = []
   console.log(options.value, 'options')
@@ -166,7 +191,7 @@ watchEffect(() => {
   options.value.forEach((optionsItem: any) => {
     multipleIndex.value.forEach((item: any) => {
       console.log(item, '11')
-      model.value?.push(item)
+      // model.value?.push(item)
       if (optionsItem[props.valueKey] === item) {
         multipleOptions.value.push(optionsItem[props.labelKey])
       }
