@@ -15,6 +15,7 @@ export interface NotificationProps {
   icon?: DefineComponent
   zIndex?: number
   button?: string
+  width?: number
 }
 
 /** 通知组件组件定义的事件 */

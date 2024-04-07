@@ -12,8 +12,10 @@ $root-name: notification;
   position: fixed;
   right: 20px;
   bottom: 20px;
+  // transform: translateX(50%);
   transition: opacity 0.3s, transform 0.4s, top 0.4s;
   border: fn.use-var(border);
+  background-color: #fff;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);

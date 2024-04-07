@@ -39,14 +39,27 @@ const close = (id: string, userClose?: (vm: VNode) => void) => {
 export const Notification = (options: NotificationProps) => {
   const container = document.createElement('div')
   const id = `notification_${count++}`
-  let offset = options.offset || 20
-  notificationQueue.value.forEach(({ vm }) => {
-    offset += (vm.el?.offsetHeight || 0) + 16
-  })
-  offset += 16
+
+  let len = notificationQueue.value.length
+  if (len) {
+    let offset = options.offset || 20
+    let innerCount = 0
+    for (let i = len; i > 0; i--) {
+      if (innerCount < 2) offset += 10
+      notificationQueue.value[i-1]!.vm.component!.props.offset = offset
+      innerCount ++
+      // notificationQueue.value[i-1]!.vm.component!.props.width = notificationQueue.value[i-1]!.vm.el?.offsetWidth * 0.8
+    }
+  }
+
+  // notificationQueue.value.forEach(({ vm }, index) => {
+  // offset += (vm.el?.offsetHeight || 0) + 16
+  // })
+  // notification.vm.component!.props.offset
+  // offset += 16
   const vm = createVNode(UNotification, {
     ...options,
-    offset,
+    offset: options.offset || 20,
     id,
     zIndex: zIndex(),
     onClose: () => {

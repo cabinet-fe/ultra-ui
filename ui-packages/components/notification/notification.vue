@@ -77,10 +77,17 @@ const close = () => {
   visible.value = false
 }
 
-const customStyle = computed<CSSProperties>(() => ({
-  bottom: `${offset.value}px`,
-  zIndex: props.zIndex
-}))
+const customStyle = computed<CSSProperties>(() => {
+  return offset.value > 20 ? {
+    bottom: `${offset.value}px`,
+    zIndex: props.zIndex,
+    transform: `translateY(-${offset.value}px)`,
+    transition: `opacity 0.3s, transform 0.4s, top 0.4s`
+  } : {
+    bottom: `${offset.value}px`,
+    zIndex: props.zIndex
+  }
+})
 
 const startTimer = () => {
   if (duration.value) {

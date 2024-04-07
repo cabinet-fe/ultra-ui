@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { Notification } from '@ui/components'
 import '@ui/components/notification/style.scss'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
@@ -32,10 +32,14 @@ const config = reactive({
   closable: false
 })
 
+let count = ref(0)
+
 const showMsg = () => {
+  count.value ++
   Notification({
-    title: 'Event has been created',
-    message: 'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, ',
+    title: `${count.value}-Event has been created`,
+    message:
+      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, ',
     type: config.type,
     duration: config.duration,
     closable: config.closable,
