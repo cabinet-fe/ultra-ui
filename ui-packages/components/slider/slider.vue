@@ -1,19 +1,35 @@
 <template>
-  <div :class="[cls.b, cls.m(size), bem.is('vertical', vertical)]" ref="sliderRef"
-    :style="vertical ? { height: `${height}px` } : undefined">
+  <div
+    :class="[cls.b, cls.m(size), bem.is('vertical', vertical)]"
+    ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined"
+  >
     <!-- 跑道 -->
     <div ref="runwayRef" :class="runwayClass">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="onePercentageValue"
+        @dragPosition="handleSetOneToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
-      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="twoPercentageValue"
+        v-if="range"
+        @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
+        <div
+          v-for="(item, key) in stops"
+          :key="key"
+          :class="cls.e('stop')"
+          :style="getStopStyle(item)"
+        />
       </template>
     </div>
   </div>
@@ -51,6 +67,8 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
 
 /** slider大小 */
 const sliderSize = shallowRef(0)
+
+const sliderRef = shallowRef<HTMLElement>()
 
 const {
   barStyles,
@@ -98,6 +116,15 @@ watch(
   },
   {
     immediate: true
+  }
+)
+
+watch(
+  () => [sliderRef.value, props.min],
+  _ => {
+    if (!model.value) {
+      model.value = props.min ?? 0
+    }
   }
 )
 
