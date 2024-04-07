@@ -3,6 +3,18 @@ import type { DeconstructValue } from '../helper'
 /** 通知组件组件属性 */
 export interface NotificationProps {
   modelValue?: string
+  title?: string
+  message?: string
+  type?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  closable?: boolean
+  duration?: number
+  offset?: number
+  onClose?: (vm: VNode) => void
+  onClick?: (e: MouseEvent) => void
+  id?: string
+  icon?: DefineComponent
+  zIndex?: number
+  button?: string
 }
 
 /** 通知组件组件定义的事件 */
