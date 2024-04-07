@@ -1,31 +1,23 @@
 <template>
   <div>
     <div>
+      {{ modelValue }}
       删除和插入请右击
-      <u-button @click="handleGetValue">获取数据</u-button>
+      <!-- <u-button @click="handleGetValue">获取数据</u-button>
       <u-button @click="toggleColumns">切换columns</u-button>
       <u-button @click="addInfo">添加数据</u-button>
-      <u-button @click="handleValidate">校验</u-button>
-      <!-- {{ columns }} -->
-      {{ modelValue }}
-      <u-row-form
-        style="margin-top: 10px"
-        ref="rowFormRef"
-        :columns="columns"
-        v-model="modelValue"
-      >
-        <template #header> </template>
-
-        <template #column:dd="{ data, row }">
-          <u-input v-model="data.dd" @update:model-value="c.log(modelValue)" />
+      <u-button @click="handleValidate">校验</u-button> -->
+      <u-row-form ref="rowFormRef" :columns="columns" v-model="modelValue">
+        <template #column:dd="{ model }">
+          <u-input v-bind="model" />
         </template>
 
-        <template #column:ff="{ data }">
-          <u-input v-model="data.ff" />
+        <template #column:ff="{ model }">
+          <u-input v-bind="model" />
         </template>
 
-        <template #column:kk="{ data }">
-          <u-input v-model="data.kk" />
+        <template #column:kk="{ model }">
+          <u-input v-bind="model" />
         </template>
       </u-row-form>
     </div>
@@ -65,8 +57,8 @@ let columns = defineRowFormColumns([
 
 let modelValue = shallowRef([
   {
-    dd: '第一条',
-    ff: '333'
+    dd: '第一条2222',
+    ff: 's'
     // children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
   },
   { dd: '第二条', ff: '123213' },
