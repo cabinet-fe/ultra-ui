@@ -1,0 +1,9 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: notification;
+
+@include m.b($root-name) {
+}
