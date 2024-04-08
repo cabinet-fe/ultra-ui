@@ -150,7 +150,6 @@ provide(TableDIKey, {
   rows,
   columnConfig,
   eventHandlers,
-
   getColumnSlotsNode,
   getHeaderSlotsNode,
   getCellClass

@@ -25,7 +25,7 @@ export const useOperation = () => {
    * @param indexes 要删除的行的索引数组
    * @returns 删除行后的新数组
    */
-  const delRow = (arr: any[], indexes: number[]) => {
+  const delRows = (arr: any[], indexes: number[]) => {
     // 参数验证
     if (!isArray(arr) || !isArray(indexes)) {
       throw new Error('传入数组')
@@ -48,5 +48,5 @@ export const useOperation = () => {
     return wrapDataRows(newArray)
   }
 
-  return { insetTo, delRow }
+  return { insetTo, delRows }
 }
