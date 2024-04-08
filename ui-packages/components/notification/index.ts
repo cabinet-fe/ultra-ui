@@ -19,6 +19,19 @@ const notificationQueue = ref<NotificationItem[]>([])
 
 let count = 1
 
+// const resetPosition = (propsOffset: number) => {
+//   let len = notificationQueue.value.length
+//   if (len) {
+//     let offset = propsOffset
+//     let innerCount = 0
+//     for (let i = len; i > 0; i--) {
+//       if (innerCount < 2) offset += 10
+//       notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
+//       innerCount++
+//     }
+//   }
+// }
+
 const close = (id: string, userClose?: (vm: VNode) => void) => {
   const index = notificationQueue.value.findIndex(({ vm }) => {
     return id === vm.component!.props.id
@@ -26,11 +39,11 @@ const close = (id: string, userClose?: (vm: VNode) => void) => {
   if (index > -1) {
     const { vm } = notificationQueue.value[index]!
     userClose?.(vm)
-    const removedHeight = vm.el!.offsetHeight
     notificationQueue.value.splice(index, 1)
     notificationQueue.value.forEach((notification, i) => {
-      if (i >= index) {
-        notification.vm.component!.props.offset = parseInt(notification.vm.el!.style['top'], 10) - removedHeight - 16
+      let offset = Number(notification.vm.component!.props.offset)
+      if (offset > 20) {
+        notification.vm.component!.props.offset = offset - 10
       }
     })
   }
@@ -46,17 +59,12 @@ export const Notification = (options: NotificationProps) => {
     let innerCount = 0
     for (let i = len; i > 0; i--) {
       if (innerCount < 2) offset += 10
-      notificationQueue.value[i-1]!.vm.component!.props.offset = offset
-      innerCount ++
+      notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
+      innerCount++
       // notificationQueue.value[i-1]!.vm.component!.props.width = notificationQueue.value[i-1]!.vm.el?.offsetWidth * 0.8
     }
   }
 
-  // notificationQueue.value.forEach(({ vm }, index) => {
-  // offset += (vm.el?.offsetHeight || 0) + 16
-  // })
-  // notification.vm.component!.props.offset
-  // offset += 16
   const vm = createVNode(UNotification, {
     ...options,
     offset: options.offset || 20,
