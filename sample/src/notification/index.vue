@@ -43,13 +43,9 @@ const showMsg = () => {
     type: config.type,
     duration: config.duration,
     closable: config.closable,
-    onClose: (vm) => {
-      console.log(vm)
-    },
+    onClose: (vm) => {},
     button: '确定',
-    onClick: (vm) => {
-      console.log('click')
-    }
+    onClick: (vm) => {}
   })
 }
 

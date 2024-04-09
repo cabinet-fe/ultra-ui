@@ -47,7 +47,6 @@ const createWrapper = () => {
   } else {
     const wrapper = document.createElement('div')
     wrapper.id = 'notice_id'
-    console.log(notificationQueue.value[0]!.vm.el?.offsetHeight)
     Object.assign(wrapper.style, {
       position: 'fixed',
       right: '20px',
@@ -71,7 +70,7 @@ const createWrapper = () => {
           innerCount++
         }
 
-        Object.assign(e.target.style, {
+        Object.assign((e.target as HTMLElement).style, {
           width: `${width}px`,
           height: `${height}px`,
           overflow: 'hidden',
@@ -80,7 +79,6 @@ const createWrapper = () => {
       }
     })
     wrapper.addEventListener('mouseleave', (e: MouseEvent) => {
-      if (e.target.getAttribute('id') !== 'notice_id') return
       if (length.value) {
         let offset = 0
         let innerCount = 0
@@ -92,11 +90,11 @@ const createWrapper = () => {
           if (innerCount < 2) offset += 10
           innerCount++
         }
-        e.target.style.transition = 'height 0.45s'
-        e.target.style.height = `${height}px`
+        ; (e.target as HTMLElement).style.transition = 'height 0.45s'
+          ; (e.target as HTMLElement).style.height = `${height}px`
       } else {
-        e.target.style.removeProperty('height')
-        e.target.style.removeProperty('overflow')
+        ; (e.target as HTMLElement).style.removeProperty('height')
+          ; (e.target as HTMLElement).style.removeProperty('overflow')
       }
     })
     document.body.appendChild(wrapper)
