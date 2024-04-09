@@ -3,7 +3,7 @@ import type { FormComponentProps } from '../component-common'
 /** 选择器组件属性 */
 export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
-  modelValue: string | Array<number>
+  modelValue: string | Array<string>
   /** 列表选项 */
   options: Array<{
     label: string
