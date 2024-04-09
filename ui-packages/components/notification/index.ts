@@ -55,13 +55,13 @@ const createWrapper = () => {
       textAlign: 'center'
     })
     wrapper.addEventListener('mouseenter', (e: MouseEvent) => {
-      console.log('enter', e.target)
       if (length.value) {
         let innerCount = 0
         let offset = 0
         let width = 0
         let height = 0
         for (let i = length.value; i > 0; i--) {
+          notificationQueue.value[i - 1]!.vm.component!.exposed!.clearTimer()
           if (i === length.value) {
             width = notificationQueue.value[i - 1]!.vm.el?.offsetWidth + 8
           }
@@ -86,8 +86,8 @@ const createWrapper = () => {
         let innerCount = 0
         let height = 0
         for (let i = length.value; i > 0; i--) {
+          notificationQueue.value[i - 1]!.vm.component!.exposed!.startTimer()
           if (i === length.value) height = notificationQueue.value[i - 1]!.vm.el?.offsetHeight + 80
-
           notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
           if (innerCount < 2) offset += 10
           innerCount++

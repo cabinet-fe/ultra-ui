@@ -32,6 +32,7 @@ $root-name: notification;
       max-width: 400px;
       word-wrap: break-word;
       margin-left: fn.use-var(gap, $size);
+      text-align: left;
       &--title {
         font-size: fn.use-var('font-size', title, $size);
         font-weight: bold;

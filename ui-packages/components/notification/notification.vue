@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NotificationProps } from '@ui/types/components/notification'
+import type { NotificationProps, NotificationExposed } from '@ui/types/components/notification'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'
@@ -46,7 +46,7 @@ const { type, size, closable, duration, offset, button } = useFallbackProps([pro
   type: 'primary',
   size: 'default',
   closable: false,
-  duration: 3000,
+  duration: 4500,
   offset: 20,
   button: ''
 })
@@ -89,16 +89,22 @@ const customStyle = computed<CSSProperties>(() => {
   }
 })
 
+const timer = ref(0)
+
 const startTimer = () => {
   if (duration.value) {
-    setTimeout(() => {
+    timer.value = setTimeout(() => {
       close()
     }, duration.value)
   }
 }
 
+const clearTimer = () => clearTimeout(timer.value)
+
 const handleClick = (e: MouseEvent) => {
   if (props.onClick) props.onClick(e)
   close()
 }
+
+defineExpose<NotificationExposed>({ startTimer, clearTimer })
 </script>

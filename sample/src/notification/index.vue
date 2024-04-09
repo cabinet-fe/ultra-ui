@@ -28,7 +28,7 @@ import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
-  duration: 0,
+  duration: 4500,
   closable: false
 })
 
