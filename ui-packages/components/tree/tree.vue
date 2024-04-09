@@ -26,7 +26,6 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
 const cls = bem('tree')
 
 const tree = computed(() => {
-  console.log(Forest.create(props.data, CustomTreeNode).nodes, 'nodes')
   return Forest.create(props.data, CustomTreeNode)
 })
 

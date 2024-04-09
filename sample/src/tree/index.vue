@@ -11,7 +11,7 @@ const data = [
     name: '手抓饼',
     id: 2,
     children: [
-      { name: '鱼香肉丝', id: 3, children: [{ name: '烤苞米', id: 4 }] }
+      { name: '鱼香肉丝', id: 3, children: [{name: '烤苞米', id: 4 }] }
     ]
   }
 ]

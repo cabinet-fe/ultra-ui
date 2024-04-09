@@ -1,6 +1,6 @@
 <template>
-  <div :class="cls.e('node')" :style="style">
-    <u-icon v-if="showExpandIcon" :class="expandClass" @click="toggleExpand">
+  <div :class="cls.e('node')" :style="style" @click="toggleExpand">
+    <u-icon v-if="showExpandIcon" :class="expandClass">
       <CaretRight />
     </u-icon>
 
@@ -8,6 +8,7 @@
 
     {{ nodeRef.value[treeProps.labelKey!] }}
   </div>
+
   <template v-if="nodeRef.children && nodeRef.expanded">
     <UTreeNode v-for="child of nodeRef.children" :node="child" />
   </template>
