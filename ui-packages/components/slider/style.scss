@@ -15,8 +15,16 @@ $button-size: 36;
 
   @include m.size using ($size) {
     @include m.bem($root-name, button) {
-      width: map.get(vars.$form-component-height, $size);
-      height: map.get(vars.$form-component-height, $size);
+      width: calc(fn.use-var(form-component-height, $size) / 1.5);
+      height: calc(fn.use-var(form-component-height, $size) / 1.5)
+    }
+
+    @include m.bem($root-name, runway) {
+      border-radius: fn.use-var(radius, $size);
+    }
+
+    @include m.bem($root-name, bar) {
+      border-radius: fn.use-var(radius, $size);
     }
   }
 
@@ -42,7 +50,7 @@ $button-size: 36;
   @include m.e(runway) {
     height: 100%;
     background-color: fn.use-var(color, primary, light-9);
-    border-radius: 3px;
+    // border-radius: 3px;
 
     position: relative;
     cursor: pointer;
