@@ -40,7 +40,7 @@
     <!-- loading -->
     <div class="space">
       <div>加载</div>
-      <u-button loading>默认</u-button>
+      <u-button loading :loadingIcon="Refresh">默认</u-button>
       <u-button loading type="primary">主题</u-button>
       <u-button loading type="success">成功</u-button>
       <u-button loading type="warning">警告</u-button>
@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Edit } from 'icon-ultra'
+import { Edit,Refresh } from 'icon-ultra'
 import { bem } from 'ultra-ui'
 import { shallowRef } from 'vue'
 

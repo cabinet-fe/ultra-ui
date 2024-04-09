@@ -22,7 +22,7 @@ import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!
 
-let { cls, sliderSize, sliderProps, setSliderSize } = injected
+let { cls, sliderSize, sliderProps, setSliderBarSize } = injected
 
 const buttonValue = defineModel<number>()
 
@@ -43,12 +43,11 @@ const currentTransform = {
 }
 
 watch(transform, transform => {
-  setSliderSize(transform)
+  setSliderBarSize(transform)
 })
 
 /** button的位移距离 */
 const warpStyles = computed(() => {
-  // console.log(transform, 'transform')
   return {
     transform: `translate(${transform.x}px, ${transform.y}px)`
   }
@@ -81,11 +80,9 @@ watch([percentage, sliderSize], ([p, sliderSize]) => {
   if (!sliderProps.range) return
 
   if (sliderProps.vertical) {
-    emit('one', transform.y)
-    emit('two', transform.y)
+    emit('dragPosition', transform.y)
   } else {
-    emit('one', transform.x)
-    emit('two', transform.x)
+    emit('dragPosition', transform.x)
   }
 })
 
@@ -140,12 +137,11 @@ useDrag({
     }
 
     if (!sliderProps.range) return
+
     if (sliderProps.vertical) {
-      emit('one', transform.y)
-      emit('two', transform.y)
+      emit('dragPosition', transform.y)
     } else {
-      emit('one', transform.x)
-      emit('two', transform.x)
+      emit('dragPosition', transform.x)
     }
   },
 

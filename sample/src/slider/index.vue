@@ -13,11 +13,10 @@
         v-model="sliderValue"
         :step="10"
         :max="100"
-        :min="0"
+        :min="20"
         vertical
         show-stops
       ></u-slider>
-      <p>{{ verticalValue }}</p>
     </div>
 
     step 步长(x)
@@ -29,24 +28,41 @@
         :step="10"
         :show-stops="true"
       ></u-slider>
-      <p>{{ sliderValue }}</p>
     </div>
 
     范围
     <div>
-      <u-slider v-model="rangeValue" range> </u-slider>
+      <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
 
       {{ rangeValue }}
     </div>
+
+    垂直范围
+    <div>
+      <u-slider v-model="rangeValue" range vertical> </u-slider>
+    </div>
+
+    表单
+    {{ model }}
+    <u-form :model="model">
+      <u-input field="name" label="姓名" tips="四个字以内" />
+      <u-slider field="number" label="滑块"></u-slider>
+    </u-form>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from '@vue/runtime-core'
+import { FormModel } from 'ultra-ui'
 
-const getRandom = () => Math.random()
+// const getRandom = () => Math.random()
 
-const sliderValue = ref(50)
+const model = new FormModel({
+  name: {  },
+  number: { required: true }
+})
+
+const sliderValue = ref()
 
 const verticalValue = ref(40)
 

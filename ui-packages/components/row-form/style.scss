@@ -2,94 +2,18 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(row-form) {
-  width: 100%;
-  border-collapse: collapse;
-  border: var(--u-border);
-  overflow-x: scroll;
-  position: relative;
+$root-name: row-form;
 
-  &--interval {
+@include m.b($root-name) {
+  @include m.bem($root-name, interval) {
     margin-right: 10px;
   }
 
-  .header {
-    background-color: fn.use-var(color-primary-light-9);
-    border-bottom: var(--u-border);
-  }
-
-  @include m.e(thead) {
-    @extend .header;
-    &--th {
-      text-align: center;
-      padding: 10px;
-    }
-    &--required {
-      color: var(--u-color-danger);
-    }
-  }
-
-  @include m.e(tbody) {
-    width: 100%;
-
-    &--hover {
-      min-height: 80px;
-      &:hover {
-        background-color: fn.use-var(color-info-light-9);
-      }
-      td {
-        text-align: center;
-        padding: 5px 0;
-        min-width: 150px;
-      }
-    }
-
-    &-item {
-      @include m.m(tree) {
-        padding-right: 10px;
-        cursor: pointer;
-        display: inline-block;
-
-        @include m.is(launch) {
-          transform: rotate(90deg);
-          transition: margin-right 4s ease-in-out 1s;
-        }
-        @include m.is(put-it-away) {
-          transform: rotate(0deg);
-          transition: margin-right 4s ease-in-out 1s;
-        }
-      }
-    }
-  }
-
-  @include m.e(context-info) {
-    position: absolute;
-    border: 1px solid var(--u-border);
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(color-info-light-1);
-    opacity: 0.6;
-    &--operation {
-      width: 100%;
-      padding: 10px;
-      color: #fff;
-    }
-    &--operation:hover {
-      background-color: black;
-      border-radius: fn.use-var(radius, default);
-    }
-  }
-
-  &--data {
-    width: 200px;
-    position: static;
-    background-color: fn.use-var(color-info-light-1);
-  }
-
-  @include m.e(tfoot) {
-    padding: 5px 0;
-  }
-
-  // .is-launch {
-  //   transform: rotate(90deg);
+  // @include m.is(error) {
+  //   color: red;
   // }
+}
+
+.is-error {
+  color: red;
 }

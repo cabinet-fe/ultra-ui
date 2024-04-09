@@ -1,119 +1,227 @@
 <template>
-  <table :class="cls.b" :border="border ? 1 : 0">
-    <!-- 表头 start -->
-    <row-form-header />
-    <!-- 表头 end -->
+  <u-table :data="rows" :columns="finalColumns" :class="cls.b">
+    <template
+      v-for="item of finalColumns.filter(columnsItem => !!columnsItem.key)"
+      v-slot:[`column:${item.key}`]="{ val, model, rowData, row }"
+    >
+      <div
+        v-if="useSlots()['column:' + item.key] && !disabled"
+        @click="(e: Event) => handleClick(e, row.index)"
+      >
+        <node-render
+          :content="
+            getRowFormSlotsNodes(item.key, { model, val, row, rowData })
+          "
+        ></node-render>
+      </div>
 
-    <!-- 表体 start -->
-    <row-form-body />
-    <!-- 表体 end -->
+      <!-- 操作栏 -->
+      <template v-else-if="item.key === 'operation' && !disabled">
+        <button-common-props tag="span">
+          <u-button
+            :class="cls.e('interval')"
+            :icon="Delete"
+            type="primary"
+            @click="handleDelRows(row.index)"
+          />
 
-    <!-- 表尾 start -->
-    <row-form-footer />
-    <!-- 表位 end -->
-  </table>
+          <u-button
+            :icon="DocumentAdd"
+            type="primary"
+            @click="handleInsetToRows(row.index)"
+          />
+        </button-common-props>
+      </template>
+
+      <template v-else>
+        {{ model.modelValue }}
+      </template>
+    </template>
+
+    <template
+      v-for="item of finalColumns.filter(columnsItem => !!columnsItem.key)"
+      v-slot:[`header:${item.key}`]="{ column }"
+    >
+      <div>
+        <span>{{ getTipErrors(column.key) }}</span>
+
+        <span :class="bem.is('error', !!getTipErrors(column.key))">{{
+          column.name
+        }}</span>
+        <span style="color: red" v-if="column.value.rules?.required"> *</span>
+      </div>
+    </template>
+  </u-table>
 </template>
-
 <script lang="ts" setup generic="T extends Record<string, any>">
-import { Validator, bem } from '@ui/utils'
-import type { RowFormProps, RowFormEmits } from '@ui/types/components/row-form'
-import { computed, provide, shallowRef, useSlots, watch } from 'vue'
-import { RowFormInjectType } from './di'
-import RowFormHeader from './row-form-header.vue'
-import RowFormFooter from './row-form-footer.vue'
-import RowFormBody from './row-form-body.vue'
-import { wrapDataRows } from './row-forms'
-
-defineOptions({
-  name: 'URowForm'
-})
+import type { RowFormEmits, RowFormProps } from '@ui/types/components/row-form'
+import type { TableRow } from '@ui/types/components/table'
+import type { ButtonProps } from '@ui/types/components/button'
+import UTable from '../table/table.vue'
+import { computed, ref, shallowRef, useSlots, watch } from 'vue'
+import nodeRender from '../node-render/node-render'
+import { useRowForm } from './use-row-form'
+import { Delete, DocumentAdd } from 'icon-ultra'
+import { UButton } from '../button'
+import { bem } from '@ui/utils'
+import { useComponentProps } from '@ui/compositions'
+import { useOperation } from './use-operation'
+import { Validator } from '@ui/utils'
 
 /** 接收的参数 */
 const props = defineProps<RowFormProps<T>>()
 
+/** 事件 */
+const emit = defineEmits<RowFormEmits<T>>()
+
 const cls = bem('row-form')
 
-/** 事件 */
-const emits = defineEmits<RowFormEmits<T>>()
+interface Option {
+  model: {
+    modelValue: any
+    'onUpdate:modelValue': (val: any) => void
+  }
+  row: TableRow<Record<string, any>>
+  val: any
+  rowData: Record<string, T>
+}
 
-/** 值 */
-const data = defineModel<T[]>({ required: true })
+defineSlots<
+  {
+    [key: `column:${string}`]: (props: Option) => any
+  } & {
+    [key: string]: () => any
+  }
+>()
+
+const ButtonCommonProps = useComponentProps<ButtonProps>({
+  circle: true,
+  iconSize: 18,
+  loading: false
+})
 
 /** 表头 */
 const finalColumns = computed(() => {
-  return [...props.columns]
+  return props.disabled
+    ? [...props.columns]
+    : [...props.columns, { name: '操作', key: 'operation' }]
 })
 
-/** 数据 */
-const rows = shallowRef<any[]>([])
+const getRowFormSlotsNodes = (key: string, options: Option) => {
+  return useSlots()!['column:' + key]?.({ ...options })
+}
 
-defineSlots<{
-  header(): any
-}>()
+const data = defineModel<T[]>({ required: true })
 
-provide(RowFormInjectType, {
-  cls,
-  columns: finalColumns,
-  rows: rows,
-  rowFormSlots: useSlots(),
-  props,
-  emits: emits as RowFormEmits<Record<string, any>>
-})
+const { wrapDataRows } = useRowForm()
+
+const { insetTo, delRows } = useOperation()
+
+let rows = shallowRef<T[]>([])
 
 watch(
   data,
-  () => {
-    if (props.disabled) {
-      rows.value = wrapDataRows(data.value)
+  val => {
+    if (val.length === 0) {
+      rows.value = wrapDataRows([{}]) as T[]
     } else {
-      rows.value = wrapDataRows([...data.value, {}])
+      rows.value = wrapDataRows(val) as T[]
     }
-
-    data.value = rows.value.map(row => row.data)
   },
-  { immediate: true, once: true }
+  { immediate: true }
 )
 
+let obj = {
+  /** 当前操作的索引 */
+  clickIndex: ref(0)
+}
 
+const handleClick = (e: Event, index: number) => {
+  obj.clickIndex.value = index
 
-// watch(
-//   () => data.value,
-//   value => {
-//     rows.value = wrapDataRows(data.value)
-//     console.log(value,'value')
-//   }
-// )
+  e.target?.addEventListener('blur', handleBlurEvent)
+  e.target?.addEventListener('input', handleInputEvent)
+}
 
-// const
-// let lastItem = data.value[data.value.length - 1] ?? []
+/** 失去焦点 */
+const handleBlurEvent = (e: Event) => {
+  /** 数组最后一条如果为空那就添加一条数据 */
+  if (
+    rows.value.length - 1 === obj.clickIndex.value &&
+    Object.keys(rows.value[rows.value.length - 1] as T).length !== 0
+  ) {
+    rows.value = insetTo(rows.value, obj.clickIndex.value) as T[]
+    data.value = rows.value
+  }
+  validate()
+  /** 结束时候清除事件 */
+  e.target?.removeEventListener('blur', handleBlurEvent)
+  e.target?.removeEventListener('input', handleInputEvent)
+}
 
-// /** 如果一开始最后一条不为空的话,就增加一条 */
-// const initData = async () => {
-//   if (Object.keys(lastItem).length !== 0 && !props.disabled) {
-//     data.value.push({} as T)
-//   }
-// }
-// initData()
+/** input事件 */
+const handleInputEvent = (e: Event) => {}
+
+/** 插入rows */
+const handleInsetToRows = (index: number) => {
+  rows.value = insetTo(rows.value, index) as T[]
+}
+
+/** 删除 */
+const handleDelRows = (index: number) => {
+  rows.value = delRows(rows.value, [index]) as T[]
+}
 
 /** 获取数据 */
-// const getValue = () => {
-//   if (Object.keys(lastItem).length !== 0) {
-//     return data.value?.slice(0, data.value.length - 1)
-//   } else {
-//     return data.value
-//   }
-// }
+const getValue = () => {
+  const newArray: any[] = [...rows.value]
 
-/** 获取数据 */
-const getValue = () => {}
+  // 最后一项是否为空对象,如果空就移除
+  if (
+    newArray.length > 0 &&
+    Object.keys(newArray[newArray.length - 1]).length === 0
+  ) {
+    newArray.splice(-1, 1)
+  }
+
+  return newArray
+}
+
+/** 错误信息 */
+let errors = ref(new Map())
+
+let tipErrors = ref()
 
 /** 校验 */
-const validate = () => {
-  finalColumns.value.map(async (item: any) => {
-    // { name: { required } }
-    // console.log(data.value, item.key, 'key')
-    return await new Validator(item.rules).validate(data.value)
+const validate = async () => {
+  errors.value.clear()
+
+  const rules = {}
+
+  finalColumns.value.forEach(item => {
+    if (item.rules && Object.keys(item.rules).length > 0) {
+      rules[item.key] = { ...item.rules }
+    }
   })
+
+  const validator = new Validator(rules)
+
+  const data = getValue()
+
+  for (const item of data) {
+    const validateResult = await validator.validate(item)
+    for (const field in validateResult) {
+      errors.value.set(field, validateResult[field])
+    }
+  }
+
+  if (errors.value.size > 0) return false
+
+  return true
+}
+
+const getTipErrors = (key: string) => {
+  return (tipErrors.value = errors.value.get(key)?.[0])
 }
 
 defineExpose({

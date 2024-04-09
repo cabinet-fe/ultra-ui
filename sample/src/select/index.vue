@@ -1,16 +1,34 @@
 <template>
-  <div>
-    <div class="demoList">
+  <div class="demoList">
+    <div>
       <h2>单选</h2>
+      <u-select
+        :model-value="singleValue"
+        :options="singleOptions"
+        label-key="codeAndLabel"
+        value-key="deptId"
+        @update:model-value="handleSingleChange"
+        clearable
+      ></u-select>
     </div>
     <div>
       <h2>多选</h2>
       <u-select
         multiple
-        :model-value="value"
+        :model-value="multipleValue"
         :options="options"
         label-key="codeAndLabel"
-        value-key="defaultTravelPlace"
+        value-key="deptId"
+        @update:model-value="onChange"
+      />
+    </div>
+    <div>
+      <h2>单选</h2>
+      <u-select
+        :model-value="multipleValue"
+        :options="options"
+        label-key="codeAndLabel"
+        value-key="deptId"
         @update:model-value="onChange"
       />
     </div>
@@ -19,8 +37,41 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+const singleValue = ref('1701050425886236672')
+const singleOptions = ref([
+  {
+    label: '交科院',
+    value: '1',
+    code: '88',
+    codeAndLabel: '88 交科院',
+    defaultTravelPlace: '12-1201-1201015',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236672'
+  },
+  {
+    label: '相城开发区',
+    value: '2',
+    codeAndLabel: '99 相城开发区',
+    defaultTravelPlace: '13-1201-1201014',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236673'
+  },
+  {
+    label: '杜桥镇人民政府',
+    value: '3',
+    codeAndLabel: '77 杜桥镇人民政府',
+    defaultTravelPlace: '14-1201-1201013',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236674'
+  }
+])
+const handleSingleChange = item => {
+  console.log(item, 'handleSingleChange')
+  singleValue.value = item.label
+}
 
-const value = ref('')
+const multipleValue = ref<any>(['1701050425886236672', '1701050425886236674'])
+
 const options = ref([
   {
     label: '交科院',
@@ -29,7 +80,7 @@ const options = ref([
     codeAndLabel: '88 交科院',
     defaultTravelPlace: '12-1201-1201015',
     defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236672
+    deptId: '1701050425886236672'
   },
   {
     label: '相城开发区',
@@ -37,7 +88,7 @@ const options = ref([
     codeAndLabel: '99 相城开发区',
     defaultTravelPlace: '13-1201-1201014',
     defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236673
+    deptId: '1701050425886236673'
   },
   {
     label: '杜桥镇人民政府',
@@ -45,7 +96,7 @@ const options = ref([
     codeAndLabel: '77 杜桥镇人民政府',
     defaultTravelPlace: '14-1201-1201013',
     defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236674
+    deptId: '1701050425886236674'
   },
   {
     label: '财务部',
@@ -53,7 +104,7 @@ const options = ref([
     codeAndLabel: '66 财务部',
     defaultTravelPlace: '15-1201-1201011',
     defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236675
+    deptId: '1701050425886236675'
   },
   {
     label: '选项5',
@@ -61,14 +112,14 @@ const options = ref([
     codeAndLabel: '55 选项5',
     defaultTravelPlace: '16-1201-1201012',
     defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236676
+    deptId: '1701050425886236676'
   }
 ])
 
 const onChange = (val: any) => {
   console.log(val, 'val')
-  value.value = val.label
-  console.log(value.value, 'value')
+  // value.value = val.label
+  // console.log(value.value, 'value')
 }
 </script>
 
@@ -76,8 +127,9 @@ const onChange = (val: any) => {
 .demoList {
   margin-bottom: 30px;
   & > div {
-    margin-right: 10px;
-    // margin-bottom: 10px;
+    padding: 10px 0;
+    box-sizing: border-box;
+    margin-bottom: 30px;
   }
 }
 </style>

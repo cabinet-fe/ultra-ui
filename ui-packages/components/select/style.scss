@@ -33,7 +33,8 @@ $root-name: select;
   @include m.e('input') {
     width: 240px;
     height: fn.use-var(form-component-height-default);
-    display: block;
+    display: flex;
+    justify-content: space-between;
     padding: 10px 10px;
     // box-sizing: border-box;
     border: fn.use-var(border);
@@ -60,6 +61,7 @@ $root-name: select;
       padding: 0 5px;
     }
   }
+
   @include m.e('clear-multiple') {
     cursor: pointer;
   }
@@ -69,16 +71,15 @@ $root-name: select;
     position: absolute;
     right: 10px;
   }
+
   ul {
     width: 240px;
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: #fff;
-    border: fn.use-var(border);
-
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-    display: none; /* 默认不显示选项列表 */
+    // background-color: #fff;
+    // border: fn.use-var(border);
+    // box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
     max-height: 200px;
     overflow-y: auto;
     li {
@@ -99,7 +100,4 @@ $root-name: select;
   .showSelected {
     display: block;
   }
-  // .actived {
-  //   background-color: #eee;
-  // }
 }

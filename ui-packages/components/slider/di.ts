@@ -20,7 +20,7 @@ export interface SliderContext {
   emit: SliderEmits
   sliderProps: SliderProps
   model: ModelRef<number | number[] | undefined>,
-  setSliderSize: ({ x, y }: { x: number; y: number; }) => void
+  setSliderBarSize: ({ x, y }: { x: number; y: number; }) => void
 }
 
 export const sliderContextKey: InjectionKey<SliderContext> =
