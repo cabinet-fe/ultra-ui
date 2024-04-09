@@ -78,7 +78,7 @@ const close = () => {
 }
 
 const customStyle = computed<CSSProperties>(() => {
-  return offset.value > 20 ? {
+  return offset.value > 0 ? {
     bottom: `${offset.value}px`,
     zIndex: props.zIndex,
     transform: `translateY(-${offset.value}px)`,

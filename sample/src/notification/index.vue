@@ -39,19 +39,20 @@ const showMsg = () => {
   Notification({
     title: `${count.value}-Event has been created`,
     message:
-      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, ',
+      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AM',
     type: config.type,
     duration: config.duration,
     closable: config.closable,
     onClose: (vm) => {
-      console.log(123, vm)
+      console.log(vm)
     },
     button: '确定',
     onClick: (vm) => {
-      console.log(111, vm)
+      console.log(vm)
     }
   })
 }
+
 </script>
 
 <style lang="scss" scoped>
