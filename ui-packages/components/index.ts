@@ -79,3 +79,5 @@ export * from './paginator'
 export * from './steps'
 
 export * from './message'
+
+export * from './loading'

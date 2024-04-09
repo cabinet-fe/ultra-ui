@@ -11,6 +11,16 @@
         @update:model-value="onChange"
       />
     </div>
+    <div>
+      <h2>单选</h2>
+      <u-select
+        :model-value="multipleValue"
+        :options="options"
+        label-key="codeAndLabel"
+        value-key="deptId"
+        @update:model-value="onChange"
+      />
+    </div>
   </div>
 </template>
 
