@@ -74,7 +74,8 @@ const createWrapper = () => {
         Object.assign(e.target.style, {
           width: `${width}px`,
           height: `${height}px`,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          transition: 'height 0.4s'
         })
       }
     })
@@ -91,6 +92,7 @@ const createWrapper = () => {
           if (innerCount < 2) offset += 10
           innerCount++
         }
+        e.target.style.transition = 'height 0.45s'
         e.target.style.height = `${height}px`
       } else {
         e.target.style.removeProperty('height')
