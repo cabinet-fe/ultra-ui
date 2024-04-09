@@ -1,8 +1,7 @@
 <template>
   <div :class="classList">
-    {{ props.multiple }}
-    {{ props.options }}
     <!-- 多选 -->
+
     <template v-if="props.multiple">
       <UDropdown :class="[cls.e('dropdown')]" v-if="props.multiple" trigger="click">
         <template #trigger>
@@ -36,7 +35,6 @@
                 :model-value="getCheckStatus(item)"
                 @update:modelValue="selectMultipleOption($event, item, index)"
               >
-                <!-- {{ item[labelKey] }} -->
                 {{ labelKey ? item[labelKey] : item }}
               </UCheckbox>
             </div>
@@ -69,13 +67,6 @@
           </div>
         </template>
       </UDropdown>
-      <!-- <span :class="cls.e('input')" @click="toggleOptions">
-        {{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}
-
-        <UIcon :class="cls.e('clear')" v-if="props.clearable">
-          <CircleClose @click.stop="clearOption" />
-        </UIcon>
-      </span> -->
     </template>
   </div>
 </template>
@@ -84,8 +75,7 @@
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
-import { CircleClose } from 'icon-ultra'
-import { UIcon } from '../icon'
+
 import { UTag } from '../tag'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UCheckbox, type Val } from '..'
@@ -119,32 +109,31 @@ let labelKey = ref(props.labelKey)
 let options = ref(props.options)
 
 /** 当前选中的选项 */
-const selectedOption = ref<Record<any, string>>({})
+const selectedOption = ref<Record<string, any>>({})
 
-let selectedIndex = ref(0)
-
-/** 是否显示选项列表 */
-const showOptions = ref(false)
-
-/** 展开/收起选项列表 */
-const toggleOptions = () => {
-  showOptions.value = !showOptions.value
-}
+let selectedIndex = ref(-1)
+const singleIndex = ref(props.modelValue)
 
 /** 选中选项 */
 const selectOption = (option: any, index: number) => {
   selectedOption.value = option
-  showOptions.value = false
   selectedIndex.value = index
+
   emit('update:modelValue', option)
 }
-
-/** 清除选项 */
-const clearOption = () => {
-  selectedOption.value = {}
-  selectedIndex.value = -1
-  emit('clear')
-}
+watch(
+  singleIndex,
+  (newValue, oldValue) => {
+    if (newValue === oldValue) return
+    singleIndex.value = newValue
+    selectedOption.value = options.value.filter((e: any) => e[props.valueKey] == newValue)[0]!
+    selectedIndex.value = options.value.findIndex((e: any) => e[props.valueKey] == newValue)
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 
 /** 全选 */
 const checkAll = shallowRef(false)
@@ -184,26 +173,27 @@ const selectMultipleOption = (
 
 watchEffect(() => {
   if (props.multiple == false) return
-  console.log('multipleIndex.value,', multipleIndex.value)
   multipleOptions.value = []
-  console.log(options.value, 'options')
-
   options.value.forEach((optionsItem: any) => {
     multipleIndex.value.forEach((item: any) => {
-      console.log(item, '11')
       // model.value?.push(item)
       if (optionsItem[props.valueKey] === item) {
         multipleOptions.value.push(optionsItem[props.labelKey])
       }
     })
   })
-
   checkAll.value = options.value.length == multipleOptions.value.length
 })
 
+/** 全选 */
 const handleCheckAll = (checked: boolean) => {
-  console.log(checked, 'checked')
   checkAll.value = checked
+  let seletItem = multipleIndex.value.findIndex((item: any) => item)
+  if (seletItem == -1) {
+    multipleIndex.value = options.value.map((item: any) => item.value)
+  } else {
+    multipleIndex.value = []
+  }
   if (checked) {
     options.value.forEach((item: any) => {
       multipleIndex.value.push(item[props.valueKey])
@@ -214,27 +204,14 @@ const handleCheckAll = (checked: boolean) => {
     multipleOptions.value = []
   }
 }
+
 /** 删除多选选项 */
 const removeMultipleOption = item => {
-  console.log(item, 'item')
-  console.log(multipleIndex.value, ' multipleIndex.value')
-
-  console.log(multipleIndex.value.indexOf(item[props.valueKey]), '1')
   // 删除数组中的元素
   let delementElement = options.value.filter(itemList => {
     return item == itemList[props.labelKey]
   })
-  console.log(delementElement, 'delementElement')
-
   delementElement &&
     multipleIndex.value.splice(multipleIndex.value.indexOf(delementElement[0]![props.valueKey]), 1)
-
-  // multipleIndex.value.splice(index, 1)
-  // multipleOptions.value.splice(index, 1)
 }
-
-/** 点击外部隐藏选项列表 */
-// const handleToggleOptions = () => {
-//   showOptions.value = false
-// }
 </script>

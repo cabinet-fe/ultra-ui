@@ -4,12 +4,13 @@
       <h2>单选</h2>
       <u-select
         :model-value="singleValue"
-        :options="options"
+        :options="singleOptions"
         label-key="codeAndLabel"
         value-key="deptId"
+        @update:model-value="handleSingleChange"
       ></u-select>
     </div>
-    <!-- <div>
+    <div>
       <h2>多选</h2>
       <u-select
         multiple
@@ -19,13 +20,44 @@
         value-key="deptId"
         @update:model-value="onChange"
       />
-    </div> -->
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-const singleValue = ref('')
+const singleValue = ref('1701050425886236672')
+const singleOptions = ref([
+  {
+    label: '交科院',
+    value: '1',
+    code: '88',
+    codeAndLabel: '88 交科院',
+    defaultTravelPlace: '12-1201-1201015',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236672'
+  },
+  {
+    label: '相城开发区',
+    value: '2',
+    codeAndLabel: '99 相城开发区',
+    defaultTravelPlace: '13-1201-1201014',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236673'
+  },
+  {
+    label: '杜桥镇人民政府',
+    value: '3',
+    codeAndLabel: '77 杜桥镇人民政府',
+    defaultTravelPlace: '14-1201-1201013',
+    defaultTravelPlaceName: '天津市-市辖区-和平区',
+    deptId: '1701050425886236674'
+  }
+])
+const handleSingleChange = item => {
+  console.log(item, 'handleSingleChange')
+  singleValue.value = item.label
+}
 
 const multipleValue = ref<any>(['1701050425886236672', '1701050425886236674'])
 
@@ -86,6 +118,7 @@ const onChange = (val: any) => {
   & > div {
     padding: 10px 0;
     box-sizing: border-box;
+    margin-bottom: 30px;
   }
 }
 </style>

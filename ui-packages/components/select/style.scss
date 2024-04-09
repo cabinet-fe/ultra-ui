@@ -76,11 +76,9 @@ $root-name: select;
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: #fff;
-    border: fn.use-var(border);
-
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-    display: none; /* 默认不显示选项列表 */
+    // background-color: #fff;
+    // border: fn.use-var(border);
+    // box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
     max-height: 200px;
     overflow-y: auto;
     li {
