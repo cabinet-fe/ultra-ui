@@ -48,7 +48,7 @@ const showMsg = () => {
     },
     button: '确定',
     onClick: (vm) => {
-      console.log(vm)
+      console.log('click')
     }
   })
 }

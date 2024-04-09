@@ -52,7 +52,7 @@ const createWrapper = () => {
       position: 'fixed',
       right: '20px',
       bottom: '20px',
-      textAlign: 'center',
+      textAlign: 'center'
     })
     wrapper.addEventListener('mouseenter', (e: MouseEvent) => {
       console.log('enter', e.target)
@@ -63,7 +63,7 @@ const createWrapper = () => {
         let height = 0
         for (let i = length.value; i > 0; i--) {
           if (i === length.value) {
-            width = notificationQueue.value[i - 1]!.vm.el?.offsetWidth
+            width = notificationQueue.value[i - 1]!.vm.el?.offsetWidth + 8
           }
           notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
           offset += notificationQueue.value[i - 1]!.vm.el?.offsetHeight / 2 + 5
@@ -92,7 +92,6 @@ const createWrapper = () => {
           innerCount++
         }
         e.target.style.height = `${height}px`
-
       } else {
         e.target.style.removeProperty('height')
         e.target.style.removeProperty('overflow')

@@ -19,6 +19,8 @@ $root-name: notification;
   transition: opacity 0.3s, transform 0.4s, top 0.4s;
   border: fn.use-var(border);
   background-color: #fff;
+  box-shadow: fn.use-var(shadow);
+  margin: 4px;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
