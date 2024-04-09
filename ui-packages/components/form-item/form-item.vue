@@ -9,6 +9,7 @@
 
     <section :class="[cls.e('content'), bem.is('error', !!errorTips)]">
       <slot />
+
       <section v-if="showTips" :class="cls.e('tips')">
         <transition name="form-item-tips" mode="out-in">
           <span :class="cls.em('tips', 'error')" v-if="!!errorTips">{{

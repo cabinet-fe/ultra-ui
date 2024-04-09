@@ -1,5 +1,5 @@
 <template>
-  <u-table :data="rows" :columns="finalColumns">
+  <u-table :data="rows" :columns="finalColumns" :class="cls.b">
     <template
       v-for="item of finalColumns.filter(columnsItem => !!columnsItem.key)"
       v-slot:[`column:${item.key}`]="{ val, model, rowData, row }"
@@ -19,7 +19,7 @@
       <template v-else-if="item.key === 'operation' && !disabled">
         <button-common-props tag="span">
           <u-button
-            :class="cls.m('interval')"
+            :class="cls.e('interval')"
             :icon="Delete"
             type="primary"
             @click="handleDelRows(row.index)"
@@ -42,10 +42,12 @@
       v-for="item of finalColumns.filter(columnsItem => !!columnsItem.key)"
       v-slot:[`header:${item.key}`]="{ column }"
     >
-      <Tip v-model="column.name" />
-
       <div>
-        {{ column.name }}
+        <span>{{ getTipErrors(column.key) }}</span>
+
+        <span :class="bem.is('error', !!getTipErrors(column.key))">{{
+          column.name
+        }}</span>
         <span style="color: red" v-if="column.value.rules?.required"> *</span>
       </div>
     </template>
@@ -58,14 +60,13 @@ import type { ButtonProps } from '@ui/types/components/button'
 import UTable from '../table/table.vue'
 import { computed, ref, shallowRef, useSlots, watch } from 'vue'
 import nodeRender from '../node-render/node-render'
-import { wrapDataRows } from './row-forms'
+import { useRowForm } from './use-row-form'
 import { Delete, DocumentAdd } from 'icon-ultra'
 import { UButton } from '../button'
 import { bem } from '@ui/utils'
 import { useComponentProps } from '@ui/compositions'
 import { useOperation } from './use-operation'
 import { Validator } from '@ui/utils'
-import Tip from '../tip/tip.vue'
 
 /** 接收的参数 */
 const props = defineProps<RowFormProps<T>>()
@@ -106,7 +107,13 @@ const finalColumns = computed(() => {
     : [...props.columns, { name: '操作', key: 'operation' }]
 })
 
+const getRowFormSlotsNodes = (key: string, options: Option) => {
+  return useSlots()!['column:' + key]?.({ ...options })
+}
+
 const data = defineModel<T[]>({ required: true })
+
+const { wrapDataRows } = useRowForm()
 
 const { insetTo, delRows } = useOperation()
 
@@ -115,7 +122,11 @@ let rows = shallowRef<T[]>([])
 watch(
   data,
   val => {
-    rows.value = wrapDataRows(val) as T[]
+    if (val.length === 0) {
+      rows.value = wrapDataRows([{}]) as T[]
+    } else {
+      rows.value = wrapDataRows(val) as T[]
+    }
   },
   { immediate: true }
 )
@@ -134,12 +145,15 @@ const handleClick = (e: Event, index: number) => {
 
 /** 失去焦点 */
 const handleBlurEvent = (e: Event) => {
-  /** 最后一条失去焦点就新增一条 */
-  if (rows.value.length - 1 === obj.clickIndex.value) {
+  /** 数组最后一条如果为空那就添加一条数据 */
+  if (
+    rows.value.length - 1 === obj.clickIndex.value &&
+    Object.keys(rows.value[rows.value.length - 1] as T).length !== 0
+  ) {
     rows.value = insetTo(rows.value, obj.clickIndex.value) as T[]
     data.value = rows.value
   }
-
+  validate()
   /** 结束时候清除事件 */
   e.target?.removeEventListener('blur', handleBlurEvent)
   e.target?.removeEventListener('input', handleInputEvent)
@@ -158,16 +172,11 @@ const handleDelRows = (index: number) => {
   rows.value = delRows(rows.value, [index]) as T[]
 }
 
-const getRowFormSlotsNodes = (key: string, options: Option) => {
-  return useSlots()!['column:' + key]?.({ ...options })
-}
-
 /** 获取数据 */
 const getValue = () => {
-  // 复制原数组
   const newArray: any[] = [...rows.value]
 
-  // 判断最后一项是否为空对象,如果空就移除
+  // 最后一项是否为空对象,如果空就移除
   if (
     newArray.length > 0 &&
     Object.keys(newArray[newArray.length - 1]).length === 0
@@ -178,8 +187,15 @@ const getValue = () => {
   return newArray
 }
 
+/** 错误信息 */
+let errors = ref(new Map())
+
+let tipErrors = ref()
+
 /** 校验 */
 const validate = async () => {
+  errors.value.clear()
+
   const rules = {}
 
   finalColumns.value.forEach(item => {
@@ -190,20 +206,22 @@ const validate = async () => {
 
   const validator = new Validator(rules)
 
-  let errors = new Map()
-
   const data = getValue()
 
   for (const item of data) {
     const validateResult = await validator.validate(item)
     for (const field in validateResult) {
-      errors.set(field, validateResult[field])
+      errors.value.set(field, validateResult[field])
     }
   }
 
-  if (errors.size > 0) return false
+  if (errors.value.size > 0) return false
 
   return true
+}
+
+const getTipErrors = (key: string) => {
+  return (tipErrors.value = errors.value.get(key)?.[0])
 }
 
 defineExpose({

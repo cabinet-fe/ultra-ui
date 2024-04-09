@@ -80,4 +80,6 @@ export * from './steps'
 
 export * from './message'
 
+export * from './loading'
+
 export * from './notification'

@@ -1,6 +1,7 @@
 <template>
   <div :class="cls.b">
     <UNodeRender
+      :class="bem.is('disabled', disabled)"
       :content="renderTrigger()"
       ref="dropdownRef"
       @mouseenter="handleMouseEnter"
@@ -38,6 +39,7 @@ import vClickOutside from "@ui/directives/click-outside"
 import {isBottomInViewport} from "../tip/viewport"
 import {UNodeRender} from "../node-render"
 import Scroll from "../scroll/scroll.vue"
+import { useFallbackProps } from "@ui/compositions"
 defineOptions({
   name: "Dropdown",
 })
@@ -45,6 +47,10 @@ defineOptions({
 const props = withDefaults(defineProps<DropdownProps>(), {
   trigger: "hover",
   mouseEnterable: true,
+})
+
+const {disabled} = useFallbackProps([props], {
+  disabled: false
 })
 
 const cls = bem("dropdown")
@@ -126,6 +132,7 @@ const close = () => {
 
 /**展示弹窗 */
 const displayPopups = () => {
+  if(disabled.value) return
   clearTimeout(timers.get("mouseEnter"))
   timers.set(
     "mouseEnter",
