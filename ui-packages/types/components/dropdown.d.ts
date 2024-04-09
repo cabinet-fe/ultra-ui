@@ -16,6 +16,12 @@ export interface DropdownProps {
    * 最小宽度
    */
   minWidth?: string
+  /**
+   * 内容容器标签
+   */
+  contentTag?: string
+  /** 内容容器类 */
+  contentClass?: string
 }
 
 /** 下拉框组件定义的事件 */

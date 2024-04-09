@@ -5,9 +5,10 @@
 
   <Teleport to="body">
     <transition name="slide">
-      <div
+      <component
+        :is="contentTag"
         v-if="visible"
-        :class="cls.e('content')"
+        :class="[cls.e('content'), contentClass]"
         ref="scrollRef"
         :style="popupFinalStyle"
         @mouseenter="eventsHandlers.onMouseenter"
@@ -15,7 +16,7 @@
         v-click-outside="close"
       >
         <slot name="content" />
-      </div>
+      </component>
     </transition>
   </Teleport>
 </template>
@@ -33,7 +34,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<DropdownProps>(), {
   trigger: 'hover',
-  mouseEnterable: true
+  contentTag: 'div'
 })
 
 const cls = bem('dropdown')
