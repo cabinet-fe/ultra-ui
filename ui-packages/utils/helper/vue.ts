@@ -13,17 +13,13 @@ export function isTextNode(node: VNode): node is TextVNode {
   return node.type === Text
 }
 
-interface FragmentVNode extends VNode {
-  children: string
-}
-
 /**
  * 是否为片段
  * @param node
  * @returns
  */
-export function isFragment(node: VNode): node is FragmentVNode {
-  return node.type === Fragment
+export function isFragment(node: any): node is VNode {
+  return node && node.type === Fragment
 }
 
 interface CommentVNode extends VNode {
