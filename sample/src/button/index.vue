@@ -40,7 +40,7 @@
     <!-- loading -->
     <div class="space">
       <div>加载</div>
-      <u-button loading>默认</u-button>
+      <u-button loading :loadingIcon="Refresh">默认</u-button>
       <u-button loading type="primary">主题</u-button>
       <u-button loading type="success">成功</u-button>
       <u-button loading type="warning">警告</u-button>
@@ -68,11 +68,22 @@
       <u-button plain disabled type="danger">危险</u-button>
       <u-button plain disabled type="info">信息</u-button>
     </div>
+
+    <!-- text -->
+    <div class="space">
+      <div>text</div>
+      <u-button text>默认</u-button>
+      <u-button text type="primary">主题</u-button>
+      <u-button text type="success">成功</u-button>
+      <u-button text type="warning">警告</u-button>
+      <u-button text type="danger">危险</u-button>
+      <u-button text type="info">信息</u-button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Edit } from 'icon-ultra'
+import { Edit,Refresh } from 'icon-ultra'
 import { bem } from 'ultra-ui'
 import { shallowRef } from 'vue'
 

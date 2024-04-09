@@ -2,6 +2,8 @@ export * from './dom/class-name'
 
 export * from './dom/highlight'
 
+export * from './dom/position'
+
 export * from './dom/style'
 
 export * from './dom/z-index'

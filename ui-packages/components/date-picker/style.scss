@@ -1,0 +1,26 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: date-picker;
+
+@include m.b($root-name) {
+
+  @include m.e(panel) {
+    max-height: 400px;
+  }
+
+  @include m.e(days) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  @include m.e(day) {
+    height: 38px;
+    line-height: 38px;
+    cursor: pointer;
+    text-align: center;
+
+  }
+}

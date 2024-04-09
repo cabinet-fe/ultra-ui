@@ -1,33 +1,54 @@
-import type {DirectiveBinding} from "vue"
+import { createIncrease } from '@ui/utils'
+import { shallowReactive, watch, type ObjectDirective } from 'vue'
 
-const ClickOutside = {
-  beforeMount(el: HTMLElement, binding: DirectiveBinding) {
-    // 在元素上添加鼠标按下事件监听器
-    const handleClick = (event: MouseEvent) => {
-      // 获取点击目标元素
-      const target = event.target as Node;
-      
-      // 判断点击目标是否为当前绑定的元素或其子元素
-      if (el.contains(target) || el === target) {
-        return;
-      }
-      
-      // 执行传入的处理函数
-      binding.value();
-    }
+const uid = createIncrease(1000)
+const targets = shallowReactive(
+  new Map<string, { handler: () => void; el: HTMLElement }>()
+)
 
-    // 监听全局点击事件
-    document.addEventListener("click", handleClick);
+const documentClickHandler = (event: MouseEvent) => {
+  targets.forEach(({ el, handler }) => {
+    el.contains(event.target as Node) || handler()
+  })
+}
 
-    // 将处理函数保存在元素上，以便在 unmounted 时移除监听器
-    el._clickOutsideHandler = handleClick;
+let eventAdded = false
+
+function addEvent() {
+  if (eventAdded) return
+  document.addEventListener('click', documentClickHandler)
+  eventAdded = true
+}
+
+function removeEvent() {
+  if (!eventAdded) return
+  document.removeEventListener('click', documentClickHandler)
+  eventAdded = false
+}
+
+watch(targets, async targets => {
+  if (targets.size > 0) {
+    return addEvent()
+  }
+  removeEvent()
+})
+
+const ClickOutside: ObjectDirective<HTMLElement> = {
+  mounted(el, binding) {
+    const id = String(uid())
+    el.dataset.outsideId = id
+
+    setTimeout(() => {
+      targets.set(id, {
+        handler: binding.value,
+        el
+      })
+    })
   },
 
   unmounted(el: HTMLElement) {
-    // 移除全局点击事件的监听器
-    document.removeEventListener("click", el._clickOutsideHandler);
-  },
+    targets.delete(el.dataset.outsideId!)
+  }
 }
 
 export default ClickOutside
-

@@ -28,7 +28,7 @@ import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
-  duration: 0,
+  duration: 4500,
   closable: false
 })
 
@@ -39,19 +39,16 @@ const showMsg = () => {
   Notification({
     title: `${count.value}-Event has been created`,
     message:
-      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, ',
+      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AM',
     type: config.type,
     duration: config.duration,
     closable: config.closable,
-    onClose: (vm) => {
-      console.log(123, vm)
-    },
+    onClose: (vm) => {},
     button: '确定',
-    onClick: (vm) => {
-      console.log(111, vm)
-    }
+    onClick: (vm) => {}
   })
 }
+
 </script>
 
 <style lang="scss" scoped>

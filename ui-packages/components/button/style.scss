@@ -30,7 +30,7 @@
     padding: 0 1em;
 
     @include m.is(circle) {
-      width:fn.use-var(form-component-height, $size);
+      width: fn.use-var(form-component-height, $size);
     }
   }
 
