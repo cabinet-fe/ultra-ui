@@ -33,7 +33,8 @@ $root-name: select;
   @include m.e('input') {
     width: 240px;
     height: fn.use-var(form-component-height-default);
-    display: block;
+    display: flex;
+    justify-content: space-between;
     padding: 10px 10px;
     // box-sizing: border-box;
     border: fn.use-var(border);

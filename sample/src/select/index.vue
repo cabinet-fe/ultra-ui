@@ -8,6 +8,7 @@
         label-key="codeAndLabel"
         value-key="deptId"
         @update:model-value="handleSingleChange"
+        clearable
       ></u-select>
     </div>
     <div>

@@ -48,7 +48,12 @@
       <UDropdown trigger="click">
         <template #trigger>
           <div :class="[cls.e('input')]">
-            <span>{{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}</span>
+            <span>
+              {{ labelKey ? selectedOption[`${labelKey}`] : selectedOption.label }}
+            </span>
+            <UIcon v-if="clearable" @click="handleClear">
+              <CircleClose />
+            </UIcon>
           </div>
         </template>
 
@@ -78,8 +83,10 @@ import { bem } from '@ui/utils'
 
 import { UTag } from '../tag'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { UCheckbox, type Val } from '..'
+import { UCheckbox, UIcon, type Val } from '..'
 import { UDropdown } from '..'
+
+import { CircleClose } from 'icon-ultra'
 
 defineOptions({
   name: 'Select'
@@ -213,5 +220,11 @@ const removeMultipleOption = item => {
   })
   delementElement &&
     multipleIndex.value.splice(multipleIndex.value.indexOf(delementElement[0]![props.valueKey]), 1)
+}
+
+const handleClear = () => {
+  console.log(selectedOption.value)
+  selectedOption.value = {}
+  selectedIndex.value = -1
 }
 </script>
