@@ -28,7 +28,7 @@ import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
-  duration: 0,
+  duration: 4500,
   closable: false
 })
 
@@ -48,7 +48,7 @@ const showMsg = () => {
     },
     button: '确定',
     onClick: (vm) => {
-      console.log(vm)
+      console.log('click')
     }
   })
 }

@@ -19,6 +19,8 @@ $root-name: notification;
   transition: opacity 0.3s, transform 0.4s, top 0.4s;
   border: fn.use-var(border);
   background-color: #fff;
+  box-shadow: fn.use-var(shadow);
+  margin: 4px;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
@@ -30,6 +32,7 @@ $root-name: notification;
       max-width: 400px;
       word-wrap: break-word;
       margin-left: fn.use-var(gap, $size);
+      text-align: left;
       &--title {
         font-size: fn.use-var('font-size', title, $size);
         font-weight: bold;
