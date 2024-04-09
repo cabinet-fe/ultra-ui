@@ -1,7 +1,8 @@
 import { isArray } from 'cat-kit/fe'
-import { wrapDataRows } from './row-forms'
+import { useRowForm } from './use-row-form'
 
 export const useOperation = () => {
+  const { wrapDataRows } = useRowForm()
   /** 插入
    * @param arr 要插入行的数组
    * @param indexes 要插入的行的索引数组

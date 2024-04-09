@@ -8,7 +8,7 @@
       <u-button @click="toggleColumns" style="margin-right: 10px"
         >切换columns</u-button
       >
-      <u-button @click="addInfo">添加数据</u-button>
+      <u-button @click="addInfo" style="margin-right: 10px">添加数据</u-button>
 
       <u-button @click="handleValidate">校验</u-button>
 
@@ -28,7 +28,7 @@
         </template>
       </u-row-form>
 
-      <u-row-form ref="rowFormRef" :columns="columns" v-model="modelValue">
+      <u-row-form ref="rowFormRef2" :columns="columns" v-model="modelValue">
         <template #column:dd="{ model }">
           <u-input v-bind="model" />
         </template>
@@ -45,7 +45,7 @@
       <div style="margin-top: 10px">
         禁用
         <u-row-form
-          ref="rowFormRef"
+          ref="rowFormRef3"
           :columns="columns"
           v-model="modelValue"
           disabled
@@ -86,14 +86,16 @@
 </template>
 <script lang="ts" setup>
 import { defineRowFormColumns } from 'ultra-ui'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { shallowRef } from 'vue'
 
 const rowFormRef = shallowRef()
+const rowFormRef2 = shallowRef()
+const rowFormRef3 = shallowRef()
 
 let columns = defineRowFormColumns([
   { key: 'dd', name: '1', rules: { required: true } },
-  { key: 'ff', name: '2' },
+  { key: 'ff', name: '2', rules: { required: true } },
   { key: 'gg', name: '3' },
   { key: 'kk', name: '4' }
 ])
@@ -111,6 +113,14 @@ let modelValue = shallowRef([
     ll: 123123,
     gg: '测试不写插槽',
     kk: '新年好'
+  }
+])
+
+let modelValue2 = shallowRef([
+  {
+    dd: '第一条2222',
+    ff: 's'
+    // children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
   }
 ])
 
@@ -146,7 +156,11 @@ const addInfo = () => {
 
 /** 校验 */
 const handleValidate = async () => {
-  console.log(await rowFormRef.value.validate())
+  console.log(
+    await rowFormRef.value.validate(),
+    await rowFormRef2.value.validate(),
+    await rowFormRef3.value.validate()
+  )
 }
 
 onMounted(() => {
