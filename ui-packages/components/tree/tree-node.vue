@@ -3,19 +3,20 @@
     <u-icon v-if="showExpandIcon" :class="expandClass" @click="toggleExpand">
       <CaretRight />
     </u-icon>
-    <i v-else style="display: inline-block; width: 14px; height: 14px"></i>
 
-    {{ node.value[treeProps.labelKey!] }}
+    <i v-else style="display: inline-block; width: 14px; height: 14px" />
+
+    {{ nodeRef.value[treeProps.labelKey!] }}
   </div>
-  <template v-if="node.children && node.expanded">
-    <UTreeNode v-for="child of node.children" :node="child" />
+  <template v-if="nodeRef.children && nodeRef.expanded">
+    <UTreeNode v-for="child of nodeRef.children" :node="child" />
   </template>
 </template>
 
 <script lang="ts" setup generic="Val extends Record<string, any>">
 import { CustomTreeNode } from './tree-node'
 import { TreeDIKey } from './di'
-import { computed, inject } from 'vue'
+import { computed, inject, shallowReactive } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
@@ -29,6 +30,8 @@ const props = defineProps<{
   node: CustomTreeNode<Val>
 }>()
 
+const nodeRef = shallowReactive(props.node)
+
 const { treeProps, cls } = inject(TreeDIKey)!
 
 const style = computed(() => {
@@ -39,14 +42,15 @@ const style = computed(() => {
 
 const showExpandIcon = computed(() => {
   const { node } = props
+
   return !node.isLeaf
 })
 
 const expandClass = computed(() => {
-  return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
+  return [cls.e('expand-icon'), bem.is('expanded', nodeRef.expanded)]
 })
 
 const toggleExpand = () => {
-  props.node.expanded = !props.node.expanded
+  nodeRef.expanded = !nodeRef.expanded
 }
 </script>

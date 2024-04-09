@@ -1,16 +1,16 @@
 <template>
   <div :class="cls.b">
-    <UTreeNode v-for="node of tree.children" :node="node" />
+    <UTreeNode v-for="node of tree.nodes" :node="node" />
   </div>
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
 import type { TreeProps } from '@ui/types/components/tree'
-import { computed, provide, shallowReactive } from 'vue'
+import { computed, provide } from 'vue'
 import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'
-import { Tree } from 'cat-kit/fe'
+import { Forest } from 'cat-kit/fe'
 import { CustomTreeNode } from './tree-node'
 
 defineOptions({
@@ -20,27 +20,18 @@ defineOptions({
 const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   labelKey: 'label',
   valueKey: 'value',
-  childrenKey: 'children'
+  childrenKey: 'child'
 })
 
 const cls = bem('tree')
 
 const tree = computed(() => {
-  const root = Tree.create(
-    {
-      [props.childrenKey]: props.data
-    } as DataItem,
-    (v, index, parent) => {
-      return shallowReactive(new CustomTreeNode(v, index, parent))
-    }
-  )
-  return root
+  console.log(Forest.create(props.data, CustomTreeNode).nodes, 'nodes')
+  return Forest.create(props.data, CustomTreeNode)
 })
 
-
 provide(TreeDIKey, {
-  // @ts-ignore
-  treeProps: props,
+  treeProps: props as TreeProps<Record<string, any>>,
   cls
 })
 </script>

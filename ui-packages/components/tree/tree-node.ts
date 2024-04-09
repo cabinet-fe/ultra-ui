@@ -1,5 +1,4 @@
 import { TreeNode } from 'cat-kit/fe'
-// import { reactive } from 'vue'
 
 export class CustomTreeNode<
   Val extends Record<string, any>
@@ -13,17 +12,19 @@ export class CustomTreeNode<
   loading = false
   loaded = false
 
-  // props = reactive({
-  //   visible: true,
-  //   expanded: true,
-  //   loading: false,
-  //   loaded: false
-  // })
-
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
     if (parent) {
       this.parent = parent
     }
+
+    console.log(this.children, 'children')
+  }
+
+  createNode<Val extends Record<string, any>>(
+    val: Val,
+    index: number
+  ): TreeNode<Val> {
+    return new CustomTreeNode(val, index)
   }
 }
