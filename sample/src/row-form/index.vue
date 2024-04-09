@@ -100,21 +100,7 @@ let columns = defineRowFormColumns([
   { key: 'kk', name: '4' }
 ])
 
-let modelValue = shallowRef([
-  {
-    dd: '第一条2222',
-    ff: 's'
-    // children: [{ dd: '树形结构', ff: '123123', ll: '1223', gg: '123' }]
-  },
-  { dd: '第二条', ff: '123213' },
-  {
-    dd: '第三条',
-    ff: '123213',
-    ll: 123123,
-    gg: '测试不写插槽',
-    kk: '新年好'
-  }
-])
+let modelValue = shallowRef([])
 
 let modelValue2 = shallowRef([
   {

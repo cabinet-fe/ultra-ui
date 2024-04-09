@@ -119,7 +119,12 @@ let rows = shallowRef<T[]>([])
 watch(
   data,
   val => {
-    rows.value = wrapDataRows(val) as T[]
+    if (val.length === 0) {
+      rows.value = wrapDataRows([{}]) as T[]
+    } else {
+      rows.value = wrapDataRows(val) as T[]
+    }
+
   },
   { immediate: true }
 )
