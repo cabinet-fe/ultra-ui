@@ -3,7 +3,7 @@
     <div style="height: 80vh"></div>
 
     <div style="display: flex; justify-content: space-between">
-      <u-dropdown>
+      <u-dropdown disabled>
         <template #trigger>
           <u-button>dropdown-hover</u-button>
         </template>

@@ -27,7 +27,12 @@ $root-name: dropdown;
         }
     }
 
-    @include m.e(scroll){
+    @include m.is(disabled) {
+        cursor: not-allowed;
+        color: fn.use-var(text-color, second);
+    }
+
+    @include m.e(scroll) {
         max-height: 200px;
     }
 

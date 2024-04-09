@@ -6,6 +6,8 @@ export interface DropdownProps {
   mouseEnterable?: boolean
   /**超出触发器 */
   maxContent?:boolean
+  /** 是否禁用 */
+  disabled?: boolean
 }
 
 /** 下拉框组件定义的事件 */
