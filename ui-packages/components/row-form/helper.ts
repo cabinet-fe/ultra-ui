@@ -31,8 +31,6 @@ export function defineRowFormColumns(
   return shallowRef(columnsMap)
 }
 
-// type ColumnPreset = ''
-
 interface Conf {
   /** 没有指定宽度的列的默认的宽度 */
   width?: number

@@ -107,12 +107,15 @@ const finalColumns = computed(() => {
     : [...props.columns, { name: '操作', key: 'operation' }]
 })
 
+const getRowFormSlotsNodes = (key: string, options: Option) => {
+  return useSlots()!['column:' + key]?.({ ...options })
+}
+
 const data = defineModel<T[]>({ required: true })
 
 const { wrapDataRows } = useRowForm()
 
 const { insetTo, delRows } = useOperation()
-
 
 let rows = shallowRef<T[]>([])
 
@@ -124,14 +127,9 @@ watch(
     } else {
       rows.value = wrapDataRows(val) as T[]
     }
-
   },
   { immediate: true }
 )
-
-const getRowFormSlotsNodes = (key: string, options: Option) => {
-  return useSlots()!['column:' + key]?.({ ...options })
-}
 
 let obj = {
   /** 当前操作的索引 */
@@ -147,8 +145,11 @@ const handleClick = (e: Event, index: number) => {
 
 /** 失去焦点 */
 const handleBlurEvent = (e: Event) => {
-  /** 最后一条失去焦点就新增一条 */
-  if (rows.value.length - 1 === obj.clickIndex.value) {
+  /** 数组最后一条如果为空那就添加一条数据 */
+  if (
+    rows.value.length - 1 === obj.clickIndex.value &&
+    Object.keys(rows.value[rows.value.length - 1] as T).length !== 0
+  ) {
     rows.value = insetTo(rows.value, obj.clickIndex.value) as T[]
     data.value = rows.value
   }
@@ -173,10 +174,9 @@ const handleDelRows = (index: number) => {
 
 /** 获取数据 */
 const getValue = () => {
-  // 复制原数组
   const newArray: any[] = [...rows.value]
 
-  // 判断最后一项是否为空对象,如果空就移除
+  // 最后一项是否为空对象,如果空就移除
   if (
     newArray.length > 0 &&
     Object.keys(newArray[newArray.length - 1]).length === 0
