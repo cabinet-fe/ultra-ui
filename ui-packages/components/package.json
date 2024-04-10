@@ -10,15 +10,14 @@
     "@ui/shared": "workspace:*",
     "@ui/styles": "workspace:*",
     "@ui/directives": "workspace:*",
-    "@ui/types": "workspace:*",
-    "@floating-ui/dom": "^1.6.3"
+    "@ui/types": "workspace:*"
   },
   "scripts": {
     "ui:dts": "pnpm vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.json --outDir ./dist",
     "type-check": "pnpm vue-tsc --noEmit"
   },
   "devDependencies": {
-    "icon-ultra": "^2.1.5"
+    "icon-ultra": "^3.0.1"
   },
   "exports": {
     ".": "./index.ts",

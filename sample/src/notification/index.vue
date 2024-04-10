@@ -12,6 +12,16 @@
         ]"
         v-model="config.type"
       />
+      <u-radio-group
+        radioType="btn"
+        :items="[
+          { label: 'bottom-right', value: 'bottom-right' },
+          { label: 'bottom-left', value: 'bottom-left' },
+          { label: 'top-right', value: 'top-right' },
+          { label: 'top-left', value: 'top-left' },
+        ]"
+        v-model="config.position"
+      />
       <u-number-input v-model="config.duration" :step="1000" :min="0"></u-number-input>
       <u-checkbox v-model="config.closable">closable</u-checkbox>
     </div>
@@ -28,8 +38,9 @@ import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
-  duration: 4500,
-  closable: false
+  duration: 0,
+  closable: false,
+  position: 'bottom-right'
 })
 
 let count = ref(0)
@@ -45,7 +56,8 @@ const showMsg = () => {
     closable: config.closable,
     onClose: (vm) => {},
     button: '确定',
-    onClick: (vm) => {}
+    onClick: (vm) => {},
+    position: config.position as any
   })
 }
 

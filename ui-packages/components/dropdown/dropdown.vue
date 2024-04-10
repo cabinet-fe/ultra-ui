@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.b" v-bind="eventsHandlers" ref="dropdownRef">
+  <div :class="cls.b" v-bind="{ ...eventsHandlers, ...$attrs }" ref="dropdownRef">
     <slot name="trigger" />
   </div>
 

@@ -4,8 +4,11 @@
 
 $root-name: select;
 @include m.b($root-name) {
+  width: 100%;
+
+  min-height: 30px;
   position: relative;
-  padding: 10px 10px;
+  // padding: 10px 10px;
   box-sizing: border-box;
 
   @include m.size using ($size) {
@@ -31,12 +34,12 @@ $root-name: select;
   }
 
   @include m.e('input') {
-    width: 240px;
+    // width: 240px;
+    width: 100%;
     height: fn.use-var(form-component-height-default);
     display: flex;
     justify-content: space-between;
     padding: 10px 10px;
-    // box-sizing: border-box;
     border: fn.use-var(border);
     border-radius: fn.use-var(radius-default);
     &:hover {
@@ -46,7 +49,8 @@ $root-name: select;
   }
 
   @include m.e('input-multiple') {
-    width: 240px;
+    // width: 240px;
+    width: 100%;
     min-height: 30px;
     padding: 10px 10px;
     border: fn.use-var(border);
@@ -99,5 +103,18 @@ $root-name: select;
 
   .showSelected {
     display: block;
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    height: 100%;
+    cursor: not-allowed;
+    @include m.bem($root-name, input-multiple) {
+      pointer-events: none;
+    }
+    @include m.bem($root-name, input) {
+      pointer-events: none;
+    }
   }
 }
