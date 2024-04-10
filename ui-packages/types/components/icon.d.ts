@@ -5,5 +5,7 @@ export type IconProps = {
   size?: `${number}px` | number
 }
 
+export interface IconEmits {}
+
 /** 图标组件暴露的对象 */
 export interface IconExposed {}

@@ -1,4 +1,5 @@
 import { TreeNode } from 'cat-kit/fe'
+import { shallowReactive } from 'vue'
 
 export class CustomTreeNode<
   Val extends Record<string, any>
@@ -8,17 +9,17 @@ export class CustomTreeNode<
   override children?: CustomTreeNode<Val>[] = undefined
 
   visible = true
-  expanded = true
+  expanded = false
   loading = false
   loaded = false
+  active = false
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
     if (parent) {
       this.parent = parent
     }
-
-    console.log(this.children, 'children')
+    return shallowReactive(this)
   }
 
   createNode<Val extends Record<string, any>>(

@@ -16,6 +16,8 @@ export interface TreeProps<
 > extends PropsWithServerQuery {
   /** 是否展开所有节点 */
   expandAll?: boolean
+  /** 是否在点击节点的时候展开或者收缩节点 */
+  expandOnClickNode?: boolean
   /** label键 */
   labelKey?: string
   /** value键 */
@@ -33,3 +35,14 @@ export interface TreeProps<
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
 }
+
+export interface TreeEmit {
+  (e: 'expand', node): void
+  (e: 'node-click', node): void
+}
+
+// /** 树组件节点的事件 */
+// export interface TreeNodeEmit<DataItem> {
+//   (e: 'node-click', node: CustomTreeNode<DataItem>): void
+//   (e: 'expand'): void
+// }
