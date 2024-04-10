@@ -2,17 +2,31 @@
   <div class="demoList">
     <div>
       <h2>单选</h2>
+      <p>设置 clearable 属性，可将选择器清空，默认 ture,只有单选中有</p>
       <u-select
         :model-value="singleValue"
         :options="singleOptions"
         label-key="codeAndLabel"
         value-key="deptId"
         @update:model-value="handleSingleChange"
-        clearable
-      ></u-select>
+      />
     </div>
+
+    <div>
+      <p>设置 disabled 属性，则整个选择器不可用</p>
+      <u-select
+        :model-value="singleValue"
+        :options="singleOptions"
+        label-key="codeAndLabel"
+        value-key="deptId"
+        @update:model-value="handleSingleChange"
+        disabled
+      />
+    </div>
+
     <div>
       <h2>多选</h2>
+      <p>设置 multiple 属性即可启用多选，此时 v-model 的值为当前选中值所组成的数组</p>
       <u-select
         multiple
         :model-value="multipleValue"
@@ -22,10 +36,27 @@
         @update:model-value="onChange"
       />
     </div>
+
     <div>
-      <h2>单选</h2>
+      <p>设置 collapse-tags属性启用折叠标签，boolean类型</p>
       <u-select
-        :model-value="multipleValue"
+        multiple
+        collapse-tags
+        :model-value="multipleValue2"
+        :options="options"
+        label-key="codeAndLabel"
+        value-key="deptId"
+        @update:model-value="onChange"
+      />
+    </div>
+
+    <div>
+      <p>设置 max-collapse-tags属性启用折叠标签，number类型; 需与 collapse-tags 一起使用</p>
+      <u-select
+        multiple
+        collapse-tags
+        :max-collapse-tags="2"
+        :model-value="multipleValue3"
         :options="options"
         label-key="codeAndLabel"
         value-key="deptId"
@@ -71,7 +102,8 @@ const handleSingleChange = item => {
 }
 
 const multipleValue = ref<any>(['1701050425886236672', '1701050425886236674'])
-
+const multipleValue2 = ref<any>([])
+const multipleValue3 = ref<any>([])
 const options = ref([
   {
     label: '交科院',
