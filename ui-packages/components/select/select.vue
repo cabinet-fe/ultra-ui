@@ -3,18 +3,50 @@
     <!-- 多选 -->
 
     <template v-if="props.multiple">
-      <UDropdown :class="[cls.e('dropdown')]" v-if="props.multiple" trigger="click">
+      <UDropdown
+        :class="[cls.e('dropdown')]"
+        v-if="props.multiple"
+        trigger="click"
+        :disabled="props.disabled"
+      >
         <template #trigger>
           <div :class="[cls.e('input-multiple')]">
-            <UTag
-              v-for="(item, index) in multipleOptions"
-              :key="index"
-              type="primary"
-              closable
-              @click.stop="removeMultipleOption(item)"
-            >
-              {{ item }}
-            </UTag>
+            <!-- 折叠标签 -->
+            <template v-if="props.collapseTags && multipleOptions.length > 0">
+              <!-- 最大折叠标签 -->
+              <template
+                v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
+              >
+                <template v-for="(item, index) in multipleOptions">
+                  <UTag
+                    type="primary"
+                    closable
+                    @click.stop="removeMultipleOption(item)"
+                    v-if="index < props.maxCollapseTags"
+                  >
+                    {{ item }}
+                  </UTag>
+                </template>
+
+                <UTag type="primary">+{{ multipleOptions.length }}</UTag>
+              </template>
+              <template v-else>
+                <UTag type="primary">{{ multipleOptions[0] }}</UTag>
+                <UTag type="primary">+{{ multipleOptions.length }}</UTag>
+              </template>
+            </template>
+
+            <template v-else>
+              <UTag
+                v-for="(item, index) in multipleOptions"
+                :key="index"
+                type="primary"
+                closable
+                @click.stop="removeMultipleOption(item)"
+              >
+                {{ item }}
+              </UTag>
+            </template>
           </div>
         </template>
         <template #content>
@@ -45,7 +77,7 @@
 
     <!-- 显示当前选中项 -->
     <template v-else>
-      <UDropdown trigger="click">
+      <UDropdown trigger="click" :disabled="props.disabled">
         <template #trigger>
           <div :class="[cls.e('input')]">
             <span>
@@ -96,7 +128,9 @@ const cls = bem('select')
 
 const props = withDefaults(defineProps<SelectProps>(), {
   labelKey: 'label',
-  valueKey: 'value'
+  valueKey: 'value',
+  clearable: true,
+  maxCollapseTags: 0
 })
 
 const emit = defineEmits<SelectEmits>()
@@ -108,7 +142,7 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
 })
 
 const classList = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
 })
 
 let labelKey = ref(props.labelKey)

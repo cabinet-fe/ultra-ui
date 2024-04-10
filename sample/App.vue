@@ -127,14 +127,4 @@ $width: 240px;
     padding: 10px;
   }
 }
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>

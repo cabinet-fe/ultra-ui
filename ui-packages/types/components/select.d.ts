@@ -19,6 +19,12 @@ export interface SelectProps extends FormComponentProps {
   multiple?: boolean
   /** 占位符 */
   placeholder?: string
+  /** 是否禁用 */
+  disabled?: boolean
+  /** 折叠标签 */
+  collapseTags?: boolean
+  /** 最大折叠标签 */
+  maxCollapseTags?: number | string
 }
 
 export interface SelectEmits {
