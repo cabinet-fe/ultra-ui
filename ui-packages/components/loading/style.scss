@@ -6,39 +6,26 @@
 $root-name: loading;
 
 @include m.b($root-name) {
-    @include m.flex($display: inline-flex, $align: center);
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background-color: fn.use-var(bg-color,top,alpha);
-    transform: rotate(360deg);
-    justify-content: center;
-    color: fn.use-var(color, primary);
+  @include m.flex($display: inline-flex, $align: center);
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: fn.use-var(bg-color, top, alpha);
+  transform: rotate(360deg);
+  justify-content: center;
+  color: fn.use-var(color, primary);
 
-    @include m.size using ($size) {
-        font-size: fn.use-var('font-size', title, $size);
-    }
+  @include m.size using ($size) {
+    font-size: fn.use-var('font-size', title, $size);
+  }
 
-    @include m.e(wrapper) {
-        text-align: center;
-    }
+  @include m.e(wrapper) {
+    text-align: center;
+  }
 
-    @include m.m(text) {
-        margin: 3px 0;
-    }
-}
-
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-    transition:
-        transform 0.25s,
-        opacity .3s;
+  @include m.m(text) {
+    margin: 3px 0;
+  }
 }

@@ -26,7 +26,7 @@
           />
 
           <u-button
-            :icon="DocumentAdd"
+            :icon="Plus"
             type="primary"
             @click="handleInsetToRows(row.index)"
           />
@@ -61,7 +61,7 @@ import UTable from '../table/table.vue'
 import { computed, ref, shallowRef, useSlots, watch } from 'vue'
 import nodeRender from '../node-render/node-render'
 import { useRowForm } from './use-row-form'
-import { Delete, DocumentAdd } from 'icon-ultra'
+import { Delete, Plus } from 'icon-ultra'
 import { UButton } from '../button'
 import { bem } from '@ui/utils'
 import { useComponentProps } from '@ui/compositions'
@@ -97,7 +97,8 @@ defineSlots<
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
   iconSize: 18,
-  loading: false
+  loading: false,
+  text: true
 })
 
 /** 表头 */

@@ -39,7 +39,7 @@
                 <Maximum />
               </u-icon>
               <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
-                <CloseBold />
+                <Close />
               </u-icon>
             </div>
           </section>
@@ -77,7 +77,7 @@ import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { CloseBold, Maximum, Recover } from 'icon-ultra'
+import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 import type { ComponentSize } from '@ui/types/component-common'
 

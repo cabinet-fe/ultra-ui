@@ -2,7 +2,7 @@
   <u-dropdown
     :class="cls.b"
     trigger="click"
-    min-width="300px"
+    min-width="260px"
     :content-class="cls.e('panel')"
   >
     <template #trigger>

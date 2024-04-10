@@ -17,8 +17,8 @@ $root-name: date-picker;
   }
 
   @include m.e(day) {
-    height: 38px;
-    line-height: 38px;
+    height: 32px;
+    line-height: 32px;
     cursor: pointer;
     text-align: center;
 
