@@ -47,23 +47,22 @@ const createWrapper = () => {
   } else {
     const wrapper = document.createElement('div')
     wrapper.id = 'notice_id'
-    console.log(notificationQueue.value[0]!.vm.el?.offsetHeight)
     Object.assign(wrapper.style, {
       position: 'fixed',
       right: '20px',
       bottom: '20px',
-      textAlign: 'center',
+      textAlign: 'center'
     })
     wrapper.addEventListener('mouseenter', (e: MouseEvent) => {
-      console.log('enter', e.target)
       if (length.value) {
         let innerCount = 0
         let offset = 0
         let width = 0
         let height = 0
         for (let i = length.value; i > 0; i--) {
+          notificationQueue.value[i - 1]!.vm.component!.exposed!.clearTimer()
           if (i === length.value) {
-            width = notificationQueue.value[i - 1]!.vm.el?.offsetWidth
+            width = notificationQueue.value[i - 1]!.vm.el?.offsetWidth + 8
           }
           notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
           offset += notificationQueue.value[i - 1]!.vm.el?.offsetHeight / 2 + 5
@@ -71,31 +70,31 @@ const createWrapper = () => {
           innerCount++
         }
 
-        Object.assign(e.target.style, {
+        Object.assign((e.target as HTMLElement).style, {
           width: `${width}px`,
           height: `${height}px`,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          transition: 'height 0.4s'
         })
       }
     })
     wrapper.addEventListener('mouseleave', (e: MouseEvent) => {
-      if (e.target.getAttribute('id') !== 'notice_id') return
       if (length.value) {
         let offset = 0
         let innerCount = 0
         let height = 0
         for (let i = length.value; i > 0; i--) {
+          notificationQueue.value[i - 1]!.vm.component!.exposed!.startTimer()
           if (i === length.value) height = notificationQueue.value[i - 1]!.vm.el?.offsetHeight + 80
-
           notificationQueue.value[i - 1]!.vm.component!.props.offset = offset
           if (innerCount < 2) offset += 10
           innerCount++
         }
-        e.target.style.height = `${height}px`
-
+        ; (e.target as HTMLElement).style.transition = 'height 0.45s'
+          ; (e.target as HTMLElement).style.height = `${height}px`
       } else {
-        e.target.style.removeProperty('height')
-        e.target.style.removeProperty('overflow')
+        ; (e.target as HTMLElement).style.removeProperty('height')
+          ; (e.target as HTMLElement).style.removeProperty('overflow')
       }
     })
     document.body.appendChild(wrapper)

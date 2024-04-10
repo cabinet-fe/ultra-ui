@@ -16,20 +16,27 @@ $root-name: notification;
   position: absolute;
   right: 0;
   bottom: 0;
-  transition: opacity 0.3s, transform 0.4s, top 0.4s;
+  transition:
+    opacity 0.3s,
+    transform 0.4s,
+    top 0.4s;
   border: fn.use-var(border);
   background-color: #fff;
+  box-shadow: fn.use-var(shadow);
+  margin: 4px;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
-    padding: map.get(vars.$gap, $size)*1.2;
+    padding: map.get(vars.$gap, $size) * 1.2;
 
-    @include m.bem($root-name, icon) {}
+    @include m.bem($root-name, icon) {
+    }
 
     @include m.bem($root-name, content) {
       max-width: 400px;
       word-wrap: break-word;
       margin-left: fn.use-var(gap, $size);
+      text-align: left;
       &--title {
         font-size: fn.use-var('font-size', title, $size);
         font-weight: bold;
@@ -60,10 +67,4 @@ $root-name: notification;
       color: fn.use-var(color, $type);
     }
   }
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translate(0, 100%);
 }

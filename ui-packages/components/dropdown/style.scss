@@ -6,105 +6,16 @@
 $root-name: dropdown;
 
 @include m.b($root-name) {
-    display: inline;
-    width: max-content;
-    position: relative;
-    cursor: default;
+  display: inline-block;
 
-    @include m.e('content') {
-        min-width: 10px;
-        position: absolute;
-        background: fn.use-var(bg, color-top);
-        border: fn.use-var(border);
-        border-radius: fn.use-var(radius, default);
-        opacity: 0;
-        box-shadow: fn.use-var(shadow);
-        padding: 4px 10px;
-
-
-        @include m.is(max-content) {
-            width: max-content;
-        }
-    }
-
-    @include m.is(disabled) {
-        cursor: not-allowed;
-        color: fn.use-var(text-color, second);
-    }
-
-    @include m.e(scroll) {
-        max-height: 200px;
-    }
-
-    /* 定义下拉动画 */
-    @keyframes down {
-        0% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        50% {
-            opacity: 0.5;
-            transform: translateY(-5px);
-        }
-
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* 定义下拉隐藏动画 */
-    @keyframes down-hide {
-        0% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        50% {
-            opacity: 0.5;
-            transform: translateY(-5px);
-        }
-
-        100% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-    }
-
-    /* 定义向上动画 */
-    @keyframes up {
-        0% {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        50% {
-            opacity: 0.5;
-            transform: translateY(5px);
-        }
-
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* 定义向上隐藏动画 */
-    @keyframes up-hide {
-        0% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        50% {
-            opacity: 0.5;
-            transform: translateY(5px);
-        }
-
-        100% {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-    }
+  @include m.e('content') {
+    position: absolute;
+    background: fn.use-var(bg, color-top);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    box-shadow: fn.use-var(shadow);
+    max-height: 200px;
+    top: 0;
+    left: 0;
+  }
 }

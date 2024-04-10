@@ -5,6 +5,21 @@
   @include m.e('node') {
     height: 24px;
     @include m.flex($align: center);
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
+    &:active {
+      border: 1px solid fn.use-var(color, light-7);
+      transition:
+        background-color 0.2s,
+        color 0.2s,
+        border-color 0.2s,
+        box-shadow 0.2s,
+        outline-color 0.2s;
+    }
   }
 
   @include m.e('expand-icon') {

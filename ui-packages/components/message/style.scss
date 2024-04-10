@@ -13,21 +13,25 @@ $root-name: message;
   left: 50%;
   top: 20px;
   transform: translateY(-50%);
-  transition: opacity 0.3s, transform 0.4s, top 0.4s;
+  transition:
+    opacity 0.3s,
+    transform 0.4s,
+    top 0.4s;
   border: fn.use-var(border);
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
-    padding: map.get(vars.$gap, $size)*2;
+    padding: map.get(vars.$gap, $size) * 2;
 
-    @include m.bem($root-name, icon) {}
+    @include m.bem($root-name, icon) {
+    }
 
     @include m.bem($root-name, content) {
       max-width: 400px;
       word-wrap: break-word;
       margin-left: fn.use-var(gap, $size);
-      margin-right: map.get(vars.$gap, $size)+12;
+      margin-right: map.get(vars.$gap, $size) + 12;
     }
 
     @include m.bem($root-name, close) {
@@ -47,10 +51,4 @@ $root-name: message;
       color: fn.use-var(color, $type);
     }
   }
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translate(-50%, -100%);
 }

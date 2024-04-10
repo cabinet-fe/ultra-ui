@@ -9,7 +9,7 @@
       />
     </u-scroll>
 
-    <u-scroll tag="main" class="main">
+    <u-scroll tag="div" class="main">
       <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
         组件尺寸
         <u-radio value="small" v-model="size">小</u-radio>
@@ -126,15 +126,5 @@ $width: 240px;
   :deep(main) {
     padding: 10px;
   }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

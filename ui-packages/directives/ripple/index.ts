@@ -37,7 +37,7 @@ const createRipple = (e: MouseEvent) => {
     height: `${diameter}px`,
     left: `${centerX - radius}px`,
     top: `${centerY - radius}px`,
-    transition: `transform ${_duration}ms cubic-bezier(1,.5,.29,.87)`,
+    transition: `transform ${_duration}ms cubic-bezier(.82,.84,.28,.92)`,
     transform: `scale3d(0.2, 0.2, 1)`
   })
 
