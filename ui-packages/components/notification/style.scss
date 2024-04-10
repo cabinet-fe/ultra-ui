@@ -5,6 +5,7 @@
 
 // 方便拼接
 $root-name: notification;
+$positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
 
 @include m.b($root-name) {
   display: flex;
@@ -14,13 +15,14 @@ $root-name: notification;
   // bottom: 20px;
   // transform: translateX(50%);
   position: absolute;
-  right: 0;
-  bottom: 0;
+  // right: 0;
+  // bottom: 0;
   transition: opacity 0.3s, transform 0.4s, top 0.4s;
   border: fn.use-var(border);
   background-color: #fff;
   box-shadow: fn.use-var(shadow);
   margin: 4px;
+  overflow: hidden;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
@@ -63,10 +65,33 @@ $root-name: notification;
       color: fn.use-var(color, $type);
     }
   }
+
+  @each $position in $positions {
+    @include m.e($position) {
+      @if $position == 'bottom-right' {
+        right: 0;
+        bottom: 0;
+      }@else if ($position == 'bottom-left') {
+        left: 0;
+        bottom: 0;
+      }@else if ($position == 'top-right') {
+        right: 0;
+        top: 0;
+      }@else {
+        left: 0;
+        top: 0;
+      }
+    }
+  }
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.#{$root-name}-fade-bottom-enter-from,
+.#{$root-name}-fade-bottom-leave-to {
   opacity: 0;
   transform: translate(0, 100%);
+}
+.#{$root-name}-fade-top-enter-from,
+.#{$root-name}-fade-top-leave-to {
+  opacity: 0;
+  transform: translate(0, -100%);
 }
