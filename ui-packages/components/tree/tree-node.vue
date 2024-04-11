@@ -12,7 +12,7 @@
 
     <u-checkbox
       v-if="treeProps.checkable"
-      v-model="node.checked"
+      :model-value="node.checked"
       @update:model-value="(checked: boolean) => handleCheckMode(checked, node)"
     ></u-checkbox>
 

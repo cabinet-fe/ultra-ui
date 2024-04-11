@@ -1,26 +1,45 @@
-import {createApp, type Directive, type DirectiveBinding} from "vue"
-import LoadingComponent from "./loading.vue"
+import {
+  createApp,
+  h,
+  render,
+  type Directive,
+  type DirectiveBinding
+} from 'vue'
+import LoadingComponent from './loading.vue'
+import countPosition from '../tip/position'
 
 const loading: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    el.style.position = "relative"
-    const app = createApp(LoadingComponent)
-    const loadingInstance = app.mount(document.createElement("div"))
-    el.appendChild(loadingInstance.$el)
-    el._loadingInstance = loadingInstance
+    el.style.position = 'relative'
+    // const app = createApp(LoadingComponent)
+
+    const node = h(LoadingComponent, {
+      loadingIcon: binding.arg
+    })
+
+    render(node, el)
+
+    // const loadingInstance = app.mount(document.createElement("div"))
+    // el.appendChild(loadingInstance.$el)
+    // el._loadingInstance = loadingInstance
   },
 
   updated(el, binding) {
+
+
+    if (!binding.value) {
+      el.removeChild(el.querySelector('.u-loading'))
+    }
     // 读取自定义属性
-    const text = el.getAttribute("loading-text") || "Loading..."
-    const background = el.getAttribute("loading-background")
-    const icon = el.getAttribute("loading-icon")
+    const text = el.getAttribute('loading-text') || 'Loading...'
+    const background = el.getAttribute('loading-background')
+    const icon = el.getAttribute('loading-icon')
 
     let props = {
       show: binding.value,
       text: text,
       background: background,
-      icon: icon,
+      icon: binding.arg?.[0]
     }
 
     if (el._loadingInstance) {
@@ -36,7 +55,7 @@ const loading: Directive = {
     if (el._loadingInstance) {
       delete el._loadingInstance
     }
-  },
+  }
 }
 
 export default loading

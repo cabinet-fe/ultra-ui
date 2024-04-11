@@ -22,15 +22,17 @@
     </u-card>
 
     <u-card style="margin-bottom: 10px">
-      select单选 {{ select }}
+
       <UTree
         :data="data"
-        expand-all
+
         label-key="name"
         value-key="id"
         @node-click="handleNodeClick"
         select
       />
+
+      select单选 {{ select }}
     </u-card>
 
     <u-card style="margin-bottom: 10px">

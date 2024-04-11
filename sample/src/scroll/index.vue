@@ -16,7 +16,7 @@
   </ul>
 
 
-  <u-dropdown min-width="200px">
+  <u-dropdown min-width="200px" trigger="click">
     <template #trigger>
       <u-button>aaaaa</u-button>
     </template>
