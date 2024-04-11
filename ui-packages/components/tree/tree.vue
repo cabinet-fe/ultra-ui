@@ -53,23 +53,24 @@ watchEffect(() => {
   }
 })
 
-const handleNodeClick = (_: DataItem, node: CustomTreeNode<DataItem>) => {
-  store.currentNodes.value = node
-}
-
 /** 父子节点的所有状态 */
-let store = shallowReactive({
+let store = {
   treeProps: props as TreeProps<Record<string, any>>,
   cls,
   treeEmit: emit,
-  currentNodes: shallowRef({})
-})
+  selectNodes: shallowRef({})
+}
 
 provide(TreeDIKey, store)
 
+/** 点击所有节点 */
+const handleNodeClick = (_: DataItem, node: CustomTreeNode<DataItem>) => {
+  store.selectNodes.value = node
+}
+
 watch(
-  () => store.currentNodes.value,
-  (value: any) => {
+  () => store.selectNodes.value,
+  value => {
     if (props.select) {
       treeData.value.dft(node => {
         if (node.value.id === value.value.id) {

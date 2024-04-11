@@ -21,10 +21,9 @@
       ></UTree>
     </u-card>
 
-    <u-card>
+    <u-card style="margin-bottom: 10px">
       select单选 {{ select }}
       <UTree
-        style="margin-bottom: 10px"
         :data="data"
         expand-all
         label-key="name"
@@ -34,6 +33,11 @@
       />
     </u-card>
 
+    <u-card style="margin-bottom: 10px">
+      checkable多选 {{}}
+      <UTree :data="data" expand-all label-key="name" value-key="id" checkable>
+      </UTree>
+    </u-card>
   </div>
 </template>
 

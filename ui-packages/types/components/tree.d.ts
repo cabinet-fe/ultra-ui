@@ -41,7 +41,9 @@ export interface TreeEmit {
   (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
 }
 
-// export interface TreeNodeProps
+export interface TreeNodeProps<Val> {
+  node: CustomTreeNode<Val>
+}
 
 // // /** 树组件节点的事件 */
 export interface TreeNodeEmit<DataItem> {

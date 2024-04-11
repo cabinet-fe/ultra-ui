@@ -3,12 +3,18 @@
     <u-icon
       v-if="!node.isLeaf"
       :class="expandClass"
-      @click.stop="treeEmit('expand', node)"
+      @click.stop="node.expanded = !node.expanded"
     >
       <CaretRight />
     </u-icon>
 
     <i v-else style="display: inline-block; width: 14px; height: 14px" />
+
+    <u-checkbox
+      v-if="treeProps.checkable"
+      v-model="a"
+      @update:model-value="(checked: boolean) => handleCheckMode(checked, node)"
+    ></u-checkbox>
 
     {{ node.value[treeProps.labelKey!] }}
   </div>
@@ -25,20 +31,21 @@
 <script lang="ts" setup generic="Val extends Record<string, any>">
 import { CustomTreeNode } from './tree-node'
 import { TreeDIKey } from './di'
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { CaretRight } from 'icon-ultra'
-import type { TreeNodeEmit } from '@ui/types/components/tree'
+import type { TreeNodeEmit, TreeNodeProps } from '@ui/types/components/tree'
+import UCheckbox from '../checkbox/checkbox.vue'
 
 defineOptions({
   name: 'TreeNode'
 })
 
-const props = defineProps<{
-  node: CustomTreeNode<Val>
-}>()
+const a = ref(false)
+
+const props = defineProps<TreeNodeProps<Val>>()
 
 let injected = inject(TreeDIKey)!
 const { treeProps, treeEmit, cls } = injected
@@ -47,7 +54,7 @@ let emit = defineEmits<TreeNodeEmit<Val>>()
 
 /** 行class */
 const nodeClass = computed(() => {
-  return [cls.e('node'), bem.is('active', props.node.active)]
+  return [cls.e('node'), bem.is('active', props.node?.active)]
 })
 
 const style = computed(() => {
@@ -60,8 +67,15 @@ const expandClass = computed(() => {
   return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
 })
 
+const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {
+  node.checked = value
+}
+
 const handleNodeClick = (node: CustomTreeNode<Val>) => {
-  injected.currentNodes.value = node
+  if (!treeProps.select) return
+  injected.selectNodes.value = node
+
+  console.log(injected.selectNodes.value, 'injected.selectNodes.value')
 }
 
 const toggleNodeExpand = async () => {
