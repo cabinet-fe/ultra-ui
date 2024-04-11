@@ -14,7 +14,11 @@
   </div>
 
   <template v-if="node.children && node.expanded">
-    <UTreeNode v-for="child of node.children" :node="child" />
+    <UTreeNode
+      v-for="child of node.children"
+      :node="child"
+      @node-click="handleNodeClick(child)"
+    />
   </template>
 </template>
 
@@ -26,6 +30,7 @@ import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { CaretRight } from 'icon-ultra'
+import type { TreeNodeEmit } from '@ui/types/components/tree'
 
 defineOptions({
   name: 'TreeNode'
@@ -35,7 +40,10 @@ const props = defineProps<{
   node: CustomTreeNode<Val>
 }>()
 
-const { treeProps, treeEmit, cls } = inject(TreeDIKey)!
+let injected = inject(TreeDIKey)!
+const { treeProps, treeEmit, cls } = injected
+
+let emit = defineEmits<TreeNodeEmit<Val>>()
 
 /** 行class */
 const nodeClass = computed(() => {
@@ -52,18 +60,17 @@ const expandClass = computed(() => {
   return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
 })
 
-// const handleExpandIconClick = (e: MouseEvent, node) => {
-//   e.stopPropagation()
-//   props.node.expanded = !props.node.expanded
-// }
+const handleNodeClick = (node: CustomTreeNode<Val>) => {
+  injected.currentNodes.value = node
+}
 
-const toggleNodeExpand = _ => {
-  if (!treeProps.expandOnClickNode) return
-
-  props.node.expanded = !props.node.expanded
-  console.log(props.node.expanded, 'props.node.expanded')
+const toggleNodeExpand = async () => {
+  if (treeProps.expandOnClickNode) {
+    props.node.expanded = !props.node.expanded
+  }
 
   treeEmit('expand', props.node)
-  treeEmit('node-click', props.node)
+  treeEmit('node-click', props.node.value, props.node)
+  emit('node-click', props.node.value, props.node)
 }
 </script>

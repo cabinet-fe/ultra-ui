@@ -8,5 +8,6 @@ export const TreeDIKey: InjectionKey<{
   treeProps: TreeProps
   /** BEM */
   cls: BEM<'tree'>,
+  currentNodes: Record<string,any>
   treeEmit: TreeEmit
 }> = Symbol('TreeDIKey')

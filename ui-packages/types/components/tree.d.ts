@@ -37,12 +37,13 @@ export interface TreeProps<
 }
 
 export interface TreeEmit {
-  (e: 'expand', node): void
-  (e: 'node-click', node): void
+  (e: 'expand', node: CustomTreeNode<DataItem>): void
+  (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
 }
 
-// /** 树组件节点的事件 */
-// export interface TreeNodeEmit<DataItem> {
-//   (e: 'node-click', node: CustomTreeNode<DataItem>): void
-//   (e: 'expand'): void
-// }
+// export interface TreeNodeProps
+
+// // /** 树组件节点的事件 */
+export interface TreeNodeEmit<DataItem> {
+  (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
+}

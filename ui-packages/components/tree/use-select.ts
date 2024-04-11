@@ -1,13 +1,11 @@
 import { ref } from 'vue'
 
-export const useSelect = () => {
-  /** 单选是否选中 */
-  let active = ref(false)
+export const useSelect = treeProps => {
+  let children = ref('')
 
-  /** 切换单选高亮状态 */
-  const toggleNodeSelect = () => {
-    active.value = !active.value
+  const toggleActive = node => {
+
   }
 
-  return { active, toggleNodeSelect }
+  return { children, toggleActive }
 }
