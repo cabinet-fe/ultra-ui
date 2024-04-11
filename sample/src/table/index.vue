@@ -1,20 +1,8 @@
 <template>
   <div>
-    <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0)">
-        <template #column:name="{ rowData }">
-          {{ rowData.name }}
-        </template>
-      </u-table>
-    </CustomCard>
-
-    <!-- <CustomCard title="多级表头和表头冻结">
+    <CustomCard title="多级表头，表头冻结，列冻结">
       <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
     </CustomCard>
-
-    <CustomCard title="冻结列">
-      <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
-    </CustomCard> -->
 
     <CustomCard title="表格插槽">
       <u-table :data="data" :columns="columns">
@@ -38,6 +26,14 @@
           <span style="color: red">
             {{ column.key }}
           </span>
+        </template>
+      </u-table>
+    </CustomCard>
+
+    <CustomCard title="基础使用">
+      <u-table :data="data" :columns="columns.slice(0)">
+        <template #column:name="{ rowData }">
+          {{ rowData.name }}
         </template>
       </u-table>
     </CustomCard>
