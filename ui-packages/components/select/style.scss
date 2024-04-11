@@ -4,7 +4,7 @@
 
 $root-name: select;
 @include m.b($root-name) {
-  width: 100%;
+  width: 200px;
 
   min-height: 30px;
   position: relative;
@@ -49,21 +49,22 @@ $root-name: select;
   }
 
   @include m.e('input-multiple') {
-    // width: 240px;
+    position: relative;
+    width: 240px;
     width: 100%;
     min-height: 30px;
-    padding: 10px 10px;
-    border: fn.use-var(border);
-    border-radius: fn.use-var(radius-default);
-    &:hover {
-      // 悬浮时边框颜色为 var(--u-color-primary);
-      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-    }
+    // padding: 10px 10px;
+    // border: fn.use-var(border);
+    // border-radius: fn.use-var(radius-default);
+    // &:hover {
+    //   // 悬浮时边框颜色为 var(--u-color-primary);
+    //   box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    // }
 
-    & > div {
-      display: inline-block;
-      padding: 0 5px;
-    }
+    // & > div {
+    //   display: inline-block;
+    //   padding: 0 5px;
+    // }
   }
 
   @include m.e('clear-multiple') {
@@ -75,28 +76,30 @@ $root-name: select;
     position: absolute;
     right: 10px;
   }
-
-  ul {
-    width: 240px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    // background-color: #fff;
-    // border: fn.use-var(border);
-    // box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-    max-height: 200px;
-    overflow-y: auto;
-    li {
-      cursor: pointer;
-      padding: 5px 8px;
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: space-between;
-    }
-    li.actived {
-      color: fn.use-var(color, primary);
+  @include m.e('content') {
+    ul {
+      // width: 300px;
+      // list-style: none;
+      // padding: 0;
+      // margin: 0;
+      // background-color: #fff;
+      // border: fn.use-var(border);
+      // box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+      // max-height: 200px;
+      // overflow-y: auto;
+      li {
+        cursor: pointer;
+        padding: 5px 8px;
+        // display: flex;
+        // flex-wrap: nowrap;
+        // justify-content: space-between;
+      }
+      li.actived {
+        color: fn.use-var(color, primary);
+      }
     }
   }
+
   .show {
     display: block;
   }

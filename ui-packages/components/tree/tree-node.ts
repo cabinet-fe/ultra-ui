@@ -12,7 +12,10 @@ export class CustomTreeNode<
   expanded = false
   loading = false
   loaded = false
+  /** 单选点击高亮 */
   active = false
+  /** 多选是否选中 */
+  checked = false
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)

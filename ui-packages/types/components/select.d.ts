@@ -5,10 +5,7 @@ export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
   modelValue: string | Array<string>
   /** 列表选项 */
-  options: Array<{
-    label: string
-    value: string
-  }>
+  options: Array<Record<string, any>>
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */
@@ -25,6 +22,8 @@ export interface SelectProps extends FormComponentProps {
   collapseTags?: boolean
   /** 最大折叠标签 */
   maxCollapseTags?: number | string
+  /** 是否启用搜索功能 */
+  filterable?: boolean
 }
 
 export interface SelectEmits {
@@ -32,6 +31,7 @@ export interface SelectEmits {
   (e: 'update:label', label?: string): void
   (e: 'update:modelValue', option?: object): void
   (e: 'clear'): void
+  (e: 'change', option?: object): void
 }
 
 export interface SelectExposed {

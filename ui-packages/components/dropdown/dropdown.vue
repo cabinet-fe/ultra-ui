@@ -112,14 +112,15 @@ let scrollParents: HTMLElement[] = []
 
 function addScrollEvent() {
   scrollParents.forEach(el => {
-    el.addEventListener('scroll', updateDropdown)
+    el.addEventListener('scroll', close)
   })
 }
 
 function removeScrollEvent() {
   scrollParents.forEach(el => {
-    el.removeEventListener('scroll', updateDropdown)
+    el.removeEventListener('scroll', close)
   })
+
   scrollParents = []
 }
 

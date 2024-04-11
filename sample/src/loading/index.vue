@@ -7,10 +7,10 @@
       <u-list
         :data="listData"
         :draggable="true"
-        v-loading="loading"
+        v-loading:[Refresh]="loading"
         loading-text="加载中..."
         loading-background="red"
-        :loading-icon="Refresh"
+
       />
     </CustomCard>
     <u-button @click="timer">再次加载数据</u-button>
