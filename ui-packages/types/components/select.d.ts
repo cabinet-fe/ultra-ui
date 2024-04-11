@@ -25,6 +25,8 @@ export interface SelectProps extends FormComponentProps {
   collapseTags?: boolean
   /** 最大折叠标签 */
   maxCollapseTags?: number | string
+  /** 是否启用搜索功能 */
+  filterable?: boolean
 }
 
 export interface SelectEmits {
@@ -32,6 +34,7 @@ export interface SelectEmits {
   (e: 'update:label', label?: string): void
   (e: 'update:modelValue', option?: object): void
   (e: 'clear'): void
+  (e: 'change', option?: object): void
 }
 
 export interface SelectExposed {
