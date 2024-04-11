@@ -35,7 +35,7 @@ const { size } = useFallbackProps([props], {
 
 const cls = bem("loading")
 
-let visible = shallowRef(false)
+let visible = shallowRef(true)
 
 let loadingText = shallowRef(props.text)
 

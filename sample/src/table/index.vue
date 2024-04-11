@@ -1,24 +1,12 @@
 <template>
   <div>
-    <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0)">
-        <template #column:name="{ rowData }">
-          {{ rowData.name }}
-        </template>
-      </u-table>
-    </CustomCard>
-
-    <!-- <CustomCard title="多级表头和表头冻结">
+    <CustomCard title="多级表头，表头冻结，列冻结">
       <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
     </CustomCard>
-
-    <CustomCard title="冻结列">
-      <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
-    </CustomCard> -->
 
     <CustomCard title="表格插槽">
       <u-table :data="data" :columns="columns">
-        <template #column:name="{ model }">
+        <template #column:name="{ model, row }">
           <u-input v-bind="model" />
         </template>
         <template #column:age="{ model }">
@@ -41,6 +29,14 @@
         </template>
       </u-table>
     </CustomCard>
+
+    <CustomCard title="基础使用">
+      <u-table :data="data" :columns="columns.slice(0)">
+        <template #column:name="{ rowData }">
+          {{ rowData.name }}
+        </template>
+      </u-table>
+    </CustomCard>
   </div>
 </template>
 
@@ -51,9 +47,10 @@ import CustomCard from '../card/custom-card.vue'
 
 const columns = defineTableColumns(
   [
+    { name: '性别', key: 'sex', fixed: 'right' },
     { name: '姓名', key: 'name', align: 'center', fixed: 'left' },
     { name: '年龄', key: 'age', fixed: 'left' },
-    { name: '性别', key: 'sex', fixed: 'right' },
+
     {
       name: '地址',
       key: 'address',

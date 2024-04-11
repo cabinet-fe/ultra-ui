@@ -5,10 +5,7 @@ export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
   modelValue: string | Array<string>
   /** 列表选项 */
-  options: Array<{
-    label: string
-    value: string
-  }>
+  options: Array<Record<string, any>>
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */
