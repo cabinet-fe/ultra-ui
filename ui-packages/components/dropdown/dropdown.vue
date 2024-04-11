@@ -120,6 +120,7 @@ function removeScrollEvent() {
   scrollParents.forEach(el => {
     el.removeEventListener('scroll', updateDropdown)
   })
+
   scrollParents = []
 }
 
