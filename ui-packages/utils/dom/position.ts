@@ -1,5 +1,3 @@
-import { setStyles } from './style'
-
 interface Options {
   /** 触发元素 */
   triggerEl: HTMLElement
@@ -76,4 +74,22 @@ export function computeDropdownPosition(options: Options): DropdownPosition {
     width: triggerEl.offsetWidth + 'px',
     transformOrigin
   }
+}
+
+/**
+ * 获取可滚动的父级
+ * @param el 元素
+ * @returns
+ */
+export function getScrollParents(el: HTMLElement): HTMLElement[] {
+  const parents: HTMLElement[] = []
+  let parent = el.parentElement
+  while (parent) {
+    if (parent.scrollHeight > parent.clientHeight) {
+      parents.push(parent)
+    }
+
+    parent = parent.parentElement
+  }
+  return parents
 }
