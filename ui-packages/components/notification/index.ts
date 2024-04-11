@@ -46,6 +46,11 @@ const close = (id: string, position: string, userClose?: (vm: VNode) => void) =>
       }
     }
   }
+  if (!notificationQueue[position].length) {
+    const wrapper = document.getElementById(`notification-${position}-id`)!
+    wrapper.style.removeProperty('height')
+    wrapper.style.removeProperty('overflow')
+  }
 }
 
 const createWrapper = (options: NotificationProps) => {
