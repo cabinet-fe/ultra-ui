@@ -26,6 +26,7 @@
 
   // 加载转圈
   @include m.is(loading) {
+    transform-origin: center;
     animation: rotating 2s linear infinite;
   }
 
