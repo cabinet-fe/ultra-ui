@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.b">
+  <div :class="[cls.b,cls.m(size)]">
     <UTreeNode
       v-for="node of treeData.nodes"
       :node="node"
@@ -16,6 +16,7 @@ import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
 import { CustomTreeNode } from './tree-node'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'Tree'
@@ -32,6 +33,12 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
 const emit = defineEmits<TreeEmit>()
 
 const cls = bem('tree')
+
+const { formProps } = useFormComponent()
+
+const { size } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default'
+})
 
 const treeData = computed(() => {
   return Forest.create(props.data, CustomTreeNode)
@@ -50,22 +57,23 @@ let store = {
   treeProps: props as TreeProps<Record<string, any>>,
   cls,
   treeEmit: emit,
-  selectNodes: shallowRef({})
+  selectNodes: shallowRef<Record<string, any>>({})
 }
 
 provide(TreeDIKey, store)
 
 /** 点击所有节点 */
-const handleNodeClick = (_: DataItem, node: CustomTreeNode<DataItem>) => {
+const handleNodeClick = (_, node: CustomTreeNode<DataItem>) => {
   store.selectNodes.value = node
 }
 
 watch(
-  () => store.selectNodes.value,
+  () => store.selectNodes.value.value,
   value => {
     if (props.select) {
+      console.log()
       treeData.value.dft(node => {
-        if (node.value.id === value.value.id) {
+        if (node.value.id === value[props.valueKey]!) {
           node.active = true
         } else {
           node.active = false

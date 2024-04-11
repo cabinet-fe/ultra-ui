@@ -31,7 +31,7 @@
 <script lang="ts" setup generic="Val extends Record<string, any>">
 import { CustomTreeNode } from './tree-node'
 import { TreeDIKey } from './di'
-import { computed, inject, ref } from 'vue'
+import { computed, inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
@@ -65,14 +65,11 @@ const expandClass = computed(() => {
   return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
 })
 
-const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {
-  // node.checked = value
-}
+const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {}
 
 const handleNodeClick = (node: CustomTreeNode<Val>) => {
   if (!treeProps.select) return
   injected.selectNodes.value = node
-  console.log(node, 'node')
 }
 
 const toggleNodeExpand = async () => {

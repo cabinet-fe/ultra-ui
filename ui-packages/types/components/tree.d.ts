@@ -1,5 +1,6 @@
 import type { PropsWithServerQuery } from '../component-common'
 import type { TreeNode } from 'cat-kit/fe'
+import { CustomTreeNode } from './tree-node'
 interface CustomTreeNode<Val extends Record<string, any>>
   extends TreeNode<Val> {
   parent: CustomTreeNode<Val> | null
