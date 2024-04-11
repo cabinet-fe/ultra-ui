@@ -12,7 +12,7 @@
 
     <u-checkbox
       v-if="treeProps.checkable"
-      v-model="a"
+      v-model="node.checked"
       @update:model-value="(checked: boolean) => handleCheckMode(checked, node)"
     ></u-checkbox>
 
@@ -43,8 +43,6 @@ defineOptions({
   name: 'TreeNode'
 })
 
-const a = ref(false)
-
 const props = defineProps<TreeNodeProps<Val>>()
 
 let injected = inject(TreeDIKey)!
@@ -68,14 +66,13 @@ const expandClass = computed(() => {
 })
 
 const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {
-  node.checked = value
+  // node.checked = value
 }
 
 const handleNodeClick = (node: CustomTreeNode<Val>) => {
   if (!treeProps.select) return
   injected.selectNodes.value = node
-
-  console.log(injected.selectNodes.value, 'injected.selectNodes.value')
+  console.log(node, 'node')
 }
 
 const toggleNodeExpand = async () => {
