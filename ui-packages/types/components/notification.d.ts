@@ -16,6 +16,7 @@ export interface NotificationProps {
   zIndex?: number
   button?: string
   width?: number
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
 
 /** 通知组件组件定义的事件 */

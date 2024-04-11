@@ -1,6 +1,14 @@
 <template>
-  <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
-    <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible" :style="customStyle">
+  <transition
+    :name="`notification-fade-${position.split('-')[0]}`"
+    @before-leave="onClose"
+    @after-leave="$emit('destroy')"
+  >
+    <div
+      :class="[cls.b, cls.m(size), cls.e(type), cls.e(position)]"
+      v-show="visible"
+      :style="customStyle"
+    >
       <div :class="cls.e('icon')">
         <UIcon>
           <component :is="typeIcon" />
@@ -42,13 +50,14 @@ defineOptions({
 
 const props = defineProps<NotificationProps>()
 
-const { type, size, closable, duration, offset, button } = useFallbackProps([props], {
+const { type, size, closable, duration, offset, button, position } = useFallbackProps([props], {
   type: 'primary',
   size: 'default',
   closable: false,
   duration: 4500,
   offset: 20,
-  button: ''
+  button: '',
+  position: 'bottom-right'
 })
 
 const typeIcon = computed(() => {
@@ -78,15 +87,20 @@ const close = () => {
 }
 
 const customStyle = computed<CSSProperties>(() => {
-  return offset.value > 0 ? {
-    bottom: `${offset.value}px`,
-    zIndex: props.zIndex,
-    transform: `translateY(-${offset.value}px)`,
-    transition: `opacity 0.3s, transform 0.4s, top 0.4s`
-  } : {
-    bottom: `${offset.value}px`,
-    zIndex: props.zIndex
-  }
+  return offset.value > 0
+    ? {
+        [`${position.value.split('-')[0]}`]: `${offset.value}px`,
+        zIndex: props.zIndex,
+        transform:
+          position.value.split('-')[0] === 'bottom'
+            ? `translateY(-${offset.value}px)`
+            : `translateY(${offset.value}px)`,
+        transition: `opacity 0.3s, transform 0.4s, top 0.4s`
+      }
+    : {
+        [`${position.value.split('-')[0]}`]: `${offset.value}px`,
+        zIndex: props.zIndex
+      }
 })
 
 const timer = ref(0)

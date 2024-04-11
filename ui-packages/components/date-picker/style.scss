@@ -6,6 +6,11 @@
 $root-name: date-picker;
 
 @include m.b($root-name) {
+  @include m.size using ($size) {
+    @include m.bem($root-name, icon) {
+      font-size: calc(fn.use-var(form-component-height, $size) / 2 + 2px);
+    }
+  }
 
   @include m.e(panel) {
     max-height: 400px;
@@ -21,6 +26,5 @@ $root-name: date-picker;
     line-height: 32px;
     cursor: pointer;
     text-align: center;
-
   }
 }

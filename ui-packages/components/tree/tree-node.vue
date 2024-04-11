@@ -1,27 +1,36 @@
 <template>
-  <div :class="cls.e('node')" :style="style" @click="toggleExpand">
-    <u-icon v-if="showExpandIcon" :class="expandClass">
+  <div :class="nodeClass" :style="style" @click="toggleNodeExpand">
+    <u-icon
+      v-if="!node.isLeaf"
+      :class="expandClass"
+      @click.stop="treeEmit('expand', node)"
+    >
       <CaretRight />
     </u-icon>
 
     <i v-else style="display: inline-block; width: 14px; height: 14px" />
 
-    {{ nodeRef.value[treeProps.labelKey!] }}
+    {{ node.value[treeProps.labelKey!] }}
   </div>
 
-  <template v-if="nodeRef.children && nodeRef.expanded">
-    <UTreeNode v-for="child of nodeRef.children" :node="child" />
+  <template v-if="node.children && node.expanded">
+    <UTreeNode
+      v-for="child of node.children"
+      :node="child"
+      @node-click="handleNodeClick(child)"
+    />
   </template>
 </template>
 
 <script lang="ts" setup generic="Val extends Record<string, any>">
 import { CustomTreeNode } from './tree-node'
 import { TreeDIKey } from './di'
-import { computed, inject, shallowReactive } from 'vue'
+import { computed, inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { CaretRight } from 'icon-ultra'
+import type { TreeNodeEmit } from '@ui/types/components/tree'
 
 defineOptions({
   name: 'TreeNode'
@@ -31,9 +40,15 @@ const props = defineProps<{
   node: CustomTreeNode<Val>
 }>()
 
-const nodeRef = shallowReactive(props.node)
+let injected = inject(TreeDIKey)!
+const { treeProps, treeEmit, cls } = injected
 
-const { treeProps, cls } = inject(TreeDIKey)!
+let emit = defineEmits<TreeNodeEmit<Val>>()
+
+/** 行class */
+const nodeClass = computed(() => {
+  return [cls.e('node'), bem.is('active', props.node.active)]
+})
 
 const style = computed(() => {
   return {
@@ -41,17 +56,21 @@ const style = computed(() => {
   }
 })
 
-const showExpandIcon = computed(() => {
-  const { node } = props
-
-  return !node.isLeaf
-})
-
 const expandClass = computed(() => {
-  return [cls.e('expand-icon'), bem.is('expanded', nodeRef.expanded)]
+  return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
 })
 
-const toggleExpand = () => {
-  nodeRef.expanded = !nodeRef.expanded
+const handleNodeClick = (node: CustomTreeNode<Val>) => {
+  injected.currentNodes.value = node
+}
+
+const toggleNodeExpand = async () => {
+  if (treeProps.expandOnClickNode) {
+    props.node.expanded = !props.node.expanded
+  }
+
+  treeEmit('expand', props.node)
+  treeEmit('node-click', props.node.value, props.node)
+  emit('node-click', props.node.value, props.node)
 }
 </script>

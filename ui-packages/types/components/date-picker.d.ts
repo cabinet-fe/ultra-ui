@@ -1,8 +1,10 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** date-picker组件属性 */
-export interface DatePickerProps {
+export interface DatePickerProps extends FormComponentProps {
   modelValue?: string
+  placeholder?: string
 }
 
 /** date-picker组件定义的事件 */

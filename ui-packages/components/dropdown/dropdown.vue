@@ -1,5 +1,9 @@
 <template>
-  <div :class="cls.b" v-bind="eventsHandlers" ref="dropdownRef">
+  <div
+    :class="cls.b"
+    v-bind="{ ...eventsHandlers, ...$attrs }"
+    ref="dropdownRef"
+  >
     <slot name="trigger" />
   </div>
 
@@ -9,7 +13,7 @@
         :is="contentTag"
         v-if="visible"
         :class="[cls.e('content'), contentClass]"
-        ref="scrollRef"
+        ref="contentRef"
         :style="popupFinalStyle"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
@@ -22,9 +26,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { DropdownProps } from '@ui/types/components/dropdown'
-import { bem, computeDropdownPosition } from '@ui/utils'
-import { nextTick, shallowRef, shallowReactive, computed, watch } from 'vue'
+import type {
+  DropdownProps,
+  DropdownExposed
+} from '@ui/types/components/dropdown'
+import { bem, computeDropdownPosition, getScrollParents } from '@ui/utils'
+import {
+  nextTick,
+  shallowRef,
+  shallowReactive,
+  computed,
+  watch,
+  onBeforeUnmount
+} from 'vue'
 import vClickOutside from '@ui/directives/click-outside'
 
 defineOptions({
@@ -41,7 +55,7 @@ const cls = bem('dropdown')
 
 const dropdownRef = shallowRef<HTMLElement>()
 
-const scrollRef = shallowRef<HTMLElement>()
+const contentRef = shallowRef<HTMLElement>()
 
 /**显示隐藏 */
 const visible = shallowRef(false)
@@ -84,14 +98,42 @@ function close() {
   }
 }
 
+function updateDropdown() {
+  if (!dropdownRef.value || !contentRef.value) return
+
+  const styles = computeDropdownPosition({
+    triggerEl: dropdownRef.value,
+    popupEl: contentRef.value
+  })
+  styles && Object.assign(popupStyle, styles)
+}
+
+let scrollParents: HTMLElement[] = []
+
+function addScrollEvent() {
+  scrollParents.forEach(el => {
+    el.addEventListener('scroll', updateDropdown)
+  })
+}
+
+function removeScrollEvent() {
+  scrollParents.forEach(el => {
+    el.removeEventListener('scroll', updateDropdown)
+  })
+
+  scrollParents = []
+}
+
 watch(visible, async v => {
   if (v) {
     await nextTick()
-    const styles = computeDropdownPosition({
-      triggerEl: dropdownRef.value!,
-      popupEl: scrollRef.value!
-    })
-    styles && Object.assign(popupStyle, styles)
+    updateDropdown()
+
+    /** 添加滚动事件 */
+    scrollParents = getScrollParents(dropdownRef.value!)
+    addScrollEvent()
+  } else {
+    removeScrollEvent()
   }
 })
 
@@ -110,7 +152,11 @@ const eventsHandlers = computed(() => {
   return handlers
 })
 
-defineExpose({
+onBeforeUnmount(() => {
+  removeScrollEvent()
+})
+
+defineExpose<DropdownExposed>({
   open,
   close
 })
