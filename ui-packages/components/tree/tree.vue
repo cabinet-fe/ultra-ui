@@ -1,6 +1,5 @@
 <template>
   <div :class="cls.b">
-    <!-- {{ store.nodes }} -->
     <UTreeNode
       v-for="node of treeData.nodes"
       :node="node"
@@ -12,14 +11,7 @@
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
 import type { TreeProps, TreeEmit } from '@ui/types/components/tree'
-import {
-  computed,
-  provide,
-  shallowReactive,
-  shallowRef,
-  watch,
-  watchEffect
-} from 'vue'
+import { computed, provide, shallowRef, watch, watchEffect } from 'vue'
 import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
