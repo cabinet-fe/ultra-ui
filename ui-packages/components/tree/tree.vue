@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b,cls.m(size)]">
+  <div :class="[cls.b, cls.m(size)]">
     <UTreeNode
       v-for="node of treeData.nodes"
       :node="node"
@@ -11,12 +11,20 @@
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
 import type { TreeProps, TreeEmit } from '@ui/types/components/tree'
-import { computed, provide, shallowRef, watch, watchEffect } from 'vue'
+import {
+  computed,
+  provide,
+  reactive,
+  shallowRef,
+  watch,
+  watchEffect
+} from 'vue'
 import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
 import { CustomTreeNode } from './tree-node'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { processRecursiveArray } from './utils'
 
 defineOptions({
   name: 'Tree'
@@ -25,7 +33,7 @@ defineOptions({
 const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   labelKey: 'label',
   valueKey: 'value',
-  childrenKey: 'child',
+  childrenKey: 'children',
   expanded: false,
   expandOnClickNode: false
 })
@@ -57,7 +65,9 @@ let store = {
   treeProps: props as TreeProps<Record<string, any>>,
   cls,
   treeEmit: emit,
-  selectNodes: shallowRef<Record<string, any>>({})
+  selectNodes: shallowRef<Record<string, any>>({}),
+  checkedData: reactive(new Set<string | number>()),
+  currentChecked: shallowRef()
 }
 
 provide(TreeDIKey, store)
@@ -67,19 +77,40 @@ const handleNodeClick = (_, node: CustomTreeNode<DataItem>) => {
   store.selectNodes.value = node
 }
 
-watch(
-  () => store.selectNodes.value.value,
-  value => {
-    if (props.select) {
-      console.log()
+if (props.select) {
+  /** 单选高亮 */
+  watch(
+    () => store.selectNodes.value.value,
+    value => {
+      // console.log(treeData.value, 'treeData.value')
       treeData.value.dft(node => {
-        if (node.value.id === value[props.valueKey]!) {
+        if (node.value[props.valueKey] === value[props.valueKey]!) {
           node.active = true
         } else {
           node.active = false
         }
       })
     }
+  )
+}
+
+/** 全选 */
+watch(
+  () => store.checkedData.size,
+  () => {
+    let { node, checked } = store.currentChecked.value
+
+    processRecursiveArray(
+      node.value?.[props.childrenKey] ?? [],
+      props.childrenKey,
+      item => {
+        if (checked) {
+          store.checkedData.add(item[props.valueKey])
+        } else {
+          store.checkedData.delete(item[props.valueKey])
+        }
+      }
+    )
   }
 )
 </script>

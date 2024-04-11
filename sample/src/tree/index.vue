@@ -22,10 +22,9 @@
     </u-card>
 
     <u-card style="margin-bottom: 10px">
-
       <UTree
         :data="data"
-
+        expand-all
         label-key="name"
         value-key="id"
         @node-click="handleNodeClick"
@@ -56,7 +55,14 @@ const data = [
         name: '鱼香肉丝',
         id: 3,
         children: [
-          { name: '烤苞米', id: 4, children: [{ name: '苞米例', id: 5 }] }
+          {
+            name: '烤苞米',
+            id: 4,
+            children: [
+              { name: '苞米例', id: 5 },
+              { name: '吃', id: 6 }
+            ]
+          }
         ]
       }
     ]
