@@ -1,6 +1,12 @@
 <template>
   <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
-    <div :class="[cls.b, cls.m(size), cls.e(type)]" v-show="visible" :style="customStyle">
+    <div
+      :class="[cls.b, cls.m(size), cls.e(type)]"
+      v-show="visible"
+      :style="customStyle"
+      @mouseenter="clearTimer"
+      @mouseleave="startTimer"
+    >
       <div :class="cls.e('icon')">
         <UIcon>
           <component :is="typeIcon" />
@@ -75,13 +81,17 @@ const customStyle = computed<CSSProperties>(() => ({
   top: `${offset.value}px`
 }))
 
+const timer = ref(0)
+
 const startTimer = () => {
   if (duration.value) {
-    setTimeout(() => {
+    timer.value = setTimeout(() => {
       close()
     }, duration.value)
   }
 }
 
-defineExpose<MessageExposed>({})
+const clearTimer = () => clearTimeout(timer.value)
+
+defineExpose<MessageExposed>({ startTimer, clearTimer })
 </script>
