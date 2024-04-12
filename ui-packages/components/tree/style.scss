@@ -1,9 +1,21 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 
-@include m.b('tree') {
-  @include m.e('node') {
-    height: 24px;
+$root-name: 'tree';
+
+@include m.b($root-name) {
+  padding: 14px;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, 'node') {
+      padding: calc(fn.use-var(font-size-main, $size));
+      height: 24px;
+    }
+  }
+
+  @include m.e(node) {
+    margin-top: 2px;
+    border-radius: 3px;
     @include m.flex($align: center);
     cursor: pointer;
 
@@ -12,11 +24,12 @@
     }
 
     @include m.is('active') {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: fn.use-var(color, primary, light-3);
+      color: fn.use-var(color, primary, light-9);
     }
   }
 
-  @include m.e('expand-icon') {
+  @include m.e(expand-icon) {
     cursor: pointer;
     transition: transform 0.2s;
     margin-right: fn.use-var(gap, small);

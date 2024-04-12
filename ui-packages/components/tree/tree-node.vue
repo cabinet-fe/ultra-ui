@@ -10,10 +10,11 @@
 
     <i v-else style="display: inline-block; width: 14px; height: 14px" />
 
+    {{ injected.checkedData }}
     <u-checkbox
       v-if="treeProps.checkable"
-      :model-value="node.checked"
-      @update:model-value="(checked: boolean) => handleCheckMode(checked, node)"
+      :model-value="injected.checkedData.has(node.value[treeProps.valueKey!])"
+      @update:modelValue="selectMultipleOption($event, node)"
     ></u-checkbox>
 
     {{ node.value[treeProps.labelKey!] }}
@@ -31,7 +32,7 @@
 <script lang="ts" setup generic="Val extends Record<string, any>">
 import { CustomTreeNode } from './tree-node'
 import { TreeDIKey } from './di'
-import { computed, inject, ref } from 'vue'
+import { computed, inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
@@ -65,14 +66,23 @@ const expandClass = computed(() => {
   return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
 })
 
-const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {
-  // node.checked = value
+/** 多选选中 */
+const selectMultipleOption = (checked: boolean, node: Val) => {
+  injected.currentChecked.value = {
+    node,
+    checked
+  }
+
+  if (checked) {
+    injected.checkedData.add(node.value[treeProps.valueKey!])
+  } else {
+    injected.checkedData.delete(node.value[treeProps.valueKey!])
+  }
 }
 
 const handleNodeClick = (node: CustomTreeNode<Val>) => {
   if (!treeProps.select) return
   injected.selectNodes.value = node
-  console.log(node, 'node')
 }
 
 const toggleNodeExpand = async () => {
