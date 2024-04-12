@@ -21,7 +21,7 @@ export interface DropdownProps {
    */
   contentTag?: string
   /** 内容容器类 */
-  contentClass?: string
+  contentClass?: string | string[]
 }
 
 /** 下拉框组件定义的事件 */

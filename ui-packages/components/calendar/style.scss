@@ -1,0 +1,34 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+
+// 方便拼接
+$root-name: calendar;
+
+@include m.b($root-name) {
+  width: 100%;
+
+  @include m.e(header) {
+    height: 32px;
+    width: 100%;
+    @include m.flex($justify: space-between);
+  }
+
+  @include m.e(days) {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    height: 500px;
+  }
+
+  @include m.e(day) {
+    @include m.flex($justify: center, $align: center);
+    cursor: pointer;
+    position: relative;
+
+    @include m.m((pre, next)) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+}
