@@ -39,10 +39,14 @@
 
     <div>
       <h2>多选</h2>
-      <p>设置 <span>multiple</span> 属性即可启用多选，此时 v-model 的值为当前选中值所组成的数组</p>
+      <p>
+        设置 <span>max-collapse-tags</span>属性启用折叠标签，number类型; 需与 collapse-tags 一起使用
+      </p>
       <u-select
         multiple
-        :model-value="multipleValue"
+        collapse-tags
+        :max-collapse-tags="2"
+        :model-value="multipleValue3"
         :options="options"
         label-key="codeAndLabel"
         value-key="deptId"
@@ -64,14 +68,10 @@
     </div>
 
     <div>
-      <p>
-        设置 <span>max-collapse-tags</span>属性启用折叠标签，number类型; 需与 collapse-tags 一起使用
-      </p>
+      <p>设置 <span>multiple</span> 属性即可启用多选，此时 v-model 的值为当前选中值所组成的数组</p>
       <u-select
         multiple
-        collapse-tags
-        :max-collapse-tags="2"
-        :model-value="multipleValue3"
+        :model-value="multipleValue"
         :options="options"
         label-key="codeAndLabel"
         value-key="deptId"
@@ -92,7 +92,7 @@ const singleOptions = Array.from({ length: 100 }).map((_, i) => {
     label: '交科院',
     value: i,
     code: '88' + i,
-    codeAndLabel: `${88+i} 交科院`,
+    codeAndLabel: `${88 + i} 交科院`,
     deptId: '1701050425886236672' + i
   }
 })
@@ -169,6 +169,7 @@ const handleUpdate = (val: any) => {
     padding: 10px;
     box-sizing: border-box;
     margin-bottom: 30px;
+    // min-height: 400px;
   }
   span {
     font-weight: bold;

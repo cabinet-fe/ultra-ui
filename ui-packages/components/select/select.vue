@@ -10,7 +10,11 @@
         min-width="200px"
       >
         <template #trigger>
-          <div :class="[cls.e('input-multiple')]">
+          <div
+            :class="[cls.e('input-multiple')]"
+            @mouseenter.self="mouseEvent = true"
+            @mouseleave.self="mouseEvent = false"
+          >
             <!-- <div :class="cls.e('multiple-tags-input')">
               <u-input
                 style="overflow: auto; width: 100%; height: 30px"
@@ -20,50 +24,53 @@
             </div> -->
 
             <!-- <div> -->
-              <div :class="cls.e('multiple-tags-input')" contenteditable="false">
-                <Transition :class="cls.e('clear-multiple')" v-if="multipleOptions.length > 0">
-                  <UIcon :size="14" @click.native.stop="handleClearMultiple"><CircleClose /></UIcon>
-                </Transition>
+            <div :class="cls.e('multiple-tags-input')" contenteditable="false">
+              <Transition
+                :class="cls.e('clear-multiple')"
+                v-if="multipleOptions.length > 0 && mouseEvent"
+              >
+                <UIcon :size="14" @click.native.stop="handleClearMultiple"><CircleClose /></UIcon>
+              </Transition>
 
-                <!-- 折叠标签 -->
-                <template v-if="props.collapseTags && multipleOptions.length > 0">
-                  <!-- 最大折叠标签 -->
-                  <template
-                    v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
-                  >
-                    <template v-for="(item, index) in multipleOptions">
-                      <UTag
-                        type="primary"
-                        closable
-                        @click.stop="removeMultipleOption(item)"
-                        v-if="index < props.maxCollapseTags"
-                      >
-                        {{ item[labelKey] }}
-                      </UTag>
-                    </template>
-
-                    <UTag type="primary">+{{ multipleOptions.length }}</UTag>
-                  </template>
-
-                  <template v-else>
-                    <UTag type="primary">{{ multipleOptions[0][labelKey] }}</UTag>
-                    <UTag type="primary">+{{ multipleOptions.length }}</UTag>
-                  </template>
-                </template>
-
-                <template v-else>
-                  <div :class="cls.e('multiple-tags')">
+              <!-- 折叠标签 -->
+              <template v-if="props.collapseTags && multipleOptions.length > 0">
+                <!-- 最大折叠标签 -->
+                <template
+                  v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
+                >
+                  <template v-for="(item, index) in multipleOptions">
                     <UTag
-                      v-for="(item, index) in multipleOptions"
-                      :key="index"
+                      type="primary"
                       closable
                       @click.stop="removeMultipleOption(item)"
+                      v-if="index < props.maxCollapseTags"
                     >
                       {{ item[labelKey] }}
                     </UTag>
-                  </div>
+                  </template>
+
+                  <UTag type="primary">+{{ multipleOptions.length }}</UTag>
                 </template>
-              </div>
+
+                <template v-else>
+                  <UTag type="primary">{{ multipleOptions[0][labelKey] }}</UTag>
+                  <UTag type="primary">+{{ multipleOptions.length }}</UTag>
+                </template>
+              </template>
+
+              <template v-else>
+                <div :class="cls.e('multiple-tags')">
+                  <UTag
+                    v-for="(item, index) in multipleOptions"
+                    :key="index"
+                    closable
+                    @click.stop="removeMultipleOption(item)"
+                  >
+                    {{ item[labelKey] }}
+                  </UTag>
+                </div>
+              </template>
+            </div>
           </div>
         </template>
         <template #content>
@@ -189,7 +196,7 @@ const filteredOptions = computed(() => {
   return props.options.filter(item => item[props.labelKey].includes(queryString.value))
 })
 
-const inputValue = ref()
+let mouseEvent = shallowRef(false)
 
 /** 多选列表 */
 const multipleOptions = ref<Record<string, any>>([])
