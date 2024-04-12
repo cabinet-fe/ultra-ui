@@ -8,12 +8,11 @@
         :data="listData"
         :draggable="true"
         v-loading:[Refresh]="loading"
-        loading-text="加载中..."
+        loading-text="加载中~~~~~"
         loading-background="red"
-
       />
     </CustomCard>
-    <u-button @click="timer">再次加载数据</u-button>
+    <u-button @click="load">再次加载数据</u-button>
   </div>
 </template>
 
@@ -88,14 +87,8 @@ const listData = ref<any>([
   },
 ])
 
-const timer = () => {
+const load = () => {
   loading.value = true
-  let time = setTimeout(() => {
-    clearTimeout(time)
-    loading.value = false
-  }, 1500)
-}
-const timer2 = () => {
   let time = setTimeout(() => {
     clearTimeout(time)
     data.value = Array.from({length: 4}).map((_, index) => {
@@ -111,12 +104,12 @@ const timer2 = () => {
         b: "aa",
       }
     })
-  }, 1000)
+    loading.value = false
+  }, 1500)
 }
 
 onMounted(() => {
-  timer()
-  timer2()
+  load()
 })
 </script>
 
