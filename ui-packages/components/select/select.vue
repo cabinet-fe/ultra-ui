@@ -19,7 +19,6 @@
               />
             </div> -->
 
-            <div>
               <div :class="cls.e('multiple-tags-input')" contenteditable="false" style="">
                 <Transition :class="cls.e('clear-multiple')">
                   <UIcon :size="14" @click.prevent="handleClearMultiple"><CircleClose /></UIcon>
@@ -65,7 +64,6 @@
                   </div>
                 </template>
               </div>
-            </div>
           </div>
         </template>
         <template #content>
