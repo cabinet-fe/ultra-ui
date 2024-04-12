@@ -1,61 +1,50 @@
-import {
-  createApp,
-  h,
-  render,
-  type Directive,
-  type DirectiveBinding
-} from 'vue'
-import LoadingComponent from './loading.vue'
-import countPosition from '../tip/position'
+import {h, render, type Directive, type DirectiveBinding} from "vue"
+
+import LoadingComponent from "./loading.vue"
+
+import {createIncrease} from "@ui/utils"
+
+const uid = createIncrease(1000)
+
+let timers = new Map<number, number>()
 
 const loading: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    el.style.position = 'relative'
-    // const app = createApp(LoadingComponent)
+    timers.forEach(clearTimeout)
 
+    el.style.position = "relative"
+    // 读取自定义属性
     const node = h(LoadingComponent, {
-      loadingIcon: binding.arg
+      text: el.getAttribute("loading-text") || "Loading...",
+      background: el.getAttribute("loading-background") || "",
+      loadingIcon: binding.arg,
     })
 
     render(node, el)
-
-    // const loadingInstance = app.mount(document.createElement("div"))
-    // el.appendChild(loadingInstance.$el)
-    // el._loadingInstance = loadingInstance
   },
 
   updated(el, binding) {
+    let loadingHtml = el.querySelector(".u-loading")
+    let id = uid()
 
-
-    if (!binding.value) {
-      el.removeChild(el.querySelector('.u-loading'))
-    }
-    // 读取自定义属性
-    const text = el.getAttribute('loading-text') || 'Loading...'
-    const background = el.getAttribute('loading-background')
-    const icon = el.getAttribute('loading-icon')
-
-    let props = {
-      show: binding.value,
-      text: text,
-      background: background,
-      icon: binding.arg?.[0]
-    }
-
-    if (el._loadingInstance) {
-      // 指令绑定的值前后不一样时
-      if (binding.oldValue !== binding.value) {
-        el._loadingInstance.toggleVisible(props)
-      }
+    if (!binding.value && loadingHtml) {
+      clearTimeout(timers.get(id))
+      timers.set(
+        id,
+        setTimeout(() => {
+          loadingHtml.style.display = "none"
+        }, 1500)
+      )
+    } else {
+      loadingHtml.style.display = "inline-flex"
     }
   },
 
   unmounted(el) {
+    timers.forEach(clearTimeout)
     // 指令解绑时，卸载 loading 组件
-    if (el._loadingInstance) {
-      delete el._loadingInstance
-    }
-  }
+    el.removeChild(el.querySelector(".u-loading"))
+  },
 }
 
 export default loading
