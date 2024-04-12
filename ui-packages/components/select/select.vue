@@ -19,16 +19,16 @@
               />
             </div> -->
 
-              <div :class="cls.e('multiple-tags-input')" contenteditable="false" style="">
-                <Transition :class="cls.e('clear-multiple')">
-                  <UIcon :size="14" @click.prevent="handleClearMultiple"><CircleClose /></UIcon>
+            <!-- <div> -->
+              <div :class="cls.e('multiple-tags-input')" contenteditable="false">
+                <Transition :class="cls.e('clear-multiple')" v-if="multipleOptions.length > 0">
+                  <UIcon :size="14" @click.native.stop="handleClearMultiple"><CircleClose /></UIcon>
                 </Transition>
 
                 <!-- 折叠标签 -->
                 <template v-if="props.collapseTags && multipleOptions.length > 0">
                   <!-- 最大折叠标签 -->
                   <template
-                    222
                     v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
                   >
                     <template v-for="(item, index) in multipleOptions">
