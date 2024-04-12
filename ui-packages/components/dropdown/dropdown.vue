@@ -63,16 +63,16 @@ const visible = shallowRef(false)
 const popupStyle = shallowReactive({
   top: '',
   left: '',
-  width: '',
+  minWidth: '',
   transformOrigin: ''
 })
 
 const popupFinalStyle = computed(() => {
-  const { width, ...rest } = popupStyle
+  const { minWidth, ...rest } = popupStyle
   return {
-    width: props.width || width,
+    ...rest,
+    width: props.width,
     minWidth: props.minWidth,
-    ...rest
   }
 })
 

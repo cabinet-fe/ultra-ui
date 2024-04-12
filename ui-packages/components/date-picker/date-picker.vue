@@ -2,8 +2,7 @@
   <u-dropdown
     :class="className"
     trigger="click"
-    min-width="260px"
-    :content-class="cls.e('panel')"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
   >
     <template #trigger>
       <u-input :size="size" :placeholder="placeholder">
@@ -14,19 +13,28 @@
     </template>
 
     <template #content>
-      <div>
-        <span></span>
-        <span></span>
+      <div :class="cls.e('header')">
+        <div>
+          <u-icon><DArrowLeft /></u-icon>
+          <u-icon><ArrowLeft /></u-icon>
+        </div>
 
-        <span> 2024 </span>
-        <span> 4月 </span>
+        <div></div>
 
-        <span></span>
-        <span></span>
+        <div>
+          <u-icon><ArrowRight /></u-icon>
+          <u-icon><DArrowRight /></u-icon>
+        </div>
       </div>
       <ul :class="cls.e('days')">
-        <li :class="cls.e('day')" v-for="day of days">
-          {{ day }}
+        <li
+          v-for="day of days"
+          :class="[cls.e('day'), cls.em('day', day.type), bem.is('today')]"
+          :key="day.timestamp"
+        >
+          <span :class="cls.e('day-text')">
+            {{ day.num }}
+          </span>
         </li>
       </ul>
     </template>
@@ -41,7 +49,15 @@ import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { computed, shallowRef } from 'vue'
-import { Calendar } from 'icon-ultra'
+import {
+  Calendar,
+  ArrowLeft,
+  ArrowRight,
+  DArrowLeft,
+  DArrowRight
+} from 'icon-ultra'
+import { getMonthDays } from '../calendar/utils'
+
 import { date } from 'cat-kit/fe'
 
 defineOptions({
@@ -51,6 +67,8 @@ defineOptions({
 const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期'
 })
+
+const model = defineModel<string>()
 
 const cls = bem('date-picker')
 
@@ -64,13 +82,7 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-const days = shallowRef(Array.from({ length: 42 }).fill(0))
-
-function getMonthDays(d: Date) {
-  // 跳转到当月的第一天
-  d.setDate(1)
-  return 7 - d.getDay()
-}
-
-console.log(getMonthDays(new Date()))
+const days = computed(() => {
+  return getMonthDays(model.value ?? new Date())
+})
 </script>
