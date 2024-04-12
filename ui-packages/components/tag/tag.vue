@@ -3,7 +3,7 @@
     <div :class="cls.e('content')">
       <slot />
 
-      <UIcon v-if="closable" @click="handleClose"> <CircleClose /> </UIcon>
+      <UIcon v-if="closable" @click="handleClose"> <Close /> </UIcon>
       <!-- <u-button circle size="small" text :type="type" v-if="closable" @click.prevent="handleClose">
         x
       </u-button> -->
@@ -17,7 +17,7 @@ import { bem } from '@ui/utils'
 import { UButton } from '../button'
 import { computed } from 'vue'
 import { UIcon } from '..'
-import { CircleClose } from 'icon-ultra'
+import { Close } from 'icon-ultra'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
@@ -26,7 +26,10 @@ defineOptions({
 
 const cls = bem('tag')
 
-const props = withDefaults(defineProps<TagProps>(), {})
+const props = withDefaults(defineProps<TagProps>(), {
+  type: 'primary',
+  size: 'small'
+})
 
 const emits = defineEmits<TagEmits>()
 
