@@ -21,8 +21,8 @@
 
             <div>
               <div :class="cls.e('multiple-tags-input')" contenteditable="false" style="">
-                <Transition :class="cls.e('clear-multiple')">
-                  <UIcon :size="14" @click.prevent="handleClearMultiple"><CircleClose /></UIcon>
+                <Transition :class="cls.e('clear-multiple')" v-if="multipleOptions.length > 0">
+                  <UIcon :size="14" @click.native.stop="handleClearMultiple"><CircleClose /></UIcon>
                 </Transition>
 
                 <!-- 折叠标签 -->
