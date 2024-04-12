@@ -40,7 +40,7 @@ const treeData = computed(() => {
   return Forest.create(props.data, CustomTreeNode)
 })
 
-/** 是否默认展开 */
+/** 默认选中 */
 watchEffect(() => {
   if (props.expandAll) {
     treeData.value.dft(node => {
