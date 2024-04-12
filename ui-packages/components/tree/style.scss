@@ -9,7 +9,7 @@ $root-name: 'tree';
   @include m.size using ($size) {
     @include m.bem($root-name, 'node') {
       padding: calc(fn.use-var(font-size-main, $size));
-      height: 24px;
+      height: calc(fn.use-var(font-size-main, $size));
     }
   }
 
@@ -26,6 +26,10 @@ $root-name: 'tree';
     @include m.is('active') {
       background-color: fn.use-var(color, primary, light-3);
       color: fn.use-var(color, primary, light-9);
+    }
+
+    &:active {
+      // border: 1px solid fn.use-var(color, primary, light-3);
     }
   }
 

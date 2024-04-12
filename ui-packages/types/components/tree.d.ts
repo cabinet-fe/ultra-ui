@@ -9,6 +9,14 @@ interface CustomTreeNode<Val extends Record<string, any>>
   expanded: boolean
   loading: boolean
   loaded: boolean
+  checked: boolean
+  /** 单选高亮 */
+  active: boolean
+  /** 全部选中 */
+  allChecked: boolean
+  /** 中间状态 */
+  indeterminate: boolean
+  label: string
 }
 
 /** 树组件属性 */
@@ -32,7 +40,7 @@ export interface TreeProps<
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
   /** 可单选 */
-  select?:
+  selectable?:
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
 }
@@ -40,13 +48,14 @@ export interface TreeProps<
 export interface TreeEmit {
   (e: 'expand', node: CustomTreeNode<DataItem>): void
   (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
+  (e: 'check', checked: boolean, value: DataItem, checkKeys: Set<string | number>): void
 }
 
 export interface TreeNodeProps<Val> {
   node: CustomTreeNode<Val>
 }
 
-// // /** 树组件节点的事件 */
+/** 树组件节点的事件 */
 export interface TreeNodeEmit<DataItem> {
   (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
 }
