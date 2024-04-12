@@ -11,53 +11,61 @@
       >
         <template #trigger>
           <div :class="[cls.e('input-multiple')]">
-            <div :class="cls.e('multiple-tags-input')">
+            <!-- <div :class="cls.e('multiple-tags-input')">
               <u-input
                 style="overflow: auto; width: 100%; height: 30px"
                 placeholder=" "
                 v-model="inputValue"
               />
-            </div>
+            </div> -->
 
-            <!-- 折叠标签 -->
-            <template v-if="props.collapseTags && multipleOptions.length > 0">
-              <!-- 最大折叠标签 -->
-              <template
-                222
-                v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
-              >
-                <template v-for="(item, index) in multipleOptions">
-                  <UTag
-                    type="primary"
-                    closable
-                    @click.stop="removeMultipleOption(item)"
-                    v-if="index < props.maxCollapseTags"
+            <div>
+              <div :class="cls.e('multiple-tags-input')" contenteditable="false" style="">
+                <Transition :class="cls.e('clear-multiple')">
+                  <UIcon :size="14" @click.prevent="handleClearMultiple"><CircleClose /></UIcon>
+                </Transition>
+
+                <!-- 折叠标签 -->
+                <template v-if="props.collapseTags && multipleOptions.length > 0">
+                  <!-- 最大折叠标签 -->
+                  <template
+                    222
+                    v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
                   >
-                    {{ item[labelKey] }}
-                  </UTag>
+                    <template v-for="(item, index) in multipleOptions">
+                      <UTag
+                        type="primary"
+                        closable
+                        @click.stop="removeMultipleOption(item)"
+                        v-if="index < props.maxCollapseTags"
+                      >
+                        {{ item[labelKey] }}
+                      </UTag>
+                    </template>
+
+                    <UTag type="primary">+{{ multipleOptions.length }}</UTag>
+                  </template>
+
+                  <template v-else>
+                    <UTag type="primary">{{ multipleOptions[0][labelKey] }}</UTag>
+                    <UTag type="primary">+{{ multipleOptions.length }}</UTag>
+                  </template>
                 </template>
 
-                <UTag type="primary">+{{ multipleOptions.length }}</UTag>
-              </template>
-
-              <template v-else>
-                <UTag type="primary">{{ multipleOptions[0][labelKey] }}</UTag>
-                <UTag type="primary">+{{ multipleOptions.length }}</UTag>
-              </template>
-            </template>
-
-            <template v-else>
-              <div :class="cls.e('multiple-tags')">
-                <UTag
-                  v-for="(item, index) in multipleOptions"
-                  :key="index"
-                  closable
-                  @click.stop="removeMultipleOption(item)"
-                >
-                  {{ item[labelKey] }}
-                </UTag>
+                <template v-else>
+                  <div :class="cls.e('multiple-tags')">
+                    <UTag
+                      v-for="(item, index) in multipleOptions"
+                      :key="index"
+                      closable
+                      @click.stop="removeMultipleOption(item)"
+                    >
+                      {{ item[labelKey] }}
+                    </UTag>
+                  </div>
+                </template>
               </div>
-            </template>
+            </div>
           </div>
         </template>
         <template #content>
@@ -119,7 +127,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, watchEffect, shallowRef } from 'vue'
+import { computed, ref, reactive, watch, watchEffect, shallowRef, Transition } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 
@@ -130,7 +138,7 @@ import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { Search } from 'icon-ultra'
+import { CircleClose, Search } from 'icon-ultra'
 
 defineOptions({
   name: 'Select'
@@ -252,5 +260,9 @@ const removeMultipleOption = item => {
 const handleClear = () => {
   selected.value = undefined
   model.value = undefined
+}
+
+const handleClearMultiple = () => {
+  checkedData.clear()
 }
 </script>

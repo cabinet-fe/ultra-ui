@@ -62,10 +62,6 @@ $root-name: select;
     // }
   }
 
-  @include m.e('clear-multiple') {
-    cursor: pointer;
-  }
-
   @include m.e('clear') {
     cursor: pointer;
     position: absolute;
@@ -117,12 +113,31 @@ $root-name: select;
   }
 
   @include m.e('dropdown') {
-    position: relative;
+    // position: relative;
   }
   @include m.e('multiple-tags-input') {
-    // position: absolute;
-    // width: 100%;
-    // top: 0;
+    position: relative;
+    line-height: 1;
+    border-radius: fn.use-var(radius, default);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+    border-color: fn.use-var(border);
+    // height: fn.use-var(form-component-height-default);
+    // border: 1px solid #ccc;
+    // border-radius: 10px;
+    // overflow: auto;
+    width: 300px;
+    padding: 10px 10px 20px;
+    &:hover {
+      // 悬浮时边框颜色为 var(--u-color-primary);
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
+  }
+  @include m.e('clear-multiple') {
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
   }
   @include m.e('multiple-tags') {
     // position: absolute;
