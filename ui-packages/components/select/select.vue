@@ -20,7 +20,7 @@
             </div> -->
 
             <div>
-              <div :class="cls.e('multiple-tags-input')" contenteditable="false" style="">
+              <div :class="cls.e('multiple-tags-input')" contenteditable="false">
                 <Transition :class="cls.e('clear-multiple')" v-if="multipleOptions.length > 0">
                   <UIcon :size="14" @click.native.stop="handleClearMultiple"><CircleClose /></UIcon>
                 </Transition>
@@ -29,7 +29,6 @@
                 <template v-if="props.collapseTags && multipleOptions.length > 0">
                   <!-- 最大折叠标签 -->
                   <template
-                    222
                     v-if="props.collapseTags && props.maxCollapseTags && multipleOptions.length > 0"
                   >
                     <template v-for="(item, index) in multipleOptions">
