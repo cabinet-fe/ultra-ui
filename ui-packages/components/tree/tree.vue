@@ -99,12 +99,13 @@ watch(
   () => store.checkedData.size,
   () => {
     let { node, checked } = store.currentChecked.value
-
+    console.log(node, 'node')
     processRecursiveArray(
       node.value?.[props.childrenKey] ?? [],
       props.childrenKey,
       item => {
         if (checked) {
+          // console.log(item, 'item')
           store.checkedData.add(item[props.valueKey])
         } else {
           store.checkedData.delete(item[props.valueKey])
