@@ -9,7 +9,8 @@
     <u-checkbox v-if="treeProps.checkable" :model-value="node.checked"
       :indeterminate="checkStrictly ? false : node.indeterminate" @update:modelValue="handleCheck($event)"></u-checkbox>
 
-    {{ node.value[treeProps.labelKey!] }}
+    <u-node-render :content="getTreeSlotsNode({ data: node.value })"/>
+    <!-- <span v-else>{{ node.value[treeProps.labelKey!] }}</span> -->
   </div>
 
   <template v-if="node.children && node.expanded">
@@ -28,6 +29,7 @@ import { CaretRight } from 'icon-ultra'
 import type { TreeNodeEmit, TreeNodeProps } from '@ui/types/components/tree'
 import UCheckbox from '../checkbox/checkbox.vue'
 import { Tree } from 'cat-kit/fe'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'TreeNode'
@@ -37,7 +39,7 @@ const props = defineProps<TreeNodeProps<Val>>()
 
 const { node } = props
 
-let { treeProps, treeEmit, cls, selected, checked } = inject(TreeDIKey)!
+let { treeProps, treeEmit, cls, selected, checked, getTreeSlotsNode } = inject(TreeDIKey)!
 
 const { valueKey, checkStrictly } = treeProps
 

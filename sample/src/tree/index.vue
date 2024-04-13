@@ -23,8 +23,16 @@
 
     <CustomCard title="父子不关联">
       <UTree :data="data" expand-all label-key="name" value-key="id" checkable check-strictly @check="handleCheck" />
-      
+
       checkable多选 {{ checked }}
+    </CustomCard>
+
+    <CustomCard title="自定义内容">
+      <UTree :data="data" expand-all label-key="name" value-key="id" checkable check-strictly @check="handleCheck">
+        <template #default="{ data }">
+          {{ data.name + '------' + data.id }}
+        </template>
+      </UTree>
     </CustomCard>
   </div>
 </template>
