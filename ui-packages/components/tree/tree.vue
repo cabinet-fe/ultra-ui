@@ -23,7 +23,8 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   valueKey: 'value',
   childrenKey: 'children',
   expanded: false,
-  expandOnClickNode: false
+  expandOnClickNode: false,
+  checkStrictly: false
 })
 
 const emit = defineEmits<TreeEmit>()
@@ -58,7 +59,7 @@ const context = {
   treeEmit: emit,
   cls,
   selected,
-  checked
+  checked,
 }
 
 provide(TreeDIKey, context)

@@ -12,7 +12,7 @@ export interface TreeConText {
   selected: ShallowRef<CustomTreeNode<Record<string, any>> | undefined>
   /** 多选的节点 */
   checked:  Set<string | number>
-
+  
   treeEmit: TreeEmit
 }
 

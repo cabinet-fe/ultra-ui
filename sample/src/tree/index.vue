@@ -1,48 +1,29 @@
 <template>
   <div>
     <CustomCard title="全部展开">
-      <UTree
-        style="margin-bottom: 10px"
-        :data="data"
-        label-key="name"
-        value-key="id"
-        expand-all
-      />
+      <UTree style="margin-bottom: 10px" :data="data" label-key="name" value-key="id" expand-all />
     </CustomCard>
 
     <CustomCard title="点击节点展开">
-      <UTree
-        :data="data"
-        label-key="name"
-        value-key="id"
-        expand-on-click-node
-      ></UTree>
+      <UTree :data="data" label-key="name" value-key="id" expand-on-click-node></UTree>
     </CustomCard>
 
     <CustomCard title="单选">
-      <UTree
-        :data="data"
-        expand-all
-        label-key="name"
-        value-key="id"
-        @node-click="handleNodeClick"
-        selectable
-      />
+      <UTree :data="data" expand-all label-key="name" value-key="id" @node-click="handleNodeClick" selectable />
 
       select单选 {{ select }}
     </CustomCard>
 
     <CustomCard title="多选">
-      <UTree
-        :data="data"
-        expand-all
-        label-key="name"
-        value-key="id"
-        checkable
-        @check="handleCheck"
-      >
+      <UTree :data="data" expand-all label-key="name" value-key="id" checkable @check="handleCheck">
       </UTree>
 
+      checkable多选 {{ checked }}
+    </CustomCard>
+
+    <CustomCard title="父子不关联">
+      <UTree :data="data" expand-all label-key="name" value-key="id" checkable check-strictly @check="handleCheck" />
+      
       checkable多选 {{ checked }}
     </CustomCard>
   </div>

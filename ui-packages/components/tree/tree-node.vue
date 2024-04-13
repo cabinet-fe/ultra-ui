@@ -1,21 +1,13 @@
 <template>
   <div :class="nodeClass" :style="style" @click="handleClick">
-    <u-icon
-      v-if="!node.isLeaf"
-      :class="expandClass"
-      @click.stop="node.expanded = !node.expanded"
-    >
+    <u-icon v-if="!node.isLeaf" :class="expandClass" @click.stop="node.expanded = !node.expanded">
       <CaretRight />
     </u-icon>
 
     <i v-else style="display: inline-block; width: 20px; height: 14px" />
 
-    <u-checkbox
-      v-if="treeProps.checkable"
-      :model-value="node.checked || node.allChecked"
-      :indeterminate="node.indeterminate"
-      @update:modelValue="handleCheck($event)"
-    ></u-checkbox>
+    <u-checkbox v-if="treeProps.checkable" :model-value="node.checked"
+      :indeterminate="checkStrictly ? false : node.indeterminate" @update:modelValue="handleCheck($event)"></u-checkbox>
 
     {{ node.value[treeProps.labelKey!] }}
   </div>
@@ -47,7 +39,7 @@ const { node } = props
 
 let { treeProps, treeEmit, cls, selected, checked } = inject(TreeDIKey)!
 
-const { valueKey } = treeProps
+const { valueKey, checkStrictly } = treeProps
 
 let emit = defineEmits<TreeNodeEmit<Val>>()
 
@@ -75,7 +67,6 @@ const handleCheck = (_checked: boolean) => {
   if (_checked) {
     checked.add(val)
   } else {
-    console.log(_checked, '_checked')
     checked.delete(val)
   }
 
@@ -85,10 +76,13 @@ const handleCheck = (_checked: boolean) => {
       checked.add(node.value[valueKey!])
     })
   } else {
-    Tree.dft(node, node => {
-      node.checked = false
-      checked.delete(node.value[valueKey!])
-    })
+    if (checkStrictly === false) {
+      Tree.dft(node, node => {
+        node.checked = false
+        checked.delete(node.value[valueKey!])
+      })
+    }
+
   }
 
   // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
@@ -98,11 +92,13 @@ const handleCheck = (_checked: boolean) => {
 watch(
   () => node.allChecked,
   value => {
-    if (value) {
-      checked.add(node.value[valueKey!])
-    } else {
-      if (!node.checked) {
+    if (checkStrictly === false) {
+      if (value) {
+        checked.add(node.value[valueKey!])
+        node.checked = true
+      } else {
         checked.delete(node.value[valueKey!])
+        node.checked = false
       }
     }
   }

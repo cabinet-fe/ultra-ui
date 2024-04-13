@@ -21,13 +21,12 @@ export class CustomTreeNode<
     return (
       this.children?.every(child => {
         return child.checked
-      }) ?? false
+      })
     )
   }
 
   /** 中间状态 */
   get indeterminate() {
-    // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
     return (
       !this.checked &&
       (this.children?.some(child => child.checked) ?? false) &&

@@ -43,6 +43,7 @@ export interface TreeProps<
   selectable?:
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
+  checkStrictly?: boolean
 }
 
 export interface TreeEmit {
