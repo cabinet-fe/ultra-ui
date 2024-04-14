@@ -37,6 +37,7 @@ $root-name: 'tree';
     cursor: pointer;
     transition: transform 0.2s;
     margin-right: fn.use-var(gap, small);
+    font-size: 18px;
 
     @include m.is('expanded') {
       transform: rotate(90deg);

@@ -17,23 +17,6 @@ export class CustomTreeNode<
   /** 多选是否选中 */
   checked = false
 
-  get allChecked() {
-    return (
-      this.children?.every(child => {
-        return child.checked
-      })
-    )
-  }
-
-  /** 中间状态 */
-  get indeterminate() {
-    return (
-      !this.checked &&
-      (this.children?.some(child => child.checked) ?? false) &&
-      !this.allChecked
-    )
-  }
-
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
     if (parent) {

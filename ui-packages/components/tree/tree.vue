@@ -7,7 +7,15 @@
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
 import type { TreeProps, TreeEmit } from '@ui/types/components/tree'
-import { computed, provide, reactive, shallowRef, useSlots, watchEffect, type VNode } from 'vue'
+import {
+  computed,
+  provide,
+  reactive,
+  shallowRef,
+  useSlots,
+  watchEffect,
+  type VNode
+} from 'vue'
 import { TreeDIKey } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
@@ -22,7 +30,6 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   labelKey: 'label',
   valueKey: 'value',
   childrenKey: 'children',
-  expanded: false,
   expandOnClickNode: false,
   checkStrictly: false
 })
@@ -37,13 +44,17 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })
 
+interface TreeSlotsScope {
+  node: CustomTreeNode<DataItem>
+  data: DataItem
+}
 defineSlots<{
-  default: (props: { data: DataItem }) => any
+  default: (props: TreeSlotsScope) => any
 }>()
 
-let slots = useSlots()
+const slots = useSlots()
 
-const getTreeSlotsNode = (ctx: { data: Record<string, any> }): VNode[] | undefined => {
+const getTreeSlotsNode = (ctx: TreeSlotsScope): VNode[] | undefined => {
   return slots.default?.(ctx) ?? ctx.data[props.labelKey]
 }
 
