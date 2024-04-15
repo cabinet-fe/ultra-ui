@@ -10,6 +10,7 @@ interface CustomTreeNode<DataItem extends Record<string, any>>
   loading: boolean
   loaded: boolean
   checked: boolean
+  indeterminate: boolean
   /** 单选高亮 */
   active: boolean
 }

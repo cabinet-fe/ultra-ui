@@ -14,6 +14,7 @@
     <u-checkbox
       v-if="treeProps.checkable"
       :model-value="node.checked"
+      :indeterminate="node.indeterminate"
       @update:model-value="handleCheck($event)"
     />
 
@@ -34,7 +35,7 @@ import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
-import type { TreeNodeProps } from '@ui/types/components/tree'
+import type { CustomTreeNode, TreeNodeProps } from '@ui/types/components/tree'
 import UCheckbox from '../checkbox/checkbox.vue'
 import { Tree } from 'cat-kit/fe'
 import { UNodeRender } from '../node-render'
@@ -76,13 +77,42 @@ const handleCheck = (_checked: boolean) => {
       node.checked = true
       checked.add(node.value[valueKey!])
     })
+
+    node.indeterminate = false
+
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = parent.children!.every(child => child.checked)
+        if (!parent.checked) {
+          parent.indeterminate = true
+        } else {
+          parent.indeterminate = false
+          checked.add(parent.value[valueKey!])
+        }
+
+        parent = parent.parent
+      }
+    }
   } else {
     Tree.dft(node, node => {
       node.checked = false
       checked.delete(node.value[valueKey!])
     })
 
-    // TODO为tree提供回溯API
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = false
+
+        parent.indeterminate =
+          (parent.children!.some(child => child.checked) &&
+            parent.children!.some(child => !child.checked)) ||
+          parent.children!.some(child => child.indeterminate)
+
+        parent = parent.parent
+      }
+    }
   }
 
   // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
