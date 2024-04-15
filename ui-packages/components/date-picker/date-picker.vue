@@ -3,6 +3,7 @@
     :class="className"
     trigger="click"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    width="auto"
   >
     <template #trigger>
       <u-input :size="size" :placeholder="placeholder">

@@ -13,6 +13,7 @@ $root-name: input;
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   overflow: hidden;
+  width: 100%;
 
   &:hover {
     // 悬浮时边框颜色为 var(--u-color-primary);

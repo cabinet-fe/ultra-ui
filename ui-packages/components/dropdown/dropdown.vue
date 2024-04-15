@@ -28,9 +28,15 @@
 <script lang="ts" setup>
 import type {
   DropdownProps,
-  DropdownExposed
+  DropdownExposed,
+  DropdownEmits
 } from '@ui/types/components/dropdown'
-import { bem, computeDropdownPosition, getScrollParents } from '@ui/utils'
+import {
+  bem,
+  computeDropdownPosition,
+  getScrollParents,
+  zIndex
+} from '@ui/utils'
 import {
   nextTick,
   shallowRef,
@@ -40,6 +46,7 @@ import {
   onBeforeUnmount
 } from 'vue'
 import vClickOutside from '@ui/directives/click-outside'
+import { useResizeObserver } from '@ui/compositions'
 
 defineOptions({
   name: 'Dropdown',
@@ -51,6 +58,8 @@ const props = withDefaults(defineProps<DropdownProps>(), {
   contentTag: 'div'
 })
 
+defineEmits<DropdownEmits>()
+
 const cls = bem('dropdown')
 
 const dropdownRef = shallowRef<HTMLElement>()
@@ -58,22 +67,43 @@ const dropdownRef = shallowRef<HTMLElement>()
 const contentRef = shallowRef<HTMLElement>()
 
 /**显示隐藏 */
-const visible = shallowRef(false)
+const visible = defineModel<boolean>('visible')
 
 const popupStyle = shallowReactive({
   top: '',
   left: '',
-  minWidth: '',
-  transformOrigin: ''
+  width: '',
+  transformOrigin: '',
+  zIndex: zIndex()
+})
+
+watch(visible, async v => {
+  if (v) {
+    await nextTick()
+    popupStyle.zIndex = zIndex()
+    window.addEventListener('resize', close)
+    updateDropdown()
+
+    /** 添加滚动事件 */
+    scrollParents = getScrollParents(dropdownRef.value!)
+    addScrollEvent()
+  } else {
+    removeScrollEvent()
+    window.removeEventListener('resize', close)
+  }
 })
 
 const popupFinalStyle = computed(() => {
-  const { minWidth, ...rest } = popupStyle
-  return {
-    ...rest,
-    width: props.width,
-    minWidth: props.minWidth,
+  const ret: Record<string, string | number> = {
+    ...popupStyle
   }
+  if (props.minWidth) {
+    ret.minWidth = props.minWidth
+  }
+  if (props.width) {
+    ret.width = props.width
+  }
+  return ret
 })
 
 let closeTimer: number | undefined
@@ -124,19 +154,6 @@ function removeScrollEvent() {
   scrollParents = []
 }
 
-watch(visible, async v => {
-  if (v) {
-    await nextTick()
-    updateDropdown()
-
-    /** 添加滚动事件 */
-    scrollParents = getScrollParents(dropdownRef.value!)
-    addScrollEvent()
-  } else {
-    removeScrollEvent()
-  }
-})
-
 const eventsHandlers = computed(() => {
   const { trigger } = props
 
@@ -154,6 +171,7 @@ const eventsHandlers = computed(() => {
 
 onBeforeUnmount(() => {
   removeScrollEvent()
+  window.removeEventListener('resize', close)
 })
 
 defineExpose<DropdownExposed>({

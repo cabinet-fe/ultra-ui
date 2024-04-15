@@ -4,8 +4,6 @@
     :class="cls.b"
     min-width="200px"
     ref="dropdownRef"
-    v-model:visible="dropdownVisible"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -15,13 +13,16 @@
         :disabled="disabled"
         :placeholder="props.placeholder"
         :clearable="props.clearable"
-        :model-value="label || selected?.[props.labelKey]"
         @clear="handleClear"
       >
         <template #suffix>
           <u-icon><ArrowDown /></u-icon>
         </template>
       </u-input>
+
+      <!-- <div>
+        <u-tag></u-tag>
+      </div> -->
     </template>
 
     <!-- 下拉内容 -->
@@ -35,57 +36,58 @@
         </u-input>
       </div>
 
-      <!-- 单选列表 -->
-      <u-scroll
-        v-if="filteredOptions.length"
-        tag="ul"
-        :class="cls.e('options')"
-        ref="scrollRef"
-      >
+      <!-- 多选栏 -->
+      <div :class="cls.e('content-header')">
+        <u-checkbox @update:model-value="handleCheckAll"> 全选 </u-checkbox>
+        <u-icon @click="dropdownRef?.close()">
+          <Close />
+        </u-icon>
+      </div>
+
+      <!-- 多选列表 -->
+      <u-scroll tag="ul" :class="cls.e('options')">
         <li
           v-for="(option, index) of filteredOptions"
-          :class="[optionClass, bem.is('selected', option[valueKey] === model)]"
-          @click="handleSelect(option)"
-          v-ripple="cls.e('ripple')"
-          :data-key="option[valueKey]"
+          :class="[optionClass]"
+          v-ripple
         >
+          <u-checkbox :model-value="checked.has(option[props.valueKey])" />
+
           <slot v-bind="{ option, index }">
-            {{ option[labelKey] }}
+            {{ option[props.labelKey] }}
           </slot>
         </li>
       </u-scroll>
-
-      <div v-else :class="cls.e('empty')">未查询到结果</div>
     </template>
   </u-dropdown>
 </template>
 
-<script lang="ts" setup generic="Option extends Record<string, any>">
-import { computed, shallowRef, watch } from 'vue'
-import type { SelectEmits, SelectProps } from '@ui/types/components/select'
+<script lang="ts" setup generic="M extends boolean | undefined">
+import { computed, shallowRef, shallowReactive, watchEffect, watch } from 'vue'
+import type { MultiSelectEmits, MultiSelectProps } from '@ui/types/components/multi-select'
 import { bem } from '@ui/utils'
-
+import { UTag } from '../tag'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-
+import { UCheckbox } from '../checkbox'
 import { UDropdown, type DropdownExposed } from '../dropdown'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { ArrowDown, Search } from 'icon-ultra'
+import { ArrowDown, Search, Close } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'Select'
 })
 
-const props = withDefaults(defineProps<SelectProps<Option>>(), {
+const props = withDefaults(defineProps<MultiSelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
   clearable: true
 })
 
-const emit = defineEmits<SelectEmits<Option>>()
+const emit = defineEmits<MultiSelectEmits>()
 
 const cls = bem('select')
 
@@ -97,45 +99,25 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false
 })
 
-const model = defineModel<string | number>()
-const label = defineModel('label')
-const selected = shallowRef<Record<string, any>>()
+const model = defineModel<Array<string | number>>()
+const checked = shallowReactive<Set<string | number>>(new Set())
 
 const dropdownRef = shallowRef<DropdownExposed>()
-const scrollRef = shallowRef<ScrollExposed>()
 
 watch(
   [model, () => props.options],
   ([model, options]) => {
     if (!options?.length) return
 
-    if (model !== undefined) {
-      const { valueKey } = props
-      selected.value = options.find(option => option[valueKey] === model)
+    if (model) {
     } else {
-      selected.value = undefined
     }
   },
   { immediate: true }
 )
 
-watch(scrollRef, scroll => {
-  if (scroll && model.value !== undefined) {
-    const li = scroll.contentRef!.querySelector(`li[data-key="${model.value}"]`)
-    li?.scrollIntoView({ block: 'nearest', inline: 'start' })
-  }
-})
-
 /** 筛选 */
 const queryString = shallowRef('')
-
-const dropdownVisible = shallowRef(false)
-
-watch(dropdownVisible, v => {
-  if (!v) {
-    queryString.value = ''
-  }
-})
 
 /** 已过滤的选项 */
 const filteredOptions = computed(() => {
@@ -145,18 +127,21 @@ const filteredOptions = computed(() => {
   return options.filter(item => item[labelKey].includes(queryString.value))
 })
 
-/** 单选 */
-const handleSelect = (option: Option) => {
-  selected.value = option
-  model.value = option[props.valueKey]
-  label.value = option[props.labelKey]
-  dropdownRef.value?.close()
-  emit('change', option)
+/** 全选 */
+const handleCheckAll = (_checked: boolean) => {
+  const { options, valueKey } = props
+  if (_checked) {
+    options.forEach(item => {
+      item[valueKey] && checked.add(item[valueKey])
+    })
+  } else {
+    checked.clear()
+  }
 }
 
 /** 清除选项 */
 const handleClear = () => {
-  selected.value = undefined
-  model.value = undefined
+  model.value = []
+  checked.clear()
 }
 </script>

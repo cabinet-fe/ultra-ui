@@ -1,19 +1,18 @@
 <template>
   <div :class="cls.b" @click="fileRef?.click()">
     <input
-      :multiple="props.multiple"
+      :multiple="multiple"
       type="file"
       :accept="accept"
       hidden
       ref="fileRef"
       @change="handleChange"
     />
-
     <slot />
   </div>
 </template>
 
-<script lang="ts" setup generic="M extends boolean | undefined">
+<script lang="ts" setup>
 import type {
   UploaderProps,
   UploaderEmits
@@ -25,7 +24,9 @@ defineOptions({
   name: 'FilePicker'
 })
 
-const props = defineProps<UploaderProps<M>>()
+withDefaults(defineProps<UploaderProps>(), {
+  multiple: false
+})
 
 const emit = defineEmits<UploaderEmits>()
 

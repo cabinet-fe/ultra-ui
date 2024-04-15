@@ -25,6 +25,7 @@
       ref="el"
       v-bind="attrs"
       :disabled="disabled"
+      :readonly="readonly"
     />
 
     <Transition name="zoom-in">
@@ -32,7 +33,7 @@
         v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"
         :size="14"
-        @click="clearModelValue"
+        @click.stop="clearModelValue"
       >
         <CircleClose />
       </UIcon>

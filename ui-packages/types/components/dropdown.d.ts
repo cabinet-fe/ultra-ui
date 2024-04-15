@@ -22,11 +22,14 @@ export interface DropdownProps {
   contentTag?: string
   /** 内容容器类 */
   contentClass?: string | string[]
+  /** 显示下拉框 */
+  visible?: boolean
 }
 
 /** 下拉框组件定义的事件 */
 export interface DropdownEmits {
-
+  /** 下拉框显示或隐藏事件 */
+  (e: "update:visible", visible: boolean): void
 }
 
 /** 下拉框组件暴露的属性和方法(组件内部使用) */

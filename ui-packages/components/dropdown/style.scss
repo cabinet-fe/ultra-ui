@@ -14,7 +14,6 @@ $root-name: dropdown;
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     box-shadow: fn.use-var(shadow);
-    max-height: 200px;
     top: 0;
     left: 0;
   }

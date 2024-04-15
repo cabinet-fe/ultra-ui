@@ -1,12 +1,12 @@
 import type { DeconstructValue } from '../helper'
 
 /** 文件上传器组件属性 */
-export interface UploaderProps<Multi extends boolean | undefined> {
+export interface UploaderProps {
   /** 允许上传的文件类型 */
   accept?: string
 
   /** 是否允许多选 */
-  multiple?: Multi
+  multiple?: boolean
 }
 
 /** 文件上传器组件定义的事件 */

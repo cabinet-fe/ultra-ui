@@ -18,7 +18,7 @@
     "typescript": "5.4.5",
     "vite": "5.2.8",
     "@changesets/cli": "^2.27.1",
-    "vue-tsc": "^2.0.12",
+    "vue-tsc": "^2.0.13",
     "tsx": "^4.7.2",
     "cat-kit": "^3.4.16",
     "@vitejs/plugin-vue": "^5.0.4",

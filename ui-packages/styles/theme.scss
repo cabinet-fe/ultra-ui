@@ -65,10 +65,15 @@
 // 初始化
 html {
   font-family: fn.use-var(font-family);
-  font-size: fn.use-var(font-size-main, default);
   font-weight: normal;
-  color: #303133;
+  color: fn.use-var(text-color, main);
   line-height: 1.4;
+
+  @each $size in vars.$sizes {
+    &.#{$size} {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
 }
 
 body,

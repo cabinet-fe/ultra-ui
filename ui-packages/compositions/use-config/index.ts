@@ -1,4 +1,4 @@
-import { reactive, readonly } from 'vue'
+import { reactive, readonly, watch } from 'vue'
 import type { ComponentSize } from '@ui/types/component-common'
 import { obj } from 'cat-kit/fe'
 
@@ -13,6 +13,15 @@ const state = reactive<State>({
   animation: true,
   size: 'default'
 })
+
+watch(
+  () => state.size,
+  (size, oldSize) => {
+    oldSize && document.documentElement.classList.remove(oldSize)
+    document.documentElement.classList.add(size)
+  },
+  { immediate: true }
+)
 
 export function useConfig() {
   return {
