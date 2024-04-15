@@ -13,7 +13,8 @@
 
     <u-checkbox
       v-if="treeProps.checkable"
-      :model-value="node.checked"
+      :model-value="checked.has(node.value[treeProps.valueKey!])"
+      :indeterminate="node.indeterminate"
       @update:model-value="handleCheck($event)"
     />
 
@@ -76,13 +77,43 @@ const handleCheck = (_checked: boolean) => {
       node.checked = true
       checked.add(node.value[valueKey!])
     })
+
+    node.indeterminate = false
+
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = parent.children!.every(child => child.checked)
+        if (!parent.checked) {
+          parent.indeterminate = true
+        } else {
+          parent.indeterminate = false
+          checked.add(parent.value[valueKey!])
+        }
+
+        parent = parent.parent
+      }
+    }
   } else {
     Tree.dft(node, node => {
       node.checked = false
       checked.delete(node.value[valueKey!])
     })
 
-    // TODO为tree提供回溯API
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = false
+        checked.delete(parent.value[valueKey!])
+
+        parent.indeterminate =
+          (parent.children!.some(child => child.checked) &&
+            parent.children!.some(child => !child.checked)) ||
+          parent.children!.some(child => child.indeterminate)
+
+        parent = parent.parent
+      }
+    }
   }
 
   // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
