@@ -4,6 +4,7 @@
     :class="cls.b"
     min-width="200px"
     ref="dropdownRef"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
   >
     <!-- 触发 -->
     <template #trigger>
