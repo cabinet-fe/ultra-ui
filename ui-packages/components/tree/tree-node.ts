@@ -16,12 +16,14 @@ export class CustomTreeNode<
   active = false
   /** 多选是否选中 */
   checked = false
+  indeterminate = false
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
     if (parent) {
       this.parent = parent
     }
+
     return shallowReactive(this)
   }
 

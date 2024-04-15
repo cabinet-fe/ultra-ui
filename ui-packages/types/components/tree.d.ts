@@ -1,13 +1,18 @@
 import type { PropsWithServerQuery } from '../component-common'
 import type { TreeNode } from 'cat-kit/fe'
-interface CustomTreeNode<Val extends Record<string, any>>
-  extends TreeNode<Val> {
-  parent: CustomTreeNode<Val> | null
-  children?: CustomTreeNode<Val>[]
+
+interface CustomTreeNode<DataItem extends Record<string, any>>
+  extends TreeNode<DataItem> {
+  parent: CustomTreeNode<DataItem> | null
+  children?: CustomTreeNode<DataItem>[]
   visible: boolean
   expanded: boolean
   loading: boolean
   loaded: boolean
+  checked: boolean
+  indeterminate: boolean
+  /** 单选高亮 */
+  active: boolean
 }
 
 /** 树组件属性 */
@@ -31,21 +36,23 @@ export interface TreeProps<
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
   /** 可单选 */
-  select?:
+  selectable?:
     | boolean
     | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
+  checkStrictly?: boolean
 }
 
 export interface TreeEmit {
   (e: 'expand', node: CustomTreeNode<DataItem>): void
-  (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
+  (e: 'node-click', node: CustomTreeNode<DataItem>): void
+  (
+    e: 'check',
+    checked: boolean,
+    value: DataItem,
+    checkKeys: Set<string | number>
+  ): void
 }
 
-export interface TreeNodeProps<Val> {
-  node: CustomTreeNode<Val>
-}
-
-// // /** 树组件节点的事件 */
-export interface TreeNodeEmit<DataItem> {
-  (e: 'node-click', value: DataItem, node: CustomTreeNode<DataItem>): void
+export interface TreeNodeProps {
+  node: CustomTreeNode<Record<string, any>>
 }

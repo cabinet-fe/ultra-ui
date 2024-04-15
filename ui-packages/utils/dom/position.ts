@@ -31,7 +31,7 @@ function getViewport() {
 interface DropdownPosition {
   top: string
   left: string
-  width: string
+  minWidth: string
   transformOrigin: string
 }
 
@@ -71,7 +71,7 @@ export function computeDropdownPosition(options: Options): DropdownPosition {
   return {
     top: top + 'px',
     left: left + 'px',
-    width: triggerEl.offsetWidth + 'px',
+    minWidth: triggerEl.offsetWidth + 'px',
     transformOrigin
   }
 }

@@ -128,7 +128,8 @@
     @if $value == null {
       --#{vars.$namespace}#{$prefix}: #{$type};
     } @else {
-      --#{vars.$namespace}#{$prefix}-#{$type}: #{$value};
+      // "" + $type用于消除警告
+      --#{vars.$namespace}#{$prefix}-#{"" + $type}: #{$value};
     }
   }
 }

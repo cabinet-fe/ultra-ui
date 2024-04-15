@@ -1,87 +1,136 @@
 <template>
-  <div :class="nodeClass" :style="style" @click="toggleNodeExpand">
+  <div :class="nodeClass" :style="style" @click="handleClick">
     <u-icon
       v-if="!node.isLeaf"
       :class="expandClass"
       @click.stop="node.expanded = !node.expanded"
     >
-      <CaretRight />
+      <ArrowRight />
     </u-icon>
 
-    <i v-else style="display: inline-block; width: 14px; height: 14px" />
+    <!-- //TODO: 用类来替代style -->
+    <i v-else style="display: inline-block; width: 24px; height: 20px" />
 
     <u-checkbox
       v-if="treeProps.checkable"
-      :model-value="node.checked"
-      @update:model-value="(checked: boolean) => handleCheckMode(checked, node)"
-    ></u-checkbox>
+      :model-value="checked.has(node.value[treeProps.valueKey!])"
+      :indeterminate="node.indeterminate"
+      @update:model-value="handleCheck($event)"
+    />
 
-    {{ node.value[treeProps.labelKey!] }}
+    <u-node-render
+      :content="getTreeSlotsNode({ node: node, data: node.value })"
+    />
   </div>
 
   <template v-if="node.children && node.expanded">
-    <UTreeNode
-      v-for="child of node.children"
-      :node="child"
-      @node-click="handleNodeClick(child)"
-    />
+    <UTreeNode v-for="child of node.children" :node="child" />
   </template>
 </template>
 
-<script lang="ts" setup generic="Val extends Record<string, any>">
-import { CustomTreeNode } from './tree-node'
+<script lang="ts" setup>
 import { TreeDIKey } from './di'
-import { computed, inject, ref } from 'vue'
+import { computed, inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
-import { CaretRight } from 'icon-ultra'
-import type { TreeNodeEmit, TreeNodeProps } from '@ui/types/components/tree'
+import { ArrowRight } from 'icon-ultra'
+import type { TreeNodeProps } from '@ui/types/components/tree'
 import UCheckbox from '../checkbox/checkbox.vue'
+import { Tree } from 'cat-kit/fe'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'TreeNode'
 })
 
-const props = defineProps<TreeNodeProps<Val>>()
+const props = defineProps<TreeNodeProps>()
 
-let injected = inject(TreeDIKey)!
-const { treeProps, treeEmit, cls } = injected
-
-let emit = defineEmits<TreeNodeEmit<Val>>()
+const { treeProps, treeEmit, cls, selected, checked, getTreeSlotsNode } =
+  inject(TreeDIKey)!
 
 /** 行class */
 const nodeClass = computed(() => {
-  return [cls.e('node'), bem.is('active', props.node?.active)]
+  const { node } = props
+  return [cls.e('node'), bem.is('active', node === selected.value)]
 })
 
 const style = computed(() => {
+  const { node } = props
   return {
-    paddingLeft: withUnit(props.node.depth * 20 - 20, 'px')
+    paddingLeft: withUnit(node.depth * 20 - 20, 'px')
   }
 })
 
 const expandClass = computed(() => {
-  return [cls.e('expand-icon'), bem.is('expanded', props.node.expanded)]
+  const { node } = props
+  return [cls.e('expand-icon'), bem.is('expanded', node.expanded)]
 })
 
-const handleCheckMode = (value: boolean, node: CustomTreeNode<Val>) => {
-  // node.checked = value
-}
+/** 多选选中 */
+const handleCheck = (_checked: boolean) => {
+  const { valueKey, checkStrictly } = treeProps
+  const { node } = props
 
-const handleNodeClick = (node: CustomTreeNode<Val>) => {
-  if (!treeProps.select) return
-  injected.selectNodes.value = node
-  console.log(node, 'node')
-}
+  if (_checked) {
+    Tree.dft(node, node => {
+      node.checked = true
+      checked.add(node.value[valueKey!])
+    })
 
-const toggleNodeExpand = async () => {
-  if (treeProps.expandOnClickNode) {
-    props.node.expanded = !props.node.expanded
+    node.indeterminate = false
+
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = parent.children!.every(child => child.checked)
+        if (!parent.checked) {
+          parent.indeterminate = true
+        } else {
+          parent.indeterminate = false
+          checked.add(parent.value[valueKey!])
+        }
+
+        parent = parent.parent
+      }
+    }
+  } else {
+    Tree.dft(node, node => {
+      node.checked = false
+      checked.delete(node.value[valueKey!])
+    })
+
+    if (!checkStrictly) {
+      let parent = node.parent
+      while (parent && parent.depth > 0) {
+        parent.checked = false
+        checked.delete(parent.value[valueKey!])
+
+        parent.indeterminate =
+          (parent.children!.some(child => child.checked) &&
+            parent.children!.some(child => !child.checked)) ||
+          parent.children!.some(child => child.indeterminate)
+
+        parent = parent.parent
+      }
+    }
   }
 
-  treeEmit('expand', props.node)
-  treeEmit('node-click', props.node.value, props.node)
-  emit('node-click', props.node.value, props.node)
+  // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
+  treeEmit('check', _checked, node.value, checked)
+}
+
+const handleClick = () => {
+  const { node } = props
+  if (treeProps.expandOnClickNode) {
+    node.expanded = !node.expanded
+    treeEmit('expand', node)
+  } else {
+    if (!treeProps.selectable) return
+
+    selected.value = node
+
+    treeEmit('node-click', node)
+  }
 }
 </script>

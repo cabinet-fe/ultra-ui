@@ -2,7 +2,9 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(textarea) {
+$root-name: textarea;
+
+@include m.b($root-name) {
     position: relative;
 
     @include m.m(more) {
@@ -42,11 +44,13 @@
         @include m.is(resize-none) {
             resize: none;
         }
+
         @include m.is(readonly) {
             cursor: default;
             resize: none;
         }
     }
+
     @include m.size using ($size) {
         font-size: fn.use-var('font-size', main, $size);
         padding: fn.use-var(gap, $size);

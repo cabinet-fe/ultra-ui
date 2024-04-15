@@ -6,7 +6,7 @@ export interface LoadingProps {
   /**自定义文本 */
   text?: string
   /**自定义图标 */
-  loadingIcon?:Component
+  loadingIcon?:Component | string
 
   background?:string
 }
