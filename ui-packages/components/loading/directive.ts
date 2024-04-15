@@ -1,12 +1,10 @@
 import {h, render, type Directive, type DirectiveBinding} from "vue"
-
 import LoadingComponent from "./loading.vue"
-
 import {createIncrease} from "@ui/utils"
 
-const uid = createIncrease(1000)
-
 let timers = new Map<number, number>()
+
+const uid = createIncrease(1000)
 
 const loading: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
@@ -27,7 +25,7 @@ const loading: Directive = {
     let loadingHtml = el.querySelector(".u-loading")
     let id = uid()
 
-    if (!binding.value && loadingHtml) {
+    if (!binding.value) {
       clearTimeout(timers.get(id))
       timers.set(
         id,

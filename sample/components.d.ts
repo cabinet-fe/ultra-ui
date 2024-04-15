@@ -32,7 +32,6 @@ declare module 'vue' {
     UInput: typeof import('ultra-ui')['UInput']
     ULayout: typeof import('ultra-ui')['ULayout']
     UList: typeof import('ultra-ui')['UList']
-    UNodeRender: typeof import('ultra-ui')['UNodeRender']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPaginator: typeof import('ultra-ui')['UPaginator']
@@ -52,7 +51,6 @@ declare module 'vue' {
     UTextarea: typeof import('ultra-ui')['UTextarea']
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
-    UTreeNode: typeof import('ultra-ui')['UTreeNode']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']
   }
 }
