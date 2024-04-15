@@ -24,8 +24,7 @@ $root-name: message;
     font-size: fn.use-var('font-size', title, $size);
     padding: map.get(vars.$gap, $size) * 2;
 
-    @include m.bem($root-name, icon) {
-    }
+    @include m.bem($root-name, icon) {}
 
     @include m.bem($root-name, content) {
       max-width: 400px;
@@ -39,6 +38,7 @@ $root-name: message;
       position: absolute;
       right: fn.use-var(gap, $size);
       top: fn.use-var(gap, $size);
+
       &:hover {
         color: fn.use-var(color, primary, 'dark-9');
       }
@@ -51,4 +51,10 @@ $root-name: message;
       color: fn.use-var(color, $type);
     }
   }
+}
+
+.#{$root-name}-fade-enter-from,
+.#{$root-name}-fade-leave-to {
+  opacity: 0;
+  transform: translate(0, -100%);
 }
