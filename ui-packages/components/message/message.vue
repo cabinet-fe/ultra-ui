@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade" @before-leave="onClose" @after-leave="$emit('destroy')">
+  <transition name="message-fade" @before-leave="onClose" @after-leave="$emit('destroy')">
     <div
       :class="[cls.b, cls.m(size), cls.e(type)]"
       v-show="visible"

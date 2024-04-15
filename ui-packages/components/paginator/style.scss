@@ -13,6 +13,7 @@ $root-name: paginator;
   @include m.size using ($size) {
     height: map.get(vars.$form-component-height, $size);
     font-size: fn.use-var(form-component-font-size, $size);
+    padding: fn.use-var(gap, $size);
 
     @include m.bem($root-name, btn) {
       width: map.get(vars.$form-component-height, $size);
@@ -59,6 +60,21 @@ $root-name: paginator;
     justify-content: space-between;
 
     @include m.e(page) {}
+  }
+
+  @include m.e(jump) {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+    &--number {
+      width: 40px;
+      margin: 0 10px;
+    }
+  }
+
+  @include m.e(size) {
+    width: 80px;
+    margin: 0 20px;
   }
 
 }

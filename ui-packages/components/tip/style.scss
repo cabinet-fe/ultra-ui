@@ -2,7 +2,9 @@
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
 
-@include m.b(tip) {
+$root-name:tip;
+
+@include m.b($root-name) {
   // position: relative;
   width: max-content;
 
