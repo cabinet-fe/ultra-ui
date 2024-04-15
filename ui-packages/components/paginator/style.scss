@@ -67,13 +67,13 @@ $root-name: paginator;
     align-items: center;
     margin-left: 20px;
     &--number {
-      width: 40px;
+      width: 60px;
       margin: 0 10px;
     }
   }
 
   @include m.e(size) {
-    width: 80px;
+    width: 100px;
     margin: 0 20px;
   }
 
