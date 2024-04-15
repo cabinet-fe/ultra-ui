@@ -13,7 +13,7 @@
 
     <u-checkbox
       v-if="treeProps.checkable"
-      :model-value="node.checked"
+      :model-value="checked.has(node.value[treeProps.valueKey!])"
       :indeterminate="node.indeterminate"
       @update:model-value="handleCheck($event)"
     />
@@ -35,7 +35,7 @@ import { bem, withUnit } from '@ui/utils'
 import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
-import type { CustomTreeNode, TreeNodeProps } from '@ui/types/components/tree'
+import type { TreeNodeProps } from '@ui/types/components/tree'
 import UCheckbox from '../checkbox/checkbox.vue'
 import { Tree } from 'cat-kit/fe'
 import { UNodeRender } from '../node-render'
@@ -104,6 +104,7 @@ const handleCheck = (_checked: boolean) => {
       let parent = node.parent
       while (parent && parent.depth > 0) {
         parent.checked = false
+        checked.delete(parent.value[valueKey!])
 
         parent.indeterminate =
           (parent.children!.some(child => child.checked) &&
