@@ -42,6 +42,8 @@ export * from './loading'
 
 export * from './message'
 
+export * from './message-confirm'
+
 export * from './multi-select'
 
 export * from './node-render'
