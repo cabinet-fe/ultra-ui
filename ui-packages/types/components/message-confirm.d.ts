@@ -1,8 +1,14 @@
 import type { DeconstructValue } from '../helper'
+import type { ButtonType } from './button'
 
 /** 消息确认框组件属性 */
 export interface MessageConfirmProps {
   modelValue?: string
+  title?: string
+  message: string
+  buttonText?: string
+  buttonType?: ButtonType
+  onClose?: () => void
 }
 
 /** 消息确认框组件定义的事件 */

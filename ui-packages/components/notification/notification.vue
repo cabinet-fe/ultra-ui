@@ -17,8 +17,8 @@
       <div :class="cls.e('content')">
         <div :class="cls.em('content', 'title')">{{ title }}</div>
         <div :class="cls.em('content', 'message')">{{ message }}</div>
-        <div :class="cls.em('content', 'button')" v-if="button">
-          <UButton :type="type" plain @click="handleClick">{{ button }}</UButton>
+        <div :class="cls.em('content', 'button')" v-if="buttonText">
+          <UButton :type="type" plain @click="handleClick">{{ buttonText }}</UButton>
         </div>
       </div>
       <div :class="cls.e('close')" v-if="closable" @click.stop="close">
@@ -50,13 +50,13 @@ defineOptions({
 
 const props = defineProps<NotificationProps>()
 
-const { type, size, closable, duration, offset, button, position } = useFallbackProps([props], {
+const { type, size, closable, duration, offset, buttonText, position } = useFallbackProps([props], {
   type: 'primary',
   size: 'default',
   closable: false,
   duration: 4500,
   offset: 20,
-  button: '',
+  buttonText: '',
   position: 'bottom-right'
 })
 

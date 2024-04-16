@@ -1,11 +1,12 @@
 import type { DeconstructValue } from '../helper'
+import type { ButtonType } from './button'
 
 /** 通知组件组件属性 */
 export interface NotificationProps {
   modelValue?: string
   title?: string
   message?: string
-  type?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  type?: ButtonType
   closable?: boolean
   duration?: number
   offset?: number
@@ -14,7 +15,7 @@ export interface NotificationProps {
   id?: string
   icon?: DefineComponent
   zIndex?: number
-  button?: string
+  buttonText?: string
   width?: number
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
