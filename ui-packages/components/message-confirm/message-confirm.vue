@@ -1,5 +1,5 @@
 <template>
-  <transition name="message-confirm-fade">
+  <transition name="message-confirm-fade" @after-leave="$emit('destroy')">
     <div :class="[cls.b, cls.m(size)]" v-show="visible">
       <div :class="cls.e('mask')">
         <div :class="cls.e('box')">
