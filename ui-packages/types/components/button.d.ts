@@ -1,9 +1,9 @@
-import type { ComponentProps } from '../component-common'
+import type { ColorType, ComponentProps } from '../component-common'
 import type { Component, ShallowRef } from 'vue'
 import type { DeconstructValue } from '../helper'
 
 /** 按钮类型 */
-export type ButtonType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
+type ButtonType = ColorType
 
 /** 按钮属性类型 */
 export interface ButtonProps extends ComponentProps {

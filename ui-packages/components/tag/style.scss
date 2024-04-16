@@ -1,109 +1,61 @@
 @use '@ui/styles/mixins' as m;
 @use '@ui/styles/functions' as fn;
 @use '@ui/styles/vars';
+@use 'sass:map';
 
-@include m.b(tag) {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  vertical-align: middle;
-  // height: 24px;
-  // padding: 0 3px;
-  color: #333;
-  border: 1px solid fn.use-var(color-default);
-  border-radius: fn.use-var(radius-default);
-  background: fn.use-var(color-default-light-9);
+$root-name: tag;
+@include m.b($root-name) {
+  @include m.flex(inline-flex, flex-start, center);
+  cursor: default;
+  color: fn.use-var(text-color, main);
+  background-color: fn.use-var(color, default);
+  overflow: hidden;
+
+  @include m.e(content) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1em;
+    flex-grow: 1;
+    display: block;
+  }
+
+  @include m.e(icon-close) {
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: background-color 0.15s linear;
+
+    &:hover {
+      background-color: #ddd;
+    }
+  }
 
   @include m.size using ($size) {
-    height: fn.use-var(form-component-height, $size);
-    & + & {
-      margin-left: calc(fn.use-var(gap, $size) * 2);
+    height: fn.use-var(tag, $size);
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 fn.use-var(gap, $size);
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, icon-close) {
+      margin-left: calc(fn.use-var(gap, $size) / 2);
     }
 
-    @include m.bem(tag, button) {
-      width: calc(fn.use-var(form-component-height, $size) / 2);
-      height: calc(fn.use-var(form-component-height, $size) / 2);
-      padding: 2px;
-
-      @if ($size == large) {
-        padding: 3px;
-      }
+    @include m.is(round) {
+      border-radius: calc(fn.use-var(tag, $size) / 2);
     }
   }
 
   // 颜色样式
   @each $type, $_ in vars.$color-types {
-    @include m.e($type) {
+    @include m.m(color-#{$type}) {
       color: fn.use-var(color, $type);
-      border: 1px solid fn.use-var(color, $type);
-      border-radius: fn.use-var(radius-default);
       background-color: fn.use-var(color, $type, light-9);
-    }
-  }
 
-  // 尺寸大小
-  @include m.component-size(vars.$form-component-sizes) using ($size, $types) {
-    @each $type, $val in $types {
-      #{$type}: $val;
-    }
-  }
-
-  @include m.is(round) {
-    border-radius: 50px;
-  }
-
-  @include m.e('content') {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  @each$size in large,small,default {
-    @include m.e($size) {
-      @if $size == large {
-        height: 32px;
-        padding: 0 8px;
-        font-size: 16px;
-      } @else if $size == small {
-        height: 24px;
-        padding: 0 2px;
-        font-size: 12px;
-      } @else if $size == default {
-        height: 28px;
-        padding: 0 4px;
-        font-size: 14px;
+      @include m.is(dark) {
+        color: fn.use-var(text-color, white);
+        background-color: fn.use-var(color, $type);
       }
     }
   }
-
-  // @include m.e(primary) {
-  //   color: fn.use-var(color-primary);
-  //   border: 1px solid fn.use-var(color-primary);
-  //   border-radius: fn.use-var(radius-default);
-  //   background: fn.use-var(color-primary-light-9);
-  // }
-  // @include m.e(success) {
-  //   color: fn.use-var(color-success);
-  //   border: 1px solid fn.use-var(color-success);
-  //   border-radius: fn.use-var(radius-default);
-  //   background: fn.use-var(color-success-light-9);
-  // }
-  // @include m.e(info) {
-  //   color: fn.use-var(color-info);
-  //   border: 1px solid fn.use-var(color-info);
-  //   border-radius: fn.use-var(radius-default);
-  //   background: fn.use-var(color-info-light-9);
-  // }
-  // @include m.e(warning) {
-  //   color: fn.use-var(color-warning);
-  //   border: 1px solid fn.use-var(color-warning);
-  //   border-radius: fn.use-var(radius-default);
-  //   background: fn.use-var(color-warning-light-9);
-  // }
-  // @include m.e(danger) {
-  //   color: fn.use-var(color-danger);
-  //   border: 1px solid fn.use-var(color-danger);
-  //   border-radius: fn.use-var(radius-default);
-  //   background: fn.use-var(color-danger-light-9);
-  // }
 }

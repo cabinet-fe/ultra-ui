@@ -154,8 +154,8 @@ importers:
         version: link:../utils
     devDependencies:
       icon-ultra:
-        specifier: ^3.0.1
-        version: 3.0.1(vue@3.4.21)
+        specifier: ^3.0.3
+        version: 3.0.3(vue@3.4.21)
 
   ui-packages/compositions:
     dependencies:
@@ -2751,8 +2751,8 @@ packages:
       vue: 3.4.21(typescript@5.4.5)
     dev: false
 
-  /icon-ultra@3.0.1(vue@3.4.21):
-    resolution: {integrity: sha512-BB7SIkwLOh8LIrIkPkKBAp/xiFKK4iYX8D37LSmXzwcUPFxj4K0SEalB7oDNkFCbf95MMSVMWK+PzN4Qz679bQ==}
+  /icon-ultra@3.0.3(vue@3.4.21):
+    resolution: {integrity: sha512-bKjuSL3gFMWpLL8GyQuuVSAw8LwuHWWsdOc+sTL56b3Ih4G6CC+Kiw4BaFut8JsmkRKolhnqn31e/76ngp8XEg==}
     peerDependencies:
       vue: ^3.4.21
     dependencies:

@@ -1,22 +1,20 @@
 <template>
-  <div :class="classList">
-    <div :class="cls.e('content')">
+  <div :class="className">
+    <span :class="cls.e('content')">
       <slot />
+    </span>
 
-      <UIcon v-if="closable" @click="handleClose"> <Close /> </UIcon>
-      <!-- <u-button circle size="small" text :type="type" v-if="closable" @click.prevent="handleClose">
-        x
-      </u-button> -->
-    </div>
+    <u-icon v-if="closable" @click.stop="handleClose" :class="cls.e('icon-close')">
+      <Close />
+    </u-icon>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { TagEmits, TagProps } from '@ui/types/components/tag'
 import { bem } from '@ui/utils'
-import { UButton } from '../button'
 import { computed } from 'vue'
-import { UIcon } from '..'
+import { UIcon } from '../icon'
 import { Close } from 'icon-ultra'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
@@ -26,12 +24,9 @@ defineOptions({
 
 const cls = bem('tag')
 
-const props = withDefaults(defineProps<TagProps>(), {
-  type: 'primary',
-  size: 'small'
-})
+const props = withDefaults(defineProps<TagProps>(), {})
 
-const emits = defineEmits<TagEmits>()
+const emit = defineEmits<TagEmits>()
 
 const { formProps } = useFormComponent()
 const { size } = useFormFallbackProps([formProps ?? {}, props], {
@@ -39,16 +34,17 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
 })
 
 const handleClose = () => {
-  emits('close')
+  emit('close')
 }
 
-const classList = computed(() => {
+const className = computed(() => {
+  const { type } = props
   return [
     cls.b,
     cls.m(size.value),
-    props.type ? cls.e(props.type) : '',
-    props.size ? cls.m(props.size) : '',
-    props.round ? bem.is('round') : ''
+    type && cls.m('color-' + type),
+    bem.is('round', props.round),
+    bem.is('dark', props.dark)
   ]
 })
 

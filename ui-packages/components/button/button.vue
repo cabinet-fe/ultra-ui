@@ -74,7 +74,7 @@ const classList = computed(() => {
   return [
     cls.b,
     cls.m(size.value),
-    props.type && cls.m(props.type),
+    props.type && cls.m('color-' + props.type),
     bem.is('circle', props.circle),
     bem.is('disabled', props.disabled),
     bem.is('loading', props.loading),

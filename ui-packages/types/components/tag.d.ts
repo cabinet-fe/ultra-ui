@@ -15,6 +15,8 @@ export interface TagProps {
   size?: sizeType
   /** 是否为圆角 */
   round?: boolean
+  /** 深色 */
+  dark?: boolean
 }
 
 export interface TagEmits {

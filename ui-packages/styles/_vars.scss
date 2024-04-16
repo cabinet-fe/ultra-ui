@@ -54,7 +54,9 @@ $color-types: (
   // 信息色
   info: #009688,
   // 禁用色
-  disabled: #f5f7fa
+  disabled: #f5f7fa,
+  // 默认色
+  default: #f1f5f9
 );
 
 // 背景层级颜色
@@ -73,7 +75,8 @@ $text-colors: (
   title: #303133,
   // 正文文字
   main: #606266,
-
+  /** 占位文字 */
+  placeholder: #a8abb2,
   // 次级文字
   second: #979797,
   // 辅助文字
@@ -114,6 +117,12 @@ $font-size-assist: (
   small: 12px,
   default: 12px,
   large: 14px
+);
+
+$tag-size: (
+  small: 20px,
+  default: 24px,
+  large: 28px
 );
 
 // 间隔大小

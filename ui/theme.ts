@@ -26,7 +26,8 @@ const colors = getColorVars('color', [
   'success',
   'warning',
   'danger',
-  'info'
+  'info',
+  'default'
 ])
 
 type ColorRGB = [number, number, number]

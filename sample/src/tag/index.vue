@@ -1,71 +1,65 @@
 <template>
-  <div>
-    <div class="tagList">
-      <h2>基本用法</h2>
-      <p>由 type 属性来选择 tag 的类型,可选值包括 primary, success, info, warning, danger</p>
-      <u-tag type="primary"> primary</u-tag>
-      <u-tag type="success"> success</u-tag>
-      <u-tag type="info"> info</u-tag>
-      <u-tag type="warning"> warning</u-tag>
-      <u-tag type="danger"> danger</u-tag>
-    </div>
+  <div class="tags">
+    <CustomCard title="基本用法">
+      <u-tag>默认</u-tag>
+      <u-tag v-for="type of types" :type="type">{{ type.toUpperCase() }}</u-tag>
+    </CustomCard>
 
-    <div class="tagList">
-      <h2>可移除标签</h2>
-      <p>设置 closable 属性可以定义一个标签是否可移除,它接受一个 Boolean。</p>
+    <CustomCard title="浅色">
+      <u-tag light>默认</u-tag>
+      <u-tag v-for="type of types" dark :type="type">{{
+        type.toUpperCase()
+      }}</u-tag>
+    </CustomCard>
+
+    <CustomCard title="可移除">
       <u-tag
-        v-for="(item, index) in tagList"
+        v-for="(item, index) in tags"
         :type="item.type"
         closable
         @close="handleClose(index)"
       >
         {{ item.name }}
       </u-tag>
-    </div>
+    </CustomCard>
 
-    <div class="tagList">
-      <h2>动态编辑标签</h2>
-      <p>动态编辑标签可以通过点击标签关闭按钮后触发的 close 事件来实现。</p>
-
+    <CustomCard title="动态编辑">
       <u-tag
-        v-for="(item, index) in tagList2"
+        v-for="(item, index) in tags"
         :type="item.type"
         closable
-        @close="handleClose2(index)"
+        @close="handleClose(index)"
       >
         {{ item.name }}
       </u-tag>
+    </CustomCard>
 
-      <u-input v-model="tagValue" v-if="showInput" @blur="handleBlur" />
-      <u-button @click="handleCreate" v-if="showButton">+new tag</u-button>
-    </div>
+    <CustomCard title="不同尺寸">
+      <u-tag size="small"> small </u-tag>
+      <u-tag size="default"> default </u-tag>
+      <u-tag size="large"> large </u-tag>
+    </CustomCard>
 
-    <div class="tagList">
-      <h2>不同尺寸</h2>
-      <p>使用 size 属性来设置额外尺寸, 可选值包括 large, default 或 small</p>
-      <u-tag type="primary" size="small"> 小</u-tag>
-      <u-tag type="primary" size="default"> 中</u-tag>
-      <u-tag type="primary" size="large"> 大</u-tag>
-      <u-tag type="primary"> 默认</u-tag>
-    </div>
-
-    <div class="tagList">
-      <h2>圆角标签</h2>
-      <p>使用 round 属性来设置标签是否为圆角。</p>
-      <u-tag round type="primary">圆角</u-tag>
-    </div>
-
-    <div class="tagList">
-      <h2>可选中的标签</h2>
-      <u-check-tag :checked="checked1" @update:model-value="handleChecked">11</u-check-tag>
-    </div>
+    <CustomCard title="圆形标签">
+      <u-tag v-for="type of types" round :type="type">
+        {{ type.toUpperCase() }}
+      </u-tag>
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
+import type { ColorType } from 'ultra-ui'
 
-const tagList = ref<any>([
+const tags = shallowRef<
+  Array<{
+    name: string
+    type?: ColorType
+  }>
+>([
+  { name: '默认' },
   { name: 'Tag 1', type: 'primary' },
   { name: 'Tag 2', type: 'success' },
   { name: 'Tag 3', type: 'info' },
@@ -73,52 +67,18 @@ const tagList = ref<any>([
   { name: 'Tag 5', type: 'danger' }
 ])
 
-const tagList2 = ref([...tagList.value])
+const types: ColorType[] = ['primary', 'info', 'success', 'warning', 'danger']
 
 /** 可移除标签 */
 const handleClose = (index: number) => {
-  console.log(111, index)
-  tagList.value.splice(index, 1)
-  console.log(tagList.value, 'tagList.value')
-}
-
-/** 动态编辑标签 */
-const tagValue = ref<any>()
-const showInput = ref<boolean>(false)
-const showButton = ref<boolean>(true)
-const handleCreate = () => {
-  showInput.value = true
-  showButton.value = false
-}
-const handleBlur = () => {
-  showInput.value = false
-  showButton.value = true
-  if (tagValue.value === '') return
-
-  tagList2.value.push({
-    name: tagValue.value,
-    type: 'primary'
-  })
-  tagValue.value = ''
-}
-const handleClose2 = (index: number) => {
-  tagList2.value.splice(index, 1)
-}
-
-/** 可选中的标签 */
-const checked1 = ref<boolean>(false)
-const handleChecked = (val: boolean) => {
-  console.log(val, 'val')
-  checked1.value = !val
+  tags.value = tags.value.filter((_, i) => i !== index)
 }
 </script>
 
 <style lang="scss" scoped>
-.tagList {
-  margin-bottom: 30px;
-  & > div {
-    margin-right: 10px;
-    // margin-bottom: 10px;
+.tags {
+  :deep(.u-tag) {
+    margin-right: 6px;
   }
 }
 </style>

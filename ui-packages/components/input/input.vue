@@ -32,10 +32,9 @@
       <UIcon
         v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"
-        :size="14"
         @click.stop="clearModelValue"
       >
-        <CircleClose />
+        <Close />
       </UIcon>
     </Transition>
 
@@ -69,7 +68,7 @@ import {
   shallowRef,
   useAttrs
 } from 'vue'
-import { CircleClose } from 'icon-ultra'
+import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
 
 defineOptions({
