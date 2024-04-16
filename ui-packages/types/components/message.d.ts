@@ -1,11 +1,12 @@
 import type { DeconstructValue } from '../helper'
 import type { DefineComponent, VNode } from 'vue'
+import type { ButtonType } from './button'
 
 /** 消息弹框组件组件属性 */
 export interface MessageProps {
   modelValue?: string
   message?: string
-  type?: 'primary' | 'info' | 'success' | 'warning' | 'danger'
+  type?: ButtonType
   closable?: boolean
   duration?: number
   offset?: number

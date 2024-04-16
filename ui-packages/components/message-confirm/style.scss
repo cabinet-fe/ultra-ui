@@ -1,0 +1,62 @@
+@use '@ui/styles/mixins' as m;
+@use '@ui/styles/functions' as fn;
+@use '@ui/styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: message-confirm;
+
+@include m.b($root-name) {
+  @include m.e(mask) {
+    background-color: rgba(0, 0, 0, 0.32);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  @include m.e(box) {
+    width: 420px;
+    background-color: #fff;
+    transition: opacity 0.3s, transform 0.4s;
+    transform: translateY(-50%);
+  }
+
+  @include m.e(header) {
+    font-weight: bold;
+  }
+
+  @include m.e(content) {
+    word-wrap: break-word;
+  }
+
+  @include m.e(footer) {
+    text-align: right;
+  }
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, box) {
+      border-radius: fn.use-var(radius, $size);
+      font-size: fn.use-var('font-size', title, $size);
+      padding: map.get(vars.$gap, $size) * 1.8;
+    }
+
+    @include m.bem($root-name, header) {
+      font-size: fn.use-var('font-size', title, $size);
+    }
+  }
+}
+
+.#{$root-name}-fade-enter-active, .#{$root-name}-fade-leave-active {
+  transition: opacity .25s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.#{$root-name}-fade-enter-from, .#{$root-name}-fade-leave-to {
+  opacity: 0;
+  @include m.bem($root-name, box) {
+    transform: translate(0, -100%);
+  }
+}

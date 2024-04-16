@@ -32,6 +32,7 @@ declare module 'vue' {
     UInput: typeof import('ultra-ui')['UInput']
     ULayout: typeof import('ultra-ui')['ULayout']
     UList: typeof import('ultra-ui')['UList']
+    UMessageConfirm: typeof import('ultra-ui')['UMessageConfirm']
     UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
