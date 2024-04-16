@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="config">
+      <u-input v-model="config.buttonText" prefix="buttonText:"></u-input>
       <u-radio-group
         radioType="btn"
         :items="[
@@ -40,7 +41,8 @@ const config = reactive({
   type: 'primary' as any,
   duration: 0,
   closable: false,
-  position: 'bottom-right'
+  position: 'bottom-right',
+  buttonText: ''
 })
 
 let count = ref(0)
@@ -55,7 +57,7 @@ const showMsg = () => {
     duration: config.duration,
     closable: config.closable,
     onClose: (vm) => {},
-    button: '确定',
+    buttonText: config.buttonText,
     onClick: (vm) => {},
     position: config.position as any
   })
