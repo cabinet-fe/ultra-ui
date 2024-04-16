@@ -1,7 +1,7 @@
 import type { DeconstructValue } from '../helper'
 
 /** multi-select组件属性 */
-export interface MultiSelectProps {
+export interface MultiSelectProps<Option extends Record<string, any>> {
   /** 绑定值 */
   modelValue: Array<string | number>
   /** 列表选项 */
@@ -16,6 +16,10 @@ export interface MultiSelectProps {
   placeholder?: string
   /** 是否启用搜索功能 */
   filterable?: boolean
+  /** 最大展示数量 */
+  visibilityLimit?: number
+  /** 最大可选数量 */
+  max?: number
 }
 
 /** multi-select组件定义的事件 */

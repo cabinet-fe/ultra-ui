@@ -1,3 +1,5 @@
+import { setStyles } from './style'
+
 interface Options {
   /** 触发元素 */
   triggerEl: HTMLElement
@@ -48,6 +50,11 @@ export function computeDropdownPosition(options: Options): DropdownPosition {
   const windowScrollLeft = getWindowScrollLeft()
   const windowScrollTop = getWindowScrollTop()
   const viewport = getViewport()
+
+  setStyles(popupEl, {
+    width: triggerEl.offsetWidth + 'px'
+  })
+
   let top = triggerRect.top + triggerEl.offsetHeight + windowScrollTop + gap
   let left = triggerRect.left + windowScrollLeft
 
@@ -58,6 +65,7 @@ export function computeDropdownPosition(options: Options): DropdownPosition {
     transformOrigin = 'bottom'
   }
 
+  // 最小left为0
   if (triggerRect.left + popupEl.offsetWidth > viewport.width) {
     left = Math.max(
       0,
@@ -92,4 +100,21 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
     parent = parent.parentElement
   }
   return parents
+}
+
+const observerElMap = new Map<HTMLElement, Function>()
+const observer = new ResizeObserver(entry => {
+  observerElMap.forEach(fn => fn())
+})
+
+/** 监听触发器的大小变化 */
+export function observeTrigger(el: HTMLElement, cb: () => void) {
+  observer.observe(el)
+  observerElMap.set(el, cb)
+}
+
+/** 取消监听触发器的大小变化 */
+export function unobserveTrigger(el: HTMLElement) {
+  observer.unobserve(el)
+  observerElMap.delete(el)
 }

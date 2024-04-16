@@ -27,6 +27,10 @@ $root-name: input;
       line-height: fn.use-var(form-component-height, $size);
       padding: 0 6px;
     }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
   }
 
   @include m.is(focus) {
@@ -49,6 +53,10 @@ $root-name: input;
       // background-image: none;
       background-color: transparent;
       // transition: background-color 50000s ease-in-out 0s;
+    }
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
     }
   }
 

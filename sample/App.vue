@@ -123,7 +123,7 @@ $width: 240px;
 .main {
   width: calc(100% - $width);
 
-  :deep(main) {
+  :deep(.u-scroll__content) {
     padding: 10px;
   }
 }

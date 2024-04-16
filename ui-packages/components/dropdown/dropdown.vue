@@ -35,7 +35,9 @@ import {
   bem,
   computeDropdownPosition,
   getScrollParents,
-  zIndex
+  zIndex,
+  observeTrigger,
+  unobserveTrigger
 } from '@ui/utils'
 import {
   nextTick,
@@ -46,7 +48,6 @@ import {
   onBeforeUnmount
 } from 'vue'
 import vClickOutside from '@ui/directives/click-outside'
-import { useResizeObserver } from '@ui/compositions'
 
 defineOptions({
   name: 'Dropdown',
@@ -82,14 +83,14 @@ watch(visible, async v => {
     await nextTick()
     popupStyle.zIndex = zIndex()
     window.addEventListener('resize', close)
-    updateDropdown()
-
+    observeTrigger(dropdownRef.value!, updateDropdown)
     /** 添加滚动事件 */
     scrollParents = getScrollParents(dropdownRef.value!)
     addScrollEvent()
   } else {
     removeScrollEvent()
     window.removeEventListener('resize', close)
+    unobserveTrigger(dropdownRef.value!)
   }
 })
 
@@ -130,7 +131,6 @@ function close() {
 
 function updateDropdown() {
   if (!dropdownRef.value || !contentRef.value) return
-
   const styles = computeDropdownPosition({
     triggerEl: dropdownRef.value,
     popupEl: contentRef.value

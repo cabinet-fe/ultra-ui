@@ -17,7 +17,7 @@
     "type-check": "pnpm vue-tsc --noEmit"
   },
   "devDependencies": {
-    "icon-ultra": "^3.0.1"
+    "icon-ultra": "^3.0.3"
   },
   "exports": {
     ".": "./index.ts",
