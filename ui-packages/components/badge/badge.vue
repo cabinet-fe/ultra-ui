@@ -34,7 +34,7 @@ const badgeValue = computed(() => {
 const classList = computed(() => {
   return [
     cls.e('sup'),
-    props.type && cls.m(props.type),
+    props.type && cls.m('color-' + props.type),
     cls.m(size.value),
     bem.is('dot', props.dot)
   ]
