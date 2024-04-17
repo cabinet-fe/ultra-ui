@@ -29,6 +29,7 @@
         />
 
         <u-checkbox field="freeze" label="是否冻结" />
+        <u-textarea field="remarks" label="备注" />
       </u-form>
 
       <div>
@@ -71,7 +72,9 @@ const model = new FormModel({
     ]
   },
   unit: { required: true },
-  interest: { required: true }
+  interest: { required: true },
+  remarks: { required: true }
+
 })
 
 const sortRef = shallowRef()

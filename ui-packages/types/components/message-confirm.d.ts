@@ -6,9 +6,10 @@ export interface MessageConfirmProps {
   modelValue?: string
   title?: string
   message: string
-  buttonText?: string
-  buttonType?: ButtonType
-  onClose?: () => void
+  confirmButtonText?: string
+  cancelButtonText?: string
+  confirmButtonType?: ButtonType
+  onClose?: (action: 'cancel' | 'confirm') => void
 }
 
 /** 消息确认框组件定义的事件 */
