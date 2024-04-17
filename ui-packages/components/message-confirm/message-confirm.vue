@@ -6,7 +6,19 @@
           <div :class="cls.e('header')" v-if="title">{{ title }}</div>
           <div :class="cls.e('content')">{{ message }}</div>
           <div :class="cls.e('footer')">
-            <UButton :type="buttonType" @click="close">{{ buttonText }}</UButton>
+            <UButton
+              plain
+              @click="close('cancel')"
+              :class="cls.em('footer', 'btn')"
+              v-if="cancelButtonText"
+              >{{ cancelButtonText }}</UButton
+            >
+            <UButton
+              :type="confirmButtonType"
+              @click="close('confirm')"
+              :class="cls.em('footer', 'btn')"
+              >{{ confirmButtonText }}</UButton
+            >
           </div>
         </div>
       </div>
@@ -27,13 +39,15 @@ defineOptions({
 
 const props = defineProps<MessageConfirmProps>()
 
-const { title, message, size, buttonText, buttonType } = useFallbackProps([props], {
-  title: 'title',
-  message: 'message',
-  size: 'default',
-  buttonText: '确定',
-  buttonType: 'primary'
-})
+const { title, message, size, confirmButtonText, confirmButtonType, cancelButtonText } =
+  useFallbackProps([props], {
+    title: 'title',
+    message: 'message',
+    size: 'default',
+    confirmButtonText: '确定',
+    confirmButtonType: 'primary',
+    cancelButtonText: ''
+  })
 
 const cls = bem('message-confirm')
 
@@ -43,8 +57,8 @@ onMounted(() => {
   visible.value = true
 })
 
-const close = () => {
+const close = (action: 'cancel' | 'confirm') => {
   visible.value = false
-  if (props.onClose) props.onClose()
+  if (props.onClose) props.onClose(action)
 }
 </script>

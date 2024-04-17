@@ -17,7 +17,9 @@ $root-name: tag;
     white-space: nowrap;
     line-height: 1em;
     flex-grow: 1;
-    display: block;
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
 
   @include m.e(icon-close) {
