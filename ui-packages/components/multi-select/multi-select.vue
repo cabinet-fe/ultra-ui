@@ -7,6 +7,7 @@
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
+    :disabled="disabled"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -18,13 +19,13 @@
         <u-tag
           v-for="option of tags"
           :key="option[valueKey]"
-          closable
+          :closable="!disabled"
           @close="handleClose(option)"
         >
           {{ option[labelKey] }}
         </u-tag>
 
-        <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
+        <u-tag v-if="restTag" > {{ restTag }}+ </u-tag>
       </div>
 
       <u-icon
@@ -183,6 +184,12 @@ const tags = computed(() => {
   if (visibilityLimit < 0) {
     visibilityLimit = 0
   }
+
+  // 禁用时，显示全部
+  if (disabled.value) {
+    visibilityLimit = model.value?.length ?? 0
+  }
+
   model.value?.slice(0, visibilityLimit).forEach(k => {
     const option = optionsMap.value.get(k)
     option && tags.push(option)

@@ -14,6 +14,12 @@ $root-name: select;
     max-height: 180px;
   }
 
+  @include m.is(disabled) {
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
   @include m.e(option) {
     cursor: pointer;
     margin: 2px 0;

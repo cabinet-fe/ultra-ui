@@ -24,6 +24,8 @@ export interface DropdownProps {
   contentClass?: string | string[]
   /** 显示下拉框 */
   visible?: boolean
+  /** 禁用 */
+  disabled?: boolean
 }
 
 /** 下拉框组件定义的事件 */

@@ -155,9 +155,10 @@ function removeScrollEvent() {
 }
 
 const eventsHandlers = computed(() => {
-  const { trigger } = props
+  const { trigger, disabled } = props
 
   const handlers: Record<string, Function> = {}
+  if (disabled) return handlers
 
   if (trigger === 'click') {
     handlers.onClick = open

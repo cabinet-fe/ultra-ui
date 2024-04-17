@@ -1,11 +1,12 @@
 <template>
   <u-dropdown
     trigger="click"
-    :class="cls.b"
+    :class="[cls.b, bem.is('disabled', disabled)]"
     min-width="200px"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :disabled="disabled"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -19,7 +20,7 @@
         @clear="handleClear"
       >
         <template #suffix>
-          <u-icon><ArrowDown /></u-icon>
+          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
       </u-input>
     </template>
@@ -80,7 +81,8 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
-  clearable: true
+  clearable: true,
+  disabled: undefined
 })
 
 const emit = defineEmits<SelectEmits<Option>>()
