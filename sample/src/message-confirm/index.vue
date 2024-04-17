@@ -3,7 +3,8 @@
     <div class="config">
       <u-input v-model="config.title" prefix="title:"></u-input>
       <u-input v-model="config.message" prefix="message:"></u-input>
-      <u-input v-model="config.buttonText" prefix="buttonText:"></u-input>
+      <u-input v-model="config.confirmButtonText" prefix="confirmButtonText:"></u-input>
+      <u-input v-model="config.cancelButtonText" prefix="cancelButtonText:"></u-input>
       <u-radio-group
         radioType="btn"
         :items="[
@@ -13,8 +14,8 @@
           { label: 'warning', value: 'warning' },
           { label: 'danger', value: 'danger' }
         ]"
-        v-model="config.buttonType"
-      />
+        v-model="config.confirmButtonType"
+      ></u-radio-group>
     </div>
     <div class="btn">
       <u-button type="primary" @click="showMsg">showMessage</u-button>
@@ -28,20 +29,22 @@ import '@ui/components/message-confirm/style.scss'
 import { reactive } from 'vue'
 
 const config = reactive({
-  buttonType: 'primary' as any,
+  confirmButtonType: 'primary' as any,
   title: 'this is a title',
   message: 'this is a message',
-  buttonText: '确定'
+  confirmButtonText: '确定',
+  cancelButtonText: ''
 })
 
 const showMsg = () => {
   MessageConfirm({
     title: config.title,
     message: config.message,
-    buttonType: config.buttonType,
-    buttonText: config.buttonText,
-    onClose: () => {
-      console.log(123)
+    confirmButtonType: config.confirmButtonType,
+    confirmButtonText: config.confirmButtonText,
+    cancelButtonText: config.cancelButtonText,
+    onClose: (action) => {
+      console.log(action)
     }
   })
 }

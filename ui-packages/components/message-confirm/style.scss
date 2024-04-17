@@ -36,6 +36,9 @@ $root-name: message-confirm;
 
   @include m.e(footer) {
     text-align: right;
+    &--btn {
+      margin-left: 10px;
+    }
   }
 
   @include m.size using ($size) {
