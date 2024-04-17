@@ -22,10 +22,11 @@ $root-name: input;
 
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
+    padding: 0 calc(fn.use-var(gap, $size) / 2);
+
     @include m.bem($root-name, native) {
       height: fn.use-var(form-component-height, $size);
       line-height: fn.use-var(form-component-height, $size);
-      padding: 0 6px;
     }
 
     @include m.bem($root-name, clear) {
@@ -47,12 +48,11 @@ $root-name: input;
     flex-grow: 1;
     color: fn.use-var(text-color, main);
     font-size: 1em;
+    padding: 0;
 
     &:-webkit-autofill {
       color: #fff !important;
-      // background-image: none;
       background-color: transparent;
-      // transition: background-color 50000s ease-in-out 0s;
     }
 
     &::placeholder {
@@ -65,8 +65,8 @@ $root-name: input;
     @include m.flex(inline-flex, $justify: center, $align: center);
     color: fn.use-var(text-color, main);
     flex-shrink: 0;
-    min-width: 24px;
-    padding: 0 4px;
+    min-width: 20px;
+    text-align: center;
     height: 100%;
 
     @include m.is(clickable) {
@@ -77,7 +77,7 @@ $root-name: input;
   @include m.e(clear) {
     cursor: pointer;
     color: fn.use-var(text-color, main);
-    min-width: 24px;
+    min-width: 20px;
   }
 
   @include m.is(disabled) {

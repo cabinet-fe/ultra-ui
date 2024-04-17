@@ -52,7 +52,7 @@
 
   @each $element in $elements {
     @if ($selector-list != null) {
-      $selector-list: $selector-list + ', &__' + $element;
+      $selector-list: #{$selector-list} + ', &__' + #{$element};
     } @else {
       $selector-list: '&__' + #{$element};
     }
@@ -63,11 +63,19 @@
   }
 }
 
-@mixin m($modifiers) {
+@mixin m($modifiers...) {
+  $selector-list: null;
+
   @each $modifier in $modifiers {
-    &--#{$modifier} {
-      @content;
+    @if ($selector-list != null) {
+      $selector-list: #{$selector-list} + ', &--' + #{$modifier};
+    } @else {
+      $selector-list: '&--' + #{$modifier};
     }
+  }
+
+  #{$selector-list} {
+    @content;
   }
 }
 
@@ -167,5 +175,3 @@
     @content;
   }
 }
-
-

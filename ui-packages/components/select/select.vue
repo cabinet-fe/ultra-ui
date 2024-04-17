@@ -64,9 +64,7 @@
 import { computed, shallowRef, watch } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
-
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-
 import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { UInput } from '../input'
@@ -98,7 +96,7 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
 })
 
 const model = defineModel<string | number>()
-const label = defineModel('label')
+const label = defineModel('text')
 const selected = shallowRef<Record<string, any>>()
 
 const dropdownRef = shallowRef<DropdownExposed>()

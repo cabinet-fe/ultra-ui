@@ -16,6 +16,7 @@ $root-name: select;
 
   @include m.e(option) {
     cursor: pointer;
+    margin: 2px 0;
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);
@@ -57,7 +58,8 @@ $root-name: select;
       @include m.bem($root-name, empty) {
         height: fn.use-var(form-component-height, $size);
         line-height: fn.use-var(form-component-height, $size);
-        padding: 0 fn.use-var(gap, $size)
+        padding: 0 fn.use-var(gap, $size);
+
       }
     }
   }

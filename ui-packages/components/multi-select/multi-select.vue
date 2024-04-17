@@ -27,15 +27,13 @@
         <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
       </div>
 
-      <Transition name="zoom-in">
-        <u-icon
-          v-if="clearable && model?.length && hovered && !disabled"
-          :class="cls.e('clear')"
-          @click.stop="handleClear"
-        >
-          <Close />
-        </u-icon>
-      </Transition>
+      <u-icon
+        v-if="clearable && model?.length && hovered && !disabled"
+        :class="cls.e('clear')"
+        @click.stop="handleClear"
+      >
+        <Close />
+      </u-icon>
 
       <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
     </template>
@@ -48,6 +46,7 @@
           :model-value="allChecked"
           :indeterminate="indeterminate"
           @update:model-value="handleCheckAll"
+          :disabled="max !== undefined"
         >
           全选
         </u-checkbox>
@@ -75,7 +74,8 @@
           :option="option"
           :disabled="isDisabled(option)"
           :key="option[valueKey]"
-          @check="handleCheck"
+          @check="handleCheck(option, $event)"
+          :checked="checkedSet.has(option)"
         >
           <slot v-bind="{ option, index }">
             {{ option[labelKey] }}
@@ -235,15 +235,13 @@ const handleClose = (option: Option) => {
 
 const isDisabled = (option: Option) => {
   const { max } = props
-  return (max !== undefined && checkedSet.size >= max) && !checkedSet.has(option)
+  return max !== undefined && checkedSet.size >= max && !checkedSet.has(option)
 }
 
 const optionClass = cls.e('option')
 const rippleClass = cls.e('ripple')
 
 provide(MultiSelectDIKey, {
-  multiSelectProps: props,
-  checkedSet,
   optionClass,
   rippleClass
 })
