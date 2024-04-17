@@ -3,7 +3,7 @@ import type { DeconstructValue } from '../helper'
 /** multi-select组件属性 */
 export interface MultiSelectProps<Option extends Record<string, any>> {
   /** 绑定值 */
-  modelValue: Array<string | number>
+  modelValue?: Array<string | number>
   /** 列表选项 */
   options: Option[]
   /** 值字段 */

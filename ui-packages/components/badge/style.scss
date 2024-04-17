@@ -30,7 +30,7 @@ $root-name: badge;
     }
 
     @each $type, $_ in vars.$color-types {
-        @include m.m($type) {
+        @include m.m(color-#{$type}) {
             background-color: fn.use-var(color, $type, 'light-7');
             color: fn.use-var(color, $type);
         }

@@ -14,7 +14,7 @@ export class FormModel<
   readonly data: ModelData<Fields>
 
   readonly rules: ModelRules<Fields>
-  // { [key in keyof Fields]?: string[] | undefined
+
   readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
     new Map()
   )
@@ -37,7 +37,6 @@ export class FormModel<
 
     this.data = data
     this.rules = rules
-    console.log(rules, 'rules')
     this.validator = new Validator(rules)
 
     const p = new Proxy(
@@ -71,7 +70,7 @@ export class FormModel<
    */
   async validate(fields?: keyof Fields | (keyof Fields)[]): Promise<boolean> {
     const { errors, validator, data } = this
-    console.log(fields, 'fields')
+
     const results = await validator.validate(data, fields)
 
     if (!fields) {
@@ -79,8 +78,6 @@ export class FormModel<
 
       for (const field in results) {
         errors.set(field, results[field])
-
-        console.log(errors, results, 'error')
       }
     } else {
       ~(Array.isArray(fields) ? fields : [fields]).forEach(field => {

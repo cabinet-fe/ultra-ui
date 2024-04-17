@@ -1,12 +1,12 @@
 <template>
   <li
     :class="optionClass"
-    v-ripple:[disabled]="rippleClass"
-    @click="!disabled && emit('check', option, !checked)"
+    v-ripple="disabled ? false : rippleClass"
+    @click="!disabled && emit('check', !checked)"
   >
     <u-checkbox
       :model-value="checked"
-      @update:model-value="emit('check', option, $event)"
+      @update:model-value="emit('check', $event)"
       @click.stop
       :disabled="disabled"
     />
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject } from 'vue'
+import { inject } from 'vue'
 import { MultiSelectDIKey } from './di'
 import { vRipple } from '@ui/directives'
 import { UCheckbox } from '../checkbox'
@@ -25,19 +25,15 @@ defineOptions({
   name: 'MultiSelectOption'
 })
 
-const { option, disabled = false } = defineProps<{
+const { disabled = false } = defineProps<{
   option: Record<string, any>
   disabled?: boolean
+  checked: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'check', option: Record<string, any>, checked: boolean): void
+  (e: 'check', checked: boolean): void
 }>()
 
-const { checkedSet, optionClass, rippleClass } =
-  inject(MultiSelectDIKey)!
-
-const checked = computed(() => {
-  return checkedSet.has(option)
-})
+const { optionClass, rippleClass } = inject(MultiSelectDIKey)!
 </script>

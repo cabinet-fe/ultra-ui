@@ -7,6 +7,7 @@
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
+    :disabled="disabled"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -18,24 +19,22 @@
         <u-tag
           v-for="option of tags"
           :key="option[valueKey]"
-          closable
+          :closable="!disabled"
           @close="handleClose(option)"
         >
           {{ option[labelKey] }}
         </u-tag>
 
-        <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
+        <u-tag v-if="restTag" > {{ restTag }}+ </u-tag>
       </div>
 
-      <Transition name="zoom-in">
-        <u-icon
-          v-if="clearable && model?.length && hovered && !disabled"
-          :class="cls.e('clear')"
-          @click.stop="handleClear"
-        >
-          <Close />
-        </u-icon>
-      </Transition>
+      <u-icon
+        v-if="clearable && model?.length && hovered && !disabled"
+        :class="cls.e('clear')"
+        @click.stop="handleClear"
+      >
+        <Close />
+      </u-icon>
 
       <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
     </template>
@@ -48,6 +47,7 @@
           :model-value="allChecked"
           :indeterminate="indeterminate"
           @update:model-value="handleCheckAll"
+          :disabled="max !== undefined"
         >
           全选
         </u-checkbox>
@@ -75,7 +75,8 @@
           :option="option"
           :disabled="isDisabled(option)"
           :key="option[valueKey]"
-          @check="handleCheck"
+          @check="handleCheck(option, $event)"
+          :checked="checkedSet.has(option)"
         >
           <slot v-bind="{ option, index }">
             {{ option[labelKey] }}
@@ -183,6 +184,12 @@ const tags = computed(() => {
   if (visibilityLimit < 0) {
     visibilityLimit = 0
   }
+
+  // 禁用时，显示全部
+  if (disabled.value) {
+    visibilityLimit = model.value?.length ?? 0
+  }
+
   model.value?.slice(0, visibilityLimit).forEach(k => {
     const option = optionsMap.value.get(k)
     option && tags.push(option)
@@ -235,15 +242,13 @@ const handleClose = (option: Option) => {
 
 const isDisabled = (option: Option) => {
   const { max } = props
-  return (max !== undefined && checkedSet.size >= max) && !checkedSet.has(option)
+  return max !== undefined && checkedSet.size >= max && !checkedSet.has(option)
 }
 
 const optionClass = cls.e('option')
 const rippleClass = cls.e('ripple')
 
 provide(MultiSelectDIKey, {
-  multiSelectProps: props,
-  checkedSet,
   optionClass,
   rippleClass
 })

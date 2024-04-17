@@ -1,11 +1,12 @@
 <template>
   <u-dropdown
     trigger="click"
-    :class="cls.b"
+    :class="[cls.b, bem.is('disabled', disabled)]"
     min-width="200px"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :disabled="disabled"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -19,7 +20,7 @@
         @clear="handleClear"
       >
         <template #suffix>
-          <u-icon><ArrowDown /></u-icon>
+          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
       </u-input>
     </template>
@@ -64,9 +65,7 @@
 import { computed, shallowRef, watch } from 'vue'
 import type { SelectEmits, SelectProps } from '@ui/types/components/select'
 import { bem } from '@ui/utils'
-
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-
 import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { UInput } from '../input'
@@ -82,7 +81,8 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
-  clearable: true
+  clearable: true,
+  disabled: undefined
 })
 
 const emit = defineEmits<SelectEmits<Option>>()
@@ -98,7 +98,7 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
 })
 
 const model = defineModel<string | number>()
-const label = defineModel('label')
+const label = defineModel('text')
 const selected = shallowRef<Record<string, any>>()
 
 const dropdownRef = shallowRef<DropdownExposed>()

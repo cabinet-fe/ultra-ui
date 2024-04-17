@@ -48,7 +48,7 @@ $root-name: date-picker;
     cursor: pointer;
     text-align: center;
 
-    @include m.m((pre, next)) {
+    @include m.m(pre, next) {
       color: fn.use-var(text-color, disabled);
     }
 
