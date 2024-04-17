@@ -11,11 +11,11 @@
   >
     <!-- 触发 -->
     <template #trigger>
-      <span :class="cls.e('placeholder')" v-if="!model?.length">
+      <span :class="cls.e('placeholder')" v-show="!model?.length">
         {{ placeholder }}
       </span>
 
-      <div v-else :class="cls.e('tags')">
+      <div v-if="model?.length" :class="cls.e('tags')">
         <u-tag
           v-for="option of tags"
           :key="option[valueKey]"
@@ -24,17 +24,18 @@
         >
           {{ option[labelKey] }}
         </u-tag>
-
-        <u-tag v-if="restTag" > {{ restTag }}+ </u-tag>
+        <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
       </div>
 
-      <u-icon
-        v-if="clearable && model?.length && hovered && !disabled"
-        :class="cls.e('clear')"
-        @click.stop="handleClear"
-      >
-        <Close />
-      </u-icon>
+      <transition name="zoom-in">
+        <u-icon
+          v-if="clearable && model?.length && hovered && !disabled"
+          :class="cls.e('clear')"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </u-icon>
+      </transition>
 
       <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
     </template>

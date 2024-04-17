@@ -3,6 +3,6 @@ import '../icon/style'
 import '../checkbox/style'
 import '../tag/style'
 import '@ui/directives/ripple/style'
-// import '@ui/styles/anime/zoom-in'
+import '@ui/styles/anime/zoom-in'
 
 import './style.scss'
