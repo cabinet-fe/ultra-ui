@@ -38,24 +38,12 @@
     </CustomCard>
 
     {{ model.data }}
-
-    <!-- <ul class="list" ref="sortRef">
-      <li
-        class="list-item"
-        :class="index % 2 ? 'odd' : 'even'"
-        v-for="(item, index) in list"
-        :key="item"
-      >
-        {{ item }}
-      </li>
-    </ul> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { field, FormModel } from 'ultra-ui/components'
 import { shallowRef } from 'vue'
-import { useSort } from './use-sort'
 import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
@@ -101,14 +89,8 @@ const interestList = [
   { label: '读书', value: '3' },
   { label: '游戏', value: '4' },
   { label: '科技', value: '5' },
-  { label: '音乐', value: '6' },
+  { label: '音乐', value: '6' }
 ]
-
-useSort({
-  target: sortRef,
-  onChange() {}
-  // disabled: 'odd'
-})
 </script>
 
 <style scoped lang="scss">
