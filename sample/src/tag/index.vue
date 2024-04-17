@@ -5,7 +5,7 @@
       <u-tag v-for="type of types" :type="type">{{ type.toUpperCase() }}</u-tag>
     </CustomCard>
 
-    <CustomCard title="浅色">
+    <CustomCard title="深色">
       <u-tag light>默认</u-tag>
       <u-tag v-for="type of types" dark :type="type">{{
         type.toUpperCase()
