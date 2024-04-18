@@ -4,9 +4,9 @@
       <li
         :class="[cls.e('day'), cls.em('day', day.type)]"
         v-for="day of days"
-        :key="day.timestamp"
+        :key="day.date.timestamp"
       >
-        {{ day.num }}
+        {{ day.date.day }}
       </li>
     </ul>
   </div>

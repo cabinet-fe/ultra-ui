@@ -1,8 +1,17 @@
+import type { Dater } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
 
 /** 日历组件属性 */
 export interface CalendarProps {
   modelValue?: string
+}
+
+/** day接口 */
+export interface Day {
+  date: Dater
+  isToday?: boolean
+  type: 'pre' | 'current' | 'next'
+  disabled?: boolean
 }
 
 /** 日历组件定义的事件 */

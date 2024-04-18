@@ -1,19 +1,19 @@
 import { type Dater, date } from 'cat-kit/fe'
-
-interface Day {
-  date: Dater
-  isToday?: boolean
-  type: 'pre' | 'current' | 'next'
-}
+import type { Day } from '@ui/types/components/calendar'
 
 export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
-export function getMonthDays(d: Date | string | number) {
+export function getMonthDays(
+  d: Date | string | number,
+  disabledDate?: (d: Dater) => boolean
+) {
   const preMonthDays: Day[] = []
   const currentMonthDays: Day[] = []
   const nextMonthDays: Day[] = []
 
-  const todayStr = date().format('yyyy-MM-dd')
+  const fmtStr = 'yyyyMMdd'
+
+  const todayStr = date().format(fmtStr)
   if (typeof d === 'string' || typeof d === 'number') {
     d = new Date(d)
   }
@@ -32,6 +32,8 @@ export function getMonthDays(d: Date | string | number) {
         date: date(d.getTime()),
         type: 'pre'
       }
+      day.disabled = disabledDate?.(day.date)
+
       preMonthDays.unshift(day)
       d.setDate(day.date.day - 1)
       i--
@@ -51,7 +53,8 @@ export function getMonthDays(d: Date | string | number) {
       date: date(d.getTime()),
       type: 'current'
     }
-    day.isToday = day.date.format('yyyy-MM-dd') === todayStr
+    day.isToday = day.date.format(fmtStr) === todayStr
+    day.disabled = disabledDate?.(day.date)
     currentMonthDays.push(day)
   }
 
@@ -67,6 +70,7 @@ export function getMonthDays(d: Date | string | number) {
       date: date(d.getTime()),
       type: 'next'
     }
+    day.disabled = disabledDate?.(day.date)
     nextMonthDays.push(day)
   }
 
