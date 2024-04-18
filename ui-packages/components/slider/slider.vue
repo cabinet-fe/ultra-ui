@@ -126,7 +126,6 @@ watch(
   _ => {
     if (!model.value) {
       model.value = props.range ? [props.min, props.min] : props.min ?? 0
-      // updateSliderBarSize({ x: 0, y: 0 })
     }
   }
 )
