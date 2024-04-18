@@ -17,6 +17,8 @@ export const useSlide = (
   /** 范围最大值 */
   let maxValue = ref(0)
 
+  const { modelValue, range, vertical, min } = props
+
   const runwayRef = shallowRef<HTMLElement>()
 
   /** 根据页面实时响应 */
@@ -32,9 +34,19 @@ export const useSlide = (
     }
   })
 
+  const defaultWidth = () => {
+    if (modelValue === undefined) {
+      if (vertical) {
+        return '100%'
+      } else {
+        return '0%'
+      }
+    }
+  }
+
   const barStyles = shallowReactive({
-    width: '10px',
-    height: '10px',
+    width: defaultWidth(),
+    height: '100%',
     left: `0px`,
     bottom: `0px`
   })
@@ -55,8 +67,15 @@ export const useSlide = (
         barStyles.width = `${maxPosition - minPosition}px`
       }
     } else {
-      barStyles.height = `${-y || 10}px`
-      barStyles.width = `${x || 10}px`
+      console.log(x, 'x')
+      if (props.vertical) {
+        barStyles.height = `${-y}px`
+        barStyles.width = `100%`
+      } else {
+        barStyles.height = `100%`
+        barStyles.width = `${x}px`
+        // console.log(barStyles.width, x, 'width')
+      }
     }
   }
 
