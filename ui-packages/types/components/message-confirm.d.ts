@@ -1,5 +1,5 @@
 import type { DeconstructValue } from '../helper'
-import type { ButtonType } from './button'
+import type { ColorType } from '../component-common'
 
 /** 消息确认框组件属性 */
 export interface MessageConfirmProps {
@@ -8,7 +8,7 @@ export interface MessageConfirmProps {
   message: string
   confirmButtonText?: string
   cancelButtonText?: string
-  confirmButtonType?: ButtonType
+  confirmButtonType?: ColorType
   onClose?: (action: 'cancel' | 'confirm') => void
 }
 
