@@ -27,6 +27,8 @@
         />
 
         <u-checkbox field="freeze" label="是否冻结" />
+
+        <u-slider :min="20" field="slider" label="滑块" />
       </u-form>
 
       <div>
@@ -71,9 +73,10 @@ const model = new FormModel({
     }
   },
   freeze: {},
-  sex: { value: 'male' },
+  sex: { value: '' },
   pwd: {},
   debt: {},
+  slider: {},
   email: {
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
