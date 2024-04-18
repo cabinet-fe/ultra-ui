@@ -17,6 +17,15 @@
         vertical
         show-stops
       ></u-slider>
+
+      <u-slider
+        v-model="sliderValue"
+        :step="10"
+        :max="100"
+        :min="20"
+        vertical
+        show-stops
+      ></u-slider>
     </div>
 
     step 步长(x)
@@ -33,12 +42,14 @@
     范围
     <div>
       <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
-
+      <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
       {{ rangeValue }}
     </div>
 
+
     垂直范围
     <div>
+      <u-slider v-model="rangeValue" range vertical> </u-slider>
       <u-slider v-model="rangeValue" range vertical> </u-slider>
     </div>
 
@@ -67,7 +78,7 @@ const sliderValue = ref()
 const verticalValue = ref(40)
 
 /** 范围 */
-const rangeValue = ref([20, 40])
+const rangeValue = ref()
 
 const stepValue = ref(0)
 

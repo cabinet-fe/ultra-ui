@@ -7,16 +7,16 @@
 // 方便拼接
 $root-name: slider;
 
-$button-size: 36;
+$button-size: 32;
 
 @include m.b($root-name) {
-  padding: #{math.div($button-size, 2)}px;
-  height: $button-size + 10 + px;
-
   @include m.size using ($size) {
+    padding: calc(fn.use-var(form-component-height, $size) / 3);
+    height: fn.use-var(form-component-height, $size);
+
     @include m.bem($root-name, button) {
       width: calc(fn.use-var(form-component-height, $size) / 1.5);
-      height: calc(fn.use-var(form-component-height, $size) / 1.5)
+      height: calc(fn.use-var(form-component-height, $size) / 1.5);
     }
 
     @include m.bem($root-name, runway) {
@@ -26,12 +26,14 @@ $button-size: 36;
     @include m.bem($root-name, bar) {
       border-radius: fn.use-var(radius, $size);
     }
+
+    @include m.is(vertical) {
+      width: fn.use-var(form-component-height, $size);
+    }
   }
 
   @include m.is(vertical) {
-    width: $button-size + 10 + px;
     height: initial;
-
     @include m.bem($root-name, button-wrap) {
       bottom: #{math.div(-$button-size, 2.5)}px;
       top: unset;
@@ -45,13 +47,20 @@ $button-size: 36;
     @include m.bem($root-name, bar) {
       bottom: 0;
     }
+
+    @include m.bem($root-name, stop) {
+      position: absolute;
+      pointer-events: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 50%;
+      background-color: fn.use-var('color', primary, light-3);
+    }
   }
 
   @include m.e(runway) {
     height: 100%;
     background-color: fn.use-var(color, primary, light-9);
-    // border-radius: 3px;
-
     position: relative;
     cursor: pointer;
   }
@@ -102,7 +111,7 @@ $button-size: 36;
     position: absolute;
     pointer-events: none;
     width: 10px;
-    height: 10px;
+    height: 100%;
     border-radius: 50%;
     background-color: fn.use-var('color', primary, light-3);
   }
