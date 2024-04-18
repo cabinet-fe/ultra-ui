@@ -11,6 +11,7 @@
       @focus="handleFocus"
       @blur="handleBlur"
       @change="handleChange"
+      :disabled="disabled"
       :readonly="readonly"
       ref="textAreaRef"
     />
@@ -18,7 +19,7 @@
       {{ initNum }}/{{ props.maxlength }}
     </span>
     <span
-      v-if="props.clearable && model!.length && mouse"
+      v-if="props.clearable && model! && mouse && !disabled && !readonly"
       :class="cls.m('clear')"
       @click.stop="handleClear"
     >
@@ -55,17 +56,19 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: "请输入",
   rows: 5,
   resize: true,
+  clearable:true,
+  disabled: undefined,
+  readonly: undefined
 })
 
 const cls = bem("textarea")
 
 const {formProps} = useFormComponent()
 
-const {size,disabled, readonly} = useFormFallbackProps([formProps ?? {}, props], {
-  disabled: false,
-  readonly: false,
-  size:'default'
-})
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 const emit = defineEmits<TextareaEmits>()
 
@@ -81,12 +84,13 @@ let mouse = shallowRef(false)
 
 const classList = computed(() => {
   return [
-    cls.m(`more`),
-    cls.m(size.value),
+  cls.b,
     bem.is("resize-none", !props.resize),
     bem.is("disabled", disabled.value),
     bem.is("readonly", readonly.value),
-    bem.is("mouse", mouse.value),
+    cls.m('more'),
+    cls.m(size.value),
+    bem.is('mouse',mouse.value),
   ]
 })
 

@@ -28,7 +28,7 @@ $root-name: multi-select;
   }
 
   @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-3);
+    background-color: fn.use-var(color, primary, light-7);
     opacity: 0.5;
   }
 
@@ -47,24 +47,24 @@ $root-name: multi-select;
     cursor: pointer;
   }
 
-  @include m.e((arrow, clear)) {
-    min-width: 24px;
+  @include m.e(arrow, clear) {
+    min-width: 20px;
+    color: fn.use-var(text-color, main);
   }
 
   @include m.e(tags) {
     @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
-
-    position: relative;
-    z-index: 1;
-    margin: 1px;
-    border-radius: 10px;
     flex-grow: 1;
   }
 
   @include m.e(option) {
     cursor: pointer;
-
+    user-select: none;
     @include m.flex($align: center);
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
   }
 
   @include m.e(content-header) {
@@ -73,8 +73,9 @@ $root-name: multi-select;
 
   @include m.size using ($size) {
     padding: calc(
-      (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-    );
+        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
+      )
+      calc(fn.use-var(gap, $size) / 2);
     @include m.bem($root-name, tags) {
       gap: calc(
         (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
@@ -110,5 +111,18 @@ $root-name: multi-select;
         padding: 0 fn.use-var(gap, $size);
       }
     }
+  }
+
+  @include m.is(disabled) {
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+
+    @include m.bem(tag) {
+      border: fn.use-var(border);
+    }
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    cursor: not-allowed;
   }
 }

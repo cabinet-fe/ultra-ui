@@ -160,12 +160,13 @@ export class Validator<
     data: Record<any, any>,
     field: Field
   ): Promise<string[]> {
-    const rules = this.#rules[field]!
+    const rules = this.#rules[field]
     const value = data[field]
+    let errors: string[] = []
+
+    if (!rules) return errors
 
     const { validator, required, ...normalRules } = rules
-
-    let errors: string[] = []
 
     // 必填要先去校验
     if (required) {

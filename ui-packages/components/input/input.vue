@@ -28,7 +28,7 @@
       :readonly="readonly"
     />
 
-    <Transition name="zoom-in">
+    <Transition name="zoom-in" mode="out-in">
       <UIcon
         v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"

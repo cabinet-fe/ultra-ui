@@ -4,7 +4,9 @@ import type { FormComponentProps } from '../component-common'
 export interface SelectProps<Option extends Record<string, any>>
   extends FormComponentProps {
   /** 绑定值 */
-  modelValue: string | number
+  modelValue?: string | number
+  /** 文本内容 */
+  text?: string
   /** 列表选项 */
   options: Option[]
   /** 值字段 */

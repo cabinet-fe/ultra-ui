@@ -20,21 +20,30 @@
           <u-icon><ArrowLeft /></u-icon>
         </div>
 
-        <div></div>
+        <div>{{ today.year }} {{ today.month }}月</div>
 
         <div>
           <u-icon><ArrowRight /></u-icon>
           <u-icon><DArrowRight /></u-icon>
         </div>
       </div>
+      <ul :class="cls.e('week')">
+        <li :class="cls.e('week-day')" v-for="weekDay of weekDays">
+          {{ weekDay }}
+        </li>
+      </ul>
       <ul :class="cls.e('days')">
         <li
           v-for="day of days"
-          :class="[cls.e('day'), cls.em('day', day.type), bem.is('today')]"
-          :key="day.timestamp"
+          :class="[
+            cls.e('day'),
+            cls.em('day', day.type),
+            bem.is('today', day.isToday === true)
+          ]"
+          :key="day.date.timestamp"
         >
           <span :class="cls.e('day-text')">
-            {{ day.num }}
+            {{ day.date.day }}
           </span>
         </li>
       </ul>
@@ -57,8 +66,7 @@ import {
   DArrowLeft,
   DArrowRight
 } from 'icon-ultra'
-import { getMonthDays } from '../calendar/utils'
-
+import { getMonthDays, weekDays } from '../calendar/utils'
 import { date } from 'cat-kit/fe'
 
 defineOptions({
@@ -69,6 +77,7 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期'
 })
 
+const today = date()
 const model = defineModel<string>()
 
 const cls = bem('date-picker')

@@ -47,7 +47,7 @@ $root-name: checkbox;
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     color: #fff;
-    transition: background-color 0.25s ease;
+    transition: background-color 0.15s ease;
     @include m.flex(inline-flex, center);
   }
 

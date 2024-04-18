@@ -17,6 +17,8 @@
         <u-number-input field="debt" currency label="借款" :step="1" />
         <u-input field="phone" label="手机" />
         <u-input field="email" label="邮箱" />
+        <u-select field="unit" label="单位" :options="units" />
+        <u-multi-select field="interest" label="兴趣" :options="interestList" />
         <u-radio-group
           :items="[
             { label: '男', value: 'male' },
@@ -27,8 +29,7 @@
         />
 
         <u-checkbox field="freeze" label="是否冻结" />
-
-        <u-slider :min="20" field="slider" label="滑块" />
+        <u-textarea field="remarks" label="备注" />
       </u-form>
 
       <div>
@@ -38,24 +39,12 @@
     </CustomCard>
 
     {{ model.data }}
-
-    <!-- <ul class="list" ref="sortRef">
-      <li
-        class="list-item"
-        :class="index % 2 ? 'odd' : 'even'"
-        v-for="(item, index) in list"
-        :key="item"
-      >
-        {{ item }}
-      </li>
-    </ul> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { field, FormModel } from 'ultra-ui/components'
 import { shallowRef } from 'vue'
-import { useSort } from './use-sort'
 import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
@@ -75,24 +64,36 @@ const model = new FormModel({
   freeze: {},
   sex: { value: '' },
   pwd: {},
-  debt: {},
-  slider: {},
+  debt: { min: 10 },
   email: {
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
       '这个时候你得输入一个邮箱'
     ]
-  }
+  },
+  unit: { required: true },
+  interest: { required: true },
+  remarks: { required: true }
+
 })
 
 const sortRef = shallowRef()
 const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
 
-useSort({
-  target: sortRef,
-  onChange() {}
-  // disabled: 'odd'
-})
+const units = [
+  { label: '单位1', value: '1' },
+  { label: '单位2', value: '2' },
+  { label: '单位3', value: '3' }
+]
+
+const interestList = [
+  { label: '电影', value: '1' },
+  { label: '健身', value: '2' },
+  { label: '读书', value: '3' },
+  { label: '游戏', value: '4' },
+  { label: '科技', value: '5' },
+  { label: '音乐', value: '6' }
+]
 </script>
 
 <style scoped lang="scss">

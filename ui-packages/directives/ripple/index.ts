@@ -32,6 +32,7 @@ const createRipple = (e: MouseEvent) => {
   const _duration = parentEl.dataset.duration
     ? Number(parentEl.dataset.duration)
     : duration
+
   setStyles(rippleEl, {
     width: `${diameter}px`,
     height: `${diameter}px`,
@@ -131,7 +132,6 @@ const Ripple: ObjectDirective<HTMLElement> = {
 
     const registered = !!binding.oldValue
     if (binding.value && !registered) {
-
       registerEvents(el, binding)
     } else if (!binding.value && registered) {
       unregisterEvents(el)

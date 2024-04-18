@@ -1,14 +1,19 @@
+import { type Dater, date } from 'cat-kit/fe'
+
 interface Day {
-  timestamp: number
-  num: number
+  date: Dater
+  isToday?: boolean
   type: 'pre' | 'current' | 'next'
 }
+
+export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
 export function getMonthDays(d: Date | string | number) {
   const preMonthDays: Day[] = []
   const currentMonthDays: Day[] = []
   const nextMonthDays: Day[] = []
 
+  const todayStr = date().format('yyyy-MM-dd')
   if (typeof d === 'string' || typeof d === 'number') {
     d = new Date(d)
   }
@@ -24,12 +29,11 @@ export function getMonthDays(d: Date | string | number) {
 
     while (i > 0) {
       const day: Day = {
-        timestamp: d.getTime(),
-        num: d.getDate(),
+        date: date(d.getTime()),
         type: 'pre'
       }
       preMonthDays.unshift(day)
-      d.setDate(day.num - 1)
+      d.setDate(day.date.day - 1)
       i--
     }
   }
@@ -42,11 +46,12 @@ export function getMonthDays(d: Date | string | number) {
   let i = 1
   while (i <= daysNum) {
     d.setDate(i)
+    i++
     const day: Day = {
-      timestamp: d.getTime(),
-      num: i++,
+      date: date(d.getTime()),
       type: 'current'
     }
+    day.isToday = day.date.format('yyyy-MM-dd') === todayStr
     currentMonthDays.push(day)
   }
 
@@ -57,9 +62,9 @@ export function getMonthDays(d: Date | string | number) {
   d.setDate(i)
   while (j <= nextMonthDaysAmount) {
     d.setDate(j)
+    j++
     const day: Day = {
-      timestamp: d.getTime(),
-      num: j++,
+      date: date(d.getTime()),
       type: 'next'
     }
     nextMonthDays.push(day)

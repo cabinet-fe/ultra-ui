@@ -13,22 +13,22 @@ $root-name: date-picker;
   }
 
   @include m.e(panel) {
-    max-height: 400px;
-
     @include m.size using ($size) {
       font-size: fn.use-var(font-size-main, $size);
 
       @include m.bem($root-name, day) {
         height: fn.use-var(form-component-height, $size);
-        line-height: fn.use-var(form-component-height, $size);
         cursor: pointer;
-        text-align: center;
+        padding: 2px;
       }
 
       @include m.bem($root-name, day-text) {
-        height: fn.use-var(form-component-height, $size);
-        width: fn.use-var(form-component-height, $size);
-        border-radius: 100%;
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       @include m.bem($root-name, days) {
@@ -37,25 +37,53 @@ $root-name: date-picker;
           fn.use-var(form-component-height, $size)
         );
       }
+
+      @include m.bem($root-name, week) {
+        grid-template-columns: repeat(
+          7,
+          fn.use-var(form-component-height, $size)
+        );
+      }
+
+      @include m.bem($root-name, header) {
+        font-size: fn.use-var(font-size-title, $size);
+        height: fn.use-var(form-component-height, $size);
+      }
     }
   }
 
-  @include m.e(days) {
+  @include m.e(days, week) {
     display: grid;
+  }
+
+  @include m.e(week) {
+    padding: 3px 0;
+  }
+
+  @include m.e(week-day) {
+    line-height: 1em;
+    text-align: center;
   }
 
   @include m.e(day) {
     cursor: pointer;
-    text-align: center;
 
-    @include m.m((pre, next)) {
+    @include m.m(pre, next) {
       color: fn.use-var(text-color, disabled);
     }
 
-    &:hover {
+    @include m.m(current) {
+      &:hover {
+        @include m.bem($root-name, day-text) {
+          background-color: fn.use-var(color, primary);
+          color: fn.use-var(text-color, white);
+        }
+      }
+    }
+
+    @include m.is(today) {
       @include m.bem($root-name, day-text) {
-        background-color: fn.use-var(color, primary);
-        color: fn.use-var(text-color, white);
+        background-color: fn.use-var(color, primary, light-7);
       }
     }
   }
@@ -64,5 +92,12 @@ $root-name: date-picker;
     display: inline-block;
     border-radius: 100%;
     transition: background-color 0.15s;
+  }
+
+  @include m.e(header) {
+    @include m.flex($justify: space-between);
+
+    line-height: 1em;
+    padding: 0 8px;
   }
 }
