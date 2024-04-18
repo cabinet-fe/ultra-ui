@@ -1,12 +1,12 @@
 import type { DeconstructValue } from '../helper'
-import type { ButtonType } from './button'
+import type { ColorType } from '../component-common'
 
 /** 通知组件组件属性 */
 export interface NotificationProps {
   modelValue?: string
   title?: string
   message?: string
-  type?: ButtonType
+  type?: ColorType
   closable?: boolean
   duration?: number
   offset?: number
