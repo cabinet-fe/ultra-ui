@@ -28,7 +28,7 @@ $button-size: 32;
     }
 
     @include m.is(vertical) {
-      width: fn.use-var(form-component-height, $size);
+      // width: fn.use-var(form-component-height, $size);
     }
   }
 
@@ -41,7 +41,7 @@ $button-size: 32;
     }
 
     @include m.bem($root-name, runway) {
-      // width: 10px;
+      width: 10px;
       height: 100%;
     }
 
