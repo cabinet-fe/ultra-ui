@@ -14,13 +14,12 @@ export default defineConfig({
   plugins: [vue(), vueJsx()],
 
   build: {
+    sourcemap: true,
+
     lib: {
       entry: [resolve(__dirname, 'index.ts'), resolve(__dirname, 'theme.ts')],
       formats: ['es'],
-      name: 'ultra-ui',
-      fileName(format, entryName) {
-        return `${entryName}.js`
-      }
+
     },
 
     rollupOptions: {
@@ -28,8 +27,7 @@ export default defineConfig({
       external: ['vue', 'icon-ultra', 'cat-kit/fe'],
 
       output: {
-        preserveModules: true,
-        format: 'es'
+        preserveModules: true
       }
     }
   }

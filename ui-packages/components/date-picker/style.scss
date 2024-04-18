@@ -6,6 +6,7 @@
 $root-name: date-picker;
 
 @include m.b($root-name) {
+  width: 100%;
   @include m.size using ($size) {
     @include m.bem($root-name, icon) {
       font-size: calc(fn.use-var(form-component-height, $size) / 2 + 2px);
@@ -75,15 +76,31 @@ $root-name: date-picker;
     @include m.m(current) {
       &:hover {
         @include m.bem($root-name, day-text) {
-          background-color: fn.use-var(color, primary);
-          color: fn.use-var(text-color, white);
+          background-color: fn.use-var(color, primary, light-9);
         }
       }
     }
 
     @include m.is(today) {
       @include m.bem($root-name, day-text) {
-        background-color: fn.use-var(color, primary, light-7);
+        border: 1px solid fn.use-var(color, primary, light-3);
+      }
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      background-color: fn.use-var(color, disabled);
+
+      @include m.bem($root-name, day-text) {
+        background-color: fn.use-var(color, disabled);
+        color: fn.use-var(text-color, disabled);
+      }
+    }
+
+    @include m.is(selected) {
+      @include m.bem($root-name, day-text) {
+        background-color: fn.use-var(color, primary);
+        color: fn.use-var(text-color, white);
       }
     }
   }
@@ -100,4 +117,27 @@ $root-name: date-picker;
     line-height: 1em;
     padding: 0 8px;
   }
+
+  @include m.e(header-year, header-month) {
+    cursor: pointer;
+  }
+  @include m.e(header-year) {
+    margin-right: 6px;
+  }
+
+
+  @include m.e(months) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  @include m.e(month) {
+    width: 70px;
+    text-align: center;
+    height: 48px;
+    line-height: 48px;
+    cursor: pointer;
+  }
+
 }
