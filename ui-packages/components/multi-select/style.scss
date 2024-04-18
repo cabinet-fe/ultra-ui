@@ -28,7 +28,7 @@ $root-name: multi-select;
   }
 
   @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-3);
+    background-color: fn.use-var(color, primary, light-7);
     opacity: 0.5;
   }
 
@@ -59,8 +59,12 @@ $root-name: multi-select;
 
   @include m.e(option) {
     cursor: pointer;
-
+    user-select: none;
     @include m.flex($align: center);
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
   }
 
   @include m.e(content-header) {

@@ -14,9 +14,9 @@
         :size="size"
         readonly
         :disabled="disabled"
-        :placeholder="props.placeholder"
-        :clearable="props.clearable"
-        :model-value="label || selected?.[props.labelKey]"
+        :placeholder="placeholder"
+        :clearable="clearable"
+        :model-value="label || selected?.[labelKey]"
         @clear="handleClear"
       >
         <template #suffix>
@@ -104,20 +104,34 @@ const selected = shallowRef<Record<string, any>>()
 const dropdownRef = shallowRef<DropdownExposed>()
 const scrollRef = shallowRef<ScrollExposed>()
 
+let modelIsChangedBySelected = false
+let setIsChangedByModel = false
 watch(
   [model, () => props.options],
   ([model, options]) => {
-    if (!options?.length) return
+    if (!options?.length || modelIsChangedBySelected) return
 
+    setIsChangedByModel = true
     if (model !== undefined) {
       const { valueKey } = props
       selected.value = options.find(option => option[valueKey] === model)
     } else {
       selected.value = undefined
     }
+    setIsChangedByModel = false
   },
   { immediate: true }
 )
+watch(selected, selected => {
+  if (setIsChangedByModel) return
+
+  modelIsChangedBySelected = true
+
+  model.value = selected?.[props.valueKey]
+  label.value = selected?.[props.labelKey]
+
+  modelIsChangedBySelected = false
+})
 
 watch(scrollRef, scroll => {
   if (scroll && model.value !== undefined) {
@@ -148,8 +162,6 @@ const filteredOptions = computed(() => {
 /** 单选 */
 const handleSelect = (option: Option) => {
   selected.value = option
-  model.value = option[props.valueKey]
-  label.value = option[props.labelKey]
   dropdownRef.value?.close()
   emit('change', option)
 }
@@ -157,6 +169,5 @@ const handleSelect = (option: Option) => {
 /** 清除选项 */
 const handleClear = () => {
   selected.value = undefined
-  model.value = undefined
 }
 </script>

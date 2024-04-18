@@ -51,10 +51,6 @@ export function computeDropdownPosition(options: Options): DropdownPosition {
   const windowScrollTop = getWindowScrollTop()
   const viewport = getViewport()
 
-  setStyles(popupEl, {
-    width: triggerEl.offsetWidth + 'px'
-  })
-
   let top = triggerRect.top + triggerEl.offsetHeight + windowScrollTop + gap
   let left = triggerRect.left + windowScrollLeft
 

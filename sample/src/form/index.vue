@@ -62,7 +62,7 @@ const model = new FormModel({
     }
   },
   freeze: {},
-  sex: { value: 'male' },
+  sex: { value: '' },
   pwd: {},
   debt: { min: 10 },
   email: {
