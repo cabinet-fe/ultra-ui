@@ -65,8 +65,6 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })
 
-// console.log(size.value,var(--u-color-primary), 'size')
-
 /** slider大小 */
 const sliderSize = shallowRef(0)
 
