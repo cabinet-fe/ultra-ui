@@ -67,7 +67,7 @@
           cls.e('day'),
           cls.em('day', day.type),
           bem.is('today', day.isToday === true),
-          bem.is('disabled', day.disabled),
+          bem.is('disabled', day.disabled === true),
           bem.is('selected', didDateSelected(day.date))
         ]"
         :key="day.date.timestamp"
@@ -88,7 +88,7 @@
         :class="[
           cls.e('month'),
           bem.is('selected', didMonthSelected(month)),
-          bem.is('disabled', disabled)
+          bem.is('disabled', disabled === true)
         ]"
         @click="!disabled && handleSelectMonth(month)"
       >
@@ -104,7 +104,7 @@
         :class="[
           cls.e('year'),
           bem.is('selected', didYearSelected(year)),
-          bem.is('disabled', disabled)
+          bem.is('disabled', disabled === true)
         ]"
         @click="!disabled && handleSelectYear(year)"
       >
@@ -209,6 +209,7 @@ function handleSelectMonth(month: number) {
 
 function handleSelectDate(day: Day) {
   if (day.disabled) return
+
   emit('update:date', day.date)
   emit('close-dropdown')
   if (day.type !== 'current') {
