@@ -9,8 +9,11 @@ export interface CalendarProps {
 /** day接口 */
 export interface Day {
   date: Dater
+  /** 是否时今日 */
   isToday?: boolean
+  /** 日期类型 */
   type: 'pre' | 'current' | 'next'
+  /** 是否禁止选择 */
   disabled?: boolean
 }
 

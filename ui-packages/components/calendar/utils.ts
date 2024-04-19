@@ -3,71 +3,66 @@ import type { Day } from '@ui/types/components/calendar'
 
 export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
+/**
+ * 获取一个月的天数
+ * @param d 日期
+ * @param disabledDate 禁用日期
+ * @returns
+ */
 export function getMonthDays(
-  d: Date | string | number,
+  d: Date | string | number | Dater,
   disabledDate?: (d: Dater) => boolean
 ) {
-  const preMonthDays: Day[] = []
-  const currentMonthDays: Day[] = []
-  const nextMonthDays: Day[] = []
-
-  const fmtStr = 'yyyyMMdd'
-
-  const todayStr = date().format(fmtStr)
-  if (typeof d === 'string' || typeof d === 'number') {
-    d = new Date(d)
+  const todayStr = date().format()
+  if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
+    d = date(d)
   }
 
-  // 本月第一天
-  d.setDate(1)
-  const firstDayWeek = d.getDay()
+  // 本月天数
+  d.setDay(1)
+  const currentMonthDays: Day[] = Array.from({ length: d.getDays() }).map(
+    (_, i) => {
+      const day: Day = {
+        date: d.calc(i, 'days'),
+        type: 'current'
+      }
+      day.isToday = day.date.format() === todayStr
+      day.disabled = disabledDate?.(day.date)
+      return day
+    }
+  )
+
+  const preMonthDays: Day[] = []
+
+  const nextMonthDays: Day[] = []
+
+  // 上月天数
+  const firstDayWeek = d.weekDay
 
   if (firstDayWeek !== 0) {
-    let i = firstDayWeek
     // 上个月最后一天
-    d.setDate(0)
-
-    while (i > 0) {
+    d.setDay(0)
+    let i = 0
+    while (i < firstDayWeek) {
       const day: Day = {
-        date: date(d.getTime()),
+        date: d.calc(-i, 'days'),
         type: 'pre'
       }
       day.disabled = disabledDate?.(day.date)
-
       preMonthDays.unshift(day)
-      d.setDate(day.date.day - 1)
-      i--
+      i++
     }
-  }
-
-  // 获取本月的天数
-  d.setMonth(d.getMonth() + 2)
-  d.setDate(0)
-
-  const daysNum = d.getDate()
-  let i = 1
-  while (i <= daysNum) {
-    d.setDate(i)
-    i++
-    const day: Day = {
-      date: date(d.getTime()),
-      type: 'current'
-    }
-    day.isToday = day.date.format(fmtStr) === todayStr
-    day.disabled = disabledDate?.(day.date)
-    currentMonthDays.push(day)
   }
 
   // 下个月的天数
   const nextMonthDaysAmount = 42 - currentMonthDays.length - preMonthDays.length
 
-  let j = 1
-  d.setDate(i)
-  while (j <= nextMonthDaysAmount) {
-    d.setDate(j)
-    j++
+  let j = 0
+  d.setMonth(d.month + 2).setDay(1)
+
+  while (j < nextMonthDaysAmount) {
     const day: Day = {
-      date: date(d.getTime()),
+      date: d.calc(j++, 'days'),
       type: 'next'
     }
     day.disabled = disabledDate?.(day.date)
@@ -75,4 +70,59 @@ export function getMonthDays(
   }
 
   return [...preMonthDays, ...currentMonthDays, ...nextMonthDays]
+}
+
+/**
+ * 获取一年的月份
+ * @param d 日期
+ * @param disabledDate 禁用的日期
+ * @returns
+ */
+export function getYearMonths(
+  d: Date | string | number | Dater,
+  disabledDate?: (d: Dater) => boolean
+): Array<{
+  key: string
+  month: number
+  disabled?: boolean
+}> {
+  if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
+    d = date(d)
+  }
+
+  const year = d.year
+
+  return Array.from({ length: 12 }).map((_, i) => {
+    const month = i + 1
+    return {
+      key: `${year}-${month}`,
+      month,
+      disabled: disabledDate?.(d.calc(month - d.month, 'months'))
+    }
+  })
+}
+
+/**
+ * 获取当前年份所处的10年
+ * @param d 日期
+ * @param disabledDate 禁用的日期
+ * @returns
+ */
+export function getTenYears(
+  d: Date | string | number | Dater,
+  disabledDate?: (d: Dater) => boolean
+) {
+  if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
+    d = date(d)
+  }
+
+  const startYear = d.year - (d.year % 10) + 1
+
+  return Array.from({ length: 10 }).map((_, i) => {
+    const year = startYear + i
+    return {
+      year,
+      disabled: disabledDate?.(d.calc(year - d.year, 'years'))
+    }
+  })
 }

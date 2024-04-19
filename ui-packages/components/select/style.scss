@@ -6,7 +6,7 @@ $root-name: select;
 @include m.b($root-name) {
   width: 100%;
 
-  @include m.e( content-filter) {
+  @include m.e(content-filter) {
     border-bottom: fn.use-var(border);
   }
 
@@ -44,7 +44,6 @@ $root-name: select;
     color: fn.use-var(text-color, main);
   }
 
-
   @include m.e(panel) {
     @include m.size using ($size) {
       @include m.bem($root-name, content-filter) {
@@ -66,7 +65,6 @@ $root-name: select;
         height: fn.use-var(form-component-height, $size);
         line-height: fn.use-var(form-component-height, $size);
         padding: 0 fn.use-var(gap, $size);
-
       }
     }
   }

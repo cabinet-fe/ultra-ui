@@ -53,6 +53,7 @@ $root-name: checkbox;
 
   @include m.e(label) {
     margin-left: fn.use-var(gap, small);
+    line-height: 1em;
   }
 
   @include m.m(indeterminate) {

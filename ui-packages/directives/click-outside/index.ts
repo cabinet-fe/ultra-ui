@@ -8,7 +8,8 @@ const targets = shallowReactive(
 
 const documentClickHandler = (event: MouseEvent) => {
   targets.forEach(({ el, handler }) => {
-    el.contains(event.target as Node) || handler()
+    if (el.contains(event.target as Node)) return
+    handler()
   })
 }
 
@@ -16,7 +17,7 @@ let eventAdded = false
 
 function addEvent() {
   if (eventAdded) return
-  document.addEventListener('click', documentClickHandler)
+  document.addEventListener('click', documentClickHandler, true)
   eventAdded = true
 }
 
@@ -37,12 +38,10 @@ const ClickOutside: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
     const id = String(uid())
     el.dataset.outsideId = id
-
-    setTimeout(() => {
-      targets.set(id, {
-        handler: binding.value,
-        el
-      })
+    // 等待点击事件冒泡完毕
+    targets.set(id, {
+      handler: binding.value,
+      el
     })
   },
 
