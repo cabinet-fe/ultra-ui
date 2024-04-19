@@ -116,7 +116,6 @@ const handleCheck = (_checked: boolean) => {
     }
   }
 
-  // 没被选中 并且 子级全部为true 子级被选中 才出现indeterminate
   treeEmit('check', _checked, node.value, checked)
 }
 

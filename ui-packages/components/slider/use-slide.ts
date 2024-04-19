@@ -23,7 +23,7 @@ export const useSlide = (
   /** 范围最大值 */
   let maxValue = ref(0)
 
-  const { modelValue, range, vertical } = props
+  const { range, vertical } = props
 
   const runwayRef = shallowRef<HTMLElement>()
 
