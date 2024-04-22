@@ -12,7 +12,13 @@ export default defineConfig({
     extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
-  plugins: [vue(), vueJsx(), dts()],
+  plugins: [
+    vue(),
+    vueJsx(),
+    dts({
+      include: ['../ui-packages/**/*']
+    })
+  ],
 
   build: {
     sourcemap: true,

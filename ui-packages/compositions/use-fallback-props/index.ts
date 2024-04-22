@@ -2,10 +2,6 @@ import { computed, type ComputedRef } from 'vue'
 import { useConfig } from '../use-config'
 import type { ComponentSize } from '@ui/types/component-common'
 
-type MapTuple<T extends any[], U> = {
-  [K in keyof T]: ComputedRef<U>
-}
-
 /**
  * 使用回滚属性，用于控制多级属性的使用优先级，如果多级属性中不存在该值，则使用全局配置中的属性，如再不存在则为undefined
  * @param propsList 属性列表，最右边的属性优先级最高
