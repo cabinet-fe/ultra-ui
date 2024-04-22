@@ -81,17 +81,17 @@ const customStyle = computed<CSSProperties>(() => ({
   top: `${offset.value}px`
 }))
 
-const timer = ref(0)
+let timer = 0
 
 const startTimer = () => {
   if (duration.value) {
-    timer.value = setTimeout(() => {
+    timer = setTimeout(() => {
       close()
     }, duration.value)
   }
 }
 
-const clearTimer = () => clearTimeout(timer.value)
+const clearTimer = () => clearTimeout(timer)
 
 defineExpose<MessageExposed>({ startTimer, clearTimer })
 </script>

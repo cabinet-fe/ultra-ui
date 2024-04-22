@@ -104,17 +104,17 @@ const customStyle = computed<CSSProperties>(() => {
       }
 })
 
-const timer = ref(0)
+let timer = 0
 
 const startTimer = () => {
   if (duration.value) {
-    timer.value = setTimeout(() => {
+    timer = setTimeout(() => {
       close()
     }, duration.value)
   }
 }
 
-const clearTimer = () => clearTimeout(timer.value)
+const clearTimer = () => clearTimeout(timer)
 
 const handleClick = (e: MouseEvent) => {
   if (props.onClick) props.onClick(e)
