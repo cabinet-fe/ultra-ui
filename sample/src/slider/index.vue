@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- {{ getRandom() }} -->
     基础用法: (min: 20 max: 100)
     <u-slider v-model="sliderValue" :max="100" :min="20"></u-slider>
     <p>值: {{ sliderValue }}</p>
@@ -46,7 +45,6 @@
       {{ rangeValue }}
     </div>
 
-
     垂直范围
     <div>
       <u-slider v-model="rangeValue" range vertical> </u-slider>
@@ -69,19 +67,13 @@ import { FormModel } from 'ultra-ui'
 // const getRandom = () => Math.random()
 
 const model = new FormModel({
-  name: {  },
+  name: {},
   number: { required: true }
 })
 
 const sliderValue = ref()
 
-const verticalValue = ref(40)
-
 /** 范围 */
 const rangeValue = ref()
-
-const stepValue = ref(0)
-
-const stepVerticalValue = ref(0)
 </script>
 <style lang="scss" scoped></style>

@@ -1,7 +1,6 @@
 import { useResizeObserver } from '@ui/compositions'
-import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
+import type { SliderProps } from '@ui/types/components/slider'
 import {
-  computed,
   ref,
   shallowReactive,
   shallowRef,
@@ -10,7 +9,6 @@ import {
 
 export const useSlide = (
   props: SliderProps,
-  emit: SliderEmits,
   sliderSize: ShallowRef<number>
 ) => {
   /** 第一个值的位置 */
@@ -32,7 +30,7 @@ export const useSlide = (
     target: runwayRef,
     onResize([entry]) {
       const rect = entry!.target.getBoundingClientRect()
-      if (props.vertical) {
+      if (vertical) {
         sliderSize.value = rect.height
       } else {
         sliderSize.value = rect.width

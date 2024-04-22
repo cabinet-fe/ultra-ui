@@ -78,7 +78,7 @@ const {
   runwayRef,
   minValue,
   maxValue
-} = useSlide(props, emit, sliderSize)
+} = useSlide(props, sliderSize)
 
 const { stops, getStopStyle } = useStops({
   sliderProps: props,
