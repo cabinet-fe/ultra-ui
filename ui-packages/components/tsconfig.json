@@ -3,8 +3,18 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["vite/client", "@vue/runtime-core"]
+    "types": ["vite/client", "@vue/runtime-core"],
+    "lib": ["esnext", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@ui/utils": ["../utils/index.ts"],
+      "@ui/compositions": ["../compositions/index.ts"],
+      "@ui/shared": ["../shared/index.ts"],
+      "@ui/styles/*": ["../styles/*"],
+      "@ui/directives": ["../directives/index.ts"],
+      "@ui/types/*": ["../types/*"]
+    }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "node_modules/multi-select.vue"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules"]
 }

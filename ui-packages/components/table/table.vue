@@ -26,8 +26,8 @@
 import type { TableProps, TableEmits } from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
 import { provide, shallowRef, useSlots, type VNode } from 'vue'
-import { TableDIKey } from './di'
-import { TableRow, useRows } from './use-rows'
+import { TableDIKey, type TableColumnSlotsScope } from './di'
+import { useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
@@ -42,18 +42,6 @@ defineOptions({
 
 const props = defineProps<TableProps<DataItem>>()
 const emit = defineEmits<TableEmits<DataItem>>()
-
-/** 表格列插槽作用域 */
-interface TableColumnSlotsScope {
-  row: TableRow
-  rowData: Record<string, any>
-  column: ColumnNode
-  val: any
-  model: {
-    modelValue: any
-    'onUpdate:modelValue': (val: any) => void
-  }
-}
 
 defineSlots<
   {

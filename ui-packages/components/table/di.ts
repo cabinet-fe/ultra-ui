@@ -5,6 +5,18 @@ import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
 import type { EventHandlers } from './use-events'
 
+/** 表格列插槽作用域 */
+export interface TableColumnSlotsScope {
+  row: TableRow
+  rowData: Record<string, any>
+  column: ColumnNode
+  val: any
+  model: {
+    modelValue: any
+    'onUpdate:modelValue': (val: any) => void
+  }
+}
+
 export const TableDIKey: InjectionKey<{
   /** 表格属性 */
   tableProps: TableProps
@@ -19,16 +31,7 @@ export const TableDIKey: InjectionKey<{
   /** 表格列插槽node */
   getColumnSlotsNode: (
     key: string,
-    ctx: {
-      row: TableRow
-      rowData: Record<string, any>
-      column: ColumnNode
-      val: any
-      model: {
-        modelValue: any
-        'onUpdate:modelValue': (val: any) => void
-      }
-    }
+    ctx: TableColumnSlotsScope
   ) => VNode[] | undefined
   /** 表头插槽node */
   getHeaderSlotsNode: (

@@ -1,7 +1,7 @@
 import { camelCase } from 'cat-kit/be'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
-import { UI_PATH, PKG_PATH } from '../shared'
+import { COMPONENT_PATH, PKG_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
 import { NAME_SPACE } from '@ui/shared'
@@ -22,7 +22,7 @@ const extMap = {
  * @returns
  */
 async function write(ctx: ComponentCtx, content: string, ext: string) {
-  const targetDir = resolve(UI_PATH, ctx.componentName)
+  const targetDir = resolve(COMPONENT_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
     await mkdir(targetDir, {
       recursive: true

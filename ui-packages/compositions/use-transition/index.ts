@@ -30,4 +30,3 @@ export function useTransition(type: string, options: any): Returned {
   }
   return useStyleTransition(options)
 }
-

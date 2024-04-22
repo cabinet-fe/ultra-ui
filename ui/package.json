@@ -16,8 +16,5 @@
     ".": "./index.ts",
     "./theme": "./theme.ts",
     "./components": "./components.ts"
-  },
-  "scripts": {
-    "build": "vite build"
   }
 }

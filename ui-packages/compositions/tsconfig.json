@@ -3,8 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["@vue/runtime-core"]
+    "types": ["@vue/runtime-core"],
+    "lib": ["DOM", "ESNext"]
   },
-  "include": ["**/*.ts", "./**/*.tsx", "index.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "index.ts"],
   "exclude": ["node_modules"]
 }
