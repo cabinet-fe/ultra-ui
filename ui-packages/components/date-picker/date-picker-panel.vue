@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.e('header')">
+  <div :class="cls.e('header')" key="day" v-if="panelType === 'day'">
     <div>
       <u-icon @click="handlePreYear"><DArrowLeft /></u-icon>
       <u-icon @click="handlePreMonth"><ArrowLeft /></u-icon>
@@ -20,6 +20,38 @@
     </div>
   </div>
 
+  <div :class="cls.e('header')" v-else-if="panelType === 'month'">
+    <div>
+      <u-icon @click="handlePreYear"><DArrowLeft /></u-icon>
+    </div>
+
+    <div>
+      <span :class="cls.e('header-year')">
+        {{ panelDate.year }}
+      </span>
+    </div>
+
+    <div>
+      <u-icon @click="handleNextYear"><DArrowRight /></u-icon>
+    </div>
+  </div>
+
+  <div :class="cls.e('header')" v-else-if="panelType === 'year'">
+    <div>
+      <u-icon @click="handlePreTenYears"><DArrowLeft /></u-icon>
+    </div>
+
+    <div>
+      <span :class="cls.e('header-year')" @click="panelType = 'year'">
+        {{ years[0]!.year }} - {{ years[9]!.year }}
+      </span>
+    </div>
+
+    <div>
+      <u-icon @click="handleNextTenYears"><DArrowRight /></u-icon>
+    </div>
+  </div>
+
   <template v-if="panelType === 'day'">
     <ul :class="cls.e('week')">
       <li :class="cls.e('week-day')" v-for="weekDay of weekDays">
@@ -35,8 +67,8 @@
           cls.e('day'),
           cls.em('day', day.type),
           bem.is('today', day.isToday === true),
-          bem.is('disabled', day.disabled),
-          bem.is('selected', didDaySelected(day))
+          bem.is('disabled', day.disabled === true),
+          bem.is('selected', didDateSelected(day.date))
         ]"
         :key="day.date.timestamp"
         @click="handleSelectDate(day)"
@@ -50,10 +82,36 @@
 
   <template v-else-if="panelType === 'month'">
     <ul :class="cls.e('months')">
-      <li :class="cls.e('month')" v-for="month of months">{{ month }}月</li>
+      <li
+        v-for="{ key, month, disabled } of months"
+        :key="key"
+        :class="[
+          cls.e('month'),
+          bem.is('selected', didMonthSelected(month)),
+          bem.is('disabled', disabled === true)
+        ]"
+        @click="!disabled && handleSelectMonth(month)"
+      >
+        <span :class="cls.e('month-text')">{{ month }}月</span>
+      </li>
     </ul>
   </template>
-  <template v-else-if="panelType === 'year'"> </template>
+  <template v-else-if="panelType === 'year'">
+    <ul :class="cls.e('years')">
+      <li
+        v-for="{ year, disabled } of years"
+        :key="year"
+        :class="[
+          cls.e('year'),
+          bem.is('selected', didYearSelected(year)),
+          bem.is('disabled', disabled === true)
+        ]"
+        @click="!disabled && handleSelectYear(year)"
+      >
+        <span :class="cls.e('year-text')">{{ year }}</span>
+      </li>
+    </ul>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -61,7 +119,12 @@ import { computed, inject, shallowRef } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { DatePickerDIKey } from './di'
 import { date, type Dater } from 'cat-kit/fe'
-import { getMonthDays, weekDays } from '../calendar/utils'
+import {
+  getMonthDays,
+  weekDays,
+  getTenYears,
+  getYearMonths
+} from '../calendar/utils'
 import { UIcon } from '../icon'
 import type { Day } from '@ui/types/components/calendar'
 import { bem } from '@ui/utils'
@@ -77,6 +140,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:date', date: Dater): void
+  (e: 'close-dropdown'): void
 }>()
 
 const { cls, datePickerProps } = inject(DatePickerDIKey)!
@@ -88,43 +152,76 @@ const panelDate = shallowRef(props.date || date())
 const days = computed(() => {
   return getMonthDays(panelDate.value.timestamp, datePickerProps.disabledDate)
 })
-const months = Array.from({ length: 12 }).map((_, i) => i + 1)
-const years = shallowRef<number[]>([])
+const months = computed(() => {
+  return getYearMonths(panelDate.value.timestamp, datePickerProps.disabledDate)
+})
 
-const didDaySelected = (day: Day) => {
+const years = computed(() => {
+  return getTenYears(panelDate.value.timestamp, datePickerProps.disabledDate)
+})
+
+function didDateSelected(date: Dater) {
   if (!props.date) return false
   const fmt = 'yyyyMMdd'
-  return props.date.format(fmt) === day.date.format(fmt)
+  return props.date.format(fmt) === date.format(fmt)
 }
 
-const handlePreYear = () => {
+function didYearSelected(year: number) {
+  if (!props.date) return false
+  return props.date.year === year
+}
+function didMonthSelected(month: number) {
+  if (!props.date) return false
+  return props.date.month === month
+}
+
+function handlePreYear() {
   panelDate.value = panelDate.value.calc(-1, 'years')
 }
 
-const handlePreMonth = () => {
+function handlePreMonth() {
   panelDate.value = panelDate.value.calc(-1, 'months')
 }
 
-const handleNextYear = () => {
+function handleNextYear() {
   panelDate.value = panelDate.value.calc(1, 'years')
 }
 
-const handleNextMonth = () => {
+function handleNextMonth() {
   panelDate.value = panelDate.value.calc(1, 'months')
 }
 
-const handleSelectYear = () => {}
+function handleSelectYear(year: number) {
+  let targetDate = props.date ? date(props.date.raw).setYear(year) : date()
 
-const handleSelectMonth = () => {
+  emit('update:date', targetDate)
 
+  panelDate.value = targetDate
   panelType.value = 'day'
 }
 
-const handleSelectDate = (day: Day) => {
+function handleSelectMonth(month: number) {
+  let targetDate = props.date ? date(props.date.raw).setMonth(month) : date()
+
+  emit('update:date', targetDate)
+  panelType.value = 'day'
+}
+
+function handleSelectDate(day: Day) {
   if (day.disabled) return
+
   emit('update:date', day.date)
+  emit('close-dropdown')
   if (day.type !== 'current') {
     panelDate.value = day.date
   }
+}
+
+function handlePreTenYears() {
+  panelDate.value = panelDate.value.calc(-10, 'years')
+}
+
+function handleNextTenYears() {
+  panelDate.value = panelDate.value.calc(10, 'years')
 }
 </script>

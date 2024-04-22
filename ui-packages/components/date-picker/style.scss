@@ -125,19 +125,59 @@ $root-name: date-picker;
     margin-right: 6px;
   }
 
-
-  @include m.e(months) {
+  @include m.e(months, years) {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(3, 1fr);
   }
 
-  @include m.e(month) {
+  @include m.e(month, year) {
     width: 70px;
     text-align: center;
     height: 48px;
-    line-height: 48px;
+    padding: 8px 6px;
+
     cursor: pointer;
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      background-color: fn.use-var(color, disabled);
+    }
+
+    @include m.is(selected) {
+      @include m.bem($root-name, (month-text, year-text)) {
+        background-color: fn.use-var(color, primary);
+        color: fn.use-var(text-color, white);
+      }
+    }
   }
 
+  @include m.e(month) {
+    @include m.is(disabled) {
+      @include m.bem($root-name, month-text) {
+        background-color: fn.use-var(color, disabled);
+        color: fn.use-var(text-color, disabled);
+      }
+    }
+  }
+
+  @include m.e(year) {
+    @include m.is(disabled) {
+      @include m.bem($root-name, year-text) {
+        background-color: fn.use-var(color, disabled);
+        color: fn.use-var(text-color, disabled);
+      }
+    }
+  }
+
+  @include m.e(month-text, year-text) {
+    @include m.flex($justify: center);
+    border-radius: 99px;
+    height: 100%;
+    width: 100%;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+  }
 }

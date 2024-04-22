@@ -27,7 +27,7 @@
           label="性别"
           field="sex"
         />
-
+        <u-date-picker field="date" label="日期" />
         <u-checkbox field="freeze" label="是否冻结" />
         <u-textarea field="remarks" label="备注" />
         <u-slider field="slider" label="滑块" />
@@ -75,7 +75,8 @@ const model = new FormModel({
   unit: { required: true },
   interest: { required: true },
   remarks: { required: true },
-  slider: {}
+  slider: {},
+  date: { required: true }
 })
 
 const sortRef = shallowRef()

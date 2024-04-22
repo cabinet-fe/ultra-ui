@@ -17,7 +17,7 @@
     </template>
 
     <template #content>
-      <DatePickerPanel v-model:date="selectedDate" @update:date="dropdownRef?.close()" />
+      <DatePickerPanel v-model:date="selectedDate" @close-dropdown="dropdownRef?.close()" />
     </template>
   </u-dropdown>
 </template>
