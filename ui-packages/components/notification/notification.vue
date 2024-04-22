@@ -43,6 +43,7 @@ import {
 } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
+import type { ColorType } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Notification'
@@ -51,7 +52,7 @@ defineOptions({
 const props = defineProps<NotificationProps>()
 
 const { type, size, closable, duration, offset, buttonText, position } = useFallbackProps([props], {
-  type: 'primary',
+  type: 'primary' as ColorType,
   size: 'default',
   closable: false,
   duration: 4500,

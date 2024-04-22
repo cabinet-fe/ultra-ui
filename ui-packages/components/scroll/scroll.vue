@@ -155,7 +155,7 @@ const handleDragY = (offset: number, size: number) => {
 }
 
 // 滚动事件
-const handleScroll = (e: UIEvent) => {
+const handleScroll = () => {
   updateBar()
 }
 

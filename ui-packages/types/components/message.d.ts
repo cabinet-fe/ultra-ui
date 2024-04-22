@@ -1,5 +1,5 @@
 import type { DeconstructValue } from '../helper'
-import type { DefineComponent, VNode } from 'vue'
+import type { DefineComponent, RendererElement } from 'vue'
 import type { ColorType } from '../component-common'
 
 /** 消息弹框组件组件属性 */
@@ -10,7 +10,7 @@ export interface MessageProps {
   closable?: boolean
   duration?: number
   offset?: number
-  onClose?: (vm: VNode) => void
+  onClose?: (vm: RendererElement) => void
   id?: string
   icon?: DefineComponent
 }

@@ -1,5 +1,3 @@
-import { setStyles } from './style'
-
 interface Options {
   /** 触发元素 */
   triggerEl: HTMLElement
