@@ -48,7 +48,7 @@
         <span :class="bem.is('error', !!getTipErrors(column.key))">{{
           column.name
         }}</span>
-        <span style="color: red" v-if="column.value.rules?.required"> *</span>
+        <!-- <span style="color: red" v-if="column.value.rules?.required"> *</span> -->
       </div>
     </template>
   </u-table>
