@@ -15,7 +15,7 @@
       <div>{{ modelValue }}</div>
 
       <u-row-form ref="rowFormRef" :columns="columns" v-model="modelValue">
-        <template #column:dd="{ aa }">
+        <template #column:dd="{ model }">
           <u-input v-bind="aa" />
         </template>
 

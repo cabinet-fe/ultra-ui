@@ -18,9 +18,5 @@
   },
   "devDependencies": {
     "icon-ultra": "^3.0.3"
-  },
-  "exports": {
-    ".": "./index.ts",
-    "./*": "./*"
   }
 }

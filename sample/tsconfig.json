@@ -5,8 +5,9 @@
     "declaration": true,
     "target": "ESNext",
     "jsx": "preserve",
-    "types": ["vite/client", "@vue/runtime-core"]
+    "types": ["vite/client", "@vue/runtime-core"],
+    "baseUrl": "."
   },
   "include": ["**/*.vue", "**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "vite.config.ts"]
 }

@@ -76,19 +76,17 @@ const emit = defineEmits<RowFormEmits<T>>()
 
 const cls = bem('row-form')
 
-interface Option {
-  model: {
-    modelValue: any
-    'onUpdate:modelValue': (val: any) => void
-  }
-  row: TableRow<Record<string, any>>
-  val: any
-  rowData: Record<string, T>
-}
-
 defineSlots<
   {
-    [key: `column:${string}`]: (props: Option) => any
+    [key: `column:${string}`]: (props: {
+      model: {
+        modelValue: any
+        'onUpdate:modelValue': (val: any) => void
+      }
+      row: TableRow<Record<string, any>>
+      val: any
+      rowData: Record<string, T>
+    }) => any
   } & {
     [key: string]: () => any
   }
@@ -108,7 +106,18 @@ const finalColumns = computed(() => {
     : [...props.columns, { name: '操作', key: 'operation' }]
 })
 
-const getRowFormSlotsNodes = (key: string, options: Option) => {
+const getRowFormSlotsNodes = (
+  key: string,
+  options: {
+    model: {
+      modelValue: any
+      'onUpdate:modelValue': (val: any) => void
+    }
+    row: TableRow<Record<string, any>>
+    val: any
+    rowData: Record<string, T>
+  }
+) => {
   return useSlots()!['column:' + key]?.({ ...options })
 }
 

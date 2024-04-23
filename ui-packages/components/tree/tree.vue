@@ -16,7 +16,7 @@ import {
   watchEffect,
   type VNode
 } from 'vue'
-import { TreeDIKey } from './di'
+import { TreeDIKey, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
 import { CustomTreeNode } from './tree-node'
@@ -44,12 +44,9 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })
 
-interface TreeSlotsScope {
-  node: CustomTreeNode<DataItem>
-  data: DataItem
-}
+
 defineSlots<{
-  default: (props: TreeSlotsScope) => any
+  default: (props: TreeSlotsScope<DataItem>) => any
 }>()
 
 const slots = useSlots()

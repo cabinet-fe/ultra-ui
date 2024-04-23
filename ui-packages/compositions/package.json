@@ -5,7 +5,7 @@
   "main": "index.ts",
   "module": "index.ts",
   "type": "module",
-  "author": "whj",
+  "author": "cabinet-fe",
   "dependencies": {
     "@ui/shared": "workspace:*",
     "@ui/types": "workspace:*",

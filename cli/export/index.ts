@@ -1,5 +1,5 @@
 import { readDir } from 'cat-kit/be'
-import { PKG_PATH } from '../shared'
+import { PKG_PATH, UI_PATH } from '../shared'
 import inquirer from 'inquirer'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
@@ -20,30 +20,56 @@ const { packageName } = await inquirer.prompt<{
   }
 ])
 
-async function exportEntry() {
-  const targetPackage = join(PKG_PATH, packageName)
+/**
+ *
+ * @param targetPackage 目标包名
+ * @param prefix 导出前缀
+ * @returns
+ */
+async function getContent(targetPackage: string, prefix: string) {
   const dirs = await readDir(targetPackage, {
     readType: 'dir'
   })
 
-  const entryContent = await Promise.all(
+  const contents = await Promise.all(
     dirs.map(async dir => {
       const existEntry = existsSync(join(dir.path, 'index.ts'))
 
       if (existEntry) {
-        return `export * from './${dir.name}'`
+        return `export * from '${prefix}${dir.name}'`
       } else {
         const childDirs = await readDir(dir.path, {
           readType: 'file'
         })
         return childDirs
-          .map(childDir => `export * from './${dir.name}/${childDir.name.replace(childDir.ext, '')}'`)
+          .map(
+            childDir =>
+              `export * from '${prefix}${dir.name}/${childDir.name.replace(
+                childDir.ext,
+                ''
+              )}'`
+          )
           .join('\n\n')
       }
     })
   )
 
-  writeFile(join(targetPackage, 'index.ts'), entryContent.join('\n\n'), 'utf-8')
+  return contents.join('\n\n')
+}
+
+async function exportEntry() {
+  const targetPackage = join(PKG_PATH, packageName)
+
+  writeFile(
+    join(targetPackage, 'index.ts'),
+    await getContent(targetPackage, './'),
+    'utf-8'
+  )
+  writeFile(
+    join(UI_PATH, packageName + '.ts'),
+    await getContent(targetPackage, `@ui/${packageName}/`),
+    'utf-8'
+  )
 }
 
 exportEntry()

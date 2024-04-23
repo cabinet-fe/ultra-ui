@@ -1,15 +1,12 @@
 {
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "declaration": true,
-    "composite": true,
+    "outDir": "../dist",
     "baseUrl": ".",
     "rootDir": "../",
     "paths": {
       "@ui/*": ["../ui-packages/*"]
-    }
-  },
-  "include": ["**/*", "../ui-packages/**/*"],
-  "exclude": ["node_modules"]
+    },
+    "types": []
+  }
 }
