@@ -5,7 +5,6 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { genPackageJson } from './gen-package-json'
-import { copyTypes } from './copy-types'
 import { copyStyles } from './copy-styles'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -22,9 +21,7 @@ async function bundle() {
   await build({
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
-      alias: [
-        { find: '@ui', replacement: resolve(__dirname, '../ui') },
-      ]
+      alias: [{ find: '@ui', replacement: resolve(__dirname, '../ui') }]
     },
 
     plugins: [
@@ -47,7 +44,14 @@ async function bundle() {
       emptyOutDir: true,
 
       lib: {
-        entry: getEntries(['index']),
+        entry: getEntries([
+          'index',
+          'components/index',
+          'directives/index',
+          'utils/index',
+          'compositions/index',
+          'styles/index'
+        ]),
         formats: ['es']
       },
 
@@ -68,7 +72,7 @@ async function boot() {
 
   genPackageJson()
 
-  copyTypes()
+  // copyTypes()
 
   copyStyles()
 }

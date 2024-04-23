@@ -15,7 +15,9 @@ const pkg = {
   version: rootPkg.version,
   type: 'module',
   description: 'ultra-ui组件库',
-
+  main: './index.js',
+  module: './index.js',
+  types: "",
   keywords: [
     '完全TS开发的Vue3组件库',
     'Vue组件',
@@ -30,9 +32,8 @@ const pkg = {
     'icon-ultra': '3.0.3'
   },
   exports: {
-    './components': './components/index.js',
-    './styles/*': './styles/*',
-    './compositions': './compositions/index.js'
+    ".": "./index.js",
+    './*': './*'
   }
 }
 

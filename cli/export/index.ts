@@ -75,11 +75,6 @@ async function exportEntry() {
     await getContent(targetPackage, './'),
     'utf-8'
   )
-  writeFile(
-    join(UI_PATH, packageName + '.ts'),
-    await getContent(targetPackage, `@ui/${packageName}/`),
-    'utf-8'
-  )
 }
 
 exportEntry()
