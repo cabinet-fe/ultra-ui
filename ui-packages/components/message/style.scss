@@ -12,7 +12,7 @@ $root-name: message;
   position: fixed;
   left: 50%;
   top: 20px;
-  transform: translateY(-50%);
+  transform: translateX(-50%);
   transition:
     opacity 0.3s,
     transform 0.4s,
@@ -56,5 +56,5 @@ $root-name: message;
 .#{$root-name}-fade-enter-from,
 .#{$root-name}-fade-leave-to {
   opacity: 0;
-  transform: translate(0, -100%);
+  transform: translate(-50%, -100%);
 }
