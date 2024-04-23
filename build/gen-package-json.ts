@@ -25,10 +25,9 @@ const pkg = {
     'Vue UI'
   ],
   peerDependencies: {
-    vue: '3.4.23',
-    'cat-kit': '3.4.18',
-    'icon-ultra': '3.0.3',
-    '@vue/runtime-core': '^3.4.23'
+    vue: rootPkg.devDependencies.vue,
+    'cat-kit': rootPkg.devDependencies['cat-kit'],
+    'icon-ultra': '3.0.3'
   },
   exports: {
     './components': './components/index.js',

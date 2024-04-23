@@ -6,8 +6,13 @@
     "target": "ESNext",
     "jsx": "preserve",
     "types": ["vite/client", "@vue/runtime-core"],
-    "baseUrl": "."
+    "baseUrl": "..",
+    "rootDir": "..",
+    "paths": {
+      "ultra-ui/*": ["ui/*"],
+      "@ui/*": ["ui/*"]
+    }
   },
-  "include": ["**/*.vue", "**/*.ts"],
-  "exclude": ["node_modules", "vite.config.ts"]
+  "include": ["../**/*.vue", "../**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { field, FormModel } from 'ultra-ui/components'
+import { field, FormModel } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 

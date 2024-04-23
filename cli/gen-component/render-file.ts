@@ -1,11 +1,12 @@
 import { camelCase } from 'cat-kit/be'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
-import { COMPONENT_PATH, PKG_PATH } from '../shared'
+import { COMPONENT_PATH, UI_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
-import { NAME_SPACE } from '@ui/shared'
 import type { ComponentCtx } from './type'
+
+const NAME_SPACE = 'U'
 
 const extMap = {
   ts: 'typescript',
@@ -115,7 +116,7 @@ export function renderTypeFile(ctx: ComponentCtx) {
   `
 
   write(ctx, content, '.d.ts').then(async filePath => {
-    await cp(filePath, join(PKG_PATH, 'types/components', ctx.componentName + '.d.ts'))
+    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.d.ts'))
     rm(filePath)
   })
 }

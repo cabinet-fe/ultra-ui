@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 let components = new Set<string>()
-const componentsDir = resolve(__dirname, '../ui-packages/components')
+const componentsDir = resolve(__dirname, '../ui/components')
 
 readDir(componentsDir, {
   readType: 'dir'
@@ -54,7 +54,7 @@ export function UIResolver(componentName: string): ComponentInfo | void {
       : false
 
     if (dirExist) {
-      info.sideEffects = `@ui/components/${componentDirName}/style`
+      info.sideEffects = `ultra-ui/components/${componentDirName}/style`
     }
 
     return info

@@ -14,22 +14,27 @@ const UI_ROOT = resolve(__dirname, '../ui')
 
 function getEntries(fileNames: string[]) {
   return fileNames.map(fileName => {
-    return resolve(UI_ROOT, fileName)
+    return resolve(UI_ROOT, fileName + '.ts')
   })
 }
 
 async function bundle() {
   await build({
     resolve: {
-      extensions: ['.ts', '.js', '.json', '.tsx']
+      extensions: ['.ts', '.js', '.json', '.tsx'],
+      alias: [
+        { find: '@ui', replacement: resolve(__dirname, '../ui') },
+      ]
     },
 
     plugins: [
       vue(),
       vueJsx(),
       dts({
-        tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
-        include: ['../ui-packages/**/*', '../ui/**/*'],
+        entryRoot: UI_ROOT,
+
+        tsconfigPath: resolve(__dirname, '../ui/tsconfig.json'),
+        include: ['../ui/**/*'],
         exclude: ['node_modules']
       })
     ],
@@ -42,7 +47,7 @@ async function bundle() {
       emptyOutDir: true,
 
       lib: {
-        entry: getEntries(['components.ts']),
+        entry: getEntries(['index']),
         formats: ['es']
       },
 
@@ -63,9 +68,9 @@ async function boot() {
 
   genPackageJson()
 
-  await copyTypes()
+  copyTypes()
 
-  await copyStyles()
+  copyStyles()
 }
 
 boot()

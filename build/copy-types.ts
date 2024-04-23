@@ -4,15 +4,15 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-const excludeFiles = new Set(['package.json', 'tsconfig.json'])
+const excludeFiles = new Set<string>([])
 
 /**
  * 拷贝@ui/types文件夹
  */
 export async function copyTypes() {
   await cp(
-    resolve(__dirname, '../ui-packages/types'),
-    resolve(__dirname, '../dist/ui-packages/types'),
+    resolve(__dirname, '../ui/types'),
+    resolve(__dirname, '../dist/types'),
     {
       recursive: true,
       filter: src => {
