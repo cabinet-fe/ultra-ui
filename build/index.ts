@@ -25,7 +25,9 @@ async function bundle() {
     },
 
     plugins: [
-      vue(),
+      vue({
+        isProduction: true
+      }),
       vueJsx(),
       dts({
         entryRoot: UI_ROOT,
@@ -63,7 +65,9 @@ async function bundle() {
           preserveModules: true
         }
       }
-    }
+    },
+
+    logLevel: 'warn'
   })
 }
 

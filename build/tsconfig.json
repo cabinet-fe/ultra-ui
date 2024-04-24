@@ -3,7 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["@types/node"]
+    "types": ["@types/node"],
+    "lib": ["ESNext"]
   },
   "exclude": ["node_modules"],
   "include": ["*.ts"]

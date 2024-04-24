@@ -1,7 +1,7 @@
 @use 'sass:map';
-@use '@ui/styles/mixins' as m;
-@use '@ui/styles/vars';
-@use '@ui/styles/functions' as fn;
+@use '../../styles/mixins' as m;
+@use '../../styles/vars';
+@use '../../styles/functions' as fn;
 
 $root-name: button;
 

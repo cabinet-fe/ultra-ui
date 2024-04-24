@@ -135,9 +135,9 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
 export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
-  @use '@ui/styles/mixins' as m;
-  @use '@ui/styles/functions' as fn;
-  @use '@ui/styles/vars';
+  @use '../../styles/mixins' as m;
+  @use '../../styles/functions' as fn;
+  @use '../../styles/vars';
 
   // 方便拼接
   $root-name: ${ctx.componentName};

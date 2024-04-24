@@ -9,7 +9,7 @@
       />
     </u-scroll>
 
-    <u-scroll tag="div" class="main">
+    <u-scroll tag="div" class="main" >
       <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
         组件尺寸
         <u-radio value="small" v-model="size">小</u-radio>
@@ -29,8 +29,9 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { useConfig, vRipple, type ComponentSize } from 'ultra-ui'
+import { useConfig, vRipple } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
+import type { ComponentSize } from 'ultra-ui/types/component-common'
 
 const router = useRouter()
 const route = useRoute()
@@ -123,7 +124,7 @@ $width: 240px;
 .main {
   width: calc(100% - $width);
 
-  :deep(.u-scroll__content) {
+  & > :deep(.u-scroll__container) {
     padding: 10px;
   }
 }

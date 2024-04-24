@@ -1,6 +1,6 @@
-@use '@ui/styles/mixins' as m;
-@use '@ui/styles/functions' as fn;
-@use '@ui/styles/vars';
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
 
 $root-name: scroll;
 
@@ -59,6 +59,8 @@ $root-name: scroll;
       background-color 0.3s ease-in,
       height 0.15s ease-in,
       width 0.15s ease-in;
+
+    z-index: 1;
 
     &:hover {
       background-color: rgba($color: $bar-color, $alpha: 0.6);
