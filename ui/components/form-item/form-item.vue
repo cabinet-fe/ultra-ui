@@ -1,6 +1,7 @@
 <template>
   <div :class="className">
     <label
+      v-if="label"
       :class="[cls.e('label'), bem.is('required', fieldRequired)]"
       :style="labelStyles"
     >
