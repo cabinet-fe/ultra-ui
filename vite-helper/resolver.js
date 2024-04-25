@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let components = new Set();
-const componentsDir = resolve(__dirname, '../ui-packages/components');
+const componentsDir = resolve(__dirname, '../ui/components');
 readDir(componentsDir, {
     readType: 'dir'
 }).then(dirs => {
@@ -40,7 +40,7 @@ export function UIResolver(componentName) {
             ? existsSync(resolve(componentsDir, componentDirName))
             : false;
         if (dirExist) {
-            info.sideEffects = `@ui/components/${componentDirName}/style`;
+            info.sideEffects = `ultra-ui/components/${componentDirName}/style`;
         }
         return info;
     }

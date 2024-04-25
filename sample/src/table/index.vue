@@ -1,36 +1,24 @@
 <template>
   <div>
-    <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0, -1)">
-        <template #column:name="{ row }">
-          {{ row.value.name }}
-        </template>
-      </u-table>
-    </CustomCard>
-
-    <CustomCard title="多级表头和表头冻结">
-      <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
-    </CustomCard>
-
-    <CustomCard title="冻结列">
+    <CustomCard title="多级表头，表头冻结，列冻结">
       <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
     </CustomCard>
 
     <CustomCard title="表格插槽">
       <u-table :data="data" :columns="columns">
-        <template #column:name="{ row, column }">
-          <u-input v-model="row.value[column.key]" />
+        <template #column:name="{ model, row }">
+          <u-input v-bind="model" />
         </template>
-        <template #column:age="{ row }">
-          <u-number-input v-model="row.value.age" />
+        <template #column:age="{ model }">
+          <u-number-input v-bind="model" />
         </template>
-        <template #column:sex="{ row }">
+        <template #column:sex="{ model }">
           <u-radio-group
             :items="[
               { label: '男', value: '男' },
               { label: '女', value: '女' }
             ]"
-            v-model="row.value.sex"
+            v-bind="model"
           />
         </template>
 
@@ -38,6 +26,14 @@
           <span style="color: red">
             {{ column.key }}
           </span>
+        </template>
+      </u-table>
+    </CustomCard>
+
+    <CustomCard title="基础使用">
+      <u-table :data="data" :columns="columns.slice(0)">
+        <template #column:name="{ rowData }">
+          {{ rowData.name }}
         </template>
       </u-table>
     </CustomCard>
@@ -51,9 +47,10 @@ import CustomCard from '../card/custom-card.vue'
 
 const columns = defineTableColumns(
   [
-    { name: '姓名', key: 'name', align: 'center' },
-    { name: '年龄', key: 'age' },
-    { name: '性别', key: 'sex' },
+    { name: '性别', key: 'sex', fixed: 'right' },
+    { name: '姓名', key: 'name', align: 'center', fixed: 'left' },
+    { name: '年龄', key: 'age', fixed: 'left' },
+
     {
       name: '地址',
       key: 'address',
@@ -65,9 +62,10 @@ const columns = defineTableColumns(
         {
           name: '小区',
           key: 'community',
+          fixed: 'right',
           children: [
-            { name: 'a', key: 'a' },
-            { name: 'b', key: 'b' }
+            { name: 'a', key: 'a', fixed: 'right' },
+            { name: 'b', key: 'b', fixed: 'right' }
           ]
         }
       ]
@@ -86,7 +84,8 @@ const data = shallowRef(
       city: '苏州市' + index,
       area: '姑苏区' + index,
       street: '金昌街道' + index,
-      community: '彩香花园' + index
+      community: '彩香花园' + index,
+      b: 'aa'
     }
   })
 )

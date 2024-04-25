@@ -5,11 +5,9 @@
   },
   "type": "module",
   "dependencies": {
-    "ultra-ui": "workspace:*",
-    "@ui/styles": "workspace:*",
-    "@ui/components": "workspace:*",
     "vite-helper": "workspace:*",
     "vue-router": "^4.3.0",
-    "icon-ultra": "2.1.5"
+    "icon-ultra": "3.0.3",
+    "ultra-ui": "workspace:*"
   }
 }

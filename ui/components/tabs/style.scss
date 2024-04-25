@@ -1,0 +1,150 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+$root-name: tabs;
+$position-types: (top, right, bottom, left);
+
+@include m.b($root-name) {
+  display: flex;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      padding: 2px;
+
+      &--label {
+        border-radius: map.get(vars.$border-radius, $size);
+        padding: map.get(vars.$gap, $size);
+        font-size: map.get(vars.$font-size-main, $size);
+
+        .is-close,
+        .is-close--placeholder {
+          width: map.get(vars.$font-size-main, $size) * 1.5;
+          height: map.get(vars.$font-size-main, $size) * 1.5;
+        }
+      }
+    }
+  }
+
+  @each $position in $position-types {
+    @include m.e($position) {
+      @if $position ==top {
+        flex-direction: column;
+      }
+
+      @else if $position ==bottom {
+        flex-direction: column-reverse;
+      }
+
+      @else if $position ==left {
+        flex-direction: row;
+      }
+
+      @else if $position ==right {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+
+  @include m.e(header) {
+    display: flex;
+    justify-content: space-around;
+    position: relative;
+    background-color: fn.use-var(color, primary-light-9);
+
+    @each $position in $position-types {
+      &--#{$position} {
+        @if $position ==left {
+          flex-direction: column;
+          border-right: 2px solid fn.use-var(border-color);
+        }
+
+        @else if $position ==right {
+          flex-direction: column;
+          border-left: 2px solid fn.use-var(border-color);
+        }
+
+        @else if $position ==bottom {
+          border-bottom: 2px solid fn.use-var(border-color);
+        }
+
+        @else {
+          border-bottom: 2px solid fn.use-var(border-color);
+        }
+      }
+    }
+
+    &--label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin: 1px;
+      font-size: fn.use-var(font-size-title, default);
+      font-weight: bold;
+      color: fn.use-var(text-color, main);
+      user-select: none;
+      animation: fadeOutAnimation 1s forwards;
+
+      @keyframes fadeOutAnimation {
+        from {
+          background-color: fn.use-var(bg-color, top);
+        }
+
+        to {
+          background-color: fn.use-var(color, primary-light-9);
+        }
+      }
+
+      @include m.is('active') {
+        color: fn.use-var(text-color, title);
+        animation: fadeInAnimation 0.25s forwards;
+
+        @keyframes fadeInAnimation {
+          from {
+            background-color: fn.use-var(color, primary-light-9);
+          }
+
+          to {
+            background-color: fn.use-var(bg-color, top);
+          }
+        }
+      }
+
+      @include m.is('disabled') {
+        cursor: not-allowed;
+      }
+
+      .is-close,
+      .is-close--placeholder {
+        padding: 2px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .is-close:hover {
+        background-color: fn.use-var(color, primary-light-1);
+        color: #fff;
+      }
+    }
+
+    &--label:hover {
+      color: fn.use-var(color, primary);
+
+      @include m.is(disabled) {
+        color: fn.use-var(text-color, main);
+      }
+    }
+
+  }
+
+  @include m.e(content) {
+    width: 100%;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+  }
+}

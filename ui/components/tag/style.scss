@@ -1,0 +1,63 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+$root-name: tag;
+@include m.b($root-name) {
+  @include m.flex(inline-flex, flex-start, center);
+  cursor: default;
+  color: fn.use-var(text-color, main);
+  background-color: fn.use-var(color, default);
+  overflow: hidden;
+
+  @include m.e(content) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1em;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  @include m.e(icon-close) {
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: background-color 0.15s linear;
+
+    &:hover {
+      background-color: #ddd;
+    }
+  }
+
+  @include m.size using ($size) {
+    height: fn.use-var(tag, $size);
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 fn.use-var(gap, $size);
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, icon-close) {
+      margin-left: calc(fn.use-var(gap, $size) / 2);
+    }
+
+    @include m.is(round) {
+      border-radius: calc(fn.use-var(tag, $size) / 2);
+    }
+  }
+
+  // 颜色样式
+  @each $type, $_ in vars.$color-types {
+    @include m.m(color-#{$type}) {
+      color: fn.use-var(color, $type);
+      background-color: fn.use-var(color, $type, light-9);
+
+      @include m.is(dark) {
+        color: fn.use-var(text-color, white);
+        background-color: fn.use-var(color, $type);
+      }
+    }
+  }
+}

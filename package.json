@@ -1,31 +1,45 @@
 {
   "name": "ultra",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "组件库",
   "type": "module",
   "scripts": {
     "gen": "tsx cli/gen-component",
     "export": "tsx cli/export",
+    "rename:types": "tsx cli/rename/types",
     "test": "vitest run"
   },
-  "keywords": ["完全TS开发的Vue3组件库", "Vue组件", "Vue3", "Vue", "前端框架", "Vue UI"],
+  "keywords": [
+    "完全TS开发的Vue3组件库",
+    "Vue组件",
+    "Vue3",
+    "Vue",
+    "前端框架",
+    "Vue UI"
+  ],
   "author": "cabinet-fe",
   "devDependencies": {
-    "vue": "^3.4.21",
-    "@vue/runtime-core": "^3.4.21",
+    "vue": "^3.4.24",
+    "@vue/runtime-core": "^3.4.24",
     "ts-conf-base": "^2.2.0",
-    "@types/node": "^20.11.19",
-    "typescript": "5.4.3",
-    "vite": "5.2.7",
+    "@types/node": "^20.12.6",
+    "typescript": "5.4.5",
+    "vite": "5.2.10",
     "@changesets/cli": "^2.27.1",
-    "vue-tsc": "^2.0.7",
-    "tsx": "^4.7.1",
-    "cat-kit": "^3.4.16",
+    "vue-tsc": "^2.0.14",
+    "tsx": "^4.7.2",
+    "cat-kit": "^3.4.20",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "unplugin-vue-components": "^0.26.0",
-    "sass": "^1.72.0",
+    "sass": "^1.75.0",
     "autoprefixer": "10.4.19",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0",
+    "vite-plugin-dts": "3.9.0",
+    "icon-ultra": "^3.0.3",
+    "fast-glob": "^3.3.2",
+    "rollup": "4.16.4",
+    "rollup-plugin-esbuild": "6.1.1",
+    "bumpp": "9.4.0"
   }
 }

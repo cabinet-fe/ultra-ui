@@ -1,0 +1,23 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+@include m.b(layout) {
+  display: grid;
+  position: relative;
+
+  @include m.e(resizer) {
+    position: absolute;
+    background-color: red;
+    // cursor: grabbing;
+
+    @include m.is(vertical) {
+      height: 100%;
+      width: 6px;
+    }
+    @include m.is(horizontal) {
+      height: 6px;
+      width: 100%;
+    }
+  }
+}

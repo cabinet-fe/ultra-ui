@@ -1,11 +1,12 @@
 import { camelCase } from 'cat-kit/be'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
-import { UI_PATH, PKG_PATH } from '../shared'
+import { COMPONENT_PATH, UI_PATH } from '../shared'
 import { existsSync } from 'fs'
 import prettier from 'prettier'
-import { NAME_SPACE } from '@ui/shared'
 import type { ComponentCtx } from './type'
+
+const NAME_SPACE = 'U'
 
 const extMap = {
   ts: 'typescript',
@@ -22,7 +23,7 @@ const extMap = {
  * @returns
  */
 async function write(ctx: ComponentCtx, content: string, ext: string) {
-  const targetDir = resolve(UI_PATH, ctx.componentName)
+  const targetDir = resolve(COMPONENT_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
     await mkdir(targetDir, {
       recursive: true
@@ -115,7 +116,7 @@ export function renderTypeFile(ctx: ComponentCtx) {
   `
 
   write(ctx, content, '.d.ts').then(async filePath => {
-    await cp(filePath, join(PKG_PATH, 'types/components', ctx.componentName + '.d.ts'))
+    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.d.ts'))
     rm(filePath)
   })
 }
@@ -134,9 +135,9 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
 export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
-  @use '@ui/styles/mixins' as m;
-  @use '@ui/styles/functions' as fn;
-  @use '@ui/styles/vars';
+  @use '../../styles/mixins' as m;
+  @use '../../styles/functions' as fn;
+  @use '../../styles/vars';
 
   // 方便拼接
   $root-name: ${ctx.componentName};

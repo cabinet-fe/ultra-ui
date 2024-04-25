@@ -1,0 +1,123 @@
+// 生成css变量
+// 主题主要由色彩, 大小, 圆角, 阴影, 字体, 边框构成
+// 其中色彩又分为文字颜色, 背景颜色
+@use 'mixins' as m;
+@use 'functions' as fn;
+@use 'vars';
+
+@font-face {
+  font-family: Inter;
+  src: url(./fonts/Inter.woff2);
+}
+
+// theme-vars
+:root {
+  // 颜色类别
+  @include m.css-var(color, vars.$color-types);
+
+  // 背景色
+  @include m.css-var(bg-color, vars.$bg-colors);
+
+  // 文字颜色
+  @include m.css-var(text-color, vars.$text-colors);
+
+  // 圆角
+  @include m.css-var(radius, vars.$border-radius);
+
+  // 阴影
+  @include m.css-var(shadow, '0 1px 4px 0 #ccc');
+
+  // 表单组件高度
+  @include m.css-var(form-component-height, vars.$form-component-height);
+
+  // 字体大小
+  @include m.css-var(font-size-title, vars.$font-size-title);
+  @include m.css-var(font-size-main, vars.$font-size-main);
+  @include m.css-var(font-size-assist, vars.$font-size-assist);
+
+  // tag标签高度
+  @include m.css-var(tag, vars.$tag-size);
+
+  // 字体
+  // 西文字体优先使用Inter由外部导入
+  // 中文字体苹果优先苹方，然后雅黑
+  @include m.css-var(
+    font-family,
+    'Inter,"Roboto","Segoe UI",-apple-system,BlinkMacSystemFont,"Microsoft YaHei","PingFang SC",sans-serif'
+  );
+
+  // 边框
+  @include m.css-var(
+    border,
+    (
+      style: solid,
+      color: #dcdfe6,
+      width: 1px
+    )
+  );
+
+  @include m.css-var(
+    border,
+    '#{fn.use-vars((border-width, border-style, border-color))}'
+  );
+
+  // 间距
+  @include m.css-var(gap, vars.$gap);
+}
+
+// 初始化
+html {
+  font-family: fn.use-var(font-family);
+  font-weight: normal;
+  color: fn.use-var(text-color, main);
+  line-height: 1.4;
+
+  @each $size in vars.$sizes {
+    &.#{$size} {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+}
+
+body,
+ul,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+div,
+section,
+head,
+aside,
+body,
+main,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+article,
+button,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  padding: 0;
+}
+li {
+  list-style: none;
+}

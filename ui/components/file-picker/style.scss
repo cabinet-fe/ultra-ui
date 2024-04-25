@@ -1,0 +1,7 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: file-picker;
+@include m.b($root-name) {
+}

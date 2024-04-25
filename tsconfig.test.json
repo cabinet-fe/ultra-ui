@@ -2,8 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["vitest/globals"],
-    "rootDir": "."
+    "types": ["vitest/globals"]
   },
-  "include": ["vitest.config.ts", "ui-packages/**/*.ts"]
+  "include": ["vitest.config.ts", "src/**/*.ts"]
 }

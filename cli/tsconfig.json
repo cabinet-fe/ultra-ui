@@ -2,7 +2,9 @@
   "extends": "ts-conf-base/tsconfig.node.json",
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
     "types": ["@types/node"]
   },
-  "include": ["."]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

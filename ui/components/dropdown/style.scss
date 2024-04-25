@@ -1,0 +1,20 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: dropdown;
+
+@include m.b($root-name) {
+  display: inline-block;
+
+  @include m.e('content') {
+    position: absolute;
+    background: fn.use-var(bg, color-top);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    box-shadow: fn.use-var(shadow);
+    top: 0;
+    left: 0;
+  }
+}

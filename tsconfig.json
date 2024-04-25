@@ -2,16 +2,9 @@
   "references": [
     { "path": "./cli/tsconfig.json" },
     { "path": "./vite-helper/tsconfig.json" },
-    { "path": "./ui/tsconfig.json" },
     { "path": "./sample/tsconfig.json" },
 
-    { "path": "./ui-packages/components/tsconfig.json" },
-    { "path": "./ui-packages/shared/tsconfig.json" },
-    { "path": "./ui-packages/utils/tsconfig.json" },
-    { "path": "./ui-packages/directives/tsconfig.json" },
-    { "path": "./ui-packages/types/tsconfig.json" },
-    { "path": "./ui-packages/compositions/tsconfig.json" },
-
-    { "path": "./tsconfig.test.json" }
+    { "path": "./tsconfig.test.json" },
+    { "path": "./ui/tsconfig.json" }
   ]
 }

@@ -1,7 +1,0 @@
-@use '@ui/styles/mixins' as m;
-@use '@ui/styles/functions' as fn;
-@use '@ui/styles/vars';
-
-$root-name: file-picker;
-@include m.b($root-name) {
-}

@@ -1,23 +1,10 @@
 {
   "name": "ultra-ui",
   "type": "module",
-  "dependencies": {
-    "@ui/utils": "workspace:*",
-    "@ui/compositions": "workspace:*",
-    "@ui/shared": "workspace:*",
-    "@ui/styles": "workspace:*",
-    "@ui/components": "workspace:*",
-    "@ui/directives": "workspace:*",
-    "@ui/types": "workspace:*"
-  },
   "module": "./index.ts",
   "main": "./index.ts",
   "exports": {
     ".": "./index.ts",
-    "./theme": "./theme.ts",
-    "./components": "./components.ts"
-  },
-  "scripts": {
-    "build": "vite build"
+    "./*": "./*"
   }
 }

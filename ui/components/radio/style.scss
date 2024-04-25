@@ -1,0 +1,72 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: radio;
+@include m.b($root-name) {
+  cursor: pointer;
+  vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+
+    & + & {
+      margin-left: calc(fn.use-var(gap, $size) * 2);
+    }
+
+    @include m.bem($root-name, button) {
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      padding: 2px;
+
+      @if ($size == large) {
+        padding: 3px;
+      }
+    }
+
+    @include m.bem($root-name, label) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(button) {
+    border-radius: 50%;
+    border: fn.use-var(border);
+    overflow: hidden;
+  }
+
+  @include m.is(checked) {
+    @include m.bem($root-name, button) {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(native) {
+    opacity: 0;
+  }
+
+  @include m.e(label) {
+    padding-left: fn.use-var(gap, small);
+  }
+
+  @include m.e(inner) {
+    background-color: fn.use-var(color, primary);
+    border-radius: 50%;
+    display: block;
+    height: 100%;
+  }
+
+  @include m.is(disabled) {
+    color: fn.use-var(text-color, disabled);
+    cursor: not-allowed;
+    @include m.bem($root-name, button) {
+      border-color: fn.use-var(border, color);
+      background-color: fn.use-var(color, disabled);
+    }
+
+    @include m.bem($root-name, inner) {
+      background-color: fn.use-var(text-color, disabled);
+    }
+  }
+}

@@ -4,13 +4,29 @@ import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import autoprefixer from 'autoprefixer'
 import { UIResolver } from 'vite-helper/resolver'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig(() => {
   return {
     base: '/',
 
     resolve: {
-      extensions: ['.ts', '.js', '.json', '.tsx']
+      extensions: ['.ts', '.js', '.json', '.tsx'],
+      alias: [
+        {
+          find: /^ultra-ui$/,
+          replacement: resolve(__dirname, '../ui/index.ts')
+        },
+        {
+          find: /^ultra-ui\/(.*)$/,
+          replacement: resolve(__dirname, `../ui/$1`)
+        },
+
+        { find: /^@ui\/(.*)$/, replacement: resolve(__dirname, `../ui/$1`) }
+      ]
     },
 
     plugins: [

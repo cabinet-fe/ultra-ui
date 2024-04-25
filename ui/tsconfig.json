@@ -3,8 +3,13 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "outDir": "dist",
-    "rootDir": "."
+    "types": ["vite/client", "@vue/runtime-core"],
+    "lib": ["esnext", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@ui/*": ["./*"]
+    }
   },
-  "include": ["./*.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
+  "exclude": ["node_modules", "**/__test__/**/*"]
 }

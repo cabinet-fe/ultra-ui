@@ -1,0 +1,12 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+
+
+@include m.b(grid) {
+  display: grid;
+
+
+
+}

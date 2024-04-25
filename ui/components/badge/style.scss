@@ -1,0 +1,51 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: badge;
+
+@include m.b($root-name) {
+    width: max-content;
+    position: relative;
+
+    @include m.e('sup') {
+        position: absolute;
+        cursor: default;
+        height: 18px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background: fn.use-var(color, danger);
+        border-radius: 18px;
+        color: #fff;
+
+
+        @include m.is(dot) {
+            height: 8px;
+            width: 8px;
+            padding: 0;
+            border-radius: 50%;
+        }
+    }
+
+    @each $type, $_ in vars.$color-types {
+        @include m.m(color-#{$type}) {
+            background-color: fn.use-var(color, $type, 'light-7');
+            color: fn.use-var(color, $type);
+        }
+    }
+
+    @include m.size using ($size) {
+        font-size: fn.use-var('font-size', main, $size);
+        padding: 0 fn.use-var(gap, $size);
+
+        @if ($size ==default) {
+            height: 22px;
+        }
+
+        @if ($size ==large) {
+            height: 26px;
+        }
+    }
+}

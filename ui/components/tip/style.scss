@@ -1,0 +1,39 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name:tip;
+
+@include m.b($root-name) {
+  // position: relative;
+  width: max-content;
+
+  @include m.e(content) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-radius: fn.use-var(radius, default);
+    padding: 10px;
+    font-size: 14px;
+    line-height: 1.2;
+    width: max-content;
+    overflow-wrap: break-word;
+    visibility: visible;
+    color: fn.use-var(text, color-title);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    background: fn.use-var(bg, color-top);
+    border: fn.use-var(border);
+
+    @include m.is(content-light) {
+      background: #fff;
+      border: fn.use-var(border);
+      color: #000;
+    }
+  }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var('font-size', main, $size);
+    padding: fn.use-var(gap, $size);
+  }
+}

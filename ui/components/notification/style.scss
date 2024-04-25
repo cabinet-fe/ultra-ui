@@ -1,0 +1,92 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: notification;
+$positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
+
+@include m.b($root-name) {
+  display: flex;
+  min-width: 380px;
+  position: absolute;
+  transition: opacity 0.3s, transform 0.4s, top 0.4s;
+  border: fn.use-var(border);
+  background-color: #fff;
+  box-shadow: fn.use-var(shadow);
+  margin: 4px;
+  overflow: hidden;
+
+  @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+    padding: map.get(vars.$gap, $size) * 1.2;
+
+    @include m.bem($root-name, icon) {
+    }
+
+    @include m.bem($root-name, content) {
+      max-width: 400px;
+      word-wrap: break-word;
+      margin-left: fn.use-var(gap, $size);
+      text-align: left;
+      &--title {
+        font-size: fn.use-var('font-size', title, $size);
+        font-weight: bold;
+      }
+      &--message {
+        font-size: fn.use-var('font-size', main, $size);
+      }
+      &--button {
+        text-align: right;
+        margin-top: map.get(vars.$gap, $size);
+      }
+    }
+
+    @include m.bem($root-name, close) {
+      cursor: pointer;
+      position: absolute;
+      right: fn.use-var(gap, $size);
+      top: fn.use-var(gap, $size);
+      &:hover {
+        color: fn.use-var(color, primary, 'dark-9');
+      }
+    }
+  }
+
+  @each $type, $_ in vars.$color-types {
+    @include m.e($type) {
+      // background-color: fn.use-var(color, $type, 'light-7');
+      color: fn.use-var(color, $type);
+    }
+  }
+
+  @each $position in $positions {
+    @include m.e($position) {
+      @if $position == 'bottom-right' {
+        right: 0;
+        bottom: 0;
+      }@else if ($position == 'bottom-left') {
+        left: 0;
+        bottom: 0;
+      }@else if ($position == 'top-right') {
+        right: 0;
+        top: 0;
+      }@else {
+        left: 0;
+        top: 0;
+      }
+    }
+  }
+}
+
+.#{$root-name}-fade-bottom-enter-from,
+.#{$root-name}-fade-bottom-leave-to {
+  opacity: 0;
+  transform: translate(0, 100%);
+}
+.#{$root-name}-fade-top-enter-from,
+.#{$root-name}-fade-top-leave-to {
+  opacity: 0;
+  transform: translate(0, -100%);
+}

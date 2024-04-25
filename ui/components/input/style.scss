@@ -1,0 +1,90 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+$root-name: input;
+
+@include m.b($root-name) {
+  @include m.flex($display: inline-flex);
+  vertical-align: middle;
+  line-height: 1;
+  border-radius: fn.use-var(radius, default);
+  box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
+  width: 100%;
+
+  &:hover {
+    // 悬浮时边框颜色为 var(--u-color-primary);
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    padding: 0 calc(fn.use-var(gap, $size) / 2);
+
+    @include m.bem($root-name, native) {
+      height: fn.use-var(form-component-height, $size);
+      line-height: fn.use-var(form-component-height, $size);
+    }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.is(focus) {
+    // 使用变量 color 和 primary 设置内阴影和边框颜色
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.e(native) {
+    // 清除默认样式
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    flex-grow: 1;
+    color: fn.use-var(text-color, main);
+    font-size: 1em;
+    padding: 0;
+
+    &:-webkit-autofill {
+      color: #fff !important;
+      background-color: transparent;
+    }
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(prefix, suffix) {
+    font-size: 14px;
+    @include m.flex(inline-flex, $justify: center, $align: center);
+    color: fn.use-var(text-color, main);
+    flex-shrink: 0;
+    min-width: 20px;
+    text-align: center;
+    height: 100%;
+
+    @include m.is(clickable) {
+      cursor: pointer;
+    }
+  }
+
+  @include m.e(clear) {
+    cursor: pointer;
+    color: fn.use-var(text-color, main);
+    min-width: 20px;
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    @include m.bem($root-name, native) {
+      cursor: not-allowed;
+    }
+  }
+}

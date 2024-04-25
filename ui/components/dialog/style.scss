@@ -1,0 +1,155 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: dialog;
+
+@include m.bem($root-name, overlay) {
+  pointer-events: auto;
+  background: rgba($color: #000000, $alpha: 0.32);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+
+  @include m.flex($justify: center);
+}
+
+@include m.b($root-name) {
+  border-radius: fn.use-var(radius, large);
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  flex-wrap: nowrap;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      padding: 0 fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-title, $size);
+    }
+  }
+
+  @include m.e(header, footer) {
+    flex-shrink: 0;
+    overflow: hidden;
+
+    @include m.is(background-blur) {
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        background-color: fn.use-var(bg-color, middle, alpha);
+        backdrop-filter: blur(6px);
+        transform: translate3d(0, 0, 0);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+    }
+  }
+
+  // 弹框头
+  @include m.e(header) {
+    height: 49px;
+
+    border-bottom: fn.use-var(border);
+    border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
+
+    &:active {
+      cursor: move;
+    }
+
+    @include m.flex($justify: space-between);
+  }
+
+  @include m.e(title) {
+    line-height: 1em;
+  }
+
+  @include m.e(body) {
+    padding: 8px;
+    background-color: fn.use-var(bg-color, top);
+    flex-grow: 1;
+    overflow: auto;
+  }
+
+  @include m.e(footer) {
+    border-top: fn.use-var(border);
+    padding: 8px;
+    text-align: right;
+    border-radius: 0 0 fn.use-var(gap, default) fn.use-var(gap, default);
+
+    #{fn.bem(button)} + #{fn.bem(button)} {
+      margin-left: fn.use-var(gap, default);
+    }
+  }
+
+  @include m.e(buttons) {
+    font-size: 0;
+    & > {
+      @include m.bem(icon) {
+        &:not(:first-child) {
+          margin-left: fn.use-var(gap, default);
+        }
+      }
+    }
+  }
+  @include m.e(btn-close, btn-minimize, btn-maximize, btn-recover) {
+    border-radius: 50%;
+    overflow: hidden;
+    color: #fff;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+
+    & > svg {
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    &:hover {
+      & > svg {
+        opacity: 1;
+      }
+    }
+  }
+  @include m.e(btn-close) {
+    background-color: #ff7330;
+  }
+  @include m.e(btn-minimize) {
+    background-color: #e4bf2e;
+  }
+  @include m.e(btn-maximize, btn-recover) {
+    background-color: #34c759;
+  }
+}
+
+// 弹框最大化动画进入后的类
+.#{$root-name}-maximize-enter-to {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh;
+  transform: translate(0, 0) scale3d(1, 1, 1) !important;
+  @include m.bem($root-name, header) {
+    &:active {
+      cursor: default;
+    }
+  }
+}
+
+// 弹框最大化动画激活时的类
+.#{$root-name}-maximize-enter-active,
+.#{$root-name}-maximize-leave-active {
+  transition-property: width, height, transform;
+  transition-duration: 0.25s;
+}
+
+// 移除动画激活时保证最大高度为100vh
+.#{$root-name}-maximize-leave-active {
+  max-height: 100vh;
+}

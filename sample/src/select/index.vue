@@ -1,83 +1,32 @@
 <template>
-  <div>
-    <div class="demoList">
-      <h2>单选</h2>
-    </div>
-    <div>
-      <h2>多选</h2>
+  <div style="display: flex; justify-content: center;">
+    <CustomCard width="400px" title="使用">
+      <u-checkbox v-model="filterable">过滤</u-checkbox>
       <u-select
-        multiple
-        :model-value="value"
+        v-model="selected"
+        :filterable="filterable"
         :options="options"
-        label-key="codeAndLabel"
-        value-key="defaultTravelPlace"
-        @update:model-value="onChange"
       />
-    </div>
+
+      <div style="height: 10vh;">
+
+      </div>
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
 
-const value = ref('')
-const options = ref([
-  {
-    label: '交科院',
-    value: '1',
-    code: '88',
-    codeAndLabel: '88 交科院',
-    defaultTravelPlace: '12-1201-1201015',
-    defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236672
-  },
-  {
-    label: '相城开发区',
-    value: '2',
-    codeAndLabel: '99 相城开发区',
-    defaultTravelPlace: '13-1201-1201014',
-    defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236673
-  },
-  {
-    label: '杜桥镇人民政府',
-    value: '3',
-    codeAndLabel: '77 杜桥镇人民政府',
-    defaultTravelPlace: '14-1201-1201013',
-    defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236674
-  },
-  {
-    label: '财务部',
-    value: '4',
-    codeAndLabel: '66 财务部',
-    defaultTravelPlace: '15-1201-1201011',
-    defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236675
-  },
-  {
-    label: '选项5',
-    value: '5',
-    codeAndLabel: '55 选项5',
-    defaultTravelPlace: '16-1201-1201012',
-    defaultTravelPlaceName: '天津市-市辖区-和平区',
-    deptId: 1701050425886236676
-  }
-])
+const options = Array.from({ length: 100 }).map((_, i) => ({
+  label: `选项${i}`,
+  value: i
+}))
 
-const onChange = (val: any) => {
-  console.log(val, 'val')
-  value.value = val.label
-  console.log(value.value, 'value')
-}
+const selected = shallowRef(20)
+
+const filterable = shallowRef(false)
 </script>
 
-<style lang="scss" scoped>
-.demoList {
-  margin-bottom: 30px;
-  & > div {
-    margin-right: 10px;
-    // margin-bottom: 10px;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -1,0 +1,142 @@
+@use 'sass:map';
+@use '../../styles/mixins' as m;
+@use '../../styles/vars';
+@use '../../styles/functions' as fn;
+
+$root-name: button;
+
+@include m.b($root-name) {
+  @include m.flex($display: inline-flex, $justify: center);
+
+  color: fn.use-var(text-color, main);
+  line-height: 1;
+  outline: none;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-radius: fn.use-var(radius, default);
+  cursor: pointer;
+  -webkit-appearance: none;
+  background-color: fn.use-var(color, default);
+  border: fn.use-var(border, width) fn.use-var(border, style)
+    fn.use-var(color, default);
+  box-shadow: 0px 0px 2px 0px fn.use-var(color, default);
+
+  transition:
+    background-color 0.25s,
+    box-shadow 0.2s;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent; /* For some Androids */
+
+  @include m.is(plain) {
+    background-color: fn.use-var(bg-color, top);
+    border-color: fn.use-var(color, default, 'dark-1');
+
+    &:hover {
+      border-color: fn.use-var(color, default, 'dark-1');
+    }
+
+    &.is-disabled {
+      color: fn.use-var(text-color, second);
+    }
+  }
+
+  // 尺寸
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    line-height: fn.use-var(form-component-height, $size);
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 1em;
+
+    @include m.is(circle) {
+      width: fn.use-var(form-component-height, $size);
+    }
+  }
+
+  @include m.is(disabled, loading) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, second);
+  }
+
+  // 颜色
+  @each $type, $_ in vars.$color-types {
+    // 用于指定波纹颜色
+    .is-ripple-#{$type} {
+      background-color: fn.use-var(color, $type);
+      opacity: 0.2;
+    }
+
+    @include m.m(color-#{$type}) {
+      background-color: fn.use-var(color, $type);
+      color: fn.use-var(text-color, white);
+      border-color: fn.use-var(color, $type);
+      box-shadow: 0px 0px 2px 0px fn.use-var(color, $type);
+      &:hover {
+        background-color: fn.use-var(color, $type, 'dark-1');
+        border-color: fn.use-var(color, $type, 'dark-1');
+      }
+
+      &:active {
+        box-shadow: none !important;
+      }
+
+      // 禁用
+      @include m.is(disabled, loading) {
+        background-color: fn.use-var(color, $type, 'light-3');
+        border-color: fn.use-var(color, $type, 'light-3');
+        color: #fff;
+        box-shadow: none;
+      }
+
+      @include m.is(text) {
+        color: fn.use-var(color, $type);
+        box-shadow: none;
+
+        &:not(.is-disabled) {
+          &:hover {
+            background-color: fn.use-var(color, $type, 'light-9');
+          }
+        }
+
+        @include m.is(disabled) {
+          color: fn.use-var(color, $type, 'light-3');
+        }
+      }
+
+      @include m.is(plain) {
+        color: fn.use-var(color, $type);
+        background-color: fn.use-var(bg-color, top);
+        border-color: fn.use-var(color, type);
+
+        &:hover {
+          color: fn.use-var(color, $type, 'dark-1');
+          border-color: fn.use-var(color, $type, 'dark-1');
+        }
+
+        &.is-disabled {
+          border-color: fn.use-var(color, $type, 'light-3');
+          color: fn.use-var(color, $type, 'light-3');
+        }
+      }
+    }
+  }
+
+  // 圆角
+  @include m.is(circle) {
+    border-radius: 50%;
+    padding: 0;
+  }
+
+  // 文本形态
+  @include m.is(text) {
+    background-color: transparent;
+    border: none;
+  }
+
+  @include m.e(icon-left) {
+    margin-right: fn.use-var(gap-small);
+  }
+  @include m.e(icon-right) {
+    margin-left: fn.use-var(gap-small);
+  }
+}

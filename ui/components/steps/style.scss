@@ -1,0 +1,150 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: steps;
+$color-default: (
+  default: fn.use-var(text, color, main)
+);
+$color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
+
+@include m.b($root-name) {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(form-component-font-size, $size);
+
+    @include m.bem($root-name, icon, number) {
+      width: map.get(vars.$form-component-height, $size);
+      height: map.get(vars.$form-component-height, $size);
+    }
+
+    @include m.bem($root-name, icon) {
+      @each $direction in horizontal, vertical {
+        @if $direction == horizontal {
+          @include m.is($direction) {
+            width: 100%;
+            height: map.get(vars.$form-component-height, $size);
+            margin: map.get(vars.$gap, $size);
+          }
+        }
+        @else {
+          @include m.is($direction) {
+            width: map.get(vars.$form-component-height, $size);
+            height: 100%;
+            margin: map.get(vars.$gap, $size);
+            flex-direction: column;
+          }
+        }
+      }
+    }
+
+  }
+
+  @include m.e(vertical) {
+    flex-direction: column;
+
+    @include m.bem($root-name, step) {
+      width: 100%;
+      flex-direction: row;
+    }
+  }
+
+  @include m.e(step) {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    font-weight: 600;
+
+    @include m.is(readonly) {
+      cursor: default;
+    }
+
+    @each $type, $_ in $color-types {
+      @include m.is($type) {
+        @if $type ==default {
+          color: fn.use-var(text, color, main);
+          border-color: fn.use-var(text, color, main);
+
+          @include m.bem($root-name, icon) {
+            &--number {
+              color: fn.use-var(text, color, main);
+              border-color: fn.use-var(text, color, main);
+            }
+          }
+
+          @include m.bem($root-name, description) {
+            color: fn.use-var(text, color, main);
+          }
+        }
+
+        @else {
+          color: fn.use-var(color, $type);
+          border-color: fn.use-var(color, $type);
+
+          @include m.bem($root-name, icon) {
+            &--number {
+              color: fn.use-var(color, $type);
+              border-color: fn.use-var(color, $type);
+            }
+          }
+
+          @include m.bem($root-name, description) {
+            color: fn.use-var(color, $type);
+          }
+        }
+      }
+    }
+  }
+
+
+  @include m.e(icon) {
+    display: flex;
+    align-items: center;
+
+    &--number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid fn.use-var(border, color);
+      border-radius: 50%;
+      color: fn.use-var(text, color, second);
+      box-sizing: border-box;
+    }
+
+    &--line {
+      border: 1px solid fn.use-var(border, color);
+      flex: 1;
+
+      @each $type, $_ in $color-types {
+        @include m.is($type) {
+          @if $type ==default {
+            border-color: fn.use-var(text, color, main);
+          }
+
+          @else {
+            border-color: fn.use-var(color, $type);
+          }
+        }
+      }
+    }
+
+    &--placeholder {
+      flex: 1;
+    }
+  }
+
+
+  @include m.e(description) {
+    flex: 1;
+    color: fn.use-var(text, color, second);
+  }
+}

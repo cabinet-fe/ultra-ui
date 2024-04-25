@@ -1,11 +1,11 @@
 import { readDir } from 'cat-kit/be'
-import { PKG_PATH } from '../shared'
+import { UI_PATH } from '../shared'
 import inquirer from 'inquirer'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-const packages = await readDir(PKG_PATH, {
+const packages = await readDir(UI_PATH, {
   readType: 'dir'
 })
 
@@ -20,30 +20,61 @@ const { packageName } = await inquirer.prompt<{
   }
 ])
 
-async function exportEntry() {
-  const targetPackage = join(PKG_PATH, packageName)
+/**
+ *
+ * @param targetPackage 目标包名
+ * @param prefix 导出前缀
+ * @returns
+ */
+async function getContent(targetPackage: string, prefix: string) {
   const dirs = await readDir(targetPackage, {
-    readType: 'dir'
+    filter(dirent) {
+      if (dirent.isFile()) {
+        return dirent.name !== 'index.ts' && /\.ts$/.test(dirent.name)
+      } else {
+        return !/(__test__|node_modules)/.test(dirent.name)
+      }
+    }
   })
 
-  const entryContent = await Promise.all(
+  const contents = await Promise.all(
     dirs.map(async dir => {
-      const existEntry = existsSync(join(dir.path, 'index.ts'))
+      if (dir.type === 'dir') {
+        const existEntry = existsSync(join(dir.path, 'index.ts'))
 
-      if (existEntry) {
-        return `export * from './${dir.name}'`
-      } else {
-        const childDirs = await readDir(dir.path, {
-          readType: 'file'
-        })
-        return childDirs
-          .map(childDir => `export * from './${dir.name}/${childDir.name.replace(childDir.ext, '')}'`)
-          .join('\n\n')
+        if (existEntry) {
+          return `export * from '${prefix}${dir.name}'`
+        } else {
+          const childDirs = await readDir(dir.path, {
+            readType: 'file'
+          })
+          return childDirs
+            .map(
+              childDir =>
+                `export * from '${prefix}${dir.name}/${childDir.name.replace(
+                  childDir.ext,
+                  ''
+                )}'`
+            )
+            .join('\n\n')
+        }
       }
+
+      return `export * from '${prefix}${dir.name.replace(dir.ext, '')}'`
     })
   )
 
-  writeFile(join(targetPackage, 'index.ts'), entryContent.join('\n\n'), 'utf-8')
+  return contents.join('\n\n')
+}
+
+async function exportEntry() {
+  const targetPackage = join(UI_PATH, packageName)
+
+  writeFile(
+    join(targetPackage, 'index.ts'),
+    await getContent(targetPackage, './'),
+    'utf-8'
+  )
 }
 
 exportEntry()

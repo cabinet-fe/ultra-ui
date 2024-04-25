@@ -5,8 +5,14 @@
     "declaration": true,
     "target": "ESNext",
     "jsx": "preserve",
-    "types": ["vite/client", "@vue/runtime-core"]
+    "types": ["vite/client", "@vue/runtime-core"],
+    "baseUrl": "..",
+    "rootDir": "..",
+    "paths": {
+      "ultra-ui/*": ["ui/*"],
+      "@ui/*": ["ui/*"]
+    }
   },
-  "include": ["**/*.vue", "**/*.ts"],
+  "include": ["../**/*.vue", "../**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,0 +1,110 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: scroll;
+
+@include m.b($root-name) {
+  position: relative;
+  display: flex;
+  // 弹性布局方向为列方向，以便于父级设置最大高度时能应用滚动
+  flex-direction: column;
+  overflow: auto;
+
+  // 滚动容器
+  @include m.e(container) {
+    overflow: auto;
+    height: 100%;
+    flex-grow: 1;
+
+    // 隐藏滚动条
+    scrollbar-width: none;
+
+    // 兼容隐藏webkit的滚动条
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    // 隐藏火狐的滚动条
+    scrollbar-color: transparent transparent;
+    -ms-scrollbar-track-color: transparent;
+    scrollbar-track-color: transparent;
+  }
+
+  // 悬浮
+  &:hover > {
+    @include m.bem($root-name, (bar-x, bar-y)) {
+      opacity: 1;
+    }
+  }
+
+  // 滚动条背景色
+  $bar-color: #aaa;
+
+  // 滚动条默认尺寸(宽度)
+  $bar-size: 6px;
+  // 滚动条滚动或者悬浮时的尺寸
+  $bar-active-size: $bar-size + 4px;
+
+  // 滚动条
+  @include m.e(bar-x, bar-y) {
+    opacity: 0;
+    position: absolute;
+    border-radius: $bar-size;
+    background-color: rgba($color: $bar-color, $alpha: 0.4);
+    will-change: transform;
+    transition:
+      opacity 0.3s ease-in,
+      background-color 0.3s ease-in,
+      height 0.15s ease-in,
+      width 0.15s ease-in;
+
+    z-index: 1;
+
+    &:hover {
+      background-color: rgba($color: $bar-color, $alpha: 0.6);
+      border-radius: $bar-active-size;
+    }
+
+    @include m.is(active) {
+      opacity: 1;
+      background-color: $bar-color;
+      border-radius: $bar-active-size;
+    }
+  }
+
+  @include m.is(always) {
+    @include m.bem($root-name, (bar-y, bar-x)) {
+      opacity: 1;
+    }
+  }
+
+  @include m.e(bar-y) {
+    width: $bar-size;
+    height: 100%;
+    top: 0;
+    right: 0;
+
+    &:hover {
+      width: $bar-active-size;
+    }
+
+    @include m.is(active) {
+      width: $bar-active-size;
+    }
+  }
+
+  @include m.e(bar-x) {
+    height: $bar-size;
+    bottom: 0;
+    left: 0;
+
+    &:hover {
+      height: $bar-active-size;
+    }
+    @include m.is(active) {
+      height: $bar-active-size;
+    }
+  }
+}

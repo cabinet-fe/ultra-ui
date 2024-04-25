@@ -1,9 +1,9 @@
-export * from '@ui/components'
+export * from './shared'
 
-export * from '@ui/directives'
+export * from './utils'
 
-export * from '@ui/compositions'
+export * from './compositions'
 
-export * from '@ui/utils'
+export * from './directives'
 
-export type * from '@ui/types/component-common'
+export * from './components'

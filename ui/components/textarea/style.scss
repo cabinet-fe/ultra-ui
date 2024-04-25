@@ -1,0 +1,84 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: textarea;
+
+@include m.b($root-name) {
+    position: relative;
+    width: 100%;
+    @include m.m(more) {
+        width: 100%;
+        display: block;
+        border: none;
+        border-radius: fn.use-var(radius, default);
+        box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+        transition: box-shadow 0.2s ease;
+        margin-bottom: 4px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        font-family: fn.use-var(font-family);
+        resize: vertical;
+
+        &:hover {
+            // 悬浮时边框颜色为 var(--u-color-primary);
+            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+          }
+
+        @include m.is(mouse) {
+            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+        }
+
+        &:focus {
+            outline: none;
+            border:none;
+            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+        }
+
+        @include m.is(disabled) {
+            cursor: not-allowed;
+            resize: none;
+            background-color: #f5f7fa;
+            color: fn.use-var(text-color, disabled);
+            border-color: fn.use-var(border, color);
+            box-shadow: 0 0 0 0.5px fn.use-var(border, color) inset;
+        }
+
+        @include m.is(resize-none) {
+            resize: none;
+        }
+
+        @include m.is(readonly) {
+            cursor: default;
+            resize: none;
+        }
+    }
+
+    @include m.size using ($size) {
+        font-size: fn.use-var('font-size', main, $size);
+        padding: fn.use-var(gap, $size);
+    }
+
+    @include m.m(count) {
+        display: block;
+        position: absolute;
+        bottom: 8px;
+        right: 4px;
+        font-size: 12px;
+        background: fn.use-var(bg-color, middle);
+    }
+
+    @include m.m(clear) {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 8px;
+        cursor: pointer;
+
+        i {
+            color: fn.use-var(text-color, titlr);
+            border-color: fn.use-var(text-color, titlr);
+        }
+    }
+
+}

@@ -1,0 +1,46 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+
+$root-name: 'tree';
+
+@include m.b($root-name) {
+  padding: 14px;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, 'node') {
+      padding: calc(fn.use-var(font-size-main, $size));
+      height: calc(fn.use-var(font-size-main, $size));
+    }
+  }
+
+  @include m.e(node) {
+    margin-top: 2px;
+    border-radius: 3px;
+    @include m.flex($align: center);
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
+    @include m.is('active') {
+      background-color: fn.use-var(color, primary, light-3);
+      color: fn.use-var(color, primary, light-9);
+    }
+
+    &:active {
+      // border: 1px solid fn.use-var(color, primary, light-3);
+    }
+  }
+
+  @include m.e(expand-icon) {
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-right: fn.use-var(gap, small);
+    font-size: 18px;
+
+    @include m.is('expanded') {
+      transform: rotate(90deg);
+    }
+  }
+}

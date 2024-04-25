@@ -1,0 +1,9 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+@include m.b(checkbox-group) {
+  @include m.flex(inline-flex);
+  line-height: 1;
+  vertical-align: middle;
+}
