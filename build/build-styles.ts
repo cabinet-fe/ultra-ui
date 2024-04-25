@@ -5,6 +5,7 @@ import fg from 'fast-glob'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
 import { compile } from 'sass'
+import { statSync } from 'node:fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -38,9 +39,9 @@ async function getEntries() {
 
 async function getScssEntries() {
   const entries = await fg.glob(
-    ['components/**/*.scss', 'directives/**/*.scss'],
+    ['components/**/*.scss', 'directives/**/*.scss', 'styles/**/*.scss'],
     {
-      ignore: ['**/node_modules'],
+      ignore: ['**/node_modules', '**/_*.scss'],
       cwd: UI_ROOT
     }
   )
@@ -126,13 +127,22 @@ async function buildCSS() {
  */
 export async function buildStyles() {
   /** 拷贝公用样式 */
-  cp(resolve(__dirname, '../ui/styles'), resolve(__dirname, '../dist/styles'), {
-    recursive: true,
-    filter: src => {
-      return excludeFiles.has(basename(src)) ? false : true
-    }
-  })
+  await cp(
+    resolve(__dirname, '../ui/styles'),
+    resolve(__dirname, '../dist/styles'),
+    {
+      recursive: true,
+      filter: src => {
+        if (statSync(src).isDirectory()) return true
+        const filename = basename(src)
 
+        if (!/^_.*\.scss$/.test(filename) || excludeFiles.has(filename)) {
+          return false
+        }
+        return true
+      }
+    }
+  )
   /** 拷贝组件样式 */
   await buildStyleEntry()
 
