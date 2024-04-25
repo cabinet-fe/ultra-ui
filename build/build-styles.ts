@@ -1,7 +1,6 @@
 import { cp, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import dts from 'vite-plugin-dts'
 import fg from 'fast-glob'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
@@ -94,13 +93,7 @@ async function buildStyleEntry() {
             }
           }
         }
-      },
-
-      dts({
-        tsconfigPath: resolve(__dirname, '../ui/tsconfig.json'),
-        include: ['../ui/**/*'],
-        exclude: ['node_modules']
-      })
+      }
     ]
   })
 
@@ -124,7 +117,6 @@ async function buildCSS() {
   )
 
   results.forEach(result => {
-    console.log(result.path)
     writeFile(result.path, result.css)
   })
 }
@@ -147,4 +139,3 @@ export async function buildStyles() {
   /** 构建组件样式 */
   await buildCSS()
 }
-buildStyles()

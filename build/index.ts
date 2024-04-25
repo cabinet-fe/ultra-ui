@@ -16,7 +16,7 @@ const UI_ROOT = resolve(__dirname, '../ui')
 async function getEntries() {
   const entries = await fg.glob('**/*.{ts,vue,tsx}', {
     cwd: UI_ROOT,
-    ignore: ['**/node_modules', '**/__test__', 'types/**', "**/style.ts"]
+    ignore: ['**/node_modules', '**/__test__', 'types/**', '**/style.ts']
   })
   return Object.fromEntries(
     entries.map(entry => [
@@ -48,6 +48,8 @@ async function bundle() {
       })
     ],
 
+    logLevel: 'warn',
+
     build: {
       sourcemap: true,
 
@@ -77,12 +79,12 @@ async function boot() {
 
   genPackageJson()
 
+  buildStyles()
+
   cp(
     resolve(__dirname, '../README.md'),
     resolve(__dirname, '../dist/README.md')
   )
-
-  buildStyles()
 }
 
 boot()
