@@ -1,13 +1,14 @@
 {
   "name": "ultra",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "组件库",
   "type": "module",
   "scripts": {
     "gen": "tsx cli/gen-component",
     "export": "tsx cli/export",
     "rename:types": "tsx cli/rename/types",
-    "test": "vitest run"
+    "test": "vitest run",
+    "postinstall": "simple-git-hooks"
   },
   "keywords": [
     "完全TS开发的Vue3组件库",
@@ -40,6 +41,10 @@
     "fast-glob": "^3.3.2",
     "rollup": "4.16.4",
     "rollup-plugin-esbuild": "6.1.1",
-    "bumpp": "9.4.0"
+    "bumpp": "9.4.0",
+    "simple-git-hooks": "^2.11.1"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
   }
 }
