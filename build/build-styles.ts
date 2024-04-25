@@ -1,10 +1,11 @@
-import { cp } from 'node:fs/promises'
+import { cp, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import dts from 'vite-plugin-dts'
 import fg from 'fast-glob'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
+import { compile } from 'sass'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -48,7 +49,7 @@ async function getScssEntries() {
   return entries
 }
 
-async function build() {
+async function buildStyleEntry() {
   const entry = await getEntries()
 
   const bundle = await rollup({
@@ -56,11 +57,11 @@ async function build() {
 
     // 排除scss文件直接复制到打包后的目录即可
     external(source) {
-      if (source.endsWith('.scss') && !source.startsWith('@ui')) {
-        return true
-      }
+      if (source.endsWith('.css')) return true
       return false
     },
+
+    logLevel: 'warn',
 
     plugins: [
       esbuild({
@@ -71,15 +72,25 @@ async function build() {
         resolveId: {
           order: 'pre',
           handler(id, importer) {
-            if (!id.startsWith('@ui')) return
-            if (importer) {
-              id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
-            } else {
-              id.replaceAll('@ui', 'ultra-ui')
+            if (id.startsWith('@ui')) {
+              if (importer) {
+                id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
+              } else {
+                id.replaceAll('@ui', 'ultra-ui')
+              }
+              return {
+                id,
+                external: 'absolute'
+              }
             }
-            return {
-              id,
-              external: 'relative'
+
+            if (id.endsWith('.scss')) {
+              id = id.replace(/\.scss$/, '.css')
+
+              return {
+                id,
+                external: 'absolute'
+              }
             }
           }
         }
@@ -99,10 +110,29 @@ async function build() {
   })
 }
 
+async function buildCSS() {
+  const entries = await getScssEntries()
+
+  const results = await Promise.all(
+    entries.map(async entry => {
+      const result = compile(resolve(UI_ROOT, entry))
+      return {
+        path: resolve(__dirname, '../dist', entry).slice(0, -5) + '.css',
+        css: result.css
+      }
+    })
+  )
+
+  results.forEach(result => {
+    console.log(result.path)
+    writeFile(result.path, result.css)
+  })
+}
+
 /**
- * 拷贝@ui/types文件夹
+ * 构建样式
  */
-export async function copyStyles() {
+export async function buildStyles() {
   /** 拷贝公用样式 */
   cp(resolve(__dirname, '../ui/styles'), resolve(__dirname, '../dist/styles'), {
     recursive: true,
@@ -112,10 +142,9 @@ export async function copyStyles() {
   })
 
   /** 拷贝组件样式 */
-  const scssEntries = await getScssEntries()
-  scssEntries.forEach(entry => {
-    cp(resolve(UI_ROOT, entry), resolve(__dirname, '../dist', entry))
-  })
+  await buildStyleEntry()
 
-  await build()
+  /** 构建组件样式 */
+  await buildCSS()
 }
+buildStyles()

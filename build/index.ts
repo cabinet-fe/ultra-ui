@@ -5,7 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { genPackageJson } from './gen-package-json'
-import { copyStyles } from './copy-styles'
+import { buildStyles } from './build-styles'
 import { cp } from 'node:fs/promises'
 import fg from 'fast-glob'
 
@@ -82,7 +82,7 @@ async function boot() {
     resolve(__dirname, '../dist/README.md')
   )
 
-  copyStyles()
+  buildStyles()
 }
 
 boot()
