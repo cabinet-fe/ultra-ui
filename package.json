@@ -46,6 +46,6 @@
   },
 
   "simple-git-hooks": {
-    "commit-msg": "tsx cli/verify-commit/index.ts"
+    "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
   }
 }
