@@ -38,7 +38,6 @@ const pkg = {
 }
 
 export function genPackageJson() {
-  console.log(JSON.stringify(pkg, null, 2))
   writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
