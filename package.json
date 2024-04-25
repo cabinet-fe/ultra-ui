@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -39,6 +39,7 @@
     "icon-ultra": "^3.0.3",
     "fast-glob": "^3.3.2",
     "rollup": "4.16.4",
-    "rollup-plugin-esbuild": "6.1.1"
+    "rollup-plugin-esbuild": "6.1.1",
+    "bumpp": "9.4.0"
   }
 }
