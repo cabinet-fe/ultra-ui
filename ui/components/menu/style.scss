@@ -1,0 +1,23 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: menu;
+
+@include m.b($root-name) {
+  height: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  user-select: none;
+
+  @include m.e(sub) {
+    background-color: pink;
+    cursor: pointer;
+  }
+
+  @include m.e(item) {
+    background-color: lightblue;
+    cursor: pointer;
+  }
+}

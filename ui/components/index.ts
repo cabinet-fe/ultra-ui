@@ -44,6 +44,8 @@ export * from './message'
 
 export * from './message-confirm'
 
+export * from './menu'
+
 export * from './multi-select'
 
 export * from './node-render'
