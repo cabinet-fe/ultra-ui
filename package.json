@@ -8,7 +8,7 @@
     "export": "tsx cli/export",
     "rename:types": "tsx cli/rename/types",
     "test": "vitest run",
-    "preinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks"
   },
   "keywords": [
     "完全TS开发的Vue3组件库",
