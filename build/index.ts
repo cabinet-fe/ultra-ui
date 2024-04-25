@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { genPackageJson } from './gen-package-json'
 import { copyStyles } from './copy-styles'
+import { cp } from 'node:fs/promises'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -76,7 +77,10 @@ async function boot() {
 
   genPackageJson()
 
-  // copyTypes()
+  cp(
+    resolve(__dirname, '../README.md'),
+    resolve(__dirname, '../dist/README.md')
+  )
 
   copyStyles()
 }
