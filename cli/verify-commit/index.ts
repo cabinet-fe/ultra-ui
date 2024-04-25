@@ -11,7 +11,7 @@ const commitRE =
 if (!commitRE.test(msg)) {
   console.error(
     `  ${pico.white(pico.bgRed(' ERROR '))} ${pico.red(
-      `提交格式不正确。请查看README.md中的提交规范获取更多信息。`
+      `提交格式不正确。`
     )}
     `
   )
