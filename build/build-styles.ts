@@ -78,6 +78,9 @@ async function buildStyleEntry() {
               } else {
                 id.replaceAll('@ui', 'ultra-ui')
               }
+              if (id.endsWith('.scss')) {
+                id = id.replace(/\.scss$/, '.css')
+              }
               return {
                 id,
                 external: 'absolute'
