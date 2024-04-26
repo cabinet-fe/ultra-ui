@@ -1,12 +1,13 @@
 <template>
-  <div :class="cls.b"><slot /></div>
+  <div :class="[cls.b, cls.m(size)]"><slot /></div>
 </template>
 
 <script lang="ts" setup>
-import type { MenuProps } from '@ui/types/components/menu'
+import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { useSlots, provide } from 'vue'
-import { MenuDIKey } from './di'
+import { provide, shallowRef, ref } from 'vue'
+import { MenuDIKey, type MenuContext } from './di'
+import { useFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'Menu'
@@ -14,9 +15,35 @@ defineOptions({
 
 const props = defineProps<MenuProps>()
 
+const emit = defineEmits<MenuEmits>()
+
 const cls = bem('menu')
 
-const slots = useSlots()
+const { size, expand } = useFallbackProps([props], {
+  size: 'default',
+  expand: false
+})
 
-provide(MenuDIKey, { cls, menuProps: props })
+const store = shallowRef<MenuContext>({
+  cls,
+  menuProps: props,
+  menuEmit: emit,
+  openIndex: ref(''),
+  closeIndex: ref(''),
+  expand: expand.value
+})
+
+provide(MenuDIKey, store.value)
+
+const open = (index: string) => {
+  store.value.openIndex.value = index
+  if (store.value.closeIndex.value === index) store.value.closeIndex.value = ''
+}
+
+const close = (index: string) => {
+  store.value.closeIndex.value = index
+  if (store.value.openIndex.value === index) store.value.openIndex.value = ''
+}
+
+defineExpose({ open, close })
 </script>

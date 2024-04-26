@@ -93,3 +93,5 @@ export * from './tip'
 export * from './tree'
 
 export * from './virtual-list'
+
+export * from './watermark'
