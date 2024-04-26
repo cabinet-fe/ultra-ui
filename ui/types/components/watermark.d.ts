@@ -2,21 +2,9 @@ import type { DeconstructValue } from '../helper'
 
 /** watermark组件属性 */
 export interface WatermarkProps {
+  /** 文字 */
   text?: string
-  font?: string
-  fontColor?: string
-  fontSize?: string
-  fontWeight?: string
-  fontStyle?: string
-  fontFamily?: string
-  rotate?: number
-  width?: number
-  height?: number
-  gapX?: number
-  gapY?: number
-  offsetX?: number
-  offsetY?: number
-  zIndex?: number
+  /** 图片 */
   image?: string
 }
 
