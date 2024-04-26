@@ -16,12 +16,14 @@ defineOptions({
   name: 'Watermark'
 })
 const cls = bem('watermark')
-const props = withDefaults(defineProps<WatermarkProps>(), {})
+const props = withDefaults(defineProps<WatermarkProps>(), {
+  text:'默认水印'
+})
 const emit = defineEmits<WatermarkEmits>()
 
 const watermarkRef = ref<HTMLDivElement>()
 const watermark = reactive({
-  text: '测试水印',
+  text: props.text,
   font: '',
   fontColor: '',
   fontSize: '',
@@ -52,9 +54,9 @@ const watermark = reactive({
 
 const setWatermark = (str, container) => {
   console.log(str, 'str')
-  console.log(container, 'container')
+  console.log(watermarkRef.value?.getClientRects(), 'container')
   const id = '1.23452384164.123412415'
-
+  let rect = watermarkRef.value?.getBoundingClientRect()
   if (container === undefined) return
   if (document.getElementById(id) !== null) {
     const childElement = document.getElementById(id)
@@ -63,9 +65,9 @@ const setWatermark = (str, container) => {
   // 父容器宽
   var containerWidth = container.clientWidth
   // 父容器高
-  var containerHeight = container.clientHeight - 150
+  var containerHeight = `calc(100vh - ${rect?.top}px)`
   container.style.position = 'relative'
-
+  
   // 创建canvas
   const canvas = document.createElement('canvas')
   canvas.width = 390
@@ -84,7 +86,8 @@ const setWatermark = (str, container) => {
   ctx.textBaseline = 'middle'
   // 编制文字
   ctx.fillText(str, watermark.gapX, watermark.gapY + 20)
-
+  console.log(containerHeight);
+  
   // 创建div
   const div = document.createElement('div')
   div.id = id
@@ -94,7 +97,7 @@ const setWatermark = (str, container) => {
   div.style.position = 'absolute'
   div.style.zIndex = '9999'
   div.style.width = containerWidth + 'px'
-  div.style.height = containerHeight + 'px'
+  div.style.height = containerHeight
   div.style.background = `url(${canvas.toDataURL('image/png')}) repeat`
   container.appendChild(div)
 
