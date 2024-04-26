@@ -3,13 +3,13 @@ import { shallowReactive, watch, type ObjectDirective } from 'vue'
 
 const uid = createIncrease(1000)
 const targets = shallowReactive(
-  new Map<string, { handler: () => void; el: HTMLElement }>()
+  new Map<string, { handler: (e: MouseEvent) => void; el: HTMLElement }>()
 )
 
 const documentClickHandler = (event: MouseEvent) => {
   targets.forEach(({ el, handler }) => {
     if (el.contains(event.target as Node)) return
-    handler()
+    handler(event)
   })
 }
 

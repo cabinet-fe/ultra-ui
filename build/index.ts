@@ -5,7 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { genPackageJson } from './gen-package-json'
-import { copyStyles } from './copy-styles'
+import { buildStyles } from './build-styles'
 import { cp } from 'node:fs/promises'
 import fg from 'fast-glob'
 
@@ -16,7 +16,7 @@ const UI_ROOT = resolve(__dirname, '../ui')
 async function getEntries() {
   const entries = await fg.glob('**/*.{ts,vue,tsx}', {
     cwd: UI_ROOT,
-    ignore: ['**/node_modules', '**/__test__', 'types/**', "**/style.ts"]
+    ignore: ['**/node_modules', '**/__test__', 'types/**', '**/style.ts']
   })
   return Object.fromEntries(
     entries.map(entry => [
@@ -48,6 +48,8 @@ async function bundle() {
       })
     ],
 
+    logLevel: 'warn',
+
     build: {
       sourcemap: true,
 
@@ -77,12 +79,12 @@ async function boot() {
 
   genPackageJson()
 
+  buildStyles()
+
   cp(
     resolve(__dirname, '../README.md'),
     resolve(__dirname, '../dist/README.md')
   )
-
-  copyStyles()
 }
 
 boot()

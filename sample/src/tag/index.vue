@@ -2,34 +2,22 @@
   <div class="tags">
     <CustomCard title="基本用法">
       <u-tag>默认</u-tag>
-      <u-tag v-for="type of types" :type="type">{{ type.toUpperCase() }}</u-tag>
+      <u-tag v-for="item of types" :type="item">{{ item.toUpperCase() }}</u-tag>
     </CustomCard>
 
     <CustomCard title="深色">
       <u-tag light>默认</u-tag>
-      <u-tag v-for="type of types" dark :type="type">{{
-        type.toUpperCase()
-      }}</u-tag>
+      <u-tag v-for="item of types" dark :type="item">{{ item.toUpperCase() }}</u-tag>
     </CustomCard>
 
     <CustomCard title="可移除">
-      <u-tag
-        v-for="(item, index) in tags"
-        :type="item.type"
-        closable
-        @close="handleClose(index)"
-      >
+      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
         {{ item.name }}
       </u-tag>
     </CustomCard>
 
     <CustomCard title="动态编辑">
-      <u-tag
-        v-for="(item, index) in tags"
-        :type="item.type"
-        closable
-        @close="handleClose(index)"
-      >
+      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
         {{ item.name }}
       </u-tag>
     </CustomCard>
@@ -41,8 +29,8 @@
     </CustomCard>
 
     <CustomCard title="圆形标签">
-      <u-tag v-for="type of types" round :type="type">
-        {{ type.toUpperCase() }}
+      <u-tag v-for="item of types" round :type="item">
+        {{ item.toUpperCase() }}
       </u-tag>
     </CustomCard>
   </div>

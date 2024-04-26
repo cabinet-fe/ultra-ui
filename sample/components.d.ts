@@ -47,7 +47,6 @@ declare module 'vue' {
     USelect: typeof import('ultra-ui')['USelect']
     USlider: typeof import('ultra-ui')['USlider']
     USteps: typeof import('ultra-ui')['USteps']
-    USubMenu: typeof import('ultra-ui')['USubMenu']
     UTable: typeof import('ultra-ui')['UTable']
     UTabs: typeof import('ultra-ui')['UTabs']
     UTag: typeof import('ultra-ui')['UTag']
@@ -56,5 +55,6 @@ declare module 'vue' {
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']
+    UWatermark: typeof import('ultra-ui')['UWatermark']
   }
 }

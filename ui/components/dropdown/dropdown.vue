@@ -17,7 +17,7 @@
         :style="popupFinalStyle"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
-        v-click-outside="close"
+        v-click-outside="handleClickOutside"
       >
         <slot name="content" />
       </component>
@@ -127,6 +127,17 @@ function close() {
   } else if (props.trigger === 'click') {
     visible.value = false
   }
+}
+
+/** 点击外部 */
+function handleClickOutside(e: MouseEvent) {
+  if (
+    props.trigger === 'click' &&
+    dropdownRef.value?.contains(e.target as Node)
+  ) {
+    return
+  }
+  close()
 }
 
 function updateDropdown() {
