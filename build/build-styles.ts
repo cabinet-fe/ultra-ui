@@ -72,27 +72,48 @@ async function buildStyleEntry() {
         resolveId: {
           order: 'pre',
           handler(id, importer) {
+            // if (id.startsWith('@ui')) {
+            //   if (importer) {
+            //     id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
+            //   } else {
+            //     id.replaceAll('@ui', 'ultra-ui')
+            //   }
+
+            //   return {
+            //     id,
+            //     external: 'relative'
+            //   }
+            // }
+
             if (id.startsWith('@ui')) {
               if (importer) {
                 id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
               } else {
                 id.replaceAll('@ui', 'ultra-ui')
               }
+
               if (id.endsWith('.scss')) {
                 id = id.replace(/\.scss$/, '.css')
               }
+
               return {
                 id,
-                external: 'absolute'
+                external: 'relative'
               }
             }
 
-            if (id.endsWith('.scss')) {
-              id = id.replace(/\.scss$/, '.css')
 
+            if (id.endsWith('.scss')) {
+
+              id = id.replace(/\.scss$/, '.css')
               return {
                 id,
-                external: 'absolute'
+                external: 'relative'
+              }
+            } else if (id.endsWith('style')) {
+              return {
+                id,
+                external: 'relative'
               }
             }
           }
@@ -146,9 +167,10 @@ export async function buildStyles() {
       }
     }
   )
-  /** 拷贝组件样式 */
-  await buildStyleEntry()
 
   /** 构建组件样式 */
   await buildCSS()
+
+  /** 构建组件入口 */
+  await buildStyleEntry()
 }
