@@ -4,11 +4,12 @@
       <slot></slot>
     </div>
   </transition>
+
 </template>
 
 <script lang="ts" setup>
 import type { WatermarkProps } from '@ui/types/components/watermark'
-import { bem } from '@ui/utils'
+import { bem, zIndex } from '@ui/utils'
 import { onMounted, reactive, ref } from 'vue'
 import type { WatermarkEmits } from '.'
 
@@ -17,7 +18,7 @@ defineOptions({
 })
 const cls = bem('watermark')
 const props = withDefaults(defineProps<WatermarkProps>(), {
-  text:'默认水印'
+  text: '默认水印'
 })
 const emit = defineEmits<WatermarkEmits>()
 
@@ -53,9 +54,7 @@ const watermark = reactive({
 })
 
 const setWatermark = (str, container) => {
-  console.log(str, 'str')
-  console.log(watermarkRef.value?.getClientRects(), 'container')
-  const id = '1.23452384164.123412415'
+  const id = 'watermark-' + new Date().getTime(); // 使用更动态的ID
   let rect = watermarkRef.value?.getBoundingClientRect()
   if (container === undefined) return
   if (document.getElementById(id) !== null) {
@@ -67,7 +66,7 @@ const setWatermark = (str, container) => {
   // 父容器高
   var containerHeight = `calc(100vh - ${rect?.top}px)`
   container.style.position = 'relative'
-  
+
   // 创建canvas
   const canvas = document.createElement('canvas')
   canvas.width = 390
@@ -86,21 +85,32 @@ const setWatermark = (str, container) => {
   ctx.textBaseline = 'middle'
   // 编制文字
   ctx.fillText(str, watermark.gapX, watermark.gapY + 20)
-  console.log(containerHeight);
-  
-  // 创建div
-  const div = document.createElement('div')
-  div.id = id
-  div.style.pointerEvents = 'none'
-  div.style.top = '0px'
-  div.style.left = '0px'
-  div.style.position = 'absolute'
-  div.style.zIndex = '9999'
-  div.style.width = containerWidth + 'px'
-  div.style.height = containerHeight
-  div.style.background = `url(${canvas.toDataURL('image/png')}) repeat`
-  container.appendChild(div)
 
+
+  // 创建div
+  const watermarkDiv = document.createElement('div')
+  watermarkDiv.id = id
+  watermarkDiv.style.pointerEvents = 'none'
+  watermarkDiv.style.top = '0px'
+  watermarkDiv.style.left = '0px'
+  watermarkDiv.style.position = 'absolute'
+  watermarkDiv.style.zIndex = zIndex()
+  watermarkDiv.style.width = containerWidth + 'px'
+  watermarkDiv.style.height = containerHeight
+
+  // 处理水印图片
+  if (watermark.image) {
+    const img = new Image();
+    img.src = watermark.image;
+    img.onload = () => {
+      ctx.drawImage(img, 60, 60, canvas.width / 2, canvas.height / 2);
+      watermarkDiv.style.background = `url(${canvas.toDataURL('image/png')}) repeat`
+      container.appendChild(watermarkDiv); // 异步操作后再添加水印
+    };
+  } else {
+    watermarkDiv.style.background = `url(${canvas.toDataURL('image/png')}) repeat`
+    container.appendChild(watermarkDiv);
+  }
   return id
 }
 
