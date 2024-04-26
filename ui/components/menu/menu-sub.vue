@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, getCurrentInstance } from 'vue'
+import { inject, ref, watch, onMounted } from 'vue'
 import { MenuDIKey } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -49,15 +49,17 @@ const open = () => (expand.value = true)
 
 const close = () => (expand.value = false)
 
-const instance = getCurrentInstance()
+watch(() => injected?.openIndex.value, (index) => {
+  if (index === props.index) open()
+})
 
-watch(
-  () => instance,
-  () => {
-    if (instance && injected) injected.menuSubs[props.index] = instance
-  },
-  { immediate: true }
-)
+watch(() => injected?.closeIndex.value, (index) => {
+  if (index === props.index) close()
+})
+
+onMounted(() => {
+  if (injected?.expand) open()
+})
 
 defineExpose({ open, close })
 </script>

@@ -3,8 +3,9 @@ import type { DeconstructValue } from '../helper'
 /** 菜单组件组件属性 */
 export interface MenuProps {
   modelValue?: string
-  open: (index: string) => void
-  close: (index: string) => void
+  expand?: boolean
+  open?: (index: string) => void
+  close?: (index: string) => void
 }
 
 export interface MenuSubProps {

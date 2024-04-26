@@ -4,7 +4,7 @@
       <u-button @click="handleOpen" type="primary">open</u-button>
       <u-button @click="handleClose" type="primary">close</u-button>
     </div>
-    <u-menu @open="open" @close="close" ref="menuRef">
+    <u-menu :expand="false" @open="open" @close="close" ref="menuRef">
     <u-menu-sub index="111">
       <template #title>
         <u-icon><Location /></u-icon>

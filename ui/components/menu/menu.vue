@@ -3,9 +3,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { MenuEmits, MenuExposed, MenuProps } from '@ui/types/components/menu'
+import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { provide, inject, ref, shallowRef } from 'vue'
+import { provide, shallowRef, ref } from 'vue'
 import { MenuDIKey, type MenuContext } from './di'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -19,29 +19,30 @@ const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
 
-const { size } = useFallbackProps([props], {
-  size: 'default'
+const { size, expand } = useFallbackProps([props], {
+  size: 'default',
+  expand: false
 })
 
 const store = shallowRef<MenuContext>({
   cls,
   menuProps: props,
   menuEmit: emit,
-  menuSubs: {}
+  openIndex: ref(''),
+  closeIndex: ref(''),
+  expand: expand.value
 })
 
-provide(MenuDIKey, store.value )
+provide(MenuDIKey, store.value)
 
 const open = (index: string) => {
-  if (store.value.menuSubs[index]) {
-    (store.value.menuSubs[index]!.exposed as any).open()
-  }
+  store.value.openIndex.value = index
+  if (store.value.closeIndex.value === index) store.value.closeIndex.value = ''
 }
 
 const close = (index: string) => {
-  if (store.value.menuSubs[index]) {
-    (store.value.menuSubs[index]!.exposed as any).close()
-  }
+  store.value.closeIndex.value = index
+  if (store.value.openIndex.value === index) store.value.openIndex.value = ''
 }
 
 defineExpose({ open, close })
