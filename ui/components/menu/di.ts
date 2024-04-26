@@ -9,6 +9,7 @@ export interface MenuContext {
   expand: boolean
   openIndex: Ref<string>
   closeIndex: Ref<string>
+  activeIndex: Ref<string>
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')

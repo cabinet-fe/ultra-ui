@@ -24,11 +24,12 @@ $root-name: menu;
     font-size: fn.use-var('font-size', title, $size);
 
     @include m.bem($root-name, sub) {
-      padding-left: fn.use-var(gap, $size);
-
       &--title {
         padding: fn.use-var(gap, $size);
         padding-left: 0;
+        @include m.is(active) {
+          background-color: fn.use-var(color, primary, 'light-7');
+        }
       }
 
       &--arrow {
@@ -37,12 +38,15 @@ $root-name: menu;
       }
 
       &--item {
-
       }
+
     }
 
     @include m.bem($root-name, item) {
       padding: fn.use-var(gap, $size);
+      @include m.is(active) {
+        background-color: fn.use-var(color, primary, 'light-7');
+      }
     }
   }
 }

@@ -1,6 +1,9 @@
 <template>
-  <div :class="cls?.e('sub')">
-    <div :class="cls?.em('sub', 'title')" @click.stop="expand = !expand">
+  <div :class="[cls?.e('sub')]">
+    <div
+      :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
+      @click.stop="handleClick"
+    >
       <UIcon
         :class="cls?.em('sub', 'arrow')"
         :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
@@ -26,6 +29,7 @@ import { MenuDIKey } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
+import { bem } from '@ui/utils'
 
 const injected = inject(MenuDIKey)
 const { cls } = injected || {}
@@ -49,13 +53,32 @@ const open = () => (expand.value = true)
 
 const close = () => (expand.value = false)
 
-watch(() => injected?.openIndex.value, (index) => {
-  if (index === props.index) open()
-})
+watch(
+  () => injected?.openIndex.value,
+  (index) => {
+    if (index === props.index) open()
+  }
+)
 
-watch(() => injected?.closeIndex.value, (index) => {
-  if (index === props.index) close()
-})
+watch(
+  () => injected?.closeIndex.value,
+  (index) => {
+    if (index === props.index) close()
+  }
+)
+
+const handleClick = () => {
+  injected!.activeIndex.value = props.index
+  expand.value = !expand.value
+}
+
+watch(
+  () => injected?.activeIndex.value,
+  (index) => {
+    if (index === props.index) open()
+  },
+  { once: true }
+)
 
 onMounted(() => {
   if (injected?.expand) open()

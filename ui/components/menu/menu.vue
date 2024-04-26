@@ -19,9 +19,10 @@ const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
 
-const { size, expand } = useFallbackProps([props], {
+const { size, expand, activeIndex } = useFallbackProps([props], {
   size: 'default',
-  expand: false
+  expand: false,
+  activeIndex: ''
 })
 
 const store = shallowRef<MenuContext>({
@@ -30,7 +31,8 @@ const store = shallowRef<MenuContext>({
   menuEmit: emit,
   openIndex: ref(''),
   closeIndex: ref(''),
-  expand: expand.value
+  expand: expand.value,
+  activeIndex: ref(activeIndex.value)
 })
 
 provide(MenuDIKey, store.value)
