@@ -102,9 +102,7 @@ async function buildStyleEntry() {
               }
             }
 
-
             if (id.endsWith('.scss')) {
-
               id = id.replace(/\.scss$/, '.css')
               return {
                 id,
