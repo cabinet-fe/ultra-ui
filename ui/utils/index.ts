@@ -16,4 +16,6 @@ export * from './helper/create-toggle'
 
 export * from './helper/frame'
 
+export * from './helper/make-bem'
+
 export * from './helper/vue'
