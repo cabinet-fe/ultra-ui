@@ -47,7 +47,6 @@ declare module 'vue' {
     USelect: typeof import('ultra-ui')['USelect']
     USlider: typeof import('ultra-ui')['USlider']
     USteps: typeof import('ultra-ui')['USteps']
-    USubMenu: typeof import('ultra-ui')['USubMenu']
     UTable: typeof import('ultra-ui')['UTable']
     UTabs: typeof import('ultra-ui')['UTabs']
     UTag: typeof import('ultra-ui')['UTag']
