@@ -17,7 +17,7 @@ const pkg = {
   description: 'ultra-ui组件库',
   main: './index.js',
   module: './index.js',
-  types: "",
+  types: '',
   keywords: [
     '完全TS开发的Vue3组件库',
     'Vue组件',
@@ -32,8 +32,9 @@ const pkg = {
     'icon-ultra': rootPkg.devDependencies['icon-ultra']
   },
   exports: {
-    ".": "./index.js",
-    './*': './*'
+    '.': './index.js',
+    './*': './*',
+    './resolver': './resolver.js'
   }
 }
 
