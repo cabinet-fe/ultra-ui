@@ -14,7 +14,7 @@ import type { InjectionKey, ModelRef, ShallowRef } from 'vue'
 // }
 
 export interface SliderContext {
-  cls: BEM<'slider', 'u-slider'>
+  cls: BEM<'slider'>
   runwayRef: ShallowRef<HTMLElement | undefined>
   sliderSize: ShallowRef<number>
   emit: SliderEmits
