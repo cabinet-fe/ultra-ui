@@ -10,14 +10,49 @@ $root-name: menu;
   display: inline-flex;
   flex-direction: column;
   user-select: none;
+  // background-color: aquamarine;
 
   @include m.e(sub) {
-    background-color: pink;
     cursor: pointer;
   }
 
   @include m.e(item) {
-    background-color: lightblue;
     cursor: pointer;
   }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var('font-size', title, $size);
+
+    @include m.bem($root-name, sub) {
+      padding-left: fn.use-var(gap, $size);
+
+      &--title {
+        padding: fn.use-var(gap, $size);
+        padding-left: 0;
+      }
+
+      &--arrow {
+        transition: transform 0.35s;
+        margin-right: 6px;
+      }
+
+      &--item {
+
+      }
+    }
+
+    @include m.bem($root-name, item) {
+      padding: fn.use-var(gap, $size);
+    }
+  }
+}
+
+.#{$root-name}-expand-enter-active,
+.#{$root-name}-expand-leave-active {
+  transition: all 0.35s ease-in-out;
+}
+
+.#{$root-name}-expand-enter-from,
+.#{$root-name}-expand-leave-to {
+  opacity: 0;
 }
