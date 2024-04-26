@@ -1,6 +1,6 @@
 <template>
   <div :class="cls?.e('item')">
-    <slot>u-menu-item</slot>
+    <slot></slot>
   </div>
 </template>
 
