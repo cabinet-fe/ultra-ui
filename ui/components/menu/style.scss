@@ -26,9 +26,11 @@ $root-name: menu;
     @include m.bem($root-name, sub) {
       &--title {
         padding: fn.use-var(gap, $size);
-        padding-left: 0;
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
+        }
+        &:hover {
+          background-color: fn.use-var(color, primary, 'light-9');
         }
       }
 
@@ -46,6 +48,9 @@ $root-name: menu;
       padding: fn.use-var(gap, $size);
       @include m.is(active) {
         background-color: fn.use-var(color, primary, 'light-7');
+      }
+      &:hover {
+        background-color: fn.use-var(color, primary, 'light-9');
       }
     }
   }
