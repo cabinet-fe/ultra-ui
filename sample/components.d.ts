@@ -55,5 +55,6 @@ declare module 'vue' {
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
     UVirtualList: typeof import('ultra-ui')['UVirtualList']
+    UWatermark: typeof import('ultra-ui')['UWatermark']
   }
 }
