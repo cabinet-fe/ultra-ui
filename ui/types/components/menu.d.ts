@@ -4,6 +4,7 @@ import type { DeconstructValue } from '../helper'
 export interface MenuProps {
   modelValue?: string
   expand?: boolean
+  activeIndex?: string
   open?: (index: string) => void
   close?: (index: string) => void
 }
