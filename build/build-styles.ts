@@ -72,19 +72,6 @@ async function buildStyleEntry() {
         resolveId: {
           order: 'pre',
           handler(id, importer) {
-            // if (id.startsWith('@ui')) {
-            //   if (importer) {
-            //     id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
-            //   } else {
-            //     id.replaceAll('@ui', 'ultra-ui')
-            //   }
-
-            //   return {
-            //     id,
-            //     external: 'relative'
-            //   }
-            // }
-
             if (id.startsWith('@ui')) {
               if (importer) {
                 id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
