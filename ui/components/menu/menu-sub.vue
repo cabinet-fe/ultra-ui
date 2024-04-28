@@ -4,12 +4,12 @@
       :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
       @click.stop="handleClick"
     >
+      <slot name="title" />
       <UIcon
         :class="cls?.em('sub', 'arrow')"
         :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
         ><ArrowRight
       /></UIcon>
-      <slot name="title" />
     </div>
     <Transition name="menu-expand">
       <div
