@@ -4,18 +4,21 @@
       :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
       @click.stop="handleClick"
     >
+      <slot name="title" />
       <UIcon
         :class="cls?.em('sub', 'arrow')"
         :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
         ><ArrowRight
       /></UIcon>
-      <slot name="title" />
     </div>
     <Transition name="menu-expand">
       <div
         :class="cls?.em('sub', 'item')"
         v-show="expand"
-        :style="{ maxHeight: `${Number(expand) * 1000}px` }"
+        :style="{
+          maxHeight: `${Number(expand) * 1000}px`,
+          paddingLeft: `${Number(hasIcon) * 18}px`
+        }"
       >
         <slot />
       </div>
@@ -24,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, onMounted } from 'vue'
+import { inject, ref, watch, onMounted, useSlots, computed } from 'vue'
 import { MenuDIKey } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -83,6 +86,17 @@ watch(
 
 onMounted(() => {
   if (injected?.expand) open()
+})
+
+const slots = useSlots()
+
+const hasIcon = computed(() => {
+  const type: any = slots.title!()[0]?.type
+  if (typeof type === 'object') {
+    return type.name === 'Icon'
+  } else {
+    return false
+  }
 })
 
 defineExpose({ open, close })
