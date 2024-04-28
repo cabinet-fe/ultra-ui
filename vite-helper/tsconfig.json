@@ -1,7 +1,9 @@
 {
   "extends": "ts-conf-base/tsconfig.node.json",
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "declaration": true,
+    "allowJs": true
   },
-  "include": ["./*"]
+  "include": ["*/*.ts"]
 }
