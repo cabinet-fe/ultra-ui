@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls?.e('sub')]">
+  <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
     <div
       :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
       @click.stop="handleClick"
@@ -68,6 +68,7 @@ watch(
 )
 
 const handleClick = () => {
+  if (props.disabled) return
   injected!.activeIndex.value = props.index
   expand.value = !expand.value
 }

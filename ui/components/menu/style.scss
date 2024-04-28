@@ -10,14 +10,23 @@ $root-name: menu;
   display: inline-flex;
   flex-direction: column;
   user-select: none;
-  // background-color: aquamarine;
 
   @include m.e(sub) {
     cursor: pointer;
+    color: #3D3D3D;
+    @include m.is(disabled) {
+      color: fn.use-var(text, color, disabled);
+      cursor: not-allowed;
+    }
   }
 
   @include m.e(item) {
     cursor: pointer;
+    color: #666666;
+    @include m.is(disabled) {
+      color: fn.use-var(text, color, disabled);
+      cursor: not-allowed;
+    }
   }
 
   @include m.size using ($size) {
@@ -28,6 +37,9 @@ $root-name: menu;
         padding: fn.use-var(gap, $size);
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
+          &:hover {
+            background-color: fn.use-var(color, primary, 'light-7');
+          }
         }
         &:hover {
           background-color: fn.use-var(color, primary, 'light-9');
@@ -48,6 +60,9 @@ $root-name: menu;
       padding: fn.use-var(gap, $size);
       @include m.is(active) {
         background-color: fn.use-var(color, primary, 'light-7');
+        &:hover {
+          background-color: fn.use-var(color, primary, 'light-7');
+        }
       }
       &:hover {
         background-color: fn.use-var(color, primary, 'light-9');

@@ -1,6 +1,10 @@
 <template>
   <div
-    :class="[cls?.e('item'), bem.is('active', injected?.activeIndex.value === index)]"
+    :class="[
+      cls?.e('item'),
+      bem.is('active', injected?.activeIndex.value === index),
+      bem.is('disabled', disabled)
+    ]"
     @click="handleClick"
   >
     <slot></slot>
@@ -19,6 +23,8 @@ const { cls } = injected || {}
 const props = defineProps<MenuItemProps>()
 
 const handleClick = () => {
-  injected!.activeIndex.value = props.index
+  if (!props.disabled) {
+    injected!.activeIndex.value = props.index
+  }
 }
 </script>
