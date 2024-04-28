@@ -2,7 +2,6 @@
   <u-dropdown
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
-    min-width="200px"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
