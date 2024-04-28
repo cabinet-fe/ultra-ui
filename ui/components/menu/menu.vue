@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]"><slot /></div>
+  <div :class="[cls.b, cls.m(size)]"><slot v-if="collapsed" /></div>
 </template>
 
 <script lang="ts" setup>

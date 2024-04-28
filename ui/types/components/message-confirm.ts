@@ -1,8 +1,8 @@
 import type { DeconstructValue } from '../helper'
-import type { ColorType } from '../component-common'
+import type { ColorType, ComponentProps } from '../component-common'
 
 /** 消息确认框组件属性 */
-export interface MessageConfirmProps {
+export interface MessageConfirmProps extends ComponentProps {
   modelValue?: string
   title?: string
   message: string

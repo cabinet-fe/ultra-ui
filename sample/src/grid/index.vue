@@ -31,13 +31,16 @@
       </u-card-header>
 
       <u-card-content>
-        <u-grid :gap="8" :cols="24" @breakpoint-change="point = $event">
-          <u-grid-item
-            :span="{ default: 4, xs: 12, sm: 8, md: 6 }"
-            class="col-item"
-            v-for="i of 6"
-            :key="i"
-          >
+        <u-grid
+          :gap="8"
+          :cols="{
+            xs: 2,
+            sm: 3,
+            md: 4
+          }"
+          @breakpoint-change="point = $event"
+        >
+          <u-grid-item :span="1" class="col-item" v-for="i of 6" :key="i">
             {{ i }}
           </u-grid-item>
         </u-grid>
