@@ -1,5 +1,5 @@
 import { kebabCase } from 'cat-kit/be'
-import { componentDirs } from './component-dirs'
+import { componentDirs } from './component-dirs.js'
 
 interface ComponentInfo {
   as?: string
