@@ -145,10 +145,14 @@ export async function buildStyles() {
         if (statSync(src).isDirectory()) return true
         const filename = basename(src)
 
-        if (!/^_.*\.scss$/.test(filename) || excludeFiles.has(filename)) {
-          return false
+        if (
+          (/^_.*\.scss$/.test(filename) || /\.woff2$/.test(filename)) &&
+          !excludeFiles.has(filename)
+        ) {
+          return true
         }
-        return true
+
+        return false
       }
     }
   )

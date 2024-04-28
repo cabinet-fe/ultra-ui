@@ -5,6 +5,7 @@ export interface MenuProps {
   modelValue?: string
   expand?: boolean
   activeIndex?: string
+  simple?: boolean
   open?: (index: string) => void
   close?: (index: string) => void
 }

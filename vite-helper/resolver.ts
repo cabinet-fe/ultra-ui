@@ -1,26 +1,11 @@
-import { kebabCase, readDir } from 'cat-kit/be'
-import { existsSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { kebabCase } from 'cat-kit/be'
+import { componentDirs } from './component-dirs.js'
 
 interface ComponentInfo {
   as?: string
   name?: string
   from: string
   sideEffects?: string
-}
-
-/**
- * 获取所有的组件的目录名
- * @param componentsDir 组件目录
- * @returns
- */
-async function getComponentsDirname(componentsDir: string) {
-  const dirs = await readDir(componentsDir, {
-    readType: 'dir'
-  })
-
-  return new Set(dirs.map(dir => dir.name))
 }
 
 /**
@@ -44,9 +29,9 @@ function getComponentDir(
 
 export interface ResolverOptions {
   /**
-   * 组件目录，必须是一个绝对路径
+   * 组件目录名称，用于定位每个子组件所属的父组件目录
    */
-  componentsDir: string
+  componentDirs: string[]
 
   /** 前缀 */
   prefix: string
@@ -65,26 +50,19 @@ export interface ResolverOptions {
  * 定义组件的解析器
  */
 export function defineResolver(options: ResolverOptions) {
-  const { componentsDir, prefix, lib, sideEffects } = options
-  let dirs: undefined | Set<string>
-  getComponentsDirname(componentsDir).then(_dirs => {
-    dirs = _dirs
-  })
+  const { componentDirs, prefix, lib, sideEffects } = options
+  const componentDirsSet = new Set(componentDirs)
   const resolver = (componentName: string) => {
     if (componentName.startsWith(prefix)) {
       // ${prefix}-component
       const kebabName = kebabCase(componentName.slice(prefix.length))
-      const componentDirName = getComponentDir(kebabName, dirs)
+      const componentDirName = getComponentDir(kebabName, componentDirsSet)
       const info: ComponentInfo = {
         name: componentName,
         from: lib
       }
 
-      const dirExist = componentDirName
-        ? existsSync(resolve(componentsDir, componentDirName))
-        : false
-
-      if (dirExist && sideEffects) {
+      if (componentDirName && sideEffects) {
         info.sideEffects = sideEffects(componentDirName!)
       }
       return info
@@ -94,9 +72,8 @@ export function defineResolver(options: ResolverOptions) {
   return resolver
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
 export const UltraUIResolver = defineResolver({
-  componentsDir: resolve(__dirname, '../ui/components'),
+  componentDirs,
   prefix: 'U',
   lib: 'ultra-ui',
   sideEffects(name) {

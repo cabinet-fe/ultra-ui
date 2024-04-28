@@ -1,33 +1,51 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
+@use 'sass:map';
 
 // 方便拼接
 $root-name: menu;
 
 @include m.b($root-name) {
-  height: 100%;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   user-select: none;
-  // background-color: aquamarine;
+  transition: max-width 0.35s ease;
+  max-width: 2000px;
 
   @include m.e(sub) {
+    width: 100%;
     cursor: pointer;
+    color: #3D3D3D;
+    @include m.is(disabled) {
+      color: fn.use-var(text, color, disabled);
+      cursor: not-allowed;
+    }
   }
 
   @include m.e(item) {
     cursor: pointer;
+    color: #666666;
+    @include m.is(disabled) {
+      color: fn.use-var(text, color, disabled);
+      cursor: not-allowed;
+    }
   }
 
   @include m.size using ($size) {
     font-size: fn.use-var('font-size', title, $size);
 
     @include m.bem($root-name, sub) {
+      position: relative;
       &--title {
-        padding: fn.use-var(gap, $size);
+        padding: map.get(vars.$gap, $size) * 1.8;
+        display: flex;
+        align-items: center;
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
+          &:hover {
+            background-color: fn.use-var(color, primary, 'light-7');
+          }
         }
         &:hover {
           background-color: fn.use-var(color, primary, 'light-9');
@@ -36,7 +54,9 @@ $root-name: menu;
 
       &--arrow {
         transition: transform 0.35s;
-        margin-right: 6px;
+        margin-left: 6px;
+        position: absolute;
+        right: map.get(vars.$gap, $size) * 1.8;
       }
 
       &--item {
@@ -45,9 +65,12 @@ $root-name: menu;
     }
 
     @include m.bem($root-name, item) {
-      padding: fn.use-var(gap, $size);
+      padding: map.get(vars.$gap, $size) * 1.8;
       @include m.is(active) {
         background-color: fn.use-var(color, primary, 'light-7');
+        &:hover {
+          background-color: fn.use-var(color, primary, 'light-7');
+        }
       }
       &:hover {
         background-color: fn.use-var(color, primary, 'light-9');
