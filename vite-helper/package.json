@@ -8,6 +8,6 @@
     "./resolver": "./resolver.js"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsx ./build.ts"
   }
 }

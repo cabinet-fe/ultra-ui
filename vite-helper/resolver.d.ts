@@ -6,9 +6,9 @@ interface ComponentInfo {
 }
 export interface ResolverOptions {
     /**
-     * 组件目录，必须是一个绝对路径
+     * 组件目录名称，用于定位每个子组件所属的父组件目录
      */
-    componentsDir: string;
+    componentDirs: string[];
     /** 前缀 */
     prefix: string;
     /**
