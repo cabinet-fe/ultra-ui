@@ -17,7 +17,7 @@
         v-show="expand"
         :style="{
           maxHeight: `${Number(expand) * 1000}px`,
-          paddingLeft: `${Number(hasIcon) * 18}px`
+          textIndent: `${Number(hasIcon) * 18}px`
         }"
       >
         <slot />
