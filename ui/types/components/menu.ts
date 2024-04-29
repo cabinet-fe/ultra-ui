@@ -1,4 +1,5 @@
 import type { DeconstructValue } from '../helper'
+import type { DefineComponent } from 'vue'
 
 /** 菜单组件组件属性 */
 export interface MenuProps {
@@ -13,11 +14,13 @@ export interface MenuProps {
 export interface MenuSubProps {
   disabled?: boolean
   index: string
+  icon?: DefineComponent
 }
 
 export interface MenuItemProps {
   disabled?: boolean
   index: string
+  icon?: DefineComponent
 }
 
 /** 菜单组件组件定义的事件 */

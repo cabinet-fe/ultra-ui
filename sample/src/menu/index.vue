@@ -6,12 +6,11 @@
     </div>
     <u-scroll class="menu-wrapper">
       <u-menu :expand="false" @open="open" @close="close" ref="menuRef">
-        <u-menu-sub index="111">
+        <u-menu-sub index="111" :icon="Location">
           <template #title>
-            <u-icon><Location /></u-icon>
             <span>Navigator One</span>
           </template>
-          <u-menu-item index="a">item one</u-menu-item>
+          <u-menu-item index="a" :icon="Setting">item one</u-menu-item>
           <u-menu-item index="b">item one</u-menu-item>
           <u-menu-item index="c" disabled>item one</u-menu-item>
           <u-menu-item index="d">item one</u-menu-item>
@@ -27,7 +26,7 @@
           </u-menu-sub>
         </u-menu-sub>
         <u-menu-item index="a1">1</u-menu-item>
-        <u-menu-item index="a2">1</u-menu-item>
+        <u-menu-item index="a2" :icon="Setting">1</u-menu-item>
         <u-menu-item index="a3">1</u-menu-item>
         <u-menu-item index="a4">1</u-menu-item>
         <u-menu-item index="a5">1</u-menu-item>
@@ -38,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { Location } from 'icon-ultra'
+import { Location, Setting } from 'icon-ultra'
 import type { UMenu } from 'ultra-ui/components'
 import { shallowRef, reactive, watch } from 'vue'
 
