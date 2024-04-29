@@ -17,6 +17,7 @@ $root-name: menu;
     width: 100%;
     cursor: pointer;
     color: #3D3D3D;
+
     @include m.is(disabled) {
       color: fn.use-var(text, color, disabled);
       cursor: not-allowed;
@@ -26,6 +27,7 @@ $root-name: menu;
   @include m.e(item) {
     cursor: pointer;
     color: #666666;
+
     @include m.is(disabled) {
       color: fn.use-var(text, color, disabled);
       cursor: not-allowed;
@@ -37,16 +39,23 @@ $root-name: menu;
 
     @include m.bem($root-name, sub) {
       position: relative;
+
       &--title {
         padding: map.get(vars.$gap, $size) * 1.8;
+        margin: map.get(vars.$gap, $size)*0.2 map.get(vars.$gap, $size);
+        border-radius: map.get(vars.$border-radius, $size) * 4;
         display: flex;
         align-items: center;
+
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
+          color: fn.use-var(color, primary, 'light-1');
+
           &:hover {
             background-color: fn.use-var(color, primary, 'light-7');
           }
         }
+
         &:hover {
           background-color: fn.use-var(color, primary, 'light-9');
         }
@@ -56,22 +65,27 @@ $root-name: menu;
         transition: transform 0.35s;
         margin-left: 6px;
         position: absolute;
-        right: map.get(vars.$gap, $size) * 1.8;
+        right: map.get(vars.$gap, $size) * 2.8;
       }
 
-      &--item {
-      }
+      &--item {}
 
     }
 
     @include m.bem($root-name, item) {
       padding: map.get(vars.$gap, $size) * 1.8;
+      margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
+      border-radius: map.get(vars.$border-radius, $size) * 4;
+
       @include m.is(active) {
         background-color: fn.use-var(color, primary, 'light-7');
+        color: fn.use-var(color, primary, 'light-1');
+
         &:hover {
           background-color: fn.use-var(color, primary, 'light-7');
         }
       }
+
       &:hover {
         background-color: fn.use-var(color, primary, 'light-9');
       }
@@ -79,12 +93,16 @@ $root-name: menu;
   }
 }
 
-.#{$root-name}-expand-enter-active,
+.#{$root-name}-expand-enter-active {
+  transition: all 0.35s cubic-bezier(.85, .2, .83, .67);
+}
+
 .#{$root-name}-expand-leave-active {
-  transition: all 0.35s ease-in-out;
+  transition: all 0.35s cubic-bezier(.17, .69, .55, .84);
 }
 
 .#{$root-name}-expand-enter-from,
 .#{$root-name}-expand-leave-to {
   opacity: 0;
+  max-height: 0px !important;
 }
