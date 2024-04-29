@@ -10,7 +10,7 @@ $root-name: menu;
   display: flex;
   flex-direction: column;
   user-select: none;
-  transition: max-width 0.35s ease;
+  transition: max-width 0.55s linear;
   max-width: 1980px;
 
   @include m.e(sub) {
@@ -27,6 +27,8 @@ $root-name: menu;
   @include m.e(item) {
     cursor: pointer;
     color: #666666;
+    white-space: nowrap;
+    overflow: hidden;
 
     @include m.is(disabled) {
       color: fn.use-var(text, color, disabled);
@@ -41,11 +43,11 @@ $root-name: menu;
       position: relative;
 
       &--title {
+        white-space: nowrap;
+        overflow: hidden;
         padding: map.get(vars.$gap, $size) * 1.8;
         margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
-        display: flex;
-        align-items: center;
 
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
@@ -64,6 +66,7 @@ $root-name: menu;
       &--icon {
         margin-right: fn.use-var(gap, $size);
         font-size: map.get(vars.$font-size-main, $size) * 1.4;
+        vertical-align: text-top;
       }
 
       &--arrow {
@@ -105,16 +108,16 @@ $root-name: menu;
   }
 }
 
-.#{$root-name}-expand-enter-active {
+.#{$root-name}-sub-expand-enter-active {
   transition: all 0.35s cubic-bezier(.85, .2, .83, .67);
 }
 
-.#{$root-name}-expand-leave-active {
+.#{$root-name}-sub-expand-leave-active {
   transition: all 0.35s cubic-bezier(.17, .69, .55, .84);
 }
 
-.#{$root-name}-expand-enter-from,
-.#{$root-name}-expand-leave-to {
+.#{$root-name}-sub-expand-enter-from,
+.#{$root-name}-sub-expand-leave-to {
   opacity: 0;
   max-height: 0px !important;
 }

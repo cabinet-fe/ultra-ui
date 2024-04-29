@@ -1,5 +1,5 @@
 import type { BEM } from '@ui/utils'
-import type { InjectionKey, Ref } from 'vue'
+import type { InjectionKey, Ref, ComponentInternalInstance } from 'vue'
 import type { MenuProps, MenuEmits } from '@ui/types/components/menu'
 
 export interface MenuContext {
@@ -10,6 +10,24 @@ export interface MenuContext {
   openIndex: Ref<string>
   closeIndex: Ref<string>
   activeIndex: Ref<string>
+  simple: Ref<boolean>
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')
+
+
+
+export const calcIndent = (instance: ComponentInternalInstance) => {
+  let depth = 0
+  const getParent = (instance: ComponentInternalInstance) => {
+    if (instance.parent) {
+      if (instance.parent.type.name !== 'Menu') {
+        if (!['BaseTransition', 'Transition'].includes(instance.parent.type.name!)) depth++
+        getParent(instance.parent)
+      }
+    }
+    return depth
+  }
+
+  return `${getParent(instance) * 20}px`
+}
