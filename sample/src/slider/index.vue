@@ -51,6 +51,11 @@
       <u-slider v-model="rangeValue" range vertical> </u-slider>
     </div>
 
+    禁用
+    <div>
+      <u-slider v-model="sliderValue" disable />
+    </div>
+
     表单
     {{ model }}
     <u-form :model="model">
