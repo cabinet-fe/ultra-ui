@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import type { WatermarkProps } from '@ui/types/components/watermark'
 import { bem, zIndex } from '@ui/utils'
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import type { WatermarkEmits } from '.'
 import { downloadFileByBase64 } from './base64'
 
@@ -18,7 +18,7 @@ defineOptions({
 })
 const cls = bem('watermark')
 const props = withDefaults(defineProps<WatermarkProps>(), {
-  text: '默认水印'
+  text: ''
 })
 const emit = defineEmits<WatermarkEmits>()
 
@@ -27,7 +27,7 @@ const watermark = reactive({
   text: props.text,
   font: '',
   fontColor: 'rgba(0,0,0,.3)',
-  fontSize: '30',
+  fontSize: '60',
   fontWeight: '',
   fontStyle: 'rgba(0,0,0,.3)',
   fontFamily: 'Arial',
@@ -55,27 +55,43 @@ const watermark = reactive({
 
 const setWatermark = async (str, container) => {
   const id = 'watermark-' + new Date().getTime() // 使用更动态的ID
+
   let rect = watermarkRef.value?.getBoundingClientRect()
+
   if (container === undefined) return
+
   if (document.getElementById(id) !== null) {
     const childElement = document.getElementById(id)
     childElement?.parentNode?.removeChild(childElement)
   }
+
   // 父容器宽
   var containerWidth = container.clientWidth
   // 父容器高
   var containerHeight = `calc(100vh - ${rect?.top}px)`
+
   container.style.position = 'relative'
 
   // 创建canvas
   const canvas = document.createElement('canvas')
-  canvas.width = 390
-  canvas.height = 200
+
+  nextTick(() => {
+    // 获取canvas上下文
+    canvas.width = container.clientWidth
+    canvas.height = container.clientHeight
+    console.log(canvas.width, canvas.height, 'canvas')
+    console.log(container.clientWidth, container.clientWidth, 'container')
+  })
+
+  // canvas.width = 390
+  // canvas.height = 200
+
   // 创建canvs画布
   const ctx = canvas.getContext('2d')!
   // 逆时旋转
   ctx.rotate(-0.3)
   // ctx.rotate((Math.PI / 180) * watermark.rotate)
+
   // 字体
   ctx.font = `${watermark.fontSize}px ${watermark.fontFamily}`
   // 字体颜色
@@ -88,16 +104,17 @@ const setWatermark = async (str, container) => {
   ctx.fillText(str, canvas.width / 20, canvas.height / 2)
   // ctx.fillText(str, watermark.gapX, watermark.gapY + 20)
 
-  // 创建div
+  // 创建水印div
   const watermarkDiv = document.createElement('div')
   watermarkDiv.id = id
   watermarkDiv.style.pointerEvents = 'none'
   watermarkDiv.style.top = '0px'
   watermarkDiv.style.left = '0px'
   watermarkDiv.style.position = 'absolute'
+  // watermarkDiv.style.zIndex = -100
   watermarkDiv.style.zIndex = zIndex()
   watermarkDiv.style.width = containerWidth + 'px'
-  watermarkDiv.style.height = containerHeight
+  watermarkDiv.style.height = container.clientHeight + 'px'
 
   // 处理水印图片
   if (watermark.image) {
@@ -105,7 +122,8 @@ const setWatermark = async (str, container) => {
     img.src = await downloadFileByBase64(watermark.image)
     // img.src = watermark.image
     img.onload = () => {
-      ctx.drawImage(img, 60, 60, canvas.width / 2, canvas.height / 2)
+      // context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
+      ctx.drawImage(img, 0, 100, canvas.width / 2, canvas.height / 2)
       watermarkDiv.style.background = `url(${canvas.toDataURL('image/png')}) repeat`
       container.appendChild(watermarkDiv) // 异步操作后再添加水印
     }
