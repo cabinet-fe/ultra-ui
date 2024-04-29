@@ -11,7 +11,7 @@ $root-name: menu;
   flex-direction: column;
   user-select: none;
   transition: max-width 0.35s ease;
-  max-width: 2000px;
+  max-width: 1980px;
 
   @include m.e(sub) {
     width: 100%;
@@ -42,7 +42,7 @@ $root-name: menu;
 
       &--title {
         padding: map.get(vars.$gap, $size) * 1.8;
-        margin: map.get(vars.$gap, $size)*0.2 map.get(vars.$gap, $size);
+        margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
         display: flex;
         align-items: center;
@@ -61,11 +61,17 @@ $root-name: menu;
         }
       }
 
+      &--icon {
+        margin-right: fn.use-var(gap, $size);
+        font-size: map.get(vars.$font-size-main, $size) * 1.4;
+      }
+
       &--arrow {
         transition: transform 0.35s;
         margin-left: 6px;
         position: absolute;
         right: map.get(vars.$gap, $size) * 2.8;
+        font-size: map.get(vars.$font-size-main, $size) * 1.4;
       }
 
       &--item {}
@@ -76,6 +82,12 @@ $root-name: menu;
       padding: map.get(vars.$gap, $size) * 1.8;
       margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
       border-radius: map.get(vars.$border-radius, $size) * 4;
+
+      &--icon {
+        margin-right: fn.use-var(gap, $size);
+        font-size: map.get(vars.$font-size-main, $size) * 1.4;
+        vertical-align: text-top;
+      }
 
       @include m.is(active) {
         background-color: fn.use-var(color, primary, 'light-7');

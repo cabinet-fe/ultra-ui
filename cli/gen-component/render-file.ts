@@ -115,8 +115,8 @@ export function renderTypeFile(ctx: ComponentCtx) {
 
   `
 
-  write(ctx, content, '.d.ts').then(async filePath => {
-    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.d.ts'))
+  write(ctx, content, '.ts').then(async filePath => {
+    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.ts'))
     rm(filePath)
   })
 }
