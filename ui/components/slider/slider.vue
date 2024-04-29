@@ -1,6 +1,11 @@
 <template>
   <div
-    :class="[cls.b, cls.m(size), bem.is('vertical', vertical)]"
+    :class="[
+      cls.b,
+      cls.m(size),
+      bem.is('vertical', vertical),
+      bem.is('disable', disable)
+    ]"
     ref="sliderRef"
     :style="vertical ? { height: `${height}px` } : undefined"
   >
