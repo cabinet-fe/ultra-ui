@@ -79,12 +79,16 @@ $root-name: menu;
   }
 }
 
-.#{$root-name}-expand-enter-active,
+.#{$root-name}-expand-enter-active {
+  transition: all 0.35s cubic-bezier(.85,.2,.83,.67);
+}
+
 .#{$root-name}-expand-leave-active {
-  transition: all 0.35s ease-in-out;
+  transition: all 0.35s cubic-bezier(.17,.69,.55,.84);
 }
 
 .#{$root-name}-expand-enter-from,
 .#{$root-name}-expand-leave-to {
   opacity: 0;
+  max-height: 0px !important;
 }
