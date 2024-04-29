@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]" :style="{ maxWidth: simple ? '68px' : '1980px' }">
+  <div :class="[cls.b, cls.m(size)]" :style="{ maxWidth }">
     <slot />
   </div>
 </template>
@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { provide, shallowRef, ref, watch } from 'vue'
+import { provide, shallowRef, ref, watch, computed } from 'vue'
 import { MenuDIKey, type MenuContext } from './di'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -61,6 +61,14 @@ const close = (index: string) => {
   store.value.closeIndex.value = index
   if (store.value.openIndex.value === index) store.value.openIndex.value = ''
 }
+
+const maxWidth = computed(() => {
+  if (simple.value) {
+    return { small: '50px', default: '66px', large: '90px' }[size.value]
+  } else {
+    return '1980px'
+  }
+})
 
 defineExpose({ open, close })
 </script>

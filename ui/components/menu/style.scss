@@ -10,7 +10,7 @@ $root-name: menu;
   display: flex;
   flex-direction: column;
   user-select: none;
-  transition: max-width 0.55s ease-in-out;
+  transition: max-width 0.55s linear;
   max-width: 1980px;
 
   @include m.e(sub) {
