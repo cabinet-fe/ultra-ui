@@ -8,7 +8,6 @@
       <ArrowRight />
     </u-icon>
 
-    <!-- //TODO: 用类来替代style -->
     <i v-else style="display: inline-block; width: 24px; height: 20px" />
 
     <u-checkbox
@@ -121,6 +120,7 @@ const handleCheck = (_checked: boolean) => {
 
 const handleClick = () => {
   const { node } = props
+
   if (treeProps.expandOnClickNode) {
     node.expanded = !node.expanded
     treeEmit('expand', node)

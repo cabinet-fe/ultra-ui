@@ -44,7 +44,6 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })
 
-
 defineSlots<{
   default: (props: TreeSlotsScope<DataItem>) => any
 }>()
