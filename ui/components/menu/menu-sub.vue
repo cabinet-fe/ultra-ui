@@ -3,8 +3,9 @@
     <div
       :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
       @click.stop="handleClick"
+      :style="{ textIndent }"
     >
-      <UIcon :class="cls?.em('sub', 'icon')">
+      <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
         <component :is="icon" />
       </UIcon>
       <slot name="title" />
@@ -19,8 +20,7 @@
         :class="cls?.em('sub', 'item')"
         v-show="expand"
         :style="{
-          maxHeight: `${Number(expand) * 1080}px`,
-          textIndent: `${Number(Boolean(props.icon)) * 28}px`
+          maxHeight: `${Number(expand) * 1080}px`
         }"
       >
         <slot />
@@ -30,12 +30,16 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, onMounted } from 'vue'
-import { MenuDIKey } from './di'
+import { inject, ref, watch, onMounted, getCurrentInstance } from 'vue'
+import { MenuDIKey, calcIndent } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
+
+defineOptions({
+  name: 'MenuSub'
+})
 
 const injected = inject(MenuDIKey)
 const { cls } = injected || {}
@@ -90,6 +94,14 @@ watch(
 onMounted(() => {
   if (injected?.expand) open()
 })
+
+const instance = getCurrentInstance()
+
+const textIndent = ref<string>('0px')
+
+watch(() => instance, () => {
+  if (instance) textIndent.value = calcIndent(instance)
+}, { immediate: true })
 
 defineExpose({ open, close })
 </script>

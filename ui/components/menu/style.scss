@@ -44,8 +44,6 @@ $root-name: menu;
         padding: map.get(vars.$gap, $size) * 1.8;
         margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
-        display: flex;
-        align-items: center;
 
         @include m.is(active) {
           background-color: fn.use-var(color, primary, 'light-7');
@@ -64,6 +62,7 @@ $root-name: menu;
       &--icon {
         margin-right: fn.use-var(gap, $size);
         font-size: map.get(vars.$font-size-main, $size) * 1.4;
+        vertical-align: text-top;
       }
 
       &--arrow {

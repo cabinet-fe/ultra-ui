@@ -10,14 +10,14 @@
           <template #title>
             <span>Navigator One</span>
           </template>
-          <u-menu-item index="a" :icon="Setting">item one</u-menu-item>
+          <u-menu-item index="a">item one</u-menu-item>
           <u-menu-item index="b">item one</u-menu-item>
           <u-menu-item index="c" disabled>item one</u-menu-item>
           <u-menu-item index="d">item one</u-menu-item>
-          <u-menu-item index="e">item one</u-menu-item>
+          <u-menu-item index="e" :icon="Setting">item one</u-menu-item>
           <u-menu-item index="f">item one</u-menu-item>
           <u-menu-item index="g">item one</u-menu-item>
-          <u-menu-sub index="222" disabled>
+          <u-menu-sub index="222" :icon="Setting">
             <template #title>
               <span>次级标题</span>
             </template>
