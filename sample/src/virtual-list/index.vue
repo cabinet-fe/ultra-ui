@@ -8,6 +8,8 @@
       :data="data"
       height="800px"
       tag="ul"
+      :item-height="50"
+
       :buffer-size="0"
       #default="{ item }"
     >
