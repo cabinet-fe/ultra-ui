@@ -5,32 +5,32 @@
       <u-checkbox v-model="config.simple">simple mode</u-checkbox>
     </div>
     <u-scroll class="menu-wrapper">
-      <u-menu :expand="false" @open="open" @close="close" ref="menuRef">
+      <u-menu :expand="false" :simple="config.simple" @open="open" @close="close" ref="menuRef">
         <u-menu-sub index="111" :icon="Location">
           <template #title>
-            <span>Navigator One</span>
+            <span>一级菜单1</span>
           </template>
-          <u-menu-item index="a">item one</u-menu-item>
-          <u-menu-item index="b">item one</u-menu-item>
-          <u-menu-item index="c" disabled>item one</u-menu-item>
-          <u-menu-item index="d">item one</u-menu-item>
-          <u-menu-item index="e" :icon="Setting">item one</u-menu-item>
-          <u-menu-item index="f">item one</u-menu-item>
-          <u-menu-item index="g">item one</u-menu-item>
+          <u-menu-item index="a">二级菜单1</u-menu-item>
+          <u-menu-item index="b">二级菜单2</u-menu-item>
+          <u-menu-item index="c" disabled>二级菜单3</u-menu-item>
+          <u-menu-item index="d">二级菜单4</u-menu-item>
+          <u-menu-item index="e" :icon="Setting">二级菜单5</u-menu-item>
+          <u-menu-item index="f">二级菜单6</u-menu-item>
+          <u-menu-item index="g">二级菜单7</u-menu-item>
           <u-menu-sub index="222" :icon="Setting">
             <template #title>
-              <span>次级标题</span>
+              <span>二级菜单8</span>
             </template>
-            <u-menu-item index="1-1">1-1</u-menu-item>
-            <u-menu-item index="1-2">1-2</u-menu-item>
+            <u-menu-item index="1-1">三级菜单1</u-menu-item>
+            <u-menu-item index="1-2">三级菜单2</u-menu-item>
           </u-menu-sub>
         </u-menu-sub>
-        <u-menu-item index="a1">1</u-menu-item>
-        <u-menu-item index="a2" :icon="Setting">1</u-menu-item>
-        <u-menu-item index="a3">1</u-menu-item>
-        <u-menu-item index="a4">1</u-menu-item>
-        <u-menu-item index="a5">1</u-menu-item>
-        <u-menu-item index="a6">1</u-menu-item>
+        <u-menu-item index="a1" :icon="Setting">一级菜单2</u-menu-item>
+        <u-menu-item index="a2" :icon="Setting">一级菜单3</u-menu-item>
+        <u-menu-item index="a3" :icon="Setting">一级菜单4</u-menu-item>
+        <u-menu-item index="a4" :icon="Setting">一级菜单5</u-menu-item>
+        <u-menu-item index="a5" :icon="Setting">一级菜单6</u-menu-item>
+        <u-menu-item index="a6" :icon="Setting">一级菜单7</u-menu-item>
       </u-menu>
     </u-scroll>
   </div>
@@ -68,8 +68,7 @@ watch(() => config.open, (val) => {
 }
 
 .menu-wrapper {
-  border: 1px solid gold;
-  width: 300px;
+  border: 2px solid gold;
   height: 600px;
   overflow: auto;
 }

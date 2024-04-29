@@ -11,7 +11,7 @@
     <UIcon :class="cls?.em('item', 'icon')" v-if="icon">
       <component :is="icon" />
     </UIcon>
-    <slot></slot>
+    <slot v-if="!injected?.simple.value" />
   </div>
 </template>
 
