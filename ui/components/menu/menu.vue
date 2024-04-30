@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]" :style="{ maxWidth }">
+  <div :class="[cls.b, cls.m(size), bem.is('simple', simple)]" :style="{ maxWidth }">
     <slot />
   </div>
 </template>

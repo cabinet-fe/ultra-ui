@@ -1,17 +1,39 @@
 <template>
+  <u-tip position="right" v-if="injected?.simple.value && textIndent === '0px'">
+    <template #content><slot /></template>
+    <div
+      :class="[
+        cls?.e('item'),
+        bem.is('active', injected?.activeIndex.value === index),
+        bem.is('disabled', disabled)
+      ]"
+      @click="handleClick"
+      :style="{ textIndent, width: 'auto' }"
+    >
+      <UIcon :class="cls?.em('item', 'icon')" style="margin-right: 0" v-if="icon">
+        <component :is="icon" />
+      </UIcon>
+    </div>
+  </u-tip>
+
   <div
+    v-else
     :class="[
       cls?.e('item'),
       bem.is('active', injected?.activeIndex.value === index),
       bem.is('disabled', disabled)
     ]"
     @click="handleClick"
-    :style="{ textIndent }"
+    :style="{
+      textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+      width: 'auto'
+    }"
   >
     <UIcon :class="cls?.em('item', 'icon')" v-if="icon">
       <component :is="icon" />
     </UIcon>
-    <slot v-if="!injected?.simple.value" />
+
+    <slot />
   </div>
 </template>
 
@@ -21,6 +43,7 @@ import { MenuDIKey, calcIndent } from './di'
 import type { MenuItemProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
+import { UTip } from '../tip'
 
 defineOptions({
   name: 'MenuItem'
@@ -41,7 +64,11 @@ const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
 
-watch(() => instance, () => {
-  if (instance) textIndent.value = calcIndent(instance)
-}, { immediate: true })
+watch(
+  () => instance,
+  () => {
+    if (instance) textIndent.value = calcIndent(instance)
+  },
+  { immediate: true }
+)
 </script>

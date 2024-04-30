@@ -22,6 +22,21 @@ $root-name: menu;
       color: fn.use-var(text, color, disabled);
       cursor: not-allowed;
     }
+
+    &--title {
+      @include m.is(active) {
+        background-color: fn.use-var(color, primary, 'light-7');
+        color: fn.use-var(color, primary, 'light-1');
+
+        &:hover {
+          background-color: fn.use-var(color, primary, 'light-7');
+        }
+      }
+
+      &:hover {
+        background-color: fn.use-var(color, primary, 'light-9');
+      }
+    }
   }
 
   @include m.e(item) {
@@ -33,6 +48,19 @@ $root-name: menu;
     @include m.is(disabled) {
       color: fn.use-var(text, color, disabled);
       cursor: not-allowed;
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(color, primary, 'light-7');
+      color: fn.use-var(color, primary, 'light-1');
+
+      &:hover {
+        background-color: fn.use-var(color, primary, 'light-7');
+      }
+    }
+
+    &:hover {
+      background-color: fn.use-var(color, primary, 'light-9');
     }
   }
 
@@ -49,18 +77,18 @@ $root-name: menu;
         margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
 
-        @include m.is(active) {
-          background-color: fn.use-var(color, primary, 'light-7');
-          color: fn.use-var(color, primary, 'light-1');
+        // @include m.is(active) {
+        //   background-color: fn.use-var(color, primary, 'light-7');
+        //   color: fn.use-var(color, primary, 'light-1');
 
-          &:hover {
-            background-color: fn.use-var(color, primary, 'light-7');
-          }
-        }
+        //   &:hover {
+        //     background-color: fn.use-var(color, primary, 'light-7');
+        //   }
+        // }
 
-        &:hover {
-          background-color: fn.use-var(color, primary, 'light-9');
-        }
+        // &:hover {
+        //   background-color: fn.use-var(color, primary, 'light-9');
+        // }
       }
 
       &--icon {
@@ -92,18 +120,18 @@ $root-name: menu;
         vertical-align: text-top;
       }
 
-      @include m.is(active) {
-        background-color: fn.use-var(color, primary, 'light-7');
-        color: fn.use-var(color, primary, 'light-1');
+      // @include m.is(active) {
+      //   background-color: fn.use-var(color, primary, 'light-7');
+      //   color: fn.use-var(color, primary, 'light-1');
 
-        &:hover {
-          background-color: fn.use-var(color, primary, 'light-7');
-        }
-      }
+      //   &:hover {
+      //     background-color: fn.use-var(color, primary, 'light-7');
+      //   }
+      // }
 
-      &:hover {
-        background-color: fn.use-var(color, primary, 'light-9');
-      }
+      // &:hover {
+      //   background-color: fn.use-var(color, primary, 'light-9');
+      // }
     }
   }
 }
