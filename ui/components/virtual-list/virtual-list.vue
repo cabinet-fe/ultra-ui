@@ -18,7 +18,7 @@
 import { computed, nextTick, provide, shallowRef, watch } from 'vue'
 import { UScroll, type ScrollExposed } from '../scroll'
 import type { VirtualListProps } from '@ui/types/components/virtual-list'
-import { bem } from '@ui/utils'
+import { bem, VirtualList } from '@ui/utils'
 import { VirtualListDIKey } from './di'
 import { obj } from 'cat-kit/fe'
 import { useContainerHeight } from './use-container-height'
@@ -70,6 +70,13 @@ const { handleScroll, renderList } = useRenderList({
   props,
   containerRef,
   virtualization
+})
+
+const vl = new VirtualList({
+  data: props.data,
+  bufferSize: props.bufferSize,
+  itemHeight: props.itemHeight,
+  threshold: 0
 })
 
 // 更新滚动条

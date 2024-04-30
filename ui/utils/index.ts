@@ -6,6 +6,8 @@ export * from './dom/position'
 
 export * from './dom/style'
 
+export * from './dom/virtual-list'
+
 export * from './dom/z-index'
 
 export * from './form/validate'
