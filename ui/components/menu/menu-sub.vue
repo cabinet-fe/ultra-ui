@@ -1,5 +1,5 @@
 <template>
-  <u-tip v-if="injected?.simple.value && textIndent === '0px'" position="right">
+  <u-tip v-if="injected?.simple.value && textIndent === '0px'" position="right-start">
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
         :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
@@ -16,12 +16,13 @@
     </template>
   </u-tip>
 
-  <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
+  <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
     <div
       :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
       @click.stop="handleClick"
       :style="{
-        textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent
+        textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+        paddingRight: '30px'
       }"
     >
       <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
@@ -57,6 +58,7 @@ import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
+import { useFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'MenuSub'
@@ -79,6 +81,10 @@ watch(
 )
 
 const props = defineProps<MenuSubProps>()
+
+const { size } = useFallbackProps([props], {
+  size: 'default'
+})
 
 const open = () => (expand.value = true)
 

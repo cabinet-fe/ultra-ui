@@ -21,7 +21,8 @@
     :class="[
       cls?.e('item'),
       bem.is('active', injected?.activeIndex.value === index),
-      bem.is('disabled', disabled)
+      bem.is('disabled', disabled),
+      cls?.em('item', size)
     ]"
     @click="handleClick"
     :style="{
@@ -44,6 +45,7 @@ import type { MenuItemProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
+import { useFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'MenuItem'
@@ -53,6 +55,10 @@ const injected = inject(MenuDIKey)
 const { cls } = injected || {}
 
 const props = defineProps<MenuItemProps>()
+
+const { size } = useFallbackProps([props], {
+  size: 'default'
+})
 
 const handleClick = () => {
   if (!props.disabled) {
