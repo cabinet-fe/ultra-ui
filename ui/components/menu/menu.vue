@@ -21,11 +21,12 @@ const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
 
-const { size, expand, activeIndex, simple } = useFallbackProps([props], {
+const { size, expand, activeIndex, simple, router } = useFallbackProps([props], {
   size: 'default',
   expand: false,
   activeIndex: '',
-  simple: false
+  simple: false,
+  router: false
 })
 
 const store = shallowRef<MenuContext>({
@@ -36,7 +37,8 @@ const store = shallowRef<MenuContext>({
   closeIndex: ref(''),
   expand: expand.value,
   activeIndex: ref(activeIndex.value),
-  simple: ref(simple.value)
+  simple: ref(simple.value),
+  router: router.value
 })
 
 watch(

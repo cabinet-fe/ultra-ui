@@ -48,6 +48,7 @@ import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import { useFallbackProps } from '@ui/compositions'
 import { vRipple } from '@ui/directives'
+import { useRouter } from 'vue-router'
 
 defineOptions({
   name: 'MenuItem'
@@ -62,9 +63,16 @@ const { size } = useFallbackProps([props], {
   size: 'default'
 })
 
+const router = useRouter()
+
 const handleClick = () => {
   if (!props.disabled) {
     injected!.activeIndex.value = props.index
+    if (injected!.router) {
+      router.push({ path: props.index })
+    } else {
+      if (props.route) router.push({ path: props.route })
+    }
   }
 }
 

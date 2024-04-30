@@ -9,6 +9,7 @@ export interface MenuProps {
   simple?: boolean
   open?: (index: string) => void
   close?: (index: string) => void
+  router?: boolean
 }
 
 export interface MenuSubProps {
@@ -21,6 +22,7 @@ export interface MenuItemProps {
   disabled?: boolean
   index: string
   icon?: DefineComponent
+  route?: string
 }
 
 /** 菜单组件组件定义的事件 */

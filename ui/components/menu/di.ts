@@ -11,6 +11,7 @@ export interface MenuContext {
   closeIndex: Ref<string>
   activeIndex: Ref<string>
   simple: Ref<boolean>
+  router: boolean
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')
