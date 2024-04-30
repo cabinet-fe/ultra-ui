@@ -24,6 +24,7 @@
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
         paddingRight: '30px'
       }"
+      v-ripple="!disabled"
     >
       <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
         <component :is="icon" />
@@ -59,6 +60,7 @@ import type { MenuSubProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
 import { useFallbackProps } from '@ui/compositions'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'MenuSub'

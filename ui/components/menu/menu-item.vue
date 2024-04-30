@@ -29,6 +29,7 @@
       textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
       width: 'auto'
     }"
+    v-ripple="!disabled"
   >
     <UIcon :class="cls?.em('item', 'icon')" v-if="icon">
       <component :is="icon" />
@@ -46,6 +47,7 @@ import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import { useFallbackProps } from '@ui/compositions'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'MenuItem'

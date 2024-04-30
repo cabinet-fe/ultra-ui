@@ -20,6 +20,7 @@
         @click="disabled || pageNumber === 1 ? void 0 : jump('firstClick')"
         @mouseenter="mouseEvent('first', true)"
         @mouseleave="mouseEvent('first', false)"
+        v-ripple
       >
         <span v-if="mouseState.first">1</span>
         <UIcon v-else><DArrowLeft /></UIcon>
@@ -28,6 +29,7 @@
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === 1)]"
         @click="disabled || pageNumber === 1 ? void 0 : jump('prevClick')"
+        v-ripple
       >
         <UIcon><ArrowLeft /></UIcon>
       </li>
@@ -37,6 +39,7 @@
           v-for="page in showPages"
           :class="[cls.e('btn'), bem.is('active', pageNumber === page)]"
           @click="disabled ? void 0 : jump(page)"
+          v-ripple
         >
           {{ page }}
         </li>
@@ -57,6 +60,7 @@
       <li
         :class="[cls.e('btn'), bem.is('disabled', pageNumber === pages.length)]"
         @click="disabled || pageNumber === pages.length ? void 0 : jump('nextClick')"
+        v-ripple
       >
         <UIcon><ArrowRight /></UIcon>
       </li>
@@ -65,6 +69,7 @@
         @click="disabled || pageNumber === pages.length ? void 0 : jump('lastClick')"
         @mouseenter="mouseEvent('last', true)"
         @mouseleave="mouseEvent('last', false)"
+        v-ripple
       >
         <span v-if="mouseState.last">{{ pages.length }}</span>
         <UIcon v-else><DArrowRight /></UIcon>
@@ -100,6 +105,7 @@ import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'Paginator'
