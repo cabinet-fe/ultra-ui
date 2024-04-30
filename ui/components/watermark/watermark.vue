@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import type { WatermarkProps } from '@ui/types/components/watermark'
-import { bem, zIndex } from '@ui/utils'
+import { bem, setStyles, zIndex } from '@ui/utils'
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import type { WatermarkEmits } from '.'
 import { downloadFileByBase64 } from './base64'
@@ -34,8 +34,8 @@ const watermark = reactive({
   rotate: 0,
   width: 0,
   height: 0,
-  gapX: 0,
-  gapY: 20,
+  gapX: -10,
+  gapY: 100,
   offsetX: 10,
   offsetY: 20,
   zIndex: 0,
@@ -79,15 +79,15 @@ const setWatermark = async (str, container) => {
     // 获取canvas上下文
     canvas.width = container.clientWidth
     canvas.height = container.clientHeight
-    console.log(canvas.width, canvas.height, 'canvas')
-    console.log(container.clientWidth, container.clientWidth, 'container')
   })
 
+  console.log(container.clientWidth, container.clientHeight, 'containter')
   // canvas.width = 390
   // canvas.height = 200
 
   // 创建canvs画布
   const ctx = canvas.getContext('2d')!
+
   // 逆时旋转
   ctx.rotate(-0.3)
   // ctx.rotate((Math.PI / 180) * watermark.rotate)
@@ -99,22 +99,31 @@ const setWatermark = async (str, container) => {
   // 对齐方式
   ctx.textAlign = 'left'
   // 文本基线
-  ctx.textBaseline = 'middle'
+  ctx.textBaseline = 'top'
   // 编制文字
-  ctx.fillText(str, canvas.width / 20, canvas.height / 2)
-  // ctx.fillText(str, watermark.gapX, watermark.gapY + 20)
-
+  // ctx.fillText(str, watermark.gapX - 10, 50)
+  ctx.fillText(str, watermark.gapX - 10, watermark.gapY)
   // 创建水印div
   const watermarkDiv = document.createElement('div')
   watermarkDiv.id = id
-  watermarkDiv.style.pointerEvents = 'none'
-  watermarkDiv.style.top = '0px'
-  watermarkDiv.style.left = '0px'
-  watermarkDiv.style.position = 'absolute'
-  // watermarkDiv.style.zIndex = -100
-  watermarkDiv.style.zIndex = zIndex()
-  watermarkDiv.style.width = containerWidth + 'px'
-  watermarkDiv.style.height = container.clientHeight + 'px'
+  setStyles(watermarkDiv, {
+    pointerEvents: 'none',
+    top: '0',
+    left: '0px',
+    position: 'absolute',
+    zIndex: zIndex(),
+    // width: containerWidth + 'px',
+    width: document.documentElement.clientWidth + 'px',
+    height: container.clientHeight + 'px'
+  })
+
+  // watermarkDiv.style.pointerEvents = 'none'
+  // watermarkDiv.style.top = '0px'
+  // watermarkDiv.style.left = '0px'
+  // watermarkDiv.style.position = 'absolute'
+  // watermarkDiv.style.zIndex = zIndex()
+  // watermarkDiv.style.width = containerWidth + 'px'
+  // watermarkDiv.style.height = container.clientHeight + 'px'
 
   // 处理水印图片
   if (watermark.image) {
