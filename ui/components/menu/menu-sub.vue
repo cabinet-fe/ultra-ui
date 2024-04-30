@@ -23,7 +23,7 @@
       @click.stop="handleClick"
       :style="{
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
-        paddingRight: '30px'
+        paddingRight: '35px'
       }"
       v-ripple="!disabled"
     >

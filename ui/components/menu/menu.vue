@@ -45,7 +45,7 @@ watch(
   () => simple.value,
   (val) => {
     if (val) {
-      setTimeout(() => (store.value.simple.value = true), 450)
+      setTimeout(() => (store.value.simple.value = true), 550)
     } else {
       setTimeout(() => (store.value.simple.value = false), 150)
     }
