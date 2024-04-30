@@ -5,5 +5,5 @@
     "declaration": true,
     "allowJs": true
   },
-  "include": ["*/*.ts"]
+  "include": ["*/*.ts", "resolver.js", "component-dirs.js"]
 }

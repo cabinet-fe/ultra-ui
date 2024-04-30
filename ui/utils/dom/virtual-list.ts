@@ -48,7 +48,7 @@ export class VirtualList<Item> {
 
   #_data: Item[] = []
 
-  get #data() {
+  get #data(): Item[] {
     return this.#_data
   }
   set #data(data: Item[]) {
@@ -96,6 +96,7 @@ export class VirtualList<Item> {
     const dom = isRef(this.#containerRef)
       ? this.#containerRef.value
       : this.#containerRef
+
     if (!dom) return []
 
     const rect = dom.getBoundingClientRect()

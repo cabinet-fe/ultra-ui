@@ -3,7 +3,7 @@
     <u-icon
       v-if="!node.isLeaf"
       :class="expandClass"
-      @click.stop="node.expanded = !node.expanded"
+      @click.stop="toggleExpand"
     >
       <ArrowRight />
     </u-icon>
@@ -21,17 +21,12 @@
       :content="getTreeSlotsNode({ node: node, data: node.value })"
     />
   </div>
-
-  <template v-if="node.children && node.expanded">
-    <UTreeNode v-for="child of node.children" :node="child" />
-  </template>
 </template>
 
 <script lang="ts" setup>
 import { TreeDIKey } from './di'
 import { computed, inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
-import UTreeNode from './tree-node.vue'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
 import type { TreeNodeProps } from '@ui/types/components/tree'
@@ -45,7 +40,7 @@ defineOptions({
 
 const props = defineProps<TreeNodeProps>()
 
-const { treeProps, treeEmit, cls, selected, checked, getTreeSlotsNode } =
+const { treeProps, treeEmit, cls, selected, checked, getTreeSlotsNode, getFlattedNodes } =
   inject(TreeDIKey)!
 
 /** 行class */
@@ -57,7 +52,7 @@ const nodeClass = computed(() => {
 const style = computed(() => {
   const { node } = props
   return {
-    paddingLeft: withUnit(node.depth * 20 - 20, 'px')
+    marginLeft: withUnit(node.depth * 20 - 20, 'px')
   }
 })
 
@@ -118,17 +113,22 @@ const handleCheck = (_checked: boolean) => {
   treeEmit('check', _checked, node.value, checked)
 }
 
+
+function toggleExpand() {
+  props.node.expanded = !props.node.expanded
+  getFlattedNodes()
+  treeEmit('expand', props.node)
+}
+
 const handleClick = () => {
   const { node } = props
 
   if (treeProps.expandOnClickNode) {
-    node.expanded = !node.expanded
-    treeEmit('expand', node)
+    toggleExpand()
   } else {
     if (!treeProps.selectable) return
 
     selected.value = node
-
     treeEmit('node-click', node)
   }
 }
