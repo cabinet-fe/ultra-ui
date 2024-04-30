@@ -3,7 +3,6 @@
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
         :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
-        @click.stop="handleClick"
         :style="{ textIndent }"
         v-ripple="!disabled"
       >
@@ -71,7 +70,7 @@ const injected = inject(MenuDIKey)
 const { cls } = injected || {}
 
 const expand = ref<boolean>(false)
-
+// emit事件
 watch(
   () => expand.value,
   (val) => {
@@ -92,21 +91,21 @@ const { size } = useFallbackProps([props], {
 const open = () => (expand.value = true)
 
 const close = () => (expand.value = false)
-
+// 根据openIndex展开子菜单
 watch(
   () => injected?.openIndex.value,
   (index) => {
     if (index === props.index) open()
   }
 )
-
+// 根据closeIndex关闭子菜单
 watch(
   () => injected?.closeIndex.value,
   (index) => {
     if (index === props.index) close()
   }
 )
-
+// 缩略模式关闭子菜单
 watch(
   () => injected?.simple.value,
   (val) => {
@@ -118,11 +117,10 @@ watch(
 
 const handleClick = () => {
   if (props.disabled) return
-  if (injected?.simple.value && textIndent.value === '0px') return
   injected!.activeIndex.value = props.index
   expand.value = !expand.value
 }
-
+// 根据activeIndex展开子菜单
 watch(
   () => injected?.activeIndex.value,
   (index) => {
@@ -130,7 +128,7 @@ watch(
   },
   { once: true }
 )
-
+// 默认展开
 onMounted(() => {
   if (injected?.expand) open()
 })
@@ -138,7 +136,7 @@ onMounted(() => {
 const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
-
+// 根据嵌套层级计算缩进
 watch(
   () => instance,
   () => {

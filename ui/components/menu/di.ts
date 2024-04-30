@@ -6,11 +6,17 @@ export interface MenuContext {
   cls: BEM<'menu'>
   menuProps: MenuProps
   menuEmit: MenuEmits
+  /** 是否展开 */
   expand: boolean
+  /** 展开index */
   openIndex: Ref<string>
+  /** 关闭index */
   closeIndex: Ref<string>
+  /** 活动index */
   activeIndex: Ref<string>
+  /** 是否缩略模式 */
   simple: Ref<boolean>
+  /** 是否将index作为路由path */
   router: boolean
 }
 

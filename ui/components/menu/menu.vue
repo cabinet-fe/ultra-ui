@@ -40,7 +40,7 @@ const store = shallowRef<MenuContext>({
   simple: ref(simple.value),
   router: router.value
 })
-
+// 剔除动画完成时间
 watch(
   () => simple.value,
   (val) => {
@@ -53,17 +53,17 @@ watch(
 )
 
 provide(MenuDIKey, store.value)
-
+/** 给用户提供的展开方法 */
 const open = (index: string) => {
   store.value.openIndex.value = index
   if (store.value.closeIndex.value === index) store.value.closeIndex.value = ''
 }
-
+/** 给用户提供的关闭方法 */
 const close = (index: string) => {
   store.value.closeIndex.value = index
   if (store.value.openIndex.value === index) store.value.openIndex.value = ''
 }
-
+// 切换缩略模式的最大宽度
 const maxWidth = computed(() => {
   if (simple.value) {
     return { small: '50px', default: '66px', large: '90px' }[size.value]

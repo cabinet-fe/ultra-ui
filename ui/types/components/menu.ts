@@ -4,24 +4,37 @@ import type { DefineComponent } from 'vue'
 /** 菜单组件组件属性 */
 export interface MenuProps {
   modelValue?: string
+  /** 是否展开菜单 */
   expand?: boolean
+  /** 指定当前激活的菜单项 */
   activeIndex?: string
+  /** 是否缩略模式 */
   simple?: boolean
+  /** 展开回调 */
   open?: (index: string) => void
+  /** 关闭回调 */
   close?: (index: string) => void
+  /** 是否以index作为path进行路由跳转 */
   router?: boolean
 }
 
 export interface MenuSubProps {
+  /** 是否禁用 */
   disabled?: boolean
+  /** 唯一标识，可作为路由path */
   index: string
+  /** 菜单图标 */
   icon?: DefineComponent
 }
 
 export interface MenuItemProps {
+  /** 是否禁用 */
   disabled?: boolean
+  /** 唯一标识，可作为路由path */
   index: string
+  /** 菜单图标 */
   icon?: DefineComponent
+  /** 路由path */
   route?: string
 }
 
