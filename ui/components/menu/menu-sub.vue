@@ -5,6 +5,7 @@
         :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
         @click.stop="handleClick"
         :style="{ textIndent }"
+        v-ripple="!disabled"
       >
         <UIcon :class="cls?.em('sub', 'icon')" style="margin-right: 0" v-if="icon">
           <component :is="icon" />

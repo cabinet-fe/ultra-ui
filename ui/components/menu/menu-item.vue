@@ -9,6 +9,7 @@
       ]"
       @click="handleClick"
       :style="{ textIndent, width: 'auto' }"
+      v-ripple="!disabled"
     >
       <UIcon :class="cls?.em('item', 'icon')" style="margin-right: 0" v-if="icon">
         <component :is="icon" />
