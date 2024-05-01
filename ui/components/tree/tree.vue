@@ -74,6 +74,7 @@ watchEffect(() => {
 
 const nodes = shallowRef<TreeNode<DataItem>[]>([])
 
+/** 获取碾平后的节点 */
 function getFlattedNodes(filter?: (node: TreeNode<DataItem>) => boolean) {
   const _nodes: TreeNode<DataItem>[] = []
   if (filter) {
@@ -85,14 +86,18 @@ function getFlattedNodes(filter?: (node: TreeNode<DataItem>) => boolean) {
   } else {
     forest.value.dft(node => {
       if (node.parent?.expanded || node.depth === 1) {
+
         _nodes.push(node)
       }
+
     })
   }
 
   nodes.value = _nodes
 }
+
 getFlattedNodes()
+
 watch(forest, () => {
   getFlattedNodes()
 })
