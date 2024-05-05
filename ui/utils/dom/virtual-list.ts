@@ -91,7 +91,7 @@ export class VirtualList<Item> {
 
   /** 获取可见数据 */
   getVisibleData(): Item[] {
-    const { itemSize, direction = 'y', bufferSize = 3 } = this.#options
+    const {  direction = 'y' } = this.#options
 
     const dom = isRef(this.#containerRef)
       ? this.#containerRef.value
@@ -104,6 +104,7 @@ export class VirtualList<Item> {
     if (direction === 'y') {
       console.log(rect.height)
     }
+    return []
   }
 
   onDataChange(cb: (data: Item[]) => void) {
