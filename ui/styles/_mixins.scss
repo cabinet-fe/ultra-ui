@@ -134,10 +134,10 @@
 @mixin css-var($prefix, $list) {
   @each $type, $value in $list {
     @if $value == null {
-      --#{vars.$namespace}#{$prefix}: #{$type};
+      --#{$prefix}: #{$type};
     } @else {
       // "" + $type用于消除警告
-      --#{vars.$namespace}#{$prefix}-#{"" + $type}: #{$value};
+      --#{$prefix}-#{"" + $type}: #{$value};
     }
   }
 }
