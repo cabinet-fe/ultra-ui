@@ -86,6 +86,8 @@ export * from './text'
 
 export * from './textarea'
 
+export * from './text-editor'
+
 export * from './theme'
 
 export * from './tip'
