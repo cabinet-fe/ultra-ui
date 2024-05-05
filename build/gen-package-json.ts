@@ -39,8 +39,8 @@ const pkg = {
     },
     './*': {
       types: './*.d.ts',
-      default: './*.js',
-      import: './*.js'
+      default: './*',
+      import: './*'
     },
     './resolver': {
       types: './resolver.d.ts',
