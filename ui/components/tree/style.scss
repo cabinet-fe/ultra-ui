@@ -1,46 +1,69 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/functions' as fn;
 
-$root-name: 'tree';
+$root-name: tree;
 
 @include m.b($root-name) {
-  padding: 14px;
-
   @include m.size using ($size) {
-    @include m.bem($root-name, 'node') {
-      padding: calc(fn.use-var(font-size-main, $size));
-      height: calc(fn.use-var(font-size-main, $size));
+    @include m.bem($root-name, node) {
+      height: fn.use-var(form-component-height, $size);
+      border-radius: fn.use-var(radius, $size);
+      padding: 0 fn.use-var(gap, $size);
+    }
+  }
+
+  @include m.is(selectable, checkable) {
+    @include m.bem($root-name, node) {
+      &:not(.is-disabled) {
+        &:hover {
+          background-color: fn.use-var(color, primary, light-9);
+        }
+      }
     }
   }
 
   @include m.e(node) {
-    margin-top: 2px;
-    border-radius: 3px;
-    @include m.flex($align: center);
     cursor: pointer;
+    @include m.flex($align: center);
 
-    &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+    @include m.is(selected) {
+      background-color: fn.use-var(color, primary, light-3) !important;
+      color: fn.use-var(text-color, white);
     }
 
-    @include m.is('active') {
-      background-color: fn.use-var(color, primary, light-3);
-      color: fn.use-var(color, primary, light-9);
+    @include m.is(expanded) {
+      @include m.bem($root-name, expand-icon) {
+        transform: rotate(90deg);
+      }
     }
 
-    &:active {
-      // border: 1px solid fn.use-var(color, primary, light-3);
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      @include m.bem($root-name, node-content) {
+        color: fn.use-var(text-color, disabled);
+      }
     }
+  }
+
+  @include m.e(expand-icon, icon-placeholder) {
+    flex-shrink: 0;
+    margin-right: fn.use-var(gap, small);
   }
 
   @include m.e(expand-icon) {
     cursor: pointer;
     transition: transform 0.2s;
-    margin-right: fn.use-var(gap, small);
+    flex-shrink: 0;
     font-size: 18px;
+  }
 
-    @include m.is('expanded') {
-      transform: rotate(90deg);
-    }
+  @include m.e(icon-placeholder) {
+    width: 18px;
+    height: 18px;
+  }
+
+  @include m.e(node-content) {
+    flex-grow: 1;
+    @include m.ellipsis;
   }
 }

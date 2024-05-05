@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, shallowRef } from 'vue'
+import { computed, inject, nextTick, shallowRef } from 'vue'
 import { useDrag } from '@ui/compositions'
 import { ScrollDIKey } from './di'
 import { bem } from '@ui/utils'

@@ -32,26 +32,23 @@ export interface TreeProps<
   childrenKey?: string
   /** 数据 */
   data?: DataItem[]
+  /** 禁止单选或多选的节点 */
+  disabledNode?: (item: DataItem, node: TreeNode<DataItem>) => boolean
   /** 可多选 */
-  checkable?:
-    | boolean
-    | ((item: DataItem, node: TreeNode<DataItem>) => boolean)
+  checkable?: boolean
   /** 可单选 */
-  selectable?:
-    | boolean
-    | ((item: DataItem, node: TreeNode<DataItem>) => boolean)
+  selectable?: boolean
+  /** 严格选择，选择的内容和父级不会产生关联 */
   checkStrictly?: boolean
 }
 
-export interface TreeEmit {
-  (e: 'expand', node: TreeNode<Record<string, any>>): void
-  (e: 'node-click', node: TreeNode<Record<string, any>>): void
-  (
-    e: 'check',
-    checked: boolean,
-    value: Record<string, any>,
-    checkKeys: Set<string | number>
-  ): void
+export interface TreeEmit<
+  Data extends Record<string, any> = Record<string, any>
+> {
+  (e: 'expand', node: TreeNode<Data>): void
+  (e: 'node-click', node: TreeNode<Data>): void
+  (e: 'select', selected?: Data): void
+  (e: 'check', checked: Data[]): void
 }
 
 export interface TreeNodeProps {

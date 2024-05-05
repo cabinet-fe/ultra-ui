@@ -1,9 +1,5 @@
 import type { InjectionKey, ShallowRef, VNode } from 'vue'
-import type {
-  TreeEmit,
-  TreeProps,
-  TreeNode
-} from '@ui/types/components/tree'
+import type { TreeEmit, TreeProps, TreeNode } from '@ui/types/components/tree'
 import type { BEM } from '@ui/utils'
 
 export interface TreeSlotsScope<
@@ -19,12 +15,21 @@ export interface TreeConText {
   /** BEM */
   cls: BEM<'tree'>
   /** 单选选中的节点 */
-  selected: ShallowRef<TreeNode<Record<string, any>> | undefined>
+  selected: ShallowRef<Record<string, any> | undefined>
   /** 多选的节点 */
-  checked: Set<string | number>
+  checked: Set<Record<string, any>>
+  /** 选择事件 */
+  handleSelect: (data: TreeNode<Record<string, any>>) => void
+  /** 多选事件 */
+  handleCheck: (node: TreeNode<Record<string, any>>, check: boolean) => void
+  /** 获取树的作用域插槽节点 */
   getTreeSlotsNode: (ctx: TreeSlotsScope) => VNode[] | undefined
-  treeEmit: TreeEmit
-  getFlattedNodes: (filter?: (node: TreeNode<Record<string, any>>) => boolean) => void
+  /** 树事件 */
+  treeEmit: TreeEmit<Record<string, any>>
+  /** 获取碾平后的节点 */
+  getFlattedNodes: (
+    filter?: (node: TreeNode<Record<string, any>>) => boolean
+  ) => void
 }
 
 /** 树依赖注入key */
