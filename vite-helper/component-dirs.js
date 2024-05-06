@@ -32,6 +32,7 @@
   "paginator",
   "password-input",
   "popup",
+  "progress",
   "radio",
   "radio-group",
   "row-form",

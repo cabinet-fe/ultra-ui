@@ -1,0 +1,42 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: progress;
+
+@include m.b($root-name) {
+  width: 100%;
+  height: 20px;
+  background: fn.use-var(color, default, light-3);
+  border-radius: 50px;
+  position: relative;
+
+  @include m.e(bar) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    // background-color: fn.use-var(color, primary);
+    transition: width 0.3s ease-in-out;
+    border-radius: 50px;
+  }
+
+  @include m.e('percentage') {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: fn.use-var(text-color, white);
+    font-size: 10px;
+  }
+
+  // 颜色
+  @each $type, $_ in vars.$color-types {
+    @include m.m(color-#{$type}) {
+      background-color: fn.use-var(color, $type);
+      @include m.is(type) {
+        background-color: fn.use-var(color, $type);
+      }
+    }
+  }
+}
