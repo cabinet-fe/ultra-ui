@@ -35,7 +35,12 @@
           </u-menu-sub>
         </u-menu-sub>
         <u-menu-item index="a1" :icon="Setting">一级菜单2</u-menu-item>
-        <u-menu-item index="a2" :icon="Setting">一级菜单3</u-menu-item>
+        <u-menu-sub index="a2" :icon="Setting">
+          <template #title>一级菜单3</template>
+          <u-menu-item index="a21">二级菜单1</u-menu-item>
+          <u-menu-item index="a22">二级菜单1</u-menu-item>
+          <u-menu-item index="a23">二级菜单1</u-menu-item>
+        </u-menu-sub>
         <u-menu-item index="a3" :icon="Setting">一级菜单4</u-menu-item>
         <u-menu-item index="a4" :icon="Setting">一级菜单5</u-menu-item>
         <u-menu-item index="a5" :icon="Setting">一级菜单6</u-menu-item>
