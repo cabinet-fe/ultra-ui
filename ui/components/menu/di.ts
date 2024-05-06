@@ -24,11 +24,11 @@ export interface MenuContext {
   activeTextColor: string
   /** 菜单背景色 */
   backgroundColor: string
+  /** 唯一打开子菜单 */
+  uniqueOpened: boolean
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')
-
-
 
 export const calcIndent = (instance: ComponentInternalInstance) => {
   let depth = 0
@@ -43,4 +43,13 @@ export const calcIndent = (instance: ComponentInternalInstance) => {
   }
 
   return `${getParent(instance) * 20}px`
+}
+
+export const getSiblings = (instance: ComponentInternalInstance) => {
+  const parent = instance?.parent?.type.name! === 'BaseTransition'
+    ? instance?.parent?.parent?.parent
+    : instance?.parent
+  return parent?.slots.default!().map((item) => {
+    return item.props?.index
+  })
 }

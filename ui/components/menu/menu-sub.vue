@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { inject, ref, watch, onMounted, getCurrentInstance } from 'vue'
-import { MenuDIKey, calcIndent } from './di'
+import { MenuDIKey, calcIndent, getSiblings } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
@@ -94,7 +94,10 @@ const { size } = useFallbackProps([props], {
   size: 'default'
 })
 
-const open = () => (expand.value = true)
+const open = () => {
+  console.log('open=>', props.index, expand.value)
+  expand.value = true
+}
 
 const close = () => (expand.value = false)
 // 根据openIndex展开子菜单
@@ -126,6 +129,8 @@ const handleClick = () => {
   injected!.activeIndex.value = props.index
   expand.value = !expand.value
 }
+
+const siblings = ref<Array<string>>([])
 // 根据activeIndex展开子菜单
 watch(
   () => injected?.activeIndex.value,
@@ -133,6 +138,15 @@ watch(
     if (index === props.index) open()
   },
   { once: true }
+)
+// 根据uniqueOpened，关闭其他菜单
+watch(
+  () => injected?.activeIndex.value,
+  (index) => {
+    if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index!)) {
+      close()
+    }
+  }
 )
 // 默认展开
 onMounted(() => {
@@ -142,11 +156,15 @@ onMounted(() => {
 const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
+
 // 根据嵌套层级计算缩进
 watch(
   () => instance,
   () => {
-    if (instance) textIndent.value = calcIndent(instance)
+    if (instance) {
+      textIndent.value = calcIndent(instance)
+      siblings.value = getSiblings(instance) || []
+    }
   },
   { immediate: true }
 )

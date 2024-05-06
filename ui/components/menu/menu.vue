@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { provide, shallowRef, ref, watch, computed } from 'vue'
+import { provide, shallowRef, ref, watch, computed, useSlots } from 'vue'
 import { MenuDIKey, type MenuContext } from './di'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -24,17 +24,27 @@ const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
 
-const { size, expand, activeIndex, simple, router, textColor, backgroundColor, activeTextColor } =
-  useFallbackProps([props], {
-    size: 'default',
-    expand: false,
-    activeIndex: '',
-    simple: false,
-    router: false,
-    activeTextColor: '',
-    textColor: '',
-    backgroundColor: '#fff'
-  })
+const {
+  size,
+  expand,
+  activeIndex,
+  simple,
+  router,
+  textColor,
+  backgroundColor,
+  activeTextColor,
+  uniqueOpened
+} = useFallbackProps([props], {
+  size: 'default',
+  expand: false,
+  activeIndex: '',
+  simple: false,
+  router: false,
+  activeTextColor: '',
+  textColor: '',
+  backgroundColor: '#fff',
+  uniqueOpened: false
+})
 
 const store = shallowRef<MenuContext>({
   cls,
@@ -48,7 +58,8 @@ const store = shallowRef<MenuContext>({
   router: router.value,
   textColor: textColor.value,
   activeTextColor: activeTextColor.value,
-  backgroundColor: backgroundColor.value
+  backgroundColor: backgroundColor.value,
+  uniqueOpened: uniqueOpened.value
 })
 // 剔除动画完成时间
 watch(
@@ -83,4 +94,10 @@ const maxWidth = computed(() => {
 })
 
 defineExpose({ open, close })
+
+const slots = useSlots()
+
+setTimeout(() => {
+  console.log(slots.default!()[0]?.props!.index)
+}, 1000)
 </script>
