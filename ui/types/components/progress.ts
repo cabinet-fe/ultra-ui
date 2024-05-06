@@ -7,7 +7,7 @@ export type ProgressType = ColorType
 export interface ProgressProps {
   /** 进度百分比 */
   percentage: number
-  type?: ProgressType
+  color?: ProgressType
 }
 
 /** progress组件定义的事件 */

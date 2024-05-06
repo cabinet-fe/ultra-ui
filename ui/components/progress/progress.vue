@@ -1,7 +1,10 @@
 <template>
+  <!-- 条形进度条 -->
   <div :class="cls.b">
-    <div :class="cls.e('bar')" :style="{ width: percentage + '%' }"></div>
-    <span :class="classType" :style="{ left: percentage - 2 + '%' }"> {{ percentage }}% </span>
+    <div :class="classType" :style="{ width: percentage + '%' }"></div>
+    <span :class="cls.e('percentage')" :style="{ left: percentage - 2 + '%' }">
+      {{ percentage }}%
+    </span>
   </div>
 </template>
 
@@ -15,7 +18,7 @@ defineOptions({
 })
 const cls = bem('progress')
 const props = withDefaults(defineProps<ProgressProps>(), {
-  type: 'primary'
+  color: 'primary'
 })
 const emit = defineEmits<ProgressEmits>()
 
@@ -30,7 +33,8 @@ const percentage = computed(() => {
 })
 
 const classType = computed(() => {
-  return [cls.e('percentage'), cls.m('color' + props.type)]
+  return [cls.e('bar'), cls.m('color-' + props.color)]
 })
 console.log(percentage.value, 'percentage')
+console.log(props.color, 'type')
 </script>
