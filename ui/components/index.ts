@@ -94,6 +94,10 @@ export * from './tip'
 
 export * from './tree'
 
+export * from './tree-select'
+
 export * from './virtual-scroll'
 
 export * from './watermark'
+
+export * from './progress'

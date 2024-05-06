@@ -40,6 +40,7 @@ declare module 'vue' {
     UPaginator: typeof import('ultra-ui')['UPaginator']
     UPasswordInput: typeof import('ultra-ui')['UPasswordInput']
     UPopup: typeof import('ultra-ui')['UPopup']
+    UProgress: typeof import('ultra-ui')['UProgress']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
     URowForm: typeof import('ultra-ui')['URowForm']
@@ -55,7 +56,7 @@ declare module 'vue' {
     UTextEditor: typeof import('ultra-ui')['UTextEditor']
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
-    UVirtualList: typeof import('ultra-ui')['UVirtualList']
+    UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
     UVirtualScroll: typeof import('ultra-ui')['UVirtualScroll']
     UWatermark: typeof import('ultra-ui')['UWatermark']
   }
