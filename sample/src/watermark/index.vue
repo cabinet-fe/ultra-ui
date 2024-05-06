@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>水印</div>
-    <u-watermark text="watermark" font-size="60" font-color="#fff">
+    <u-watermark text="watermark">
       <p v-for="item in list">
         {{ item }}
       </p>
@@ -19,9 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import type Watermark from 'ultra-ui/components/watermark/watermark.vue'
-
-const list = []
+const list = [] as any
 for (var i = 0; i <= 100; i++) {
   list.push(
     '水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印水印'

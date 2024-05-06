@@ -8,7 +8,12 @@
         bem.is('disabled', disabled)
       ]"
       @click="handleClick"
-      :style="{ textIndent, width: 'auto' }"
+      :style="{
+        textIndent,
+        width: 'auto',
+        color:
+          injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
+      }"
       v-ripple="!disabled"
     >
       <UIcon :class="cls?.em('item', 'icon')" style="margin-right: 0" v-if="icon">
@@ -28,7 +33,8 @@
     @click="handleClick"
     :style="{
       textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
-      width: 'auto'
+      width: 'auto',
+      color: injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
     }"
     v-ripple="!disabled"
   >
@@ -49,17 +55,6 @@ import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import { useFallbackProps } from '@ui/compositions'
 import { vRipple } from '@ui/directives'
-// import { useRouter } from 'vue-router'
-
-/**
- * FIXME
- * 不能引入路由组件，考虑通过事件去触发路由的变换
- * 更好的方式是在实际业务中引入内置的RouteLink组件, 因为RouteLink组件可以使用右键菜单的在新标签页打开选项
- *
- * ```html
- * <MenuItem><RouteLink to="/home">首页</RouteLink></MenuItem>
- * ```
- */
 
 defineOptions({
   name: 'MenuItem'
@@ -74,16 +69,9 @@ const { size } = useFallbackProps([props], {
   size: 'default'
 })
 
-// const router = useRouter()
-
 const handleClick = () => {
   if (!props.disabled) {
     injected!.activeIndex.value = props.index
-    // if (injected!.router) {
-    //   router.push({ path: props.index })
-    // } else {
-    //   if (props.route) router.push({ path: props.route })
-    // }
   }
 }
 

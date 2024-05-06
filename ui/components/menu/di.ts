@@ -18,6 +18,12 @@ export interface MenuContext {
   simple: Ref<boolean>
   /** 是否将index作为路由path */
   router: boolean
+  /** 文字颜色 */
+  textColor: string
+  /** 激活的文字颜色 */
+  activeTextColor: string
+  /** 菜单背景色 */
+  backgroundColor: string
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')

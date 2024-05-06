@@ -17,12 +17,12 @@ defineOptions({
   name: 'Watermark'
 })
 const cls = bem('watermark')
-const props = withDefaults(defineProps<WatermarkProps>(), {
-  text: ''
-})
+const props = withDefaults(defineProps<WatermarkProps>(), {})
 const emit = defineEmits<WatermarkEmits>()
 
 const watermarkRef = ref<HTMLDivElement>()
+console.log(watermarkRef.value, 'watermarkRef')
+
 const watermark = reactive({
   text: props.text,
   font: '',
@@ -41,7 +41,7 @@ const watermark = reactive({
   zIndex: 0,
   image: props.image,
   set: (str, container) => {
-    // const id = setWatermark(str, container)
+    const id = setWatermark(str, container)
     // setInterval(() => {
     //   if (document.getElementById(id) === null) {
     //     setWatermark(str, container)
@@ -53,7 +53,9 @@ const watermark = reactive({
   }
 })
 
-const setWatermark = async (str, container) => {
+const setWatermark = async (str: any, container: any) => {
+  console.log(str, 'str')
+  console.log(container, 'container')
   const id = 'watermark-' + new Date().getTime() // 使用更动态的ID
 
   let rect = watermarkRef.value?.getBoundingClientRect()
@@ -66,9 +68,9 @@ const setWatermark = async (str, container) => {
   }
 
   // 父容器宽
-  var containerWidth = container.clientWidth
+  // var containerWidth = container.clientWidth
   // 父容器高
-  var containerHeight = `calc(100vh - ${rect?.top}px)`
+  // var containerHeight = `calc(100vh - ${rect?.top}px)`
 
   container.style.position = 'relative'
 
@@ -112,7 +114,6 @@ const setWatermark = async (str, container) => {
     left: '0px',
     position: 'absolute',
     zIndex: zIndex(),
-    // width: containerWidth + 'px',
     width: document.documentElement.clientWidth + 'px',
     height: container.clientHeight + 'px'
   })
@@ -121,7 +122,8 @@ const setWatermark = async (str, container) => {
   // watermarkDiv.style.top = '0px'
   // watermarkDiv.style.left = '0px'
   // watermarkDiv.style.position = 'absolute'
-  // watermarkDiv.style.zIndex = zIndex()
+  // watermarkDiv.style.zIndex = '99'
+  // // watermarkDiv.style.zIndex = zIndex()
   // watermarkDiv.style.width = containerWidth + 'px'
   // watermarkDiv.style.height = container.clientHeight + 'px'
 
@@ -144,6 +146,7 @@ const setWatermark = async (str, container) => {
 }
 
 onMounted(() => {
+  console.log(111)
   watermark.set(watermark.text, watermarkRef.value)
 })
 </script>
