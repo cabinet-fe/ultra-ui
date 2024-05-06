@@ -22,6 +22,8 @@ export interface MenuProps {
   textColor?: string
   /** 激活的文字颜色 */
   activeTextColor?: string
+  /** 唯一打开子菜单 */
+  uniqueOpened?: boolean
 }
 
 export interface MenuSubProps {

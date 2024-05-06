@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@editorjs/checklist':
+        specifier: ^1.6.0
+        version: 1.6.0
       '@editorjs/editorjs':
         specifier: ^2.29.1
         version: 2.29.1
@@ -17,9 +20,18 @@ importers:
       '@editorjs/list':
         specifier: ^1.9.0
         version: 1.9.0
+      '@editorjs/marker':
+        specifier: ^1.4.0
+        version: 1.4.0
+      '@editorjs/quote':
+        specifier: ^2.6.0
+        version: 2.6.0
       '@editorjs/raw':
         specifier: ^2.5.0
         version: 2.5.0
+      '@editorjs/table':
+        specifier: ^2.3.0
+        version: 2.3.0
     devDependencies:
       '@types/node':
         specifier: ^20.12.6
@@ -287,6 +299,25 @@ packages:
 
   '@codexteam/icons@0.0.5':
     resolution: {integrity: sha512-s6H2KXhLz2rgbMZSkRm8dsMJvyUNZsEjxobBEg9ztdrb1B2H3pEzY6iTwI4XUPJWJ3c3qRKwV4TrO3J5jUdoQA==}
+<<<<<<< HEAD
+    dev: false
+=======
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
+
+  '@codexteam/icons@0.0.6':
+    resolution: {integrity: sha512-L7Q5PET8PjKcBT5wp7VR+FCjwCi5PUp7rd/XjsgQ0CI5FJz0DphyHGRILMuDUdCW2MQT9NHbVr4QP31vwAkS/A==}
+
+  '@codexteam/icons@0.3.0':
+    resolution: {integrity: sha512-fJE9dfFdgq8xU+sbsxjH0Kt8Yeatw9xHBJWb77DhRkEXz3OCoIS6hrRC1ewHEryxzIjxD8IyQrRq2f+Gz3BcmA==}
+
+  '@editorjs/checklist@1.6.0':
+    resolution: {integrity: sha512-hRNP36DInr73mSK3noHBQeoQb7DA12ANfqTXufEkTgQzx+k4mRJ0HdeGukTIR4JbwjHJ9ecUBnnQqIEGnxCFEg==}
+<<<<<<< HEAD
+    dependencies:
+      '@codexteam/icons': 0.3.0
+    dev: false
+=======
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
 
   '@editorjs/editorjs@2.29.1':
     resolution: {integrity: sha512-WRT2pCfikMsvySQJqpCU21LfTZaPuxUWsDO8aFGrPx4MKzOR9D+Ur4mNb3jq0FXx2EMqvIWfTyFixJxtjGHTyQ==}
@@ -296,11 +327,40 @@ packages:
 
   '@editorjs/list@1.9.0':
     resolution: {integrity: sha512-BQEvZW4vi0O0dBvGNljiKxiE89vMSHoM2Tu2OzKUndoj7pY9AxqpgCh1qvwIVsJAlG4Lbt/vBFQilnoStMmI6A==}
+<<<<<<< HEAD
+    dependencies:
+      '@codexteam/icons': 0.0.4
+    dev: false
+=======
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
+
+  '@editorjs/marker@1.4.0':
+    resolution: {integrity: sha512-5ipEXfL44jTTRzgNp/p/YjMO7jT08S5z4V8qA3FFJTfdhKgQyM3mvP1zpdYKw47ZZpVWMCncvk5Nto3BxihEtg==}
+
+  '@editorjs/quote@2.6.0':
+    resolution: {integrity: sha512-8DiCMBT4n4UDV5bgzvfRH26HmL6YWddGC4+twvjhR+PzX0gwrnY8nFifvro79EeSqxwRtFjjlGnu5I0VTfw5aQ==}
+<<<<<<< HEAD
+    dependencies:
+      '@codexteam/icons': 0.0.5
+    dev: false
+=======
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
 
   '@editorjs/raw@2.5.0':
     resolution: {integrity: sha512-ZOYKgR/sutOXHQ4uaWg8KzZ6yFJZCMTndezlN257GGsQ3Sa3ERcK9wZHKgAMNXaDhdKx9fDuojxRRcYvz6l9aQ==}
 
+<<<<<<< HEAD
+  /@editorjs/table@2.3.0:
+=======
+  '@editorjs/table@2.3.0':
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
+    resolution: {integrity: sha512-/dKE6A5FkukX/FpvIyQGsewwXglZk8YbXpEp9vkB6Ec4ETLeGJMxObCcYqbXqVod+IU/a1tFH+j3lsD8ASD41g==}
+
+<<<<<<< HEAD
+  /@esbuild/aix-ppc64@0.20.2:
+=======
   '@esbuild/aix-ppc64@0.20.2':
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
     resolution: {integrity: sha512-D+EBOJHXdNZcLJRBkhENNG8Wji2kgc9AZ9KiPr1JuZjsNtyHzrsfLRrY0tk2H2aoFu6RANO1y1iPPUCDYWkb5g==}
     engines: {node: '>=12'}
     cpu: [ppc64]
@@ -509,6 +569,40 @@ packages:
       rollup:
         optional: true
 
+<<<<<<< HEAD
+  /@rollup/pluginutils@5.1.0(rollup@4.17.2):
+    resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.5
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+      rollup: 4.17.2
+    dev: true
+
+  /@rollup/rollup-android-arm-eabi@4.16.3:
+    resolution: {integrity: sha512-1ACInKIT0pXmTYuPoJAL8sOT0lV3PEACFSVxnD03hGIojJ1CmbzZmLJyk2xew+yxqTlmx7xydkiJcBzdp0V+AQ==}
+    cpu: [arm]
+    os: [android]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@rollup/rollup-android-arm-eabi@4.17.2:
+    resolution: {integrity: sha512-NM0jFxY8bB8QLkoKxIQeObCaDlJKewVlIEkuyYKm5An1tdVZ966w2+MPQ2l8LBZLjR+SgyV+nRkTIunzOYBMLQ==}
+    cpu: [arm]
+    os: [android]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@rollup/rollup-android-arm64@4.16.3:
+=======
   '@rollup/rollup-android-arm-eabi@4.16.3':
     resolution: {integrity: sha512-1ACInKIT0pXmTYuPoJAL8sOT0lV3PEACFSVxnD03hGIojJ1CmbzZmLJyk2xew+yxqTlmx7xydkiJcBzdp0V+AQ==}
     cpu: [arm]
@@ -520,6 +614,7 @@ packages:
     os: [android]
 
   '@rollup/rollup-android-arm64@4.16.3':
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
     resolution: {integrity: sha512-vGl+Bny8cawCM7ExugzqEB8ke3t7Pm9/mo+ciA9kJh6pMuNyM+31qhewMwHwseDZ/LtdW0SCocW1CsMxcq1Lsg==}
     cpu: [arm64]
     os: [android]
@@ -1922,6 +2017,8 @@ packages:
     resolution: {integrity: sha512-D7eujBWkLa3p2sIpJA0d1pr7es+a7m0vFAnZLlCEKq/Ij2k0MLi9Br2UPxoxdYystm5K1yeBGzub0FlYUEWj2Q==}
     engines: {node: '>=8.0.0'}
     hasBin: true
+<<<<<<< HEAD
+=======
 
 snapshots:
 
@@ -2117,6 +2214,14 @@ snapshots:
 
   '@codexteam/icons@0.0.5': {}
 
+  '@codexteam/icons@0.0.6': {}
+
+  '@codexteam/icons@0.3.0': {}
+
+  '@editorjs/checklist@1.6.0':
+    dependencies:
+      '@codexteam/icons': 0.3.0
+
   '@editorjs/editorjs@2.29.1': {}
 
   '@editorjs/header@2.8.1':
@@ -2127,9 +2232,21 @@ snapshots:
     dependencies:
       '@codexteam/icons': 0.0.4
 
+  '@editorjs/marker@1.4.0':
+    dependencies:
+      '@codexteam/icons': 0.0.5
+
+  '@editorjs/quote@2.6.0':
+    dependencies:
+      '@codexteam/icons': 0.0.5
+
   '@editorjs/raw@2.5.0':
     dependencies:
       '@codexteam/icons': 0.0.4
+
+  '@editorjs/table@2.3.0':
+    dependencies:
+      '@codexteam/icons': 0.0.6
 
   '@esbuild/aix-ppc64@0.20.2':
     optional: true
@@ -3718,9 +3835,14 @@ snapshots:
   yocto-queue@1.0.0: {}
 
   z-schema@5.0.5:
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
     dependencies:
       lodash.get: 4.4.2
       lodash.isequal: 4.5.0
       validator: 13.11.0
     optionalDependencies:
       commander: 9.5.0
+<<<<<<< HEAD
+    dev: true
+=======
+>>>>>>> f1629db4944b75ccb14c8dd13f0a8bd08643b1f5
