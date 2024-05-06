@@ -16,6 +16,12 @@ export interface MenuProps {
   close?: (index: string) => void
   /** 是否以index作为path进行路由跳转 */
   router?: boolean
+  /** 背景色 */
+  backgroundColor?: string
+  /** 文字颜色 */
+  textColor?: string
+  /** 激活的文字颜色 */
+  activeTextColor?: string
 }
 
 export interface MenuSubProps {
