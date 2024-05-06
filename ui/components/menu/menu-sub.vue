@@ -1,9 +1,13 @@
 <template>
-  <u-tip v-if="injected?.simple.value && textIndent === '0px'" position="right-start">
+  <u-tip
+    v-if="injected?.simple.value && textIndent === '0px'"
+    position="right-start"
+    :customStyle="{ backgroundColor: injected?.backgroundColor }"
+  >
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
         :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
-        :style="{ textIndent }"
+        :style="{ textIndent, color: injected?.textColor }"
         v-ripple="!disabled"
       >
         <UIcon :class="cls?.em('sub', 'icon')" style="margin-right: 0" v-if="icon">
@@ -22,7 +26,9 @@
       @click.stop="handleClick"
       :style="{
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
-        paddingRight: '35px'
+        paddingRight: '35px',
+        color:
+          injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
       }"
       v-ripple="!disabled"
     >

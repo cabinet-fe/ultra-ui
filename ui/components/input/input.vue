@@ -23,7 +23,6 @@
       @blur="handleBlur"
       autocomplete="off"
       ref="el"
-      v-bind="attrs"
       :disabled="disabled"
       :readonly="readonly"
     />

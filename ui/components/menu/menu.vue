@@ -1,5 +1,8 @@
 <template>
-  <div :class="[cls.b, cls.m(size), bem.is('simple', simple)]" :style="{ maxWidth }">
+  <div
+    :class="[cls.b, cls.m(size), bem.is('simple', simple)]"
+    :style="{ maxWidth, backgroundColor }"
+  >
     <slot />
   </div>
 </template>
@@ -21,13 +24,17 @@ const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
 
-const { size, expand, activeIndex, simple, router } = useFallbackProps([props], {
-  size: 'default',
-  expand: false,
-  activeIndex: '',
-  simple: false,
-  router: false
-})
+const { size, expand, activeIndex, simple, router, textColor, backgroundColor, activeTextColor } =
+  useFallbackProps([props], {
+    size: 'default',
+    expand: false,
+    activeIndex: '',
+    simple: false,
+    router: false,
+    activeTextColor: '',
+    textColor: '',
+    backgroundColor: '#fff'
+  })
 
 const store = shallowRef<MenuContext>({
   cls,
@@ -38,7 +45,10 @@ const store = shallowRef<MenuContext>({
   expand: expand.value,
   activeIndex: ref(activeIndex.value),
   simple: ref(simple.value),
-  router: router.value
+  router: router.value,
+  textColor: textColor.value,
+  activeTextColor: activeTextColor.value,
+  backgroundColor: backgroundColor.value
 })
 // 剔除动画完成时间
 watch(
