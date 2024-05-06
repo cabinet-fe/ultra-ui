@@ -83,7 +83,7 @@ $root-name: menu;
   }
 
   @include m.size using ($size) {
-    font-size: fn.use-var('font-size', title, $size);
+    font-size: fn.use-var('font-size', main, $size);
 
     @include m.bem($root-name, sub) {
       position: relative;

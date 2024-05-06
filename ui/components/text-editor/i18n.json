@@ -1,0 +1,60 @@
+{
+    "ui": {
+      "blockTunes": {
+        "toggler": {
+          "Click to tune": "点击调整",
+          "or drag to move": "或者拖动移动"
+        }
+      },
+      "inlineToolbar": {
+        "converter": {
+          "Convert to": "转换为"
+        }
+      },
+      "toolbar": {
+        "toolbox": {
+          "Add": "添加"
+        }
+      }
+    },
+    "toolNames": {
+      "Text": "文本",
+      "Heading": "标题",
+      "List": "列表",
+      "Warning": "警告",
+      "Checklist": "清单",
+      "Quote": "引用",
+      "Code": "代码",
+      "Delimiter": "分隔符",
+      "Raw HTML": "原始HTML",
+      "Table": "表格",
+      "Link": "链接",
+      "Marker": "标记",
+      "Bold": "加粗",
+      "Italic": "斜体",
+      "Image": "图片"
+    },
+    "tools": {
+      "warning": {
+        "Title": "标题",
+        "Message": "消息"
+      },
+      "link": {
+        "Add a link": "添加链接"
+      },
+      "stub": {
+        "The block can not be displayed correctly.": "该块不能正确显示"
+      }
+    },
+    "blockTunes": {
+      "delete": {
+        "Delete": "删除"
+      },
+      "moveUp": {
+        "Move up": "向上移动"
+      },
+      "moveDown": {
+        "Move down": "向下移动"
+      }
+    }
+  }
