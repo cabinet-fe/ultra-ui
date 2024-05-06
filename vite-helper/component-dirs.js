@@ -43,11 +43,12 @@
   "tabs",
   "tag",
   "text",
+  "text-editor",
   "textarea",
   "theme",
   "tip",
   "tree",
-  "virtual-list",
+  "virtual-scroll",
   "watermark"
 ]
   

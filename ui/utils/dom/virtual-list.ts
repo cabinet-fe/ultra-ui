@@ -48,7 +48,7 @@ export class VirtualList<Item> {
 
   #_data: Item[] = []
 
-  get #data() {
+  get #data(): Item[] {
     return this.#_data
   }
   set #data(data: Item[]) {
@@ -91,11 +91,12 @@ export class VirtualList<Item> {
 
   /** 获取可见数据 */
   getVisibleData(): Item[] {
-    const { itemSize, direction = 'y', bufferSize = 3 } = this.#options
+    const {  direction = 'y' } = this.#options
 
     const dom = isRef(this.#containerRef)
       ? this.#containerRef.value
       : this.#containerRef
+
     if (!dom) return []
 
     const rect = dom.getBoundingClientRect()
@@ -103,6 +104,7 @@ export class VirtualList<Item> {
     if (direction === 'y') {
       console.log(rect.height)
     }
+    return []
   }
 
   onDataChange(cb: (data: Item[]) => void) {

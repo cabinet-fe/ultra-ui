@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
-import { compile } from 'sass'
+import { compileAsync } from 'sass'
 import { statSync } from 'node:fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -118,7 +118,7 @@ async function buildCSS() {
 
   const results = await Promise.all(
     entries.map(async entry => {
-      const result = compile(resolve(UI_ROOT, entry))
+      const result = await compileAsync(resolve(UI_ROOT, entry))
       return {
         path: resolve(__dirname, '../dist', entry).slice(0, -5) + '.css',
         css: result.css

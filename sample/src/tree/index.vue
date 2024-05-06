@@ -25,7 +25,8 @@
         expand-all
         label-key="name"
         value-key="id"
-        @node-click="handleNodeClick"
+        :disabled-node="disabledNode"
+        @select="handleNodeClick"
         selectable
       />
 
@@ -39,6 +40,7 @@
         label-key="name"
         value-key="id"
         checkable
+        :disabled-node="disabledNode"
         @check="handleCheck"
       >
       </UTree>
@@ -54,6 +56,7 @@
         value-key="id"
         checkable
         check-strictly
+        :disabled-node="disabledNode"
         @check="handleCheck"
       />
 
@@ -79,7 +82,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
@@ -117,14 +119,17 @@ const data = [
   }
 ]
 
-let select = ref({})
+let select = shallowRef()
 const checked = shallowRef([])
-const handleNodeClick = (value: any) => {
-  console.log(value, 'values')
-  select.value = value.value
+const handleNodeClick = (selected) => {
+  select.value = selected
 }
 
-const handleCheck = (_, node, _checked) => {
+const disabledNode = data => {
+  return data.id % 2 === 0
+}
+
+const handleCheck = (_checked) => {
   checked.value = _checked
 }
 </script>

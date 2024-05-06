@@ -3,18 +3,16 @@
     {{ data.length }}条数据
     <u-button @click="addData">加100条数据</u-button>
     <u-button @click="removeData">减100条数据</u-button>
-    <u-virtual-list
+    <u-virtual-scroll
       class="vl"
       :data="data"
       height="800px"
       tag="ul"
-      :item-height="50"
-
-      :buffer-size="0"
+      :item-size="50"
       #default="{ item }"
     >
       <list-item :item="item" />
-    </u-virtual-list>
+    </u-virtual-scroll>
   </div>
 </template>
 
@@ -26,7 +24,7 @@ const addData = () => {
   const len = data.value.length
   data.value = [
     ...data.value,
-    ...Array.from({ length: 100 }).map((_, i) => {
+    ...Array.from({ length: 1000 }).map((_, i) => {
       return {
         name:
           i +

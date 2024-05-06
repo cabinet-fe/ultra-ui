@@ -40,11 +40,11 @@ export * from './list'
 
 export * from './loading'
 
+export * from './menu'
+
 export * from './message'
 
 export * from './message-confirm'
-
-export * from './menu'
 
 export * from './multi-select'
 
@@ -86,12 +86,14 @@ export * from './text'
 
 export * from './textarea'
 
+export * from './text-editor'
+
 export * from './theme'
 
 export * from './tip'
 
 export * from './tree'
 
-export * from './virtual-list'
+export * from './virtual-scroll'
 
 export * from './watermark'

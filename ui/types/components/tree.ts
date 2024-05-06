@@ -1,10 +1,11 @@
 import type { PropsWithServerQuery } from '../component-common'
-import type { TreeNode } from 'cat-kit/fe'
+import type { TreeNode as _TreeNode } from 'cat-kit/fe'
+import type { DeconstructValue } from '../helper'
 
-export interface CustomTreeNode<DataItem extends Record<string, any>>
-  extends TreeNode<DataItem> {
-  parent: CustomTreeNode<DataItem> | null
-  children?: CustomTreeNode<DataItem>[]
+export interface TreeNode<DataItem extends Record<string, any>>
+  extends _TreeNode<DataItem> {
+  parent: TreeNode<DataItem> | null
+  children?: TreeNode<DataItem>[]
   visible: boolean
   expanded: boolean
   loading: boolean
@@ -30,29 +31,35 @@ export interface TreeProps<
   /** 子节点键 */
   childrenKey?: string
   /** 数据 */
-  data: DataItem[]
+  data?: DataItem[]
+  /** 禁止单选或多选的节点 */
+  disabledNode?: (item: DataItem, node: TreeNode<DataItem>) => boolean
   /** 可多选 */
-  checkable?:
-    | boolean
-    | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
+  checkable?: boolean
   /** 可单选 */
-  selectable?:
-    | boolean
-    | ((item: DataItem, node: CustomTreeNode<DataItem>) => boolean)
+  selectable?: boolean
+  /** 严格选择，选择的内容和父级不会产生关联 */
   checkStrictly?: boolean
 }
 
-export interface TreeEmit {
-  (e: 'expand', node: CustomTreeNode<Record<string, any>>): void
-  (e: 'node-click', node: CustomTreeNode<Record<string, any>>): void
-  (
-    e: 'check',
-    checked: boolean,
-    value: Record<string, any>,
-    checkKeys: Set<string | number>
-  ): void
+export interface TreeEmit<
+  Data extends Record<string, any> = Record<string, any>
+> {
+  (e: 'expand', node: TreeNode<Data>): void
+  (e: 'node-click', node: TreeNode<Data>): void
+  (e: 'select', selected?: Data): void
+  (e: 'check', checked: Data[]): void
 }
 
 export interface TreeNodeProps {
-  node: CustomTreeNode<Record<string, any>>
+  node: TreeNode<Record<string, any>>
 }
+
+/** 树组件暴露的属性和方法(组件内部使用) */
+export interface _TreeExposed<DataItem extends Record<string, any>> {
+  filter(filter: (node: TreeNode<DataItem>) => boolean): void
+}
+
+/** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export type TreeExposed<DataItem extends Record<string, any>> =
+  DeconstructValue<_TreeExposed<DataItem>>

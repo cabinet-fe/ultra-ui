@@ -1,26 +1,36 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]">
-    <UTreeNode v-for="node of treeData.nodes" :node="node" />
+  <div :class="className">
+    <UTreeNode
+      v-for="(node, index) of nodes"
+      :node="node"
+      :key="node.value[valueKey] ?? index"
+    />
   </div>
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
 import { bem } from '@ui/utils'
-import type { TreeProps, TreeEmit } from '@ui/types/components/tree'
+import type {
+  TreeProps,
+  TreeEmit,
+  TreeExposed
+} from '@ui/types/components/tree'
 import {
   computed,
   provide,
-  reactive,
   shallowRef,
   useSlots,
+  watch,
   watchEffect,
   type VNode
 } from 'vue'
-import { TreeDIKey, type TreeSlotsScope } from './di'
+import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
-import { CustomTreeNode } from './tree-node'
+import { TreeNode } from './tree-node'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useSelect } from './use-select'
+import { useCheck } from './use-check'
 
 defineOptions({
   name: 'Tree'
@@ -31,10 +41,11 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   valueKey: 'value',
   childrenKey: 'children',
   expandOnClickNode: false,
-  checkStrictly: false
+  checkStrictly: false,
+  data: () => []
 })
 
-const emit = defineEmits<TreeEmit>()
+const emit = defineEmits<TreeEmit<DataItem>>()
 
 const cls = bem('tree')
 
@@ -42,6 +53,15 @@ const { formProps } = useFormComponent()
 
 const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
+})
+
+const className = computed(() => {
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('selectable', props.selectable),
+    bem.is('checkable', props.checkable)
+  ]
 })
 
 defineSlots<{
@@ -54,31 +74,79 @@ const getTreeSlotsNode = (ctx: TreeSlotsScope): VNode[] | undefined => {
   return slots.default?.(ctx) ?? ctx.data[props.labelKey]
 }
 
-const treeData = computed(() => {
-  return Forest.create(props.data, CustomTreeNode)
+/** 森林 */
+const forest = computed(() => {
+  return Forest.create(props.data, TreeNode)
 })
-
 /** 默认选中 */
 watchEffect(() => {
-  if (props.expandAll) {
-    treeData.value.dft(node => {
+  props.expandAll &&
+    forest.value.dft(node => {
       node.expanded = true
     })
-  }
 })
 
-const checked = reactive<Set<string | number>>(new Set())
-const selected = shallowRef<CustomTreeNode<DataItem>>()
+const nodes = shallowRef<TreeNode<DataItem>[]>([])
 
-/** 父子节点的所有状态 */
-const context = {
-  treeProps: props as TreeProps<Record<string, any>>,
-  treeEmit: emit,
+/** 获取碾平后的节点 */
+function getFlattedNodes(filter?: (node: TreeNode<DataItem>) => boolean) {
+  const _nodes: TreeNode<DataItem>[] = []
+  if (filter) {
+    forest.value.dft(node => {
+      if ((node.parent?.expanded || node.depth === 1) && filter(node)) {
+        _nodes.push(node)
+      }
+    })
+  } else {
+    forest.value.dft(node => {
+      if (node.parent?.expanded || node.depth === 1) {
+        _nodes.push(node)
+        return true
+      }
+      return false
+    })
+  }
+
+  nodes.value = _nodes
+}
+
+watch(
+  forest,
+  () => {
+    getFlattedNodes()
+  },
+  {
+    immediate: true
+  }
+)
+
+function filter(filter: (node: TreeNode<DataItem>) => boolean) {
+  getFlattedNodes(filter)
+}
+
+const { selected, handleSelect } = useSelect<DataItem>({
+  props,
+  emit
+})
+
+const { checked, handleCheck } = useCheck<DataItem>({
+  props,
+  emit
+})
+
+provide(TreeDIKey, {
   cls,
   selected,
   checked,
-  getTreeSlotsNode
-}
+  getFlattedNodes,
+  getTreeSlotsNode,
+  treeEmit: emit as TreeEmit,
+  treeProps: props as TreeProps,
+  handleCheck: handleCheck as TreeConText['handleCheck'],
+  handleSelect: handleSelect as TreeConText['handleSelect']
+})
 
-provide(TreeDIKey, context)
+defineExpose<TreeExposed<DataItem>>({
+  filter
+})
 </script>

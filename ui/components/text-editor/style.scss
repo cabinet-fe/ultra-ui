@@ -1,0 +1,17 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: text-editor;
+
+@include m.b($root-name) {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid fn.use-var(border, color);
+
+    @include m.size using ($size) {
+        // padding: map.get(vars.$gap, $size);
+    }
+}

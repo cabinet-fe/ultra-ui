@@ -1,12 +1,12 @@
-import { TreeNode } from 'cat-kit/fe'
+import { TreeNode as _TreeNode } from 'cat-kit/fe'
 import { shallowReactive } from 'vue'
 
-export class CustomTreeNode<
+export class TreeNode<
   Val extends Record<string, any>
-> extends TreeNode<Val> {
-  override parent: CustomTreeNode<Val> | null = null
+> extends _TreeNode<Val> {
+  override parent: TreeNode<Val> | null = null
 
-  override children?: CustomTreeNode<Val>[] = undefined
+  override children?: TreeNode<Val>[] = undefined
 
   visible = true
   expanded = false
@@ -31,6 +31,6 @@ export class CustomTreeNode<
     val: Val,
     index: number
   ): TreeNode<Val> {
-    return new CustomTreeNode(val, index)
+    return new TreeNode(val, index)
   }
 }

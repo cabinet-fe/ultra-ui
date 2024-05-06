@@ -41,7 +41,7 @@ const watermark = reactive({
   zIndex: 0,
   image: props.image,
   set: (str, container) => {
-    const id = setWatermark(str, container)
+    // const id = setWatermark(str, container)
     // setInterval(() => {
     //   if (document.getElementById(id) === null) {
     //     setWatermark(str, container)

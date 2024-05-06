@@ -1,4 +1,4 @@
-import type { ShallowRef } from 'vue'
+import type { CSSProperties, ShallowRef } from 'vue'
 import type { DeconstructValue } from '../helper'
 
 export type ScrollPosition = {
@@ -26,6 +26,22 @@ export interface ScrollProps {
    * @default false
    */
   always?: boolean
+
+  /**
+   * 内容样式
+   */
+  contentStyle?: string | CSSProperties
+
+  /**
+   * 容器样式
+   */
+  containerStyle?: string | CSSProperties
+
+  /** 内容类名 */
+  contentClass?: string | string[]
+
+  /** 容器类名 */
+  containerClass?: string | string[]
 }
 
 export interface ScrollEmits {
