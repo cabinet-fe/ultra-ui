@@ -67,7 +67,7 @@ export interface BEMFactory<Prefix extends string> {
  * 创建一个bem函数
  * @param prefix 前缀
  */
-export function makeBEM<Prefix extends `${string}-`>(
+export function makeBEM<Prefix extends '' | `${string}-`>(
   prefix: Prefix
 ): BEMFactory<Prefix> {
   /**
