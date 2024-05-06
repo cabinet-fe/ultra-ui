@@ -5,7 +5,16 @@
       <u-checkbox v-model="config.simple">simple mode</u-checkbox>
     </div>
     <u-scroll class="menu-wrapper">
-      <u-menu :expand="false" :simple="config.simple" @open="open" @close="close" ref="menuRef">
+      <u-menu
+        :expand="false"
+        :simple="config.simple"
+        @open="open"
+        @close="close"
+        ref="menuRef"
+        activeTextColor="#CC00FF"
+        background-color="#CCFFCC"
+        text-color="#00CCCC"
+      >
         <u-menu-sub index="111" :icon="Location">
           <template #title>
             <span>一级菜单1</span>
@@ -56,9 +65,12 @@ const config = reactive({
   simple: false
 })
 
-watch(() => config.open, (val) => {
-  val ? menuRef.value?.open('111') : menuRef.value?.close('111')
-})
+watch(
+  () => config.open,
+  (val) => {
+    val ? menuRef.value?.open('111') : menuRef.value?.close('111')
+  }
+)
 </script>
 
 <style scoped lang="scss">
