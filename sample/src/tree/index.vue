@@ -35,6 +35,7 @@
 
     <CustomCard title="多选">
       <UTree
+      ref="treeRef"
         :data="data"
         expand-all
         label-key="name"
@@ -82,6 +83,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { Tree } from 'cat-kit/fe';
 import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
@@ -118,6 +120,7 @@ const data = [
     ]
   }
 ]
+const treeRef = shallowRef<InstanceType<typeof Tree>>()
 
 let select = shallowRef()
 const checked = shallowRef([])
@@ -130,8 +133,11 @@ const disabledNode = data => {
 }
 
 const handleCheck = (_checked) => {
+  console.log(treeRef.value);
+  
   checked.value = _checked
 }
+
 </script>
 
 <style lang="scss" scoped></style>

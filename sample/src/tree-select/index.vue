@@ -10,7 +10,7 @@
 import { shallowRef } from 'vue';
 import CustomCard from '../card/custom-card.vue'
 
-const treeCheckable = shallowRef([1])
+const treeCheckable = shallowRef([])
 
 const data = [
   { name: '烤冷面', id: 1 },

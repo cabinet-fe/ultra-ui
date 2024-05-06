@@ -14,6 +14,11 @@ export interface TreeSelectProps<Option extends Record<string, any>>
 
   /**自定义占位文字 */
   placeholder?: string
+
+  /** 最大展示数量 */
+  visibilityLimit?: number
+  /** 最大可选数量 */
+  max?: number
 }
 
 /** 树形选择器组件定义的事件 */
