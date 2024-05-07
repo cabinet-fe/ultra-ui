@@ -47,7 +47,7 @@ let modelValue = ref({
 })
 
 const handleChangeEditor = (value, api, event) => {
-  console.log(value, api, event)
+  // console.log(value, api, event)
 }
 </script>
 <style></style>
