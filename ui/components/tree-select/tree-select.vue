@@ -87,6 +87,10 @@ const props = withDefaults(defineProps<TreeSelectProps<Option>>(), {
   clearable: true,
 })
 
+const emit = defineEmits<{
+  (e: "update", value: Record<string, any>): void
+}>()
+
 const mouse = shallowRef(false)
 
 /** 实际值 */
@@ -101,6 +105,7 @@ const {size, disabled} = useFormFallbackProps([formProps ?? {}, props], {
 
 const handleCheck = (checked) => {
   model.value = checked
+  emit("update", checked)
 }
 
 /**删除 */
