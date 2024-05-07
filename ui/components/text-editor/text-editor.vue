@@ -4,7 +4,6 @@
       <div
         :class="cls.e('holder')"
         id="editor"
-        style="width: 100%; height: 100%"
       />
     </scroll>
   </div>
