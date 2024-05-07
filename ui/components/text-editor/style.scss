@@ -10,7 +10,6 @@ $root-name: text-editor;
   width: 100%;
   border: 1px solid fn.use-var(border, color);
   border-radius: var(--radius-default);
-  box-shadow: inset 0 0 1px 1px var(--border-color);
   transition: box-shadow 0.2s ease;
   overflow: hidden;
   cursor: text;

@@ -52,8 +52,10 @@
     "@editorjs/header": "^2.8.1",
     "@editorjs/list": "^1.9.0",
     "@editorjs/marker": "^1.4.0",
+    "@editorjs/paragraph": "^2.11.4",
     "@editorjs/quote": "^2.6.0",
     "@editorjs/raw": "^2.5.0",
-    "@editorjs/table": "^2.3.0"
+    "@editorjs/table": "^2.3.0",
+    "editorjs-text-alignment-blocktune": "^1.0.3"
   }
 }

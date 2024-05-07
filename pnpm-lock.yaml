@@ -23,6 +23,9 @@ importers:
       '@editorjs/marker':
         specifier: ^1.4.0
         version: 1.4.0
+      '@editorjs/paragraph':
+        specifier: ^2.11.4
+        version: 2.11.4
       '@editorjs/quote':
         specifier: ^2.6.0
         version: 2.6.0
@@ -32,6 +35,9 @@ importers:
       '@editorjs/table':
         specifier: ^2.3.0
         version: 2.3.0
+      editorjs-text-alignment-blocktune:
+        specifier: ^1.0.3
+        version: 1.0.3
     devDependencies:
       '@types/node':
         specifier: ^20.12.6
@@ -320,6 +326,9 @@ packages:
 
   '@editorjs/marker@1.4.0':
     resolution: {integrity: sha512-5ipEXfL44jTTRzgNp/p/YjMO7jT08S5z4V8qA3FFJTfdhKgQyM3mvP1zpdYKw47ZZpVWMCncvk5Nto3BxihEtg==}
+
+  '@editorjs/paragraph@2.11.4':
+    resolution: {integrity: sha512-OuTINHoHrJwKxlpTm6FtiXazwagALJbP49hfbQWBOLTNiBICncqPe1hdGfgDpeEgH9ZEGZsJelhEDxw2iwcmPA==}
 
   '@editorjs/quote@2.6.0':
     resolution: {integrity: sha512-8DiCMBT4n4UDV5bgzvfRH26HmL6YWddGC4+twvjhR+PzX0gwrnY8nFifvro79EeSqxwRtFjjlGnu5I0VTfw5aQ==}
@@ -1080,6 +1089,9 @@ packages:
   dotenv@16.4.5:
     resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
     engines: {node: '>=12'}
+
+  editorjs-text-alignment-blocktune@1.0.3:
+    resolution: {integrity: sha512-DAJ2LJP+WjETvU4lVOJCqZ1kZkKHp0GkujkqZgza9DRv7bO46m1M/s2d5Ba5hPFdmqk1vA/ci++MQXgWD7mWYw==}
 
   electron-to-chromium@1.4.749:
     resolution: {integrity: sha512-LRMMrM9ITOvue0PoBrvNIraVmuDbJV5QC9ierz/z5VilMdPOVMjOtpICNld3PuXuTZ3CHH/UPxX9gHhAPwi+0Q==}
@@ -2169,6 +2181,10 @@ snapshots:
     dependencies:
       '@codexteam/icons': 0.0.5
 
+  '@editorjs/paragraph@2.11.4':
+    dependencies:
+      '@codexteam/icons': 0.0.4
+
   '@editorjs/quote@2.6.0':
     dependencies:
       '@codexteam/icons': 0.0.5
@@ -2887,6 +2903,8 @@ snapshots:
   diff-sequences@29.6.3: {}
 
   dotenv@16.4.5: {}
+
+  editorjs-text-alignment-blocktune@1.0.3: {}
 
   electron-to-chromium@1.4.749: {}
 
