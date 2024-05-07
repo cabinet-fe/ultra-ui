@@ -1,5 +1,4 @@
 import { setStyles } from '@ui/utils'
-import type { RendererElement } from 'vue'
 
 export default class MarkerTool {
   button: HTMLButtonElement | null
@@ -52,7 +51,7 @@ export default class MarkerTool {
     }
 
     const anchorElement = text instanceof Element ? text : text.parentElement
-    console.log(!!anchorElement, 'anchorElement')
+
     this.state = !!anchorElement.closest('color')
   }
 }

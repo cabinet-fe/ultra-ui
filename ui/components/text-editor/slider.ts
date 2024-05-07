@@ -28,8 +28,7 @@ export default class slider {
     this.app.mount(this.wrapper)
 
     setStyles(this.wrapper.querySelector('h1')!, {
-      textAlign: 'center',
-      fontSize: '20px'
+      textAlign: 'center'
     })
 
     return this.wrapper
