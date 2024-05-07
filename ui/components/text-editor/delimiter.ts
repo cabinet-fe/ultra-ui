@@ -5,8 +5,6 @@ export default class Stars {
   data: { text: string } = { text: '' }
 
   constructor(data: { text?: string }) {
-    console.log(this.wrapper, 'data')
-    this.data = { text: String(this.wrapper) ?? '' }
   }
 
   render() {
@@ -18,6 +16,8 @@ export default class Stars {
       textAlign: 'center',
       fontSize: '20px'
     })
+
+    this.data.text = this.wrapper.textContent || ''
 
     return this.wrapper
   }
