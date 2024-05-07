@@ -2,23 +2,20 @@ import type {FormComponentProps} from "../component-common"
 import type {DeconstructValue} from "../helper"
 import type {TreeProps} from "./tree"
 
-
-
 /** 树形选择器组件属性 */
 export interface TreeSelectProps<Option extends Record<string, any>>
-  extends FormComponentProps,TreeProps {
+  extends FormComponentProps,
+    TreeProps {
   /**选项值 */
   modelValue?: Array<string | number>
   /** 列表选项 */
   options: Option[]
-
   /**自定义占位文字 */
   placeholder?: string
-
-  /** 最大展示数量 */
-  visibilityLimit?: number
-  /** 最大可选数量 */
-  max?: number
+  /**
+   * 是否可清空
+   */
+  clearable?: boolean
 }
 
 /** 树形选择器组件定义的事件 */
