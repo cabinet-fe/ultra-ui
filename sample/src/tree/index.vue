@@ -120,7 +120,7 @@ const data = [
 ]
 
 let select = shallowRef()
-const checked = shallowRef([])
+const checked = shallowRef([{"name":"烤冷面","id": 1}])
 const handleNodeClick = (selected) => {
   select.value = selected
 }
