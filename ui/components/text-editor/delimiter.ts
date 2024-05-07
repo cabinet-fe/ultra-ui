@@ -4,7 +4,9 @@ export default class Stars {
   wrapper: HTMLDivElement | null = null
   data: { text: string } = { text: '' }
 
-  constructor(data: { text?: string }) {}
+  constructor(data: { text?: string }) {
+    this.data = { text: String(this.wrapper) ?? '' }
+  }
 
   render() {
     this.wrapper = document.createElement('h1')
@@ -15,8 +17,6 @@ export default class Stars {
       textAlign: 'center',
       fontSize: '20px'
     })
-
-    this.data.text = this.wrapper.textContent || ''
 
     return this.wrapper
   }

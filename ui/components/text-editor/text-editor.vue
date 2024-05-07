@@ -31,6 +31,8 @@ import zh from './i18n.json'
 import { onMounted, ref } from 'vue'
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune'
 import Delimiter from './delimiter'
+import Error from './error'
+import Underline from './underline'
 
 defineOptions({
   name: 'TextEditor'
@@ -67,7 +69,7 @@ onMounted(() => {
       header: {
         class: Header,
         config: {
-          levels: [1, 2, 3, 4,5,6],
+          levels: [1, 2, 3, 4, 5, 6],
           defaultLevel: 1 // 默认标题 // 默认创建的标题
         }
       },
@@ -76,7 +78,9 @@ onMounted(() => {
         inlineToolbar: true,
         tunes: ['anyTuneName']
       },
+      textColorLine: Error,
       delimiter: Delimiter,
+      underline: Underline,
       anyTuneName: {
         class: AlignmentTuneTool,
         config: {
