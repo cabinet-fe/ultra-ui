@@ -23,6 +23,9 @@
         ]"
         v-model="config.direction"
       />
+      <br />
+      <u-checkbox v-model="config.customIcon">customIcon</u-checkbox>
+      <u-checkbox v-model="config.customDesc">customDesc</u-checkbox>
     </div>
     <div class="wrap">
       <u-steps
@@ -31,12 +34,17 @@
         :readonly="config.readonly"
         :direction="config.direction"
       >
-        <!-- <template #icon>
+        <template #icon v-if="config.customIcon">
           <span v-for="item in items">
             <UIcon :size="16" v-if="config.active === item.key"><Edit /></UIcon>
-            <span v-else>{{ item.key }}</span>
+            <UIcon :size="16" v-else><Setting /></UIcon>
           </span>
-        </template> -->
+        </template>
+        <template #desc v-if="config.customDesc">
+          <span v-for="item in items">
+            {{ item }}
+          </span>
+        </template>
       </u-steps>
     </div>
   </div>
@@ -45,25 +53,29 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
 import { defineSteps, UIcon } from 'ultra-ui'
-import { Edit } from 'icon-ultra'
+import { Edit, Setting } from 'icon-ultra'
 
 const config = reactive({
   active: '1' as any,
   readonly: true,
   direction: 'horizontal' as 'horizontal' | 'vertical',
-  finished: false
+  finished: false,
+  customIcon: false,
+  customDesc: false
 })
 
-watch(() => config.finished, (val) => {
-  val ? config.active = null : config.active = '1'
-})
+watch(
+  () => config.finished,
+  (val) => {
+    val ? (config.active = null) : (config.active = '1')
+  }
+)
 
-let items = defineSteps([
-  { label: '开始', key: '1', cc: 'asdasd' },
-  { label: '过程x', key: '2' },
-  { label: '过程y', key: '3' },
-  { label: '结束', key: '4' }
-])
+let items = defineSteps(
+  Array.from({ length: 8 }, (v, i) => {
+    return { label: `step-${i}`, key: `${i}` }
+  })
+)
 </script>
 
 <style lang="scss" scoped>
