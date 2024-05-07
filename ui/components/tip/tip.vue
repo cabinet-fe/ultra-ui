@@ -205,7 +205,7 @@ let lastScrollTop = 0
 const addListener = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   if (!tipRefDom) return
-  scrollDom.value = document.querySelector('.main')!
+  scrollDom.value = document.querySelector('.main' || 'main' || '.layout-content')!
     .childNodes[1] as HTMLElement
   if (!scrollDom.value) return
   scrollDom.value.addEventListener('scroll', scrollEvent)
