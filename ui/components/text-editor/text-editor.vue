@@ -26,8 +26,11 @@ import Table from '@editorjs/table'
 import Scroll from '../scroll/scroll.vue'
 import Marker from '@editorjs/marker'
 import Quote from '@editorjs/quote'
+import Paragraph from '@editorjs/paragraph'
 import zh from './i18n.json'
 import { onMounted, ref } from 'vue'
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune'
+import Delimiter from './delimiter'
 
 defineOptions({
   name: 'TextEditor'
@@ -63,17 +66,42 @@ onMounted(() => {
     tools: {
       header: {
         class: Header,
-        inlineToolbar: ['marker'],
+        tunes: ['delimiter'],
         config: {
           defaultLevel: 1 // 默认标题 // 默认创建的标题
         }
       },
+      paragraph: {
+        class: Paragraph,
+        inlineToolbar: true,
+        tunes: ['anyTuneName']
+      },
+      delimiter: Delimiter,
+      anyTuneName: {
+        class: AlignmentTuneTool,
+        config: {
+          default: 'left',
+          blocks: {
+            header: 'left',
+            list: 'left'
+          }
+        }
+      },
       quote: Quote,
       raw: RawTool,
-      list: List,
-      marker: Marker,
+      list: {
+        class: List,
+        inlineToolbar: true
+      },
+      marker: {
+        class: Marker,
+        inlineToolbar: true
+      },
       table: Table,
-      checklist: Checklist
+      checklist: {
+        class: Checklist,
+        inlineToolbar: true
+      }
     },
 
     data: data.value,
