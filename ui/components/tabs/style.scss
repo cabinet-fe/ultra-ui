@@ -115,6 +115,7 @@ $position-types: (top, right, bottom, left);
 
       @include m.is('disabled') {
         cursor: not-allowed;
+        color: fn.use-var(text, color, disabled);
       }
 
       .is-close,
@@ -136,7 +137,7 @@ $position-types: (top, right, bottom, left);
       color: fn.use-var(color, primary);
 
       @include m.is(disabled) {
-        color: fn.use-var(text-color, main);
+        color: fn.use-var(text, color, disabled);
       }
     }
 
