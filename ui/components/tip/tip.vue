@@ -213,7 +213,6 @@ const addListener = () => {
 
 const removeListener = () => {
   scrollDom.value?.removeEventListener('scroll', scrollEvent)
-  tipContentRef.value!.style.opacity = '0'
   dynamicStyle.value = {}
   visible.value = false
 }

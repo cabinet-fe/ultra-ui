@@ -21,6 +21,7 @@ export interface TreeSelectProps<Option extends Record<string, any>>
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
   (e: "update", value: Record<string, any>[]): void
+  (e: "clear", value: Record<string, any>[]): void
 }
 
 /** 树形选择器组件暴露的属性和方法(组件内部使用) */

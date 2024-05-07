@@ -69,7 +69,7 @@ import {UScroll} from "../scroll"
 import {UTag} from "../tag"
 import {UIcon} from "../icon"
 import {ArrowDown, Close} from "icon-ultra"
-import {shallowRef} from "vue"
+import {nextTick, shallowRef} from "vue"
 // import {UCheckbox} from "../checkbox"
 // import {computed, shallowRef} from "vue"
 
@@ -111,6 +111,9 @@ const handleCheck = (checked) => {
 /**删除 */
 const handleRemove = (index: number) => {
   model.value = model.value?.filter((_, i) => i !== index)
+  nextTick(() => {
+    emit("update", model.value!)
+  })
 }
 
 const handleClear = () => {
