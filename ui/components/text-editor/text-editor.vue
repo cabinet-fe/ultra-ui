@@ -66,8 +66,8 @@ onMounted(() => {
     tools: {
       header: {
         class: Header,
-        tunes: ['delimiter'],
         config: {
+          levels: [1, 2, 3, 4,5,6],
           defaultLevel: 1 // 默认标题 // 默认创建的标题
         }
       },

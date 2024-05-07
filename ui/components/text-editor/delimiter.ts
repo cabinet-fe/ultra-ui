@@ -4,8 +4,7 @@ export default class Stars {
   wrapper: HTMLDivElement | null = null
   data: { text: string } = { text: '' }
 
-  constructor(data: { text?: string }) {
-  }
+  constructor(data: { text?: string }) {}
 
   render() {
     this.wrapper = document.createElement('h1')
