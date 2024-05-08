@@ -3,8 +3,12 @@
     <div>
       {{ modelValue }}
       <CustomCard title="基础用法">
+        <u-button @click="setValue">赋值</u-button>
+
         <UTextEditor
-          :model-value="modelValue"
+          ref="editorRef"
+          v-model="modelValue"
+          @update:model-value="handleChange"
           height="500px"
           :toolbar="[
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -25,6 +29,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { shallowRef } from 'vue'
+
+const editorRef = shallowRef()
 
 let modelValue = ref([
   { insert: { image: true } },
@@ -41,5 +48,13 @@ let modelValue = ref([
   },
   { insert: '\n' }
 ])
+
+const setValue = () => {
+  editorRef.value.quillRef().updateContents([{ insert: '22222\n' }])
+}
+
+const handleChange = value => {
+  console.log(value, 'value')
+}
 </script>
 <style></style>
