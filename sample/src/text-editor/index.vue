@@ -15,19 +15,7 @@
           :toolbar="[
             [
               {
-                header: [
-                  1,
-                  2,
-                  3,
-                  4,
-                  5,
-                  6,
-                  false,
-                  'small',
-                  false,
-                  'large',
-                  'huge'
-                ]
+                header: [1, 2, 3, 4, false]
               }
             ],
             ['link'],
@@ -46,13 +34,11 @@
 </template>
 <script lang="ts" setup>
 import CustomCard from '../card/custom-card.vue'
-import { shallowReactive } from 'vue'
-import { shallowRef } from 'vue'
-import { reactive } from 'vue'
+import { shallowRef, ref } from 'vue'
 
 const editorRef = shallowRef()
 
-let modelValue = shallowReactive([
+let modelValue = ref([
   { insert: { image: true } },
   { insert: '2\n' },
   { attributes: { bold: true }, insert: '22eee' },
