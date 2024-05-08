@@ -6,7 +6,7 @@
   >
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', activation || highlight)]"
+        :class="[cls?.em('sub', 'title'), bem.is('active', highlight)]"
         :style="{ textIndent, color: customColor }"
         v-ripple="!disabled"
       >
@@ -28,12 +28,12 @@
     @mouseleave="mouseleave"
   >
     <div
-      :class="[cls?.em('sub', 'title'), bem.is('active', activation)]"
+      :class="[cls?.em('sub', 'title')]"
       @click.stop="handleClick"
       :style="{
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
         paddingRight: '35px',
-        color: customColor
+        color: props.disabled ? 'var(--text-color-disabled)' : injected?.textColor
       }"
       v-ripple="!disabled"
     >
@@ -190,12 +190,10 @@ watch(
   { immediate: true }
 )
 
-// 是否为激活状态
-const activation = computed(() => injected?.activeIndex.value === props.index)
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return activation.value || highlight.value ? injected?.activeTextColor : injected?.textColor
+    return highlight.value ? injected?.activeTextColor : injected?.textColor
   } else {
     return 'var(--text-color-disabled)'
   }
