@@ -10,6 +10,7 @@
         :simple="config.simple"
         @open="open"
         @close="close"
+        @select="select"
         ref="menuRef"
         activeTextColor="#CC00FF"
         background-color="rgba(152, 251, 152, 0.2)"
@@ -61,6 +62,10 @@ const open = (index: string) => {
 
 const close = (index: string) => {
   console.log('close', index)
+}
+
+const select = (index: string) => {
+  console.log('select', index)
 }
 
 const menuRef = shallowRef<InstanceType<typeof UMenu>>()

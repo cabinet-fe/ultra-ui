@@ -90,4 +90,7 @@ const customColor = computed(() => {
     return 'var(--text-color-disabled)'
   }
 })
+watch(() => activation.value, (val) => {
+  if (val) injected?.menuEmit('select', props.index || '')
+})
 </script>
