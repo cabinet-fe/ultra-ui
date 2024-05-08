@@ -15,7 +15,9 @@ function isTopInViewport(
 ): boolean {
   let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
-  return countPositionInt(pageRect.top - 16) > countPositionInt(contentRect.height)
+  return (
+    countPositionInt(pageRect.top - 16) > countPositionInt(contentRect.height)
+  )
 }
 
 /**
@@ -26,13 +28,14 @@ function isTopInViewport(
  */
 function isBottomInViewport(
   contentRefDom: HTMLElement,
-  pageRefDom: HTMLElement
+  pageRefDom: HTMLElement,
+  screenSize: {width: number; height: number}
 ): boolean {
   let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
   return (
-    countPositionInt(contentRect.height)>
-    countPositionInt(window.innerHeight - pageRect.y - pageRect.height - 16) 
+    countPositionInt(contentRect.height) >
+    countPositionInt(screenSize.height - pageRect.y - pageRect.height - 16)
   )
 }
 
@@ -41,14 +44,14 @@ function isBottomInViewport(
  * @param pageRefDom 内容dom信息
  * @returns  是否在视窗内
  */
-function isRightOrLeftInViewport(pageRefDom: HTMLElement): boolean {
+function isRightOrLeftInViewport(pageRefDom: HTMLElement,screenSize: {width: number; height: number}): boolean {
   let contentRect = pageRefDom.getBoundingClientRect()
   /**
    * 鼠标移入元素的宽度  是否小于 可视窗口减去 元素的宽度 及 自身宽度
    */
   return (
     countPositionInt(contentRect.width) >
-    countPositionInt(window.innerWidth - (contentRect.x + contentRect.width))
+    countPositionInt(screenSize.width - (contentRect.x + contentRect.width))
   )
 }
 
@@ -62,7 +65,8 @@ function isRightOrLeftInViewport(pageRefDom: HTMLElement): boolean {
 function isRightOrLeftUpInViewport(
   contentRefDom: HTMLElement,
   pageRefDom: HTMLElement,
-  scrollDirection?: string
+  screenSize: {width: number; height: number},
+  scrollDirection?: string,
 ): boolean {
   let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
@@ -71,16 +75,16 @@ function isRightOrLeftUpInViewport(
     /**
      * 页面还没有开始滚动，判断此时rect2页面元素距离上下可视区域的距离是否够展示rect元素
      */
-    if (firstShowInViewport(contentRefDom, pageRefDom) === "top") {
-      return scrollDirectionUpOrDown(contentRect, pageRect, "down")
+    if (firstShowInViewport(contentRefDom, pageRefDom,screenSize) === "top") {
+      return scrollDirectionUpOrDown(contentRect, pageRect, "down",screenSize)
     } else {
-      return scrollDirectionUpOrDown(contentRect, pageRect, "up")
+      return scrollDirectionUpOrDown(contentRect, pageRect, "up",screenSize)
     }
   } else {
     /**
      * 判断元素此时距离上下的距离
      */
-    return scrollDirectionUpOrDown(contentRect, pageRect, scrollDirection)
+    return scrollDirectionUpOrDown(contentRect, pageRect, scrollDirection,screenSize)
   }
 }
 /**
@@ -91,13 +95,17 @@ function isRightOrLeftUpInViewport(
  */
 function firstShowInViewport(
   contentRefDom: HTMLElement,
-  pageRefDom: HTMLElement
+  pageRefDom: HTMLElement,
+  screenSize: {width: number; height: number}
 ) {
   let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
   if (pageRect.top < contentRect.height) {
     return "top"
-  } else if (pageRect.top + pageRect.height > window.innerHeight - contentRect.height) {
+  } else if (
+    pageRect.top + pageRect.height >
+    screenSize?.height - contentRect.height
+  ) {
     return "bottom"
   }
 }
@@ -111,14 +119,18 @@ function firstShowInViewport(
 function scrollDirectionUpOrDown(
   contentRect: Record<string, any>,
   pageRect: Record<string, any>,
-  scrollDirection: string
+  scrollDirection: string,
+  screenSize: {width: number; height: number}
 ): boolean {
   if (scrollDirection === "down") {
     return (
-      countPositionInt(pageRect.y + pageRect.height) >= countPositionInt(contentRect.height)
+      countPositionInt(pageRect.y + pageRect.height) >=
+      countPositionInt(contentRect.height)
     )
   } else {
-    return countPositionInt(window.innerHeight - pageRect.y) > contentRect.height
+    return (
+      countPositionInt(screenSize.height - pageRect.y) > contentRect.height
+    )
   }
 }
 export {
@@ -127,5 +139,5 @@ export {
   isRightOrLeftInViewport,
   isRightOrLeftUpInViewport,
   firstShowInViewport,
-  countPositionInt
+  countPositionInt,
 }

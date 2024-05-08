@@ -27,7 +27,7 @@ let dynamicCss = shallowRef<Record<string, any>>({})
  * @param tipRefDom 页面元素DOM信息
  * @param tipContentRefDom tip提示的DOM信息
  * @param scrollDirection 屏幕滚动方向
- *
+ * @param screenSize 当前所在滚动元素尺寸
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
  */
 function countPosition({
@@ -37,6 +37,7 @@ function countPosition({
   tipRefDom,
   tipContentRefDom,
   scrollDirection,
+  screenSize
 }: {
   position: string
   elementWidth: number
@@ -44,6 +45,7 @@ function countPosition({
   tipRefDom: HTMLElement
   tipContentRefDom: HTMLElement
   scrollDirection: ScrollDirection
+  screenSize: {width: number; height: number}
 }): Promise<PositionResult> {
   componentCss = {
     left: undefined as string | undefined,
@@ -69,7 +71,8 @@ function countPosition({
             clientWidth,
             elementWidth,
             tipRefDom,
-            tipContentRefDom
+            tipContentRefDom,
+            screenSize
           )
         position.indexOf("left") > -1 &&
           leftCount(
@@ -79,7 +82,8 @@ function countPosition({
             elementHeight,
             tipContentRefDom,
             tipRefDom,
-            scrollDirection
+            scrollDirection,
+            screenSize
           )
         position.indexOf("right") > -1 &&
           rightCount(
@@ -89,7 +93,8 @@ function countPosition({
             elementHeight,
             tipContentRefDom,
             tipRefDom,
-            scrollDirection
+            scrollDirection,
+            screenSize
           )
         position.indexOf("bottom") > -1 &&
           bottomCount(
@@ -98,7 +103,8 @@ function countPosition({
             elementWidth,
             elementHeight,
             tipContentRefDom,
-            tipRefDom
+            tipRefDom,
+            screenSize
           )
       }
       dynamicCss.value.opacity = 1
@@ -119,6 +125,7 @@ const setTransform = (transform: string): void => {
  * @param elementWidth 页面元素宽度
  * @param tipRefDom 页面DOM信息
  * @param tipContentRefDom tip元素DOM信息
+ * @param screenSize 当前所在滚动元素尺寸
  */
 function topCount(
   position: string,
@@ -126,7 +133,8 @@ function topCount(
   clientWidth: number,
   elementWidth: number,
   tipRefDom: HTMLElement,
-  tipContentRefDom: HTMLElement
+  tipContentRefDom: HTMLElement,
+  screenSize: {width: number; height: number}
 ) {
   // 获取tip元素位置信息
   let {x, y} = tipRefDom.getBoundingClientRect()
@@ -142,7 +150,7 @@ function topCount(
     setTransform(`translate(${x}px, ${translateY}px)`)
   } else if (position === "top") {
     // tip提示靠上居中位置
-    if (clientWidth === window.innerWidth - elementDistance * 2) {
+    if (clientWidth === screenSize.width - elementDistance * 2) {
       setTransform(`translate(${elementDistance}px, ${translateY}px)`)
     } else {
       setTransform(
@@ -181,6 +189,7 @@ function topCount(
  * @param tipContentRefDom tip元素DOM信息
  * @param tipRefDom 页面DOM信息
  * @param scrollDirection  滚动方向
+ * @param screenSize 当前所在滚动元素尺寸
  */
 function rightCount(
   position: string,
@@ -189,20 +198,21 @@ function rightCount(
   elementHeight: number,
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  scrollDirection: ScrollDirection
+  scrollDirection: ScrollDirection,
+  screenSize: {width: number; height: number}
 ): void {
   //鼠标获取到的元素dom信息
   let {x, top} = tipRefDom.getBoundingClientRect()
 
-  if (isRightOrLeftInViewport(tipRefDom)) {
+  if (isRightOrLeftInViewport(tipRefDom,screenSize)) {
     let rightLeft = `${x - elementDistance - tipContentRefDom.offsetWidth}`
     /**再次判断上下是否溢出屏幕 */
     if (
-      !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom, scrollDirection)
+      !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom,screenSize, scrollDirection)
     ) {
       let rightUp = 0
       scrollDirection =
-        firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"
+        firstShowInViewport(tipContentRefDom, tipRefDom,screenSize) === "bottom"
           ? "up"
           : "down"
       if (scrollDirection === "down") {
@@ -311,6 +321,7 @@ function rightCount(
  * @param tipContentRefDom  tip元素DOM信息
  * @param tipRefDom 页面DOM信息
  * @param scrollDirection  滚动方向
+ * @param screenSize 当前所在滚动元素尺寸
  */
 function leftCount(
   position: string,
@@ -319,20 +330,21 @@ function leftCount(
   elementHeight: number,
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  scrollDirection: ScrollDirection
+  scrollDirection: ScrollDirection,
+  screenSize:{ width: number; height: number; }
 ): void {
   //鼠标获取到的元素dom信息
   let {x, width, top} = tipRefDom.getBoundingClientRect()
   let rightLeft = countPositionInt(`${x + width + elementDistance}`)
-  if (isRightOrLeftInViewport(tipContentRefDom)) {
+  if (isRightOrLeftInViewport(tipContentRefDom,screenSize)) {
     /**再次判断上下是否溢出屏幕 */
 
     if (
-      !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom, scrollDirection)
+      !isRightOrLeftUpInViewport(tipContentRefDom, tipRefDom, screenSize,scrollDirection)
     ) {
       let leftUp = 0
       scrollDirection =
-        firstShowInViewport(tipContentRefDom, tipRefDom) === "bottom"
+        firstShowInViewport(tipContentRefDom, tipRefDom,screenSize) === "bottom"
           ? "up"
           : "down"
       if (scrollDirection === "down") {
@@ -443,6 +455,7 @@ function leftCount(
  * @param elementHeight 页面元素高度
  * @param tipContentRefDom tip元素DOM信息
  * @param tipRefDom 页面DOM信息
+ * @param screenSize 当前所在滚动元素尺寸
  *
  */
 function bottomCount(
@@ -451,7 +464,8 @@ function bottomCount(
   elementWidth: number,
   elementHeight: number,
   tipContentRefDom: HTMLElement,
-  tipRefDom: HTMLElement
+  tipRefDom: HTMLElement,
+  screenSize: { width: number; height: number; }
 ): void {
   // 预先计算DOM信息
   const {x, top} = tipRefDom.getBoundingClientRect()
@@ -464,7 +478,7 @@ function bottomCount(
   const bottomTop = `${top - contentRect.height - elementDistanceDefined}`
 
   // 判断是否在视图底部
-  if (isBottomInViewport(tipContentRefDom, tipRefDom)) {
+  if (isBottomInViewport(tipContentRefDom, tipRefDom,screenSize)) {
     if (position === "bottom-start") {
       setTransform(`translate(${x}px, ${bottomTop}px)`)
     } else if (position === "bottom") {
@@ -472,7 +486,7 @@ function bottomCount(
         setTransform(
           `translate(${
             countPositionInt(
-              window.innerWidth - clientWidth - elementDistance
+              screenSize.width - clientWidth - elementDistance
             ) /
               2 +
             elementWidth
@@ -498,7 +512,7 @@ function bottomCount(
     if (position === "bottom-start") {
       setTransform(`translate(${x}px, ${bottomY}px)`)
     } else if (position === "bottom") {
-      if (clientWidth === window.innerWidth - elementDistance * 2) {
+      if (clientWidth === screenSize.width - elementDistance * 2) {
         setTransform(`translate(${elementDistanceDefined}px, ${bottomY}px)`)
         return
       }

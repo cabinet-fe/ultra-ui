@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -47,14 +47,6 @@
     "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
   },
   "dependencies": {
-    "@editorjs/checklist": "^1.6.0",
-    "@editorjs/editorjs": "^2.29.1",
-    "@editorjs/header": "^2.8.1",
-    "@editorjs/list": "^1.9.0",
-    "@editorjs/paragraph": "^2.11.4",
-    "@editorjs/quote": "^2.6.0",
-    "@editorjs/raw": "^2.5.0",
-    "@editorjs/table": "^2.3.0",
-    "editorjs-text-alignment-blocktune": "^1.0.3"
+    "quill": "2.0.1"
   }
 }
