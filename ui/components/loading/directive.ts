@@ -26,16 +26,12 @@ function removeLoading(el: HTMLElement) {
   el.classList.remove(loadingContainerCls)
 }
 const loading: ObjectDirective<HTMLElement> = {
-  mounted(el, binding: DirectiveBinding) {
-    renderLoading(el, binding)
+  mounted(el, binding) {
+    binding.value && renderLoading(el, binding)
   },
 
   updated(el, binding) {
-    if (binding.value) {
-      renderLoading(el, binding)
-    } else {
-      removeLoading(el)
-    }
+    binding.value ? renderLoading(el, binding) : removeLoading(el)
   },
 
   unmounted(el) {
