@@ -149,10 +149,10 @@ const handleClickOutside = () => {
 /** 提示框到屏幕边缘的间距 */
 const gap = 16
 
-/**屏幕大小 */
+/**页面滚动元素大小 */
 const screenSize = {
-  width: window.innerWidth,
-  height: window.innerHeight
+  width: 0,
+  height: 0
 }
 
 const setPositionParams = maxWidth => {
@@ -163,6 +163,9 @@ const setPositionParams = maxWidth => {
 }
 /**tip弹出 */
 const popup = (scrollDirection?: ScrollDirection) => {
+  screenSize.width = scrollDom.value?.clientWidth!
+  screenSize.height = scrollDom.value?.clientHeight!
+  
   // 获取页面元素的DOM信息
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
@@ -174,7 +177,7 @@ const popup = (scrollDirection?: ScrollDirection) => {
   // 计算弹出层样式
   let maxWidth
   if (props.position.match(/^(top|bottom)/)) {
-    maxWidth = calculateMaxWidth(rect, props.position, gap)
+    maxWidth = calculateMaxWidth(screenSize.width,rect, props.position, gap)
   } else if (props.position.match(/^right/)) {
     maxWidth = calculateRightMaxWidth(gap, screenSize.width, rect.width, rect.x)
   } else if (props.position.match(/^left/)) {
@@ -182,6 +185,8 @@ const popup = (scrollDirection?: ScrollDirection) => {
   }
 
   if (maxWidth) {
+    console.log(maxWidth,'===');
+    
     setPositionParams(maxWidth)
   }
 
@@ -193,7 +198,8 @@ const popup = (scrollDirection?: ScrollDirection) => {
       elementHeight: clientHeight,
       tipRefDom,
       tipContentRefDom,
-      scrollDirection: scrollDirection!
+      scrollDirection: scrollDirection!,
+      screenSize
     }
     const { dynamicCss } = await calcPosition(positionParams)
     dynamicStyle.value = {
