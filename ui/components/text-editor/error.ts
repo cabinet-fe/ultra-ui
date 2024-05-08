@@ -28,8 +28,9 @@ export default class MarkerTool {
   }
 
   surround(range) {
-    if (this.state) return
-    console.log(1111, 'anchorElement')
+    if (this.state) {
+      return
+    }
     const selectedText = range.extractContents()
 
     const color = document.createElement('color')

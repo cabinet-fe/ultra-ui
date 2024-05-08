@@ -1,6 +1,6 @@
 import type { TreeNode } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
-import type { VNode } from 'vue'
+import type { Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
@@ -47,6 +47,12 @@ export interface TableProps<
   checkable?: boolean
   /** 单选 */
   selectable?: boolean
+  /**
+   * 作用域插槽
+   * @description
+   * 使用此插槽可以自定义使用外部组件的插槽而无需一级一级的嵌套
+   */
+  slots?: Readonly<Slots>
   /** 单元格合并 */
   mergeCell?: () => {
     rowspan: number
