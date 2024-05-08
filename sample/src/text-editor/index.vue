@@ -3,7 +3,9 @@
     <div>
       {{ modelValue }}
       <CustomCard title="基础用法">
-        <u-button @click="setValue">赋值</u-button>
+        <u-button style="margin-right: 10px" @click="setValue">赋值</u-button>
+
+        <u-button @click="getModelBar">获取toolBar</u-button>
 
         <UTextEditor
           ref="editorRef"
@@ -11,11 +13,27 @@
           @update:model-value="handleChange"
           height="500px"
           :toolbar="[
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ size: ['small'] }],
+            [
+              {
+                header: [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  false,
+                  'small',
+                  false,
+                  'large',
+                  'huge'
+                ]
+              }
+            ],
             ['link'],
             ['bold', 'italic', 'underline'],
-            ['image', 'code-block']
+            ['image', 'code-block'],
+            ['clean']
           ]"
         />
       </CustomCard>
@@ -27,13 +45,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { shallowReactive } from 'vue'
 import { shallowRef } from 'vue'
+import { reactive } from 'vue'
 
 const editorRef = shallowRef()
 
-let modelValue = ref([
+let modelValue = shallowReactive([
   { insert: { image: true } },
   { insert: '2\n' },
   { attributes: { bold: true }, insert: '22eee' },

@@ -134,7 +134,7 @@ const handleClick = () => {
 }
 
 const handleClickOutside = () => {
-  clearInterval(timers.get("timerTip"))
+  clearTimeout(timers.get("timerTip"))
   if (props.trigger === "hover") return
   clearTimeout(timers.get("outside"))
   timers.set(

@@ -59,9 +59,20 @@ onMounted(() => {
   stamp.value = `${new Date().getTime()}${Math.random()}`
 })
 
-/** 调用富文本 */
+/** 调用富文本方法 */
 const quillRef = () => {
   return quill
+}
+
+/** 赋值方法 */
+const setValue = (value: Delta | Op[]) => {
+  quill.update()
+  return quill.updateContents(value)
+}
+
+/** 获取toolbar */
+const getModelBar = () => {
+  return quill.getModule('toolbar')
 }
 
 /** 更新data的值 */
@@ -84,5 +95,5 @@ watch(
   }
 )
 
-defineExpose({ quillRef })
+defineExpose({ quillRef, setValue, getModelBar })
 </script>

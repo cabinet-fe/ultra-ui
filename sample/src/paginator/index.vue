@@ -24,6 +24,7 @@
       @first-click="handleFirstClick"
       @last-click="handleLastClick"
     />
+    {{ pageState }}
   </div>
 </template>
 
