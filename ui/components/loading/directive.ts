@@ -1,48 +1,46 @@
-import {h, render, type Directive, type DirectiveBinding} from "vue"
-import LoadingComponent from "./loading.vue"
-import {createIncrease} from "@ui/utils"
+import {
+  createVNode,
+  render,
+  type DirectiveBinding,
+  type ObjectDirective
+} from 'vue'
+import LoadingComponent from './loading.vue'
+import { bem } from '@ui/utils'
+import type { LoadingType } from '@ui/types/components/loading'
 
-let timers = new Map<number, number>()
+const loadingCls = bem('loading')
+const loadingContainerCls = loadingCls.e('container')
 
-const uid = createIncrease(1000)
+function renderLoading(el: HTMLElement, binding: DirectiveBinding) {
+  el.classList.add(loadingContainerCls)
 
-const loading: Directive = {
-  mounted(el: HTMLElement, binding: DirectiveBinding) {
-    timers.forEach(clearTimeout)
+  const node = createVNode(LoadingComponent, {
+    type: binding.arg as LoadingType
+  })
 
-    el.style.position = "relative"
-    // 读取自定义属性
-    const node = h(LoadingComponent, {
-      text: el.getAttribute("loading-text") || "Loading...",
-      background: el.getAttribute("loading-background") || "",
-      loadingIcon: binding.arg,
-    })
+  render(node, el)
+}
 
-    render(node, el)
+function removeLoading(el: HTMLElement) {
+  render(null, el)
+  el.classList.remove(loadingContainerCls)
+}
+const loading: ObjectDirective<HTMLElement> = {
+  mounted(el, binding: DirectiveBinding) {
+    renderLoading(el, binding)
   },
 
   updated(el, binding) {
-    let loadingHtml = el.querySelector(".u-loading")
-    let id = uid()
-
-    if (!binding.value) {
-      clearTimeout(timers.get(id))
-      timers.set(
-        id,
-        setTimeout(() => {
-          loadingHtml.style.display = "none"
-        }, 1500)
-      )
+    if (binding.value) {
+      renderLoading(el, binding)
     } else {
-      loadingHtml.style.display = "inline-flex"
+      removeLoading(el)
     }
   },
 
   unmounted(el) {
-    timers.forEach(clearTimeout)
-    // 指令解绑时，卸载 loading 组件
-    el.removeChild(el.querySelector(".u-loading"))
-  },
+    removeLoading(el)
+  }
 }
 
 export default loading

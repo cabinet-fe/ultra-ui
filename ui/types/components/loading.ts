@@ -1,14 +1,11 @@
-import type { Component } from "vue"
 import type {DeconstructValue} from "../helper"
+
+export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner'
 
 /** loading组件属性 */
 export interface LoadingProps {
-  /**自定义文本 */
-  text?: string
-  /**自定义图标 */
-  loadingIcon?:Component | string
-
-  background?:string
+  /** 加载类型 */
+  type: LoadingType
 }
 
 /** loading组件定义的事件 */
