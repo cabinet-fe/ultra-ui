@@ -6,7 +6,7 @@
   >
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
+        :class="[cls?.em('sub', 'title'), bem.is('active', activation || highlight)]"
         :style="{ textIndent, color: customColor }"
         v-ripple="!disabled"
       >
@@ -23,7 +23,7 @@
 
   <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
     <div
-      :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
+      :class="[cls?.em('sub', 'title'), bem.is('active', activation)]"
       @click.stop="handleClick"
       :style="{
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent, getSiblings } from './di'
+import { MenuDIKey, calcIndent, getSiblings, getChildren } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
@@ -95,7 +95,6 @@ const { size } = useFallbackProps([props], {
 })
 
 const open = () => {
-  console.log('open=>', props.index, expand.value)
   expand.value = true
 }
 
@@ -114,12 +113,14 @@ watch(
     if (index === props.index) close()
   }
 )
+
 // 缩略模式关闭子菜单
 watch(
   () => injected?.simple.value,
   (val) => {
     if (val) {
       close()
+      if (instance) children.value = getChildren(instance)
     }
   }
 )
@@ -131,6 +132,8 @@ const handleClick = () => {
 }
 
 const siblings = ref<Array<string>>([])
+
+const children = ref<Array<string>>([])
 // 根据activeIndex展开子菜单
 watch(
   () => injected?.activeIndex.value,
@@ -140,11 +143,15 @@ watch(
   { once: true }
 )
 // 根据uniqueOpened，关闭其他菜单
+const highlight = ref<boolean>(false)
 watch(
   () => injected?.activeIndex.value,
   (index) => {
     if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index!)) {
       close()
+    }
+    if (index && injected?.simple.value) {
+      highlight.value = children.value.includes(index)
     }
   }
 )
@@ -164,14 +171,18 @@ watch(
     if (instance) {
       textIndent.value = calcIndent(instance)
       siblings.value = getSiblings(instance) || []
+      if (injected?.simple.value) children.value = getChildren(instance)
     }
   },
   { immediate: true }
 )
+
+// 是否为激活状态
+const activation = computed(() => injected?.activeIndex.value === props.index)
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return injected?.activeIndex.value === props.index
+    return activation.value || highlight.value
       ? injected?.activeTextColor
       : injected?.textColor
   }else {

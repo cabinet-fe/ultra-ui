@@ -2,11 +2,7 @@
   <u-tip position="right" v-if="injected?.simple.value && textIndent === '0px'">
     <template #content><slot /></template>
     <div
-      :class="[
-        cls?.e('item'),
-        bem.is('active', injected?.activeIndex.value === index),
-        bem.is('disabled', disabled)
-      ]"
+      :class="[cls?.e('item'), bem.is('active', activation), bem.is('disabled', disabled)]"
       @click="handleClick"
       :style="{
         textIndent,
@@ -25,7 +21,7 @@
     v-else
     :class="[
       cls?.e('item'),
-      bem.is('active', injected?.activeIndex.value === index),
+      bem.is('active', activation),
       bem.is('disabled', disabled),
       cls?.em('item', size)
     ]"
@@ -40,7 +36,6 @@
     <UIcon :class="cls?.em('item', 'icon')" v-if="icon">
       <component :is="icon" />
     </UIcon>
-
     <slot />
   </div>
 </template>
@@ -85,13 +80,13 @@ watch(
   },
   { immediate: true }
 )
+// 是否为激活状态
+const activation = computed(() => injected?.activeIndex.value === props.index)
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return injected?.activeIndex.value === props.index
-      ? injected?.activeTextColor
-      : injected?.textColor
-  }else {
+    return activation.value ? injected?.activeTextColor : injected?.textColor
+  } else {
     return 'var(--text-color-disabled)'
   }
 })

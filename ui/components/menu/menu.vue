@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { provide, shallowRef, ref, watch, computed, useSlots } from 'vue'
+import { provide, shallowRef, ref, watch, computed } from 'vue'
 import { MenuDIKey, type MenuContext } from './di'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -94,10 +94,4 @@ const maxWidth = computed(() => {
 })
 
 defineExpose({ open, close })
-
-const slots = useSlots()
-
-setTimeout(() => {
-  console.log(slots.default!()[0]?.props!.index)
-}, 1000)
 </script>
