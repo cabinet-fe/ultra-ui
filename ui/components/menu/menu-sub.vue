@@ -125,14 +125,15 @@ watch(
   (val) => {
     if (val) {
       close()
-      if (instance) children.value = getChildren(instance)
+      highlight.value = children.value.includes(injected!.activeIndex.value)
+    } else {
+      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
     }
   }
 )
 
 const handleClick = () => {
   if (props.disabled) return
-  injected!.activeIndex.value = props.index
   expand.value = !expand.value
 }
 
@@ -184,7 +185,8 @@ watch(
     if (instance) {
       textIndent.value = calcIndent(instance)
       siblings.value = getSiblings(instance) || []
-      if (injected?.simple.value) children.value = getChildren(instance)
+      children.value = getChildren(instance)
+      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
     }
   },
   { immediate: true }
