@@ -1,10 +1,7 @@
 <template>
   <div :class="[cls.b, bem.is('disabled', disabled)]">
     <scroll :class="cls.e('scroll')" :style="`height: ${height};`">
-      <div
-        :class="cls.e('holder')"
-        id="editor"
-      />
+      <div :class="cls.e('holder')" id="editor" />
     </scroll>
   </div>
 </template>
@@ -23,7 +20,6 @@ import RawTool from '@editorjs/raw'
 import Checklist from '@editorjs/checklist'
 import Table from '@editorjs/table'
 import Scroll from '../scroll/scroll.vue'
-import Marker from '@editorjs/marker'
 import Quote from '@editorjs/quote'
 import Paragraph from '@editorjs/paragraph'
 import zh from './i18n.json'
@@ -75,7 +71,7 @@ onMounted(() => {
       paragraph: {
         class: Paragraph,
         inlineToolbar: true,
-        tunes: ['anyTuneName']
+        tunes: ['anyTuneName', 'textColorLine']
       },
       textColorLine: Error,
       delimiter: Delimiter,
@@ -96,10 +92,10 @@ onMounted(() => {
         class: List,
         inlineToolbar: true
       },
-      marker: {
-        class: Marker,
-        inlineToolbar: true
-      },
+      // marker: {
+      //   class: Marker,
+      //   inlineToolbar: true
+      // },
       table: Table,
       checklist: {
         class: Checklist,
