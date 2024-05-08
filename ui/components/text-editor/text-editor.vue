@@ -20,7 +20,6 @@ import RawTool from '@editorjs/raw'
 import Checklist from '@editorjs/checklist'
 import Table from '@editorjs/table'
 import Scroll from '../scroll/scroll.vue'
-import Marker from '@editorjs/marker'
 import Quote from '@editorjs/quote'
 import Paragraph from '@editorjs/paragraph'
 import zh from './i18n.json'
@@ -93,10 +92,10 @@ onMounted(() => {
         class: List,
         inlineToolbar: true
       },
-      marker: {
-        class: Marker,
-        inlineToolbar: true
-      },
+      // marker: {
+      //   class: Marker,
+      //   inlineToolbar: true
+      // },
       table: Table,
       checklist: {
         class: Checklist,
