@@ -53,3 +53,17 @@ export const getSiblings = (instance: ComponentInternalInstance) => {
     return item.props?.index
   })
 }
+
+export const getChildren = (instance: ComponentInternalInstance) => {
+  const children: any = []
+  const getIndex = (arr: any[]) => {
+    arr.forEach((item) => {
+      children.push(item.props.index)
+      if (item.type.name === 'MenuSub') {
+        getIndex(item.children.default())
+      }
+    })
+  }
+  getIndex(instance.slots.default!() || [])
+  return children
+}

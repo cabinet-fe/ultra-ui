@@ -1,33 +1,20 @@
 <template>
-  <div :class="[cls.b, bem.is('disabled', disabled)]">
-    <scroll :class="cls.e('scroll')" :style="`height: ${height};`">
-      <div :class="cls.e('holder')" id="editor" />
-    </scroll>
-  </div>
+  <div
+    :class="[cls.b, bem.is('disabled', disabled)]"
+    :style="`height: ${height}`"
+    ref="editorRef"
+  />
 </template>
 
 <script lang="ts" setup>
 import type {
   TextEditorProps,
-  TextEditorEmits,
-  TextEditorOutputData
+  TextEditorEmits
 } from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
-import editorJS from '@editorjs/editorjs'
-import Header from '@editorjs/header'
-import List from '@editorjs/list'
-import RawTool from '@editorjs/raw'
-import Checklist from '@editorjs/checklist'
-import Table from '@editorjs/table'
-import Scroll from '../scroll/scroll.vue'
-import Quote from '@editorjs/quote'
-import Paragraph from '@editorjs/paragraph'
-import zh from './i18n.json'
-import { onMounted, ref } from 'vue'
-import AlignmentTuneTool from 'editorjs-text-alignment-blocktune'
-import Delimiter from './delimiter'
-import Error from './error'
-import Underline from './underline'
+import Quill from 'quill'
+import type { Delta, Op } from 'quill/core'
+import { onMounted, onUnmounted, shallowRef } from 'vue'
 
 defineOptions({
   name: 'TextEditor'
@@ -36,93 +23,55 @@ defineOptions({
 const emit = defineEmits<TextEditorEmits>()
 
 const props = withDefaults(defineProps<TextEditorProps>(), {
-  height: '500px',
   disabled: false,
   placeholder: '请输入'
 })
 
 const cls = bem('text-editor')
 
-const editor = ref()
+const data = defineModel<Delta | Op[]>({ required: true })
 
-const data = defineModel<TextEditorOutputData>({})
+const editorRef = shallowRef()
 
-const saveEditor = () => {
-  editor.value.save().then((outputData: TextEditorOutputData) => {
-    data.value = outputData
-  })
+const options = {
+  modules: {
+    toolbar: props.toolbar ?? [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ['link'],
+      ['bold', 'italic', 'underline'],
+      ['image', 'code-block']
+    ]
+  },
+  readOnly: props.disabled,
+  scrollingContainer: true,
+  theme: 'snow'
 }
 
-const readOnly = () => {
-  editor.value.readOnly.toggle()
-}
+let quill: Quill
 
 onMounted(() => {
-  editor.value = new editorJS({
-    holder: 'editor',
-    tools: {
-      header: {
-        class: Header,
-        config: {
-          levels: [1, 2, 3, 4, 5, 6],
-          defaultLevel: 1 // 默认标题 // 默认创建的标题
-        }
-      },
-      paragraph: {
-        class: Paragraph,
-        inlineToolbar: true,
-        tunes: ['anyTuneName', 'textColorLine']
-      },
-      textColorLine: Error,
-      delimiter: Delimiter,
-      underline: Underline,
-      anyTuneName: {
-        class: AlignmentTuneTool,
-        config: {
-          default: 'left',
-          blocks: {
-            header: 'left',
-            list: 'left'
-          }
-        }
-      },
-      quote: Quote,
-      raw: RawTool,
-      list: {
-        class: List,
-        inlineToolbar: true
-      },
-      // marker: {
-      //   class: Marker,
-      //   inlineToolbar: true
-      // },
-      table: Table,
-      checklist: {
-        class: Checklist,
-        inlineToolbar: true
-      }
-    },
+  quill = new Quill(editorRef.value, options)
 
-    data: data.value,
+  quill.on('text-change', update)
 
-    autofocus: true,
-
-    placeholder: props.placeholder,
-
-    readOnly: props.disabled,
-
-    i18n: {
-      messages: zh
-    },
-
-    onChange: (api, event) => {
-      if (props.disabled) return
-      saveEditor()
-
-      emit('change', data.value!, api, event)
-    }
-  })
+  quill.updateContents(data.value)
 })
 
-defineExpose({ saveEditor, readOnly })
+/** 调用富文本 */
+const quillRef = () => {
+  return quill
+}
+
+/** 更新data的值 */
+const update = (delta: any) => {
+  const contents = quill.getContents()
+
+  data.value = contents.ops
+}
+
+onUnmounted(() => {
+  quill.off('text-change', update)
+})
+
+defineExpose({ quillRef })
 </script>
