@@ -21,7 +21,12 @@
     </template>
   </u-tip>
 
-  <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
+  <div
+    v-else
+    :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
+    @mouseenter="mouseenter"
+    @mouseleave="mouseleave"
+  >
     <div
       :class="[cls?.em('sub', 'title'), bem.is('active', activation)]"
       @click.stop="handleClick"
@@ -131,6 +136,14 @@ const handleClick = () => {
   expand.value = !expand.value
 }
 
+const mouseenter = () => {
+  if (injected?.simple.value) expand.value = true
+}
+
+const mouseleave = () => {
+  if (injected?.simple.value) expand.value = false
+}
+
 const siblings = ref<Array<string>>([])
 
 const children = ref<Array<string>>([])
@@ -182,10 +195,8 @@ const activation = computed(() => injected?.activeIndex.value === props.index)
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return activation.value || highlight.value
-      ? injected?.activeTextColor
-      : injected?.textColor
-  }else {
+    return activation.value || highlight.value ? injected?.activeTextColor : injected?.textColor
+  } else {
     return 'var(--text-color-disabled)'
   }
 })
