@@ -49,17 +49,32 @@ const options = {
 
 let quill: Quill
 
-onMounted(() => {
+const createTextEditor = () => {
+
   quill = new Quill(editorRef.value, options)
 
   quill.on('text-change', update)
-
   quill.updateContents(data.value)
+}
+
+onMounted(() => {
+  createTextEditor()
 })
 
-/** 调用富文本 */
+/** 调用富文本方法 */
 const quillRef = () => {
   return quill
+}
+
+/** 赋值方法 */
+const setValue = (value: Delta | Op[]) => {
+  quill.update()
+  return quill.updateContents(value)
+}
+
+/** 获取toolbar */
+const getModelBar = () => {
+  return quill.getModule('toolbar')
 }
 
 /** 更新data的值 */
@@ -73,5 +88,5 @@ onUnmounted(() => {
   quill.off('text-change', update)
 })
 
-defineExpose({ quillRef })
+defineExpose({ quillRef, setValue, getModelBar })
 </script>
