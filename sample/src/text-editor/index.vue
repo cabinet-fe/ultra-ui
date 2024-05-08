@@ -7,7 +7,7 @@
 
         <UTextEditor
           ref="editorRef"
-          v-model="modelValue"
+          v-model:model-value="modelValue"
           @update:model-value="handleChange"
           height="500px"
           :toolbar="[
@@ -50,11 +50,11 @@ let modelValue = ref([
 ])
 
 const setValue = () => {
-  editorRef.value.quillRef().updateContents([{ insert: '22222\n' }])
+  // editorRef.value.quillRef().updateContents([{ insert: '22222\n' }])
 }
 
 const handleChange = value => {
-  console.log(value, 'value')
+  // console.log(value, 'value')
 }
 </script>
 <style></style>

@@ -14,7 +14,7 @@ export interface TextEditorProps {
 
 /** text-editor组件定义的事件 */
 export interface TextEditorEmits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: any): void
 }
 
 /** text-editor组件暴露的属性和方法(组件内部使用) */
