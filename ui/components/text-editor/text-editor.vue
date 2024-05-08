@@ -1,10 +1,7 @@
 <template>
   <div :class="[cls.b, bem.is('disabled', disabled)]">
     <scroll :class="cls.e('scroll')" :style="`height: ${height};`">
-      <div
-        :class="cls.e('holder')"
-        id="editor"
-      />
+      <div :class="cls.e('holder')" id="editor" />
     </scroll>
   </div>
 </template>
@@ -75,7 +72,7 @@ onMounted(() => {
       paragraph: {
         class: Paragraph,
         inlineToolbar: true,
-        tunes: ['anyTuneName']
+        tunes: ['anyTuneName', 'textColorLine']
       },
       textColorLine: Error,
       delimiter: Delimiter,
