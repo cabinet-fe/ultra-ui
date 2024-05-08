@@ -4,6 +4,7 @@
   "scripts": {
     "build": "tsx ./index.ts",
     "pub": "cd ../dist && pnpm publish --registry http://192.168.31.250:6005",
-    "release": "pnpm build && bumpp ../package.json && pnpm pub"
+    "gen:pkg": "tsx ./gen-package-json.ts",
+    "release": "pnpm build && bumpp ../package.json && gen:pkg && pnpm pub"
   }
 }

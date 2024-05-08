@@ -4,7 +4,6 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { genPackageJson } from './gen-package-json'
 import { buildStyles } from './build-styles'
 import fg from 'fast-glob'
 import { copyFiles } from './copy'
@@ -75,8 +74,6 @@ async function bundle() {
 
 async function boot() {
   await bundle()
-
-  genPackageJson()
 
   buildStyles()
 
