@@ -6,7 +6,6 @@
     @click.self="handleClick"
     :class="cls.b"
     ref="tipRef"
-    :data-outSide="visible"
   />
 
   <teleport to="body">
@@ -17,7 +16,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
-      v-click-outside:visible="handleClickOutside"
+      v-click-outside="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -117,10 +116,13 @@ const handleContentMouseEnter = () => {
 
 const handleClick = () => {
   if (props.trigger !== 'click') return
+  
   clearTimeout(timers.get('timerTip'))
   timers.set(
     'timerTip',
     setTimeout(async () => {
+      console.log('213');
+
       visible.value = !visible.value
       if (visible.value) {
         await nextTick()
@@ -136,7 +138,15 @@ const handleClick = () => {
 const handleClickOutside = () => {
   clearInterval(timers.get('timerTip'))
   if (props.trigger === 'hover') return
-  removeListener()
+  clearTimeout(timers.get('outside'))
+  timers.set(
+    'outside', 
+    setTimeout(async () => {
+      console.log('outside');
+      visible.value = false
+      removeListener()
+    }, 301)
+  )
 }
 
 /** 提示框到屏幕边缘的间距 */
@@ -213,9 +223,9 @@ const addListener = () => {
 }
 
 const removeListener = () => {
+  visible.value = false
   scrollDom.value?.removeEventListener('scroll', scrollEvent)
   dynamicStyle.value = {}
-  visible.value = false
 }
 
 const scrollEvent = () => {
