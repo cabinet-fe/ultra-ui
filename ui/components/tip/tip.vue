@@ -121,8 +121,6 @@ const handleClick = () => {
   timers.set(
     'timerTip',
     setTimeout(async () => {
-      console.log('213');
-
       visible.value = !visible.value
       if (visible.value) {
         await nextTick()
@@ -142,7 +140,6 @@ const handleClickOutside = () => {
   timers.set(
     'outside', 
     setTimeout(async () => {
-      console.log('outside');
       visible.value = false
       removeListener()
     }, 301)
