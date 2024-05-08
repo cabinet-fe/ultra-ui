@@ -6,7 +6,6 @@
     @click.self="handleClick"
     :class="cls.b"
     ref="tipRef"
-    :data-outSide="visible"
   />
 
   <teleport to="body">
@@ -17,7 +16,7 @@
       @mouseenter.stop="handleContentMouseEnter"
       @mouseleave.stop="handleMouseLeave"
       @click.stop
-      v-click-outside:visible="handleClickOutside"
+      v-click-outside="handleClickOutside"
     >
       <slot name="content">
         {{ modelValue }}
@@ -117,6 +116,7 @@ const handleContentMouseEnter = () => {
 
 const handleClick = () => {
   if (props.trigger !== 'click') return
+  
   clearTimeout(timers.get('timerTip'))
   timers.set(
     'timerTip',
@@ -136,7 +136,14 @@ const handleClick = () => {
 const handleClickOutside = () => {
   clearInterval(timers.get('timerTip'))
   if (props.trigger === 'hover') return
-  removeListener()
+  clearTimeout(timers.get('outside'))
+  timers.set(
+    'outside', 
+    setTimeout(async () => {
+      visible.value = false
+      removeListener()
+    }, 301)
+  )
 }
 
 /** 提示框到屏幕边缘的间距 */
@@ -205,16 +212,17 @@ let lastScrollTop = 0
 const addListener = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   if (!tipRefDom) return
-  scrollDom.value = document.querySelector('.main' || 'main' || '.layout-content')!
+  
+  scrollDom.value = tipRefDom.closest('.u-scroll')!
     .childNodes[1] as HTMLElement
   if (!scrollDom.value) return
   scrollDom.value.addEventListener('scroll', scrollEvent)
 }
 
 const removeListener = () => {
+  visible.value = false
   scrollDom.value?.removeEventListener('scroll', scrollEvent)
   dynamicStyle.value = {}
-  visible.value = false
 }
 
 const scrollEvent = () => {

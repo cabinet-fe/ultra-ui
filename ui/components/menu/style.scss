@@ -12,6 +12,7 @@ $root-name: menu;
   user-select: none;
   transition: max-width 0.6s ease-in-out;
   max-width: 1980px;
+  padding: 5px 0;
 
   @include m.e(sub) {
     width: 100%;

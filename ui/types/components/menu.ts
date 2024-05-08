@@ -14,6 +14,8 @@ export interface MenuProps {
   open?: (index: string) => void
   /** 关闭回调 */
   close?: (index: string) => void
+  /** 选中回调 */
+  select?: (index: string) => void
   /** 是否以index作为path进行路由跳转 */
   router?: boolean
   /** 背景色 */
@@ -51,6 +53,7 @@ export interface MenuEmits {
   (e: 'update:modelValue', value: string): void
   (e: 'open', index: string): void
   (e: 'close', index: string): void
+  (e: 'select', index: string): void
 }
 
 /** 菜单组件组件暴露的属性和方法(组件内部使用) */
