@@ -11,8 +11,7 @@
       :style="{
         textIndent,
         width: 'auto',
-        color:
-          injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
+        color: customColor
       }"
       v-ripple="!disabled"
     >
@@ -34,7 +33,7 @@
     :style="{
       textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
       width: 'auto',
-      color: injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
+      color: customColor
     }"
     v-ripple="!disabled"
   >
@@ -47,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, getCurrentInstance } from 'vue'
+import { inject, ref, watch, getCurrentInstance, computed } from 'vue'
 import { MenuDIKey, calcIndent } from './di'
 import type { MenuItemProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
@@ -86,4 +85,14 @@ watch(
   },
   { immediate: true }
 )
+// 用户自定义颜色
+const customColor = computed(() => {
+  if (!props.disabled) {
+    return injected?.activeIndex.value === props.index
+      ? injected?.activeTextColor
+      : injected?.textColor
+  }else {
+    return 'var(--text-color-disabled)'
+  }
+})
 </script>

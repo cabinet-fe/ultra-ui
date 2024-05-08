@@ -8,4 +8,6 @@ export type {
   TableColumn
 } from '@ui/types/components/table'
 
-export { defineTableColumns } from './use-columns'
+export type { TableColumnSlotsScope } from './di'
+
+export { defineTableColumns, type ColumnNode } from './use-columns'

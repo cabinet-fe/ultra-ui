@@ -127,7 +127,7 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
       @each $type, $_ in $color-types {
         @include m.is($type) {
           @if $type ==default {
-            border-color: fn.use-var(text, color, main);
+            border-color: fn.use-var(text, color, second);
           }
 
           @else {

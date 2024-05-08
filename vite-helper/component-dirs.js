@@ -49,6 +49,7 @@
   "theme",
   "tip",
   "tree",
+  "tree-select",
   "virtual-scroll",
   "watermark"
 ]

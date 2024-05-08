@@ -120,7 +120,7 @@ const data = [
 ]
 
 let select = shallowRef()
-const checked = shallowRef([])
+const checked = shallowRef([{"name":"烤冷面","id": 1}])
 const handleNodeClick = (selected) => {
   select.value = selected
 }
@@ -132,6 +132,7 @@ const disabledNode = data => {
 const handleCheck = (_checked) => {
   checked.value = _checked
 }
+
 </script>
 
 <style lang="scss" scoped></style>

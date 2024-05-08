@@ -11,6 +11,7 @@ export default defineComponent({
   name: 'NodeRender',
 
   props: {
+    /** 渲染内容 */
     content: {
       type: [Object, Array, String, Boolean, Number] as PropType<
         | null
@@ -23,9 +24,11 @@ export default defineComponent({
       >
     }
   },
-  setup(props, { attrs }) {
+  setup(props, { attrs, slots }) {
     return () => {
-      if (!props.content) return null
+      if (!props.content) {
+        return slots.default?.()
+      }
       if (Array.isArray(props.content)) {
         return props.content
       }

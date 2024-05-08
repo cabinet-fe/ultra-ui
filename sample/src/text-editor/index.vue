@@ -9,13 +9,8 @@
       ></UTextEditor>
     </div>
 
-    export interface TextEditorProps {
-      modelValue?: TextEditorOutputData
-      /** 高度 */
-      height?: string
-      width?: string
-      disabled?: boolean
-    }
+    export interface TextEditorProps { modelValue?: TextEditorOutputData /**
+    高度 */ height?: string width?: string disabled?: boolean }
   </div>
 </template>
 <script lang="ts" setup>
@@ -24,24 +19,16 @@ import { ref } from 'vue'
 let modelValue = ref({
   blocks: [
     {
-      id: '0QHrITflqv',
+      id: 'QIxEDJ74zX',
       type: 'paragraph',
-      data: {
-        text: '123123'
-      }
+      data: { text: '<mark class="cdx-marker">123123123</mark>' },
+      tunes: { anyTuneName: { alignment: 'left' } }
     },
     {
-      id: 'BtEbs-4fqc',
+      id: '7v4U_NnPQK',
       type: 'paragraph',
-      data: {
-        text: '123321'
-      }
-    },
-    {
-      type: 'paragraph',
-      data: {
-        text: '<b>123123123123</b>'
-      }
+      data: { text: '123123123' },
+      tunes: { anyTuneName: { alignment: 'left' } }
     }
   ]
 })

@@ -2,12 +2,12 @@
   <u-tip
     v-if="injected?.simple.value && textIndent === '0px'"
     position="right-start"
-    :customStyle="{ backgroundColor: injected?.backgroundColor }"
+    :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
   >
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
         :class="[cls?.em('sub', 'title'), bem.is('active', injected?.activeIndex.value === index)]"
-        :style="{ textIndent, color: injected?.textColor }"
+        :style="{ textIndent, color: customColor }"
         v-ripple="!disabled"
       >
         <UIcon :class="cls?.em('sub', 'icon')" style="margin-right: 0" v-if="icon">
@@ -16,7 +16,8 @@
       </div>
     </div>
     <template #content>
-      <slot />
+      <slot name="title" v-if="disabled" />
+      <slot v-else />
     </template>
   </u-tip>
 
@@ -27,8 +28,7 @@
       :style="{
         textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
         paddingRight: '35px',
-        color:
-          injected?.activeIndex.value === index ? injected?.activeTextColor : injected?.textColor
+        color: customColor
       }"
       v-ripple="!disabled"
     >
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, onMounted, getCurrentInstance } from 'vue'
+import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
 import { MenuDIKey, calcIndent, getSiblings } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -168,6 +168,15 @@ watch(
   },
   { immediate: true }
 )
-
+// 用户自定义颜色
+const customColor = computed(() => {
+  if (!props.disabled) {
+    return injected?.activeIndex.value === props.index
+      ? injected?.activeTextColor
+      : injected?.textColor
+  }else {
+    return 'var(--text-color-disabled)'
+  }
+})
 defineExpose({ open, close })
 </script>

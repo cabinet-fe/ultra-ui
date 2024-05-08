@@ -71,7 +71,7 @@ const getColumnSlotsNode = (
   key: string,
   ctx: TableColumnSlotsScope
 ): VNode[] | undefined => {
-  return slots[`column:${key}`]?.(ctx) ?? ctx.val
+  return (props.slots ?? slots)[`column:${key}`]?.(ctx) ?? ctx.val
 }
 
 /** 获取表头插槽vnode */
@@ -79,7 +79,7 @@ const getHeaderSlotsNode = (
   key: string,
   ctx: { column: ColumnNode }
 ): VNode[] | undefined | string => {
-  return slots[`header:${key}`]?.(ctx) ?? ctx.column.name
+  return (props.slots ?? slots)[`header:${key}`]?.(ctx) ?? ctx.column.name
 }
 
 /** 获取单元格类名 */

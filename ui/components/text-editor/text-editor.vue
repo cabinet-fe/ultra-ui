@@ -1,11 +1,7 @@
 <template>
   <div :class="[cls.b, bem.is('disabled', disabled)]">
     <scroll :class="cls.e('scroll')" :style="`height: ${height};`">
-      <div
-        :class="cls.e('holder')"
-        id="editor"
-        style="width: 100%; height: 100%"
-      />
+      <div :class="cls.e('holder')" id="editor" />
     </scroll>
   </div>
 </template>
@@ -24,10 +20,14 @@ import RawTool from '@editorjs/raw'
 import Checklist from '@editorjs/checklist'
 import Table from '@editorjs/table'
 import Scroll from '../scroll/scroll.vue'
-import Marker from '@editorjs/marker'
 import Quote from '@editorjs/quote'
+import Paragraph from '@editorjs/paragraph'
 import zh from './i18n.json'
 import { onMounted, ref } from 'vue'
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune'
+import Delimiter from './delimiter'
+import Error from './error'
+import Underline from './underline'
 
 defineOptions({
   name: 'TextEditor'
@@ -63,17 +63,44 @@ onMounted(() => {
     tools: {
       header: {
         class: Header,
-        inlineToolbar: ['marker'],
         config: {
+          levels: [1, 2, 3, 4, 5, 6],
           defaultLevel: 1 // 默认标题 // 默认创建的标题
+        }
+      },
+      paragraph: {
+        class: Paragraph,
+        inlineToolbar: true,
+        tunes: ['anyTuneName', 'textColorLine']
+      },
+      textColorLine: Error,
+      delimiter: Delimiter,
+      underline: Underline,
+      anyTuneName: {
+        class: AlignmentTuneTool,
+        config: {
+          default: 'left',
+          blocks: {
+            header: 'left',
+            list: 'left'
+          }
         }
       },
       quote: Quote,
       raw: RawTool,
-      list: List,
-      marker: Marker,
+      list: {
+        class: List,
+        inlineToolbar: true
+      },
+      // marker: {
+      //   class: Marker,
+      //   inlineToolbar: true
+      // },
       table: Table,
-      checklist: Checklist
+      checklist: {
+        class: Checklist,
+        inlineToolbar: true
+      }
     },
 
     data: data.value,
