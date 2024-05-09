@@ -64,8 +64,7 @@ import {
   getCurrentInstance,
   ref,
   Transition,
-  shallowRef,
-  useAttrs
+  shallowRef
 } from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
