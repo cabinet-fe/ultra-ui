@@ -13,7 +13,7 @@
       </span>
       <div v-else :class="cls.e('tags')">
         <u-tag
-          v-for="(item, index) in model"
+          v-for="(item, index) in tags"
           :closable="!disabled"
           @close="handleRemove(index)"
           >{{ item[labelKey] }}</u-tag
@@ -51,15 +51,16 @@
           :value-key="valueKey"
           :size="size"
           :disabled-node="disabledNode"
-          @check="handleCheck"
+          @update:checked="handleCheck"
           ref="treeRef"
+          :checked="model"
         />
       </u-scroll>
     </template>
   </u-dropdown>
 </template>
 
-<script lang="ts" setup generic="Option extends Record<string, any>">
+<script lang="ts" setup generic="Val extends string | number">
 import type {TreeSelectProps} from "@ui/types/components/tree-select"
 import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
 import {bem} from "@ui/utils"
@@ -70,8 +71,7 @@ import {UTag} from "../tag"
 import {UIcon} from "../icon"
 import {ArrowDown, Close} from "icon-ultra"
 import {nextTick, shallowRef} from "vue"
-// import {UCheckbox} from "../checkbox"
-// import {computed, shallowRef} from "vue"
+import {processRecursiveArray} from "../tree/utils"
 
 defineOptions({
   name: "TreeSelect",
@@ -79,7 +79,7 @@ defineOptions({
 
 const cls = bem("tree-select")
 
-const props = withDefaults(defineProps<TreeSelectProps<Option>>(), {
+const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
   labelKey: "label",
   valueKey: "value",
   placeholder: "请选择",
@@ -94,7 +94,13 @@ const emit = defineEmits<{
 const mouse = shallowRef(false)
 
 /** 实际值 */
-const model = defineModel<Option[]>()
+const model = defineModel<Val[]>()
+
+/**界面展示的值 */
+const tags = shallowRef<Record<string, any>[]>([])
+
+/**保存所有props.valueKey的值 */
+const valueList = shallowRef<Val[]>([])
 
 const {formProps} = useFormComponent()
 
@@ -103,8 +109,9 @@ const {size, disabled} = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false,
 })
 
-const handleCheck = (checked) => {
+const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
   model.value = checked
+  tags.value = checkedData
   emit("update", checked)
 }
 
@@ -120,9 +127,20 @@ const handleClear = () => {
   model.value = []
 }
 
+const viewport = () => {
+  processRecursiveArray(props.options, "children", (item) => {
+    valueList.value.push(item.id)
+    const isMatch = model.value!.includes(item.id)
+    if (isMatch) {
+      tags.value.push(item)
+    }
+  })
+}
+viewport()
+
 // /**是否全选 */
 // const allChecked = computed(() => {
-//   return model.value?.length === props.options.length
+//   return model.value?.length === valueList.value.length
 // })
 
 // /**部分 */
@@ -133,7 +151,7 @@ const handleClear = () => {
 // /** 全选*/
 // const handleCheckAll = (checked: boolean) => {
 //   if (checked) {
-//     model.value = props.options
+//     model.value = valueList.value
 //   } else {
 //     model.value = []
 //   }

@@ -1,7 +1,7 @@
 import { isArray } from 'cat-kit/fe'
 
 interface ArrayItem {
-  name: string
+  name?: string
   children?: ArrayItem[]
 }
 

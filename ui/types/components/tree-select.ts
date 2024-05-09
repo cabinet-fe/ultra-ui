@@ -3,13 +3,13 @@ import type {DeconstructValue} from "../helper"
 import type {TreeProps} from "./tree"
 
 /** 树形选择器组件属性 */
-export interface TreeSelectProps<Option extends Record<string, any>>
+export interface TreeSelectProps<Val extends string | number>
   extends FormComponentProps,
     TreeProps {
   /**选项值 */
-  modelValue?: Option[]
+  modelValue?: Val[]
   /** 列表选项 */
-  options: Option[]
+  options: Record<string, any>[]
   /**自定义占位文字 */
   placeholder?: string
   /**
