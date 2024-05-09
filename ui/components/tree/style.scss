@@ -71,7 +71,14 @@ $root-name: tree;
   @include m.e(node-content) {
     flex-grow: 1;
     height: 100%;
+    user-select: none;
+    transition: background-color 0.25s;
     @include m.ellipsis;
     @include m.flex($align: center);
+  }
+
+  @include m.e(ripple) {
+    background-color: fn.use-var(color, primary, light-7);
+    opacity: 0.5;
   }
 }

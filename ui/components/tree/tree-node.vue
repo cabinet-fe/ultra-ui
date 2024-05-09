@@ -1,5 +1,15 @@
 <template>
-  <div :class="nodeClass" :style="style" @click="handleClick">
+  <div
+    :class="[
+      cls.e('node'),
+      bem.is('expanded', node.expanded),
+      bem.is('disabled', node.disabled)
+    ]"
+    :style="{
+      marginLeft: withUnit(node.depth * 20 - 20, 'px')
+    }"
+    @click="handleClick"
+  >
     <u-icon
       v-if="!node.isLeaf"
       :class="cls.e('expand-icon')"
@@ -9,13 +19,20 @@
     </u-icon>
     <i v-else :class="cls.e('icon-placeholder')" />
 
-    <span :class="cls.e('node-content')">
+    <span
+      :class="cls.e('node-content')"
+      v-ripple="
+        (treeProps.checkable || treeProps.selectable) && !node.disabled
+          ? cls.e('ripple')
+          : false
+      "
+    >
       <u-checkbox
         v-if="treeProps.checkable"
         :model-value="checked.has(node.value)"
         :indeterminate="node.indeterminate"
         @update:model-value="handleCheck(node, $event)"
-        :disabled="disabled"
+        :disabled="node.disabled"
         @click.stop
       />
       <u-node-render :content="getTreeSlotsNode({ node, data: node.value })" />
@@ -25,13 +42,14 @@
 
 <script lang="ts" setup>
 import { TreeDIKey } from './di'
-import { computed, inject } from 'vue'
+import { inject } from 'vue'
 import { bem, withUnit } from '@ui/utils'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
 import type { TreeNodeProps } from '@ui/types/components/tree'
 import UCheckbox from '../checkbox/checkbox.vue'
 import { UNodeRender } from '../node-render'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'TreeNode'
@@ -43,37 +61,12 @@ const {
   treeProps,
   treeEmit,
   cls,
-  selected,
   checked,
   getTreeSlotsNode,
   getFlattedNodes,
   handleCheck,
   handleSelect
 } = inject(TreeDIKey)!
-
-const disabled = computed(() => {
-  const { disabledNode } = treeProps
-  const { node } = props
-  return disabledNode?.(node.value, node) ?? false
-})
-
-/** 行class */
-const nodeClass = computed(() => {
-  const { node } = props
-  return [
-    cls.e('node'),
-    bem.is('selected', node.value === selected.value),
-    bem.is('expanded', node.expanded),
-    bem.is('disabled', treeProps.disabledNode?.(node.value, node) || false)
-  ]
-})
-
-const style = computed(() => {
-  const { node } = props
-  return {
-    marginLeft: withUnit(node.depth * 20 - 20, 'px')
-  }
-})
 
 function toggleExpand() {
   props.node.expanded = !props.node.expanded
@@ -88,7 +81,7 @@ const handleClick = () => {
   treeProps.selectable && handleSelect(node)
   treeProps.expandOnClickNode && toggleExpand()
   treeProps.checkable &&
-    !disabled.value &&
+    !node.disabled &&
     !treeProps.expandOnClickNode &&
     handleCheck(node, !checked.has(node.value))
 }

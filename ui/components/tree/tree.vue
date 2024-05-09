@@ -4,6 +4,7 @@
       v-for="(node, index) of nodes"
       :node="node"
       :key="node.value[valueKey] ?? index"
+      :class="bem.is('selected', node.value === selected)"
     />
   </div>
 </template>
@@ -76,7 +77,11 @@ const getTreeSlotsNode = (ctx: TreeSlotsScope): VNode[] | undefined => {
 
 /** 森林 */
 const forest = computed(() => {
-  return Forest.create(props.data, TreeNode)
+  return Forest.create(props.data, TreeNode, {
+    onNodeCreated(node) {
+      node.disabled = props.disabledNode?.(node.value, node) ?? false
+    }
+  })
 })
 /** 默认选中 */
 watchEffect(() => {
@@ -87,6 +92,14 @@ watchEffect(() => {
 })
 
 const nodes = shallowRef<TreeNode<DataItem>[]>([])
+
+/**
+ * 数据的字典，key为指定的valueKey的值
+ */
+const dataDicts = computed(() => {
+  const { valueKey } = props
+  return new Map(nodes.value.map(({ value }) => [value[valueKey], value]))
+})
 
 /** 获取碾平后的节点 */
 function getFlattedNodes(filter?: (node: TreeNode<DataItem>) => boolean) {
@@ -124,14 +137,16 @@ function filter(filter: (node: TreeNode<DataItem>) => boolean) {
   getFlattedNodes(filter)
 }
 
-const { selected, handleSelect } = useSelect<DataItem>({
+const { handleSelect, selected } = useSelect<DataItem>({
   props,
-  emit
+  emit,
+  dataDicts
 })
 
 const { checked, handleCheck } = useCheck<DataItem>({
   props,
-  emit
+  emit,
+  dataDicts
 })
 
 provide(TreeDIKey, {

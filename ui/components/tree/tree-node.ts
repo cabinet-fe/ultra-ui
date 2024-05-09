@@ -1,9 +1,7 @@
 import { TreeNode as _TreeNode } from 'cat-kit/fe'
 import { shallowReactive } from 'vue'
 
-export class TreeNode<
-  Val extends Record<string, any>
-> extends _TreeNode<Val> {
+export class TreeNode<Val extends Record<string, any>> extends _TreeNode<Val> {
   override parent: TreeNode<Val> | null = null
 
   override children?: TreeNode<Val>[] = undefined
@@ -17,6 +15,7 @@ export class TreeNode<
   /** 多选是否选中 */
   checked = false
   indeterminate = false
+  disabled = false
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
@@ -25,12 +24,5 @@ export class TreeNode<
     }
 
     return shallowReactive(this)
-  }
-
-  createNode<Val extends Record<string, any>>(
-    val: Val,
-    index: number
-  ): TreeNode<Val> {
-    return new TreeNode(val, index)
   }
 }

@@ -26,7 +26,8 @@
         label-key="name"
         value-key="id"
         :disabled-node="disabledNode"
-        @select="handleNodeClick"
+        v-model:selected="select"
+        @update:selected="handleNodeClick"
         selectable
       />
 
@@ -41,7 +42,8 @@
         value-key="id"
         checkable
         :disabled-node="disabledNode"
-        @check="handleCheck"
+        @update:checked="handleCheck"
+        v-model:checked="checked"
       >
       </UTree>
 
@@ -57,10 +59,8 @@
         checkable
         check-strictly
         :disabled-node="disabledNode"
-        @check="handleCheck"
+        v-model:checked="checked"
       />
-
-      checkable多选 {{ checked }}
     </CustomCard>
 
     <CustomCard title="自定义内容">
@@ -69,9 +69,7 @@
         expand-all
         label-key="name"
         value-key="id"
-        checkable
         check-strictly
-        @check="handleCheck"
       >
         <template #default="{ data }">
           {{ data.name + '------' + data.id }}
@@ -120,8 +118,8 @@ const data = [
 ]
 
 let select = shallowRef()
-const checked = shallowRef([{"name":"烤冷面","id": 1}])
-const handleNodeClick = (selected) => {
+const checked = shallowRef([1])
+const handleNodeClick = selected => {
   select.value = selected
 }
 
@@ -129,10 +127,10 @@ const disabledNode = data => {
   return data.id % 2 === 0
 }
 
-const handleCheck = (_checked) => {
-  checked.value = _checked
+const handleCheck = (...args) => {
+  // checked.value = _checked
+  console.log('选中了', ...args)
 }
-
 </script>
 
 <style lang="scss" scoped></style>

@@ -12,6 +12,7 @@ export interface TreeNode<DataItem extends Record<string, any>>
   loaded: boolean
   checked: boolean
   indeterminate: boolean
+  disabled: boolean
   /** 单选高亮 */
   active: boolean
 }
@@ -40,15 +41,21 @@ export interface TreeProps<
   selectable?: boolean
   /** 严格选择，选择的内容和父级不会产生关联 */
   checkStrictly?: boolean
+  /** 单选选中项 */
+  selected?: any
+  /** 多选选中项 */
+  checked?: any[]
 }
 
 export interface TreeEmit<
   Data extends Record<string, any> = Record<string, any>
 > {
+  /** 节点展开/折叠事件 */
   (e: 'expand', node: TreeNode<Data>): void
+  /** 节点点击事件 */
   (e: 'node-click', node: TreeNode<Data>): void
-  (e: 'select', selected?: Data): void
-  (e: 'check', checked: Data[]): void
+  (e: 'update:selected', selected?: any, selectedData?: Data): void
+  (e: 'update:checked', checked: any[], checkedData: Data[]): void
 }
 
 export interface TreeNodeProps {

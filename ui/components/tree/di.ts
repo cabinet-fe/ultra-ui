@@ -17,7 +17,7 @@ export interface TreeConText {
   /** 单选选中的节点 */
   selected: ShallowRef<Record<string, any> | undefined>
   /** 多选的节点 */
-  checked: Set<Record<string, any>>
+  checked: Set<any>
   /** 选择事件 */
   handleSelect: (data: TreeNode<Record<string, any>>) => void
   /** 多选事件 */

@@ -1,24 +1,41 @@
 import type { TreeEmit, TreeProps } from '@ui/types/components/tree'
-import { shallowReactive } from 'vue'
+import { nextTick, shallowReactive, watch, type ComputedRef } from 'vue'
 import type { TreeNode } from './tree-node'
 import { Tree } from 'cat-kit/fe'
 
 interface Options<DataItem extends Record<string, any>> {
   emit: TreeEmit<DataItem>
   props: TreeProps<DataItem>
+  dataDicts: ComputedRef<Map<any, DataItem>>
 }
 
 export function useCheck<DataItem extends Record<string, any>>(
   options: Options<DataItem>
 ) {
-  const { emit, props } = options
+  const { emit, props, dataDicts } = options
 
   const checked = shallowReactive(new Set<DataItem>())
 
+  /** 仅在非事件触发条件下更新checked */
+  let checkedByEvent = false
+  watch(
+    () => props.checked,
+    c => {
+      if (checkedByEvent) return
+      checked.clear()
+      c?.forEach(v => {
+        checked.add(dataDicts.value.get(v)!)
+      })
+    },
+    { immediate: true }
+  )
+
   function handleCheck(node: TreeNode<DataItem>, check: boolean) {
+    checkedByEvent = true
     const { checkStrictly } = props
     if (check) {
       Tree.dft(node, node => {
+        if (node.disabled) return
         node.checked = true
         checked.add(node.value)
       })
@@ -50,15 +67,25 @@ export function useCheck<DataItem extends Record<string, any>>(
           parent.checked = false
           checked.delete(parent.value)
 
-          parent.indeterminate = parent.children!.some(
-            child => child.indeterminate
-          ) || parent.children!.some(child => child.checked)
+          parent.indeterminate =
+            parent.children!.some(child => child.indeterminate) ||
+            parent.children!.some(child => child.checked)
 
           parent = parent.parent
         }
       }
     }
-    emit('check', Array.from(checked))
+    const checkedArr = Array.from(checked)
+
+    emit(
+      'update:checked',
+      checkedArr.map(item => item[props.valueKey!]),
+      checkedArr
+    )
+
+    nextTick(() => {
+      checkedByEvent = false
+    })
   }
 
   return {
