@@ -153,8 +153,6 @@ const handleChange = (e: Event) => {
 
 const el = shallowRef<HTMLInputElement>()
 
-const attrs = useAttrs()
-
 defineExpose<_InputExposed>({
   el
 })
