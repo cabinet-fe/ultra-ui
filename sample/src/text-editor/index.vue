@@ -38,7 +38,7 @@ import { shallowRef, ref } from 'vue'
 
 const editorRef = shallowRef()
 
-let modelValue = ref([
+let modelValue = shallowRef([
   { insert: { image: true } },
   { insert: '2\n' },
   { attributes: { bold: true }, insert: '22eee' },
@@ -55,11 +55,15 @@ let modelValue = ref([
 ])
 
 const setValue = () => {
-  // editorRef.value.quillRef().updateContents([{ insert: '22222\n' }])
+  editorRef.value.quillRef().updateContents([{ insert: '22222\n' }])
 }
 
 const handleChange = value => {
   // console.log(value, 'value')
+}
+
+const getModelBar = () => {
+  console.log(editorRef.value.getModelBar())
 }
 </script>
 <style></style>

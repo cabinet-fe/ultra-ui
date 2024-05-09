@@ -14,7 +14,7 @@ import type {
 import { bem } from '@ui/utils'
 import Quill from 'quill'
 import { Delta, Op } from 'quill/core'
-import { onMounted, onUnmounted, shallowRef, ref } from 'vue'
+import { onMounted, onUnmounted, shallowRef, ref, watch } from 'vue'
 
 defineOptions({
   name: 'TextEditor'
@@ -76,24 +76,22 @@ const getModelBar = () => {
 }
 
 /** 更新data的值 */
-const update = (delta: any, oldDelta, source) => {
+const update = (_, __, source: 'user' | 'api') => {
   const contents = quill.getContents()
 
-  if (source === 'user') {
-    emit('update:modelValue', { value: contents, stamp: stamp.value })
-  }
+  emit('update:modelValue', { value: contents, stamp: stamp.value })
 }
 
 onUnmounted(() => {
   quill.off('text-change', update)
 })
 
-// watch([() => props.modelValue, () => quill], ([val, qui]) => {
-//   console.log(val, 'val')
-// if (qui && val.stamp !== stamp.value) {
-// qui.setContents(val.value)
-// }
-// })
+watch([() => props.modelValue, () => quill], ([val, qui]) => {
+  console.log(val, 'val')
+  if (qui && val['stamp'] !== stamp.value) {
+    qui.setContents(val['value'])
+  }
+})
 
 defineExpose({ quillRef, setValue, getModelBar })
 </script>
