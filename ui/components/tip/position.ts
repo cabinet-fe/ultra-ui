@@ -9,7 +9,6 @@ import {
   countPositionInt,
 } from "./viewport"
 import type {ScrollDirection, PositionResult} from "./type"
-import { isOverflown } from "./calculate"
 
 /**弹窗位置距离屏幕边缘的距离 */
 let elementDistance = 16
