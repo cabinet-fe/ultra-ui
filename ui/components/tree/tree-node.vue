@@ -9,15 +9,15 @@
     </u-icon>
     <i v-else :class="cls.e('icon-placeholder')" />
 
-    <u-checkbox
-      v-if="treeProps.checkable"
-      :model-value="checked.has(node.value)"
-      :indeterminate="node.indeterminate"
-      @update:model-value="handleCheck(node, $event)"
-      :disabled="treeProps.disabledNode?.(node.value, node) || false"
-    />
-
     <span :class="cls.e('node-content')">
+      <u-checkbox
+        v-if="treeProps.checkable"
+        :model-value="checked.has(node.value)"
+        :indeterminate="node.indeterminate"
+        @update:model-value="handleCheck(node, $event)"
+        :disabled="disabled"
+        @click.stop
+      />
       <u-node-render :content="getTreeSlotsNode({ node, data: node.value })" />
     </span>
   </div>
@@ -51,6 +51,12 @@ const {
   handleSelect
 } = inject(TreeDIKey)!
 
+const disabled = computed(() => {
+  const { disabledNode } = treeProps
+  const { node } = props
+  return disabledNode?.(node.value, node) ?? false
+})
+
 /** 行class */
 const nodeClass = computed(() => {
   const { node } = props
@@ -58,7 +64,7 @@ const nodeClass = computed(() => {
     cls.e('node'),
     bem.is('selected', node.value === selected.value),
     bem.is('expanded', node.expanded),
-    bem.is('disabled', treeProps.disabledNode?.(node.value, node) || false),
+    bem.is('disabled', treeProps.disabledNode?.(node.value, node) || false)
   ]
 })
 
@@ -81,5 +87,9 @@ const handleClick = () => {
 
   treeProps.selectable && handleSelect(node)
   treeProps.expandOnClickNode && toggleExpand()
+  treeProps.checkable &&
+    !disabled.value &&
+    !treeProps.expandOnClickNode &&
+    handleCheck(node, !checked.has(node.value))
 }
 </script>
