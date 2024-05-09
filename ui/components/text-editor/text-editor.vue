@@ -7,11 +7,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { TextEditorProps, TextEditorEmits } from '@ui/types/components/text-editor'
+import type {
+  TextEditorProps,
+  TextEditorEmits
+} from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
 import { Delta, Op } from 'quill/core'
-import { onMounted, onUnmounted, shallowRef, watch, ref } from 'vue'
+import { onMounted, onUnmounted, shallowRef, ref } from 'vue'
 
 defineOptions({
   name: 'TextEditor'
@@ -25,9 +28,6 @@ const props = withDefaults(defineProps<TextEditorProps>(), {
 })
 
 const cls = bem('text-editor')
-
-// const data = defineModel<Delta | Op[]>({ required: true })
-// const data = ref<any>([])
 
 const editorRef = shallowRef()
 
@@ -77,23 +77,23 @@ const getModelBar = () => {
 
 /** 更新data的值 */
 const update = (delta: any, oldDelta, source) => {
-  console.log(delta, oldDelta, source)
   const contents = quill.getContents()
 
-  // data.value = contents.ops
-  if (source === 'user') emit('update:modelValue', { value: contents, stamp: stamp.value })
+  if (source === 'user') {
+    emit('update:modelValue', { value: contents, stamp: stamp.value })
+  }
 }
 
-// onUnmounted(() => {
-//   quill.off('text-change', update)
-// })
+onUnmounted(() => {
+  quill.off('text-change', update)
+})
 
-watch(
-  [() => props.modelValue, () => quill],
-  ([val, qui]) => {
-    if (qui && val.stamp !== stamp.value) qui.setContents(val.value)
-  }
-)
+// watch([() => props.modelValue, () => quill], ([val, qui]) => {
+//   console.log(val, 'val')
+// if (qui && val.stamp !== stamp.value) {
+// qui.setContents(val.value)
+// }
+// })
 
 defineExpose({ quillRef, setValue, getModelBar })
 </script>
