@@ -24,20 +24,18 @@ function isTopInViewport(
 
 /**
  * 靠下是否在视窗内
- * @param contentRefDom 内容dom信息
  * @param pageRefDom  页面dom信息
+ * @param scrollDom  滚动dom
  * @returns  是否在视窗内
  */
 function isBottomInViewport(
-  contentRefDom: HTMLElement,
   pageRefDom: HTMLElement,
-  screenSize: {width: number; height: number}
+  scrollDom: HTMLElement
 ): boolean {
-  let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
+  let scrollDomRect = scrollDom.getBoundingClientRect()
   return (
-    countPositionInt(contentRect.height) >
-    countPositionInt(screenSize.height - pageRect.y - pageRect.height - 16)
+    countPositionInt(scrollDomRect.bottom) < countPositionInt(pageRect.bottom + pageRect.height + 16)
   )
 }
 

@@ -108,7 +108,8 @@ function countPosition({
             elementHeight,
             tipContentRefDom,
             tipRefDom,
-            screenSize
+            screenSize,
+            scrollDom
           )
       }
       dynamicCss.value.opacity = 1
@@ -462,6 +463,7 @@ function leftCount(
  * @param tipContentRefDom tip元素DOM信息
  * @param tipRefDom 页面DOM信息
  * @param screenSize 当前所在滚动元素尺寸
+ * @param scrollDom 滚动元素
  *
  */
 function bottomCount(
@@ -471,7 +473,8 @@ function bottomCount(
   elementHeight: number,
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  screenSize: { width: number; height: number; }
+  screenSize: { width: number; height: number; },
+  scrollDom:HTMLElement
 ): void {
   // 预先计算DOM信息
   const {x, top} = tipRefDom.getBoundingClientRect()
@@ -484,7 +487,7 @@ function bottomCount(
   const bottomTop = `${top - contentRect.height - elementDistanceDefined}`
 
   // 判断是否在视图底部
-  if (isBottomInViewport(tipContentRefDom, tipRefDom,screenSize)) {
+  if (isBottomInViewport(tipRefDom,scrollDom)) {
     if (position === "bottom-start") {
       setTransform(`translate(${x}px, ${bottomTop}px)`)
     } else if (position === "bottom") {
