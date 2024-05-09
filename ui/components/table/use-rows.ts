@@ -29,13 +29,6 @@ export class TableRow<
 
   override parent: TableRow<Data> | null = null
 
-  override createNode<Val extends Record<string, any>>(
-    val: Val,
-    index: number
-  ): TableRow<Val> {
-    return new TableRow(val, index)
-  }
-
   constructor(data: Data, index: number) {
     super(shallowReactive(data), index)
     return shallowReactive(this)
