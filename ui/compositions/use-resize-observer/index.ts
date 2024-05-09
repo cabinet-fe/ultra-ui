@@ -1,8 +1,12 @@
 import { type Ref, type ShallowRef, onBeforeUnmount, watch } from 'vue'
 
+export type RefElement =
+  | ShallowRef<HTMLElement | undefined>
+  | Ref<HTMLElement | undefined>
+
 interface ResizeObserverOptions {
   /** 目标节点 */
-  target: ShallowRef<HTMLElement | undefined> | Ref<HTMLElement | undefined>
+  targets: RefElement | RefElement[]
   /** resize事件 */
   onResize: ResizeObserverCallback
 }
@@ -13,6 +17,17 @@ export type ResizeObserverReturn = {
   disconnect: () => void
 }
 
+function unobserve(
+  targets: RefElement | RefElement[],
+  observer: ResizeObserver
+) {
+  if (Array.isArray(targets)) {
+    return targets.forEach(target => unobserve(target, observer))
+  }
+  if (!targets.value) return
+  observer.unobserve(targets.value)
+}
+
 /**
  * 监听元素尺寸变更
  * @param options 选项
@@ -20,33 +35,52 @@ export type ResizeObserverReturn = {
 export function useResizeObserver(
   options: ResizeObserverOptions
 ): ResizeObserverReturn {
-  const { target, onResize } = options
+  const { targets, onResize } = options
 
-  const observer = new ResizeObserver(onResize)
+  let observer: ResizeObserver | undefined
 
-  watch(
-    target,
-    (val, oldVal) => {
-      oldVal && observer.unobserve(oldVal)
-      val && observer.observe(val)
-    },
-    {
-      immediate: true
-    }
-  )
+  if (Array.isArray(targets)) {
+    watch(
+      targets,
+      (val, oldVal) => {
+        if (!observer && !!val.length) {
+          observer = new ResizeObserver(onResize)
+        }
+        oldVal.length &&
+          oldVal.forEach(target => {
+            target && observer?.unobserve(target)
+          })
+        val.length &&
+          val.forEach(target => {
+            target && observer?.observe(target)
+          })
+      },
+      { immediate: true }
+    )
+  } else {
+    watch(
+      targets,
+      (val, oldVal) => {
+        if (!observer && val) {
+          observer = new ResizeObserver(onResize)
+        }
+        oldVal && observer?.unobserve(oldVal)
+        val && observer?.observe(val)
+      },
+      { immediate: true }
+    )
+  }
 
   onBeforeUnmount(() => {
-    if (!target.value) return
-    observer.unobserve(target.value)
-    observer.disconnect()
+    observer && unobserve(targets, observer)
+    observer?.disconnect()
+    observer = undefined
   })
 
   return {
     disconnect() {
-      if (target.value) {
-        observer.unobserve(target.value)
-      }
-      observer.disconnect()
+      observer && unobserve(targets, observer)
+      observer?.disconnect()
     }
   }
 }
