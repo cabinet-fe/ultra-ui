@@ -93,7 +93,7 @@ const trackSize = {
 }
 
 useResizeObserver({
-  target: contentRef,
+  targets: contentRef,
   onResize([entry]) {
     if (entry && scrollRef.value) {
       const { clientHeight, clientWidth } = scrollRef.value

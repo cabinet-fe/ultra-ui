@@ -20,7 +20,7 @@ export const useSlide = (
 
   /** 根据页面实时响应 */
   useResizeObserver({
-    target: runwayRef,
+    targets: runwayRef,
     onResize([entry]) {
       const rect = entry!.target.getBoundingClientRect()
       if (props.vertical) {
