@@ -64,8 +64,7 @@ import {
   getCurrentInstance,
   ref,
   Transition,
-  shallowRef,
-  useAttrs
+  shallowRef
 } from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -152,8 +151,6 @@ const handleChange = (e: Event) => {
 }
 
 const el = shallowRef<HTMLInputElement>()
-
-const attrs = useAttrs()
 
 defineExpose<_InputExposed>({
   el

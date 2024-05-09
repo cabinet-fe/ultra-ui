@@ -41,7 +41,7 @@ const watermark = reactive({
   zIndex: 0,
   image: props.image,
   set: (str, container) => {
-    const id = setWatermark(str, container)
+    // const id = setWatermark(str, container)
     // setInterval(() => {
     //   if (document.getElementById(id) === null) {
     //     setWatermark(str, container)
@@ -54,11 +54,9 @@ const watermark = reactive({
 })
 
 const setWatermark = async (str: any, container: any) => {
-  console.log(str, 'str')
-  console.log(container, 'container')
   const id = 'watermark-' + new Date().getTime() // 使用更动态的ID
 
-  let rect = watermarkRef.value?.getBoundingClientRect()
+  // let rect = watermarkRef.value?.getBoundingClientRect()
 
   if (container === undefined) return
 
@@ -83,7 +81,6 @@ const setWatermark = async (str: any, container: any) => {
     canvas.height = container.clientHeight
   })
 
-  console.log(container.clientWidth, container.clientHeight, 'containter')
   // canvas.width = 390
   // canvas.height = 200
 
@@ -146,7 +143,6 @@ const setWatermark = async (str: any, container: any) => {
 }
 
 onMounted(() => {
-  console.log(111)
   watermark.set(watermark.text, watermarkRef.value)
 })
 </script>
