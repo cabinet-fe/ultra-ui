@@ -3,19 +3,25 @@
     <div>
       {{ modelValue }}
       <CustomCard title="基础用法">
-        <u-button @click="setValue">赋值</u-button>
+        <u-button style="margin-right: 10px" @click="setValue">赋值</u-button>
+
+        <u-button @click="getModelBar">获取toolBar</u-button>
 
         <UTextEditor
           ref="editorRef"
-          v-model="modelValue"
+          v-model:model-value="modelValue"
           @update:model-value="handleChange"
           height="500px"
           :toolbar="[
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ size: ['small'] }],
+            [
+              {
+                header: [1, 2, 3, 4, false]
+              }
+            ],
             ['link'],
             ['bold', 'italic', 'underline'],
-            ['image', 'code-block']
+            ['image', 'code-block'],
+            ['clean']
           ]"
         />
       </CustomCard>
@@ -27,13 +33,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef } from 'vue'
+import { shallowRef, ref } from 'vue'
 
 const editorRef = shallowRef()
 
-let modelValue = ref([
+let modelValue = shallowRef([
   { insert: { image: true } },
   { insert: '2\n' },
   { attributes: { bold: true }, insert: '22eee' },
@@ -54,7 +59,11 @@ const setValue = () => {
 }
 
 const handleChange = value => {
-  console.log(value, 'value')
+  // console.log(value, 'value')
+}
+
+const getModelBar = () => {
+  console.log(editorRef.value.getModelBar())
 }
 </script>
 <style></style>

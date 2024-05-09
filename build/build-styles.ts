@@ -1,5 +1,5 @@
 import { cp, writeFile } from 'node:fs/promises'
-import { basename, dirname, extname, relative, resolve } from 'node:path'
+import { basename, dirname, extname, resolve, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 import { rollup } from 'rollup'
@@ -74,7 +74,7 @@ async function buildStyleEntry() {
           handler(id, importer) {
             if (id.startsWith('@ui')) {
               if (importer) {
-                id = relative(dirname(importer), id.replace('@ui', UI_ROOT))
+                id = relative(dirname(importer), id.replace('@ui', UI_ROOT)).replace(/\\/g, '/')
               } else {
                 id.replaceAll('@ui', 'ultra-ui')
               }

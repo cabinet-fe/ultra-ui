@@ -1,6 +1,5 @@
 <template>
   <div>
-    <u-scroll tag="div" height="50vh">
       <div style="height: 40vh"></div>
     <div class="tip-box">
       <!-- <div class="anime-test" ref="divRef">11111</div> -->
@@ -129,7 +128,6 @@
       </div>
       <div style="height: 100vh"></div>
     </div>
-    </u-scroll>
   </div>
 </template>
 

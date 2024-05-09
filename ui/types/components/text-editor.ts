@@ -1,7 +1,8 @@
 import type { ToolbarConfig } from 'quill/modules/toolbar'
 import type { DeconstructValue } from '../helper'
-import type { Delta, Op } from 'quill/core'
+import { Delta, type Op } from 'quill/core'
 /** text-editor组件属性 */
+
 export interface TextEditorProps {
   modelValue: Delta | Op[]
   /** 高度 */
@@ -14,7 +15,7 @@ export interface TextEditorProps {
 
 /** text-editor组件定义的事件 */
 export interface TextEditorEmits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: any): void
 }
 
 /** text-editor组件暴露的属性和方法(组件内部使用) */

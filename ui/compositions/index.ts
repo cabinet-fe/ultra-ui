@@ -12,6 +12,8 @@ export * from './use-form-component'
 
 export * from './use-http'
 
+export * from './use-reactive-size'
+
 export * from './use-resize-observer'
 
 export * from './use-server-query'

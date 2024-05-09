@@ -50,10 +50,11 @@ const pkg = {
   }
 }
 
-export function genPackageJson() {
+function genPackageJson() {
   writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
     'utf-8'
   )
 }
+genPackageJson()

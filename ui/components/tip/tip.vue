@@ -36,6 +36,7 @@ import {
   calculateMaxWidth,
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
+  isOverflown,
 } from "./calculate"
 import type {ScrollDirection} from "./type"
 import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
@@ -134,7 +135,7 @@ const handleClick = () => {
 }
 
 const handleClickOutside = () => {
-  clearInterval(timers.get("timerTip"))
+  clearTimeout(timers.get("timerTip"))
   if (props.trigger === "hover") return
   clearTimeout(timers.get("outside"))
   timers.set(
@@ -204,7 +205,15 @@ const popup = (scrollDirection?: ScrollDirection) => {
       ...dynamicCss.value,
       ...props.customStyle,
     }
-    setStyles(tipContentRefDom, dynamicStyle.value)
+    // 判断元素超出父元素scrollDom隐藏弹窗
+    if (isOverflown(tipRefDom, scrollDom.value!)) {
+      setStyles(tipContentRefDom!, {
+        ...dynamicStyle.value,
+        opacity: 0,
+      })
+    } else {
+      setStyles(tipContentRefDom, dynamicStyle.value)
+    }
   })
 }
 
@@ -229,25 +238,8 @@ const removeListener = () => {
 }
 
 const scrollEvent = () => {
-  const tipRefDom = tipRef.value?.$el as HTMLElement
-
   const currentScrollTop = scrollDom.value ? scrollDom.value?.scrollTop : 0
   const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
-  if (scrollDirection === "up") {
-    if (
-      scrollDom.value?.scrollTop! + tipRefDom.clientHeight <
-      screenSize.height
-    ) {
-      removeListener()
-      return
-    }
-  } else {
-    if ((tipRefDom.getBoundingClientRect().top + gap) < tipRefDom.clientHeight) {
-      removeListener()
-      return
-    }
-  }
-
   popup(scrollDirection)
   lastScrollTop = currentScrollTop
 }

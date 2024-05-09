@@ -63,10 +63,7 @@ const emit = defineEmits<NumberInputEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([
-  formProps ?? {},
-  props
-], {
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
   disabled: false
 })
@@ -200,7 +197,7 @@ function handleUpdateModelValue(input: string): void {
  * 主要用于在输入非数字的情况下的修正处理
  * @param input 输入的值
  */
-function handleChange(input: string) {
+function handleChange() {
   emit('change', model.value)
 }
 
@@ -271,5 +268,6 @@ function handleFocus(): void {
 
 function handleBlur(): void {
   focused.value = false
+  model.value = props.modelValue
 }
 </script>
