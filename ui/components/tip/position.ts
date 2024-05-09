@@ -28,6 +28,7 @@ let dynamicCss = shallowRef<Record<string, any>>({})
  * @param tipContentRefDom tip提示的DOM信息
  * @param scrollDirection 屏幕滚动方向
  * @param screenSize 当前所在滚动元素尺寸
+ * @param scrollDom 滚动元素
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
  */
 function countPosition({
@@ -37,7 +38,8 @@ function countPosition({
   tipRefDom,
   tipContentRefDom,
   scrollDirection,
-  screenSize
+  screenSize,
+  scrollDom
 }: {
   position: string
   elementWidth: number
@@ -45,7 +47,8 @@ function countPosition({
   tipRefDom: HTMLElement
   tipContentRefDom: HTMLElement
   scrollDirection: ScrollDirection
-  screenSize: {width: number; height: number}
+  screenSize: {width: number; height: number},
+  scrollDom:HTMLElement
 }): Promise<PositionResult> {
   componentCss = {
     left: undefined as string | undefined,
@@ -72,7 +75,8 @@ function countPosition({
             elementWidth,
             tipRefDom,
             tipContentRefDom,
-            screenSize
+            screenSize,
+            scrollDom
           )
         position.indexOf("left") > -1 &&
           leftCount(
@@ -126,6 +130,7 @@ const setTransform = (transform: string): void => {
  * @param tipRefDom 页面DOM信息
  * @param tipContentRefDom tip元素DOM信息
  * @param screenSize 当前所在滚动元素尺寸
+ * @param scrollDom 滚动元素
  */
 function topCount(
   position: string,
@@ -134,7 +139,8 @@ function topCount(
   elementWidth: number,
   tipRefDom: HTMLElement,
   tipContentRefDom: HTMLElement,
-  screenSize: {width: number; height: number}
+  screenSize: {width: number; height: number},
+  scrollDom:HTMLElement
 ) {
   // 获取tip元素位置信息
   let {x, y} = tipRefDom.getBoundingClientRect()
@@ -165,7 +171,7 @@ function topCount(
   }
 
   // 如果tip元素超出视窗上边界，则将tip元素定位到鼠标下方
-  if (!isTopInViewport(tipContentRefDom, tipRefDom)) {
+  if (!isTopInViewport(tipRefDom,scrollDom)) {
     if (position === "top-start") {
       setTransform(`translate(${x}px, ${topDown}px)`)
     } else if (position === "top") {

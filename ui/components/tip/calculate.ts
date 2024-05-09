@@ -38,10 +38,8 @@ function isOverflown(tipRefDom: HTMLElement, parentDom: HTMLElement) {
 
   // 检查元素是否在父元素的左边、右边、上边或下边之外
   if (
-    tipRect.right - tipRect.width > parentRect.right || // 右边超出
-    tipRect.left - tipRect.width < parentRect.left || // 左边超出
     tipRect.bottom - tipRect.height / 2 > parentRect.bottom || // 下边超出
-    tipRect.top - tipRect.height / 2 < parentRect.top // 上边超出
+    tipRect.top + tipRect.height < parentRect.top // 上边超出
   ) {
     return true // 至少有一个边超出，则返回true
   }

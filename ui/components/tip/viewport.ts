@@ -10,13 +10,15 @@ function countPositionInt(num: number | string): number {
  * @returns  是否在视窗内
  */
 function isTopInViewport(
-  contentRefDom: HTMLElement,
-  pageRefDom: HTMLElement
+  pageRefDom: HTMLElement,
+  scrollDom:HTMLElement
 ): boolean {
-  let contentRect = contentRefDom.getBoundingClientRect()
   let pageRect = pageRefDom.getBoundingClientRect()
+  let scrollDomRect = scrollDom.getBoundingClientRect()
+
+  // 获取父元素的边界位置
   return (
-    countPositionInt(pageRect.top - 16) > countPositionInt(contentRect.height)
+    countPositionInt(scrollDomRect.top) < countPositionInt(pageRect.top - pageRect.height)
   )
 }
 
