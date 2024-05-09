@@ -199,6 +199,7 @@ const popup = (scrollDirection?: ScrollDirection) => {
       tipContentRefDom,
       scrollDirection: scrollDirection!,
       screenSize,
+      scrollDom: scrollDom.value!
     }
     const {dynamicCss} = await calcPosition(positionParams)
     dynamicStyle.value = {
@@ -209,10 +210,13 @@ const popup = (scrollDirection?: ScrollDirection) => {
     if (isOverflown(tipRefDom, scrollDom.value!)) {
       setStyles(tipContentRefDom!, {
         ...dynamicStyle.value,
-        opacity: 0,
+        opacity: 0
       })
     } else {
-      setStyles(tipContentRefDom, dynamicStyle.value)
+      setStyles(tipContentRefDom, {
+        ...dynamicStyle.value,
+        opacity: 1
+      })
     }
   })
 }
