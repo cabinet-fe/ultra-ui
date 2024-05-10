@@ -1,6 +1,7 @@
 import type { PropsWithServerQuery } from '../component-common'
-import type { TreeNode as _TreeNode } from 'cat-kit/fe'
+import type { TreeNode as _TreeNode, Forest } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
+import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface TreeNode<DataItem extends Record<string, any>>
   extends _TreeNode<DataItem> {
@@ -66,6 +67,9 @@ export interface TreeNodeProps {
 /** 树组件暴露的属性和方法(组件内部使用) */
 export interface _TreeExposed<DataItem extends Record<string, any>> {
   filter(filter: (node: TreeNode<DataItem>) => boolean): void
+  forest: ComputedRef<Forest<TreeNode<DataItem>>>
+  nodes: ShallowRef<TreeNode<DataItem>[]>
+  checkNode: (node: TreeNode<DataItem>, check: boolean) => void
 }
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

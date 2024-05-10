@@ -22,11 +22,16 @@ export const useSlide = (
   useResizeObserver({
     targets: runwayRef,
     onResize([entry]) {
-      const rect = entry!.target.getBoundingClientRect()
+      // console.log(entry)
+      // const rect = entry!.target.getBoundingClientRect()
       if (props.vertical) {
-        sliderSize.value = rect.height
+        sliderSize.value = runwayRef.value?.offsetHeight!
+        // rect.height
       } else {
-        sliderSize.value = rect.width
+        // console.log(, 'rect.width')
+        //
+        // rect.width
+        sliderSize.value = runwayRef.value?.offsetWidth!
       }
     }
   })
