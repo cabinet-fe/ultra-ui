@@ -1,12 +1,6 @@
 <template>
-  <!-- {{ disabled }} -->
   <div
-    :class="[
-      cls.b,
-      cls.m(size),
-      bem.is('vertical', vertical),
-      bem.is('disabled', disabled)
-    ]"
+    :class="className"
     ref="sliderRef"
     :style="vertical ? { height: `${height}px` } : undefined"
   >
@@ -59,7 +53,7 @@ const props = withDefaults(defineProps<SliderProps>(), {
   vertical: false,
   height: 300,
   range: false,
-  disabled: false
+  disabled: undefined
 })
 
 const emit = defineEmits<SliderEmits>()
@@ -68,8 +62,15 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default'
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+
+const className = computed(() => {
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('vertical', props.vertical),
+    bem.is('disabled', disabled.value)
+  ]
 })
 
 /** slider大小 */
@@ -159,6 +160,7 @@ const handleOneDown = async (value: number) => {
 
 provide(sliderContextKey, {
   sliderProps: props,
+  disabled: disabled,
   runwayRef,
   sliderSize,
   model,

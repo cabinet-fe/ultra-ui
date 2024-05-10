@@ -22,7 +22,7 @@ import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!
 
-let { cls, sliderSize, sliderProps, setSliderBarSize } = injected
+let { cls, sliderSize, sliderProps, disabled, setSliderBarSize } = injected
 
 const buttonValue = defineModel<number>()
 
@@ -104,7 +104,8 @@ useDrag({
     isDragging = true
   },
   onDrag(x, y, e) {
-    if (sliderProps.disabled) return
+    // console.log(sliderProps.disabled ?? false)
+    if (disabled.value) return
 
     const { vertical } = sliderProps
     let newPosition = vertical ? currentTransform.y + y : currentTransform.x + x
