@@ -54,7 +54,9 @@ onMounted(() => {
 
   quill.on('text-change', update)
 
-  quill.updateContents(props.modelValue)
+  if (props.modelValue) {
+    quill.updateContents(props.modelValue)
+  }
 
   stamp.value = `${new Date().getTime()}${Math.random()}`
 })
@@ -87,8 +89,8 @@ onUnmounted(() => {
 })
 
 watch([() => props.modelValue, () => quill], ([val, qui]) => {
-  if (qui && val['stamp'] !== stamp.value) {
-    qui.setContents(val['value'])
+  if (qui && val?.['stamp'] !== stamp.value) {
+    qui.setContents(val?.['value'])
   }
 })
 

@@ -1,4 +1,5 @@
 <template>
+  <!-- {{ disabled }} -->
   <div
     :class="[
       cls.b,
@@ -58,7 +59,7 @@ const props = withDefaults(defineProps<SliderProps>(), {
   vertical: false,
   height: 300,
   range: false,
-  disabled: undefined
+  disabled: false
 })
 
 const emit = defineEmits<SliderEmits>()
