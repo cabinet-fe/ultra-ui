@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CustomCard title="菜单选择器">
+    <CustomCard title="菜单选择器全选、禁用某项、过滤">
       {{ treeCheckable }}
       <u-tree-select
         v-model="treeCheckable"
@@ -8,6 +8,9 @@
         label-key="name"
         value-key="id"
         checkable
+        expand-all
+        :disabledNode="disabledNode"
+        filterable
       ></u-tree-select>
     </CustomCard>
   </div>
