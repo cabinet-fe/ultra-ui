@@ -1,10 +1,11 @@
 <template>
-  <transition name="fade" appear @after-leave="emit('destroy')">
+  <transition name="zoom-in" appear @after-leave="emit('destroy')">
     <ul
       :class="[cls.b, cls.m(size)]"
       :style="style"
       ref="contextMenuRef"
       v-if="visible"
+      v-click-outside="close"
     >
       <UContextMenuItem
         v-for="menu of menus"
@@ -29,6 +30,7 @@ import UContextMenuItem from './context-menu-item.vue'
 import { objMap } from 'cat-kit/fe'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
+import { vClickOutside } from '@ui/directives'
 
 defineOptions({
   name: 'ContextMenu'
@@ -56,6 +58,7 @@ const computePosition = () => {
     left?: number
     right?: number
     bottom?: number
+    transformOrigin?: string
   } = {}
 
   const { mousePosition } = props
@@ -70,6 +73,11 @@ const computePosition = () => {
   } else {
     position.top = y
   }
+
+  const positionY = position.top ? 'top' : 'bottom'
+  const positionX = position.left ? 'left' : 'right'
+  position.transformOrigin = `${positionY} ${positionX}`
+
   return objMap(position, v => withUnit(v, 'px'))
 }
 
@@ -93,10 +101,14 @@ const getMenuDisabled = (menu: ContextMenuItem) => {
   return typeof menu.disabled === 'function' ? menu.disabled() : menu.disabled
 }
 
+function close() {
+  visible.value = false
+}
+
 const handleClickMenu = async (menu: ContextMenuItem) => {
   if (getMenuDisabled(menu)) return
   await menu.callback?.()
-  visible.value = false
+  close()
 }
 
 provide(ContextMenuDIKey, {

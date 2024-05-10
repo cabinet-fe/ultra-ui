@@ -32,6 +32,9 @@ import { routes } from './router'
 import { useConfig, vRipple, contextmenu } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common'
+import { sleep } from 'cat-kit/fe'
+import  { Plus } from 'icon-ultra'
+
 
 const router = useRouter()
 const route = useRoute()
@@ -72,6 +75,7 @@ const ListItem = defineComponent({
               menus: [
                 {
                   label: '菜单1',
+                  icon: Plus,
                   callback() {
                     console.log(route)
                   }
@@ -79,7 +83,7 @@ const ListItem = defineComponent({
                 {
                   label: '菜单2',
                   async callback() {
-
+                    await sleep(2000)
                   }
                 }
               ]
