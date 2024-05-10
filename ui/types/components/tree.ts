@@ -46,6 +46,7 @@ export interface TreeProps<
   selected?: any
   /** 多选选中项 */
   checked?: any[]
+
 }
 
 export interface TreeEmit<

@@ -1,0 +1,33 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: context-menu;
+
+@include m.b($root-name) {
+  position: fixed;
+  background-color: fn.use-var(bg-color, top);
+  box-shadow: fn.use-var(shadow);
+  border-radius: fn.use-var(radius, default);
+  padding: fn.use-var(gap, small);
+  @include m.size using ($size) {
+    // padding: fn.use-var(gap, $size);
+
+    // @include m.bem($root-name, item) {
+    //   padding: fn.use-var(gap, $size);
+    //   border-radius: fn.use-var(radius, $size);
+    // }
+  }
+
+
+  @include m.e(item) {
+    cursor: pointer;
+    padding: fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+  }
+
+}
