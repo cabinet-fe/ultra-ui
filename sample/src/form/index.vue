@@ -6,7 +6,7 @@
 
     <CustomCard title="表单">
       <u-button @click="visible = true">打开</u-button>
-      <u-dialog v-model="visible" style="width: 900px;">
+      <u-dialog v-model="visible" style="width: 900px">
         <u-form
           :disabled="disabled"
           :readonly="readonly"
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { field, FormModel } from 'ultra-ui'
+import { formField, FormModel } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 
@@ -68,7 +68,7 @@ const disabled = shallowRef(false)
 
 const model = new FormModel({
   name: { maxLen: 4, required: true },
-  age: field<string>({ required: '年龄是必填的' }),
+  age: formField<string>({ required: '年龄是必填的' }),
   aa: { required: true },
   phone: {
     validator(value) {

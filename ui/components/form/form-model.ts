@@ -7,6 +7,24 @@ import type {
 import { Validator } from '@ui/utils'
 import { nextTick, shallowReactive, watch } from 'vue'
 
+/**
+ * 响应式表单模型
+ * @example
+ * ```ts
+ * // 使用表单模型类你可以很容易地操作一个表单
+ * const model = new FormModel({
+ *   name: {
+ *    value: '初始值',
+ *    // 必填
+ *    required: true,
+ *    // 最大长度
+ *    maxLen: 4
+ *   },
+ *   // 你也可以像下面这样指定来定一个没有初始值但是仍然标注了类型的字段
+ *   age: field<string>({ required: '年龄是必填的' }),
+ * })
+ * ```
+ */
 export class FormModel<
   Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
 > implements IFormModel<Fields>
