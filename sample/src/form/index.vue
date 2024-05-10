@@ -5,39 +5,46 @@
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
 
     <CustomCard title="表单">
-      <u-form
-        :disabled="disabled"
-        :readonly="readonly"
-        :model="model"
-        label-width="100px"
-      >
-        <u-input field="name" label="姓名" tips="四个字以内" />
-        <u-password-input field="pwd" label="密码" />
-        <u-number-input field="age" label="年龄" />
-        <u-number-input field="debt" currency label="借款" :step="1" />
-        <u-input field="phone" label="手机" />
-        <u-input field="email" label="邮箱" />
-        <u-select field="unit" label="单位" :options="units" />
-        <u-multi-select field="interest" label="兴趣" :options="interestList" />
-        <u-radio-group
-          :items="[
-            { label: '男', value: 'male' },
-            { label: '女', value: 'female' }
-          ]"
-          label="性别"
-          field="sex"
-        />
-        <u-date-picker field="date" label="日期" />
-        <u-checkbox field="freeze" label="是否冻结" />
-        <u-textarea field="remarks" label="备注" />
-        <u-slider field="slider" label="滑块" />
-        <u-text-editor field="guide" label="指南" />
-      </u-form>
+      <u-button @click="visible = true">打开</u-button>
+      <u-dialog v-model="visible" style="width: 900px;">
+        <u-form
+          :disabled="disabled"
+          :readonly="readonly"
+          :model="model"
+          label-width="100px"
+        >
+          <u-input field="name" label="姓名" tips="四个字以内" />
+          <u-password-input field="pwd" label="密码" />
+          <u-number-input field="age" label="年龄" />
+          <u-number-input field="debt" currency label="借款" :step="1" />
+          <u-input field="phone" label="手机" />
+          <u-input field="email" label="邮箱" />
+          <u-select field="unit" label="单位" :options="units" />
+          <u-multi-select
+            field="interest"
+            label="兴趣"
+            :options="interestList"
+          />
+          <u-radio-group
+            :items="[
+              { label: '男', value: 'male' },
+              { label: '女', value: 'female' }
+            ]"
+            label="性别"
+            field="sex"
+          />
+          <u-date-picker field="date" label="日期" />
+          <u-checkbox field="freeze" label="是否冻结" />
+          <u-textarea field="remarks" label="备注" />
+          <u-slider field="slider" label="滑块" />
+          <u-text-editor field="guide" label="指南" />
+        </u-form>
 
-      <div>
-        <u-button @click="model.validate()">校验</u-button>
-        <u-button @click="model.clearValidate()">重置</u-button>
-      </div>
+        <template #footer>
+          <u-button @click="model.validate()">校验</u-button>
+          <u-button @click="model.clearValidate()">重置</u-button>
+        </template>
+      </u-dialog>
     </CustomCard>
 
     {{ model.data }}
@@ -89,6 +96,8 @@ const units = [
   { label: '单位2', value: '2' },
   { label: '单位3', value: '3' }
 ]
+
+const visible = shallowRef(false)
 
 const interestList = [
   { label: '电影', value: '1' },

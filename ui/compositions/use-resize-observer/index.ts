@@ -9,6 +9,8 @@ interface ResizeObserverOptions {
   targets: RefElement | RefElement[]
   /** resize事件 */
   onResize: ResizeObserverCallback
+  /** 指定观察条件 */
+  when?: () => boolean
 }
 
 /** 监听器 */
@@ -43,7 +45,7 @@ export function useResizeObserver(
     watch(
       targets,
       (val, oldVal) => {
-        if (!observer && !!val.length) {
+        if (!observer && !!val.length ) {
           observer = new ResizeObserver(onResize)
         }
         oldVal.length &&

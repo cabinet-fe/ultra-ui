@@ -1,7 +1,16 @@
 import type { FormProps } from '@ui/types/components/form'
-import { useSlots, h } from 'vue'
+import {
+  useSlots,
+  h,
+  type VNode,
+  type VNodeChild,
+  createTextVNode,
+  type VNodeArrayChildren,
+  isVNode
+} from 'vue'
 import FormItem from '../form-item/form-item.vue'
 import { pick } from 'cat-kit/fe'
+import { isFragment, isTemplate } from '@ui/utils'
 
 interface Options {
   props: FormProps
@@ -16,13 +25,36 @@ export function useNodeInterceptor(options: Options) {
   const { props } = options
   const slots = useSlots()
 
+  function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
+    nodes.forEach(node => {
+      if (!isVNode(node)) {
+        if (typeof node === 'string' || typeof node === 'number') {
+          results.push(createTextVNode(String(node)))
+        }
+        return
+      }
+      if (
+        (isFragment(node) || isTemplate(node)) &&
+        Array.isArray(node.children)
+      ) {
+        flatNodes(node.children, results)
+      } else {
+        results.push(node)
+      }
+    })
+    return results
+  }
+
   return function getSlotsNodes() {
     const nodes = slots.default?.()
     if (!nodes?.length) return null
 
     const data = props.model?.data
     if (!data) return nodes
-    return nodes.map(node => {
+
+    const flattedNodes = flatNodes(nodes)
+
+    return flattedNodes.map(node => {
       if (node.props?.field) {
         const field = node.props.field
         node.props.modelValue = data[field]
@@ -50,7 +82,7 @@ export function useNodeInterceptor(options: Options) {
         return h(
           FormItem,
           pick(node.props || {}, ['label', 'field', 'span', 'tips']),
-          () => [node]
+          () => node
         )
       }
       return node
