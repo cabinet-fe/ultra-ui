@@ -64,14 +64,12 @@ let quill: Quill | null = null
 const stamp = ref<string>('')
 
 const createTextEditor = async () => {
-  // remove toolbox
   if (quill) {
-    // let toolbar: any = quill?.theme?.modules
-    // toolbar.container.remove()
-    // // remove clipboard
-    // clipboard?.container?.remove()
-    // // remove tooltip
-    // quill?.theme?.tooltip?.root?.remove()
+    const theme: any = quill?.theme
+    // remove toolbox
+    theme.modules?.toolbar?.container?.remove()
+    // remove clipboard
+    theme.modules?.clipboard?.container?.remove()
   }
 
   // quill = null
@@ -94,7 +92,8 @@ onMounted(() => {
 watch(
   () => disabled.value,
   () => {
-    quill?.enable(disabled.value)
+    createTextEditor()
+    // quill?.enable(disabled.value)
   }
 )
 
@@ -115,7 +114,7 @@ const getModelBar = () => {
 }
 
 /** 更新data的值 */
-const update = (_, __, source: 'user' | 'api') => {
+const update = (_, __, ___: 'user' | 'api') => {
   const contents = quill?.getContents()
 
   emit('update:modelValue', { value: contents, stamp: stamp.value })
