@@ -104,7 +104,7 @@ useDrag({
     isDragging = true
   },
   onDrag(x, y, e) {
-    if (sliderProps.disable) return
+    if (sliderProps.disabled) return
 
     const { vertical } = sliderProps
     let newPosition = vertical ? currentTransform.y + y : currentTransform.x + x

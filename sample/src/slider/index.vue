@@ -53,7 +53,7 @@
 
     禁用
     <div>
-      <u-slider v-model="sliderValue" disable />
+      <u-slider v-model="sliderValue" disabled />
     </div>
 
     表单

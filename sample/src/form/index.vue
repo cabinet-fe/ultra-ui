@@ -31,6 +31,7 @@
         <u-checkbox field="freeze" label="是否冻结" />
         <u-textarea field="remarks" label="备注" />
         <u-slider field="slider" label="滑块" />
+
         <u-text-editor field="guide" label="指南" />
       </u-form>
 

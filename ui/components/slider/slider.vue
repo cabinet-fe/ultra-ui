@@ -4,7 +4,7 @@
       cls.b,
       cls.m(size),
       bem.is('vertical', vertical),
-      bem.is('disable', disable)
+      bem.is('disabled', !!disabled)
     ]"
     ref="sliderRef"
     :style="vertical ? { height: `${height}px` } : undefined"
@@ -57,7 +57,8 @@ const props = withDefaults(defineProps<SliderProps>(), {
   step: 0,
   vertical: false,
   height: 300,
-  range: false
+  range: false,
+  disabled: undefined
 })
 
 const emit = defineEmits<SliderEmits>()
