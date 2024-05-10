@@ -3,7 +3,6 @@ import {
   useSlots,
   h,
   type VNode,
-  type VNodeChild,
   createTextVNode,
   type VNodeArrayChildren,
   isVNode

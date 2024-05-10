@@ -15,7 +15,6 @@ import type {
 import { debounce, equal } from 'cat-kit/fe'
 import { getContainerBreakpoint } from './breakpoint'
 import type { Undef } from '@ui/types/helper'
-import { useResizeObserver } from '@ui/compositions'
 
 interface ResponsiveOptions {
   props: GridProps
