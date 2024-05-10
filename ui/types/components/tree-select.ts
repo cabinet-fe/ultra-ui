@@ -16,6 +16,10 @@ export interface TreeSelectProps<Val extends string | number>
    * 是否可清空
    */
   clearable?: boolean
+  /**
+   * 是否可搜索
+   */
+  filterable?:boolean
 }
 
 /** 树形选择器组件定义的事件 */

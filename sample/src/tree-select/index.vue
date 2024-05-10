@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CustomCard title="基础">
+    <CustomCard title="菜单选择器">
       {{ treeCheckable }}
       <u-tree-select
         v-model="treeCheckable"
@@ -9,7 +9,6 @@
         value-key="id"
         checkable
         :disabled-node="disabledNode"
-        @update="handleUpdate"
       ></u-tree-select>
     </CustomCard>
   </div>
@@ -19,14 +18,10 @@
 import {shallowRef} from "vue"
 import CustomCard from "../card/custom-card.vue"
 
-const handleUpdate = (val) => {
-  console.log(val)
-}
-
-const treeCheckable = shallowRef([1,5,7])
+const treeCheckable = shallowRef([])
 
 const disabledNode = (data) => {
-  return data.id % 2 === 0
+  return data.id % 4 === 0
 }
 const data = [
   {name: "烤冷面", id: 1},
