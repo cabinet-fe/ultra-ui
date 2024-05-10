@@ -11,10 +11,16 @@ export class FormModel<
   Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
 > implements IFormModel<Fields>
 {
+  /** 表单数据 */
   readonly data: ModelData<Fields>
 
+  /** 表单规则 */
   readonly rules: ModelRules<Fields>
 
+  /** 字段键 */
+  readonly keyOfFields: (keyof Fields)[]
+
+  /** 初始数据 */
   private readonly initialData: ModelData<Fields>
 
   readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
@@ -30,19 +36,20 @@ export class FormModel<
 
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
-
     const rules = {} as ModelRules<Fields>
+    const keyOfFields = [] as (keyof Fields)[]
 
     for (const key in fields) {
       const { value, ...rule } = fields[key]!
+      keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
-
       rules[key] = rule as any
     }
-    this.initialData = JSON.parse(JSON.stringify(rawData))
 
+    this.initialData = JSON.parse(JSON.stringify(rawData))
     const data = shallowReactive(rawData)
 
+    this.keyOfFields = keyOfFields
     this.data = data
     this.rules = rules
     this.validator = new Validator(rules)
@@ -105,12 +112,21 @@ export class FormModel<
   }
 
   /** 重置数据 */
-  resetData(): void {
+  resetData(fields?: keyof Fields | (keyof Fields)[]): void {
+    if (typeof fields === 'string') {
+      fields = [fields]
+    } else if (Array.isArray(fields)) {
+    } else {
+      fields = this.keyOfFields
+    }
+
     // 重置时不再校验数据了
     this.validateOnFieldChange = false
-    for (const key in this.data) {
-      this.data[key] = this.initialData[key]
-    }
+
+    fields.forEach(field => {
+      this.data[field] = this.initialData[field]
+    })
+
     this.clearValidate()
 
     nextTick(() => {
