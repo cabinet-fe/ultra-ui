@@ -58,7 +58,7 @@
 
     表单
     {{ model }}
-    <u-form :model="model">
+    <u-form :disabled="true" :model="model">
       <u-input field="name" label="姓名" tips="四个字以内" />
       <u-slider field="number" label="滑块"></u-slider>
     </u-form>

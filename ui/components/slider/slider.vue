@@ -4,7 +4,7 @@
       cls.b,
       cls.m(size),
       bem.is('vertical', vertical),
-      bem.is('disabled', !!disabled)
+      bem.is('disabled', disabled)
     ]"
     ref="sliderRef"
     :style="vertical ? { height: `${height}px` } : undefined"
