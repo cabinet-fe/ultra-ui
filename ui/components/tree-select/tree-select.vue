@@ -9,9 +9,11 @@
     @mouseleave="mouse = false"
   >
     <template #trigger>
+      <!-- 默认展示 -->
       <span :class="cls.e('placeholder')" v-if="!model?.length">
         {{ placeholder }}
       </span>
+      <!-- 选择的数据项 -->
       <div v-else :class="cls.e('tags')">
         <u-tag
           v-for="(item, index) in tags"
@@ -20,6 +22,7 @@
           >{{ item[labelKey] }}</u-tag
         >
       </div>
+      <!-- 清空 icon -->
       <transition name="zoom-in">
         <u-icon
           v-if="clearable && model?.length && mouse && !disabled"
@@ -29,18 +32,20 @@
           <Close />
         </u-icon>
       </transition>
+      <!-- 下拉 icon -->
       <u-icon :class="cls.e(`arrow`)">
         <ArrowDown />
       </u-icon>
     </template>
     <template #content>
+      <!-- 全选 -->
       <div :class="[cls.e('content-header'), cls.m(size)]">
         <u-checkbox
           :model-value="allChecked"
           :indeterminate="indeterminate"
           @update:model-value="handleCheckAll"
         >
-        {{allChecked?'全不选':'全选'}}
+          {{ allChecked ? "全不选" : "全选" }}
         </u-checkbox>
       </div>
       <!-- 过滤器 -->
@@ -51,17 +56,17 @@
           </template>
         </u-input>
       </div>
-
+      <!-- 菜单列表 -->
       <u-scroll tag="div" height="300px">
         <u-tree
           checkable
-          :data="treeData"
+          :expand-all="expandAll"
+          :data="optionsData"
           :label-key="labelKey"
           :value-key="valueKey"
           :size="size"
           :disabled-node="disabledNode"
           @update:checked="handleCheck"
-          @expand="handleExpand"
           ref="treeRef"
           :checked="model"
         />
@@ -81,10 +86,9 @@ import { UTag } from "../tag"
 import { UIcon } from "../icon"
 import { ArrowDown, Close, Search } from "icon-ultra"
 import { computed, nextTick, shallowRef, watch } from "vue"
-// import { processRecursiveArray } from "../tree/utils"
 import { UCheckbox } from "../checkbox"
 import { TreeNode } from "../tree/tree-node"
-import { Forest,Tree } from "cat-kit/fe"
+import { Forest } from "cat-kit/fe"
 
 defineOptions({
   name: "TreeSelect",
@@ -112,17 +116,11 @@ const queryString = shallowRef("")
 
 const mouse = shallowRef(false)
 
-/**数据项 */
-const treeData = shallowRef<Record<string, any>[]>(props.options)
-
 /** 实际值 */
 const model = defineModel<Val[]>()
 
 /**界面展示的值 */
 const tags = shallowRef<Record<string, any>[]>([])
-
-/**所有props.valueKey的值 作用于全选 */
-const valueKeyList = shallowRef<Val[]>([])
 
 const { formProps } = useFormComponent()
 
@@ -135,11 +133,6 @@ const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
   model.value = checked
   tags.value = checkedData
   emit("update", checked)
-}
-
-/**节点收缩/展开 */
-const handleExpand = (val) => {
-  console.log(val)
 }
 
 /**删除 */
@@ -168,22 +161,34 @@ const forest = computed(() => {
 
 /**遍历数据 */
 const traverseData = () => {
-  valueKeyList.value = []
   tags.value = []
-  Tree.bft(treeData,(item) => {
-    console.log(item,'===');
+  if (!model.value?.length) return
+  forest.value.dft((node) => {
+    const isMatch = model.value!.includes(node.value[props.valueKey])
+    if (isMatch) {
+      tags.value.push(node.value)
+    }
   })
-  // processRecursiveArray(forest.value.nodes, "children", (item) => {
-  //   if (!item.disabled) {
-  //     valueKeyList.value.push(item.value[props.valueKey])
-  //   }
-  //   if (!model.value?.length) return
-  //   const isMatch = model.value!.includes(item.value[props.valueKey])
-  //   if (isMatch) {
-  //     tags.value.push(item.value)
-  //   }
-  // })
 }
+
+const optionsData = computed(() => {
+  
+  const { options, labelKey } = props
+  if (queryString.value !== "") {
+    // let filterArr
+    // forest.value.dft((node) => {
+    //   if (node.value[labelKey].includes(queryString.value)) {
+    //     filterArr.push(node)
+    //   }
+    // })
+    // treeRef.value?.filter(filterArr)
+    
+
+    return options.filter(item => item[labelKey].includes(queryString.value))
+  } else {
+  }
+  return options
+})
 
 traverseData()
 
@@ -193,7 +198,6 @@ watch(model, () => {
 
 /**是否全选 */
 const allChecked = computed(() => {
-  console.log(model.value?.length, treeRef.value?.forest)
   return model.value?.length === treeRef.value?.forest.size
 })
 
@@ -207,12 +211,5 @@ const handleCheckAll = (checked: boolean) => {
   forest.value.nodes.forEach((node) => {
     treeRef.value?.checkNode(node, checked)
   })
-
-  // console.log(treeRef.value?.forest.nodes)
-  // if (checked) {
-  //   model.value = valueKeyList.value
-  // } else {
-  //   model.value = []
-  // }
 }
 </script>

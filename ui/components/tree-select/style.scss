@@ -56,8 +56,7 @@ $root-name: tree-select;
 
     @include m.e(content-header) {
         @include m.flex($justify: space-between);
-        padding-top: 4px;
-        padding-bottom: 4px;
+        padding: 4px 12px;
         border-bottom: fn.use-var(border);
         border-radius: 0;
     }
