@@ -84,10 +84,12 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
 const colorMixedType: `${'light' | 'dark'}-${number}`[] = [
   'light-1',
   'light-3',
+  'light-5',
   'light-7',
   'light-9',
   'dark-1',
   'dark-3',
+  'dark-5',
   'dark-7',
   'dark-9'
 ]
