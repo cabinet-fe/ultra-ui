@@ -5,7 +5,7 @@ import type {
   IFormModel
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
-import { shallowReactive, watch } from 'vue'
+import { nextTick, shallowReactive, watch } from 'vue'
 
 export class FormModel<
   Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
@@ -112,7 +112,10 @@ export class FormModel<
       this.data[key] = this.initialData[key]
     }
     this.clearValidate()
-    this.validateOnFieldChange = true
+
+    nextTick(() => {
+      this.validateOnFieldChange = true
+    })
   }
 
   /**

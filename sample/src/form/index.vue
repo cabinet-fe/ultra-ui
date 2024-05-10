@@ -53,7 +53,7 @@
 
 <script lang="ts" setup>
 import { field, FormModel } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { shallowRef, watchEffect } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
@@ -98,6 +98,12 @@ const units = [
 ]
 
 const visible = shallowRef(false)
+
+watchEffect(() => {
+  if (!visible.value) {
+    model.resetData()
+  }
+})
 
 const interestList = [
   { label: '电影', value: '1' },
