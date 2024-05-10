@@ -10,7 +10,7 @@ interface ArrayItem {
 }
 
 export function processRecursiveArray(
-  arr: ArrayItem[],
+  arr: Record<string,any>,
   key: string,
   cb: (item: ArrayItem) => void
 ): void {

@@ -21,8 +21,8 @@
         <u-multi-select field="interest" label="兴趣" :options="interestList" />
         <u-radio-group
           :items="[
-            { label: '男', value: 'male' },
-            { label: '女', value: 'female' }
+            {label: '男', value: 'male'},
+            {label: '女', value: 'female'},
           ]"
           label="性别"
           field="sex"
@@ -32,6 +32,13 @@
         <u-textarea field="remarks" label="备注" />
         <u-slider field="slider" label="滑块" />
         <u-text-editor field="guide" label="指南" />
+        <u-tree-select
+          field="treeSelect"
+          label="权限管理"
+          label-key="name"
+          value-key="id"
+          :options="data"
+        />
       </u-form>
 
       <div>
@@ -45,58 +52,92 @@
 </template>
 
 <script lang="ts" setup>
-import { field, FormModel } from 'ultra-ui'
-import { shallowRef } from 'vue'
-import CustomCard from '../card/custom-card.vue'
+import {field, FormModel} from "ultra-ui"
+import {shallowRef} from "vue"
+import CustomCard from "../card/custom-card.vue"
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
 
 const model = new FormModel({
-  name: { maxLen: 4, required: true },
-  age: field<string>({ required: '年龄是必填的' }),
-  aa: { required: true },
+  name: {maxLen: 4, required: true},
+  age: field<string>({required: "年龄是必填的"}),
+  aa: {required: true},
   phone: {
     validator(value) {
-      if (!value) return ''
-      if (/^1[1-9]{10}$/.test(value)) return ''
-      return '你得输入一个手机号'
-    }
+      if (!value) return ""
+      if (/^1[1-9]{10}$/.test(value)) return ""
+      return "你得输入一个手机号"
+    },
   },
   freeze: {},
-  sex: { value: '' },
+  sex: {value: ""},
   pwd: {},
-  debt: { min: 10 },
+  debt: {min: 10},
   email: {
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-      '这个时候你得输入一个邮箱'
-    ]
+      "这个时候你得输入一个邮箱",
+    ],
   },
-  unit: { required: true },
-  interest: { required: true },
-  remarks: { required: true },
+  unit: {required: true},
+  interest: {required: true},
+  remarks: {required: true},
   slider: {},
-  date: { required: true },
-  guide: { required: true }
+  date: {required: true},
+  guide: {required: true},
+  treeSelect: {required: true},
 })
 
 const sortRef = shallowRef()
-const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
+const list = shallowRef(Array.from({length: 10}).map(() => Math.random()))
 
 const units = [
-  { label: '单位1', value: '1' },
-  { label: '单位2', value: '2' },
-  { label: '单位3', value: '3' }
+  {label: "单位1", value: "1"},
+  {label: "单位2", value: "2"},
+  {label: "单位3", value: "3"},
 ]
 
 const interestList = [
-  { label: '电影', value: '1' },
-  { label: '健身', value: '2' },
-  { label: '读书', value: '3' },
-  { label: '游戏', value: '4' },
-  { label: '科技', value: '5' },
-  { label: '音乐', value: '6' }
+  {label: "电影", value: "1"},
+  {label: "健身", value: "2"},
+  {label: "读书", value: "3"},
+  {label: "游戏", value: "4"},
+  {label: "科技", value: "5"},
+  {label: "音乐", value: "6"},
+]
+const data = [
+  {name: "烤冷面", id: 1},
+  {
+    name: "手抓饼",
+    id: 2,
+    children: [
+      {
+        name: "鱼香肉丝",
+        id: 3,
+        children: [
+          {
+            name: "烤苞米",
+            id: 4,
+            children: [
+              {name: "苞米例", id: 5},
+              {name: "吃", id: 6},
+              {name: "h", id: 7},
+            ],
+          },
+        ],
+      },
+      {
+        name: "fggg",
+        id: 8,
+        children: [
+          {name: "苞米例2", id: 9},
+          {name: "吃2", id: 10},
+          {name: "h2", id: 11},
+        ],
+      },
+    ],
+  },
 ]
 </script>
 
