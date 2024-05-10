@@ -40,7 +40,7 @@
           :indeterminate="indeterminate"
           @update:model-value="handleCheckAll"
         >
-          全选
+        {{allChecked?'全不选':'全选'}}
         </u-checkbox>
       </div>
       <!-- 过滤器 -->
@@ -84,7 +84,7 @@ import { computed, nextTick, shallowRef, watch } from "vue"
 // import { processRecursiveArray } from "../tree/utils"
 import { UCheckbox } from "../checkbox"
 import { TreeNode } from "../tree/tree-node"
-import { Forest } from "cat-kit/fe"
+import { Forest,Tree } from "cat-kit/fe"
 
 defineOptions({
   name: "TreeSelect",
@@ -170,8 +170,9 @@ const forest = computed(() => {
 const traverseData = () => {
   valueKeyList.value = []
   tags.value = []
-  console.log(treeRef.value);
-  
+  Tree.bft(treeData,(item) => {
+    console.log(item,'===');
+  })
   // processRecursiveArray(forest.value.nodes, "children", (item) => {
   //   if (!item.disabled) {
   //     valueKeyList.value.push(item.value[props.valueKey])
@@ -192,8 +193,8 @@ watch(model, () => {
 
 /**是否全选 */
 const allChecked = computed(() => {
-  console.log(model.value?.length, treeRef.value?.nodes.length)
-  return model.value?.length === treeRef.value?.nodes.length
+  console.log(model.value?.length, treeRef.value?.forest)
+  return model.value?.length === treeRef.value?.forest.size
 })
 
 /**部分 */
