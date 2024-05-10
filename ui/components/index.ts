@@ -12,6 +12,8 @@ export * from './checkbox'
 
 export * from './checkbox-group'
 
+export * from './context-menu'
+
 export * from './date-picker'
 
 export * from './dialog'
@@ -62,6 +64,8 @@ export * from './password-input'
 
 export * from './popup'
 
+export * from './progress'
+
 export * from './radio'
 
 export * from './radio-group'
@@ -84,9 +88,9 @@ export * from './tag'
 
 export * from './text'
 
-export * from './textarea'
-
 export * from './text-editor'
+
+export * from './textarea'
 
 export * from './theme'
 
@@ -99,5 +103,3 @@ export * from './tree-select'
 export * from './virtual-scroll'
 
 export * from './watermark'
-
-export * from './progress'

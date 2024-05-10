@@ -9,6 +9,7 @@
       marginLeft: withUnit(node.depth * 20 - 20, 'px')
     }"
     @click="handleClick"
+    @contextmenu.prevent="console.log(node)"
   >
     <u-icon
       v-if="!node.isLeaf"

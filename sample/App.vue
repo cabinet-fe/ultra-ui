@@ -29,7 +29,7 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { useConfig, vRipple } from 'ultra-ui'
+import { useConfig, vRipple, contextmenu } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common'
 
@@ -65,6 +65,26 @@ const ListItem = defineComponent({
       return (
         <li
           onClick={() => handleClick(route.path)}
+          onContextmenu={(e: MouseEvent) => {
+            e.preventDefault()
+            contextmenu.pop({
+              mousePosition: e,
+              menus: [
+                {
+                  label: '菜单1',
+                  callback() {
+                    console.log(route)
+                  }
+                },
+                {
+                  label: '菜单2',
+                  async callback() {
+
+                  }
+                }
+              ]
+            })
+          }}
           class={active ? 'active' : ''}
         >
           <div v-ripple='ripple-color'>{route.name}</div>
