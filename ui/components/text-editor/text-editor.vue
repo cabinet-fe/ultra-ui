@@ -13,7 +13,7 @@ import type {
 } from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
-import { Delta, Op } from 'quill/core'
+import type { Delta, Op } from 'quill/core'
 import { onMounted, onUnmounted, shallowRef, ref, watch } from 'vue'
 
 defineOptions({
@@ -54,7 +54,9 @@ onMounted(() => {
 
   quill.on('text-change', update)
 
-  quill.updateContents(props.modelValue)
+  if (props.modelValue) {
+    quill.updateContents(props.modelValue)
+  }
 
   stamp.value = `${new Date().getTime()}${Math.random()}`
 })
@@ -87,9 +89,8 @@ onUnmounted(() => {
 })
 
 watch([() => props.modelValue, () => quill], ([val, qui]) => {
-  console.log(val, 'val')
-  if (qui && val['stamp'] !== stamp.value) {
-    qui.setContents(val['value'])
+  if (qui && val?.['stamp'] !== stamp.value) {
+    qui.setContents(val?.['value'])
   }
 })
 

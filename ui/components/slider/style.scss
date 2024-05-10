@@ -59,7 +59,7 @@ $button-size: 36;
     }
   }
 
-  @include m.is(disable) {
+  @include m.is(disabled) {
     @include m.bem($root-name, bar) {
       background-color: fn.use-var(color-default-dark-3);
       cursor: no-drop;
