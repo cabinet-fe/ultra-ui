@@ -15,11 +15,18 @@ export class FormModel<
 
   readonly rules: ModelRules<Fields>
 
+  private readonly initialData: ModelData<Fields>
+
   readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
     new Map()
   )
 
   private validator: Validator<ModelRules<Fields>>
+
+  /**
+   * 是否在表单值更新时校验
+   */
+  private validateOnFieldChange = true
 
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
@@ -32,6 +39,7 @@ export class FormModel<
 
       rules[key] = rule as any
     }
+    this.initialData = JSON.parse(JSON.stringify(rawData))
 
     const data = shallowReactive(rawData)
 
@@ -39,6 +47,7 @@ export class FormModel<
     this.rules = rules
     this.validator = new Validator(rules)
 
+    // 使用一个代理对象来在赋值时校验表单字段
     const p = new Proxy(
       {},
       {
@@ -55,11 +64,12 @@ export class FormModel<
     )
 
     watch(data, data => {
-      Object.keys(data).forEach(key => {
+      if (!this.validateOnFieldChange) return
+      for (const key in data) {
         if (p[key] !== data[key]) {
           p[key] = data[key]
         }
-      })
+      }
     })
   }
 
@@ -92,6 +102,29 @@ export class FormModel<
     if (errors.size > 0) return false
 
     return true
+  }
+
+  /** 重置数据 */
+  resetData(): void {
+    // 重置时不再校验数据了
+    this.validateOnFieldChange = false
+    for (const key in this.data) {
+      this.data[key] = this.initialData[key]
+    }
+    this.clearValidate()
+    this.validateOnFieldChange = true
+  }
+
+  /**
+   * 设置值
+   * @param formData 表单值
+   */
+  setData(formData: Partial<ModelData<Fields>>) {
+    for (const key in formData) {
+      if (key in this.data) {
+        this.data[key] = formData[key]
+      }
+    }
   }
 
   /** 清除校验 */
