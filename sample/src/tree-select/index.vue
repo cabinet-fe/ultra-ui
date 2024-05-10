@@ -8,7 +8,6 @@
         label-key="name"
         value-key="id"
         checkable
-        :disabled-node="disabledNode"
       ></u-tree-select>
     </CustomCard>
   </div>

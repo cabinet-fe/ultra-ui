@@ -55,7 +55,6 @@
       <u-scroll tag="div" height="300px">
         <u-tree
           checkable
-          expandAll
           :data="treeData"
           :label-key="labelKey"
           :value-key="valueKey"
@@ -72,20 +71,20 @@
 </template>
 
 <script lang="ts" setup generic="Val extends string | number">
-import type {TreeSelectProps} from "@ui/types/components/tree-select"
-import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
-import {bem} from "@ui/utils"
-import {UDropdown} from "../dropdown"
-import type {UTree} from "../tree"
-import {UScroll} from "../scroll"
-import {UTag} from "../tag"
-import {UIcon} from "../icon"
-import {ArrowDown, Close, Search} from "icon-ultra"
-import {computed, nextTick, shallowRef, watch} from "vue"
-import {processRecursiveArray} from "../tree/utils"
-import {UCheckbox} from "../checkbox"
-import {TreeNode} from "../tree/tree-node"
-import {Forest} from "cat-kit/fe"
+import type { TreeSelectProps } from "@ui/types/components/tree-select"
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
+import { bem } from "@ui/utils"
+import { UDropdown } from "../dropdown"
+import type { TreeExposed, UTree } from "../tree"
+import { UScroll } from "../scroll"
+import { UTag } from "../tag"
+import { UIcon } from "../icon"
+import { ArrowDown, Close, Search } from "icon-ultra"
+import { computed, nextTick, shallowRef, watch } from "vue"
+// import { processRecursiveArray } from "../tree/utils"
+import { UCheckbox } from "../checkbox"
+import { TreeNode } from "../tree/tree-node"
+import { Forest } from "cat-kit/fe"
 
 defineOptions({
   name: "TreeSelect",
@@ -122,12 +121,14 @@ const model = defineModel<Val[]>()
 /**界面展示的值 */
 const tags = shallowRef<Record<string, any>[]>([])
 
-/**保存所有props.valueKey的值 */
+/**所有props.valueKey的值 作用于全选 */
 const valueKeyList = shallowRef<Val[]>([])
 
-const {formProps} = useFormComponent()
+const { formProps } = useFormComponent()
 
-const {size, disabled} = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+
+const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
 
 /**选中 */
 const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
@@ -169,16 +170,18 @@ const forest = computed(() => {
 const traverseData = () => {
   valueKeyList.value = []
   tags.value = []
-  processRecursiveArray(forest.value.nodes, "children", (item) => {
-    if (!item.disabled) {
-      valueKeyList.value.push(item.value[props.valueKey])
-    }
-    if (!model.value?.length) return
-    const isMatch = model.value!.includes(item.value[props.valueKey])
-    if (isMatch) {
-      tags.value.push(item.value)
-    }
-  })
+  console.log(treeRef.value);
+  
+  // processRecursiveArray(forest.value.nodes, "children", (item) => {
+  //   if (!item.disabled) {
+  //     valueKeyList.value.push(item.value[props.valueKey])
+  //   }
+  //   if (!model.value?.length) return
+  //   const isMatch = model.value!.includes(item.value[props.valueKey])
+  //   if (isMatch) {
+  //     tags.value.push(item.value)
+  //   }
+  // })
 }
 
 traverseData()
@@ -189,7 +192,8 @@ watch(model, () => {
 
 /**是否全选 */
 const allChecked = computed(() => {
-  return model.value?.length === valueKeyList.value.length
+  console.log(model.value?.length, treeRef.value?.nodes.length)
+  return model.value?.length === treeRef.value?.nodes.length
 })
 
 /**部分 */
@@ -199,10 +203,15 @@ const indeterminate = computed(() => {
 
 /** 全选*/
 const handleCheckAll = (checked: boolean) => {
-  if (checked) {
-    model.value = valueKeyList.value
-  } else {
-    model.value = []
-  }
+  forest.value.nodes.forEach((node) => {
+    treeRef.value?.checkNode(node, checked)
+  })
+
+  // console.log(treeRef.value?.forest.nodes)
+  // if (checked) {
+  //   model.value = valueKeyList.value
+  // } else {
+  //   model.value = []
+  // }
 }
 </script>
