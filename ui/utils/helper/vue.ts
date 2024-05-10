@@ -1,4 +1,4 @@
-import { Text, Fragment, Comment, type VNode } from 'vue'
+import { Text, Fragment, Comment,  type VNode, isVNode } from 'vue'
 
 interface TextVNode extends VNode {
   children: string
@@ -33,4 +33,13 @@ interface CommentVNode extends VNode {
  */
 export function isComment(node: VNode): node is CommentVNode {
   return node.type === Comment
+}
+
+/**
+ * 是否为模板
+ * @param node
+ * @returns
+ */
+export function isTemplate(node: unknown): node is VNode {
+  return isVNode(node) && node.type === 'template'
 }

@@ -41,10 +41,11 @@
         />
       </u-form>
 
-      <div>
-        <u-button @click="model.validate()">校验</u-button>
-        <u-button @click="model.clearValidate()">重置</u-button>
-      </div>
+        <template #footer>
+          <u-button @click="model.validate()">校验</u-button>
+          <u-button @click="model.clearValidate()">重置</u-button>
+        </template>
+      </u-dialog>
     </CustomCard>
 
     {{ model.data }}
@@ -52,9 +53,9 @@
 </template>
 
 <script lang="ts" setup>
-import {field, FormModel} from "ultra-ui"
-import {shallowRef} from "vue"
-import CustomCard from "../card/custom-card.vue"
+import { field, FormModel } from 'ultra-ui'
+import { shallowRef, watchEffect } from 'vue'
+import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
@@ -97,6 +98,14 @@ const units = [
   {label: "单位2", value: "2"},
   {label: "单位3", value: "3"},
 ]
+
+const visible = shallowRef(false)
+
+watchEffect(() => {
+  if (!visible.value) {
+    model.resetData()
+  }
+})
 
 const interestList = [
   {label: "电影", value: "1"},

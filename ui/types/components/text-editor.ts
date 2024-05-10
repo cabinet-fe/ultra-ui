@@ -1,10 +1,10 @@
 import type { ToolbarConfig } from 'quill/modules/toolbar'
 import type { DeconstructValue } from '../helper'
-import { Delta, type Op } from 'quill/core'
+import type { Delta, Op } from 'quill/core'
 /** text-editor组件属性 */
 
 export interface TextEditorProps {
-  modelValue: Delta | Op[]
+  modelValue?: Delta | Op[]
   /** 高度 */
   height?: string
   width?: string

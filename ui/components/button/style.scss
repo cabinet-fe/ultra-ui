@@ -82,8 +82,8 @@ $root-name: button;
 
       // 禁用
       @include m.is(disabled, loading) {
-        background-color: fn.use-var(color, $type, 'light-3');
-        border-color: fn.use-var(color, $type, 'light-3');
+        background-color: fn.use-var(color, $type, 'light-5');
+        border-color: fn.use-var(color, $type, 'light-5');
         color: #fff;
         box-shadow: none;
       }
@@ -92,14 +92,14 @@ $root-name: button;
         color: fn.use-var(color, $type);
         box-shadow: none;
 
-        &:not(.is-disabled) {
+        &:not(.is-disabled, .is-loading) {
           &:hover {
             background-color: fn.use-var(color, $type, 'light-9');
           }
         }
 
-        @include m.is(disabled) {
-          color: fn.use-var(color, $type, 'light-3');
+        @include m.is(disabled, loading) {
+          color: fn.use-var(color, $type, 'light-5');
         }
       }
 
@@ -114,8 +114,8 @@ $root-name: button;
         }
 
         &.is-disabled {
-          border-color: fn.use-var(color, $type, 'light-3');
-          color: fn.use-var(color, $type, 'light-3');
+          border-color: fn.use-var(color, $type, 'light-5');
+          color: fn.use-var(color, $type, 'light-5');
         }
       }
     }
