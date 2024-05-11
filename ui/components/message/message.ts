@@ -2,7 +2,7 @@ import UMessage from './message.vue'
 import { createVNode, render, type VNode, ref } from 'vue'
 
 import type { MessageProps } from '@ui/types/components/message'
-import type { ColorType } from '@ui/types/component-common'
+import { type ColorType, ColorTypeArray } from '@ui/types/component-common'
 
 type MessageItem = {
   vm: VNode
@@ -30,13 +30,10 @@ const close = (id: string, userClose?: (vm: VNode) => void) => {
 }
 
 type MessageFn = (options: MessageProps) => void
-interface MessageTypeFn extends MessageFn {
-  success: (message: string) => void
-  primary: (message: string) => void
-  info: (message: string) => void
-  warning: (message: string) => void
-  danger: (message: string) => void
-}
+
+type MessageTypeFn = {
+  [k in ColorType]: (message: string) => void
+} & MessageFn
 
 const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
   const container = document.createElement('div')
@@ -57,9 +54,7 @@ const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
   document.body.appendChild(container.firstElementChild!)
 }
 
-const messageTypes: Array<ColorType> = ['success', 'primary', 'info', 'warning', 'danger']
-
-messageTypes.forEach((type) => {
+ColorTypeArray.forEach((type) => {
   Message[type] = (message: string) => {
     return Message({
       message,
