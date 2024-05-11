@@ -7,6 +7,7 @@ export interface TreeNode<DataItem extends Record<string, any>>
   extends _TreeNode<DataItem> {
   parent: TreeNode<DataItem> | null
   children?: TreeNode<DataItem>[]
+
   visible: boolean
   expanded: boolean
   loading: boolean
@@ -14,8 +15,8 @@ export interface TreeNode<DataItem extends Record<string, any>>
   checked: boolean
   indeterminate: boolean
   disabled: boolean
-  /** 单选高亮 */
-  active: boolean
+  label: string
+  key: string | number
 }
 
 /** 树组件属性 */
@@ -58,6 +59,7 @@ export interface TreeEmit<
   (e: 'node-click', node: TreeNode<Data>): void
   (e: 'update:selected', selected?: any, selectedData?: Data): void
   (e: 'update:checked', checked: any[], checkedData: Data[]): void
+  (e: 'node-contextmenu', event: MouseEvent, node: TreeNode<Data>): void
 }
 
 export interface TreeNodeProps {
@@ -66,12 +68,16 @@ export interface TreeNodeProps {
 
 /** 树组件暴露的属性和方法(组件内部使用) */
 export interface _TreeExposed<DataItem extends Record<string, any>> {
-  filter(filter: (node: TreeNode<DataItem>) => boolean): void
+  /**
+   * 过滤树节点。注意：不要再watchEffect中调用！
+   * @param filter 过滤器或一个字符串
+   */
+  filter(filter: string  | ((node: TreeNode<DataItem>) => boolean)): void
   forest: ComputedRef<Forest<TreeNode<DataItem>>>
   nodes: ShallowRef<TreeNode<DataItem>[]>
   checkNode: (node: TreeNode<DataItem>, check: boolean) => void
 }
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-export type TreeExposed<DataItem extends Record<string, any>> =
+export type TreeExposed<DataItem extends Record<string, any> = Record<string, any>> =
   DeconstructValue<_TreeExposed<DataItem>>

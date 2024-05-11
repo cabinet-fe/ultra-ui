@@ -5,7 +5,7 @@ import type { TreeNode } from './tree-node'
 interface Options<DataItem extends Record<string, any>> {
   emit: TreeEmit<DataItem>
   props: TreeProps<DataItem>
-  dataDicts: ComputedRef<Map<any, DataItem>>
+  nodeDicts: ComputedRef<Map<any, TreeNode<DataItem>>>
 }
 
 /**
@@ -14,7 +14,7 @@ interface Options<DataItem extends Record<string, any>> {
 export function useSelect<DataItem extends Record<string, any>>(
   options: Options<DataItem>
 ) {
-  const { emit, props, dataDicts } = options
+  const { emit, props, nodeDicts } = options
   const selected = shallowRef<DataItem>()
 
   let changedByEvent = false
@@ -23,7 +23,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     s => {
       if (changedByEvent) return
 
-      selected.value = s ? dataDicts.value.get(s) : undefined
+      selected.value = s ? nodeDicts.value.get(s)?.value : undefined
     },
     { immediate: true }
   )

@@ -18,12 +18,14 @@ export interface TreeConText {
   selected: ShallowRef<Record<string, any> | undefined>
   /** 多选的节点 */
   checked: Set<any>
+  /** 隐藏的节点 */
+  hiddenNodes: Set<TreeNode<Record<string, any>>>
   /** 选择事件 */
   handleSelect: (data: TreeNode<Record<string, any>>) => void
   /** 多选事件 */
   handleCheck: (node: TreeNode<Record<string, any>>, check: boolean) => void
   /** 获取树的作用域插槽节点 */
-  getTreeSlotsNode: (ctx: TreeSlotsScope) => VNode[] | undefined
+  getTreeSlotsNode: (ctx: TreeSlotsScope) => VNode[] | string | undefined
   /** 树事件 */
   treeEmit: TreeEmit<Record<string, any>>
   /** 获取碾平后的节点 */

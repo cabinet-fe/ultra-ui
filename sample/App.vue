@@ -86,7 +86,7 @@ const ListItem = defineComponent({
                     await sleep(2000)
 
                     Message({
-                      message: '请求完成',
+                      message: `当前页面: ${route.name}`,
                       type: 'success'
                     })
                   }

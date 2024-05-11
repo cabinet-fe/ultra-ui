@@ -6,13 +6,13 @@ import { Tree } from 'cat-kit/fe'
 interface Options<DataItem extends Record<string, any>> {
   emit: TreeEmit<DataItem>
   props: TreeProps<DataItem>
-  dataDicts: ComputedRef<Map<any, DataItem>>
+  nodeDicts: ComputedRef<Map<any, TreeNode<DataItem>>>
 }
 
 export function useCheck<DataItem extends Record<string, any>>(
   options: Options<DataItem>
 ) {
-  const { emit, props, dataDicts } = options
+  const { emit, props, nodeDicts } = options
 
   const checked = shallowReactive(new Set<DataItem>())
 
@@ -20,11 +20,22 @@ export function useCheck<DataItem extends Record<string, any>>(
   let checkedByEvent = false
   watch(
     () => props.checked,
-    c => {
+    (c, oc) => {
       if (checkedByEvent) return
-      checked.clear()
+
+      // 不适用checked.clear()来
+      // 减少checked操作次数提升性能
+      oc?.forEach(v => {
+        const node = nodeDicts.value.get(v)!
+        node.checked = false
+        checked.delete(node.value)
+      })
       c?.forEach(v => {
-        checked.add(dataDicts.value.get(v)!)
+        const node = nodeDicts.value.get(v)
+        if (node) {
+          checked.add(node.value)
+          node.checked = true
+        }
       })
     },
     { immediate: true }

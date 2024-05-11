@@ -21,6 +21,8 @@
       @change="handleChange"
       @focus="handleFocus"
       @blur="handleBlur"
+      @compositionstart="handleCompositionStart"
+      @compositionend="handleCompositionEnd"
       autocomplete="off"
       ref="el"
       :disabled="disabled"
@@ -59,13 +61,7 @@ import {
   useFormFallbackProps
 } from '@ui/compositions'
 import { bem } from '@ui/utils'
-import {
-  computed,
-  getCurrentInstance,
-  ref,
-  Transition,
-  shallowRef
-} from 'vue'
+import { computed, getCurrentInstance, ref, Transition, shallowRef } from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
 
@@ -119,7 +115,19 @@ const suffixClass = [
   bem.is('clickable', !!inst?.vnode.props?.['onSuffix:click'])
 ]
 
+let isComposing = false
+
+function handleCompositionStart() {
+  isComposing = true
+}
+
+function handleCompositionEnd(e: Event) {
+  isComposing = false
+  handleInput(e)
+}
+
 const handleInput = (e: Event) => {
+  if (isComposing) return
   emit('native:input', e)
   model.value = (e.target as HTMLInputElement).value
 }

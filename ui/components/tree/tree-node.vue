@@ -9,7 +9,7 @@
       marginLeft: withUnit(node.depth * 20 - 20, 'px')
     }"
     @click="handleClick"
-    @contextmenu.prevent="console.log(node)"
+    @contextmenu="treeEmit('node-contextmenu', $event, node)"
   >
     <u-icon
       v-if="!node.isLeaf"
@@ -30,7 +30,7 @@
     >
       <u-checkbox
         v-if="treeProps.checkable"
-        :model-value="checked.has(node.value)"
+        :model-value="node.checked"
         :indeterminate="node.indeterminate"
         @update:model-value="handleCheck(node, $event)"
         :disabled="node.disabled"
@@ -56,13 +56,12 @@ defineOptions({
   name: 'TreeNode'
 })
 
-const props = defineProps<TreeNodeProps>()
+const { node } = defineProps<TreeNodeProps>()
 
 const {
   treeProps,
   treeEmit,
   cls,
-  checked,
   getTreeSlotsNode,
   getFlattedNodes,
   handleCheck,
@@ -70,13 +69,12 @@ const {
 } = inject(TreeDIKey)!
 
 function toggleExpand() {
-  props.node.expanded = !props.node.expanded
+  node.expanded = !node.expanded
   getFlattedNodes()
-  treeEmit('expand', props.node)
+  treeEmit('expand', node)
 }
 
 const handleClick = () => {
-  const { node } = props
   treeEmit('node-click', node)
 
   treeProps.selectable && handleSelect(node)
@@ -84,6 +82,6 @@ const handleClick = () => {
   treeProps.checkable &&
     !node.disabled &&
     !treeProps.expandOnClickNode &&
-    handleCheck(node, !checked.has(node.value))
+    handleCheck(node, !node.checked)
 }
 </script>

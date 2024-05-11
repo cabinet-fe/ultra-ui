@@ -1,12 +1,14 @@
 <template>
   <div>
-    <CustomCard title="全部展开">
+    <CustomCard title="全部展开,过滤">
+      <u-input v-model="qs"></u-input>
       <UTree
         style="margin-bottom: 10px"
         :data="data"
         label-key="name"
         value-key="id"
         expand-all
+        ref="treeRef"
       />
     </CustomCard>
 
@@ -80,8 +82,9 @@
 </template>
 
 <script lang="ts" setup>
+import type { TreeExposed } from 'ultra-ui/components'
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef } from 'vue'
+import { shallowRef, watch, watchEffect } from 'vue'
 
 const data = [
   { name: '烤冷面', id: 1 },
@@ -131,6 +134,14 @@ const handleCheck = (...args) => {
   // checked.value = _checked
   console.log('选中了', ...args)
 }
+
+const qs = shallowRef('')
+
+const treeRef = shallowRef<TreeExposed>()
+
+watch([qs, treeRef], ([qs, treeRef]) => {
+  treeRef?.filter(qs)
+})
 </script>
 
 <style lang="scss" scoped></style>
