@@ -5,13 +5,14 @@
       :style="style"
       ref="contextMenuRef"
       v-if="visible"
-      v-click-outside="close"
+      v-click-outside="handleClickOutside"
     >
       <UContextMenuItem
         v-for="menu of menus"
         :menu="menu"
         :disabled="getMenuDisabled(menu)"
-        @click="handleClickMenu"
+        @click-start="handleClickStart"
+        @click-end="handleClickEnd"
       />
     </ul>
   </transition>
@@ -64,14 +65,14 @@ const computePosition = () => {
   const { mousePosition } = props
   const { x, y } = mousePosition
   if (x > window.innerWidth / 2) {
-    position.right = window.innerWidth - x
+    position.right = window.innerWidth - x - 1
   } else {
-    position.left = x
+    position.left = x + 1
   }
   if (y > window.innerHeight / 2) {
-    position.bottom = window.innerHeight - y
+    position.bottom = window.innerHeight - y - 1
   } else {
-    position.top = y
+    position.top = y + 1
   }
 
   const positionY = position.top ? 'top' : 'bottom'
@@ -105,11 +106,23 @@ function close() {
   visible.value = false
 }
 
-const handleClickMenu = async (menu: ContextMenuItem) => {
-  if (getMenuDisabled(menu)) return
-  await menu.callback?.()
+
+let loading = false
+function handleClickStart() {
+  loading= true
+}
+
+function handleClickEnd() {
+  loading = false
   close()
 }
+
+
+function handleClickOutside() {
+  if (loading) return
+  close()
+}
+
 
 provide(ContextMenuDIKey, {
   cls

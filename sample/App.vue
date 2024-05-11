@@ -29,12 +29,11 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { useConfig, vRipple, contextmenu } from 'ultra-ui'
+import { useConfig, vRipple, contextmenu, Message } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common'
 import { sleep } from 'cat-kit/fe'
-import  { Plus } from 'icon-ultra'
-
+import { CloudDownload, Link, Plus } from 'icon-ultra'
 
 const router = useRouter()
 const route = useRoute()
@@ -74,16 +73,22 @@ const ListItem = defineComponent({
               mousePosition: e,
               menus: [
                 {
-                  label: '菜单1',
-                  icon: Plus,
+                  label: '跳转到页面',
+                  icon: Link,
                   callback() {
-                    console.log(route)
+                    router.push(route.path)
                   }
                 },
                 {
-                  label: '菜单2',
+                  label: '模拟请求',
+                  icon: CloudDownload,
                   async callback() {
                     await sleep(2000)
+
+                    Message({
+                      message: '请求完成',
+                      type: 'success'
+                    })
                   }
                 }
               ]

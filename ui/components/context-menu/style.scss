@@ -17,12 +17,12 @@ $root-name: context-menu;
   }
 
   // @include m.size using ($size) {
-    // padding: fn.use-var(gap, $size);
+  // padding: fn.use-var(gap, $size);
 
-    // @include m.bem($root-name, item) {
-    //   padding: fn.use-var(gap, $size);
-    //   border-radius: fn.use-var(radius, $size);
-    // }
+  // @include m.bem($root-name, item) {
+  //   padding: fn.use-var(gap, $size);
+  //   border-radius: fn.use-var(radius, $size);
+  // }
   // }
 
   @include m.e(item) {
@@ -30,8 +30,14 @@ $root-name: context-menu;
     padding: fn.use-var(gap, small);
     border-radius: fn.use-var(radius, default);
     @include m.flex;
-    &:hover {
+
+    &:not(.is-disabled, .is-loading):hover {
       background-color: fn.use-var(color, primary, light-9);
+    }
+
+    @include m.is(disabled, loading) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
     }
   }
 

@@ -104,7 +104,9 @@ function getFlattedNodes(filter?: (node: TreeNode<DataItem>) => boolean) {
     forest.value.dft((node) => {
       if ((node.parent?.expanded || node.depth === 1) && filter(node)) {
         _nodes.push(node)
+        return true
       }
+      return false
     })
   } else {
     forest.value.dft((node) => {
