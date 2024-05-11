@@ -42,8 +42,8 @@ const props = defineProps<MessageConfirmProps>()
 
 const { title, message, size, confirmButtonText, confirmButtonType, cancelButtonText } =
   useFallbackProps([props], {
-    title: 'title',
-    message: 'message',
+    title: '',
+    message: '',
     size: 'default' as ComponentSize,
     confirmButtonText: '确定',
     confirmButtonType: 'primary' as ColorType,
