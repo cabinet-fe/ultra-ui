@@ -47,5 +47,8 @@ const showMsg = () => {
       console.log(action)
     }
   })
+  // MessageConfirm.danger('hahha', (action) => {
+  //   console.log(action)
+  // })
 }
 </script>

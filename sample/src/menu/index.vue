@@ -13,7 +13,6 @@
         @select="select"
         ref="menuRef"
         activeTextColor="#CC00FF"
-        background-color="rgba(152, 251, 152, 0.2)"
         text-color="#00CCCC"
       >
         <u-menu-sub index="111" :icon="Location">
