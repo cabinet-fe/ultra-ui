@@ -49,6 +49,7 @@ $root-name: message;
     @include m.e($type) {
       background-color: fn.use-var(color, $type, 'light-7');
       color: fn.use-var(color, $type);
+      border-color: fn.use-var(color, $type, 'light-5');
     }
   }
 }
