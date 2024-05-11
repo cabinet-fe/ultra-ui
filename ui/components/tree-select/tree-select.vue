@@ -111,15 +111,14 @@ const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
 const emit = defineEmits<{
   (e: "update", value: Record<string, any>): void
 }>()
+
 /**过滤 */
 const queryString = shallowRef("")
 
 const mouse = shallowRef(false)
 
-/** 实际值 */
 const model = defineModel<Val[]>()
 
-/**界面展示的值 */
 const tags = shallowRef<Record<string, any>[]>([])
 
 const { formProps } = useFormComponent()
@@ -159,8 +158,8 @@ const forest = computed(() => {
   })
 })
 
-/**遍历数据 */
-const traverseData = () => {
+/**显示Tags */
+const tagsData = () => {
   tags.value = []
   if (!model.value?.length) return
   forest.value.dft((node) => {
@@ -170,31 +169,33 @@ const traverseData = () => {
     }
   })
 }
-
-const optionsData = computed(() => {
-  
-  const { options, labelKey } = props
-  if (queryString.value !== "") {
-    // let filterArr
-    // forest.value.dft((node) => {
-    //   if (node.value[labelKey].includes(queryString.value)) {
-    //     filterArr.push(node)
-    //   }
-    // })
-    // treeRef.value?.filter(filterArr)
-    
-
-    return options.filter(item => item[labelKey].includes(queryString.value))
-  } else {
-  }
-  return options
-})
-
-traverseData()
+tagsData()
 
 watch(model, () => {
-  traverseData()
+  tagsData()
 })
+
+/**过滤数据项 */
+const treeFiltet = (node: TreeNode<Record<string, any>>) => {
+  return node.value[props.labelKey].includes(queryString.value)
+}
+
+/**树形数据 */
+const optionsData = computed(() => {
+  const { options } = props
+  const filteredNodes: Record<string, any>[] = []
+  if (queryString.value !== "") {
+    forest.value.dft((node) => {
+      if (treeFiltet(node)) {
+        filteredNodes.push(node.value)
+      }
+    })
+  } else {
+    return options
+  }
+  return filteredNodes
+})
+
 
 /**是否全选 */
 const allChecked = computed(() => {

@@ -44,6 +44,7 @@
             label-key="name"
             value-key="id"
             :options="data"
+            filterable
           />
         </u-form>
 
@@ -96,8 +97,8 @@ const model = new FormModel({
   treeSelect: {required: true},
 })
 
-const sortRef = shallowRef()
-const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
+// const sortRef = shallowRef()
+// const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
 
 const units = [
   { label: '单位1', value: '1' },
