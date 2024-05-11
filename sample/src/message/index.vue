@@ -34,6 +34,7 @@ const config = reactive({
 })
 
 const showMsg = () => {
+  // console.log(Message)
   Message({
     message: 'asdasdasdasda!',
     type: config.type,
@@ -44,6 +45,7 @@ const showMsg = () => {
       console.log(123, vm)
     }
   })
+  // Message.danger('aaa')
 }
 </script>
 
