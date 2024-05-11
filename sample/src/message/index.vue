@@ -44,7 +44,10 @@ const showMsg = () => {
       console.log(123, vm)
     }
   })
-  // Message.success('hello world!')
+  Message.success('hello world!')
+  // Message.danger('asdads', (vm) => {
+  //   console.log(111, vm)
+  // })
 }
 </script>
 

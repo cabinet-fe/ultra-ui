@@ -1,5 +1,5 @@
 import UMessage from './message.vue'
-import { createVNode, render, type VNode, ref } from 'vue'
+import { createVNode, render, type VNode, ref, type RendererElement } from 'vue'
 
 import type { MessageProps } from '@ui/types/components/message'
 import { type ColorType, ColorTypeArray } from '@ui/types/component-common'
@@ -32,7 +32,7 @@ const close = (id: string, userClose?: (vm: VNode) => void) => {
 type MessageFn = (options: MessageProps) => void
 
 type MessageTypeFn = {
-  [k in ColorType]: (message: string) => void
+  [k in ColorType]: (message: string, onClose?: (vm: RendererElement) => void) => void
 } & MessageFn
 
 const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
@@ -55,10 +55,11 @@ const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
 }
 
 ColorTypeArray.forEach((type) => {
-  Message[type] = (message: string) => {
+  Message[type] = (message: string, onClose?: (vm: RendererElement) => void) => {
     return Message({
       message,
       type,
+      onClose
     })
   }
 })
