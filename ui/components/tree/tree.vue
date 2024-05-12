@@ -111,6 +111,7 @@ function getFlattedNodes() {
   const _nodes: TreeNode<DataItem>[] = []
 
   forest.value.dft(node => {
+    if (!node.parentExpanded) return false
     node.visible && _nodes.push(node)
   })
 

@@ -13,13 +13,13 @@ export class TreeNode<Val extends Record<string, any>> extends _TreeNode<Val> {
   checked = false
   indeterminate = false
   disabled = false
-  get visible() {
-    return this.parent?.expanded ?? true
+  visible = true
+
+  get parentExpanded() {
+    if (!this.parent) return true
+    return this.parent.expanded || this.depth === 1
   }
 
-  set visible(v) {
-
-  }
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)

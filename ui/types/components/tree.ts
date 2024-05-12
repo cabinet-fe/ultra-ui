@@ -16,6 +16,7 @@ export interface TreeNode<DataItem extends Record<string, any>>
   indeterminate: boolean
   disabled: boolean
   label: string
+  parentExpanded: boolean
   key: string | number
 }
 
