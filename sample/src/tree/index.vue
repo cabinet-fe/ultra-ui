@@ -21,7 +21,7 @@
       ></UTree>
     </CustomCard>
 
-    <!-- <CustomCard title="单选">
+    <CustomCard title="单选">
       <UTree
         :data="data"
         expand-all
@@ -77,7 +77,7 @@
           {{ data.name + '------' + data.id }}
         </template>
       </UTree>
-    </CustomCard> -->
+    </CustomCard>
   </div>
 </template>
 
