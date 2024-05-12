@@ -1,35 +1,18 @@
 <template>
-  <div
-    :class="className"
-    ref="sliderRef"
-    :style="vertical ? { height: `${height}px` } : undefined"
-  >
+  <div :class="className" ref="sliderRef" :style="vertical ? { height: `${height}px` } : undefined">
     <!-- 跑道 -->
-    <div ref="runwayRef" :class="runwayClass">
+    <div ref="runwayRef" :class="runwayClass" @mousedown="handleMousedown">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button
-        v-model="onePercentageValue"
-        @dragPosition="handleSetOneToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
 
-      <slider-button
-        v-model="twoPercentageValue"
-        v-if="range"
-        @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown" />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div
-          v-for="(item, key) in stops"
-          :key="key"
-          :class="cls.e('stop')"
-          :style="getStopStyle(item)"
-        />
+        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
       </template>
     </div>
   </div>
@@ -156,6 +139,20 @@ const handleOneDown = async (value: number) => {
   } else {
     model.value = onePercentageValue?.value
   }
+}
+
+const handleMousedown = (e) => {
+  let percentage = shallowRef(0)
+  let x = e.layerX
+  let y = e.layerY
+  let buttonValue = shallowRef()
+  percentage.value = props.vertical
+    ? -(y - sliderSize.value) / sliderSize.value
+    : x / sliderSize.value
+
+  buttonValue.value = Math.round(props.min! + (props.max! - props.min!) * percentage.value)
+
+  model.value = buttonValue.value
 }
 
 provide(sliderContextKey, {

@@ -104,6 +104,7 @@ useDrag({
     isDragging = true
   },
   onDrag(x, y, e) {
+    console.log(x, 'x')
     if (disabled.value) return
 
     const { vertical } = sliderProps
@@ -155,6 +156,8 @@ useDrag({
     percentage.value = sliderProps.vertical
       ? -currentTransform.y / sliderSize.value
       : currentTransform.x / sliderSize.value
+
+    console.log(percentage.value, -currentTransform.y, 'percentage1')
 
     nextTick(() => {
       isDragging = false
