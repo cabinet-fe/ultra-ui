@@ -16,13 +16,22 @@ export function useCheck<DataItem extends Record<string, any>>(
 
   const checked = shallowReactive(new Set<DataItem>())
 
-  /** 仅在非事件触发条件下更新checked */
-  let checkedByEvent = false
+  /**
+   * 模型值是否由事件触发
+   */
+  let modelChangedByEvent = false
+  /**
+   * 集合是否由模型变更时而触发。
+   */
+  let checkedSetChangeByModel = false
+
   watch(
     () => props.checked,
     (c, oc) => {
-      if (checkedByEvent) return
+      // 事件已经触发模型变更了，所以不再进行下面的计算
+      if (modelChangedByEvent) return
 
+      checkedSetChangeByModel = true
       // 不适用checked.clear()来
       // 减少checked操作次数提升性能
       oc?.forEach(v => {
@@ -37,12 +46,33 @@ export function useCheck<DataItem extends Record<string, any>>(
           node.checked = true
         }
       })
+
+      nextTick(() => {
+        checkedSetChangeByModel = false
+      })
     },
     { immediate: true }
   )
 
+  watch(checked, c => {
+    // 由于模型的变更，所以不再进行下面的计算
+    if (checkedSetChangeByModel) return
+
+    modelChangedByEvent = true
+    const checkedArr = Array.from(c)
+
+    emit(
+      'update:checked',
+      checkedArr.map(item => item[props.valueKey!]),
+      checkedArr
+    )
+
+    nextTick(() => {
+      modelChangedByEvent = false
+    })
+  })
+
   function handleCheck(node: TreeNode<DataItem>, check: boolean) {
-    checkedByEvent = true
     const { checkStrictly } = props
     if (check) {
       Tree.dft(node, node => {
@@ -86,17 +116,6 @@ export function useCheck<DataItem extends Record<string, any>>(
         }
       }
     }
-    const checkedArr = Array.from(checked)
-
-    emit(
-      'update:checked',
-      checkedArr.map(item => item[props.valueKey!]),
-      checkedArr
-    )
-
-    nextTick(() => {
-      checkedByEvent = false
-    })
   }
 
   return {

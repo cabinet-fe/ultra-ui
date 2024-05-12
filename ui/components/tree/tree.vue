@@ -118,7 +118,13 @@ function getFlattedNodes() {
   nodes.value = _nodes
 }
 
-watch(forest, () => getFlattedNodes(), { immediate: true })
+watch(
+  forest,
+  () => {
+    getFlattedNodes()
+  },
+  { immediate: true }
+)
 
 /**
  * 回溯缓存
@@ -211,6 +217,12 @@ defineExpose<_TreeExposed<DataItem>>({
   filter,
   forest,
   nodes,
-  checkNode: handleCheck
+  checkNode: handleCheck,
+  selectNode: handleSelect,
+  checkAll(check: boolean) {
+    forest.value.nodes.forEach(node => {
+      handleCheck(node, check)
+    })
+  }
 })
 </script>

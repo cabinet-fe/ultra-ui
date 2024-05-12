@@ -37,6 +37,9 @@
     </CustomCard>
 
     <CustomCard title="多选">
+      <u-checkbox v-model="allChecked" @update:model-value="handleCheckAll">
+        全选
+      </u-checkbox>
       <UTree
         :data="data"
         expand-all
@@ -46,6 +49,7 @@
         :disabled-node="disabledNode"
         @update:checked="handleCheck"
         v-model:checked="checked"
+        ref="checkedTreeRef"
       >
       </UTree>
 
@@ -142,6 +146,15 @@ const treeRef = shallowRef<TreeExposed>()
 watch([qs], ([qs]) => {
   treeRef.value?.filter(qs)
 })
+
+
+
+const checkedTreeRef = shallowRef<TreeExposed>()
+const allChecked = shallowRef(false)
+const handleCheckAll = (check: boolean) => {
+  allChecked.value = check
+  checkedTreeRef.value?.checkAll(check)
+}
 </script>
 
 <style lang="scss" scoped></style>

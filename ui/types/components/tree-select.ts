@@ -1,6 +1,6 @@
-import type {FormComponentProps} from "../component-common"
-import type {DeconstructValue} from "../helper"
-import type {TreeProps} from "./tree"
+import type { FormComponentProps } from '../component-common'
+import type { DeconstructValue } from '../helper'
+import type { TreeProps } from './tree'
 
 /** 树形选择器组件属性 */
 export interface TreeSelectProps<Val extends string | number>
@@ -8,8 +8,7 @@ export interface TreeSelectProps<Val extends string | number>
     TreeProps {
   /**选项值 */
   modelValue?: Val[]
-  /** 列表选项 */
-  options: Record<string, any>[]
+
   /**自定义占位文字 */
   placeholder?: string
   /**
@@ -19,13 +18,15 @@ export interface TreeSelectProps<Val extends string | number>
   /**
    * 是否可搜索
    */
-  filterable?:boolean
+  filterable?: boolean
+
+  /** 多选 */
+  multiple?: boolean
 }
 
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
-  (e: "update", value: Record<string, any>[]): void
-  (e: "clear", value: Record<string, any>[]): void
+  (e: 'clear', value: Record<string, any>[]): void
 }
 
 /** 树形选择器组件暴露的属性和方法(组件内部使用) */

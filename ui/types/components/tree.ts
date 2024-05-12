@@ -1,4 +1,3 @@
-import type { PropsWithServerQuery } from '../component-common'
 import type { TreeNode as _TreeNode, Forest } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
 import type { ComputedRef, ShallowRef } from 'vue'
@@ -23,7 +22,7 @@ export interface TreeNode<DataItem extends Record<string, any>>
 /** 树组件属性 */
 export interface TreeProps<
   DataItem extends Record<string, any> = Record<string, any>
-> extends PropsWithServerQuery {
+> {
   /** 是否展开所有节点 */
   expandAll?: boolean
   /** 是否在点击节点的时候展开或者收缩节点 */
@@ -48,7 +47,6 @@ export interface TreeProps<
   selected?: any
   /** 多选选中项 */
   checked?: any[]
-
 }
 
 export interface TreeEmit<
@@ -73,12 +71,15 @@ export interface _TreeExposed<DataItem extends Record<string, any>> {
    * 过滤树节点。注意：不要再watchEffect中调用！
    * @param filter 过滤器或一个字符串
    */
-  filter(filter: string  | ((node: TreeNode<DataItem>) => boolean)): void
+  filter(filter: string | ((node: TreeNode<DataItem>) => boolean)): void
   forest: ComputedRef<Forest<TreeNode<DataItem>>>
   nodes: ShallowRef<TreeNode<DataItem>[]>
   checkNode: (node: TreeNode<DataItem>, check: boolean) => void
+  selectNode: (node: TreeNode<DataItem>) => void
+  checkAll: (check: boolean) => void
 }
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-export type TreeExposed<DataItem extends Record<string, any> = Record<string, any>> =
-  DeconstructValue<_TreeExposed<DataItem>>
+export type TreeExposed<
+  DataItem extends Record<string, any> = Record<string, any>
+> = DeconstructValue<_TreeExposed<DataItem>>

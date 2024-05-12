@@ -71,7 +71,7 @@ const load = () => {
       }
     })
     loading.value = false
-  }, 2000)
+  }, 4000)
 }
 
 load()

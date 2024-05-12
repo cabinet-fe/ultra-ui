@@ -43,8 +43,9 @@
             label="权限管理"
             label-key="name"
             value-key="id"
-            :options="data"
+            :data="data"
             filterable
+            multiple
           />
         </u-form>
 
@@ -61,7 +62,7 @@
 
 <script lang="ts" setup>
 import { formField, FormModel } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
@@ -94,7 +95,7 @@ const model = new FormModel({
   slider: {},
   date: { required: true },
   guide: { required: true },
-  treeSelect: {required: true},
+  treeSelect: {  required: true},
 })
 
 // const sortRef = shallowRef()
@@ -107,6 +108,18 @@ const units = [
 ]
 
 const visible = shallowRef(false)
+
+watch(visible, v => {
+  if (v) {
+    // model.data.treeSelect = [1]
+
+    setTimeout(() => {
+      model.setData({ treeSelect: [1] })
+    }, 3000)
+  } else {
+    model.resetData()
+  }
+})
 
 const interestList = [
   { label: '电影', value: '1' },

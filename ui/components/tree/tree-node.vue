@@ -36,6 +36,7 @@
         :disabled="node.disabled"
         @click.stop
       />
+
       <u-node-render :content="getTreeSlotsNode({ node, data: node.value })" />
     </span>
   </div>

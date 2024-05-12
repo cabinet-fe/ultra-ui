@@ -48,6 +48,7 @@
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
           :data-key="option[valueKey]"
+          :key="option[valueKey]"
         >
           <slot v-bind="{ option, index }">
             {{ option[labelKey] }}
