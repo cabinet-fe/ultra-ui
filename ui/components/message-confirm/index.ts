@@ -6,10 +6,10 @@ export type {
   MessageConfirmExposed
 } from '@ui/types/components/message-confirm'
 
-import type { MessageConfirmProps } from '@ui/types/components/message-confirm'
-import UMessageConfirm from './message-confirm.vue'
-import { createVNode, render } from 'vue'
-import { zIndex } from '@ui/utils'
+// import type { MessageConfirmProps } from '@ui/types/components/message-confirm'
+// import UMessageConfirm from './message-confirm.vue'
+// import { createVNode, render } from 'vue'
+// import { zIndex } from '@ui/utils'
 
 export { default as MessageConfirm } from './message-confirm'
 
