@@ -56,6 +56,10 @@ const props = withDefaults(defineProps<SliderProps>(), {
   disabled: undefined
 })
 
+defineOptions({
+  name: 'Slider'
+})
+
 const emit = defineEmits<SliderEmits>()
 
 const cls = bem('slider')
