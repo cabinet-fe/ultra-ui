@@ -15,7 +15,11 @@
         activeTextColor="#CC00FF"
         text-color="#00CCCC"
       >
-        <u-menu-sub index="111" :icon="Location">
+        <LayoutMenu
+          v-for="menu of menus"
+          :menus="menu"
+        />
+        <!-- <u-menu-sub index="111" :icon="Location">
           <template #title>
             <span>一级菜单1</span>
           </template>
@@ -44,7 +48,7 @@
         <u-menu-item index="a3" :icon="Setting">一级菜单4</u-menu-item>
         <u-menu-item index="a4" :icon="Setting">一级菜单5</u-menu-item>
         <u-menu-item index="a5" :icon="Setting" disabled>一级菜单6</u-menu-item>
-        <u-menu-item index="a6" :icon="Setting">一级菜单7</u-menu-item>
+        <u-menu-item index="a6" :icon="Setting">一级菜单7</u-menu-item> -->
       </u-menu>
     </u-scroll>
   </div>
@@ -54,6 +58,27 @@
 import { Location, Setting } from 'icon-ultra'
 import type { UMenu } from 'ultra-ui/components'
 import { shallowRef, reactive, watch } from 'vue'
+import { Layers, HouseFilled, Usergroup, Lock, Cart } from 'icon-ultra'
+import LayoutMenu from './layout-menu.vue'
+
+const menus = shallowRef<any[]>([
+  { title: "首页", icon: HouseFilled, path: "/" },
+  {
+    title: "用户管理",
+    icon: Layers,
+    path: "/view/index",
+    children: [
+      { title: "用户管理1", icon: HouseFilled, path: "/view/index/1232" },
+      { title: "用户管理2", icon: Layers, path: "/view/index/123" },
+      { title: "用户管理3", icon: Usergroup, path: "/view/index/12322" },
+      { title: "用户管理4", icon: Lock, path: "/view/index/123555" },
+      { title: "用户管理5", icon: Cart, path: "/view/index/444" },
+    ],
+  },
+  { title: "角色管理", icon: Usergroup, path: "/view/test" },
+  { title: "权限管理", icon: Lock, path: "/permission" },
+  { title: "商品管理", icon: Cart, path: "/goods" },
+])
 
 const open = (index: string) => {
   console.log('open', index)
