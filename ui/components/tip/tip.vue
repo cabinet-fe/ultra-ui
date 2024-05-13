@@ -178,11 +178,11 @@ const popup = (scrollDirection?: ScrollDirection) => {
   // 计算弹出层样式
   let maxWidth
   if (props.position.match(/^(top|bottom)/)) {
-    maxWidth = calculateMaxWidth(screenSize.width, rect, props.position, gap)
+    maxWidth = calculateMaxWidth( window.innerWidth, rect, props.position, gap)
   } else if (props.position.match(/^right/)) {
-    maxWidth = calculateRightMaxWidth(gap, screenSize.width, rect.width, rect.x)
+    maxWidth = calculateRightMaxWidth(gap, window.innerWidth, rect.width, rect.x)
   } else if (props.position.match(/^left/)) {
-    maxWidth = calculateLeftMaxWidth(gap, screenSize.width, rect.width, rect.x)
+    maxWidth = calculateLeftMaxWidth(gap,  window.innerWidth, rect.width, rect.x)
   }
 
   if (maxWidth) {
