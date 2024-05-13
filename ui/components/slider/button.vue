@@ -156,8 +156,6 @@ useDrag({
       ? -currentTransform.y / sliderSize.value
       : currentTransform.x / sliderSize.value
 
-    console.log(percentage.value, -currentTransform.y, 'percentage1')
-
     nextTick(() => {
       isDragging = false
     })
