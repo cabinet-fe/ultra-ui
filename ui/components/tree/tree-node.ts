@@ -1,7 +1,9 @@
 import { TreeNode as _TreeNode, getChainValue } from 'cat-kit/fe'
 import { shallowReactive } from 'vue'
 
-export class TreeNode<Val extends Record<string, any>> extends _TreeNode<Val> {
+export class TreeNode<
+  Val extends Record<string, any> = Record<string, any>
+> extends _TreeNode<Val> {
   override parent: TreeNode<Val> | null = null
 
   override children?: TreeNode<Val>[] = undefined
@@ -19,7 +21,6 @@ export class TreeNode<Val extends Record<string, any>> extends _TreeNode<Val> {
     if (!this.parent) return true
     return this.parent.expanded || this.depth === 1
   }
-
 
   constructor(val: Val, index: number, parent?: any) {
     super(val, index)
