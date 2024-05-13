@@ -28,8 +28,6 @@ export const useSlide = (
         sliderSize.value = runwayRef.value?.offsetHeight!
         // rect.height
       } else {
-        // console.log(, 'rect.width')
-        //
         // rect.width
         sliderSize.value = runwayRef.value?.offsetWidth!
       }

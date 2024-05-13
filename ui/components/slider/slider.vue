@@ -164,6 +164,9 @@ const handleOneDown = async (value: number) => {
 
 /** 点击更改位置 */
 const handleSetPosition = (e: MouseEvent) => {
+  /** disabled初始值是undefined所以!! */
+  if (!!props.disabled) return
+
   let percentage = shallowRef(0)
   let x = e.offsetX
   let y = e.offsetY
