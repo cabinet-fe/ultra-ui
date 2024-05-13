@@ -8,6 +8,12 @@ type MessageItem = {
   vm: VNode
 }
 
+type MessageFn = (options: MessageProps) => void
+
+type MessageTypeFn = {
+  [k in ColorType]: (message: string, onClose?: (vm: RendererElement) => void) => void
+} & MessageFn
+
 const messageQueue = ref<MessageItem[]>([])
 
 let count = 1
@@ -28,12 +34,6 @@ const close = (id: string, userClose?: (vm: VNode) => void) => {
     })
   }
 }
-
-type MessageFn = (options: MessageProps) => void
-
-type MessageTypeFn = {
-  [k in ColorType]: (message: string, onClose?: (vm: RendererElement) => void) => void
-} & MessageFn
 
 const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
   const container = document.createElement('div')
