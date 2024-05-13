@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]">
+  <div :class="[cls.b, cls.m(size)]" ref="paginatorRef">
     <div>共 {{ total }} 条</div>
 
     <u-select
@@ -80,11 +80,12 @@
 <script lang="ts" setup>
 import type {
   PaginatorProps,
-  PaginatorEmits
+  PaginatorEmits,
+  _PaginatorExposed
 } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, shallowRef, watch } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
@@ -181,5 +182,11 @@ function handleKeyEnter(e: KeyboardEvent) {
 const hovered = reactive({
   first: false,
   last: false
+})
+
+const paginatorRef = shallowRef<HTMLElement>()
+
+defineExpose<_PaginatorExposed>({
+  el: paginatorRef
 })
 </script>
