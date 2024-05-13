@@ -184,9 +184,9 @@ watch(
   () => {
     if (instance) {
       textIndent.value = calcIndent(instance)
-      siblings.value = getSiblings(instance) || []
+      siblings.value = getSiblings(instance)
       children.value = getChildren(instance)
-      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
+      if (injected && children.value.includes(injected!.activeIndex.value)) expand.value = true
     }
   },
   { immediate: true }
