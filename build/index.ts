@@ -2,22 +2,32 @@ import { build } from 'vite'
 import dts from 'vite-plugin-dts'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { dirname, resolve } from 'node:path'
+import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { genPackageJson } from './gen-package-json'
-import { copyStyles } from './copy-styles'
+import { buildStyles } from './build-styles'
+import fg from 'fast-glob'
+import { copyFiles } from './copy'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const UI_ROOT = resolve(__dirname, '../ui')
 
-function getEntries(fileNames: string[]) {
-  return fileNames.map(fileName => {
-    return resolve(UI_ROOT, fileName + '.ts')
+async function getEntries() {
+  const entries = await fg.glob('**/*.{ts,vue,tsx}', {
+    cwd: UI_ROOT,
+    ignore: ['**/node_modules', '**/__test__', 'types/**', '**/style.ts']
   })
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.slice(0, -extname(entry).length),
+      resolve(UI_ROOT, entry)
+    ])
+  )
 }
 
 async function bundle() {
+  const entries = await getEntries()
+
   await build({
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
@@ -30,13 +40,14 @@ async function bundle() {
       }),
       vueJsx(),
       dts({
-        entryRoot: UI_ROOT,
-
         tsconfigPath: resolve(__dirname, '../ui/tsconfig.json'),
         include: ['../ui/**/*'],
-        exclude: ['node_modules']
+        exclude: ['node_modules'],
+        outDir: resolve(__dirname, '../dist')
       })
     ],
+
+    logLevel: 'warn',
 
     build: {
       sourcemap: true,
@@ -46,39 +57,27 @@ async function bundle() {
       emptyOutDir: true,
 
       lib: {
-        entry: getEntries([
-          'index',
-          'components/index',
-          'directives/index',
-          'utils/index',
-          'compositions/index',
-          'styles/index'
-        ]),
+        entry: entries,
         formats: ['es']
       },
 
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖
         external: ['vue', 'icon-ultra', 'cat-kit/fe'],
-
         output: {
-          preserveModules: true
+          chunkFileNames: 'venders/[name]-[hash].js'
         }
       }
-    },
-
-    logLevel: 'warn'
+    }
   })
 }
 
 async function boot() {
   await bundle()
 
-  genPackageJson()
+  buildStyles()
 
-  // copyTypes()
-
-  copyStyles()
+  copyFiles()
 }
 
 boot()

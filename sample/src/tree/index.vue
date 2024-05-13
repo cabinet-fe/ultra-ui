@@ -1,34 +1,82 @@
 <template>
   <div>
-    <CustomCard title="全部展开">
-      <UTree style="margin-bottom: 10px" :data="data" label-key="name" value-key="id" expand-all />
+    <CustomCard title="全部展开,过滤">
+      <u-input v-model="qs"></u-input>
+      <UTree
+        style="margin-bottom: 10px"
+        :data="data"
+        label-key="name"
+        value-key="id"
+        expand-all
+        ref="treeRef"
+      />
     </CustomCard>
 
     <CustomCard title="点击节点展开">
-      <UTree :data="data" label-key="name" value-key="id" expand-on-click-node></UTree>
+      <UTree
+        :data="data"
+        label-key="name"
+        value-key="id"
+        expand-on-click-node
+      ></UTree>
     </CustomCard>
 
     <CustomCard title="单选">
-      <UTree :data="data" expand-all label-key="name" value-key="id" @node-click="handleNodeClick" selectable />
+      <UTree
+        :data="data"
+        expand-all
+        label-key="name"
+        value-key="id"
+        :disabled-node="disabledNode"
+        v-model:selected="select"
+        @update:selected="handleNodeClick"
+        selectable
+      />
 
       select单选 {{ select }}
     </CustomCard>
 
     <CustomCard title="多选">
-      <UTree :data="data" expand-all label-key="name" value-key="id" checkable @check="handleCheck">
+      <u-checkbox v-model="allChecked" @update:model-value="handleCheckAll">
+        全选
+      </u-checkbox>
+      <UTree
+        :data="data"
+        expand-all
+        label-key="name"
+        value-key="id"
+        checkable
+        :disabled-node="disabledNode"
+        @update:checked="handleCheck"
+        v-model:checked="checked"
+        ref="checkedTreeRef"
+      >
       </UTree>
 
       checkable多选 {{ checked }}
     </CustomCard>
 
     <CustomCard title="父子不关联">
-      <UTree :data="data" expand-all label-key="name" value-key="id" checkable check-strictly @check="handleCheck" />
-
-      checkable多选 {{ checked }}
+      <UTree
+        :data="data"
+        expand-all
+        label-key="name"
+        value-key="id"
+        checkable
+        check-strictly
+        :disabled-node="disabledNode"
+        v-model:checked="checked"
+      />
     </CustomCard>
 
     <CustomCard title="自定义内容">
-      <UTree :data="data" expand-all label-key="name" value-key="id" checkable check-strictly @check="handleCheck">
+      <UTree
+        :data="data"
+        expand-all
+        label-key="name"
+        value-key="id"
+        check-strictly
+      >
         <template #default="{ data }">
           {{ data.name + '------' + data.id }}
         </template>
@@ -38,9 +86,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import type { TreeExposed } from 'ultra-ui/components'
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef } from 'vue'
+import { shallowRef, watch, watchEffect } from 'vue'
 
 const data = [
   { name: '烤冷面', id: 1 },
@@ -76,15 +124,36 @@ const data = [
   }
 ]
 
-let select = ref({})
-const checked = shallowRef([])
-const handleNodeClick = (value: any) => {
-  console.log(value, 'values')
-  select.value = value
+let select = shallowRef()
+const checked = shallowRef([1])
+const handleNodeClick = selected => {
+  select.value = selected
 }
 
-const handleCheck = (_, node, _checked) => {
-  checked.value = _checked
+const disabledNode = data => {
+  return data.id % 2 === 0
+}
+
+const handleCheck = (...args) => {
+  // checked.value = _checked
+  console.log('选中了', ...args)
+}
+
+const qs = shallowRef('')
+
+const treeRef = shallowRef<TreeExposed>()
+
+watch([qs], ([qs]) => {
+  treeRef.value?.filter(qs)
+})
+
+
+
+const checkedTreeRef = shallowRef<TreeExposed>()
+const allChecked = shallowRef(false)
+const handleCheckAll = (check: boolean) => {
+  allChecked.value = check
+  checkedTreeRef.value?.checkAll(check)
 }
 </script>
 

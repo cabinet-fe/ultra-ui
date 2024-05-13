@@ -4,6 +4,7 @@
 
 @include m.b(radio-group) {
     @include m.flex($display: inline-flex, $align: center);
+    vertical-align: middle;
 
     @include m.e(button-item) {
         margin: 0px !important;

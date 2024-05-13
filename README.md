@@ -2,6 +2,14 @@
 
 给你带来极致性能, 极致代码, 极致体验的 Vue3 组件库
 
+## 使用
+
+```bash
+# 下面icon-ultra cat-kit vue三个包也是必须安装的
+pnpm add ultra-ui icon-ultra cat-kit vue
+```
+
+
 ## 注释友好
 
 我们为代码添加了提示完备的注释

@@ -8,11 +8,13 @@
     "types": ["vite/client", "@vue/runtime-core"],
     "baseUrl": "..",
     "rootDir": "..",
+    "outDir": "./dist",
     "paths": {
       "ultra-ui/*": ["ui/*"],
       "@ui/*": ["ui/*"]
-    }
+    },
+    "allowJs": true
   },
-  "include": ["../**/*.vue", "../**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.vue", "**/*.ts"],
+  "exclude": ["node_modules", "dist/**", "**/*.js"]
 }

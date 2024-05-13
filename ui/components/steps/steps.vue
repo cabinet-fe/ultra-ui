@@ -20,7 +20,11 @@
           v-if="index !== 0"
         ></div>
         <div :class="cls.em('icon', 'placeholder')" v-else></div>
-        <component v-if="slots.icon" :is="icons[index]"></component>
+        <component
+          v-if="slots.icon"
+          :is="icons[index]"
+          :class="[cls.em('icon', 'number')]"
+        ></component>
         <div v-else :class="[cls.em('icon', 'number')]">
           <UIcon v-if="index < currentIndex"><Check /></UIcon>
           <span v-else>{{ index + 1 }}</span>

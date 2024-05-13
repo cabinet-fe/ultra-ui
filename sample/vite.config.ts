@@ -3,7 +3,7 @@ import Vue from '@vitejs/plugin-vue'
 import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import autoprefixer from 'autoprefixer'
-import { UIResolver } from 'vite-helper/resolver'
+import { UltraUIResolver } from 'vite-helper/resolver'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -37,7 +37,7 @@ export default defineConfig(() => {
       }),
       VueJSX(),
       Components({
-        resolvers: [UIResolver],
+        resolvers: [UltraUIResolver],
         dts: true,
         include: [/\.vue$/]
       })

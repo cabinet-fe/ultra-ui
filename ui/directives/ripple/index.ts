@@ -67,6 +67,7 @@ const transitionEndHandler = (e: TransitionEvent) => {
 }
 
 const showRipple = (e: MouseEvent) => {
+  if (e.button !== 0) return
   const el = e.currentTarget as HTMLElement
 
   // 添加波纹类

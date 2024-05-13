@@ -57,20 +57,20 @@ $position-types: (top, right, bottom, left);
       &--#{$position} {
         @if $position ==left {
           flex-direction: column;
-          border-right: 2px solid fn.use-var(border-color);
+          // border-right: 2px solid fn.use-var(border-color);
         }
 
         @else if $position ==right {
           flex-direction: column;
-          border-left: 2px solid fn.use-var(border-color);
+          // border-left: 2px solid fn.use-var(border-color);
         }
 
         @else if $position ==bottom {
-          border-bottom: 2px solid fn.use-var(border-color);
+          // border-bottom: 2px solid fn.use-var(border-color);
         }
 
         @else {
-          border-bottom: 2px solid fn.use-var(border-color);
+          // border-bottom: 2px solid fn.use-var(border-color);
         }
       }
     }
@@ -87,6 +87,7 @@ $position-types: (top, right, bottom, left);
       color: fn.use-var(text-color, main);
       user-select: none;
       animation: fadeOutAnimation 1s forwards;
+      border: 1px solid fn.use-var(bg-color, top);
 
       @keyframes fadeOutAnimation {
         from {
@@ -99,8 +100,8 @@ $position-types: (top, right, bottom, left);
       }
 
       @include m.is('active') {
-        color: fn.use-var(text-color, title);
         animation: fadeInAnimation 0.25s forwards;
+        color: fn.use-var(color, primary);
 
         @keyframes fadeInAnimation {
           from {
@@ -115,6 +116,7 @@ $position-types: (top, right, bottom, left);
 
       @include m.is('disabled') {
         cursor: not-allowed;
+        color: fn.use-var(text, color, disabled);
       }
 
       .is-close,
@@ -127,16 +129,17 @@ $position-types: (top, right, bottom, left);
       }
 
       .is-close:hover {
-        background-color: fn.use-var(color, primary-light-1);
-        color: #fff;
+        background-color: fn.use-var(color, primary-light-7);
       }
     }
 
     &--label:hover {
       color: fn.use-var(color, primary);
+      border-style: dashed;
 
       @include m.is(disabled) {
-        color: fn.use-var(text-color, main);
+        color: fn.use-var(text, color, disabled);
+        border-style: solid;
       }
     }
 

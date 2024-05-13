@@ -37,17 +37,18 @@ export function useResponsive(options: ResponsiveOptions) {
   const currentBreakpoint = shallowRef<Breakpoint>()
 
   let observer: Undef<ResizeObserver>
+
   watch(
     [responsive, gridRef],
     ([responsive, dom]) => {
       if (!dom) return
-      if (responsive) {
+      if (responsive && !observer) {
         observer = new ResizeObserver(
           debounce(([entry]) => {
             const target = entry!.target as HTMLElement
             const rect = target.getBoundingClientRect()
             emit('resize', rect)
-            const breakpoint = getContainerBreakpoint(rect.width)
+            const breakpoint = getContainerBreakpoint(target.offsetWidth)
             if (equal(currentBreakpoint.value, breakpoint)) return
             currentBreakpoint.value = breakpoint
             emit('breakpoint-change', breakpoint)

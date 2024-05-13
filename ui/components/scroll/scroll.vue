@@ -3,10 +3,18 @@
     <!-- 实际滚动的容器 -->
     <div
       ref="containerRef"
-      :class="cls.e('container')"
+      :class="[cls.e('container'), containerClass]"
       @scroll.passive="handleScroll"
+      :style="containerStyle"
     >
-      <component ref="contentRef" :class="cls.e('content')" :is="tag">
+      <slot name="content" />
+
+      <component
+        ref="contentRef"
+        :style="contentStyle"
+        :class="[cls.e('content'), contentClass]"
+        :is="tag"
+      >
         <slot />
       </component>
     </div>
@@ -49,6 +57,13 @@ const props = withDefaults(defineProps<ScrollProps>(), {
 
 const emit = defineEmits<ScrollEmits>()
 
+defineSlots<{
+  /** 默认插槽 */
+  default(): any
+  /** 内容插槽 */
+  content(): any
+}>()
+
 const cls = bem('scroll')
 const className = computed(() => {
   return [cls.b, bem.is('always', props.always)]
@@ -78,7 +93,7 @@ const trackSize = {
 }
 
 useResizeObserver({
-  target: contentRef,
+  targets: contentRef,
   onResize([entry]) {
     if (entry && scrollRef.value) {
       const { clientHeight, clientWidth } = scrollRef.value

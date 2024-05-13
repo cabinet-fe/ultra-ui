@@ -1,5 +1,3 @@
-import { CLS_PREFIX } from '@ui/shared'
-
 // 设置颜色类别的派生色, 分别和黑色和白色混合
 const computedStyles = getComputedStyle(document.documentElement)
 
@@ -15,7 +13,7 @@ function getColorVars(type: ColorType, names: string[]) {
   return names.map(name => ({
     name,
     color: computedStyles
-      .getPropertyValue(`--u-${type}-${name}`)
+      .getPropertyValue(`--${type}-${name}`)
       .trim() as `#${string}`
   }))
 }
@@ -86,10 +84,12 @@ function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number) {
 const colorMixedType: `${'light' | 'dark'}-${number}`[] = [
   'light-1',
   'light-3',
+  'light-5',
   'light-7',
   'light-9',
   'dark-1',
   'dark-3',
+  'dark-5',
   'dark-7',
   'dark-9'
 ]
@@ -113,7 +113,7 @@ const colorVars = colors
           number
         ]
 
-        return `--${CLS_PREFIX}color-${name}-${type}: ${mixColor(
+        return `--color-${name}-${type}: ${mixColor(
           color,
           colorStyle === 'dark' ? '#000' : '#fff',
           ratio / 10
@@ -126,7 +126,7 @@ const colorVars = colors
 const bgColorVars = getColorVars('bg-color', ['top', 'middle', 'bottom'])
   .map(item => {
     const { name, color } = item
-    return `--${CLS_PREFIX}bg-color-${name}-alpha: ${color}cc`
+    return `--bg-color-${name}-alpha: ${color}cc`
   })
   .join(';')
 

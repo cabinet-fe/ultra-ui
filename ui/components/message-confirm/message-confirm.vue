@@ -32,7 +32,7 @@ import { bem } from '@ui/utils'
 import { UButton } from '../button'
 import { useFallbackProps } from '@ui/compositions'
 import { ref, onMounted } from 'vue'
-import type { ColorType } from '@ui/types/component-common'
+import type { ColorType, ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'MessageConfirm'
@@ -42,9 +42,9 @@ const props = defineProps<MessageConfirmProps>()
 
 const { title, message, size, confirmButtonText, confirmButtonType, cancelButtonText } =
   useFallbackProps([props], {
-    title: 'title',
-    message: 'message',
-    size: 'default',
+    title: '',
+    message: '',
+    size: 'default' as ComponentSize,
     confirmButtonText: '确定',
     confirmButtonType: 'primary' as ColorType,
     cancelButtonText: ''

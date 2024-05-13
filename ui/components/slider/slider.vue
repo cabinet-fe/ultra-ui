@@ -1,35 +1,18 @@
 <template>
-  <div
-    :class="[cls.b, cls.m(size), bem.is('vertical', vertical)]"
-    ref="sliderRef"
-    :style="vertical ? { height: `${height}px` } : undefined"
-  >
+  <div :class="className" ref="sliderRef" :style="vertical ? { height: `${height}px` } : undefined">
     <!-- 跑道 -->
-    <div ref="runwayRef" :class="runwayClass">
+    <div ref="runwayRef" :class="runwayClass" @mousedown="handleMousedown">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button
-        v-model="onePercentageValue"
-        @dragPosition="handleSetOneToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
 
-      <slider-button
-        v-model="twoPercentageValue"
-        v-if="range"
-        @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown"
-      />
+      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown" />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div
-          v-for="(item, key) in stops"
-          :key="key"
-          :class="cls.e('stop')"
-          :style="getStopStyle(item)"
-        />
+        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
       </template>
     </div>
   </div>
@@ -52,7 +35,8 @@ const props = withDefaults(defineProps<SliderProps>(), {
   step: 0,
   vertical: false,
   height: 300,
-  range: false
+  range: false,
+  disabled: undefined
 })
 
 const emit = defineEmits<SliderEmits>()
@@ -61,8 +45,15 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default'
+const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+
+const className = computed(() => {
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('vertical', props.vertical),
+    bem.is('disabled', disabled.value)
+  ]
 })
 
 /** slider大小 */
@@ -150,8 +141,23 @@ const handleOneDown = async (value: number) => {
   }
 }
 
+const handleMousedown = (e) => {
+  let percentage = shallowRef(0)
+  let x = e.layerX
+  let y = e.layerY
+  let buttonValue = shallowRef()
+  percentage.value = props.vertical
+    ? -(y - sliderSize.value) / sliderSize.value
+    : x / sliderSize.value
+
+  buttonValue.value = Math.round(props.min! + (props.max! - props.min!) * percentage.value)
+
+  model.value = buttonValue.value
+}
+
 provide(sliderContextKey, {
   sliderProps: props,
+  disabled: disabled,
   runwayRef,
   sliderSize,
   model,

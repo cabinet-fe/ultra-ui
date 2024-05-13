@@ -78,7 +78,7 @@ export class ColumnNode extends TreeNode<TableColumn> {
   /** 列固定方向 */
   get fixed(): 'left' | 'right' | undefined {
     if (this.depth > 1) return
-    return  this.value.fixed
+    return this.value.fixed
   }
   set fixed(val) {
     this.value.fixed = val
@@ -88,10 +88,6 @@ export class ColumnNode extends TreeNode<TableColumn> {
 
   constructor(val: TableColumn, index: number) {
     super(shallowReactive(val), index)
-  }
-
-  override createNode(val: TableColumn, index: number): ColumnNode {
-    return new ColumnNode(val, index)
   }
 }
 

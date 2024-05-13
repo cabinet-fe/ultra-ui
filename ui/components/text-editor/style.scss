@@ -1,0 +1,15 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: text-editor;
+
+@include m.b($root-name) {
+  min-height: 200px;
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    background-color: fn.use-var(color, disabled);
+  }
+}

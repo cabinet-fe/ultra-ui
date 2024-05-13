@@ -34,6 +34,7 @@ const { currentBreakpoint, gridItemsProps } = useResponsive({
 
 const style = computed<CSSProperties>(() => {
   const { cols, gap } = props
+
   const styles: CSSProperties = {}
   if (gap) {
     styles.columnGap = gap + 'px'
@@ -52,6 +53,7 @@ const style = computed<CSSProperties>(() => {
     case 'object':
       const breakpoint = currentBreakpoint.value
       const amount = getBreakpointCols(cols, breakpoint)
+
       styles.gridTemplateColumns = `repeat(${amount}, 1fr)`
   }
 

@@ -5,6 +5,7 @@ import 'ultra-ui/styles/theme.scss'
 import 'ultra-ui/styles'
 import loading from 'ultra-ui/components/loading/directive'
 import 'ultra-ui/components/loading/style.scss'
+import 'ultra-ui/components/context-menu/style.js'
 
 const app = createApp({
   render: () => h(App)

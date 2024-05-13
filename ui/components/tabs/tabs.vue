@@ -1,9 +1,6 @@
 <template>
   <div :class="[cls.b, cls.e(position!), cls.m(size)]">
-    <div
-      :class="[cls.e('header'), cls.em('header', position!)]"
-      ref="headerRef"
-    >
+    <div :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
       <div
         v-for="(item, index) in standardItems"
         :key="item.key"
@@ -12,13 +9,10 @@
           bem.is('active', modelValue === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="
-          item.disabled || active.index === index
-            ? void 0
-            : clickTab(item, index)
-        "
+        @click="item.disabled || active.index === index ? void 0 : clickTab(item, index)"
         ref="labRef"
         :draggable="sortable"
+        v-ripple="item.disabled || active.index === index ? false : 'ripple-color'"
       >
         <slot :name="`${item?.name}-label`">
           {{ item.name }}
@@ -46,28 +40,16 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  TabItem,
-  TabsItems,
-  TabsProps,
-  TabsEmits
-} from '@ui/types/components/tabs'
+import type { TabItem, TabsItems, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import { isObj, deepCopy } from 'cat-kit/fe'
-import {
-  computed,
-  shallowRef,
-  ref,
-  watch,
-  reactive,
-  useSlots,
-  toRaw
-} from 'vue'
+import { computed, shallowRef, ref, watch, reactive, useSlots, toRaw } from 'vue'
 import { Close } from 'icon-ultra'
 import { useSort } from '@ui/compositions'
 import { useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { isPromise } from 'cat-kit/fe'
+import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'Tabs'
@@ -106,7 +88,7 @@ const propItems = ref<TabsItems[]>(deepCopy(props.items))
 /** 监听传入的items，进行标准化处理 */
 watch(
   () => props.items,
-  items => {
+  (items) => {
     if (items.length) {
       if (isObj(items[0])) {
         standardItems.value = items.map((item: any) => {
@@ -140,9 +122,7 @@ const changeTab = (item: TabItem, index: number) => {
 }
 /** 点击标签页 */
 const clickTab = (item: TabItem, index: number) => {
-  const canEnter = props.beforeLeave
-    ? props.beforeLeave(active.lab, item.key!)
-    : () => true
+  const canEnter = props.beforeLeave ? props.beforeLeave(active.lab, item.key!) : () => true
   if (isPromise(canEnter)) {
     canEnter.then(() => {
       changeTab(item, index)
@@ -156,9 +136,7 @@ const labRef = shallowRef<HTMLDivElement[]>()
 
 /** 关闭标签 */
 const handleClose = (item: TabItem, index: number) => {
-  standardItems.value = standardItems.value.filter(
-    (row: any) => row.key !== item.key
-  )
+  standardItems.value = standardItems.value.filter((row: any) => row.key !== item.key)
   if (item.key === props.modelValue) {
     const item = standardItems.value[0]!
     emit('update:modelValue', item.key!)
@@ -172,7 +150,7 @@ const showClose = (key: string | number) => {
   if (closable.value && standardItems.value.length > 1) {
     return (
       active.lab === key &&
-      standardItems.value.find(item => {
+      standardItems.value.find((item) => {
         if (item.key === key) {
           return !item.disabled
         }
@@ -209,3 +187,9 @@ const exchange = (newIndex: number, oldIndex: number) => {
   emit('update:items', toRaw(propItems.value))
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(.ripple-color) {
+  background-color: rgba(256, 256, 256, 0.4);
+}
+</style>

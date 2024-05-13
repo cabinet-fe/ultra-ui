@@ -7,11 +7,11 @@
 // 方便拼接
 $root-name: slider;
 
-$button-size: 32;
+$button-size: 36;
 
 @include m.b($root-name) {
   @include m.size using ($size) {
-    padding: calc(fn.use-var(form-component-height, $size) / 3);
+    padding: calc(fn.use-var(form-component-height, $size) / 2.8);
     height: fn.use-var(form-component-height, $size);
 
     @include m.bem($root-name, button) {
@@ -54,7 +54,32 @@ $button-size: 32;
       width: 100%;
       height: 10px;
       border-radius: 50%;
-      background-color: fn.use-var('color', primary, light-3);
+      background: fn.use-var(color-default-light-7);
+      z-index: 10;
+    }
+  }
+
+  @include m.is(disabled) {
+    @include m.bem($root-name, bar) {
+      background-color: fn.use-var(color-default-dark-3);
+      cursor: no-drop;
+    }
+
+    @include m.bem($root-name, runway) {
+      cursor: no-drop;
+    }
+
+    @include m.bem($root-name, button) {
+      border: solid 2px fn.use-var(color-default-dark-3);
+      cursor: no-drop;
+
+      &:active {
+        cursor: no-drop;
+        transform: none;
+      }
+      &:hover {
+        transform: none;
+      }
     }
   }
 
@@ -113,6 +138,8 @@ $button-size: 32;
     width: 10px;
     height: 100%;
     border-radius: 50%;
-    background-color: fn.use-var('color', primary, light-3);
+    background: #fafcfd;
+    z-index: 10;
+    background-color: fn.use-var(color-default-light-7);
   }
 }

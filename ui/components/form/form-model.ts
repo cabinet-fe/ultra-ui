@@ -5,15 +5,41 @@ import type {
   IFormModel
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
-import { shallowReactive, watch } from 'vue'
+import { nextTick, shallowReactive, watch } from 'vue'
 
+/**
+ * 响应式表单模型
+ * @example
+ * ```ts
+ * // 使用表单模型类你可以很容易地操作一个表单
+ * const model = new FormModel({
+ *   name: {
+ *    value: '初始值',
+ *    // 必填
+ *    required: true,
+ *    // 最大长度
+ *    maxLen: 4
+ *   },
+ *   // 你也可以像下面这样指定来定一个没有初始值但是仍然标注了类型的字段
+ *   age: field<string>({ required: '年龄是必填的' }),
+ * })
+ * ```
+ */
 export class FormModel<
   Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
 > implements IFormModel<Fields>
 {
+  /** 表单数据 */
   readonly data: ModelData<Fields>
 
+  /** 表单规则 */
   readonly rules: ModelRules<Fields>
+
+  /** 字段键 */
+  readonly keyOfFields: (keyof Fields)[]
+
+  /** 初始数据 */
+  private readonly initialData: ModelData<Fields>
 
   readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
     new Map()
@@ -21,24 +47,32 @@ export class FormModel<
 
   private validator: Validator<ModelRules<Fields>>
 
+  /**
+   * 是否在表单值更新时校验
+   */
+  private validateOnFieldChange = true
+
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
-
     const rules = {} as ModelRules<Fields>
+    const keyOfFields = [] as (keyof Fields)[]
 
     for (const key in fields) {
       const { value, ...rule } = fields[key]!
+      keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
-
       rules[key] = rule as any
     }
 
+    this.initialData = JSON.parse(JSON.stringify(rawData))
     const data = shallowReactive(rawData)
 
+    this.keyOfFields = keyOfFields
     this.data = data
     this.rules = rules
     this.validator = new Validator(rules)
 
+    // 使用一个代理对象来在赋值时校验表单字段
     const p = new Proxy(
       {},
       {
@@ -55,11 +89,12 @@ export class FormModel<
     )
 
     watch(data, data => {
-      Object.keys(data).forEach(key => {
+      if (!this.validateOnFieldChange) return
+      for (const key in data) {
         if (p[key] !== data[key]) {
           p[key] = data[key]
         }
-      })
+      }
     })
   }
 
@@ -92,6 +127,41 @@ export class FormModel<
     if (errors.size > 0) return false
 
     return true
+  }
+
+  /** 重置数据 */
+  resetData(fields?: keyof Fields | (keyof Fields)[]): void {
+    if (typeof fields === 'string') {
+      fields = [fields]
+    } else if (Array.isArray(fields)) {
+    } else {
+      fields = this.keyOfFields
+    }
+
+    // 重置时不再校验数据了
+    this.validateOnFieldChange = false
+
+    fields.forEach(field => {
+      this.data[field] = this.initialData[field]
+    })
+
+    this.clearValidate()
+
+    nextTick(() => {
+      this.validateOnFieldChange = true
+    })
+  }
+
+  /**
+   * 设置值
+   * @param formData 表单值
+   */
+  setData(formData: Partial<ModelData<Fields>>) {
+    for (const key in formData) {
+      if (key in this.data) {
+        this.data[key] = formData[key]
+      }
+    }
   }
 
   /** 清除校验 */

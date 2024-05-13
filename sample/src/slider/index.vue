@@ -34,7 +34,7 @@
         :min="0"
         :max="100"
         :step="10"
-        :show-stops="true"
+        show-stops
       ></u-slider>
     </div>
 
@@ -49,6 +49,11 @@
     <div>
       <u-slider v-model="rangeValue" range vertical> </u-slider>
       <u-slider v-model="rangeValue" range vertical> </u-slider>
+    </div>
+
+    禁用
+    <div>
+      <u-slider v-model="sliderValue" disabled />
     </div>
 
     表单

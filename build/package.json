@@ -3,6 +3,8 @@
   "type": "module",
   "scripts": {
     "build": "tsx ./index.ts",
-    "release": "bumpp ../package.json && pnpm build && cd dist && pnpm publish --registry https://192.168.31.250:6005"
+    "pub": "cd ../dist && pnpm publish --registry http://192.168.31.250:6005",
+    "gen:pkg": "tsx ./gen-package-json.ts",
+    "release": "pnpm build && bumpp ../package.json && pnpm gen:pkg && pnpm pub"
   }
 }

@@ -9,7 +9,7 @@
     $suffix: $suffix + '-' + $node;
   }
 
-  @return var(--#{vars.$namespace}#{$basename}#{$suffix});
+  @return var(--#{$basename}#{$suffix});
 }
 
 // 使用多个变量

@@ -2,7 +2,6 @@
   <u-dropdown
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
-    min-width="200px"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
@@ -49,6 +48,7 @@
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
           :data-key="option[valueKey]"
+          :key="option[valueKey]"
         >
           <slot v-bind="{ option, index }">
             {{ option[labelKey] }}

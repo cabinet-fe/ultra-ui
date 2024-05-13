@@ -4,8 +4,8 @@
       <u-radio-group :items="items" v-model="trigger" />
     </div>
 
-    <div style="display: flex; justify-content: center">
-      <u-dropdown :trigger="trigger" class="bb" min-width="300px">
+    <div style="display: flex; justify-content: right">
+      <u-dropdown :trigger="trigger" class="bb" >
         <template #trigger>
           <u-button>dropdown-hover</u-button>
         </template>

@@ -9,7 +9,7 @@
       />
     </u-scroll>
 
-    <u-scroll tag="div" class="main" >
+    <u-scroll tag="div" class="main">
       <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
         组件尺寸
         <u-radio value="small" v-model="size">小</u-radio>
@@ -29,9 +29,11 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { useConfig, vRipple } from 'ultra-ui'
+import { useConfig, vRipple, contextmenu, Message } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common'
+import { sleep } from 'cat-kit/fe'
+import { CloudDownload, Link, Plus } from 'icon-ultra'
 
 const router = useRouter()
 const route = useRoute()
@@ -65,6 +67,33 @@ const ListItem = defineComponent({
       return (
         <li
           onClick={() => handleClick(route.path)}
+          onContextmenu={(e: MouseEvent) => {
+            e.preventDefault()
+            contextmenu.pop({
+              mousePosition: e,
+              menus: [
+                {
+                  label: '跳转到页面',
+                  icon: Link,
+                  callback() {
+                    router.push(route.path)
+                  }
+                },
+                {
+                  label: '模拟请求',
+                  icon: CloudDownload,
+                  async callback() {
+                    await sleep(2000)
+
+                    Message({
+                      message: `当前页面: ${route.name}`,
+                      type: 'success'
+                    })
+                  }
+                }
+              ]
+            })
+          }}
           class={active ? 'active' : ''}
         >
           <div v-ripple='ripple-color'>{route.name}</div>

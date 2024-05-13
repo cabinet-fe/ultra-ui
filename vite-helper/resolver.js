@@ -1,47 +1,44 @@
-import { kebabCase, readDir } from 'cat-kit/be';
-import { existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
-let components = new Set();
-const componentsDir = resolve(__dirname, '../ui/components');
-readDir(componentsDir, {
-    readType: 'dir'
-}).then(dirs => {
-    components = new Set(dirs.map(dir => dir.name));
+import { kebabCase } from 'cat-kit/be';
+import { componentDirs } from './component-dirs.js';
+
+function getComponentDir(kebabName, dirs = /* @__PURE__ */ new Set()) {
+  const parts = kebabName.split("-");
+  if (dirs.has(kebabName))
+    return kebabName;
+  for (let i = 0; i < parts.length; i++) {
+    const componentDir = parts.slice(0, i + 1).join("-");
+    if (dirs.has(componentDir)) {
+      return componentDir;
+    }
+  }
+  return null;
+}
+function defineResolver(options) {
+  const { componentDirs: componentDirs2, prefix, lib, sideEffects } = options;
+  const componentDirsSet = new Set(componentDirs2);
+  const resolver = (componentName) => {
+    if (componentName.startsWith(prefix)) {
+      const kebabName = kebabCase(componentName.slice(prefix.length));
+      const componentDirName = getComponentDir(kebabName, componentDirsSet);
+      const info = {
+        name: componentName,
+        from: lib
+      };
+      if (componentDirName && sideEffects) {
+        info.sideEffects = sideEffects(componentDirName);
+      }
+      return info;
+    }
+  };
+  return resolver;
+}
+const UltraUIResolver = defineResolver({
+  componentDirs,
+  prefix: "U",
+  lib: "ultra-ui",
+  sideEffects(name) {
+    return `ultra-ui/components/${name}/style`;
+  }
 });
-/**
- * 匹配组件目录，因为有的组件目录下有多个组件
- * @param kebabName 组件的kebab名称
- */
-function matchComponentDir(kebabName) {
-    const parts = kebabName.split('-');
-    if (components.has(kebabName))
-        return kebabName;
-    for (let i = 0; i < parts.length; i++) {
-        const componentDir = parts.slice(0, i + 1).join('-');
-        if (components.has(componentDir)) {
-            return componentDir;
-        }
-    }
-    return null;
-}
-export function UIResolver(componentName) {
-    // 组件名称示例: UButton
-    if (componentName.startsWith('U')) {
-        // u-component
-        const kebabName = kebabCase(componentName.slice(1));
-        const componentDirName = matchComponentDir(kebabName);
-        const info = {
-            name: componentName,
-            from: 'ultra-ui'
-        };
-        const dirExist = componentDirName
-            ? existsSync(resolve(componentsDir, componentDirName))
-            : false;
-        if (dirExist) {
-            info.sideEffects = `ultra-ui/components/${componentDirName}/style`;
-        }
-        return info;
-    }
-}
+
+export { UltraUIResolver, defineResolver };
