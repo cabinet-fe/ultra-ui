@@ -46,6 +46,10 @@ import { useStops } from './use-stops'
 import { isArray } from 'cat-kit/fe'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
+defineOptions({
+  name: 'Slider'
+})
+
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
   max: 100,
@@ -54,10 +58,6 @@ const props = withDefaults(defineProps<SliderProps>(), {
   height: 300,
   range: false,
   disabled: undefined
-})
-
-defineOptions({
-  name: 'Slider'
 })
 
 const emit = defineEmits<SliderEmits>()
@@ -147,18 +147,18 @@ const handleOneDown = async (value: number) => {
   if (props.range && isArray(model.value)) {
     /** 最小值 */
     minValue.value = Math.min(
-      onePercentageValue?.value!,
-      twoPercentageValue?.value!
+      onePercentageValue.value!,
+      twoPercentageValue.value!
     )
 
     /** 最大值*/
     maxValue.value = Math.max(
-      onePercentageValue?.value!,
-      twoPercentageValue?.value!
+      onePercentageValue.value!,
+      twoPercentageValue.value!
     )
     model.value = [minValue.value, maxValue.value]
   } else {
-    model.value = onePercentageValue?.value
+    model.value = onePercentageValue.value
   }
 }
 
@@ -168,9 +168,9 @@ const handleSetPosition = (e: MouseEvent) => {
   if (!!props.disabled) return
 
   let percentage = shallowRef(0)
+  let buttonValue = shallowRef(0)
   let x = e.offsetX
   let y = e.offsetY
-  let buttonValue = shallowRef(0)
 
   if (props.step && props.step > 0) {
     if (props.vertical) {
