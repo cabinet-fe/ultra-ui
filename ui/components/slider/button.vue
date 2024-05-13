@@ -104,7 +104,6 @@ useDrag({
     isDragging = true
   },
   onDrag(x, y, e) {
-    console.log(x, 'x')
     if (disabled.value) return
 
     const { vertical } = sliderProps

@@ -158,11 +158,11 @@ const handleOneDown = async (value: number) => {
   }
 }
 
+/** 点击更改位置 */
 const handleSetPosition = (e: MouseEvent) => {
   let percentage = shallowRef(0)
   let x = e.offsetX
   let y = e.offsetY
-  console.log(e.offsetY, e.y, 'y')
   let buttonValue = shallowRef(0)
 
   if (props.step && props.step > 0) {
@@ -181,7 +181,22 @@ const handleSetPosition = (e: MouseEvent) => {
     props.min! + (props.max! - props.min!) * percentage.value
   )
 
-  model.value = buttonValue.value
+  if (props.range) {
+    // 计算one和two与buttonValue的差值的绝对值
+    let diffOne = Math.abs(onePercentageValue.value - buttonValue.value)
+    let diffTwo = Math.abs(twoPercentageValue.value - buttonValue.value)
+
+    // 判断哪个变量更接近buttonValue，然后将该变量设为buttonValue
+    if (diffOne <= diffTwo) {
+      onePercentageValue.value = buttonValue.value
+    } else {
+      twoPercentageValue.value = buttonValue.value
+    }
+
+    model.value = [onePercentageValue.value, twoPercentageValue.value]
+  } else {
+    model.value = buttonValue.value
+  }
 }
 
 provide(sliderContextKey, {

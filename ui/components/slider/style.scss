@@ -94,6 +94,7 @@ $button-size: 36;
   @include m.e(bar) {
     width: 100%;
     position: absolute;
+    pointer-events: none;
     z-index: 1;
     left: 0;
     height: 100%;
