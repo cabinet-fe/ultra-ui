@@ -54,7 +54,7 @@ const options = {
       ['image', 'code-block']
     ]
   },
-  // readOnly: disabled.value,
+  readOnly: disabled.value,
   scrollingContainer: true,
   theme: 'snow'
 }
@@ -63,16 +63,9 @@ let quill: Quill | null = null
 
 const stamp = ref<string>('')
 
+/** 创建textEditor实例 */
 const createTextEditor = async () => {
-  if (quill) {
-    const theme: any = quill?.theme
-    // remove toolbox
-    theme.modules?.toolbar?.container?.remove()
-    // remove clipboard
-    theme.modules?.clipboard?.container?.remove()
-  }
-
-  // quill = null
+  destroy()
   await nextTick()
   quill = new Quill(editorRef.value!, options)
 
@@ -81,8 +74,20 @@ const createTextEditor = async () => {
   if (props.modelValue) {
     quill.updateContents(props.modelValue)
   }
+
   // 双向绑定标志
   stamp.value = `${new Date().getTime()}${Math.random()}`
+}
+
+/** 销毁quill实例 */
+const destroy = () => {
+  if (quill) {
+    const theme: any = quill?.theme
+
+    theme.modules?.toolbar?.container?.remove()
+
+    theme.modules?.clipboard?.container?.remove()
+  }
 }
 
 onMounted(() => {
@@ -93,7 +98,6 @@ watch(
   () => disabled.value,
   () => {
     createTextEditor()
-    // quill?.enable(disabled.value)
   }
 )
 
