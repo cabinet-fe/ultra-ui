@@ -7,7 +7,7 @@
     always
   >
   <ul>
-    <li style="width: 2000px" v-for="i of 200" :key="i">
+    <li style="width: 2000px" v-for="i of 2" :key="i">
       {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
       }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
       }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
