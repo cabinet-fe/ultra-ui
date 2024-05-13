@@ -1,6 +1,6 @@
 import type { TreeNode } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
-import type { Slots, VNode } from 'vue'
+import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
@@ -85,7 +85,9 @@ export interface TableEmits<DataItem extends Record<string, any>> {
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */
-export interface _TableExposed {}
+export interface _TableExposed {
+  el: ShallowRef<HTMLElement | undefined>
+}
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TableExposed = DeconstructValue<_TableExposed>

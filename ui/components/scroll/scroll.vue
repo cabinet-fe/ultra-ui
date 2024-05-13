@@ -204,9 +204,9 @@ provide(ScrollDIKey, {
 })
 
 const exposed: _ScrollExposed = {
+  el: scrollRef,
   contentRef,
   containerRef,
-
   scrollTo,
   update: updateBar
 }

@@ -68,6 +68,9 @@ export interface _ScrollExposed {
 
   /** 滚动容器元素引用 */
   containerRef: ShallowRef<HTMLElement | undefined>
+
+  /** 滚动容器元素引用 */
+  el: ShallowRef<HTMLElement | undefined>
 }
 
 export type ScrollExposed = DeconstructValue<_ScrollExposed>

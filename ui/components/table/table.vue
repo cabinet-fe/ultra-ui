@@ -1,5 +1,9 @@
 <template>
-  <u-scroll :class="[cls.b, cls.m(size)]" @resize="handleTableResize">
+  <u-scroll
+    :class="[cls.b, cls.m(size)]"
+    ref="scrollRef"
+    @resize="handleTableResize"
+  >
     <table
       :class="cls.e('wrap')"
       @mouseenter.capture="eventHandlers.handleMouseEnter"
@@ -23,15 +27,26 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import type { TableProps, TableEmits } from '@ui/types/components/table'
+import type {
+  TableProps,
+  TableEmits,
+  _TableExposed
+} from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
-import { provide, shallowRef, useSlots, type VNode } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  provide,
+  shallowRef,
+  useSlots,
+  type VNode
+} from 'vue'
 import { TableDIKey, type TableColumnSlotsScope } from './di'
 import { useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
-import { UScroll } from '../scroll'
+import { UScroll, type ScrollExposed } from '../scroll'
 import { useEvents } from './use-events'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
@@ -141,5 +156,15 @@ provide(TableDIKey, {
   getColumnSlotsNode,
   getHeaderSlotsNode,
   getCellClass
+})
+
+const scrollRef = shallowRef<ScrollExposed>()
+
+const el = computed(() => {
+  return scrollRef.value?.el
+})
+
+defineExpose<_TableExposed>({
+  el
 })
 </script>
