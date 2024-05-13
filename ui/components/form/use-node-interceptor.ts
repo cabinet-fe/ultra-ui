@@ -1,11 +1,11 @@
 import type { FormProps } from '@ui/types/components/form'
 import {
   useSlots,
-  h,
   type VNode,
   createTextVNode,
   type VNodeArrayChildren,
-  isVNode
+  isVNode,
+  createVNode
 } from 'vue'
 import FormItem from '../form-item/form-item.vue'
 import { pick } from 'cat-kit/fe'
@@ -54,13 +54,18 @@ export function useNodeInterceptor(options: Options) {
     const flattedNodes = flatNodes(nodes)
 
     return flattedNodes.map(node => {
-      if (node.props?.field) {
-        const field = node.props.field
-        node.props.modelValue = data[field]
+      const { props, type } = node
 
-        const modelUpdater = node.props['onUpdate:modelValue']
+      // 原本应该加上 isObj(type) && ('name' in type)
+      // 此处为了性能忽略
+      // @ts-ignore
+      if (props?.field && type.name !== 'FormItem') {
+        const field = props.field
+        props.modelValue = data[field]
+
+        const modelUpdater = props['onUpdate:modelValue']
         if (modelUpdater) {
-          node.props['onUpdate:modelValue'] = [
+          props['onUpdate:modelValue'] = [
             ...(typeof modelUpdater === 'function'
               ? [modelUpdater]
               : modelUpdater),
@@ -69,16 +74,12 @@ export function useNodeInterceptor(options: Options) {
             }
           ]
         } else {
-          node.props['onUpdate:modelValue'] = (value: any) => {
+          props['onUpdate:modelValue'] = (value: any) => {
             data[field] = value
           }
         }
-      }
 
-      // 自定义表单项
-      // @ts-ignore
-      if (node.type?.name !== 'FormItem') {
-        return h(
+        return createVNode(
           FormItem,
           pick(node.props || {}, ['label', 'field', 'span', 'tips']),
           () => node

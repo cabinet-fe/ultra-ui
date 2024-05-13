@@ -7,6 +7,7 @@
   "check-tag",
   "checkbox",
   "checkbox-group",
+  "context-menu",
   "date-picker",
   "dialog",
   "dropdown",

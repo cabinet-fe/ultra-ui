@@ -33,7 +33,7 @@ defineOptions({
   name: 'FormItem'
 })
 
-const props =  withDefaults(defineProps<FormItemProps>(), {
+const props = withDefaults(defineProps<FormItemProps>(), {
   readonly: undefined
 })
 
