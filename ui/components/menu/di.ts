@@ -35,7 +35,7 @@ export const calcIndent = (instance: ComponentInternalInstance) => {
   const getParent = (instance: ComponentInternalInstance) => {
     if (instance.parent) {
       if (instance.parent.type.name !== 'Menu') {
-        if (!['BaseTransition', 'Transition'].includes(instance.parent.type.name!)) depth++
+        if (instance.parent.type.name === 'MenuSub') depth++
         getParent(instance.parent)
       }
     }
@@ -64,6 +64,6 @@ export const getChildren = (instance: ComponentInternalInstance) => {
       }
     })
   }
-  getIndex(instance.slots.default!() || [])
+  getIndex(instance?.slots.default!() || [])
   return children
 }
