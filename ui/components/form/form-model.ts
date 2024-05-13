@@ -7,6 +7,14 @@ import type {
 import { Validator } from '@ui/utils'
 import { nextTick, shallowReactive, watch } from 'vue'
 
+interface SetDataConfig {
+  /**
+   * 是否校验
+   * @default true
+   */
+  validate?: boolean
+}
+
 /**
  * 响应式表单模型
  * @example
@@ -138,29 +146,48 @@ export class FormModel<
       fields = this.keyOfFields
     }
 
-    // 重置时不再校验数据了
-    this.validateOnFieldChange = false
+    this.run(() => {
+      fields.forEach(field => {
+        this.data[field] = this.initialData[field]
+      })
 
-    fields.forEach(field => {
-      this.data[field] = this.initialData[field]
-    })
-
-    this.clearValidate()
-
-    nextTick(() => {
-      this.validateOnFieldChange = true
-    })
+      this.clearValidate()
+    }, false)
   }
 
   /**
    * 设置值
    * @param formData 表单值
+   * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>) {
-    for (const key in formData) {
-      if (key in this.data) {
-        this.data[key] = formData[key]
+  setData(formData: Partial<ModelData<Fields>>, config?: SetDataConfig) {
+    const { validate } = config || {}
+
+    this.run(() => {
+      for (const key in formData) {
+        if (key in this.data) {
+          this.data[key] = formData[key]
+        }
       }
+    }, validate)
+  }
+
+  /**
+   * 执行函数
+   * @param fn 待执行函数
+   * @param validate 是否进行校验
+   */
+  async run(fn: () => void | Promise<void>, validate = true): Promise<any> {
+    if (!validate) {
+      this.validateOnFieldChange = false
+    }
+
+    await fn()
+
+    if (!validate) {
+      nextTick(() => {
+        this.validateOnFieldChange = true
+      })
     }
   }
 
