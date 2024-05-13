@@ -35,7 +35,8 @@ export const calcIndent = (instance: ComponentInternalInstance) => {
   const getParent = (instance: ComponentInternalInstance) => {
     if (instance.parent) {
       if (instance.parent.type.name !== 'Menu') {
-        if (instance.parent.type.name === 'MenuSub') depth++
+        console.log(instance.parent.type.name)
+        if (['MenuSub', 'Tip'].includes(instance.parent.type.name!)) depth++
         getParent(instance.parent)
       }
     }

@@ -3,6 +3,7 @@
     v-if="injected?.simple.value && textIndent === '0px'"
     position="right-start"
     :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
+    trigger="click"
   >
     <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
       <div
