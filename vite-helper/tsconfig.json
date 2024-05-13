@@ -3,7 +3,10 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "allowJs": true
+    "allowJs": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["@types/node"]
   },
-  "include": ["*/*.ts", "resolver.js", "component-dirs.js"]
+  "include": ["*/*.ts", "*/*.js"]
 }
