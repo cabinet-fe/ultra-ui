@@ -35,7 +35,6 @@ import type {
 import { bem, withUnit } from '@ui/utils'
 import {
   computed,
-  getCurrentInstance,
   provide,
   shallowRef,
   useSlots,
