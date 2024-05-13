@@ -51,7 +51,7 @@ function isRightOrLeftInViewport(pageRefDom: HTMLElement,screenSize: {width: num
    */
   return (
     countPositionInt(contentRect.width) >
-    countPositionInt(screenSize.width - (contentRect.x + contentRect.width))
+    countPositionInt(window.innerWidth - (contentRect.x + contentRect.width))
   )
 }
 
