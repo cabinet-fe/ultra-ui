@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.0.64",
+  "version": "0.0.65",
   "description": "组件库",
   "type": "module",
   "scripts": {
