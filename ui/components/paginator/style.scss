@@ -12,6 +12,7 @@ $root-name: paginator;
   @include m.size using ($size) {
     font-size: fn.use-var(form-component-font-size, $size);
     gap: fn.use-var(gap, $size);
+    padding: fn.use-var(gap, $size);
 
     @include m.bem($root-name, btn) {
       width: fn.use-var(form-component-height, $size);
