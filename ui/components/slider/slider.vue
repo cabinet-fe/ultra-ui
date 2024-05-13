@@ -1,18 +1,35 @@
 <template>
-  <div :class="className" ref="sliderRef" :style="vertical ? { height: `${height}px` } : undefined">
+  <div
+    :class="className"
+    ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined"
+  >
     <!-- 跑道 -->
-    <div ref="runwayRef" :class="runwayClass" @mousedown="handleMousedown">
+    <div ref="runwayRef" :class="runwayClass" @mousedown="handleSetPosition">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="onePercentageValue"
+        @dragPosition="handleSetOneToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
-      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="twoPercentageValue"
+        v-if="range"
+        @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleOneDown"
+      />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
+        <div
+          v-for="(item, key) in stops"
+          :key="key"
+          :class="cls.e('stop')"
+          :style="getStopStyle(item)"
+        />
       </template>
     </div>
   </div>
@@ -71,7 +88,7 @@ const {
   maxValue
 } = useSlide(props, sliderSize)
 
-const { stops, getStopStyle } = useStops({
+const { stops, getStopStyle, setStepButtonPosition } = useStops({
   sliderProps: props,
   sliderSize
 })
@@ -141,16 +158,28 @@ const handleOneDown = async (value: number) => {
   }
 }
 
-const handleMousedown = (e) => {
+const handleSetPosition = (e: MouseEvent) => {
   let percentage = shallowRef(0)
-  let x = e.layerX
-  let y = e.layerY
-  let buttonValue = shallowRef()
+  let x = e.offsetX
+  let y = e.offsetY
+  console.log(e.offsetY, e.y, 'y')
+  let buttonValue = shallowRef(0)
+
+  if (props.step && props.step > 0) {
+    if (props.vertical) {
+      y = setStepButtonPosition(Math.abs(y))
+    } else {
+      x = setStepButtonPosition(x)
+    }
+  }
+
   percentage.value = props.vertical
     ? -(y - sliderSize.value) / sliderSize.value
     : x / sliderSize.value
 
-  buttonValue.value = Math.round(props.min! + (props.max! - props.min!) * percentage.value)
+  buttonValue.value = Math.round(
+    props.min! + (props.max! - props.min!) * percentage.value
+  )
 
   model.value = buttonValue.value
 }
