@@ -41,17 +41,17 @@ function isBottomInViewport(
 
 /**
  * 靠左、靠右 左右是否在视窗内
- * @param pageRefDom 内容dom信息
+ * @param tipContentRefDom 内容dom信息
+ * @param tipRefDom 内容dom信息
  * @returns  是否在视窗内
  */
-function isRightOrLeftInViewport(pageRefDom: HTMLElement,screenSize: {width: number; height: number}): boolean {
-  let contentRect = pageRefDom.getBoundingClientRect()
-  /**
-   * 鼠标移入元素的宽度  是否小于 可视窗口减去 元素的宽度 及 自身宽度
-   */
+function isRightOrLeftInViewport(tipContentRefDom: HTMLElement,tipRefDom: HTMLElement, screenSize: {width: number; height: number}): boolean {
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+  let tipRect = tipRefDom.getBoundingClientRect()
+
   return (
     countPositionInt(contentRect.width) >
-    countPositionInt(window.innerWidth - (contentRect.x + contentRect.width))
+    countPositionInt(tipRect.right)
   )
 }
 
