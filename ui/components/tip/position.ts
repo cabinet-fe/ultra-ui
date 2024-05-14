@@ -156,7 +156,9 @@ function topCount(
   let translateY = y - clientHeight - gap
   // 计算tip元素需要向下偏移的距离
   let topDown = y + tipRefDom.offsetHeight + gap
-  let topPositionNumber =!isTopInViewport(tipRefDom, scrollDom)?topDown:translateY
+  let topPositionNumber = !isTopInViewport(tipRefDom, scrollDom)
+    ? topDown
+    : translateY
   // 根据不同的位置属性设置transform样式
   if (position === "top-start") {
     // tip提示靠上开始位置
@@ -204,7 +206,7 @@ function rightCount(
   //鼠标获取到的元素dom信息
   let { x, top } = tipRefDom.getBoundingClientRect()
 
-  if (!isRightOrLeftInViewport(tipContentRefDom, tipRefDom, screenSize)) {
+  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom,position)) {
     let rightLeft = `${x - gap - tipContentRefDom.offsetWidth}`
     /**再次判断上下是否溢出屏幕 */
     if (
@@ -230,23 +232,7 @@ function rightCount(
           }`
         )
       }
-      if (position === "right-start") {
-        setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
-      }
-      if (position === "right") {
-        if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
-        } else {
-          setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
-        }
-      }
-      if (position === "right-end") {
-        if (clientHeight > elementHeight) {
-          setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
-        } else {
-          setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
-        }
-      }
+      setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
     } else {
       if (position === "right-start") {
         setTransform(`translate(${rightLeft}px, ${top}px)`)
@@ -344,7 +330,7 @@ function leftCount(
   //鼠标获取到的元素dom信息
   let { x, width, top } = tipRefDom.getBoundingClientRect()
   let rightLeft = countPositionInt(`${x + width + gap}`)
-  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom, screenSize)) {
+  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom,position)) {
     /**再次判断上下是否溢出屏幕 */
 
     if (

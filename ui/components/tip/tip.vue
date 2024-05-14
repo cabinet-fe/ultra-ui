@@ -118,6 +118,7 @@ const handleMouseLeave = () => {
 
 /**鼠标移入弹窗内容区域 */
 const handleContentMouseEnter = () => {
+  animation.value = false
   if (!props.mouseEnterable) return
   timers.forEach(clearTimeout)
 }
