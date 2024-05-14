@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.b" :style="isCircle == true ? { display: 'inline-block' } : ''">
+  <div :class="className" :style="isCircle == true ? { display: 'inline-block' } : ''">
     <!-- 条形进度条 -->
     <div :class="cls.e('line')" v-if="isCircle == false">
       <div :class="colorType" :style="{ width: percentage + '%' }"></div>
@@ -49,6 +49,7 @@ import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
 import { Check, Close, Warning } from 'icon-ultra'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({
   name: 'Progress'
@@ -59,6 +60,11 @@ const props = withDefaults(defineProps<ProgressProps>(), {
   type: 'primary'
 })
 const emit = defineEmits<ProgressEmits>()
+const { formProps } = useFormComponent()
+const { size } = useFormFallbackProps([formProps ?? {}, props], { size: 'default' })
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
+})
 
 const percentage = computed(() => {
   if (props.percentage > 100) {
