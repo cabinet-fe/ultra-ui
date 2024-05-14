@@ -12,13 +12,9 @@ $root-name: progress;
     padding: 0 fn.use-var(gap, $size);
     border-radius: fn.use-var(radius, $size);
 
-    // @include m.bem($root-name, icon-close) {
-    //   margin-left: calc(fn.use-var(gap, $size) / 2);
-    // }
-
-    // @include m.is(round) {
-    //   border-radius: calc(fn.use-var(tag, $size) / 2);
-    // }
+    @include m.bem($root-name, line) {
+      height: calc(fn.use-var(tag, $size) / 2);
+    }
   }
 
   // 条形进度条
