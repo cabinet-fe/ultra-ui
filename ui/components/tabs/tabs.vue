@@ -59,7 +59,7 @@ const props = defineProps<TabsProps>()
 
 const { size, position, closable, sortable } = useFallbackProps([props], {
   size: 'default',
-  position: 'right',
+  position: 'top',
   closable: false,
   sortable: false
 })

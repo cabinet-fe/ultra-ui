@@ -4,7 +4,12 @@
 @use 'sass:map';
 
 $root-name: tabs;
-$position-types: (top, right, bottom, left);
+$position-types: (
+  top,
+  right,
+  bottom,
+  left
+);
 
 @include m.b($root-name) {
   display: flex;
@@ -12,11 +17,14 @@ $position-types: (top, right, bottom, left);
   @include m.size using ($size) {
     @include m.bem($root-name, header) {
       padding: 2px;
+      display: flex;
 
       &--label {
         border-radius: map.get(vars.$border-radius, $size);
-        padding: map.get(vars.$gap, $size);
+        padding: 0 map.get(vars.$gap, $size);
         font-size: map.get(vars.$font-size-main, $size);
+        height: fn.use-var(form-component-height, $size);
+        line-height: fn.use-var(form-component-height, $size);
 
         .is-close,
         .is-close--placeholder {
@@ -48,8 +56,6 @@ $position-types: (top, right, bottom, left);
   }
 
   @include m.e(header) {
-    display: flex;
-    justify-content: space-around;
     position: relative;
     background-color: fn.use-var(color, primary-light-9);
 
@@ -57,26 +63,15 @@ $position-types: (top, right, bottom, left);
       &--#{$position} {
         @if $position ==left {
           flex-direction: column;
-          // border-right: 2px solid fn.use-var(border-color);
         }
 
         @else if $position ==right {
           flex-direction: column;
-          // border-left: 2px solid fn.use-var(border-color);
-        }
-
-        @else if $position ==bottom {
-          // border-bottom: 2px solid fn.use-var(border-color);
-        }
-
-        @else {
-          // border-bottom: 2px solid fn.use-var(border-color);
         }
       }
     }
 
     &--label {
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: space-between;
