@@ -6,4 +6,10 @@
 $root-name: watermark;
 
 @include m.b($root-name) {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
 }
