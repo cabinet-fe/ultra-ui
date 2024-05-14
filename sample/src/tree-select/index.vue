@@ -4,7 +4,7 @@
       {{ treeCheckable }}
       <u-tree-select
         v-model="treeCheckable"
-        :options="data"
+        :data="data"
         label-key="name"
         value-key="id"
         checkable

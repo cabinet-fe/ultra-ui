@@ -1,10 +1,8 @@
 <template>
   <div>
     <div>水印</div>
-    <u-watermark text="watermark">
-      <p v-for="item in list">
-        {{ item }}
-      </p>
+    <u-watermark text="watermark" append-to-body>
+
     </u-watermark>
 
     <!-- <u-watermark

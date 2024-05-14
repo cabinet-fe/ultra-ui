@@ -15,7 +15,7 @@
             row,
             rowData,
             column,
-            val: rowData[column.key],
+            val: getChainValue(rowData, column.key),
             model: {
               modelValue: rowData[column.key],
               'onUpdate:modelValue': (val: any) => {
@@ -35,6 +35,7 @@ import { TableDIKey } from './di'
 import type { TableRow } from './use-rows'
 import { UNodeRender } from '../node-render'
 import { withUnit } from '@ui/utils'
+import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
   name: 'TableRow'
