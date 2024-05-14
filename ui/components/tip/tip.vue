@@ -268,3 +268,9 @@ onBeforeUnmount(() => {
   scrollDom.value?.removeEventListener("scroll", scrollEvent)
 })
 </script>
+
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+}
+</script>
