@@ -12,14 +12,14 @@
       <slider-button
         v-model="onePercentageValue"
         @dragPosition="handleSetOneToPxChange"
-        @dragEnd="handleOneDown"
+        @dragEnd="handleDragEnd"
       />
 
       <slider-button
         v-model="twoPercentageValue"
         v-if="range"
         @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown"
+        @dragEnd="handleDragEnd"
       />
 
       <!-- 断点 -->
@@ -141,7 +141,7 @@ watch(
 )
 
 /** 放下 */
-const handleOneDown = async (value: number) => {
+const handleDragEnd = async (value: number) => {
   await nextTick()
 
   if (props.range && isArray(model.value)) {
