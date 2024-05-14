@@ -55,8 +55,6 @@ function isRightOrLeftInViewport(
 ): boolean {
   let contentRect = tipContentRefDom.getBoundingClientRect()
   let tipRect = tipRefDom.getBoundingClientRect()
-  console.log(contentRect, "contentRect", tipContentRefDom)
-  console.log(tipRect, "tipRect", tipRefDom)
 
   if (position.includes("left")) {
     return countPositionInt(contentRect.width) > countPositionInt(tipRect.left)
