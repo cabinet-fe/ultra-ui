@@ -6,6 +6,21 @@
 $root-name: progress;
 
 @include m.b($root-name) {
+  @include m.size using ($size) {
+    height: fn.use-var(tag, $size);
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 fn.use-var(gap, $size);
+    border-radius: fn.use-var(radius, $size);
+
+    // @include m.bem($root-name, icon-close) {
+    //   margin-left: calc(fn.use-var(gap, $size) / 2);
+    // }
+
+    // @include m.is(round) {
+    //   border-radius: calc(fn.use-var(tag, $size) / 2);
+    // }
+  }
+
   // 条形进度条
   @include m.e('line') {
     width: 100%;
