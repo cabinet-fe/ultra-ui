@@ -5,7 +5,7 @@
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
 
     <CustomCard title="表单">
-      <u-button @click="visible = true">打开</u-button>
+      <u-button @click="open">打开</u-button>
       <u-dialog v-model="visible" style="width: 900px">
         <u-form
           :disabled="disabled"
@@ -114,9 +114,9 @@ watch(visible, v => {
   if (v) {
     // model.data.treeSelect = [1]
 
-    setTimeout(() => {
-      model.setData({ treeSelect: [1] })
-    }, 3000)
+    // setTimeout(() => {
+    //   model.setData({ treeSelect: [1] })
+    // }, 3000)
   } else {
     model.resetData()
   }
@@ -164,6 +164,13 @@ const data = [
     ],
   },
 ]
+
+function open() {
+  visible.value = true
+  model.setData({
+    name: 'aaaaaa'
+  }, { validate: true })
+}
 </script>
 
 <style scoped lang="scss">

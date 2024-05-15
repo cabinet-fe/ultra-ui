@@ -1,0 +1,18 @@
+$root-name: tip;
+
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; // 调整持续时间和缓动函数  
+}
+
+.#{$root-name}-enter-to,
+.#{$root-name}-leave-from {
+  transform: scale(1); // 初始时完全显示  
+  opacity: 1;
+}
+
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  transform: scale(0.8); // 结束时稍微缩小  
+  opacity: 0;
+}

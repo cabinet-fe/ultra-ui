@@ -5,7 +5,13 @@ import type {
   IFormModel
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
-import { nextTick, shallowReactive, watch } from 'vue'
+import {
+  nextTick,
+  shallowReactive,
+  shallowRef,
+  watch,
+  type ShallowRef
+} from 'vue'
 
 interface SetDataConfig {
   /**
@@ -60,6 +66,9 @@ export class FormModel<
    */
   private validateOnFieldChange = true
 
+  private readonly proxyRaw: Record<string, any> = {}
+  private readonly proxy: Record<string, any>
+
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
     const rules = {} as ModelRules<Fields>
@@ -81,23 +90,23 @@ export class FormModel<
     this.validator = new Validator(rules)
 
     // 使用一个代理对象来在赋值时校验表单字段
-    const p = new Proxy(
-      {},
-      {
-        set: (t, field, v) => {
-          t[field] = v
-          this.validate(field as string)
-          return true
-        },
+    this.proxy = new Proxy(this.proxyRaw, {
+      set: (t, field: string, v) => {
+        t[field] = v
+        this.validate(field as string)
+        return true
+      },
 
-        get(t, field) {
-          return t[field]
-        }
+      get(t, field: string) {
+        return t[field]
       }
-    )
+    })
 
+    // 校验
     watch(data, data => {
       if (!this.validateOnFieldChange) return
+      const p = this.proxy
+
       for (const key in data) {
         if (p[key] !== data[key]) {
           p[key] = data[key]
@@ -148,7 +157,9 @@ export class FormModel<
 
     this.run(() => {
       fields.forEach(field => {
-        this.data[field] = this.initialData[field]
+        const v = this.initialData[field]
+        this.data[field] = v
+        this.proxyRaw[field as string] = v
       })
 
       this.clearValidate()
@@ -167,6 +178,7 @@ export class FormModel<
       for (const key in formData) {
         if (key in this.data) {
           this.data[key] = formData[key]
+          this.proxyRaw[key as string] = formData[key]
         }
       }
     }, validate)
@@ -195,4 +207,25 @@ export class FormModel<
   clearValidate(): void {
     this.errors.clear()
   }
+}
+
+/**
+ * 响应式表单模型
+ * @param fields 响应式字段
+ * @returns
+ */
+export function useFormModel<
+  Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
+>(fields: ShallowRef<Fields>) {
+  const model = shallowRef<FormModel<Fields>>()
+
+  watch(
+    fields,
+    fields => {
+      model.value = new FormModel(fields)
+    },
+    { immediate: true }
+  )
+
+  return model
 }

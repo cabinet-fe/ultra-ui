@@ -7,7 +7,7 @@
 <script lang="ts" setup generic="Model extends FormModel">
 import type { FormProps } from '@ui/types/components/form'
 import { UGrid } from '../grid'
-import {  bem } from '@ui/utils'
+import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
 import { UNodeRender } from '../node-render'
 import { useNodeInterceptor } from './use-node-interceptor'
@@ -26,8 +26,6 @@ defineSlots<{
 const cls = bem('form')
 
 useFormComponent(props)
-
-
 
 const getSlotsNodes = useNodeInterceptor({ props })
 </script>
