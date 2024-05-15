@@ -6,7 +6,6 @@ import type {
 import { Forest, Tree, TreeNode, last } from 'cat-kit/fe'
 import {
   computed,
-  createVNode,
   reactive,
   shallowReactive,
   shallowRef,
@@ -14,7 +13,6 @@ import {
   type ComputedRef,
   type ShallowRef
 } from 'vue'
-import type { BEM } from '@ui/utils'
 
 /**
  * 定义表格列
@@ -169,7 +167,6 @@ export function useColumns(options: Options): ColumnConfig {
       const fixedOnRight: TableColumn[] = []
 
       columns?.forEach(column => {
-
         if (!column.fixed || column.children) {
           column.fixed = undefined
           return unfixed.push(column)
@@ -187,8 +184,6 @@ export function useColumns(options: Options): ColumnConfig {
       if (fixedOnRight[0]) {
         fixedOnRight[0].isFirstFixed = true
       }
-
-
 
       const result = Forest.create(
         [...fixedOnLeft, ...unfixed, ...fixedOnRight],
