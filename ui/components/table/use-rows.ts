@@ -1,6 +1,6 @@
 import type { TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode } from 'cat-kit/fe'
-import { computed, shallowReactive } from 'vue'
+import { shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
@@ -21,7 +21,11 @@ export class TableRow<
     return ret
   }
 
-  expanded = true
+  /** 是否展开 */
+  expanded = false
+
+  /** 是否选中 */
+  checked = false
 
   uid = uid++
 
@@ -38,13 +42,69 @@ export class TableRow<
 export function useRows(options: Options) {
   const { props } = options
 
-  const rows = computed(() => {
-    const { data } = props
-    if (!data) return []
-    const result = Forest.create(data, TableRow)
+  const rows = shallowRef<TableRow[]>([])
 
-    return result.nodes!
-  })
+  let rowForest = shallowRef<Forest<TableRow>>()
 
-  return rows
+  watch(
+    [() => props.data, () => props.tree],
+    ([data, tree]) => {
+      if (!data?.length) {
+        rows.value = []
+        return
+      }
+
+      if (!tree) {
+        let result: TableRow[] = []
+        let i = 0
+        while (i < data.length) {
+          result.push(new TableRow(data[i]!, i))
+          i++
+        }
+        rows.value = result
+        result = []
+        rowForest.value = undefined
+        return
+      }
+
+      rowForest.value = Forest.create(data, TableRow, {
+        childrenKey: typeof tree === 'string' ? tree : 'children'
+      })
+
+      getFlattedRows()
+    },
+    { immediate: true }
+  )
+
+  function getFlattedRows() {
+    if (!rowForest) return
+    const result: TableRow[] = []
+
+    rowForest.value?.dft(node => {
+      if (node.parent?.expanded || node.depth === 1) {
+        result.push(node)
+        return true
+      }
+      return false
+    })
+    rows.value = result
+  }
+
+  function toggleTreeRowExpand(node: TableRow) {
+    node.expanded = !node.expanded
+    getFlattedRows()
+  }
+
+  return {
+    /** 数据树 */
+    rowForest,
+
+    /** 数据行 */
+    rows,
+    /**
+     * 切换节点的显示隐藏
+     * @param node 节点
+     */
+    toggleTreeRowExpand
+  }
 }

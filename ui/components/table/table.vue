@@ -10,12 +10,13 @@
     >
       <colgroup ref="colgroupRef">
         <col
-          v-for="column of columns"
+          v-for="column of allColumns"
+          :key="column.key"
+          :class="column.fixed"
           :style="{
             width: withUnit(column.width, 'px'),
             minWidth: withUnit(column.minWidth, 'px')
           }"
-          :class="column.fixed"
         />
       </colgroup>
       <UTableHead />
@@ -30,18 +31,13 @@
 import type {
   TableProps,
   TableEmits,
-  _TableExposed
+  _TableExposed,
+  TableColumnSlotsScope
 } from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
-import {
-  computed,
-  provide,
-  shallowRef,
-  useSlots,
-  type VNode
-} from 'vue'
-import { TableDIKey, type TableColumnSlotsScope } from './di'
-import { useRows } from './use-rows'
+import { computed, provide, shallowRef, useSlots, type VNode } from 'vue'
+import { TableDIKey } from './di'
+import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
@@ -49,12 +45,16 @@ import { UScroll, type ScrollExposed } from '../scroll'
 import { useEvents } from './use-events'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
+import { debounce, getChainValue } from 'cat-kit/fe'
+import { useCheck } from './use-check'
 
 defineOptions({
   name: 'Table'
 })
 
-const props = defineProps<TableProps<DataItem>>()
+const props = withDefaults(defineProps<TableProps<DataItem>>(), {
+  tree: false
+})
 const emit = defineEmits<TableEmits<DataItem>>()
 
 defineSlots<
@@ -68,11 +68,22 @@ defineSlots<
 
 const cls = bem('table')
 
-const rows = useRows({ props })
+const { rows, toggleTreeRowExpand, rowForest } = useRows({ props })
 
-const columnConfig = useColumns({ props })
+const { createCheckColumn, createSelectColumn } = useCheck({
+  props,
+  rows,
+  rowForest,
+  emit
+})
 
-const { columns } = columnConfig
+const columnConfig = useColumns({
+  props,
+  createCheckColumn,
+  createSelectColumn
+})
+
+const { allColumns } = columnConfig
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
@@ -82,25 +93,58 @@ const slots = useSlots()
 
 /** 获取列插槽vnode */
 const getColumnSlotsNode = (
-  key: string,
   ctx: TableColumnSlotsScope
 ): VNode[] | undefined => {
-  return (props.slots ?? slots)[`column:${key}`]?.(ctx) ?? ctx.val
+  const { column } = ctx
+
+  const result =
+    column.value.render?.(ctx) ??
+    (props.slots ?? slots)[`column:${column.key}`]?.(ctx) ??
+    ctx.val
+
+  return result
 }
 
 /** 获取表头插槽vnode */
-const getHeaderSlotsNode = (
-  key: string,
-  ctx: { column: ColumnNode }
-): VNode[] | undefined | string => {
-  return (props.slots ?? slots)[`header:${key}`]?.(ctx) ?? ctx.column.name
+const getHeaderSlotsNode = (ctx: {
+  column: ColumnNode
+}): VNode[] | undefined | string | VNode => {
+  const { column } = ctx
+  return (
+    column.value.nameRender?.(ctx) ??
+    (props.slots ?? slots)[`header:${ctx.column.key}`]?.(ctx) ??
+    ctx.column.name
+  )
 }
 
 /** 获取单元格类名 */
-const getCellClass = (column: ColumnNode): string[] => {
+const getCellClass = (column: ColumnNode): string => {
   const classList: string[] = [cls.e('cell'), bem.is(column.align)]
+
   column.fixed && classList.push(bem.is('fixed-' + column.fixed))
-  return classList
+  column.isLastFixed && classList.push(bem.is('last-fixed'))
+  column.isFirstFixed && classList.push(bem.is('first-fixed'))
+  return classList.join(' ')
+}
+
+const getCellCtx = (
+  row: TableRow,
+  column: ColumnNode
+): TableColumnSlotsScope => {
+  const rowData = row.value
+  const val = getChainValue(rowData, column.key)
+  return {
+    row,
+    column,
+    rowData,
+    val,
+    model: {
+      modelValue: val,
+      'onUpdate:modelValue': (val: any) => {
+        rowData[column.key] = val
+      }
+    }
+  }
 }
 
 /** 事件处理 */
@@ -108,43 +152,40 @@ const eventHandlers = useEvents({ emit })
 
 const colgroupRef = shallowRef<HTMLElement>()
 
-const handleTableResize = (el: HTMLElement) => {
-  const colgroup = colgroupRef.value
+// 在尺寸变更时重新计算固定列的宽度和偏移量
+const handleTableResize = debounce(
+  () => {
+    const colgroup = colgroupRef.value
 
-  if (!colgroup) return
-  const fixedOnLeft = Array.from(
-    colgroup.getElementsByClassName('left')
-  ) as HTMLElement[]
+    if (!colgroup) return
 
-  const fixedOnRight = Array.from(
-    colgroup.getElementsByClassName('right')
-  ) as HTMLElement[]
+    const fixedOnLeft = Array.from(
+      colgroup.getElementsByClassName('left')
+    ) as HTMLElement[]
 
-  fixedOnLeft.reduce((acc, col, colIndex) => {
-    if (colIndex === 0) {
-      columns.value[0]!.style.left = 0
-      return acc
-    }
+    const fixedOnRight = Array.from(
+      colgroup.getElementsByClassName('right')
+    ) as HTMLElement[]
 
-    const left = acc + fixedOnLeft[colIndex - 1]!.offsetWidth
-    columns.value[colIndex]!.style.left = left
-    return left
-  }, 0)
+    fixedOnLeft.reduce((acc, col, colIndex) => {
+      const colNode = allColumns.value[colIndex]!
+      colNode.width = col.offsetWidth
+      colNode.style.left = acc
+      return acc + col.offsetWidth
+    }, 0)
 
-  const rightColumns = columns.value.slice(-fixedOnRight.length)
+    const rightColumns = allColumns.value.slice(-fixedOnRight.length)
 
-  fixedOnRight.reduceRight((acc, col, colIndex) => {
-    if (colIndex === fixedOnRight.length - 1) {
-      rightColumns[colIndex]!.style.right = 0
-
-      return acc
-    }
-    const right = acc + fixedOnRight[colIndex + 1]!.offsetWidth
-    rightColumns[colIndex]!.style.right = right
-
-    return right
-  }, 0)
-}
+    fixedOnRight.reduceRight((acc, col, colIndex) => {
+      const colNode = rightColumns[colIndex]!
+      colNode.width = col.offsetWidth
+      colNode.style.right = acc
+      return acc + col.offsetWidth
+    }, 0)
+  },
+  100,
+  true
+)
 
 provide(TableDIKey, {
   tableProps: props,
@@ -154,7 +195,9 @@ provide(TableDIKey, {
   eventHandlers,
   getColumnSlotsNode,
   getHeaderSlotsNode,
-  getCellClass
+  getCellClass,
+  getCellCtx,
+  toggleTreeRowExpand
 })
 
 const scrollRef = shallowRef<ScrollExposed>()

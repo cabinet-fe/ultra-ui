@@ -2,13 +2,14 @@ import {
   type PropType,
   type VNode,
   type VNodeArrayChildren,
-  cloneVNode,
   defineComponent,
   isVNode
 } from 'vue'
 
 export default defineComponent({
   name: 'NodeRender',
+
+  inheritAttrs: false,
 
   props: {
     /** 渲染内容 */
@@ -26,15 +27,24 @@ export default defineComponent({
   },
   setup(props, { attrs, slots }) {
     return () => {
-      if (!props.content) {
+      const { content } = props
+
+      if (!content) {
         return slots.default?.()
       }
-      if (Array.isArray(props.content)) {
-        return props.content
+
+      if (Array.isArray(content)) {
+        return content
       }
 
-      if (isVNode(props.content)) {
-        return cloneVNode(props.content, attrs, true)
+      if (isVNode(content)) {
+        if (content.props) {
+          Object.assign(content.props, attrs)
+        } else {
+          content.props = attrs
+        }
+
+        return content
       }
       return props.content
     }

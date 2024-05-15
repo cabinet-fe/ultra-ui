@@ -10,12 +10,14 @@ export interface TableColumn {
   key: string
   /** 列的名称 */
   name: string
+  /** 表头渲染，优先级大于name属性 */
+  nameRender?: (ctx: { column: TableColumnNode }) => VNode | string | null | undefined | VNode[]
   /** 列最大宽度 */
   width?: number
   /** 列最小宽度 */
   minWidth?: number
   /**
-   * 列固定方式
+   * 列固定方式，为嵌套表头时此值无效
    * @default 'left'
    */
   fixed?: 'left' | 'right'
@@ -25,9 +27,11 @@ export interface TableColumn {
    */
   align?: TableColumnAlign
   /** 列渲染 */
-  render?: () => VNode
+  render?: (scope: TableColumnSlotsScope) => VNode | string | null | VNode[]
   /** 子列 */
   children?: TableColumn[]
+
+  [key: string]: any
 }
 
 /** 表格组件属性 */
@@ -48,6 +52,12 @@ export interface TableProps<
   /** 单选 */
   selectable?: boolean
   /**
+   * 标记为一个树形组件
+   * @default false
+   * @description 如果传入了一个字符串则代表树的子节点的key值
+   */
+  tree?: boolean | string
+  /**
    * 作用域插槽
    * @description
    * 使用此插槽可以自定义使用外部组件的插槽而无需一级一级的嵌套
@@ -60,19 +70,51 @@ export interface TableProps<
   }
 }
 
-export interface TableRow<DataItem extends Record<string, any>>
-  extends TreeNode<DataItem> {
+export interface TableRow<
+  DataItem extends Record<string, any> = Record<string, any>
+> extends TreeNode<DataItem> {
   /** 是否展开 */
   expanded: boolean
+  /** 是否选中 */
+  checked: boolean
   /** id */
   uid: number
+  indexes: number[]
   /** 子row */
   children?: TableRow<DataItem>[]
   /** 父row */
   parent: TableRow<DataItem> | null
 }
 
+export interface TableColumnNode extends TreeNode<TableColumn> {
+  /** 子列 */
+  children?: TableColumnNode[] | undefined
+  /** 父列 */
+  parent: TableColumnNode | null
+  /** 叶子节点数量 */
+  leafs?: number
+  key: string
+  name: string
+  align: TableColumnAlign
+  width: number | undefined
+  minWidth: number | undefined
+  fixed: 'left' | 'right' | undefined
+  isLastFixed: boolean
+  isFirstFixed: boolean
+  style: Record<string, number>
+}
 
+/** 表格列插槽作用域 */
+export interface TableColumnSlotsScope {
+  row: TableRow
+  rowData: Record<string, any>
+  column: TableColumnNode
+  val: any
+  model: {
+    modelValue: any
+    'onUpdate:modelValue': (val: any) => void
+  }
+}
 
 /** 表格组件定义的事件 */
 export interface TableEmits<DataItem extends Record<string, any>> {

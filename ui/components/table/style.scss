@@ -12,6 +12,10 @@ $root-name: table;
     @include m.bem($root-name, cell) {
       padding: fn.use-var(gap, $size);
     }
+
+    @include m.bem($root-name, expand-toggle) {
+      font-size: fn.use-var(font-size, main, $size);
+    }
   }
 
   @include m.e(wrap) {
@@ -27,17 +31,50 @@ $root-name: table;
         background-color: #f5f5f5;
       }
     }
+
+    @include m.is(expanded) {
+      @include m.bem($root-name, expand-toggle) {
+        & > i {
+          transform: rotate(90deg);
+        }
+      }
+    }
+  }
+
+  @include m.e(expand-toggle) {
+    margin-right: fn.use-var(gap, small);
+
+    & > i {
+      transition: transform 0.25s;
+    }
+  }
+
+  @include m.e(expand-space) {
+    display: inline-block;
+    font-size: 0;
+    margin-right: fn.use-var(gap, small);
+    height: 1px;
+    width: fn.use-var(form-component-height, small);
   }
 
   @include m.e(head) {
     position: sticky;
     top: 0;
     z-index: 1;
+
+    @include m.is(multistage) {
+      @include m.bem($root-name, cell) {
+        box-shadow:
+          -1px 0px #eee inset,
+          0px -1px #eee inset;
+      }
+    }
   }
 
   @include m.e(cell) {
     box-shadow: 0px -1px #eee inset;
     background-color: fn.use-var(bg-color, top);
+    word-break: break-all;
 
     @each $position in (left, center, right) {
       @include m.is($position) {
@@ -47,6 +84,38 @@ $root-name: table;
 
     @include m.is(fixed-left, fixed-right) {
       position: sticky;
+    }
+
+    @include m.is(fixed-left) {
+      @include m.is(last-fixed) {
+        box-shadow: 0px -1px #eee inset;
+        &::after {
+          content: '';
+          position: absolute;
+          right: -10px;
+          top: 0;
+          width: 10px;
+          height: 100%;
+          pointer-events: none;
+          box-shadow: 10px 0 10px -10px #eee inset;
+        }
+      }
+    }
+
+    @include m.is(fixed-right) {
+      @include m.is(first-fixed) {
+        box-shadow: 0px -1px #eee inset;
+        &::before {
+          content: '';
+          position: absolute;
+          left: -10px;
+          top: 0;
+          width: 10px;
+          height: 100%;
+          pointer-events: none;
+          box-shadow: -10px 0 10px -10px #eee inset;
+        }
+      }
     }
   }
 
