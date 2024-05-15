@@ -74,8 +74,6 @@ function countPosition({
             clientWidth,
             elementWidth,
             tipRefDom,
-            tipContentRefDom,
-            screenSize,
             scrollDom,
             gap
           )
@@ -111,7 +109,6 @@ function countPosition({
             elementHeight,
             tipContentRefDom,
             tipRefDom,
-            screenSize,
             scrollDom,
             gap
           )
@@ -144,8 +141,6 @@ function topCount(
   clientWidth: number,
   elementWidth: number,
   tipRefDom: HTMLElement,
-  tipContentRefDom: HTMLElement,
-  screenSize: { width: number; height: number },
   scrollDom: HTMLElement,
   gap: number
 ) {
@@ -206,7 +201,7 @@ function rightCount(
   //鼠标获取到的元素dom信息
   let { x, top } = tipRefDom.getBoundingClientRect()
 
-  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom,position)) {
+  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom, position)) {
     let rightLeft = `${x - gap - tipContentRefDom.offsetWidth}`
     /**再次判断上下是否溢出屏幕 */
     if (
@@ -330,7 +325,7 @@ function leftCount(
   //鼠标获取到的元素dom信息
   let { x, width, top } = tipRefDom.getBoundingClientRect()
   let rightLeft = countPositionInt(`${x + width + gap}`)
-  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom,position)) {
+  if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom, position)) {
     /**再次判断上下是否溢出屏幕 */
 
     if (
@@ -455,7 +450,6 @@ function leftCount(
  * @param elementHeight 页面元素高度
  * @param tipContentRefDom tip元素DOM信息
  * @param tipRefDom 页面DOM信息
- * @param screenSize 当前所在滚动元素尺寸
  * @param scrollDom 滚动元素
  * @param gap 边距
  */
@@ -466,70 +460,37 @@ function bottomCount(
   elementHeight: number,
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  screenSize: { width: number; height: number },
   scrollDom: HTMLElement,
   gap: number
 ): void {
   // 预先计算DOM信息
   const { x, top } = tipRefDom.getBoundingClientRect()
   const contentRect = tipContentRefDom.getBoundingClientRect()
-  const elementDistanceDefined = gap !== undefined ? gap : 0 // 假设elementDistance是未定义的
 
-  // 根据位置计算底部Y坐标
-  const bottomY = countPositionInt(top + elementHeight + elementDistanceDefined)
-  const bottomTop = `${top - contentRect.height - elementDistanceDefined}`
-
-  // 判断是否在视图底部
-  if (isBottomInViewport(tipRefDom, scrollDom)) {
-    if (position === "bottom-start") {
-      setTransform(`translate(${x}px, ${bottomTop}px)`)
-    } else if (position === "bottom") {
-      if (clientWidth > elementWidth) {
-        setTransform(
-          `translate(${
-            countPositionInt(screenSize.width - clientWidth - gap) / 2 +
-            elementWidth
-          }px, ${countPositionInt(bottomTop)}px)`
-        )
-      } else {
-        setTransform(
-          `translate(${x + (elementWidth - clientWidth) / 2}px, ${bottomTop}px)`
-        )
-      }
-    } else if (position === "bottom-end") {
-      if (clientWidth > elementWidth) {
-        setTransform(
-          `translate(${x - (clientWidth - elementWidth)}px,${bottomTop}px)`
-        )
-      } else {
-        setTransform(
-          `translate(${x + (elementWidth - clientWidth)}px, ${bottomTop}px)`
-        )
-      }
-    }
-  } else {
-    if (position === "bottom-start") {
-      setTransform(`translate(${x}px, ${bottomY}px)`)
-    } else if (position === "bottom") {
-      if (clientWidth === screenSize.width - gap * 2) {
-        setTransform(`translate(${elementDistanceDefined}px, ${bottomY}px)`)
-        return
-      }
+  // 根据上下位置计算Y坐标
+  const bottomY = isBottomInViewport(tipRefDom, scrollDom)
+    ? `${top - contentRect.height - gap}`
+    : countPositionInt(top + elementHeight + gap)
+  if (position === "bottom-start") {
+    setTransform(`translate(${x}px, ${bottomY}px)`)
+  } else if (position === "bottom") {
+    if (clientWidth > elementWidth) {
+      setTransform(`translate(${gap}px, ${countPositionInt(bottomY)}px)`)
+    } else {
       setTransform(
-        `translate(${x - (clientWidth - elementWidth) / 2}px, ${bottomY}px)`
+        `translate(${x + (elementWidth - clientWidth) / 2}px, ${bottomY}px)`
       )
-    } else if (position === "bottom-end") {
-      if (clientWidth > elementWidth) {
-        setTransform(
-          `translate(${x - (clientWidth - elementWidth)}px,${bottomY}px)`
-        )
-      } else {
-        setTransform(
-          `translate(${x + (elementWidth - clientWidth)}px, ${bottomY}px)`
-        )
-      }
+    }
+  } else if (position === "bottom-end") {
+    if (clientWidth > elementWidth) {
+      setTransform(
+        `translate(${x - (clientWidth - elementWidth)}px,${bottomY}px)`
+      )
+    } else {
+      setTransform(
+        `translate(${x + (elementWidth - clientWidth)}px, ${bottomY}px)`
+      )
     }
   }
 }
-
 export default countPosition

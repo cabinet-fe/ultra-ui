@@ -15,10 +15,7 @@
         activeTextColor="#CC00FF"
         text-color="#00CCCC"
       >
-        <LayoutMenu
-          v-for="menu of menus"
-          :menus="menu"
-        />
+        <LayoutMenu v-for="menu of menus" :menus="menu" />
         <!-- <u-menu-sub index="111" :icon="Location">
           <template #title>
             <span>一级菜单1</span>
@@ -55,11 +52,10 @@
 </template>
 
 <script setup lang="ts">
-import { Location, Setting } from 'icon-ultra'
-import type { UMenu } from 'ultra-ui/components'
-import { shallowRef, reactive, watch } from 'vue'
-import { Layers, HouseFilled, Usergroup, Lock, Cart } from 'icon-ultra'
-import LayoutMenu from './layout-menu.vue'
+import type { UMenu } from "ultra-ui/components"
+import { shallowRef, reactive, watch } from "vue"
+import { Layers, HouseFilled, Usergroup, Lock, Cart } from "icon-ultra"
+import LayoutMenu from "./layout-menu.vue"
 
 const menus = shallowRef<any[]>([
   { title: "首页", icon: HouseFilled, path: "/" },
@@ -72,7 +68,18 @@ const menus = shallowRef<any[]>([
       { title: "用户管理2", icon: Layers, path: "/view/index/123" },
       { title: "用户管理3", icon: Usergroup, path: "/view/index/12322" },
       { title: "用户管理4", icon: Lock, path: "/view/index/123555" },
-      { title: "用户管理5", icon: Cart, path: "/view/index/444" },
+      {
+        title: "用户管理5",
+        icon: Cart,
+        path: "/view/index/444",
+        children: [
+          { title: "用户管理1", icon: HouseFilled, path: "/view/index/1232" },
+          { title: "用户管理2", icon: Layers, path: "/view/index/123" },
+          { title: "用户管理3", icon: Usergroup, path: "/view/index/12322" },
+          { title: "用户管理4", icon: Lock, path: "/view/index/123555" },
+          { title: "用户管理5", icon: Cart, path: "/view/index/444" },
+        ],
+      },
     ],
   },
   { title: "角色管理", icon: Usergroup, path: "/view/test" },
@@ -81,28 +88,28 @@ const menus = shallowRef<any[]>([
 ])
 
 const open = (index: string) => {
-  console.log('open', index)
+  console.log("open", index)
 }
 
 const close = (index: string) => {
-  console.log('close', index)
+  console.log("close", index)
 }
 
 const select = (index: string) => {
-  console.log('select', index)
+  console.log("select", index)
 }
 
 const menuRef = shallowRef<InstanceType<typeof UMenu>>()
 
 const config = reactive({
-  open: false,
-  simple: false
+  open: true,
+  simple: true,
 })
 
 watch(
   () => config.open,
   (val) => {
-    val ? menuRef.value?.open('111') : menuRef.value?.close('111')
+    val ? menuRef.value?.open("111") : menuRef.value?.close("111")
   }
 )
 </script>
@@ -114,6 +121,7 @@ watch(
 }
 
 .menu-wrapper {
+  width: 60px;
   border: 2px solid gold;
   height: 600px;
   overflow: auto;

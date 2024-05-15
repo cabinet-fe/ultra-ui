@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="height: 40vh"></div>
+    <div style="height: 60vh"></div>
     <div class="tip-box">
       <!-- <div class="anime-test" ref="divRef">11111</div> -->
       <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
