@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent, getSiblings, getChildren } from './di'
+import { MenuDIKey, calcIndent, getSiblings } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
@@ -99,6 +99,8 @@ const { size } = useFallbackProps([props], {
   size: 'default'
 })
 
+const instance = getCurrentInstance()
+
 const open = () => {
   expand.value = true
 }
@@ -125,9 +127,11 @@ watch(
   (val) => {
     if (val) {
       close()
-      highlight.value = children.value.includes(injected!.activeIndex.value)
+      highlight.value =
+        injected?.structure.value[props.index]?.has(injected!.activeIndex.value) || false
     } else {
-      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
+      if (injected?.structure.value[props.index]?.has(injected!.activeIndex.value))
+        expand.value = true
     }
   }
 )
@@ -147,12 +151,13 @@ const mouseleave = () => {
 
 const siblings = ref<Array<string>>([])
 
-const children = ref<Array<string>>([])
 // 根据activeIndex展开子菜单
 watch(
-  () => injected?.activeIndex.value,
-  (index) => {
-    if (index === props.index) open()
+  [() => injected?.activeIndex.value, injected?.structure.value],
+  ([index, structure]) => {
+    if (index && structure && structure[props.index] && structure[props.index].has(index)) {
+      expand.value = true
+    }
   },
   { once: true }
 )
@@ -161,20 +166,23 @@ const highlight = ref<boolean>(false)
 watch(
   () => injected?.activeIndex.value,
   (index) => {
-    if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index!)) {
-      close()
+    if (index) {
+      if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index)) {
+        close()
+      }
+      if (injected?.simple.value) {
+        highlight.value = injected?.structure.value[props.index]?.has(index) || false
+      }
+      // if (injected?.structure.value[props.index]?.has(index)) {
+      //   expand.value = true
+      // }
     }
-    if (index && injected?.simple.value) {
-      highlight.value = children.value.includes(index)
-    }
-  }
+  }, { immediate: true }
 )
 // 默认展开
 onMounted(() => {
   if (injected?.expand) open()
 })
-
-const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
 
@@ -185,8 +193,8 @@ watch(
     if (instance) {
       textIndent.value = calcIndent(instance)
       siblings.value = getSiblings(instance)
-      children.value = getChildren(instance)
-      if (injected && children.value.includes(injected!.activeIndex.value)) expand.value = true
+      if (injected && injected?.structure.value[props.index]?.has(injected!.activeIndex.value))
+        expand.value = true
     }
   },
   { immediate: true }

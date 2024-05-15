@@ -41,8 +41,15 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent } from './di'
+import {
+  inject,
+  ref,
+  watch,
+  getCurrentInstance,
+  computed,
+  type ComponentInternalInstance
+} from 'vue'
+import { MenuDIKey, calcIndent, getParentIndex } from './di'
 import type { MenuItemProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
@@ -72,11 +79,25 @@ const handleClick = () => {
 const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
+
+const getParent = (instance: ComponentInternalInstance) => {
+  const parents = getParentIndex(instance)
+  parents.forEach((parent: string) => {
+    if (injected?.structure.value[parent]) {
+      injected!.structure.value[parent]?.add(props.index)
+    } else {
+      injected!.structure.value[parent] = new Set([props.index])
+    }
+  })
+}
 // 根据嵌套层级计算缩进
 watch(
   () => instance,
   () => {
-    if (instance) textIndent.value = calcIndent(instance)
+    if (instance) {
+      textIndent.value = calcIndent(instance)
+      getParent(instance)
+    }
   },
   { immediate: true }
 )
@@ -90,7 +111,10 @@ const customColor = computed(() => {
     return 'var(--text-color-disabled)'
   }
 })
-watch(() => activation.value, (val) => {
-  if (val) injected?.menuEmit('select', props.index || '')
-})
+watch(
+  () => activation.value,
+  (val) => {
+    if (val) injected?.menuEmit('select', props.index || '')
+  }
+)
 </script>
