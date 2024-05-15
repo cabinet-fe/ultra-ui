@@ -59,7 +59,8 @@ const store = shallowRef<MenuContext>({
   textColor: textColor.value,
   activeTextColor: activeTextColor.value,
   backgroundColor: backgroundColor.value,
-  uniqueOpened: uniqueOpened.value
+  uniqueOpened: uniqueOpened.value,
+  structure: ref({})
 })
 // 剔除动画完成时间
 watch(

@@ -5,7 +5,7 @@ function calculateMaxWidth(screenWidth, rect, position, gap) {
   } else if (position.includes("end")) {
     return `${rect.right - gap}px`
   } else {
-    return `${screenWidth - gap * 2}px`
+    return `${window.innerWidth - gap * 2}px`
   }
 }
 
@@ -13,14 +13,14 @@ function calculateMaxWidth(screenWidth, rect, position, gap) {
 function calculateRightMaxWidth(gap, screenWidth, rectWidth, rectX) {
   return rectWidth > screenWidth - (rectX + rectWidth)
     ? `calc(${rectX - gap * 2}px)`
-    : `${screenWidth - rectWidth - gap * 2}px`
+    : `${screenWidth - rectWidth - gap}px`
 }
 
 // 辅助函数，用于计算最大宽度（用于左侧定位）
 function calculateLeftMaxWidth(gap, screenWidth, rectWidth, rectX) {
   return rectWidth > screenWidth - (rectX + rectWidth)
     ? `calc(${rectX - gap * 2}px)`
-    : `${screenWidth - rectWidth - gap * 2}px`
+    : `${screenWidth - (rectX + rectWidth) - gap * 2}px`
 }
 
 /**
