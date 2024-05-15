@@ -26,6 +26,8 @@ export interface MenuContext {
   backgroundColor: string
   /** 唯一打开子菜单 */
   uniqueOpened: boolean
+  /** 子菜单及其菜单项的对应关系 */
+  structure: Ref<Record<string, Set<string>>>
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')
@@ -54,16 +56,19 @@ export const getSiblings = (instance: ComponentInternalInstance) => {
   }) : []
 }
 
-export const getChildren = (instance: ComponentInternalInstance) => {
-  const children: any = []
-  const getIndex = (arr: any[]) => {
-    arr.forEach((item) => {
-      if (item.props) children.push(item.props.index)
-      if (item.type.name === 'MenuSub') {
-        getIndex(item.children.default())
-      }
-    })
+export const getParentIndex = (instance: ComponentInternalInstance) => {
+  let res: string[] = [], parentType = ''
+  const getParent = (instance: ComponentInternalInstance) => {
+    parentType = instance.type.name || ''
+    if (parentType === 'MenuSub') {
+      res.push(String(instance.props?.index))
+    } else if (parentType === 'Menu') {
+      res.push('menu-root')
+    }
+    if (instance.parent && parentType !== 'Menu') getParent(instance.parent)
   }
-  getIndex(instance?.slots.default!() || [])
-  return children
+  if (instance.parent) {
+    getParent(instance.parent)
+  }
+  return res
 }
