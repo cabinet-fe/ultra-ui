@@ -30,7 +30,9 @@
         :position="config.position"
         :closable="config.closable"
         :keep-alive="config.keepAlive"
-        style="height: 300px"
+        :style="{
+          height: config.fixedHeight ? '300px' : ''
+        }"
       >
         <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
         <template #a>
@@ -81,14 +83,16 @@ const count = ref(0)
 
 const configList = [
   { label: '可关闭', key: 'closable' },
-  { label: '保活', key: 'keepAlive' }
+  { label: '保活', key: 'keepAlive' },
+  { label: '固定高度', key: 'fixedHeight' }
   // { label: '排序', key: 'sortable' }
 ]
 const config = reactive({
   closable: false,
   sortable: false,
   keepAlive: false,
-  position: 'top' as any
+  position: 'top' as any,
+  fixedHeight: false
 })
 </script>
 
