@@ -32,9 +32,10 @@
     </ul>
 
     <transition name="fade" mode="out-in">
-      <KeepAlive>
+      <KeepAlive v-if="keepAlive">
         <component :key="model" :is="renderSlots()" />
       </KeepAlive>
+      <component v-else :key="model" :is="renderSlots()" />
     </transition>
   </div>
 </template>

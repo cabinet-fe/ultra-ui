@@ -29,6 +29,7 @@
         v-model="active"
         :position="config.position"
         :closable="config.closable"
+        :keep-alive="config.keepAlive"
         style="height: 300px"
       >
         <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
@@ -79,12 +80,14 @@ const active = ref<string>('a')
 const count = ref(0)
 
 const configList = [
-  { label: '可关闭', key: 'closable' }
+  { label: '可关闭', key: 'closable' },
+  { label: '保活', key: 'keepAlive' }
   // { label: '排序', key: 'sortable' }
 ]
 const config = reactive({
   closable: false,
   sortable: false,
+  keepAlive: false,
   position: 'top' as any
 })
 </script>

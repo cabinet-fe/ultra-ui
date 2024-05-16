@@ -2,7 +2,6 @@ import {
   type PropType,
   type VNode,
   type VNodeArrayChildren,
-  cloneVNode,
   defineComponent,
   isVNode,
   mergeProps
