@@ -32,6 +32,7 @@
   "number-input",
   "paginator",
   "password-input",
+  "popconfirm",
   "popup",
   "progress",
   "radio",

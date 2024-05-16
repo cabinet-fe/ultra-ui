@@ -78,7 +78,7 @@ const menuRef = shallowRef<InstanceType<typeof UMenu>>()
 
 const config = reactive({
   open: false,
-  simple: false,
+  simple: true,
   index: '/view/index'
 })
 
