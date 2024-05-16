@@ -16,7 +16,7 @@ import type {DeconstructValue} from "../helper"
 /** tip提示组件组件属性 */
 export interface TipProps {
   /**提示内容 */
-  modelValue?: string
+  content?: string
   /**自定义tip样式 */
   customStyle?: Record<string, any>
   /**触发tip方式 */

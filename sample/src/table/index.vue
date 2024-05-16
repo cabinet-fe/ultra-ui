@@ -5,8 +5,8 @@
         :data="data"
         :columns="columns"
         style="height: 300px"
-
-        selectable
+        tree
+        checkable
       >
       </u-table>
     </CustomCard>

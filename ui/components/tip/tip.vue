@@ -18,7 +18,7 @@
       v-click-outside="handleClickOutside"
     >
       <slot name="content">
-        {{ modelValue }}
+        {{ content }}
       </slot>
     </div>
   </teleport>
@@ -53,7 +53,7 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<TipProps>(), {
-  modelValue: "提示内容",
+  content: "提示内容",
   trigger: "hover",
   position: "top",
   mouseEnterable: true,

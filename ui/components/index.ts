@@ -62,6 +62,8 @@ export * from './paginator'
 
 export * from './password-input'
 
+export * from './popconfirm'
+
 export * from './popup'
 
 export * from './progress'

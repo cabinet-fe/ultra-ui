@@ -2,8 +2,10 @@ import {
   type PropType,
   type VNode,
   type VNodeArrayChildren,
+  cloneVNode,
   defineComponent,
-  isVNode
+  isVNode,
+  mergeProps
 } from 'vue'
 
 export default defineComponent({
@@ -38,12 +40,7 @@ export default defineComponent({
       }
 
       if (isVNode(content)) {
-        if (content.props) {
-          Object.assign(content.props, attrs)
-        } else {
-          content.props = attrs
-        }
-
+        content.props = attrs ? mergeProps(content.props ?? {}, attrs) : props
         return content
       }
       return props.content
