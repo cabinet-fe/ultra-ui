@@ -30,11 +30,7 @@ export default defineConfig(() => {
     },
 
     plugins: [
-      Vue({
-        script: {
-          defineModel: true
-        }
-      }),
+      Vue(),
       VueJSX(),
       Components({
         resolvers: [UltraUIResolver],

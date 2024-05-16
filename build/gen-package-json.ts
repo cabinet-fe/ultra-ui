@@ -14,6 +14,7 @@ const pkg = {
   name: 'ultra-ui',
   version: rootPkg.version,
   type: 'module',
+  author: 'cabinet-fe',
   description: 'ultra-ui组件库',
   main: './index.js',
   module: './index.js',

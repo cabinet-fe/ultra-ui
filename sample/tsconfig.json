@@ -16,5 +16,5 @@
     "allowJs": true
   },
   "include": ["**/*.vue", "**/*.ts"],
-  "exclude": ["node_modules", "dist/**", "**/*.js"]
+  "exclude": ["node_modules", "dist/**"]
 }
