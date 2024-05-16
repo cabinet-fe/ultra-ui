@@ -117,6 +117,7 @@ watch(
 watch(
   () => injected?.closeIndex.value,
   (index) => {
+    console.log(index, props.index)
     if (index === props.index) close()
   }
 )
@@ -173,9 +174,6 @@ watch(
       if (injected?.simple.value) {
         highlight.value = injected?.structure.value[props.index]?.has(index) || false
       }
-      // if (injected?.structure.value[props.index]?.has(index)) {
-      //   expand.value = true
-      // }
     }
   }, { immediate: true }
 )

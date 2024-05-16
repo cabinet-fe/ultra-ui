@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="config">
+      <u-input v-model="config.index"></u-input>
       <u-checkbox v-model="config.open">open sub menu</u-checkbox>
       <u-checkbox v-model="config.simple">simple mode</u-checkbox>
     </div>
@@ -76,14 +77,15 @@ const select = (index: string) => {
 const menuRef = shallowRef<InstanceType<typeof UMenu>>()
 
 const config = reactive({
-  open: true,
-  simple: true,
+  open: false,
+  simple: false,
+  index: '/view/index'
 })
 
 watch(
   () => config.open,
   (val) => {
-    val ? menuRef.value?.open("111") : menuRef.value?.close("111")
+    menuRef.value![val?'open':'close'](config.index)
   }
 )
 </script>
@@ -95,7 +97,7 @@ watch(
 }
 
 .menu-wrapper {
-  width: 60px;
+  width: 600px;
   border: 2px solid gold;
   height: 600px;
   overflow: auto;
