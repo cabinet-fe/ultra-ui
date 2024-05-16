@@ -37,6 +37,9 @@ export interface TipProps {
     | "right-end"
   /**鼠标是否可进入到tip区域*/
   mouseEnterable?: boolean
+
+  /**鼠标离开 tip区域后是否自动关闭 */
+  mouseLeaveClose?: boolean
 }
 
 /** tip提示组件组件定义的事件 */
@@ -45,7 +48,9 @@ export interface TipEmits {
 }
 
 /** tip提示组件组件暴露的属性和方法(组件内部使用) */
-export interface _TipExposed {}
+export interface _TipExposed {
+  handleClickOutside
+}
 
 /** tip提示组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TipExposed = DeconstructValue<_TipExposed>

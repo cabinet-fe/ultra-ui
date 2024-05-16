@@ -26,7 +26,7 @@
           </u-button>
         </u-tip>
         <u-tip
-          content="上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域上中-鼠标不可进入tip区域"
+          content="上中--------鼠标入tip区域"
           position="top"
           :mouse-enterable="false"
         >
@@ -86,7 +86,7 @@
           <u-button>下左下左下左下左</u-button>
         </u-tip>
         <u-tip
-          content="下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中下中"
+          content="bottombottombottombottom"
           position="bottom"
         >
           <u-button>下中下中下中下中</u-button>

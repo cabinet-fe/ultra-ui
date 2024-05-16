@@ -3,7 +3,7 @@
     :content="slots.default?.()?.[0]"
     @mouseenter.self="handleMouseEnter"
     @mouseleave.self="handleMouseLeave"
-    @click.self="handleClick"
+    @click="handleClick"
     :class="cls.b"
     ref="tipRef"
   />
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TipProps } from "@ui/types/components/tip"
+import type { TipProps,_TipExposed} from "@ui/types/components/tip"
 import { bem, nextFrame, setStyles } from "@ui/utils"
 import {
   shallowRef,
@@ -57,6 +57,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   trigger: "hover",
   position: "top",
   mouseEnterable: true,
+  mouseLeaveClose:true
 })
 
 let tipShowRef = ref<HTMLElement[]>([])
@@ -123,6 +124,7 @@ const handleMouseEnter = () => {
 
 /**鼠标离开元素 */
 const handleMouseLeave = () => {
+  if(!props.mouseLeaveClose) return
   isMouseInTip.value = false
   if (props.trigger !== "hover") return
   clearTimeout(timers.get("timerMouseLeave"))
@@ -147,6 +149,7 @@ const handleContentMouseEnter = () => {
 
 /**鼠标离开弹窗内容区域 */
 const handleContentMouseLeave = () => {
+  if(!props.mouseLeaveClose) return
   isMouseInTip.value = false
   if (props.trigger !== "hover") return
   clearTimeout(timers.get("timerMouseLeave"))
@@ -322,6 +325,10 @@ watch(tipContentRef, (val) => {
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
   scrollDom.value?.removeEventListener("scroll", scrollEvent)
+})
+
+defineExpose<_TipExposed>({
+  handleClickOutside
 })
 </script>
 

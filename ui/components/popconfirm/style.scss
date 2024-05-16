@@ -6,4 +6,28 @@
 $root-name: popconfirm;
 
 @include m.b($root-name) {
+    @include m.m(main) {
+        max-width: 200px;
+        width: max-content;
+        @include m.flex($display: inline-flex);
+    }
+
+    @include m.m(icon) {
+        margin-right: 8px;
+        color: fn.use-var('color', warning);
+    }
+
+    @include m.size using ($size) {
+        font-size: fn.use-var('font-size', title, $size);
+        padding: 8px fn.use-var(gap, $size);
+    }
+
+    @include m.m(action) {
+        @include m.flex($justify: flex-end);
+        i{
+            display: block;
+            visibility: hidden;
+            width: 6px;
+        }
+    }
 }

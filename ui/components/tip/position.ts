@@ -474,7 +474,7 @@ function bottomCount(
   if (position === "bottom-start") {
     setTransform(`translate(${x}px, ${bottomY}px)`)
   } else if (position === "bottom") {
-    if (clientWidth > elementWidth) {
+    if (clientWidth > window.innerWidth - gap * 2) {
       setTransform(`translate(${gap}px, ${countPositionInt(bottomY)}px)`)
     } else {
       setTransform(
