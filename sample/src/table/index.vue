@@ -1,7 +1,14 @@
 <template>
   <div>
     <CustomCard title="多级表头，表头冻结，列冻结">
-      <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
+      <u-table
+        :data="data"
+        :columns="columns"
+        style="height: 300px"
+
+        selectable
+      >
+      </u-table>
     </CustomCard>
 
     <CustomCard title="表格插槽">
@@ -47,13 +54,10 @@ import CustomCard from '../card/custom-card.vue'
 
 const columns = defineTableColumns(
   [
-    { name: '性别', key: 'sex', fixed: 'right' },
-    { name: '姓名', key: 'name', align: 'center', fixed: 'left' },
-    { name: '年龄', key: 'age', fixed: 'left' },
-
     {
       name: '地址',
       key: 'address',
+      fixed: 'left',
       children: [
         { name: '省', key: 'province' },
         { name: '市', key: 'city' },
@@ -62,20 +66,23 @@ const columns = defineTableColumns(
         {
           name: '小区',
           key: 'community',
-          fixed: 'right',
+
           children: [
-            { name: 'a', key: 'a', fixed: 'right' },
-            { name: 'b', key: 'b', fixed: 'right' }
+            { name: 'a', key: 'a' },
+            { name: 'b', key: 'b' }
           ]
         }
       ]
-    }
+    },
+    { name: '性别', key: 'sex', fixed: 'right' },
+    { name: '姓名', key: 'name', fixed: 'left' },
+    { name: '年龄', key: 'age', fixed: 'left' }
   ],
-  { minWidth: 180 }
+  { minWidth: 150 }
 )
 
 const data = shallowRef(
-  Array.from({ length: 20 }).map((_, index) => {
+  Array.from({ length: 10 }).map((_, index) => {
     return {
       sex: index % 2 === 0 ? '男' : '女',
       name: 'name1' + index,
@@ -85,7 +92,36 @@ const data = shallowRef(
       area: '姑苏区' + index,
       street: '金昌街道' + index,
       community: '彩香花园' + index,
-      b: 'aa'
+      b: 'aa',
+      a: 'aa',
+      children: [
+        {
+          sex: '未知',
+          name: 'name',
+          age: Math.random() * 100,
+          province: '江苏省',
+          city: '苏州市',
+          area: '姑苏区',
+          street: '金昌街道',
+          community: '彩香花园',
+          b: 'aa',
+          a: 'aa',
+          children: [
+            {
+              sex: '未知',
+              name: 'name',
+              age: Math.random() * 100,
+              province: '江苏省',
+              city: '苏州市',
+              area: '姑苏区',
+              street: '金昌街道',
+              community: '彩香花园',
+              b: 'aa',
+              a: 'aa'
+            }
+          ]
+        }
+      ]
     }
   })
 )

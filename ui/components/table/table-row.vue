@@ -1,56 +1,77 @@
 <template>
-  <tr :class="cls.e('row')" @click="eventHandlers.handleRowClick(row)">
-    <td
-      v-for="(column, index) of columns"
-      :class="getCellClass(column)"
-      :data-col-index="index"
-      :style="{
-        left: withUnit(column.style.left, 'px'),
-        right: withUnit(column.style.right, 'px')
-      }"
+  <tr
+    :class="[cls.e('row'), bem.is('expanded', row.expanded)]"
+    @click="eventHandlers.handleRowClick(row)"
+  >
+
+    <UTabelCell
+      v-if="firstColumn"
+      :column="firstColumn"
+      :left="firstColumn.style.left"
+      :right="firstColumn.style.right"
+      :key="firstColumn.key"
     >
+      <u-button
+        v-if="!row.isLeaf"
+        text
+        :class="cls.e('expand-toggle')"
+        type="primary"
+        size="small"
+        circle
+        @click="toggleTreeRowExpand(row)"
+        :style="`margin-left: ${(row.depth - 1) * 14}px`"
+      >
+        <u-icon><ArrowRight /></u-icon>
+      </u-button>
+      <i
+        v-else
+        :class="cls.e('expand-space')"
+        :style="`margin-left: ${(row.depth - 1) * 14}px`"
+      ></i>
       <u-node-render
-        :content="
-          getColumnSlotsNode(column.key, {
-            row,
-            rowData,
-            column,
-            val: getChainValue(rowData, column.key),
-            model: {
-              modelValue: rowData[column.key],
-              'onUpdate:modelValue': (val: any) => {
-                rowData[column.key] = val
-              }
-            }
-          })
-        "
+        :content="getColumnSlotsNode(getCellCtx(row, firstColumn))"
       />
-    </td>
+    </UTabelCell>
+
+    <UTabelCell
+      v-for="column of columns"
+      :column="column"
+      :left="column.style.left"
+      :right="column.style.right"
+      :key="column.key"
+    >
+      <u-node-render :content="getColumnSlotsNode(getCellCtx(row, column))" />
+    </UTabelCell>
   </tr>
 </template>
 
 <script lang="ts" setup>
-import { computed, inject } from 'vue'
+import { inject } from 'vue'
 import { TableDIKey } from './di'
 import type { TableRow } from './use-rows'
 import { UNodeRender } from '../node-render'
-import { withUnit } from '@ui/utils'
-import { getChainValue } from 'cat-kit/fe'
+import UTabelCell from './table-cell.vue'
+import { bem } from '@ui/utils'
+import { ArrowRight } from 'icon-ultra'
+import { UButton } from '../button'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'TableRow'
 })
 
-const props = defineProps<{
+defineProps<{
   row: TableRow
 }>()
 
-const { cls, columnConfig, getColumnSlotsNode, eventHandlers, getCellClass } =
-  inject(TableDIKey)!
+const {
+  cls,
+  columnConfig,
+  getColumnSlotsNode,
+  toggleTreeRowExpand,
+  getCellCtx,
+  eventHandlers
+} = inject(TableDIKey)!
 
-const { columns } = columnConfig
-
-const rowData = computed<Record<string, any>>(() => {
-  return props.row.value
-})
+const { columns, firstColumn } = columnConfig
 </script>

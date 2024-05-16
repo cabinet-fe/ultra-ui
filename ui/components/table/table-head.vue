@@ -1,5 +1,5 @@
 <template>
-  <thead :class="cls.e('head')" ref="">
+  <thead :class="[cls.e('head'), bem.is('multistage', headers.length > 1)]">
     <tr v-for="(header, headerIndex) of headers">
       <th
         v-for="column of header"
@@ -16,7 +16,7 @@
       >
         <u-node-render
           :content="
-            getHeaderSlotsNode(column.key, {
+            getHeaderSlotsNode( {
               column
             })
           "
@@ -30,7 +30,7 @@
 import { inject } from 'vue'
 import { TableDIKey } from './di'
 import { UNodeRender } from '../node-render'
-import { withUnit } from '@ui/utils'
+import { bem, withUnit } from '@ui/utils'
 
 defineOptions({
   name: 'TableHead'
