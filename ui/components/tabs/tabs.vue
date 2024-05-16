@@ -106,7 +106,7 @@ const model = defineModel<K>()
 const markStyle = shallowRef<CSSProperties>({})
 
 watch(
-  [tabItemsRef, index, () => props.position],
+  [tabItemsRef, index, () => props.position, () => props.closable],
   async ([items, index, position]) => {
     await nextTick()
     if (!items || index === -1 || props.closable) return
