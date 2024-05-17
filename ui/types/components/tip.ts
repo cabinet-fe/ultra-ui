@@ -1,17 +1,17 @@
-import type {DeconstructValue} from "../helper"
-// type positionType =
-//   | "top-start"
-//   | "top"
-//   | "top-end"
-//   | "left-start"
-//   | "left"
-//   | "left-end"
-//   | "bottom-start"
-//   | "bottom"
-//   | "bottom-end"
-//   | "right-start"
-//   | "right"
-//   | "right-end"
+import type { DeconstructValue } from "../helper"
+export type positionType =
+  | "top-start"
+  | "top"
+  | "top-end"
+  | "left-start"
+  | "left"
+  | "left-end"
+  | "bottom-start"
+  | "bottom"
+  | "bottom-end"
+  | "right-start"
+  | "right"
+  | "right-end"
 
 /** tip提示组件组件属性 */
 export interface TipProps {
@@ -22,19 +22,7 @@ export interface TipProps {
   /**触发tip方式 */
   trigger?: "hover" | "click"
   /**tip出现位置 */
-  position?:
-    | "top-start"
-    | "top"
-    | "top-end"
-    | "left-start"
-    | "left"
-    | "left-end"
-    | "bottom-start"
-    | "bottom"
-    | "bottom-end"
-    | "right-start"
-    | "right"
-    | "right-end"
+  position?: positionType
   /**鼠标是否可进入到tip区域*/
   mouseEnterable?: boolean
 
