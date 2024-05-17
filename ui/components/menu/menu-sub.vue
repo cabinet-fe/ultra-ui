@@ -153,15 +153,17 @@ const mouseleave = () => {
 const siblings = ref<Array<string>>([])
 
 // 根据activeIndex展开子菜单
-watch(
-  [() => injected?.activeIndex.value, injected?.structure.value],
-  ([index, structure]) => {
-    if (index && structure && structure[props.index] && structure[props.index].has(index)) {
-      expand.value = true
-    }
-  },
-  { once: true }
-)
+watch([() => injected?.activeIndex.value, injected?.structure.value], ([index, structure]) => {
+  if (
+    !expand.value &&
+    index &&
+    structure &&
+    structure[props.index] &&
+    structure[props.index].has(index)
+  ) {
+    expand.value = true
+  }
+})
 // 根据uniqueOpened，关闭其他菜单
 const highlight = ref<boolean>(false)
 watch(
@@ -175,7 +177,8 @@ watch(
         highlight.value = injected?.structure.value[props.index]?.has(index) || false
       }
     }
-  }, { immediate: true }
+  },
+  { immediate: true }
 )
 // 默认展开
 onMounted(() => {

@@ -74,6 +74,10 @@ watch(
   }
 )
 
+watch(() => activeIndex.value, (index) => {
+  store.value.activeIndex.value = index
+})
+
 provide(MenuDIKey, store.value)
 /** 给用户提供的展开方法 */
 const open = (index: string) => {
