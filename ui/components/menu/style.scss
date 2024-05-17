@@ -87,8 +87,6 @@ $root-name: menu;
     font-size: fn.use-var('font-size', main, $size);
 
     @include m.bem($root-name, sub) {
-      position: relative;
-
       &--title {
         white-space: nowrap;
         overflow: hidden;
