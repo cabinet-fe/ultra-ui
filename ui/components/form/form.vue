@@ -20,7 +20,12 @@ defineOptions({
 const props = defineProps<FormProps<Model>>()
 
 defineSlots<{
-  default(): any
+  default(props: {
+    /** 表单数据 */
+    data: Model['data']
+    /** 表单模型 */
+    model: Model
+  }): any
 }>()
 
 const cls = bem('form')

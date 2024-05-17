@@ -96,7 +96,7 @@ const model = new FormModel({
   slider: {},
   date: { required: true },
   guide: { required: true },
-  treeSelect: {  required: true},
+  treeSelect: { required: true }
 })
 
 // const sortRef = shallowRef()
@@ -113,7 +113,6 @@ const visible = shallowRef(false)
 watch(visible, v => {
   if (v) {
     // model.data.treeSelect = [1]
-
     // setTimeout(() => {
     //   model.setData({ treeSelect: [1] })
     // }, 3000)
@@ -132,44 +131,47 @@ const interestList = [
 ]
 
 const data = [
-  {name: "烤冷面", id: 1},
+  { name: '烤冷面', id: 1 },
   {
-    name: "手抓饼",
+    name: '手抓饼',
     id: 2,
     children: [
       {
-        name: "鱼香肉丝",
+        name: '鱼香肉丝',
         id: 3,
         children: [
           {
-            name: "烤苞米",
+            name: '烤苞米',
             id: 4,
             children: [
-              {name: "苞米例", id: 5},
-              {name: "吃", id: 6},
-              {name: "h", id: 7},
-            ],
-          },
-        ],
+              { name: '苞米例', id: 5 },
+              { name: '吃', id: 6 },
+              { name: 'h', id: 7 }
+            ]
+          }
+        ]
       },
       {
-        name: "fggg",
+        name: 'fggg',
         id: 8,
         children: [
-          {name: "苞米例2", id: 9},
-          {name: "吃2", id: 10},
-          {name: "h2", id: 11},
-        ],
-      },
-    ],
-  },
+          { name: '苞米例2', id: 9 },
+          { name: '吃2', id: 10 },
+          { name: 'h2', id: 11 }
+        ]
+      }
+    ]
+  }
 ]
 
 function open() {
   visible.value = true
-  model.setData({
-    name: 'aaaaaa'
-  }, { validate: true })
+  model.setData(
+    {
+      name: 'aaaaaa'
+    },
+    { validate: true }
+  )
 }
 </script>
 

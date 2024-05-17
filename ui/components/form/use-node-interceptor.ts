@@ -45,7 +45,7 @@ export function useNodeInterceptor(options: Options) {
   }
 
   return function getSlotsNodes() {
-    const nodes = slots.default?.()
+    const nodes = slots.default?.({ data: props.model?.data, model: props.mode })
     if (!nodes?.length) return null
 
     const data = props.model?.data
