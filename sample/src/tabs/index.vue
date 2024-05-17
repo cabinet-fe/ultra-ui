@@ -23,7 +23,7 @@
       </ul>
     </div>
 
-    <CustomCard title="固定高度">
+    <CustomCard title="使用和插槽的类型提示">
       <u-tabs
         v-model:items="items"
         v-model="active"
@@ -56,6 +56,8 @@
         <template #c>
           <CompB />
         </template>
+
+        <template #name:a>666</template>
       </u-tabs>
     </CustomCard>
   </div>

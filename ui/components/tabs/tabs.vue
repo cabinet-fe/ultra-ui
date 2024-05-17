@@ -49,7 +49,8 @@ import type {
   TabItem,
   TabsItems,
   TabsProps,
-  TabsEmits
+  TabsEmits,
+  GetTabSlots
 } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import {
@@ -78,13 +79,7 @@ const props = withDefaults(defineProps<TabsProps<Items>>(), {
 
 const emit = defineEmits<TabsEmits>()
 
-const slots = defineSlots<
-  {
-    [key in K]: (props: { key: key }) => any
-  } & {
-    [key: `name:${K}`]: (props: { key: K }) => any
-  }
->()
+const slots = defineSlots<GetTabSlots<K>>()
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
