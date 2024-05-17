@@ -1,6 +1,5 @@
 <template>
   <tfoot v-if="tableSlots.foot || showSummary" :class="cls.e('foot')">
-
     <tr :class="cls.e('row')" v-if="showSummary">
       <td
         v-if="allColumns[0]"
@@ -43,7 +42,7 @@ defineOptions({
 const { cls, columnConfig, rows, tableSlots, getCellClass } =
   inject(TableDIKey)!
 
-const { expandColumn, allColumns } = columnConfig
+const { allColumns } = columnConfig
 
 const showSummary = computed(() => {
   return allColumns.value.some(col => !!col.value.summary)
