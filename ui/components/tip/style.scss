@@ -12,6 +12,7 @@ $root-name: tip;
     position: fixed;
     left: 0;
     top: 0;
+    z-index: -1;
     border-radius: fn.use-var(radius, default);
     padding: 10px;
     font-size: 14px;

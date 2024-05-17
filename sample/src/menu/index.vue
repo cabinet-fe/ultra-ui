@@ -15,7 +15,7 @@
         ref="menuRef"
         activeTextColor="#CC00FF"
         text-color="#00CCCC"
-        active-index="/view/index/12322"
+        :active-index="activeIndex"
       >
         <LayoutMenu
           v-for="menu of menus"
@@ -78,9 +78,11 @@ const menuRef = shallowRef<InstanceType<typeof UMenu>>()
 
 const config = reactive({
   open: false,
-  simple: true,
+  simple: false,
   index: '/view/index'
 })
+
+const activeIndex = ref('/view/index/12322')
 
 watch(
   () => config.open,
