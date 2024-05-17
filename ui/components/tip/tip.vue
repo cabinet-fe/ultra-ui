@@ -186,9 +186,9 @@ const handleClick = () => {
 
 /**点击外部触发 */
 const handleClickOutside = () => {
+  if (props.trigger === "hover") return
   animation.value = true
   clearTimeout(timers.get("timerTip"))
-  if (props.trigger === "hover") return
   clearTimeout(timers.get("outside"))
   timers.set(
     "outside",
