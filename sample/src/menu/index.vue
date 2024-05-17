@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import type { UMenu } from 'ultra-ui/components'
-import { shallowRef, reactive, watch } from 'vue'
+import { shallowRef, reactive, watch, ref } from 'vue'
 import { Layers, HouseFilled, UserGroup, Lock, Cart } from 'icon-ultra'
 import LayoutMenu from './layout-menu.vue'
 
