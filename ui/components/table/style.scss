@@ -71,8 +71,35 @@ $root-name: table;
     }
   }
 
+  @include m.e(head) {
+    @include m.bem($root-name, cell) {
+      box-shadow: 0px -1px 1px #eee inset;
+    }
+  }
+
+  @include m.e(body) {
+    tr:not(:last-child) {
+      @include m.bem($root-name, cell) {
+        box-shadow: 0px -1px #eee inset;
+      }
+    }
+  }
+
+  @include m.e(empty) {
+    text-align: center;
+  }
+
+  @include m.e(foot) {
+    position: sticky;
+    left: 0;
+    bottom: 0;
+
+    @include m.bem($root-name, cell) {
+      box-shadow: 0px 1px 1px #eee inset;
+    }
+  }
+
   @include m.e(cell) {
-    box-shadow: 0px -1px #eee inset;
     background-color: fn.use-var(bg-color, top);
     word-break: break-all;
 
@@ -88,7 +115,7 @@ $root-name: table;
 
     @include m.is(fixed-left) {
       @include m.is(last-fixed) {
-        box-shadow: 0px -1px #eee inset;
+        // box-shadow: 0px -1px #eee inset;
         &::after {
           content: '';
           position: absolute;
@@ -104,7 +131,7 @@ $root-name: table;
 
     @include m.is(fixed-right) {
       @include m.is(first-fixed) {
-        box-shadow: 0px -1px #eee inset;
+        // box-shadow: 0px -1px #eee inset;
         &::before {
           content: '';
           position: absolute;

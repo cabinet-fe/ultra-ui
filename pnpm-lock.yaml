@@ -37,8 +37,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       icon-ultra:
-        specifier: ^3.0.3
-        version: 3.0.3(vue@3.4.27(typescript@5.4.5))
+        specifier: 3.0.4
+        version: 3.0.4(vue@3.4.27(typescript@5.4.5))
       rollup:
         specifier: 4.17.2
         version: 4.17.2
@@ -110,9 +110,6 @@ importers:
 
   sample:
     dependencies:
-      icon-ultra:
-        specifier: 3.0.3
-        version: 3.0.3(vue@3.4.27(typescript@5.4.5))
       ultra-ui:
         specifier: workspace:*
         version: link:../ui
@@ -1198,8 +1195,8 @@ packages:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
 
-  icon-ultra@3.0.3:
-    resolution: {integrity: sha512-bKjuSL3gFMWpLL8GyQuuVSAw8LwuHWWsdOc+sTL56b3Ih4G6CC+Kiw4BaFut8JsmkRKolhnqn31e/76ngp8XEg==}
+  icon-ultra@3.0.4:
+    resolution: {integrity: sha512-bE3/y6dCjbnkJFdZGSFsQYvoC93vmtTh0gm2FFcq2mN3o1EwFwrylr7p2m4FtHBrmKq3qFeDvkXo1aLEKEvk2A==}
     peerDependencies:
       vue: ^3.4.21
 
@@ -3014,7 +3011,7 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  icon-ultra@3.0.3(vue@3.4.27(typescript@5.4.5)):
+  icon-ultra@3.0.4(vue@3.4.27(typescript@5.4.5)):
     dependencies:
       vue: 3.4.27(typescript@5.4.5)
 

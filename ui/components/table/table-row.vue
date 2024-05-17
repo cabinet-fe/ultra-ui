@@ -3,13 +3,12 @@
     :class="[cls.e('row'), bem.is('expanded', row.expanded)]"
     @click="eventHandlers.handleRowClick(row)"
   >
-
     <UTabelCell
-      v-if="firstColumn"
-      :column="firstColumn"
-      :left="firstColumn.style.left"
-      :right="firstColumn.style.right"
-      :key="firstColumn.key"
+      v-if="expandColumn"
+      :column="expandColumn"
+      :left="expandColumn.style.left"
+      :right="expandColumn.style.right"
+      :key="expandColumn.key"
     >
       <u-button
         v-if="!row.isLeaf"
@@ -29,7 +28,7 @@
         :style="`margin-left: ${(row.depth - 1) * 14}px`"
       ></i>
       <u-node-render
-        :content="getColumnSlotsNode(getCellCtx(row, firstColumn))"
+        :content="getColumnSlotsNode(getCellCtx(row, expandColumn))"
       />
     </UTabelCell>
 
@@ -73,5 +72,5 @@ const {
   eventHandlers
 } = inject(TableDIKey)!
 
-const { columns, firstColumn } = columnConfig
+const { columns, expandColumn } = columnConfig
 </script>

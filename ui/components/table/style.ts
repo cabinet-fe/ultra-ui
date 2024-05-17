@@ -1,4 +1,6 @@
 import '../scroll/style'
 import '../button/style'
 import '../icon/style'
+import '../checkbox/style'
+import '../radio/style'
 import './style.scss'

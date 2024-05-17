@@ -1,6 +1,6 @@
 <template>
   <thead :class="[cls.e('head'), bem.is('multistage', headers.length > 1)]">
-    <tr v-for="(header, headerIndex) of headers">
+    <tr v-for="(header, headerIndex) of headers" >
       <th
         v-for="column of header"
         :class="getCellClass(column)"
@@ -16,7 +16,7 @@
       >
         <u-node-render
           :content="
-            getHeaderSlotsNode( {
+            getHeaderSlotsNode({
               column
             })
           "
@@ -36,7 +36,8 @@ defineOptions({
   name: 'TableHead'
 })
 
-const { cls, columnConfig, getHeaderSlotsNode, getCellClass } = inject(TableDIKey)!
+const { cls, columnConfig, getHeaderSlotsNode, getCellClass } =
+  inject(TableDIKey)!
 
 const { headers } = columnConfig
 </script>

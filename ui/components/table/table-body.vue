@@ -1,6 +1,12 @@
 <template>
   <tbody :class="cls.e('body')">
     <UTableRow v-for="row of rows" :row="row" :key="row.uid" />
+
+    <tr v-if="!rows.length" :class="cls.e('row')">
+      <td :colspan="allColumns.length" :class="[cls.e('cell'), cls.e('empty')]">
+        暂无数据
+      </td>
+    </tr>
   </tbody>
 </template>
 
@@ -13,5 +19,6 @@ defineOptions({
   name: 'TableBody'
 })
 
-const { cls, rows } = inject(TableDIKey)!
+const { cls, rows, columnConfig } = inject(TableDIKey)!
+const { allColumns } = columnConfig
 </script>

@@ -2,7 +2,7 @@
   <u-scroll
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
-    @resize="handleTableResize"
+    @resize="updateStylesOfColumns"
   >
     <table
       :class="cls.e('wrap')"
@@ -21,6 +21,9 @@
       </colgroup>
       <UTableHead />
       <UTableBody />
+      <UTableFoot>
+        <slot name="foot" :columns="allColumns" :rows="rows" />
+      </UTableFoot>
     </table>
 
     <div :class="cls.e('resizer')"></div>
@@ -35,18 +38,19 @@ import type {
   TableColumnSlotsScope
 } from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
-import { computed, provide, shallowRef, useSlots, type VNode } from 'vue'
+import { computed, provide, shallowRef } from 'vue'
 import { TableDIKey } from './di'
 import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
+import UTableFoot from './table-foot.vue'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { useEvents } from './use-events'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
-import { debounce, getChainValue } from 'cat-kit/fe'
 import { useCheck } from './use-check'
+import { useTable } from './use-table'
 
 defineOptions({
   name: 'Table'
@@ -57,138 +61,56 @@ const props = withDefaults(defineProps<TableProps<DataItem>>(), {
 })
 const emit = defineEmits<TableEmits<DataItem>>()
 
-defineSlots<
-  {
-    [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
-    [key: `header:${string}`]: (props: { column: ColumnNode }) => any
-  } & {
-    [key: string]: () => any
-  }
->()
+const slots = defineSlots<{
+  [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
+  [key: `header:${string}`]: (props: { column: ColumnNode }) => any
+  foot: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+}>()
 
 const cls = bem('table')
-
-const { rows, toggleTreeRowExpand, rowForest } = useRows({ props })
-
-const { createCheckColumn, createSelectColumn } = useCheck({
-  props,
-  rows,
-  rowForest,
-  emit
-})
-
-const columnConfig = useColumns({
-  props,
-  createCheckColumn,
-  createSelectColumn
-})
-
-const { allColumns } = columnConfig
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const slots = useSlots()
-
-/** 获取列插槽vnode */
-const getColumnSlotsNode = (
-  ctx: TableColumnSlotsScope
-): VNode[] | undefined => {
-  const { column } = ctx
-
-  const result =
-    column.value.render?.(ctx) ??
-    (props.slots ?? slots)[`column:${column.key}`]?.(ctx) ??
-    ctx.val
-
-  return result
-}
-
-/** 获取表头插槽vnode */
-const getHeaderSlotsNode = (ctx: {
-  column: ColumnNode
-}): VNode[] | undefined | string | VNode => {
-  const { column } = ctx
-  return (
-    column.value.nameRender?.(ctx) ??
-    (props.slots ?? slots)[`header:${ctx.column.key}`]?.(ctx) ??
-    ctx.column.name
-  )
-}
-
-/** 获取单元格类名 */
-const getCellClass = (column: ColumnNode): string => {
-  const classList: string[] = [cls.e('cell'), bem.is(column.align)]
-
-  column.fixed && classList.push(bem.is('fixed-' + column.fixed))
-  column.isLastFixed && classList.push(bem.is('last-fixed'))
-  column.isFirstFixed && classList.push(bem.is('first-fixed'))
-  return classList.join(' ')
-}
-
-const getCellCtx = (
-  row: TableRow,
-  column: ColumnNode
-): TableColumnSlotsScope => {
-  const rowData = row.value
-  const val = getChainValue(rowData, column.key)
-  return {
-    row,
-    column,
-    rowData,
-    val,
-    model: {
-      modelValue: val,
-      'onUpdate:modelValue': (val: any) => {
-        rowData[column.key] = val
-      }
-    }
-  }
-}
-
-/** 事件处理 */
-const eventHandlers = useEvents({ emit })
-
 const colgroupRef = shallowRef<HTMLElement>()
 
-// 在尺寸变更时重新计算固定列的宽度和偏移量
-const handleTableResize = debounce(
-  () => {
-    const colgroup = colgroupRef.value
+// 事件
+const eventHandlers = useEvents({ emit })
 
-    if (!colgroup) return
+// 行
+const { rows, toggleTreeRowExpand, rowForest } = useRows({ props })
 
-    const fixedOnLeft = Array.from(
-      colgroup.getElementsByClassName('left')
-    ) as HTMLElement[]
+// 选中
+const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
+  useCheck({
+    size,
+    props,
+    rows,
+    rowForest,
+    emit
+  })
 
-    const fixedOnRight = Array.from(
-      colgroup.getElementsByClassName('right')
-    ) as HTMLElement[]
+// 列
+const columnConfig = useColumns({
+  props,
+  createCheckColumn,
+  createSelectColumn,
+  colgroupRef
+})
 
-    fixedOnLeft.reduce((acc, col, colIndex) => {
-      const colNode = allColumns.value[colIndex]!
-      colNode.width = col.offsetWidth
-      colNode.style.left = acc
-      return acc + col.offsetWidth
-    }, 0)
+const { allColumns, updateStylesOfColumns } = columnConfig
 
-    const rightColumns = allColumns.value.slice(-fixedOnRight.length)
-
-    fixedOnRight.reduceRight((acc, col, colIndex) => {
-      const colNode = rightColumns[colIndex]!
-      colNode.width = col.offsetWidth
-      colNode.style.right = acc
-      return acc + col.offsetWidth
-    }, 0)
-  },
-  100,
-  true
-)
+// 在表格中提供的通用方法和属性
+const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
+  useTable({
+    props,
+    cls
+  })
 
 provide(TableDIKey, {
   tableProps: props,
+  tableSlots: slots,
   cls,
   rows,
   columnConfig,
@@ -207,6 +129,8 @@ const el = computed(() => {
 })
 
 defineExpose<_TableExposed>({
-  el
+  el,
+  clearChecked,
+  clearSelected
 })
 </script>

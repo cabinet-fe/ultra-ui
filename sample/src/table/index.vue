@@ -1,47 +1,39 @@
 <template>
   <div>
-    <CustomCard title="多级表头，表头冻结，列冻结">
+    <CustomCard title="使用方式">
+      <u-checkbox
+        v-model="state.checkable"
+        @update:model-value="state.selectable = false"
+      >
+        多选
+      </u-checkbox>
+      <u-checkbox
+        v-model="state.selectable"
+        @update:model-value="state.checkable = false"
+      >
+        单选
+      </u-checkbox>
+      <u-checkbox v-model="state.tree">树形结构</u-checkbox>
+      <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
+      <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-table
         :data="data"
         :columns="columns"
-        style="height: 300px"
-        tree
-        checkable
+        :style="{
+          height: fixedHeight ? '400px' : ''
+        }"
+        v-bind="state"
+        v-model:checked="checked"
+        v-model:selected="selected"
       >
-      </u-table>
-    </CustomCard>
-
-    <CustomCard title="表格插槽">
-      <u-table :data="data" :columns="columns">
-        <template #column:name="{ model, row }">
-          <u-input v-bind="model" />
+        <template #header:age="{ column }">
+          年龄 <u-checkbox v-model="column.value.summary">合计</u-checkbox>
         </template>
-        <template #column:age="{ model }">
-          <u-number-input v-bind="model" />
-        </template>
-        <template #column:sex="{ model }">
-          <u-radio-group
-            :items="[
-              { label: '男', value: '男' },
-              { label: '女', value: '女' }
-            ]"
-            v-bind="model"
-          />
-        </template>
-
-        <template #header:name="{ column }">
-          <span style="color: red">
-            {{ column.key }}
-          </span>
-        </template>
-      </u-table>
-    </CustomCard>
-
-    <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0)">
-        <template #column:name="{ rowData }">
-          {{ rowData.name }}
-        </template>
+        <!-- <template #foot="{ columns }">
+          <tr>
+            <td v-for="col of columns">{{ col.key }}</td>
+          </tr>
+        </template> -->
       </u-table>
     </CustomCard>
   </div>
@@ -49,15 +41,25 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { Tree } from 'cat-kit/fe'
 
-const columns = defineTableColumns(
+const state = shallowReactive({
+  checkable: false,
+  selectable: true,
+  tree: false
+})
+
+const fixedHeight = shallowRef(false)
+const multiLevelHeader = shallowRef(false)
+
+const _columns = defineTableColumns(
   [
     {
       name: '地址',
       key: 'address',
-      fixed: 'left',
+
       children: [
         { name: '省', key: 'province' },
         { name: '市', key: 'city' },
@@ -76,17 +78,38 @@ const columns = defineTableColumns(
     },
     { name: '性别', key: 'sex', fixed: 'right' },
     { name: '姓名', key: 'name', fixed: 'left' },
-    { name: '年龄', key: 'age', fixed: 'left' }
+    { name: '年龄', key: 'age', fixed: 'left', summary: true }
   ],
   { minWidth: 150 }
 )
 
+const columns = shallowRef<any[]>([])
+
+watch(
+  () => multiLevelHeader.value,
+  v => {
+    if (v) {
+      columns.value = _columns
+    } else {
+      let r: any[] = []
+
+      Tree.dft({ children: _columns }, item => {
+        if (item.children?.length) return
+        r.push(item)
+      })
+
+      columns.value = r
+    }
+  },
+  { immediate: true }
+)
+
 const data = shallowRef(
-  Array.from({ length: 10 }).map((_, index) => {
+  Array.from({ length: 0 }).map((_, index) => {
     return {
       sex: index % 2 === 0 ? '男' : '女',
       name: 'name1' + index,
-      age: Math.random() * 100,
+      age: Math.round(Math.random() * 100),
       province: '江苏省' + index,
       city: '苏州市' + index,
       area: '姑苏区' + index,
@@ -98,7 +121,7 @@ const data = shallowRef(
         {
           sex: '未知',
           name: 'name',
-          age: Math.random() * 100,
+          age: Math.round(Math.random() * 100),
           province: '江苏省',
           city: '苏州市',
           area: '姑苏区',
@@ -110,7 +133,7 @@ const data = shallowRef(
             {
               sex: '未知',
               name: 'name',
-              age: Math.random() * 100,
+              age: Math.round(Math.random() * 100),
               province: '江苏省',
               city: '苏州市',
               area: '姑苏区',
@@ -125,4 +148,7 @@ const data = shallowRef(
     }
   })
 )
+
+const checked = shallowRef([data.value[0]!, data.value[3]!])
+const selected = shallowRef(data.value[0]!)
 </script>

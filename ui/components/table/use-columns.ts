@@ -3,7 +3,7 @@ import type {
   TableColumnAlign,
   TableProps
 } from '@ui/types/components/table'
-import { Forest, Tree, TreeNode, last } from 'cat-kit/fe'
+import { Forest, Tree, TreeNode, debounce, last } from 'cat-kit/fe'
 import {
   computed,
   reactive,
@@ -127,18 +127,25 @@ export interface ColumnConfig {
   allColumns: ShallowRef<ColumnNode[]>
 
   /** 第一列 */
-  firstColumn: ShallowRef<ColumnNode | undefined>
+  expandColumn: ShallowRef<ColumnNode | undefined>
+
+  /**
+   * 更新列的样式
+   * @description 在尺寸变更时重新计算固定列的宽度和偏移量
+   */
+  updateStylesOfColumns: () => void
 }
 
 interface Options {
   props: TableProps
+  colgroupRef: ShallowRef<HTMLElement | undefined>
   /** 创建复选框 */
   createCheckColumn: () => TableColumn
   createSelectColumn: () => TableColumn
 }
 
 export function useColumns(options: Options): ColumnConfig {
-  const { props, createCheckColumn, createSelectColumn } = options
+  const { props, createCheckColumn, createSelectColumn, colgroupRef } = options
 
   const preColumns = computed<TableColumn[]>(() => {
     const { selectable, checkable } = props
@@ -189,7 +196,6 @@ export function useColumns(options: Options): ColumnConfig {
         [...fixedOnLeft, ...unfixed, ...fixedOnRight],
         ColumnNode
       )
-
       // 计算定位位置
 
       let leftAcc = 0
@@ -254,11 +260,11 @@ export function useColumns(options: Options): ColumnConfig {
   const columns = shallowRef<ColumnNode[]>([])
   const allColumns = shallowRef<ColumnNode[]>([])
 
-  const firstColumn = shallowRef<ColumnNode>()
+  const expandColumn = shallowRef<ColumnNode>()
 
   watch(
-    columnForest,
-    forest => {
+    [columnForest, () => props.tree],
+    ([forest]) => {
       const _columns: ColumnNode[] = []
 
       forest?.dft(node => {
@@ -270,19 +276,57 @@ export function useColumns(options: Options): ColumnConfig {
       allColumns.value = _columns
 
       if (props.tree) {
-        firstColumn.value = _columns[0]
+        expandColumn.value = _columns[0]
         columns.value = _columns.slice(1)
       } else {
         columns.value = _columns
-        firstColumn.value = undefined
+        expandColumn.value = undefined
       }
     },
     { immediate: true }
   )
 
+  /**
+   * 更新列的样式
+   * @description 在尺寸变更时重新计算固定列的宽度和偏移量
+   */
+  const updateStylesOfColumns = debounce(
+    () => {
+      const colgroup = colgroupRef.value
+
+      if (!colgroup) return
+
+      const fixedOnLeft = Array.from(
+        colgroup.getElementsByClassName('left')
+      ) as HTMLElement[]
+
+      const fixedOnRight = Array.from(
+        colgroup.getElementsByClassName('right')
+      ) as HTMLElement[]
+
+      fixedOnLeft.reduce((acc, col, colIndex) => {
+        const colNode = allColumns.value[colIndex]!
+        colNode.width = col.offsetWidth
+        colNode.style.left = acc
+        return acc + col.offsetWidth
+      }, 0)
+
+      const rightColumns = allColumns.value.slice(-fixedOnRight.length)
+
+      fixedOnRight.reduceRight((acc, col, colIndex) => {
+        const colNode = rightColumns[colIndex]!
+        colNode.width = col.offsetWidth
+        colNode.style.right = acc
+        return acc + col.offsetWidth
+      }, 0)
+    },
+    100,
+    true
+  )
+
   return {
     /** 第一列 */
-    firstColumn,
+    expandColumn,
 
     /** 所有列 */
     allColumns,
@@ -291,6 +335,8 @@ export function useColumns(options: Options): ColumnConfig {
     columns,
 
     /** 表格头的分层展示 */
-    headers
+    headers,
+
+    updateStylesOfColumns
   }
 }

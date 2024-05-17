@@ -1,7 +1,8 @@
-import type { InjectionKey, ShallowRef, VNode } from 'vue'
+import type { InjectionKey, ShallowRef, Slots, VNode } from 'vue'
 import type {
   TableProps,
-  TableColumnSlotsScope
+  TableColumnSlotsScope,
+  TableColumnRenderContext
 } from '@ui/types/components/table'
 import type { BEM } from '@ui/utils'
 import type { TableRow } from './use-rows'
@@ -11,6 +12,8 @@ import type { EventHandlers } from './use-events'
 export const TableDIKey: InjectionKey<{
   /** 表格属性 */
   tableProps: TableProps
+  /** 表格插槽 */
+  tableSlots: Slots
   /** 类 */
   cls: BEM<'table'>
   /** 行 */
@@ -20,7 +23,7 @@ export const TableDIKey: InjectionKey<{
   /** 事件处理方法 */
   eventHandlers: EventHandlers<any>
   /** 表格列插槽node */
-  getColumnSlotsNode: (ctx: TableColumnSlotsScope) => VNode[] | undefined | VNode | string
+  getColumnSlotsNode: (ctx: TableColumnSlotsScope | TableColumnRenderContext) => VNode[] | undefined | VNode | string
   /** 表头插槽node */
   getHeaderSlotsNode: (ctx: {
     column: ColumnNode
@@ -33,5 +36,5 @@ export const TableDIKey: InjectionKey<{
   getCellClass: (column: ColumnNode) => string
 
   /** 获取单元格上下文 */
-  getCellCtx: (row: TableRow, column: ColumnNode) => TableColumnSlotsScope
+  getCellCtx: (row: TableRow, column: ColumnNode) => TableColumnSlotsScope | TableColumnRenderContext
 }> = Symbol('TableDIKey')
