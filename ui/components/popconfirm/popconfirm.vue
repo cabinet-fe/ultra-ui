@@ -7,7 +7,6 @@
     ref="tipRef"
   >
     <div @mouseenter="handleMouseEnter">
-  {{ direction }}
       <slot name="reference" />
     </div>
 
