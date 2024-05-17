@@ -3,8 +3,8 @@
     <UTableRow v-for="row of rows" :row="row" :key="row.uid" />
 
     <tr v-if="!rows.length" :class="cls.e('row')">
-      <td :colspan="allColumns.length" :class="[cls.e('cell'), cls.e('empty')]">
-        暂无数据
+      <td :colspan="allColumns.length" :class="[cls.e('cell')]">
+        <UEmpty :class="cls.e('empty')" />
       </td>
     </tr>
   </tbody>
@@ -14,6 +14,7 @@
 import { inject } from 'vue'
 import { TableDIKey } from './di'
 import UTableRow from './table-row.vue'
+import { UEmpty } from '../empty'
 
 defineOptions({
   name: 'TableBody'

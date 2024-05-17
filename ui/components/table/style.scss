@@ -86,7 +86,9 @@ $root-name: table;
   }
 
   @include m.e(empty) {
-    text-align: center;
+    position: sticky;
+    left: 50%;
+    transform: translate(-50%);
   }
 
   @include m.e(foot) {

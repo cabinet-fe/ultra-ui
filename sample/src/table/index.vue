@@ -16,6 +16,7 @@
       <u-checkbox v-model="state.tree">树形结构</u-checkbox>
       <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
+      <u-checkbox v-model="showData">显示数据</u-checkbox>
       <u-table
         :data="data"
         :columns="columns"
@@ -53,6 +54,7 @@ const state = shallowReactive({
 
 const fixedHeight = shallowRef(false)
 const multiLevelHeader = shallowRef(false)
+const showData = shallowRef(true)
 
 const _columns = defineTableColumns(
   [
@@ -104,50 +106,58 @@ watch(
   { immediate: true }
 )
 
-const data = shallowRef(
-  Array.from({ length: 0 }).map((_, index) => {
-    return {
-      sex: index % 2 === 0 ? '男' : '女',
-      name: 'name1' + index,
-      age: Math.round(Math.random() * 100),
-      province: '江苏省' + index,
-      city: '苏州市' + index,
-      area: '姑苏区' + index,
-      street: '金昌街道' + index,
-      community: '彩香花园' + index,
-      b: 'aa',
-      a: 'aa',
-      children: [
-        {
-          sex: '未知',
-          name: 'name',
-          age: Math.round(Math.random() * 100),
-          province: '江苏省',
-          city: '苏州市',
-          area: '姑苏区',
-          street: '金昌街道',
-          community: '彩香花园',
-          b: 'aa',
-          a: 'aa',
-          children: [
-            {
-              sex: '未知',
-              name: 'name',
-              age: Math.round(Math.random() * 100),
-              province: '江苏省',
-              city: '苏州市',
-              area: '姑苏区',
-              street: '金昌街道',
-              community: '彩香花园',
-              b: 'aa',
-              a: 'aa'
-            }
-          ]
-        }
-      ]
-    }
-  })
-)
+const _data = Array.from({ length: 15 }).map((_, index) => {
+  return {
+    sex: index % 2 === 0 ? '男' : '女',
+    name: 'name1' + index,
+    age: Math.round(Math.random() * 100),
+    province: '江苏省' + index,
+    city: '苏州市' + index,
+    area: '姑苏区' + index,
+    street: '金昌街道' + index,
+    community: '彩香花园' + index,
+    b: 'aa',
+    a: 'aa',
+    children: [
+      {
+        sex: '未知',
+        name: 'name',
+        age: Math.round(Math.random() * 100),
+        province: '江苏省',
+        city: '苏州市',
+        area: '姑苏区',
+        street: '金昌街道',
+        community: '彩香花园',
+        b: 'aa',
+        a: 'aa',
+        children: [
+          {
+            sex: '未知',
+            name: 'name',
+            age: Math.round(Math.random() * 100),
+            province: '江苏省',
+            city: '苏州市',
+            area: '姑苏区',
+            street: '金昌街道',
+            community: '彩香花园',
+            b: 'aa',
+            a: 'aa'
+          }
+        ]
+      }
+    ]
+  }
+})
+
+const data = shallowRef(_data)
+
+watch(showData, v => {
+  if (v) {
+    data.value = _data
+  } else {
+    data.value = []
+  }
+})
 
 const checked = shallowRef([data.value[0]!, data.value[3]!])
 const selected = shallowRef(data.value[0]!)
