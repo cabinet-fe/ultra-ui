@@ -1,5 +1,9 @@
 <template>
   <div>
+    <u-menu :menus="menus">
+
+    </u-menu>
+
     <div class="config">
       <u-input v-model="config.index"></u-input>
       <u-checkbox v-model="config.open">open sub menu</u-checkbox>

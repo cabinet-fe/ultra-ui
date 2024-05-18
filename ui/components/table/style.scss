@@ -39,6 +39,12 @@ $root-name: table;
         }
       }
     }
+
+    @include m.is(current) {
+      @include m.bem($root-name, cell) {
+        background-color: fn.use-var(color, primary, 'light-7');
+      }
+    }
   }
 
   @include m.e(expand-toggle) {

@@ -1,7 +1,7 @@
 <template>
   <tr
-    :class="[cls.e('row'), bem.is('expanded', row.expanded)]"
-    @click="eventHandlers.handleRowClick(row)"
+    :class="[cls.e('row'), bem.is('expanded', row.expanded), bem.is('current', row.isCurrent)]"
+    @click="handleRowClick(row)"
   >
     <UTabelCell
       v-if="expandColumn"
@@ -69,7 +69,7 @@ const {
   getColumnSlotsNode,
   toggleTreeRowExpand,
   getCellCtx,
-  eventHandlers
+  handleRowClick
 } = inject(TableDIKey)!
 
 const { columns, expandColumn } = columnConfig

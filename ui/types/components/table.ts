@@ -97,6 +97,8 @@ export interface TableRow<
   expanded: boolean
   /** 是否选中 */
   checked: boolean
+  /** 是否为当前点击的行 */
+  isCurrent: boolean
   /** id */
   uid: number
   indexes: number[]
@@ -148,13 +150,15 @@ export interface TableColumnSlotsScope extends TableColumnRenderContext {
 }
 
 /** 表格组件定义的事件 */
-export interface TableEmits<DataItem extends Record<string, any>> {
+export interface TableEmits<DataItem extends Record<string, any> = Record<string, any>> {
   /** 多选 */
   (e: 'update:checked', value: DataItem[]): void
   /** 单选 */
   (e: 'update:selected', value: DataItem | undefined): void
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
+  /** 当前行变更 */
+  (e: 'current-row-change', row?: TableRow<DataItem>): void
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */

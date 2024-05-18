@@ -11,8 +11,6 @@ $root-name: form-item;
   @include m.size using ($size) {
     @include m.bem($root-name, label) {
       min-height: fn.use-var(form-component-height, $size);
-
-      font-size: fn.use-var(form-component-font-size, $size);
     }
 
     @include m.bem($root-name, content) {

@@ -1,7 +1,8 @@
-import { useSlots, type VNode } from 'vue'
+import { shallowRef, useSlots, type VNode } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
+  TableEmits,
   TableProps
 } from '@ui/types/components/table'
 import type { ColumnNode } from './use-columns'
@@ -9,13 +10,14 @@ import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
 import type { TableRow } from './use-rows'
 
-interface Options {
-  props: TableProps
+interface Options<DataItem extends Record<string, any> = Record<string, any>> {
+  props: TableProps<DataItem>
+  emit: TableEmits<DataItem>
   cls: BEM<'table'>
 }
 
 export function useTable(options: Options) {
-  const { props, cls } = options
+  const { props, cls, emit } = options
 
   const slots = useSlots()
 
@@ -76,6 +78,23 @@ export function useTable(options: Options) {
     return ctx
   }
 
+  const currentRow = shallowRef<TableRow>()
+
+  const handleRowClick = (row: TableRow) => {
+    if (currentRow.value) {
+      currentRow.value.isCurrent = false
+    }
+    if (row === currentRow.value) {
+      currentRow.value = undefined
+    } else {
+      currentRow.value = row
+      row.isCurrent = true
+    }
+
+    emit('row-click', row)
+    emit('current-row-change', currentRow.value)
+  }
+
   return {
     /**
      * 获取列插槽VNode
@@ -97,6 +116,9 @@ export function useTable(options: Options) {
      * @param row 行
      * @param column 列
      */
-    getCellCtx
+    getCellCtx,
+
+    /** 行点击 */
+    handleRowClick
   }
 }

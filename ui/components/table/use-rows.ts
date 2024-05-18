@@ -24,6 +24,9 @@ export class TableRow<
   /** 是否展开 */
   expanded = false
 
+  /** 是否为当前的点击行 */
+  isCurrent = false
+
   /** 是否选中 */
   checked = false
 

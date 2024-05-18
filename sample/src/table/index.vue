@@ -161,4 +161,5 @@ watch(showData, v => {
 
 const checked = shallowRef([data.value[0]!, data.value[3]!])
 const selected = shallowRef(data.value[0]!)
+
 </script>

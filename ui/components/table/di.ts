@@ -7,7 +7,6 @@ import type {
 import type { BEM } from '@ui/utils'
 import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
-import type { EventHandlers } from './use-events'
 
 export const TableDIKey: InjectionKey<{
   /** 表格属性 */
@@ -21,9 +20,11 @@ export const TableDIKey: InjectionKey<{
   /** 结构化列 */
   columnConfig: ColumnConfig
   /** 事件处理方法 */
-  eventHandlers: EventHandlers<any>
+  handleRowClick: (row: TableRow) => void
   /** 表格列插槽node */
-  getColumnSlotsNode: (ctx: TableColumnSlotsScope | TableColumnRenderContext) => VNode[] | undefined | VNode | string
+  getColumnSlotsNode: (
+    ctx: TableColumnSlotsScope | TableColumnRenderContext
+  ) => VNode[] | undefined | VNode | string
   /** 表头插槽node */
   getHeaderSlotsNode: (ctx: {
     column: ColumnNode
@@ -36,5 +37,8 @@ export const TableDIKey: InjectionKey<{
   getCellClass: (column: ColumnNode) => string
 
   /** 获取单元格上下文 */
-  getCellCtx: (row: TableRow, column: ColumnNode) => TableColumnSlotsScope | TableColumnRenderContext
+  getCellCtx: (
+    row: TableRow,
+    column: ColumnNode
+  ) => TableColumnSlotsScope | TableColumnRenderContext
 }> = Symbol('TableDIKey')

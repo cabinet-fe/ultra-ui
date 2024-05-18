@@ -4,10 +4,7 @@
     ref="scrollRef"
     @resize="updateStylesOfColumns"
   >
-    <table
-      :class="cls.e('wrap')"
-      @mouseenter.capture="eventHandlers.handleMouseEnter"
-    >
+    <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
         <col
           v-for="column of allColumns"
@@ -46,7 +43,6 @@ import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { useEvents } from './use-events'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
@@ -59,7 +55,7 @@ defineOptions({
 const props = withDefaults(defineProps<TableProps<DataItem>>(), {
   tree: false
 })
-const emit = defineEmits<TableEmits<DataItem>>()
+const emit = defineEmits<TableEmits>()
 
 const slots = defineSlots<{
   [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
@@ -74,9 +70,6 @@ const { size } = useFallbackProps([props], {
 })
 
 const colgroupRef = shallowRef<HTMLElement>()
-
-// 事件
-const eventHandlers = useEvents({ emit })
 
 // 行
 const { rows, toggleTreeRowExpand, rowForest } = useRows({ props })
@@ -102,10 +95,11 @@ const columnConfig = useColumns({
 const { allColumns, updateStylesOfColumns } = columnConfig
 
 // 在表格中提供的通用方法和属性
-const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
+const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx, handleRowClick } =
   useTable({
     props,
-    cls
+    cls,
+    emit
   })
 
 provide(TableDIKey, {
@@ -114,7 +108,7 @@ provide(TableDIKey, {
   cls,
   rows,
   columnConfig,
-  eventHandlers,
+  handleRowClick,
   getColumnSlotsNode,
   getHeaderSlotsNode,
   getCellClass,
