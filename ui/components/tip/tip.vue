@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import type { TipProps,_TipExposed} from "@ui/types/components/tip"
-import { bem, nextFrame, setStyles } from "@ui/utils"
+import { bem, getScrollParents, nextFrame, setStyles } from "@ui/utils"
 import {
   shallowRef,
   nextTick,
@@ -43,7 +43,7 @@ import {
   calculateMaxWidth,
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
-  isOverflown,
+  isOverflown
 } from "./calculate"
 import type { ScrollDirection } from "./type"
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
@@ -266,6 +266,8 @@ const popup = (scrollDirection?: ScrollDirection) => {
       ...props.customStyle,
     }
     // 判断元素超出父元素scrollDom隐藏弹窗
+    console.log(isOverflown(tipRefDom, scrollDom.value!));
+    
     if (isOverflown(tipRefDom, scrollDom.value!)) {
       setStyles(tipContentRefDom!, {
         ...dynamicStyle.value,
@@ -289,7 +291,8 @@ const addListener = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   if (!tipRefDom) return
 
-  scrollDom.value = tipRefDom.closest(".u-scroll")!.childNodes[1] as HTMLElement
+  scrollDom.value = getScrollParents(tipRefDom)[0]
+  
   if (!scrollDom.value) return
   scrollDom.value.addEventListener("scroll", scrollEvent)
 }

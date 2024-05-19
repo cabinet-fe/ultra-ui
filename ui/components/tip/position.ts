@@ -120,8 +120,10 @@ function countPosition({
 }
 
 // 重构后的样式设置函数
-const setTransform = (transform: string): void => {
+const setTransform = (transform: string,left?:string,top?:string): void => {
   dynamicCss.value.transform = transform
+  // dynamicCss.value.left = left
+  // dynamicCss.value.top = top
 }
 /**
  * tip靠上计算方法
@@ -161,10 +163,10 @@ function topCount(
   } else if (position === "top") {
     // tip提示靠上居中位置
     if (clientWidth === window.innerWidth - gap * 2) {
-      setTransform(`translate(${gap}px, ${topPositionNumber}px)`)
+      setTransform(`translate(${gap}px, ${topPositionNumber}px)`,`translate(${gap}px`, `${topPositionNumber}px)`)
     } else {
       setTransform(
-        `translate(${x - (clientWidth - elementWidth) / 2}px, ${topPositionNumber}px)`
+        `translate(${x - (clientWidth - elementWidth) / 2}px, ${topPositionNumber}px)`,`${x - (clientWidth - elementWidth) / 2}px`,`${topPositionNumber}px`
       )
     }
   } else if (position === "top-end") {
