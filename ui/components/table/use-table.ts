@@ -81,6 +81,10 @@ export function useTable(options: Options) {
   const currentRow = shallowRef<TableRow>()
 
   const handleRowClick = (row: TableRow) => {
+    emit('row-click', row)
+
+    if (!props.highlightCurrent) return
+
     if (currentRow.value) {
       currentRow.value.isCurrent = false
     }
@@ -91,7 +95,7 @@ export function useTable(options: Options) {
       row.isCurrent = true
     }
 
-    emit('row-click', row)
+
     emit('current-row-change', currentRow.value)
   }
 

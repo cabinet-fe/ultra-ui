@@ -88,6 +88,8 @@ export interface TableProps<
     rowspan: number
     colspan: number
   }
+  /** 高亮当前选中行 */
+  highlightCurrent?: boolean
 }
 
 export interface TableRow<
