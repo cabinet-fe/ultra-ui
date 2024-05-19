@@ -50,7 +50,10 @@ const colsArr = ref<string[]>([])
 
 watchEffect(() => {
   const { cols } = props
-  if (!cols) return
+  if (!cols) {
+    colsArr.value = []
+    return
+  }
   colsArr.value = typeof cols === 'string' ? cols.split(' ') : cols
 })
 
