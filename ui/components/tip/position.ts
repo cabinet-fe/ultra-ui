@@ -45,7 +45,7 @@ function countPosition({
   elementHeight: number
   tipRefDom: HTMLElement
   tipContentRefDom: HTMLElement
-  scrollDirection: ScrollDirection
+  scrollDirection?: ScrollDirection
   screenSize: { width: number; height: number }
   scrollDom: HTMLElement
   gap: number
