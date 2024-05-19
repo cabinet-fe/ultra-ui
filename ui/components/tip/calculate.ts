@@ -31,6 +31,7 @@ function calculateLeftMaxWidth(gap, screenWidth, rectWidth, rectX) {
  * @returns 如果元素超出父级元素，则返回true；否则返回false
  */
 function isOverflown(tipRefDom: HTMLElement, parentDom: HTMLElement) {
+  if(!parentDom) return false
   // 获取元素的边界位置
   const tipRect = tipRefDom.getBoundingClientRect()
   // 获取父元素的边界位置
