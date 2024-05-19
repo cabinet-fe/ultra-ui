@@ -223,6 +223,7 @@ export function useCheck(options: Options) {
   }
 
   const checkboxClass = cls.e('checkbox')
+  const checkboxClick = (e: Event) => e.stopPropagation()
 
   function createCheckColumn(): TableColumn {
     const width = getCheckboxColumnWidth()
@@ -235,7 +236,6 @@ export function useCheck(options: Options) {
       fixed: 'left',
       nameRender() {
         return createVNode(UCheckbox, {
-
           modelValue: allChecked.value,
           'onUpdate:modelValue': handleCheckAll
         })
@@ -247,7 +247,8 @@ export function useCheck(options: Options) {
           modelValue: row.checked,
           'onUpdate:modelValue': (val: boolean) => {
             handleCheckRow(row, val)
-          }
+          },
+          onClick: checkboxClick
         })
       }
     }
@@ -281,7 +282,8 @@ export function useCheck(options: Options) {
           modelValue: row.checked,
           'onUpdate:modelValue': (val: boolean) => {
             handleSelect(row, val)
-          }
+          },
+          onClick: checkboxClick
         })
       }
     }

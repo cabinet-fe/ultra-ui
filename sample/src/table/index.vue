@@ -17,6 +17,7 @@
       <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-checkbox v-model="showData">显示数据</u-checkbox>
+      <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
       <u-table
         :data="data"
         :columns="columns"
@@ -49,7 +50,8 @@ import { Tree } from 'cat-kit/fe'
 const state = shallowReactive({
   checkable: false,
   selectable: true,
-  tree: false
+  tree: false,
+  highlightCurrent: false
 })
 
 const fixedHeight = shallowRef(false)

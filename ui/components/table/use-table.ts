@@ -95,7 +95,6 @@ export function useTable(options: Options) {
       row.isCurrent = true
     }
 
-
     emit('current-row-change', currentRow.value)
   }
 
