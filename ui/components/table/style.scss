@@ -18,6 +18,10 @@ $root-name: table;
     }
   }
 
+  @include m.e(checkbox) {
+    height: 20px;
+  }
+
   @include m.e(wrap) {
     width: 100%;
     border-spacing: 0;
@@ -110,6 +114,7 @@ $root-name: table;
   @include m.e(cell) {
     background-color: fn.use-var(bg-color, top);
     word-break: break-all;
+    line-height: 1;
 
     @each $position in (left, center, right) {
       @include m.is($position) {

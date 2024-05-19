@@ -81,7 +81,8 @@ const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
     props,
     rows,
     rowForest,
-    emit
+    emit,
+    cls
   })
 
 // 列
@@ -95,12 +96,17 @@ const columnConfig = useColumns({
 const { allColumns, updateStylesOfColumns } = columnConfig
 
 // 在表格中提供的通用方法和属性
-const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx, handleRowClick } =
-  useTable({
-    props,
-    cls,
-    emit
-  })
+const {
+  getColumnSlotsNode,
+  getHeaderSlotsNode,
+  getCellClass,
+  getCellCtx,
+  handleRowClick
+} = useTable({
+  props,
+  cls,
+  emit
+})
 
 provide(TableDIKey, {
   tableProps: props,

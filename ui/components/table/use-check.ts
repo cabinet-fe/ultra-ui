@@ -18,6 +18,7 @@ import type {
 } from '@ui/types/components/table'
 import type { Forest } from 'cat-kit/fe'
 import type { ComponentSize } from '@ui/types/component-common'
+import type { BEM } from '@ui/utils'
 
 interface Options {
   rows: ShallowRef<TableRow[] | undefined>
@@ -25,10 +26,11 @@ interface Options {
   props: TableProps
   emit: TableEmits<any>
   size: ComputedRef<ComponentSize>
+  cls: BEM<'table'>
 }
 
 export function useCheck(options: Options) {
-  const { rows, rowForest, props, emit, size } = options
+  const { rows, rowForest, props, emit, size, cls } = options
 
   const checkedRows = shallowReactive(new Set<TableRow>())
   const selectedRow = shallowRef<TableRow>()
@@ -220,6 +222,8 @@ export function useCheck(options: Options) {
     return size.value === 'large' ? 80 : 60
   }
 
+  const checkboxClass = cls.e('checkbox')
+
   function createCheckColumn(): TableColumn {
     const width = getCheckboxColumnWidth()
     return {
@@ -231,6 +235,7 @@ export function useCheck(options: Options) {
       fixed: 'left',
       nameRender() {
         return createVNode(UCheckbox, {
+
           modelValue: allChecked.value,
           'onUpdate:modelValue': handleCheckAll
         })
@@ -238,6 +243,7 @@ export function useCheck(options: Options) {
       render(ctx) {
         const { row } = ctx
         return createVNode(UCheckbox, {
+          class: checkboxClass,
           modelValue: row.checked,
           'onUpdate:modelValue': (val: boolean) => {
             handleCheckRow(row, val)
@@ -268,8 +274,10 @@ export function useCheck(options: Options) {
       width: props.tree ? undefined : width,
       align: props.tree ? 'left' : 'center',
       fixed: 'left',
+
       render({ row }) {
         return createVNode(UCheckbox, {
+          class: checkboxClass,
           modelValue: row.checked,
           'onUpdate:modelValue': (val: boolean) => {
             handleSelect(row, val)
