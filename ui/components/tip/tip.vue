@@ -33,7 +33,7 @@ import {
   computed,
   useSlots,
   onBeforeUnmount,
-  ref
+  ref,
 } from "vue"
 import calcPosition from "./position"
 import { vClickOutside } from "@ui/directives"
@@ -119,20 +119,23 @@ const handleMouseLeave = () => {
   if (!props.mouseLeaveClose) return
   isMouseInTip.value = false
   if (props.trigger !== "hover") return
-  animation.value = true
   clearTimeout(timers.get("timerMouseLeave"))
   timers.set(
     "timerMouseLeave",
     setTimeout(() => {
-      if (!isMouseInTip.value) {
-        removeAllListeners()
-      }
-    }, 500)
+      animation.value = true
+      nextFrame(() => {
+        if (!isMouseInTip.value) {
+          removeAllListeners()
+        }
+      })
+    }, 200)
   )
 }
 
 /**鼠标移入弹窗内容区域 */
 const handleContentMouseEnter = () => {
+  clearTimeout(timers.get("timerMouseLeave"))
   isMouseInTip.value = true
   animation.value = false
   if (!props.mouseEnterable) return
@@ -149,7 +152,10 @@ const handleContentMouseLeave = () => {
     "timerMouseLeave",
     setTimeout(() => {
       if (!isMouseInTip.value) {
-        removeAllListeners()
+        animation.value = true
+        nextFrame(() => {
+          removeAllListeners()
+        })
       }
     }, 500)
   )
