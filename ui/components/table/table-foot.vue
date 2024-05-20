@@ -28,12 +28,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, type VNode } from 'vue'
+import { computed, inject } from 'vue'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './use-columns'
 import { n } from 'cat-kit/fe'
 import { UNodeRender } from '../node-render'
 import { withUnit } from '@ui/utils'
+import type { RenderReturn } from '@ui/types/helper'
 
 defineOptions({
   name: 'TableFoot'
@@ -60,9 +61,7 @@ function computeSummary(key: string) {
   return sum
 }
 
-function getColumnSummaryNode(
-  column: ColumnNode
-): null | undefined | string | number | VNode | VNode[] {
+function getColumnSummaryNode(column: ColumnNode): RenderReturn {
   const { summary } = column.value
 
   if (!summary) return null

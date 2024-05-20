@@ -1,4 +1,4 @@
-import { shallowRef, useSlots, watch, type VNode } from 'vue'
+import { shallowRef, useSlots, watch } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
@@ -9,6 +9,7 @@ import type { ColumnNode } from './use-columns'
 import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
 import type { TableRow } from './use-rows'
+import type { RenderReturn } from '@ui/types/helper'
 
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {
   props: TableProps<DataItem>
@@ -23,7 +24,7 @@ export function useTable(options: Options) {
 
   const getColumnSlotsNode = (
     ctx: TableColumnSlotsScope | TableColumnRenderContext
-  ): VNode[] | VNode | string | null | number | undefined => {
+  ): RenderReturn => {
     const column = ctx.column.value
 
     const { render, key } = column
@@ -36,9 +37,7 @@ export function useTable(options: Options) {
     return ctx.val
   }
 
-  const getHeaderSlotsNode = (ctx: {
-    column: ColumnNode
-  }): VNode[] | undefined | string | VNode => {
+  const getHeaderSlotsNode = (ctx: { column: ColumnNode }): RenderReturn => {
     const { column } = ctx
     return (
       column.value.nameRender?.(ctx) ??
@@ -93,7 +92,7 @@ export function useTable(options: Options) {
     }
   )
 
-  const handleRowClick = (row: TableRow) => {
+  const handleRowClick = (row: TableRow, ev: Event) => {
     emit('row-click', row)
 
     if (!props.highlightCurrent) return

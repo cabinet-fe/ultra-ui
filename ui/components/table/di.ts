@@ -1,4 +1,4 @@
-import type { InjectionKey, ShallowRef, Slots, VNode } from 'vue'
+import type { InjectionKey, ShallowRef, Slots } from 'vue'
 import type {
   TableProps,
   TableColumnSlotsScope,
@@ -7,6 +7,7 @@ import type {
 import type { BEM } from '@ui/utils'
 import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
+import type { RenderReturn } from '@ui/types/helper'
 
 export const TableDIKey: InjectionKey<{
   /** 表格属性 */
@@ -24,11 +25,9 @@ export const TableDIKey: InjectionKey<{
   /** 表格列插槽node */
   getColumnSlotsNode: (
     ctx: TableColumnSlotsScope | TableColumnRenderContext
-  ) => VNode[] | undefined | VNode | string
+  ) => RenderReturn
   /** 表头插槽node */
-  getHeaderSlotsNode: (ctx: {
-    column: ColumnNode
-  }) => VNode[] | string | undefined | VNode
+  getHeaderSlotsNode: (ctx: { column: ColumnNode }) => RenderReturn
 
   /** 展开/隐藏子节点 */
   toggleTreeRowExpand: (row: TableRow<Record<string, any>>) => void

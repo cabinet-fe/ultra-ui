@@ -14,8 +14,8 @@
         v-model:checked="checked"
       >
         <template #column:__action__="{ row }">
-          <u-button type="primary" text size="small">下方插入</u-button>
-          <u-button type="primary" text size="small">下方插入</u-button>
+          <u-button type="primary" text size="small" @click.stop>下方插入</u-button>
+          <u-button type="primary" text size="small" @click.stop>下方插入</u-button>
         </template>
       </u-table>
 
@@ -87,7 +87,6 @@ defineOptions({
 const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   cols: () => ['1fr', '400px']
 })
-
 
 const tableProps = computed(() => {
   return omit(props, ['model', 'columns', 'cols', 'disabled'])
