@@ -1,5 +1,7 @@
 export * from './badge'
 
+export * from './batch-edit'
+
 export * from './button'
 
 export * from './calendar'

@@ -1,0 +1,32 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: batch-edit;
+
+@include m.b($root-name) {
+  border-radius: fn.use-var(radius);
+
+  @include m.e(table, form-wrap) {
+    flex-grow: 1;
+  }
+
+  @include m.e(list, form) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(form) {
+    background-color: fn.use-var(bg-color, bottom);
+
+    &-wrap {
+      padding: 8px 12px;
+    }
+  }
+
+  @include m.e(action) {
+    @include m.flex($justify: flex-end);
+    gap: fn.use-var(gap, default);
+    flex-shrink: 0;
+  }
+}

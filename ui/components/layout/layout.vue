@@ -4,7 +4,7 @@
 
     <!-- 竖向调节 -->
     <ULayoutResizer
-      v-for="(offset, index) in verticalResizerOffsets"
+      v-for="(offset, index) in resizerOffsets"
       :key="index"
       :offset="offset"
       direction="vertical"
@@ -14,11 +14,11 @@
     />
 
     <!-- 横向调节 -->
-    <ULayoutResizer
+    <!-- <ULayoutResizer
       v-for="item in horizontalResizerList"
       :key="item"
       direction="horizontal"
-    />
+    /> -->
   </component>
 </template>
 
@@ -31,7 +31,9 @@ import {
   type CSSProperties,
   provide,
   watchEffect,
-  ref
+  ref,
+  watch,
+  nextTick
 } from 'vue'
 import ULayoutResizer from './layout-resizer.vue'
 import { LayoutDIKey } from './di'
@@ -46,59 +48,69 @@ const props = withDefaults(defineProps<LayoutProps>(), {
 
 const cls = bem('layout')
 
-const colsArr = ref<string[]>([])
+const templateCols = ref<string[]>([])
 
 watchEffect(() => {
   const { cols } = props
   if (!cols) {
-    colsArr.value = []
+    templateCols.value = []
     return
   }
-  colsArr.value = typeof cols === 'string' ? cols.split(' ') : cols
+  templateCols.value = typeof cols === 'string' ? cols.split(' ') : cols
 })
 
 const style = computed<CSSProperties>(() => {
   const { rows, gap, resizable } = props
   return {
-    gridTemplateColumns: colsArr.value.join(' '),
+    gridTemplateColumns: templateCols.value.join(' '),
     gridTemplateRows: rows
       ? typeof rows === 'string'
         ? rows
         : rows.join(' ')
       : '',
-    columnGap: resizable ? '6px' : withUnit(gap, 'px')
+    columnGap: resizable ? '10px' : withUnit(gap, 'px')
   }
 })
 
 const containerRef = shallowRef<HTMLElement>()
 
-const verticalResizerOffsets = computed<number[]>(() => {
-  if (!containerRef.value || !props.resizable) return []
+const resizerOffsets = shallowRef<number[]>([])
 
-  return colsArr.value.slice(0, -1).map((_, index) => {
-    const dom = containerRef.value?.children[index] as HTMLElement
-    if (!dom) return 0
-    return dom.offsetLeft + dom.offsetWidth
-  })
-})
-const horizontalResizerList = []
+watch(
+  [() => props.resizable, containerRef, () => props.cols],
+  ([resizable, container, cols]) => {
+    if (!resizable || !container || !cols) {
+      return resizerOffsets.value = []
+    }
+
+    nextTick(() => {
+      resizerOffsets.value = templateCols.value.slice(0, -1).map((_, index) => {
+        const dom = container.children[index] as HTMLElement
+        if (!dom) return 0
+        return dom.offsetLeft + dom.offsetWidth
+      })
+    })
+  },
+  { immediate: true }
+)
+
+// const horizontalResizerList = []
 
 const resizing = shallowRef(false)
 
 let prevSize = '0'
 let nextSize = '0'
 const handleStartResize = (index: number) => {
-  prevSize = colsArr.value[index]!
-  nextSize = colsArr.value[index + 1]!
+  prevSize = templateCols.value[index]!
+  nextSize = templateCols.value[index + 1]!
   resizing.value = true
 }
 const handleResize = (offset: number, index: number) => {
-
   if (prevSize?.endsWith('px')) {
-    colsArr.value[index] = `${parseInt(prevSize) + offset}px`
+    templateCols.value[index] = `${parseInt(prevSize) + offset}px`
   }
   if (nextSize?.endsWith('px')) {
-    colsArr.value[index + 1] = `${parseInt(nextSize) - offset}px`
+    templateCols.value[index + 1] = `${parseInt(nextSize) - offset}px`
   }
 }
 

@@ -54,7 +54,7 @@ const state = shallowReactive({
   highlightCurrent: false
 })
 
-const fixedHeight = shallowRef(false)
+const fixedHeight = shallowRef(true)
 const multiLevelHeader = shallowRef(false)
 const showData = shallowRef(true)
 
@@ -108,10 +108,10 @@ watch(
   { immediate: true }
 )
 
-const _data = Array.from({ length: 15 }).map((_, index) => {
+const _data = Array.from({ length: 10 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
-    name: 'name1' + index,
+    name: 'name' + index,
     age: Math.round(Math.random() * 100),
     province: '江苏省' + index,
     city: '苏州市' + index,

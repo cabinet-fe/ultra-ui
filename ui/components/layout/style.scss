@@ -8,16 +8,20 @@
 
   @include m.e(resizer) {
     position: absolute;
-    background-color: red;
-    // cursor: grabbing;
+    left: 0;
+    top: 0;
+    cursor: col-resize;
+    background-color: #eee;
+    @include m.flex($align: center, $justify: center);
+    box-shadow: fn.use-var(shadow);
 
     @include m.is(vertical) {
       height: 100%;
-      width: 6px;
+      width: 10px;
     }
-    @include m.is(horizontal) {
-      height: 6px;
-      width: 100%;
-    }
+    // @include m.is(horizontal) {
+    //   height: 6px;
+    //   width: 100%;
+    // }
   }
 }

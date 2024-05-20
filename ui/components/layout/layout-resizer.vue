@@ -2,11 +2,13 @@
   <div
     :class="className"
     :style="{
-      left: direction === 'vertical' ? withUnit(offset ?? 0, 'px') : '0px',
-      top: direction === 'horizontal' ? withUnit(offset ?? 0, 'px') : '0px'
+      transform: `translate(${direction === 'vertical' ? withUnit(offset ?? 0, 'px') : '0px'})`
+      // top: direction === 'horizontal' ? withUnit(offset ?? 0, 'px') : '0px'
     }"
     ref="resizerRef"
-  ></div>
+  >
+    <u-icon :size="14"> <Move /> </u-icon>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -14,6 +16,8 @@ import { computed, inject, shallowRef } from 'vue'
 import { LayoutDIKey } from './di'
 import { bem, withUnit } from '@ui/utils'
 import { useDrag } from '@ui/compositions'
+import { Move } from 'icon-ultra'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'LayoutResizer'

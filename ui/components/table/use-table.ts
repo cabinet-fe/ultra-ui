@@ -1,4 +1,4 @@
-import { shallowRef, useSlots, type VNode } from 'vue'
+import { shallowRef, useSlots, watch, type VNode } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
@@ -23,15 +23,17 @@ export function useTable(options: Options) {
 
   const getColumnSlotsNode = (
     ctx: TableColumnSlotsScope | TableColumnRenderContext
-  ): VNode[] | undefined => {
-    const { column } = ctx
+  ): VNode[] | VNode | string | null | number | undefined => {
+    const column = ctx.column.value
 
-    const result =
-      column.value.render?.(ctx) ??
-      (props.slots ?? slots)[`column:${column.key}`]?.(ctx) ??
-      ctx.val
+    const { render, key } = column
 
-    return result
+    if (render) return render(ctx)
+
+    const slotsRender = props.slots?.[`column:${key}`] || slots[`column:${key}`]
+
+    if (slotsRender) return slotsRender(ctx)
+    return ctx.val
   }
 
   const getHeaderSlotsNode = (ctx: {
@@ -79,6 +81,17 @@ export function useTable(options: Options) {
   }
 
   const currentRow = shallowRef<TableRow>()
+
+  watch(
+    () => props.highlightCurrent,
+    h => {
+      if (!h && currentRow.value) {
+        currentRow.value.isCurrent = false
+        currentRow.value = undefined
+        emit('current-row-change', currentRow.value)
+      }
+    }
+  )
 
   const handleRowClick = (row: TableRow) => {
     emit('row-click', row)
