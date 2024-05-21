@@ -28,14 +28,14 @@ importers:
         specifier: 9.4.1
         version: 9.4.1
       cat-kit:
-        specifier: ^3.4.24
-        version: 3.4.24
+        specifier: ^3.4.25
+        version: 3.4.25
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
       icon-ultra:
-        specifier: 3.0.5
-        version: 3.0.5(vue@3.4.27(typescript@5.4.5))
+        specifier: 3.0.6
+        version: 3.0.6(vue@3.4.27(typescript@5.4.5))
       rollup:
         specifier: 4.17.2
         version: 4.17.2
@@ -898,8 +898,8 @@ packages:
   caniuse-lite@1.0.30001612:
     resolution: {integrity: sha512-lFgnZ07UhaCcsSZgWW0K5j4e69dK1u/ltrL9lTUiFOwNHs12S3UMIEYgBV0Z6C6hRDev7iRnMzzYmKabYdXF9g==}
 
-  cat-kit@3.4.24:
-    resolution: {integrity: sha512-xBSqU8FlBxH3k8LWxWCK20pyFS8RGTopG6iREPVDuadCsR1UgqZpGBk7JUOpWSSc3CtJft8/3XXjSyY9Azmvhg==}
+  cat-kit@3.4.25:
+    resolution: {integrity: sha512-F3M1uiKwM823JSXEBpcot1rjMQSNY6s1Frjv2SINcBE2d7rec9Vinz3CUWNmMXQsoF34/bUJ2fZRANJF4jf+lA==}
 
   chai@4.4.1:
     resolution: {integrity: sha512-13sOfMv2+DWduEU+/xbun3LScLoqN17nBeTLUsmDfKdoiC1fr0n9PU4guu4AhRcOVFk/sW8LyZWHuhWtQZiF+g==}
@@ -1192,8 +1192,8 @@ packages:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
 
-  icon-ultra@3.0.5:
-    resolution: {integrity: sha512-/jbKwkfmjVV7l3Qkp2gw4sXB/DqLDLdT0366CD10c7d5FfuEQIZXS3yn/XQpwDdNZTax28OymMG3Lo3t91DWgA==}
+  icon-ultra@3.0.6:
+    resolution: {integrity: sha512-qyVSxSmwy6V0fzzFFNg1gQBe/MZzwtGTQyVkOVaDv+rjYLp65I9djeHD3RUAY/vbrp7KKRM1V1HHS1v97lFewA==}
     peerDependencies:
       vue: ^3.4.21
 
@@ -2714,7 +2714,7 @@ snapshots:
 
   caniuse-lite@1.0.30001612: {}
 
-  cat-kit@3.4.24: {}
+  cat-kit@3.4.25: {}
 
   chai@4.4.1:
     dependencies:
@@ -3012,7 +3012,7 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  icon-ultra@3.0.5(vue@3.4.27(typescript@5.4.5)):
+  icon-ultra@3.0.6(vue@3.4.27(typescript@5.4.5)):
     dependencies:
       vue: 3.4.27(typescript@5.4.5)
 
