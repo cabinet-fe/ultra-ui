@@ -1,4 +1,4 @@
-import { shallowRef, useSlots, type VNode } from 'vue'
+import { shallowRef, useSlots, watch } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
@@ -9,6 +9,7 @@ import type { ColumnNode } from './use-columns'
 import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
 import type { TableRow } from './use-rows'
+import type { RenderReturn } from '@ui/types/helper'
 
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {
   props: TableProps<DataItem>
@@ -23,20 +24,20 @@ export function useTable(options: Options) {
 
   const getColumnSlotsNode = (
     ctx: TableColumnSlotsScope | TableColumnRenderContext
-  ): VNode[] | undefined => {
-    const { column } = ctx
+  ): RenderReturn => {
+    const column = ctx.column.value
 
-    const result =
-      column.value.render?.(ctx) ??
-      (props.slots ?? slots)[`column:${column.key}`]?.(ctx) ??
-      ctx.val
+    const { render, key } = column
 
-    return result
+    if (render) return render(ctx)
+
+    const slotsRender = props.slots?.[`column:${key}`] || slots[`column:${key}`]
+
+    if (slotsRender) return slotsRender(ctx)
+    return ctx.val
   }
 
-  const getHeaderSlotsNode = (ctx: {
-    column: ColumnNode
-  }): VNode[] | undefined | string | VNode => {
+  const getHeaderSlotsNode = (ctx: { column: ColumnNode }): RenderReturn => {
     const { column } = ctx
     return (
       column.value.nameRender?.(ctx) ??
@@ -80,6 +81,22 @@ export function useTable(options: Options) {
 
   const currentRow = shallowRef<TableRow>()
 
+  watch(currentRow, c => {
+    emit('current-row-change', c)
+  })
+
+  function clearCurrentRow() {
+    if (currentRow.value) {
+      currentRow.value.isCurrent = false
+      currentRow.value = undefined
+    }
+  }
+
+  watch(
+    () => props.highlightCurrent,
+    h => !h && clearCurrentRow()
+  )
+
   const handleRowClick = (row: TableRow) => {
     emit('row-click', row)
 
@@ -94,8 +111,6 @@ export function useTable(options: Options) {
       currentRow.value = row
       row.isCurrent = true
     }
-
-    emit('current-row-change', currentRow.value)
   }
 
   return {
@@ -122,6 +137,9 @@ export function useTable(options: Options) {
     getCellCtx,
 
     /** 行点击 */
-    handleRowClick
+    handleRowClick,
+
+    /** 清除当前选中行 */
+    clearCurrentRow
   }
 }

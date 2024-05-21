@@ -1,6 +1,7 @@
 
   export const componentDirs = [
   "badge",
+  "batch-edit",
   "button",
   "calendar",
   "card",

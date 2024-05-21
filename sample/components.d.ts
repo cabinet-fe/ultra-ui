@@ -10,6 +10,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UBadge: typeof import('ultra-ui')['UBadge']
+    UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
     UCalendar: typeof import('ultra-ui')['UCalendar']
     UCard: typeof import('ultra-ui')['UCard']

@@ -82,7 +82,8 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   valueKey: 'value',
   placeholder: '请选择',
   clearable: true,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<SelectEmits<Option>>()

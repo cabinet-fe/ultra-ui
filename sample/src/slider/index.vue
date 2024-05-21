@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from '@vue/runtime-core'
+import { ref } from 'vue'
 import { FormModel } from 'ultra-ui'
 
 // const getRandom = () => Math.random()

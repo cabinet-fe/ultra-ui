@@ -1,8 +1,8 @@
 <template>
   <div>
     <u-checkbox v-model="disabled"> 禁用 </u-checkbox>
-
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
+    <u-checkbox v-model="infoMode"> 信息模式 </u-checkbox>
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
@@ -10,6 +10,7 @@
         <u-form
           :disabled="disabled"
           :readonly="readonly"
+          :info-mode="infoMode"
           :model="model"
           label-width="100px"
         >
@@ -68,6 +69,7 @@ import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
+const infoMode = shallowRef(false)
 
 const model = new FormModel({
   name: { maxLen: 4, required: true },
@@ -90,13 +92,13 @@ const model = new FormModel({
       '这个时候你得输入一个邮箱'
     ]
   },
-  unit: { required: true },
-  interest: { required: true },
+  unit: { required: true, value: '1' },
+  interest: { required: true, value: () => ['1', '2', '3'] },
   remarks: { required: true },
   slider: {},
   date: { required: true },
   guide: { required: true },
-  treeSelect: { required: true }
+  treeSelect: { required: true, value: () => [5, 6, 7] }
 })
 
 // const sortRef = shallowRef()

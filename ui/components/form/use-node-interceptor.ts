@@ -8,12 +8,48 @@ import {
   createVNode
 } from 'vue'
 import FormItem from '../form-item/form-item.vue'
-import { pick } from 'cat-kit/fe'
+import { isObj, pick } from 'cat-kit/fe'
 import { isFragment, isTemplate } from '@ui/utils'
+
+const componentValueGettersMap = {
+  Select: (node: VNode) => {
+    return node.props?.modelValue
+  }
+}
+
+function getFormComponentViewValue(node: VNode) {
+  const { type } = node
+  if (isObj(type) && 'name' in type && type.name) {
+    return componentValueGettersMap[type.name]?.(node) ?? node.props?.modelValue
+  }
+  return node
+}
+
+function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
+  nodes.forEach(node => {
+    if (!isVNode(node)) {
+      if (typeof node === 'string' || typeof node === 'number') {
+        results.push(createTextVNode(String(node)))
+      }
+      return
+    }
+    if (
+      (isFragment(node) || isTemplate(node)) &&
+      Array.isArray(node.children)
+    ) {
+      flatNodes(node.children, results)
+    } else {
+      results.push(node)
+    }
+  })
+  return results
+}
 
 interface Options {
   props: FormProps
 }
+
+const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips']
 
 /**
  * 虚拟node拦截
@@ -24,28 +60,11 @@ export function useNodeInterceptor(options: Options) {
   const { props } = options
   const slots = useSlots()
 
-  function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
-    nodes.forEach(node => {
-      if (!isVNode(node)) {
-        if (typeof node === 'string' || typeof node === 'number') {
-          results.push(createTextVNode(String(node)))
-        }
-        return
-      }
-      if (
-        (isFragment(node) || isTemplate(node)) &&
-        Array.isArray(node.children)
-      ) {
-        flatNodes(node.children, results)
-      } else {
-        results.push(node)
-      }
+  function getSlotsNodes() {
+    const nodes = slots.default?.({
+      data: props.model?.data,
+      model: props.model
     })
-    return results
-  }
-
-  return function getSlotsNodes() {
-    const nodes = slots.default?.({ data: props.model?.data, model: props.mode })
     if (!nodes?.length) return null
 
     const data = props.model?.data
@@ -53,9 +72,16 @@ export function useNodeInterceptor(options: Options) {
 
     const flattedNodes = flatNodes(nodes)
 
-    return flattedNodes.map(node => {
-      const { props, type } = node
+    const renderChildren = props.infoMode
+      ? getFormComponentViewValue
+      : (node: VNode) => node
 
+    const results: VNode[] = []
+
+    let i = 0
+    while (i < flattedNodes.length) {
+      const node = flattedNodes[i]!
+      const { props, type } = node
       // 原本应该加上 isObj(type) && ('name' in type)
       // 此处为了性能忽略
       // @ts-ignore
@@ -79,13 +105,22 @@ export function useNodeInterceptor(options: Options) {
           }
         }
 
-        return createVNode(
-          FormItem,
-          pick(node.props || {}, ['label', 'field', 'span', 'tips']),
-          () => node
+        results.push(
+          createVNode(FormItem, pick(node.props || {}, FORM_ITEM_PROPS), () =>
+            renderChildren(node)
+          )
         )
+      } else {
+        results.push(node)
       }
-      return node
-    })
+
+      i++
+    }
+
+    return results
+  }
+
+  return {
+    getSlotsNodes
   }
 }

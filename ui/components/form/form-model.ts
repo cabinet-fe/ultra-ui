@@ -2,7 +2,8 @@ import type {
   FormModelItem,
   ModelData,
   ModelRules,
-  IFormModel
+  IFormModel,
+  DataSettingConfig
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
 import {
@@ -12,14 +13,6 @@ import {
   watch,
   type ShallowRef
 } from 'vue'
-
-interface SetDataConfig {
-  /**
-   * 是否校验
-   * @default true
-   */
-  validate?: boolean
-}
 
 /**
  * 响应式表单模型
@@ -171,7 +164,7 @@ export class FormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>, config?: SetDataConfig) {
+  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig) {
     const { validate } = config || {}
 
     this.run(() => {

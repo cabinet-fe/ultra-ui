@@ -1,6 +1,6 @@
 import type { TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode } from 'cat-kit/fe'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
@@ -36,8 +36,14 @@ export class TableRow<
 
   override parent: TableRow<Data> | null = null
 
+  /**
+   *
+   * @param data 一个普通对象或者一个响应式对象
+   * @param index 索引值
+   * @returns
+   */
   constructor(data: Data, index: number) {
-    super(shallowReactive(data), index)
+    super(isReactive(data) ? data : shallowReactive(data), index)
     return shallowReactive(this)
   }
 }
