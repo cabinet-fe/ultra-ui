@@ -68,9 +68,10 @@ const emit = defineEmits<NumberInputEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  disabled: false
+  disabled: false,
+  readonly: false
 })
 
 const inputProps = computed(() => {
