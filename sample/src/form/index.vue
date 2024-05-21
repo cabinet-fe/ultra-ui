@@ -1,20 +1,8 @@
 <template>
   <div>
-    <u-radio-group
-      :items="[
-        { label: '详情模式', value: 'view' },
-        { label: '编辑模式', value: 'edit' }
-      ]"
-      v-model="mode"
-    >
-    </u-radio-group>
-
-    {{ mode }}
-
-    <br/>
-
     <u-checkbox v-model="disabled"> 禁用 </u-checkbox>
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
+    <u-checkbox v-model="infoMode"> 信息模式 </u-checkbox>
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
@@ -22,7 +10,7 @@
         <u-form
           :disabled="disabled"
           :readonly="readonly"
-          :mode="mode"
+          :info-mode="infoMode"
           :model="model"
           label-width="100px"
         >
@@ -81,7 +69,7 @@ import CustomCard from '../card/custom-card.vue'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
-const mode = shallowRef<'edit' | 'view'>('edit')
+const infoMode = shallowRef(false)
 
 const model = new FormModel({
   name: { maxLen: 4, required: true },
