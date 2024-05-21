@@ -25,6 +25,18 @@ $root-name: tree-select;
         &:hover {
             box-shadow: none;
         }
+        .u-tag {
+            border: var(--border);
+        }
+        .u-icon {
+            color: fn.use-var(text-color, disabled);
+        }
+    }
+    @include m.is(readonly) {
+        pointer-events: none;
+        cursor: default;
+        border: none;
+        box-shadow: none;
     }
 
     @include m.size using ($size) {

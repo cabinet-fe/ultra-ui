@@ -1,12 +1,13 @@
 <template>
   <u-dropdown
-    :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled),bem.is('readonly', readonly)]"
     trigger="click"
     max-width="auto"
     :disabled="disabled"
     :readonly="readonly"
     @mouseenter="mouse = true"
     @mouseleave="mouse = false"
+    ref="dropdownRef"
   >
     <template #trigger>
       <!-- 默认展示 -->
@@ -17,7 +18,7 @@
       <div v-else :class="multiple ? cls.e('tags-multiple') : cls.e('tags')">
         <u-tag
           v-for="(item, index) in tags"
-          :closable="!disabled && multiple"
+          :closable="!disabled && multiple && !readonly"
           @close="handleRemove(index)"
           >{{ item[labelKey] }}</u-tag
         >
@@ -25,7 +26,7 @@
       <!-- 清空 icon -->
       <transition name="zoom-in">
         <u-icon
-          v-if="clearable && tags?.length && mouse && !disabled"
+          v-if="clearable && tags?.length && mouse && !disabled && !readonly"
           :class="cls.e('clear')"
           @click.stop="handleClear"
         >
@@ -33,7 +34,7 @@
         </u-icon>
       </transition>
       <!-- 下拉 icon -->
-      <u-icon :class="cls.e(`arrow`)">
+      <u-icon :class="cls.e(`arrow`)" v-if="!readonly">
         <ArrowDown />
       </u-icon>
     </template>
@@ -57,7 +58,7 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-      <u-scroll tag="div" height="300px">
+      <u-scroll tag="div" height="300px" ref="scrollRef">
         <template v-if="multiple">
           <u-tree
             v-bind="treeProps"
@@ -90,7 +91,7 @@ import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import { bem } from "@ui/utils"
 import { UDropdown } from "../dropdown"
 import { TreeNode, type TreeExposed, type UTree } from "../tree"
-import { UScroll } from "../scroll"
+import { UScroll, type ScrollExposed } from "../scroll"
 import { UTag } from "../tag"
 import { UIcon } from "../icon"
 import { ArrowDown, Close, Search } from "icon-ultra"
@@ -114,6 +115,7 @@ const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
   readonly: undefined,
   size: "default",
   filterable: false,
+  closeOnSelect: false,
 })
 
 const treeProps = computed(() => {
@@ -139,8 +141,7 @@ const qs = shallowRef("")
 watch(qs, (qs) => {
   treeRef.value?.filter(qs)
 })
-
-const model = shallowRef(props.checked || props.selected)
+const model = shallowRef(props.modelValue)
 
 const mouse = shallowRef(false)
 
@@ -148,34 +149,46 @@ const tags = shallowRef<Record<string, any>[]>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled,readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
+
+const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
+
+const scrollRef = shallowRef<ScrollExposed>()
 
 /**选中 */
 const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
   tags.value = checkedData
-  emit("update:checked", checked)
+  emit("update:modelValue", checked)
+  closeDrop()
 }
 
 const handleSelect = (selected?: Val, selectedData?: Record<string, any>) => {
   tags.value = selectedData ? [selectedData] : []
-  emit("update:selected", selected!)
+  emit("update:modelValue", selected!)
+  closeDrop()
+}
+
+/**关闭弹窗 */
+const closeDrop = () => {
+  if (!props.closeOnSelect) return
+  dropdownRef.value?.close()
 }
 
 /**删除 */
 const handleRemove = (index: number) => {
   tags.value = tags.value?.filter((_, i) => i !== index)
   model.value = model.value?.filter((_, i) => i !== index)
-  emit("update:checked", model.value!)
+  emit("update:modelValue", model.value!)
 }
 
 /**清空 */
 const handleClear = () => {
   tags.value = []
   model.value = []
-  emit("update:checked", model.value)
-  emit("update:selected", undefined!)
+  emit("update:modelValue", model.value)
+  emit("update:modelValue", undefined!)
 }
 
 /**是否全选 */
@@ -214,6 +227,16 @@ const echoTags = () => {
     })
   }
 }
+
+watch(scrollRef, (scroll) => {
+  if (scroll && model.value !== undefined) {
+    const treeNode = scroll.contentRef!.getElementsByClassName(
+      props.multiple ? "is-checked" : "is-selected"
+    )[props.multiple ? model.value.length - 1 : 0]!
+
+    treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
+  }
+})
 
 onMounted(() => {
   echoTags()
