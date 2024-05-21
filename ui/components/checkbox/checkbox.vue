@@ -1,5 +1,5 @@
 <template>
-  <label :class="className">
+  <label :class="className" v-if="!readonly">
     <span :class="cls.e('wrap')">
       <transition name="zoom-in" mode="out-in">
         <svg viewBox="0 0 64 64" v-if="checked" fill="currentColor">
@@ -21,6 +21,8 @@
 
     <span :class="cls.e('label')"><slot /></span>
   </label>
+
+  <span v-else> {{ trueVal === model ? '是' : '否' }}</span>
 </template>
 
 <script
@@ -40,7 +42,8 @@ defineOptions({
   name: 'Checkbox'
 })
 const props = withDefaults(defineProps<CheckboxProps<Val>>(), {
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<CheckboxEmits<Val>>()
@@ -60,10 +63,14 @@ const falseVal = computed(() => {
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const className = computed(() => {
   return [

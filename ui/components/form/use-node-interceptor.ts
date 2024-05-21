@@ -8,22 +8,8 @@ import {
   createVNode
 } from 'vue'
 import FormItem from '../form-item/form-item.vue'
-import { isObj, pick } from 'cat-kit/fe'
+import { pick } from 'cat-kit/fe'
 import { isFragment, isTemplate } from '@ui/utils'
-
-const componentValueGettersMap = {
-  Select: (node: VNode) => {
-    return node.props?.modelValue
-  }
-}
-
-function getFormComponentViewValue(node: VNode) {
-  const { type } = node
-  if (isObj(type) && 'name' in type && type.name) {
-    return componentValueGettersMap[type.name]?.(node) ?? node.props?.modelValue
-  }
-  return node
-}
 
 function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
   nodes.forEach(node => {
@@ -72,10 +58,6 @@ export function useNodeInterceptor(options: Options) {
 
     const flattedNodes = flatNodes(nodes)
 
-    const renderChildren = props.infoMode
-      ? getFormComponentViewValue
-      : (node: VNode) => node
-
     const results: VNode[] = []
 
     let i = 0
@@ -106,8 +88,10 @@ export function useNodeInterceptor(options: Options) {
         }
 
         results.push(
-          createVNode(FormItem, pick(node.props || {}, FORM_ITEM_PROPS), () =>
-            renderChildren(node)
+          createVNode(
+            FormItem,
+            pick(node.props || {}, FORM_ITEM_PROPS),
+            () => node
           )
         )
       } else {

@@ -1,5 +1,6 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
     ref="dropdownRef"
@@ -59,11 +60,17 @@
       <div v-else :class="cls.e('empty')">未查询到结果</div>
     </template>
   </u-dropdown>
+
+  <span v-else>{{ label || selected?.[labelKey] }}</span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
 import { computed, shallowRef, watch } from 'vue'
-import type { SelectEmits, SelectProps } from '@ui/types/components/select'
+import type {
+  SelectEmits,
+  SelectProps,
+  _SelectExposed
+} from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'

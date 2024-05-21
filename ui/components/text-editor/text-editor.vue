@@ -18,7 +18,8 @@ import {
   ref,
   watch,
   computed,
-  nextTick
+  nextTick,
+  onBeforeUnmount
 } from 'vue'
 
 defineOptions({
@@ -124,9 +125,10 @@ const update = (_, __, ___: 'user' | 'api') => {
   emit('update:modelValue', { value: contents, stamp: stamp.value })
 }
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   quill?.off('text-change', update)
   quill?.history.clear()
+  destroy()
 })
 
 watch([() => props.modelValue, () => quill], ([val, qui]) => {

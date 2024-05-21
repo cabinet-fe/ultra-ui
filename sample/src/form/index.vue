@@ -2,7 +2,6 @@
   <div>
     <u-checkbox v-model="disabled"> 禁用 </u-checkbox>
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
-    <u-checkbox v-model="infoMode"> 信息模式 </u-checkbox>
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
@@ -10,7 +9,6 @@
         <u-form
           :disabled="disabled"
           :readonly="readonly"
-          :info-mode="infoMode"
           :model="model"
           label-width="100px"
         >
@@ -66,10 +64,10 @@
 import { formField, FormModel } from 'ultra-ui'
 import { shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { date } from 'cat-kit/fe'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
-const infoMode = shallowRef(false)
 
 const model = new FormModel({
   name: { maxLen: 4, required: true },
@@ -83,9 +81,9 @@ const model = new FormModel({
     }
   },
   freeze: {},
-  sex: { value: '' },
+  sex: { value: 'male' },
   pwd: {},
-  debt: { min: 10 },
+  debt: { min: 10, value: 66666 },
   email: {
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
@@ -94,9 +92,9 @@ const model = new FormModel({
   },
   unit: { required: true, value: '1' },
   interest: { required: true, value: () => ['1', '2', '3'] },
-  remarks: { required: true },
+  remarks: { required: true, value: '备注默认值' },
   slider: {},
-  date: { required: true },
+  date: { required: true, value: date().format() },
   guide: { required: true },
   treeSelect: { required: true, value: () => [5, 6, 7] }
 })
