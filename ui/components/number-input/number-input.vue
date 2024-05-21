@@ -1,5 +1,6 @@
 <template>
   <u-input
+    v-if="readonly"
     ref="inputRef"
     :class="className"
     :model-value="displayed"
@@ -32,6 +33,10 @@
       </div>
     </template>
   </u-input>
+
+  <span v-else>
+    {{ displayed }}
+  </span>
 </template>
 
 <script lang="ts" setup>
