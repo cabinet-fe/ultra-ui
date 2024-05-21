@@ -4,7 +4,6 @@ import {
   shallowRef,
   type VNode,
   type MaybeRef,
-  watchEffect,
   h,
   watch
 } from 'vue'

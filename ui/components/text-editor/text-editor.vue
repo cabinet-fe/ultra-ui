@@ -13,7 +13,6 @@ import Quill from 'quill'
 import type { Delta, Op } from 'quill/core'
 import {
   onMounted,
-  onUnmounted,
   shallowRef,
   ref,
   watch,
