@@ -69,6 +69,7 @@ $root-name: tree-select;
     }
 
     @include m.e(tags) {
+        display: inline-flex;
         flex-grow: 1;
         color: fn.use-var(text-color, main);
 
