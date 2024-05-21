@@ -1,4 +1,6 @@
+import type { ShallowRef } from 'vue'
 import type { FormComponentProps } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 /** 选择器组件属性 */
 export interface SelectProps<Option extends Record<string, any>>
@@ -28,4 +30,9 @@ export interface SelectEmits<Option extends Record<string, any>> {
   (e: 'change', option: Option): void
 }
 
-export interface SelectExposed {}
+export interface _SelectExposed {
+  /** 信息文本 */
+  infoText: ShallowRef<string | number>
+}
+
+export type SelectExposed = DeconstructValue<_SelectExposed>

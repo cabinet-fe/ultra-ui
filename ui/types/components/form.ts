@@ -49,7 +49,10 @@ export type IFormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig): void
+  setData(
+    formData: Partial<ModelData<Fields>>,
+    config?: DataSettingConfig
+  ): void
   /** 清除校验 */
   clearValidate(): void
 }
@@ -57,8 +60,6 @@ export type IFormModel<
 /** 表单组件属性 */
 export interface FormProps<Model extends IFormModel = IFormModel>
   extends ComponentProps {
-  /** 信息模式，将显示文本 */
-  infoMode?: boolean
   /** 表单数据模型 */
   model: Model
   /** 表单项label宽度 */

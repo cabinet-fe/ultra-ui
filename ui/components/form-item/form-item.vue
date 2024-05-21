@@ -59,12 +59,7 @@ const labelStyles = computed<CSSProperties>(() => {
 })
 
 const showTips = computed<boolean>(() => {
-  return (
-    !props.noTips &&
-    !formProps?.noTips &&
-    !readonly.value &&
-    formProps?.infoMode !== true
-  )
+  return !props.noTips && !formProps?.noTips && !readonly.value
 })
 
 /** 错误提示 */
@@ -77,7 +72,7 @@ const errorTips = computed<string | undefined>(() => {
 /** 字段是否必须 */
 const fieldRequired = computed<boolean>(() => {
   const { field } = props
-  if (!field || formProps?.infoMode) return false
+  if (!field || readonly.value) return false
   const required = formProps?.model?.rules[field]?.required
   return required ? true : false
 })
