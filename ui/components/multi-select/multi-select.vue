@@ -202,7 +202,7 @@ const tags = computed(() => {
   }
 
   // 禁用时，显示全部
-  if (disabled.value) {
+  if (disabled.value || readonly.value) {
     visibilityLimit = model.value?.length ?? 0
   }
 
