@@ -71,6 +71,7 @@ export class FormModel<
       const { value, ...rule } = fields[key]!
       keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
+      this.proxyRaw = typeof value === 'function' ? value() : value
       rules[key] = rule as any
     }
 
@@ -79,6 +80,7 @@ export class FormModel<
 
     this.keyOfFields = keyOfFields
     this.data = data
+
     this.rules = rules
     this.validator = new Validator(rules)
 
@@ -96,16 +98,20 @@ export class FormModel<
     })
 
     // 校验
-    watch(data, data => {
-      if (!this.validateOnFieldChange) return
-      const p = this.proxy
+    watch(
+      data,
+      data => {
+        if (!this.validateOnFieldChange) return
+        const p = this.proxy
 
-      for (const key in data) {
-        if (p[key] !== data[key]) {
-          p[key] = data[key]
+        for (const key in data) {
+          if (p[key] !== data[key]) {
+            p[key] = data[key]
+          }
         }
-      }
-    })
+      },
+      { immediate: true }
+    )
   }
 
   /**

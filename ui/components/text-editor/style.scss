@@ -7,17 +7,19 @@
 $root-name: text-editor;
 
 @include m.b($root-name) {
-  min-height: 200px;
   @include m.is(disabled) {
     cursor: not-allowed;
     background-color: fn.use-var(color, disabled);
+
+    box-shadow: none;
   }
 
-  &:hover {
-    box-shadow: inset 0 0 1px 1px var(--color-primary);
+  @include m.size using ($size) {
+    @include m.bem($root-name, bar) {
+      border-radius: fn.use-var(radius, $size) fn.use-var(radius, $size) 0px 0px;
+    }
   }
-
-  &:focus {
-    box-shadow: inset 0 0 1px 1px var(--color-primary);
-  }
+  // &:hover {
+  //   box-shadow: inset 0 0 1px 1px var(--color-primary);
+  // }
 }

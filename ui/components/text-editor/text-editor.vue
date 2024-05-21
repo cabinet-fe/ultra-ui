@@ -1,5 +1,19 @@
 <template>
-  <div :class="className" :style="`height: ${height}`" ref="editorRef" />
+  <div :class="className">
+    <Bar v-if="!toolbar" ref="barRef" />
+    <!-- <div ref="barRef">
+      <select class="ql-size">
+        <option value="small"></option>
+        <option selected></option>
+        <option value="large"></option>
+        <option value="huge"></option>
+      </select>
+      <button class="ql-bold">加粗</button>
+      <button class="ql-script" value="sub"></button>
+      <button class="ql-script" value="super"></button>
+    </div> -->
+    <div :style="`height: ${height}`" ref="editorRef" />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -10,10 +24,9 @@ import type {
 } from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
-import type { Delta, Op } from 'quill/core'
+import type { Delta, QuillOptions, Op } from 'quill/core'
 import {
   onMounted,
-  onUnmounted,
   shallowRef,
   ref,
   watch,
@@ -21,6 +34,7 @@ import {
   nextTick,
   onBeforeUnmount
 } from 'vue'
+import Bar from './bar.vue'
 
 defineOptions({
   name: 'TextEditor'
@@ -30,6 +44,7 @@ const emit = defineEmits<TextEditorEmits>()
 
 const props = withDefaults(defineProps<TextEditorProps>(), {
   disabled: undefined,
+  toolbar: undefined,
   placeholder: '请输入'
 })
 
@@ -46,28 +61,34 @@ const cls = bem('text-editor')
 
 const editorRef = shallowRef<HTMLElement>()
 
-const options = {
-  modules: {
-    toolbar: props.toolbar ?? [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ['link'],
-      ['bold', 'italic', 'underline'],
-      ['image', 'code-block']
-    ]
-  },
-  readOnly: disabled.value,
-  scrollingContainer: true,
-  theme: 'snow'
-}
+const barRef = shallowRef<InstanceType<typeof Bar>>()
+
+let options: QuillOptions
 
 let quill: Quill | null = null
 
 const stamp = ref<string>('')
 
+/** 等待barRef加载出来 */
+watch(
+  () => barRef.value,
+  _ => {
+    console.log(props.toolbar, props.disabled, 'toolbar')
+    options = {
+      modules: {
+        toolbar: props.toolbar ?? barRef.value?.barRef
+      },
+      readOnly: disabled.value,
+      theme: 'snow'
+    }
+  }
+)
+
 /** 创建textEditor实例 */
 const createTextEditor = async () => {
   destroy()
   await nextTick()
+
   quill = new Quill(editorRef.value!, options)
 
   quill.on('text-change', update)
