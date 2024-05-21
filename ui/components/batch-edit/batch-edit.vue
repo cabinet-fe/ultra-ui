@@ -24,22 +24,11 @@
         ref="tableRef"
       >
         <template #column:__action__="{ row }">
-          <u-button
-            type="primary"
-            text
-            size="small"
-            @click.stop="row.addToNext({})"
-          >
-            下方插入
-          </u-button>
-          <u-button
-            type="primary"
-            text
-            size="small"
-            @click.stop="row.addToPrev({})"
-          >
-            下方插入
-          </u-button>
+          <ButtonWrap>
+            <u-button @click.stop="row.addToNext({})" />
+            <u-button @click.stop="row.addToPrev({})" />
+            <u-button @click.stop="" :icon="Delete" title="删除" />
+          </ButtonWrap>
         </template>
       </u-table>
 
@@ -95,7 +84,10 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel = FormModel">
-import type { BatchEditProps } from '@ui/types/components/batch-edit'
+import type {
+  BatchEditEmits,
+  BatchEditProps
+} from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import { omit } from 'cat-kit/fe'
 import { Plus, Delete } from 'icon-ultra'
@@ -104,8 +96,9 @@ import { UCard, UCardAction, UCardHeader } from '../card'
 import { UForm, FormModel } from '../form'
 import { ULayout } from '../layout'
 import { UScroll } from '../scroll'
-import { UButton } from '../button'
+import { UButton, type ButtonProps } from '../button'
 import { bem } from '@ui/utils'
+import { useComponentProps } from '@ui/compositions'
 
 defineOptions({
   name: 'BatchEdit'
@@ -115,6 +108,8 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   cols: () => ['1fr', '400px'],
   resizable: true
 })
+
+const emit = defineEmits<BatchEditEmits>()
 
 const tableProps = computed(() => {
   return omit(props, ['model', 'columns', 'cols', 'readonly'])
@@ -134,6 +129,13 @@ const slots = defineSlots<{
 const cls = bem('batch-edit')
 
 const tableRef = shallowRef<TableExposed>()
+
+const ButtonWrap = useComponentProps<ButtonProps>({
+  size: 'small',
+  circle: true,
+  text: true,
+  type: 'primary'
+})
 
 const columns = computed(() => {
   if (props.readonly) return props.columns
@@ -184,6 +186,7 @@ function handleRowChange(row?: TableRow) {
 function handleCreate() {
   tableRef.value?.clearCurrentRow()
   newRow.value = true
+  emit('update:data', [...(props.data ?? []), {}])
 }
 
 function handleClose() {
@@ -194,12 +197,11 @@ function handleDelete() {}
 
 async function handleSave() {
   const { model } = props
-  if (!currentRow.value) return
 
   model?.clearValidate()
   const valid = await model?.validate()
 
-  if (!valid) return
+  if (!valid || !currentRow.value) return
 
   Object.assign(currentRow.value.value, props.model!.data)
 }

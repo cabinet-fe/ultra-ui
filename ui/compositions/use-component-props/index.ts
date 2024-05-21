@@ -5,7 +5,8 @@ import {
   type VNode,
   type MaybeRef,
   watchEffect,
-  h
+  h,
+  watch
 } from 'vue'
 
 /**
@@ -58,9 +59,13 @@ export function useComponentProps<T extends Record<string, any>>(
       }
 
       // 传入的值如果是动态值则需要重新渲染VNode
-      watchEffect(() => {
-        nodes.value = mergeNodesProps(isRef(props) ? props.value : props)
-      })
+      if (isRef(props)) {
+        watch(props, props => {
+          nodes.value = mergeNodesProps(props)
+        }, { immediate: true })
+      } else {
+        nodes.value = mergeNodesProps(props)
+      }
 
       return () => {
         if (componentProps.tag) {

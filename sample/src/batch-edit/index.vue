@@ -40,10 +40,12 @@ const columns = defineTableColumns([
   { name: '年龄', key: 'age' }
 ])
 
-const data = Array.from({ length: 2 }).map((_, i) => ({
-  name: '姓名' + i,
-  age: Math.ceil(Math.random() * 80)
-}))
+const data = shallowRef(
+  Array.from({ length: 2 }).map((_, i) => ({
+    name: '姓名' + i,
+    age: Math.ceil(Math.random() * 80)
+  }))
+)
 
 const model = new FormModel({
   name: { required: true },

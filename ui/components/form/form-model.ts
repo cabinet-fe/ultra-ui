@@ -135,10 +135,9 @@ export class FormModel<
     }
 
     if (errors.size > 0) {
-      nextTick(() => {
-        const firstErrorItem = document.querySelector('.u-form-item.is-error')
-        firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      })
+      if (typeof fields !== 'string') {
+        this.scrollToFirstError()
+      }
       return false
     }
 
@@ -205,6 +204,14 @@ export class FormModel<
   /** 清除校验 */
   clearValidate(): void {
     this.errors.clear()
+  }
+
+  /** 滚动至第一个错误处 */
+  scrollToFirstError(): void {
+    nextTick(() => {
+      const firstErrorItem = document.querySelector('.u-form-item.is-error')
+      firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
   }
 }
 
