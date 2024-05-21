@@ -17,7 +17,9 @@ defineOptions({
   name: 'Form'
 })
 
-const props = defineProps<FormProps<Model>>()
+const props = withDefaults(defineProps<FormProps<Model>>(), {
+  mode: 'edit'
+})
 
 defineSlots<{
   default(props: {
@@ -32,5 +34,5 @@ const cls = bem('form')
 
 useFormComponent(props)
 
-const getSlotsNodes = useNodeInterceptor({ props })
+const { getSlotsNodes } = useNodeInterceptor({ props })
 </script>

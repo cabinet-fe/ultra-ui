@@ -4,7 +4,7 @@
       <!-- <u-card-header > </u-card-header> -->
 
       <u-table
-        checkable
+        :checkable="!disabled"
         v-bind="tableProps"
         :slots="$slots"
         :class="cls.e('table')"
@@ -12,14 +12,19 @@
         highlight-current
         @current-row-change="handleRowChange"
         v-model:checked="checked"
+        ref="tableRef"
       >
         <template #column:__action__="{ row }">
-          <u-button type="primary" text size="small" @click.stop>下方插入</u-button>
-          <u-button type="primary" text size="small" @click.stop>下方插入</u-button>
+          <u-button type="primary" text size="small" @click.stop>
+            下方插入
+          </u-button>
+          <u-button type="primary" text size="small" @click.stop>
+            下方插入
+          </u-button>
         </template>
       </u-table>
 
-      <u-card-action :class="cls.e('action')">
+      <u-card-action :class="cls.e('action')" v-if="!disabled">
         <u-button
           type="danger"
           :icon="Delete"
@@ -50,6 +55,7 @@
           <u-form
             :model="props.model"
             label-width="80px"
+            :mode="disabled ? 'view' : 'edit'"
             @keyup.enter="handleSave"
           >
             <template #default="scoped">
@@ -61,7 +67,7 @@
 
       <u-card-action :class="cls.e('action')">
         <u-button text type="primary" @click="handleClose">关闭</u-button>
-        <u-button type="primary" @click="handleSave">保存</u-button>
+        <u-button v-if="!disabled" type="primary" @click="handleSave">保存</u-button>
       </u-card-action>
     </u-card>
   </u-layout>
@@ -72,7 +78,7 @@ import type { BatchEditProps } from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import { omit } from 'cat-kit/fe'
 import { Plus, Delete } from 'icon-ultra'
-import { UTable, type TableRow } from '../table'
+import { UTable, type TableExposed, type TableRow } from '../table'
 import { UCard, UCardAction, UCardHeader } from '../card'
 import { UForm, FormModel } from '../form'
 import { ULayout } from '../layout'
@@ -103,14 +109,16 @@ const slots = defineSlots<{
 
 const cls = bem('batch-edit')
 
+const tableRef = shallowRef<TableExposed>()
+
 const columns = computed(() => {
-  return [
-    ...(props.columns ?? []),
-    {
-      name: '操作',
-      key: '__action__'
-    }
-  ]
+  console.log(props.disabled)
+  if (props.disabled) return props.columns
+  return (props.columns ?? []).concat({
+    name: '操作',
+    key: '__action__',
+    align: 'center'
+  })
 })
 
 const currentRow = shallowRef<TableRow>()
@@ -155,8 +163,7 @@ function handleCreate() {
 }
 
 function handleClose() {
-  newRow.value = false
-  currentRow.value = undefined
+  tableRef.value?.clearCurrentRow()
 }
 
 function handleDelete() {}

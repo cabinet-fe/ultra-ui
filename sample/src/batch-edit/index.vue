@@ -6,6 +6,7 @@
       disabled
       style="height: 400px"
       :model="model"
+      :cols="['1fr', '1fr']"
     >
       <template #form="{ data }">
         <u-input field="name" label="名称" />

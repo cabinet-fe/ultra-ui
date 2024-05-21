@@ -101,7 +101,8 @@ const {
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,
-  handleRowClick
+  handleRowClick,
+  clearCurrentRow
 } = useTable({
   props,
   cls,
@@ -131,6 +132,7 @@ const el = computed(() => {
 defineExpose<_TableExposed>({
   el,
   clearChecked,
-  clearSelected
+  clearSelected,
+  clearCurrentRow
 })
 </script>

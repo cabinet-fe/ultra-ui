@@ -157,6 +157,8 @@ export interface TableEmits<DataItem extends Record<string, any> = Record<string
   (e: 'update:checked', value: DataItem[]): void
   /** 单选 */
   (e: 'update:selected', value: DataItem | undefined): void
+  /** 数据更新 */
+  (e: 'update:data', value: DataItem[]): void
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
   /** 当前行变更 */
@@ -170,6 +172,8 @@ export interface _TableExposed {
   clearChecked: () => void
   /** 清除单选的选项 */
   clearSelected: () => void
+  /** 清除当前选中行 */
+  clearCurrentRow: () => void
 }
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

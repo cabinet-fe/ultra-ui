@@ -117,6 +117,14 @@ let nextSize = '0'
 const handleStartResize = (index: number) => {
   prevSize = templateCols.value[index]!
   nextSize = templateCols.value[index + 1]!
+
+  if (!prevSize.endsWith('px') && !nextSize.endsWith('px')) {
+    const rect =
+      containerRef.value?.children[index + 1]?.getBoundingClientRect()
+    if (rect) {
+      nextSize = rect.width + 'px'
+    }
+  }
   // resizing.value = true
 }
 const handleResize = (offset: number, index: number) => {

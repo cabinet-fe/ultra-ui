@@ -81,15 +81,20 @@ export function useTable(options: Options) {
 
   const currentRow = shallowRef<TableRow>()
 
+  watch(currentRow, c => {
+    emit('current-row-change', c)
+  })
+
+  function clearCurrentRow() {
+    if (currentRow.value) {
+      currentRow.value.isCurrent = false
+      currentRow.value = undefined
+    }
+  }
+
   watch(
     () => props.highlightCurrent,
-    h => {
-      if (!h && currentRow.value) {
-        currentRow.value.isCurrent = false
-        currentRow.value = undefined
-        emit('current-row-change', currentRow.value)
-      }
-    }
+    h => !h && clearCurrentRow()
   )
 
   const handleRowClick = (row: TableRow) => {
@@ -106,8 +111,6 @@ export function useTable(options: Options) {
       currentRow.value = row
       row.isCurrent = true
     }
-
-    emit('current-row-change', currentRow.value)
   }
 
   return {
@@ -134,6 +137,9 @@ export function useTable(options: Options) {
     getCellCtx,
 
     /** 行点击 */
-    handleRowClick
+    handleRowClick,
+
+    /** 清除当前选中行 */
+    clearCurrentRow
   }
 }

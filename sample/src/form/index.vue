@@ -90,13 +90,13 @@ const model = new FormModel({
       '这个时候你得输入一个邮箱'
     ]
   },
-  unit: { required: true },
-  interest: { required: true },
+  unit: { required: true, value: '1' },
+  interest: { required: true, value: () => ['1', '2', '3'] },
   remarks: { required: true },
   slider: {},
   date: { required: true },
   guide: { required: true },
-  treeSelect: { required: true }
+  treeSelect: { required: true, value: () => [5, 6, 7] }
 })
 
 // const sortRef = shallowRef()
