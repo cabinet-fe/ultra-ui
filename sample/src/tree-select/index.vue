@@ -3,7 +3,7 @@
     <CustomCard title="菜单选择器多选、禁用某项、过滤">
       多选{{ treeCheckable }}
       <u-tree-select
-        v-model:checked="treeCheckable"
+        v-model="treeCheckable"
         :data="data"
         label-key="name"
         value-key="id"
@@ -12,12 +12,15 @@
         :disabledNode="disabledNode"
         filterable
         multiple
+        :close-on-select="false"
       ></u-tree-select>
     </CustomCard>
-    <CustomCard title="菜单选择器单选、禁用某项、过滤">
+    <CustomCard
+      title="菜单选择器单选、禁用某项、过滤、选择完选项值自动关闭弹窗"
+    >
       单选{{ treeSelect }}
       <u-tree-select
-        v-model:selected="treeSelect"
+        v-model="treeSelect"
         :data="data"
         label-key="name"
         value-key="id"
@@ -34,9 +37,9 @@
 import { shallowRef } from "vue"
 import CustomCard from "../card/custom-card.vue"
 
-const treeCheckable = shallowRef([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ])
+const treeCheckable = shallowRef([8, 9, 10, 11])
 
-const treeSelect = shallowRef(1)
+const treeSelect = shallowRef(10)
 
 const disabledNode = (data) => {
   return data.id % 4 === 0
