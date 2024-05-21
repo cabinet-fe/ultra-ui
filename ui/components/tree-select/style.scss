@@ -32,6 +32,12 @@ $root-name: tree-select;
         padding: 2px fn.use-var(gap, $size);
         min-height: fn.use-var(form-component-height, $size);
         border-radius: fn.use-var(radius, $size);
+
+        @include m.bem($root-name, tags-multiple) {
+            display: flex;
+            flex-wrap: wrap;
+            gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
+        }
     }
 
     @include m.e(placeholder) {
@@ -40,12 +46,23 @@ $root-name: tree-select;
         user-select: none;
     }
 
-    @include m.e(tags) {
+    @include m.e(tags-multiple) {
         flex-grow: 1;
         color: fn.use-var(text-color, main);
 
         .u-tag {
             margin-right: 4px;
+        }
+
+    }
+
+    @include m.e(tags) {
+        flex-grow: 1;
+        color: fn.use-var(text-color, main);
+
+        .u-tag {
+            background: none !important;
+            padding:0
         }
     }
 
