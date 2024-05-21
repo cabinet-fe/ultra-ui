@@ -1,9 +1,23 @@
 <template>
   <div>
-    <CustomCard title="菜单选择器全选、禁用某项、过滤">
-      {{ treeCheckable }}
+    <CustomCard title="菜单选择器多选、禁用某项、过滤">
+      多选{{ treeCheckable }}
       <u-tree-select
-        v-model="treeCheckable"
+        v-model:checked="treeCheckable"
+        :data="data"
+        label-key="name"
+        value-key="id"
+        checkable
+        expand-all
+        :disabledNode="disabledNode"
+        filterable
+        multiple
+      ></u-tree-select>
+    </CustomCard>
+    <CustomCard title="菜单选择器单选、禁用某项、过滤">
+      单选{{ treeSelect }}
+      <u-tree-select
+        v-model:selected="treeSelect"
         :data="data"
         label-key="name"
         value-key="id"
@@ -17,16 +31,18 @@
 </template>
 
 <script setup lang="ts">
-import {shallowRef} from "vue"
+import { shallowRef } from "vue"
 import CustomCard from "../card/custom-card.vue"
 
-const treeCheckable = shallowRef([])
+const treeCheckable = shallowRef([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ])
+
+const treeSelect = shallowRef(1)
 
 const disabledNode = (data) => {
   return data.id % 4 === 0
 }
 const data = [
-  {name: "烤冷面", id: 1},
+  { name: "烤冷面", id: 1 },
   {
     name: "手抓饼",
     id: 2,
@@ -39,9 +55,9 @@ const data = [
             name: "烤苞米",
             id: 4,
             children: [
-              {name: "苞米例", id: 5},
-              {name: "吃", id: 6},
-              {name: "h", id: 7},
+              { name: "苞米例", id: 5 },
+              { name: "吃", id: 6 },
+              { name: "h", id: 7 },
             ],
           },
         ],
@@ -50,9 +66,9 @@ const data = [
         name: "fggg",
         id: 8,
         children: [
-          {name: "苞米例2", id: 9},
-          {name: "吃2", id: 10},
-          {name: "h2", id: 11},
+          { name: "苞米例2", id: 9 },
+          { name: "吃2", id: 10 },
+          { name: "h2", id: 11 },
         ],
       },
     ],
