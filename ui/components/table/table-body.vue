@@ -1,6 +1,6 @@
 <template>
   <tbody :class="cls.e('body')">
-    <UTableRow v-for="row of rows" :row="row" :key="row.uid" />
+    <UTableRow v-for="row of rows" :row="row" :key="row.uid" :data-key="row.uid" />
 
     <tr v-if="!rows.length" :class="cls.e('row')">
       <td :colspan="allColumns.length" :class="[cls.e('cell')]">

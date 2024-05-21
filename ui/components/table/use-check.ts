@@ -1,5 +1,6 @@
 import {
   computed,
+  createTextVNode,
   createVNode,
   nextTick,
   shallowReactive,
@@ -235,10 +236,19 @@ export function useCheck(options: Options) {
       align: props.tree ? 'left' : 'center',
       fixed: 'left',
       nameRender() {
-        return createVNode(UCheckbox, {
+        const checkboxNode = createVNode(UCheckbox, {
           modelValue: allChecked.value,
           'onUpdate:modelValue': handleCheckAll
         })
+        if (!props.tree) {
+          return checkboxNode
+        }
+
+        const expandNode = createVNode('i', {
+          text: true,
+          class: cls.e('expand-space')
+        })
+        return [expandNode, checkboxNode]
       },
       render(ctx) {
         const { row } = ctx
@@ -275,6 +285,17 @@ export function useCheck(options: Options) {
       width: props.tree ? undefined : width,
       align: props.tree ? 'left' : 'center',
       fixed: 'left',
+      nameRender(ctx) {
+        if (!props.tree) {
+          return '单选'
+        }
+
+        const expandNode = createVNode('i', {
+          text: true,
+          class: cls.e('expand-space')
+        })
+        return [expandNode, createTextVNode('单选')]
+      },
 
       render({ row }) {
         return createVNode(UCheckbox, {

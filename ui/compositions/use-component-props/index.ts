@@ -14,7 +14,7 @@ import {
  * @returns
  */
 export function useComponentProps<T extends Record<string, any>>(
-  props: MaybeRef<T>
+  props: MaybeRef<T & Record<string, any>>
 ) {
   return defineComponent({
     name: 'ComponentCommonProps',

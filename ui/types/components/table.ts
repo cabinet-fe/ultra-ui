@@ -90,6 +90,11 @@ export interface TableProps<
   }
   /** 高亮当前选中行 */
   highlightCurrent?: boolean
+  /**
+   * 行key
+   * @description 用于标识行的唯一性，可以提升性能
+   */
+  rowKey?: string
 }
 
 export interface TableRow<
