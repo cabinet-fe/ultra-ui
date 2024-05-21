@@ -14,6 +14,7 @@ $root-name: batch-edit;
   @include m.e(list, form) {
     display: flex;
     flex-direction: column;
+    // box-shadow: none;
   }
 
   @include m.e(form) {

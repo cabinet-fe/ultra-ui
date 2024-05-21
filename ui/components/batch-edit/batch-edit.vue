@@ -1,10 +1,19 @@
 <template>
-  <u-layout :class="cls.b" :cols="cols" rows="100%" gap="8px" resizable>
+  <u-layout
+    :class="cls.b"
+    :cols="cols"
+    rows="100%"
+    gap="8px"
+    :resizable="resizable"
+  >
     <u-card :class="cls.e('list')">
-      <!-- <u-card-header > </u-card-header> -->
-
+      <u-card-header v-if="slots.header || title">
+        <slot name="header">
+          {{ title }}
+        </slot>
+      </u-card-header>
       <u-table
-        :checkable="!disabled"
+        :checkable="!readonly"
         v-bind="tableProps"
         :slots="$slots"
         :class="cls.e('table')"
@@ -15,16 +24,15 @@
         ref="tableRef"
       >
         <template #column:__action__="{ row }">
-          <u-button type="primary" text size="small" @click.stop>
-            下方插入
-          </u-button>
-          <u-button type="primary" text size="small" @click.stop>
-            下方插入
-          </u-button>
+          <ButtonWrap>
+            <u-button @click.stop="row.addToNext({})" />
+            <u-button @click.stop="row.addToPrev({})" />
+            <u-button @click.stop="" :icon="Delete" title="删除" />
+          </ButtonWrap>
         </template>
       </u-table>
 
-      <u-card-action :class="cls.e('action')" v-if="!disabled">
+      <u-card-action :class="cls.e('action')" v-if="!readonly">
         <u-button
           type="danger"
           :icon="Delete"
@@ -42,7 +50,7 @@
     <u-card :class="cls.e('form')" v-if="currentRow || newRow">
       <u-card-header>
         <template v-if="newRow">新增</template>
-        <template v-else-if="disabled">详情</template>
+        <template v-else-if="readonly">详情</template>
         <template v-else>编辑</template>
       </u-card-header>
 
@@ -54,8 +62,8 @@
         >
           <u-form
             :model="props.model"
-            label-width="80px"
-            :readonly="disabled"
+            label-width="50px"
+            :readonly="readonly"
             @keyup.enter="handleSave"
           >
             <template #default="scoped">
@@ -67,14 +75,19 @@
 
       <u-card-action :class="cls.e('action')">
         <u-button text type="primary" @click="handleClose">关闭</u-button>
-        <u-button v-if="!disabled" type="primary" @click="handleSave">保存</u-button>
+        <u-button v-if="!readonly" type="primary" @click="handleSave"
+          >保存</u-button
+        >
       </u-card-action>
     </u-card>
   </u-layout>
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel = FormModel">
-import type { BatchEditProps } from '@ui/types/components/batch-edit'
+import type {
+  BatchEditEmits,
+  BatchEditProps
+} from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import { omit } from 'cat-kit/fe'
 import { Plus, Delete } from 'icon-ultra'
@@ -83,37 +96,49 @@ import { UCard, UCardAction, UCardHeader } from '../card'
 import { UForm, FormModel } from '../form'
 import { ULayout } from '../layout'
 import { UScroll } from '../scroll'
-import { UButton } from '../button'
+import { UButton, type ButtonProps } from '../button'
 import { bem } from '@ui/utils'
+import { useComponentProps } from '@ui/compositions'
 
 defineOptions({
   name: 'BatchEdit'
 })
 
 const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
-  cols: () => ['1fr', '400px']
+  cols: () => ['1fr', '400px'],
+  resizable: true
 })
 
+const emit = defineEmits<BatchEditEmits>()
+
 const tableProps = computed(() => {
-  return omit(props, ['model', 'columns', 'cols', 'disabled'])
+  return omit(props, ['model', 'columns', 'cols', 'readonly'])
 })
 
 const slots = defineSlots<{
-  form: (props: {
+  form?: (props: {
     /** 表单数据 */
     data: Model['data']
     /** 表单模型 */
     model: Model
   }) => any
+
+  header?: () => any
 }>()
 
 const cls = bem('batch-edit')
 
 const tableRef = shallowRef<TableExposed>()
 
+const ButtonWrap = useComponentProps<ButtonProps>({
+  size: 'small',
+  circle: true,
+  text: true,
+  type: 'primary'
+})
+
 const columns = computed(() => {
-  console.log(props.disabled)
-  if (props.disabled) return props.columns
+  if (props.readonly) return props.columns
   return (props.columns ?? []).concat({
     name: '操作',
     key: '__action__',
@@ -159,7 +184,9 @@ function handleRowChange(row?: TableRow) {
 }
 
 function handleCreate() {
+  tableRef.value?.clearCurrentRow()
   newRow.value = true
+  emit('update:data', [...(props.data ?? []), {}])
 }
 
 function handleClose() {
@@ -170,12 +197,11 @@ function handleDelete() {}
 
 async function handleSave() {
   const { model } = props
-  if (!currentRow.value) return
 
   model?.clearValidate()
   const valid = await model?.validate()
 
-  if (!valid) return
+  if (!valid || !currentRow.value) return
 
   Object.assign(currentRow.value.value, props.model!.data)
 }

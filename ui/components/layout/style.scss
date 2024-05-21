@@ -11,7 +11,7 @@
     left: 0;
     top: 0;
     cursor: col-resize;
-    background-color: #eee;
+    background-color: #f2f2f2;
     @include m.flex($align: center, $justify: center);
     // box-shadow: fn.use-var(shadow);
     height: 100%;

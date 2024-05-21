@@ -8,7 +8,7 @@
       {{ label }}
     </label>
 
-    <section :class="[cls.e('content'), bem.is('error', !!errorTips)]">
+    <section :class="cls.e('content')">
       <slot />
 
       <section v-if="showTips" :class="cls.e('tips')">
@@ -48,7 +48,7 @@ const { size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
 })
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(' ')
 })
 
 /** label样式 */
