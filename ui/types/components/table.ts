@@ -1,5 +1,5 @@
 import type { TreeNode } from 'cat-kit/fe'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue, RenderReturn } from '../helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
 import type { ColumnNode } from '@ui/components'
@@ -42,7 +42,7 @@ export interface TableColumn {
    */
   align?: TableColumnAlign
   /** 列渲染 */
-  render?: (scope: TableColumnRenderContext) => VNode | string | null | VNode[]
+  render?: (scope: TableColumnRenderContext) => RenderReturn
   /** 子列 */
   children?: TableColumn[]
   /** 表尾合计 */
@@ -50,7 +50,7 @@ export interface TableColumn {
     | boolean
     | ((
         ctx: TableSummaryContext
-      ) => number | string | VNode | VNode[] | undefined | null)
+      ) => RenderReturn)
   [key: string]: any
 }
 
@@ -107,7 +107,7 @@ export interface TableRow<
   /** 是否为当前点击的行 */
   isCurrent: boolean
   /** id */
-  uid: number
+  uid: number | string
   indexes: number[]
   /** 子row */
   children?: TableRow<DataItem>[]
