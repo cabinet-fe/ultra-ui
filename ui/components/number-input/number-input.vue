@@ -1,6 +1,6 @@
 <template>
   <u-input
-    v-if="readonly"
+    v-if="!readonly"
     ref="inputRef"
     :class="className"
     :model-value="displayed"

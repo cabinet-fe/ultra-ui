@@ -55,7 +55,7 @@
           <u-form
             :model="props.model"
             label-width="80px"
-            :mode="disabled ? 'view' : 'edit'"
+            :readonly="disabled"
             @keyup.enter="handleSave"
           >
             <template #default="scoped">
