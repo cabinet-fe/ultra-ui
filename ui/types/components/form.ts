@@ -57,8 +57,8 @@ export type IFormModel<
 /** 表单组件属性 */
 export interface FormProps<Model extends IFormModel = IFormModel>
   extends ComponentProps {
-  /** 表单模式, edit为编辑模式, view为查看模式 */
-  mode?: 'edit' | 'view'
+  /** 信息模式，将显示文本 */
+  infoMode?: boolean
   /** 表单数据模型 */
   model: Model
   /** 表单项label宽度 */

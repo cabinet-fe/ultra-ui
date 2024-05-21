@@ -63,7 +63,7 @@ const showTips = computed<boolean>(() => {
     !props.noTips &&
     !formProps?.noTips &&
     !readonly.value &&
-    formProps?.mode === 'edit'
+    formProps?.infoMode !== true
   )
 })
 
@@ -77,7 +77,7 @@ const errorTips = computed<string | undefined>(() => {
 /** 字段是否必须 */
 const fieldRequired = computed<boolean>(() => {
   const { field } = props
-  if (!field || formProps?.mode === 'view') return false
+  if (!field || formProps?.infoMode) return false
   const required = formProps?.model?.rules[field]?.required
   return required ? true : false
 })

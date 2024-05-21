@@ -72,8 +72,9 @@ export function useNodeInterceptor(options: Options) {
 
     const flattedNodes = flatNodes(nodes)
 
-    const renderChildren =
-      props.mode === 'edit' ? (node: VNode) => node : getFormComponentViewValue
+    const renderChildren = props.infoMode
+      ? getFormComponentViewValue
+      : (node: VNode) => node
 
     const results: VNode[] = []
 

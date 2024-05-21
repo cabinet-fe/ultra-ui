@@ -17,9 +17,7 @@ defineOptions({
   name: 'Form'
 })
 
-const props = withDefaults(defineProps<FormProps<Model>>(), {
-  mode: 'edit'
-})
+const props = defineProps<FormProps<Model>>()
 
 defineSlots<{
   default(props: {
