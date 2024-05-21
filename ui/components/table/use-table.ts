@@ -92,7 +92,7 @@ export function useTable(options: Options) {
     }
   )
 
-  const handleRowClick = (row: TableRow, ev: Event) => {
+  const handleRowClick = (row: TableRow) => {
     emit('row-click', row)
 
     if (!props.highlightCurrent) return
