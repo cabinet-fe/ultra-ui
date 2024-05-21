@@ -37,6 +37,7 @@ $root-name: tree-select;
         cursor: default;
         border: none;
         box-shadow: none;
+        padding: 0;
     }
 
     @include m.size using ($size) {
@@ -75,7 +76,6 @@ $root-name: tree-select;
 
         .u-tag {
             background: none !important;
-            padding:0
         }
     }
 
