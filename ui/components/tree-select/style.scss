@@ -37,6 +37,7 @@ $root-name: tree-select;
         cursor: default;
         border: none;
         box-shadow: none;
+        padding: 0;
     }
 
     @include m.size using ($size) {
@@ -69,12 +70,12 @@ $root-name: tree-select;
     }
 
     @include m.e(tags) {
+        display: inline-flex;
         flex-grow: 1;
         color: fn.use-var(text-color, main);
 
         .u-tag {
             background: none !important;
-            padding:0
         }
     }
 

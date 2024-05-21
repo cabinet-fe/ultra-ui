@@ -39,13 +39,21 @@
           <u-slider field="slider" label="滑块" />
           <u-text-editor field="guide" label="指南" />
           <u-tree-select
-            field="treeSelect"
-            label="权限管理"
+            field="treeChecked"
+            label="tree-多选"
             label-key="name"
             value-key="id"
             :data="data"
             filterable
             multiple
+          />
+          <u-tree-select
+            field="treeSelect"
+            label="tree-单选"
+            label-key="name"
+            value-key="id"
+            :data="data"
+            filterable
           />
         </u-form>
 
@@ -96,7 +104,8 @@ const model = new FormModel({
   slider: {},
   date: { required: true, value: date().format() },
   guide: { required: true },
-  treeSelect: { required: true, value: () => [5, 6, 7] }
+  treeChecked: { required: true, value: () => [5, 6, 7] },
+  treeSelect: { required: true, value: () => 11 }
 })
 
 // const sortRef = shallowRef()
@@ -112,9 +121,9 @@ const visible = shallowRef(false)
 
 watch(visible, v => {
   if (v) {
-    // model.data.treeSelect = [1]
+    // model.data.treeChecked = [1]
     // setTimeout(() => {
-    //   model.setData({ treeSelect: [1] })
+    //   model.setData({ treeChecked: [1] })
     // }, 3000)
   } else {
     model.resetData()
