@@ -5,14 +5,18 @@ import type { DeconstructValue } from '../helper'
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
   extends Omit<TableProps, 'selectable' | 'checkable'> {
+  /** 是否可调节尺寸 */
+  resizable?: boolean
   /** 表单模型 */
   model?: Model
+  /** 表格标题 */
+  title?: string
   /**
    * 列的宽度定义
    */
   cols?: string | [string, string]
-  /** 禁用编辑 */
-  disabled?: boolean
+  /** 只读模式 */
+  readonly?: boolean
 }
 
 /** 批量编辑组件定义的事件 */

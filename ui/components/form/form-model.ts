@@ -134,7 +134,13 @@ export class FormModel<
       })
     }
 
-    if (errors.size > 0) return false
+    if (errors.size > 0) {
+      nextTick(() => {
+        const firstErrorItem = document.querySelector('.u-form-item.is-error')
+        firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      })
+      return false
+    }
 
     return true
   }

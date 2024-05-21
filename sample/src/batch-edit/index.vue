@@ -1,12 +1,18 @@
 <template>
   <div>
+    <div>
+      <u-checkbox v-model="readonly">只读</u-checkbox>
+      <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
+    </div>
+
     <u-batch-edit
       :columns="columns"
+      :readonly="readonly"
+      :resizable="resizable"
       v-model:data="data"
-      disabled
       style="height: 400px"
       :model="model"
-      :cols="['1fr', '1fr']"
+      cols="1fr 1fr"
     >
       <template #form="{ data }">
         <u-input field="name" label="名称" />
@@ -24,6 +30,10 @@
 
 <script lang="ts" setup>
 import { FormModel, defineTableColumns } from 'ultra-ui'
+import { shallowRef } from 'vue'
+
+const readonly = shallowRef(false)
+const resizable = shallowRef(true)
 
 const columns = defineTableColumns([
   { name: '名称', key: 'name' },
@@ -37,7 +47,7 @@ const data = Array.from({ length: 2 }).map((_, i) => ({
 
 const model = new FormModel({
   name: { required: true },
-  age: { required: true }
+  age: { required: true, max: 100 }
 })
 </script>
 

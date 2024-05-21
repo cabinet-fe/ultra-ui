@@ -37,6 +37,16 @@ $root-name: form-item;
       }
     }
   }
+
+  @include m.is(error) {
+    #{fn.bem(input)},
+    #{fn.bem(multi-select),
+    fn.bem(tree-select),
+    #{fn.bem(textarea--more)}} {
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, danger);
+    }
+  }
+
   @include m.e(content) {
     flex-grow: 1;
     word-break: break-all;
@@ -47,14 +57,7 @@ $root-name: form-item;
       width: 100%;
     }
 
-    @include m.is(error) {
-      #{fn.bem(input)},
-      #{fn.bem(multi-select),
-      fn.bem(tree-select),
-      #{fn.bem(textarea--more)}} {
-        box-shadow: inset 0 0 1px 1px fn.use-var(color, danger);
-      }
-    }
+
   }
 
   @include m.e(tips) {
