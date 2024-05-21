@@ -1,6 +1,6 @@
 <template>
   <u-dropdown
-    :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled),bem.is('readonly', readonly)]"
     trigger="click"
     max-width="auto"
     :disabled="disabled"
@@ -18,7 +18,7 @@
       <div v-else :class="multiple ? cls.e('tags-multiple') : cls.e('tags')">
         <u-tag
           v-for="(item, index) in tags"
-          :closable="!disabled && multiple"
+          :closable="!disabled && multiple && !readonly"
           @close="handleRemove(index)"
           >{{ item[labelKey] }}</u-tag
         >
@@ -26,7 +26,7 @@
       <!-- 清空 icon -->
       <transition name="zoom-in">
         <u-icon
-          v-if="clearable && tags?.length && mouse && !disabled"
+          v-if="clearable && tags?.length && mouse && !disabled && !readonly"
           :class="cls.e('clear')"
           @click.stop="handleClear"
         >
@@ -34,7 +34,7 @@
         </u-icon>
       </transition>
       <!-- 下拉 icon -->
-      <u-icon :class="cls.e(`arrow`)">
+      <u-icon :class="cls.e(`arrow`)" v-if="!readonly">
         <ArrowDown />
       </u-icon>
     </template>
@@ -115,7 +115,7 @@ const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
   readonly: undefined,
   size: "default",
   filterable: false,
-  closeOnSelect: true,
+  closeOnSelect: false,
 })
 
 const treeProps = computed(() => {
@@ -149,7 +149,7 @@ const tags = shallowRef<Record<string, any>[]>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled,readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
 

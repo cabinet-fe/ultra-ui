@@ -12,7 +12,6 @@
         :disabledNode="disabledNode"
         filterable
         multiple
-        :close-on-select="false"
       ></u-tree-select>
     </CustomCard>
     <CustomCard
@@ -28,6 +27,7 @@
         expand-all
         :disabledNode="disabledNode"
         filterable
+        closeOnSelect
       ></u-tree-select>
     </CustomCard>
   </div>
