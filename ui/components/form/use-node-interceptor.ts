@@ -49,6 +49,8 @@ interface Options {
   props: FormProps
 }
 
+const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips']
+
 /**
  * 虚拟node拦截
  * @param options 选项
@@ -103,10 +105,8 @@ export function useNodeInterceptor(options: Options) {
         }
 
         results.push(
-          createVNode(
-            FormItem,
-            pick(node.props || {}, ['label', 'field', 'span', 'tips']),
-            () => renderChildren(node)
+          createVNode(FormItem, pick(node.props || {}, FORM_ITEM_PROPS), () =>
+            renderChildren(node)
           )
         )
       } else {
