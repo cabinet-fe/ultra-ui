@@ -27,7 +27,8 @@
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
 import { type CSSProperties, computed } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useFallbackProps, useFormComponent } from '@ui/compositions'
+import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'FormItem'
@@ -42,19 +43,25 @@ const cls = bem('form-item')
 /** 表单组件上下文 */
 const { formProps } = useFormComponent()
 
-const { size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  readonly: false
-})
+const { size, readonly, labelWidth } = useFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default' as ComponentSize,
+    readonly: false,
+    labelWidth: '80px' as string | number
+  }
+)
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(' ')
+  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(
+    ' '
+  )
 })
 
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(props.labelWidth ?? formProps?.labelWidth, 'px')
+    width: withUnit(labelWidth.value, 'px')
   }
 })
 

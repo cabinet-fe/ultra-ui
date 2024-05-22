@@ -5,7 +5,7 @@
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
-      <u-dialog v-model="visible" style="width: 900px">
+      <!-- <u-dialog v-model="visible" style="width: 900px"> -->
         <u-form
           :disabled="disabled"
           :readonly="readonly"
@@ -14,7 +14,7 @@
         >
           <u-input field="name" label="姓名" tips="四个字以内" />
           <span field="aaa" label="aaa">1111</span>
-          <u-password-input field="pwd" label="密码" v-if="false" />
+          <u-password-input field="pwd" label="密码" />
           <u-number-input field="age" label="年龄" />
           <u-number-input field="debt" currency label="借款" :step="1" />
           <u-input field="phone" label="手机" />
@@ -56,12 +56,12 @@
             filterable
           />
         </u-form>
-
+<!--
         <template #footer>
           <u-button @click="model.validate()">校验</u-button>
           <u-button @click="model.clearValidate()">重置</u-button>
         </template>
-      </u-dialog>
+      </u-dialog> -->
     </CustomCard>
 
     {{ model.data }}
@@ -78,9 +78,9 @@ const readonly = shallowRef(false)
 const disabled = shallowRef(false)
 
 const model = new FormModel({
-  name: { maxLen: 4, required: true },
+  name: { maxLen: 4, required: true, value: '' },
   age: formField<string>({ required: '年龄是必填的' }),
-  aa: { required: true },
+  aa: { required: true, value: 'aa' },
   phone: {
     validator(value) {
       if (!value) return ''
@@ -89,10 +89,11 @@ const model = new FormModel({
     }
   },
   freeze: {},
-  sex: { value: 'male' },
-  pwd: {},
+  sex: { value: 'male', required: true },
+  pwd: { value: '', required: true },
   debt: { min: 10, value: 66666 },
   email: {
+    value: '',
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
       '这个时候你得输入一个邮箱'

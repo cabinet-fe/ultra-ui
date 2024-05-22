@@ -7,10 +7,29 @@
 
         <u-button @click="getModelBar">获取toolBar</u-button>
 
+        <!-- :toolbar="[
+            [
+              {
+                header: [1, 2, 3, 4, false]
+              }
+            ],
+            ['link'],
+            ['bold', 'italic', 'underline'],
+            ['image', 'code-block'],
+            ['clean']
+          ]" -->
+
         <UTextEditor
           ref="editorRef"
           v-model:model-value="modelValue"
           @update:model-value="handleChange"
+          height="500px"
+        />
+      </CustomCard>
+
+      <CustomCard title="禁用">
+        <UTextEditor
+          :model-value="modelValue"
           height="500px"
           :toolbar="[
             [
@@ -23,11 +42,8 @@
             ['image', 'code-block'],
             ['clean']
           ]"
+          disabled
         />
-      </CustomCard>
-
-      <CustomCard title="禁用">
-        <UTextEditor :model-value="modelValue" height="500px" disabled />
       </CustomCard>
     </div>
   </div>

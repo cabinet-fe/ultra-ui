@@ -25,9 +25,22 @@
       >
         <template #column:__action__="{ row }">
           <ButtonWrap>
-            <u-button @click.stop="row.addToNext({})" />
-            <u-button @click.stop="row.addToPrev({})" />
-            <u-button @click.stop="" :icon="Delete" title="删除" />
+            <u-button
+              @click.stop="row.addToNext({})"
+              :icon="InsertToPrev"
+              title="插入到上一行"
+            />
+            <u-button
+              @click.stop="row.addToPrev({})"
+              :icon="InsertToNext"
+              title="插入到下一行"
+            />
+            <u-button
+              @click.stop=""
+              :icon="Delete"
+              title="删除"
+              @click="handleDelete(row)"
+            />
           </ButtonWrap>
         </template>
       </u-table>
@@ -37,7 +50,7 @@
           type="danger"
           :icon="Delete"
           :disabled="!checked.length"
-          @click="handleDelete"
+          @click="handleDelete()"
         >
           删除
         </u-button>
@@ -62,7 +75,6 @@
         >
           <u-form
             :model="props.model"
-            label-width="50px"
             :readonly="readonly"
             @keyup.enter="handleSave"
           >
@@ -75,9 +87,9 @@
 
       <u-card-action :class="cls.e('action')">
         <u-button text type="primary" @click="handleClose">关闭</u-button>
-        <u-button v-if="!readonly" type="primary" @click="handleSave"
-          >保存</u-button
-        >
+        <u-button v-if="!readonly" type="primary" @click="handleSave">
+          保存
+        </u-button>
       </u-card-action>
     </u-card>
   </u-layout>
@@ -89,9 +101,14 @@ import type {
   BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import { omit } from 'cat-kit/fe'
-import { Plus, Delete } from 'icon-ultra'
-import { UTable, type TableExposed, type TableRow } from '../table'
+import { omit, omitArr } from 'cat-kit/fe'
+import { Plus, Delete, InsertToPrev, InsertToNext } from 'icon-ultra'
+import {
+  UTable,
+  type TableColumnSlotsScope,
+  type TableExposed,
+  type TableRow
+} from '../table'
 import { UCard, UCardAction, UCardHeader } from '../card'
 import { UForm, FormModel } from '../form'
 import { ULayout } from '../layout'
@@ -112,19 +129,30 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
 const emit = defineEmits<BatchEditEmits>()
 
 const tableProps = computed(() => {
-  return omit(props, ['model', 'columns', 'cols', 'readonly'])
+  return omit(props, [
+    'model',
+    'columns',
+    'cols',
+    'readonly',
+    'deleteMethod',
+    'saveMethod'
+  ])
 })
 
-const slots = defineSlots<{
-  form?: (props: {
-    /** 表单数据 */
-    data: Model['data']
-    /** 表单模型 */
-    model: Model
-  }) => any
+const slots = defineSlots<
+  {
+    form?: (props: {
+      /** 表单数据 */
+      data: Model['data']
+      /** 表单模型 */
+      model: Model
+    }) => any
 
-  header?: () => any
-}>()
+    header?: () => any
+  } & {
+    [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
+  }
+>()
 
 const cls = bem('batch-edit')
 
@@ -134,7 +162,8 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   size: 'small',
   circle: true,
   text: true,
-  type: 'primary'
+  type: 'primary',
+  style: { fontSize: '16px' }
 })
 
 const columns = computed(() => {
@@ -193,15 +222,34 @@ function handleClose() {
   tableRef.value?.clearCurrentRow()
 }
 
-function handleDelete() {}
+async function handleDelete(row?: TableRow) {
+  const { deleteMethod } = props
+
+  if (deleteMethod) {
+    await deleteMethod(row ? [row.value] : checked.value)
+  }
+
+  if (row) {
+    if (currentRow.value === row) {
+      tableRef.value?.clearCurrentRow()
+    }
+    emit('update:data', omitArr(props.data!, row.index))
+  }
+}
 
 async function handleSave() {
-  const { model } = props
+  const { model, saveMethod } = props
 
-  model?.clearValidate()
+  if (!model) return
+
+  model.clearValidate()
   const valid = await model?.validate()
 
   if (!valid || !currentRow.value) return
+
+  if (saveMethod) {
+    await saveMethod(model.data)
+  }
 
   Object.assign(currentRow.value.value, props.model!.data)
 }

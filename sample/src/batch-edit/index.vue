@@ -3,6 +3,7 @@
     <div>
       <u-checkbox v-model="readonly">只读</u-checkbox>
       <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
+      <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
     </div>
 
     <u-batch-edit
@@ -13,6 +14,8 @@
       style="height: 400px"
       :model="model"
       cols="1fr 1fr"
+      :delete-method="asynchronous ? deleteMethod : undefined"
+      :save-method="asynchronous ? saveMethod : undefined"
     >
       <template #form="{ data }">
         <u-input field="name" label="名称" />
@@ -29,7 +32,8 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel, defineTableColumns } from 'ultra-ui'
+import { sleep } from 'cat-kit/fe'
+import { FormModel, Message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
@@ -51,6 +55,18 @@ const model = new FormModel({
   name: { required: true },
   age: { required: true, max: 100 }
 })
+
+const asynchronous = shallowRef(false)
+
+const deleteMethod = async () => {
+  await sleep(2000)
+  Message.success('删除成功')
+}
+
+const saveMethod = async () => {
+  await sleep(2000)
+  Message.success('保存成功')
+}
 </script>
 
 <style lang="scss" scoped></style>

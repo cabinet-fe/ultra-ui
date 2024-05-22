@@ -27,7 +27,7 @@
       autocomplete="off"
       ref="el"
       :disabled="disabled"
-      :readonly="readonly"
+      :readonly="nativeReadonly"
     />
 
     <Transition name="zoom-in" mode="out-in">
