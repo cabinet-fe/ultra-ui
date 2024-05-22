@@ -120,10 +120,16 @@ function countPosition({
 }
 
 // 重构后的样式设置函数
-const setTransform = (transform: string,left?:string,top?:string): void => {
-  dynamicCss.value.transform = transform
-  // dynamicCss.value.left = left
-  // dynamicCss.value.top = top
+const setTransform = (transform: string, left?: string, top?: string): void => {
+  const regex = /translate\((\d+(\.\d+)?px),\s*(\d+(\.\d+)?px)\)/
+  const match = transform.match(regex)
+  if (match) {
+    const left = match[1]
+    const top = match[3]
+    dynamicCss.value = { ...dynamicCss.value, left: left, top: top }
+  } else {
+    console.log("No match found")
+  }
 }
 /**
  * tip靠上计算方法
@@ -163,10 +169,16 @@ function topCount(
   } else if (position === "top") {
     // tip提示靠上居中位置
     if (clientWidth === window.innerWidth - gap * 2) {
-      setTransform(`translate(${gap}px, ${topPositionNumber}px)`,`translate(${gap}px`, `${topPositionNumber}px)`)
+      setTransform(
+        `translate(${gap}px, ${topPositionNumber}px)`,
+        `translate(${gap}px`,
+        `${topPositionNumber}px)`
+      )
     } else {
       setTransform(
-        `translate(${x - (clientWidth - elementWidth) / 2}px, ${topPositionNumber}px)`,`${x - (clientWidth - elementWidth) / 2}px`,`${topPositionNumber}px`
+        `translate(${x - (clientWidth - elementWidth) / 2}px, ${topPositionNumber}px)`,
+        `${x - (clientWidth - elementWidth) / 2}px`,
+        `${topPositionNumber}px`
       )
     }
   } else if (position === "top-end") {
@@ -202,9 +214,9 @@ function rightCount(
 ): void {
   //鼠标获取到的元素dom信息
   let { x, top } = tipRefDom.getBoundingClientRect()
-
   if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom, position)) {
     let rightLeft = `${x - gap - tipContentRefDom.offsetWidth}`
+
     /**再次判断上下是否溢出屏幕 */
     if (
       !isRightOrLeftUpInViewport(
@@ -327,6 +339,7 @@ function leftCount(
   //鼠标获取到的元素dom信息
   let { x, width, top } = tipRefDom.getBoundingClientRect()
   let rightLeft = countPositionInt(`${x + width + gap}`)
+
   if (isRightOrLeftInViewport(tipContentRefDom, tipRefDom, position)) {
     /**再次判断上下是否溢出屏幕 */
 

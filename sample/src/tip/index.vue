@@ -40,6 +40,24 @@
         </u-tip>
       </div>
       <div class="tip-center">
+        
+        <div class="tip-column flex-column">
+          <u-tip content="右上右上右上右上右上右上" position="right-start">
+            <u-button>右上右上右上</u-button>
+          </u-tip>
+          <u-tip
+            content="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中"
+            position="right"
+          >
+            <u-button>右中右中右中右中</u-button>
+          </u-tip>
+          <u-tip
+            content="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下"
+            position="right-end"
+          >
+            <u-button>右下右下Light</u-button>
+          </u-tip>
+        </div>
         <div class="tip-column flex-column">
           <u-tip
             content="颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害"
@@ -58,23 +76,6 @@
             position="left-end"
           >
             <u-button>左下左下 Light</u-button>
-          </u-tip>
-        </div>
-        <div class="tip-column flex-column">
-          <u-tip content="右上右上右上右上右上右上" position="right-start">
-            <u-button>右上右上右上</u-button>
-          </u-tip>
-          <u-tip
-            content="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中"
-            position="right"
-          >
-            <u-button>右中右中右中右中</u-button>
-          </u-tip>
-          <u-tip
-            content="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下"
-            position="right-end"
-          >
-            <u-button>右下右下Light</u-button>
           </u-tip>
         </div>
       </div>
