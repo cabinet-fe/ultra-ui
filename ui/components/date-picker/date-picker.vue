@@ -10,7 +10,7 @@
     v-if="!readonly"
   >
     <template #trigger>
-      <u-input :size="size" readonly :placeholder="placeholder" v-model="model">
+      <u-input :size="size" native-readonly :placeholder="placeholder" v-model="model">
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
         </template>

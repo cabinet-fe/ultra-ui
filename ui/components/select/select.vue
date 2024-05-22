@@ -12,12 +12,12 @@
     <template #trigger>
       <u-input
         :size="size"
-        readonly
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
         :model-value="label || selected?.[labelKey]"
         @clear="handleClear"
+        native-readonly
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -100,9 +100,10 @@ const cls = bem('select')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  disabled: false
+  disabled: false,
+  readonly: false
 })
 
 const model = defineModel<string | number>()
