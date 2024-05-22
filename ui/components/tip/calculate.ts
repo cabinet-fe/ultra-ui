@@ -13,7 +13,8 @@ function calculateMaxWidth(screenWidth, rect, position, gap) {
 function calculateRightMaxWidth(gap, screenWidth, rectWidth, rectX) {
   return rectWidth > screenWidth - (rectX + rectWidth)
     ? `calc(${rectX - gap * 2}px)`
-    : `${screenWidth - rectWidth - gap}px`
+    : `${screenWidth - (rectX + rectWidth) - gap * 2}px`
+    
 }
 
 // 辅助函数，用于计算最大宽度（用于左侧定位）

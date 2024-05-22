@@ -8,19 +8,21 @@
     ref="tipRef"
   />
   <teleport to="body">
-    <div
-      :class="contentClass"
-      ref="tipContentRef"
-      v-if="visible"
-      @mouseenter.stop="handleContentMouseEnter"
-      @mouseleave.stop="handleContentMouseLeave"
-      @click.stop
-      v-click-outside="handleClickOutside"
-    >
-      <slot name="content">
-        {{ content }}
-      </slot>
-    </div>
+    <Transition :name="transitionName">
+      <div
+        :class="contentClass"
+        ref="tipContentRef"
+        v-if="visible"
+        @mouseenter.stop="handleContentMouseEnter"
+        @mouseleave.stop="handleContentMouseLeave"
+        @click.stop
+        v-click-outside="handleClickOutside"
+      >
+        <slot name="content">
+          {{ content }}
+        </slot>
+      </div>
+    </Transition>
   </teleport>
 </template>
 
@@ -42,7 +44,6 @@ import {
   calculateMaxWidth,
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
-  isOverflown,
 } from "./calculate"
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 
@@ -68,13 +69,16 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: "default",
 })
 
+const transitionName = computed(() => {
+  return `tip-${props.position.split("-")[0]}`
+})
 /**tip弹窗class */
 const contentClass = computed(() => {
   return [
     cls.e("content"),
     bem.is(props.position),
     cls.m(size.value),
-    bem.is("hide", animation.value),
+    transitionName.value,
   ]
 })
 
@@ -86,9 +90,6 @@ let tipContentRef = shallowRef<HTMLElement>()
 
 /**是否显示 */
 let visible = shallowRef(false)
-
-/**执行动画之后 */
-let animation = shallowRef(false)
 
 /**鼠标是否在tip区域 */
 let isMouseInTip = ref(false)
@@ -102,14 +103,13 @@ let dynamicStyle = shallowRef<Record<string, any>>({})
 /**鼠标移入元素 */
 const handleMouseEnter = () => {
   isMouseInTip.value = true
-  animation.value = false
   if (props.trigger !== "hover") return
   nextFrame(async () => {
     if (isMouseInTip.value) {
       visible.value = true
       await nextTick()
-      addListener()
       popup()
+      addListener()
     }
   })
 }
@@ -123,7 +123,6 @@ const handleMouseLeave = () => {
   timers.set(
     "timerMouseLeave",
     setTimeout(() => {
-      animation.value = true
       nextFrame(() => {
         if (!isMouseInTip.value) {
           removeAllListeners()
@@ -137,7 +136,6 @@ const handleMouseLeave = () => {
 const handleContentMouseEnter = () => {
   clearTimeout(timers.get("timerMouseLeave"))
   isMouseInTip.value = true
-  animation.value = false
   if (!props.mouseEnterable) return
   timers.forEach(clearTimeout)
 }
@@ -147,52 +145,37 @@ const handleContentMouseLeave = () => {
   if (!props.mouseLeaveClose) return
   isMouseInTip.value = false
   if (props.trigger !== "hover") return
-  clearTimeout(timers.get("timerMouseLeave"))
-  timers.set(
-    "timerMouseLeave",
-    setTimeout(() => {
-      if (!isMouseInTip.value) {
-        animation.value = true
-        nextFrame(() => {
-          removeAllListeners()
-        })
-      }
-    }, 500)
-  )
+  if (!isMouseInTip.value) {
+    nextFrame(() => {
+      removeAllListeners()
+    })
+  }
 }
 
 /**点击触发 */
-const handleClick = () => {
+const handleClick = async () => {
   if (props.trigger !== "click") return
-  animation.value = visible.value
-  clearTimeout(timers.get("timerTip"))
-  timers.set(
-    "timerTip",
-    setTimeout(async () => {
-      visible.value = !visible.value
-      if (visible.value) {
-        await nextTick()
-        addListener()
-        popup()
-      } else {
-        removeAllListeners()
-      }
-    }, 300)
-  )
+  visible.value = !visible.value
+  await nextTick()
+  if (visible.value) {
+    addListener()
+    popup()
+  } else {
+    removeAllListeners()
+  }
 }
 
 /**点击外部触发 */
 const handleClickOutside = () => {
   if (props.trigger === "hover") return
-  animation.value = true
-  clearTimeout(timers.get("timerTip"))
+  if (!visible.value) return
   clearTimeout(timers.get("outside"))
   timers.set(
     "outside",
-    setTimeout(async () => {
+    setTimeout(() => {
       visible.value = false
       removeAllListeners()
-    }, 501)
+    }, 10)
   )
 }
 
@@ -261,17 +244,9 @@ const popup = () => {
       ...dynamicCss.value,
       ...props.customStyle,
     }
-    if (isOverflown(tipRefDom, scrollDom.value!)) {
-      setStyles(tipContentRefDom!, {
-        ...dynamicStyle.value,
-        opacity: 0,
-      })
-    } else {
-      setStyles(tipContentRefDom, {
-        ...dynamicStyle.value,
-        opacity: 1,
-      })
-    }
+    setStyles(tipContentRefDom, {
+      ...dynamicStyle.value,
+    })
   })
 }
 
@@ -285,31 +260,20 @@ const addListener = () => {
   scrollDom.value = getScrollParents(tipRefDom)[0]
 
   if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", closeTip)
+  scrollDom.value.addEventListener("scroll", handleClickOutside)
 }
 
 /**移除所有监听器和定时器 */
 const removeAllListeners = () => {
   visible.value = false
-  animation.value = false
-  scrollDom.value?.removeEventListener("scroll", closeTip)
+  scrollDom.value?.removeEventListener("scroll", handleClickOutside)
   dynamicStyle.value = {}
   timers.forEach(clearTimeout)
 }
 
-/**关闭弹窗 */
-const closeTip = () => {
-  animation.value = true
-  visible.value = false
-  timers.forEach(clearTimeout)
-  nextFrame(() => {
-    removeAllListeners()
-  })
-}
-
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
-  scrollDom.value?.removeEventListener("scroll", closeTip)
+  scrollDom.value?.removeEventListener("scroll", handleClickOutside)
 })
 
 defineExpose<_TipExposed>({

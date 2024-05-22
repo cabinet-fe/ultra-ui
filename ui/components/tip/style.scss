@@ -19,7 +19,6 @@ $root-name: tip;
     overflow-wrap: break-word;
     visibility: visible;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
     color: fn.use-var(text, color-title);
     background: fn.use-var(bg, color-top);
     box-shadow: fn.use-var(shadow);
@@ -31,8 +30,8 @@ $root-name: tip;
     }
 
     @include m.is('hide') {
-      opacity: 0 !important; 
-      transition: opacity 0.5s ease-out; 
+      // opacity: 0 !important;
+      // transition: opacity 0.5s ease-out;
     }
   }
 
