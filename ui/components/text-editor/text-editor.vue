@@ -1,18 +1,13 @@
 <template>
   <div :class="className">
-    <Bar v-if="!toolbar" ref="barRef" />
-    <!-- <div ref="barRef">
-      <select class="ql-size">
-        <option value="small"></option>
-        <option selected></option>
-        <option value="large"></option>
-        <option value="huge"></option>
-      </select>
-      <button class="ql-bold">加粗</button>
-      <button class="ql-script" value="sub"></button>
-      <button class="ql-script" value="super"></button>
-    </div> -->
-    <div :style="`height: ${height}`" ref="editorRef" />
+    <Bar ref="barRef" v-if="!disabled" />
+
+    <div
+      :class="cls.e('hover')"
+      :style="`height: ${height}`"
+      ref="editorRef"
+      @click="handleEditorFocus"
+    />
   </div>
 </template>
 
@@ -73,13 +68,13 @@ const stamp = ref<string>('')
 watch(
   () => barRef.value,
   _ => {
-    console.log(props.toolbar, props.disabled, 'toolbar')
     options = {
       modules: {
-        toolbar: props.toolbar ?? barRef.value?.barRef
+        toolbar: barRef.value?.barRef
       },
-      readOnly: disabled.value,
-      theme: 'snow'
+      // readOnly: disabled.value,
+      theme: 'snow',
+      placeholder: disabled.value ? undefined : props.placeholder
     }
   }
 )
@@ -92,6 +87,11 @@ const createTextEditor = async () => {
   quill = new Quill(editorRef.value!, options)
 
   quill.on('text-change', update)
+
+  /** 禁用 */
+  if (disabled.value) {
+    quill.enable(false)
+  }
 
   if (props.modelValue) {
     quill.updateContents(props.modelValue)
@@ -110,6 +110,11 @@ const destroy = () => {
 
     theme.modules?.clipboard?.container?.remove()
   }
+}
+
+/** 获取焦点 */
+const handleEditorFocus = (e: Event) => {
+  console.log(e, 'e')
 }
 
 onMounted(() => {

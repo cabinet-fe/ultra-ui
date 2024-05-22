@@ -31,17 +31,6 @@
         <UTextEditor
           :model-value="modelValue"
           height="500px"
-          :toolbar="[
-            [
-              {
-                header: [1, 2, 3, 4, false]
-              }
-            ],
-            ['link'],
-            ['bold', 'italic', 'underline'],
-            ['image', 'code-block'],
-            ['clean']
-          ]"
           disabled
         />
       </CustomCard>
