@@ -2,8 +2,6 @@ export * from './use-component-props'
 
 export * from './use-config'
 
-export * from './use-dialog-form'
-
 export * from './use-drag'
 
 export * from './use-fallback-props'

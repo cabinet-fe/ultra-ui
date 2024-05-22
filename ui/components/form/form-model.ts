@@ -71,7 +71,7 @@ export class FormModel<
       const { value, ...rule } = fields[key]!
       keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
-      this.proxyRaw[key] = typeof value === 'function' ? value() : value
+      this.proxyRaw[key] = rawData[key]
       rules[key] = rule as any
     }
 
@@ -88,7 +88,10 @@ export class FormModel<
     this.proxy = new Proxy(this.proxyRaw, {
       set: (t, field: string, v) => {
         t[field] = v
-        this.validate(field as string)
+
+        if (this.validateOnFieldChange) {
+          this.validate(field as string)
+        }
         return true
       },
 
@@ -101,7 +104,6 @@ export class FormModel<
     watch(
       data,
       data => {
-        if (!this.validateOnFieldChange) return
         const p = this.proxy
 
         for (const key in data) {
@@ -161,9 +163,7 @@ export class FormModel<
 
     this.run(() => {
       fields.forEach(field => {
-        const v = this.initialData[field]
-        this.data[field] = v
-        this.proxyRaw[field as string] = v
+        this.data[field] = this.initialData[field]
       })
 
       this.clearValidate()
@@ -182,7 +182,6 @@ export class FormModel<
       for (const key in formData) {
         if (key in this.data) {
           this.data[key] = formData[key]
-          this.proxyRaw[key as string] = formData[key]
         }
       }
     }, validate)

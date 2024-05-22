@@ -146,7 +146,7 @@ $root-name: dialog;
 .#{$root-name}-maximize-enter-active,
 .#{$root-name}-maximize-leave-active {
   transition-property: width, height, transform;
-  transition-duration: 0.25s;
+  transition-duration: .25s;
 }
 
 // 移除动画激活时保证最大高度为100vh

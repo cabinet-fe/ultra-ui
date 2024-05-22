@@ -5,7 +5,7 @@
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
-      <!-- <u-dialog v-model="visible" style="width: 900px"> -->
+      <u-dialog v-model="visible" style="width: 900px">
         <u-form
           :disabled="disabled"
           :readonly="readonly"
@@ -56,12 +56,12 @@
             filterable
           />
         </u-form>
-<!--
+
         <template #footer>
           <u-button @click="model.validate()">校验</u-button>
           <u-button @click="model.clearValidate()">重置</u-button>
         </template>
-      </u-dialog> -->
+      </u-dialog>
     </CustomCard>
 
     {{ model.data }}
