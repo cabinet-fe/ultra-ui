@@ -12,7 +12,7 @@ interface Options {
    * 提交方法
    * @description 该方法会在表单提交时触发，并自动捕获loading状态
    */
-  submit: () => Promise<void> | void
+  submit?: () => Promise<void> | void
 }
 
 export function useDialogForm(options: Options) {
@@ -80,6 +80,7 @@ export function useDialogForm(options: Options) {
   return {
     readonly,
     visible,
+    loading,
     open,
     close,
     handleSubmit
