@@ -71,7 +71,7 @@ export class FormModel<
       const { value, ...rule } = fields[key]!
       keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
-      this.proxyRaw = typeof value === 'function' ? value() : value
+      this.proxyRaw[key] = typeof value === 'function' ? value() : value
       rules[key] = rule as any
     }
 
