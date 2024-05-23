@@ -124,11 +124,7 @@ const setTransform = (transform: string, left?: string, top?: string): void => {
   const regex = /translate\((\d+(\.\d+)?px),\s*(\d+(\.\d+)?px)\)/
   const match = transform.match(regex)
   if (match) {
-    const left = match[1]
-    const top = match[3]
-    dynamicCss.value = { ...dynamicCss.value, left: left, top: top }
-  } else {
-    console.log("No match found")
+    dynamicCss.value = { ...dynamicCss.value, left: match[1], top: match[3] }
   }
 }
 /**
