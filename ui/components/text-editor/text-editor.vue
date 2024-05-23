@@ -118,9 +118,12 @@ const createTextEditor = async () => {
       quill.enable(true)
     }
 
-    if (props.modelValue) {
-      quill.updateContents(props.modelValue)
-    }
+    console.log(props.modelValue, 'modelValue')
+
+    // if (props.modelValue) {
+    console.log(props.modelValue, 'getContents')
+    quill.updateContents(props.modelValue!)
+    // }
 
     // 双向绑定标志
     stamp.value = `${new Date().getTime()}${Math.random()}`

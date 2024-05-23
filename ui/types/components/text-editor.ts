@@ -1,4 +1,3 @@
-import type { ToolbarConfig } from 'quill/modules/toolbar'
 import type { DeconstructValue } from '../helper'
 import type { Delta, Op } from 'quill/core'
 /** text-editor组件属性 */
