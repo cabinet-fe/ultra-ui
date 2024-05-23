@@ -31,19 +31,23 @@ export function useTable(options: Options) {
 
     if (render) return render(ctx)
 
-    const slotsRender = props.slots?.[`column:${key}`] || slots[`column:${key}`]
+    const slotsRender = props.slots?.[`column:${key}`] ?? slots[`column:${key}`]
 
     if (slotsRender) return slotsRender(ctx)
     return ctx.val
   }
 
   const getHeaderSlotsNode = (ctx: { column: ColumnNode }): RenderReturn => {
-    const { column } = ctx
-    return (
-      column.value.nameRender?.(ctx) ??
-      (props.slots ?? slots)[`header:${ctx.column.key}`]?.(ctx) ??
-      ctx.column.name
-    )
+    const column = ctx.column.value
+    const { nameRender, key } = column
+
+    if (nameRender) return nameRender(ctx)
+
+    const slotsRender = props.slots?.[`header:${key}`] ?? slots[`header:${key}`]
+
+    if (slotsRender) return slotsRender(ctx)
+
+    return column.name
   }
 
   const getCellClass = (column: ColumnNode): string => {
