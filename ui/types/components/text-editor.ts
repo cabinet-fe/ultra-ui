@@ -1,7 +1,7 @@
 import type { DeconstructValue } from '../helper'
 import type { Delta, Op } from 'quill/core'
 /** text-editor组件属性 */
-interface BarType {
+export interface BarType {
   content: string
   bar: string
 }
