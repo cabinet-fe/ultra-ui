@@ -1,13 +1,17 @@
 <template>
-  <div :class="className">
-    <Bar ref="barRef" v-if="!disabled" />
+  <div :class="className" v-if="!readonly">
+    <Bar ref="barRef" v-if="reRendering" />
 
     <div
+      v-if="reRendering"
       :class="cls.e('hover')"
       :style="`height: ${height}`"
       ref="editorRef"
-      @click="handleEditorFocus"
     />
+  </div>
+
+  <div v-else>
+    <div ref="editorRef"></div>
   </div>
 </template>
 
@@ -27,9 +31,11 @@ import {
   watch,
   computed,
   nextTick,
-  onBeforeUnmount
+  onBeforeUnmount,
+  provide
 } from 'vue'
 import Bar from './bar.vue'
+import { TextEditorDIKey } from './di'
 
 defineOptions({
   name: 'TextEditor'
@@ -43,9 +49,16 @@ const props = withDefaults(defineProps<TextEditorProps>(), {
   placeholder: '请输入'
 })
 
+provide(TextEditorDIKey, {
+  textEditorProps: props
+})
+
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 /** 类名 */
 const className = computed(() => {
@@ -64,18 +77,25 @@ let quill: Quill | null = null
 
 const stamp = ref<string>('')
 
+const getOptions = () => {
+  options = {
+    modules: {
+      toolbar: barRef.value?.barRef
+    },
+    // readOnly: disabled.value,
+    theme: 'snow',
+    placeholder: disabled.value ? undefined : props.placeholder
+  }
+}
+
+/** 因为没有所以设定一个重新渲染的变量 */
+let reRendering = ref(true)
+
 /** 等待barRef加载出来 */
 watch(
   () => barRef.value,
   _ => {
-    options = {
-      modules: {
-        toolbar: barRef.value?.barRef
-      },
-      // readOnly: disabled.value,
-      theme: 'snow',
-      placeholder: disabled.value ? undefined : props.placeholder
-    }
+    getOptions()
   }
 )
 
@@ -83,38 +103,41 @@ watch(
 const createTextEditor = async () => {
   destroy()
   await nextTick()
+  reRendering.value = true
 
-  quill = new Quill(editorRef.value!, options)
+  nextTick(() => {
+    console.log(options, 'options')
+    quill = new Quill(editorRef.value!, options)
 
-  quill.on('text-change', update)
+    quill.on('text-change', update)
 
-  /** 禁用 */
-  if (disabled.value) {
-    quill.enable(false)
-  }
+    /** 禁用 */
+    if (disabled.value) {
+      quill.enable(false)
+    } else {
+      quill.enable(true)
+    }
 
-  if (props.modelValue) {
-    quill.updateContents(props.modelValue)
-  }
+    if (props.modelValue) {
+      quill.updateContents(props.modelValue)
+    }
 
-  // 双向绑定标志
-  stamp.value = `${new Date().getTime()}${Math.random()}`
+    // 双向绑定标志
+    stamp.value = `${new Date().getTime()}${Math.random()}`
+  })
 }
 
 /** 销毁quill实例 */
 const destroy = () => {
   if (quill) {
-    const theme: any = quill?.theme
+    // const theme: any = quill?.theme
 
-    theme.modules?.toolbar?.container?.remove()
+    // theme.modules?.toolbar?.container?.remove()
 
-    theme.modules?.clipboard?.container?.remove()
+    // theme.modules?.clipboard?.container?.remove()
+
+    reRendering.value = false
   }
-}
-
-/** 获取焦点 */
-const handleEditorFocus = (e: Event) => {
-  console.log(e, 'e')
 }
 
 onMounted(() => {
@@ -122,7 +145,7 @@ onMounted(() => {
 })
 
 watch(
-  () => disabled.value,
+  () => [disabled.value, readonly.value],
   () => {
     createTextEditor()
   }

@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="!readonly"
     :class="className"
     ref="sliderRef"
     :style="vertical ? { height: `${height}px` } : undefined"
@@ -32,6 +33,10 @@
         />
       </template>
     </div>
+  </div>
+
+  <div v-else>
+    {{ model }}
   </div>
 </template>
 
@@ -66,7 +71,10 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 const className = computed(() => {
   return [

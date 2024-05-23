@@ -104,7 +104,10 @@ const model = new FormModel({
   remarks: { required: true, value: '备注默认值' },
   slider: {},
   date: { required: true, value: date().format() },
-  guide: { required: true },
+  guide: {
+    value: [{ attributes: { bold: true }, insert: '22eee' }],
+    required: true
+  },
   treeChecked: { required: true, value: () => [5, 6, 7] },
   treeSelect: { required: true, value: () => 11 }
 })

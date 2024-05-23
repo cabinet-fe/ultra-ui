@@ -7,20 +7,17 @@
 
         <u-button @click="getModelBar">获取toolBar</u-button>
 
-        <!-- :toolbar="[
-            [
-              {
-                header: [1, 2, 3, 4, false]
-              }
-            ],
-            ['link'],
-            ['bold', 'italic', 'underline'],
-            ['image', 'code-block'],
-            ['clean']
-          ]" -->
-
         <UTextEditor
           ref="editorRef"
+          :toolbar="[
+            { content: '加粗', bar: 'bold' },
+            { content: '斜体', bar: 'italic' },
+            { content: '下划线', bar: 'underline' },
+            { content: '上传图片', bar: 'image' },
+            { content: '插入链接', bar: 'link' },
+            { content: '代码块', bar: 'code-block' },
+            { content: '清除格式', bar: 'clean' }
+          ]"
           v-model:model-value="modelValue"
           @update:model-value="handleChange"
           height="500px"
@@ -28,18 +25,14 @@
       </CustomCard>
 
       <CustomCard title="禁用">
-        <UTextEditor
-          :model-value="modelValue"
-          height="500px"
-          disabled
-        />
+        <UTextEditor :model-value="modelValue" height="500px" disabled />
       </CustomCard>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef, ref } from 'vue'
+import { shallowRef } from 'vue'
 
 const editorRef = shallowRef()
 
