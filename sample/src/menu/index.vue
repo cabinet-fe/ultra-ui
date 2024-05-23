@@ -1,8 +1,6 @@
 <template>
   <div>
-    <u-menu :menus="menus">
-
-    </u-menu>
+    <u-menu :menus="menus"> </u-menu>
 
     <div class="config">
       <u-input v-model="config.index"></u-input>
@@ -21,49 +19,63 @@
         text-color="#00CCCC"
         :active-index="activeIndex"
       >
-        <LayoutMenu
-          v-for="menu of menus"
-          :menus="menu"
-        />
+        <LayoutMenu v-for="menu of menus" :menus="menu" />
       </u-menu>
     </u-scroll>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { UMenu } from 'ultra-ui/components'
-import { shallowRef, reactive, watch, ref } from 'vue'
-import { Layers, HouseFilled, UserGroup, Lock, Cart } from 'icon-ultra'
-import LayoutMenu from './layout-menu.vue'
+import type { UMenu } from "ultra-ui/components"
+import { shallowRef, reactive, watch, ref } from "vue"
+import { HouseFilled, UserGroup, Lock, Cart } from "icon-ultra"
+import LayoutMenu from "./layout-menu.vue"
 
 const menus = shallowRef<any[]>([
   { title: "首页", icon: HouseFilled, path: "/" },
+  { title: "功能模块管理", icon: UserGroup, path: "/business-center/modules" },
   {
-    title: "用户管理",
-    icon: Layers,
-    path: "/view/index",
+    title: "角色管理",
+    icon: Lock,
+    path: "/business-center/role",
     children: [
-      { title: "用户管理1", icon: HouseFilled, path: "/view/index/1232" },
-      { title: "用户管理2", icon: Layers, path: "/view/index/123" },
-      { title: "用户管理3", icon: UserGroup, path: "/view/index/12322" },
-      { title: "用户管理4", icon: Lock, path: "/view/index/123555" },
+      { title: "首页", icon: HouseFilled, path: "/" },
       {
-        title: "用户管理5",
+        title: "功能模块管理",
+        icon: UserGroup,
+        path: "/business-center/modules",
+      },
+      { title: "角色管理", icon: Lock, path: "/business-center/role" },
+      { title: "数据字典", icon: Cart, path: "/business-center/dict" },
+      {
+        title: "用户管理",
         icon: Cart,
-        path: "/view/index/444",
+        path: "/business-center/user",
         children: [
-          { title: "用户管理1", icon: HouseFilled, path: "/view/index/1232" },
-          { title: "用户管理2", icon: Layers, path: "/view/index/123" },
-          { title: "用户管理3", icon: UserGroup, path: "/view/index/12322" },
-          { title: "用户管理4", icon: Lock, path: "/view/index/123555" },
-          { title: "用户管理5", icon: Cart, path: "/view/index/444" },
+          { title: "首页", icon: HouseFilled, path: "/" },
+          {
+            title: "功能模块管理",
+            icon: UserGroup,
+            path: "/business-center/modules",
+          },
+          { title: "角色管理", icon: Lock, path: "/business-center/role" },
+          { title: "数据字典", icon: Cart, path: "/business-center/dict" },
+          { title: "用户管理", icon: Cart, path: "/business-center/user" },
+          { title: "单位管理", icon: Cart, path: "/business-center/unit" },
+          { title: "部门管理", icon: Cart, path: "/business-center/dept" },
+          { title: "编码规则", icon: Lock, path: "/business-center/code-rule" },
         ],
       },
+      { title: "单位管理", icon: Cart, path: "/business-center/unit" },
+      { title: "部门管理", icon: Cart, path: "/business-center/dept" },
+      { title: "编码规则", icon: Lock, path: "/business-center/code-rule" },
     ],
   },
-  { title: "角色管理", icon: UserGroup, path: "/view/test" },
-  { title: "权限管理", icon: Lock, path: "/permission" },
-  { title: "商品管理", icon: Cart, path: "/goods" },
+  { title: "数据字典", icon: Cart, path: "/business-center/dict" },
+  { title: "用户管理", icon: Cart, path: "/business-center/user" },
+  { title: "单位管理", icon: Cart, path: "/business-center/unit" },
+  { title: "部门管理", icon: Cart, path: "/business-center/dept" },
+  { title: "编码规则", icon: Lock, path: "/business-center/code-rule" },
 ])
 
 const open = (index: string) => {
@@ -83,15 +95,15 @@ const menuRef = shallowRef<InstanceType<typeof UMenu>>()
 const config = reactive({
   open: false,
   simple: false,
-  index: '/view/index'
+  index: "/view/index",
 })
 
-const activeIndex = ref('/view/index/12322')
+const activeIndex = ref("/view/index/12322")
 
 watch(
   () => config.open,
   (val) => {
-    menuRef.value![val?'open':'close'](config.index)
+    menuRef.value![val ? "open" : "close"](config.index)
   }
 )
 </script>

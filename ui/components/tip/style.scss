@@ -17,11 +17,11 @@ $root-name: tip;
     line-height: 1.2;
     width: max-content;
     overflow-wrap: break-word;
-    visibility: visible;
     opacity: 0;
     color: fn.use-var(text, color-title);
     background: fn.use-var(bg, color-top);
     box-shadow: fn.use-var(shadow);
+    overflow: hidden;
 
     @include m.is(content-light) {
       background: #fff;
