@@ -3,6 +3,7 @@
     :class="inputClass"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    v-if="!readonly"
   >
     <span
       v-if="$slots.prefix || prefix"
@@ -26,7 +27,7 @@
       autocomplete="off"
       ref="el"
       :disabled="disabled"
-      :readonly="readonly"
+      :readonly="nativeReadonly"
     />
 
     <Transition name="zoom-in" mode="out-in">
@@ -47,6 +48,10 @@
       <slot name="suffix">{{ suffix }}</slot>
     </span>
   </div>
+
+  <span v-else>
+    {{ model }}
+  </span>
 </template>
 
 <script lang="tsx" setup>

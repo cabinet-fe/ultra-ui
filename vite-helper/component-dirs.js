@@ -1,6 +1,7 @@
 
   export const componentDirs = [
   "badge",
+  "batch-edit",
   "button",
   "calendar",
   "card",
@@ -11,6 +12,7 @@
   "date-picker",
   "dialog",
   "dropdown",
+  "empty",
   "file-picker",
   "float-button",
   "form",
@@ -37,7 +39,6 @@
   "progress",
   "radio",
   "radio-group",
-  "row-form",
   "scroll",
   "select",
   "slider",

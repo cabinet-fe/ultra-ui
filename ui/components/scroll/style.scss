@@ -33,7 +33,7 @@ $root-name: scroll;
   }
 
   @include m.e(content) {
-    min-height: 100%;
+    // min-height: 100%;
   }
 
   // 悬浮

@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="fade">
+    <transition name="fade" @after-leave="emit('closed')">
       <div
         v-if="visible || opened"
         v-show="visible"

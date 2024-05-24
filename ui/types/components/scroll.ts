@@ -48,7 +48,7 @@ export interface ScrollEmits {
   /** 滚动事件 */
   (e: 'scroll', position: Required<ScrollPosition>): void
   /** 尺寸调整事件 */
-  (e: 'resize', el: HTMLElement): void
+  (e: 'resize', targets: HTMLElement[]): void
 }
 
 export interface _ScrollExposed {

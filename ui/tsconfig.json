@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["vite/client", "@vue/runtime-core"],
+    "types": ["vite/client"],
     "lib": ["esnext", "dom"],
     "baseUrl": ".",
     "paths": {

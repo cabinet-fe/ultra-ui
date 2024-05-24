@@ -59,7 +59,8 @@ export default defineConfig(() => {
 
     server: {
       port: 7788,
-      host: true
+      host: true,
+      hmr: true
     }
   }
 })

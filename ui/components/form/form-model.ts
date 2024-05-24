@@ -2,7 +2,8 @@ import type {
   FormModelItem,
   ModelData,
   ModelRules,
-  IFormModel
+  IFormModel,
+  DataSettingConfig
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
 import {
@@ -12,14 +13,6 @@ import {
   watch,
   type ShallowRef
 } from 'vue'
-
-interface SetDataConfig {
-  /**
-   * 是否校验
-   * @default true
-   */
-  validate?: boolean
-}
 
 /**
  * 响应式表单模型
@@ -78,6 +71,7 @@ export class FormModel<
       const { value, ...rule } = fields[key]!
       keyOfFields.push(key)
       rawData[key] = typeof value === 'function' ? value() : value
+      this.proxyRaw[key] = rawData[key]
       rules[key] = rule as any
     }
 
@@ -86,6 +80,7 @@ export class FormModel<
 
     this.keyOfFields = keyOfFields
     this.data = data
+
     this.rules = rules
     this.validator = new Validator(rules)
 
@@ -93,7 +88,10 @@ export class FormModel<
     this.proxy = new Proxy(this.proxyRaw, {
       set: (t, field: string, v) => {
         t[field] = v
-        this.validate(field as string)
+
+        if (this.validateOnFieldChange) {
+          this.validate(field as string)
+        }
         return true
       },
 
@@ -103,16 +101,19 @@ export class FormModel<
     })
 
     // 校验
-    watch(data, data => {
-      if (!this.validateOnFieldChange) return
-      const p = this.proxy
+    watch(
+      data,
+      data => {
+        const p = this.proxy
 
-      for (const key in data) {
-        if (p[key] !== data[key]) {
-          p[key] = data[key]
+        for (const key in data) {
+          if (p[key] !== data[key]) {
+            p[key] = data[key]
+          }
         }
-      }
-    })
+      },
+      { immediate: true }
+    )
   }
 
   /**
@@ -141,7 +142,12 @@ export class FormModel<
       })
     }
 
-    if (errors.size > 0) return false
+    if (errors.size > 0) {
+      if (typeof fields !== 'string') {
+        this.scrollToFirstError()
+      }
+      return false
+    }
 
     return true
   }
@@ -157,9 +163,7 @@ export class FormModel<
 
     this.run(() => {
       fields.forEach(field => {
-        const v = this.initialData[field]
-        this.data[field] = v
-        this.proxyRaw[field as string] = v
+        this.data[field] = this.initialData[field]
       })
 
       this.clearValidate()
@@ -171,14 +175,13 @@ export class FormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>, config?: SetDataConfig) {
+  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig) {
     const { validate } = config || {}
 
     this.run(() => {
       for (const key in formData) {
         if (key in this.data) {
           this.data[key] = formData[key]
-          this.proxyRaw[key as string] = formData[key]
         }
       }
     }, validate)
@@ -206,6 +209,14 @@ export class FormModel<
   /** 清除校验 */
   clearValidate(): void {
     this.errors.clear()
+  }
+
+  /** 滚动至第一个错误处 */
+  scrollToFirstError(): void {
+    nextTick(() => {
+      const firstErrorItem = document.querySelector('.u-form-item.is-error')
+      firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
   }
 }
 

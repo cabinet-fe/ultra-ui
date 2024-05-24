@@ -1,9 +1,22 @@
 import type { TreeNode } from 'cat-kit/fe'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue, RenderReturn } from '../helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
+import type { ColumnNode } from '@ui/components'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
+
+/**
+ * 合计上下文
+ */
+export interface TableSummaryContext {
+  /** 总数 */
+  total: number
+  /** 所有行数据 */
+  rows: TableRow[]
+  /** 当前列 */
+  column: ColumnNode
+}
 
 export interface TableColumn {
   /** 列的唯一键 */
@@ -11,7 +24,9 @@ export interface TableColumn {
   /** 列的名称 */
   name: string
   /** 表头渲染，优先级大于name属性 */
-  nameRender?: (ctx: { column: TableColumnNode }) => VNode | string | null | undefined | VNode[]
+  nameRender?: (ctx: {
+    column: TableColumnNode
+  }) => VNode | string | null | undefined | VNode[]
   /** 列最大宽度 */
   width?: number
   /** 列最小宽度 */
@@ -27,10 +42,15 @@ export interface TableColumn {
    */
   align?: TableColumnAlign
   /** 列渲染 */
-  render?: (scope: TableColumnSlotsScope) => VNode | string | null | VNode[]
+  render?: (scope: TableColumnRenderContext) => RenderReturn
   /** 子列 */
   children?: TableColumn[]
-
+  /** 表尾合计 */
+  summary?:
+    | boolean
+    | ((
+        ctx: TableSummaryContext
+      ) => RenderReturn)
   [key: string]: any
 }
 
@@ -68,6 +88,13 @@ export interface TableProps<
     rowspan: number
     colspan: number
   }
+  /** 高亮当前选中行 */
+  highlightCurrent?: boolean
+  /**
+   * 行key
+   * @description 用于标识行的唯一性，可以提升性能
+   */
+  rowKey?: string
 }
 
 export interface TableRow<
@@ -77,8 +104,10 @@ export interface TableRow<
   expanded: boolean
   /** 是否选中 */
   checked: boolean
+  /** 是否为当前点击的行 */
+  isCurrent: boolean
   /** id */
-  uid: number
+  uid: number | string
   indexes: number[]
   /** 子row */
   children?: TableRow<DataItem>[]
@@ -104,12 +133,23 @@ export interface TableColumnNode extends TreeNode<TableColumn> {
   style: Record<string, number>
 }
 
-/** 表格列插槽作用域 */
-export interface TableColumnSlotsScope {
+/**
+ * 列渲染函数参数上下文
+ */
+export interface TableColumnRenderContext {
+  /** 行 */
   row: TableRow
+  /** 行数据 */
   rowData: Record<string, any>
+  /** 列节点 */
   column: TableColumnNode
+  /** 单元格数据 */
   val: any
+}
+
+/** 表格列插槽作用域 */
+export interface TableColumnSlotsScope extends TableColumnRenderContext {
+  /** 交互模型 */
   model: {
     modelValue: any
     'onUpdate:modelValue': (val: any) => void
@@ -117,18 +157,28 @@ export interface TableColumnSlotsScope {
 }
 
 /** 表格组件定义的事件 */
-export interface TableEmits<DataItem extends Record<string, any>> {
+export interface TableEmits<DataItem extends Record<string, any> = Record<string, any>> {
   /** 多选 */
   (e: 'update:checked', value: DataItem[]): void
   /** 单选 */
   (e: 'update:selected', value: DataItem | undefined): void
+  /** 数据更新 */
+  (e: 'update:data', value: DataItem[]): void
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
+  /** 当前行变更 */
+  (e: 'current-row-change', row?: TableRow<DataItem>): void
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */
 export interface _TableExposed {
   el: ShallowRef<HTMLElement | undefined>
+  /** 清除选中的项 */
+  clearChecked: () => void
+  /** 清除单选的选项 */
+  clearSelected: () => void
+  /** 清除当前选中行 */
+  clearCurrentRow: () => void
 }
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

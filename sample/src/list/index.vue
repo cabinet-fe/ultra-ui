@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { isRef, ref, type ShallowRef } from '@vue/runtime-core'
+import { isRef, ref, type ShallowRef } from 'vue'
 import { reactive, watch } from 'vue'
 
 const checkArr = ref([])

@@ -1,5 +1,6 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
     ref="dropdownRef"
@@ -11,12 +12,12 @@
     <template #trigger>
       <u-input
         :size="size"
-        readonly
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
         :model-value="label || selected?.[labelKey]"
         @clear="handleClear"
+        native-readonly
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -59,11 +60,17 @@
       <div v-else :class="cls.e('empty')">未查询到结果</div>
     </template>
   </u-dropdown>
+
+  <span v-else>{{ label || selected?.[labelKey] }}</span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
 import { computed, shallowRef, watch } from 'vue'
-import type { SelectEmits, SelectProps } from '@ui/types/components/select'
+import type {
+  SelectEmits,
+  SelectProps,
+  _SelectExposed
+} from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
@@ -82,7 +89,8 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   valueKey: 'value',
   placeholder: '请选择',
   clearable: true,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<SelectEmits<Option>>()
@@ -92,9 +100,10 @@ const cls = bem('select')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  disabled: false
+  disabled: false,
+  readonly: false
 })
 
 const model = defineModel<string | number>()

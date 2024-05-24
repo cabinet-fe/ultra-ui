@@ -1,7 +1,6 @@
 <template>
   <div>
     <u-checkbox v-model="disabled"> 禁用 </u-checkbox>
-
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
 
     <CustomCard title="表单">
@@ -15,7 +14,7 @@
         >
           <u-input field="name" label="姓名" tips="四个字以内" />
           <span field="aaa" label="aaa">1111</span>
-          <u-password-input field="pwd" label="密码" v-if="false" />
+          <u-password-input field="pwd" label="密码" />
           <u-number-input field="age" label="年龄" />
           <u-number-input field="debt" currency label="借款" :step="1" />
           <u-input field="phone" label="手机" />
@@ -40,13 +39,21 @@
           <u-slider field="slider" label="滑块" />
           <u-text-editor field="guide" label="指南" />
           <u-tree-select
-            field="treeSelect"
-            label="权限管理"
+            field="treeChecked"
+            label="tree-多选"
             label-key="name"
             value-key="id"
             :data="data"
             filterable
             multiple
+          />
+          <u-tree-select
+            field="treeSelect"
+            label="tree-单选"
+            label-key="name"
+            value-key="id"
+            :data="data"
+            filterable
           />
         </u-form>
 
@@ -65,14 +72,15 @@
 import { formField, FormModel } from 'ultra-ui'
 import { shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { date } from 'cat-kit/fe'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
 
 const model = new FormModel({
-  name: { maxLen: 4, required: true },
+  name: { maxLen: 4, required: true, value: '' },
   age: formField<string>({ required: '年龄是必填的' }),
-  aa: { required: true },
+  aa: { required: true, value: 'aa' },
   phone: {
     validator(value) {
       if (!value) return ''
@@ -81,22 +89,27 @@ const model = new FormModel({
     }
   },
   freeze: {},
-  sex: { value: '' },
-  pwd: {},
-  debt: { min: 10 },
+  sex: { value: 'male', required: true },
+  pwd: { value: '', required: true },
+  debt: { min: 10, value: 66666 },
   email: {
+    value: '',
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
       '这个时候你得输入一个邮箱'
     ]
   },
-  unit: { required: true },
-  interest: { required: true },
-  remarks: { required: true },
+  unit: { required: true, value: '1' },
+  interest: { required: true, value: () => ['1', '2', '3'] },
+  remarks: { required: true, value: '备注默认值' },
   slider: {},
-  date: { required: true },
-  guide: { required: true },
-  treeSelect: { required: true }
+  date: { required: true, value: date().format() },
+  guide: {
+    value: [{ attributes: { bold: true }, insert: '22eee' }],
+    required: true
+  },
+  treeChecked: { required: true, value: () => [5, 6, 7] },
+  treeSelect: { required: true, value: () => 11 }
 })
 
 // const sortRef = shallowRef()
@@ -112,9 +125,9 @@ const visible = shallowRef(false)
 
 watch(visible, v => {
   if (v) {
-    // model.data.treeSelect = [1]
+    // model.data.treeChecked = [1]
     // setTimeout(() => {
-    //   model.setData({ treeSelect: [1] })
+    //   model.setData({ treeChecked: [1] })
     // }, 3000)
   } else {
     model.resetData()

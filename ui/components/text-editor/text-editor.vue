@@ -1,5 +1,18 @@
 <template>
-  <div :class="className" :style="`height: ${height}`" ref="editorRef" />
+  <div :class="className" v-if="!readonly">
+    <Bar ref="barRef" v-if="reRendering" />
+
+    <div
+      v-if="reRendering"
+      :class="cls.e('hover')"
+      :style="`height: ${height}`"
+      ref="editorRef"
+    />
+  </div>
+
+  <div v-else>
+    <div ref="editorRef"></div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -10,16 +23,19 @@ import type {
 } from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
-import type { Delta, Op } from 'quill/core'
+import type { Delta, QuillOptions, Op } from 'quill/core'
 import {
   onMounted,
-  onUnmounted,
   shallowRef,
   ref,
   watch,
   computed,
-  nextTick
+  nextTick,
+  onBeforeUnmount,
+  provide
 } from 'vue'
+import Bar from './bar.vue'
+import { TextEditorDIKey } from './di'
 
 defineOptions({
   name: 'TextEditor'
@@ -29,12 +45,20 @@ const emit = defineEmits<TextEditorEmits>()
 
 const props = withDefaults(defineProps<TextEditorProps>(), {
   disabled: undefined,
+  toolbar: undefined,
   placeholder: '请输入'
+})
+
+provide(TextEditorDIKey, {
+  textEditorProps: props
 })
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 /** 类名 */
 const className = computed(() => {
@@ -45,48 +69,77 @@ const cls = bem('text-editor')
 
 const editorRef = shallowRef<HTMLElement>()
 
-const options = {
-  modules: {
-    toolbar: props.toolbar ?? [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ['link'],
-      ['bold', 'italic', 'underline'],
-      ['image', 'code-block']
-    ]
-  },
-  readOnly: disabled.value,
-  scrollingContainer: true,
-  theme: 'snow'
-}
+const barRef = shallowRef<InstanceType<typeof Bar>>()
+
+let options: QuillOptions
 
 let quill: Quill | null = null
 
 const stamp = ref<string>('')
 
+const getOptions = () => {
+  options = {
+    modules: {
+      toolbar: barRef.value?.barRef
+    },
+    // readOnly: disabled.value,
+    theme: 'snow',
+    placeholder: disabled.value ? undefined : props.placeholder
+  }
+}
+
+/** 因为没有所以设定一个重新渲染的变量 */
+let reRendering = ref(true)
+
+/** 等待barRef加载出来 */
+watch(
+  () => barRef.value,
+  _ => {
+    getOptions()
+  }
+)
+
 /** 创建textEditor实例 */
 const createTextEditor = async () => {
   destroy()
   await nextTick()
-  quill = new Quill(editorRef.value!, options)
+  reRendering.value = true
 
-  quill.on('text-change', update)
+  nextTick(() => {
+    console.log(options, 'options')
+    quill = new Quill(editorRef.value!, options)
 
-  if (props.modelValue) {
-    quill.updateContents(props.modelValue)
-  }
+    quill.on('text-change', update)
 
-  // 双向绑定标志
-  stamp.value = `${new Date().getTime()}${Math.random()}`
+    /** 禁用 */
+    if (disabled.value) {
+      quill.enable(false)
+    } else {
+      quill.enable(true)
+    }
+
+    console.log(props.modelValue, 'modelValue')
+
+    // if (props.modelValue) {
+    console.log(props.modelValue, 'getContents')
+    quill.updateContents(props.modelValue!)
+    // }
+
+    // 双向绑定标志
+    stamp.value = `${new Date().getTime()}${Math.random()}`
+  })
 }
 
 /** 销毁quill实例 */
 const destroy = () => {
   if (quill) {
-    const theme: any = quill?.theme
+    // const theme: any = quill?.theme
 
-    theme.modules?.toolbar?.container?.remove()
+    // theme.modules?.toolbar?.container?.remove()
 
-    theme.modules?.clipboard?.container?.remove()
+    // theme.modules?.clipboard?.container?.remove()
+
+    reRendering.value = false
   }
 }
 
@@ -95,7 +148,7 @@ onMounted(() => {
 })
 
 watch(
-  () => disabled.value,
+  () => [disabled.value, readonly.value],
   () => {
     createTextEditor()
   }
@@ -124,9 +177,10 @@ const update = (_, __, ___: 'user' | 'api') => {
   emit('update:modelValue', { value: contents, stamp: stamp.value })
 }
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   quill?.off('text-change', update)
   quill?.history.clear()
+  destroy()
 })
 
 watch([() => props.modelValue, () => quill], ([val, qui]) => {

@@ -1,3 +1,5 @@
+import type { VNode } from 'vue'
+
 export type Null<T> = null | T
 
 export type Undef<T> = undefined | T
@@ -16,3 +18,8 @@ export type DeconstructValue<E extends Record<string, any>> = {
 export type Index<Keys extends string, Val> = {
   [key in Keys]?: Val
 }
+
+/**
+ * 渲染函数返回内容
+ */
+export type RenderReturn = VNode[] | undefined | VNode | string | null | number

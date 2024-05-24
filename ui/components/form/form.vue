@@ -32,5 +32,5 @@ const cls = bem('form')
 
 useFormComponent(props)
 
-const getSlotsNodes = useNodeInterceptor({ props })
+const { getSlotsNodes } = useNodeInterceptor({ props })
 </script>

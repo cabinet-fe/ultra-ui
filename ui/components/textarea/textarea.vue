@@ -1,5 +1,10 @@
 <template>
-  <div :class="cls.b" @mouseenter="mouse = true" @mouseleave="mouse = false">
+  <div
+    v-if="!readonly"
+    :class="cls.b"
+    @mouseenter="mouse = true"
+    @mouseleave="mouse = false"
+  >
     <textarea
       :class="classList"
       :placeholder="props.placeholder"
@@ -28,20 +33,28 @@
       </u-icon>
     </span>
   </div>
+
+  <span v-else>
+    {{ model }}
+  </span>
 </template>
 
 <script lang="ts" setup>
-import type {TextareaProps, TextareaEmits} from "@ui/types/components/textarea"
-import {bem, setStyles} from "@ui/utils"
-import {computed, nextTick, onMounted, ref, shallowRef} from "vue"
-import heightAuto from "./height-auto"
-import {UIcon} from "../icon"
-import {Close} from "icon-ultra"
+import type {
+  TextareaProps,
+  TextareaEmits
+} from '@ui/types/components/textarea'
+import { bem, setStyles } from '@ui/utils'
+import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
+import heightAuto from './height-auto'
+import { UIcon } from '../icon'
+import { Close } from 'icon-ultra'
 import {
   useFocus,
   useFormComponent,
-  useFormFallbackProps,
-} from "@ui/compositions"
+  useFormFallbackProps
+} from '@ui/compositions'
+import type { ComponentSize } from '@ui/types/component-common'
 // todo: 优化
 // 1. 使用useFormFallbackProps来控制表单组件的props（disabled..）
 // 2. 去除resizable
@@ -49,26 +62,30 @@ import {
 // 4. 使用defineModel来定义值
 // 5. 使用计算属性来控制字符剩余长度(以及其他可能这样使用的代码)
 defineOptions({
-  name: "Textarea",
+  name: 'Textarea'
 })
 
 const props = withDefaults(defineProps<TextareaProps>(), {
-  placeholder: "请输入",
+  placeholder: '请输入',
   rows: 5,
   resize: true,
-  clearable:true,
+  clearable: true,
   disabled: undefined,
   readonly: undefined
 })
 
-const cls = bem("textarea")
+const cls = bem('textarea')
 
-const {formProps} = useFormComponent()
+const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default' as ComponentSize,
+    disabled: false,
+    readonly: false
+  }
+)
 
 const emit = defineEmits<TextareaEmits>()
 
@@ -84,13 +101,13 @@ let mouse = shallowRef(false)
 
 const classList = computed(() => {
   return [
-  cls.b,
-    bem.is("resize-none", !props.resize),
-    bem.is("disabled", disabled.value),
-    bem.is("readonly", readonly.value),
+    cls.b,
+    bem.is('resize-none', !props.resize),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value),
     cls.m('more'),
     cls.m(size.value),
-    bem.is('mouse',mouse.value),
+    bem.is('mouse', mouse.value)
   ]
 })
 
@@ -99,13 +116,13 @@ const handleInput = (e: Event) => {
   if (value.length > props.maxlength!) {
     // 如果输入的字符数超过了最大长度，截取字符串到最大长度
     const truncatedValue = value.slice(0, props.maxlength)
-    emit("update:modelValue", truncatedValue)
+    emit('update:modelValue', truncatedValue)
   } else {
     // 如果没有超过最大长度，则正常更新模型值
-    emit("update:modelValue", value)
+    emit('update:modelValue', value)
   }
   if (!props.autosize) return
-  setStyles(textAreaRef.value!, {height: "auto"})
+  setStyles(textAreaRef.value!, { height: 'auto' })
   countHeight()
 }
 
@@ -113,8 +130,8 @@ const countHeight = async () => {
   await nextTick()
   const el = textAreaRef.value!
   let height = heightAuto(el, moreElementHeight.value)
-  scrollHight.value = height + "px"
-  setStyles(el, {height: scrollHight.value})
+  scrollHight.value = height + 'px'
+  setStyles(el, { height: scrollHight.value })
 }
 
 const initNum = computed(() => {
@@ -123,16 +140,16 @@ const initNum = computed(() => {
 })
 
 const handleClear = () => {
-  model.value = ""
-  emit("clear")
+  model.value = ''
+  emit('clear')
 }
 
-const {handleBlur, handleFocus} = useFocus((focused) => {
-  focused ? emit("focus") : emit("blur")
+const { handleBlur, handleFocus } = useFocus(focused => {
+  focused ? emit('focus') : emit('blur')
 })
 
 const handleChange = (e: Event) => {
-  emit("change", (e.target as HTMLTextAreaElement).value)
+  emit('change', (e.target as HTMLTextAreaElement).value)
 }
 
 onMounted(() => {

@@ -1,6 +1,6 @@
 import type { TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode } from 'cat-kit/fe'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
@@ -24,17 +24,28 @@ export class TableRow<
   /** 是否展开 */
   expanded = false
 
+  /** 是否为当前的点击行 */
+  isCurrent = false
+
   /** 是否选中 */
   checked = false
 
-  uid = uid++
+  uid: number | string
 
   override children?: TableRow<Data>[] = undefined
 
   override parent: TableRow<Data> | null = null
 
-  constructor(data: Data, index: number) {
-    super(shallowReactive(data), index)
+  /**
+   *
+   * @param data 一个普通对象或者一个响应式对象
+   * @param index 索引值
+   * @param rowKey 行唯一标识
+   * @returns
+   */
+  constructor(data: Data, index: number, rowKey?: string) {
+    super(isReactive(data) ? data : shallowReactive(data), index)
+    this.uid = rowKey ? data[rowKey] : uid++
     return shallowReactive(this)
   }
 }
@@ -47,8 +58,8 @@ export function useRows(options: Options) {
   let rowForest = shallowRef<Forest<TableRow>>()
 
   watch(
-    [() => props.data, () => props.tree],
-    ([data, tree]) => {
+    [() => props.data, () => props.tree, () => props.rowKey],
+    ([data, tree, rowKey]) => {
       if (!data?.length) {
         rows.value = []
         return
@@ -58,7 +69,7 @@ export function useRows(options: Options) {
         let result: TableRow[] = []
         let i = 0
         while (i < data.length) {
-          result.push(new TableRow(data[i]!, i))
+          result.push(new TableRow(data[i]!, i, rowKey))
           i++
         }
         rows.value = result
@@ -67,7 +78,10 @@ export function useRows(options: Options) {
         return
       }
 
-      rowForest.value = Forest.create(data, TableRow, {
+      rowForest.value = Forest.create(data, {
+        createNode(val, index) {
+          return new TableRow(val, index, rowKey)
+        },
         childrenKey: typeof tree === 'string' ? tree : 'children'
       })
 

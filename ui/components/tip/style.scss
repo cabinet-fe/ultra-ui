@@ -9,22 +9,19 @@ $root-name: tip;
 
 
   @include m.e(content) {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     z-index: -1;
     border-radius: fn.use-var(radius, default);
-    padding: 10px;
-    font-size: 14px;
     line-height: 1.2;
     width: max-content;
     overflow-wrap: break-word;
-    visibility: visible;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
     color: fn.use-var(text, color-title);
     background: fn.use-var(bg, color-top);
     box-shadow: fn.use-var(shadow);
+    overflow: hidden;
 
     @include m.is(content-light) {
       background: #fff;
@@ -33,8 +30,8 @@ $root-name: tip;
     }
 
     @include m.is('hide') {
-      opacity: 0 !important; 
-      transition: opacity 0.5s ease-out; 
+      // opacity: 0 !important;
+      // transition: opacity 0.5s ease-out;
     }
   }
 

@@ -4,21 +4,22 @@
 
     <!-- 竖向调节 -->
     <ULayoutResizer
-      v-for="(offset, index) in verticalResizerOffsets"
-      :key="index"
+      v-for="(offset, index) of resizerOffsets"
       :offset="offset"
+      :key="index"
+      ref="resizerRefs"
       direction="vertical"
       @resize="handleResize($event, index)"
       @resize-start="handleStartResize(index)"
-      @resize-end="resizing = false"
-    />
+    >
+    </ULayoutResizer>
 
     <!-- 横向调节 -->
-    <ULayoutResizer
+    <!-- <ULayoutResizer
       v-for="item in horizontalResizerList"
       :key="item"
       direction="horizontal"
-    />
+    /> -->
   </component>
 </template>
 
@@ -31,10 +32,13 @@ import {
   type CSSProperties,
   provide,
   watchEffect,
-  ref
+  ref,
+  watch,
+  nextTick
 } from 'vue'
 import ULayoutResizer from './layout-resizer.vue'
 import { LayoutDIKey } from './di'
+import { useResizeObserver } from '@ui/compositions'
 
 defineOptions({
   name: 'Layout'
@@ -46,56 +50,89 @@ const props = withDefaults(defineProps<LayoutProps>(), {
 
 const cls = bem('layout')
 
-const colsArr = ref<string[]>([])
+const templateCols = ref<string[]>([])
 
 watchEffect(() => {
   const { cols } = props
-  if (!cols) return
-  colsArr.value = typeof cols === 'string' ? cols.split(' ') : cols
+  if (!cols) {
+    templateCols.value = []
+    return
+  }
+  templateCols.value = typeof cols === 'string' ? cols.split(' ') : cols
 })
 
 const style = computed<CSSProperties>(() => {
   const { rows, gap, resizable } = props
   return {
-    gridTemplateColumns: colsArr.value.join(' '),
+    gridTemplateColumns: templateCols.value.join(' '),
     gridTemplateRows: rows
       ? typeof rows === 'string'
         ? rows
         : rows.join(' ')
       : '',
-    columnGap: resizable ? '6px' : withUnit(gap, 'px')
+    columnGap: resizable ? '10px' : withUnit(gap, 'px')
   }
 })
 
 const containerRef = shallowRef<HTMLElement>()
+const resizerRefs = shallowRef<InstanceType<typeof ULayoutResizer>[]>([])
 
-const verticalResizerOffsets = computed<number[]>(() => {
-  if (!containerRef.value || !props.resizable) return []
+const resizerOffsets = ref<number[]>([])
 
-  return colsArr.value.slice(0, -1).map((_, index) => {
-    const dom = containerRef.value?.children[index] as HTMLElement
+function getResizeOffsets() {
+  const container = containerRef.value
+  if (!props.resizable || !container || !props.cols) {
+    return (resizerOffsets.value = [])
+  }
+
+  resizerOffsets.value = templateCols.value.slice(0, -1).map((_, index) => {
+    const dom = container.children[index] as HTMLElement
     if (!dom) return 0
     return dom.offsetLeft + dom.offsetWidth
   })
-})
-const horizontalResizerList = []
+}
 
-const resizing = shallowRef(false)
+watch([() => props.resizable, containerRef, () => props.cols], () => {
+  nextTick(() => {
+    getResizeOffsets()
+  })
+})
+
+useResizeObserver({
+  targets: containerRef,
+  onResize() {
+    getResizeOffsets()
+    resizerRefs.value.forEach((r, i) => {
+      r.update(resizerOffsets.value![i]!)
+    })
+  }
+})
+
+// const horizontalResizerList = []
+
+// const resizing = shallowRef(false)
 
 let prevSize = '0'
 let nextSize = '0'
 const handleStartResize = (index: number) => {
-  prevSize = colsArr.value[index]!
-  nextSize = colsArr.value[index + 1]!
-  resizing.value = true
+  prevSize = templateCols.value[index]!
+  nextSize = templateCols.value[index + 1]!
+
+  if (!prevSize.endsWith('px') && !nextSize.endsWith('px')) {
+    const rect =
+      containerRef.value?.children[index + 1]?.getBoundingClientRect()
+    if (rect) {
+      nextSize = rect.width + 'px'
+    }
+  }
+  // resizing.value = true
 }
 const handleResize = (offset: number, index: number) => {
-
   if (prevSize?.endsWith('px')) {
-    colsArr.value[index] = `${parseInt(prevSize) + offset}px`
+    templateCols.value[index] = `${parseInt(prevSize) + offset}px`
   }
   if (nextSize?.endsWith('px')) {
-    colsArr.value[index + 1] = `${parseInt(nextSize) - offset}px`
+    templateCols.value[index + 1] = `${parseInt(nextSize) - offset}px`
   }
 }
 
