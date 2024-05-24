@@ -20,9 +20,9 @@
         </span>
       </div>
       <div :class="cls.m('action')">
-        <u-button type="primary" @click="confirm">{{ confirmText }}</u-button>
+        <u-button type="primary" text @click="cancel">{{ cancelText }}</u-button>
         <i></i>
-        <u-button @click="cancel">{{ cancelText }}</u-button>
+        <u-button type="primary" @click="confirm">{{ confirmText }}</u-button>
       </div>
     </template>
   </u-tip>
