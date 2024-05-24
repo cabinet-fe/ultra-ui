@@ -15,6 +15,6 @@
     },
     "allowJs": true
   },
-  "include": ["**/*.vue", "**/*.ts"],
+  "include": ["**/*.vue", "**/*.ts", "*.d.ts"],
   "exclude": ["node_modules", "dist/**"]
 }

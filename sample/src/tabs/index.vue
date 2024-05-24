@@ -35,6 +35,7 @@
         }"
       >
         <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
+
         <template #a>
           <CompA />
           <div>22</div>
@@ -71,12 +72,12 @@ import CompB from './comp-b.vue'
 // let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
 
 let items = shallowRef<
-  Array<{ name: string; key: 'a' | 'b' | 'c' | 'd'; disabled?: boolean }>
+  Array<{ name: string; key: 'a' | 'b' | 'c' | 'dd'; disabled?: boolean }>
 >([
   { key: 'a', name: '测试标题1' },
   { key: 'b', name: '测试标题22', disabled: true },
   { key: 'c', name: '测试标题333' },
-  { key: 'd', name: '测试标题4444' }
+  { key: 'dd', name: '测试标题4444' }
 ])
 
 const active = ref<string>('a')

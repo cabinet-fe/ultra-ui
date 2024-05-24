@@ -16,6 +16,7 @@ function getComponentDir(
   kebabName: string,
   dirs: Set<string> = new Set()
 ): string | null {
+  if (kebabName.endsWith('async')) return null
   const parts = kebabName.split('-')
   if (dirs.has(kebabName)) return kebabName
   for (let i = 0; i < parts.length; i++) {

@@ -20,7 +20,7 @@
         </span>
       </div>
       <div :class="cls.m('action')">
-        <u-button type="primary" text @click="cancel">{{ cancelText }}</u-button>
+        <u-button @click="cancel" type="primary" text>{{ cancelText }}</u-button>
         <i></i>
         <u-button type="primary" @click="confirm">{{ confirmText }}</u-button>
       </div>

@@ -5,7 +5,7 @@
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
-      <u-dialog v-model="visible" style="width: 900px">
+      <u-dialog v-model="visible"  style="width: 900px">
         <u-form
           :disabled="disabled"
           :readonly="readonly"
@@ -17,6 +17,16 @@
           <u-password-input field="pwd" label="密码" />
           <u-number-input field="age" label="年龄" />
           <u-number-input field="debt" currency label="借款" :step="1" />
+
+        </u-form>
+
+        <u-form
+          :disabled="disabled"
+          :readonly="readonly"
+          :model="model"
+          label-width="100px"
+        >
+
           <u-input field="phone" label="手机" />
           <u-input field="email" label="邮箱" />
           <u-select field="unit" label="单位" :options="units" />
@@ -77,7 +87,7 @@ const disabled = shallowRef(false)
 
 const model = new FormModel({
   name: { maxLen: 4, required: true, value: '' },
-  age: formField<string>({ required: '年龄是必填的' }),
+  age: formField<number>({ required: '年龄是必填的' }),
   aa: { required: true, value: 'aa' },
   phone: {
     validator(value) {
@@ -110,6 +120,9 @@ const model = new FormModel({
   treeSelect: { required: true, value: () => 11 }
 })
 
+
+
+
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
 
@@ -124,9 +137,9 @@ const visible = shallowRef(false)
 watch(visible, v => {
   if (v) {
     // model.data.treeChecked = [1]
-    // setTimeout(() => {
-    //   model.setData({ treeChecked: [1] })
-    // }, 3000)
+    setTimeout(() => {
+      model.setData({ age: 11 })
+    }, 3000)
   } else {
     model.resetData()
   }
