@@ -1,11 +1,10 @@
 <template>
-  <u-tip position="right" v-if="injected?.simple.value && textIndent === '0px'">
+  <u-tip position="right" v-if="injected?.simple.value && isBase">
     <template #content><slot /></template>
     <div
       :class="[cls?.e('item'), bem.is('active', activation), bem.is('disabled', disabled)]"
       @click="handleClick"
       :style="{
-        textIndent,
         width: 'auto',
         color: customColor
       }"
@@ -27,7 +26,7 @@
     ]"
     @click="handleClick"
     :style="{
-      textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+      textIndent: injected.simple.value ? '0px' : textIndent,
       width: 'auto',
       color: customColor
     }"
@@ -80,9 +79,19 @@ const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
 
+const parents = ref<string[]>([])
+
+const isBase = computed(() => {
+  if (parents.value.length) {
+    return Boolean(parents.value[0] === 'menu-root')
+  } else {
+    return false
+  }
+})
+
 const getParent = (instance: ComponentInternalInstance) => {
-  const parents = getParentIndex(instance)
-  parents.forEach((parent: string) => {
+  parents.value = getParentIndex(instance)
+  parents.value.forEach((parent: string) => {
     if (injected?.structure.value[parent]) {
       injected!.structure.value[parent]?.add(props.index)
     } else {
