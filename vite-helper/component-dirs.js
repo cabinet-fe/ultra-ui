@@ -28,6 +28,7 @@
   "message",
   "message-confirm",
   "multi-select",
+  "multi-tree-select",
   "node-render",
   "notification",
   "number",

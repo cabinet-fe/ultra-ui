@@ -15,21 +15,45 @@
     ref="dropdownRef"
   >
     <template #trigger>
-      <u-input
-        :size="size"
-        :disabled="disabled"
-        :placeholder="placeholder"
-        :clearable="clearable"
-        :model-value="tags?.[labelKey]"
-        @clear="handleClear"
-        native-readonly
-      >
-        <template #suffix>
-          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
-        </template>
-      </u-input>
+      <!-- 默认展示 -->
+      <span :class="cls.e('placeholder')" v-if="!tags?.length">
+        {{ placeholder }}
+      </span>
+      <!-- 选择的数据项 -->
+      <div v-else :class="cls.e('tags-multiple')">
+        <u-tag
+          v-for="(item, index) in tags"
+          :closable="!disabled && !readonly"
+          @close="handleRemove(index)"
+          >{{ item[labelKey] }}</u-tag
+        >
+      </div>
+      <!-- 清空 icon -->
+      <transition name="zoom-in">
+        <u-icon
+          v-if="clearable && tags?.length && mouse && !disabled && !readonly"
+          :class="cls.e('clear')"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </u-icon>
+      </transition>
+      <!-- 下拉 icon -->
+      <u-icon :class="cls.e(`arrow`)" v-if="!readonly">
+        <ArrowDown />
+      </u-icon>
     </template>
     <template #content>
+      <!-- 全选 -->
+      <div :class="[cls.e('content-header'), cls.m(size)]">
+        <u-checkbox
+          :model-value="allChecked"
+          :indeterminate="indeterminate"
+          @update:model-value="handleCheckAll"
+        >
+          全选
+        </u-checkbox>
+      </div>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
         <u-input placeholder="输入关键字进行过滤" v-model="qs">
@@ -47,10 +71,10 @@
       >
         <u-tree
           v-bind="treeProps"
-          v-model:selected="model"
-          @update:selected="handleSelect"
+          v-model:checked="model"
+          @update:checked="handleCheck"
           ref="treeRef"
-          selectable
+          checkable
         ></u-tree>
       </u-scroll>
     </template>
@@ -59,26 +83,28 @@
 
 <script lang="ts" setup generic="Val extends string | number">
 import type {
-  TreeSelectProps,
-  TreeSelectEmits,
-} from "@ui/types/components/tree-select"
+  MultiTreeSelectProps,
+  MultiTreeSelectEmits,
+} from "@ui/types/components/multi-tree-select"
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import { bem } from "@ui/utils"
 import { UDropdown } from "../dropdown"
 import { TreeNode, type TreeExposed, type UTree } from "../tree"
 import { UScroll, type ScrollExposed } from "../scroll"
+import { UTag } from "../tag"
 import { UIcon } from "../icon"
-import { ArrowDown, Search } from "icon-ultra"
+import { ArrowDown, Close, Search } from "icon-ultra"
 import { computed, onMounted, shallowRef, watch } from "vue"
+import { UCheckbox } from "../checkbox"
 import { Forest, omit } from "cat-kit/fe"
-import type { UInput } from "../input"
+
 defineOptions({
-  name: "TreeSelect",
+  name: "MultiTreeSelect",
 })
 
-const cls = bem("tree-select")
+const cls = bem("multi-tree-select")
 
-const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
+const props = withDefaults(defineProps<MultiTreeSelectProps<Val>>(), {
   labelKey: "label",
   valueKey: "value",
   placeholder: "请选择",
@@ -88,7 +114,7 @@ const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
   readonly: undefined,
   size: "default",
   filterable: false,
-  closeOnSelect: true,
+  closeOnSelect: false,
 })
 
 const treeProps = computed(() => {
@@ -98,25 +124,25 @@ const treeProps = computed(() => {
     "placeholder",
     "disabled",
     "label",
-    "selected",
+    "checked",
     "readonly",
     "checkable",
-    "selectable",
   ])
 })
 
-const emit = defineEmits<TreeSelectEmits<Val>>()
+const emit = defineEmits<MultiTreeSelectEmits<Val>>()
 
 /**过滤 */
 const qs = shallowRef("")
 watch(qs, (qs) => {
   treeRef.value?.filter(qs)
 })
-const model = defineModel<Val>()
+
+const model = defineModel<Val[]>()
 
 const mouse = shallowRef(false)
 
-const tags = shallowRef<Record<string, any>>()
+const tags = shallowRef<Record<string, any>[]>()
 
 const { formProps } = useFormComponent()
 
@@ -131,9 +157,10 @@ const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-const handleSelect = (selected?: Val, selectedData?: Record<string, any>) => {
-  tags.value = selectedData
-  emit("update:modelValue", selected!)
+/**选中 */
+const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
+  tags.value = checkedData
+  emit("update:modelValue", checked)
   closeDrop()
 }
 
@@ -143,13 +170,34 @@ const closeDrop = () => {
   dropdownRef.value?.close()
 }
 
-/**清空 */
-const handleClear = () => {
-  tags.value = undefined
-  model.value = undefined
-  emit("update:modelValue", undefined!)
+/**删除 */
+const handleRemove = (index: number) => {
+  tags.value = tags.value?.filter((_, i) => i !== index)
+  model.value = model.value?.filter((_, i) => i !== index)
+  emit("update:modelValue", model.value!)
 }
 
+/**清空 */
+const handleClear = () => {
+  tags.value = []
+  model.value = []
+  emit("update:modelValue", [])
+}
+
+/**是否全选 */
+const allChecked = computed(() => {
+  return model.value?.length === treeRef.value?.forest.size
+})
+
+/**部分 */
+const indeterminate = computed(() => {
+  return model.value?.length! > 0 && !allChecked.value
+})
+
+/** 全选*/
+const handleCheckAll = (checked: boolean) => {
+  treeRef.value?.checkAll(checked)
+}
 /** 森林 */
 const forest = computed(() => {
   TreeNode.labelKey = props.labelKey
@@ -162,9 +210,8 @@ const echoTags = () => {
   if (model.value) {
     tags.value = []
     forest.value.dft((node) => {
-      if (model.value === node.value[props.valueKey]) {
-        tags.value = node.value
-      }
+      model.value?.includes(node.value[props.valueKey]) &&
+        tags.value?.push(node.value)
     })
   }
 }
@@ -172,7 +219,9 @@ const echoTags = () => {
 watch(scrollRef, (scroll) => {
   if (scroll && model.value !== undefined) {
     const treeNode =
-      scroll.contentRef!.getElementsByClassName("is-selected")[0]!
+      scroll.contentRef!.getElementsByClassName("is-checked")[
+        model.value.length - 1
+      ]!
 
     treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
   }
