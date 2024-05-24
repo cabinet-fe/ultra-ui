@@ -1,35 +1,8 @@
 import type { FormProps } from '@ui/types/components/form'
-import {
-  useSlots,
-  type VNode,
-  createTextVNode,
-  type VNodeArrayChildren,
-  isVNode,
-  createVNode
-} from 'vue'
+import { useSlots, type VNode, createVNode } from 'vue'
 import FormItem from '../form-item/form-item.vue'
 import { pick } from 'cat-kit/fe'
-import { isFragment, isTemplate } from '@ui/utils'
-
-function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
-  nodes.forEach(node => {
-    if (!isVNode(node)) {
-      if (typeof node === 'string' || typeof node === 'number') {
-        results.push(createTextVNode(String(node)))
-      }
-      return
-    }
-    if (
-      (isFragment(node) || isTemplate(node)) &&
-      Array.isArray(node.children)
-    ) {
-      flatNodes(node.children, results)
-    } else {
-      results.push(node)
-    }
-  })
-  return results
-}
+import { extractNormalVNodes } from '@ui/utils'
 
 interface Options {
   props: FormProps
@@ -56,7 +29,7 @@ export function useNodeInterceptor(options: Options) {
     const data = props.model?.data
     if (!data) return nodes
 
-    const flattedNodes = flatNodes(nodes)
+    const flattedNodes = extractNormalVNodes(nodes)
 
     const results: VNode[] = []
 
