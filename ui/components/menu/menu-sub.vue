@@ -4,24 +4,28 @@
     position="right-start"
     :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
   >
-    <div :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
+    <div
+      :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
+      @mouseleave="expand = false"
+    >
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', highlight && textIndent === '0px')]"
+        :class="[cls?.em('sub', 'title'), bem.is('active', highlight && isBase)]"
         :style="{ color: customColor }"
         v-ripple="!disabled"
+        @mouseenter="expand = true"
       >
         <div>
           <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
             <component :is="icon" />
           </UIcon>
 
-          <slot name="title" v-if="textIndent !== '0px'" />
+          <slot name="title" v-if="!isBase" />
         </div>
         <UIcon
-          v-if="textIndent !== '0px'"
+          v-if="!isBase"
           :class="[cls?.em('sub', 'tip-arrow')]"
-          :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
-          ><ArrowRight
+          :style="{ transform: `rotate(${-Number(expand) * 90}deg)` }"
+          ><ArrowDown
         /></UIcon>
       </div>
     </div>
@@ -31,17 +35,12 @@
     </template>
   </u-tip>
 
-  <div
-    v-else
-    :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
-    @mouseenter="mouseenter"
-    @mouseleave="mouseleave"
-  >
+  <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
     <div
       :class="[cls?.em('sub', 'title')]"
       @click.stop="handleClick"
       :style="{
-        textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+        textIndent,
         paddingRight: '35px',
         color: props.disabled ? 'var(--text-color-disabled)' : injected?.textColor
       }"
@@ -76,8 +75,8 @@
 
 <script setup lang="ts">
 import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent, getSiblings } from './di'
-import { ArrowRight } from 'icon-ultra'
+import { MenuDIKey, calcIndent, getSiblings, getParentIndex } from './di'
+import { ArrowRight, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
@@ -154,14 +153,6 @@ const handleClick = () => {
   expand.value = !expand.value
 }
 
-const mouseenter = () => {
-  if (injected?.simple.value) expand.value = true
-}
-
-const mouseleave = () => {
-  if (injected?.simple.value) expand.value = false
-}
-
 const siblings = ref<Array<string>>([])
 
 // 根据activeIndex展开子菜单
@@ -199,6 +190,16 @@ onMounted(() => {
 
 const textIndent = ref<string>('0px')
 
+const parents = ref<string[]>([])
+
+const isBase = computed(() => {
+  if (parents.value.length) {
+    return Boolean(parents.value[0] === 'menu-root')
+  } else {
+    return false
+  }
+})
+
 // 根据嵌套层级计算缩进
 watch(
   () => instance,
@@ -208,6 +209,7 @@ watch(
       siblings.value = getSiblings(instance)
       if (injected && injected?.structure.value[props.index]?.has(injected!.activeIndex.value))
         expand.value = true
+      parents.value = getParentIndex(instance)
     }
   },
   { immediate: true }
@@ -216,9 +218,7 @@ watch(
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return highlight.value && textIndent.value === '0px'
-      ? injected?.activeTextColor
-      : injected?.textColor
+    return highlight.value && isBase.value ? injected?.activeTextColor : injected?.textColor
   } else {
     return 'var(--text-color-disabled)'
   }

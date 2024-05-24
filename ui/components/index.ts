@@ -54,6 +54,8 @@ export * from './message-confirm'
 
 export * from './multi-select'
 
+export * from './multi-tree-select'
+
 export * from './node-render'
 
 export * from './notification'

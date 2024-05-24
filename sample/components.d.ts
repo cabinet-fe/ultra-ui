@@ -39,6 +39,7 @@ declare module 'vue' {
     UMenuItem: typeof import('ultra-ui')['UMenuItem']
     UMenuSub: typeof import('ultra-ui')['UMenuSub']
     UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
+    UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPaginator: typeof import('ultra-ui')['UPaginator']

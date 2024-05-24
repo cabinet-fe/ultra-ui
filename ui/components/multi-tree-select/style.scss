@@ -1,0 +1,101 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: multi-tree-select;
+
+@include m.b($root-name) {
+    @include m.flex($display: inline-flex);
+    width: 100%;
+    border: fn.use-var(border);
+    cursor: pointer;
+    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+    line-height: 1;
+    &:hover {
+        box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
+
+    @include m.is(disabled) {
+        cursor: not-allowed;
+        background-color: fn.use-var(color, disabled);
+
+        &:hover {
+            box-shadow: none;
+        }
+
+        .u-tag {
+            border: var(--border);
+        }
+
+        .u-icon {
+            color: fn.use-var(text-color, disabled);
+        }
+    }
+
+    @include m.is(readonly) {
+        pointer-events: none;
+        cursor: default;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        background: none;
+    }
+
+    @include m.size using ($size) {
+        font-size: fn.use-var('font-size', main, $size);
+        padding: 2px fn.use-var(gap, $size);
+        min-height: fn.use-var(form-component-height, $size);
+        border-radius: fn.use-var(radius, $size);
+
+        @include m.bem($root-name, tags-multiple) {
+            display: flex;
+            flex-wrap: wrap;
+            gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
+        }
+
+    }
+
+    @include m.e(placeholder) {
+        flex-shrink: 0;
+        flex-grow: 1;
+        user-select: none;
+    }
+
+    @include m.e(filter) {
+        margin-bottom: 4px;
+    }
+
+    @include m.e(tags-multiple) {
+        flex-grow: 1;
+        color: fn.use-var(text-color, main);
+
+        .u-tag {
+            margin-right: 4px;
+        }
+
+    }
+
+    @include m.e(arrow, clear) {
+        min-width: 20px;
+        color: fn.use-var(text-color, main);
+    }
+
+    @include m.e(content-header) {
+        @include m.flex($justify: space-between);
+        padding: 4px 12px;
+        border-bottom: fn.use-var(border);
+        border-radius: 0;
+    }
+
+    @include m.e(content-filter) {
+        padding: 4px 10px;
+    }
+
+    @include m.e(content-option) {
+        padding: 4px 10px;
+    }
+
+
+}

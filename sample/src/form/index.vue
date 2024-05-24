@@ -47,19 +47,17 @@
           <u-checkbox field="freeze" label="是否冻结" />
           <u-textarea field="remarks" label="备注" />
           <u-slider field="slider" label="滑块" />
-          <u-text-editor field="guide" label="指南" />
-          <u-tree-select
+          <u-multi-tree-select
             field="treeChecked"
-            label="tree-多选"
+            label="1"
             label-key="name"
             value-key="id"
             :data="data"
             filterable
-            multiple
           />
           <u-tree-select
             field="treeSelect"
-            label="tree-单选"
+            label="1"
             label-key="name"
             value-key="id"
             :data="data"
@@ -118,7 +116,7 @@ const model = new FormModel({
     value: [{ attributes: { bold: true }, insert: '22eee' }],
     required: true
   },
-  treeChecked: { required: true, value: () => [5, 6, 7] },
+  treeChecked: { required: true, },
   treeSelect: { required: true, value: () => 11 }
 })
 
