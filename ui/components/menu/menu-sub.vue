@@ -1,18 +1,28 @@
 <template>
   <u-tip
-    v-if="injected?.simple.value && textIndent === '0px'"
+    v-if="injected?.simple.value"
     position="right-start"
     :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
   >
-    <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
+    <div :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', highlight)]"
-        :style="{ textIndent, color: customColor }"
+        :class="[cls?.em('sub', 'title'), bem.is('active', highlight && textIndent === '0px')]"
+        :style="{ color: customColor }"
         v-ripple="!disabled"
       >
-        <UIcon :class="cls?.em('sub', 'icon')" style="margin-right: 0" v-if="icon">
-          <component :is="icon" />
-        </UIcon>
+        <div>
+          <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
+            <component :is="icon" />
+          </UIcon>
+
+          <slot name="title" v-if="textIndent !== '0px'" />
+        </div>
+        <UIcon
+          v-if="textIndent !== '0px'"
+          :class="[cls?.em('sub', 'tip-arrow')]"
+          :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
+          ><ArrowRight
+        /></UIcon>
       </div>
     </div>
     <template #content>
@@ -37,11 +47,13 @@
       }"
       v-ripple="!disabled"
     >
-      <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
-        <component :is="icon" />
-      </UIcon>
+      <div>
+        <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
+          <component :is="icon" />
+        </UIcon>
 
-      <slot name="title" />
+        <slot name="title" />
+      </div>
       <UIcon
         :class="cls?.em('sub', 'arrow')"
         :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
@@ -204,7 +216,9 @@ watch(
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return highlight.value ? injected?.activeTextColor : injected?.textColor
+    return highlight.value && textIndent.value === '0px'
+      ? injected?.activeTextColor
+      : injected?.textColor
   } else {
     return 'var(--text-color-disabled)'
   }
