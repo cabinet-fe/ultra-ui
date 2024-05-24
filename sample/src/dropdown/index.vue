@@ -5,14 +5,14 @@
     </div>
 
     <div style="display: flex; justify-content: right">
-      <u-dropdown :trigger="trigger" class="bb" >
+      <u-dropdown :trigger="trigger" class="bb" width="200px">
         <template #trigger>
           <u-button>dropdown-hover</u-button>
         </template>
 
         <template #content>
           <ul>
-            <li>第一层hover</li>
+            <li>第一层hover第一层hover第一层hover第一层hover第一层hover</li>
             <li>第二层hover</li>
             <li>第三层hover</li>
             <li>第四层hover</li>

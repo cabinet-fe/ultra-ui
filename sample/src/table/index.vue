@@ -31,12 +31,17 @@
         <template #header:age="{ column }">
           年龄 <u-checkbox v-model="column.value.summary">合计</u-checkbox>
         </template>
+        <template #column:age="{ column, row }">
+          {{ row.isLeaf ? '是叶子节点' : '不是叶子节点' }}
+        </template>
         <!-- <template #foot="{ columns }">
           <tr>
             <td v-for="col of columns">{{ col.key }}</td>
           </tr>
         </template> -->
       </u-table>
+
+      {{checked}}
     </CustomCard>
   </div>
 </template>
@@ -163,5 +168,4 @@ watch(showData, v => {
 
 const checked = shallowRef([data.value[0]!, data.value[3]!])
 const selected = shallowRef(data.value[0]!)
-
 </script>

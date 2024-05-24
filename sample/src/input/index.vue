@@ -9,12 +9,20 @@
         </template>
       </u-input>
     </div>
+
+    <CustomCard title="异步组件">
+      <u-input-async v-model="value">
+
+      </u-input-async>
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 import { Search } from 'icon-ultra'
+import  CustomCard from '../card/custom-card.vue'
+
 
 const value = shallowRef('')
 
