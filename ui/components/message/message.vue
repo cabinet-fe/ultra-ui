@@ -1,21 +1,26 @@
 <template>
-  <transition name="message-fade" @before-leave="onClose" @after-leave="$emit('destroy')">
+  <transition
+    name="message-fade"
+    appear
+    @before-leave="onClose"
+    @after-leave="emit('destroy')"
+    @appear="startClose"
+  >
     <div
-      :class="[cls.b, cls.m(size), cls.e(type)]"
-      v-show="visible"
-      :style="customStyle"
-      @mouseenter="clearTimer"
-      @mouseleave="startTimer"
+      :class="[cls.b, cls.m(size), cls.m('color-' + getTypeColor(type))]"
+      v-if="visible"
+      @mouseenter="suspendClose"
+      @mouseleave="close"
     >
       <div :class="cls.e('icon')">
         <UIcon>
-          <component :is="typeIcon" />
+          <component :is="getTypeIcon(type, icon)" />
         </UIcon>
       </div>
       <div :class="cls.e('content')">
         {{ message }}
       </div>
-      <div :class="cls.e('close')" v-if="closable" @click.stop="close">
+      <div :class="cls.e('close')" v-if="closable" @click.stop="immediateClose">
         <UIcon><Close /></UIcon>
       </div>
     </div>
@@ -25,73 +30,59 @@
 <script lang="ts" setup>
 import type { MessageProps, MessageExposed } from '@ui/types/components/message'
 import { bem } from '@ui/utils'
-import { onMounted, ref, computed, type CSSProperties } from 'vue'
+import { ref } from 'vue'
 import { useFallbackProps } from '@ui/compositions'
-import {
-  Close,
-  CircleCheckFilled,
-  InfoFilled,
-  WarningFilled,
-  CircleCloseFilled,
-  QuestionFilled
-} from 'icon-ultra'
+import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
+import { getTypeColor, getTypeIcon } from './helper'
 
 defineOptions({
   name: 'Message'
 })
 
-const props = defineProps<MessageProps>()
-
-const { type, size, closable, duration, offset } = useFallbackProps([props], {
-  type: 'primary',
-  size: 'default',
-  closable: false,
+const props = withDefaults(defineProps<MessageProps>(), {
+  type: 'default',
   duration: 3000,
   offset: 20
 })
 
-const typeIcon = computed(() => {
-  return (
-    props.icon ||
-    {
-      primary: InfoFilled,
-      info: QuestionFilled,
-      success: CircleCheckFilled,
-      warning: WarningFilled,
-      danger: CircleCloseFilled
-    }[type.value]
-  )
+const emit = defineEmits<{
+  (e: 'destroy'): void
+}>()
+
+const { size } = useFallbackProps([props], {
+  size: 'default'
 })
 
 const cls = bem('message')
 
-const visible = ref<boolean>(false)
+const visible = ref<boolean>(true)
 
-onMounted(() => {
-  visible.value = true
-  startTimer()
-})
+let startTime = 0
+let timer: number
+let restDuration = 0
 
-const close = () => {
+function close() {
+  startTime = Date.now()
+  timer = setTimeout(() => {
+    visible.value = false
+  }, restDuration)
+}
+
+function startClose() {
+  if (props.duration <= 0) return
+  restDuration = props.duration
+  close()
+}
+
+function suspendClose() {
+  clearTimeout(timer)
+  restDuration = restDuration - (Date.now() - startTime)
+}
+
+function immediateClose() {
   visible.value = false
 }
 
-const customStyle = computed<CSSProperties>(() => ({
-  top: `${offset.value}px`
-}))
-
-let timer = 0
-
-const startTimer = () => {
-  if (duration.value) {
-    timer = setTimeout(() => {
-      close()
-    }, duration.value)
-  }
-}
-
-const clearTimer = () => clearTimeout(timer)
-
-defineExpose<MessageExposed>({ startTimer, clearTimer })
+defineExpose<MessageExposed>({ immediateClose, suspendClose })
 </script>

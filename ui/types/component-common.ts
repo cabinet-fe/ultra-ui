@@ -2,8 +2,6 @@ export type ComponentSize = 'small' | 'default' | 'large'
 
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 
-export const ColorTypeArray: Array<ColorType> = ['primary', 'info', 'success', 'warning', 'danger']
-
 /** 组件通用属性 */
 export interface ComponentProps {
   /** 组件尺寸 */
