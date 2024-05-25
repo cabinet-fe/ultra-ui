@@ -32,6 +32,7 @@
           年龄 <u-checkbox v-model="column.value.summary">合计</u-checkbox>
         </template>
         <template #column:age="{ column, row }">
+          {{ row.indexes }}
           {{ row.isLeaf ? '是叶子节点' : '不是叶子节点' }}
         </template>
         <!-- <template #foot="{ columns }">

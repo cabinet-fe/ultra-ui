@@ -11,14 +11,11 @@ let uid = 0
 export class TableRow<
   Data extends Record<string, any> = Record<string, any>
 > extends TreeNode<Data> {
+
+  /** 索引路径 */
   get indexes(): number[] {
-    let ret: number[] = []
-    let node: TableRow | null = this
-    while (node) {
-      ret.unshift(node.index)
-      node = this.parent
-    }
-    return ret
+    if (!this.parent) return []
+    return this.parent.indexes.concat(this.index)
   }
 
   /** 是否展开 */
