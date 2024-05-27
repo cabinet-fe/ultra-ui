@@ -73,12 +73,12 @@ const { size } = useFormFallbackProps([formProps ?? {}], {
 
 const confirm = () => {
   emit("confirm")
-  tipRef.value?.handleClickOutside()
+  tipRef.value?.closeTipContent()
 }
 
 const cancel = () => {
   emit("cancel")
-  tipRef.value?.handleClickOutside()
+  tipRef.value?.closeTipContent()
 }
 
 const handleMouseEnter = (event: MouseEvent) => {

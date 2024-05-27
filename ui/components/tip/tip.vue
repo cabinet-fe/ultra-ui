@@ -5,7 +5,7 @@
     @mouseenter.self="handleMouseEnter"
     @mouseleave.self="handleMouseLeave"
     @click="handleClick"
-    :class="cls.b"
+    :class="[cls.b]"
     ref="tipRef"
   />
   <teleport to="body">
@@ -34,7 +34,7 @@ import {
   computed,
   useSlots,
   onBeforeUnmount,
-  ref,
+  watch,
 } from "vue"
 import { bem, nextFrame, setStyles } from "@ui/utils"
 import { vClickOutside } from "@ui/directives"
@@ -48,7 +48,6 @@ import {
   calculateRightMaxWidth,
   calculateLeftMaxWidth,
 } from "./calculate"
-
 defineOptions({ name: "Tip" })
 
 const props = withDefaults(defineProps<TipProps>(), {
@@ -59,6 +58,8 @@ const props = withDefaults(defineProps<TipProps>(), {
   mouseLeaveClose: true,
 })
 
+/**当前展示的tipContent */
+const contentDom = shallowRef<HTMLElement>()
 const cls = bem("tip")
 const slots = useSlots()
 const { formProps } = useFormComponent()
@@ -77,11 +78,12 @@ const contentClass = computed(() => [
 const tipRef = shallowRef<InstanceType<typeof UNodeRender>>()
 const tipContentRef = shallowRef<InstanceType<typeof UScroll>>()
 const visible = shallowRef(false)
-const isMouseInTip = ref(false)
+const isMouseInTip = shallowRef(false)
 const timers = new Map<string, number>()
 const dynamicStyle = shallowRef<Record<string, any>>({})
 const gap = 8
 const screenSize = { width: 0, height: 0 }
+const isChildrenTip = shallowRef(false)
 let scrollDom = shallowRef<HTMLElement | null>()
 
 const handleMouseEnter = () => {
@@ -104,9 +106,7 @@ const handleMouseLeave = () => {
   timers.set(
     "timerMouseLeave",
     setTimeout(() => {
-      nextFrame(() => {
-        if (!isMouseInTip.value) removeAllListeners()
-      })
+      removeAllListeners()
     }, 200)
   )
 }
@@ -118,11 +118,27 @@ const handleContentMouseEnter = () => {
   timers.forEach(clearTimeout)
 }
 
+watch(tipContentRef, (val) => {
+  if (val) {
+    const tip = val.el as HTMLElement
+    if (tip.querySelectorAll(".u-tip").length) {
+      isChildrenTip.value = true
+    }
+  }
+})
+
 const handleContentMouseLeave = () => {
+  if (isChildrenTip.value) return
   if (!props.mouseLeaveClose) return
   isMouseInTip.value = false
-  if (props.trigger !== "hover") return
-  if (!isMouseInTip.value) nextFrame(removeAllListeners)
+  clearTimeout(timers.get("timerContentMouseLeave"))
+  timers.set(
+    "timerContentMouseLeave",
+    setTimeout(() => {
+      if (props.trigger !== "hover") return
+      removeAllListeners()
+    }, 300)
+  )
 }
 
 const handleClick = async () => {
@@ -137,7 +153,12 @@ const handleClick = async () => {
 }
 
 const handleClickOutside = () => {
-  if (props.trigger === "hover" || !visible.value) return
+  if (isChildrenTip.value) return
+  if (props.trigger === "hover") return
+  closeTipContent()
+}
+/**手动关闭弹窗 */
+const closeTipContent = () => {
   clearTimeout(timers.get("outside"))
   timers.set(
     "outside",
@@ -206,21 +227,28 @@ const addListener = () => {
   if (!tipRefDom) return
   scrollDom.value = tipRefDom.closest(".u-scroll__container") as HTMLElement
   if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", handleClickOutside)
+  scrollDom.value.addEventListener("scroll", closeTipContent)
   popup()
 }
 
 const removeAllListeners = () => {
   visible.value = false
-  scrollDom.value?.removeEventListener("scroll", handleClickOutside)
+  scrollDom.value?.removeEventListener("scroll", closeTipContent)
   dynamicStyle.value = {}
   timers.forEach(clearTimeout)
 }
 
 onBeforeUnmount(() => {
   timers.forEach(clearTimeout)
-  scrollDom.value?.removeEventListener("scroll", handleClickOutside)
+  scrollDom.value?.removeEventListener("scroll", closeTipContent)
 })
 
-defineExpose({ handleClickOutside })
+defineExpose({ closeTipContent, contentDom })
+
+/**监听tip组件展示 */
+watch(tipContentRef, (val) => {
+  if (val) {
+    contentDom.value = val.$el!
+  }
+})
 </script>
