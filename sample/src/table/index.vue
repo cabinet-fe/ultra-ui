@@ -29,7 +29,7 @@
         v-model:selected="selected"
       >
         <template #header:age="{ column }">
-          年龄 <u-checkbox v-model="column.value.summary">合计</u-checkbox>
+          年龄 <u-checkbox v-model="column.data.summary">合计</u-checkbox>
         </template>
         <template #column:age="{ column, row }">
           {{ row.indexes }}
