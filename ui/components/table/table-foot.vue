@@ -46,14 +46,14 @@ const { cls, columnConfig, rows, tableSlots, getCellClass } =
 const { allColumns } = columnConfig
 
 const showSummary = computed(() => {
-  return allColumns.value.some(col => !!col.value.summary)
+  return allColumns.value.some(col => !!col.data.summary)
 })
 
 function computeSummary(key: string) {
   let sum = 0
   let i = 0
   while (i < rows.value.length) {
-    sum = n.plus(sum, rows.value[i]!.value[key])
+    sum = n.plus(sum, rows.value[i]!.data[key])
     if (isNaN(sum)) return sum
     i++
   }
@@ -62,7 +62,7 @@ function computeSummary(key: string) {
 }
 
 function getColumnSummaryNode(column: ColumnNode): RenderReturn {
-  const { summary } = column.value
+  const { summary } = column.data
 
   if (!summary) return null
 
