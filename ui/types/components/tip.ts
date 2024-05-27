@@ -37,7 +37,8 @@ export interface TipEmits {
 
 /** tip提示组件组件暴露的属性和方法(组件内部使用) */
 export interface _TipExposed {
-  handleClickOutside
+  closeTipContent,
+  contentDom
 }
 
 /** tip提示组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
