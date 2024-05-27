@@ -45,11 +45,17 @@
           type="danger"
           :icon="Delete"
           :disabled="!checked.length"
+          :loading="actionLoading"
           @click="handleDeleteBatch"
         >
           删除
         </u-button>
-        <u-button type="primary" :icon="Plus" @click="handleCreate">
+        <u-button
+          type="primary"
+          :icon="Plus"
+          @click="handleCreate"
+          :loading="actionLoading"
+        >
           新增
         </u-button>
       </u-card-action>
@@ -74,8 +80,20 @@
       </transition>
 
       <u-card-action :class="cls.e('action')">
-        <u-button text type="primary" @click="handleClose">关闭</u-button>
-        <u-button v-if="!readonly" type="primary" @click="handleSave">
+        <u-button
+          text
+          type="primary"
+          :loading="actionLoading"
+          @click="handleClose"
+        >
+          关闭
+        </u-button>
+        <u-button
+          v-if="!readonly"
+          type="primary"
+          :loading="actionLoading"
+          @click="handleSave"
+        >
           保存
         </u-button>
       </u-card-action>
@@ -264,6 +282,7 @@ function handleInsertToPrev(row: TableRow) {}
 
 function handleInsertToNext(row: TableRow) {}
 
+const actionLoading = shallowRef(false)
 async function handleSave() {
   const { saveMethod } = props
 
@@ -275,7 +294,16 @@ async function handleSave() {
   if (!valid) return
 
   if (saveMethod) {
+    if (currentRow.value) {
+      currentRow.value.operating = true
+    }
+    actionLoading.value = true
     await saveMethod(model.value.data)
+
+    if (currentRow.value) {
+      currentRow.value.operating = false
+    }
+    actionLoading.value = false
   }
 
   // 新增提交
