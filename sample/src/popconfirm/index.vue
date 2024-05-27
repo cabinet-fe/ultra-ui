@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div style="height: 85vh"></div>
     <CustomCard title="气泡">
       <div
         style="
@@ -44,8 +43,6 @@
         </template>
       </u-popconfirm>
     </CustomCard>
-    <div style="height: 85vh"></div>
-
   </div>
 </template>
 

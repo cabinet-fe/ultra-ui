@@ -148,7 +148,8 @@ const handleClickOutside = () => {
   )
 }
 
-const setPositionParams = (maxWidth) => setStyles(tipContentRef.value!.el!, { maxWidth })
+const setPositionParams = (maxWidth) =>
+  setStyles(tipContentRef.value!.el!, { maxWidth })
 
 const popup = () => {
   screenSize.width = scrollDom.value?.clientWidth!
@@ -203,10 +204,7 @@ const popup = () => {
 const addListener = () => {
   const tipRefDom = tipRef.value?.$el as HTMLElement
   if (!tipRefDom) return
-
-  scrollDom.value = getScrollParents(tipRefDom)[0]
-  console.log(scrollDom.value);
-  
+  scrollDom.value = tipRefDom.closest(".u-scroll__container") as HTMLElement
   if (!scrollDom.value) return
   scrollDom.value.addEventListener("scroll", handleClickOutside)
   popup()
