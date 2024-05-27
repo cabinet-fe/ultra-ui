@@ -36,7 +36,7 @@ import {
   onBeforeUnmount,
   ref,
 } from "vue"
-import { bem, getScrollParents, nextFrame, setStyles } from "@ui/utils"
+import { bem, nextFrame, setStyles } from "@ui/utils"
 import { vClickOutside } from "@ui/directives"
 import { UNodeRender } from "../node-render"
 import { UScroll } from "../scroll"
