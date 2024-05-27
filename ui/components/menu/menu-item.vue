@@ -26,7 +26,7 @@
     ]"
     @click="handleClick"
     :style="{
-      textIndent: injected.simple.value ? '0px' : textIndent,
+      textIndent: injected!.simple.value ? '0px' : textIndent,
       width: 'auto',
       color: customColor
     }"
