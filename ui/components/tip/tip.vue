@@ -91,7 +91,6 @@ const handleMouseEnter = () => {
     if (isMouseInTip.value) {
       visible.value = true
       await nextTick()
-      popup()
       addListener()
     }
   })
@@ -132,7 +131,6 @@ const handleClick = async () => {
   await nextTick()
   if (visible.value) {
     addListener()
-    popup()
   } else {
     removeAllListeners()
   }
@@ -207,8 +205,11 @@ const addListener = () => {
   if (!tipRefDom) return
 
   scrollDom.value = getScrollParents(tipRefDom)[0]
+  console.log(scrollDom.value);
+  
   if (!scrollDom.value) return
   scrollDom.value.addEventListener("scroll", handleClickOutside)
+  popup()
 }
 
 const removeAllListeners = () => {
