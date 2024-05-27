@@ -13,6 +13,7 @@
       <u-scroll
         tag="div"
         :class="contentClass"
+        v-bind="$attrs"
         ref="tipContentRef"
         v-if="visible"
         @mouseenter.stop="handleContentMouseEnter"
@@ -149,8 +150,7 @@ const handleClickOutside = () => {
   )
 }
 
-const setPositionParams = (maxWidth) =>
-  setStyles(tipContentRef.value!.el!, { maxWidth })
+const setPositionParams = (maxWidth) => setStyles(tipContentRef.value!.el!, { maxWidth })
 
 const popup = () => {
   screenSize.width = scrollDom.value?.clientWidth!
@@ -192,9 +192,9 @@ const popup = () => {
     const { dynamicCss } = await calcPosition(positionParams)
     dynamicStyle.value = { ...dynamicCss.value, ...props.customStyle }
     setStyles(tipContentRefDom, { ...dynamicStyle.value })
-    const { top } = tipContentRefDom.getBoundingClientRect()
+    const { top } = tipContentRef.value!.el!.getBoundingClientRect()
     nextTick(() => {
-      setStyles(tipContentRefDom, {
+      setStyles(tipContentRef.value!.el!, {
         ...dynamicStyle.value,
         maxHeight: `${window.innerHeight - top - gap * 2}px`,
       })
