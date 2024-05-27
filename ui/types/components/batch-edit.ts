@@ -23,7 +23,10 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
   columns: BatchEditColumn[]
   /** 是否可调节尺寸 */
   resizable?: boolean
-  /** 表单模型 */
+  /**
+   * 表单模型
+   * @description 该模型优先级要大于列配置
+   */
   model?: Model
   /** 表格标题 */
   title?: string
