@@ -1,5 +1,6 @@
 <template>
   <UNodeRender
+    v-bind="$attrs"
     :content="slots.default?.()?.[0]"
     @mouseenter.self="handleMouseEnter"
     @mouseleave.self="handleMouseLeave"
@@ -26,7 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, nextTick, computed, useSlots, onBeforeUnmount, ref } from "vue"
+import {
+  shallowRef,
+  nextTick,
+  computed,
+  useSlots,
+  onBeforeUnmount,
+  ref,
+} from "vue"
 import { bem, getScrollParents, nextFrame, setStyles } from "@ui/utils"
 import { vClickOutside } from "@ui/directives"
 import { UNodeRender } from "../node-render"
@@ -34,7 +42,11 @@ import { UScroll } from "../scroll"
 import { type TipProps } from "@ui/types/components/tip"
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import calcPosition from "./position"
-import { calculateMaxWidth, calculateRightMaxWidth, calculateLeftMaxWidth } from "./calculate"
+import {
+  calculateMaxWidth,
+  calculateRightMaxWidth,
+  calculateLeftMaxWidth,
+} from "./calculate"
 
 defineOptions({ name: "Tip" })
 
@@ -49,7 +61,9 @@ const props = withDefaults(defineProps<TipProps>(), {
 const cls = bem("tip")
 const slots = useSlots()
 const { formProps } = useFormComponent()
-const { size } = useFormFallbackProps([formProps ?? {}, props], { size: "default" })
+const { size } = useFormFallbackProps([formProps ?? {}, props], {
+  size: "default",
+})
 
 const transitionName = computed(() => `tip-${props.position.split("-")[0]}`)
 const contentClass = computed(() => [
@@ -87,9 +101,14 @@ const handleMouseLeave = () => {
   isMouseInTip.value = false
   if (props.trigger !== "hover") return
   clearTimeout(timers.get("timerMouseLeave"))
-  timers.set("timerMouseLeave", setTimeout(() => {
-    nextFrame(() => { if (!isMouseInTip.value) removeAllListeners() })
-  }, 200))
+  timers.set(
+    "timerMouseLeave",
+    setTimeout(() => {
+      nextFrame(() => {
+        if (!isMouseInTip.value) removeAllListeners()
+      })
+    }, 200)
+  )
 }
 
 const handleContentMouseEnter = () => {
@@ -121,13 +140,17 @@ const handleClick = async () => {
 const handleClickOutside = () => {
   if (props.trigger === "hover" || !visible.value) return
   clearTimeout(timers.get("outside"))
-  timers.set("outside", setTimeout(() => {
-    visible.value = false
-    removeAllListeners()
-  }, 10))
+  timers.set(
+    "outside",
+    setTimeout(() => {
+      visible.value = false
+      removeAllListeners()
+    }, 10)
+  )
 }
 
-const setPositionParams = (maxWidth) => setStyles(tipContentRef.value!.el!, { maxWidth })
+const setPositionParams = (maxWidth) =>
+  setStyles(tipContentRef.value!.el!, { maxWidth })
 
 const popup = () => {
   screenSize.width = scrollDom.value?.clientWidth!
@@ -144,7 +167,12 @@ const popup = () => {
   if (props.position.match(/^(top|bottom)/)) {
     maxWidth = calculateMaxWidth(window.innerWidth, rect, props.position, gap)
   } else if (props.position.match(/^right/)) {
-    maxWidth = calculateRightMaxWidth(gap, window.innerWidth, rect.width, rect.x)
+    maxWidth = calculateRightMaxWidth(
+      gap,
+      window.innerWidth,
+      rect.width,
+      rect.x
+    )
   } else if (props.position.match(/^left/)) {
     maxWidth = calculateLeftMaxWidth(gap, window.innerWidth, rect.width, rect.x)
   }
