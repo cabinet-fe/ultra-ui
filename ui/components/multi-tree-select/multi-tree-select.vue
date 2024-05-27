@@ -210,8 +210,8 @@ const echoTags = () => {
   if (model.value) {
     tags.value = []
     forest.value.dft((node) => {
-      model.value?.includes(node.value[props.valueKey]) &&
-        tags.value?.push(node.value)
+      model.value?.includes(node.data[props.valueKey]) &&
+        tags.value?.push(node.data)
     })
   }
 }

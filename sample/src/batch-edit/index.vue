@@ -12,7 +12,6 @@
       :resizable="resizable"
       v-model:data="data"
       style="height: 400px"
-      :model="model"
       cols="1fr 1fr"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
@@ -45,9 +44,10 @@ const columns = defineTableColumns([
 ])
 
 const data = shallowRef(
-  Array.from({ length: 2 }).map((_, i) => ({
+  Array.from({ length: 20 }).map((_, i) => ({
     name: '姓名' + i,
-    age: Math.ceil(Math.random() * 80)
+    age: Math.ceil(Math.random() * 80),
+    id: Math.random()
   }))
 )
 

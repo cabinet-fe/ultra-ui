@@ -24,23 +24,18 @@
         ref="tableRef"
       >
         <template #column:__action__="{ row }">
-          <ButtonWrap>
+          <ButtonWrap tag="span" @click.stop :loading="row.operating">
             <u-button
-              @click.stop="row.addToNext({})"
+              @click="row.addToNext({})"
               :icon="InsertToPrev"
               title="插入到上一行"
             />
             <u-button
-              @click.stop="row.addToPrev({})"
+              @click="row.addToPrev({})"
               :icon="InsertToNext"
               title="插入到下一行"
             />
-            <u-button
-              @click.stop=""
-              :icon="Delete"
-              title="删除"
-              @click="handleDelete(row)"
-            />
+            <u-button :icon="Delete" title="删除" @click="handleDelete(row)" />
           </ButtonWrap>
         </template>
       </u-table>
@@ -50,7 +45,7 @@
           type="danger"
           :icon="Delete"
           :disabled="!checked.length"
-          @click="handleDelete()"
+          @click="handleDeleteBatch"
         >
           删除
         </u-button>
@@ -60,7 +55,7 @@
       </u-card-action>
     </u-card>
 
-    <u-card :class="cls.e('form')" v-if="currentRow || newRow">
+    <u-card :class="cls.e('form')" v-if="(currentRow || newRow) && model">
       <u-card-header>
         <template v-if="newRow">新增</template>
         <template v-else-if="readonly">详情</template>
@@ -163,7 +158,8 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   circle: true,
   text: true,
   type: 'primary',
-  style: { fontSize: '16px' }
+  style: { fontSize: '16px' },
+  loading: false
 })
 
 const columns = computed(() => {
@@ -215,26 +211,28 @@ function handleRowChange(row?: TableRow) {
 function handleCreate() {
   tableRef.value?.clearCurrentRow()
   newRow.value = true
-  emit('update:data', [...(props.data ?? []), {}])
 }
 
 function handleClose() {
   tableRef.value?.clearCurrentRow()
 }
 
-async function handleDelete(row?: TableRow) {
+async function handleDelete(row: TableRow) {
   const { deleteMethod } = props
 
   if (deleteMethod) {
+    row.operating = true
     await deleteMethod(row ? [row.value] : checked.value)
+    row.operating = false
   }
+  if (currentRow.value === row) {
+    tableRef.value?.clearCurrentRow()
+  }
+  emit('update:data', omitArr(props.data!, row.index))
+}
 
-  if (row) {
-    if (currentRow.value === row) {
-      tableRef.value?.clearCurrentRow()
-    }
-    emit('update:data', omitArr(props.data!, row.index))
-  }
+async function handleDeleteBatch() {
+  const { deleteMethod } = props
 }
 
 async function handleSave() {
@@ -251,6 +249,25 @@ async function handleSave() {
     await saveMethod(model.data)
   }
 
-  Object.assign(currentRow.value.value, props.model!.data)
+  // 新增提交
+  if (newRow.value) {
+    emit('update:data', [...props.data!, { ...model.data }])
+  }
+  // 更新提交
+  else {
+    Object.assign(currentRow.value.value, model.data)
+
+    const currentRowEl = tableRef.value?.el?.querySelector(
+      'tr.is-current'
+    ) as HTMLElement | null
+
+    if (currentRowEl) {
+      const blinkCls = bem.is('blink')
+      currentRowEl.classList.add(blinkCls)
+      setTimeout(() => {
+        currentRowEl?.classList.remove(blinkCls)
+      }, 500)
+    }
+  }
 }
 </script>

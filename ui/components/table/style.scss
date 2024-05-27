@@ -32,7 +32,7 @@ $root-name: table;
   @include m.e(row) {
     &:hover {
       @include m.bem($root-name, cell) {
-        background-color: #f5f5f5;
+        background-color: fn.use-var(bg-color, hover);
       }
     }
 

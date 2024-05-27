@@ -162,8 +162,8 @@ const echoTags = () => {
   if (model.value) {
     tags.value = []
     forest.value.dft((node) => {
-      if (model.value === node.value[props.valueKey]) {
-        tags.value = node.value
+      if (model.value === node.data[props.valueKey]) {
+        tags.value = node.data
       }
     })
   }
