@@ -25,7 +25,7 @@ export function useTable(options: Options) {
   const getColumnSlotsNode = (
     ctx: TableColumnSlotsScope | TableColumnRenderContext
   ): RenderReturn => {
-    const column = ctx.column.value
+    const column = ctx.column.data
 
     const { render, key } = column
 
@@ -38,7 +38,7 @@ export function useTable(options: Options) {
   }
 
   const getHeaderSlotsNode = (ctx: { column: ColumnNode }): RenderReturn => {
-    const column = ctx.column.value
+    const column = ctx.column.data
     const { nameRender, key } = column
 
     if (nameRender) return nameRender(ctx)
@@ -63,7 +63,7 @@ export function useTable(options: Options) {
     row: TableRow,
     column: ColumnNode
   ): TableColumnSlotsScope | TableColumnRenderContext => {
-    const rowData = row.value
+    const rowData = row.data
     const val = getChainValue(rowData, column.key)
     const ctx = {
       row,

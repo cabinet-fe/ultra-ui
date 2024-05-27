@@ -23,7 +23,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     s => {
       if (changedByEvent) return
 
-      selected.value = s ? nodeDicts.value.get(s)?.value : undefined
+      selected.value = s ? nodeDicts.value.get(s)?.data : undefined
     },
     { immediate: true }
   )
@@ -31,7 +31,7 @@ export function useSelect<DataItem extends Record<string, any>>(
   const handleSelect = (node: TreeNode<DataItem>) => {
     changedByEvent = true
     if (node.disabled) return
-    selected.value = node.value === selected.value ? undefined : node.value
+    selected.value = node.data === selected.value ? undefined : node.data
 
     emit('update:selected', selected.value?.[props.valueKey!], selected.value)
 

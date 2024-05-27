@@ -35,10 +35,10 @@ export class TreeNode<
   static valueKey = 'value'
 
   get label(): string {
-    return String(getChainValue(this.value, TreeNode.labelKey))
+    return String(getChainValue(this.data, TreeNode.labelKey))
   }
 
   get key(): string | number {
-    return getChainValue(this.value, TreeNode.valueKey)
+    return getChainValue(this.data, TreeNode.valueKey)
   }
 }

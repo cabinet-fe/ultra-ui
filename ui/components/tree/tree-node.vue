@@ -37,7 +37,7 @@
         @click.stop
       />
 
-      <u-node-render :content="getTreeSlotsNode({ node, data: node.value })" />
+      <u-node-render :content="getTreeSlotsNode({ node, data: node.data })" />
     </span>
   </div>
 </template>
