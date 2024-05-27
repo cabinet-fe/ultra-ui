@@ -4,7 +4,7 @@
       v-for="(node, index) of nodes"
       :node="node"
       :key="node.key ?? index"
-      :class="bem.is('selected', node.value === selected)"
+      :class="bem.is('selected', node.data === selected)"
     />
   </div>
 </template>
@@ -80,7 +80,7 @@ const forest = computed(() => {
 watch(
   [() => props.disabledNode, forest],
   ([disabledNode, forest]) => {
-    disabledNode && forest.dft(node => disabledNode(node.value, node) ?? false)
+    disabledNode && forest.dft(node => disabledNode(node.data, node) ?? false)
   },
   { immediate: true }
 )

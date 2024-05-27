@@ -49,17 +49,17 @@ export class ColumnNode extends TreeNode<TableColumn> {
   leafs?: number
   /** 列key */
   get key(): string {
-    return this.value.key
+    return this.data.key
   }
   set key(val) {
-    this.value.key = val
+    this.data.key = val
   }
   /** 列名 */
   get name(): string {
-    return this.value.name
+    return this.data.name
   }
   set name(val) {
-    this.value.name = val
+    this.data.name = val
   }
 
   /**
@@ -67,44 +67,44 @@ export class ColumnNode extends TreeNode<TableColumn> {
    * @default 'left'
    */
   get align(): TableColumnAlign {
-    return this.value.align ?? 'left'
+    return this.data.align ?? 'left'
   }
   set align(val) {
-    this.value.align = val
+    this.data.align = val
   }
 
   /** 宽度 */
   get width(): number | undefined {
-    return this.value.width
+    return this.data.width
   }
   set width(val) {
-    this.value.width = val
+    this.data.width = val
   }
   /** 最小宽度 */
   get minWidth(): number | undefined {
-    return this.value.minWidth
+    return this.data.minWidth
   }
   set minWidth(val) {
-    this.value.minWidth = val
+    this.data.minWidth = val
   }
 
   /** 列固定方向 */
   get fixed(): 'left' | 'right' | undefined {
     if (this.depth > 1) return
-    return this.value.fixed
+    return this.data.fixed
   }
   set fixed(val) {
-    this.value.fixed = val
+    this.data.fixed = val
   }
 
   /** 是否是左侧的最后一个固定列 */
   get isLastFixed(): boolean {
-    return this.value.isLastFixed ?? false
+    return this.data.isLastFixed ?? false
   }
 
   /** 是否是右侧的第一个固定列 */
   get isFirstFixed(): boolean {
-    return this.value.isFirstFixed ?? false
+    return this.data.isFirstFixed ?? false
   }
 
   style: Record<string, number> = reactive({})

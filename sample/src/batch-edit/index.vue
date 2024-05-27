@@ -12,7 +12,6 @@
       :resizable="resizable"
       v-model:data="data"
       style="height: 400px"
-      :model="model"
       cols="1fr 1fr"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
@@ -33,28 +32,29 @@
 
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
-import { FormModel, Message, defineTableColumns } from 'ultra-ui'
+import { FormModel, Message, defineBatchEditColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
 const resizable = shallowRef(true)
 
-const columns = defineTableColumns([
-  { name: '名称', key: 'name' },
-  { name: '年龄', key: 'age' }
+const columns = defineBatchEditColumns([
+  { name: '名称', key: 'name', rules: { required: true } },
+  { name: '年龄', key: 'age', rules: { max: 120 } }
 ])
 
 const data = shallowRef(
-  Array.from({ length: 2 }).map((_, i) => ({
+  Array.from({ length: 20 }).map((_, i) => ({
     name: '姓名' + i,
-    age: Math.ceil(Math.random() * 80)
+    age: Math.ceil(Math.random() * 80),
+    id: Math.random()
   }))
 )
 
-const model = new FormModel({
-  name: { required: true },
-  age: { required: true, max: 100 }
-})
+// const model = new FormModel({
+//   name: { required: true },
+//   age: { required: true, max: 100 }
+// })
 
 const asynchronous = shallowRef(false)
 

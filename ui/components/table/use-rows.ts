@@ -11,12 +11,14 @@ let uid = 0
 export class TableRow<
   Data extends Record<string, any> = Record<string, any>
 > extends TreeNode<Data> {
-
   /** 索引路径 */
   get indexes(): number[] {
     if (!this.parent) return []
     return this.parent.indexes.concat(this.index)
   }
+
+  /** 是否操作中 */
+  operating = false
 
   /** 是否展开 */
   expanded = false
@@ -54,33 +56,69 @@ export function useRows(options: Options) {
 
   let rowForest = shallowRef<Forest<TableRow>>()
 
+
+  // 用于优化增删改时的性能
+  let rowDicts = new WeakMap<Record<string, any>, TableRow>()
+  let tempRowDicts: null | WeakMap<Record<string, any>, TableRow> = null
+
   watch(
     [() => props.data, () => props.tree, () => props.rowKey],
     ([data, tree, rowKey]) => {
       if (!data?.length) {
         rows.value = []
+        rowDicts = new WeakMap()
         return
       }
 
+      // 新建一个零时的数据映射
+      tempRowDicts = new WeakMap()
+
+      // 单层结构
       if (!tree) {
         let result: TableRow[] = []
         let i = 0
+
         while (i < data.length) {
-          result.push(new TableRow(data[i]!, i, rowKey))
+          const dataItem = data[i]!
+          const existRow = rowDicts.get(dataItem)
+          if (existRow) {
+            existRow.index = i
+            result.push(existRow)
+            tempRowDicts.set(dataItem, existRow)
+          } else {
+            const row = new TableRow(dataItem, i, rowKey)
+            result.push(row)
+            tempRowDicts.set(dataItem, row)
+          }
           i++
         }
+
+        rowDicts = tempRowDicts
+        tempRowDicts = null
         rows.value = result
         result = []
         rowForest.value = undefined
         return
       }
 
+      // 树形结构
       rowForest.value = Forest.create(data, {
         createNode(val, index) {
-          return new TableRow(val, index, rowKey)
+          const existRow = rowDicts.get(val)
+          if (existRow) {
+            existRow.index = index
+            tempRowDicts!.set(val, existRow)
+            return existRow
+          }
+          const row = new TableRow(val, index, rowKey)
+          tempRowDicts!.set(val, row)
+          return row
         },
         childrenKey: typeof tree === 'string' ? tree : 'children'
       })
+
+      rowDicts = tempRowDicts
+      tempRowDicts = null
 
       getFlattedRows()
     },

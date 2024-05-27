@@ -1,13 +1,32 @@
 import type { IFormModel } from './form'
-import type { TableProps } from './table'
+import type { TableColumn, TableProps } from './table'
 import type { DeconstructValue } from '../helper'
+import type { ValidateRule } from '../utils/form/validate'
+
+/** 批量编辑列 */
+export interface BatchEditColumn extends TableColumn {
+  /**
+   * 是否在列中显示
+   * @default true
+   */
+  visible?: boolean
+  /** 校验规则 */
+  rules?: ValidateRule
+  /** 默认值 */
+  defaultValue?: any | (() => any)
+}
 
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
-  extends Omit<TableProps, 'selectable' | 'checkable'> {
+  extends Omit<TableProps, 'selectable' | 'checkable' | 'columns'> {
+  /** 列 */
+  columns: BatchEditColumn[]
   /** 是否可调节尺寸 */
   resizable?: boolean
-  /** 表单模型 */
+  /**
+   * 表单模型
+   * @description 该模型优先级要大于列配置
+   */
   model?: Model
   /** 表格标题 */
   title?: string

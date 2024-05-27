@@ -128,7 +128,6 @@ watch(
 watch(
   () => injected?.closeIndex.value,
   (index) => {
-    console.log(index, props.index)
     if (index === props.index) close()
   }
 )

@@ -63,7 +63,7 @@ export function useCheck(options: Options) {
     changedByEvent = true
     emit(
       'update:selected',
-      selectedRow?.value ? toRaw(selectedRow.value) : undefined
+      selectedRow?.data ? toRaw(selectedRow.data) : undefined
     )
     nextTick(() => {
       changedByEvent = false
@@ -77,7 +77,7 @@ export function useCheck(options: Options) {
     changedByEvent = true
     emit(
       'update:checked',
-      Array.from(checkedRows).map(row => toRaw(row.value))
+      Array.from(checkedRows).map(row => toRaw(row.data))
     )
     nextTick(() => {
       changedByEvent = false
@@ -92,7 +92,7 @@ export function useCheck(options: Options) {
       let i = 0
       while (i < rows.value.length) {
         const row = rows.value[i]!
-        mapEntries.push([toRaw(row.value), row])
+        mapEntries.push([toRaw(row.data), row])
         i++
       }
       dicts = new WeakMap(mapEntries)

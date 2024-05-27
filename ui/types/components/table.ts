@@ -102,6 +102,8 @@ export interface TableRow<
 > extends TreeNode<DataItem> {
   /** 是否展开 */
   expanded: boolean
+  /** 操作中 */
+  operating: boolean
   /** 是否选中 */
   checked: boolean
   /** 是否为当前点击的行 */

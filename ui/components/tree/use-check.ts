@@ -37,12 +37,12 @@ export function useCheck<DataItem extends Record<string, any>>(
       oc?.forEach(v => {
         const node = nodeDicts.value.get(v)!
         node.checked = false
-        checked.delete(node.value)
+        checked.delete(node.data)
       })
       c?.forEach(v => {
         const node = nodeDicts.value.get(v)
         if (node) {
-          checked.add(node.value)
+          checked.add(node.data)
           node.checked = true
         }
       })
@@ -78,7 +78,7 @@ export function useCheck<DataItem extends Record<string, any>>(
       Tree.dft(node, node => {
         if (node.disabled) return
         node.checked = true
-        checked.add(node.value)
+        checked.add(node.data)
       })
 
       if (!checkStrictly) {
@@ -89,7 +89,7 @@ export function useCheck<DataItem extends Record<string, any>>(
             parent.indeterminate = true
           } else {
             parent.indeterminate = false
-            checked.add(parent.value)
+            checked.add(parent.data)
           }
 
           parent = parent.parent
@@ -99,14 +99,14 @@ export function useCheck<DataItem extends Record<string, any>>(
       Tree.dft(node, node => {
         node.checked = false
         node.indeterminate = false
-        checked.delete(node.value)
+        checked.delete(node.data)
       })
 
       if (!checkStrictly) {
         let parent = node.parent
         while (parent && parent.depth > 0) {
           parent.checked = false
-          checked.delete(parent.value)
+          checked.delete(parent.data)
 
           parent.indeterminate =
             parent.children!.some(child => child.indeterminate) ||

@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { provide, shallowRef, ref, watch, computed } from 'vue'
+import { provide, ref, watch, computed } from 'vue'
 import { MenuDIKey, type MenuContext } from './di'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -46,7 +46,7 @@ const {
   uniqueOpened: false
 })
 
-const store = shallowRef<MenuContext>({
+const store = <MenuContext>({
   cls,
   menuProps: props,
   menuEmit: emit,
@@ -67,27 +67,27 @@ watch(
   () => simple.value,
   (val) => {
     if (val) {
-      setTimeout(() => (store.value.simple.value = true), 550)
+      setTimeout(() => (store.simple.value = true), 550)
     } else {
-      setTimeout(() => (store.value.simple.value = false), 150)
+      setTimeout(() => (store.simple.value = false), 150)
     }
   }
 )
 
 watch(() => activeIndex.value, (index) => {
-  store.value.activeIndex.value = index
+  store.activeIndex.value = index
 })
 
-provide(MenuDIKey, store.value)
+provide(MenuDIKey, store)
 /** 给用户提供的展开方法 */
 const open = (index: string) => {
-  store.value.openIndex.value = index
-  if (store.value.closeIndex.value === index) store.value.closeIndex.value = ''
+  store.openIndex.value = index
+  if (store.closeIndex.value === index) store.closeIndex.value = ''
 }
 /** 给用户提供的关闭方法 */
 const close = (index: string) => {
-  store.value.closeIndex.value = index
-  if (store.value.openIndex.value === index) store.value.openIndex.value = ''
+  store.closeIndex.value = index
+  if (store.openIndex.value === index) store.openIndex.value = ''
 }
 // 切换缩略模式的最大宽度
 const maxWidth = computed(() => {
