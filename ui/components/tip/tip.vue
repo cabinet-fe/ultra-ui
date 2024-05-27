@@ -193,7 +193,7 @@ const popup = () => {
     dynamicStyle.value = { ...dynamicCss.value, ...props.customStyle }
     setStyles(tipContentRefDom, { ...dynamicStyle.value })
     const { top } = tipContentRefDom.getBoundingClientRect()
-    nextFrame(() => {
+    nextTick(() => {
       setStyles(tipContentRefDom, {
         ...dynamicStyle.value,
         maxHeight: `${window.innerHeight - top - gap * 2}px`,
