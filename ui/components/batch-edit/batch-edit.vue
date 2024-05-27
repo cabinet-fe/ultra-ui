@@ -26,12 +26,12 @@
         <template #column:__action__="{ row }">
           <ButtonWrap tag="span" @click.stop :loading="row.operating">
             <u-button
-              @click="row.addToNext({})"
+              @click="handleInsertToPrev(row)"
               :icon="InsertToPrev"
               title="插入到上一行"
             />
             <u-button
-              @click="row.addToPrev({})"
+              @click="handleInsertToNext(row)"
               :icon="InsertToNext"
               title="插入到下一行"
             />
@@ -55,7 +55,7 @@
       </u-card-action>
     </u-card>
 
-    <u-card :class="cls.e('form')" v-if="(currentRow || newRow) && model">
+    <u-card :class="cls.e('form')" v-if="(currentRow || newRow) && !!model">
       <u-card-header>
         <template v-if="newRow">新增</template>
         <template v-else-if="readonly">详情</template>
@@ -63,17 +63,10 @@
       </u-card-header>
 
       <transition name="fade" appear mode="out-in">
-        <u-scroll
-          v-if="props.model && !toggling"
-          always
-          :class="cls.e('form-wrap')"
-        >
-          <u-form
-            :model="props.model"
-            :readonly="readonly"
-            @keyup.enter="handleSave"
-          >
+        <u-scroll v-if="model && !toggling" always :class="cls.e('form-wrap')">
+          <u-form :model="model" :readonly="readonly" @keyup.enter="handleSave">
             <template #default="scoped">
+              <!-- @vue-ignore -->
               <slot name="form" v-bind="scoped" />
             </template>
           </u-form>
@@ -90,7 +83,7 @@
   </u-layout>
 </template>
 
-<script lang="ts" setup generic="Model extends FormModel = FormModel">
+<script lang="ts" setup generic="Model extends FormModel">
 import type {
   BatchEditEmits,
   BatchEditProps
@@ -105,7 +98,7 @@ import {
   type TableRow
 } from '../table'
 import { UCard, UCardAction, UCardHeader } from '../card'
-import { UForm, FormModel } from '../form'
+import { UForm, FormModel, type FormModelItem } from '../form'
 import { ULayout } from '../layout'
 import { UScroll } from '../scroll'
 import { UButton, type ButtonProps } from '../button'
@@ -138,9 +131,9 @@ const slots = defineSlots<
   {
     form?: (props: {
       /** 表单数据 */
-      data: Model['data']
+      data: Model extends undefined ? Record<string, any> : Model['data']
       /** 表单模型 */
-      model: Model
+      model: Model extends undefined ? FormModel : Model
     }) => any
 
     header?: () => any
@@ -162,9 +155,41 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   loading: false
 })
 
+const modelFields = computed(() => {
+  return props.columns.reduce(
+    (fields, column) => {
+      fields[column.key] = {
+        value: column.defaultValue,
+        ...column.rules
+      }
+      return fields
+    },
+    {} as Record<string, FormModelItem>
+  )
+})
+
+const model = shallowRef<Model extends undefined ? FormModel : Model>()
+
+watch(
+  [() => props.model, () => props.columns],
+  ([m, c]) => {
+    if (m) {
+      ;(model.value as Model) = m
+      return
+    }
+    if (!c) {
+      model.value = undefined
+      return
+    }
+    ;(model.value as FormModel) = new FormModel(modelFields.value)
+  },
+  { immediate: true }
+)
+
 const columns = computed(() => {
-  if (props.readonly) return props.columns
-  return (props.columns ?? []).concat({
+  const columns = (props.columns ?? []).filter(c => c.visible !== false)
+  if (props.readonly) return columns
+  return columns.concat({
     name: '操作',
     key: '__action__',
     align: 'center'
@@ -173,6 +198,7 @@ const columns = computed(() => {
 
 const currentRow = shallowRef<TableRow>()
 const newRow = shallowRef(false)
+let newRowIndex = -1
 /** 是否切换中，用来触发过渡效果 */
 const toggling = shallowRef(false)
 
@@ -197,13 +223,12 @@ function rerender() {
 const checked = shallowRef<Record<string, any>[]>([])
 
 function handleRowChange(row?: TableRow) {
-  const { model } = props
-  if (!model) return
+  if (!model.value) return
 
   currentRow.value = row
-  model.resetData()
+  model.value.resetData()
   if (row) {
-    model.setData(row.value)
+    model.value.setData(row.data)
   }
   rerender()
 }
@@ -222,7 +247,7 @@ async function handleDelete(row: TableRow) {
 
   if (deleteMethod) {
     row.operating = true
-    await deleteMethod(row ? [row.value] : checked.value)
+    await deleteMethod(row ? [row.data] : checked.value)
     row.operating = false
   }
   if (currentRow.value === row) {
@@ -235,27 +260,38 @@ async function handleDeleteBatch() {
   const { deleteMethod } = props
 }
 
+function handleInsertToPrev(row: TableRow) {}
+
+function handleInsertToNext(row: TableRow) {}
+
 async function handleSave() {
-  const { model, saveMethod } = props
+  const { saveMethod } = props
 
-  if (!model) return
+  if (!model.value) return
 
-  model.clearValidate()
-  const valid = await model?.validate()
+  model.value.clearValidate()
+  const valid = await model.value.validate()
 
-  if (!valid || !currentRow.value) return
+  if (!valid) return
 
   if (saveMethod) {
-    await saveMethod(model.data)
+    await saveMethod(model.value.data)
   }
 
   // 新增提交
   if (newRow.value) {
-    emit('update:data', [...props.data!, { ...model.data }])
+    emit('update:data', [...props.data!, { ...model.value.data }])
+    nextTick(() => {
+      tableRef.value?.el?.querySelector('tbody tr:last-child')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      })
+    })
   }
   // 更新提交
   else {
-    Object.assign(currentRow.value.value, model.data)
+    if (!currentRow.value) return
+    Object.assign(currentRow.value.data, model.value.data)
 
     const currentRowEl = tableRef.value?.el?.querySelector(
       'tr.is-current'
