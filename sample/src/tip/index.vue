@@ -106,8 +106,9 @@
           :trigger="'click'"
           position="top-start"
           content="点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左"
+          click-close
         >
-          <u-button>点击上左</u-button>
+          <u-button>点击上左空白区域点击不可隐藏</u-button>
         </u-tip>
         <u-tip content="上中" :trigger="'click'">
           <u-button>点击上中</u-button>
