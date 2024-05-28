@@ -58,9 +58,13 @@ export function isTemplate(node: unknown): node is VNode {
  * @param results 虚拟节点
  * @returns
  */
-export function extractNormalVNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
+export function extractNormalVNodes(
+  nodes: VNodeArrayChildren,
+  results: VNode[] = []
+) {
   nodes.forEach(node => {
     if (!isVNode(node)) {
+      console.log(node)
       if (typeof node === 'string' || typeof node === 'number') {
         results.push(createTextVNode(String(node)))
       }
