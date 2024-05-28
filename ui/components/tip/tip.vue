@@ -56,6 +56,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   position: "top",
   mouseEnterable: true,
   mouseLeaveClose: true,
+  clickClose:false
 })
 
 /**当前展示的tipContent */
@@ -153,6 +154,7 @@ const handleClick = async () => {
 }
 
 const handleClickOutside = () => {
+  if(props.clickClose) return
   if (isChildrenTip.value) return
   if (props.trigger === "hover") return
   closeTipContent()

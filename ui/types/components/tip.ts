@@ -28,6 +28,11 @@ export interface TipProps {
 
   /**鼠标离开 tip区域后是否自动关闭 */
   mouseLeaveClose?: boolean
+
+ /**
+  * 点击空白区域是否可关闭
+  */
+  clickClose?: boolean
 }
 
 /** tip提示组件组件定义的事件 */
