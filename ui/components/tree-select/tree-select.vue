@@ -65,13 +65,13 @@ import type {
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import { bem } from "@ui/utils"
 import { UDropdown } from "../dropdown"
-import { TreeNode, type TreeExposed, type UTree } from "../tree"
+import { UTree, type TreeExposed } from "../tree"
 import { UScroll, type ScrollExposed } from "../scroll"
+import { UInput } from "../input"
 import { UIcon } from "../icon"
 import { ArrowDown, Search } from "icon-ultra"
-import { computed, onMounted, shallowRef, watch } from "vue"
-import { Forest, omit } from "cat-kit/fe"
-import type { UInput } from "../input"
+import { computed, ref, shallowRef, watch } from "vue"
+import { Tree, omit } from "cat-kit/fe"
 defineOptions({
   name: "TreeSelect",
 })
@@ -116,7 +116,7 @@ const model = defineModel<Val>()
 
 const mouse = shallowRef(false)
 
-const tags = shallowRef<Record<string, any>>()
+const tags = ref<Record<string, any>>()
 
 const { formProps } = useFormComponent()
 
@@ -150,24 +150,30 @@ const handleClear = () => {
   emit("update:modelValue", undefined!)
 }
 
-/** 森林 */
-const forest = computed(() => {
-  TreeNode.labelKey = props.labelKey
-  TreeNode.valueKey = props.valueKey
-  return Forest.create(props.data!, TreeNode)
-})
+watch(
+  () => [props.data, model.value],
+  ([data, modelValue]) => {
+    if (data && modelValue) {
+      tags.value = undefined
+      let found = false
 
-/**回显 */
-const echoTags = () => {
-  if (model.value) {
-    tags.value = []
-    forest.value.dft((node) => {
-      if (model.value === node.data[props.valueKey]) {
-        tags.value = node.data
+      for (const item of data as Record<string, any>[]) {
+        if (found) break // 如果已找到匹配值，停止外层循环
+
+        Tree.dft(item, (node) => {
+          if (node[props.valueKey] === modelValue) {
+            tags.value = node
+            found = true
+            return false // 停止当前dft循环
+          }
+        })
       }
-    })
+    }
+  },
+  {
+    immediate: true,
   }
-}
+)
 
 watch(scrollRef, (scroll) => {
   if (scroll && model.value !== undefined) {
@@ -176,9 +182,5 @@ watch(scrollRef, (scroll) => {
 
     treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
   }
-})
-
-onMounted(() => {
-  echoTags()
 })
 </script>
