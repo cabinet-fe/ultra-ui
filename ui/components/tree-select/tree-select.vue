@@ -67,11 +67,11 @@ import { bem } from "@ui/utils"
 import { UDropdown } from "../dropdown"
 import { type TreeExposed, type UTree } from "../tree"
 import { UScroll, type ScrollExposed } from "../scroll"
+import { UInput } from "../input"
 import { UIcon } from "../icon"
 import { ArrowDown, Search } from "icon-ultra"
 import { computed, ref, shallowRef, watch } from "vue"
 import { Tree, omit } from "cat-kit/fe"
-import type { UInput } from "../input"
 defineOptions({
   name: "TreeSelect",
 })
