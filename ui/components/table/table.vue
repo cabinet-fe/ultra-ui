@@ -72,7 +72,14 @@ const { size } = useFallbackProps([props], {
 const colgroupRef = shallowRef<HTMLElement>()
 
 // 行
-const { rows, toggleTreeRowExpand, rowForest } = useRows({ props })
+const {
+  rows,
+  toggleTreeRowExpand,
+  rowForest,
+  handleRowClick,
+  clearCurrentRow,
+  setCurrentRow
+} = useRows({ props, emit })
 
 // 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
@@ -96,18 +103,11 @@ const columnConfig = useColumns({
 const { allColumns, updateStylesOfColumns } = columnConfig
 
 // 在表格中提供的通用方法和属性
-const {
-  getColumnSlotsNode,
-  getHeaderSlotsNode,
-  getCellClass,
-  getCellCtx,
-  handleRowClick,
-  clearCurrentRow
-} = useTable({
-  props,
-  cls,
-  emit
-})
+const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
+  useTable({
+    props,
+    cls
+  })
 
 provide(TableDIKey, {
   tableProps: props,
@@ -133,6 +133,7 @@ defineExpose<_TableExposed>({
   el,
   clearChecked,
   clearSelected,
-  clearCurrentRow
+  clearCurrentRow,
+  setCurrentRow
 })
 </script>

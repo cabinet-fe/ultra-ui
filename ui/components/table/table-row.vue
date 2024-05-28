@@ -21,7 +21,7 @@
         type="primary"
         size="small"
         circle
-        @click="toggleTreeRowExpand(row)"
+        @click.stop="toggleTreeRowExpand(row)"
         :style="`margin-left: ${(row.depth - 1) * 14}px`"
       >
         <u-icon><ArrowRight /></u-icon>

@@ -39,6 +39,7 @@ export function useComponentProps<T extends Record<string, any>>(
             node.props = {}
           }
           Object.keys(props).forEach(key => {
+            if (node.props![key] !== undefined) return
             node.props![key] = props[key]
             if (attrs[key] !== undefined) {
               node.props![key] = attrs[key]

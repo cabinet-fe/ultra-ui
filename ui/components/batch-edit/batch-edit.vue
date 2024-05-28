@@ -35,7 +35,20 @@
               :icon="InsertToNext"
               title="插入到下一行"
             />
-            <u-button :icon="Delete" title="删除" @click="handleDelete(row)" />
+
+            <u-button
+              v-if="tree"
+              @click="handleInsertChild(row)"
+              :icon="AddChild"
+              title="添加子项"
+            />
+
+            <u-button
+              :icon="Delete"
+              type="danger"
+              title="删除"
+              @click="handleDelete(row)"
+            />
           </ButtonWrap>
         </template>
       </u-table>
@@ -53,7 +66,7 @@
         <u-button
           type="primary"
           :icon="Plus"
-          @click="handleCreate"
+          @click="handleAppend"
           :loading="actionLoading"
         >
           新增
@@ -61,7 +74,10 @@
       </u-card-action>
     </u-card>
 
-    <u-card :class="cls.e('form')" v-if="(currentRow || newRow) && !!model">
+    <u-card
+      :class="cls.e('form')"
+      v-if="(currentRow || newRow) && !!props.model"
+    >
       <u-card-header>
         <template v-if="newRow">新增</template>
         <template v-else-if="readonly">详情</template>
@@ -70,7 +86,11 @@
 
       <transition name="fade" appear mode="out-in">
         <u-scroll v-if="model && !toggling" always :class="cls.e('form-wrap')">
-          <u-form :model="model" :readonly="readonly" @keyup.enter="handleSave">
+          <u-form
+            :model="props.model"
+            :readonly="readonly"
+            @keyup.enter="handleSave"
+          >
             <template #default="scoped">
               <!-- @vue-ignore -->
               <slot name="form" v-bind="scoped" />
@@ -107,8 +127,8 @@ import type {
   BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import { omit, omitArr } from 'cat-kit/fe'
-import { Plus, Delete, InsertToPrev, InsertToNext } from 'icon-ultra'
+import { last, omit, omitArr } from 'cat-kit/fe'
+import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import {
   UTable,
   type TableColumnSlotsScope,
@@ -116,7 +136,7 @@ import {
   type TableRow
 } from '../table'
 import { UCard, UCardAction, UCardHeader } from '../card'
-import { UForm, FormModel, type FormModelItem } from '../form'
+import { UForm, FormModel } from '../form'
 import { ULayout } from '../layout'
 import { UScroll } from '../scroll'
 import { UButton, type ButtonProps } from '../button'
@@ -149,9 +169,9 @@ const slots = defineSlots<
   {
     form?: (props: {
       /** 表单数据 */
-      data: Model extends undefined ? Record<string, any> : Model['data']
+      data: Model['data']
       /** 表单模型 */
-      model: Model extends undefined ? FormModel : Model
+      model: Model
     }) => any
 
     header?: () => any
@@ -173,56 +193,27 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   loading: false
 })
 
-const modelFields = computed(() => {
-  return props.columns.reduce(
-    (fields, column) => {
-      fields[column.key] = {
-        value: column.defaultValue,
-        ...column.rules
-      }
-      return fields
-    },
-    {} as Record<string, FormModelItem>
-  )
-})
-
-const model = shallowRef<Model extends undefined ? FormModel : Model>()
-
-watch(
-  [() => props.model, () => props.columns],
-  ([m, c]) => {
-    if (m) {
-      ;(model.value as Model) = m
-      return
-    }
-    if (!c) {
-      model.value = undefined
-      return
-    }
-    ;(model.value as FormModel) = new FormModel(modelFields.value)
-  },
-  { immediate: true }
-)
-
 const columns = computed(() => {
-  const columns = (props.columns ?? []).filter(c => c.visible !== false)
-  if (props.readonly) return columns
-  return columns.concat({
+  if (props.readonly) return props.columns
+  return (props.columns ?? []).concat({
     name: '操作',
     key: '__action__',
-    align: 'center'
+    align: 'center',
+    width: 150,
+    fixed: 'right'
   })
 })
 
 const currentRow = shallowRef<TableRow>()
 const newRow = shallowRef(false)
-let newRowIndex = -1
+let newRowIndexes: number[] = []
 /** 是否切换中，用来触发过渡效果 */
 const toggling = shallowRef(false)
 
 watch(currentRow, row => {
   if (row) {
     newRow.value = false
+    newRowIndexes = []
   }
 })
 
@@ -241,19 +232,71 @@ function rerender() {
 const checked = shallowRef<Record<string, any>[]>([])
 
 function handleRowChange(row?: TableRow) {
-  if (!model.value) return
+  if (!props.model) return
 
   currentRow.value = row
-  model.value.resetData()
+  props.model.resetData()
   if (row) {
-    model.value.setData(row.data)
+    props.model.setData(row.data)
   }
   rerender()
 }
 
-function handleCreate() {
+function runCreate(cb: () => void) {
   tableRef.value?.clearCurrentRow()
   newRow.value = true
+  cb()
+}
+
+function handleAppend() {
+  runCreate(() => {
+    newRowIndexes = [props.data?.length ?? 0]
+  })
+}
+
+function handleInsertToPrev(row: TableRow) {
+  runCreate(() => {
+    newRowIndexes = [...row.indexes]
+  })
+}
+
+function handleInsertToNext(row: TableRow) {
+  runCreate(() => {
+    newRowIndexes = [...row.indexes.slice(0, -1), row.index + 1]
+  })
+}
+
+function handleInsertChild(row: TableRow) {
+  runCreate(() => {
+    if (row.children?.length) {
+      newRowIndexes = [...row.indexes, row.children.length]
+    } else {
+      newRowIndexes = [...row.indexes, 0]
+    }
+  })
+}
+
+function insert(item: Record<string, any>) {
+  const data = [...(props.data ?? [])]
+
+  if (!newRowIndexes.length) return
+
+  let arr = data
+  let parent: undefined | Record<string, any>
+  const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
+  newRowIndexes.slice(0, -1).forEach(i => {
+    parent = arr[i]!
+    arr = parent[childrenKey]
+  })
+
+  if (arr) {
+    let i = last(newRowIndexes)
+    arr.splice(i, 0, item)
+  } else if (parent) {
+    parent[childrenKey] = [item]
+  }
+
+  emit('update:data', data)
 }
 
 function handleClose() {
@@ -275,30 +318,27 @@ async function handleDelete(row: TableRow) {
 }
 
 async function handleDeleteBatch() {
-  const { deleteMethod } = props
+  // const { deleteMethod } = props
 }
-
-function handleInsertToPrev(row: TableRow) {}
-
-function handleInsertToNext(row: TableRow) {}
 
 const actionLoading = shallowRef(false)
 async function handleSave() {
   const { saveMethod } = props
 
-  if (!model.value) return
+  if (!props.model) return
 
-  model.value.clearValidate()
-  const valid = await model.value.validate()
+  props.model.clearValidate()
+  const valid = await props.model.validate()
 
   if (!valid) return
 
+  let saveResult: any
   if (saveMethod) {
     if (currentRow.value) {
       currentRow.value.operating = true
     }
     actionLoading.value = true
-    await saveMethod(model.value.data)
+    saveResult = await saveMethod(props.model.data)
 
     if (currentRow.value) {
       currentRow.value.operating = false
@@ -308,30 +348,27 @@ async function handleSave() {
 
   // 新增提交
   if (newRow.value) {
-    emit('update:data', [...props.data!, { ...model.value.data }])
-    nextTick(() => {
-      tableRef.value?.el?.querySelector('tbody tr:last-child')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest'
-      })
-    })
+    const data = saveResult ?? { ...props.model.data }
+    insert(data)
+    await nextTick()
+    tableRef.value?.setCurrentRow(data)
+    await nextTick()
   }
   // 更新提交
   else {
     if (!currentRow.value) return
-    Object.assign(currentRow.value.data, model.value.data)
+    Object.assign(currentRow.value.data, props.model.data)
+  }
 
-    const currentRowEl = tableRef.value?.el?.querySelector(
-      'tr.is-current'
-    ) as HTMLElement | null
+  const currentRowEl = tableRef.value?.el?.querySelector('tbody tr.is-current')
 
-    if (currentRowEl) {
-      const blinkCls = bem.is('blink')
-      currentRowEl.classList.add(blinkCls)
-      setTimeout(() => {
-        currentRowEl?.classList.remove(blinkCls)
-      }, 500)
-    }
+  if (currentRowEl) {
+    currentRowEl.scrollIntoView({ block: 'nearest' })
+    const blinkCls = bem.is('blink')
+    currentRowEl.classList.add(blinkCls)
+    setTimeout(() => {
+      currentRowEl?.classList.remove(blinkCls)
+    }, 500)
   }
 }
 </script>

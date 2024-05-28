@@ -2,6 +2,7 @@
   <div>
     <div>
       <u-checkbox v-model="readonly">只读</u-checkbox>
+      <u-checkbox v-model="tree">树形</u-checkbox>
       <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
       <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
     </div>
@@ -12,6 +13,8 @@
       :resizable="resizable"
       v-model:data="data"
       style="height: 400px"
+      :model="model"
+      :tree="tree"
       cols="1fr 1fr"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
@@ -32,13 +35,14 @@
 
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
-import { FormModel, Message, defineBatchEditColumns } from 'ultra-ui'
+import { FormModel, Message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
+const tree = shallowRef(false)
 const resizable = shallowRef(true)
 
-const columns = defineBatchEditColumns([
+const columns = defineTableColumns([
   { name: '名称', key: 'name', rules: { required: true } },
   { name: '年龄', key: 'age', rules: { max: 120 } }
 ])
@@ -51,10 +55,10 @@ const data = shallowRef(
   }))
 )
 
-// const model = new FormModel({
-//   name: { required: true },
-//   age: { required: true, max: 100 }
-// })
+const model = new FormModel({
+  name: { required: true },
+  age: { required: true, max: 100 }
+})
 
 const asynchronous = shallowRef(false)
 

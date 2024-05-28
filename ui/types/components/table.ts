@@ -46,11 +46,7 @@ export interface TableColumn {
   /** 子列 */
   children?: TableColumn[]
   /** 表尾合计 */
-  summary?:
-    | boolean
-    | ((
-        ctx: TableSummaryContext
-      ) => RenderReturn)
+  summary?: boolean | ((ctx: TableSummaryContext) => RenderReturn)
   [key: string]: any
 }
 
@@ -159,7 +155,9 @@ export interface TableColumnSlotsScope extends TableColumnRenderContext {
 }
 
 /** 表格组件定义的事件 */
-export interface TableEmits<DataItem extends Record<string, any> = Record<string, any>> {
+export interface TableEmits<
+  DataItem extends Record<string, any> = Record<string, any>
+> {
   /** 多选 */
   (e: 'update:checked', value: DataItem[]): void
   /** 单选 */
@@ -181,6 +179,8 @@ export interface _TableExposed {
   clearSelected: () => void
   /** 清除当前选中行 */
   clearCurrentRow: () => void
+  /** 设置当前行 */
+  setCurrentRow: (data: Record<string, any>) => void
 }
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

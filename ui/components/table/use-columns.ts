@@ -110,7 +110,7 @@ export class ColumnNode extends TreeNode<TableColumn> {
   style: Record<string, number> = reactive({})
 
   constructor(val: TableColumn, index: number) {
-    super(shallowReactive(val), index)
+    super(val ? shallowReactive(val) : val, index)
   }
 }
 

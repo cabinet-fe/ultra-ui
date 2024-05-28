@@ -1,9 +1,10 @@
-import type { TableProps } from '@ui/types/components/table'
+import type { TableEmits, TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode } from 'cat-kit/fe'
 import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
+  emit: TableEmits
 }
 
 let uid = 0
@@ -14,6 +15,7 @@ export class TableRow<
   /** 索引路径 */
   get indexes(): number[] {
     if (!this.parent) return []
+    if (this.depth === 1) return [this.index]
     return this.parent.indexes.concat(this.index)
   }
 
@@ -43,19 +45,18 @@ export class TableRow<
    * @returns
    */
   constructor(data: Data, index: number, rowKey?: string) {
-    super(isReactive(data) ? data : shallowReactive(data), index)
-    this.uid = rowKey ? data[rowKey] : uid++
+    super(isReactive(data) || !data ? data : shallowReactive(data), index)
+    this.uid = rowKey ? data?.[rowKey] : uid++
     return shallowReactive(this)
   }
 }
 
 export function useRows(options: Options) {
-  const { props } = options
+  const { props, emit } = options
 
   const rows = shallowRef<TableRow[]>([])
 
   let rowForest = shallowRef<Forest<TableRow>>()
-
 
   // 用于优化增删改时的性能
   let rowDicts = new WeakMap<Record<string, any>, TableRow>()
@@ -104,6 +105,7 @@ export function useRows(options: Options) {
       // 树形结构
       rowForest.value = Forest.create(data, {
         createNode(val, index) {
+          if (!val) return new TableRow(val, index, rowKey)
           const existRow = rowDicts.get(val)
           if (existRow) {
             existRow.index = index
@@ -144,6 +146,52 @@ export function useRows(options: Options) {
     getFlattedRows()
   }
 
+  const currentRow = shallowRef<TableRow>()
+
+  watch(currentRow, c => {
+    emit('current-row-change', c)
+  })
+
+  function clearCurrentRow() {
+    if (currentRow.value) {
+      currentRow.value.isCurrent = false
+      currentRow.value = undefined
+    }
+  }
+
+  function setCurrentRow(data: Record<string, any>) {
+    const row = rowDicts.get(data)
+
+    if (row) {
+      if (currentRow.value) {
+        currentRow.value.isCurrent = false
+      }
+      currentRow.value = row
+      row.isCurrent = true
+    }
+  }
+
+  watch(
+    () => props.highlightCurrent,
+    h => !h && clearCurrentRow()
+  )
+
+  const handleRowClick = (row: TableRow) => {
+    emit('row-click', row)
+
+    if (!props.highlightCurrent) return
+
+    if (currentRow.value) {
+      currentRow.value.isCurrent = false
+    }
+    if (row === currentRow.value) {
+      currentRow.value = undefined
+    } else {
+      currentRow.value = row
+      row.isCurrent = true
+    }
+  }
+
   return {
     /** 数据树 */
     rowForest,
@@ -154,6 +202,15 @@ export function useRows(options: Options) {
      * 切换节点的显示隐藏
      * @param node 节点
      */
-    toggleTreeRowExpand
+    toggleTreeRowExpand,
+
+    /** 行点击 */
+    handleRowClick,
+
+    /** 清除当前选中行 */
+    clearCurrentRow,
+
+    /** 设置当前选中行 */
+    setCurrentRow
   }
 }

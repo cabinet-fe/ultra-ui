@@ -1,8 +1,7 @@
-import { shallowRef, useSlots, watch } from 'vue'
+import { useSlots } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
-  TableEmits,
   TableProps
 } from '@ui/types/components/table'
 import type { ColumnNode } from './use-columns'
@@ -13,12 +12,11 @@ import type { RenderReturn } from '@ui/types/helper'
 
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {
   props: TableProps<DataItem>
-  emit: TableEmits<DataItem>
   cls: BEM<'table'>
 }
 
 export function useTable(options: Options) {
-  const { props, cls, emit } = options
+  const { props, cls } = options
 
   const slots = useSlots()
 
@@ -83,40 +81,6 @@ export function useTable(options: Options) {
     return ctx
   }
 
-  const currentRow = shallowRef<TableRow>()
-
-  watch(currentRow, c => {
-    emit('current-row-change', c)
-  })
-
-  function clearCurrentRow() {
-    if (currentRow.value) {
-      currentRow.value.isCurrent = false
-      currentRow.value = undefined
-    }
-  }
-
-  watch(
-    () => props.highlightCurrent,
-    h => !h && clearCurrentRow()
-  )
-
-  const handleRowClick = (row: TableRow) => {
-    emit('row-click', row)
-
-    if (!props.highlightCurrent) return
-
-    if (currentRow.value) {
-      currentRow.value.isCurrent = false
-    }
-    if (row === currentRow.value) {
-      currentRow.value = undefined
-    } else {
-      currentRow.value = row
-      row.isCurrent = true
-    }
-  }
-
   return {
     /**
      * 获取列插槽VNode
@@ -138,12 +102,6 @@ export function useTable(options: Options) {
      * @param row 行
      * @param column 列
      */
-    getCellCtx,
-
-    /** 行点击 */
-    handleRowClick,
-
-    /** 清除当前选中行 */
-    clearCurrentRow
+    getCellCtx
   }
 }
