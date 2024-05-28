@@ -89,14 +89,14 @@ import type {
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import { bem } from "@ui/utils"
 import { UDropdown } from "../dropdown"
-import { TreeNode, type TreeExposed, type UTree } from "../tree"
+import { type TreeExposed, type UTree } from "../tree"
 import { UScroll, type ScrollExposed } from "../scroll"
 import { UTag } from "../tag"
 import { UIcon } from "../icon"
 import { ArrowDown, Close, Search } from "icon-ultra"
-import { computed, onMounted, shallowRef, watch } from "vue"
+import { computed, ref, shallowRef, watch } from "vue"
 import { UCheckbox } from "../checkbox"
-import { Forest, omit } from "cat-kit/fe"
+import { omit, Tree } from "cat-kit/fe"
 
 defineOptions({
   name: "MultiTreeSelect",
@@ -142,7 +142,7 @@ const model = defineModel<Val[]>()
 
 const mouse = shallowRef(false)
 
-const tags = shallowRef<Record<string, any>[]>()
+const tags = ref<Record<string, any>[]>([])
 
 const { formProps } = useFormComponent()
 
@@ -198,23 +198,37 @@ const indeterminate = computed(() => {
 const handleCheckAll = (checked: boolean) => {
   treeRef.value?.checkAll(checked)
 }
-/** 森林 */
-const forest = computed(() => {
-  TreeNode.labelKey = props.labelKey
-  TreeNode.valueKey = props.valueKey
-  return Forest.create(props.data!, TreeNode)
-})
 
-/**回显 */
-const echoTags = () => {
-  if (model.value) {
-    tags.value = []
-    forest.value.dft((node) => {
-      model.value?.includes(node.data[props.valueKey]) &&
-        tags.value?.push(node.data)
-    })
+watch(
+  () => [props.data!, model.value!],
+  ([data, modelValue]) => {
+    if (data?.length && modelValue?.length) {
+      tags.value = [] // 重置tags
+      let matchCount = 0
+
+      const matchNode = (node) => {
+        if (modelValue.includes(node[props.valueKey])) {
+          tags.value.push(node)
+          matchCount++
+        }
+        if (matchCount === modelValue.length) {
+          return false
+        }
+      }
+
+      for (const item of data as Record<string, any>[]) {
+        if (matchCount === modelValue.length) {
+          break
+        }
+        Tree.dft(item, (node) => {
+          if (matchNode(node) === false) {
+            return false
+          }
+        })
+      }
+    }
   }
-}
+)
 
 watch(scrollRef, (scroll) => {
   if (scroll && model.value !== undefined) {
@@ -222,12 +236,7 @@ watch(scrollRef, (scroll) => {
       scroll.contentRef!.getElementsByClassName("is-checked")[
         model.value.length - 1
       ]!
-
     treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
   }
-})
-
-onMounted(() => {
-  echoTags()
 })
 </script>
