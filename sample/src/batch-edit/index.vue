@@ -67,7 +67,7 @@ const deleteMethod = async () => {
   Message.success('删除成功')
 }
 
-const saveMethod = async () => {
+const saveMethod = async (data, type) => {
   await sleep(2000)
   Message.success('保存成功')
 }
