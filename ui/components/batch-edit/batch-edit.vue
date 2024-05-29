@@ -340,7 +340,10 @@ async function handleSave() {
       currentRow.value.operating = true
     }
     actionLoading.value = true
-    saveResult = await saveMethod(props.model.data)
+    saveResult = await saveMethod(
+      props.model.data,
+      newRow.value ? 'create' : 'update'
+    )
 
     if (currentRow.value) {
       currentRow.value.operating = false
