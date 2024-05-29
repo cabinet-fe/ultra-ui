@@ -71,19 +71,33 @@ const getTreeSlotsNode = (
 
 /** 森林 */
 const forest = computed(() => {
-  TreeNode.labelKey = props.labelKey
-  TreeNode.valueKey = props.valueKey
-  return Forest.create(props.data, TreeNode)
-})
+  const { disabledNode } = props
+  return Forest.create(props.data, {
+    createNode: disabledNode
+      ? (data, index) => {
+          const node = new TreeNode({
+            data,
+            index,
+            valueKey: props.valueKey,
+            labelKey: props.labelKey
+          })
+          if (data) {
+            node.disabled = disabledNode(data, node) ?? false
+          }
 
-//* 禁用的节点 */
-watch(
-  [() => props.disabledNode, forest],
-  ([disabledNode, forest]) => {
-    disabledNode && forest.dft(node => disabledNode(node.data, node) ?? false)
-  },
-  { immediate: true }
-)
+          return node
+        }
+      : (data, index) => {
+          const node = new TreeNode({
+            data,
+            index,
+            valueKey: props.valueKey,
+            labelKey: props.labelKey
+          })
+          return node
+        }
+  })
+})
 
 /** 默认选中 */
 watch(

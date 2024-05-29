@@ -57,7 +57,7 @@ defineOptions({
   name: 'TreeNode'
 })
 
-const { node } = defineProps<TreeNodeProps>()
+const props = defineProps<TreeNodeProps>()
 
 const {
   treeProps,
@@ -70,12 +70,15 @@ const {
 } = inject(TreeDIKey)!
 
 function toggleExpand() {
+  const { node } = props
   node.expanded = !node.expanded
   getFlattedNodes()
+
   treeEmit('expand', node)
 }
 
 const handleClick = () => {
+  const { node } = props
   treeEmit('node-click', node)
 
   treeProps.selectable && handleSelect(node)

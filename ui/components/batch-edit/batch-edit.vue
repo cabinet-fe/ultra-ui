@@ -300,6 +300,8 @@ function insert(item: Record<string, any>) {
 }
 
 function handleClose() {
+  newRow.value = false
+  newRowIndexes = []
   tableRef.value?.clearCurrentRow()
 }
 

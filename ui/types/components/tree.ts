@@ -6,7 +6,8 @@ export interface TreeNode<DataItem extends Record<string, any>>
   extends _TreeNode<DataItem> {
   parent: TreeNode<DataItem> | null
   children?: TreeNode<DataItem>[]
-
+  valueKey: string
+  labelKey: string
   visible: boolean
   expanded: boolean
   loading: boolean

@@ -22,23 +22,32 @@ export class TreeNode<
     return this.parent.expanded || this.depth === 1
   }
 
-  constructor(val: Val, index: number, parent?: any) {
-    super(val, index)
+  labelKey: string
+  valueKey: string
+
+  constructor(params: {
+    data: Val
+    index: number
+    parent?: any
+    labelKey: string
+    valueKey: string
+  }) {
+    const { data, index, parent, labelKey, valueKey } = params
+    super(data, index)
     if (parent) {
       this.parent = parent
     }
+    this.labelKey = labelKey
+    this.valueKey = valueKey
 
     return shallowReactive(this)
   }
 
-  static labelKey = 'label'
-  static valueKey = 'value'
-
   get label(): string {
-    return String(getChainValue(this.data, TreeNode.labelKey))
+    return String(getChainValue(this.data, this.labelKey))
   }
 
   get key(): string | number {
-    return getChainValue(this.data, TreeNode.valueKey)
+    return getChainValue(this.data, this.valueKey)
   }
 }
