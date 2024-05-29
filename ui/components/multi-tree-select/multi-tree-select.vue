@@ -160,7 +160,7 @@ const scrollRef = shallowRef<ScrollExposed>()
 /**选中 */
 const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
   tags.value = checkedData
-  emit("update:modelValue", checked)
+  emit("change", checked,checkedData!)
   closeDrop()
 }
 
@@ -174,14 +174,14 @@ const closeDrop = () => {
 const handleRemove = (index: number) => {
   tags.value = tags.value?.filter((_, i) => i !== index)
   model.value = model.value?.filter((_, i) => i !== index)
-  emit("update:modelValue", model.value!)
+  emit("change", model.value!,tags.value)
 }
 
 /**清空 */
 const handleClear = () => {
   tags.value = []
   model.value = []
-  emit("update:modelValue", [])
+  emit("change", [],[])
 }
 
 /**是否全选 */

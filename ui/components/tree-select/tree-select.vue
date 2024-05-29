@@ -133,7 +133,7 @@ const scrollRef = shallowRef<ScrollExposed>()
 
 const handleSelect = (selected?: Val, selectedData?: Record<string, any>) => {
   tags.value = selectedData
-  emit("update:modelValue", selected!)
+  emit("change", selected!,selectedData!)
   closeDrop()
 }
 
@@ -147,7 +147,7 @@ const closeDrop = () => {
 const handleClear = () => {
   tags.value = undefined
   model.value = undefined
-  emit("update:modelValue", undefined!)
+  emit("change", undefined!,undefined!)
 }
 
 watch(

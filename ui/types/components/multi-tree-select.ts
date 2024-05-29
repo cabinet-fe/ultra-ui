@@ -27,7 +27,7 @@ export interface MultiTreeSelectProps<Val extends string | number>
 /** 树形多选组件组件定义的事件 */
 export interface MultiTreeSelectEmits<Val extends string | number | undefined> {
   (e: "clear", value: Val[]): void
-  (e: "update:modelValue", value: Val[]): void
+  (e: "change", value: Val[],checked:Record<string,any>): void
 }
 
 /** 树形多选组件组件暴露的属性和方法(组件内部使用) */

@@ -27,7 +27,7 @@ export interface TreeSelectProps<Val extends string | number>
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits<Val extends string | number | undefined> {
   (e: "clear", value: Val): void
-  (e: "update:modelValue", value: Val): void
+  (e: "change", value: Val,selectd:Record<string,any>): void
 }
 
 /** 树形选择器组件暴露的属性和方法(组件内部使用) */

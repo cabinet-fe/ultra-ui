@@ -11,6 +11,7 @@
         expand-all
         :disabledNode="disabledNode"
         filterable
+        @change="handleChange"
       ></u-multi-tree-select>
     </CustomCard>
   </div>
@@ -62,4 +63,8 @@ setTimeout(() => {
     },
   ]
 }, 2000)
+
+const handleChange = (value, checked) => {
+  console.log(value, checked)
+}
 </script>
