@@ -4,6 +4,7 @@ import type {
   Data,
   ValidatorConfig
 } from '@ui/types/utils/form/validate'
+import { getChainValue } from 'cat-kit/fe'
 
 const isEmpty = (value: any): value is null | undefined => {
   return value === null || value === undefined
@@ -129,7 +130,7 @@ export class Validator<
 
   private async validateValue(data: Record<any, any>, field: Field) {
     const rules = this.#rules[field]!
-    const value = data[field]
+    const value = getChainValue(data, field as string)
 
     const { validator, required, ...normalRules } = rules
 
@@ -161,7 +162,7 @@ export class Validator<
     field: Field
   ): Promise<string[]> {
     const rules = this.#rules[field]
-    const value = data[field]
+    const value = getChainValue(data, field as string)
     let errors: string[] = []
 
     if (!rules) return errors

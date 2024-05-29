@@ -1,5 +1,5 @@
 import type { FormProps } from '@ui/types/components/form'
-import { useSlots } from 'vue'
+import { useSlots, type VNode } from 'vue'
 import { pick } from 'cat-kit/fe'
 import { extractNormalVNodes } from '@ui/utils'
 
@@ -28,16 +28,43 @@ export function useNodeInterceptor(options: Options) {
 
     const flattedNodes = extractNormalVNodes(nodes)
 
-    return flattedNodes.map(node => {
-      const { props, type } = node
+    const results: Array<
+      | {
+          isFormItem: true
+          formItemProps: Record<string, any>
+          node: VNode
+          field: string
+        }
+      | {
+          isFormItem: false
+          formItemProps: Record<string, any>
+          node: VNode
+          field: undefined
+        }
+    > = []
 
-      return {
-        wrapItem: !!props?.field && (type as any)?.name !== 'FormItem',
+    const fields: string[] = []
+
+    let i = 0
+    while (i < flattedNodes.length) {
+      const node = flattedNodes[i]!
+      i++
+
+      const { props, type } = node
+      const item = {
+        isFormItem: !!props?.field && (type as any)?.name !== 'FormItem',
         formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
         node,
         field: props?.field
       }
-    })
+
+      item.field && fields.push(item.field)
+      results.push(item)
+    }
+
+    props.model.validateKeys = fields
+
+    return results
   }
 
   return {
