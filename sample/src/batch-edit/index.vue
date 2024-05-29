@@ -65,8 +65,9 @@ const model = new FormModel({
 
 const asynchronous = shallowRef(false)
 
-const deleteMethod = async () => {
+const deleteMethod = async row => {
   await sleep(2000)
+  await Promise.reject('a')
   Message.success('删除成功')
 }
 

@@ -312,12 +312,28 @@ async function handleDelete(row: TableRow) {
 
   if (deleteMethod) {
     row.operating = true
-    await deleteMethod(row ? [row.data] : checked.value)
-    row.operating = false
+    try {
+      await deleteMethod(row ? [row.data] : checked.value)
+    } finally {
+      row.operating = false
+    }
   }
   if (currentRow.value === row) {
     tableRef.value?.clearCurrentRow()
   }
+
+  const data = [...props.data!]
+  let len = row.indexes.length - 1
+  const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
+  if (len < 0) {
+    len = 0
+  }
+  let cur = data
+  for (let i = 0; i < len; i++) {
+    cur = cur[row.indexes[i]!]![childrenKey]
+  }
+  cur.splice(row.index, 1)
+
   emit('update:data', omitArr(props.data!, row.index))
 }
 
@@ -342,16 +358,19 @@ async function handleSave() {
       currentRow.value.operating = true
     }
     actionLoading.value = true
-    saveResult = await saveMethod(
-      props.model.data,
-      newRow.value ? 'create' : 'update',
-      parentData
-    )
 
-    if (currentRow.value) {
-      currentRow.value.operating = false
+    try {
+      saveResult = await saveMethod(
+        props.model.data,
+        newRow.value ? 'create' : 'update',
+        parentData
+      )
+    } finally {
+      if (currentRow.value) {
+        currentRow.value.operating = false
+      }
+      actionLoading.value = false
     }
-    actionLoading.value = false
   }
 
   // 新增提交
