@@ -25,7 +25,7 @@
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "autoprefixer": "10.4.19",
     "bumpp": "9.4.1",
-    "cat-kit": "^3.5.2",
+    "cat-kit": "^3.5.3",
     "fast-glob": "^3.3.2",
     "icon-ultra": "3.0.9",
     "rollup": "4.17.2",
