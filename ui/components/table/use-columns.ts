@@ -303,10 +303,12 @@ export function useColumns(options: Options): ColumnConfig {
       const fixedOnRight = Array.from(
         colgroup.getElementsByClassName('right')
       ) as HTMLElement[]
-
       fixedOnLeft.reduce((acc, col, colIndex) => {
         const colNode = allColumns.value[colIndex]!
-        colNode.width = col.offsetWidth
+        if (!colNode.width) {
+          colNode.width = col.offsetWidth
+        }
+
         colNode.style.left = acc
         return acc + col.offsetWidth
       }, 0)
@@ -315,7 +317,10 @@ export function useColumns(options: Options): ColumnConfig {
 
       fixedOnRight.reduceRight((acc, col, colIndex) => {
         const colNode = rightColumns[colIndex]!
-        colNode.width = col.offsetWidth
+
+        if (!colNode.width) {
+          colNode.width = col.offsetWidth
+        }
         colNode.style.right = acc
         return acc + col.offsetWidth
       }, 0)
