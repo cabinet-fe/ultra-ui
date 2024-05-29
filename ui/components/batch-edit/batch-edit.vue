@@ -207,6 +207,7 @@ const columns = computed(() => {
 const currentRow = shallowRef<TableRow>()
 const newRow = shallowRef(false)
 let newRowIndexes: number[] = []
+let parentData: Record<string, any> | undefined
 /** 是否切换中，用来触发过渡效果 */
 const toggling = shallowRef(false)
 
@@ -267,6 +268,7 @@ function handleInsertToNext(row: TableRow) {
 }
 
 function handleInsertChild(row: TableRow) {
+  parentData = row.data
   runCreate(() => {
     if (row.children?.length) {
       newRowIndexes = [...row.indexes, row.children.length]
@@ -342,7 +344,8 @@ async function handleSave() {
     actionLoading.value = true
     saveResult = await saveMethod(
       props.model.data,
-      newRow.value ? 'create' : 'update'
+      newRow.value ? 'create' : 'update',
+      parentData
     )
 
     if (currentRow.value) {
@@ -355,6 +358,7 @@ async function handleSave() {
   if (newRow.value) {
     const data = saveResult ?? { ...props.model.data }
     insert(data)
+    parentData = undefined
     await nextTick()
     tableRef.value?.setCurrentRow(data)
     await nextTick()

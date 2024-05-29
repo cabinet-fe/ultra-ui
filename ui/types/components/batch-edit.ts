@@ -37,8 +37,12 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
   deleteMethod?: (data: Record<string, any>[]) => Promise<any> | any
   /** 保存方法 */
   saveMethod?: (
+    /** 表单数据 */
     data: Record<string, any>,
-    type: 'create' | 'update'
+    /** 操作类型 */
+    actionType: 'create' | 'update',
+    /** 父级数据 */
+    parentData?: Record<string, any>
   ) => Promise<any> | any
 }
 
