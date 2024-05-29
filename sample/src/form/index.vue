@@ -5,64 +5,62 @@
 
     <CustomCard title="表单">
       <u-button @click="open">打开</u-button>
-      <u-dialog v-model="visible"  style="width: 900px">
+      <u-dialog v-model="visible" style="width: 900px">
         <u-form
           :disabled="disabled"
           :readonly="readonly"
           :model="model"
           label-width="100px"
         >
-          <u-input field="name" label="姓名" tips="四个字以内" />
-          <span field="aaa" label="aaa">1111</span>
-          <u-password-input field="pwd" label="密码" />
-          <u-number-input field="age" label="年龄" />
-          <u-number-input field="debt" currency label="借款" :step="1" />
+          <template #default="{ data }">
+            <u-radio-group
+              :items="[
+                { label: '男', value: 'male' },
+                { label: '女', value: 'female' }
+              ]"
+              label="性别"
+              field="sex"
+            />
+            <u-input
+              field="name"
+              v-if="data.sex === 'female'"
+              label="姓名"
+              tips="四个字以内"
+            />
+            <span field="aaa" label="aaa">1111</span>
+            <u-password-input field="pwd" label="密码" />
+            <u-number-input field="age" label="年龄" />
+            <u-number-input field="debt" currency label="借款" :step="1" />
+            <u-input field="phone" label="手机" />
+            <u-input field="email" label="邮箱" />
+            <u-select field="unit" label="单位" :options="units" />
+            <u-multi-select
+              field="interest"
+              label="兴趣"
+              :options="interestList"
+            />
 
-        </u-form>
-
-        <u-form
-          :disabled="disabled"
-          :readonly="readonly"
-          :model="model"
-          label-width="100px"
-        >
-
-          <u-input field="phone" label="手机" />
-          <u-input field="email" label="邮箱" />
-          <u-select field="unit" label="单位" :options="units" />
-          <u-multi-select
-            field="interest"
-            label="兴趣"
-            :options="interestList"
-          />
-          <u-radio-group
-            :items="[
-              { label: '男', value: 'male' },
-              { label: '女', value: 'female' }
-            ]"
-            label="性别"
-            field="sex"
-          />
-          <u-date-picker field="date" label="日期" />
-          <u-checkbox field="freeze" label="是否冻结" />
-          <u-textarea field="remarks" label="备注" />
-          <u-slider field="slider" label="滑块" />
-          <u-multi-tree-select
-            field="treeChecked"
-            label="1"
-            label-key="name"
-            value-key="id"
-            :data="data"
-            filterable
-          />
-          <u-tree-select
-            field="treeSelect"
-            label="1"
-            label-key="name"
-            value-key="id"
-            :data="data"
-            filterable
-          />
+            <u-date-picker field="date" label="日期" />
+            <u-checkbox field="freeze" label="是否冻结" />
+            <u-textarea field="remarks" label="备注" />
+            <u-slider field="slider" label="滑块" />
+            <u-multi-tree-select
+              field="treeChecked"
+              label="1"
+              label-key="name"
+              value-key="id"
+              :data="treeData"
+              filterable
+            />
+            <u-tree-select
+              field="treeSelect"
+              label="1"
+              label-key="name"
+              value-key="id"
+              :data="treeData"
+              filterable
+            />
+          </template>
         </u-form>
 
         <template #footer>
@@ -116,12 +114,9 @@ const model = new FormModel({
     value: [{ attributes: { bold: true }, insert: '22eee' }],
     required: true
   },
-  treeChecked: { required: true, },
+  treeChecked: { required: true },
   treeSelect: { required: true, value: () => 11 }
 })
-
-
-
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
@@ -137,9 +132,9 @@ const visible = shallowRef(false)
 watch(visible, v => {
   if (v) {
     // model.data.treeChecked = [1]
-    setTimeout(() => {
-      model.setData({ age: 11 })
-    }, 3000)
+    // setTimeout(() => {
+    //   model.setData({ age: 11 })
+    // }, 3000)
   } else {
     model.resetData()
   }
@@ -154,7 +149,7 @@ const interestList = [
   { label: '音乐', value: '6' }
 ]
 
-const data = [
+const treeData = [
   { name: '烤冷面', id: 1 },
   {
     name: '手抓饼',
@@ -190,12 +185,12 @@ const data = [
 
 function open() {
   visible.value = true
-  model.setData(
-    {
-      name: 'aaaaaa'
-    },
-    { validate: true }
-  )
+  // model.setData(
+  //   {
+  //     name: 'aaaaaa'
+  //   },
+  //   { validate: true }
+  // )
 }
 </script>
 

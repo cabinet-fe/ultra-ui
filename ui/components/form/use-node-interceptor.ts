@@ -1,6 +1,5 @@
 import type { FormProps } from '@ui/types/components/form'
-import { useSlots, type VNode, createVNode } from 'vue'
-import FormItem from '../form-item/form-item.vue'
+import { useSlots } from 'vue'
 import { pick } from 'cat-kit/fe'
 import { extractNormalVNodes } from '@ui/utils'
 
@@ -20,61 +19,25 @@ export function useNodeInterceptor(options: Options) {
   const slots = useSlots()
 
   function getSlotsNodes() {
+    const { model } = props
     const nodes = slots.default?.({
-      data: props.model?.data,
-      model: props.model
+      model,
+      data: model?.data
     })
     if (!nodes?.length) return null
 
-    const data = props.model?.data
-    if (!data) return nodes
-
     const flattedNodes = extractNormalVNodes(nodes)
 
-    const results: VNode[] = []
-
-    let i = 0
-    while (i < flattedNodes.length) {
-      const node = flattedNodes[i]!
+    return flattedNodes.map(node => {
       const { props, type } = node
-      // 原本应该加上 isObj(type) && ('name' in type)
-      // 此处为了性能忽略
-      // @ts-ignore
-      if (props?.field && type.name !== 'FormItem') {
-        const field = props.field
-        props.modelValue = data[field]
 
-        const modelUpdater = props['onUpdate:modelValue']
-        if (modelUpdater) {
-          props['onUpdate:modelValue'] = [
-            ...(typeof modelUpdater === 'function'
-              ? [modelUpdater]
-              : modelUpdater),
-            (value: any) => {
-              data[field] = value
-            }
-          ]
-        } else {
-          props['onUpdate:modelValue'] = (value: any) => {
-            data[field] = value
-          }
-        }
-
-        results.push(
-          createVNode(
-            FormItem,
-            pick(node.props || {}, FORM_ITEM_PROPS),
-            () => node
-          )
-        )
-      } else {
-        results.push(node)
+      return {
+        wrapItem: !!props?.field && (type as any)?.name !== 'FormItem',
+        formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
+        node,
+        field: props?.field
       }
-
-      i++
-    }
-
-    return results
+    })
   }
 
   return {
