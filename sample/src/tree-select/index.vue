@@ -13,6 +13,7 @@
         :disabledNode="disabledNode"
         filterable
         closeOnSelect
+        @change="handleChange"
       ></u-tree-select>
     </CustomCard>
   </div>
@@ -64,4 +65,8 @@ const data = shallowRef<any[]>([
   { name: "烤冷面13", id: 13 },
   { name: "烤冷面14", id: 14 },
 ])
+
+const handleChange = (val,selected) => {
+  console.log(val,selected)
+}
 </script>
