@@ -30,11 +30,18 @@ export type IFormModel<
   readonly data: ModelData<Fields>
   /** 字段校验规则 */
   readonly rules: ModelRules<Fields>
-  /** 字段键 */
-  readonly keyOfFields: (keyof Fields)[]
+  /**
+   * 字段键
+   */
+  readonly allKeys: string[]
+  /** 需要校验的key */
+  validateKeys?: string[]
   /** 错误 */
   readonly errors: Map<keyof Fields, string[] | undefined>
-  /** 字段校验 */
+  /**
+   * 字段校验
+   * @param fields 字段， 如果不传入时将会使用keyFields来进行校验
+   */
   validate: (fields?: keyof Fields | (keyof Fields)[]) => Promise<boolean>
   /** 重置数据 */
   resetData(fields?: keyof Fields | (keyof Fields)[]): void

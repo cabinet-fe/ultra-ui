@@ -4,70 +4,82 @@
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
 
     <CustomCard title="表单">
-      <u-button @click="open">打开</u-button>
-      <u-dialog v-model="visible" style="width: 900px">
-        <u-form
-          :disabled="disabled"
-          :readonly="readonly"
-          :model="model"
-          label-width="100px"
-        >
-          <template #default="{ data }">
-            <u-radio-group
-              :items="[
-                { label: '男', value: 'male' },
-                { label: '女', value: 'female' }
-              ]"
-              label="性别"
-              field="sex"
-            />
-            <u-input
-              field="name"
-              v-if="data.sex === 'female'"
-              label="姓名"
-              tips="四个字以内"
-            />
-            <span field="aaa" label="aaa">1111</span>
-            <u-password-input field="pwd" label="密码" />
-            <u-number-input field="age" label="年龄" />
-            <u-number-input field="debt" currency label="借款" :step="1" />
-            <u-input field="phone" label="手机" />
-            <u-input field="email" label="邮箱" />
-            <u-select field="unit" label="单位" :options="units" />
-            <u-multi-select
-              field="interest"
-              label="兴趣"
-              :options="interestList"
-            />
+      <!-- <u-button @click="open">打开</u-button> -->
+      <!-- <u-dialog v-model="visible" style="width: 900px"> -->
+      <u-form
+        :disabled="disabled"
+        :readonly="readonly"
+        :model="model"
+        label-width="100px"
+      >
+        <template #default="{ data }">
+          <u-radio-group
+            :items="[
+              { label: '男', value: 'male' },
+              { label: '女', value: 'female' }
+            ]"
+            label="性别"
+            field="sex"
+          />
+          <u-input
+            field="name"
+            v-if="data.sex === 'female'"
+            label="姓名"
+            tips="四个字以内"
+          />
 
-            <u-date-picker field="date" label="日期" />
-            <u-checkbox field="freeze" label="是否冻结" />
-            <u-textarea field="remarks" label="备注" />
-            <u-slider field="slider" label="滑块" />
-            <u-multi-tree-select
-              field="treeChecked"
-              label="1"
-              label-key="name"
-              value-key="id"
-              :data="treeData"
-              filterable
-            />
-            <u-tree-select
-              field="treeSelect"
-              label="1"
-              label-key="name"
-              value-key="id"
-              :data="treeData"
-              filterable
-            />
-          </template>
-        </u-form>
+          <u-input field="nest.name" label="嵌套名称" />
+          <u-number-input field="nest.price" label="嵌套价格" />
 
-        <template #footer>
-          <u-button @click="model.validate()">校验</u-button>
-          <u-button @click="model.clearValidate()">重置</u-button>
+          <u-password-input field="pwd" label="密码" />
+          <u-number-input field="age" label="年龄" />
+          <u-number-input field="debt" currency label="借款" :step="1" />
+          <u-input field="phone" label="手机" />
+          <u-input field="email" label="邮箱" />
+          <u-select field="unit" label="单位" :options="units" />
+          <u-multi-select
+            field="interest"
+            label="兴趣"
+            :options="interestList"
+          />
+
+          <u-date-picker field="date" label="日期" />
+          <u-checkbox field="freeze" label="是否冻结" />
+          <u-textarea field="remarks" label="备注" />
+          <!-- <u-slider field="slider" label="滑块" /> -->
+          <u-multi-tree-select
+            field="treeChecked"
+            label="1"
+            label-key="name"
+            value-key="id"
+            :data="treeData"
+            filterable
+          />
+          <u-tree-select
+            field="treeSelect"
+            label="1"
+            label-key="name"
+            value-key="id"
+            :data="treeData"
+            filterable
+          />
         </template>
-      </u-dialog>
+      </u-form>
+
+      <template #footer>
+        <u-button @click="model.validate()">校验</u-button>
+        <u-button @click="model.clearValidate()">重置</u-button>
+      </template>
+      <!-- </u-dialog> -->
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px">
+        <u-button type="primary" @click="handleSetData">设置值</u-button>
+        <u-button type="primary" @click="handleValidate">校验</u-button>
+        <u-button @click="model.resetData()">重置数据</u-button>
+        <u-button type="success" @click="model.clearValidate()"
+          >清除校验</u-button
+        >
+      </div>
     </CustomCard>
 
     {{ model.data }}
@@ -86,7 +98,8 @@ const disabled = shallowRef(false)
 const model = new FormModel({
   name: { maxLen: 4, required: true, value: '' },
   age: formField<number>({ required: '年龄是必填的' }),
-  aa: { required: true, value: 'aa' },
+  'nest.name': { required: true },
+  'nest.price': { required: true },
   phone: {
     validator(value) {
       if (!value) return ''
@@ -130,15 +143,17 @@ const units = [
 const visible = shallowRef(false)
 
 watch(visible, v => {
-  if (v) {
-    // model.data.treeChecked = [1]
-    // setTimeout(() => {
-    //   model.setData({ age: 11 })
-    // }, 3000)
-  } else {
-    model.resetData()
-  }
+  !v && model.resetData()
 })
+
+function handleSetData() {
+  model.setData({ nest: { name: '测试名称', price: 10 } })
+}
+
+async function handleValidate() {
+  const valid = await model.validate()
+  console.log(valid)
+}
 
 const interestList = [
   { label: '电影', value: '1' },

@@ -28,8 +28,8 @@ importers:
         specifier: 9.4.1
         version: 9.4.1
       cat-kit:
-        specifier: ^3.5.2
-        version: 3.5.2
+        specifier: 3.5.3
+        version: 3.5.3
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
@@ -898,8 +898,8 @@ packages:
   caniuse-lite@1.0.30001621:
     resolution: {integrity: sha512-+NLXZiviFFKX0fk8Piwv3PfLPGtRqJeq2TiNoUff/qB5KJgwecJTvCXDpmlyP/eCI/GUEmp/h/y5j0yckiiZrA==}
 
-  cat-kit@3.5.2:
-    resolution: {integrity: sha512-wk0xGwGJ0xd7CffuD5xrAznDXsCp7ZbeeHdlHipJUzWb8XbH+BZXTHL4hgOBs3JsxCClw5sy3V8h/OVE3TCFzg==}
+  cat-kit@3.5.3:
+    resolution: {integrity: sha512-Y6jjKdN/TcSfk8OyxIEabOlIdQYKKgbyzudtfoIIzAVqnNABvNBQlMxb3ufcDxUgp0P1upqE1WiqdWY7NCafKw==}
 
   chai@4.4.1:
     resolution: {integrity: sha512-13sOfMv2+DWduEU+/xbun3LScLoqN17nBeTLUsmDfKdoiC1fr0n9PU4guu4AhRcOVFk/sW8LyZWHuhWtQZiF+g==}
@@ -2723,7 +2723,7 @@ snapshots:
 
   caniuse-lite@1.0.30001621: {}
 
-  cat-kit@3.5.2: {}
+  cat-kit@3.5.3: {}
 
   chai@4.4.1:
     dependencies:

@@ -6,8 +6,10 @@ import type {
   DataSettingConfig
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
+import { getChainValue, setChainValue } from 'cat-kit/fe'
 import {
   nextTick,
+  reactive,
   shallowReactive,
   shallowRef,
   watch,
@@ -42,8 +44,11 @@ export class FormModel<
   /** 表单规则 */
   readonly rules: ModelRules<Fields>
 
-  /** 字段键 */
-  readonly keyOfFields: (keyof Fields)[]
+  /** 所有的键 */
+  readonly allKeys: string[]
+
+  /** 需要校验的key */
+  validateKeys?: string[]
 
   /** 初始数据 */
   private readonly initialData: ModelData<Fields>
@@ -59,61 +64,54 @@ export class FormModel<
    */
   private validateOnFieldChange = true
 
-  private readonly proxyRaw: Record<string, any> = {}
-  private readonly proxy: Record<string, any>
+  /**
+   * 变更前的值
+   */
+  private readonly preVal: Record<string, any> = {}
 
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
     const rules = {} as ModelRules<Fields>
-    const keyOfFields = [] as (keyof Fields)[]
+    const allKeys: string[] = []
 
     for (const key in fields) {
       const { value, ...rule } = fields[key]!
-      keyOfFields.push(key)
-      rawData[key] = typeof value === 'function' ? value() : value
-      this.proxyRaw[key] = rawData[key]
+      allKeys.push(key)
+      const v = typeof value === 'function' ? value() : value
+      setChainValue(rawData, key, v)
+      setChainValue(this.preVal, key, v)
+
       rules[key] = rule as any
     }
 
     this.initialData = JSON.parse(JSON.stringify(rawData))
-    const data = shallowReactive(rawData)
+    const data = reactive(rawData)
 
-    this.keyOfFields = keyOfFields
-    this.data = data
+    this.allKeys = allKeys
+    this.data = data as ModelData<Fields>
 
     this.rules = rules
     this.validator = new Validator(rules)
 
-    // 使用一个代理对象来在赋值时校验表单字段
-    this.proxy = new Proxy(this.proxyRaw, {
-      set: (t, field: string, v) => {
-        t[field] = v
+    // 校验
+    watch(data, data => {
+      const { preVal } = this
 
-        if (this.validateOnFieldChange) {
-          this.validate(field as string)
+      let validateKeys: (keyof Fields)[] = []
+
+      this.allKeys.forEach(key => {
+        const v = getChainValue(data, key)
+
+        if (getChainValue(preVal, key) !== v) {
+          setChainValue(preVal, key, v)
+          validateKeys.push(key)
         }
-        return true
-      },
+      })
 
-      get(t, field: string) {
-        return t[field]
+      if (this.validateOnFieldChange) {
+        this.validate(validateKeys)
       }
     })
-
-    // 校验
-    watch(
-      data,
-      data => {
-        const p = this.proxy
-
-        for (const key in data) {
-          if (p[key] !== data[key]) {
-            p[key] = data[key]
-          }
-        }
-      },
-      { immediate: true }
-    )
   }
 
   /**
@@ -124,7 +122,10 @@ export class FormModel<
   async validate(fields?: keyof Fields | (keyof Fields)[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(data, fields)
+    const results = await validator.validate(
+      data,
+      fields ?? this.validateKeys ?? this.allKeys
+    )
 
     if (!fields) {
       errors.clear()
@@ -152,18 +153,25 @@ export class FormModel<
     return true
   }
 
-  /** 重置数据 */
-  resetData(fields?: keyof Fields | (keyof Fields)[]): void {
-    if (typeof fields === 'string') {
-      fields = [fields]
-    } else if (Array.isArray(fields)) {
+  /**
+   * 重置数据
+   * @param fields 需要重置的字段
+   */
+  resetData(keys?: keyof Fields | (keyof Fields)[]): void {
+    if (typeof keys === 'string') {
+      keys = [keys]
+    } else if (Array.isArray(keys)) {
     } else {
-      fields = this.keyOfFields
+      keys = this.allKeys
     }
 
     this.run(() => {
-      fields.forEach(field => {
-        this.data[field] = this.initialData[field]
+      keys.forEach(field => {
+        setChainValue(
+          this.data,
+          field as string,
+          getChainValue(this.initialData, field as string)
+        )
       })
 
       this.clearValidate()
@@ -175,12 +183,16 @@ export class FormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig) {
+  setData(
+    formData: Partial<ModelData<Fields> & Record<string, any>>,
+    config?: DataSettingConfig
+  ) {
     const { validate } = config || {}
 
     this.run(() => {
       for (const key in formData) {
         if (key in this.data) {
+          // @ts-ignore
           this.data[key] = formData[key]
         }
       }
