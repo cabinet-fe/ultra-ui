@@ -148,13 +148,25 @@ export function useColumns(options: Options): ColumnConfig {
   const { props, createCheckColumn, createSelectColumn, colgroupRef } = options
 
   const preColumns = computed<TableColumn[]>(() => {
-    const { selectable, checkable } = props
+    const { selectable, checkable, showIndex } = props
     const columns: TableColumn[] = []
 
     if (selectable) {
       columns.push(createSelectColumn())
     } else if (checkable) {
       columns.push(createCheckColumn())
+    }
+    if (showIndex) {
+      columns.push({
+        key: '__index__',
+        name: '#',
+        width: 80,
+        align: 'center',
+        fixed: 'left',
+        render({ row }) {
+          return row.index + 1
+        }
+      })
     }
 
     return columns

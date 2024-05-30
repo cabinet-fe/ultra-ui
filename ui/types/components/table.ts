@@ -65,6 +65,8 @@ export interface TableProps<
   selected?: DataItem
   /** 多选 */
   checkable?: boolean
+  /** 索引 */
+  showIndex?: boolean
   /** 单选 */
   selectable?: boolean
   /**
