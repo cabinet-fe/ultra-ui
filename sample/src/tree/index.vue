@@ -130,9 +130,11 @@ function refreshData() {
   ]
 }
 
-refreshData()
+setTimeout(() => {
+  refreshData()
+}, 2000)
 
-let select = shallowRef()
+let select = shallowRef(9)
 const checked = shallowRef([1])
 const handleNodeClick = selected => {
   select.value = selected

@@ -19,8 +19,8 @@ export function useSelect<DataItem extends Record<string, any>>(
 
   let changedByEvent = false
   watch(
-    () => props.selected,
-    s => {
+    [() => props.selected, nodeDicts],
+    ([s]) => {
       if (changedByEvent) return
 
       selected.value = s ? nodeDicts.value.get(s)?.data : undefined
