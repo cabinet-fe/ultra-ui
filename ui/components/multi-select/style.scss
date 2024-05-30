@@ -9,16 +9,27 @@ $root-name: multi-select;
   @include m.flex($display: inline-flex);
   width: 100%;
   line-height: 1;
-  border-radius: fn.use-var(radius, default);
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   overflow: hidden;
+  cursor: pointer;
 
   @include m.size using ($size) {
     min-height: fn.use-var(form-component-height, $size);
+    border-radius: fn.use-var(radius, $size);
+    padding: calc(
+        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
+      )
+      calc(fn.use-var(gap, $size) / 2);
 
     @include m.bem($root-name, clear) {
       font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($root-name, tags) {
+      gap: calc(
+        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
+      );
     }
   }
 
@@ -71,18 +82,6 @@ $root-name: multi-select;
     @include m.flex($justify: space-between);
   }
 
-  @include m.size using ($size) {
-    padding: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      )
-      calc(fn.use-var(gap, $size) / 2);
-    @include m.bem($root-name, tags) {
-      gap: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      );
-    }
-  }
-
   @include m.e(panel) {
     @include m.size using ($size) {
       @include m.bem($root-name, content-filter) {
@@ -114,6 +113,10 @@ $root-name: multi-select;
   }
 
   @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    cursor: not-allowed;
+
     @include m.bem($root-name, arrow) {
       color: fn.use-var(text-color, disabled);
     }
@@ -121,8 +124,5 @@ $root-name: multi-select;
     @include m.bem(tag) {
       border: fn.use-var(border);
     }
-    background-color: fn.use-var(color, disabled);
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-    cursor: not-allowed;
   }
 }

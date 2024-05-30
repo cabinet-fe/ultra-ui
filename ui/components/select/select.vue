@@ -100,11 +100,14 @@ const cls = bem('select')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false,
-  readonly: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const model = defineModel<string | number>()
 const label = defineModel('text')

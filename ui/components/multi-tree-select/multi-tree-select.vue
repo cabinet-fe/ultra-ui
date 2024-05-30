@@ -1,37 +1,33 @@
 <template>
   <u-dropdown
-    :class="[
-      cls.b,
-      cls.m(size),
-      bem.is('disabled', disabled),
-      bem.is('readonly', readonly),
-    ]"
+    v-if="!readonly"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     trigger="click"
-    max-width="auto"
-    :disabled="disabled"
-    :readonly="readonly"
-    @mouseenter="mouse = true"
-    @mouseleave="mouse = false"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
     ref="dropdownRef"
   >
     <template #trigger>
       <!-- 默认展示 -->
-      <span :class="cls.e('placeholder')" v-if="!tags?.length">
+      <span :class="cls.e('placeholder')" v-show="!tags.length">
         {{ placeholder }}
       </span>
       <!-- 选择的数据项 -->
-      <div v-else :class="cls.e('tags-multiple')">
+      <div v-if="tags.length" :class="cls.e('tags')">
         <u-tag
-          v-for="(item, index) in tags"
-          :closable="!disabled && !readonly"
+          v-for="(tag, index) in tags"
+          :key="tag[valueKey]"
+          :closable="!disabled"
           @close="handleRemove(index)"
-          >{{ item[labelKey] }}</u-tag
         >
+          {{ tag[labelKey] }}
+        </u-tag>
       </div>
       <!-- 清空 icon -->
       <transition name="zoom-in">
         <u-icon
-          v-if="clearable && tags?.length && mouse && !disabled && !readonly"
+          v-if="clearable && model?.length && hovered && !disabled"
           :class="cls.e('clear')"
           @click.stop="handleClear"
         >
@@ -63,12 +59,7 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-      <u-scroll
-        tag="div"
-        height="300px"
-        ref="scrollRef"
-        :class="cls.e('content-option')"
-      >
+      <u-scroll tag="div" ref="scrollRef" :class="cls.e('content-tree')">
         <u-tree
           v-bind="treeProps"
           v-model:checked="model"
@@ -79,77 +70,84 @@
       </u-scroll>
     </template>
   </u-dropdown>
+
+  <template v-else>
+    <div :class="[cls.m(size)]">
+      <div v-if="model.length" :class="cls.e('tags')">
+        <u-tag v-for="option of tags" :key="option[valueKey]">
+          {{ option[labelKey] }}
+        </u-tag>
+      </div>
+    </div>
+  </template>
 </template>
 
-<script lang="ts" setup generic="Val extends string | number">
+<script lang="ts" setup>
 import type {
   MultiTreeSelectProps,
-  MultiTreeSelectEmits,
-} from "@ui/types/components/multi-tree-select"
-import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
-import { bem } from "@ui/utils"
-import { UDropdown } from "../dropdown"
-import { UTree, type TreeExposed } from "../tree"
-import { UScroll, type ScrollExposed } from "../scroll"
-import { UTag } from "../tag"
-import { UIcon } from "../icon"
-import { ArrowDown, Close, Search } from "icon-ultra"
-import { computed, ref, shallowRef, watch } from "vue"
-import { UCheckbox } from "../checkbox"
-import { omit, Tree } from "cat-kit/fe"
+  MultiTreeSelectEmits
+} from '@ui/types/components/multi-tree-select'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { bem } from '@ui/utils'
+import { UDropdown } from '../dropdown'
+import { UTree, type TreeExposed } from '../tree'
+import { UScroll, type ScrollExposed } from '../scroll'
+import { UTag } from '../tag'
+import { UIcon } from '../icon'
+import { ArrowDown, Close, Search } from 'icon-ultra'
+import { computed, nextTick, shallowReactive, shallowRef, watch } from 'vue'
+import { UCheckbox } from '../checkbox'
+import { omit, Tree } from 'cat-kit/fe'
 
 defineOptions({
-  name: "MultiTreeSelect",
+  name: 'MultiTreeSelect'
 })
 
-const cls = bem("multi-tree-select")
+const cls = bem('multi-tree-select')
 
-const props = withDefaults(defineProps<MultiTreeSelectProps<Val>>(), {
-  labelKey: "label",
-  valueKey: "value",
-  placeholder: "请选择",
+const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
+  labelKey: 'label',
+  valueKey: 'value',
+  placeholder: '请选择',
   expandAll: true,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  size: "default",
-  filterable: false,
-  closeOnSelect: false,
+  filterable: false
 })
 
 const treeProps = computed(() => {
   return omit(props, [
-    "tips",
-    "field",
-    "placeholder",
-    "disabled",
-    "label",
-    "checked",
-    "readonly",
-    "checkable",
-    "childrenKey"
+    'tips',
+    'field',
+    'placeholder',
+    'disabled',
+    'label',
+    'readonly'
   ])
 })
 
-const emit = defineEmits<MultiTreeSelectEmits<Val>>()
+const emit = defineEmits<MultiTreeSelectEmits>()
 
 /**过滤 */
-const qs = shallowRef("")
-watch(qs, (qs) => {
+const qs = shallowRef('')
+watch(qs, qs => {
   treeRef.value?.filter(qs)
 })
 
-const model = defineModel<Val[]>()
+const model = defineModel<(string | number)[]>({
+  default: () => []
+})
 
-const mouse = shallowRef(false)
+const hovered = shallowRef(false)
 
-const tags = ref<Record<string, any>[]>([])
+const tags = shallowRef<Record<string, any>[]>([])
 
 const { formProps } = useFormComponent()
 
 const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
-  props,
+  props
 ])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
@@ -158,31 +156,13 @@ const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-/**选中 */
-const handleCheck = (checked: Val[], checkedData: Record<string, any>[]) => {
-  tags.value = checkedData
-  emit("change", checked,checkedData!)
-  closeDrop()
-}
+let changedByEvent = false
 
-/**关闭弹窗 */
-const closeDrop = () => {
-  if (!props.closeOnSelect) return
-  dropdownRef.value?.close()
-}
-
-/**删除 */
-const handleRemove = (index: number) => {
-  tags.value = tags.value?.filter((_, i) => i !== index)
-  model.value = model.value?.filter((_, i) => i !== index)
-  emit("change", model.value!,tags.value)
-}
-
-/**清空 */
-const handleClear = () => {
-  tags.value = []
-  model.value = []
-  emit("change", [],[])
+function markEvent() {
+  changedByEvent = true
+  nextTick(() => {
+    changedByEvent = false
+  })
 }
 
 /**是否全选 */
@@ -192,7 +172,7 @@ const allChecked = computed(() => {
 
 /**部分 */
 const indeterminate = computed(() => {
-  return model.value?.length! > 0 && !allChecked.value
+  return model.value.length! > 0 && !allChecked.value
 })
 
 /** 全选*/
@@ -200,44 +180,74 @@ const handleCheckAll = (checked: boolean) => {
   treeRef.value?.checkAll(checked)
 }
 
-watch(
-  () => [props.data!, model.value!],
-  ([data, modelValue]) => {
-    if (data?.length && modelValue?.length) {
-      tags.value = [] // 重置tags
-      let matchCount = 0
+/**选中 */
+const handleCheck = (
+  checked: (string | number)[],
+  checkedData: Record<string, any>[]
+) => {
+  markEvent()
+  tags.value = checkedData
+  emit('change', checked, checkedData!)
+}
 
-      const matchNode = (node) => {
-        if (modelValue.includes(node[props.valueKey])) {
-          tags.value.push(node)
-          matchCount++
-        }
-        if (matchCount === modelValue.length) {
-          return false
-        }
-      }
+/**删除 */
+const handleRemove = (index: number) => {
+  markEvent()
+  tags.value = tags.value.filter((_, i) => i !== index)
+  model.value = model.value.filter((_, i) => i !== index)
+  emit('change', model.value!, tags.value)
+}
 
-      for (const item of data as Record<string, any>[]) {
-        if (matchCount === modelValue.length) {
-          break
-        }
-        Tree.dft(item, (node) => {
-          if (matchNode(node) === false) {
-            return false
-          }
-        })
-      }
-    }
-  }
+/**清空 */
+const handleClear = () => {
+  markEvent()
+  tags.value = []
+  model.value = []
+  emit('clear')
+}
+
+const keyDicts = shallowReactive(
+  new Map<string | number, Record<string, any>>()
 )
 
-watch(scrollRef, (scroll) => {
+watch(
+  () => props.data,
+  data => {
+    if (!data?.length) {
+      keyDicts.clear()
+    } else {
+      data.forEach(item => {
+        Tree.dft(item, v => {
+          keyDicts.set(v[props.valueKey], v)
+        })
+      })
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  [keyDicts, model],
+  ([keyDicts, model]) => {
+    if (changedByEvent) return
+
+    if (!keyDicts.size || !model.length) {
+      tags.value = []
+      return
+    }
+
+    tags.value = model.map(v => keyDicts.get(v)!)
+  },
+  { immediate: true }
+)
+
+watch(scrollRef, scroll => {
   if (scroll && model.value !== undefined) {
     const treeNode =
-      scroll.contentRef!.getElementsByClassName("is-checked")[
+      scroll.contentRef!.getElementsByClassName('is-checked')[
         model.value.length - 1
       ]!
-    treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
+    treeNode?.scrollIntoView({ block: 'nearest', inline: 'start' })
   }
 })
 </script>

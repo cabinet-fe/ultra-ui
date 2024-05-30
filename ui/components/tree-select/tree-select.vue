@@ -1,17 +1,9 @@
 <template>
   <u-dropdown
-    :class="[
-      cls.b,
-      cls.m(size),
-      bem.is('disabled', disabled),
-      bem.is('readonly', readonly),
-    ]"
+    v-if="!readonly"
+    :class="[cls.b, bem.is('disabled', disabled)]"
     trigger="click"
-    max-width="auto"
-    :disabled="disabled"
-    :readonly="readonly"
-    @mouseenter="mouse = true"
-    @mouseleave="mouse = false"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
     ref="dropdownRef"
   >
     <template #trigger>
@@ -20,7 +12,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="tags?.[labelKey]"
+        :model-value="label"
         @clear="handleClear"
         native-readonly
       >
@@ -39,12 +31,7 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-      <u-scroll
-        tag="div"
-        height="300px"
-        ref="scrollRef"
-        :class="cls.e('content-option')"
-      >
+      <u-scroll tag="div" ref="scrollRef" :class="cls.e('content-tree')">
         <u-tree
           v-bind="treeProps"
           v-model:selected="model"
@@ -55,75 +42,70 @@
       </u-scroll>
     </template>
   </u-dropdown>
+
+  <span v-else>{{ label }}</span>
 </template>
 
-<script lang="ts" setup generic="Val extends string | number">
+<script lang="ts" setup>
 import type {
   TreeSelectProps,
-  TreeSelectEmits,
-} from "@ui/types/components/tree-select"
-import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
-import { bem } from "@ui/utils"
-import { UDropdown } from "../dropdown"
-import { UTree, type TreeExposed } from "../tree"
-import { UScroll, type ScrollExposed } from "../scroll"
-import { UInput } from "../input"
-import { UIcon } from "../icon"
-import { ArrowDown, Search } from "icon-ultra"
-import { computed, ref, shallowRef, watch } from "vue"
-import { Tree, omit } from "cat-kit/fe"
+  TreeSelectEmits
+} from '@ui/types/components/tree-select'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { bem } from '@ui/utils'
+import { UDropdown } from '../dropdown'
+import { UTree, type TreeExposed } from '../tree'
+import { UScroll, type ScrollExposed } from '../scroll'
+import { UInput } from '../input'
+import { UIcon } from '../icon'
+import { ArrowDown, Search } from 'icon-ultra'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+import { Tree, omit } from 'cat-kit/fe'
 defineOptions({
-  name: "TreeSelect",
+  name: 'TreeSelect'
 })
 
-const cls = bem("tree-select")
+const cls = bem('tree-select')
 
-const props = withDefaults(defineProps<TreeSelectProps<Val>>(), {
-  labelKey: "label",
-  valueKey: "value",
-  placeholder: "请选择",
+const props = withDefaults(defineProps<TreeSelectProps>(), {
+  labelKey: 'label',
+  valueKey: 'value',
+  placeholder: '请选择',
   expandAll: true,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  size: "default",
-  filterable: false,
-  closeOnSelect: true,
+  filterable: false
 })
 
 const treeProps = computed(() => {
   return omit(props, [
-    "tips",
-    "field",
-    "placeholder",
-    "disabled",
-    "label",
-    "selected",
-    "readonly",
-    "checkable",
-    "selectable",
-    "childrenKey"
+    'tips',
+    'field',
+    'placeholder',
+    'disabled',
+    'label',
+    'readonly'
   ])
 })
 
-const emit = defineEmits<TreeSelectEmits<Val>>()
+const emit = defineEmits<TreeSelectEmits>()
 
 /**过滤 */
-const qs = shallowRef("")
-watch(qs, (qs) => {
+const qs = shallowRef('')
+watch(qs, qs => {
   treeRef.value?.filter(qs)
 })
-const model = defineModel<Val>()
 
-const mouse = shallowRef(false)
+const model = defineModel<string | number>()
 
-const tags = ref<Record<string, any>>()
+const label = shallowRef<string>()
 
 const { formProps } = useFormComponent()
 
 const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
-  props,
+  props
 ])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
@@ -132,56 +114,59 @@ const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-const handleSelect = (selected?: Val, selectedData?: Record<string, any>) => {
-  tags.value = selectedData
-  emit("change", selected!,selectedData!)
-  closeDrop()
-}
-
-/**关闭弹窗 */
-const closeDrop = () => {
-  if (!props.closeOnSelect) return
-  dropdownRef.value?.close()
-}
-
 /**清空 */
 const handleClear = () => {
-  tags.value = undefined
   model.value = undefined
-  emit("change", undefined!,undefined!)
+  emit('clear')
 }
 
+let changedByEvent = false
 watch(
-  () => [props.data, model.value],
-  ([data, modelValue]) => {
-    if (data && modelValue) {
-      tags.value = undefined
-      let found = false
-
-      for (const item of data as Record<string, any>[]) {
-        if (found) break // 如果已找到匹配值，停止外层循环
-
-        Tree.dft(item, (node) => {
-          if (node[props.valueKey] === modelValue) {
-            tags.value = node
-            found = true
-            return false // 停止当前dft循环
-          }
-        })
-      }
+  [() => props.data, model],
+  ([data, model]) => {
+    if (changedByEvent) return
+    if (!data?.length || model === undefined) {
+      label.value = undefined
+      return
     }
+
+    let founded = false
+    data.some(item => {
+      Tree.dft(item, v => {
+        if (v[props.valueKey] === model) {
+          label.value = v[props.labelKey]
+          founded = true
+          return false
+        }
+      })
+
+      return founded
+    })
   },
   {
-    immediate: true,
+    immediate: true
   }
 )
 
-watch(scrollRef, (scroll) => {
-  if (scroll && model.value !== undefined) {
-    const treeNode =
-      scroll.contentRef!.getElementsByClassName("is-selected")[0]!
+const handleSelect = (
+  selected?: string | number,
+  selectedData?: Record<string, any>
+) => {
+  changedByEvent = true
+  nextTick(() => {
+    changedByEvent = false
+  })
 
-    treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
+  label.value = selectedData?.[props.labelKey]
+  emit('change', selected, selectedData)
+  dropdownRef.value?.close()
+}
+
+watch(scrollRef, scroll => {
+  if (scroll && model.value !== undefined) {
+    const treeNode = scroll.contentRef?.querySelector('.is-selected')
+
+    treeNode?.scrollIntoView({ block: 'nearest', inline: 'start' })
   }
 })
 </script>
