@@ -127,6 +127,7 @@ const treeProps = computed(() => {
     "checked",
     "readonly",
     "checkable",
+    "childrenKey"
   ])
 })
 
