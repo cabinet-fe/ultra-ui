@@ -123,8 +123,7 @@ const treeProps = computed(() => {
     'placeholder',
     'disabled',
     'label',
-    'readonly',
-    'childrenKey'
+    'readonly'
   ])
 })
 
