@@ -17,7 +17,6 @@ export interface CheckboxProps<V extends Val = boolean>
 
 export interface CheckboxEmits<V extends Val = boolean> {
   (name: 'update:modelValue', value: V): void
-  (name: 'update:indeterminate', value: boolean): void
 }
 
 /** 复选框暴露的属性和方法 */

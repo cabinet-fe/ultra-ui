@@ -75,9 +75,16 @@ export interface _TreeExposed<DataItem extends Record<string, any>> {
   filter(filter: string | ((node: TreeNode<DataItem>) => boolean)): void
   forest: ComputedRef<Forest<TreeNode<DataItem>>>
   nodes: ShallowRef<TreeNode<DataItem>[]>
+  /** 多选选中节点 */
   checkNode: (node: TreeNode<DataItem>, check: boolean) => void
+  /** 单选选择节点 */
   selectNode: (node: TreeNode<DataItem>) => void
+  /** 对全部节点进行勾选/取消勾选 */
   checkAll: (check: boolean) => void
+  /** 获取选择的节点值 */
+  getSelected(): DataItem | undefined
+  /** 获取选中的节点值 */
+  getChecked(): DataItem[]
 }
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

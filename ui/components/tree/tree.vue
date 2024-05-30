@@ -237,6 +237,12 @@ defineExpose<_TreeExposed<DataItem>>({
     forest.value.nodes.forEach(node => {
       handleCheck(node, check)
     })
+  },
+  getSelected(): DataItem | undefined {
+    return selected.value
+  },
+  getChecked(): DataItem[] {
+    return Array.from(checked)
   }
 })
 </script>
