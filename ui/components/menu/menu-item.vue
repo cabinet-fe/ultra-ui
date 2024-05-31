@@ -2,7 +2,12 @@
   <u-tip position="right" v-if="injected?.simple.value && isBase">
     <template #content><slot /></template>
     <div
-      :class="[cls?.e('item'), bem.is('active', activation), bem.is('disabled', disabled)]"
+      :class="[
+        cls?.e('item'),
+        bem.is('active', activation),
+        bem.is('disabled', disabled),
+        bem.is('simple', true)
+      ]"
       @click="handleClick"
       :style="{
         width: 'auto',

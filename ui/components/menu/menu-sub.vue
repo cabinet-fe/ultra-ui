@@ -9,7 +9,11 @@
       @mouseleave="expand = false"
     >
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', highlight && isBase)]"
+        :class="[
+          cls?.em('sub', 'title'),
+          bem.is('active', highlight && isBase),
+          bem.is('simple', isBase)
+        ]"
         :style="{ color: customColor }"
         v-ripple="!disabled"
         @mouseenter="expand = true"

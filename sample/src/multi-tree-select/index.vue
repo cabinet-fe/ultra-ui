@@ -7,6 +7,7 @@
         :data="data"
         label-key="name"
         value-key="id"
+        children-key="child"
         checkable
         expand-all
         :disabledNode="disabledNode"
@@ -34,15 +35,15 @@ setTimeout(() => {
     {
       name: "手抓饼",
       id: 2,
-      children: [
+      child: [
         {
           name: "鱼香肉丝",
           id: 3,
-          children: [
+          child: [
             {
               name: "烤苞米",
               id: 4,
-              children: [
+              child: [
                 { name: "苞米例", id: 5 },
                 { name: "吃", id: 6 },
                 { name: "h", id: 7 },
@@ -53,7 +54,7 @@ setTimeout(() => {
         {
           name: "fggg",
           id: 8,
-          children: [
+          child: [
             { name: "苞米例2", id: 9 },
             { name: "吃2", id: 10 },
             { name: "h2", id: 11 },

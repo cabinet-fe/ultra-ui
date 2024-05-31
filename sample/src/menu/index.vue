@@ -36,7 +36,7 @@ const menus = shallowRef<any[]>([
   { title: "功能模块管理", icon: UserGroup, path: "/business-center/modules" },
   {
     title: "角色管理",
-    icon: Lock,
+    icon: Cart,
     path: "/business-center/role",
     children: [
       { title: "首页", icon: HouseFilled, path: "/" },
@@ -45,7 +45,7 @@ const menus = shallowRef<any[]>([
         icon: UserGroup,
         path: "/business-center/modules",
       },
-      { title: "角色管理", icon: Lock, path: "/business-center/role" },
+      { title: "角色管理", icon: Cart, path: "/business-center/role" },
       { title: "数据字典", icon: Cart, path: "/business-center/dict" },
       {
         title: "用户管理",

@@ -38,6 +38,12 @@ $root-name: menu;
       &:hover {
         background-color: fn.use-var(color, primary, 'light-9');
       }
+
+      @include m.is(simple) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     @include m.size using ($size) {
@@ -67,6 +73,12 @@ $root-name: menu;
 
     &:hover {
       background-color: fn.use-var(color, primary, 'light-9');
+    }
+
+    @include m.is(simple) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     @include m.size using ($size) {
