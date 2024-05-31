@@ -38,12 +38,6 @@ $root-name: menu;
       &:hover {
         background-color: fn.use-var(color, primary, 'light-9');
       }
-
-      @include m.is(simple) {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
     }
 
     @include m.size using ($size) {
@@ -76,9 +70,7 @@ $root-name: menu;
     }
 
     @include m.is(simple) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      // text-align: center;
     }
 
     @include m.size using ($size) {
@@ -107,6 +99,9 @@ $root-name: menu;
         padding: map.get(vars.$gap, $size) * 1.8;
         margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
+        @include m.is(simple) {
+          // justify-content: center;
+        }
       }
 
       &--icon {

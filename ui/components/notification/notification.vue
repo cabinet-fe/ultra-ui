@@ -49,16 +49,17 @@ defineOptions({
   name: 'Notification'
 })
 
-const props = defineProps<NotificationProps>()
-
-const { type, size, closable, duration, offset, buttonText, position } = useFallbackProps([props], {
-  type: 'primary' as ColorType,
-  size: 'default',
+const props = withDefaults(defineProps<NotificationProps>(), {
   closable: false,
   duration: 4500,
   offset: 20,
   buttonText: '',
   position: 'bottom-right'
+})
+
+const { type, size } = useFallbackProps([props], {
+  type: 'primary' as ColorType,
+  size: 'default'
 })
 
 const typeIcon = computed(() => {
@@ -88,18 +89,18 @@ const close = () => {
 }
 
 const customStyle = computed<CSSProperties>(() => {
-  return offset.value > 0
+  return props.offset > 0
     ? {
-        [`${position.value.split('-')[0]}`]: `${offset.value}px`,
+        [`${props.position.split('-')[0]}`]: `${props.offset}px`,
         zIndex: props.zIndex,
         transform:
-          position.value.split('-')[0] === 'bottom'
-            ? `translateY(-${offset.value}px)`
-            : `translateY(${offset.value}px)`,
+          props.position.split('-')[0] === 'bottom'
+            ? `translateY(-${props.offset}px)`
+            : `translateY(${props.offset}px)`,
         transition: `opacity 0.3s, transform 0.4s, top 0.4s`
       }
     : {
-        [`${position.value.split('-')[0]}`]: `${offset.value}px`,
+        [`${props.position.split('-')[0]}`]: `${props.offset}px`,
         zIndex: props.zIndex
       }
 })
@@ -107,10 +108,10 @@ const customStyle = computed<CSSProperties>(() => {
 let timer = 0
 
 const startTimer = () => {
-  if (duration.value) {
+  if (props.duration) {
     timer = setTimeout(() => {
       close()
-    }, duration.value)
+    }, props.duration)
   }
 }
 

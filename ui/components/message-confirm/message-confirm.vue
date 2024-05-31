@@ -39,24 +39,15 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<MessageConfirmProps>(), {
-  confirmButtonText: '确定',
-  confirmButtonType: 'primary' as ColorType
-})
-
-const {
-  title,
-  message,
-  size,
-  confirmButtonText,
-  confirmButtonType,
-  cancelButtonText
-} = useFallbackProps([props], {
   title: '',
   message: '',
-  size: 'default' as ComponentSize,
   confirmButtonText: '确定',
   confirmButtonType: 'primary' as ColorType,
   cancelButtonText: ''
+})
+
+const { size } = useFallbackProps([props], {
+  size: 'default' as ComponentSize
 })
 
 const cls = bem('message-confirm')
