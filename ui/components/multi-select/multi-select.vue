@@ -91,13 +91,13 @@
   </u-dropdown>
 
   <template v-else>
-    <data :class="[ cls.m(size)]">
+    <div :class="[cls.m(size)]">
       <div v-if="model?.length" :class="cls.e('tags')">
         <u-tag v-for="option of tags" :key="option[valueKey]">
           {{ option[labelKey] }}
         </u-tag>
       </div>
-    </data>
+    </div>
   </template>
 </template>
 

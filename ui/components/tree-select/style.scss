@@ -7,48 +7,57 @@
 $root-name: tree-select;
 
 @include m.b($root-name) {
+  @include m.is(disabled) {
+    cursor: not-allowed;
 
-    @include m.is(disabled) {
-
-        cursor: not-allowed;
-
-        &:hover {
-            box-shadow: none;
-        }
-
-        .u-icon {
-            color: fn.use-var(text-color, disabled);
-        }
+    &:hover {
+      box-shadow: none;
     }
 
-    @include m.is(readonly) {
-        pointer-events: none;
-        cursor: default;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        background: none;
+    .u-icon {
+      color: fn.use-var(text-color, disabled);
     }
+  }
 
+  @include m.is(readonly) {
+    pointer-events: none;
+    cursor: default;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    background: none;
+  }
 
-    @include m.e(filter) {
-        margin-bottom: 4px;
+  @include m.e(filter) {
+    margin-bottom: 4px;
+  }
+
+  @include m.e(content-header) {
+    @include m.flex($justify: space-between);
+    padding: 4px 12px;
+    border-bottom: fn.use-var(border);
+    border-radius: 0;
+  }
+
+  @include m.e(content-tree) {
+    max-height: 200px;
+  }
+
+  @include m.e(panel) {
+    @include m.size using ($size) {
+      @include m.bem($root-name, content-filter) {
+        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+      }
+
+      @include m.bem($root-name, content-tree) {
+        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+      }
+
+      @include m.bem($root-name, empty) {
+        height: fn.use-var(form-component-height, $size);
+        line-height: fn.use-var(form-component-height, $size);
+        padding: 0 fn.use-var(gap, $size);
+      }
     }
-
-    @include m.e(content-header) {
-        @include m.flex($justify: space-between);
-        padding: 4px 12px;
-        border-bottom: fn.use-var(border);
-        border-radius: 0;
-    }
-
-    @include m.e(content-filter) {
-        padding: 6px 10px;
-    }
-
-    @include m.e(content-option) {
-        padding: 4px;
-    }
-
-
+  }
 }

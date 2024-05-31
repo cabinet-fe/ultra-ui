@@ -26,21 +26,23 @@ export function useCheck<DataItem extends Record<string, any>>(
   let checkedSetChangeByModel = false
 
   watch(
-    () => props.checked,
-    (c, oc) => {
+    [() => props.checked, nodeDicts],
+    ([c, nodeDicts], [oc]) => {
       // 事件已经触发模型变更了，所以不再进行下面的计算
-      if (modelChangedByEvent) return
+      if (modelChangedByEvent || !props.checkable) return
+
+      if (!nodeDicts.size) return
 
       checkedSetChangeByModel = true
       // 不适用checked.clear()来
       // 减少checked操作次数提升性能
       oc?.forEach(v => {
-        const node = nodeDicts.value.get(v)!
+        const node = nodeDicts.get(v)!
         node.checked = false
         checked.delete(node.data)
       })
       c?.forEach(v => {
-        const node = nodeDicts.value.get(v)
+        const node = nodeDicts.get(v)
         if (node) {
           checked.add(node.data)
           node.checked = true

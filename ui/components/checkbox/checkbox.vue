@@ -19,7 +19,7 @@
       @input="handleInput"
     />
 
-    <span :class="cls.e('label')"><slot /></span>
+    <span :class="cls.e('label')"><slot /> </span>
   </label>
 
   <span v-else> {{ trueVal === model ? '是' : '否' }}</span>
@@ -51,8 +51,6 @@ const cls = bem('checkbox')
 
 const model = defineModel<Val>()
 
-const indeterminate = defineModel<boolean>('indeterminate')
-
 const trueVal = computed(() => {
   return props.trueValue ?? (true as Val)
 })
@@ -77,7 +75,7 @@ const className = computed(() => {
     cls.b,
     cls.m(size.value),
     bem.is('disabled', disabled.value),
-    bem.is('checked', checked.value || indeterminate.value)
+    bem.is('checked', checked.value || props.indeterminate)
   ]
 })
 
@@ -88,6 +86,5 @@ const checked = computed(() => {
 const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   model.value = target.checked ? trueVal.value : falseVal.value
-  indeterminate.value = false
 }
 </script>
