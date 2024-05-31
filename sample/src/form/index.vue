@@ -45,7 +45,7 @@
 
           <u-date-picker field="date" label="日期" />
           <u-checkbox field="freeze" label="是否冻结" />
-          <u-textarea field="remarks" label="备注" />
+          <u-textarea field="remarks" label="备注" span="full" />
           <!-- <u-slider field="slider" label="滑块" /> -->
           <u-multi-tree-select
             field="treeChecked"

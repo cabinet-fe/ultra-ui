@@ -1,5 +1,5 @@
 <template>
-  <div :class="className">
+  <u-grid-item :span="span" :class="className">
     <label
       v-if="label"
       :class="[cls.e('label'), bem.is('required', fieldRequired)]"
@@ -20,7 +20,7 @@
         </transition>
       </section>
     </section>
-  </div>
+  </u-grid-item>
 </template>
 
 <script lang="ts" setup>
@@ -29,6 +29,7 @@ import type { FormItemProps } from '@ui/types/components/form-item'
 import { type CSSProperties, computed } from 'vue'
 import { useFallbackProps, useFormComponent } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
+import { UGridItem } from '../grid'
 
 defineOptions({
   name: 'FormItem'

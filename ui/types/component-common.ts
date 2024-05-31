@@ -2,6 +2,9 @@ export type ComponentSize = 'small' | 'default' | 'large'
 
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 
+/** 断点名称 */
+export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
 /** 组件通用属性 */
 export interface ComponentProps {
   /** 组件尺寸 */
@@ -13,7 +16,12 @@ export interface FormComponentProps extends ComponentProps {
   /** 在表单控件内时的提示 */
   tips?: string
   /** 所占列的大小 */
-  span?: string | number | 'max'
+  span?:
+    | number
+    | 'full'
+    | ({
+        [key in BreakpointName]?: 'full' | number
+      } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

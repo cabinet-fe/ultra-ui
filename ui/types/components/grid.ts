@@ -1,5 +1,4 @@
-/** 断点名称 */
-export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+import type { BreakpointName } from '../component-common'
 
 export interface Breakpoint {
   name: BreakpointName
