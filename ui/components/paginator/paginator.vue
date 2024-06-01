@@ -35,7 +35,7 @@
         v-for="num in pageNumbers"
         :key="num"
         :class="[cls.e('btn'), bem.is('active', pageNumber === num)]"
-        @click="pageNumber = num"
+        @click="handleChangePageNumber(num)"
         v-ripple
       >
         {{ num }}
@@ -121,6 +121,12 @@ const pageSize = defineModel<number>('pageSize')
 
 const handleUpdateSize = (value?: number) => {
   pageSize.value = value
+}
+
+function handleChangePageNumber(num: number) {
+  if (pageNumber.value === num) return
+
+  pageNumber.value = num
 }
 
 watch(pageSize, () => {

@@ -5,7 +5,7 @@ import type { DeconstructValue } from '../helper'
 /** 选择器组件属性 */
 export interface SelectProps<
   Option extends Record<string, any>,
-  Val extends string | number
+  Val extends string | number = string | number
 > extends FormComponentProps {
   /** 绑定值 */
   modelValue?: Val
@@ -27,7 +27,7 @@ export interface SelectProps<
 
 export interface SelectEmits<
   Option extends Record<string, any>,
-  Val extends string | number
+  Val extends string | number = string | number
 > {
   /** 触发更新label事件 */
   (e: 'update:label', label?: string): void
