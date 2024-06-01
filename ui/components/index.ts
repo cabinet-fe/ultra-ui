@@ -70,8 +70,6 @@ export * from './password-input'
 
 export * from './popconfirm'
 
-export * from './popup'
-
 export * from './progress'
 
 export * from './radio'

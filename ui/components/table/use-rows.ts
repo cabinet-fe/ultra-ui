@@ -1,5 +1,5 @@
 import type { TableEmits, TableProps } from '@ui/types/components/table'
-import { Forest, TreeNode } from 'cat-kit/fe'
+import { Forest, TreeNode, getChainValue } from 'cat-kit/fe'
 import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
@@ -45,8 +45,13 @@ export class TableRow<
    * @returns
    */
   constructor(data: Data, index: number, rowKey?: string) {
-    super(isReactive(data) || !data ? data : shallowReactive(data), index)
-    this.uid = rowKey ? data?.[rowKey] : uid++
+    if (!data) {
+      super(data, index)
+      this.uid = uid++
+    } else {
+      super(isReactive(data) ? data : shallowReactive(data), index)
+      this.uid = rowKey ? getChainValue(data, rowKey) : uid++
+    }
     return shallowReactive(this)
   }
 }

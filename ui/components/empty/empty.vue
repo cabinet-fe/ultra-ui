@@ -17,7 +17,7 @@ defineOptions({
 
 withDefaults(defineProps<EmptyProps>(), {
   size: 48,
-  text: '空空如也'
+  text: '暂无数据'
 })
 
 const cls = bem('empty')

@@ -27,7 +27,7 @@
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
 import { type CSSProperties, computed } from 'vue'
-import { useFallbackProps, useFormComponent } from '@ui/compositions'
+import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { UGridItem } from '../grid'
 
@@ -44,14 +44,12 @@ const cls = bem('form-item')
 /** 表单组件上下文 */
 const { formProps } = useFormComponent()
 
-const { size, readonly, labelWidth } = useFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default' as ComponentSize,
-    readonly: false,
-    labelWidth: '80px' as string | number
-  }
-)
+const { config } = useConfig()
+
+const { size, readonly } = useFallbackProps([formProps ?? {}, props], {
+  size: 'default' as ComponentSize,
+  readonly: false
+})
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(
@@ -62,7 +60,7 @@ const className = computed(() => {
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(labelWidth.value, 'px')
+    width: withUnit(props.labelWidth ?? config.form.labelWidth, 'px')
   }
 })
 

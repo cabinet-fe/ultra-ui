@@ -18,12 +18,14 @@
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-checkbox v-model="showData">显示数据</u-checkbox>
       <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
+
       <u-table
         :data="data"
         :columns="columns"
         :style="{
           height: fixedHeight ? '400px' : ''
         }"
+        row-key="name"
         v-bind="state"
         v-model:checked="checked"
         v-model:selected="selected"
@@ -31,18 +33,10 @@
         <template #header:age="{ column }">
           年龄 <u-checkbox v-model="column.data.summary">合计</u-checkbox>
         </template>
-        <template #column:age="{ column, row }">
-          {{ row.indexes }}
-          {{ row.isLeaf ? '是叶子节点' : '不是叶子节点' }}
-        </template>
-        <!-- <template #foot="{ columns }">
-          <tr>
-            <td v-for="col of columns">{{ col.key }}</td>
-          </tr>
-        </template> -->
       </u-table>
 
-      {{checked}}
+      {{ state.selectable ? selected : '' }}
+      {{ state.checkable ? checked : '' }}
     </CustomCard>
   </div>
 </template>
@@ -129,7 +123,7 @@ const _data = Array.from({ length: 10 }).map((_, index) => {
     children: [
       {
         sex: '未知',
-        name: 'name',
+        name: 'name' + index + '-0',
         age: Math.round(Math.random() * 100),
         province: '江苏省',
         city: '苏州市',
@@ -141,7 +135,7 @@ const _data = Array.from({ length: 10 }).map((_, index) => {
         children: [
           {
             sex: '未知',
-            name: 'name',
+            name: 'name' + index + '-0-0',
             age: Math.round(Math.random() * 100),
             province: '江苏省',
             city: '苏州市',
@@ -167,6 +161,6 @@ watch(showData, v => {
   }
 })
 
-const checked = shallowRef([data.value[0]!, data.value[3]!])
+const checked = shallowRef([])
 const selected = shallowRef(data.value[0]!)
 </script>

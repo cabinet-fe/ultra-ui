@@ -61,9 +61,15 @@ export interface TableProps<
   columns?: TableColumn[]
   /** 多选时的已选项 */
   checked?: DataItem[]
-  /** 单选时的已选项 */
+  /**
+   * 单选时的已选项
+   * @description 该属性需要指定rowKey来表示唯一性
+   */
   selected?: DataItem
-  /** 多选 */
+  /**
+   * 多选
+   * @description 该属性需要指定rowKey来表示唯一性
+   */
   checkable?: boolean
   /** 索引 */
   showIndex?: boolean
@@ -90,7 +96,7 @@ export interface TableProps<
   highlightCurrent?: boolean
   /**
    * 行key
-   * @description 用于标识行的唯一性，可以提升性能
+   * @description 用于标识行的唯一性，对于单选和多选来说是必须的
    */
   rowKey?: string
 }

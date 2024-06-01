@@ -17,7 +17,7 @@ import type {
   TableEmits,
   TableProps
 } from '@ui/types/components/table'
-import type { Forest } from 'cat-kit/fe'
+import { getChainValue, type Forest } from 'cat-kit/fe'
 import type { ComponentSize } from '@ui/types/component-common'
 import type { BEM } from '@ui/utils'
 
@@ -84,19 +84,19 @@ export function useCheck(options: Options) {
     })
   })
 
-  let dicts: WeakMap<Record<string, any>, TableRow> | undefined = undefined
+  let dicts: Map<string | number, TableRow> | undefined = undefined
 
   function setDicts() {
-    if (!dicts && rows.value) {
-      let mapEntries: [Record<string, any>, TableRow][] = []
-      let i = 0
-      while (i < rows.value.length) {
-        const row = rows.value[i]!
-        mapEntries.push([toRaw(row.data), row])
-        i++
-      }
-      dicts = new WeakMap(mapEntries)
+    if (dicts || !rows.value || !props.rowKey) return
+
+    let mapEntries: [string | number, TableRow][] = []
+    let i = 0
+    while (i < rows.value.length) {
+      const row = rows.value[i]!
+      mapEntries.push([row.uid, row])
+      i++
     }
+    dicts = new Map(mapEntries)
   }
 
   watch(rows, () => {
@@ -104,9 +104,9 @@ export function useCheck(options: Options) {
   })
 
   watch(
-    () => props.checked,
-    checked => {
-      if (changedByEvent || !props.checkable) return
+    [() => props.checked, () => props.rowKey, () => props.checkable],
+    ([checked, rowKey, checkable]) => {
+      if (changedByEvent || !checkable || !rowKey) return
 
       changedByModel = true
 
@@ -116,7 +116,7 @@ export function useCheck(options: Options) {
       clearChecked()
 
       checked?.forEach(item => {
-        const row = dicts?.get(item)
+        const row = dicts?.get(getChainValue(item, rowKey))
         if (!row) return
 
         row.checked = true
@@ -133,9 +133,9 @@ export function useCheck(options: Options) {
   )
 
   watch(
-    () => props.selected,
-    selected => {
-      if (changedByEvent || !props.selectable) return
+    [() => props.selected, () => props.rowKey, () => props.selectable],
+    ([selected, rowKey, selectable]) => {
+      if (changedByEvent || !selectable || !rowKey) return
 
       changedByModel = true
 
@@ -143,7 +143,7 @@ export function useCheck(options: Options) {
       setDicts()
 
       if (selected) {
-        const row = dicts?.get(selected)
+        const row = dicts?.get(getChainValue(selected, rowKey))
         if (row) {
           row.checked = true
           selectedRow.value = row

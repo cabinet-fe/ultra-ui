@@ -12,6 +12,10 @@ interface State {
     /** 标签宽度 */
     labelWidth?: number | number
   }
+  paginator: {
+    pageSize: number
+    pageSizeOptions: number[]
+  }
 }
 
 const state = reactive<State>({
@@ -19,6 +23,10 @@ const state = reactive<State>({
   size: 'default',
   form: {
     labelWidth: 80
+  },
+  paginator: {
+    pageSize: 40,
+    pageSizeOptions: [40, 100, 200, 500, 1000]
   }
 })
 

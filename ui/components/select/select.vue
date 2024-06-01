@@ -64,7 +64,11 @@
   <span v-else>{{ label || selected?.[labelKey] }}</span>
 </template>
 
-<script lang="ts" setup generic="Option extends Record<string, any>">
+<script
+  lang="ts"
+  setup
+  generic="Option extends Record<string, any>, Val extends string | number"
+>
 import { computed, shallowRef, watch } from 'vue'
 import type {
   SelectEmits,
@@ -84,7 +88,7 @@ defineOptions({
   name: 'Select'
 })
 
-const props = withDefaults(defineProps<SelectProps<Option>>(), {
+const props = withDefaults(defineProps<SelectProps<Option, Val>>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
@@ -93,7 +97,7 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   readonly: undefined
 })
 
-const emit = defineEmits<SelectEmits<Option>>()
+const emit = defineEmits<SelectEmits<Option, Val>>()
 
 const cls = bem('select')
 

@@ -1,6 +1,6 @@
 <template>
   <tfoot v-if="tableSlots.foot || showSummary" :class="cls.e('foot')">
-    <tr :class="cls.e('row')" v-if="showSummary">
+    <tr v-if="showSummary">
       <td
         v-if="allColumns[0]"
         :class="getCellClass(allColumns[0])"
