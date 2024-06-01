@@ -21,6 +21,7 @@ $root-name: paginator;
 
     @include m.bem($root-name, pages) {
       gap: fn.use-var(gap, $size);
+      height: fn.use-var(form-component-height, $size);
     }
 
     @include m.bem($root-name, jumper) {
