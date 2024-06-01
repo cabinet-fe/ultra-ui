@@ -63,11 +63,7 @@ $root-name: paginator;
   }
 
   @include m.e(pages) {
-    display: flex;
-    justify-content: space-between;
-
-    @include m.e(page) {
-    }
+    @include m.flex($justify: space-between);
   }
 
   @include m.e(size-select) {
