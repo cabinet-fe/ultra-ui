@@ -33,6 +33,7 @@
         v-model:selected="select"
         @update:selected="handleNodeClick"
         selectable
+        ref="treeRef1"
       />
 
       select单选 {{ select }}
@@ -90,8 +91,10 @@
 <script lang="ts" setup>
 import type { TreeExposed } from 'ultra-ui/components'
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef, watch, watchEffect } from 'vue'
+import { nextTick, shallowRef, watch, watchEffect } from 'vue'
 
+const treeRef = shallowRef<TreeExposed>()
+const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
 
 function refreshData() {
@@ -135,6 +138,17 @@ setTimeout(() => {
 }, 2000)
 
 let select = shallowRef(9)
+
+watch(
+  [select, treeRef1, data],
+  ([select, tree]) => {
+    nextTick(() => {
+      console.log(tree?.getSelected())
+    })
+  },
+  { immediate: true }
+)
+
 const checked = shallowRef([1])
 const handleNodeClick = selected => {
   select.value = selected
@@ -150,8 +164,6 @@ const handleCheck = (...args) => {
 }
 
 const qs = shallowRef('')
-
-const treeRef = shallowRef<TreeExposed>()
 
 watch([qs], ([qs]) => {
   treeRef.value?.filter(qs)

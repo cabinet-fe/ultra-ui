@@ -24,6 +24,7 @@ export function useSelect<DataItem extends Record<string, any>>(
       if (changedByEvent) return
 
       selected.value = s ? nodeDicts.value.get(s)?.data : undefined
+      emit('selected-synced', selected.value)
     },
     { immediate: true }
   )

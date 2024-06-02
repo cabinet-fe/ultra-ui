@@ -60,6 +60,8 @@ export interface TreeEmit<
   (e: 'update:selected', selected?: any, selectedData?: Data): void
   (e: 'update:checked', checked: any[], checkedData: Data[]): void
   (e: 'node-contextmenu', event: MouseEvent, node: TreeNode<Data>): void
+  /** 选中项同步完成事件 */
+  (e: 'selected-synced', selected?: Data)
 }
 
 export interface TreeNodeProps {
