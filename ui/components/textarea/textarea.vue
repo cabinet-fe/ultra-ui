@@ -1,42 +1,47 @@
 <template>
   <div
     v-if="!readonly"
-    :class="cls.b"
-    @mouseenter="mouse = true"
-    @mouseleave="mouse = false"
+    :class="textareaClass"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
   >
     <textarea
-      :class="classList"
-      :placeholder="props.placeholder"
+      :class="cls.e('native')"
+      :placeholder="placeholder"
       v-model="model"
-      :maxlength="props.maxlength"
-      :rows="props.rows"
-      :cols="props.cols"
+      :maxlength="maxlength"
+      :rows="rows"
+      :cols="cols"
       @input="handleInput"
       @focus="handleFocus"
       @blur="handleBlur"
       @change="handleChange"
       :disabled="disabled"
-      :readonly="readonly"
-      ref="textAreaRef"
+      :readonly="nativeReadonly"
+      ref="textareaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
     </span>
-    <span
-      v-if="props.clearable && model! && mouse && !disabled && !readonly"
-      :class="cls.m('clear')"
-      @click.stop="handleClear"
-    >
-      <u-icon :size="12">
+    <Transition name="zoom-in" mode="out-in">
+      <u-icon
+        v-if="props.clearable && model! && hovered && !disabled && !readonly"
+        :class="cls.m('clear')"
+        @click.stop="handleClear"
+      >
         <Close />
       </u-icon>
-    </span>
+    </Transition>
   </div>
 
-  <span v-else>
-    {{ model }}
-  </span>
+  <textarea
+    v-else
+    :value="model"
+    :class="cls.e('native')"
+    readonly
+    style="resize: none"
+    ref="textareaRef"
+  ></textarea>
 </template>
 
 <script lang="ts" setup>
@@ -44,9 +49,8 @@ import type {
   TextareaProps,
   TextareaEmits
 } from '@ui/types/components/textarea'
-import { bem, setStyles } from '@ui/utils'
-import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
-import heightAuto from './height-auto'
+import { bem } from '@ui/utils'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'
 import { Close } from 'icon-ultra'
 import {
@@ -55,19 +59,14 @@ import {
   useFormFallbackProps
 } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
-// todo: 优化
-// 1. 使用useFormFallbackProps来控制表单组件的props（disabled..）
-// 2. 去除resizable
-// 3. 去除width
-// 4. 使用defineModel来定义值
-// 5. 使用计算属性来控制字符剩余长度(以及其他可能这样使用的代码)
+import { calcTextareaHeight } from './utils'
+
 defineOptions({
   name: 'Textarea'
 })
 
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: '请输入',
-  rows: 5,
   resize: true,
   clearable: true,
   disabled: undefined,
@@ -89,25 +88,24 @@ const { size, disabled, readonly } = useFormFallbackProps(
 
 const emit = defineEmits<TextareaEmits>()
 
-const textAreaRef = ref<HTMLTextAreaElement | null>(null)
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 const model = defineModel<string>()
 
-let scrollHight = shallowRef(props.height)
+const hovered = shallowRef(false)
 
-let moreElementHeight = shallowRef(0)
+const { focus, handleBlur, handleFocus } = useFocus(focused => {
+  focused ? emit('focus') : emit('blur')
+})
 
-let mouse = shallowRef(false)
-
-const classList = computed(() => {
+const textareaClass = computed(() => {
   return [
     cls.b,
+    cls.m(size.value),
     bem.is('resize-none', !props.resize),
     bem.is('disabled', disabled.value),
     bem.is('readonly', readonly.value),
-    cls.m('more'),
-    cls.m(size.value),
-    bem.is('mouse', mouse.value)
+    bem.is('focus', focus.value)
   ]
 })
 
@@ -121,17 +119,6 @@ const handleInput = (e: Event) => {
     // 如果没有超过最大长度，则正常更新模型值
     emit('update:modelValue', value)
   }
-  if (!props.autosize) return
-  setStyles(textAreaRef.value!, { height: 'auto' })
-  countHeight()
-}
-
-const countHeight = async () => {
-  await nextTick()
-  const el = textAreaRef.value!
-  let height = heightAuto(el, moreElementHeight.value)
-  scrollHight.value = height + 'px'
-  setStyles(el, { height: scrollHight.value })
 }
 
 const initNum = computed(() => {
@@ -144,16 +131,16 @@ const handleClear = () => {
   emit('clear')
 }
 
-const { handleBlur, handleFocus } = useFocus(focused => {
-  focused ? emit('focus') : emit('blur')
-})
-
 const handleChange = (e: Event) => {
   emit('change', (e.target as HTMLTextAreaElement).value)
 }
 
-onMounted(() => {
-  if (!props.autosize) return
-  moreElementHeight.value = textAreaRef.value?.offsetHeight!
-})
+watch(
+  [model, textareaRef],
+  ([model, textareaRef]) => {
+    if (!textareaRef) return
+    calcTextareaHeight(textareaRef)
+  },
+  { immediate: true }
+)
 </script>

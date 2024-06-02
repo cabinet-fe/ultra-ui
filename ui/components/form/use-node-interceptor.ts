@@ -7,7 +7,7 @@ interface Options {
   props: FormProps
 }
 
-const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips']
+const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
 
 /**
  * 虚拟node拦截

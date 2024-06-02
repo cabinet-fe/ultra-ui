@@ -98,7 +98,7 @@ const disabled = shallowRef(false)
 const model = new FormModel({
   name: { maxLen: 4, required: true, value: '' },
   age: formField<number>({ required: '年龄是必填的' }),
-  'nest.name': { required: true },
+  'nest.name': { required: true, value: 'aa' },
   'nest.price': { required: true },
   phone: {
     validator(value) {
@@ -120,7 +120,7 @@ const model = new FormModel({
   },
   unit: { required: true, value: '1' },
   interest: { required: true, value: () => ['1', '2', '3'] },
-  remarks: { required: true, value: '备注默认值' },
+  remarks: { required: true, value: '备注默认值\n换行\n换行' },
   slider: {},
   date: { required: true, value: date().format() },
   guide: {
