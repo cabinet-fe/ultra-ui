@@ -190,12 +190,12 @@ export class FormModel<
     const { validate } = config || {}
 
     this.run(() => {
-      for (const key in formData) {
-        if (key in this.data) {
-          // @ts-ignore
-          this.data[key] = formData[key]
+      this.allKeys.forEach(key => {
+        const value = getChainValue(formData, key)
+        if (value !== undefined) {
+          setChainValue(this.data, key, value)
         }
-      }
+      })
     }, validate)
   }
 
