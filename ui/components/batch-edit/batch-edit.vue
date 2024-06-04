@@ -376,6 +376,7 @@ async function handleSave() {
   // 新增提交
   if (newRow.value) {
     const data = saveResult ?? { ...props.model.data }
+    console.log(JSON.stringify(data))
     insert(data)
     parentData = undefined
     await nextTick()
