@@ -17,6 +17,10 @@ export interface MultiTreeSelectProps
    * 是否可搜索
    */
   filterable?: boolean
+  /**
+   * 可见的节点数量限制 默认3
+   */
+  visibilityLimit?: number
 }
 
 /** 树形多选组件组件定义的事件 */

@@ -14,7 +14,6 @@
         filterable
         closeOnSelect
         @change="handleChange"
-        :children-key="'childrenNode'"
       ></u-tree-select>
 
       <u-card-action>
@@ -39,15 +38,15 @@ const data = shallowRef<any[]>([
   {
     name: '手抓饼',
     id: 2,
-    childrenNode: [
+    children: [
       {
         name: '鱼香肉丝',
         id: 3,
-        childrenNode: [
+        children: [
           {
             name: '烤苞米',
             id: 4,
-            childrenNode: [
+            children: [
               { name: '苞米例', id: 5 },
               { name: '吃', id: 6 },
               { name: 'h', id: 7 }
@@ -58,7 +57,7 @@ const data = shallowRef<any[]>([
       {
         name: 'fggg',
         id: 8,
-        childrenNode: [
+        children: [
           { name: '苞米例2', id: 9 },
           { name: '吃2', id: 10 },
           { name: 'h2', id: 11 }

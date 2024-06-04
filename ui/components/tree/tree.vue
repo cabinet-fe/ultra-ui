@@ -116,8 +116,14 @@ const nodes = shallowRef<TreeNode<DataItem>[]>([])
 /**
  * 节点的字典，key为指定的valueKey的值
  */
-const nodeDicts = computed(() => {
-  return new Map(nodes.value.map(node => [node.key, node]))
+const nodeDict = computed(() => {
+  const dict = new Map<string | number, TreeNode<DataItem>>()
+
+  forest.value.dft(node => {
+    dict.set(node.key, node)
+  })
+
+  return dict
 })
 
 /** 获取碾平后的节点 */
@@ -205,13 +211,13 @@ function filter(
 const { handleSelect, selected } = useSelect<DataItem>({
   props,
   emit,
-  nodeDicts
+  nodeDict
 })
 
 const { checked, handleCheck } = useCheck<DataItem>({
   props,
   emit,
-  nodeDicts
+  nodeDict
 })
 
 provide(TreeDIKey, {
