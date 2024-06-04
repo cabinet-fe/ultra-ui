@@ -6,13 +6,13 @@ import { Tree } from 'cat-kit/fe'
 interface Options<DataItem extends Record<string, any>> {
   emit: TreeEmit<DataItem>
   props: TreeProps<DataItem>
-  nodeDicts: ComputedRef<Map<any, TreeNode<DataItem>>>
+  nodeDict: ComputedRef<Map<any, TreeNode<DataItem>>>
 }
 
 export function useCheck<DataItem extends Record<string, any>>(
   options: Options<DataItem>
 ) {
-  const { emit, props, nodeDicts } = options
+  const { emit, props, nodeDict } = options
 
   const checked = shallowReactive(new Set<DataItem>())
 
@@ -26,23 +26,24 @@ export function useCheck<DataItem extends Record<string, any>>(
   let checkedSetChangeByModel = false
 
   watch(
-    [() => props.checked, nodeDicts],
-    ([c, nodeDicts], [oc]) => {
+    [() => props.checked, nodeDict],
+    ([c, nodeDict], [oc]) => {
       // 事件已经触发模型变更了，所以不再进行下面的计算
       if (modelChangedByEvent || !props.checkable) return
 
-      if (!nodeDicts.size) return
+      if (!nodeDict.size) return
 
       checkedSetChangeByModel = true
       // 不适用checked.clear()来
       // 减少checked操作次数提升性能
+
       oc?.forEach(v => {
-        const node = nodeDicts.get(v)!
+        const node = nodeDict.get(v)!
         node.checked = false
         checked.delete(node.data)
       })
       c?.forEach(v => {
-        const node = nodeDicts.get(v)
+        const node = nodeDict.get(v)
         if (node) {
           checked.add(node.data)
           node.checked = true
