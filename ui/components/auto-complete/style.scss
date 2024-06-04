@@ -1,0 +1,55 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: auto-complete;
+
+@include m.b($root-name) {
+  width: 100%;
+
+  @include m.e(options) {
+    max-height: 180px;
+  }
+
+  @include m.is(disabled) {
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(option) {
+    cursor: pointer;
+    margin: 2px 0;
+    user-select: none;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
+    @include m.is(selected) {
+      background-color: fn.use-var(color, primary, light-3);
+      color: fn.use-var(text-color, white);
+    }
+  }
+
+  @include m.e(ripple) {
+    background-color: fn.use-var(color, primary, light-7);
+    opacity: 0.5;
+  }
+
+  @include m.e(panel) {
+    @include m.size using ($size) {
+      @include m.bem($root-name, options) {
+        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+      }
+
+      @include m.bem($root-name, option) {
+        padding: 0 fn.use-var(gap, $size);
+        border-radius: fn.use-var(radius, $size);
+        height: fn.use-var(form-component-height, $size);
+        line-height: fn.use-var(form-component-height, $size);
+      }
+    }
+  }
+}

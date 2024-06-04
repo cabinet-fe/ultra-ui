@@ -1,5 +1,6 @@
 
   export const componentDirs = [
+  "auto-complete",
   "badge",
   "batch-edit",
   "button",
@@ -36,7 +37,6 @@
   "paginator",
   "password-input",
   "popconfirm",
-  "popup",
   "progress",
   "radio",
   "radio-group",
