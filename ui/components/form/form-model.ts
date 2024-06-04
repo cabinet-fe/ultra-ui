@@ -189,6 +189,8 @@ export class FormModel<
   ) {
     const { validate } = config || {}
 
+    console.log(JSON.stringify(formData))
+
     this.run(() => {
       this.allKeys.forEach(key => {
         const value = getChainValue(formData, key)
