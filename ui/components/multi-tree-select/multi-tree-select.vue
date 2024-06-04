@@ -16,13 +16,14 @@
       <!-- 选择的数据项 -->
       <div v-if="tags.length" :class="cls.e('tags')">
         <u-tag
-          v-for="(tag, index) in tags"
+          v-for="(tag, index) in visibleTags"
           :key="tag[valueKey]"
           :closable="!disabled"
           @close="handleRemove(index)"
         >
           {{ tag[labelKey] }}
         </u-tag>
+        <u-tag v-if="hiddenCount > 0">+{{ hiddenCount }}</u-tag>
       </div>
       <!-- 清空 icon -->
       <transition name="zoom-in">
@@ -66,6 +67,7 @@
           @update:checked="handleCheck"
           ref="treeRef"
           checkable
+          :data="data"
         ></u-tree>
       </u-scroll>
     </template>
@@ -85,59 +87,60 @@
 <script lang="ts" setup>
 import type {
   MultiTreeSelectProps,
-  MultiTreeSelectEmits
-} from '@ui/types/components/multi-tree-select'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { bem } from '@ui/utils'
-import { UDropdown } from '../dropdown'
-import { UTree, type TreeExposed } from '../tree'
-import { UScroll, type ScrollExposed } from '../scroll'
-import { UTag } from '../tag'
-import { UIcon } from '../icon'
-import { UInput } from '../input'
-import { ArrowDown, Close, Search } from 'icon-ultra'
-import { computed, nextTick, shallowReactive, shallowRef, watch } from 'vue'
-import { UCheckbox } from '../checkbox'
-import { omit, Tree } from 'cat-kit/fe'
+  MultiTreeSelectEmits,
+} from "@ui/types/components/multi-tree-select"
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
+import { bem } from "@ui/utils"
+import { UDropdown } from "../dropdown"
+import { UTree, type TreeExposed } from "../tree"
+import { UScroll, type ScrollExposed } from "../scroll"
+import { UTag } from "../tag"
+import { UIcon } from "../icon"
+import { UInput } from "../input"
+import { ArrowDown, Close, Search } from "icon-ultra"
+import { computed, nextTick, shallowReactive, shallowRef, watch } from "vue"
+import { UCheckbox } from "../checkbox"
+import { omit, Tree } from "cat-kit/fe"
 
 defineOptions({
-  name: 'MultiTreeSelect'
+  name: "MultiTreeSelect",
 })
 
-const cls = bem('multi-tree-select')
+const cls = bem("multi-tree-select")
 
 const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
-  labelKey: 'label',
-  valueKey: 'value',
-  placeholder: '请选择',
+  labelKey: "label",
+  valueKey: "value",
+  placeholder: "请选择",
   expandAll: true,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  filterable: false
+  filterable: false,
+  visibilityLimit: 3,
 })
 
 const treeProps = computed(() => {
   return omit(props, [
-    'tips',
-    'field',
-    'placeholder',
-    'disabled',
-    'label',
-    'readonly'
+    "tips",
+    "field",
+    "placeholder",
+    "disabled",
+    "label",
+    "readonly",
   ])
 })
 
 const emit = defineEmits<MultiTreeSelectEmits>()
 
 /**过滤 */
-const qs = shallowRef('')
-watch(qs, qs => {
+const qs = shallowRef("")
+watch(qs, (qs) => {
   treeRef.value?.filter(qs)
 })
 
 const model = defineModel<(string | number)[]>({
-  default: () => []
+  default: () => [],
 })
 
 const hovered = shallowRef(false)
@@ -148,7 +151,7 @@ const { formProps } = useFormComponent()
 
 const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
-  props
+  props,
 ])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
@@ -188,7 +191,7 @@ const handleCheck = (
 ) => {
   markEvent()
   tags.value = checkedData
-  emit('change', checked, checkedData!)
+  emit("change", checked, checkedData!)
 }
 
 /**删除 */
@@ -196,7 +199,7 @@ const handleRemove = (index: number) => {
   markEvent()
   tags.value = tags.value.filter((_, i) => i !== index)
   model.value = model.value.filter((_, i) => i !== index)
-  emit('change', model.value!, tags.value)
+  emit("change", model.value!, tags.value)
 }
 
 /**清空 */
@@ -204,7 +207,7 @@ const handleClear = () => {
   markEvent()
   tags.value = []
   model.value = []
-  emit('clear')
+  emit("clear")
 }
 
 const keyDicts = shallowReactive(
@@ -213,12 +216,12 @@ const keyDicts = shallowReactive(
 
 watch(
   () => props.data,
-  data => {
+  (data) => {
     if (!data?.length) {
       keyDicts.clear()
     } else {
-      data.forEach(item => {
-        Tree.dft(item, v => {
+      data.forEach((item) => {
+        Tree.dft(item, (v) => {
           keyDicts.set(v[props.valueKey], v)
         })
       })
@@ -237,18 +240,44 @@ watch(
       return
     }
 
-    tags.value = model.map(v => keyDicts.get(v)!)
+    tags.value = model.map((v) => keyDicts.get(v)!)
   },
   { immediate: true }
 )
 
-watch(scrollRef, scroll => {
+watch(scrollRef, (scroll) => {
   if (scroll && model.value !== undefined) {
     const treeNode =
-      scroll.contentRef!.getElementsByClassName('is-checked')[
+      scroll.contentRef!.getElementsByClassName("is-checked")[
         model.value.length - 1
       ]!
-    treeNode?.scrollIntoView({ block: 'nearest', inline: 'start' })
+    treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
   }
+})
+
+const limit = () => {
+  let { visibilityLimit } = props
+
+  if (visibilityLimit < 0) {
+    visibilityLimit = 0
+  }
+  if (disabled.value || readonly.value) {
+    visibilityLimit = model.value?.length ?? 0
+  }
+  return visibilityLimit
+}
+
+const visibleTags = computed(() => {
+  if (tags.value.length > limit()) {
+    return tags.value.slice(0, limit())
+  }
+  return tags.value
+})
+
+const hiddenCount = computed(() => {
+  if (tags.value.length > limit()) {
+    return tags.value.length - limit()
+  }
+  return 0
 })
 </script>
