@@ -16,7 +16,7 @@
         :placeholder="placeholder"
         :clearable="clearable"
         @clear="handleClear"
-        @input="onInput"
+        @native:input="onInput"
         v-model="currentValue"
       >
         <template #suffix>
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any> | string">
-import { shallowRef, ref, watch } from 'vue'
+import { shallowRef, ref, watch, nextTick } from 'vue'
 import type {
   AutoCompleteEmits,
   AutoCompleteProps,
@@ -65,8 +65,7 @@ import { vRipple } from '@ui/directives'
 import { deepCopy } from 'cat-kit/fe'
 
 defineOptions({
-  name: 'AutoComplete',
-  inheritAttrs: false
+  name: 'AutoComplete'
 })
 
 const props = withDefaults(defineProps<AutoCompleteProps<Option>>(), {
@@ -96,7 +95,7 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 const dropdownRef = shallowRef<DropdownExposed>()
 const scrollRef = shallowRef<ScrollExposed>()
 
-watch(scrollRef, scroll => {
+watch(scrollRef, (scroll) => {
   if (scroll && currentValue.value !== undefined) {
     const li = scroll.contentRef!.querySelector(`li[data-key="${currentValue.value}"]`)
     li?.scrollIntoView({ block: 'nearest', inline: 'start' })
@@ -123,17 +122,19 @@ const suggestionsCopy = deepCopy(props.suggestions)
 const dropdownVisible = shallowRef(false)
 
 const onInput = () => {
-  if (!dropdownVisible.value) dropdownRef.value?.open()
-  if (currentValue.value) {
-    filteredOptions.value = suggestionsCopy.map((item) => {
-      return item[props.labelKey]
-        ? `${currentValue.value}${props.linker}${[props.labelKey]}`
-        : `${currentValue.value}${props.linker}${item}`
-    })
-    emit('complete', currentValue.value)
-  } else {
-    filteredOptions.value = []
-  }
-  emit('update:modelValue', currentValue.value)
+  nextTick(() => {
+    if (!dropdownVisible.value) dropdownRef.value?.open()
+    if (currentValue.value) {
+      filteredOptions.value = suggestionsCopy.map((item) => {
+        return item[props.labelKey]
+          ? `${currentValue.value}${props.linker}${[props.labelKey]}`
+          : `${currentValue.value}${props.linker}${item}`
+      })
+      emit('complete', currentValue.value)
+    } else {
+      filteredOptions.value = []
+    }
+    emit('update:modelValue', currentValue.value)
+  })
 }
 </script>

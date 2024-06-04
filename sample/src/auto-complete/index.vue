@@ -1,5 +1,7 @@
 <template>
-  <u-auto-complete :suggestions="suggestions"></u-auto-complete>
+  <div>
+    <u-auto-complete :suggestions="suggestions"></u-auto-complete>
+  </div>
 </template>
 
 <script setup lang="ts">
