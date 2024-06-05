@@ -471,7 +471,7 @@ function bottomCount(
   const contentRect = tipContentRefDom.getBoundingClientRect()
 
   // 根据上下位置计算Y坐标
-  const bottomY = isBottomInViewport(tipRefDom, tipContentRefDom)
+  const bottomY = isBottomInViewport(tipRefDom, gap)
     ? `${top - contentRect.height - gap}`
     : countPositionInt(top + elementHeight + gap)
   if (position === "bottom-start") {

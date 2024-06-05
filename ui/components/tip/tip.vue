@@ -126,19 +126,16 @@ const open = () => {
   if (props.trigger === "hover") {
     visible.value = true
   } else if (props.trigger === "click") {
-    visible.value = !visible.value
+    closeTimer = setTimeout(() => {
+      visible.value = !visible.value
+    }, 250)
   }
 }
 /**手动关闭弹窗 */
 const closeTipContent = () => {
-  if (props.trigger === "hover") {
-    closeTimer = setTimeout(() => {
-      visible.value = false
-    }, 200)
-  } else if (props.trigger === "click") {
+  closeTimer = setTimeout(() => {
     visible.value = false
-  }
-  dynamicStyle.value = {}
+  }, 250)
 }
 
 watch(visible, async (v) => {

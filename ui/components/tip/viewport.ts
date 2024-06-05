@@ -22,24 +22,26 @@ function isTopInViewport(
     countPositionInt(pageRect.top - pageRect.height)
   )
 }
-
+function getWindowScrollTop() {
+  let doc = document.documentElement
+  return (window.scrollY || doc.scrollTop) - (doc.clientTop || 0)
+}
 /**
  * 靠下是否在视窗内
  * @param pageRefDom  页面dom信息
  * @param tipContentRefDom  滚动dom
  * @returns  是否在视窗内
  */
-function isBottomInViewport(
-  pageRefDom: HTMLElement,
-  tipContentRefDom: HTMLElement
-): boolean {
+function isBottomInViewport(pageRefDom: HTMLElement,gap:number): boolean {
   let pageRect = pageRefDom.getBoundingClientRect()
-  let contentRect = tipContentRefDom.getBoundingClientRect()
 
-  return (
-    countPositionInt(contentRect.bottom) <
-    countPositionInt(pageRect.bottom + pageRect.height + 16)
-  )
+  let top = pageRect.bottom + pageRefDom.offsetHeight + getWindowScrollTop() + gap
+
+  if (top + pageRefDom.offsetHeight > window.innerHeight) {
+    return true
+  } else {
+    return false
+  }
 }
 
 /**

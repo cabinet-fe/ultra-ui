@@ -1,5 +1,7 @@
 <template>
   <div>
+    <div style="height: 60vh"></div>
+
     <u-tip @click="countIncrease" position="top-start">
       <p class="color-red">97586754412312313</p>
       <template #content>
