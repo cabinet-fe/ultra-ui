@@ -2,15 +2,42 @@
   <u-dropdown
     v-if="!readonly"
     trigger="click"
-    :class="[cls.b, bem.is('disabled', disabled)]"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled), bem.is('multiple', multiple)]"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     :disabled="disabled"
   >
     <!-- 触发 -->
+
     <template #trigger>
+      <ul v-if="multiple" :class="cls.e('tags')">
+        <li v-for="(option, index) of tags">
+          <u-tag
+            :key="labelKey ? option[labelKey] : option"
+            :closable="!disabled"
+            @close="handleClose(index)"
+          >
+            {{ labelKey ? option[labelKey] : option }}
+          </u-tag>
+        </li>
+        <li v-if="!disabled && !readonly">
+          <u-input
+            :size="size"
+            :disabled="disabled"
+            :placeholder="placeholder"
+            :clearable="false"
+            @clear="handleClear"
+            @native:input="onInput"
+            v-model="currentValue"
+            style="box-shadow: none; height: 24px"
+          >
+          </u-input>
+        </li>
+      </ul>
+
       <u-input
+        v-else
         :size="size"
         :disabled="disabled"
         :placeholder="placeholder"
@@ -23,6 +50,8 @@
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
       </u-input>
+
+      <u-icon v-if="multiple" :class="cls.e('arrow')"><ArrowDown /></u-icon>
     </template>
 
     <!-- 下拉内容 -->
@@ -30,7 +59,13 @@
       <u-scroll tag="ul" :class="cls.e('options')" ref="scrollRef">
         <li
           v-for="(option, index) of filteredOptions"
-          :class="[optionClass, bem.is('selected', option === currentValue)]"
+          :class="[
+            optionClass,
+            bem.is(
+              'selected',
+              multiple ? tags.includes(option[labelKey] || option) : option === currentValue
+            )
+          ]"
           @click="handleSelect(option as Option)"
           v-ripple="cls.e('ripple')"
           :data-key="option[labelKey] || option"
@@ -58,11 +93,12 @@ import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 import { deepCopy } from 'cat-kit/fe'
+import { UTag } from '../tag'
+import { UInput } from '../input'
 
 defineOptions({
   name: 'AutoComplete'
@@ -73,11 +109,19 @@ const props = withDefaults(defineProps<AutoCompleteProps<Option>>(), {
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  linker: '：',
-  labelKey: ''
+  linker: '=>',
+  labelKey: '',
+  multiple: false
 })
 
 const currentValue = shallowRef<string>('')
+
+const tags = ref<string[]>([])
+
+const handleClose = (index: number) => {
+  tags.value.splice(index, 1)
+  emit('complete', tags.value)
+}
 
 const emit = defineEmits<AutoCompleteEmits>()
 
@@ -107,9 +151,16 @@ const filteredOptions = ref<Option[]>([])
 
 /** 单选 */
 const handleSelect = (option: Option) => {
-  currentValue.value = option[props.labelKey] || option
+  if (props.multiple) {
+    tags.value.push(props.labelKey ? option[props.labelKey] : option)
+    currentValue.value = ''
+    emit('complete', tags.value)
+  } else {
+    currentValue.value = props.labelKey ? option[props.labelKey] : option
+    emit('complete', currentValue.value)
+  }
+
   dropdownRef.value?.close()
-  emit('complete', currentValue.value)
 }
 
 /** 清除选项 */
