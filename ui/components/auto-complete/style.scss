@@ -67,6 +67,9 @@ $root-name: auto-complete;
     box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
     transition: box-shadow 0.25s ease;
     overflow: hidden;
+    &:hover {
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
   }
 
   @include m.size using ($size) {

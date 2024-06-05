@@ -114,7 +114,8 @@ import { UTag } from '../tag'
 import { UInput } from '../input'
 
 defineOptions({
-  name: 'AutoComplete'
+  name: 'AutoComplete',
+  inheritAttrs: false
 })
 
 const props = withDefaults(defineProps<AutoCompleteProps<Option>>(), {
@@ -181,6 +182,8 @@ const handleClear = () => {
   if (props.multiple) {
     tags.value = []
     emit('update:modelValue', [])
+  } else {
+    emit('update:modelValue', '')
   }
 }
 
