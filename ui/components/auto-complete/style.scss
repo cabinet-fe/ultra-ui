@@ -52,4 +52,31 @@ $root-name: auto-complete;
       }
     }
   }
+
+  @include m.is(multiple) {
+    @include m.flex($display: flex);
+    line-height: 1;
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+  }
+
+  @include m.size using ($size) {
+    min-height: fn.use-var(form-component-height, $size);
+    border-radius: fn.use-var(radius, $size);
+    padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2) calc(fn.use-var(gap, $size) / 2);
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($root-name, tags) {
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
+    }
+  }
+
+  @include m.e(tags) {
+    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
+    flex-grow: 1;
+  }
 }
