@@ -307,6 +307,7 @@ function insert(item: Record<string, any>) {
   if (arr) {
     let i = last(newRowIndexes)
     arr.splice(i, 0, item)
+    newRowIndexes[newRowIndexes.length - 1] = i + 1
   } else if (parent) {
     parent[childrenKey] = [item]
   }
