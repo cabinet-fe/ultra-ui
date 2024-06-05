@@ -12,12 +12,8 @@
     <template #trigger>
       <ul v-if="multiple" :class="cls.e('tags')">
         <li v-for="(option, index) of tags" :class="cls.e('tag')">
-          <u-tag
-            :key="labelKey ? option[labelKey] : option"
-            :closable="!disabled"
-            @close="handleClose(index)"
-          >
-            {{ labelKey ? option[labelKey] : option }}
+          <u-tag :key="option" :closable="!disabled" @close="handleClose(index)">
+            {{ option }}
           </u-tag>
         </li>
         <li v-if="!disabled && !readonly">
@@ -60,18 +56,15 @@
           v-for="(option, index) of filteredOptions"
           :class="[
             optionClass,
-            bem.is(
-              'selected',
-              multiple ? tags.includes(option[labelKey] || option) : option === currentValue
-            )
+            bem.is('selected', multiple ? tags.includes(option) : option === currentValue)
           ]"
-          @click="handleSelect(option as Option)"
+          @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
-          :data-key="option[labelKey] || option"
-          :key="option[labelKey] || option"
+          :data-key="option"
+          :key="option"
         >
           <slot v-bind="{ option, index }">
-            {{ labelKey ? option[labelKey] : option }}
+            {{ option }}
           </slot>
         </li>
       </u-scroll>
@@ -81,8 +74,8 @@
   <template v-else>
     <div :class="[cls.m(size), bem.is('multiple', multiple)]" v-if="multiple">
       <div :class="cls.e('tags')">
-        <u-tag v-for="option of tags" :key="labelKey ? option[labelKey] : option">
-          {{ labelKey ? option[labelKey] : option }}
+        <u-tag v-for="option of tags" :key="option">
+          {{ option }}
         </u-tag>
       </div>
     </div>
@@ -155,16 +148,16 @@ watch(scrollRef, (scroll) => {
 })
 
 /** 已过滤的选项 */
-const filteredOptions = ref<Option[]>([])
+const filteredOptions = ref<string[]>([])
 
 /** 单选 */
-const handleSelect = (option: Option) => {
+const handleSelect = (option: string) => {
   if (props.multiple) {
-    tags.value.push(props.labelKey ? option[props.labelKey] : option)
+    tags.value.push(option)
     currentValue.value = ''
     emit('update:modelValue', tags.value)
   } else {
-    currentValue.value = props.labelKey ? option[props.labelKey] : option
+    currentValue.value = option
     emit('update:modelValue', currentValue.value)
   }
   dropdownRef.value?.close()
@@ -185,7 +178,7 @@ const onInput = () => {
     if (currentValue.value) {
       filteredOptions.value = suggestionsCopy.map((item) => {
         return item[props.labelKey]
-          ? `${currentValue.value}${props.linker}${[props.labelKey]}`
+          ? `${currentValue.value}${props.linker}${item[props.labelKey]}`
           : `${currentValue.value}${props.linker}${item}`
       })
     } else {

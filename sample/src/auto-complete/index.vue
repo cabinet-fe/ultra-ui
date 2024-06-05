@@ -11,6 +11,7 @@
       :disabled="config.disabled"
       :readonly="config.readonly"
       :linker="config.linker"
+      label-key="label"
     ></u-auto-complete>
   </div>
 </template>
@@ -18,7 +19,9 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-const suggestions = Array.from({ length: 100 }, (v, i) => `${i + 1}`)
+const suggestions = Array.from({ length: 100 }, (v, i) => {
+  return { label: `label${i + 1}`, value: `${i + 1}` }
+})
 
 const config = reactive({
   multiple: false,
