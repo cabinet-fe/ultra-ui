@@ -1,3 +1,5 @@
+export * from './auto-complete'
+
 export * from './badge'
 
 export * from './batch-edit'

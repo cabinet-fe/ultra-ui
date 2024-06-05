@@ -45,12 +45,7 @@ export type IFormModel<
   validate: (fields?: keyof Fields | (keyof Fields)[]) => Promise<boolean>
   /** 重置数据 */
   resetData(fields?: keyof Fields | (keyof Fields)[]): void
-  /**
-   * 执行函数
-   * @param fn 待执行函数
-   * @param validate 是否进行校验
-   */
-  run(fn: () => void | Promise<void>, validate?: boolean): Promise<any>
+
   /**
    * 设置数据
    * @param formData 表单值

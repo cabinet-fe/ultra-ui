@@ -69,6 +69,8 @@ export class FormModel<
    */
   private readonly preVal: Record<string, any> = {}
 
+  private modelChangeCallback?: (fields: string, val: any) => void
+
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
     const rules = {} as ModelRules<Fields>
@@ -97,19 +99,27 @@ export class FormModel<
     watch(data, data => {
       const { preVal } = this
 
-      let validateKeys: (keyof Fields)[] = []
-
-      this.allKeys.forEach(key => {
-        const v = getChainValue(data, key)
-
-        if (getChainValue(preVal, key) !== v) {
-          setChainValue(preVal, key, v)
-          validateKeys.push(key)
-        }
-      })
-
       if (this.validateOnFieldChange) {
+        const validateKeys: (keyof Fields)[] = []
+        this.allKeys.forEach(key => {
+          const v = getChainValue(data, key)
+
+          if (getChainValue(preVal, key) !== v) {
+            setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
+            validateKeys.push(key)
+          }
+        })
         this.validate(validateKeys)
+      } else {
+        this.allKeys.forEach(key => {
+          const v = getChainValue(data, key)
+          if (getChainValue(preVal, key) !== v) {
+            setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
+          }
+        })
+        this.validateOnFieldChange = true
       }
     })
   }
@@ -165,17 +175,17 @@ export class FormModel<
       keys = this.allKeys
     }
 
-    this.run(() => {
-      keys.forEach(field => {
-        setChainValue(
-          this.data,
-          field as string,
-          getChainValue(this.initialData, field as string)
-        )
-      })
+    this.clearValidate()
 
-      this.clearValidate()
-    }, false)
+    this.validateOnFieldChange = false
+
+    keys.forEach(field => {
+      setChainValue(
+        this.data,
+        field as string,
+        getChainValue(this.initialData, field as string)
+      )
+    })
   }
 
   /**
@@ -187,35 +197,18 @@ export class FormModel<
     formData: Partial<ModelData<Fields> & Record<string, any>>,
     config?: DataSettingConfig
   ) {
-    const { validate } = config || {}
+    const { validate = true } = config || {}
 
-    this.run(() => {
-      this.allKeys.forEach(key => {
-        const value = getChainValue(formData, key)
-        if (value !== undefined) {
-          setChainValue(this.data, key, value)
-        }
-      })
-    }, validate)
-  }
-
-  /**
-   * 执行函数
-   * @param fn 待执行函数
-   * @param validate 是否进行校验
-   */
-  async run(fn: () => void | Promise<void>, validate = true): Promise<any> {
     if (!validate) {
       this.validateOnFieldChange = false
     }
 
-    await fn()
-
-    if (!validate) {
-      nextTick(() => {
-        this.validateOnFieldChange = true
-      })
-    }
+    this.allKeys.forEach(key => {
+      const value = getChainValue(formData, key)
+      if (value !== undefined) {
+        setChainValue(this.data, key, value)
+      }
+    })
   }
 
   /** 清除校验 */
@@ -229,6 +222,14 @@ export class FormModel<
       const firstErrorItem = document.querySelector('.u-form-item.is-error')
       firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
+  }
+
+  /**
+   * 监听值变更
+   * @param cb 回调
+   */
+  onChange(cb: (field: keyof Fields, val: any) => void) {
+    this.modelChangeCallback = cb
   }
 }
 
