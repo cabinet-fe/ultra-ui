@@ -80,6 +80,7 @@ $root-name: auto-complete;
 
     @include m.bem($root-name, clear) {
       font-size: fn.use-var(font-size-main, $size);
+      cursor: pointer;
     }
 
     @include m.bem($root-name, tags) {

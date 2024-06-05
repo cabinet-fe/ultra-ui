@@ -7,9 +7,12 @@
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     :disabled="disabled"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
   >
     <!-- 触发 -->
     <template #trigger>
+      <!-- 多选 -->
       <ul v-if="multiple" :class="cls.e('tags')">
         <li v-for="(option, index) of tags" :class="cls.e('tag')">
           <u-tag :key="option" :closable="!disabled" @close="handleClose(index)">
@@ -30,7 +33,7 @@
           </u-input>
         </li>
       </ul>
-
+      <!-- 单选 -->
       <u-input
         v-else
         :size="size"
@@ -46,6 +49,15 @@
         </template>
       </u-input>
 
+      <transition name="zoom-in">
+        <u-icon
+          v-if="clearable && tags?.length && hovered && !disabled"
+          :class="cls.e('clear')"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </u-icon>
+      </transition>
       <u-icon v-if="multiple" :class="cls.e('arrow')"><ArrowDown /></u-icon>
     </template>
 
@@ -95,7 +107,7 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { UIcon } from '../icon'
-import { ArrowDown } from 'icon-ultra'
+import { ArrowDown, Close } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 import { deepCopy, equal, isArray } from 'cat-kit/fe'
 import { UTag } from '../tag'
@@ -166,7 +178,13 @@ const handleSelect = (option: string) => {
 /** 清除选项 */
 const handleClear = () => {
   filteredOptions.value = []
+  if (props.multiple) {
+    tags.value = []
+    emit('update:modelValue', [])
+  }
 }
+
+const hovered = shallowRef(false)
 
 const suggestionsCopy = deepCopy(props.suggestions)
 
