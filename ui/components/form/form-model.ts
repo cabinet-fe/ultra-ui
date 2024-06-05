@@ -69,6 +69,8 @@ export class FormModel<
    */
   private readonly preVal: Record<string, any> = {}
 
+  private modelChangeCallback?: (fields: string, val: any) => void
+
   constructor(fields: Fields) {
     const rawData = {} as ModelData<Fields>
     const rules = {} as ModelRules<Fields>
@@ -104,6 +106,7 @@ export class FormModel<
 
           if (getChainValue(preVal, key) !== v) {
             setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
             validateKeys.push(key)
           }
         })
@@ -113,6 +116,7 @@ export class FormModel<
           const v = getChainValue(data, key)
           if (getChainValue(preVal, key) !== v) {
             setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
           }
         })
         this.validateOnFieldChange = true
@@ -218,6 +222,14 @@ export class FormModel<
       const firstErrorItem = document.querySelector('.u-form-item.is-error')
       firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
+  }
+
+  /**
+   * 监听值变更
+   * @param cb 回调
+   */
+  onChange(cb: (field: keyof Fields, val: any) => void) {
+    this.modelChangeCallback = cb
   }
 }
 
