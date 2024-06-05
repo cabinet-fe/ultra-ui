@@ -25,7 +25,6 @@ let dynamicCss = shallowRef<Record<string, any>>({})
  * @param tipContentRefDom tip提示的DOM信息
  * @param scrollDirection 屏幕滚动方向
  * @param screenSize 当前所在滚动元素尺寸
- * @param scrollDom 滚动元素
  * @param gap 弹窗位置距离屏幕边缘的距离
  * @returns dynamicCss: 弹窗样式, arrowCss: 箭头样式
  */
@@ -37,7 +36,6 @@ function countPosition({
   tipContentRefDom,
   scrollDirection,
   screenSize,
-  scrollDom,
   gap,
 }: {
   position: string
@@ -47,7 +45,6 @@ function countPosition({
   tipContentRefDom: HTMLElement
   scrollDirection?: ScrollDirection
   screenSize: { width: number; height: number }
-  scrollDom: HTMLElement
   gap: number
 }): Promise<PositionResult> {
   componentCss = {
@@ -74,7 +71,7 @@ function countPosition({
             clientWidth,
             elementWidth,
             tipRefDom,
-            scrollDom,
+            tipContentRefDom,
             gap
           )
         position.indexOf("left") > -1 &&
@@ -109,7 +106,6 @@ function countPosition({
             elementHeight,
             tipContentRefDom,
             tipRefDom,
-            scrollDom,
             gap
           )
       }
@@ -135,8 +131,6 @@ const setTransform = (transform: string, left?: string, top?: string): void => {
  * @param elementWidth 页面元素宽度
  * @param tipRefDom 页面DOM信息
  * @param tipContentRefDom tip元素DOM信息
- * @param screenSize 当前所在滚动元素尺寸
- * @param scrollDom 滚动元素
  * @param gap 弹窗位置距离屏幕边缘的距离
  */
 function topCount(
@@ -145,7 +139,7 @@ function topCount(
   clientWidth: number,
   elementWidth: number,
   tipRefDom: HTMLElement,
-  scrollDom: HTMLElement,
+  tipContentRefDom: HTMLElement,
   gap: number
 ) {
   // 获取tip元素位置信息
@@ -155,7 +149,7 @@ function topCount(
   let translateY = y - clientHeight - gap
   // 计算tip元素需要向下偏移的距离
   let topDown = y + tipRefDom.offsetHeight + gap
-  let topPositionNumber = !isTopInViewport(tipRefDom, scrollDom)
+  let topPositionNumber = !isTopInViewport(tipRefDom, tipContentRefDom)
     ? topDown
     : translateY
   // 根据不同的位置属性设置transform样式
@@ -461,7 +455,6 @@ function leftCount(
  * @param elementHeight 页面元素高度
  * @param tipContentRefDom tip元素DOM信息
  * @param tipRefDom 页面DOM信息
- * @param scrollDom 滚动元素
  * @param gap 边距
  */
 function bottomCount(
@@ -471,7 +464,6 @@ function bottomCount(
   elementHeight: number,
   tipContentRefDom: HTMLElement,
   tipRefDom: HTMLElement,
-  scrollDom: HTMLElement,
   gap: number
 ): void {
   // 预先计算DOM信息
@@ -479,7 +471,7 @@ function bottomCount(
   const contentRect = tipContentRefDom.getBoundingClientRect()
 
   // 根据上下位置计算Y坐标
-  const bottomY = isBottomInViewport(tipRefDom, scrollDom)
+  const bottomY = isBottomInViewport(tipRefDom, tipContentRefDom)
     ? `${top - contentRect.height - gap}`
     : countPositionInt(top + elementHeight + gap)
   if (position === "bottom-start") {
