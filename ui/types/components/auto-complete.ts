@@ -2,7 +2,7 @@ import type { DeconstructValue } from '../helper'
 
 /** 自动补全组件组件属性 */
 export interface AutoCompleteProps<Option extends Record<string, any> | string> {
-  modelValue?: string
+  modelValue?: string | string[]
   placeholder?: string
   suggestions?: Option[]
   labelKey?: string
@@ -15,7 +15,7 @@ export interface AutoCompleteProps<Option extends Record<string, any> | string> 
 
 /** 自动补全组件组件定义的事件 */
 export interface AutoCompleteEmits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: string | string[]): void
   (e: 'complete', value: string | string[]): void
 }
 
