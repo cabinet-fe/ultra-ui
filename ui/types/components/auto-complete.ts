@@ -9,6 +9,8 @@ export interface AutoCompleteProps<Option extends Record<string, any> | string> 
   clearable?: boolean
   linker?: string
   multiple?: boolean
+  disabled?: boolean
+  readonly?: boolean
 }
 
 /** 自动补全组件组件定义的事件 */

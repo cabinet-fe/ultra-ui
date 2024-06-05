@@ -9,10 +9,9 @@
     :disabled="disabled"
   >
     <!-- 触发 -->
-
     <template #trigger>
       <ul v-if="multiple" :class="cls.e('tags')">
-        <li v-for="(option, index) of tags">
+        <li v-for="(option, index) of tags" :class="cls.e('tag')">
           <u-tag
             :key="labelKey ? option[labelKey] : option"
             :closable="!disabled"
@@ -30,7 +29,7 @@
             @clear="handleClear"
             @native:input="onInput"
             v-model="currentValue"
-            style="box-shadow: none; height: 24px"
+            style="box-shadow: none; height: 24px;"
           >
           </u-input>
         </li>
@@ -79,7 +78,17 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ currentValue }}</span>
+
+  <template v-else>
+    <div :class="[cls.m(size), bem.is('multiple', multiple)]" v-if="multiple">
+      <div :class="cls.e('tags')">
+        <u-tag v-for="option of tags" :key="labelKey ? option[labelKey] : option">
+          {{ labelKey ? option[labelKey] : option }}
+        </u-tag>
+      </div>
+    </div>
+    <span v-else>{{ currentValue }}</span>
+  </template>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any> | string">
