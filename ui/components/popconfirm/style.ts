@@ -1,4 +1,5 @@
 import '../tip/style'
 import '../icon/style'
 import '../button/style'
+import '@ui/styles/anime/tip.scss'
 import './style.scss'

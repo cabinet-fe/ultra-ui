@@ -13,8 +13,16 @@ $root-name: auto-complete;
   }
 
   @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    cursor: not-allowed;
+
     @include m.bem($root-name, arrow) {
       color: fn.use-var(text-color, disabled);
+    }
+
+    @include m.bem(tag) {
+      border: fn.use-var(border);
     }
   }
 
@@ -54,7 +62,7 @@ $root-name: auto-complete;
   }
 
   @include m.is(multiple) {
-    @include m.flex($display: flex);
+    @include m.flex($display: inline-flex);
     line-height: 1;
     box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
     transition: box-shadow 0.25s ease;
@@ -64,7 +72,11 @@ $root-name: auto-complete;
   @include m.size using ($size) {
     min-height: fn.use-var(form-component-height, $size);
     border-radius: fn.use-var(radius, $size);
-    padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2) calc(fn.use-var(gap, $size) / 2);
+
+    @include m.is(multiple) {
+      padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2) calc(fn.use-var(gap, $size) / 2);
+      padding-left: 0;
+    }
 
     @include m.bem($root-name, clear) {
       font-size: fn.use-var(font-size-main, $size);
@@ -72,6 +84,11 @@ $root-name: auto-complete;
 
     @include m.bem($root-name, tags) {
       gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
+      @include m.bem($root-name, tag) {
+        &:first-of-type {
+          margin-left: calc(fn.use-var(gap, $size) / 2);
+        }
+      }
     }
   }
 

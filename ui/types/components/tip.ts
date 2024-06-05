@@ -33,6 +33,11 @@ export interface TipProps {
   * 点击空白区域是否可关闭
   */
   clickClose?: boolean
+
+  /**
+   * tip内容标签
+   */
+  contentTag?: string
 }
 
 /** tip提示组件组件定义的事件 */
@@ -43,7 +48,6 @@ export interface TipEmits {
 /** tip提示组件组件暴露的属性和方法(组件内部使用) */
 export interface _TipExposed {
   closeTipContent,
-  contentDom
 }
 
 /** tip提示组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

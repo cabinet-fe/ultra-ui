@@ -11,14 +11,14 @@ function countPositionInt(num: number | string): number {
  */
 function isTopInViewport(
   pageRefDom: HTMLElement,
-  scrollDom: HTMLElement
+  tipContentRefDom: HTMLElement
 ): boolean {
   let pageRect = pageRefDom.getBoundingClientRect()
-  let scrollDomRect = scrollDom.getBoundingClientRect()
+  let contentRect = tipContentRefDom.getBoundingClientRect()
 
   // 获取父元素的边界位置
   return (
-    countPositionInt(scrollDomRect.top) <
+    countPositionInt(contentRect.top) <
     countPositionInt(pageRect.top - pageRect.height)
   )
 }
@@ -26,17 +26,18 @@ function isTopInViewport(
 /**
  * 靠下是否在视窗内
  * @param pageRefDom  页面dom信息
- * @param scrollDom  滚动dom
+ * @param tipContentRefDom  滚动dom
  * @returns  是否在视窗内
  */
 function isBottomInViewport(
   pageRefDom: HTMLElement,
-  scrollDom: HTMLElement
+  tipContentRefDom: HTMLElement
 ): boolean {
   let pageRect = pageRefDom.getBoundingClientRect()
-  let scrollDomRect = scrollDom.getBoundingClientRect()
+  let contentRect = tipContentRefDom.getBoundingClientRect()
+
   return (
-    countPositionInt(scrollDomRect.bottom) <
+    countPositionInt(contentRect.bottom) <
     countPositionInt(pageRect.bottom + pageRect.height + 16)
   )
 }
