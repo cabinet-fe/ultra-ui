@@ -61,6 +61,8 @@ export function useRows(options: Options) {
 
   const rows = shallowRef<TableRow[]>([])
 
+  watch(rows, rows => emit('update:rows', rows))
+
   let rowForest = shallowRef<Forest<TableRow>>()
 
   // 用于优化增删改时的性能

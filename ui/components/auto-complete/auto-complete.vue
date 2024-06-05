@@ -29,7 +29,7 @@
             @clear="handleClear"
             @native:input="onInput"
             v-model="currentValue"
-            style="box-shadow: none; height: 24px;"
+            style="box-shadow: none; height: 24px"
           >
           </u-input>
         </li>
@@ -78,7 +78,6 @@
     </template>
   </u-dropdown>
 
-
   <template v-else>
     <div :class="[cls.m(size), bem.is('multiple', multiple)]" v-if="multiple">
       <div :class="cls.e('tags')">
@@ -105,7 +104,7 @@ import { UScroll, type ScrollExposed } from '../scroll'
 import { UIcon } from '../icon'
 import { ArrowDown } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
-import { deepCopy } from 'cat-kit/fe'
+import { deepCopy, equal, isArray } from 'cat-kit/fe'
 import { UTag } from '../tag'
 import { UInput } from '../input'
 
@@ -118,7 +117,7 @@ const props = withDefaults(defineProps<AutoCompleteProps<Option>>(), {
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  linker: '=>',
+  linker: '',
   labelKey: '',
   multiple: false
 })
@@ -129,7 +128,7 @@ const tags = ref<string[]>([])
 
 const handleClose = (index: number) => {
   tags.value.splice(index, 1)
-  emit('complete', tags.value)
+  emit('update:modelValue', tags.value)
 }
 
 const emit = defineEmits<AutoCompleteEmits>()
@@ -163,12 +162,11 @@ const handleSelect = (option: Option) => {
   if (props.multiple) {
     tags.value.push(props.labelKey ? option[props.labelKey] : option)
     currentValue.value = ''
-    emit('complete', tags.value)
+    emit('update:modelValue', tags.value)
   } else {
     currentValue.value = props.labelKey ? option[props.labelKey] : option
-    emit('complete', currentValue.value)
+    emit('update:modelValue', currentValue.value)
   }
-
   dropdownRef.value?.close()
 }
 
@@ -190,11 +188,34 @@ const onInput = () => {
           ? `${currentValue.value}${props.linker}${[props.labelKey]}`
           : `${currentValue.value}${props.linker}${item}`
       })
-      emit('complete', currentValue.value)
     } else {
       filteredOptions.value = []
     }
-    emit('update:modelValue', currentValue.value)
   })
 }
+
+watch(
+  () => dropdownVisible.value,
+  (visible) => {
+    if (!visible && currentValue.value)
+      if (props.multiple) {
+        emit('update:modelValue', [...tags.value, currentValue.value])
+        currentValue.value = ''
+      } else {
+        emit('update:modelValue', currentValue.value)
+      }
+  }
+)
+
+watch(
+  () => props.modelValue,
+  (modelValue) => {
+    if (isArray(modelValue)) {
+      if (!equal(modelValue, tags.value)) tags.value = [...(modelValue || [])]
+    } else {
+      if (currentValue.value !== modelValue) currentValue.value = String(modelValue || '')
+    }
+  },
+  { immediate: true }
+)
 </script>

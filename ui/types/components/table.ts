@@ -172,6 +172,8 @@ export interface TableEmits<
   (e: 'update:selected', value: DataItem | undefined): void
   /** 数据更新 */
   (e: 'update:data', value: DataItem[]): void
+  /** 行数据更新 */
+  (e: 'update:rows', rows: TableRow<DataItem>[]): void
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
   /** 当前行变更 */
