@@ -127,7 +127,7 @@ import type {
   BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import { last, omit, omitArr } from 'cat-kit/fe'
+import { last, omit, omitArr, safeRun } from 'cat-kit/fe'
 import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import {
   UTable,
@@ -233,13 +233,19 @@ function rerender() {
 const checked = shallowRef<Record<string, any>[]>([])
 
 function handleRowChange(row?: TableRow) {
-  if (!props.model) return
+  const { model } = props
+  if (!model) return
+
+  if (!newRow.value) {
+    model.resetData()
+    row && model.setData(row.data)
+  } else {
+    // 新增行并顶掉原选中行的时候重置数据
+    !row && model.resetData()
+  }
 
   currentRow.value = row
-  props.model.resetData()
-  if (row) {
-    props.model.setData(row.data)
-  }
+
   rerender()
 }
 
@@ -343,12 +349,12 @@ async function handleDeleteBatch() {
 
 const actionLoading = shallowRef(false)
 async function handleSave() {
-  const { saveMethod } = props
+  const { saveMethod, model } = props
 
-  if (!props.model) return
+  if (!model) return
 
-  props.model.clearValidate()
-  const valid = await props.model.validate()
+  model.clearValidate()
+  const valid = await model.validate()
 
   if (!valid) return
 
@@ -361,7 +367,7 @@ async function handleSave() {
 
     try {
       saveResult = await saveMethod(
-        props.model.data,
+        model.data,
         newRow.value ? 'create' : 'update',
         parentData
       )
@@ -375,8 +381,10 @@ async function handleSave() {
 
   // 新增提交
   if (newRow.value) {
-    const data = saveResult ?? { ...props.model.data }
-    console.log(JSON.stringify(data))
+    const data =
+      saveResult ??
+      safeRun(() => JSON.parse(JSON.stringify(model.data)), model.data)
+
     insert(data)
     parentData = undefined
     await nextTick()
@@ -386,7 +394,7 @@ async function handleSave() {
   // 更新提交
   else {
     if (!currentRow.value) return
-    Object.assign(currentRow.value.data, props.model.data)
+    Object.assign(currentRow.value.data, model.data)
   }
 
   const currentRowEl = tableRef.value?.el?.querySelector('tbody tr.is-current')
