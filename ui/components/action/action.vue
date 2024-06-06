@@ -2,7 +2,7 @@
   <u-pop-confirm
     v-if="needConfirm"
     title="确认执行此操作吗？"
-    @confirm="emit('run')"
+    @confirm="handleConfirm"
     style="display: inline-block"
   >
     <template #reference>
@@ -19,6 +19,8 @@
 import type { ActionEmits, ActionProps } from '@ui/types/components/action'
 import { bem } from '@ui/utils'
 import { UButton } from '../button'
+import { inject } from 'vue'
+import { ActionDIKey } from './di'
 
 defineOptions({
   name: 'Action'
@@ -34,4 +36,11 @@ const props = withDefaults(defineProps<ActionProps>(), {
 const emit = defineEmits<ActionEmits>()
 
 const cls = bem('action')
+
+function handleConfirm() {
+  emit('run')
+  close()
+}
+
+const { close } = inject(ActionDIKey)!
 </script>
