@@ -163,7 +163,7 @@ watch(scrollRef, (scroll) => {
 /** 已过滤的选项 */
 const filteredOptions = ref<string[]>([])
 
-/** 单选 */
+/** 选中选项 */
 const handleSelect = (option: string) => {
   if (props.multiple) {
     tags.value.push(option)
@@ -207,7 +207,7 @@ const onInput = () => {
     }
   })
 }
-
+// 根据下拉状态抛出数据
 watch(
   () => dropdownVisible.value,
   (visible) => {
@@ -220,7 +220,7 @@ watch(
       }
   }
 )
-
+// 赋值
 watch(
   () => props.modelValue,
   (modelValue) => {
