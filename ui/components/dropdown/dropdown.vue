@@ -118,9 +118,13 @@ const popupFinalStyle = computed(() => {
 
 let closeTimer: number | undefined
 
+function stopClose() {
+  closeTimer !== undefined && clearTimeout(closeTimer)
+}
+
 /** 打开下拉框 */
 function open(trigger?: { virtual?: HTMLElement; real?: HTMLElement }) {
-  closeTimer !== undefined && clearTimeout(closeTimer)
+  stopClose()
   const { virtual, real } = trigger || {}
   if (virtual && virtual instanceof HTMLElement) {
     triggerRef.value = virtual

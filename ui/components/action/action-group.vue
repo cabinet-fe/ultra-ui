@@ -35,16 +35,25 @@ function close() {
   }, 200)
 }
 
-function open() {
+function stopClose() {
   timer !== undefined && clearTimeout(timer)
+}
+
+function open() {
   dropdownRef.value?.open({
     virtual: triggerRef.value?.el
   })
 }
 
+function handleMouseEnter() {
+  stopClose()
+  open()
+}
+
 provide(ActionDIKey, {
   open,
-  close
+  close,
+  stopClose
 })
 
 function getSlotsNodes() {
@@ -61,7 +70,7 @@ function getSlotsNodes() {
         content: () => (
           <div
             class='u-action__dropdown'
-            onMouseenter={open}
+            onMouseenter={stopClose}
             onMouseleave={close}
           >
             {hiddenNodes}
@@ -79,7 +88,7 @@ function getSlotsNodes() {
           size='small'
           type='primary'
           ref={triggerRef}
-          onMouseenter={open}
+          onMouseenter={handleMouseEnter}
           onMouseleave={close}
         >
           更多

@@ -42,5 +42,5 @@ function handleConfirm() {
   close()
 }
 
-const { open, close } = inject(ActionDIKey)!
+const { close } = inject(ActionDIKey)!
 </script>
