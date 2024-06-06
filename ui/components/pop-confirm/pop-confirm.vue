@@ -20,9 +20,13 @@
         </span>
       </div>
       <div :class="cls.m('action')">
-        <u-button size="small" @click="cancel" type="primary" text>{{ cancelText }}</u-button>
+        <u-button size="small" @click="cancel" type="primary" text>{{
+          cancelText
+        }}</u-button>
         <i></i>
-        <u-button size="small" type="primary" @click="confirm">{{ confirmText }}</u-button>
+        <u-button size="small" type="primary" @click="confirm">{{
+          confirmText
+        }}</u-button>
       </div>
     </template>
   </u-tip>
@@ -30,54 +34,54 @@
 
 <script lang="ts" setup>
 import type {
-  PopconfirmProps,
-  PopconfirmEmits,
-} from "@ui/types/components/popconfirm"
+  PopConfirmProps,
+  PopConfirmEmits
+} from '@ui/types/components/pop-confirm'
 
-import type { positionType } from "@ui/types/components/tip"
+import type { positionType } from '@ui/types/components/tip'
 
-import { bem } from "@ui/utils"
-import { UTip, type TipExposed } from "../tip"
-import { UButton } from "../button"
-import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
-import { shallowRef } from "vue"
-import { UIcon } from "../icon"
-import { HelpFilled } from "icon-ultra"
+import { bem } from '@ui/utils'
+import { UTip, type TipExposed } from '../tip'
+import { UButton } from '../button'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { shallowRef } from 'vue'
+import { UIcon } from '../icon'
+import { HelpFilled } from 'icon-ultra'
 
 defineOptions({
-  name: "Popconfirm",
+  name: 'PopConfirm'
 })
 
-const emit = defineEmits<PopconfirmEmits>()
+const emit = defineEmits<PopConfirmEmits>()
 
-withDefaults(defineProps<PopconfirmProps>(), {
-  trigger: "click",
-  size: "default",
+withDefaults(defineProps<PopConfirmProps>(), {
+  trigger: 'click',
+  size: 'default',
   icon: HelpFilled,
-  iconColor: "#ffc107",
-  confirmText: "确认",
-  cancelText: "取消",
+  iconColor: '#ffc107',
+  confirmText: '确认',
+  cancelText: '取消'
 })
 
-const direction = shallowRef<positionType>("bottom")
+const direction = shallowRef<positionType>('bottom')
 
-const cls = bem("popconfirm")
+const cls = bem('pop-confirm')
 
 const tipRef = shallowRef<TipExposed>()
 
 const { formProps } = useFormComponent()
 
 const { size } = useFormFallbackProps([formProps ?? {}], {
-  size: "default",
+  size: 'default'
 })
 
 const confirm = () => {
-  emit("confirm")
+  emit('confirm')
   tipRef.value?.closeTipContent()
 }
 
 const cancel = () => {
-  emit("cancel")
+  emit('cancel')
   tipRef.value?.closeTipContent()
 }
 
@@ -104,8 +108,8 @@ const handleMouseEnter = (event: MouseEvent) => {
     position.top = y + 1
   }
 
-  const positionX = position.top ? "bottom" : "top"
-  const positionY = position.left ? "start" : "end"
+  const positionX = position.top ? 'bottom' : 'top'
+  const positionY = position.left ? 'start' : 'end'
   position.transformOrigin = `${positionX}-${positionY}`
   direction.value = position.transformOrigin as positionType
 }

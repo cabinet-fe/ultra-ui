@@ -72,7 +72,7 @@ export * from './components/paginator'
 
 export * from './components/password-input'
 
-export * from './components/popconfirm'
+export * from './components/pop-confirm'
 
 export * from './components/progress'
 
@@ -117,4 +117,3 @@ export * from './components/virtual-scroll'
 export * from './components/watermark'
 
 export * from './helper'
-

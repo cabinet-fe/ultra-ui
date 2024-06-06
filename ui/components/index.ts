@@ -1,3 +1,5 @@
+export * from './action'
+
 export * from './auto-complete'
 
 export * from './badge'
@@ -70,7 +72,7 @@ export * from './paginator'
 
 export * from './password-input'
 
-export * from './popconfirm'
+export * from './pop-confirm'
 
 export * from './progress'
 

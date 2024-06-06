@@ -1,0 +1,16 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: action;
+
+@include m.b($root-name) {
+  @include m.e(dropdown) {
+    padding: 4px 6px;
+    .u-button,
+    .u-pop-confirm {
+      width: 100%;
+    }
+  }
+}

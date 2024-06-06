@@ -8,7 +8,7 @@
           justify-content: space-between;
         "
       >
-        <u-popconfirm
+        <u-pop-confirm
           title="Are you sure to delete this?"
           @confirm="confirmEvent"
           @cancel="cancelEvent"
@@ -16,9 +16,9 @@
           <template #reference>
             <u-button>删除</u-button>
           </template>
-        </u-popconfirm>
+        </u-pop-confirm>
 
-        <u-popconfirm
+        <u-pop-confirm
           title="Are you sure to delete this?"
           @confirm="confirmEvent"
           @cancel="cancelEvent"
@@ -26,11 +26,11 @@
           <template #reference>
             <u-button>删除</u-button>
           </template>
-        </u-popconfirm>
+        </u-pop-confirm>
       </div>
     </CustomCard>
     <CustomCard title="自定义文字、图标">
-      <u-popconfirm
+      <u-pop-confirm
         title="自定义文字、图标"
         @confirm="confirmEvent"
         @cancel="cancelEvent"
@@ -41,19 +41,19 @@
         <template #reference>
           <u-button>删除</u-button>
         </template>
-      </u-popconfirm>
+      </u-pop-confirm>
     </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Wps } from "icon-ultra"
-import CustomCard from "../card/custom-card.vue"
+import { Wps } from 'icon-ultra'
+import CustomCard from '../card/custom-card.vue'
 
 const confirmEvent = () => {
-  console.log("confirm")
+  console.log('confirm')
 }
 const cancelEvent = () => {
-  console.log("cancel")
+  console.log('cancel')
 }
 </script>

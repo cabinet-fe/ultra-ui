@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UAction: typeof import('ultra-ui')['UAction']
+    UActionGroup: typeof import('ultra-ui')['UActionGroup']
     UAutoComplete: typeof import('ultra-ui')['UAutoComplete']
     UBadge: typeof import('ultra-ui')['UBadge']
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
@@ -43,7 +45,7 @@ declare module 'vue' {
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPaginator: typeof import('ultra-ui')['UPaginator']
     UPasswordInput: typeof import('ultra-ui')['UPasswordInput']
-    UPopconfirm: typeof import('ultra-ui')['UPopconfirm']
+    UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
     UProgress: typeof import('ultra-ui')['UProgress']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
