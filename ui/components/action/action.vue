@@ -21,6 +21,7 @@ import { bem } from '@ui/utils'
 import { UButton } from '../button'
 import { inject } from 'vue'
 import { ActionDIKey } from './di'
+import { UPopConfirm } from '../pop-confirm'
 
 defineOptions({
   name: 'Action'
