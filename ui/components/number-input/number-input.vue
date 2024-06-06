@@ -1,5 +1,6 @@
 <template>
   <u-input
+    v-if="!readonly"
     ref="inputRef"
     :class="className"
     :model-value="displayed"
@@ -32,6 +33,10 @@
       </div>
     </template>
   </u-input>
+
+  <span v-else>
+    {{ displayed }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -63,9 +68,10 @@ const emit = defineEmits<NumberInputEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  disabled: false
+  disabled: false,
+  readonly: false
 })
 
 const inputProps = computed(() => {

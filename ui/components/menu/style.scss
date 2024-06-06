@@ -69,6 +69,10 @@ $root-name: menu;
       background-color: fn.use-var(color, primary, 'light-9');
     }
 
+    @include m.is(simple) {
+      // text-align: center;
+    }
+
     @include m.size using ($size) {
       padding: map.get(vars.$gap, $size) * 1.8;
       margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
@@ -87,14 +91,17 @@ $root-name: menu;
     font-size: fn.use-var('font-size', main, $size);
 
     @include m.bem($root-name, sub) {
-      position: relative;
-
       &--title {
+        display: flex;
+        justify-content: space-between;
         white-space: nowrap;
         overflow: hidden;
         padding: map.get(vars.$gap, $size) * 1.8;
         margin: map.get(vars.$gap, $size) * 0.4 map.get(vars.$gap, $size);
         border-radius: map.get(vars.$border-radius, $size) * 4;
+        @include m.is(simple) {
+          // justify-content: center;
+        }
       }
 
       &--icon {
@@ -108,6 +115,11 @@ $root-name: menu;
         margin-left: 6px;
         position: absolute;
         right: map.get(vars.$gap, $size) * 1.8;
+        font-size: map.get(vars.$font-size-main, $size) * 1.4;
+      }
+      &--tip-arrow {
+        transition: transform 0.35s;
+        margin-left: 6px;
         font-size: map.get(vars.$font-size-main, $size) * 1.4;
       }
 

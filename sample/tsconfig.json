@@ -5,7 +5,7 @@
     "declaration": true,
     "target": "ESNext",
     "jsx": "preserve",
-    "types": ["vite/client", "@vue/runtime-core"],
+    "types": ["vite/client"],
     "baseUrl": "..",
     "rootDir": "..",
     "outDir": "./dist",
@@ -15,6 +15,6 @@
     },
     "allowJs": true
   },
-  "include": ["**/*.vue", "**/*.ts"],
-  "exclude": ["node_modules", "dist/**", "**/*.js"]
+  "include": ["**/*.vue", "**/*.ts", "*.d.ts"],
+  "exclude": ["node_modules", "dist/**"]
 }

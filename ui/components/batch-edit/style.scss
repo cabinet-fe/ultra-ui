@@ -1,0 +1,50 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+@keyframes blink {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+$root-name: batch-edit;
+
+@include m.b($root-name) {
+  border: fn.use-var(border);
+  overflow: hidden;
+  border-radius: fn.use-var(radius, default);
+
+  @include m.e(table, form-wrap) {
+    flex-grow: 1;
+  }
+
+  @include m.e(list, form) {
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  @include m.e(form) {
+    background-color: fn.use-var(bg-color, bottom);
+
+    &-wrap {
+      padding: 8px 12px;
+    }
+  }
+
+  @include m.e(action) {
+    @include m.flex($justify: flex-end);
+    gap: fn.use-var(gap, default);
+    flex-shrink: 0;
+  }
+
+  @include m.bem(table, row) {
+    @include m.is(blink) {
+      animation: blink 0.5s ease-in;
+    }
+  }
+}

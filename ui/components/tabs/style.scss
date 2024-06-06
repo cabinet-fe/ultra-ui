@@ -2,152 +2,175 @@
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
 @use 'sass:map';
+@use 'sass:list';
 
 $root-name: tabs;
-$position-types: (top, right, bottom, left);
+
+@mixin position($p, $e: ()) {
+  @include m.m($p...) {
+    @if (list.length($e) > 0) {
+      @include m.bem($root-name, $e) {
+        @content;
+      }
+    } @else {
+      @content;
+    }
+  }
+}
 
 @include m.b($root-name) {
   display: flex;
 
-  @include m.size using ($size) {
-    @include m.bem($root-name, header) {
-      padding: 2px;
-
-      &--label {
-        border-radius: map.get(vars.$border-radius, $size);
-        padding: map.get(vars.$gap, $size);
-        font-size: map.get(vars.$font-size-main, $size);
-
-        .is-close,
-        .is-close--placeholder {
-          width: map.get(vars.$font-size-main, $size) * 1.5;
-          height: map.get(vars.$font-size-main, $size) * 1.5;
-        }
-      }
-    }
-  }
-
-  @each $position in $position-types {
-    @include m.e($position) {
-      @if $position ==top {
-        flex-direction: column;
-      }
-
-      @else if $position ==bottom {
-        flex-direction: column-reverse;
-      }
-
-      @else if $position ==left {
-        flex-direction: row;
-      }
-
-      @else if $position ==right {
-        flex-direction: row-reverse;
-      }
-    }
-  }
-
   @include m.e(header) {
-    display: flex;
-    justify-content: space-around;
     position: relative;
-    background-color: fn.use-var(color, primary-light-9);
+    flex-shrink: 0;
+  }
 
-    @each $position in $position-types {
-      &--#{$position} {
-        @if $position ==left {
-          flex-direction: column;
-          // border-right: 2px solid fn.use-var(border-color);
-        }
+  @include m.e(content) {
+    flex-grow: 1;
+  }
 
-        @else if $position ==right {
-          flex-direction: column;
-          // border-left: 2px solid fn.use-var(border-color);
-        }
+  @include m.e(header-item) {
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    transition: background-color 0.25s;
 
-        @else if $position ==bottom {
-          // border-bottom: 2px solid fn.use-var(border-color);
-        }
+    @include m.flex;
 
-        @else {
-          // border-bottom: 2px solid fn.use-var(border-color);
-        }
-      }
+    @include m.is(disabled) {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
     }
 
-    &--label {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      margin: 1px;
-      font-size: fn.use-var(font-size-title, default);
-      font-weight: bold;
-      color: fn.use-var(text-color, main);
-      user-select: none;
-      animation: fadeOutAnimation 1s forwards;
-      border: 1px solid fn.use-var(bg-color, top);
-
-      @keyframes fadeOutAnimation {
-        from {
-          background-color: fn.use-var(bg-color, top);
-        }
-
-        to {
-          background-color: fn.use-var(color, primary-light-9);
-        }
-      }
-
-      @include m.is('active') {
-        animation: fadeInAnimation 0.25s forwards;
-        color: fn.use-var(color, primary);
-
-        @keyframes fadeInAnimation {
-          from {
-            background-color: fn.use-var(color, primary-light-9);
-          }
-
-          to {
-            background-color: fn.use-var(bg-color, top);
-          }
-        }
-      }
-
-      @include m.is('disabled') {
-        cursor: not-allowed;
-        color: fn.use-var(text, color, disabled);
-      }
-
-      .is-close,
-      .is-close--placeholder {
-        padding: 2px;
-        border-radius: 50%;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .is-close:hover {
-        background-color: fn.use-var(color, primary-light-7);
-      }
-    }
-
-    &--label:hover {
+    @include m.is(active) {
       color: fn.use-var(color, primary);
-      border-style: dashed;
+      background-color: fn.use-var(color, primary, light-9);
+    }
+  }
 
-      @include m.is(disabled) {
-        color: fn.use-var(text, color, disabled);
-        border-style: solid;
+  @include m.e(marker) {
+    position: absolute;
+    background-color: fn.use-var(color, primary);
+    transition-duration: 0.25s;
+    transition-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+
+  @include m.e(close) {
+    width: 0;
+    transition: width 0.25s;
+    margin-left: fn.use-var(gap, small);
+  }
+
+  @include m.e(close-placeholder) {
+    height: 1em;
+    width: 1em;
+    margin-left: fn.use-var(gap, small);
+  }
+
+  @include position((top, bottom), header) {
+    @include m.flex;
+  }
+
+  @include position((top, bottom), marker) {
+    height: 2px;
+    left: 0;
+    transition-property: transform, width;
+  }
+  // 位置上
+  @include position(top) {
+    flex-direction: column;
+  }
+  @include position(top, header) {
+    border-bottom: fn.use-var(border);
+  }
+  @include position(top, marker) {
+    bottom: 0;
+  }
+  @include position(top, header-item) {
+    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
+  }
+
+  // 位置下
+  @include position(bottom) {
+    flex-direction: column-reverse;
+  }
+  @include position(bottom, header) {
+    border-top: fn.use-var(border);
+  }
+  @include position(bottom, marker) {
+    top: 0;
+  }
+  @include position(bottom, header-item) {
+    border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
+  }
+
+  @include position((left, right), content) {
+    height: 100%;
+  }
+
+  @include position((left, right), marker) {
+    width: 2px;
+    top: 0;
+    transition-property: transform, height;
+  }
+
+  // 位置左
+  @include position(left, header) {
+    border-right: fn.use-var(border);
+  }
+  @include position(left, marker) {
+    right: 0;
+  }
+  @include position(left, header-item) {
+    border-radius: fn.use-var(radius, large) 0 0 fn.use-var(radius, large);
+    justify-content: flex-end;
+  }
+
+  // 位置右
+  @include position(right) {
+    flex-direction: row-reverse;
+  }
+  @include position(right, header) {
+    border-left: fn.use-var(border);
+  }
+  @include position(right, marker) {
+    left: 0;
+  }
+  @include position(right, header-item) {
+    border-radius: 0 fn.use-var(radius, large) fn.use-var(radius, large) 0;
+  }
+
+  // 尺寸
+  @include m.size using ($size) {
+    @include m.bem($root-name, header-item) {
+      height: fn.use-var(form-component-height, $size);
+      padding: 0 fn.use-var(gap, $size);
+
+      @include m.is(active) {
+        @include m.bem($root-name, close) {
+          width: fn.use-var(font-size-main, $size);
+        }
+      }
+
+      &:hover {
+        @include m.bem($root-name, close) {
+          width: fn.use-var(font-size-main, $size);
+        }
       }
     }
+  }
 
+  @include m.m(left, right) {
+    @include m.bem($root-name, close) {
+      width: auto;
+    }
   }
 
   @include m.e(content) {
     width: 100%;
-    border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
   }
 }

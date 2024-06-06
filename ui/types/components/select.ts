@@ -1,10 +1,14 @@
+import type { ShallowRef } from 'vue'
 import type { FormComponentProps } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 /** 选择器组件属性 */
-export interface SelectProps<Option extends Record<string, any>>
-  extends FormComponentProps {
+export interface SelectProps<
+  Option extends Record<string, any>,
+  Val extends string | number = string | number
+> extends FormComponentProps {
   /** 绑定值 */
-  modelValue?: string | number
+  modelValue?: Val
   /** 文本内容 */
   text?: string
   /** 列表选项 */
@@ -21,11 +25,19 @@ export interface SelectProps<Option extends Record<string, any>>
   filterable?: boolean
 }
 
-export interface SelectEmits<Option extends Record<string, any>> {
+export interface SelectEmits<
+  Option extends Record<string, any>,
+  Val extends string | number = string | number
+> {
   /** 触发更新label事件 */
   (e: 'update:label', label?: string): void
-  (e: 'update:modelValue', modelValue?: string | number): void
+  (e: 'update:modelValue', modelValue?: Val): void
   (e: 'change', option: Option): void
 }
 
-export interface SelectExposed {}
+export interface _SelectExposed {
+  /** 信息文本 */
+  infoText: ShallowRef<string | number>
+}
+
+export type SelectExposed = DeconstructValue<_SelectExposed>

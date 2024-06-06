@@ -1,10 +1,11 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]">
+  <div :class="[cls.b, cls.m(size)]" ref="paginatorRef">
     <div>共 {{ total }} 条</div>
 
     <u-select
       :class="cls.e('size-select')"
-      v-model="pageSize"
+      :model-value="currentSize"
+      @update:model-value="handleUpdateSize"
       size="small"
       :options="sizeOptions"
       :clearable="false"
@@ -34,8 +35,8 @@
         v-for="num in pageNumbers"
         :key="num"
         :class="[cls.e('btn'), bem.is('active', pageNumber === num)]"
+        @click="handleChangePageNumber(num)"
         v-ripple
-        @click="pageNumber = num"
       >
         {{ num }}
       </li>
@@ -80,23 +81,25 @@
 <script lang="ts" setup>
 import type {
   PaginatorProps,
-  PaginatorEmits
+  PaginatorEmits,
+  _PaginatorExposed
 } from '@ui/types/components/paginator'
 import { bem } from '@ui/utils'
-import { useFallbackProps } from '@ui/compositions'
-import { computed, reactive, watch } from 'vue'
+import { useConfig, useFallbackProps } from '@ui/compositions'
+import { computed, reactive, shallowRef, watch } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
 import { vRipple } from '@ui/directives'
 import type { ComponentSize } from '@ui/types/component-common'
-import { pageSizeOptions } from './constants'
 import { n } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Paginator'
 })
+
+const { config } = useConfig()
 
 const props = withDefaults(defineProps<PaginatorProps>(), {
   total: 0
@@ -114,23 +117,37 @@ const pageNumber = defineModel('pageNumber', {
   default: 1
 })
 
-const pageSize = defineModel('pageSize', {
-  default: 10
-})
+const pageSize = defineModel<number>('pageSize')
+
+const handleUpdateSize = (value?: number) => {
+  pageSize.value = value
+}
+
+function handleChangePageNumber(num: number) {
+  if (pageNumber.value === num) return
+
+  pageNumber.value = num
+}
 
 watch(pageSize, () => {
   pageNumber.value = 1
 })
 
+const currentSize = computed(() => {
+  return pageSize.value ?? config.paginator.pageSize
+})
+
 /** 完整页码 */
 const totalPages = computed(() => {
-  return Math.ceil(props.total / pageSize.value)
+  return Math.ceil(props.total / currentSize.value)
 })
 
 const sizeOptions = computed(() => {
-  return (props.pageSizeOptions ?? pageSizeOptions).map(value => {
-    return { label: `${value}条`, value }
-  })
+  return (props.pageSizeOptions ?? config.paginator.pageSizeOptions).map(
+    value => {
+      return { label: `${value}条`, value }
+    }
+  )
 })
 
 /** 做多显示5个页码 */
@@ -181,5 +198,11 @@ function handleKeyEnter(e: KeyboardEvent) {
 const hovered = reactive({
   first: false,
   last: false
+})
+
+const paginatorRef = shallowRef<HTMLElement>()
+
+defineExpose<_PaginatorExposed>({
+  el: paginatorRef
 })
 </script>

@@ -1,11 +1,15 @@
 <template>
-  <u-tip position="right" v-if="injected?.simple.value && textIndent === '0px'">
+  <u-tip position="right" v-if="injected?.simple.value && isBase">
     <template #content><slot /></template>
     <div
-      :class="[cls?.e('item'), bem.is('active', activation), bem.is('disabled', disabled)]"
+      :class="[
+        cls?.e('item'),
+        bem.is('active', activation),
+        bem.is('disabled', disabled),
+        bem.is('simple', true)
+      ]"
       @click="handleClick"
       :style="{
-        textIndent,
         width: 'auto',
         color: customColor
       }"
@@ -27,7 +31,7 @@
     ]"
     @click="handleClick"
     :style="{
-      textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+      textIndent: injected!.simple.value ? '0px' : textIndent,
       width: 'auto',
       color: customColor
     }"
@@ -41,8 +45,15 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent } from './di'
+import {
+  inject,
+  ref,
+  watch,
+  getCurrentInstance,
+  computed,
+  type ComponentInternalInstance
+} from 'vue'
+import { MenuDIKey, calcIndent, getParentIndex } from './di'
 import type { MenuItemProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
@@ -66,17 +77,42 @@ const { size } = useFallbackProps([props], {
 const handleClick = () => {
   if (!props.disabled) {
     injected!.activeIndex.value = props.index
+    injected?.menuEmit('select', props.index || '')
   }
 }
 
 const instance = getCurrentInstance()
 
 const textIndent = ref<string>('0px')
+
+const parents = ref<string[]>([])
+
+const isBase = computed(() => {
+  if (parents.value.length) {
+    return Boolean(parents.value[0] === 'menu-root')
+  } else {
+    return false
+  }
+})
+
+const getParent = (instance: ComponentInternalInstance) => {
+  parents.value = getParentIndex(instance)
+  parents.value.forEach((parent: string) => {
+    if (injected?.structure.value[parent]) {
+      injected!.structure.value[parent]?.add(props.index)
+    } else {
+      injected!.structure.value[parent] = new Set([props.index])
+    }
+  })
+}
 // 根据嵌套层级计算缩进
 watch(
   () => instance,
   () => {
-    if (instance) textIndent.value = calcIndent(instance)
+    if (instance) {
+      textIndent.value = calcIndent(instance)
+      getParent(instance)
+    }
   },
   { immediate: true }
 )
@@ -89,8 +125,5 @@ const customColor = computed(() => {
   } else {
     return 'var(--text-color-disabled)'
   }
-})
-watch(() => activation.value, (val) => {
-  if (val) injected?.menuEmit('select', props.index || '')
 })
 </script>

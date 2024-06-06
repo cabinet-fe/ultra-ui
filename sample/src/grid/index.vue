@@ -36,7 +36,8 @@
           :cols="{
             xs: 2,
             sm: 3,
-            md: 4
+            md: 4,
+            lg: 6
           }"
           @breakpoint-change="point = $event"
         >

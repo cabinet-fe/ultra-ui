@@ -5,80 +5,82 @@
 $root-name: textarea;
 
 @include m.b($root-name) {
-    position: relative;
+  position: relative;
+  width: 100%;
+  box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
+  vertical-align: middle;
+
+  &:hover {
+    // 悬浮时边框颜色为 var(--u-color-primary);
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, native) {
+      padding: calc(fn.use-var(gap, $size) / 2);
+      min-height: fn.use-var(form-component-height, $size);
+      padding-right: 20px;
+    }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(native) {
+    color: fn.use-var(text-color, main);
+    outline: none;
+    border: none;
+    background-color: transparent;
+    font-family: fn.use-var(font-family);
+    font-size: 1em;
     width: 100%;
-    @include m.m(more) {
-        width: 100%;
-        display: block;
-        border: none;
-        border-radius: fn.use-var(radius, default);
-        box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-        transition: box-shadow 0.2s ease;
-        margin-bottom: 4px;
-        padding: 5px 10px;
-        box-sizing: border-box;
-        font-family: fn.use-var(font-family);
-        resize: vertical;
+    display: block;
+    padding: 0;
+    resize: vertical;
+    overflow: auto;
+    line-height: 1.3;
 
-        &:hover {
-            // 悬浮时边框颜色为 var(--u-color-primary);
-            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-          }
-
-        @include m.is(mouse) {
-            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-        }
-
-        &:focus {
-            outline: none;
-            border:none;
-            box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
-        }
-
-        @include m.is(disabled) {
-            cursor: not-allowed;
-            resize: none;
-            background-color: #f5f7fa;
-            color: fn.use-var(text-color, disabled);
-            border-color: fn.use-var(border, color);
-            box-shadow: 0 0 0 0.5px fn.use-var(border, color) inset;
-        }
-
-        @include m.is(resize-none) {
-            resize: none;
-        }
-
-        @include m.is(readonly) {
-            cursor: default;
-            resize: none;
-        }
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
     }
+  }
 
-    @include m.size using ($size) {
-        font-size: fn.use-var('font-size', main, $size);
-        padding: fn.use-var(gap, $size);
+  @include m.is(focus) {
+    // 使用变量 color 和 primary 设置内阴影和边框颜色
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+
+    @include m.bem($root-name, native) {
+      cursor: not-allowed;
+      resize: none;
     }
+  }
 
-    @include m.m(count) {
-        display: block;
-        position: absolute;
-        bottom: 8px;
-        right: 4px;
-        font-size: 12px;
-        background: fn.use-var(bg-color, middle);
-    }
+  @include m.m(count) {
+    display: block;
+    position: absolute;
+    bottom: 8px;
+    right: 4px;
+    font-size: 12px;
+    background: fn.use-var(bg-color, middle);
+  }
 
-    @include m.m(clear) {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: 8px;
-        cursor: pointer;
-
-        i {
-            color: fn.use-var(text-color, titlr);
-            border-color: fn.use-var(text-color, titlr);
-        }
-    }
-
+  @include m.m(clear) {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    cursor: pointer;
+    color: fn.use-var(text-color, main);
+    min-width: 20px;
+  }
 }

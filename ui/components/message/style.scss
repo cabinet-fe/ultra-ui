@@ -8,48 +8,57 @@ $root-name: message;
 
 @include m.b($root-name) {
   display: flex;
-  min-width: 380px;
-  position: fixed;
-  left: 50%;
-  top: 20px;
-  transform: translateX(-50%);
-  transition:
-    opacity 0.3s,
-    transform 0.4s,
-    top 0.4s;
-  border: fn.use-var(border);
+  padding: 0.75em;
+  line-height: 1;
+  align-items: center;
+  margin-bottom: fn.use-var(gap, large);
+
+  @include m.e(container) {
+    @include m.flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    padding: fn.use-var(gap, default) 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  @include m.e(content) {
+    max-width: 400px;
+    word-wrap: break-word;
+  }
+
+  @include m.e(close) {
+    cursor: pointer;
+  }
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
-    padding: map.get(vars.$gap, $size) * 2;
 
-    @include m.bem($root-name, icon) {}
 
-    @include m.bem($root-name, content) {
-      max-width: 400px;
-      word-wrap: break-word;
-      margin-left: fn.use-var(gap, $size);
-      margin-right: map.get(vars.$gap, $size) + 12;
+    @include m.bem($root-name, icon) {
+      margin-right: fn.use-var(gap, $size);
     }
 
     @include m.bem($root-name, close) {
-      cursor: pointer;
-      position: absolute;
-      right: fn.use-var(gap, $size);
-      top: fn.use-var(gap, $size);
-
-      &:hover {
-        color: fn.use-var(color, primary, 'dark-9');
-      }
+      margin-left: fn.use-var(gap, $size);
     }
   }
 
   @each $type, $_ in vars.$color-types {
-    @include m.e($type) {
-      background-color: fn.use-var(color, $type, 'light-7');
-      color: fn.use-var(color, $type);
-      border-color: fn.use-var(color, $type, 'light-5');
+    @if ($type == 'default') {
+      @include m.m(color-#{$type}) {
+        background-color: fn.use-var(color, $type);
+        color: fn.use-var(text-color, main);
+        box-shadow: 0 0 4px 0px fn.use-var(color, $type);
+      }
+    } @else {
+      @include m.m(color-#{$type}) {
+        background-color: fn.use-var(color, $type, 'light-9');
+        color: fn.use-var(color, $type);
+        box-shadow: 0 0 4px 0px fn.use-var(color, $type, 'light-5');
+      }
     }
   }
 }
@@ -57,5 +66,12 @@ $root-name: message;
 .#{$root-name}-fade-enter-from,
 .#{$root-name}-fade-leave-to {
   opacity: 0;
-  transform: translate(-50%, -100%);
+  transform: translate3d(0, -100%, 0);
+}
+
+.#{$root-name}-fade-enter-active,
+.#{$root-name}-fade-leave-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }

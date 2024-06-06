@@ -5,3 +5,5 @@ export type {
   LoadingEmits,
   LoadingExposed,
 } from "@ui/types/components/loading"
+
+export { vLoading } from './directive'

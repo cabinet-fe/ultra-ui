@@ -1,26 +1,21 @@
+import { countPositionInt } from "./viewport"
+
 // 辅助函数，用于计算最大宽度
-function calculateMaxWidth(screenWidth, rect, position, gap) {
+function calculateMaxWidth(rect, position, gap) {
   if (position.includes("start")) {
-    return `calc(100vw - ${rect.left + gap}px)`
+    return `calc(100vw - ${countPositionInt(rect.left + gap)}px)`
   } else if (position.includes("end")) {
-    return `${rect.right - gap}px`
+    return `${countPositionInt(rect.right - gap)}px`
   } else {
-    return `${screenWidth - gap * 2}px`
+    return `${countPositionInt(window.innerWidth - gap * 2)}px`
   }
 }
 
-// 辅助函数，rectWidth > screenWidth - (rectX + rectWidth)用于计算最大宽度（用于右侧定位）
-function calculateRightMaxWidth(gap, screenWidth, rectWidth, rectX) {
+// 辅助函数，用于计算最大宽度（用于左侧、右侧定位）
+function calculateLeftMaxWidth(screenWidth, rectWidth, rectX, gap) {
   return rectWidth > screenWidth - (rectX + rectWidth)
-    ? `calc(${rectX - gap * 2}px)`
-    : `${screenWidth - rectWidth - gap * 2}px`
-}
-
-// 辅助函数，用于计算最大宽度（用于左侧定位）
-function calculateLeftMaxWidth(gap, screenWidth, rectWidth, rectX) {
-  return rectWidth > screenWidth - (rectX + rectWidth)
-    ? `calc(${rectX - gap * 2}px)`
-    : `${screenWidth - rectWidth - gap * 2}px`
+    ? `calc(${countPositionInt(rectX - gap * 3)}px)`
+    : `${countPositionInt(screenWidth - (rectX + rectWidth) - gap * 3)}px`
 }
 
 /**
@@ -31,6 +26,7 @@ function calculateLeftMaxWidth(gap, screenWidth, rectWidth, rectX) {
  * @returns 如果元素超出父级元素，则返回true；否则返回false
  */
 function isOverflown(tipRefDom: HTMLElement, parentDom: HTMLElement) {
+  if (!parentDom) return false
   // 获取元素的边界位置
   const tipRect = tipRefDom.getBoundingClientRect()
   // 获取父元素的边界位置
@@ -47,9 +43,4 @@ function isOverflown(tipRefDom: HTMLElement, parentDom: HTMLElement) {
   return false // 没有边超出，则返回false
 }
 
-export {
-  calculateMaxWidth,
-  calculateRightMaxWidth,
-  calculateLeftMaxWidth,
-  isOverflown,
-}
+export { calculateMaxWidth, calculateLeftMaxWidth, isOverflown }

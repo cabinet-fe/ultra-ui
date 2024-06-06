@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="fade">
+    <transition name="fade" @after-leave="emit('closed')">
       <div
         v-if="visible || opened"
         v-show="visible"
@@ -129,10 +129,10 @@ const dialogTransition = useTransition('style', {
   },
 
   enterActive: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
   leaveActive: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
 })
 

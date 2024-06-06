@@ -1,6 +1,6 @@
 <template>
   <p :class="classList" :style="style">
-    <UNodeRender :content="getTextVNode()" />
+    <UNodeRender :content="getTextVNode()" ref="aa" />
   </p>
 </template>
 
@@ -61,7 +61,9 @@ const getTextVNode = () => {
 
   const { highlight } = props
 
-  if (!highlight) return textNodes
+  if (!highlight) {
+    return textNodes
+  }
 
   return textNodes.reduce((nodes, textNode) => {
     const chunks = getHighlightChunks(

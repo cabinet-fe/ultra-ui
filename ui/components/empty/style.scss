@@ -1,0 +1,13 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: empty;
+
+@include m.b($root-name) {
+  color: fn.use-var(text-color, assist);
+  text-align: center;
+  display: inline-block;
+  user-select: none;
+}

@@ -32,7 +32,11 @@ export interface LayoutProps {
    * [fr是什么?](https://developer.mozilla.org/zh-CN/docs/Web/CSS/flex_value)
    */
   rows?: string[] | string
-  /** 尺寸是否可调节, 当为true时，可以拖拽控制条并且gap固定 */
+  /**
+   * 尺寸是否可调节
+   * @default false
+   * @description 注意：当为true时，gap固定且需要有一项宽度为固定像素才能够拖拽
+   */
   resizable?: boolean
 }
 

@@ -1,6 +1,8 @@
 <template>
   <div>
     <CustomCard title="全部展开,过滤">
+      <u-button @click="refreshData">刷新数据</u-button>
+
       <u-input v-model="qs"></u-input>
       <UTree
         style="margin-bottom: 10px"
@@ -31,6 +33,7 @@
         v-model:selected="select"
         @update:selected="handleNodeClick"
         selectable
+        ref="treeRef1"
       />
 
       select单选 {{ select }}
@@ -88,43 +91,64 @@
 <script lang="ts" setup>
 import type { TreeExposed } from 'ultra-ui/components'
 import CustomCard from '../card/custom-card.vue'
-import { shallowRef, watch, watchEffect } from 'vue'
+import { nextTick, shallowRef, watch, watchEffect } from 'vue'
 
-const data = [
-  { name: '烤冷面', id: 1 },
-  {
-    name: '手抓饼',
-    id: 2,
-    children: [
-      {
-        name: '鱼香肉丝',
-        id: 3,
-        children: [
-          {
-            name: '烤苞米',
-            id: 4,
-            children: [
-              { name: '苞米例', id: 5 },
-              { name: '吃', id: 6 },
-              { name: 'h', id: 7 }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'fggg',
-        id: 8,
-        children: [
-          { name: '苞米例2', id: 9 },
-          { name: '吃2', id: 10 },
-          { name: 'h2', id: 11 }
-        ]
-      }
-    ]
-  }
-]
+const treeRef = shallowRef<TreeExposed>()
+const treeRef1 = shallowRef<TreeExposed>()
+const data = shallowRef<any[]>([])
 
-let select = shallowRef()
+function refreshData() {
+  data.value = [
+    { name: '烤冷面', id: 1 },
+    {
+      name: '手抓饼',
+      id: 2,
+      children: [
+        {
+          name: '鱼香肉丝',
+          id: 3,
+          children: [
+            {
+              name: '烤苞米',
+              id: 4,
+              children: [
+                { name: '苞米例', id: 5 },
+                { name: '吃', id: 6 },
+                { name: 'h', id: 7 }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'fggg',
+          id: 8,
+          children: [
+            { name: '苞米例2', id: 9 },
+            { name: '吃2', id: 10 },
+            { name: 'h2', id: 11 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+setTimeout(() => {
+  refreshData()
+}, 2000)
+
+let select = shallowRef(9)
+
+watch(
+  [select, treeRef1, data],
+  ([select, tree]) => {
+    nextTick(() => {
+      console.log(tree?.getSelected())
+    })
+  },
+  { immediate: true }
+)
+
 const checked = shallowRef([1])
 const handleNodeClick = selected => {
   select.value = selected
@@ -141,13 +165,9 @@ const handleCheck = (...args) => {
 
 const qs = shallowRef('')
 
-const treeRef = shallowRef<TreeExposed>()
-
 watch([qs], ([qs]) => {
   treeRef.value?.filter(qs)
 })
-
-
 
 const checkedTreeRef = shallowRef<TreeExposed>()
 const allChecked = shallowRef(false)

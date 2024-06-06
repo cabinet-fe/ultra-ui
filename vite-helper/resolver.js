@@ -2,6 +2,8 @@ import { kebabCase } from 'cat-kit/be';
 import { componentDirs } from './component-dirs.js';
 
 function getComponentDir(kebabName, dirs = /* @__PURE__ */ new Set()) {
+  if (kebabName.endsWith("async"))
+    return null;
   const parts = kebabName.split("-");
   if (dirs.has(kebabName))
     return kebabName;

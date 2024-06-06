@@ -1,5 +1,5 @@
 <template>
-  <div :class="className">
+  <u-grid-item :span="span" :class="className">
     <label
       v-if="label"
       :class="[cls.e('label'), bem.is('required', fieldRequired)]"
@@ -8,7 +8,7 @@
       {{ label }}
     </label>
 
-    <section :class="[cls.e('content'), bem.is('error', !!errorTips)]">
+    <section :class="cls.e('content')">
       <slot />
 
       <section v-if="showTips" :class="cls.e('tips')">
@@ -20,20 +20,22 @@
         </transition>
       </section>
     </section>
-  </div>
+  </u-grid-item>
 </template>
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
 import { type CSSProperties, computed } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
+import type { ComponentSize } from '@ui/types/component-common'
+import { UGridItem } from '../grid'
 
 defineOptions({
   name: 'FormItem'
 })
 
-const props =  withDefaults(defineProps<FormItemProps>(), {
+const props = withDefaults(defineProps<FormItemProps>(), {
   readonly: undefined
 })
 
@@ -42,19 +44,23 @@ const cls = bem('form-item')
 /** 表单组件上下文 */
 const { formProps } = useFormComponent()
 
-const { size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
+const { config } = useConfig()
+
+const { size, readonly } = useFallbackProps([formProps ?? {}, props], {
+  size: 'default' as ComponentSize,
   readonly: false
 })
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(
+    ' '
+  )
 })
 
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(props.labelWidth ?? formProps?.labelWidth, 'px')
+    width: withUnit(props.labelWidth ?? config.form.labelWidth, 'px')
   }
 })
 
@@ -72,7 +78,7 @@ const errorTips = computed<string | undefined>(() => {
 /** 字段是否必须 */
 const fieldRequired = computed<boolean>(() => {
   const { field } = props
-  if (!field) return false
+  if (!field || readonly.value) return false
   const required = formProps?.model?.rules[field]?.required
   return required ? true : false
 })

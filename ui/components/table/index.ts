@@ -5,9 +5,8 @@ export type {
   TableEmits,
   TableExposed,
   TableRow,
-  TableColumn
+  TableColumn,
+  TableColumnSlotsScope
 } from '@ui/types/components/table'
-
-export type { TableColumnSlotsScope } from './di'
 
 export { defineTableColumns, type ColumnNode } from './use-columns'

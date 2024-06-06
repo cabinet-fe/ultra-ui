@@ -1,7 +1,8 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** multi-select组件属性 */
-export interface MultiSelectProps<Option extends Record<string, any>> {
+export interface MultiSelectProps<Option extends Record<string, any>> extends FormComponentProps {
   /** 绑定值 */
   modelValue?: Array<string | number>
   /** 列表选项 */

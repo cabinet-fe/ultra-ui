@@ -6,6 +6,12 @@ export interface WatermarkProps {
   text?: string
   /** 图片 */
   image?: string
+  /** 是否传送到body下 */
+  appendToBody?: boolean
+  /** 旋转弧度 */
+  route?: number
+  /** 字体大小 */
+  fontSize?: number
 }
 
 /** watermark组件定义的事件 */

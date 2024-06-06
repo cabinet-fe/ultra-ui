@@ -18,7 +18,6 @@
       v-model:page-number="pageState.current"
       v-model:page-size="pageState.size"
       :total="120"
-      :page-size-options="[10, 20, 50, 200]"
       :simple="config.simple"
       :disabled="config.disabled"
       @first-click="handleFirstClick"
@@ -32,8 +31,8 @@
 import { reactive } from 'vue'
 
 const pageState = reactive({
-  current: 4,
-  size: 10
+  current: 3,
+  size: 40
 })
 
 const config = reactive({
@@ -45,7 +44,7 @@ const config = reactive({
 const handleFirstClick = (val: number) => {
   console.log(val)
 }
-const handleLastClick = (val : number) => {
+const handleLastClick = (val: number) => {
   console.log(val)
 }
 </script>

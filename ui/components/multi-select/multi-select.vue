@@ -1,5 +1,6 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
     trigger="click"
     min-width="200px"
     ref="dropdownRef"
@@ -88,6 +89,16 @@
       <div v-else :class="cls.e('empty')">未查询到结果</div>
     </template>
   </u-dropdown>
+
+  <template v-else>
+    <div :class="[cls.m(size)]">
+      <div v-if="model?.length" :class="cls.e('tags')">
+        <u-tag v-for="option of tags" :key="option[valueKey]">
+          {{ option[labelKey] }}
+        </u-tag>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -118,7 +129,8 @@ const props = withDefaults(defineProps<MultiSelectProps<Option>>(), {
   placeholder: '请选择',
   clearable: true,
   visibilityLimit: 3,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<MultiSelectEmits>()
@@ -127,10 +139,14 @@ const cls = bem('multi-select')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const hovered = shallowRef(false)
 
@@ -186,7 +202,7 @@ const tags = computed(() => {
   }
 
   // 禁用时，显示全部
-  if (disabled.value) {
+  if (disabled.value || readonly.value) {
     visibilityLimit = model.value?.length ?? 0
   }
 

@@ -1,255 +1,213 @@
 <template>
   <UNodeRender
+    v-bind="{ ...eventsHandlers, ...$attrs }"
     :content="slots.default?.()?.[0]"
-    @mouseenter.self="handleMouseEnter"
-    @mouseleave.self="handleMouseLeave"
-    @click.self="handleClick"
-    :class="cls.b"
+    :class="[cls.b]"
     ref="tipRef"
   />
-
   <teleport to="body">
-    <div
-      :class="contentClass"
-      ref="tipContentRef"
-      v-if="visible"
-      @mouseenter.stop="handleContentMouseEnter"
-      @mouseleave.stop="handleMouseLeave"
-      @click.stop
-      v-click-outside="handleClickOutside"
-    >
-      <slot name="content">
-        {{ modelValue }}
-      </slot>
-    </div>
+    <Transition :name="transitionName">
+      <component
+        :is="contentTag"
+        v-if="visible"
+        :class="contentClass"
+        ref="tipContentRef"
+        @mouseenter="eventsHandlers.onMouseenter"
+        @mouseleave="eventsHandlers.onMouseleave"
+        @click.stop
+        v-click-outside="handleClickOutside"
+      >
+        <slot name="content">{{ content }}</slot>
+      </component>
+    </Transition>
   </teleport>
 </template>
 
 <script lang="ts" setup>
-import type {TipProps} from "@ui/types/components/tip"
-import {bem, nextFrame, setStyles} from "@ui/utils"
-import {shallowRef, nextTick, computed, useSlots, onBeforeUnmount} from "vue"
-import calcPosition from "./position"
-import {vClickOutside} from "@ui/directives"
-import {UNodeRender} from "../node-render"
 import {
-  calculateMaxWidth,
-  calculateRightMaxWidth,
-  calculateLeftMaxWidth,
-  isOverflown,
-} from "./calculate"
-import type {ScrollDirection} from "./type"
-import {useFormComponent, useFormFallbackProps} from "@ui/compositions"
-
-defineOptions({
-  name: "Tip",
-})
+  shallowRef,
+  nextTick,
+  computed,
+  useSlots,
+  onBeforeUnmount,
+  watch,
+} from "vue"
+import { bem, getScrollParents, setStyles } from "@ui/utils"
+import { vClickOutside } from "@ui/directives"
+import { UNodeRender } from "../node-render"
+import { type TipProps } from "@ui/types/components/tip"
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
+import calcPosition from "./position"
+import countMaxWidth from "./countMaxWidth"
+defineOptions({ name: "Tip" })
 
 const props = withDefaults(defineProps<TipProps>(), {
-  modelValue: "提示内容",
+  content: "提示内容",
   trigger: "hover",
   position: "top",
   mouseEnterable: true,
+  mouseLeaveClose: true,
+  clickClose: false,
+  contentTag: "div",
+  disabled: false,
 })
 
 const cls = bem("tip")
-
 const slots = useSlots()
-
-const {formProps} = useFormComponent()
-
-const {size} = useFormFallbackProps([formProps ?? {}, props], {
+const { formProps } = useFormComponent()
+const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: "default",
 })
 
-/**tip弹窗class */
-const contentClass = computed(() => {
-  return [cls.e("content"), bem.is(props.position), cls.m(size.value)]
+const transitionName = computed(() => `tip-${props.position.split("-")[0]}`)
+const contentClass = computed(() => [
+  cls.e("content"),
+  bem.is(props.position),
+  cls.m(size.value),
+  transitionName.value,
+])
+
+const tipRef = shallowRef<InstanceType<typeof UNodeRender>>()
+const tipContentRef = shallowRef<HTMLElement>()
+const visible = shallowRef(false)
+const dynamicStyle = shallowRef<Record<string, any>>({})
+const gap = 8
+const screenSize = { width: 0, height: 0 }
+const isChildrenTip = shallowRef(false)
+let scrollDom = shallowRef<HTMLElement | null>()
+let closeTimer: number | undefined
+
+const eventsHandlers = computed(() => {
+  const { trigger, disabled } = props
+
+  const handlers: Record<string, Function> = {}
+  if (disabled) return handlers
+
+  if (trigger === "click") {
+    handlers.onClick = open
+  } else if (trigger === "hover") {
+    handlers.onMouseenter = open
+
+    if (isChildrenTip.value) {
+      handlers.onMouseleave = open
+    } else {
+      handlers.onMouseleave = closeTipContent
+    }
+  }
+
+  return handlers
 })
 
-/**页面元素的DOM信息 */
-let tipRef = shallowRef<InstanceType<typeof UNodeRender>>()
+watch(tipContentRef, (val) => {
+  if (val) {
+    const tip = val as HTMLElement
+    if (tip.querySelectorAll(".u-tip").length) {
+      isChildrenTip.value = true
+    }
+  }
+})
 
-/**弹窗显示的DOM信息 */
-let tipContentRef = shallowRef<HTMLElement>()
-
-/**是否显示 */
-let visible = shallowRef(false)
-
-// 使用Map管理所有定时器，便于统一清理
-const timers = new Map<string, number>()
-
-/**弹窗style样式 */
-let dynamicStyle = shallowRef<Record<string, any>>({})
-
-/**鼠标移入元素 */
-const handleMouseEnter = () => {
-  if (props.trigger !== "hover") return
-  clearTimeout(timers.get("timerMouseEnter"))
-  timers.set(
-    "timerMouseEnter",
-    setTimeout(async () => {
-      visible.value = true
-      await nextTick()
-      addListener()
-      popup()
-    }, 300)
-  )
-}
-
-/**鼠标离开元素 */
-const handleMouseLeave = () => {
-  if (props.trigger !== "hover") return
-  clearTimeout(timers.get("timerMouseLeave"))
-  timers.set(
-    "timerMouseLeave",
-    setTimeout(() => {
-      removeListener()
-    }, 300)
-  )
-}
-
-/**鼠标移入弹窗内容区域 */
-const handleContentMouseEnter = () => {
-  if (!props.mouseEnterable) return
-  timers.forEach(clearTimeout)
-}
-
-const handleClick = () => {
-  if (props.trigger !== "click") return
-
-  clearTimeout(timers.get("timerTip"))
-  timers.set(
-    "timerTip",
-    setTimeout(async () => {
-      visible.value = !visible.value
-      if (visible.value) {
-        await nextTick()
-        addListener()
-        popup()
-      } else {
-        removeListener()
-      }
-    }, 300)
-  )
-}
-
-const handleClickOutside = () => {
-  clearTimeout(timers.get("timerTip"))
+const handleClickOutside = (e: MouseEvent) => {
+  if (props.clickClose) return
+  if (isChildrenTip.value) return
   if (props.trigger === "hover") return
-  clearTimeout(timers.get("outside"))
-  timers.set(
-    "outside",
-    setTimeout(async () => {
-      visible.value = false
-      removeListener()
-    }, 301)
-  )
+
+  if (
+    props.trigger === "click" &&
+    tipRef.value?.$el?.contains(e.target as Node)
+  ) {
+    return
+  }
+  closeTipContent()
 }
 
-/** 提示框到屏幕边缘的间距 */
-const gap = 16
-
-/**页面滚动元素大小 */
-const screenSize = {
-  width: 0,
-  height: 0,
+const open = () => {
+  closeTimer !== undefined && clearTimeout(closeTimer)
+  if (props.trigger === "hover") {
+    visible.value = true
+  } else if (props.trigger === "click") {
+    closeTimer = setTimeout(() => {
+      visible.value = !visible.value
+    }, 250)
+  }
+}
+/**手动关闭弹窗 */
+const closeTipContent = () => {
+  closeTimer = setTimeout(() => {
+    visible.value = false
+  }, 250)
 }
 
-const setPositionParams = (maxWidth) => {
-  const tipContentRefDom = tipContentRef.value
-  setStyles(tipContentRefDom!, {
-    maxWidth,
+watch(visible, async (v) => {
+  if (v) {
+    await nextTick()
+    window.addEventListener("resize", closeTipContent)
+    /** 添加滚动事件 */
+    scrollParents = getScrollParents(tipRef.value?.$el!)
+    scrollDom.value = scrollParents[0]
+    addScrollEvent()
+  } else {
+    removeScrollEvent()
+    window.removeEventListener("resize", closeTipContent)
+  }
+})
+
+let scrollParents: HTMLElement[] = []
+
+function addScrollEvent() {
+  scrollParents.forEach((el) => {
+    el.addEventListener("scroll", closeTipContent)
   })
+  popup()
 }
-/**tip弹出 */
-const popup = (scrollDirection?: ScrollDirection) => {
+
+function removeScrollEvent() {
+  scrollParents.forEach((el) => {
+    el.removeEventListener("scroll", closeTipContent)
+  })
+
+  scrollParents = []
+}
+
+const popup = async () => {
   screenSize.width = scrollDom.value?.clientWidth!
   screenSize.height = scrollDom.value?.clientHeight!
 
-  // 获取页面元素的DOM信息
   const tipRefDom = tipRef.value?.$el as HTMLElement
   const tipContentRefDom = tipContentRef.value
   if (!tipRefDom || !tipContentRefDom) return
-  // 获取元素的位置和大小信息
-  const {clientWidth, clientHeight} = tipRefDom
+
+  const { clientWidth, clientHeight } = tipRefDom
   const rect = tipRefDom.getBoundingClientRect()
 
-  // 计算弹出层样式
-  let maxWidth
-  if (props.position.match(/^(top|bottom)/)) {
-    maxWidth = calculateMaxWidth(screenSize.width, rect, props.position, gap)
-  } else if (props.position.match(/^right/)) {
-    maxWidth = calculateRightMaxWidth(gap, screenSize.width, rect.width, rect.x)
-  } else if (props.position.match(/^left/)) {
-    maxWidth = calculateLeftMaxWidth(gap, screenSize.width, rect.width, rect.x)
-  }
+  setStyles(tipContentRef.value!, {
+    maxWidth: countMaxWidth(props.position, gap, rect),
+  })
 
-  if (maxWidth) {
-    setPositionParams(maxWidth)
+  const positionParams = {
+    position: props.position,
+    elementWidth: clientWidth,
+    elementHeight: clientHeight,
+    tipRefDom,
+    tipContentRefDom,
+    screenSize,
+    gap,
   }
-
-  // 将计算出的样式作用于弹出内容元素上，并显示
-  nextFrame(async () => {
-    const positionParams = {
-      position: props.position,
-      elementWidth: clientWidth,
-      elementHeight: clientHeight,
-      tipRefDom,
-      tipContentRefDom,
-      scrollDirection: scrollDirection!,
-      screenSize,
-      scrollDom: scrollDom.value!
-    }
-    const {dynamicCss} = await calcPosition(positionParams)
-    dynamicStyle.value = {
-      ...dynamicCss.value,
-      ...props.customStyle,
-    }
-    // 判断元素超出父元素scrollDom隐藏弹窗
-    if (isOverflown(tipRefDom, scrollDom.value!)) {
-      setStyles(tipContentRefDom!, {
-        ...dynamicStyle.value,
-        opacity: 0
-      })
-    } else {
-      setStyles(tipContentRefDom, {
-        ...dynamicStyle.value,
-        opacity: 1
-      })
-    }
+  const { dynamicCss } = await calcPosition(positionParams)
+  dynamicStyle.value = { ...dynamicCss.value, ...props.customStyle }
+  setStyles(tipContentRefDom, { ...dynamicStyle.value })
+  const { top } = tipContentRef.value!.getBoundingClientRect()
+  nextTick(() => {
+    setStyles(tipContentRef.value!, {
+      ...dynamicStyle.value,
+      maxHeight: `${window.innerHeight - top - gap * 2}px`,
+    })
   })
 }
 
-let scrollDom = shallowRef<HTMLElement | null>()
-
-let lastScrollTop = 0
-
-/**监听屏幕滚动 */
-const addListener = () => {
-  const tipRefDom = tipRef.value?.$el as HTMLElement
-  if (!tipRefDom) return
-
-  scrollDom.value = tipRefDom.closest(".u-scroll")!.childNodes[1] as HTMLElement
-  if (!scrollDom.value) return
-  scrollDom.value.addEventListener("scroll", scrollEvent)
-}
-
-const removeListener = () => {
-  visible.value = false
-  scrollDom.value?.removeEventListener("scroll", scrollEvent)
-  dynamicStyle.value = {}
-}
-
-const scrollEvent = () => {
-  const currentScrollTop = scrollDom.value ? scrollDom.value?.scrollTop : 0
-  const scrollDirection = currentScrollTop > lastScrollTop ? "down" : "up"
-  popup(scrollDirection)
-  lastScrollTop = currentScrollTop
-}
-
 onBeforeUnmount(() => {
-  timers.forEach(clearTimeout)
-  scrollDom.value?.removeEventListener("scroll", scrollEvent)
+  clearTimeout(closeTimer)
 })
+
+defineExpose({ closeTipContent })
 </script>
