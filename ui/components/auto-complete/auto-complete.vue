@@ -127,14 +127,14 @@ const props = withDefaults(defineProps<AutoCompleteProps<Option>>(), {
   labelKey: '',
   multiple: false
 })
-
+// 当前输入框的值
 const currentValue = shallowRef<string>('')
-
+// 多选的标签项
 const tags = ref<string[]>([])
-
+// 关闭标签
 const handleClose = (index: number) => {
   tags.value.splice(index, 1)
-  emit('update:modelValue', tags.value)
+  emit('update:modelValue', tags.value.length ? tags.value : [])
 }
 
 const emit = defineEmits<AutoCompleteEmits>()
@@ -192,7 +192,7 @@ const hovered = shallowRef(false)
 const suggestionsCopy = deepCopy(props.suggestions)
 
 const dropdownVisible = shallowRef(false)
-
+// 根据输入内容动态改变下拉框选项
 const onInput = () => {
   nextTick(() => {
     if (!dropdownVisible.value) dropdownRef.value?.open()
