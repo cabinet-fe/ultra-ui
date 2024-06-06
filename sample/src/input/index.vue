@@ -9,6 +9,9 @@
         </template>
       </u-input>
     </div>
+    <div>
+      <u-input v-model="value" :pattern="/^abc/"></u-input>
+    </div>
   </div>
 </template>
 
@@ -17,7 +20,7 @@ import { shallowRef } from 'vue'
 import { Search } from 'icon-ultra'
 import CustomCard from '../card/custom-card.vue'
 
-const value = shallowRef('')
+const value = shallowRef('abc')
 
 const number = shallowRef(0)
 

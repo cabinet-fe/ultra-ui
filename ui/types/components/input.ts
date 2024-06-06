@@ -16,6 +16,11 @@ export interface InputProps extends FormComponentProps {
   clearable?: boolean
   /** 原生只读 */
   nativeReadonly?: boolean
+  /**
+   * 模式
+   * @description 如果指定请保证有一个符合模式的默认值
+   */
+  pattern?: RegExp
 }
 
 export interface InputEmits {

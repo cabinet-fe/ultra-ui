@@ -66,7 +66,14 @@ import {
   useFormFallbackProps
 } from '@ui/compositions'
 import { bem } from '@ui/utils'
-import { computed, getCurrentInstance, ref, Transition, shallowRef } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  ref,
+  Transition,
+  shallowRef,
+  nextTick
+} from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
 
@@ -133,8 +140,18 @@ function handleCompositionEnd(e: Event) {
 
 const handleInput = (e: Event) => {
   if (isComposing) return
+  const inputVal = (e.target as HTMLInputElement).value
   emit('native:input', e)
-  model.value = (e.target as HTMLInputElement).value
+  if (props.pattern) {
+    const valid = props.pattern.test(inputVal)
+    if (!valid) {
+      nextTick(() => {
+        ;(e.target as HTMLInputElement).value = model.value ?? ''
+      })
+      return
+    }
+  }
+  model.value = inputVal
 }
 
 const handlePrefixClick = () => {
