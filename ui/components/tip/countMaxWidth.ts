@@ -6,7 +6,7 @@ import { calculateLeftMaxWidth, calculateMaxWidth } from "./calculate"
  * @param screenSize
  * @param position
  * @param gap
- * @param rectv
+ * @param rect
  * @returns maxWidth
  */
 let maxWidth
