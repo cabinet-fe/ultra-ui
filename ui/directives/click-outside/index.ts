@@ -23,7 +23,7 @@ function addEvent() {
 
 function removeEvent() {
   if (!eventAdded) return
-  document.removeEventListener('click', documentClickHandler)
+  document.removeEventListener('click', documentClickHandler, true)
   eventAdded = false
 }
 
@@ -36,6 +36,7 @@ watch(targets, async targets => {
 
 export const vClickOutside: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
+    if (!binding.value) return
     const id = String(uid())
     el.dataset.outsideId = id
     // 等待点击事件冒泡完毕
@@ -43,6 +44,22 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
       handler: binding.value,
       el
     })
+  },
+
+  updated(el, binding) {
+    if (!binding.value) {
+      if (!el.dataset.outsideId) return
+      targets.delete(el.dataset.outsideId)
+    } else {
+      if (!el.dataset.outsideId) {
+        el.dataset.outsideId = String(uid())
+      }
+
+      targets.set(el.dataset.outsideId!, {
+        handler: binding.value,
+        el
+      })
+    }
   },
 
   unmounted(el: HTMLElement) {
