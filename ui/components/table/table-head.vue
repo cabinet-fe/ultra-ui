@@ -4,7 +4,7 @@
       <th
         v-for="column of header"
         :class="getCellClass(column)"
-        :key="column.key"
+        :key="column.key + keySuffix"
         :colspan="column.leafs"
         :rowspan="
           column.children?.length ? undefined : headers.length - headerIndex

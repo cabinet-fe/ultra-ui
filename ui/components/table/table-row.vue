@@ -12,7 +12,7 @@
       :column="expandColumn"
       :left="expandColumn.style.left"
       :right="expandColumn.style.right"
-      :key="expandColumn.key"
+      :key="expandColumn.key + expandColumn.keySuffix"
     >
       <u-button
         v-if="!row.isLeaf"
@@ -41,7 +41,7 @@
       :column="column"
       :left="column.style.left"
       :right="column.style.right"
-      :key="column.key"
+      :key="column.key + column.keySuffix"
     >
       <u-node-render :content="getColumnSlotsNode(getCellCtx(row, column))" />
     </UTabelCell>

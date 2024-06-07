@@ -14,7 +14,7 @@
       <td
         v-for="column of allColumns.slice(1)"
         :class="getCellClass(column)"
-        :key="column.key"
+        :key="column.key + column.keySuffix"
         :style="{
           right: withUnit(column.style.right, 'px'),
           left: withUnit(column.style.left, 'px')
