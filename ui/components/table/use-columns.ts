@@ -47,9 +47,16 @@ export class ColumnNode extends TreeNode<TableColumn> {
   parent: ColumnNode | null = null
   /** 叶子节点数量 */
   leafs?: number
+
+  get indexes(): number[] {
+    if (!this.parent) return []
+    if (this.depth === 1) return [this.index]
+    return this.parent.indexes.concat(this.index)
+  }
+
   /** 列key */
   get key(): string {
-    return this.data.key
+    return this.data.key + this.indexes.join('-')
   }
   set key(val) {
     this.data.key = val

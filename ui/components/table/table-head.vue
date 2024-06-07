@@ -1,6 +1,6 @@
 <template>
   <thead :class="[cls.e('head'), bem.is('multistage', headers.length > 1)]">
-    <tr v-for="(header, headerIndex) of headers" >
+    <tr v-for="(header, headerIndex) of headers">
       <th
         v-for="column of header"
         :class="getCellClass(column)"
