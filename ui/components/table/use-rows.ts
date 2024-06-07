@@ -65,6 +65,8 @@ export function useRows(options: Options) {
 
   let rowForest = shallowRef<Forest<TableRow>>()
 
+  watch(rowForest, forest => emit('update:tree-rows', forest?.nodes))
+
   // 用于优化增删改时的性能
   let rowDicts = new WeakMap<Record<string, any>, TableRow>()
   let tempRowDicts: null | WeakMap<Record<string, any>, TableRow> = null
