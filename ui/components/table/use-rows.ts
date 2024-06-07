@@ -1,6 +1,6 @@
 import type { TableEmits, TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode, getChainValue } from 'cat-kit/fe'
-import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
+import { isReactive, nextTick, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
@@ -61,7 +61,9 @@ export function useRows(options: Options) {
 
   const rows = shallowRef<TableRow[]>([])
 
-  watch(rows, rows => emit('update:rows', rows))
+  watch(rows, rows => {
+    emit('update:rows', rows)
+  })
 
   let rowForest = shallowRef<Forest<TableRow>>()
 
@@ -137,7 +139,7 @@ export function useRows(options: Options) {
   )
 
   function getFlattedRows() {
-    if (!rowForest) return
+    if (!rowForest.value) return
     const result: TableRow[] = []
 
     rowForest.value?.dft(node => {
@@ -147,6 +149,7 @@ export function useRows(options: Options) {
       }
       return false
     })
+
     rows.value = result
   }
 

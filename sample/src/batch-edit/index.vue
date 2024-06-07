@@ -39,7 +39,7 @@ import { FormModel, Message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
-const tree = shallowRef(false)
+const tree = shallowRef(true)
 const resizable = shallowRef(true)
 const dialogVisble = shallowRef(false)
 
@@ -49,7 +49,7 @@ const columns = defineTableColumns([
 ])
 
 const data = shallowRef(
-  Array.from({ length: 0 }).map((_, i) => ({
+  Array.from({ length: 1 }).map((_, i) => ({
     name: '姓名' + i,
     age: Math.ceil(Math.random() * 80),
     id: Math.random()
@@ -58,7 +58,7 @@ const data = shallowRef(
 
 const model = new FormModel({
   name: { required: true },
-  age: { required: true, max: 100 },
+  age: { max: 100 },
   'props.field': {},
   'props.label': {}
 })

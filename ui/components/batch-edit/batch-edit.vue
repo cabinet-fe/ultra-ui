@@ -347,13 +347,16 @@ async function handleDelete(row: TableRow) {
   if (len < 0) {
     len = 0
   }
-  let cur = data
+  let arr = data
+  let parent
   for (let i = 0; i < len; i++) {
-    cur = cur[row.indexes[i]!]![childrenKey]
+    parent = arr[row.indexes[i]!]!
+    arr = parent[childrenKey]
   }
-  cur.splice(row.index, 1)
 
-  emit('update:data', omitArr(props.data!, row.index))
+  arr.splice(row.index, 1)
+
+  emit('update:data', data)
 }
 
 // async function handleDeleteBatch() {
