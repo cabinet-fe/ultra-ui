@@ -341,6 +341,10 @@ async function handleDelete(row: TableRow) {
     tableRef.value?.clearCurrentRow()
   }
 
+  if (row === parentRow) {
+    handleClose()
+  }
+
   const data = [...props.data!]
   let len = row.indexes.length - 1
   const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
@@ -348,10 +352,9 @@ async function handleDelete(row: TableRow) {
     len = 0
   }
   let arr = data
-  let parent
+
   for (let i = 0; i < len; i++) {
-    parent = arr[row.indexes[i]!]!
-    arr = parent[childrenKey]
+    arr = arr[row.indexes[i]!]![childrenKey]
   }
 
   arr.splice(row.index, 1)
