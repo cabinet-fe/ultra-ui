@@ -38,7 +38,7 @@
 
       <!-- 单选列表 -->
       <u-scroll
-        v-if="filteredOptions.length"
+        v-if="filteredOptions?.length"
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
@@ -172,7 +172,7 @@ const filteredOptions = computed(() => {
   const { options, labelKey } = props
   if (queryString.value === '') return options
 
-  return options.filter(item => item[labelKey].includes(queryString.value))
+  return options?.filter(item => item[labelKey].includes(queryString.value))
 })
 
 /** 单选 */

@@ -12,7 +12,7 @@ export interface SelectProps<
   /** 文本内容 */
   text?: string
   /** 列表选项 */
-  options: Option[]
+  options?: Option[]
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */
