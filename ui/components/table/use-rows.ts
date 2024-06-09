@@ -1,6 +1,6 @@
 import type { TableEmits, TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode, getChainValue } from 'cat-kit/fe'
-import { isReactive, nextTick, shallowReactive, shallowRef, watch } from 'vue'
+import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
 
 interface Options {
   props: TableProps
