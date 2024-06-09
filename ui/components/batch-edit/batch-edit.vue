@@ -129,14 +129,7 @@ import type {
   BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import {
-  getChainValue,
-  last,
-  omit,
-  omitArr,
-  safeRun,
-  setChainValue
-} from 'cat-kit/fe'
+import { getChainValue, last, omit, safeRun, setChainValue } from 'cat-kit/fe'
 import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import {
   UTable,
