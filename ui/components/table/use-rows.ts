@@ -79,6 +79,11 @@ export function useRows(options: Options) {
       if (!data?.length) {
         rows.value = []
         rowDicts = new WeakMap()
+        rowForest.value = Forest.create([], {
+          createNode(data, index) {
+            return new TableRow(data, index, rowKey)
+          }
+        })
         return
       }
 

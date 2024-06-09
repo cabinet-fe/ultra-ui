@@ -213,10 +213,14 @@ export function useColumns(options: Options): ColumnConfig {
 
       const result = Forest.create(
         [...fixedOnLeft, ...unfixed, ...fixedOnRight],
-        ColumnNode
+        {
+          createNode(data, index) {
+            return new ColumnNode(data, index)
+          }
+        }
       )
-      // 计算定位位置
 
+      // 计算定位位置
       let leftAcc = 0
       fixedOnLeft.some((_, i) => {
         const colNode = result.nodes[i]!
