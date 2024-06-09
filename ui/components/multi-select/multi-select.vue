@@ -54,7 +54,9 @@
           全选
         </u-checkbox>
 
-        <span> 已选 {{ model?.length }}/{{ max ?? options.length }} </span>
+        <span>
+          已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }}
+        </span>
       </div>
 
       <!-- 过滤器 -->
@@ -70,7 +72,7 @@
       <u-scroll
         tag="ul"
         :class="cls.e('options')"
-        v-if="filteredOptions.length"
+        v-if="filteredOptions?.length"
       >
         <u-multi-select-option
           v-for="(option, index) of filteredOptions"
@@ -153,7 +155,7 @@ const hovered = shallowRef(false)
 const model = defineModel<Array<string | number>>()
 const checkedSet = shallowReactive<Set<Option>>(new Set())
 const allChecked = computed(() => {
-  return checkedSet.size === props.options.length
+  return checkedSet.size === (props.options?.length ?? 0)
 })
 const indeterminate = computed(() => {
   return checkedSet.size > 0 && !allChecked.value
@@ -162,7 +164,7 @@ const indeterminate = computed(() => {
 const optionsMap = computed(() => {
   const { valueKey, options } = props
   return new Map<string | number, Option>(
-    options.map(option => [option[valueKey], option])
+    options?.map(option => [option[valueKey], option])
   )
 })
 
@@ -226,7 +228,7 @@ const filteredOptions = computed(() => {
   const { options, labelKey } = props
   if (queryString.value === '') return options
 
-  return options.filter(item => item[labelKey].includes(queryString.value))
+  return options?.filter(item => item[labelKey].includes(queryString.value))
 })
 
 const handleCheck = (option: Option, checked: boolean) => {
@@ -240,7 +242,7 @@ const handleCheck = (option: Option, checked: boolean) => {
 /** 全选 */
 const handleCheckAll = (checked: boolean) => {
   if (checked) {
-    props.options.forEach(option => checkedSet.add(option))
+    props.options?.forEach(option => checkedSet.add(option))
   } else {
     checkedSet.clear()
   }
