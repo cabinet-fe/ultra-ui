@@ -6,7 +6,12 @@
     <CustomCard title="表单">
       <!-- <u-button @click="open">打开</u-button> -->
       <!-- <u-dialog v-model="visible" style="width: 900px"> -->
-      <u-form :disabled="disabled" :readonly="readonly" :model="model" label-width="100px">
+      <u-form
+        :disabled="disabled"
+        :readonly="readonly"
+        :model="model"
+        label-width="100px"
+      >
         <template #default="{ data }">
           <u-radio-group
             :items="[
@@ -16,7 +21,12 @@
             label="性别"
             field="sex"
           />
-          <u-input field="name" v-if="data.sex === 'female'" label="姓名" tips="四个字以内" />
+          <u-input
+            field="name"
+            v-if="data.sex === 'female'"
+            label="姓名"
+            tips="四个字以内"
+          />
 
           <u-input field="nest.name" label="嵌套名称" />
           <u-number-input field="nest.price" label="嵌套价格" />
@@ -27,7 +37,11 @@
           <u-input field="phone" label="手机" />
           <u-input field="email" label="邮箱" />
           <u-select field="unit" label="单位" :options="units" />
-          <u-multi-select field="interest" label="兴趣" :options="interestList" />
+          <u-multi-select
+            field="interest"
+            label="兴趣"
+            :options="interestList"
+          />
 
           <u-date-picker field="date" label="日期" />
           <u-checkbox field="freeze" label="是否冻结" />
@@ -62,6 +76,11 @@
             label-key="label"
             multiple
           />
+
+          <u-group-input field="group" label="分组输入" v-slot="{ item }">
+            <u-input v-model="item.value1" />
+            <u-input v-model="item.value2" />
+          </u-group-input>
         </template>
       </u-form>
 
@@ -75,7 +94,9 @@
         <u-button type="primary" @click="handleSetData">设置值</u-button>
         <u-button type="primary" @click="handleValidate">校验</u-button>
         <u-button @click="model.resetData()">重置数据</u-button>
-        <u-button type="success" @click="model.clearValidate()">清除校验</u-button>
+        <u-button type="success" @click="model.clearValidate()"
+          >清除校验</u-button
+        >
       </div>
     </CustomCard>
 
@@ -110,7 +131,10 @@ const model = new FormModel({
   debt: { min: 10, value: 66666 },
   email: {
     value: '',
-    match: [/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/, '这个时候你得输入一个邮箱']
+    match: [
+      /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+      '这个时候你得输入一个邮箱'
+    ]
   },
   unit: { required: true, value: '1' },
   interest: { required: true, value: () => ['1', '2', '3'] },
@@ -124,7 +148,8 @@ const model = new FormModel({
   treeChecked: { required: true },
   treeSelect: { required: true, value: () => 11 },
   complete1: { value: 'test', required: true },
-  complete2: { value: ['张三', '李四'], required: true }
+  complete2: { value: ['张三', '李四'], required: true },
+  group: { required: true }
 })
 
 // const sortRef = shallowRef()
@@ -138,7 +163,7 @@ const units = [
 
 const visible = shallowRef(false)
 
-watch(visible, (v) => {
+watch(visible, v => {
   !v && model.resetData()
 })
 

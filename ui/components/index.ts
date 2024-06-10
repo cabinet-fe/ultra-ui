@@ -40,6 +40,8 @@ export * from './gantt-chart'
 
 export * from './grid'
 
+export * from './group-input'
+
 export * from './icon'
 
 export * from './input'
