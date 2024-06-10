@@ -10,6 +10,7 @@ import { UIcon } from '../icon'
 import { UButton, type ButtonExposed } from '../button'
 import { provide, shallowRef, type VNode } from 'vue'
 import { ActionDIKey } from './di'
+import { extractNormalVNodes } from '@ui/utils'
 
 defineOptions({
   name: 'ActionGroup',
@@ -57,12 +58,16 @@ provide(ActionDIKey, {
 })
 
 function getSlotsNodes() {
-  // @ts-ignore
-  const nodes = slots.default?.()?.filter(node => node.type?.name === 'Action')
-  if (!nodes) return []
+  const nodes = slots.default?.()
 
-  const normalNodes = nodes.slice(0, props.max)
-  const hiddenNodes = nodes.slice(props.max)
+  if (!nodes) return []
+  const extractedNodes = extractNormalVNodes(nodes).filter(
+    // @ts-ignore
+    node => node.type?.name === 'Action'
+  )
+
+  const normalNodes = extractedNodes.slice(0, props.max)
+  const hiddenNodes = extractedNodes.slice(props.max)
 
   const dropdown = hiddenNodes.length ? (
     <UDropdown minWidth='100px' trigger='custom' ref={dropdownRef}>

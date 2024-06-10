@@ -3,9 +3,7 @@
     <u-table :columns="columns" :data="data">
       <template #column:action>
         <u-action-group>
-          <u-action>编辑</u-action>
-          <u-action>查看</u-action>
-          <u-action>审批</u-action>
+          <u-action v-for="button of buttons">{{ button }}</u-action>
           <u-action need-confirm type="danger">删除</u-action>
         </u-action-group>
       </template>
@@ -30,4 +28,6 @@ const data = Array.from({ length: 10 }).map((item, i) => {
     col3: 'col3-' + i
   }
 })
+
+const buttons = ['查看', '编辑', '审批']
 </script>
