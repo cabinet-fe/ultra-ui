@@ -5,7 +5,7 @@ import type { DeconstructValue } from '../helper'
 export interface MultiSelectProps<Option extends Record<string, any>>
   extends FormComponentProps {
   /** 绑定值 */
-  modelValue?: Array<string | number>
+  modelValue?: Array<any>
   /** 列表选项 */
   options?: Option[]
   /** 值字段 */
@@ -26,7 +26,7 @@ export interface MultiSelectProps<Option extends Record<string, any>>
 
 /** multi-select组件定义的事件 */
 export interface MultiSelectEmits {
-  (e: 'update:modelValue', value: Array<string | number>): void
+  (e: 'update:modelValue', value: Array<any>): void
 }
 
 /** multi-select组件暴露的属性和方法(组件内部使用) */

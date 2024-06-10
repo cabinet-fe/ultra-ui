@@ -3,12 +3,10 @@ import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 选择器组件属性 */
-export interface SelectProps<
-  Option extends Record<string, any>,
-  Val extends string | number = string | number
-> extends FormComponentProps {
+export interface SelectProps<Option extends Record<string, any>>
+  extends FormComponentProps {
   /** 绑定值 */
-  modelValue?: Val
+  modelValue?: any
   /** 文本内容 */
   text?: string
   /** 列表选项 */
@@ -25,13 +23,10 @@ export interface SelectProps<
   filterable?: boolean
 }
 
-export interface SelectEmits<
-  Option extends Record<string, any>,
-  Val extends string | number = string | number
-> {
+export interface SelectEmits<Option extends Record<string, any>> {
   /** 触发更新label事件 */
   (e: 'update:label', label?: string): void
-  (e: 'update:modelValue', modelValue?: Val): void
+  (e: 'update:modelValue', modelValue?: any): void
   (e: 'change', option: Option): void
 }
 
