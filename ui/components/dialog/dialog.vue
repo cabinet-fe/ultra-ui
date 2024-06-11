@@ -60,7 +60,6 @@
             @transitionend.stop
             @transitioncancel.stop
           >
-            {{ console.log(123) }}
             <slot />
           </u-scroll>
 
