@@ -5,7 +5,6 @@
         v-if="visible || opened"
         v-show="visible"
         :class="[cls.e('overlay'), bem.is('modal', modal)]"
-        :style="style"
         ref="overlayRef"
         @mousedown="modal && close()"
         @keyup.esc="close"
@@ -15,8 +14,7 @@
           v-bind="$attrs"
           :class="className"
           ref="dialogRef"
-          @mousedown.stop
-          @mouseup="handleIncreaseZIndex"
+          @mousedown.stop="handleIncreaseZIndex"
         >
           <section
             :class="headerCls"
@@ -122,10 +120,6 @@ const footerRef = shallowRef<HTMLDivElement>()
 
 const visible = defineModel<boolean>()
 
-const style = {
-  zIndex: zIndex()
-}
-
 const dialogTransition = useTransition('style', {
   target: dialogRef,
 
@@ -190,6 +184,10 @@ const updateDialogTransform = (x: number, y: number) => {
 // 运用拖拽
 useDrag({
   target: headerRef,
+
+  onDragStart() {
+    handleIncreaseZIndex()
+  },
 
   onDrag(x, y) {
     if (maximized.value) return

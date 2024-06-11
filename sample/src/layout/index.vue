@@ -24,7 +24,7 @@
     </u-layout>
 
     <h3>尺寸可调节</h3>
-    <u-layout cols="1fr 300px" resizable>
+    <u-layout cols="300px 1fr 300px" resizable>
       <div class="nav"></div>
       <aside class="aside"></aside>
       <main class="main"></main>

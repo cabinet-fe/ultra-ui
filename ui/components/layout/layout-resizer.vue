@@ -2,8 +2,7 @@
   <div
     :class="className"
     :style="{
-      transform: `translate3d(${offsets.x}, ${offsets.y}, 0)`,
-      zIndex: z
+      transform: `translate3d(${offsets.x}, ${offsets.y}, 0)`
     }"
     ref="resizerRef"
   >
@@ -14,7 +13,7 @@
 <script lang="ts" setup>
 import { computed, inject, shallowReactive, shallowRef } from 'vue'
 import { LayoutDIKey } from './di'
-import { bem, zIndex } from '@ui/utils'
+import { bem } from '@ui/utils'
 import { useDrag } from '@ui/compositions'
 import { Move } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -22,8 +21,6 @@ import { UIcon } from '../icon'
 defineOptions({
   name: 'LayoutResizer'
 })
-
-const z = zIndex()
 
 const props = defineProps<{
   /** 是否横向 */
