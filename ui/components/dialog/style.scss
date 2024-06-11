@@ -30,6 +30,7 @@ $root-name: dialog;
   max-height: 90vh;
   box-shadow: fn.use-var(shadow);
   flex-wrap: nowrap;
+  overflow: hidden;
 
   @include m.size using ($size) {
     @include m.bem($root-name, header) {
