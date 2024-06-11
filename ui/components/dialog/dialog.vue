@@ -6,9 +6,18 @@
         v-show="visible"
         :class="[cls.e('overlay'), bem.is('modal', modal)]"
         :style="style"
+        ref="overlayRef"
         @mousedown="modal && close()"
+        @keyup.esc="close"
+        tabindex="0"
       >
-        <div v-bind="$attrs" :class="className" ref="dialogRef" @mousedown.stop>
+        <div
+          v-bind="$attrs"
+          :class="className"
+          ref="dialogRef"
+          @mousedown.stop
+          @mouseup="handleIncreaseZIndex"
+        >
           <section
             :class="headerCls"
             ref="headerRef"
@@ -51,6 +60,7 @@
             @transitionend.stop
             @transitioncancel.stop
           >
+            {{ console.log(123) }}
             <slot />
           </u-scroll>
 
@@ -64,14 +74,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type VNode,
-  shallowRef,
-  watch,
-  shallowReactive,
-  nextTick,
-  computed
-} from 'vue'
+import { type VNode, shallowRef, watch, nextTick, computed } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
@@ -104,6 +107,7 @@ const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
+const overlayRef = shallowRef<HTMLDivElement>()
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
@@ -119,9 +123,9 @@ const footerRef = shallowRef<HTMLDivElement>()
 
 const visible = defineModel<boolean>()
 
-const style = shallowReactive({
+const style = {
   zIndex: zIndex()
-})
+}
 
 const dialogTransition = useTransition('style', {
   target: dialogRef,
@@ -154,11 +158,12 @@ watch(visible, v => {
   }
   if (!opened) opened = true
 
-  style.zIndex = zIndex()
   translated.x = 0
   translated.y = 0
 
   nextTick(() => {
+    overlayRef.value && setStyles(overlayRef.value, { zIndex: zIndex() })
+
     dialogRef.value &&
       setStyles(dialogRef.value, {
         transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
@@ -203,6 +208,11 @@ const { toggleMaximize, maximized } = useMaximum({
   dialogRef,
   cls
 })
+
+function handleIncreaseZIndex() {
+  if (props.modal) return
+  setStyles(overlayRef.value!, { zIndex: zIndex() })
+}
 
 /** 关闭 */
 const close = () => {

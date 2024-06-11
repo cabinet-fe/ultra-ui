@@ -11,6 +11,7 @@ $root-name: dialog;
   top: 0;
   width: 100vw;
   height: 100vh;
+  outline: none;
 
   @include m.flex($justify: center);
 
@@ -61,7 +62,6 @@ $root-name: dialog;
   // 弹框头
   @include m.e(header) {
     height: 49px;
-
     border-bottom: fn.use-var(border);
     border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
 
@@ -74,6 +74,9 @@ $root-name: dialog;
 
   @include m.e(title) {
     line-height: 1em;
+    &:active {
+      cursor: text;
+    }
   }
 
   @include m.e(body) {
