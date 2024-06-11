@@ -5,8 +5,7 @@
 $root-name: dialog;
 
 @include m.bem($root-name, overlay) {
-  pointer-events: auto;
-  background: rgba($color: #000000, $alpha: 0.32);
+  pointer-events: none;
   position: fixed;
   left: 0;
   top: 0;
@@ -14,14 +13,21 @@ $root-name: dialog;
   height: 100vh;
 
   @include m.flex($justify: center);
+
+  @include m.is(modal) {
+    background-color: rgba($color: #000000, $alpha: 0.32);
+    pointer-events: auto;
+  }
 }
 
 @include m.b($root-name) {
+  pointer-events: auto;
   border-radius: fn.use-var(radius, large);
   will-change: transform;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
+  box-shadow: fn.use-var(shadow);
   flex-wrap: nowrap;
 
   @include m.size using ($size) {
@@ -146,7 +152,7 @@ $root-name: dialog;
 .#{$root-name}-maximize-enter-active,
 .#{$root-name}-maximize-leave-active {
   transition-property: width, height, transform;
-  transition-duration: .25s;
+  transition-duration: 0.25s;
 }
 
 // 移除动画激活时保证最大高度为100vh

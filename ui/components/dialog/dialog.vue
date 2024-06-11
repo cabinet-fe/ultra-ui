@@ -4,9 +4,9 @@
       <div
         v-if="visible || opened"
         v-show="visible"
-        :class="cls.e('overlay')"
+        :class="[cls.e('overlay'), bem.is('modal', modal)]"
         :style="style"
-        @click="close"
+        @mousedown="modal && close()"
       >
         <div v-bind="$attrs" :class="className" ref="dialogRef" @click.stop>
           <section
@@ -86,7 +86,9 @@ defineOptions({
   inheritAttrs: false
 })
 
-const props = defineProps<DialogProps>()
+const props = withDefaults(defineProps<DialogProps>(), {
+  modal: true
+})
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?(): VNode[] | undefined

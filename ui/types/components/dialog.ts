@@ -1,4 +1,4 @@
-import type { ComponentSize } from "../component-common"
+import type { ComponentSize } from '../component-common'
 
 /** 对话框组件属性 */
 export interface DialogProps {
@@ -10,6 +10,8 @@ export interface DialogProps {
   header?: string
   /** 大小尺寸 */
   size?: ComponentSize
+  /** 显示模态层 */
+  modal?: boolean
 }
 
 /** 对话框组件定义的事件 */
