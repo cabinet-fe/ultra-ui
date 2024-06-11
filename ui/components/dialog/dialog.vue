@@ -8,7 +8,7 @@
         :style="style"
         @mousedown="modal && close()"
       >
-        <div v-bind="$attrs" :class="className" ref="dialogRef" @click.stop>
+        <div v-bind="$attrs" :class="className" ref="dialogRef" @mousedown.stop>
           <section
             :class="headerCls"
             ref="headerRef"
