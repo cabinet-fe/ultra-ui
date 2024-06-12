@@ -2,7 +2,8 @@ import type { Undef } from '@ui/types/helper'
 import type {
   ValidateRule,
   Data,
-  ValidatorConfig
+  ValidatorConfig,
+  PresetRule
 } from '@ui/types/utils/form/validate'
 import { getChainValue } from 'cat-kit/fe'
 
@@ -10,8 +11,43 @@ const isEmpty = (value: any): value is null | undefined => {
   return value === null || value === undefined
 }
 
+const presetRules: Record<PresetRule, (value: string) => string | undefined> = {
+  email(v) {
+    const re = /^([\w\_\-]+)@([\w\-]+[\.]?)*[\w]+\.[a-zA-Z]{2,10}$/
+    if (!re.test(v)) {
+      return '邮箱格式不正确'
+    }
+  },
+  phone(v) {
+    const re = /^\d{11}$/
+    if (!re.test(v)) {
+      return '手机号格式不正确'
+    }
+  },
+  num(v) {
+    const re = /^\d+$/
+    if (!re.test(v)) {
+      return '数字格式不正确'
+    }
+  },
+  url(v) {
+    const re =
+      /^(ftp|https?)\:\/\/([\w\_\-]+)\.([\w\-]+[\.]?)*[\w]+\.[a-zA-Z]{2,10}(.*)/
+    if (!re.test(v)) {
+      return '链接格式不正确'
+    }
+  },
+
+  idCard(v) {
+    const re = /^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/
+    if (!re.test(v)) {
+      return '身份证格式不正确'
+    }
+  }
+}
+
 /** 预设规则 */
-const presetRules = {
+const ruleTypes = {
   required(value: any, required: ValidateRule['required']): Undef<string> {
     if (required === false) return
 
@@ -54,10 +90,20 @@ const presetRules = {
   },
   match(value: any, rule: ValidateRule['match']): Undef<string> {
     if (isEmpty(value) || value === '') return
+    if (typeof rule === 'string') {
+      if (!rule) return
+      rule = new RegExp(rule)
+    }
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项不匹配正则:${_rule}`
     if (typeof value !== 'string') return `${value}不是一个字符串`
     if (!_rule.test(value)) return errMsg
+  },
+  preset(value: any, rule: ValidateRule['preset']): Undef<string> {
+    if (isEmpty(value) || value === '' || !rule) return
+    if (typeof value !== 'string') return `${value}不是一个字符串`
+    const ruleValidator = presetRules[rule]
+    return ruleValidator(value)
   }
 }
 /**  */
@@ -138,13 +184,13 @@ export class Validator<
 
     // 必填要先去校验
     if (required) {
-      const err = presetRules.required(value, required)
+      const err = ruleTypes.required(value, required)
       err && errors.push(err)
     }
 
     // 校验规则
     for (const ruleKey in normalRules) {
-      const validate = presetRules[ruleKey]
+      const validate = ruleTypes[ruleKey]
       if (!validate) continue
       const err = validate(value, normalRules[ruleKey])
       err && errors.push(err)
@@ -173,7 +219,7 @@ export class Validator<
 
     // 必填要先去校验
     if (required) {
-      const err = presetRules.required(value, required)
+      const err = ruleTypes.required(value, required)
       if (err) {
         errors.push(err)
         return errors
@@ -182,7 +228,7 @@ export class Validator<
 
     // 校验规则
     for (const ruleKey in normalRules) {
-      const validate = presetRules[ruleKey]
+      const validate = ruleTypes[ruleKey]
       if (!validate) continue
 
       const err = validate(value, normalRules[ruleKey])

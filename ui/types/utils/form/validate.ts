@@ -1,5 +1,7 @@
 export type Data = Record<string, any> | Record<string, any>[]
 
+export type PresetRule = 'email' | 'phone' | 'num' | 'url' | 'idCard'
+
 /** 字段校验规则 */
 export interface ValidateRule {
   /** 是否必填 */
@@ -15,7 +17,9 @@ export interface ValidateRule {
   /** 最大长度 */
   maxLen?: number | [number, string]
   /** 匹配 */
-  match?: RegExp | [RegExp, string]
+  match?: RegExp | [RegExp, string] | string
+  /** 预设 */
+  preset?: PresetRule
   /** 自定义校验 */
   validator?: (value: any, data: Data) => Promise<string> | string
 }
