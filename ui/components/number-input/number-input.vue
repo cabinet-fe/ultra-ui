@@ -68,11 +68,14 @@ const emit = defineEmits<NumberInputEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false,
-  readonly: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const inputProps = computed(() => {
   return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
@@ -150,7 +153,7 @@ function getDisplayed(num?: number): string {
 }
 
 watch(
-  [model, focused],
+  [model, focused, () => props.currency],
   ([model, focused]) => {
     if (focused) return
     displayed.value = getDisplayed(model)
