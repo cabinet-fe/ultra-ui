@@ -11,6 +11,7 @@
         :readonly="readonly"
         :model="model"
         label-width="100px"
+        ref="formRef"
       >
         <template #default="{ data }">
           <u-radio-group
@@ -230,6 +231,8 @@ const treeData = [
     ]
   }
 ]
+
+const formRef = shallowRef()
 </script>
 
 <style scoped lang="scss">

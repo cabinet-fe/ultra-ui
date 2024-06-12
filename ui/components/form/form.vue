@@ -1,5 +1,5 @@
 <template>
-  <u-grid tag="form" :cols="{ xs: 1, sm: 2, xl: 3, default: 4 }" :class="cls.b">
+  <u-grid tag="form" ref="gridRef" :cols="breakpointCols" :class="cls.b">
     <template
       v-for="{ node, isFormItem, formItemProps, field } of getSlotsNodes()"
       :key="node.key ?? undefined"
@@ -18,14 +18,14 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel">
-import type { FormProps } from '@ui/types/components/form'
-import { UGrid } from '../grid'
+import type { FormProps, _FormExposed } from '@ui/types/components/form'
+import { UGrid, type GridExposed } from '../grid'
 import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
 import { useNodeInterceptor } from './use-node-interceptor'
 import type { FormModel } from './form-model'
 import { UFormItem } from '../form-item'
-import { toRef } from 'vue'
+import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 
 defineOptions({
@@ -47,6 +47,8 @@ defineSlots<{
 
 const cls = bem('form')
 
+const breakpointCols = { xs: 1, sm: 2, xl: 3, default: 4 }
+
 useFormComponent(props)
 
 const { getSlotsNodes } = useNodeInterceptor({ props })
@@ -57,4 +59,10 @@ function handleUpdateValue(field: string, value: any) {
 
   setChainValue(data, field, value)
 }
+
+const gridRef = shallowRef<GridExposed>()
+
+defineExpose<_FormExposed>({
+  el: toRef(() => gridRef.value?.el)
+})
 </script>

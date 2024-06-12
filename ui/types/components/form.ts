@@ -1,3 +1,4 @@
+import type { ShallowRef } from 'vue'
 import type { ComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 import type { ValidateRule } from '../utils/form/validate'
@@ -76,10 +77,8 @@ export interface FormProps<Model extends IFormModel = IFormModel>
   disabled?: boolean
 }
 
-export interface _FormExposed<Fields> {
-  validate: (fields?: Fields) => Promise<boolean>
+export interface _FormExposed {
+  el: ShallowRef<HTMLElement | undefined>
 }
 
-export type FormExposed<Fields = string> = DeconstructValue<
-  _FormExposed<Fields>
->
+export type FormExposed = DeconstructValue<_FormExposed>

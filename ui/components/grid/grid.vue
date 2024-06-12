@@ -5,8 +5,12 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, setStyles } from '@ui/utils'
-import type { GridProps, GridEmits } from '@ui/types/components/grid'
+import { bem, setStyles, withUnit } from '@ui/utils'
+import type {
+  GridProps,
+  GridEmits,
+  _GridExposed
+} from '@ui/types/components/grid'
 import { GridDIKey } from './di'
 import { type CSSProperties, shallowRef, provide, watchEffect } from 'vue'
 import { useResponsive } from './use-responsive'
@@ -39,10 +43,14 @@ watchEffect(() => {
 
   const style: CSSProperties = {}
 
-  if (gap && gap > 0) {
-    style.columnGap = gap + 'px'
-  } else {
-    delete style.columnGap
+  if (typeof gap === 'number') {
+    if (gap > 0) {
+      style.columnGap = gap + 'px'
+    }
+  } else if (typeof gap === 'string') {
+    const [rowGap, columnGap] = gap.split(' ')
+    style.columnGap = withUnit(columnGap, 'px')
+    style.rowGap = rowGap
   }
 
   if (!cols) {
@@ -67,5 +75,9 @@ watchEffect(() => {
 provide(GridDIKey, {
   currentBreakpoint,
   gridItemsProps
+})
+
+defineExpose<_GridExposed>({
+  el: gridRef
 })
 </script>
