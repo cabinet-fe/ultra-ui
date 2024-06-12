@@ -5,7 +5,9 @@
       :class="[cls.e('label'), bem.is('required', fieldRequired)]"
       :style="labelStyles"
     >
-      {{ label }}
+      <slot name="label">
+        {{ label }}
+      </slot>
     </label>
 
     <section :class="cls.e('content')">
@@ -38,6 +40,11 @@ defineOptions({
 const props = withDefaults(defineProps<FormItemProps>(), {
   readonly: undefined
 })
+
+defineSlots<{
+  /** 标签插槽 */
+  label?: () => any
+}>()
 
 const cls = bem('form-item')
 
