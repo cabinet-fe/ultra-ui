@@ -144,7 +144,9 @@ export class Validator<
 
     // 校验规则
     for (const ruleKey in normalRules) {
-      const err = presetRules[ruleKey](value, normalRules[ruleKey])
+      const validate = presetRules[ruleKey]
+      if (!validate) continue
+      const err = validate(value, normalRules[ruleKey])
       err && errors.push(err)
     }
 
@@ -180,7 +182,10 @@ export class Validator<
 
     // 校验规则
     for (const ruleKey in normalRules) {
-      const err = presetRules[ruleKey](value, normalRules[ruleKey])
+      const validate = presetRules[ruleKey]
+      if (!validate) continue
+
+      const err = validate(value, normalRules[ruleKey])
 
       if (err) {
         errors.push(err)

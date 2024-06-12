@@ -86,7 +86,7 @@ const errorTips = computed<string | undefined>(() => {
 const fieldRequired = computed<boolean>(() => {
   const { field } = props
   if (!field || readonly.value) return false
-  const required = formProps?.model?.rules[field]?.required
+  const required = formProps?.model?.fields[field]?.required
   return required ? true : false
 })
 </script>

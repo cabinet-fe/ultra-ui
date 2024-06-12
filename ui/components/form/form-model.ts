@@ -42,13 +42,15 @@ export class FormModel<
   readonly data: ModelData<Fields>
 
   /** 表单规则 */
-  readonly rules: ModelRules<Fields>
+  readonly fields: Fields
 
   /** 所有的键 */
   readonly allKeys: string[]
 
-  /** 需要校验的key */
-  validateKeys?: string[]
+  /**
+   * 不同表单对应的key
+   */
+  formKeys = new Map<number, (keyof Fields)[]>()
 
   /** 初始数据 */
   private readonly initialData: ModelData<Fields>
@@ -72,18 +74,17 @@ export class FormModel<
   private modelChangeCallback?: (fields: string, val: any) => void
 
   constructor(fields: Fields) {
+    this.fields = fields
     const rawData = {} as ModelData<Fields>
-    const rules = {} as ModelRules<Fields>
     const allKeys: string[] = []
 
     for (const key in fields) {
-      const { value, ...rule } = fields[key]!
+      const fieldItem = fields[key]!
       allKeys.push(key)
+      const { value } = fieldItem
       const v = typeof value === 'function' ? value() : value
       setChainValue(rawData, key, v)
       setChainValue(this.preVal, key, v)
-
-      rules[key] = rule as any
     }
 
     this.initialData = JSON.parse(JSON.stringify(rawData))
@@ -92,8 +93,7 @@ export class FormModel<
     this.allKeys = allKeys
     this.data = data as ModelData<Fields>
 
-    this.rules = rules
-    this.validator = new Validator(rules)
+    this.validator = new Validator(this.fields)
 
     // 校验
     watch(data, data => {
@@ -124,6 +124,25 @@ export class FormModel<
     })
   }
 
+  private getValidateFields(fields?: keyof Fields | (keyof Fields)[]) {
+    if (!fields) {
+      if (this.formKeys.size) {
+        let _fields: (keyof Fields)[] = []
+        this.formKeys.forEach(fields => {
+          _fields = _fields.concat(fields)
+        })
+        return _fields
+      } else {
+        return this.allKeys
+      }
+    }
+
+    if (!Array.isArray(fields)) {
+      return [fields]
+    }
+    return fields
+  }
+
   /**
    * 模型校验
    * @param fields 需要校验的字段, 不传则校验所有字段
@@ -134,19 +153,23 @@ export class FormModel<
 
     const results = await validator.validate(
       data,
-      fields ?? this.validateKeys ?? this.allKeys
+      this.getValidateFields(fields)
     )
 
+    // 全量校验
     if (!fields) {
       errors.clear()
 
       for (const field in results) {
         errors.set(field, results[field])
       }
-    } else {
+    }
+    // 局部校验
+    else {
       ~(Array.isArray(fields) ? fields : [fields]).forEach(field => {
-        if (results[field]?.length) {
-          errors.set(field, results[field])
+        const errs = results[field]
+        if (errs?.length) {
+          errors.set(field, errs)
         } else {
           errors.delete(field)
         }

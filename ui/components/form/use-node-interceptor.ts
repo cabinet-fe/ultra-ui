@@ -1,13 +1,15 @@
 import type { FormProps } from '@ui/types/components/form'
 import { useSlots, type VNode } from 'vue'
 import { pick } from 'cat-kit/fe'
-import { extractNormalVNodes } from '@ui/utils'
+import { createIncrease, extractNormalVNodes } from '@ui/utils'
 
 interface Options {
   props: FormProps
 }
 
 const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
+
+const id = createIncrease(1)
 
 /**
  * 虚拟node拦截
@@ -17,6 +19,8 @@ const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
 export function useNodeInterceptor(options: Options) {
   const { props } = options
   const slots = useSlots()
+
+  const formId = id()
 
   function getSlotsNodes() {
     const { model } = props
@@ -43,6 +47,7 @@ export function useNodeInterceptor(options: Options) {
         }
     > = []
 
+    // 渲染表单后得到的应当校验的字段
     const fields: string[] = []
 
     let i = 0
@@ -62,8 +67,7 @@ export function useNodeInterceptor(options: Options) {
       results.push(item)
     }
 
-    props.model.validateKeys = fields
-
+    model.formKeys.set(formId, fields)
     return results
   }
 

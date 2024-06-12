@@ -29,13 +29,13 @@ export type IFormModel<
   /** 表单数据 */
   readonly data: ModelData<Fields>
   /** 字段校验规则 */
-  readonly rules: ModelRules<Fields>
+  readonly fields: Fields
   /**
    * 字段键
    */
   readonly allKeys: string[]
   /** 需要校验的key */
-  validateKeys?: string[]
+  formKeys: Map<number, (keyof Fields)[]>
   /** 错误 */
   readonly errors: Map<keyof Fields, string[] | undefined>
   /**

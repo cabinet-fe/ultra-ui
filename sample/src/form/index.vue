@@ -3,9 +3,9 @@
     <u-checkbox v-model="disabled"> 禁用 </u-checkbox>
     <u-checkbox v-model="readonly"> 只读 </u-checkbox>
 
+    <u-checkbox v-model="ageRules.required"> 年龄必填 </u-checkbox>
+
     <CustomCard title="表单">
-      <!-- <u-button @click="open">打开</u-button> -->
-      <!-- <u-dialog v-model="visible" style="width: 900px"> -->
       <u-form
         :disabled="disabled"
         :readonly="readonly"
@@ -44,51 +44,53 @@
           />
 
           <u-date-picker field="date" label="日期" />
-          <u-checkbox field="freeze" label="是否冻结" />
-          <u-textarea field="remarks" label="备注" span="full" />
-          <!-- <u-slider field="slider" label="滑块" /> -->
-          <u-multi-tree-select
-            field="treeChecked"
-            label="1"
-            label-key="name"
-            value-key="id"
-            :data="treeData"
-            filterable
-          />
-          <u-tree-select
-            field="treeSelect"
-            label="1"
-            label-key="name"
-            value-key="id"
-            :data="treeData"
-            filterable
-          />
-          <u-auto-complete
-            field="complete1"
-            label="complete1"
-            :suggestions="interestList"
-            label-key="label"
-          />
-          <u-auto-complete
-            field="complete2"
-            label="complete2"
-            :suggestions="interestList"
-            label-key="label"
-            multiple
-          />
-
-          <u-group-input field="group" label="分组输入" v-slot="{ item }">
-            <u-input v-model="item.value1" />
-            <u-input v-model="item.value2" />
-          </u-group-input>
         </template>
       </u-form>
 
-      <template #footer>
-        <u-button @click="model.validate()">校验</u-button>
-        <u-button @click="model.clearValidate()">重置</u-button>
-      </template>
-      <!-- </u-dialog> -->
+      <u-form
+        :disabled="disabled"
+        :readonly="readonly"
+        :model="model"
+        label-width="100px"
+      >
+        <u-checkbox field="freeze" label="是否冻结" />
+        <u-textarea field="remarks" label="备注" span="full" />
+        <!-- <u-slider field="slider" label="滑块" /> -->
+        <u-multi-tree-select
+          field="treeChecked"
+          label="1"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          filterable
+        />
+        <u-tree-select
+          field="treeSelect"
+          label="1"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          filterable
+        />
+        <u-auto-complete
+          field="complete1"
+          label="complete1"
+          :suggestions="interestList"
+          label-key="label"
+        />
+        <u-auto-complete
+          field="complete2"
+          label="complete2"
+          :suggestions="interestList"
+          label-key="label"
+          multiple
+        />
+
+        <u-group-input field="group" label="分组输入" v-slot="{ item }">
+          <u-input v-model="item.value1" />
+          <u-input v-model="item.value2" />
+        </u-group-input>
+      </u-form>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px">
         <u-button type="primary" @click="handleSetData">设置值</u-button>
@@ -105,52 +107,62 @@
 </template>
 
 <script lang="ts" setup>
-import { formField, FormModel } from 'ultra-ui'
-import { shallowRef, watch } from 'vue'
+import { formField, FormModel, type FormModelItem } from 'ultra-ui'
+import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
 
-const model = new FormModel({
-  name: { maxLen: 4, required: true, value: '' },
-  age: formField<number>({ required: '年龄是必填的' }),
-  'nest.name': { required: true, value: 'aa' },
-  'nest.price': { required: true },
-  phone: {
-    validator(value) {
-      if (!value) return ''
-      if (/^1[1-9]{10}$/.test(value)) return ''
-      return '你得输入一个手机号'
-    }
-  },
-  freeze: {},
-  sex: { value: 'male', required: true },
-  pwd: { value: '', required: true },
-  debt: { min: 10, value: 66666 },
-  email: {
-    value: '',
-    match: [
-      /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-      '这个时候你得输入一个邮箱'
-    ]
-  },
-  unit: { required: true, value: '1' },
-  interest: { required: true, value: () => ['1', '2', '3'] },
-  remarks: { required: true, value: '备注默认值\n换行\n换行' },
-  slider: {},
-  date: { required: true, value: date().format() },
-  guide: {
-    value: [{ attributes: { bold: true }, insert: '22eee' }],
-    required: true
-  },
-  treeChecked: { required: true },
-  treeSelect: { required: true, value: () => 11 },
-  complete1: { value: 'test', required: true },
-  complete2: { value: ['张三', '李四'], required: true },
-  group: { required: true }
-})
+const model = shallowRef(new FormModel<Record<string, FormModelItem>>({}))
+
+const ageRules = shallowReactive(formField<number>({ required: true }))
+
+setTimeout(() => {
+  model.value = new FormModel({
+    name: {
+      maxLen: 4,
+      required: true,
+      value: ''
+    },
+    age: ageRules,
+    'nest.name': { required: true, value: 'aa' },
+    'nest.price': { required: true },
+    phone: {
+      validator(value) {
+        if (!value) return ''
+        if (/^1[1-9]{10}$/.test(value)) return ''
+        return '你得输入一个手机号'
+      }
+    },
+    freeze: {},
+    sex: { value: 'male', required: true },
+    pwd: { value: '', required: true },
+    debt: { min: 10, value: 66666 },
+    email: {
+      value: '',
+      match: [
+        /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+        '这个时候你得输入一个邮箱'
+      ]
+    },
+    unit: { required: true, value: '1' },
+    interest: { required: true, value: () => ['1', '2', '3'] },
+    remarks: { required: true, value: '备注默认值\n换行\n换行' },
+    slider: {},
+    date: { required: true, value: date().format() },
+    guide: {
+      value: [{ attributes: { bold: true }, insert: '22eee' }],
+      required: true
+    },
+    treeChecked: { required: true },
+    treeSelect: { required: true, value: () => 11 },
+    complete1: { value: 'test', required: true },
+    complete2: { value: ['张三', '李四'], required: true },
+    group: { required: true }
+  })
+}, 3000)
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
@@ -164,16 +176,16 @@ const units = [
 const visible = shallowRef(false)
 
 watch(visible, v => {
-  !v && model.resetData()
+  !v && model.value.resetData()
 })
 
 function handleSetData() {
-  model.setData({ nest: { name: '测试名称', price: 10 } })
+  model.value.setData({ nest: { name: '测试名称', price: 10 } })
 }
 
 async function handleValidate() {
-  const valid = await model.validate()
-  console.log(valid)
+  const valid = await model.value.validate()
+  console.log('校验结果：' + valid)
 }
 
 const interestList = [
@@ -218,16 +230,6 @@ const treeData = [
     ]
   }
 ]
-
-function open() {
-  visible.value = true
-  // model.setData(
-  //   {
-  //     name: 'aaaaaa'
-  //   },
-  //   { validate: true }
-  // )
-}
 </script>
 
 <style scoped lang="scss">
