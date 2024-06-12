@@ -1,7 +1,7 @@
 <template>
   <u-grid-item :span="span" :class="className">
     <label
-      v-if="label"
+      v-if="label || $slots.label"
       :class="[cls.e('label'), bem.is('required', fieldRequired)]"
       :style="labelStyles"
     >
@@ -44,6 +44,7 @@ const props = withDefaults(defineProps<FormItemProps>(), {
 defineSlots<{
   /** 标签插槽 */
   label?: () => any
+  default?: () => any
 }>()
 
 const cls = bem('form-item')
