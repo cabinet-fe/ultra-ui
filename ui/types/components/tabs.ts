@@ -17,18 +17,11 @@ export type TabItem = {
 /** 传入的items类型 */
 export type TabsItems = TabItem[]
 
-export type GetTabSlots<T extends string> = {
-  [key in T]: (props: { key: key }) => any
-} & {
-  [key in `name:${T}`]: () => any
-}
-
 /** 标签页组件组件属性 */
-export interface TabsProps<Items extends TabsItems = TabsItems>
-  extends ComponentProps {
-  modelValue?: Items[number]['key']
+export interface TabsProps extends ComponentProps {
+  modelValue?: string
   /** 标签项 */
-  items: Items
+  items: TabsItems
   /** 显示位置 */
   position?: 'left' | 'right' | 'top' | 'bottom'
   /** 是否允许删除 */

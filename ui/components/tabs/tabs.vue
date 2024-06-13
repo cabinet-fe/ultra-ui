@@ -40,18 +40,8 @@
   </div>
 </template>
 
-<script
-  lang="ts"
-  setup
-  generic="const Items extends TabsItems = TabsItems, K extends Items[number]['key'] = Items[number]['key']"
->
-import type {
-  TabItem,
-  TabsItems,
-  TabsProps,
-  TabsEmits,
-  GetTabSlots
-} from '@ui/types/components/tabs'
+<script lang="ts" setup>
+import type { TabItem, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import {
   KeepAlive,
@@ -73,13 +63,16 @@ defineOptions({
   name: 'Tabs'
 })
 
-const props = withDefaults(defineProps<TabsProps<Items>>(), {
+const props = withDefaults(defineProps<TabsProps>(), {
   position: 'top'
 })
 
 const emit = defineEmits<TabsEmits>()
 
-const slots = defineSlots<GetTabSlots<K>>()
+const slots = defineSlots<{
+  [key: string]: (props: { key: string }) => any
+  [key: `name:${string}`]: () => any
+}>()
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
@@ -96,7 +89,7 @@ const headerRef = shallowRef<HTMLElement>()
 
 /** 当前活动标签 */
 const index = shallowRef(-1)
-const model = defineModel<K>()
+const model = defineModel<string>()
 
 const markStyle = shallowRef<CSSProperties>({})
 
@@ -136,7 +129,7 @@ const handleClick = (item: TabItem, _index: number) => {
   if (item.disabled) return
   changedByEvent = true
   index.value = _index
-  model.value = item.key as K
+  model.value = item.key
   nextTick(() => {
     changedByEvent = false
   })
@@ -160,7 +153,7 @@ const renderSlots = () => {
 const handleClose = (item: TabItem, index: number) => {
   const { items } = props
   if (model.value === item.key) {
-    model.value = (items[index + 1] ?? items[index - 1])!.key as K
+    model.value = (items[index + 1] ?? items[index - 1])!.key
   }
 
   emit('update:items', [...items.slice(0, index), ...items.slice(index + 1)])
@@ -176,9 +169,3 @@ const handleClose = (item: TabItem, index: number) => {
 //   target: headerRef
 // })
 </script>
-
-<style lang="scss" scoped>
-:deep(.ripple-color) {
-  background-color: rgba(256, 256, 256, 0.4);
-}
-</style>
