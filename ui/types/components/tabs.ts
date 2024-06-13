@@ -14,14 +14,11 @@ export type TabItem = {
   disabled?: boolean
 }
 
-/** 传入的items类型 */
-export type TabsItems = TabItem[]
-
 /** 标签页组件组件属性 */
 export interface TabsProps extends ComponentProps {
   modelValue?: string
   /** 标签项 */
-  items: TabsItems
+  items: TabItem[]
   /** 显示位置 */
   position?: 'left' | 'right' | 'top' | 'bottom'
   /** 是否允许删除 */
