@@ -36,7 +36,8 @@ $root-name: tabs;
     letter-spacing: 1px;
     color: fn.use-var(text-color, main);
     user-select: none;
-    transition: background-color 0.25s;
+    transition-property: background-color;
+    transition-duration: 0.25s;
 
     @include m.flex;
 
@@ -60,8 +61,9 @@ $root-name: tabs;
 
   @include m.e(close) {
     width: 0;
-    transition: width 0.25s;
-    margin-left: fn.use-var(gap, small);
+    transition-property: width, margin-left;
+    transition-duration: 0.25s;
+    margin-left: 0;
   }
 
   @include m.e(close-placeholder) {
@@ -149,15 +151,10 @@ $root-name: tabs;
       height: fn.use-var(form-component-height, $size);
       padding: 0 fn.use-var(gap, $size);
 
-      @include m.is(active) {
-        @include m.bem($root-name, close) {
-          width: fn.use-var(font-size-main, $size);
-        }
-      }
-
       &:hover {
         @include m.bem($root-name, close) {
           width: fn.use-var(font-size-main, $size);
+          margin-left: fn.use-var(gap, small);
         }
       }
     }
@@ -172,5 +169,10 @@ $root-name: tabs;
   @include m.e(content) {
     width: 100%;
     border-radius: fn.use-var(radius, default);
+  }
+
+  @include m.e(ripple) {
+    background-color: fn.use-var(color, primary);
+    opacity: 0.1;
   }
 }

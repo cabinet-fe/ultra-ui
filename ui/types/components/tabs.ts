@@ -21,8 +21,8 @@ export interface TabsProps extends ComponentProps {
   items: TabItem[]
   /** 显示位置 */
   position?: 'left' | 'right' | 'top' | 'bottom'
-  /** 是否允许删除 */
-  closable?: boolean
+  /** 是否可以动态编辑 */
+  editable?: boolean
   /** 是否保活 */
   keepAlive?: boolean
   /** 是否允许拖拽排序 */

@@ -11,16 +11,18 @@
         ]"
         ref="tabItemsRef"
         @click="handleClick(item, index)"
+        v-ripple="item.disabled ? false : cls.e('ripple')"
       >
         <slot :name="`name:${item.key}`">
           {{ item.name }}
         </slot>
 
-        <template v-if="closable">
+        <template v-if="editable">
           <u-icon
             v-if="!item.disabled"
             :class="cls.e('close')"
-            @click.stop.native="handleClose(item, index)"
+            @click="handleClose(item, index)"
+            @mousedown.stop
           >
             <Close />
           </u-icon>
@@ -28,7 +30,17 @@
         </template>
       </li>
 
-      <li :class="cls.e('marker')" v-if="!closable" :style="markStyle"></li>
+      <li
+        v-if="editable"
+        :class="[cls.e('header-item'), cls.e('add')]"
+        @click="handleAdd"
+      >
+        <u-icon>
+          <Plus />
+        </u-icon>
+      </li>
+
+      <li v-else :class="cls.e('marker')" :style="markStyle"></li>
     </ul>
 
     <transition name="fade" mode="out-in">
@@ -52,11 +64,13 @@ import {
   watch,
   type CSSProperties
 } from 'vue'
-import { Close } from 'icon-ultra'
+import { Close, Plus } from 'icon-ultra'
 import { useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
 import type { ComponentSize } from '@ui/types/component-common'
 import { UScroll } from '../scroll'
+import { vRipple } from '@ui/directives'
+import { contextmenu } from '../context-menu'
 // import { useTabsSort } from './use-sort'
 
 defineOptions({
@@ -94,10 +108,10 @@ const model = defineModel<string>()
 const markStyle = shallowRef<CSSProperties>({})
 
 watch(
-  [tabItemsRef, index, () => props.position, () => props.closable],
-  async ([items, index, position]) => {
+  [tabItemsRef, index, () => props.position, () => props.editable],
+  async ([items, index, position, editable]) => {
     await nextTick()
-    if (!items || index === -1 || props.closable) return
+    if (!items || index === -1 || editable) return
     const headerRect = headerRef.value!.getBoundingClientRect()
     const rect = items[index]!.getBoundingClientRect()
 
@@ -159,6 +173,20 @@ const handleClose = (item: TabItem, index: number) => {
   emit('update:items', [...items.slice(0, index), ...items.slice(index + 1)])
 
   emit('delete', item, index)
+}
+
+const handleAdd = e => {
+  const { items } = props
+  contextmenu.pop({
+    menus: [{ label: '666' }, { label: '555' }],
+    mousePosition: e
+  })
+  emit('update:items', [
+    ...items,
+    {
+      key: 'aa'
+    }
+  ])
 }
 
 /** 排序 */

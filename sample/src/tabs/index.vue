@@ -28,7 +28,7 @@
         v-model:items="items"
         v-model="active"
         :position="config.position"
-        :closable="config.closable"
+        :editable="config.editable"
         :keep-alive="config.keepAlive"
         :style="{
           height: config.fixedHeight ? '300px' : ''
@@ -85,13 +85,13 @@ const active = ref<string>('a')
 const count = ref(0)
 
 const configList = [
-  { label: '可关闭', key: 'closable' },
+  { label: '可编辑', key: 'editable' },
   { label: '保活', key: 'keepAlive' },
   { label: '固定高度', key: 'fixedHeight' }
   // { label: '排序', key: 'sortable' }
 ]
 const config = reactive({
-  closable: false,
+  editable: false,
   sortable: false,
   keepAlive: false,
   position: 'top' as any,
