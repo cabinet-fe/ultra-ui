@@ -2,18 +2,22 @@ $root-name: tip;
 
 // 通用的动画时间和缓动函数变量
 $enter-duration: 0.3s;
-$leave-duration: 0.15s;
-$enter-ease: cubic-bezier(.54,.89,.34,1.33);
-$leave-ease: cubic-bezier(.54,.89,.34,1.33);
+$leave-duration: 0.25s;
+$enter-ease: cubic-bezier(0.54, 0.89, 0.34, 1.33);
+$leave-ease: cubic-bezier(0.54, 0.89, 0.34, 1.33);
 
 // 顶部动画
 .#{$root-name}-top-enter-active,
 .#{$root-name}-top-leave-active {
-  transition: opacity $enter-duration $enter-ease, transform $enter-duration $enter-ease;
+  transition:
+    opacity $enter-duration $enter-ease,
+    transform $enter-duration $enter-ease;
 }
 
 .#{$root-name}-top-leave-active {
-  transition: opacity $leave-duration $leave-ease, transform $leave-duration $leave-ease;
+  transition:
+    opacity $leave-duration $leave-ease,
+    transform $leave-duration $leave-ease;
 }
 
 .#{$root-name}-top-enter-to,
@@ -31,11 +35,15 @@ $leave-ease: cubic-bezier(.54,.89,.34,1.33);
 // 底部动画
 .#{$root-name}-bottom-enter-active,
 .#{$root-name}-bottom-leave-active {
-  transition: opacity $enter-duration $enter-ease, transform $enter-duration $enter-ease;
+  transition:
+    opacity $enter-duration $enter-ease,
+    transform $enter-duration $enter-ease;
 }
 
 .#{$root-name}-bottom-leave-active {
-  transition: opacity $leave-duration $leave-ease, transform $leave-duration $leave-ease;
+  transition:
+    opacity $leave-duration $leave-ease,
+    transform $leave-duration $leave-ease;
 }
 
 .#{$root-name}-bottom-enter-to,
@@ -53,11 +61,15 @@ $leave-ease: cubic-bezier(.54,.89,.34,1.33);
 // 左侧动画
 .#{$root-name}-left-enter-active,
 .#{$root-name}-left-leave-active {
-  transition: opacity $enter-duration $enter-ease, transform $enter-duration $enter-ease;
+  transition:
+    opacity $enter-duration $enter-ease,
+    transform $enter-duration $enter-ease;
 }
 
 .#{$root-name}-left-leave-active {
-  transition: opacity $leave-duration $leave-ease, transform $leave-duration $leave-ease;
+  transition:
+    opacity $leave-duration $leave-ease,
+    transform $leave-duration $leave-ease;
 }
 
 .#{$root-name}-left-enter-to,
@@ -75,11 +87,15 @@ $leave-ease: cubic-bezier(.54,.89,.34,1.33);
 // 右侧动画
 .#{$root-name}-right-enter-active,
 .#{$root-name}-right-leave-active {
-  transition: opacity $enter-duration $enter-ease, transform $enter-duration $enter-ease;
+  transition:
+    opacity $enter-duration $enter-ease,
+    transform $enter-duration $enter-ease;
 }
 
 .#{$root-name}-right-leave-active {
-  transition: opacity $leave-duration $leave-ease, transform $leave-duration $leave-ease;
+  transition:
+    opacity $leave-duration $leave-ease,
+    transform $leave-duration $leave-ease;
 }
 
 .#{$root-name}-right-enter-to,

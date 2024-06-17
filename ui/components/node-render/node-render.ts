@@ -26,23 +26,22 @@ export default defineComponent({
       >
     }
   },
-  setup(props, { attrs, slots }) {
-    return () => {
-      const { content } = props
 
-      if (!content) {
-        return slots.default?.()
-      }
-
-      if (Array.isArray(content)) {
-        return content
-      }
-
-      if (isVNode(content)) {
-        content.props = attrs ? mergeProps(content.props ?? {}, attrs) : props
-        return content
-      }
-      return props.content
+  render() {
+    const { content, $slots, $attrs, $props } = this
+    if (!content) {
+      return $slots.default?.()
     }
+
+    if (Array.isArray(content)) {
+      return content
+    }
+
+    if (isVNode(content)) {
+      content.props = $attrs ? mergeProps(content.props ?? {}, $attrs) : $props
+      return content
+    }
+
+    return content
   }
 })

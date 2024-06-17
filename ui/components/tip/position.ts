@@ -1,14 +1,14 @@
-import { zIndex } from "@ui/utils"
-import { nextTick, shallowRef } from "vue"
+import { zIndex } from '@ui/utils'
+import { nextTick, shallowRef } from 'vue'
 import {
   isTopInViewport,
   isBottomInViewport,
   isRightOrLeftInViewport,
   isRightOrLeftUpInViewport,
   firstShowInViewport,
-  countPositionInt,
-} from "./viewport"
-import type { ScrollDirection, PositionResult } from "./type"
+  countPositionInt
+} from './viewport'
+import type { ScrollDirection, PositionResult } from './type'
 
 /**每次初始化默认 */
 let componentCss = {}
@@ -36,7 +36,7 @@ function countPosition({
   tipContentRefDom,
   scrollDirection,
   screenSize,
-  gap,
+  gap
 }: {
   position: string
   elementWidth: number
@@ -51,20 +51,20 @@ function countPosition({
     left: undefined as string | undefined,
     top: undefined as string | undefined,
     right: undefined as string | undefined,
-    bottom: undefined as string | undefined,
+    bottom: undefined as string | undefined
   }
   dynamicCss.value = {
-    zIndex: zIndex(),
+    zIndex: zIndex()
   }
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     nextTick(() => {
       dynamicCss.value = { ...dynamicCss.value, ...componentCss }
 
       // 弹窗显示的DOM信息
       let { clientWidth, clientHeight } = tipContentRefDom
       if (position) {
-        position.indexOf("top") > -1 &&
+        position.indexOf('top') > -1 &&
           topCount(
             position,
             clientHeight,
@@ -74,7 +74,7 @@ function countPosition({
             tipContentRefDom,
             gap
           )
-        position.indexOf("left") > -1 &&
+        position.indexOf('left') > -1 &&
           leftCount(
             position,
             clientHeight,
@@ -86,7 +86,7 @@ function countPosition({
             screenSize,
             gap
           )
-        position.indexOf("right") > -1 &&
+        position.indexOf('right') > -1 &&
           rightCount(
             position,
             clientHeight,
@@ -98,7 +98,7 @@ function countPosition({
             screenSize,
             gap
           )
-        position.indexOf("bottom") > -1 &&
+        position.indexOf('bottom') > -1 &&
           bottomCount(
             position,
             clientWidth,
@@ -109,7 +109,7 @@ function countPosition({
             gap
           )
       }
-      dynamicCss.value.opacity = 1
+      // dynamicCss.value.opacity = 1
       resolve({ dynamicCss })
     })
   })
@@ -153,10 +153,10 @@ function topCount(
     ? topDown
     : translateY
   // 根据不同的位置属性设置transform样式
-  if (position === "top-start") {
+  if (position === 'top-start') {
     // tip提示靠上开始位置
     setTransform(`translate(${x}px, ${topPositionNumber}px)`)
-  } else if (position === "top") {
+  } else if (position === 'top') {
     // tip提示靠上居中位置
     if (clientWidth === window.innerWidth - gap * 2) {
       setTransform(
@@ -171,7 +171,7 @@ function topCount(
         `${topPositionNumber}px`
       )
     }
-  } else if (position === "top-end") {
+  } else if (position === 'top-end') {
     // tip提示靠上结束位置
     setTransform(
       `translate(${x - clientWidth + elementWidth}px, ${topPositionNumber}px)`
@@ -219,10 +219,10 @@ function rightCount(
       let rightUp = 0
       scrollDirection =
         firstShowInViewport(tipContentRefDom, tipRefDom, screenSize) ===
-        "bottom"
-          ? "up"
-          : "down"
-      if (scrollDirection === "down") {
+        'bottom'
+          ? 'up'
+          : 'down'
+      if (scrollDirection === 'down') {
         rightUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y}`)
       } else {
         rightUp = countPositionInt(
@@ -233,10 +233,10 @@ function rightCount(
       }
       setTransform(`translate(${rightLeft}px, ${rightUp}px)`)
     } else {
-      if (position === "right-start") {
+      if (position === 'right-start') {
         setTransform(`translate(${rightLeft}px, ${top}px)`)
       }
-      if (position === "right") {
+      if (position === 'right') {
         if (clientHeight > elementHeight) {
           setTransform(
             `translate(${rightLeft}px, ${
@@ -251,7 +251,7 @@ function rightCount(
           )
         }
       }
-      if (position === "right-end") {
+      if (position === 'right-end') {
         if (clientHeight > elementHeight) {
           setTransform(
             `translate(${rightLeft}px, ${
@@ -269,11 +269,11 @@ function rightCount(
     }
   } else {
     let rightX = countPositionInt(x + elementWidth + gap)
-    if (position === "right-start") {
+    if (position === 'right-start') {
       setTransform(`translate(${rightX}px, ${top}px)`)
     }
 
-    if (position === "right") {
+    if (position === 'right') {
       if (clientHeight > elementHeight) {
         setTransform(
           `translate(${rightX}px, ${
@@ -289,7 +289,7 @@ function rightCount(
       }
     }
 
-    if (position === "right-end") {
+    if (position === 'right-end') {
       if (clientHeight > elementHeight) {
         setTransform(
           `translate(${rightX}px, ${top - (clientHeight - elementHeight)}px)`
@@ -344,10 +344,10 @@ function leftCount(
       let leftUp = 0
       scrollDirection =
         firstShowInViewport(tipContentRefDom, tipRefDom, screenSize) ===
-        "bottom"
-          ? "up"
-          : "down"
-      if (scrollDirection === "down") {
+        'bottom'
+          ? 'up'
+          : 'down'
+      if (scrollDirection === 'down') {
         leftUp = countPositionInt(`${tipRefDom.getBoundingClientRect().y}`)
       } else {
         leftUp = countPositionInt(
@@ -357,17 +357,17 @@ function leftCount(
         )
       }
 
-      if (position === "left-start") {
+      if (position === 'left-start') {
         setTransform(`translate(${rightLeft}px, ${leftUp}px)`)
       }
-      if (position === "left") {
+      if (position === 'left') {
         if (clientHeight > elementHeight) {
           setTransform(`translate(${rightLeft}px, ${leftUp}px)`)
         } else {
           setTransform(`translate(${rightLeft}px, ${leftUp}px)`)
         }
       }
-      if (position === "left-end") {
+      if (position === 'left-end') {
         if (clientHeight > elementHeight) {
           setTransform(`translate(${rightLeft}px, ${leftUp}px)`)
         } else {
@@ -375,10 +375,10 @@ function leftCount(
         }
       }
     } else {
-      if (position === "left-start") {
+      if (position === 'left-start') {
         setTransform(`translate(${rightLeft}px, ${top}px)`)
       }
-      if (position === "left") {
+      if (position === 'left') {
         if (clientHeight > elementHeight) {
           setTransform(
             `translate(${rightLeft}px, ${
@@ -393,7 +393,7 @@ function leftCount(
           )
         }
       }
-      if (position === "left-end") {
+      if (position === 'left-end') {
         if (clientHeight > elementHeight) {
           setTransform(
             `translate(${rightLeft}px, ${
@@ -411,10 +411,10 @@ function leftCount(
     }
   } else {
     let leftX = countPositionInt(x - clientWidth - gap)
-    if (position === "left-start") {
+    if (position === 'left-start') {
       setTransform(`translate(${leftX}px, ${top}px)`)
     }
-    if (position === "left") {
+    if (position === 'left') {
       if (clientHeight > elementHeight) {
         setTransform(
           `translate(${leftX}px, ${countPositionInt(
@@ -429,7 +429,7 @@ function leftCount(
         )
       }
     }
-    if (position === "left-end") {
+    if (position === 'left-end') {
       if (clientHeight > elementHeight) {
         setTransform(
           `translate(${leftX}px, ${countPositionInt(
@@ -474,9 +474,9 @@ function bottomCount(
   const bottomY = isBottomInViewport(tipRefDom, gap)
     ? `${top - contentRect.height - gap}`
     : countPositionInt(top + elementHeight + gap)
-  if (position === "bottom-start") {
+  if (position === 'bottom-start') {
     setTransform(`translate(${x}px, ${bottomY}px)`)
-  } else if (position === "bottom") {
+  } else if (position === 'bottom') {
     if (clientWidth > window.innerWidth - gap * 2) {
       setTransform(`translate(${gap}px, ${countPositionInt(bottomY)}px)`)
     } else {
@@ -484,7 +484,7 @@ function bottomCount(
         `translate(${x + (elementWidth - clientWidth) / 2}px, ${bottomY}px)`
       )
     }
-  } else if (position === "bottom-end") {
+  } else if (position === 'bottom-end') {
     if (clientWidth > elementWidth) {
       setTransform(
         `translate(${x - (clientWidth - elementWidth)}px,${bottomY}px)`

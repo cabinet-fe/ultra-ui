@@ -7,7 +7,6 @@ $root-name: tip;
 @include m.b($root-name) {
   width: max-content;
 
-
   @include m.e(content) {
     position: absolute;
     left: 0;
@@ -17,7 +16,6 @@ $root-name: tip;
     line-height: 1.2;
     width: max-content;
     overflow-wrap: break-word;
-    opacity: 0;
     color: fn.use-var(text, color-title);
     background: fn.use-var(bg, color-top);
     box-shadow: fn.use-var(shadow);
@@ -30,8 +28,6 @@ $root-name: tip;
     }
 
     @include m.is('hide') {
-      // opacity: 0 !important;
-      // transition: opacity 0.5s ease-out;
     }
   }
 
@@ -39,5 +35,46 @@ $root-name: tip;
     font-size: fn.use-var('font-size', main, $size);
     padding: fn.use-var(gap, $size);
   }
+}
 
+@function getClasses($common) {
+  $classes: null;
+
+  @each $position in top, bottom, left, right {
+    @if ($classes == null) {
+      $classes: '.#{$root-name}-#{$position}-#{$common}';
+    } @else {
+      $classes: $classes + ',' + '.#{$root-name}-#{$position}-#{$common}';
+    }
+  }
+
+  @return $classes;
+}
+
+#{getClasses(enter-active)},
+#{getClasses(leave-active)} {
+  transition-property: opacity, transform;
+  transition-duration: 0.25s;
+}
+
+#{getClasses(enter-active)} {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#{getClasses(leave-active)} {
+  transition-timing-function: cubic-bezier(0.19, 0.69, 0.01, 0.94);
+}
+
+#{getClasses(enter-from)},
+#{getClasses(leave-to)} {
+  opacity: 0;
+}
+
+.#{$root-name}-top-enter-from,
+.#{$root-name}-top-leave-to {
+  transform: translateY(10px);
+}
+.#{$root-name}-bottom-enter-from,
+.#{$root-name}-bottom-leave-to {
+  transform: translateY(-10px);
 }

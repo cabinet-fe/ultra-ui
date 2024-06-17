@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="height: 60vh"></div>
+    <div style="height: 30vh"></div>
 
     <u-tip @click="countIncrease" position="top-start">
       <p class="color-red">97586754412312313</p>
@@ -10,6 +10,7 @@
         </div>
       </template>
     </u-tip>
+
     <div class="tip-box">
       <!-- <div class="anime-test" ref="divRef">11111</div> -->
       <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
@@ -42,7 +43,6 @@
         </u-tip>
       </div>
       <div class="tip-center">
-        
         <div class="tip-column flex-column">
           <u-tip
             content="颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害"
@@ -140,31 +140,12 @@
 
 <script setup lang="ts">
 // import { useTransition } from 'ultra-ui'
-import { shallowReactive, shallowRef } from "vue"
+import { shallowReactive, shallowRef } from 'vue'
 const styleValue = shallowReactive({
-  background: "linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))",
-  color: "#fff",
+  background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
+  color: '#fff'
   // display:'block'
 })
-// const divRef = shallowRef()
-// const transition = useTransition('style', {
-//   target: divRef,
-//   enterToStyle: {
-//     transform: 'translate(100px, 0)',
-//     opacity: 1
-//   },
-//   transitionInStyle: {
-//     transition: 'all 3s'
-//   },
-//   transitionOutStyle: {
-//     transition: 'all 3s'
-//   },
-
-//   afterLeave() {
-//     divRef.value.style.display = 'none'
-//   }
-
-// })
 
 const count = shallowRef(0)
 
