@@ -1,157 +1,54 @@
 <template>
   <div>
-    <div style="height: 30vh"></div>
-
-    <u-tip @click="countIncrease" position="top-start">
-      <p class="color-red">97586754412312313</p>
-      <template #content>
-        <div>
-          content="左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左"
-        </div>
-      </template>
-    </u-tip>
-
-    <div class="tip-box">
-      <!-- <div class="anime-test" ref="divRef">11111</div> -->
-      <!-- <u-button @click="divRef.style.display = 'block'; transition.toggle(b => !b)">动画进入</u-button> -->
-      <h4>Hover</h4>
-
-      <div class="tip-row flex-row">
-        <u-tip
-          @click="countIncrease"
-          content="上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左上左"
-          position="top-start"
-          :customStyle="styleValue"
-        >
-          <u-button @click="countIncrease"
-            >上左上左上左上左上左
-            {{ count }}
-          </u-button>
-        </u-tip>
-        <u-tip
-          content="上中--------鼠标入tip区域"
-          position="top"
-          :mouse-enterable="false"
-        >
-          <u-button>鼠标不可进入tip区域</u-button>
-        </u-tip>
-        <u-tip
-          content="上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右上右"
-          position="top-end"
-        >
-          <u-button>上右上右 Light</u-button>
-        </u-tip>
-      </div>
-      <div class="tip-center">
-        <div class="tip-column flex-column">
-          <u-tip
-            content="颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害颠勺好厉害"
-            position="left-start"
-          >
-            <u-button>左上左上左上</u-button>
-          </u-tip>
-          <u-tip
-            content="金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害"
-            position="left"
-            trigger="click"
-          >
-            <u-button>左中左中左中</u-button>
-          </u-tip>
-          <u-tip
-            content="金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害金鹏火男宝宝会颠勺好厉害"
-            position="left-end"
-          >
-            <u-button>左下左下 Light</u-button>
-          </u-tip>
-        </div>
-        <div class="tip-column flex-column">
-          <u-tip content="右上右上右上右上右上右上" position="right-start">
-            <u-button>右上右上右上</u-button>
-          </u-tip>
-          <u-tip
-            content="右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中右中"
-            position="right"
-          >
-            <u-button>右中右中右中右中</u-button>
-          </u-tip>
-          <u-tip
-            content="右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下"
-            position="right-end"
-          >
-            <u-button>右下右下Light</u-button>
-          </u-tip>
-        </div>
-      </div>
-      <div class="tip-row flex-row">
-        <u-tip
-          content="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左"
-          position="bottom-start"
-        >
-          <u-button>下左下左下左下左</u-button>
-        </u-tip>
-        <u-tip content="bottombottombottombottom" position="bottom">
-          <u-button>下中下中下中下中</u-button>
-        </u-tip>
-        <u-tip
-          content="下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右下右"
-          position="bottom-end"
-        >
-          <u-button>下右下右 Light</u-button>
-        </u-tip>
-      </div>
-      <br /><br /><br />
-      <h4 class="pd20">Click</h4>
-      <div class="tip-row flex-row">
-        <u-tip
-          :trigger="'click'"
-          position="top-start"
-          content="点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左点击上左"
-          click-close
-        >
-          <u-button>点击上左空白区域点击不可隐藏</u-button>
-        </u-tip>
-        <u-tip content="上中" :trigger="'click'">
-          <u-button>点击上中</u-button>
-        </u-tip>
-        <u-tip content="上右" position="top-end" :trigger="'click'">
-          <u-button>点击上右</u-button>
-        </u-tip>
-      </div>
-      <br /><br /><br />
-      <div class="tip-row flex-row">
-        <u-tip
-          :trigger="'click'"
-          content="下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左下左"
-          position="bottom-start"
-        >
-          <u-button>点击下左下左下左下左</u-button>
-        </u-tip>
-        <u-tip content="下中" position="bottom" :trigger="'click'">
-          <u-button @click="countIncrease">点击下中下中下中下中</u-button>
-        </u-tip>
-        <u-tip content="下右" position="bottom-end" :trigger="'click'">
-          <u-button>点击下右下右 Light</u-button>
-        </u-tip>
-      </div>
-      <div style="height: 100vh"></div>
+    <div>
+      方向:
+      <u-radio-group :items="directions" v-model="direction"> </u-radio-group>
     </div>
+    <div>
+      对齐: <u-radio-group :items="aligns" v-model="align"> </u-radio-group>
+    </div>
+    <div>
+      触发方式:
+      <u-radio-group :items="triggers" v-model="trigger"> </u-radio-group>
+    </div>
+    <div>内容: <u-textarea v-model="content" /></div>
+    <CustomCard title="基础用法">
+      <u-tip
+        :direction="direction"
+        :align="align"
+        :trigger="trigger"
+        :content="content"
+      >
+        <u-button>触发</u-button>
+      </u-tip>
+    </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
-// import { useTransition } from 'ultra-ui'
-import { shallowReactive, shallowRef } from 'vue'
-const styleValue = shallowReactive({
-  background: 'linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129))',
-  color: '#fff'
-  // display:'block'
-})
+import { shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
+import type { TipAlign, TipDirection } from 'ultra-ui/types'
 
-const count = shallowRef(0)
+const directions = ['top', 'bottom', 'left', 'right'].map(d => ({
+  label: d,
+  value: d
+}))
+const aligns = ['start', 'center', 'end'].map(d => ({
+  label: d,
+  value: d
+}))
+const triggers = ['hover', 'click'].map(d => ({
+  label: d,
+  value: d
+}))
 
-const countIncrease = () => {
-  count.value++
-}
+const content = shallowRef(
+  '提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容'
+)
+const direction = shallowRef<TipDirection>('top')
+const align = shallowRef<TipAlign>('center')
+const trigger = shallowRef<'hover' | 'click'>('hover')
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,5 @@
 <template>
-  <u-tip position="right" v-if="injected?.simple.value && isBase">
+  <u-tip direction="right" v-if="injected?.simple.value && isBase">
     <template #content><slot /></template>
     <div
       :class="[
@@ -15,7 +15,11 @@
       }"
       v-ripple="!disabled"
     >
-      <UIcon :class="cls?.em('item', 'icon')" style="margin-right: 0" v-if="icon">
+      <UIcon
+        :class="cls?.em('item', 'icon')"
+        style="margin-right: 0"
+        v-if="icon"
+      >
         <component :is="icon" />
       </UIcon>
     </div>

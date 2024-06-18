@@ -1,8 +1,11 @@
 <template>
   <u-tip
     v-if="injected?.simple.value"
-    position="right-start"
-    :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
+    direction="right"
+    align="start"
+    :customStyle="
+      disabled ? {} : { backgroundColor: injected?.backgroundColor }
+    "
   >
     <div
       :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
@@ -39,14 +42,19 @@
     </template>
   </u-tip>
 
-  <div v-else :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]">
+  <div
+    v-else
+    :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
+  >
     <div
       :class="[cls?.em('sub', 'title')]"
       @click.stop="handleClick"
       :style="{
         textIndent,
         paddingRight: '35px',
-        color: props.disabled ? 'var(--text-color-disabled)' : injected?.textColor
+        color: props.disabled
+          ? 'var(--text-color-disabled)'
+          : injected?.textColor
       }"
       v-ripple="!disabled"
     >
@@ -78,7 +86,14 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
+import {
+  inject,
+  ref,
+  watch,
+  onMounted,
+  getCurrentInstance,
+  computed
+} from 'vue'
 import { MenuDIKey, calcIndent, getSiblings, getParentIndex } from './di'
 import { ArrowRight, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -99,7 +114,7 @@ const expand = ref<boolean>(false)
 // emit事件
 watch(
   () => expand.value,
-  (val) => {
+  val => {
     if (val) {
       injected?.menuEmit('open', props.index || '')
     } else {
@@ -124,14 +139,14 @@ const close = () => (expand.value = false)
 // 根据openIndex展开子菜单
 watch(
   () => injected?.openIndex.value,
-  (index) => {
+  index => {
     if (index === props.index) open()
   }
 )
 // 根据closeIndex关闭子菜单
 watch(
   () => injected?.closeIndex.value,
-  (index) => {
+  index => {
     if (index === props.index) close()
   }
 )
@@ -139,13 +154,17 @@ watch(
 // 缩略模式关闭子菜单
 watch(
   () => injected?.simple.value,
-  (val) => {
+  val => {
     if (val) {
       close()
       highlight.value =
-        injected?.structure.value[props.index]?.has(injected!.activeIndex.value) || false
+        injected?.structure.value[props.index]?.has(
+          injected!.activeIndex.value
+        ) || false
     } else {
-      if (injected?.structure.value[props.index]?.has(injected!.activeIndex.value))
+      if (
+        injected?.structure.value[props.index]?.has(injected!.activeIndex.value)
+      )
         expand.value = true
     }
   }
@@ -159,28 +178,36 @@ const handleClick = () => {
 const siblings = ref<Array<string>>([])
 
 // 根据activeIndex展开子菜单
-watch([() => injected?.activeIndex.value, injected?.structure.value], ([index, structure]) => {
-  if (
-    !expand.value &&
-    index &&
-    structure &&
-    structure[props.index] &&
-    structure[props.index].has(index)
-  ) {
-    expand.value = true
+watch(
+  [() => injected?.activeIndex.value, injected?.structure.value],
+  ([index, structure]) => {
+    if (
+      !expand.value &&
+      index &&
+      structure &&
+      structure[props.index] &&
+      structure[props.index].has(index)
+    ) {
+      expand.value = true
+    }
   }
-})
+)
 // 根据uniqueOpened，关闭其他菜单
 const highlight = ref<boolean>(false)
 watch(
   () => injected?.activeIndex.value,
-  (index) => {
+  index => {
     if (index) {
-      if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index)) {
+      if (
+        injected?.uniqueOpened &&
+        index !== props.index &&
+        siblings.value.includes(index)
+      ) {
         close()
       }
       if (injected?.simple.value) {
-        highlight.value = injected?.structure.value[props.index]?.has(index) || false
+        highlight.value =
+          injected?.structure.value[props.index]?.has(index) || false
       }
     }
   },
@@ -210,7 +237,10 @@ watch(
     if (instance) {
       textIndent.value = calcIndent(instance)
       siblings.value = getSiblings(instance)
-      if (injected && injected?.structure.value[props.index]?.has(injected!.activeIndex.value))
+      if (
+        injected &&
+        injected?.structure.value[props.index]?.has(injected!.activeIndex.value)
+      )
         expand.value = true
       parents.value = getParentIndex(instance)
     }
@@ -221,7 +251,9 @@ watch(
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return highlight.value && isBase.value ? injected?.activeTextColor : injected?.textColor
+    return highlight.value && isBase.value
+      ? injected?.activeTextColor
+      : injected?.textColor
   } else {
     return 'var(--text-color-disabled)'
   }

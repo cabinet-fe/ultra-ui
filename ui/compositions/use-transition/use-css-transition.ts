@@ -16,10 +16,16 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const classes = computed(() => {
     const _name = typeof name === 'string' ? name : name.value
     return {
+      /** 进入前的类 */
+      enterFrom: `${_name}-enter-from`,
       /** 进入后最终的类 */
       enterTo: `${_name}-enter-to`,
       /** 【进入动画】持续时的类 */
       enterActive: `${_name}-enter-active`,
+      /** 离开前的类 */
+      leaveFrom: `${_name}-leave-from`,
+      /** 离开类 */
+      leaveTo: `${_name}-leave-to`,
       /** 【离开动画】持续时的类 */
       leaveActive: `${_name}-leave-active`
     }
@@ -27,41 +33,48 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
 
   /** 开始进入动画 */
   const startTransitionIn = () => {
-    const { enterActive, enterTo } = classes.value
+    const { enterActive, enterTo, enterFrom } = classes.value
     const dom = getDom()
 
-    dom?.classList.add(enterActive)
-    // 在下一帧插入动画运动目标状态
-    nextFrame(() => {
-      dom?.classList.add(enterTo)
+    dom?.classList.add(enterFrom)
+
+    requestAnimationFrame(() => {
+      dom?.classList.add(enterActive)
+      // 在下一帧插入动画运动目标状态
+      requestAnimationFrame(() => {
+        dom?.classList.add(enterTo)
+        dom?.classList.remove(enterFrom)
+      })
     })
   }
 
   /** 开始离开动画 */
   const startTransitionOut = () => {
-    const { enterTo, leaveActive } = classes.value
+    const { leaveTo, leaveActive, leaveFrom } = classes.value
     const dom = getDom()
 
     // 标记动画进入离开状态
+    dom?.classList.add(leaveFrom)
     dom?.classList.add(leaveActive)
 
     // 在下一帧移除动画运动目标状态恢复原点
     nextFrame(() => {
-      dom?.classList.remove(enterTo)
+      dom?.classList.remove(leaveFrom)
+      dom?.classList.add(leaveTo)
     })
   }
 
   const transitionEndHandler = (e: TransitionEvent) => {
     e.stopPropagation()
 
-    const { leaveActive, enterActive } = classes.value
+    const { leaveActive, enterActive, enterTo, leaveTo } = classes.value
     const dom = getDom()
     // 激活状态，移除enter-active类
     if (active.value) {
-      dom?.classList.remove(enterActive)
+      dom?.classList.remove(enterActive, enterTo)
       afterEnter?.()
     } else {
-      dom?.classList.remove(leaveActive)
+      dom?.classList.remove(leaveActive, leaveTo)
       afterLeave?.()
     }
   }
@@ -69,8 +82,12 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const transitionCancelHandler = (e: TransitionEvent) => {
     e.stopPropagation()
 
-    const { leaveActive, enterActive } = classes.value
     const dom = getDom()
+
+    if (dom !== e.target) return
+
+    const { leaveActive, enterActive } = classes.value
+
     // 激活状态，移除enter-active类
     if (active.value) {
       dom?.classList.remove(enterActive)

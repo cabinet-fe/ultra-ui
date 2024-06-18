@@ -1,14 +1,12 @@
 <template>
   <u-tip
-    :position="direction"
     :trigger="trigger"
     :class="cls.b"
     :mouse-leave-close="true"
     ref="tipRef"
+    direction="bottom"
   >
-    <div @mouseenter="handleMouseEnter">
-      <slot name="reference" />
-    </div>
+    <slot name="reference" />
 
     <template #content>
       <div :class="[cls.m('main'), cls.m(size)]">
@@ -20,13 +18,13 @@
         </span>
       </div>
       <div :class="cls.m('action')">
-        <u-button size="small" @click="cancel" type="primary" text>{{
-          cancelText
-        }}</u-button>
-        <i></i>
-        <u-button size="small" type="primary" @click="confirm">{{
-          confirmText
-        }}</u-button>
+        <u-button size="small" @click="cancel" type="primary" text>
+          {{ cancelText }}
+        </u-button>
+
+        <u-button size="small" type="primary" @click="confirm">
+          {{ confirmText }}
+        </u-button>
       </div>
     </template>
   </u-tip>
@@ -37,9 +35,6 @@ import type {
   PopConfirmProps,
   PopConfirmEmits
 } from '@ui/types/components/pop-confirm'
-
-import type { positionType } from '@ui/types/components/tip'
-
 import { bem } from '@ui/utils'
 import { UTip, type TipExposed } from '../tip'
 import { UButton } from '../button'
@@ -56,14 +51,11 @@ const emit = defineEmits<PopConfirmEmits>()
 
 withDefaults(defineProps<PopConfirmProps>(), {
   trigger: 'click',
-  size: 'default',
   icon: HelpFilled,
   iconColor: '#ffc107',
   confirmText: '确认',
   cancelText: '取消'
 })
-
-const direction = shallowRef<positionType>('bottom')
 
 const cls = bem('pop-confirm')
 
@@ -77,40 +69,11 @@ const { size } = useFormFallbackProps([formProps ?? {}], {
 
 const confirm = () => {
   emit('confirm')
-  tipRef.value?.closeTipContent()
+  tipRef.value?.close()
 }
 
 const cancel = () => {
   emit('cancel')
-  tipRef.value?.closeTipContent()
-}
-
-const handleMouseEnter = (event: MouseEvent) => {
-  const { x, y } = event
-
-  const position: {
-    top?: number
-    left?: number
-    right?: number
-    bottom?: number
-    transformOrigin?: string
-  } = {}
-
-  if (x > window.innerWidth / 2) {
-    position.right = window.innerWidth - x - 1
-  } else {
-    position.left = x + 1
-  }
-
-  if (y > window.innerHeight / 2) {
-    position.bottom = window.innerHeight - y - 1
-  } else {
-    position.top = y + 1
-  }
-
-  const positionX = position.top ? 'bottom' : 'top'
-  const positionY = position.left ? 'start' : 'end'
-  position.transformOrigin = `${positionX}-${positionY}`
-  direction.value = position.transformOrigin as positionType
+  tipRef.value?.close()
 }
 </script>
