@@ -61,8 +61,6 @@ const props = withDefaults(defineProps<TipProps>(), {
   trigger: 'hover',
   direction: 'top',
   align: 'center',
-  mouseEnterable: true,
-  mouseLeaveClose: true,
   clickClose: false,
   contentTag: 'div',
   disabled: false

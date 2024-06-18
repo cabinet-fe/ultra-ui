@@ -22,11 +22,6 @@ export interface TipProps {
    * @default 'center'
    */
   align?: TipAlign
-  /**鼠标是否可进入到tip区域*/
-  mouseEnterable?: boolean
-
-  /**鼠标离开 tip区域后是否自动关闭 */
-  mouseLeaveClose?: boolean
 
   /**
    * 点击空白区域是否可关闭
