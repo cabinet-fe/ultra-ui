@@ -104,8 +104,6 @@ export * from './components/textarea'
 
 export * from './components/theme'
 
-export * from './components/tip-v2'
-
 export * from './components/tip'
 
 export * from './components/tree-select'
