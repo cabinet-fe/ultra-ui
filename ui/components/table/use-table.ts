@@ -62,7 +62,7 @@ export function useTable(options: Options) {
     column: ColumnNode
   ): TableColumnSlotsScope | TableColumnRenderContext => {
     const rowData = row.data
-    const val = getChainValue(rowData, column.key)
+    const val = column.key ? getChainValue(rowData, column.key) : undefined
     const ctx = {
       row,
       column,
