@@ -1,5 +1,5 @@
 import type { FormProps } from '@ui/types/components/form'
-import { useSlots, type VNode } from 'vue'
+import { onBeforeUnmount, useSlots, type VNode } from 'vue'
 import { pick } from 'cat-kit/fe'
 import { createIncrease, extractNormalVNodes } from '@ui/utils'
 
@@ -70,6 +70,10 @@ export function useNodeInterceptor(options: Options) {
     model.formKeys.set(formId, fields)
     return results
   }
+
+  onBeforeUnmount(() => {
+    props.model?.formKeys.delete(formId)
+  })
 
   return {
     getSlotsNodes

@@ -25,6 +25,7 @@
         <u-number-input field="age" label="年龄" />
         <u-input field="props.label" label="标签" />
         <u-input field="props.field" label="字段" />
+        <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
       </template>
     </u-batch-edit>
     <!-- </u-dialog> -->
@@ -35,11 +36,11 @@
 
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
-import { FormModel, Message, defineTableColumns } from 'ultra-ui'
+import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
-const tree = shallowRef(true)
+const tree = shallowRef(false)
 const resizable = shallowRef(true)
 const dialogVisble = shallowRef(false)
 
@@ -48,19 +49,19 @@ const columns = defineTableColumns([
   { name: '年龄', key: 'age', rules: { max: 120 } }
 ])
 
-const data = shallowRef(
-  Array.from({ length: 1 }).map((_, i) => ({
-    name: '姓名' + i,
-    age: Math.ceil(Math.random() * 80),
-    id: Math.random()
-  }))
-)
+const data = shallowRef()
+// Array.from({ length: 1 }).map((_, i) => ({
+//   name: '姓名' + i,
+//   age: Math.ceil(Math.random() * 80),
+//   id: Math.random()
+// }))
 
 const model = new FormModel({
   name: { required: true },
-  age: { max: 100 },
+  age: formField<number>({ max: 100 }),
   'props.field': {},
-  'props.label': {}
+  'props.label': {},
+  cc: { required: true }
 })
 
 const asynchronous = shallowRef(false)
