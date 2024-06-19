@@ -14,8 +14,10 @@ export interface TransitionBase {
 }
 
 export interface CssTransitionOptions extends TransitionBase {
-  /** 类的名称, 会生成 `${name}-enter-to`, `${name}-enter-active`, `${name}-leave-active这几种类` */
+  /** 类的名称, 会生成 `${name}-enter-${'to' | 'active' | 'from'}`, `${name}-leave-${'to' | 'active' | 'from'}这几种类` */
   name: ShallowRef<string> | string | Ref<string>
+  /** 保留进入类 */
+  keepEnterTo?: boolean
 }
 
 export interface StyleTransitionOptions extends TransitionBase {

@@ -101,9 +101,6 @@ const footerCls = [cls.e('footer'), blurCls]
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
-const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
-})
 const overlayRef = shallowRef<HTMLDivElement>()
 
 /** 弹框模板引用 */
@@ -133,6 +130,15 @@ const dialogTransition = useTransition('style', {
   leaveActive: {
     transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
+})
+
+const { toggleMaximize, maximized } = useMaximum({
+  dialogRef,
+  cls
+})
+
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
 })
 
 /** 是否弹出过 */
@@ -199,11 +205,6 @@ useDrag({
     translated.x += x
     translated.y += y
   }
-})
-
-const { toggleMaximize, maximized } = useMaximum({
-  dialogRef,
-  cls
 })
 
 function handleIncreaseZIndex() {

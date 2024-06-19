@@ -7,8 +7,15 @@ import { createToggle, nextFrame } from '@ui/utils'
  * @param options 过渡选项
  */
 export function useCssTransition(options: CssTransitionOptions): Returned {
-  const { name, target, afterEnter, afterLeave, enterCanceled, leaveCanceled } =
-    options
+  const {
+    name,
+    target,
+    afterEnter,
+    afterLeave,
+    enterCanceled,
+    leaveCanceled,
+    keepEnterTo = false
+  } = options
 
   const getDom = (): HTMLElement | undefined =>
     isRef(target) ? target.value : target
@@ -50,12 +57,14 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
 
   /** 开始离开动画 */
   const startTransitionOut = () => {
-    const { leaveTo, leaveActive, leaveFrom } = classes.value
+    const { leaveTo, leaveActive, leaveFrom, enterTo } = classes.value
     const dom = getDom()
 
     // 标记动画进入离开状态
-    dom?.classList.add(leaveFrom)
-    dom?.classList.add(leaveActive)
+    if (keepEnterTo) {
+      dom?.classList.remove(enterTo)
+    }
+    dom?.classList.add(leaveFrom, leaveActive)
 
     // 在下一帧移除动画运动目标状态恢复原点
     nextFrame(() => {
@@ -71,7 +80,11 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     const dom = getDom()
     // 激活状态，移除enter-active类
     if (active.value) {
-      dom?.classList.remove(enterActive, enterTo)
+      if (keepEnterTo) {
+        dom?.classList.remove(enterActive)
+      } else {
+        dom?.classList.remove(enterActive, enterTo)
+      }
       afterEnter?.()
     } else {
       dom?.classList.remove(leaveActive, leaveTo)
