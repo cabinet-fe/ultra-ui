@@ -21,6 +21,8 @@ export interface RadioGroupProps<Val extends string | number | boolean>
   disabled?: boolean
   /** 禁用的选项 */
   disabledItem?: (item: Record<string, any>) => boolean
+  /** 块级布局 */
+  block?: boolean
 }
 
 /** 单选框默认父组件组件定义的事件 */

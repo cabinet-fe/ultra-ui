@@ -14,6 +14,9 @@
     <CustomCard title="单选框组">
       <u-radio-group :items="items" v-model="radio1" />
     </CustomCard>
+    <CustomCard title="单选框组block模式">
+      <u-radio-group :items="items" v-model="radio1" block />
+    </CustomCard>
 
     <CustomCard title="单选框组某项禁用">
       <u-radio-group
