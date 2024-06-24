@@ -7,7 +7,7 @@ export interface MultiSelectProps<Option extends Record<string, any>>
   /** 绑定值 */
   modelValue?: Array<any>
   /** 列表选项 */
-  options?: Option[]
+  options?: Option[] | ((qs: string) => Promise<Option[]> | Option[])
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */
