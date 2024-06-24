@@ -275,7 +275,6 @@ function handleRowChange(row?: TableRow) {
   const { model } = props
   if (!model) return
   currentRow.value = row
-  console.log(row)
 }
 
 function runCreate(cb: () => void) {
