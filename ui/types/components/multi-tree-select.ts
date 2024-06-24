@@ -21,6 +21,12 @@ export interface MultiTreeSelectProps
    * 可见的节点数量限制 默认3
    */
   visibilityLimit?: number
+
+   /**
+   * 宽度
+   * @default - 跟随触发宽度
+   */
+   width:string
 }
 
 /** 树形多选组件组件定义的事件 */

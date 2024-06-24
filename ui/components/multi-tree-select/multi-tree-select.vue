@@ -7,6 +7,7 @@
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     ref="dropdownRef"
+    :width="width"
   >
     <template #trigger>
       <!-- 默认展示 -->
@@ -117,7 +118,8 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
   disabled: undefined,
   readonly: undefined,
   filterable: false,
-  visibilityLimit: 3
+  visibilityLimit: 3,
+  width:'auto'
 })
 
 const treeProps = computed(() => {
