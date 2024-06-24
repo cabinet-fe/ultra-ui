@@ -168,9 +168,9 @@ const indeterminate = computed(() => {
 })
 
 const optionsMap = computed(() => {
-  const { valueKey, options } = props
+  const { valueKey } = props
   return new Map<string | number, Option>(
-    options?.map(option => [option[valueKey], option])
+    options.value.map(option => [option[valueKey], option])
   )
 })
 
