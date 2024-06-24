@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, nextTick, computed } from 'vue'
+import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
@@ -80,6 +80,7 @@ import { UScroll, type ScrollExposed } from '../scroll'
 import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 import type { ComponentSize } from '@ui/types/component-common'
+import { DialogDIKey } from './di'
 
 defineOptions({
   name: 'Dialog',
@@ -87,7 +88,8 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<DialogProps>(), {
-  modal: true
+  modal: true,
+  modelValue: true
 })
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
@@ -115,7 +117,9 @@ const bodyRef = shallowRef<ScrollExposed>()
 /** 弹框footer模板引用 */
 const footerRef = shallowRef<HTMLDivElement>()
 
-const visible = defineModel<boolean>()
+const visible = defineModel<boolean>({
+  default: false
+})
 
 const dialogTransition = useTransition('style', {
   target: dialogRef,
@@ -214,8 +218,12 @@ function handleIncreaseZIndex() {
 
 /** 关闭 */
 const close = () => {
-  visible.value = false
+  emit('update:modelValue', false)
 }
+
+provide(DialogDIKey, {
+  visible
+})
 
 defineExpose({
   close

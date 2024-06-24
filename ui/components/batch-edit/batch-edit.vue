@@ -128,7 +128,7 @@ import type {
   BatchEditEmits,
   BatchEditProps
 } from '@ui/types/components/batch-edit'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, inject, nextTick, shallowRef, watch } from 'vue'
 import { getChainValue, last, omit, safeRun, setChainValue } from 'cat-kit/fe'
 import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import {
@@ -144,6 +144,7 @@ import { UScroll } from '../scroll'
 import { UButton, type ButtonProps } from '../button'
 import { bem } from '@ui/utils'
 import { useComponentProps } from '@ui/compositions'
+import { DialogDIKey } from '../dialog/di'
 
 defineOptions({
   name: 'BatchEdit'
@@ -183,6 +184,17 @@ const slots = defineSlots<
 >()
 
 const cls = bem('batch-edit')
+
+const dialogCtx = inject(DialogDIKey, undefined)
+
+// 如果在dialog上下文中
+if (dialogCtx) {
+  watch(dialogCtx.visible, visible => {
+    if (!visible) {
+      handleClose()
+    }
+  })
+}
 
 const tableRef = shallowRef<TableExposed>()
 
@@ -226,8 +238,13 @@ function rerender() {
   })
 }
 
+watch([currentRow, newRow], ([currentRow, newRow]) => {
+  if (!currentRow && !newRow) {
+    props.model?.resetData()
+  }
+})
+
 watch(currentRow, row => {
-  props.model?.resetData()
   if (row) {
     newRow.value = false
     newRowIndexes = []

@@ -1,10 +1,7 @@
-import type { BEM } from "@ui/utils"
-import type { InjectionKey } from "vue"
-import type { DialogProps } from "@ui/types/components/dialog"
+import type { InjectionKey, ShallowRef } from 'vue'
 
 export interface DialogContext {
-  cls: BEM<'dialog'>
-  dialogProps: DialogProps
+  visible: ShallowRef<boolean>
 }
 
 export const DialogDIKey: InjectionKey<DialogContext> = Symbol('DialogDIKey')
