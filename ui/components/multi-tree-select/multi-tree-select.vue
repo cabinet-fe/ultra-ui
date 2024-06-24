@@ -191,7 +191,7 @@ const handleCheck = (
 ) => {
   markEvent()
   tags.value = checkedData
-  emit('change', checked, checkedData!)
+  emit('change', checkedData!)
 }
 
 /**删除 */
@@ -199,7 +199,7 @@ const handleRemove = (index: number) => {
   markEvent()
   tags.value = tags.value.filter((_, i) => i !== index)
   model.value = model.value.filter((_, i) => i !== index)
-  emit('change', model.value!, tags.value)
+  emit('change', tags.value)
 }
 
 /**清空 */
