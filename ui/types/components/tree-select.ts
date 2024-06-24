@@ -18,6 +18,11 @@ export interface TreeSelectProps
    * 是否可搜索
    */
   filterable?: boolean
+  /**
+   * 宽度
+   * @default - 跟随触发宽度
+   */
+  width:string
 }
 
 /** 树形选择器组件定义的事件 */
