@@ -93,9 +93,17 @@
             :readonly="readonly"
             @keyup.enter="handleSave"
           >
-            <template #default="scoped">
+            <template #default="{ data, model }">
               <!-- @vue-ignore -->
-              <slot name="form" v-bind="scoped" />
+              <slot
+                name="form"
+                v-bind="{
+                  data,
+                  model,
+                  indexes: currentRow?.indexes ?? newRowIndexes,
+                  index: currentRow?.index ?? last(newRowIndexes)
+                }"
+              />
             </template>
           </u-form>
         </u-scroll>
@@ -175,6 +183,10 @@ const slots = defineSlots<
       data: Model['data']
       /** 表单模型 */
       model: Model
+      /** 当前行索引 */
+      index: number
+      /** 树形索引 */
+      indexes: number[]
     }) => any
 
     header?: () => any
@@ -225,7 +237,7 @@ const currentRow = shallowRef<TableRow>()
  * 当row值变更
  */
 const newRow = shallowRef(false)
-let newRowIndexes: number[] = []
+const newRowIndexes = shallowRef<number[]>([])
 let parentRow: TableRow | undefined
 /** 是否切换中，用来触发过渡效果 */
 const toggling = shallowRef(false)
@@ -247,7 +259,7 @@ watch([currentRow, newRow], ([currentRow, newRow]) => {
 watch(currentRow, row => {
   if (row) {
     newRow.value = false
-    newRowIndexes = []
+    newRowIndexes.value = []
     props.model?.setData(row.data)
   }
   rerender()
@@ -263,6 +275,7 @@ function handleRowChange(row?: TableRow) {
   const { model } = props
   if (!model) return
   currentRow.value = row
+  console.log(row)
 }
 
 function runCreate(cb: () => void) {
@@ -274,28 +287,28 @@ function runCreate(cb: () => void) {
 
 function handleAppend() {
   runCreate(() => {
-    newRowIndexes = [props.data?.length ?? 0]
+    newRowIndexes.value = [props.data?.length ?? 0]
   })
 }
 
 function handleInsertToPrev(row: TableRow) {
   runCreate(() => {
-    newRowIndexes = [...row.indexes]
+    newRowIndexes.value = [...row.indexes]
   })
 }
 
 function handleInsertToNext(row: TableRow) {
   runCreate(() => {
-    newRowIndexes = [...row.indexes.slice(0, -1), row.index + 1]
+    newRowIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
   })
 }
 
 function handleInsertChild(row: TableRow) {
   runCreate(() => {
     if (row.children?.length) {
-      newRowIndexes = [...row.indexes, row.children.length]
+      newRowIndexes.value = [...row.indexes, row.children.length]
     } else {
-      newRowIndexes = [...row.indexes, 0]
+      newRowIndexes.value = [...row.indexes, 0]
     }
   })
   parentRow = row
@@ -304,20 +317,20 @@ function handleInsertChild(row: TableRow) {
 function insert(item: Record<string, any>) {
   const data = [...(props.data ?? [])]
 
-  if (!newRowIndexes.length) return
+  if (!newRowIndexes.value.length) return
 
   let arr = data
   let parent: undefined | Record<string, any>
   const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
-  newRowIndexes.slice(0, -1).forEach(i => {
+  newRowIndexes.value.slice(0, -1).forEach(i => {
     parent = arr[i]!
     arr = parent[childrenKey]
   })
 
   if (arr) {
-    let i = last(newRowIndexes)
+    let i = last(newRowIndexes.value)
     arr.splice(i, 0, item)
-    newRowIndexes[newRowIndexes.length - 1] = i + 1
+    newRowIndexes.value[newRowIndexes.value.length - 1] = i + 1
   } else if (parent) {
     parent[childrenKey] = [item]
   }
@@ -327,7 +340,7 @@ function insert(item: Record<string, any>) {
 
 function handleClose() {
   newRow.value = false
-  newRowIndexes = []
+  newRowIndexes.value = []
   parentRow = undefined
   tableRef.value?.clearCurrentRow()
 }
