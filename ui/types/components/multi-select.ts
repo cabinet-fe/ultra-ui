@@ -25,8 +25,9 @@ export interface MultiSelectProps<Option extends Record<string, any>>
 }
 
 /** multi-select组件定义的事件 */
-export interface MultiSelectEmits {
+export interface MultiSelectEmits<Option extends Record<string, any>> {
   (e: 'update:modelValue', value: Array<any>): void
+  (e: 'change', options: Option[]): void
 }
 
 /** multi-select组件暴露的属性和方法(组件内部使用) */

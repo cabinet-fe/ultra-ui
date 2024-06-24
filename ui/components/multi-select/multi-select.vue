@@ -132,7 +132,7 @@ const props = withDefaults(defineProps<MultiSelectProps<Option>>(), {
   readonly: undefined
 })
 
-const emit = defineEmits<MultiSelectEmits>()
+const emit = defineEmits<MultiSelectEmits<Option>>()
 
 const cls = bem('multi-select')
 
@@ -198,7 +198,9 @@ watch(checkedSet, () => {
   if (setIsChangedByModel) return
   const { valueKey } = props
   modelIsChangedBySet = true
-  model.value = Array.from(checkedSet).map(option => option[valueKey])
+  const checkedArr = Array.from(checkedSet)
+  model.value = checkedArr.map(option => option[valueKey])
+  emit('change', checkedArr)
   modelIsChangedBySet = false
 })
 
