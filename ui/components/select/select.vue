@@ -131,11 +131,10 @@ watch(
   [model, options],
   ([modelValue, options]) => {
     if (!options?.length || modelIsChangedBySelected) return
-
     setIsChangedByModel = true
     if (modelValue !== undefined) {
       const { valueKey } = props
-      selected.value = options.find(option => option[valueKey] === model)
+      selected.value = options.find(option => option[valueKey] === modelValue)
     } else {
       selected.value = undefined
     }
