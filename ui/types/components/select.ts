@@ -9,8 +9,11 @@ export interface SelectProps<Option extends Record<string, any>>
   modelValue?: any
   /** 文本内容 */
   text?: string
-  /** 列表选项 */
-  options?: Option[]
+  /**
+   * 列表选项
+   * @description 如果传入一个函数，那么filterable会被强制启用
+   */
+  options?: Option[] | ((qs: string) => Promise<Option[]> | Option[])
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */

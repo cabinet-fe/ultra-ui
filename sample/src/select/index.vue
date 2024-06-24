@@ -10,12 +10,19 @@
 
       <div style="height: 10vh"></div>
     </CustomCard>
+
+    <CustomCard width="400px" title="函数选项">
+      <div>自动启用filter属性</div>
+
+      <u-select v-model="selected" :options="optionsGetter" />
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { sleep } from 'cat-kit/fe'
 
 const options = Array.from({ length: 200 }).map((_, i) => ({
   label: `选项${i}`,
@@ -25,6 +32,10 @@ const options = Array.from({ length: 200 }).map((_, i) => ({
 const selected = shallowRef(20)
 
 const filterable = shallowRef(false)
-</script>
 
-<style lang="scss" scoped></style>
+const optionsGetter = async (qs: string) => {
+  if (!qs) return []
+  await sleep(200)
+  return options.filter(o => o.label.includes(qs))
+}
+</script>

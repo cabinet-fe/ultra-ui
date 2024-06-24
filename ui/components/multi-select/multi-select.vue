@@ -69,13 +69,9 @@
       </div>
 
       <!-- 多选列表 -->
-      <u-scroll
-        tag="ul"
-        :class="cls.e('options')"
-        v-if="filteredOptions?.length"
-      >
+      <u-scroll tag="ul" :class="cls.e('options')" v-if="options.length">
         <u-multi-select-option
-          v-for="(option, index) of filteredOptions"
+          v-for="(option, index) of options"
           :option="option"
           :disabled="isDisabled(option)"
           :key="option[valueKey]"
@@ -120,6 +116,7 @@ import { UIcon } from '../icon'
 import { ArrowDown, Search, Close } from 'icon-ultra'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
+import { useOptions } from '../select/use-options'
 
 defineOptions({
   name: 'MultiSelect'
@@ -152,10 +149,19 @@ const { size, disabled, readonly } = useFormFallbackProps(
 
 const hovered = shallowRef(false)
 
+const { options, queryString } = useOptions({
+  props
+})
+
+const filterable = computed(() => {
+  return props.filterable || typeof props.options === 'function'
+})
+
 const model = defineModel<Array<string | number>>()
+
 const checkedSet = shallowReactive<Set<Option>>(new Set())
 const allChecked = computed(() => {
-  return checkedSet.size === (props.options?.length ?? 0)
+  return checkedSet.size === options.value.length
 })
 const indeterminate = computed(() => {
   return checkedSet.size > 0 && !allChecked.value
@@ -220,17 +226,6 @@ const restTag = computed(() => {
   return (model.value?.length ?? 0) - tags.value.length
 })
 
-/** 筛选 */
-const queryString = shallowRef('')
-
-/** 已过滤的选项 */
-const filteredOptions = computed(() => {
-  const { options, labelKey } = props
-  if (queryString.value === '') return options
-
-  return options?.filter(item => item[labelKey].includes(queryString.value))
-})
-
 const handleCheck = (option: Option, checked: boolean) => {
   if (checked) {
     checkedSet.add(option)
@@ -242,7 +237,7 @@ const handleCheck = (option: Option, checked: boolean) => {
 /** 全选 */
 const handleCheckAll = (checked: boolean) => {
   if (checked) {
-    props.options?.forEach(option => checkedSet.add(option))
+    options.value.forEach(option => checkedSet.add(option))
   } else {
     checkedSet.clear()
   }
