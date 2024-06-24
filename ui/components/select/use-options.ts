@@ -15,18 +15,17 @@ export function useOptions<O extends Record<string, any>>(o: Options<O>) {
   const queryString = shallowRef('')
 
   const remoteOptions = shallowRef<O[]>([])
+  const filteredOptions = shallowRef<O[]>([])
 
   /** 已过滤的选项 */
   const options = computed(() => {
-    const { options, labelKey } = props
+    const { options } = props
 
     if (!options) return []
 
     if (typeof options === 'function') return remoteOptions.value
 
-    if (queryString.value === '') return options
-
-    return options?.filter(item => item[labelKey].includes(queryString.value))
+    return filteredOptions.value
   })
 
   watch(
@@ -35,6 +34,12 @@ export function useOptions<O extends Record<string, any>>(o: Options<O>) {
       if (typeof props.options === 'function') {
         const options = await props.options(qs)
         remoteOptions.value = options
+      } else {
+        const { labelKey } = props
+        filteredOptions.value =
+          props.options?.filter(item =>
+            item[labelKey].includes(queryString.value)
+          ) ?? []
       }
     }, 200),
     {

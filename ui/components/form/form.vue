@@ -1,13 +1,19 @@
 <template>
   <u-grid tag="form" ref="gridRef" :cols="breakpointCols" :class="cls.b">
     <template
-      v-for="{ node, isFormItem, formItemProps, field } of getSlotsNodes()"
+      v-for="{
+        node,
+        isFormItem,
+        formItemProps,
+        field,
+        modelValue
+      } of getSlotsNodes()"
       :key="node.key ?? undefined"
     >
       <u-form-item v-if="isFormItem" v-bind="formItemProps">
         <component
           :is="node"
-          :model-value="getChainValue(model?.data ?? {}, field)"
+          :model-value="modelValue ?? getChainValue(model?.data ?? {}, field)"
           @update:model-value="handleUpdateValue(field, $event)"
         />
       </u-form-item>

@@ -21,6 +21,7 @@
             ]"
             label="性别"
             field="sex"
+            model-value="male"
           />
           <u-input
             field="name"
@@ -163,7 +164,7 @@ setTimeout(() => {
     complete2: { value: ['张三', '李四'], required: true },
     group: { required: true }
   })
-}, 3000)
+}, 1000)
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
