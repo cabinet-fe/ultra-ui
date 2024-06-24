@@ -22,17 +22,17 @@ export interface MultiTreeSelectProps
    */
   visibilityLimit?: number
 
-   /**
+  /**
    * 宽度
    * @default - 跟随触发宽度
    */
-   width:string
+  width: string
 }
 
 /** 树形多选组件组件定义的事件 */
 export interface MultiTreeSelectEmits {
   (e: 'clear'): void
-  (e: 'change', checked: Record<string, any>): void
+  (e: 'change', checked: Record<string, any>[]): void
 }
 
 /** 树形多选组件组件暴露的属性和方法(组件内部使用) */
