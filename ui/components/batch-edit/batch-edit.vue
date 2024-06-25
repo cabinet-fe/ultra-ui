@@ -250,8 +250,8 @@ function rerender() {
   })
 }
 
-watch(newRow, () => {
-  props.model?.resetData()
+watch(newRow, newRow => {
+  newRow && props.model?.resetData()
 })
 
 watch(currentRow, row => {
