@@ -104,14 +104,14 @@ export function useCheck(options: Options) {
   })
 
   watch(
-    [() => props.checked, () => props.rowKey, () => props.checkable],
-    ([checked, rowKey, checkable]) => {
+    [() => props.checked, () => props.rowKey, () => props.checkable, rows],
+    ([checked, rowKey, checkable, rows], [_, __, ___, oRows]) => {
       if (changedByEvent || !checkable || !rowKey) return
 
       changedByModel = true
 
       // 如果没有字典，先建立字典
-      setDicts()
+      rows !== oRows && setDicts()
 
       clearChecked()
 
@@ -133,14 +133,14 @@ export function useCheck(options: Options) {
   )
 
   watch(
-    [() => props.selected, () => props.rowKey, () => props.selectable],
-    ([selected, rowKey, selectable]) => {
+    [() => props.selected, () => props.rowKey, () => props.selectable, rows],
+    ([selected, rowKey, selectable, rows], [_, __, ___, oRows]) => {
       if (changedByEvent || !selectable || !rowKey) return
 
       changedByModel = true
 
       // 如果没有字典，先建立字典(懒建立)
-      setDicts()
+      rows !== oRows && setDicts()
 
       if (selected) {
         const row = dicts?.get(getChainValue(selected, rowKey))
