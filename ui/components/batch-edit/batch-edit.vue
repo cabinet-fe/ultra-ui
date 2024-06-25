@@ -250,13 +250,12 @@ function rerender() {
   })
 }
 
-watch([currentRow, newRow], ([currentRow, newRow]) => {
-  if (!currentRow && !newRow) {
-    props.model?.resetData()
-  }
+watch(newRow, () => {
+  props.model?.resetData()
 })
 
 watch(currentRow, row => {
+  props.model?.resetData()
   if (row) {
     newRow.value = false
     newRowIndexes.value = []
