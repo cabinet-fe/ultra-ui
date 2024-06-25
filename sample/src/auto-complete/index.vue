@@ -1,33 +1,32 @@
 <template>
   <div>
-    <u-checkbox v-model="config.multiple">multiple</u-checkbox>
-    <u-checkbox v-model="config.disabled">disabled</u-checkbox>
-    <u-checkbox v-model="config.readonly">readonly</u-checkbox>
-    <u-input v-model="config.linker" prefix="linker："></u-input>
-    <u-auto-complete
-      v-model="config.val"
-      :suggestions="suggestions"
-      :multiple="config.multiple"
-      :disabled="config.disabled"
-      :readonly="config.readonly"
-      :linker="config.linker"
-      label-key="label"
-    ></u-auto-complete>
+    <CustomCard title="基础使用">
+      <u-auto-complete :suggestions="suggestions" v-model="value" />
+    </CustomCard>
+
+    <CustomCard title="函数动态获取">
+      <u-auto-complete :suggestions="suggestionsGetter" v-model="value" />
+    </CustomCard>
+
+    <div>
+      {{ value }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
 
 const suggestions = Array.from({ length: 100 }, (v, i) => {
-  return { label: `label${i + 1}`, value: `${i + 1}` }
+  return `label${i + 1}`
 })
 
-const config = reactive({
-  multiple: false,
-  disabled: false,
-  readonly: false,
-  val: 'test',
-  linker: '===>'
-})
+const value = shallowRef('')
+
+const suggestionsGetter = (modelValue?: string) => {
+  if (!modelValue) return suggestions
+
+  return suggestions.filter(s => s === modelValue)
+}
 </script>
