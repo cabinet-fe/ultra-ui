@@ -10,6 +10,11 @@
       "@ui/*": ["./*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.vue",
+    "components/multi-auto-complete/multi-auto-complete"
+  ],
   "exclude": ["node_modules", "**/__test__/**/*"]
 }
