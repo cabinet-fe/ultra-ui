@@ -12,7 +12,7 @@ export * from './calendar'
 
 export * from './card'
 
-export * from './cascade-select'
+export * from './cascade'
 
 export * from './check-tag'
 

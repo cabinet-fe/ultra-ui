@@ -3,7 +3,7 @@
 @use '../../styles/vars';
 
 // 方便拼接
-$root-name: cascade-select;
+$root-name: cascade;
 
 @include m.b($root-name) {
   width: 100%;
@@ -13,6 +13,7 @@ $root-name: cascade-select;
   }
 
   @include m.e(options) {
+    display: flex;
     max-height: 180px;
   }
 

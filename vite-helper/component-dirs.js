@@ -7,6 +7,7 @@
   "button",
   "calendar",
   "card",
+  "cascade",
   "check-tag",
   "checkbox",
   "checkbox-group",
