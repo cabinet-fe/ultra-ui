@@ -38,10 +38,10 @@ const emit = defineEmits<ActionEmits>()
 
 const cls = bem('action')
 
+const ctx = inject(ActionDIKey, undefined)
+
 function handleConfirm() {
   emit('run')
-  close()
+  ctx?.close()
 }
-
-const { close } = inject(ActionDIKey)!
 </script>
