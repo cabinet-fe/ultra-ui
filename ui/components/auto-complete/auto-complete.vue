@@ -83,10 +83,7 @@ const props = withDefaults(defineProps<AutoCompleteProps>(), {
   placeholder: '请输入',
   clearable: true,
   disabled: undefined,
-  readonly: undefined,
-  linker: '',
-  labelKey: '',
-  multiple: false
+  readonly: undefined
 })
 
 const emit = defineEmits<AutoCompleteEmits>()

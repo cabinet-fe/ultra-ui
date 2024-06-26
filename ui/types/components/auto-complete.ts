@@ -10,7 +10,6 @@ export interface AutoCompleteProps extends FormComponentProps {
   suggestions?: string[] | (() => Promise<string[]> | string[])
   /** 是否可清空 */
   clearable?: boolean
-  linker?: string
 }
 
 /** 自动补全组件组件定义的事件 */
