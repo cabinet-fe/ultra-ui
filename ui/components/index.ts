@@ -12,6 +12,8 @@ export * from './calendar'
 
 export * from './card'
 
+export * from './cascade-select'
+
 export * from './check-tag'
 
 export * from './checkbox'
