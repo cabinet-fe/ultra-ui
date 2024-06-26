@@ -1,9 +1,0 @@
-{
-  "extends": "ts-conf-base/tsconfig.vue.json",
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true
-  },
-  "include": ["**/*.vue", "**/*.ts", "*.d.ts"],
-  "exclude": ["node_modules", "vite.config.ts"]
-}

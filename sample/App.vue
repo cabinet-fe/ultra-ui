@@ -33,9 +33,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 import { useConfig, vRipple, contextmenu, Message } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
-import type { ComponentSize } from 'ultra-ui/types/component-common'
+import type { ComponentSize } from 'ultra-ui/types/component-common.js'
 import { sleep } from 'cat-kit/fe'
-import { CloudDownload, Link, Plus } from 'icon-ultra'
+import { CloudDownload, Link } from 'icon-ultra'
 
 const router = useRouter()
 const route = useRoute()
