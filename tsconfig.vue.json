@@ -3,7 +3,11 @@
   "compilerOptions": {
     "declaration": true,
     "composite": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "baseUrl": "./ui",
+    "paths": {
+      "@ui/*": ["./*"]
+    }
   },
   "include": [
     "ui/**/*.vue",

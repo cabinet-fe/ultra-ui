@@ -115,13 +115,13 @@ const active = shallowRef(0)
 
 <style lang="scss">
 .space {
-  // padding: 8px;
-  // & > * {
-  //   margin-right: 8px;
-  // }
+  padding: 8px;
+  & > * {
+    margin-right: 8px;
+  }
 }
 
 .is-active {
-  // background-color: #ccc;
+  background-color: #ccc;
 }
 </style>

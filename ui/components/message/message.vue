@@ -17,7 +17,8 @@
           <component :is="getTypeIcon(type, icon)" />
         </UIcon>
       </div>
-      <div :class="cls.e('content')">
+      <div :class="cls.e('content')" v-if="html" v-html="message"></div>
+      <div :class="cls.e('content')" v-else>
         {{ message }}
       </div>
       <div :class="cls.e('close')" v-if="closable" @click.stop="immediateClose">
