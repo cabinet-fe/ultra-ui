@@ -21,7 +21,11 @@
       <div :class="cls.e('content')" v-else>
         {{ message }}
       </div>
-      <div :class="cls.e('close')" v-if="closable" @click.stop="immediateClose">
+      <div
+        :class="cls.e('close')"
+        v-if="closable || duration === 0"
+        @click.stop="immediateClose"
+      >
         <UIcon><Close /></UIcon>
       </div>
     </div>
@@ -64,6 +68,7 @@ let timer: number
 let restDuration = 0
 
 function close() {
+  if (props.duration === 0) return
   startTime = Date.now()
   timer = setTimeout(() => {
     visible.value = false
