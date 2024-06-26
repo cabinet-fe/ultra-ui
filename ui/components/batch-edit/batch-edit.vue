@@ -281,6 +281,9 @@ function runCreate(cb: () => void) {
   newRow.value = true
   parentRow = undefined
   cb()
+  nextTick(() => {
+    emit('created')
+  })
 }
 
 function handleAppend() {

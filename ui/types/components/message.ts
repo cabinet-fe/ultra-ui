@@ -11,6 +11,7 @@ export interface MessageProps {
   closable?: boolean
   duration?: number
   offset?: number
+  html?: boolean
   onClose?: () => void
   icon?: DefineComponent
 }

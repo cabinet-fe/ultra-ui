@@ -18,6 +18,11 @@
       cols="1fr 1fr"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
+      @created="
+        model.setData({
+          age: 666
+        })
+      "
     >
       <template #form="{ data }">
         <u-input field="name" label="名称" />
@@ -58,7 +63,7 @@
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
 import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { nextTick, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)

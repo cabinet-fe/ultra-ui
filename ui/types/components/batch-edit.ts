@@ -49,6 +49,7 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
 /** 批量编辑组件定义的事件 */
 export interface BatchEditEmits {
   (e: 'update:data', value: Record<string, any>[]): void
+  (e: 'created'): void
 }
 
 /** 批量编辑组件暴露的属性和方法(组件内部使用) */
