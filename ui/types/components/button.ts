@@ -41,4 +41,3 @@ export interface _ButtonExposed {
 
 /** 按钮暴露的属性和方法 */
 export type ButtonExposed = DeconstructValue<_ButtonExposed>
-

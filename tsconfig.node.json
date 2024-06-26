@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "types": ["node"]
+  },
+  "include": ["sample/vitest.config.ts"]
+}

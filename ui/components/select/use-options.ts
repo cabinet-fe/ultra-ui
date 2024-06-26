@@ -36,10 +36,10 @@ export function useOptions<O extends Record<string, any>>(o: Options<O>) {
         remoteOptions.value = options
       } else {
         const { labelKey } = props
+
+        if (!qs) return (filteredOptions.value = props.options ?? [])
         filteredOptions.value =
-          props.options?.filter(item =>
-            item[labelKey].includes(queryString.value)
-          ) ?? []
+          props.options?.filter(item => item[labelKey].includes(qs)) ?? []
       }
     }, 200),
     {

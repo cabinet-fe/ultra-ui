@@ -2,19 +2,8 @@
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
-    "declaration": true,
-    "target": "ESNext",
-    "jsx": "preserve",
-    "types": ["vite/client"],
-    "baseUrl": "..",
-    "rootDir": "..",
-    "outDir": "./dist",
-    "paths": {
-      "ultra-ui/*": ["ui/*"],
-      "@ui/*": ["ui/*"]
-    },
-    "allowJs": true
+    "declaration": true
   },
   "include": ["**/*.vue", "**/*.ts", "*.d.ts"],
-  "exclude": ["node_modules", "dist/**"]
+  "exclude": ["node_modules", "vite.config.ts"]
 }

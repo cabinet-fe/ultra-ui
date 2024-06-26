@@ -59,7 +59,8 @@ defineOptions({
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   iconPosition: 'left',
-  loadingIcon: () => Loading
+  loadingIcon: () => Loading,
+  disabled: false
 })
 
 const { size } = useFallbackProps([props], {

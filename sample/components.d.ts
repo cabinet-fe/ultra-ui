@@ -15,6 +15,7 @@ declare module 'vue' {
     UBadge: typeof import('ultra-ui')['UBadge']
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
+    UButtonGroup: typeof import('ultra-ui')['UButtonGroup']
     UCalendar: typeof import('ultra-ui')['UCalendar']
     UCard: typeof import('ultra-ui')['UCard']
     UCardAction: typeof import('ultra-ui')['UCardAction']

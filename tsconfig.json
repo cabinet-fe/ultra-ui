@@ -1,4 +1,5 @@
 {
+  "files": [],
   "references": [
     { "path": "./cli/tsconfig.json" },
     { "path": "./vite-helper/tsconfig.json" },
