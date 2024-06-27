@@ -18,7 +18,7 @@
     >
       <ArrowRight />
     </u-icon>
-    <i v-else :class="cls.e('icon-placeholder')" />
+    <i v-else :class="cls.e('icon-placeholder')"> </i>
 
     <span
       :class="cls.e('node-content')"

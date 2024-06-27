@@ -6,6 +6,10 @@
       :key="node.key ?? index"
       :class="bem.is('selected', node.data === selected)"
     />
+
+    <div :class="cls.e('empty')">
+      <UEmpty v-if="!nodes.length" />
+    </div>
   </div>
 </template>
 
@@ -24,6 +28,7 @@ import { TreeNode } from './tree-node'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
+import { UEmpty } from '../empty'
 
 defineOptions({
   name: 'Tree'

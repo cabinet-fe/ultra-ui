@@ -89,15 +89,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { TreeExposed } from 'ultra-ui/components'
+import type { TreeExposed } from 'ultra-ui'
 import CustomCard from '../card/custom-card.vue'
-import { nextTick, shallowRef, watch, watchEffect } from 'vue'
+import { nextTick, shallowRef, watch } from 'vue'
 
 const treeRef = shallowRef<TreeExposed>()
 const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
 
 function refreshData() {
+  if (Math.random() < 0.5) {
+    data.value = []
+    return
+  }
   data.value = [
     { name: '烤冷面', id: 1 },
     {

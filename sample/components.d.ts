@@ -40,6 +40,7 @@ declare module 'vue' {
     UInput: typeof import('ultra-ui')['UInput']
     ULayout: typeof import('ultra-ui')['ULayout']
     UList: typeof import('ultra-ui')['UList']
+    UListItem: typeof import('ultra-ui')['UListItem']
     UMenu: typeof import('ultra-ui')['UMenu']
     UMenuItem: typeof import('ultra-ui')['UMenuItem']
     UMenuSub: typeof import('ultra-ui')['UMenuSub']
