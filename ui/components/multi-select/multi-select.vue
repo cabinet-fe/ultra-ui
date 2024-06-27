@@ -84,7 +84,9 @@
         </u-multi-select-option>
       </u-scroll>
 
-      <div v-else :class="cls.e('empty')">未查询到结果</div>
+      <div v-else :class="cls.e('empty')">
+        <UEmpty />
+      </div>
     </template>
   </u-dropdown>
 
@@ -113,6 +115,7 @@ import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
+import { UEmpty } from '../empty'
 import { ArrowDown, Search, Close } from 'icon-ultra'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
