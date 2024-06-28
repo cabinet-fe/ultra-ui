@@ -3,6 +3,7 @@
     :class="inputClass"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    v-if="!readonly"
   >
     <span
       v-if="$slots.prefix || prefix"
@@ -26,7 +27,7 @@
       autocomplete="off"
       ref="el"
       :disabled="disabled"
-      :readonly="readonly"
+      :readonly="nativeReadonly"
     />
 
     <Transition name="zoom-in" mode="out-in">
@@ -47,6 +48,10 @@
       <slot name="suffix">{{ suffix }}</slot>
     </span>
   </div>
+
+  <span v-else>
+    {{ model }}
+  </span>
 </template>
 
 <script lang="tsx" setup>
@@ -61,7 +66,14 @@ import {
   useFormFallbackProps
 } from '@ui/compositions'
 import { bem } from '@ui/utils'
-import { computed, getCurrentInstance, ref, Transition, shallowRef } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  ref,
+  Transition,
+  shallowRef,
+  nextTick
+} from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
 
@@ -128,8 +140,18 @@ function handleCompositionEnd(e: Event) {
 
 const handleInput = (e: Event) => {
   if (isComposing) return
+  const inputVal = (e.target as HTMLInputElement).value
   emit('native:input', e)
-  model.value = (e.target as HTMLInputElement).value
+  if (props.pattern) {
+    const valid = props.pattern.test(inputVal)
+    if (!valid) {
+      nextTick(() => {
+        ;(e.target as HTMLInputElement).value = model.value ?? ''
+      })
+      return
+    }
+  }
+  model.value = inputVal
 }
 
 const handlePrefixClick = () => {

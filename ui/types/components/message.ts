@@ -1,24 +1,23 @@
 import type { DeconstructValue } from '../helper'
-import type { DefineComponent, RendererElement } from 'vue'
-import type { ColorType } from '../component-common'
+import type { DefineComponent } from 'vue'
+
+/** 消息类型 */
+export type MessageType = 'success' | 'warn' | 'info' | 'error' | 'default'
 
 /** 消息弹框组件组件属性 */
 export interface MessageProps {
-  modelValue?: string
   message?: string
-  type?: ColorType
+  type?: MessageType
   closable?: boolean
   duration?: number
   offset?: number
-  onClose?: (vm: RendererElement) => void
-  id?: string
+  html?: boolean
+  onClose?: () => void
   icon?: DefineComponent
 }
 
 /** 消息弹框组件组件定义的事件 */
-export interface MessageEmits {
-  (e: 'update:modelValue', value: string): void
-}
+export interface MessageEmits {}
 
 /** 消息弹框组件组件暴露的属性和方法(组件内部使用) */
 export interface _MessageExposed {}

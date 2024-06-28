@@ -1,14 +1,18 @@
 <template>
-  <component :is="tag" :class="cls.b" :style="style" ref="gridRef">
+  <component :is="tag" :class="cls.b" ref="gridRef">
     <slot />
   </component>
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
-import type { GridProps, GridEmits } from '@ui/types/components/grid'
+import { bem, setStyles, withUnit } from '@ui/utils'
+import type {
+  GridProps,
+  GridEmits,
+  _GridExposed
+} from '@ui/types/components/grid'
 import { GridDIKey } from './di'
-import { type CSSProperties, computed, shallowRef, provide } from 'vue'
+import { type CSSProperties, shallowRef, provide, watchEffect } from 'vue'
 import { useResponsive } from './use-responsive'
 import { getBreakpointCols } from './breakpoint'
 
@@ -32,36 +36,48 @@ const { currentBreakpoint, gridItemsProps } = useResponsive({
   gridRef
 })
 
-const style = computed<CSSProperties>(() => {
-  const { cols, gap } = props
+// 不使用computed以减少重复渲染
+watchEffect(() => {
+  const { gap, cols } = props
+  const breakpoint = currentBreakpoint.value
 
-  const styles: CSSProperties = {}
-  if (gap) {
-    styles.columnGap = gap + 'px'
-  }
-  if (!cols) return styles
+  const style: CSSProperties = {}
 
-  switch (typeof cols) {
-    case 'number':
-      styles.gridTemplateColumns = `repeat(${cols}, 1fr)`
-      break
-    case 'function':
-      styles.gridTemplateColumns = `repeat(${cols(
-        currentBreakpoint.value
-      )}, 1fr)`
-      break
-    case 'object':
-      const breakpoint = currentBreakpoint.value
-      const amount = getBreakpointCols(cols, breakpoint)
-
-      styles.gridTemplateColumns = `repeat(${amount}, 1fr)`
+  if (typeof gap === 'number') {
+    if (gap > 0) {
+      style.columnGap = gap + 'px'
+    }
+  } else if (typeof gap === 'string') {
+    const [rowGap, columnGap] = gap.split(' ')
+    style.columnGap = withUnit(columnGap, 'px')
+    style.rowGap = rowGap
   }
 
-  return styles
+  if (!cols) {
+    delete style.gridTemplateColumns
+  } else {
+    switch (typeof cols) {
+      case 'number':
+        style.gridTemplateColumns = `repeat(${cols}, 1fr)`
+        break
+      case 'function':
+        style.gridTemplateColumns = `repeat(${cols(breakpoint)}, 1fr)`
+        break
+      case 'object':
+        const amount = getBreakpointCols(cols, breakpoint)
+        style.gridTemplateColumns = `repeat(${amount}, 1fr)`
+    }
+  }
+
+  gridRef.value && setStyles(gridRef.value, style)
 })
 
 provide(GridDIKey, {
   currentBreakpoint,
   gridItemsProps
+})
+
+defineExpose<_GridExposed>({
+  el: gridRef
 })
 </script>

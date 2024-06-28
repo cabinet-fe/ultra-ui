@@ -1,21 +1,26 @@
 <template>
-  <u-scroll :class="[cls.b, cls.m(size)]" @resize="handleTableResize">
-    <table
-      :class="cls.e('wrap')"
-      @mouseenter.capture="eventHandlers.handleMouseEnter"
-    >
+  <u-scroll
+    :class="[cls.b, cls.m(size)]"
+    ref="scrollRef"
+    @resize="updateStylesOfColumns"
+  >
+    <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
         <col
-          v-for="column of columns"
+          v-for="column of allColumns"
+          :key="column.key"
+          :class="column.fixed"
           :style="{
             width: withUnit(column.width, 'px'),
             minWidth: withUnit(column.minWidth, 'px')
           }"
-          :class="column.fixed"
         />
       </colgroup>
       <UTableHead />
       <UTableBody />
+      <UTableFoot>
+        <slot name="foot" :columns="allColumns" :rows="rows" />
+      </UTableFoot>
     </table>
 
     <div :class="cls.e('resizer')"></div>
@@ -23,123 +28,112 @@
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import type { TableProps, TableEmits } from '@ui/types/components/table'
+import type {
+  TableProps,
+  TableEmits,
+  _TableExposed,
+  TableColumnSlotsScope
+} from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
-import { provide, shallowRef, useSlots, type VNode } from 'vue'
-import { TableDIKey, type TableColumnSlotsScope } from './di'
-import { useRows } from './use-rows'
+import { computed, provide, shallowRef } from 'vue'
+import { TableDIKey } from './di'
+import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
-import { UScroll } from '../scroll'
-import { useEvents } from './use-events'
+import UTableFoot from './table-foot.vue'
+import { UScroll, type ScrollExposed } from '../scroll'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
+import { useCheck } from './use-check'
+import { useTable } from './use-table'
 
 defineOptions({
   name: 'Table'
 })
 
-const props = defineProps<TableProps<DataItem>>()
-const emit = defineEmits<TableEmits<DataItem>>()
+const props = withDefaults(defineProps<TableProps<DataItem>>(), {
+  tree: false
+})
+const emit = defineEmits<TableEmits>()
 
-defineSlots<
-  {
-    [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
-    [key: `header:${string}`]: (props: { column: ColumnNode }) => any
-  } & {
-    [key: string]: () => any
-  }
->()
+const slots = defineSlots<{
+  [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
+  [key: `header:${string}`]: (props: { column: ColumnNode }) => any
+  foot: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+}>()
 
 const cls = bem('table')
-
-const rows = useRows({ props })
-
-const columnConfig = useColumns({ props })
-
-const { columns } = columnConfig
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const slots = useSlots()
-
-/** 获取列插槽vnode */
-const getColumnSlotsNode = (
-  key: string,
-  ctx: TableColumnSlotsScope
-): VNode[] | undefined => {
-  return (props.slots ?? slots)[`column:${key}`]?.(ctx) ?? ctx.val
-}
-
-/** 获取表头插槽vnode */
-const getHeaderSlotsNode = (
-  key: string,
-  ctx: { column: ColumnNode }
-): VNode[] | undefined | string => {
-  return (props.slots ?? slots)[`header:${key}`]?.(ctx) ?? ctx.column.name
-}
-
-/** 获取单元格类名 */
-const getCellClass = (column: ColumnNode): string[] => {
-  const classList: string[] = [cls.e('cell'), bem.is(column.align)]
-  column.fixed && classList.push(bem.is('fixed-' + column.fixed))
-  return classList
-}
-
-/** 事件处理 */
-const eventHandlers = useEvents({ emit })
-
 const colgroupRef = shallowRef<HTMLElement>()
 
-const handleTableResize = (el: HTMLElement) => {
-  const colgroup = colgroupRef.value
+// 行
+const {
+  rows,
+  toggleTreeRowExpand,
+  rowForest,
+  handleRowClick,
+  clearCurrentRow,
+  setCurrentRow
+} = useRows({ props, emit })
 
-  if (!colgroup) return
-  const fixedOnLeft = Array.from(
-    colgroup.getElementsByClassName('left')
-  ) as HTMLElement[]
+// 选中
+const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
+  useCheck({
+    size,
+    props,
+    rows,
+    rowForest,
+    emit,
+    cls
+  })
 
-  const fixedOnRight = Array.from(
-    colgroup.getElementsByClassName('right')
-  ) as HTMLElement[]
+// 列
+const columnConfig = useColumns({
+  props,
+  createCheckColumn,
+  createSelectColumn,
+  colgroupRef
+})
 
-  fixedOnLeft.reduce((acc, col, colIndex) => {
-    if (colIndex === 0) {
-      columns.value[0]!.style.left = 0
-      return acc
-    }
+const { allColumns, updateStylesOfColumns } = columnConfig
 
-    const left = acc + fixedOnLeft[colIndex - 1]!.offsetWidth
-    columns.value[colIndex]!.style.left = left
-    return left
-  }, 0)
-
-  const rightColumns = columns.value.slice(-fixedOnRight.length)
-
-  fixedOnRight.reduceRight((acc, col, colIndex) => {
-    if (colIndex === fixedOnRight.length - 1) {
-      rightColumns[colIndex]!.style.right = 0
-
-      return acc
-    }
-    const right = acc + fixedOnRight[colIndex + 1]!.offsetWidth
-    rightColumns[colIndex]!.style.right = right
-
-    return right
-  }, 0)
-}
+// 在表格中提供的通用方法和属性
+const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
+  useTable({
+    props,
+    cls
+  })
 
 provide(TableDIKey, {
   tableProps: props,
+  tableSlots: slots,
   cls,
   rows,
   columnConfig,
-  eventHandlers,
+  handleRowClick,
   getColumnSlotsNode,
   getHeaderSlotsNode,
-  getCellClass
+  getCellClass,
+  getCellCtx,
+  toggleTreeRowExpand
+})
+
+const scrollRef = shallowRef<ScrollExposed>()
+
+const el = computed(() => {
+  return scrollRef.value?.el
+})
+
+defineExpose<_TableExposed>({
+  el,
+  clearChecked,
+  clearSelected,
+  clearCurrentRow,
+  setCurrentRow
 })
 </script>

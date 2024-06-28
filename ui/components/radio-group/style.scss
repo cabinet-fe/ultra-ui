@@ -3,22 +3,30 @@
 @use '../../styles/vars';
 
 @include m.b(radio-group) {
-    @include m.flex($display: inline-flex, $align: center);
-    vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
+  vertical-align: middle;
 
-    @include m.e(button-item) {
-        margin: 0px !important;
-        border-right: 0 !important;
-        border-radius: 0 !important;
+  @include m.is(block) {
+    display: inline-block;
 
-        &:first-child {
-            border-radius: fn.use-var(radius, default)0 0 fn.use-var(radius, default) !important;
-        }
-
-        &:last-child {
-            border-right: fn.use-var(border) !important;
-            border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0 !important;
-        }
-
+    @include m.bem(radio) {
+      margin: 0;
+      display: flex;
     }
+  }
+
+  @include m.e(button-item) {
+    margin: 0px !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+
+    &:first-child {
+      border-radius: fn.use-var(radius, default) 0 0 fn.use-var(radius, default) !important;
+    }
+
+    &:last-child {
+      border-right: fn.use-var(border) !important;
+      border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0 !important;
+    }
+  }
 }

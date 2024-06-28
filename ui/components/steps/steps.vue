@@ -55,6 +55,7 @@ import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from 'icon-ultra'
 import { UIcon } from '../icon'
+import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Steps'
@@ -76,16 +77,17 @@ const currentIndex = computed(() => {
     : props.items.length + 1
 })
 
-const props = defineProps<StepsProps>()
-
-const emit = defineEmits<StepsEmits>()
-
-const { direction, readonly, processStatus, finishStatus, size } = useFallbackProps([props], {
+const props = withDefaults(defineProps<StepsProps>(), {
   direction: 'horizontal',
   readonly: true,
   processStatus: 'default',
-  finishStatus: 'success',
-  size: 'default'
+  finishStatus: 'success'
+})
+
+const emit = defineEmits<StepsEmits>()
+
+const { size } = useFallbackProps([props], {
+  size: 'default' as ComponentSize
 })
 
 const cls = bem('steps')

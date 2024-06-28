@@ -1,18 +1,39 @@
 <template>
   <u-tip
-    v-if="injected?.simple.value && textIndent === '0px'"
-    position="right-start"
-    :customStyle="disabled ? {} : { backgroundColor: injected?.backgroundColor }"
+    v-if="injected?.simple.value"
+    direction="right"
+    align="start"
+    :customStyle="
+      disabled ? {} : { backgroundColor: injected?.backgroundColor }
+    "
   >
-    <div :class="[cls?.e('sub'), bem.is('disabled', disabled)]">
+    <div
+      :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
+      @mouseleave="expand = false"
+    >
       <div
-        :class="[cls?.em('sub', 'title'), bem.is('active', highlight)]"
-        :style="{ textIndent, color: customColor }"
+        :class="[
+          cls?.em('sub', 'title'),
+          bem.is('active', highlight && isBase),
+          bem.is('simple', isBase)
+        ]"
+        :style="{ color: customColor }"
         v-ripple="!disabled"
+        @mouseenter="expand = true"
       >
-        <UIcon :class="cls?.em('sub', 'icon')" style="margin-right: 0" v-if="icon">
-          <component :is="icon" />
-        </UIcon>
+        <div>
+          <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
+            <component :is="icon" />
+          </UIcon>
+
+          <slot name="title" v-if="!isBase" />
+        </div>
+        <UIcon
+          v-if="!isBase"
+          :class="[cls?.em('sub', 'tip-arrow')]"
+          :style="{ transform: `rotate(${-Number(expand) * 90}deg)` }"
+          ><ArrowDown
+        /></UIcon>
       </div>
     </div>
     <template #content>
@@ -24,24 +45,26 @@
   <div
     v-else
     :class="[cls?.e('sub'), bem.is('disabled', disabled), cls?.m(size)]"
-    @mouseenter="mouseenter"
-    @mouseleave="mouseleave"
   >
     <div
       :class="[cls?.em('sub', 'title')]"
       @click.stop="handleClick"
       :style="{
-        textIndent: injected?.simple.value ? `${parseInt(textIndent) - 40}px` : textIndent,
+        textIndent,
         paddingRight: '35px',
-        color: props.disabled ? 'var(--text-color-disabled)' : injected?.textColor
+        color: props.disabled
+          ? 'var(--text-color-disabled)'
+          : injected?.textColor
       }"
       v-ripple="!disabled"
     >
-      <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
-        <component :is="icon" />
-      </UIcon>
+      <div>
+        <UIcon :class="cls?.em('sub', 'icon')" v-if="icon">
+          <component :is="icon" />
+        </UIcon>
 
-      <slot name="title" />
+        <slot name="title" />
+      </div>
       <UIcon
         :class="cls?.em('sub', 'arrow')"
         :style="{ transform: `rotate(${Number(expand) * 90}deg)` }"
@@ -63,9 +86,16 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch, onMounted, getCurrentInstance, computed } from 'vue'
-import { MenuDIKey, calcIndent, getSiblings, getChildren } from './di'
-import { ArrowRight } from 'icon-ultra'
+import {
+  inject,
+  ref,
+  watch,
+  onMounted,
+  getCurrentInstance,
+  computed
+} from 'vue'
+import { MenuDIKey, calcIndent, getSiblings, getParentIndex } from './di'
+import { ArrowRight, ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import type { MenuSubProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
@@ -84,7 +114,7 @@ const expand = ref<boolean>(false)
 // emit事件
 watch(
   () => expand.value,
-  (val) => {
+  val => {
     if (val) {
       injected?.menuEmit('open', props.index || '')
     } else {
@@ -99,6 +129,8 @@ const { size } = useFallbackProps([props], {
   size: 'default'
 })
 
+const instance = getCurrentInstance()
+
 const open = () => {
   expand.value = true
 }
@@ -107,14 +139,14 @@ const close = () => (expand.value = false)
 // 根据openIndex展开子菜单
 watch(
   () => injected?.openIndex.value,
-  (index) => {
+  index => {
     if (index === props.index) open()
   }
 )
 // 根据closeIndex关闭子菜单
 watch(
   () => injected?.closeIndex.value,
-  (index) => {
+  index => {
     if (index === props.index) close()
   }
 )
@@ -122,12 +154,18 @@ watch(
 // 缩略模式关闭子菜单
 watch(
   () => injected?.simple.value,
-  (val) => {
+  val => {
     if (val) {
       close()
-      highlight.value = children.value.includes(injected!.activeIndex.value)
+      highlight.value =
+        injected?.structure.value[props.index]?.has(
+          injected!.activeIndex.value
+        ) || false
     } else {
-      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
+      if (
+        injected?.structure.value[props.index]?.has(injected!.activeIndex.value)
+      )
+        expand.value = true
     }
   }
 )
@@ -137,46 +175,60 @@ const handleClick = () => {
   expand.value = !expand.value
 }
 
-const mouseenter = () => {
-  if (injected?.simple.value) expand.value = true
-}
-
-const mouseleave = () => {
-  if (injected?.simple.value) expand.value = false
-}
-
 const siblings = ref<Array<string>>([])
 
-const children = ref<Array<string>>([])
 // 根据activeIndex展开子菜单
 watch(
-  () => injected?.activeIndex.value,
-  (index) => {
-    if (index === props.index) open()
-  },
-  { once: true }
+  [() => injected?.activeIndex.value, injected?.structure.value],
+  ([index, structure]) => {
+    if (
+      !expand.value &&
+      index &&
+      structure &&
+      structure[props.index] &&
+      structure[props.index].has(index)
+    ) {
+      expand.value = true
+    }
+  }
 )
 // 根据uniqueOpened，关闭其他菜单
 const highlight = ref<boolean>(false)
 watch(
   () => injected?.activeIndex.value,
-  (index) => {
-    if (injected?.uniqueOpened && index !== props.index && siblings.value.includes(index!)) {
-      close()
+  index => {
+    if (index) {
+      if (
+        injected?.uniqueOpened &&
+        index !== props.index &&
+        siblings.value.includes(index)
+      ) {
+        close()
+      }
+      if (injected?.simple.value) {
+        highlight.value =
+          injected?.structure.value[props.index]?.has(index) || false
+      }
     }
-    if (index && injected?.simple.value) {
-      highlight.value = children.value.includes(index)
-    }
-  }
+  },
+  { immediate: true }
 )
 // 默认展开
 onMounted(() => {
   if (injected?.expand) open()
 })
 
-const instance = getCurrentInstance()
-
 const textIndent = ref<string>('0px')
+
+const parents = ref<string[]>([])
+
+const isBase = computed(() => {
+  if (parents.value.length) {
+    return Boolean(parents.value[0] === 'menu-root')
+  } else {
+    return false
+  }
+})
 
 // 根据嵌套层级计算缩进
 watch(
@@ -184,9 +236,13 @@ watch(
   () => {
     if (instance) {
       textIndent.value = calcIndent(instance)
-      siblings.value = getSiblings(instance) || []
-      children.value = getChildren(instance)
-      if (children.value.includes(injected!.activeIndex.value)) expand.value = true
+      siblings.value = getSiblings(instance)
+      if (
+        injected &&
+        injected?.structure.value[props.index]?.has(injected!.activeIndex.value)
+      )
+        expand.value = true
+      parents.value = getParentIndex(instance)
     }
   },
   { immediate: true }
@@ -195,7 +251,9 @@ watch(
 // 用户自定义颜色
 const customColor = computed(() => {
   if (!props.disabled) {
-    return highlight.value ? injected?.activeTextColor : injected?.textColor
+    return highlight.value && isBase.value
+      ? injected?.activeTextColor
+      : injected?.textColor
   } else {
     return 'var(--text-color-disabled)'
   }

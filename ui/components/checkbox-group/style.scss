@@ -6,4 +6,13 @@
   @include m.flex(inline-flex);
   line-height: 1;
   vertical-align: middle;
+
+  @include m.is(block) {
+    display: inline-block;
+
+    @include m.bem(checkbox) {
+      margin: 0;
+      display: flex;
+    }
+  }
 }

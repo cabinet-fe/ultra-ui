@@ -1,7 +1,1 @@
-export {}
-
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    c: Console
-  }
-}
+///<reference types="vite/client" />

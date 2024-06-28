@@ -16,6 +16,7 @@ $root-name: button;
   vertical-align: middle;
   border-radius: fn.use-var(radius, default);
   cursor: pointer;
+  padding: 0 0.8em;
   -webkit-appearance: none;
   background-color: fn.use-var(color, default);
   border: fn.use-var(border, width) fn.use-var(border, style)
@@ -46,7 +47,6 @@ $root-name: button;
     height: fn.use-var(form-component-height, $size);
     line-height: fn.use-var(form-component-height, $size);
     font-size: fn.use-var(font-size-main, $size);
-    padding: 0 1em;
 
     @include m.is(circle) {
       width: fn.use-var(form-component-height, $size);
@@ -138,5 +138,20 @@ $root-name: button;
   }
   @include m.e(icon-right) {
     margin-left: fn.use-var(gap-small);
+  }
+}
+
+@include m.b(#{$root-name}-group) {
+  display: inline-flex;
+
+  @include m.b($root-name) {
+    border-radius: 0;
+
+    &:first-child {
+      border-radius: fn.use-var(radius, default) 0 0 fn.use-var(radius, default);
+    }
+    &:last-child {
+      border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0;
+    }
   }
 }

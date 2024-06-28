@@ -1,5 +1,6 @@
-/** 断点名称 */
-export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+import type { ShallowRef } from 'vue'
+import type { BreakpointName } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 export interface Breakpoint {
   name: BreakpointName
@@ -49,8 +50,8 @@ export interface GridProps {
   cols?: number | BreakCols | ((breakpoint?: Breakpoint) => number)
   /** 渲染标签 */
   tag?: string
-  /** 间隔, 单位px */
-  gap?: number
+  /** 间隔, 为字符串时可以同时指定行间隔和列间隔 */
+  gap?: number | string
 }
 
 /**
@@ -75,3 +76,11 @@ export interface GridItemProps {
   /** 容器标签 */
   tag?: string
 }
+
+/** 网格组件暴露的属性和方法(组件内部使用) */
+export interface _GridExposed {
+  el: ShallowRef<HTMLElement | undefined>
+}
+
+/** 网格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export type GridExposed = DeconstructValue<_GridExposed>

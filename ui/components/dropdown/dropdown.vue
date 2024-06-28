@@ -1,8 +1,9 @@
 <template>
   <div
+    v-if="slots.trigger"
     :class="cls.b"
     v-bind="{ ...eventsHandlers, ...$attrs }"
-    ref="dropdownRef"
+    ref="triggerRef"
   >
     <slot name="trigger" />
   </div>
@@ -17,7 +18,7 @@
         :style="popupFinalStyle"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
-        v-click-outside="handleClickOutside"
+        v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
       >
         <slot name="content" />
       </component>
@@ -61,9 +62,17 @@ const props = withDefaults(defineProps<DropdownProps>(), {
 
 defineEmits<DropdownEmits>()
 
+const slots = defineSlots<{
+  /** 内容 */
+  content?: () => any
+  /** 触发器 */
+  trigger?: () => any
+}>()
+
 const cls = bem('dropdown')
 
-const dropdownRef = shallowRef<HTMLElement>()
+const triggerRef = shallowRef<HTMLElement>()
+let realTrigger: HTMLElement | undefined
 
 const contentRef = shallowRef<HTMLElement>()
 
@@ -83,14 +92,14 @@ watch(visible, async v => {
     await nextTick()
     popupStyle.zIndex = zIndex()
     window.addEventListener('resize', close)
-    observeTrigger(dropdownRef.value!, updateDropdown)
+    observeTrigger(triggerRef.value!, updateDropdown)
     /** 添加滚动事件 */
-    scrollParents = getScrollParents(dropdownRef.value!)
+    scrollParents = getScrollParents(triggerRef.value!)
     addScrollEvent()
   } else {
     removeScrollEvent()
     window.removeEventListener('resize', close)
-    unobserveTrigger(dropdownRef.value!)
+    unobserveTrigger(triggerRef.value!)
   }
 })
 
@@ -109,41 +118,52 @@ const popupFinalStyle = computed(() => {
 
 let closeTimer: number | undefined
 
-/**鼠标移入元素 */
-function open() {
+function stopClose() {
   closeTimer !== undefined && clearTimeout(closeTimer)
-  if (props.trigger === 'hover') {
-    visible.value = true
-  } else if (props.trigger === 'click') {
-    visible.value = !visible.value
+}
+
+/** 打开下拉框 */
+function open(trigger?: { virtual?: HTMLElement; real?: HTMLElement }) {
+  stopClose()
+  const { virtual, real } = trigger || {}
+  if (virtual && virtual instanceof HTMLElement) {
+    triggerRef.value = virtual
+
+    realTrigger = real || virtual
   }
+
+  visible.value = true
 }
 
 function close() {
+  realTrigger = undefined
   if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
       visible.value = false
     }, 200)
-  } else if (props.trigger === 'click') {
+  } else {
     visible.value = false
   }
 }
 
 /** 点击外部 */
 function handleClickOutside(e: MouseEvent) {
+  // 点击触发且点击元素属于触发元素内（包含触发元素本身）时不关闭
   if (
     props.trigger === 'click' &&
-    dropdownRef.value?.contains(e.target as Node)
+    (triggerRef.value?.contains(e.target as Node) ||
+      realTrigger?.contains(e.target as Node))
   ) {
     return
   }
+
   close()
 }
 
 function updateDropdown() {
-  if (!dropdownRef.value || !contentRef.value) return
+  if (!triggerRef.value || !contentRef.value) return
   const styles = computeDropdownPosition({
-    triggerEl: dropdownRef.value,
+    triggerEl: triggerRef.value,
     popupEl: contentRef.value
   })
   styles && Object.assign(popupStyle, styles)
@@ -169,10 +189,10 @@ const eventsHandlers = computed(() => {
   const { trigger, disabled } = props
 
   const handlers: Record<string, Function> = {}
-  if (disabled) return handlers
+  if (disabled || trigger === 'custom') return handlers
 
   if (trigger === 'click') {
-    handlers.onClick = open
+    handlers.onClick = visible.value ? close : open
   } else if (trigger === 'hover') {
     handlers.onMouseenter = open
     handlers.onMouseleave = close

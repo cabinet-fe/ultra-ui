@@ -9,6 +9,7 @@
         v-for="(button, index) of buttons"
         :class="bem.is('active', index === active)"
         @click="active = index"
+        :disabled="undefined"
       >
         {{ button.text }}
       </u-button>
@@ -79,11 +80,25 @@
       <u-button text type="danger">危险</u-button>
       <u-button text type="info">信息</u-button>
     </div>
+
+    <div class="space">
+      <div>分组</div>
+      <u-button-group v-slot="{ props }">
+        <u-button
+          v-for="(button, index) of buttons"
+          :class="bem.is('active', index === active)"
+          @click="active = index"
+          v-bind="props"
+        >
+          {{ button.text }}
+        </u-button>
+      </u-button-group>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Edit,Refresh } from 'icon-ultra'
+import { Edit, Refresh } from 'icon-ultra'
 import { bem } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
@@ -107,6 +122,6 @@ const active = shallowRef(0)
 }
 
 .is-active {
-  // background-color: #ccc;
+  background-color: #ccc;
 }
 </style>

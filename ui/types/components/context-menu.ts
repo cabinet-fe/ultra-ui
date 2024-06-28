@@ -26,7 +26,7 @@ export interface ContextMenuProps extends ComponentProps {
    * 菜单宽度
    * @default 200
    */
-  width?: number
+  width?: number | string
   /** 菜单项 */
   menus: ContextMenuItem[] | (() => ContextMenuItem[])
 }

@@ -3,11 +3,10 @@ import type { DeconstructValue } from '../helper'
 import type { TreeProps } from './tree'
 
 /** 树形选择器组件属性 */
-export interface TreeSelectProps<Val extends string | number>
+export interface TreeSelectProps
   extends FormComponentProps,
-    TreeProps {
-  /**选项值 */
-  modelValue?: Val[]
+    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+  modelValue?: string | number
 
   /**自定义占位文字 */
   placeholder?: string
@@ -19,14 +18,21 @@ export interface TreeSelectProps<Val extends string | number>
    * 是否可搜索
    */
   filterable?: boolean
-
-  /** 多选 */
-  multiple?: boolean
+  /**
+   * 最小宽度
+   * @default '280px'
+   */
+  minWidth: string
 }
 
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
-  (e: 'clear', value: Record<string, any>[]): void
+  (e: 'clear'): void
+  (
+    e: 'change',
+    value?: string | number,
+    selectedData?: Record<string, any>
+  ): void
 }
 
 /** 树形选择器组件暴露的属性和方法(组件内部使用) */

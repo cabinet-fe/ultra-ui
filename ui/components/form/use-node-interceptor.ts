@@ -1,19 +1,15 @@
 import type { FormProps } from '@ui/types/components/form'
-import {
-  useSlots,
-  h,
-  type VNode,
-  createTextVNode,
-  type VNodeArrayChildren,
-  isVNode
-} from 'vue'
-import FormItem from '../form-item/form-item.vue'
+import { onBeforeUnmount, useSlots, type VNode } from 'vue'
 import { pick } from 'cat-kit/fe'
-import { isFragment, isTemplate } from '@ui/utils'
+import { createIncrease, extractNormalVNodes } from '@ui/utils'
 
 interface Options {
   props: FormProps
 }
+
+const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
+
+const id = createIncrease(1)
 
 /**
  * 虚拟node拦截
@@ -24,67 +20,65 @@ export function useNodeInterceptor(options: Options) {
   const { props } = options
   const slots = useSlots()
 
-  function flatNodes(nodes: VNodeArrayChildren, results: VNode[] = []) {
-    nodes.forEach(node => {
-      if (!isVNode(node)) {
-        if (typeof node === 'string' || typeof node === 'number') {
-          results.push(createTextVNode(String(node)))
-        }
-        return
-      }
-      if (
-        (isFragment(node) || isTemplate(node)) &&
-        Array.isArray(node.children)
-      ) {
-        flatNodes(node.children, results)
-      } else {
-        results.push(node)
-      }
+  const formId = id()
+
+  function getSlotsNodes() {
+    const { model } = props
+    const nodes = slots.default?.({
+      model,
+      data: model?.data
     })
+    if (!nodes?.length) return null
+
+    const flattedNodes = extractNormalVNodes(nodes)
+
+    const results: Array<
+      | {
+          isFormItem: true
+          formItemProps: Record<string, any>
+          node: VNode
+          field: string
+          modelValue?: any
+        }
+      | {
+          isFormItem: false
+          formItemProps: Record<string, any>
+          node: VNode
+          field: undefined
+          modelValue?: any
+        }
+    > = []
+
+    // 渲染表单后得到的应当校验的字段
+    const fields: string[] = []
+
+    let i = 0
+    while (i < flattedNodes.length) {
+      const node = flattedNodes[i]!
+      i++
+
+      const { props, type } = node
+      const item = {
+        isFormItem: !!props?.field && (type as any)?.name !== 'FormItem',
+        formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
+        node,
+        field: props?.field,
+        modelValue: props?.['model-value'] ?? props?.modelValue
+      }
+
+      item.field && fields.push(item.field)
+      results.push(item)
+    }
+
+    model.formKeys.set(formId, fields)
     return results
   }
 
-  return function getSlotsNodes() {
-    const nodes = slots.default?.()
-    if (!nodes?.length) return null
+  onBeforeUnmount(() => {
+    props.model?.formKeys.delete(formId)
+  })
 
-    const data = props.model?.data
-    if (!data) return nodes
-
-    const flattedNodes = flatNodes(nodes)
-
-    return flattedNodes.map(node => {
-      if (node.props?.field) {
-        const field = node.props.field
-        node.props.modelValue = data[field]
-
-        const modelUpdater = node.props['onUpdate:modelValue']
-        if (modelUpdater) {
-          node.props['onUpdate:modelValue'] = [
-            ...(typeof modelUpdater === 'function'
-              ? [modelUpdater]
-              : modelUpdater),
-            (value: any) => {
-              data[field] = value
-            }
-          ]
-        } else {
-          node.props['onUpdate:modelValue'] = (value: any) => {
-            data[field] = value
-          }
-        }
-      }
-
-      // 自定义表单项
-      // @ts-ignore
-      if (node.type?.name !== 'FormItem') {
-        return h(
-          FormItem,
-          pick(node.props || {}, ['label', 'field', 'span', 'tips']),
-          () => node
-        )
-      }
-      return node
-    })
+  return {
+    getSlotsNodes
   }
 }

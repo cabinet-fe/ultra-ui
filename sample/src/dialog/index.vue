@@ -13,9 +13,18 @@
       <p>2. 美观度不好</p>
     </div>
 
+    <div>
+      <u-checkbox v-model="modal">模态</u-checkbox>
+    </div>
+
     <u-button @click="visible = true">打开</u-button>
 
-    <u-dialog v-model="visible" style="width: 900px" title="对话框标题">
+    <u-dialog
+      v-model="visible"
+      :modal="modal"
+      style="width: 900px"
+      title="对话框标题"
+    >
       <u-card v-for="i in 2" :key="i">
         <u-card-cover
           src="http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg"
@@ -28,7 +37,9 @@
       </template>
     </u-dialog>
 
-    <u-button ref="buttonRef" @click="transition.toggle(a => !a)">移动</u-button>
+    <u-button ref="buttonRef" @click="transition.toggle(a => !a)">
+      移动
+    </u-button>
   </div>
 </template>
 
@@ -37,6 +48,7 @@ import { useTransition, type ButtonExposed } from 'ultra-ui'
 import { computed, shallowRef } from 'vue'
 
 const visible = shallowRef(false)
+const modal = shallowRef(true)
 
 const buttonRef = shallowRef<ButtonExposed>()
 const buttonDom = computed(() => {

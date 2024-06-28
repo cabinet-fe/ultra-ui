@@ -1,9 +1,13 @@
 <template>
   <div>
     <CustomCard title="使用">
-
-
-      <u-multi-select :max="3" :visibility-limit="20" filterable v-model="checked" :options="options" />
+      <u-multi-select
+        :max="3"
+        :visibility-limit="20"
+        filterable
+        v-model="checked"
+        :options="options"
+      />
 
       {{ checked }}
     </CustomCard>

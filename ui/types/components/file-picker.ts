@@ -1,7 +1,8 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 文件上传器组件属性 */
-export interface UploaderProps {
+export interface UploaderProps extends FormComponentProps {
   /** 允许上传的文件类型 */
   accept?: string
 

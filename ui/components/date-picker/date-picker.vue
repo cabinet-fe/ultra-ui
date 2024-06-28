@@ -7,9 +7,10 @@
     ref="dropdownRef"
     @update:visible="handleDropdownVisibleChange"
     :disabled="disabled"
+    v-if="!readonly"
   >
     <template #trigger>
-      <u-input :size="size" readonly :placeholder="placeholder" v-model="model">
+      <u-input :size="size" native-readonly :placeholder="placeholder" v-model="model">
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
         </template>
@@ -20,6 +21,10 @@
       <DatePickerPanel v-model:date="selectedDate" @close-dropdown="dropdownRef?.close()" />
     </template>
   </u-dropdown>
+
+  <span v-else>
+    {{ model }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -42,16 +47,18 @@ defineOptions({
 const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期',
   format: 'yyyy-MM-dd',
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const cls = bem('date-picker')
 
 const { formProps } = useFormComponent()
 
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
-  disabled: false
+  disabled: false,
+  readonly: false
 })
 
 const className = computed(() => {

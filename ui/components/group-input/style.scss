@@ -1,0 +1,35 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: group-input;
+
+@include m.b($root-name) {
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.bem($root-name, item) {
+      gap: fn.use-var(gap, $size);
+
+      &:not(:first-child) {
+        margin-top: fn.use-var(gap, $size);
+      }
+    }
+  }
+
+  @include m.e(item) {
+    @include m.flex;
+
+    & > * {
+      flex-grow: 1;
+    }
+  }
+
+  @include m.e(actions) {
+    flex-shrink: 0;
+
+    display: flex;
+    gap: fn.use-var(gap, small);
+  }
+}

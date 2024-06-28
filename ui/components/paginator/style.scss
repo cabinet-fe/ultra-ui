@@ -12,14 +12,16 @@ $root-name: paginator;
   @include m.size using ($size) {
     font-size: fn.use-var(form-component-font-size, $size);
     gap: fn.use-var(gap, $size);
+    padding: 0 fn.use-var(gap, $size);
 
     @include m.bem($root-name, btn) {
-      width: fn.use-var(form-component-height, $size);
-      height: fn.use-var(form-component-height, $size);
+      width: calc(fn.use-var(form-component-height, $size) - 4px);
+      height: calc(fn.use-var(form-component-height, $size) - 4px);
     }
 
     @include m.bem($root-name, pages) {
       gap: fn.use-var(gap, $size);
+      height: fn.use-var(form-component-height, $size);
     }
 
     @include m.bem($root-name, jumper) {
@@ -28,12 +30,11 @@ $root-name: paginator;
   }
 
   @include m.e(btn) {
-    border-radius: 50%;
-    cursor: pointer;
     @include m.flex($justify: center);
-
     color: fn.use-var(text, color, title);
     user-select: none;
+    border-radius: 50%;
+    cursor: pointer;
 
     &:hover {
       background-color: fn.use-var(color, primary, 'light-9');
@@ -62,14 +63,10 @@ $root-name: paginator;
   }
 
   @include m.e(pages) {
-    display: flex;
-    justify-content: space-between;
-
-    @include m.e(page) {
-    }
+    @include m.flex($justify: space-between);
   }
 
-  @include m.e(size-select) {
+  @include m.bem($root-name, size-select) {
     width: 90px;
 
     @include m.bem(input, native) {

@@ -1,8 +1,5 @@
-import type {
-  BreakCols,
-  Breakpoint,
-  BreakpointName
-} from '@ui/types/components/grid'
+import type { BreakpointName } from '@ui/types/component-common'
+import type { BreakCols, Breakpoint } from '@ui/types/components/grid'
 
 export const DEFAULT_COLS = 24
 

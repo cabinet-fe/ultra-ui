@@ -2,10 +2,19 @@ import type {
   FormModelItem,
   ModelData,
   ModelRules,
-  IFormModel
+  IFormModel,
+  DataSettingConfig
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
-import { nextTick, shallowReactive, watch } from 'vue'
+import { getChainValue, setChainValue } from 'cat-kit/fe'
+import {
+  nextTick,
+  reactive,
+  shallowReactive,
+  shallowRef,
+  watch,
+  type ShallowRef
+} from 'vue'
 
 /**
  * 响应式表单模型
@@ -33,10 +42,15 @@ export class FormModel<
   readonly data: ModelData<Fields>
 
   /** 表单规则 */
-  readonly rules: ModelRules<Fields>
+  readonly fields: Fields
 
-  /** 字段键 */
-  readonly keyOfFields: (keyof Fields)[]
+  /** 所有的键 */
+  readonly allKeys: string[]
+
+  /**
+   * 不同表单对应的key
+   */
+  formKeys = new Map<number, (keyof Fields)[]>()
 
   /** 初始数据 */
   private readonly initialData: ModelData<Fields>
@@ -52,50 +66,81 @@ export class FormModel<
    */
   private validateOnFieldChange = true
 
+  /**
+   * 变更前的值
+   */
+  private readonly preVal: Record<string, any> = {}
+
+  private modelChangeCallback?: (fields: string, val: any) => void
+
   constructor(fields: Fields) {
+    this.fields = fields
     const rawData = {} as ModelData<Fields>
-    const rules = {} as ModelRules<Fields>
-    const keyOfFields = [] as (keyof Fields)[]
+    const allKeys: string[] = []
 
     for (const key in fields) {
-      const { value, ...rule } = fields[key]!
-      keyOfFields.push(key)
-      rawData[key] = typeof value === 'function' ? value() : value
-      rules[key] = rule as any
+      const fieldItem = fields[key]!
+      allKeys.push(key)
+      const { value } = fieldItem
+      const v = typeof value === 'function' ? value() : value
+      setChainValue(rawData, key, v)
+      setChainValue(this.preVal, key, v)
     }
 
     this.initialData = JSON.parse(JSON.stringify(rawData))
-    const data = shallowReactive(rawData)
+    const data = reactive(rawData)
 
-    this.keyOfFields = keyOfFields
-    this.data = data
-    this.rules = rules
-    this.validator = new Validator(rules)
+    this.allKeys = allKeys
+    this.data = data as ModelData<Fields>
 
-    // 使用一个代理对象来在赋值时校验表单字段
-    const p = new Proxy(
-      {},
-      {
-        set: (t, field, v) => {
-          t[field] = v
-          this.validate(field as string)
-          return true
-        },
+    this.validator = new Validator(this.fields)
 
-        get(t, field) {
-          return t[field]
-        }
-      }
-    )
-
+    // 校验
     watch(data, data => {
-      if (!this.validateOnFieldChange) return
-      for (const key in data) {
-        if (p[key] !== data[key]) {
-          p[key] = data[key]
-        }
+      const { preVal } = this
+
+      if (this.validateOnFieldChange) {
+        const validateKeys: (keyof Fields)[] = []
+        this.allKeys.forEach(key => {
+          const v = getChainValue(data, key)
+
+          if (getChainValue(preVal, key) !== v) {
+            setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
+            validateKeys.push(key)
+          }
+        })
+        this.validate(validateKeys)
+      } else {
+        this.allKeys.forEach(key => {
+          const v = getChainValue(data, key)
+          if (getChainValue(preVal, key) !== v) {
+            setChainValue(preVal, key, v)
+            this.modelChangeCallback?.(key, v)
+          }
+        })
+        this.validateOnFieldChange = true
       }
     })
+  }
+
+  private getValidateFields(fields?: keyof Fields | (keyof Fields)[]) {
+    if (!fields) {
+      if (this.formKeys.size) {
+        let _fields: (keyof Fields)[] = []
+        this.formKeys.forEach(fields => {
+          _fields = _fields.concat(fields)
+        })
+        return _fields
+      } else {
+        return this.allKeys
+      }
+    }
+
+    if (!Array.isArray(fields)) {
+      return [fields]
+    }
+    return fields
   }
 
   /**
@@ -106,66 +151,128 @@ export class FormModel<
   async validate(fields?: keyof Fields | (keyof Fields)[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(data, fields)
+    const results = await validator.validate(
+      data,
+      this.getValidateFields(fields)
+    )
 
+    // 全量校验
     if (!fields) {
       errors.clear()
 
       for (const field in results) {
         errors.set(field, results[field])
       }
-    } else {
+    }
+    // 局部校验
+    else {
       ~(Array.isArray(fields) ? fields : [fields]).forEach(field => {
-        if (results[field]?.length) {
-          errors.set(field, results[field])
+        const errs = results[field]
+        if (errs?.length) {
+          errors.set(field, errs)
         } else {
           errors.delete(field)
         }
       })
     }
 
-    if (errors.size > 0) return false
+    if (errors.size > 0) {
+      if (typeof fields !== 'string') {
+        this.scrollToFirstError()
+      }
+      return false
+    }
 
     return true
   }
 
-  /** 重置数据 */
-  resetData(fields?: keyof Fields | (keyof Fields)[]): void {
-    if (typeof fields === 'string') {
-      fields = [fields]
-    } else if (Array.isArray(fields)) {
+  /**
+   * 重置数据
+   * @param fields 需要重置的字段
+   */
+  resetData(keys?: keyof Fields | (keyof Fields)[]): void {
+    if (typeof keys === 'string') {
+      keys = [keys]
+    } else if (Array.isArray(keys)) {
     } else {
-      fields = this.keyOfFields
+      keys = this.allKeys
     }
-
-    // 重置时不再校验数据了
-    this.validateOnFieldChange = false
-
-    fields.forEach(field => {
-      this.data[field] = this.initialData[field]
-    })
 
     this.clearValidate()
 
-    nextTick(() => {
-      this.validateOnFieldChange = true
+    this.validateOnFieldChange = false
+
+    keys.forEach(field => {
+      setChainValue(
+        this.data,
+        field as string,
+        getChainValue(this.initialData, field as string)
+      )
     })
   }
 
   /**
    * 设置值
    * @param formData 表单值
+   * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>) {
-    for (const key in formData) {
-      if (key in this.data) {
-        this.data[key] = formData[key]
-      }
+  setData(
+    formData: Partial<ModelData<Fields> & Record<string, any>>,
+    config?: DataSettingConfig
+  ) {
+    const { validate = true } = config || {}
+
+    if (!validate) {
+      this.validateOnFieldChange = false
     }
+
+    this.allKeys.forEach(key => {
+      const value = getChainValue(formData, key)
+      if (value !== undefined) {
+        setChainValue(this.data, key, value)
+      }
+    })
   }
 
   /** 清除校验 */
   clearValidate(): void {
     this.errors.clear()
   }
+
+  /** 滚动至第一个错误处 */
+  scrollToFirstError(): void {
+    nextTick(() => {
+      const firstErrorItem = document.querySelector('.u-form-item.is-error')
+      firstErrorItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+  }
+
+  /**
+   * 监听值变更
+   * @param cb 回调
+   */
+  onChange(cb: (field: keyof Fields, val: any) => void) {
+    this.modelChangeCallback = cb
+  }
+}
+
+/**
+ * 响应式表单模型
+ * @param fields 响应式字段
+ * @returns
+ */
+export function useFormModel<
+  Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
+>(fields: ShallowRef<Fields>) {
+  const model = shallowRef<FormModel<Fields>>()
+
+  watch(
+    fields,
+    fields => {
+      model.value = new FormModel(fields)
+    },
+    { immediate: true }
+  )
+
+  return model
 }

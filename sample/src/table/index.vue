@@ -1,59 +1,69 @@
 <template>
   <div>
-    <CustomCard title="多级表头，表头冻结，列冻结">
-      <u-table :data="data" :columns="columns" style="height: 300px"> </u-table>
-    </CustomCard>
+    <CustomCard title="使用方式">
+      <u-checkbox
+        v-model="state.checkable"
+        @update:model-value="state.selectable = false"
+      >
+        多选
+      </u-checkbox>
+      <u-checkbox
+        v-model="state.selectable"
+        @update:model-value="state.checkable = false"
+      >
+        单选
+      </u-checkbox>
+      <u-checkbox v-model="state.tree">树形结构</u-checkbox>
+      <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
+      <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
+      <u-checkbox v-model="showData">显示数据</u-checkbox>
+      <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
 
-    <CustomCard title="表格插槽">
-      <u-table :data="data" :columns="columns">
-        <template #column:name="{ model, row }">
-          <u-input v-bind="model" />
-        </template>
-        <template #column:age="{ model }">
-          <u-number-input v-bind="model" />
-        </template>
-        <template #column:sex="{ model }">
-          <u-radio-group
-            :items="[
-              { label: '男', value: '男' },
-              { label: '女', value: '女' }
-            ]"
-            v-bind="model"
-          />
-        </template>
-
-        <template #header:name="{ column }">
-          <span style="color: red">
-            {{ column.key }}
-          </span>
+      <u-table
+        :data="data"
+        :columns="columns"
+        :style="{
+          height: fixedHeight ? '400px' : ''
+        }"
+        row-key="name"
+        v-bind="state"
+        v-model:checked="checked"
+        v-model:selected="selected"
+      >
+        <template #header:age="{ column }">
+          年龄 <u-checkbox v-model="column.data.summary">合计</u-checkbox>
         </template>
       </u-table>
-    </CustomCard>
 
-    <CustomCard title="基础使用">
-      <u-table :data="data" :columns="columns.slice(0)">
-        <template #column:name="{ rowData }">
-          {{ rowData.name }}
-        </template>
-      </u-table>
+      {{ state.selectable ? selected : '' }}
+      {{ state.checkable ? checked : '' }}
     </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { defineTableColumns } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
+import { Tree } from 'cat-kit/fe'
 
-const columns = defineTableColumns(
+const state = shallowReactive({
+  checkable: false,
+  selectable: true,
+  tree: false,
+  highlightCurrent: false
+})
+
+const fixedHeight = shallowRef(true)
+const multiLevelHeader = shallowRef(false)
+const showData = shallowRef(true)
+
+const _columns = defineTableColumns(
   [
-    { name: '性别', key: 'sex', fixed: 'right' },
-    { name: '姓名', key: 'name', align: 'center', fixed: 'left' },
-    { name: '年龄', key: 'age', fixed: 'left' },
-
     {
       name: '地址',
       key: 'address',
+
       children: [
         { name: '省', key: 'province' },
         { name: '市', key: 'city' },
@@ -62,31 +72,95 @@ const columns = defineTableColumns(
         {
           name: '小区',
           key: 'community',
-          fixed: 'right',
+
           children: [
-            { name: 'a', key: 'a', fixed: 'right' },
-            { name: 'b', key: 'b', fixed: 'right' }
+            { name: 'a', key: 'a' },
+            { name: 'b', key: 'b' }
           ]
         }
       ]
-    }
+    },
+    { name: '性别', key: 'sex', fixed: 'right' },
+    { name: '姓名', key: 'name', fixed: 'left' },
+    { name: '年龄', key: 'age', fixed: 'left', summary: true }
   ],
-  { minWidth: 180 }
+  { minWidth: 150 }
 )
 
-const data = shallowRef(
-  Array.from({ length: 20 }).map((_, index) => {
-    return {
-      sex: index % 2 === 0 ? '男' : '女',
-      name: 'name1' + index,
-      age: Math.random() * 100,
-      province: '江苏省' + index,
-      city: '苏州市' + index,
-      area: '姑苏区' + index,
-      street: '金昌街道' + index,
-      community: '彩香花园' + index,
-      b: 'aa'
+const columns = shallowRef<any[]>([])
+
+watch(
+  () => multiLevelHeader.value,
+  v => {
+    if (v) {
+      columns.value = _columns
+    } else {
+      let r: any[] = []
+
+      Tree.dft({ children: _columns }, item => {
+        if (item.children?.length) return
+        r.push(item)
+      })
+
+      columns.value = r
     }
-  })
+  },
+  { immediate: true }
 )
+
+const _data = Array.from({ length: 10 }).map((_, index) => {
+  return {
+    sex: index % 2 === 0 ? '男' : '女',
+    name: 'name' + index,
+    age: Math.round(Math.random() * 100),
+    province: '江苏省' + index,
+    city: '苏州市' + index,
+    area: '姑苏区' + index,
+    street: '金昌街道' + index,
+    community: '彩香花园' + index,
+    b: 'aa',
+    a: 'aa',
+    children: [
+      {
+        sex: '未知',
+        name: 'name' + index + '-0',
+        age: Math.round(Math.random() * 100),
+        province: '江苏省',
+        city: '苏州市',
+        area: '姑苏区',
+        street: '金昌街道',
+        community: '彩香花园',
+        b: 'aa',
+        a: 'aa',
+        children: [
+          {
+            sex: '未知',
+            name: 'name' + index + '-0-0',
+            age: Math.round(Math.random() * 100),
+            province: '江苏省',
+            city: '苏州市',
+            area: '姑苏区',
+            street: '金昌街道',
+            community: '彩香花园',
+            b: 'aa',
+            a: 'aa'
+          }
+        ]
+      }
+    ]
+  }
+})
+
+const data = shallowRef(_data)
+
+watch(showData, v => {
+  if (v) {
+    data.value = _data
+  } else {
+    data.value = []
+  }
+})
+
+const checked = shallowRef([])
+const selected = shallowRef(data.value[0]!)
 </script>

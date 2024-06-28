@@ -1,14 +1,21 @@
 <template>
   <Teleport to="body">
-    <transition name="fade">
+    <transition name="fade" @after-leave="emit('closed')">
       <div
         v-if="visible || opened"
         v-show="visible"
-        :class="cls.e('overlay')"
-        :style="style"
-        @click="close"
+        :class="[cls.e('overlay'), bem.is('modal', modal)]"
+        ref="overlayRef"
+        @mousedown="modal && close()"
+        @keyup.esc="close"
+        tabindex="0"
       >
-        <div v-bind="$attrs" :class="className" ref="dialogRef" @click.stop>
+        <div
+          v-bind="$attrs"
+          :class="className"
+          ref="dialogRef"
+          @mousedown.stop="handleIncreaseZIndex"
+        >
           <section
             :class="headerCls"
             ref="headerRef"
@@ -64,14 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type VNode,
-  shallowRef,
-  watch,
-  shallowReactive,
-  nextTick,
-  computed
-} from 'vue'
+import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
 import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
@@ -80,13 +80,17 @@ import { UScroll, type ScrollExposed } from '../scroll'
 import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 import type { ComponentSize } from '@ui/types/component-common'
+import { DialogDIKey } from './di'
 
 defineOptions({
   name: 'Dialog',
   inheritAttrs: false
 })
 
-const props = defineProps<DialogProps>()
+const props = withDefaults(defineProps<DialogProps>(), {
+  modal: true,
+  modelValue: true
+})
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?(): VNode[] | undefined
@@ -99,9 +103,7 @@ const footerCls = [cls.e('footer'), blurCls]
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
-const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
-})
+const overlayRef = shallowRef<HTMLDivElement>()
 
 /** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
@@ -115,10 +117,8 @@ const bodyRef = shallowRef<ScrollExposed>()
 /** 弹框footer模板引用 */
 const footerRef = shallowRef<HTMLDivElement>()
 
-const visible = defineModel<boolean>()
-
-const style = shallowReactive({
-  zIndex: zIndex()
+const visible = defineModel<boolean>({
+  default: false
 })
 
 const dialogTransition = useTransition('style', {
@@ -129,11 +129,20 @@ const dialogTransition = useTransition('style', {
   },
 
   enterActive: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   },
   leaveActive: {
-    transition: 'transform 0.25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
   }
+})
+
+const { toggleMaximize, maximized } = useMaximum({
+  dialogRef,
+  cls
+})
+
+const className = computed(() => {
+  return [cls.b, cls.m(size.value)]
 })
 
 /** 是否弹出过 */
@@ -152,11 +161,12 @@ watch(visible, v => {
   }
   if (!opened) opened = true
 
-  style.zIndex = zIndex()
   translated.x = 0
   translated.y = 0
 
   nextTick(() => {
+    overlayRef.value && setStyles(overlayRef.value, { zIndex: zIndex() })
+
     dialogRef.value &&
       setStyles(dialogRef.value, {
         transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
@@ -185,6 +195,10 @@ const updateDialogTransform = (x: number, y: number) => {
 useDrag({
   target: headerRef,
 
+  onDragStart() {
+    handleIncreaseZIndex()
+  },
+
   onDrag(x, y) {
     if (maximized.value) return
     updateDialogTransform(translated.x + x, translated.y + y)
@@ -197,15 +211,19 @@ useDrag({
   }
 })
 
-const { toggleMaximize, maximized } = useMaximum({
-  dialogRef,
-  cls
-})
+function handleIncreaseZIndex() {
+  if (props.modal) return
+  setStyles(overlayRef.value!, { zIndex: zIndex() })
+}
 
 /** 关闭 */
 const close = () => {
-  visible.value = false
+  emit('update:modelValue', false)
 }
+
+provide(DialogDIKey, {
+  visible
+})
 
 defineExpose({
   close

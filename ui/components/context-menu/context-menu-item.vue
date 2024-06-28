@@ -19,9 +19,7 @@
       <i v-else :class="cls.e('icon-place')"></i>
     </template>
 
-    <span :class="cls.e('label')"
-      >{{ menu.label }}</span
-    >
+    <span :class="cls.e('label')">{{ menu.label }}</span>
   </li>
 </template>
 
@@ -65,10 +63,12 @@ function handleClickMenu() {
   const result = menu.callback?.()
 
   if (result instanceof Promise) {
-    return result.then(() => {
-      loading.value = false
-      emit('click-end')
-    })
+    return result
+      .then(() => {})
+      .finally(() => {
+        emit('click-end')
+        loading.value = false
+      })
   }
   loading.value = false
   emit('click-end')

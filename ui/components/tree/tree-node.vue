@@ -18,7 +18,7 @@
     >
       <ArrowRight />
     </u-icon>
-    <i v-else :class="cls.e('icon-placeholder')" />
+    <i v-else :class="cls.e('icon-placeholder')"> </i>
 
     <span
       :class="cls.e('node-content')"
@@ -37,7 +37,7 @@
         @click.stop
       />
 
-      <u-node-render :content="getTreeSlotsNode({ node, data: node.value })" />
+      <u-node-render :content="getTreeSlotsNode({ node, data: node.data })" />
     </span>
   </div>
 </template>
@@ -57,7 +57,7 @@ defineOptions({
   name: 'TreeNode'
 })
 
-const { node } = defineProps<TreeNodeProps>()
+const props = defineProps<TreeNodeProps>()
 
 const {
   treeProps,
@@ -70,12 +70,15 @@ const {
 } = inject(TreeDIKey)!
 
 function toggleExpand() {
+  const { node } = props
   node.expanded = !node.expanded
   getFlattedNodes()
+
   treeEmit('expand', node)
 }
 
 const handleClick = () => {
+  const { node } = props
   treeEmit('node-click', node)
 
   treeProps.selectable && handleSelect(node)

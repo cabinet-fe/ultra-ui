@@ -2,93 +2,15 @@
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
 
-@include m.b(list) {
-  border-radius: 5px;
-  border: 1px solid fn.use-var(border-color);
-
-  @include m.e('item') {
-    overflow: auto;
-  }
-  @include m.e(container) {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10px;
-    box-sizing: border-box;
-    &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+$root-name: list;
+$item-name: $root-name + '-item';
+@include m.b($root-name) {
+  @include m.size using ($size) {
+    @include m.b($item-name) {
+      padding: 0 fn.use-var(gap, $size);
+      border-radius: fn.use-var(radius, $size);
+      height: fn.use-var(form-component-height, $size);
+      line-height: fn.use-var(form-component-height, $size);
     }
-  }
-
-  // @include m.e(left) {
-  //   display: flex;
-  //   flex-wrap: nowrap;
-  //   align-items: center;
-  //   margin-right: 10px;
-  //   & > div {
-  //     margin-right: 5px;
-  //   }
-  // }
-
-  // @include m.e(checkbox) {
-  // }
-
-  // @include m.e(avatar) {
-  //   img {
-  //     width: 35px;
-  //     height: 35px;
-  //     margin-right: 10px;
-  //     border-radius: 50%;
-  //   }
-  // }
-  @include m.e(content) {
-    flex: 1;
-  }
-
-  // @include m.e(action) {
-  //   margin-left: 20px;
-  //   color: fn.use-var(color-primary);
-  //   align-self: center;
-  //   & > .u-icon {
-  //     margin-right: 10px;
-  //     cursor: pointer;
-  //   }
-  //   & > .u-icon:last-child {
-  //     margin-right: 0px;
-  //   }
-  // }
-
-  @include m.e(loadMore) {
-    text-align: center;
-    margin: 10px 0;
-  }
-
-  /* 定义淡出动画 */
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-
-  /* 定义淡入动画 */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* 应用淡出动画 */
-  .fade-out {
-    animation: fadeOut 2s ease-in-out forwards;
-  }
-
-  /* 应用淡入动画 */
-  .fade-in {
-    animation: fadeIn 2s ease-in-out forwards;
   }
 }

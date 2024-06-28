@@ -23,6 +23,7 @@ export function useFallbackProps<
       const ref = computed<any>(() => {
         for (let i = propsList.length - 1; i > -1; --i) {
           const props = propsList[i]!
+
           if (props[key] !== undefined) {
             return props[key]
           }

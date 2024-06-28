@@ -5,24 +5,32 @@
 $root-name: dialog;
 
 @include m.bem($root-name, overlay) {
-  pointer-events: auto;
-  background: rgba($color: #000000, $alpha: 0.32);
+  pointer-events: none;
   position: fixed;
   left: 0;
   top: 0;
   width: 100vw;
   height: 100vh;
+  outline: none;
 
   @include m.flex($justify: center);
+
+  @include m.is(modal) {
+    background-color: rgba($color: #000000, $alpha: 0.32);
+    pointer-events: auto;
+  }
 }
 
 @include m.b($root-name) {
+  pointer-events: auto;
   border-radius: fn.use-var(radius, large);
   will-change: transform;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
+  box-shadow: fn.use-var(shadow);
   flex-wrap: nowrap;
+  overflow: hidden;
 
   @include m.size using ($size) {
     @include m.bem($root-name, header) {
@@ -55,7 +63,6 @@ $root-name: dialog;
   // 弹框头
   @include m.e(header) {
     height: 49px;
-
     border-bottom: fn.use-var(border);
     border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
 
@@ -68,6 +75,9 @@ $root-name: dialog;
 
   @include m.e(title) {
     line-height: 1em;
+    &:active {
+      cursor: text;
+    }
   }
 
   @include m.e(body) {
@@ -129,7 +139,7 @@ $root-name: dialog;
   }
 }
 
-// 弹框最大化动画进入后的类
+// // 弹框最大化动画进入后的类
 .#{$root-name}-maximize-enter-to {
   width: 100vw !important;
   height: 100vh !important;

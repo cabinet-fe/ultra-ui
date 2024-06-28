@@ -1,4 +1,4 @@
-import type { FormComponentProps } from "../component-common"
+import type { FormComponentProps } from '../component-common'
 
 /** 复选框组, 用来选择一组数据组件属性 */
 export interface CheckboxGroupProps<
@@ -13,6 +13,8 @@ export interface CheckboxGroupProps<
   labelKey?: string
   /** 值的key */
   valueKey?: string
+  /** 块级显示 */
+  block?: boolean
 }
 
 /** 复选框组, 用来选择一组数据组件属性 */

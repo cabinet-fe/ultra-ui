@@ -1,67 +1,121 @@
 import UMessage from './message.vue'
-import { createVNode, render, type VNode, ref, type RendererElement } from 'vue'
+import { createVNode, render, type VNode, Fragment } from 'vue'
+import type { MessageProps, MessageType } from '@ui/types/components/message'
+import { bem, setStyles, zIndex } from '@ui/utils'
 
-import type { MessageProps } from '@ui/types/components/message'
-import { type ColorType, ColorTypeArray } from '@ui/types/component-common'
+export const messageTypes: Array<MessageType> = [
+  'success',
+  'warn',
+  'info',
+  'error',
+  'default'
+]
 
-type MessageItem = {
-  vm: VNode
+let uid = 0
+
+type Message = {
+  (options: MessageProps | MessageType): void
+  /** 关闭所有的消息 */
+  closeAll(): void
+} & {
+  [key in MessageType]: (
+    /** 消息 */
+    message: string,
+    /** 消息配置 */
+    config?: Omit<MessageProps, 'type' | 'message'>
+  ) => void
 }
 
-const messageQueue = ref<MessageItem[]>([])
+const messageInstances = new Set<VNode>()
 
-let count = 1
+let container: HTMLElement | null = null
 
-const close = (id: string, userClose?: (vm: VNode) => void) => {
-  const index = messageQueue.value.findIndex(({ vm }) => {
-    return id === vm.component!.props.id
-  })
-  if (index > -1) {
-    const { vm } = messageQueue.value[index]!
-    userClose?.(vm)
-    const removedHeight = vm.el!.offsetHeight
-    messageQueue.value.splice(index, 1)
-    messageQueue.value.forEach((message, i) => {
-      if (i >= index) {
-        message.vm.component!.props.offset = parseInt(message.vm.el!.style['top'], 10) - removedHeight - 16
-      }
-    })
+function renderMessage() {
+  if (!messageInstances.size) {
+    render(null, container!)
+
+    container!.remove()
+    container = null
+    return
   }
+  setStyles(container!, { zIndex: zIndex() })
+  const fragment = createVNode(Fragment, null, Array.from(messageInstances))
+  render(fragment, container!)
 }
 
-type MessageFn = (options: MessageProps) => void
+const cls = bem('message')
 
-type MessageTypeFn = {
-  [k in ColorType]: (message: string, onClose?: (vm: RendererElement) => void) => void
-} & MessageFn
-
-const Message: MessageFn & Partial<MessageTypeFn> = (options: MessageProps) => {
-  const container = document.createElement('div')
-  const id = `message_${count++}`
-  let offset = options.offset || 20
-  messageQueue.value.forEach(({ vm }) => {
-    offset += (vm.el?.offsetHeight || 0) + 16
-  })
-  offset += 16
-  const vm = createVNode(UMessage, {
-    ...options, offset, id, onClose: () => {
-      close(id, options.onClose)
+export const message: Message = options => {
+  if (typeof options === 'string') {
+    options = {
+      message: options
     }
+  }
+
+  const { onClose, ...restOptions } = options
+
+  if (!container) {
+    container = document.createElement('div')
+    container.className = cls.e('container')
+
+    document.body.appendChild(container)
+  }
+
+  const node = createVNode(UMessage, {
+    ...restOptions,
+    onClose: () => {
+      onClose?.()
+    },
+    key: uid++
   })
-  vm.props!.onDestroy = () => render(null, container)
-  render(vm, container)
-  messageQueue.value.push({ vm })
-  document.body.appendChild(container.firstElementChild!)
+
+  node.props!.onDestroy = () => {
+    messageInstances.delete(node)
+    renderMessage()
+  }
+
+  messageInstances.add(node)
+  renderMessage()
 }
 
-ColorTypeArray.forEach((type) => {
-  Message[type] = (message: string, onClose?: (vm: RendererElement) => void) => {
-    return Message({
-      message,
-      type,
-      onClose
-    })
-  }
-})
+message.closeAll = () => {
+  messageInstances.forEach(node => {
+    node.component!.exposed!.immediateClose()
+  })
+}
 
-export default Message as MessageTypeFn
+message.success = (msg, config) => {
+  message({
+    message: msg,
+    type: 'success',
+    ...config
+  })
+}
+message.warn = (msg, config) => {
+  message({
+    message: msg,
+    type: 'warn',
+    ...config
+  })
+}
+message.error = (msg, config) => {
+  message({
+    message: msg,
+    type: 'error',
+    ...config
+  })
+}
+message.info = (msg, config) => {
+  message({
+    message: msg,
+    type: 'info',
+    ...config
+  })
+}
+message.default = (msg, config) => {
+  message({
+    message: msg,
+    type: 'default',
+    ...config
+  })
+}

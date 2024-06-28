@@ -4,8 +4,12 @@
       v-for="(node, index) of nodes"
       :node="node"
       :key="node.key ?? index"
-      :class="bem.is('selected', node.value === selected)"
+      :class="bem.is('selected', node.data === selected)"
     />
+
+    <div :class="cls.e('empty')">
+      <UEmpty v-if="!nodes.length" />
+    </div>
   </div>
 </template>
 
@@ -24,6 +28,7 @@ import { TreeNode } from './tree-node'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
+import { UEmpty } from '../empty'
 
 defineOptions({
   name: 'Tree'
@@ -71,19 +76,33 @@ const getTreeSlotsNode = (
 
 /** 森林 */
 const forest = computed(() => {
-  TreeNode.labelKey = props.labelKey
-  TreeNode.valueKey = props.valueKey
-  return Forest.create(props.data, TreeNode)
-})
+  const { disabledNode } = props
+  return Forest.create(props.data, {
+    createNode: disabledNode
+      ? (data, index) => {
+          const node = new TreeNode({
+            data,
+            index,
+            valueKey: props.valueKey,
+            labelKey: props.labelKey
+          })
+          if (data) {
+            node.disabled = disabledNode(data, node) ?? false
+          }
 
-//* 禁用的节点 */
-watch(
-  [() => props.disabledNode, forest],
-  ([disabledNode, forest]) => {
-    disabledNode && forest.dft(node => disabledNode(node.value, node) ?? false)
-  },
-  { immediate: true }
-)
+          return node
+        }
+      : (data, index) => {
+          const node = new TreeNode({
+            data,
+            index,
+            valueKey: props.valueKey,
+            labelKey: props.labelKey
+          })
+          return node
+        }
+  })
+})
 
 /** 默认选中 */
 watch(
@@ -102,8 +121,14 @@ const nodes = shallowRef<TreeNode<DataItem>[]>([])
 /**
  * 节点的字典，key为指定的valueKey的值
  */
-const nodeDicts = computed(() => {
-  return new Map(nodes.value.map(node => [node.key, node]))
+const nodeDict = computed(() => {
+  const dict = new Map<string | number, TreeNode<DataItem>>()
+
+  forest.value.dft(node => {
+    dict.set(node.key, node)
+  })
+
+  return dict
 })
 
 /** 获取碾平后的节点 */
@@ -191,13 +216,13 @@ function filter(
 const { handleSelect, selected } = useSelect<DataItem>({
   props,
   emit,
-  nodeDicts
+  nodeDict
 })
 
 const { checked, handleCheck } = useCheck<DataItem>({
   props,
   emit,
-  nodeDicts
+  nodeDict
 })
 
 provide(TreeDIKey, {
@@ -223,6 +248,12 @@ defineExpose<_TreeExposed<DataItem>>({
     forest.value.nodes.forEach(node => {
       handleCheck(node, check)
     })
+  },
+  getSelected(): DataItem | undefined {
+    return selected.value
+  },
+  getChecked(): DataItem[] {
+    return Array.from(checked)
   }
 })
 </script>

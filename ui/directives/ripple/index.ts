@@ -6,49 +6,6 @@ const clsWrap = cls.e('wrap')
 
 const duration = 300
 
-/** 创建波纹元素 */
-const createRipple = (e: MouseEvent) => {
-  const parentEl = e.currentTarget as HTMLElement
-  const parentRect = parentEl.getBoundingClientRect()
-
-  // 鼠标位置就是圆心
-  const centerX = e.clientX - parentRect.left
-  const centerY = e.clientY - parentRect.top
-
-  const edgeA =
-    centerX < parentRect.width / 2 ? parentRect.width - centerX : centerX
-  const edgeB =
-    centerY < parentRect.height / 2 ? parentRect.height - centerY : centerY
-
-  /** 半径 */
-  const radius = Math.ceil(Math.sqrt(edgeA ** 2 + edgeB ** 2))
-  const diameter = radius * 2
-
-  /** 波纹元素 */
-  const rippleEl = document.createElement('span')
-
-  rippleEl.classList.add(clsWrap)
-
-  const _duration = parentEl.dataset.duration
-    ? Number(parentEl.dataset.duration)
-    : duration
-
-  setStyles(rippleEl, {
-    width: `${diameter}px`,
-    height: `${diameter}px`,
-    left: `${centerX - radius}px`,
-    top: `${centerY - radius}px`,
-    transition: `transform ${_duration}ms cubic-bezier(.82,.84,.28,.92)`,
-    transform: `scale3d(0.2, 0.2, 1)`
-  })
-
-  if (parentEl.dataset.rippleClass) {
-    rippleEl.classList.add(parentEl.dataset.rippleClass)
-  }
-
-  return rippleEl
-}
-
 const transitionEndHandler = (e: TransitionEvent) => {
   const rippleWrap = e.currentTarget as HTMLElement
   if (e.propertyName !== 'transform') return
@@ -66,25 +23,79 @@ const transitionEndHandler = (e: TransitionEvent) => {
   }
 }
 
-const showRipple = (e: MouseEvent) => {
-  if (e.button !== 0) return
-  const el = e.currentTarget as HTMLElement
-
+/**
+ *
+ * @param el 显示波纹的父元素
+ * @param position 波纹相对父元素的位置
+ */
+export function showRipple(
+  el: HTMLElement,
+  config?: {
+    /** 波纹圆心x轴坐标 */
+    centerX?: number
+    /** 波纹圆心y轴坐标 */
+    centerY?: number
+    /** dom的尺寸 */
+    domRect?: DOMRect
+    /** 波纹类 */
+    rippleClass?: string
+  }
+) {
   // 添加波纹类
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
   el.dataset.class = cls.b
 
-  const rippleWrap = createRipple(e)
+  const { domRect, centerX = 0, centerY = 0, rippleClass } = config || {}
 
-  el.appendChild(rippleWrap)
+  const parentRect = domRect ?? el.getBoundingClientRect()
 
-  rippleWrap.addEventListener('transitionend', transitionEndHandler)
+  const edgeA =
+    centerX < parentRect.width / 2 ? parentRect.width - centerX : centerX
+  const edgeB =
+    centerY < parentRect.height / 2 ? parentRect.height - centerY : centerY
+
+  /** 半径 */
+  const radius = Math.ceil(Math.sqrt(edgeA ** 2 + edgeB ** 2))
+  const diameter = radius * 2
+
+  /** 波纹元素 */
+  const rippleEl = document.createElement('span')
+
+  rippleEl.classList.add(clsWrap)
+
+  const _duration = el.dataset.duration ? Number(el.dataset.duration) : duration
+
+  const _rippleClass = rippleClass ?? el.dataset.rippleClass
+  _rippleClass && rippleEl.classList.add(_rippleClass)
+
+  setStyles(rippleEl, {
+    width: `${diameter}px`,
+    height: `${diameter}px`,
+    left: `${centerX - radius}px`,
+    top: `${centerY - radius}px`,
+    transition: `transform ${_duration}ms cubic-bezier(.82,.84,.28,.92)`,
+    transform: `scale3d(0.2, 0.2, 1)`
+  })
+
+  el.appendChild(rippleEl)
+
+  rippleEl.addEventListener('transitionend', transitionEndHandler)
 
   // 在下一帧添加动画, 放大到2倍，以便可以撑满整个元素
   nextFrame(() => {
-    setStyles(rippleWrap, {
+    setStyles(rippleEl, {
       transform: 'scale3d(1, 1, 1)'
     })
+  })
+}
+
+function handleMousedown(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement
+  const domRect = el.getBoundingClientRect()
+  showRipple(el, {
+    centerX: e.pageX - domRect.left,
+    centerY: e.pageY - domRect.top,
+    domRect
   })
 }
 
@@ -107,7 +118,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
     el.dataset.duration = binding.arg
   }
 
-  el.addEventListener('mousedown', showRipple)
+  el.addEventListener('mousedown', handleMousedown)
 }
 
 /**
@@ -117,7 +128,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
 const unregisterEvents = (el: HTMLElement) => {
   delete el.dataset.rippleClass
   delete el.dataset.duration
-  el.removeEventListener('mousedown', showRipple)
+  el.removeEventListener('mousedown', handleMousedown)
 }
 
 export const vRipple: ObjectDirective<HTMLElement> = {

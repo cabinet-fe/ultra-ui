@@ -1,5 +1,6 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
     trigger="click"
     min-width="200px"
     ref="dropdownRef"
@@ -53,7 +54,9 @@
           全选
         </u-checkbox>
 
-        <span> 已选 {{ model?.length }}/{{ max ?? options.length }} </span>
+        <span>
+          已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }}
+        </span>
       </div>
 
       <!-- 过滤器 -->
@@ -66,13 +69,9 @@
       </div>
 
       <!-- 多选列表 -->
-      <u-scroll
-        tag="ul"
-        :class="cls.e('options')"
-        v-if="filteredOptions.length"
-      >
+      <u-scroll tag="ul" :class="cls.e('options')" v-if="options.length">
         <u-multi-select-option
-          v-for="(option, index) of filteredOptions"
+          v-for="(option, index) of options"
           :option="option"
           :disabled="isDisabled(option)"
           :key="option[valueKey]"
@@ -85,9 +84,21 @@
         </u-multi-select-option>
       </u-scroll>
 
-      <div v-else :class="cls.e('empty')">未查询到结果</div>
+      <div v-else :class="cls.e('empty')">
+        <UEmpty />
+      </div>
     </template>
   </u-dropdown>
+
+  <template v-else>
+    <div :class="[cls.m(size)]">
+      <div v-if="model?.length" :class="cls.e('tags')">
+        <u-tag v-for="option of tags" :key="option[valueKey]">
+          {{ option[labelKey] }}
+        </u-tag>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -104,9 +115,11 @@ import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
+import { UEmpty } from '../empty'
 import { ArrowDown, Search, Close } from 'icon-ultra'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
+import { useOptions } from '../select/use-options'
 
 defineOptions({
   name: 'MultiSelect'
@@ -118,35 +131,49 @@ const props = withDefaults(defineProps<MultiSelectProps<Option>>(), {
   placeholder: '请选择',
   clearable: true,
   visibilityLimit: 3,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
-const emit = defineEmits<MultiSelectEmits>()
+const emit = defineEmits<MultiSelectEmits<Option>>()
 
 const cls = bem('multi-select')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const hovered = shallowRef(false)
 
+const { options, queryString } = useOptions({
+  props
+})
+
+const filterable = computed(() => {
+  return props.filterable || typeof props.options === 'function'
+})
+
 const model = defineModel<Array<string | number>>()
+
 const checkedSet = shallowReactive<Set<Option>>(new Set())
 const allChecked = computed(() => {
-  return checkedSet.size === props.options.length
+  return checkedSet.size === options.value.length
 })
 const indeterminate = computed(() => {
   return checkedSet.size > 0 && !allChecked.value
 })
 
 const optionsMap = computed(() => {
-  const { valueKey, options } = props
+  const { valueKey } = props
   return new Map<string | number, Option>(
-    options.map(option => [option[valueKey], option])
+    options.value.map(option => [option[valueKey], option])
   )
 })
 
@@ -174,7 +201,9 @@ watch(checkedSet, () => {
   if (setIsChangedByModel) return
   const { valueKey } = props
   modelIsChangedBySet = true
-  model.value = Array.from(checkedSet).map(option => option[valueKey])
+  const checkedArr = Array.from(checkedSet)
+  model.value = checkedArr.map(option => option[valueKey])
+  emit('change', checkedArr)
   modelIsChangedBySet = false
 })
 
@@ -186,7 +215,7 @@ const tags = computed(() => {
   }
 
   // 禁用时，显示全部
-  if (disabled.value) {
+  if (disabled.value || readonly.value) {
     visibilityLimit = model.value?.length ?? 0
   }
 
@@ -202,17 +231,6 @@ const restTag = computed(() => {
   return (model.value?.length ?? 0) - tags.value.length
 })
 
-/** 筛选 */
-const queryString = shallowRef('')
-
-/** 已过滤的选项 */
-const filteredOptions = computed(() => {
-  const { options, labelKey } = props
-  if (queryString.value === '') return options
-
-  return options.filter(item => item[labelKey].includes(queryString.value))
-})
-
 const handleCheck = (option: Option, checked: boolean) => {
   if (checked) {
     checkedSet.add(option)
@@ -224,7 +242,7 @@ const handleCheck = (option: Option, checked: boolean) => {
 /** 全选 */
 const handleCheckAll = (checked: boolean) => {
   if (checked) {
-    props.options.forEach(option => checkedSet.add(option))
+    options.value.forEach(option => checkedSet.add(option))
   } else {
     checkedSet.clear()
   }

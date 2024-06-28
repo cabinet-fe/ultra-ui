@@ -2,7 +2,9 @@ import type { MessageConfirmProps } from '@ui/types/components/message-confirm'
 import UMessageConfirm from './message-confirm.vue'
 import { createVNode, render } from 'vue'
 import { zIndex } from '@ui/utils'
-import { type ColorType, ColorTypeArray } from '@ui/types/component-common'
+import { type ColorType } from '@ui/types/component-common'
+
+const ColorTypeArray: ColorType[] = ['primary', 'success', 'info', 'warning', 'danger']
 
 type MessageConfirmFn = (options: MessageConfirmProps) => void
 

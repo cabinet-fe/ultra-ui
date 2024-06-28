@@ -66,7 +66,11 @@ $bg-colors: (
   // 中部图层背景色
   middle: #fefefe,
   // 顶部图层背景色
-  top: #ffffff
+  top: #ffffff,
+  // 鼠标浮动时的颜色
+  hover: #f5f7fa,
+  // 黑色
+  black: #000
 );
 
 // 文字颜色
@@ -75,8 +79,7 @@ $text-colors: (
   title: #303133,
   // 正文文字
   main: #606266,
-  /** 占位文字 */
-  placeholder: #a8abb2,
+  /** 占位文字 */ placeholder: #a8abb2,
   // 次级文字
   second: #979797,
   // 辅助文字
@@ -117,6 +120,15 @@ $font-size-assist: (
   small: 12px,
   default: 12px,
   large: 14px
+);
+
+// 阴影
+$shadow: (
+  color: #ccc,
+  x: 0,
+  y: 0,
+  blur: 4px,
+  spread: 0
 );
 
 $tag-size: (

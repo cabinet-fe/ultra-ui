@@ -25,7 +25,7 @@ function removeLoading(el: HTMLElement) {
   render(null, el)
   el.classList.remove(loadingContainerCls)
 }
-const loading: ObjectDirective<HTMLElement> = {
+export const vLoading: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
     binding.value && renderLoading(el, binding)
   },
@@ -38,5 +38,3 @@ const loading: ObjectDirective<HTMLElement> = {
     removeLoading(el)
   }
 }
-
-export default loading

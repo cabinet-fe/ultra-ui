@@ -25,7 +25,12 @@
   @include m.css-var(radius, vars.$border-radius);
 
   // 阴影
-  @include m.css-var(shadow, '0 1px 4px 0 #ccc');
+  @include m.css-var(shadow, vars.$shadow);
+  @include m.css-var(
+    shadow,
+    #{var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
+      var(--shadow-color)}
+  );
 
   // 表单组件高度
   @include m.css-var(form-component-height, vars.$form-component-height);

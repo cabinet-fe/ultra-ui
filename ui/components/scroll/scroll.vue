@@ -1,6 +1,5 @@
 <template>
   <div :class="className" :style="style" ref="scrollRef">
-    <!-- 实际滚动的容器 -->
     <div
       ref="containerRef"
       :class="[cls.e('container'), containerClass]"
@@ -93,19 +92,22 @@ const trackSize = {
 }
 
 useResizeObserver({
-  targets: contentRef,
-  onResize([entry]) {
-    if (entry && scrollRef.value) {
+  targets: [contentRef, scrollRef],
+  onResize(entries) {
+    if (entries.length && scrollRef.value) {
       const { clientHeight, clientWidth } = scrollRef.value
 
       trackSize.width = clientWidth
       trackSize.height = clientHeight
 
-      barX.value?.setTrackSize(clientWidth)
-      barY.value?.setTrackSize(clientHeight)
+      barX.value?.setTrackSize(trackSize.width)
+      barY.value?.setTrackSize(trackSize.height)
       updateBar()
 
-      emit('resize', entry.target as HTMLElement)
+      emit(
+        'resize',
+        entries.map(entry => entry.target as HTMLElement)
+      )
     }
   }
 })
@@ -113,6 +115,7 @@ useResizeObserver({
 // 更新滚动条
 const updateBar = () => {
   if (!containerRef.value) return
+
   const {
     scrollHeight,
     clientHeight,
@@ -134,6 +137,8 @@ const updateBar = () => {
     const barYTop =
       (scrollTop / (scrollHeight - clientHeight)) *
       (trackSize.height - barYHeight)
+
+    // console.log(clientHeight, trackSize.height, scrollHeight)
 
     barY.value?.update(barYHeight, barYTop)
   } else {
@@ -204,9 +209,9 @@ provide(ScrollDIKey, {
 })
 
 const exposed: _ScrollExposed = {
+  el: scrollRef,
   contentRef,
   containerRef,
-
   scrollTo,
   update: updateBar
 }

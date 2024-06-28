@@ -1,5 +1,5 @@
-import type {DeconstructValue} from "../helper"
-import type {FormComponentProps} from "../component-common"
+import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '../component-common'
 
 /** textarea组件属性 */
 export interface TextareaProps extends FormComponentProps {
@@ -23,10 +23,7 @@ export interface TextareaProps extends FormComponentProps {
    * 文本域是否只读
    */
   readonly?: boolean
-  /**
-   * 是否自动调整文本域的大小
-   */
-  autosize?: boolean
+
   /**
    * 是否能被缩放
    */
@@ -51,20 +48,23 @@ export interface TextareaProps extends FormComponentProps {
    * 清空
    */
   clearable?: boolean
+
+  /** 原生只读 */
+  nativeReadonly?: boolean
 }
 
 /** textarea组件定义的事件 */
 export interface TextareaEmits {
   /**modelValue值改变时触发 */
-  (e: "update:modelValue", value: string): void
+  (e: 'update:modelValue', value: string): void
   /**当 modelValue 改变时，并且文本框失去焦点或用户按Enter时触发 */
-  (e: "change", value: string): void
+  (e: 'change', value: string): void
   /**文本框获取焦点时触发 */
-  (e: "focus"): void
+  (e: 'focus'): void
   /**文本框失去焦点时触发 */
-  (e: "blur"): void
+  (e: 'blur'): void
   /**清空按钮时触发 */
-  (e: "clear"): void
+  (e: 'clear'): void
 }
 
 /** textarea组件暴露的属性和方法(组件内部使用) */

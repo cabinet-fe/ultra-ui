@@ -1,0 +1,9 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: multi-auto-complete;
+
+@include m.b($root-name) {
+}

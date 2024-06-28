@@ -46,6 +46,7 @@ $button-size: 36;
 
     @include m.bem($root-name, bar) {
       bottom: 0;
+      pointer-events: none;
     }
 
     @include m.bem($root-name, stop) {
@@ -93,6 +94,7 @@ $button-size: 36;
   @include m.e(bar) {
     width: 100%;
     position: absolute;
+    pointer-events: none;
     z-index: 1;
     left: 0;
     height: 100%;
@@ -104,12 +106,20 @@ $button-size: 36;
     height: $button-size + px;
     line-height: $button-size + px;
     position: absolute;
-    cursor: pointer;
     top: math.div(-$button-size, 2.5) + px;
     z-index: 1;
     user-select: none;
     text-align: center;
     left: math.div(-$button-size + 10, 2) + px;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+    }
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 
   @include m.e(button) {
@@ -121,15 +131,6 @@ $button-size: 36;
     box-sizing: border-box;
     transition: transform 0.2s;
     user-select: none;
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-      transform: scale(1.2);
-    }
-    &:hover {
-      transform: scale(1.2);
-    }
   }
 
   @include m.e(stop) {

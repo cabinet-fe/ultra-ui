@@ -1,5 +1,6 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
     ref="dropdownRef"
@@ -11,12 +12,12 @@
     <template #trigger>
       <u-input
         :size="size"
-        readonly
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="label || selected?.[labelKey]"
+        :model-value="selected?.[labelKey] || label"
         @clear="handleClear"
+        native-readonly
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -28,7 +29,7 @@
     <template #content>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input placeholder="输入关键字进行过滤" v-model="queryString">
+        <u-input placeholder="输入关键字进行搜索" v-model="queryString">
           <template #suffix>
             <u-icon><Search /></u-icon>
           </template>
@@ -37,13 +38,13 @@
 
       <!-- 单选列表 -->
       <u-scroll
-        v-if="filteredOptions.length"
+        v-if="options.length"
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
       >
         <li
-          v-for="(option, index) of filteredOptions"
+          v-for="(option, index) of options"
           :class="[optionClass, bem.is('selected', option[valueKey] === model)]"
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
@@ -56,14 +57,22 @@
         </li>
       </u-scroll>
 
-      <div v-else :class="cls.e('empty')">未查询到结果</div>
+      <div v-else :class="cls.e('empty')">
+        <UEmpty />
+      </div>
     </template>
   </u-dropdown>
+
+  <span v-else>{{ label || selected?.[labelKey] }}</span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
 import { computed, shallowRef, watch } from 'vue'
-import type { SelectEmits, SelectProps } from '@ui/types/components/select'
+import type {
+  SelectEmits,
+  SelectProps,
+  _SelectExposed
+} from '@ui/types/components/select'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
@@ -72,6 +81,8 @@ import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
+import { useOptions } from './use-options'
+import { UEmpty } from '../empty'
 
 defineOptions({
   name: 'Select'
@@ -82,7 +93,8 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   valueKey: 'value',
   placeholder: '请选择',
   clearable: true,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<SelectEmits<Option>>()
@@ -92,10 +104,14 @@ const cls = bem('select')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const model = defineModel<string | number>()
 const label = defineModel('text')
@@ -104,17 +120,24 @@ const selected = shallowRef<Record<string, any>>()
 const dropdownRef = shallowRef<DropdownExposed>()
 const scrollRef = shallowRef<ScrollExposed>()
 
+const filterable = computed(() => {
+  return props.filterable || typeof props.options === 'function'
+})
+
+const { queryString, options } = useOptions({
+  props
+})
+
 let modelIsChangedBySelected = false
 let setIsChangedByModel = false
 watch(
-  [model, () => props.options],
-  ([model, options]) => {
+  [model, options],
+  ([modelValue, options]) => {
     if (!options?.length || modelIsChangedBySelected) return
-
     setIsChangedByModel = true
-    if (model !== undefined) {
+    if (modelValue !== undefined) {
       const { valueKey } = props
-      selected.value = options.find(option => option[valueKey] === model)
+      selected.value = options.find(option => option[valueKey] === modelValue)
     } else {
       selected.value = undefined
     }
@@ -122,6 +145,7 @@ watch(
   },
   { immediate: true }
 )
+
 watch(selected, selected => {
   if (setIsChangedByModel) return
 
@@ -140,23 +164,12 @@ watch(scrollRef, scroll => {
   }
 })
 
-/** 筛选 */
-const queryString = shallowRef('')
-
 const dropdownVisible = shallowRef(false)
 
 watch(dropdownVisible, v => {
   if (!v) {
     queryString.value = ''
   }
-})
-
-/** 已过滤的选项 */
-const filteredOptions = computed(() => {
-  const { options, labelKey } = props
-  if (queryString.value === '') return options
-
-  return options.filter(item => item[labelKey].includes(queryString.value))
 })
 
 /** 单选 */

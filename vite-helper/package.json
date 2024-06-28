@@ -5,7 +5,12 @@
   "author": "whj",
   "type": "module",
   "exports": {
-    "./resolver": "./resolver.js"
+    "./resolver": {
+      "types": "./resolver.d.ts",
+      "default": "./resolver.js",
+      "import": "./resolver.js"
+    },
+    "./*": "./*"
   },
   "scripts": {
     "build": "tsx ./build.ts"

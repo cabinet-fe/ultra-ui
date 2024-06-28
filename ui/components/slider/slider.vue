@@ -1,20 +1,42 @@
 <template>
-  <div :class="className" ref="sliderRef" :style="vertical ? { height: `${height}px` } : undefined">
+  <div
+    v-if="!readonly"
+    :class="className"
+    ref="sliderRef"
+    :style="vertical ? { height: `${height}px` } : undefined"
+  >
     <!-- 跑道 -->
-    <div ref="runwayRef" :class="runwayClass" @mousedown="handleMousedown">
+    <div ref="runwayRef" :class="runwayClass" @mousedown="handleSetPosition">
       <!-- 拖动覆盖条 -->
       <div :class="cls.e('bar')" :style="barStyles" />
       <!-- 手柄 -->
-      <slider-button v-model="onePercentageValue" @dragPosition="handleSetOneToPxChange" @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="onePercentageValue"
+        @dragPosition="handleSetOneToPxChange"
+        @dragEnd="handleDragEnd"
+      />
 
-      <slider-button v-model="twoPercentageValue" v-if="range" @dragPosition="handleSetTwoToPxChange"
-        @dragEnd="handleOneDown" />
+      <slider-button
+        v-model="twoPercentageValue"
+        v-if="range"
+        @dragPosition="handleSetTwoToPxChange"
+        @dragEnd="handleDragEnd"
+      />
 
       <!-- 断点 -->
       <template v-if="showStops">
-        <div v-for="(item, key) in stops" :key="key" :class="cls.e('stop')" :style="getStopStyle(item)" />
+        <div
+          v-for="(item, key) in stops"
+          :key="key"
+          :class="cls.e('stop')"
+          :style="getStopStyle(item)"
+        />
       </template>
     </div>
+  </div>
+
+  <div v-else>
+    {{ model }}
   </div>
 </template>
 
@@ -28,6 +50,10 @@ import { useSlide } from './use-slide'
 import { useStops } from './use-stops'
 import { isArray } from 'cat-kit/fe'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+
+defineOptions({
+  name: 'Slider'
+})
 
 const props = withDefaults(defineProps<SliderProps>(), {
   min: 0,
@@ -45,7 +71,10 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props])
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
 
 const className = computed(() => {
   return [
@@ -71,7 +100,7 @@ const {
   maxValue
 } = useSlide(props, sliderSize)
 
-const { stops, getStopStyle } = useStops({
+const { stops, getStopStyle, setStepButtonPosition } = useStops({
   sliderProps: props,
   sliderSize
 })
@@ -120,39 +149,69 @@ watch(
 )
 
 /** 放下 */
-const handleOneDown = async (value: number) => {
+const handleDragEnd = async (value: number) => {
   await nextTick()
 
   if (props.range && isArray(model.value)) {
     /** 最小值 */
     minValue.value = Math.min(
-      onePercentageValue?.value!,
-      twoPercentageValue?.value!
+      onePercentageValue.value!,
+      twoPercentageValue.value!
     )
 
     /** 最大值*/
     maxValue.value = Math.max(
-      onePercentageValue?.value!,
-      twoPercentageValue?.value!
+      onePercentageValue.value!,
+      twoPercentageValue.value!
     )
     model.value = [minValue.value, maxValue.value]
   } else {
-    model.value = onePercentageValue?.value
+    model.value = onePercentageValue.value
   }
 }
 
-const handleMousedown = (e) => {
+/** 点击更改位置 */
+const handleSetPosition = (e: MouseEvent) => {
+  /** disabled初始值是undefined所以!! */
+  if (!!props.disabled) return
+
   let percentage = shallowRef(0)
-  let x = e.layerX
-  let y = e.layerY
-  let buttonValue = shallowRef()
+  let buttonValue = shallowRef(0)
+  let x = e.offsetX
+  let y = e.offsetY
+
+  if (props.step && props.step > 0) {
+    if (props.vertical) {
+      y = setStepButtonPosition(Math.abs(y))
+    } else {
+      x = setStepButtonPosition(x)
+    }
+  }
+
   percentage.value = props.vertical
     ? -(y - sliderSize.value) / sliderSize.value
     : x / sliderSize.value
 
-  buttonValue.value = Math.round(props.min! + (props.max! - props.min!) * percentage.value)
+  buttonValue.value = Math.round(
+    props.min! + (props.max! - props.min!) * percentage.value
+  )
 
-  model.value = buttonValue.value
+  if (props.range) {
+    // 计算one和two与buttonValue的差值的绝对值
+    let diffOne = Math.abs(onePercentageValue.value - buttonValue.value)
+    let diffTwo = Math.abs(twoPercentageValue.value - buttonValue.value)
+
+    // 判断哪个变量更接近buttonValue，然后将该变量设为buttonValue
+    if (diffOne <= diffTwo) {
+      onePercentageValue.value = buttonValue.value
+    } else {
+      twoPercentageValue.value = buttonValue.value
+    }
+
+    model.value = [onePercentageValue.value, twoPercentageValue.value]
+  } else {
+    model.value = buttonValue.value
+  }
 }
 
 provide(sliderContextKey, {

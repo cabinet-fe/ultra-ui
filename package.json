@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.0.56",
+  "version": "0.0.190",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -20,28 +20,27 @@
   ],
   "author": "cabinet-fe",
   "devDependencies": {
-    "@types/node": "^20.12.6",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "@vitejs/plugin-vue-jsx": "^3.1.0",
-    "@vue/runtime-core": "^3.4.26",
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-vue": "5.0.5",
+    "@vitejs/plugin-vue-jsx": "4.0.0",
     "autoprefixer": "10.4.19",
     "bumpp": "9.4.1",
-    "cat-kit": "^3.4.23",
+    "cat-kit": "^3.5.5",
     "fast-glob": "^3.3.2",
-    "icon-ultra": "^3.0.3",
-    "rollup": "4.17.2",
+    "icon-ultra": "3.0.9",
+    "rollup": "4.18.0",
     "rollup-plugin-esbuild": "6.1.1",
-    "sass": "^1.75.0",
+    "sass": "^1.77.2",
     "simple-git-hooks": "^2.11.1",
     "ts-conf-base": "^2.2.0",
-    "tsx": "^4.9.1",
+    "tsx": "4.15.3",
     "typescript": "5.4.5",
     "unplugin-vue-components": "^0.27.0",
-    "vite": "5.2.11",
-    "vite-plugin-dts": "3.9.0",
+    "vite": "5.2.13",
+    "vite-plugin-dts": "3.9.1",
     "vitest": "^1.6.0",
-    "vue": "^3.4.26",
-    "vue-router": "^4.3.2"
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.3"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm tsx cli/verify-commit/index.ts"

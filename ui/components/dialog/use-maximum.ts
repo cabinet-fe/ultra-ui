@@ -27,6 +27,7 @@ export function useMaximum(options: Options): Returned {
   const maximizeTransition = useTransition('css', {
     target: dialogRef,
     name: 'dialog-maximize',
+    keepEnterTo: true,
     afterLeave() {
       dialogRef.value && removeStyles(dialogRef.value, ['height'])
     }
@@ -35,7 +36,6 @@ export function useMaximum(options: Options): Returned {
   /** 切换最大化 */
   const toggleMaximize = (maxim: boolean): void => {
     maximized.value = maxim
-
     const dom = dialogRef.value
     if (!dom) return
     if (maxim) {
