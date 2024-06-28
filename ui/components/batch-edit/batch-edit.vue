@@ -92,6 +92,7 @@
             :model="props.model"
             :readonly="readonly"
             @keyup.enter="handleSave"
+            :label-width="labelWidth"
           >
             <template #default="{ data, model }">
               <!-- @vue-ignore -->
