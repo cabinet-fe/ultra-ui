@@ -1,52 +1,255 @@
 <template>
-  <CustomCard title="基础">
-    <u-cascade v-model="cascade" :options="data" :labelKey="'name'" :valueKey="'id'"/>
-  </CustomCard>
+  <div>
+    <CustomCard title="单选数据">
+      {{ cascade }}
+    </CustomCard>
+    <CustomCard title="单选">
+      <u-cascade v-model="cascade" :options="data" value-key="label"/>
+    </CustomCard>
+   
+  </div>
 </template>
 <script lang="ts" setup>
-import CustomCard from '../card/custom-card.vue'
+import CustomCard from "../card/custom-card.vue"
+// import { province, city, area } from "province-city-china/data"
+// console.log(province, city, area)
 
-import { shallowRef } from 'vue'
+import { shallowRef } from "vue"
 
-const cascade = shallowRef(['1', '2', '3'])
-
+const cascade = shallowRef(["Component", "Basic", "Layout"])
 
 const data = shallowRef<any[]>([])
 
 setTimeout(() => {
   data.value = [
-    { name: "烤冷面", id: 1 },
     {
-      name: "手抓饼",
-      id: 2,
+      value: "guide",
+      label: "Guide",
+    },
+    {
+      value: "component",
+      label: "Component",
       children: [
         {
-          name: "鱼香肉丝",
-          id: 3,
+          value: "basic",
+          label: "Basic",
           children: [
             {
-              name: "烤苞米",
-              id: 4,
-              children: [
-                { name: "苞米例", id: 5 },
-                { name: "吃", id: 6 },
-                { name: "h", id: 7 },
-              ],
+              value: "layout",
+              label: "Layout",
+            },
+            {
+              value: "color",
+              label: "Color",
+            },
+            {
+              value: "typography",
+              label: "Typography",
+            },
+            {
+              value: "icon",
+              label: "Icon",
+            },
+            {
+              value: "button",
+              label: "Button",
             },
           ],
         },
         {
-          name: "fggg",
-          id: 8,
+          value: "form",
+          label: "Form",
           children: [
-            { name: "苞米例2", id: 9 },
-            { name: "吃2", id: 10 },
-            { name: "h2", id: 11 },
+            {
+              value: "radio",
+              label: "Radio",
+            },
+            {
+              value: "checkbox",
+              label: "Checkbox",
+            },
+            {
+              value: "input",
+              label: "Input",
+            },
+            {
+              value: "input-number",
+              label: "InputNumber",
+            },
+            {
+              value: "select",
+              label: "Select",
+            },
+            {
+              value: "cascader",
+              label: "Cascader",
+            },
+            {
+              value: "switch",
+              label: "Switch",
+            },
+            {
+              value: "slider",
+              label: "Slider",
+            },
+            {
+              value: "time-picker",
+              label: "TimePicker",
+            },
+            {
+              value: "date-picker",
+              label: "DatePicker",
+            },
+            {
+              value: "datetime-picker",
+              label: "DateTimePicker",
+            },
+            {
+              value: "upload",
+              label: "Upload",
+            },
+            {
+              value: "rate",
+              label: "Rate",
+            },
+            {
+              value: "form",
+              label: "Form",
+            },
           ],
+        },
+        {
+          value: "data",
+          label: "Data",
+          children: [
+            {
+              value: "table",
+              label: "Table",
+            },
+            {
+              value: "tag",
+              label: "Tag",
+            },
+            {
+              value: "progress",
+              label: "Progress",
+            },
+            {
+              value: "tree",
+              label: "Tree",
+            },
+            {
+              value: "pagination",
+              label: "Pagination",
+            },
+            {
+              value: "badge",
+              label: "Badge",
+            },
+          ],
+        },
+        {
+          value: "notice",
+          label: "Notice",
+          children: [
+            {
+              value: "alert",
+              label: "Alert",
+            },
+            {
+              value: "loading",
+              label: "Loading",
+            },
+            {
+              value: "message",
+              label: "Message",
+            },
+            {
+              value: "message-box",
+              label: "MessageBox",
+            },
+            {
+              value: "notification",
+              label: "Notification",
+            },
+          ],
+        },
+        {
+          value: "navigation",
+          label: "Navigation",
+          children: [
+            {
+              value: "menu",
+              label: "Menu",
+            },
+            {
+              value: "tabs",
+              label: "Tabs",
+            },
+            {
+              value: "breadcrumb",
+              label: "Breadcrumb",
+            },
+            {
+              value: "dropdown",
+              label: "Dropdown",
+            },
+            {
+              value: "steps",
+              label: "Steps",
+            },
+          ],
+        },
+        {
+          value: "others",
+          label: "Others",
+          children: [
+            {
+              value: "dialog",
+              label: "Dialog",
+            },
+            {
+              value: "tooltip",
+              label: "Tooltip",
+            },
+            {
+              value: "popover",
+              label: "Popover",
+            },
+            {
+              value: "card",
+              label: "Card",
+            },
+            {
+              value: "carousel",
+              label: "Carousel",
+            },
+            {
+              value: "collapse",
+              label: "Collapse",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      value: "resource",
+      label: "Resource",
+      children: [
+        {
+          value: "axure",
+          label: "Axure Components",
+        },
+        {
+          value: "sketch",
+          label: "Sketch Templates",
+        },
+        {
+          value: "docs",
+          label: "Design Documentation",
         },
       ],
     },
   ]
 }, 2000)
-
 </script>

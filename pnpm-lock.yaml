@@ -36,6 +36,9 @@ importers:
       icon-ultra:
         specifier: 3.0.9
         version: 3.0.9(vue@3.4.27)
+      province-city-china:
+        specifier: ^8.5.7
+        version: 8.5.7
       rollup:
         specifier: 4.18.0
         version: 4.18.0
@@ -1016,6 +1019,10 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
+    dev: true
+
+  /@province-city-china/types@8.5.7:
+    resolution: {integrity: sha512-RZ1TX52jLevxx+00yLMzunHR2H6XIc7FY8C7qF0YUzXhYrRS4krqWSDY8kpq/76nonbp01ibif35wvmP3R+s4Q==}
     dev: true
 
   /@rollup/pluginutils@5.1.0(rollup@4.16.3):
@@ -2857,6 +2864,12 @@ packages:
     dependencies:
       kleur: 3.0.3
       sisteransi: 1.0.5
+    dev: true
+
+  /province-city-china@8.5.7:
+    resolution: {integrity: sha512-6snhGKmXBgNDJluFYVNgudIA+FWJjha+6/Lci/ZWBDDp3uPs5zFlErrfeTRfN182owSNDp9oF4/f6/qPoL9+Xw==}
+    dependencies:
+      '@province-city-china/types': 8.5.7
     dev: true
 
   /punycode@2.3.1:
