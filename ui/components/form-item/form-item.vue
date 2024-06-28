@@ -8,17 +8,20 @@
       <slot name="label">
         {{ label }}
       </slot>
+
+      <u-tip v-if="tips" :content="tips">
+        <u-icon><QuestionFilled /> </u-icon>
+      </u-tip>
     </label>
 
     <section :class="cls.e('content')">
       <slot />
 
-      <section v-if="showTips" :class="cls.e('tips')">
+      <section v-if="!readonly" :class="cls.e('error')">
         <transition name="form-item-tips" mode="out-in">
-          <span :class="cls.em('tips', 'error')" v-if="!!errorTips">{{
-            errorTips
-          }}</span>
-          <span :class="cls.em('tips', 'info')" v-else>{{ tips }}</span>
+          <span :class="cls.e('error-text')" v-if="!!errorTips">
+            {{ errorTips }}
+          </span>
         </transition>
       </section>
     </section>
@@ -32,6 +35,9 @@ import { type CSSProperties, computed } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { UGridItem } from '../grid'
+import { QuestionFilled } from 'icon-ultra'
+import { UIcon } from '../icon'
+import { UTip } from '../tip'
 
 defineOptions({
   name: 'FormItem'
@@ -68,12 +74,11 @@ const className = computed(() => {
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(props.labelWidth ?? config.form.labelWidth, 'px')
+    width: withUnit(
+      props.labelWidth ?? formProps?.labelWidth ?? config.form.labelWidth,
+      'px'
+    )
   }
-})
-
-const showTips = computed<boolean>(() => {
-  return !props.noTips && !formProps?.noTips && !readonly.value
 })
 
 /** 错误提示 */

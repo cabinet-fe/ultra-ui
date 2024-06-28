@@ -64,7 +64,7 @@ $root-name: form-item;
     }
   }
 
-  @include m.e(tips) {
+  @include m.e(error) {
     width: 100%;
     --height: #{fn.use-var(font-size-main, default)};
     height: calc(var(--height) + 4px);
@@ -72,19 +72,13 @@ $root-name: form-item;
     overflow: hidden;
     color: fn.use-var(text-color, main);
     font-size: fn.use-var(font-size-assist, default);
-
-    @include m.m(error) {
-      color: fn.use-var(color, danger);
-    }
-
-    @include m.m(info) {
-    }
-
-    & > span {
-      display: inline-block;
-    }
+    color: fn.use-var(color, danger);
 
     @include m.ellipsis;
+  }
+
+  @include m.e(error-text) {
+    display: inline-block;
   }
 }
 

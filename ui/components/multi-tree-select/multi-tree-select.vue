@@ -7,7 +7,7 @@
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     ref="dropdownRef"
-    :width="width"
+    :min-width="minWidth"
   >
     <template #trigger>
       <!-- 默认展示 -->
@@ -119,7 +119,7 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
   readonly: undefined,
   filterable: false,
   visibilityLimit: 3,
-  width:'auto'
+  minWidth: '280px'
 })
 
 const treeProps = computed(() => {
