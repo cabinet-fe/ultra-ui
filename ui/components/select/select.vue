@@ -15,7 +15,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="label || selected?.[labelKey]"
+        :model-value="selected?.[labelKey] || label"
         @clear="handleClear"
         native-readonly
       >
