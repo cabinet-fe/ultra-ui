@@ -103,12 +103,6 @@ $root-name: multi-select;
         height: fn.use-var(form-component-height, $size);
         line-height: fn.use-var(form-component-height, $size);
       }
-
-      @include m.bem($root-name, empty) {
-        height: fn.use-var(form-component-height, $size);
-        line-height: fn.use-var(form-component-height, $size);
-        padding: 0 fn.use-var(gap, $size);
-      }
     }
   }
 
@@ -124,5 +118,10 @@ $root-name: multi-select;
     @include m.bem(tag) {
       border: fn.use-var(border);
     }
+  }
+
+  @include m.e(empty) {
+    text-align: center;
+    padding: fn.use-var(gap, default) 0;
   }
 }

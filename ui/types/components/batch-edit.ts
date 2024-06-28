@@ -33,6 +33,8 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
   cols?: string | [string, string]
   /** 只读模式 */
   readonly?: boolean
+  /** label的宽度 */
+  labelWidth?: string | number
   /** 删除方法 */
   deleteMethod?: (data: Record<string, any>[]) => Promise<any> | any
   /** 保存方法 */

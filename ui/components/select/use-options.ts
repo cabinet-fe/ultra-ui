@@ -29,17 +29,20 @@ export function useOptions<O extends Record<string, any>>(o: Options<O>) {
   })
 
   watch(
-    queryString,
-    debounce(async qs => {
-      if (typeof props.options === 'function') {
-        const options = await props.options(qs)
+    [queryString, () => props.options],
+    debounce(async ([qs, propsOptions]) => {
+      if (typeof propsOptions === 'function') {
+        const options = await propsOptions(qs)
         remoteOptions.value = options
       } else {
         const { labelKey } = props
 
-        if (!qs) return (filteredOptions.value = props.options ?? [])
+        if (!qs) {
+          filteredOptions.value = propsOptions ?? []
+          return
+        }
         filteredOptions.value =
-          props.options?.filter(item => item[labelKey].includes(qs)) ?? []
+          propsOptions?.filter(item => item[labelKey].includes(qs)) ?? []
       }
     }, 200),
     {

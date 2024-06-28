@@ -1,157 +1,25 @@
 <template>
-  <component :is="tag" :class="cls.b">
-    <ul
-      :class="cls.e('item')"
-      @scroll="handleScroll"
-      :style="{ height: infiniteScroll == true ? height + 'px' : '' }"
-    >
-      <li
-        v-for="(item, index) in data"
-        :draggable="draggable"
-        @dragstart="onDragStart($event, index)"
-        @dragover.prevent="onDragOver($event)"
-        @dragenter="onDragEnter($event, index)"
-        @drop="onDrop($event)"
-        :data-index="index"
-        :class="index === dragIndex ? cls.e('dragging') : ''"
-        ref="liRef"
-      >
-        <!-- 自定义样式 -->
-        <slot name="content" v-if="$slots.content" :item="item" :index="index" />
-
-        <!-- 默认样式 -->
-        <div v-else :class="cls.e('container')">
-          <div :class="cls.e('left')">
-            <slot :item="item" :index="index"></slot>
-          </div>
-
-          <div :class="cls.e('content')">
-            <h3>{{ item.title }}</h3>
-            <div>{{ item.desc }}</div>
-            <div>{{ item.date }}</div>
-          </div>
-        </div>
-      </li>
-      <p v-if="infiniteScroll == true && noMore" :class="cls.e('handleScroll')">没有更多了...</p>
-    </ul>
-  </component>
+  <u-scroll tag="ul" :class="[cls.b, cls.m(size)]">
+    <slot v-for="(item, index) of data" v-bind="{ item, index }" />
+  </u-scroll>
 </template>
 
 <script lang="ts" setup>
-import { type ListProps, type ListEmits } from '@ui/types/components/list'
+import type { ListProps } from '@ui/types/components/list'
 import { bem } from '@ui/utils'
-import { ref, shallowRef } from 'vue'
+import { UScroll } from '../scroll'
+import { useFallbackProps } from '@ui/compositions'
+import type { ComponentSize } from '@ui/types'
 
 defineOptions({
   name: 'List'
 })
-const cls = bem('list')
 
-const emit = defineEmits<ListEmits>()
+const props = withDefaults(defineProps<ListProps>(), {})
 
-const props = withDefaults(defineProps<ListProps>(), {
-  tag: 'div'
+const { size } = useFallbackProps([props], {
+  size: 'default' as ComponentSize
 })
 
-const height = document.documentElement.clientHeight
-
-const liRef = shallowRef<HTMLElement>()
-
-/** 拖动元素索引 */
-let dragIndex = ref<number>()
-/** 目标对象元素索引 */
-let enterIndex = ref<number>()
-
-/** 没有更多了 */
-const noMore = ref(false)
-
-/** 当前页码 */
-const currentPage = ref(1)
-
-const handleScroll = e => {
-  if (noMore.value) return
-
-  if (props.infiniteScroll == false) return
-
-  let scrollTop = e.target.scrollTop
-
-  let scrollHeight = e.target.scrollHeight
-
-  let clientHeight = e.target.clientHeight
-
-  if (scrollTop + clientHeight >= scrollHeight - 10) {
-    loadMore()
-  } else {
-    console.log('else')
-  }
-}
-
-/** 加载更多 */
-const loadMore = () => {
-  if (props.data?.length >= props.total!) {
-    noMore.value = true
-    return
-  }
-
-  emit('load-more', { current: currentPage.value++ })
-}
-
-/**
- * 拖动元素触发
- * @param item
- * @param index
- */
-const onDragStart = (e: any, index: number) => {
-  dragIndex.value = index
-
-  const dragItem = e.target.closest('li')
-
-  if (dragItem) {
-    dragItem.classList.add('fade-in')
-
-    requestAnimationFrame(() => {
-      dragItem.classList.add('fade-out')
-
-      setTimeout(() => {
-        dragItem.classList.remove('fade-out')
-      }, 300)
-    })
-  }
-}
-
-/**
- * ondragover事件在拖动元素在目标元素上方时触发，通常用于防止默认的拖放行为。
- * 可以通过event.preventDefault()方法阻止默认行为。
- */
-const onDragOver = (event: DragEvent) => {
-  event.preventDefault()
-}
-
-const onDragEnter = (e: any, index: number) => {
-  enterIndex.value = index
-}
-
-/**
- * ondrop事件在拖动元素在目标元素上释放时触发，通常用于实现拖放功能。
- * */
-const onDrop = (e: any) => {
-  props.data.splice(
-    dragIndex.value!,
-    1,
-    ...props.data.splice(enterIndex?.value!, 1, props.data[dragIndex.value!]!)
-  )
-  const dragItem = e.target.closest('li')
-
-  if (dragItem) {
-    dragItem.classList.remove('fade-in')
-
-    requestAnimationFrame(() => {
-      dragItem.classList.remove('fade-out')
-
-      setTimeout(() => {
-        dragItem.classList.add('fade-in')
-      }, 300)
-    })
-  }
-}
+const cls = bem('list')
 </script>

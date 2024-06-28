@@ -60,12 +60,11 @@ $root-name: select;
         height: fn.use-var(form-component-height, $size);
         line-height: fn.use-var(form-component-height, $size);
       }
-
-      @include m.bem($root-name, empty) {
-        height: fn.use-var(form-component-height, $size);
-        line-height: fn.use-var(form-component-height, $size);
-        padding: 0 fn.use-var(gap, $size);
-      }
     }
+  }
+
+  @include m.e(empty) {
+    text-align: center;
+    padding: fn.use-var(gap, small) 0;
   }
 }

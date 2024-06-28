@@ -9,7 +9,9 @@ export interface FormModelItem<Val = unknown> extends ValidateRule {
 }
 
 export type ModelData<Fields extends Record<string, FormModelItem>> = {
-  [key in keyof Fields]: Fields[key]['value']
+  [key in keyof Fields]: Fields[key]['value'] extends () => infer T
+    ? T
+    : Fields[key]['value']
 }
 
 export type ModelRules<Fields extends Record<string, FormModelItem>> = {

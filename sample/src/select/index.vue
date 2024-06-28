@@ -24,18 +24,22 @@ import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { sleep } from 'cat-kit/fe'
 
-const options = Array.from({ length: 200 }).map((_, i) => ({
-  label: `选项${i}`,
-  value: i
-}))
+const options = shallowRef<any[]>([])
+
+setTimeout(() => {
+  options.value = Array.from({ length: 100 }).map((_, i) => ({
+    label: `选项${i}`,
+    value: i
+  }))
+}, 1000)
 
 const selected = shallowRef(20)
 
-const filterable = shallowRef(false)
+const filterable = shallowRef(true)
 
 const optionsGetter = async (qs: string) => {
   if (!qs) return []
   await sleep(200)
-  return options.filter(o => o.label.includes(qs))
+  return options.value.filter(o => o.label.includes(qs))
 }
 </script>

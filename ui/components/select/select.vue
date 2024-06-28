@@ -15,7 +15,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="label || selected?.[labelKey]"
+        :model-value="selected?.[labelKey] || label"
         @clear="handleClear"
         native-readonly
       >
@@ -57,7 +57,9 @@
         </li>
       </u-scroll>
 
-      <div v-else :class="cls.e('empty')">未查询到结果</div>
+      <div v-else :class="cls.e('empty')">
+        <UEmpty />
+      </div>
     </template>
   </u-dropdown>
 
@@ -80,6 +82,7 @@ import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 import { useOptions } from './use-options'
+import { UEmpty } from '../empty'
 
 defineOptions({
   name: 'Select'

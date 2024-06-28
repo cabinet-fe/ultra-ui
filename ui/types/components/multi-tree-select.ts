@@ -23,10 +23,10 @@ export interface MultiTreeSelectProps
   visibilityLimit?: number
 
   /**
-   * 宽度
-   * @default - 跟随触发宽度
+   * 最小宽度
+   * @default '280px'
    */
-  width: string
+  minWidth: string
 }
 
 /** 树形多选组件组件定义的事件 */

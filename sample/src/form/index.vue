@@ -10,7 +10,7 @@
         :disabled="disabled"
         :readonly="readonly"
         :model="model"
-        label-width="100px"
+        label-width="200px"
         ref="formRef"
       >
         <template #default="{ data }">
@@ -77,13 +77,13 @@
         <u-auto-complete
           field="complete1"
           label="complete1"
-          :suggestions="interestList"
+          :suggestions="interestList.map(item => item.label)"
           label-key="label"
         />
         <u-auto-complete
           field="complete2"
           label="complete2"
-          :suggestions="interestList"
+          :suggestions="interestList.map(item => item.label)"
           label-key="label"
           multiple
         />

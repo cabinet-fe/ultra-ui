@@ -33,21 +33,21 @@ export function useSuggestions(options: Options) {
   })
 
   watch(
-    model,
-    debounce(async v => {
-      if (typeof props.suggestions === 'function') {
-        const suggestions = await props.suggestions(v)
+    [model, () => props.suggestions],
+    debounce(async ([v, propsSuggestions]) => {
+      if (typeof propsSuggestions === 'function') {
+        const suggestions = await propsSuggestions(v)
         remoteSuggestions.value = suggestions ?? []
       } else {
         if (!v) {
           filteredSuggestions.value = [
-            ...(props.suggestions ?? []),
+            ...(propsSuggestions ?? []),
             ...appendedSuggestions.value
           ]
           return
         }
         filteredSuggestions.value = [
-          ...(props.suggestions?.filter(item => item.includes(v)) ?? []),
+          ...(propsSuggestions?.filter(item => item.includes(v)) ?? []),
           ...appendedSuggestions.value.filter(item => item.includes(v))
         ]
       }
