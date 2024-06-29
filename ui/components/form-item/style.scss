@@ -86,8 +86,8 @@ $root-name: form-item;
   }
 
   @include m.e(tip-label) {
-    cursor: pointer;
-    border-bottom: 1px solid fn.use-var(color, info);
+    cursor: help;
+    border-bottom: 1px dashed fn.use-var(color, info);
     color: fn.use-var(color, info);
   }
 }
