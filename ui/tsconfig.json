@@ -8,7 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@ui/*": ["./*"]
-    }
+    },
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]

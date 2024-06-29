@@ -2,7 +2,7 @@ import type { DeconstructValue } from "../helper"
 
 /** 级联选择器组件属性 */
 export interface CascadeProps {
-  modelValue?: any
+  modelValue?: any[]
   labelKey?: string
   valueKey?: string
   placeholder?: string
@@ -14,11 +14,26 @@ export interface CascadeProps {
    * 数据项
    */
   options?: Record<string, any>[]
+
+  /**
+   * 禁用项
+   */
+  disabledNode?: Record<string, any>[]
+  multiple?: boolean
+  /** 单选选中项 */
+  selected?: any[]
+  /** 多选选中项 */
+  checked?: any[]
+}
+export interface CascadeItemProps {
+  cascadeItem?: Record<string, any>
 }
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits<Option extends Record<string, any>> {
-  (e: "update:modelValue", value: string): void
+  (e: "update:modelValue", value: any): void
+  (e: "update:selected", value: any[]): void
+  (e: "update:checked", value: any[]): void
   (e: "change", value: Option[]): void
 }
 

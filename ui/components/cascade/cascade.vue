@@ -1,14 +1,19 @@
 <template>
   <div :class="cls.b">
-    <u-dropdown>
+    <u-dropdown
+      trigger="click"
+      ref="dropdownRef"
+      :click-whether-hide="true"
+      width="auto"
+    >
       <template #trigger>
         <u-input
+          style="width: 240px"
           :size="size"
           :disabled="disabled"
           :placeholder="placeholder"
           :clearable="clearable"
           v-model="cascade"
-          @clear="handleClear"
           native-readonly
         >
           <template #suffix>
@@ -18,26 +23,7 @@
       </template>
 
       <template #content>
-        <u-scroll tag="ul" :class="cls.e('options')" ref="scrollRef">
-          <CascadeItem
-            v-for="option of filteredOptions"
-            v-bind="{ $attrs, ...props,option }"
-          />
-          <!-- <li
-            v-for="(option, index) of filteredOptions"
-            :class="[
-              cls.e('option'),
-              bem.is('selected', option[valueKey] === model),
-            ]"
-            @click="handleSelect(option[valueKey])"
-            :data-key="option[valueKey]"
-            :key="option[valueKey]"
-          >
-            <slot v-bind="{ option, index }">
-              {{ option[labelKey] }}
-            </slot>
-          </li> -->
-        </u-scroll>
+          <CascadeItem v-bind="$attrs" :cascadeItem="forest.nodes" />
       </template>
     </u-dropdown>
   </div>
@@ -47,11 +33,15 @@
 import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import type { CascadeProps, CascadeEmits } from "@ui/types/components/cascade"
 import { bem } from "@ui/utils"
-import { computed, shallowRef, watch } from "vue"
+import { computed, provide, shallowRef, watch } from "vue"
 import { ArrowDown } from "icon-ultra"
-import { useOptions } from "./use-options"
 import CascadeItem from "./cascade-item.vue"
-import { omit } from "cat-kit/fe"
+import { CascadeDIKey } from "./di"
+import { UInput } from "../input"
+import { UDropdown, type DropdownExposed } from "../dropdown"
+import { Forest } from "cat-kit/fe"
+import { CascadeNode } from "./cascade-node"
+import { useSelect } from "./use-select"
 
 defineOptions({
   name: "Cascade",
@@ -59,7 +49,7 @@ defineOptions({
 
 const cls = bem("cascade")
 
-const emit = defineEmits<CascadeEmits<Option>>()
+const emit = defineEmits<CascadeEmits<Record<string, any>>>()
 
 const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: "label",
@@ -71,7 +61,7 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   childrenKey: "children",
 })
 
-const model = defineModel<string | number>()
+const model = defineModel<string[] | number[]>()
 
 const { formProps } = useFormComponent()
 const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
@@ -80,26 +70,77 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   readonly: false,
 })
 
-const cascade = shallowRef<string>()
 
-const selected = shallowRef<Record<string, any>>()
+const cascade = computed(() => {
+  return model.value
+    ? model.value.map((node) => node).join(" / ")
+    : Array.from(selected)
+        .map((node) => node.label)
+        .join(" / ")
+})
 
-/** 清除选项 */
-const handleClear = () => {
-  selected.value = undefined
+/** 森林 */
+const forest = computed(() => {
+  const { options, valueKey, labelKey } = props
+  return Forest.create(options!, {
+    createNode: (data, index) => {
+      const node = new CascadeNode({
+        data,
+        index,
+        valueKey: valueKey!,
+        labelKey: labelKey!,
+      })
+      return node
+    },
+  })
+})
+
+/**
+ * 节点的字典，key为指定的valueKey的值
+ */
+const nodeDict = computed(() => {
+  const dict = new Map<string | number, CascadeNode<Record<string, any>>>()
+
+  forest.value.dft((node) => {
+    dict.set(node.key, node)
+  })
+
+  return dict
+})
+
+const dropdownRef = shallowRef<DropdownExposed>()
+
+const close = () => {
+  dropdownRef.value?.close()
 }
-
-const filteredOptions = shallowRef<Record<string, any>>([])
+const open = () => {
+  dropdownRef.value?.open()
+}
+const { handleSelect, selected } = useSelect<Record<string, any>>({
+  props,
+  emit,
+  nodeDict,
+  forest,
+})
 
 watch(
   () => [props.options, model],
   () => {
-    const { options } = useOptions({ ...props })
-
-    filteredOptions.value = options
-    console.log(filteredOptions.value)
+    console.log(forest.value.nodes[0]);
+    
   },
   { immediate: true }
 )
-
+provide(CascadeDIKey, {
+  cls,
+  cascadeProps: props,
+  size,
+  disabled,
+  close,
+  open,
+  forest,
+  nodeDict,
+  handleSelect,
+  cascade
+})
 </script>

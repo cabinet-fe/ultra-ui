@@ -7,6 +7,7 @@ $root-name: cascade;
 
 @include m.b($root-name) {
   width: 100%;
+  position: relative;
 
   @include m.e(content-filter) {
     border-bottom: fn.use-var(border);
@@ -15,6 +16,21 @@ $root-name: cascade;
   @include m.e(options) {
     display: flex;
     max-height: 180px;
+
+  }
+
+  @include m.e(options-item) {
+    max-height: 180px;
+    position: absolute;
+    background: fn.use-var(bg, color-top);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    top: 0;
+    left: 0;
+  }
+
+  @include m.size using ($size) {
+    padding: fn.use-var(gap, $size);
   }
 
   @include m.is(disabled) {
@@ -27,6 +43,7 @@ $root-name: cascade;
     cursor: pointer;
     margin: 2px 0;
     user-select: none;
+    @include m.flex($display: flex, $align: center, $justify: space-between);
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);
