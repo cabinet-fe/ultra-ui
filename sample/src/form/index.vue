@@ -10,7 +10,7 @@
         :disabled="disabled"
         :readonly="readonly"
         :model="model"
-        label-width="200px"
+        label-width="100px"
         ref="formRef"
       >
         <template #default="{ data }">
@@ -21,16 +21,21 @@
             ]"
             label="性别"
             field="sex"
-            model-value="male"
           />
           <u-input
             field="name"
             v-if="data.sex === 'female'"
             label="姓名"
-            tips="四个字以内"
+            key="name"
+            tips="四个字以内爱就是一段结婚登记喝点水数据库会收到回复就肯定是即所得"
           />
 
-          <u-input field="nest.name" label="嵌套名称" />
+          <u-input
+            key="nest.name"
+            field="nest.name"
+            tips="氨基酸的话啥叫客户当今时代是稍等和反抗精神的发货就开始的话飞机喀什的"
+            label="嵌套名称"
+          />
           <u-number-input field="nest.price" label="嵌套价格" />
 
           <u-password-input field="pwd" label="密码" />
@@ -80,13 +85,13 @@
           :suggestions="interestList.map(item => item.label)"
           label-key="label"
         />
-        <u-auto-complete
+        <!-- <u-auto-complete
           field="complete2"
           label="complete2"
           :suggestions="interestList.map(item => item.label)"
           label-key="label"
           multiple
-        />
+        /> -->
 
         <u-group-input field="group" label="分组输入" v-slot="{ item }">
           <u-input v-model="item.value1" />
@@ -98,9 +103,9 @@
         <u-button type="primary" @click="handleSetData">设置值</u-button>
         <u-button type="primary" @click="handleValidate">校验</u-button>
         <u-button @click="model.resetData()">重置数据</u-button>
-        <u-button type="success" @click="model.clearValidate()"
-          >清除校验</u-button
-        >
+        <u-button type="success" @click="model.clearValidate()">
+          清除校验
+        </u-button>
       </div>
     </CustomCard>
 
@@ -117,54 +122,50 @@ import { date } from 'cat-kit/fe'
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
 
-const model = shallowRef(new FormModel<Record<string, FormModelItem>>({}))
-
 const ageRules = shallowReactive(formField<number>({ required: true }))
 
-setTimeout(() => {
-  model.value = new FormModel({
-    name: {
-      maxLen: 4,
-      required: true,
-      value: ''
-    },
-    age: ageRules,
-    'nest.name': { required: true, value: 'aa' },
-    'nest.price': { required: true },
-    phone: {
-      validator(value) {
-        if (!value) return ''
-        if (/^1[1-9]{10}$/.test(value)) return ''
-        return '你得输入一个手机号'
-      }
-    },
-    freeze: {},
-    sex: { value: 'male', required: true },
-    pwd: { value: '', required: true },
-    debt: { min: 10, value: 66666 },
-    email: {
-      value: '',
-      match: [
-        /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-        '这个时候你得输入一个邮箱'
-      ]
-    },
-    unit: { required: true, value: '1' },
-    interest: { required: true, value: () => ['1', '2', '3'] },
-    remarks: { required: true, value: '备注默认值\n换行\n换行' },
-    slider: {},
-    date: { required: true, value: date().format() },
-    guide: {
-      value: [{ attributes: { bold: true }, insert: '22eee' }],
-      required: true
-    },
-    treeChecked: { required: true },
-    treeSelect: { required: true, value: () => 11 },
-    complete1: { value: 'test', required: true },
-    complete2: { value: ['张三', '李四'], required: true },
-    group: { required: true }
-  })
-}, 1000)
+const model = new FormModel({
+  name: {
+    maxLen: 4,
+    required: true,
+    value: ''
+  },
+  age: ageRules,
+  'nest.name': { required: true, value: 'aa' },
+  'nest.price': { required: true },
+  phone: {
+    validator(value) {
+      if (!value) return ''
+      if (/^1[1-9]{10}$/.test(value)) return ''
+      return '你得输入一个手机号'
+    }
+  },
+  freeze: {},
+  sex: { value: 'female', required: true },
+  pwd: { value: '', required: true },
+  debt: { min: 10, value: 66666 },
+  email: {
+    value: '',
+    match: [
+      /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+      '这个时候你得输入一个邮箱'
+    ]
+  },
+  unit: { required: true, value: '1' },
+  interest: { required: true, value: () => ['1', '2', '3'] },
+  remarks: { required: true, value: '备注默认值\n换行\n换行' },
+  slider: {},
+  date: { required: true, value: date().format() },
+  guide: {
+    value: [{ attributes: { bold: true }, insert: '22eee' }],
+    required: true
+  },
+  treeChecked: { required: true },
+  treeSelect: { required: true, value: () => 11 },
+  complete1: { value: 'test', required: true },
+  complete2: { value: ['张三', '李四'], required: true },
+  group: { required: true }
+})
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))

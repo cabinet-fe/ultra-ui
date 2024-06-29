@@ -4,6 +4,7 @@
     "declaration": true,
     "composite": true,
     "jsx": "preserve",
+    "jsxImportSource": "vue",
     "baseUrl": "./ui",
     "paths": {
       "@ui/*": ["./*"]

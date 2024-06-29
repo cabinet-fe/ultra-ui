@@ -1,6 +1,6 @@
 <template>
   <!-- 触发 -->
-  <u-node-render
+  <UNodeRender
     v-bind="{ ...eventsHandlers, ...$attrs }"
     :content="getTriggerNode()"
     :class="cls.b"
@@ -77,7 +77,14 @@ const direction = shallowRef<TipDirection>(props.direction)
 const transitionName = computed(() => {
   return `tip-${direction.value}`
 })
-const contentClass = computed(() => [cls.e('content'), cls.m(size.value)])
+const contentClass = computed(() => {
+  const fixed = [cls.e('content'), cls.m(size.value)]
+  const className = props.class
+  if (!Array.isArray(className)) {
+    return [...fixed, className]
+  }
+  return [...fixed, ...className]
+})
 
 const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
 const contentRef = shallowRef<HTMLElement>()
@@ -88,13 +95,24 @@ function getTriggerNode() {
   const nodes = slots.default?.()
   if (!nodes?.length) return null
 
-  return extractNormalVNodes(nodes)[0]
+  const node = extractNormalVNodes(nodes)[0]
+  return node
 }
 
-const tipStyle = shallowReactive<CSSProperties>({
+const popStyle = shallowReactive<CSSProperties>({
   left: 0,
   top: 0,
   zIndex: zIndex()
+})
+
+const tipStyle = computed(() => {
+  if (typeof props.style === 'string') {
+    return [props.style, popStyle]
+  }
+  return {
+    ...props.style,
+    ...popStyle
+  }
 })
 
 /**
@@ -149,7 +167,8 @@ const handleClickOutside = (e: MouseEvent) => {
 let closeTimer: number | undefined = undefined
 
 /** 弹出 */
-const open = () => {
+const open = e => {
+  console.log(e)
   closeTimer !== undefined && clearTimeout(closeTimer)
   visible.value = true
 }
@@ -168,6 +187,7 @@ watch(visible, async v => {
   if (v) {
     await nextTick()
     window.addEventListener('resize', close)
+    console.log(triggerRef.value)
     observeTrigger(triggerRef.value!.$el, updateTip)
     /** 添加滚动事件 */
     scrollParents = getScrollParents(triggerRef.value!.$el)
@@ -232,8 +252,8 @@ function updateTip() {
     align: props.align
   })
 
-  tipStyle.zIndex = zIndex()
-  Object.assign(tipStyle, styles)
+  popStyle.zIndex = zIndex()
+  Object.assign(popStyle, styles)
 }
 
 onBeforeUnmount(() => {

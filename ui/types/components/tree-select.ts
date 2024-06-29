@@ -22,7 +22,7 @@ export interface TreeSelectProps
    * 最小宽度
    * @default '280px'
    */
-  minWidth: string
+  minWidth?: string
 }
 
 /** 树形选择器组件定义的事件 */

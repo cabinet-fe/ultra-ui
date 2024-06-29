@@ -1,18 +1,9 @@
 <template>
   <u-grid-item :span="span" :class="className">
-    <label
-      v-if="label || $slots.label"
-      :class="[cls.e('label'), bem.is('required', fieldRequired)]"
-      :style="labelStyles"
-    >
-      <slot name="label">
-        {{ label }}
-      </slot>
-
-      <u-tip v-if="tips" :content="tips">
-        <u-icon><QuestionFilled /> </u-icon>
-      </u-tip>
-    </label>
+    <u-tip v-if="tips" :content="tips" :class="cls.e('tips')" direction="right">
+      <component :is="renderLabel()" />
+    </u-tip>
+    <component v-else :is="renderLabel()" />
 
     <section :class="cls.e('content')">
       <slot />
@@ -28,16 +19,17 @@
   </u-grid-item>
 </template>
 
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import { bem, withUnit } from '@ui/utils'
 import type { FormItemProps } from '@ui/types/components/form-item'
-import { type CSSProperties, computed } from 'vue'
+import { type CSSProperties, computed, useSlots } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { UGridItem } from '../grid'
 import { QuestionFilled } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
+import { UButton } from '../button'
 
 defineOptions({
   name: 'FormItem'
@@ -95,4 +87,24 @@ const fieldRequired = computed<boolean>(() => {
   const required = formProps?.model?.fields[field]?.required
   return required ? true : false
 })
+
+const slots = useSlots()
+const renderLabel = () => {
+  if (!props.label && !slots.label) return null
+
+  return (
+    <label
+      class={[cls.e('label'), bem.is('required', fieldRequired.value)]}
+      style={labelStyles.value}
+    >
+      {slots.label?.() ?? props.label}
+
+      {props.tips ? (
+        <UIcon>
+          <QuestionFilled />
+        </UIcon>
+      ) : null}
+    </label>
+  )
+}
 </script>

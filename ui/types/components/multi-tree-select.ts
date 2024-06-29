@@ -26,7 +26,7 @@ export interface MultiTreeSelectProps
    * 最小宽度
    * @default '280px'
    */
-  minWidth: string
+  minWidth?: string
 }
 
 /** 树形多选组件组件定义的事件 */

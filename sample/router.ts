@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory, type RouteComponent } from 'vue-router'
 
 const modules = import.meta.glob<true, string, { default: RouteComponent }>(
-  './src/**/index.vue',
-  { eager: true }
+  './src/**/index.vue'
 )
 
 const paths = Object.keys(modules)
@@ -10,7 +9,7 @@ const paths = Object.keys(modules)
 export const routes = paths.map(path => {
   return {
     name: path.match(/src\/([A-z-]+)\/index.vue/)![1]!,
-    component: modules[path]!.default,
+    component: modules[path]!,
     path: path.replace(/^\.\/src([\s\S]+)\.vue$/g, '$1')
   }
 })

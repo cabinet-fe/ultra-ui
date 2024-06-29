@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'vue'
 import type { DeconstructValue } from '../helper'
 
 export type TipDirection = 'top' | 'bottom' | 'left' | 'right'
@@ -8,8 +9,10 @@ export type TipAlign = 'start' | 'center' | 'end'
 export interface TipProps {
   /**提示内容 */
   content?: string
-  /**自定义tip样式 */
-  customStyle?: Record<string, any>
+  /** 自定义tip样式 */
+  style?: CSSProperties | string
+  /** 自定义tip的class */
+  class?: string | string[] | Record<string, boolean>
   /**触发tip方式 */
   trigger?: 'hover' | 'click'
   /**

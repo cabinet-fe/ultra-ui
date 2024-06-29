@@ -9,30 +9,15 @@ $root-name: tip;
 
   @include m.e(content) {
     position: absolute;
-    left: 0;
-    top: 0;
-    z-index: -1;
     border-radius: fn.use-var(radius, default);
-    line-height: 1.2;
-    width: max-content;
-    overflow-wrap: break-word;
-    color: fn.use-var(text, color-title);
+    color: fn.use-var(text-color, main);
     background: fn.use-var(bg, color-top);
     box-shadow: fn.use-var(shadow);
     overflow: hidden;
-
-    @include m.is(content-light) {
-      background: #fff;
-      border: fn.use-var(border);
-      color: #000;
-    }
-
-    @include m.is('hide') {
-    }
   }
 
   @include m.size using ($size) {
-    font-size: fn.use-var('font-size', main, $size);
+    font-size: fn.use-var(font-size, main, $size);
     padding: fn.use-var(gap, $size);
   }
 }

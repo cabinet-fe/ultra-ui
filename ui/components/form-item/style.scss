@@ -80,6 +80,10 @@ $root-name: form-item;
   @include m.e(error-text) {
     display: inline-block;
   }
+
+  @include m.e(tips) {
+    max-width: 200px;
+  }
 }
 
 .#{$root-name}-tips-enter-from,
