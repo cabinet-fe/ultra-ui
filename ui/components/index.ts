@@ -60,6 +60,8 @@ export * from './message'
 
 export * from './message-confirm'
 
+export * from './multi-auto-complete'
+
 export * from './multi-select'
 
 export * from './multi-tree-select'

@@ -9,19 +9,21 @@
 
   <!-- 弹出内容 -->
   <teleport to="body">
-    <component
-      v-if="visible"
-      :is="contentTag"
-      :class="contentClass"
-      :style="tipStyle"
-      ref="contentRef"
-      @mouseenter="eventsHandlers.onMouseenter"
-      @mouseleave="eventsHandlers.onMouseleave"
-      @click.stop
-      v-click-outside="handleClickOutside"
-    >
-      <slot name="content">{{ content }}</slot>
-    </component>
+    <transition name="tip">
+      <component
+        v-if="visible"
+        :is="contentTag"
+        :class="contentClass"
+        :style="tipStyle"
+        ref="contentRef"
+        @mouseenter="eventsHandlers.onMouseenter"
+        @mouseleave="eventsHandlers.onMouseleave"
+        @click.stop
+        v-click-outside="handleClickOutside"
+      >
+        <slot name="content">{{ content }}</slot>
+      </component>
+    </transition>
   </teleport>
 </template>
 
@@ -48,11 +50,11 @@ import {
 } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
 import type { TipProps, TipDirection } from '@ui/types/components/tip'
-import { useFallbackProps, useTransition } from '@ui/compositions'
+import { useFallbackProps } from '@ui/compositions'
 import { TipNestDIKey } from './di'
 import { UNodeRender } from '../node-render'
 import type { ComponentSize } from '@ui/types'
-import { adjustContentWidth, calcTipPosition, getDirection } from './position'
+import { adjustContentSize, amendDirection, calcTipPosition } from './position'
 
 defineOptions({ name: 'Tip' })
 
@@ -60,7 +62,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   content: '提示内容',
   trigger: 'hover',
   direction: 'top',
-  align: 'center',
+  alignment: 'center',
   clickClose: false,
   contentTag: 'div',
   disabled: false
@@ -74,9 +76,6 @@ const { size } = useFallbackProps([props], {
 
 const direction = shallowRef<TipDirection>(props.direction)
 
-const transitionName = computed(() => {
-  return `tip-${direction.value}`
-})
 const contentClass = computed(() => {
   const fixed = [cls.e('content'), cls.m(size.value)]
   const className = props.class
@@ -168,7 +167,6 @@ let closeTimer: number | undefined = undefined
 
 /** 弹出 */
 const open = e => {
-  console.log(e)
   closeTimer !== undefined && clearTimeout(closeTimer)
   visible.value = true
 }
@@ -176,10 +174,10 @@ const open = e => {
 const close = () => {
   if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
-      leave()
+      visible.value = false
     }, 250)
   } else {
-    leave()
+    visible.value = false
   }
 }
 
@@ -187,8 +185,8 @@ watch(visible, async v => {
   if (v) {
     await nextTick()
     window.addEventListener('resize', close)
-    console.log(triggerRef.value)
-    observeTrigger(triggerRef.value!.$el, updateTip)
+
+    observeTrigger(triggerRef.value!.$el, updateTipStyle)
     /** 添加滚动事件 */
     scrollParents = getScrollParents(triggerRef.value!.$el)
     addScrollEvent()
@@ -215,41 +213,44 @@ function removeScrollEvent() {
   scrollParents = []
 }
 
-function updateTip() {
+/**
+ * 更新提示框的样式
+ */
+function updateTipStyle() {
   const triggerEl = triggerRef.value?.$el
   const contentEl = contentRef.value
   if (!triggerEl || !contentEl) return
 
   const triggerRect = triggerEl.getBoundingClientRect()
 
-  // 调整内容宽度
-  adjustContentWidth({
-    triggerRect,
-    contentEl,
-    align: props.align,
-    direction: direction.value
-  })
-
   const { offsetHeight, offsetWidth } = contentEl
 
-  const contentSize = {
+  let contentSize = {
     width: offsetWidth,
     height: offsetHeight
   }
 
-  direction.value = getDirection({
+  // 先修正方向
+  direction.value = amendDirection({
     triggerRect,
     contentSize,
     direction: props.direction
   })
 
-  enter()
+  // 调整内容尺寸
+  contentSize = adjustContentSize({
+    triggerRect,
+    contentEl,
+    contentSize,
+    direction: direction.value,
+    alignment: props.alignment
+  })
 
   const styles = calcTipPosition({
     triggerRect,
     contentSize,
     direction: direction.value,
-    align: props.align
+    alignment: props.alignment
   })
 
   popStyle.zIndex = zIndex()
@@ -259,16 +260,6 @@ function updateTip() {
 onBeforeUnmount(() => {
   clearTimeout(closeTimer)
   window.removeEventListener('resize', close)
-})
-
-// 原生transition有一定的局限，
-// 这边使用useTransition钩子来切换不同方向的过渡类
-const { enter, leave } = useTransition('css', {
-  name: transitionName,
-  target: contentRef,
-  afterLeave() {
-    visible.value = false
-  }
 })
 
 defineExpose({ close })

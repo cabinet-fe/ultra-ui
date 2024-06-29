@@ -24,7 +24,7 @@ export interface TipProps {
    * 对齐方式
    * @default 'center'
    */
-  align?: TipAlign
+  alignment?: TipAlign
 
   /**
    * 点击空白区域是否可关闭

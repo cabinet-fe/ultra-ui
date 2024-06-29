@@ -58,7 +58,7 @@ defineOptions({
 const props = withDefaults(defineProps<DropdownProps>(), {
   trigger: 'hover',
   contentTag: 'div',
-  clickWhetherHide:false
+  clickWhetherHide: false
 })
 
 defineEmits<DropdownEmits>()
@@ -149,7 +149,7 @@ function close() {
 
 /** 点击外部 */
 function handleClickOutside(e: MouseEvent) {
-  if(props.clickWhetherHide) return
+  if (props.clickWhetherHide) return
   // 点击触发且点击元素属于触发元素内（包含触发元素本身）时不关闭
   if (
     props.trigger === 'click' &&

@@ -44,14 +44,11 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     const dom = getDom()
 
     dom?.classList.add(enterFrom)
+    dom?.classList.add(enterActive)
 
-    requestAnimationFrame(() => {
-      dom?.classList.add(enterActive)
-      // 在下一帧插入动画运动目标状态
-      requestAnimationFrame(() => {
-        dom?.classList.add(enterTo)
-        dom?.classList.remove(enterFrom)
-      })
+    nextFrame(() => {
+      dom?.classList.remove(enterFrom)
+      dom?.classList.add(enterTo)
     })
   }
 

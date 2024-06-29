@@ -82,7 +82,13 @@ $root-name: form-item;
   }
 
   @include m.e(tips) {
-    max-width: 200px;
+    max-width: 250px;
+  }
+
+  @include m.e(tip-label) {
+    cursor: pointer;
+    border-bottom: 1px solid fn.use-var(color, info);
+    color: fn.use-var(color, info);
   }
 }
 

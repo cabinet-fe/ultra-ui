@@ -31,6 +31,7 @@
   "menu",
   "message",
   "message-confirm",
+  "multi-auto-complete",
   "multi-select",
   "multi-tree-select",
   "node-render",

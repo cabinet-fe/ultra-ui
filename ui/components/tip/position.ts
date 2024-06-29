@@ -2,76 +2,138 @@ import type { TipAlign, TipDirection } from '@ui/types'
 import { setStyles } from '@ui/utils'
 
 /**
- * 调整内容宽度
+ * 调整内容尺寸防止溢出
  */
-export function adjustContentWidth(options: {
+export function adjustContentSize(options: {
   triggerRect: DOMRect
   contentEl: HTMLElement
-  align: TipAlign
+  contentSize: { width: number; height: number }
+  alignment: TipAlign
   direction: TipDirection
 }) {
-  const { triggerRect, align, contentEl, direction } = options
-  const contentWidth = contentEl.offsetWidth
+  const { triggerRect, alignment, contentEl, contentSize, direction } = options
 
-  let width = contentWidth
+  let { width, height } = contentSize
+
   if (direction === 'bottom' || direction === 'top') {
     if (
-      align === 'center' &&
-      contentWidth > (triggerRect.left + triggerRect.width / 2) * 2
+      alignment === 'center' &&
+      width > (triggerRect.left + triggerRect.width / 2) * 2
     ) {
+      console.log(width)
       width = (triggerRect.left + triggerRect.width / 2) * 2
+      console.log(width)
     } else if (
-      align === 'start' &&
-      contentWidth > window.innerWidth - triggerRect.left
+      alignment === 'start' &&
+      width > window.innerWidth - triggerRect.left
     ) {
       width = window.innerWidth - triggerRect.left
-    } else if (align === 'end' && contentWidth > triggerRect.right) {
+    } else if (alignment === 'end' && width > triggerRect.right) {
       width = triggerRect.right
     }
   } else {
-    if (direction === 'left' && contentWidth > triggerRect.left) {
+    if (direction === 'left' && width > triggerRect.left) {
       width = triggerRect.left
     } else if (
       direction === 'right' &&
-      contentWidth > window.innerWidth - triggerRect.right
+      width > window.innerWidth - triggerRect.right
     ) {
-      width = window.innerWidth - triggerRect.right - 10
+      width = window.innerWidth - triggerRect.right
     }
   }
 
-  if (width !== contentWidth) {
+  if (width !== contentSize.width) {
     width -= 10
-
     setStyles(contentEl, {
       width: `${width}px`
     })
   }
+  return {
+    width,
+    height
+  }
 }
 
-export function getDirection(options: {
+type XPosition = 'left' | 'right'
+type YPosition = 'up' | 'down'
+
+/**
+ * 获取trigger相对于屏幕的位置
+ * @param triggerRect
+ * @returns
+ */
+const getTriggerPosition = (triggerRect: DOMRect): [XPosition, YPosition] => {
+  let xPosition: XPosition
+  let yPosition: YPosition
+
+  const triggerCenter = {
+    x: triggerRect.left + triggerRect.width / 2,
+    y: triggerRect.top + triggerRect.height / 2
+  }
+
+  if (triggerCenter.x < window.innerWidth / 2) {
+    xPosition = 'left'
+  } else {
+    xPosition = 'right'
+  }
+
+  if (triggerCenter.y < window.innerHeight / 2) {
+    yPosition = 'up'
+  } else {
+    yPosition = 'down'
+  }
+
+  return [xPosition, yPosition]
+}
+
+/**
+ * 弹出方向修正，当内容要溢出屏幕时修正方向
+ * @param options 选项
+ * @returns
+ */
+export function amendDirection(options: {
   triggerRect: DOMRect
   contentSize: { width: number; height: number }
   direction: TipDirection
 }): TipDirection {
   const { triggerRect, contentSize, direction } = options
 
+  const [xPosition, yPosition] = getTriggerPosition(triggerRect)
+
   if (direction === 'top') {
-    if (contentSize.height > triggerRect.top) {
-      return 'bottom'
+    if (yPosition === 'down' || contentSize.height < triggerRect.top) {
+      return direction
     }
-  } else if (direction === 'bottom') {
-    if (contentSize.height > window.innerHeight - triggerRect.bottom) {
-      return 'top'
-    }
-  } else if (direction === 'left') {
-    if (contentSize.width > triggerRect.left) {
-      return 'right'
-    }
-  } else if (direction === 'right') {
-    if (contentSize.width > window.innerWidth - triggerRect.right) {
-      return 'left'
-    }
+    return 'bottom'
   }
+
+  if (direction === 'bottom') {
+    if (
+      yPosition === 'up' ||
+      contentSize.height < window.innerHeight - triggerRect.bottom
+    ) {
+      return direction
+    }
+    return 'top'
+  }
+
+  if (direction === 'left') {
+    if (xPosition === 'right' || contentSize.width < triggerRect.left) {
+      return direction
+    }
+    return 'right'
+  }
+
+  if (direction === 'right') {
+    if (
+      xPosition === 'left' ||
+      contentSize.width < window.innerWidth - triggerRect.right
+    ) {
+      return direction
+    }
+    return 'left'
+  }
+
   return direction
 }
 
@@ -84,11 +146,11 @@ export function calcTipPosition(options: {
   triggerRect: DOMRect
   contentSize: { width: number; height: number }
   direction: TipDirection
-  align: TipAlign
+  alignment: TipAlign
 }) {
-  const { triggerRect, contentSize, direction, align } = options
+  const { triggerRect, contentSize, direction, alignment } = options
 
-  const styles = positionGetters[direction](triggerRect, contentSize, align)
+  const styles = positionGetters[direction](triggerRect, contentSize, alignment)
 
   return {
     left: styles.left + 'px',
@@ -99,20 +161,20 @@ export function calcTipPosition(options: {
 type AlignGetter = (
   triggerRect: DOMRect,
   contentSize: { width: number; height: number },
-  align: TipAlign
+  alignment: TipAlign
 ) => number
 
-const getLeft: AlignGetter = (triggerRect, contentSize, align) => {
-  if (align === 'center')
+const getLeft: AlignGetter = (triggerRect, contentSize, alignment) => {
+  if (alignment === 'center')
     return triggerRect.left + triggerRect.width / 2 - contentSize.width / 2
-  if (align === 'start') return triggerRect.left
+  if (alignment === 'start') return triggerRect.left
   return triggerRect.right - contentSize.width
 }
 
-const getTop: AlignGetter = (triggerRect, contentSize, align) => {
-  if (align === 'center')
+const getTop: AlignGetter = (triggerRect, contentSize, alignment) => {
+  if (alignment === 'center')
     return triggerRect.top + triggerRect.height / 2 - contentSize.height / 2
-  if (align === 'start') return triggerRect.top
+  if (alignment === 'start') return triggerRect.top
   return triggerRect.bottom - contentSize.height
 }
 const positionGetters: Record<
@@ -120,30 +182,30 @@ const positionGetters: Record<
   (
     triggerRect: DOMRect,
     contentSize: { width: number; height: number },
-    align: TipAlign
+    alignment: TipAlign
   ) => { top: number; left: number }
 > = {
-  top(triggerRect, contentSize, align) {
+  top(triggerRect, contentSize, alignment) {
     return {
       top: triggerRect.top - contentSize.height - 8,
-      left: getLeft(triggerRect, contentSize, align)
+      left: getLeft(triggerRect, contentSize, alignment)
     }
   },
-  bottom(triggerRect, contentSize, align) {
+  bottom(triggerRect, contentSize, alignment) {
     return {
       top: triggerRect.bottom + 8,
-      left: getLeft(triggerRect, contentSize, align)
+      left: getLeft(triggerRect, contentSize, alignment)
     }
   },
-  left(triggerRect, contentSize, align) {
+  left(triggerRect, contentSize, alignment) {
     return {
-      top: getTop(triggerRect, contentSize, align),
+      top: getTop(triggerRect, contentSize, alignment),
       left: triggerRect.left - contentSize.width - 8
     }
   },
-  right(triggerRect, contentSize, align) {
+  right(triggerRect, contentSize, alignment) {
     return {
-      top: getTop(triggerRect, contentSize, align),
+      top: getTop(triggerRect, contentSize, alignment),
       left: triggerRect.right + 8
     }
   }

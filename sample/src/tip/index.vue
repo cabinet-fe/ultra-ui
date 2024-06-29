@@ -5,7 +5,7 @@
       <u-radio-group :items="directions" v-model="direction"> </u-radio-group>
     </div>
     <div>
-      对齐: <u-radio-group :items="aligns" v-model="align"> </u-radio-group>
+      对齐: <u-radio-group :items="aligns" v-model="alignment"> </u-radio-group>
     </div>
     <div>
       触发方式:
@@ -15,11 +15,20 @@
     <CustomCard title="基础用法">
       <u-tip
         :direction="direction"
-        :align="align"
+        :alignment="alignment"
         :trigger="trigger"
         :content="content"
       >
         <u-button>触发</u-button>
+      </u-tip>
+
+      <u-tip
+        :direction="direction"
+        :alignment="alignment"
+        :trigger="trigger"
+        :content="content"
+      >
+        <u-button>触发2</u-button>
       </u-tip>
     </CustomCard>
   </div>
@@ -47,7 +56,7 @@ const content = shallowRef(
   '提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容'
 )
 const direction = shallowRef<TipDirection>('top')
-const align = shallowRef<TipAlign>('center')
+const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
 </script>
 

@@ -10,7 +10,7 @@
         :disabled="disabled"
         :readonly="readonly"
         :model="model"
-        label-width="100px"
+        label-width="200px"
         ref="formRef"
       >
         <template #default="{ data }">
@@ -179,15 +179,15 @@ const units = [
 const visible = shallowRef(false)
 
 watch(visible, v => {
-  !v && model.value.resetData()
+  !v && model.resetData()
 })
 
 function handleSetData() {
-  model.value.setData({ nest: { name: '测试名称', price: 10 } })
+  model.setData({ nest: { name: '测试名称', price: 10 } })
 }
 
 async function handleValidate() {
-  const valid = await model.value.validate()
+  const valid = await model.validate()
   console.log('校验结果：' + valid)
 }
 

@@ -22,54 +22,22 @@ $root-name: tip;
   }
 }
 
-@function getClasses($common) {
-  $classes: null;
-
-  @each $position in top, bottom, left, right {
-    @if ($classes == null) {
-      $classes: '.#{$root-name}-#{$position}-#{$common}';
-    } @else {
-      $classes: $classes + ',' + '.#{$root-name}-#{$position}-#{$common}';
-    }
-  }
-
-  @return $classes;
-}
-
-#{getClasses(enter-active)},
-#{getClasses(leave-active)} {
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
   transition-property: opacity, transform;
-  transition-duration: 0.2s;
 }
 
-#{getClasses(enter-active)} {
-  transition-timing-function: cubic-bezier(0.05, 1.55, 0.38, 1.33);
+.#{$root-name}-enter-active {
+  transition-timing-function: ease;
+  transition-duration: 0.25s;
+}
+.#{$root-name}-leave-active {
+  transition-timing-function: ease-out;
+  transition-duration: 0.15s;
 }
 
-#{getClasses(leave-active)} {
-  transition-timing-function: cubic-bezier(0.64, -0.85, 0.83, 0.56);
-}
-
-#{getClasses(enter-from)},
-#{getClasses(leave-to)} {
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
   opacity: 0;
-}
-
-$translate: 20px;
-
-.#{$root-name}-top-enter-from,
-.#{$root-name}-top-leave-to {
-  transform: translateY($translate);
-}
-.#{$root-name}-bottom-enter-from,
-.#{$root-name}-bottom-leave-to {
-  transform: translateY(-$translate);
-}
-.#{$root-name}-left-enter-from,
-.#{$root-name}-left-leave-to {
-  transform: translateX($translate);
-}
-.#{$root-name}-right-enter-from,
-.#{$root-name}-right-leave-to {
-  transform: translateX(-$translate);
+  transform: scale(0.9);
 }

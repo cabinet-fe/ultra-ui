@@ -2,7 +2,7 @@
   <u-tip
     v-if="injected?.simple.value"
     direction="right"
-    align="start"
+    alignment="start"
     :customStyle="
       disabled ? {} : { backgroundColor: injected?.backgroundColor }
     "
