@@ -1,7 +1,8 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 滑块组件属性 */
-export interface SliderProps {
+export interface SliderProps extends FormComponentProps {
   modelValue?: number[] | number
   disabled?: boolean | undefined
   /** 是否垂直 */

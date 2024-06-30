@@ -12,7 +12,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui/components'
+import { defineTableColumns } from 'ultra-ui'
+import { shallowRef } from 'vue'
 
 const columns = defineTableColumns([
   { name: '列1', key: 'col1' },
@@ -21,13 +22,17 @@ const columns = defineTableColumns([
   { name: 'action', key: 'action', minWidth: 200 }
 ])
 
-const data = Array.from({ length: 10 }).map((item, i) => {
-  return {
-    col1: 'col1-' + i,
-    col2: 'col2-' + i,
-    col3: 'col3-' + i
-  }
-})
+const data = shallowRef<any[]>([])
+
+setTimeout(() => {
+  data.value = Array.from({ length: 10 }).map((item, i) => {
+    return {
+      col1: 'col1-' + i,
+      col2: 'col2-' + i,
+      col3: 'col3-' + i
+    }
+  })
+}, 1000)
 
 const buttons = ['查看', '编辑', '审批']
 </script>
