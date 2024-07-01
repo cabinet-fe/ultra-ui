@@ -30,7 +30,7 @@ async function bundle() {
 
   await build({
     resolve: {
-      extensions: ['.ts', '.js', '.json', '.tsx'],
+      extensions: ['.ts', '.js', '.tsx'],
       alias: [{ find: '@ui', replacement: resolve(__dirname, '../ui') }]
     },
 
