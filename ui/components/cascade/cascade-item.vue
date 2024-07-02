@@ -32,6 +32,7 @@ import { bem } from "@ui/utils"
 import { CascadeDIKey } from "./di"
 import { ArrowRight } from "icon-ultra"
 import { UScroll } from "../scroll"
+import { UIcon } from "../icon"
 import type {
   CascadeEmits,
   CascadeItemProps,

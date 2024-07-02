@@ -6,6 +6,10 @@
     <CustomCard title="单选">
       <u-cascade v-model="cascade" :options="data" value-key="label"/>
     </CustomCard>
+
+    <CustomCard title="过滤">
+      <u-cascade v-model="cascadeFilter" :options="data" value-key="label" filterable/>
+    </CustomCard>
    
   </div>
 </template>
@@ -17,6 +21,8 @@ import CustomCard from "../card/custom-card.vue"
 import { shallowRef } from "vue"
 
 const cascade = shallowRef(["Component", "Basic", "Layout"])
+const cascadeFilter = shallowRef([])
+
 
 const data = shallowRef<any[]>([])
 

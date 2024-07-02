@@ -24,6 +24,10 @@ export interface CascadeProps {
   selected?: any[]
   /** 多选选中项 */
   checked?: any[]
+  /**
+   * 搜索
+   */
+  filterable?:boolean
 }
 export interface CascadeItemProps {
   cascadeData?: Record<string, any>[]

@@ -15,10 +15,6 @@ $dropdown-name: dropdown;
     display: flex;
   }
 
-  @include m.e(content-filter) {
-    border-bottom: fn.use-var(border);
-  }
-
   @include m.e(options) {
     max-height: 180px;
     border-left: fn.use-var(border);
@@ -35,6 +31,11 @@ $dropdown-name: dropdown;
   }
 
   @include m.size using ($size) {
+
+    @include m.bem($root-name, content-filter) {
+      padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+    }
+
     @include m.bem($root-name, option) {
       padding: fn.use-var(gap, $size);
     }

@@ -1,10 +1,9 @@
 <template>
   <u-dropdown
     v-if="!readonly"
-    :class="[cls.b,bem.is('disabled', disabled)]"
+    :class="[cls.b, bem.is('disabled', disabled), cls.m(size)]"
     trigger="click"
     ref="dropdownRef"
-    :click-whether-hide="true"
     width="auto"
     :disabled="disabled"
   >
@@ -25,6 +24,14 @@
     </template>
 
     <template #content>
+      <!-- 过滤器 -->
+      <!-- <div v-if="filterable" :class="[cls.e('content-filter')]">
+        <u-input placeholder="输入关键字进行过滤" v-model="qs">
+          <template #suffix>
+            <u-icon><Search /></u-icon>
+          </template>
+        </u-input>
+      </div> -->
       <div :class="cls.e('content')">
         <CascadeItem v-bind="$attrs" :cascadeData="cascadeData" />
       </div>
@@ -54,6 +61,7 @@ import { UDropdown, type DropdownExposed } from "../dropdown"
 import { Forest } from "cat-kit/fe"
 import { CascadeNode } from "./cascade-node"
 import { useSelect } from "./use-select"
+import { UTag } from "../tag"
 
 defineOptions({
   name: "Cascade",
@@ -71,6 +79,7 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   disabled: undefined,
   readonly: undefined,
   childrenKey: "children",
+  filterable: false,
 })
 
 const model = defineModel<string[] | number[]>()
@@ -176,6 +185,11 @@ watch(
   },
   { immediate: true }
 )
+
+/**过滤 */
+const qs = shallowRef("")
+watch(qs, (qs) => {})
+
 provide(CascadeDIKey, {
   cls,
   cascadeProps: props,
