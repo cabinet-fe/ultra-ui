@@ -48,7 +48,7 @@ export function useSelect<DataItem extends Record<string, any>>(
       if (isEcho && selected.size !== 0) return
       nodes.forEach((node) => {
         Tree.bft(node, (item) => {
-          if (modelValue?.includes(item.data[props.valueKey!])) {
+          if (modelValue?.includes(item.data[props.labelKey!])) {
             selected.add(item.data)
             deselectSiblingNodes(item)
           }
@@ -90,7 +90,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     let selectedArr = Array.from(selected)
     emit(
       "update:modelValue",
-      selectedArr.map((item) => item[props.valueKey!])
+      selectedArr.map((item) => item[props.labelKey!])
     )
     nextTick(() => {
       isEcho = false

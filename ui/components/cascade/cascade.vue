@@ -174,6 +174,8 @@ watch(
   () => [props.options, model],
   () => {
     cascadeData.value = separateByDepth(forest.value.nodes)
+    console.log(cascadeData.value);
+    
   },
   { immediate: true }
 )

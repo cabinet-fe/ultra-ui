@@ -112,7 +112,7 @@ const echo = (arr) => {
   parentNodes.value = []
   props.cascadeData?.some((node) => {
     node.forEach((item) => {
-      if (arr.includes(item.data[valueKey!])) {
+      if (arr.includes(item.data[labelKey!])) {
         echoData.push(item)
       }
     })

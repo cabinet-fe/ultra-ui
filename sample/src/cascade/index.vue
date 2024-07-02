@@ -16,7 +16,7 @@ import CustomCard from "../card/custom-card.vue"
 
 import { shallowRef } from "vue"
 
-const cascade = shallowRef(["component", "basic", "layout"])
+const cascade = shallowRef(["Component", "Basic", "Layout"])
 
 
 const data = shallowRef<any[]>([])
