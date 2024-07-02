@@ -4,13 +4,9 @@
       {{ cascade }}
     </CustomCard>
     <CustomCard title="单选">
-      <u-cascade v-model="cascade" :options="data" value-key="label"/>
+      <u-cascade v-model="cascade" :options="data" label-key="name" value-key="code"/>
     </CustomCard>
 
-    <CustomCard title="过滤">
-      <u-cascade v-model="cascadeFilter" :options="data" value-key="label" filterable/>
-    </CustomCard>
-   
   </div>
 </template>
 <script lang="ts" setup>
@@ -20,8 +16,7 @@ import CustomCard from "../card/custom-card.vue"
 
 import { shallowRef } from "vue"
 
-const cascade = shallowRef(["Component", "Basic", "Layout"])
-const cascadeFilter = shallowRef([])
+const cascade = shallowRef(["component", "basic", "layout"])
 
 
 const data = shallowRef<any[]>([])
@@ -29,230 +24,230 @@ const data = shallowRef<any[]>([])
 setTimeout(() => {
   data.value = [
     {
-      value: "guide",
-      label: "Guide",
+      code: "guide",
+      name: "Guide",
     },
     {
-      value: "component",
-      label: "Component",
+      code: "component",
+      name: "Component",
       children: [
         {
-          value: "basic",
-          label: "Basic",
+          code: "basic",
+          name: "Basic",
           children: [
             {
-              value: "layout",
-              label: "Layout",
+              code: "layout",
+              name: "Layout",
             },
             {
-              value: "color",
-              label: "Color",
+              code: "color",
+              name: "Color",
             },
             {
-              value: "typography",
-              label: "Typography",
+              code: "typography",
+              name: "Typography",
             },
             {
-              value: "icon",
-              label: "Icon",
+              code: "icon",
+              name: "Icon",
             },
             {
-              value: "button",
-              label: "Button",
+              code: "button",
+              name: "Button",
             },
           ],
         },
         {
-          value: "form",
-          label: "Form",
+          code: "form",
+          name: "Form",
           children: [
             {
-              value: "radio",
-              label: "Radio",
+              code: "radio",
+              name: "Radio",
             },
             {
-              value: "checkbox",
-              label: "Checkbox",
+              code: "checkbox",
+              name: "Checkbox",
             },
             {
-              value: "input",
-              label: "Input",
+              code: "input",
+              name: "Input",
             },
             {
-              value: "input-number",
-              label: "InputNumber",
+              code: "input-number",
+              name: "InputNumber",
             },
             {
-              value: "select",
-              label: "Select",
+              code: "select",
+              name: "Select",
             },
             {
-              value: "cascader",
-              label: "Cascader",
+              code: "cascader",
+              name: "Cascader",
             },
             {
-              value: "switch",
-              label: "Switch",
+              code: "switch",
+              name: "Switch",
             },
             {
-              value: "slider",
-              label: "Slider",
+              code: "slider",
+              name: "Slider",
             },
             {
-              value: "time-picker",
-              label: "TimePicker",
+              code: "time-picker",
+              name: "TimePicker",
             },
             {
-              value: "date-picker",
-              label: "DatePicker",
+              code: "date-picker",
+              name: "DatePicker",
             },
             {
-              value: "datetime-picker",
-              label: "DateTimePicker",
+              code: "datetime-picker",
+              name: "DateTimePicker",
             },
             {
-              value: "upload",
-              label: "Upload",
+              code: "upload",
+              name: "Upload",
             },
             {
-              value: "rate",
-              label: "Rate",
+              code: "rate",
+              name: "Rate",
             },
             {
-              value: "form",
-              label: "Form",
+              code: "form",
+              name: "Form",
             },
           ],
         },
         {
-          value: "data",
-          label: "Data",
+          code: "data",
+          name: "Data",
           children: [
             {
-              value: "table",
-              label: "Table",
+              code: "table",
+              name: "Table",
             },
             {
-              value: "tag",
-              label: "Tag",
+              code: "tag",
+              name: "Tag",
             },
             {
-              value: "progress",
-              label: "Progress",
+              code: "progress",
+              name: "Progress",
             },
             {
-              value: "tree",
-              label: "Tree",
+              code: "tree",
+              name: "Tree",
             },
             {
-              value: "pagination",
-              label: "Pagination",
+              code: "pagination",
+              name: "Pagination",
             },
             {
-              value: "badge",
-              label: "Badge",
+              code: "badge",
+              name: "Badge",
             },
           ],
         },
         {
-          value: "notice",
-          label: "Notice",
+          code: "notice",
+          name: "Notice",
           children: [
             {
-              value: "alert",
-              label: "Alert",
+              code: "alert",
+              name: "Alert",
             },
             {
-              value: "loading",
-              label: "Loading",
+              code: "loading",
+              name: "Loading",
             },
             {
-              value: "message",
-              label: "Message",
+              code: "message",
+              name: "Message",
             },
             {
-              value: "message-box",
-              label: "MessageBox",
+              code: "message-box",
+              name: "MessageBox",
             },
             {
-              value: "notification",
-              label: "Notification",
+              code: "notification",
+              name: "Notification",
             },
           ],
         },
         {
-          value: "navigation",
-          label: "Navigation",
+          code: "navigation",
+          name: "Navigation",
           children: [
             {
-              value: "menu",
-              label: "Menu",
+              code: "menu",
+              name: "Menu",
             },
             {
-              value: "tabs",
-              label: "Tabs",
+              code: "tabs",
+              name: "Tabs",
             },
             {
-              value: "breadcrumb",
-              label: "Breadcrumb",
+              code: "breadcrumb",
+              name: "Breadcrumb",
             },
             {
-              value: "dropdown",
-              label: "Dropdown",
+              code: "dropdown",
+              name: "Dropdown",
             },
             {
-              value: "steps",
-              label: "Steps",
+              code: "steps",
+              name: "Steps",
             },
           ],
         },
         {
-          value: "others",
-          label: "Others",
+          code: "others",
+          name: "Others",
           children: [
             {
-              value: "dialog",
-              label: "Dialog",
+              code: "dialog",
+              name: "Dialog",
             },
             {
-              value: "tooltip",
-              label: "Tooltip",
+              code: "tooltip",
+              name: "Tooltip",
             },
             {
-              value: "popover",
-              label: "Popover",
+              code: "popover",
+              name: "Popover",
             },
             {
-              value: "card",
-              label: "Card",
+              code: "card",
+              name: "Card",
             },
             {
-              value: "carousel",
-              label: "Carousel",
+              code: "carousel",
+              name: "Carousel",
             },
             {
-              value: "collapse",
-              label: "Collapse",
+              code: "collapse",
+              name: "Collapse",
             },
           ],
         },
       ],
     },
     {
-      value: "resource",
-      label: "Resource",
+      code: "resource",
+      name: "Resource",
       children: [
         {
-          value: "axure",
-          label: "Axure Components",
+          code: "axure",
+          name: "Axure Components",
         },
         {
-          value: "sketch",
-          label: "Sketch Templates",
+          code: "sketch",
+          name: "Sketch Templates",
         },
         {
-          value: "docs",
-          label: "Design Documentation",
+          code: "docs",
+          name: "Design Documentation",
         },
       ],
     },

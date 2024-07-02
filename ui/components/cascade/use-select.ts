@@ -45,7 +45,7 @@ export function useSelect<DataItem extends Record<string, any>>(
   watch(
     () => [props.modelValue, forest.value.nodes],
     ([modelValue, nodes]) => {
-      if (isEcho) return
+      if (isEcho && selected.size !== 0) return
       nodes.forEach((node) => {
         Tree.bft(node, (item) => {
           if (modelValue?.includes(item.data[props.valueKey!])) {

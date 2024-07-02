@@ -1,7 +1,7 @@
 <template>
   <u-scroll
     tag="ul"
-    :class="[cls.e('options'),cls.m(size)]"
+    :class="[cls.e('options'), cls.m(size)]"
     ref="scrollRef"
     v-for="(data, dataIndex) in cascadeData"
     :key="dataIndex"
@@ -9,16 +9,13 @@
     <ul v-for="(option, index) in data">
       <li
         v-if="shouldShowLevel(dataIndex, option)"
-        :class="[
-          cls.e('option'),
-          bem.is('selected', option.selected),
-        ]"
-        :key="option[labelKey!]"
+        :class="[cls.e('option'), bem.is('selected', option.selected)]"
+        :key="option.data[labelKey!]"
         :data-depth="option.depth"
         @click.stop="handleClick(option, dataIndex)"
       >
         <slot :option="option" :index="index">
-          {{ option[labelKey!] }}
+          {{ option.data[labelKey!] }}
           <u-icon v-if="option[childrenKey!]"><ArrowRight /></u-icon>
         </slot>
       </li>
@@ -92,7 +89,7 @@ const handleClick = (
       depthIndex.value.splice(option.depth, 1)
     }
     depthIndex.value = [...depthIndex.value, dataIndex + 1]
-    parentNodes.value = [...parentNodes.value, option[valueKey!]]
+    parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
     initData()
   }
 
@@ -115,12 +112,11 @@ const echo = (arr) => {
   parentNodes.value = []
   props.cascadeData?.some((node) => {
     node.forEach((item) => {
-      if (arr.includes(item[valueKey!])) {
+      if (arr.includes(item.data[valueKey!])) {
         echoData.push(item)
       }
     })
   })
-
   echoData.forEach((item, index) => {
     item.selected = true
     addUniqueItem(parentNodes.value, item.parentNodes)

@@ -15,7 +15,7 @@
         :placeholder="placeholder"
         :clearable="clearable"
         v-model="cascade"
-        native-readonly
+        :native-readonly="filterable"
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -24,14 +24,6 @@
     </template>
 
     <template #content>
-      <!-- 过滤器 -->
-      <!-- <div v-if="filterable" :class="[cls.e('content-filter')]">
-        <u-input placeholder="输入关键字进行过滤" v-model="qs">
-          <template #suffix>
-            <u-icon><Search /></u-icon>
-          </template>
-        </u-input>
-      </div> -->
       <div :class="cls.e('content')" v-if="cascadeData.length">
         <CascadeItem v-bind="$attrs" :cascadeData="cascadeData" />
       </div>
@@ -153,7 +145,7 @@ const { handleSelect, selected } = useSelect<Record<string, any>>({
 function separateByDepth(data) {
   const result = {}
 
-  function traverse(node, parent = null) {
+  function traverse(node, parent?: Record<string, any>) {
     // 如果当前深度不存在于结果中，初始化一个空数组
     if (!result[node.depth]) {
       result[node.depth] = []
@@ -163,7 +155,7 @@ function separateByDepth(data) {
     result[node.depth].push(node)
 
     // 设置当前节点的父节点
-    node.parentNodes = parent ? parent[props.labelKey] : ""
+    node.parentNodes = parent ? parent.data[props.valueKey] : ""
 
     // 遍历子节点
     if (node.children) {
@@ -185,10 +177,6 @@ watch(
   },
   { immediate: true }
 )
-
-/**过滤 */
-const qs = shallowRef("")
-watch(qs, (qs) => {})
 
 provide(CascadeDIKey, {
   cls,
