@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.0.193",
+  "version": "0.0.194",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -32,20 +32,21 @@
     "rollup-plugin-esbuild": "6.1.1",
     "sass": "^1.77.6",
     "simple-git-hooks": "^2.11.1",
-    "ts-conf-base": "^2.3.2",
-    "tsx": "4.15.9",
+    "ts-conf-base": "^2.3.3",
+    "tsx": "4.16.0",
     "typescript": "5.5.2",
     "unplugin-vue-components": "^0.27.2",
     "vite": "5.3.2",
     "vite-plugin-dts": "3.9.1",
     "vitest": "^1.6.0",
     "vue": "^3.4.31",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.0",
+    "vue-tsc": "2.0.24"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
   },
   "dependencies": {
-    "quill": "2.0.1"
+    "quill": "2.0.2"
   }
 }

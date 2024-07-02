@@ -120,10 +120,10 @@
 </template>
 
 <script lang="ts" setup>
-import { formField, FormModel, type FormModelItem } from "ultra-ui"
-import { shallowReactive, shallowRef, watch } from "vue"
-import CustomCard from "../card/custom-card.vue"
-import { date } from "cat-kit/fe"
+import { formField, FormModel } from 'ultra-ui'
+import { shallowReactive, shallowRef, watch } from 'vue'
+import CustomCard from '../card/custom-card.vue'
+import { date } from 'cat-kit/fe'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
@@ -168,10 +168,10 @@ const model = new FormModel({
   },
   treeChecked: { required: true },
   treeSelect: { required: true, value: () => 11 },
-  complete1: { value: "test", required: true },
-  complete2: { value: ["张三", "李四"], required: true },
+  complete1: { value: 'test', required: true },
+  complete2: { value: () => ['张三', '李四'], required: true },
   group: { required: true },
-  cascade: { required: true },
+  cascade:{ required: true }
 })
 
 // const sortRef = shallowRef()
