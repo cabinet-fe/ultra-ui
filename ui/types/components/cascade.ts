@@ -26,7 +26,7 @@ export interface CascadeProps {
   checked?: any[]
 }
 export interface CascadeItemProps {
-  cascadeItem?: Record<string, any>
+  cascadeData?: Record<string, any>[]
 }
 
 /** 级联选择器组件定义的事件 */

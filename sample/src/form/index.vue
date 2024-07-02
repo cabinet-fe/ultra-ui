@@ -17,7 +17,7 @@
           <u-radio-group
             :items="[
               { label: '男', value: 'male' },
-              { label: '女', value: 'female' }
+              { label: '女', value: 'female' },
             ]"
             label="性别"
             field="sex"
@@ -51,6 +51,12 @@
           />
 
           <u-date-picker field="date" label="日期" />
+          <u-cascade
+            field="cascade"
+            label="单选级联选择器"
+            :options="cascadeData"
+            value-key="label"
+          />
         </template>
       </u-form>
 
@@ -82,7 +88,7 @@
         <u-auto-complete
           field="complete1"
           label="complete1"
-          :suggestions="interestList.map(item => item.label)"
+          :suggestions="interestList.map((item) => item.label)"
           label-key="label"
         />
         <!-- <u-auto-complete
@@ -114,10 +120,10 @@
 </template>
 
 <script lang="ts" setup>
-import { formField, FormModel, type FormModelItem } from 'ultra-ui'
-import { shallowReactive, shallowRef, watch } from 'vue'
-import CustomCard from '../card/custom-card.vue'
-import { date } from 'cat-kit/fe'
+import { formField, FormModel, type FormModelItem } from "ultra-ui"
+import { shallowReactive, shallowRef, watch } from "vue"
+import CustomCard from "../card/custom-card.vue"
+import { date } from "cat-kit/fe"
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
@@ -128,112 +134,346 @@ const model = new FormModel({
   name: {
     maxLen: 4,
     required: true,
-    value: ''
+    value: "",
   },
   age: ageRules,
-  'nest.name': { required: true, value: 'aa' },
-  'nest.price': { required: true },
+  "nest.name": { required: true, value: "aa" },
+  "nest.price": { required: true },
   phone: {
     validator(value) {
-      if (!value) return ''
-      if (/^1[1-9]{10}$/.test(value)) return ''
-      return '你得输入一个手机号'
-    }
+      if (!value) return ""
+      if (/^1[1-9]{10}$/.test(value)) return ""
+      return "你得输入一个手机号"
+    },
   },
   freeze: {},
-  sex: { value: 'female', required: true },
-  pwd: { value: '', required: true },
+  sex: { value: "female", required: true },
+  pwd: { value: "", required: true },
   debt: { min: 10, value: 66666 },
   email: {
-    value: '',
+    value: "",
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-      '这个时候你得输入一个邮箱'
-    ]
+      "这个时候你得输入一个邮箱",
+    ],
   },
-  unit: { required: true, value: '1' },
-  interest: { required: true, value: () => ['1', '2', '3'] },
-  remarks: { required: true, value: '备注默认值\n换行\n换行' },
+  unit: { required: true, value: "1" },
+  interest: { required: true, value: () => ["1", "2", "3"] },
+  remarks: { required: true, value: "备注默认值\n换行\n换行" },
   slider: {},
   date: { required: true, value: date().format() },
   guide: {
-    value: [{ attributes: { bold: true }, insert: '22eee' }],
-    required: true
+    value: [{ attributes: { bold: true }, insert: "22eee" }],
+    required: true,
   },
   treeChecked: { required: true },
   treeSelect: { required: true, value: () => 11 },
-  complete1: { value: 'test', required: true },
-  complete2: { value: ['张三', '李四'], required: true },
-  group: { required: true }
+  complete1: { value: "test", required: true },
+  complete2: { value: ["张三", "李四"], required: true },
+  group: { required: true },
+  cascade: { required: true },
 })
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
 
 const units = [
-  { label: '单位1', value: '1' },
-  { label: '单位2', value: '2' },
-  { label: '单位3', value: '3' }
+  { label: "单位1", value: "1" },
+  { label: "单位2", value: "2" },
+  { label: "单位3", value: "3" },
 ]
 
 const visible = shallowRef(false)
 
-watch(visible, v => {
+watch(visible, (v) => {
   !v && model.resetData()
 })
 
 function handleSetData() {
-  model.setData({ nest: { name: '测试名称', price: 10 } })
+  model.setData({ nest: { name: "测试名称", price: 10 } })
 }
 
 async function handleValidate() {
   const valid = await model.validate()
-  console.log('校验结果：' + valid)
+  console.log("校验结果：" + valid)
 }
 
 const interestList = [
-  { label: '电影', value: '1' },
-  { label: '健身', value: '2' },
-  { label: '读书', value: '3' },
-  { label: '游戏', value: '4' },
-  { label: '科技', value: '5' },
-  { label: '音乐', value: '6' }
+  { label: "电影", value: "1" },
+  { label: "健身", value: "2" },
+  { label: "读书", value: "3" },
+  { label: "游戏", value: "4" },
+  { label: "科技", value: "5" },
+  { label: "音乐", value: "6" },
 ]
 
 const treeData = [
-  { name: '烤冷面', id: 1 },
+  { name: "烤冷面", id: 1 },
   {
-    name: '手抓饼',
+    name: "手抓饼",
     id: 2,
     children: [
       {
-        name: '鱼香肉丝',
+        name: "鱼香肉丝",
         id: 3,
         children: [
           {
-            name: '烤苞米',
+            name: "烤苞米",
             id: 4,
             children: [
-              { name: '苞米例', id: 5 },
-              { name: '吃', id: 6 },
-              { name: 'h', id: 7 }
-            ]
-          }
-        ]
+              { name: "苞米例", id: 5 },
+              { name: "吃", id: 6 },
+              { name: "h", id: 7 },
+            ],
+          },
+        ],
       },
       {
-        name: 'fggg',
+        name: "fggg",
         id: 8,
         children: [
-          { name: '苞米例2', id: 9 },
-          { name: '吃2', id: 10 },
-          { name: 'h2', id: 11 }
-        ]
-      }
-    ]
-  }
+          { name: "苞米例2", id: 9 },
+          { name: "吃2", id: 10 },
+          { name: "h2", id: 11 },
+        ],
+      },
+    ],
+  },
 ]
+const cascadeData = shallowRef<any[]>([])
 
+setTimeout(() => {
+  cascadeData.value = [
+    {
+      value: "guide",
+      label: "Guide",
+    },
+    {
+      value: "component",
+      label: "Component",
+      children: [
+        {
+          value: "basic",
+          label: "Basic",
+          children: [
+            {
+              value: "layout",
+              label: "Layout",
+            },
+            {
+              value: "color",
+              label: "Color",
+            },
+            {
+              value: "typography",
+              label: "Typography",
+            },
+            {
+              value: "icon",
+              label: "Icon",
+            },
+            {
+              value: "button",
+              label: "Button",
+            },
+          ],
+        },
+        {
+          value: "form",
+          label: "Form",
+          children: [
+            {
+              value: "radio",
+              label: "Radio",
+            },
+            {
+              value: "checkbox",
+              label: "Checkbox",
+            },
+            {
+              value: "input",
+              label: "Input",
+            },
+            {
+              value: "input-number",
+              label: "InputNumber",
+            },
+            {
+              value: "select",
+              label: "Select",
+            },
+            {
+              value: "cascader",
+              label: "Cascader",
+            },
+            {
+              value: "switch",
+              label: "Switch",
+            },
+            {
+              value: "slider",
+              label: "Slider",
+            },
+            {
+              value: "time-picker",
+              label: "TimePicker",
+            },
+            {
+              value: "date-picker",
+              label: "DatePicker",
+            },
+            {
+              value: "datetime-picker",
+              label: "DateTimePicker",
+            },
+            {
+              value: "upload",
+              label: "Upload",
+            },
+            {
+              value: "rate",
+              label: "Rate",
+            },
+            {
+              value: "form",
+              label: "Form",
+            },
+          ],
+        },
+        {
+          value: "data",
+          label: "Data",
+          children: [
+            {
+              value: "table",
+              label: "Table",
+            },
+            {
+              value: "tag",
+              label: "Tag",
+            },
+            {
+              value: "progress",
+              label: "Progress",
+            },
+            {
+              value: "tree",
+              label: "Tree",
+            },
+            {
+              value: "pagination",
+              label: "Pagination",
+            },
+            {
+              value: "badge",
+              label: "Badge",
+            },
+          ],
+        },
+        {
+          value: "notice",
+          label: "Notice",
+          children: [
+            {
+              value: "alert",
+              label: "Alert",
+            },
+            {
+              value: "loading",
+              label: "Loading",
+            },
+            {
+              value: "message",
+              label: "Message",
+            },
+            {
+              value: "message-box",
+              label: "MessageBox",
+            },
+            {
+              value: "notification",
+              label: "Notification",
+            },
+          ],
+        },
+        {
+          value: "navigation",
+          label: "Navigation",
+          children: [
+            {
+              value: "menu",
+              label: "Menu",
+            },
+            {
+              value: "tabs",
+              label: "Tabs",
+            },
+            {
+              value: "breadcrumb",
+              label: "Breadcrumb",
+            },
+            {
+              value: "dropdown",
+              label: "Dropdown",
+            },
+            {
+              value: "steps",
+              label: "Steps",
+            },
+          ],
+        },
+        {
+          value: "others",
+          label: "Others",
+          children: [
+            {
+              value: "dialog",
+              label: "Dialog",
+            },
+            {
+              value: "tooltip",
+              label: "Tooltip",
+            },
+            {
+              value: "popover",
+              label: "Popover",
+            },
+            {
+              value: "card",
+              label: "Card",
+            },
+            {
+              value: "carousel",
+              label: "Carousel",
+            },
+            {
+              value: "collapse",
+              label: "Collapse",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      value: "resource",
+      label: "Resource",
+      children: [
+        {
+          value: "axure",
+          label: "Axure Components",
+        },
+        {
+          value: "sketch",
+          label: "Sketch Templates",
+        },
+        {
+          value: "docs",
+          label: "Design Documentation",
+        },
+      ],
+    },
+  ]
+}, 2000)
 const formRef = shallowRef()
 </script>
 

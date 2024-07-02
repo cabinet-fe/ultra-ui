@@ -1,6 +1,7 @@
 import { nextTick, shallowReactive, watch, type ComputedRef } from "vue"
 import type { CascadeNode } from "./cascade-node"
 import type { CascadeEmits, CascadeProps } from "@ui/types/components/cascade"
+import { Tree } from "cat-kit/fe"
 
 interface Options<DataItem extends Record<string, any>> {
   emit: CascadeEmits<Record<string, any>>
@@ -15,10 +16,9 @@ interface Options<DataItem extends Record<string, any>> {
 export function useSelect<DataItem extends Record<string, any>>(
   options: Options<DataItem>
 ) {
-  const { emit, props, nodeDict } = options
+  const { emit, props, nodeDict, forest } = options
   const selected = shallowReactive(new Set<DataItem>())
-  let currentSelected: DataItem | null = null
-  let changedByEvent = false
+  let isEcho = false
 
   const selectParentNodes = (node: CascadeNode<DataItem>) => {
     let currentNode = node
@@ -42,10 +42,27 @@ export function useSelect<DataItem extends Record<string, any>>(
     }
   }
 
-  const handleSelect = (node: CascadeNode<DataItem>) => {
-    if (node.disabled) return
+  watch(
+    () => [props.modelValue, forest.value.nodes],
+    ([modelValue, nodes]) => {
+      if (isEcho) return
+      nodes.forEach((node) => {
+        Tree.bft(node, (item) => {
+          if (modelValue?.includes(item.data[props.valueKey!])) {
+            selected.add(item.data)
+            deselectSiblingNodes(item)
+          }
+        })
+      })
+    },
+    {
+      immediate: true,
+    }
+  )
 
-    changedByEvent = true
+  const handleSelect = (node: CascadeNode<DataItem>) => {
+    isEcho = true
+    if (node.disabled) return
 
     // 取消同级和子节点的选中状态
     deselectSiblingNodes(node)
@@ -61,7 +78,6 @@ export function useSelect<DataItem extends Record<string, any>>(
     // 更新选中的节点
     node.selected = true
     selected.add(node.data!)
-    currentSelected = node.data!
 
     // 获取所有选中的父节点并更新 selected 集合
     const parentNodes = selectParentNodes(node)
@@ -70,14 +86,14 @@ export function useSelect<DataItem extends Record<string, any>>(
         selected.add(parentNode)
       }
     })
-    
+
     let selectedArr = Array.from(selected)
     emit(
       "update:modelValue",
       selectedArr.map((item) => item[props.valueKey!])
     )
     nextTick(() => {
-      changedByEvent = false
+      isEcho = false
     })
   }
 

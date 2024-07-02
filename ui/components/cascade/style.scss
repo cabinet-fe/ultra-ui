@@ -4,19 +4,24 @@
 
 // 方便拼接
 $root-name: cascade;
+$dropdown-name: dropdown;
+
 
 @include m.b($root-name) {
   width: 100%;
   position: relative;
+
+  @include m.e(content) {
+    display: flex;
+  }
 
   @include m.e(content-filter) {
     border-bottom: fn.use-var(border);
   }
 
   @include m.e(options) {
-    display: flex;
     max-height: 180px;
-
+    border-left: fn.use-var(border);
   }
 
   @include m.e(options-item) {
@@ -30,13 +35,26 @@ $root-name: cascade;
   }
 
   @include m.size using ($size) {
-    padding: fn.use-var(gap, $size);
+    @include m.bem($root-name, option) {
+      padding: fn.use-var(gap, $size);
+    }
+
+    @include m.bem($root-name, tags) {
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
+    }
   }
 
   @include m.is(disabled) {
+
     @include m.bem($root-name, arrow) {
+      cursor: not-allowed;
       color: fn.use-var(text-color, disabled);
     }
+  }
+
+  @include m.e(tags) {
+    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
+    flex-grow: 1;
   }
 
   @include m.e(option) {
@@ -52,40 +70,6 @@ $root-name: cascade;
     @include m.is(selected) {
       background-color: fn.use-var(color, primary, light-3);
       color: fn.use-var(text-color, white);
-    }
-  }
-
-  @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-7);
-    opacity: 0.5;
-  }
-
-  @include m.e(empty) {
-    color: fn.use-var(text-color, main);
-  }
-
-  @include m.e(panel) {
-    @include m.size using ($size) {
-      @include m.bem($root-name, content-filter) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
-
-      @include m.bem($root-name, options) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
-
-      @include m.bem($root-name, option) {
-        padding: 0 fn.use-var(gap, $size);
-        border-radius: fn.use-var(radius, $size);
-        height: fn.use-var(form-component-height, $size);
-        line-height: fn.use-var(form-component-height, $size);
-      }
-
-      @include m.bem($root-name, empty) {
-        height: fn.use-var(form-component-height, $size);
-        line-height: fn.use-var(form-component-height, $size);
-        padding: 0 fn.use-var(gap, $size);
-      }
     }
   }
 }

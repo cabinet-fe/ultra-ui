@@ -9,6 +9,7 @@ export const CascadeDIKey: InjectionKey<{
   cascadeProps: CascadeProps
   size: ComputedRef<ComponentSize>
   disabled: ComputedRef<boolean>
+  readonly: ComputedRef<boolean>
   close: () => void
   open: () => void
   forest: Record<string, any>

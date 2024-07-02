@@ -1,32 +1,44 @@
 <template>
-  <div :class="cls.b">
-    <u-dropdown
-      trigger="click"
-      ref="dropdownRef"
-      :click-whether-hide="true"
-      width="auto"
-    >
-      <template #trigger>
-        <u-input
-          style="width: 240px"
-          :size="size"
-          :disabled="disabled"
-          :placeholder="placeholder"
-          :clearable="clearable"
-          v-model="cascade"
-          native-readonly
-        >
-          <template #suffix>
-            <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
-          </template>
-        </u-input>
-      </template>
+  <u-dropdown
+    v-if="!readonly"
+    :class="[cls.b,bem.is('disabled', disabled)]"
+    trigger="click"
+    ref="dropdownRef"
+    :click-whether-hide="true"
+    width="auto"
+    :disabled="disabled"
+  >
+    <template #trigger>
+      <u-input
+        style="width: 240px"
+        :size="size"
+        :disabled="disabled"
+        :placeholder="placeholder"
+        :clearable="clearable"
+        v-model="cascade"
+        native-readonly
+      >
+        <template #suffix>
+          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
+        </template>
+      </u-input>
+    </template>
 
-      <template #content>
-          <CascadeItem v-bind="$attrs" :cascadeItem="forest.nodes" />
-      </template>
-    </u-dropdown>
-  </div>
+    <template #content>
+      <div :class="cls.e('content')">
+        <CascadeItem v-bind="$attrs" :cascadeData="cascadeData" />
+      </div>
+    </template>
+  </u-dropdown>
+  <template v-else>
+    <div :class="[cls.m(size)]">
+      <div v-if="modelValue?.length" :class="cls.e('tags')">
+        <u-tag v-for="option of modelValue" :key="option[valueKey]">
+          {{ option }}
+        </u-tag>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -64,12 +76,14 @@ const props = withDefaults(defineProps<CascadeProps>(), {
 const model = defineModel<string[] | number[]>()
 
 const { formProps } = useFormComponent()
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: "default",
-  disabled: false,
-  readonly: false,
-})
-
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: "default",
+    disabled: false,
+    readonly: false,
+  }
+)
 
 const cascade = computed(() => {
   return model.value
@@ -78,6 +92,8 @@ const cascade = computed(() => {
         .map((node) => node.label)
         .join(" / ")
 })
+
+const cascadeData = shallowRef<Record<string, any>[]>([])
 
 /** 森林 */
 const forest = computed(() => {
@@ -113,9 +129,11 @@ const dropdownRef = shallowRef<DropdownExposed>()
 const close = () => {
   dropdownRef.value?.close()
 }
+
 const open = () => {
   dropdownRef.value?.open()
 }
+
 const { handleSelect, selected } = useSelect<Record<string, any>>({
   props,
   emit,
@@ -123,11 +141,38 @@ const { handleSelect, selected } = useSelect<Record<string, any>>({
   forest,
 })
 
+function separateByDepth(data) {
+  const result = {}
+
+  function traverse(node, parent = null) {
+    // 如果当前深度不存在于结果中，初始化一个空数组
+    if (!result[node.depth]) {
+      result[node.depth] = []
+    }
+
+    // 添加节点到对应深度的数组中
+    result[node.depth].push(node)
+
+    // 设置当前节点的父节点
+    node.parentNodes = parent ? parent[props.labelKey] : ""
+
+    // 遍历子节点
+    if (node.children) {
+      node.children.forEach((child) => traverse(child, node))
+    }
+  }
+
+  // 遍历整个数据结构
+  data.forEach((item) => traverse(item))
+
+  return Object.keys(result)
+    .sort((a: any, b: any) => a - b)
+    .map((key) => result[key])
+}
 watch(
   () => [props.options, model],
   () => {
-    console.log(forest.value.nodes[0]);
-    
+    cascadeData.value = separateByDepth(forest.value.nodes)
   },
   { immediate: true }
 )
@@ -136,11 +181,12 @@ provide(CascadeDIKey, {
   cascadeProps: props,
   size,
   disabled,
+  readonly,
   close,
   open,
   forest,
   nodeDict,
   handleSelect,
-  cascade
+  cascade,
 })
 </script>
