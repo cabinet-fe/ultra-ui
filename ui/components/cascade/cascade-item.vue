@@ -48,7 +48,7 @@ const emit = defineEmits<CascadeEmits<Option>>()
 
 const injected = inject(CascadeDIKey)
 
-const { cls, cascadeProps, size,readonly, close, handleSelect, cascade } = injected!
+const { cls, cascadeProps, size, close, handleSelect, cascade } = injected!
 
 const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
 
