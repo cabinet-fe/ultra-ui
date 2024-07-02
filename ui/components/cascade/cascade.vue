@@ -4,8 +4,8 @@
     :class="[cls.b, bem.is('disabled', disabled), cls.m(size)]"
     trigger="click"
     ref="dropdownRef"
-    width="auto"
     :disabled="disabled"
+    width="auto"
   >
     <template #trigger>
       <u-input
@@ -32,7 +32,7 @@
           </template>
         </u-input>
       </div> -->
-      <div :class="cls.e('content')">
+      <div :class="cls.e('content')" v-if="cascadeData.length">
         <CascadeItem v-bind="$attrs" :cascadeData="cascadeData" />
       </div>
     </template>
@@ -62,7 +62,7 @@ import { Forest } from "cat-kit/fe"
 import { CascadeNode } from "./cascade-node"
 import { useSelect } from "./use-select"
 import { UTag } from "../tag"
-
+import { UIcon } from "../icon"
 defineOptions({
   name: "Cascade",
 })

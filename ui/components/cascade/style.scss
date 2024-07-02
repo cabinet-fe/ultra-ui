@@ -12,8 +12,15 @@ $dropdown-name: dropdown;
   position: relative;
 
   @include m.e(content) {
+    width: 100%;
     display: flex;
   }
+
+  @include m.e(not-content) {
+    text-align: center;
+    padding: 10px 0;
+  }
+
 
   @include m.e(options) {
     max-height: 180px;
