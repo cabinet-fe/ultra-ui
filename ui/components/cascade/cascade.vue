@@ -124,7 +124,7 @@ const open = () => {
   dropdownRef.value?.open()
 }
 
-const { handleSelect } = useSelect<Record<string, any>>({
+const { handleSelect, selected } = useSelect<Record<string, any>>({
   props,
   emit,
   nodeDict,
@@ -163,23 +163,20 @@ function separateByDepth(data) {
 const cascade = shallowRef("")
 
 watch(
-  () => [forest.value.nodes, props.modelValue],
-  ([option, model]) => {
-    let arr: Record<string, any> = []
-    if (option?.length && model?.length) {
-      forest.value.nodes.some((node) => {
-        Tree.bft(node, (item) => {
-          if (model?.includes(item.data[props.valueKey!])) {
-            arr.push(item.data)
-          }
-        })
-      })
-      cascade.value = arr.map((node) => node[props.labelKey!]).join(" / ")
+  () => [forest.value.nodes],
+  ([option]) => {
+    if (option?.length) {
+      cascadeData.value = separateByDepth(forest.value.nodes)
     }
-    cascadeData.value = separateByDepth(forest.value.nodes)
   },
   { immediate: true }
 )
+
+watch(selected, (selected) => {
+  cascade.value = Array.from(selected)
+    .map((node) => node[props.labelKey!])
+    .join(" / ")
+})
 
 provide(CascadeDIKey, {
   cls,

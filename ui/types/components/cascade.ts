@@ -27,7 +27,7 @@ export interface CascadeProps {
   /**
    * 搜索
    */
-  filterable?:boolean
+  filterable?: boolean
 }
 export interface CascadeItemProps {
   cascadeData?: Record<string, any>[]
@@ -38,7 +38,12 @@ export interface CascadeEmits {
   (e: "update:modelValue", value: any): void
   (e: "update:selected", value: any[]): void
   (e: "update:checked", value: any[]): void
-  (e: "change", value: Record<string, any>): void
+  (
+    e: "change",
+    value: string[] | number[],
+    label: string[],
+    data: Record<string, any>
+  ): void
 }
 
 /** 级联选择器组件暴露的属性和方法(组件内部使用) */

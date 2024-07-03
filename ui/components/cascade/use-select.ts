@@ -78,7 +78,6 @@ export function useSelect<DataItem extends Record<string, any>>(
     // 更新选中的节点
     node.selected = true
     selected.add(node.data!)
-    emit("change", node.data)
 
     // 获取所有选中的父节点并更新 selected 集合
     const parentNodes = selectParentNodes(node)
@@ -89,11 +88,18 @@ export function useSelect<DataItem extends Record<string, any>>(
     })
 
     let selectedArr = Array.from(selected)
-    
+
     emit(
       "update:modelValue",
       selectedArr.map((item) => item[props.valueKey!])
     )
+    emit(
+      "change",
+      selectedArr.map((item) => item[props.valueKey!]),
+      selectedArr.map((item) => item[props.labelKey!]),
+      Array.from(selected)
+    )
+
     nextTick(() => {
       isEcho = false
     })

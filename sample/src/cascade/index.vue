@@ -10,7 +10,6 @@
         label-key="name"
         value-key="code"
         @change="handleChange"
-        @update:model-value="updateModel"
       />
     </CustomCard>
   </div>
@@ -21,12 +20,13 @@ import CustomCard from "../card/custom-card.vue"
 // console.log(province, city, area)
 
 import { shallowRef } from "vue"
-const handleChange = (value: any) => {
-  console.log(value, "change")
+const handleChange = (value: any,label:any,data:any) => {
+  console.log('value', value)
+  console.log('label', label)
+  console.log('data', data)
+
 }
-const updateModel = (value: any) => {
-  console.log(value, "updateModel")
-}
+
 const cascade = shallowRef(["component", "basic", "layout"])
 
 const data = shallowRef<any[]>([])
