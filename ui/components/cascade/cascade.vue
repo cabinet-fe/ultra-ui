@@ -9,7 +9,6 @@
   >
     <template #trigger>
       <u-input
-        style="width: 240px"
         :size="size"
         :disabled="disabled"
         :placeholder="placeholder"
