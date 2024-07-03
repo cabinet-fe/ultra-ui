@@ -16,8 +16,7 @@ import CustomCard from "../card/custom-card.vue"
 
 import { shallowRef } from "vue"
 
-const cascade = shallowRef(["Component", "Basic", "Layout"])
-
+const cascade = shallowRef(["component", "basic", "layout"])
 
 const data = shallowRef<any[]>([])
 
@@ -112,10 +111,6 @@ setTimeout(() => {
             {
               code: "rate",
               name: "Rate",
-            },
-            {
-              code: "form",
-              name: "Form",
             },
           ],
         },

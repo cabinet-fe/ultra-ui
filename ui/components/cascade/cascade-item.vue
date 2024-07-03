@@ -48,7 +48,7 @@ const injected = inject(CascadeDIKey)
 
 const { cls, cascadeProps, size, close, handleSelect, cascade } = injected!
 
-const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
+const { labelKey, childrenKey, multiple } = cascadeProps
 
 const depthIndex = ref([0])
 
@@ -89,7 +89,7 @@ const handleClick = (
       depthIndex.value.splice(option.depth, 1)
     }
     depthIndex.value = [...depthIndex.value, dataIndex + 1]
-    parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
+    parentNodes.value = [...parentNodes.value, option.data[labelKey!]]
     initData()
   }
 

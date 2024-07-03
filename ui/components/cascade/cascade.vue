@@ -32,7 +32,7 @@
   <template v-else>
     <div :class="[cls.m(size)]">
       <div v-if="modelValue?.length" :class="cls.e('tags')">
-        <u-tag v-for="option of modelValue" :key="option[valueKey]">
+        <u-tag v-for="option of modelValue" :key="option[labelKey]">
           {{ option }}
         </u-tag>
       </div>
@@ -50,7 +50,7 @@ import CascadeItem from "./cascade-item.vue"
 import { CascadeDIKey } from "./di"
 import { UInput } from "../input"
 import { UDropdown, type DropdownExposed } from "../dropdown"
-import { Forest } from "cat-kit/fe"
+import { Forest, Tree } from "cat-kit/fe"
 import { CascadeNode } from "./cascade-node"
 import { useSelect } from "./use-select"
 import { UTag } from "../tag"
@@ -74,8 +74,6 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   filterable: false,
 })
 
-const model = defineModel<string[] | number[]>()
-
 const { formProps } = useFormComponent()
 const { size, disabled, readonly } = useFormFallbackProps(
   [formProps ?? {}, props],
@@ -85,14 +83,6 @@ const { size, disabled, readonly } = useFormFallbackProps(
     readonly: false,
   }
 )
-
-const cascade = computed(() => {
-  return model.value
-    ? model.value.map((node) => node).join(" / ")
-    : Array.from(selected)
-        .map((node) => node.label)
-        .join(" / ")
-})
 
 const cascadeData = shallowRef<Record<string, any>[]>([])
 
@@ -135,7 +125,7 @@ const open = () => {
   dropdownRef.value?.open()
 }
 
-const { handleSelect, selected } = useSelect<Record<string, any>>({
+const { handleSelect } = useSelect<Record<string, any>>({
   props,
   emit,
   nodeDict,
@@ -155,7 +145,7 @@ function separateByDepth(data) {
     result[node.depth].push(node)
 
     // 设置当前节点的父节点
-    node.parentNodes = parent ? parent.data[props.valueKey] : ""
+    node.parentNodes = parent ? parent.data[props.labelKey] : ""
 
     // 遍历子节点
     if (node.children) {
@@ -170,12 +160,26 @@ function separateByDepth(data) {
     .sort((a: any, b: any) => a - b)
     .map((key) => result[key])
 }
+
+const cascade = shallowRef("")
+
 watch(
-  () => [props.options, model],
-  () => {
+  () => [forest.value.nodes, props.modelValue],
+  ([option, model]) => {
+    let arr: Record<string, any> = []
+    if (option?.length && model?.length) {
+      forest.value.nodes.some((node) => {
+        Tree.bft(node, (item) => {
+          if (model?.includes(item.data[props.valueKey!])) {
+            arr.push(item.data)
+          }
+        })
+      })
+      cascade.value = arr.map((node) => node[props.labelKey!]).join(" / ")
+      console.log(cascade.value);
+      
+    }
     cascadeData.value = separateByDepth(forest.value.nodes)
-    console.log(cascadeData.value);
-    
   },
   { immediate: true }
 )

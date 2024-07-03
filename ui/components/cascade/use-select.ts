@@ -90,7 +90,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     let selectedArr = Array.from(selected)
     emit(
       "update:modelValue",
-      selectedArr.map((item) => item[props.labelKey!])
+      selectedArr.map((item) => item[props.valueKey!])
     )
     nextTick(() => {
       isEcho = false
