@@ -175,8 +175,6 @@ watch(
         })
       })
       cascade.value = arr.map((node) => node[props.labelKey!]).join(" / ")
-      console.log(cascade.value);
-      
     }
     cascadeData.value = separateByDepth(forest.value.nodes)
   },
