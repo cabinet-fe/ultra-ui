@@ -30,10 +30,7 @@ import { CascadeDIKey } from "./di"
 import { ArrowRight } from "icon-ultra"
 import { UScroll } from "../scroll"
 import { UIcon } from "../icon"
-import type {
-  CascadeEmits,
-  CascadeItemProps,
-} from "@ui/types/components/cascade"
+import type { CascadeItemProps } from "@ui/types/components/cascade"
 import type { CascadeNode } from "./cascade-node"
 
 defineOptions({
@@ -41,8 +38,6 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<CascadeItemProps>(), {})
-
-const emit = defineEmits<CascadeEmits<Option>>()
 
 const injected = inject(CascadeDIKey)
 

@@ -4,7 +4,7 @@ import type { CascadeEmits, CascadeProps } from "@ui/types/components/cascade"
 import { Tree } from "cat-kit/fe"
 
 interface Options<DataItem extends Record<string, any>> {
-  emit: CascadeEmits<Record<string, any>>
+  emit: CascadeEmits
   props: CascadeProps
   nodeDict: ComputedRef<Map<any, CascadeNode<DataItem>>>
   forest: Record<string, any>
@@ -78,6 +78,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     // 更新选中的节点
     node.selected = true
     selected.add(node.data!)
+    emit("change", node.data)
 
     // 获取所有选中的父节点并更新 selected 集合
     const parentNodes = selectParentNodes(node)

@@ -4,9 +4,15 @@
       {{ cascade }}
     </CustomCard>
     <CustomCard title="单选">
-      <u-cascade v-model="cascade" :options="data" label-key="name" value-key="code"/>
+      <u-cascade
+        v-model="cascade"
+        :options="data"
+        label-key="name"
+        value-key="code"
+        @change="handleChange"
+        @update:model-value="updateModel"
+      />
     </CustomCard>
-
   </div>
 </template>
 <script lang="ts" setup>
@@ -15,7 +21,12 @@ import CustomCard from "../card/custom-card.vue"
 // console.log(province, city, area)
 
 import { shallowRef } from "vue"
-
+const handleChange = (value: any) => {
+  console.log(value, "change")
+}
+const updateModel = (value: any) => {
+  console.log(value, "updateModel")
+}
 const cascade = shallowRef(["component", "basic", "layout"])
 
 const data = shallowRef<any[]>([])

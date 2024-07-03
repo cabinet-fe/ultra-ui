@@ -34,11 +34,11 @@ export interface CascadeItemProps {
 }
 
 /** 级联选择器组件定义的事件 */
-export interface CascadeEmits<Option extends Record<string, any>> {
+export interface CascadeEmits {
   (e: "update:modelValue", value: any): void
   (e: "update:selected", value: any[]): void
   (e: "update:checked", value: any[]): void
-  (e: "change", value: Option[]): void
+  (e: "change", value: Record<string, any>): void
 }
 
 /** 级联选择器组件暴露的属性和方法(组件内部使用) */

@@ -61,7 +61,7 @@ defineOptions({
 
 const cls = bem("cascade")
 
-const emit = defineEmits<CascadeEmits<Record<string, any>>>()
+const emit = defineEmits<CascadeEmits>()
 
 const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: "label",
