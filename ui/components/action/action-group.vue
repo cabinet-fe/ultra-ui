@@ -39,7 +39,7 @@ function getSlotsNodes() {
   const hiddenNodes = extractedNodes.slice(props.max - 1)
 
   const dropdown = hiddenNodes.length ? (
-    <UTip direction='bottom' trigger='click' class={cls.e('dropdown')}>
+    <UTip direction='bottom' class={cls.e('dropdown')}>
       {{
         content: () => hiddenNodes,
         default: () => (
