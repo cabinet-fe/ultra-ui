@@ -220,6 +220,20 @@ const cascadeMulti = computed(() => {
   return filteredPaths
 })
 
+const clear = () => {
+  props.multiple && checked.clear()
+  !props.multiple && selected.clear()
+}
+const remove = (tag: string) => {
+  let data = tag.split(" / ")
+  let del = data[data.length - 1]
+  forest.value.dft((node) => {
+    if (node.label === del) {
+      checked.delete(node.data)
+      return
+    }
+  })
+}
 provide(CascadeDIKey, {
   cls,
   cascadeProps: props,
@@ -236,5 +250,7 @@ provide(CascadeDIKey, {
   cascadeMulti,
   emit,
   hovered,
+  clear,
+  remove,
 })
 </script>

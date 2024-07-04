@@ -22,4 +22,6 @@ export const CascadeDIKey: InjectionKey<{
   cascadeMulti: ShallowRef<string[]>
   emit: CascadeEmits
   hovered: ShallowRef<boolean>
+  clear: () => void
+  remove: (tag: string) => void
 }> = Symbol("CascadeDIKey")

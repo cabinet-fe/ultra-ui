@@ -8,9 +8,9 @@
     <div v-if="cascadeMulti.length" :class="cls.e('tags')">
       <u-tag
         v-for="(tag, index) in visibleTags"
-        :key="tag"
+        :key="tag + index"
         :closable="!disabled"
-        @close="handleRemove(index)"
+        @close="handleRemove(tag)"
       >
         {{ tag }}
       </u-tag>
@@ -43,7 +43,6 @@ import { bem } from "@ui/utils"
 
 const injected = inject(CascadeDIKey)
 const {
-  emit,
   cls,
   cascadeProps,
   cascadeMulti,
@@ -51,6 +50,8 @@ const {
   readonly,
   hovered,
   size,
+  clear,
+  remove
 } = injected!
 
 const { placeholder, clearable } = cascadeProps
@@ -81,10 +82,12 @@ const hiddenCount = computed(() => {
 })
 
 /**删除 */
-const handleRemove = (index: number) => {}
+const handleRemove = (tag: string) => {
+  remove(tag)
+}
 
 /**清空 */
 const handleClear = () => {
-  emit("clear")
+  clear()
 }
 </script>
