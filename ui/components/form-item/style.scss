@@ -55,10 +55,6 @@ $root-name: form-item;
     @include m.flex;
     flex-wrap: wrap;
 
-    & > *[class^='#{vars.$namespace}'] {
-      width: 100%;
-    }
-
     & > span {
       line-height: 1.3;
     }

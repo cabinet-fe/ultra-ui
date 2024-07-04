@@ -55,7 +55,11 @@ import { useFallbackProps } from '@ui/compositions'
 import { TipNestDIKey } from './di'
 import { UNodeRender } from '../node-render'
 import type { ComponentSize } from '@ui/types'
-import { adjustContentSize, amendDirection, calcTipPosition } from './position'
+import {
+  adjustContentSizeAndAlignment,
+  amendDirection,
+  calcTipPosition
+} from './position'
 
 defineOptions({ name: 'Tip' })
 
@@ -64,7 +68,6 @@ const props = withDefaults(defineProps<TipProps>(), {
   trigger: 'hover',
   direction: 'top',
   alignment: 'center',
-  clickClose: false,
   contentTag: 'div',
   disabled: false
 })
@@ -153,7 +156,6 @@ const eventsHandlers = computed(() => {
 })
 
 const handleClickOutside = (e: MouseEvent) => {
-  if (props.clickClose) return
   if (props.trigger === 'hover') return
 
   if (
@@ -239,8 +241,8 @@ function updateTipStyle() {
     direction: props.direction
   })
 
-  // 调整内容尺寸, 防止内容溢出
-  contentSize = adjustContentSize({
+  // 调整内容尺寸和对齐方式, 防止内容溢出
+  const [newContentSize, alignment] = adjustContentSizeAndAlignment({
     triggerRect,
     contentEl,
     contentSize,
@@ -250,9 +252,9 @@ function updateTipStyle() {
 
   const styles = calcTipPosition({
     triggerRect,
-    contentSize,
+    contentSize: newContentSize,
     direction: direction.value,
-    alignment: props.alignment
+    alignment
   })
   popStyle.zIndex = zIndex()
   Object.assign(popStyle, styles)

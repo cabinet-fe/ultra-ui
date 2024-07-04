@@ -1,33 +1,76 @@
 import type { TipAlign, TipDirection } from '@ui/types'
 import { setStyles } from '@ui/utils'
 
+/** 获取内容最大宽度 */
+function getContentMaxWidth(
+  triggerRect: DOMRect,
+  alignment: TipAlign,
+  gap: number
+) {
+  if (alignment === 'center')
+    return triggerRect.left < window.innerWidth - triggerRect.right
+      ? (triggerRect.left + triggerRect.width / 2 - gap) * 2
+      : (window.innerWidth - triggerRect.left - triggerRect.width / 2 - gap) * 2
+
+  if (alignment === 'start') {
+    // 当为开始对齐时最大宽度
+    return window.innerWidth - triggerRect.left - gap
+  }
+  // 当为结束对齐时最大宽度
+  return triggerRect.right - gap
+}
+
 /**
  * 调整内容尺寸防止溢出
  */
-export function adjustContentSize(options: {
+export function adjustContentSizeAndAlignment(options: {
   triggerRect: DOMRect
   contentEl: HTMLElement
   contentSize: { width: number; height: number }
   alignment: TipAlign
   direction: TipDirection
-}) {
-  const { triggerRect, alignment, contentEl, contentSize, direction } = options
-
+}): [{ width: number; height: number }, TipAlign] {
+  const { triggerRect, contentEl, contentSize, direction } = options
+  let { alignment } = options
   let { width, height } = contentSize
+  // 到屏幕之间的距离
+  const gap = 8
 
   if (direction === 'bottom' || direction === 'top') {
-    if (
-      alignment === 'center' &&
-      width > (triggerRect.left + triggerRect.width / 2) * 2
-    ) {
-      width = (triggerRect.left + triggerRect.width / 2) * 2
-    } else if (
-      alignment === 'start' &&
-      width > window.innerWidth - triggerRect.left
-    ) {
-      width = window.innerWidth - triggerRect.left
-    } else if (alignment === 'end' && width > triggerRect.right) {
-      width = triggerRect.right
+    // 居中对齐
+    if (alignment === 'center') {
+      const centerMaxWidth = getContentMaxWidth(triggerRect, 'center', gap)
+      if (width > centerMaxWidth) {
+        if (width <= getContentMaxWidth(triggerRect, 'start', gap)) {
+          alignment = 'start'
+        } else if (width <= getContentMaxWidth(triggerRect, 'end', gap)) {
+          alignment = 'end'
+        } else {
+          width = centerMaxWidth
+        }
+      }
+    } else if (alignment === 'start') {
+      const startMaxWidth = getContentMaxWidth(triggerRect, 'start', gap)
+      if (width > startMaxWidth) {
+        if (width <= getContentMaxWidth(triggerRect, 'center', gap)) {
+          alignment = 'center'
+        } else if (width <= getContentMaxWidth(triggerRect, 'end', gap)) {
+          alignment = 'end'
+        } else {
+          width = startMaxWidth
+        }
+      }
+    } else if (alignment === 'end') {
+      const endMaxWidth = getContentMaxWidth(triggerRect, 'end', gap)
+      if (width > endMaxWidth) {
+        if (width <= getContentMaxWidth(triggerRect, 'center', gap)) {
+          alignment = 'center'
+        } else if (width <= getContentMaxWidth(triggerRect, 'start', gap)) {
+          alignment = 'start'
+        } else {
+          width = endMaxWidth
+        }
+      }
     }
   } else {
     if (direction === 'left' && width > triggerRect.left) {
@@ -41,16 +84,18 @@ export function adjustContentSize(options: {
   }
 
   if (width !== contentSize.width) {
-    width -= 10
     setStyles(contentEl, {
       width: `${width}px`
     })
     height = contentEl.offsetHeight
   }
-  return {
-    width,
-    height
-  }
+  return [
+    {
+      width,
+      height
+    },
+    alignment
+  ]
 }
 
 type XPosition = 'left' | 'right'

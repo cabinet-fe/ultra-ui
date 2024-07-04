@@ -1,10 +1,11 @@
 <template>
   <u-tip
-    :trigger="trigger"
-    :class="cls.b"
-    :mouse-leave-close="true"
     ref="tipRef"
-    direction="bottom"
+    :class="cls.b"
+    :trigger="trigger"
+    :direction="direction"
+    :alignment="alignment"
+    :content-tag="contentTag"
   >
     <slot name="reference" />
 
@@ -21,7 +22,7 @@
         <u-button size="small" @click="cancel" type="primary" text>
           {{ cancelText }}
         </u-button>
-
+        &nbsp;
         <u-button size="small" type="primary" @click="confirm">
           {{ confirmText }}
         </u-button>
@@ -52,6 +53,7 @@ const emit = defineEmits<PopConfirmEmits>()
 withDefaults(defineProps<PopConfirmProps>(), {
   trigger: 'click',
   icon: HelpFilled,
+  direction: 'bottom',
   iconColor: '#ffc107',
   confirmText: '确认',
   cancelText: '取消'
