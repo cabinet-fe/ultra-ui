@@ -11,7 +11,7 @@
   <teleport to="body">
     <transition name="tip">
       <component
-        v-if="visible"
+        v-if="visible || anyChildrenVisible"
         :is="contentTag"
         :class="contentClass"
         :style="tipStyle"
@@ -38,7 +38,8 @@ import {
   inject,
   provide,
   type CSSProperties,
-  shallowReactive
+  shallowReactive,
+  type ShallowRef
 } from 'vue'
 import {
   bem,
@@ -117,17 +118,23 @@ const tipStyle = computed(() => {
 /**
  * 是否是嵌套tip，即在tip组件中嵌套其他的tip
  */
-let hasChildren = shallowRef(false)
-const setChildren = inject(TipNestDIKey, undefined)
+const childrenTips = shallowReactive(new Set<ShallowRef<boolean>>())
 
-if (setChildren) {
-  setChildren()
-  provide(TipNestDIKey, setChildren)
-} else {
-  provide(TipNestDIKey, () => {
-    hasChildren.value = true
-  })
-}
+const anyChildrenVisible = computed(() => {
+  return Array.from(childrenTips).some(tip => tip.value)
+})
+
+provide(TipNestDIKey, {
+  addChild(visible) {
+    childrenTips.add(visible)
+  },
+  removeChild(visible) {
+    childrenTips.delete(visible)
+  }
+})
+
+const { addChild, removeChild } = inject(TipNestDIKey, undefined) || {}
+addChild?.(visible)
 
 const eventsHandlers = computed(() => {
   const { trigger, disabled } = props
@@ -139,19 +146,14 @@ const eventsHandlers = computed(() => {
     handlers.onClick = open
   } else if (trigger === 'hover') {
     handlers.onMouseenter = open
-
-    if (hasChildren.value) {
-      handlers.onMouseleave = open
-    } else {
-      handlers.onMouseleave = close
-    }
+    handlers.onMouseleave = close
   }
 
   return handlers
 })
 
 const handleClickOutside = (e: MouseEvent) => {
-  if (props.clickClose ?? hasChildren) return
+  if (props.clickClose) return
   if (props.trigger === 'hover') return
 
   if (
@@ -166,7 +168,7 @@ const handleClickOutside = (e: MouseEvent) => {
 let closeTimer: number | undefined = undefined
 
 /** 弹出 */
-const open = e => {
+const open = () => {
   closeTimer !== undefined && clearTimeout(closeTimer)
   visible.value = true
 }
@@ -230,14 +232,14 @@ function updateTipStyle() {
     height: offsetHeight
   }
 
-  // 先修正方向
+  // 修正方向
   direction.value = amendDirection({
     triggerRect,
     contentSize,
     direction: props.direction
   })
 
-  // 调整内容尺寸
+  // 调整内容尺寸, 防止内容溢出
   contentSize = adjustContentSize({
     triggerRect,
     contentEl,
@@ -252,7 +254,6 @@ function updateTipStyle() {
     direction: direction.value,
     alignment: props.alignment
   })
-
   popStyle.zIndex = zIndex()
   Object.assign(popStyle, styles)
 }
@@ -260,6 +261,7 @@ function updateTipStyle() {
 onBeforeUnmount(() => {
   clearTimeout(closeTimer)
   window.removeEventListener('resize', close)
+  removeChild?.(visible)
 })
 
 defineExpose({ close })

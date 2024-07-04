@@ -20,9 +20,7 @@ export function adjustContentSize(options: {
       alignment === 'center' &&
       width > (triggerRect.left + triggerRect.width / 2) * 2
     ) {
-      console.log(width)
       width = (triggerRect.left + triggerRect.width / 2) * 2
-      console.log(width)
     } else if (
       alignment === 'start' &&
       width > window.innerWidth - triggerRect.left
@@ -47,6 +45,7 @@ export function adjustContentSize(options: {
     setStyles(contentEl, {
       width: `${width}px`
     })
+    height = contentEl.offsetHeight
   }
   return {
     width,
