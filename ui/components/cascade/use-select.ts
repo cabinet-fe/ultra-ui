@@ -43,9 +43,9 @@ export function useSelect<DataItem extends Record<string, any>>(
   }
 
   watch(
-    () => [props.modelValue, forest.value.nodes],
+    () => [props.selected, forest.value.nodes],
     ([modelValue, nodes]) => {
-      if (isEcho && selected.size !== 0) return
+      if (isEcho && selected.size != 0) return
       nodes.forEach((node) => {
         Tree.bft(node, (item) => {
           if (modelValue?.includes(item.data[props.valueKey!])) {
@@ -90,14 +90,14 @@ export function useSelect<DataItem extends Record<string, any>>(
     let selectedArr = Array.from(selected)
 
     emit(
-      "update:modelValue",
+      "update:selected",
       selectedArr.map((item) => item[props.valueKey!])
     )
     emit(
       "change",
       selectedArr.map((item) => item[props.valueKey!]),
       selectedArr.map((item) => item[props.labelKey!]),
-      Array.from(selected)
+      selectedArr
     )
 
     nextTick(() => {

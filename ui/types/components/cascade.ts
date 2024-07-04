@@ -19,6 +19,9 @@ export interface CascadeProps {
    * 禁用项
    */
   disabledNode?: Record<string, any>[]
+  /**
+   * 多选
+   */
   multiple?: boolean
   /** 单选选中项 */
   selected?: any[]
@@ -28,6 +31,8 @@ export interface CascadeProps {
    * 搜索
    */
   filterable?: boolean
+
+  visibilityLimit?: number
 }
 export interface CascadeItemProps {
   cascadeData?: Record<string, any>[]
@@ -35,7 +40,6 @@ export interface CascadeItemProps {
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  (e: "update:modelValue", value: any): void
   (e: "update:selected", value: any[]): void
   (e: "update:checked", value: any[]): void
   (
@@ -44,6 +48,7 @@ export interface CascadeEmits {
     label: string[],
     data: Record<string, any>
   ): void
+  (e: "clear"): void
 }
 
 /** 级联选择器组件暴露的属性和方法(组件内部使用) */

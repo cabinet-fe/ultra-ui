@@ -1,6 +1,6 @@
 <template>
   <u-scroll
-    tag="ul"
+    tag="div"
     :class="[cls.e('options'), cls.m(size)]"
     ref="scrollRef"
     v-for="(data, dataIndex) in cascadeData"
@@ -9,13 +9,26 @@
     <ul v-for="(option, index) in data">
       <li
         v-if="shouldShowLevel(dataIndex, option)"
-        :class="[cls.e('option'), bem.is('selected', option.selected)]"
+        :class="[
+          cls.e('option'),
+          bem.is('selected', option.selected),
+          bem.is('checked', option.checked),
+        ]"
         :key="option.data[labelKey!]"
         :data-depth="option.depth"
-        @click.stop="handleClick(option, dataIndex)"
+        @click="handleClick(option, dataIndex)"
+        v-ripple="disabled ? false : cls.e('ripple')"
       >
         <slot :option="option" :index="index">
-          {{ option.data[labelKey!] }}
+          <div>
+            <u-checkbox
+              v-if="multiple"
+              :model-value="option.checked"
+              :indeterminate="option.indeterminate"
+              @update:model-value="handleCheck(option, $event)"
+            ></u-checkbox>
+            {{ option.data[labelKey!] }}
+          </div>
           <u-icon v-if="option[childrenKey!]"><ArrowRight /></u-icon>
         </slot>
       </li>
@@ -27,9 +40,11 @@
 import { ref, watch, inject } from "vue"
 import { bem } from "@ui/utils"
 import { CascadeDIKey } from "./di"
+import { vRipple } from "@ui/directives"
 import { ArrowRight } from "icon-ultra"
 import { UScroll } from "../scroll"
 import { UIcon } from "../icon"
+import { UCheckbox } from "../checkbox"
 import type { CascadeItemProps } from "@ui/types/components/cascade"
 import type { CascadeNode } from "./cascade-node"
 
@@ -41,7 +56,16 @@ const props = withDefaults(defineProps<CascadeItemProps>(), {})
 
 const injected = inject(CascadeDIKey)
 
-const { cls, cascadeProps, size, close, handleSelect, cascade } = injected!
+const {
+  cls,
+  cascadeProps,
+  size,
+  close,
+  handleSelect,
+  handleCheck,
+  cascade,
+  disabled,
+} = injected!
 
 const { labelKey, childrenKey, multiple } = cascadeProps
 
@@ -51,22 +75,17 @@ const parentNodes = ref<string[]>([])
 
 let isEchoing = true // 添加一个标志变量
 
-const shouldShowLevel = (leave, data) => {
-  if (data.parentNodes === "") {
-    return true
-  }
+const shouldShowLevel = (level: number, data: Option) => {
   return (
-    depthIndex.value.includes(leave) &&
-    parentNodes.value.includes(data.parentNodes)
+    data.parentNodes === "" ||
+    (depthIndex.value.includes(level) &&
+      parentNodes.value.includes(data.parentNodes))
   )
 }
-function addUniqueItem(array, item) {
-  if (!array.includes(item) && item) {
-    array.push(item)
-  }
+const addUniqueItem = (array: any[], item: any) => {
+  if (!array.includes(item) && item) array.push(item)
 }
 
-/** 单选 */
 const handleClick = (
   option: CascadeNode<Record<string, any>>,
   dataIndex: number
@@ -74,7 +93,7 @@ const handleClick = (
   isEchoing = false
 
   if (option.children === undefined) {
-    close()
+    !multiple && close()
   } else {
     if (option.depth === 1) {
       parentNodes.value = []
@@ -112,8 +131,10 @@ const echo = (arr) => {
       }
     })
   })
+  console.log(echoData, "echoData")
+
   echoData.forEach((item, index) => {
-    item.selected = true
+    multiple ? (item.checked = true) : (item.selected = true)
     addUniqueItem(parentNodes.value, item.parentNodes)
     addUniqueItem(depthIndex.value, index + 1)
     shouldShowLevel(index, item)

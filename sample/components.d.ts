@@ -13,6 +13,7 @@ declare module 'vue' {
     UActionGroup: typeof import('ultra-ui')['UActionGroup']
     UAutoComplete: typeof import('ultra-ui')['UAutoComplete']
     UButton: typeof import('ultra-ui')['UButton']
+    UCalendar: typeof import('ultra-ui')['UCalendar']
     UCard: typeof import('ultra-ui')['UCard']
     UCardAction: typeof import('ultra-ui')['UCardAction']
     UCardContent: typeof import('ultra-ui')['UCardContent']
@@ -35,6 +36,7 @@ declare module 'vue' {
     UTable: typeof import('ultra-ui')['UTable']
     UTag: typeof import('ultra-ui')['UTag']
     UTextarea: typeof import('ultra-ui')['UTextarea']
+    UTree: typeof import('ultra-ui')['UTree']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }

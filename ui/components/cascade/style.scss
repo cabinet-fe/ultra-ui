@@ -9,7 +9,6 @@ $dropdown-name: dropdown;
 
 @include m.b($root-name) {
   width: 100%;
-  position: relative;
 
   @include m.e(content) {
     width: 100%;
@@ -37,6 +36,11 @@ $dropdown-name: dropdown;
     left: 0;
   }
 
+  @include m.e(ripple) {
+    background-color: fn.use-var(color, primary, light-7);
+    opacity: 0.5;
+  }
+
   @include m.size using ($size) {
 
     @include m.bem($root-name, content-filter) {
@@ -50,6 +54,27 @@ $dropdown-name: dropdown;
     @include m.bem($root-name, tags) {
       gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
     }
+
+    @include m.bem($root-name, multi) {
+      min-height: fn.use-var(form-component-height, $size);
+      border-radius: fn.use-var(radius, $size);
+      padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2) calc(fn.use-var(gap, $size) / 2);
+      @include m.flex($display: inline-flex);
+      width: 100%;
+      line-height: 1;
+      box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+      transition: box-shadow 0.25s ease;
+      overflow: hidden;
+      cursor: pointer;
+
+      &:hover {
+        box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+      }
+    }
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+   
   }
 
   @include m.is(disabled) {
@@ -79,5 +104,42 @@ $dropdown-name: dropdown;
       background-color: fn.use-var(color, primary, light-3);
       color: fn.use-var(text-color, white);
     }
+
+    @include m.is(checked) {
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+
+
+  @include m.e(empty) {
+    text-align: center;
+  }
+
+  @include m.e(multi) {
+    @include m.flex($display: inline-flex);
+    width: 100%;
+    line-height: 1;
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    transition: box-shadow 0.25s ease;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    }
+  }
+
+
+  @include m.e(placeholder) {
+    flex-shrink: 0;
+    flex-grow: 1;
+    user-select: none;
+    color: fn.use-var(text-color, placeholder);
+  }
+
+  @include m.e(arrow, clear) {
+    min-width: 20px;
+    color: fn.use-var(text-color, main);
   }
 }
