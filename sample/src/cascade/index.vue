@@ -9,13 +9,21 @@
         :options="data"
         label-key="name"
         value-key="code"
+        @update:selected="console.log($event)"
+        @change="handleChangeSelect"
       />
     </CustomCard>
     <CustomCard title="多选数据">
       {{ cascadeTree }}
     </CustomCard>
     <CustomCard title="多选">
-      <u-cascade v-model:checked="cascadeTree" :options="multiData" multiple/>
+      <u-cascade
+        v-model:checked="cascadeTree"
+        :options="multiData"
+        @update:checked="console.log($event)"
+        multiple
+        @change="handleChangeCheck"
+      />
     </CustomCard>
   </div>
 </template>
@@ -25,11 +33,16 @@ import CustomCard from "../card/custom-card.vue"
 // console.log(province, city, area)
 
 import { shallowRef } from "vue"
-// const handleChange = (value: any, label: any, data: any) => {
-//   console.log("value", value)
-//   console.log("label", label)
-//   console.log("data", data)
-// }
+const handleChangeSelect = (value: any, label: any, data: any) => {
+  console.log("value", value)
+  console.log("label", label)
+  console.log("data", data)
+}
+const handleChangeCheck = (value: any, label: any, data: any) => {
+  console.log("value", value)
+  console.log("label", label)
+  console.log("data", data)
+}
 
 const cascade = shallowRef(["component", "basic", "layout"])
 

@@ -10,6 +10,7 @@ export interface CascadeProps {
   disabled?: boolean
   readonly?: boolean
   childrenKey?: string
+  checkStrictly?: boolean
   /**
    * 数据项
    */

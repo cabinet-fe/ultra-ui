@@ -75,36 +75,50 @@ export function useCheck<DataItem extends Record<string, any>>(
     }
   )
 
-  const handleCheck = (node: CascadeNode<DataItem>, check: boolean) => {
+  function handleCheck(node: CascadeNode<DataItem>, check: boolean) {
     isEcho = true
-    if (node.disabled) return
+    const { checkStrictly } = props
+    if (check) {
+      Tree.dft(node, (node) => {
+        if (node.disabled) return
+        node.checked = true
+        checked.add(node.data)
+      })
 
-    Tree.dft(node, (node) => {
-      if (!node.disabled) {
-        node.checked = check
-        if (check) {
-          checked.add(node.data!)
-        } else {
-          checked.delete(node.data!)
+      if (!checkStrictly) {
+        let parent = node.parent
+        while (parent && parent.depth > 0) {
+          parent.checked = parent.children!.every((child) => child.checked)
+          if (!parent.checked) {
+            parent.indeterminate = true
+          } else {
+            parent.indeterminate = false
+            checked.add(parent.data)
+          }
+
+          parent = parent.parent
         }
       }
-    })
+    } else {
+      Tree.dft(node, (node) => {
+        node.checked = false
+        node.indeterminate = false
+        checked.delete(node.data)
+      })
 
-    let parent = node.parent
-    while (parent) {
-      parent.indeterminate =
-        parent.children!.some((child) => child.checked) &&
-        parent.children!.some((child) => !child.checked)
+      if (!checkStrictly) {
+        let parent = node.parent
+        while (parent && parent.depth > 0) {
+          parent.checked = false
+          checked.delete(parent.data)
 
-      parent.checked = parent.children!.every((child) => child.checked)
+          parent.indeterminate =
+            parent.children!.some((child) => child.indeterminate) ||
+            parent.children!.some((child) => child.checked)
 
-      if (parent.checked) {
-        checked.add(parent.data!)
-      } else {
-        checked.delete(parent.data!)
+          parent = parent.parent
+        }
       }
-
-      parent = parent.parent
     }
     nextTick(() => {
       isEcho = false

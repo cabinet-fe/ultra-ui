@@ -131,7 +131,6 @@ const echo = (arr) => {
       }
     })
   })
-  console.log(echoData, "echoData")
 
   echoData.forEach((item, index) => {
     multiple ? (item.checked = true) : (item.selected = true)
