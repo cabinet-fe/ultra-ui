@@ -7,6 +7,8 @@
 $root-name: tree-select;
 
 @include m.b($root-name) {
+  width: 100%;
+
   @include m.is(disabled) {
     cursor: not-allowed;
 

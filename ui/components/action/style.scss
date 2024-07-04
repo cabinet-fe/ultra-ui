@@ -4,12 +4,14 @@
 
 // 方便拼接
 $root-name: action;
+$group-name: action-group;
 
-@include m.b($root-name) {
+@include m.b($group-name) {
   @include m.e(dropdown) {
-    padding: 4px 6px;
-    .u-button,
-    .u-pop-confirm {
+    padding: 6px;
+    min-width: 100px;
+
+    @include m.b(button) {
       width: 100%;
     }
   }

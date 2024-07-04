@@ -1,16 +1,12 @@
-/** 标签类型 */
-type TagType = 'primary' | 'success' | 'info' | 'warning' | 'danger'
-
-/** 标签尺寸 */
-type sizeType = 'large' | 'default' | 'small'
+import type { ColorType, ComponentSize } from '../component-common'
 
 /** 标签组件属性 */
 export interface TagProps {
-  type?: TagType
+  type?: ColorType
   /** 是否可移除 */
   closable?: boolean
   /** 尺寸大小 */
-  size?: sizeType
+  size?: ComponentSize
   /** 是否为圆角 */
   round?: boolean
   /** 深色 */

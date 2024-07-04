@@ -22,14 +22,14 @@
         <u-button>触发</u-button>
       </u-tip>
 
-      <u-tip
+      <!-- <u-tip
         :direction="direction"
         :alignment="alignment"
         :trigger="trigger"
         :content="content"
       >
         <u-button>触发2</u-button>
-      </u-tip>
+      </u-tip> -->
     </CustomCard>
   </div>
 </template>

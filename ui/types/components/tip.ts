@@ -27,11 +27,6 @@ export interface TipProps {
   alignment?: TipAlign
 
   /**
-   * 点击空白区域是否可关闭
-   */
-  clickClose?: boolean
-
-  /**
    * tip内容标签
    */
   contentTag?: string

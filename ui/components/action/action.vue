@@ -4,6 +4,7 @@
     title="确认执行此操作吗？"
     @confirm="handleConfirm"
     style="display: inline-block"
+    direction="right"
   >
     <template #reference>
       <u-button :class="cls.b" v-bind="props"><slot /></u-button>

@@ -1,14 +1,12 @@
 import type { Component } from 'vue'
 import type { DeconstructValue } from '../helper'
+import type { TipProps } from './tip'
 
 /** 气泡确认框组件属性 */
-export interface PopConfirmProps {
+export interface PopConfirmProps
+  extends Pick<TipProps, 'alignment' | 'direction' | 'trigger' | 'contentTag'> {
   /**文字 */
   title?: string
-  /**
-   * 触发方式
-   */
-  trigger?: 'hover' | 'click'
   /**icon 图标*/
   icon?: Component
   /**icon 颜色 */
