@@ -51,10 +51,15 @@ const {
   hovered,
   size,
   clear,
-  remove
+  remove,
 } = injected!
 
 const { placeholder, clearable } = cascadeProps
+
+defineOptions({
+  name: "CascadeMulti",
+})
+
 const limit = () => {
   let { visibilityLimit } = cascadeProps
 

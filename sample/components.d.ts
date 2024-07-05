@@ -19,11 +19,15 @@ declare module 'vue' {
     UCardCover: typeof import('ultra-ui')['UCardCover']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCascade: typeof import('ultra-ui')['UCascade']
+    UEmpty: typeof import('ultra-ui')['UEmpty']
     UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
     UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     URadio: typeof import('ultra-ui')['URadio']
+    URadioGroup: typeof import('ultra-ui')['URadioGroup']
     UScroll: typeof import('ultra-ui')['UScroll']
     UTable: typeof import('ultra-ui')['UTable']
     UText: typeof import('ultra-ui')['UText']
+    UTextarea: typeof import('ultra-ui')['UTextarea']
+    UTip: typeof import('ultra-ui')['UTip']
   }
 }

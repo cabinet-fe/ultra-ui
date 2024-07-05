@@ -2,6 +2,7 @@
   <u-dropdown
     v-if="!readonly"
     :class="[cls.b, bem.is('disabled', disabled), cls.m(size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
     ref="dropdownRef"
     :disabled="disabled"
@@ -18,7 +19,7 @@
         :placeholder="placeholder"
         :clearable="clearable"
         v-model="cascade"
-        :native-readonly="filterable"
+        native-readonly
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -29,10 +30,27 @@
     </template>
 
     <template #content>
-      <!-- 数据列表 -->
-      <div :class="cls.e('content')" v-if="cascadeData.length">
-        <UCascadeNode v-bind="$attrs" :cascadeData="cascadeData" />
+      <!-- 过滤 -->
+      <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
+        <u-input
+          placeholder="输入关键字进行过滤"
+          v-model="qs"
+          :clearable="false"
+        >
+          <template #suffix>
+            <u-icon><Search /></u-icon>
+          </template>
+        </u-input>
       </div>
+      <!-- 数据列表 -->
+      <template v-if="cascadeData.length">
+        <div :class="cls.e('content')" v-if="!filterData.length">
+          <UCascadeNode v-bind="$attrs" :cascadeData="cascadeData" />
+        </div>
+        <div v-else>
+          <UCascadeFilter v-bind="$attrs" :filterData="filterData" />
+        </div>
+      </template>
       <div :class="cls.e('empty')" v-else>
         <UEmpty />
       </div>
@@ -54,8 +72,8 @@ import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import type { CascadeProps, CascadeEmits } from "@ui/types/components/cascade"
 import { bem } from "@ui/utils"
 import { computed, provide, shallowRef, watch } from "vue"
-import { ArrowDown } from "icon-ultra"
-import { UCascadeNode, UCascadeMulti } from "./index"
+import { ArrowDown, Search } from "icon-ultra"
+import { UCascadeNode, UCascadeMulti, UCascadeFilter } from "./index"
 import { CascadeDIKey } from "./di"
 import { UInput } from "../input"
 import { UTag } from "../tag"
@@ -101,10 +119,12 @@ const hovered = shallowRef(false)
 
 const cascadeData = shallowRef<Record<string, any>[]>([])
 
+const qs = shallowRef<string>("")
+
 /** 森林 */
 const forest = computed(() => {
   const { valueKey, labelKey } = props
-  return Forest.create(props.options, {
+  return Forest.create(props.options as Option[], {
     createNode: (data, index) => {
       const node = new CascadeNode({
         data,
@@ -121,7 +141,7 @@ const forest = computed(() => {
  * 节点的字典，key为指定的valueKey的值
  */
 const nodeDict = computed(() => {
-  const dict = new Map<string | number, CascadeNode<Record<string, any>>>()
+  const dict = new Map<string | number, CascadeNode<Option>>()
 
   forest.value.dft((node) => {
     dict.set(node.key, node)
@@ -155,7 +175,7 @@ const { checked, handleCheck } = useCheck<Record<string, any>>({
 
 function separateByDepth(data) {
   const result = {}
-  function traverse(node, parent?: Record<string, any>) {
+  function traverse(node, parent?: Option) {
     if (!result[node.depth]) {
       result[node.depth] = []
     }
@@ -224,6 +244,7 @@ const clear = () => {
   props.multiple && checked.clear()
   !props.multiple && selected.clear()
 }
+
 const remove = (tag: string) => {
   let data = tag.split(" / ")
   let del = data[data.length - 1]
@@ -234,6 +255,44 @@ const remove = (tag: string) => {
     }
   })
 }
+
+const filterData = shallowRef<Record<string, any>[]>([])
+
+watch(qs, (qs) => {
+  if (qs) {
+    filterData.value = []
+    forest.value.dft((node) => {
+      if (node.label.includes(qs)) {
+        filterData.value.push(node)
+      }
+    })
+  } else {
+    filterData.value = []
+  }
+})
+
+const handleFilter = (data: string) => {
+  cascade.value = data
+  let filter = data.split(" / ")
+  selected.clear()
+  forest.value.dft((node) => {
+    if (filter.includes(node.data[props.labelKey!])) {
+      selected.add(node.data)
+    }
+  })
+  let selectedArr = Array.from(selected)
+  emit(
+    "update:selected",
+    selectedArr.map((item) => item[props.valueKey!])
+  )
+  emit(
+    "change",
+    selectedArr.map((item) => item[props.valueKey!]),
+    selectedArr.map((item) => item[props.labelKey!]),
+    selectedArr
+  )
+}
+
 provide(CascadeDIKey, {
   cls,
   cascadeProps: props,
@@ -252,5 +311,8 @@ provide(CascadeDIKey, {
   hovered,
   clear,
   remove,
+  filterData,
+  handleFilter,
+  getNodePath,
 })
 </script>

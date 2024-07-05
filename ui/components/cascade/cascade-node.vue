@@ -1,39 +1,40 @@
 <template>
-  <u-scroll
-    tag="div"
-    :class="[cls.e('options'), cls.m(size)]"
-    ref="scrollRef"
-    v-for="(data, dataIndex) in cascadeData"
-    :key="dataIndex"
-  >
-    <ul v-for="(option, index) in data">
-      <li
-        v-if="shouldShowLevel(dataIndex, option)"
-        :class="[
-          cls.e('option'),
-          bem.is('selected', option.selected),
-          bem.is('checked', option.checked),
-        ]"
-        :key="option.data[labelKey!]"
-        :data-depth="option.depth"
-        @click="handleClick(option, dataIndex)"
-        v-ripple="disabled ? false : cls.e('ripple')"
-      >
-        <slot :option="option" :index="index">
-          <div>
-            <u-checkbox
-              v-if="multiple"
-              :model-value="option.checked"
-              :indeterminate="option.indeterminate"
-              @update:model-value="handleCheck(option, $event)"
-            ></u-checkbox>
-            {{ option.data[labelKey!] }}
-          </div>
-          <u-icon v-if="option[childrenKey!]"><ArrowRight /></u-icon>
-        </slot>
-      </li>
-    </ul>
-  </u-scroll>
+  <template v-for="(data, dataIndex) in cascadeData">
+    <u-scroll
+      tag="ul"
+      :class="[cls.e('options'), cls.m(size)]"
+      ref="scrollRef"
+    >
+      <template v-for="(option, index) in data">
+        <li
+          v-if="shouldShowLevel(dataIndex, option)"
+          :class="[
+            cls.e('option'),
+            bem.is('selected', option.selected),
+            bem.is('checked', option.checked),
+            bem.is('disabled', option.disabled),
+          ]"
+          :key="option.data[labelKey!]"
+          :data-depth="option.depth"
+          @click="handleClick(option, dataIndex)"
+          v-ripple="disabled ? false : cls.e('ripple')"
+        >
+          <slot :option="option" :index="index">
+            <div>
+              <u-checkbox
+                v-if="multiple"
+                :model-value="option.checked"
+                :indeterminate="option.indeterminate"
+                @update:model-value="handleCheck(option, $event)"
+              ></u-checkbox>
+              {{ option.data[labelKey!] }}
+            </div>
+            <u-icon v-if="option[childrenKey!]"><ArrowRight /></u-icon>
+          </slot>
+        </li>
+      </template>
+    </u-scroll>
+  </template>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -45,14 +46,14 @@ import { ArrowRight } from "icon-ultra"
 import { UScroll } from "../scroll"
 import { UIcon } from "../icon"
 import { UCheckbox } from "../checkbox"
-import type { CascadeItemProps } from "@ui/types/components/cascade"
+import type { CascadeNodeProps } from "@ui/types/components/cascade"
 import type { CascadeNode } from "./cascade-node"
 
 defineOptions({
-  name: "CascadeItem",
+  name: "CascadeNode",
 })
 
-const props = withDefaults(defineProps<CascadeItemProps>(), {})
+const props = withDefaults(defineProps<CascadeNodeProps>(), {})
 
 const injected = inject(CascadeDIKey)
 
@@ -73,7 +74,7 @@ const depthIndex = ref([0])
 
 const parentNodes = ref<string[]>([])
 
-let isEchoing = true // 添加一个标志变量
+let isEchoing = true
 
 const shouldShowLevel = (level: number, data: Option) => {
   return (
@@ -82,6 +83,7 @@ const shouldShowLevel = (level: number, data: Option) => {
       parentNodes.value.includes(data.parentNodes))
   )
 }
+
 const addUniqueItem = (array: any[], item: any) => {
   if (!array.includes(item) && item) array.push(item)
 }
@@ -100,7 +102,7 @@ const handleClick = (
       depthIndex.value = []
     } else {
       parentNodes.value.splice(option.depth - 1, 1)
-      depthIndex.value.splice(option.depth, 1)
+      depthIndex.value.splice(dataIndex + 1, 1)
     }
     depthIndex.value = [...depthIndex.value, dataIndex + 1]
     parentNodes.value = [...parentNodes.value, option.data[labelKey!]]
@@ -145,7 +147,10 @@ watch(
   (val) => {
     let arr = []
     if (val && isEchoing) {
-      arr = val.split(" / ")
+      initData()
+      // parentNodes.value = []
+      // depthIndex.value = []
+      arr = val.split(" / ") as []
       echo(arr)
     }
   },

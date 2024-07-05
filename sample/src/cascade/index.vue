@@ -25,6 +25,20 @@
         @change="handleChangeCheck"
       />
     </CustomCard>
+    <CustomCard title="过滤数据">
+      {{ cascadeFilter }}
+    </CustomCard>
+    <CustomCard title="过滤">
+      <u-cascade
+        v-model:selected="cascadeFilter"
+        :options="dataFilter"
+        label-key="name"
+        value-key="code"
+        @update:selected="console.log($event)"
+        @change="handleChangeSelect"
+        filterable
+      />
+    </CustomCard>
   </div>
 </template>
 <script lang="ts" setup>
@@ -46,11 +60,15 @@ const handleChangeCheck = (value: any, label: any, data: any) => {
 
 const cascade = shallowRef(["component", "basic", "layout"])
 
+const cascadeFilter = shallowRef(["component", "basic"])
+
 const cascadeTree = shallowRef([1, 2, 7, 8])
 
 const data = shallowRef<any[]>([])
 
 const multiData = shallowRef<any[]>([])
+
+const dataFilter = shallowRef<any[]>([])
 
 setTimeout(() => {
   multiData.value = [
@@ -61,6 +79,7 @@ setTimeout(() => {
         {
           value: 2,
           label: "China",
+          disabled:true,
           children: [
             { value: 3, label: "Beijing" },
             { value: 4, label: "Shanghai" },
@@ -362,5 +381,7 @@ setTimeout(() => {
       ],
     },
   ]
+
+  dataFilter.value = data.value
 }, 2000)
 </script>

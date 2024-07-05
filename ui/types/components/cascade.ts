@@ -35,8 +35,12 @@ export interface CascadeProps {
 
   visibilityLimit?: number
 }
-export interface CascadeItemProps {
+export interface CascadeNodeProps {
   cascadeData?: Record<string, any>[]
+}
+
+export interface CascadeFilterProps {
+  filterData?: Record<string, any>[]
 }
 
 /** 级联选择器组件定义的事件 */
