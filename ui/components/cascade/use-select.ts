@@ -43,16 +43,45 @@ export function useSelect<DataItem extends Record<string, any>>(
   }
 
   watch(
-    () => [props.modelValue, forest.value.nodes],
+    () => [props.selected, forest.value.nodes],
     ([modelValue, nodes]) => {
       if (isEcho && selected.size !== 0) return
       nodes.forEach((node) => {
         Tree.bft(node, (item) => {
           if (modelValue?.includes(item.data[props.valueKey!])) {
             selected.add(item.data)
+            isEcho = false
             deselectSiblingNodes(item)
           }
         })
+      })
+      nextTick(() => {
+        isEcho = true
+      })
+    },
+    {
+      immediate: true,
+    }
+  )
+
+  watch(
+    selected,
+    (c) => {
+      if (!isEcho) return
+      isEcho = false
+      let selectedArr = Array.from(c)
+      emit(
+        "update:selected",
+        selectedArr.map((item) => item[props.valueKey!])
+      )
+      emit(
+        "change",
+        selectedArr.map((item) => item[props.valueKey!]),
+        selectedArr.map((item) => item[props.labelKey!]),
+        selectedArr
+      )
+      nextTick(() => {
+        isEcho = true
       })
     },
     {
@@ -85,23 +114,6 @@ export function useSelect<DataItem extends Record<string, any>>(
       if (parentNode !== undefined) {
         selected.add(parentNode)
       }
-    })
-
-    let selectedArr = Array.from(selected)
-
-    emit(
-      "update:modelValue",
-      selectedArr.map((item) => item[props.valueKey!])
-    )
-    emit(
-      "change",
-      selectedArr.map((item) => item[props.valueKey!]),
-      selectedArr.map((item) => item[props.labelKey!]),
-      Array.from(selected)
-    )
-
-    nextTick(() => {
-      isEcho = false
     })
   }
 

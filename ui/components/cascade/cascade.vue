@@ -2,36 +2,65 @@
   <u-dropdown
     v-if="!readonly"
     :class="[cls.b, bem.is('disabled', disabled), cls.m(size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
     ref="dropdownRef"
     :disabled="disabled"
-    width="auto"
+    :width="cascadeData.length ? 'auto' : ''"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
   >
     <template #trigger>
+      <!-- 单选展示 -->
       <u-input
+        v-if="!multiple"
         :size="size"
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
         v-model="cascade"
-        :native-readonly="filterable"
+        native-readonly
+        @clear="clear"
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
       </u-input>
+      <!-- 多选展示 -->
+      <UCascadeMulti v-else />
     </template>
 
     <template #content>
-      <div :class="cls.e('content')" v-if="cascadeData.length">
-        <CascadeItem v-bind="$attrs" :cascadeData="cascadeData" />
+      <!-- 过滤 -->
+      <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
+        <u-input
+          placeholder="输入关键字进行过滤"
+          v-model="qs"
+          :clearable="false"
+        >
+          <template #suffix>
+            <u-icon><Search /></u-icon>
+          </template>
+        </u-input>
+      </div>
+      <!-- 数据列表 -->
+      <template v-if="cascadeData.length">
+        <div :class="cls.e('content')" v-if="!filterData.length">
+          <UCascadeNode v-bind="$attrs" :cascadeData="cascadeData" />
+        </div>
+        <div v-else>
+          <UCascadeFilter v-bind="$attrs" :filterData="filterData" />
+        </div>
+      </template>
+      <div :class="cls.e('empty')" v-else>
+        <UEmpty />
       </div>
     </template>
   </u-dropdown>
   <template v-else>
     <div :class="[cls.m(size)]">
-      <div v-if="modelValue?.length" :class="cls.e('tags')">
-        <u-tag v-for="option of modelValue" :key="option[labelKey]">
+      <div v-if="cascade?.length" :class="cls.e('tags')">
+        <u-tag v-for="option of cascade" :key="option[labelKey]">
           {{ option }}
         </u-tag>
       </div>
@@ -44,16 +73,19 @@ import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
 import type { CascadeProps, CascadeEmits } from "@ui/types/components/cascade"
 import { bem } from "@ui/utils"
 import { computed, provide, shallowRef, watch } from "vue"
-import { ArrowDown } from "icon-ultra"
-import CascadeItem from "./cascade-item.vue"
+import { ArrowDown, Search } from "icon-ultra"
+import { UCascadeNode, UCascadeMulti, UCascadeFilter } from "./index"
 import { CascadeDIKey } from "./di"
 import { UInput } from "../input"
+import { UTag } from "../tag"
+import { UIcon } from "../icon"
 import { UDropdown, type DropdownExposed } from "../dropdown"
 import { Forest } from "cat-kit/fe"
 import { CascadeNode } from "./cascade-node"
 import { useSelect } from "./use-select"
-import { UTag } from "../tag"
-import { UIcon } from "../icon"
+import { useCheck } from "./use-check"
+import { UEmpty } from "../empty"
+
 defineOptions({
   name: "Cascade",
 })
@@ -71,6 +103,8 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   readonly: undefined,
   childrenKey: "children",
   filterable: false,
+  options: () => [],
+  visibilityLimit: 3,
 })
 
 const { formProps } = useFormComponent()
@@ -82,13 +116,16 @@ const { size, disabled, readonly } = useFormFallbackProps(
     readonly: false,
   }
 )
+const hovered = shallowRef(false)
 
 const cascadeData = shallowRef<Record<string, any>[]>([])
 
+const qs = shallowRef<string>("")
+
 /** 森林 */
 const forest = computed(() => {
-  const { options, valueKey, labelKey } = props
-  return Forest.create(options!, {
+  const { valueKey, labelKey } = props
+  return Forest.create(props.options as Option[], {
     createNode: (data, index) => {
       const node = new CascadeNode({
         data,
@@ -105,7 +142,7 @@ const forest = computed(() => {
  * 节点的字典，key为指定的valueKey的值
  */
 const nodeDict = computed(() => {
-  const dict = new Map<string | number, CascadeNode<Record<string, any>>>()
+  const dict = new Map<string | number, CascadeNode<Option>>()
 
   forest.value.dft((node) => {
     dict.set(node.key, node)
@@ -130,42 +167,37 @@ const { handleSelect, selected } = useSelect<Record<string, any>>({
   nodeDict,
   forest,
 })
+const { checked, handleCheck } = useCheck<Record<string, any>>({
+  props,
+  emit,
+  nodeDict,
+  forest,
+})
 
 function separateByDepth(data) {
   const result = {}
-
-  function traverse(node, parent?: Record<string, any>) {
-    // 如果当前深度不存在于结果中，初始化一个空数组
+  function traverse(node, parent?: Option) {
     if (!result[node.depth]) {
       result[node.depth] = []
     }
-
-    // 添加节点到对应深度的数组中
     result[node.depth].push(node)
-
-    // 设置当前节点的父节点
     node.parentNodes = parent ? parent.data[props.labelKey] : ""
-
-    // 遍历子节点
     if (node.children) {
       node.children.forEach((child) => traverse(child, node))
     }
   }
-
-  // 遍历整个数据结构
   data.forEach((item) => traverse(item))
-
   return Object.keys(result)
     .sort((a: any, b: any) => a - b)
     .map((key) => result[key])
 }
 
-const cascade = shallowRef("")
+const cascade = shallowRef<string>()
 
 watch(
-  () => [forest.value.nodes],
-  ([option]) => {
-    if (option?.length) {
+  () => props.options,
+  (option) => {
+    if (option) {
       cascadeData.value = separateByDepth(forest.value.nodes)
     }
   },
@@ -178,6 +210,80 @@ watch(selected, (selected) => {
     .join(" / ")
 })
 
+watch(checked, (checked) => {
+  cascade.value = Array.from(checked)
+    .map((node) => node[props.labelKey!])
+    .join(" / ")
+})
+
+/**
+ * 生成树形结构中各个节点的路径
+ */
+const getNodePath = (node) => {
+  let path = [node[props.labelKey!]]
+  let currentNode = nodeDict.value.get(node[props.valueKey!])
+  while (currentNode?.parent) {
+    currentNode = currentNode.parent
+    if (currentNode.data) {
+      path.unshift(currentNode.data[props.labelKey!])
+    }
+  }
+  return path.join(" / ")
+}
+
+/**树形回显数据格式 */
+const cascadeMulti = computed(() => {
+  const paths = Array.from(checked).map((node) => getNodePath(node))
+
+  const filteredPaths = paths.filter((path, index) => {
+    return !paths.some((p, i) => i !== index && p.startsWith(path))
+  })
+  return filteredPaths
+})
+
+const clear = () => {
+  props.multiple && checked.clear()
+  !props.multiple && selected.clear()
+  close()
+}
+
+const remove = (tag: string) => {
+  let data = tag.split(" / ")
+  let del = data[data.length - 1]
+  forest.value.dft((node) => {
+    if (node.label === del) {
+      checked.delete(node.data)
+      return
+    }
+  })
+}
+
+const filterData = shallowRef<Record<string, any>[]>([])
+
+watch(qs, (qs) => {
+  if (qs) {
+    filterData.value = []
+    forest.value.dft((node) => {
+      if (node.label.includes(qs)) {
+        filterData.value.push(node)
+      }
+    })
+  } else {
+    filterData.value = []
+  }
+})
+
+const handleFilter = (data: string) => {
+  cascade.value = data
+  let filter = data.split(" / ")
+  selected.clear()
+  forest.value.dft((node) => {
+    if (filter.includes(node.data[props.labelKey!])) {
+      selected.add(node.data)
+    }
+  })
+}
+
 provide(CascadeDIKey, {
   cls,
   cascadeProps: props,
@@ -189,6 +295,15 @@ provide(CascadeDIKey, {
   forest,
   nodeDict,
   handleSelect,
+  handleCheck,
   cascade,
+  cascadeMulti,
+  emit,
+  hovered,
+  clear,
+  remove,
+  filterData,
+  handleFilter,
+  getNodePath,
 })
 </script>

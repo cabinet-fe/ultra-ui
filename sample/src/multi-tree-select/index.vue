@@ -22,7 +22,7 @@
 import { shallowRef } from "vue"
 import CustomCard from "../card/custom-card.vue"
 
-const treeCheckable = shallowRef([8, 9, 10, 11])
+const treeCheckable = shallowRef([8, 9, 11])
 
 const disabledNode = (data) => {
   return data.id % 4 === 0
