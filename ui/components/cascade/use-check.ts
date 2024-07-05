@@ -37,17 +37,6 @@ export function useCheck<DataItem extends Record<string, any>>(
         if (node) {
           checked.add(node.data!)
           node.checked = true
-          let parent = node.parent
-          while (parent && parent.depth > 0) {
-            parent.checked = false
-            checked.delete(parent.data)
-
-            parent.indeterminate =
-              parent.children!.some((child) => child.indeterminate) ||
-              parent.children!.some((child) => child.checked)
-
-            parent = parent.parent
-          }
         }
       })
       nextTick(() => {
