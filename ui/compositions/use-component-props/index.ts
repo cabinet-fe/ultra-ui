@@ -39,6 +39,7 @@ export function useComponentProps<T extends Record<string, any>>(
             node.props = {}
           }
           Object.keys(props).forEach(key => {
+            // node中已定义
             if (node.props![key] !== undefined) return
             node.props![key] = props[key]
             if (attrs[key] !== undefined) {
@@ -55,6 +56,7 @@ export function useComponentProps<T extends Record<string, any>>(
         const _props = isRef(props) ? props.value : props
         const nodes = mergeNodesProps(_props)
 
+        // 如果渲染一个根元素将options中定义的props之外的属性合并到tag中
         if (componentProps.tag) {
           const tagProps = Object.keys(attrs).reduce((acc, cur) => {
             if (!(cur in _props)) {

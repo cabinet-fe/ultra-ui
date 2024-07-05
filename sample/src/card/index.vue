@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-card width="400" >
+    <u-card width="400">
       <u-card-header> 卡片标题 </u-card-header>
 
       <u-card-content>
@@ -29,7 +29,7 @@
         "
       >
         <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
-        <button-common-props tag="span">
+        <button-common-props tag="span" size="small">
           <u-button :icon="Star" type="primary" />
           <u-button :icon="Lock" type="warning" />
           <u-button :icon="MoreFilled" />
