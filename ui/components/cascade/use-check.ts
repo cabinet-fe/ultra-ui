@@ -52,7 +52,7 @@ export function useCheck<DataItem extends Record<string, any>>(
     checked,
     (c) => {
       if (!isEcho) return
-      isEcho = true
+      isEcho = false
       const checkedArr = Array.from(c)
 
       emit(
@@ -67,7 +67,7 @@ export function useCheck<DataItem extends Record<string, any>>(
       )
 
       nextTick(() => {
-        isEcho = false
+        isEcho = true
       })
     },
     {

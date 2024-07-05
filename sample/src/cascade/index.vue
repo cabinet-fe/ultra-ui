@@ -10,7 +10,6 @@
         label-key="name"
         value-key="code"
         @update:selected="console.log($event)"
-        @change="handleChangeSelect"
       />
     </CustomCard>
     <CustomCard title="多选数据">
@@ -22,7 +21,6 @@
         :options="multiData"
         @update:checked="console.log($event)"
         multiple
-        @change="handleChangeCheck"
       />
     </CustomCard>
     <CustomCard title="过滤数据">
@@ -35,7 +33,6 @@
         label-key="name"
         value-key="code"
         @update:selected="console.log($event)"
-        @change="handleChangeSelect"
         filterable
       />
     </CustomCard>
@@ -47,16 +44,6 @@ import CustomCard from "../card/custom-card.vue"
 // console.log(province, city, area)
 
 import { shallowRef } from "vue"
-const handleChangeSelect = (value: any, label: any, data: any) => {
-  console.log("value", value)
-  console.log("label", label)
-  console.log("data", data)
-}
-const handleChangeCheck = (value: any, label: any, data: any) => {
-  console.log("value", value)
-  console.log("label", label)
-  console.log("data", data)
-}
 
 const cascade = shallowRef(["component", "basic", "layout"])
 

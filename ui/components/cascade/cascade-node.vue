@@ -1,10 +1,6 @@
 <template>
   <template v-for="(data, dataIndex) in cascadeData">
-    <u-scroll
-      tag="ul"
-      :class="[cls.e('options'), cls.m(size)]"
-      ref="scrollRef"
-    >
+    <u-scroll tag="ul" :class="[cls.e('options'), cls.m(size)]" ref="scrollRef">
       <template v-for="(option, index) in data">
         <li
           v-if="shouldShowLevel(dataIndex, option)"
@@ -70,7 +66,7 @@ const {
 
 const { labelKey, childrenKey, multiple } = cascadeProps
 
-const depthIndex = ref([0])
+const depthIndex = ref([-1])
 
 const parentNodes = ref<string[]>([])
 
@@ -145,11 +141,12 @@ const echo = (arr) => {
 watch(
   () => cascade.value,
   (val) => {
+    if(val === ''){
+      initData()
+      return
+    }
     let arr = []
     if (val && isEchoing) {
-      initData()
-      // parentNodes.value = []
-      // depthIndex.value = []
       arr = val.split(" / ") as []
       echo(arr)
     }

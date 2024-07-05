@@ -20,6 +20,7 @@
         :clearable="clearable"
         v-model="cascade"
         native-readonly
+        @clear="clear"
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -243,6 +244,7 @@ const cascadeMulti = computed(() => {
 const clear = () => {
   props.multiple && checked.clear()
   !props.multiple && selected.clear()
+  close()
 }
 
 const remove = (tag: string) => {
@@ -280,17 +282,6 @@ const handleFilter = (data: string) => {
       selected.add(node.data)
     }
   })
-  let selectedArr = Array.from(selected)
-  emit(
-    "update:selected",
-    selectedArr.map((item) => item[props.valueKey!])
-  )
-  emit(
-    "change",
-    selectedArr.map((item) => item[props.valueKey!]),
-    selectedArr.map((item) => item[props.labelKey!]),
-    selectedArr
-  )
 }
 
 provide(CascadeDIKey, {
