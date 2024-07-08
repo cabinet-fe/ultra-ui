@@ -55,7 +55,6 @@
             field="cascade"
             label="单选级联选择器"
             :options="cascadeData"
-            value-key="label"
           />
         </template>
       </u-form>
@@ -115,7 +114,7 @@
       </div>
     </CustomCard>
 
-    {{ model.data }}
+    {{ model.data.cascade }}
   </div>
 </template>
 

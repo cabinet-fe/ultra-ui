@@ -1,7 +1,8 @@
 import type { DeconstructValue } from "../helper"
+import type { FormComponentProps } from '../component-common'
 
 /** 级联选择器组件属性 */
-export interface CascadeProps {
+export interface CascadeProps extends FormComponentProps {
   modelValue?: any[]
   labelKey?: string
   valueKey?: string
@@ -35,11 +36,11 @@ export interface CascadeProps {
 
   visibilityLimit?: number
 }
-export interface CascadeNodeProps {
+export interface CascadeNodeProps extends FormComponentProps {
   cascadeData?: Record<string, any>[]
 }
 
-export interface CascadeFilterProps {
+export interface CascadeFilterProps extends FormComponentProps {
   filterData?: Record<string, any>[]
 }
 
