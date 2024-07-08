@@ -6,4 +6,5 @@ import "../tag/style"
 import "../checkbox/style"
 import "../empty/style"
 import "@ui/directives/ripple/style"
+import '@ui/styles/anime/zoom-in.scss'
 import "./style.scss"
