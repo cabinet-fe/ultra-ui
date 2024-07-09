@@ -114,7 +114,7 @@
       </div>
     </CustomCard>
 
-    {{ model.data.cascade }}
+    {{ model.data }}
   </div>
 </template>
 
