@@ -46,8 +46,7 @@ export interface CascadeFilterProps extends FormComponentProps {
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  (e: "update:selected", value: any[]): void
-  (e: "update:checked", value: any[]): void
+  (e: "update:modelValue", value: Record<string, any>[]): void
   (
     e: "change",
     value: string[] | number[],

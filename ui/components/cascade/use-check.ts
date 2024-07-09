@@ -22,8 +22,9 @@ export function useCheck<DataItem extends Record<string, any>>(
   let isEcho = false
 
   watch(
-    [() => props.checked, nodeDict],
+    [() => props.modelValue, nodeDict],
     ([c, nodeDict], [oc]) => {
+      if(!props.multiple) return
       if (isEcho && checked.size !== 0) return
       if (forest.value.size === 0) return
 
@@ -51,12 +52,12 @@ export function useCheck<DataItem extends Record<string, any>>(
   watch(
     checked,
     (c) => {
+      if(!props.multiple) return
       if (!isEcho) return
       isEcho = false
       const checkedArr = Array.from(c)
-
       emit(
-        "update:checked",
+        "update:modelValue",
         checkedArr.map((item) => item[props.valueKey!])
       )
       emit(

@@ -170,7 +170,7 @@ const model = new FormModel({
   complete1: { value: 'test', required: true },
   complete2: { value: () => ['张三', '李四'], required: true },
   group: { required: true },
-  cascade:{ required: true }
+  cascade:{ required: true,value:["component", "basic", "layout"] }
 })
 
 // const sortRef = shallowRef()
@@ -332,10 +332,6 @@ setTimeout(() => {
             {
               value: "rate",
               label: "Rate",
-            },
-            {
-              value: "form",
-              label: "Form",
             },
           ],
         },

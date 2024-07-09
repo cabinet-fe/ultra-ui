@@ -5,11 +5,11 @@
     </CustomCard>
     <CustomCard title="单选">
       <u-cascade
-        v-model:selected="cascade"
+        v-model="cascade"
         :options="data"
         label-key="name"
         value-key="code"
-        @update:selected="console.log($event)"
+        @update:modelValue="console.log($event)"
       />
     </CustomCard>
     <CustomCard title="多选数据">
@@ -17,9 +17,9 @@
     </CustomCard>
     <CustomCard title="多选">
       <u-cascade
-        v-model:checked="cascadeTree"
+        v-model="cascadeTree"
         :options="multiData"
-        @update:checked="console.log($event)"
+        @update:modelValue="console.log($event)"
         multiple
       />
     </CustomCard>
@@ -28,11 +28,11 @@
     </CustomCard>
     <CustomCard title="过滤">
       <u-cascade
-        v-model:selected="cascadeFilter"
+        v-model="cascadeFilter"
         :options="dataFilter"
         label-key="name"
         value-key="code"
-        @update:selected="console.log($event)"
+        @update:modelValue="console.log($event)"
         filterable
       />
     </CustomCard>
