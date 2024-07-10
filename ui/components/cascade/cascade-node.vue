@@ -31,7 +31,7 @@
               ></u-checkbox>
               {{ option.data[labelKey!] }}
             </div>
-            <u-icon v-if="option[childrenKey!]"><ArrowRight /></u-icon>
+            <u-icon v-if="option[childrenKey!] && option[childrenKey!].length"><ArrowRight /></u-icon>
           </slot>
         </li>
       </template>
