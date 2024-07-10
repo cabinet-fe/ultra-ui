@@ -30,6 +30,7 @@
                 @update:model-value="handleCheck(option, $event)"
               ></u-checkbox>
               {{ option.data[labelKey!] }}
+              {{ option.data[valueKey!] }}
             </div>
             <u-icon v-if="option[childrenKey!] && option[childrenKey!].length"
               ><ArrowRight
@@ -131,7 +132,7 @@ const echo = (arr) => {
   parentNodes.value = []
   props.cascadeData?.some((node) => {
     node.forEach((item) => {
-      if (arr.includes(item.data[labelKey!])) {
+      if (arr.includes(item.data[valueKey!])) {
         echoData.push(item)
       }
     })
@@ -152,10 +153,8 @@ watch(
       initData()
       return
     }
-    let arr = []
     if (val && isEchoing) {
-      arr = val.split(" / ") as []
-      echo(arr)
+      echo(cascadeProps.modelValue!)
     }
   },
   { immediate: true }
