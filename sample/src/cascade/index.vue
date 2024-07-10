@@ -48,7 +48,7 @@ import { shallowRef } from "vue"
 
 const cascade = shallowRef<any[]>([])
 
-const cascadeFilter = shallowRef(["component", "basic"])
+const cascadeFilter = shallowRef(["13", "1306", "130606"])
 
 const cascadeTree = shallowRef([1, 2, 7, 8])
 
