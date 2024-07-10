@@ -31,7 +31,9 @@
               ></u-checkbox>
               {{ option.data[labelKey!] }}
             </div>
-            <u-icon v-if="option[childrenKey!] && option[childrenKey!].length"><ArrowRight /></u-icon>
+            <u-icon v-if="option[childrenKey!] && option[childrenKey!].length"
+              ><ArrowRight
+            /></u-icon>
           </slot>
         </li>
       </template>
@@ -70,7 +72,7 @@ const {
   disabled,
 } = injected!
 
-const { labelKey, valueKey,childrenKey, multiple } = cascadeProps
+const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
 
 const depthIndex = ref([-1])
 
@@ -95,8 +97,7 @@ const handleClick = (
   dataIndex: number
 ) => {
   isEchoing = false
-
-  if (option.children === undefined) {
+  if (option[childrenKey!] === undefined || !option[childrenKey!].length) {
     !multiple && close()
   } else {
     if (option.depth === 1) {
