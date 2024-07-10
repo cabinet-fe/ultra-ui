@@ -1,16 +1,22 @@
 <template>
   <template v-for="(data, dataIndex) in cascadeData">
-    <u-scroll tag="ul" :class="[cls.e('options'), cls.m(size)]" ref="scrollRef">
+    <u-scroll
+      tag="ul"
+      :class="[
+        cls.e('options'),
+        cls.m(size),
+        bem.is('right', !!depthIndex.length),
+      ]"
+    >
       <template v-for="(option, index) in data">
         <li
-          v-if="shouldShowLevel(dataIndex, option)"
+          v-show="shouldShowLevel(dataIndex, option)"
           :class="[
             cls.e('option'),
             bem.is('selected', option.selected),
             bem.is('checked', option.checked),
             bem.is('disabled', option.disabled),
           ]"
-          :key="option.data[labelKey!]"
           :data-depth="option.depth"
           @click="handleClick(option, dataIndex)"
           v-ripple="disabled ? false : cls.e('ripple')"
@@ -64,7 +70,7 @@ const {
   disabled,
 } = injected!
 
-const { labelKey, childrenKey, multiple } = cascadeProps
+const { labelKey, valueKey,childrenKey, multiple } = cascadeProps
 
 const depthIndex = ref([-1])
 
@@ -101,7 +107,7 @@ const handleClick = (
       depthIndex.value.splice(dataIndex + 1, 1)
     }
     depthIndex.value = [...depthIndex.value, dataIndex + 1]
-    parentNodes.value = [...parentNodes.value, option.data[labelKey!]]
+    parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
     initData()
   }
 
@@ -141,7 +147,7 @@ const echo = (arr) => {
 watch(
   () => cascade.value,
   (val) => {
-    if(val === ''){
+    if (val === "") {
       initData()
       return
     }

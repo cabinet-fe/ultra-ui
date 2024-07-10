@@ -45,7 +45,7 @@ import CustomCard from "../card/custom-card.vue"
 
 import { shallowRef } from "vue"
 
-const cascade = shallowRef(["component", "basic", "layout"])
+const cascade = shallowRef<any[]>([])
 
 const cascadeFilter = shallowRef(["component", "basic"])
 
@@ -58,6 +58,10 @@ const multiData = shallowRef<any[]>([])
 const dataFilter = shallowRef<any[]>([])
 
 setTimeout(() => {
+  cascade.value = ['guide','introduction']
+},2500)
+
+setTimeout(() => {
   multiData.value = [
     {
       value: 1,
@@ -66,7 +70,7 @@ setTimeout(() => {
         {
           value: 2,
           label: "China",
-          disabled:true,
+          disabled: true,
           children: [
             { value: 3, label: "Beijing" },
             { value: 4, label: "Shanghai" },
@@ -146,6 +150,194 @@ setTimeout(() => {
     {
       code: "guide",
       name: "Guide",
+      children: [
+        {
+          code: "introduction",
+          name: "Introduction",
+          children: [
+            {
+              code: "overview",
+              name: "Overview",
+              children: [
+                {
+                  code: "setup",
+                  name: "Setup",
+                  children: [
+                    {
+                      code: "requirements",
+                      name: "Requirements",
+                    },
+                    {
+                      code: "installation",
+                      name: "Installation",
+                    },
+                    {
+                      code: "configuration",
+                      name: "Configuration",
+                    },
+                  ],
+                },
+                {
+                  code: "usage",
+                  name: "Usage",
+                  children: [
+                    {
+                      code: "basics",
+                      name: "Basics",
+                    },
+                    {
+                      code: "advanced",
+                      name: "Advanced",
+                    },
+                    {
+                      code: "examples",
+                      name: "Examples",
+                    },
+                  ],
+                },
+                {
+                  code: "support",
+                  name: "Support",
+                  children: [
+                    {
+                      code: "faq",
+                      name: "FAQ",
+                    },
+                    {
+                      code: "community",
+                      name: "Community",
+                    },
+                    {
+                      code: "contact",
+                      name: "Contact",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              code: "getting-started",
+              name: "Getting Started",
+              children: [
+                {
+                  code: "quick-start",
+                  name: "Quick Start",
+                  children: [
+                    {
+                      code: "requirements",
+                      name: "Requirements",
+                    },
+                    {
+                      code: "installation",
+                      name: "Installation",
+                    },
+                    {
+                      code: "configuration",
+                      name: "Configuration",
+                    },
+                  ],
+                },
+                {
+                  code: "tutorials",
+                  name: "Tutorials",
+                  children: [
+                    {
+                      code: "basics",
+                      name: "Basics",
+                    },
+                    {
+                      code: "intermediate",
+                      name: "Intermediate",
+                    },
+                    {
+                      code: "advanced",
+                      name: "Advanced",
+                    },
+                  ],
+                },
+                {
+                  code: "resources",
+                  name: "Resources",
+                  children: [
+                    {
+                      code: "docs",
+                      name: "Documentation",
+                    },
+                    {
+                      code: "videos",
+                      name: "Videos",
+                    },
+                    {
+                      code: "blogs",
+                      name: "Blogs",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              code: "best-practices",
+              name: "Best Practices",
+              children: [
+                {
+                  code: "coding",
+                  name: "Coding",
+                  children: [
+                    {
+                      code: "standards",
+                      name: "Standards",
+                    },
+                    {
+                      code: "patterns",
+                      name: "Patterns",
+                    },
+                    {
+                      code: "tips",
+                      name: "Tips",
+                    },
+                  ],
+                },
+                {
+                  code: "testing",
+                  name: "Testing",
+                  children: [
+                    {
+                      code: "unit",
+                      name: "Unit Testing",
+                    },
+                    {
+                      code: "integration",
+                      name: "Integration Testing",
+                    },
+                    {
+                      code: "end-to-end",
+                      name: "End-to-End Testing",
+                    },
+                  ],
+                },
+                {
+                  code: "deployment",
+                  name: "Deployment",
+                  children: [
+                    {
+                      code: "ci-cd",
+                      name: "CI/CD",
+                    },
+                    {
+                      code: "docker",
+                      name: "Docker",
+                    },
+                    {
+                      code: "kubernetes",
+                      name: "Kubernetes",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
     {
       code: "component",
@@ -158,22 +350,182 @@ setTimeout(() => {
             {
               code: "layout",
               name: "Layout",
+              children: [
+                {
+                  code: "grid",
+                  name: "Grid",
+                  children: [
+                    {
+                      code: "rows",
+                      name: "Rows",
+                    },
+                    {
+                      code: "columns",
+                      name: "Columns",
+                    },
+                    {
+                      code: "gaps",
+                      name: "Gaps",
+                    },
+                  ],
+                },
+                {
+                  code: "flex",
+                  name: "Flex",
+                  children: [
+                    {
+                      code: "direction",
+                      name: "Direction",
+                    },
+                    {
+                      code: "wrap",
+                      name: "Wrap",
+                    },
+                    {
+                      code: "justify",
+                      name: "Justify",
+                    },
+                  ],
+                },
+                {
+                  code: "container",
+                  name: "Container",
+                  children: [
+                    {
+                      code: "fluid",
+                      name: "Fluid",
+                    },
+                    {
+                      code: "fixed",
+                      name: "Fixed",
+                    },
+                    {
+                      code: "responsive",
+                      name: "Responsive",
+                    },
+                  ],
+                },
+              ],
             },
             {
               code: "color",
               name: "Color",
+              children: [
+                {
+                  code: "palette",
+                  name: "Palette",
+                  children: [
+                    {
+                      code: "primary",
+                      name: "Primary Colors",
+                    },
+                    {
+                      code: "secondary",
+                      name: "Secondary Colors",
+                    },
+                    {
+                      code: "accent",
+                      name: "Accent Colors",
+                    },
+                  ],
+                },
+                {
+                  code: "scheme",
+                  name: "Scheme",
+                  children: [
+                    {
+                      code: "light",
+                      name: "Light Scheme",
+                    },
+                    {
+                      code: "dark",
+                      name: "Dark Scheme",
+                    },
+                    {
+                      code: "custom",
+                      name: "Custom Scheme",
+                    },
+                  ],
+                },
+                {
+                  code: "usage",
+                  name: "Usage",
+                  children: [
+                    {
+                      code: "background",
+                      name: "Background",
+                    },
+                    {
+                      code: "text",
+                      name: "Text",
+                    },
+                    {
+                      code: "border",
+                      name: "Border",
+                    },
+                  ],
+                },
+              ],
             },
             {
               code: "typography",
               name: "Typography",
-            },
-            {
-              code: "icon",
-              name: "Icon",
-            },
-            {
-              code: "button",
-              name: "Button",
+              children: [
+                {
+                  code: "font",
+                  name: "Font",
+                  children: [
+                    {
+                      code: "families",
+                      name: "Font Families",
+                    },
+                    {
+                      code: "sizes",
+                      name: "Font Sizes",
+                    },
+                    {
+                      code: "weights",
+                      name: "Font Weights",
+                    },
+                  ],
+                },
+                {
+                  code: "alignment",
+                  name: "Alignment",
+                  children: [
+                    {
+                      code: "left",
+                      name: "Left Align",
+                    },
+                    {
+                      code: "center",
+                      name: "Center Align",
+                    },
+                    {
+                      code: "right",
+                      name: "Right Align",
+                    },
+                  ],
+                },
+                {
+                  code: "spacing",
+                  name: "Spacing",
+                  children: [
+                    {
+                      code: "line-height",
+                      name: "Line Height",
+                    },
+                    {
+                      code: "letter-spacing",
+                      name: "Letter Spacing",
+                    },
+                    {
+                      code: "margin",
+                      name: "Margin",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -182,188 +534,178 @@ setTimeout(() => {
           name: "Form",
           children: [
             {
-              code: "radio",
-              name: "Radio",
-            },
-            {
-              code: "checkbox",
-              name: "Checkbox",
-            },
-            {
               code: "input",
               name: "Input",
-            },
-            {
-              code: "input-number",
-              name: "InputNumber",
+              children: [
+                {
+                  code: "text",
+                  name: "Text Input",
+                  children: [
+                    {
+                      code: "single-line",
+                      name: "Single Line",
+                    },
+                    {
+                      code: "multi-line",
+                      name: "Multi Line",
+                    },
+                    {
+                      code: "password",
+                      name: "Password",
+                    },
+                  ],
+                },
+                {
+                  code: "number",
+                  name: "Number Input",
+                  children: [
+                    {
+                      code: "integer",
+                      name: "Integer",
+                    },
+                    {
+                      code: "decimal",
+                      name: "Decimal",
+                    },
+                    {
+                      code: "range",
+                      name: "Range",
+                    },
+                  ],
+                },
+                {
+                  code: "date",
+                  name: "Date Input",
+                  children: [
+                    {
+                      code: "single-date",
+                      name: "Single Date",
+                    },
+                    {
+                      code: "date-range",
+                      name: "Date Range",
+                    },
+                    {
+                      code: "datetime",
+                      name: "Date & Time",
+                    },
+                  ],
+                },
+              ],
             },
             {
               code: "select",
               name: "Select",
+              children: [
+                {
+                  code: "single",
+                  name: "Single Select",
+                  children: [
+                    {
+                      code: "dropdown",
+                      name: "Dropdown",
+                    },
+                    {
+                      code: "autocomplete",
+                      name: "Autocomplete",
+                    },
+                    {
+                      code: "native",
+                      name: "Native",
+                    },
+                  ],
+                },
+                {
+                  code: "multi",
+                  name: "Multi Select",
+                  children: [
+                    {
+                      code: "dropdown",
+                      name: "Dropdown",
+                    },
+                    {
+                      code: "autocomplete",
+                      name: "Autocomplete",
+                    },
+                    {
+                      code: "native",
+                      name: "Native",
+                    },
+                  ],
+                },
+                {
+                  code: "group",
+                  name: "Group Select",
+                  children: [
+                    {
+                      code: "dropdown",
+                      name: "Dropdown",
+                    },
+                    {
+                      code: "autocomplete",
+                      name: "Autocomplete",
+                    },
+                    {
+                      code: "native",
+                      name: "Native",
+                    },
+                  ],
+                },
+              ],
             },
             {
-              code: "cascader",
-              name: "Cascader",
-            },
-            {
-              code: "switch",
-              name: "Switch",
-            },
-            {
-              code: "slider",
-              name: "Slider",
-            },
-            {
-              code: "time-picker",
-              name: "TimePicker",
-            },
-            {
-              code: "date-picker",
-              name: "DatePicker",
-            },
-            {
-              code: "datetime-picker",
-              name: "DateTimePicker",
-            },
-            {
-              code: "upload",
-              name: "Upload",
-            },
-            {
-              code: "rate",
-              name: "Rate",
+              code: "checkbox",
+              name: "Checkbox",
+              children: [
+                {
+                  code: "single",
+                  name: "Single Checkbox",
+                  children: [
+                    {
+                      code: "indeterminate",
+                      name: "Indeterminate",
+                    },
+                    {
+                      code: "disabled",
+                      name: "Disabled",
+                    },
+                  ],
+                },
+                {
+                  code: "group",
+                  name: "Checkbox Group",
+                  children: [
+                    {
+                      code: "vertical",
+                      name: "Vertical",
+                    },
+                    {
+                      code: "horizontal",
+                      name: "Horizontal",
+                    },
+                    {
+                      code: "inline",
+                      name: "Inline",
+                    },
+                  ],
+                },
+                {
+                  code: "toggle",
+                  name: "Checkbox Toggle",
+                  children: [
+                    {
+                      code: "indeterminate",
+                      name: "Indeterminate",
+                    },
+                    {
+                      code: "disabled",
+                      name: "Disabled",
+                    },
+                  ],
+                },
+              ],
             },
           ],
-        },
-        {
-          code: "data",
-          name: "Data",
-          children: [
-            {
-              code: "table",
-              name: "Table",
-            },
-            {
-              code: "tag",
-              name: "Tag",
-            },
-            {
-              code: "progress",
-              name: "Progress",
-            },
-            {
-              code: "tree",
-              name: "Tree",
-            },
-            {
-              code: "pagination",
-              name: "Pagination",
-            },
-            {
-              code: "badge",
-              name: "Badge",
-            },
-          ],
-        },
-        {
-          code: "notice",
-          name: "Notice",
-          children: [
-            {
-              code: "alert",
-              name: "Alert",
-            },
-            {
-              code: "loading",
-              name: "Loading",
-            },
-            {
-              code: "message",
-              name: "Message",
-            },
-            {
-              code: "message-box",
-              name: "MessageBox",
-            },
-            {
-              code: "notification",
-              name: "Notification",
-            },
-          ],
-        },
-        {
-          code: "navigation",
-          name: "Navigation",
-          children: [
-            {
-              code: "menu",
-              name: "Menu",
-            },
-            {
-              code: "tabs",
-              name: "Tabs",
-            },
-            {
-              code: "breadcrumb",
-              name: "Breadcrumb",
-            },
-            {
-              code: "dropdown",
-              name: "Dropdown",
-            },
-            {
-              code: "steps",
-              name: "Steps",
-            },
-          ],
-        },
-        {
-          code: "others",
-          name: "Others",
-          children: [
-            {
-              code: "dialog",
-              name: "Dialog",
-            },
-            {
-              code: "tooltip",
-              name: "Tooltip",
-            },
-            {
-              code: "popover",
-              name: "Popover",
-            },
-            {
-              code: "card",
-              name: "Card",
-            },
-            {
-              code: "carousel",
-              name: "Carousel",
-            },
-            {
-              code: "collapse",
-              name: "Collapse",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: "resource",
-      name: "Resource",
-      children: [
-        {
-          code: "axure",
-          name: "Axure Components",
-        },
-        {
-          code: "sketch",
-          name: "Sketch Templates",
-        },
-        {
-          code: "docs",
-          name: "Design Documentation",
         },
       ],
     },

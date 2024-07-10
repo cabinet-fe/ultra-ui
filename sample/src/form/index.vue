@@ -170,8 +170,12 @@ const model = new FormModel({
   complete1: { value: 'test', required: true },
   complete2: { value: () => ['张三', '李四'], required: true },
   group: { required: true },
-  cascade:{ required: true,value:["component", "basic", "layout"] }
+  cascade:{ required: true}
 })
+
+setTimeout(() => {
+model.setData({cascade:['guide']})
+},2000)
 
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))

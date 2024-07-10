@@ -181,7 +181,7 @@ function separateByDepth(data) {
       result[node.depth] = []
     }
     result[node.depth].push(node)
-    node.parentNodes = parent ? parent.data[props.labelKey] : ""
+    node.parentNodes = parent ? parent.data[props.valueKey] : ""
     if (node.children) {
       node.children.forEach((child) => traverse(child, node))
     }
@@ -198,7 +198,11 @@ watch(
   () => props.options,
   (option) => {
     if (option) {
+      console.log(props.options);
+
       cascadeData.value = separateByDepth(forest.value.nodes)
+      console.log(cascadeData.value);
+      
     }
   },
   { immediate: true }
