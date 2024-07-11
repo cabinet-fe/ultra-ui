@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { ref, watch, inject, shallowRef, nextTick } from "vue"
+import { ref, watch, inject, shallowRef } from "vue"
 import { bem, nextFrame } from "@ui/utils"
 import { CascadeDIKey } from "./di"
 import { vRipple } from "@ui/directives"
