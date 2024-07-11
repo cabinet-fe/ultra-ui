@@ -6,8 +6,6 @@
 $root-name: button;
 
 @include m.b($root-name) {
-  @include m.flex($display: inline-flex, $justify: center);
-
   color: fn.use-var(text-color, main);
   line-height: 1;
   outline: none;
@@ -22,12 +20,12 @@ $root-name: button;
   border: fn.use-var(border, width) fn.use-var(border, style)
     fn.use-var(color, default);
   box-shadow: 0px 0px 2px 0px fn.use-var(color, default);
-
   transition:
     background-color 0.25s,
     box-shadow 0.2s;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
+  @include m.flex($display: inline-flex, $justify: center);
 
   @include m.is(plain) {
     background-color: fn.use-var(bg-color, top);

@@ -23,9 +23,9 @@ $root-name: calendar;
   }
 
   @include m.e(day) {
-    @include m.flex($justify: center, $align: center);
     cursor: pointer;
     position: relative;
+    @include m.flex($justify: center, $align: center);
 
     @include m.m(pre, next) {
       color: fn.use-var(text-color, disabled);

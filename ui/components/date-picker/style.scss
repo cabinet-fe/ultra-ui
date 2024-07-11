@@ -112,10 +112,9 @@ $root-name: date-picker;
   }
 
   @include m.e(header) {
-    @include m.flex($justify: space-between);
-
     line-height: 1em;
     padding: 0 8px;
+    @include m.flex($justify: space-between);
   }
 
   @include m.e(header-year, header-month) {
@@ -171,10 +170,10 @@ $root-name: date-picker;
   }
 
   @include m.e(month-text, year-text) {
-    @include m.flex($justify: center);
     border-radius: 99px;
     height: 100%;
     width: 100%;
+    @include m.flex($justify: center);
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);

@@ -1,11 +1,11 @@
 {
   "extends": "ts-conf-base/tsconfig.vue.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
+    // "composite": true,
+    // "declaration": true,
     "types": ["vite/client"],
     "lib": ["esnext", "dom"],
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@ui/*": ["./*"]
     },

@@ -14,13 +14,13 @@ $root-name: message;
   margin-bottom: fn.use-var(gap, large);
 
   @include m.e(container) {
-    @include m.flex;
     flex-direction: column;
     position: fixed;
     top: 0;
     padding: fn.use-var(gap, default) 0;
     left: 50%;
     transform: translate(-50%, 0);
+    @include m.flex;
   }
 
   @include m.e(content) {
@@ -35,7 +35,6 @@ $root-name: message;
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     font-size: fn.use-var('font-size', title, $size);
-
 
     @include m.bem($root-name, icon) {
       margin-right: fn.use-var(gap, $size);

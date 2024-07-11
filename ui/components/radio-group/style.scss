@@ -3,8 +3,8 @@
 @use '../../styles/vars';
 
 @include m.b(radio-group) {
-  @include m.flex($display: inline-flex, $align: center);
   vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
 
   @include m.is(block) {
     display: inline-block;

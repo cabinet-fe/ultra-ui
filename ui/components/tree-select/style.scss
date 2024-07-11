@@ -35,10 +35,10 @@ $root-name: tree-select;
   }
 
   @include m.e(content-header) {
-    @include m.flex($justify: space-between);
     padding: 4px 12px;
     border-bottom: fn.use-var(border);
     border-radius: 0;
+    @include m.flex($justify: space-between);
   }
 
   @include m.e(content-tree) {

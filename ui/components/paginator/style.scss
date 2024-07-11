@@ -30,11 +30,11 @@ $root-name: paginator;
   }
 
   @include m.e(btn) {
-    @include m.flex($justify: center);
     color: fn.use-var(text, color, title);
     user-select: none;
     border-radius: 50%;
     cursor: pointer;
+    @include m.flex($justify: center);
 
     &:hover {
       background-color: fn.use-var(color, primary, 'light-9');
