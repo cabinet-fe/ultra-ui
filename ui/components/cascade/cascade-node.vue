@@ -4,7 +4,7 @@
       tag="ul"
       :class="[cls.e('options'), cls.m(size)]"
       ref="scrollRef"
-      v-if="depthIndex.includes(dataIndex + 1)"
+      v-show="depthIndex.includes(dataIndex + 1)"
     >
       <template v-for="(option, index) in data">
         <li
