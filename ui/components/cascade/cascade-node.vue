@@ -101,8 +101,6 @@ const handleClick = (
   if (option[childrenKey!] === undefined || !option[childrenKey!].length) {
     !multiple && close()
   } else {
-    console.log(option.depth)
-
     if (option.depth === 1) {
       parentNodes.value = []
       depthIndex.value = [1, 2]
