@@ -9,6 +9,7 @@
     "paths": {
       "@ui/*": ["./*"]
     },
+    "outDir": "../dist"
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]
