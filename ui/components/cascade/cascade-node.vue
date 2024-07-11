@@ -7,6 +7,7 @@
         cls.m(size),
         bem.is('right', !!depthIndex.length),
       ]"
+      ref="scrollRef"
     >
       <template v-for="(option, index) in data">
         <li
@@ -17,6 +18,7 @@
             bem.is('checked', option.checked),
             bem.is('disabled', option.disabled),
           ]"
+          :data-key="option.data[labelKey!]"
           :data-depth="option.depth"
           @click="handleClick(option, dataIndex)"
           v-ripple="disabled ? false : cls.e('ripple')"
@@ -42,12 +44,12 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { ref, watch, inject } from "vue"
-import { bem } from "@ui/utils"
+import { ref, watch, inject, shallowRef } from "vue"
+import { bem, nextFrame } from "@ui/utils"
 import { CascadeDIKey } from "./di"
 import { vRipple } from "@ui/directives"
 import { ArrowRight } from "icon-ultra"
-import { UScroll } from "../scroll"
+import { UScroll, type ScrollExposed } from "../scroll"
 import { UIcon } from "../icon"
 import { UCheckbox } from "../checkbox"
 import type { CascadeNodeProps } from "@ui/types/components/cascade"
@@ -77,6 +79,8 @@ const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
 const depthIndex = ref([-1])
 
 const parentNodes = ref<string[]>([])
+
+const scrollRef = shallowRef<ScrollExposed[]>([])
 
 let isEchoing = true
 
@@ -157,5 +161,23 @@ watch(
     }
   },
   { immediate: true }
+)
+watch(
+  [scrollRef, cascade],
+  ([scroll, cascade]) => {
+    if (scroll && cascade) {
+      nextFrame(() => {
+        scroll.forEach((item, index) => {
+          const node = item.containerRef!.getElementsByClassName(
+            !multiple ? "is-selected" : "is-checked"
+          )[0]
+          node?.scrollIntoView({ block: "nearest", inline: "start" })
+        })
+      })
+    }
+  },
+  {
+    immediate: true,
+  }
 )
 </script>
