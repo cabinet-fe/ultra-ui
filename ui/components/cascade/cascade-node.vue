@@ -2,12 +2,9 @@
   <template v-for="(data, dataIndex) in cascadeData">
     <u-scroll
       tag="ul"
-      :class="[
-        cls.e('options'),
-        cls.m(size),
-        bem.is('right', !!depthIndex.length),
-      ]"
+      :class="[cls.e('options'), cls.m(size)]"
       ref="scrollRef"
+      v-if="depthIndex.includes(dataIndex + 1)"
     >
       <template v-for="(option, index) in data">
         <li
@@ -104,14 +101,15 @@ const handleClick = (
   if (option[childrenKey!] === undefined || !option[childrenKey!].length) {
     !multiple && close()
   } else {
+    console.log(option.depth)
+
     if (option.depth === 1) {
       parentNodes.value = []
-      depthIndex.value = []
+      depthIndex.value = [1, 2]
     } else {
       parentNodes.value.splice(option.depth - 1, 1)
-      depthIndex.value.splice(dataIndex + 1, 1)
     }
-    depthIndex.value = [...depthIndex.value, dataIndex + 1]
+    depthIndex.value = [...depthIndex.value, option.depth + 1]
     parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
     initData()
   }
