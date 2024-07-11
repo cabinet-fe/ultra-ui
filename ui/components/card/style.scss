@@ -12,10 +12,11 @@ $root-name: card;
   overflow: hidden;
 
   @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
     @include m.b(card__header, card__content, card__action) {
       padding: fn.use-var(gap, $size);
     }
-    font-size: fn.use-var(font-size-main, $size);
 
     @include m.bem($root-name, header) {
       font-size: fn.use-var(font-size-title, $size);

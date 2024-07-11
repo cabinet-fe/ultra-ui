@@ -8,7 +8,7 @@ export interface TreeSelectProps
     Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
   modelValue?: string | number
 
-  /**自定义占位文字 */
+  /** 自定义占位文字 */
   placeholder?: string
   /**
    * 是否可清空
@@ -23,6 +23,9 @@ export interface TreeSelectProps
    * @default '280px'
    */
   minWidth?: string
+
+  /** 显示文本 */
+  text?: string
 }
 
 /** 树形选择器组件定义的事件 */

@@ -19,17 +19,16 @@ $root-name: scroll;
 
     // 隐藏滚动条
     scrollbar-width: none;
+    // 隐藏火狐的滚动条
+    scrollbar-color: transparent transparent;
+    -ms-scrollbar-track-color: transparent;
+    scrollbar-track-color: transparent;
 
     // 兼容隐藏webkit的滚动条
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
     }
-
-    // 隐藏火狐的滚动条
-    scrollbar-color: transparent transparent;
-    -ms-scrollbar-track-color: transparent;
-    scrollbar-track-color: transparent;
   }
 
   @include m.e(content) {

@@ -33,7 +33,7 @@
     "sass": "^1.77.6",
     "simple-git-hooks": "^2.11.1",
     "ts-conf-base": "^2.3.3",
-    "tsx": "4.16.0",
+    "tsx": "4.16.2",
     "typescript": "5.5.3",
     "unplugin-vue-components": "^0.27.2",
     "vite": "5.3.3",
@@ -41,7 +41,7 @@
     "vitest": "^1.6.0",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",
-    "vue-tsc": "2.0.24"
+    "vue-tsc": "2.0.26"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
