@@ -118,6 +118,7 @@ const handleClick = (
 
   !multiple && handleSelect(option)
 }
+
 /**数据初始化 */
 const initData = () => {
   props.cascadeData?.some((node) => {
@@ -128,6 +129,7 @@ const initData = () => {
     })
   })
 }
+
 /**回显 */
 const echo = (arr) => {
   let echoData: any = []
@@ -162,6 +164,7 @@ watch(
   },
   { immediate: true }
 )
+
 watch(
   [scrollRef, cascade],
   ([scroll, cascade]) => {

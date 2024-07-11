@@ -20,22 +20,32 @@ import { UScroll } from "../scroll"
 import { bem } from "@ui/utils"
 import { vRipple } from "@ui/directives"
 
-const props = withDefaults(defineProps<CascadeFilterProps>(), {})
+const props = withDefaults(defineProps<CascadeFilterProps>(), {
+  selectAndReset: true,
+})
+
 defineOptions({
   name: "CascadeFilter",
 })
+
 const injected = inject(CascadeDIKey)
 
-const { cls, size, handleFilter, getNodePath, cascade } = injected!
+const { cls, size, handleFilter, getNodePath, cascade, qsClear, close } =
+  injected!
 
 const selectedIndex = shallowRef(-1)
 
 const filteredPaths = computed(() => {
   return props.filterData!.map((node) => getNodePath(node.data))
 })
+
 const handleClick = (data: string, index: number) => {
   selectedIndex.value = index
   handleFilter(data)
+
+  if (!props.selectAndReset) return
+  qsClear()
+  close()
 }
 
 watch(

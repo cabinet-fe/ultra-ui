@@ -38,6 +38,8 @@ export const CascadeDIKey: InjectionKey<{
   remove: (tag: string) => void
   /** 筛选组装后数据 */
   filterData: Record<string, any>
+  /** 清空搜索内容*/
+  qsClear:() => void
   /** 筛选选中事件 */
   handleFilter: (data: string) => void
   /**  获取节点路径*/
