@@ -2,12 +2,9 @@
   <template v-for="(data, dataIndex) in cascadeData">
     <u-scroll
       tag="ul"
-      :class="[
-        cls.e('options'),
-        cls.m(size),
-        bem.is('right', !!depthIndex.length),
-      ]"
+      :class="[cls.e('options'), cls.m(size)]"
       ref="scrollRef"
+      v-show="depthIndex.includes(dataIndex + 1)"
     >
       <template v-for="(option, index) in data">
         <li
@@ -106,18 +103,18 @@ const handleClick = (
   } else {
     if (option.depth === 1) {
       parentNodes.value = []
-      depthIndex.value = []
+      depthIndex.value = [1, 2]
     } else {
       parentNodes.value.splice(option.depth - 1, 1)
-      depthIndex.value.splice(dataIndex + 1, 1)
     }
-    depthIndex.value = [...depthIndex.value, dataIndex + 1]
+    depthIndex.value = [...depthIndex.value, option.depth + 1]
     parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
     initData()
   }
 
   !multiple && handleSelect(option)
 }
+
 /**数据初始化 */
 const initData = () => {
   props.cascadeData?.some((node) => {
@@ -128,6 +125,7 @@ const initData = () => {
     })
   })
 }
+
 /**回显 */
 const echo = (arr) => {
   let echoData: any = []
@@ -162,6 +160,7 @@ watch(
   },
   { immediate: true }
 )
+
 watch(
   [scrollRef, cascade],
   ([scroll, cascade]) => {

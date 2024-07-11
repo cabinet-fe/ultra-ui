@@ -34,6 +34,7 @@
         value-key="code"
         @update:modelValue="console.log($event)"
         filterable
+        selectAndReset
       />
     </CustomCard>
   </div>

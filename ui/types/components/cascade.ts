@@ -1,8 +1,18 @@
 import type { DeconstructValue } from "../helper"
-import type { FormComponentProps } from '../component-common'
+import type { FormComponentProps } from "../component-common"
+
+export interface CascadeNodeProps extends FormComponentProps {
+  cascadeData?: Record<string, any>[]
+}
+
+export interface CascadeFilterProps extends FormComponentProps {
+  filterData?: Record<string, any>[]
+  /**选择并重置 默认false */
+  selectAndReset?: boolean
+}
 
 /** 级联选择器组件属性 */
-export interface CascadeProps extends FormComponentProps {
+export interface CascadeProps extends FormComponentProps,CascadeFilterProps {
   modelValue?: any[]
   labelKey?: string
   valueKey?: string
@@ -33,15 +43,7 @@ export interface CascadeProps extends FormComponentProps {
    * 搜索
    */
   filterable?: boolean
-
   visibilityLimit?: number
-}
-export interface CascadeNodeProps extends FormComponentProps {
-  cascadeData?: Record<string, any>[]
-}
-
-export interface CascadeFilterProps extends FormComponentProps {
-  filterData?: Record<string, any>[]
 }
 
 /** 级联选择器组件定义的事件 */

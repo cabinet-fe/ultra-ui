@@ -72,6 +72,7 @@ const limit = () => {
   }
   return visibilityLimit
 }
+
 const visibleTags = computed(() => {
   if (cascadeMulti.value.length > limit()!) {
     return cascadeMulti.value.slice(0, limit())

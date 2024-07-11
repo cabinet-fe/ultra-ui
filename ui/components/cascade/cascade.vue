@@ -37,6 +37,7 @@
           placeholder="输入关键字进行过滤"
           v-model="qs"
           :clearable="false"
+          @clear="qsClear"
         >
           <template #suffix>
             <u-icon><Search /></u-icon>
@@ -108,6 +109,7 @@ const props = withDefaults(defineProps<CascadeProps>(), {
 })
 
 const { formProps } = useFormComponent()
+
 const { size, disabled, readonly } = useFormFallbackProps(
   [formProps ?? {}, props],
   {
@@ -116,6 +118,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
     readonly: false,
   }
 )
+
 const hovered = shallowRef(false)
 
 const cascadeData = shallowRef<Record<string, any>[]>([])
@@ -167,6 +170,7 @@ const { handleSelect, selected } = useSelect<Record<string, any>>({
   nodeDict,
   forest,
 })
+
 const { checked, handleCheck } = useCheck<Record<string, any>>({
   props,
   emit,
@@ -174,6 +178,7 @@ const { checked, handleCheck } = useCheck<Record<string, any>>({
   forest,
 })
 
+/**按深度分离 */
 function separateByDepth(data) {
   const result = {}
   function traverse(node, parent?: Option) {
@@ -192,6 +197,7 @@ function separateByDepth(data) {
     .map((key) => result[key])
 }
 
+/**展示数据 */
 const cascade = shallowRef<string>()
 
 watch(
@@ -241,12 +247,18 @@ const cascadeMulti = computed(() => {
   return filteredPaths
 })
 
+/**清空数据 */
 const clear = () => {
   props.multiple && checked.clear()
   !props.multiple && selected.clear()
+  cascade.value = ''
   close()
 }
 
+/**
+ * 删除单个项
+ * @param tag 删除的标签
+ */
 const remove = (tag: string) => {
   let data = tag.split(" / ")
   let del = data[data.length - 1]
@@ -259,6 +271,10 @@ const remove = (tag: string) => {
 }
 
 const filterData = shallowRef<Record<string, any>[]>([])
+
+const qsClear = () => {
+  qs.value = ""
+}
 
 watch(qs, (qs) => {
   if (qs) {
@@ -273,6 +289,7 @@ watch(qs, (qs) => {
   }
 })
 
+ /** 筛选选中事件 */
 const handleFilter = (data: string) => {
   cascade.value = data
   let filter = data.split(" / ")
@@ -303,6 +320,7 @@ provide(CascadeDIKey, {
   clear,
   remove,
   filterData,
+  qsClear,
   handleFilter,
   getNodePath,
 })
