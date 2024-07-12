@@ -6,12 +6,12 @@
 $root-name: loading;
 
 @include m.b($root-name) {
-  @include m.flex($justify: center, $align: center);
   position: absolute;
   width: 100%;
   height: 100%;
   background-color: fn.use-var(bg-color, top, alpha);
   color: fn.use-var(text-color, main);
+  @include m.flex($justify: center, $align: center);
 
   @include m.e(container) {
     position: relative;
@@ -142,10 +142,10 @@ $root-name: loading;
         calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
         calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
         calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-        // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-        // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-        // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-        // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
       animation: classic 2s infinite linear;
 
       &::before {
@@ -259,10 +259,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   18.18% {
     text-shadow:
@@ -272,10 +272,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   27.27% {
     text-shadow:
@@ -285,10 +285,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   36.36% {
     text-shadow:
@@ -298,10 +298,10 @@ $root-name: loading;
       calc(-3 * var(--w)) -10px #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   45.45% {
     text-shadow:
@@ -311,10 +311,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) -10px #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   54.54% {
     text-shadow:
@@ -324,10 +324,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) -10px #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   63.63% {
     text-shadow:
@@ -337,10 +337,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) -10px #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) -10px #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   72.72% {
     text-shadow:
@@ -350,10 +350,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) -10px #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) -10px #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   81.81% {
     text-shadow:
@@ -363,10 +363,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) -10px #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) -10px #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) 0 #{fn.use-var(text-color, main)};
   }
   90.90% {
     text-shadow:
@@ -376,10 +376,10 @@ $root-name: loading;
       calc(-3 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-4 * var(--w)) 0 #{fn.use-var(text-color, main)},
       calc(-5 * var(--w)) 0 #{fn.use-var(text-color, main)};
-      // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
-      // calc(-9 * var(--w)) -10px #{fn.use-var(text-color, main)};
+    // calc(-6 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-7 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-8 * var(--w)) 0 #{fn.use-var(text-color, main)},
+    // calc(-9 * var(--w)) -10px #{fn.use-var(text-color, main)};
   }
 }
 
@@ -440,4 +440,3 @@ $root-name: loading;
     transform: translate(26px);
   }
 }
-

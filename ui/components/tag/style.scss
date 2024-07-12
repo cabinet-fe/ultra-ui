@@ -5,11 +5,11 @@
 
 $root-name: tag;
 @include m.b($root-name) {
-  @include m.flex(inline-flex, flex-start, center);
   cursor: default;
   color: fn.use-var(text-color, main);
   background-color: fn.use-var(color, default);
   overflow: hidden;
+  @include m.flex(inline-flex, flex-start, center);
 
   @include m.e(content) {
     overflow: hidden;

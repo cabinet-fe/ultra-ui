@@ -1,15 +1,17 @@
 <template>
-  <div :class="cls.b" @click="fileRef?.click()">
+  <component :is="tag" :class="cls.b" @click="fileRef?.click()">
     <input
       :multiple="multiple"
+      :class="cls.e('native')"
       type="file"
       :accept="accept"
       hidden
+      placeholder="选择文件"
       ref="fileRef"
       @change="handleChange"
     />
     <slot />
-  </div>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +27,7 @@ defineOptions({
 })
 
 withDefaults(defineProps<UploaderProps>(), {
+  tag: 'div',
   multiple: false
 })
 
@@ -36,7 +39,6 @@ const fileRef = shallowRef<HTMLInputElement>()
 
 const handleChange = (e: Event) => {
   const target = e.target as HTMLInputElement
-
   emit('pick', Array.prototype.slice.call(target.files) as File[])
   target.value = ''
 }

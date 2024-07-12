@@ -52,8 +52,8 @@ $root-name: form-item;
   @include m.e(content) {
     flex-grow: 1;
     word-break: break-all;
-    @include m.flex;
     flex-wrap: wrap;
+    @include m.flex;
 
     & > span {
       line-height: 1.3;

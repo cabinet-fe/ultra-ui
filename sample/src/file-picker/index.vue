@@ -8,6 +8,7 @@
         <li v-for="file of files">{{ file.name }} {{ file.size }}</li>
       </ul>
     </CustomCard>
+
     <CustomCard title="多文件上传">
       <u-file-picker multiple @pick="files = [...files, ...$event]">
         <u-button>上传文件</u-button>

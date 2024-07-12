@@ -3,9 +3,10 @@ import type { DeconstructValue } from '../helper'
 
 /** 文件上传器组件属性 */
 export interface UploaderProps extends FormComponentProps {
+  /** 渲染标签 */
+  tag?: string
   /** 允许上传的文件类型 */
   accept?: string
-
   /** 是否允许多选 */
   multiple?: boolean
 }
