@@ -4,10 +4,10 @@
 
 $root-name: checkbox;
 @include m.b($root-name) {
-  @include m.flex(inline-flex);
   user-select: none;
   vertical-align: middle;
   cursor: pointer;
+  @include m.flex(inline-flex);
 
   @include m.is(checked) {
     @include m.bem($root-name, wrap) {
