@@ -12,10 +12,10 @@
     top: 0;
     cursor: col-resize;
     background-color: #f2f2f2;
-    @include m.flex($align: center, $justify: center);
     // box-shadow: fn.use-var(shadow);
     height: 100%;
     width: 10px;
+    @include m.flex($align: center, $justify: center);
 
     // @include m.is(horizontal) {
     //   height: 6px;

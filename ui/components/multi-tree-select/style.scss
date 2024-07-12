@@ -6,13 +6,13 @@
 $root-name: multi-tree-select;
 
 @include m.b($root-name) {
-  @include m.flex($display: inline-flex);
   width: 100%;
   line-height: 1;
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   overflow: hidden;
   cursor: pointer;
+  @include m.flex($display: inline-flex);
 
   &:hover {
     box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
@@ -63,8 +63,8 @@ $root-name: multi-tree-select;
   }
 
   @include m.e(tags) {
-    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
     flex-grow: 1;
+    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
   }
 
   @include m.e(arrow, clear) {
@@ -73,10 +73,10 @@ $root-name: multi-tree-select;
   }
 
   @include m.e(content-header) {
-    @include m.flex($justify: space-between);
     padding: 4px 12px;
     border-bottom: fn.use-var(border);
     border-radius: 0;
+    @include m.flex($justify: space-between);
   }
 
   @include m.e(panel) {

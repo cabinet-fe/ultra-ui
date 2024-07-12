@@ -6,13 +6,13 @@
 $root-name: multi-select;
 
 @include m.b($root-name) {
-  @include m.flex($display: inline-flex);
   width: 100%;
   line-height: 1;
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   overflow: hidden;
   cursor: pointer;
+  @include m.flex($display: inline-flex);
 
   @include m.size using ($size) {
     min-height: fn.use-var(form-component-height, $size);
@@ -64,8 +64,8 @@ $root-name: multi-select;
   }
 
   @include m.e(tags) {
-    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
     flex-grow: 1;
+    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
   }
 
   @include m.e(option) {

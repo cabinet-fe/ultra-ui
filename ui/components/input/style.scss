@@ -6,13 +6,13 @@
 $root-name: input;
 
 @include m.b($root-name) {
-  @include m.flex($display: inline-flex);
   vertical-align: middle;
   line-height: 1;
   box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
   transition: box-shadow 0.25s ease;
   overflow: hidden;
   width: 100%;
+  @include m.flex($display: inline-flex);
 
   &:hover {
     // 悬浮时边框颜色为 var(--u-color-primary);
@@ -62,12 +62,12 @@ $root-name: input;
 
   @include m.e(prefix, suffix) {
     font-size: 14px;
-    @include m.flex(inline-flex, $justify: center, $align: center);
     color: fn.use-var(text-color, main);
     flex-shrink: 0;
     min-width: 20px;
     text-align: center;
     height: 100%;
+    @include m.flex(inline-flex, $justify: center, $align: center);
 
     @include m.is(clickable) {
       cursor: pointer;
