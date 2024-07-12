@@ -1,6 +1,24 @@
 import type { DeconstructValue } from "../helper"
 import type { FormComponentProps } from "../component-common"
+import type { TreeNode as _CascadeNode } from "cat-kit/fe"
 
+export interface CascadeNode<DataItem extends Record<string, any>>
+  extends _CascadeNode<DataItem> {
+  parent: CascadeNode<DataItem> | null
+  children?: CascadeNode<DataItem>[]
+  valueKey: string
+  labelKey: string
+  visible: boolean
+  expanded: boolean
+  loading: boolean
+  loaded: boolean
+  checked: boolean
+  indeterminate: boolean
+  disabled: boolean
+  label: string
+  parentExpanded: boolean
+  key: string | number
+}
 export interface CascadeNodeProps extends FormComponentProps {
   cascadeData?: Record<string, any>[]
 }
@@ -12,7 +30,10 @@ export interface CascadeFilterProps extends FormComponentProps {
 }
 
 /** 级联选择器组件属性 */
-export interface CascadeProps extends FormComponentProps,CascadeFilterProps {
+export interface CascadeProps<
+  DataItem extends Record<string, any> = Record<string, any>,
+> extends FormComponentProps,
+    CascadeFilterProps {
   modelValue?: any[]
   labelKey?: string
   valueKey?: string
@@ -25,12 +46,12 @@ export interface CascadeProps extends FormComponentProps,CascadeFilterProps {
   /**
    * 数据项
    */
-  options?: Record<string, any>[]
+  options?: DataItem[]
 
   /**
    * 禁用项
    */
-  disabledNode?: Record<string, any>[]
+  disabledNode?: (item: DataItem, node: CascadeNode<DataItem>) => boolean
   /**
    * 多选
    */

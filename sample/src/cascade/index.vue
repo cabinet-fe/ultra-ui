@@ -35,6 +35,7 @@
         @update:modelValue="console.log($event)"
         filterable
         selectAndReset
+        :disabledNode="disabledNode"
       />
     </CustomCard>
   </div>
@@ -58,6 +59,10 @@ const data = shallowRef<any[]>([])
 const multiData = shallowRef<any[]>([])
 
 const dataFilter = shallowRef<any[]>([])
+
+const disabledNode = data => {
+  return data.code % 2 === 0
+}
 
 setTimeout(() => {
   cascade.value = ["13", "1306", "130606"]

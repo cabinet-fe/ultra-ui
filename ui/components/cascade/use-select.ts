@@ -13,7 +13,7 @@ interface Options<DataItem extends Record<string, any>> {
 /**
  * 单选
  */
-export function useSelect<DataItem extends Record<string, any>>(
+export function useSelect<DataItem extends Record<string, any> = Record<string,any>>(
   options: Options<DataItem>
 ) {
   const { emit, props, nodeDict, forest } = options

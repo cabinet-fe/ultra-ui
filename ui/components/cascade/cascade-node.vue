@@ -17,8 +17,8 @@
           ]"
           :data-key="option.data[labelKey!]"
           :data-depth="option.depth"
-          @click="handleClick(option, dataIndex)"
-          v-ripple="disabled ? false : cls.e('ripple')"
+          @click="handleClick(option)"
+          v-ripple="option.disabled ? false : cls.e('ripple')"
         >
           <slot :option="option" :index="index">
             <div>
@@ -68,7 +68,6 @@ const {
   handleSelect,
   handleCheck,
   cascade,
-  disabled,
 } = injected!
 
 const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
@@ -95,8 +94,8 @@ const addUniqueItem = (array: any[], item: any) => {
 
 const handleClick = (
   option: CascadeNode<Record<string, any>>,
-  dataIndex: number
 ) => {
+  if(option.disabled) return
   isEchoing = false
   if (option[childrenKey!] === undefined || !option[childrenKey!].length) {
     !multiple && close()

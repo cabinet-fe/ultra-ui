@@ -127,17 +127,30 @@ const qs = shallowRef<string>("")
 
 /** 森林 */
 const forest = computed(() => {
-  const { valueKey, labelKey } = props
-  return Forest.create(props.options as Option[], {
-    createNode: (data, index) => {
-      const node = new CascadeNode({
-        data,
-        index,
-        valueKey: valueKey!,
-        labelKey: labelKey!,
-      })
-      return node
-    },
+  const { valueKey, labelKey,options,disabledNode } = props
+  return Forest.create(options as Option[], {
+    createNode: disabledNode
+      ? (data, index) => {
+          const node = new CascadeNode({
+            data,
+            index,
+            valueKey: valueKey!,
+            labelKey: labelKey!,
+          })
+          if (data) {
+            node.disabled = disabledNode(data, node) ?? false
+          }
+          return node
+        }
+      : (data, index) => {
+          const node = new CascadeNode({
+            data,
+            index,
+            valueKey: valueKey!,
+            labelKey: labelKey!,
+          })
+          return node
+        },
   })
 })
 
@@ -251,7 +264,7 @@ const cascadeMulti = computed(() => {
 const clear = () => {
   props.multiple && checked.clear()
   !props.multiple && selected.clear()
-  cascade.value = ''
+  cascade.value = ""
   close()
 }
 
@@ -280,7 +293,7 @@ watch(qs, (qs) => {
   if (qs) {
     filterData.value = []
     forest.value.dft((node) => {
-      if (node.label.includes(qs)) {
+      if (node.label.includes(qs) && !node.disabled) {
         filterData.value.push(node)
       }
     })
@@ -289,7 +302,7 @@ watch(qs, (qs) => {
   }
 })
 
- /** 筛选选中事件 */
+/** 筛选选中事件 */
 const handleFilter = (data: string) => {
   cascade.value = data
   let filter = data.split(" / ")
