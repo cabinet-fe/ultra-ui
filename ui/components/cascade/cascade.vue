@@ -60,9 +60,9 @@
   </u-dropdown>
   <template v-else>
     <div :class="[cls.m(size)]">
-      <div v-if="cascade?.length" :class="cls.e('tags')">
-        <u-tag v-for="option of cascade" :key="option[labelKey]">
-          {{ option }}
+      <div v-if="cascade" :class="cls.e('tags')">
+        <u-tag>
+          {{ cascade }}
         </u-tag>
       </div>
     </div>
