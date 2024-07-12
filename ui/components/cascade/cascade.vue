@@ -127,7 +127,7 @@ const qs = shallowRef<string>("")
 
 /** 森林 */
 const forest = computed(() => {
-  const { valueKey, labelKey,options,disabledNode } = props
+  const { valueKey, labelKey, options, disabledNode } = props
   return Forest.create(options as Option[], {
     createNode: disabledNode
       ? (data, index) => {
@@ -241,11 +241,20 @@ watch(checked, (checked) => {
 const getNodePath = (node) => {
   let path = [node[props.labelKey!]]
   let currentNode = nodeDict.value.get(node[props.valueKey!])
+
   while (currentNode?.parent) {
+    if (currentNode.disabled) {
+      // 如果当前节点或其父节点被禁用，返回空字符串
+      return ""
+    }
     currentNode = currentNode.parent
     if (currentNode.data) {
       path.unshift(currentNode.data[props.labelKey!])
     }
+  }
+  if (node.disabled) {
+    // 如果节点本身被禁用，返回空字符串
+    return ""
   }
   return path.join(" / ")
 }
@@ -308,8 +317,11 @@ const handleFilter = (data: string) => {
   let filter = data.split(" / ")
   selected.clear()
   forest.value.dft((node) => {
-    if (filter.includes(node.data[props.labelKey!])) {
-      selected.add(node.data)
+    if (!node.disabled) {
+      let nodePath = getNodePath(node.data)
+      if (filter.includes(node.data[props.labelKey!]) && nodePath !== "") {
+        selected.add(node.data)
+      }
     }
   })
 }

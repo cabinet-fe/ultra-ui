@@ -36,8 +36,8 @@ const { cls, size, handleFilter, getNodePath, cascade, qsClear, close } =
 const selectedIndex = shallowRef(-1)
 
 const filteredPaths = computed(() => {
-  return props.filterData!.map((node) => getNodePath(node.data))
-})
+  return props.filterData!.map((node) => getNodePath(node.data)).filter(path => path !== "");
+});
 
 const handleClick = (data: string, index: number) => {
   selectedIndex.value = index

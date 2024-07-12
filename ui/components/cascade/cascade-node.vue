@@ -29,6 +29,7 @@
                 @update:model-value="handleCheck(option, $event)"
               ></u-checkbox>
               {{ option.data[labelKey!] }}
+              {{ option.data[valueKey!] }}
             </div>
             <u-icon v-if="option[childrenKey!] && option[childrenKey!].length"
               ><ArrowRight
