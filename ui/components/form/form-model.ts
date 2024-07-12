@@ -2,8 +2,8 @@ import type {
   FormModelItem,
   ModelData,
   ModelRules,
-  IFormModel,
-  DataSettingConfig
+  DataSettingConfig,
+  IFormModel
 } from '@ui/types/components/form'
 import { Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'

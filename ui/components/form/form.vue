@@ -29,10 +29,10 @@ import { UGrid, type GridExposed } from '../grid'
 import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
 import { useNodeInterceptor } from './use-node-interceptor'
-import type { FormModel } from './form-model'
 import { UFormItem } from '../form-item'
 import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
+import type { FormModel } from './form-model'
 
 defineOptions({
   name: 'Form'

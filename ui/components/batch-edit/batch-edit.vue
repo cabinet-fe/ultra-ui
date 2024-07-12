@@ -95,7 +95,6 @@
             :label-width="labelWidth"
           >
             <template #default="{ data, model }">
-              <!-- @vue-ignore -->
               <slot
                 name="form"
                 v-bind="{
@@ -147,7 +146,7 @@ import {
   type TableRow
 } from '../table'
 import { UCard, UCardAction, UCardHeader } from '../card'
-import { UForm, FormModel } from '../form'
+import { type FormModel, UForm } from '../form'
 import { ULayout } from '../layout'
 import { UScroll } from '../scroll'
 import { UButton, type ButtonProps } from '../button'

@@ -3,7 +3,7 @@ import type { ComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 import type { ValidateRule } from '../utils/form/validate'
 
-export interface FormModelItem<Val = unknown> extends ValidateRule {
+export interface FormModelItem<Val = any> extends ValidateRule {
   /** 模型值 */
   value?: Val
 }
