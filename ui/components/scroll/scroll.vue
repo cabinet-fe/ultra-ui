@@ -45,7 +45,6 @@ import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
-import { debounce } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Scroll'
