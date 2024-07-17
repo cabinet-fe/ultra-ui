@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { computed, nextTick, provide, shallowReactive, watch } from 'vue'
+import { computed, provide, shallowReactive, watch } from 'vue'
 import { MenuDIKey } from './di'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
