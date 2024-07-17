@@ -35,6 +35,8 @@
   // 表单组件高度
   @include m.css-var(form-component-height, vars.$form-component-height);
 
+  @include m.css-var(menu-height, vars.$menu-height);
+
   // 字体大小
   @include m.css-var(font-size-title, vars.$font-size-title);
   @include m.css-var(font-size-main, vars.$font-size-main);

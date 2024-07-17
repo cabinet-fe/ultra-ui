@@ -18,21 +18,6 @@
   }
 }
 
-/*
-* 组件尺寸
-* 参数为生效的form-size属性
-* 例如:
-* 使用$form-component-sizes中的属性, 表示使用表单组件中的sizes
-* @include component-size($form-component-sizes)
-*/
-@mixin component-size($sizes) {
-  @each $size, $size-types in $sizes {
-    &--#{$size} {
-      @content ($size, $size-types);
-    }
-  }
-}
-
 @mixin size {
   @each $size in vars.$sizes {
     &--#{$size} {

@@ -45,6 +45,7 @@ import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
+import { debounce } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Scroll'
@@ -93,7 +94,7 @@ const trackSize = {
 
 useResizeObserver({
   targets: [contentRef, scrollRef],
-  onResize(entries) {
+  onResize: entries => {
     if (entries.length && scrollRef.value) {
       const { clientHeight, clientWidth } = scrollRef.value
 

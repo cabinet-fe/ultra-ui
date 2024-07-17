@@ -33,9 +33,6 @@ $root-name: checkbox;
 
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
-    & + & {
-      margin-left: calc(fn.use-var(gap, $size) * 2);
-    }
 
     @include m.bem($root-name, wrap) {
       height: calc(fn.use-var(form-component-height, $size) / 2);

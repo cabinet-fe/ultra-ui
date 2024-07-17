@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, bem.is('block', block)]">
+  <div :class="[cls.b, cls.m(size), bem.is('block', block)]">
     <u-checkbox
       v-for="item of items"
       :key="item[valueKey]"

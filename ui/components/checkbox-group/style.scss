@@ -5,7 +5,11 @@
 @include m.b(checkbox-group) {
   line-height: 1;
   vertical-align: middle;
-  @include m.flex(inline-flex);
+  @include m.flex($display: inline-flex, $wrap: wrap);
+
+  @include m.size using ($size) {
+    gap: calc(fn.use-var(gap, $size) * 2);
+  }
 
   @include m.is(block) {
     display: inline-block;

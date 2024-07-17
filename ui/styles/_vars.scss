@@ -22,25 +22,6 @@ $namespace: 'u-';
 
 $sizes: (small, default, large);
 
-// 表单组件尺寸(已经废弃)
-$form-component-sizes: size-vars(
-  (
-    height: 24px,
-    padding: 0 8px,
-    font-size: 12px
-  ),
-  (
-    height: 32px,
-    padding: 0 12px,
-    font-size: 14px
-  ),
-  (
-    height: 40px,
-    padding: 0 16px,
-    font-size: 16px
-  )
-);
-
 // 颜色类别
 $color-types: (
   // 品牌色
@@ -102,6 +83,12 @@ $form-component-height: (
   small: 24px,
   default: 32px,
   large: 40px
+);
+
+$menu-height: (
+  small: 32px,
+  default: 40px,
+  large: 48px
 );
 
 // 字体大小

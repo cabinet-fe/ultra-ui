@@ -3,7 +3,7 @@ import { watch, onBeforeUnmount } from 'vue'
 /**
  * 监听过渡
  * @param domGetter 元素获取函数
- * @param config 胚子
+ * @param config 配置
  * @returns
  */
 export function watchTransition(
