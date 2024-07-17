@@ -13,6 +13,8 @@ export interface MenuItem {
   disabled?: boolean
   /** 子菜单 */
   children?: MenuItem[]
+
+  [key: string]: any
 }
 
 /** 菜单组件组件属性 */
