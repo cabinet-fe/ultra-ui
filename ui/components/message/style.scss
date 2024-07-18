@@ -63,23 +63,23 @@ $root-name: message;
   }
 }
 
-.message-move, /* 对移动中的元素应用的过渡 */
-.message-enter-active,
-.message-leave-active {
+.#{$root-name}-move, /* 对移动中的元素应用的过渡 */
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
   transition-duration: 0.3s;
   transition-timing-function: ease;
   transition-property: opacity, transform;
 }
 
-.message-enter-from,
-.message-leave-to {
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
   opacity: 0;
   transform: translateY(-30px) scale(0.9);
 }
 
 /* 确保将离开的元素从布局流中删除
   以便能够正确地计算移动的动画。 */
-.message-leave-active {
+.#{$root-name}-leave-active {
   position: absolute;
   width: max-content;
 }
