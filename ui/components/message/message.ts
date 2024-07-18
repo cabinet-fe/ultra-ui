@@ -100,7 +100,7 @@ const msg: Message = options => {
 }
 
 msg.closeAll = function () {
-  messages.splice(0)
+  messages.splice(0).forEach(message => message.onClose?.())
 }
 
 messageTypes.forEach(type => {
