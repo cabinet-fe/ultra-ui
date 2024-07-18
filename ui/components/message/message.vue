@@ -1,41 +1,32 @@
 <template>
-  <transition
-    name="message-fade"
-    appear
-    @before-leave="onClose"
-    @after-leave="emit('destroy')"
-    @appear="startClose"
+  <li
+    :class="[cls.b, cls.m(size), cls.m('color-' + getTypeColor(type))]"
+    @mouseenter="suspendClose"
+    @mouseleave="close"
   >
-    <div
-      :class="[cls.b, cls.m(size), cls.m('color-' + getTypeColor(type))]"
-      v-if="visible"
-      @mouseenter="suspendClose"
-      @mouseleave="close"
-    >
-      <div :class="cls.e('icon')">
-        <UIcon>
-          <component :is="getTypeIcon(type, icon)" />
-        </UIcon>
-      </div>
-      <div :class="cls.e('content')" v-if="html" v-html="message"></div>
-      <div :class="cls.e('content')" v-else>
-        {{ message }}
-      </div>
-      <div
-        :class="cls.e('close')"
-        v-if="closable || duration === 0"
-        @click.stop="immediateClose"
-      >
-        <UIcon><Close /></UIcon>
-      </div>
+    <div :class="cls.e('icon')">
+      <UIcon>
+        <component :is="getTypeIcon(type, icon)" />
+      </UIcon>
     </div>
-  </transition>
+    <div :class="cls.e('content')" v-if="html" v-html="message"></div>
+    <div :class="cls.e('content')" v-else>
+      {{ message }}
+    </div>
+    <div
+      :class="cls.e('close')"
+      v-if="closable || duration === 0"
+      @click.stop="immediateClose"
+    >
+      <UIcon><Close /></UIcon>
+    </div>
+  </li>
 </template>
 
 <script lang="ts" setup>
-import type { MessageProps, MessageExposed } from '@ui/types/components/message'
+import type { MessageProps } from '@ui/types/components/message'
 import { bem } from '@ui/utils'
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useFallbackProps } from '@ui/compositions'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -52,7 +43,7 @@ const props = withDefaults(defineProps<MessageProps>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'destroy'): void
+  (e: 'close'): void
 }>()
 
 const { size } = useFallbackProps([props], {
@@ -60,8 +51,6 @@ const { size } = useFallbackProps([props], {
 })
 
 const cls = bem('message')
-
-const visible = ref<boolean>(true)
 
 let startTime = 0
 let timer: number
@@ -71,7 +60,7 @@ function close() {
   if (props.duration === 0) return
   startTime = Date.now()
   timer = setTimeout(() => {
-    visible.value = false
+    emit('close')
   }, restDuration)
 }
 
@@ -81,14 +70,16 @@ function startClose() {
   close()
 }
 
+onMounted(() => {
+  startClose()
+})
+
 function suspendClose() {
   clearTimeout(timer)
   restDuration = restDuration - (Date.now() - startTime)
 }
 
 function immediateClose() {
-  visible.value = false
+  emit('close')
 }
-
-defineExpose<MessageExposed>({ immediateClose, suspendClose })
 </script>

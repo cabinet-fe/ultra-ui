@@ -45,11 +45,13 @@ const config = reactive({
 
 const showMsg = () => {
   message({
-    message: '测试消息测试消息abcdABCD<h1>22</h1>',
+    message: '测试消息测试消息abcdABCD阿萨就肯定会今安徽的撒娇<h1>22</h1>',
     ...config,
-
-    onClose: () => {
-      // console.log(123)
+    onClose() {
+      console.log('开始关闭')
+    },
+    onClosed() {
+      console.log('关闭完毕')
     }
   })
 }

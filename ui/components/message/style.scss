@@ -20,6 +20,7 @@ $root-name: message;
     padding: fn.use-var(gap, default) 0;
     left: 50%;
     transform: translate(-50%, 0);
+
     @include m.flex;
   }
 
@@ -62,15 +63,23 @@ $root-name: message;
   }
 }
 
-.#{$root-name}-fade-enter-from,
-.#{$root-name}-fade-leave-to {
-  opacity: 0;
-  transform: translate3d(0, -100%, 0);
+.message-move, /* 对移动中的元素应用的过渡 */
+.message-enter-active,
+.message-leave-active {
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+  transition-property: opacity, transform;
 }
 
-.#{$root-name}-fade-enter-active,
-.#{$root-name}-fade-leave-active {
-  transition:
-    opacity 0.3s,
-    transform 0.3s;
+.message-enter-from,
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.9);
+}
+
+/* 确保将离开的元素从布局流中删除
+  以便能够正确地计算移动的动画。 */
+.message-leave-active {
+  position: absolute;
+  width: max-content;
 }

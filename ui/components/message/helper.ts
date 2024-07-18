@@ -22,7 +22,7 @@ export function getTypeIcon(type: MessageType, icon?: DefineComponent) {
 
 const typeColors = {
   error: 'danger',
-  warn: 'warning',
+  warn: 'warning'
 }
 
 export function getTypeColor(type: MessageType): ColorType {
