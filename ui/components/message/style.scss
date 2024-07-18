@@ -1,7 +1,6 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
-@use 'sass:map';
 
 // 方便拼接
 $root-name: message;
