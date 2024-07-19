@@ -6,69 +6,55 @@
 $root-name: progress;
 
 @include m.b($root-name) {
-  @include m.size using ($size) {
-    height: fn.use-var(tag, $size);
-    font-size: fn.use-var(font-size-main, $size);
-    padding: 0 fn.use-var(gap, $size);
-    border-radius: fn.use-var(radius, $size);
+  $bar-height: 1.3em;
 
-    @include m.bem($root-name, line) {
-      height: calc(fn.use-var(tag, $size) / 2);
-    }
+  @include m.e(bar-wrap) {
+    height: $bar-height;
+    background-color: fn.use-var(bg-color, hover);
+    border-radius: $bar-height;
+    overflow: hidden;
   }
 
-  // 条形进度条
-  @include m.e('line') {
-    width: 100%;
-    height: 20px;
-    background: fn.use-var(color, default, light-3);
-    border-radius: 50px;
-    position: relative;
-  }
   @include m.e(bar) {
-    position: absolute;
-    top: 0;
-    left: 0;
     height: 100%;
-    // background-color: fn.use-var(color, primary);
-    transition: width 0.3s ease-in-out;
-    border-radius: 50px;
-  }
-
-  @include m.e('percentage') {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
     color: fn.use-var(text-color, white);
-    font-size: 10px;
+    overflow: hidden;
+    transition:
+      width 0.25s ease,
+      background-color 0.25s ease;
+    @include m.flex($justify: center);
   }
 
   // 环形进度条
-  @include m.e('circle') {
+  @include m.e(circle) {
+    width: 100px;
+    height: 100px;
     position: relative;
-    display: inline-block;
-  }
-  @include m.e('svg') {
-    transform: rotate(-90deg);
-  }
 
-  @include m.e('percentage-circle') {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-  // 颜色
-  @each $type, $_ in vars.$color-types {
-    @include m.m(color-#{$type}) {
-      background-color: fn.use-var(color, $type);
-      @include m.is(type) {
-        background-color: fn.use-var(color, $type);
-      }
+    & > svg {
+      width: 100%;
+      height: 100%;
     }
   }
 
-  @include m.e('backgroundColor') {
-    background: fn.use-var(color, default, light-3);
+  @include m.e(circle-content) {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    @include m.flex($justify: center);
+  }
+
+  @include m.e(circle-ring) {
+    transition: stroke-dasharray 0.25s ease;
+  }
+  // 颜色
+  @each $type, $_ in vars.$color-types {
+    @include m.m($type) {
+      @include m.bem($root-name, bar) {
+        background-color: fn.use-var(color, $type);
+      }
+    }
   }
 }

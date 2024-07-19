@@ -6,6 +6,7 @@ $root-name: radio;
 @include m.b($root-name) {
   cursor: pointer;
   vertical-align: middle;
+  user-select: none;
   @include m.flex($display: inline-flex, $align: center);
 
   @include m.size using ($size) {

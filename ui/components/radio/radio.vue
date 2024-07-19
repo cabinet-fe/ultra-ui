@@ -8,7 +8,6 @@
         :value="value"
         v-model="model"
         :disabled="disabled"
-        :checked="radioChecked"
         hidden
       />
 
@@ -18,9 +17,7 @@
     </section>
 
     <span :class="cls.e('label')">
-      <slot>
-        {{ label }}
-      </slot>
+      <slot>{{ label }}</slot>
     </span>
   </label>
 </template>
@@ -40,8 +37,7 @@ const model = defineModel<Val>()
 const emit = defineEmits<RadioEmits>()
 
 const props = withDefaults(defineProps<RadioProps<Val>>(), {
-  disabled: undefined,
-  checked: undefined
+  disabled: undefined
 })
 
 const cls = bem('radio')
@@ -53,9 +49,7 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false
 })
 
-const radioChecked = computed(() => {
-  return props.checked ?? model.value === props.value
-})
+const radioChecked = computed(() => model.value === props.value)
 
 const classList = computed(() => {
   return [

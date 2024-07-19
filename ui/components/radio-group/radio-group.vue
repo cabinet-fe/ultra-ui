@@ -5,9 +5,9 @@
       :key="item[valueKey]"
       :value="item[valueKey]"
       @update:model-value="handleUpdate($event as Val, item)"
+      :model-value="model"
       :disabled="disabledItem?.(item) || disabled"
       :size="size"
-      :checked="item[valueKey] === model"
     >
       {{ item[labelKey] }}
     </u-radio>

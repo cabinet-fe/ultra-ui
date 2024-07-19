@@ -1,100 +1,100 @@
 <template>
-  <div :class="className" :style="isCircle == true ? { display: 'inline-block' } : ''">
+  <div :class="className">
     <!-- 条形进度条 -->
-    <div :class="cls.e('line')" v-if="isCircle == false">
-      <div :class="colorType" :style="{ width: percentage + '%' }"></div>
-      <span :class="cls.e('percentage')" :style="{ left: percentage - 2 + '%' }">
-        {{ percentage }}%
-      </span>
+    <div :class="cls.e('bar-wrap')" v-if="!circle">
+      <div :class="cls.e('bar')" :style="{ width: percentage + '%' }">
+        <slot v-bind="{ percentage, type }">{{ percentage }}%</slot>
+      </div>
     </div>
 
     <!-- 环形进度条 -->
-    <div :class="cls.e('circle')" v-else>
-      <svg :class="cls.e('svg')" width="100" height="100">
-        <circle cx="50" cy="50" r="40" fill="white" stroke="#f5f8fa" stroke-width="5" />
+    <div
+      v-else
+      :class="cls.e('circle')"
+      :style="{ height: withUnit(size, 'px'), width: withUnit(size, 'px') }"
+    >
+      <svg viewBox="0 0 100 100">
         <circle
           cx="50"
           cy="50"
-          r="40"
+          :r="r"
+          fill="none"
+          stroke="#f5f8fa"
+          stroke-width="8"
+        />
+        <circle
+          :class="cls.e('circle-ring')"
+          cx="50"
+          cy="50"
+          :r="r"
           fill="none"
           :stroke="stroke"
-          stroke-width="5"
-          :stroke-dasharray="circumference"
+          stroke-width="8"
+          :stroke-dasharray="dashArray"
           :stroke-dashoffset="offset"
+          :stroke-linecap="percentage === 0 ? undefined : 'round'"
         />
       </svg>
 
-      <template v-if="status == 'success' || status == 'danger' || status == 'warning'">
-        <span :class="cls.e('percentage-circle')" v-if="isCircle && status == 'success'">
-          <u-icon><Check /></u-icon>
-        </span>
-
-        <span :class="cls.e('percentage-circle')" v-else-if="isCircle && status == 'danger'">
-          <u-icon><Close /></u-icon>
-        </span>
-
-        <span :class="cls.e('percentage-circle')" v-else-if="isCircle && status == 'warning'">
-          <u-icon><Warning /></u-icon>
-        </span>
-      </template>
-
-      <span :class="cls.e('percentage-circle')" v-else>{{ percentage }}%</span>
+      <div :class="cls.e('circle-content')">
+        <slot v-bind="{ percentage, type }"> {{ percentage }}% </slot>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { ProgressProps, ProgressEmits } from '@ui/types/components/progress'
-import { bem } from '@ui/utils'
+import type { ProgressProps } from '@ui/types/components/progress'
+import { bem, withUnit } from '@ui/utils'
 import { computed } from 'vue'
-import { UIcon } from '../icon'
-import { Check, Close, Warning } from 'icon-ultra'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { n } from 'cat-kit/fe'
+import type { ColorType } from '@ui/types'
 
 defineOptions({
   name: 'Progress'
 })
-const cls = bem('progress')
+
 const props = withDefaults(defineProps<ProgressProps>(), {
-  isCircle: false,
-  type: 'primary'
+  type: 'primary',
+  circle: false
 })
-const emit = defineEmits<ProgressEmits>()
-const { formProps } = useFormComponent()
-const { size } = useFormFallbackProps([formProps ?? {}, props], { size: 'default' })
-const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
-})
+
+defineSlots<{
+  default: (props: {
+    /** 进度百分比 */
+    percentage: number
+    /** 样式类型 */
+    type: ColorType
+  }) => any
+}>()
+
+const cls = bem('progress')
 
 const percentage = computed(() => {
-  if (props.percentage > 100) {
-    return 100
-  }
-  if (props.percentage < 0) {
-    return 0
-  }
-  return props.percentage
+  return n(props.percentage ?? 0).range(0, 100)
 })
 
-const colorType = computed(() => {
-  return [cls.e('bar'), cls.m('color-' + props.type)]
+const type = computed<ColorType>(() => {
+  const { type } = props
+  return typeof type === 'function' ? type(percentage.value) : type
+})
+
+const className = computed(() => {
+  return [cls.b, bem.is('circle', props.circle), cls.m(type.value)]
 })
 
 /** 描边 */
 const stroke = computed(() => {
-  return `var(--color-${props.type}-light-3)`
+  return `var(--color-${type.value})`
 })
+
+const r = 44
+const c = 2 * Math.PI * r
+const offset = c / 4
 
 /** 圆周 */
-const circumference = computed(() => {
-  return 2 * Math.PI * 45
+const dashArray = computed(() => {
+  const dashLen = (c * percentage.value) / 100
+  return `${dashLen}, ${c - dashLen}`
 })
-
-const offset = computed(() => {
-  return circumference.value * (1 - percentage.value / 100)
-  // return circumference.value - (percentage.value / 100) * circumference.value
-})
-console.log(percentage.value, 'percentage')
-console.log(props.type, 'type')
 </script>
-<style lang="scss" scoped></style>

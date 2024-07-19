@@ -1,7 +1,8 @@
 import type { DeconstructValue } from '../helper'
 import type { FormComponentProps } from '../component-common'
 /** 单选框组件属性 */
-export interface RadioProps<Val extends number | string | boolean> extends FormComponentProps {
+export interface RadioProps<Val extends number | string | boolean>
+  extends FormComponentProps {
   /** 单选框值 */
   value?: Val
   /** 绑定值 */
@@ -10,8 +11,6 @@ export interface RadioProps<Val extends number | string | boolean> extends FormC
   label?: string
   /**全部禁用 */
   disabled?: boolean
-  /** 是否选中 */
-  checked?: boolean
 }
 
 /** 单选框组件定义的事件 */
