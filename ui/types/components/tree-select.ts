@@ -26,6 +26,11 @@ export interface TreeSelectProps
 
   /** 显示文本 */
   text?: string
+  /**
+   * 自定义数据格式 默认为 value - label
+   */
+  dataFormat?: (data: Record<string, any>) => string
+
 }
 
 /** 树形选择器组件定义的事件 */

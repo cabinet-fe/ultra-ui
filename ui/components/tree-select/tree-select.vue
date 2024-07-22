@@ -126,6 +126,7 @@ let changedByEvent = false
 watch(
   [() => props.data, model],
   ([data, model]) => {
+    const { dataFormat } = props
     if (changedByEvent) return
     if (!data?.length || model === undefined) {
       label.value = undefined
@@ -136,7 +137,7 @@ watch(
     data.some(item => {
       Tree.dft(item, v => {
         if (v[props.valueKey] === model) {
-          label.value = v[props.labelKey]
+          label.value = dataFormat?dataFormat(v):v[props.labelKey]
           founded = true
           return false
         }
@@ -154,12 +155,13 @@ const handleSelect = (
   selected?: string | number,
   selectedData?: Record<string, any>
 ) => {
+  const { dataFormat } = props
   changedByEvent = true
   nextTick(() => {
     changedByEvent = false
   })
 
-  label.value = selectedData?.[props.labelKey]
+  label.value = dataFormat?dataFormat(selectedData!):selectedData?.[props.labelKey]
   emit('change', selected, selectedData)
   dropdownRef.value?.close()
 }
