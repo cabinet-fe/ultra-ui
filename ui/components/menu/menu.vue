@@ -3,17 +3,24 @@
     tag="ul"
     :class="[cls.b, cls.m(size), bem.is('collapsed', collapsed)]"
   >
-    <template v-if="!collapsed">
-      <template v-for="(menu, index) of menus" :key="String(index)">
-        <UMenuSub
-          v-if="menu.children?.length"
-          :menu="menu"
-          :parent-key="String(index)"
-          :depth="0"
-        />
-        <UMenuItem v-else :menu="menu" :key="String(index)" :depth="0" />
-      </template>
+    <!-- <template v-if="!collapsed"> -->
+    <template v-for="(menu, index) of menus" :key="String(index)">
+      <UMenuSub
+        v-if="menu.children?.length"
+        :menu="menu"
+        :parent-key="String(index)"
+        :depth="0"
+        :collapsed="collapsed"
+      />
+      <UMenuItem
+        v-else
+        :menu="menu"
+        :key="String(index)"
+        :depth="0"
+        :collapsed="collapsed"
+      />
     </template>
+    <!-- </template> -->
   </u-scroll>
 </template>
 
