@@ -10,12 +10,10 @@
   $align: center,
   $wrap: nowrap
 ) {
-  & {
-    display: $display;
-    justify-content: $justify;
-    align-items: $align;
-    flex-wrap: $wrap;
-  }
+  display: $display;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
 }
 
 @mixin size {
