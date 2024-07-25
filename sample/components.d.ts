@@ -9,12 +9,16 @@ declare module 'vue' {
   export interface GlobalComponents {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UAction: typeof import('ultra-ui')['UAction']
+    UActionGroup: typeof import('ultra-ui')['UActionGroup']
+    UCard: typeof import('ultra-ui')['UCard']
+    UCardContent: typeof import('ultra-ui')['UCardContent']
+    UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
-    UMenu: typeof import('ultra-ui')['UMenu']
-    UMenuItemCollapsed: typeof import('ultra-ui')['UMenuItemCollapsed']
-    UMenuSubCollapsed: typeof import('ultra-ui')['UMenuSubCollapsed']
     URadio: typeof import('ultra-ui')['URadio']
     UScroll: typeof import('ultra-ui')['UScroll']
+    USelect: typeof import('ultra-ui')['USelect']
+    UTable: typeof import('ultra-ui')['UTable']
     UTip: typeof import('ultra-ui')['UTip']
   }
 }
