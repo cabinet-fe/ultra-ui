@@ -4,13 +4,13 @@ import { build } from './build'
 import { buildDTS } from './build-dts'
 
 async function boot() {
-  // await build()
+  await build()
 
   await buildDTS()
 
-  // await buildStyles()
+  await buildStyles()
 
-  // copyFiles()
+  copyFiles()
 }
 
 boot()
