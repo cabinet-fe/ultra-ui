@@ -12,7 +12,6 @@ $root-name: dialog;
   width: 100vw;
   height: 100vh;
   outline: none;
-
   @include m.flex($justify: center);
 
   @include m.is(modal) {
@@ -65,12 +64,11 @@ $root-name: dialog;
     height: 49px;
     border-bottom: fn.use-var(border);
     border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
+    @include m.flex($justify: space-between);
 
     &:active {
       cursor: move;
     }
-
-    @include m.flex($justify: space-between);
   }
 
   @include m.e(title) {
