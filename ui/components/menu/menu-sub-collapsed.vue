@@ -4,8 +4,7 @@
     <li :class="cls.e('sub')">
       <div
         :class="cls.e('sub-content')"
-        @mouseenter="e => handleToggleExpand('start', e)"
-        @mouseleave="e => handleToggleExpand('end', e)"
+        @mouseenter="handleToggleExpand()"
         :style="{
           paddingLeft: 8 + depth * 20 + 'px'
         }"
@@ -110,9 +109,8 @@ const direction = shallowRef<TipDirection>('right')
 const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
 
-function handleToggleExpand(e, type: 'start' | 'end') {
+function handleToggleExpand() {
   const { menu } = props
-  // console.log(expandedPath.has(menu.path), 'expandedPath')
   expandedPath.has(menu.path)
     ? expandedPath.add(menu.path)
     : expandedPath.delete(menu.path)
