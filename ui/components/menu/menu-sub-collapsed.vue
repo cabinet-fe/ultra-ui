@@ -1,11 +1,12 @@
 <template>
   <!-- 收缩状态 -->
   <u-tip :direction="direction" :alignment="alignment" :trigger="trigger">
-    <li :class="cls.e('sub')">
+    <li :class="[cls.e('sub-collapsed'), bem.is('sub-collapsed', depth !== 0)]">
       <div
         :class="cls.e('sub-content')"
-        @mouseenter="handleToggleExpand()"
+        @mouseenter="handleToggleExpand"
         :style="{
+          width: '100%',
           paddingLeft: 8 + depth * 20 + 'px'
         }"
       >
@@ -44,6 +45,7 @@
     </li>
 
     <template #content>
+      <!-- @vue-ignore -->
       <transition
         @enter="enter"
         @after-enter="afterEnter"
@@ -111,11 +113,13 @@ const trigger = shallowRef<'hover' | 'click'>('hover')
 
 function handleToggleExpand() {
   const { menu } = props
-  expandedPath.has(menu.path)
-    ? expandedPath.add(menu.path)
-    : expandedPath.delete(menu.path)
-  // type === 'start'
-  //   ? expandedPath.add(menu.path)
-  //   : expandedPath.delete(menu.path)
+
+  console.log(props.menu.path, 'path')
+
+  if (expandedPath.has(menu.path)) {
+    expandedPath.add(menu.path)
+  } else {
+    expandedPath.delete(menu.path)
+  }
 }
 </script>

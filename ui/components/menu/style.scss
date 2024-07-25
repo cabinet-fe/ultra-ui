@@ -26,6 +26,13 @@ $root-name: menu;
     }
   }
 
+  @include m.e(sub-collapsed) {
+    width: 60px;
+    @include m.is(sub-collapsed) {
+      width: 100%;
+    }
+  }
+
   @include m.e(ripple) {
     background-color: fn.use-var(color, primary);
     opacity: 0.1;
