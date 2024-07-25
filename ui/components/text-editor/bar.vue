@@ -21,11 +21,6 @@
     >
       <button :class="`ql-${item.bar}`" />
     </UTip>
-
-    <!-- 自定义 -->
-    <!-- <button id="custom-button">
-
-    </button> -->
   </div>
 </template>
 <script lang="ts" setup>

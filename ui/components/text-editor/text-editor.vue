@@ -1,17 +1,12 @@
 <template>
   <div :class="className" v-if="!readonly">
-    <Bar ref="barRef" v-if="reRendering" />
+    <Bar ref="barRef" />
 
-    <div
-      v-if="reRendering"
-      :class="cls.e('hover')"
-      :style="`height: ${height}`"
-      ref="editorRef"
-    />
+    <div :class="cls.e('hover')" :style="`height: ${height}`" ref="editorRef" />
   </div>
 
   <div v-else>
-    <div ref="editorRef"></div>
+    <div></div>
   </div>
 </template>
 
@@ -92,12 +87,9 @@ const getOptions = () => {
 let reRendering = ref(true)
 
 /** 等待barRef加载出来 */
-watch(
-  () => barRef.value,
-  _ => {
-    getOptions()
-  }
-)
+nextTick(() => {
+  getOptions()
+})
 
 /** 创建textEditor实例 */
 const createTextEditor = async () => {
@@ -118,12 +110,10 @@ const createTextEditor = async () => {
       quill.enable(true)
     }
 
-    console.log(props.modelValue, 'modelValue')
+    // console.log(props.modelValue, 'modelValue')
 
-    // if (props.modelValue) {
-    console.log(props.modelValue, 'getContents')
+    // console.log(props.modelValue, 'getContents')
     quill.updateContents(props.modelValue!)
-    // }
 
     // 双向绑定标志
     stamp.value = `${new Date().getTime()}${Math.random()}`
