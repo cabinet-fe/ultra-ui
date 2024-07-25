@@ -25,7 +25,9 @@
         <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
       </template>
 
-      <span :class="cls.e('item-expand')"></span>
+      <span :class="cls.e('item-expand')" v-if="depth !== 0">{{
+        menu.title
+      }}</span>
     </li>
 
     <template #content>
