@@ -60,14 +60,10 @@ export function useRows(options: Options) {
   const { props, emit } = options
 
   const rows = shallowRef<TableRow[]>([])
+  const rowForest = shallowRef<Forest<TableRow>>()
 
-  watch(rows, rows => {
-    emit('update:rows', rows)
-  })
-
-  let rowForest = shallowRef<Forest<TableRow>>()
-
-  watch(rowForest, forest => emit('update:tree-rows', forest?.nodes))
+  watch(rows, rows => emit('update:rows', rows))
+  watch(rowForest, forest => emit('update:rows', forest?.nodes ?? []))
 
   // 用于优化增删改时的性能
   let rowDicts = new WeakMap<Record<string, any>, TableRow>()
