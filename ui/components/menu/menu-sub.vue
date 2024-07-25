@@ -73,6 +73,7 @@
           </div>
         </div>
         <template #content>
+          <!-- @vue-ignore -->
           <transition
             @enter="enter"
             @after-enter="afterEnter"

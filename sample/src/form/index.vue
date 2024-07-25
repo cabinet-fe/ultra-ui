@@ -22,6 +22,7 @@
             label="性别"
             field="sex"
           />
+
           <u-input
             field="name"
             v-if="data.sex === 'female'"
@@ -491,12 +492,11 @@ const formRef = shallowRef()
     cursor: default;
     background-color: #fff;
     user-select: none;
+    transition: transform 0.25s;
 
     &:last-child {
       border: none;
     }
-
-    transition: transform 0.25s;
   }
 }
 </style>
