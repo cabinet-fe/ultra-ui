@@ -13,49 +13,16 @@
     @click="menuEmit('item-click', menu)"
   >
     <!-- 图标 -->
-    <template v-if="!collapsed">
-      <template v-if="menu.icon">
-        <u-icon
-          :class="cls.e('item-icon')"
-          v-if="typeof menu.icon !== 'string'"
-        >
-          <component :is="menu.icon" />
-        </u-icon>
+    <template v-if="menu.icon">
+      <u-icon :class="cls.e('item-icon')" v-if="typeof menu.icon !== 'string'">
+        <component :is="menu.icon" />
+      </u-icon>
 
-        <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
-      </template>
-    </template>
-    <!-- 收缩 -->
-    <template v-else>
-      <template v-if="menu.icon">
-        <u-tip direction="right" alignment="center" trigger="hover">
-          <u-icon
-            :class="cls.e('item-icon')"
-            v-if="typeof menu.icon !== 'string'"
-          >
-            <component :is="menu.icon" />
-          </u-icon>
-
-          <img
-            :src="menu.icon"
-            v-else
-            :class="cls?.e('item-icon')"
-            alt="icon"
-          />
-          <template #content>
-            {{ menu.title }}
-          </template>
-        </u-tip>
-      </template>
+      <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
     </template>
 
     <!-- 文本 -->
-    <span
-      :class="[
-        cls.e('item-title'),
-        bem.is('collapsed-item', collapsed && depth === 0)
-      ]"
-    >
+    <span :class="cls.e('item-title')">
       {{ menu.title }}
     </span>
 
@@ -78,7 +45,6 @@ defineOptions({
 const props = defineProps<{
   menu: MenuItem
   depth: number
-  collapsed?: boolean
 }>()
 
 const { cls, menuProps, menuEmit } = inject(MenuDIKey)!

@@ -27,6 +27,8 @@ declare module 'vue' {
     UGroupInput: typeof import('ultra-ui')['UGroupInput']
     UInput: typeof import('ultra-ui')['UInput']
     UMenu: typeof import('ultra-ui')['UMenu']
+    UMenuItemCollapsed: typeof import('ultra-ui')['UMenuItemCollapsed']
+    UMenuSubCollapsed: typeof import('ultra-ui')['UMenuSubCollapsed']
     UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
     UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']

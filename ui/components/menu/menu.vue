@@ -3,24 +3,34 @@
     tag="ul"
     :class="[cls.b, cls.m(size), bem.is('collapsed', collapsed)]"
   >
-    <!-- <template v-if="!collapsed"> -->
-    <template v-for="(menu, index) of menus" :key="String(index)">
-      <UMenuSub
-        v-if="menu.children?.length"
-        :menu="menu"
-        :parent-key="String(index)"
-        :depth="0"
-        :collapsed="collapsed"
-      />
-      <UMenuItem
-        v-else
-        :menu="menu"
-        :key="String(index)"
-        :depth="0"
-        :collapsed="collapsed"
-      />
+    <template v-if="!collapsed">
+      <template v-for="(menu, index) of menus" :key="String(index)">
+        <UMenuSub
+          v-if="menu.children?.length"
+          :menu="menu"
+          :parent-key="String(index)"
+          :depth="0"
+        />
+        <UMenuItem v-else :menu="menu" :key="String(index)" :depth="0" />
+      </template>
     </template>
-    <!-- </template> -->
+
+    <template v-else>
+      <template v-for="(menu, index) of menus" :key="String(index)">
+        <UMenuSubCollapsed
+          v-if="menu.children?.length"
+          :menu="menu"
+          :parent-key="String(index)"
+          :depth="0"
+        />
+        <UMenuItemCollapsed
+          v-else
+          :menu="menu"
+          :key="String(index)"
+          :depth="0"
+        />
+      </template>
+    </template>
   </u-scroll>
 </template>
 
@@ -33,6 +43,8 @@ import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import UMenuSub from './menu-sub.vue'
 import UMenuItem from './menu-item.vue'
+import UMenuSubCollapsed from './menu-sub-collapsed.vue'
+import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { UScroll } from '../scroll'
 import { Forest, TreeNode } from 'cat-kit/fe'
 
