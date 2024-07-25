@@ -66,6 +66,7 @@ function renderMessageBox() {
   })
   const container = document.createElement('ul')
   container.className = cls.e('container')
+  setStyles(container, { zIndex: zIndex() })
   document.body.appendChild(container)
   messageApp.mount(container)
 }
