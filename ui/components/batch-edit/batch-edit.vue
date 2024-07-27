@@ -190,9 +190,9 @@ const slots = defineSlots<
     }) => any
 
     header?: () => any
-  } & {
+  } & Partial<{
     [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
-  }
+  }>
 >()
 
 const cls = bem('batch-edit')

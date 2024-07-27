@@ -31,6 +31,8 @@
         <u-input field="props.field" label="字段" />
         <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
       </template>
+
+      <template #column:v="scope"></template>
     </u-batch-edit>
 
     <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
