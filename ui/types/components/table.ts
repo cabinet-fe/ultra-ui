@@ -1,4 +1,4 @@
-import type { TreeNode } from 'cat-kit/fe'
+import type { Forest, TreeNode } from 'cat-kit/fe'
 import type { DeconstructValue, RenderReturn } from '../helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
@@ -174,6 +174,8 @@ export interface TableEmits<
   (e: 'update:data', value: DataItem[]): void
   /** 行数据更新 */
   (e: 'update:rows', rows: TableRow<DataItem>[]): void
+  /** 树形数据森林结构更新 */
+  (e: 'update:forest', rows?: Forest<TableRow<DataItem>>): void
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
   /** 当前行变更 */
