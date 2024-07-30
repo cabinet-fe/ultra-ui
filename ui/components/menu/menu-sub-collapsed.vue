@@ -3,7 +3,7 @@
   <div @mouseenter="handleToggleExpand">
     <u-tip :direction="direction" :alignment="alignment" :trigger="trigger">
       <li
-        :class="[cls.e('sub-collapsed'), bem.is('sub-collapsed', depth !== 0)]"
+        :class="[cls.e('sub')]"
       >
         <div :class="cls.e('sub-content')">
           <!-- 图标 -->

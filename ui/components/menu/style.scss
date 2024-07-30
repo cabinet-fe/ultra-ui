@@ -26,30 +26,6 @@ $root-name: menu;
     }
   }
 
-  @include m.e(item-collapsed, sub-content) {
-    cursor: pointer;
-    gap: 4px;
-    padding: 0 8px;
-    transition: background-color 0.25s;
-    @include m.flex;
-
-    &:hover {
-      background-color: fn.use-var(color, primary, light-9);
-    }
-
-    @include m.is(active) {
-      background-color: fn.use-var(color, primary, light-7);
-    }
-  }
-
-  @include m.e(sub-collapsed) {
-    // width: 60px;
-    // text-align: center;
-    @include m.is(sub-collapsed) {
-      width: 100%;
-    }
-  }
-
   @include m.e(ripple) {
     background-color: fn.use-var(color, primary);
     opacity: 0.1;
@@ -59,13 +35,13 @@ $root-name: menu;
     flex-grow: 1;
   }
 
-  @include m.e(collapsed-item) {
-    width: 0;
-    height: 0;
-    overflow: hidden;
-    visibility: hidden;
-    display: inline-block;
-  }
+  // @include m.e(collapsed-item) {
+  //   width: 0;
+  //   height: 0;
+  //   overflow: hidden;
+  //   visibility: hidden;
+  //   display: inline-block;
+  // }
 
   @include m.e(sub-expand, item-expand, sub-icon, item-icon) {
     flex-shrink: 0;
@@ -91,11 +67,6 @@ $root-name: menu;
       border-radius: calc(fn.use-var(radius, $size) * 2);
     }
 
-    @include m.bem($root-name, (item-collapsed)) {
-      height: fn.use-var(menu-height, $size);
-      border-radius: calc(fn.use-var(radius, $size) * 2);
-    }
-
     @include m.bem($root-name, (sub-expand, item-expand, sub-icon, item-icon)) {
       font-size: calc(fn.use-var(menu-height, $size) / 2);
       width: calc(fn.use-var(menu-height, $size) / 2);
@@ -105,7 +76,7 @@ $root-name: menu;
 
   @include m.is(collapsed) {
     @include m.bem($root-name, (item, sub)) {
-      // width: 60px;
+      width: 100%;
     }
   }
 }
