@@ -16,7 +16,7 @@
         ]"
         v-ripple="!menu.disabled ? cls.e('ripple') : false"
         ref="itemRef"
-        @click="menuEmit('item-click', menu)"
+        @click="handleMenuItemClick(menu)"
       >
         <!-- 收缩 -->
         <template v-if="menu.icon">
@@ -54,7 +54,7 @@
       ]"
       v-ripple="!menu.disabled ? cls.e('ripple') : false"
       ref="itemRef"
-      @click="menuEmit('item-click', menu)"
+      @click="handleMenuItemClick(menu)"
     >
       <!-- 收缩 -->
       <template v-if="menu.icon">
@@ -113,6 +113,10 @@ watch([active, itemRef], ([active, itemRef]) => {
 const trigger = shallowRef<'hover' | 'click'>('hover')
 
 const tipRef = shallowRef()
+
+const handleMenuItemClick = (menu: MenuItem) => {
+  menuEmit('item-click', menu)
+}
 
 // watch(
 //   () => props.depth,
