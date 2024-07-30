@@ -7,7 +7,7 @@
 $root-name: menu;
 
 @include m.b($root-name) {
-  padding: 4px 8px;
+  // padding: 4px 8px;
   user-select: none;
 
   @include m.e(item, sub-content) {
@@ -26,8 +26,25 @@ $root-name: menu;
     }
   }
 
+  @include m.e(item-collapsed, sub-content) {
+    cursor: pointer;
+    gap: 4px;
+    padding: 0 8px;
+    transition: background-color 0.25s;
+    @include m.flex;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(color, primary, light-7);
+    }
+  }
+
   @include m.e(sub-collapsed) {
-    width: 60px;
+    // width: 60px;
+    // text-align: center;
     @include m.is(sub-collapsed) {
       width: 100%;
     }
@@ -74,6 +91,11 @@ $root-name: menu;
       border-radius: calc(fn.use-var(radius, $size) * 2);
     }
 
+    @include m.bem($root-name, (item-collapsed)) {
+      height: fn.use-var(menu-height, $size);
+      border-radius: calc(fn.use-var(radius, $size) * 2);
+    }
+
     @include m.bem($root-name, (sub-expand, item-expand, sub-icon, item-icon)) {
       font-size: calc(fn.use-var(menu-height, $size) / 2);
       width: calc(fn.use-var(menu-height, $size) / 2);
@@ -83,7 +105,7 @@ $root-name: menu;
 
   @include m.is(collapsed) {
     @include m.bem($root-name, (item, sub)) {
-      width: 60px;
+      // width: 60px;
     }
   }
 }
