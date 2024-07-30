@@ -23,7 +23,10 @@ export interface TabsProps extends ComponentProps {
   position?: 'left' | 'right' | 'top' | 'bottom'
   /** 是否可以动态编辑 */
   editable?: boolean
-  /** 是否保活 */
+  /**
+   * 是否保活
+   * @default false
+   */
   keepAlive?: boolean
   /** 是否允许拖拽排序 */
   // sortable?: boolean
