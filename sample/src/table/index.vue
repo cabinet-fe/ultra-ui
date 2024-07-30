@@ -187,22 +187,6 @@ const columns2 = defineTableColumns([
   { name: '三级指标', key: 'third' }
 ])
 
-// 像下面这种类型的数据
-// const keyCurrentVal = {
-//   first: {
-//     value: '',
-//     times: 0
-//   }
-// }
-const v = {
-  'first': {
-    决策: {
-      start: 0,
-      times: 4
-    }
-  }
-}
-
 function getValSpanDict(keys: string[]) {
   const keyDict = {}
 
