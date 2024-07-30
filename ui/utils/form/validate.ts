@@ -286,29 +286,3 @@ export class Validator<
       : this.validateSingleData(data, fields)
   }
 }
-
-export class DynamicValidator extends Validator<
-  Record<string, ValidateRule>,
-  string
-> {
-  constructor(rules?: Record<string, ValidateRule>, config?: ValidatorConfig) {
-    super(rules ?? {}, config)
-  }
-
-  /**
-   * 添加规则
-   * @param field 字段
-   * @param rule 规则
-   */
-  addRule(field: string, rule: ValidateRule) {
-    this.rules[field] = rule
-  }
-
-  /**
-   * 删除规则
-   * @param field 字段
-   */
-  deleteRule(field: string) {
-    delete this.rules[field]
-  }
-}

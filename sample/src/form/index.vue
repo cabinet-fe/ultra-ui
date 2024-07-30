@@ -122,7 +122,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DynamicFormModel, formField, FormModel } from 'ultra-ui'
+import { DynamicFormModel, formField } from 'ultra-ui'
 import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'

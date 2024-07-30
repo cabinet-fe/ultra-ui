@@ -5,7 +5,7 @@ import type {
   DataSettingConfig,
   IFormModel
 } from '@ui/types/components/form'
-import { DynamicValidator, Validator } from '@ui/utils'
+import { Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 import {
   reactive,
@@ -251,7 +251,7 @@ export class DynamicFormModel {
   /** 表单规则 */
   readonly fields: Record<string, FormModelItem> = shallowReactive({})
 
-  private validator: DynamicValidator
+  private validator: Validator
 
   /**
    * 不同表单对应的key
@@ -269,9 +269,15 @@ export class DynamicFormModel {
 
   private modelChangeCallback?: (fields: string, val: any) => void
 
+  private _allKeys: string[] = []
+
   /** 所有的键 */
   get allKeys() {
-    return Object.keys(this.fields)
+    return this._allKeys
+  }
+
+  private getAllKeys() {
+    this._allKeys = Object.keys(this.fields)
   }
 
   /** 初始数据 */
@@ -284,12 +290,14 @@ export class DynamicFormModel {
 
   constructor(fields?: Record<string, FormModelItem>) {
     this.append(fields ?? {})
-    this.validator = new DynamicValidator(this.fields)
+    this.validator = new Validator(this.fields)
+    this.getAllKeys()
 
     const { oldData } = this
     watch(this.data, data => {
       let changedKeys: string[] = []
-      for (const key in data) {
+
+      this.allKeys.forEach(key => {
         const oldVal = getChainValue(oldData, key)
         const newVal = getChainValue(data, key)
         if (oldVal !== newVal) {
@@ -297,9 +305,9 @@ export class DynamicFormModel {
           changedKeys.push(key)
           setChainValue(oldData, key, newVal)
         }
-      }
+      })
+
       if (this.validateOnFieldChange) {
-        console.log(changedKeys)
         this.validate(changedKeys)
       } else {
         this.validateOnFieldChange = true
@@ -327,6 +335,7 @@ export class DynamicFormModel {
     }
     setChainValue(this.data, field, v)
     setChainValue(this.oldData, field, v)
+    this.getAllKeys()
   }
 
   /**
@@ -335,6 +344,7 @@ export class DynamicFormModel {
    */
   delete(field: string) {
     delete this.fields[field]
+    this.getAllKeys()
   }
 
   /**
