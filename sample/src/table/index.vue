@@ -194,19 +194,14 @@ const columns2 = defineTableColumns([
 //     times: 0
 //   }
 // }
-const keyCurrentVal = {}
-
-const firstLevelSpan = data2.reduce((acc, item, index) => {
-  if (acc[item.first]) {
-    acc[item.first].times++
-  } else {
-    acc[item.first] = {
-      times: 1,
-      start: index
+const v = {
+  'first': {
+    决策: {
+      start: 0,
+      times: 4
     }
   }
-  return acc
-}, {})
+}
 
 function getValSpanDict(keys: string[]) {
   const keyDict = {}

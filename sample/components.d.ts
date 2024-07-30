@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UAction: typeof import('ultra-ui')['UAction']
+    UActionGroup: typeof import('ultra-ui')['UActionGroup']
     UCard: typeof import('ultra-ui')['UCard']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
@@ -16,6 +18,5 @@ declare module 'vue' {
     URadio: typeof import('ultra-ui')['URadio']
     UScroll: typeof import('ultra-ui')['UScroll']
     UTable: typeof import('ultra-ui')['UTable']
-    UTip: typeof import('ultra-ui')['UTip']
   }
 }
