@@ -60,8 +60,6 @@ export type IFormModel<
   ): void
   /** 清除校验 */
   clearValidate(): void
-  /** 滚动至第一个错误 */
-  scrollToFirstError(): void
 }
 
 /** 表单组件属性 */

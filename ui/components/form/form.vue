@@ -23,7 +23,7 @@
   </u-grid>
 </template>
 
-<script lang="ts" setup generic="Model extends FormModel">
+<script lang="ts" setup generic="Model extends FormModel | DynamicFormModel">
 import type { FormProps, _FormExposed } from '@ui/types/components/form'
 import { UGrid, type GridExposed } from '../grid'
 import { bem } from '@ui/utils'
@@ -32,7 +32,7 @@ import { useNodeInterceptor } from './use-node-interceptor'
 import { UFormItem } from '../form-item'
 import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
-import type { FormModel } from './form-model'
+import type { DynamicFormModel, FormModel } from './form-model'
 
 defineOptions({
   name: 'Form'

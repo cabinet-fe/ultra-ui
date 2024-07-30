@@ -111,24 +111,23 @@ export class Validator<
   Rules extends Record<string, ValidateRule> = Record<string, ValidateRule>,
   Field extends keyof Rules = keyof Rules
 > {
-  #rules: Rules
+  protected rules: Rules
 
-  #config?: ValidatorConfig
+  private config?: ValidatorConfig
 
   constructor(rules: Rules, config?: ValidatorConfig) {
-    this.#rules = rules
+    this.rules = rules
     if (config) {
-      this.#config = config
+      this.config = config
     }
   }
 
-  private _existRules?: boolean
-
+  /** 是否存在规则 */
   private get existRules() {
-    if (this._existRules !== undefined) {
-      return this._existRules
+    for (const _ in this.rules) {
+      return true
     }
-    return Object.keys(this.#rules).length > 0
+    return false
   }
 
   /**
@@ -143,13 +142,13 @@ export class Validator<
 
     if (!this.existRules) return fieldErrors
 
-    const lazy = this.#config?.lazy ?? true
+    const lazy = this.config?.lazy ?? true
 
     fields = fields
       ? Array.isArray(fields)
         ? fields
         : [fields]
-      : (Object.keys(this.#rules) as Field[])
+      : (Object.keys(this.rules) as Field[])
 
     // 懒校验，当有一个规则不通过，剩下的规则不再校验
     if (lazy) {
@@ -175,7 +174,7 @@ export class Validator<
   }
 
   private async validateValue(data: Record<any, any>, field: Field) {
-    const rules = this.#rules[field]!
+    const rules = this.rules[field]!
     const value = getChainValue(data, field as string)
 
     const { validator, required, ...normalRules } = rules
@@ -209,7 +208,7 @@ export class Validator<
     data: Record<any, any>,
     field: Field
   ): Promise<string[]> {
-    const rules = this.#rules[field]
+    const rules = this.rules[field]
     const value = getChainValue(data, field as string)
     let errors: string[] = []
 
@@ -285,5 +284,31 @@ export class Validator<
     return Array.isArray(data)
       ? this.validateManyData(data, fields)
       : this.validateSingleData(data, fields)
+  }
+}
+
+export class DynamicValidator extends Validator<
+  Record<string, ValidateRule>,
+  string
+> {
+  constructor(rules?: Record<string, ValidateRule>, config?: ValidatorConfig) {
+    super(rules ?? {}, config)
+  }
+
+  /**
+   * 添加规则
+   * @param field 字段
+   * @param rule 规则
+   */
+  addRule(field: string, rule: ValidateRule) {
+    this.rules[field] = rule
+  }
+
+  /**
+   * 删除规则
+   * @param field 字段
+   */
+  deleteRule(field: string) {
+    delete this.rules[field]
   }
 }

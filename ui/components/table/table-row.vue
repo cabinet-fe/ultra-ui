@@ -13,6 +13,7 @@
       :left="expandColumn.style.left"
       :right="expandColumn.style.right"
       :key="expandColumn.key + expandColumn.keySuffix"
+      v-bind="tableProps.mergeCell?.(getCellCtx(row, expandColumn))"
     >
       <u-button
         v-if="!row.isLeaf"
@@ -42,6 +43,7 @@
       :left="column.style.left"
       :right="column.style.right"
       :key="column.key + column.keySuffix"
+      v-bind="tableProps.mergeCell?.(getCellCtx(row, column))"
     >
       <u-node-render :content="getColumnSlotsNode(getCellCtx(row, column))" />
     </UTabelCell>
@@ -73,7 +75,8 @@ const {
   getColumnSlotsNode,
   toggleTreeRowExpand,
   getCellCtx,
-  handleRowClick
+  handleRowClick,
+  tableProps
 } = inject(TableDIKey)!
 
 const { columns, expandColumn } = columnConfig

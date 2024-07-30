@@ -122,7 +122,7 @@
 </template>
 
 <script lang="ts" setup>
-import { formField, FormModel } from 'ultra-ui'
+import { DynamicFormModel, formField, FormModel } from 'ultra-ui'
 import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
@@ -132,12 +132,7 @@ const disabled = shallowRef(false)
 
 const ageRules = shallowReactive(formField<number>({ required: true }))
 
-const model = new FormModel({
-  name: {
-    maxLen: 4,
-    required: true,
-    value: ''
-  },
+const model = new DynamicFormModel({
   age: ageRules,
   'nest.name': { required: true, value: 'aa' },
   'nest.price': { required: true },
@@ -179,6 +174,11 @@ const model = new FormModel({
 
 setTimeout(() => {
   model.setData({ cascade: ['guide'] })
+  model.add('name', {
+    maxLen: 4,
+    required: true,
+    value: ''
+  })
 }, 2000)
 
 // const sortRef = shallowRef()

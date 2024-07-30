@@ -88,10 +88,12 @@ export interface TableProps<
    */
   slots?: Readonly<Slots>
   /** 单元格合并 */
-  mergeCell?: () => {
-    rowspan: number
-    colspan: number
-  }
+  mergeCell?: (ctx: TableColumnRenderContext) =>
+    | {
+        rowspan: number
+        colspan: number
+      }
+    | undefined
   /** 高亮当前选中行 */
   highlightCurrent?: boolean
   /**

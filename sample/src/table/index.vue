@@ -30,13 +30,19 @@
         v-model:checked="checked"
         v-model:selected="selected"
       >
-        <template #header:age="{ column }">
-          年龄 <u-checkbox v-model="column.data.summary">合计</u-checkbox>
-        </template>
+        <template #header:age> 年龄 </template>
       </u-table>
 
       {{ state.selectable ? selected : '' }}
       {{ state.checkable ? checked : '' }}
+    </CustomCard>
+
+    <CustomCard title="合并单元格">
+      <u-table
+        :data="data2"
+        :merge-cell="mergeCell"
+        :columns="columns2"
+      ></u-table>
     </CustomCard>
   </div>
 </template>
@@ -163,4 +169,82 @@ watch(showData, v => {
 
 const checked = shallowRef([])
 const selected = shallowRef(data.value[0]!)
+
+const data2 = [
+  { first: '决策', second: '立项', third: '立项依据充分性' },
+  { first: '决策', second: '立项', third: '立项程序规范性' },
+  { first: '决策', second: '绩效目标', third: '绩效目标合理性' },
+  { first: '决策', second: '绩效目标', third: '绩效指标明确性' },
+  { first: '过程', second: '资金管理', third: '资金到位率' },
+  { first: '过程', second: '资金管理', third: '预算执行率' },
+  { first: '过程', second: '资金管理', third: '资金使用合规性' },
+  { first: '过程', second: '组织实施', third: '制度执行有效性' }
+]
+
+const columns2 = defineTableColumns([
+  { name: '一级指标', key: 'first' },
+  { name: '二级指标', key: 'second' },
+  { name: '三级指标', key: 'third' }
+])
+
+// 像下面这种类型的数据
+// const keyCurrentVal = {
+//   first: {
+//     value: '',
+//     times: 0
+//   }
+// }
+const keyCurrentVal = {}
+
+const firstLevelSpan = data2.reduce((acc, item, index) => {
+  if (acc[item.first]) {
+    acc[item.first].times++
+  } else {
+    acc[item.first] = {
+      times: 1,
+      start: index
+    }
+  }
+  return acc
+}, {})
+
+function getValSpanDict(keys: string[]) {
+  const keyDict = {}
+
+  keys.forEach(key => {
+    keyDict[key] = data2.reduce((acc, item, index) => {
+      if (acc[item[key]]) {
+        acc[item[key]].times++
+      } else {
+        acc[item[key]] = {
+          times: 1,
+          start: index
+        }
+      }
+      return acc
+    }, {})
+  })
+
+  return keyDict
+}
+
+const columnsSpanDict = getValSpanDict(['first', 'second'])
+
+function mergeCell(ctx) {
+  const { row, column, val } = ctx
+
+  if (columnsSpanDict[column.key]) {
+    const { times, start } = columnsSpanDict[column.key][val]
+    if (start === row.index) {
+      return {
+        rowspan: times,
+        colspan: 1
+      }
+    }
+    return {
+      rowspan: 0,
+      colspan: 0
+    }
+  }
+}
 </script>

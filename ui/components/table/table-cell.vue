@@ -5,6 +5,9 @@
       left: withUnit(left, 'px'),
       right: withUnit(right, 'px')
     }"
+    :rowspan="rowspan"
+    :colspan="colspan"
+    v-if="rowspan !== 0 && colspan !== 0"
   >
     <slot />
   </td>
@@ -24,6 +27,8 @@ const { column } = defineProps<{
   column: ColumnNode
   left?: number
   right?: number
+  rowspan?: number
+  colspan?: number
 }>()
 
 const { getCellClass } = inject(TableDIKey)!
