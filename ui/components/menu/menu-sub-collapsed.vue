@@ -2,15 +2,8 @@
   <!-- 收缩状态 -->
   <div @mouseenter="handleToggleExpand">
     <u-tip :direction="direction" :alignment="alignment" :trigger="trigger">
-      <li
-        :class="[cls.e('sub-collapsed'), bem.is('sub-collapsed', depth !== 0)]"
-      >
-        <div
-          :class="cls.e('sub-content')"
-          :style="{
-            paddingLeft: 8 + depth * 20 + 'px'
-          }"
-        >
+      <li :class="[cls.e('sub')]" style="width: 100%;">
+        <div :class="cls.e('sub-content')">
           <!-- 图标 -->
           <div>
             <template v-if="menu.icon">
@@ -84,6 +77,7 @@ import { computed, inject, shallowRef } from 'vue'
 import { MenuDIKey } from './di'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
+import { UTip } from '../tip'
 import type { MenuItem } from '@ui/types/components/menu'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'

@@ -7,7 +7,7 @@
 $root-name: menu;
 
 @include m.b($root-name) {
-  padding: 4px 8px;
+  // padding: 4px 8px;
   user-select: none;
 
   @include m.e(item, sub-content) {
@@ -26,13 +26,6 @@ $root-name: menu;
     }
   }
 
-  @include m.e(sub-collapsed) {
-    width: 60px;
-    @include m.is(sub-collapsed) {
-      width: 100%;
-    }
-  }
-
   @include m.e(ripple) {
     background-color: fn.use-var(color, primary);
     opacity: 0.1;
@@ -42,13 +35,13 @@ $root-name: menu;
     flex-grow: 1;
   }
 
-  @include m.e(collapsed-item) {
-    width: 0;
-    height: 0;
-    overflow: hidden;
-    visibility: hidden;
-    display: inline-block;
-  }
+  // @include m.e(collapsed-item) {
+  //   width: 0;
+  //   height: 0;
+  //   overflow: hidden;
+  //   visibility: hidden;
+  //   display: inline-block;
+  // }
 
   @include m.e(sub-expand, item-expand, sub-icon, item-icon) {
     flex-shrink: 0;
@@ -83,7 +76,7 @@ $root-name: menu;
 
   @include m.is(collapsed) {
     @include m.bem($root-name, (item, sub)) {
-      width: 60px;
+      width: 100%;
     }
   }
 }
