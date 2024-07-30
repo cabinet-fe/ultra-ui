@@ -1,4 +1,4 @@
-export type Data = Record<string, any> | Record<string, any>[]
+export type Data = Record<string, any>
 
 export type PresetRule = 'email' | 'phone' | 'num' | 'url' | 'idCard'
 

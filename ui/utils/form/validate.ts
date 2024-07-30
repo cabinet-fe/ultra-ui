@@ -195,7 +195,7 @@ export class Validator<
       err && errors.push(err)
     }
 
-    // 自定义校验最火校验
+    // 自定义校验
     if (validator) {
       const err = await validator(value, data)
       err && errors.push(err)
