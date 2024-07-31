@@ -13,6 +13,7 @@ $group-name: action-group;
 
     @include m.b(button) {
       width: 100%;
+      display: block;
     }
   }
 }

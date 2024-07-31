@@ -5,6 +5,11 @@
         <u-action-group>
           <u-action v-for="button of buttons">{{ button }}</u-action>
           <u-action need-confirm type="danger">删除</u-action>
+          <u-action need-confirm type="danger">删除</u-action>
+          <u-action need-confirm type="danger">删除</u-action>
+          <u-action need-confirm type="danger">删除</u-action>
+          <u-action need-confirm type="danger">删除</u-action>
+          <u-action need-confirm type="danger">删除</u-action>
         </u-action-group>
       </template>
     </u-table>
