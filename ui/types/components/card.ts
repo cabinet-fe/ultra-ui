@@ -1,11 +1,13 @@
-import type { ComponentProps } from "../component-common"
-import type { DeconstructValue } from "../helper"
-
+import type { ComponentProps } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 /** 卡片组件属性 */
 export interface CardProps extends ComponentProps {
   /** 宽度 */
   width?: string | number
+
+  /** 融合样式，卡片不再有阴影 */
+  integrate?: boolean
 }
 
 export interface CardActionProps {
@@ -25,10 +27,7 @@ export interface CardCoverProps {
   height?: string | number
 }
 
-
-export interface CardEmits {
-
-}
+export interface CardEmits {}
 
 export interface _CardExposed {}
 

@@ -22,7 +22,7 @@ const cls = bem('card')
 const { size } = useFormFallbackProps([props], { size: 'default' })
 
 const classList = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('integrate', props.integrate)]
 })
 
 const styles = computed(() => {

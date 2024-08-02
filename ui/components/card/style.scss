@@ -11,6 +11,10 @@ $root-name: card;
   box-shadow: fn.use-var(shadow);
   overflow: hidden;
 
+  @include m.is(integrate) {
+    box-shadow: none;
+  }
+
   @include m.size using ($size) {
     font-size: fn.use-var(font-size-main, $size);
 
