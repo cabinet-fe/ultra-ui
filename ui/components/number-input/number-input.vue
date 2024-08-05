@@ -125,7 +125,7 @@ const reducible = computed(() => {
  * @param num 实际值
  */
 function getDisplayed(num?: number): string {
-  if (num === undefined) return ''
+  if (!num && num !== 0) return ''
 
   const {
     currency,

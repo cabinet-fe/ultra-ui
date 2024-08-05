@@ -201,9 +201,9 @@ const data2 = [
 ]
 
 const columns2 = defineTableColumns([
+  { name: '三级指标', key: 'third' },
   { name: '一级指标', key: 'first' },
-  { name: '二级指标', key: 'second' },
-  { name: '三级指标', key: 'third' }
+  { name: '二级指标', key: 'second' }
 ])
 
 function getValSpanDict(keys: string[]) {
