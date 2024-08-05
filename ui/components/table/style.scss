@@ -113,6 +113,7 @@ $root-name: table;
 
   @include m.e(cell) {
     background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, title);
     word-break: break-all;
     line-height: 1;
 

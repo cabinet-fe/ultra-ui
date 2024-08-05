@@ -13,6 +13,14 @@ $root-name: card;
 
   @include m.is(integrate) {
     box-shadow: none;
+
+    @include m.bem($root-name, header) {
+      border-bottom: none;
+    }
+
+    @include m.bem($root-name, action) {
+      border-top: none;
+    }
   }
 
   @include m.size using ($size) {
@@ -24,6 +32,7 @@ $root-name: card;
 
     @include m.bem($root-name, header) {
       font-size: fn.use-var(font-size-title, $size);
+      font-weight: bold;
     }
   }
 
