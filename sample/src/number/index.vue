@@ -33,5 +33,5 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const number = ref(0)
+const number = ref(1000)
 </script>

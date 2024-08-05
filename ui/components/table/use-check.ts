@@ -86,6 +86,7 @@ export function useCheck(options: Options) {
 
   let dicts: Map<string | number, TableRow> | undefined = undefined
 
+  // 设置uid -> row 字典，以便于数据重复使用
   function setDicts() {
     if (dicts || !rows.value || !props.rowKey) return
 
@@ -93,6 +94,7 @@ export function useCheck(options: Options) {
     let i = 0
     while (i < rows.value.length) {
       const row = rows.value[i]!
+
       mapEntries.push([row.uid, row])
       i++
     }
@@ -117,6 +119,7 @@ export function useCheck(options: Options) {
 
       checked?.forEach(item => {
         const row = dicts?.get(getChainValue(item, rowKey))
+
         if (!row) return
 
         row.checked = true

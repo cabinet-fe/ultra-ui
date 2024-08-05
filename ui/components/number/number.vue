@@ -14,22 +14,23 @@ defineOptions({
 const props = defineProps<NumberProps>()
 
 const number = reactive({
-  value: props.value
+  value: 0
 })
 
 const tween = computed(() =>
-  props.tween
-    ? new Tween(number)
-    : null
+  props.tween ? new Tween(number, { duration: 800 }) : null
 )
 
-const formatter = n.formatter({
-  currency: 'CNY',
-  precision: props.precision
+const formatter = computed(() => {
+  return n.formatter({
+    currency: props.format === 'currency' ? 'CNY' : undefined,
+    style: props.format,
+    precision: props.precision
+  })
 })
 
 const formatted = computed(() => {
-  return formatter.format(number.value)
+  return formatter.value.format(number.value)
 })
 
 watch(
@@ -38,6 +39,7 @@ watch(
     props.tween
       ? tween.value?.to({ value: props.value })
       : (number.value = props.value)
-  }
+  },
+  { immediate: true }
 )
 </script>

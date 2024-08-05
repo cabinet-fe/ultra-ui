@@ -59,8 +59,9 @@ $text-colors: (
   // 标题文字
   title: #303133,
   // 正文文字
-  main: #606266,
-  /** 占位文字 */ placeholder: #a8abb2,
+  main: #303133,
+  // 占位文字
+  placeholder: #a8abb2,
   // 次级文字
   second: #979797,
   // 辅助文字
@@ -99,7 +100,7 @@ $font-size-title: (
 );
 $font-size-main: (
   small: 12px,
-  default: 14px,
+  default: 12px,
   large: 16px
 );
 
