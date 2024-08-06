@@ -165,10 +165,8 @@ export function useCheck(options: Options) {
   )
 
   const allChecked = computed(() => {
-    return (
-      (props.tree ? rowForest.value?.size : rows.value?.length) ===
-      checkedRows.size
-    )
+    const rowSize = props.tree ? rowForest.value?.size : rows.value?.length
+    return rowSize && rowSize === checkedRows.size
   })
 
   function handleCheckAllTree(check: boolean) {

@@ -14,12 +14,14 @@ $root-name: card;
   @include m.is(integrate) {
     box-shadow: none;
 
-    @include m.bem($root-name, header) {
-      border-bottom: none;
-    }
+    & > {
+      @include m.bem($root-name, header) {
+        border-bottom: none;
+      }
 
-    @include m.bem($root-name, action) {
-      border-top: none;
+      @include m.bem($root-name, action) {
+        border-top: none;
+      }
     }
   }
 
