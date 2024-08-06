@@ -50,7 +50,7 @@
   </div>
 
   <span v-else>
-    {{ model }}
+    {{ model || FORM_EMPTY_CONTENT }}
   </span>
 </template>
 
@@ -76,6 +76,7 @@ import {
 } from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'Input'

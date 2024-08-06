@@ -90,15 +90,17 @@
     </template>
   </u-dropdown>
 
-  <template v-else>
-    <div :class="[cls.m(size)]">
-      <div v-if="model?.length" :class="cls.e('tags')">
-        <u-tag v-for="option of tags" :key="option[valueKey]">
-          {{ option[labelKey] }}
-        </u-tag>
-      </div>
+  <div v-else-if="model?.length" :class="[cls.m(size), cls.e('readonly-tags')]">
+    <div :class="cls.e('tags')">
+      <u-tag v-for="option of tags" :key="option[valueKey]">
+        {{ option[labelKey] }}
+      </u-tag>
     </div>
-  </template>
+  </div>
+
+  <span v-else>
+    {{ FORM_EMPTY_CONTENT }}
+  </span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -120,6 +122,7 @@ import { ArrowDown, Search, Close } from 'icon-ultra'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'MultiSelect'

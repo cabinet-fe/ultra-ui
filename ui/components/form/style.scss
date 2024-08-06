@@ -2,7 +2,8 @@
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
 
-
 @include m.b(form) {
-
+  @include m.is(readonly) {
+    gap: 3px;
+  }
 }

@@ -44,7 +44,7 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ label }}</span>
+  <span v-else>{{ label || FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -62,6 +62,7 @@ import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import { Tree, omit } from 'cat-kit/fe'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 defineOptions({
   name: 'TreeSelect'
 })
@@ -137,7 +138,7 @@ watch(
     data.some(item => {
       Tree.dft(item, v => {
         if (v[props.valueKey] === model) {
-          label.value = dataFormat?dataFormat(v):v[props.labelKey]
+          label.value = dataFormat ? dataFormat(v) : v[props.labelKey]
           founded = true
           return false
         }
@@ -161,7 +162,9 @@ const handleSelect = (
     changedByEvent = false
   })
 
-  label.value = dataFormat?dataFormat(selectedData!):selectedData?.[props.labelKey]
+  label.value = dataFormat
+    ? dataFormat(selectedData!)
+    : selectedData?.[props.labelKey]
   emit('change', selected, selectedData)
   dropdownRef.value?.close()
 }

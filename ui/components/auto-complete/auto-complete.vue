@@ -56,7 +56,7 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ model }}</span>
+  <span v-else>{{ model || FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -73,6 +73,7 @@ import { UScroll, type ScrollExposed } from '../scroll'
 import { vRipple } from '@ui/directives'
 import { UInput } from '../input'
 import { useSuggestions } from './use-suggestions'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'AutoComplete',

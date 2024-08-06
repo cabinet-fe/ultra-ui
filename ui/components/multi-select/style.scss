@@ -68,6 +68,11 @@ $root-name: multi-select;
     @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
   }
 
+  @include m.e(readonly-tags) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   @include m.e(option) {
     cursor: pointer;
     user-select: none;

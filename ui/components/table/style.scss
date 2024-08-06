@@ -84,6 +84,9 @@ $root-name: table;
   @include m.e(head) {
     @include m.bem($root-name, cell) {
       box-shadow: 0px -1px 1px #eee inset;
+      background-color: #f2f3f5;
+      font-weight: normal;
+      color: fn.use-var(text-color, main);
     }
   }
 

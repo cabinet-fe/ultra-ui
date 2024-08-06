@@ -29,6 +29,8 @@ $root-name: form-item;
     color: fn.use-var(text-color, main);
     text-align: right;
     line-height: 1.3;
+    font-weight: 300;
+
     @include m.flex($justify: flex-end);
 
     @include m.is(required) {
@@ -52,10 +54,12 @@ $root-name: form-item;
   @include m.e(content) {
     flex-grow: 1;
     word-break: break-all;
+
     @include m.flex($wrap: wrap);
 
     & > span {
       line-height: 1.3;
+      color: fn.use-var(text-color, title);
     }
   }
 

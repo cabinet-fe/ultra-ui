@@ -1,5 +1,10 @@
 <template>
-  <u-grid tag="form" ref="gridRef" :cols="breakpointCols" :class="cls.b">
+  <u-grid
+    tag="form"
+    ref="gridRef"
+    :cols="breakpointCols"
+    :class="[cls.b, bem.is('readonly', readonly)]"
+  >
     <template
       v-for="{
         node,

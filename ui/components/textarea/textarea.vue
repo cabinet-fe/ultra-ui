@@ -34,14 +34,9 @@
     </Transition>
   </div>
 
-  <textarea
-    v-else
-    :value="model"
-    :class="cls.e('native')"
-    readonly
-    style="resize: none"
-    ref="textareaRef"
-  ></textarea>
+  <span v-else style="white-space: pre-wrap">
+    {{ model || FORM_EMPTY_CONTENT }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -60,6 +55,7 @@ import {
 } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { calcTextareaHeight } from './utils'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'Textarea'

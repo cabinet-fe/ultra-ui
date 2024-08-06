@@ -63,7 +63,7 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ label || selected?.[labelKey] }}</span>
+  <span v-else>{{ label || selected?.[labelKey] || FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -83,6 +83,7 @@ import { ArrowDown, Search } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'Select'
