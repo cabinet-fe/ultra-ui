@@ -72,7 +72,7 @@ const {
 
 const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
 
-const depthIndex = ref([-1])
+const depthIndex = ref([1])
 
 const parentNodes = ref<string[]>([])
 
@@ -118,9 +118,7 @@ const handleClick = (
 const initData = () => {
   props.cascadeData?.some((node) => {
     node.forEach((item) => {
-      if (!depthIndex.value.includes(item.depth)) {
-        item.selected = false
-      }
+      item.selected = false
     })
   })
 }
@@ -128,7 +126,7 @@ const initData = () => {
 /**回显 */
 const echo = (arr) => {
   let echoData: any = []
-  depthIndex.value = []
+  depthIndex.value = [1]
   parentNodes.value = []
   props.cascadeData?.some((node) => {
     node.forEach((item) => {
@@ -149,6 +147,7 @@ const echo = (arr) => {
 watch(
   () => cascade.value,
   (val) => {
+    
     if (val === "") {
       initData()
       return

@@ -13,9 +13,9 @@ interface Options<DataItem extends Record<string, any>> {
 /**
  * 单选
  */
-export function useSelect<DataItem extends Record<string, any> = Record<string,any>>(
-  options: Options<DataItem>
-) {
+export function useSelect<
+  DataItem extends Record<string, any> = Record<string, any>,
+>(options: Options<DataItem>) {
   const { emit, props, nodeDict, forest } = options
   const selected = shallowReactive(new Set<DataItem>())
   let isEcho = false
@@ -45,7 +45,12 @@ export function useSelect<DataItem extends Record<string, any> = Record<string,a
   watch(
     () => [props.modelValue, forest.value.nodes],
     ([modelValue, nodes]) => {
-      if(props.multiple) return
+      if (modelValue?.length === undefined) {
+        selected.clear()
+        return
+      }
+
+      if (props.multiple) return
       if (isEcho && selected.size !== 0) return
       nodes.forEach((node) => {
         Tree.bft(node, (item) => {
@@ -68,13 +73,16 @@ export function useSelect<DataItem extends Record<string, any> = Record<string,a
   watch(
     selected,
     (c) => {
-      if(props.multiple) return
+      if (props.multiple) return
       if (!isEcho) return
       isEcho = false
       let selectedArr = Array.from(c)
+      
       emit(
         "update:modelValue",
-        selectedArr.map((item) => item[props.valueKey!])
+        c.size === 0
+          ? undefined
+          : selectedArr.map((item) => item[props.valueKey!])
       )
       emit(
         "change",

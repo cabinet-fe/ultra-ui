@@ -71,43 +71,43 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { CascadeProps, CascadeEmits } from '@ui/types/components/cascade'
-import { bem } from '@ui/utils'
-import { computed, provide, shallowRef, watch } from 'vue'
-import { ArrowDown, Search } from 'icon-ultra'
-import { UCascadeNode, UCascadeMulti, UCascadeFilter } from './index'
-import { CascadeDIKey } from './di'
-import { UInput } from '../input'
-import { UTag } from '../tag'
-import { UIcon } from '../icon'
-import { UDropdown, type DropdownExposed } from '../dropdown'
-import { Forest } from 'cat-kit/fe'
-import { CascadeNode } from './cascade-node'
-import { useSelect } from './use-select'
-import { useCheck } from './use-check'
-import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
+import type { CascadeProps, CascadeEmits } from "@ui/types/components/cascade"
+import { bem } from "@ui/utils"
+import { computed, provide, shallowRef, watch } from "vue"
+import { ArrowDown, Search } from "icon-ultra"
+import { UCascadeNode, UCascadeMulti, UCascadeFilter } from "./index"
+import { CascadeDIKey } from "./di"
+import { UInput } from "../input"
+import { UTag } from "../tag"
+import { UIcon } from "../icon"
+import { UDropdown, type DropdownExposed } from "../dropdown"
+import { Forest } from "cat-kit/fe"
+import { CascadeNode } from "./cascade-node"
+import { useSelect } from "./use-select"
+import { useCheck } from "./use-check"
+import { UEmpty } from "../empty"
+import { FORM_EMPTY_CONTENT } from "@ui/shared"
 
 defineOptions({
-  name: 'Cascade'
+  name: "Cascade",
 })
 
-const cls = bem('cascade')
+const cls = bem("cascade")
 
 const emit = defineEmits<CascadeEmits>()
 
 const props = withDefaults(defineProps<CascadeProps>(), {
-  labelKey: 'label',
-  valueKey: 'value',
-  placeholder: '请选择',
+  labelKey: "label",
+  valueKey: "value",
+  placeholder: "请选择",
   clearable: true,
   disabled: undefined,
   readonly: undefined,
-  childrenKey: 'children',
+  childrenKey: "children",
   filterable: false,
   options: () => [],
-  visibilityLimit: 3
+  visibilityLimit: 3,
 })
 
 const { formProps } = useFormComponent()
@@ -115,9 +115,9 @@ const { formProps } = useFormComponent()
 const { size, disabled, readonly } = useFormFallbackProps(
   [formProps ?? {}, props],
   {
-    size: 'default',
+    size: "default",
     disabled: false,
-    readonly: false
+    readonly: false,
   }
 )
 
@@ -125,7 +125,7 @@ const hovered = shallowRef(false)
 
 const cascadeData = shallowRef<Record<string, any>[]>([])
 
-const qs = shallowRef<string>('')
+const qs = shallowRef<string>("")
 
 /** 森林 */
 const forest = computed(() => {
@@ -137,7 +137,7 @@ const forest = computed(() => {
             data,
             index,
             valueKey: valueKey!,
-            labelKey: labelKey!
+            labelKey: labelKey!,
           })
           if (data) {
             node.disabled = disabledNode(data, node) ?? false
@@ -149,10 +149,10 @@ const forest = computed(() => {
             data,
             index,
             valueKey: valueKey!,
-            labelKey: labelKey!
+            labelKey: labelKey!,
           })
           return node
-        }
+        },
   })
 })
 
@@ -162,7 +162,7 @@ const forest = computed(() => {
 const nodeDict = computed(() => {
   const dict = new Map<string | number, CascadeNode<Option>>()
 
-  forest.value.dft(node => {
+  forest.value.dft((node) => {
     dict.set(node.key, node)
   })
 
@@ -183,14 +183,14 @@ const { handleSelect, selected } = useSelect<Record<string, any>>({
   props,
   emit,
   nodeDict,
-  forest
+  forest,
 })
 
 const { checked, handleCheck } = useCheck<Record<string, any>>({
   props,
   emit,
   nodeDict,
-  forest
+  forest,
 })
 
 /**按深度分离 */
@@ -201,15 +201,15 @@ function separateByDepth(data) {
       result[node.depth] = []
     }
     result[node.depth].push(node)
-    node.parentNodes = parent ? parent.data[props.valueKey] : ''
+    node.parentNodes = parent ? parent.data[props.valueKey] : ""
     if (node.children) {
-      node.children.forEach(child => traverse(child, node))
+      node.children.forEach((child) => traverse(child, node))
     }
   }
-  data.forEach(item => traverse(item))
+  data.forEach((item) => traverse(item))
   return Object.keys(result)
     .sort((a: any, b: any) => a - b)
-    .map(key => result[key])
+    .map((key) => result[key])
 }
 
 /**展示数据 */
@@ -217,7 +217,7 @@ const cascade = shallowRef<string>()
 
 watch(
   () => props.options,
-  option => {
+  (option) => {
     if (option) {
       cascadeData.value = separateByDepth(forest.value.nodes)
     }
@@ -225,29 +225,35 @@ watch(
   { immediate: true }
 )
 
-watch(selected, selected => {
-  cascade.value = Array.from(selected)
-    .map(node => node[props.labelKey!])
-    .join(' / ')
+watch(selected, (selected) => {
+  cascade.value =
+    selected.size === 0
+      ? ""
+      : Array.from(selected)
+          .map((node) => node[props.labelKey!])
+          .join(" / ")
 })
 
-watch(checked, checked => {
-  cascade.value = Array.from(checked)
-    .map(node => node[props.labelKey!])
-    .join(' / ')
+watch(checked, (checked) => {
+  cascade.value =
+    checked.size === 0
+      ? ""
+      : Array.from(checked)
+          .map((node) => node[props.labelKey!])
+          .join(" / ")
 })
 
 /**
  * 生成树形结构中各个节点的路径
  */
-const getNodePath = node => {
+const getNodePath = (node) => {
   let path = [node[props.labelKey!]]
   let currentNode = nodeDict.value.get(node[props.valueKey!])
 
   while (currentNode?.parent) {
     if (currentNode.disabled) {
       // 如果当前节点或其父节点被禁用，返回空字符串
-      return ''
+      return ""
     }
     currentNode = currentNode.parent
     if (currentNode.data) {
@@ -256,14 +262,14 @@ const getNodePath = node => {
   }
   if (node.disabled) {
     // 如果节点本身被禁用，返回空字符串
-    return ''
+    return ""
   }
-  return path.join(' / ')
+  return path.join(" / ")
 }
 
 /**树形回显数据格式 */
 const cascadeMulti = computed(() => {
-  const paths = Array.from(checked).map(node => getNodePath(node))
+  const paths = Array.from(checked).map((node) => getNodePath(node))
 
   const filteredPaths = paths.filter((path, index) => {
     return !paths.some((p, i) => i !== index && p.startsWith(path))
@@ -275,7 +281,7 @@ const cascadeMulti = computed(() => {
 const clear = () => {
   props.multiple && checked.clear()
   !props.multiple && selected.clear()
-  cascade.value = ''
+  cascade.value = ""
   close()
 }
 
@@ -284,9 +290,9 @@ const clear = () => {
  * @param tag 删除的标签
  */
 const remove = (tag: string) => {
-  let data = tag.split(' / ')
+  let data = tag.split(" / ")
   let del = data[data.length - 1]
-  forest.value.dft(node => {
+  forest.value.dft((node) => {
     if (node.label === del) {
       checked.delete(node.data)
       return
@@ -297,13 +303,13 @@ const remove = (tag: string) => {
 const filterData = shallowRef<Record<string, any>[]>([])
 
 const qsClear = () => {
-  qs.value = ''
+  qs.value = ""
 }
 
-watch(qs, qs => {
+watch(qs, (qs) => {
   if (qs) {
     filterData.value = []
-    forest.value.dft(node => {
+    forest.value.dft((node) => {
       if (node.label.includes(qs) && !node.disabled) {
         filterData.value.push(node)
       }
@@ -316,12 +322,12 @@ watch(qs, qs => {
 /** 筛选选中事件 */
 const handleFilter = (data: string) => {
   cascade.value = data
-  let filter = data.split(' / ')
+  let filter = data.split(" / ")
   selected.clear()
-  forest.value.dft(node => {
+  forest.value.dft((node) => {
     if (!node.disabled) {
       let nodePath = getNodePath(node.data)
-      if (filter.includes(node.data[props.labelKey!]) && nodePath !== '') {
+      if (filter.includes(node.data[props.labelKey!]) && nodePath !== "") {
         selected.add(node.data)
       }
     }
@@ -349,6 +355,6 @@ provide(CascadeDIKey, {
   filterData,
   qsClear,
   handleFilter,
-  getNodePath
+  getNodePath,
 })
 </script>
