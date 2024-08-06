@@ -37,8 +37,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       icon-ultra:
-        specifier: 3.0.12
-        version: 3.0.12(vue@3.4.35(typescript@5.5.4))
+        specifier: 3.0.13
+        version: 3.0.13(vue@3.4.35(typescript@5.5.4))
       rollup:
         specifier: 4.19.0
         version: 4.19.0
@@ -1271,8 +1271,8 @@ packages:
     resolution: {integrity: sha512-74kytxOUSvNbjrT9KisAbaTZ/eJwD/LrbM/kh5j0IhPuJzwuA19dWvniFGwBzN9rVjg+O/e+F310PjObDXS+9Q==}
     engines: {node: '>=18.18.0'}
 
-  icon-ultra@3.0.12:
-    resolution: {integrity: sha512-/vDhOnwPiLK7J9UG7p91vU4RN78icONFBO50z8gUyfv9g9RDCn71/HE8/a07zLC5hMiFPGwxoHTnuLMrXyUMUw==}
+  icon-ultra@3.0.13:
+    resolution: {integrity: sha512-RhVQfgqqTq37NHoECqEPfaPqrflErnyNO1Rv9jvIfxUf8NwCJB34gxXre7mY3FvWH1dZm9fNPzh3gaku67SDFw==}
     peerDependencies:
       vue: ^3.4.21
 
@@ -3057,7 +3057,7 @@ snapshots:
 
   human-signals@7.0.0: {}
 
-  icon-ultra@3.0.12(vue@3.4.35(typescript@5.5.4)):
+  icon-ultra@3.0.13(vue@3.4.35(typescript@5.5.4)):
     dependencies:
       vue: 3.4.35(typescript@5.5.4)
 

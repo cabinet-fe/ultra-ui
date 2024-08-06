@@ -14,7 +14,7 @@
 $root-name: batch-edit;
 
 @include m.b($root-name) {
-  border: fn.use-var(border);
+  // border: fn.use-var(border);
   overflow: hidden;
   border-radius: fn.use-var(radius, default);
 
