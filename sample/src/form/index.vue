@@ -62,6 +62,8 @@
         </template>
       </u-form>
 
+      <br />
+
       <u-form
         :disabled="disabled"
         :readonly="readonly"
@@ -156,7 +158,7 @@ const model = new DynamicFormModel({
     ]
   },
   unit: { required: true },
-  interest: { required: true, value: () => ['1', '2', '3'] },
+  interest: { required: true },
   remarks: { required: true, value: '备注默认值\n换行\n换行' },
   slider: {},
   date: { required: true, value: date().format() },
@@ -202,7 +204,8 @@ function handleSetData() {
     // nest: { name: '测试名称', price: 10 },
     age: null,
     name: null,
-    unit: null
+    unit: null,
+    interest: ['1', '2', '3']
   })
 }
 

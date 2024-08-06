@@ -4,6 +4,14 @@
 
 @include m.b(form) {
   @include m.is(readonly) {
-    gap: 3px;
+    gap: 6px;
+
+    @include m.bem(form-item, label) {
+      background-color: #fbfcfe;
+    }
+    @include m.bem(form-item, content) {
+      background-color: #f5f8fb;
+      padding: 0 8px;
+    }
   }
 }

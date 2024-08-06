@@ -17,7 +17,6 @@
 
     <section :class="cls.e('content')">
       <slot></slot>
-      {{ console.log($slots.default?.()) }}
 
       <section v-if="!readonly" :class="cls.e('error')">
         <transition name="form-item-tips" mode="out-in">

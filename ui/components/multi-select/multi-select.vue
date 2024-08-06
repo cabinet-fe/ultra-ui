@@ -104,7 +104,14 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
+import {
+  computed,
+  shallowRef,
+  shallowReactive,
+  watch,
+  provide,
+  nextTick
+} from 'vue'
 import type {
   MultiSelectEmits,
   MultiSelectProps
@@ -188,9 +195,16 @@ let setIsChangedByModel = false
 watch(
   [model, optionsMap],
   ([model, optionsMap]) => {
-    if (!optionsMap.size || !model?.length || modelIsChangedBySet) return
+    if (modelIsChangedBySet) return
 
     setIsChangedByModel = true
+    if (!optionsMap.size || !model?.length) {
+      checkedSet.clear()
+      return nextTick(() => {
+        setIsChangedByModel = false
+      })
+    }
+
     model.forEach(v => {
       const option = optionsMap.get(v)
       option && checkedSet.add(option)
