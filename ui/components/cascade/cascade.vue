@@ -224,15 +224,21 @@ watch(
 )
 
 watch(selected, (selected) => {
-  cascade.value = Array.from(selected)
-    .map((node) => node[props.labelKey!])
-    .join(" / ")
+  cascade.value =
+    selected.size === 0
+      ? ""
+      : Array.from(selected)
+          .map((node) => node[props.labelKey!])
+          .join(" / ")
 })
 
 watch(checked, (checked) => {
-  cascade.value = Array.from(checked)
-    .map((node) => node[props.labelKey!])
-    .join(" / ")
+  cascade.value =
+    checked.size === 0
+      ? ""
+      : Array.from(checked)
+          .map((node) => node[props.labelKey!])
+          .join(" / ")
 })
 
 /**

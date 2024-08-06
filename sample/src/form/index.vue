@@ -173,7 +173,6 @@ const model = new DynamicFormModel({
 })
 
 setTimeout(() => {
-  model.setData({ cascade: ['guide'] })
   model.add('name', {
     maxLen: 4,
     required: true,

@@ -48,7 +48,7 @@ import area from "./area.json"
 
 import { shallowRef } from "vue"
 
-const cascade = shallowRef<any[]>([])
+const cascade = shallowRef<any[]>(["11", "1101", "110101"])
 
 const cascadeFilter = shallowRef(["13", "1306", "130606"])
 
@@ -60,13 +60,9 @@ const multiData = shallowRef<any[]>([])
 
 const dataFilter = shallowRef<any[]>([])
 
-const disabledNode = data => {
+const disabledNode = (data) => {
   return data.code % 2 === 0
 }
-
-setTimeout(() => {
-  cascade.value = ["13", "1306", "130606"]
-}, 2500)
 
 setTimeout(() => {
   multiData.value = [
