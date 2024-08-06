@@ -13,7 +13,6 @@ $root-name: card;
 
   @include m.is(integrate) {
     box-shadow: none;
-    transition: box-shadow 0.25s cubic-bezier(0.45, 0, 0.55, 1);
     & > {
       @include m.bem($root-name, header) {
         border-bottom: none;
@@ -23,10 +22,6 @@ $root-name: card;
       @include m.bem($root-name, action) {
         border-top: none;
       }
-    }
-
-    &:hover {
-      box-shadow: 0px 0px 14px 2px fn.use-var(shadow-color);
     }
   }
 
