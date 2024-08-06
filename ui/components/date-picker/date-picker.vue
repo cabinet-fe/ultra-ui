@@ -10,7 +10,12 @@
     v-if="!readonly"
   >
     <template #trigger>
-      <u-input :size="size" native-readonly :placeholder="placeholder" v-model="model">
+      <u-input
+        :size="size"
+        native-readonly
+        :placeholder="placeholder"
+        v-model="model"
+      >
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
         </template>
@@ -18,12 +23,15 @@
     </template>
 
     <template #content>
-      <DatePickerPanel v-model:date="selectedDate" @close-dropdown="dropdownRef?.close()" />
+      <DatePickerPanel
+        v-model:date="selectedDate"
+        @close-dropdown="dropdownRef?.close()"
+      />
     </template>
   </u-dropdown>
 
   <span v-else>
-    {{ model }}
+    {{ model || FORM_EMPTY_CONTENT }}
   </span>
 </template>
 
@@ -39,6 +47,7 @@ import { Calendar } from 'icon-ultra'
 import { type Dater, date } from 'cat-kit/fe'
 import DatePickerPanel from './date-picker-panel.vue'
 import { DatePickerDIKey } from './di'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'DatePicker'
@@ -55,11 +64,14 @@ const cls = bem('date-picker')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false,
-  readonly: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]

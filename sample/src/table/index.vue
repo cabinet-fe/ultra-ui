@@ -44,6 +44,20 @@
         :columns="columns2"
       ></u-table>
     </CustomCard>
+
+    <CustomCard title="编辑">
+      <u-table
+        :data="data2"
+        :columns="columns2"
+        checkable
+        v-model:checked="checked2"
+        row-key="id"
+      >
+        <template #column:third="{ model }">
+          <u-input v-bind="model"></u-input>
+        </template>
+      </u-table>
+    </CustomCard>
   </div>
 </template>
 
@@ -168,23 +182,28 @@ watch(showData, v => {
 })
 
 const checked = shallowRef([])
+const checked2 = shallowRef<any[]>([])
 const selected = shallowRef(data.value[0]!)
 
+setTimeout(() => {
+  checked2.value = [{ id: 11 }]
+}, 2000)
+
 const data2 = [
-  { first: '决策', second: '立项', third: '立项依据充分性' },
-  { first: '决策', second: '立项', third: '立项程序规范性' },
-  { first: '决策', second: '绩效目标', third: '绩效目标合理性' },
-  { first: '决策', second: '绩效目标', third: '绩效指标明确性' },
-  { first: '过程', second: '资金管理', third: '资金到位率' },
-  { first: '过程', second: '资金管理', third: '预算执行率' },
-  { first: '过程', second: '资金管理', third: '资金使用合规性' },
-  { first: '过程', second: '组织实施', third: '制度执行有效性' }
+  { id: 11, first: '决策', second: '立项', third: '立项依据充分性' },
+  { id: 22, first: '决策', second: '立项', third: '立项程序规范性' },
+  { id: 33, first: '决策', second: '绩效目标', third: '绩效目标合理性' },
+  { id: 44, first: '决策', second: '绩效目标', third: '绩效指标明确性' },
+  { id: 55, first: '过程', second: '资金管理', third: '资金到位率' },
+  { id: 66, first: '过程', second: '资金管理', third: '预算执行率' },
+  { id: 77, first: '过程', second: '资金管理', third: '资金使用合规性' },
+  { id: 88, first: '过程', second: '组织实施', third: '制度执行有效性' }
 ]
 
 const columns2 = defineTableColumns([
+  { name: '三级指标', key: 'third' },
   { name: '一级指标', key: 'first' },
-  { name: '二级指标', key: 'second' },
-  { name: '三级指标', key: 'third' }
+  { name: '二级指标', key: 'second' }
 ])
 
 function getValSpanDict(keys: string[]) {

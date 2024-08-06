@@ -14,7 +14,10 @@
   </div>
 
   <span v-else>
-    {{ items.find(item => item[valueKey] === model)?.[labelKey] }}
+    {{
+      items.find(item => item[valueKey] === model)?.[labelKey] ||
+      FORM_EMPTY_CONTENT
+    }}
   </span>
 </template>
 
@@ -26,6 +29,7 @@ import type {
 import { bem } from '@ui/utils'
 import URadio from '../radio/radio.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'RadioGroup'

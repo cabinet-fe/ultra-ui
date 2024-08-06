@@ -90,19 +90,28 @@
     </template>
   </u-dropdown>
 
-  <template v-else>
-    <div :class="[cls.m(size)]">
-      <div v-if="model?.length" :class="cls.e('tags')">
-        <u-tag v-for="option of tags" :key="option[valueKey]">
-          {{ option[labelKey] }}
-        </u-tag>
-      </div>
+  <div v-else-if="model?.length" :class="[cls.m(size), cls.e('readonly-tags')]">
+    <div :class="cls.e('tags')">
+      <u-tag v-for="option of tags" :key="option[valueKey]">
+        {{ option[labelKey] }}
+      </u-tag>
     </div>
-  </template>
+  </div>
+
+  <span v-else>
+    {{ FORM_EMPTY_CONTENT }}
+  </span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
+import {
+  computed,
+  shallowRef,
+  shallowReactive,
+  watch,
+  provide,
+  nextTick
+} from 'vue'
 import type {
   MultiSelectEmits,
   MultiSelectProps
@@ -120,6 +129,7 @@ import { ArrowDown, Search, Close } from 'icon-ultra'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'MultiSelect'
@@ -185,9 +195,16 @@ let setIsChangedByModel = false
 watch(
   [model, optionsMap],
   ([model, optionsMap]) => {
-    if (!optionsMap.size || !model?.length || modelIsChangedBySet) return
+    if (modelIsChangedBySet) return
 
     setIsChangedByModel = true
+    if (!optionsMap.size || !model?.length) {
+      checkedSet.clear()
+      return nextTick(() => {
+        setIsChangedByModel = false
+      })
+    }
+
     model.forEach(v => {
       const option = optionsMap.get(v)
       option && checkedSet.add(option)

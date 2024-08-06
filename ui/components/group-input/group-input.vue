@@ -31,13 +31,15 @@
     </li>
   </ul>
 
-  <template v-else>
+  <template v-else-if="items?.length">
     <ul :class="[cls.b, cls.m(size)]">
       <li v-for="item of items" :key="item.id" :class="cls.e('item')">
         <span v-for="v in item.data">{{ v }}</span>
       </li>
     </ul>
   </template>
+
+  <span v-else>{{ FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
@@ -51,6 +53,7 @@ import { Minus, Plus } from 'icon-ultra'
 import { useGroupItems } from './use-group-items'
 import { computed } from 'vue'
 import { UButton } from '../button'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'GroupInput'

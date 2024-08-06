@@ -5,6 +5,8 @@
 
     <u-checkbox v-model="ageRules.required"> 年龄必填 </u-checkbox>
 
+    <u-button @click="visible = true">打开</u-button>
+
     <CustomCard title="表单">
       <u-form
         :disabled="disabled"
@@ -60,11 +62,13 @@
         </template>
       </u-form>
 
+      <br />
+
       <u-form
         :disabled="disabled"
         :readonly="readonly"
         :model="model"
-        label-width="100px"
+        label-width="200px"
       >
         <u-checkbox field="freeze" label="是否冻结" />
         <u-textarea field="remarks" label="备注" span="full" />
@@ -148,14 +152,13 @@ const model = new DynamicFormModel({
   pwd: { value: '', required: true },
   debt: { min: 10, value: 66666 },
   email: {
-    value: '',
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
       '这个时候你得输入一个邮箱'
     ]
   },
-  unit: { required: true, value: '1' },
-  interest: { required: true, value: () => ['1', '2', '3'] },
+  unit: { required: true },
+  interest: { required: true },
   remarks: { required: true, value: '备注默认值\n换行\n换行' },
   slider: {},
   date: { required: true, value: date().format() },
@@ -173,13 +176,14 @@ const model = new DynamicFormModel({
 })
 
 setTimeout(() => {
+  model.setData({ cascade: ['guide'] })
+
   model.add('name', {
     maxLen: 4,
     required: true,
     value: ''
   })
 }, 2000)
-
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
 
@@ -196,7 +200,13 @@ watch(visible, v => {
 })
 
 function handleSetData() {
-  model.setData({ nest: { name: '测试名称', price: 10 } })
+  model.setData({
+    // nest: { name: '测试名称', price: 10 },
+    age: null,
+    name: null,
+    unit: null,
+    interest: ['1', '2', '3']
+  })
 }
 
 async function handleValidate() {

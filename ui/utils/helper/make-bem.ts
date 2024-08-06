@@ -114,7 +114,7 @@ export function makeBEM<Prefix extends '' | `${string}-`>(
 
   function is<N extends string>(name: N, condition?: boolean) {
     if (arguments.length < 2) return `is-${name}`
-    return condition === false ? '' : (`is-${name}` as const)
+    return condition !== true ? '' : (`is-${name}` as const)
   }
 
   bem.is = is

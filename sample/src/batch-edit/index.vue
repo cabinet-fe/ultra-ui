@@ -74,9 +74,10 @@
 </template>
 
 <script lang="ts" setup>
-import { sleep } from "cat-kit/fe"
-import { FormModel, Message, defineTableColumns, formField } from "ultra-ui"
-import { nextTick, shallowRef } from "vue"
+import { sleep } from 'cat-kit/fe'
+import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
+import { shallowRef } from 'vue'
+import 'ultra-ui/components/message/style.js'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
@@ -110,8 +111,8 @@ const asynchronous = shallowRef(false)
 
 const deleteMethod = async (row) => {
   await sleep(2000)
-  await Promise.reject("a")
-  Message.success("删除成功")
+  // await Promise.reject('a')
+  Message.success('删除成功')
 }
 
 const saveMethod = async (data, type) => {

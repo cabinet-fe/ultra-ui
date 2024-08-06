@@ -58,15 +58,16 @@
       </div>
     </template>
   </u-dropdown>
-  <template v-else>
-    <div :class="[cls.m(size)]">
-      <div v-if="cascade" :class="cls.e('tags')">
-        <u-tag>
-          {{ cascade }}
-        </u-tag>
-      </div>
+
+  <div :class="[cls.m(size)]" v-else-if="cascade">
+    <div :class="cls.e('tags')">
+      <u-tag>
+        {{ cascade }}
+      </u-tag>
     </div>
-  </template>
+  </div>
+
+  <span v-else>{{ FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
@@ -86,6 +87,7 @@ import { CascadeNode } from "./cascade-node"
 import { useSelect } from "./use-select"
 import { useCheck } from "./use-check"
 import { UEmpty } from "../empty"
+import { FORM_EMPTY_CONTENT } from "@ui/shared"
 
 defineOptions({
   name: "Cascade",

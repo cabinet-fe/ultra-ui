@@ -35,7 +35,7 @@
   </u-input>
 
   <span v-else>
-    {{ displayed }}
+    {{ displayed || FORM_EMPTY_CONTENT }}
   </span>
 </template>
 
@@ -53,6 +53,7 @@ import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { vRipple } from '@ui/directives'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'NumberInput'
@@ -125,7 +126,7 @@ const reducible = computed(() => {
  * @param num 实际值
  */
 function getDisplayed(num?: number): string {
-  if (num === undefined) return ''
+  if (!num && num !== 0) return ''
 
   const {
     currency,

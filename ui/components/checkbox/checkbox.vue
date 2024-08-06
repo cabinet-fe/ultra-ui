@@ -22,7 +22,14 @@
     <span :class="cls.e('label')"><slot /> </span>
   </label>
 
-  <span v-else> {{ trueVal === model ? '是' : '否' }}</span>
+  <u-tag
+    v-else-if="model !== undefined"
+    :type="trueVal === model ? 'success' : 'danger'"
+  >
+    {{ trueVal === model ? '是' : '否' }}
+  </u-tag>
+
+  <span v-else>{{ FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script
@@ -37,6 +44,8 @@ import type {
 } from '@ui/types/components/checkbox'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
+import { UTag } from '../tag'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'Checkbox'

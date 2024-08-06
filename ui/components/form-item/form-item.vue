@@ -7,16 +7,16 @@
     >
       <u-tip v-if="tips" :content="tips" :class="cls.e('tips')">
         <span :class="cls.e('tip-label')">
-          <slot name="label">{{ label }}</slot>
+          <slot name="label">{{ label }}:</slot>
         </span>
       </u-tip>
       <template v-else>
-        <slot name="label">{{ label }}</slot>
+        <slot name="label">{{ label }}:</slot>
       </template>
     </label>
 
     <section :class="cls.e('content')">
-      <slot />
+      <slot></slot>
 
       <section v-if="!readonly" :class="cls.e('error')">
         <transition name="form-item-tips" mode="out-in">

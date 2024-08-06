@@ -67,6 +67,11 @@ $root-name: multi-tree-select;
     @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
   }
 
+  @include m.e(readonly-tags) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   @include m.e(arrow, clear) {
     min-width: 20px;
     color: fn.use-var(text-color, main);

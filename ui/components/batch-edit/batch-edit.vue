@@ -124,7 +124,7 @@
           :loading="actionLoading"
           @click="handleSave"
         >
-          提交{{ newRow ? '新增' : '修改' }}
+          确认{{ newRow ? '新增' : '修改' }}
         </u-button>
       </u-card-action>
     </u-card>
