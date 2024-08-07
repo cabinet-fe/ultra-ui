@@ -11,14 +11,23 @@ defineOptions({
   name: 'Number'
 })
 
-const props = defineProps<NumberProps>()
+const props = withDefaults(defineProps<NumberProps>(), {
+  duration: 800,
+  format: 'decimal',
+  precision: 0
+})
 
 const number = reactive({
   value: 0
 })
 
 const tween = computed(() =>
-  props.tween ? new Tween(number, { duration: 800 }) : null
+  props.tween
+    ? new Tween(number, {
+        duration: props.duration,
+        easingFunction: Tween.easing.easeInOutQuad
+      })
+    : null
 )
 
 const formatter = computed(() => {
