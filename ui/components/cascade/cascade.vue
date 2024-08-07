@@ -6,7 +6,7 @@
     trigger="click"
     ref="dropdownRef"
     :disabled="disabled"
-    :width="cascadeData.length ? 'auto' : ''"
+    :width="cascadeData.length ? 'auto' : '100%'"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
   >
