@@ -244,14 +244,18 @@ watch(
   }
 )
 
-watch(checked, (checked) => {
-  cascade.value =
-    checked.size === 0
-      ? ""
-      : Array.from(checked)
-          .map((node) => node[props.labelKey!])
-          .join(" / ")
-})
+watch(
+  checked,
+  (checked) => {
+    cascade.value =
+      checked.size === 0
+        ? ""
+        : Array.from(checked)
+            .map((node) => node[props.labelKey!])
+            .join(" / ")
+  },
+  { immediate: true }
+)
 
 /**
  * 生成树形结构中各个节点的路径
