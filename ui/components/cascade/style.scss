@@ -15,7 +15,7 @@ $dropdown-name: dropdown;
   }
 
   @include m.e(options) {
-    width: max-content;
+    min-width: 160px;
     max-height: 180px;
     box-sizing: border-box;
     flex-shrink: 0;
