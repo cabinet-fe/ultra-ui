@@ -179,6 +179,10 @@ const open = () => {
   dropdownRef.value?.open()
 }
 
+const updatePosition = () => {
+  dropdownRef.value?.updateDropdown()
+}
+
 const { handleSelect, selected } = useSelect<Record<string, any>>({
   props,
   emit,
@@ -348,6 +352,7 @@ provide(CascadeDIKey, {
   readonly,
   close,
   open,
+  updatePosition,
   forest,
   nodeDict,
   handleSelect,

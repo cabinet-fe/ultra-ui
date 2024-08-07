@@ -18,6 +18,8 @@ export const CascadeDIKey: InjectionKey<{
   close: () => void
   /** 打开 */
   open: () => void
+  /** 更新位置*/
+  updatePosition: () => void
   /** CascadeNode生成数据*/
   forest: Record<string, any>
   /** 字典 */
@@ -39,7 +41,7 @@ export const CascadeDIKey: InjectionKey<{
   /** 筛选组装后数据 */
   filterData: Record<string, any>
   /** 清空搜索内容*/
-  qsClear:() => void
+  qsClear: () => void
   /** 筛选选中事件 */
   handleFilter: (data: string) => void
   /**  获取节点路径*/

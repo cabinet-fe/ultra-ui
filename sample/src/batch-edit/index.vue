@@ -15,7 +15,6 @@
       style="height: 400px"
       :model="model"
       :tree="tree"
-      cols="1fr 1fr"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @created="
