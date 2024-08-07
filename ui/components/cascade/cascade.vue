@@ -225,14 +225,20 @@ watch(
   { immediate: true }
 )
 
-watch(selected, (selected) => {
-  cascade.value =
-    selected.size === 0
-      ? ""
-      : Array.from(selected)
-          .map((node) => node[props.labelKey!])
-          .join(" / ")
-})
+watch(
+  selected,
+  (selected) => {
+    cascade.value =
+      selected.size === 0
+        ? ""
+        : Array.from(selected)
+            .map((node) => node[props.labelKey!])
+            .join(" / ")
+  },
+  {
+    immediate: true,
+  }
+)
 
 watch(checked, (checked) => {
   cascade.value =

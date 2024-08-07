@@ -13,6 +13,7 @@
           {{ title }}
         </slot>
       </u-card-header>
+      {{tableProps.data}}
       <u-table
         v-bind="tableProps"
         :slots="$slots"
@@ -88,6 +89,8 @@
 
       <transition name="fade" appear mode="out-in">
         <u-scroll v-if="model && !toggling" always :class="cls.e('form-wrap')">
+        {{model.data}}
+
           <u-form
             :model="props.model"
             :readonly="readonly"
