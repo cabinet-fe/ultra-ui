@@ -232,6 +232,7 @@ watch(
 watch(
   selected,
   (selected) => {
+    if (props.multiple) return
     cascade.value =
       selected.size === 0
         ? ""
@@ -247,6 +248,7 @@ watch(
 watch(
   checked,
   (checked) => {
+    if (!props.multiple) return
     cascade.value =
       checked.size === 0
         ? ""
