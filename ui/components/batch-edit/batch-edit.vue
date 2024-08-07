@@ -89,8 +89,6 @@
 
       <transition name="fade" appear mode="out-in">
         <u-scroll v-if="model && !toggling" always :class="cls.e('form-wrap')">
-        {{model.data}}
-
           <u-form
             :model="props.model"
             :readonly="readonly"
