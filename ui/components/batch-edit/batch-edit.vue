@@ -13,7 +13,6 @@
           {{ title }}
         </slot>
       </u-card-header>
-      {{tableProps.data}}
       <u-table
         v-bind="tableProps"
         :slots="$slots"
