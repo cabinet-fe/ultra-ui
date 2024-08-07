@@ -72,9 +72,9 @@ export interface CascadeEmits {
   (e: "update:modelValue", value?: Record<string, any>[]): void
   (
     e: "change",
-    value?: string[] | number[],
-    label?: string[],
-    data?: Record<string, any>
+    value?: any[],
+    label?: any[],
+    data?: Record<string, any>[]
   ): void
   (e: "clear"): void
 }
