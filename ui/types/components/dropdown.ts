@@ -56,6 +56,8 @@ export interface _DropdownExposed {
   }) => void
   /** 关闭 */
   close: () => void
+  /**触发位置变化 */
+  updateDropdown: () => void
 }
 
 /** 下拉框组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

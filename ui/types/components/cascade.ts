@@ -69,12 +69,12 @@ export interface CascadeProps<
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  (e: "update:modelValue", value?: Record<string, any>[]): void
+  (e: "update:modelValue", value?: string[] | number[]): void
   (
     e: "change",
-    value?: string[] | number[],
-    label?: string[],
-    data?: Record<string, any>
+    value: string[] | number[],
+    label: string[] | number[],
+    data: Record<string, any>[]
   ): void
   (e: "clear"): void
 }

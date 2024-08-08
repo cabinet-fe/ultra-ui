@@ -210,6 +210,8 @@ onBeforeUnmount(() => {
 
 defineExpose<DropdownExposed>({
   open,
-  close
+  close,
+  /**暴露出更新dropdown内容位置方法 适用与级联选择器组件 */
+  updateDropdown
 })
 </script>
