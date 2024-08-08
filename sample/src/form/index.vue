@@ -103,7 +103,7 @@
           multiple
         /> -->
 
-        <u-text-editor label="内容" field="tex" />
+        <u-text-editor label="内容" height="80px" field="tex" />
 
         <u-group-input field="group" label="分组输入" v-slot="{ item }">
           <u-input v-model="item.value1" />

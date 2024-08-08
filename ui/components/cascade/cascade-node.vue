@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { ref, watch, inject, shallowRef } from "vue"
+import { ref, watch, inject, shallowRef, nextTick } from "vue"
 import { bem, nextFrame } from "@ui/utils"
 import { CascadeDIKey } from "./di"
 import { vRipple } from "@ui/directives"
@@ -65,6 +65,7 @@ const {
   cascadeProps,
   size,
   close,
+  updatePosition,
   handleSelect,
   handleCheck,
   cascade,
@@ -92,10 +93,8 @@ const addUniqueItem = (array: any[], item: any) => {
   if (!array.includes(item) && item) array.push(item)
 }
 
-const handleClick = (
-  option: CascadeNode<Record<string, any>>,
-) => {
-  if(option.disabled) return
+const handleClick = (option: CascadeNode<Record<string, any>>) => {
+  if (option.disabled) return
   isEchoing = false
   if (option[childrenKey!] === undefined || !option[childrenKey!].length) {
     !multiple && close()
@@ -108,6 +107,9 @@ const handleClick = (
     }
     depthIndex.value = [...depthIndex.value, option.depth + 1]
     parentNodes.value = [...parentNodes.value, option.data[valueKey!]]
+    nextTick(() => {
+      updatePosition()
+    })
     initData()
   }
 
@@ -147,7 +149,6 @@ const echo = (arr) => {
 watch(
   () => cascade.value,
   (val) => {
-    
     if (val === "") {
       initData()
       return

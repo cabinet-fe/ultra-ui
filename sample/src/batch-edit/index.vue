@@ -30,11 +30,20 @@
         <u-input field="props.label" label="标签" />
         <u-input field="props.field" label="字段" />
         <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
-        <u-select field="unit" label="单位" :options="units" />
+        <u-select
+          field="unit"
+          label="单位"
+          :options="units"
+          label-key="name"
+          value-key="name"
+        />
         <u-cascade
           field="cascade"
           label="单选级联选择器"
-          :options="cascadeData"
+          :options="area.area"
+          label-key="name"
+          value-key="code"
+          filterable
         />
       </template>
 
@@ -78,7 +87,7 @@ import { sleep } from 'cat-kit/fe'
 import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
-
+import area from '../cascade/area.json'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)

@@ -179,6 +179,10 @@ const open = () => {
   dropdownRef.value?.open()
 }
 
+const updatePosition = () => {
+  dropdownRef.value?.updateDropdown()
+}
+
 const { handleSelect, selected } = useSelect<Record<string, any>>({
   props,
   emit,
@@ -225,23 +229,35 @@ watch(
   { immediate: true }
 )
 
-watch(selected, (selected) => {
-  cascade.value =
-    selected.size === 0
-      ? ""
-      : Array.from(selected)
-          .map((node) => node[props.labelKey!])
-          .join(" / ")
-})
+watch(
+  selected,
+  (selected) => {
+    if (props.multiple) return
+    cascade.value =
+      selected.size === 0
+        ? ""
+        : Array.from(selected)
+            .map((node) => node[props.labelKey!])
+            .join(" / ")
+  },
+  {
+    immediate: true,
+  }
+)
 
-watch(checked, (checked) => {
-  cascade.value =
-    checked.size === 0
-      ? ""
-      : Array.from(checked)
-          .map((node) => node[props.labelKey!])
-          .join(" / ")
-})
+watch(
+  checked,
+  (checked) => {
+    if (!props.multiple) return
+    cascade.value =
+      checked.size === 0
+        ? ""
+        : Array.from(checked)
+            .map((node) => node[props.labelKey!])
+            .join(" / ")
+  },
+  { immediate: true }
+)
 
 /**
  * 生成树形结构中各个节点的路径
@@ -342,6 +358,7 @@ provide(CascadeDIKey, {
   readonly,
   close,
   open,
+  updatePosition,
   forest,
   nodeDict,
   handleSelect,
