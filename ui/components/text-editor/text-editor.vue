@@ -1,12 +1,8 @@
 <template>
-  <div :class="className" v-if="!readonly">
+  <div :class="className">
     <Bar ref="barRef" />
 
     <div :class="cls.e('hover')" :style="`height: ${height}`" ref="editorRef" />
-  </div>
-
-  <div v-else>
-    <div></div>
   </div>
 </template>
 
@@ -57,7 +53,12 @@ const { size, disabled, readonly } = useFormFallbackProps([
 
 /** 类名 */
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value)
+  ]
 })
 
 const cls = bem('text-editor')
@@ -77,9 +78,10 @@ const getOptions = () => {
     modules: {
       toolbar: barRef.value?.barRef
     },
-    // readOnly: disabled.value,
+    // readOnly: readonly.value,
     theme: 'snow',
-    placeholder: disabled.value ? undefined : props.placeholder
+    placeholder:
+      disabled.value || readonly.value ? undefined : props.placeholder
   }
 }
 
@@ -104,15 +106,12 @@ const createTextEditor = async () => {
     quill.on('text-change', update)
 
     /** 禁用 */
-    if (disabled.value) {
+    if (disabled.value || readonly.value) {
       quill.enable(false)
     } else {
       quill.enable(true)
     }
 
-    // console.log(props.modelValue, 'modelValue')
-
-    // console.log(props.modelValue, 'getContents')
     quill.updateContents(props.modelValue!)
 
     // 双向绑定标志
