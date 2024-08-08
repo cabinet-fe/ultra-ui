@@ -15,12 +15,12 @@
       style="height: 400px"
       :model="model"
       :tree="tree"
-      cols="1fr 1fr"
+      cols="1fr 400px"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @created="
         model.setData({
-          age: 666,
+          age: 666
         })
       "
     >
@@ -85,9 +85,9 @@ const resizable = shallowRef(true)
 const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
-  { name: "名称", key: "name", rules: { required: true } },
-  { name: "年龄", key: "age", rules: { max: 120 } },
-  { name: "单选级联选择器", key: "cascade" },
+  { name: '名称', key: 'name', rules: { required: true } },
+  { name: '年龄', key: 'age', rules: { max: 120 } },
+  { name: '单选级联选择器', key: 'cascade' }
 ])
 
 const data = shallowRef()
@@ -100,16 +100,16 @@ const data = shallowRef()
 const model = new FormModel({
   name: { required: true },
   age: formField<number>({ max: 100 }),
-  "props.field": {},
-  "props.label": {},
+  'props.field': {},
+  'props.label': {},
   cc: { required: true },
   cascade: {},
-  unit: {},
+  unit: {}
 })
 
 const asynchronous = shallowRef(false)
 
-const deleteMethod = async (row) => {
+const deleteMethod = async row => {
   await sleep(2000)
   // await Promise.reject('a')
   Message.success('删除成功')
@@ -117,238 +117,238 @@ const deleteMethod = async (row) => {
 
 const saveMethod = async (data, type) => {
   await sleep(2000)
-  Message.success("保存成功")
+  Message.success('保存成功')
 }
 const units = [
-  { label: "单位1", value: "1" },
-  { label: "单位2", value: "2" },
-  { label: "单位3", value: "3" },
+  { label: '单位1', value: '1' },
+  { label: '单位2', value: '2' },
+  { label: '单位3', value: '3' }
 ]
 const cascadeData = [
   {
-    value: "guide",
-    label: "Guide",
+    value: 'guide',
+    label: 'Guide'
   },
   {
-    value: "component",
-    label: "Component",
+    value: 'component',
+    label: 'Component',
     children: [
       {
-        value: "basic",
-        label: "Basic",
+        value: 'basic',
+        label: 'Basic',
         children: [
           {
-            value: "layout",
-            label: "Layout",
+            value: 'layout',
+            label: 'Layout'
           },
           {
-            value: "color",
-            label: "Color",
+            value: 'color',
+            label: 'Color'
           },
           {
-            value: "typography",
-            label: "Typography",
+            value: 'typography',
+            label: 'Typography'
           },
           {
-            value: "icon",
-            label: "Icon",
+            value: 'icon',
+            label: 'Icon'
           },
           {
-            value: "button",
-            label: "Button",
-          },
-        ],
+            value: 'button',
+            label: 'Button'
+          }
+        ]
       },
       {
-        value: "form",
-        label: "Form",
+        value: 'form',
+        label: 'Form',
         children: [
           {
-            value: "radio",
-            label: "Radio",
+            value: 'radio',
+            label: 'Radio'
           },
           {
-            value: "checkbox",
-            label: "Checkbox",
+            value: 'checkbox',
+            label: 'Checkbox'
           },
           {
-            value: "input",
-            label: "Input",
+            value: 'input',
+            label: 'Input'
           },
           {
-            value: "input-number",
-            label: "InputNumber",
+            value: 'input-number',
+            label: 'InputNumber'
           },
           {
-            value: "select",
-            label: "Select",
+            value: 'select',
+            label: 'Select'
           },
           {
-            value: "cascader",
-            label: "Cascader",
+            value: 'cascader',
+            label: 'Cascader'
           },
           {
-            value: "switch",
-            label: "Switch",
+            value: 'switch',
+            label: 'Switch'
           },
           {
-            value: "slider",
-            label: "Slider",
+            value: 'slider',
+            label: 'Slider'
           },
           {
-            value: "time-picker",
-            label: "TimePicker",
+            value: 'time-picker',
+            label: 'TimePicker'
           },
           {
-            value: "date-picker",
-            label: "DatePicker",
+            value: 'date-picker',
+            label: 'DatePicker'
           },
           {
-            value: "datetime-picker",
-            label: "DateTimePicker",
+            value: 'datetime-picker',
+            label: 'DateTimePicker'
           },
           {
-            value: "upload",
-            label: "Upload",
+            value: 'upload',
+            label: 'Upload'
           },
           {
-            value: "rate",
-            label: "Rate",
-          },
-        ],
+            value: 'rate',
+            label: 'Rate'
+          }
+        ]
       },
       {
-        value: "data",
-        label: "Data",
+        value: 'data',
+        label: 'Data',
         children: [
           {
-            value: "table",
-            label: "Table",
+            value: 'table',
+            label: 'Table'
           },
           {
-            value: "tag",
-            label: "Tag",
+            value: 'tag',
+            label: 'Tag'
           },
           {
-            value: "progress",
-            label: "Progress",
+            value: 'progress',
+            label: 'Progress'
           },
           {
-            value: "tree",
-            label: "Tree",
+            value: 'tree',
+            label: 'Tree'
           },
           {
-            value: "pagination",
-            label: "Pagination",
+            value: 'pagination',
+            label: 'Pagination'
           },
           {
-            value: "badge",
-            label: "Badge",
-          },
-        ],
+            value: 'badge',
+            label: 'Badge'
+          }
+        ]
       },
       {
-        value: "notice",
-        label: "Notice",
+        value: 'notice',
+        label: 'Notice',
         children: [
           {
-            value: "alert",
-            label: "Alert",
+            value: 'alert',
+            label: 'Alert'
           },
           {
-            value: "loading",
-            label: "Loading",
+            value: 'loading',
+            label: 'Loading'
           },
           {
-            value: "message",
-            label: "Message",
+            value: 'message',
+            label: 'Message'
           },
           {
-            value: "message-box",
-            label: "MessageBox",
+            value: 'message-box',
+            label: 'MessageBox'
           },
           {
-            value: "notification",
-            label: "Notification",
-          },
-        ],
+            value: 'notification',
+            label: 'Notification'
+          }
+        ]
       },
       {
-        value: "navigation",
-        label: "Navigation",
+        value: 'navigation',
+        label: 'Navigation',
         children: [
           {
-            value: "menu",
-            label: "Menu",
+            value: 'menu',
+            label: 'Menu'
           },
           {
-            value: "tabs",
-            label: "Tabs",
+            value: 'tabs',
+            label: 'Tabs'
           },
           {
-            value: "breadcrumb",
-            label: "Breadcrumb",
+            value: 'breadcrumb',
+            label: 'Breadcrumb'
           },
           {
-            value: "dropdown",
-            label: "Dropdown",
+            value: 'dropdown',
+            label: 'Dropdown'
           },
           {
-            value: "steps",
-            label: "Steps",
-          },
-        ],
+            value: 'steps',
+            label: 'Steps'
+          }
+        ]
       },
       {
-        value: "others",
-        label: "Others",
+        value: 'others',
+        label: 'Others',
         children: [
           {
-            value: "dialog",
-            label: "Dialog",
+            value: 'dialog',
+            label: 'Dialog'
           },
           {
-            value: "tooltip",
-            label: "Tooltip",
+            value: 'tooltip',
+            label: 'Tooltip'
           },
           {
-            value: "popover",
-            label: "Popover",
+            value: 'popover',
+            label: 'Popover'
           },
           {
-            value: "card",
-            label: "Card",
+            value: 'card',
+            label: 'Card'
           },
           {
-            value: "carousel",
-            label: "Carousel",
+            value: 'carousel',
+            label: 'Carousel'
           },
           {
-            value: "collapse",
-            label: "Collapse",
-          },
-        ],
-      },
-    ],
+            value: 'collapse',
+            label: 'Collapse'
+          }
+        ]
+      }
+    ]
   },
   {
-    value: "resource",
-    label: "Resource",
+    value: 'resource',
+    label: 'Resource',
     children: [
       {
-        value: "axure",
-        label: "Axure Components",
+        value: 'axure',
+        label: 'Axure Components'
       },
       {
-        value: "sketch",
-        label: "Sketch Templates",
+        value: 'sketch',
+        label: 'Sketch Templates'
       },
       {
-        value: "docs",
-        label: "Design Documentation",
-      },
-    ],
-  },
+        value: 'docs',
+        label: 'Design Documentation'
+      }
+    ]
+  }
 ]
 </script>
 

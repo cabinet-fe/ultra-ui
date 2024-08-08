@@ -195,33 +195,37 @@ let setIsChangedByModel = false
 watch(
   [model, optionsMap],
   ([model, optionsMap]) => {
+    // 由用户手动勾选的不会触发
     if (modelIsChangedBySet) return
 
     setIsChangedByModel = true
-    if (!optionsMap.size || !model?.length) {
-      checkedSet.clear()
-      return nextTick(() => {
-        setIsChangedByModel = false
+    checkedSet.clear()
+
+    if (optionsMap.size && model?.length) {
+      model.forEach(v => {
+        const option = optionsMap.get(v)
+        option && checkedSet.add(option)
       })
     }
 
-    model.forEach(v => {
-      const option = optionsMap.get(v)
-      option && checkedSet.add(option)
+    nextTick(() => {
+      setIsChangedByModel = false
     })
-    setIsChangedByModel = false
   },
   { immediate: true }
 )
 
 watch(checkedSet, () => {
   if (setIsChangedByModel) return
+
   const { valueKey } = props
   modelIsChangedBySet = true
   const checkedArr = Array.from(checkedSet)
   model.value = checkedArr.map(option => option[valueKey])
   emit('change', checkedArr)
-  modelIsChangedBySet = false
+  nextTick(() => {
+    modelIsChangedBySet = false
+  })
 })
 
 const tags = computed(() => {

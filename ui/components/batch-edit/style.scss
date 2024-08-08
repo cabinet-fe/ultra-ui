@@ -39,7 +39,7 @@ $root-name: batch-edit;
   @include m.e(action) {
     gap: fn.use-var(gap, default);
     flex-shrink: 0;
-    @include m.flex($justify: flex-end);
+    @include m.flex($justify: space-between);
   }
 
   @include m.bem(table, row) {

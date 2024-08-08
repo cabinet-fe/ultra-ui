@@ -7,6 +7,7 @@
         filterable
         v-model="checked"
         :options="options"
+        @update:model-value="console.log"
       />
 
       {{ checked }}
@@ -24,6 +25,10 @@ const options = Array.from({ length: 100 }).map((_, i) => ({
 }))
 
 const checked = shallowRef([1, 2, 3])
+
+setTimeout(() => {
+  checked.value = [4, 5, 6]
+}, 2000)
 </script>
 
 <style lang="scss" scoped></style>

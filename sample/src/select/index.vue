@@ -6,6 +6,7 @@
         v-model="selected"
         :filterable="filterable"
         :options="options"
+        @update:model-value="console.log"
       />
 
       <div style="height: 10vh"></div>
@@ -33,7 +34,11 @@ setTimeout(() => {
   }))
 }, 1000)
 
-const selected = shallowRef(20)
+const selected = shallowRef()
+
+setTimeout(() => {
+  selected.value = 20
+})
 
 const filterable = shallowRef(true)
 

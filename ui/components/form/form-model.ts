@@ -242,6 +242,11 @@ export class FormModel<
   onChange(cb: (field: keyof Fields, val: any) => void) {
     this.modelChangeCallback = cb
   }
+
+  /** 关闭监听值变更 */
+  offChange() {
+    this.modelChangeCallback = undefined
+  }
 }
 
 export class DynamicFormModel {
@@ -353,6 +358,10 @@ export class DynamicFormModel {
    */
   onChange(cb: (field: string, val: any) => void) {
     this.modelChangeCallback = cb
+  }
+
+  offChange() {
+    this.modelChangeCallback = undefined
   }
 
   async validate(fields?: string | string[]): Promise<boolean> {
