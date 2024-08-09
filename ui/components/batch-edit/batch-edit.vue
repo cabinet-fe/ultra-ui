@@ -19,7 +19,7 @@
         :class="cls.e('table')"
         :columns="columns"
         highlight-current
-        @current-row-change="handleCurrentRowChange"
+        v-model:current-row="state.row"
         ref="tableRef"
       >
         <template #column:__action__="{ row }">
@@ -54,6 +54,7 @@
 
       <u-card-action :class="cls.e('action')" v-if="!readonly">
         <div>
+          {{ insertIndexes }}
           <u-tip
             content="快速编辑可以能够增加编辑效率，但是不能保证数据的完整性，因为它允许未校验的数据通过"
           >
@@ -198,9 +199,9 @@ const tableRef = shallowRef<TableExposed>()
 const {
   state,
   quickEdit,
+  insertIndexes,
   handleCreate,
   handleDelete,
-  handleCurrentRowChange,
   handleSave,
   handleInsertToNext,
   handleInsertToPrev,

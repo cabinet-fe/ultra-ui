@@ -36,7 +36,31 @@ export function useEdit(options: Options) {
     loading: false
   })
 
-  const quickEdit = shallowRef(false)
+  const insertIndexes = shallowRef<number[]>([])
+
+  watch(
+    () => state.row,
+    row => {
+      props.model?.resetData()
+      if (row) {
+        state.type = 'update'
+        state.visible = true
+        props.model?.setData(row.data)
+      } else {
+        state.visible = false
+      }
+    }
+  )
+
+  const quickEdit = shallowRef(props.defaultQuickEdit ?? false)
+
+  watch(
+    () => props.defaultQuickEdit,
+    defaultQuickEdit => {
+      if (defaultQuickEdit === undefined) return
+      quickEdit.value = defaultQuickEdit
+    }
+  )
 
   watch(quickEdit, quickEdit => {
     if (quickEdit) {
@@ -48,29 +72,9 @@ export function useEdit(options: Options) {
     }
   })
 
-  let insertIndexes: number[] = []
-
   const childrenKey = computed(() => {
     return typeof props.tree === 'string' ? props.tree : 'children'
   })
-
-  /** 打开表单 */
-  function openForm(type: States['type']) {
-    state.type = type
-    state.visible = true
-  }
-
-  /**
-   * 关闭弹框
-   */
-  function closeForm() {
-    insertIndexes = []
-    props.model?.resetData()
-    state.loading = false
-    state.row = undefined
-    state.parentRow = undefined
-    state.visible = false
-  }
 
   /**
    * 插入数据
@@ -87,7 +91,7 @@ export function useEdit(options: Options) {
 
     const parent = Forest.visit(
       data ?? [],
-      insertIndexes.slice(0, -1),
+      insertIndexes.value.slice(0, -1),
       childrenKey.value
     )
 
@@ -96,10 +100,10 @@ export function useEdit(options: Options) {
       if (!children) {
         parent[childrenKey.value] = [item]
       } else {
-        children.splice(last(insertIndexes), 0, item)
+        children.splice(last(insertIndexes.value), 0, item)
       }
     } else {
-      data.splice(last(insertIndexes), 0, item)
+      data.splice(last(insertIndexes.value), 0, item)
     }
 
     emit('update:data', data)
@@ -114,12 +118,22 @@ export function useEdit(options: Options) {
     )
   }
 
-  function runCreate(cb?: () => any) {
-    closeForm()
-    tableRef.value?.clearCurrentRow()
+  function runCreate(cb: () => void) {
+    state.row = undefined
+    state.type = 'create'
+    props.model?.resetData()
+
+    cb()
+
     nextTick(() => {
-      openForm('create')
-      cb?.()
+      state.visible = true
+      if (quickEdit.value) {
+        const item = insert(getInsertData())
+        const row = tableRef.value?.getRowByData(item)
+        if (row) {
+          state.row = row
+        }
+      }
     })
   }
 
@@ -128,40 +142,30 @@ export function useEdit(options: Options) {
    */
   function handleCreate() {
     const { data } = props
-    runCreate()
-    insertIndexes = [data?.length ?? 0]
-    if (quickEdit.value) {
-      const item = insert(getInsertData())
-      nextTick(() => {
-        tableRef.value?.setCurrentRow(item)
-      })
-    }
-  }
-
-  function handleCurrentRowChange(row?: TableRow) {
-    closeForm()
-    if (!row) return
-    state.row = row
-    props.model?.setData(row.data)
-    nextTick(() => {
-      openForm('update')
+    runCreate(() => {
+      insertIndexes.value = [data?.length ?? 0]
     })
   }
 
   function handleInsertToPrev(row: TableRow) {
-    runCreate()
-    insertIndexes = [...row.indexes]
+    console.log(row)
+    runCreate(() => {
+      insertIndexes.value = [...row.indexes]
+    })
   }
+
   function handleInsertToNext(row: TableRow) {
-    runCreate()
-    insertIndexes = [...row.indexes.slice(0, -1), row.index + 1]
+    runCreate(() => {
+      insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
+    })
   }
 
   function handleInsertChild(row: TableRow) {
     runCreate(() => {
       state.parentRow = row
+      row.expanded = true
+      insertIndexes.value = [...row.indexes, row.children?.length ?? 0]
     })
-    insertIndexes = [...row.indexes, row.children?.length ?? 0]
   }
 
   function runWithLoading<Arg extends any[]>(
@@ -243,20 +247,23 @@ export function useEdit(options: Options) {
     }
 
     if (state.row === row) {
-      closeForm()
-      tableRef.value?.clearCurrentRow()
+      state.row = undefined
     }
 
     emit('update:data', data)
   })
 
   function handleClose() {
-    closeForm()
-    tableRef.value?.clearCurrentRow()
+    state.visible = false
+    state.row = undefined
+    state.parentRow = undefined
+    props.model?.resetData()
+    insertIndexes.value = []
   }
 
   return {
     state,
+    insertIndexes,
     quickEdit,
     handleDelete,
     handleInsertChild,
@@ -264,7 +271,6 @@ export function useEdit(options: Options) {
     handleInsertToPrev,
     handleCreate,
     handleClose,
-    handleSave,
-    handleCurrentRowChange
+    handleSave
   }
 }

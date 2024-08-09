@@ -3,7 +3,7 @@
     :class="[
       cls.e('row'),
       bem.is('expanded', row.expanded),
-      bem.is('current', row.isCurrent)
+      bem.is('current', row.isCurrent && tableProps.highlightCurrent)
     ]"
     @click="handleRowClick(row)"
   >

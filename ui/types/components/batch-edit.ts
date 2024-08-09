@@ -25,6 +25,8 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
    * @description 该模型优先级要大于列配置
    */
   model?: Model
+  /** 是否默认快速编辑 */
+  defaultQuickEdit?: boolean
   /** 表格标题 */
   title?: string
   /**

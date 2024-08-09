@@ -72,14 +72,11 @@ const { size } = useFallbackProps([props], {
 const colgroupRef = shallowRef<HTMLElement>()
 
 // 行
-const {
-  rows,
-  toggleTreeRowExpand,
-  rowForest,
-  handleRowClick,
-  clearCurrentRow,
-  setCurrentRow
-} = useRows({ props, emit })
+const { rows, toggleTreeRowExpand, rowForest, handleRowClick, getRowByData } =
+  useRows({
+    props,
+    emit
+  })
 
 // 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
@@ -133,7 +130,6 @@ defineExpose<_TableExposed>({
   el,
   clearChecked,
   clearSelected,
-  clearCurrentRow,
-  setCurrentRow
+  getRowByData
 })
 </script>
