@@ -147,6 +147,7 @@ const model = new DynamicFormModel({
       return '你得输入一个手机号'
     }
   },
+  abc: { required: true },
   freeze: {},
   sex: { value: 'female', required: true },
   pwd: { value: '', required: true },
@@ -211,7 +212,6 @@ function handleSetData() {
 
 async function handleValidate() {
   const valid = await model.validate()
-  console.log('校验结果：' + valid)
 }
 
 const interestList = [
