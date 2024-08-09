@@ -14,6 +14,7 @@
       v-model:data="data"
       style="height: 400px"
       :model="model"
+      default-quick-edit
       :tree="tree"
       cols="1fr 400px"
       :delete-method="asynchronous ? deleteMethod : undefined"
@@ -50,7 +51,7 @@
       <template #column:v="scope"></template>
     </u-batch-edit>
 
-    <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
+    <!-- <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
       <u-batch-edit
         :columns="columns"
         :readonly="readonly"
@@ -69,14 +70,14 @@
           <u-input field="props.label" label="标签" />
           <u-input field="props.field" label="字段" />
           <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
-          <!-- <u-cascade
+          <u-cascade
             field="cascade"
             label="单选级联选择器"
             :options="cascadeData"
-          /> -->
+          />
         </template>
       </u-batch-edit>
-    </u-dialog>
+    </u-dialog> -->
 
     {{ data }}
   </div>

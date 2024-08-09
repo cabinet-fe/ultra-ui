@@ -17,7 +17,7 @@ interface Options {
   tableRef: ShallowRef<TableExposed | undefined>
 }
 
-interface States {
+export interface BatchEditStates {
   visible: boolean
   type: 'create' | 'update'
   loading: boolean
@@ -26,11 +26,24 @@ interface States {
   parentRow?: TableRow
 }
 
-export function useEdit(options: Options) {
+export interface EditReturned {
+  state: BatchEditStates
+  insertIndexes: ShallowRef<number[]>
+  quickEdit: ShallowRef<boolean>
+  handleSave: () => Promise<void>
+  handleClose: () => void
+  handleCreate: () => void
+  handleDelete: (row: TableRow) => Promise<void>
+  handleInsertToNext: (row: TableRow) => void
+  handleInsertToPrev: (row: TableRow) => void
+  handleInsertChild: (row: TableRow) => void
+}
+
+export function useEdit(options: Options): EditReturned {
   const { props, emit, tableRef } = options
 
   /** 组件状态 */
-  const state = shallowReactive<States>({
+  const state = shallowReactive<BatchEditStates>({
     visible: false,
     type: 'create',
     loading: false
@@ -62,15 +75,19 @@ export function useEdit(options: Options) {
     }
   )
 
-  watch(quickEdit, quickEdit => {
-    if (quickEdit) {
-      props.model?.onChange((field, value) => {
-        state.row && setChainValue(state.row.data, field, value)
-      })
-    } else {
-      props.model?.offChange()
-    }
-  })
+  watch(
+    quickEdit,
+    quickEdit => {
+      if (quickEdit) {
+        props.model?.onChange((field, value) => {
+          state.row && setChainValue(state.row.data, field, value)
+        })
+      } else {
+        props.model?.offChange()
+      }
+    },
+    { immediate: true }
+  )
 
   const childrenKey = computed(() => {
     return typeof props.tree === 'string' ? props.tree : 'children'
@@ -125,12 +142,16 @@ export function useEdit(options: Options) {
 
     cb()
 
-    const item = insert(getInsertData())
+    let item: Record<string, any> | undefined = undefined
+    if (quickEdit.value) {
+      item = insert(getInsertData())
+    }
 
     await nextTick()
 
     state.visible = true
-    if (quickEdit.value) {
+
+    if (item) {
       const row = tableRef.value?.getRowByData(item)
       if (row) {
         state.row = row

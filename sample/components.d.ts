@@ -15,6 +15,7 @@ declare module 'vue' {
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
+    UCardAction: typeof import('ultra-ui')['UCardAction']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCascade: typeof import('ultra-ui')['UCascade']
@@ -35,6 +36,7 @@ declare module 'vue' {
     UTable: typeof import('ultra-ui')['UTable']
     UTextarea: typeof import('ultra-ui')['UTextarea']
     UTextEditor: typeof import('ultra-ui')['UTextEditor']
+    UTip: typeof import('ultra-ui')['UTip']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }
