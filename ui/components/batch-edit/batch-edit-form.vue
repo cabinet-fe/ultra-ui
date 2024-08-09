@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, type Slots } from 'vue'
+import { inject } from 'vue'
 import { UForm } from '../form'
 import { UCard, UCardAction, UCardHeader } from '../card'
 import { BatchEditDIKey } from './di'
