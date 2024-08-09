@@ -125,6 +125,7 @@ export function useRows(options: Options) {
         }
 
         rowDicts = tempRowDicts
+
         tempRowDicts = null
         rows.value = result
         result = []

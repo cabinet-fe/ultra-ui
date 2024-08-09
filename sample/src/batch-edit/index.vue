@@ -100,11 +100,14 @@ const columns = defineTableColumns([
 ])
 
 const data = shallowRef()
-// Array.from({ length: 1 }).map((_, i) => ({
-//   name: '姓名' + i,
-//   age: Math.ceil(Math.random() * 80),
-//   id: Math.random()
-// }))
+
+setTimeout(() => {
+  data.value = Array.from({ length: 3 }).map((_, i) => ({
+    name: '姓名' + i,
+    age: Math.ceil(Math.random() * 80),
+    id: Math.random()
+  }))
+}, 500)
 
 const model = new FormModel({
   name: { required: true },

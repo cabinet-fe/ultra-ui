@@ -118,23 +118,24 @@ export function useEdit(options: Options) {
     )
   }
 
-  function runCreate(cb: () => void) {
+  async function runCreate(cb: () => void) {
     state.row = undefined
     state.type = 'create'
     props.model?.resetData()
 
     cb()
 
-    nextTick(() => {
-      state.visible = true
-      if (quickEdit.value) {
-        const item = insert(getInsertData())
-        const row = tableRef.value?.getRowByData(item)
-        if (row) {
-          state.row = row
-        }
+    const item = insert(getInsertData())
+
+    await nextTick()
+
+    state.visible = true
+    if (quickEdit.value) {
+      const row = tableRef.value?.getRowByData(item)
+      if (row) {
+        state.row = row
       }
-    })
+    }
   }
 
   /**
