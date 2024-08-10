@@ -51,7 +51,7 @@
       <template #column:v="scope"></template>
     </u-batch-edit>
 
-    <!-- <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
+    <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
       <u-batch-edit
         :columns="columns"
         :readonly="readonly"
@@ -77,7 +77,7 @@
           />
         </template>
       </u-batch-edit>
-    </u-dialog> -->
+    </u-dialog>
 
     {{ data }}
   </div>

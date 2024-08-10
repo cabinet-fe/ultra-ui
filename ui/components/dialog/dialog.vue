@@ -125,7 +125,7 @@ const dialogTransition = useTransition('style', {
   target: dialogRef,
 
   enterTo: {
-    transform: 'scale3d(1, 1, 1) translate(0, 0)'
+    transform: 'scale3d(1, 1, 1) translate3d(0, 0, 0)'
   },
 
   enterActive: {
@@ -154,7 +154,7 @@ watch(visible, v => {
     nextFrame(() => {
       dialogRef.value &&
         setStyles(dialogRef.value, {
-          transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+          transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
         })
     })
     return
@@ -169,7 +169,7 @@ watch(visible, v => {
 
     dialogRef.value &&
       setStyles(dialogRef.value, {
-        transform: 'scale3d(0.5, 0.5, 1) translate(0, 0)'
+        transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
       })
     // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
     nextFrame(() => {
@@ -208,6 +208,15 @@ useDrag({
     if (maximized.value) return
     translated.x += x
     translated.y += y
+
+    // 字体模糊的bug修正
+    if (translated.x % 2 !== 0) {
+      translated.x += x < 0 ? 1 : -1
+    }
+    if (translated.y % 2 !== 0) {
+      translated.y += y < 0 ? 1 : -1
+    }
+    updateDialogTransform(translated.x, translated.y)
   }
 })
 
