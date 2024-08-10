@@ -72,6 +72,11 @@ import { omit } from 'cat-kit/fe'
 import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import { BatchEditDIKey } from './di'
 import { useComponentProps } from '@ui/compositions'
+import { UCard, UCardAction, UCardHeader } from '../card'
+import { UTable } from '../table'
+import { UCheckbox } from '../checkbox'
+import { UButton } from '../button'
+import { UTip } from '../tip'
 import type { ButtonProps } from '../button'
 
 defineOptions({
