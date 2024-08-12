@@ -1,9 +1,7 @@
 <template>
   <u-card :class="cls.e('list')">
-    <u-card-header v-if="!!$slots.default || props.title">
-      <slot>
-        {{ props.title }}
-      </slot>
+    <u-card-header v-if="!!slots.header || props.title">
+      <slot> {{ props.title }} </slot>
     </u-card-header>
     <u-table
       v-bind="tableProps"

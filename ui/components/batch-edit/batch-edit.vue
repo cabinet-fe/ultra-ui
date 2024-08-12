@@ -8,7 +8,7 @@
     @keyup.esc="handleClose"
   >
     <BatchEditList :slots="slots">
-      <slot name="header" />
+      <slot name="header" v-if="!!slots.header" />
     </BatchEditList>
     <BatchEditForm v-slot="scoped">
       <!-- @vue-ignore -->
