@@ -168,7 +168,6 @@ function updateDropdown() {
     triggerEl: triggerRef.value,
     popupEl: contentRef.value
   })
-  console.log(styles.left)
   styles && Object.assign(popupStyle, styles)
 }
 

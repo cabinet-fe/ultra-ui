@@ -17,7 +17,13 @@
         >
           <template #default="{ data, model }">
             <slot
-              v-bind="{ data, model, row: state.row, indexes: insertIndexes }"
+              v-bind="{
+                data,
+                model,
+                row: state.row,
+                indexes: insertIndexes,
+                index: state.row?.index
+              }"
             />
           </template>
         </u-form>

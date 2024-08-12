@@ -47,7 +47,7 @@
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 
-const treeSelect = shallowRef(1)
+const treeSelect = shallowRef()
 
 const disabledNode = data => {
   return data.id % 4 === 0
@@ -57,47 +57,49 @@ const dataFormat = (data: Record<string, any>) => {
   return `${data.id} - ${data.name}`
 }
 
-// const data = shallowRef<any[]>([
-//   { name: "烤冷面", id: 1 },
-//   {
-//     name: "手抓饼",
-//     id: 2,
-//     children: [
-//       {
-//         name: "鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝",
-//         id: 3,
-//         children: [
-//           {
-//             name: "烤苞米",
-//             id: 4,
-//             children: [
-//               { name: "苞米例", id: 5 },
-//               { name: "吃", id: 6 },
-//               { name: "h", id: 7 },
-//             ],
-//           },
-//         ],
-//       },
-//       {
-//         name: "fggg",
-//         id: 8,
-//         children: [
-//           { name: "苞米例2", id: 9 },
-//           { name: "吃2", id: 10 },
-//           { name: "h2", id: 11 },
-//         ],
-//       },
-//     ],
-//   },
-//   { name: "烤冷面12", id: 12 },
-//   { name: "烤冷面13", id: 13 },
-//   { name: "烤冷面14", id: 14 },
-// ])
+const data = shallowRef<any[]>([
+  { name: '烤冷面', id: 1 },
+  {
+    name: '手抓饼',
+    id: 2,
+    children: [
+      {
+        name: '鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝鱼香肉丝',
+        id: 3,
+        children: [
+          {
+            name: '烤苞米',
+            id: 4,
+            children: [
+              { name: '苞米例', id: 5 },
+              { name: '吃', id: 6 },
+              { name: 'h', id: 7 }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'fggg',
+        id: 8,
+        children: [
+          { name: '苞米例2', id: 9 },
+          { name: '吃2', id: 10 },
+          { name: 'h2', id: 11 }
+        ]
+      }
+    ]
+  },
+  { name: '烤冷面12', id: 12 },
+  { name: '烤冷面13', id: 13 },
+  { name: '烤冷面14', id: 14 }
+])
 
-const data = Array.from({ length: 2000 }, (_, index) => ({
-  name: `烤冷面${index}`,
-  id: index
-}))
+// setTimeout(() => {
+//   data.value = Array.from({ length: 3000 }, (_, index) => ({
+//     name: `烤冷面${index}`,
+//     id: index
+//   }))
+// }, 1000)
 
 const handleChange = (val, selected) => {
   console.log(val, selected)

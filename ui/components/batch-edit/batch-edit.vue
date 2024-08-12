@@ -58,7 +58,9 @@ const slots = defineSlots<
       model: Model
       /** 当前编辑的行 */
       row?: TableRow
-      /** 操作的目标行索引 */
+      /** 当前编辑的行索引 */
+      index?: number
+      /** 操作的目标行索引路径 */
       indexes?: number[]
     }) => any
 
