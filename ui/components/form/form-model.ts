@@ -176,7 +176,7 @@ export class FormModel<
     }
 
     if (errors.size > 0) {
-      return false
+      return Promise.reject(false)
     }
 
     return true
