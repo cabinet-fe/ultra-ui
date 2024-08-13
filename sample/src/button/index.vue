@@ -6,9 +6,7 @@
 
       <u-button
         :type="button.type"
-        v-for="(button, index) of buttons"
-        :class="bem.is('active', index === active)"
-        @click="active = index"
+        v-for="button of buttons"
         :disabled="undefined"
       >
         {{ button.text }}

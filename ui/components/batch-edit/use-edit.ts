@@ -75,15 +75,17 @@ export function useEdit(options: Options): EditReturned {
     }
   )
 
+  const changeCb = (field: string, val: any) => {
+    state.row && setChainValue(state.row.data, field, val)
+  }
+
   watch(
     quickEdit,
     quickEdit => {
       if (quickEdit) {
-        props.model?.onChange((field, value) => {
-          state.row && setChainValue(state.row.data, field, value)
-        })
+        props.model?.onChange(changeCb)
       } else {
-        props.model?.offChange()
+        props.model?.offChange(changeCb)
       }
     },
     { immediate: true }
@@ -231,8 +233,12 @@ export function useEdit(options: Options): EditReturned {
     // 新增
     if (state.type === 'create') {
       insert(item)
-      return model?.resetData()
+
+      model?.resetData()
+      emit('created')
+      return
     }
+    // 更新
     if (state.type === 'update') {
       const { row } = state
       row &&

@@ -70,7 +70,8 @@ export class FormModel<
    */
   private readonly preVal: Record<string, any> = {}
 
-  private modelChangeCallback?: (fields: string, val: any) => void
+  private modelChangeCallback: Set<(fields: string, val: any) => void> =
+    new Set()
 
   constructor(fields: Fields) {
     this.fields = fields
@@ -105,7 +106,7 @@ export class FormModel<
 
           if (getChainValue(preVal, key) !== v) {
             setChainValue(preVal, key, v)
-            this.modelChangeCallback?.(key, v)
+            this.modelChangeCallback.forEach(cb => cb(key, v))
             validateKeys.push(key)
           }
         })
@@ -115,7 +116,7 @@ export class FormModel<
           const v = getChainValue(data, key)
           if (getChainValue(preVal, key) !== v) {
             setChainValue(preVal, key, v)
-            this.modelChangeCallback?.(key, v)
+            this.modelChangeCallback.forEach(cb => cb(key, v))
           }
         })
         this.validateOnFieldChange = true
@@ -240,12 +241,12 @@ export class FormModel<
    * @param cb 回调
    */
   onChange(cb: (field: keyof Fields, val: any) => void) {
-    this.modelChangeCallback = cb
+    this.modelChangeCallback.add(cb)
   }
 
   /** 关闭监听值变更 */
-  offChange() {
-    this.modelChangeCallback = undefined
+  offChange(cb: (field: keyof Fields, val: any) => void) {
+    this.modelChangeCallback.delete(cb)
   }
 }
 
@@ -272,7 +273,8 @@ export class DynamicFormModel {
    */
   private validateOnFieldChange = true
 
-  private modelChangeCallback?: (fields: string, val: any) => void
+  private modelChangeCallback: Set<(fields: string, val: any) => void> =
+    new Set()
 
   private _allKeys: string[] = []
 
@@ -306,7 +308,7 @@ export class DynamicFormModel {
         const oldVal = getChainValue(oldData, key)
         const newVal = getChainValue(data, key)
         if (oldVal !== newVal) {
-          this.modelChangeCallback?.(key, newVal)
+          this.modelChangeCallback.forEach(cb => cb(key, newVal))
           changedKeys.push(key)
           setChainValue(oldData, key, newVal)
         }
@@ -357,11 +359,11 @@ export class DynamicFormModel {
    * @param cb 回调
    */
   onChange(cb: (field: string, val: any) => void) {
-    this.modelChangeCallback = cb
+    this.modelChangeCallback.add(cb)
   }
 
-  offChange() {
-    this.modelChangeCallback = undefined
+  offChange(cb: (field: string, val: any) => void) {
+    this.modelChangeCallback.delete(cb)
   }
 
   async validate(fields?: string | string[]): Promise<boolean> {

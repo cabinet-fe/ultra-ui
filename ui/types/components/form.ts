@@ -63,7 +63,7 @@ export type IFormModel<
   /** 监听值变更 */
   onChange(cb: (field: keyof Fields, val: any) => void): void
   /** 关闭监听值变更 */
-  offChange(): void
+  offChange(cb: (field: keyof Fields, val: any) => void): void
 }
 
 /** 表单组件属性 */

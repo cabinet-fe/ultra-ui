@@ -14,9 +14,9 @@
       v-model:data="data"
       style="height: 400px"
       :model="model"
-      default-quick-edit
       :tree="tree"
       cols="1fr 400px"
+      default-quick-edit
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @created="
@@ -363,6 +363,10 @@ const cascadeData = [
     ]
   }
 ]
+
+model.onChange(() => {
+  console.log(model.data)
+})
 </script>
 
 <style lang="scss" scoped></style>

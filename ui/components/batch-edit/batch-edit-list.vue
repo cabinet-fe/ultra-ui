@@ -3,6 +3,19 @@
     <u-card-header v-if="!!slots.header || props.title">
       <slot> {{ props.title }} </slot>
     </u-card-header>
+    <div :class="cls.e('tools')">
+      <u-tip
+        content="快速编辑可以能够增加编辑效率，但是不能保证数据的完整性，因为它允许未校验的数据通过"
+        style="
+          color: var(--color-info);
+          background-color: var(--color-info-light-9);
+          width: 200px;
+        "
+      >
+        <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
+      </u-tip>
+    </div>
+
     <u-table
       v-bind="tableProps"
       :slots="slots"
@@ -13,7 +26,7 @@
       ref="tableRef"
     >
       <template #column:__action__="{ row }">
-        <ButtonWrap tag="span" @click.stop :loading="row.operating">
+        <ButtonWrap @click.stop :loading="row.operating">
           <u-button
             @click="handleInsertToPrev(row)"
             :icon="InsertToPrev"
@@ -40,37 +53,41 @@
           />
         </ButtonWrap>
       </template>
-    </u-table>
 
-    <u-card-action :class="cls.e('action')" v-if="!props.readonly">
-      <div>
-        <u-tip
-          content="快速编辑可以能够增加编辑效率，但是不能保证数据的完整性，因为它允许未校验的数据通过"
-        >
-          <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
-        </u-tip>
-      </div>
+      <template #empty> {{ null }} </template>
 
-      <u-button
-        :icon="Plus"
-        @click="handleCreate"
-        text
-        type="primary"
-        :loading="state.loading"
+      <template
+        #body="{ columns }"
+        v-if="!props.readonly && (quickEdit || !state.visible)"
       >
-        新增
-      </u-button>
-    </u-card-action>
+        <tr>
+          <td :colspan="columns.length" :class="cls.e('add')">
+            <u-button
+              plain
+              type="primary"
+              @click="handleCreate"
+              :loading="state.loading"
+            >
+              <span
+                style="position: sticky; left: 50%; transform: translateX(-50%)"
+              >
+                新增
+              </span>
+            </u-button>
+          </td>
+        </tr>
+      </template>
+    </u-table>
   </u-card>
 </template>
 
 <script setup lang="ts">
 import { computed, inject, type Slots } from 'vue'
 import { omit } from 'cat-kit/fe'
-import { Plus, Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
+import { Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import { BatchEditDIKey } from './di'
 import { useComponentProps } from '@ui/compositions'
-import { UCard, UCardAction, UCardHeader } from '../card'
+import { UCard, UCardHeader } from '../card'
 import { UTable } from '../table'
 import { UCheckbox } from '../checkbox'
 import { UButton } from '../button'
@@ -125,7 +142,7 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   circle: true,
   text: true,
   type: 'primary',
-  style: { fontSize: '16px' },
+  style: { fontSize: '16px', marginRight: '6px' },
   loading: false
 })
 </script>

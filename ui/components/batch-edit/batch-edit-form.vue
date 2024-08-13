@@ -44,6 +44,7 @@
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
         @click="handleSave"
+        plain
       >
         确认{{ state.type === 'create' ? '新增' : '修改' }}
       </u-button>
