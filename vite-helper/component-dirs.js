@@ -22,6 +22,7 @@
   "form-item",
   "gantt-chart",
   "grid",
+  "grid-input",
   "group-input",
   "icon",
   "input",

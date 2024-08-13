@@ -44,6 +44,8 @@ export * from './grid'
 
 export * from './group-input'
 
+export * from './grid-input'
+
 export * from './icon'
 
 export * from './input'

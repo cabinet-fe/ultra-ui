@@ -4,7 +4,7 @@ import { dirname, resolve } from 'path'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
 import { fileURLToPath } from 'url'
-import dts from 'vite-plugin-dts'
+// import dts from 'vite-plugin-dts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -36,10 +36,10 @@ async function buildResolver() {
       esbuild({
         minify: false
       }),
-      dts({
-        outDir: __dirname,
-        include: ['./resolver.ts']
-      })
+      // dts({
+      //   outDir: __dirname,
+      //   include: ['./resolver.ts']
+      // })
     ],
     external: () => true
   })
