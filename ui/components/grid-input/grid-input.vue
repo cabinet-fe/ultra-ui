@@ -51,7 +51,7 @@ const _numberReg = computed(() => (props.zero ? /^[0-9]$/ : /^[1-9]$/))
 
 const valueArray = ref<string[]>([])
 
-const position = ref<number>(0)
+const position = ref<number>(-1)
 
 const blur = ref<boolean>(false)
 
