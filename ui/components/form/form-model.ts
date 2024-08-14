@@ -85,10 +85,8 @@ export class FormModel<
       let v = value
 
       if (typeof value === 'function') {
-        console.log(value, key)
         watch(value, v => {
           setChainValue(this.initialData, key, v)
-          console.log(this.initialData, key, v)
         })
         v = value()
       }
