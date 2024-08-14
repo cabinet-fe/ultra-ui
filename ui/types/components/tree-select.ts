@@ -1,11 +1,11 @@
-import type { FormComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
-import type { TreeProps } from './tree'
+import type { FormComponentProps } from "../component-common"
+import type { DeconstructValue } from "../helper"
+import type { TreeProps } from "./tree"
 
 /** 树形选择器组件属性 */
 export interface TreeSelectProps
   extends FormComponentProps,
-    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+    Omit<TreeProps, "selected" | "checked" | "selectable" | "checkable"> {
   modelValue?: string | number
 
   /** 自定义占位文字 */
@@ -30,14 +30,14 @@ export interface TreeSelectProps
    * 自定义数据格式 默认为 value - label
    */
   dataFormat?: (data: Record<string, any>) => string
-
+  customContent?: (data: Record<string, any>) => string
 }
 
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
-  (e: 'clear'): void
+  (e: "clear"): void
   (
-    e: 'change',
+    e: "change",
     value?: string | number,
     selectedData?: Record<string, any>
   ): void

@@ -14,7 +14,9 @@
         filterable
         closeOnSelect
         @change="handleChange"
-      ></u-tree-select>
+        :customContent="dataFormat"
+      >
+      </u-tree-select>
 
       <u-card-action>
         <u-button @click="handleChangeSelect">改值</u-button>
