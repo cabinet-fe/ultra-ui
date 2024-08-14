@@ -1,5 +1,9 @@
 <template>
-  <u-card :class="cls.e('form')" v-if="state.visible && !!props.model">
+  <u-card
+    :class="cls.e('form')"
+    integrate
+    v-if="state.visible && !!props.model"
+  >
     <u-card-header>
       <template v-if="props.readonly">详情</template>
       <template v-else-if="!!state.parentRow">新增子级</template>

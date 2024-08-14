@@ -1,5 +1,5 @@
 <template>
-  <u-card :class="cls.e('list')">
+  <u-card :class="cls.e('list')" integrate>
     <u-card-header v-if="!!slots.header || props.title">
       <slot> {{ props.title }} </slot>
     </u-card-header>
@@ -58,7 +58,12 @@
 
       <template
         #body="{ columns }"
-        v-if="!props.readonly && (quickEdit || !state.visible)"
+        v-if="
+          !props.readonly &&
+          (quickEdit ||
+            (state.type === 'create' && !state.visible) ||
+            state.type === 'update')
+        "
       >
         <tr>
           <td :colspan="columns.length" :class="cls.e('add')">

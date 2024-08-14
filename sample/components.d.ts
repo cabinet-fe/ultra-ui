@@ -32,6 +32,7 @@ declare module 'vue' {
     UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPasswordInput: typeof import('ultra-ui')['UPasswordInput']
+    UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
     UScroll: typeof import('ultra-ui')['UScroll']

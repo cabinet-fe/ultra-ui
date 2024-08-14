@@ -22,7 +22,7 @@
     <u-dialog
       v-model="visible"
       :modal="modal"
-      style="width: 900px"
+      style="width: 99%"
       title="对话框标题"
     >
       <u-card v-for="i in 2" :key="i">
@@ -33,7 +33,14 @@
 
       <template #footer>
         <u-button type="primary" text @click="visible = false">取消</u-button>
-        <u-button type="primary" @click="visible = false">确认</u-button>
+        <u-pop-confirm
+          @confirm="visible = false"
+          title="确认删除吗asds sad asd"
+        >
+          <template #reference>
+            <u-button type="primary">确认</u-button>
+          </template>
+        </u-pop-confirm>
       </template>
     </u-dialog>
 

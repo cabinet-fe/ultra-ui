@@ -87,6 +87,10 @@ export function useEdit(options: Options): EditReturned {
       } else {
         props.model?.offChange(changeCb)
       }
+      state.row = undefined
+      state.type = 'create'
+      state.visible = false
+      props.model?.resetData()
     },
     { immediate: true }
   )
@@ -172,7 +176,6 @@ export function useEdit(options: Options): EditReturned {
   }
 
   function handleInsertToPrev(row: TableRow) {
-    console.log(row)
     runCreate(() => {
       insertIndexes.value = [...row.indexes]
     })

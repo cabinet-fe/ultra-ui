@@ -16,7 +16,7 @@ $root-name: batch-edit;
 @include m.b($root-name) {
   // border: fn.use-var(border);
   overflow: hidden;
-  box-shadow: fn.use-var(shadow);
+
   border-radius: fn.use-var(radius, default);
 
   @include m.e(table, form-wrap) {
@@ -26,7 +26,6 @@ $root-name: batch-edit;
   @include m.e(list, form) {
     display: flex;
     flex-direction: column;
-    box-shadow: none;
   }
 
   @include m.e(form) {
