@@ -30,6 +30,9 @@ export interface TreeSelectProps
    * 自定义数据格式 默认为 value - label
    */
   dataFormat?: (data: Record<string, any>) => string
+  /**
+   * 自定义内容
+   */
   customContent?: (data: Record<string, any>) => string
 }
 
