@@ -82,7 +82,17 @@ export class FormModel<
       const fieldItem = fields[key]!
       allKeys.push(key)
       const { value } = fieldItem
-      const v = typeof value === 'function' ? value() : value
+      let v = value
+
+      if (typeof value === 'function') {
+        console.log(value, key)
+        watch(value, v => {
+          setChainValue(this.initialData, key, v)
+          console.log(this.initialData, key, v)
+        })
+        v = value()
+      }
+
       setChainValue(rawData, key, v)
       setChainValue(this.preVal, key, v)
     }
@@ -95,7 +105,7 @@ export class FormModel<
 
     this.validator = new Validator(this.fields)
 
-    // 校验
+    // 根据新旧值变化校验
     watch(data, data => {
       const { preVal } = this
 
@@ -337,6 +347,7 @@ export class DynamicFormModel {
     this.fields[field] = item
     const { value } = item
     const v = typeof value === 'function' ? value() : value
+    /** 这是有bug的 */
     if (v !== undefined) {
       this.initialData[field] = JSON.parse(JSON.stringify(v))
     }

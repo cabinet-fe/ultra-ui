@@ -234,9 +234,7 @@ export function useEdit(options: Options): EditReturned {
     if (state.type === 'create') {
       insert(item)
 
-      model?.resetData()
-      emit('created')
-      return
+      return model?.resetData()
     }
     // 更新
     if (state.type === 'update') {

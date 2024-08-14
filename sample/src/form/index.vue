@@ -7,6 +7,8 @@
 
     <u-button @click="visible = true">打开</u-button>
 
+    <u-number-input v-model="num"></u-number-input>
+
     <CustomCard title="表单">
       <u-form
         :disabled="disabled"
@@ -128,7 +130,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DynamicFormModel, formField } from 'ultra-ui'
+import { DynamicFormModel, formField, FormModel } from 'ultra-ui'
 import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
@@ -138,10 +140,15 @@ const disabled = shallowRef(false)
 
 const ageRules = shallowReactive(formField<number>({ required: true }))
 
-const model = new DynamicFormModel({
+const num = shallowRef(1)
+
+const model = new FormModel({
   age: ageRules,
   'nest.name': { required: true, value: 'aa' },
-  'nest.price': { required: true },
+  'nest.price': {
+    required: true,
+    value: () => (num.value < 10 ? 20 : 10)
+  },
   phone: {
     validator(value) {
       if (!value) return ''
@@ -181,11 +188,11 @@ const model = new DynamicFormModel({
 setTimeout(() => {
   model.setData({ cascade: ['guide'] })
 
-  model.add('name', {
-    maxLen: 4,
-    required: true,
-    value: ''
-  })
+  // model.add('name', {
+  //   maxLen: 4,
+  //   required: true,
+  //   value: ''
+  // })
 }, 2000)
 // const sortRef = shallowRef()
 // const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
@@ -205,7 +212,7 @@ watch(visible, v => {
 function handleSetData() {
   model.setData({
     // nest: { name: '测试名称', price: 10 },
-    age: null,
+    // age: null,
     name: null,
     unit: null,
     interest: ['1', '2', '3']

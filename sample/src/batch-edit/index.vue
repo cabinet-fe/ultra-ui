@@ -112,7 +112,11 @@ setTimeout(() => {
 
 const model = new FormModel({
   name: { required: true },
-  age: formField<number>({ max: 100 }),
+  age: {
+    max: 100,
+    value: () =>
+      200 - (data.value?.reduce((sum, item) => sum + item.age, 0) ?? 0)
+  },
   'props.field': {},
   'props.label': {},
   cc: { required: true },
@@ -364,8 +368,8 @@ const cascadeData = [
   }
 ]
 
-model.onChange(() => {
-  console.log(model.data)
+model.onChange(f => {
+  console.log(f)
 })
 </script>
 
