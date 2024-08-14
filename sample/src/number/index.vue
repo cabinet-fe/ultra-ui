@@ -24,7 +24,6 @@
 
     <div>
       货币:
-
       <u-number :value="number" format="currency" />
     </div>
   </div>

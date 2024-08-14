@@ -9,7 +9,6 @@
           bem.is('active', model === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        ref="tabItemsRef"
         @click="handleClick(item, index)"
         v-ripple="item.disabled ? false : cls.e('ripple')"
       >
@@ -98,7 +97,6 @@ const tabItems = computed(() => {
 
 const cls = bem('tabs')
 
-const tabItemsRef = shallowRef<HTMLLIElement[]>()
 const headerRef = shallowRef<HTMLElement>()
 
 /** 当前活动标签 */
@@ -108,12 +106,16 @@ const model = defineModel<string>()
 const markStyle = shallowRef<CSSProperties>({})
 
 watch(
-  [tabItemsRef, index, () => props.position, () => props.editable],
-  async ([items, index, position, editable]) => {
+  [index, () => props.position, () => props.editable],
+  async ([index, position, editable]) => {
     await nextTick()
-    if (!items || index === -1 || editable) return
-    const headerRect = headerRef.value!.getBoundingClientRect()
-    const rect = items[index]!.getBoundingClientRect()
+    if (index === -1 || editable) return
+
+    const headerEl = headerRef.value!
+
+    const headerRect = headerEl.getBoundingClientRect()
+
+    const rect = headerEl.children[index]!.getBoundingClientRect()
 
     if (position === 'top' || position === 'bottom') {
       markStyle.value = {

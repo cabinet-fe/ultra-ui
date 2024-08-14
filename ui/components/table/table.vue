@@ -17,7 +17,13 @@
         />
       </colgroup>
       <UTableHead />
-      <UTableBody />
+      <UTableBody>
+        <slot name="body" :columns="allColumns" :rows="rows" />
+
+        <template #empty v-if="slots.empty">
+          <slot name="empty" />
+        </template>
+      </UTableBody>
       <UTableFoot>
         <slot name="foot" :columns="allColumns" :rows="rows" />
       </UTableFoot>
@@ -60,7 +66,9 @@ const emit = defineEmits<TableEmits>()
 const slots = defineSlots<{
   [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
   [key: `header:${string}`]: (props: { column: ColumnNode }) => any
-  foot: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+  foot?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+  body?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+  empty?: () => any
 }>()
 
 const cls = bem('table')
@@ -72,14 +80,11 @@ const { size } = useFallbackProps([props], {
 const colgroupRef = shallowRef<HTMLElement>()
 
 // 行
-const {
-  rows,
-  toggleTreeRowExpand,
-  rowForest,
-  handleRowClick,
-  clearCurrentRow,
-  setCurrentRow
-} = useRows({ props, emit })
+const { rows, toggleTreeRowExpand, rowForest, handleRowClick, getRowByData } =
+  useRows({
+    props,
+    emit
+  })
 
 // 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
@@ -133,7 +138,6 @@ defineExpose<_TableExposed>({
   el,
   clearChecked,
   clearSelected,
-  clearCurrentRow,
-  setCurrentRow
+  getRowByData
 })
 </script>

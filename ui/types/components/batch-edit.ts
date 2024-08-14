@@ -25,6 +25,8 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
    * @description 该模型优先级要大于列配置
    */
   model?: Model
+  /** 是否默认快速编辑 */
+  defaultQuickEdit?: boolean
   /** 表格标题 */
   title?: string
   /**
@@ -37,7 +39,11 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
   labelWidth?: string | number
   /** 删除方法 */
   deleteMethod?: (data: Record<string, any>[]) => Promise<any> | any
-  /** 保存方法 */
+  /**
+   * 保存方法
+   * @description 这个方法旨在快编时生效
+   * @returns 如果返回一个值，那么这个值会被插入，否则插入的为表单值
+   */
   saveMethod?: (
     /** 表单数据 */
     data: Record<string, any>,

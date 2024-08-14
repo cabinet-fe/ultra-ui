@@ -96,6 +96,8 @@ export interface TableProps<
     | undefined
   /** 高亮当前选中行 */
   highlightCurrent?: boolean
+  /** 当前选中行 */
+  currentRow?: TableRow<DataItem>
   /**
    * 行key
    * @description 用于标识行的唯一性，对于单选和多选来说是必须的
@@ -181,7 +183,7 @@ export interface TableEmits<
   /** 行点击事件 */
   (e: 'row-click', row: TableRow<DataItem>): void
   /** 当前行变更 */
-  (e: 'current-row-change', row?: TableRow<DataItem>): void
+  (e: 'update:currentRow', row?: TableRow<DataItem>): void
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */
@@ -191,10 +193,8 @@ export interface _TableExposed {
   clearChecked: () => void
   /** 清除单选的选项 */
   clearSelected: () => void
-  /** 清除当前选中行 */
-  clearCurrentRow: () => void
-  /** 设置当前行 */
-  setCurrentRow: (data: Record<string, any>) => void
+  /** 通过数据获取表格行 */
+  getRowByData: (data: Record<string, any>) => TableRow | undefined
 }
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

@@ -16,16 +16,24 @@ $root-name: button;
   cursor: pointer;
   padding: 0 0.8em;
   -webkit-appearance: none;
+  border: none;
   background-color: fn.use-var(color, default);
-  border: fn.use-var(border, width) fn.use-var(border, style)
-    fn.use-var(color, default);
-  box-shadow: 0px 0px 2px 0px fn.use-var(color, default);
+  box-shadow: 2px 2px 4px 0px fn.use-var(color, default, dark-1);
   transition:
     background-color 0.25s,
     box-shadow 0.2s;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
+
   @include m.flex($display: inline-flex, $justify: center);
+
+  &:active {
+    box-shadow: none !important;
+  }
+
+  @include m.is(disabled, loading) {
+    box-shadow: none !important;
+  }
 
   @include m.is(plain) {
     background-color: fn.use-var(bg-color, top);
@@ -67,11 +75,9 @@ $root-name: button;
     @include m.m(color-#{$type}) {
       background-color: fn.use-var(color, $type);
       color: fn.use-var(text-color, white);
-      border-color: fn.use-var(color, $type);
-      box-shadow: 0px 0px 2px 0px fn.use-var(color, $type);
+      box-shadow: 2px 2px 4px 0px fn.use-var(color, $type, light-5);
       &:hover {
-        background-color: fn.use-var(color, $type, 'dark-1');
-        border-color: fn.use-var(color, $type, 'dark-1');
+        background-color: fn.use-var(color, $type, dark-1);
       }
 
       &:active {
@@ -103,17 +109,10 @@ $root-name: button;
 
       @include m.is(plain) {
         color: fn.use-var(color, $type);
-        background-color: fn.use-var(bg-color, top);
-        border-color: fn.use-var(color, type);
-
-        &:hover {
-          color: fn.use-var(color, $type, 'dark-1');
-          border-color: fn.use-var(color, $type, 'dark-1');
-        }
+        background-color: fn.use-var(color, $type, light-9);
 
         &.is-disabled {
-          border-color: fn.use-var(color, $type, 'light-5');
-          color: fn.use-var(color, $type, 'light-5');
+          color: fn.use-var(color, $type, light-5);
         }
       }
     }
@@ -129,6 +128,7 @@ $root-name: button;
   @include m.is(text) {
     background-color: transparent;
     border: none;
+    box-shadow: none;
   }
 
   @include m.e(icon-left) {

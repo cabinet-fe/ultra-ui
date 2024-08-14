@@ -32,6 +32,7 @@ export function useTable(options: Options) {
     const slotsRender = props.slots?.[`column:${key}`] ?? slots[`column:${key}`]
 
     if (slotsRender) return slotsRender(ctx)
+
     return ctx.val
   }
 
@@ -63,19 +64,18 @@ export function useTable(options: Options) {
   ): TableColumnSlotsScope | TableColumnRenderContext => {
     const rowData = row.data
     const val = column.key ? getChainValue(rowData, column.key) : undefined
+
     const ctx = {
       row,
       column,
       rowData,
       val,
-      model: slots[`column:${column.key}`]
-        ? {
-            modelValue: val,
-            'onUpdate:modelValue': (val: any) => {
-              rowData[column.key] = val
-            }
-          }
-        : undefined
+      model: {
+        modelValue: val,
+        'onUpdate:modelValue': (val: any) => {
+          rowData[column.key] = val
+        }
+      }
     }
 
     return ctx

@@ -60,6 +60,10 @@ export type IFormModel<
   ): void
   /** 清除校验 */
   clearValidate(): void
+  /** 监听值变更 */
+  onChange(cb: (field: keyof Fields, val: any) => void): void
+  /** 关闭监听值变更 */
+  offChange(cb: (field: keyof Fields, val: any) => void): void
 }
 
 /** 表单组件属性 */

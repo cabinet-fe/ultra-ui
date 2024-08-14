@@ -1,3 +1,4 @@
+import { useModel } from '@ui/compositions'
 import type { TableEmits, TableProps } from '@ui/types/components/table'
 import { Forest, TreeNode, getChainValue } from 'cat-kit/fe'
 import { isReactive, shallowReactive, shallowRef, watch } from 'vue'
@@ -14,7 +15,9 @@ export class TableRow<
 > extends TreeNode<Data> {
   /** 索引路径 */
   get indexes(): number[] {
-    if (!this.parent) return []
+    const isVirtualRoot = this.depth === 0 && !this.isLeaf
+    if (isVirtualRoot) return []
+    if (!this.parent) return [this.index]
     if (this.depth === 1) return [this.index]
     return this.parent.indexes.concat(this.index)
   }
@@ -62,6 +65,21 @@ export function useRows(options: Options) {
   const rows = shallowRef<TableRow[]>([])
   const rowForest = shallowRef<Forest<TableRow>>()
 
+  const currentRow = useModel({
+    props,
+    emit,
+    propName: 'currentRow',
+    shallow: true
+  })
+
+  watch(currentRow, (row, oldRow) => {
+    if (oldRow) {
+      oldRow.isCurrent = false
+    }
+    if (row) {
+      row.isCurrent = true
+    }
+  })
   watch(rows, rows => emit('update:rows', rows))
   watch(rowForest, forest => emit('update:forest', forest))
 
@@ -107,6 +125,7 @@ export function useRows(options: Options) {
         }
 
         rowDicts = tempRowDicts
+
         tempRowDicts = null
         rows.value = result
         result = []
@@ -159,50 +178,18 @@ export function useRows(options: Options) {
     getFlattedRows()
   }
 
-  const currentRow = shallowRef<TableRow>()
-
-  watch(currentRow, c => {
-    emit('current-row-change', c)
-  })
-
-  function clearCurrentRow() {
-    if (currentRow.value) {
-      currentRow.value.isCurrent = false
-      currentRow.value = undefined
-    }
-  }
-
-  function setCurrentRow(data: Record<string, any>) {
-    const row = rowDicts.get(data)
-
-    if (row) {
-      if (currentRow.value) {
-        currentRow.value.isCurrent = false
-      }
-      currentRow.value = row
-      row.isCurrent = true
-    }
-  }
-
-  watch(
-    () => props.highlightCurrent,
-    h => !h && clearCurrentRow()
-  )
-
   const handleRowClick = (row: TableRow) => {
     emit('row-click', row)
 
-    if (!props.highlightCurrent) return
-
-    if (currentRow.value) {
-      currentRow.value.isCurrent = false
-    }
     if (row === currentRow.value) {
       currentRow.value = undefined
     } else {
       currentRow.value = row
-      row.isCurrent = true
     }
+  }
+
+  function getRowByData(data: Record<string, any>) {
+    return rowDicts.get(data)
   }
 
   return {
@@ -220,10 +207,7 @@ export function useRows(options: Options) {
     /** 行点击 */
     handleRowClick,
 
-    /** 清除当前选中行 */
-    clearCurrentRow,
-
-    /** 设置当前选中行 */
-    setCurrentRow
+    /** 通过数据获取表格行 */
+    getRowByData
   }
 }

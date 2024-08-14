@@ -73,14 +73,18 @@ import CompB from './comp-b.vue'
 
 let items = shallowRef<
   Array<{ name: string; key: 'a' | 'b' | 'c' | 'dd'; disabled?: boolean }>
->([
-  { key: 'a', name: '测试标题1' },
-  { key: 'b', name: '测试标题22', disabled: true },
-  { key: 'c', name: '测试标题333' },
-  { key: 'dd', name: '测试标题4444' }
-])
+>([])
 
-const active = ref<string>('a')
+setTimeout(() => {
+  items.value = [
+    { key: 'a', name: '测试标题1' },
+    { key: 'b', name: '测试标题22', disabled: true },
+    { key: 'c', name: '测试标题333' },
+    { key: 'dd', name: '测试标题4444' }
+  ]
+}, 1000)
+
+const active = ref<string>()
 
 const count = ref(0)
 

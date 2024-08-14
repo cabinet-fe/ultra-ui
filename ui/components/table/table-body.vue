@@ -7,11 +7,14 @@
       :data-key="row.uid"
     />
 
+    <!-- 空 -->
     <tr v-if="!rows.length" :class="cls.e('row')">
       <td :colspan="allColumns.length">
-        <UEmpty :class="cls.e('empty')" />
+        <slot name="empty"><UEmpty :class="cls.e('empty')" /></slot>
       </td>
     </tr>
+
+    <slot></slot>
   </tbody>
 </template>
 

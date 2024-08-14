@@ -29,6 +29,7 @@ export default defineComponent({
 
   render() {
     const { content, $slots, $attrs, $props } = this
+
     if (!content) {
       return $slots.default?.()
     }

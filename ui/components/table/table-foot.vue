@@ -52,6 +52,7 @@ const showSummary = computed(() => {
 function computeSummary(key: string) {
   let sum = 0
   let i = 0
+
   while (i < rows.value.length) {
     sum = n.plus(sum, rows.value[i]!.data[key])
     if (isNaN(sum)) return sum

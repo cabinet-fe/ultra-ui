@@ -48,7 +48,7 @@ $root-name: dialog;
         content: '';
         position: absolute;
         background-color: fn.use-var(bg-color, middle, alpha);
-        // backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
         transform: translate3d(0, 0, 0);
         top: 0;
         left: 0;
@@ -142,7 +142,7 @@ $root-name: dialog;
   width: 100vw !important;
   height: 100vh !important;
   max-height: 100vh;
-  transform: translate(0, 0) scale3d(1, 1, 1) !important;
+  transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
   @include m.bem($root-name, header) {
     &:active {
       cursor: default;

@@ -16,6 +16,7 @@ $root-name: batch-edit;
 @include m.b($root-name) {
   // border: fn.use-var(border);
   overflow: hidden;
+  box-shadow: fn.use-var(shadow);
   border-radius: fn.use-var(radius, default);
 
   @include m.e(table, form-wrap) {
@@ -36,10 +37,28 @@ $root-name: batch-edit;
     }
   }
 
+  @include m.e(tools) {
+    padding: 0 fn.use-var(gap, default);
+  }
+
+  @include m.e(add) {
+    width: 100%;
+    background-color: fn.use-var(bg-color, top);
+    position: sticky;
+    bottom: 0;
+    padding: 4px;
+
+    & > {
+      @include m.bem(button) {
+        width: 100%;
+        text-align: unset;
+        display: block;
+      }
+    }
+  }
+
   @include m.e(action) {
-    gap: fn.use-var(gap, default);
-    flex-shrink: 0;
-    @include m.flex($justify: flex-end);
+    @include m.flex($justify: space-between);
   }
 
   @include m.bem(table, row) {

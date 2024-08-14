@@ -75,26 +75,28 @@
         <!-- <u-slider field="slider" label="滑块" /> -->
         <u-multi-tree-select
           field="treeChecked"
-          label="1"
+          label="树形多选"
           label-key="name"
           value-key="id"
           :data="treeData"
           filterable
         />
-        <u-tree-select
-          field="treeSelect"
-          label="1"
-          label-key="name"
-          value-key="id"
-          :data="treeData"
-          filterable
-        />
+
         <u-auto-complete
           field="complete1"
           label="complete1"
           :suggestions="interestList.map(item => item.label)"
           label-key="label"
         />
+        <u-tree-select
+          field="treeSelect"
+          label="树形下拉"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          filterable
+        />
+
         <!-- <u-auto-complete
           field="complete2"
           label="complete2"
@@ -103,7 +105,7 @@
           multiple
         /> -->
 
-        <u-text-editor label="内容" field="tex" />
+        <u-text-editor label="内容" height="80px" field="tex" />
 
         <u-group-input field="group" label="分组输入" v-slot="{ item }">
           <u-input v-model="item.value1" />
@@ -147,6 +149,7 @@ const model = new DynamicFormModel({
       return '你得输入一个手机号'
     }
   },
+  abc: { required: true },
   freeze: {},
   sex: { value: 'female', required: true },
   pwd: { value: '', required: true },
@@ -211,7 +214,6 @@ function handleSetData() {
 
 async function handleValidate() {
   const valid = await model.validate()
-  console.log('校验结果：' + valid)
 }
 
 const interestList = [
@@ -223,39 +225,19 @@ const interestList = [
   { label: '音乐', value: '6' }
 ]
 
-const treeData = [
-  { name: '烤冷面', id: 1 },
-  {
-    name: '手抓饼',
-    id: 2,
-    children: [
-      {
-        name: '鱼香肉丝',
-        id: 3,
-        children: [
-          {
-            name: '烤苞米',
-            id: 4,
-            children: [
-              { name: '苞米例', id: 5 },
-              { name: '吃', id: 6 },
-              { name: 'h', id: 7 }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'fggg',
-        id: 8,
-        children: [
-          { name: '苞米例2', id: 9 },
-          { name: '吃2', id: 10 },
-          { name: 'h2', id: 11 }
-        ]
-      }
-    ]
-  }
-]
+const treeData = shallowRef<any[]>([])
+
+setTimeout(() => {
+  treeData.value = Array.from({ length: 300 }, (_, index) => ({
+    name: `烤冷面${index}`,
+    id: index,
+    children: Array.from({ length: 12 }, (_, ci) => ({
+      name: `烤冷面${index}-${ci}`,
+      id: `${index}-${ci}`
+    }))
+  }))
+}, 1000)
+
 const cascadeData = shallowRef<any[]>([])
 
 setTimeout(() => {
