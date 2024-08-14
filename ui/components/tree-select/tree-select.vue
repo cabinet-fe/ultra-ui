@@ -13,7 +13,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="label"
+        :model-value="model?label:undefined"
         @clear="handleClear"
         native-readonly
       >
@@ -124,6 +124,7 @@ const scrollRef = shallowRef<ScrollExposed>()
 /**清空 */
 const handleClear = () => {
   model.value = undefined
+  label.value = undefined
   emit("clear")
 }
 
@@ -135,6 +136,7 @@ watch(
     if (changedByEvent) return
     if (!data?.length || model === undefined) {
       label.value = undefined
+      model = undefined
       return
     }
 
