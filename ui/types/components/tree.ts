@@ -48,6 +48,8 @@ export interface TreeProps<
   selected?: any
   /** 多选选中项 */
   checked?: any[]
+  /** 插槽穿透 */
+  slots?: Record<string, any>
 }
 
 export interface TreeEmit<
@@ -57,7 +59,12 @@ export interface TreeEmit<
   (e: 'expand', node: TreeNode<Data>): void
   /** 节点点击事件 */
   (e: 'node-click', node: TreeNode<Data>): void
-  (e: 'update:selected', selected?: any, selectedData?: Data): void
+  (
+    e: 'update:selected',
+    selected?: any,
+    selectedData?: Data,
+    node?: TreeNode<Data>
+  ): void
   (e: 'update:checked', checked: any[], checkedData: Data[]): void
   (e: 'node-contextmenu', event: MouseEvent, node: TreeNode<Data>): void
   /** 选中项同步完成事件 */
@@ -70,6 +77,12 @@ export interface TreeNodeProps {
 
 /** 树组件暴露的属性和方法(组件内部使用) */
 export interface _TreeExposed<DataItem extends Record<string, any>> {
+  /** 滚动到单选选中的元素 */
+  scrollToSelected: () => void
+  /** 滚动到多选选中的最后一个元素 */
+  scrollToChecked: () => void
+  /** 滚动到目标元素 */
+  scrollTo: (index: number) => void
   /**
    * 过滤树节点。注意：不要再watchEffect中调用！
    * @param filter 过滤器或一个字符串

@@ -69,9 +69,18 @@
       </div>
 
       <!-- 多选列表 -->
-      <u-scroll tag="ul" :class="cls.e('options')" v-if="options.length">
+      <u-scroll
+        tag="ul"
+        :class="cls.e('options')"
+        ref="scrollRef"
+        v-if="options.length"
+        :content-style="{
+          height: withUnit(totalHeight, 'px'),
+          paddingTop: withUnit(virtualList[0]?.start, 'px')
+        }"
+      >
         <u-multi-select-option
-          v-for="(option, index) of options"
+          v-for="{ option, index } of virtualOptions"
           :option="option"
           :disabled="isDisabled(option)"
           :key="option[valueKey]"
@@ -116,12 +125,16 @@ import type {
   MultiSelectEmits,
   MultiSelectProps
 } from '@ui/types/components/multi-select'
-import { bem } from '@ui/utils'
+import { bem, withUnit } from '@ui/utils'
 import { UTag } from '../tag'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import {
+  useFormComponent,
+  useFormFallbackProps,
+  useVirtual
+} from '@ui/compositions'
 import { UCheckbox } from '../checkbox'
 import { UDropdown, type DropdownExposed } from '../dropdown'
-import { UScroll } from '../scroll'
+import { UScroll, type ScrollExposed } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { UEmpty } from '../empty'
@@ -160,10 +173,26 @@ const { size, disabled, readonly } = useFormFallbackProps(
   }
 )
 
+const scrollRef = shallowRef<ScrollExposed>()
+
 const hovered = shallowRef(false)
 
 const { options, queryString } = useOptions({
   props
+})
+
+const { totalHeight, virtualList } = useVirtual({
+  count: computed(() => options.value.length),
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
+
+const virtualOptions = computed(() => {
+  return virtualList.value.map(v => {
+    return {
+      option: options.value[v.index]!,
+      index: v.index
+    }
+  })
 })
 
 const filterable = computed(() => {

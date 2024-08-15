@@ -34,7 +34,7 @@ export function useSelect<DataItem extends Record<string, any>>(
     if (node.disabled) return
     selected.value = node.data === selected.value ? undefined : node.data
 
-    emit('update:selected', selected.value?.[props.valueKey!], selected.value)
+    emit('update:selected', selected.value?.[props.valueKey!], selected.value, node)
 
     nextTick(() => {
       changedByEvent = false

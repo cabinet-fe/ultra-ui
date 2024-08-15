@@ -61,16 +61,17 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-      <u-scroll tag="div" ref="scrollRef" :class="cls.e('content-tree')">
-        <u-tree
-          v-bind="treeProps"
-          v-model:checked="model"
-          @update:checked="handleCheck"
-          ref="treeRef"
-          checkable
-          :data="data"
-        ></u-tree>
-      </u-scroll>
+
+      <u-tree
+        v-bind="treeProps"
+        v-model:checked="model"
+        @update:checked="handleCheck"
+        ref="treeRef"
+        :class="cls.e('content-tree')"
+        checkable
+        :data="data"
+        :slots="slots"
+      ></u-tree>
     </template>
   </u-dropdown>
 
@@ -94,7 +95,6 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
 import { UTree, type TreeExposed } from '../tree'
-import { UScroll, type ScrollExposed } from '../scroll'
 import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
@@ -103,6 +103,7 @@ import { computed, nextTick, shallowReactive, shallowRef, watch } from 'vue'
 import { UCheckbox } from '../checkbox'
 import { omit, Tree } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import type { TreeSlotsScope } from '../tree/di'
 
 defineOptions({
   name: 'MultiTreeSelect'
@@ -136,6 +137,10 @@ const treeProps = computed(() => {
 
 const emit = defineEmits<MultiTreeSelectEmits>()
 
+const slots = defineSlots<{
+  default?: (props: TreeSlotsScope<Record<string, any>>) => any
+}>()
+
 /**过滤 */
 const qs = shallowRef('')
 watch(qs, qs => {
@@ -160,8 +165,6 @@ const { size, disabled, readonly } = useFormFallbackProps([
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
-
-const scrollRef = shallowRef<ScrollExposed>()
 
 let changedByEvent = false
 
@@ -252,13 +255,11 @@ watch(
   { immediate: true }
 )
 
-watch(scrollRef, scroll => {
-  if (scroll && model.value !== undefined) {
-    const treeNode =
-      scroll.contentRef!.getElementsByClassName('is-checked')[
-        model.value.length - 1
-      ]!
-    treeNode?.scrollIntoView({ block: 'nearest', inline: 'start' })
+watch(treeRef, treeRef => {
+  if (treeRef && model.value !== undefined) {
+    nextTick(() => {
+      treeRef.scrollToChecked()
+    })
   }
 })
 

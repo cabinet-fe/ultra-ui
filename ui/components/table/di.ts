@@ -1,4 +1,4 @@
-import type { InjectionKey, ShallowRef, Slots } from 'vue'
+import type { ComputedRef, InjectionKey, ShallowRef, Slots } from 'vue'
 import type {
   TableProps,
   TableColumnSlotsScope,
@@ -8,6 +8,7 @@ import type { BEM } from '@ui/utils'
 import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
 import type { RenderReturn } from '@ui/types/helper'
+import type { VirtualItem } from '@tanstack/vue-virtual'
 
 export const TableDIKey: InjectionKey<{
   /** 表格属性 */
@@ -40,4 +41,9 @@ export const TableDIKey: InjectionKey<{
     row: TableRow,
     column: ColumnNode
   ) => TableColumnSlotsScope | TableColumnRenderContext
+
+  /** 虚拟列表 */
+  virtualList: ComputedRef<VirtualItem<HTMLElement>[]>
+  /** 虚拟列表总高度 */
+  totalHeight: ComputedRef<number>
 }> = Symbol('TableDIKey')

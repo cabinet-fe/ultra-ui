@@ -13,7 +13,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="model?label:undefined"
+        :model-value="model ? label : undefined"
         @clear="handleClear"
         native-readonly
       >
@@ -32,19 +32,16 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-      <u-scroll tag="div" ref="scrollRef" :class="cls.e('content-tree')">
-        <u-tree
-          v-bind="treeProps"
-          v-model:selected="model"
-          @update:selected="handleSelect"
-          ref="treeRef"
-          selectable
-        >
-          <template #default="{ data }" v-if="customContent">
-            {{ customContent(data) }}
-          </template>
-        </u-tree>
-      </u-scroll>
+
+      <u-tree
+        v-bind="treeProps"
+        v-model:selected="model"
+        @update:selected="handleSelect"
+        ref="treeRef"
+        selectable
+        :class="cls.e('content-tree')"
+        :slots="slots"
+      />
     </template>
   </u-dropdown>
 
@@ -54,53 +51,59 @@
 <script lang="ts" setup>
 import type {
   TreeSelectProps,
-  TreeSelectEmits,
-} from "@ui/types/components/tree-select"
-import { useFormComponent, useFormFallbackProps } from "@ui/compositions"
-import { bem } from "@ui/utils"
-import { UDropdown } from "../dropdown"
-import { UTree, type TreeExposed } from "../tree"
-import { UScroll, type ScrollExposed } from "../scroll"
-import { UInput } from "../input"
-import { UIcon } from "../icon"
-import { ArrowDown, Search } from "icon-ultra"
-import { computed, nextTick, shallowRef, watch } from "vue"
-import { Tree, omit } from "cat-kit/fe"
-import { FORM_EMPTY_CONTENT } from "@ui/shared"
+  TreeSelectEmits
+} from '@ui/types/components/tree-select'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { bem, isTextNode } from '@ui/utils'
+import { UDropdown } from '../dropdown'
+import { UTree, type TreeExposed } from '../tree'
+import { UInput } from '../input'
+import { UIcon } from '../icon'
+import { ArrowDown, Search } from 'icon-ultra'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+import { Tree, getChainValue, omit } from 'cat-kit/fe'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import type { TreeSlotsScope } from '../tree/di'
+import type { TreeNode } from '@ui/types/components/tree'
+
 defineOptions({
-  name: "TreeSelect",
+  name: 'TreeSelect'
 })
 
-const cls = bem("tree-select")
+const cls = bem('tree-select')
 
 const props = withDefaults(defineProps<TreeSelectProps>(), {
-  labelKey: "label",
-  valueKey: "value",
-  placeholder: "请选择",
+  labelKey: 'label',
+  valueKey: 'value',
+  placeholder: '请选择',
   expandAll: true,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
   filterable: false,
-  minWidth: "280px",
+  minWidth: '280px'
 })
 
 const treeProps = computed(() => {
   return omit(props, [
-    "tips",
-    "field",
-    "placeholder",
-    "disabled",
-    "label",
-    "readonly",
+    'tips',
+    'field',
+    'placeholder',
+    'disabled',
+    'label',
+    'readonly'
   ])
 })
 
 const emit = defineEmits<TreeSelectEmits>()
 
+const slots = defineSlots<{
+  default?: (props: TreeSlotsScope<Record<string, any>>) => any
+}>()
+
 /**过滤 */
-const qs = shallowRef("")
-watch(qs, (qs) => {
+const qs = shallowRef('')
+watch(qs, qs => {
   treeRef.value?.filter(qs)
 })
 
@@ -112,27 +115,24 @@ const { formProps } = useFormComponent()
 
 const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
-  props,
+  props
 ])
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
-const scrollRef = shallowRef<ScrollExposed>()
-
 /**清空 */
 const handleClear = () => {
   model.value = undefined
   label.value = undefined
-  emit("clear")
+  emit('clear')
 }
 
 let changedByEvent = false
 watch(
   [() => props.data, model],
   ([data, model]) => {
-    const { dataFormat } = props
     if (changedByEvent) return
     if (!data?.length || model === undefined) {
       label.value = undefined
@@ -141,10 +141,10 @@ watch(
     }
 
     let founded = false
-    data.some((item) => {
-      Tree.dft(item, (v) => {
+    data.some(item => {
+      Tree.dft(item, v => {
         if (v[props.valueKey] === model) {
-          label.value = dataFormat ? dataFormat(v) : v[props.labelKey]
+          label.value = v[props.labelKey]
           founded = true
           return false
         }
@@ -154,32 +154,43 @@ watch(
     })
   },
   {
-    immediate: true,
+    immediate: true
   }
 )
 
 const handleSelect = (
   selected?: string | number,
-  selectedData?: Record<string, any>
+  selectedData?: Record<string, any>,
+  node?: TreeNode<Record<string, any>>
 ) => {
-  const { dataFormat } = props
   changedByEvent = true
   nextTick(() => {
     changedByEvent = false
   })
 
-  label.value = dataFormat
-    ? dataFormat(selectedData!)
-    : selectedData?.[props.labelKey]
-  emit("change", selected, selectedData)
+  if (selectedData) {
+    const vnode = slots.default?.({
+      data: selectedData,
+      node: node!
+    })?.[0]
+    if (vnode && isTextNode(vnode)) {
+      label.value = vnode.children
+    } else {
+      label.value = getChainValue(selectedData, props.labelKey)
+    }
+  } else {
+    label.value = undefined
+  }
+
+  emit('change', selected, selectedData)
   dropdownRef.value?.close()
 }
 
-watch(scrollRef, (scroll) => {
-  if (scroll && model.value !== undefined) {
-    const treeNode = scroll.contentRef?.querySelector(".is-selected")
-
-    treeNode?.scrollIntoView({ block: "nearest", inline: "start" })
+watch(treeRef, treeRef => {
+  if (treeRef && model.value !== undefined) {
+    nextTick(() => {
+      treeRef.scrollToSelected()
+    })
   }
 })
 </script>

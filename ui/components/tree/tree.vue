@@ -1,26 +1,41 @@
 <template>
-  <div :class="className">
+  <u-scroll
+    :class="className"
+    ref="scrollRef"
+    :content-style="{
+      height: withUnit(totalHeight, 'px'),
+      paddingTop: withUnit(virtualList[0]?.start, 'px')
+    }"
+  >
     <UTreeNode
-      v-for="(node, index) of nodes"
-      :node="node"
-      :key="node.key ?? index"
-      :class="bem.is('selected', node.data === selected)"
+      v-for="item of virtualList"
+      :node="nodes[item.index]!"
+      :key="item.key"
+      :class="bem.is('selected', nodes[item.index]!.data === selected)"
     />
 
-    <div :class="cls.e('empty')">
-      <UEmpty v-if="!nodes.length" />
+    <div :class="cls.e('empty')" v-if="!nodes.length">
+      <UEmpty />
     </div>
-  </div>
+  </u-scroll>
 </template>
 
 <script lang="ts" setup generic="DataItem extends Record<string, any>">
-import { bem } from '@ui/utils'
+import { bem, withUnit } from '@ui/utils'
 import type {
   TreeProps,
   TreeEmit,
   _TreeExposed
 } from '@ui/types/components/tree'
-import { computed, provide, shallowRef, useSlots, watch, type VNode } from 'vue'
+import {
+  computed,
+  provide,
+  shallowRef,
+  toRef,
+  useSlots,
+  watch,
+  type VNode
+} from 'vue'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
@@ -29,6 +44,8 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
 import { UEmpty } from '../empty'
+import { useVirtual } from '@ui/compositions'
+import { UScroll, type ScrollExposed } from '../scroll'
 
 defineOptions({
   name: 'Tree'
@@ -53,6 +70,8 @@ const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })
 
+const scrollRef = shallowRef<ScrollExposed>()
+
 const className = computed(() => {
   return [
     cls.b,
@@ -71,7 +90,7 @@ const slots = useSlots()
 const getTreeSlotsNode = (
   ctx: TreeSlotsScope
 ): VNode[] | string | undefined => {
-  return slots.default?.(ctx) ?? ctx.node.label
+  return (props.slots?.default ?? slots.default)?.(ctx) ?? ctx.node.label
 }
 
 /** 森林 */
@@ -225,6 +244,11 @@ const { checked, handleCheck } = useCheck<DataItem>({
   nodeDict
 })
 
+const { totalHeight, virtualList, scrollTo } = useVirtual({
+  count: computed(() => nodes.value.length),
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
+
 provide(TreeDIKey, {
   cls,
   selected,
@@ -254,6 +278,13 @@ defineExpose<_TreeExposed<DataItem>>({
   },
   getChecked(): DataItem[] {
     return Array.from(checked)
+  },
+  scrollTo,
+  scrollToSelected() {
+    scrollTo(nodes.value.findIndex(node => node.data === selected.value))
+  },
+  scrollToChecked() {
+    scrollTo(nodes.value.findLastIndex(node => checked.has(node.data)))
   }
 })
 </script>

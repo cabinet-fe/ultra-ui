@@ -12,10 +12,10 @@
         expand-all
         :disabledNode="disabledNode"
         filterable
-        closeOnSelect
         @change="handleChange"
-        :customContent="dataFormat"
+        v-slot="{ data }"
       >
+        {{ data.name }} {{ data.id }}
       </u-tree-select>
 
       <u-card-action>
@@ -35,7 +35,6 @@
         filterable
         closeOnSelect
         @change="handleChange"
-        :dataFormat="dataFormat"
       ></u-tree-select>
 
       <u-card-action>
@@ -53,10 +52,6 @@ const treeSelect = shallowRef()
 
 const disabledNode = data => {
   return data.id % 4 === 0
-}
-
-const dataFormat = (data: Record<string, any>) => {
-  return `${data.id} - ${data.name}`
 }
 
 const data = shallowRef<any[]>([

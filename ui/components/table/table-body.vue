@@ -1,10 +1,9 @@
 <template>
   <tbody :class="cls.e('body')">
     <UTableRow
-      v-for="row of rows"
-      :row="row"
-      :key="row.uid"
-      :data-key="row.uid"
+      v-for="item of virtualList"
+      :row="rows[item.index]!"
+      :key="item.key"
     />
 
     <!-- 空 -->
@@ -28,6 +27,6 @@ defineOptions({
   name: 'TableBody'
 })
 
-const { cls, rows, columnConfig } = inject(TableDIKey)!
+const { cls, rows, virtualList, columnConfig } = inject(TableDIKey)!
 const { allColumns } = columnConfig
 </script>

@@ -3,6 +3,10 @@
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
+    :content-style="{
+      height: withUnit(totalHeight, 'px'),
+      paddingTop: withUnit(virtualList[0]?.start, 'px')
+    }"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -41,7 +45,7 @@ import type {
   TableColumnSlotsScope
 } from '@ui/types/components/table'
 import { bem, withUnit } from '@ui/utils'
-import { computed, provide, shallowRef } from 'vue'
+import { computed, provide, shallowRef, toRef } from 'vue'
 import { TableDIKey } from './di'
 import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
@@ -49,7 +53,7 @@ import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
 import { UScroll, type ScrollExposed } from '../scroll'
-import { useFallbackProps } from '@ui/compositions'
+import { useFallbackProps, useVirtual } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
@@ -114,6 +118,13 @@ const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
     cls
   })
 
+const scrollRef = shallowRef<ScrollExposed>()
+
+const { virtualList, totalHeight } = useVirtual({
+  count: computed(() => rows.value.length),
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
+
 provide(TableDIKey, {
   tableProps: props,
   tableSlots: slots,
@@ -125,17 +136,13 @@ provide(TableDIKey, {
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,
-  toggleTreeRowExpand
-})
-
-const scrollRef = shallowRef<ScrollExposed>()
-
-const el = computed(() => {
-  return scrollRef.value?.el
+  toggleTreeRowExpand,
+  virtualList,
+  totalHeight
 })
 
 defineExpose<_TableExposed>({
-  el,
+  el: toRef(() => scrollRef.value?.el),
   clearChecked,
   clearSelected,
   getRowByData

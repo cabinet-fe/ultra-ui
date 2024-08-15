@@ -5,12 +5,14 @@
 
       <u-input v-model="qs"></u-input>
       <UTree
-        style="margin-bottom: 10px"
-        :data="data"
+        style="margin-bottom: 10px; width: 200px"
+        :data="data1"
         label-key="name"
         value-key="id"
         expand-all
+        selectable
         ref="treeRef"
+        height="200px"
       />
     </CustomCard>
 
@@ -96,8 +98,18 @@ import { nextTick, shallowRef, watch } from 'vue'
 const treeRef = shallowRef<TreeExposed>()
 const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
+const data1 = shallowRef<any[]>([])
 
 function refreshData() {
+  data1.value = Array.from({ length: 1000 }).map((_, index) => ({
+    name: '手抓饼' + index,
+    id: index,
+    children: [
+      { name: '鱼香肉丝-1'.repeat(5), id: `${index}-1` },
+      { name: '鱼香肉丝-2', id: `${index}-2` }
+    ]
+  }))
+
   if (Math.random() < 0.5) {
     data.value = []
     return
@@ -139,7 +151,7 @@ function refreshData() {
 
 setTimeout(() => {
   refreshData()
-}, 2000)
+}, 500)
 
 let select = shallowRef(9)
 

@@ -42,13 +42,16 @@
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
+        :content-style="{
+          height: withUnit(totalHeight, 'px'),
+          paddingTop: withUnit(virtualList[0]?.start, 'px')
+        }"
       >
         <li
-          v-for="(option, index) of options"
+          v-for="{ option, index } of virtualOptions"
           :class="[optionClass, bem.is('selected', option[valueKey] === model)]"
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
-          :data-key="option[valueKey]"
           :key="option[valueKey]"
         >
           <slot v-bind="{ option, index }">
@@ -67,14 +70,18 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { computed, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 import type {
   SelectEmits,
   SelectProps,
   _SelectExposed
 } from '@ui/types/components/select'
-import { bem } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { bem, withUnit } from '@ui/utils'
+import {
+  useFormComponent,
+  useFormFallbackProps,
+  useVirtual
+} from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
 import { UScroll, type ScrollExposed } from '../scroll'
 import { UInput } from '../input'
@@ -158,11 +165,24 @@ watch(selected, selected => {
   modelIsChangedBySelected = false
 })
 
+const { virtualList, totalHeight, scrollTo } = useVirtual({
+  count: computed(() => options.value.length),
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
+
 watch(scrollRef, scroll => {
   if (scroll && model.value !== undefined) {
-    const li = scroll.contentRef!.querySelector(`li[data-key="${model.value}"]`)
-    li?.scrollIntoView({ block: 'nearest', inline: 'start' })
+    nextTick(() => {
+      scrollTo(options.value.findIndex(option => option === selected.value))
+    })
   }
+})
+
+const virtualOptions = computed(() => {
+  return virtualList.value.map(item => ({
+    option: options.value[item.index]!,
+    index: item.index
+  }))
 })
 
 const dropdownVisible = shallowRef(false)

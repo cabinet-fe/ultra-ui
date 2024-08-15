@@ -23,7 +23,7 @@
         :data="data"
         :columns="columns"
         :style="{
-          height: fixedHeight ? '400px' : ''
+          height: fixedHeight ? '800px' : ''
         }"
         row-key="name"
         v-bind="state"
@@ -32,9 +32,6 @@
       >
         <template #header:age> 年龄 </template>
       </u-table>
-
-      {{ state.selectable ? selected : '' }}
-      {{ state.checkable ? checked : '' }}
     </CustomCard>
 
     <CustomCard title="合并单元格">
@@ -128,7 +125,7 @@ watch(
   { immediate: true }
 )
 
-const _data = Array.from({ length: 10 }).map((_, index) => {
+const _data = Array.from({ length: 1000 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
     name: 'name' + index,
@@ -136,38 +133,38 @@ const _data = Array.from({ length: 10 }).map((_, index) => {
     province: '江苏省' + index,
     city: '苏州市' + index,
     area: '姑苏区' + index,
-    street: '金昌街道' + index,
-    community: '彩香花园' + index,
+    street: `金昌街道${index}`.repeat(Math.round(Math.random() * 4)),
+    community: `彩香花园${index}`,
     b: 'aa',
-    a: 'aa',
-    children: [
-      {
-        sex: '未知',
-        name: 'name' + index + '-0',
-        age: Math.round(Math.random() * 100),
-        province: '江苏省',
-        city: '苏州市',
-        area: '姑苏区',
-        street: '金昌街道',
-        community: '彩香花园',
-        b: 'aa',
-        a: 'aa',
-        children: [
-          {
-            sex: '未知',
-            name: 'name' + index + '-0-0',
-            age: Math.round(Math.random() * 100),
-            province: '江苏省',
-            city: '苏州市',
-            area: '姑苏区',
-            street: '金昌街道',
-            community: '彩香花园',
-            b: 'aa',
-            a: 'aa'
-          }
-        ]
-      }
-    ]
+    a: 'aa'
+    // children: [
+    //   {
+    //     sex: '未知',
+    //     name: 'name' + index + '-0',
+    //     age: Math.round(Math.random() * 100),
+    //     province: '江苏省',
+    //     city: '苏州市',
+    //     area: '姑苏区',
+    //     street: '金昌街道',
+    //     community: '彩香花园',
+    //     b: 'aa',
+    //     a: 'aa',
+    //     children: [
+    //       {
+    //         sex: '未知',
+    //         name: 'name' + index + '-0-0',
+    //         age: Math.round(Math.random() * 100),
+    //         province: '江苏省',
+    //         city: '苏州市',
+    //         area: '姑苏区',
+    //         street: '金昌街道',
+    //         community: '彩香花园',
+    //         b: 'aa',
+    //         a: 'aa'
+    //       }
+    //     ]
+    //   }
+    // ]
   }
 })
 

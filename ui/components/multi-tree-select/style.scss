@@ -98,10 +98,14 @@ $root-name: multi-tree-select;
       @include m.bem($root-name, content-tree) {
         padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
       }
+
+      @include m.bem(tree, node-content) {
+        padding: 0 fn.use-var(gap, $size);
+      }
     }
   }
 
   @include m.e(content-tree) {
-    max-height: 200px;
+    max-height: 272px;
   }
 }

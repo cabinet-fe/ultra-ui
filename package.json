@@ -47,6 +47,7 @@
     "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
   },
   "dependencies": {
-    "quill": "2.0.2"
+    "quill": "2.0.2",
+    "@tanstack/vue-virtual": "3.9.0"
   }
 }

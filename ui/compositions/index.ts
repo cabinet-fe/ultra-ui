@@ -19,3 +19,5 @@ export * from './use-resize-observer'
 export * from './use-sort'
 
 export * from './use-transition'
+
+export * from './use-virtual'
