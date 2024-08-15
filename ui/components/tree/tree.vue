@@ -27,15 +27,7 @@ import type {
   TreeEmit,
   _TreeExposed
 } from '@ui/types/components/tree'
-import {
-  computed,
-  provide,
-  shallowRef,
-  toRef,
-  useSlots,
-  watch,
-  type VNode
-} from 'vue'
+import { computed, provide, shallowRef, useSlots, watch, type VNode } from 'vue'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
