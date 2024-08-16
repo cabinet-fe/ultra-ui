@@ -42,9 +42,9 @@
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
-        :content-class="cls.e('options-wrap')"
+        :content-class="[cls.e('options-wrap'), bem.is('virtual', enabled)]"
         :content-style="{
-          height: withUnit(totalHeight, 'px')
+          height: enabled ? withUnit(totalHeight, 'px') : undefined
         }"
       >
         <li
@@ -54,7 +54,9 @@
           v-ripple="cls.e('ripple')"
           :key="option[valueKey]"
           :style="{
-            transform: `translateY(${virtualList[i]!.start}px)`
+            transform: enabled
+              ? `translateY(${virtualList[i]!.start}px)`
+              : undefined
           }"
         >
           <slot v-bind="{ option, index }">
@@ -168,7 +170,7 @@ watch(selected, selected => {
   modelIsChangedBySelected = false
 })
 
-const { virtualList, totalHeight, scrollTo } = useVirtual({
+const { virtualList, totalHeight, enabled, scrollTo } = useVirtual({
   count: computed(() => options.value.length),
   virtualThreshold: 80,
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
@@ -185,6 +187,8 @@ watch(scrollRef, scroll => {
 })
 
 const virtualOptions = computed(() => {
+  if (!enabled.value)
+    return options.value.map((option, index) => ({ option, index }))
   return virtualList.value.map(item => ({
     option: options.value[item.index]!,
     index: item.index

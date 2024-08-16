@@ -28,7 +28,7 @@ import { sleep } from 'cat-kit/fe'
 const options = shallowRef<any[]>([])
 
 setTimeout(() => {
-  options.value = Array.from({ length: 100 }).map((_, i) => ({
+  options.value = Array.from({ length: 80 }).map((_, i) => ({
     label: `选项${i}`,
     value: i
   }))

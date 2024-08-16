@@ -21,15 +21,20 @@ $root-name: select;
   }
 
   @include m.e(options-wrap) {
-    position: relative;
+    @include m.is(enabled) {
+      position: relative;
+
+      @include m.bem($root-name, option) {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
   }
 
   @include m.e(option) {
     cursor: pointer;
     user-select: none;
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     @include m.ellipsis;
 
