@@ -1,4 +1,4 @@
-import type { ComputedRef, InjectionKey, ShallowRef, Slots } from 'vue'
+import type { InjectionKey, ShallowRef, Slots } from 'vue'
 import type {
   TableProps,
   TableColumnSlotsScope,
@@ -8,7 +8,6 @@ import type { BEM } from '@ui/utils'
 import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
 import type { RenderReturn } from '@ui/types/helper'
-import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { VirtualReturned } from '@ui/compositions'
 
 export const TableDIKey: InjectionKey<

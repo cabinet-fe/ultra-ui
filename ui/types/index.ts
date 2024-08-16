@@ -110,8 +110,6 @@ export * from './components/tree-select'
 
 export * from './components/tree'
 
-export * from './components/virtual-scroll'
-
 export * from './components/watermark'
 
 export * from './helper'
