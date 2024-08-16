@@ -57,7 +57,7 @@
       <template #empty> {{ null }} </template>
 
       <template
-        #body="{ columns }"
+        #append
         v-if="
           !props.readonly &&
           (quickEdit ||
@@ -65,7 +65,21 @@
             state.type === 'update')
         "
       >
-        <tr>
+        <div :class="cls.e('add')">
+          <u-button
+            plain
+            type="primary"
+            @click="handleCreate"
+            :loading="state.loading"
+          >
+            <span
+              style="position: sticky; left: 50%; transform: translateX(-50%)"
+            >
+              新增
+            </span>
+          </u-button>
+        </div>
+        <!-- <tr>
           <td :colspan="columns.length" :class="cls.e('add')">
             <u-button
               plain
@@ -80,7 +94,7 @@
               </span>
             </u-button>
           </td>
-        </tr>
+        </tr> -->
       </template>
     </u-table>
   </u-card>

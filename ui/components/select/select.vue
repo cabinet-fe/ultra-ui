@@ -42,17 +42,20 @@
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
+        :content-class="cls.e('options-wrap')"
         :content-style="{
-          height: withUnit(totalHeight, 'px'),
-          paddingTop: withUnit(virtualList[0]?.start, 'px')
+          height: withUnit(totalHeight, 'px')
         }"
       >
         <li
-          v-for="{ option, index } of virtualOptions"
+          v-for="({ option, index }, i) of virtualOptions"
           :class="[optionClass, bem.is('selected', option[valueKey] === model)]"
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
           :key="option[valueKey]"
+          :style="{
+            transform: `translateY(${virtualList[i]!.start}px)`
+          }"
         >
           <slot v-bind="{ option, index }">
             {{ option[labelKey] }}
@@ -167,7 +170,10 @@ watch(selected, selected => {
 
 const { virtualList, totalHeight, scrollTo } = useVirtual({
   count: computed(() => options.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  virtualThreshold: 80,
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
+  gap: 2,
+  estimateSize: () => 40
 })
 
 watch(scrollRef, scroll => {

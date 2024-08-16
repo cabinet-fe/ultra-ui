@@ -6,6 +6,7 @@
       bem.is('current', row.isCurrent && tableProps.highlightCurrent)
     ]"
     @click="handleRowClick(row)"
+    :ref="measureElement"
   >
     <UTabelCell
       v-if="expandColumn"
@@ -67,6 +68,7 @@ defineOptions({
 
 defineProps<{
   row: TableRow
+  measureElement: (el: any) => void
 }>()
 
 const {

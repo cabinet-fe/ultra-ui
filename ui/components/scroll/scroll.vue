@@ -126,6 +126,8 @@ const updateBar = () => {
     scrollLeft
   } = containerRef.value
 
+  // console.log(scrollHeight, clientHeight, scrollTop)
+
   emit('scroll', { x: scrollLeft, y: scrollTop })
 
   if (scrollHeight !== clientHeight) {

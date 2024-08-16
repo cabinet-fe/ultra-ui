@@ -4,6 +4,8 @@
       v-for="item of virtualList"
       :row="rows[item.index]!"
       :key="item.key"
+      :data-index="item.index"
+      :measure-element="measureElement"
     />
 
     <!-- 空 -->
@@ -27,6 +29,7 @@ defineOptions({
   name: 'TableBody'
 })
 
-const { cls, rows, virtualList, columnConfig } = inject(TableDIKey)!
+const { cls, rows, virtualList, measureElement, columnConfig } =
+  inject(TableDIKey)!
 const { allColumns } = columnConfig
 </script>

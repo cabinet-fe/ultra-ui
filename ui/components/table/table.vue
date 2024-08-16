@@ -4,8 +4,7 @@
     ref="scrollRef"
     @resize="updateStylesOfColumns"
     :content-style="{
-      height: withUnit(totalHeight, 'px'),
-      paddingTop: withUnit(virtualList[0]?.start, 'px')
+      paddingTop: `${virtualList[0]?.start}px`
     }"
   >
     <table :class="cls.e('wrap')">
@@ -21,7 +20,7 @@
         />
       </colgroup>
       <UTableHead />
-      <UTableBody>
+      <UTableBody :style="{ height: withUnit(totalHeight, 'px') }">
         <slot name="body" :columns="allColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">
@@ -32,6 +31,8 @@
         <slot name="foot" :columns="allColumns" :rows="rows" />
       </UTableFoot>
     </table>
+
+    <slot name="append" />
 
     <div :class="cls.e('resizer')"></div>
   </u-scroll>
@@ -73,6 +74,7 @@ const slots = defineSlots<{
   foot?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
   body?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
   empty?: () => any
+  append?: () => any
 }>()
 
 const cls = bem('table')
@@ -120,10 +122,12 @@ const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-const { virtualList, totalHeight } = useVirtual({
+const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
 })
+
+const { virtualList, totalHeight } = virtualCtx
 
 provide(TableDIKey, {
   tableProps: props,
@@ -137,8 +141,7 @@ provide(TableDIKey, {
   getCellClass,
   getCellCtx,
   toggleTreeRowExpand,
-  virtualList,
-  totalHeight
+  ...virtualCtx
 })
 
 defineExpose<_TableExposed>({

@@ -20,11 +20,22 @@ $root-name: select;
     }
   }
 
+  @include m.e(options-wrap) {
+    position: relative;
+  }
+
   @include m.e(option) {
     cursor: pointer;
-    margin: 2px 0;
     user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     @include m.ellipsis;
+
+    &:not(:first-child) {
+      margin-top: 2px;
+    }
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);

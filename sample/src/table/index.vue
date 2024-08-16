@@ -17,6 +17,7 @@
       <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-checkbox v-model="showData">显示数据</u-checkbox>
+      <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
       <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
 
       <u-table
@@ -31,6 +32,12 @@
         v-model:selected="selected"
       >
         <template #header:age> 年龄 </template>
+
+        <!-- <template v-if="state.editing"> -->
+        <template #column:age="{ model }" v-if="state.editing">
+          <u-number-input v-bind="model"></u-number-input>
+        </template>
+        <!-- </template> -->
       </u-table>
     </CustomCard>
 
@@ -68,7 +75,8 @@ const state = shallowReactive({
   checkable: false,
   selectable: true,
   tree: false,
-  highlightCurrent: false
+  highlightCurrent: false,
+  editing: false
 })
 
 const fixedHeight = shallowRef(true)
