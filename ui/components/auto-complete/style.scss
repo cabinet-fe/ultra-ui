@@ -30,6 +30,7 @@ $root-name: auto-complete;
     cursor: pointer;
     margin: 2px 0;
     user-select: none;
+    @include m.ellipsis;
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);
