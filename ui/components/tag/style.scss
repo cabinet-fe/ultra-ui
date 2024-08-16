@@ -49,7 +49,7 @@ $root-name: tag;
   }
 
   // 颜色样式
-  @each $type, $_ in vars.$color-types {
+  @each $type in vars.$color-types {
     @include m.m(color-#{$type}) {
       color: fn.use-var(color, $type);
       background-color: fn.use-var(color, $type, light-9);

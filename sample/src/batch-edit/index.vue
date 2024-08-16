@@ -12,7 +12,6 @@
       :readonly="readonly"
       :resizable="resizable"
       v-model:data="data"
-      style="height: 400px"
       :model="model"
       :tree="tree"
       cols="1fr 400px"

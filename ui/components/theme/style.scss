@@ -2,5 +2,30 @@
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
 
-@include m.b(theme) {
+$root-name: theme;
+@include m.b($root-name) {
+  width: 300px;
+
+  @include m.e(group-content) {
+    padding: fn.use-var(gap, default);
+  }
+
+  @include m.e(group-title) {
+    padding: fn.use-var(gap, default);
+    background-color: fn.use-var(color, default);
+  }
+
+  @include m.e(group-label) {
+    flex-shrink: 0;
+    padding: fn.use-var(gap, default);
+  }
+
+  @include m.e(group-item) {
+    margin-bottom: fn.use-var(gap, default);
+    @include m.flex;
+
+    &-content {
+      flex-grow: 1;
+    }
+  }
 }

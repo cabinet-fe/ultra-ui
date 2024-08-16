@@ -11,8 +11,11 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UAction: typeof import('ultra-ui')['UAction']
     UActionGroup: typeof import('ultra-ui')['UActionGroup']
+    UAutoComplete: typeof import('ultra-ui')['UAutoComplete']
+    UBadge: typeof import('ultra-ui')['UBadge']
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
+    UButtonGroup: typeof import('ultra-ui')['UButtonGroup']
     UCard: typeof import('ultra-ui')['UCard']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
@@ -25,5 +28,7 @@ declare module 'vue' {
     UScroll: typeof import('ultra-ui')['UScroll']
     USelect: typeof import('ultra-ui')['USelect']
     UTable: typeof import('ultra-ui')['UTable']
+    UTag: typeof import('ultra-ui')['UTag']
+    UTheme: typeof import('ultra-ui')['UTheme']
   }
 }

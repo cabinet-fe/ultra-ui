@@ -4,7 +4,9 @@
     ref="scrollRef"
     @resize="updateStylesOfColumns"
     :content-style="{
-      paddingTop: `${virtualList[0]?.start}px`
+      paddingTop: `${virtualList[0]?.start}px`,
+      height: withUnit(totalHeight, 'px'),
+      minHeight: '200px'
     }"
   >
     <table :class="cls.e('wrap')">
@@ -20,7 +22,7 @@
         />
       </colgroup>
       <UTableHead />
-      <UTableBody :style="{ height: withUnit(totalHeight, 'px') }">
+      <UTableBody>
         <slot name="body" :columns="allColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">

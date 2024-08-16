@@ -128,7 +128,7 @@
 }
 
 @function breakpoint($point) {
-  @return map.get(vars.$breakpoints, $point);
+  @return var(--breakpoint-#{$point});
 }
 
 @mixin xs {
