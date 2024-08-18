@@ -26,7 +26,6 @@ $root-name: select;
 
       & {
         @include m.bem($root-name, option) {
-          @debug &;
           position: absolute;
           top: 0;
           left: 0;

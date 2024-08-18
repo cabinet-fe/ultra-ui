@@ -11,7 +11,10 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
   display: flex;
   min-width: 380px;
   position: absolute;
-  transition: opacity 0.3s, transform 0.4s, top 0.4s;
+  transition:
+    opacity 0.3s,
+    transform 0.4s,
+    top 0.4s;
   border: fn.use-var(border);
   background-color: #fff;
   box-shadow: fn.use-var(shadow);
@@ -20,7 +23,7 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
-    padding: map.get(vars.$gap, $size) * 1.2;
+    padding: calc(fn.use-var(gap, $size) * 1.2);
 
     @include m.bem($root-name, icon) {
     }
@@ -39,7 +42,7 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
       }
       &--button {
         text-align: right;
-        margin-top: map.get(vars.$gap, $size);
+        margin-top: fn.use-var(gap, size);
       }
     }
 
@@ -66,13 +69,13 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
       @if $position == 'bottom-right' {
         right: 0;
         bottom: 0;
-      }@else if ($position == 'bottom-left') {
+      } @else if ($position == 'bottom-left') {
         left: 0;
         bottom: 0;
-      }@else if ($position == 'top-right') {
+      } @else if ($position == 'top-right') {
         right: 0;
         top: 0;
-      }@else {
+      } @else {
         left: 0;
         top: 0;
       }
