@@ -5,10 +5,6 @@
 
 // 方便拼接
 $root-name: steps;
-$color-default: (
-  default: fn.use-var(text, color, main)
-);
-$color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
 
 @include m.b($root-name) {
   display: flex;
@@ -21,8 +17,8 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
     font-size: fn.use-var(form-component-font-size, $size);
 
     @include m.bem($root-name, icon, number) {
-      width: map.get(vars.$form-component-height, $size);
-      height: map.get(vars.$form-component-height, $size);
+      width: fn.use-var(form-component-height, $size);
+      height: fn.use-var(form-component-height, $size);
     }
 
     @include m.bem($root-name, icon) {
@@ -30,21 +26,19 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
         @if $direction == horizontal {
           @include m.is($direction) {
             width: 100%;
-            height: map.get(vars.$form-component-height, $size);
-            margin: map.get(vars.$gap, $size);
+            height: fn.use-var(form-component-height, $size);
+            margin: fn.use-var(gap, $size);
           }
-        }
-        @else {
+        } @else {
           @include m.is($direction) {
-            width: map.get(vars.$form-component-height, $size);
+            width: fn.use-var(form-component-height, $size);
             height: 100%;
-            margin: map.get(vars.$gap, $size);
+            margin: fn.use-var(gap, $size);
             flex-direction: column;
           }
         }
       }
     }
-
   }
 
   @include m.e(vertical) {
@@ -68,7 +62,7 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
       cursor: default;
     }
 
-    @each $type, $_ in $color-types {
+    @each $type in vars.$color-types {
       @include m.is($type) {
         @if $type ==default {
           color: fn.use-var(text, color, main);
@@ -84,9 +78,7 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
           @include m.bem($root-name, description) {
             color: fn.use-var(text, color, main);
           }
-        }
-
-        @else {
+        } @else {
           color: fn.use-var(color, $type);
           border-color: fn.use-var(color, $type);
 
@@ -104,7 +96,6 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
       }
     }
   }
-
 
   @include m.e(icon) {
     display: flex;
@@ -124,13 +115,11 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
       border: 1px solid fn.use-var(border, color);
       flex: 1;
 
-      @each $type, $_ in $color-types {
+      @each $type in vars.$color-types {
         @include m.is($type) {
           @if $type ==default {
             border-color: fn.use-var(text, color, second);
-          }
-
-          @else {
+          } @else {
             border-color: fn.use-var(color, $type);
           }
         }
@@ -141,7 +130,6 @@ $color-types: map-merge($map1: $color-default, $map2: vars.$color-types);
       flex: 1;
     }
   }
-
 
   @include m.e(description) {
     flex: 1;
