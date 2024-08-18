@@ -68,12 +68,26 @@
       </div>
     </transition>
   </Teleport>
+
+  <!-- 触发 -->
+  <UNodeRender
+    @click="visible = !visible"
+    :content="getTriggerNode()"
+    :class="cls.b"
+    ref="triggerRef"
+  />
 </template>
 
 <script lang="ts" setup>
 import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
 import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
-import { bem, nextFrame, setStyles, zIndex } from '@ui/utils'
+import {
+  bem,
+  extractNormalVNodes,
+  nextFrame,
+  setStyles,
+  zIndex
+} from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll, type ScrollExposed } from '../scroll'
@@ -81,6 +95,7 @@ import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 import type { ComponentSize } from '@ui/types/component-common'
 import { DialogDIKey } from './di'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'Dialog',
@@ -94,6 +109,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?(): VNode[] | undefined
+  trigger?: () => any
 }>()
 
 const cls = bem('dialog')
@@ -120,6 +136,14 @@ const footerRef = shallowRef<HTMLDivElement>()
 const visible = defineModel<boolean>({
   default: false
 })
+
+function getTriggerNode() {
+  const nodes = slots.trigger?.()
+  if (!nodes?.length) return null
+
+  const node = extractNormalVNodes(nodes)[0]
+  return node
+}
 
 const dialogTransition = useTransition('style', {
   target: dialogRef,
@@ -227,7 +251,7 @@ function handleIncreaseZIndex() {
 
 /** 关闭 */
 const close = () => {
-  emit('update:modelValue', false)
+  visible.value = false
 }
 
 provide(DialogDIKey, {

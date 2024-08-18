@@ -61,11 +61,30 @@
         <template #name:a>666</template>
       </u-tabs>
     </CustomCard>
+
+    <CustomCard title="弹框中">
+      <u-dialog>
+        <u-tabs
+          v-model:items="items"
+          v-model="active"
+          :position="config.position"
+          :editable="config.editable"
+          :keep-alive="config.keepAlive"
+          :style="{
+            height: config.fixedHeight ? '300px' : ''
+          }"
+        ></u-tabs>
+
+        <template #trigger>
+          <u-button>打开</u-button>
+        </template>
+      </u-dialog>
+    </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, shallowRef } from 'vue'
+import { ref, reactive, shallowRef, nextTick } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import CompA from './comp-a.vue'
 import CompB from './comp-b.vue'
@@ -84,7 +103,7 @@ setTimeout(() => {
   ]
 }, 1000)
 
-const active = ref<string>()
+const active = ref<string>('a')
 
 const count = ref(0)
 

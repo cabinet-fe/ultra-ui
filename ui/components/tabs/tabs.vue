@@ -114,17 +114,19 @@ watch(
     const headerEl = headerRef.value!
 
     const headerRect = headerEl.getBoundingClientRect()
+    const el = headerEl.children[index]! as HTMLLIElement
+    const { offsetWidth, offsetHeight } = el
 
-    const rect = headerEl.children[index]!.getBoundingClientRect()
+    const rect = el.getBoundingClientRect()
 
     if (position === 'top' || position === 'bottom') {
       markStyle.value = {
-        width: rect.width + 'px',
+        width: offsetWidth + 'px',
         transform: `translate3d(${rect.left - headerRect.left}px, 0, 0)`
       }
     } else {
       markStyle.value = {
-        height: rect.height + 'px',
+        height: offsetHeight + 'px',
         transform: `translate3d(0, ${rect.top - headerRect.top}px, 0)`
       }
     }
