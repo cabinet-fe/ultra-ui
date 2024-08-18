@@ -3,6 +3,7 @@
     :class="optionClass"
     v-ripple="disabled ? false : rippleClass"
     @click="!disabled && emit('check', !checked)"
+    :ref="measureElement"
   >
     <u-checkbox
       :model-value="checked"
@@ -29,6 +30,7 @@ const { disabled = false } = defineProps<{
   option: Record<string, any>
   disabled?: boolean
   checked: boolean
+  measureElement?: (el: any) => void
 }>()
 
 const emit = defineEmits<{

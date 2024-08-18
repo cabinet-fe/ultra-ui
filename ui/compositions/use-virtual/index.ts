@@ -24,7 +24,7 @@ export type VirtualReturned = {
   /** 滚动到指定索引 */
   scrollTo: (index: number) => void
   /** 是否启用虚拟列表 */
-  enabled: ComputedRef<boolean>
+  virtualEnabled: ComputedRef<boolean>
 }
 
 export function useVirtual(options: Options): VirtualReturned {
@@ -68,7 +68,7 @@ export function useVirtual(options: Options): VirtualReturned {
   }
 
   return {
-    enabled,
+    virtualEnabled: enabled,
     virtualList,
     totalHeight,
     measureElement,

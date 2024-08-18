@@ -71,26 +71,49 @@
       <!-- 多选列表 -->
       <u-scroll
         tag="ul"
-        :class="cls.e('options')"
+        :class="[cls.e('options')]"
         ref="scrollRef"
         v-if="options.length"
+        :content-class="[
+          cls.e('options-wrap'),
+          bem.is('virtual', virtualEnabled)
+        ]"
         :content-style="{
-          height: withUnit(totalHeight, 'px'),
-          paddingTop: withUnit(virtualList[0]?.start, 'px')
+          height: withUnit(totalHeight, 'px')
         }"
       >
-        <u-multi-select-option
-          v-for="{ option, index } of virtualOptions"
-          :option="option"
-          :disabled="isDisabled(option)"
-          :key="option[valueKey]"
-          @check="handleCheck(option, $event)"
-          :checked="checkedSet.has(option)"
-        >
-          <slot v-bind="{ option, index }">
-            {{ option[labelKey] }}
-          </slot>
-        </u-multi-select-option>
+        <template v-if="virtualEnabled">
+          <u-multi-select-option
+            v-for="{ option, index, key, label, offset } of virtualOptions"
+            :option="option"
+            :disabled="isDisabled(option)"
+            :key="key"
+            :style="{ transform: `translateY(${offset}px)` }"
+            @check="handleCheck(option, $event)"
+            :checked="checkedSet.has(option)"
+            :data-index="index"
+            :measure-element="measureElement"
+          >
+            <slot v-bind="{ option, index }">
+              {{ label }}
+            </slot>
+          </u-multi-select-option>
+        </template>
+
+        <template v-else>
+          <u-multi-select-option
+            v-for="(option, index) of options"
+            :option="option"
+            :disabled="isDisabled(option)"
+            :key="getChainValue(option, valueKey)"
+            @check="handleCheck(option, $event)"
+            :checked="checkedSet.has(option)"
+          >
+            <slot v-bind="{ option, index }">
+              {{ getChainValue(option, labelKey) }}
+            </slot>
+          </u-multi-select-option>
+        </template>
       </u-scroll>
 
       <div v-else :class="cls.e('empty')">
@@ -143,6 +166,7 @@ import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
   name: 'MultiSelect'
@@ -181,16 +205,28 @@ const { options, queryString } = useOptions({
   props
 })
 
-const { totalHeight, virtualList } = useVirtual({
-  count: computed(() => options.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
-})
+const { totalHeight, virtualList, virtualEnabled, measureElement } = useVirtual(
+  {
+    virtualThreshold: 80,
+    estimateSize: () => 40,
+    count: computed(() => options.value.length),
+    scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  }
+)
 
 const virtualOptions = computed(() => {
+  const { valueKey, labelKey } = props
+  const _options = options.value
   return virtualList.value.map(v => {
+    const option = _options[v.index]!
+    const val = getChainValue(option, valueKey)
     return {
-      option: options.value[v.index]!,
-      index: v.index
+      option,
+      index: v.index,
+      val,
+      key: v.key,
+      offset: v.start,
+      label: getChainValue(option, labelKey)
     }
   })
 })

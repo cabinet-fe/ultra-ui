@@ -21,13 +21,16 @@ $root-name: select;
   }
 
   @include m.e(options-wrap) {
-    @include m.is(enabled) {
+    @include m.is(virtual) {
       position: relative;
 
-      @include m.bem($root-name, option) {
-        position: absolute;
-        top: 0;
-        left: 0;
+      & {
+        @include m.bem($root-name, option) {
+          @debug &;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
       }
     }
   }

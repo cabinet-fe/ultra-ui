@@ -3,16 +3,31 @@
     :class="className"
     ref="scrollRef"
     :content-style="{
-      height: withUnit(totalHeight, 'px'),
-      paddingTop: withUnit(virtualList[0]?.start, 'px')
+      height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
     }"
+    :content-class="[cls.e('wrap'), bem.is('virtual', virtualEnabled)]"
   >
-    <UTreeNode
-      v-for="item of virtualList"
-      :node="nodes[item.index]!"
-      :key="item.key"
-      :class="bem.is('selected', nodes[item.index]!.data === selected)"
-    />
+    <template v-if="virtualEnabled">
+      <UTreeNode
+        v-for="{ node, key, offset, index } of virtualNodes"
+        :node="node"
+        :key="key"
+        :class="bem.is('selected', node.data === selected)"
+        :data-index="index"
+        :measure-element="measureElement"
+        :style="{
+          transform: `translateY(${offset}px)`
+        }"
+      />
+    </template>
+    <template v-else>
+      <UTreeNode
+        v-for="node of nodes"
+        :node="node"
+        :key="node.key"
+        :class="bem.is('selected', node.data === selected)"
+      />
+    </template>
 
     <div :class="cls.e('empty')" v-if="!nodes.length">
       <UEmpty />
@@ -236,9 +251,27 @@ const { checked, handleCheck } = useCheck<DataItem>({
   nodeDict
 })
 
-const { totalHeight, virtualList, scrollTo } = useVirtual({
-  count: computed(() => nodes.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } =
+  useVirtual({
+    count: computed(() => nodes.value.length),
+    estimateSize: () => 40,
+    gap: 2,
+    virtualThreshold: 80,
+    scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  })
+
+const virtualNodes = computed(() => {
+  const _nodes = nodes.value
+
+  return virtualList.value.map(item => {
+    const node = _nodes[item.index]!
+    return {
+      node,
+      key: node.key || item.key,
+      offset: item.start,
+      index: item.index
+    }
+  })
 })
 
 provide(TreeDIKey, {

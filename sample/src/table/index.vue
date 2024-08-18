@@ -24,7 +24,7 @@
         :data="data"
         :columns="columns"
         :style="{
-          height: fixedHeight ? '800px' : ''
+          height: fixedHeight ? '700px' : ''
         }"
         row-key="name"
         v-bind="state"

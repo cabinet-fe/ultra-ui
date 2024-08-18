@@ -3,11 +3,6 @@
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
-    :content-style="{
-      paddingTop: `${virtualList[0]?.start}px`,
-      height: withUnit(totalHeight, 'px'),
-      minHeight: '200px'
-    }"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -29,6 +24,14 @@
           <slot name="empty" />
         </template>
       </UTableBody>
+
+      <!-- 占用空间，用来撑开表格高度 -->
+      <tbody
+        :style="{
+          height: withUnit(spaceHeight, 'px'),
+          width: '1px'
+        }"
+      ></tbody>
       <UTableFoot>
         <slot name="foot" :columns="allColumns" :rows="rows" />
       </UTableFoot>
@@ -130,6 +133,17 @@ const virtualCtx = useVirtual({
 })
 
 const { virtualList, totalHeight } = virtualCtx
+
+const spaceHeight = computed(() => {
+  if (totalHeight.value !== undefined && virtualList.value.length) {
+    return (
+      totalHeight.value -
+      virtualList.value[virtualList.value.length - 1]!.end +
+      virtualList.value[0]!.start
+    )
+  }
+  return totalHeight.value
+})
 
 provide(TableDIKey, {
   tableProps: props,

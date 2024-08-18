@@ -6,10 +6,11 @@
       bem.is('disabled', node.disabled)
     ]"
     :style="{
-      marginLeft: withUnit(node.depth * 20 - 20, 'px')
+      paddingLeft: withUnit(node.depth * 20 - 20, 'px')
     }"
     @click="handleClick"
     @contextmenu="treeEmit('node-contextmenu', $event, node)"
+    :ref="measureElement"
   >
     <u-icon
       v-if="!node.isLeaf"

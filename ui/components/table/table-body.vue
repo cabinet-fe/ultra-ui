@@ -1,5 +1,10 @@
 <template>
-  <tbody :class="cls.e('body')">
+  <tbody
+    :class="cls.e('body')"
+    :style="{
+      transform: `translateY(${virtualList[0]?.start}px)`
+    }"
+  >
     <UTableRow
       v-for="item of virtualList"
       :row="rows[item.index]!"

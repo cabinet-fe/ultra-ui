@@ -47,6 +47,19 @@ $root-name: multi-select;
     max-height: 180px;
   }
 
+  @include m.e(options-wrap) {
+    @include m.is(virtual) {
+      position: relative;
+
+      @include m.bem($root-name, option) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+    }
+  }
+
   @include m.e(placeholder) {
     flex-shrink: 0;
     flex-grow: 1;

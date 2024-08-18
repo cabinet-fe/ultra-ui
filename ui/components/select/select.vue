@@ -42,27 +42,50 @@
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
-        :content-class="[cls.e('options-wrap'), bem.is('virtual', enabled)]"
+        :content-class="[
+          cls.e('options-wrap'),
+          bem.is('virtual', virtualEnabled)
+        ]"
         :content-style="{
-          height: enabled ? withUnit(totalHeight, 'px') : undefined
+          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
         }"
       >
-        <li
-          v-for="({ option, index }, i) of virtualOptions"
-          :class="[optionClass, bem.is('selected', option[valueKey] === model)]"
-          @click="handleSelect(option)"
-          v-ripple="cls.e('ripple')"
-          :key="option[valueKey]"
-          :style="{
-            transform: enabled
-              ? `translateY(${virtualList[i]!.start}px)`
-              : undefined
-          }"
-        >
-          <slot v-bind="{ option, index }">
-            {{ option[labelKey] }}
-          </slot>
-        </li>
+        <template v-if="virtualEnabled">
+          <!-- @vue-ignore -->
+          <li
+            v-for="{ option, index, val, label, key, offset } of virtualOptions"
+            :class="[optionClass, bem.is('selected', val === model)]"
+            @click="handleSelect(option)"
+            v-ripple="cls.e('ripple')"
+            :key="key"
+            :style="{
+              transform: `translateY(${offset}px)`
+            }"
+            :data-index="index"
+            :ref="measureElement"
+          >
+            <slot v-bind="{ option, index }">
+              {{ label }}
+            </slot>
+          </li>
+        </template>
+
+        <template v-else>
+          <li
+            v-for="(option, index) of options"
+            :class="[
+              optionClass,
+              bem.is('selected', getChainValue(option, valueKey) === model)
+            ]"
+            @click="handleSelect(option)"
+            v-ripple="cls.e('ripple')"
+            :key="getChainValue(option, valueKey)"
+          >
+            <slot v-bind="{ option, index }">
+              {{ getChainValue(option, labelKey) }}
+            </slot>
+          </li>
+        </template>
       </u-scroll>
 
       <div v-else :class="cls.e('empty')">
@@ -96,6 +119,7 @@ import { vRipple } from '@ui/directives'
 import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Select'
@@ -170,29 +194,46 @@ watch(selected, selected => {
   modelIsChangedBySelected = false
 })
 
-const { virtualList, totalHeight, enabled, scrollTo } = useVirtual({
-  count: computed(() => options.value.length),
-  virtualThreshold: 80,
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  gap: 2,
-  estimateSize: () => 40
+const { virtualList, totalHeight, virtualEnabled, scrollTo, measureElement } =
+  useVirtual({
+    count: computed(() => options.value.length),
+    virtualThreshold: 80,
+    scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
+    gap: 2,
+    estimateSize: () => 40
+  })
+
+const virtualOptions = computed(() => {
+  const _options = options.value
+  const { labelKey, valueKey } = props
+  return virtualList.value.map(item => {
+    const option = _options[item.index]!
+    return {
+      option,
+      index: item.index,
+      label: getChainValue(option, labelKey),
+      val: getChainValue(option, valueKey),
+      key: item.key,
+      offset: item.start
+    }
+  })
 })
 
 watch(scrollRef, scroll => {
   if (scroll && model.value !== undefined) {
     nextTick(() => {
-      scrollTo(options.value.findIndex(option => option === selected.value))
+      if (virtualEnabled.value) {
+        const index = virtualList.value.find(
+          option => option === selected.value
+        )?.index
+        index !== undefined && scrollTo(index)
+      } else {
+        scrollRef.value?.contentRef
+          ?.getElementsByClassName('is-selected')[0]
+          ?.scrollIntoView()
+      }
     })
   }
-})
-
-const virtualOptions = computed(() => {
-  if (!enabled.value)
-    return options.value.map((option, index) => ({ option, index }))
-  return virtualList.value.map(item => ({
-    option: options.value[item.index]!,
-    index: item.index
-  }))
 })
 
 const dropdownVisible = shallowRef(false)

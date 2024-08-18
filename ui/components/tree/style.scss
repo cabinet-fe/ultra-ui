@@ -15,6 +15,19 @@ $root-name: tree;
     }
   }
 
+  @include m.e(wrap) {
+    @include m.is(virtual) {
+      position: relative;
+
+      @include m.bem($root-name, node) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+    }
+  }
+
   @include m.is(selectable, checkable) {
     @include m.bem($root-name, node) {
       &:not(.is-disabled) {

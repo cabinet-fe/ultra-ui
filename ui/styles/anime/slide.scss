@@ -3,7 +3,7 @@ $root-name: slide;
 .#{$root-name}-enter-from,
 .#{$root-name}-leave-to {
   opacity: 0;
-  transform: scaleY(0.8);
+  transform: translateY(-10px);
 }
 
 .#{$root-name}-enter-active,

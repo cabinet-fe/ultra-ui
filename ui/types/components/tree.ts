@@ -73,6 +73,7 @@ export interface TreeEmit<
 
 export interface TreeNodeProps {
   node: TreeNode<Record<string, any>>
+  measureElement?: (el: any) => void
 }
 
 /** 树组件暴露的属性和方法(组件内部使用) */
