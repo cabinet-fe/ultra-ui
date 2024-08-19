@@ -7,10 +7,8 @@
       bem.is('current', row.isCurrent && tableProps.highlightCurrent)
     ]"
     @click="handleRowClick(row)"
+    :ref="measureElement"
   >
-    <!-- {{
-      console.log(1)
-    }} -->
     <UTabelCell
       v-if="expandColumn"
       :column="expandColumn"
@@ -71,7 +69,6 @@ defineOptions({
 
 defineProps<{
   row: TableRow
-  measureElement?: (el: any) => void
 }>()
 
 const {
@@ -81,8 +78,8 @@ const {
   toggleTreeRowExpand,
   getCellCtx,
   handleRowClick,
-  tableProps
-  // measureElement
+  tableProps,
+  measureElement
 } = inject(TableDIKey)!
 
 const { columns, expandColumn } = columnConfig

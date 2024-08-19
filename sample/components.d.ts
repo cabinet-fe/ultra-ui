@@ -44,5 +44,7 @@ declare module 'vue' {
     UTheme: typeof import('ultra-ui')['UTheme']
     UTree: typeof import('ultra-ui')['UTree']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
+    UVirtualScroll: typeof import('ultra-ui')['UVirtualScroll']
+    UWatermark: typeof import('ultra-ui')['UWatermark']
   }
 }

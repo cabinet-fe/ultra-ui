@@ -96,6 +96,7 @@ $root-name: tree;
     flex-grow: 1;
     overflow: hidden;
     user-select: none;
+    word-break: break-all;
     transition: background-color 0.25s;
     @include m.flex($align: center, $wrap: wrap);
   }

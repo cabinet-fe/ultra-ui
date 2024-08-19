@@ -3,12 +3,9 @@
     <UTableRow
       v-for="item of virtualList"
       :row="rows[item.index]!"
-      :key="item.key"
+      :key="rows[item.index]?.uid"
       :data-index="item.index"
     />
-    <!-- {{
-      console.log(666)
-    }} -->
 
     <!-- 空 -->
     <tr v-if="!rows.length" :class="cls.e('row')">

@@ -3,7 +3,7 @@
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
-    :drag-debounce="50"
+    :drag-debounce="10"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -28,8 +28,8 @@
 
       <!-- 占用空间，用来撑开表格高度 -->
       <tbody
+        ref="spaceRef"
         :style="{
-          height: withUnit(spaceHeight, 'px'),
           width: '1px'
         }"
       ></tbody>
@@ -51,8 +51,8 @@ import type {
   _TableExposed,
   TableColumnSlotsScope
 } from '@ui/types/components/table'
-import { bem, withUnit } from '@ui/utils'
-import { computed, provide, shallowRef, toRef } from 'vue'
+import { bem, setStyles, withUnit } from '@ui/utils'
+import { computed, provide, shallowRef, toRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { TableRow, useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
@@ -137,7 +137,7 @@ const virtualCtx = useVirtual({
 const { virtualList, totalHeight } = virtualCtx
 
 const spaceHeight = computed(() => {
-  if (totalHeight.value !== undefined && virtualList.value.length) {
+  if (virtualList.value.length) {
     return (
       totalHeight.value -
       virtualList.value[virtualList.value.length - 1]!.end +
@@ -146,6 +146,19 @@ const spaceHeight = computed(() => {
   }
   return totalHeight.value
 })
+
+const spaceRef = shallowRef<HTMLElement>()
+
+watch(
+  spaceHeight,
+  spaceHeight => {
+    spaceRef.value &&
+      setStyles(spaceRef.value, {
+        height: `${spaceHeight}px`
+      })
+  },
+  { immediate: true }
+)
 
 provide(TableDIKey, {
   tableProps: props,
