@@ -1,4 +1,5 @@
 <template>
+  <!-- @vue-ignore -->
   <tr
     :class="[
       cls.e('row'),
@@ -6,8 +7,10 @@
       bem.is('current', row.isCurrent && tableProps.highlightCurrent)
     ]"
     @click="handleRowClick(row)"
-    :ref="measureElement"
   >
+    <!-- {{
+      console.log(1)
+    }} -->
     <UTabelCell
       v-if="expandColumn"
       :column="expandColumn"
@@ -52,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 import { TableDIKey } from './di'
 import type { TableRow } from './use-rows'
 import { UNodeRender } from '../node-render'
@@ -68,7 +71,7 @@ defineOptions({
 
 defineProps<{
   row: TableRow
-  measureElement: (el: any) => void
+  measureElement?: (el: any) => void
 }>()
 
 const {
@@ -78,7 +81,8 @@ const {
   toggleTreeRowExpand,
   getCellCtx,
   handleRowClick,
-  tableProps
+  tableProps,
+  measureElement
 } = inject(TableDIKey)!
 
 const { columns, expandColumn } = columnConfig

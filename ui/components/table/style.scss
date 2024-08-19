@@ -91,6 +91,7 @@ $root-name: table;
   }
 
   @include m.e(body) {
+    will-change: transform;
     tr:not(:last-child) {
       @include m.bem($root-name, cell) {
         box-shadow: 0px -1px #eee inset;

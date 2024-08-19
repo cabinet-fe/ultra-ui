@@ -42,6 +42,9 @@ export interface ScrollProps {
 
   /** 容器类名 */
   containerClass?: string | string[]
+
+  /** 拖拽防抖时间 */
+  dragDebounce?: number
 }
 
 export interface ScrollEmits {

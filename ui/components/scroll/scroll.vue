@@ -45,6 +45,7 @@ import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ui/compositions'
 import { ScrollDIKey } from './di'
+import { debounce } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Scroll'
@@ -126,8 +127,6 @@ const updateBar = () => {
     scrollLeft
   } = containerRef.value
 
-  // console.log(scrollHeight, clientHeight, scrollTop)
-
   emit('scroll', { x: scrollLeft, y: scrollTop })
 
   if (scrollHeight !== clientHeight) {
@@ -139,8 +138,6 @@ const updateBar = () => {
     const barYTop =
       (scrollTop / (scrollHeight - clientHeight)) *
       (trackSize.height - barYHeight)
-
-    // console.log(clientHeight, trackSize.height, scrollHeight)
 
     barY.value?.update(barYHeight, barYTop)
   } else {
@@ -163,18 +160,27 @@ const updateBar = () => {
 }
 
 // 滚动条拖拽
-const handleDragX = (offset: number, size: number) => {
-  const container = containerRef.value!
-  const { clientWidth, scrollWidth } = container
-  container.scrollLeft =
-    (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
-}
-const handleDragY = (offset: number, size: number) => {
-  const container = containerRef.value!
-  const { clientHeight, scrollHeight } = container
-  container.scrollTop =
-    (offset / (trackSize.height - size)) * (scrollHeight - clientHeight)
-}
+const handleDragX = debounce(
+  (offset: number, size: number) => {
+    const container = containerRef.value!
+    const { clientWidth, scrollWidth } = container
+    container.scrollLeft =
+      (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
+  },
+  props.dragDebounce ?? 0,
+  false
+)
+
+const handleDragY = debounce(
+  (offset: number, size: number) => {
+    const container = containerRef.value!
+    const { clientHeight, scrollHeight } = container
+    container.scrollTop =
+      (offset / (trackSize.height - size)) * (scrollHeight - clientHeight)
+  },
+  props.dragDebounce ?? 0,
+  false
+)
 
 // 滚动事件
 const handleScroll = () => {

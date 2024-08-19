@@ -41,7 +41,7 @@
       </u-table>
     </CustomCard>
 
-    <CustomCard title="合并单元格">
+    <!-- <CustomCard title="合并单元格">
       <u-table
         :data="data2"
         :merge-cell="mergeCell"
@@ -61,7 +61,7 @@
           <u-input v-bind="model"></u-input>
         </template>
       </u-table>
-    </CustomCard>
+    </CustomCard> -->
   </div>
 </template>
 

@@ -3,6 +3,7 @@
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
+    :drag-debounce="50"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -129,7 +130,8 @@ const scrollRef = shallowRef<ScrollExposed>()
 
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
+  estimateSize: () => 48
 })
 
 const { virtualList, totalHeight } = virtualCtx

@@ -1,4 +1,4 @@
-import { computed, type ComputedRef, type ShallowRef } from 'vue'
+import { computed, watch, type ComputedRef, type ShallowRef } from 'vue'
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual'
 
 interface Options {
@@ -41,7 +41,7 @@ export function useVirtual(options: Options): VirtualReturned {
       getScrollElement: () => scrollEl.value,
       estimateSize: estimateSize ?? (() => 34),
       overscan: 3,
-      gap: gap
+      gap
     }
   })
 
@@ -65,6 +65,8 @@ export function useVirtual(options: Options): VirtualReturned {
     if (!el) return
 
     virtualizer.value.measureElement(el)
+
+    return undefined
   }
 
   return {
