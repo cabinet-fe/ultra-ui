@@ -176,7 +176,11 @@ const _data = Array.from({ length: 1000 }).map((_, index) => {
   }
 })
 
-const data = shallowRef(_data)
+const data = shallowRef<any[]>([])
+
+setTimeout(() => {
+  data.value = _data
+}, 2000)
 
 watch(showData, v => {
   if (v) {

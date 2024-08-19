@@ -90,7 +90,10 @@ export function useVirtual(options: Options): VirtualReturned {
 
   watch(virtualizerOptions, options => {
     v.setOptions(options)
+
     v._willUpdate()
+
+    onChange()
   })
 
   onScopeDispose(() => {
