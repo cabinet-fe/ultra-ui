@@ -8,6 +8,7 @@
     ]"
     @click="handleRowClick(row)"
     :ref="measureElement"
+    :data-index="row.index"
   >
     <UTabelCell
       v-if="expandColumn"
@@ -69,6 +70,7 @@ defineOptions({
 
 defineProps<{
   row: TableRow
+  dataIndex: number
 }>()
 
 const {

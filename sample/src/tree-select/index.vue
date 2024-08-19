@@ -91,12 +91,12 @@ const data = shallowRef<any[]>([
   { name: '烤冷面14', id: 14 }
 ])
 
-// setTimeout(() => {
-//   data.value = Array.from({ length: 3000 }, (_, index) => ({
-//     name: `烤冷面${index}`,
-//     id: index
-//   }))
-// }, 1000)
+setTimeout(() => {
+  data.value = Array.from({ length: 3000 }, (_, index) => ({
+    name: `烤冷面${index}`,
+    id: index
+  }))
+}, 1000)
 
 const handleChange = (val, selected) => {
   console.log(val, selected)

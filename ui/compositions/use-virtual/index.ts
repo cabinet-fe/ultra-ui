@@ -78,6 +78,8 @@ export function useVirtual(options: Options): VirtualReturned {
 
   const v = new Virtualizer(virtualizerOptions.value)
 
+  onChange()
+
   const cleanup = v._didMount()
 
   watch(
@@ -88,13 +90,16 @@ export function useVirtual(options: Options): VirtualReturned {
     { immediate: true }
   )
 
-  watch(virtualizerOptions, options => {
-    v.setOptions(options)
+  watch(
+    () => virtualizerOptions.value,
+    options => {
+      v.setOptions(options)
 
-    v._willUpdate()
+      v._willUpdate()
 
-    onChange()
-  })
+      onChange()
+    }
+  )
 
   onScopeDispose(() => {
     cleanup()
