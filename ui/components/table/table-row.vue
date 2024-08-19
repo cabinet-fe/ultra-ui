@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, watch } from 'vue'
+import { inject } from 'vue'
 import { TableDIKey } from './di'
 import type { TableRow } from './use-rows'
 import { UNodeRender } from '../node-render'
@@ -81,8 +81,8 @@ const {
   toggleTreeRowExpand,
   getCellCtx,
   handleRowClick,
-  tableProps,
-  measureElement
+  tableProps
+  // measureElement
 } = inject(TableDIKey)!
 
 const { columns, expandColumn } = columnConfig

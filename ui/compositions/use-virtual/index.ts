@@ -1,4 +1,4 @@
-import { computed, watch, type ComputedRef, type ShallowRef } from 'vue'
+import { computed, type ComputedRef, type ShallowRef } from 'vue'
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual'
 
 interface Options {
