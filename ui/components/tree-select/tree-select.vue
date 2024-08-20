@@ -54,7 +54,7 @@ import type {
   TreeSelectEmits
 } from '@ui/types/components/tree-select'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { bem, isTextNode } from '@ui/utils'
+import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
 import { UTree, type TreeExposed } from '../tree'
 import { UInput } from '../input'
