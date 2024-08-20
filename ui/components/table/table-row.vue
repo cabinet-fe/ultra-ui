@@ -1,11 +1,7 @@
 <template>
   <!-- @vue-ignore -->
   <tr
-    :class="[
-      cls.e('row'),
-      bem.is('expanded', row.expanded),
-      bem.is('current', row.isCurrent && tableProps.highlightCurrent)
-    ]"
+    :class="[cls.e('row'), bem.is('expanded', row.expanded)]"
     @click="handleRowClick(row)"
     :ref="measureElement"
     :data-index="row.index"

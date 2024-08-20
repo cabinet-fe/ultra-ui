@@ -21,6 +21,7 @@
       <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
 
       <u-table
+        v-if="false"
         :data="data"
         :columns="columns"
         :style="{
@@ -41,15 +42,21 @@
       </u-table>
     </CustomCard>
 
-    <!-- <CustomCard title="合并单元格">
-      <u-table
-        :data="data2"
-        :merge-cell="mergeCell"
-        :columns="columns2"
-      ></u-table>
+    <CustomCard title="合并单元格">
+      <u-table :data="data2" :merge-cell="mergeCell" :columns="columns2">
+        <template #column:secondQuota="{ val, row }">
+          <span>{{ val }}</span>
+          <u-button
+            circle
+            type="primary"
+            :icon="Plus"
+            @click="handleAdd(row)"
+          ></u-button>
+        </template>
+      </u-table>
     </CustomCard>
 
-    <CustomCard title="编辑">
+    <!-- <CustomCard title="编辑">
       <u-table
         :data="data2"
         :columns="columns2"
@@ -66,10 +73,11 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns, type TableRow } from 'ultra-ui'
 import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Tree } from 'cat-kit/fe'
+import { Plus } from 'icon-ultra'
 
 const state = shallowReactive({
   checkable: false,
@@ -198,28 +206,63 @@ setTimeout(() => {
   checked2.value = [{ id: 11 }]
 }, 2000)
 
-const data2 = [
-  { id: 11, first: '决策', second: '立项', third: '立项依据充分性' },
-  { id: 22, first: '决策', second: '立项', third: '立项程序规范性' },
-  { id: 33, first: '决策', second: '绩效目标', third: '绩效目标合理性' },
-  { id: 44, first: '决策', second: '绩效目标', third: '绩效指标明确性' },
-  { id: 55, first: '过程', second: '资金管理', third: '资金到位率' },
-  { id: 66, first: '过程', second: '资金管理', third: '预算执行率' },
-  { id: 77, first: '过程', second: '资金管理', third: '资金使用合规性' },
-  { id: 88, first: '过程', second: '组织实施', third: '制度执行有效性' }
-]
+let data2 = shallowRef<Record<string, any>[]>([
+  {
+    firstQuota: '决策',
+    secondQuota: '项目立项',
+    thirdQuota: '三级指标'
+  },
+  {
+    firstQuota: '决策',
+    secondQuota: '绩效目标',
+    thirdQuota: '立项依据充分性3'
+  },
+  { firstQuota: '决策', secondQuota: '资金投入', thirdQuota: '' },
+  {
+    firstQuota: '过程',
+    secondQuota: '资金管理',
+    thirdQuota: ''
+  },
+  {
+    firstQuota: '过程',
+    secondQuota: '组织实施',
+    thirdQuota: ''
+  }
+])
 
 const columns2 = defineTableColumns([
-  { name: '三级指标', key: 'third' },
-  { name: '一级指标', key: 'first' },
-  { name: '二级指标', key: 'second' }
+  {
+    name: '一级指标',
+    key: 'firstQuota',
+    align: 'center'
+  },
+  {
+    name: '二级指标',
+    key: 'secondQuota',
+    align: 'center'
+  },
+  {
+    name: '三级指标',
+    key: 'thirdQuota',
+    align: 'center'
+  },
+  {
+    name: '年度指标值',
+    key: 'quotaValue',
+    align: 'center'
+  },
+  {
+    name: '是否分解到项目',
+    key: 'disassemble',
+    align: 'center'
+  }
 ])
 
 function getValSpanDict(keys: string[]) {
   const keyDict = {}
 
   keys.forEach(key => {
-    keyDict[key] = data2.reduce((acc, item, index) => {
+    keyDict[key] = data2.value.reduce((acc, item, index) => {
       if (acc[item[key]]) {
         acc[item[key]].times++
       } else {
@@ -235,13 +278,27 @@ function getValSpanDict(keys: string[]) {
   return keyDict
 }
 
-const columnsSpanDict = getValSpanDict(['first', 'second'])
+let columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
+
+function handleAdd(row: TableRow) {
+  data2.value = [
+    ...data2.value.slice(0, row.index + 1),
+    {
+      firstQuota: row.data.firstQuota,
+      secondQuota: row.data.secondQuota,
+      thirdQuota: ''
+    },
+    ...data2.value.slice(row.index + 1)
+  ]
+  columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
+}
 
 function mergeCell(ctx) {
   const { row, column, val } = ctx
 
   if (columnsSpanDict[column.key]) {
     const { times, start } = columnsSpanDict[column.key][val]
+    console.log(columnsSpanDict[column.key])
     if (start === row.index) {
       return {
         rowspan: times,

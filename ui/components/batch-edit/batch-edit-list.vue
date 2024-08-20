@@ -26,7 +26,7 @@
       ref="tableRef"
     >
       <template #column:__action__="{ row }">
-        <ButtonWrap @click.stop :loading="row.operating">
+        <ButtonWrap tag="div" @click.stop :loading="row.operating">
           <u-button
             @click="handleInsertToPrev(row)"
             :icon="InsertToPrev"

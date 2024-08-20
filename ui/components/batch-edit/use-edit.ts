@@ -142,6 +142,7 @@ export function useEdit(options: Options): EditReturned {
   }
 
   async function runCreate(cb: () => void) {
+    state.parentRow = undefined
     state.row = undefined
     state.type = 'create'
     props.model?.resetData()
@@ -191,6 +192,7 @@ export function useEdit(options: Options): EditReturned {
     runCreate(() => {
       state.parentRow = row
       row.expanded = true
+
       insertIndexes.value = [...row.indexes, row.children?.length ?? 0]
     })
   }
