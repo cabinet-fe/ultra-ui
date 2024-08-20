@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { computed, inject, shallowRef, watch } from 'vue'
 import { TableDIKey } from './di'
-import UTableRow from './table-row.vue'
+import UTableRow from './table-row'
 import { UEmpty } from '../empty'
 import { bem, setStyles } from '@ui/utils'
 

@@ -21,7 +21,7 @@
       <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
 
       <u-table
-        v-if="false"
+        v-if="true"
         :data="data"
         :columns="columns"
         :style="{
@@ -43,7 +43,12 @@
     </CustomCard>
 
     <CustomCard title="合并单元格">
-      <u-table :data="data2" :merge-cell="mergeCell" :columns="columns2">
+      <u-table
+        :data="data2"
+        :merge-cell="mergeCell"
+        v-if="!reloading"
+        :columns="columns2"
+      >
         <template #column:secondQuota="{ val, row }">
           <span>{{ val }}</span>
           <u-button
@@ -52,6 +57,10 @@
             :icon="Plus"
             @click="handleAdd(row)"
           ></u-button>
+        </template>
+
+        <template #column:thirdQuota="{ model }">
+          <u-input v-bind="model"></u-input>
         </template>
       </u-table>
     </CustomCard>
@@ -74,7 +83,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns, type TableRow } from 'ultra-ui'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { nextTick, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Tree } from 'cat-kit/fe'
 import { Plus } from 'icon-ultra'
@@ -141,7 +150,7 @@ watch(
   { immediate: true }
 )
 
-const _data = Array.from({ length: 1000 }).map((_, index) => {
+const _data = Array.from({ length: 10000 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
     name: 'name' + index,
@@ -279,7 +288,7 @@ function getValSpanDict(keys: string[]) {
 }
 
 let columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
-
+const reloading = shallowRef(false)
 function handleAdd(row: TableRow) {
   data2.value = [
     ...data2.value.slice(0, row.index + 1),
@@ -290,6 +299,12 @@ function handleAdd(row: TableRow) {
     },
     ...data2.value.slice(row.index + 1)
   ]
+
+  reloading.value = true
+  nextTick(() => {
+    reloading.value = false
+  })
+
   columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
 }
 
@@ -298,7 +313,7 @@ function mergeCell(ctx) {
 
   if (columnsSpanDict[column.key]) {
     const { times, start } = columnsSpanDict[column.key][val]
-    console.log(columnsSpanDict[column.key])
+
     if (start === row.index) {
       return {
         rowspan: times,
