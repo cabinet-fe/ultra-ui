@@ -13,7 +13,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="model ? label : undefined"
+        :model-value="text ?? (model ? label : undefined)"
         @clear="handleClear"
         native-readonly
       >
@@ -45,7 +45,7 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ label || FORM_EMPTY_CONTENT }}</span>
+  <span v-else>{{ text || label || FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup>
