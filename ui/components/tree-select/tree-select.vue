@@ -169,15 +169,7 @@ const handleSelect = (
   })
 
   if (selectedData) {
-    const vnode = slots.default?.({
-      data: selectedData,
-      node: node!
-    })?.[0]
-    if (vnode && isTextNode(vnode)) {
-      label.value = vnode.children
-    } else {
-      label.value = getChainValue(selectedData, props.labelKey)
-    }
+    label.value = getChainValue(selectedData, props.labelKey)
   } else {
     label.value = undefined
   }
