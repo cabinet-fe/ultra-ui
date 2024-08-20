@@ -130,6 +130,7 @@ const handleSelect = (option: string) => {
   model.value = option
   dropdownRef.value?.close()
   saveCache()
+  emit('select', option)
 }
 
 function saveCache() {
