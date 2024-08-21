@@ -57,28 +57,29 @@ export default defineComponent({
               key={_expandColumn.key + _expandColumn.keySuffix}
               {...tableProps.mergeCell?.(expandCtx)}
             >
-              !row.isLeaf ?{' '}
-              <UButton
-                text
-                class={cls.e('expand-toggle')}
-                type='primary'
-                size='small'
-                circle
-                onClick={e => {
-                  e.stopPropagation()
-                  toggleTreeRowExpand(row)
-                }}
-                style={`margin-left: ${(row.depth - 1) * 14}px`}
-              >
-                <UIcon>
-                  <ArrowRight />
-                </UIcon>
-              </UButton>{' '}
-              :
-              <i
-                class="cls.e('expand-space')"
-                style={`margin-left: ${(row.depth - 1) * 14}px`}
-              ></i>
+              {!row.isLeaf ? (
+                <UButton
+                  text
+                  class={cls.e('expand-toggle')}
+                  type="primary"
+                  size="small"
+                  circle
+                  onClick={e => {
+                    e.stopPropagation();
+                    toggleTreeRowExpand(row);
+                  }}
+                  style={`margin-left: ${(row.depth - 1) * 14}px`}
+                >
+                  <UIcon>
+                    <ArrowRight />
+                  </UIcon>
+                </UButton>
+              ) : (
+                <i
+                  class={cls.e('expand-space')}
+                  style={`margin-left: ${(row.depth - 1) * 14}px`}
+                ></i>
+              )}
               <UNodeRender content={getColumnSlotsNode(expandCtx)} />
             </UTabelCell>
           )
