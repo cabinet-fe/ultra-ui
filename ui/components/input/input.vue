@@ -50,7 +50,7 @@
   </div>
 
   <span v-else>
-    {{ model || FORM_EMPTY_CONTENT }}
+    {{ generateModel || FORM_EMPTY_CONTENT }}
   </span>
 </template>
 
@@ -182,6 +182,10 @@ const handleChange = (e: Event) => {
 }
 
 const el = shallowRef<HTMLInputElement>()
+
+const generateModel = computed(() => {
+  return props.prefix?`${props.prefix}${model.value}`:model.value
+})
 
 defineExpose<_InputExposed>({
   el

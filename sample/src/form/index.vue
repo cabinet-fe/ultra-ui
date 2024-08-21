@@ -46,7 +46,7 @@
           <u-password-input field="pwd" label="密码" />
           <u-number-input field="age" label="年龄" />
           <u-number-input field="debt" currency label="借款" :step="1" />
-          <u-input field="phone" label="手机" />
+          <u-input :prefix="'333'" field="phone" label="手机" />
           <u-input field="email" label="邮箱" />
           <u-select field="unit" label="单位" :options="units" />
           <u-multi-select
