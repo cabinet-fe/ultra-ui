@@ -79,7 +79,7 @@
           bem.is('virtual', virtualEnabled)
         ]"
         :content-style="{
-          height: withUnit(totalHeight, 'px')
+          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
         }"
       >
         <template v-if="virtualEnabled">

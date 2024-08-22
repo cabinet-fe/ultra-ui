@@ -19,7 +19,7 @@
 import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
-const options = Array.from({ length: 100 }).map((_, i) => ({
+const options = Array.from({ length: 60 }).map((_, i) => ({
   label: `选项${i}`,
   value: i
 }))
