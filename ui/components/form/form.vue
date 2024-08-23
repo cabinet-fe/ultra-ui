@@ -13,7 +13,7 @@
         field,
         modelValue
       } of getSlotsNodes()"
-      :key="node.key ?? undefined"
+      :key="node.key"
     >
       <u-form-item v-if="isFormItem" v-bind="formItemProps">
         <component
@@ -37,7 +37,8 @@ import { useNodeInterceptor } from './use-node-interceptor'
 import { UFormItem } from '../form-item'
 import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
-import type { DynamicFormModel, FormModel } from './form-model'
+import type { FormModel } from './form-model'
+import type { DynamicFormModel } from './dynamic-form-model'
 
 defineOptions({
   name: 'Form'

@@ -1,9 +1,5 @@
 <template>
-  <u-card
-    :class="cls.e('form')"
-    integrate
-    v-if="state.visible && !!props.model"
-  >
+  <u-card :class="cls.e('form')" v-if="state.visible && !!props.model">
     <u-card-header>
       <template v-if="props.readonly">详情</template>
       <template v-else-if="!!state.parentRow">新增子级</template>
@@ -44,7 +40,7 @@
         关闭
       </u-button>
       <u-button
-        v-if="!props.readonly && !quickEdit"
+        v-if="!props.readonly && !props.quickEdit && state.dataUpdated"
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
         @click="handleSave"
@@ -68,6 +64,6 @@ defineOptions({
   name: 'BatchEditForm'
 })
 
-const { cls, props, state, insertIndexes, handleSave, handleClose, quickEdit } =
+const { cls, props, state, insertIndexes, handleSave, handleClose } =
   inject(BatchEditDIKey)!
 </script>

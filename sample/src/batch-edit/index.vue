@@ -5,6 +5,7 @@
       <u-checkbox v-model="tree">树形</u-checkbox>
       <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
       <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
+      <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
       <u-button @click="dialogVisible = !dialogVisible">弹框中</u-button>
     </div>
     <u-batch-edit
@@ -12,10 +13,10 @@
       :readonly="readonly"
       :resizable="resizable"
       v-model:data="data"
+      :quick-edit="quickEdit"
       :model="model"
       :tree="tree"
       cols="1fr 400px"
-      default-quick-edit
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @created="
@@ -91,6 +92,7 @@ import area from '../cascade/area.json'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
+const quickEdit = shallowRef(true)
 const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
@@ -367,9 +369,7 @@ const cascadeData = [
   }
 ]
 
-model.onChange(f => {
-  console.log(f)
-})
+model.onChange(f => {})
 </script>
 
 <style lang="scss" scoped></style>

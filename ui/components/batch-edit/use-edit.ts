@@ -24,12 +24,13 @@ export interface BatchEditStates {
   row?: TableRow
   /** 父级，只在添加子级时会有值 */
   parentRow?: TableRow
+  /** 数据是否已更新 */
+  dataUpdated: boolean
 }
 
 export interface EditReturned {
   state: BatchEditStates
   insertIndexes: ShallowRef<number[]>
-  quickEdit: ShallowRef<boolean>
   handleSave: () => Promise<void>
   handleClose: () => void
   handleCreate: () => void
@@ -46,10 +47,23 @@ export function useEdit(options: Options): EditReturned {
   const state = shallowReactive<BatchEditStates>({
     visible: false,
     type: 'create',
-    loading: false
+    loading: false,
+    dataUpdated: false
   })
 
   const insertIndexes = shallowRef<number[]>([])
+
+  watch(
+    () => state.visible,
+    v => {
+      if (!v) {
+        state.dataUpdated = false
+      }
+    }
+  )
+
+  /** 是否是用户输入产生的值变更 */
+  let changedByUserInput = true
 
   watch(
     () => state.row,
@@ -58,38 +72,48 @@ export function useEdit(options: Options): EditReturned {
       if (row) {
         state.type = 'update'
         state.visible = true
+        changedByUserInput = false
         props.model?.setData(row.data)
+        nextTick(() => {
+          changedByUserInput = true
+        })
       } else {
         state.visible = false
       }
     }
   )
 
-  const quickEdit = shallowRef(props.defaultQuickEdit ?? false)
-
-  watch(
-    () => props.defaultQuickEdit,
-    defaultQuickEdit => {
-      if (defaultQuickEdit === undefined) return
-      quickEdit.value = defaultQuickEdit
-    }
-  )
-
   const changeCb = (field: string, val: any) => {
-    state.row && setChainValue(state.row.data, field, val)
+    // 检测到为用户变更时，为数据添加一个已更改状态从而显示修改按钮
+    if (changedByUserInput) {
+      state.dataUpdated = true
+    }
+
+    if (props.quickEdit) {
+      state.row && setChainValue(state.row.data, field, val)
+    }
   }
 
   watch(
-    quickEdit,
-    quickEdit => {
-      if (quickEdit) {
-        props.model?.onChange(changeCb)
-      } else {
-        props.model?.offChange(changeCb)
+    () => props.model,
+    (model, oldModel) => {
+      if (oldModel) {
+        oldModel.offChange(changeCb)
       }
+      if (model) {
+        model.onChange(changeCb)
+      }
+    },
+    { immediate: true }
+  )
+
+  watch(
+    () => props.quickEdit,
+    quickEdit => {
       state.row = undefined
       state.type = 'create'
       state.visible = false
+      state.dataUpdated = false
       props.model?.resetData()
     },
     { immediate: true }
@@ -106,7 +130,7 @@ export function useEdit(options: Options): EditReturned {
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
 
-    if (quickEdit.value) {
+    if (props.quickEdit) {
       if (!isReactive(item)) {
         item = shallowReactive(item)
       }
@@ -146,11 +170,10 @@ export function useEdit(options: Options): EditReturned {
     state.row = undefined
     state.type = 'create'
     props.model?.resetData()
-
     cb()
 
     let item: Record<string, any> | undefined = undefined
-    if (quickEdit.value) {
+    if (props.quickEdit) {
       item = insert(getInsertData())
     }
 
@@ -235,6 +258,9 @@ export function useEdit(options: Options): EditReturned {
         item = result
       }
     }
+
+    state.dataUpdated = false
+
     // 新增
     if (state.type === 'create') {
       insert(item)
@@ -295,7 +321,6 @@ export function useEdit(options: Options): EditReturned {
   return {
     state,
     insertIndexes,
-    quickEdit,
     handleDelete,
     handleInsertChild,
     handleInsertToNext,

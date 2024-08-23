@@ -1,20 +1,8 @@
 <template>
-  <u-card :class="cls.e('list')" integrate>
+  <u-card :class="cls.e('list')">
     <u-card-header v-if="!!slots.header || props.title">
       <slot> {{ props.title }} </slot>
     </u-card-header>
-    <div :class="cls.e('tools')">
-      <u-tip
-        content="快速编辑可以能够增加编辑效率，但是不能保证数据的完整性，因为它允许未校验的数据通过"
-        style="
-          color: var(--color-info);
-          background-color: var(--color-info-light-9);
-          width: 200px;
-        "
-      >
-        <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
-      </u-tip>
-    </div>
 
     <u-table
       v-bind="tableProps"
@@ -60,7 +48,7 @@
         #append
         v-if="
           !props.readonly &&
-          (quickEdit ||
+          (props.quickEdit ||
             (state.type === 'create' && !state.visible) ||
             state.type === 'update')
         "
@@ -126,7 +114,6 @@ const {
   state,
   tableRef,
   props,
-  quickEdit,
   handleCreate,
   handleDelete,
   handleInsertToNext,

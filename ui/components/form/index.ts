@@ -4,4 +4,5 @@ export * from '@ui/types/components/form'
 
 export * from './helper'
 
-export { FormModel, DynamicFormModel } from './form-model'
+export { FormModel } from './form-model'
+export { DynamicFormModel } from './dynamic-form-model'
