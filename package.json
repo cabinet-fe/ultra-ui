@@ -19,6 +19,13 @@
     "Vue UI"
   ],
   "author": "cabinet-fe",
+  "workspaces": [
+    "sample",
+    "cli",
+    "build",
+    "vite-helper",
+    "ui"
+  ],
   "devDependencies": {
     "@types/node": "^20.14.2",
     "@vitejs/plugin-vue": "5.1.2",
