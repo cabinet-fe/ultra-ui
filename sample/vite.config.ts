@@ -3,9 +3,10 @@ import Vue from '@vitejs/plugin-vue'
 import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import autoprefixer from 'autoprefixer'
-import { UltraUIResolver } from 'vite-helper/resolver'
+import { autoResolveComponent } from 'vite-helper'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { existModule } from 'cat-kit/be'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -33,7 +34,24 @@ export default defineConfig(() => {
       Vue(),
       VueJSX(),
       Components({
-        resolvers: [UltraUIResolver],
+        resolvers: [
+          autoResolveComponent({
+            prefix: 'U',
+            lib: 'ultra-ui',
+            sideEffects(kebabName, lib) {
+              let moduleId = `${lib}/components/${kebabName}/style.ts`
+
+              while (!existModule(moduleId)) {
+                const preKebabName = kebabName
+                kebabName = kebabName.replace(/-[a-z]$/, '')
+                if (preKebabName === kebabName) return
+                moduleId = `${lib}/components/${kebabName}/style.ts`
+              }
+
+              return moduleId
+            }
+          })
+        ],
         dts: true,
         include: [/\.vue$/]
       })
