@@ -14,10 +14,7 @@ $root-name: message-confirm;
     right: 0;
     bottom: 0;
     left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+    @include m.flex($justify: center);
   }
 
   @include m.e(box) {
@@ -39,6 +36,7 @@ $root-name: message-confirm;
 
   @include m.e(footer) {
     text-align: right;
+
     &--btn {
       margin-left: 10px;
     }
@@ -61,9 +59,11 @@ $root-name: message-confirm;
 .#{$root-name}-fade-leave-active {
   transition: opacity 0.25s cubic-bezier(1, 0.5, 0.8, 1);
 }
+
 .#{$root-name}-fade-enter-from,
 .#{$root-name}-fade-leave-to {
-  opacity: 0;
+  // opacity: 0;
+
   @include m.bem($root-name, box) {
     transform: translate(0, -100%);
   }
