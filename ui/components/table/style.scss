@@ -30,9 +30,15 @@ $root-name: table;
   }
 
   @include m.e(row) {
+    &:nth-child(even) {
+      td {
+        background-color: fn.use-var(bg-color, hover);
+      }
+    }
+
     &:hover {
       @include m.bem($root-name, cell) {
-        background-color: fn.use-var(bg-color, hover);
+        background-color: fn.use-var(color-primary, light-9);
       }
     }
 
@@ -83,10 +89,11 @@ $root-name: table;
 
   @include m.e(head) {
     @include m.bem($root-name, cell) {
-      box-shadow: 0px -1px 1px #eee inset;
+      // box-shadow: 0px -1px 1px #eee inset;
       background-color: #f9f9f9;
       font-weight: normal;
       color: fn.use-var(text-color, main);
+      text-align: center !important;
     }
   }
 
@@ -94,7 +101,7 @@ $root-name: table;
     will-change: transform;
     tr:not(:last-child) {
       @include m.bem($root-name, cell) {
-        box-shadow: 0px -1px #eee inset;
+        // box-shadow: 0px -1px #eee inset;
       }
     }
   }
@@ -111,7 +118,7 @@ $root-name: table;
     bottom: 0;
 
     @include m.bem($root-name, cell) {
-      box-shadow: 0px 1px 1px #eee inset;
+      // box-shadow: 0px 1px 1px #eee inset;
     }
   }
 
@@ -120,6 +127,7 @@ $root-name: table;
     color: fn.use-var(text-color, title);
     word-break: break-all;
     line-height: 1;
+    box-shadow: -1px -1px #eee inset;
 
     @each $position in (left, center, right) {
       @include m.is($position) {

@@ -167,7 +167,7 @@ export function useColumns(options: Options): ColumnConfig {
       columns.push({
         key: '__index__',
         name: '#',
-        width: 80,
+        width: 60,
         align: 'center',
         fixed: 'left',
         render({ row }) {
