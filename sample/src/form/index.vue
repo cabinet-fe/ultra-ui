@@ -6,6 +6,8 @@
     <u-checkbox v-model="ageRules.required"> 年龄必填 </u-checkbox>
 
     <u-button @click="visible = true">打开</u-button>
+    {{ mr }}
+    <u-input v-model="mr.a.b"></u-input>
 
     <u-number-input v-model="num"></u-number-input>
 
@@ -75,6 +77,15 @@
         <u-checkbox field="freeze" label="是否冻结" />
         <u-textarea field="remarks" label="备注" span="full" />
         <!-- <u-slider field="slider" label="滑块" /> -->
+        <u-tree-select
+          field="treeSelect"
+          label="树形下拉"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          text="666666"
+          filterable
+        />
         <u-multi-tree-select
           field="treeChecked"
           label="树形多选"
@@ -90,15 +101,6 @@
           :suggestions="interestList.map(item => item.label)"
           label-key="label"
         />
-        <u-tree-select
-          field="treeSelect"
-          label="树形下拉"
-          label-key="name"
-          value-key="id"
-          :data="treeData"
-          text="666666"
-          filterable
-        />
 
         <!-- <u-auto-complete
           field="complete2"
@@ -108,7 +110,7 @@
           multiple
         /> -->
 
-        <u-text-editor label="内容" height="80px" field="tex" />
+        <!-- <u-text-editor label="内容" height="80px" field="tex" /> -->
 
         <u-group-input field="group" label="分组输入" v-slot="{ item }">
           <u-input v-model="item.value1" />
@@ -125,16 +127,15 @@
         </u-button>
       </div>
     </CustomCard>
-
-    {{ model.data }}
   </div>
 </template>
 
 <script lang="ts" setup>
-import { DynamicFormModel, formField, FormModel } from 'ultra-ui'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { DynamicFormModel, formField, FormModel, middleProxy } from 'ultra-ui'
+import { reactive, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
+import { CascadeData, TreeData } from './data'
 
 const readonly = shallowRef(false)
 const disabled = shallowRef(false)
@@ -177,7 +178,7 @@ const model = new FormModel({
     value: [{ attributes: { bold: true }, insert: '22eee' }],
     required: true
   },
-  treeChecked: { required: true },
+  treeChecked: { required: true, value: () => [] },
   treeSelect: { required: true, value: () => 11 },
   complete1: { value: 'test', required: true },
   complete2: { value: () => ['张三', '李四'], required: true },
@@ -186,17 +187,23 @@ const model = new FormModel({
   tex: { required: true }
 })
 
-setTimeout(() => {
-  model.setData({ cascade: ['guide'] })
+const mr = reactive(
+  middleProxy(
+    {
+      a: { b: 'aa' },
+      b: '34'
+    },
+    {
+      set(field, value) {
+        console.log(field, value)
+      }
+    }
+  )
+)
 
-  // model.add('name', {
-  //   maxLen: 4,
-  //   required: true,
-  //   value: ''
-  // })
-}, 2000)
-// const sortRef = shallowRef()
-// const list = shallowRef(Array.from({ length: 10 }).map(() => Math.random()))
+// setTimeout(() => {
+//   model.setData({ cascade: ['guide'] })
+// }, 2000)
 
 const units = [
   { label: '单位1', value: '1' },
@@ -212,8 +219,6 @@ watch(visible, v => {
 
 function handleSetData() {
   model.setData({
-    // nest: { name: '测试名称', price: 10 },
-    // age: null,
     name: null,
     unit: null,
     interest: ['1', '2', '3']
@@ -236,245 +241,13 @@ const interestList = [
 const treeData = shallowRef<any[]>([])
 
 setTimeout(() => {
-  treeData.value = Array.from({ length: 300 }, (_, index) => ({
-    name: `烤冷面${index}`,
-    id: index,
-    children: Array.from({ length: 12 }, (_, ci) => ({
-      name: `烤冷面${index}-${ci}`,
-      id: `${index}-${ci}`
-    }))
-  }))
+  treeData.value = TreeData
 }, 1000)
 
 const cascadeData = shallowRef<any[]>([])
 
 setTimeout(() => {
-  cascadeData.value = [
-    {
-      value: 'guide',
-      label: 'Guide'
-    },
-    {
-      value: 'component',
-      label: 'Component',
-      children: [
-        {
-          value: 'basic',
-          label: 'Basic',
-          children: [
-            {
-              value: 'layout',
-              label: 'Layout'
-            },
-            {
-              value: 'color',
-              label: 'Color'
-            },
-            {
-              value: 'typography',
-              label: 'Typography'
-            },
-            {
-              value: 'icon',
-              label: 'Icon'
-            },
-            {
-              value: 'button',
-              label: 'Button'
-            }
-          ]
-        },
-        {
-          value: 'form',
-          label: 'Form',
-          children: [
-            {
-              value: 'radio',
-              label: 'Radio'
-            },
-            {
-              value: 'checkbox',
-              label: 'Checkbox'
-            },
-            {
-              value: 'input',
-              label: 'Input'
-            },
-            {
-              value: 'input-number',
-              label: 'InputNumber'
-            },
-            {
-              value: 'select',
-              label: 'Select'
-            },
-            {
-              value: 'cascader',
-              label: 'Cascader'
-            },
-            {
-              value: 'switch',
-              label: 'Switch'
-            },
-            {
-              value: 'slider',
-              label: 'Slider'
-            },
-            {
-              value: 'time-picker',
-              label: 'TimePicker'
-            },
-            {
-              value: 'date-picker',
-              label: 'DatePicker'
-            },
-            {
-              value: 'datetime-picker',
-              label: 'DateTimePicker'
-            },
-            {
-              value: 'upload',
-              label: 'Upload'
-            },
-            {
-              value: 'rate',
-              label: 'Rate'
-            }
-          ]
-        },
-        {
-          value: 'data',
-          label: 'Data',
-          children: [
-            {
-              value: 'table',
-              label: 'Table'
-            },
-            {
-              value: 'tag',
-              label: 'Tag'
-            },
-            {
-              value: 'progress',
-              label: 'Progress'
-            },
-            {
-              value: 'tree',
-              label: 'Tree'
-            },
-            {
-              value: 'pagination',
-              label: 'Pagination'
-            },
-            {
-              value: 'badge',
-              label: 'Badge'
-            }
-          ]
-        },
-        {
-          value: 'notice',
-          label: 'Notice',
-          children: [
-            {
-              value: 'alert',
-              label: 'Alert'
-            },
-            {
-              value: 'loading',
-              label: 'Loading'
-            },
-            {
-              value: 'message',
-              label: 'Message'
-            },
-            {
-              value: 'message-box',
-              label: 'MessageBox'
-            },
-            {
-              value: 'notification',
-              label: 'Notification'
-            }
-          ]
-        },
-        {
-          value: 'navigation',
-          label: 'Navigation',
-          children: [
-            {
-              value: 'menu',
-              label: 'Menu'
-            },
-            {
-              value: 'tabs',
-              label: 'Tabs'
-            },
-            {
-              value: 'breadcrumb',
-              label: 'Breadcrumb'
-            },
-            {
-              value: 'dropdown',
-              label: 'Dropdown'
-            },
-            {
-              value: 'steps',
-              label: 'Steps'
-            }
-          ]
-        },
-        {
-          value: 'others',
-          label: 'Others',
-          children: [
-            {
-              value: 'dialog',
-              label: 'Dialog'
-            },
-            {
-              value: 'tooltip',
-              label: 'Tooltip'
-            },
-            {
-              value: 'popover',
-              label: 'Popover'
-            },
-            {
-              value: 'card',
-              label: 'Card'
-            },
-            {
-              value: 'carousel',
-              label: 'Carousel'
-            },
-            {
-              value: 'collapse',
-              label: 'Collapse'
-            }
-          ]
-        }
-      ]
-    },
-    {
-      value: 'resource',
-      label: 'Resource',
-      children: [
-        {
-          value: 'axure',
-          label: 'Axure Components'
-        },
-        {
-          value: 'sketch',
-          label: 'Sketch Templates'
-        },
-        {
-          value: 'docs',
-          label: 'Design Documentation'
-        }
-      ]
-    }
-  ]
+  cascadeData.value = CascadeData
 }, 2000)
 const formRef = shallowRef()
 </script>

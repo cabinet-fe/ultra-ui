@@ -14,6 +14,7 @@
       <span :class="cls.e('placeholder')" v-show="!tags.length">
         {{ placeholder }}
       </span>
+
       <!-- 选择的数据项 -->
       <div v-if="tags.length" :class="cls.e('tags')">
         <u-tag
@@ -99,7 +100,7 @@ import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 import { ArrowDown, Close, Search } from 'icon-ultra'
-import { computed, nextTick, shallowReactive, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 import { UCheckbox } from '../checkbox'
 import { omit, Tree } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
@@ -216,25 +217,25 @@ const handleClear = () => {
   emit('clear')
 }
 
-const keyDicts = shallowReactive(
-  new Map<string | number, Record<string, any>>()
-)
+const keyDicts = shallowRef(new Map<string | number, Record<string, any>>())
 
 watch(
   () => props.data,
   data => {
     if (!data?.length) {
-      keyDicts.clear()
+      keyDicts.value = new Map()
     } else {
+      const newDict = new Map()
       data.forEach(item => {
         Tree.dft(
           item,
           v => {
-            keyDicts.set(v[props.valueKey], v)
+            newDict.set(v[props.valueKey], v)
           },
           props.childrenKey
         )
       })
+      keyDicts.value = newDict
     }
   },
   { immediate: true }
