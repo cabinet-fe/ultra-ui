@@ -10,11 +10,5 @@ function copy(copies: [string, string][]) {
 }
 
 export function copyFiles() {
-
-  copy([
-    ['../README.md', '../dist/README.md'],
-    ['../vite-helper/component-dirs.js', '../dist/component-dirs.js'],
-    ['../vite-helper/resolver.js', '../dist/resolver.js'],
-    ['../vite-helper/resolver.d.ts', '../dist/resolver.d.ts']
-  ])
+  copy([['../README.md', '../dist/README.md']])
 }
