@@ -66,14 +66,7 @@ import {
   useFormFallbackProps
 } from '@ui/compositions'
 import { bem } from '@ui/utils'
-import {
-  computed,
-  getCurrentInstance,
-  ref,
-  Transition,
-  shallowRef,
-  nextTick
-} from 'vue'
+import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 import { Close } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
@@ -184,7 +177,7 @@ const handleChange = (e: Event) => {
 const el = shallowRef<HTMLInputElement>()
 
 const generateModel = computed(() => {
-  return props.prefix?`${props.prefix}${model.value}`:model.value
+  return props.prefix ? `${props.prefix}${model.value}` : model.value
 })
 
 defineExpose<_InputExposed>({
