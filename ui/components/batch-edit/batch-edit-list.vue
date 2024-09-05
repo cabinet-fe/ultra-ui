@@ -96,9 +96,9 @@ import { BatchEditDIKey } from './di'
 import { useComponentProps } from '@ui/compositions'
 import { UCard, UCardHeader } from '../card'
 import { UTable } from '../table'
-import { UCheckbox } from '../checkbox'
+// import { UCheckbox } from '../checkbox'
 import { UButton } from '../button'
-import { UTip } from '../tip'
+// import { UTip } from '../tip'
 import type { ButtonProps } from '../button'
 
 defineOptions({

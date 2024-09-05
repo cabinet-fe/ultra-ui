@@ -55,7 +55,6 @@
 import type { TabItem, TabsProps, TabsEmits } from '@ui/types/components/tabs'
 import { bem } from '@ui/utils'
 import {
-  KeepAlive,
   computed,
   createVNode,
   nextTick,
