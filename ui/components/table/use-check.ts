@@ -237,6 +237,7 @@ export function useCheck(options: Options) {
       align: props.tree ? 'left' : 'center',
       fixed: 'left',
       nameRender() {
+        // @ts-ignore
         const checkboxNode = createVNode(UCheckbox, {
           modelValue: allChecked.value,
           'onUpdate:modelValue': handleCheckAll
@@ -253,6 +254,7 @@ export function useCheck(options: Options) {
       },
       render(ctx) {
         const { row } = ctx
+        // @ts-ignore
         return createVNode(UCheckbox, {
           class: checkboxClass,
           modelValue: row.checked,
@@ -299,6 +301,7 @@ export function useCheck(options: Options) {
       },
 
       render({ row }) {
+        // @ts-ignore
         return createVNode(UCheckbox, {
           class: checkboxClass,
           modelValue: row.checked,

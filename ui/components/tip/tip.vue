@@ -68,8 +68,7 @@ const props = withDefaults(defineProps<TipProps>(), {
   trigger: 'hover',
   direction: 'top',
   alignment: 'center',
-  contentTag: 'div',
-  disabled: false
+  contentTag: 'div'
 })
 
 const cls = bem('tip')
@@ -140,10 +139,9 @@ const { addChild, removeChild } = inject(TipNestDIKey, undefined) || {}
 addChild?.(visible)
 
 const eventsHandlers = computed(() => {
-  const { trigger, disabled } = props
+  const { trigger } = props
 
   const handlers: Record<string, Function> = {}
-  if (disabled) return handlers
 
   if (trigger === 'click') {
     handlers.onClick = open

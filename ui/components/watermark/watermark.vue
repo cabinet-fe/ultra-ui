@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<WatermarkProps>(), {
   route: -30,
   fontSize: 60
 })
-const emit = defineEmits<WatermarkEmits>()
+defineEmits<WatermarkEmits>()
 
 const watermarkRef = ref<HTMLDivElement>()
 

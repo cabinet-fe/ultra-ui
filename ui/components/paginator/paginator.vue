@@ -105,7 +105,7 @@ const props = withDefaults(defineProps<PaginatorProps>(), {
   total: 0
 })
 
-const emit = defineEmits<PaginatorEmits>()
+defineEmits<PaginatorEmits>()
 
 const cls = bem('paginator')
 

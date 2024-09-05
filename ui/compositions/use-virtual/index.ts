@@ -33,7 +33,7 @@ export type VirtualReturned = {
   /** 总高度 */
   totalHeight: ShallowRef<number>
   /** 测量元素高度 */
-  measureElement: (el: Element) => void
+  measureElement: (el: any) => void
   /** 滚动到指定索引 */
   scrollTo: (index: number) => void
   /** 是否启用虚拟列表 */
