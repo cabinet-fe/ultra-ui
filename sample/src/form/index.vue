@@ -6,8 +6,6 @@
     <u-checkbox v-model="ageRules.required"> 年龄必填 </u-checkbox>
 
     <u-button @click="visible = true">打开</u-button>
-    {{ mr }}
-    <u-input v-model="mr.a.b"></u-input>
 
     <u-number-input v-model="num"></u-number-input>
 
@@ -127,12 +125,21 @@
         </u-button>
       </div>
     </CustomCard>
+
+    <CustomCard title="变更模型数据">
+      <u-form :model="model2">
+        <u-input field="a" label="a"></u-input>
+        <u-input field="b" label="b"></u-input>
+      </u-form>
+
+      <u-button @click="changeModelData">变更模型数据</u-button>
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { DynamicFormModel, formField, FormModel, middleProxy } from 'ultra-ui'
-import { reactive, shallowReactive, shallowRef, watch } from 'vue'
+import { formField, FormModel } from 'ultra-ui'
+import { shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
 import { CascadeData, TreeData } from './data'
@@ -187,19 +194,17 @@ const model = new FormModel({
   tex: { required: true }
 })
 
-const mr = reactive(
-  middleProxy(
-    {
-      a: { b: 'aa' },
-      b: '34'
-    },
-    {
-      set(field, value) {
-        console.log(field, value)
-      }
-    }
-  )
-)
+const model2 = new FormModel({
+  a: { required: true },
+  b: {}
+})
+
+function changeModelData() {
+  model2.setProxyData({
+    a: '6',
+    b: '3'
+  })
+}
 
 // setTimeout(() => {
 //   model.setData({ cascade: ['guide'] })

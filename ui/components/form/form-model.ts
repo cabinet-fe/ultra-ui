@@ -5,9 +5,9 @@ import type {
   DataSettingConfig,
   IFormModel
 } from '@ui/types/components/form'
-import { Validator } from '@ui/utils'
+import { middleProxy, Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
-import { reactive, shallowReactive, watch } from 'vue'
+import { isProxy, reactive, shallowReactive, watch } from 'vue'
 
 /**
  * 表单模型
@@ -17,7 +17,7 @@ export class FormModel<
 > implements IFormModel<Fields>
 {
   /** 表单数据 */
-  readonly data: ModelData<Fields>
+  data!: ModelData<Fields>
 
   /** 表单规则 */
   readonly fields: Fields
@@ -26,7 +26,8 @@ export class FormModel<
   readonly allKeys: string[]
 
   /**
-   * 不同表单对应的key
+   * 不同表单存在的字段key,
+   * 在全量校验时防止对隐藏的字段进行校验从而无法通过
    */
   formKeys = new Map<number, (keyof Fields)[]>()
 
@@ -43,11 +44,6 @@ export class FormModel<
    * 是否在表单值更新时校验
    */
   private validateOnFieldChange = true
-
-  /**
-   * 变更前的值
-   */
-  private readonly preVal: Record<string, any> = {}
 
   private modelChangeCallback: Set<(fields: string, val: any) => void> =
     new Set()
@@ -71,44 +67,40 @@ export class FormModel<
       }
 
       setChainValue(rawData, key, v)
-      setChainValue(this.preVal, key, v)
     }
 
-    this.initialData = JSON.parse(JSON.stringify(rawData))
-    const data = reactive(rawData)
-
     this.allKeys = allKeys
-    this.data = data as ModelData<Fields>
+    this.initialData = JSON.parse(JSON.stringify(rawData))
+
+    this.setProxyData(rawData)
 
     this.validator = new Validator(this.fields)
 
-    // 根据新旧值变化校验
-    watch(data, data => {
-      const { preVal } = this
+    return shallowReactive(this)
+  }
 
-      if (this.validateOnFieldChange) {
-        const validateKeys: (keyof Fields)[] = []
-        this.allKeys.forEach(key => {
-          const v = getChainValue(data, key)
+  /** 设置响应式值 */
+  setProxyData(rawData: ModelData<Fields>) {
+    if (isProxy(rawData)) {
+      return console.error('数据不能是代理对象')
+    }
 
-          if (getChainValue(preVal, key) !== v) {
-            setChainValue(preVal, key, v)
-            this.modelChangeCallback.forEach(cb => cb(key, v))
-            validateKeys.push(key)
+    const data = reactive(
+      middleProxy(rawData, {
+        set: (field, val) => {
+          this.modelChangeCallback.forEach(cb => cb(field, val))
+        },
+        changed: fields => {
+          if (!this.validateOnFieldChange) {
+            this.validateOnFieldChange = true
+            return
           }
-        })
-        this.validate(validateKeys)
-      } else {
-        this.allKeys.forEach(key => {
-          const v = getChainValue(data, key)
-          if (getChainValue(preVal, key) !== v) {
-            setChainValue(preVal, key, v)
-            this.modelChangeCallback.forEach(cb => cb(key, v))
-          }
-        })
-        this.validateOnFieldChange = true
-      }
-    })
+          this.validate(fields)
+        }
+      })
+    )
+
+    this.data = data as ModelData<Fields>
   }
 
   private getValidateFields(fields?: keyof Fields | (keyof Fields)[]) {
