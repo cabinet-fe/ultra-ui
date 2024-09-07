@@ -30,6 +30,7 @@
         :position="config.position"
         :editable="config.editable"
         :keep-alive="config.keepAlive"
+        @create="items = [...items, { name: 'aaa', key: 'aaa' }]"
         :style="{
           height: config.fixedHeight ? '300px' : ''
         }"
@@ -84,14 +85,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, shallowRef, nextTick } from 'vue'
+import { ref, reactive, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import CompA from './comp-a.vue'
 import CompB from './comp-b.vue'
 // let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
 
 let items = shallowRef<
-  Array<{ name: string; key: 'a' | 'b' | 'c' | 'dd'; disabled?: boolean }>
+  Array<{ name: string; key: string; disabled?: boolean }>
 >([])
 
 setTimeout(() => {

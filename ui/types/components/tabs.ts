@@ -42,6 +42,7 @@ export interface TabsEmits {
   (e: 'update:items', items: TabItem[]): void
   (e: 'update:active', active: string | number): void
   (e: 'delete', item: TabItem, index: number): void
+  (e: 'create'): void
   (e: 'click', item: TabItem, index: number): void
 }
 

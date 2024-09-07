@@ -68,8 +68,6 @@ import { UIcon } from '../icon'
 import type { ComponentSize } from '@ui/types/component-common'
 import { UScroll } from '../scroll'
 import { vRipple } from '@ui/directives'
-import { contextmenu } from '../context-menu'
-// import { useTabsSort } from './use-sort'
 
 defineOptions({
   name: 'Tabs'
@@ -178,25 +176,7 @@ const handleClose = (item: TabItem, index: number) => {
   emit('delete', item, index)
 }
 
-const handleAdd = e => {
-  const { items } = props
-  contextmenu.pop({
-    menus: [{ label: '666' }, { label: '555' }],
-    mousePosition: e
-  })
-  emit('update:items', [
-    ...items,
-    {
-      key: 'aa'
-    }
-  ])
+const handleAdd = () => {
+  emit('create')
 }
-
-/** 排序 */
-
-// useTabsSort({
-//   props,
-//   emit,
-//   target: headerRef
-// })
 </script>
