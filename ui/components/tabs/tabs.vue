@@ -20,7 +20,7 @@
           <u-icon
             v-if="!item.disabled"
             :class="cls.e('close')"
-            @click="handleClose(item, index)"
+            @click.stop="handleClose(item, index)"
             @mousedown.stop
           >
             <Close />
