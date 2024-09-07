@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" :class="cls.b" @click="fileRef?.click()">
+  <component :is="tag" :class="cls.b" @click.stop="fileRef?.click()">
     <input
       :multiple="multiple"
       :class="cls.e('native')"
