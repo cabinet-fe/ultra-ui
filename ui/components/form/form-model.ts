@@ -7,7 +7,7 @@ import type {
 } from '@ui/types/components/form'
 import { middleProxy, Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
-import { isProxy, reactive, shallowReactive, watch } from 'vue'
+import { reactive, shallowReactive, watch, type Reactive } from 'vue'
 
 /**
  * 表单模型
@@ -72,21 +72,23 @@ export class FormModel<
     this.allKeys = allKeys
     this.initialData = JSON.parse(JSON.stringify(rawData))
 
-    this.setProxyData(rawData)
+    this.setProxyData(reactive(rawData))
 
     this.validator = new Validator(this.fields)
 
     return shallowReactive(this)
   }
 
-  /** 设置响应式值 */
-  setProxyData(rawData: ModelData<Fields>) {
-    const data = middleProxy(rawData, {
+  /**
+   * 设置响应式值
+   * @param proxyData 响应式的值
+   */
+  setProxyData(proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>) {
+    const data = middleProxy(proxyData, {
       set: (field, val) => {
         this.modelChangeCallback.forEach(cb => cb(field, val))
       },
       changed: fields => {
-        console.log(fields)
         if (!this.validateOnFieldChange) {
           this.validateOnFieldChange = true
           return
