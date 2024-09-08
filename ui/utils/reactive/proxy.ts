@@ -1,5 +1,3 @@
-import { isProxy } from 'vue'
-
 function createMiddleProxy(
   o: Record<string, any>,
   handler?: {
@@ -38,7 +36,7 @@ function createMiddleProxy(
       handler?.get?.(field)
 
       const val = target[field]
-      if (val !== null && typeof val === 'object' && !isProxy(val)) {
+      if (val !== null && typeof val === 'object') {
         if (weakMap.has(val)) return weakMap.get(val)
         const valProxy = createMiddleProxy(val, handler, {
           weakMap,

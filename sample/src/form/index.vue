@@ -126,10 +126,13 @@
       </div>
     </CustomCard>
 
+    {{ model2Data2 }}
+
     <CustomCard title="变更模型数据">
       <u-form :model="model2">
         <u-input field="a" label="a"></u-input>
         <u-input field="b" label="b"></u-input>
+        <u-input field="nest.a" label="嵌套"></u-input>
       </u-form>
 
       <u-button @click="changeModelData">变更模型数据</u-button>
@@ -139,7 +142,7 @@
 
 <script lang="ts" setup>
 import { formField, FormModel } from 'ultra-ui'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { reactive, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
 import { CascadeData, TreeData } from './data'
@@ -196,14 +199,18 @@ const model = new FormModel({
 
 const model2 = new FormModel({
   a: { required: true },
-  b: {}
+  b: {},
+  'nest.a': { required: true }
+})
+
+const model2Data2 = reactive({
+  a: '6',
+  b: '3',
+  nest: { a: '1' }
 })
 
 function changeModelData() {
-  model2.setProxyData({
-    a: '6',
-    b: '3'
-  })
+  model2.setProxyData(model2Data2)
 }
 
 // setTimeout(() => {

@@ -81,24 +81,19 @@ export class FormModel<
 
   /** 设置响应式值 */
   setProxyData(rawData: ModelData<Fields>) {
-    if (isProxy(rawData)) {
-      return console.error('数据不能是代理对象')
-    }
-
-    const data = reactive(
-      middleProxy(rawData, {
-        set: (field, val) => {
-          this.modelChangeCallback.forEach(cb => cb(field, val))
-        },
-        changed: fields => {
-          if (!this.validateOnFieldChange) {
-            this.validateOnFieldChange = true
-            return
-          }
-          this.validate(fields)
+    const data = middleProxy(rawData, {
+      set: (field, val) => {
+        this.modelChangeCallback.forEach(cb => cb(field, val))
+      },
+      changed: fields => {
+        console.log(fields)
+        if (!this.validateOnFieldChange) {
+          this.validateOnFieldChange = true
+          return
         }
-      })
-    )
+        this.validate(fields)
+      }
+    })
 
     this.data = data as ModelData<Fields>
   }
