@@ -155,7 +155,7 @@ export function useColumns(options: Options): ColumnConfig {
   const { props, createCheckColumn, createSelectColumn, colgroupRef } = options
 
   const preColumns = computed<TableColumn[]>(() => {
-    const { selectable, checkable, showIndex,tree } = props
+    const { selectable, checkable, showIndex } = props
     
     const columns: TableColumn[] = []
 
@@ -168,7 +168,7 @@ export function useColumns(options: Options): ColumnConfig {
       columns.push({
         key: '__index__',
         name: '#',
-        width: tree?100:60,
+        width: 60,
         align: 'center',
         fixed: 'left',
         render({ row }) {

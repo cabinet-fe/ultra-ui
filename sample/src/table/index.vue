@@ -153,7 +153,7 @@ watch(
   { immediate: true }
 )
 
-const _data = Array.from({ length: 10 }).map((_, index) => {
+const _data = Array.from({ length: 10000 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
     name: 'name' + index,
