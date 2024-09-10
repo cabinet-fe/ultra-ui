@@ -24,43 +24,45 @@
     </div>
 
     <CustomCard title="使用和插槽的类型提示">
-      <u-tabs
-        v-model:items="items"
-        v-model="active"
-        :position="config.position"
-        :editable="config.editable"
-        :keep-alive="config.keepAlive"
-        @create="items = [...items, { name: 'aaa', key: 'aaa' }]"
-        :style="{
-          height: config.fixedHeight ? '300px' : ''
-        }"
-      >
-        <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
+      <div @click="console.log('wrap clicked')">
+        <u-tabs
+          v-model:items="items"
+          v-model="active"
+          :position="config.position"
+          :editable="config.editable"
+          :keep-alive="config.keepAlive"
+          @create="items = [...items, { name: 'aaa', key: 'aaa' }]"
+          :style="{
+            height: config.fixedHeight ? '300px' : ''
+          }"
+        >
+          <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
 
-        <template #a>
-          <CompA />
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-          <div>22</div>
-        </template>
+          <template #a>
+            <CompA />
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+            <div>22</div>
+          </template>
 
-        <template #c>
-          <CompB />
-        </template>
+          <template #c>
+            <CompB />
+          </template>
 
-        <template #name:a>666</template>
-      </u-tabs>
+          <template #name:a>666</template>
+        </u-tabs>
+      </div>
     </CustomCard>
 
     <CustomCard title="弹框中">

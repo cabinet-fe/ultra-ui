@@ -9,7 +9,7 @@
           bem.is('active', model === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click="handleClick(item, index)"
+        @click.stop="handleClick(item, index)"
         v-ripple="item.disabled ? false : cls.e('ripple')"
       >
         <slot :name="`name:${item.key}`">
