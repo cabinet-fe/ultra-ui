@@ -217,10 +217,9 @@ export function useColumns(options: Options): ColumnConfig {
 
       if (!!tree && firstColumns) {
         firstColumns.align = 'left'
-        firstColumns.minWidth = firstColumns.width
-          ? firstColumns.width + 20
+        firstColumns.width = firstColumns.width
+          ? firstColumns.width + 20 * 3
           : undefined
-        firstColumns.width = undefined
       }
 
       const result = Forest.create(sortedColumns, {
@@ -289,7 +288,10 @@ export function useColumns(options: Options): ColumnConfig {
     return headers
   })
 
+  /** 除展开按钮之外的列 */
   const columns = shallowRef<ColumnNode[]>([])
+
+  /** 所有叶子节点 */
   const allColumns = shallowRef<ColumnNode[]>([])
 
   const expandColumn = shallowRef<ColumnNode>()
@@ -335,6 +337,7 @@ export function useColumns(options: Options): ColumnConfig {
       const fixedOnRight = Array.from(
         colgroup.getElementsByClassName('right')
       ) as HTMLElement[]
+
       fixedOnLeft.reduce((acc, col, colIndex) => {
         const colNode = allColumns.value[colIndex]!
         if (!colNode.width) {

@@ -199,7 +199,7 @@ const data = shallowRef<any[]>([])
 
 setTimeout(() => {
   data.value = _data
-}, 2000)
+}, 300)
 
 watch(showData, v => {
   if (v) {

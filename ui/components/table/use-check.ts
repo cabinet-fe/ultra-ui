@@ -232,7 +232,6 @@ export function useCheck(options: Options) {
     return {
       key: '__is_check_column',
       name: '',
-      minWidth: width,
       width,
       align: 'center',
       fixed: 'left',
