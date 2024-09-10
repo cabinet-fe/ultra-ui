@@ -155,7 +155,7 @@ export function useColumns(options: Options): ColumnConfig {
   const { props, createCheckColumn, createSelectColumn, colgroupRef } = options
 
   const preColumns = computed<TableColumn[]>(() => {
-    const { selectable, checkable, showIndex, tree } = props
+    const { selectable, checkable, showIndex } = props
     const columns: TableColumn[] = []
 
     if (selectable) {
@@ -174,16 +174,6 @@ export function useColumns(options: Options): ColumnConfig {
           return row.index + 1
         }
       })
-    }
-
-    const firstColumns = columns[0]
-
-    if (tree && firstColumns) {
-      firstColumns.align = 'left'
-      firstColumns.minWidth = firstColumns.width
-        ? firstColumns.width + 20
-        : undefined
-      firstColumns.width = undefined
     }
 
     return columns
@@ -221,14 +211,23 @@ export function useColumns(options: Options): ColumnConfig {
         fixedOnRight[0].isFirstFixed = true
       }
 
-      const result = Forest.create(
-        [...fixedOnLeft, ...unfixed, ...fixedOnRight],
-        {
-          createNode(data, index) {
-            return new ColumnNode(data, index)
-          }
+      const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
+
+      const firstColumns = sortedColumns[0]
+
+      if (!!props.tree && firstColumns) {
+        firstColumns.align = 'left'
+        firstColumns.minWidth = firstColumns.width
+          ? firstColumns.width + 20
+          : undefined
+        firstColumns.width = undefined
+      }
+
+      const result = Forest.create(sortedColumns, {
+        createNode(data, index) {
+          return new ColumnNode(data, index)
         }
-      )
+      })
 
       // 计算定位位置
       let leftAcc = 0
