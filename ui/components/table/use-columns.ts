@@ -156,6 +156,7 @@ export function useColumns(options: Options): ColumnConfig {
 
   const preColumns = computed<TableColumn[]>(() => {
     const { selectable, checkable, showIndex } = props
+    
     const columns: TableColumn[] = []
 
     if (selectable) {

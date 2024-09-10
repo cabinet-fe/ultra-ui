@@ -32,6 +32,7 @@
         v-bind="state"
         v-model:checked="checked"
         v-model:selected="selected"
+        showIndex
       >
         <template #header:age> 年龄 </template>
 
