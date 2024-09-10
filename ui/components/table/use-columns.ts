@@ -183,8 +183,8 @@ export function useColumns(options: Options): ColumnConfig {
   const columnForest = shallowRef<Forest<ColumnNode>>()
 
   watch(
-    [preColumns, () => props.columns],
-    ([preColumns, columns]) => {
+    [preColumns, () => props.columns, () => props.tree],
+    ([preColumns, columns, tree]) => {
       /** 固定到左侧的列 */
       const fixedOnLeft: TableColumn[] = [...preColumns]
 
@@ -212,14 +212,23 @@ export function useColumns(options: Options): ColumnConfig {
         fixedOnRight[0].isFirstFixed = true
       }
 
-      const result = Forest.create(
-        [...fixedOnLeft, ...unfixed, ...fixedOnRight],
-        {
-          createNode(data, index) {
-            return new ColumnNode(data, index)
-          }
+      const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
+
+      const firstColumns = sortedColumns[0]
+
+      if (!!tree && firstColumns) {
+        firstColumns.align = 'left'
+        firstColumns.minWidth = firstColumns.width
+          ? firstColumns.width + 20
+          : undefined
+        firstColumns.width = undefined
+      }
+
+      const result = Forest.create(sortedColumns, {
+        createNode(data, index) {
+          return new ColumnNode(data, index)
         }
-      )
+      })
 
       // 计算定位位置
       let leftAcc = 0

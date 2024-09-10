@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -44,7 +44,7 @@
     "unplugin-vue-components": "0.27.4",
     "vite": "^5.4.3",
     "vitest": "^1.6.0",
-    "vue": "^3.5.2",
+    "vue": "^3.5.3",
     "vue-router": "^4.4.3",
     "vue-tsc": "^2.1.6",
     "execa": "9.3.0"
