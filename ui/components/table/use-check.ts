@@ -232,9 +232,9 @@ export function useCheck(options: Options) {
     return {
       key: '__is_check_column',
       name: '',
-      minWidth: props.tree ? width : undefined,
-      width: props.tree ? undefined : width,
-      align: props.tree ? 'left' : 'center',
+      minWidth: width,
+      width,
+      align: 'center',
       fixed: 'left',
       nameRender() {
         // @ts-ignore
@@ -284,9 +284,9 @@ export function useCheck(options: Options) {
     return {
       key: '__is_select_column',
       name: '单选',
-      minWidth: props.tree ? width : undefined,
-      width: props.tree ? undefined : width,
-      align: props.tree ? 'left' : 'center',
+      minWidth: width,
+      width,
+      align: 'center',
       fixed: 'left',
       nameRender(ctx) {
         if (!props.tree) {
