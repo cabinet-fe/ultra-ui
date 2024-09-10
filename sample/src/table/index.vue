@@ -18,6 +18,7 @@
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-checkbox v-model="showData">显示数据</u-checkbox>
       <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
+      <u-checkbox v-model="state.showIndex">显示序号</u-checkbox>
       <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
 
       <u-table
@@ -29,7 +30,6 @@
         }"
         row-key="name"
         v-bind="state"
-        show-index
         v-model:checked="checked"
         v-model:selected="selected"
       >
@@ -93,6 +93,7 @@ const state = shallowReactive({
   checkable: false,
   selectable: true,
   tree: false,
+  showIndex: false,
   highlightCurrent: false,
   editing: false
 })
@@ -124,7 +125,7 @@ const _columns = defineTableColumns(
       ]
     },
     { name: '性别', key: 'sex', fixed: 'right' },
-    { name: '姓名', key: 'name', fixed: 'left' },
+    { name: '姓名', key: 'name', fixed: 'left', align: 'center' },
     { name: '年龄', key: 'age', fixed: 'left', summary: true }
   ],
   { minWidth: 150 }
