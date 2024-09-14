@@ -6,7 +6,7 @@
     @mouseleave="hovered = false"
   >
     <textarea
-      :class="[cls.e('native'),cls.m('more')]"
+      :class="cls.e('native')"
       :placeholder="placeholder"
       v-model="model"
       :maxlength="maxlength"
@@ -102,7 +102,8 @@ const textareaClass = computed(() => {
     bem.is('resize-none', !props.resize),
     bem.is('disabled', disabled.value),
     bem.is('readonly', readonly.value),
-    bem.is('focus', focus.value)
+    bem.is('focus', focus.value),
+    cls.m('more')
   ]
 })
 
