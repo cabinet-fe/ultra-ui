@@ -6,7 +6,7 @@
     @mouseleave="hovered = false"
   >
     <textarea
-      :class="cls.e('native')"
+      :class="[cls.e('native'),cls.m('more')]"
       :placeholder="placeholder"
       v-model="model"
       :maxlength="maxlength"
@@ -66,7 +66,8 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   resize: true,
   clearable: true,
   disabled: undefined,
-  readonly: undefined
+  readonly: undefined,
+  autosize: false
 })
 
 const cls = bem('textarea')
@@ -134,7 +135,8 @@ const handleChange = (e: Event) => {
 watch(
   [model, textareaRef],
   ([model, textareaRef]) => {
-    if (!textareaRef) return
+    if(!textareaRef) return
+    if(!props.autosize) return
     calcTextareaHeight(textareaRef)
   },
   { immediate: true }
