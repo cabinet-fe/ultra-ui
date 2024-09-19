@@ -18,9 +18,10 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel">
-import type {
-  BatchEditEmits,
-  BatchEditProps
+import {
+  BatchEditFeature,
+  type BatchEditEmits,
+  type BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
 import {
@@ -45,6 +46,18 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   cols: () => ['1fr', '400px'],
   resizable: true,
   mode: 'normal'
+})
+
+const featureSets = computed(() => {
+  console.log(props.features)
+  return new Set(
+    props.features ??
+      ([
+        BatchEditFeature.Create,
+        BatchEditFeature.Delete,
+        BatchEditFeature.Update
+      ] as BatchEditProps['features'])
+  )
 })
 
 const emit = defineEmits<BatchEditEmits>()
@@ -86,6 +99,7 @@ provide(BatchEditDIKey, {
   cls,
   props,
   tableRef,
+  featureSets,
   ...editCtx
 })
 

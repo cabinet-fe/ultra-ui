@@ -7,6 +7,8 @@
       <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
       <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
       <u-button @click="dialogVisible = !dialogVisible">弹框中</u-button>
+
+      <u-checkbox-group :items="items" v-model="features"></u-checkbox-group>
     </div>
     <u-batch-edit
       :columns="columns"
@@ -14,6 +16,7 @@
       :resizable="resizable"
       v-model:data="data"
       :quick-edit="quickEdit"
+      :features="features"
       :model="model"
       :tree="tree"
       cols="1fr 400px"
@@ -89,6 +92,7 @@ import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
 import area from '../cascade/area.json'
+import { BatchEditFeature } from '@ui/types'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
@@ -124,6 +128,18 @@ const model = new FormModel({
   cascade: {},
   unit: {}
 })
+
+const features = shallowRef([
+  BatchEditFeature.Create,
+  BatchEditFeature.Update,
+  BatchEditFeature.Delete
+])
+
+const items = [
+  { label: '新增', value: BatchEditFeature.Create },
+  { label: '更新', value: BatchEditFeature.Update },
+  { label: '删除', value: BatchEditFeature.Delete }
+]
 
 const asynchronous = shallowRef(false)
 

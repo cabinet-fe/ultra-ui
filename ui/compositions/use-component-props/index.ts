@@ -1,3 +1,4 @@
+import { extractNormalVNodes } from '@ui/utils'
 import { defineComponent, isRef, type MaybeRef, createVNode } from 'vue'
 
 /**
@@ -28,7 +29,7 @@ export function useComponentProps<T extends Record<string, any>>(
           console.error('mergeNodesProps期望有1个参数props, 此处为0个')
           return undefined
         }
-        const nodes = slots.default?.()
+        const nodes = extractNormalVNodes(slots.default?.() ?? [])
         if (!nodes?.length) return undefined
 
         let i = 0

@@ -33,8 +33,13 @@
         v-model:checked="checked"
         v-model:selected="selected"
         showIndex
+        ref="tableRef"
       >
         <template #header:age> 年龄 </template>
+
+        <template #column:sort="{ row }">
+          <u-button @click="handleSort(row.index)">向下</u-button>
+        </template>
 
         <!-- <template v-if="state.editing"> -->
         <template #column:age="{ model }" v-if="state.editing">
@@ -87,7 +92,7 @@
 import { defineTableColumns, type TableRow } from 'ultra-ui'
 import { nextTick, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Tree } from 'cat-kit/fe'
+import { arr, Tree } from 'cat-kit/fe'
 import { Plus } from 'icon-ultra'
 
 const state = shallowReactive({
@@ -105,6 +110,10 @@ const showData = shallowRef(true)
 
 const _columns = defineTableColumns(
   [
+    {
+      name: '排序',
+      key: 'sort'
+    },
     {
       name: '地址',
       key: 'address',
@@ -195,6 +204,10 @@ const _data = Array.from({ length: 10000 }).map((_, index) => {
     ]
   }
 })
+
+function handleSort(index: number) {
+  data.value = arr(data.value).move(index, index + 1)
+}
 
 const data = shallowRef<any[]>([])
 

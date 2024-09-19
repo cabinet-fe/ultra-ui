@@ -15,6 +15,15 @@ export interface BatchEditColumn extends TableColumn {
   // defaultValue?: any | (() => any)
 }
 
+export const enum BatchEditFeature {
+  /** 新增 */
+  Create = 'create',
+  /** 更新 */
+  Update = 'update',
+  /** 删除 */
+  Delete = 'delete'
+}
+
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
   extends Omit<TableProps, 'selectable' | 'checkable'> {
@@ -52,6 +61,9 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
     /** 父级数据 */
     parentData?: Record<string, any>
   ) => Promise<any> | any
+
+  /** 可用功能 */
+  features?: Array<BatchEditFeature>
 }
 
 /** 批量编辑组件定义的事件 */

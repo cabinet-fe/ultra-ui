@@ -10,30 +10,34 @@
       :class="cls.e('table')"
       :columns="columns"
       highlight-current
-      v-model:current-row="state.row"
+      :current-row="state.row"
+      @update:current-row="handleUpdateCurrentRow"
       ref="tableRef"
     >
       <template #column:__action__="{ row }">
         <ButtonWrap tag="div" @click.stop :loading="row.operating">
-          <u-button
-            @click="handleInsertToPrev(row)"
-            :icon="InsertToPrev"
-            title="插入到上一行"
-          />
-          <u-button
-            @click="handleInsertToNext(row)"
-            :icon="InsertToNext"
-            title="插入到下一行"
-          />
+          <template v-if="featureSets.has(BatchEditFeature.Create)">
+            <u-button
+              @click="handleInsertToPrev(row)"
+              :icon="InsertToPrev"
+              title="插入到上一行"
+            />
+            <u-button
+              @click="handleInsertToNext(row)"
+              :icon="InsertToNext"
+              title="插入到下一行"
+            />
+
+            <u-button
+              v-if="props.tree"
+              @click="handleInsertChild(row)"
+              :icon="AddChild"
+              title="添加子项"
+            />
+          </template>
 
           <u-button
-            v-if="props.tree"
-            @click="handleInsertChild(row)"
-            :icon="AddChild"
-            title="添加子项"
-          />
-
-          <u-button
+            v-if="featureSets.has(BatchEditFeature.Delete)"
             :icon="Delete"
             type="danger"
             title="删除"
@@ -48,6 +52,7 @@
         #append
         v-if="
           !props.readonly &&
+          featureSets.has(BatchEditFeature.Create) &&
           (props.quickEdit ||
             (state.type === 'create' && !state.visible) ||
             state.type === 'update')
@@ -100,6 +105,7 @@ import { UTable } from '../table'
 import { UButton } from '../button'
 // import { UTip } from '../tip'
 import type { ButtonProps } from '../button'
+import { BatchEditFeature, type TableRow } from '@ui/types'
 
 defineOptions({
   name: 'BatchEditList'
@@ -114,6 +120,7 @@ const {
   state,
   tableRef,
   props,
+  featureSets,
   handleCreate,
   handleDelete,
   handleInsertToNext,
@@ -151,4 +158,10 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   style: { fontSize: '16px', marginRight: '6px' },
   loading: false
 })
+
+function handleUpdateCurrentRow(row?: TableRow) {
+  if (featureSets.value.has(BatchEditFeature.Update)) {
+    state.row = row
+  }
+}
 </script>
