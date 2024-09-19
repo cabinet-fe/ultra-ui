@@ -61,12 +61,12 @@ export default defineComponent({
                 <UButton
                   text
                   class={cls.e('expand-toggle')}
-                  type="primary"
-                  size="small"
+                  type='primary'
+                  size='small'
                   circle
                   onClick={e => {
-                    e.stopPropagation();
-                    toggleTreeRowExpand(row);
+                    e.stopPropagation()
+                    toggleTreeRowExpand(row)
                   }}
                   style={`margin-left: ${(row.depth - 1) * 14}px`}
                 >

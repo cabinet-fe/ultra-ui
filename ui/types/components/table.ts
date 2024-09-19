@@ -103,6 +103,9 @@ export interface TableProps<
    * @description 用于标识行的唯一性，对于单选和多选来说是必须的
    */
   rowKey?: string
+
+  /**  默认展开全部 */
+  defaultExpandAll?: boolean
 }
 
 export interface TableRow<

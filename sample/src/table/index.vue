@@ -32,6 +32,7 @@
         v-bind="state"
         v-model:checked="checked"
         v-model:selected="selected"
+        default-expand-all
         showIndex
         ref="tableRef"
       >

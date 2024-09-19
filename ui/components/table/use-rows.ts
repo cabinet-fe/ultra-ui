@@ -88,15 +88,26 @@ export function useRows(options: Options) {
   let tempRowDicts: null | WeakMap<Record<string, any>, TableRow> = null
 
   watch(
-    [() => props.data, () => props.tree, () => props.rowKey],
-    ([data, tree, rowKey]) => {
+    [
+      () => props.data,
+      () => props.tree,
+      () => props.rowKey,
+      () => props.defaultExpandAll
+    ],
+    ([data, tree, rowKey, defaultExpandAll]) => {
       if (!data?.length) {
         rows.value = []
         rowDicts = new WeakMap()
         rowForest.value = Forest.create([], {
-          createNode(data, index) {
-            return new TableRow(data, index, rowKey)
-          }
+          createNode: defaultExpandAll
+            ? (data, index) => {
+                const node = new TableRow(data, index, rowKey)
+                node.expanded = true
+                return node
+              }
+            : (data, index) => {
+                return new TableRow(data, index, rowKey)
+              }
         })
         return
       }
@@ -136,7 +147,11 @@ export function useRows(options: Options) {
       // 树形结构
       rowForest.value = Forest.create(data, {
         createNode(val, index) {
-          if (!val) return new TableRow(val, index, rowKey)
+          if (!val) {
+            const node = new TableRow(val, index, rowKey)
+
+            return node
+          }
           const existRow = rowDicts.get(val)
           if (existRow) {
             existRow.index = index
@@ -144,6 +159,9 @@ export function useRows(options: Options) {
             return existRow
           }
           const row = new TableRow(val, index, rowKey)
+          if (defaultExpandAll) {
+            row.expanded = true
+          }
           tempRowDicts!.set(val, row)
           return row
         },
