@@ -19,8 +19,8 @@
 
 <script lang="ts" setup generic="Model extends FormModel">
 import {
-  BatchEditFeature,
   type BatchEditEmits,
+  type BatchEditFeature,
   type BatchEditProps
 } from '@ui/types/components/batch-edit'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
@@ -49,14 +49,8 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
 })
 
 const featureSets = computed(() => {
-  console.log(props.features)
-  return new Set(
-    props.features ??
-      ([
-        BatchEditFeature.Create,
-        BatchEditFeature.Delete,
-        BatchEditFeature.Update
-      ] as BatchEditProps['features'])
+  return new Set<BatchEditFeature>(
+    props.features ?? ['create', 'delete', 'update']
   )
 })
 

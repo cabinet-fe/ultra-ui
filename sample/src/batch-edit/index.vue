@@ -88,11 +88,11 @@
 
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
-import { FormModel, Message, defineTableColumns, formField } from 'ultra-ui'
+import { FormModel, Message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
 import area from '../cascade/area.json'
-import { BatchEditFeature } from '@ui/types'
+import type { BatchEditFeature } from '@ui/types'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
@@ -129,16 +129,12 @@ const model = new FormModel({
   unit: {}
 })
 
-const features = shallowRef([
-  BatchEditFeature.Create,
-  BatchEditFeature.Update,
-  BatchEditFeature.Delete
-])
+const features = shallowRef<BatchEditFeature[]>(['create', 'update', 'delete'])
 
 const items = [
-  { label: '新增', value: BatchEditFeature.Create },
-  { label: '更新', value: BatchEditFeature.Update },
-  { label: '删除', value: BatchEditFeature.Delete }
+  { label: '新增', value: 'create' },
+  { label: '更新', value: 'update' },
+  { label: '删除', value: 'delete' }
 ]
 
 const asynchronous = shallowRef(false)
