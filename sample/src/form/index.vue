@@ -181,7 +181,7 @@ const model = new FormModel({
   },
   unit: { required: true },
   interest: { required: true },
-  remarks: { required: true, value: '备注默认值\n换行\n换行' },
+  remarks: { required: true },
   slider: {},
   date: { required: true, value: date().format() },
   guide: {

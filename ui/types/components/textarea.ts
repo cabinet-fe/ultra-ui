@@ -51,6 +51,9 @@ export interface TextareaProps extends FormComponentProps {
 
   /** 原生只读 */
   nativeReadonly?: boolean
+
+  /**是否自适应大小 */
+  autosize?: boolean
 }
 
 /** textarea组件定义的事件 */

@@ -66,7 +66,8 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   resize: true,
   clearable: true,
   disabled: undefined,
-  readonly: undefined
+  readonly: undefined,
+  autosize: false
 })
 
 const cls = bem('textarea')
@@ -101,7 +102,8 @@ const textareaClass = computed(() => {
     bem.is('resize-none', !props.resize),
     bem.is('disabled', disabled.value),
     bem.is('readonly', readonly.value),
-    bem.is('focus', focus.value)
+    bem.is('focus', focus.value),
+    cls.m('more')
   ]
 })
 
@@ -134,7 +136,8 @@ const handleChange = (e: Event) => {
 watch(
   [model, textareaRef],
   ([model, textareaRef]) => {
-    if (!textareaRef) return
+    if(!textareaRef) return
+    if(!props.autosize) return
     calcTextareaHeight(textareaRef)
   },
   { immediate: true }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-textarea v-model="textareaValue1" :rows="6" autosize/>
+    <u-textarea v-model="textareaValue1" :rows="6" :autosize="true"/>
     <u-textarea v-model="textareaValue2" disabled />
     <u-textarea v-model="textareaValue3" readonly/>
     <u-textarea v-model="textareaValue4" :resize="false"/>
