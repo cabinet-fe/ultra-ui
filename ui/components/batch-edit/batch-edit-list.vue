@@ -16,7 +16,7 @@
     >
       <template #column:__action__="{ row }">
         <ButtonWrap tag="div" @click.stop :loading="row.operating">
-          <template v-if="featureSets.has(BatchEditFeature.Create)">
+          <template v-if="featureSets.has('create')">
             <u-button
               @click="handleInsertToPrev(row)"
               :icon="InsertToPrev"
@@ -37,7 +37,7 @@
           </template>
 
           <u-button
-            v-if="featureSets.has(BatchEditFeature.Delete)"
+            v-if="featureSets.has('delete')"
             :icon="Delete"
             type="danger"
             title="删除"
@@ -52,7 +52,7 @@
         #append
         v-if="
           !props.readonly &&
-          featureSets.has(BatchEditFeature.Create) &&
+          featureSets.has('create') &&
           (props.quickEdit ||
             (state.type === 'create' && !state.visible) ||
             state.type === 'update')
@@ -105,7 +105,7 @@ import { UTable } from '../table'
 import { UButton } from '../button'
 // import { UTip } from '../tip'
 import type { ButtonProps } from '../button'
-import { BatchEditFeature, type TableRow } from '@ui/types'
+import type { TableRow } from '@ui/types'
 
 defineOptions({
   name: 'BatchEditList'
@@ -160,7 +160,7 @@ const ButtonWrap = useComponentProps<ButtonProps>({
 })
 
 function handleUpdateCurrentRow(row?: TableRow) {
-  if (featureSets.value.has(BatchEditFeature.Update)) {
+  if (featureSets.value.has('update')) {
     state.row = row
   }
 }
