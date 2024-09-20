@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" :class="cls.b" @click.stop="fileRef?.click()">
+  <component :is="tag" :class="cls.b" @click.stop="handleClickPicker">
     <input
       :multiple="multiple"
       :class="cls.e('native')"
@@ -26,7 +26,7 @@ defineOptions({
   name: 'FilePicker'
 })
 
-withDefaults(defineProps<UploaderProps>(), {
+const props = withDefaults(defineProps<UploaderProps>(), {
   tag: 'div',
   multiple: false
 })
@@ -41,5 +41,10 @@ const handleChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   emit('pick', Array.prototype.slice.call(target.files) as File[])
   target.value = ''
+}
+
+function handleClickPicker() {
+  if (props.disabled) return
+  fileRef.value?.click()
 }
 </script>

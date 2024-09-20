@@ -93,7 +93,10 @@ const ripple = computed(() => {
 })
 
 const handleClick = (e: MouseEvent) => {
-  if (props.disabled || props.loading) return
+  if (props.disabled || props.loading) {
+    e.stopPropagation()
+    return
+  }
   emit('click', e)
 }
 
