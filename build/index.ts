@@ -3,6 +3,8 @@ import { copyFiles } from './copy'
 import { build } from './build'
 import { buildDTS } from './build-dts'
 
+console.log(process.env.HOMEPATH)
+
 async function boot() {
   await build()
 
