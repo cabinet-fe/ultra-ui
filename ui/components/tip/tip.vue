@@ -41,7 +41,7 @@ import {
   type ShallowRef,
   toRef
 } from 'vue'
-import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
+import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
 import type { TipProps } from '@ui/types/components/tip'
 import { useFallbackProps, usePop } from '@ui/compositions'

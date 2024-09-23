@@ -9,14 +9,7 @@ import {
 } from '@floating-ui/dom'
 import type { TipAlign, TipDirection } from '@ui/types'
 import { getScrollParents, observeEl, setStyles, unobserveEl } from '@ui/utils'
-import {
-  isRef,
-  nextTick,
-  onBeforeUnmount,
-  watch,
-  type Ref,
-  type ShallowRef
-} from 'vue'
+import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
 
 interface Options {
   /** 触发元素 */
