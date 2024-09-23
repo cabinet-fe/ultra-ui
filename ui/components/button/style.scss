@@ -97,7 +97,8 @@ $root-name: button;
         box-shadow: none;
 
         &:not(.is-disabled, .is-loading) {
-          &:hover {
+          &:hover,
+          &:focus {
             background-color: fn.use-var(color, $type, 'light-9');
           }
         }

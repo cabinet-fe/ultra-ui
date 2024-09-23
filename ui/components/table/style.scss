@@ -30,7 +30,7 @@ $root-name: table;
   }
 
   @include m.e(row) {
-    &:nth-child(even) {
+    @include m.is(even) {
       td {
         background-color: fn.use-var(bg-color, hover);
       }

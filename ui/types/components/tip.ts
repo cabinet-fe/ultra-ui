@@ -20,6 +20,10 @@ export interface TipProps {
    * @default 'auto'
    */
   direction?: TipDirection
+
+  /** 隐藏箭头 */
+  hideArrow?: boolean
+
   /**
    * 对齐方式
    * @default 'center'

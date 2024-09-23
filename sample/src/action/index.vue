@@ -1,13 +1,16 @@
 <template>
   <div>
+    <div style="text-align: right">
+      <u-action-group>
+        <u-action v-for="button of buttons">{{ button }}</u-action>
+        <u-action need-confirm type="danger">删除</u-action>
+        <u-action need-confirm type="danger">删除</u-action>
+      </u-action-group>
+    </div>
     <u-table :columns="columns" :data="data">
       <template #column:action>
         <u-action-group>
           <u-action v-for="button of buttons">{{ button }}</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
           <u-action need-confirm type="danger">删除</u-action>
           <u-action need-confirm type="danger">删除</u-action>
         </u-action-group>
@@ -24,7 +27,7 @@ const columns = defineTableColumns([
   { name: '列1', key: 'col1' },
   { name: '列2', key: 'col2' },
   { name: '列3', key: 'col3' },
-  { name: 'action', key: 'action', minWidth: 200 }
+  { name: 'action', key: 'action', width: 200 }
 ])
 
 const data = shallowRef<any[]>([])
@@ -37,7 +40,7 @@ setTimeout(() => {
       col3: 'col3-' + i
     }
   })
-}, 1000)
+}, 200)
 
 const buttons = ['查看', '编辑', '审批']
 </script>

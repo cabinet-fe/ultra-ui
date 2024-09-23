@@ -7,6 +7,7 @@
       alignment="center"
       :trigger="trigger"
       ref="tipRef"
+      hide-arrow
     >
       <li
         :class="[

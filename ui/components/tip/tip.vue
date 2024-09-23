@@ -14,7 +14,7 @@
         v-if="visible || anyChildrenVisible"
         :is="contentTag"
         :class="contentClass"
-        :style="tipStyle"
+        :style="[props.style, { zIndex: zIndex() }]"
         ref="contentRef"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
@@ -22,6 +22,8 @@
         v-click-outside="handleClickOutside"
       >
         <slot name="content">{{ content }}</slot>
+
+        <div :class="cls.e('arrow')" v-if="!hideArrow" ref="arrowRef"></div>
       </component>
     </transition>
   </teleport>
@@ -30,36 +32,22 @@
 <script lang="ts" setup>
 import {
   shallowRef,
-  nextTick,
   computed,
   useSlots,
   onBeforeUnmount,
-  watch,
   inject,
   provide,
-  type CSSProperties,
   shallowReactive,
-  type ShallowRef
+  type ShallowRef,
+  toRef
 } from 'vue'
-import {
-  bem,
-  extractNormalVNodes,
-  getScrollParents,
-  observeTrigger,
-  unobserveTrigger,
-  zIndex
-} from '@ui/utils'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
-import type { TipProps, TipDirection } from '@ui/types/components/tip'
-import { useFallbackProps } from '@ui/compositions'
+import type { TipProps } from '@ui/types/components/tip'
+import { useFallbackProps, usePop } from '@ui/compositions'
 import { TipNestDIKey } from './di'
 import { UNodeRender } from '../node-render'
 import type { ComponentSize } from '@ui/types'
-import {
-  adjustContentSizeAndAlignment,
-  amendDirection,
-  calcTipPosition
-} from './position'
 
 defineOptions({ name: 'Tip' })
 
@@ -77,8 +65,6 @@ const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const direction = shallowRef<TipDirection>(props.direction)
-
 const contentClass = computed(() => {
   const fixed = [cls.e('content'), cls.m(size.value)]
   const className = props.class
@@ -90,6 +76,7 @@ const contentClass = computed(() => {
 
 const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
 const contentRef = shallowRef<HTMLElement>()
+const arrowRef = shallowRef<HTMLElement>()
 
 const visible = shallowRef(false)
 
@@ -100,22 +87,6 @@ function getTriggerNode() {
   const node = extractNormalVNodes(nodes)[0]
   return node
 }
-
-const popStyle = shallowReactive<CSSProperties>({
-  left: 0,
-  top: 0,
-  zIndex: zIndex()
-})
-
-const tipStyle = computed(() => {
-  if (typeof props.style === 'string') {
-    return [props.style, popStyle]
-  }
-  return {
-    ...props.style,
-    ...popStyle
-  }
-})
 
 /**
  * 是否是嵌套tip，即在tip组件中嵌套其他的tip
@@ -183,84 +154,19 @@ const close = () => {
   }
 }
 
-watch(visible, async v => {
-  if (v) {
-    await nextTick()
-    window.addEventListener('resize', close)
-
-    observeTrigger(triggerRef.value!.$el, updateTipStyle)
-    /** 添加滚动事件 */
-    scrollParents = getScrollParents(triggerRef.value!.$el)
-    addScrollEvent()
-  } else {
-    removeScrollEvent()
-    window.removeEventListener('resize', close)
-    unobserveTrigger(triggerRef.value!.$el)
+usePop({
+  triggerRef: toRef(() => triggerRef.value?.$el),
+  contentRef,
+  arrowRef,
+  direction: toRef(() => props.direction),
+  alignment: toRef(() => props.alignment),
+  onTriggerPositionChange() {
+    close()
   }
 })
 
-let scrollParents: HTMLElement[] = []
-
-function addScrollEvent() {
-  scrollParents.forEach(el => {
-    el.addEventListener('scroll', close)
-  })
-}
-
-function removeScrollEvent() {
-  scrollParents.forEach(el => {
-    el.removeEventListener('scroll', close)
-  })
-
-  scrollParents = []
-}
-
-/**
- * 更新提示框的样式
- */
-function updateTipStyle() {
-  const triggerEl = triggerRef.value?.$el
-  const contentEl = contentRef.value
-  if (!triggerEl || !contentEl) return
-
-  const triggerRect = triggerEl.getBoundingClientRect()
-
-  const { offsetHeight, offsetWidth } = contentEl
-
-  let contentSize = {
-    width: offsetWidth,
-    height: offsetHeight
-  }
-
-  // 修正方向
-  direction.value = amendDirection({
-    triggerRect,
-    contentSize,
-    direction: props.direction
-  })
-
-  // 调整内容尺寸和对齐方式, 防止内容溢出
-  const [newContentSize, alignment] = adjustContentSizeAndAlignment({
-    triggerRect,
-    contentEl,
-    contentSize,
-    direction: direction.value,
-    alignment: props.alignment
-  })
-
-  const styles = calcTipPosition({
-    triggerRect,
-    contentSize: newContentSize,
-    direction: direction.value,
-    alignment
-  })
-  popStyle.zIndex = zIndex()
-  Object.assign(popStyle, styles)
-}
-
 onBeforeUnmount(() => {
   clearTimeout(closeTimer)
-  window.removeEventListener('resize', close)
   removeChild?.(visible)
 })
 

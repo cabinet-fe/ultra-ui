@@ -101,14 +101,21 @@ const observer = new ResizeObserver(entry => {
   observerElMap.forEach(fn => fn())
 })
 
-/** 监听触发器的大小变化 */
-export function observeTrigger(el: HTMLElement, cb: () => void) {
+/**
+ * 监听元素尺寸
+ * @param el 元素
+ * @param cb 回调
+ */
+export function observeEl(el: HTMLElement, cb: () => void) {
   observer.observe(el)
   observerElMap.set(el, cb)
 }
 
-/** 取消监听触发器的大小变化 */
-export function unobserveTrigger(el: HTMLElement) {
+/**
+ * 取消监听元素尺寸
+ * @param el 元素
+ */
+export function unobserveEl(el: HTMLElement) {
   observer.unobserve(el)
   observerElMap.delete(el)
 }

@@ -3,7 +3,7 @@
     :class="[cls.b, cls.m(size)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
-    :drag-debounce="10"
+    :drag-debounce="5"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">

@@ -12,6 +12,7 @@
           title="Are you sure to delete this?"
           @confirm="confirmEvent"
           @cancel="cancelEvent"
+          alignment="start"
         >
           <template #reference>
             <u-button>删除</u-button>
@@ -22,6 +23,7 @@
           title="Are you sure to delete this?"
           @confirm="confirmEvent"
           @cancel="cancelEvent"
+          alignment="start"
         >
           <template #reference>
             <u-button>删除</u-button>

@@ -12,6 +12,8 @@ export * from './use-form-component'
 
 export * from './use-model'
 
+export * from './use-pop'
+
 export * from './use-reactive-size'
 
 export * from './use-resize-observer'

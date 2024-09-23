@@ -93,6 +93,7 @@ const ripple = computed(() => {
 })
 
 const handleClick = (e: MouseEvent) => {
+  console.log(11)
   if (props.disabled || props.loading) {
     e.stopPropagation()
     return

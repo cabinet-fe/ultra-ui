@@ -9,11 +9,31 @@ $root-name: tip;
 
   @include m.e(content) {
     position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: fn.use-var(shadow);
     border-radius: fn.use-var(radius, default);
     color: fn.use-var(text-color, main);
-    background: fn.use-var(bg, color-top);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: -1;
+      background-color: fn.use-var(bg, color-top);
+      border-radius: fn.use-var(radius, default);
+    }
+  }
+
+  @include m.e(arrow) {
+    position: absolute;
+    z-index: -1;
     box-shadow: fn.use-var(shadow);
-    overflow: hidden;
+    background-color: fn.use-var(bg, color-top);
+    transform: rotate(45deg);
   }
 
   @include m.size using ($size) {

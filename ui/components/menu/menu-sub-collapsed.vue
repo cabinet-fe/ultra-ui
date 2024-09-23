@@ -1,8 +1,13 @@
 <template>
   <!-- 收缩状态 -->
   <div @mouseenter="handleToggleExpand">
-    <u-tip :direction="direction" :alignment="alignment" :trigger="trigger">
-      <li :class="[cls.e('sub')]" style="width: 100%;">
+    <u-tip
+      :direction="direction"
+      :alignment="alignment"
+      hide-arrow
+      :trigger="trigger"
+    >
+      <li :class="[cls.e('sub')]" style="width: 100%">
         <div :class="cls.e('sub-content')">
           <!-- 图标 -->
           <div>

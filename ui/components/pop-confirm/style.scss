@@ -19,7 +19,7 @@ $root-name: pop-confirm;
 
   @include m.size using ($size) {
     font-size: fn.use-var('font-size', main, $size);
-    padding: 8px fn.use-var(gap, $size);
+    margin-bottom: fn.use-var(gap, $size);
   }
 
   @include m.m(action) {

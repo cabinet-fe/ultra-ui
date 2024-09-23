@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import type { DropdownExposed } from 'ultra-ui/components'
+import type { DropdownExposed } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 

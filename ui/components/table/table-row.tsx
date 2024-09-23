@@ -88,7 +88,11 @@ export default defineComponent({
 
       return (
         <tr
-          class={[cls.e('row'), bem.is('expanded', row.expanded)]}
+          class={[
+            cls.e('row'),
+            bem.is('expanded', row.expanded),
+            bem.is('even', row.index % 2 === 1)
+          ]}
           onClick={() => handleRowClick(row)}
           ref={measureElement as VNodeRef}
           data-index={dataIndex}

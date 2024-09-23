@@ -15,7 +15,9 @@
         v-if="visible"
         :class="[cls.e('content'), contentClass]"
         ref="contentRef"
-        :style="popupFinalStyle"
+        :style="{
+          zIndex: zIndex()
+        }"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
         v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
@@ -32,23 +34,10 @@ import type {
   DropdownExposed,
   DropdownEmits
 } from '@ui/types/components/dropdown'
-import {
-  bem,
-  computeDropdownPosition,
-  getScrollParents,
-  zIndex,
-  observeTrigger,
-  unobserveTrigger
-} from '@ui/utils'
-import {
-  nextTick,
-  shallowRef,
-  shallowReactive,
-  computed,
-  watch,
-  onBeforeUnmount
-} from 'vue'
+import { bem, setStyles, zIndex } from '@ui/utils'
+import { shallowRef, computed } from 'vue'
 import { vClickOutside } from '@ui/directives'
+import { usePop } from '@ui/compositions'
 
 defineOptions({
   name: 'Dropdown',
@@ -73,49 +62,11 @@ const slots = defineSlots<{
 const cls = bem('dropdown')
 
 const triggerRef = shallowRef<HTMLElement>()
-let realTrigger: HTMLElement | undefined
-
 const contentRef = shallowRef<HTMLElement>()
+let realTrigger: HTMLElement | undefined
 
 /**显示隐藏 */
 const visible = defineModel<boolean>('visible')
-
-const popupStyle = shallowReactive({
-  top: '',
-  left: '',
-  width: '',
-  transformOrigin: '',
-  zIndex: zIndex()
-})
-
-watch(visible, async v => {
-  if (v) {
-    await nextTick()
-    popupStyle.zIndex = zIndex()
-    window.addEventListener('resize', close)
-    observeTrigger(triggerRef.value!, updateDropdown)
-    /** 添加滚动事件 */
-    scrollParents = getScrollParents(triggerRef.value!)
-    addScrollEvent()
-  } else {
-    removeScrollEvent()
-    window.removeEventListener('resize', close)
-    unobserveTrigger(triggerRef.value!)
-  }
-})
-
-const popupFinalStyle = computed(() => {
-  const ret: Record<string, string | number> = {
-    ...popupStyle
-  }
-  if (props.minWidth) {
-    ret.minWidth = props.minWidth
-  }
-  if (props.width) {
-    ret.width = props.width
-  }
-  return ret
-})
 
 let closeTimer: number | undefined
 
@@ -162,30 +113,20 @@ function handleClickOutside(e: MouseEvent) {
   close()
 }
 
-function updateDropdown() {
-  if (!triggerRef.value || !contentRef.value) return
-  const styles = computeDropdownPosition({
-    triggerEl: triggerRef.value,
-    popupEl: contentRef.value
-  })
-  styles && Object.assign(popupStyle, styles)
-}
-
-let scrollParents: HTMLElement[] = []
-
-function addScrollEvent() {
-  scrollParents.forEach(el => {
-    el.addEventListener('scroll', close)
-  })
-}
-
-function removeScrollEvent() {
-  scrollParents.forEach(el => {
-    el.removeEventListener('scroll', close)
-  })
-
-  scrollParents = []
-}
+const { update } = usePop({
+  triggerRef,
+  contentRef,
+  direction: 'bottom',
+  onTriggerPositionChange() {
+    close()
+  },
+  onBeforeUpdate(triggerEl, contentEl) {
+    setStyles(contentEl, {
+      width: props.width ?? `${triggerEl.offsetWidth}px`,
+      minWidth: props.minWidth && `${props.minWidth}px`
+    })
+  }
+})
 
 const eventsHandlers = computed(() => {
   const { trigger, disabled } = props
@@ -203,15 +144,10 @@ const eventsHandlers = computed(() => {
   return handlers
 })
 
-onBeforeUnmount(() => {
-  removeScrollEvent()
-  window.removeEventListener('resize', close)
-})
-
 defineExpose<DropdownExposed>({
   open,
   close,
   /**暴露出更新dropdown内容位置方法 适用与级联选择器组件 */
-  updateDropdown
+  updateDropdown: update
 })
 </script>

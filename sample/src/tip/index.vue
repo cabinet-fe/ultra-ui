@@ -13,14 +13,19 @@
     </div>
     <div>内容: <u-textarea v-model="content" /></div>
     <CustomCard title="基础用法">
-      <u-tip
-        :direction="direction"
-        :alignment="alignment"
-        :trigger="trigger"
-        :content="content"
-      >
-        <u-button>触发</u-button>
-      </u-tip>
+      <div style="text-align: right">
+        <u-tip
+          :direction="direction"
+          :alignment="alignment"
+          :trigger="trigger"
+          :content="content"
+          style="max-width: 300px"
+        >
+          <u-button type="primary" text style="margin-right: 10px"
+            >触发</u-button
+          >
+        </u-tip>
+      </div>
 
       <!-- <u-tip
         :direction="direction"

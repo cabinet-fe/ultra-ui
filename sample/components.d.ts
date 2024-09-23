@@ -21,11 +21,17 @@ declare module 'vue' {
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
     UDialog: typeof import('ultra-ui')['UDialog']
+    UDropdown: typeof import('ultra-ui')['UDropdown']
     UInput: typeof import('ultra-ui')['UInput']
+    UMenu: typeof import('ultra-ui')['UMenu']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
+    UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
     URadio: typeof import('ultra-ui')['URadio']
+    URadioGroup: typeof import('ultra-ui')['URadioGroup']
     UScroll: typeof import('ultra-ui')['UScroll']
     USelect: typeof import('ultra-ui')['USelect']
     UTable: typeof import('ultra-ui')['UTable']
+    UTextarea: typeof import('ultra-ui')['UTextarea']
+    UTip: typeof import('ultra-ui')['UTip']
   }
 }
