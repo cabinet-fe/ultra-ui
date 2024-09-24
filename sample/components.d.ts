@@ -15,6 +15,7 @@ declare module 'vue' {
     UButton: typeof import('ultra-ui')['UButton']
     UButtonGroup: typeof import('ultra-ui')['UButtonGroup']
     UCard: typeof import('ultra-ui')['UCard']
+    UCardAction: typeof import('ultra-ui')['UCardAction']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCascade: typeof import('ultra-ui')['UCascade']
@@ -24,6 +25,7 @@ declare module 'vue' {
     UDropdown: typeof import('ultra-ui')['UDropdown']
     UInput: typeof import('ultra-ui')['UInput']
     UMenu: typeof import('ultra-ui')['UMenu']
+    UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
     URadio: typeof import('ultra-ui')['URadio']
@@ -33,5 +35,6 @@ declare module 'vue' {
     UTable: typeof import('ultra-ui')['UTable']
     UTextarea: typeof import('ultra-ui')['UTextarea']
     UTip: typeof import('ultra-ui')['UTip']
+    UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }

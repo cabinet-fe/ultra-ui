@@ -38,9 +38,11 @@ export function useCheck<DataItem extends Record<string, any>>(
       // 减少checked操作次数提升性能
 
       oc?.forEach(v => {
-        const node = nodeDict.get(v)!
-        node.checked = false
-        checked.delete(node.data)
+        const node = nodeDict.get(v)
+        if (node) {
+          node.checked = false
+          checked.delete(node.data)
+        }
       })
       c?.forEach(v => {
         const node = nodeDict.get(v)

@@ -123,7 +123,7 @@ const { update } = usePop({
   onBeforeUpdate(triggerEl, contentEl) {
     setStyles(contentEl, {
       width: props.width ?? `${triggerEl.offsetWidth}px`,
-      minWidth: props.minWidth && `${props.minWidth}px`
+      minWidth: props.minWidth && props.minWidth
     })
   }
 })

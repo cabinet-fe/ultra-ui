@@ -81,7 +81,7 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
   disabled: undefined,
   readonly: undefined,
   filterable: false,
-  minWidth: '280px'
+  minWidth: '250px'
 })
 
 const treeProps = computed(() => {
