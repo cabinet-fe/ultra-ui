@@ -15,7 +15,9 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="getChainValue(selected, labelKey) || label"
+        :model-value="
+          selected ? (getChainValue(selected, labelKey) ?? label) : modelValue
+        "
         @clear="handleClear"
         native-readonly
       >
