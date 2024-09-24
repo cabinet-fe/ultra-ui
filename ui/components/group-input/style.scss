@@ -19,8 +19,6 @@ $root-name: group-input;
   }
 
   @include m.e(item) {
-    @include m.flex;
-
     & > * {
       flex-grow: 1;
     }

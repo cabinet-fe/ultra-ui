@@ -1,3 +1,4 @@
+import type { StyleValue } from 'vue'
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
@@ -12,6 +13,8 @@ export interface GroupInputProps<
   creatable?: boolean
   /** 默认值 */
   itemDefault?: Record<string, any>
+  /** 输入项样式 */
+  itemStyle?: StyleValue
 }
 
 /** 分组输入组件定义的事件 */

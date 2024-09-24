@@ -10,7 +10,12 @@
         新增
       </u-button>
     </li>
-    <li v-for="(item, index) of items" :key="item.id" :class="cls.e('item')">
+    <li
+      v-for="(item, index) of items"
+      :key="item.id"
+      :class="cls.e('item')"
+      :style="itemStyle"
+    >
       <slot v-bind="{ item: item.data, index }" />
       <span :class="cls.e('actions')">
         <u-button
