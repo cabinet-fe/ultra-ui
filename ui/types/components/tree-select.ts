@@ -36,6 +36,7 @@ export interface TreeSelectEmits {
     value?: string | number,
     selectedData?: Record<string, any>
   ): void
+  (e: 'update:text', text?: string): void
 }
 
 /** 树形选择器组件暴露的属性和方法(组件内部使用) */
