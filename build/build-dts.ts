@@ -5,7 +5,7 @@ import { dirname, relative, resolve } from 'node:path'
 import { $ } from 'bun'
 
 export async function buildDTS() {
-  await $`vue-tsc --emitDeclarationOnly --declaration -p ../ui/tsconfig.json`
+  await $`bun vue-tsc --emitDeclarationOnly --declaration -p ../ui/tsconfig.json`
 
   const files = await fg.glob('**/*.d.ts', {
     cwd: DIST_ROOT

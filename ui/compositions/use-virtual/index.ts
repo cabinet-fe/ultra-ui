@@ -27,9 +27,13 @@ interface Options {
   gap?: number
 }
 
+type CustomVirtualItem = Omit<VirtualItem, 'key'> & {
+  key: number | string
+}
+
 export type VirtualReturned = {
   /** 虚拟列表 */
-  virtualList: ShallowRef<VirtualItem<Element>[]>
+  virtualList: ShallowRef<CustomVirtualItem[]>
   /** 总高度 */
   totalHeight: ShallowRef<number>
   /** 测量元素高度 */
@@ -49,7 +53,7 @@ export function useVirtual(options: Options): VirtualReturned {
 
   const defaultEstimateSize = () => 34
 
-  const virtualList = shallowRef<VirtualItem<Element>[]>([])
+  const virtualList = shallowRef<CustomVirtualItem[]>([])
 
   /** 总高度 */
   const totalHeight = shallowRef(0)
@@ -57,7 +61,7 @@ export function useVirtual(options: Options): VirtualReturned {
   const onChange = () => {
     if (enabled.value) {
       totalHeight.value = v.getTotalSize()
-      virtualList.value = v.getVirtualItems()
+      virtualList.value = v.getVirtualItems() as CustomVirtualItem[]
     }
   }
 
