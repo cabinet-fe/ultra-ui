@@ -2,6 +2,8 @@ import { buildStyles } from './build-styles'
 import { copyFiles } from './copy'
 import { build } from './build'
 import { buildDTS } from './build-dts'
+import { genPackageJson } from './gen-package-json'
+import { $ } from 'bun'
 
 async function boot() {
   await build()
@@ -10,7 +12,11 @@ async function boot() {
 
   await buildStyles()
 
-  copyFiles()
+  await copyFiles()
+
+  await genPackageJson()
+
+  await $`pnpm publish --registry http://192.168.31.250:6005`
 }
 
 boot()

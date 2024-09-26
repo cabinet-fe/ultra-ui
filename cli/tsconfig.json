@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["@types/node"]
+    "types": ["@types/bun"]
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

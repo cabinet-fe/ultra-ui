@@ -2,6 +2,8 @@ import { readFileSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { obj } from 'cat-kit/be'
+import { $ } from 'bun'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -28,9 +30,7 @@ const pkg = {
     'Vue UI'
   ],
   peerDependencies: {
-    vue: rootPkg.devDependencies.vue,
-    'cat-kit': rootPkg.devDependencies['cat-kit'],
-    'icon-ultra': rootPkg.devDependencies['icon-ultra']
+    ...obj(rootPkg.devDependencies).pick(['vue', 'cat-kit', 'icon-ultra'])
   },
   exports: {
     '.': {
@@ -42,20 +42,15 @@ const pkg = {
       types: './*.d.ts',
       default: './*',
       import: './*'
-    },
-    './resolver': {
-      types: './resolver.d.ts',
-      default: './resolver.js',
-      import: './resolver.js'
     }
   }
 }
 
-function genPackageJson() {
-  writeFile(
+export async function genPackageJson() {
+  await $`bumpp ../package.json`
+  await writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
     'utf-8'
   )
 }
-genPackageJson()

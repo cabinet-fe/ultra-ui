@@ -26,7 +26,7 @@
     "ui"
   ],
   "devDependencies": {
-    "@types/node": "^20.16.5",
+    "@types/bun": "^1.1.10",
     "@vitejs/plugin-vue": "^5.1.4",
     "@vitejs/plugin-vue-jsx": "^4.0.1",
     "autoprefixer": "10.4.19",
