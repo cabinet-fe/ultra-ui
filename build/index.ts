@@ -16,7 +16,7 @@ async function boot() {
 
   await genPackageJson()
 
-  await $`pnpm publish --registry http://192.168.31.250:6005`
+  await $`npm publish --registry http://192.168.31.250:6005`
 }
 
 boot()
