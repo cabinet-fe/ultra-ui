@@ -16,8 +16,8 @@ const typeIcons = {
   warn: WarningFilled,
   error: CircleCloseFilled
 }
-export function getTypeIcon(type: MessageType, icon?: DefineComponent) {
-  return icon ?? typeIcons[type]
+export function getTypeIcon(type: MessageType, icon?: DefineComponent): DefineComponent {
+  return (icon ?? typeIcons[type]) as any
 }
 
 const typeColors = {
