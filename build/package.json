@@ -2,10 +2,6 @@
   "name": "build",
   "type": "module",
   "scripts": {
-    "build": "bun ./index.ts",
-    "pub": "cd ../dist && pnpm publish --registry http://192.168.31.250:6005",
-    "gen:pkg": "bun ./gen-package-json.ts",
-    "update:version": "bun bumpp ../package.json",
-    "release": "bun run build && bun run update:version && bun run gen:pkg && bun run pub"
+    "release": "bun ./index.ts"
   }
 }

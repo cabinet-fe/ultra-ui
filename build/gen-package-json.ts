@@ -47,7 +47,9 @@ const pkg = {
 }
 
 export async function genPackageJson() {
-  await $`bumpp ../package.json`
+  try {
+    await $`bumpp ../package.json`
+  } catch (error) {}
   await writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
