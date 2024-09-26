@@ -1,4 +1,3 @@
-import pico from 'picocolors'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
@@ -9,9 +8,6 @@ const commitRE =
   /^(feat|fix|docs|dx|style|refactor|perf|build|ci|chore|types|release)(\(.+\))?: .{1,50}/
 
 if (!commitRE.test(msg)) {
-  console.error(
-    `  ${pico.white(pico.bgRed(' ERROR '))} ${pico.red(`提交格式不正确。`)}
-    `
-  )
+  console.error(`[错误]: 提交格式不正确。`)
   process.exit(1)
 }
