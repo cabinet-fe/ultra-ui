@@ -48,7 +48,7 @@
     "vue-tsc": "^2.1.6"
   },
   "simple-git-hooks": {
-    "commit-msg": "pnpm tsx cli/verify-commit/index.ts"
+    "commit-msg": "bun cli/verify-commit/index.ts"
   },
   "dependencies": {
     "quill": "2.0.2",
