@@ -3,7 +3,6 @@
   "references": [
     { "path": "./cli/tsconfig.json" },
     { "path": "./tsconfig.vue.json" },
-    { "path": "./tsconfig.test.json" },
     { "path": "./ui/tsconfig.json" }
   ]
 }

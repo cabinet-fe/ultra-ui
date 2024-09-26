@@ -1,17 +1,11 @@
-import { execa } from 'execa'
 import { DIST_ROOT } from './helper'
 import fg from 'fast-glob'
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
+import { $ } from 'bun'
 
 export async function buildDTS() {
-  await execa(
-    'vue-tsc',
-    ['--emitDeclarationOnly', '--declaration', '-p', '../ui/tsconfig.json'],
-    {
-      stdio: 'inherit'
-    }
-  )
+  await $`vue-tsc --emitDeclarationOnly --declaration -p ../ui/tsconfig.json`
 
   const files = await fg.glob('**/*.d.ts', {
     cwd: DIST_ROOT
