@@ -8,6 +8,6 @@ const commitRE =
   /^(feat|fix|docs|dx|style|refactor|perf|build|ci|chore|types|release)(\(.+\))?: .{1,50}/
 
 if (!commitRE.test(msg)) {
-  console.error(`[错误]: 提交格式不正确。`)
+  console.error(`提交格式不正确。`)
   process.exit(1)
 }
