@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { obj } from 'cat-kit/be'
-import { $ } from 'bun'
+import { updateVersion } from '@helper/build'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -47,9 +47,7 @@ const pkg = {
 }
 
 export async function genPackageJson() {
-  try {
-    await $`bumpp ../package.json`
-  } catch (error) {}
+  await updateVersion(resolve(rootDir, 'package.json'))
   await writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
