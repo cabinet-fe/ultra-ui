@@ -107,7 +107,7 @@ import { UTable } from '../table'
 import { UButton } from '../button'
 // import { UTip } from '../tip'
 import type { ButtonProps } from '../button'
-import type { TableRow } from '@ui/types'
+import type { BatchEditFeature, TableRow } from '@ui/types'
 
 defineOptions({
   name: 'BatchEditList'
@@ -145,8 +145,12 @@ const tableProps = computed(() => {
   ])
 })
 
+const hasNot = (value: BatchEditFeature[]) =>
+  value.every(v => !featureSets.value.has(v))
+
 const columns = computed(() => {
-  if (props.readonly) return props.columns
+  if (props.readonly || hasNot(['create', 'delete'])) return props.columns
+
   return (props.columns ?? []).concat({
     name: '操作',
     key: '__action__',
