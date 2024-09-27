@@ -7,19 +7,14 @@ import { $ } from 'bun'
 
 async function boot() {
   await build()
-
   await buildDTS()
-
   await buildStyles()
-
   await copyFiles()
-
   await genPackageJson()
-
   try {
-    await $`npm publish --registry http://192.168.31.250:6005`
+    await $`cd ../dist && npm publish --registry http://192.168.31.250:6005`
   } catch (error: any) {
-    console.log(error.stderr?.toString())
+    console.error(error.stderr?.toString())
   }
 }
 
