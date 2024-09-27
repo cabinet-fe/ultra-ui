@@ -16,7 +16,11 @@ async function boot() {
 
   await genPackageJson()
 
-  await $`npm publish --registry http://192.168.31.250:6005`
+  try {
+    await $`npm publish --registry http://192.168.31.250:6005`
+  } catch (error: any) {
+    console.log(error.stderr?.toString())
+  }
 }
 
 boot()
