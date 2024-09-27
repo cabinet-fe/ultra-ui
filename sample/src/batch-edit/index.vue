@@ -15,6 +15,8 @@
       :readonly="readonly"
       :resizable="resizable"
       v-model:data="data"
+      v-model:checked="checked"
+      checkable
       :quick-edit="quickEdit"
       :features="features"
       :model="model"
@@ -50,38 +52,9 @@
           filterable
         />
       </template>
-
-      <template #column:v="scope"></template>
     </u-batch-edit>
 
-    <u-dialog style="width: 900px" v-model="dialogVisible" title="字典项">
-      <u-batch-edit
-        :columns="columns"
-        :readonly="readonly"
-        :resizable="resizable"
-        v-model:data="data"
-        style="height: 400px"
-        :model="model"
-        :tree="tree"
-        cols="1fr 1fr"
-        :delete-method="asynchronous ? deleteMethod : undefined"
-        :save-method="asynchronous ? saveMethod : undefined"
-      >
-        <template #form="{ data }">
-          <u-input field="name" label="名称" />
-          <u-number-input field="age" label="年龄" />
-          <u-input field="props.label" label="标签" />
-          <u-input field="props.field" label="字段" />
-          <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
-          <u-cascade
-            field="cascade"
-            label="单选级联选择器"
-            :options="cascadeData"
-          />
-        </template>
-      </u-batch-edit>
-    </u-dialog>
-
+    {{ checked }}
     {{ data }}
   </div>
 </template>
@@ -96,7 +69,7 @@ import type { BatchEditFeature } from '@ui/types'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
-const quickEdit = shallowRef(true)
+const quickEdit = shallowRef(false)
 const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
@@ -106,6 +79,7 @@ const columns = defineTableColumns([
 ])
 
 const data = shallowRef()
+const checked = shallowRef([])
 
 setTimeout(() => {
   data.value = Array.from({ length: 3 }).map((_, i) => ({

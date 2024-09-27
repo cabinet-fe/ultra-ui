@@ -1,5 +1,5 @@
 import type { IFormModel } from './form'
-import type { TableColumn, TableProps } from './table'
+import type { TableColumn, TableEmits, TableProps } from './table'
 import type { DeconstructValue } from '../helper'
 
 /** 批量编辑列 */
@@ -19,7 +19,7 @@ export type BatchEditFeature = 'create' | 'update' | 'delete'
 
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
-  extends Omit<TableProps, 'selectable' | 'checkable'> {
+  extends TableProps {
   /** 是否可调节尺寸 */
   resizable?: boolean
   /**
@@ -60,7 +60,7 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
 }
 
 /** 批量编辑组件定义的事件 */
-export interface BatchEditEmits {
+export interface BatchEditEmits extends TableEmits {
   /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
 }

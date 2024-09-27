@@ -12,6 +12,8 @@
       highlight-current
       :current-row="state.row"
       @update:current-row="handleUpdateCurrentRow"
+      @update:checked="emit('update:checked', $event)"
+      @update:selected="emit('update:selected', $event)"
       ref="tableRef"
     >
       <template #column:__action__="{ row }">
@@ -120,6 +122,7 @@ const {
   state,
   tableRef,
   props,
+  emit,
   featureSets,
   handleCreate,
   handleDelete,
@@ -135,7 +138,10 @@ const tableProps = computed(() => {
     'cols',
     'readonly',
     'deleteMethod',
-    'saveMethod'
+    'saveMethod',
+    'features',
+    'resizable',
+    'quickEdit'
   ])
 })
 

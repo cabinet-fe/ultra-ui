@@ -48,13 +48,13 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   mode: 'normal'
 })
 
+const emit = defineEmits<BatchEditEmits>()
+
 const featureSets = computed(() => {
   return new Set<BatchEditFeature>(
     props.features ?? ['create', 'delete', 'update']
   )
 })
-
-const emit = defineEmits<BatchEditEmits>()
 
 const slots = defineSlots<
   {
@@ -92,6 +92,7 @@ const { state, handleClose } = editCtx
 provide(BatchEditDIKey, {
   cls,
   props,
+  emit,
   tableRef,
   featureSets,
   ...editCtx
