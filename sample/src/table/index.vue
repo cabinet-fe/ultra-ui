@@ -32,8 +32,6 @@
         v-bind="state"
         v-model:checked="checked"
         v-model:selected="selected"
-        default-expand-all
-        showIndex
         ref="tableRef"
       >
         <template #header:age> 年龄 </template>
@@ -97,9 +95,9 @@ import { arr, Tree } from 'cat-kit/fe'
 import { Plus } from 'icon-ultra'
 
 const state = shallowReactive({
-  checkable: false,
-  selectable: true,
-  tree: false,
+  checkable: true,
+  selectable: false,
+  tree: true,
   showIndex: false,
   highlightCurrent: false,
   editing: false

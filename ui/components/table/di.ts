@@ -2,10 +2,10 @@ import type { InjectionKey, ShallowRef, Slots } from 'vue'
 import type {
   TableProps,
   TableColumnSlotsScope,
-  TableColumnRenderContext
+  TableColumnRenderContext,
+  TableRow
 } from '@ui/types/components/table'
 import type { BEM } from '@ui/utils'
-import type { TableRow } from './use-rows'
 import type { ColumnConfig, ColumnNode } from './use-columns'
 import type { RenderReturn } from '@ui/types/helper'
 import type { VirtualReturned } from '@ui/compositions'

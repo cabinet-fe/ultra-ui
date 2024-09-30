@@ -1,5 +1,4 @@
 import { defineComponent, type PropType, type VNodeRef } from 'vue'
-import type { TableRow } from './use-rows'
 import { inject } from 'vue'
 import { TableDIKey } from './di'
 import { UNodeRender } from '../node-render'
@@ -9,6 +8,7 @@ import { ArrowRight } from 'icon-ultra'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 import type { JSX } from 'vue/jsx-runtime'
+import type { TableRow } from '@ui/types'
 
 export default defineComponent({
   name: 'TableRow',
@@ -17,15 +17,15 @@ export default defineComponent({
     row: {
       type: Object as PropType<TableRow>,
       required: true
-    },
-    dataIndex: {
-      type: Number as PropType<number>,
-      required: true
     }
+    // dataIndex: {
+    //   type: Number as PropType<number>,
+    //   required: true
+    // }
   },
 
   setup(props) {
-    const { row, dataIndex } = props
+    const { row } = props
 
     const {
       cls,
@@ -88,14 +88,9 @@ export default defineComponent({
 
       return (
         <tr
-          class={[
-            cls.e('row'),
-            bem.is('expanded', row.expanded),
-            bem.is('even', row.index % 2 === 1)
-          ]}
+          class={[cls.e('row'), bem.is('expanded', row.expanded)]}
           onClick={() => handleRowClick(row)}
           ref={measureElement as VNodeRef}
-          data-index={dataIndex}
         >
           {expandCell}
 

@@ -6,6 +6,7 @@ import type {
 import { Forest, Tree, TreeNode, debounce, last } from 'cat-kit/fe'
 import {
   computed,
+  createVNode,
   reactive,
   shallowReactive,
   shallowRef,
@@ -13,6 +14,10 @@ import {
   type ComputedRef,
   type ShallowRef
 } from 'vue'
+import { UButton } from '../button'
+import { ArrowRight } from 'icon-ultra'
+import { UIcon } from '../icon'
+import { type BEM } from '@ui/utils'
 
 /**
  * 定义表格列
@@ -145,18 +150,29 @@ export interface ColumnConfig {
 
 interface Options {
   props: TableProps
+  cls: BEM<'table'>
   colgroupRef: ShallowRef<HTMLElement | undefined>
   /** 创建复选框 */
   createCheckColumn: () => TableColumn
   createSelectColumn: () => TableColumn
+  toggleAllTreeRowExpand: () => void
 }
 
 export function useColumns(options: Options): ColumnConfig {
-  const { props, createCheckColumn, createSelectColumn, colgroupRef } = options
+  const {
+    props,
+    createCheckColumn,
+    createSelectColumn,
+    colgroupRef,
+    toggleAllTreeRowExpand,
 
+    cls
+  } = options
+
+  /** 前置列 */
   const preColumns = computed<TableColumn[]>(() => {
     const { selectable, checkable, showIndex } = props
-    
+
     const columns: TableColumn[] = []
 
     if (selectable) {
@@ -213,14 +229,49 @@ export function useColumns(options: Options): ColumnConfig {
       }
 
       const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
+      const firstColumn = sortedColumns[0]
 
-      const firstColumns = sortedColumns[0]
-
-      if (!!tree && firstColumns) {
-        firstColumns.align = 'left'
-        firstColumns.width = firstColumns.width
-          ? firstColumns.width + 20 * 3
+      // 树形表格需要给第一列添加展开按钮
+      // 因此要重新设置第一列的宽度和对齐方式
+      if (!!tree && firstColumn) {
+        firstColumn.align = 'left'
+        firstColumn.width = firstColumn.width
+          ? firstColumn.width + 20 * 3
           : undefined
+
+        const getExpandNode = () =>
+          createVNode(
+            UButton,
+            {
+              text: true,
+              title: '展开或收起全部',
+              class: cls.e('expand-all'),
+              type: 'primary',
+              size: 'small',
+              circle: true,
+              onClick: e => {
+                e.stopPropagation()
+                toggleAllTreeRowExpand()
+              }
+            },
+            () => [
+              createVNode(UIcon, undefined, () => [createVNode(ArrowRight)])
+            ]
+          )
+
+        const oldNameRender = firstColumn.nameRender
+
+        firstColumn.nameRender = oldNameRender
+          ? ctx => {
+              const oldNodes = oldNameRender!(ctx)
+              return [
+                getExpandNode(),
+                ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
+              ]
+            }
+          : ctx => {
+              return [getExpandNode(), firstColumn.name]
+            }
       }
 
       const result = Forest.create(sortedColumns, {
@@ -297,6 +348,7 @@ export function useColumns(options: Options): ColumnConfig {
 
   const expandColumn = shallowRef<ColumnNode>()
 
+  // 监听列的变化
   watch(
     [columnForest, () => props.tree],
     ([forest]) => {

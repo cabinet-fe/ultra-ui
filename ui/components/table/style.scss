@@ -65,6 +65,20 @@ $root-name: table;
     }
   }
 
+  @include m.e(expand-all) {
+    & > i {
+      transition: transform 0.25s;
+    }
+  }
+
+  @include m.is(all-expanded) {
+    @include m.bem($root-name, expand-all) {
+      & > i {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
   @include m.e(expand-space) {
     display: inline-block;
     font-size: 0;

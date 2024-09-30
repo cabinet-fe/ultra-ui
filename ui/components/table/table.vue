@@ -1,9 +1,8 @@
 <template>
   <u-scroll
-    :class="[cls.b, cls.m(size)]"
+    :class="[cls.b, cls.m(size), bem.is('all-expanded', allExpanded)]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
-    :drag-debounce="5"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -54,7 +53,7 @@ import type {
 import { bem, setStyles, withUnit } from '@ui/utils'
 import { computed, provide, shallowRef, toRef, watch } from 'vue'
 import { TableDIKey } from './di'
-import { TableRow, useRows } from './use-rows'
+import { useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
 import UTableHead from './table-head.vue'
 import UTableBody from './table-body.vue'
@@ -64,6 +63,7 @@ import { useFallbackProps, useVirtual } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
+import type { TableRowNode } from './row-node'
 
 defineOptions({
   name: 'Table'
@@ -77,8 +77,8 @@ const emit = defineEmits<TableEmits>()
 const slots = defineSlots<{
   [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
   [key: `header:${string}`]: (props: { column: ColumnNode }) => any
-  foot?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
-  body?: (props: { columns: ColumnNode[]; rows: TableRow[] }) => any
+  foot?: (props: { columns: ColumnNode[]; rows: TableRowNode[] }) => any
+  body?: (props: { columns: ColumnNode[]; rows: TableRowNode[] }) => any
   empty?: () => any
   append?: () => any
 }>()
@@ -92,11 +92,18 @@ const { size } = useFallbackProps([props], {
 const colgroupRef = shallowRef<HTMLElement>()
 
 // 行
-const { rows, toggleTreeRowExpand, rowForest, handleRowClick, getRowByData } =
-  useRows({
-    props,
-    emit
-  })
+const {
+  rows,
+  toggleTreeRowExpand,
+  allExpanded,
+  toggleAllTreeRowExpand,
+  rowForest,
+  handleRowClick,
+  getRowByData
+} = useRows({
+  props,
+  emit
+})
 
 // 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
@@ -114,7 +121,9 @@ const columnConfig = useColumns({
   props,
   createCheckColumn,
   createSelectColumn,
-  colgroupRef
+  colgroupRef,
+  toggleAllTreeRowExpand,
+  cls
 })
 
 const { allColumns, updateStylesOfColumns } = columnConfig

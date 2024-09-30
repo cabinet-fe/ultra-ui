@@ -28,8 +28,10 @@ declare module 'vue' {
     UInput: typeof import('ultra-ui')['UInput']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     URadio: typeof import('ultra-ui')['URadio']
+    URadioGroup: typeof import('ultra-ui')['URadioGroup']
     UScroll: typeof import('ultra-ui')['UScroll']
     USelect: typeof import('ultra-ui')['USelect']
+    USteps: typeof import('ultra-ui')['USteps']
     UTable: typeof import('ultra-ui')['UTable']
     UText: typeof import('ultra-ui')['UText']
   }

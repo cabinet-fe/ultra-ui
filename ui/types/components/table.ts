@@ -26,7 +26,12 @@ export interface TableColumn {
   /** 表头渲染，优先级大于name属性 */
   nameRender?: (ctx: {
     column: TableColumnNode
-  }) => VNode | string | null | undefined | VNode[]
+  }) =>
+    | VNode
+    | string
+    | null
+    | undefined
+    | (VNode | string | null | undefined)[]
   /** 列最大宽度 */
   width?: number
   /** 列最小宽度 */

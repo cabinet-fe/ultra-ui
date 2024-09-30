@@ -1,11 +1,14 @@
 <template>
   <tbody :class="cls.e('body')" ref="bodyRef">
     <UTableRow
-      v-for="row of virtualRows"
+      v-for="{ row, index } of virtualRows"
       :row="row"
       :key="row.uid"
-      :data-index="row.index"
-      :class="[bem.is('current', row.isCurrent && tableProps.highlightCurrent)]"
+      :data-index="index"
+      :class="[
+        bem.is('current', row.isCurrent && tableProps.highlightCurrent),
+        bem.is('even', index % 2 === 1)
+      ]"
     />
 
     <!-- 空 -->
@@ -34,7 +37,12 @@ const { cls, rows, virtualList, columnConfig, tableProps } = inject(TableDIKey)!
 const { allColumns } = columnConfig
 
 const virtualRows = computed(() => {
-  return virtualList.value.map(item => rows.value[item.index]!)
+  return virtualList.value.map(item => {
+    return {
+      row: rows.value[item.index]!,
+      index: item.index
+    }
+  })
 })
 
 const bodyRef = shallowRef<HTMLElement>()

@@ -3,14 +3,14 @@ import {
   createTextVNode,
   createVNode,
   nextTick,
-  shallowReactive,
   shallowRef,
   toRaw,
+  triggerRef,
   watch,
   type ComputedRef,
   type ShallowRef
 } from 'vue'
-import type { TableRow } from './use-rows'
+import type { TableRow } from '@ui/types/components/table'
 import { UCheckbox } from '../checkbox'
 import type {
   TableColumn,
@@ -33,14 +33,19 @@ interface Options {
 export function useCheck(options: Options) {
   const { rows, rowForest, props, emit, size, cls } = options
 
-  const checkedRows = shallowReactive(new Set<TableRow>())
+  const checkedRows = shallowRef(new Set<TableRow>())
   const selectedRow = shallowRef<TableRow>()
 
+  function triggerCheckedRows() {
+    triggerRef(checkedRows)
+  }
+
   function clearChecked() {
-    checkedRows.forEach(row => {
+    checkedRows.value.forEach(row => {
       row.checked = false
     })
-    checkedRows.clear()
+    checkedRows.value.clear()
+    triggerCheckedRows()
   }
 
   function clearSelected() {
@@ -119,12 +124,12 @@ export function useCheck(options: Options) {
 
       checked?.forEach(item => {
         const row = dicts?.get(getChainValue(item, rowKey))
-
         if (!row) return
 
         row.checked = true
-        checkedRows.add(row)
+        checkedRows.value.add(row)
       })
+      triggerCheckedRows()
 
       nextTick(() => {
         changedByModel = false
@@ -166,20 +171,22 @@ export function useCheck(options: Options) {
 
   const allChecked = computed(() => {
     const rowSize = props.tree ? rowForest.value?.size : rows.value?.length
-    return rowSize && rowSize === checkedRows.size
+    return rowSize && rowSize === checkedRows.value.size
   })
 
   function handleCheckAllTree(check: boolean) {
     if (check) {
       rowForest.value?.dft(row => {
         row.checked = true
-        checkedRows.add(row)
+        checkedRows.value.add(row)
       })
+      triggerCheckedRows()
     } else {
       rowForest.value?.dft(row => {
         row.checked = false
       })
-      checkedRows.clear()
+      checkedRows.value.clear()
+      triggerCheckedRows()
     }
   }
 
@@ -187,13 +194,15 @@ export function useCheck(options: Options) {
     if (check) {
       rows.value?.forEach(row => {
         row.checked = true
-        checkedRows.add(row)
+        checkedRows.value.add(row)
       })
+      triggerCheckedRows()
     } else {
       rows.value?.forEach(row => {
         row.checked = false
       })
-      checkedRows.clear()
+      checkedRows.value.clear()
+      triggerCheckedRows()
     }
   }
 
@@ -210,13 +219,15 @@ export function useCheck(options: Options) {
     if (check) {
       row.dft(child => {
         child.checked = check
-        checkedRows.add(child)
+        checkedRows.value.add(child)
       })
+      triggerCheckedRows()
     } else {
       row.dft(child => {
         child.checked = check
-        checkedRows.delete(child)
+        checkedRows.value.delete(child)
       })
+      triggerCheckedRows()
     }
   }
 
@@ -253,6 +264,7 @@ export function useCheck(options: Options) {
       },
       render(ctx) {
         const { row } = ctx
+
         // @ts-ignore
         return createVNode(UCheckbox, {
           class: checkboxClass,
