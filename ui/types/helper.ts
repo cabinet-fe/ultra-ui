@@ -22,4 +22,10 @@ export type Index<Keys extends string, Val> = {
 /**
  * 渲染函数返回内容
  */
-export type RenderReturn = VNode[] | undefined | VNode | string | null | number
+export type RenderReturn =
+  | (undefined | VNode | string | null | number)[]
+  | undefined
+  | VNode
+  | string
+  | null
+  | number

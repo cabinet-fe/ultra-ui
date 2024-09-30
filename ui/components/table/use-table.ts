@@ -2,12 +2,12 @@ import { useSlots } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
-  TableProps
+  TableProps,
+  TableRow
 } from '@ui/types/components/table'
 import type { ColumnNode } from './use-columns'
 import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
-import type { TableRow } from './use-rows'
 import type { RenderReturn } from '@ui/types/helper'
 
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {
