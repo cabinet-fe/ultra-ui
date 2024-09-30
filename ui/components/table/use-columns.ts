@@ -165,7 +165,6 @@ export function useColumns(options: Options): ColumnConfig {
     createSelectColumn,
     colgroupRef,
     toggleAllTreeRowExpand,
-
     cls
   } = options
 
@@ -198,6 +197,24 @@ export function useColumns(options: Options): ColumnConfig {
 
   const columnForest = shallowRef<Forest<ColumnNode>>()
 
+  const renderExpandAll = () =>
+    createVNode(
+      UButton,
+      {
+        text: true,
+        title: '展开或收起全部',
+        class: cls.e('expand-all'),
+        type: 'primary',
+        size: 'small',
+        circle: true,
+        onClick: e => {
+          e.stopPropagation()
+          toggleAllTreeRowExpand()
+        }
+      },
+      () => [createVNode(UIcon, undefined, () => [createVNode(ArrowRight)])]
+    )
+
   watch(
     [preColumns, () => props.columns, () => props.tree],
     ([preColumns, columns, tree]) => {
@@ -229,35 +246,16 @@ export function useColumns(options: Options): ColumnConfig {
       }
 
       const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
-      const firstColumn = sortedColumns[0]
+      const firstColumn = { ...sortedColumns[0] } as TableColumn
+      sortedColumns[0] = firstColumn
 
       // 树形表格需要给第一列添加展开按钮
       // 因此要重新设置第一列的宽度和对齐方式
       if (!!tree && firstColumn) {
         firstColumn.align = 'left'
         firstColumn.width = firstColumn.width
-          ? firstColumn.width + 20 * 3
+          ? firstColumn.width + 60
           : undefined
-
-        const getExpandNode = () =>
-          createVNode(
-            UButton,
-            {
-              text: true,
-              title: '展开或收起全部',
-              class: cls.e('expand-all'),
-              type: 'primary',
-              size: 'small',
-              circle: true,
-              onClick: e => {
-                e.stopPropagation()
-                toggleAllTreeRowExpand()
-              }
-            },
-            () => [
-              createVNode(UIcon, undefined, () => [createVNode(ArrowRight)])
-            ]
-          )
 
         const oldNameRender = firstColumn.nameRender
 
@@ -265,12 +263,12 @@ export function useColumns(options: Options): ColumnConfig {
           ? ctx => {
               const oldNodes = oldNameRender!(ctx)
               return [
-                getExpandNode(),
+                renderExpandAll(),
                 ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
               ]
             }
           : ctx => {
-              return [getExpandNode(), firstColumn.name]
+              return [renderExpandAll(), firstColumn.name]
             }
       }
 

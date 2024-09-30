@@ -18,10 +18,6 @@ export default defineComponent({
       type: Object as PropType<TableRow>,
       required: true
     }
-    // dataIndex: {
-    //   type: Number as PropType<number>,
-    //   required: true
-    // }
   },
 
   setup(props) {

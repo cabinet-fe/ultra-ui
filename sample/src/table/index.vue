@@ -37,7 +37,7 @@
         <template #header:age> 年龄 </template>
 
         <template #column:sort="{ row }">
-          <u-button @click="handleSort(row.index)">向下</u-button>
+          <!-- <u-button @click="handleSort(row.index)">向下</u-button> -->
         </template>
 
         <!-- <template v-if="state.editing"> -->
@@ -95,16 +95,16 @@ import { arr, Tree } from 'cat-kit/fe'
 import { Plus } from 'icon-ultra'
 
 const state = shallowReactive({
-  checkable: true,
+  checkable: false,
   selectable: false,
-  tree: true,
+  tree: false,
   showIndex: false,
   highlightCurrent: false,
   editing: false
 })
 
 const fixedHeight = shallowRef(true)
-const multiLevelHeader = shallowRef(false)
+const multiLevelHeader = shallowRef(true)
 const showData = shallowRef(true)
 
 const _columns = defineTableColumns(
@@ -143,7 +143,7 @@ const _columns = defineTableColumns(
 const columns = shallowRef<any[]>([])
 
 watch(
-  () => multiLevelHeader.value,
+  multiLevelHeader,
   v => {
     if (v) {
       columns.value = _columns
