@@ -9,12 +9,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const rootDir = resolve(__dirname, '..')
 
-const rootPkg = JSON.parse(
-  readFileSync(resolve(rootDir, 'package.json'), 'utf-8')
-)
-const pkg = {
+const pkg: Record<string, any> = {
   name: 'ultra-ui',
-  version: rootPkg.version,
   type: 'module',
   author: 'cabinet-fe',
   description: 'ultra-ui组件库',
@@ -29,9 +25,7 @@ const pkg = {
     '前端框架',
     'Vue UI'
   ],
-  peerDependencies: {
-    ...obj(rootPkg.devDependencies).pick(['vue', 'cat-kit', 'icon-ultra'])
-  },
+
   exports: {
     '.': {
       types: './index.d.ts',
@@ -47,7 +41,17 @@ const pkg = {
 }
 
 export async function genPackageJson() {
-  await updateVersion(resolve(rootDir, 'package.json'))
+  const pkgJsonPath = resolve(rootDir, 'package.json')
+
+  await updateVersion(pkgJsonPath)
+
+  const rootPkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
+
+  pkg.version = rootPkgJson.version
+  pkg.peerDependencies = {
+    ...obj(rootPkgJson.devDependencies).pick(['vue', 'cat-kit', 'icon-ultra'])
+  }
+
   await writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
