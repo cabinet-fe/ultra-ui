@@ -94,10 +94,13 @@ export function getYearMonths(
 
   return Array.from({ length: 12 }).map((_, i) => {
     const month = i + 1
+
+    const ym = `${year}-${month}`
+
     return {
-      key: `${year}-${month}`,
+      key: ym,
       month,
-      disabled: disabledDate?.(d.calc(month - d.month, 'months'))
+      disabled: disabledDate?.(date(ym).toEndOfMonth())
     }
   })
 }

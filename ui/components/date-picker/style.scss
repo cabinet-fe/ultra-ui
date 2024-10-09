@@ -18,37 +18,29 @@ $root-name: date-picker;
       font-size: fn.use-var(font-size-main, $size);
 
       @include m.bem($root-name, day) {
-        height: fn.use-var(form-component-height, $size);
         cursor: pointer;
-        padding: 2px;
+        padding: 2px 6px;
       }
 
       @include m.bem($root-name, day-text) {
-        height: 100%;
-        width: 100%;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: fn.use-var(form-component-height, $size);
+        height: fn.use-var(form-component-height, $size);
+        text-align: center;
+        line-height: fn.use-var(form-component-height, $size);
       }
 
       @include m.bem($root-name, days) {
-        grid-template-columns: repeat(
-          7,
-          fn.use-var(form-component-height, $size)
-        );
+        grid-template-columns: repeat(7, 1fr);
       }
 
       @include m.bem($root-name, week) {
-        grid-template-columns: repeat(
-          7,
-          fn.use-var(form-component-height, $size)
-        );
+        grid-template-columns: repeat(7, 1fr);
       }
 
       @include m.bem($root-name, header) {
         font-size: fn.use-var(font-size-title, $size);
-        height: fn.use-var(form-component-height, $size);
+        height: 40px;
       }
     }
   }
@@ -115,6 +107,14 @@ $root-name: date-picker;
     line-height: 1em;
     padding: 0 8px;
     @include m.flex($justify: space-between);
+
+    @include m.bem(icon) {
+      cursor: pointer;
+      font-size: 18px;
+      &:hover {
+        color: fn.use-var(color, primary);
+      }
+    }
   }
 
   @include m.e(header-year, header-month) {

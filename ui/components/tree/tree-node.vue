@@ -21,7 +21,7 @@
     </u-icon>
     <i v-else :class="cls.e('icon-placeholder')"> </i>
 
-    <span
+    <div
       :class="cls.e('node-content')"
       v-ripple="
         (treeProps.checkable || treeProps.selectable) && !node.disabled
@@ -36,10 +36,11 @@
         @update:model-value="handleCheck(node, $event)"
         :disabled="node.disabled"
         @click.stop
+        :class="cls.e('checkbox')"
       />
 
       <u-node-render :content="getTreeSlotsNode({ node, data: node.data })" />
-    </span>
+    </div>
   </div>
 </template>
 

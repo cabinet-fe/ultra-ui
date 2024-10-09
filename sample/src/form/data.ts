@@ -229,7 +229,7 @@ export const TreeData = Array.from({ length: 10 }, (_, index) => ({
   name: `烤冷面${index}`,
   id: `${index}`,
   children: Array.from({ length: 12 }, (_, ci) => ({
-    name: `烤冷面${index}-${ci}`,
+    name: `烤冷面${index}-${ci}烤冷面${index}-${ci}烤冷面${index}-${ci}烤冷面${index}-${ci}`,
     id: `${index}-${ci}`
   }))
 }))

@@ -24,8 +24,11 @@ declare module 'vue' {
     UCascade: typeof import('ultra-ui')['UCascade']
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
+    UDatePicker: typeof import('ultra-ui')['UDatePicker']
     UDialog: typeof import('ultra-ui')['UDialog']
     UInput: typeof import('ultra-ui')['UInput']
+    UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
+    UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
@@ -34,5 +37,7 @@ declare module 'vue' {
     USteps: typeof import('ultra-ui')['USteps']
     UTable: typeof import('ultra-ui')['UTable']
     UText: typeof import('ultra-ui')['UText']
+    UTree: typeof import('ultra-ui')['UTree']
+    UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }

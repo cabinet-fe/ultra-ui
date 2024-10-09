@@ -3,6 +3,7 @@
     <CustomCard title="菜单选择器多选、禁用某项、过滤">
       多选{{ treeCheckable }}
       <u-multi-tree-select
+        style="width: 180px"
         v-model="treeCheckable"
         :data="data"
         label-key="name"
