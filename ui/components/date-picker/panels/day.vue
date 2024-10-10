@@ -39,7 +39,8 @@ defineOptions({
   inheritAttrs: false
 })
 
-const { cls, pickerProps, state, pickerEmit, closeDropdown } = useDate('inject')
+const { cls, pickerProps, state, pickerEmit, formatStr, closeDropdown } =
+  useDate('inject')
 
 const days = computed(() => {
   return getMonthDays(state.panelDate.timestamp, pickerProps.disabledDate)
@@ -47,16 +48,13 @@ const days = computed(() => {
 
 function didDaySelect(date: Dater) {
   if (!state.date) return false
-  return (
-    state.date.year === date.year &&
-    state.date.month === date.month &&
-    state.date.day === date.day
-  )
+  const fmtStr = 'yyyyMMdd  '
+  return state.date.format(fmtStr) === date.format(fmtStr)
 }
 
 function handleSelectDate(day: Day) {
   if (day.disabled) return
-  pickerEmit('update:modelValue', day.date.format(pickerProps.valueFormat))
+  pickerEmit('update:modelValue', day.date.format(formatStr.value))
   state.date = day.date
   closeDropdown()
 }

@@ -54,7 +54,7 @@ $root-name: form-item;
   @include m.e(content) {
     flex-grow: 1;
     word-break: break-all;
-
+    overflow: hidden;
     @include m.flex($wrap: wrap);
 
     & > span {

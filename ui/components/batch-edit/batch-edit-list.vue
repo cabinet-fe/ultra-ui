@@ -48,7 +48,7 @@
         </ButtonWrap>
       </template>
 
-      <template #empty> {{ null }} </template>
+      <template #empty v-if="!props.readonly"> {{ null }} </template>
 
       <template
         #append
@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, type Slots } from 'vue'
+import { computed, inject, readonly, type Slots } from 'vue'
 import { omit } from 'cat-kit/fe'
 import { Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
 import { BatchEditDIKey } from './di'

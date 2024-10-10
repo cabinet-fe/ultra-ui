@@ -84,6 +84,10 @@ $root-name: multi-select;
   @include m.e(readonly-tags) {
     padding-left: 0;
     padding-right: 0;
+
+    @include m.bem(tag) {
+      border: 1px dashed fn.use-var(text-color, main);
+    }
   }
 
   @include m.e(option) {

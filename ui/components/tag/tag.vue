@@ -1,13 +1,17 @@
 <template>
-  <div :class="className">
+  <span :class="className">
     <span :class="cls.e('content')">
       <slot />
     </span>
 
-    <u-icon v-if="closable" @click.stop="handleClose" :class="cls.e('icon-close')">
+    <u-icon
+      v-if="closable"
+      @click.stop="handleClose"
+      :class="cls.e('icon-close')"
+    >
       <Close />
     </u-icon>
-  </div>
+  </span>
 </template>
 
 <script lang="ts" setup>

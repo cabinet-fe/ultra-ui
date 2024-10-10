@@ -20,29 +20,38 @@ import { computed } from 'vue'
 import { useDate } from '../use-date'
 import { bem } from '@ui/utils'
 import { getYearMonths } from '../../calendar/utils'
+import { date } from 'cat-kit/fe'
 
 defineOptions({
   name: 'MonthPanel'
 })
 
-const { cls, state, pickerProps } = useDate('inject')
+const {
+  cls,
+  state,
+  pickerProps,
+  pickerEmit,
+  showNextPanel,
+  closeDropdown,
+  formatStr
+} = useDate('inject')
 
 const months = computed(() => {
   return getYearMonths(state.panelDate.timestamp, pickerProps.disabledDate)
 })
 
 function handleSelectMonth(month: number) {
-  let targetDate = state.date
-    ? state.date.setMonth(month)
-    : state.panelDate.setMonth(month)
-
-  state.panelDate = targetDate
-  state.panel = 'day'
+  state.panelDate = state.panelDate.setMonth(month)
+  showNextPanel()
+  if (pickerProps.type === 'month') {
+    state.date = date(state.panelDate.format('yyyy-MM'))
+    pickerEmit('update:modelValue', state.date.format(formatStr.value))
+    closeDropdown()
+  }
 }
 
 function didMonthSelected(month: number) {
   if (!state.date) return false
-  console.log(state.date.month, month, state.date.year, state.panelDate.year)
   return state.date.month === month && state.date.year === state.panelDate.year
 }
 </script>

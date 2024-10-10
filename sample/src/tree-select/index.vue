@@ -5,7 +5,6 @@
     >
       <u-tree-select
         v-model="treeSelect"
-        style="width: 240px"
         :data="data"
         label-key="name"
         value-key="id"

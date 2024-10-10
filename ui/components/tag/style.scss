@@ -9,28 +9,20 @@ $root-name: tag;
   color: fn.use-var(text-color, main);
   background-color: fn.use-var(color, default);
   overflow: hidden;
+  min-width: 0;
   @include m.flex(inline-flex, flex-start, center);
 
   @include m.e(content) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    line-height: 1em;
     flex-grow: 1;
-    display: flex;
-    align-items: center;
-    height: 100%;
   }
 
   @include m.e(icon-close) {
     cursor: pointer;
     flex-shrink: 0;
     border-radius: 50%;
-    transition: background-color 0.15s linear;
-
-    &:hover {
-      background-color: #ddd;
-    }
   }
 
   @include m.size using ($size) {
@@ -57,6 +49,13 @@ $root-name: tag;
       @include m.is(dark) {
         color: fn.use-var(text-color, white);
         background-color: fn.use-var(color, $type);
+      }
+
+      @include m.bem($root-name, icon-close) {
+        &:hover {
+          border: 1px solid fn.use-var(color, $type);
+          // background-color: #ddd;
+        }
       }
     }
   }

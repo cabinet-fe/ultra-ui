@@ -28,19 +28,20 @@
         <u-tag v-if="hiddenCount > 0">+{{ hiddenCount }}</u-tag>
       </div>
       <!-- 清空 icon -->
-      <transition name="zoom-in">
+      <transition name="zoom-in" mode="out-in">
         <u-icon
-          v-if="clearable && model?.length && hovered && !disabled"
+          v-if="showClear"
           :class="cls.e('clear')"
           @click.stop="handleClear"
         >
           <Close />
         </u-icon>
+
+        <!-- 下拉 icon -->
+        <u-icon :class="cls.e(`arrow`)" v-else-if="!readonly">
+          <ArrowDown />
+        </u-icon>
       </transition>
-      <!-- 下拉 icon -->
-      <u-icon :class="cls.e(`arrow`)" v-if="!readonly">
-        <ArrowDown />
-      </u-icon>
     </template>
     <template #content>
       <!-- 全选 -->
@@ -162,6 +163,12 @@ const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
   props
 ])
+
+const showClear = computed(() => {
+  return (
+    props.clearable && model.value?.length && hovered.value && !disabled.value
+  )
+})
 
 const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
 

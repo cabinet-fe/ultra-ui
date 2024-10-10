@@ -28,7 +28,7 @@
         <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
       </div>
 
-      <transition name="zoom-in">
+      <transition name="zoom-in" mode="out-in">
         <u-icon
           v-if="clearable && model?.length && hovered && !disabled"
           :class="cls.e('clear')"
@@ -36,9 +36,9 @@
         >
           <Close />
         </u-icon>
-      </transition>
 
-      <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
+        <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
+      </transition>
     </template>
 
     <!-- 下拉内容 -->

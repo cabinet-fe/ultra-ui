@@ -5,6 +5,7 @@
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     width="auto"
     ref="dropdownRef"
+    @update:visible="$event && updatePanelDate()"
     :disabled="disabled"
     v-if="!readonly"
   >
@@ -14,6 +15,7 @@
         native-readonly
         :placeholder="placeholder"
         :model-value="modelValue"
+        @update:model-value="v => emit('update:modelValue', v)"
       >
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
@@ -53,7 +55,6 @@ defineOptions({
 
 const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期',
-  format: 'yyyy-MM-dd',
   type: 'date',
   disabled: undefined,
   readonly: undefined
@@ -80,7 +81,7 @@ const className = computed(() => {
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-useDate('provide', {
+const { updatePanelDate } = useDate('provide', {
   props,
   emit,
   closeDropdown: () => dropdownRef.value?.close()

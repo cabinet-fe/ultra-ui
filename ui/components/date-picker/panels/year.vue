@@ -20,12 +20,21 @@ import { bem } from '@ui/utils'
 import { useDate } from '../use-date'
 import { getTenYears } from '../../calendar/utils'
 import { computed } from 'vue'
+import { date } from 'cat-kit/fe'
 
 defineOptions({
   name: 'YearPanel'
 })
 
-const { cls, state, pickerProps } = useDate('inject')
+const {
+  cls,
+  state,
+  pickerProps,
+  pickerEmit,
+  showNextPanel,
+  closeDropdown,
+  formatStr
+} = useDate('inject')
 
 const years = computed(() => {
   return getTenYears(state.panelDate.timestamp, pickerProps.disabledDate)
@@ -37,6 +46,13 @@ function didYearSelected(year: number) {
 }
 
 function handleSelectYear(year: number) {
-  state.panel = 'month'
+  state.panelDate = state.panelDate.setYear(year)
+  showNextPanel()
+  if (pickerProps.type === 'year') {
+    const dateStr = state.panelDate.format('yyyy')
+    state.date = date(dateStr)
+    pickerEmit('update:modelValue', state.date.format(formatStr.value))
+    closeDropdown()
+  }
 }
 </script>

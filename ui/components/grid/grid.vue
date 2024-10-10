@@ -58,14 +58,14 @@ watchEffect(() => {
   } else {
     switch (typeof cols) {
       case 'number':
-        style.gridTemplateColumns = `repeat(${cols}, 1fr)`
+        style.gridTemplateColumns = `repeat(${cols}, minmax(0px, 1fr))`
         break
       case 'function':
-        style.gridTemplateColumns = `repeat(${cols(breakpoint)}, 1fr)`
+        style.gridTemplateColumns = `repeat(${cols(breakpoint)}, minmax(0px, 1fr))`
         break
       case 'object':
         const amount = getBreakpointCols(cols, breakpoint)
-        style.gridTemplateColumns = `repeat(${amount}, 1fr)`
+        style.gridTemplateColumns = `repeat(${amount}, minmax(0px, 1fr))`
     }
   }
 

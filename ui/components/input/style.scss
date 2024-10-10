@@ -12,6 +12,7 @@ $root-name: input;
   transition: box-shadow 0.25s ease;
   overflow: hidden;
   width: 100%;
+
   @include m.flex($display: inline-flex);
 
   &:hover {
@@ -22,11 +23,11 @@ $root-name: input;
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
     border-radius: fn.use-var(radius, $size);
+    padding: 0 calc(fn.use-var(gap, $size) / 2);
 
     @include m.bem($root-name, native) {
       height: fn.use-var(form-component-height, $size);
       line-height: fn.use-var(form-component-height, $size);
-      padding: 0 calc(fn.use-var(gap, $size) / 2);
     }
 
     @include m.bem($root-name, clear) {

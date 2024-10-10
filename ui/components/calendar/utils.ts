@@ -125,7 +125,7 @@ export function getTenYears(
     const year = startYear + i
     return {
       year,
-      disabled: disabledDate?.(d.calc(year - d.year, 'years'))
+      disabled: disabledDate?.(date(`${year}-12-31 23:59:59`))
     }
   })
 }
