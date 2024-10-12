@@ -1,6 +1,11 @@
 <template>
   <u-scroll
-    :class="[cls.b, cls.m(size), bem.is('all-expanded', allExpanded)]"
+    :class="[
+      cls.b,
+      cls.m(size),
+      bem.is('all-expanded', allExpanded),
+      bem.is('text-ellipsis', textEllipsis)
+    ]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
   >
@@ -40,6 +45,8 @@
     <slot name="append" />
 
     <div :class="cls.e('resizer')"></div>
+
+    <u-tip v-if="textEllipsis" ref="tipRef"> </u-tip>
   </u-scroll>
 </template>
 
@@ -55,6 +62,7 @@ import { computed, provide, shallowRef, toRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
 import { ColumnNode, useColumns } from './use-columns'
+import { UTip } from '../tip'
 import UTableHead from './table-head'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
@@ -70,7 +78,8 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<TableProps<DataItem>>(), {
-  tree: false
+  tree: false,
+  textOverflow: 'line-break'
 })
 const emit = defineEmits<TableEmits>()
 
@@ -169,6 +178,8 @@ watch(
   { immediate: true }
 )
 
+const tipRef = shallowRef()
+
 provide(TableDIKey, {
   tableProps: props,
   tableSlots: slots,
@@ -180,6 +191,7 @@ provide(TableDIKey, {
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,
+  // tipRef,
   toggleTreeRowExpand,
   ...virtualCtx
 })

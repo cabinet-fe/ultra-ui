@@ -35,7 +35,7 @@
 
       <u-tree
         v-bind="treeProps"
-        v-model:selected="model"
+        :selected="model"
         @update:selected="handleSelect"
         ref="treeRef"
         selectable
@@ -64,7 +64,6 @@ import { computed, nextTick, shallowRef, watch } from 'vue'
 import { Tree, getChainValue, omit } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
-import type { TreeNode } from '@ui/types/components/tree'
 
 defineOptions({
   name: 'TreeSelect'
@@ -124,11 +123,11 @@ const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
 /**清空 */
 const handleClear = () => {
-  model.value = undefined
+  model.value = ''
   label.value = undefined
   emit('clear')
-  emit('change', undefined, undefined)
-  emit('update:text', undefined)
+  emit('change', '', undefined)
+  emit('update:text', '')
 }
 
 let changedByEvent = false
@@ -162,18 +161,19 @@ watch(
 
 const handleSelect = (
   selected?: string | number,
-  selectedData?: Record<string, any>,
-  node?: TreeNode<Record<string, any>>
+  selectedData?: Record<string, any>
 ) => {
   changedByEvent = true
   nextTick(() => {
     changedByEvent = false
   })
 
+  model.value = selected ?? ''
+
   if (selectedData) {
     label.value = getChainValue(selectedData, props.labelKey)
   } else {
-    label.value = undefined
+    label.value = ''
   }
 
   emit('change', selected, selectedData)

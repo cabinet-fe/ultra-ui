@@ -114,6 +114,10 @@ export function usePop(options: Options) {
     }
   }
 
+  watch(triggerRef, () => {
+    update()
+  })
+
   let scrollParents: HTMLElement[] = []
 
   /** 为触发器元素的祖先元素添加滚动事件 */

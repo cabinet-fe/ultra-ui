@@ -111,6 +111,8 @@ export interface TableProps<
 
   /**  默认展开全部 */
   defaultExpandAll?: boolean
+  /** 文本溢出省略 */
+  textEllipsis?: boolean
 }
 
 export interface TableRow<

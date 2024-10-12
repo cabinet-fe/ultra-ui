@@ -3,6 +3,7 @@
     <CustomCard
       title="菜单选择器单选、禁用某项、过滤、选择完选项值自动关闭弹窗"
     >
+      {{ { treeSelect } }}
       <u-tree-select
         v-model="treeSelect"
         :data="data"

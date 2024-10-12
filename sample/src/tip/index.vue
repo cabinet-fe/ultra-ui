@@ -26,15 +26,19 @@
           >
         </u-tip>
       </div>
+    </CustomCard>
 
-      <!-- <u-tip
-        :direction="direction"
-        :alignment="alignment"
-        :trigger="trigger"
-        :content="content"
+    <CustomCard title="虚拟触发">
+      <u-button
+        @click="
+          tipRef.trigger({ triggerDom: $refs.triggerDom, content: '7777' })
+        "
+        >触发按钮</u-button
       >
-        <u-button>触发2</u-button>
-      </u-tip> -->
+
+      <span ref="triggerDom">实际触发位置</span>
+
+      <u-tip ref="tipRef" trigger="click"> </u-tip>
     </CustomCard>
   </div>
 </template>
@@ -63,6 +67,8 @@ const content = shallowRef(
 const direction = shallowRef<TipDirection>('top')
 const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
+
+const tipRef = shallowRef()
 </script>
 
 <style lang="scss" scoped>

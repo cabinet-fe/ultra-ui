@@ -1,7 +1,6 @@
 import { defineComponent, type PropType, type VNodeRef } from 'vue'
 import { inject } from 'vue'
 import { TableDIKey } from './di'
-import { UNodeRender } from '../node-render'
 import UTabelCell from './table-cell.vue'
 import { bem } from '@ui/utils'
 import { ArrowRight } from 'icon-ultra'
@@ -76,7 +75,7 @@ export default defineComponent({
                   style={`margin-left: ${(row.depth - 1) * 14}px`}
                 ></i>
               )}
-              <UNodeRender content={getColumnSlotsNode(expandCtx)} />
+              {getColumnSlotsNode(expandCtx)}
             </UTabelCell>
           )
         }
@@ -97,6 +96,8 @@ export default defineComponent({
               return null
             }
 
+            const cellNode = getColumnSlotsNode(cellCtx)
+
             return (
               <UTabelCell
                 column={column}
@@ -104,8 +105,17 @@ export default defineComponent({
                 right={column.style.right}
                 key={column.key + column.keySuffix}
                 {...cellSpan}
+                // onMouseenter={e => {
+                //   tipRef.value?.trigger({
+                //     triggerDom: e.target as HTMLElement,
+                //     content: cellNode
+                //   })
+                // }}
+                // onMouseleave={() => {
+                //   tipRef.value?.close()
+                // }}
               >
-                <UNodeRender content={getColumnSlotsNode(cellCtx)} />
+                {cellNode}
               </UTabelCell>
             )
           })}

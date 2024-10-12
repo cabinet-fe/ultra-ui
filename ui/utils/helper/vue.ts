@@ -5,7 +5,9 @@ import {
   type VNode,
   isVNode,
   createTextVNode,
-  type VNodeArrayChildren
+  type VNodeArrayChildren,
+  shallowRef,
+  watch
 } from 'vue'
 
 interface TextVNode extends VNode {
@@ -80,4 +82,13 @@ export function extractNormalVNodes(
     }
   })
   return results
+}
+
+export function shallowComputed<T>(getter: () => T) {
+  const result = shallowRef<T>(getter())
+  watch(getter, value => {
+    result.value = value
+  })
+
+  return result
 }

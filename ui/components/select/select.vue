@@ -190,8 +190,8 @@ watch(selected, selected => {
 
   modelIsChangedBySelected = true
 
-  model.value = selected?.[props.valueKey]
-  label.value = selected?.[props.labelKey]
+  model.value = selected?.[props.valueKey] ?? ''
+  label.value = selected?.[props.labelKey] ?? ''
 
   modelIsChangedBySelected = false
 })

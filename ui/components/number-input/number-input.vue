@@ -198,7 +198,7 @@ function getValidValue<T extends undefined | number>(val: T): T {
 
 function handleUpdateModelValue(input: string): void {
   const newVal = parseDisplayed(input)
-  model.value = getValidValue(newVal)
+  model.value = getValidValue(newVal) ?? 0
   displayed.value = input
 }
 

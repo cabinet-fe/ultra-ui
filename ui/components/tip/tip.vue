@@ -21,6 +21,8 @@
         @click.stop
         v-click-outside="handleClickOutside"
       >
+        <UNodeRender v-if="externalNode" :content="externalNode" />
+
         <slot name="content">{{ content }}</slot>
 
         <div :class="cls.e('arrow')" v-if="!hideArrow" ref="arrowRef"></div>
@@ -39,9 +41,10 @@ import {
   provide,
   shallowReactive,
   type ShallowRef,
-  toRef
+  toRef,
+  type VNode
 } from 'vue'
-import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
+import { bem, extractNormalVNodes, shallowComputed, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
 import type { TipProps } from '@ui/types/components/tip'
 import { useFallbackProps, usePop } from '@ui/compositions'
@@ -52,7 +55,7 @@ import type { ComponentSize } from '@ui/types'
 defineOptions({ name: 'Tip' })
 
 const props = withDefaults(defineProps<TipProps>(), {
-  content: '提示内容',
+  content: '',
   trigger: 'hover',
   direction: 'top',
   alignment: 'center',
@@ -154,8 +157,10 @@ const close = () => {
   }
 }
 
+const triggerDom = shallowComputed(() => triggerRef.value?.$el)
+
 usePop({
-  triggerRef: toRef(() => triggerRef.value?.$el),
+  triggerRef: triggerDom,
   contentRef,
   arrowRef,
   direction: toRef(() => props.direction),
@@ -165,10 +170,24 @@ usePop({
   }
 })
 
+const externalNode = shallowRef<any>()
+
+function trigger(config: {
+  triggerDom?: HTMLElement
+  content?: string | VNode | (string | VNode)[]
+}) {
+  triggerDom.value = config.triggerDom
+  externalNode.value = config.content
+  open()
+}
+
 onBeforeUnmount(() => {
   clearTimeout(closeTimer)
   removeChild?.(visible)
 })
 
-defineExpose({ close })
+defineExpose({
+  close,
+  trigger
+})
 </script>

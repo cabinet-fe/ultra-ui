@@ -190,4 +190,12 @@ $root-name: table;
     position: absolute;
     visibility: hidden;
   }
+
+  @include m.is(text-ellipsis) {
+    @include m.bem($root-name, cell) {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
 }

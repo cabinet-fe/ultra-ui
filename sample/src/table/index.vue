@@ -14,7 +14,8 @@
         单选
       </u-checkbox>
       <u-checkbox v-model="state.tree">树形结构</u-checkbox>
-      <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
+      <u-checkbox v-model="state.textEllipsis">文本溢出省略</u-checkbox>
+      <!-- <u-checkbox v-model="fixedHeight">固定高度</u-checkbox> -->
       <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
       <u-checkbox v-model="showData">显示数据</u-checkbox>
       <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
@@ -38,6 +39,10 @@
 
         <template #column:sort="{ row }">
           <!-- <u-button @click="handleSort(row.index)">向下</u-button> -->
+        </template>
+
+        <template #column:name="{ row }">
+          <u-tag>{{ row.data.name }}</u-tag>
         </template>
 
         <!-- <template v-if="state.editing"> -->
@@ -100,7 +105,8 @@ const state = shallowReactive({
   tree: false,
   showIndex: false,
   highlightCurrent: false,
-  editing: false
+  editing: false,
+  textEllipsis: false
 })
 
 const fixedHeight = shallowRef(true)
