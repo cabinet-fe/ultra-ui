@@ -74,7 +74,10 @@ async function buildStyleEntry() {
           handler(id, importer) {
             if (id.startsWith('@ui')) {
               if (importer) {
-                id = relative(dirname(importer), id.replace('@ui', UI_ROOT)).replace(/\\/g, '/')
+                id = relative(
+                  dirname(importer),
+                  id.replace('@ui', UI_ROOT)
+                ).replace(/\\/g, '/')
               } else {
                 id.replaceAll('@ui', 'ultra-ui')
               }
@@ -109,7 +112,8 @@ async function buildStyleEntry() {
 
   bundle.write({
     dir: resolve(__dirname, '../dist'),
-    format: 'es'
+    format: 'es',
+    assetFileNames: '[name].[ext]'
   })
 }
 

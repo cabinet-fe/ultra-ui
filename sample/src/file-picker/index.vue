@@ -17,6 +17,12 @@
         <li v-for="file of files">{{ file.name }} {{ file.size }}</li>
       </ul>
     </CustomCard>
+
+    <CustomCard title="图片上传">
+      <u-file-picker accept="image/*" @pick="files = [...files, ...$event]">
+        <u-button>上传文件</u-button>
+      </u-file-picker>
+    </CustomCard>
   </div>
 </template>
 

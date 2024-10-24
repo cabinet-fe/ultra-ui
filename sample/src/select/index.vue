@@ -6,8 +6,8 @@
         v-model="selected"
         :filterable="filterable"
         :options="options"
-        @update:model-value="console.log"
       />
+      <u-input v-model="selected" />
 
       <div style="height: 10vh"></div>
     </CustomCard>
@@ -30,14 +30,14 @@ const options = shallowRef<any[]>([])
 setTimeout(() => {
   options.value = Array.from({ length: 80 }).map((_, i) => ({
     label: `选项${i}`,
-    value: i
+    value: i + ''
   }))
 }, 1000)
 
 const selected = shallowRef()
 
 setTimeout(() => {
-  selected.value = 20
+  selected.value = '20'
 })
 
 const filterable = shallowRef(true)

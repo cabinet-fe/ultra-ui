@@ -9,6 +9,7 @@
       placeholder="选择文件"
       ref="fileRef"
       @change="handleChange"
+      capture="environment"
     />
     <slot />
   </component>

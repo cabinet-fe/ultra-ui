@@ -1,57 +1,6 @@
 <template>
   <div>
-    <CustomCard title="使用方式">
-      <u-checkbox
-        v-model="state.checkable"
-        @update:model-value="state.selectable = false"
-      >
-        多选
-      </u-checkbox>
-      <u-checkbox
-        v-model="state.selectable"
-        @update:model-value="state.checkable = false"
-      >
-        单选
-      </u-checkbox>
-      <u-checkbox v-model="state.tree">树形结构</u-checkbox>
-      <u-checkbox v-model="state.textEllipsis">文本溢出省略</u-checkbox>
-      <!-- <u-checkbox v-model="fixedHeight">固定高度</u-checkbox> -->
-      <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
-      <u-checkbox v-model="showData">显示数据</u-checkbox>
-      <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
-      <u-checkbox v-model="state.showIndex">显示序号</u-checkbox>
-      <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
-
-      <u-table
-        v-if="true"
-        :data="data"
-        :columns="columns"
-        :style="{
-          height: fixedHeight ? '700px' : ''
-        }"
-        row-key="name"
-        v-bind="state"
-        v-model:checked="checked"
-        v-model:selected="selected"
-        ref="tableRef"
-      >
-        <template #header:age> 年龄 </template>
-
-        <template #column:sort="{ row }">
-          <!-- <u-button @click="handleSort(row.index)">向下</u-button> -->
-        </template>
-
-        <template #column:name="{ row }">
-          <u-tag>{{ row.data.name }}</u-tag>
-        </template>
-
-        <!-- <template v-if="state.editing"> -->
-        <template #column:age="{ model }" v-if="state.editing">
-          <u-number-input v-bind="model"></u-number-input>
-        </template>
-        <!-- </template> -->
-      </u-table>
-    </CustomCard>
+    <CustomCard title="使用方式"> </CustomCard>
 
     <CustomCard title="合并单元格">
       <u-table
