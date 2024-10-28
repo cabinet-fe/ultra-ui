@@ -4,7 +4,8 @@
     "composite": true,
     "declaration": true,
     "types": ["@types/bun"],
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "module": "ESNext"
   },
   "exclude": ["node_modules"],
   "include": ["*.ts"]

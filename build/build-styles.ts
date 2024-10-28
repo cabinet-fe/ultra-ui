@@ -65,44 +65,40 @@ async function buildStyleEntry() {
 
     plugins: [
       esbuild({
-        minify: false
+        minify: false,
+        format: 'esm'
       }),
       {
         name: 'alias',
         resolveId: {
           order: 'pre',
-          handler(id, importer) {
-            if (id.startsWith('@ui')) {
-              if (importer) {
-                id = relative(
-                  dirname(importer),
-                  id.replace('@ui', UI_ROOT)
-                ).replace(/\\/g, '/')
-              } else {
-                id.replaceAll('@ui', 'ultra-ui')
-              }
-
-              if (id.endsWith('.scss')) {
-                id = id.replace(/\.scss$/, '.css')
-              }
-
-              return {
-                id,
-                external: 'relative'
-              }
+          handler(source, importer) {
+            // 如果导入来源是scss文件，则将导入来源替换为css文件
+            if (source.endsWith('.scss')) {
+              source = source.replace(/\.scss$/, '.css')
             }
 
-            if (id.endsWith('.scss')) {
-              id = id.replace(/\.scss$/, '.css')
-              return {
-                id,
-                external: 'relative'
-              }
-            } else if (id.endsWith('style')) {
-              return {
-                id,
-                external: 'relative'
-              }
+            // 如果导入来源以@ui开头，则将导入来源替换为相对于导入文件的相对路径
+            if (source.startsWith('@ui') && importer) {
+              source = relative(
+                dirname(importer),
+                source.replace('@ui', UI_ROOT)
+              ).replace(/\\/g, '/')
+            }
+
+            if (source.endsWith('style')) {
+              source = source + '.js'
+            }
+
+            // 表示入口文件
+            if (!importer) {
+              return source
+            }
+
+            // 标记为外部文件，不进行额外地构建
+            return {
+              id: source,
+              external: true
             }
           }
         }
@@ -112,8 +108,7 @@ async function buildStyleEntry() {
 
   bundle.write({
     dir: resolve(__dirname, '../dist'),
-    format: 'es',
-    assetFileNames: '[name].[ext]'
+    format: 'es'
   })
 }
 

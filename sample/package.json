@@ -1,7 +1,7 @@
 {
   "name": "sample",
   "scripts": {
-    "play": "vite dev"
+    "play": "bunx --bun vite"
   },
   "type": "module",
   "dependencies": {
