@@ -15,7 +15,12 @@ const UI_ROOT = resolve(__dirname, '../ui')
 
 async function getEntries() {
   const entries = await fg.glob(
-    ['components/**/style.ts', 'directives/**/style.ts'],
+    [
+      'styles/index.ts',
+      'install.ts',
+      'components/**/style.ts',
+      'directives/**/style.ts'
+    ],
     {
       ignore: ['**/node_modules'],
       cwd: UI_ROOT

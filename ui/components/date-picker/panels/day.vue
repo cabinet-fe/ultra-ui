@@ -42,12 +42,13 @@ defineOptions({
 const { cls, pickerProps, state, pickerEmit, formatStr, closeDropdown } =
   useDate('inject')
 
-const days = computed(() => {
+const days = computed<Day[]>(() => {
   return getMonthDays(state.panelDate.timestamp, pickerProps.disabledDate)
 })
 
 function didDaySelect(date: Dater) {
   if (!state.date) return false
+
   const fmtStr = 'yyyyMMdd  '
   return state.date.format(fmtStr) === date.format(fmtStr)
 }

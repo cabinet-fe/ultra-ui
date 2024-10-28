@@ -21,6 +21,14 @@ export async function build() {
 
     logLevel: 'warn',
 
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern'
+        }
+      }
+    },
+
     build: {
       sourcemap: true,
 

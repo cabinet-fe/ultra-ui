@@ -36,6 +36,11 @@ const pkg: Record<string, any> = {
       types: './*.d.ts',
       default: './*',
       import: './*'
+    },
+    './install': {
+      types: './install.d.ts',
+      default: './install.js',
+      import: './install.js'
     }
   }
 }

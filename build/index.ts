@@ -3,9 +3,11 @@ import { copyFiles } from './copy'
 import { build } from './build'
 import { buildDTS } from './build-dts'
 import { genPackageJson } from './gen-package-json'
+import { genInstall } from './gen-install'
 import { $ } from 'bun'
 
 async function boot() {
+  await genInstall()
   await build()
   await buildDTS()
   await buildStyles()

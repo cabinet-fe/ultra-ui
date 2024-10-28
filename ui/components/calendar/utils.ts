@@ -12,7 +12,7 @@ export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 export function getMonthDays(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater) => boolean
-) {
+): Day[] {
   const todayStr = date().format()
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
