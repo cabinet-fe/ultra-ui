@@ -6,7 +6,7 @@ import { router } from './router'
 // import { vLoading } from 'ultra-ui/components/loading/directive.js'
 // import 'ultra-ui/components/loading/style.scss'
 // import 'ultra-ui/components/context-menu/style'
-import { UltraUI } from 'ultra-ui/install'
+import { UltraUI } from '../ui/install'
 
 const app = createApp({
   render: () => h(App)

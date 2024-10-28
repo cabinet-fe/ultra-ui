@@ -58,7 +58,7 @@
       <u-button plain type="info">信息</u-button>
     </div>
 
-    <div class="space">
+    <div class="space" style="margin-bottom: 800px">
       <div>朴素模式和禁用</div>
       <u-button plain disabled>默认</u-button>
       <u-button plain disabled type="primary">主题</u-button>

@@ -92,9 +92,10 @@ export function showRipple(
 function handleMousedown(e: MouseEvent) {
   const el = e.currentTarget as HTMLElement
   const domRect = el.getBoundingClientRect()
+
   showRipple(el, {
-    centerX: e.pageX - domRect.left,
-    centerY: e.pageY - domRect.top,
+    centerX: e.clientX - domRect.left,
+    centerY: e.clientY - domRect.top,
     domRect
   })
 }
