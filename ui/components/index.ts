@@ -104,7 +104,7 @@ export * from './tag'
 
 export * from './text'
 
-export * from './text-editor'
+// export * from './text-editor'
 
 export * from './textarea'
 

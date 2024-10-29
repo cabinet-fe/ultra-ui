@@ -4,7 +4,7 @@
       <u-button @click="setValue">设置初始值</u-button>
     </div>
 
-    <CustomCard title="基础用法">
+    <!-- <CustomCard title="基础用法">
       <UTextEditor v-model="modelValue" height="500px" />
     </CustomCard>
 
@@ -14,11 +14,11 @@
 
     <CustomCard title="只读">
       <UTextEditor v-model="modelValue" height="500px" readonly />
-    </CustomCard>
+    </CustomCard> -->
   </div>
 </template>
 <script lang="ts" setup>
-import CustomCard from '../card/custom-card.vue'
+// import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
 const modelValue = shallowRef()

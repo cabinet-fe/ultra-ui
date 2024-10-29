@@ -11,8 +11,15 @@ export const DIST_ROOT = resolve(__dirname, '../dist')
 export async function getEntries() {
   const entries = await fg.glob('**/*.{ts,vue,tsx}', {
     cwd: UI_ROOT,
-    ignore: ['**/node_modules', '**/__test__', 'types/**', '**/style.ts']
+    ignore: [
+      '**/node_modules',
+      '**/__test__',
+      '**/disabled.*/**',
+      'types/**',
+      '**/style.ts'
+    ]
   })
+
   return Object.fromEntries(
     entries.map(entry => [
       entry.slice(0, -extname(entry).length),

@@ -6,7 +6,7 @@ export async function genInstall() {
   const entries = await fg.glob(
     ['components/**/*.scss', 'directives/**/*.scss'],
     {
-      ignore: ['**/node_modules', '**/_*.scss'],
+      ignore: ['**/node_modules', '**/disabled.*/**', '**/_*.scss'],
       cwd: UI_ROOT
     }
   )
