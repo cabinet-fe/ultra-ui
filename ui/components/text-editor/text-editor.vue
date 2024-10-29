@@ -1,8 +1,18 @@
 <template>
   <div :class="className">
-    <Bar ref="barRef" />
+    <div :class="cls.e('bar')" ref="barContainerRef" v-if="!readonly">
+      <select class="ql-size">
+        <option value="small">小</option>
+        <option selected>正常</option>
+        <option value="large">大</option>
+      </select>
 
-    <div :class="cls.e('hover')" :style="`height: ${height}`" ref="editorRef" />
+      <UTip :content="item.content" v-for="item of toolbar" :key="item.bar">
+        <button :class="`ql-${item.bar}`" />
+      </UTip>
+    </div>
+
+    <div :class="cls.e('hover')" ref="containerRef" />
   </div>
 </template>
 
@@ -14,18 +24,15 @@ import type {
 } from '@ui/types/components/text-editor'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
-import type { Delta, QuillOptions, Op } from 'quill/core'
 import {
-  onMounted,
   shallowRef,
-  ref,
-  watch,
   computed,
-  nextTick,
   onBeforeUnmount,
-  provide
+  provide,
+  watchEffect,
+  nextTick,
+  watch
 } from 'vue'
-import Bar from './bar.vue'
 import { TextEditorDIKey } from './di'
 
 defineOptions({
@@ -36,13 +43,19 @@ const emit = defineEmits<TextEditorEmits>()
 
 const props = withDefaults(defineProps<TextEditorProps>(), {
   disabled: undefined,
-  toolbar: undefined,
-  placeholder: '请输入'
+  placeholder: '请输入',
+  toolbar: () => [
+    { content: '加粗', bar: 'bold' },
+    { content: '斜体', bar: 'italic' },
+    { content: '下划线', bar: 'underline' },
+    { content: '上传图片', bar: 'image' },
+    { content: '插入链接', bar: 'link' },
+    { content: '代码块', bar: 'code-block' },
+    { content: '清除格式', bar: 'clean' }
+  ]
 })
 
-provide(TextEditorDIKey, {
-  textEditorProps: props
-})
+const cls = bem('text-editor')
 
 const { formProps } = useFormComponent()
 
@@ -61,122 +74,83 @@ const className = computed(() => {
   ]
 })
 
-const cls = bem('text-editor')
+/** 容器 */
+const containerRef = shallowRef<HTMLElement>()
+/** 工具栏容器 */
+const barContainerRef = shallowRef<HTMLElement>()
 
-const editorRef = shallowRef<HTMLElement>()
-
-const barRef = shallowRef<InstanceType<typeof Bar>>()
-
-let options: QuillOptions
-
-let quill: Quill | null = null
-
-const stamp = ref<string>('')
-
-const getOptions = () => {
-  options = {
-    modules: {
-      toolbar: barRef.value?.barRef
-    },
-    // readOnly: readonly.value,
-    theme: 'snow',
-    placeholder:
-      disabled.value || readonly.value ? undefined : props.placeholder
-  }
-}
-
-/** 因为没有所以设定一个重新渲染的变量 */
-let reRendering = ref(true)
-
-/** 等待barRef加载出来 */
-nextTick(() => {
-  getOptions()
+provide(TextEditorDIKey, {
+  textEditorProps: props,
+  barContainerRef
 })
 
-/** 创建textEditor实例 */
-const createTextEditor = async () => {
-  destroy()
-  await nextTick()
-  reRendering.value = true
+let quill = shallowRef<Quill>()
 
-  nextTick(() => {
-    console.log(options, 'options')
-    quill = new Quill(editorRef.value!, options)
+function resetQuill() {
+  quill.value?.history.clear()
+  quill.value?.off(Quill.events.TEXT_CHANGE)
+  quill.value = undefined
+}
 
-    quill.on('text-change', update)
+let isUserInput = false
+let isModelValueChange = false
 
-    /** 禁用 */
-    if (disabled.value || readonly.value) {
-      quill.enable(false)
-    } else {
-      quill.enable(true)
-    }
+function createQuill() {
+  if (!containerRef.value) return
+  resetQuill()
 
-    quill.updateContents(props.modelValue!)
+  const _quill = new Quill(containerRef.value, {
+    modules: {
+      toolbar: readonly.value ? false : barContainerRef.value
+    },
 
-    // 双向绑定标志
-    stamp.value = `${new Date().getTime()}${Math.random()}`
+    theme: 'snow',
+    readOnly: readonly.value ?? disabled.value,
+
+    placeholder:
+      disabled.value || readonly.value ? undefined : props.placeholder
   })
+
+  _quill.on(Quill.events.TEXT_CHANGE, () => {
+    if (isModelValueChange) return
+    isUserInput = true
+    emit('update:modelValue', _quill.root.innerHTML)
+    nextTick(() => {
+      isUserInput = false
+    })
+  })
+
+  quill.value = _quill
 }
 
-/** 销毁quill实例 */
-const destroy = () => {
-  if (quill) {
-    // const theme: any = quill?.theme
-
-    // theme.modules?.toolbar?.container?.remove()
-
-    // theme.modules?.clipboard?.container?.remove()
-
-    reRendering.value = false
-  }
-}
-
-onMounted(() => {
-  createTextEditor()
+watchEffect(() => {
+  createQuill()
 })
 
 watch(
-  () => [disabled.value, readonly.value],
-  () => {
-    createTextEditor()
-  }
+  [() => props.modelValue, quill],
+  ([modelValue, quill]) => {
+    if (!quill || isUserInput) return
+    isModelValueChange = true
+    quill.root.innerHTML = modelValue ?? ''
+    nextTick(() => {
+      isModelValueChange = false
+    })
+  },
+  { immediate: true }
 )
 
-/** 调用富文本方法 */
-const quillRef = () => {
-  return quill
-}
+watchEffect(() => {
+  if (!quill.value) return
 
-/** 赋值方法 */
-const setValue = (value: Delta | Op[]) => {
-  quill?.update()
-  return quill?.updateContents(value)
-}
-
-/** 获取toolbar */
-const getModelBar = () => {
-  return quill?.getModule('toolbar')
-}
-
-/** 更新data的值 */
-const update = (_, __, ___: 'user' | 'api') => {
-  const contents = quill?.getContents()
-
-  emit('update:modelValue', { value: contents, stamp: stamp.value })
-}
-
-onBeforeUnmount(() => {
-  quill?.off('text-change', update)
-  quill?.history.clear()
-  destroy()
-})
-
-watch([() => props.modelValue, () => quill], ([val, qui]) => {
-  if (qui && val?.['stamp'] !== stamp.value) {
-    qui.setContents(val?.['value'])
+  if (disabled.value || readonly.value) {
+    quill.value.enable(false)
+  } else {
+    quill.value.enable(true)
   }
 })
 
-defineExpose({ quillRef, setValue, getModelBar })
+onBeforeUnmount(() => {
+  resetQuill()
+})
 </script>
