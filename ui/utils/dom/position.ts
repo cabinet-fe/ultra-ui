@@ -95,27 +95,3 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
   }
   return parents
 }
-
-const observerElMap = new Map<HTMLElement, Function>()
-const observer = new ResizeObserver(entry => {
-  observerElMap.forEach(fn => fn())
-})
-
-/**
- * 监听元素尺寸
- * @param el 元素
- * @param cb 回调
- */
-export function observeEl(el: HTMLElement, cb: () => void) {
-  observer.observe(el)
-  observerElMap.set(el, cb)
-}
-
-/**
- * 取消监听元素尺寸
- * @param el 元素
- */
-export function unobserveEl(el: HTMLElement) {
-  observer.unobserve(el)
-  observerElMap.delete(el)
-}

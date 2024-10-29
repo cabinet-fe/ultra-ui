@@ -8,8 +8,9 @@ import {
   type Placement
 } from '@floating-ui/dom'
 import type { TipAlign, TipDirection } from '@ui/types'
-import { getScrollParents, observeEl, setStyles, unobserveEl } from '@ui/utils'
+import { getScrollParents, setStyles } from '@ui/utils'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
+import { useObserverCallback } from '../use-resize-observer'
 
 interface Options {
   /** 触发元素 */
@@ -52,6 +53,8 @@ export function usePop(options: Options) {
     direction,
     alignment
   } = options
+
+  const { observeEl, unobserveEl } = useObserverCallback(update)
 
   /** 箭头位置 */
   const arrowPlacementDict = {

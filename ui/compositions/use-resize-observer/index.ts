@@ -45,7 +45,7 @@ export function useResizeObserver(
     watch(
       targets,
       (val, oldVal) => {
-        if (!observer && !!val.length ) {
+        if (!observer && !!val.length) {
           observer = new ResizeObserver(onResize)
         }
         oldVal.length &&
@@ -84,5 +84,41 @@ export function useResizeObserver(
       observer && unobserve(targets, observer)
       observer?.disconnect()
     }
+  }
+}
+
+export function useObserverCallback(cb: ResizeObserverCallback) {
+  const observerElMap = new Map<HTMLElement, Function>()
+  const observer = new ResizeObserver(entry => {
+    observerElMap.forEach(fn => fn())
+  })
+
+  /**
+   * 监听元素尺寸
+   * @param el 元素
+   * @param cb 回调
+   */
+  function observeEl(el: HTMLElement, cb: () => void) {
+    observer.observe(el)
+    observerElMap.set(el, cb)
+  }
+
+  /**
+   * 取消监听元素尺寸
+   * @param el 元素
+   */
+  function unobserveEl(el: HTMLElement) {
+    observer.unobserve(el)
+    observerElMap.delete(el)
+  }
+
+  onBeforeUnmount(() => {
+    observerElMap.clear()
+    observer.disconnect()
+  })
+
+  return {
+    observeEl,
+    unobserveEl
   }
 }
