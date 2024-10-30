@@ -1,4 +1,4 @@
-import { reactive, watchEffect } from 'vue'
+import { reactive, watch } from 'vue'
 import type { Theme } from './type'
 import { mixColor } from './helper'
 import { kebabCase } from 'cat-kit/fe'
@@ -180,7 +180,7 @@ function renderBGColorAlpha() {
 }
 
 /** 加载主题 */
-function loadTheme() {
+export function loadTheme() {
   // 主题色
   const { color, ...rest } = theme
 
@@ -205,6 +205,4 @@ function loadTheme() {
   }
 }
 
-watchEffect(() => {
-  loadTheme()
-})
+watch(theme, loadTheme)

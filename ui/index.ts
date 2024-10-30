@@ -7,3 +7,5 @@ export * from './compositions'
 export * from './directives'
 
 export * from './components'
+
+export * from './styles/theme'

@@ -30,14 +30,12 @@ const state = reactive<State>({
   }
 })
 
-watch(
-  () => state.size,
-  (size, oldSize) => {
-    oldSize && document.documentElement.classList.remove(oldSize)
-    document.documentElement.classList.add(size)
-  },
-  { immediate: true }
-)
+function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize) {
+  oldSize && document.documentElement.classList.remove(oldSize)
+  document.documentElement.classList.add(size)
+}
+
+watch(() => state.size, setDocumentSize)
 
 function deepSet(original: Record<string, any>, extend: Record<string, any>) {
   Object.keys(extend).forEach(key => {

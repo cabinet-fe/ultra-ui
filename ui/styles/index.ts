@@ -1,2 +1,1 @@
-import './theme.scss'
-import './theme'
+import './normalize.scss'
