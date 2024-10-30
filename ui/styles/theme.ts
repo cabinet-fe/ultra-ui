@@ -1,14 +1,14 @@
-import { reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import type { Theme } from './type'
 import { mixColor } from './helper'
-import { kebabCase } from 'cat-kit/fe'
+import { kebabCase, merge, obj } from 'cat-kit/fe'
 import { withUnit } from '@ui/utils'
 
 function defineBySize(variable: Record<'small' | 'default' | 'large', number>) {
   return variable
 }
 
-export const theme = reactive<Theme>({
+export const theme = ref<Theme>({
   color: {
     primary: '#0ea5e9',
     success: '#4caf50',
@@ -171,10 +171,11 @@ function renderBorder() {
 }
 
 function renderBGColorAlpha() {
-  const bgs = Object.keys(theme.bgColor)
+  const { bgColor } = theme.value
+  const bgs = Object.keys(bgColor)
   return bgs
     .map(type => {
-      return `--bg-color-${type}-alpha: ${theme.bgColor[type]}cc`
+      return `--bg-color-${type}-alpha: ${bgColor[type]}cc`
     })
     .join(';')
 }
@@ -185,9 +186,13 @@ function renderBGColorAlpha() {
  * 项目的入口环境(通常是main.ts文件中)或者其他全局
  * 环境中调用。
  */
-export function loadTheme() {
+export function loadTheme(customTheme?: Partial<Theme>) {
+  if (customTheme) {
+    theme.value = merge(theme.value, customTheme)
+  }
+
   // 主题色
-  const { color, ...rest } = theme
+  const { color, ...rest } = theme.value
 
   const ruleText = [
     renderThemeColor(color),
@@ -209,5 +214,3 @@ export function loadTheme() {
     style.innerText = `:root { ${ruleText}; }`
   }
 }
-
-watch(theme, loadTheme)
