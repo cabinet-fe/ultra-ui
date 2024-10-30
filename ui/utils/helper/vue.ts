@@ -7,9 +7,7 @@ import {
   createTextVNode,
   type VNodeArrayChildren,
   shallowRef,
-  watch,
-  type WatchSource,
-  type WatchCallback
+  watch
 } from 'vue'
 
 interface TextVNode extends VNode {
