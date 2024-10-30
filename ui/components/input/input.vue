@@ -177,7 +177,9 @@ const handleChange = (e: Event) => {
 const el = shallowRef<HTMLInputElement>()
 
 const generateModel = computed(() => {
-  return props.prefix ? `${props.prefix}${model.value}` : model.value
+  if (!model.value) return ''
+
+  return `${props.prefix ?? ''}${model.value}`
 })
 
 defineExpose<_InputExposed>({
