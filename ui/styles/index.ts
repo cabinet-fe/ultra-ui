@@ -6,7 +6,3 @@ import '@ui/components/context-menu/style'
 import '@ui/components/message/style'
 import '@ui/components/notification/style'
 import '@ui/components/message-confirm/style'
-
-export * from './theme'
-
-export type * from './type'

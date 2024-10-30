@@ -214,3 +214,5 @@ export function loadTheme(customTheme?: Partial<Theme>) {
     style.innerText = `:root { ${ruleText}; }`
   }
 }
+
+export type * from './type'
