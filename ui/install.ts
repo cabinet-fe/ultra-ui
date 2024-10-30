@@ -1,4 +1,3 @@
-
 import type { App } from 'vue'
 import * as components from './components'
 import * as directives from './directives'
