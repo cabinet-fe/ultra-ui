@@ -1,7 +1,7 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { Theme } from './type'
 import { mixColor } from './helper'
-import { kebabCase, merge, obj } from 'cat-kit/fe'
+import { kebabCase, merge } from 'cat-kit/fe'
 import { withUnit } from '@ui/utils'
 
 function defineBySize(variable: Record<'small' | 'default' | 'large', number>) {
