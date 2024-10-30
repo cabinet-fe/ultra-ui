@@ -179,7 +179,12 @@ function renderBGColorAlpha() {
     .join(';')
 }
 
-/** 加载主题 */
+/**
+ * @description 加载主题, 如果你是 SSR 环境,
+ * 请在 `onMounted` 中调用，否则你可以在
+ * 项目的入口环境(通常是main.ts文件中)或者其他全局
+ * 环境中调用。
+ */
 export function loadTheme() {
   // 主题色
   const { color, ...rest } = theme
