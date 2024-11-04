@@ -3,11 +3,15 @@ import type { Theme } from './type'
 import { mixColor } from './helper'
 import { kebabCase, merge } from 'cat-kit/fe'
 import { withUnit } from '@ui/utils'
+import { useConfig } from '@ui/compositions'
 
 function defineBySize(variable: Record<'small' | 'default' | 'large', number>) {
   return variable
 }
 
+const { config } = useConfig()
+
+/** 主题 */
 export const theme = ref<Theme>({
   color: {
     primary: '#0ea5e9',
@@ -110,6 +114,7 @@ export const theme = ref<Theme>({
   }
 })
 
+/** 渲染主题色 */
 function renderThemeColor(color: Theme['color']) {
   const types = Object.keys(color) as (keyof Theme['color'])[]
   const rates = [1, 3, 5, 7, 9]
@@ -142,6 +147,7 @@ function renderThemeColor(color: Theme['color']) {
   return varsText
 }
 
+/** 其他主题 */
 function renderOtherTheme(
   theme: Record<string, any>,
   themeRules: string[] = [],
@@ -160,16 +166,19 @@ function renderOtherTheme(
   return themeRules.join(';')
 }
 
+/** 渲染阴影 */
 function renderShadow() {
   const k = (v: string) => `var(--shadow-${v})`
   return `--shadow: ${k('x')} ${k('y')} ${k('blur')} ${k('spread')} ${k('color')}`
 }
 
+/** 渲染边框 */
 function renderBorder() {
   const k = (v: string) => `var(--border-${v})`
   return `--border:${k('width')} ${k('style')} ${k('color')}`
 }
 
+/** 渲染背景色透明度 */
 function renderBGColorAlpha() {
   const { bgColor } = theme.value
   const bgs = Object.keys(bgColor)
@@ -190,6 +199,8 @@ export function loadTheme(customTheme?: Partial<Theme>) {
   if (customTheme) {
     theme.value = merge(theme.value, customTheme)
   }
+
+  document.documentElement.classList.add(config.size)
 
   // 主题色
   const { color, ...rest } = theme.value

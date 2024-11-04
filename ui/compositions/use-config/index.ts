@@ -30,7 +30,7 @@ const state = reactive<State>({
   }
 })
 
-function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize) {
+export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize) {
   oldSize && document.documentElement.classList.remove(oldSize)
   document.documentElement.classList.add(size)
 }
