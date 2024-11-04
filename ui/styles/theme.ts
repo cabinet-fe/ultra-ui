@@ -87,7 +87,7 @@ export const theme = ref<Theme>({
   }),
 
   shadow: {
-    color: '#ccc',
+    color: '#ddd',
     x: 0,
     y: 0,
     blur: 4,
