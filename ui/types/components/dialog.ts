@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../component-common'
+import type { DeconstructValue } from '../helper'
 
 /** 对话框组件属性 */
 export interface DialogProps {
@@ -23,9 +24,10 @@ export interface DialogEmits {
 }
 
 /** 对话框组件暴露的属性和方法(组件内部使用) */
-export interface _DialogExposed {}
+export interface _DialogExposed {
+  /** 关闭对话框 */
+  close: () => void
+}
 
 /** 对话框组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
-export interface DialogExposed {
-  popup: () => {}
-}
+export type DialogExposed = DeconstructValue<_DialogExposed>

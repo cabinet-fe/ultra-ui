@@ -62,7 +62,7 @@
           </u-scroll>
 
           <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
-            <slot name="footer" />
+            <slot name="footer" v-bind="{ close }" />
           </section>
         </div>
       </div>
@@ -80,7 +80,11 @@
 
 <script lang="ts" setup>
 import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
-import type { DialogProps, DialogEmits } from '@ui/types/components/dialog'
+import type {
+  DialogProps,
+  DialogEmits,
+  DialogExposed
+} from '@ui/types/components/dialog'
 import {
   bem,
   extractNormalVNodes,
@@ -108,7 +112,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
 })
 const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
-  footer?(): VNode[] | undefined
+  footer?: (props: { close: () => void }) => VNode[] | undefined
   trigger?: () => any
 }>()
 
@@ -258,7 +262,7 @@ provide(DialogDIKey, {
   visible
 })
 
-defineExpose({
+defineExpose<DialogExposed>({
   close
 })
 </script>
