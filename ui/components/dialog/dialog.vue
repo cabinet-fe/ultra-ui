@@ -73,7 +73,6 @@
   <UNodeRender
     @click="visible = !visible"
     :content="getTriggerNode()"
-    :class="cls.b"
     ref="triggerRef"
   />
 </template>
