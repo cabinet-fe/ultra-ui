@@ -1,10 +1,9 @@
 import type { DeconstructValue } from '../helper'
 import type { FormComponentProps } from '../component-common'
 /** 单选框默认父组件组件属性 */
-export interface RadioGroupProps<Val extends string | number | boolean>
-  extends FormComponentProps {
+export interface RadioGroupProps extends FormComponentProps {
   /** 值 */
-  modelValue?: Val
+  modelValue?: any
   /** 单选框项 */
   items: Record<string, any>[]
   /**
@@ -26,9 +25,9 @@ export interface RadioGroupProps<Val extends string | number | boolean>
 }
 
 /** 单选框默认父组件组件定义的事件 */
-export interface RadioGroupEmits<Val extends string | number | boolean> {
+export interface RadioGroupEmits {
   /** 值更新 */
-  (e: 'update:modelValue', modelValue: Val): void
+  (e: 'update:modelValue', modelValue: any): void
   /** 选项更新事件 */
   (e: 'change', item: Record<string, any>): void
 }

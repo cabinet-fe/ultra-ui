@@ -1,14 +1,11 @@
 import type { FormComponentProps } from '../component-common'
 
 /** 复选框组, 用来选择一组数据组件属性 */
-export interface CheckboxGroupProps<
-  Data extends Record<string, string | number>,
-  Val extends string | number
-> extends FormComponentProps {
+export interface CheckboxGroupProps extends FormComponentProps {
   /** 值 */
-  modelValue?: Array<Val>
+  modelValue?: Array<any>
   /** 复选框项 */
-  items: Data[]
+  items: Array<Record<string, any>>
   /** 标签文本的key */
   labelKey?: string
   /** 值的key */
@@ -18,8 +15,8 @@ export interface CheckboxGroupProps<
 }
 
 /** 复选框组, 用来选择一组数据组件属性 */
-export interface CheckboxGroupEmits<Val extends string | number> {
-  (e: 'update:modelValue', value: Array<Val>): void
+export interface CheckboxGroupEmits {
+  (e: 'update:modelValue', value: Array<any>): void
 }
 
 /** 复选框组, 用来选择一组数据暴露的属性和方法 */
