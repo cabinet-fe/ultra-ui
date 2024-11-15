@@ -225,3 +225,26 @@ export class FormModel<
     this.modelChangeCallback.delete(cb)
   }
 }
+
+// function getFieldValue(fieldItem: FormModelItem | FM<any>) {
+//   if (fieldItem instanceof FM) {
+//     return fieldItem.data
+//   }
+//   return fieldItem.value
+// }
+
+// class FM<T extends Record<string, FormModelItem | FM<T>>> {
+//   data: Record<string, any> = {}
+//   constructor(fields: T) {
+//     const rawData = {}
+
+//     for (const key in fields) {
+//       const fieldItem = fields[key]!
+//       if (fieldItem instanceof FM) {
+//         rawData[key] = fieldItem.data
+//       } else {
+//         rawData[key] = fieldItem.value
+//       }
+//     }
+//   }
+// }

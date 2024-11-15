@@ -64,7 +64,7 @@
           <u-button
             plain
             type="primary"
-            @click="handleCreate"
+            @click.stop="handleCreate"
             :loading="state.loading"
           >
             <span
