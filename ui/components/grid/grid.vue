@@ -15,10 +15,9 @@ import { GridDIKey } from './di'
 import {
   type CSSProperties,
   provide,
-  watchEffect,
+  watch,
   useTemplateRef,
-  computed,
-  watch
+  computed
 } from 'vue'
 import { useResponsive } from './use-responsive'
 import { getBreakpointCols } from './breakpoint'

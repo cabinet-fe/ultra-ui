@@ -82,7 +82,7 @@ export interface FormProps<Model extends IFormModel = IFormModel>
 }
 
 export interface _FormExposed {
-  el: ShallowRef<HTMLElement | undefined>
+  el: ShallowRef<HTMLElement | null | undefined>
 }
 
 export type FormExposed = DeconstructValue<_FormExposed>
