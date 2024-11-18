@@ -21,7 +21,8 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<GridProps>(), {
-  tag: 'div'
+  tag: 'div',
+  cols: 24
 })
 
 const emit = defineEmits<GridEmits>()
@@ -49,7 +50,7 @@ watchEffect(() => {
     }
   } else if (typeof gap === 'string') {
     const [rowGap, columnGap] = gap.split(' ')
-    style.columnGap = withUnit(columnGap, 'px')
+    style.columnGap = withUnit(columnGap || rowGap, 'px')
     style.rowGap = withUnit(rowGap, 'px')
   }
 

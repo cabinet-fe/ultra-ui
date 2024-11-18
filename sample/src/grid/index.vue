@@ -10,7 +10,7 @@
         </h3>
       </u-card-header>
       <u-card-content>
-        <u-grid :cols="cols" :gap="4">
+        <u-grid :cols="cols" gap="8">
           <div v-for="i of 12" class="col-item" :key="i">
             {{ i }}
           </div>
