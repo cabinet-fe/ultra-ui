@@ -1,7 +1,8 @@
 import type { DeconstructValue } from '../helper'
+import type { InputProps } from './input'
 
 /** 密码输入组件属性 */
-export interface PasswordInputProps {
+export interface PasswordInputProps extends InputProps {
   modelValue?: string
 }
 

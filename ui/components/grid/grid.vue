@@ -45,12 +45,12 @@ watchEffect(() => {
 
   if (typeof gap === 'number') {
     if (gap > 0) {
-      style.columnGap = gap + 'px'
+      style.rowGap = style.columnGap = gap + 'px'
     }
   } else if (typeof gap === 'string') {
     const [rowGap, columnGap] = gap.split(' ')
     style.columnGap = withUnit(columnGap, 'px')
-    style.rowGap = rowGap
+    style.rowGap = withUnit(rowGap, 'px')
   }
 
   if (!cols) {

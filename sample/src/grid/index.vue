@@ -10,7 +10,7 @@
         </h3>
       </u-card-header>
       <u-card-content>
-        <u-grid :cols="cols" :gap="8">
+        <u-grid :cols="cols" :gap="4">
           <div v-for="i of 12" class="col-item" :key="i">
             {{ i }}
           </div>
@@ -63,7 +63,7 @@ const point = ref()
   background-color: cadetblue;
   color: #fff;
   text-align: center;
-  margin-bottom: 6px;
+
   height: 50px;
   line-height: 50px;
 }
