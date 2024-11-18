@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 import type { BadgeProps } from '@ui/types/components/badge'
-import { bem, setStyles } from '@ui/utils'
+import { bem, setStyles, zIndex } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 
@@ -47,7 +47,8 @@ const setPosition = () => {
     const { width, height } = supRef.value.getBoundingClientRect()
     setStyles(supRef.value, {
       transform: `translate(-${width / 2}px, -${height / 2}px)`,
-      backgroundColor: props.color && props.color
+      backgroundColor: props.color && props.color,
+      zIndex: zIndex() 
     })
   }
 }
