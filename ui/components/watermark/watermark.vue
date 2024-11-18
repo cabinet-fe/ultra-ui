@@ -2,7 +2,7 @@
   <Teleport v-if="appendToBody" to="body">
     <div
       :class="cls.b"
-      ref="watermarkRef"
+      ref="watermark"
       :style="{
         zIndex: zIndex()
       }"
@@ -12,7 +12,7 @@
   <div
     v-else
     :class="cls.b"
-    ref="watermarkRef"
+    ref="watermark"
     :style="{
       zIndex: zIndex()
     }"
@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import type { WatermarkProps } from '@ui/types/components/watermark'
 import { bem, setStyles, zIndex } from '@ui/utils'
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 import type { WatermarkEmits } from '.'
 import { debounce } from 'cat-kit/fe'
 
@@ -38,9 +38,9 @@ const props = withDefaults(defineProps<WatermarkProps>(), {
 })
 defineEmits<WatermarkEmits>()
 
-const watermarkRef = ref<HTMLDivElement>()
+const watermarkRef = useTemplateRef('watermark')
 
-const watermark = reactive({
+const styles = reactive({
   fontColor: 'rgba(0,0,0,.1)',
   fontFamily: 'Arial',
   image: props.image
@@ -50,7 +50,7 @@ const setWatermark = debounce(async () => {
   const str = props.text
   const container = watermarkRef.value
 
-  if (container === undefined || !str) return
+  if (!container || !str) return
 
   // 创建canvas
   let canvas: HTMLCanvasElement | null = document.createElement('canvas')
@@ -58,7 +58,7 @@ const setWatermark = debounce(async () => {
   // 创建canvs画布
   let ctx = canvas.getContext('2d')!
   // 字体
-  ctx.font = `${props.fontSize}px ${watermark.fontFamily}`
+  ctx.font = `${props.fontSize}px ${styles.fontFamily}`
 
   const textWidth = ctx.measureText(str).width
   canvas = document.createElement('canvas')
@@ -66,10 +66,10 @@ const setWatermark = debounce(async () => {
   canvas.height = textWidth
   ctx = canvas.getContext('2d')!
   // 字体
-  ctx.font = `${props.fontSize}px ${watermark.fontFamily}`
+  ctx.font = `${props.fontSize}px ${styles.fontFamily}`
   ctx = canvas.getContext('2d')!
   // 字体颜色
-  ctx.fillStyle = watermark.fontColor
+  ctx.fillStyle = styles.fontColor
   // 对齐方式
   ctx.textAlign = 'left'
   // 文本基线
@@ -91,6 +91,7 @@ const setWatermark = debounce(async () => {
 }, 150)
 
 window.addEventListener('resize', setWatermark)
+
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setWatermark)
 })
