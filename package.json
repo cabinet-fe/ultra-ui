@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.2.6",
+  "version": "0.2.10",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "export": "bun cli/export",
     "rename:types": "bun cli/rename/types",
     "update": "bun update",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks",
+    "cz": "czg ai"
   },
   "keywords": [
     "完全TS开发的Vue3组件库",
@@ -45,7 +46,8 @@
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
     "vue-tsc": "2.1.6",
-    "@helper/build": "^1.0.0"
+    "@helper/build": "^1.0.0",
+    "czg": "^1.11.0"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cli/verify-commit/index.ts"

@@ -9,7 +9,7 @@
     </div>
     <u-table :columns="columns" :data="data">
       <template #column:action>
-        <u-action-group>
+        <u-action-group :max="4">
           <u-action v-for="button of buttons">{{ button }}</u-action>
           <u-action need-confirm type="danger">删除</u-action>
           <u-action need-confirm type="danger">删除</u-action>

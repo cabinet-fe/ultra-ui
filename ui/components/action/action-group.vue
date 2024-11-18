@@ -35,8 +35,14 @@ function getSlotsNodes() {
     node => node.type?.name === 'Action'
   )
 
-  const normalNodes = extractedNodes.slice(0, props.max - 1)
-  const hiddenNodes = extractedNodes.slice(props.max - 1)
+  let normalNodes: VNode[] = []
+  let hiddenNodes: VNode[] = []
+  if (extractedNodes.length === props.max) {
+    normalNodes = extractedNodes
+  } else {
+    normalNodes = extractedNodes.slice(0, props.max - 1)
+    hiddenNodes = extractedNodes.slice(props.max - 1)
+  }
 
   const dropdown = hiddenNodes.length ? (
     <UTip direction='bottom' class={cls.e('dropdown')}>

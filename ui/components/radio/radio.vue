@@ -22,7 +22,7 @@
   </label>
 </template>
 
-<script lang="ts" setup generic="Val extends number | string | boolean">
+<script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import type { RadioProps, RadioEmits } from '@ui/types/components/radio'
 import { bem } from '@ui/utils'
@@ -32,13 +32,13 @@ defineOptions({
   name: 'Radio'
 })
 
-const model = defineModel<Val>()
+const model = defineModel<any>()
 
-const emit = defineEmits<RadioEmits>()
-
-const props = withDefaults(defineProps<RadioProps<Val>>(), {
+const props = withDefaults(defineProps<RadioProps>(), {
   disabled: undefined
 })
+
+defineEmits<RadioEmits>()
 
 const cls = bem('radio')
 

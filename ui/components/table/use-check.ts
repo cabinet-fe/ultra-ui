@@ -171,7 +171,7 @@ export function useCheck(options: Options) {
 
   const allChecked = computed(() => {
     const rowSize = props.tree ? rowForest.value?.size : rows.value?.length
-    return rowSize && rowSize === checkedRows.value.size
+    return !!rowSize && rowSize === checkedRows.value.size
   })
 
   function handleCheckAllTree(check: boolean) {
@@ -247,7 +247,6 @@ export function useCheck(options: Options) {
       align: 'center',
       fixed: 'left',
       nameRender() {
-        // @ts-ignore
         const checkboxNode = createVNode(UCheckbox, {
           modelValue: allChecked.value,
           'onUpdate:modelValue': handleCheckAll

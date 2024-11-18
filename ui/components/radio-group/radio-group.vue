@@ -4,8 +4,8 @@
       v-for="item of items"
       :key="item[valueKey]"
       :value="item[valueKey]"
-      @update:model-value="handleUpdate($event as Val, item)"
       :model-value="model"
+      @update:model-value="handleUpdate($event, item)"
       :disabled="disabledItem?.(item) || disabled"
       :size="size"
     >
@@ -21,7 +21,7 @@
   </span>
 </template>
 
-<script lang="ts" setup generic="Val extends number | string | boolean">
+<script lang="ts" setup>
 import type {
   RadioGroupProps,
   RadioGroupEmits
@@ -35,16 +35,16 @@ defineOptions({
   name: 'RadioGroup'
 })
 
-const props = withDefaults(defineProps<RadioGroupProps<Val>>(), {
+const props = withDefaults(defineProps<RadioGroupProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   disabled: undefined,
   readonly: undefined
 })
 
-const model = defineModel<Val>()
+const model = defineModel<any>()
 
-const emit = defineEmits<RadioGroupEmits<Val>>()
+const emit = defineEmits<RadioGroupEmits>()
 
 const { formProps } = useFormComponent()
 
@@ -59,10 +59,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
 
 const cls = bem('radio-group')
 
-const handleUpdate = (
-  value: Val,
-  item: Record<string, string | number | boolean>
-) => {
+const handleUpdate = (value: any, item: Record<string, any>) => {
   model.value = value
   emit('change', item)
 }

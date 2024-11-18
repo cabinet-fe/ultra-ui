@@ -135,7 +135,7 @@
   </span>
 </template>
 
-<script lang="ts" setup generic="Option extends Record<string, any>">
+<script lang="ts" setup>
 import {
   computed,
   shallowRef,
@@ -172,7 +172,7 @@ defineOptions({
   name: 'MultiSelect'
 })
 
-const props = withDefaults(defineProps<MultiSelectProps<Option>>(), {
+const props = withDefaults(defineProps<MultiSelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
@@ -182,7 +182,7 @@ const props = withDefaults(defineProps<MultiSelectProps<Option>>(), {
   readonly: undefined
 })
 
-const emit = defineEmits<MultiSelectEmits<Option>>()
+const emit = defineEmits<MultiSelectEmits>()
 
 const cls = bem('multi-select')
 
@@ -237,7 +237,7 @@ const filterable = computed(() => {
 
 const model = defineModel<Array<string | number>>()
 
-const checkedSet = shallowReactive<Set<Option>>(new Set())
+const checkedSet = shallowReactive<Set<Record<string, any>>>(new Set())
 const allChecked = computed(() => {
   return checkedSet.size === options.value.length
 })
@@ -247,7 +247,7 @@ const indeterminate = computed(() => {
 
 const optionsMap = computed(() => {
   const { valueKey } = props
-  return new Map<string | number, Option>(
+  return new Map<string | number, Record<string, any>>(
     options.value.map(option => [option[valueKey], option])
   )
 })
@@ -294,7 +294,7 @@ watch(checkedSet, () => {
 })
 
 const tags = computed(() => {
-  let tags: Option[] = []
+  let tags: Record<string, any>[] = []
   let { visibilityLimit } = props
   if (visibilityLimit < 0) {
     visibilityLimit = 0
@@ -317,7 +317,7 @@ const restTag = computed(() => {
   return (model.value?.length ?? 0) - tags.value.length
 })
 
-const handleCheck = (option: Option, checked: boolean) => {
+const handleCheck = (option: Record<string, any>, checked: boolean) => {
   if (checked) {
     checkedSet.add(option)
   } else {
@@ -340,11 +340,11 @@ const handleClear = () => {
   checkedSet.clear()
 }
 
-const handleClose = (option: Option) => {
+const handleClose = (option: Record<string, any>) => {
   checkedSet.delete(option)
 }
 
-const isDisabled = (option: Option) => {
+const isDisabled = (option: Record<string, any>) => {
   const { max } = props
   return max !== undefined && checkedSet.size >= max && !checkedSet.has(option)
 }

@@ -13,14 +13,7 @@
   </div>
 </template>
 
-<script
-  lang="ts"
-  setup
-  generic="
-    Item extends Record<string, string | number>,
-    Val extends string | number
-  "
->
+<script lang="ts" setup>
 import type {
   CheckboxGroupProps,
   CheckboxGroupEmits
@@ -33,14 +26,15 @@ defineOptions({
   name: 'CheckboxGroup'
 })
 
-const props = withDefaults(defineProps<CheckboxGroupProps<Item, Val>>(), {
+const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   disabled: undefined
 })
 
-const emit = defineEmits<CheckboxGroupEmits<Val>>()
-const model = defineModel<Val[]>()
+defineEmits<CheckboxGroupEmits>()
+
+const model = defineModel<any[]>()
 
 const cls = bem('checkbox-group')
 
@@ -58,7 +52,7 @@ const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
  */
 const getCheckStatus = (item: Record<string, string | number>): boolean => {
   const { valueKey } = props
-  const value = item[valueKey] as Val
+  const value = item[valueKey]
   if (!value || !model.value) return false
   return model.value.includes(value)
 }
@@ -73,7 +67,7 @@ const handleUpdate = (
   item: Record<string, string | number>
 ) => {
   const { valueKey } = props
-  const value = item[valueKey] as Val
+  const value = item[valueKey]
   if (!value) return
   if (checked) {
     model.value = [...(model.value ?? []), value]

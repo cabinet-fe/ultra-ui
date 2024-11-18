@@ -26,20 +26,16 @@
   </label>
 
   <u-tag
-    v-else-if="model !== undefined"
-    :type="trueVal === model ? 'success' : 'danger'"
+    v-else-if="checked !== undefined"
+    :type="checked ? 'success' : 'danger'"
   >
-    {{ trueVal === model ? '是' : '否' }}
+    {{ checked ? '是' : '否' }}
   </u-tag>
 
   <span v-else>{{ FORM_EMPTY_CONTENT }}</span>
 </template>
 
-<script
-  lang="ts"
-  setup
-  generic="Val extends string | number | boolean = boolean"
->
+<script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import type {
   CheckboxProps,
@@ -53,23 +49,15 @@ import { FORM_EMPTY_CONTENT } from '@ui/shared'
 defineOptions({
   name: 'Checkbox'
 })
-const props = withDefaults(defineProps<CheckboxProps<Val>>(), {
+const props = withDefaults(defineProps<CheckboxProps>(), {
   disabled: undefined,
   readonly: undefined
 })
 
-const emit = defineEmits<CheckboxEmits<Val>>()
+defineEmits<CheckboxEmits>()
 const cls = bem('checkbox')
 
-const model = defineModel<Val>()
-
-const trueVal = computed(() => {
-  return props.trueValue ?? (true as Val)
-})
-
-const falseVal = computed(() => {
-  return props.falseValue ?? (false as Val)
-})
+const checked = defineModel<boolean>()
 
 const { formProps } = useFormComponent()
 
@@ -91,12 +79,8 @@ const className = computed(() => {
   ]
 })
 
-const checked = computed(() => {
-  return trueVal.value === model.value
-})
-
 const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement
-  model.value = target.checked ? trueVal.value : falseVal.value
+  checked.value = target.checked
 }
 </script>

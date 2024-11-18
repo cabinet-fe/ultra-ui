@@ -99,7 +99,7 @@
   <span v-else>{{ label || selected?.[labelKey] || FORM_EMPTY_CONTENT }}</span>
 </template>
 
-<script lang="ts" setup generic="Option extends Record<string, any>">
+<script lang="ts" setup>
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import type {
   SelectEmits,
@@ -127,7 +127,7 @@ defineOptions({
   name: 'Select'
 })
 
-const props = withDefaults(defineProps<SelectProps<Option>>(), {
+const props = withDefaults(defineProps<SelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
@@ -136,7 +136,7 @@ const props = withDefaults(defineProps<SelectProps<Option>>(), {
   readonly: undefined
 })
 
-const emit = defineEmits<SelectEmits<Option>>()
+const emit = defineEmits<SelectEmits>()
 
 const cls = bem('select')
 
@@ -247,7 +247,7 @@ watch(dropdownVisible, v => {
 })
 
 /** 单选 */
-const handleSelect = (option: Option) => {
+const handleSelect = (option: Record<string, any>) => {
   selected.value = option
   dropdownRef.value?.close()
   emit('change', option)
