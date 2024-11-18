@@ -1,18 +1,25 @@
 <template>
-  <component :is="tag" :class="cls.b" ref="gridRef">
+  <component :is="tag" :class="cls.b" ref="grid">
     <slot />
   </component>
 </template>
 
 <script lang="ts" setup>
-import { bem, setStyles, withUnit } from '@ui/utils'
+import { bem, removeStyles, setStyles, withUnit } from '@ui/utils'
 import type {
   GridProps,
   GridEmits,
   _GridExposed
 } from '@ui/types/components/grid'
 import { GridDIKey } from './di'
-import { type CSSProperties, shallowRef, provide, watchEffect } from 'vue'
+import {
+  type CSSProperties,
+  provide,
+  watchEffect,
+  useTemplateRef,
+  computed,
+  watch
+} from 'vue'
 import { useResponsive } from './use-responsive'
 import { getBreakpointCols } from './breakpoint'
 
@@ -29,7 +36,7 @@ const emit = defineEmits<GridEmits>()
 
 const cls = bem('grid')
 
-const gridRef = shallowRef<HTMLElement>()
+const gridRef = useTemplateRef<HTMLElement>('grid')
 
 const { currentBreakpoint, gridItemsProps } = useResponsive({
   props,
@@ -37,40 +44,48 @@ const { currentBreakpoint, gridItemsProps } = useResponsive({
   gridRef
 })
 
-// 不使用computed以减少重复渲染
-watchEffect(() => {
+const styles = computed(() => {
   const { gap, cols } = props
-  const breakpoint = currentBreakpoint.value
+  const result: CSSProperties = {}
 
-  const style: CSSProperties = {}
-
+  // 间距
   if (typeof gap === 'number') {
     if (gap > 0) {
-      style.rowGap = style.columnGap = gap + 'px'
+      result.rowGap = result.columnGap = gap + 'px'
     }
   } else if (typeof gap === 'string') {
     const [rowGap, columnGap] = gap.split(' ')
-    style.columnGap = withUnit(columnGap || rowGap, 'px')
-    style.rowGap = withUnit(rowGap, 'px')
+    result.columnGap = withUnit(columnGap || rowGap, 'px')
+    result.rowGap = withUnit(rowGap, 'px')
   }
 
-  if (!cols) {
-    delete style.gridTemplateColumns
-  } else {
-    switch (typeof cols) {
-      case 'number':
-        style.gridTemplateColumns = `repeat(${cols}, minmax(0px, 1fr))`
-        break
-      case 'function':
-        style.gridTemplateColumns = `repeat(${cols(breakpoint)}, minmax(0px, 1fr))`
-        break
-      case 'object':
+  const breakpoint = currentBreakpoint.value
+
+  switch (typeof cols) {
+    case 'number':
+      result.gridTemplateColumns = `repeat(${cols}, minmax(0px, 1fr))`
+      break
+    case 'function':
+      if (breakpoint) {
+        result.gridTemplateColumns = `repeat(${cols(breakpoint)}, minmax(0px, 1fr))`
+      }
+      break
+    case 'object':
+      if (breakpoint) {
         const amount = getBreakpointCols(cols, breakpoint)
-        style.gridTemplateColumns = `repeat(${amount}, minmax(0px, 1fr))`
-    }
+        result.gridTemplateColumns = `repeat(${amount}, minmax(0px, 1fr))`
+      }
   }
 
-  gridRef.value && setStyles(gridRef.value, style)
+  return result
+})
+
+watch([styles, gridRef], ([styles, dom]) => {
+  if (!dom) return
+
+  // 重置并移除样式
+  removeStyles(dom, ['gridTemplateColumns', 'columnGap', 'rowGap'])
+  setStyles(dom, styles)
 })
 
 provide(GridDIKey, {

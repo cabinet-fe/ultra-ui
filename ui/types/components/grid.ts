@@ -47,7 +47,7 @@ export interface GridProps {
    * }
    * ```
    */
-  cols?: number | BreakCols | ((breakpoint?: Breakpoint) => number)
+  cols?: number | BreakCols | ((breakpoint: Breakpoint) => number)
   /** 渲染标签 */
   tag?: string
   /** 间隔, 为字符串时可以同时指定行间隔和列间隔 */
@@ -79,7 +79,7 @@ export interface GridItemProps {
 
 /** 网格组件暴露的属性和方法(组件内部使用) */
 export interface _GridExposed {
-  el: ShallowRef<HTMLElement | undefined>
+  el: ShallowRef<HTMLElement | null>
 }
 
 /** 网格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
