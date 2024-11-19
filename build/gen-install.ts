@@ -4,14 +4,16 @@ import { resolve } from 'node:path'
 
 export async function genInstall() {
   const entries = await fg.glob(
-    ['components/**/*.scss', 'directives/**/*.scss'],
+    ['components/**/style.ts', 'directives/**/style.ts'],
     {
       ignore: ['**/node_modules', '**/disabled.*/**', '**/_*.scss'],
       cwd: UI_ROOT
     }
   )
 
-  const stylesImports = entries.map(entry => `import './${entry}'`).join('\n')
+  const stylesImports = entries
+    .map(entry => `import './${entry.replace(/\.ts$/, '')}'`)
+    .join('\n')
 
   const installScripts = `
 import type { App } from 'vue'

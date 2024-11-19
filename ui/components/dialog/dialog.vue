@@ -156,10 +156,10 @@ const dialogTransition = useTransition('style', {
   },
 
   enterActive: {
-    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
   },
   leaveActive: {
-    transition: 'transform .25s cubic-bezier(0.76, 0, 0.44, 1.35)'
+    transition: 'transform .3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
   }
 })
 
@@ -172,25 +172,35 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-/** 是否弹出过 */
+/**
+ * 是否弹出过, 用于控制下一次弹出时是否采用v-show的方式
+ */
 let opened = false
 
 watch(visible, v => {
   if (!v) {
+    document.body.classList.remove(cls.m('opened'))
+
     dialogTransition.leave()
     nextFrame(() => {
       dialogRef.value &&
         setStyles(dialogRef.value, {
-          transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
+          transform: 'scale3d(0, 0, 1) translate3d(0, 0, 0)'
         })
     })
+
     return
   }
+
   if (!opened) opened = true
 
+  document.body.classList.add(cls.m('opened'))
+
+  // 初始化位置偏移量
   translated.x = 0
   translated.y = 0
 
+  // 在overlay渲染后，为dialog设置一个初始变换值
   nextTick(() => {
     overlayRef.value && setStyles(overlayRef.value, { zIndex: zIndex() })
 
@@ -215,7 +225,9 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  setStyles(dom, { transform: `translate3d(${x}px, ${y}px, 0)` })
+  setStyles(dom, {
+    transform: `scale3d(1, 1, 1) translate3d(${x}px, ${y}px, 0)`
+  })
 }
 
 // 运用拖拽

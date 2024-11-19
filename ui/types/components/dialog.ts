@@ -13,6 +13,8 @@ export interface DialogProps {
   size?: ComponentSize
   /** 显示模态层 */
   modal?: boolean
+  /** 全屏 */
+  fullscreen?: boolean
 }
 
 /** 对话框组件定义的事件 */

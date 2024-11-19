@@ -110,7 +110,7 @@ const ListItem = defineComponent({
 @use '@ui/styles/functions' as fn;
 
 .container {
-  height: 100%;
+  height: 100vh;
   display: flex;
 }
 

@@ -87,11 +87,11 @@ export const theme = ref<Theme>({
   }),
 
   shadow: {
-    color: '#ddd',
+    color: 'rgba(0, 0, 0, 0.1)',
     x: 0,
     y: 0,
     blur: 4,
-    spread: 0
+    spread: 1
   },
 
   tag: defineBySize({

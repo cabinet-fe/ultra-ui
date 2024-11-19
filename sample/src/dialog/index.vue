@@ -22,7 +22,7 @@
     <u-dialog
       v-model="visible"
       :modal="modal"
-      style="width: 99%"
+      style="width: 80%"
       title="对话框标题"
     >
       <u-card v-for="i in 2" :key="i">
