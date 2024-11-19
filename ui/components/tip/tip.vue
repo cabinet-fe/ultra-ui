@@ -157,7 +157,11 @@ const close = () => {
   }
 }
 
-const triggerDom = shallowComputed(() => triggerRef.value?.$el)
+const triggerDom = shallowComputed(() => {
+  if (triggerRef.value?.content) {
+    return triggerRef.value.$el as HTMLElement
+  }
+})
 
 usePop({
   triggerRef: triggerDom,
