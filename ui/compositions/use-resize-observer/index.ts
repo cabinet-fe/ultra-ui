@@ -31,7 +31,7 @@ function unobserve(
 }
 
 /**
- * 监听元素尺寸变更
+ * 监听尺寸调整
  * @param options 选项
  */
 export function useResizeObserver(

@@ -1,4 +1,8 @@
 <template>
+  <!-- <u-tip v-if="depth === 0">
+    <MenuIcon :icon="menu.icon" />
+  </u-tip> -->
+
   <!-- 收缩状态 -->
   <div @mouseenter="handleToggleExpand">
     <u-tip
@@ -9,37 +13,21 @@
     >
       <li :class="[cls.e('sub')]" style="width: 100%">
         <div :class="cls.e('sub-content')">
-          <!-- 图标 -->
-          <div>
-            <template v-if="menu.icon">
-              <u-icon
-                :class="cls.e('sub-icon')"
-                v-if="typeof menu.icon !== 'string'"
-              >
-                <component :is="menu.icon" />
-              </u-icon>
+          <MenuIcon :icon="menu.icon" />
 
-              <img
-                :src="menu.icon"
-                v-else
-                :class="cls?.e('sub-icon')"
-                alt="icon"
-              />
-            </template>
-            <template v-if="!menuProps.collapsed || depth !== 0">
-              <!-- 文本 -->
-              <span :class="cls.e('sub-title')">
-                {{ menu.title }}
-              </span>
+          <template v-if="!menuProps.collapsed || depth !== 0">
+            <!-- 文本 -->
+            <span :class="cls.e('sub-title')">
+              {{ menu.title }}
+            </span>
 
-              <!-- 展开图标 -->
-              <u-icon
-                :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]"
-              >
-                <ArrowRight />
-              </u-icon>
-            </template>
-          </div>
+            <!-- 展开图标 -->
+            <u-icon
+              :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]"
+            >
+              <ArrowRight />
+            </u-icon>
+          </template>
         </div>
       </li>
 
@@ -89,6 +77,7 @@ import { getKey } from './helper'
 import { useMenuTransition } from './use-menu-transition'
 import { bem } from '@ui/utils'
 import type { TipAlign, TipDirection } from '@ui/types'
+import MenuIcon from './menu-icon.vue'
 
 defineOptions({
   name: 'MenuSubCollapsed'

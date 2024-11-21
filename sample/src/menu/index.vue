@@ -47,7 +47,6 @@ const menus = shallowRef<any[]>([
     children: [
       {
         title: '功能模块管理',
-        icon: UserGroup,
         path: '/business-center/role/1'
       },
       { title: '角色管理', icon: Cart, path: '/business-center/role/2' },
@@ -90,15 +89,20 @@ const config = reactive({
 </script>
 
 <style scoped lang="scss">
+@use '@ui/styles/functions' as fn;
+
 .config {
   display: flex;
   flex-direction: column;
 }
 
 .menu-wrapper {
-  width: 280px;
+  width: 260px;
   height: 600px;
-  border: 1px solid #eee;
+  border-radius: 1rem;
+  box-shadow: fn.use-var(shadow);
+  background-color: rgba($color: #000000, $alpha: 0.72);
+  backdrop-filter: blur(16px);
+  color: #fff;
 }
 </style>
-\

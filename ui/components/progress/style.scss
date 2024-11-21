@@ -20,8 +20,8 @@ $root-name: progress;
     color: fn.use-var(text-color, white);
     overflow: hidden;
     transition:
-      width 0.25s ease,
-      background-color 0.25s ease;
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     @include m.flex($justify: center);
   }
 
@@ -47,7 +47,7 @@ $root-name: progress;
   }
 
   @include m.e(circle-ring) {
-    transition: stroke-dasharray 0.25s ease;
+    transition: stroke-dasharray 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   // 颜色
   @each $type, $_ in vars.$color-types {
