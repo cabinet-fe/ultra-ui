@@ -1,8 +1,9 @@
 import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
-import { UltraUI } from '../ui/install'
+// import { UltraUI } from '../ui/install'
 import { loadTheme } from '../ui/styles/theme'
+import 'ultra-ui/styles'
 
 loadTheme()
 
@@ -12,7 +13,7 @@ const app = createApp({
 
 app.config.globalProperties.c = console
 
-app.use(UltraUI)
+// app.use(UltraUI)
 
 app.use(router)
 

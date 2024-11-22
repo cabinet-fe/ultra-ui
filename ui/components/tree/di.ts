@@ -23,7 +23,11 @@ export interface TreeConText {
   /** 选择事件 */
   handleSelect: (data: TreeNode<Record<string, any>>) => void
   /** 多选事件 */
-  handleCheck: (node: TreeNode<Record<string, any>>, check: boolean) => void
+  handleCheck: (
+    node: TreeNode<Record<string, any>>,
+    check: boolean,
+    ctrlKey?: boolean
+  ) => void
   /** 获取树的作用域插槽节点 */
   getTreeSlotsNode: (ctx: TreeSlotsScope) => VNode[] | string | undefined
   /** 树事件 */

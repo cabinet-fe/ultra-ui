@@ -9,7 +9,8 @@ export interface CheckboxProps extends FormComponentProps {
 }
 
 export interface CheckboxEmits {
-  (name: 'update:modelValue', value: boolean): void
+  (name: 'update:modelValue', checked: boolean): void
+  (name: 'change', checked: boolean, e: MouseEvent): void
 }
 
 /** 复选框暴露的属性和方法 */

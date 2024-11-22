@@ -35,20 +35,20 @@ export default defineConfig(() => {
       VueJSX(),
       Components({
         resolvers: [
-          // autoResolveComponent({
-          //   prefix: 'U',
-          //   lib: 'ultra-ui',
-          //   sideEffects(kebabName, lib) {
-          //     let moduleId = `${lib}/components/${kebabName}/style.ts`
-          //     while (!existModule(moduleId)) {
-          //       const preKebabName = kebabName
-          //       kebabName = kebabName.replace(/-[a-z]$/, '')
-          //       if (preKebabName === kebabName) return
-          //       moduleId = `${lib}/components/${kebabName}/style.ts`
-          //     }
-          //     return moduleId
-          //   }
-          // })
+          autoResolveComponent({
+            prefix: 'U',
+            lib: 'ultra-ui',
+            sideEffects(kebabName, lib) {
+              let moduleId = `${lib}/components/${kebabName}/style.ts`
+              while (!existModule(moduleId)) {
+                const preKebabName = kebabName
+                kebabName = kebabName.replace(/-[a-z]$/, '')
+                if (preKebabName === kebabName) return
+                moduleId = `${lib}/components/${kebabName}/style.ts`
+              }
+              return moduleId
+            }
+          })
         ],
         dts: true,
         include: [/\.vue$/]

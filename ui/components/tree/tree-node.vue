@@ -33,7 +33,7 @@
         v-if="treeProps.checkable"
         :model-value="node.checked"
         :indeterminate="node.indeterminate"
-        @update:model-value="handleCheck(node, $event)"
+        @change="handleChange"
         :disabled="node.disabled"
         @click.stop
         :class="cls.e('checkbox')"
@@ -79,7 +79,11 @@ function toggleExpand() {
   treeEmit('expand', node)
 }
 
-const handleClick = () => {
+function handleChange(checked: boolean, e: MouseEvent) {
+  handleCheck(props.node, checked, e.ctrlKey)
+}
+
+function handleClick(e: MouseEvent) {
   const { node } = props
   treeEmit('node-click', node)
 
@@ -88,6 +92,6 @@ const handleClick = () => {
   treeProps.checkable &&
     !node.disabled &&
     !treeProps.expandOnClickNode &&
-    handleCheck(node, !node.checked)
+    handleCheck(node, !node.checked, e.ctrlKey)
 }
 </script>

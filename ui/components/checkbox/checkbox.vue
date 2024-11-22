@@ -19,7 +19,7 @@
       :checked="checked"
       :disabled="disabled"
       hidden
-      @input="handleInput"
+      @click="handleInput"
     />
 
     <span :class="cls.e('label')" v-if="$slots.default"><slot /> </span>
@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<CheckboxProps>(), {
   readonly: undefined
 })
 
-defineEmits<CheckboxEmits>()
+const emit = defineEmits<CheckboxEmits>()
 const cls = bem('checkbox')
 
 const checked = defineModel<boolean>()
@@ -79,8 +79,9 @@ const className = computed(() => {
   ]
 })
 
-const handleInput = (e: Event) => {
+const handleInput = (e: MouseEvent) => {
   const target = e.target as HTMLInputElement
   checked.value = target.checked
+  emit('change', target.checked, e)
 }
 </script>

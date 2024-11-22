@@ -77,15 +77,25 @@ export function useCheck<DataItem extends Record<string, any>>(
     })
   })
 
-  function handleCheck(node: TreeNode<DataItem>, check: boolean) {
+  function handleCheck(
+    node: TreeNode<DataItem>,
+    check: boolean,
+    ctrlKey?: boolean
+  ) {
     const { checkStrictly } = props
-    if (check) {
-      Tree.dft(node, node => {
-        if (node.disabled) return
-        node.checked = true
-        checked.add(node.data)
-      })
 
+    if (check) {
+      if (ctrlKey) {
+        node.checked = check
+      } else {
+        Tree.dft(node, node => {
+          if (node.disabled) return
+          node.checked = true
+          checked.add(node.data)
+        })
+      }
+
+      // 非严格选择
       if (!checkStrictly) {
         let parent = node.parent
         while (parent && parent.depth > 0) {
@@ -101,11 +111,16 @@ export function useCheck<DataItem extends Record<string, any>>(
         }
       }
     } else {
-      Tree.dft(node, node => {
-        node.checked = false
+      if (ctrlKey) {
+        node.checked = check
         node.indeterminate = false
-        checked.delete(node.data)
-      })
+      } else {
+        Tree.dft(node, node => {
+          node.checked = false
+          node.indeterminate = false
+          checked.delete(node.data)
+        })
+      }
 
       if (!checkStrictly) {
         let parent = node.parent
