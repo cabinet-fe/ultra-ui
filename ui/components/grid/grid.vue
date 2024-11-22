@@ -27,8 +27,7 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<GridProps>(), {
-  tag: 'div',
-  cols: 24
+  tag: 'div'
 })
 
 const emit = defineEmits<GridEmits>()
