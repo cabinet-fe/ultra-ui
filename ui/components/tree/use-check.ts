@@ -87,6 +87,7 @@ export function useCheck<DataItem extends Record<string, any>>(
     if (check) {
       if (ctrlKey) {
         node.checked = check
+        checked.add(node.data)
       } else {
         Tree.dft(node, node => {
           if (node.disabled) return
@@ -114,6 +115,7 @@ export function useCheck<DataItem extends Record<string, any>>(
       if (ctrlKey) {
         node.checked = check
         node.indeterminate = false
+        checked.delete(node.data)
       } else {
         Tree.dft(node, node => {
           node.checked = false
