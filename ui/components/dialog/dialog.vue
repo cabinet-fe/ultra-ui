@@ -116,9 +116,8 @@ const slots = defineSlots<{
 }>()
 
 const cls = bem('dialog')
-const blurCls = bem.is('background-blur')
-const headerCls = [cls.e('header'), blurCls]
-const footerCls = [cls.e('footer'), blurCls]
+const headerCls = [cls.e('header')]
+const footerCls = [cls.e('footer')]
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
@@ -185,7 +184,7 @@ watch(visible, v => {
     nextFrame(() => {
       dialogRef.value &&
         setStyles(dialogRef.value, {
-          transform: 'scale3d(0, 0, 1) translate3d(0, 0, 0)'
+          transform: 'scale3d(0.4, 0.4, 1) translate3d(0, 0, 0)'
         })
     })
 
@@ -206,7 +205,7 @@ watch(visible, v => {
 
     dialogRef.value &&
       setStyles(dialogRef.value, {
-        transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
+        transform: 'scale3d(0.4, 0.4, 1) translate3d(0, 0, 0)'
       })
     // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
     nextFrame(() => {

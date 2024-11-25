@@ -5,7 +5,6 @@
       bem.is('active', active),
       bem.is('disabled', menu.disabled ?? false)
     ]"
-    v-ripple="!menu.disabled ? cls.e('ripple') : false"
     :style="{
       paddingLeft: `${depth * 20 + 8}px`
     }"
@@ -36,7 +35,6 @@ import { MenuDIKey } from './di'
 import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
-import { vRipple } from '@ui/directives'
 
 defineOptions({
   name: 'MenuItem'
@@ -59,7 +57,7 @@ watch([active, itemRef], ([active, itemRef]) => {
   active &&
     itemRef &&
     itemRef.scrollIntoView({
-      block: 'nearest'
+      block: 'center'
     })
 })
 </script>

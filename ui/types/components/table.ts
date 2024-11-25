@@ -42,6 +42,11 @@ export interface TableColumn {
    */
   fixed?: 'left' | 'right'
   /**
+   * 表头对齐方式, 如果没有指定，则默认使用align属性
+   * @default TableColumn['align']
+   */
+  headerAlign?: TableColumnAlign
+  /**
    * 列对齐方式
    * @default 'left'
    */

@@ -66,6 +66,7 @@
             type="primary"
             @click.stop="handleCreate"
             :loading="state.loading"
+            text
           >
             <span
               style="position: sticky; left: 50%; transform: translateX(-50%)"

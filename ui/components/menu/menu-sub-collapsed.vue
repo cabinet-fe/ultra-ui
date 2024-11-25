@@ -4,65 +4,61 @@
   </u-tip> -->
 
   <!-- 收缩状态 -->
-  <div @mouseenter="handleToggleExpand">
-    <u-tip
-      :direction="direction"
-      :alignment="alignment"
-      hide-arrow
-      :trigger="trigger"
-    >
-      <li :class="[cls.e('sub')]" style="width: 100%">
-        <div :class="cls.e('sub-content')">
-          <MenuIcon :icon="menu.icon" />
+  <u-tip
+    :direction="direction"
+    :alignment="alignment"
+    hide-arrow
+    :trigger="trigger"
+  >
+    <li :class="[cls.e('sub')]" style="width: 100%">
+      <div :class="cls.e('sub-content')">
+        <MenuIcon :icon="menu.icon" />
 
-          <template v-if="!menuProps.collapsed || depth !== 0">
-            <!-- 文本 -->
-            <span :class="cls.e('sub-title')">
-              {{ menu.title }}
-            </span>
+        <template v-if="!menuProps.collapsed || depth !== 0">
+          <!-- 文本 -->
+          <span :class="cls.e('sub-title')">
+            {{ menu.title }}
+          </span>
 
-            <!-- 展开图标 -->
-            <u-icon
-              :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]"
-            >
-              <ArrowRight />
-            </u-icon>
+          <!-- 展开图标 -->
+          <u-icon :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]">
+            <ArrowRight />
+          </u-icon>
+        </template>
+      </div>
+    </li>
+
+    <template #content>
+      <!-- @vue-ignore -->
+      <transition
+        @enter="enter"
+        @after-enter="afterEnter"
+        @leave="leave"
+        @before-leave="beforeLeave"
+        @after-leave="afterLeave"
+      >
+        <ul :class="cls.e('sub-list')" v-show="expanded">
+          <template
+            v-for="(child, index) of menu.children!"
+            :key="getKey(index, parentKey)"
+          >
+            <UMenuItemCollapsed
+              v-if="!child.children?.length"
+              :menu="child"
+              :depth="depth + 1"
+            />
+
+            <MenuSubCollapsed
+              v-else
+              :menu="child"
+              :parent-key="getKey(index, parentKey)"
+              :depth="depth + 1"
+            />
           </template>
-        </div>
-      </li>
-
-      <template #content>
-        <!-- @vue-ignore -->
-        <transition
-          @enter="enter"
-          @after-enter="afterEnter"
-          @leave="leave"
-          @before-leave="beforeLeave"
-          @after-leave="afterLeave"
-        >
-          <ul :class="cls.e('sub-list')" v-show="expanded">
-            <template
-              v-for="(child, index) of menu.children!"
-              :key="getKey(index, parentKey)"
-            >
-              <UMenuItemCollapsed
-                v-if="!child.children?.length"
-                :menu="child"
-                :depth="depth + 1"
-              />
-
-              <MenuSubCollapsed
-                v-else
-                :menu="child"
-                :parent-key="getKey(index, parentKey)"
-                :depth="depth + 1"
-              />
-            </template>
-          </ul>
-        </transition>
-      </template>
-    </u-tip>
-  </div>
+        </ul>
+      </transition>
+    </template>
+  </u-tip>
 </template>
 
 <script setup lang="ts">
@@ -100,10 +96,4 @@ const expanded = computed(() => expandedPath.has(props.menu.path))
 const direction = shallowRef<TipDirection>('right')
 const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
-
-function handleToggleExpand() {
-  const { menu } = props
-
-  expandedPath.add(menu.path)
-}
 </script>

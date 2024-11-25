@@ -7,33 +7,36 @@
 $root-name: menu;
 
 @include m.b($root-name) {
-  padding: 4px 1rem;
   user-select: none;
+  background-color: fn.use-var(bg-color, top, alpha);
+  backdrop-filter: fn.use-var(bg-filter);
+
+  @include m.e(container) {
+    padding: 4px 1rem;
+  }
 
   @include m.e(item, sub-content) {
     cursor: pointer;
     gap: 4px;
     padding: 0 8px;
-    transition: background-color 0.25s;
+    transition:
+      background-color 0.4s,
+      box-shadow 0.4s;
+
     @include m.flex;
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-5);
+      background-color: fn.use-var(color, primary, light-9);
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary, light-3);
-      backdrop-filter: blur(16px);
+      background-color: fn.use-var(color, primary, light-7);
+      box-shadow: fn.use-var(shadow);
     }
   }
 
-  @include m.e(item, sub) {
+  @include m.e(item, sub, sub-content) {
     margin-bottom: 0.2rem;
-  }
-
-  @include m.e(ripple) {
-    background-color: fn.use-var(color, primary);
-    opacity: 0.1;
   }
 
   @include m.e(item-title, sub-title) {

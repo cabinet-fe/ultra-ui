@@ -31,6 +31,11 @@ export const theme = ref<Theme>({
     black: '#000000'
   },
 
+  bgFilter: {
+    blur: 'blur(16px)',
+    saturate: 'saturate(180%)'
+  },
+
   border: {
     color: '#dcdfe6',
     width: 1,
@@ -184,12 +189,19 @@ function renderBGColorAlpha() {
   const bgs = Object.keys(bgColor)
   return bgs
     .map(type => {
-      return `--bg-color-${type}-alpha: ${bgColor[type]}cc`
+      return `--bg-color-${type}-alpha: ${bgColor[type]}aa`
     })
     .join(';')
 }
 
+/** 渲染背景滤镜 */
+function renderBGFilter() {
+  const { bgFilter } = theme.value
+  return `--bg-filter: ${bgFilter.blur} ${bgFilter.saturate}`
+}
+
 /**
+
  * @description 加载主题, 如果你是 SSR 环境,
  * 请在 `onMounted` 中调用，否则你可以在
  * 项目的入口环境(通常是main.ts文件中)或者其他全局
@@ -210,7 +222,8 @@ export function loadTheme(customTheme?: Partial<Theme>) {
     renderOtherTheme(rest),
     renderShadow(),
     renderBorder(),
-    renderBGColorAlpha()
+    renderBGColorAlpha(),
+    renderBGFilter()
   ].join(';')
 
   const themeID = 'ultra-ui-theme'

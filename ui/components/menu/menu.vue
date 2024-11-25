@@ -2,6 +2,7 @@
   <u-scroll
     tag="ul"
     :class="[cls.b, cls.m(size), bem.is('collapsed', collapsed)]"
+    :container-class="cls.e('container')"
   >
     <template v-if="!collapsed">
       <template v-for="(menu, index) of menus" :key="String(index)">

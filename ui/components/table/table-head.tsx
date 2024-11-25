@@ -33,6 +33,8 @@ export default defineComponent({
                 {getHeaderSlotsNode({
                   column
                 })}
+
+                {/* <span class='resize-line'></span> */}
               </th>
             ))}
           </tr>

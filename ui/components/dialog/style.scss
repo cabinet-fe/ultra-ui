@@ -41,22 +41,8 @@ $root-name: dialog;
   @include m.e(header, footer) {
     flex-shrink: 0;
     overflow: hidden;
-
-    @include m.is(background-blur) {
-      position: relative;
-      &::before {
-        content: '';
-        position: absolute;
-        background-color: fn.use-var(bg-color, middle, alpha);
-        backdrop-filter: blur(6px);
-        transform: translate3d(0, 0, 0);
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-      }
-    }
+    background-color: fn.use-var(bg-color, middle, alpha);
+    backdrop-filter: fn.use-var(bg-filter);
   }
 
   // 弹框头

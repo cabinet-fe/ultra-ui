@@ -141,7 +141,7 @@ const _columns = defineTableColumns(
     },
     { name: '性别', key: 'sex', fixed: 'right' },
     { name: '姓名', key: 'name', fixed: 'left', align: 'center' },
-    { name: '年龄', key: 'age', fixed: 'left', summary: true }
+    { name: '年龄', key: 'age', fixed: 'left', summary: true, align: 'center' }
   ],
   { minWidth: 150 }
 )

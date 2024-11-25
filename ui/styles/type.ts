@@ -35,6 +35,14 @@ export type Theme = {
     black: string
   }
 
+  /** 背景滤镜 */
+  bgFilter: {
+    /** 背景模糊 */
+    blur: string
+    /** 背景饱和度 */
+    saturate: string
+  }
+
   border: {
     /** 边框颜色 */
     color: string

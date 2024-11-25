@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="cc">
     <div class="config">
       <div>
         {{ currentPath }}
@@ -96,13 +96,18 @@ const config = reactive({
   flex-direction: column;
 }
 
+.cc {
+  padding: 12px;
+  background: url(http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg)
+    no-repeat center center / cover;
+  color: #fff;
+}
+
 .menu-wrapper {
   width: 260px;
   height: 600px;
   border-radius: 1rem;
   box-shadow: fn.use-var(shadow);
-  background-color: rgba($color: #000000, $alpha: 0.72);
-  backdrop-filter: blur(16px);
-  color: #fff;
+  color: #666;
 }
 </style>
