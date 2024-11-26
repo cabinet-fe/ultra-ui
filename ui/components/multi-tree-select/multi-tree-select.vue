@@ -44,8 +44,8 @@
       </transition>
     </template>
     <template #content>
-      <!-- 全选 -->
       <div :class="[cls.e('content-header'), cls.m(size)]">
+        <!-- 全选 -->
         <u-checkbox
           :model-value="allChecked"
           :indeterminate="indeterminate"
@@ -53,6 +53,15 @@
         >
           全选
         </u-checkbox>
+
+        <u-button
+          size="small"
+          text
+          type="primary"
+          @click="handleToggleExpandAll"
+        >
+          {{ allExpanded ? '收起全部' : '展开全部' }}
+        </u-button>
       </div>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
@@ -170,7 +179,7 @@ const showClear = computed(() => {
   )
 })
 
-const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
+const treeRef = shallowRef<TreeExposed>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
@@ -263,11 +272,19 @@ watch(
   { immediate: true }
 )
 
+const allExpanded = shallowRef(props.expandAll)
+function handleToggleExpandAll() {
+  allExpanded.value = !allExpanded.value
+  allExpanded.value ? treeRef.value?.expandAll() : treeRef.value?.collapseAll()
+}
+
 watch(treeRef, treeRef => {
   if (treeRef && model.value !== undefined) {
     nextTick(() => {
       treeRef.scrollToChecked()
     })
+  } else {
+    allExpanded.value = props.expandAll
   }
 })
 

@@ -37,6 +37,9 @@ export const TableDIKey: InjectionKey<
     /** 获取单元格的类 */
     getCellClass: (column: ColumnNode) => string
 
+    /** 获取表头单元格的类 */
+    getHeaderCellClass: (column: ColumnNode) => string
+
     /** 获取单元格上下文 */
     getCellCtx: (
       row: TableRow,

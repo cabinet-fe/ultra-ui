@@ -3,18 +3,16 @@ import { nextTick, shallowReactive, watch, type ComputedRef } from 'vue'
 import type { TreeNode } from './tree-node'
 import { Tree } from 'cat-kit/fe'
 
-interface Options<DataItem extends Record<string, any>> {
-  emit: TreeEmit<DataItem>
-  props: TreeProps<DataItem>
-  nodeDict: ComputedRef<Map<any, TreeNode<DataItem>>>
+interface Options {
+  emit: TreeEmit
+  props: TreeProps
+  nodeDict: ComputedRef<Map<any, TreeNode>>
 }
 
-export function useCheck<DataItem extends Record<string, any>>(
-  options: Options<DataItem>
-) {
+export function useCheck(options: Options) {
   const { emit, props, nodeDict } = options
 
-  const checked = shallowReactive(new Set<DataItem>())
+  const checked = shallowReactive(new Set<Record<string, any>>())
 
   /**
    * 模型值是否由事件触发
@@ -77,11 +75,7 @@ export function useCheck<DataItem extends Record<string, any>>(
     })
   })
 
-  function handleCheck(
-    node: TreeNode<DataItem>,
-    check: boolean,
-    ctrlKey?: boolean
-  ) {
+  function handleCheck(node: TreeNode, check: boolean, ctrlKey?: boolean) {
     const { checkStrictly } = props
 
     if (check) {

@@ -3,7 +3,7 @@
 @use '../../styles/vars';
 
 // 方便拼接
-$root-name: color-picker;
+$root-name: palette;
 
 @include m.b($root-name) {
 }

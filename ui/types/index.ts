@@ -1,5 +1,9 @@
 export * from './component-common'
 
+export * from './components/action'
+
+export * from './components/auto-complete'
+
 export * from './components/badge'
 
 export * from './components/batch-edit'
@@ -9,6 +13,8 @@ export * from './components/button'
 export * from './components/calendar'
 
 export * from './components/card'
+
+export * from './components/cascade'
 
 export * from './components/check-tag'
 
@@ -38,7 +44,11 @@ export * from './components/form'
 
 export * from './components/gantt-chart'
 
+export * from './components/grid-input'
+
 export * from './components/grid'
+
+export * from './components/group-input'
 
 export * from './components/icon'
 
@@ -56,6 +66,8 @@ export * from './components/message-confirm'
 
 export * from './components/message'
 
+export * from './components/multi-auto-complete'
+
 export * from './components/multi-select'
 
 export * from './components/multi-tree-select'
@@ -70,11 +82,17 @@ export * from './components/number'
 
 export * from './components/paginator'
 
+export * from './components/palette'
+
 export * from './components/password-input'
 
 export * from './components/pop-confirm'
 
+export * from './components/pop'
+
 export * from './components/progress'
+
+export * from './components/quick-batch-edit'
 
 export * from './components/radio-group'
 
@@ -113,3 +131,4 @@ export * from './components/tree'
 export * from './components/watermark'
 
 export * from './helper'
+

@@ -2,20 +2,18 @@ import { nextTick, shallowRef, watch, type ComputedRef } from 'vue'
 import type { TreeEmit, TreeProps } from '@ui/types/components/tree'
 import type { TreeNode } from './tree-node'
 
-interface Options<DataItem extends Record<string, any>> {
-  emit: TreeEmit<DataItem>
-  props: TreeProps<DataItem>
-  nodeDict: ComputedRef<Map<any, TreeNode<DataItem>>>
+interface Options {
+  emit: TreeEmit
+  props: TreeProps
+  nodeDict: ComputedRef<Map<any, TreeNode>>
 }
 
 /**
  * 单选
  */
-export function useSelect<DataItem extends Record<string, any>>(
-  options: Options<DataItem>
-) {
+export function useSelect(options: Options) {
   const { emit, props, nodeDict } = options
-  const selected = shallowRef<DataItem>()
+  const selected = shallowRef<Record<string, any>>()
 
   let changedByEvent = false
   watch(
@@ -29,12 +27,17 @@ export function useSelect<DataItem extends Record<string, any>>(
     { immediate: true }
   )
 
-  const handleSelect = (node: TreeNode<DataItem>) => {
+  const handleSelect = (node: TreeNode) => {
     changedByEvent = true
     if (node.disabled) return
     selected.value = node.data === selected.value ? undefined : node.data
 
-    emit('update:selected', selected.value?.[props.valueKey!], selected.value, node)
+    emit(
+      'update:selected',
+      selected.value?.[props.valueKey!],
+      selected.value,
+      node
+    )
 
     nextTick(() => {
       changedByEvent = false

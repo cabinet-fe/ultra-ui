@@ -117,7 +117,7 @@ const { size, disabled, readonly } = useFormFallbackProps([
   props
 ])
 
-const treeRef = shallowRef<TreeExposed<Record<string, any>>>()
+const treeRef = shallowRef<TreeExposed>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 

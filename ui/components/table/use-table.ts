@@ -49,13 +49,26 @@ export function useTable(options: Options) {
     return column.name
   }
 
-  const getCellClass = (column: ColumnNode): string => {
-    const classList: string[] = [cls.e('cell'), bem.is(column.align)]
+  const cellCls = cls.e('cell')
 
-    column.fixed && classList.push(bem.is('fixed-' + column.fixed))
+  const getCommonClassName = (column: ColumnNode): string => {
+    const classList: string[] = [cellCls]
+
     column.isLastFixed && classList.push(bem.is('last-fixed'))
     column.isFirstFixed && classList.push(bem.is('first-fixed'))
+
+    if (column.fixed) {
+      classList.push(bem.is('fixed-' + column.fixed))
+    }
     return classList.join(' ')
+  }
+
+  const getCellClass = (column: ColumnNode): string => {
+    return getCommonClassName(column) + ` ${bem.is(column.align)}`
+  }
+
+  const getHeaderCellClass = (column: ColumnNode): string => {
+    return getCommonClassName(column) + ` ${bem.is(column.headerAlign)}`
   }
 
   const getCellCtx = (
@@ -97,6 +110,11 @@ export function useTable(options: Options) {
      * @param column 列
      */
     getCellClass,
+    /**
+     * 获取表头单元格类名
+     * @param column 列
+     */
+    getHeaderCellClass,
     /**
      * 获取单元格上下文
      * @param row 行

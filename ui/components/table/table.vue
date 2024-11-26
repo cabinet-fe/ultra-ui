@@ -138,11 +138,16 @@ const columnConfig = useColumns({
 const { allColumns, updateStylesOfColumns } = columnConfig
 
 // 在表格中提供的通用方法和属性
-const { getColumnSlotsNode, getHeaderSlotsNode, getCellClass, getCellCtx } =
-  useTable({
-    props,
-    cls
-  })
+const {
+  getColumnSlotsNode,
+  getHeaderSlotsNode,
+  getCellClass,
+  getCellCtx,
+  getHeaderCellClass
+} = useTable({
+  props,
+  cls
+})
 
 const scrollRef = shallowRef<ScrollExposed>()
 
@@ -191,6 +196,7 @@ provide(TableDIKey, {
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,
+  getHeaderCellClass,
   // tipRef,
   toggleTreeRowExpand,
   ...virtualCtx

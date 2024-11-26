@@ -5,7 +5,7 @@ import { bem, withUnit } from '@ui/utils'
 export default defineComponent({
   name: 'TableHead',
   setup() {
-    const { cls, columnConfig, getHeaderSlotsNode, getCellClass } =
+    const { cls, columnConfig, getHeaderSlotsNode, getHeaderCellClass } =
       inject(TableDIKey)!
     const { headers } = columnConfig
 
@@ -17,7 +17,7 @@ export default defineComponent({
           <tr>
             {header.map(column => (
               <th
-                class={getCellClass(column)}
+                class={getHeaderCellClass(column)}
                 key={column.key + column.keySuffix}
                 colspan={column.leafs}
                 rowspan={

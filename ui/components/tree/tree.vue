@@ -35,7 +35,7 @@
   </u-scroll>
 </template>
 
-<script lang="ts" setup generic="DataItem extends Record<string, any>">
+<script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
 import type {
   TreeProps,
@@ -58,7 +58,7 @@ defineOptions({
   name: 'Tree'
 })
 
-const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
+const props = withDefaults(defineProps<TreeProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   childrenKey: 'children',
@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<TreeProps<DataItem>>(), {
   data: () => []
 })
 
-const emit = defineEmits<TreeEmit<DataItem>>()
+const emit = defineEmits<TreeEmit>()
 
 const cls = bem('tree')
 
@@ -89,14 +89,12 @@ const className = computed(() => {
 })
 
 defineSlots<{
-  default: (props: TreeSlotsScope<DataItem>) => any
+  default: (props: TreeSlotsScope) => any
 }>()
 
 const slots = useSlots()
 
-const getTreeSlotsNode = (
-  ctx: TreeSlotsScope
-): VNode[] | string | undefined => {
+function getTreeSlotsNode(ctx: TreeSlotsScope): VNode[] | string | undefined {
   return (props.slots?.default ?? slots.default)?.(ctx) ?? ctx.node.label
 }
 
@@ -142,13 +140,13 @@ watch(
   { immediate: true }
 )
 
-const nodes = shallowRef<TreeNode<DataItem>[]>([])
+const nodes = shallowRef<TreeNode[]>([])
 
 /**
  * 节点的字典，key为指定的valueKey的值
  */
 const nodeDict = computed(() => {
-  const dict = new Map<string | number, TreeNode<DataItem>>()
+  const dict = new Map<string | number, TreeNode>()
 
   forest.value.dft(node => {
     dict.set(node.key, node)
@@ -159,7 +157,7 @@ const nodeDict = computed(() => {
 
 /** 获取碾平后的节点 */
 function getFlattedNodes() {
-  const _nodes: TreeNode<DataItem>[] = []
+  const _nodes: TreeNode[] = []
 
   forest.value.dft(node => {
     if (!node.parentExpanded) return false
@@ -184,10 +182,10 @@ watch(
  * 但这样的代价是巨大的，时间成本为O(nlog(n)). 因此使用一个回溯缓存来减少回溯的次数,
  * 该缓存堆入节点的父节点，如果该父节点已经被堆入则不再进行堆入
  */
-const traceCache = new Set<TreeNode<DataItem>>()
-const hiddenNodes = new Set<TreeNode<DataItem>>()
+const traceCache = new Set<TreeNode>()
+const hiddenNodes = new Set<TreeNode>()
 
-function defaultFilter(node: TreeNode<DataItem>, qs: string) {
+function defaultFilter(node: TreeNode, qs: string) {
   if (!qs) return true
   return node.label.includes(qs)
 }
@@ -196,7 +194,7 @@ function defaultFilter(node: TreeNode<DataItem>, qs: string) {
  * 显示回溯
  * @param node 节点
  */
-function trace(node: TreeNode<DataItem>) {
+function trace(node: TreeNode) {
   node.visible = true
   let parent = node.parent
 
@@ -213,9 +211,7 @@ function trace(node: TreeNode<DataItem>) {
   }
 }
 
-function filter(
-  filterMethod: string | ((node: TreeNode<DataItem>) => boolean)
-) {
+function filter(filterMethod: string | ((node: TreeNode) => boolean)) {
   traceCache.clear()
 
   if (typeof filterMethod === 'string') {
@@ -239,13 +235,13 @@ function filter(
   getFlattedNodes()
 }
 
-const { handleSelect, selected } = useSelect<DataItem>({
+const { handleSelect, selected } = useSelect({
   props,
   emit,
   nodeDict
 })
 
-const { checked, handleCheck } = useCheck<DataItem>({
+const { checked, handleCheck } = useCheck({
   props,
   emit,
   nodeDict
@@ -287,7 +283,7 @@ provide(TreeDIKey, {
   handleSelect: handleSelect as TreeConText['handleSelect']
 })
 
-defineExpose<_TreeExposed<DataItem>>({
+defineExpose<_TreeExposed>({
   filter,
   forest,
   nodes,
@@ -298,13 +294,27 @@ defineExpose<_TreeExposed<DataItem>>({
       handleCheck(node, check)
     })
   },
-  getSelected(): DataItem | undefined {
+  getSelected() {
     return selected.value
   },
-  getChecked(): DataItem[] {
+  getChecked() {
     return Array.from(checked)
   },
   scrollTo,
+
+  expandAll() {
+    forest.value.dft(node => {
+      node.expanded = true
+    })
+    getFlattedNodes()
+  },
+  collapseAll() {
+    forest.value.dft(node => {
+      node.expanded = false
+    })
+    getFlattedNodes()
+  },
+
   scrollToSelected() {
     scrollTo(nodes.value.findIndex(node => node.data === selected.value))
   },

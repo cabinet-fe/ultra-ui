@@ -85,6 +85,13 @@ export class ColumnNode extends TreeNode<TableColumn> {
     this.data.align = val
   }
 
+  get headerAlign(): TableColumnAlign {
+    return this.data.headerAlign ?? this.align
+  }
+  set headerAlign(val) {
+    this.data.headerAlign = val
+  }
+
   /** 宽度 */
   get width(): number | undefined {
     return this.data.width

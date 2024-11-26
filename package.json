@@ -4,8 +4,8 @@
   "description": "组件库",
   "type": "module",
   "scripts": {
-    "gen": "bun cli/gen-component",
-    "export": "bun cli/export",
+    "gen": "bun cli/gen-component/index.ts",
+    "export": "bun cli/export/index.ts",
     "rename:types": "bun cli/rename/types",
     "update": "bun update",
     "postinstall": "simple-git-hooks",
