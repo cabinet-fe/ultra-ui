@@ -149,7 +149,7 @@ const treeProps = computed(() => {
 const emit = defineEmits<MultiTreeSelectEmits>()
 
 const slots = defineSlots<{
-  default?: (props: TreeSlotsScope<Record<string, any>>) => any
+  default?: (props: TreeSlotsScope) => any
 }>()
 
 /**过滤 */
