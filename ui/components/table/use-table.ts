@@ -1,4 +1,4 @@
-import { useSlots } from 'vue'
+import { useSlots, type Ref } from 'vue'
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
@@ -13,10 +13,12 @@ import type { RenderReturn } from '@ui/types/helper'
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {
   props: TableProps<DataItem>
   cls: BEM<'table'>
+  leftFixed: Ref<boolean>
+  rightFixed: Ref<boolean>
 }
 
 export function useTable(options: Options) {
-  const { props, cls } = options
+  const { props, cls, leftFixed, rightFixed } = options
 
   const slots = useSlots()
 
@@ -54,8 +56,13 @@ export function useTable(options: Options) {
   const getCommonClassName = (column: ColumnNode): string => {
     const classList: string[] = [cellCls]
 
-    column.isLastFixed && classList.push(bem.is('last-fixed'))
-    column.isFirstFixed && classList.push(bem.is('first-fixed'))
+    leftFixed.value &&
+      column.isLastFixed &&
+      classList.push(bem.is('last-fixed'))
+
+    rightFixed.value &&
+      column.isFirstFixed &&
+      classList.push(bem.is('first-fixed'))
 
     if (column.fixed) {
       classList.push(bem.is('fixed-' + column.fixed))

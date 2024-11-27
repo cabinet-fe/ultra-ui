@@ -72,7 +72,6 @@
         </u-input>
       </div>
       <!-- 菜单列表 -->
-
       <u-tree
         v-bind="treeProps"
         v-model:checked="model"
@@ -143,7 +142,8 @@ const treeProps = computed(() => {
     'placeholder',
     'disabled',
     'label',
-    'readonly'
+    'readonly',
+    'modelValue'
   ])
 })
 

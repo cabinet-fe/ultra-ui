@@ -15,10 +15,15 @@ $root-name: menu;
     padding: 4px 1rem;
   }
 
+  @include m.e(item) {
+    margin: 0 0.2rem;
+  }
+
   @include m.e(item, sub-content) {
     cursor: pointer;
     gap: 4px;
     padding: 0 8px;
+
     transition:
       background-color 0.4s,
       box-shadow 0.4s;

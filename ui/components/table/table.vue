@@ -8,6 +8,7 @@
     ]"
     ref="scrollRef"
     @resize="updateStylesOfColumns"
+    @scroll="handleScroll"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -72,6 +73,7 @@ import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
 import type { TableRowNode } from './row-node'
+import { useColumnFixed } from './use-column-fixed'
 
 defineOptions({
   name: 'Table'
@@ -137,6 +139,8 @@ const columnConfig = useColumns({
 
 const { allColumns, updateStylesOfColumns } = columnConfig
 
+const { handleScroll, leftFixed, rightFixed } = useColumnFixed()
+
 // 在表格中提供的通用方法和属性
 const {
   getColumnSlotsNode,
@@ -146,7 +150,9 @@ const {
   getHeaderCellClass
 } = useTable({
   props,
-  cls
+  cls,
+  leftFixed,
+  rightFixed
 })
 
 const scrollRef = shallowRef<ScrollExposed>()
@@ -154,7 +160,7 @@ const scrollRef = shallowRef<ScrollExposed>()
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  estimateSize: () => 48
+  estimateSize: () => 52
 })
 
 const { virtualList, totalHeight } = virtualCtx

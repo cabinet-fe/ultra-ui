@@ -6,6 +6,14 @@ export type ScrollPosition = {
   x?: number
   /** 纵向位置 */
   y?: number
+  /** 横向滚动宽度 */
+  sw?: number
+  /** 纵向滚动高度 */
+  sh?: number
+  /** 横向可视宽度 */
+  cw?: number
+  /** 纵向可视高度 */
+  ch?: number
 }
 
 /** 滚动条组件属性 */

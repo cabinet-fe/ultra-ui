@@ -127,7 +127,14 @@ const updateBar = () => {
     scrollLeft
   } = containerRef.value
 
-  emit('scroll', { x: scrollLeft, y: scrollTop })
+  emit('scroll', {
+    x: scrollLeft,
+    y: scrollTop,
+    sw: scrollWidth,
+    sh: scrollHeight,
+    cw: clientWidth,
+    ch: clientHeight
+  })
 
   if (scrollHeight !== clientHeight) {
     const barYHeight = Math.max(
@@ -183,7 +190,7 @@ const handleDragY = debounce(
 )
 
 // 滚动事件
-const handleScroll = () => {
+const handleScroll = e => {
   updateBar()
 }
 

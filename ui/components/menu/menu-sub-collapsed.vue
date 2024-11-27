@@ -1,31 +1,7 @@
 <template>
-  <!-- <u-tip v-if="depth === 0">
-    <MenuIcon :icon="menu.icon" />
-  </u-tip> -->
-
-  <!-- 收缩状态 -->
-  <u-tip
-    :direction="direction"
-    :alignment="alignment"
-    hide-arrow
-    :trigger="trigger"
-  >
+  <u-tip hide-arrow direction="right" trigger="click" :class="cls.m('default')">
     <li :class="[cls.e('sub')]" style="width: 100%">
-      <div :class="cls.e('sub-content')">
-        <MenuIcon :icon="menu.icon" />
-
-        <template v-if="!menuProps.collapsed || depth !== 0">
-          <!-- 文本 -->
-          <span :class="cls.e('sub-title')">
-            {{ menu.title }}
-          </span>
-
-          <!-- 展开图标 -->
-          <u-icon :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]">
-            <ArrowRight />
-          </u-icon>
-        </template>
-      </div>
+      <MenuIcon :icon="menu.icon" />
     </li>
 
     <template #content>
@@ -37,7 +13,7 @@
         @before-leave="beforeLeave"
         @after-leave="afterLeave"
       >
-        <ul :class="cls.e('sub-list')" v-show="expanded">
+        <ul :class="cls.e('sub-list')">
           <template
             v-for="(child, index) of menu.children!"
             :key="getKey(index, parentKey)"
@@ -62,17 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, shallowRef } from 'vue'
+import { computed, inject } from 'vue'
 import { MenuDIKey } from './di'
-import { ArrowRight } from 'icon-ultra'
-import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import type { MenuItem } from '@ui/types/components/menu'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import { useMenuTransition } from './use-menu-transition'
-import { bem } from '@ui/utils'
-import type { TipAlign, TipDirection } from '@ui/types'
 import MenuIcon from './menu-icon.vue'
 
 defineOptions({
@@ -83,7 +55,6 @@ const props = defineProps<{
   menu: MenuItem
   parentKey: string
   depth: number
-  collapsed?: boolean
 }>()
 
 const { cls, expandedPath, menuProps } = inject(MenuDIKey)!
@@ -92,8 +63,4 @@ const { enter, afterEnter, beforeLeave, leave, afterLeave } =
   useMenuTransition()
 
 const expanded = computed(() => expandedPath.has(props.menu.path))
-
-const direction = shallowRef<TipDirection>('right')
-const alignment = shallowRef<TipAlign>('center')
-const trigger = shallowRef<'hover' | 'click'>('hover')
 </script>

@@ -84,7 +84,6 @@ $root-name: multi-tree-select;
   }
 
   @include m.e(content-header) {
-    padding: 4px 12px;
     border-bottom: fn.use-var(border);
     border-radius: 0;
     @include m.flex($justify: space-between);
@@ -96,8 +95,7 @@ $root-name: multi-tree-select;
         padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
       }
       @include m.bem($root-name, content-header) {
-        padding: calc(fn.use-var(gap, $size) / 2)
-          calc(fn.use-var(gap, $size) * 2);
+        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
         border-bottom: fn.use-var(border);
       }
 

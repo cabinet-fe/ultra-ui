@@ -11,14 +11,7 @@
     ref="itemRef"
     @click="menuEmit('item-click', menu)"
   >
-    <!-- 图标 -->
-    <template v-if="menu.icon">
-      <u-icon :class="cls.e('item-icon')" v-if="typeof menu.icon !== 'string'">
-        <component :is="menu.icon" />
-      </u-icon>
-
-      <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
-    </template>
+    <MenuIcon :icon="menu.icon" />
 
     <!-- 文本 -->
     <span :class="cls.e('item-title')">
@@ -35,6 +28,7 @@ import { MenuDIKey } from './di'
 import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
+import MenuIcon from './menu-icon.vue'
 
 defineOptions({
   name: 'MenuItem'

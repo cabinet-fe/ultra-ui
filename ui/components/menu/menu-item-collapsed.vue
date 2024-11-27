@@ -1,19 +1,11 @@
 <template>
-  <u-tip
-    v-if="depth === 0"
-    direction="right"
-    alignment="center"
-    :trigger="trigger"
-    ref="tipRef"
-    hide-arrow
-  >
+  <u-tip v-if="depth === 0" direction="right" ref="tipRef" hide-arrow>
     <li
       :class="[
         cls.e('item'),
         bem.is('active', active),
         bem.is('disabled', menu.disabled ?? false)
       ]"
-      v-ripple="!menu.disabled ? cls.e('ripple') : false"
       ref="itemRef"
       @click="handleMenuItemClick(menu)"
     >
@@ -39,18 +31,20 @@
     </template>
   </u-tip>
 
-  <li
+  <UMenuItem v-else :menu="menu" :depth="depth" />
+
+  <!-- <li
     v-else
     :class="[
       cls.e('item'),
       bem.is('active', active),
       bem.is('disabled', menu.disabled ?? false)
     ]"
-    v-ripple="!menu.disabled ? cls.e('ripple') : false"
     ref="itemRef"
     @click="handleMenuItemClick(menu)"
   >
-    <!-- 收缩 -->
+
+
     <template v-if="menu.icon">
       <u-icon :class="cls.e('item-icon')" v-if="typeof menu.icon !== 'string'">
         <component :is="menu.icon" />
@@ -62,7 +56,7 @@
     <span :class="cls.e('item-expand')" v-if="depth !== 0">
       {{ menu.title }}
     </span>
-  </li>
+  </li> -->
 </template>
 
 <script setup lang="ts">
@@ -72,7 +66,7 @@ import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
-import { vRipple } from '@ui/directives'
+import UMenuItem from './menu-item.vue'
 
 defineOptions({
   name: 'MenuItem'
@@ -99,18 +93,9 @@ watch([active, itemRef], ([active, itemRef]) => {
     })
 })
 
-const trigger = shallowRef<'hover' | 'click'>('hover')
-
 const tipRef = shallowRef()
 
 const handleMenuItemClick = (menu: MenuItem) => {
   menuEmit('item-click', menu)
 }
-
-// watch(
-//   () => props.depth,
-//   val => {
-//     console.log(val, 'val')
-//   }
-// )
 </script>
