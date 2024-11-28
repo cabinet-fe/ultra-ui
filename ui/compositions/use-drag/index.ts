@@ -1,14 +1,33 @@
 import { type Ref, type ShallowRef, watch, onBeforeUnmount } from 'vue'
 
+interface DragParams {
+  /** 本次拖动水平距离 */
+  x: number
+  /** 本次拖动垂直距离 */
+  y: number
+  /** 拖拽目标水平偏移量 */
+  offsetX: number
+  /** 拖拽目标垂直偏移量 */
+  offsetY: number
+  /** 鼠标事件 */
+  e: MouseEvent
+}
+
 interface DragOptions {
   /** 拖动目标 */
-  target: ShallowRef<HTMLElement | undefined> | Ref<HTMLElement | undefined>
+  target:
+    | ShallowRef<HTMLElement | undefined | null>
+    | Ref<HTMLElement | undefined | null>
   /** 拖动开始 */
   onDragStart?(e: MouseEvent): void
   /** 拖动结束 */
-  onDragEnd?(x: number, y: number, e: MouseEvent): void
+  onDragEnd?(params: DragParams): void
   /** 拖动时 */
-  onDrag?(x: number, y: number, e: MouseEvent): void
+  onDrag?(params: DragParams): void
+  /** 水平拖动范围 */
+  rangeX?: [number, number]
+  /** 垂直拖动范围 */
+  rangeY?: [number, number]
 }
 
 /**
@@ -16,7 +35,7 @@ interface DragOptions {
  * @param options 拖动选项
  */
 export function useDrag(options: DragOptions) {
-  const { target, onDragStart, onDrag, onDragEnd } = options
+  const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY } = options
 
   // 鼠标拖拽前的坐标
   let originX = 0
@@ -51,17 +70,51 @@ export function useDrag(options: DragOptions) {
     document.addEventListener('mouseup', handleMouseup)
   }
 
-  const handleMousemove = (e: MouseEvent) => {
-    offsetX = e.x - originX
-    offsetY = e.y - originY
+  const getOffset = (e: MouseEvent) => {
+    let _offsetX = offsetX + e.x - originX
+    let _offsetY = offsetY + e.y - originY
 
-    onDrag?.(offsetX, offsetY, e)
+    // 范围修正
+    if (rangeX) {
+      _offsetX = Math.max(rangeX[0], Math.min(rangeX[1], _offsetX))
+    }
+    if (rangeY) {
+      _offsetY = Math.max(rangeY[0], Math.min(rangeY[1], _offsetY))
+    }
+
+    return {
+      offsetX: _offsetX,
+      offsetY: _offsetY
+    }
+  }
+
+  const handleMousemove = (e: MouseEvent) => {
+    onDrag?.({
+      x: e.x - originX,
+      y: e.y - originY,
+      ...getOffset(e),
+      e
+    })
   }
 
   const handleMouseup = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleMousemove)
     document.removeEventListener('mouseup', handleMouseup)
-    onDragEnd?.(e.x - originX, e.y - originY, e)
+    const draggedX = e.x - originX
+    const draggedY = e.y - originY
+
+    const offset = getOffset(e)
+
+    offsetX = offset.offsetX
+    offsetY = offset.offsetY
+
+    onDragEnd?.({
+      x: draggedX,
+      y: draggedY,
+      offsetX,
+      offsetY,
+      e
+    })
     document.onselectstart = onselectstart
   }
 
@@ -80,4 +133,15 @@ export function useDrag(options: DragOptions) {
     document.removeEventListener('mousemove', handleMousemove)
     document.removeEventListener('mouseup', handleMouseup)
   })
+
+  return {
+    update(options: { offsetX?: number; offsetY?: number }) {
+      if (options.offsetX !== undefined) {
+        offsetX = options.offsetX
+      }
+      if (options.offsetY !== undefined) {
+        offsetY = options.offsetY
+      }
+    }
+  }
 }

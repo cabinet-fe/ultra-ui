@@ -48,3 +48,9 @@ export function mixColor(
       .join('')
   )
 }
+
+export function defineBySize(
+  variable: Record<'small' | 'default' | 'large', number>
+) {
+  return variable
+}

@@ -121,6 +121,14 @@ const reducible = computed(() => {
   return model.value > min
 })
 
+// 通过值和步长值计算默认的最大精度
+const defaultMaxPrecision = computed(() => {
+  return Math.max(
+    String(model.value).split('.')[1]?.length ?? 0,
+    String(stepVal.value).split('.')[1]?.length ?? 0
+  )
+})
+
 /**
  * 获取展示值
  * @param num 实际值
@@ -133,10 +141,7 @@ function getDisplayed(num?: number): string {
     precision,
     minPrecision,
     // 如果没有指定最大精度那么设置默认为值和步长值中的较大值
-    maxPrecision = Math.max(
-      String(model.value).split('.')[1]?.length ?? 0,
-      String(stepVal.value).split('.')[1]?.length ?? 0
-    )
+    maxPrecision = defaultMaxPrecision.value
   } = props
 
   return currency

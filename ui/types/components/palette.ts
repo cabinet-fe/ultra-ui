@@ -1,7 +1,8 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 调色盘组件属性 */
-export interface PaletteProps {
+export interface PaletteProps extends FormComponentProps {
   modelValue?: string
 }
 

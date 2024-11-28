@@ -6,17 +6,27 @@ const targets = shallowReactive(
   new Map<string, { handler: (e: MouseEvent) => void; el: HTMLElement }>()
 )
 
+let eventAdded = false
+let mousedownEvent: MouseEvent | undefined
+
 const documentClickHandler = (event: MouseEvent) => {
+  if (!mousedownEvent) return
+
+  if (mousedownEvent.target !== event.target) {
+    return (mousedownEvent = undefined)
+  }
   targets.forEach(({ el, handler }) => {
     if (el.contains(event.target as Node)) return
     handler(event)
   })
+  mousedownEvent = undefined
 }
-
-let eventAdded = false
 
 function addEvent() {
   if (eventAdded) return
+  document.addEventListener('mousedown', e => {
+    mousedownEvent = e
+  })
   document.addEventListener('click', documentClickHandler, true)
   eventAdded = true
 }
@@ -37,9 +47,11 @@ watch(targets, async targets => {
 export const vClickOutside: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
     if (!binding.value) return
+
+    // 为元素添加一个id， 并加入到字典中
     const id = String(uid())
     el.dataset.outsideId = id
-    // 等待点击事件冒泡完毕
+
     targets.set(id, {
       handler: binding.value,
       el

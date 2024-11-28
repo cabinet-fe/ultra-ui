@@ -244,7 +244,7 @@
 </template>
 
 <script lang="ts" setup>
-import { theme } from '@ui/styles/theme'
+import { lightTheme } from '@ui/styles/theme/light'
 import { bem } from '@ui/utils'
 import { ThemeDIKey } from './di'
 import { provide } from 'vue'
@@ -257,6 +257,8 @@ defineOptions({
 })
 
 const cls = bem('theme')
+
+const { theme } = lightTheme
 
 provide(ThemeDIKey, {
   cls

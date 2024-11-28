@@ -55,7 +55,7 @@ useDrag({
     currentOffset = offset
     emit('resize-start')
   },
-  onDrag(x, y) {
+  onDrag({ x, y }) {
     if (!props.horizontal) {
       offset = currentOffset + x
       offsets.x = offset + 'px'

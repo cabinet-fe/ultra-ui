@@ -70,7 +70,7 @@ useDrag({
   onDragEnd() {
     dragging.value = false
   },
-  onDrag(x, y) {
+  onDrag({ x, y }) {
     const newOffset = getDragOffset(x, y)
     const maxOffset = trackSize - size.value
 

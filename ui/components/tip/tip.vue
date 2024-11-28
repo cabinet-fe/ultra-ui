@@ -1,7 +1,7 @@
 <template>
   <!-- 触发 -->
   <UNodeRender
-    v-bind="{ ...eventsHandlers, ...$attrs }"
+    v-bind="eventsHandlers"
     :content="getTriggerNode()"
     :class="cls.b"
     ref="triggerRef"

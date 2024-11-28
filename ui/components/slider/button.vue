@@ -103,7 +103,7 @@ useDrag({
   onDragStart(e) {
     isDragging = true
   },
-  onDrag(x, y, e) {
+  onDrag({ x, y }) {
     if (disabled.value) return
 
     const { vertical } = sliderProps
@@ -147,7 +147,7 @@ useDrag({
     }
   },
 
-  onDragEnd(x, y, e) {
+  onDragEnd({ x, y }) {
     currentTransform.x = transform.x
     currentTransform.y = transform.y
 

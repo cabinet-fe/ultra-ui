@@ -237,12 +237,12 @@ useDrag({
     handleIncreaseZIndex()
   },
 
-  onDrag(x, y) {
+  onDrag({ x, y }) {
     if (maximized.value) return
     updateDialogTransform(translated.x + x, translated.y + y)
   },
 
-  onDragEnd(x, y) {
+  onDragEnd({ x, y }) {
     if (maximized.value) return
     translated.x += x
     translated.y += y
@@ -275,10 +275,4 @@ provide(DialogDIKey, {
 defineExpose<DialogExposed>({
   close
 })
-</script>
-
-<script lang="ts">
-export default {
-  inheritAttrs: false
-}
 </script>

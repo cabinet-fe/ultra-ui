@@ -50,6 +50,7 @@ $root-name: input;
     color: fn.use-var(text-color, main);
     font-size: 1em;
     padding: 0;
+    font-family: fn.use-var(font-family);
 
     &:-webkit-autofill {
       color: #fff !important;

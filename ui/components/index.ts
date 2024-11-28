@@ -26,6 +26,8 @@ export * from './date-picker'
 
 export * from './dialog'
 
+export * from './disabled.text-editor'
+
 export * from './dropdown'
 
 export * from './empty'
@@ -42,9 +44,9 @@ export * from './gantt-chart'
 
 export * from './grid'
 
-export * from './group-input'
-
 export * from './grid-input'
+
+export * from './group-input'
 
 export * from './icon'
 
@@ -78,6 +80,8 @@ export * from './number-input'
 
 export * from './paginator'
 
+export * from './palette'
+
 export * from './password-input'
 
 export * from './pop-confirm'
@@ -103,8 +107,6 @@ export * from './tabs'
 export * from './tag'
 
 export * from './text'
-
-// export * from './text-editor'
 
 export * from './textarea'
 
