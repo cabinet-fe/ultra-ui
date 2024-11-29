@@ -134,17 +134,13 @@ function handleCompositionEnd(e: Event) {
 
 const handleInput = (e: Event) => {
   if (isComposing) return
+
   const inputVal = (e.target as HTMLInputElement).value
   emit('native:input', e)
-  if (props.pattern) {
-    const valid = props.pattern.test(inputVal)
-    if (!valid) {
-      nextTick(() => {
-        ;(e.target as HTMLInputElement).value = model.value ?? ''
-      })
-      return
-    }
-  }
+
+  const valid = props.pattern?.test(inputVal) ?? true
+  console.log(valid)
+  if (!valid) return
   model.value = inputVal
 }
 
@@ -171,7 +167,17 @@ const handleMouseLeave = () => {
 }
 
 const handleChange = (e: Event) => {
-  emit('change', (e.target as HTMLInputElement).value)
+  const target = e.target as HTMLInputElement
+
+  const valid = props.pattern?.test(target.value) ?? true
+
+  if (valid) {
+    emit('change', target.value)
+  } else {
+    nextTick(() => {
+      target.value = model.value ?? ''
+    })
+  }
 }
 
 const el = shallowRef<HTMLInputElement>()

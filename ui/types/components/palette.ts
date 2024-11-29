@@ -1,6 +1,13 @@
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
+export interface PaletteRGBA {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
 /** 调色盘组件属性 */
 export interface PaletteProps extends FormComponentProps {
   modelValue?: string

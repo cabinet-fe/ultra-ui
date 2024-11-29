@@ -28,6 +28,11 @@ interface DragOptions {
   rangeX?: [number, number]
   /** 垂直拖动范围 */
   rangeY?: [number, number]
+  /** 初始偏移量 */
+  initial?: {
+    offsetX?: number
+    offsetY?: number
+  }
 }
 
 /**
@@ -35,14 +40,15 @@ interface DragOptions {
  * @param options 拖动选项
  */
 export function useDrag(options: DragOptions) {
-  const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY } = options
+  const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, initial } =
+    options
 
   // 鼠标拖拽前的坐标
   let originX = 0
   let originY = 0
 
-  let offsetX = 0
-  let offsetY = 0
+  let offsetX = initial?.offsetX ?? 0
+  let offsetY = initial?.offsetY ?? 0
 
   // 先取
   const onselectstart = document.onselectstart

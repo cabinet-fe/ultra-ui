@@ -103,7 +103,7 @@ $slider-thumb-size: 18px;
     position: absolute;
   }
 
-  @include m.e(color-value) {
+  @include m.e(color-switch) {
     @include m.flex;
   }
 
@@ -111,6 +111,7 @@ $slider-thumb-size: 18px;
     width: 60px;
     cursor: pointer;
     flex-shrink: 0;
+    user-select: none;
   }
 
   @include m.e(color-rgba) {
@@ -124,7 +125,6 @@ $slider-thumb-size: 18px;
   @include m.e(color-hexa) {
     .u-input__native {
       text-align: center;
-      letter-spacing: 1px;
     }
   }
 }
