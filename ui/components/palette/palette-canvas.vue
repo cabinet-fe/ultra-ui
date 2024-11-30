@@ -18,6 +18,10 @@
 </template>
 
 <script lang="ts" setup>
+// 调色画布
+// 水平方向表示饱和度，从左到右饱和度逐渐增高
+// 垂直方向表示亮度，上亮下暗
+
 import { computed, inject } from 'vue'
 import { PaletteDIKey } from './di'
 import { useCanvasThumb } from './use-canvas'

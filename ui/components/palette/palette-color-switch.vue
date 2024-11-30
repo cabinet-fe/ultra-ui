@@ -57,12 +57,14 @@ const HEX_RE =
 const hexColor = shallowRef('')
 
 const colorTypeEffects = {
-  RGB: () => {
+  HEX: () => {
     const hexStr = ['r', 'g', 'b', 'a']
       .map(key => RGBA[key].toString(16).padStart(2, '0'))
       .join('')
       .toUpperCase()
     hexColor.value = `#${hexStr}`
+
+    console.log(hexColor.value)
   }
 }
 
