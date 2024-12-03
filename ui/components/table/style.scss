@@ -110,6 +110,24 @@ $root-name: table;
     }
   }
 
+  @include m.e(resize-handle) {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    right: 0px;
+    top: 0;
+    cursor: col-resize;
+  }
+
+  @include m.e(resize-line) {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    top: 0;
+
+    background-color: fn.use-var(border-color);
+  }
+
   @include m.e(body) {
     will-change: transform;
     tr:not(:last-child) {
@@ -142,6 +160,7 @@ $root-name: table;
     line-height: 1;
     padding: fn.use-var(gap, large);
     box-shadow: -1px -1px #eee inset;
+    position: relative;
 
     @each $position in (left, center, right) {
       @include m.is($position) {

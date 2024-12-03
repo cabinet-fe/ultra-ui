@@ -45,7 +45,7 @@
 
     <slot name="append" />
 
-    <div :class="cls.e('resizer')"></div>
+    <div :class="cls.e('resize-line')" v-if="showResizeLine"></div>
 
     <u-tip v-if="textEllipsis" ref="tipRef"> </u-tip>
   </u-scroll>
@@ -74,6 +74,7 @@ import { useCheck } from './use-check'
 import { useTable } from './use-table'
 import type { TableRowNode } from './row-node'
 import { useColumnFixed } from './use-column-fixed'
+import { useColResize } from './use-col-resize'
 
 defineOptions({
   name: 'Table'
@@ -140,6 +141,8 @@ const columnConfig = useColumns({
 const { allColumns, updateStylesOfColumns } = columnConfig
 
 const { handleScroll, leftFixed, rightFixed } = useColumnFixed()
+
+const { showResizeLine } = useColResize()
 
 // 在表格中提供的通用方法和属性
 const {

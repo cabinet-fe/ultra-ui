@@ -1,5 +1,5 @@
 import { defineComponent, inject } from 'vue'
-import { TableDIKey } from './di'
+import { TableDIKey, TableResizeKey } from './di'
 import { bem, withUnit } from '@ui/utils'
 
 export default defineComponent({
@@ -8,6 +8,9 @@ export default defineComponent({
     const { cls, columnConfig, getHeaderSlotsNode, getHeaderCellClass } =
       inject(TableDIKey)!
     const { headers } = columnConfig
+    const handleCls = cls.e('resize-handle')
+
+    const { handleResizeMousedown } = inject(TableResizeKey)!
 
     return () => (
       <thead
@@ -30,11 +33,14 @@ export default defineComponent({
                   right: withUnit(column.style.right, 'px')
                 }}
               >
-                {getHeaderSlotsNode({
-                  column
-                })}
+                {getHeaderSlotsNode({ column })}
 
-                {/* <span class='resize-line'></span> */}
+                {column.isLeaf ? (
+                  <span
+                    class={handleCls}
+                    onMousedown={handleResizeMousedown}
+                  ></span>
+                ) : null}
               </th>
             ))}
           </tr>

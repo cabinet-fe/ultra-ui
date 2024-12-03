@@ -47,3 +47,8 @@ export const TableDIKey: InjectionKey<
     ) => TableColumnSlotsScope | TableColumnRenderContext
   } & VirtualReturned
 > = Symbol('TableDIKey')
+
+export const TableResizeKey: InjectionKey<{
+  handleResizeMousedown: () => void
+  handleResizeMouseup: () => void
+}> = Symbol('TableResizeKey')
