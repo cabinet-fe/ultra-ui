@@ -157,7 +157,7 @@ import {
 } from '@ui/compositions'
 import { UCheckbox } from '../checkbox'
 import { UDropdown, type DropdownExposed } from '../dropdown'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { UEmpty } from '../empty'
@@ -167,6 +167,7 @@ import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'MultiSelect'

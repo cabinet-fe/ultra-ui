@@ -52,7 +52,8 @@ import { useSelect } from './use-select'
 import { useCheck } from './use-check'
 import { UEmpty } from '../empty'
 import { useVirtual } from '@ui/compositions'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Tree'

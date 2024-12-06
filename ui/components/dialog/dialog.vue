@@ -93,12 +93,13 @@ import {
 } from '@ui/utils'
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
 import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
 import type { ComponentSize } from '@ui/types/component-common'
 import { DialogDIKey } from './di'
 import { UNodeRender } from '../node-render'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Dialog',

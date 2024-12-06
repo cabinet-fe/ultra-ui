@@ -13,7 +13,7 @@
             cls.e('option'),
             bem.is('selected', option.selected),
             bem.is('checked', option.checked),
-            bem.is('disabled', option.disabled),
+            bem.is('disabled', option.disabled)
           ]"
           :data-key="option.data[labelKey!]"
           :data-depth="option.depth"
@@ -41,19 +41,20 @@
 </template>
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
-import { ref, watch, inject, shallowRef, nextTick } from "vue"
-import { bem, nextFrame } from "@ui/utils"
-import { CascadeDIKey } from "./di"
-import { vRipple } from "@ui/directives"
-import { ArrowRight } from "icon-ultra"
-import { UScroll, type ScrollExposed } from "../scroll"
-import { UIcon } from "../icon"
-import { UCheckbox } from "../checkbox"
-import type { CascadeNodeProps } from "@ui/types/components/cascade"
-import type { CascadeNode } from "./cascade-node"
+import { ref, watch, inject, shallowRef, nextTick } from 'vue'
+import { bem, nextFrame } from '@ui/utils'
+import { CascadeDIKey } from './di'
+import { vRipple } from '@ui/directives'
+import { ArrowRight } from 'icon-ultra'
+import { UScroll } from '../scroll'
+import { UIcon } from '../icon'
+import { UCheckbox } from '../checkbox'
+import type { CascadeNodeProps } from '@ui/types/components/cascade'
+import type { CascadeNode } from './cascade-node'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
-  name: "CascadeNode",
+  name: 'CascadeNode'
 })
 
 const props = withDefaults(defineProps<CascadeNodeProps>(), {})
@@ -68,7 +69,7 @@ const {
   updatePosition,
   handleSelect,
   handleCheck,
-  cascade,
+  cascade
 } = injected!
 
 const { labelKey, valueKey, childrenKey, multiple } = cascadeProps
@@ -83,7 +84,7 @@ let isEchoing = true
 
 const shouldShowLevel = (level: number, data: Option) => {
   return (
-    data.parentNodes === "" ||
+    data.parentNodes === '' ||
     (depthIndex.value.includes(level) &&
       parentNodes.value.includes(data.parentNodes))
   )
@@ -118,20 +119,20 @@ const handleClick = (option: CascadeNode<Record<string, any>>) => {
 
 /**数据初始化 */
 const initData = () => {
-  props.cascadeData?.some((node) => {
-    node.forEach((item) => {
+  props.cascadeData?.some(node => {
+    node.forEach(item => {
       item.selected = false
     })
   })
 }
 
 /**回显 */
-const echo = (arr) => {
+const echo = arr => {
   let echoData: any = []
   depthIndex.value = [1]
   parentNodes.value = []
-  props.cascadeData?.some((node) => {
-    node.forEach((item) => {
+  props.cascadeData?.some(node => {
+    node.forEach(item => {
       if (arr.includes(item.data[valueKey!])) {
         echoData.push(item)
       }
@@ -148,8 +149,8 @@ const echo = (arr) => {
 
 watch(
   () => cascade.value,
-  (val) => {
-    if (val === "") {
+  val => {
+    if (val === '') {
       initData()
       return
     }
@@ -167,15 +168,15 @@ watch(
       nextFrame(() => {
         scroll.forEach((item, index) => {
           const node = item.containerRef!.getElementsByClassName(
-            !multiple ? "is-selected" : "is-checked"
+            !multiple ? 'is-selected' : 'is-checked'
           )[0]
-          node?.scrollIntoView({ block: "nearest", inline: "start" })
+          node?.scrollIntoView({ block: 'nearest', inline: 'start' })
         })
       })
     }
   },
   {
-    immediate: true,
+    immediate: true
   }
 )
 </script>

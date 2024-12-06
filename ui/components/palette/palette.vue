@@ -39,10 +39,8 @@ const props = defineProps<PaletteProps>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+// disabled, readonly
+const { size } = useFormFallbackProps([formProps ?? {}, props])
 
 const cls = bem('palette')
 

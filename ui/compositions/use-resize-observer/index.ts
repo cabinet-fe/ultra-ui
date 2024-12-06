@@ -43,7 +43,7 @@ function unobserve(
 export function useResizeObserver(
   options: ResizeObserverOptions
 ): ResizeObserverReturn {
-  const { targets, onResize, when } = options
+  const { targets, onResize } = options
 
   let observer: ResizeObserver | undefined
 

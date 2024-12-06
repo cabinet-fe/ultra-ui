@@ -113,7 +113,7 @@ import {
   useVirtual
 } from '@ui/compositions'
 import { UDropdown, type DropdownExposed } from '../dropdown'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'
@@ -122,6 +122,7 @@ import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Select'

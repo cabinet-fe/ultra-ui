@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import type { ScrollPosition } from '../scroll'
 import { debounce } from 'cat-kit/fe'
+import type { ScrollPosition } from '@ui/types'
 
 export function useColumnFixed() {
   const leftFixed = ref(false)
