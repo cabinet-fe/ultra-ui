@@ -9,10 +9,6 @@ $root-name: table;
   position: relative;
 
   @include m.size using ($size) {
-    // @include m.bem($root-name, cell) {
-    //   padding: fn.use-var(gap, $size);
-    // }
-
     @include m.bem($root-name, expand-toggle) {
       font-size: fn.use-var(font-size, main, $size);
     }
@@ -20,6 +16,10 @@ $root-name: table;
 
   @include m.e(checkbox) {
     height: 20px;
+  }
+
+  @include m.e(content) {
+    width: fit-content;
   }
 
   @include m.e(wrap) {
@@ -91,19 +91,20 @@ $root-name: table;
     position: sticky;
     top: 0;
     z-index: 1;
+    user-select: none;
 
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
         box-shadow:
-          -1px 0px #eee inset,
-          0px -1px #eee inset;
+          -1px 0px fn.use-var(table, border-color) inset,
+          0px -1px fn.use-var(table, border-color) inset;
       }
     }
   }
 
   @include m.e(head) {
     @include m.bem($root-name, cell) {
-      // box-shadow: 0px -1px 1px #eee inset;
+      box-shadow: -1px -1px 1px fn.use-var(table, border-color) inset;
       background-color: #f9f9f9;
       font-weight: normal;
       color: fn.use-var(text-color, main);
@@ -112,7 +113,7 @@ $root-name: table;
 
   @include m.e(resize-handle) {
     position: absolute;
-    width: 2px;
+    width: 4px;
     height: 100%;
     right: 0px;
     top: 0;
@@ -124,17 +125,12 @@ $root-name: table;
     width: 1px;
     height: 100%;
     top: 0;
-
+    z-index: 1;
     background-color: fn.use-var(border-color);
   }
 
   @include m.e(body) {
     will-change: transform;
-    tr:not(:last-child) {
-      @include m.bem($root-name, cell) {
-        // box-shadow: 0px -1px #eee inset;
-      }
-    }
   }
 
   @include m.e(empty) {
@@ -149,7 +145,9 @@ $root-name: table;
     bottom: 0;
 
     @include m.bem($root-name, cell) {
-      // box-shadow: 0px 1px 1px #eee inset;
+      box-shadow:
+        -1px -1px 1px fn.use-var(table, border-color) inset,
+        0px 1px 1px fn.use-var(table, border-color) inset;
     }
   }
 
@@ -157,9 +155,8 @@ $root-name: table;
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, title);
     word-break: break-all;
-    line-height: 1;
     padding: fn.use-var(gap, large);
-    box-shadow: -1px -1px #eee inset;
+    box-shadow: -1px -1px fn.use-var(table, border-color) inset;
     position: relative;
 
     @each $position in (left, center, right) {
@@ -170,11 +167,11 @@ $root-name: table;
 
     @include m.is(fixed-left, fixed-right) {
       position: sticky;
+      z-index: 1;
     }
 
     @include m.is(fixed-left) {
       @include m.is(last-fixed) {
-        // box-shadow: 0px -1px #eee inset;
         &::after {
           content: '';
           position: absolute;
@@ -183,14 +180,13 @@ $root-name: table;
           width: 10px;
           height: 100%;
           pointer-events: none;
-          box-shadow: 10px 0 10px -10px #eee inset;
+          box-shadow: 10px 0 10px -10px fn.use-var(shadow-color) inset;
         }
       }
     }
 
     @include m.is(fixed-right) {
       @include m.is(first-fixed) {
-        // box-shadow: 0px -1px #eee inset;
         &::before {
           content: '';
           position: absolute;
@@ -199,7 +195,7 @@ $root-name: table;
           width: 10px;
           height: 100%;
           pointer-events: none;
-          box-shadow: -10px 0 10px -10px #eee inset;
+          box-shadow: -10px 0 10px -10px fn.use-var(shadow-color) inset;
         }
       }
     }

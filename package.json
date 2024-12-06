@@ -34,13 +34,13 @@
     "cat-kit": "^3.7.10",
     "fast-glob": "^3.3.2",
     "icon-ultra": "^3.0.15",
-    "rollup": "^4.27.4",
+    "rollup": "^4.28.0",
     "rollup-plugin-esbuild": "^6.1.1",
-    "sass": "^1.81.0",
+    "sass": "^1.81.1",
     "simple-git-hooks": "^2.11.1",
     "ts-conf-base": "^2.3.3",
-    "typescript": "^5.7.2",
-    "unplugin-vue-components": "^0.27.4",
+    "typescript": "5.6.3",
+    "unplugin-vue-components": "^0.27.5",
     "vite": "^5.4.11",
     "vitest": "^1.6.0",
     "vue": "^3.5.13",
@@ -53,7 +53,7 @@
     "commit-msg": "bun cli/verify-commit/index.ts"
   },
   "dependencies": {
-    "quill": "^2.0.2",
+    "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.12",
     "@tanstack/vue-virtual": "^3.10.9"
   }

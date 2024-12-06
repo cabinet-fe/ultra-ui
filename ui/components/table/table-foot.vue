@@ -2,17 +2,17 @@
   <tfoot v-if="tableSlots.foot || showSummary" :class="cls.e('foot')">
     <tr v-if="showSummary">
       <td
-        v-if="allColumns[0]"
-        :class="getCellClass(allColumns[0])"
+        v-if="leafColumns[0]"
+        :class="getCellClass(leafColumns[0])"
         :style="{
-          right: withUnit(allColumns[0].style.right, 'px'),
-          left: withUnit(allColumns[0].style.left, 'px')
+          right: withUnit(leafColumns[0].style.right, 'px'),
+          left: withUnit(leafColumns[0].style.left, 'px')
         }"
       >
         合计:
       </td>
       <td
-        v-for="column of allColumns.slice(1)"
+        v-for="column of leafColumns.slice(1)"
         :class="getCellClass(column)"
         :key="column.key + column.keySuffix"
         :style="{
@@ -43,10 +43,10 @@ defineOptions({
 const { cls, columnConfig, rows, tableSlots, getCellClass } =
   inject(TableDIKey)!
 
-const { allColumns } = columnConfig
+const { leafColumns } = columnConfig
 
 const showSummary = computed(() => {
-  return allColumns.value.some(col => !!col.data.summary)
+  return leafColumns.value.some(col => !!col.data.summary)
 })
 
 function computeSummary(key: string) {

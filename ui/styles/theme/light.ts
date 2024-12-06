@@ -3,10 +3,10 @@ import { UITheme } from './ui-theme'
 
 export const lightTheme = new UITheme({
   color: {
-    primary: '#0ea5e9',
-    success: '#4caf50',
-    warning: '#ffc107',
-    danger: '#f44336',
+    primary: '#3670f7',
+    success: '#2ba471',
+    warning: '#e37318',
+    danger: '#d54941',
     info: '#009688',
     disabled: '#f5f7fa',
     default: '#f1f5f9'
@@ -105,5 +105,9 @@ export const lightTheme = new UITheme({
     sm: 960,
     md: 1280,
     lg: 1920
+  },
+
+  table: {
+    borderColor: '#eee'
   }
 })

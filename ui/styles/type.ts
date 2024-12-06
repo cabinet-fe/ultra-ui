@@ -166,4 +166,10 @@ export type Theme = {
     /** 大屏幕断点 */
     lg: number
   }
+
+  /** 表格 */
+  table: {
+    /** 表格边框颜色 */
+    borderColor: string
+  }
 }

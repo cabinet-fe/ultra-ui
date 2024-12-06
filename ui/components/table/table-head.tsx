@@ -10,11 +10,12 @@ export default defineComponent({
     const { headers } = columnConfig
     const handleCls = cls.e('resize-handle')
 
-    const { handleResizeMousedown } = inject(TableResizeKey)!
+    const { handleResizeMousedown, headerRef } = inject(TableResizeKey)!
 
     return () => (
       <thead
         class={[cls.e('head'), bem.is('multistage', headers.value.length > 1)]}
+        ref={headerRef}
       >
         {headers.value.map((header, headerIndex) => (
           <tr>
@@ -38,7 +39,7 @@ export default defineComponent({
                 {column.isLeaf ? (
                   <span
                     class={handleCls}
-                    onMousedown={handleResizeMousedown}
+                    onMousedown={e => handleResizeMousedown(e, column)}
                   ></span>
                 ) : null}
               </th>

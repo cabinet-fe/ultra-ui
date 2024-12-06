@@ -7,13 +7,13 @@
       bem.is('text-ellipsis', textEllipsis)
     ]"
     ref="scrollRef"
-    @resize="updateStylesOfColumns"
+    :content-class="cls.e('content')"
     @scroll="handleScroll"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
         <col
-          v-for="column of allColumns"
+          v-for="column of leafColumns"
           :key="column.key"
           :class="column.fixed"
           :style="{
@@ -24,7 +24,7 @@
       </colgroup>
       <UTableHead />
       <UTableBody>
-        <slot name="body" :columns="allColumns" :rows="rows" />
+        <slot name="body" :columns="leafColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">
           <slot name="empty" />
@@ -39,13 +39,17 @@
         }"
       ></tbody>
       <UTableFoot>
-        <slot name="foot" :columns="allColumns" :rows="rows" />
+        <slot name="foot" :columns="leafColumns" :rows="rows" />
       </UTableFoot>
     </table>
 
     <slot name="append" />
 
-    <div :class="cls.e('resize-line')" v-if="showResizeLine"></div>
+    <div
+      v-if="showResizeLine"
+      :class="cls.e('resize-line')"
+      ref="resizeLineRef"
+    ></div>
 
     <u-tip v-if="textEllipsis" ref="tipRef"> </u-tip>
   </u-scroll>
@@ -67,7 +71,7 @@ import { UTip } from '../tip'
 import UTableHead from './table-head'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
-import { UScroll, type ScrollExposed } from '../scroll'
+import { UScroll } from '../scroll'
 import { useFallbackProps, useVirtual } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
@@ -75,6 +79,7 @@ import { useTable } from './use-table'
 import type { TableRowNode } from './row-node'
 import { useColumnFixed } from './use-column-fixed'
 import { useColResize } from './use-col-resize'
+import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Table'
@@ -100,8 +105,6 @@ const cls = bem('table')
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
-
-const colgroupRef = shallowRef<HTMLElement>()
 
 // 行
 const {
@@ -133,16 +136,13 @@ const columnConfig = useColumns({
   props,
   createCheckColumn,
   createSelectColumn,
-  colgroupRef,
   toggleAllTreeRowExpand,
   cls
 })
 
-const { allColumns, updateStylesOfColumns } = columnConfig
+const { leafColumns } = columnConfig
 
 const { handleScroll, leftFixed, rightFixed } = useColumnFixed()
-
-const { showResizeLine } = useColResize()
 
 // 在表格中提供的通用方法和属性
 const {
@@ -159,6 +159,11 @@ const {
 })
 
 const scrollRef = shallowRef<ScrollExposed>()
+
+const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({
+  scrollRef,
+  leafColumns
+})
 
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),

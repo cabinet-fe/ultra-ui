@@ -22,5 +22,8 @@ export const darkTheme = lightTheme.new({
   },
   shadow: {
     color: 'rgba(255, 255, 255, 0.1)'
+  },
+  table: {
+    borderColor: '#666'
   }
 })

@@ -3,7 +3,7 @@ import type {
   TableColumnAlign,
   TableProps
 } from '@ui/types/components/table'
-import { Forest, Tree, TreeNode, debounce, last } from 'cat-kit/fe'
+import { Forest, Tree, TreeNode, last } from 'cat-kit/fe'
 import {
   computed,
   createVNode,
@@ -52,6 +52,8 @@ export class ColumnNode extends TreeNode<TableColumn> {
   parent: ColumnNode | null = null
   /** 叶子节点数量 */
   leafs?: number
+
+  nextNode: ColumnNode | null = null
 
   get keySuffix(): string {
     if (!this.parent) return ''
@@ -142,23 +144,16 @@ export interface ColumnConfig {
    */
   columns: ShallowRef<ColumnNode[]>
 
-  /** 所有列 */
-  allColumns: ShallowRef<ColumnNode[]>
+  /** 所有叶子列 */
+  leafColumns: ShallowRef<ColumnNode[]>
 
   /** 第一列 */
   expandColumn: ShallowRef<ColumnNode | undefined>
-
-  /**
-   * 更新列的样式
-   * @description 在尺寸变更时重新计算固定列的宽度和偏移量
-   */
-  updateStylesOfColumns: () => void
 }
 
 interface Options {
   props: TableProps
   cls: BEM<'table'>
-  colgroupRef: ShallowRef<HTMLElement | undefined>
   /** 创建复选框 */
   createCheckColumn: () => TableColumn
   createSelectColumn: () => TableColumn
@@ -170,7 +165,6 @@ export function useColumns(options: Options): ColumnConfig {
     props,
     createCheckColumn,
     createSelectColumn,
-    colgroupRef,
     toggleAllTreeRowExpand,
     cls
   } = options
@@ -349,7 +343,7 @@ export function useColumns(options: Options): ColumnConfig {
   const columns = shallowRef<ColumnNode[]>([])
 
   /** 所有叶子节点 */
-  const allColumns = shallowRef<ColumnNode[]>([])
+  const leafColumns = shallowRef<ColumnNode[]>([])
 
   const expandColumn = shallowRef<ColumnNode>()
 
@@ -365,7 +359,7 @@ export function useColumns(options: Options): ColumnConfig {
         }
       })
 
-      allColumns.value = _columns
+      leafColumns.value = _columns
 
       if (props.tree) {
         expandColumn.value = _columns[0]
@@ -378,63 +372,17 @@ export function useColumns(options: Options): ColumnConfig {
     { immediate: true }
   )
 
-  /**
-   * 更新列的样式
-   * @description 在尺寸变更时重新计算固定列的宽度和偏移量
-   */
-  const updateStylesOfColumns = debounce(
-    () => {
-      const colgroup = colgroupRef.value
-
-      if (!colgroup) return
-
-      const fixedOnLeft = Array.from(
-        colgroup.getElementsByClassName('left')
-      ) as HTMLElement[]
-
-      const fixedOnRight = Array.from(
-        colgroup.getElementsByClassName('right')
-      ) as HTMLElement[]
-
-      fixedOnLeft.reduce((acc, col, colIndex) => {
-        const colNode = allColumns.value[colIndex]!
-        if (!colNode.width) {
-          colNode.width = col.offsetWidth
-        }
-
-        colNode.style.left = acc
-        return acc + col.offsetWidth
-      }, 0)
-
-      const rightColumns = allColumns.value.slice(-fixedOnRight.length)
-
-      fixedOnRight.reduceRight((acc, col, colIndex) => {
-        const colNode = rightColumns[colIndex]!
-
-        if (!colNode.width) {
-          colNode.width = col.offsetWidth
-        }
-        colNode.style.right = acc
-        return acc + col.offsetWidth
-      }, 0)
-    },
-    100,
-    true
-  )
-
   return {
     /** 第一列 */
     expandColumn,
 
     /** 所有列 */
-    allColumns,
+    leafColumns,
 
     /** 列 */
     columns,
 
     /** 表格头的分层展示 */
-    headers,
-
-    updateStylesOfColumns
+    headers
   }
 }

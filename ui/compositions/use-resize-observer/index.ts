@@ -19,25 +19,31 @@ export type ResizeObserverReturn = {
   disconnect: () => void
 }
 
+/**
+ * 取消监听
+ * @param targets 目标节点
+ * @param observer 观察器
+ */
 function unobserve(
   targets: RefElement | RefElement[],
-  observer: ResizeObserver
+  observer?: ResizeObserver
 ) {
   if (Array.isArray(targets)) {
     return targets.forEach(target => unobserve(target, observer))
   }
-  if (!targets.value) return
+  if (!targets.value || !observer) return
   observer.unobserve(targets.value)
+  observer.disconnect()
 }
 
 /**
- * 监听尺寸调整
+ * 监听目标尺寸变化
  * @param options 选项
  */
 export function useResizeObserver(
   options: ResizeObserverOptions
 ): ResizeObserverReturn {
-  const { targets, onResize } = options
+  const { targets, onResize, when } = options
 
   let observer: ResizeObserver | undefined
 
@@ -45,17 +51,18 @@ export function useResizeObserver(
     watch(
       targets,
       (val, oldVal) => {
+        // 清除旧的观察
+        oldVal.forEach(target => {
+          target && observer?.unobserve(target)
+        })
+
         if (!observer && !!val.length) {
           observer = new ResizeObserver(onResize)
         }
-        oldVal.length &&
-          oldVal.forEach(target => {
-            target && observer?.unobserve(target)
-          })
-        val.length &&
-          val.forEach(target => {
-            target && observer?.observe(target)
-          })
+
+        val.forEach(target => {
+          target && observer?.observe(target)
+        })
       },
       { immediate: true }
     )
@@ -63,10 +70,10 @@ export function useResizeObserver(
     watch(
       targets,
       (val, oldVal) => {
+        oldVal && observer?.unobserve(oldVal)
         if (!observer && val) {
           observer = new ResizeObserver(onResize)
         }
-        oldVal && observer?.unobserve(oldVal)
         val && observer?.observe(val)
       },
       { immediate: true }
@@ -74,20 +81,21 @@ export function useResizeObserver(
   }
 
   onBeforeUnmount(() => {
-    observer && unobserve(targets, observer)
-    observer?.disconnect()
+    unobserve(targets, observer)
     observer = undefined
   })
 
   return {
     disconnect() {
-      observer && unobserve(targets, observer)
-      observer?.disconnect()
+      unobserve(targets, observer)
     }
   }
 }
 
-export function useObserverCallback(cb: ResizeObserverCallback) {
+/**
+ * 监听元素尺寸变化
+ */
+export function useObserverCallback() {
   const observerElMap = new Map<HTMLElement, Function>()
   const observer = new ResizeObserver(entry => {
     observerElMap.forEach(fn => fn())
@@ -113,6 +121,9 @@ export function useObserverCallback(cb: ResizeObserverCallback) {
   }
 
   onBeforeUnmount(() => {
+    observerElMap.forEach((_, el) => {
+      observer.unobserve(el)
+    })
     observerElMap.clear()
     observer.disconnect()
   })

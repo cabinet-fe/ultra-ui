@@ -54,7 +54,7 @@ export function usePop(options: Options) {
     alignment
   } = options
 
-  const { observeEl, unobserveEl } = useObserverCallback(update)
+  const { observeEl, unobserveEl } = useObserverCallback()
 
   /** 箭头位置 */
   const arrowPlacementDict = {

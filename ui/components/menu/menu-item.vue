@@ -27,7 +27,6 @@ import { computed, inject, shallowRef, watch } from 'vue'
 import { MenuDIKey } from './di'
 import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { UIcon } from '../icon'
 import MenuIcon from './menu-icon.vue'
 
 defineOptions({

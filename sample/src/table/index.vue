@@ -54,7 +54,7 @@
     </CustomCard>
 
     <CustomCard title="合并单元格">
-      <u-table
+      <!-- <u-table
         :data="data2"
         :merge-cell="mergeCell"
         v-if="!reloading"
@@ -73,7 +73,7 @@
         <template #column:thirdQuota="{ model }">
           <u-input v-bind="model"></u-input>
         </template>
-      </u-table>
+      </u-table> -->
     </CustomCard>
 
     <!-- <CustomCard title="编辑">
@@ -101,7 +101,7 @@ import { Plus } from 'icon-ultra'
 
 const state = shallowReactive({
   checkable: false,
-  selectable: false,
+  selectable: true,
   tree: false,
   showIndex: false,
   highlightCurrent: false,
@@ -150,12 +150,13 @@ const _columns = defineTableColumns(
     {
       name: '年龄',
       key: 'age',
-      fixed: 'left',
+      fixed: 'right',
       summary: true
+
       // headerAlign: 'center'
     }
-  ],
-  { minWidth: 150 }
+  ]
+  // { minWidth: 150 }
 )
 
 const columns = shallowRef<any[]>([])

@@ -13,7 +13,7 @@
 
     <!-- 空 -->
     <tr v-if="!rows.length" :class="cls.e('row')">
-      <td :colspan="allColumns.length">
+      <td :colspan="leafColumns.length">
         <slot name="empty"><UEmpty :class="cls.e('empty')" /></slot>
       </td>
     </tr>
@@ -34,7 +34,7 @@ defineOptions({
 })
 
 const { cls, rows, virtualList, columnConfig, tableProps } = inject(TableDIKey)!
-const { allColumns } = columnConfig
+const { leafColumns } = columnConfig
 
 const virtualRows = computed(() => {
   return virtualList.value.map(item => {

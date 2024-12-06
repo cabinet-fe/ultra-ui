@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { inject } from 'vue'
 import { MenuDIKey } from './di'
 import { UTip } from '../tip'
 import type { MenuItem } from '@ui/types/components/menu'
@@ -51,16 +51,14 @@ defineOptions({
   name: 'MenuSubCollapsed'
 })
 
-const props = defineProps<{
+defineProps<{
   menu: MenuItem
   parentKey: string
   depth: number
 }>()
 
-const { cls, expandedPath, menuProps } = inject(MenuDIKey)!
+const { cls } = inject(MenuDIKey)!
 
 const { enter, afterEnter, beforeLeave, leave, afterLeave } =
   useMenuTransition()
-
-const expanded = computed(() => expandedPath.has(props.menu.path))
 </script>

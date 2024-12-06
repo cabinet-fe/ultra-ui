@@ -49,6 +49,6 @@ export const TableDIKey: InjectionKey<
 > = Symbol('TableDIKey')
 
 export const TableResizeKey: InjectionKey<{
-  handleResizeMousedown: () => void
-  handleResizeMouseup: () => void
+  handleResizeMousedown: (e: MouseEvent, resizeColumn: ColumnNode) => void
+  headerRef: ShallowRef<HTMLElement | undefined>
 }> = Symbol('TableResizeKey')
