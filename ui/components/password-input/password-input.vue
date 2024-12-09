@@ -2,6 +2,10 @@
   <u-input
     :class="cls.b"
     :model-value="passwordText"
+    v-bind="inputProps"
+    :size="size"
+    :readonly="readonly"
+    :disabled="disabled"
     @native:input="handleUpdatePwd"
     @update:model-value="!$event && handleClear()"
     @suffix:click="toggleVisible"
@@ -24,12 +28,33 @@ import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { View, Hide } from 'icon-ultra'
 import { computed, nextTick, shallowRef } from 'vue'
+import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { obj } from 'cat-kit/fe'
 
 defineOptions({
   name: 'PasswordInput'
 })
 
-defineProps<PasswordInputProps>()
+const props = withDefaults(defineProps<PasswordInputProps>(), {
+  clearable: true,
+  disabled: undefined,
+  readonly: undefined
+})
+
+const { formProps } = useFormComponent()
+
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
+
+const inputProps = computed(() => {
+  return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
+})
 
 const cls = bem('password-input')
 
