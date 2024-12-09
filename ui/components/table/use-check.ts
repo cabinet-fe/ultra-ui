@@ -241,9 +241,10 @@ export function useCheck(options: Options) {
   function createCheckColumn(): TableColumn {
     const width = getCheckboxColumnWidth()
     return {
-      key: '__is_check_column',
+      key: '__is_check_column__',
       name: '',
       width,
+      minWidth: width,
       align: 'center',
       fixed: 'left',
       nameRender() {
@@ -292,7 +293,7 @@ export function useCheck(options: Options) {
   function createSelectColumn(): TableColumn {
     const width = getCheckboxColumnWidth()
     return {
-      key: '__is_select_column',
+      key: '__is_select_column__',
       name: '单选',
       minWidth: width,
       width,

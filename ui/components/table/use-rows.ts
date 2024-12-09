@@ -6,7 +6,7 @@ import type {
 } from '@ui/types/components/table'
 import { Forest, getChainValue } from 'cat-kit/fe'
 import { shallowRef, watch } from 'vue'
-import { TableRowNode } from './row-node'
+import { TableRowNode } from './node/row'
 
 interface Options {
   props: TableProps

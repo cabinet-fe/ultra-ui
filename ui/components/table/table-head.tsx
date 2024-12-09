@@ -22,7 +22,7 @@ export default defineComponent({
             {header.map(column => (
               <th
                 class={getHeaderCellClass(column)}
-                key={column.key + column.keySuffix}
+                key={column.key}
                 colspan={column.leafs}
                 rowspan={
                   column.children?.length

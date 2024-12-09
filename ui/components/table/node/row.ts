@@ -35,7 +35,7 @@ export class TableRowNode<
    *
    * @param data 一个普通对象或者一个响应式对象
    * @param index 索引值
-   * @param rowKey 行唯一标识
+   * @param uid 行唯一标识
    * @returns
    */
   constructor(options: { data: Data; index: number; uid: number | string }) {

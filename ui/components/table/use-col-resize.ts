@@ -1,8 +1,7 @@
-import { nextTick, provide, shallowRef, type ShallowRef } from 'vue'
+import { nextTick, provide, shallowRef, watch, type ShallowRef } from 'vue'
 import { TableResizeKey } from './di'
 import type { ScrollExposed } from '@ui/types/components/scroll'
-import type { ColumnNode } from './use-columns'
-import { useResizeObserver } from '@ui/compositions'
+import type { ColumnNode } from './node/col'
 
 interface Options {
   scrollRef: ShallowRef<ScrollExposed | undefined>
@@ -22,10 +21,26 @@ export function useColResize(options: Options) {
    * 修正列样式
    */
   function correctColumnStyle() {
-    const cols = Array.from(colgroupRef.value?.children ?? []) as HTMLElement[]
-    leafColumns.value.forEach((column, i, arr) => {
-      column.width = cols[i]!.offsetWidth
-    })
+    // 获取表格容器宽度
+    const containerWidth = scrollRef.value?.containerRef?.clientWidth
+
+    if (!containerWidth || !leafColumns.value.length) return
+
+    // 如果每个列都设置了宽度， 有两种情况
+    // 1. 表格容器宽度大于所有列宽度之和，则将剩下的宽度均匀分布到所有列中
+    // 2. 表格容器宽度小于所有列宽度之和，则什么也不管
+    const allColumnsWidth = leafColumns.value.reduce((acc, cur) => {
+      return acc + (cur.width ?? cur.minWidth!)
+    }, 0)
+
+    if (allColumnsWidth < containerWidth) {
+      const freeWidth = containerWidth - allColumnsWidth
+      const allocatedWidth = freeWidth / leafColumns.value.length
+
+      leafColumns.value.forEach(column => {
+        column.width = (column.width ?? column.minWidth!) + allocatedWidth
+      })
+    }
 
     const fixedLeft = leafColumns.value.filter(
       column => column.fixed === 'left'
@@ -36,14 +51,22 @@ export function useColResize(options: Options) {
 
     fixedLeft.reduce((acc, cur) => {
       cur.style.left = acc
-      return acc + (cur.width ?? 0)
+      return acc + (cur.width ?? cur.minWidth!)
     }, 0)
 
     fixedRight.reduceRight((acc, cur) => {
       cur.style.right = acc
-      return acc + (cur.width ?? 0)
+      return acc + (cur.width ?? cur.minWidth!)
     }, 0)
   }
+
+  watch(
+    [leafColumns, () => scrollRef.value?.containerRef],
+    () => {
+      correctColumnStyle()
+    },
+    { immediate: true }
+  )
 
   function updateResizeLine(transformX: number) {
     if (!resizeLineRef.value) return
@@ -84,27 +107,16 @@ export function useColResize(options: Options) {
   function handleResizeMouseup(e: MouseEvent) {
     currentResizeColumn!.width = Math.max(
       originWidth + e.pageX - originX,
-      currentResizeColumn!.minWidth ?? 0
+      currentResizeColumn!.minWidth!
     )
 
-    nextTick(() => {
-      correctColumnStyle()
-      showResizeLine.value = false
-      currentResizeColumn = null
-    })
+    showResizeLine.value = false
+    currentResizeColumn = null
+    correctColumnStyle()
 
     document.removeEventListener('mouseup', handleResizeMouseup)
     document.removeEventListener('mousemove', handleResizeMousemove)
   }
-
-  // 重置列中的的宽度信息
-  useResizeObserver({
-    targets: headerRef,
-    onResize() {
-      if (showResizeLine.value) return
-      correctColumnStyle()
-    }
-  })
 
   provide(TableResizeKey, {
     handleResizeMousedown,

@@ -49,7 +49,7 @@ export default defineComponent({
               column={_expandColumn}
               left={_expandColumn.style.left}
               right={_expandColumn.style.right}
-              key={_expandColumn.key + _expandColumn.keySuffix}
+              key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
             >
               {!row.isLeaf ? (
@@ -86,6 +86,7 @@ export default defineComponent({
           class={[cls.e('row'), bem.is('expanded', row.expanded)]}
           onClick={() => handleRowClick(row)}
           ref={measureElement as VNodeRef}
+          key={row.uid}
         >
           {expandCell}
 
@@ -103,7 +104,7 @@ export default defineComponent({
                 column={column}
                 left={column.style.left}
                 right={column.style.right}
-                key={column.key + column.keySuffix}
+                key={row.uid + column.key}
                 {...cellSpan}
                 // onMouseenter={e => {
                 //   tipRef.value?.trigger({

@@ -1,14 +1,8 @@
-import type {
-  TableColumn,
-  TableColumnAlign,
-  TableProps
-} from '@ui/types/components/table'
-import { Forest, Tree, TreeNode, last } from 'cat-kit/fe'
+import type { TableColumn, TableProps } from '@ui/types/components/table'
+import { Forest, Tree, last } from 'cat-kit/fe'
 import {
   computed,
   createVNode,
-  reactive,
-  shallowReactive,
   shallowRef,
   watch,
   type ComputedRef,
@@ -18,6 +12,7 @@ import { UButton } from '../button'
 import { ArrowRight } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { type BEM } from '@ui/utils'
+import { ColumnNode } from './node/col'
 
 /**
  * 定义表格列
@@ -33,106 +28,9 @@ export function defineTableColumns(
         if (node[key] !== undefined) continue
         node[key] = commonProps[key]
       }
-
-      // 当列没有定义任何宽度时给叶子节点一个最小宽度
-      if (
-        !node.children &&
-        node.width === undefined &&
-        node.minWidth === undefined
-      ) {
-        node.minWidth = 100
-      }
     })
   })
   return columns
-}
-
-export class ColumnNode extends TreeNode<TableColumn> {
-  children?: ColumnNode[] | undefined
-  parent: ColumnNode | null = null
-  /** 叶子节点数量 */
-  leafs?: number
-
-  nextNode: ColumnNode | null = null
-
-  get keySuffix(): string {
-    if (!this.parent) return ''
-    if (this.depth === 1) return `${this.index}`
-    return this.parent.keySuffix + `-${this.index}`
-  }
-
-  /** 列key */
-  get key(): string {
-    return this.data.key
-  }
-  set key(val) {
-    this.data.key = val
-  }
-  /** 列名 */
-  get name(): string {
-    return this.data.name
-  }
-  set name(val) {
-    this.data.name = val
-  }
-
-  /**
-   * 列对齐方式
-   * @default 'left'
-   */
-  get align(): TableColumnAlign {
-    return this.data.align ?? 'left'
-  }
-  set align(val) {
-    this.data.align = val
-  }
-
-  get headerAlign(): TableColumnAlign {
-    return this.data.headerAlign ?? this.align
-  }
-  set headerAlign(val) {
-    this.data.headerAlign = val
-  }
-
-  /** 宽度 */
-  get width(): number | undefined {
-    return this.data.width
-  }
-  set width(val) {
-    this.data.width = val
-  }
-  /** 最小宽度 */
-  get minWidth(): number | undefined {
-    return this.data.minWidth
-  }
-  set minWidth(val) {
-    this.data.minWidth = val
-  }
-
-  /** 列固定方向 */
-  get fixed(): 'left' | 'right' | undefined {
-    if (this.depth > 1) return
-    return this.data.fixed
-  }
-  set fixed(val) {
-    this.data.fixed = val
-  }
-
-  /** 是否是左侧的最后一个固定列 */
-  get isLastFixed(): boolean {
-    return this.data.isLastFixed ?? false
-  }
-
-  /** 是否是右侧的第一个固定列 */
-  get isFirstFixed(): boolean {
-    return this.data.isFirstFixed ?? false
-  }
-
-  style: Record<string, number> = reactive({})
-
-  constructor(val: TableColumn, index: number) {
-    super(val ? shallowReactive(val) : val, index)
-  }
 }
 
 export interface ColumnConfig {
@@ -185,6 +83,7 @@ export function useColumns(options: Options): ColumnConfig {
         key: '__index__',
         name: '#',
         width: 60,
+        minWidth: 60,
         align: 'center',
         fixed: 'left',
         render({ row }) {
@@ -221,7 +120,6 @@ export function useColumns(options: Options): ColumnConfig {
     ([preColumns, columns, tree]) => {
       /** 固定到左侧的列 */
       const fixedOnLeft: TableColumn[] = [...preColumns]
-
       /** 未固定的列 */
       const unfixed: TableColumn[] = []
       /** 固定到右侧的列 */
@@ -247,6 +145,7 @@ export function useColumns(options: Options): ColumnConfig {
       }
 
       const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
+      // 操作时避免改变原数据
       const firstColumn = { ...sortedColumns[0] } as TableColumn
       sortedColumns[0] = firstColumn
 
@@ -268,7 +167,7 @@ export function useColumns(options: Options): ColumnConfig {
                 ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
               ]
             }
-          : ctx => {
+          : () => {
               return [renderExpandAll(), firstColumn.name]
             }
       }
@@ -277,27 +176,6 @@ export function useColumns(options: Options): ColumnConfig {
         createNode(data, index) {
           return new ColumnNode(data, index)
         }
-      })
-
-      // 计算定位位置
-      let leftAcc = 0
-      fixedOnLeft.some((_, i) => {
-        const colNode = result.nodes[i]!
-        colNode.style.left = leftAcc
-        if (colNode.width === undefined || colNode.width <= 0) {
-          return false
-        }
-        leftAcc += colNode.width
-      })
-
-      let rightAcc = 0
-      fixedOnRight.some((_, i) => {
-        const colNode = result.nodes[result.nodes.length - 1 - i]!
-        colNode.style.right = rightAcc
-        if (colNode.width === undefined || colNode.width <= 0) {
-          return false
-        }
-        rightAcc += colNode.width
       })
 
       columnForest.value = result
@@ -375,13 +253,10 @@ export function useColumns(options: Options): ColumnConfig {
   return {
     /** 第一列 */
     expandColumn,
-
     /** 所有列 */
     leafColumns,
-
     /** 列 */
     columns,
-
     /** 表格头的分层展示 */
     headers
   }

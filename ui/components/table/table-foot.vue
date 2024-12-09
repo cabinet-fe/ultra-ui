@@ -14,7 +14,7 @@
       <td
         v-for="column of leafColumns.slice(1)"
         :class="getCellClass(column)"
-        :key="column.key + column.keySuffix"
+        :key="column.key"
         :style="{
           right: withUnit(column.style.right, 'px'),
           left: withUnit(column.style.left, 'px')
@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { computed, inject } from 'vue'
 import { TableDIKey } from './di'
-import type { ColumnNode } from './use-columns'
+import type { ColumnNode } from './node/col'
 import { n } from 'cat-kit/fe'
 import { UNodeRender } from '../node-render'
 import { withUnit } from '@ui/utils'

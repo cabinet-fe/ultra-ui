@@ -144,7 +144,9 @@ const _columns = defineTableColumns(
       name: '姓名',
       key: 'name',
       fixed: 'left',
-      align: 'center'
+      align: 'center',
+      minWidth: 250,
+      width: 200
       // headerAlign: 'left'
     },
     {
@@ -155,8 +157,8 @@ const _columns = defineTableColumns(
 
       // headerAlign: 'center'
     }
-  ]
-  // { minWidth: 150 }
+  ],
+  { minWidth: 100 }
 )
 
 const columns = shallowRef<any[]>([])

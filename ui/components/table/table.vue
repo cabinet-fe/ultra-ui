@@ -23,6 +23,7 @@
         />
       </colgroup>
       <UTableHead />
+
       <UTableBody>
         <slot name="body" :columns="leafColumns" :rows="rows" />
 
@@ -38,6 +39,7 @@
           width: '1px'
         }"
       ></tbody>
+
       <UTableFoot>
         <slot name="foot" :columns="leafColumns" :rows="rows" />
       </UTableFoot>
@@ -66,7 +68,7 @@ import { bem, setStyles, withUnit } from '@ui/utils'
 import { computed, provide, shallowRef, toRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
-import { ColumnNode, useColumns } from './use-columns'
+import { useColumns } from './use-columns'
 import { UTip } from '../tip'
 import UTableHead from './table-head'
 import UTableBody from './table-body.vue'
@@ -76,10 +78,11 @@ import { useFallbackProps, useVirtual } from '@ui/compositions'
 import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
-import type { TableRowNode } from './row-node'
+import type { TableRowNode } from './node/row'
 import { useColumnFixed } from './use-column-fixed'
 import { useColResize } from './use-col-resize'
 import type { ScrollExposed } from '@ui/types'
+import type { ColumnNode } from './node/col'
 
 defineOptions({
   name: 'Table'
