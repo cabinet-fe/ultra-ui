@@ -34,9 +34,9 @@
     "cat-kit": "^3.7.10",
     "fast-glob": "^3.3.2",
     "icon-ultra": "^3.0.15",
-    "rollup": "^4.28.0",
+    "rollup": "^4.28.1",
     "rollup-plugin-esbuild": "^6.1.1",
-    "sass": "^1.81.1",
+    "sass": "^1.82.0",
     "simple-git-hooks": "^2.11.1",
     "ts-conf-base": "^2.3.3",
     "typescript": "5.6.3",
@@ -46,7 +46,7 @@
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "vue-tsc": "2.1.6",
-    "@helper/build": "^1.0.0",
+    "@helper/build": "^1.0.5",
     "czg": "^1.11.0"
   },
   "simple-git-hooks": {
@@ -55,6 +55,6 @@
   "dependencies": {
     "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.12",
-    "@tanstack/vue-virtual": "^3.10.9"
+    "@tanstack/vue-virtual": "^3.11.0"
   }
 }
