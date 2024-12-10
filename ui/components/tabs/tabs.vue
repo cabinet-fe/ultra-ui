@@ -38,8 +38,6 @@
           <Plus />
         </u-icon>
       </li>
-
-      <li v-else :class="cls.e('marker')" :style="markStyle"></li>
     </ul>
 
     <transition name="fade" mode="out-in">

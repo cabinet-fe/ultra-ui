@@ -22,7 +22,6 @@ $root-name: tabs;
   display: flex;
 
   @include m.e(header) {
-    position: relative;
     flex-shrink: 0;
   }
 
@@ -38,6 +37,15 @@ $root-name: tabs;
     user-select: none;
     transition-property: background-color;
     transition-duration: 0.25s;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      background-color: fn.use-var(color, primary);
+      transition-duration: 0.25s;
+      transition-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+    }
 
     @include m.flex;
 
@@ -50,13 +58,6 @@ $root-name: tabs;
       color: fn.use-var(color, primary);
       background-color: fn.use-var(color, primary, light-9);
     }
-  }
-
-  @include m.e(marker) {
-    position: absolute;
-    background-color: fn.use-var(color, primary);
-    transition-duration: 0.25s;
-    transition-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
   }
 
   @include m.e(close) {
@@ -76,11 +77,23 @@ $root-name: tabs;
     @include m.flex;
   }
 
-  @include position((top, bottom), marker) {
-    height: 2px;
-    left: 0;
-    transition-property: transform, width;
+  @include position((top, bottom), header-item) {
+    &::after {
+      bottom: 0;
+      left: 50%;
+      height: 2px;
+      width: 0;
+      transform: translateX(-50%);
+      transition-property: width;
+    }
+
+    @include m.is(active) {
+      &::after {
+        width: 100%;
+      }
+    }
   }
+
   // 位置上
   @include position(top) {
     flex-direction: column;
@@ -88,9 +101,7 @@ $root-name: tabs;
   @include position(top, header) {
     border-bottom: fn.use-var(border);
   }
-  @include position(top, marker) {
-    bottom: 0;
-  }
+
   @include position(top, header-item) {
     border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
   }
@@ -102,9 +113,7 @@ $root-name: tabs;
   @include position(bottom, header) {
     border-top: fn.use-var(border);
   }
-  @include position(bottom, marker) {
-    top: 0;
-  }
+
   @include position(bottom, header-item) {
     border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
   }
@@ -113,22 +122,34 @@ $root-name: tabs;
     height: 100%;
   }
 
-  @include position((left, right), marker) {
-    width: 2px;
-    top: 0;
-    transition-property: transform, height;
+  @include position((left, right), header-item) {
+    &::after {
+      top: 50%;
+      width: 2px;
+      height: 0;
+      transform: translateY(-50%);
+      transition-property: height;
+    }
+
+    @include m.is(active) {
+      &::after {
+        height: 100%;
+      }
+    }
   }
 
   // 位置左
   @include position(left, header) {
     border-right: fn.use-var(border);
   }
-  @include position(left, marker) {
-    right: 0;
-  }
+
   @include position(left, header-item) {
     border-radius: fn.use-var(radius, large) 0 0 fn.use-var(radius, large);
     justify-content: flex-end;
+
+    &::after {
+      right: 0;
+    }
   }
 
   // 位置右
@@ -138,11 +159,12 @@ $root-name: tabs;
   @include position(right, header) {
     border-left: fn.use-var(border);
   }
-  @include position(right, marker) {
-    left: 0;
-  }
   @include position(right, header-item) {
     border-radius: 0 fn.use-var(radius, large) fn.use-var(radius, large) 0;
+
+    &::after {
+      left: 0;
+    }
   }
 
   // 尺寸
