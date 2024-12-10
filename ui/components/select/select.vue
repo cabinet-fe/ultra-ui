@@ -233,7 +233,7 @@ watch(scrollRef, scroll => {
       } else {
         scrollRef.value?.contentRef
           ?.getElementsByClassName('is-selected')[0]
-          ?.scrollIntoView()
+          ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
       }
     })
   }

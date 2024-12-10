@@ -52,6 +52,7 @@ declare module 'vue' {
     USelect: typeof import('ultra-ui')['USelect']
     USteps: typeof import('ultra-ui')['USteps']
     UTable: typeof import('ultra-ui')['UTable']
+    UTabs: typeof import('ultra-ui')['UTabs']
     UTag: typeof import('ultra-ui')['UTag']
     UText: typeof import('ultra-ui')['UText']
     UTextarea: typeof import('ultra-ui')['UTextarea']

@@ -102,11 +102,21 @@ const model = defineModel<string>()
 
 const markStyle = shallowRef<CSSProperties>({})
 
+let changedByEvent = false
+watch(
+  [model, () => props.items],
+  ([model, items]) => {
+    if (changedByEvent) return
+    index.value = items.findIndex(item => item.key === model)
+  },
+  { immediate: true }
+)
+
 watch(
   [index, () => props.position, () => props.editable],
   async ([index, position, editable]) => {
-    await nextTick()
     if (index === -1 || editable) return
+    await nextTick()
 
     const headerEl = headerRef.value!
 
@@ -127,15 +137,6 @@ watch(
         transform: `translate3d(0, ${rect.top - headerRect.top}px, 0)`
       }
     }
-  }
-)
-
-let changedByEvent = false
-watch(
-  model,
-  model => {
-    if (changedByEvent) return
-    index.value = props.items.findIndex(item => item.key === model)
   },
   { immediate: true }
 )

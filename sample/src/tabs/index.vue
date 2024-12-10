@@ -106,7 +106,7 @@ setTimeout(() => {
   ]
 }, 1000)
 
-const active = ref<string>('a')
+const active = ref<string>('c')
 
 const count = ref(0)
 
