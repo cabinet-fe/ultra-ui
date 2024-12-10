@@ -2,7 +2,6 @@ import type { Forest, TreeNode } from 'cat-kit/fe'
 import type { DeconstructValue, RenderReturn } from '../helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '../component-common'
-import type { ColumnNode } from '@ui/components'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 
@@ -15,7 +14,7 @@ export interface TableSummaryContext {
   /** 所有行数据 */
   rows: TableRow[]
   /** 当前列 */
-  column: ColumnNode
+  column: TableColumnNode
 }
 
 export interface TableColumn {

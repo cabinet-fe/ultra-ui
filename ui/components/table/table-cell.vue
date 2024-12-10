@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { inject } from 'vue'
-import type { ColumnNode } from './use-columns'
+import type { ColumnNode } from './node/col'
 import { TableDIKey } from './di'
 import { withUnit } from '@ui/utils'
 

@@ -9,4 +9,4 @@ export type {
   TableColumnSlotsScope
 } from '@ui/types/components/table'
 
-export { defineTableColumns, type ColumnNode } from './use-columns'
+export { defineTableColumns } from './use-columns'
