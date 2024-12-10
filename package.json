@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.2.24",
+  "version": "0.2.25",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -55,6 +55,6 @@
   "dependencies": {
     "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.12",
-    "@tanstack/vue-virtual": "^3.11.0"
+    "@tanstack/vue-virtual": "^3.11.1"
   }
 }
