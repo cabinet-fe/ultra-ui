@@ -17,7 +17,9 @@ interface Options {
   triggerRef: ShallowRef<HTMLElement | undefined>
   /** 内容元素 */
   contentRef: ShallowRef<HTMLElement | undefined>
-  /** 箭头元素 */
+  /**
+   * 箭头元素，如果存在，则会在弹框的箭头位置显示箭头
+   */
   arrowRef?: ShallowRef<HTMLElement | undefined>
   /** 方向 */
   direction?: ShallowRef<TipDirection> | TipDirection
@@ -28,7 +30,10 @@ interface Options {
    * @default 10
    */
   arrowSize?: number
-  /** 触发器元素位置变更时回调 */
+  /**
+   * 触发器元素位置变更时回调，
+   * 一般用于在触发器元素位置变更时更新弹框位置
+   */
   onTriggerPositionChange?: () => void
   /** 更新元素前回调 */
   onBeforeUpdate?: (triggerEl: HTMLElement, contentEl: HTMLElement) => void
@@ -36,12 +41,19 @@ interface Options {
   onAfterUpdate?: (position: ComputePositionReturn) => void
 }
 
+interface PopResult {
+  /**
+   * 更新弹框位置
+   */
+  update: () => Promise<void>
+}
+
 /**
  * 浮框组合式函数
  * @param options 选项
  * @returns
  */
-export function usePop(options: Options) {
+export function usePop(options: Options): PopResult {
   const {
     triggerRef,
     contentRef,
@@ -68,8 +80,10 @@ export function usePop(options: Options) {
     return isRef(value) ? value.value : value
   }
 
-  async function update() {
-    if (!triggerRef.value || !contentRef.value) return
+  async function computePopPosition(
+    triggerEl: HTMLElement,
+    contentEl: HTMLElement
+  ) {
     const middleware = [
       offset(arrowRef?.value ? arrowSize : 6),
       flip(),
@@ -80,20 +94,33 @@ export function usePop(options: Options) {
       middleware.push(arrow({ element: arrowRef.value }))
     }
 
-    onBeforeUpdate?.(triggerRef.value, contentRef.value)
-
     const _direction = getMaybeRefValue(direction) ?? 'top'
     const _alignment = getMaybeRefValue(alignment) ?? 'center'
 
-    const position = await computePosition(triggerRef.value, contentRef.value, {
+    const position = await computePosition(triggerEl, contentEl, {
       middleware,
       placement:
         `${_direction}${_alignment === 'center' ? '' : `-${_alignment}`}` as Placement
     })
 
+    return position
+  }
+
+  async function update() {
+    if (!triggerRef.value || !contentRef.value) return
+
+    onBeforeUpdate?.(triggerRef.value, contentRef.value)
+
+    const position = await computePopPosition(
+      triggerRef.value,
+      contentRef.value
+    )
+
     onAfterUpdate?.(position)
 
     const { x, y, middlewareData, placement } = position
+
+    contentRef.value.dataset.placement = placement
 
     setStyles(contentRef.value, {
       left: `${x}px`,

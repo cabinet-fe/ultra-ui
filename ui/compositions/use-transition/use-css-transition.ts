@@ -47,8 +47,8 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     dom?.classList.add(enterActive)
 
     nextFrame(() => {
-      dom?.classList.remove(enterFrom)
-      dom?.classList.add(enterTo)
+      // dom?.classList.remove(enterFrom)
+      // dom?.classList.add(enterTo)
     })
   }
 

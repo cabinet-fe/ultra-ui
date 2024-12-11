@@ -125,6 +125,10 @@ $root-name: multi-select;
         height: fn.use-var(form-component-height, $size);
         line-height: fn.use-var(form-component-height, $size);
       }
+
+      @include m.bem($root-name, checkbox) {
+        margin-right: fn.use-var(gap, $size);
+      }
     }
   }
 

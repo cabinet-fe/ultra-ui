@@ -29,8 +29,7 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel | DynamicFormModel">
-import type { FormProps, _FormExposed } from '@ui/types/components/form'
-import { UGrid, type GridExposed } from '../grid'
+import { UGrid } from '../grid'
 import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
 import { useNodeInterceptor } from './use-node-interceptor'
@@ -39,6 +38,7 @@ import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 import type { FormModel } from './form-model'
 import type { DynamicFormModel } from './dynamic-form-model'
+import type { BreakCols, GridExposed, FormProps, _FormExposed } from '@ui/types'
 
 defineOptions({
   name: 'Form'
@@ -59,7 +59,13 @@ defineSlots<{
 
 const cls = bem('form')
 
-const breakpointCols = { xs: 1, sm: 2, xl: 3, default: 4 }
+const breakpointCols: BreakCols = {
+  xs: 1,
+  md: 2,
+  lg: 3,
+  xl: 4,
+  default: 4
+}
 
 useFormComponent(props)
 

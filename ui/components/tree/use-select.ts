@@ -6,46 +6,64 @@ interface Options {
   emit: TreeEmit
   props: TreeProps
   nodeDict: ComputedRef<Map<any, TreeNode>>
+  getFlattedNodes: () => void
 }
 
 /**
  * 单选
  */
 export function useSelect(options: Options) {
-  const { emit, props, nodeDict } = options
-  const selected = shallowRef<Record<string, any>>()
+  const { emit, props, nodeDict, getFlattedNodes } = options
+  let selectedData = shallowRef<Record<string, any>>()
 
-  let changedByEvent = false
+  let selectByEvent = false
   watch(
     [() => props.selected, nodeDict],
     ([s]) => {
-      if (changedByEvent) return
+      if (selectByEvent || !props.selectable) return
 
-      selected.value = s ? nodeDict.value.get(s)?.data : undefined
-      emit('selected-synced', selected.value)
+      if (s) {
+        const node = nodeDict.value.get(s)
+        if (node) {
+          selectedData.value = node.data
+          node.bubbleSet(node => {
+            if (node.parent) {
+              if (node.parent.expanded) return false
+              node.parent.expanded = true
+            }
+          })
+        }
+      } else {
+        selectedData.value = undefined
+      }
+
+      getFlattedNodes()
+
+      emit('selected-synced', selectedData.value)
     },
     { immediate: true }
   )
 
   const handleSelect = (node: TreeNode) => {
-    changedByEvent = true
+    selectByEvent = true
     if (node.disabled) return
-    selected.value = node.data === selected.value ? undefined : node.data
+    selectedData.value =
+      node.data === selectedData.value ? undefined : node.data
 
     emit(
       'update:selected',
-      selected.value?.[props.valueKey!],
-      selected.value,
+      selectedData.value?.[props.valueKey!],
+      selectedData.value,
       node
     )
 
     nextTick(() => {
-      changedByEvent = false
+      selectByEvent = false
     })
   }
 
   return {
-    selected,
+    selectedData,
     handleSelect
   }
 }

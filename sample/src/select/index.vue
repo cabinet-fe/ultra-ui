@@ -1,6 +1,7 @@
 <template>
   <div style="display: flex; justify-content: center">
     <CustomCard width="400px" title="使用">
+      <div style="height: 100vh"></div>
       <u-checkbox v-model="filterable">过滤</u-checkbox>
       <u-select
         v-model="selected"

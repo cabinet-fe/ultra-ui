@@ -9,22 +9,20 @@
   </div>
 
   <Teleport to="body">
-    <transition name="slide">
-      <component
-        :is="contentTag"
-        v-if="visible"
-        :class="[cls.e('content'), contentClass]"
-        ref="contentRef"
-        :style="{
-          zIndex: zIndex()
-        }"
-        @mouseenter="eventsHandlers.onMouseenter"
-        @mouseleave="eventsHandlers.onMouseleave"
-        v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
-      >
-        <slot name="content" />
-      </component>
-    </transition>
+    <component
+      v-if="visible"
+      :is="contentTag"
+      :class="[cls.e('content'), contentClass]"
+      ref="contentRef"
+      :style="{
+        zIndex: zIndex()
+      }"
+      @mouseenter="eventsHandlers.onMouseenter"
+      @mouseleave="eventsHandlers.onMouseleave"
+      v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
+    >
+      <slot name="content" />
+    </component>
   </Teleport>
 </template>
 
@@ -35,9 +33,9 @@ import type {
   DropdownEmits
 } from '@ui/types/components/dropdown'
 import { bem, setStyles, zIndex } from '@ui/utils'
-import { shallowRef, computed } from 'vue'
+import { shallowRef, computed, watch, nextTick } from 'vue'
 import { vClickOutside } from '@ui/directives'
-import { usePop } from '@ui/compositions'
+import { usePop, useTransition } from '@ui/compositions'
 
 defineOptions({
   name: 'Dropdown',
@@ -91,10 +89,10 @@ function close() {
   realTrigger = undefined
   if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
-      visible.value = false
+      transition.leave()
     }, 200)
   } else {
-    visible.value = false
+    transition.leave()
   }
 }
 
@@ -113,6 +111,8 @@ function handleClickOutside(e: MouseEvent) {
   close()
 }
 
+const transitionName = shallowRef('slide-down')
+
 const { update } = usePop({
   triggerRef,
   contentRef,
@@ -120,11 +120,30 @@ const { update } = usePop({
   onTriggerPositionChange() {
     close()
   },
+  onAfterUpdate(position) {
+    transitionName.value = position.placement.includes('top')
+      ? 'slide-up'
+      : 'slide-down'
+  },
   onBeforeUpdate(triggerEl, contentEl) {
     setStyles(contentEl, {
       width: props.width ?? `${triggerEl.offsetWidth}px`,
       minWidth: props.minWidth && props.minWidth
     })
+  }
+})
+
+const transition = useTransition('css', {
+  name: transitionName,
+  target: contentRef,
+  afterLeave() {
+    visible.value = false
+  }
+})
+
+watch(contentRef, v => {
+  if (v) {
+    transition.enter()
   }
 })
 

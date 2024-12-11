@@ -1,8 +1,5 @@
 <template>
-  <label
-    :class="[className, bem.is('no-label', !$slots.default)]"
-    v-if="!readonly"
-  >
+  <label :class="className" v-if="!readonly">
     <span :class="cls.e('wrap')">
       <transition name="zoom-in" mode="out-in">
         <svg viewBox="0 0 64 64" v-if="checked" fill="currentColor">

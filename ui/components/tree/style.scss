@@ -10,7 +10,11 @@ $root-name: tree;
 
     @include m.bem($root-name, node-content) {
       border-radius: fn.use-var(radius, $size);
-      padding: calc(fn.use-var(gap, $size) / 1.2) 0;
+      padding: calc(fn.use-var(gap, $size) / 1.2) fn.use-var(gap, $size);
+    }
+
+    @include m.bem($root-name, checkbox) {
+      margin-right: fn.use-var(gap, $size);
     }
   }
 

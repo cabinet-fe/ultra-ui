@@ -6,7 +6,7 @@ export const DEFAULT_COLS = 24
 const points: [number, BreakpointName][] = [
   [578, 'xs'],
   [960, 'sm'],
-  [1280, 'md'],
+  [1366, 'md'],
   [1920, 'lg'],
   [Infinity, 'xl']
 ]

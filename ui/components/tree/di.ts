@@ -1,4 +1,4 @@
-import type { InjectionKey, ShallowRef, VNode } from 'vue'
+import type { InjectionKey, VNode } from 'vue'
 import type { TreeEmit, TreeProps, TreeNode } from '@ui/types/components/tree'
 import type { BEM } from '@ui/utils'
 
@@ -13,9 +13,9 @@ export interface TreeConText {
   /** BEM */
   cls: BEM<'tree'>
   /** 单选选中的节点 */
-  selected: ShallowRef<Record<string, any> | undefined>
+  selectedData: Record<string, any> | undefined
   /** 多选的节点 */
-  checked: Set<any>
+  checkedData: Set<any>
   /** 隐藏的节点 */
   hiddenNodes: Set<TreeNode>
   /** 选择事件 */

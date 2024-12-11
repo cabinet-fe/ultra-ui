@@ -6,6 +6,7 @@
     :ref="measureElement"
   >
     <u-checkbox
+      :class="checkboxClass"
       :model-value="checked"
       @update:model-value="emit('check', $event)"
       @click.stop
@@ -37,5 +38,5 @@ const emit = defineEmits<{
   (e: 'check', checked: boolean): void
 }>()
 
-const { optionClass, rippleClass } = inject(MultiSelectDIKey)!
+const { optionClass, rippleClass, checkboxClass } = inject(MultiSelectDIKey)!
 </script>

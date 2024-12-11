@@ -41,6 +41,7 @@
         selectable
         :class="cls.e('content-tree')"
         :slots="slots"
+        scroll-to-view
       />
     </template>
   </u-dropdown>
@@ -75,7 +76,7 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
-  expandAll: true,
+  expandAll: false,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
@@ -180,12 +181,4 @@ const handleSelect = (
   emit('update:text', label.value)
   dropdownRef.value?.close()
 }
-
-watch(treeRef, treeRef => {
-  if (treeRef && model.value !== undefined) {
-    nextTick(() => {
-      treeRef.scrollToSelected()
-    })
-  }
-})
 </script>

@@ -352,9 +352,11 @@ const isDisabled = (option: Record<string, any>) => {
 
 const optionClass = cls.e('option')
 const rippleClass = cls.e('ripple')
+const checkboxClass = cls.e('checkbox')
 
 provide(MultiSelectDIKey, {
   optionClass,
-  rippleClass
+  rippleClass,
+  checkboxClass
 })
 </script>

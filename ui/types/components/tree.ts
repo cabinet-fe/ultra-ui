@@ -17,6 +17,8 @@ export interface TreeNode extends _TreeNode {
   label: string
   parentExpanded: boolean
   key: string | number
+
+  bubbleSet: (setter: (node: TreeNode) => void) => void
 }
 
 /** 树组件属性 */
@@ -47,6 +49,8 @@ export interface TreeProps {
   checked?: any[]
   /** 插槽穿透 */
   slots?: Record<string, any>
+  /** 使选中项或多选项出现在滚动视图中 */
+  scrollToView?: boolean
 }
 
 export interface TreeEmit {
@@ -54,17 +58,20 @@ export interface TreeEmit {
   (e: 'expand', node: TreeNode): void
   /** 节点点击事件 */
   (e: 'node-click', node: TreeNode): void
+  /** 单选选中项 */
   (
     e: 'update:selected',
     selected?: any,
     selectedData?: Record<string, any>,
     node?: TreeNode
   ): void
+  /** 多选选中项 */
   (
     e: 'update:checked',
     checked: any[],
     checkedData: Record<string, any>[]
   ): void
+  /** 节点右键菜单事件 */
   (e: 'node-contextmenu', event: MouseEvent, node: TreeNode): void
   /** 选中项同步完成事件 */
   (e: 'selected-synced', selected?: Record<string, any>)
@@ -77,10 +84,6 @@ export interface TreeNodeProps {
 
 /** 树组件暴露的属性和方法(组件内部使用) */
 export interface _TreeExposed {
-  /** 滚动到单选选中的元素 */
-  scrollToSelected: () => void
-  /** 滚动到多选选中的最后一个元素 */
-  scrollToChecked: () => void
   /** 滚动到目标元素 */
   scrollTo: (index: number) => void
   /**

@@ -81,6 +81,7 @@
         checkable
         :data="data"
         :slots="slots"
+        scroll-to-view
       ></u-tree>
     </template>
   </u-dropdown>
@@ -126,7 +127,7 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
-  expandAll: true,
+  expandAll: false,
   clearable: true,
   disabled: undefined,
   readonly: undefined,
@@ -280,11 +281,7 @@ function handleToggleExpandAll() {
 }
 
 watch(treeRef, treeRef => {
-  if (treeRef && model.value !== undefined) {
-    nextTick(() => {
-      treeRef.scrollToChecked()
-    })
-  } else {
+  if (!treeRef) {
     allExpanded.value = props.expandAll
   }
 })

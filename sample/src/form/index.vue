@@ -187,7 +187,7 @@ const model = new FormModel({
     value: [{ attributes: { bold: true }, insert: '22eee' }],
     required: true
   },
-  treeChecked: { required: true, value: () => [] },
+  treeChecked: { required: true, value: () => ['4-11'] },
   treeSelect: { required: true, value: () => 11 },
   complete1: { value: 'test', required: true },
   complete2: { value: () => ['张三', '李四'], required: true },

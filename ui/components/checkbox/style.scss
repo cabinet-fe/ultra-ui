@@ -34,14 +34,13 @@ $root-name: checkbox;
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
 
-    @include m.is(no-label) {
-      width: fn.use-var(form-component-height, $size);
-      justify-content: center;
-    }
-
     @include m.bem($root-name, wrap) {
       height: calc(fn.use-var(form-component-height, $size) / 2);
       width: calc(fn.use-var(form-component-height, $size) / 2);
+    }
+
+    @include m.bem($root-name, label) {
+      margin-left: fn.use-var(gap, $size);
     }
   }
 
@@ -54,7 +53,6 @@ $root-name: checkbox;
   }
 
   @include m.e(label) {
-    margin-left: fn.use-var(gap, small);
     line-height: 1em;
   }
 

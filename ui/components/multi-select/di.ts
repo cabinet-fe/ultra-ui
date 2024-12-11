@@ -5,4 +5,6 @@ export const MultiSelectDIKey: InjectionKey<{
   optionClass: string
   /** 波纹类 */
   rippleClass: string
+  /** 复选框类 */
+  checkboxClass: string
 }> = Symbol('MultiSelectDIKey')

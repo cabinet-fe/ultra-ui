@@ -109,14 +109,10 @@ export function useVirtual(options: Options): VirtualReturned {
     cleanup()
   })
 
-  // const virtualizer = useVirtualizer(virtualizerOptions)
-
-  // const virtualList = computed(() => {
-  //   return virtualizer.value.getVirtualItems()
-  // })
-
   function scrollTo(index: number) {
-    v.scrollToIndex(index)
+    v.scrollToIndex(index, {
+      align: 'start'
+    })
   }
 
   /** 测量元素高度 */

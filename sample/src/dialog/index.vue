@@ -47,12 +47,20 @@
     <u-button ref="buttonRef" @click="transition.toggle(a => !a)">
       移动
     </u-button>
+
+    <u-button @click="visible2 = !visible2">弹出</u-button>
+
+    <div
+      style="width: 100px; height: 100px; background-color: #ccc"
+      v-if="visible2"
+      ref="boxRef"
+    ></div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useTransition, type ButtonExposed } from 'ultra-ui'
-import { computed, shallowRef } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)
 const modal = shallowRef(true)
@@ -74,9 +82,38 @@ const transition = useTransition('style', {
     transition: 'transform 0.3s'
   }
 })
+
+const visible2 = shallowRef(false)
+
+const boxRef = shallowRef<HTMLDivElement>()
+
+const transition2 = useTransition('css', {
+  name: 'slide-down',
+  target: boxRef
+})
+
+watch(visible2, v => {
+  if (v) {
+    nextTick(() => {
+      transition2.enter()
+    })
+  } else {
+    transition2.leave()
+  }
+})
 </script>
 
 <style lang="scss" scoped>
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 1s;
+}
+
 .box {
   display: flex;
   flex-direction: column;

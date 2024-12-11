@@ -50,4 +50,10 @@ export class TreeNode<
   get key(): string | number {
     return getChainValue(this.data, this.valueKey)
   }
+
+  /** 向上冒泡设置 */
+  bubbleSet(setter: (node: TreeNode<Val>) => boolean | void) {
+    const ret = setter(this)
+    ret !== false && this.parent?.bubbleSet(setter)
+  }
 }

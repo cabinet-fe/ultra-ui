@@ -12,7 +12,7 @@
         v-for="{ node, key, offset, index } of virtualNodes"
         :node="node"
         :key="key"
-        :class="bem.is('selected', node.data === selected)"
+        :class="bem.is('selected', node.data === selectedData)"
         :data-index="index"
         :measure-element="measureElement"
         :style="{
@@ -25,7 +25,7 @@
         v-for="node of nodes"
         :node="node"
         :key="node.key"
-        :class="bem.is('selected', node.data === selected)"
+        :class="bem.is('selected', node.data === selectedData)"
       />
     </template>
 
@@ -36,13 +36,21 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@ui/utils'
+import { bem, nextFrame, withUnit } from '@ui/utils'
 import type {
   TreeProps,
   TreeEmit,
   _TreeExposed
 } from '@ui/types/components/tree'
-import { computed, provide, shallowRef, useSlots, watch, type VNode } from 'vue'
+import {
+  computed,
+  provide,
+  shallowRef,
+  useSlots,
+  watch,
+  watchEffect,
+  type VNode
+} from 'vue'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
 import { Forest } from 'cat-kit/fe'
@@ -168,13 +176,7 @@ function getFlattedNodes() {
   nodes.value = _nodes
 }
 
-watch(
-  forest,
-  () => {
-    getFlattedNodes()
-  },
-  { immediate: true }
-)
+watch(forest, () => getFlattedNodes(), { immediate: true })
 
 /**
  * 回溯缓存
@@ -236,18 +238,6 @@ function filter(filterMethod: string | ((node: TreeNode) => boolean)) {
   getFlattedNodes()
 }
 
-const { handleSelect, selected } = useSelect({
-  props,
-  emit,
-  nodeDict
-})
-
-const { checked, handleCheck } = useCheck({
-  props,
-  emit,
-  nodeDict
-})
-
 const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } =
   useVirtual({
     count: computed(() => nodes.value.length),
@@ -271,10 +261,53 @@ const virtualNodes = computed(() => {
   })
 })
 
+function scrollIntoView() {
+  const { selectable, checkable, scrollToView } = props
+  if (!scrollToView || (!selectable && !checkable) || !nodes.value) return
+  let index = -1
+
+  if (selectable) {
+    if (!selectedData.value) return
+    index = nodes.value.findIndex(node => node.data === selectedData.value)
+  } else if (checkable) {
+    if (!checkedData.size) return
+    index = nodes.value.findIndex(node => checkedData.has(node.data))
+  }
+
+  if (virtualEnabled.value) {
+    scrollTo(index)
+  } else {
+    scrollRef.value?.contentRef?.children[index]?.scrollIntoView({
+      block: 'nearest',
+      inline: 'nearest'
+    })
+  }
+}
+
+const { handleSelect, selectedData } = useSelect({
+  props,
+  emit,
+  nodeDict,
+  getFlattedNodes
+})
+
+const { checkedData, handleCheck } = useCheck({
+  props,
+  emit,
+  nodeDict,
+  getFlattedNodes
+})
+
+watchEffect(() => {
+  nextFrame(() => {
+    scrollIntoView()
+  })
+})
+
 provide(TreeDIKey, {
   cls,
-  selected,
-  checked,
+  selectedData,
+  checkedData,
   getFlattedNodes,
   getTreeSlotsNode,
   hiddenNodes,
@@ -296,10 +329,10 @@ defineExpose<_TreeExposed>({
     })
   },
   getSelected() {
-    return selected.value
+    return selectedData
   },
   getChecked() {
-    return Array.from(checked)
+    return Array.from(checkedData)
   },
   scrollTo,
 
@@ -314,13 +347,6 @@ defineExpose<_TreeExposed>({
       node.expanded = false
     })
     getFlattedNodes()
-  },
-
-  scrollToSelected() {
-    scrollTo(nodes.value.findIndex(node => node.data === selected.value))
-  },
-  scrollToChecked() {
-    scrollTo(nodes.value.findLastIndex(node => checked.has(node.data)))
   }
 })
 </script>
