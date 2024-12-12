@@ -121,7 +121,10 @@ export class UITheme {
   }
 
   new(customTheme: RecursivePartial<Theme> = {}) {
-    const themeConfig = merge(toRaw(this.theme), customTheme)
+    const themeConfig = merge(
+      JSON.parse(JSON.stringify(toRaw(this.theme))),
+      customTheme
+    )
     return new UITheme(themeConfig)
   }
 }
