@@ -26,7 +26,7 @@ export * from './date-picker'
 
 export * from './dialog'
 
-export * from './disabled.text-editor'
+// export * from './disabled.text-editor'
 
 export * from './dropdown'
 
