@@ -139,7 +139,7 @@ const handleInput = (e: Event) => {
   emit('native:input', e)
 
   const valid = props.pattern?.test(inputVal) ?? true
-  console.log(valid)
+
   if (!valid) return
   model.value = inputVal
 }
