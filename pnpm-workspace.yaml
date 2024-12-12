@@ -1,7 +1,0 @@
-packages:
-  #- ui # 源码
-  - sample # 示例
-  - cli # 命令行工具
-  - build # 构建
-  - vite-helper # vite相关插件
-  - ui # 源码
