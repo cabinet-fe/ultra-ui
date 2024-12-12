@@ -109,12 +109,16 @@ export class UITheme {
       this.renderBGFilter()
     ].join(';')
 
-    let style = document.getElementById(UITheme.themeID)
+    const _document = typeof document !== 'undefined' ? document : undefined
+
+    if (!_document) return
+
+    let style = _document.getElementById(UITheme.themeID)
     if (!style) {
-      style = document.createElement('style')
+      style = _document.createElement('style')
       style.id = UITheme.themeID
       style.innerText = `:root { ${ruleText}; }`
-      document.head.appendChild(style)
+      _document.head.appendChild(style)
     } else {
       style.innerText = `:root { ${ruleText}; }`
     }
