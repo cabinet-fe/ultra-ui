@@ -1,11 +1,12 @@
 import { useConfig } from '@ui/compositions'
 import type { UITheme } from './theme/ui-theme'
 import { lightTheme } from './theme/light'
+import { darkTheme } from './theme/dark'
 import { shallowRef } from 'vue'
 
 const { config } = useConfig()
 
-const currentTheme = shallowRef<UITheme>()
+export const currentTheme = shallowRef<UITheme>()
 /**
 
  * @description 加载主题, 如果你是 SSR 环境,
@@ -22,3 +23,5 @@ export function loadTheme(theme?: UITheme) {
 }
 
 export type * from './type'
+export { UITheme } from './theme/ui-theme'
+export { lightTheme, darkTheme }
