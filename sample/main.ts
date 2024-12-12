@@ -11,8 +11,6 @@ const app = createApp({
   render: () => h(App)
 })
 
-app.config.globalProperties.c = console
-
 // app.use(UltraUI)
 
 app.use(router)

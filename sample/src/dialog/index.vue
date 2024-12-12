@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTransition, type ButtonExposed } from 'ultra-ui'
+import { setStyles, useTransition, type ButtonExposed } from 'ultra-ui'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)
@@ -95,6 +95,10 @@ const transition2 = useTransition('css', {
 watch(visible2, v => {
   if (v) {
     nextTick(() => {
+      setStyles(boxRef.value!, {
+        marginTop: '100px'
+      })
+
       transition2.enter()
     })
   } else {
@@ -104,16 +108,7 @@ watch(visible2, v => {
 </script>
 
 <style lang="scss" scoped>
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 1s;
-}
-
+@use 'ultra-ui/styles/anime/slide';
 .box {
   display: flex;
   flex-direction: column;

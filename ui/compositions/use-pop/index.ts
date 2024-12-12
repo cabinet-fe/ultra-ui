@@ -80,10 +80,16 @@ export function usePop(options: Options): PopResult {
     return isRef(value) ? value.value : value
   }
 
-  async function computePopPosition(
-    triggerEl: HTMLElement,
-    contentEl: HTMLElement
-  ) {
+  /** 更新浮框位置 */
+  async function update() {
+    const triggerEl = triggerRef.value
+    const contentEl = contentRef.value
+
+    if (!triggerEl || !contentEl) return
+
+    onBeforeUpdate?.(triggerEl, contentEl)
+
+    // 计算位置 ↓↓↓
     const middleware = [
       offset(arrowRef?.value ? arrowSize : 6),
       flip(),
@@ -103,35 +109,22 @@ export function usePop(options: Options): PopResult {
         `${_direction}${_alignment === 'center' ? '' : `-${_alignment}`}` as Placement
     })
 
-    return position
-  }
-
-  async function update() {
-    if (!triggerRef.value || !contentRef.value) return
-
-    onBeforeUpdate?.(triggerRef.value, contentRef.value)
-
-    const position = await computePopPosition(
-      triggerRef.value,
-      contentRef.value
-    )
-
-    onAfterUpdate?.(position)
-
     const { x, y, middlewareData, placement } = position
 
-    contentRef.value.dataset.placement = placement
-
-    setStyles(contentRef.value, {
+    setStyles(contentEl, {
       left: `${x}px`,
       top: `${y}px`
     })
 
+    onAfterUpdate?.(position)
+
+    // 设置箭头位置 ↓↓↓
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow
 
       const arrowPlacement = arrowPlacementDict[placement.split('-')[0]!]
       const size = `${arrowSize}px`
+      // 箭头半径
       const arrowRadius = arrowSize / 2
 
       setStyles(arrowRef!.value!, {
@@ -142,29 +135,29 @@ export function usePop(options: Options): PopResult {
         [arrowPlacement]: `-${arrowRadius}px`
       })
     }
+    // 设置箭头位置 ↑↑↑
   }
-
-  watch(triggerRef, () => {
-    update()
-  })
 
   let scrollParents: HTMLElement[] = []
 
   /** 为触发器元素的祖先元素添加滚动事件 */
   function addScrollEvents() {
-    if (!onTriggerPositionChange || !triggerRef.value) return
-    scrollParents = getScrollParents(triggerRef.value)
-    scrollParents.forEach(el => {
-      el.addEventListener('scroll', onTriggerPositionChange)
-    })
+    if (!triggerRef.value) return
+    if (onTriggerPositionChange) {
+      scrollParents = getScrollParents(triggerRef.value)
+      scrollParents.forEach(el => {
+        el.addEventListener('scroll', onTriggerPositionChange)
+      })
+    }
   }
 
   /** 移除触发器元素祖先元素的滚动事件 */
   function removeScrollEvents() {
-    if (!onTriggerPositionChange) return
-    scrollParents.forEach(el => {
-      el.removeEventListener('scroll', onTriggerPositionChange)
-    })
+    if (onTriggerPositionChange) {
+      scrollParents.forEach(el => {
+        el.removeEventListener('scroll', onTriggerPositionChange)
+      })
+    }
 
     scrollParents = []
   }
@@ -180,6 +173,8 @@ export function usePop(options: Options): PopResult {
     onTriggerPositionChange &&
       window.removeEventListener('resize', onTriggerPositionChange)
   }
+
+  watch(triggerRef, () => update())
 
   watch(
     [
@@ -204,6 +199,7 @@ export function usePop(options: Options): PopResult {
   })
 
   return {
+    /** 更新浮框位置 */
     update
   }
 }

@@ -1,6 +1,6 @@
 import { isRef, watch, onBeforeUnmount, computed } from 'vue'
 import type { Returned, CssTransitionOptions } from './type'
-import { createToggle, nextFrame } from '@ui/utils'
+import { createToggle } from '@ui/utils'
 
 /**
  * 使用css过渡
@@ -44,11 +44,13 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     const dom = getDom()
 
     dom?.classList.add(enterFrom)
-    dom?.classList.add(enterActive)
 
-    nextFrame(() => {
-      // dom?.classList.remove(enterFrom)
-      // dom?.classList.add(enterTo)
+    requestAnimationFrame(() => {
+      dom?.classList.add(enterActive)
+      requestAnimationFrame(() => {
+        dom?.classList.remove(enterFrom)
+        dom?.classList.add(enterTo)
+      })
     })
   }
 
@@ -63,10 +65,12 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     }
     dom?.classList.add(leaveFrom, leaveActive)
 
-    // 在下一帧移除动画运动目标状态恢复原点
-    nextFrame(() => {
-      dom?.classList.remove(leaveFrom)
-      dom?.classList.add(leaveTo)
+    requestAnimationFrame(() => {
+      dom?.classList.add(leaveActive)
+      requestAnimationFrame(() => {
+        dom?.classList.remove(leaveFrom)
+        dom?.classList.add(leaveTo)
+      })
     })
   }
 

@@ -33,7 +33,7 @@ import type {
   DropdownEmits
 } from '@ui/types/components/dropdown'
 import { bem, setStyles, zIndex } from '@ui/utils'
-import { shallowRef, computed, watch, nextTick } from 'vue'
+import { shallowRef, computed } from 'vue'
 import { vClickOutside } from '@ui/directives'
 import { usePop, useTransition } from '@ui/compositions'
 
@@ -118,12 +118,15 @@ const { update } = usePop({
   contentRef,
   direction: 'bottom',
   onTriggerPositionChange() {
+    console.log('close')
     close()
   },
   onAfterUpdate(position) {
     transitionName.value = position.placement.includes('top')
       ? 'slide-up'
       : 'slide-down'
+
+    transition.enter()
   },
   onBeforeUpdate(triggerEl, contentEl) {
     setStyles(contentEl, {
@@ -138,12 +141,6 @@ const transition = useTransition('css', {
   target: contentRef,
   afterLeave() {
     visible.value = false
-  }
-})
-
-watch(contentRef, v => {
-  if (v) {
-    transition.enter()
   }
 })
 
