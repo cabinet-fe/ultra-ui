@@ -54,6 +54,14 @@ export default defineConfig(() => {
       })
     ],
 
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern'
+        }
+      }
+    },
+
     server: {
       port: 7788,
       host: true,
