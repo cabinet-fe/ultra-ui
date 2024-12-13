@@ -87,7 +87,9 @@ function open(trigger?: { virtual?: HTMLElement; real?: HTMLElement }) {
 
 function close() {
   realTrigger = undefined
+
   if (props.trigger === 'hover') {
+    // 给200毫秒重新浮动的缓冲时间
     closeTimer = setTimeout(() => {
       transition.leave()
     }, 200)
@@ -140,6 +142,10 @@ const transition = useTransition('css', {
   name: transitionName,
   target: contentRef,
   afterLeave() {
+    visible.value = false
+  },
+
+  leaveCanceled() {
     visible.value = false
   }
 })

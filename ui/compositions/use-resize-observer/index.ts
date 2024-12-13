@@ -97,8 +97,8 @@ export function useResizeObserver(
  */
 export function useObserverCallback() {
   const observerElMap = new Map<HTMLElement, Function>()
-  const observer = new ResizeObserver(entry => {
-    observerElMap.forEach(fn => fn())
+  const observer = new ResizeObserver(entries => {
+    observerElMap.forEach(fn => fn(entries))
   })
 
   /**
@@ -106,7 +106,10 @@ export function useObserverCallback() {
    * @param el 元素
    * @param cb 回调
    */
-  function observeEl(el: HTMLElement, cb: () => void) {
+  function observeEl(
+    el: HTMLElement,
+    cb: (entry: ResizeObserverEntry[]) => void
+  ) {
     observer.observe(el)
     observerElMap.set(el, cb)
   }

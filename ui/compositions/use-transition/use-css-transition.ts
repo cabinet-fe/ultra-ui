@@ -74,11 +74,16 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     })
   }
 
+  const [active, toggle] = createToggle(false, active => {
+    active ? startTransitionIn() : startTransitionOut()
+  })
+
   const transitionEndHandler = (e: TransitionEvent) => {
     e.stopPropagation()
 
     const { leaveActive, enterActive, enterTo, leaveTo } = classes.value
     const dom = getDom()
+
     // 激活状态，移除enter-active类
     if (active.value) {
       if (keepEnterTo) {
@@ -112,10 +117,6 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     }
   }
 
-  const [active, toggle] = createToggle(false, active => {
-    active ? startTransitionIn() : startTransitionOut()
-  })
-
   /** 添加事件 */
   const addEvent = (el?: HTMLElement) => {
     el?.addEventListener('transitioncancel', transitionCancelHandler)
@@ -130,7 +131,10 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
 
   if (isRef(target)) {
     watch(target, (target, oldTarget) => {
-      target ? addEvent(target) : removeEvent(oldTarget)
+      if (oldTarget) {
+        removeEvent(oldTarget)
+      }
+      target && addEvent(target)
     })
   } else if (target) {
     addEvent(target)

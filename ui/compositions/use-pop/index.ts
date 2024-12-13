@@ -165,7 +165,14 @@ export function usePop(options: Options): PopResult {
   function addResizeEvents() {
     onTriggerPositionChange &&
       window.addEventListener('resize', onTriggerPositionChange)
-    triggerRef.value && observeEl(triggerRef.value, update)
+
+    triggerRef.value &&
+      observeEl(triggerRef.value, entries => {
+        const observerSize = entries[0]?.borderBoxSize[0]
+        if (observerSize && observerSize.inlineSize && observerSize.blockSize) {
+          update()
+        }
+      })
   }
 
   function removeResizeEvents() {
