@@ -11,8 +11,7 @@ let mousedownEvent: MouseEvent | undefined
 
 const documentClickHandler = (event: MouseEvent) => {
   if (!mousedownEvent) return
-
-  if (mousedownEvent.target !== event.target) {
+  if (mousedownEvent?.target !== event.target) {
     return (mousedownEvent = undefined)
   }
   targets.forEach(({ el, handler }) => {
@@ -22,11 +21,13 @@ const documentClickHandler = (event: MouseEvent) => {
   mousedownEvent = undefined
 }
 
+function documentMousedownHandler(event: MouseEvent) {
+  mousedownEvent = event
+}
+
 function addEvent() {
   if (eventAdded) return
-  document.addEventListener('mousedown', e => {
-    mousedownEvent = e
-  })
+  document.addEventListener('mousedown', documentMousedownHandler, true)
   document.addEventListener('click', documentClickHandler, true)
   eventAdded = true
 }
@@ -34,6 +35,7 @@ function addEvent() {
 function removeEvent() {
   if (!eventAdded) return
   document.removeEventListener('click', documentClickHandler, true)
+  document.removeEventListener('mousedown', documentMousedownHandler, true)
   eventAdded = false
 }
 
