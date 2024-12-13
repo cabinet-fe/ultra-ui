@@ -34,6 +34,7 @@
         :disabledNode="disabledNode"
         filterable
         closeOnSelect
+        min-width="400px"
         @change="handleChange"
       ></u-tree-select>
 

@@ -117,8 +117,8 @@ const { update } = usePop({
   triggerRef,
   contentRef,
   direction: 'bottom',
+  alignment: 'start',
   onTriggerPositionChange() {
-    console.log('close')
     close()
   },
   onAfterUpdate(position) {

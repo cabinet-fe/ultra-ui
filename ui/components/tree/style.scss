@@ -76,19 +76,26 @@ $root-name: tree;
 
   @include m.e(expand-icon, icon-placeholder) {
     flex-shrink: 0;
+    width: 20px;
+    height: 20px;
   }
 
   @include m.e(expand-icon) {
     cursor: pointer;
-    transition: transform 0.2s;
+    transition:
+      transform 0.2s,
+      background-color 0.2s;
     flex-shrink: 0;
     font-size: 20px;
+    border-radius: 50%;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+    }
   }
 
   @include m.e(icon-placeholder) {
-    width: 18px;
-    height: 18px;
-    padding: 4px;
+    padding: 5px;
 
     &::before {
       content: '';
