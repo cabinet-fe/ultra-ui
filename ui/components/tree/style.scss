@@ -5,12 +5,10 @@ $root-name: tree;
 
 @include m.b($root-name) {
   @include m.size using ($size) {
-    @include m.bem($root-name, node) {
-    }
-
     @include m.bem($root-name, node-content) {
       border-radius: fn.use-var(radius, $size);
-      padding: calc(fn.use-var(gap, $size) / 1.2) fn.use-var(gap, $size);
+      padding: fn.use-var(gap, $size);
+      line-height: 1;
     }
 
     @include m.bem($root-name, checkbox) {
