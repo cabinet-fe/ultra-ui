@@ -30,7 +30,7 @@ export default definePrompt({
     },
     {
       value: 'perf',
-      name: 'perf:    🚀 性能提升',
+      name: 'perf:    🚀 优化',
       emoji: ':rocket:'
     },
     {
