@@ -17,7 +17,7 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     keepEnterTo = false
   } = options
 
-  const getDom = (): HTMLElement | undefined =>
+  const getDom = (): (HTMLElement & { _count?: number }) | undefined =>
     isRef(target) ? target.value : target
 
   const classes = computed(() => {
@@ -78,11 +78,28 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     active ? startTransitionIn() : startTransitionOut()
   })
 
+  const increaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
+    el._count = (el._count ?? 0) + 1
+  }
+
+  const decreaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
+    el._count = (el._count ?? 0) - 1
+    if (el._count <= 0) {
+      delete el._count
+    }
+  }
+
   const transitionEndHandler = (e: TransitionEvent) => {
     e.stopPropagation()
 
     const { leaveActive, enterActive, enterTo, leaveTo } = classes.value
     const dom = getDom()
+
+    if (dom !== e.target) return
+
+    decreaseTransitionCount(dom)
+
+    if (dom._count) return
 
     // 激活状态，移除enter-active类
     if (active.value) {
@@ -98,12 +115,21 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     }
   }
 
+  const transitionRunHandler = (e: TransitionEvent) => {
+    e.stopPropagation()
+    const dom = getDom()
+    if (dom !== e.target) return
+    increaseTransitionCount(dom)
+  }
+
   const transitionCancelHandler = (e: TransitionEvent) => {
     e.stopPropagation()
-
     const dom = getDom()
 
     if (dom !== e.target) return
+    decreaseTransitionCount(dom)
+
+    if (dom._count) return
 
     const { leaveActive, enterActive } = classes.value
 
@@ -121,12 +147,14 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const addEvent = (el?: HTMLElement) => {
     el?.addEventListener('transitioncancel', transitionCancelHandler)
     el?.addEventListener('transitionend', transitionEndHandler)
+    el?.addEventListener('transitionrun', transitionRunHandler)
   }
 
   /** 移除事件 */
   const removeEvent = (el?: HTMLElement) => {
     el?.removeEventListener('transitioncancel', transitionCancelHandler)
     el?.removeEventListener('transitionend', transitionEndHandler)
+    el?.removeEventListener('transitionrun', transitionRunHandler)
   }
 
   if (isRef(target)) {
