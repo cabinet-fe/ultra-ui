@@ -50,6 +50,7 @@ $root-name: tree;
 
   @include m.e(node) {
     cursor: pointer;
+    margin-bottom: 0.2rem;
     @include m.flex($align: center);
 
     @include m.is(selected) {
@@ -81,7 +82,7 @@ $root-name: tree;
     cursor: pointer;
     transition: transform 0.2s;
     flex-shrink: 0;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   @include m.e(icon-placeholder) {

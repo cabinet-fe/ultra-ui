@@ -8,8 +8,6 @@
     :style="{
       paddingLeft: withUnit(node.depth * 20 - 20, 'px')
     }"
-    @click="handleClick"
-    @contextmenu="treeEmit('node-contextmenu', $event, node)"
     :ref="measureElement"
   >
     <u-icon
@@ -23,6 +21,8 @@
 
     <div
       :class="cls.e('node-content')"
+      @click="handleClick"
+      @contextmenu="treeEmit('node-contextmenu', $event, node)"
       v-ripple="
         (treeProps.checkable || treeProps.selectable) && !node.disabled
           ? cls.e('ripple')
