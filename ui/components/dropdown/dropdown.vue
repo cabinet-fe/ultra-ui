@@ -8,7 +8,7 @@
     <slot name="trigger" />
   </div>
 
-  <Teleport to="body">
+  <Teleport :to="`#${popperContainerId}`">
     <component
       v-if="visible"
       :is="contentTag"
@@ -115,7 +115,7 @@ function handleClickOutside(e: MouseEvent) {
 
 const transitionName = shallowRef('slide-down')
 
-const { update } = usePop({
+const { update, popperContainerId } = usePop({
   triggerRef,
   contentRef,
   direction: 'bottom',

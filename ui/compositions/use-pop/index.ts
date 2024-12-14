@@ -46,7 +46,13 @@ interface PopResult {
    * 更新弹框位置
    */
   update: () => Promise<void>
+  /** 浮框容器id */
+  popperContainerId: string
 }
+
+let popperContainer: HTMLElement | null = null
+
+const popperContainerId = 'pop-container'
 
 /**
  * 浮框组合式函数
@@ -54,6 +60,12 @@ interface PopResult {
  * @returns
  */
 export function usePop(options: Options): PopResult {
+  if (!popperContainer) {
+    popperContainer = document.createElement('div')
+    popperContainer.id = popperContainerId
+    document.body.appendChild(popperContainer)
+  }
+
   const {
     triggerRef,
     contentRef,
@@ -207,6 +219,8 @@ export function usePop(options: Options): PopResult {
 
   return {
     /** 更新浮框位置 */
-    update
+    update,
+    /** 浮框容器id */
+    popperContainerId
   }
 }

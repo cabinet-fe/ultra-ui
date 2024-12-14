@@ -8,7 +8,7 @@
   />
 
   <!-- 弹出内容 -->
-  <teleport to="body">
+  <teleport :to="`#${popperContainerId}`">
     <transition name="tip">
       <component
         v-if="visible || anyChildrenVisible"
@@ -163,7 +163,7 @@ const triggerDom = shallowComputed(() => {
   }
 })
 
-usePop({
+const { popperContainerId } = usePop({
   triggerRef: triggerDom,
   contentRef,
   arrowRef,
