@@ -46,6 +46,11 @@ const pkg: Record<string, any> = {
       types: './styles/index.d.ts',
       default: './styles/index.js',
       import: './styles/index.js'
+    },
+    './version': {
+      types: './version.d.ts',
+      default: './version.js',
+      import: './version.js'
     }
   }
 }
@@ -65,6 +70,18 @@ export async function genPackageJson() {
   await writeFile(
     resolve(__dirname, '../dist/package.json'),
     JSON.stringify(pkg, null, 2),
+    'utf-8'
+  )
+
+  await writeFile(
+    resolve(__dirname, '../dist/version.js'),
+    `export const version = '${pkg.version}'`,
+    'utf-8'
+  )
+
+  await writeFile(
+    resolve(__dirname, '../dist/version.d.ts'),
+    `export declare const version: string`,
     'utf-8'
   )
 }
