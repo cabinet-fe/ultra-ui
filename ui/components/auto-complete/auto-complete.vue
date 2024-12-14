@@ -21,6 +21,13 @@
           cachedSuggestion && handleSelectCachedOption(cachedSuggestion)
         "
       >
+        <template #suffix v-if="$slots.suffix">
+          <slot name="suffix" />
+        </template>
+
+        <template #prefix v-if="$slots.prefix">
+          <slot name="prefix" />
+        </template>
       </u-input>
     </template>
 
@@ -92,6 +99,8 @@ const emit = defineEmits<AutoCompleteEmits>()
 
 defineSlots<{
   default: (props: { option: string; index: number }) => any
+  suffix: () => any
+  prefix: () => any
 }>()
 
 // 当前输入框的值

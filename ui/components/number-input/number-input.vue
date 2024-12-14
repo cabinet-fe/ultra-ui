@@ -32,6 +32,10 @@
         </u-icon>
       </div>
     </template>
+
+    <template #prefix v-if="$slots.prefix">
+      <slot name="prefix" />
+    </template>
   </u-input>
 
   <span v-else>
@@ -66,6 +70,10 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
   readonly: undefined
 })
 const emit = defineEmits<NumberInputEmits>()
+
+defineSlots<{
+  prefix: () => any
+}>()
 
 const { formProps } = useFormComponent()
 

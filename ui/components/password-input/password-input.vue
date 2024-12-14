@@ -18,6 +18,10 @@
         </UIcon>
       </Transition>
     </template>
+
+    <template #prefix v-if="$slots.prefix">
+      <slot name="prefix" />
+    </template>
   </u-input>
 </template>
 
@@ -40,6 +44,10 @@ const props = withDefaults(defineProps<PasswordInputProps>(), {
   disabled: undefined,
   readonly: undefined
 })
+
+defineSlots<{
+  prefix: () => any
+}>()
 
 const { formProps } = useFormComponent()
 
