@@ -13,8 +13,8 @@ export const lightTheme = new UITheme({
   },
 
   bgColor: {
-    bottom: '#fdfdfd',
-    middle: '#fefefe',
+    bottom: '#f5f5f5',
+    middle: '#fafafa',
     top: '#ffffff',
     hover: '#f5f7fa',
     black: '#000000'

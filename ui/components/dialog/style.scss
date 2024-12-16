@@ -41,8 +41,8 @@ $root-name: dialog;
   @include m.e(header, footer) {
     flex-shrink: 0;
     overflow: hidden;
-    background-color: fn.use-var(bg-color, middle, alpha);
-    backdrop-filter: fn.use-var(bg-filter);
+    background-color: fn.use-var(bg-color, middle);
+    // backdrop-filter: fn.use-var(bg-filter);
   }
 
   // 弹框头
