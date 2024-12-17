@@ -68,7 +68,6 @@ $root-name: dialog;
     padding: 8px;
     background-color: fn.use-var(bg-color, top);
     flex-grow: 1;
-    overflow: auto;
   }
 
   @include m.e(footer) {
