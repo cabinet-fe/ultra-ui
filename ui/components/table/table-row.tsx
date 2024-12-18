@@ -83,7 +83,11 @@ export default defineComponent({
 
       return (
         <tr
-          class={[cls.e('row'), bem.is('expanded', row.expanded)]}
+          class={[
+            cls.e('row'),
+            bem.is('expanded', row.expanded),
+            bem.is('checked', row.checked)
+          ]}
           onClick={() => handleRowClick(row)}
           ref={measureElement as VNodeRef}
           key={row.uid}
