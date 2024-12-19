@@ -29,7 +29,7 @@ $root-name: batch-edit;
   }
 
   @include m.e(form) {
-    background-color: fn.use-var(bg-color, bottom);
+    background-color: fn.use-var(bg-color, top);
 
     &-wrap {
       padding: 8px 12px;
