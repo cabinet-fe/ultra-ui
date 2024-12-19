@@ -54,7 +54,7 @@ function computeSummary(key: string) {
   let i = 0
 
   while (i < rows.value.length) {
-    sum = n.plus(sum, rows.value[i]!.data[key])
+    sum = n.plus(sum, rows.value[i]!.data[key] ?? 0)
     if (isNaN(sum)) return sum
     i++
   }
@@ -62,12 +62,21 @@ function computeSummary(key: string) {
   return sum
 }
 
+const summaryRow = computed<Record<string, any>>(() => {
+  return leafColumns.value.reduce((acc, column) => {
+    if (column.data.summary) {
+      acc[column.key] = computeSummary(column.key)
+    }
+    return acc
+  }, {})
+})
+
 function getColumnSummaryNode(column: ColumnNode): RenderReturn {
   const { summary } = column.data
 
   if (!summary) return null
 
-  let total = computeSummary(column.key)
+  let total = summaryRow.value[column.key]
 
   if (typeof summary === 'function') {
     return summary({
@@ -78,4 +87,10 @@ function getColumnSummaryNode(column: ColumnNode): RenderReturn {
   }
   return total
 }
+
+defineExpose({
+  getSummaryRow(): Record<string, any> {
+    return summaryRow.value
+  }
+})
 </script>

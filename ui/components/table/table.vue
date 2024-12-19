@@ -24,13 +24,13 @@
       </colgroup>
       <UTableHead />
 
-      <UTableBody>
+      <u-table-body>
         <slot name="body" :columns="leafColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">
           <slot name="empty" />
         </template>
-      </UTableBody>
+      </u-table-body>
 
       <!-- 占用空间，用来撑开表格高度 -->
       <tbody
@@ -40,9 +40,9 @@
         }"
       ></tbody>
 
-      <UTableFoot>
+      <u-table-foot ref="tableFoot">
         <slot name="foot" :columns="leafColumns" :rows="rows" />
-      </UTableFoot>
+      </u-table-foot>
     </table>
 
     <slot name="append" />
@@ -65,7 +65,14 @@ import type {
   TableColumnSlotsScope
 } from '@ui/types/components/table'
 import { bem, setStyles, withUnit } from '@ui/utils'
-import { computed, provide, shallowRef, toRef, watch } from 'vue'
+import {
+  computed,
+  provide,
+  shallowRef,
+  toRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
 import { useColumns } from './use-columns'
@@ -219,10 +226,13 @@ provide(TableDIKey, {
   ...virtualCtx
 })
 
+const tableFootRef = useTemplateRef('tableFoot')
+
 defineExpose<_TableExposed>({
   el: toRef(() => scrollRef.value?.el),
   clearChecked,
   clearSelected,
-  getRowByData
+  getRowByData,
+  getSummaryRow: () => tableFootRef.value!.getSummaryRow()
 })
 </script>

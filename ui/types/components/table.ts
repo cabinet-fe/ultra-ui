@@ -209,6 +209,8 @@ export interface _TableExposed {
   clearSelected: () => void
   /** 通过数据获取表格行 */
   getRowByData: (data: Record<string, any>) => TableRow | undefined
+  /** 获取合计行 */
+  getSummaryRow: () => Record<string, any>
 }
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
