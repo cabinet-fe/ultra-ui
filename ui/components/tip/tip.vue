@@ -88,6 +88,7 @@ function getTriggerNode() {
   if (!nodes?.length) return null
 
   const node = extractNormalVNodes(nodes)[0]
+
   return node
 }
 

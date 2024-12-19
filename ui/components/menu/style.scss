@@ -12,7 +12,7 @@ $root-name: menu;
   backdrop-filter: fn.use-var(bg-filter);
 
   @include m.e(container) {
-    padding: 4px 1rem;
+    // padding: 4px 1rem;
   }
 
   @include m.e(item, sub-content) {
@@ -81,10 +81,14 @@ $root-name: menu;
   }
 
   @include m.is(collapsed) {
-    width: 80px !important;
+    width: 64px !important;
 
     @include m.bem($root-name, (item, sub)) {
       width: 100%;
+    }
+
+    @include m.bem(icon) {
+      margin: 0;
     }
   }
 }

@@ -32,31 +32,6 @@
   </u-tip>
 
   <UMenuItem v-else :menu="menu" :depth="depth" />
-
-  <!-- <li
-    v-else
-    :class="[
-      cls.e('item'),
-      bem.is('active', active),
-      bem.is('disabled', menu.disabled ?? false)
-    ]"
-    ref="itemRef"
-    @click="handleMenuItemClick(menu)"
-  >
-
-
-    <template v-if="menu.icon">
-      <u-icon :class="cls.e('item-icon')" v-if="typeof menu.icon !== 'string'">
-        <component :is="menu.icon" />
-      </u-icon>
-
-      <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
-    </template>
-
-    <span :class="cls.e('item-expand')" v-if="depth !== 0">
-      {{ menu.title }}
-    </span>
-  </li> -->
 </template>
 
 <script setup lang="ts">
