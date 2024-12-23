@@ -14,7 +14,7 @@
         v-if="visible || anyChildrenVisible"
         :is="contentTag"
         :class="contentClass"
-        :style="[props.style, { zIndex: zIndex() }]"
+        :style="contentStyle"
         ref="contentRef"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
@@ -75,6 +75,10 @@ const contentClass = computed(() => {
     return [...fixed, className]
   }
   return [...fixed, ...className]
+})
+
+const contentStyle = computed(() => {
+  return [props.style, { zIndex: zIndex() }]
 })
 
 const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
@@ -175,6 +179,7 @@ const { popperContainerId } = usePop({
   }
 })
 
+/** 外部节点 */
 const externalNode = shallowRef<any>()
 
 function trigger(config: {

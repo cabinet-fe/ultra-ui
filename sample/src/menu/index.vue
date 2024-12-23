@@ -108,6 +108,5 @@ const config = reactive({
   height: 600px;
   border-radius: 1rem;
   box-shadow: fn.use-var(shadow);
-  color: #666;
 }
 </style>

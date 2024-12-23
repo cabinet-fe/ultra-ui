@@ -30,6 +30,7 @@ declare module 'vue' {
     UDropdown: typeof import('ultra-ui')['UDropdown']
     UEmpty: typeof import('ultra-ui')['UEmpty']
     UFilePicker: typeof import('ultra-ui')['UFilePicker']
+    UFloatButton: typeof import('ultra-ui')['UFloatButton']
     UForm: typeof import('ultra-ui')['UForm']
     UGrid: typeof import('ultra-ui')['UGrid']
     UGridItem: typeof import('ultra-ui')['UGridItem']

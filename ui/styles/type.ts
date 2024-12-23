@@ -86,15 +86,31 @@ export type Theme = {
     /** 大尺寸表单组件高度 */
     large: number
   }
-  /** 菜单高度 */
-  menuHeight: {
-    /** 小尺寸菜单高度 */
-    small: number
-    /** 默认尺寸菜单高度 */
-    default: number
-    /** 大尺寸菜单高度 */
-    large: number
+  menu: {
+    /** 菜单高度 */
+    height: {
+      /** 小尺寸菜单高度 */
+      small: number
+      /** 默认尺寸菜单高度 */
+      default: number
+      /** 大尺寸菜单高度 */
+      large: number
+    }
+
+    color: string
+
+    bg: {
+      /** 菜单背景色 */
+      color: string
+      /** 菜单背景模糊 */
+      blur: string
+      /** 菜单背景饱和度 */
+      saturate: string
+      /** 菜单背景图片 */
+      image: string
+    }
   }
+
   /** 字体族 */
   fontFamily: string
   /** 标题字体大小 */

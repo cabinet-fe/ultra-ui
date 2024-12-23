@@ -150,6 +150,14 @@ const transition = useTransition('css', {
   }
 })
 
+function triggerClick() {
+  if (visible.value) {
+    close()
+  } else {
+    open()
+  }
+}
+
 const eventsHandlers = computed(() => {
   const { trigger, disabled } = props
 
@@ -157,7 +165,7 @@ const eventsHandlers = computed(() => {
   if (disabled || trigger === 'custom') return handlers
 
   if (trigger === 'click') {
-    handlers.onClick = visible.value ? close : open
+    handlers.onClick = triggerClick
   } else if (trigger === 'hover') {
     handlers.onMouseenter = open
     handlers.onMouseleave = close
