@@ -11,6 +11,7 @@
       :menus="menus"
       :collapsed="config.collapsed"
       :current-path="currentPath"
+      :style="{ width: config.collapsed ? '64px' : '260px' }"
       @item-click="
         router.replace({
           path: route.path,
@@ -59,7 +60,39 @@ const menus = shallowRef<any[]>([
           {
             title: '功能模块管理',
             icon: UserGroup,
-            path: '/business-center/role/4/1'
+            path: '/business-center/role/4/1',
+            children: [
+              {
+                title: '角色管理',
+                icon: Lock,
+                path: '/business-center/role/4/4/1'
+              },
+              {
+                title: '数据字典',
+                icon: Cart,
+                path: '/business-center/role/4/4/2'
+              },
+              {
+                title: '用户管理',
+                icon: Cart,
+                path: '/business-center/role/4/4/3'
+              },
+              {
+                title: '单位管理',
+                icon: Cart,
+                path: '/business-center/role/4/4/4'
+              },
+              {
+                title: '部门管理',
+                icon: Cart,
+                path: '/business-center/role/4/4/5'
+              },
+              {
+                title: '编码规则',
+                icon: Lock,
+                path: '/business-center/role/4/4/6'
+              }
+            ]
           },
           { title: '角色管理', icon: Lock, path: '/business-center/role/4/2' },
           { title: '数据字典', icon: Cart, path: '/business-center/role/4/3' },
@@ -104,7 +137,7 @@ const config = reactive({
 }
 
 .menu-wrapper {
-  width: 260px;
+  transition: width 0.25s;
   height: 600px;
   border-radius: 1rem;
   box-shadow: fn.use-var(shadow);

@@ -39,6 +39,8 @@ $collapsed-menu: collapsed-menu;
 
   @include m.e(item-title, sub-title) {
     flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   $b: &;
@@ -88,8 +90,6 @@ $collapsed-menu: collapsed-menu;
 }
 
 @include m.b($collapsed-menu) {
-  width: 64px !important;
-
   @include m.e(container) {
     padding: 4px;
   }

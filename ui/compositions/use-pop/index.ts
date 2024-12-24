@@ -181,7 +181,7 @@ export function usePop(options: Options): PopResult {
     triggerRef.value &&
       observeEl(triggerRef.value, entries => {
         const triggerRect = entries[0]?.target?.getBoundingClientRect()
-        console.log(triggerRect)
+
         if (triggerRect && triggerRect.width && triggerRect.height) {
           update()
         }

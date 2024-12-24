@@ -11,7 +11,7 @@
   <teleport :to="`#${popperContainerId}`">
     <transition name="tip">
       <component
-        v-if="visible || anyChildrenVisible"
+        v-if="nestVisible"
         :is="contentTag"
         :class="contentClass"
         :style="contentStyle"
@@ -97,25 +97,31 @@ function getTriggerNode() {
 }
 
 /**
- * 是否是嵌套tip，即在tip组件中嵌套其他的tip
+ * 子级提示框
  */
 const childrenTips = shallowReactive(new Set<ShallowRef<boolean>>())
-
+/**
+ * 是否有子级提示框正在显示中
+ */
 const anyChildrenVisible = computed(() => {
   return Array.from(childrenTips).some(tip => tip.value)
 })
 
+const nestVisible = computed(() => {
+  return visible.value || anyChildrenVisible.value
+})
+
 provide(TipNestDIKey, {
-  addChild(visible) {
-    childrenTips.add(visible)
+  addChild(v) {
+    childrenTips.add(v)
   },
-  removeChild(visible) {
-    childrenTips.delete(visible)
+  removeChild(v) {
+    childrenTips.delete(v)
   }
 })
 
 const { addChild, removeChild } = inject(TipNestDIKey, undefined) || {}
-addChild?.(visible)
+addChild?.(nestVisible)
 
 const eventsHandlers = computed(() => {
   const { trigger } = props
