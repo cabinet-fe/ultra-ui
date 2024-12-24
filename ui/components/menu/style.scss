@@ -48,7 +48,6 @@ $collapsed-menu: collapsed-menu;
 
     #{$b}__item,
     #{$b}__sub-content {
-      @debug &;
       height: fn.use-var(menu-height, $size);
       border-radius: calc(fn.use-var(radius, $size) * 2);
     }
