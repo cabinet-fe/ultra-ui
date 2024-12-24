@@ -5,7 +5,6 @@
     alignment="start"
     :class="collapsedCls.m(size)"
     style="padding: 0"
-    trigger="click"
     ref="tipRef"
   >
     <li
