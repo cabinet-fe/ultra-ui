@@ -1,7 +1,6 @@
 import { removeStyles, setStyles } from '@ui/utils'
 
 export function useMenuTransition() {
-  // cubic-bezier(0.25, 1, 0.5, 1)
   const enterTransition = 'height 0.3s ease'
   const leaveTransition = enterTransition
 

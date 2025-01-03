@@ -9,25 +9,22 @@
       paddingLeft: `${depth * 20 + 8}px`
     }"
     ref="itemRef"
-    @click="menuEmit('item-click', menu)"
+    @click="handleClickMenu"
   >
-    <MenuIcon :icon="menu.icon" />
+    <MenuIcon v-if="menu.icon" :icon="menu.icon" :class="cls.e('icon')" />
 
     <!-- 文本 -->
     <span :class="cls.e('item-title')">
       {{ menu.title }}
     </span>
-
-    <span :class="cls.e('item-expand')"></span>
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, shallowRef, watch } from 'vue'
-import { MenuDIKey } from './di'
 import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
 import MenuIcon from './menu-icon.vue'
+import { useMenuItem } from './use-menu-item'
 
 defineOptions({
   name: 'MenuItem'
@@ -38,19 +35,7 @@ const props = defineProps<{
   depth: number
 }>()
 
-const { cls, menuProps, menuEmit } = inject(MenuDIKey)!
-
-const itemRef = shallowRef<HTMLElement>()
-
-const active = computed(() => {
-  return menuProps.currentPath === props.menu.path
-})
-
-watch([active, itemRef], ([active, itemRef]) => {
-  active &&
-    itemRef &&
-    itemRef.scrollIntoView({
-      block: 'center'
-    })
+const { cls, active, handleClickMenu, itemRef } = useMenuItem({
+  itemProps: props
 })
 </script>

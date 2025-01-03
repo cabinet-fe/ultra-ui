@@ -1,29 +1,22 @@
 <template>
-  <u-tip v-if="depth === 0" direction="right" ref="tipRef" hide-arrow>
+  <!-- 一级菜单 -->
+  <u-tip v-if="depth === 0" direction="right" hide-arrow>
     <li
       :class="[
-        cls.e('item'),
+        collapsedCls.e('item'),
         bem.is('active', active),
+        bem.is('first-level'),
         bem.is('disabled', menu.disabled ?? false)
       ]"
       ref="itemRef"
-      @click="handleMenuItemClick(menu)"
+      @click="handleClickMenu"
     >
-      <!-- 收缩 -->
-      <template v-if="menu.icon">
-        <u-icon
-          v-if="typeof menu.icon !== 'string'"
-          :class="cls.e('item-icon')"
-        >
-          <component :is="menu.icon" />
-        </u-icon>
-
-        <img :src="menu.icon" v-else :class="cls?.e('item-icon')" alt="icon" />
-      </template>
-
-      <span :class="cls.e('item-expand')" v-if="depth !== 0">
-        {{ menu.title }}
-      </span>
+      <UMenuIcon
+        v-if="menu.icon"
+        :icon="menu.icon"
+        :class="collapsedCls.e('icon')"
+      />
+      <span v-else>{{ menu.title[0] }}</span>
     </li>
 
     <template #content>
@@ -31,20 +24,39 @@
     </template>
   </u-tip>
 
-  <UMenuItem v-else :menu="menu" :depth="depth" />
+  <!-- 二级以及二级以下菜单 -->
+  <li
+    v-else
+    :class="[
+      collapsedCls.e('item'),
+      bem.is('active', active),
+      bem.is('disabled', menu.disabled ?? false)
+    ]"
+    ref="itemRef"
+    @click="_handleClickMenu"
+  >
+    <UMenuIcon
+      v-if="menu.icon"
+      :icon="menu.icon"
+      :class="collapsedCls.e('icon')"
+    />
+
+    <!-- 文本 -->
+    <span :class="collapsedCls.e('item-title')">
+      {{ menu.title }}
+    </span>
+  </li>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, shallowRef, watch } from 'vue'
-import { MenuDIKey } from './di'
 import type { MenuItem } from '@ui/types/components/menu'
 import { bem } from '@ui/utils'
-import { UIcon } from '../icon'
 import { UTip } from '../tip'
-import UMenuItem from './menu-item.vue'
+import UMenuIcon from './menu-icon.vue'
+import { useMenuItem } from './use-menu-item'
 
 defineOptions({
-  name: 'MenuItem'
+  name: 'MenuItemCollapsed'
 })
 
 const props = defineProps<{
@@ -52,25 +64,14 @@ const props = defineProps<{
   depth: number
 }>()
 
-const { cls, menuProps, menuEmit } = inject(MenuDIKey)!
+const emit = defineEmits(['click'])
 
-const itemRef = shallowRef<HTMLElement>()
-
-const active = computed(() => {
-  return menuProps.currentPath === props.menu.path
+const { collapsedCls, active, handleClickMenu, itemRef } = useMenuItem({
+  itemProps: props
 })
 
-watch([active, itemRef], ([active, itemRef]) => {
-  active &&
-    itemRef &&
-    itemRef.scrollIntoView({
-      block: 'nearest'
-    })
-})
-
-const tipRef = shallowRef()
-
-const handleMenuItemClick = (menu: MenuItem) => {
-  menuEmit('item-click', menu)
+function _handleClickMenu() {
+  handleClickMenu()
+  emit('click')
 }
 </script>

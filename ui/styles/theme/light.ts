@@ -53,11 +53,22 @@ export const lightTheme = new UITheme({
     large: 40
   }),
 
-  menuHeight: defineBySize({
-    small: 32,
-    default: 40,
-    large: 48
-  }),
+  menu: {
+    height: defineBySize({
+      small: 32,
+      default: 44,
+      large: 56
+    }),
+
+    bg: {
+      color: 'var(--bg-color-top-alpha)',
+      blur: 'var(--bg-filter-blur)',
+      saturate: 'var(--bg-filter-saturate)',
+      image: ''
+    },
+
+    color: '#303133'
+  },
 
   fontFamily:
     'Inter, "Roboto", "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif',

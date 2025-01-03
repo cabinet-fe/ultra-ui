@@ -7,26 +7,17 @@
         paddingLeft: 8 + depth * 20 + 'px'
       }"
     >
-      <!-- 图标 -->
-      <template v-if="menu.icon">
-        <u-icon :class="cls.e('sub-icon')" v-if="typeof menu.icon !== 'string'">
-          <component :is="menu.icon" />
-        </u-icon>
+      <UMenuIcon v-if="menu.icon" :icon="menu.icon" :class="cls.e('icon')" />
 
-        <img :src="menu.icon" v-else :class="cls?.e('sub-icon')" alt="icon" />
-      </template>
+      <!-- 文本 -->
+      <span :class="cls.e('sub-title')">
+        {{ menu.title }}
+      </span>
 
-      <template v-if="!menuProps.collapsed || depth !== 0">
-        <!-- 文本 -->
-        <span :class="cls.e('sub-title')">
-          {{ menu.title }}
-        </span>
-
-        <!-- 展开图标 -->
-        <u-icon :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]">
-          <ArrowRight />
-        </u-icon>
-      </template>
+      <!-- 展开图标 -->
+      <u-icon :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]">
+        <ArrowRight />
+      </u-icon>
     </div>
 
     <!-- @vue-ignore -->
@@ -69,6 +60,7 @@ import UMenuItem from './menu-item.vue'
 import { getKey } from './helper'
 import { useMenuTransition } from './use-menu-transition'
 import { bem } from '@ui/utils'
+import UMenuIcon from './menu-icon.vue'
 
 defineOptions({
   name: 'MenuSub'
@@ -80,7 +72,7 @@ const props = defineProps<{
   depth: number
 }>()
 
-const { cls, expandedPath, menuProps } = inject(MenuDIKey)!
+const { cls, expandedPath } = inject(MenuDIKey)!
 
 const { enter, afterEnter, beforeLeave, leave, afterLeave } =
   useMenuTransition()

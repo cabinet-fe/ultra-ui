@@ -3,19 +3,36 @@
     hide-arrow
     direction="right"
     alignment="start"
-    trigger="click"
-    :class="cls.m('default')"
+    :class="collapsedCls.m(size)"
+    style="padding: 0"
+    ref="tipRef"
   >
-    <li :class="cls.e('sub')">
-      <MenuIcon :icon="menu.icon" />
+    <li
+      :class="[
+        collapsedCls.e('sub-content'),
+        bem.is('first-level', depth === 0)
+      ]"
+    >
+      <MenuIcon
+        v-if="menu.icon"
+        :icon="menu.icon"
+        :class="collapsedCls.e('icon')"
+      />
 
-      <span :class="cls.e('sub-title')" v-if="depth !== 0">
-        {{ menu.title }}
-      </span>
+      <template v-if="depth !== 0">
+        <span :class="collapsedCls.e('sub-title')">
+          {{ menu.title }}
+        </span>
+
+        <!-- 展开图标 -->
+        <u-icon :class="[collapsedCls.e('sub-expand')]">
+          <ArrowRight />
+        </u-icon>
+      </template>
     </li>
 
     <template #content>
-      <ul :class="cls.e('sub-list')">
+      <u-scroll tag="ul" :class="collapsedCls.e('sub-list')">
         <template
           v-for="(child, index) of menu.children!"
           :key="getKey(index, parentKey)"
@@ -24,6 +41,7 @@
             v-if="!child.children?.length"
             :menu="child"
             :depth="depth + 1"
+            @click="closeSubMenu"
           />
 
           <MenuSubCollapsed
@@ -33,19 +51,23 @@
             :depth="depth + 1"
           />
         </template>
-      </ul>
+      </u-scroll>
     </template>
   </u-tip>
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
+import { inject, shallowRef } from 'vue'
 import { MenuDIKey } from './di'
-import { UTip } from '../tip'
+import { UTip, type TipExposed } from '../tip'
 import type { MenuItem } from '@ui/types/components/menu'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'
+import { bem } from '@ui/utils'
+import { ArrowRight } from 'icon-ultra'
+import { UIcon } from '../icon'
+import { UScroll } from '../scroll'
 
 defineOptions({
   name: 'MenuSubCollapsed'
@@ -57,5 +79,11 @@ defineProps<{
   depth: number
 }>()
 
-const { cls } = inject(MenuDIKey)!
+const tipRef = shallowRef<TipExposed>()
+
+function closeSubMenu() {
+  tipRef.value?.close()
+}
+
+const { collapsedCls, size } = inject(MenuDIKey)!
 </script>

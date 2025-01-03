@@ -1,35 +1,32 @@
 <template>
   <u-scroll
     tag="ul"
-    :class="[cls.b, cls.m(size), bem.is('collapsed', collapsed)]"
-    :container-class="cls.e('container')"
+    :class="[menuCls.b, menuCls.m(size)]"
+    :container-class="menuCls.e('container')"
   >
+    <!-- 常规 -->
     <template v-if="!collapsed">
-      <template v-for="(menu, index) of menus" :key="String(index)">
+      <template v-for="(menu, index) of menus" :key="index">
         <UMenuSub
           v-if="menu.children?.length"
           :menu="menu"
           :parent-key="String(index)"
           :depth="0"
         />
-        <UMenuItem v-else :menu="menu" :key="String(index)" :depth="0" />
+        <UMenuItem v-else :menu="menu" :key="index" :depth="0" />
       </template>
     </template>
 
+    <!-- 折叠 -->
     <template v-else>
-      <template v-for="(menu, index) of menus" :key="String(index)">
+      <template v-for="(menu, index) of menus" :key="index">
         <UMenuSubCollapsed
           v-if="menu.children?.length"
           :menu="menu"
           :parent-key="String(index)"
           :depth="0"
         />
-        <UMenuItemCollapsed
-          v-else
-          :menu="menu"
-          :key="String(index)"
-          :depth="0"
-        />
+        <UMenuItemCollapsed v-else :menu="menu" :key="index" :depth="0" />
       </template>
     </template>
   </u-scroll>
@@ -63,6 +60,11 @@ const props = withDefaults(defineProps<MenuProps>(), {
 const emit = defineEmits<MenuEmits>()
 
 const cls = bem('menu')
+const collapsedCls = bem('collapsed-menu')
+
+const menuCls = computed(() => {
+  return props.collapsed ? collapsedCls : cls
+})
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
@@ -100,8 +102,10 @@ watch(
 
 provide(MenuDIKey, {
   cls,
+  collapsedCls,
   menuProps: props,
   menuEmit: emit,
-  expandedPath
+  expandedPath,
+  size
 })
 </script>

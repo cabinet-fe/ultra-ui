@@ -180,8 +180,9 @@ export function usePop(options: Options): PopResult {
 
     triggerRef.value &&
       observeEl(triggerRef.value, entries => {
-        const observerSize = entries[0]?.borderBoxSize[0]
-        if (observerSize && observerSize.inlineSize && observerSize.blockSize) {
+        const triggerRect = entries[0]?.target?.getBoundingClientRect()
+
+        if (triggerRect && triggerRect.width && triggerRect.height) {
           update()
         }
       })
@@ -193,7 +194,9 @@ export function usePop(options: Options): PopResult {
       window.removeEventListener('resize', onTriggerPositionChange)
   }
 
-  watch(triggerRef, () => update())
+  watch(triggerRef, () => {
+    update()
+  })
 
   watch(
     [

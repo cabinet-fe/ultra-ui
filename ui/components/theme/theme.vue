@@ -79,21 +79,21 @@
     <theme-group title="菜单高度">
       <theme-item label="小"
         ><u-number-input
-          v-model="theme.menuHeight.small"
+          v-model="theme.menu.height.small"
           :min="0"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="中"
         ><u-number-input
-          v-model="theme.menuHeight.default"
+          v-model="theme.menu.height.default"
           :min="0"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="大"
         ><u-number-input
-          v-model="theme.menuHeight.large"
+          v-model="theme.menu.height.large"
           :min="0"
           :step="1"
           :clearable="false"

@@ -5,25 +5,22 @@
 
 // 方便拼接
 $root-name: menu;
+$collapsed-menu: collapsed-menu;
 
-@include m.b($root-name) {
+@include m.b($root-name, $collapsed-menu) {
   user-select: none;
-  background-color: fn.use-var(bg-color, top, alpha);
-  backdrop-filter: fn.use-var(bg-filter);
-
-  @include m.e(container) {
-    // padding: 4px 1rem;
-  }
+  color: fn.use-var(menu, color);
+  background-color: fn.use-var(menu, bg, color);
+  backdrop-filter: fn.use-var(menu, bg, blur) fn.use-var(menu, bg, saturate);
+  background-image: fn.use-var(menu, bg, image);
+  background-size: cover;
+  background-repeat: no-repeat;
 
   @include m.e(item, sub-content) {
     cursor: pointer;
     gap: 4px;
     padding: 0 8px;
-    margin: 0 0.2rem;
-
-    transition:
-      background-color 0.4s,
-      box-shadow 0.4s;
+    transition: background-color 0.4s;
 
     @include m.flex;
 
@@ -32,8 +29,7 @@ $root-name: menu;
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary, light-7);
-      box-shadow: fn.use-var(shadow);
+      background-color: fn.use-var(color, primary, light-5);
     }
   }
 
@@ -43,9 +39,40 @@ $root-name: menu;
 
   @include m.e(item-title, sub-title) {
     flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
-  @include m.e(sub-expand, item-expand, sub-icon, item-icon) {
+  $b: &;
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
+    #{$b}__item,
+    #{$b}__sub-content {
+      height: fn.use-var(menu-height, $size);
+      border-radius: calc(fn.use-var(radius, $size) * 2);
+    }
+
+    #{$b}__icon {
+      margin-right: fn.use-var(gap, $size);
+    }
+
+    #{$b}__sub-expand,
+    #{$b}__icon {
+      font-size: calc(fn.use-var(menu-height, $size) / 2);
+      width: calc(fn.use-var(menu-height, $size) / 2);
+      height: calc(fn.use-var(menu-height, $size) / 2);
+    }
+  }
+}
+
+@include m.b($root-name) {
+  @include m.e(container) {
+    padding: 4px 1rem;
+  }
+
+  @include m.e(sub-expand, icon) {
     flex-shrink: 0;
   }
 
@@ -60,35 +87,27 @@ $root-name: menu;
       transform: rotate(90deg);
     }
   }
+}
 
-  @include m.size using ($size) {
-    font-size: fn.use-var(font-size-main, $size);
+@include m.b($collapsed-menu) {
+  @include m.e(container) {
+    padding: 4px;
+  }
 
-    @include m.bem($root-name, (item, sub-content)) {
-      height: fn.use-var(menu-height, $size);
-      border-radius: calc(fn.use-var(radius, $size) * 2);
-    }
+  @include m.e(item, sub-content) {
+    width: 100%;
 
-    @include m.bem($root-name, (sub-icon, item-icon)) {
-      margin-right: fn.use-var(gap, $size);
-    }
+    @include m.is(first-level) {
+      justify-content: center;
 
-    @include m.bem($root-name, (sub-expand, item-expand, sub-icon, item-icon)) {
-      font-size: calc(fn.use-var(menu-height, $size) / 2);
-      width: calc(fn.use-var(menu-height, $size) / 2);
-      height: calc(fn.use-var(menu-height, $size) / 2);
+      @include m.bem($collapsed-menu, icon) {
+        margin-right: 0;
+      }
     }
   }
 
-  @include m.is(collapsed) {
-    width: 64px !important;
-
-    @include m.bem($root-name, (item, sub)) {
-      width: 100%;
-    }
-
-    @include m.bem(icon) {
-      margin: 0;
-    }
+  @include m.e(sub-list) {
+    max-height: 236px;
+    padding: 8px 1rem;
   }
 }
