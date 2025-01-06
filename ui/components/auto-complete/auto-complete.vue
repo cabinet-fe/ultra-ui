@@ -75,13 +75,13 @@ import type {
 } from '@ui/types/components/auto-complete'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { UDropdown, type DropdownExposed } from '../dropdown'
+import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { vRipple } from '@ui/directives'
 import { UInput } from '../input'
 import { useSuggestions } from './use-suggestions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import type { ScrollExposed } from '@ui/types'
+import type { DropdownExposed, ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'AutoComplete',

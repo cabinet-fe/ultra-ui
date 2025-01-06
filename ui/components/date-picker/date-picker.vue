@@ -39,7 +39,7 @@ import type {
   DatePickerProps
 } from '@ui/types/components/date-picker'
 import { bem } from '@ui/utils'
-import { UDropdown, type DropdownExposed } from '../dropdown'
+import { UDropdown } from '../dropdown'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
@@ -48,6 +48,7 @@ import { Calendar } from 'icon-ultra'
 import DatePickerPanel from './date-picker-panel.vue'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { useDate } from './use-date'
+import type { DropdownExposed } from '@ui/types'
 
 defineOptions({
   name: 'DatePicker'
