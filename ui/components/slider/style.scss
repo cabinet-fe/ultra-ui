@@ -112,14 +112,6 @@ $button-size: 36;
     text-align: center;
     left: math.div(-$button-size + 10, 2) + px;
     cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-      transform: scale(1.2);
-    }
-    &:hover {
-      transform: scale(1.2);
-    }
   }
 
   @include m.e(button) {
@@ -131,6 +123,14 @@ $button-size: 36;
     box-sizing: border-box;
     transition: transform 0.2s;
     user-select: none;
+
+    &:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+    }
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 
   @include m.e(stop) {
