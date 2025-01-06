@@ -17,6 +17,7 @@ export interface TreeNode extends _TreeNode {
   label: string
   parentExpanded: boolean
   key: string | number
+  childrenCheckCount: number
 
   bubbleSet: (setter: (node: TreeNode) => void) => void
 }
@@ -41,7 +42,10 @@ export interface TreeProps {
   checkable?: boolean
   /** 可单选 */
   selectable?: boolean
-  /** 严格选择，选择的内容和父级不会产生关联 */
+  /**
+   * 严格选择，选择的内容和父级不会产生关联
+   * @default false
+   */
   checkStrictly?: boolean
   /** 单选选中项 */
   selected?: any
@@ -93,7 +97,7 @@ export interface _TreeExposed {
   filter(filter: string | ((node: TreeNode) => boolean)): void
   forest: ComputedRef<Forest<TreeNode>>
   nodes: ShallowRef<TreeNode[]>
-  /** 多选选中节点 */
+  /** 多选选择节点 */
   checkNode: (node: TreeNode, check: boolean) => void
   /** 单选选择节点 */
   selectNode: (node: TreeNode) => void

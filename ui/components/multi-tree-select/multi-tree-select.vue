@@ -3,11 +3,13 @@
     v-if="!readonly"
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     trigger="click"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
+    :content-style="contentStyle"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     ref="dropdownRef"
     :min-width="minWidth"
+    :width="width"
   >
     <template #trigger>
       <!-- 默认展示 -->
@@ -116,6 +118,7 @@ import { UCheckbox } from '../checkbox'
 import { omit, Tree } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
+import type { DropdownExposed } from '@ui/types'
 
 defineOptions({
   name: 'MultiTreeSelect'
@@ -144,7 +147,11 @@ const treeProps = computed(() => {
     'disabled',
     'label',
     'readonly',
-    'modelValue'
+    'modelValue',
+    'contentClass',
+    'contentStyle',
+    'minWidth',
+    'width'
   ])
 })
 
@@ -183,7 +190,7 @@ const showClear = computed(() => {
 
 const treeRef = shallowRef<TreeExposed>()
 
-const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
+const dropdownRef = shallowRef<DropdownExposed>()
 
 let changedByEvent = false
 
@@ -207,6 +214,8 @@ const indeterminate = computed(() => {
 /** 全选*/
 const handleCheckAll = (checked: boolean) => {
   treeRef.value?.checkAll(checked)
+
+  dropdownRef.value?.updateDropdown()
 }
 
 /**选中 */
@@ -217,6 +226,8 @@ const handleCheck = (
   markEvent()
   tags.value = checkedData
   emit('change', checkedData!)
+
+  dropdownRef.value?.updateDropdown()
 }
 
 /**删除 */

@@ -2,10 +2,12 @@
   <u-dropdown
     v-if="!readonly"
     trigger="click"
-    min-width="200px"
     ref="dropdownRef"
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
+    :content-style="contentStyle"
+    :min-width="minWidth"
+    :width="width"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     :disabled="disabled"
@@ -156,7 +158,7 @@ import {
   useVirtual
 } from '@ui/compositions'
 import { UCheckbox } from '../checkbox'
-import { UDropdown, type DropdownExposed } from '../dropdown'
+import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
@@ -167,7 +169,7 @@ import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
-import type { ScrollExposed } from '@ui/types'
+import type { ScrollExposed, DropdownExposed } from '@ui/types'
 
 defineOptions({
   name: 'MultiSelect'
@@ -180,7 +182,8 @@ const props = withDefaults(defineProps<MultiSelectProps>(), {
   clearable: true,
   visibilityLimit: 3,
   disabled: undefined,
-  readonly: undefined
+  readonly: undefined,
+  minWidth: '220px'
 })
 
 const emit = defineEmits<MultiSelectEmits>()
@@ -324,6 +327,8 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
   } else {
     checkedSet.delete(option)
   }
+
+  dropdownRef.value?.updateDropdown()
 }
 
 /** 全选 */
@@ -333,6 +338,8 @@ const handleCheckAll = (checked: boolean) => {
   } else {
     checkedSet.clear()
   }
+
+  dropdownRef.value?.updateDropdown()
 }
 
 /** 清除选项 */

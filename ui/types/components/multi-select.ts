@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'vue'
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
@@ -23,6 +24,17 @@ export interface MultiSelectProps extends FormComponentProps {
   visibilityLimit?: number
   /** 最大可选数量 */
   max?: number
+  /** 内容容器样式 */
+  contentStyle?: CSSProperties | string
+  /** 内容容器类名 */
+  contentClass?: unknown
+  /** 弹框最小宽度 */
+  minWidth?: string
+  /**
+   * 弹框宽度
+   * @default '220px'
+   */
+  width?: string
 }
 
 /** multi-select组件定义的事件 */

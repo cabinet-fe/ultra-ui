@@ -15,6 +15,22 @@ export function useCheck(options: Options) {
 
   const checkedData = new Set<Record<string, any>>()
 
+  function checkNode(node: TreeNode) {
+    node.checked = true
+    if (node.parent) {
+      node.parent.childrenCheckCount++
+    }
+    checkedData.add(node.data)
+  }
+
+  function uncheckNode(node: TreeNode) {
+    node.checked = false
+    if (node.parent) {
+      node.parent.childrenCheckCount--
+    }
+    checkedData.delete(node.data)
+  }
+
   /**
    * 模型值是否由事件触发
    */
@@ -31,16 +47,12 @@ export function useCheck(options: Options) {
 
       oc?.forEach(v => {
         const node = nodeDict.get(v)
-        if (node) {
-          node.checked = false
-          checkedData.delete(node.data)
-        }
+        node && uncheckNode(node)
       })
       c?.forEach(v => {
         const node = nodeDict.get(v)
         if (node) {
-          checkedData.add(node.data)
-          node.checked = true
+          checkNode(node)
           node.bubbleSet(node => {
             if (node.parent) {
               if (node.parent.expanded) return false
@@ -55,66 +67,56 @@ export function useCheck(options: Options) {
     { immediate: true }
   )
 
-  function handleCheck(node: TreeNode, check: boolean, ctrlKey?: boolean) {
+  function handleCheck(node: TreeNode, ctrlKey?: boolean) {
     const { checkStrictly } = props
+
+    if (ctrlKey) {
+      checkNode(node)
+    } else {
+      Tree.dft(node, node => {
+        !node.disabled && checkNode(node)
+      })
+    }
+
+    // 非严格选择时还需要更新祖先节点，
+    // 一旦子节点全部选中，父节点也要设置为选中状态
+    if (!checkStrictly) {
+      node.bubbleSet(node => {
+        const { parent } = node
+
+        if (parent && parent.depth > 0) {
+          const parentChecked =
+            parent.childrenCheckCount === parent.children!.length
+
+          parentChecked ? checkNode(parent) : uncheckNode(parent)
+        }
+      })
+    }
+  }
+
+  function handleUncheck(node: TreeNode, ctrlKey?: boolean) {
+    const { checkStrictly } = props
+    if (ctrlKey) {
+      uncheckNode(node)
+    } else {
+      Tree.dft(node, node => uncheckNode(node))
+    }
+
+    // 非严格模式下，取消选中时，需要更新父节点
+    if (!checkStrictly) {
+      node.bubbleSet(node => {
+        const { parent } = node
+        if (parent && parent.depth > 0) {
+          uncheckNode(parent)
+        }
+      })
+    }
+  }
+
+  function toggleCheck(node: TreeNode, check: boolean, ctrlKey?: boolean) {
     checkedByEvent = true
 
-    if (check) {
-      if (ctrlKey) {
-        node.checked = check
-        checkedData.add(node.data)
-      } else {
-        Tree.dft(node, node => {
-          if (node.disabled) return
-          node.checked = true
-          checkedData.add(node.data)
-        })
-      }
-
-      if (!checkStrictly) {
-        // 非严格选择时还需要更新父节点，
-        // 一旦子节点全部选中，父节点也要设置为选中状态
-        node.bubbleSet(node => {
-          const { parent } = node
-          if (parent && parent.depth > 0) {
-            parent.checked = parent.children!.every(child => child.checked)
-            if (!parent.checked) {
-              parent.indeterminate = true
-            } else {
-              parent.indeterminate = false
-              checkedData.add(parent.data)
-            }
-          }
-        })
-      }
-    } else {
-      if (ctrlKey) {
-        node.checked = check
-        node.indeterminate = false
-        checkedData.delete(node.data)
-      } else {
-        Tree.dft(node, node => {
-          node.checked = false
-          node.indeterminate = false
-          checkedData.delete(node.data)
-        })
-      }
-
-      if (!checkStrictly) {
-        // 非严格模式下，取消选中时，需要更新父节点
-        node.bubbleSet(node => {
-          const { parent } = node
-          if (parent && parent.depth > 0) {
-            parent.checked = false
-            checkedData.delete(parent.data)
-
-            parent.indeterminate =
-              parent.children!.some(child => child.indeterminate) ||
-              parent.children!.some(child => child.checked)
-          }
-        })
-      }
-    }
+    check ? handleCheck(node, ctrlKey) : handleUncheck(node, ctrlKey)
 
     const checkedArr = Array.from(checkedData)
 
@@ -131,6 +133,6 @@ export function useCheck(options: Options) {
 
   return {
     checkedData,
-    handleCheck
+    toggleCheck
   }
 }

@@ -3,9 +3,11 @@
     v-if="!readonly"
     :class="[cls.b, bem.is('disabled', disabled)]"
     trigger="click"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
+    :content-style="contentStyle"
     ref="dropdownRef"
     :min-width="minWidth"
+    :width="width"
   >
     <template #trigger>
       <u-input
@@ -81,7 +83,7 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
   disabled: undefined,
   readonly: undefined,
   filterable: false,
-  minWidth: '250px'
+  minWidth: '280px'
 })
 
 const treeProps = computed(() => {
@@ -91,7 +93,11 @@ const treeProps = computed(() => {
     'placeholder',
     'disabled',
     'label',
-    'readonly'
+    'readonly',
+    'contentClass',
+    'contentStyle',
+    'minWidth',
+    'width'
   ])
 })
 

@@ -12,7 +12,7 @@
           margin: 0 10px;
         "
       >
-        <u-number :value="number" tween :duration="2000" />
+        <u-number :value="number" tween currency :min-precision="1" />
       </div>
       <u-button type="primary" plain size="small" @click="number -= 1000">
         -1000

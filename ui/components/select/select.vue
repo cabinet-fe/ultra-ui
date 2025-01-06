@@ -5,8 +5,11 @@
     :class="[cls.b, bem.is('disabled', disabled)]"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
+    :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
+    :content-style="contentStyle"
     :disabled="disabled"
+    :min-width="minWidth"
+    :width="width"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -58,7 +61,6 @@
             v-for="{ option, index, val, label, key, offset } of virtualOptions"
             :class="[optionClass, bem.is('selected', val === model)]"
             @click="handleSelect(option)"
-            v-ripple="cls.e('ripple')"
             :key="key"
             :style="{
               transform: `translateY(${offset}px)`
@@ -80,7 +82,7 @@
               bem.is('selected', getChainValue(option, valueKey) === model)
             ]"
             @click="handleSelect(option)"
-            v-ripple="cls.e('ripple')"
+            :title="getChainValue(option, labelKey)"
             :key="getChainValue(option, valueKey)"
           >
             <slot v-bind="{ option, index }">
@@ -112,17 +114,16 @@ import {
   useFormFallbackProps,
   useVirtual
 } from '@ui/compositions'
-import { UDropdown, type DropdownExposed } from '../dropdown'
+import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'
-import { vRipple } from '@ui/directives'
 import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
-import type { ScrollExposed } from '@ui/types'
+import type { DropdownExposed, ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Select'

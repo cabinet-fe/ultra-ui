@@ -97,8 +97,18 @@ export function useResizeObserver(
  */
 export function useObserverCallback() {
   const observerElMap = new Map<HTMLElement, Function>()
+
   const observer = new ResizeObserver(entries => {
-    observerElMap.forEach(fn => fn(entries))
+    entries.forEach(entry => {
+      const target = entry.target as HTMLElement
+      if (!target.dataset.ob) {
+        target.dataset.ob = 'true'
+        return
+      }
+      const fn = observerElMap.get(target)
+
+      fn?.(entry)
+    })
   })
 
   /**
@@ -106,9 +116,9 @@ export function useObserverCallback() {
    * @param el 元素
    * @param cb 回调
    */
-  function observeEl(
-    el: HTMLElement,
-    cb: (entry: ResizeObserverEntry[]) => void
+  function observeEl<El extends HTMLElement>(
+    el: El,
+    cb: (entry: Omit<ResizeObserverEntry, 'target'> & { target: El }) => void
   ) {
     observer.observe(el)
     observerElMap.set(el, cb)
@@ -120,6 +130,7 @@ export function useObserverCallback() {
    */
   function unobserveEl(el: HTMLElement) {
     observer.unobserve(el)
+    delete el.dataset.ob
     observerElMap.delete(el)
   }
 

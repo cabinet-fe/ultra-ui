@@ -176,7 +176,13 @@ function getFlattedNodes() {
   nodes.value = _nodes
 }
 
-watch(forest, () => getFlattedNodes(), { immediate: true })
+watch(
+  forest,
+  () => {
+    getFlattedNodes()
+  },
+  { immediate: true }
+)
 
 /**
  * 回溯缓存
@@ -291,7 +297,7 @@ const { handleSelect, selectedData } = useSelect({
   getFlattedNodes
 })
 
-const { checkedData, handleCheck } = useCheck({
+const { checkedData, toggleCheck } = useCheck({
   props,
   emit,
   nodeDict,
@@ -313,7 +319,7 @@ provide(TreeDIKey, {
   hiddenNodes,
   treeEmit: emit as TreeEmit,
   treeProps: props as TreeProps,
-  handleCheck: handleCheck as TreeConText['handleCheck'],
+  toggleCheck: toggleCheck as TreeConText['toggleCheck'],
   handleSelect: handleSelect as TreeConText['handleSelect']
 })
 
@@ -321,11 +327,11 @@ defineExpose<_TreeExposed>({
   filter,
   forest,
   nodes,
-  checkNode: handleCheck,
+  checkNode: toggleCheck,
   selectNode: handleSelect,
   checkAll(check: boolean) {
     forest.value.nodes.forEach(node => {
-      handleCheck(node, check)
+      toggleCheck(node, check)
     })
   },
   getSelected() {

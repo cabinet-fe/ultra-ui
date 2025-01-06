@@ -20,8 +20,8 @@ export interface TreeConText {
   hiddenNodes: Set<TreeNode>
   /** 选择事件 */
   handleSelect: (data: TreeNode) => void
-  /** 多选事件 */
-  handleCheck: (node: TreeNode, check: boolean, ctrlKey?: boolean) => void
+  /** 多选切换 */
+  toggleCheck: (node: TreeNode, check: boolean, ctrlKey?: boolean) => void
   /** 获取树的作用域插槽节点 */
   getTreeSlotsNode: (ctx: TreeSlotsScope) => VNode[] | string | undefined
   /** 树事件 */

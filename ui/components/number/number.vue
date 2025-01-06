@@ -13,8 +13,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<NumberProps>(), {
   duration: 800,
-  format: 'decimal',
-  precision: 0
+  format: 'decimal'
 })
 
 const number = reactive({
@@ -34,7 +33,9 @@ const formatter = computed(() => {
   return n.formatter({
     currency: props.format === 'currency' ? 'CNY' : undefined,
     style: props.format,
-    precision: props.precision
+    precision: props.precision,
+    maximumFractionDigits: props.maxPrecision,
+    minimumFractionDigits: props.minPrecision
   })
 })
 

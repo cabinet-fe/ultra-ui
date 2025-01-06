@@ -18,6 +18,10 @@ export interface NumberProps {
   duration?: number
   /** 精度 */
   precision?: number
+  /** 最大精度 */
+  maxPrecision?: number
+  /** 最小精度 */
+  minPrecision?: number
 }
 
 /** 数字组件定义的事件 */

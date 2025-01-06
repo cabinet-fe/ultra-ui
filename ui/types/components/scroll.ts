@@ -46,7 +46,7 @@ export interface ScrollProps {
   containerStyle?: string | CSSProperties
 
   /** 内容类名 */
-  contentClass?: string | string[]
+  contentClass?: unknown
 
   /** 容器类名 */
   containerClass?: string | string[]

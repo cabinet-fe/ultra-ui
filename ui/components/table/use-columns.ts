@@ -185,6 +185,7 @@ export function useColumns(options: Options): ColumnConfig {
 
   const headers = computed(() => {
     const headers: ColumnNode[][] = []
+
     let currentLayer: ColumnNode[] = []
     let layerDepth = -1
     columnForest.value?.bft(node => {

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'vue'
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 import type { TreeProps } from './tree'
@@ -23,9 +24,20 @@ export interface TreeSelectProps
    * @default '280px'
    */
   minWidth?: string
+  /**
+   * 弹框宽度
+   * @default 跟随触发元素的宽度
+   */
+  width?: string
 
   /** 显示文本 */
   text?: string
+
+  /** 内容容器样式 */
+  contentStyle?: CSSProperties | string
+
+  /** 内容容器类名 */
+  contentClass?: unknown
 }
 
 /** 树形选择器组件定义的事件 */

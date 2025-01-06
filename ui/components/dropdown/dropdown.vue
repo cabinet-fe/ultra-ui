@@ -12,11 +12,9 @@
     <component
       v-if="visible"
       :is="contentTag"
-      :class="[cls.e('content'), contentClass]"
+      :class="dropdownContentClass"
       ref="contentRef"
-      :style="{
-        zIndex: zIndex()
-      }"
+      :style="[{ zIndex: zIndex() }, contentStyle]"
       @mouseenter="eventsHandlers.onMouseenter"
       @mouseleave="eventsHandlers.onMouseleave"
       v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
@@ -58,6 +56,16 @@ const slots = defineSlots<{
 }>()
 
 const cls = bem('dropdown')
+
+const dropdownContentClass = computed(() => {
+  let fixed = [cls.e('content')]
+  const className = props.contentClass
+  if (!className) return fixed
+  if (!Array.isArray(className)) {
+    return [...fixed, className]
+  }
+  return [...fixed, ...className]
+})
 
 const triggerRef = shallowRef<HTMLElement>()
 const contentRef = shallowRef<HTMLElement>()
@@ -120,20 +128,22 @@ const { update, popperContainerId } = usePop({
   contentRef,
   direction: 'bottom',
   alignment: 'start',
-  onTriggerPositionChange() {
-    close()
-  },
-  onAfterUpdate(position) {
+  onPop(position) {
     transitionName.value = position.placement.includes('top')
       ? 'slide-up'
       : 'slide-down'
 
     transition.enter()
   },
+
+  onTriggerPositionChange() {
+    close()
+  },
+
   onBeforeUpdate(triggerEl, contentEl) {
     setStyles(contentEl, {
       width: props.width ?? `${triggerEl.offsetWidth}px`,
-      minWidth: props.minWidth && props.minWidth
+      minWidth: props.minWidth
     })
   }
 })

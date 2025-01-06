@@ -67,7 +67,7 @@ const {
   cls,
   getTreeSlotsNode,
   getFlattedNodes,
-  handleCheck,
+  toggleCheck,
   handleSelect
 } = inject(TreeDIKey)!
 
@@ -80,7 +80,7 @@ function toggleExpand() {
 }
 
 function handleChange(checked: boolean, e: MouseEvent) {
-  handleCheck(props.node, checked, e.ctrlKey)
+  toggleCheck(props.node, checked, e.ctrlKey)
 }
 
 function handleClick(e: MouseEvent) {
@@ -92,6 +92,6 @@ function handleClick(e: MouseEvent) {
   treeProps.checkable &&
     !node.disabled &&
     !treeProps.expandOnClickNode &&
-    handleCheck(node, !node.checked, e.ctrlKey)
+    toggleCheck(node, !node.checked, e.ctrlKey)
 }
 </script>

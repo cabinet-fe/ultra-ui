@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CustomCard title="菜单选择器多选、禁用某项、过滤">
+    <CustomCard title="菜单选择器多选、禁用某项、过滤" style="width: 200px">
       多选{{ treeCheckable }}
       <u-multi-tree-select
         v-model="treeCheckable"
@@ -23,7 +23,7 @@ import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { TreeData } from '../form/data'
 
-const treeCheckable = shallowRef(['8', '9', 11])
+const treeCheckable = shallowRef(['8', '9'])
 
 const disabledNode = data => {
   return data.id % 4 === 0
@@ -34,7 +34,5 @@ setTimeout(() => {
   data.value = TreeData
 }, 2000)
 
-const handleChange = (value, checked) => {
-  console.log(value, checked)
-}
+const handleChange = value => {}
 </script>

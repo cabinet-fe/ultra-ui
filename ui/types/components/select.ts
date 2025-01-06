@@ -1,4 +1,4 @@
-import type { ShallowRef } from 'vue'
+import type { CSSProperties, ShallowRef } from 'vue'
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
@@ -25,6 +25,17 @@ export interface SelectProps extends FormComponentProps {
   placeholder?: string
   /** 是否启用搜索功能 */
   filterable?: boolean
+  /** 内容容器样式 */
+  contentStyle?: CSSProperties | string
+  /** 内容容器类名 */
+  contentClass?: unknown
+  /** 弹框最小宽度 */
+  minWidth?: string
+  /**
+   * 弹框宽度
+   * @default 跟随触发元素的宽度
+   */
+  width?: string
 }
 
 export interface SelectEmits {

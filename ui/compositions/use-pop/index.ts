@@ -10,7 +10,6 @@ import {
 import type { TipAlign, TipDirection } from '@ui/types'
 import { getScrollParents, setStyles } from '@ui/utils'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
-import { useObserverCallback } from '../use-resize-observer'
 
 interface Options {
   /** 触发元素 */
@@ -39,6 +38,8 @@ interface Options {
   onBeforeUpdate?: (triggerEl: HTMLElement, contentEl: HTMLElement) => void
   /** 更新元素后回调 */
   onAfterUpdate?: (position: ComputePositionReturn) => void
+  /** 弹框弹出时回调 */
+  onPop?: (position: ComputePositionReturn) => void
 }
 
 interface PopResult {
@@ -75,10 +76,9 @@ export function usePop(options: Options): PopResult {
     onAfterUpdate,
     onBeforeUpdate,
     direction,
-    alignment
+    alignment,
+    onPop
   } = options
-
-  const { observeEl, unobserveEl } = useObserverCallback()
 
   /** 箭头位置 */
   const arrowPlacementDict = {
@@ -93,7 +93,7 @@ export function usePop(options: Options): PopResult {
   }
 
   /** 更新浮框位置 */
-  async function update() {
+  async function update(isPop = false) {
     const triggerEl = triggerRef.value
     const contentEl = contentRef.value
 
@@ -127,7 +127,7 @@ export function usePop(options: Options): PopResult {
       left: `${x}px`,
       top: `${y}px`
     })
-
+    isPop && onPop?.(position)
     onAfterUpdate?.(position)
 
     // 设置箭头位置 ↓↓↓
@@ -177,26 +177,12 @@ export function usePop(options: Options): PopResult {
   function addResizeEvents() {
     onTriggerPositionChange &&
       window.addEventListener('resize', onTriggerPositionChange)
-
-    triggerRef.value &&
-      observeEl(triggerRef.value, entries => {
-        const triggerRect = entries[0]?.target?.getBoundingClientRect()
-
-        if (triggerRect && triggerRect.width && triggerRect.height) {
-          update()
-        }
-      })
   }
 
   function removeResizeEvents() {
-    triggerRef.value && unobserveEl(triggerRef.value)
     onTriggerPositionChange &&
       window.removeEventListener('resize', onTriggerPositionChange)
   }
-
-  watch(triggerRef, () => {
-    update()
-  })
 
   watch(
     [
@@ -204,8 +190,9 @@ export function usePop(options: Options): PopResult {
       () => getMaybeRefValue(direction),
       () => getMaybeRefValue(alignment)
     ],
-    ([contentRef]) => {
-      if (contentRef) {
+    ([content]) => {
+      if (content) {
+        update(true)
         addScrollEvents()
         addResizeEvents()
         return

@@ -13,9 +13,18 @@ export class TreeNode<
   loaded = false
   /** 多选是否选中 */
   checked = false
-  indeterminate = false
   disabled = false
   visible = true
+  /** 子节点选中数量 */
+  childrenCheckCount = 0
+
+  get indeterminate() {
+    if (!this.children) return false
+    return (
+      this.childrenCheckCount > 0 &&
+      this.childrenCheckCount < this.children.length
+    )
+  }
 
   get parentExpanded() {
     if (!this.parent) return true
@@ -51,7 +60,10 @@ export class TreeNode<
     return getChainValue(this.data, this.valueKey)
   }
 
-  /** 向上冒泡设置 */
+  /**
+   * 向上冒泡设置
+   * @param setter 设置函数, 返回 false 则停止冒泡
+   */
   bubbleSet(setter: (node: TreeNode<Val>) => boolean | void) {
     const ret = setter(this)
     ret !== false && this.parent?.bubbleSet(setter)

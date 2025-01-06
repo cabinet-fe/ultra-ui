@@ -38,6 +38,7 @@ $root-name: select;
     cursor: pointer;
     user-select: none;
     width: 100%;
+
     @include m.ellipsis;
 
     &:not(:first-child) {
@@ -52,11 +53,6 @@ $root-name: select;
       background-color: fn.use-var(color, primary, light-3);
       color: fn.use-var(text-color, white);
     }
-  }
-
-  @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-7);
-    opacity: 0.5;
   }
 
   @include m.e(empty) {
