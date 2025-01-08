@@ -24,6 +24,10 @@
         @clear="handleClear"
         native-readonly
       >
+        <template #prefix v-if="$slots.prefix">
+          <slot name="prefix" />
+        </template>
+
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
@@ -139,6 +143,11 @@ const props = withDefaults(defineProps<SelectProps>(), {
 })
 
 const emit = defineEmits<SelectEmits>()
+
+defineSlots<{
+  /** 前缀插槽 */
+  prefix?: () => any
+}>()
 
 const cls = bem('select')
 

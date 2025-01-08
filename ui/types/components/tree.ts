@@ -15,7 +15,6 @@ export interface TreeNode extends _TreeNode {
   indeterminate: boolean
   disabled: boolean
   label: string
-  parentExpanded: boolean
   key: string | number
   childrenCheckCount: number
 

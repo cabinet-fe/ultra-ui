@@ -1,6 +1,6 @@
-import type { DeconstructValue } from "../helper"
-import type { FormComponentProps } from "../component-common"
-import type { TreeNode as _CascadeNode } from "cat-kit/fe"
+import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '../component-common'
+import type { TreeNode as _CascadeNode } from 'cat-kit/fe'
 
 export interface CascadeNode<DataItem extends Record<string, any>>
   extends _CascadeNode<DataItem> {
@@ -16,7 +16,6 @@ export interface CascadeNode<DataItem extends Record<string, any>>
   indeterminate: boolean
   disabled: boolean
   label: string
-  parentExpanded: boolean
   key: string | number
 }
 export interface CascadeNodeProps extends FormComponentProps {
@@ -31,7 +30,7 @@ export interface CascadeFilterProps extends FormComponentProps {
 
 /** 级联选择器组件属性 */
 export interface CascadeProps<
-  DataItem extends Record<string, any> = Record<string, any>,
+  DataItem extends Record<string, any> = Record<string, any>
 > extends FormComponentProps,
     CascadeFilterProps {
   modelValue?: any[]
@@ -69,14 +68,14 @@ export interface CascadeProps<
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  (e: "update:modelValue", value?: string[] | number[]): void
+  (e: 'update:modelValue', value?: string[] | number[]): void
   (
-    e: "change",
+    e: 'change',
     value: string[] | number[],
     label: string[] | number[],
     data: Record<string, any>[]
   ): void
-  (e: "clear"): void
+  (e: 'clear'): void
 }
 
 /** 级联选择器组件暴露的属性和方法(组件内部使用) */

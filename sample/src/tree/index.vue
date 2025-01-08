@@ -28,10 +28,8 @@
     <CustomCard title="单选">
       <UTree
         :data="data"
-        expand-all
         label-key="name"
         value-key="id"
-        :disabled-node="disabledNode"
         v-model:selected="select"
         @update:selected="handleNodeClick"
         selectable
@@ -51,7 +49,6 @@
         label-key="name"
         value-key="id"
         checkable
-        :disabled-node="disabledNode"
         @update:checked="handleCheck"
         v-model:checked="checked"
         ref="checkedTreeRef"
@@ -69,7 +66,6 @@
         value-key="id"
         checkable
         check-strictly
-        :disabled-node="disabledNode"
         v-model:checked="checked"
       />
     </CustomCard>
@@ -155,15 +151,7 @@ setTimeout(() => {
 
 let select = shallowRef(9)
 
-watch(
-  [select, treeRef1, data],
-  ([select, tree]) => {
-    nextTick(() => {
-      console.log(tree?.getSelected())
-    })
-  },
-  { immediate: true }
-)
+watch([select, treeRef1, data], ([select, tree]) => {}, { immediate: true })
 
 const checked = shallowRef([1])
 const handleNodeClick = selected => {

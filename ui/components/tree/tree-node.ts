@@ -26,11 +26,6 @@ export class TreeNode<
     )
   }
 
-  get parentExpanded() {
-    if (!this.parent) return true
-    return this.parent.expanded || this.depth === 1
-  }
-
   labelKey: string
   valueKey: string
 

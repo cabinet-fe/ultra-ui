@@ -19,6 +19,9 @@
         @clear="handleClear"
         native-readonly
       >
+        <template #prefix v-if="$slots.prefix">
+          <slot name="prefix" />
+        </template>
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
         </template>
@@ -72,8 +75,6 @@ defineOptions({
   name: 'TreeSelect'
 })
 
-const cls = bem('tree-select')
-
 const props = withDefaults(defineProps<TreeSelectProps>(), {
   labelKey: 'label',
   valueKey: 'value',
@@ -85,6 +86,15 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
   filterable: false,
   minWidth: '280px'
 })
+
+const emit = defineEmits<TreeSelectEmits>()
+
+const slots = defineSlots<{
+  /** 默认插槽 */
+  default?: (props: TreeSlotsScope) => any
+  /** 前缀插槽 */
+  prefix?: () => any
+}>()
 
 const treeProps = computed(() => {
   return omit(props, [
@@ -101,11 +111,7 @@ const treeProps = computed(() => {
   ])
 })
 
-const emit = defineEmits<TreeSelectEmits>()
-
-const slots = defineSlots<{
-  default?: (props: TreeSlotsScope) => any
-}>()
+const cls = bem('tree-select')
 
 /**过滤 */
 const qs = shallowRef('')

@@ -19,11 +19,11 @@ export function useSelect(options: Options) {
   let selectByEvent = false
   watch(
     [() => props.selected, nodeDict],
-    ([s]) => {
+    ([s, nodeDict]) => {
       if (selectByEvent || !props.selectable) return
 
       if (s) {
-        const node = nodeDict.value.get(s)
+        const node = nodeDict.get(s)
         if (node) {
           selectedData.value = node.data
           node.bubbleSet(node => {

@@ -9,7 +9,6 @@
         value-key="id"
         children-key="children"
         checkable
-        expand-all
         :disabledNode="disabledNode"
         filterable
         @change="handleChange"

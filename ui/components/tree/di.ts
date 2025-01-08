@@ -16,8 +16,6 @@ export interface TreeConText {
   selectedData: Record<string, any> | undefined
   /** 多选的节点 */
   checkedData: Set<any>
-  /** 隐藏的节点 */
-  hiddenNodes: Set<TreeNode>
   /** 选择事件 */
   handleSelect: (data: TreeNode) => void
   /** 多选切换 */

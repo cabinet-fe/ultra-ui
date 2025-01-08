@@ -31,7 +31,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
     "autoprefixer": "^10.4.20",
-    "cat-kit": "^3.7.10",
+    "cat-kit": "^3.7.11",
     "fast-glob": "^3.3.2",
     "icon-ultra": "^3.0.15",
     "rollup": "^4.29.1",

@@ -17,7 +17,7 @@ $root-name: input;
 
   &:hover {
     // 悬浮时边框颜色为 var(--u-color-primary);
-    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+    box-shadow: inset 0 0 0px 1px fn.use-var(color, primary);
   }
 
   @include m.size using ($size) {

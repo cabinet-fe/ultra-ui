@@ -1,8 +1,8 @@
-import { TreeNode as _CascadeNode, getChainValue } from "cat-kit/fe"
-import { shallowReactive } from "vue"
+import { TreeNode as _CascadeNode, getChainValue } from 'cat-kit/fe'
+import { shallowReactive } from 'vue'
 
 export class CascadeNode<
-  Val extends Record<string, any> = Record<string, any>,
+  Val extends Record<string, any> = Record<string, any>
 > extends _CascadeNode<Val> {
   override parent: CascadeNode<Val> | null = null
 
@@ -18,11 +18,6 @@ export class CascadeNode<
   indeterminate = false
   disabled = false
   visible = true
-
-  get parentExpanded() {
-    if (!this.parent) return true
-    return this.parent.expanded || this.depth === 1
-  }
 
   labelKey: string
   valueKey: string
