@@ -58,7 +58,7 @@ export interface _DropdownExposed {
   }) => void
   /** 关闭 */
   close: () => void
-  /**触发位置变化 */
+  /** 更新下拉框位置 */
   updateDropdown: () => void
 }
 

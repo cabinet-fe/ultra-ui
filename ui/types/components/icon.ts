@@ -1,6 +1,5 @@
 /** 图标组件属性 */
-
-export type IconProps = {
+export interface IconProps {
   /** 尺寸 */
   size?: `${number}px` | number
 }

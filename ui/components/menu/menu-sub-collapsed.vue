@@ -19,6 +19,8 @@
         :class="collapsedCls.e('icon')"
       />
 
+      <span v-else>{{ menu.title[0] }}</span>
+
       <template v-if="depth !== 0">
         <span :class="collapsedCls.e('sub-title')">
           {{ menu.title }}

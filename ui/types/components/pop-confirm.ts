@@ -23,7 +23,9 @@ export interface PopConfirmProps
 
 /** 气泡确认框组件定义的事件 */
 export interface PopConfirmEmits {
+  /** 确认事件 */
   (event: 'confirm'): void
+  /** 取消事件 */
   (event: 'cancel'): void
 }
 

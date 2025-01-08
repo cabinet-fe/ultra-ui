@@ -43,6 +43,7 @@ export interface TipEmits {
 
 /** tip提示组件组件暴露的属性和方法(组件内部使用) */
 export interface _TipExposed {
+  /** 关闭提示框 */
   close: () => void
 }
 
