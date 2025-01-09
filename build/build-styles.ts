@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 import { rollup } from 'rollup'
 import esbuild from 'rollup-plugin-esbuild'
-import { compileAsync } from 'sass'
+import { compileAsync } from 'sass-embedded'
 import { statSync } from 'node:fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

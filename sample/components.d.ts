@@ -11,6 +11,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UAction: typeof import('ultra-ui')['UAction']
     UActionGroup: typeof import('ultra-ui')['UActionGroup']
+    UBadge: typeof import('ultra-ui')['UBadge']
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
     UButtonGroup: typeof import('ultra-ui')['UButtonGroup']
