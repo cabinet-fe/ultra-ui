@@ -27,7 +27,7 @@ const columns = defineTableColumns([
   { name: '列1', key: 'col1' },
   { name: '列2', key: 'col2' },
   { name: '列3', key: 'col3' },
-  { name: 'action', key: 'action', width: 200 }
+  { name: 'action', key: 'action', width: 150, align: 'center' }
 ])
 
 const data = shallowRef<any[]>([])

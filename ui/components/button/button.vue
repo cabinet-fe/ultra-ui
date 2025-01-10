@@ -2,7 +2,6 @@
   <button
     :class="classList"
     type="button"
-    v-bind="$attrs"
     aria-label="button"
     @click="handleClick"
     ref="buttonRef"

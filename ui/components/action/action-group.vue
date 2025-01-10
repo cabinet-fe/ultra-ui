@@ -7,7 +7,7 @@ import type { ActionGroupProps } from '@ui/types/components/action'
 import { ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
-import type { VNode } from 'vue'
+import { type VNode } from 'vue'
 import { bem, extractNormalVNodes } from '@ui/utils'
 import { UTip } from '../tip'
 
@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<ActionGroupProps>(), {
 })
 
 const cls = bem('action-group')
+const actionCls = bem('action')
 
 const slots = defineSlots<{
   default?: () => VNode[]
@@ -49,7 +50,7 @@ function getSlotsNodes() {
       {{
         content: () => hiddenNodes,
         default: () => (
-          <UButton text size='small' type='primary'>
+          <UButton text size='small' type='primary' class={actionCls.b}>
             更多
             <UIcon>
               <ArrowDown />

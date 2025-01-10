@@ -3,7 +3,6 @@
   <UNodeRender
     v-bind="eventsHandlers"
     :content="getTriggerNode()"
-    :class="cls.b"
     ref="triggerRef"
   />
 
