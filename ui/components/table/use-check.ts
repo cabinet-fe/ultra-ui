@@ -247,6 +247,7 @@ export function useCheck(options: Options) {
       minWidth: width,
       align: 'center',
       fixed: 'left',
+      resizable: false,
       nameRender() {
         const checkboxNode = createVNode(UCheckbox, {
           modelValue: allChecked.value,
@@ -296,6 +297,7 @@ export function useCheck(options: Options) {
       key: '__is_select_column__',
       name: '单选',
       minWidth: width,
+      resizable: false,
       width,
       align: 'center',
       fixed: 'left',

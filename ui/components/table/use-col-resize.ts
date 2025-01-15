@@ -1,4 +1,10 @@
-import { nextTick, provide, shallowRef, watch, type ShallowRef } from 'vue'
+import {
+  nextTick,
+  provide,
+  shallowRef,
+  watchEffect,
+  type ShallowRef
+} from 'vue'
 import { TableResizeKey } from './di'
 import type { ScrollExposed } from '@ui/types/components/scroll'
 import type { ColumnNode } from './node/col'
@@ -35,9 +41,14 @@ export function useColResize(options: Options) {
 
     if (allColumnsWidth < containerWidth) {
       const freeWidth = containerWidth - allColumnsWidth
-      const allocatedWidth = freeWidth / leafColumns.value.length
 
-      leafColumns.value.forEach(column => {
+      const allocatableColumns = leafColumns.value.filter(
+        column => column.data.resizable !== false
+      )
+
+      const allocatedWidth = freeWidth / allocatableColumns.length
+
+      allocatableColumns.forEach(column => {
         column.width = (column.width ?? column.minWidth!) + allocatedWidth
       })
     }
@@ -60,13 +71,7 @@ export function useColResize(options: Options) {
     }, 0)
   }
 
-  watch(
-    [leafColumns, () => scrollRef.value?.containerRef],
-    () => {
-      correctColumnStyle()
-    },
-    { immediate: true }
-  )
+  watchEffect(correctColumnStyle)
 
   function updateResizeLine(transformX: number) {
     if (!resizeLineRef.value) return
