@@ -15,6 +15,8 @@ export interface DatePickerProps extends FormComponentProps {
   valueFormat?: string
   /** 最小可选日期 */
   disabledDate?: (date: Dater) => boolean
+  /** 是否显示清除按钮 */
+  clearable?: boolean
 }
 
 /** date-picker组件定义的事件 */

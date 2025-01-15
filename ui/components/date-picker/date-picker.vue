@@ -13,6 +13,7 @@
       <u-input
         :size="size"
         native-readonly
+        :clearable="clearable"
         :placeholder="placeholder"
         :model-value="modelValue"
         @update:model-value="v => emit('update:modelValue', v)"
@@ -58,7 +59,8 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期',
   type: 'date',
   disabled: undefined,
-  readonly: undefined
+  readonly: undefined,
+  clearable: true
 })
 
 const emit = defineEmits<DatePickerEmits>()
