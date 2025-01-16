@@ -56,6 +56,8 @@ export interface TableColumn {
   children?: TableColumn[]
   /** 表尾合计 */
   summary?: boolean | ((ctx: TableSummaryContext) => RenderReturn)
+  /** 是否可调整列宽 */
+  resizable?: boolean
   [key: string]: any
 }
 

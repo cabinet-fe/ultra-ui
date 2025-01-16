@@ -82,6 +82,7 @@ export function useColumns(options: Options): ColumnConfig {
       columns.push({
         key: '__index__',
         name: '#',
+        resizable: false,
         width: 60,
         minWidth: 60,
         align: 'center',
