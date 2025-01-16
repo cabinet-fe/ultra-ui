@@ -33,7 +33,7 @@
       </div>
     </template>
 
-    <template #prefix v-if="$slots.prefix">
+    <template #prefix v-if="slots.prefix">
       <slot name="prefix" />
     </template>
   </u-input>
@@ -71,8 +71,8 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
 })
 const emit = defineEmits<NumberInputEmits>()
 
-defineSlots<{
-  prefix: () => any
+const slots = defineSlots<{
+  prefix?: () => any
 }>()
 
 const { formProps } = useFormComponent()

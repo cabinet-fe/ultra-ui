@@ -41,7 +41,10 @@
       </div>
 
       <div :class="[cls.e('description')]">
-        <component v-if="slots.desc && descs[index]" :is="descs[index]"></component>
+        <component
+          v-if="slots.desc && descs[index]"
+          :is="descs[index]"
+        ></component>
         <span v-else>{{ item.label }}</span>
       </div>
     </li>
@@ -49,8 +52,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useSlots, computed } from 'vue'
-import type { StepsProps, StepsEmits, StepItem } from '@ui/types/components/steps'
+import { computed } from 'vue'
+import type {
+  StepsProps,
+  StepsEmits,
+  StepItem
+} from '@ui/types/components/steps'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from 'icon-ultra'
@@ -61,7 +68,11 @@ defineOptions({
   name: 'Steps'
 })
 
-const slots = useSlots()
+const slots = defineSlots<{
+  icon?: () => any
+  desc?: () => any
+}>()
+
 /** 图标位插槽 */
 const icons = computed(() => {
   return slots.icon ? slots.icon()[0]?.children || [] : []
@@ -73,7 +84,7 @@ const descs = computed(() => {
 /** 当前活动序号 */
 const currentIndex = computed(() => {
   return props.active
-    ? props.items.findIndex((item) => item.key === props.active)
+    ? props.items.findIndex(item => item.key === props.active)
     : props.items.length + 1
 })
 
