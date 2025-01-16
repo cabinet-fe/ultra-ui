@@ -16,6 +16,7 @@
         :clearable="clearable"
         :placeholder="placeholder"
         :model-value="modelValue"
+        :disabled="disabled"
         @update:model-value="v => emit('update:modelValue', v)"
       >
         <template #suffix>
