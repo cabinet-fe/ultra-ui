@@ -1,6 +1,12 @@
 <template>
   <CustomCard title="基础用法">
-    <u-table :data="students" :columns="columns" checkable />
+    <u-table :data="students" :columns="columns" show-index checkable>
+      <template #column:action>
+        <u-action-group :max="4">
+          <u-action need-confirm type="danger">删除</u-action>
+        </u-action-group>
+      </template>
+    </u-table>
   </CustomCard>
 </template>
 

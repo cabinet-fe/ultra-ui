@@ -6,18 +6,30 @@
     </CustomCard>
 
     <CustomCard title="深色">
-      <u-tag light>默认</u-tag>
-      <u-tag v-for="item of types" dark :type="item">{{ item.toUpperCase() }}</u-tag>
+      <u-tag dark>默认</u-tag>
+      <u-tag v-for="item of types" dark :type="item">{{
+        item.toUpperCase()
+      }}</u-tag>
     </CustomCard>
 
     <CustomCard title="可移除">
-      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
+      <u-tag
+        v-for="(item, index) in tags"
+        :type="item.type"
+        closable
+        @close="handleClose(index)"
+      >
         {{ item.name }}
       </u-tag>
     </CustomCard>
 
     <CustomCard title="动态编辑">
-      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
+      <u-tag
+        v-for="(item, index) in tags"
+        :type="item.type"
+        closable
+        @close="handleClose(index)"
+      >
         {{ item.name }}
       </u-tag>
     </CustomCard>

@@ -88,6 +88,11 @@ export class ColumnNode extends TreeNode<TableColumn> {
     return this.data.isFirstFixed ?? false
   }
 
+  /** 是否是可调整宽度的列 */
+  get resizable(): boolean {
+    return this.data.resizable ?? true
+  }
+
   style: Record<string, number> = reactive({})
 
   constructor(val: TableColumn, index: number) {

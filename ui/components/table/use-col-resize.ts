@@ -43,7 +43,7 @@ export function useColResize(options: Options) {
       const freeWidth = containerWidth - allColumnsWidth
 
       const allocatableColumns = leafColumns.value.filter(
-        column => column.data.resizable !== false
+        column => column.resizable !== false
       )
 
       const allocatedWidth = freeWidth / allocatableColumns.length

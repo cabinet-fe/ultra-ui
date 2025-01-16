@@ -80,10 +80,9 @@ $root-name: tabs;
   @include position((top, bottom), header-item) {
     &::after {
       bottom: 0;
-      left: 50%;
+      left: 0;
       height: 2px;
       width: 0;
-      transform: translateX(-50%);
       transition-property: width;
     }
 

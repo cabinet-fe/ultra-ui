@@ -28,7 +28,7 @@ defineOptions({
 
 const cls = bem('tag')
 
-const props = withDefaults(defineProps<TagProps>(), {})
+const props = defineProps<TagProps>()
 
 const emit = defineEmits<TagEmits>()
 

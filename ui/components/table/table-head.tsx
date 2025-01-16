@@ -36,7 +36,7 @@ export default defineComponent({
               >
                 {getHeaderSlotsNode({ column })}
 
-                {column.isLeaf ? (
+                {column.isLeaf && column.resizable ? (
                   <span
                     class={handleCls}
                     onMousedown={e => handleResizeMousedown(e, column)}

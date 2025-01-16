@@ -45,16 +45,14 @@
     "vitest": "^2.1.8",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "vue-tsc": "2.1.6",
+    "vue-tsc": "^2.2.0",
     "@helper/build": "^1.0.5",
-    "czg": "^1.11.0"
-  },
-  "simple-git-hooks": {
-    "commit-msg": "bun cli/verify-commit/index.ts"
-  },
-  "dependencies": {
+    "czg": "^1.11.0",
     "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.13",
     "@tanstack/vue-virtual": "^3.11.2"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "bun cli/verify-commit/index.ts"
   }
 }

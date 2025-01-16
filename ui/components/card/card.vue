@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { CardExposed, CardProps } from '@ui/types/components/card'
+import type { CardProps } from '@ui/types/components/card'
 import { computed, provide } from 'vue'
 import { CardDIKey } from './di'
 import { useFormFallbackProps } from '@ui/compositions'
@@ -32,6 +32,4 @@ const styles = computed(() => {
 })
 
 provide(CardDIKey, { cls, cardProps: props })
-
-defineExpose<CardExposed>({})
 </script>

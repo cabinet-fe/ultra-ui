@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Base v-if="true" />
-    <Full v-if="false" />
-    <MergeCell v-if="false" />
+    <Base />
+    <!-- <Full v-if="false" />
+    <MergeCell v-if="false" /> -->
   </div>
 </template>
 

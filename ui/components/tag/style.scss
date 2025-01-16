@@ -10,6 +10,7 @@ $root-name: tag;
   background-color: fn.use-var(color, default);
   overflow: hidden;
   min-width: 0;
+  border: 1px solid fn.use-var(text-color, main);
   @include m.flex(inline-flex, flex-start, center);
 
   @include m.e(content) {
@@ -40,11 +41,15 @@ $root-name: tag;
     }
   }
 
+  @include m.is(dark) {
+    border-color: fn.use-var(color, default);
+  }
+
   // 颜色样式
   @each $type in vars.$color-types {
     @include m.m(color-#{$type}) {
       color: fn.use-var(color, $type);
-      border: 1px solid fn.use-var(color, $type);
+      border-color: fn.use-var(color, $type);
       background-color: fn.use-var(color, $type, light-9);
 
       @include m.is(dark) {
