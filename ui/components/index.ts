@@ -32,6 +32,8 @@ export * from './dropdown'
 
 export * from './empty'
 
+export * from './expression-editor'
+
 export * from './file-picker'
 
 export * from './float-button'

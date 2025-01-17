@@ -50,7 +50,9 @@
     "czg": "^1.11.0",
     "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.13",
-    "@tanstack/vue-virtual": "^3.11.2"
+    "@tanstack/vue-virtual": "^3.11.2",
+    "lexical": "^0.23.1",
+    "@lexical/plain-text": "^0.23.1"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cli/verify-commit/index.ts"

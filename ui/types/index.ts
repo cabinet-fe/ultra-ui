@@ -34,6 +34,8 @@ export * from './components/dropdown'
 
 export * from './components/empty'
 
+export * from './components/expression-editor'
+
 export * from './components/file-picker'
 
 export * from './components/float-button'
@@ -131,4 +133,3 @@ export * from './components/tree'
 export * from './components/watermark'
 
 export * from './helper'
-

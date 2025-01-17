@@ -1,0 +1,41 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: expression-editor;
+
+@include m.b($root-name) {
+  @include m.e($root-name, container) {
+    height: 200px;
+    outline: none;
+  }
+
+  @include m.e($root-name, (variable-list, variable-item)) {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  @include m.e($root-name, variable-item) {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #f5f7fa;
+    }
+  }
+
+  @include m.e($root-name, variable-node) {
+    display: inline-block;
+    padding: 0 4px;
+    margin: 0 2px;
+    background-color: #f0f9ff;
+    border: 1px solid #a8d8ff;
+    border-radius: 3px;
+    color: #409eff;
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
