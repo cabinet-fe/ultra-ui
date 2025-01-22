@@ -21,13 +21,11 @@ import {
   $isRangeSelection,
   createEditor,
   COMMAND_PRIORITY_NORMAL,
-  createCommand,
-  KEY_DOWN_COMMAND
+  SELECTION_CHANGE_COMMAND
 } from 'lexical'
 import { registerPlainText } from '@lexical/plain-text'
 import { mergeRegister } from '@lexical/utils'
 import { onMounted, useTemplateRef, watch, provide } from 'vue'
-import { VariableNode } from './nodes/variable-node'
 import { ExpressionEditorDIKey } from './di'
 import VariablePicker from './components/variable-picker.vue'
 
@@ -45,8 +43,6 @@ const cls = bem('expression-editor')
 
 const variablePickerRef = useTemplateRef('variable-picker')
 
-const SHOW_VARIABLES = createCommand<KeyboardEvent>()
-
 const editor = createEditor({
   namespace: 'ExpressionEditor',
   nodes: [],
@@ -58,32 +54,24 @@ const editor = createEditor({
 // 注册纯文本处理器
 mergeRegister(
   registerPlainText(editor),
-  // 注册键盘事件处理
-  editor.registerCommand<KeyboardEvent>(
-    SHOW_VARIABLES,
-    event => {
-      if (event.key === '/') {
-        // 显示变量选择器
-        const selection = $getSelection()
-        if ($isRangeSelection(selection)) {
-          const node = selection.anchor.getNode()
-          if (node) {
-            const domElement = editor.getElementByKey(node.getKey())
-            if (domElement) {
-              variablePickerRef.value?.open(domElement)
-              return true
-            }
-          }
+
+  editor.registerCommand(
+    SELECTION_CHANGE_COMMAND,
+    () => {
+      const selection = $getSelection()
+      // 插入变量
+      if ($isRangeSelection(selection)) {
+        const node = selection.anchor.getNode()
+        const char = node.getTextContent()[selection.anchor.offset - 1]
+        if (char === '{') {
+          const domElement = editor.getElementByKey(node.getKey())
+          domElement && variablePickerRef.value?.open(domElement)
+        } else {
+          variablePickerRef.value?.close()
         }
+        return true
       }
       return false
-    },
-    COMMAND_PRIORITY_NORMAL
-  ),
-  editor.registerCommand<KeyboardEvent>(
-    KEY_DOWN_COMMAND,
-    event => {
-      return editor.dispatchCommand(SHOW_VARIABLES, event)
     },
     COMMAND_PRIORITY_NORMAL
   )

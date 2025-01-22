@@ -22,6 +22,7 @@ declare module 'vue' {
     UDialog: typeof import('ultra-ui')['UDialog']
     UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
     UInput: typeof import('ultra-ui')['UInput']
+    UMenu: typeof import('ultra-ui')['UMenu']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     URadio: typeof import('ultra-ui')['URadio']

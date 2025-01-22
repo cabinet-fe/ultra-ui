@@ -4,7 +4,6 @@ import {
   type NodeKey,
   $getSelection,
   $isRangeSelection,
-  type LexicalNode,
   type LexicalEditor
 } from 'lexical'
 
@@ -24,11 +23,10 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
     this.__variable = variable
   }
 
-  override createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(): HTMLElement {
     const dom = document.createElement('span')
     dom.classList.add('u-expression-editor__variable-node')
-
-    dom.textContent = `变量:${this.__variable}`
+    dom.innerText = `变量:${this.__variable}`
     return dom
   }
 
@@ -46,26 +44,13 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
   }
 
   // DecoratorNode 需要实现这个方法
-  override decorate(editor: LexicalEditor, config: EditorConfig): HTMLElement {
-    return this.createDOM(config)
+  override decorate(_: LexicalEditor, config: EditorConfig): HTMLElement {
+    return this.createDOM()
   }
 
   // 获取变量值
   getVariable(): string {
     return this.__variable
-  }
-
-  // 实现必要的序列化方法
-  override exportJSON(): SerializedVariableNode {
-    return {
-      type: 'variable',
-      version: 1,
-      variable: this.__variable
-    }
-  }
-
-  importJSON(serializedNode: SerializedVariableNode): void {
-    this.__variable = serializedNode.variable
   }
 
   // 变量节点不应该被合并
@@ -76,11 +61,4 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
   canInsertTextAfter(): boolean {
     return false
   }
-}
-
-// 序列化接口
-interface SerializedVariableNode {
-  type: 'variable'
-  version: 1
-  variable: string
 }
