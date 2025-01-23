@@ -82,14 +82,8 @@ $root-name: dialog;
   }
 
   @include m.e(buttons) {
-    font-size: 0;
-    & > {
-      @include m.bem(icon) {
-        &:not(:first-child) {
-          margin-left: fn.use-var(gap, default);
-        }
-      }
-    }
+    gap: fn.use-var(gap, default);
+    @include m.flex;
   }
   @include m.e(btn-close, btn-minimize, btn-maximize, btn-recover) {
     border-radius: 50%;
