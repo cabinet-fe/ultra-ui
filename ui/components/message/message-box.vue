@@ -22,12 +22,12 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'remove', id: string): void
+  (e: 'closed', id: string): void
   (e: 'close', index: number): void
 }>()
 
 function handleAfterLeave(el: Element) {
-  emit('remove', (el as HTMLElement).dataset.id as string)
+  emit('closed', (el as HTMLElement).dataset.id as string)
 }
 
 function handleClose(i: number, onClose?: () => void) {

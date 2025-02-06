@@ -131,15 +131,20 @@ const {
 })
 
 // 选中
-const { createCheckColumn, createSelectColumn, clearChecked, clearSelected } =
-  useCheck({
-    size,
-    props,
-    rows,
-    rowForest,
-    emit,
-    cls
-  })
+const {
+  createCheckColumn,
+  createSelectColumn,
+  clearChecked,
+  clearSelected,
+  checkedRows
+} = useCheck({
+  size,
+  props,
+  rows,
+  rowForest,
+  emit,
+  cls
+})
 
 // 列
 const columnConfig = useColumns({
@@ -214,6 +219,7 @@ provide(TableDIKey, {
   tableSlots: slots,
   cls,
   rows,
+  checkedRows,
   columnConfig,
   handleRowClick,
   getColumnSlotsNode,

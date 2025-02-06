@@ -21,6 +21,8 @@ export const TableDIKey: InjectionKey<
     cls: BEM<'table'>
     /** 行 */
     rows: ShallowRef<TableRow[]>
+    /** 选中行 */
+    checkedRows: ShallowRef<Set<TableRow>>
     /** 结构化列 */
     columnConfig: ColumnConfig
     /** 事件处理方法 */

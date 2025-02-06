@@ -36,6 +36,7 @@ export function useCheck(options: Options) {
   const checkedRows = shallowRef(new Set<TableRow>())
   const selectedRow = shallowRef<TableRow>()
 
+  /** 触发checkedRows的更新 */
   function triggerCheckedRows() {
     triggerRef(checkedRows)
   }
@@ -135,9 +136,7 @@ export function useCheck(options: Options) {
         changedByModel = false
       })
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   watch(
@@ -164,9 +163,7 @@ export function useCheck(options: Options) {
         changedByModel = false
       })
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   const allChecked = computed(() => {
@@ -180,14 +177,13 @@ export function useCheck(options: Options) {
         row.checked = true
         checkedRows.value.add(row)
       })
-      triggerCheckedRows()
     } else {
       rowForest.value?.dft(row => {
         row.checked = false
       })
       checkedRows.value.clear()
-      triggerCheckedRows()
     }
+    triggerCheckedRows()
   }
 
   function handleCheckAllRows(check: boolean) {
@@ -196,14 +192,13 @@ export function useCheck(options: Options) {
         row.checked = true
         checkedRows.value.add(row)
       })
-      triggerCheckedRows()
     } else {
       rows.value?.forEach(row => {
         row.checked = false
       })
       checkedRows.value.clear()
-      triggerCheckedRows()
     }
+    triggerCheckedRows()
   }
 
   function handleCheckAll(check: boolean) {
@@ -215,20 +210,16 @@ export function useCheck(options: Options) {
   }
 
   function handleCheckRow(row: TableRow, check: boolean) {
-    // 减少判断的写法
-    if (check) {
-      row.dft(child => {
-        child.checked = check
-        checkedRows.value.add(child)
-      })
-      triggerCheckedRows()
-    } else {
-      row.dft(child => {
-        child.checked = check
-        checkedRows.value.delete(child)
-      })
-      triggerCheckedRows()
-    }
+    const cb = check
+      ? (row: TableRow) => checkedRows.value.add(row)
+      : (row: TableRow) => checkedRows.value.delete(row)
+
+    row.dft(node => {
+      node.checked = check
+      cb(node)
+    })
+
+    triggerCheckedRows()
   }
 
   const getCheckboxColumnWidth = () => {
@@ -328,6 +319,7 @@ export function useCheck(options: Options) {
   }
 
   return {
+    checkedRows,
     createCheckColumn,
     createSelectColumn,
     clearChecked,

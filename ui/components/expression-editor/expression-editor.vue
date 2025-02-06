@@ -21,13 +21,16 @@ import {
   $isRangeSelection,
   createEditor,
   COMMAND_PRIORITY_NORMAL,
-  SELECTION_CHANGE_COMMAND
+  SELECTION_CHANGE_COMMAND,
+  KEY_ARROW_DOWN_COMMAND,
+  KEY_ARROW_UP_COMMAND
 } from 'lexical'
 import { registerPlainText } from '@lexical/plain-text'
 import { mergeRegister } from '@lexical/utils'
 import { onMounted, useTemplateRef, watch, provide } from 'vue'
 import { ExpressionEditorDIKey } from './di'
 import VariablePicker from './components/variable-picker.vue'
+import { VariableNode } from './nodes/variable-node'
 
 defineOptions({
   name: 'ExpressionEditor'
@@ -45,7 +48,7 @@ const variablePickerRef = useTemplateRef('variable-picker')
 
 const editor = createEditor({
   namespace: 'ExpressionEditor',
-  nodes: [],
+  nodes: [VariableNode],
   onError: error => {
     console.error(error)
   }
@@ -72,6 +75,22 @@ mergeRegister(
         return true
       }
       return false
+    },
+    COMMAND_PRIORITY_NORMAL
+  ),
+  editor.registerCommand(
+    KEY_ARROW_DOWN_COMMAND,
+    (e: KeyboardEvent) => {
+      e.preventDefault()
+      return true
+    },
+    COMMAND_PRIORITY_NORMAL
+  ),
+  editor.registerCommand(
+    KEY_ARROW_UP_COMMAND,
+    (e: KeyboardEvent) => {
+      e.preventDefault()
+      return true
     },
     COMMAND_PRIORITY_NORMAL
   )

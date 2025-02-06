@@ -40,7 +40,7 @@ defineOptions({
   name: 'TableFoot'
 })
 
-const { cls, columnConfig, rows, tableSlots, getCellClass } =
+const { cls, columnConfig, rows, checkedRows, tableSlots, getCellClass } =
   inject(TableDIKey)!
 
 const { leafColumns } = columnConfig
@@ -82,6 +82,7 @@ function getColumnSummaryNode(column: ColumnNode): RenderReturn {
     return summary({
       total,
       rows: rows.value,
+      checkedRows: checkedRows.value,
       column
     })
   }

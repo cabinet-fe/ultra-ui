@@ -13,6 +13,8 @@ export interface TableSummaryContext {
   total: number
   /** 所有行数据 */
   rows: TableRow[]
+  /** 多选选中的行，这是一个集合 */
+  checkedRows: Set<TableRow>
   /** 当前列 */
   column: TableColumnNode
 }
