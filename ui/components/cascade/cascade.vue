@@ -72,7 +72,7 @@
 
 <script lang="ts" setup generic="Option extends Record<string, any>">
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { CascadeProps, CascadeEmits } from '@ui/types/components/cascade'
+import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed, provide, shallowRef, watch } from 'vue'
 import { ArrowDown, Search } from 'icon-ultra'
@@ -88,7 +88,6 @@ import { useSelect } from './use-select'
 import { useCheck } from './use-check'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import type { DropdownExposed } from '@ui/types'
 
 defineOptions({
   name: 'Cascade'

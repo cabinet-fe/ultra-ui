@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ListProps } from '@ui/types/components/list'
+import type { ListProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UScroll } from '../scroll'
 import { useFallbackProps } from '@ui/compositions'

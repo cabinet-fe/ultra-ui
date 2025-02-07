@@ -25,11 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  DropdownProps,
-  DropdownExposed,
-  DropdownEmits
-} from '@ui/types/components/dropdown'
+import type { DropdownProps, DropdownExposed, DropdownEmits } from '@ui/types'
 import { bem, setStyles, zIndex } from '@ui/utils'
 import { shallowRef, computed } from 'vue'
 import { vClickOutside } from '@ui/directives'

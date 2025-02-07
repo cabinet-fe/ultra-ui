@@ -1,7 +1,4 @@
-import type {
-  FormModelItem,
-  DataSettingConfig
-} from '@ui/types/components/form'
+import type { FormModelItem, DataSettingConfig } from '@ui/types'
 import { Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'

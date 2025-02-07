@@ -43,14 +43,14 @@ import { bem } from '@ui/utils'
 import type {
   ButtonEmits,
   ButtonProps,
-  _ButtonExposed
-} from '@ui/types/components/button'
+  _ButtonExposed,
+  ComponentSize
+} from '@ui/types'
 import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
 import { Loading } from 'icon-ultra'
 import { vRipple } from '@ui/directives'
 import { useFallbackProps } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Button'

@@ -3,11 +3,11 @@ import type {
   TableProps,
   TableColumnSlotsScope,
   TableColumnRenderContext,
-  TableRow
-} from '@ui/types/components/table'
+  TableRow,
+  RenderReturn
+} from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { ColumnConfig } from './use-columns'
-import type { RenderReturn } from '@ui/types/helper'
 import type { VirtualReturned } from '@ui/compositions'
 import type { ColumnNode } from './node/col'
 

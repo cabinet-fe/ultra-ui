@@ -1,4 +1,4 @@
-import type { TableColumn, TableProps } from '@ui/types/components/table'
+import type { TableColumn, TableProps } from '@ui/types'
 import { Forest, Tree, last } from 'cat-kit/fe'
 import {
   computed,

@@ -62,8 +62,10 @@ import type {
   TableProps,
   TableEmits,
   _TableExposed,
-  TableColumnSlotsScope
-} from '@ui/types/components/table'
+  TableColumnSlotsScope,
+  ComponentSize,
+  ScrollExposed
+} from '@ui/types'
 import { bem, setStyles, withUnit } from '@ui/utils'
 import {
   computed,
@@ -82,13 +84,11 @@ import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
 import { UScroll } from '../scroll'
 import { useFallbackProps, useVirtual } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
 import type { TableRowNode } from './node/row'
 import { useColumnFixed } from './use-column-fixed'
 import { useColResize } from './use-col-resize'
-import type { ScrollExposed } from '@ui/types'
 import type { ColumnNode } from './node/col'
 
 defineOptions({

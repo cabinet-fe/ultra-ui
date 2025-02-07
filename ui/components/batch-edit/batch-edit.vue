@@ -18,17 +18,15 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel">
-import {
-  type BatchEditEmits,
-  type BatchEditFeature,
-  type BatchEditProps
-} from '@ui/types/components/batch-edit'
+import type {
+  BatchEditEmits,
+  BatchEditFeature,
+  BatchEditProps,
+  TableColumnSlotsScope,
+  TableExposed,
+  TableRow
+} from '@ui/types'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
-import {
-  type TableColumnSlotsScope,
-  type TableExposed,
-  type TableRow
-} from '../table'
 import { type FormModel } from '../form'
 import { ULayout } from '../layout'
 import { bem } from '@ui/utils'

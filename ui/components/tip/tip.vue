@@ -45,11 +45,10 @@ import {
 } from 'vue'
 import { bem, extractNormalVNodes, shallowComputed, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
-import type { TipProps } from '@ui/types/components/tip'
+import type { TipProps, ComponentSize } from '@ui/types'
 import { useFallbackProps, usePop } from '@ui/compositions'
 import { TipNestDIKey } from './di'
 import { UNodeRender } from '../node-render'
-import type { ComponentSize } from '@ui/types'
 
 defineOptions({ name: 'Tip' })
 

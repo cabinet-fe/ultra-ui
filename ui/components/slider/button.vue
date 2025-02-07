@@ -14,10 +14,7 @@ import {
 } from 'vue'
 import { sliderContextKey } from './di'
 import { useDrag } from '@ui/compositions'
-import type {
-  SliderButtonEmits,
-  SliderButtonTransform
-} from '@ui/types/components/slider'
+import type { SliderButtonEmits, SliderButtonTransform } from '@ui/types'
 import { useStops } from './use-stops'
 
 let injected = inject(sliderContextKey)!

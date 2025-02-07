@@ -1,4 +1,4 @@
-import type { BatchEditColumn } from '@ui/types/components/batch-edit'
+import type { BatchEditColumn } from '@ui/types'
 
 /**
  * 定义批量编辑组件的列

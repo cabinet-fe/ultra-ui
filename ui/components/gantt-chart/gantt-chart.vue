@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { GanttChartProps } from '@ui/types/components/gantt-chart'
+import type { GanttChartProps } from '@ui/types'
 import { bem } from '@ui/utils'
 
 defineOptions({

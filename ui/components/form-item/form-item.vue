@@ -31,10 +31,9 @@
 
 <script lang="tsx" setup>
 import { bem, withUnit } from '@ui/utils'
-import type { FormItemProps } from '@ui/types/components/form-item'
+import type { FormItemProps, ComponentSize } from '@ui/types'
 import { type CSSProperties, computed } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 

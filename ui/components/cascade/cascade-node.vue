@@ -49,9 +49,8 @@ import { ArrowRight } from 'icon-ultra'
 import { UScroll } from '../scroll'
 import { UIcon } from '../icon'
 import { UCheckbox } from '../checkbox'
-import type { CascadeNodeProps } from '@ui/types/components/cascade'
+import type { CascadeNodeProps, ScrollExposed } from '@ui/types'
 import type { CascadeNode } from './cascade-node'
-import type { ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'CascadeNode'

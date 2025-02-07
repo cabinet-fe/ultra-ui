@@ -1,4 +1,4 @@
-import type { SliderEmits, SliderProps } from '@ui/types/components/slider'
+import type { SliderEmits, SliderProps } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { ComputedRef, InjectionKey, ModelRef, ShallowRef } from 'vue'
 

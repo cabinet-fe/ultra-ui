@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { SliderProps, SliderEmits } from '@ui/types/components/slider'
+import type { SliderProps, SliderEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed, nextTick, provide, ref, shallowRef, watch } from 'vue'
 import { sliderContextKey } from './di'

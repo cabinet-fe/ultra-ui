@@ -31,12 +31,13 @@
 <script lang="ts" setup>
 import type {
   FloatButtonProps,
-  FloatButtonEmits
-} from '@ui/types/components/float-button'
+  FloatButtonEmits,
+  ButtonExposed
+} from '@ui/types'
 import { bem, removeStyles, setStyles } from '@ui/utils'
 import { UIcon } from '../icon'
 import { shallowRef } from 'vue'
-import { UButton, type ButtonExposed } from '../button'
+import { UButton } from '../button'
 
 defineOptions({
   name: 'FloatButton'

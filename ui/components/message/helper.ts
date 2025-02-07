@@ -1,5 +1,4 @@
-import type { ColorType } from '@ui/types/component-common'
-import type { MessageType } from '@ui/types/components/message'
+import type { ColorType, MessageType } from '@ui/types'
 import {
   CircleCheckFilled,
   InfoFilled,
@@ -16,7 +15,10 @@ const typeIcons = {
   warn: WarningFilled,
   error: CircleCloseFilled
 }
-export function getTypeIcon(type: MessageType, icon?: DefineComponent): DefineComponent {
+export function getTypeIcon(
+  type: MessageType,
+  icon?: DefineComponent
+): DefineComponent {
   return (icon ?? typeIcons[type]) as any
 }
 

@@ -1,5 +1,5 @@
 import { computed, type ShallowRef } from 'vue'
-import type { SliderProps } from '..'
+import type { SliderProps } from '@ui/types'
 
 interface Options {
   sliderProps: SliderProps

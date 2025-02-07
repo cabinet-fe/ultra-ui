@@ -55,11 +55,7 @@
 </template>
 
 <script lang="tsx" setup>
-import type {
-  InputEmits,
-  InputProps,
-  _InputExposed
-} from '@ui/types/components/input'
+import type { InputEmits, InputProps, _InputExposed } from '@ui/types'
 import {
   useFocus,
   useFormComponent,

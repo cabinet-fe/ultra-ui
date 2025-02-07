@@ -6,11 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, removeStyles, setStyles, withUnit } from '@ui/utils'
-import type {
-  GridProps,
-  GridEmits,
-  _GridExposed
-} from '@ui/types/components/grid'
+import type { GridProps, GridEmits, _GridExposed } from '@ui/types'
 import { GridDIKey } from './di'
 import {
   type CSSProperties,

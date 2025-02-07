@@ -1,9 +1,5 @@
 import { useModel } from '@ui/compositions'
-import type {
-  TableEmits,
-  TableProps,
-  TableRow
-} from '@ui/types/components/table'
+import type { TableEmits, TableProps, TableRow } from '@ui/types'
 import { Forest, getChainValue } from 'cat-kit/fe'
 import { shallowRef, watch } from 'vue'
 import { TableRowNode } from './node/row'

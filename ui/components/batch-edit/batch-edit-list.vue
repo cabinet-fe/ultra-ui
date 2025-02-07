@@ -107,8 +107,7 @@ import { UTable } from '../table'
 // import { UCheckbox } from '../checkbox'
 import { UButton } from '../button'
 // import { UTip } from '../tip'
-import type { ButtonProps } from '../button'
-import type { BatchEditFeature, TableRow } from '@ui/types'
+import type { BatchEditFeature, ButtonProps, TableRow } from '@ui/types'
 
 defineOptions({
   name: 'BatchEditList'

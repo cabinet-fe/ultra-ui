@@ -1,6 +1,6 @@
 import type { BEM } from '@ui/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
-import type { MenuProps, MenuEmits } from '@ui/types/components/menu'
+import type { MenuProps, MenuEmits } from '@ui/types'
 import type { ComponentSize } from '@ui/types'
 export interface MenuContext {
   cls: BEM<'menu', 'u-'>

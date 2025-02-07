@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TagEmits, TagProps } from '@ui/types/components/tag'
+import type { TagEmits, TagProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UIcon } from '../icon'

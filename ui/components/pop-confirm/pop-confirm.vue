@@ -32,12 +32,9 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  PopConfirmProps,
-  PopConfirmEmits
-} from '@ui/types/components/pop-confirm'
+import type { PopConfirmProps, PopConfirmEmits, TipExposed } from '@ui/types'
 import { bem } from '@ui/utils'
-import { UTip, type TipExposed } from '../tip'
+import { UTip } from '../tip'
 import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { shallowRef } from 'vue'

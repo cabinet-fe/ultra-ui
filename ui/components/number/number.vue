@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { computed, reactive, watch } from 'vue'
-import type { NumberProps } from '@ui/types/components/number'
+import type { NumberProps } from '@ui/types'
 import { Tween, n } from 'cat-kit/fe'
 
 defineOptions({

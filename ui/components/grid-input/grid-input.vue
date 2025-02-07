@@ -14,7 +14,10 @@
         {{ valueArray[index] }}
       </span>
 
-      <span :class="cls.em('item', 'cursor')" v-else-if="index === position"></span>
+      <span
+        :class="cls.em('item', 'cursor')"
+        v-else-if="index === position"
+      ></span>
     </li>
   </ul>
 </template>
@@ -25,7 +28,7 @@ import type {
   GridInputProps,
   GridInputEmits,
   GridInputExposed
-} from '@ui/types/components/grid-input'
+} from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 
@@ -85,7 +88,7 @@ const changeValue = (value: string, index: number) => {
   position.value++
   focus()
 
-  emit('input', valueArray.value.filter((v) => v).join(props.separator))
+  emit('input', valueArray.value.filter(v => v).join(props.separator))
 }
 
 const baseOperation = {
@@ -98,7 +101,7 @@ const baseOperation = {
     if (index !== 0) {
       focus(index - 1)
     }
-    emit('input', valueArray.value.filter((v) => v).join(props.separator))
+    emit('input', valueArray.value.filter(v => v).join(props.separator))
   },
   ArrowLeft: (value: string, index: number) => {
     if (index === 0) return

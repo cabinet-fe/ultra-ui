@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { ButtonProps } from '@ui/types/components/button'
+import type { ButtonProps } from '@ui/types'
 
 defineOptions({
   name: 'ButtonGroup'

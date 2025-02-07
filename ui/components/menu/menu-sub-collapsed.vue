@@ -61,8 +61,8 @@
 <script setup lang="ts">
 import { inject, shallowRef } from 'vue'
 import { MenuDIKey } from './di'
-import { UTip, type TipExposed } from '../tip'
-import type { MenuItem } from '@ui/types/components/menu'
+import { UTip } from '../tip'
+import type { MenuItem, TipExposed } from '@ui/types'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'

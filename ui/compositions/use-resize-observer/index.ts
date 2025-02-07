@@ -88,6 +88,7 @@ export function useResizeObserver(
   return {
     disconnect() {
       unobserve(targets, observer)
+      observer = undefined
     }
   }
 }

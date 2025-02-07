@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TabItem, TabsProps, TabsEmits } from '@ui/types/components/tabs'
+import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import {
   computed,
@@ -63,7 +63,6 @@ import {
 import { Close, Plus } from 'icon-ultra'
 import { useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
-import type { ComponentSize } from '@ui/types/component-common'
 import { UScroll } from '../scroll'
 import { vRipple } from '@ui/directives'
 

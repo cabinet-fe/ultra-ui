@@ -3,11 +3,11 @@ import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
   TableProps,
-  TableRow
-} from '@ui/types/components/table'
+  TableRow,
+  RenderReturn
+} from '@ui/types'
 import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
-import type { RenderReturn } from '@ui/types/helper'
 import type { ColumnNode } from './node/col'
 
 interface Options<DataItem extends Record<string, any> = Record<string, any>> {

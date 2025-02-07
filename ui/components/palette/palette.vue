@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PaletteProps } from '@ui/types/components/palette'
+import type { PaletteProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
 import { computed, provide, watch } from 'vue'

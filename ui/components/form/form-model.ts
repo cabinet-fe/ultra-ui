@@ -4,7 +4,7 @@ import type {
   ModelRules,
   DataSettingConfig,
   IFormModel
-} from '@ui/types/components/form'
+} from '@ui/types'
 import { middleProxy, Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 import { reactive, shallowReactive, watch, type Reactive } from 'vue'

@@ -40,7 +40,7 @@ import type {
   _ScrollExposed,
   ScrollProps,
   ScrollEmits
-} from '@ui/types/components/scroll'
+} from '@ui/types'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ui/compositions'

@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ui/utils'
-import type { IconProps } from '@ui/types/components/icon'
+import type { IconProps } from '@ui/types'
 import { type CSSProperties, computed } from 'vue'
 import { withUnit } from '@ui/utils'
 

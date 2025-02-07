@@ -33,12 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { MenuEmits, MenuProps } from '@ui/types/components/menu'
+import type { MenuEmits, MenuProps, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed, provide, shallowReactive, watch } from 'vue'
 import { MenuDIKey } from './di'
 import { useFallbackProps } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 import UMenuSub from './menu-sub.vue'
 import UMenuItem from './menu-item.vue'
 import UMenuSubCollapsed from './menu-sub-collapsed.vue'

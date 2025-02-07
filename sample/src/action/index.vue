@@ -7,15 +7,17 @@
         <u-action need-confirm type="danger">删除</u-action>
       </u-action-group>
     </div>
-    <u-table :columns="columns" :data="data" show-index checkable>
-      <template #column:action>
-        <u-action-group :max="4">
-          <u-action v-for="button of buttons">{{ button }}</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
-          <u-action need-confirm type="danger">删除</u-action>
-        </u-action-group>
-      </template>
-    </u-table>
+    <div>
+      <u-table :columns="columns" :data="data" show-index checkable>
+        <template #column:action>
+          <u-action-group :max="4">
+            <u-action v-for="button of buttons">{{ button }}</u-action>
+            <u-action need-confirm type="danger">删除</u-action>
+            <u-action need-confirm type="danger">删除</u-action>
+          </u-action-group>
+        </template>
+      </u-table>
+    </div>
   </div>
 </template>
 

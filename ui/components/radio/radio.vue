@@ -24,7 +24,7 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { RadioProps, RadioEmits } from '@ui/types/components/radio'
+import type { RadioProps, RadioEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 

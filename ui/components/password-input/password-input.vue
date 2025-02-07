@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PasswordInputProps } from '@ui/types/components/password-input'
+import type { PasswordInputProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UInput } from '../input'
 import { UIcon } from '../icon'

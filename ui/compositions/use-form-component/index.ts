@@ -1,5 +1,5 @@
 import { type InjectionKey, inject, provide } from 'vue'
-import type { FormProps } from '@ui/types/components/form'
+import type { FormProps } from '@ui/types'
 
 type DIContext = {
   /** 表单属性 */

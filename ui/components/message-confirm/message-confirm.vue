@@ -1,7 +1,7 @@
 <template>
   <transition name="message-confirm-fade" @after-leave="$emit('destroy')">
     <div :class="[cls.b, cls.m(size)]" v-show="visible">
-      <div :class="cls.e('mask')" :style="{ zIndex: `${zIndex()}`}">
+      <div :class="cls.e('mask')" :style="{ zIndex: `${zIndex()}` }">
         <div :class="cls.e('box')">
           <div :class="cls.e('header')" v-if="title">{{ title }}</div>
           <div :class="cls.e('content')">{{ message }}</div>
@@ -27,12 +27,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageConfirmProps } from '@ui/types/components/message-confirm'
+import type { MessageConfirmProps, ColorType, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UButton } from '../button'
 import { useFallbackProps } from '@ui/compositions'
 import { ref, onMounted } from 'vue'
-import type { ColorType, ComponentSize } from '@ui/types/component-common'
 import { zIndex } from '@ui/utils'
 
 defineOptions({

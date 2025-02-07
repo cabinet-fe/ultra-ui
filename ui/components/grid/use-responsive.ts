@@ -6,12 +6,7 @@ import {
   shallowReactive,
   onBeforeUnmount
 } from 'vue'
-import type {
-  Breakpoint,
-  GridEmits,
-  GridItemProps,
-  GridProps
-} from '@ui/types/components/grid'
+import type { Breakpoint, GridEmits, GridItemProps, GridProps } from '@ui/types'
 import { debounce, equal } from 'cat-kit/fe'
 import { getContainerBreakpoint } from './breakpoint'
 import type { Undef } from '@ui/types/helper'

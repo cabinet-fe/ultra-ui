@@ -1,4 +1,4 @@
-import type { FormProps } from '@ui/types/components/form'
+import type { FormProps } from '@ui/types'
 import { onBeforeUnmount, useSlots, type VNode } from 'vue'
 import { pick } from 'cat-kit/fe'
 import { createIncrease, extractNormalVNodes } from '@ui/utils'

@@ -65,7 +65,7 @@ export function renderVueFile(ctx: ComponentCtx) {
   </template>
 
   <script lang="ts" setup>
-  import type { ${componentProps} } from '@ui/types/components/${ctx.componentName}'
+  import type { ${componentProps} } from '@ui/types'
   import { bem } from '@ui/utils'
 
   defineOptions({
@@ -116,7 +116,10 @@ export function renderTypeFile(ctx: ComponentCtx) {
   `
 
   write(ctx, content, '.ts').then(async filePath => {
-    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.ts'))
+    await cp(
+      filePath,
+      join(UI_PATH, 'types/components', ctx.componentName + '.ts')
+    )
     rm(filePath)
   })
 }
@@ -126,8 +129,6 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
-
-  export type { ${upperCamelCase}Props, ${upperCamelCase}Emits, ${upperCamelCase}Exposed } from '@ui/types/components/${ctx.componentName}'
   `
 
   write(ctx, content, 'index.ts')

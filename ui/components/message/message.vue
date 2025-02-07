@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageProps } from '@ui/types/components/message'
+import type { MessageProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { onMounted } from 'vue'
 import { useFallbackProps } from '@ui/compositions'

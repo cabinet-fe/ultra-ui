@@ -18,10 +18,7 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type {
-  TextEditorProps,
-  TextEditorEmits
-} from '@ui/types/components/text-editor'
+import type { TextEditorProps, TextEditorEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import Quill from 'quill'
 import {

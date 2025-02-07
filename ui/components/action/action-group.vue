@@ -3,7 +3,7 @@
 </template>
 
 <script lang="tsx" setup>
-import type { ActionGroupProps } from '@ui/types/components/action'
+import type { ActionGroupProps } from '@ui/types'
 import { ArrowDown } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { UButton } from '../button'

@@ -22,10 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  RadioGroupProps,
-  RadioGroupEmits
-} from '@ui/types/components/radio-group'
+import type { RadioGroupProps, RadioGroupEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import URadio from '../radio/radio.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'

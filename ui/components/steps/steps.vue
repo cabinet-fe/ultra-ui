@@ -53,16 +53,11 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type {
-  StepsProps,
-  StepsEmits,
-  StepItem
-} from '@ui/types/components/steps'
+import type { StepsProps, StepsEmits, StepItem, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from 'icon-ultra'
 import { UIcon } from '../icon'
-import type { ComponentSize } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Steps'

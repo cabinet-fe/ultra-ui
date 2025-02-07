@@ -22,15 +22,15 @@
 import type {
   ContextMenuEmits,
   ContextMenuItem,
-  ContextMenuProps
-} from '@ui/types/components/context-menu'
+  ContextMenuProps,
+  ComponentSize
+} from '@ui/types'
 import { bem, withUnit, zIndex } from '@ui/utils'
 import { computed, provide, shallowRef, type CSSProperties } from 'vue'
 import { ContextMenuDIKey } from './di'
 import UContextMenuItem from './context-menu-item.vue'
 import { objMap } from 'cat-kit/fe'
 import { useFallbackProps } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 import { vClickOutside } from '@ui/directives'
 
 defineOptions({
@@ -106,10 +106,9 @@ function close() {
   visible.value = false
 }
 
-
 let loading = false
 function handleClickStart() {
-  loading= true
+  loading = true
 }
 
 function handleClickEnd() {
@@ -117,12 +116,10 @@ function handleClickEnd() {
   close()
 }
 
-
 function handleClickOutside() {
   if (loading) return
   close()
 }
-
 
 provide(ContextMenuDIKey, {
   cls

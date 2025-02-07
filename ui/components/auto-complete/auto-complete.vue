@@ -72,7 +72,7 @@ import type {
   AutoCompleteEmits,
   AutoCompleteProps,
   _AutoCompleteExposed
-} from '@ui/types/components/auto-complete'
+} from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown } from '../dropdown'

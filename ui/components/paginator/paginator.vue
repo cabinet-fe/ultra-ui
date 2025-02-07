@@ -82,8 +82,9 @@
 import type {
   PaginatorProps,
   PaginatorEmits,
-  _PaginatorExposed
-} from '@ui/types/components/paginator'
+  _PaginatorExposed,
+  ComponentSize
+} from '@ui/types'
 import { bem } from '@ui/utils'
 import { useConfig, useFallbackProps } from '@ui/compositions'
 import { computed, reactive, shallowRef, watch } from 'vue'
@@ -92,7 +93,6 @@ import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
 import { vRipple } from '@ui/directives'
-import type { ComponentSize } from '@ui/types/component-common'
 import { n } from 'cat-kit/fe'
 
 defineOptions({

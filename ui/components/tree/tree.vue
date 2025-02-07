@@ -37,11 +37,7 @@
 
 <script lang="ts" setup>
 import { bem, nextFrame, withUnit } from '@ui/utils'
-import type {
-  TreeProps,
-  TreeEmit,
-  _TreeExposed
-} from '@ui/types/components/tree'
+import type { TreeProps, TreeEmit, _TreeExposed } from '@ui/types'
 import {
   computed,
   provide,

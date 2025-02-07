@@ -1,4 +1,4 @@
-import type { ExpressionEditorProps } from '@ui/types/components/expression-editor'
+import type { ExpressionEditorProps } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { LexicalEditor } from 'lexical'
 import type { InjectionKey } from 'vue'

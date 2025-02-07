@@ -31,7 +31,7 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
-import { useConfig, vRipple, contextmenu, Message } from 'ultra-ui'
+import { useConfig, vRipple, contextmenu, message } from 'ultra-ui'
 import { defineComponent, shallowRef, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common.js'
 import { sleep } from 'cat-kit/fe'
@@ -87,10 +87,7 @@ const ListItem = defineComponent({
                   async callback() {
                     await sleep(2000)
 
-                    Message({
-                      message: `当前页面: ${route.name}`,
-                      type: 'success'
-                    })
+                    message.success(`当前页面: ${route.name}`)
                   }
                 }
               ]

@@ -14,10 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  CheckboxGroupProps,
-  CheckboxGroupEmits
-} from '@ui/types/components/checkbox-group'
+import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'

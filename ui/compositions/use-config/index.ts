@@ -1,5 +1,5 @@
 import { reactive, readonly, watch } from 'vue'
-import type { ComponentSize } from '@ui/types/component-common'
+import type { ComponentSize } from '@ui/types'
 import { isObj } from 'cat-kit/fe'
 
 interface State {

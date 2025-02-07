@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { GridItemProps } from '@ui/types/components/grid'
+import type { GridItemProps } from '@ui/types'
 import { computed, inject, type CSSProperties, watch } from 'vue'
 import { GridDIKey } from './di'
 import { bem } from '@ui/utils'

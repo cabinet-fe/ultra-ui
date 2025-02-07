@@ -102,12 +102,13 @@
 <script lang="ts" setup>
 import type {
   MultiTreeSelectProps,
-  MultiTreeSelectEmits
-} from '@ui/types/components/multi-tree-select'
+  MultiTreeSelectEmits,
+  TreeExposed
+} from '@ui/types'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
-import { UTree, type TreeExposed } from '../tree'
+import { UTree } from '../tree'
 import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UInput } from '../input'

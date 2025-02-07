@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuItem } from '@ui/types/components/menu'
+import type { MenuItem } from '@ui/types'
 import { bem } from '@ui/utils'
 import MenuIcon from './menu-icon.vue'
 import { useMenuItem } from './use-menu-item'

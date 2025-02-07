@@ -1,5 +1,5 @@
 import { type Dater, date } from 'cat-kit/fe'
-import type { Day } from '@ui/types/components/calendar'
+import type { Day } from '@ui/types'
 
 export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 

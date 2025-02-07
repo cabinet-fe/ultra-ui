@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ActionEmits, ActionProps } from '@ui/types/components/action'
+import type { ActionEmits, ActionProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UButton } from '../button'
 import { inject } from 'vue'

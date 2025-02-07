@@ -7,8 +7,12 @@ import {
   watch,
   type ShallowRef
 } from 'vue'
-import type { TableRow } from '../table'
-import type { BatchEditEmits, BatchEditProps, TableExposed } from '@ui/types'
+import type {
+  TableRow,
+  BatchEditEmits,
+  BatchEditProps,
+  TableExposed
+} from '@ui/types'
 import { Forest, getChainValue, last, safeRun, setChainValue } from 'cat-kit/fe'
 
 interface Options {

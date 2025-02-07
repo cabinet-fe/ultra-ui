@@ -1,5 +1,5 @@
 import { nextTick, shallowRef, watch, type ComputedRef } from 'vue'
-import type { TreeEmit, TreeProps } from '@ui/types/components/tree'
+import type { TreeEmit, TreeProps } from '@ui/types'
 import type { TreeNode } from './tree-node'
 
 interface Options {

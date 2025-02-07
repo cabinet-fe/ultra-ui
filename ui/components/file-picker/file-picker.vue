@@ -16,10 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  UploaderProps,
-  UploaderEmits
-} from '@ui/types/components/file-picker'
+import type { UploaderProps, UploaderEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { shallowRef } from 'vue'
 

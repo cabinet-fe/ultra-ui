@@ -55,14 +55,11 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  TreeSelectProps,
-  TreeSelectEmits
-} from '@ui/types/components/tree-select'
+import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '@ui/types'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
-import { UTree, type TreeExposed } from '../tree'
+import { UTree } from '../tree'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from 'icon-ultra'

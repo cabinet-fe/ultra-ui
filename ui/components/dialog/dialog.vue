@@ -82,8 +82,9 @@ import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
 import type {
   DialogProps,
   DialogEmits,
-  DialogExposed
-} from '@ui/types/components/dialog'
+  DialogExposed,
+  ComponentSize
+} from '@ui/types'
 import {
   bem,
   extractNormalVNodes,
@@ -96,7 +97,6 @@ import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { Close, Maximum, Recover } from 'icon-ultra'
 import { useMaximum } from './use-maximum'
-import type { ComponentSize } from '@ui/types/component-common'
 import { DialogDIKey } from './di'
 import { UNodeRender } from '../node-render'
 import type { ScrollExposed } from '@ui/types'

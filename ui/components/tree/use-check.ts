@@ -1,4 +1,4 @@
-import type { TreeEmit, TreeProps } from '@ui/types/components/tree'
+import type { TreeEmit, TreeProps } from '@ui/types'
 import { nextTick, watch, type ComputedRef } from 'vue'
 import type { TreeNode } from './tree-node'
 import { Tree } from 'cat-kit/fe'

@@ -6,7 +6,7 @@ import {
 } from 'vue'
 import LoadingComponent from './loading.vue'
 import { bem } from '@ui/utils'
-import type { LoadingType } from '@ui/types/components/loading'
+import type { LoadingType } from '@ui/types'
 
 const loadingCls = bem('loading')
 const loadingContainerCls = loadingCls.e('container')

@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps } from '@ui/types/components/expression-editor'
+import type { ExpressionEditorProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import {
   $createParagraphNode,

@@ -36,10 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  DatePickerEmits,
-  DatePickerProps
-} from '@ui/types/components/date-picker'
+import type { DatePickerEmits, DatePickerProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
 import { UInput } from '../input'

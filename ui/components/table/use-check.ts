@@ -10,15 +10,15 @@ import {
   type ComputedRef,
   type ShallowRef
 } from 'vue'
-import type { TableRow } from '@ui/types/components/table'
-import { UCheckbox } from '../checkbox'
 import type {
+  TableRow,
   TableColumn,
   TableEmits,
-  TableProps
-} from '@ui/types/components/table'
+  TableProps,
+  ComponentSize
+} from '@ui/types'
+import { UCheckbox } from '../checkbox'
 import { getChainValue, type Forest } from 'cat-kit/fe'
-import type { ComponentSize } from '@ui/types/component-common'
 import type { BEM } from '@ui/utils'
 
 interface Options {

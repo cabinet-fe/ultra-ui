@@ -40,10 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  TextareaProps,
-  TextareaEmits
-} from '@ui/types/components/textarea'
+import type { TextareaProps, TextareaEmits, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'
@@ -53,7 +50,6 @@ import {
   useFormComponent,
   useFormFallbackProps
 } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types/component-common'
 import { calcTextareaHeight } from './utils'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
@@ -136,8 +132,8 @@ const handleChange = (e: Event) => {
 watch(
   [model, textareaRef],
   ([model, textareaRef]) => {
-    if(!textareaRef) return
-    if(!props.autosize) return
+    if (!textareaRef) return
+    if (!props.autosize) return
     calcTextareaHeight(textareaRef)
   },
   { immediate: true }

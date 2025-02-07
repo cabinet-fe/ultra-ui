@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { EmptyProps } from '@ui/types/components/empty'
+import type { EmptyProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { Empty } from 'icon-ultra'
 import { UIcon } from '../icon'

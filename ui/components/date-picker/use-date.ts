@@ -1,7 +1,4 @@
-import type {
-  DatePickerEmits,
-  DatePickerProps
-} from '@ui/types/components/date-picker'
+import type { DatePickerEmits, DatePickerProps } from '@ui/types'
 import { bem, type BEM } from '@ui/utils'
 import { date, type Dater } from 'cat-kit/fe'
 import {

@@ -1,7 +1,4 @@
-import type {
-  GroupInputEmits,
-  GroupInputProps
-} from '@ui/types/components/group-input'
+import type { GroupInputEmits, GroupInputProps } from '@ui/types'
 import { createIncrease } from '@ui/utils'
 import { isReactive, nextTick, shallowReactive, shallowRef, watch } from 'vue'
 

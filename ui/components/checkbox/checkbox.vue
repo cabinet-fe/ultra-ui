@@ -34,10 +34,7 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type {
-  CheckboxProps,
-  CheckboxEmits
-} from '@ui/types/components/checkbox'
+import type { CheckboxProps, CheckboxEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UTag } from '../tag'

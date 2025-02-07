@@ -1,5 +1,5 @@
 import { useResizeObserver } from '@ui/compositions'
-import type { SliderProps } from '@ui/types/components/slider'
+import type { SliderProps } from '@ui/types'
 import { ref, shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
 export const useSlide = (

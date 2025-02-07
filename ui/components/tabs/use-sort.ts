@@ -1,6 +1,6 @@
 import { useSort } from '@ui/compositions'
 import type { ShallowRef } from 'vue'
-import type { TabsEmits, TabItem, TabsProps } from '@ui/types/components/tabs'
+import type { TabsEmits, TabItem, TabsProps } from '@ui/types'
 
 interface Options {
   target: ShallowRef<HTMLElement | undefined>

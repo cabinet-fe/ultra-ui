@@ -110,8 +110,10 @@ import { computed, nextTick, shallowRef, watch } from 'vue'
 import type {
   SelectEmits,
   SelectProps,
-  _SelectExposed
-} from '@ui/types/components/select'
+  _SelectExposed,
+  DropdownExposed,
+  ScrollExposed
+} from '@ui/types'
 import { bem, withUnit } from '@ui/utils'
 import {
   useFormComponent,
@@ -127,7 +129,6 @@ import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
-import type { DropdownExposed, ScrollExposed } from '@ui/types'
 
 defineOptions({
   name: 'Select'

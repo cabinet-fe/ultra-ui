@@ -1,5 +1,5 @@
 import type { InjectionKey, ShallowRef } from 'vue'
-import type { TextEditorProps } from '.'
+import type { TextEditorProps } from '@ui/types'
 
 export const TextEditorDIKey: InjectionKey<{
   textEditorProps: TextEditorProps

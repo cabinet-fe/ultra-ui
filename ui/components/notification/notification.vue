@@ -18,7 +18,9 @@
         <div :class="cls.em('content', 'title')">{{ title }}</div>
         <div :class="cls.em('content', 'message')">{{ message }}</div>
         <div :class="cls.em('content', 'button')" v-if="buttonText">
-          <UButton :type="type" plain @click="handleClick">{{ buttonText }}</UButton>
+          <UButton :type="type" plain @click="handleClick">{{
+            buttonText
+          }}</UButton>
         </div>
       </div>
       <div :class="cls.e('close')" v-if="closable" @click.stop="close">
@@ -29,7 +31,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { NotificationProps, NotificationExposed } from '@ui/types/components/notification'
+import type {
+  NotificationProps,
+  NotificationExposed,
+  ColorType
+} from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'
@@ -43,7 +49,6 @@ import {
 } from 'icon-ultra'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
-import type { ColorType } from '@ui/types/component-common'
 
 defineOptions({
   name: 'Notification'

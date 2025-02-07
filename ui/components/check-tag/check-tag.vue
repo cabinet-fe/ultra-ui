@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { CheckTagEmits, CheckTagProps } from '@ui/types/components/check-tag'
+import type { CheckTagEmits, CheckTagProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 
