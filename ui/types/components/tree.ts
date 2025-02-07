@@ -2,7 +2,9 @@ import type { TreeNode as _TreeNode, Forest } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
 import type { ComputedRef, ShallowRef } from 'vue'
 
-export interface TreeNode extends _TreeNode {
+export interface TreeNode<
+  Data extends Record<string, any> = Record<string, any>
+> extends _TreeNode<Data> {
   parent: TreeNode | null
   children?: TreeNode[]
   valueKey: string
