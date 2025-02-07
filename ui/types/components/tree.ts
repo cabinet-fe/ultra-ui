@@ -5,8 +5,8 @@ import type { ComputedRef, ShallowRef } from 'vue'
 export interface TreeNode<
   Data extends Record<string, any> = Record<string, any>
 > extends _TreeNode<Data> {
-  parent: TreeNode | null
-  children?: TreeNode[]
+  parent: TreeNode<Data> | null
+  children?: TreeNode<Data>[]
   valueKey: string
   labelKey: string
   visible: boolean
@@ -20,7 +20,7 @@ export interface TreeNode<
   key: string | number
   childrenCheckCount: number
 
-  bubbleSet: (setter: (node: TreeNode) => void) => void
+  bubbleSet: (setter: (node: TreeNode<Data>) => void) => void
 }
 
 /** 树组件属性 */
