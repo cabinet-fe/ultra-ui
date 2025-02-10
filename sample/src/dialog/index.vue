@@ -22,9 +22,12 @@
     <u-dialog
       v-model="visible"
       :modal="modal"
+      :auto-scroll="false"
       style="width: 80%"
       title="对话框标题"
     >
+      <div style="height: 100%">height: 100%, 在全屏时生效</div>
+
       <u-card v-for="i in 2" :key="i">
         <u-card-cover
           src="http://5b0988e595225.cdn.sohucs.com/images/20190625/2a57bb7082f84e33b53dd79b30b949df.jpeg"

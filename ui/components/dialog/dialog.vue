@@ -55,10 +55,13 @@
             tag="section"
             :class="cls.e('body')"
             ref="bodyRef"
+            :content-style="{
+              height: maximized ? '100%' : undefined
+            }"
             @transitionend.stop
             @transitioncancel.stop
           >
-            <slot />
+            <slot v-bind="{ maximized }" />
           </u-scroll>
 
           <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
@@ -78,7 +81,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type VNode, shallowRef, watch, nextTick, computed, provide } from 'vue'
+import { shallowRef, watch, nextTick, computed, provide } from 'vue'
 import type {
   DialogProps,
   DialogEmits,
@@ -108,12 +111,18 @@ defineOptions({
 
 const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,
-  modelValue: true
+  modelValue: true,
+  autoScroll: true
 })
 const emit = defineEmits<DialogEmits>()
+
 const slots = defineSlots<{
-  footer?: (props: { close: () => void }) => VNode[] | undefined
+  footer?: (props: { close: () => void }) => any
   trigger?: () => any
+  default?: (props: {
+    /** 弹框是否最大化了 */
+    maximized: boolean
+  }) => any
 }>()
 
 const cls = bem('dialog')
