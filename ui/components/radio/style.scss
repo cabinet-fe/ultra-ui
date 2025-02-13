@@ -33,7 +33,8 @@ $root-name: radio;
 
   @include m.e(button) {
     border-radius: 50%;
-    border: fn.use-var(border);
+    border: fn.use-var(border, width) fn.use-var(border, style)
+      fn.use-var(radio, border);
     overflow: hidden;
   }
 

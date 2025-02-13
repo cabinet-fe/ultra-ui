@@ -51,6 +51,19 @@ export type Theme = {
     /** 边框样式 */
     style: string
   }
+
+  /** 复选框 */
+  checkbox: {
+    /** 边框颜色 */
+    border: string
+  }
+
+  /** 单选框 */
+  radio: {
+    /** 边框颜色 */
+    border: string
+  }
+
   /** 文字色 */
   textColor: {
     /** 标题文字颜色 */

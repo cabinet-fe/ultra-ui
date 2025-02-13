@@ -45,7 +45,8 @@ $root-name: checkbox;
   }
 
   @include m.e(wrap) {
-    border: fn.use-var(border);
+    border: fn.use-var(border, width) fn.use-var(border, style)
+      fn.use-var(checkbox, border);
     border-radius: fn.use-var(radius, default);
     color: #fff;
     transition: background-color 0.15s ease;

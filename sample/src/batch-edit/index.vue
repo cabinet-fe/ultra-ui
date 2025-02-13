@@ -6,66 +6,71 @@
       <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
       <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
       <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
-      <u-button @click="dialogVisible = !dialogVisible">弹框中</u-button>
 
       <u-checkbox-group :items="items" v-model="features"></u-checkbox-group>
     </div>
-    <u-batch-edit
-      :columns="columns"
-      :readonly="readonly"
-      :resizable="resizable"
-      v-model:data="data"
-      v-model:checked="checked"
-      checkable
-      :quick-edit="quickEdit"
-      :features="features"
-      :model="model"
-      :tree="tree"
-      cols="1fr 400px"
-      :delete-method="asynchronous ? deleteMethod : undefined"
-      :save-method="asynchronous ? saveMethod : undefined"
-      @created="
-        model.setData({
-          age: 666
-        })
-      "
-    >
-      <template #form="{ data }">
-        <u-input field="name" label="名称" />
-        <u-number-input field="age" label="年龄" />
-        <u-input field="props.label" label="标签" />
-        <u-input field="props.field" label="字段" />
-        <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
-        <u-select
-          field="unit"
-          label="单位"
-          :options="units"
-          label-key="name"
-          value-key="name"
-        />
-        <u-cascade
-          field="cascade"
-          label="单选级联选择器"
-          :options="area.area"
-          label-key="name"
-          value-key="code"
-          filterable
-        />
-      </template>
-    </u-batch-edit>
 
-    {{ checked }}
-    {{ data }}
+    <div>
+      <u-button @click="dialogVisible = !dialogVisible">打开编辑</u-button>
+    </div>
+
+    <u-dialog v-model="dialogVisible" style="width: 1100px" title="批量编辑">
+      <u-batch-edit
+        :columns="columns"
+        :readonly="readonly"
+        :resizable="resizable"
+        v-model:data="data"
+        v-model:checked="checked"
+        checkable
+        :quick-edit="quickEdit"
+        :features="features"
+        label-width="150px"
+        :model="model"
+        :tree="tree"
+        cols="1fr 400px"
+        :delete-method="asynchronous ? deleteMethod : undefined"
+        :save-method="asynchronous ? saveMethod : undefined"
+        @created="
+          model.setData({
+            age: 666
+          })
+        "
+      >
+        <template #form="{ data }">
+          <u-input field="name" label="名称" />
+          <u-number-input field="age" label="年龄" />
+          <u-input field="props.label" label="标签" />
+          <u-input field="props.field" label="字段" />
+          <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
+          <u-select
+            field="unit"
+            label="单位"
+            :options="units"
+            label-key="label"
+            value-key="value"
+          />
+          <u-cascade
+            field="cascade"
+            label="单选级联选择器"
+            :options="area.area"
+            label-key="name"
+            value-key="code"
+            filterable
+          />
+        </template>
+      </u-batch-edit>
+    </u-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { sleep } from 'cat-kit/fe'
-import { FormModel, Message, defineTableColumns } from 'ultra-ui'
+import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
 import area from '../cascade/area.json'
 import type { BatchEditFeature } from '@ui/types'
+
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
@@ -116,12 +121,12 @@ const asynchronous = shallowRef(false)
 const deleteMethod = async row => {
   await sleep(2000)
   // await Promise.reject('a')
-  Message.success('删除成功')
+  message.success('删除成功')
 }
 
 const saveMethod = async (data, type) => {
   await sleep(2000)
-  Message.success('保存成功')
+  message.success('保存成功')
 }
 const units = [
   { label: '单位1', value: '1' },

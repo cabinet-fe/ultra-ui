@@ -7,9 +7,10 @@
     :resizable="resizable"
     @keyup.esc="handleClose"
   >
-    <BatchEditList :slots="slots">
-      <slot name="header" v-if="!!slots.header" />
-    </BatchEditList>
+    <!-- 编辑列表 -->
+    <BatchEditList :slots="slots" />
+
+    <!-- 编辑表单 -->
     <BatchEditForm v-slot="scoped">
       <!-- @vue-ignore -->
       <slot name="form" v-bind="scoped" />

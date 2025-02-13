@@ -15,6 +15,7 @@ declare module 'vue' {
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
     UCard: typeof import('ultra-ui')['UCard']
+    UCardAction: typeof import('ultra-ui')['UCardAction']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardCover: typeof import('ultra-ui')['UCardCover']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
@@ -22,10 +23,13 @@ declare module 'vue' {
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
     UDialog: typeof import('ultra-ui')['UDialog']
+    UDropdown: typeof import('ultra-ui')['UDropdown']
     UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
     UFloatButton: typeof import('ultra-ui')['UFloatButton']
     UInput: typeof import('ultra-ui')['UInput']
     UMenu: typeof import('ultra-ui')['UMenu']
+    UMultiSelect: typeof import('ultra-ui')['UMultiSelect']
+    UMultiTreeSelect: typeof import('ultra-ui')['UMultiTreeSelect']
     UNumber: typeof import('ultra-ui')['UNumber']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
@@ -36,5 +40,6 @@ declare module 'vue' {
     UTable: typeof import('ultra-ui')['UTable']
     UTabs: typeof import('ultra-ui')['UTabs']
     UTag: typeof import('ultra-ui')['UTag']
+    UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }

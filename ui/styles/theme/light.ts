@@ -31,6 +31,14 @@ export const lightTheme = new UITheme({
     style: 'solid'
   },
 
+  checkbox: {
+    border: '#ccc'
+  },
+
+  radio: {
+    border: '#ccc'
+  },
+
   textColor: {
     title: '#303133',
     main: '#606266',
