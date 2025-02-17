@@ -33,7 +33,7 @@
     "autoprefixer": "^10.4.20",
     "cat-kit": "^3.7.11",
     "fast-glob": "^3.3.3",
-    "icon-ultra": "^3.0.16",
+    "icon-ultra": "^3.0.17",
     "rollup": "^4.34.6",
     "rollup-plugin-esbuild": "^6.2.0",
     "sass-embedded": "^1.83.4",
@@ -51,8 +51,8 @@
     "quill": "^2.0.3",
     "@floating-ui/dom": "^1.6.13",
     "@tanstack/vue-virtual": "^3.13.0",
-    "lexical": "^0.23.1",
-    "@lexical/plain-text": "^0.23.1"
+    "lexical": "^0.24.0",
+    "@lexical/plain-text": "^0.24.0"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cli/verify-commit/index.ts"

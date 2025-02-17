@@ -1,3 +1,4 @@
+import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 export interface VariableItem {
@@ -6,7 +7,7 @@ export interface VariableItem {
 }
 
 /** 表达式编辑器组件属性 */
-export interface ExpressionEditorProps {
+export interface ExpressionEditorProps extends FormComponentProps {
   modelValue?: string
   /** 变量列表 */
   variables?: VariableItem[]

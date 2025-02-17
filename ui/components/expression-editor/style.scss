@@ -6,9 +6,36 @@
 $root-name: expression-editor;
 
 @include m.b($root-name) {
-  @include m.e($root-name, container) {
-    height: 200px;
+  @include m.e(tools) {
+    text-align: right;
+    margin-bottom: fn.use-var(gap, small);
+
+    & > * {
+      cursor: pointer;
+    }
+  }
+
+  @include m.e(container) {
     outline: none;
+    vertical-align: middle;
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    transition: box-shadow 0.25s ease;
+
+    &:hover {
+      // 悬浮时边框颜色为 var(--u-color-primary);
+      box-shadow: inset 0 0 0px 1px fn.use-var(color, primary);
+    }
+  }
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, container) {
+      border-radius: fn.use-var(radius, $size);
+      padding: calc(fn.use-var(gap, $size) / 2);
+    }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
   }
 
   @include m.e($root-name, (variable-list, variable-item)) {
@@ -39,7 +66,7 @@ $root-name: expression-editor;
     border: 1px solid #a8d8ff;
     border-radius: 3px;
     color: #409eff;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 20px;
   }
 }

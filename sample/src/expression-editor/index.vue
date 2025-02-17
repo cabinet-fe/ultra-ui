@@ -1,15 +1,20 @@
 <template>
-  <u-expression-editor v-model="value" :variables />
+  <div>
+    <u-expression-editor v-model="value" :variables />
+
+    <div>
+      {{ value }}
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 
-const value = shallowRef()
+const value = shallowRef('Hello {form.name}, welcome to {form.company}!')
 
 const variables = [
-  { value: 'a', label: '基础信息' },
-  { value: 'b', label: '订单信息' },
-  { value: 'c', label: '商品信息' }
+  { label: '姓名', value: 'form.name' },
+  { label: '公司', value: 'form.company' }
 ]
 </script>

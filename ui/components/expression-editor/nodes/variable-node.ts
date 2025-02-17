@@ -1,14 +1,13 @@
 import {
   DecoratorNode,
-  type EditorConfig,
-  type NodeKey,
-  $getSelection,
-  $isRangeSelection,
-  type LexicalEditor
+  type LexicalNode,
+  type SerializedLexicalNode
 } from 'lexical'
+import { cls } from '../shared'
 
-export class VariableNode extends DecoratorNode<HTMLElement> {
+export class VariableNode extends DecoratorNode<null> {
   __variable: string
+  __text: string
 
   static override getType(): string {
     return 'variable'
@@ -18,47 +17,44 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
     return new VariableNode(node.__variable, node.__key)
   }
 
-  constructor(variable: string, key?: NodeKey) {
+  static override importJSON(serializedNode: SerializedLexicalNode) {
+    return super.importJSON(serializedNode)
+  }
+
+  constructor(variable: string, key?: string) {
     super(key)
     this.__variable = variable
+    this.__text = `{${variable}}`
   }
 
   override createDOM(): HTMLElement {
     const dom = document.createElement('span')
-    dom.classList.add('u-expression-editor__variable-node')
-    dom.innerText = `变量:${this.__variable}`
+    dom.contentEditable = 'false'
+    dom.classList.add(cls.e('var-node'))
+    dom.innerHTML = `v:${this.__variable}`
+
     return dom
+  }
+
+  override getTextContent(): string {
+    return this.__text
   }
 
   override updateDOM(): false {
     return false
   }
 
-  // 重写删除行为，使其整体删除
-  override remove(): void {
-    const selection = $getSelection()
-    if ($isRangeSelection(selection)) {
-      selection.removeText()
-    }
-    super.remove()
+  override decorate() {
+    return null
   }
+}
 
-  // DecoratorNode 需要实现这个方法
-  override decorate(_: LexicalEditor, config: EditorConfig): HTMLElement {
-    return this.createDOM()
-  }
+/** 判断是否为变量节点 */
+export function $isVariableNode(node: LexicalNode): node is VariableNode {
+  return node instanceof VariableNode
+}
 
-  // 获取变量值
-  getVariable(): string {
-    return this.__variable
-  }
-
-  // 变量节点不应该被合并
-  canInsertTextBefore(): boolean {
-    return false
-  }
-
-  canInsertTextAfter(): boolean {
-    return false
-  }
+/** 创建变量节点 */
+export function $createVariableNode(variable: string): VariableNode {
+  return new VariableNode(variable)
 }
