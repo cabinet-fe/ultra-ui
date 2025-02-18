@@ -14,12 +14,18 @@
       <u-button @click="dialogVisible = !dialogVisible">打开编辑</u-button>
     </div>
 
-    <u-dialog v-model="dialogVisible" style="width: 1100px" title="批量编辑">
+    <u-dialog
+      v-model="dialogVisible"
+      style="width: 1100px"
+      title="批量编辑"
+      v-slot="{ maximized }"
+    >
       <u-batch-edit
         :columns="columns"
         :readonly="readonly"
         :resizable="resizable"
         v-model:data="data"
+        :style="{ height: maximized ? '100%' : '400px' }"
         v-model:checked="checked"
         checkable
         :quick-edit="quickEdit"
@@ -36,6 +42,11 @@
           })
         "
       >
+        <template #column:name="{ row }">
+          <span :style="`padding-left: ${row.depth * 20}px;`"
+            >{{ row.depth }} {{ row.data.name }}</span
+          >
+        </template>
         <template #form="{ data }">
           <u-input field="name" label="名称" />
           <u-number-input field="age" label="年龄" />

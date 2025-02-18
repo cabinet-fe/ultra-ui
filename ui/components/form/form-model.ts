@@ -26,8 +26,9 @@ export class FormModel<
   readonly allKeys: string[]
 
   /**
-   * 不同表单存在的字段key,
-   * 在全量校验时防止对隐藏的字段进行校验从而无法通过
+   * 不同表单所需要校验的字段
+   * @description
+   * 这个值会在表单组件渲染时由表单设置，因为只有真正渲染的组件才应该被校验
    */
   formKeys = new Map<number, (keyof Fields)[]>()
 
@@ -80,7 +81,8 @@ export class FormModel<
   }
 
   /**
-   * 设置响应式值
+   * 设置响应式值, 替换掉原有的数据
+   * @description 设置响应式值时，会自动监听值的变化，并进行校验
    * @param proxyData 响应式的值
    */
   setProxyData(proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>) {
@@ -88,6 +90,7 @@ export class FormModel<
       set: (field, val) => {
         this.modelChangeCallback.forEach(cb => cb(field, val))
       },
+
       changed: fields => {
         if (!this.validateOnFieldChange) {
           this.validateOnFieldChange = true
@@ -205,6 +208,21 @@ export class FormModel<
         setChainValue(this.data, key, value)
       }
     })
+
+    return this
+  }
+
+  /**
+   * 设置初始值
+   * @description 初始值在重置数据和查看原始数据时会用到
+   * @param data 初始值
+   */
+  setInitialData(data: Partial<ModelData<Fields>>) {
+    this.allKeys.forEach(key => {
+      setChainValue(this.initialData, key, getChainValue(data, key))
+    })
+
+    return this
   }
 
   /** 清除校验 */

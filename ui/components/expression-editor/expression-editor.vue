@@ -13,14 +13,12 @@
 <script lang="ts" setup>
 import type { ExpressionEditorProps } from '@ui/types'
 import { bem } from '@ui/utils'
-import { useTemplateRef, provide, computed, watch } from 'vue'
+import { useTemplateRef, provide, computed } from 'vue'
 import { ExpressionEditorDIKey } from './di'
 import VariablePicker from './components/variable-picker.vue'
 import { UIcon } from '../icon'
 import { Variable } from 'icon-ultra'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { parseContent } from './parser'
-import { $getRoot, $createParagraphNode, $getSelection } from 'lexical'
 import { useEditor } from './use-editor'
 import { cls } from './shared'
 
@@ -51,9 +49,9 @@ const className = computed(() => {
 })
 
 const editorRef = useTemplateRef('editorRef')
-const variablePickerRef = useTemplateRef('variable-picker')
+// const variablePickerRef = useTemplateRef('variable-picker')
 
-const editor = useEditor({
+useEditor({
   disabled,
   readonly,
   container: editorRef,

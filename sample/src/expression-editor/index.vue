@@ -5,6 +5,14 @@
     <div>
       {{ value }}
     </div>
+
+    <div contenteditable>
+      <span>1245</span>
+
+      <span style="color: red" contenteditable="false">Hello</span>
+
+      <span>1234455</span>
+    </div>
   </div>
 </template>
 

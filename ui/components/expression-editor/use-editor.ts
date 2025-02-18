@@ -1,17 +1,5 @@
-import {
-  $createParagraphNode,
-  $getNodeByKey,
-  $getRoot,
-  $getSelection,
-  $insertNodes,
-  $isNodeSelection,
-  $setSelection,
-  COMMAND_PRIORITY_NORMAL,
-  createEditor,
-  SELECTION_CHANGE_COMMAND,
-  TextNode
-} from 'lexical'
-import { $createVariableNode, VariableNode } from './nodes/variable-node'
+import { $createParagraphNode, $getRoot, createEditor, TextNode } from 'lexical'
+import { VariableNode } from './nodes/variable-node'
 import { registerPlainText } from '@lexical/plain-text'
 import { mergeRegister } from '@lexical/utils'
 import { watchEffect, type Ref, type ShallowRef } from 'vue'
@@ -40,22 +28,7 @@ export function useEditor(options: EditorOptions) {
     editable: getEditable()
   })
 
-  mergeRegister(
-    registerPlainText(editor),
-
-    editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
-      () => {
-        const selection = $getSelection()
-        if ($isNodeSelection(selection)) {
-          console.log(selection)
-        }
-
-        return true
-      },
-      COMMAND_PRIORITY_NORMAL
-    )
-  )
+  mergeRegister(registerPlainText(editor))
 
   watchEffect(() => {
     editor.setEditable(getEditable())

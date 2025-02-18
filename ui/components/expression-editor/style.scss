@@ -58,15 +58,22 @@ $root-name: expression-editor;
     }
   }
 
-  @include m.e($root-name, variable-node) {
+  @include m.e(var-node) {
     display: inline-block;
     padding: 0 4px;
-    margin: 0 2px;
-    background-color: #f0f9ff;
-    border: 1px solid #a8d8ff;
-    border-radius: 3px;
-    color: #409eff;
+    background-color: fn.use-var(color, primary, light-9);
+    border-radius: fn.use-var(radius, small);
+    cursor: pointer;
     font-size: 12px;
-    line-height: 20px;
+    border: 1px solid fn.use-var(color, primary);
+    border-radius: fn.use-var(radius, default);
+
+    &.selected {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(var-node-icon) {
+    color: fn.use-var(color, primary);
   }
 }

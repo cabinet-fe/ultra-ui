@@ -4,6 +4,7 @@ import {
   type SerializedLexicalNode
 } from 'lexical'
 import { cls } from '../shared'
+import { createEl } from '@ui/utils/dom/node'
 
 export class VariableNode extends DecoratorNode<null> {
   __variable: string
@@ -28,12 +29,17 @@ export class VariableNode extends DecoratorNode<null> {
   }
 
   override createDOM(): HTMLElement {
-    const dom = document.createElement('span')
-    dom.contentEditable = 'false'
-    dom.classList.add(cls.e('var-node'))
-    dom.innerHTML = `v:${this.__variable}`
+    const dom = createEl('span', {
+      class: cls.e('var-node'),
+      innerHTML: `<i class="${cls.e('var-node-icon')}">{x}</i> : ${this.__variable}`
+    })
 
     return dom
+  }
+
+  override remove(preserveEmptyParent?: boolean): void {
+    console.log(111)
+    super.remove(preserveEmptyParent)
   }
 
   override getTextContent(): string {
@@ -50,7 +56,9 @@ export class VariableNode extends DecoratorNode<null> {
 }
 
 /** 判断是否为变量节点 */
-export function $isVariableNode(node: LexicalNode): node is VariableNode {
+export function $isVariableNode(
+  node: LexicalNode | null | undefined
+): node is VariableNode {
   return node instanceof VariableNode
 }
 
