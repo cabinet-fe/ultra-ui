@@ -57,7 +57,7 @@ export class DynamicFormModel {
   }
 
   /** 初始数据 */
-  private readonly initialData: Record<string, any> = {}
+  readonly initialData: Record<string, any> = {}
 
   /**
    * 变更前的值

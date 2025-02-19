@@ -69,6 +69,8 @@ export type IFormModel<
 /** 表单组件属性 */
 export interface FormProps<Model extends IFormModel = IFormModel>
   extends ComponentProps {
+  /** 是否显示初始数据 */
+  showInitialData?: boolean
   /** 表单数据模型 */
   model: Model
   /** 表单项label宽度 */

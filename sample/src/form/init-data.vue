@@ -1,5 +1,5 @@
 <template>
-  <u-form :model="model">
+  <u-form :model="model" show-initial-data>
     <u-input label="姓名" field="name" />
     <u-select label="年级" field="grade" :options="gradeList" />
   </u-form>
@@ -9,7 +9,7 @@
 import { FormModel } from '@ui/components'
 
 const model = new FormModel({
-  name: {},
+  name: { value: '2' },
   grade: {}
 })
 

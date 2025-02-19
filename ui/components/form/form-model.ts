@@ -33,7 +33,7 @@ export class FormModel<
   formKeys = new Map<number, (keyof Fields)[]>()
 
   /** 初始数据 */
-  private readonly initialData: ModelData<Fields>
+  readonly initialData: ModelData<Fields>
 
   readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
     new Map()
