@@ -25,11 +25,20 @@ const gradeList = [
 ]
 
 setTimeout(() => {
+  // 变更前数据
   const data = {
     name: '张三',
     grade: '1',
     isInSchool: true
   }
-  model.setData(data)
+
+  // 当前数据
+  const newData = {
+    name: '李四',
+    grade: '2',
+    isInSchool: false
+  }
+
+  model.setInitialData(data).setData(newData)
 }, 1000)
 </script>
