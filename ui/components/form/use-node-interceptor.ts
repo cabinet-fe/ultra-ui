@@ -7,6 +7,22 @@ interface Options {
   props: FormProps
 }
 
+export type SlotRenderItem =
+  | {
+      isFormItem: true
+      formItemProps: Record<string, any>
+      node: VNode
+      field: undefined
+      modelValue?: any
+    }
+  | {
+      isFormItem: false
+      formItemProps: Record<string, any>
+      node: VNode
+      field: string
+      modelValue?: any
+    }
+
 const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
 
 const id = createIncrease(1)
@@ -32,22 +48,7 @@ export function useNodeInterceptor(options: Options) {
 
     const flattedNodes = extractNormalVNodes(nodes)
 
-    const results: Array<
-      | {
-          isFormItem: true
-          formItemProps: Record<string, any>
-          node: VNode
-          field: undefined
-          modelValue?: any
-        }
-      | {
-          isFormItem: false
-          formItemProps: Record<string, any>
-          node: VNode
-          field: string
-          modelValue?: any
-        }
-    > = []
+    const results: SlotRenderItem[] = []
 
     // 渲染表单后得到的应当校验的字段
     const fields: string[] = []

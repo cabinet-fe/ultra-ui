@@ -1,4 +1,4 @@
-export { default as UForm } from './form'
+export { default as UForm } from './form.vue'
 
 export * from './helper'
 

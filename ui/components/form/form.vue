@@ -24,13 +24,7 @@
           @update:model-value="handleUpdateValue(field, $event)"
         />
 
-        <template
-          v-if="
-            showInitialData &&
-            getChainValue(model?.initialData ?? {}, field) !==
-              getChainValue(model?.data ?? {}, field)
-          "
-        >
+        <div :class="cls.e('data-before')" v-if="showInitialNode(field)">
           <i :class="cls.e('changed-tag')">变更前：</i>
 
           <component
@@ -38,13 +32,13 @@
             readonly
             :model-value="getChainValue(model?.initialData ?? {}, field)"
           />
-        </template>
+        </div>
       </u-form-item>
     </template>
   </u-grid>
 </template>
 
-<script lang="ts" setup generic="Model extends FormModel | DynamicFormModel">
+<script lang="tsx" setup generic="Model extends FormModel | DynamicFormModel">
 import { UGrid } from '../grid'
 import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
@@ -92,6 +86,19 @@ function handleUpdateValue(field: string, value: any) {
   if (!data) return
 
   setChainValue(data, field, value)
+}
+
+function showInitialNode(field: string) {
+  const { data, initialData } = model.value ?? {}
+
+  const currentValue = getChainValue(data, field)
+  const initialValue = getChainValue(initialData, field)
+  const notEqual = !(
+    initialValue === currentValue ||
+    (!initialValue && !currentValue)
+  )
+
+  return props.showInitialData && notEqual
 }
 
 const gridRef = shallowRef<GridExposed>()
