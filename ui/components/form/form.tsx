@@ -9,7 +9,7 @@ import type { FormModel } from './form-model'
 import type { DynamicFormModel } from './dynamic-form-model'
 import type { BreakCols, GridExposed, FormProps, _FormExposed } from '@ui/types'
 
-export default defineComponent({
+export default defineComponent<FormProps<FormModel | DynamicFormModel>>({
   name: 'Form',
   props: {
     model: {
@@ -22,7 +22,7 @@ export default defineComponent({
     readonly: Boolean,
     disabled: Boolean
   },
-  setup(props: FormProps<FormModel | DynamicFormModel>, { expose }) {
+  setup(props, { expose }) {
     const model = toRef(() => props.model)
     const cls = bem('form')
     const gridRef = shallowRef<GridExposed>()
@@ -77,11 +77,14 @@ export default defineComponent({
                   handleUpdateValue(field, event)
               })
 
-              const showInitialNode =
-                showInitialData &&
-                initialValue !== currentValue &&
-                !initialValue !== !currentValue
+              const notEqual = !(
+                initialValue === currentValue ||
+                (!initialValue && !currentValue)
+              )
 
+              const showInitialNode = showInitialData && notEqual
+
+              // 不相等，
               const initialNode = showInitialNode ? (
                 <div class={cls.e('data-before')}>
                   <i class={cls.e('changed-tag')}>变更前：</i>

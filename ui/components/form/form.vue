@@ -34,10 +34,9 @@
           <i :class="cls.e('changed-tag')">变更前：</i>
 
           <component
-            :is="cloneVNode(node)"
+            :is="node"
             readonly
             :model-value="getChainValue(model?.initialData ?? {}, field)"
-            @update:model-value="handleUpdateValue(field, $event)"
           />
         </template>
       </u-form-item>
@@ -51,7 +50,7 @@ import { bem } from '@ui/utils'
 import { useFormComponent } from '@ui/compositions'
 import { useNodeInterceptor } from './use-node-interceptor'
 import { UFormItem } from '../form-item'
-import { cloneVNode, shallowRef, toRef } from 'vue'
+import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
 import type { FormModel } from './form-model'
 import type { DynamicFormModel } from './dynamic-form-model'

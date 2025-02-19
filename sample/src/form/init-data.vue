@@ -12,7 +12,7 @@ import { FormModel } from '@ui/components'
 const model = new FormModel({
   name: {},
   grade: {},
-  isInSchool: {}
+  isInSchool: { value: false }
 })
 
 const gradeList = [
