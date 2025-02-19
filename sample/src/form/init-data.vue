@@ -2,6 +2,7 @@
   <u-form :model="model" show-initial-data>
     <u-input label="姓名" field="name" />
     <u-select label="年级" field="grade" :options="gradeList" />
+    <u-checkbox label="是否在校" field="isInSchool" />
   </u-form>
 </template>
 
@@ -9,8 +10,9 @@
 import { FormModel } from '@ui/components'
 
 const model = new FormModel({
-  name: { value: '2' },
-  grade: {}
+  name: {},
+  grade: {},
+  isInSchool: {}
 })
 
 const gradeList = [
@@ -25,8 +27,9 @@ const gradeList = [
 setTimeout(() => {
   const data = {
     name: '张三',
-    grade: '1'
+    grade: '1',
+    isInSchool: true
   }
-  model.setInitialData(data).setData(data)
+  model.setData(data)
 }, 1000)
 </script>

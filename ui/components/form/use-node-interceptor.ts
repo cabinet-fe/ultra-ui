@@ -37,14 +37,14 @@ export function useNodeInterceptor(options: Options) {
           isFormItem: true
           formItemProps: Record<string, any>
           node: VNode
-          field: string
+          field: undefined
           modelValue?: any
         }
       | {
           isFormItem: false
           formItemProps: Record<string, any>
           node: VNode
-          field: undefined
+          field: string
           modelValue?: any
         }
     > = []
@@ -59,7 +59,7 @@ export function useNodeInterceptor(options: Options) {
 
       const { props, type } = node
       const item = {
-        isFormItem: !!props?.field && (type as any)?.name !== 'FormItem',
+        isFormItem: (type as any)?.name === 'FormItem',
         formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
         node,
         field: props?.field,

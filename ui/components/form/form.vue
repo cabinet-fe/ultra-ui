@@ -15,7 +15,9 @@
       } of getSlotsNodes()"
       :key="node.key"
     >
-      <u-form-item v-if="isFormItem" v-bind="formItemProps">
+      <component v-if="isFormItem || !field" :is="node" />
+
+      <u-form-item v-else v-bind="formItemProps">
         <component
           :is="node"
           :model-value="modelValue ?? getChainValue(model?.data ?? {}, field)"
@@ -39,8 +41,6 @@
           />
         </template>
       </u-form-item>
-
-      <component v-else :is="node" />
     </template>
   </u-grid>
 </template>
