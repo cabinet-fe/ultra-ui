@@ -1,8 +1,4 @@
-import type { ValidateRule } from '@ui/types/utils/form/validate'
-
-interface FormModelItem<Val = unknown> extends ValidateRule {
-  value?: Val
-}
+import type { FormModelItem } from '@ui/types'
 
 /**
  * 定义表单项
