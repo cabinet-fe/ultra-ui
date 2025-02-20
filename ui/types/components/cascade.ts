@@ -29,11 +29,10 @@ export interface CascadeFilterProps extends FormComponentProps {
 }
 
 /** 级联选择器组件属性 */
-export interface CascadeProps<
-  DataItem extends Record<string, any> = Record<string, any>
-> extends FormComponentProps,
+export interface CascadeProps<Multiple extends boolean = false>
+  extends FormComponentProps,
     CascadeFilterProps {
-  modelValue?: any[]
+  modelValue?: Multiple extends true ? string[] : string
   labelKey?: string
   valueKey?: string
   placeholder?: string
@@ -45,16 +44,19 @@ export interface CascadeProps<
   /**
    * 数据项
    */
-  options?: DataItem[]
+  options?: Record<string, any>[]
 
   /**
    * 禁用项
    */
-  disabledNode?: (item: DataItem, node: CascadeNode<DataItem>) => boolean
+  disabledNode?: (
+    item: Record<string, any>,
+    node: CascadeNode<Record<string, any>>
+  ) => boolean
   /**
    * 多选
    */
-  multiple?: boolean
+  multiple?: Multiple
   /** 单选选中项 */
   selected?: any[]
   /** 多选选中项 */

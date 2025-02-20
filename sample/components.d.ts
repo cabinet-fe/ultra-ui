@@ -20,6 +20,7 @@ declare module 'vue' {
     UCardCover: typeof import('ultra-ui')['UCardCover']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCascade: typeof import('ultra-ui')['UCascade']
+    UCascadeMulti: typeof import('ultra-ui')['UCascadeMulti']
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
     UDatePicker: typeof import('ultra-ui')['UDatePicker']
