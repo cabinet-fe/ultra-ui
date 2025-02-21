@@ -15,15 +15,10 @@ export type BEM<
   e<const E extends string>(name: E): `${B}__${E}`
 
   /**
-   * 块和元素组合(B-E)
-   * @param block
-   * @param e
-   * @returns
+   * 基于当前bem创建一个新的bem
+   * @param block 块名称
    */
-  be<const Block extends string, const E extends string>(
-    b: Block,
-    e: E
-  ): `${B}-${Block}__${E}`
+  create<const Block extends string>(block: Block): BEM<`${N}-${Block}`, P>
 
   /**
    * BEM中的修饰符(M)
@@ -83,8 +78,8 @@ export function makeBEM<Prefix extends '' | `${string}-`>(
         return `${b}__${name}`
       },
 
-      be(block, e) {
-        return `${b}-${block}__${e}`
+      create(block) {
+        return bem(`${name}-${block}`)
       },
 
       m(m) {
