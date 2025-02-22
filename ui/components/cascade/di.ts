@@ -8,5 +8,5 @@ export const CascadeDIKey: InjectionKey<{
   size: ComputedRef<ComponentSize>
   disabled: ComputedRef<boolean>
   readonly: ComputedRef<boolean>
-  cascadeProps: CascadeProps<boolean>
+  cascadeProps: CascadeProps
 }> = Symbol('CascadeDIKey')

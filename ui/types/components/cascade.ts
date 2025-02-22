@@ -18,33 +18,26 @@ export interface CascadeNode<DataItem extends Record<string, any>>
   label: string
   key: string | number
 }
-export interface CascadeNodeProps extends FormComponentProps {
-  cascadeData?: Record<string, any>[]
-}
-
-export interface CascadeFilterProps extends FormComponentProps {
-  filterData?: Record<string, any>[]
-  /**选择并重置 默认false */
-  selectAndReset?: boolean
-}
 
 /** 级联选择器组件属性 */
-export interface CascadeProps<Multiple extends boolean = false>
-  extends FormComponentProps,
-    CascadeFilterProps {
-  modelValue?: Multiple extends true ? string[] : string
+export interface CascadeProps extends FormComponentProps {
+  modelValue?: string[] | string
+  /** 级联数据项的标签字段 */
   labelKey?: string
+  /** 级联数据项的值字段 */
   valueKey?: string
+  /** 占位符 */
   placeholder?: string
+  /** 是否可清除 */
   clearable?: boolean
-  disabled?: boolean
-  readonly?: boolean
+  /** 子级字段 */
   childrenKey?: string
+  /** 是否严格模式 */
   checkStrictly?: boolean
   /**
    * 数据项
    */
-  options?: Record<string, any>[]
+  data?: Record<string, any>[]
 
   /**
    * 禁用项
@@ -56,11 +49,7 @@ export interface CascadeProps<Multiple extends boolean = false>
   /**
    * 多选
    */
-  multiple?: Multiple
-  /** 单选选中项 */
-  selected?: any[]
-  /** 多选选中项 */
-  checked?: any[]
+  multiple?: boolean
   /**
    * 搜索
    */
@@ -70,7 +59,7 @@ export interface CascadeProps<Multiple extends boolean = false>
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  (e: 'update:modelValue', value?: string[] | number[]): void
+  (e: 'update:modelValue', value?: string | string[]): void
   (
     e: 'change',
     value: string[] | number[],

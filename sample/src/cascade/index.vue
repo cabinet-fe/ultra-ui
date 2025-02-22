@@ -6,7 +6,7 @@
     <CustomCard title="单选">
       <u-cascade
         v-model="cascade"
-        :options="data"
+        :data="data"
         label-key="name"
         value-key="code"
         @update:modelValue="console.log($event)"
@@ -18,7 +18,7 @@
     <CustomCard title="多选">
       <u-cascade
         v-model="cascadeTree"
-        :options="multiData"
+        :data="multiData"
         @update:modelValue="console.log($event)"
         multiple
       />
@@ -29,12 +29,11 @@
     <CustomCard title="过滤">
       <u-cascade
         v-model="cascadeFilter"
-        :options="dataFilter"
+        :data="dataFilter"
         label-key="name"
         value-key="code"
         @update:modelValue="console.log($event)"
         filterable
-        selectAndReset
         :disabledNode="disabledNode"
       />
     </CustomCard>
@@ -50,9 +49,9 @@ import { shallowRef } from 'vue'
 
 const cascade = shallowRef('11/1101/110101')
 
-const cascadeFilter = shallowRef(['13/1306/130606'])
+const cascadeFilter = shallowRef('13/1306/130606')
 
-const cascadeTree = shallowRef([1, 2, 7, 8])
+const cascadeTree = shallowRef(['1', '2', '7', '8'])
 
 const data = shallowRef<any[]>([])
 

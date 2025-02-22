@@ -1,20 +1,30 @@
 <template>
-  <u-scroll tag="ul" :class="cls.e('panel')">
+  <u-scroll tag="ul" :class="panelCls.b">
     <li
       v-for="(item, index) of data"
       :key="getChainValue(item, cascadeProps.valueKey!) ?? index"
       :class="[
-        cls.e('panel-item'),
+        panelCls.e('item'),
         bem.is(
           'selected',
           value === getChainValue(item, cascadeProps.valueKey!)
         )
       ]"
-      @click="emit('expand', item)"
+      @click="emit('click', item)"
     >
-      {{ getChainValue(item, cascadeProps.labelKey!) }}
+      <u-checkbox
+        :class="panelCls.e('item-checkbox')"
+        v-if="cascadeProps.multiple"
+      />
 
-      <u-icon v-if="item[cascadeProps.childrenKey!].length">
+      <span :class="panelCls.e('item-label')">
+        {{ getChainValue(item, cascadeProps.labelKey!) }}
+      </span>
+
+      <u-icon
+        :class="panelCls.e('item-expand')"
+        v-if="item[cascadeProps.childrenKey!]?.length"
+      >
         <ArrowRight />
       </u-icon>
     </li>
@@ -29,9 +39,10 @@ import { getChainValue } from 'cat-kit'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
 import { bem } from '@ui/utils'
+import { UCheckbox } from '../checkbox'
 
 defineOptions({
-  name: 'UCascadePanel'
+  name: 'UCascadeMenu'
 })
 
 defineProps<{
@@ -40,8 +51,10 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'expand', item: Record<string, any>): void
+  (e: 'click', item: Record<string, any>): void
 }>()
 
 const { cls, cascadeProps } = inject(CascadeDIKey)!
+
+const panelCls = cls.create('menu')
 </script>

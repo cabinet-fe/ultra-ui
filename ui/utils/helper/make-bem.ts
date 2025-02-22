@@ -1,7 +1,7 @@
 /** BEM实例 */
 export type BEM<
   N extends string,
-  P extends string = string,
+  P extends string = 'u-',
   B extends string = `${P}${N}`
 > = {
   /** BEM中的块 */
