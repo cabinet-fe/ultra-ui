@@ -1,6 +1,6 @@
 import type { BEM } from '@ui/utils'
 import type { CascadeProps, ComponentSize } from '@ui/types'
-import type { ComputedRef, InjectionKey } from 'vue'
+import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
 
 export const CascadeDIKey: InjectionKey<{
   /** 样式*/
@@ -9,4 +9,5 @@ export const CascadeDIKey: InjectionKey<{
   disabled: ComputedRef<boolean>
   readonly: ComputedRef<boolean>
   cascadeProps: CascadeProps
+  checkedSet: ShallowRef<Set<Record<string, any>>>
 }> = Symbol('CascadeDIKey')

@@ -138,6 +138,7 @@ const handleInput = (e: Event) => {
 
   if (!valid) return
   model.value = inputVal
+  console.log(model.value, inputVal)
 }
 
 const handlePrefixClick = () => {

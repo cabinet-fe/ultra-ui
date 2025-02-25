@@ -21,6 +21,12 @@ export interface CascadeNode<DataItem extends Record<string, any>>
 
 /** 级联选择器组件属性 */
 export interface CascadeProps extends FormComponentProps {
+  /**
+   * 分隔符
+   * @default '/'
+   */
+  separator?: string
+  /** 数据值 */
   modelValue?: string[] | string
   /** 级联数据项的标签字段 */
   labelKey?: string
@@ -62,9 +68,15 @@ export interface CascadeEmits {
   (e: 'update:modelValue', value?: string | string[]): void
   (
     e: 'change',
-    value: string[] | number[],
-    label: string[] | number[],
+    value: string[],
+    label: string[],
     data: Record<string, any>[]
+  ): void
+  (
+    e: 'change',
+    value?: string,
+    label?: string,
+    item?: Record<string, any>
   ): void
   (e: 'clear'): void
 }

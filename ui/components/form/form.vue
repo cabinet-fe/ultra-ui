@@ -2,6 +2,7 @@
   <u-grid
     tag="form"
     ref="gridRef"
+    @submit.prevent
     :cols="breakpointCols"
     :class="[cls.b, bem.is('readonly', readonly)]"
   >

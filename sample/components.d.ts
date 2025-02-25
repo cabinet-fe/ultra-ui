@@ -31,6 +31,7 @@ declare module 'vue' {
     UFilePicker: typeof import('ultra-ui')['UFilePicker']
     UFloatButton: typeof import('ultra-ui')['UFloatButton']
     UForm: typeof import('ultra-ui')['UForm']
+    UFormItem: typeof import('ultra-ui')['UFormItem']
     UGroupInput: typeof import('ultra-ui')['UGroupInput']
     UIcon: typeof import('ultra-ui')['UIcon']
     UInput: typeof import('ultra-ui')['UInput']

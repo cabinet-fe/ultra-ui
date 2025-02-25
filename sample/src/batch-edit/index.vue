@@ -79,7 +79,7 @@ import { sleep } from 'cat-kit/fe'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
-import area from '../cascade/area.json'
+import area from '../cascade/area'
 import type { BatchEditFeature } from '@ui/types'
 
 const readonly = shallowRef(false)

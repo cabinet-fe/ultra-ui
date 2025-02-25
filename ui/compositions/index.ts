@@ -10,6 +10,7 @@ export * from './use-focus'
 
 export * from './use-form-component'
 
+export * from './use-lock'
 export * from './use-model'
 
 export * from './use-pop'

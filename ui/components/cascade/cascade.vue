@@ -11,7 +11,7 @@
     trigger="click"
     ref="dropdownRef"
     :disabled="disabled"
-    :width="panelDataList.length ? 'auto' : ''"
+    width="auto"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
   >
@@ -24,6 +24,8 @@
         :placeholder="placeholder"
         :clearable="clearable"
         native-readonly
+        :model-value="displayedValue"
+        @clear="handleClear"
       >
         <template #suffix>
           <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
@@ -32,7 +34,11 @@
 
       <!-- 多选展示 -->
       <template v-if="multiple">
-        <div v-if="modelValue" :class="cls.e('tags')">
+        <span :class="cls.e('placeholder')" v-show="!modelValue?.length">
+          {{ placeholder }}
+        </span>
+
+        <div v-if="modelValue?.length" :class="cls.e('tags')">
           <u-tag
             v-for="tag of tags"
             :key="tag[valueKey]"
@@ -65,7 +71,7 @@
           placeholder="输入关键字进行过滤"
           v-model="qs"
           :size="size"
-          :clearable="false"
+          clearable
         >
           <template #suffix>
             <u-icon><Search /></u-icon>
@@ -73,12 +79,15 @@
         </u-input>
       </div>
 
-      <div :class="cls.e('content')" v-if="panelDataList.length">
-        <UCascadeMenu
-          v-for="(data, index) of panelDataList"
-          :data="data"
-          :value="modelValueNodes[index]"
-          @click="$event => handleMenuItemClick(index, $event)"
+      <div :class="cls.e('content')" v-if="panelItemList.length">
+        <UCascadePanelItem
+          v-for="(panelItem, index) of panelItemList"
+          :data="panelItem.items"
+          :key="panelItem.key"
+          :panel-index="index"
+          :value="selectedNodeKeys[index]"
+          @click="handleClick"
+          @check="handleCheck"
         />
       </div>
 
@@ -88,27 +97,24 @@
     </template>
   </u-dropdown>
 
-  <div :class="[cls.m(size)]">
+  <!-- <div :class="[cls.m(size)]">
     <div :class="cls.e('tags')">
       <u-tag> </u-tag>
     </div>
-  </div>
+  </div> -->
 
   <!-- <span v-else>{{ FORM_EMPTY_CONTENT }}</span> -->
 </template>
 
 <script lang="ts" setup generic="Multiple extends boolean">
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import {
+  useFormComponent,
+  useFormFallbackProps,
+  useUpdateLock
+} from '@ui/compositions'
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
 import { bem } from '@ui/utils'
-import {
-  computed,
-  nextTick,
-  provide,
-  shallowRef,
-  triggerRef,
-  watchEffect
-} from 'vue'
+import { provide, shallowRef, triggerRef, watch, watchEffect } from 'vue'
 import { ArrowDown, Search, Close } from 'icon-ultra'
 import { CascadeDIKey } from './di'
 import { UInput } from '../input'
@@ -117,8 +123,11 @@ import { UIcon } from '../icon'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import UCascadeMenu from './cascade-menu.vue'
-import { getChainValue, Tree } from 'cat-kit/fe'
+import UCascadePanelItem from './cascade-panel-item.vue'
+import { getChainValue } from 'cat-kit/fe'
+import { useDataMap } from './use-data-map'
+import { useSelect } from './use-select'
+import { useCheck } from './use-check'
 
 defineOptions({
   name: 'Cascade'
@@ -128,6 +137,7 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
+  separator: '/',
   clearable: true,
   disabled: undefined,
   readonly: undefined,
@@ -145,137 +155,177 @@ const { formProps } = useFormComponent()
 
 const { size, disabled, readonly } = useFormFallbackProps(
   [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
+  { size: 'default', disabled: false, readonly: false }
 )
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const dataMap = new Map<string, Record<string, any>>()
+const { dataMap } = useDataMap(props)
 
-// 面板数据
-const panelDataList = shallowRef<Record<string, any>[][]>([])
+const {
+  displayedValue,
+  selectItem,
+  updateSingleValue,
+  panelItemList,
+  initSingleSelect,
+  createPanelItem,
+  selectedNodeKeys
+} = useSelect({
+  props,
+  emit,
+  dataMap,
+  dropdownRef
+})
+
+const {
+  hovered,
+  tags,
+  restTag,
+  updateMultipleValue,
+  handleCloseTag,
+  checkItem,
+  checkedSet
+} = useCheck({
+  props,
+  emit,
+  dataMap,
+  disabled,
+  readonly
+})
+
+// 调度
+const [update, lock] = useUpdateLock()
+
+function initMultipleCheck() {
+  const { modelValue, data } = props
+  panelItemList.value = [createPanelItem(data)]
+  if (Array.isArray(modelValue)) {
+    checkedSet.value = new Set(modelValue.map(v => dataMap.value.get(v)!))
+  }
+}
 
 watchEffect(() => {
-  props.data &&
-    props.data.forEach(item => {
-      Tree.dft(item, item => {
-        const value = getChainValue(item, props.valueKey)
-        if (value !== null && value !== undefined) {
-          dataMap.set(value, item)
-        }
-      })
+  const { multiple } = props
+  if (!dataMap.value.size) return
+
+  if (multiple) {
+    update(() => initMultipleCheck())
+  } else {
+    update(() => initSingleSelect())
+  }
+})
+
+function handleClick(panelIndex: number, item: Record<string, any>) {
+  // 选择
+  const children = selectItem(panelIndex, item)
+
+  // 更新数据
+  !props.multiple &&
+    lock(() => {
+      if (!props.checkStrictly) {
+        updateSingleValue()
+      } else if (!children?.length) {
+        updateSingleValue()
+      }
     })
-})
+}
 
-/** 单选时，值的节点数据 */
-const modelValueNodes = shallowRef<any[]>([])
+function handleCheck(item: Record<string, any>, checked: boolean) {
+  lock(() => checkItem(item, checked))
+}
 
-let modelChangedByUser = false
-
-watchEffect(() => {
-  const { modelValue, multiple, data } = props
-  if (modelChangedByUser) return
-
-  if (!multiple && typeof modelValue === 'string') {
-    const nodes = modelValue.split('/')
-    modelValueNodes.value = nodes
-    console.log(
-      nodes.slice(0, -1).map(v => {
-        return getChainValue(dataMap.get(v)!, props.childrenKey)
-      })
-    )
-    panelDataList.value = [
-      props.data,
-      ...nodes.slice(1).map(v => {
-        return getChainValue(dataMap.get(v)!, props.childrenKey)
-      })
-    ]
-  } else if (multiple && Array.isArray(modelValue)) {
-    modelValueNodes.value = modelValue
-    panelDataList.value = [props.data]
-  }
-})
-
-function handleMenuItemClick(menuIndex: number, item: Record<string, any>) {
-  const { checkStrictly, valueKey, childrenKey } = props
-
-  modelChangedByUser = true
-
-  const children = getChainValue(item, childrenKey)
-
-  if (children?.length) {
-    panelDataList.value[menuIndex + 1] = children
-  }
-  panelDataList.value.splice(menuIndex + 2)
-
-  modelValueNodes.value[menuIndex] = getChainValue(item, valueKey)
-  modelValueNodes.value.splice(menuIndex + 1)
-
-  triggerRef(panelDataList)
-  triggerRef(modelValueNodes)
-
-  const modelValue = modelValueNodes.value.join('/')
-
-  if (!checkStrictly) {
-    emit('update:modelValue', modelValue)
-  } else if (!children?.length) {
-    emit('update:modelValue', modelValue)
+function handleClear() {
+  if (props.multiple) {
+    checkedSet.value.clear()
+    triggerRef(checkedSet)
+    updateMultipleValue()
+  } else {
+    selectedNodeKeys.value = []
+    updateSingleValue()
   }
 
-  nextTick(() => {
-    dropdownRef.value?.updateDropdown()
-    modelChangedByUser = false
-  })
+  emit('clear')
 }
 
 // 过滤
 const qs = shallowRef<string>('')
 
-// 多选
-const hovered = shallowRef(false)
-
-const tags = computed(() => {
-  const { modelValue, multiple } = props
-  let tags: Record<string, any>[] = []
-
-  if (!multiple || !Array.isArray(modelValue)) return tags
-
-  let { visibilityLimit } = props
-  if (visibilityLimit < 0) {
-    visibilityLimit = 0
+watch(qs, qs => {
+  const { data, filterable, labelKey, childrenKey } = props
+  if (!filterable || !qs) {
+    panelItemList.value = [createPanelItem(data)]
+    return
   }
 
-  // 禁用时，显示全部
-  if (disabled.value || readonly.value) {
-    visibilityLimit = props.modelValue?.length ?? 0
+  // 用于存储匹配的节点路径
+  const matchedPaths = new Map<string, Record<string, any>[]>()
+
+  // 深度优先遍历,收集匹配的节点路径
+  function dfs(node: Record<string, any>, path: Record<string, any>[]) {
+    const label = getChainValue(node, labelKey!)
+    const children = getChainValue(node, childrenKey!)
+    const currentPath = [...path, node]
+
+    // 当前节点匹配,记录完整路径
+    if (label?.toLowerCase().includes(qs.toLowerCase())) {
+      matchedPaths.set(label, currentPath)
+    }
+
+    // 递归遍历子节点
+    if (children?.length) {
+      for (const child of children) {
+        dfs(child, currentPath)
+      }
+    }
   }
 
-  modelValue.slice(0, visibilityLimit).forEach(k => {
-    // const option = optionsMap.value.get(k)
-    // option && tags.push(option)
-  })
+  // 遍历原始数据收集路径
+  data?.forEach(node => dfs(node, []))
 
-  return tags
+  // 根据收集的路径重建树结构
+  function rebuildTree(paths: Record<string, any>[][]) {
+    const result: Record<string, any>[] = []
+    const nodeMap = new Map<string, Record<string, any>>()
+
+    // 遍历所有路径
+    for (const path of paths) {
+      let current = result
+
+      // 遍历单条路径的每个节点
+      for (const node of path) {
+        const value = getChainValue(node, labelKey!)
+        let clonedNode = nodeMap.get(value)
+
+        if (!clonedNode) {
+          // 克隆节点,保留原始引用的属性
+          clonedNode = { ...node }
+          clonedNode[childrenKey!] = []
+          nodeMap.set(value, clonedNode)
+        }
+
+        // 将节点添加到当前层级
+        if (!current.includes(clonedNode)) {
+          current.push(clonedNode)
+        }
+
+        current = clonedNode[childrenKey!]
+      }
+    }
+
+    return result
+  }
+
+  panelItemList.value = [
+    createPanelItem(rebuildTree(Array.from(matchedPaths.values())))
+  ]
 })
-
-const restTag = computed(() => {
-  const { visibilityLimit, modelValue } = props
-  return (modelValue?.length ?? 0) - visibilityLimit
-})
-
-function handleCloseTag(tag: Record<string, any>) {}
-
-function handleClear() {}
 
 provide(CascadeDIKey, {
   cls,
   size,
   disabled,
   readonly,
-  cascadeProps: props
+  cascadeProps: props,
+  checkedSet
 })
 </script>
