@@ -1,22 +1,13 @@
 import type { DeconstructValue } from '../helper'
 import type { FormComponentProps } from '../component-common'
-import type { TreeNode as _CascadeNode } from 'cat-kit/fe'
+import type { TreeNode } from 'cat-kit/fe'
 
-export interface CascadeNode<DataItem extends Record<string, any>>
-  extends _CascadeNode<DataItem> {
-  parent: CascadeNode<DataItem> | null
-  children?: CascadeNode<DataItem>[]
-  valueKey: string
-  labelKey: string
+export interface CascadeNode extends TreeNode {
+  parent: CascadeNode | null
+  children?: CascadeNode[]
   visible: boolean
-  expanded: boolean
-  loading: boolean
-  loaded: boolean
-  checked: boolean
-  indeterminate: boolean
-  disabled: boolean
+  value: string
   label: string
-  key: string | number
 }
 
 /** 级联选择器组件属性 */
@@ -38,8 +29,8 @@ export interface CascadeProps extends FormComponentProps {
   clearable?: boolean
   /** 子级字段 */
   childrenKey?: string
-  /** 是否严格模式 */
-  checkStrictly?: boolean
+  /** 严格模式 */
+  strict?: boolean
   /**
    * 数据项
    */
@@ -48,10 +39,7 @@ export interface CascadeProps extends FormComponentProps {
   /**
    * 禁用项
    */
-  disabledNode?: (
-    item: Record<string, any>,
-    node: CascadeNode<Record<string, any>>
-  ) => boolean
+  disabledNode?: (item: Record<string, any>) => boolean
   /**
    * 多选
    */
@@ -61,6 +49,11 @@ export interface CascadeProps extends FormComponentProps {
    */
   filterable?: boolean
   visibilityLimit?: number
+}
+
+export interface PanelItem {
+  key: number
+  nodes: CascadeNode[]
 }
 
 /** 级联选择器组件定义的事件 */

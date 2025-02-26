@@ -63,7 +63,7 @@
           <u-cascade
             field="cascade"
             label="单选级联选择器"
-            :options="cascadeData"
+            :data="cascadeData"
           />
         </template>
       </u-form>

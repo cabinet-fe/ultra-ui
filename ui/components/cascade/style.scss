@@ -66,6 +66,7 @@ $menu-name: $root-name + '-panel-item';
 
   @include m.e(panel-filter) {
     padding: 4px;
+    display: flex;
   }
 
   @include m.e(tags) {
@@ -102,6 +103,10 @@ $menu-name: $root-name + '-panel-item';
       background-color: fn.use-var(color, primary, light-9);
     }
 
+    &:not(:last-child) {
+      margin-bottom: 0.2rem;
+    }
+
     @include m.is(active) {
       background-color: fn.use-var(color, primary, light-9);
       border-radius: fn.use-var(radius, default);
@@ -119,6 +124,10 @@ $menu-name: $root-name + '-panel-item';
 
   @include m.e(option-label) {
     flex-grow: 1;
+  }
+
+  @include m.e(option-checkbox) {
+    height: auto;
   }
 
   @include m.e(option-expand, option-checkbox) {

@@ -41,11 +41,11 @@
         <div v-if="modelValue?.length" :class="cls.e('tags')">
           <u-tag
             v-for="tag of tags"
-            :key="tag[valueKey]"
+            :key="tag.value"
             :closable="!disabled"
             @close="handleCloseTag(tag)"
           >
-            {{ getChainValue(tag, labelKey!) }}
+            {{ tag.label }}
           </u-tag>
           <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
         </div>
@@ -81,9 +81,9 @@
 
       <div :class="cls.e('content')" v-if="panelItemList.length">
         <UCascadePanelItem
-          v-for="(panelItem, index) of panelItemList"
-          :data="panelItem.items"
-          :key="panelItem.key"
+          v-for="({ nodes, key }, index) of panelItemList"
+          :data="nodes"
+          :key="key"
           :panel-index="index"
           :value="selectedNodeKeys[index]"
           @click="handleClick"
@@ -97,16 +97,18 @@
     </template>
   </u-dropdown>
 
-  <!-- <div :class="[cls.m(size)]">
-    <div :class="cls.e('tags')">
-      <u-tag> </u-tag>
+  <!-- 只读 -->
+  <template v-else>
+    <div :class="[cls.m(size)]" v-if="multiple">
+      <div :class="cls.e('tags')">
+        <u-tag> </u-tag>
+      </div>
     </div>
-  </div> -->
-
-  <!-- <span v-else>{{ FORM_EMPTY_CONTENT }}</span> -->
+    <span v-else>{{ displayedValue || FORM_EMPTY_CONTENT }}</span>
+  </template>
 </template>
 
-<script lang="ts" setup generic="Multiple extends boolean">
+<script lang="ts" setup>
 import {
   useFormComponent,
   useFormFallbackProps,
@@ -114,7 +116,7 @@ import {
 } from '@ui/compositions'
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
 import { bem } from '@ui/utils'
-import { provide, shallowRef, triggerRef, watch, watchEffect } from 'vue'
+import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
 import { ArrowDown, Search, Close } from 'icon-ultra'
 import { CascadeDIKey } from './di'
 import { UInput } from '../input'
@@ -124,10 +126,11 @@ import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import UCascadePanelItem from './cascade-panel-item.vue'
-import { getChainValue } from 'cat-kit/fe'
+import { Forest, getChainValue } from 'cat-kit/fe'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
+import { CascadeNode } from './node'
 
 defineOptions({
   name: 'Cascade'
@@ -160,20 +163,48 @@ const { size, disabled, readonly } = useFormFallbackProps(
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const { dataMap } = useDataMap(props)
+const forest = computed(() => {
+  return Forest.create(props.data ?? [], {
+    createNode: (data, index) => {
+      if (!data) {
+        return new CascadeNode({
+          data,
+          index,
+          value: '',
+          label: ''
+        })
+      }
+
+      return new CascadeNode({
+        data,
+        index,
+        value: getChainValue(data, props.valueKey) ?? '',
+        label: getChainValue(data, props.labelKey) ?? ''
+      })
+    },
+    childrenKey: props.childrenKey
+  })
+})
+
+const { dataMap } = useDataMap({ props, forest })
+
+// 初始化更新辅助
+const [update, lock] = useUpdateLock()
 
 const {
   displayedValue,
   selectItem,
   updateSingleValue,
   panelItemList,
-  initSingleSelect,
+  getPanelItemList,
   createPanelItem,
   selectedNodeKeys
 } = useSelect({
   props,
   emit,
   dataMap,
+  forest,
+  update,
   dropdownRef
 })
 
@@ -187,50 +218,31 @@ const {
   checkedSet
 } = useCheck({
   props,
+  forest,
+  getPanelItemList,
   emit,
   dataMap,
+  update,
   disabled,
   readonly
 })
 
-// 调度
-const [update, lock] = useUpdateLock()
-
-function initMultipleCheck() {
-  const { modelValue, data } = props
-  panelItemList.value = [createPanelItem(data)]
-  if (Array.isArray(modelValue)) {
-    checkedSet.value = new Set(modelValue.map(v => dataMap.value.get(v)!))
-  }
-}
-
-watchEffect(() => {
-  const { multiple } = props
-  if (!dataMap.value.size) return
-
-  if (multiple) {
-    update(() => initMultipleCheck())
-  } else {
-    update(() => initSingleSelect())
-  }
-})
-
-function handleClick(panelIndex: number, item: Record<string, any>) {
+function handleClick(panelIndex: number, item: CascadeNode) {
   // 选择
-  const children = selectItem(panelIndex, item)
+  selectItem(panelIndex, item)
 
   // 更新数据
   !props.multiple &&
     lock(() => {
-      if (!props.checkStrictly) {
+      if (!props.strict) {
         updateSingleValue()
-      } else if (!children?.length) {
+      } else if (!item.children?.length) {
         updateSingleValue()
       }
     })
 }
 
-function handleCheck(item: Record<string, any>, checked: boolean) {
+function handleCheck(item: CascadeNode, checked: boolean) {
   lock(() => checkItem(item, checked))
 }
 
@@ -250,74 +262,31 @@ function handleClear() {
 // 过滤
 const qs = shallowRef<string>('')
 
-watch(qs, qs => {
-  const { data, filterable, labelKey, childrenKey } = props
+watch([qs, forest], ([qs, forest]) => {
+  const { filterable } = props
   if (!filterable || !qs) {
-    panelItemList.value = [createPanelItem(data)]
+    forest.dft(node => (node.visible = true))
+    getPanelItemList(forest.nodes)
     return
   }
 
-  // 用于存储匹配的节点路径
-  const matchedPaths = new Map<string, Record<string, any>[]>()
+  const cache = new Set<CascadeNode>()
 
-  // 深度优先遍历,收集匹配的节点路径
-  function dfs(node: Record<string, any>, path: Record<string, any>[]) {
-    const label = getChainValue(node, labelKey!)
-    const children = getChainValue(node, childrenKey!)
-    const currentPath = [...path, node]
-
-    // 当前节点匹配,记录完整路径
-    if (label?.toLowerCase().includes(qs.toLowerCase())) {
-      matchedPaths.set(label, currentPath)
-    }
-
-    // 递归遍历子节点
-    if (children?.length) {
-      for (const child of children) {
-        dfs(child, currentPath)
+  forest.dft(node => {
+    if (node.label?.toLowerCase().includes(qs.toLowerCase())) {
+      node.visible = true
+      let parent = node.parent
+      while (parent && parent.depth !== 0 && !cache.has(parent)) {
+        parent.visible = true
+        cache.add(parent)
+        parent = parent.parent
       }
+    } else {
+      node.visible = false
     }
-  }
+  })
 
-  // 遍历原始数据收集路径
-  data?.forEach(node => dfs(node, []))
-
-  // 根据收集的路径重建树结构
-  function rebuildTree(paths: Record<string, any>[][]) {
-    const result: Record<string, any>[] = []
-    const nodeMap = new Map<string, Record<string, any>>()
-
-    // 遍历所有路径
-    for (const path of paths) {
-      let current = result
-
-      // 遍历单条路径的每个节点
-      for (const node of path) {
-        const value = getChainValue(node, labelKey!)
-        let clonedNode = nodeMap.get(value)
-
-        if (!clonedNode) {
-          // 克隆节点,保留原始引用的属性
-          clonedNode = { ...node }
-          clonedNode[childrenKey!] = []
-          nodeMap.set(value, clonedNode)
-        }
-
-        // 将节点添加到当前层级
-        if (!current.includes(clonedNode)) {
-          current.push(clonedNode)
-        }
-
-        current = clonedNode[childrenKey!]
-      }
-    }
-
-    return result
-  }
-
-  panelItemList.value = [
-    createPanelItem(rebuildTree(Array.from(matchedPaths.values())))
-  ]
+  panelItemList.value = [createPanelItem(forest.nodes)]
 })
 
 provide(CascadeDIKey, {

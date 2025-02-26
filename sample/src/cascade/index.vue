@@ -4,8 +4,10 @@
       {{ propsModel.data }}
       <u-form style="display: flex; gap: 12px" :model="propsModel">
         <u-checkbox label="多选" field="multiple" @change="value = undefined" />
-        <u-checkbox label="严格选择" field="checkStrictly" />
+        <u-checkbox label="严格模式" field="strict" />
         <u-checkbox label="过滤" field="filterable" />
+        <u-checkbox label="只读" field="readonly" />
+        <u-checkbox label="禁用" field="disabled" />
         <u-input
           label="分隔符"
           field="separator"
@@ -38,9 +40,11 @@ const value = shallowRef()
 
 const propsModel = new FormModel({
   multiple: { value: false },
-  checkStrictly: { value: false },
+  strict: { value: false },
   filterable: { value: false },
-  separator: { value: '/' }
+  separator: { value: '/' },
+  readonly: { value: false },
+  disabled: { value: false }
 })
 
 const data = shallowRef<any[]>([])

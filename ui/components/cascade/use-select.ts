@@ -3,21 +3,30 @@ import {
   nextTick,
   shallowRef,
   triggerRef,
+  watch,
   type ShallowRef
 } from 'vue'
-import { getChainValue } from 'cat-kit/fe'
-import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
+import { Forest } from 'cat-kit/fe'
+import type {
+  CascadeProps,
+  CascadeEmits,
+  CascadeNode,
+  DropdownExposed,
+  PanelItem
+} from '@ui/types'
 import { createIncrease } from '@ui/utils'
 
 interface SelectOptions {
   props: CascadeProps
   emit: CascadeEmits
-  dataMap: ShallowRef<Map<string, Record<string, any>>>
+  update: (fn: Function) => any
+  forest: ShallowRef<Forest<CascadeNode>>
+  dataMap: ShallowRef<Map<string, CascadeNode>>
   dropdownRef: ShallowRef<DropdownExposed | undefined>
 }
 
 export function useSelect(options: SelectOptions) {
-  const { props, emit, dataMap, dropdownRef } = options
+  const { props, emit, dataMap, update, dropdownRef, forest } = options
 
   /** 选中的节点key */
   const selectedNodeKeys = shallowRef<string[]>([])
@@ -25,27 +34,46 @@ export function useSelect(options: SelectOptions) {
   const currentItem = shallowRef<Record<string, any>>()
 
   /** 面板数据 */
-  const panelItemList = shallowRef<
-    Array<{
-      key: number
-      items: Record<string, any>[]
-    }>
-  >([])
+  const panelItemList = shallowRef<PanelItem[]>([])
+  const uid = createIncrease()
+  function createPanelItem(nodes: CascadeNode[]): PanelItem {
+    return { key: uid(), nodes: nodes.filter(node => node.visible) }
+  }
 
   const displayedValue = computed(() => {
-    if (!selectedNodeKeys.value.length) return undefined
-    return selectedNodeKeys.value
-      .map(v => {
-        const item = dataMap.value.get(v)
-        return item ? getChainValue(item, props.labelKey!) : v
+    const { modelValue, separator } = props
+    const valueNodes =
+      modelValue && typeof modelValue === 'string'
+        ? modelValue.split(separator!)
+        : undefined
+    return valueNodes
+      ?.map(v => {
+        const node = dataMap.value.get(v)
+        return node?.label ?? v
       })
       .join(props.separator)
   })
 
-  const uid = createIncrease()
+  function getPanelItemList(data?: CascadeNode[]) {
+    const _panelItemList: Array<PanelItem> = []
+    if (!data?.length) return panelItemList
+    _panelItemList.push(createPanelItem(data))
 
-  function createPanelItem(data: Record<string, any>[]) {
-    return { key: uid(), items: data }
+    selectedNodeKeys.value.slice(0, -1).forEach(key => {
+      const node = dataMap.value.get(key)
+      node?.children?.length &&
+        _panelItemList.push(createPanelItem(node.children))
+    })
+
+    panelItemList.value = _panelItemList
+  }
+
+  function setPanelItem(panelIndex: number, panelData?: CascadeNode[]) {
+    if (panelData?.length) {
+      panelItemList.value[panelIndex + 1] = createPanelItem(panelData)
+    }
+    panelItemList.value.splice(panelIndex + 2)
+    triggerRef(panelItemList)
   }
 
   function updateSingleValue() {
@@ -65,54 +93,46 @@ export function useSelect(options: SelectOptions) {
    * @param panelIndex 面板索引
    * @param item 选中的节点
    */
-  function selectItem(panelIndex: number, item: Record<string, any>) {
-    const { childrenKey, valueKey } = props
-
-    const children = getChainValue(item, childrenKey!)
-
+  function selectItem(panelIndex: number, item: CascadeNode) {
     // 设置选中的节点
     currentItem.value = item
-    selectedNodeKeys.value[panelIndex] = getChainValue(item, valueKey!)
+    selectedNodeKeys.value[panelIndex] = item.value
     selectedNodeKeys.value.splice(panelIndex + 1)
     triggerRef(selectedNodeKeys)
 
     // 展开子级面板
-    if (children?.length) {
-      panelItemList.value[panelIndex + 1] = createPanelItem(children)
-    }
-    panelItemList.value.splice(panelIndex + 2)
-    triggerRef(panelItemList)
+    setPanelItem(panelIndex, item.children)
 
     nextTick(() => {
       dropdownRef.value?.updateDropdown()
     })
 
-    if (!children?.length) {
+    if (!item.children?.length && !props.multiple) {
       dropdownRef.value?.close()
     }
-
-    return children
   }
 
   function initSingleSelect() {
-    const { modelValue, childrenKey, data, separator } = props
+    const { modelValue, separator } = props
 
     if (modelValue && typeof modelValue === 'string') {
       const nodes = modelValue.split(separator!)
       selectedNodeKeys.value = nodes
-      const dataList = nodes
-        .slice(0, -1)
-        .map(v => {
-          const item = dataMap.value.get(v)
-          return createPanelItem(item ? getChainValue(item, childrenKey!) : [])
-        })
-        .filter(d => !!d.items.length)
-      panelItemList.value = [createPanelItem(data!), ...dataList]
+      getPanelItemList(forest.value.nodes)
     } else {
       selectedNodeKeys.value = []
-      panelItemList.value = [createPanelItem(data!)]
+      getPanelItemList(forest.value.nodes)
     }
   }
+
+  watch(
+    [() => props.multiple, () => props.modelValue, forest],
+    ([multiple]) => {
+      if (multiple) return
+      update(() => initSingleSelect())
+    },
+    { immediate: true }
+  )
 
   return {
     displayedValue,
@@ -121,6 +141,8 @@ export function useSelect(options: SelectOptions) {
     updateSingleValue,
     initSingleSelect,
     panelItemList,
+    getPanelItemList,
+    setPanelItem,
     createPanelItem
   }
 }

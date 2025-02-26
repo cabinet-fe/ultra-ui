@@ -1,9 +1,11 @@
-import type { CascadeProps, CascadeEmits } from '@ui/types'
-import { getChainValue, Tree } from 'cat-kit'
+import type { CascadeProps, CascadeEmits, CascadeNode } from '@ui/types'
+import type { Forest } from 'cat-kit'
 import {
   computed,
   shallowRef,
   triggerRef,
+  watch,
+  type ComputedRef,
   type Ref,
   type ShallowRef
 } from 'vue'
@@ -11,21 +13,33 @@ import {
 interface CheckOptions {
   props: CascadeProps
   emit: CascadeEmits
-  dataMap: ShallowRef<Map<string, Record<string, any>>>
+  dataMap: ShallowRef<Map<string, CascadeNode>>
   disabled: Ref<boolean>
   readonly: Ref<boolean>
+  forest: ComputedRef<Forest<CascadeNode>>
+  update: (fn: Function) => any
+  getPanelItemList: (data?: CascadeNode[]) => void
 }
 
 export function useCheck(options: CheckOptions) {
-  const { props, emit, dataMap, disabled, readonly } = options
+  const {
+    props,
+    emit,
+    dataMap,
+    disabled,
+    readonly,
+    forest,
+    update,
+    getPanelItemList
+  } = options
 
   const hovered = shallowRef(false)
 
-  const checkedSet = shallowRef(new Set<Record<string, any>>())
+  const checkedSet = shallowRef(new Set<CascadeNode>())
 
   const tags = computed(() => {
     const { modelValue, multiple } = props
-    let tags: Record<string, any>[] = []
+    let tags: CascadeNode[] = []
 
     if (!multiple || !Array.isArray(modelValue)) return tags
 
@@ -49,12 +63,8 @@ export function useCheck(options: CheckOptions) {
 
   function updateMultipleValue() {
     const checkedArr = Array.from(checkedSet.value)
-    const targetValues = checkedArr.map(item =>
-      getChainValue(item, props.valueKey!)
-    )
-    const targetLabels = checkedArr.map(item =>
-      getChainValue(item, props.labelKey!)
-    )
+    const targetValues = checkedArr.map(item => item.value)
+    const targetLabels = checkedArr.map(item => item.label)
     emit('update:modelValue', targetValues)
     emit('change', targetValues, targetLabels, checkedArr)
   }
@@ -64,36 +74,42 @@ export function useCheck(options: CheckOptions) {
     return (modelValue?.length ?? 0) - visibilityLimit!
   })
 
-  function handleCloseTag(tag: Record<string, any>) {
+  function handleCloseTag(tag: CascadeNode) {
     checkedSet.value.delete(tag)
     updateMultipleValue()
   }
 
-  function checkItem(item: Record<string, any>, checked: boolean) {
-    const { childrenKey } = props
-
+  function checkItem(item: CascadeNode, checked: boolean) {
     if (checked) {
-      Tree.dft(
-        item,
-        item => {
-          checkedSet.value.add(item)
-        },
-        childrenKey
-      )
+      item.dft(node => {
+        checkedSet.value.add(node)
+      })
     } else {
-      Tree.dft(
-        item,
-        item => {
-          checkedSet.value.delete(item)
-        },
-        childrenKey
-      )
+      item.dft(node => {
+        checkedSet.value.delete(node)
+      })
     }
 
     triggerRef(checkedSet)
 
     updateMultipleValue()
   }
+
+  function initMultipleCheck() {
+    const { modelValue } = props
+    getPanelItemList()
+    if (Array.isArray(modelValue)) {
+      checkedSet.value = new Set(modelValue.map(v => dataMap.value.get(v)!))
+    }
+  }
+
+  watch(
+    [() => props.multiple, () => props.modelValue, forest],
+    ([multiple]) => {
+      multiple && update(() => initMultipleCheck())
+    },
+    { immediate: false }
+  )
 
   return {
     hovered,

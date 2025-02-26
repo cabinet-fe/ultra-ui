@@ -1,23 +1,27 @@
-import { Tree, getChainValue } from 'cat-kit/fe'
-import type { CascadeProps } from '@ui/types'
-import { shallowRef, triggerRef, watchEffect } from 'vue'
+import { Forest, getChainValue } from 'cat-kit/fe'
+import type { CascadeNode, CascadeProps } from '@ui/types'
+import { shallowRef, triggerRef, watchEffect, type ComputedRef } from 'vue'
+
+interface DataMapOptions {
+  props: CascadeProps
+  forest: ComputedRef<Forest<CascadeNode>>
+}
 
 /** 数据映射相关逻辑 */
-export function useDataMap(props: CascadeProps) {
-  const dataMap = shallowRef(new Map<string, Record<string, any>>())
+export function useDataMap(options: DataMapOptions) {
+  const { props, forest } = options
+  const dataMap = shallowRef(new Map<string, CascadeNode>())
 
   watchEffect(() => {
-    const { valueKey, data } = props
+    const { valueKey } = props
 
     dataMap.value.clear()
 
-    data?.forEach(item => {
-      Tree.dft(item, item => {
-        const value = getChainValue(item, valueKey!)
-        if (value !== null && value !== undefined) {
-          dataMap.value.set(value, item)
-        }
-      })
+    forest.value.dft(node => {
+      const value = getChainValue(node.data, valueKey!)
+      if (value !== null && value !== undefined) {
+        dataMap.value.set(value, node)
+      }
     })
 
     triggerRef(dataMap)

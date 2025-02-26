@@ -1,26 +1,24 @@
 <template>
   <u-scroll tag="ul" :class="panelCls.b" :content-class="panelCls.e('content')">
     <li
-      v-for="(item, index) of data"
-      :key="getChainValue(item, cascadeProps.valueKey!) ?? index"
-      :class="getItemCls(item)"
-      @click="emit('click', panelIndex, item)"
+      v-for="(node, index) of data"
+      :key="node.value ?? index"
+      ref="itemRefs"
+      :class="getItemCls(node)"
+      @click="emit('click', panelIndex, node)"
     >
       <u-checkbox
         v-if="cascadeProps.multiple"
         :class="panelCls.e('option-checkbox')"
-        :model-value="checkedSet.has(item)"
-        @update:model-value="emit('check', item, $event)"
+        :model-value="checkedSet.has(node)"
+        @update:model-value="emit('check', node, $event)"
       />
 
       <span :class="panelCls.e('option-label')">
-        {{ getChainValue(item, cascadeProps.labelKey!) }}
+        {{ node.label }}
       </span>
 
-      <u-icon
-        :class="panelCls.e('option-expand')"
-        v-if="item[cascadeProps.childrenKey!]?.length"
-      >
+      <u-icon :class="panelCls.e('option-expand')" v-if="node.children?.length">
         <ArrowRight />
       </u-icon>
     </li>
@@ -28,28 +26,28 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { inject, onMounted, shallowRef } from 'vue'
 import { UScroll } from '../scroll'
 import { CascadeDIKey } from './di'
-import { getChainValue } from 'cat-kit'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
 import { bem } from '@ui/utils'
 import { UCheckbox } from '../checkbox'
+import type { CascadeNode } from '@ui/types'
 
 defineOptions({
   name: 'UCascadePanelItem'
 })
 
 const props = defineProps<{
-  data: Record<string, any>[]
+  data: CascadeNode[]
   value?: string
   panelIndex: number
 }>()
 
 const emit = defineEmits<{
-  (e: 'click', panelIndex: number, item: Record<string, any>): void
-  (e: 'check', item: Record<string, any>, checked: boolean): void
+  (e: 'click', panelIndex: number, item: CascadeNode): void
+  (e: 'check', item: CascadeNode, checked: boolean): void
 }>()
 
 const { cls, cascadeProps, checkedSet } = inject(CascadeDIKey)!
@@ -58,13 +56,22 @@ const panelCls = cls.create('panel-item')
 
 const optionCls = panelCls.e('option')
 
-function getItemCls(item: Record<string, any>) {
-  const { value } = props
-  const selected = value === getChainValue(item, cascadeProps.valueKey!)
+function getItemCls(item: CascadeNode) {
+  const selected = props.value === item.value
   return [
     optionCls,
     bem.is('active', selected),
     bem.is('selected', selected && !cascadeProps.multiple)
   ]
 }
+
+const itemRefs = shallowRef<HTMLElement[]>([])
+
+onMounted(() => {
+  itemRefs.value
+    .find(el => el.classList.contains(bem.is('active')))
+    ?.scrollIntoView({
+      block: 'center'
+    })
+})
 </script>
