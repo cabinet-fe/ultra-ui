@@ -119,6 +119,7 @@ const emit = defineEmits<DialogEmits>()
 const slots = defineSlots<{
   footer?: (props: { close: () => void }) => any
   trigger?: () => any
+  header?: () => any
   default?: (props: {
     /** 弹框是否最大化了 */
     maximized: boolean
