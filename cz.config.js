@@ -1,4 +1,7 @@
 import { definePrompt } from 'czg'
+import { readdirSync } from 'fs'
+
+const scopes = readdirSync('./ui')
 
 export default definePrompt({
   alias: { fd: 'docs: fix typos' },
@@ -14,6 +17,7 @@ export default definePrompt({
     footer: '列举关联issue (可选) 例如: #31, #I3244 :\n',
     confirmCommit: '是否提交或修改commit ?'
   },
+
   types: [
     { value: 'feat', name: 'feat:    ✨ 新增功能', emoji: ':sparkles:' },
     { value: 'fix', name: 'fix:     🐛 修复缺陷', emoji: ':bug:' },
@@ -61,7 +65,7 @@ export default definePrompt({
   useAI: false,
   aiNumber: 2,
   themeColorCode: '',
-  scopes: [],
+
   allowCustomScopes: true,
   allowEmptyScopes: true,
   customScopesAlign: 'bottom',
@@ -89,6 +93,7 @@ export default definePrompt({
   defaultIssues: '',
   defaultScope: '',
   defaultSubject: '',
+  scopes,
   aiQuestionCB: ({ maxSubjectLength, diff }) =>
     `用完整句子为以下 Git diff 代码写一个有见解并简洁的 Git 中文提交消息，不加任何前缀，并且内容不能超过 ${maxSubjectLength} 个字符: \`\`\`diff\n${diff}\n\`\`\``
 })
