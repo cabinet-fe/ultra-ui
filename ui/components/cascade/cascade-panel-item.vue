@@ -1,5 +1,10 @@
 <template>
-  <u-scroll tag="ul" :class="panelCls.b" :content-class="panelCls.e('content')">
+  <u-scroll
+    tag="ul"
+    :class="panelCls.b"
+    ref="scroll-container"
+    :content-class="panelCls.e('content')"
+  >
     <li
       v-for="(node, index) of data"
       :key="node.value ?? index"
@@ -26,12 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, shallowRef } from 'vue'
+import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'
 import { UScroll } from '../scroll'
 import { CascadeDIKey } from './di'
 import { UIcon } from '../icon'
 import { ArrowRight } from 'icon-ultra'
-import { bem } from '@ui/utils'
+import { bem, scrollIntoContainerView } from '@ui/utils'
 import { UCheckbox } from '../checkbox'
 import type { CascadeNode } from '@ui/types'
 
@@ -66,12 +71,22 @@ function getItemCls(item: CascadeNode) {
 }
 
 const itemRefs = shallowRef<HTMLElement[]>([])
+const scrollContainerRef = useTemplateRef('scroll-container')
 
 onMounted(() => {
-  itemRefs.value
-    .find(el => el.classList.contains(bem.is('active')))
-    ?.scrollIntoView({
-      block: 'center'
+  const activeItem = itemRefs.value.find(el =>
+    el.classList.contains(bem.is('active'))
+  )
+  if (activeItem) {
+    setTimeout(() => {
+      scrollIntoContainerView(
+        activeItem,
+        scrollContainerRef.value?.containerRef ?? null,
+        {
+          block: 'end'
+        }
+      )
     })
+  }
 })
 </script>

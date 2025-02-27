@@ -73,7 +73,7 @@ import type {
   AutoCompleteProps,
   _AutoCompleteExposed
 } from '@ui/types'
-import { bem } from '@ui/utils'
+import { bem, scrollIntoContainerView } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
@@ -125,8 +125,10 @@ const scrollRef = shallowRef<ScrollExposed>()
 
 watch(scrollRef, scroll => {
   if (scroll && model.value !== undefined) {
-    const li = scroll.contentRef!.querySelector(`li[data-key="${model.value}"]`)
-    li?.scrollIntoView({ block: 'nearest', inline: 'start' })
+    const li = scroll.contentRef!.querySelector(
+      `li[data-key="${model.value}"]`
+    ) as HTMLElement
+    li && scrollIntoContainerView(li, scroll.containerRef ?? null)
   }
 })
 

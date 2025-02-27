@@ -91,7 +91,7 @@ function handleClick() {
       '120105'
     ]
   } else {
-    value.value = '11/1101/110105'
+    value.value = '22'
   }
 }
 </script>

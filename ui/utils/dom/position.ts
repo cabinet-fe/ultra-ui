@@ -1,83 +1,3 @@
-interface Options {
-  /** 触发元素 */
-  triggerEl: HTMLElement
-  /** 弹出元素 */
-  popupEl: HTMLElement
-  /** 间距 */
-  gap?: number
-}
-
-function getWindowScrollTop() {
-  let doc = document.documentElement
-  return (window.scrollY || doc.scrollTop) - (doc.clientTop || 0)
-}
-
-function getWindowScrollLeft() {
-  let doc = document.documentElement
-  return (window.scrollX || doc.scrollLeft) - (doc.clientLeft || 0)
-}
-
-function getViewport() {
-  let win = window,
-    d = document,
-    e = d.documentElement,
-    g = document.body,
-    w = win.innerWidth || e.clientWidth || g.clientWidth,
-    h = win.innerHeight || e.clientHeight || g.clientHeight
-
-  return { width: w, height: h }
-}
-
-interface DropdownPosition {
-  top: string
-  left: string
-  width: string
-  transformOrigin: string
-}
-
-/**
- * 计算下拉框位置
- * @param options 选项
- * @returns
- */
-export function computeDropdownPosition(options: Options): DropdownPosition {
-  const { triggerEl, popupEl, gap = 6 } = options
-
-  const triggerRect = triggerEl.getBoundingClientRect()
-
-  const windowScrollLeft = getWindowScrollLeft()
-  const windowScrollTop = getWindowScrollTop()
-  const viewport = getViewport()
-
-  let top = triggerRect.top + triggerEl.offsetHeight + windowScrollTop + gap
-  let left = triggerRect.left + windowScrollLeft
-
-  let transformOrigin: 'top' | 'bottom' = 'top'
-
-  if (top + popupEl.offsetHeight > window.innerHeight) {
-    top = triggerRect.top + windowScrollTop - popupEl.offsetHeight - gap
-    transformOrigin = 'bottom'
-  }
-
-  // 最小left为0
-  if (triggerRect.left + popupEl.offsetWidth > viewport.width) {
-    left = Math.max(
-      0,
-      triggerRect.left +
-        windowScrollLeft +
-        triggerEl.offsetWidth -
-        popupEl.offsetWidth
-    )
-  }
-
-  return {
-    top: top + 'px',
-    left: left + 'px',
-    width: triggerEl.offsetWidth + 'px',
-    transformOrigin
-  }
-}
-
 /**
  * 获取可滚动的父级
  * @param el 元素
@@ -94,4 +14,88 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
     parent = parent.parentElement
   }
   return parents
+}
+
+/**
+ * 获取最近的可滚动父级
+ * @param el 元素
+ * @returns 最近的可滚动父级
+ */
+export function getNearestScrollParent(el: HTMLElement): HTMLElement | null {
+  let parent = el.parentElement
+  while (parent) {
+    if (parent.scrollHeight > parent.clientHeight) {
+      return parent
+    }
+    parent = parent.parentElement
+  }
+  return null
+}
+
+type ScrollViewPosition = 'center' | 'start' | 'end'
+
+/**
+ * 滚动元素到容器视图中
+ * @description 用于替代 `el.scrollIntoView` 方法，因为 `el.scrollIntoView` 在某些情况下会导致外部元素滚动
+ * @param el 元素
+ * @param container 可滚动容器
+ * @param options 滚动选项
+ */
+export function scrollIntoContainerView(
+  el: HTMLElement,
+  container: HTMLElement | null,
+  options?: {
+    block?: ScrollViewPosition
+    inline?: ScrollViewPosition
+  }
+) {
+  container = container || getNearestScrollParent(el)
+  if (!container) return
+
+  const { block = 'center', inline = 'center' } = options || {}
+
+  const {
+    offsetTop: eOffsetTop,
+    offsetLeft: eOffsetLeft,
+    offsetHeight: eOffsetHeight,
+    offsetWidth: eOffsetWidth
+  } = el
+
+  const {
+    clientHeight: cClientHeight,
+    clientWidth: cClientWidth,
+    scrollTop: cScrollTop,
+    scrollLeft: cScrollLeft
+  } = container
+
+  const isVerticalInView =
+    cScrollTop + cClientHeight > eOffsetTop + eOffsetHeight &&
+    cScrollTop < eOffsetTop
+
+  const isHorizontalInView =
+    cScrollLeft + cClientWidth > eOffsetLeft + eOffsetWidth &&
+    cScrollLeft < eOffsetLeft
+
+  // 垂直方向和水平方向都已经在视图中，则不进行滚动
+  if (isVerticalInView && isHorizontalInView) return
+
+  if (!isVerticalInView) {
+    if (block === 'center') {
+      container.scrollTop = eOffsetTop - cClientHeight / 2 + eOffsetHeight / 2
+    } else if (block === 'start') {
+      container.scrollTop = eOffsetTop
+    } else if (block === 'end') {
+      container.scrollTop = eOffsetTop - cClientHeight + eOffsetHeight
+    }
+  }
+
+  if (!isHorizontalInView) {
+    if (inline === 'center') {
+      container.scrollLeft = eOffsetLeft - cClientWidth / 2 + eOffsetWidth / 2
+    } else if (inline === 'start') {
+      container.scrollLeft = eOffsetLeft
+    } else if (inline === 'end') {
+      container.scrollLeft = eOffsetLeft - cClientWidth + eOffsetWidth
+    }
+  }
 }

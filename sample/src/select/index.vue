@@ -1,16 +1,13 @@
 <template>
   <div style="display: flex; justify-content: center">
     <CustomCard width="400px" title="使用">
-      <div style="height: 100vh"></div>
       <u-checkbox v-model="filterable">过滤</u-checkbox>
       <u-select
         v-model="selected"
         :filterable="filterable"
         :options="options"
       />
-      <u-input v-model="selected" />
-
-      <div style="height: 10vh"></div>
+      <u-number-input v-model="count" step />
     </CustomCard>
 
     <CustomCard width="400px" title="函数选项">
@@ -22,18 +19,20 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
+import { shallowRef, watchEffect } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { sleep } from 'cat-kit/fe'
 
 const options = shallowRef<any[]>([])
 
-setTimeout(() => {
-  options.value = Array.from({ length: 80 }).map((_, i) => ({
+const count = shallowRef(80)
+
+watchEffect(() => {
+  options.value = Array.from({ length: count.value }).map((_, i) => ({
     label: `选项${i}`,
     value: i + ''
   }))
-}, 1000)
+})
 
 const selected = shallowRef()
 

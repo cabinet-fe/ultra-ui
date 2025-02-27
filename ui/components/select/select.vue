@@ -114,7 +114,7 @@ import type {
   DropdownExposed,
   ScrollExposed
 } from '@ui/types'
-import { bem, withUnit } from '@ui/utils'
+import { bem, withUnit, scrollIntoContainerView } from '@ui/utils'
 import {
   useFormComponent,
   useFormFallbackProps,
@@ -233,20 +233,21 @@ const virtualOptions = computed(() => {
   })
 })
 
-watch(scrollRef, scroll => {
-  if (scroll && model.value !== undefined) {
-    nextTick(() => {
-      if (virtualEnabled.value) {
-        const index = virtualList.value.find(
-          option => option === selected.value
-        )?.index
-        index !== undefined && scrollTo(index)
-      } else {
-        scrollRef.value?.contentRef
-          ?.getElementsByClassName('is-selected')[0]
-          ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-      }
-    })
+watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
+  if (!scroll || !model.value) return
+
+  if (virtualEnabled) {
+    const index = options.value.findIndex(option => option === selected.value)
+    index !== -1 && nextTick(() => scrollTo(index))
+  } else {
+    const selectedEl =
+      scroll?.contentRef?.getElementsByClassName('is-selected')[0]
+    if (selectedEl) {
+      scrollIntoContainerView(
+        selectedEl as HTMLElement,
+        scroll.containerRef ?? null
+      )
+    }
   }
 })
 

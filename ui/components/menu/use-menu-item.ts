@@ -1,6 +1,7 @@
 import { computed, inject, shallowRef, watch } from 'vue'
 import type { MenuItem } from '@ui/types'
 import { MenuDIKey } from './di'
+import { scrollIntoContainerView } from '@ui/utils'
 
 interface Options {
   itemProps: { menu: MenuItem; depth: number }
@@ -22,8 +23,7 @@ export function useMenuItem(options: Options) {
       return
     }
     if (!active || !itemEl) return
-
-    itemEl.scrollIntoView({ block: 'center' })
+    scrollIntoContainerView(itemEl, null)
   })
 
   function handleClickMenu() {

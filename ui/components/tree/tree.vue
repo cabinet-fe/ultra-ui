@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, nextFrame, withUnit } from '@ui/utils'
+import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ui/utils'
 import type { TreeProps, TreeEmit, _TreeExposed } from '@ui/types'
 import {
   computed,
@@ -172,10 +172,9 @@ function scrollIntoView() {
   if (virtualEnabled.value) {
     scrollTo(index)
   } else {
-    scrollRef.value?.contentRef?.children[index]?.scrollIntoView({
-      block: 'nearest',
-      inline: 'nearest'
-    })
+    const { contentRef, containerRef } = scrollRef.value ?? {}
+    const el = contentRef?.children[index]
+    el && scrollIntoContainerView(el as HTMLElement, containerRef ?? null)
   }
 }
 

@@ -58,7 +58,7 @@ export function useVirtual(options: Options): VirtualReturned {
   /** 总高度 */
   const totalHeight = shallowRef(0)
 
-  const onChange = () => {
+  function updateVirtualList() {
     if (enabled.value) {
       totalHeight.value = v.getTotalSize()
       virtualList.value = v.getVirtualItems() as CustomVirtualItem[]
@@ -76,13 +76,13 @@ export function useVirtual(options: Options): VirtualReturned {
       observeElementRect: observeElementRect,
       observeElementOffset: observeElementOffset,
       scrollToFn: elementScroll,
-      onChange
+      onChange: updateVirtualList
     }
   })
 
   const v = new Virtualizer(virtualizerOptions.value)
 
-  onChange()
+  updateVirtualList()
 
   const cleanup = v._didMount()
 
@@ -101,7 +101,7 @@ export function useVirtual(options: Options): VirtualReturned {
 
       v._willUpdate()
 
-      onChange()
+      updateVirtualList()
     }
   )
 
@@ -111,7 +111,7 @@ export function useVirtual(options: Options): VirtualReturned {
 
   function scrollTo(index: number) {
     v.scrollToIndex(index, {
-      align: 'start'
+      align: 'center'
     })
   }
 
