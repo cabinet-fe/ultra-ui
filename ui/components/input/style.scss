@@ -80,6 +80,7 @@ $root-name: input;
     cursor: pointer;
     color: fn.use-var(text-color, main);
     min-width: 20px;
+    flex-shrink: 0;
   }
 
   @include m.is(disabled) {

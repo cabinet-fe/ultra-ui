@@ -81,10 +81,7 @@ onMounted(() => {
     setTimeout(() => {
       scrollIntoContainerView(
         activeItem,
-        scrollContainerRef.value?.containerRef ?? null,
-        {
-          block: 'end'
-        }
+        scrollContainerRef.value?.containerRef ?? null
       )
     })
   }

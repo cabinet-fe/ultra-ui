@@ -178,6 +178,14 @@ export const area = [
             children: []
           }
         ]
+      },
+      {
+        code: '1102',
+        name: 'test',
+        parentCode: '11',
+        notOptional: null,
+        sorted: 0,
+        id: '_1435849365352374276'
       }
     ]
   },

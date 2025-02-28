@@ -29,21 +29,20 @@
       :disabled="disabled"
       :readonly="nativeReadonly"
     />
-
     <Transition name="zoom-in" mode="out-in">
       <UIcon
         v-if="clearable && model && hovered && !disabled"
         :class="cls.e('clear')"
+        title="清除"
         @click.stop="clearModelValue"
       >
         <Close />
       </UIcon>
     </Transition>
-
     <span
-      v-if="$slots.suffix || suffix"
       :class="suffixClass"
       @click="handleSuffixClick"
+      v-if="$slots.suffix || suffix"
     >
       <slot name="suffix">{{ suffix }}</slot>
     </span>

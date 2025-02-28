@@ -14,6 +14,7 @@
     width="auto"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
+    @update:visible="!$event && (qs = '')"
   >
     <template #trigger>
       <!-- 单选展示 -->
@@ -66,7 +67,7 @@
 
     <template #content>
       <!-- 过滤 -->
-      <div v-if="filterable" :class="[cls.e('panel-filter'), cls.m(size)]">
+      <div v-if="filterable" :class="cls.e('panel-filter')">
         <u-input
           placeholder="输入关键字进行过滤"
           v-model="qs"
@@ -101,7 +102,9 @@
   <template v-else>
     <div :class="[cls.m(size)]" v-if="multiple">
       <div :class="cls.e('tags')">
-        <u-tag> </u-tag>
+        <u-tag v-for="tag of tags" :key="tag.value">
+          {{ tag.label }}
+        </u-tag>
       </div>
     </div>
     <span v-else>{{ displayedValue || FORM_EMPTY_CONTENT }}</span>

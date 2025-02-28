@@ -71,8 +71,11 @@ export function useSelect(options: SelectOptions) {
   function setPanelItem(panelIndex: number, panelData?: CascadeNode[]) {
     if (panelData?.length) {
       panelItemList.value[panelIndex + 1] = createPanelItem(panelData)
+      panelItemList.value.splice(panelIndex + 2)
+    } else {
+      panelItemList.value.splice(panelIndex + 1)
     }
-    panelItemList.value.splice(panelIndex + 2)
+
     triggerRef(panelItemList)
   }
 

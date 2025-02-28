@@ -36,13 +36,12 @@ $menu-name: $root-name + '-panel-item';
       @include m.bem($root-name, clear) {
         font-size: fn.use-var(font-size-main, $size);
       }
+    }
 
-      @include m.bem($root-name, tags) {
-        gap: calc(
-          (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) /
-            2
-        );
-      }
+    @include m.bem($root-name, tags) {
+      gap: calc(
+        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
+      );
     }
   }
 
@@ -67,6 +66,11 @@ $menu-name: $root-name + '-panel-item';
   @include m.e(panel-filter) {
     padding: 4px;
     display: flex;
+
+    @include m.bem(input) {
+      flex-grow: 1;
+      width: 160px;
+    }
   }
 
   @include m.e(tags) {
@@ -86,6 +90,7 @@ $menu-name: $root-name + '-panel-item';
   padding: 4px 0;
   height: 200px;
   min-width: 160px;
+  max-width: 200px;
   flex-grow: 1;
 
   &:not(:last-child) {
