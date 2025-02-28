@@ -86,8 +86,16 @@ export function useSelect(options: SelectOptions) {
       ? selectedNodeKeys.value.join(separator!)
       : undefined
 
+    const targetLabel = selectedNodeKeys.value
+      .map(key => {
+        const node = dataMap.value.get(key)
+        return node?.label
+      })
+      .filter(Boolean)
+      .join(separator!)
+
     emit('update:modelValue', targetValue)
-    emit('change', targetValue, displayedValue.value, currentItem.value!)
+    emit('change', targetValue, targetLabel, currentItem.value!)
   }
 
   /**
