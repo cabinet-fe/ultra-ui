@@ -33,6 +33,8 @@ $root-name: paginator;
     color: fn.use-var(text, color, title);
     user-select: none;
     border-radius: 50%;
+    margin: 0;
+    list-style: none;
     cursor: pointer;
     @include m.flex($justify: center);
 
@@ -63,6 +65,9 @@ $root-name: paginator;
   }
 
   @include m.e(pages) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
     @include m.flex($justify: space-between);
   }
 
