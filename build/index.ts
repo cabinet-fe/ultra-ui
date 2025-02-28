@@ -14,7 +14,7 @@ async function boot() {
   await copyFiles()
   await genPackageJson()
   try {
-    await $`cd ../dist && pnpm publish --registry http://192.168.31.250:6005 --no-git-checks`
+    await $`cd ../dist && npm publish --registry http://192.168.31.250:6005`
   } catch (error: any) {
     console.error(error.stderr?.toString())
   }
