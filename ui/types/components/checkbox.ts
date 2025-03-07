@@ -1,4 +1,4 @@
-import type { FormComponentProps } from '../component-common'
+import type { ColorType, FormComponentProps } from '../component-common'
 
 /** 复选框组件属性 */
 export interface CheckboxProps extends FormComponentProps {
@@ -8,9 +8,23 @@ export interface CheckboxProps extends FormComponentProps {
   modelValue?: boolean
 }
 
+export interface CheckboxButtonProps extends FormComponentProps {
+  /** 是否选中  */
+  modelValue?: boolean
+  /** 是否圆角 */
+  round?: boolean
+  /** 类型 */
+  type?: ColorType
+}
+
 export interface CheckboxEmits {
   (name: 'update:modelValue', checked: boolean): void
   (name: 'change', checked: boolean, e: MouseEvent): void
+}
+
+export interface CheckboxButtonEmits {
+  (name: 'update:modelValue', checked: boolean): void
+  (name: 'change', checked: boolean): void
 }
 
 /** 复选框暴露的属性和方法 */
