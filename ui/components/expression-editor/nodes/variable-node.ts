@@ -1,12 +1,18 @@
 import {
   DecoratorNode,
   type LexicalNode,
-  type SerializedLexicalNode
+  type SerializedLexicalNode,
+  $createTextNode,
+  type NodeKey
 } from 'lexical'
 import { cls } from '../shared'
 import { createEl } from '@ui/utils/dom/node'
 
-export class VariableNode extends DecoratorNode<null> {
+interface SerializedVariableNode extends SerializedLexicalNode {
+  variable: string
+}
+
+export class VariableNode extends DecoratorNode<HTMLElement> {
   __variable: string
   __text: string
 
@@ -18,11 +24,13 @@ export class VariableNode extends DecoratorNode<null> {
     return new VariableNode(node.__variable, node.__key)
   }
 
-  static override importJSON(serializedNode: SerializedLexicalNode) {
-    return super.importJSON(serializedNode)
+  static override importJSON(
+    serializedNode: SerializedVariableNode
+  ): VariableNode {
+    return new VariableNode(serializedNode.variable)
   }
 
-  constructor(variable: string, key?: string) {
+  constructor(variable: string, key?: NodeKey) {
     super(key)
     this.__variable = variable
     this.__text = `{${variable}}`
@@ -50,8 +58,42 @@ export class VariableNode extends DecoratorNode<null> {
     return false
   }
 
-  override decorate() {
-    return null
+  override decorate(): HTMLElement {
+    const dom = this.createDOM()
+
+    // 确保变量节点可以被正确选中
+    dom.contentEditable = 'false'
+    dom.draggable = false
+    dom.style.display = 'inline-block'
+    dom.style.userSelect = 'none'
+
+    return dom
+  }
+
+  override exportJSON(): SerializedVariableNode {
+    return {
+      ...super.exportJSON(),
+      type: 'variable',
+      variable: this.__variable,
+      version: 1
+    }
+  }
+
+  // 处理键盘导航，确保在变量节点后可以正确插入内容
+  insertNewAfter(): LexicalNode {
+    const textNode = $createTextNode('')
+    this.insertAfter(textNode)
+    return textNode
+  }
+
+  // 确保节点可以被选中
+  override isInline(): boolean {
+    return true
+  }
+
+  // 确保节点可以被选中
+  isSegmented(): boolean {
+    return false
   }
 }
 

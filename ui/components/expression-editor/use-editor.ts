@@ -1,4 +1,13 @@
-import { $createParagraphNode, $getRoot, createEditor, TextNode } from 'lexical'
+import {
+  $createParagraphNode,
+  $getRoot,
+  createEditor,
+  TextNode,
+  KEY_ARROW_LEFT_COMMAND,
+  KEY_ARROW_RIGHT_COMMAND,
+  KEY_ARROW_UP_COMMAND,
+  KEY_ARROW_DOWN_COMMAND
+} from 'lexical'
 import { VariableNode } from './nodes/variable-node'
 import { registerPlainText } from '@lexical/plain-text'
 import { mergeRegister } from '@lexical/utils'
@@ -25,17 +34,53 @@ export function useEditor(options: EditorOptions) {
     namespace: 'UExpressionEditor',
     nodes: [VariableNode],
     onError: console.error,
-    editable: getEditable()
+    editable: getEditable(),
+    theme: {
+      variableNode: 'variable-tag'
+    }
   })
 
   mergeRegister(registerPlainText(editor))
+
+  mergeRegister(
+    editor.registerCommand(
+      KEY_ARROW_LEFT_COMMAND,
+      () => {
+        return false
+      },
+      0
+    ),
+    editor.registerCommand(
+      KEY_ARROW_RIGHT_COMMAND,
+      () => {
+        return false
+      },
+      0
+    ),
+    editor.registerCommand(
+      KEY_ARROW_UP_COMMAND,
+      () => {
+        return false
+      },
+      0
+    ),
+    editor.registerCommand(
+      KEY_ARROW_DOWN_COMMAND,
+      () => {
+        return false
+      },
+      0
+    )
+  )
 
   watchEffect(() => {
     editor.setEditable(getEditable())
   })
 
   watchEffect(() => {
-    container.value && editor.setRootElement(container.value)
+    if (container.value) {
+      editor.setRootElement(container.value)
+    }
   })
 
   editor.registerUpdateListener(({ editorState }) => {
