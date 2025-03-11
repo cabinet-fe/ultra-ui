@@ -76,6 +76,33 @@ watch([alpha, RGB, colorType], ([alpha, RGB, colorType]) => {
   }
 })
 
+function rgbToHsv(r: number, g: number, b: number) {
+  // 输入验证
+  ~([r, g, b] = [r, g, b].map(x => Math.max(0, Math.min(255, x))))
+
+  // 归一化到0-1范围
+  const red = r / 255
+  const green = g / 255
+  const blue = b / 255
+  const max = Math.max(red, green, blue)
+  const min = Math.min(red, green, blue)
+  const delta = max - min
+  let h = 0
+  if (delta !== 0) {
+    if (max === red) {
+      h = ((green - blue) / delta) % 6
+    } else if (max === green) {
+      h = (blue - red) / delta + 2
+    } else {
+      h = (red - green) / delta + 4
+    }
+    h = (h * 60 + 360) % 360 // 确保正值
+  }
+  const s = max === 0 ? 0 : delta / max
+  const v = max
+  return { h, s, v }
+}
+
 provide(PaletteDIKey, {
   cls,
   RGB,
