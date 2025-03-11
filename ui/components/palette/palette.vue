@@ -3,14 +3,14 @@
     <span :class="className" :style="{ backgroundColor: color }"> </span>
 
     <template #content>
-      <!-- 调色盘 -->
+      <!-- 饱和度和亮度 -->
       <PaletteCanvas />
 
-      <!-- 色阶 -->
-      <PaletteColorSlider />
+      <!-- 色相 -->
+      <PaletteHue />
 
       <!-- 透明度 -->
-      <PaletteAlphaSlider />
+      <PaletteAlpha />
 
       <!-- 颜色切换 -->
       <PaletteColorSwitch />
@@ -24,9 +24,9 @@ import { bem } from '@ui/utils'
 import { UTip } from '../tip'
 import { computed, provide, watch } from 'vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import PaletteCanvas from './palette-canvas.vue'
-import PaletteColorSlider from './palette-color-slider.vue'
-import PaletteAlphaSlider from './palette-alpha-slider.vue'
+import PaletteCanvas from './palette-sv.vue'
+import PaletteHue from './palette-hue.vue'
+import PaletteAlpha from './palette-alpha.vue'
 import PaletteColorSwitch from './palette-color-switch.vue'
 import { useRGBA } from './use-rgba'
 import { PaletteDIKey } from './di'
@@ -49,16 +49,16 @@ const className = computed(() => {
 })
 const color = defineModel<string>()
 
-const { RGBA, updateAlpha, updateRGB } = useRGBA()
+const { RGB, alpha, ...rest } = useRGBA()
 
-watch(RGBA, () => {
-  color.value = `rgba(${RGBA.r}, ${RGBA.g}, ${RGBA.b}, ${RGBA.a})`
+watch([alpha, RGB], ([alpha, RGB]) => {
+  color.value = `rgba(${RGB.r}, ${RGB.g}, ${RGB.b}, ${alpha})`
 })
 
 provide(PaletteDIKey, {
   cls,
-  RGBA,
-  updateAlpha,
-  updateRGB
+  RGB,
+  alpha,
+  ...rest
 })
 </script>

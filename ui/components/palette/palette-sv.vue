@@ -1,18 +1,18 @@
 <template>
   <!-- 调色画布 -->
-  <div :class="cls.e('canvas')" ref="canvasRef">
+  <div :class="cls.e('sv')" ref="svRef">
     <div
-      :class="cls.e('canvas-color')"
+      :class="cls.e('sv-s')"
       :style="{ backgroundImage: canvasBackground }"
     ></div>
-    <div :class="cls.e('canvas-gray')"></div>
+    <div :class="cls.e('sv-v')">{{ hue }}</div>
 
     <div
-      :class="cls.e('canvas-thumb')"
-      ref="canvasThumbRef"
+      :class="cls.e('sv-thumb')"
+      ref="svThumbRef"
       @click.stop
       @mousedown.stop
-      :style="canvasThumbStyle"
+      :style="svThumbStyle"
     ></div>
   </div>
 </template>
@@ -24,18 +24,18 @@
 
 import { computed, inject } from 'vue'
 import { PaletteDIKey } from './di'
-import { useCanvasThumb } from './use-canvas'
+import { useSV } from './use-sv'
 
 defineOptions({
   name: 'PaletteCanvas'
 })
 
-const { cls, RGBA } = inject(PaletteDIKey)!
+const { cls, hue } = inject(PaletteDIKey)!
 
-const { canvasRef, canvasThumbRef, canvasThumbStyle } = useCanvasThumb()
+const { svRef, svThumbRef, svThumbStyle } = useSV()
 
 const canvasBackground = computed(() => {
-  const { r, g, b } = RGBA
+  const { r, g, b } = hue
   return `linear-gradient(to right, rgb(255, 255, 255), rgb(${r}, ${g}, ${b}))`
 })
 </script>

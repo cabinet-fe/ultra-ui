@@ -2,10 +2,19 @@ import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 // import { UltraUI } from '../ui/install'
-import { loadTheme } from '../ui/styles/theme'
+import { lightTheme, loadTheme, UITheme } from '../ui/styles/theme'
 import 'ultra-ui/styles'
 
-loadTheme()
+loadTheme(
+  lightTheme.new({
+    menu: {
+      bg: {
+        color: '#1172C3'
+      },
+      color: '#fff'
+    }
+  })
+)
 
 const app = createApp({
   render: () => h(App)

@@ -1,9 +1,25 @@
-import type { PaletteRGBA } from '@ui/types'
+import type { PaletteRGB, PaletteSV } from '@ui/types'
 import { n } from 'cat-kit'
-import { reactive } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 export function useRGBA() {
-  const RGBA = reactive<PaletteRGBA>({ r: 255, g: 0, b: 0, a: 1 })
+  /** 色调 */
+  const hue = reactive<PaletteRGB>({ r: 255, g: 0, b: 0 })
+
+  /** 饱和度 亮度 */
+  const sv = reactive({ s: 0, v: 0 })
+
+  /** 最终的颜色 */
+  const RGB = reactive<PaletteRGB>({ r: 255, g: 0, b: 0 })
+
+  /** 透明度 */
+  const alpha = ref(1)
+
+  function HSV2RGB(hue: PaletteRGB, sv: PaletteSV) {}
+
+  watch([hue, sv], () => {
+    HSV2RGB(hue, sv)
+  })
 
   // 调色盘色阶
   // r: 255, g: 0, b: 0
@@ -14,55 +30,55 @@ export function useRGBA() {
   // r: 255, g: 0, b: 255
   // r: 255, g: 0, b: 0
 
-  const scaleUpdaterMap: Record<number, (rate: number) => void> = {
+  const hueUpdaterMap: Record<number, (rate: number) => void> = {
     0: rate => {
-      RGBA.r = 255
-      RGBA.g = Math.round(255 * rate)
-      RGBA.b = 0
+      hue.r = 255
+      hue.g = Math.round(255 * rate)
+      hue.b = 0
     },
     1: rate => {
-      RGBA.r = 255 + Math.round(-255 * rate)
-      RGBA.g = 255
-      RGBA.b = 0
+      hue.r = 255 + Math.round(-255 * rate)
+      hue.g = 255
+      hue.b = 0
     },
     2: rate => {
-      RGBA.r = 0
-      RGBA.g = 255
-      RGBA.b = Math.round(255 * rate)
+      hue.r = 0
+      hue.g = 255
+      hue.b = Math.round(255 * rate)
     },
     3: rate => {
-      RGBA.r = 0
-      RGBA.g = 255 + Math.round(-255 * rate)
-      RGBA.b = 255
+      hue.r = 0
+      hue.g = 255 + Math.round(-255 * rate)
+      hue.b = 255
     },
     4: rate => {
-      RGBA.r = Math.round(255 * rate)
-      RGBA.g = 0
-      RGBA.b = 255
+      hue.r = Math.round(255 * rate)
+      hue.g = 0
+      hue.b = 255
     },
     5: rate => {
-      RGBA.r = 255
-      RGBA.g = 0
-      RGBA.b = 255 + Math.round(-255 * rate)
+      hue.r = 255
+      hue.g = 0
+      hue.b = 255 + Math.round(-255 * rate)
     },
     6: () => {
-      RGBA.r = 255
-      RGBA.g = 0
-      RGBA.b = 0
+      hue.r = 255
+      hue.g = 0
+      hue.b = 0
     }
   }
 
-  /**
-   * 更新调色盘的颜色
-   * @param offsetX 调色指针偏移量
-   * @param width 调色条宽度
-   */
-  function updateRGB(offsetX: number, width: number) {
-    const scale = (offsetX / width) * 6
-    const scaleIndex = Math.floor(scale)
-    const rate = scale % 1
+  function updateHue(index: number, rate: number) {
+    hueUpdaterMap[index]!(rate)
+  }
 
-    scaleUpdaterMap[scaleIndex]!(rate)
+  function updateSV({ s, v }: { s?: number; v?: number }) {
+    if (s !== undefined) {
+      sv.s = s
+    }
+    if (v !== undefined) {
+      sv.v = v
+    }
   }
 
   /**
@@ -71,14 +87,17 @@ export function useRGBA() {
    * @param width 调色条宽度
    */
   function updateAlpha(offsetX: number, width: number) {
-    RGBA.a = +n(offsetX / width).fixed({ maxPrecision: 2 })
+    alpha.value = +n(offsetX / width).fixed({ maxPrecision: 2 })
   }
 
   return {
-    RGBA,
+    hue,
+    sv,
+    RGB,
+    alpha,
 
-    updateRGB,
-
+    updateSV,
+    updateHue,
     updateAlpha
   }
 }

@@ -1,9 +1,9 @@
 import { useDrag } from '@ui/compositions'
 import { computed, reactive, shallowRef } from 'vue'
 
-export function useCanvasThumb() {
-  const canvasRef = shallowRef<HTMLDivElement>()
-  const canvasThumbRef = shallowRef<HTMLDivElement>()
+export function useSV() {
+  const svRef = shallowRef<HTMLDivElement>()
+  const svThumbRef = shallowRef<HTMLDivElement>()
 
   const canvasSize = {
     width: 0,
@@ -14,8 +14,8 @@ export function useCanvasThumb() {
   const rangeY = [0, 0] as [number, number]
 
   const getCanvasSize = () => {
-    if (!canvasRef.value) return
-    const { width, height } = canvasRef.value.getBoundingClientRect()
+    if (!svRef.value) return
+    const { width, height } = svRef.value.getBoundingClientRect()
 
     canvasSize.width = width
     rangeX[1] = width
@@ -29,7 +29,7 @@ export function useCanvasThumb() {
     y: 0
   })
 
-  const canvasThumbStyle = computed(() => {
+  const svThumbStyle = computed(() => {
     return {
       transform: `translate(${transform.x}px, ${transform.y}px)`
     }
@@ -40,8 +40,8 @@ export function useCanvasThumb() {
     transform.y = offsetY
   }
 
-  const canvasDragger = useDrag({
-    target: canvasRef,
+  const svDragger = useDrag({
+    target: svRef,
     rangeX,
     rangeY,
 
@@ -55,16 +55,16 @@ export function useCanvasThumb() {
 
       updateThumb(offsetX, offsetY)
 
-      canvasDragger.update({ offsetX, offsetY })
-      canvasThumbDragger.update({ offsetX, offsetY })
+      svDragger.update({ offsetX, offsetY })
+      svThumbDragger.update({ offsetX, offsetY })
     },
     onDragEnd({ offsetX, offsetY }) {
-      canvasThumbDragger.update({ offsetX, offsetY })
+      svThumbDragger.update({ offsetX, offsetY })
     }
   })
 
-  const canvasThumbDragger = useDrag({
-    target: canvasThumbRef,
+  const svThumbDragger = useDrag({
+    target: svThumbRef,
     rangeX,
     rangeY,
     onDrag({ offsetX, offsetY }) {
@@ -76,8 +76,8 @@ export function useCanvasThumb() {
   })
 
   return {
-    canvasThumbRef,
-    canvasRef,
-    canvasThumbStyle
+    svThumbRef,
+    svRef,
+    svThumbStyle
   }
 }

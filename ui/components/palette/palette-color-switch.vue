@@ -11,12 +11,12 @@
         :key="key"
         :clearable="false"
         :placeholder="key.toUpperCase()"
-        v-model="RGBA[key]"
+        v-model="RGB[key]"
         :min="0"
         :max="255"
       />
       <u-number-input
-        v-model="RGBA.a"
+        v-model="alpha"
         :min="0"
         :max="1"
         :max-precision="2"
@@ -47,7 +47,7 @@ const colorTypes = ['RGB', 'HEX'] as const
 
 const colorType = shallowRef<(typeof colorTypes)[number]>(colorTypes[0])
 
-const { cls, RGBA } = inject(PaletteDIKey)!
+const { cls, RGB, alpha } = inject(PaletteDIKey)!
 
 const rgbKeys = ['r', 'g', 'b'] as const
 
@@ -58,10 +58,16 @@ const hexColor = shallowRef('')
 
 const colorTypeEffects = {
   HEX: () => {
-    const hexStr = ['r', 'g', 'b', 'a']
-      .map(key => RGBA[key].toString(16).padStart(2, '0'))
+    const hexKeys = ['r', 'g', 'b']
+    if (alpha.value < 1) {
+      hexKeys.push('a')
+    }
+
+    const hexStr = hexKeys
+      .map(key => RGB[key].toString(16).padStart(2, '0'))
       .join('')
       .toUpperCase()
+
     hexColor.value = `#${hexStr}`
 
     console.log(hexColor.value)

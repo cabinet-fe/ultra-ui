@@ -24,12 +24,12 @@ $slider-thumb-size: 18px;
     width: 250px;
   }
 
-  @include m.e(canvas) {
+  @include m.e(sv) {
     height: 150px;
     position: relative;
   }
 
-  @include m.e(canvas-thumb) {
+  @include m.e(sv-thumb) {
     width: 10px;
     height: 10px;
     top: -5px;
@@ -41,7 +41,7 @@ $slider-thumb-size: 18px;
     border-radius: 50%;
   }
 
-  @include m.e(canvas-color, canvas-gray) {
+  @include m.e(sv-s, sv-v) {
     position: absolute;
     top: 0;
     left: 0;
@@ -49,18 +49,18 @@ $slider-thumb-size: 18px;
     height: 100%;
   }
 
-  @include m.e(canvas-gray) {
+  @include m.e(sv-v) {
     background-image: linear-gradient(to bottom, #0000, #000);
   }
 
-  @include m.e(slider, alpha-slider) {
+  @include m.e(hue, alpha) {
     height: $slider-height;
     margin: fn.use-var(gap, large) 0;
     position: relative;
     border: fn.use-var(border);
   }
 
-  @include m.e(slider) {
+  @include m.e(hue) {
     background: linear-gradient(
       to right,
       rgb(255, 0, 0),
@@ -73,8 +73,9 @@ $slider-thumb-size: 18px;
     );
   }
 
-  @include m.e(alpha-slider) {
-    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+  @include m.e(alpha) {
+    background-image:
+      linear-gradient(45deg, #ccc 25%, transparent 25%),
       linear-gradient(135deg, #ccc 25%, transparent 25%),
       linear-gradient(45deg, transparent 75%, #ccc 75%),
       linear-gradient(135deg, transparent 75%, #ccc 75%);
@@ -94,7 +95,7 @@ $slider-thumb-size: 18px;
     }
   }
 
-  @include m.e(slider-thumb) {
+  @include m.e(hue-thumb, alpha-thumb) {
     height: 100%;
     background-color: #000;
     left: -3px;

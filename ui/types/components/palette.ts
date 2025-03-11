@@ -1,11 +1,17 @@
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
-export interface PaletteRGBA {
+/** 色调 */
+export interface PaletteRGB {
   r: number
   g: number
   b: number
-  a: number
+}
+
+/** 饱和度 亮度 */
+export interface PaletteSV {
+  s: number
+  v: number
 }
 
 /** 调色盘组件属性 */
