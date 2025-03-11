@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const color = ref('')
+const color = ref('#1172C3')
 </script>
 
 <style lang="scss" scoped></style>

@@ -7,7 +7,7 @@ export function useRGBA() {
   const hue = reactive<PaletteRGB>({ r: 255, g: 0, b: 0 })
 
   /** 饱和度 亮度 */
-  const sv = reactive({ s: 0, v: 0 })
+  const sv = reactive({ s: 1, v: 1 })
 
   /** 最终的颜色 */
   const RGB = reactive<PaletteRGB>({ r: 255, g: 0, b: 0 })
@@ -15,7 +15,43 @@ export function useRGBA() {
   /** 透明度 */
   const alpha = ref(1)
 
-  function HSV2RGB(hue: PaletteRGB, sv: PaletteSV) {}
+  /**
+   * 将色调、饱和度和亮度转换为 RGB 颜色
+   * @param hue 色调 RGB 值
+   * @param sv 饱和度和亮度
+   */
+  function HSV2RGB(hue: PaletteRGB, sv: PaletteSV) {
+    const { s, v } = sv
+
+    // 如果饱和度为0，则为灰色
+    if (s === 0) {
+      const gray = Math.round(255 * v)
+      RGB.r = gray
+      RGB.g = gray
+      RGB.b = gray
+      return
+    }
+
+    // 获取当前色调
+    const { r, g, b } = hue
+
+    // 应用饱和度 (与白色混合)
+    // 饱和度为1时，颜色最纯；饱和度为0时，颜色为白色
+    let newR = r * s + 255 * (1 - s)
+    let newG = g * s + 255 * (1 - s)
+    let newB = b * s + 255 * (1 - s)
+
+    // 应用亮度 (与黑色混合)
+    // 亮度为1时，颜色最亮；亮度为0时，颜色为黑色
+    newR = newR * v
+    newG = newG * v
+    newB = newB * v
+
+    // 更新RGB对象
+    RGB.r = Math.round(newR)
+    RGB.g = Math.round(newG)
+    RGB.b = Math.round(newB)
+  }
 
   watch([hue, sv], () => {
     HSV2RGB(hue, sv)

@@ -5,7 +5,7 @@
       :class="cls.e('sv-s')"
       :style="{ backgroundImage: canvasBackground }"
     ></div>
-    <div :class="cls.e('sv-v')">{{ hue }}</div>
+    <div :class="cls.e('sv-v')"></div>
 
     <div
       :class="cls.e('sv-thumb')"
@@ -27,7 +27,7 @@ import { PaletteDIKey } from './di'
 import { useSV } from './use-sv'
 
 defineOptions({
-  name: 'PaletteCanvas'
+  name: 'PaletteSV'
 })
 
 const { cls, hue } = inject(PaletteDIKey)!

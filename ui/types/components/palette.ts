@@ -14,6 +14,9 @@ export interface PaletteSV {
   v: number
 }
 
+/** 调色盘组件颜色类型 */
+export type PaletteColorType = 'HEX' | 'RGB'
+
 /** 调色盘组件属性 */
 export interface PaletteProps extends FormComponentProps {
   modelValue?: string

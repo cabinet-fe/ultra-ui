@@ -1,9 +1,11 @@
 import { useDrag } from '@ui/compositions'
-import { computed, reactive, shallowRef } from 'vue'
+import { computed, inject, reactive, shallowRef } from 'vue'
+import { PaletteDIKey } from './di'
 
 export function useSV() {
   const svRef = shallowRef<HTMLDivElement>()
   const svThumbRef = shallowRef<HTMLDivElement>()
+  const { updateSV } = inject(PaletteDIKey)!
 
   const canvasSize = {
     width: 0,
@@ -38,6 +40,15 @@ export function useSV() {
   function updateThumb(offsetX: number, offsetY: number) {
     transform.x = offsetX
     transform.y = offsetY
+
+    // 根据画布位置计算饱和度和亮度
+    // 水平方向表示饱和度，从左到右饱和度逐渐增高
+    // 垂直方向表示亮度，上亮下暗
+    const s = Math.max(0, Math.min(1, offsetX / canvasSize.width))
+    const v = Math.max(0, Math.min(1, 1 - offsetY / canvasSize.height))
+
+    // 更新饱和度和亮度
+    updateSV({ s, v })
   }
 
   const svDragger = useDrag({
