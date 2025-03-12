@@ -1,11 +1,11 @@
 import { useDrag } from '@ui/compositions'
-import { computed, inject, reactive, shallowRef } from 'vue'
+import { computed, inject, reactive, shallowRef, watch } from 'vue'
 import { PaletteDIKey } from './di'
 
 export function useSV() {
   const svRef = shallowRef<HTMLDivElement>()
   const svThumbRef = shallowRef<HTMLDivElement>()
-  const { updateSV } = inject(PaletteDIKey)!
+  const { updateSV, HSV } = inject(PaletteDIKey)!
 
   const canvasSize = {
     width: 0,
@@ -29,6 +29,11 @@ export function useSV() {
   const transform = reactive({
     x: 0,
     y: 0
+  })
+
+  watch(HSV, () => {
+    transform.x = canvasSize.width * HSV.s
+    transform.y = canvasSize.height * (1 - HSV.v)
   })
 
   const svThumbStyle = computed(() => {

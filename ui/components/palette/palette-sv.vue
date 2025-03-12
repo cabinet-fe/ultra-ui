@@ -5,7 +5,7 @@
       :class="cls.e('sv-s')"
       :style="{ backgroundImage: canvasBackground }"
     ></div>
-    <div :class="cls.e('sv-v')"></div>
+    <div :class="cls.e('sv-v')">{{}}</div>
 
     <div
       :class="cls.e('sv-thumb')"
@@ -30,12 +30,12 @@ defineOptions({
   name: 'PaletteSV'
 })
 
-const { cls, hue } = inject(PaletteDIKey)!
+const { cls, hueRGB } = inject(PaletteDIKey)!
 
 const { svRef, svThumbRef, svThumbStyle } = useSV()
 
 const canvasBackground = computed(() => {
-  const { r, g, b } = hue
+  const { r, g, b } = hueRGB.value
   return `linear-gradient(to right, rgb(255, 255, 255), rgb(${r}, ${g}, ${b}))`
 })
 </script>

@@ -68,6 +68,16 @@ export const lightTheme = new UITheme({
       large: 56
     }),
 
+    hover: {
+      bg: 'var(--color-primary, light-9)',
+      color: 'inherit'
+    },
+
+    active: {
+      bg: 'var(--color-primary, light-5)',
+      color: 'inherit'
+    },
+
     bg: {
       color: 'var(--bg-color-top-alpha)',
       blur: 'var(--bg-filter-blur)',
@@ -127,6 +137,14 @@ export const lightTheme = new UITheme({
   },
 
   table: {
-    borderColor: '#eee'
+    borderColor: '#eee',
+    stripe: {
+      bg: 'var(--bg-color-hover)',
+      color: 'inherit'
+    },
+    hover: {
+      bg: 'var(--color-primary-light-9)',
+      color: 'inherit'
+    }
   }
 })

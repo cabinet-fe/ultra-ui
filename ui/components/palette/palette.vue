@@ -13,7 +13,7 @@
       <PaletteAlpha />
 
       <!-- 颜色切换 -->
-      <PaletteColorSwitch v-model="colorType" :hex-color="color" />
+      <PaletteColorSwitch :color="color" />
     </template>
   </u-tip>
 </template>
@@ -22,14 +22,15 @@
 import type { PaletteProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
-import { computed, provide, shallowRef, watch } from 'vue'
+import { computed, provide, watch } from 'vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import PaletteSV from './palette-sv.vue'
 import PaletteHue from './palette-hue.vue'
 import PaletteAlpha from './palette-alpha.vue'
 import PaletteColorSwitch from './palette-color-switch.vue'
-import { useRGBA } from './use-rgba'
+import { useHSV } from './use-hsv'
 import { PaletteDIKey } from './di'
+import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 
 defineOptions({
   name: 'Palette'
@@ -48,63 +49,35 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-const { RGB, alpha, ...rest } = useRGBA()
+const { HSV, alpha, ...rest } = useHSV()
 
 const color = defineModel<string>()
-const colorType = shallowRef<'HEX' | 'RGB'>('HEX')
 
-function RGB2HEX() {
-  let hexStr = ['r', 'g', 'b']
-    .map(key => RGB[key].toString(16).padStart(2, '0'))
-    .join('')
-    .toUpperCase()
-
-  if (alpha.value < 1) {
-    hexStr += Math.round(alpha.value * 255)
-      .toString(16)
-      .padStart(2, '0')
-  }
-
-  return hexStr
-}
-
-watch([alpha, RGB, colorType], ([alpha, RGB, colorType]) => {
-  if (colorType === 'HEX') {
-    color.value = `#${RGB2HEX()}`
-  } else {
-    color.value = `rgba(${RGB.r}, ${RGB.g}, ${RGB.b}, ${alpha})`
-  }
+const RGB = computed(() => {
+  return HSV2RGB(HSV)
 })
 
-function rgbToHsv(r: number, g: number, b: number) {
-  // 输入验证
-  ~([r, g, b] = [r, g, b].map(x => Math.max(0, Math.min(255, x))))
+watch([alpha, RGB], ([alpha, RGB]) => {
+  color.value = `#${RGB2HEX(RGB, alpha)}`
+})
 
-  // 归一化到0-1范围
-  const red = r / 255
-  const green = g / 255
-  const blue = b / 255
-  const max = Math.max(red, green, blue)
-  const min = Math.min(red, green, blue)
-  const delta = max - min
-  let h = 0
-  if (delta !== 0) {
-    if (max === red) {
-      h = ((green - blue) / delta) % 6
-    } else if (max === green) {
-      h = (blue - red) / delta + 2
-    } else {
-      h = (red - green) / delta + 4
-    }
-    h = (h * 60 + 360) % 360 // 确保正值
-  }
-  const s = max === 0 ? 0 : delta / max
-  const v = max
-  return { h, s, v }
-}
+watch(
+  color,
+  color => {
+    if (!color) return
+
+    const { RGB, alpha } = HEX2RGBA(color)
+    const hsv = RGB2HSV(RGB)
+    rest.updateHue(hsv.h)
+    rest.updateSV({ s: hsv.s, v: hsv.v })
+    rest.updateAlpha(alpha)
+  },
+  { immediate: true }
+)
 
 provide(PaletteDIKey, {
   cls,
+  HSV,
   RGB,
   alpha,
   ...rest

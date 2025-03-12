@@ -25,14 +25,14 @@ defineOptions({
   name: 'PaletteAlpha'
 })
 
-const { cls, updateAlpha, hue } = inject(PaletteDIKey)!
+const { cls, updateAlpha, hueRGB } = inject(PaletteDIKey)!
 
 const { alphaRef, alphaThumbRef, alphaThumbStyle } = useAlpha({
   updateAlpha
 })
 
 const alphaSliderBG = computed(() => {
-  const { r, g, b } = hue
+  const { r, g, b } = hueRGB.value
   return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0), rgba(${r}, ${g}, ${b}, 1))`
 })
 </script>

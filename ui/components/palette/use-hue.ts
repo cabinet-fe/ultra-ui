@@ -2,7 +2,7 @@ import { useDrag } from '@ui/compositions'
 import { computed, shallowRef } from 'vue'
 
 interface UseHueOptions {
-  updateHue: (index: number, rate: number) => void
+  updateHue: (deg: number) => void
 }
 
 export function useHue(options: UseHueOptions) {
@@ -25,22 +25,9 @@ export function useHue(options: UseHueOptions) {
     rangeX[1] = sliderWidth
   }
 
-  /**
-   * 更新调色盘的颜色
-   * @param offsetX 调色指针偏移量
-   * @param width 调色条宽度
-   */
-  function updateHueRGB(offsetX: number, width: number) {
-    const scale = (offsetX / width) * 6
-    const scaleIndex = Math.floor(scale)
-    const rate = scale % 1
-
-    updateHue(scaleIndex, rate)
-  }
-
   function updateOffsetX(offsetX: number) {
     transformX.value = offsetX
-    updateHueRGB(offsetX, sliderWidth)
+    updateHue(Math.round((offsetX / sliderWidth) * 360))
   }
 
   const sliderDragger = useDrag({

@@ -25,11 +25,13 @@ $collapsed-menu: collapsed-menu;
     @include m.flex;
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: fn.use-var(menu, hover, bg);
+      color: fn.use-var(menu, hover, color);
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary, light-5);
+      background-color: fn.use-var(menu, active, bg);
+      color: fn.use-var(menu, active, color);
     }
   }
 

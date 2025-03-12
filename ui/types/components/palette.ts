@@ -9,7 +9,8 @@ export interface PaletteRGB {
 }
 
 /** 饱和度 亮度 */
-export interface PaletteSV {
+export interface PaletteHSV {
+  h: number
   s: number
   v: number
 }

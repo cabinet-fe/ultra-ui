@@ -112,6 +112,16 @@ export type Theme = {
 
     color: string
 
+    hover: {
+      bg: string
+      color: string
+    }
+
+    active: {
+      bg: string
+      color: string
+    }
+
     bg: {
       /** 菜单背景色 */
       color: string
@@ -200,5 +210,15 @@ export type Theme = {
   table: {
     /** 表格边框颜色 */
     borderColor: string
+    /** 斑马线颜色 */
+    stripe: {
+      bg: string
+      color: string
+    }
+    /** 行悬浮颜色 */
+    hover: {
+      bg: string
+      color: string
+    }
   }
 }
