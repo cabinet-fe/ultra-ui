@@ -1,8 +1,7 @@
 import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
-// import { UltraUI } from '../ui/install'
-import { lightTheme, loadTheme } from '../ui/styles/theme'
+import { loadTheme } from '../ui/styles/theme'
 import 'ultra-ui/styles'
 
 loadTheme()
