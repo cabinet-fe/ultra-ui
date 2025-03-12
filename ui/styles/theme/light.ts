@@ -69,12 +69,12 @@ export const lightTheme = new UITheme({
     }),
 
     hover: {
-      bg: 'var(--color-primary, light-9)',
+      bg: 'var(--color-primary-light-9)',
       color: 'inherit'
     },
 
     active: {
-      bg: 'var(--color-primary, light-5)',
+      bg: 'var(--color-primary-light-5)',
       color: 'inherit'
     },
 
