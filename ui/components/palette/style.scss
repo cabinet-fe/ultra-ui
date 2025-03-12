@@ -39,6 +39,7 @@ $slider-thumb-size: 18px;
     border: fn.use-var(border);
     border-color: #000;
     border-radius: 50%;
+    pointer-events: none;
   }
 
   @include m.e(sv-s, sv-v) {
@@ -102,6 +103,7 @@ $slider-thumb-size: 18px;
     width: 6px;
     top: 0;
     position: absolute;
+    pointer-events: none;
   }
 
   @include m.e(color-switch) {

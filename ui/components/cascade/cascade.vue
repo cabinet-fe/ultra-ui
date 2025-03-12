@@ -192,7 +192,7 @@ const forest = computed(() => {
 const { dataMap } = useDataMap({ props, forest })
 
 // 初始化更新辅助
-const [update, lock] = useUpdateLock()
+const updater = useUpdateLock()
 
 const {
   displayedValue,
@@ -207,7 +207,7 @@ const {
   emit,
   dataMap,
   forest,
-  update,
+  updater,
   dropdownRef
 })
 
@@ -225,7 +225,7 @@ const {
   getPanelItemList,
   emit,
   dataMap,
-  update,
+  updater,
   disabled,
   readonly
 })
@@ -236,7 +236,7 @@ function handleClick(panelIndex: number, item: CascadeNode) {
 
   // 更新数据
   !props.multiple &&
-    lock(() => {
+    updater.updateAndLock(() => {
       if (!props.strict) {
         updateSingleValue()
       } else if (!item.children?.length) {
@@ -246,7 +246,7 @@ function handleClick(panelIndex: number, item: CascadeNode) {
 }
 
 function handleCheck(item: CascadeNode, checked: boolean) {
-  lock(() => checkItem(item, checked))
+  updater.updateAndLock(() => checkItem(item, checked))
 }
 
 function handleClear() {

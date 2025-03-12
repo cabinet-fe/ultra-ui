@@ -20,7 +20,7 @@ export function useHSV() {
 
   /**
    * 更新调色盘的透明度
-   * @param a 透明度
+   * @param a 透明度, 0-1
    */
   function updateAlpha(a: number) {
     alpha.value = +n(a).fixed({ maxPrecision: 2 })

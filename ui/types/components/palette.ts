@@ -21,6 +21,8 @@ export type PaletteColorType = 'HEX' | 'RGB'
 /** 调色盘组件属性 */
 export interface PaletteProps extends FormComponentProps {
   modelValue?: string
+  disabled?: boolean
+  readonly?: boolean
 }
 
 /** 调色盘组件定义的事件 */

@@ -9,6 +9,7 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
+import type { Updater } from '@ui/compositions'
 
 interface CheckOptions {
   props: CascadeProps
@@ -17,7 +18,7 @@ interface CheckOptions {
   disabled: Ref<boolean>
   readonly: Ref<boolean>
   forest: ComputedRef<Forest<CascadeNode>>
-  update: (fn: Function) => any
+  updater: Updater
   getPanelItemList: (data?: CascadeNode[]) => void
 }
 
@@ -29,7 +30,7 @@ export function useCheck(options: CheckOptions) {
     disabled,
     readonly,
     forest,
-    update,
+    updater,
     getPanelItemList
   } = options
 
@@ -106,7 +107,7 @@ export function useCheck(options: CheckOptions) {
   watch(
     [() => props.multiple, () => props.modelValue, forest],
     ([multiple]) => {
-      multiple && update(() => initMultipleCheck())
+      multiple && updater.update(() => initMultipleCheck())
     },
     { immediate: false }
   )

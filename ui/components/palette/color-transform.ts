@@ -71,6 +71,7 @@ export function RGB2HEX(RGB: PaletteRGB, alpha = 1) {
     hexStr += Math.round(alpha * 255)
       .toString(16)
       .padStart(2, '0')
+      .toUpperCase()
   }
 
   return hexStr

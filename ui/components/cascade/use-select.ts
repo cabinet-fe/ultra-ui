@@ -15,18 +15,19 @@ import type {
   PanelItem
 } from '@ui/types'
 import { createIncrease } from '@ui/utils'
+import type { Updater } from '@ui/compositions'
 
 interface SelectOptions {
   props: CascadeProps
   emit: CascadeEmits
-  update: (fn: Function) => any
+  updater: Updater
   forest: ShallowRef<Forest<CascadeNode>>
   dataMap: ShallowRef<Map<string, CascadeNode>>
   dropdownRef: ShallowRef<DropdownExposed | undefined>
 }
 
 export function useSelect(options: SelectOptions) {
-  const { props, emit, dataMap, update, dropdownRef, forest } = options
+  const { props, emit, dataMap, updater, dropdownRef, forest } = options
 
   /** 选中的节点key */
   const selectedNodeKeys = shallowRef<string[]>([])
@@ -140,7 +141,7 @@ export function useSelect(options: SelectOptions) {
     [() => props.multiple, () => props.modelValue, forest],
     ([multiple]) => {
       if (multiple) return
-      update(() => initSingleSelect())
+      updater.update(() => initSingleSelect())
     },
     { immediate: true }
   )

@@ -34,6 +34,9 @@ export interface TipProps {
    * tip内容标签
    */
   contentTag?: string
+
+  /** 禁用tip */
+  disabled?: boolean
 }
 
 /** tip提示组件组件定义的事件 */

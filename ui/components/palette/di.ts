@@ -1,6 +1,7 @@
 import type { PaletteHSV, PaletteRGB } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
+import type { Updater } from '@ui/compositions'
 
 export const PaletteDIKey: InjectionKey<{
   cls: BEM<'palette', 'u-'>
@@ -12,10 +13,12 @@ export const PaletteDIKey: InjectionKey<{
   RGB: ComputedRef<PaletteRGB>
   /** 透明度 */
   alpha: Ref<number>
+  /** 更新器 */
+  updater: Updater
   /** 更新色调 */
   updateHue: (deg: number) => void
   /** 更新调色盘透明度 */
-  updateAlpha: (offsetX: number, offsetY: number) => void
+  updateAlpha: (alpha: number) => void
   /** 更新饱和度 亮度 */
   updateSV: (sv: { s: number; v: number }) => void
 }> = Symbol('PaletteDIKey')
