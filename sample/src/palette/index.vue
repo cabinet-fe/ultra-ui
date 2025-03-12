@@ -7,10 +7,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const color = ref('#1172C3')
+const color = ref('')
 
 setTimeout(() => {
-  color.value = '#C715C721'
+  color.value = '#C715C799'
 }, 3000)
 </script>
 
