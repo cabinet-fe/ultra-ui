@@ -1,10 +1,18 @@
 import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
-import { loadTheme } from '../ui/styles/theme'
+import { lightTheme, loadTheme } from '../ui/styles/theme'
 import 'ultra-ui/styles'
 
-loadTheme()
+loadTheme(
+  lightTheme.new({
+    table: {
+      stripe: {
+        bg: ''
+      }
+    }
+  })
+)
 // lightTheme.new({
 //   menu: {
 //     bg: {

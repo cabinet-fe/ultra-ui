@@ -1,4 +1,4 @@
-import { kebabCase, merge } from 'cat-kit/fe'
+import { isObj, kebabCase, merge } from 'cat-kit/fe'
 import { mixColor } from '../helper'
 import type { Theme } from '../type'
 import { withUnit } from '@ui/utils'
@@ -29,7 +29,9 @@ export class UITheme {
       if (typeof value === 'object') {
         this.renderBase(value, themeRules, varKey)
       } else {
-        themeRules.push(`${varKey}: ${withUnit(value, 'px')}`)
+        if (value || value === 0) {
+          themeRules.push(`${varKey}: ${withUnit(value, 'px')}`)
+        }
       }
     })
 
@@ -125,6 +127,20 @@ export class UITheme {
   }
 
   new(customTheme: RecursivePartial<Theme> = {}) {
+    function delEmpty(obj: Record<string, any>) {
+      Object.keys(obj).forEach(key => {
+        const value = obj[key]
+        if (isObj(value)) {
+          return delEmpty(value)
+        }
+        if (!value && value !== 0) {
+          delete obj[key]
+        }
+      })
+    }
+
+    delEmpty(customTheme)
+
     const themeConfig = merge(
       JSON.parse(JSON.stringify(toRaw(this.theme))),
       customTheme
