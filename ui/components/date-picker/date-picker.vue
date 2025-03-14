@@ -15,9 +15,8 @@
         native-readonly
         :clearable="clearable"
         :placeholder="placeholder"
-        :model-value="modelValue"
+        :model-value="displayedValue"
         :disabled="disabled"
-        @update:model-value="v => emit('update:modelValue', v)"
       >
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
@@ -31,7 +30,7 @@
   </u-dropdown>
 
   <span v-else>
-    {{ modelValue || FORM_EMPTY_CONTENT }}
+    {{ displayedValue || FORM_EMPTY_CONTENT }}
   </span>
 </template>
 
@@ -82,7 +81,7 @@ const className = computed(() => {
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const { updatePanelDate } = useDate('provide', {
+const { updatePanelDate, displayedValue } = useDate('provide', {
   props,
   emit,
   closeDropdown: () => dropdownRef.value?.close()

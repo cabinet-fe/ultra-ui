@@ -2,9 +2,16 @@
   <u-tip
     trigger="click"
     :class="cls.e('panel')"
+    ref="palette"
     :disabled="disabled || readonly"
   >
-    <span :class="className" :style="{ backgroundColor: color }"> </span>
+    <span
+      :class="className"
+      :style="{
+        backgroundColor: color
+      }"
+    >
+    </span>
 
     <template #content>
       <!-- 饱和度和亮度 -->
@@ -17,7 +24,7 @@
       <PaletteAlpha ref="palette-alpha" />
 
       <!-- 颜色切换 -->
-      <PaletteColorSwitch :color="color" />
+      <PaletteColorSwitch :color="color" @clear="handleClear" />
     </template>
   </u-tip>
 </template>
@@ -59,7 +66,7 @@ const { size, disabled, readonly } = useFormFallbackProps([
 const cls = bem('palette')
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('no-color', !color.value)]
 })
 
 const { HSV, alpha, ...rest } = useHSV()
@@ -71,6 +78,12 @@ const updater = useUpdateLock()
 watch([alpha, RGB], ([alpha, RGB]) => {
   color.value = `#${RGB2HEX(RGB, alpha)}`
 })
+
+const paletteRef = useTemplateRef('palette')
+function handleClear() {
+  color.value = ''
+  paletteRef.value?.close()
+}
 
 const paletteSVRef = useTemplateRef('palette-sv')
 const paletteHueRef = useTemplateRef('palette-hue')

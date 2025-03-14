@@ -17,7 +17,7 @@ import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from 'cat-kit/fe'
 
-const d = shallowRef(date().format())
+const d = shallowRef(date().format('yyyy-MM-dd HH:mm:ss'))
 
 function disabledDate(d) {
   return d.timestamp <= Date.now()

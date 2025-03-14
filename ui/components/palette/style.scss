@@ -9,6 +9,20 @@ $root-name: palette;
 $slider-height: 12px;
 $slider-thumb-size: 18px;
 
+@mixin color-marker {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(135deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(135deg, transparent 75%, #ccc 75%);
+  background-size: 12px 12px;
+  background-position:
+    0 0,
+    6px 0,
+    6px -6px,
+    0 6px;
+}
+
 @include m.b($root-name) {
   border-radius: 50%;
   display: inline-block;
@@ -74,18 +88,12 @@ $slider-thumb-size: 18px;
     );
   }
 
+  @include m.is(no-color) {
+    @include color-marker;
+  }
+
   @include m.e(alpha) {
-    background-image:
-      linear-gradient(45deg, #ccc 25%, transparent 25%),
-      linear-gradient(135deg, #ccc 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #ccc 75%),
-      linear-gradient(135deg, transparent 75%, #ccc 75%);
-    background-size: 12px 12px;
-    background-position:
-      0 0,
-      6px 0,
-      6px -6px,
-      0 6px;
+    @include color-marker;
 
     &-bg {
       position: absolute;
@@ -107,12 +115,19 @@ $slider-thumb-size: 18px;
   }
 
   @include m.e(color-switch) {
+    gap: fn.use-var(gap, small);
+
     @include m.flex;
+  }
+
+  @include m.e(clear-btn) {
+    flex-shrink: 0;
   }
 
   @include m.e(color-type) {
     width: 60px;
     cursor: pointer;
+    text-align: center;
     flex-shrink: 0;
     user-select: none;
   }
@@ -126,6 +141,9 @@ $slider-thumb-size: 18px;
   }
 
   @include m.e(color-hexa) {
+    flex-grow: 1;
+    text-align: center;
+
     .u-input__native {
       text-align: center;
     }

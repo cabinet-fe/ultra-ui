@@ -34,6 +34,8 @@ interface DatePickerContext {
   state: DatePickerState
   /** 格式化字符串 */
   formatStr: ComputedRef<string>
+  /** 显示值 */
+  displayedValue: ComputedRef<string>
   /** 关闭下拉框 */
   closeDropdown: () => void
   /** 更新面板 */
@@ -152,9 +154,14 @@ export function useDate(
     state.panelDate = state.panelDate.calc(10, 'years')
   }
 
+  const displayedValue = computed(() => {
+    return state.date?.format(formatStr.value) ?? ''
+  })
+
   const ctx: DatePickerContext = {
     cls,
     state,
+    displayedValue,
     pickerProps: props,
     pickerEmit: emit,
     formatStr,

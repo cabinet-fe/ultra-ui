@@ -1,3 +1,3 @@
-import '../number-input/style'
 import '../tip/style'
+import '../button/style'
 import './style.scss'
