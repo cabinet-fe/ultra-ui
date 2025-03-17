@@ -140,7 +140,7 @@ export const lightTheme = new UITheme({
     borderColor: '#eee',
     stripe: {
       bg: 'var(--bg-color-hover)',
-      color: 'inherit'
+      color: 'var(--text-color-title)'
     },
     hover: {
       bg: 'var(--color-primary-light-9)',
