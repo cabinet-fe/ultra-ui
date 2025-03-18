@@ -46,7 +46,12 @@ function createMiddleProxy(
       handler?.get?.(field)
 
       const val = target[field]
-      if (val !== null && typeof val === 'object') {
+      if (
+        val !== null &&
+        typeof val === 'object' &&
+        !(val instanceof Date) &&
+        !(val instanceof RegExp)
+      ) {
         if (weakMap.has(val)) return weakMap.get(val)
         const valProxy = createMiddleProxy(val, handler, {
           weakMap,
