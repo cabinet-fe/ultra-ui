@@ -3,5 +3,8 @@
   "type": "module",
   "scripts": {
     "release": "bun ./index.ts"
+  },
+  "devDependencies": {
+    "@builder/cli": "^1.0.6"
   }
 }

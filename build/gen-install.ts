@@ -1,6 +1,7 @@
 import fg from 'fast-glob'
 import { UI_ROOT } from './helper'
 import { resolve } from 'node:path'
+import { writeFile } from 'node:fs/promises'
 
 export async function genInstall() {
   const entries = await fg.glob(
@@ -41,5 +42,7 @@ export function UltraUI(app: App) {
 }
 `
 
-  await Bun.write(resolve(UI_ROOT, 'install.ts'), installScripts)
+  await writeFile(resolve(UI_ROOT, 'install.ts'), installScripts, {
+    encoding: 'utf-8'
+  })
 }

@@ -1,7 +1,7 @@
 import { DIST_ROOT } from './helper'
 import fg from 'fast-glob'
 import { readFile, writeFile } from 'node:fs/promises'
-import { dirname, relative, resolve } from 'node:path'
+import { dirname, relative } from 'node:path'
 import { $ } from 'bun'
 
 export async function buildDTS() {

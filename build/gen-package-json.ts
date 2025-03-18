@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { obj } from 'cat-kit/be'
-import { updateVersion } from '@helper/build'
+import { updatePkg } from '@builder/cli'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -58,7 +58,7 @@ const pkg: Record<string, any> = {
 export async function genPackageJson() {
   const pkgJsonPath = resolve(rootDir, 'package.json')
 
-  await updateVersion(pkgJsonPath)
+  await updatePkg(pkgJsonPath)
 
   const rootPkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'))
 

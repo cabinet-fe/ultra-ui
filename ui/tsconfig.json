@@ -4,7 +4,7 @@
     "composite": true,
     "declaration": true,
     "types": ["vite/client"],
-    "lib": ["esnext", "dom"],
+    "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "paths": {
       "@ui/*": ["./*"]
