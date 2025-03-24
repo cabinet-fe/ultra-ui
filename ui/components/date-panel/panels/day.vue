@@ -28,35 +28,34 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useDate } from '../use-date'
 import { bem } from '@ui/utils'
 import { getMonthDays, weekDays } from '../../calendar/utils'
 import type { Dater } from 'cat-kit/fe'
-import type { Day } from '@ui/types'
+import type { DatePanelDayEmits, DatePanelDayProps, Day } from '@ui/types'
+import { cls } from '../shared'
 
 defineOptions({
-  name: 'DayPanel',
+  name: 'DatePanelDay',
   inheritAttrs: false
 })
 
-const { cls, pickerProps, state, pickerEmit, formatStr, closeDropdown } =
-  useDate('inject')
+const props = defineProps<DatePanelDayProps>()
+
+const emit = defineEmits<DatePanelDayEmits>()
 
 const days = computed<Day[]>(() => {
-  return getMonthDays(state.panelDate.timestamp, pickerProps.disabledDate)
+  return getMonthDays(props.panelDate.timestamp, props.disabledDate)
 })
 
 function didDaySelect(date: Dater) {
-  if (!state.date) return false
+  if (!props.date) return false
 
   const fmtStr = 'yyyyMMdd  '
-  return state.date.format(fmtStr) === date.format(fmtStr)
+  return props.date.format(fmtStr) === date.format(fmtStr)
 }
 
 function handleSelectDate(day: Day) {
   if (day.disabled) return
-  pickerEmit('update:modelValue', day.date.format(formatStr.value))
-  state.date = day.date
-  closeDropdown()
+  emit('select', day.date)
 }
 </script>

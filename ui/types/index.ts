@@ -26,7 +26,11 @@ export * from './components/context-menu'
 
 export * from './components/css-transition'
 
+export * from './components/date-panel'
+
 export * from './components/date-picker'
+
+export * from './components/date-range-picker'
 
 export * from './components/dialog'
 
@@ -133,3 +137,4 @@ export * from './components/tree'
 export * from './components/watermark'
 
 export * from './helper'
+

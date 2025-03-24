@@ -24,6 +24,7 @@ export * from './context-menu'
 
 export * from './date-picker'
 
+export * from './date-range-picker'
 export * from './dialog'
 
 // export * from './disabled.text-editor'
