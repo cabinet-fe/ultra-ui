@@ -14,10 +14,14 @@
         cls.em('day', day.type),
         bem.is('today', day.isToday === true),
         bem.is('disabled', day.disabled === true),
-        bem.is('selected', didDaySelect(day.date))
+        bem.is('selected', didDaySelect(day.date)),
+        bem.is('range', didInRange(day.date)),
+        bem.is('range-start', didIsRangeStart(day.date, 'yyyyMMdd')),
+        bem.is('range-end', didIsRangeEnd(day.date, 'yyyyMMdd'))
       ]"
       :key="day.date.timestamp"
       @click="handleSelectDate(day)"
+      @mouseenter="!day.disabled && handleDateHovered(day.date)"
     >
       <span :class="cls.e('day-text')">
         {{ day.date.day }}
@@ -31,31 +35,54 @@ import { computed } from 'vue'
 import { bem } from '@ui/utils'
 import { getMonthDays, weekDays } from '../../calendar/utils'
 import type { Dater } from 'cat-kit/fe'
-import type { DatePanelDayEmits, DatePanelDayProps, Day } from '@ui/types'
+import type { Day } from '@ui/types'
 import { cls } from '../shared'
+import { inject } from 'vue'
+import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelDay',
   inheritAttrs: false
 })
 
-const props = defineProps<DatePanelDayProps>()
-
-const emit = defineEmits<DatePanelDayEmits>()
+const {
+  panelDate,
+  panelProps,
+  panelEmit,
+  firstRangeDate,
+  secondRangeDate,
+  handleDateHovered,
+  getRangeDate,
+  didInRange,
+  didIsRangeStart,
+  didIsRangeEnd
+} = inject(DatePanelDIKey)!
 
 const days = computed<Day[]>(() => {
-  return getMonthDays(props.panelDate.timestamp, props.disabledDate)
+  return getMonthDays(panelDate.value.timestamp, panelProps.disabledDate)
 })
 
 function didDaySelect(date: Dater) {
-  if (!props.date) return false
-
   const fmtStr = 'yyyyMMdd  '
-  return props.date.format(fmtStr) === date.format(fmtStr)
+  if (panelProps.range || !panelProps.date) return false
+  return panelProps.date.format(fmtStr) === date.format(fmtStr)
 }
 
 function handleSelectDate(day: Day) {
   if (day.disabled) return
-  emit('select', day.date)
+
+  if (panelProps.range) {
+    if (!firstRangeDate.value) {
+      firstRangeDate.value = secondRangeDate.value = day.date
+    } else {
+      const rangeDate = getRangeDate(firstRangeDate.value, day.date)
+      if (rangeDate) {
+        panelEmit('select:range-date', rangeDate)
+        firstRangeDate.value = undefined
+      }
+    }
+  } else {
+    panelEmit('select:date', day.date)
+  }
 }
 </script>

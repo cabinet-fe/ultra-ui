@@ -1,14 +1,18 @@
 <template>
   <ul :class="cls.e('months')">
     <li
-      v-for="{ key, month, disabled } of months"
+      v-for="{ key, month, disabled, date } of months"
       :key="key"
       :class="[
         cls.e('month'),
         bem.is('selected', didMonthSelected(month)),
-        bem.is('disabled', disabled === true)
+        bem.is('disabled', disabled === true),
+        bem.is('range', didInRange(date)),
+        bem.is('range-start', didIsRangeStart(date, 'yyyyMM')),
+        bem.is('range-end', didIsRangeEnd(date, 'yyyyMM'))
       ]"
       @click="!disabled && handleSelectMonth(month)"
+      @mouseenter="!disabled && handleDateHovered(date)"
     >
       <span :class="cls.e('month-text')">{{ month }}月</span>
     </li>
@@ -19,29 +23,53 @@
 import { computed } from 'vue'
 import { bem } from '@ui/utils'
 import { getYearMonths } from '../../calendar/utils'
-import type { DatePanelMonthEmits, DatePanelMonthProps } from '@ui/types'
 import { cls } from '../shared'
+import { inject } from 'vue'
+import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelMonth'
 })
 
-const props = defineProps<DatePanelMonthProps>()
-const emit = defineEmits<DatePanelMonthEmits>()
+const {
+  panelDate,
+  panelProps,
+  panelEmit,
+  showNextPanel,
+  handleDateHovered,
+  didInRange,
+  didIsRangeStart,
+  didIsRangeEnd
+} = inject(DatePanelDIKey)!
 
 const months = computed(() => {
-  return getYearMonths(props.panelDate.timestamp, props.disabledDate)
+  return getYearMonths(panelDate.value.timestamp, panelProps.disabledDate)
 })
 
 function handleSelectMonth(month: number) {
-  const { panelDate } = props
-  const d = panelDate.setMonth(month)
-  emit('select', d)
+  const d = panelDate.value.setMonth(month)
+  console.log(d === panelDate.value)
+  panelDate.value = d
+  showNextPanel()
+
+  if (panelProps.type !== 'month') return
+
+  if (panelProps.range) {
+    if (!panelDate.value) {
+      panelDate.value = d
+    } else {
+      panelEmit('select:range-date', [panelDate.value, d])
+    }
+  } else {
+    panelEmit('select:date', d)
+  }
 }
 
 function didMonthSelected(month: number) {
-  const { date, panelDate } = props
-  if (!date) return false
-  return date.month === month && date.year === panelDate.year
+  if (!panelProps.date) return false
+  return (
+    panelProps.date.month === month &&
+    panelProps.date.year === panelDate.value.year
+  )
 }
 </script>

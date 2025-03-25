@@ -1,12 +1,12 @@
 <template>
   <div :class="cls.e('header')">
-    <u-icon @click="emit('pre-ten-years')" title="上个十年">
+    <u-icon @click="handlePreTenYears" title="上个十年">
       <DArrowLeft />
     </u-icon>
 
     <span> {{ startYear }} ~ {{ endYear }} </span>
 
-    <u-icon @click="emit('next-ten-years')" title="下个十年">
+    <u-icon @click="handleNextTenYears" title="下个十年">
       <DArrowRight />
     </u-icon>
   </div>
@@ -16,21 +16,19 @@
 import { UIcon } from '@ui/components'
 import { DArrowLeft, DArrowRight } from 'icon-ultra'
 import { computed } from 'vue'
-import type { Dater } from 'cat-kit/fe'
 import { cls } from '../shared'
+import { inject } from 'vue'
+import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelYearHeader'
 })
 
-const props = defineProps<{
-  panelDate: Dater
-}>()
-
-const emit = defineEmits(['pre-ten-years', 'next-ten-years'])
+const { panelDate, handlePreTenYears, handleNextTenYears } =
+  inject(DatePanelDIKey)!
 
 const startYear = computed(() => {
-  return props.panelDate.year - (props.panelDate.year % 10) + 1
+  return panelDate.value.year - (panelDate.value.year % 10) + 1
 })
 
 const endYear = computed(() => {

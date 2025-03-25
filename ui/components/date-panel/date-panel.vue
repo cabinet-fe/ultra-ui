@@ -1,25 +1,24 @@
 <template>
-  <div :class="cls.b">
-    <template v-if="state.visiblePanel === 'day'">
-      <DayHeader :panel-date="state.panelDate" />
-      <DayPanel :panel-date="state.panelDate" />
+  <div :class="[cls.b, cls.m(props.size)]">
+    <template v-if="panelType === 'day'">
+      <DayHeader />
+      <DayPanel />
     </template>
 
-    <template v-else-if="state.visiblePanel === 'year'">
-      <YearHeader :panel-date="state.panelDate" />
-      <YearPanel :panel-date="state.panelDate" />
+    <template v-else-if="panelType === 'year'">
+      <YearHeader />
+      <YearPanel />
     </template>
 
-    <template v-else-if="state.visiblePanel === 'month'">
-      <MonthHeader :panel-date="state.panelDate" />
-      <MonthPanel :panel-date="state.panelDate" />
+    <template v-else-if="panelType === 'month'">
+      <MonthHeader />
+      <MonthPanel />
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { DatePanelProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { DatePanelEmits, DatePanelProps } from '@ui/types'
 import DayPanel from './panels/day.vue'
 import MonthPanel from './panels/month.vue'
 import YearPanel from './panels/year.vue'
@@ -32,11 +31,14 @@ defineOptions({
   name: 'DatePanel'
 })
 
-const props = defineProps<DatePanelProps>()
+const props = withDefaults(defineProps<DatePanelProps>(), {
+  size: 'default'
+})
 
-const cls = bem('date-panel')
+const emit = defineEmits<DatePanelEmits>()
 
-const { state } = usePanel({
-  props
+const { cls, panelType } = usePanel({
+  props,
+  emit
 })
 </script>

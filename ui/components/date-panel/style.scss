@@ -70,6 +70,14 @@ $root-name: date-panel;
       }
     }
 
+    @include m.is(range) {
+      background-color: fn.use-var(color, primary, light-9);
+
+      @include m.is(selected) {
+        border-radius: 50% 0 0 50%;
+      }
+    }
+
     @include m.is(disabled) {
       cursor: not-allowed;
       background-color: fn.use-var(color, disabled);

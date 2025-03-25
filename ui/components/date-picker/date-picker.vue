@@ -2,10 +2,9 @@
   <u-dropdown
     :class="className"
     trigger="click"
-    :content-class="[cls.e('panel'), cls.em('panel', size)]"
     width="auto"
     ref="dropdownRef"
-    @update:visible="$event && updatePanelDate()"
+    @update:visible=""
     :disabled="disabled"
     v-if="!readonly"
   >
@@ -25,7 +24,13 @@
     </template>
 
     <template #content>
-      <DatePickerPanel />
+      <UDatePanel
+        :size
+        :type
+        :disabled-date
+        :date="currentDate"
+        @select:date="handleSelectDate"
+      />
     </template>
   </u-dropdown>
 
@@ -43,10 +48,10 @@ import { UIcon } from '../icon'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { computed, shallowRef } from 'vue'
 import { Calendar } from 'icon-ultra'
-import DatePickerPanel from './date-picker-panel.vue'
+import { UDatePanel } from '../date-panel'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { useDate } from './use-date'
 import type { DropdownExposed } from '@ui/types'
+import { date, type Dater } from 'cat-kit/fe'
 
 defineOptions({
   name: 'DatePicker'
@@ -81,9 +86,26 @@ const className = computed(() => {
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const { updatePanelDate, displayedValue } = useDate('provide', {
-  props,
-  emit,
-  closeDropdown: () => dropdownRef.value?.close()
+const formatStr = computed(() => {
+  const { format, type } = props
+  if (format) return format
+  if (type === 'date') return 'yyyy-MM-dd'
+  if (type === 'month') return 'yyyy-MM'
+  if (type === 'year') return 'yyyy'
+  return 'yyyy-MM-dd'
 })
+
+const currentDate = shallowRef(
+  props.modelValue ? date(props.modelValue) : undefined
+)
+
+const displayedValue = computed(() => {
+  return currentDate.value?.format(formatStr.value) ?? ''
+})
+
+function handleSelectDate(date: Dater) {
+  currentDate.value = date
+  emit('update:modelValue', date.format(formatStr.value))
+  dropdownRef.value?.close()
+}
 </script>

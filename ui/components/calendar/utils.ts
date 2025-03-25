@@ -84,6 +84,7 @@ export function getYearMonths(
 ): Array<{
   key: string
   month: number
+  date: Dater
   disabled?: boolean
 }> {
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
@@ -97,10 +98,16 @@ export function getYearMonths(
 
     const ym = `${year}-${month}`
 
+    const monthDate = date(ym).toEndOfMonth().setHours(23)
+
+    monthDate.setMinutes(59)
+    monthDate.setSeconds(59)
+
     return {
       key: ym,
       month,
-      disabled: disabledDate?.(date(ym).toEndOfMonth())
+      date: monthDate,
+      disabled: disabledDate?.(monthDate)
     }
   })
 }
@@ -123,9 +130,13 @@ export function getTenYears(
 
   return Array.from({ length: 10 }).map((_, i) => {
     const year = startYear + i
+
+    const yearDate = date(`${year}-12-31 23:59:59`)
+
     return {
       year,
-      disabled: disabledDate?.(date(`${year}-12-31 23:59:59`))
+      date: yearDate,
+      disabled: disabledDate?.(yearDate)
     }
   })
 }

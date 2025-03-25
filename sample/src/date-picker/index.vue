@@ -8,6 +8,7 @@
         style="width: 200px"
         :disabled-date="disabledDate"
       />
+      {{ d }}
     </CustomCard>
   </div>
 </template>
