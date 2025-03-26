@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-date-range-picker disabled v-model="value" style="width: 240px" />
+    <u-date-range-picker v-model="value" style="width: 240px" />
     {{ value }}
   </div>
 </template>
