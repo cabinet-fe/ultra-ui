@@ -1,10 +1,10 @@
 <template>
   <div :class="cls.e('header')">
     <div>
-      <u-icon @click="handlePreYear" title="上一年">
+      <u-icon @click="toPrevYear" title="上一年">
         <DArrowLeft />
       </u-icon>
-      <u-icon @click="handlePreMonth" title="上个月">
+      <u-icon @click="toPrevMonth" title="上个月">
         <ArrowLeft />
       </u-icon>
     </div>
@@ -19,10 +19,10 @@
     </div>
 
     <div>
-      <u-icon @click="handleNextMonth" title="下个月">
+      <u-icon @click="toNextMonth" title="下个月">
         <ArrowRight />
       </u-icon>
-      <u-icon @click="handleNextYear" title="下一年">
+      <u-icon @click="toNextYear" title="下一年">
         <DArrowRight />
       </u-icon>
     </div>
@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 import { UIcon } from '@ui/components'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
-import { cls } from '../shared'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 
@@ -43,9 +42,10 @@ defineOptions({
 const {
   panelDate,
   panelType,
-  handlePreMonth,
-  handleNextMonth,
-  handlePreYear,
-  handleNextYear
+  cls,
+  toPrevMonth,
+  toNextMonth,
+  toPrevYear,
+  toNextYear
 } = inject(DatePanelDIKey)!
 </script>

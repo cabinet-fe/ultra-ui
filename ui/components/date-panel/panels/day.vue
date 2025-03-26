@@ -9,21 +9,12 @@
     <li
       v-for="day of days"
       :title="day.isToday ? '今天' : ''"
-      :class="[
-        cls.e('day'),
-        cls.em('day', day.type),
-        bem.is('today', day.isToday === true),
-        bem.is('disabled', day.disabled === true),
-        bem.is('selected', didDaySelect(day.date)),
-        bem.is('range', didInRange(day.date)),
-        bem.is('range-start', didIsRangeStart(day.date, 'yyyyMMdd')),
-        bem.is('range-end', didIsRangeEnd(day.date, 'yyyyMMdd'))
-      ]"
+      :class="getDayCls(day)"
       :key="day.date.timestamp"
-      @click="handleSelectDate(day)"
-      @mouseenter="!day.disabled && handleDateHovered(day.date)"
+      @click="!day.disabled && handleDateSelect(day.date)"
+      @mouseenter="!day.disabled && handleDateRangeHover(day.date)"
     >
-      <span :class="cls.e('day-text')">
+      <span :class="cls.e('cell-value')">
         {{ day.date.day }}
       </span>
     </li>
@@ -35,8 +26,7 @@ import { computed } from 'vue'
 import { bem } from '@ui/utils'
 import { getMonthDays, weekDays } from '../../calendar/utils'
 import type { Dater } from 'cat-kit/fe'
-import type { Day } from '@ui/types'
-import { cls } from '../shared'
+import type { CalendarDay } from '@ui/types'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 
@@ -47,42 +37,63 @@ defineOptions({
 
 const {
   panelDate,
+  rangeDate,
   panelProps,
-  panelEmit,
-  firstRangeDate,
-  secondRangeDate,
-  handleDateHovered,
-  getRangeDate,
-  didInRange,
-  didIsRangeStart,
-  didIsRangeEnd
+  cls,
+  handleDateSelect,
+  handleDateRangeHover
 } = inject(DatePanelDIKey)!
 
-const days = computed<Day[]>(() => {
+const days = computed<CalendarDay[]>(() => {
   return getMonthDays(panelDate.value.timestamp, panelProps.disabledDate)
 })
 
-function didDaySelect(date: Dater) {
-  const fmtStr = 'yyyyMMdd  '
-  if (panelProps.range || !panelProps.date) return false
-  return panelProps.date.format(fmtStr) === date.format(fmtStr)
+function getRangeCls(day: CalendarDay) {
+  return [
+    bem.is('in-range', didInRange(day.date)),
+    bem.is('range-start', isRangeStart(day.date)),
+    bem.is('range-end', isRangeEnd(day.date))
+  ]
 }
 
-function handleSelectDate(day: Day) {
-  if (day.disabled) return
-
+function getSingleCls(day: CalendarDay) {
+  return [bem.is('selected', didSelected(day.date))]
+}
+function getDayCls(day: CalendarDay) {
+  const ret = [
+    cls.e('cell'),
+    bem.is(day.type),
+    bem.is('today', day.isToday === true),
+    bem.is('disabled', day.disabled === true)
+  ]
   if (panelProps.range) {
-    if (!firstRangeDate.value) {
-      firstRangeDate.value = secondRangeDate.value = day.date
-    } else {
-      const rangeDate = getRangeDate(firstRangeDate.value, day.date)
-      if (rangeDate) {
-        panelEmit('select:range-date', rangeDate)
-        firstRangeDate.value = undefined
-      }
-    }
-  } else {
-    panelEmit('select:date', day.date)
+    return [...ret, ...getRangeCls(day)]
   }
+  return [...ret, ...getSingleCls(day)]
+}
+
+const fmtStr = 'yyyyMMdd'
+
+function didSelected(date: Dater) {
+  if (!panelProps.date) return false
+  return date.format(fmtStr) === panelProps.date.format(fmtStr)
+}
+
+function didInRange(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start, end] = rangeDate.value
+  return date.timestamp >= start.timestamp && date.timestamp <= end.timestamp
+}
+
+function isRangeStart(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start] = rangeDate.value
+  return date.format(fmtStr) === start.format(fmtStr)
+}
+
+function isRangeEnd(date: Dater) {
+  if (!rangeDate.value) return false
+  const [, end] = rangeDate.value
+  return date.format(fmtStr) === end.format(fmtStr)
 }
 </script>

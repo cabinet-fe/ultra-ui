@@ -1,5 +1,5 @@
 import { type Dater, date } from 'cat-kit/fe'
-import type { Day } from '@ui/types'
+import type { CalendarDay, CalendarMonth, CalendarYear } from '@ui/types'
 
 export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -12,7 +12,7 @@ export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 export function getMonthDays(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater) => boolean
-): Day[] {
+): CalendarDay[] {
   const todayStr = date().format()
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
@@ -20,21 +20,21 @@ export function getMonthDays(
 
   // 本月天数
   d.setDay(1)
-  const currentMonthDays: Day[] = Array.from({ length: d.getDays() }).map(
-    (_, i) => {
-      const day: Day = {
-        date: d.calc(i, 'days'),
-        type: 'current'
-      }
-      day.isToday = day.date.format() === todayStr
-      day.disabled = disabledDate?.(day.date)
-      return day
+  const currentMonthDays: CalendarDay[] = Array.from({
+    length: d.getDays()
+  }).map((_, i) => {
+    const day: CalendarDay = {
+      date: d.calc(i, 'days'),
+      type: 'current'
     }
-  )
+    day.isToday = day.date.format() === todayStr
+    day.disabled = disabledDate?.(day.date)
+    return day
+  })
 
-  const preMonthDays: Day[] = []
+  const preMonthDays: CalendarDay[] = []
 
-  const nextMonthDays: Day[] = []
+  const nextMonthDays: CalendarDay[] = []
 
   // 上月天数
   const firstDayWeek = d.weekDay
@@ -44,7 +44,7 @@ export function getMonthDays(
     d.setDay(0)
     let i = 0
     while (i < firstDayWeek) {
-      const day: Day = {
+      const day: CalendarDay = {
         date: d.calc(-i, 'days'),
         type: 'pre'
       }
@@ -61,7 +61,7 @@ export function getMonthDays(
   d.setMonth(d.month + 2).setDay(1)
 
   while (j < nextMonthDaysAmount) {
-    const day: Day = {
+    const day: CalendarDay = {
       date: d.calc(j++, 'days'),
       type: 'next'
     }
@@ -81,12 +81,7 @@ export function getMonthDays(
 export function getYearMonths(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater) => boolean
-): Array<{
-  key: string
-  month: number
-  date: Dater
-  disabled?: boolean
-}> {
+): CalendarMonth[] {
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
   }
@@ -121,7 +116,7 @@ export function getYearMonths(
 export function getTenYears(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater) => boolean
-) {
+): CalendarYear[] {
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
   }

@@ -1,20 +1,13 @@
 <template>
   <ul :class="cls.e('months')">
     <li
-      v-for="{ key, month, disabled, date } of months"
-      :key="key"
-      :class="[
-        cls.e('month'),
-        bem.is('selected', didMonthSelected(month)),
-        bem.is('disabled', disabled === true),
-        bem.is('range', didInRange(date)),
-        bem.is('range-start', didIsRangeStart(date, 'yyyyMM')),
-        bem.is('range-end', didIsRangeEnd(date, 'yyyyMM'))
-      ]"
-      @click="!disabled && handleSelectMonth(month)"
-      @mouseenter="!disabled && handleDateHovered(date)"
+      v-for="month of months"
+      :key="month.key"
+      :class="getMonthCls(month)"
+      @click="!month.disabled && handleDateSelect(month.date)"
+      @mouseenter="!month.disabled && handleDateRangeHover(month.date)"
     >
-      <span :class="cls.e('month-text')">{{ month }}月</span>
+      <span :class="cls.e('cell-value')">{{ month.month }}月</span>
     </li>
   </ul>
 </template>
@@ -23,53 +16,70 @@
 import { computed } from 'vue'
 import { bem } from '@ui/utils'
 import { getYearMonths } from '../../calendar/utils'
-import { cls } from '../shared'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
+import type { CalendarMonth } from '@ui/types'
+import type { Dater } from 'cat-kit/fe'
 
 defineOptions({
   name: 'DatePanelMonth'
 })
 
 const {
+  cls,
   panelDate,
+  rangeDate,
   panelProps,
-  panelEmit,
-  showNextPanel,
-  handleDateHovered,
-  didInRange,
-  didIsRangeStart,
-  didIsRangeEnd
+  handleDateSelect,
+  handleDateRangeHover
 } = inject(DatePanelDIKey)!
 
 const months = computed(() => {
   return getYearMonths(panelDate.value.timestamp, panelProps.disabledDate)
 })
 
-function handleSelectMonth(month: number) {
-  const d = panelDate.value.setMonth(month)
-  console.log(d === panelDate.value)
-  panelDate.value = d
-  showNextPanel()
-
-  if (panelProps.type !== 'month') return
-
-  if (panelProps.range) {
-    if (!panelDate.value) {
-      panelDate.value = d
-    } else {
-      panelEmit('select:range-date', [panelDate.value, d])
-    }
-  } else {
-    panelEmit('select:date', d)
-  }
+function getRangeCls(month: CalendarMonth) {
+  return [
+    bem.is('in-range', didInRange(month.date)),
+    bem.is('range-start', isRangeStart(month.date)),
+    bem.is('range-end', isRangeEnd(month.date))
+  ]
 }
 
-function didMonthSelected(month: number) {
+function getSingleCls(month: CalendarMonth) {
+  return [bem.is('selected', didSelected(month.date))]
+}
+
+function getMonthCls(month: CalendarMonth) {
+  const ret = [cls.e('cell'), bem.is('disabled', month.disabled === true)]
+  if (panelProps.range) {
+    return [...ret, ...getRangeCls(month)]
+  }
+  return [...ret, ...getSingleCls(month)]
+}
+
+const fmtStr = 'yyyyMM'
+
+function didSelected(date: Dater) {
   if (!panelProps.date) return false
-  return (
-    panelProps.date.month === month &&
-    panelProps.date.year === panelDate.value.year
-  )
+  return date.format(fmtStr) === panelProps.date.format(fmtStr)
+}
+
+function didInRange(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start, end] = rangeDate.value
+  return date.timestamp >= start.timestamp && date.timestamp <= end.timestamp
+}
+
+function isRangeStart(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start] = rangeDate.value
+  return date.format(fmtStr) === start.format(fmtStr)
+}
+
+function isRangeEnd(date: Dater) {
+  if (!rangeDate.value) return false
+  const [, end] = rangeDate.value
+  return date.format(fmtStr) === end.format(fmtStr)
 }
 </script>

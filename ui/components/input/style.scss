@@ -30,9 +30,9 @@ $root-name: input;
       line-height: fn.use-var(form-component-height, $size);
     }
 
-    @include m.bem($root-name, clear) {
-      font-size: fn.use-var(font-size-main, $size);
-    }
+    // @include m.bem($root-name, clear) {
+    //   font-size: fn.use-var(font-size-main, $size);
+    // }
   }
 
   @include m.is(focus) {

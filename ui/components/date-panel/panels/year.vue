@@ -1,20 +1,13 @@
 <template>
   <ul :class="cls.e('years')">
     <li
-      v-for="{ year, disabled, date } of years"
-      :key="year"
-      :class="[
-        cls.e('year'),
-        bem.is('selected', didYearSelected(year)),
-        bem.is('disabled', disabled === true),
-        bem.is('range', didInRange(date)),
-        bem.is('range-start', didIsRangeStart(date, 'yyyy')),
-        bem.is('range-end', didIsRangeEnd(date, 'yyyy'))
-      ]"
-      @click="!disabled && handleSelectYear(year)"
-      @mouseenter="!disabled && handleDateHovered(date)"
+      v-for="year of years"
+      :key="year.year"
+      :class="getYearCls(year)"
+      @click="!year.disabled && handleDateSelect(year.date)"
+      @mouseenter="!year.disabled && handleDateRangeHover(year.date)"
     >
-      <span :class="cls.e('year-text')">{{ year }}</span>
+      <span :class="cls.e('cell-value')">{{ year.year }}</span>
     </li>
   </ul>
 </template>
@@ -23,9 +16,10 @@
 import { bem } from '@ui/utils'
 import { getTenYears } from '../../calendar/utils'
 import { computed } from 'vue'
-import { cls } from '../shared'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
+import type { CalendarYear } from '@ui/types'
+import type { Dater } from 'cat-kit'
 
 defineOptions({
   name: 'DatePanelYear'
@@ -33,39 +27,57 @@ defineOptions({
 
 const {
   panelDate,
+  rangeDate,
   panelProps,
-  panelEmit,
-  showNextPanel,
-  handleDateHovered,
-  didInRange,
-  didIsRangeStart,
-  didIsRangeEnd
+  cls,
+  handleDateSelect,
+  handleDateRangeHover
 } = inject(DatePanelDIKey)!
 
 const years = computed(() => {
   return getTenYears(panelDate.value.timestamp, panelProps.disabledDate)
 })
 
-function didYearSelected(year: number) {
-  if (!panelProps.date) return false
-  return panelProps.date.year === year
+function getRangeCls(year: CalendarYear) {
+  return [
+    bem.is('range', didInRange(year.date)),
+    bem.is('range-start', isRangeStart(year.date)),
+    bem.is('range-end', isRangeEnd(year.date))
+  ]
 }
 
-function handleSelectYear(year: number) {
-  const d = panelDate.value.setYear(year)
-  panelDate.value = d
-  showNextPanel()
+function getSingleCls(year: CalendarYear) {
+  return [bem.is('selected', didSelected(year.date))]
+}
 
-  if (panelProps.type !== 'year') return
-
+function getYearCls(year: CalendarYear) {
+  const ret = [cls.e('cell'), bem.is('disabled', year.disabled === true)]
   if (panelProps.range) {
-    if (!panelDate.value) {
-      panelDate.value = d
-    } else {
-      panelEmit('select:range-date', [panelDate.value, d])
-    }
-  } else {
-    panelEmit('select:date', d)
+    return [...ret, ...getRangeCls(year)]
   }
+  return [...ret, ...getSingleCls(year)]
+}
+
+function didSelected(date: Dater) {
+  if (!panelProps.date) return false
+  return date.year === panelProps.date.year
+}
+
+function didInRange(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start, end] = rangeDate.value
+  return date.timestamp >= start.timestamp && date.timestamp <= end.timestamp
+}
+
+function isRangeStart(date: Dater) {
+  if (!rangeDate.value) return false
+  const [start] = rangeDate.value
+  return date.year === start.year
+}
+
+function isRangeEnd(date: Dater) {
+  if (!rangeDate.value) return false
+  const [, end] = rangeDate.value
+  return date.year === end.year
 }
 </script>

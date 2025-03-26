@@ -16,6 +16,7 @@
         :placeholder="placeholder"
         :model-value="displayedValue"
         :disabled="disabled"
+        @clear="handleClear"
       >
         <template #suffix>
           <u-icon :class="cls.e('icon')"><Calendar /></u-icon>
@@ -45,8 +46,12 @@ import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { computed, shallowRef } from 'vue'
+import {
+  useFormComponent,
+  useFormFallbackProps,
+  useUpdateLock
+} from '@ui/compositions'
+import { computed, shallowRef, watch } from 'vue'
 import { Calendar } from 'icon-ultra'
 import { UDatePanel } from '../date-panel'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
@@ -95,17 +100,34 @@ const formatStr = computed(() => {
   return 'yyyy-MM-dd'
 })
 
-const currentDate = shallowRef(
-  props.modelValue ? date(props.modelValue) : undefined
+const currentDate = shallowRef<Dater>()
+
+const { update, updateAndLock } = useUpdateLock()
+
+watch(
+  () => props.modelValue,
+  modelValue => {
+    update(() => {
+      currentDate.value = modelValue ? date(modelValue) : undefined
+    })
+  },
+  { immediate: true }
 )
 
 const displayedValue = computed(() => {
   return currentDate.value?.format(formatStr.value) ?? ''
 })
 
-function handleSelectDate(date: Dater) {
-  currentDate.value = date
-  emit('update:modelValue', date.format(formatStr.value))
+async function handleSelectDate(date: Dater) {
+  await updateAndLock(() => {
+    currentDate.value = date
+    emit('update:modelValue', date.format(formatStr.value))
+  })
   dropdownRef.value?.close()
+}
+
+function handleClear() {
+  currentDate.value = undefined
+  emit('update:modelValue', undefined)
 }
 </script>

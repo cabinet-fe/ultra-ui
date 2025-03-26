@@ -1,4 +1,34 @@
+import type { Dater } from 'cat-kit/fe'
 import type { DeconstructValue } from '../helper'
+
+/** day接口 */
+export interface CalendarDay {
+  date: Dater
+  /** 是否今日 */
+  isToday?: boolean
+  /** 日期类型：上月， 本月， 下月 */
+  type: 'pre' | 'current' | 'next'
+  /** 是否禁止选择 */
+  disabled?: boolean
+}
+
+export interface CalendarMonth {
+  date: Dater
+  /** 是否禁止选择 */
+  disabled?: boolean
+  /** 年月标识 */
+  key: string
+  /** 月份 */
+  month: number
+}
+
+export interface CalendarYear {
+  date: Dater
+  /** 是否禁止选择 */
+  disabled?: boolean
+  /** 年份 */
+  year: number
+}
 
 /** 日历组件属性 */
 export interface CalendarProps {

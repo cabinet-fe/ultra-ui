@@ -32,7 +32,8 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<DatePanelProps>(), {
-  size: 'default'
+  size: 'default',
+  type: 'date'
 })
 
 const emit = defineEmits<DatePanelEmits>()

@@ -6,6 +6,8 @@
     width="auto"
     ref="dropdownRef"
     :disabled="disabled"
+    @mouseenter.native="hovered = true"
+    @mouseleave.native="hovered = false"
     v-if="!readonly"
   >
     <template #trigger>
@@ -24,6 +26,19 @@
         :placeholder="placeholder[1]"
         readonly
       />
+
+      <Transition name="zoom-in" mode="out-in">
+        <UIcon
+          v-if="clearable && modelValue && hovered && !disabled"
+          :class="[cls.e('icon'), cls.e('clear')]"
+          title="清除"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </UIcon>
+
+        <u-icon :class="cls.e('icon')" v-else><Calendar /></u-icon>
+      </Transition>
     </template>
 
     <template #content>
@@ -52,10 +67,14 @@ import type {
   DropdownExposed
 } from '@ui/types'
 import { bem } from '@ui/utils'
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDatePanel } from '../date-panel'
 import { date, type Dater } from 'cat-kit/fe'
+import { UDropdown } from '../dropdown'
+import { useUpdateLock } from '@ui/compositions'
+import { Calendar, Close } from 'icon-ultra'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'DateRangePicker'
@@ -74,7 +93,7 @@ const emit = defineEmits<DateRangePickerEmits>()
 const cls = bem('date-range-picker')
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value)]
+  return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
 })
 
 const { formProps } = useFormComponent()
@@ -90,11 +109,9 @@ const { size, disabled, readonly } = useFormFallbackProps(
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const currentRangeDate = shallowRef<[Dater, Dater] | undefined>(
-  props.modelValue?.length === 2
-    ? [date(props.modelValue[0]), date(props.modelValue[1])]
-    : undefined
-)
+const { update, updateAndLock } = useUpdateLock()
+
+const currentRangeDate = shallowRef<[Dater, Dater]>()
 
 const displayedOfStart = computed(() => {
   return props.modelValue?.[0]
@@ -113,11 +130,33 @@ const formatStr = computed(() => {
   return 'yyyy-MM-dd'
 })
 
-function handleSelect(rangeDate: [Dater, Dater] | undefined) {
-  currentRangeDate.value = rangeDate
-  emit(
-    'update:modelValue',
-    rangeDate?.map(d => d.format(formatStr.value)) as [string, string]
-  )
+watch(
+  () => props.modelValue,
+  val => {
+    update(() => {
+      if (val?.length === 2) {
+        currentRangeDate.value = [date(val[0]), date(val[1])]
+      }
+    })
+  },
+  { immediate: true }
+)
+
+async function handleSelect(rangeDate: [Dater, Dater] | undefined) {
+  await updateAndLock(() => {
+    currentRangeDate.value = rangeDate
+    emit(
+      'update:modelValue',
+      rangeDate?.map(d => d.format(formatStr.value)) as [string, string]
+    )
+  })
+  dropdownRef.value?.close()
+}
+
+const hovered = shallowRef(false)
+
+function handleClear() {
+  currentRangeDate.value = undefined
+  emit('update:modelValue', undefined)
 }
 </script>

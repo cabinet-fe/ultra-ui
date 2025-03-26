@@ -1,6 +1,6 @@
 <template>
   <div :class="cls.e('header')">
-    <u-icon @click="handlePreYear" title="上一年">
+    <u-icon @click="toPrevYear" title="上一年">
       <DArrowLeft />
     </u-icon>
 
@@ -8,7 +8,7 @@
       {{ panelDate.year }}
     </span>
 
-    <u-icon @click="handleNextYear" title="下一年">
+    <u-icon @click="toNextYear" title="下一年">
       <DArrowRight />
     </u-icon>
   </div>
@@ -17,7 +17,6 @@
 <script lang="ts" setup>
 import { UIcon } from '@ui/components'
 import { DArrowLeft, DArrowRight } from 'icon-ultra'
-import { cls } from '../shared'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 
@@ -25,6 +24,6 @@ defineOptions({
   name: 'DatePanelMonthHeader'
 })
 
-const { panelDate, panelType, handlePreYear, handleNextYear } =
+const { panelDate, panelType, toPrevYear, toNextYear, cls } =
   inject(DatePanelDIKey)!
 </script>
