@@ -2,7 +2,7 @@
   <u-form :model="model">
     <u-input field="a" label="a"></u-input>
     <u-input field="b" label="b"></u-input>
-    <u-input field="nest.a" label="嵌套"></u-input>
+    <u-input field="nest.a" label="嵌套" readonly></u-input>
   </u-form>
 
   <u-button @click="changeModelData">变更模型数据</u-button>
@@ -15,7 +15,7 @@ import { reactive } from 'vue'
 const model = new FormModel({
   a: { required: true },
   b: {},
-  'nest.a': { required: true }
+  'nest.a': { required: true, value: '1' }
 })
 
 const newModelData = reactive({

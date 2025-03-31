@@ -18,7 +18,8 @@
     <section :class="cls.e('content')">
       <slot></slot>
 
-      <section v-if="!readonly" :class="cls.e('error')">
+      <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
+      <section :class="cls.e('error')" v-if="!formProps?.readonly">
         <transition name="form-item-tips" mode="out-in">
           <span :class="cls.e('error-text')" v-if="!!errorTips">
             {{ errorTips }}

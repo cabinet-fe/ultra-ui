@@ -1,6 +1,6 @@
 <template>
   <u-form :model="model" show-initial-data>
-    <u-input label="姓名" field="name" />
+    <u-input label="姓名" field="name" readonly />
     <u-select label="年级" field="grade" :options="gradeList" />
     <u-checkbox label="是否在校" field="isInSchool" />
   </u-form>
