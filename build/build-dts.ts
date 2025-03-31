@@ -1,11 +1,16 @@
 import { DIST_ROOT } from './helper'
 import fg from 'fast-glob'
 import { readFile, writeFile } from 'node:fs/promises'
-import { dirname, relative } from 'node:path'
-import { $ } from 'bun'
+import { dirname, relative, resolve } from 'node:path'
+import { $ } from 'execa'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export async function buildDTS() {
-  await $`bun vue-tsc --emitDeclarationOnly --declaration -p ../ui/tsconfig.json`
+  await $({
+    cwd: resolve(__dirname, '../ui')
+  })`vue-tsc --emitDeclarationOnly --declaration -p tsconfig.json`
 
   const files = await fg.glob('**/*.d.ts', {
     cwd: DIST_ROOT,

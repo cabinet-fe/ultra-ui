@@ -4,7 +4,11 @@ import { build } from './build'
 import { buildDTS } from './build-dts'
 import { genPackageJson } from './gen-package-json'
 import { genInstall } from './gen-install'
-import { $ } from 'bun'
+import { $ } from 'execa'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 async function boot() {
   await genInstall()
@@ -14,7 +18,9 @@ async function boot() {
   await copyFiles()
   await genPackageJson()
   try {
-    await $`cd ../dist && npm publish --registry http://192.168.31.250:6005`
+    await $({
+      cwd: resolve(__dirname, '../dist')
+    })`npm publish --registry http://192.168.31.250:6005`
   } catch (error: any) {
     console.error(error.stderr?.toString())
   }
