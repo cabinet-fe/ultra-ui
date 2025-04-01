@@ -19,10 +19,11 @@ async function getEntries() {
       'styles/index.ts',
       'install.ts',
       'components/**/style.ts',
+
       'directives/**/style.ts'
     ],
     {
-      ignore: ['**/node_modules'],
+      ignore: ['**/node_modules', '**/disabled.*/**'],
       cwd: UI_ROOT
     }
   )
