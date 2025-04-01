@@ -276,7 +276,7 @@ watch(
   ([keyDicts, model]) => {
     if (changedByEvent) return
 
-    if (!keyDicts.size || !model.length) {
+    if (!keyDicts.size || !model?.length) {
       tags.value = []
       return
     }
