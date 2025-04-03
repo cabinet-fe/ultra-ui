@@ -4,7 +4,8 @@
       cls.b,
       cls.m(size),
       bem.is('all-expanded', allExpanded),
-      bem.is('text-ellipsis', textEllipsis)
+      bem.is('text-ellipsis', textEllipsis),
+      bem.is('stripe', stripe)
     ]"
     ref="scrollRef"
     :content-class="cls.e('content')"
@@ -34,6 +35,7 @@
 
       <!-- 占用空间，用来撑开表格高度 -->
       <tbody
+        v-if="virtualEnabled"
         ref="spaceRef"
         :style="{
           width: '1px'
@@ -97,7 +99,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<TableProps<DataItem>>(), {
   tree: false,
-  textOverflow: 'line-break'
+  stripe: true,
+  textOverflow: 'line-break',
+  virtualThreshold: 80
 })
 const emit = defineEmits<TableEmits>()
 
@@ -183,10 +187,11 @@ const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  estimateSize: () => 52
+  estimateSize: () => 52,
+  virtualThreshold: toRef(props, 'virtualThreshold')
 })
 
-const { virtualList, totalHeight } = virtualCtx
+const { virtualList, totalHeight, virtualEnabled } = virtualCtx
 
 const spaceHeight = computed(() => {
   if (virtualList.value.length) {
@@ -206,7 +211,7 @@ watch(
   spaceHeight => {
     spaceRef.value &&
       setStyles(spaceRef.value, {
-        height: `${spaceHeight}px`
+        height: spaceHeight ? `${spaceHeight}px` : undefined
       })
   },
   { immediate: true }

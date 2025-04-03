@@ -30,13 +30,6 @@ $root-name: table;
   }
 
   @include m.e(row) {
-    @include m.is(even) {
-      td {
-        background-color: fn.use-var(table, stripe, bg);
-        color: fn.use-var(table, stripe, color);
-      }
-    }
-
     &:hover {
       @include m.bem($root-name, cell) {
         background-color: fn.use-var(table, hover, bg);
@@ -55,6 +48,17 @@ $root-name: table;
     @include m.is(current) {
       @include m.bem($root-name, cell) {
         background-color: fn.use-var(color, primary, 'light-9');
+      }
+    }
+  }
+
+  @include m.is(stripe) {
+    @include m.bem($root-name, row) {
+      @include m.is(even) {
+        td {
+          background-color: fn.use-var(table, stripe, bg);
+          color: fn.use-var(table, stripe, color);
+        }
       }
     }
   }

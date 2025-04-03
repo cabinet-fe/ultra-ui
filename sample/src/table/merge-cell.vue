@@ -5,6 +5,8 @@
       :merge-cell="mergeCell"
       v-if="!reloading"
       :columns="columns"
+      style="height: 300px"
+      :stripe="false"
     >
       <template #column:secondQuota="{ val, row }">
         <span>{{ val }}</span>

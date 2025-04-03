@@ -1,9 +1,11 @@
 import {
   computed,
+  isRef,
   onScopeDispose,
   shallowRef,
   watch,
   type ComputedRef,
+  type Ref,
   type ShallowRef
 } from 'vue'
 import {
@@ -16,9 +18,9 @@ import {
 
 interface Options {
   /** 指定启用虚拟列表的阈值 */
-  virtualThreshold?: number
+  virtualThreshold?: number | Ref<number | undefined>
   /** 数量 */
-  count: ShallowRef<number>
+  count: Ref<number>
   /** 滚动容器 */
   scrollEl: ShallowRef<HTMLElement | null>
   /** 估算高度(宽度) */
@@ -48,6 +50,12 @@ export function useVirtual(options: Options): VirtualReturned {
   const { count, scrollEl, estimateSize, virtualThreshold, gap } = options
 
   const enabled = computed(() => {
+    if (isRef(virtualThreshold)) {
+      return virtualThreshold.value
+        ? count.value > virtualThreshold.value
+        : true
+    }
+
     return virtualThreshold ? count.value > virtualThreshold : true
   })
 

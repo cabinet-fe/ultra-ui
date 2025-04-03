@@ -1,7 +1,7 @@
 <template>
   <tbody :class="cls.e('body')" ref="bodyRef">
     <UTableRow
-      v-for="{ row, index } of virtualRows"
+      v-for="{ row, index } of tableRows"
       :row="row"
       :key="row.uid"
       :data-index="index"
@@ -33,10 +33,20 @@ defineOptions({
   name: 'TableBody'
 })
 
-const { cls, rows, virtualList, columnConfig, tableProps } = inject(TableDIKey)!
+const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } =
+  inject(TableDIKey)!
 const { leafColumns } = columnConfig
 
-const virtualRows = computed(() => {
+const tableRows = computed(() => {
+  if (!virtualEnabled.value) {
+    return rows.value.map(item => {
+      return {
+        row: item,
+        index: item.index
+      }
+    })
+  }
+
   return virtualList.value.map(item => {
     return {
       row: rows.value[item.index]!,
