@@ -6,6 +6,8 @@
 $root-name: group-input;
 
 @include m.b($root-name) {
+  width: 100%;
+
   @include m.size using ($size) {
     font-size: fn.use-var(font-size-main, $size);
 
