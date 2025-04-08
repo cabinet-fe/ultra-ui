@@ -27,6 +27,7 @@ declare module 'vue' {
     UCheckbox: typeof import('ultra-ui')['UCheckbox']
     UCheckboxButton: typeof import('ultra-ui')['UCheckboxButton']
     UCheckboxGroup: typeof import('ultra-ui')['UCheckboxGroup']
+    UCodeEditor: typeof import('ultra-ui')['UCodeEditor']
     UDatePicker: typeof import('ultra-ui')['UDatePicker']
     UDateRangePicker: typeof import('ultra-ui')['UDateRangePicker']
     UDialog: typeof import('ultra-ui')['UDialog']

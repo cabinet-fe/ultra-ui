@@ -20,8 +20,10 @@ export async function getEntries() {
     ]
   })
 
+  const allEntries = [...entries]
+
   return Object.fromEntries(
-    entries.map(entry => [
+    allEntries.map(entry => [
       entry.slice(0, -extname(entry).length),
       resolve(UI_ROOT, entry)
     ])

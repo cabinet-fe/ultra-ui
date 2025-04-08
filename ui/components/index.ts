@@ -20,6 +20,8 @@ export * from './checkbox'
 
 export * from './checkbox-group'
 
+export * from './code-editor'
+
 export * from './context-menu'
 
 export * from './date-picker'

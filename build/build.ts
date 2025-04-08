@@ -45,7 +45,13 @@ export async function build() {
         // 确保外部化处理那些你不想打包进库的依赖
         external: ['vue', 'icon-ultra', 'cat-kit/fe'],
         output: {
-          chunkFileNames: 'venders/[name]-[hash].js'
+          chunkFileNames: 'venders/[name].js',
+          manualChunks(id) {
+            const cm = id.match(/@codemirror\/lang-([a-zA-Z0-9]+)/)
+            if (cm) {
+              return `editor-${cm[1]}`
+            }
+          }
         }
       }
     }
