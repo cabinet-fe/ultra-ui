@@ -20,4 +20,10 @@ $root-name: code-editor;
     border-radius: fn.use-var(radius, $size);
     padding: 2px calc(fn.use-var(gap, $size) / 2);
   }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    cursor: not-allowed;
+  }
 }

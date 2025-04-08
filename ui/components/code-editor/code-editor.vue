@@ -1,23 +1,53 @@
 <template>
-  <u-scroll :class="cls.b">
+  <u-scroll :class="className">
     <div ref="container"></div>
   </u-scroll>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  shallowRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 import { bem } from '@ui/utils'
 import type { CodeEditorProps } from '@ui/types'
-import { UScroll, zIndex } from 'ultra-ui'
+import {
+  UScroll,
+  useFormComponent,
+  useFormFallbackProps,
+  zIndex
+} from 'ultra-ui'
 import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'
 
-const props = defineProps<CodeEditorProps>()
+const props = withDefaults(defineProps<CodeEditorProps>(), {
+  disabled: undefined,
+  readonly: undefined
+})
 
 const model = defineModel<string>()
 
 const cls = bem('code-editor')
+
+const { formProps } = useFormComponent()
+
+const { size, disabled, readonly } = useFormFallbackProps([
+  formProps ?? {},
+  props
+])
+
+const className = computed(() => {
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value)
+  ]
+})
 
 const containerRef = useTemplateRef('container')
 
@@ -36,7 +66,7 @@ async function renderEditor() {
   if (!containerRef.value) return
   editor.value?.destroy()
 
-  const { language, disabled, readonly } = props
+  const { language } = props
 
   const extensions = [
     basicSetup,
@@ -50,10 +80,10 @@ async function renderEditor() {
     })
   ]
 
-  if (disabled) {
+  if (disabled.value) {
     extensions.push(EditorView.editable.of(false))
   }
-  if (readonly) {
+  if (readonly.value) {
     extensions.push(EditorState.readOnly.of(true))
   }
   if (language) {
@@ -77,15 +107,7 @@ async function renderEditor() {
   })
 }
 
-watch(
-  [
-    containerRef,
-    () => props.language,
-    () => props.disabled,
-    () => props.readonly
-  ],
-  renderEditor
-)
+watch([containerRef, () => props.language, disabled, readonly], renderEditor)
 
 watch(
   [() => props.modelValue, editor],
