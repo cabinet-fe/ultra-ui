@@ -60,14 +60,15 @@
             label-key="label"
             value-key="value"
           />
-          <u-cascade
+          <u-code-editor field="code" label="代码" language="json" />
+          <!-- <u-cascade
             field="cascade"
             label="单选级联选择器"
             :options="area.area"
             label-key="name"
             value-key="code"
             filterable
-          />
+          /> -->
         </template>
       </u-batch-edit>
     </u-dialog>
@@ -79,7 +80,7 @@ import { sleep } from 'cat-kit/fe'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
-import area from '../cascade/area'
+// import area from '../cascade/area'
 import type { BatchEditFeature } from '@ui/types'
 
 const readonly = shallowRef(false)
@@ -116,6 +117,7 @@ const model = new FormModel({
   'props.label': {},
   cc: { required: true },
   cascade: {},
+  code: {},
   unit: {}
 })
 

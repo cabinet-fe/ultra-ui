@@ -1,5 +1,5 @@
 <template>
-  <u-scroll :class="className">
+  <u-scroll :class="className" @keyup.enter.stop>
     <div ref="container"></div>
   </u-scroll>
 </template>
