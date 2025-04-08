@@ -13,7 +13,7 @@ import {
   watch
 } from 'vue'
 import { bem } from '@ui/utils'
-import type { CodeEditorProps } from '@ui/types'
+import type { CodeEditorLang, CodeEditorProps } from '@ui/types'
 import {
   UScroll,
   useFormComponent,
@@ -53,13 +53,14 @@ const containerRef = useTemplateRef('container')
 
 const editor = shallowRef<EditorView | null>(null)
 
-const langLoaders = {
+const langLoaders: Record<CodeEditorLang, () => Promise<any>> = {
   js: () =>
     import('@codemirror/lang-javascript').then(m =>
       m.javascript({ typescript: true })
     ),
   sql: () => import('@codemirror/lang-sql').then(m => m.sql()),
-  java: () => import('@codemirror/lang-java').then(m => m.java())
+  java: () => import('@codemirror/lang-java').then(m => m.java()),
+  json: () => import('@codemirror/lang-json').then(m => m.json())
 }
 
 async function renderEditor() {

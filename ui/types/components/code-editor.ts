@@ -1,11 +1,13 @@
 import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
+export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json'
+
 /** 代码编辑器组件属性 */
 export interface CodeEditorProps extends FormComponentProps {
   modelValue?: string
   /** 定义语言 */
-  language?: 'js' | 'sql' | 'java'
+  language?: CodeEditorLang
 }
 
 /** 代码编辑器组件定义的事件 */

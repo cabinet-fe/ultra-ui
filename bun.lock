@@ -7,11 +7,12 @@
         "@builder/cli": "^1.0.12",
         "@codemirror/lang-java": "^6.0.1",
         "@codemirror/lang-javascript": "^6.2.3",
+        "@codemirror/lang-json": "^6.0.1",
         "@codemirror/lang-sql": "^6.8.0",
         "@floating-ui/dom": "^1.6.13",
         "@lexical/plain-text": "^0.27.2",
-        "@tanstack/vue-virtual": "^3.13.5",
-        "@types/bun": "^1.2.6",
+        "@tanstack/vue-virtual": "^3.13.6",
+        "@types/bun": "^1.2.8",
         "@vitejs/plugin-vue": "^5.2.3",
         "@vitejs/plugin-vue-jsx": "^4.1.2",
         "autoprefixer": "^10.4.21",
@@ -21,16 +22,16 @@
         "fast-glob": "^3.3.3",
         "icon-ultra": "^3.0.18",
         "lexical": "^0.27.2",
-        "rollup": "^4.37.0",
+        "rollup": "^4.39.0",
         "rollup-plugin-esbuild": "^6.2.1",
-        "sass-embedded": "^1.86.0",
+        "sass-embedded": "^1.86.3",
         "simple-git-hooks": "^2.12.1",
         "ts-conf-base": "^2.4.2",
         "tsx": "^4.19.3",
         "typescript": "5.8.2",
         "unplugin-vue-components": "^28.4.1",
-        "vite": "^6.2.3",
-        "vitest": "^3.0.9",
+        "vite": "^6.2.5",
+        "vitest": "^3.1.1",
         "vue": "^3.5.13",
         "vue-router": "^4.5.0",
         "vue-tsc": "^2.2.8",
@@ -132,6 +133,8 @@
     "@codemirror/lang-java": ["@codemirror/lang-java@6.0.1", "http://192.168.31.250:6005/@codemirror/lang-java/-/lang-java-6.0.1.tgz", { "dependencies": { "@codemirror/language": "^6.0.0", "@lezer/java": "^1.0.0" } }, "sha512-OOnmhH67h97jHzCuFaIEspbmsT98fNdhVhmA3zCxW0cn7l8rChDhZtwiwJ/JOKXgfm4J+ELxQihxaI7bj7mJRg=="],
 
     "@codemirror/lang-javascript": ["@codemirror/lang-javascript@6.2.3", "http://192.168.31.250:6005/@codemirror/lang-javascript/-/lang-javascript-6.2.3.tgz", { "dependencies": { "@codemirror/autocomplete": "^6.0.0", "@codemirror/language": "^6.6.0", "@codemirror/lint": "^6.0.0", "@codemirror/state": "^6.0.0", "@codemirror/view": "^6.17.0", "@lezer/common": "^1.0.0", "@lezer/javascript": "^1.0.0" } }, "sha512-8PR3vIWg7pSu7ur8A07pGiYHgy3hHj+mRYRCSG8q+mPIrl0F02rgpGv+DsQTHRTc30rydOsf5PZ7yjKFg2Ackw=="],
+
+    "@codemirror/lang-json": ["@codemirror/lang-json@6.0.1", "http://192.168.31.250:6005/@codemirror/lang-json/-/lang-json-6.0.1.tgz", { "dependencies": { "@codemirror/language": "^6.0.0", "@lezer/json": "^1.0.0" } }, "sha512-+T1flHdgpqDDlJZ2Lkil/rLiRy684WMLc74xUnjJH48GQdfJo/pudlTRreZmKwzP8/tGdKf83wlbAdOCzlJOGQ=="],
 
     "@codemirror/lang-sql": ["@codemirror/lang-sql@6.8.0", "http://192.168.31.250:6005/@codemirror/lang-sql/-/lang-sql-6.8.0.tgz", { "dependencies": { "@codemirror/autocomplete": "^6.0.0", "@codemirror/language": "^6.0.0", "@codemirror/state": "^6.0.0", "@lezer/common": "^1.2.0", "@lezer/highlight": "^1.0.0", "@lezer/lr": "^1.0.0" } }, "sha512-aGLmY4OwGqN3TdSx3h6QeA1NrvaYtF7kkoWR/+W7/JzB0gQtJ+VJxewlnE3+VImhA4WVlhmkJr109PefOOhjLg=="],
 
@@ -260,6 +263,8 @@
     "@lezer/java": ["@lezer/java@1.1.3", "http://192.168.31.250:6005/@lezer/java/-/java-1.1.3.tgz", { "dependencies": { "@lezer/common": "^1.2.0", "@lezer/highlight": "^1.0.0", "@lezer/lr": "^1.0.0" } }, "sha512-yHquUfujwg6Yu4Fd1GNHCvidIvJwi/1Xu2DaKl/pfWIA2c1oXkVvawH3NyXhCaFx4OdlYBVX5wvz2f7Aoa/4Xw=="],
 
     "@lezer/javascript": ["@lezer/javascript@1.4.21", "http://192.168.31.250:6005/@lezer/javascript/-/javascript-1.4.21.tgz", { "dependencies": { "@lezer/common": "^1.2.0", "@lezer/highlight": "^1.1.3", "@lezer/lr": "^1.3.0" } }, "sha512-lL+1fcuxWYPURMM/oFZLEDm0XuLN128QPV+VuGtKpeaOGdcl9F2LYC3nh1S9LkPqx9M0mndZFdXCipNAZpzIkQ=="],
+
+    "@lezer/json": ["@lezer/json@1.0.3", "http://192.168.31.250:6005/@lezer/json/-/json-1.0.3.tgz", { "dependencies": { "@lezer/common": "^1.2.0", "@lezer/highlight": "^1.0.0", "@lezer/lr": "^1.0.0" } }, "sha512-BP9KzdF9Y35PDpv04r0VeSTKDeox5vVr3efE7eBbx3r4s3oNLfunchejZhjArmeieBH+nVOpgIiBJpEAv8ilqQ=="],
 
     "@lezer/lr": ["@lezer/lr@1.4.2", "http://192.168.31.250:6005/@lezer/lr/-/lr-1.4.2.tgz", { "dependencies": { "@lezer/common": "^1.0.0" } }, "sha512-pu0K1jCIdnQ12aWNaAVU5bzi7Bd1w54J3ECgANPmYLtQKP0HBj2cE/5coBD66MT10xbtIuUr7tg0Shbsvk0mDA=="],
 

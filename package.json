@@ -56,7 +56,8 @@
     "codemirror": "^6.0.1",
     "@codemirror/lang-javascript": "^6.2.3",
     "@codemirror/lang-sql": "^6.8.0",
-    "@codemirror/lang-java": "^6.0.1"
+    "@codemirror/lang-java": "^6.0.1",
+    "@codemirror/lang-json": "^6.0.1"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cli/verify-commit/index.ts"
