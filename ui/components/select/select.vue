@@ -102,7 +102,9 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ label || selected?.[labelKey] || FORM_EMPTY_CONTENT }}</span>
+  <span v-else :class="formItemViewerCls">{{
+    label || selected?.[labelKey] || FORM_EMPTY_CONTENT
+  }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -129,6 +131,7 @@ import { useOptions } from './use-options'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'Select'

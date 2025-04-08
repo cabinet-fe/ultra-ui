@@ -63,7 +63,9 @@
     </template>
   </u-dropdown>
 
-  <span v-else>{{ model || FORM_EMPTY_CONTENT }}</span>
+  <span v-else :class="formItemViewerCls">
+    {{ model || FORM_EMPTY_CONTENT }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -82,6 +84,7 @@ import { UInput } from '../input'
 import { useSuggestions } from './use-suggestions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { DropdownExposed, ScrollExposed } from '@ui/types'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'AutoComplete',

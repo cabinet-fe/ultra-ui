@@ -35,7 +35,7 @@
     </template>
   </u-dropdown>
 
-  <span v-else>
+  <span v-else :class="formItemViewerCls">
     {{ displayedValue || FORM_EMPTY_CONTENT }}
   </span>
 </template>
@@ -57,6 +57,7 @@ import { UDatePanel } from '../date-panel'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { DropdownExposed } from '@ui/types'
 import { date, type Dater } from 'cat-kit/fe'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'DatePicker'

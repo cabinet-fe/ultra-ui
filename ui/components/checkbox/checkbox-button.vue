@@ -10,7 +10,7 @@
     {{ checked ? '是' : '否' }}
   </u-tag>
 
-  <span v-else>{{ FORM_EMPTY_CONTENT }}</span>
+  <span v-else :class="formItemViewerCls">{{ FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -20,6 +20,7 @@ import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UTag } from '../tag'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'CheckboxButton'

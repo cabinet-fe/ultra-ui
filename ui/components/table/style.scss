@@ -164,6 +164,7 @@ $root-name: table;
     padding: fn.use-var(gap, large);
     box-shadow: -1px -1px fn.use-var(table, border-color) inset;
     position: relative;
+    line-height: 1;
 
     @each $position in (left, center, right) {
       @include m.is($position) {

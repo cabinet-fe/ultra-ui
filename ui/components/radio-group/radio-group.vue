@@ -13,7 +13,7 @@
     </u-radio>
   </div>
 
-  <span v-else>
+  <span v-else :class="formItemViewerCls">
     {{
       items.find(item => item[valueKey] === model)?.[labelKey] ||
       FORM_EMPTY_CONTENT
@@ -27,6 +27,7 @@ import { bem } from '@ui/utils'
 import URadio from '../radio/radio.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'RadioGroup'

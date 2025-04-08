@@ -37,6 +37,7 @@ import { type CSSProperties, computed } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
+import { formItemCls as cls } from './helper'
 
 defineOptions({
   name: 'FormItem'
@@ -51,8 +52,6 @@ defineSlots<{
   label?: () => any
   default?: () => any
 }>()
-
-const cls = bem('form-item')
 
 /** 表单组件上下文 */
 const { formProps } = useFormComponent()
