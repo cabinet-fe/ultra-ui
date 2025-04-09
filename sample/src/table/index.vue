@@ -1,7 +1,7 @@
 <template>
   <div>
     <Base />
-    <!-- <Full /> -->
+    <Full />
     <MergeCell />
   </div>
 </template>

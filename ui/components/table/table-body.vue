@@ -39,10 +39,10 @@ const { leafColumns } = columnConfig
 
 const tableRows = computed(() => {
   if (!virtualEnabled.value) {
-    return rows.value.map(item => {
+    return rows.value.map((row, index) => {
       return {
-        row: item,
-        index: item.index
+        row,
+        index
       }
     })
   }

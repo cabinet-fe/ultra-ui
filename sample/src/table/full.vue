@@ -116,7 +116,7 @@ const _columns = defineTableColumns(
   { minWidth: 100 }
 )
 
-const data = Array.from({ length: 10000 }).map((_, index) => {
+const data = Array.from({ length: 1000 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
     name: 'name' + index,
