@@ -12,6 +12,10 @@ $root-name: table;
     @include m.bem($root-name, expand-toggle) {
       font-size: fn.use-var(font-size, main, $size);
     }
+
+    @include m.bem($root-name, cell) {
+      padding: fn.use-var(gap, $size);
+    }
   }
 
   @include m.e(checkbox) {
@@ -161,7 +165,6 @@ $root-name: table;
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, title);
     word-break: break-all;
-    padding: fn.use-var(gap, large);
     box-shadow: -1px -1px fn.use-var(table, border-color) inset;
     position: relative;
     line-height: 1;
