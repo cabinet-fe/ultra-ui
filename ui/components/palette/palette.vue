@@ -81,8 +81,11 @@ watch([alpha, RGB], ([alpha, RGB]) => {
 
 const paletteRef = useTemplateRef('palette')
 function handleClear() {
-  color.value = ''
-  paletteRef.value?.close()
+  updater.updateAndLock(() => {
+    color.value = ''
+    rest.updateAlpha(1)
+    paletteRef.value?.close()
+  })
 }
 
 const paletteSVRef = useTemplateRef('palette-sv')

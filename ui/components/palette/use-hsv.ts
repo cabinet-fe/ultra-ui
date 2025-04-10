@@ -9,10 +9,18 @@ export function useHSV() {
   /** 色调 RGB 值 */
   const hueRGB = computed(() => HUE2RGB(HSV.h))
 
+  /**
+   * 更新色相值
+   * @param deg 色相值, 0-360
+   */
   function updateHue(deg: number) {
     HSV.h = deg
   }
 
+  /**
+   * 更新饱和度和亮度
+   * @param sv { s: 饱和度, v: 亮度 }
+   */
   function updateSV({ s, v }: { s: number; v: number }) {
     HSV.s = s
     HSV.v = v
