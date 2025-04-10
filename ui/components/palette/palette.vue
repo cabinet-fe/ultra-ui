@@ -24,7 +24,7 @@
       <PaletteAlpha ref="palette-alpha" />
 
       <!-- 颜色切换 -->
-      <PaletteColorSwitch :color="color" @clear="handleClear" />
+      <PaletteColorSwitch v-model:color="color" @clear="handleClear" />
     </template>
   </u-tip>
 </template>
