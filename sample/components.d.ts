@@ -55,10 +55,12 @@ declare module 'vue' {
     UScroll: typeof import('ultra-ui')['UScroll']
     USelect: typeof import('ultra-ui')['USelect']
     UTable: typeof import('ultra-ui')['UTable']
+    UTableEditor: typeof import('ultra-ui')['UTableEditor']
     UTabs: typeof import('ultra-ui')['UTabs']
     UTag: typeof import('ultra-ui')['UTag']
     UText: typeof import('ultra-ui')['UText']
     UTextarea: typeof import('ultra-ui')['UTextarea']
+    UTip: typeof import('ultra-ui')['UTip']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
 }

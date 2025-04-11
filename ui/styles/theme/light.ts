@@ -143,7 +143,7 @@ export const lightTheme = new UITheme({
       color: 'var(--text-color-title)'
     },
     hover: {
-      bg: 'var(--color-primary-light-9)',
+      bg: 'var(--bg-color-hover)',
       color: 'inherit'
     }
   }

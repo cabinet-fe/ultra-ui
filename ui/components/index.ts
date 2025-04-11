@@ -22,11 +22,16 @@ export * from './checkbox-group'
 
 export * from './code-editor'
 
+export * from './condition-editor'
+
 export * from './context-menu'
+
+export * from './date-panel'
 
 export * from './date-picker'
 
 export * from './date-range-picker'
+
 export * from './dialog'
 
 // export * from './disabled.text-editor'
@@ -106,6 +111,8 @@ export * from './slider'
 export * from './steps'
 
 export * from './table'
+
+export * from './table-editor'
 
 export * from './tabs'
 

@@ -24,6 +24,8 @@ export * from './components/checkbox'
 
 export * from './components/code-editor'
 
+export * from './components/condition-editor'
+
 export * from './components/context-menu'
 
 export * from './components/css-transition'

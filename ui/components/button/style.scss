@@ -56,6 +56,10 @@ $root-name: button;
     @include m.is(circle) {
       width: fn.use-var(form-component-height, $size);
     }
+
+    @include m.bem(icon) {
+      font-size: calc(fn.use-var(font-size-main, $size) + 4px);
+    }
   }
 
   @include m.is(disabled, loading) {
