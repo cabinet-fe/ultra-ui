@@ -9,6 +9,7 @@ export interface VariableItem {
 /** 表达式编辑器组件属性 */
 export interface ExpressionEditorProps extends FormComponentProps {
   modelValue?: string
+  placeholder?: string
   /** 变量列表 */
   variables?: VariableItem[]
 }

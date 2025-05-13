@@ -2,7 +2,6 @@ import {
   DecoratorNode,
   type LexicalNode,
   type SerializedLexicalNode,
-  $createTextNode,
   type NodeKey
 } from 'lexical'
 import { cls } from '../shared'
@@ -15,6 +14,7 @@ interface SerializedVariableNode extends SerializedLexicalNode {
 export class VariableNode extends DecoratorNode<HTMLElement> {
   __variable: string
   __text: string
+  __domNode: HTMLElement | null = null
 
   static override getType(): string {
     return 'variable'
@@ -39,15 +39,13 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
   override createDOM(): HTMLElement {
     const dom = createEl('span', {
       class: cls.e('var-node'),
-      innerHTML: `<i class="${cls.e('var-node-icon')}">{x}</i> : ${this.__variable}`
+      innerHTML: `<i class="${cls.e('var-node-icon')}">{}</i> ${this.__variable}`
     })
 
-    return dom
-  }
+    // 保存DOM引用以便后续使用
+    this.__domNode = dom
 
-  override remove(preserveEmptyParent?: boolean): void {
-    console.log(111)
-    super.remove(preserveEmptyParent)
+    return dom
   }
 
   override getTextContent(): string {
@@ -66,41 +64,14 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
     dom.draggable = false
     dom.style.display = 'inline-block'
     dom.style.userSelect = 'none'
+    dom.style.cursor = 'pointer'
 
     return dom
-  }
-
-  override exportJSON(): SerializedVariableNode {
-    return {
-      ...super.exportJSON(),
-      type: 'variable',
-      variable: this.__variable,
-      version: 1
-    }
-  }
-
-  // 处理键盘导航，确保在变量节点后可以正确插入内容
-  insertNewAfter(): LexicalNode {
-    const textNode = $createTextNode('')
-    this.insertAfter(textNode)
-    return textNode
-  }
-
-  // 确保节点可以被选中
-  override isInline(): boolean {
-    return true
-  }
-
-  // 确保节点可以被选中
-  isSegmented(): boolean {
-    return false
   }
 }
 
 /** 判断是否为变量节点 */
-export function $isVariableNode(
-  node: LexicalNode | null | undefined
-): node is VariableNode {
+export function $isVariableNode(node: LexicalNode | null | undefined): boolean {
   return node instanceof VariableNode
 }
 

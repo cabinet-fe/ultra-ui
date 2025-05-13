@@ -1,17 +1,19 @@
 <template>
   <div :class="className">
-    <VariablePicker ref="variable-picker" />
+    <VariablePicker ref="variable-picker" @select="handleVariableSelect" />
 
     <div :class="cls.e('tools')">
-      <u-icon :size="16"><Variable /></u-icon>
+      <u-icon :size="16" @click="showVariablePicker" ref="variable-picker-btn">
+        <Variable />
+      </u-icon>
     </div>
 
-    <div :class="cls.e('container')" ref="editorRef" contenteditable></div>
+    <div :class="cls.e('container')" ref="container" contenteditable></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps } from '@ui/types'
+import type { ExpressionEditorProps, VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
 import { useTemplateRef, provide, computed } from 'vue'
 import { ExpressionEditorDIKey } from './di'
@@ -26,7 +28,9 @@ defineOptions({
   name: 'ExpressionEditor'
 })
 
-const props = defineProps<ExpressionEditorProps>()
+const props = withDefaults(defineProps<ExpressionEditorProps>(), {
+  placeholder: '请输入表达式，输入@可插入变量'
+})
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -48,82 +52,31 @@ const className = computed(() => {
   ]
 })
 
-const editorRef = useTemplateRef('editorRef')
-// const variablePickerRef = useTemplateRef('variable-picker')
+const containerRef = useTemplateRef('container')
+const variablePickerRef = useTemplateRef('variable-picker')
+const variablePickerBtnRef = useTemplateRef('variable-picker-btn')
 
-useEditor({
+const editor = useEditor({
   disabled,
   readonly,
-  container: editorRef,
+  container: containerRef,
   props,
-  emit
+  emit,
+  variablePickerRef
 })
+
+// 显示变量选择器
+function showVariablePicker() {
+  if (disabled.value || readonly.value) return
+
+  variablePickerRef.value?.open(variablePickerBtnRef.value?.$el)
+}
+
+// 处理变量选择
+function handleVariableSelect(variable: VariableItem) {}
 
 provide(ExpressionEditorDIKey, {
   cls,
   editorProps: props
 })
 </script>
-
-<style lang="scss">
-.variable-tag {
-  display: inline-block;
-  background-color: var(--u-primary-color-1);
-  color: var(--u-primary-color);
-  padding: 0 4px;
-  border-radius: 4px;
-  margin: 0 2px;
-  user-select: none;
-  cursor: default;
-}
-
-.ultra-expression-editor {
-  position: relative;
-  border: 1px solid var(--u-border-color);
-  border-radius: 4px;
-  padding: 4px;
-  min-height: 32px;
-  font-size: 14px;
-  line-height: 1.5;
-  transition: all 0.3s;
-
-  &:focus-within {
-    border-color: var(--u-primary-color);
-    box-shadow: 0 0 0 2px var(--u-primary-color-1);
-  }
-
-  &.is-disabled {
-    background-color: var(--u-disabled-bg);
-    cursor: not-allowed;
-  }
-
-  &.is-readonly {
-    background-color: var(--u-disabled-bg);
-    cursor: default;
-  }
-
-  &__tools {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 8px;
-    color: var(--u-text-color-secondary);
-
-    .u-icon {
-      cursor: pointer;
-
-      &:hover {
-        color: var(--u-primary-color);
-      }
-    }
-  }
-
-  &__container {
-    outline: none;
-    min-height: 24px;
-    padding-right: 32px;
-  }
-}
-</style>

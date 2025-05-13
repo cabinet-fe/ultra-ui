@@ -62,6 +62,7 @@ function keydownHandler(e: KeyboardEvent) {
 }
 
 function open(dom: HTMLElement) {
+  console.log(dom)
   tipRef.value?.trigger({
     triggerDom: dom
   })
@@ -79,25 +80,3 @@ defineExpose({
   close
 })
 </script>
-
-<style lang="scss">
-.u-expression-editor {
-  &__variable-list {
-    list-style: none;
-    margin: 0;
-    padding: 4px 0;
-  }
-
-  &__variable-item {
-    padding: 4px 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover,
-    &.is-active {
-      background-color: var(--u-primary-color-1);
-      color: var(--u-primary-color);
-    }
-  }
-}
-</style>

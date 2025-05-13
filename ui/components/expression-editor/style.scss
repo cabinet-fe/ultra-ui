@@ -15,6 +15,11 @@ $root-name: expression-editor;
     }
   }
 
+  @include m.e(placeholder) {
+    color: fn.use-var(text-color, placeholder);
+    pointer-events: none;
+  }
+
   @include m.e(container) {
     outline: none;
     vertical-align: middle;
