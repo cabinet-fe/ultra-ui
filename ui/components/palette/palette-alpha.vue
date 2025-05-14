@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { PaletteDIKey } from './di'
-import { computed, inject, shallowRef, onMounted } from 'vue'
+import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 import { useDrag } from '@ui/compositions'
 
 defineOptions({
@@ -45,7 +45,7 @@ function getAlphaWidth() {
 function updateOffsetX(offsetX: number) {
   updater.updateAndLock(() => {
     alphaThumbTransformX.value = offsetX
-    updateAlpha(offsetX / alphaWidth)
+    updateAlpha(alphaWidth > 0 ? offsetX / alphaWidth : 0)
   })
 }
 
@@ -71,12 +71,23 @@ const alphaSliderBG = computed(() => {
 
 function init() {
   getAlphaWidth()
-  alphaThumbTransformX.value = alphaWidth * alpha.value
+  alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * alpha.value : 0
 }
 
 onMounted(() => {
   init()
 })
+
+watch(
+  alpha,
+  newAlphaValue => {
+    updater.update(() => {
+      alphaThumbTransformX.value =
+        alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
+    })
+  },
+  { flush: 'post' }
+)
 
 defineExpose({
   init
