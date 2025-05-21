@@ -9,20 +9,22 @@
     </div>
 
     <div :class="cls.e('container')" ref="container" contenteditable></div>
+
+    <Decorator :decorators="decorators" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { ExpressionEditorProps, VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
-import { useTemplateRef, provide, computed } from 'vue'
+import { useTemplateRef, provide, computed, type VNode } from 'vue'
 import { ExpressionEditorDIKey } from './di'
 import VariablePicker from './components/variable-picker.vue'
 import { UIcon } from '../icon'
 import { Variable } from 'icon-ultra'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useEditor } from './use-editor'
-import { cls } from './shared'
+import { useDecorators } from './use-decorators'
 
 defineOptions({
   name: 'ExpressionEditor'
@@ -35,6 +37,8 @@ const props = withDefaults(defineProps<ExpressionEditorProps>(), {
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const cls = bem('expression-editor')
 
 const { formProps } = useFormComponent()
 
@@ -59,11 +63,17 @@ const variablePickerBtnRef = useTemplateRef('variable-picker-btn')
 const editor = useEditor({
   disabled,
   readonly,
+  cls,
   container: containerRef,
   props,
-  emit,
-  variablePickerRef
+  emit
 })
+
+const decorators = useDecorators(editor)
+
+function Decorator(props: { decorators: VNode[] }) {
+  return props.decorators
+}
 
 // 显示变量选择器
 function showVariablePicker() {

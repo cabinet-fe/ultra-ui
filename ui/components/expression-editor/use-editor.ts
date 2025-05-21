@@ -1,31 +1,23 @@
-import {
-  $createParagraphNode,
-  $getRoot,
-  BLUR_COMMAND,
-  COMMAND_PRIORITY_EDITOR,
-  createEditor
-} from 'lexical'
+import { $createParagraphNode, $getRoot, createEditor } from 'lexical'
 import { VariableNode } from './nodes/variable-node'
 import { registerPlainText } from './plain-text'
 import { nextTick, watchEffect, type Ref, type ShallowRef } from 'vue'
 import { parseContent } from './parser'
 import type { ExpressionEditorEmits, ExpressionEditorProps } from '@ui/types'
+import type { BEM } from '@ui/utils'
+import { useContext } from './use-context'
 
 interface EditorOptions {
   disabled: Ref<boolean>
   readonly: Ref<boolean>
   props: ExpressionEditorProps
+  cls: BEM<'expression-editor'>
   emit: ExpressionEditorEmits
   container: ShallowRef<HTMLElement | null>
-  variablePickerRef: ShallowRef<{
-    open: (dom: HTMLElement) => void
-    close: () => void
-  } | null>
 }
 
 export function useEditor(options: EditorOptions) {
-  const { disabled, readonly, container, props, emit, variablePickerRef } =
-    options
+  const { disabled, readonly, container, props, emit, cls } = options
 
   function getEditable() {
     return !disabled.value && !readonly.value
@@ -37,14 +29,17 @@ export function useEditor(options: EditorOptions) {
     onError: console.error,
     editable: getEditable(),
     theme: {
-      variableNode: 'variable-tag'
+      paragraph: cls.e('paragraph')
     }
   })
+
+  useContext(editor)
 
   registerPlainText(editor)
 
   let changeByUser = false
   let changeByModel = false
+
   editor.registerTextContentListener(text => {
     if (changeByModel) return
 
@@ -54,15 +49,6 @@ export function useEditor(options: EditorOptions) {
       changeByUser = false
     })
   })
-
-  editor.registerCommand(
-    BLUR_COMMAND,
-    () => {
-      renderModelValue()
-      return false
-    },
-    COMMAND_PRIORITY_EDITOR
-  )
 
   watchEffect(() => {
     editor.setEditable(getEditable())

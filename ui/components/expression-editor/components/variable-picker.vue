@@ -1,5 +1,11 @@
 <template>
-  <u-tip ref="tip" hide-arrow trigger="click" style="width: 150px">
+  <u-tip
+    ref="tip"
+    hide-arrow
+    alignment="start"
+    trigger="click"
+    style="width: 150px"
+  >
     <template #content>
       <ul :class="cls.e('variable-list')">
         <li
@@ -62,7 +68,6 @@ function keydownHandler(e: KeyboardEvent) {
 }
 
 function open(dom: HTMLElement) {
-  console.log(dom)
   tipRef.value?.trigger({
     triggerDom: dom
   })

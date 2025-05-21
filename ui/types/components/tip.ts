@@ -15,6 +15,10 @@ export interface TipProps {
   class?: string | string[] | Record<string, boolean>
   /**触发tip方式 */
   trigger?: 'hover' | 'click'
+  /** 水平偏移量 */
+  offsetX?: number
+  /** 垂直偏移量 */
+  offsetY?: number
   /**
    * 方向
    * @default 'auto'

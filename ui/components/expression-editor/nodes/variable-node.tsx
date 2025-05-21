@@ -4,14 +4,14 @@ import {
   type SerializedLexicalNode,
   type NodeKey
 } from 'lexical'
-import { cls } from '../shared'
-import { createEl } from '@ui/utils/dom/node'
+import VariableBlock from '../components/variable-block.vue'
+import type { VNode } from 'vue'
 
 interface SerializedVariableNode extends SerializedLexicalNode {
   variable: string
 }
 
-export class VariableNode extends DecoratorNode<HTMLElement> {
+export class VariableNode extends DecoratorNode<VNode> {
   __variable: string
   __text: string
   __domNode: HTMLElement | null = null
@@ -37,15 +37,7 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
   }
 
   override createDOM(): HTMLElement {
-    const dom = createEl('span', {
-      class: cls.e('var-node'),
-      innerHTML: `<i class="${cls.e('var-node-icon')}">{}</i> ${this.__variable}`
-    })
-
-    // 保存DOM引用以便后续使用
-    this.__domNode = dom
-
-    return dom
+    return document.createElement('span')
   }
 
   override getTextContent(): string {
@@ -56,17 +48,8 @@ export class VariableNode extends DecoratorNode<HTMLElement> {
     return false
   }
 
-  override decorate(): HTMLElement {
-    const dom = this.createDOM()
-
-    // 确保变量节点可以被正确选中
-    dom.contentEditable = 'false'
-    dom.draggable = false
-    dom.style.display = 'inline-block'
-    dom.style.userSelect = 'none'
-    dom.style.cursor = 'pointer'
-
-    return dom
+  override decorate() {
+    return <VariableBlock>{this.__variable}</VariableBlock>
   }
 }
 

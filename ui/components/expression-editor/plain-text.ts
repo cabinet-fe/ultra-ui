@@ -1,21 +1,10 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import type { CommandPayloadType, LexicalEditor } from 'lexical'
 
 import {
   $getHtmlContent,
   $insertDataTransferForPlainText
 } from '@lexical/clipboard'
-import {
-  $moveCharacter,
-  $shouldOverrideDefaultCharacterSelection
-} from '@lexical/selection'
+
 import {
   CAN_USE_BEFORE_INPUT,
   IS_APPLE_WEBKIT,
@@ -28,7 +17,6 @@ import {
   $getSelection,
   $isRangeSelection,
   $selectAll,
-  BLUR_COMMAND,
   COMMAND_PRIORITY_EDITOR,
   CONTROLLED_TEXT_INSERTION_COMMAND,
   COPY_COMMAND,
@@ -48,9 +36,9 @@ import {
   PASTE_COMMAND,
   PASTE_TAG,
   REMOVE_TEXT_COMMAND,
-  SELECT_ALL_COMMAND,
-  SELECTION_CHANGE_COMMAND
+  SELECT_ALL_COMMAND
 } from 'lexical'
+import { onBeforeUnmount } from 'vue'
 
 function onCopyForPlainText(
   event: CommandPayloadType<typeof COPY_COMMAND>,
@@ -77,6 +65,7 @@ function onCopyForPlainText(
   })
 }
 
+/** 粘贴 */
 function onPasteForPlainText(
   event: CommandPayloadType<typeof PASTE_COMMAND>,
   editor: LexicalEditor
@@ -112,7 +101,7 @@ function onCutForPlainText(
   })
 }
 
-export function registerPlainText(editor: LexicalEditor): () => void {
+export function registerPlainText(editor: LexicalEditor): void {
   const removeListener = mergeRegister(
     editor.registerCommand<boolean>(
       DELETE_CHARACTER_COMMAND,
@@ -156,6 +145,7 @@ export function registerPlainText(editor: LexicalEditor): () => void {
       },
       COMMAND_PRIORITY_EDITOR
     ),
+
     editor.registerCommand<InputEvent | string>(
       CONTROLLED_TEXT_INSERTION_COMMAND,
       eventOrText => {
@@ -279,8 +269,8 @@ export function registerPlainText(editor: LexicalEditor): () => void {
           return false
         }
 
-        // Exception handling for iOS native behavior instead of Lexical's behavior when using Korean on iOS devices.
-        // more details - https://github.com/facebook/lexical/issues/5841
+        // 在 iOS 设备上使用韩语时，处理 iOS 原生行为而不是 Lexical 的行为。
+        // 更多详情 - https://github.com/facebook/lexical/issues/5841
         if (IS_IOS && navigator.language === 'ko-KR') {
           return false
         }
@@ -395,7 +385,7 @@ export function registerPlainText(editor: LexicalEditor): () => void {
           return false
         }
 
-        // TODO: Make drag and drop work at some point.
+        // TODO: 在将来某个时候实现拖放功能。
         event.preventDefault()
         return true
       },
@@ -410,12 +400,15 @@ export function registerPlainText(editor: LexicalEditor): () => void {
           return false
         }
 
-        // TODO: Make drag and drop work at some point.
+        // TODO: 在将来某个时候实现拖放功能。
         event.preventDefault()
         return true
       },
       COMMAND_PRIORITY_EDITOR
     )
   )
-  return removeListener
+
+  onBeforeUnmount(() => {
+    removeListener()
+  })
 }

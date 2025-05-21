@@ -117,6 +117,7 @@ export function usePop(options: Options): PopResult {
 
     const position = await computePosition(triggerEl, contentEl, {
       middleware,
+
       placement:
         `${_direction}${_alignment === 'center' ? '' : `-${_alignment}`}` as Placement
     })

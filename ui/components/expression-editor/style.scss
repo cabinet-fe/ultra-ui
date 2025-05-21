@@ -15,6 +15,11 @@ $root-name: expression-editor;
     }
   }
 
+  @include m.e(paragraph) {
+    margin: 0;
+    padding: 0;
+  }
+
   @include m.e(placeholder) {
     color: fn.use-var(text-color, placeholder);
     pointer-events: none;
@@ -63,9 +68,10 @@ $root-name: expression-editor;
     }
   }
 
-  @include m.e(var-node) {
+  @include m.e(var-block) {
     display: inline-block;
     padding: 0 4px;
+
     background-color: fn.use-var(color, primary, light-9);
     border-radius: fn.use-var(radius, small);
     cursor: pointer;

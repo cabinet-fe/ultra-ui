@@ -16,22 +16,35 @@
           type="danger"
           @click="handleDelete(row.index)"
           :icon="Minus"
+          title="移除"
         />
-        <u-button :icon="Plus" @click="handleCreate(row.index)" />
-        <u-button :icon="FileCopy" @click="handleCopy(row)" />
+        <u-button
+          :icon="Plus"
+          @click="handleCreate(row.index)"
+          title="新增到下一行"
+        />
+        <u-button
+          :icon="FileCopy"
+          @click="handleCopy(row)"
+          title="复制到下一行"
+        />
       </ButtonCommonProps>
     </template>
 
-    <template #header:__operation>
-      <u-button
-        text
-        size="small"
-        type="primary"
-        v-if="!modelValue.length"
-        circle
-        :icon="Plus"
-        @click="handleCreate()"
-      ></u-button>
+    <!-- <template #header:__operation> </template> -->
+
+    <template #empty>
+      <div style="text-align: center; padding: 4px 0">
+        <u-button
+          text
+          size="small"
+          type="primary"
+          v-if="!modelValue.length"
+          :icon="Plus"
+          @click="handleCreate()"
+          >添加</u-button
+        >
+      </div>
     </template>
   </u-table>
 </template>
@@ -65,7 +78,7 @@ const ButtonCommonProps = useComponentProps({
 const actionColumn: TableColumn = {
   key: '__operation',
   name: '操作', // 使用name而不是title
-  width: 150,
+  width: 120,
   align: 'center',
   fixed: 'right',
   resizable: false
