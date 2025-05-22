@@ -5,7 +5,6 @@ import { nextTick, watchEffect, type Ref, type ShallowRef } from 'vue'
 import { parseContent } from './parser'
 import type { ExpressionEditorEmits, ExpressionEditorProps } from '@ui/types'
 import type { BEM } from '@ui/utils'
-import { useContext } from './use-context'
 
 interface EditorOptions {
   disabled: Ref<boolean>
@@ -32,8 +31,6 @@ export function useEditor(options: EditorOptions) {
       paragraph: cls.e('paragraph')
     }
   })
-
-  useContext(editor)
 
   registerPlainText(editor)
 

@@ -37,7 +37,9 @@ export class VariableNode extends DecoratorNode<VNode> {
   }
 
   override createDOM(): HTMLElement {
-    return document.createElement('span')
+    const span = document.createElement('span')
+
+    return span
   }
 
   override getTextContent(): string {

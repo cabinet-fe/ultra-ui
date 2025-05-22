@@ -110,15 +110,6 @@ export default defineComponent({
                 right={column.style.right}
                 key={row.uid + column.key}
                 {...cellSpan}
-                // onMouseenter={e => {
-                //   tipRef.value?.trigger({
-                //     triggerDom: e.target as HTMLElement,
-                //     content: cellNode
-                //   })
-                // }}
-                // onMouseleave={() => {
-                //   tipRef.value?.close()
-                // }}
               >
                 {cellNode}
               </UTabelCell>

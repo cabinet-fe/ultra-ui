@@ -29,16 +29,17 @@
     </CustomCard>
 
     <CustomCard title="虚拟触发">
-      <u-button
-        @click="
-          tipRef.trigger({ triggerDom: $refs.triggerDom, content: '7777' })
-        "
-        >触发按钮</u-button
-      >
-
       <span ref="triggerDom">实际触发位置</span>
 
-      <u-tip ref="tipRef" trigger="click"> </u-tip>
+      <u-tip
+        trigger="click"
+        :trigger-dom="triggerDom"
+        v-model:visible="visible"
+      >
+        <u-button @click="visible = true"> 触发按钮 </u-button>
+
+        <template #content>6666</template>
+      </u-tip>
     </CustomCard>
   </div>
 </template>
@@ -68,7 +69,9 @@ const direction = shallowRef<TipDirection>('top')
 const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
 
-const tipRef = shallowRef()
+const triggerDom = shallowRef()
+
+const visible = shallowRef(false)
 </script>
 
 <style lang="scss" scoped>

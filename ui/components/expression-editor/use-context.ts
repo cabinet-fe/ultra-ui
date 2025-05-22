@@ -1,98 +1,127 @@
 import {
-  $getPreviousSelection,
   $getSelection,
   $isRangeSelection,
-  COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
-  KEY_ARROW_LEFT_COMMAND,
-  KEY_ARROW_RIGHT_COMMAND,
-  KEY_DOWN_COMMAND,
+  COMMAND_PRIORITY_EDITOR,
+  KEY_ARROW_DOWN_COMMAND,
+  KEY_ARROW_UP_COMMAND,
+  type LexicalEditor,
   SELECTION_CHANGE_COMMAND,
-  type LexicalEditor
+  KEY_ENTER_COMMAND,
+  KEY_ESCAPE_COMMAND,
+  TextNode
 } from 'lexical'
 import { mergeRegister } from '@lexical/utils'
-import { nextTick, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, shallowRef, type ShallowRef } from 'vue'
+import { CONTEXT_TRIGGER_CHAR } from './constants'
 
-export function useContext(editor: LexicalEditor) {
+export function useContext(editor: LexicalEditor): {
+  contextVisible: ShallowRef<boolean>
+  contextTriggerDom: ShallowRef<HTMLElement | undefined>
+  textNode: ShallowRef<TextNode | undefined>
+  charPosition: ShallowRef<number>
+} {
+  const contextVisible = shallowRef(false)
+  const contextTriggerDom = shallowRef<HTMLElement>()
+  const textNode = shallowRef<TextNode>()
+  const charPosition = shallowRef(0)
+
+  function openContextMenu(triggerElement: HTMLElement) {
+    contextVisible.value = true
+    contextTriggerDom.value = triggerElement
+  }
+
+  function closeContextMenu() {
+    contextVisible.value = false
+    contextTriggerDom.value = undefined
+  }
+
+  function PreventDefaultListener(event: KeyboardEvent) {
+    if (contextVisible.value) {
+      event.preventDefault()
+      return true
+    }
+    return false
+  }
+
   const removeListener = mergeRegister(
+    // 选取变更命令，实现呼出上下文菜单的核心
     editor.registerCommand(
-      KEY_DOWN_COMMAND,
-      e => {
-        if (e.key === '@') {
-          const selection = $getSelection()
+      SELECTION_CHANGE_COMMAND,
+      () => {
+        const selection = $getSelection()
 
-          if ($isRangeSelection(selection)) {
-            const anchorNodeKey = selection.anchor.key
-            const domElement = editor.getElementByKey(anchorNodeKey)
-          }
+        // 选区类型必须为rangeSelection且选取的anchor和focus的offset值必须一致
+        // 否则关闭上下文菜单
+        if (
+          !$isRangeSelection(selection) ||
+          selection.anchor.offset !== selection.focus.offset
+        ) {
+          closeContextMenu()
 
-          return true
-        } else {
+          return false
         }
-        return false
+
+        const cursorPosition = selection.focus.offset
+        const node = selection.focus.getNode()
+        const textContent = node.getTextContent()
+
+        // 光标左右的字符都不是'@'时，关闭上下文菜单
+        if (
+          textContent[cursorPosition - 1] !== CONTEXT_TRIGGER_CHAR &&
+          textContent[cursorPosition] !== CONTEXT_TRIGGER_CHAR
+        ) {
+          closeContextMenu()
+          return false
+        }
+
+        // 如果弹框已经打开
+        if (contextVisible.value) {
+          return false
+        }
+
+        textNode.value = node as TextNode
+        charPosition.value = cursorPosition
+
+        const triggerDom = editor.getElementByKey(node.getKey())
+
+        triggerDom && openContextMenu(triggerDom)
+        return true
       },
       COMMAND_PRIORITY_EDITOR
     ),
 
-    // editor.registerCommand(
-    //   KEY_ARROW_LEFT_COMMAND,
-    //   () => {
-    //     const selection = $getSelection()
-    //     if ($isRangeSelection(selection)) {
-    //       const { anchor } = selection
-    //       const offset = anchor.offset
-
-    //       const node = anchor.getNode()
-    //       if (node.getType() === 'text') {
-    //         const char = node.getTextContent()[offset]
-    //         console.log(char)
-    //       }
-    //     }
-    //     return true
-    //   },
-    //   COMMAND_PRIORITY_LOW
-    // ),
-    // editor.registerCommand(
-    //   KEY_ARROW_RIGHT_COMMAND,
-    //   () => {
-    //     const selection = $getSelection()
-    //     if ($isRangeSelection(selection)) {
-    //       const { focus } = selection
-    //       const offset = focus.offset
-    //       console.log(offset)
-
-    //       const node = focus.getNode()
-    //       if (node.getType() === 'text') {
-    //         const char = node.getTextContent()[offset]
-    //       }
-    //     }
-    //     return true
-    //   },
-    //   COMMAND_PRIORITY_LOW
-    // ),
+    // 当上下文菜单显示时，阻止下面的命令的默认行为
     editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
-      () => {
-        const previousSelection = $getPreviousSelection()
-        const selection = $getSelection()
-        if ($isRangeSelection(previousSelection)) {
-          const { focus } = previousSelection
-          const offset = focus.offset
-          console.log(offset)
-        }
-        if ($isRangeSelection(selection)) {
-          const { focus } = selection
-          const offset = focus.offset
-          console.log(offset)
-        }
-
-        return true
-      },
-      COMMAND_PRIORITY_EDITOR
+      KEY_ENTER_COMMAND,
+      PreventDefaultListener,
+      COMMAND_PRIORITY_LOW
+    ),
+    editor.registerCommand(
+      KEY_ESCAPE_COMMAND,
+      PreventDefaultListener,
+      COMMAND_PRIORITY_LOW
+    ),
+    editor.registerCommand(
+      KEY_ARROW_UP_COMMAND,
+      PreventDefaultListener,
+      COMMAND_PRIORITY_LOW
+    ),
+    editor.registerCommand(
+      KEY_ARROW_DOWN_COMMAND,
+      PreventDefaultListener,
+      COMMAND_PRIORITY_LOW
     )
   )
 
   onBeforeUnmount(() => {
     removeListener()
   })
+
+  return {
+    contextVisible,
+    contextTriggerDom,
+    textNode,
+    charPosition
+  }
 }

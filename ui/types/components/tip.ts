@@ -7,18 +7,21 @@ export type TipAlign = 'start' | 'center' | 'end'
 
 /** tip提示组件组件属性 */
 export interface TipProps {
+  /** 控制显影 */
+  visible?: boolean
   /**提示内容 */
   content?: string
   /** 自定义tip样式 */
   style?: CSSProperties | string
   /** 自定义tip的class */
   class?: string | string[] | Record<string, boolean>
-  /**触发tip方式 */
+  /** 触发方式 */
   trigger?: 'hover' | 'click'
-  /** 水平偏移量 */
-  offsetX?: number
-  /** 垂直偏移量 */
-  offsetY?: number
+  /**
+   * 触发元素
+   * - 通过指定`triggerDom`来更改弹框弹出位置
+   */
+  triggerDom?: HTMLElement
   /**
    * 方向
    * @default 'auto'
@@ -45,14 +48,11 @@ export interface TipProps {
 
 /** tip提示组件组件定义的事件 */
 export interface TipEmits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:visible', value: boolean): void
 }
 
 /** tip提示组件组件暴露的属性和方法(组件内部使用) */
-export interface _TipExposed {
-  /** 关闭提示框 */
-  close: () => void
-}
+export interface _TipExposed {}
 
 /** tip提示组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TipExposed = DeconstructValue<_TipExposed>

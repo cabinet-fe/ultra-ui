@@ -2,7 +2,7 @@
   <!-- 触发 -->
   <UNodeRender
     v-bind="eventsHandlers"
-    :content="getTriggerNode()"
+    :content="renderDefaultSlotTrigger()"
     ref="triggerRef"
   />
 
@@ -10,7 +10,7 @@
   <teleport :to="`#${popperContainerId}`">
     <transition name="tip">
       <component
-        v-if="nestVisible"
+        v-if="tipVisible"
         :is="contentTag"
         :class="contentClass"
         :style="contentStyle"
@@ -31,24 +31,13 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  shallowRef,
-  computed,
-  useSlots,
-  onBeforeUnmount,
-  inject,
-  provide,
-  shallowReactive,
-  type ShallowRef,
-  toRef,
-  type VNode
-} from 'vue'
-import { bem, extractNormalVNodes, shallowComputed, zIndex } from '@ui/utils'
+import { shallowRef, computed, useSlots, onBeforeUnmount, toRef } from 'vue'
+import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
-import type { TipProps, ComponentSize } from '@ui/types'
-import { useFallbackProps, usePop } from '@ui/compositions'
-import { TipNestDIKey } from './di'
+import type { TipProps, ComponentSize, TipEmits } from '@ui/types'
+import { useFallbackProps, useModel, usePop } from '@ui/compositions'
 import { UNodeRender } from '../node-render'
+import { useNest } from './use-nest'
 
 defineOptions({ name: 'Tip' })
 
@@ -59,6 +48,8 @@ const props = withDefaults(defineProps<TipProps>(), {
   alignment: 'center',
   contentTag: 'div'
 })
+
+const emit = defineEmits<TipEmits>()
 
 const cls = bem('tip')
 const slots = useSlots()
@@ -83,43 +74,21 @@ const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
 const contentRef = shallowRef<HTMLElement>()
 const arrowRef = shallowRef<HTMLElement>()
 
-const visible = shallowRef(false)
+const visible = useModel({
+  defaultValue: false,
+  propName: 'visible',
+  props,
+  emit
+})
 
-function getTriggerNode() {
+const tipVisible = useNest(visible)
+
+function renderDefaultSlotTrigger() {
   const nodes = slots.default?.()
   if (!nodes?.length) return null
-
   const node = extractNormalVNodes(nodes)[0]
-
   return node
 }
-
-/**
- * 子级提示框
- */
-const childrenTips = shallowReactive(new Set<ShallowRef<boolean>>())
-/**
- * 是否有子级提示框正在显示中
- */
-const anyChildrenVisible = computed(() => {
-  return Array.from(childrenTips).some(tip => tip.value)
-})
-
-const nestVisible = computed(() => {
-  return visible.value || anyChildrenVisible.value
-})
-
-provide(TipNestDIKey, {
-  addChild(v) {
-    childrenTips.add(v)
-  },
-  removeChild(v) {
-    childrenTips.delete(v)
-  }
-})
-
-const { addChild, removeChild } = inject(TipNestDIKey, undefined) || {}
-addChild?.(nestVisible)
 
 const eventsHandlers = computed(() => {
   const { trigger, disabled } = props
@@ -143,7 +112,7 @@ const handleClickOutside = (e: MouseEvent) => {
 
   if (
     props.trigger === 'click' &&
-    triggerRef.value?.$el?.contains(e.target as Node)
+    triggerDom.value.contains(e.target as Node)
   ) {
     return
   }
@@ -168,10 +137,8 @@ const close = () => {
   }
 }
 
-const triggerDom = shallowComputed(() => {
-  if (triggerRef.value?.content) {
-    return triggerRef.value.$el as HTMLElement
-  }
+const triggerDom = computed(() => {
+  return props.triggerDom || triggerRef.value?.$el
 })
 
 const { popperContainerId } = usePop({
@@ -188,22 +155,7 @@ const { popperContainerId } = usePop({
 /** 外部节点 */
 const externalNode = shallowRef<any>()
 
-function trigger(config: {
-  triggerDom?: HTMLElement
-  content?: string | VNode | (string | VNode)[]
-}) {
-  triggerDom.value = config.triggerDom
-  externalNode.value = config.content
-  open()
-}
-
 onBeforeUnmount(() => {
   clearTimeout(closeTimer)
-  removeChild?.(visible)
-})
-
-defineExpose({
-  close,
-  trigger
 })
 </script>

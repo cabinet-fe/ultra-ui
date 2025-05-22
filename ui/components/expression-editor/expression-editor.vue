@@ -1,16 +1,24 @@
 <template>
   <div :class="className">
-    <VariablePicker ref="variable-picker" @select="handleVariableSelect" />
-
-    <div :class="cls.e('tools')">
+    <!-- 工具栏 -->
+    <!-- <div :class="cls.e('tools')">
       <u-icon :size="16" @click="showVariablePicker" ref="variable-picker-btn">
         <Variable />
       </u-icon>
-    </div>
+    </div> -->
 
+    <!-- 编辑容器 -->
     <div :class="cls.e('container')" ref="container" contenteditable></div>
 
-    <Decorator :decorators="decorators" />
+    <!-- 渲染装饰器节点，内部通过Vue的Teleport组件渲染至节点中 -->
+    <Decorators :decorators="decorators" />
+
+    <!-- 上下文菜单 -->
+    <Contextmenu
+      v-model:visible="contextVisible"
+      :trigger-dom="contextTriggerDom"
+      @select="handleVariableSelect"
+    />
   </div>
 </template>
 
@@ -19,12 +27,13 @@ import type { ExpressionEditorProps, VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
 import { useTemplateRef, provide, computed, type VNode } from 'vue'
 import { ExpressionEditorDIKey } from './di'
-import VariablePicker from './components/variable-picker.vue'
-import { UIcon } from '../icon'
-import { Variable } from 'icon-ultra'
+import Contextmenu from './components/contextmenu.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useEditor } from './use-editor'
 import { useDecorators } from './use-decorators'
+import { useContext } from './use-context'
+import { $createTextNode } from 'lexical'
+import { $createVariableNode } from './nodes/variable-node'
 
 defineOptions({
   name: 'ExpressionEditor'
@@ -57,8 +66,6 @@ const className = computed(() => {
 })
 
 const containerRef = useTemplateRef('container')
-const variablePickerRef = useTemplateRef('variable-picker')
-const variablePickerBtnRef = useTemplateRef('variable-picker-btn')
 
 const editor = useEditor({
   disabled,
@@ -69,21 +76,33 @@ const editor = useEditor({
   emit
 })
 
+const { contextVisible, contextTriggerDom, textNode, charPosition } =
+  useContext(editor)
+
 const decorators = useDecorators(editor)
 
-function Decorator(props: { decorators: VNode[] }) {
+function Decorators(props: { decorators: VNode[] }) {
   return props.decorators
 }
 
-// 显示变量选择器
-function showVariablePicker() {
+// 处理变量选择
+function handleVariableSelect(variable: VariableItem) {
   if (disabled.value || readonly.value) return
 
-  variablePickerRef.value?.open(variablePickerBtnRef.value?.$el)
+  editor.update(() => {
+    const textContent = textNode.value?.getTextContent()
+    if (!textContent) return
+    const newNode = $createVariableNode(variable.value)
+    const nodeBefore = $createTextNode(
+      textContent.slice(0, charPosition.value - 1)
+    )
+    const nodeAfter = $createTextNode(textContent.slice(charPosition.value))
+    textNode.value?.replace(nodeBefore)
+    nodeBefore.insertAfter(newNode)
+    newNode.insertAfter(nodeAfter)
+    newNode.selectEnd()
+  })
 }
-
-// 处理变量选择
-function handleVariableSelect(variable: VariableItem) {}
 
 provide(ExpressionEditorDIKey, {
   cls,

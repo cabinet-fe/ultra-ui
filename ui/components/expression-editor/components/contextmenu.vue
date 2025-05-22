@@ -1,9 +1,11 @@
 <template>
   <u-tip
-    ref="tip"
     hide-arrow
     alignment="start"
     trigger="click"
+    :trigger-dom="triggerDom"
+    :visible="visible"
+    @update:visible="updateVisible($event)"
     style="width: 150px"
   >
     <template #content>
@@ -25,22 +27,35 @@
 <script lang="ts" setup>
 import { UTip } from '../../tip'
 import { ExpressionEditorDIKey } from '../di'
-import { inject, ref, useTemplateRef } from 'vue'
+import { inject, onBeforeUnmount, ref, watch } from 'vue'
 import type { VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
 
+defineOptions({
+  name: 'Contextmenu'
+})
+
+const props = defineProps<{
+  visible: boolean
+  triggerDom?: HTMLElement
+}>()
+
 const emit = defineEmits<{
   (e: 'select', variable: VariableItem): void
+  (e: 'update:visible', visible: boolean): void
 }>()
 
 const { cls, editorProps } = inject(ExpressionEditorDIKey)!
 
-const tipRef = useTemplateRef('tip')
 const activeIndex = ref(0)
+
+function updateVisible(visible: boolean) {
+  emit('update:visible', visible)
+}
 
 function handleSelect(item: VariableItem) {
   emit('select', item)
-  close()
+  updateVisible(false)
 }
 
 function keydownHandler(e: KeyboardEvent) {
@@ -63,25 +78,23 @@ function keydownHandler(e: KeyboardEvent) {
     }
   } else if (e.key === 'Escape') {
     e.preventDefault()
-    close()
+    updateVisible(false)
   }
 }
 
-function open(dom: HTMLElement) {
-  tipRef.value?.trigger({
-    triggerDom: dom
-  })
+function init() {
   activeIndex.value = 0
   document.addEventListener('keydown', keydownHandler)
 }
 
-function close() {
-  tipRef.value?.close()
+function reset() {
   document.removeEventListener('keydown', keydownHandler)
 }
 
-defineExpose({
-  open,
-  close
-})
+onBeforeUnmount(reset)
+
+watch(
+  () => props.visible,
+  v => (v ? init() : reset())
+)
 </script>
