@@ -139,9 +139,9 @@ export const lightTheme = new UITheme({
   },
 
   table: {
-    'border-color': '#eee',
+    'border-color': '#ececec',
     header: {
-      bg: cssVar('bg-color-middle'),
+      bg: '#f4f5f7',
       color: cssVar('text-color-title')
     },
     stripe: {

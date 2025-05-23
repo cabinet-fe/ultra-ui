@@ -7,7 +7,6 @@ $root-name: card;
 @include m.b($root-name) {
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, middle);
-  color: fn.use-var(text-color, main);
   box-shadow: fn.use-var(shadow);
   overflow: hidden;
 

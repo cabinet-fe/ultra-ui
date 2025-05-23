@@ -55,6 +55,22 @@ $root-name: table;
         color: fn.use-var(text-color, white) !important;
       }
     }
+
+    &:not(:last-child) {
+      @include m.bem($root-name, cell) {
+        &:not(:last-child) {
+          box-shadow: -1px -1px fn.use-var(table, border-color) inset;
+        }
+      }
+    }
+
+    &:last-child {
+      @include m.bem($root-name, cell) {
+        &:not(:last-child) {
+          box-shadow: -1px 0px fn.use-var(table, border-color) inset;
+        }
+      }
+    }
   }
 
   @include m.is(stripe) {
@@ -164,11 +180,13 @@ $root-name: table;
 
   @include m.e(cell) {
     background-color: fn.use-var(bg-color, top);
-    color: fn.use-var(text-color, title);
     word-break: break-all;
-    box-shadow: -1px -1px fn.use-var(table, border-color) inset;
     position: relative;
     line-height: 1;
+
+    &:last-child {
+      box-shadow: 0px -1px fn.use-var(table, border-color) inset;
+    }
 
     @each $position in (left, center, right) {
       @include m.is($position) {

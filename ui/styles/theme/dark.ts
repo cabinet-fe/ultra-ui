@@ -84,6 +84,10 @@ export const darkTheme = lightTheme.new({
 
   // 表格样式
   table: {
+    header: {
+      bg: '#2a2a2a',
+      color: cssVar('text-color-main')
+    },
     'border-color': '#404040', // 表格边框颜色
     stripe: {
       bg: '#2a2a2a', // 斑马纹背景色
