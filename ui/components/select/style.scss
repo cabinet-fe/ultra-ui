@@ -46,11 +46,11 @@ $root-name: select;
     }
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: fn.use-var(bg-color, hover);
     }
 
     @include m.is(selected) {
-      background-color: fn.use-var(color, primary, light-3);
+      background-color: fn.use-var(color, primary);
       color: fn.use-var(text-color, white);
     }
   }

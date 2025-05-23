@@ -1,11 +1,11 @@
 <template>
   <u-tip
-    ref="tipRef"
     :class="cls.b"
     :trigger="trigger"
     :direction="direction"
     :alignment="alignment"
     :content-tag="contentTag"
+    v-model:visible="visible"
   >
     <slot name="reference" />
 
@@ -32,12 +32,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { PopConfirmProps, PopConfirmEmits, TipExposed } from '@ui/types'
+import type { PopConfirmProps, PopConfirmEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
 import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { shallowRef } from 'vue'
+import { ref } from 'vue'
 import { UIcon } from '../icon'
 import { HelpFilled } from 'icon-ultra'
 
@@ -58,7 +58,7 @@ withDefaults(defineProps<PopConfirmProps>(), {
 
 const cls = bem('pop-confirm')
 
-const tipRef = shallowRef<TipExposed>()
+const visible = ref(false)
 
 const { formProps } = useFormComponent()
 
@@ -68,11 +68,11 @@ const { size } = useFormFallbackProps([formProps ?? {}], {
 
 const confirm = () => {
   emit('confirm')
-  tipRef.value?.close()
+  visible.value = false
 }
 
 const cancel = () => {
   emit('cancel')
-  tipRef.value?.close()
+  visible.value = false
 }
 </script>

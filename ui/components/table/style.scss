@@ -36,8 +36,8 @@ $root-name: table;
   @include m.e(row) {
     &:hover {
       @include m.bem($root-name, cell) {
-        background-color: fn.use-var(table, hover, bg);
-        color: fn.use-var(table, hover, color);
+        background-color: fn.use-var(table, hover, bg) !important;
+        color: fn.use-var(table, hover, color) !important;
       }
     }
 
@@ -51,7 +51,8 @@ $root-name: table;
 
     @include m.is(current) {
       @include m.bem($root-name, cell) {
-        background-color: fn.use-var(color, primary, 'light-9');
+        background-color: fn.use-var(color, primary, light-3) !important;
+        color: fn.use-var(text-color, white) !important;
       }
     }
   }
@@ -115,9 +116,9 @@ $root-name: table;
   @include m.e(head) {
     @include m.bem($root-name, cell) {
       box-shadow: -1px -1px 1px fn.use-var(table, border-color) inset;
-      background-color: #f9f9f9;
+      background-color: fn.use-var(table, header, bg);
       font-weight: normal;
-      color: fn.use-var(text-color, main);
+      color: fn.use-var(table, header, color);
     }
   }
 

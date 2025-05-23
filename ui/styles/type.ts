@@ -21,26 +21,28 @@ export type Theme = {
     /** 默认颜色 */
     default: string
   }
-  /** 背景色 */
-  bgColor: {
-    /** 底部背景色 */
-    bottom: string
-    /** 中部背景色 */
-    middle: string
-    /** 顶部背景色 */
-    top: string
-    /** 悬停背景色 */
-    hover: string
-    /** 黑色背景 */
-    black: string
-  }
+  /** 背景 */
+  bg: {
+    /** 背景色 */
+    color: {
+      /** 底部背景色 */
+      bottom: string
+      /** 中部背景色 */
+      middle: string
+      /** 顶部背景色 */
+      top: string
+      /** 悬停背景色 */
+      hover: string
+      /** 黑色背景 */
+      black: string
+    }
 
-  /** 背景滤镜 */
-  bgFilter: {
-    /** 背景模糊 */
-    blur: string
-    /** 背景饱和度 */
-    saturate: string
+    filter: {
+      /** 背景模糊 */
+      blur: string
+      /** 背景饱和度 */
+      saturate: string
+    }
   }
 
   border: {
@@ -65,7 +67,7 @@ export type Theme = {
   }
 
   /** 文字色 */
-  textColor: {
+  'text-color': {
     /** 标题文字颜色 */
     title: string
     /** 主要文字颜色 */
@@ -91,7 +93,7 @@ export type Theme = {
     large: number
   }
   /** 表单组件高度 */
-  formComponentHeight: {
+  'form-component-height': {
     /** 小尺寸表单组件高度 */
     small: number
     /** 默认尺寸表单组件高度 */
@@ -135,9 +137,9 @@ export type Theme = {
   }
 
   /** 字体族 */
-  fontFamily: string
+  'font-family': string
   /** 标题字体大小 */
-  fontSizeTitle: {
+  'font-size-title': {
     /** 小尺寸标题字体 */
     small: number
     /** 默认尺寸标题字体 */
@@ -146,7 +148,7 @@ export type Theme = {
     large: number
   }
   /** 正文字体大小 */
-  fontSizeMain: {
+  'font-size-main': {
     /** 小尺寸正文字体 */
     small: number
     /** 默认尺寸正文字体 */
@@ -155,7 +157,7 @@ export type Theme = {
     large: number
   }
   /** 辅助文字字体大小 */
-  fontSizeAssist: {
+  'font-size-assist': {
     /** 小尺寸辅助文字字体 */
     small: number
     /** 默认尺寸辅助文字字体 */
@@ -209,7 +211,13 @@ export type Theme = {
   /** 表格 */
   table: {
     /** 表格边框颜色 */
-    borderColor: string
+    'border-color': string
+
+    header: {
+      color: string
+      bg: string
+    }
+
     /** 斑马线颜色 */
     stripe: {
       bg: string

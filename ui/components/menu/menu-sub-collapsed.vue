@@ -5,7 +5,7 @@
     alignment="start"
     :class="collapsedCls.m(size)"
     style="padding: 0"
-    ref="tipRef"
+    v-model:visible="visible"
   >
     <li
       :class="[
@@ -59,10 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { inject, shallowRef } from 'vue'
+import { inject, ref } from 'vue'
 import { MenuDIKey } from './di'
 import { UTip } from '../tip'
-import type { MenuItem, TipExposed } from '@ui/types'
+import type { MenuItem } from '@ui/types'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'
@@ -81,10 +81,10 @@ defineProps<{
   depth: number
 }>()
 
-const tipRef = shallowRef<TipExposed>()
+const visible = ref(false)
 
 function closeSubMenu() {
-  tipRef.value?.close()
+  visible.value = false
 }
 
 const { collapsedCls, size } = inject(MenuDIKey)!

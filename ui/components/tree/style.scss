@@ -39,7 +39,7 @@ $root-name: tree;
       &:not(.is-disabled) {
         @include m.bem($root-name, node-content) {
           &:hover {
-            background-color: fn.use-var(color, primary, light-9);
+            background-color: fn.use-var(bg-color, hover);
           }
         }
       }

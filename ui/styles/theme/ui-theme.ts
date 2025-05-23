@@ -89,16 +89,16 @@ export class UITheme {
   }
 
   private renderBGColorAlpha() {
-    const { bgColor } = this.theme
-    const bgs = Object.keys(bgColor)
+    const { color } = this.theme.bg
+    const bgs = Object.keys(color)
     return bgs
-      .map(type => `--bg-color-${type}-alpha: ${bgColor[type]}aa`)
+      .map(type => `--bg-color-${type}-alpha: ${color[type]}aa`)
       .join(';')
   }
 
   private renderBGFilter() {
-    const { bgFilter } = this.theme
-    return `--bg-filter: ${bgFilter.blur} ${bgFilter.saturate}`
+    const { filter } = this.theme.bg
+    return `--bg-filter: ${filter.blur} ${filter.saturate}`
   }
 
   render() {

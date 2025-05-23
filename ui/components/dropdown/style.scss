@@ -10,7 +10,7 @@ $root-name: dropdown;
 
   @include m.e(content) {
     position: absolute;
-    background-color: fn.use-var(bg, color-top);
+    background-color: fn.use-var(bg, color-bottom);
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     box-shadow: fn.use-var(shadow);

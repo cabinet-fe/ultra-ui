@@ -38,7 +38,7 @@ export class VariableNode extends DecoratorNode<VNode> {
 
   override createDOM(): HTMLElement {
     const span = document.createElement('span')
-
+    span.style.display = 'inline-block'
     return span
   }
 

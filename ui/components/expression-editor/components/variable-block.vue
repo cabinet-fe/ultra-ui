@@ -1,7 +1,7 @@
 <template>
   <span :class="cls.e('var-block')">
-    <i class="icon-ultra-variable">v: </i>
-    <slot />
+    <i class="icon-ultra-variable">v </i>
+    <span><slot /></span>
   </span>
 </template>
 

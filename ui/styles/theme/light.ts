@@ -1,4 +1,4 @@
-import { defineBySize } from '../helper'
+import { cssVar, defineBySize } from '../helper'
 import { UITheme } from './ui-theme'
 
 export const lightTheme = new UITheme({
@@ -12,17 +12,19 @@ export const lightTheme = new UITheme({
     default: '#f1f5f9'
   },
 
-  bgColor: {
-    bottom: '#f5f5f5',
-    middle: '#fafafa',
-    top: '#ffffff',
-    hover: '#f5f7fa',
-    black: '#000000'
-  },
+  bg: {
+    color: {
+      bottom: '#f5f5f5',
+      middle: '#fafafa',
+      top: '#ffffff',
+      hover: '#f5f7fa',
+      black: '#000000'
+    },
 
-  bgFilter: {
-    blur: 'blur(16px)',
-    saturate: 'saturate(180%)'
+    filter: {
+      blur: 'blur(16px)',
+      saturate: 'saturate(180%)'
+    }
   },
 
   border: {
@@ -39,7 +41,7 @@ export const lightTheme = new UITheme({
     border: '#ccc'
   },
 
-  textColor: {
+  'text-color': {
     title: '#303133',
     main: '#606266',
     placeholder: '#a8abb2',
@@ -55,7 +57,7 @@ export const lightTheme = new UITheme({
     large: 8
   }),
 
-  formComponentHeight: defineBySize({
+  'form-component-height': defineBySize({
     small: 24,
     default: 32,
     large: 40
@@ -88,22 +90,22 @@ export const lightTheme = new UITheme({
     color: '#303133'
   },
 
-  fontFamily:
+  'font-family':
     'Inter, "Roboto", "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif',
 
-  fontSizeTitle: defineBySize({
+  'font-size-title': defineBySize({
     small: 16,
     default: 16,
     large: 18
   }),
 
-  fontSizeMain: defineBySize({
+  'font-size-main': defineBySize({
     small: 12,
     default: 14,
     large: 16
   }),
 
-  fontSizeAssist: defineBySize({
+  'font-size-assist': defineBySize({
     small: 12,
     default: 12,
     large: 14
@@ -137,13 +139,17 @@ export const lightTheme = new UITheme({
   },
 
   table: {
-    borderColor: '#eee',
+    'border-color': '#eee',
+    header: {
+      bg: cssVar('bg-color-middle'),
+      color: cssVar('text-color-title')
+    },
     stripe: {
-      bg: 'var(--bg-color-hover)',
-      color: 'var(--text-color-title)'
+      bg: '#f7f8fa',
+      color: 'inherit'
     },
     hover: {
-      bg: 'var(--bg-color-hover)',
+      bg: cssVar('bg-color-hover'),
       color: 'inherit'
     }
   }

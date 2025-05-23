@@ -8,7 +8,15 @@
     </div> -->
 
     <!-- 编辑容器 -->
-    <div :class="cls.e('container')" ref="container" contenteditable></div>
+    <div
+      :class="cls.e('container')"
+      ref="container"
+      :contenteditable="!readonly && !disabled"
+    ></div>
+
+    <div :class="cls.e('placeholder')" v-if="!modelValue">
+      {{ placeholder }}
+    </div>
 
     <!-- 渲染装饰器节点，内部通过Vue的Teleport组件渲染至节点中 -->
     <Decorators :decorators="decorators" />

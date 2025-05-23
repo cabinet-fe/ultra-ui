@@ -23,7 +23,7 @@ $root-name: tip;
       height: 100%;
       width: 100%;
       z-index: -1;
-      background-color: fn.use-var(bg, color-top);
+      background-color: fn.use-var(bg-color, top);
       border-radius: fn.use-var(radius, default);
     }
   }
@@ -32,7 +32,7 @@ $root-name: tip;
     position: absolute;
     z-index: -1;
     box-shadow: fn.use-var(shadow);
-    background-color: fn.use-var(bg, color-top);
+    background-color: fn.use-var(bg-color, top);
     transform: rotate(45deg);
   }
 
