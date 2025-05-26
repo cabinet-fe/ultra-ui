@@ -49,10 +49,10 @@ $menu-name: $root-name + '-panel-item';
     display: flex;
   }
 
-  @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-7);
-    opacity: 0.5;
-  }
+  // @include m.e(ripple) {
+  //   background-color: fn.use-var(color, primary, light-7);
+  //   opacity: 0.5;
+  // }
 
   @include m.e(empty) {
     text-align: center;
@@ -105,7 +105,7 @@ $menu-name: $root-name + '-panel-item';
     @include m.flex($justify: space-between);
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: fn.use-var(bg-color, hover);
     }
 
     &:not(:last-child) {
