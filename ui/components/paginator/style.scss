@@ -60,7 +60,8 @@ $root-name: paginator;
   @include m.e(jumper) {
     @include m.flex;
   }
-  @include m.e(page-input) {
+
+  @include m.bem($root-name, page-input) {
     width: 40px;
   }
 
