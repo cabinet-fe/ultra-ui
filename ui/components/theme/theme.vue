@@ -56,21 +56,21 @@
     <theme-group title="表单组件高度">
       <theme-item label="小"
         ><u-number-input
-          v-model="theme.formComponentHeight.small"
+          v-model="theme['form-component-height'].small"
           :min="0"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="中"
         ><u-number-input
-          v-model="theme.formComponentHeight.default"
+          v-model="theme['form-component-height'].default"
           :min="0"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="大"
         ><u-number-input
-          v-model="theme.formComponentHeight.large"
+          v-model="theme['form-component-height'].large"
           :min="0"
           :step="1"
           :clearable="false"
@@ -129,20 +129,20 @@
     <theme-group title="标题字体大小">
       <theme-item label="小"
         ><u-number-input
-          v-model="theme.fontSizeTitle.small"
+          v-model="theme['font-size-title'].small"
           :min="14"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="中"
         ><u-number-input
-          v-model="theme.fontSizeTitle.default"
+          v-model="theme['font-size-title'].default"
           :min="14"
           :clearable="false"
       /></theme-item>
       <theme-item label="大"
         ><u-number-input
-          v-model="theme.fontSizeTitle.large"
+          v-model="theme['font-size-title'].large"
           :min="14"
           :clearable="false"
       /></theme-item>
@@ -150,21 +150,21 @@
     <theme-group title="正文字体大小">
       <theme-item label="小"
         ><u-number-input
-          v-model="theme.fontSizeMain.small"
+          v-model="theme['font-size-main'].small"
           :min="12"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="中"
         ><u-number-input
-          v-model="theme.fontSizeMain.default"
+          v-model="theme['font-size-main'].default"
           :min="12"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="大"
         ><u-number-input
-          v-model="theme.fontSizeMain.large"
+          v-model="theme['font-size-main'].large"
           :min="12"
           :step="1"
           :clearable="false"
@@ -173,21 +173,21 @@
     <theme-group title="辅助字体大小">
       <theme-item label="小"
         ><u-number-input
-          v-model="theme.fontSizeAssist.small"
+          v-model="theme['font-size-assist'].small"
           :min="12"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="中"
         ><u-number-input
-          v-model="theme.fontSizeAssist.default"
+          v-model="theme['font-size-assist'].default"
           :min="12"
           :step="1"
           :clearable="false"
       /></theme-item>
       <theme-item label="大"
         ><u-number-input
-          v-model="theme.fontSizeAssist.large"
+          v-model="theme['font-size-assist'].large"
           :min="12"
           :step="1"
           :clearable="false"

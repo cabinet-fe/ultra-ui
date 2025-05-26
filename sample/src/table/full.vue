@@ -76,25 +76,25 @@ const _columns = defineTableColumns(
     },
     {
       name: '地址',
-      key: 'address',
+      key: 'address'
 
-      children: [
-        { name: '省', key: 'province' },
-        { name: '市', key: 'city' },
-        { name: '区', key: 'area' },
-        { name: '街道', key: 'street' },
-        {
-          name: '小区',
-          key: 'community',
+      // children: [
+      //   { name: '省', key: 'province' },
+      //   { name: '市', key: 'city' },
+      //   { name: '区', key: 'area' },
+      //   { name: '街道', key: 'street' },
+      //   {
+      //     name: '小区',
+      //     key: 'community',
 
-          children: [
-            { name: 'a', key: 'a' },
-            { name: 'b', key: 'b' }
-          ]
-        }
-      ]
+      //     children: [
+      //       { name: 'a', key: 'a' },
+      //       { name: 'b', key: 'b' }
+      //     ]
+      //   }
+      // ]
     },
-    { name: '性别', key: 'sex', fixed: 'right' },
+    // { name: '性别', key: 'sex', fixed: 'right' },
     {
       name: '姓名',
       key: 'name',

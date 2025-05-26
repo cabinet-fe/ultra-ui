@@ -2,7 +2,7 @@
   <u-tip
     trigger="click"
     :class="cls.e('panel')"
-    ref="palette"
+    v-model:visible="visible"
     :disabled="disabled || readonly"
   >
     <span
@@ -33,7 +33,7 @@
 import type { PaletteProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UTip } from '../tip'
-import { computed, provide, useTemplateRef, watch } from 'vue'
+import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 import {
   useFormComponent,
   useFormFallbackProps,
@@ -79,12 +79,13 @@ watch([alpha, RGB], ([alpha, RGB]) => {
   color.value = `#${RGB2HEX(RGB, alpha)}`
 })
 
-const paletteRef = useTemplateRef('palette')
+const visible = shallowRef(false)
+
 function handleClear() {
   updater.updateAndLock(() => {
     color.value = ''
     rest.updateAlpha(1)
-    paletteRef.value?.close()
+    visible.value = false
   })
 }
 
