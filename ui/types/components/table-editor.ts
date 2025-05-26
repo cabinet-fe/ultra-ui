@@ -1,12 +1,10 @@
 import type { DeconstructValue } from '../helper'
-import type { TableColumn } from './table'
+import type { TableProps } from './table'
 
 /** 表格型编辑器组件属性 */
-export interface TableEditorProps {
+export interface TableEditorProps extends Omit<TableProps, 'data'> {
   /** 表格数据 */
   modelValue?: any[]
-  /** 表格列配置 */
-  columns?: TableColumn[]
 }
 
 /** 表格型编辑器组件定义的事件 */
