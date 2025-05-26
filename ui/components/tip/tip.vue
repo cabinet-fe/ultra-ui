@@ -31,7 +31,15 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, computed, useSlots, onBeforeUnmount, toRef } from 'vue'
+import {
+  shallowRef,
+  computed,
+  useSlots,
+  onBeforeUnmount,
+  toRef,
+  watch,
+  nextTick
+} from 'vue'
 import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
 import type { TipProps, ComponentSize, TipEmits } from '@ui/types'
@@ -149,6 +157,13 @@ const { popperContainerId } = usePop({
   alignment: toRef(() => props.alignment),
   onTriggerPositionChange() {
     close()
+  }
+})
+
+watch(triggerDom, () => {
+  if (visible.value) {
+    close()
+    nextTick(() => open())
   }
 })
 

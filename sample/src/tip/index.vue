@@ -29,23 +29,22 @@
     </CustomCard>
 
     <CustomCard title="虚拟触发">
-      <span ref="triggerDom">实际触发位置</span>
+      <u-button @click="pop(dom2?.el)" ref="dom1"> 触发按钮1 </u-button>
+      <u-button @click="pop(dom1?.el)" ref="dom2"> 触发按钮2 </u-button>
 
       <u-tip
         trigger="click"
         :trigger-dom="triggerDom"
         v-model:visible="visible"
       >
-        <u-button @click="visible = true"> 触发按钮 </u-button>
-
-        <template #content>6666</template>
+        <template #content>两极反转</template>
       </u-tip>
     </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import type { TipAlign, TipDirection } from 'ultra-ui/types'
 
@@ -72,6 +71,13 @@ const trigger = shallowRef<'hover' | 'click'>('hover')
 const triggerDom = shallowRef()
 
 const visible = shallowRef(false)
+const dom1 = useTemplateRef('dom1')
+const dom2 = useTemplateRef('dom2')
+
+function pop(el?: HTMLElement) {
+  visible.value = true
+  triggerDom.value = el
+}
 </script>
 
 <style lang="scss" scoped>

@@ -92,8 +92,11 @@ export function usePop(options: Options): PopResult {
     return isRef(value) ? value.value : value
   }
 
-  /** 更新浮框位置 */
-  async function update(isPop = false) {
+  /**
+   * 更新浮框位置
+   * @param callbackOnPop 是否在弹出时回调
+   */
+  async function update(callbackOnPop = false) {
     const triggerEl = triggerRef.value
     const contentEl = contentRef.value
 
@@ -128,7 +131,7 @@ export function usePop(options: Options): PopResult {
       left: `${x}px`,
       top: `${y}px`
     })
-    isPop && onPop?.(position)
+    callbackOnPop && onPop?.(position)
     onAfterUpdate?.(position)
 
     // 设置箭头位置 ↓↓↓
