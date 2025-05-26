@@ -88,7 +88,7 @@ export default defineComponent({
             bem.is('expanded', row.expanded),
             bem.is('checked', row.checked)
           ]}
-          onClick={() => handleRowClick(row)}
+          onClick={e => handleRowClick(row, e)}
           ref={measureElement as VNodeRef}
           key={row.uid}
         >

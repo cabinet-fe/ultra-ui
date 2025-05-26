@@ -26,7 +26,7 @@ export const TableDIKey: InjectionKey<
     /** 结构化列 */
     columnConfig: ColumnConfig
     /** 事件处理方法 */
-    handleRowClick: (row: TableRow) => void
+    handleRowClick: (row: TableRow, ev: MouseEvent) => void
     /** 表格列插槽node */
     getColumnSlotsNode: (
       ctx: TableColumnSlotsScope | TableColumnRenderContext

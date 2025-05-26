@@ -207,8 +207,10 @@ export interface TableEmits<
   (e: 'update:rows', rows: TableRow<DataItem>[]): void
   /** 树形数据森林结构更新 */
   (e: 'update:forest', rows?: Forest<TableRow<DataItem>>): void
-  /** 行点击事件 */
-  (e: 'row-click', row: TableRow<DataItem>): void
+  /**
+   * 行点击事件
+   */
+  (e: 'row-click', row: TableRow<DataItem>, ev: MouseEvent): void
   /** 当前行变更 */
   (e: 'update:currentRow', row?: TableRow<DataItem>): void
 }

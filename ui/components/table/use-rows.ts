@@ -150,8 +150,8 @@ export function useRows(options: Options) {
     getFlattedRows()
   }
 
-  const handleRowClick = (row: TableRow) => {
-    emit('row-click', row)
+  const handleRowClick = (row: TableRow, e: MouseEvent) => {
+    emit('row-click', row, e)
 
     if (row === currentRow.value) {
       currentRow.value = undefined

@@ -22,6 +22,7 @@ declare module 'vue' {
     UCardAction: typeof import('ultra-ui')['UCardAction']
     UCardContent: typeof import('ultra-ui')['UCardContent']
     UCardCover: typeof import('ultra-ui')['UCardCover']
+    UCardFooter: typeof import('ultra-ui')['UCardFooter']
     UCardHeader: typeof import('ultra-ui')['UCardHeader']
     UCascade: typeof import('ultra-ui')['UCascade']
     UCascadeMulti: typeof import('ultra-ui')['UCascadeMulti']

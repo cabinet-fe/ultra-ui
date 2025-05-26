@@ -10,7 +10,7 @@
 
   <Teleport :to="`#${popperContainerId}`">
     <component
-      v-if="visible"
+      v-if="dropdownVisible"
       :is="contentTag"
       :class="dropdownContentClass"
       ref="contentRef"
@@ -29,7 +29,8 @@ import type { DropdownProps, DropdownExposed, DropdownEmits } from '@ui/types'
 import { bem, setStyles, zIndex } from '@ui/utils'
 import { shallowRef, computed } from 'vue'
 import { vClickOutside } from '@ui/directives'
-import { usePop, useTransition } from '@ui/compositions'
+import { useModel, usePop, useTransition } from '@ui/compositions'
+import { useNest } from '../tip/use-nest'
 
 defineOptions({
   name: 'Dropdown',
@@ -42,7 +43,7 @@ const props = withDefaults(defineProps<DropdownProps>(), {
   clickWhetherHide: false
 })
 
-defineEmits<DropdownEmits>()
+const emit = defineEmits<DropdownEmits>()
 
 const slots = defineSlots<{
   /** 内容 */
@@ -68,7 +69,14 @@ const contentRef = shallowRef<HTMLElement>()
 let realTrigger: HTMLElement | undefined
 
 /**显示隐藏 */
-const visible = defineModel<boolean>('visible')
+const visible = useModel({
+  defaultValue: false,
+  propName: 'visible',
+  props,
+  emit
+})
+
+const dropdownVisible = useNest(visible)
 
 let closeTimer: number | undefined
 

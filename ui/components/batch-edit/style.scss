@@ -42,7 +42,7 @@ $root-name: batch-edit;
 
   @include m.e(add) {
     width: 100%;
-    background-color: fn.use-var(bg-color, top);
+    // background-color: fn.use-var(bg-color, top);
     position: sticky;
     bottom: 0;
     padding: 4px;
