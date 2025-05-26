@@ -7,10 +7,10 @@
     gap: 6px;
 
     @include m.bem(form-item, label) {
-      background-color: #fbfcfe;
+      background-color: fn.use-var(bg-color, top); // #fbfcfe;
     }
     @include m.bem(form-item, content) {
-      background-color: #f5f8fb;
+      background-color: fn.use-var(bg-color, middle); // #f5f8fb;
       padding: 0 8px;
     }
   }
