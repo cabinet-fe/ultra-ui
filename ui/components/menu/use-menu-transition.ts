@@ -13,8 +13,10 @@ export function useMenuTransition() {
     })
 
     requestAnimationFrame(() => {
-      setStyles(el, {
-        height: `${height}px`
+      requestAnimationFrame(() => {
+        setStyles(el, {
+          height: `${height}px`
+        })
       })
     })
   }

@@ -43,7 +43,8 @@ import UMenuItem from './menu-item.vue'
 import UMenuSubCollapsed from './menu-sub-collapsed.vue'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { UScroll } from '../scroll'
-import { Forest, TreeNode } from 'cat-kit/fe'
+import { Forest, TreeNode, Tree } from 'cat-kit/fe'
+import { MenuNode } from './menu-node'
 
 defineOptions({
   name: 'Menu'
@@ -71,10 +72,6 @@ const { size } = useFallbackProps([props], {
 
 const expandedPath = shallowReactive(new Set<string>())
 
-class MenuNode<Data extends Record<string, any>> extends TreeNode<Data> {
-  override parent: MenuNode<Data> | null = null
-  override children?: MenuNode<Data>[]
-}
 const menuForest = computed(() => {
   return props.menus ? Forest.create(props.menus, MenuNode) : null
 })
