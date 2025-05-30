@@ -5,6 +5,8 @@
     "release": "tsx ./index.ts"
   },
   "devDependencies": {
-    "@builder/cli": "^1.0.6"
+    "@builder/cli": "^1.0.6",
+    "tsdown": "^0.12.4",
+    "unplugin-vue": "^6.2.0"
   }
 }

@@ -27,8 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UMenu } from 'ultra-ui'
-import { shallowRef, reactive, computed } from 'vue'
+import { shallowRef, ref, reactive, computed } from 'vue'
 import { HouseFilled, UserGroup, Lock, Cart } from 'icon-ultra'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -119,6 +118,116 @@ const currentPath = computed(() => {
 const config = reactive({
   collapsed: false
 })
+
+const menus1 = ref([
+  {
+    id: '1',
+    title: '首页',
+    icon: '🏠',
+    expanded: false
+  },
+  {
+    id: '2',
+    title: '产品管理',
+    icon: '📦',
+    expanded: false,
+    children: [
+      {
+        id: '2-1',
+        title: '产品列表',
+        icon: '📝'
+      },
+      {
+        id: '2-2',
+        title: '分类管理',
+        icon: '🏷️',
+        children: [
+          {
+            id: '2-2-1',
+            title: '主分类',
+            icon: '📁'
+          },
+          {
+            id: '2-2-2',
+            title: '子分类',
+            icon: '📂',
+            children: [
+              {
+                id: '2-2-2-1',
+                title: '电子产品',
+                icon: '💻'
+              },
+              {
+                id: '2-2-2-2',
+                title: '服装鞋帽',
+                icon: '👕'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: '2-3',
+        title: '库存管理',
+        icon: '📊'
+      }
+    ]
+  },
+  {
+    id: '3',
+    title: '用户管理',
+    icon: '👥',
+    expanded: false,
+    children: [
+      {
+        id: '3-1',
+        title: '用户列表',
+        icon: '👤'
+      },
+      {
+        id: '3-2',
+        title: '权限管理',
+        icon: '🔐',
+        badge: 'New'
+      }
+    ]
+  },
+  {
+    id: '4',
+    title: '系统设置',
+    icon: '⚙️',
+    expanded: false,
+    children: [
+      {
+        id: '4-1',
+        title: '基础设置',
+        icon: '🔧'
+      },
+      {
+        id: '4-2',
+        title: '高级设置',
+        icon: '🛠️',
+        children: [
+          {
+            id: '4-2-1',
+            title: '安全设置',
+            icon: '🔒'
+          },
+          {
+            id: '4-2-2',
+            title: '性能优化',
+            icon: '⚡'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: '5',
+    title: '帮助中心',
+    icon: '❓'
+  }
+])
 </script>
 
 <style scoped lang="scss">
