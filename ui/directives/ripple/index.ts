@@ -6,21 +6,47 @@ const clsWrap = cls.e('wrap')
 
 const duration = 300
 
+// 存储每个元素的波纹列表
+const rippleMap = new WeakMap<HTMLElement, HTMLElement[]>()
+
+const removeRipple = (rippleWrap: HTMLElement) => {
+  const parentEl = rippleWrap.parentElement
+  if (!parentEl) return
+
+  // 从波纹列表中移除
+  const ripples = rippleMap.get(parentEl) || []
+  const index = ripples.indexOf(rippleWrap)
+  if (index > -1) {
+    ripples.splice(index, 1)
+    rippleMap.set(parentEl, ripples)
+  }
+
+  // 添加淡出动画
+  setStyles(rippleWrap, {
+    opacity: '0',
+    transition: `opacity 150ms ease-out`
+  })
+
+  // 淡出动画结束后移除元素
+  setTimeout(() => {
+    if (rippleWrap.parentElement) {
+      rippleWrap.parentElement.removeChild(rippleWrap)
+    }
+
+    // 所有的波纹被清除后移除波纹类
+    if (parentEl.getElementsByClassName(clsWrap).length === 0) {
+      parentEl.classList.remove(cls.b)
+      delete parentEl.dataset.class
+    }
+  }, 150)
+}
+
 const transitionEndHandler = (e: TransitionEvent) => {
   const rippleWrap = e.currentTarget as HTMLElement
   if (e.propertyName !== 'transform') return
   rippleWrap.removeEventListener('transitionend', transitionEndHandler)
-
-  const parentEl = rippleWrap.parentElement
-  if (!parentEl) return
-
-  parentEl.removeChild(rippleWrap)
-
-  // 所有的波纹被清除后移除波纹类
-  if (parentEl.getElementsByClassName(clsWrap).length === 0) {
-    parentEl.classList.remove(cls.b)
-    delete parentEl.dataset.class
-  }
+  // 动画结束时不再自动移除，只是标记动画完成
+  rippleWrap.dataset.animationComplete = 'true'
 }
 
 /**
@@ -74,10 +100,16 @@ export function showRipple(
     left: `${centerX - radius}px`,
     top: `${centerY - radius}px`,
     transition: `transform ${_duration}ms cubic-bezier(.82,.84,.28,.92)`,
-    transform: `scale3d(0.2, 0.2, 1)`
+    transform: `scale3d(0.2, 0.2, 1)`,
+    opacity: '0.6'
   })
 
   el.appendChild(rippleEl)
+
+  // 将波纹添加到映射中
+  const ripples = rippleMap.get(el) || []
+  ripples.push(rippleEl)
+  rippleMap.set(el, ripples)
 
   rippleEl.addEventListener('transitionend', transitionEndHandler)
 
@@ -87,6 +119,8 @@ export function showRipple(
       transform: 'scale3d(1, 1, 1)'
     })
   })
+
+  return rippleEl
 }
 
 function handleMousedown(e: MouseEvent) {
@@ -97,6 +131,34 @@ function handleMousedown(e: MouseEvent) {
     centerX: e.clientX - domRect.left,
     centerY: e.clientY - domRect.top,
     domRect
+  })
+}
+
+function handleMouseup(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement
+  clearAllRipples(el)
+}
+
+function handleMouseleave(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement
+  clearAllRipples(el)
+}
+
+function clearAllRipples(el: HTMLElement) {
+  const ripples = rippleMap.get(el) || []
+  // 移除所有波纹，但要等待当前正在执行的动画完成
+  ripples.forEach(ripple => {
+    if (ripple.dataset.animationComplete === 'true') {
+      // 动画已完成，立即移除
+      removeRipple(ripple)
+    } else {
+      // 动画未完成，等待100ms后移除，让用户能看到完整的波纹效果
+      setTimeout(() => {
+        if (ripple.parentElement) {
+          removeRipple(ripple)
+        }
+      }, 100)
+    }
   })
 }
 
@@ -120,6 +182,8 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
   }
 
   el.addEventListener('mousedown', handleMousedown)
+  el.addEventListener('mouseup', handleMouseup)
+  el.addEventListener('mouseleave', handleMouseleave)
 }
 
 /**
@@ -130,6 +194,11 @@ const unregisterEvents = (el: HTMLElement) => {
   delete el.dataset.rippleClass
   delete el.dataset.duration
   el.removeEventListener('mousedown', handleMousedown)
+  el.removeEventListener('mouseup', handleMouseup)
+  el.removeEventListener('mouseleave', handleMouseleave)
+
+  // 清理波纹映射
+  rippleMap.delete(el)
 }
 
 export const vRipple: ObjectDirective<HTMLElement> = {
