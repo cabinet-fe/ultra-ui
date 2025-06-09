@@ -104,8 +104,6 @@ export function useDrag(options: DragOptions) {
   }
 
   const handleMouseup = (e: MouseEvent) => {
-    document.removeEventListener('mousemove', handleMousemove)
-    document.removeEventListener('mouseup', handleMouseup)
     const draggedX = e.x - originX
     const draggedY = e.y - originY
 
@@ -122,6 +120,9 @@ export function useDrag(options: DragOptions) {
       e
     })
     document.onselectstart = onselectstart
+
+    document.removeEventListener('mousemove', handleMousemove)
+    document.removeEventListener('mouseup', handleMouseup)
   }
 
   watch(
