@@ -6,6 +6,7 @@ import { autoResolveComponent } from 'vite-helper'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { existModule } from 'cat-kit/be'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -32,6 +33,9 @@ export default defineConfig(() => {
     plugins: [
       Vue(),
       VueJSX(),
+      vueDevTools({
+        launchEditor: 'cursor'
+      }),
       Components({
         resolvers: [
           autoResolveComponent({
@@ -53,14 +57,6 @@ export default defineConfig(() => {
         include: [/\.vue$/]
       })
     ],
-
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern'
-        }
-      }
-    },
 
     server: {
       port: 7788,

@@ -8,5 +8,8 @@
     "vite-helper": "1.0.5",
     "vue-router": "^4.3.2",
     "ultra-ui": "workspace:*"
+  },
+  "devDependencies": {
+    "vite-plugin-vue-devtools": "^7.7.6"
   }
 }
