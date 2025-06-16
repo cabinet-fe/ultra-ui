@@ -29,7 +29,6 @@
       checkable
       :quick-edit="quickEdit"
       :features="features"
-      label-width="150px"
       :model="model"
       :tree="tree"
       cols="1fr 400px"
@@ -59,7 +58,7 @@
           label-key="label"
           value-key="value"
         />
-        <u-code-editor field="code" label="代码" language="json" />
+        <u-code-editor field="code" label="代码" language="json" span="full" />
         <!-- <u-cascade
             field="cascade"
             label="单选级联选择器"

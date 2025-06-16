@@ -69,6 +69,11 @@ export type IFormModel<
 /** 表单组件属性 */
 export interface FormProps<Model extends IFormModel = IFormModel>
   extends ComponentProps {
+  /**
+   * 自定义表单列数
+   * - 默认根据尺寸断点自动排列
+   */
+  cols?: number
   /** 是否显示初始数据 */
   showInitialData?: boolean
   /** 表单数据模型 */

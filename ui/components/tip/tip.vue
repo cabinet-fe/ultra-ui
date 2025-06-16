@@ -43,7 +43,7 @@ import {
 import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
 import { vClickOutside } from '@ui/directives'
 import type { TipProps, ComponentSize, TipEmits } from '@ui/types'
-import { useFallbackProps, useModel, usePop } from '@ui/compositions'
+import { useFallbackProps, usePop } from '@ui/compositions'
 import { UNodeRender } from '../node-render'
 import { useNest } from './use-nest'
 
@@ -54,7 +54,8 @@ const props = withDefaults(defineProps<TipProps>(), {
   trigger: 'hover',
   direction: 'top',
   alignment: 'center',
-  contentTag: 'div'
+  contentTag: 'div',
+  visible: undefined
 })
 
 const emit = defineEmits<TipEmits>()
@@ -82,12 +83,19 @@ const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
 const contentRef = shallowRef<HTMLElement>()
 const arrowRef = shallowRef<HTMLElement>()
 
-const visible = useModel({
-  defaultValue: false,
-  propName: 'visible',
-  props,
-  emit
+const _visible = shallowRef(false)
+
+const visible = computed(() => {
+  return props.visible !== undefined ? props.visible : _visible.value
 })
+
+function updateVisible(v: boolean) {
+  if (props.visible === undefined) {
+    _visible.value = v
+  } else {
+    emit('update:visible', v)
+  }
+}
 
 const tipVisible = useNest(visible)
 
@@ -118,6 +126,7 @@ const eventsHandlers = computed(() => {
 const handleClickOutside = (e: MouseEvent) => {
   if (props.trigger === 'hover') return
 
+  // 点击的元素在触发元素中则啥也
   if (
     props.trigger === 'click' &&
     triggerDom.value.contains(e.target as Node)
@@ -132,16 +141,16 @@ let closeTimer: number | undefined = undefined
 /** 弹出 */
 const open = () => {
   closeTimer !== undefined && clearTimeout(closeTimer)
-  visible.value = true
+  updateVisible(true)
 }
 /** 关闭 */
 const close = () => {
   if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
-      visible.value = false
+      updateVisible(false)
     }, 250)
   } else {
-    visible.value = false
+    updateVisible(false)
   }
 }
 

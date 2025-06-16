@@ -1,10 +1,8 @@
 <template>
   <div>
-    <!-- <Base />
+    <Base />
     <Full />
-    <MergeCell /> -->
-
-    <Virtualizer />
+    <MergeCell />
   </div>
 </template>
 
@@ -12,5 +10,4 @@
 import Base from './base.vue'
 import Full from './full.vue'
 import MergeCell from './merge-cell.vue'
-import Virtualizer from './virtualizer.vue'
 </script>
