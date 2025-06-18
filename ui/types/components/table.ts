@@ -211,6 +211,13 @@ export interface TableEmits<
    * 行点击事件
    */
   (e: 'row-click', row: TableRow<DataItem>, ev: MouseEvent): void
+  /** 单元格点击 */
+  (
+    e: 'cell-click',
+    row: TableRow<DataItem>,
+    column: TableColumn,
+    ev: MouseEvent
+  ): void
   /** 当前行变更 */
   (e: 'update:currentRow', row?: TableRow<DataItem>): void
 }

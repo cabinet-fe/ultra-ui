@@ -3,7 +3,6 @@
     <div>
       <u-checkbox v-model="readonly">只读</u-checkbox>
       <u-checkbox v-model="tree">树形</u-checkbox>
-      <u-checkbox v-model="resizable">可调节尺寸</u-checkbox>
       <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
       <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
 
@@ -31,7 +30,7 @@
       :features="features"
       :model="model"
       :tree="tree"
-      cols="1fr 400px"
+      cols="1fr 500px"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @created="
@@ -41,24 +40,123 @@
       "
     >
       <template #column:name="{ row }">
-        <span :style="`padding-left: ${row.depth * 20}px;`"
-          >{{ row.depth }} {{ row.data.name }}</span
-        >
+        <span :style="`padding-left: ${row.depth * 20}px;`">
+          {{ row.depth }} {{ row.data.name }}
+        </span>
       </template>
       <template #form="{ data }">
-        <u-input field="name" label="名称" />
-        <u-number-input field="age" label="年龄" />
-        <u-input field="props.label" label="标签" />
-        <u-input field="props.field" label="字段" />
-        <u-input v-if="!data.age || data.age < 10" field="cc" label="cc" />
+        <!-- 基础信息 -->
+        <u-input field="name" label="姓名" placeholder="请输入姓名" />
+        <u-number-input field="age" label="年龄" :min="0" :max="120" />
+        <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
+        <u-input field="phone" label="电话" placeholder="请输入电话号码" />
+
+        <!-- 选择器类型 -->
+        <u-select
+          field="gender"
+          label="性别"
+          :options="genderOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择性别"
+        />
+        <u-select
+          field="department"
+          label="部门"
+          :options="departmentOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择部门"
+        />
+        <u-select
+          field="position"
+          label="职位"
+          :options="positionOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择职位"
+        />
         <u-select
           field="unit"
           label="单位"
           :options="units"
           label-key="label"
           value-key="value"
+          placeholder="请选择单位"
         />
-        <u-code-editor field="code" label="代码" language="json" span="full" />
+
+        <!-- 日期时间 -->
+        <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
+        <u-date-picker
+          field="joinDate"
+          label="入职日期"
+          placeholder="请选择入职日期"
+        />
+
+        <!-- 数值输入 -->
+        <u-number-input field="salary" label="薪资" :min="0" :step="100" />
+        <u-number-input
+          field="score"
+          label="评分"
+          :min="0"
+          :max="100"
+          :step="0.1"
+        />
+
+        <!-- 多行文本 -->
+        <u-textarea
+          field="address"
+          label="地址"
+          placeholder="请输入详细地址"
+          span="full"
+        />
+        <u-textarea
+          field="description"
+          label="个人描述"
+          placeholder="请输入个人描述"
+          span="full"
+        />
+
+        <!-- 复选框和单选框 -->
+        <u-checkbox-group
+          field="skills"
+          label="技能"
+          :items="skillOptions"
+          span="full"
+        />
+        <u-radio-group
+          field="workType"
+          label="工作类型"
+          :items="workTypeOptions"
+        />
+
+        <!-- 高级组件 -->
+        <u-code-editor
+          field="code"
+          label="代码片段"
+          language="json"
+          span="full"
+        />
+        <u-slider field="experience" label="工作经验(年)" :min="0" :max="20" />
+
+        <!-- 条件显示字段 -->
+        <u-input
+          v-if="!data.age || data.age < 25"
+          field="emergencyContact"
+          label="紧急联系人"
+        />
+        <u-input
+          v-if="data.department === 'tech'"
+          field="programmingLanguage"
+          label="主要编程语言"
+        />
+
+        <!-- 嵌套字段 -->
+        <u-input field="props.label" label="标签" />
+        <u-input field="props.field" label="字段" />
+        <u-input field="contact.qq" label="QQ号码" />
+        <u-input field="contact.wechat" label="微信号" />
+
         <!-- <u-cascade
             field="cascade"
             label="单选级联选择器"
@@ -78,7 +176,6 @@ import { sleep } from 'cat-kit/fe'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
-// import area from '../cascade/area'
 import type { BatchEditFeature } from '@ui/types'
 
 const readonly = shallowRef(false)
@@ -88,18 +185,67 @@ const quickEdit = shallowRef(false)
 const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
-  { name: '名称', key: 'name', rules: { required: true } },
-  { name: '年龄', key: 'age', rules: { max: 120 } },
-  { name: '单选级联选择器', key: 'cascade' }
+  { name: '姓名', key: 'name', rules: { required: true }, width: 120 },
+  { name: '年龄', key: 'age', rules: { max: 120 }, width: 80 },
+  { name: '性别', key: 'gender', width: 80 },
+  { name: '部门', key: 'department', width: 120 },
+  { name: '职位', key: 'position', width: 120 },
+  { name: '邮箱', key: 'email', width: 180 },
+  { name: '电话', key: 'phone', width: 120 },
+  { name: '薪资', key: 'salary', width: 100 },
+  { name: '评分', key: 'score', width: 80 },
+  { name: '工作类型', key: 'workType', width: 100 },
+  { name: '入职日期', key: 'joinDate', width: 120 },
+  { name: '单选级联选择器', key: 'cascade', width: 150 }
 ])
 
 const data = shallowRef()
 const checked = shallowRef([])
 
 setTimeout(() => {
-  data.value = Array.from({ length: 3 }).map((_, i) => ({
-    name: '姓名' + i,
-    age: Math.ceil(Math.random() * 80),
+  const names = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十']
+  const departments = ['tech', 'marketing', 'sales', 'hr', 'finance']
+  const positions = ['engineer', 'manager', 'director', 'specialist', 'analyst']
+  const genders = ['male', 'female']
+  const workTypes = ['fulltime', 'parttime', 'contract']
+
+  data.value = Array.from({ length: 8 }).map((_, i) => ({
+    name: names[i] || `员工${i}`,
+    age: Math.ceil(Math.random() * 40) + 20,
+    gender: genders[Math.floor(Math.random() * genders.length)],
+    department: departments[Math.floor(Math.random() * departments.length)],
+    position: positions[Math.floor(Math.random() * positions.length)],
+    email: `user${i}@company.com`,
+    phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, '0')}`,
+    salary: (Math.floor(Math.random() * 20) + 5) * 1000,
+    score: Math.floor(Math.random() * 100),
+    workType: workTypes[Math.floor(Math.random() * workTypes.length)],
+    joinDate: new Date(
+      2020 + Math.floor(Math.random() * 4),
+      Math.floor(Math.random() * 12),
+      Math.floor(Math.random() * 28) + 1
+    )
+      .toISOString()
+      .split('T')[0],
+    birthday: new Date(
+      1980 + Math.floor(Math.random() * 30),
+      Math.floor(Math.random() * 12),
+      Math.floor(Math.random() * 28) + 1
+    )
+      .toISOString()
+      .split('T')[0],
+    address: `北京市朝阳区某街道${i + 1}号`,
+    description: `这是员工${i + 1}的个人描述`,
+    skills: ['javascript', 'vue'].slice(0, Math.floor(Math.random() * 3) + 1),
+    experience: Math.floor(Math.random() * 15),
+    props: {
+      label: `标签${i}`,
+      field: `field${i}`
+    },
+    contact: {
+      qq: `12345678${i}`,
+      wechat: `wx_user${i}`
+    },
     id: Math.random()
   }))
 }, 500)
@@ -107,13 +253,35 @@ setTimeout(() => {
 const model = new FormModel({
   name: { required: true },
   age: {
-    max: 100,
-    value: () =>
-      200 - (data.value?.reduce((sum, item) => sum + item.age, 0) ?? 0)
+    max: 120,
+    min: 0,
+    value: () => Math.floor(Math.random() * 40) + 20
   },
+  email: {
+    required: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址']
+  },
+  phone: {
+    match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码']
+  },
+  gender: { required: true },
+  department: { required: true },
+  position: { required: true },
+  salary: { min: 0 },
+  score: { min: 0, max: 100 },
+  workType: { required: true },
+  joinDate: { required: true },
+  birthday: {},
+  address: {},
+  description: {},
+  skills: {},
+  experience: { min: 0, max: 20 },
+  emergencyContact: { required: true },
+  programmingLanguage: {},
   'props.field': {},
   'props.label': {},
-  cc: { required: true },
+  'contact.qq': {},
+  'contact.wechat': {},
   cascade: {},
   code: {},
   unit: {}
@@ -131,7 +299,6 @@ const asynchronous = shallowRef(false)
 
 const deleteMethod = async row => {
   await sleep(2000)
-  // await Promise.reject('a')
   message.success('删除成功')
 }
 
@@ -139,237 +306,49 @@ const saveMethod = async (data, type) => {
   await sleep(2000)
   message.success('保存成功')
 }
+
+// 选项数据
 const units = [
   { label: '单位1', value: '1' },
   { label: '单位2', value: '2' },
   { label: '单位3', value: '3' }
 ]
-// const cascadeData = [
-//   {
-//     value: 'guide',
-//     label: 'Guide'
-//   },
-//   {
-//     value: 'component',
-//     label: 'Component',
-//     children: [
-//       {
-//         value: 'basic',
-//         label: 'Basic',
-//         children: [
-//           {
-//             value: 'layout',
-//             label: 'Layout'
-//           },
-//           {
-//             value: 'color',
-//             label: 'Color'
-//           },
-//           {
-//             value: 'typography',
-//             label: 'Typography'
-//           },
-//           {
-//             value: 'icon',
-//             label: 'Icon'
-//           },
-//           {
-//             value: 'button',
-//             label: 'Button'
-//           }
-//         ]
-//       },
-//       {
-//         value: 'form',
-//         label: 'Form',
-//         children: [
-//           {
-//             value: 'radio',
-//             label: 'Radio'
-//           },
-//           {
-//             value: 'checkbox',
-//             label: 'Checkbox'
-//           },
-//           {
-//             value: 'input',
-//             label: 'Input'
-//           },
-//           {
-//             value: 'input-number',
-//             label: 'InputNumber'
-//           },
-//           {
-//             value: 'select',
-//             label: 'Select'
-//           },
-//           {
-//             value: 'cascader',
-//             label: 'Cascader'
-//           },
-//           {
-//             value: 'switch',
-//             label: 'Switch'
-//           },
-//           {
-//             value: 'slider',
-//             label: 'Slider'
-//           },
-//           {
-//             value: 'time-picker',
-//             label: 'TimePicker'
-//           },
-//           {
-//             value: 'date-picker',
-//             label: 'DatePicker'
-//           },
-//           {
-//             value: 'datetime-picker',
-//             label: 'DateTimePicker'
-//           },
-//           {
-//             value: 'upload',
-//             label: 'Upload'
-//           },
-//           {
-//             value: 'rate',
-//             label: 'Rate'
-//           }
-//         ]
-//       },
-//       {
-//         value: 'data',
-//         label: 'Data',
-//         children: [
-//           {
-//             value: 'table',
-//             label: 'Table'
-//           },
-//           {
-//             value: 'tag',
-//             label: 'Tag'
-//           },
-//           {
-//             value: 'progress',
-//             label: 'Progress'
-//           },
-//           {
-//             value: 'tree',
-//             label: 'Tree'
-//           },
-//           {
-//             value: 'pagination',
-//             label: 'Pagination'
-//           },
-//           {
-//             value: 'badge',
-//             label: 'Badge'
-//           }
-//         ]
-//       },
-//       {
-//         value: 'notice',
-//         label: 'Notice',
-//         children: [
-//           {
-//             value: 'alert',
-//             label: 'Alert'
-//           },
-//           {
-//             value: 'loading',
-//             label: 'Loading'
-//           },
-//           {
-//             value: 'message',
-//             label: 'Message'
-//           },
-//           {
-//             value: 'message-box',
-//             label: 'MessageBox'
-//           },
-//           {
-//             value: 'notification',
-//             label: 'Notification'
-//           }
-//         ]
-//       },
-//       {
-//         value: 'navigation',
-//         label: 'Navigation',
-//         children: [
-//           {
-//             value: 'menu',
-//             label: 'Menu'
-//           },
-//           {
-//             value: 'tabs',
-//             label: 'Tabs'
-//           },
-//           {
-//             value: 'breadcrumb',
-//             label: 'Breadcrumb'
-//           },
-//           {
-//             value: 'dropdown',
-//             label: 'Dropdown'
-//           },
-//           {
-//             value: 'steps',
-//             label: 'Steps'
-//           }
-//         ]
-//       },
-//       {
-//         value: 'others',
-//         label: 'Others',
-//         children: [
-//           {
-//             value: 'dialog',
-//             label: 'Dialog'
-//           },
-//           {
-//             value: 'tooltip',
-//             label: 'Tooltip'
-//           },
-//           {
-//             value: 'popover',
-//             label: 'Popover'
-//           },
-//           {
-//             value: 'card',
-//             label: 'Card'
-//           },
-//           {
-//             value: 'carousel',
-//             label: 'Carousel'
-//           },
-//           {
-//             value: 'collapse',
-//             label: 'Collapse'
-//           }
-//         ]
-//       }
-//     ]
-//   },
-//   {
-//     value: 'resource',
-//     label: 'Resource',
-//     children: [
-//       {
-//         value: 'axure',
-//         label: 'Axure Components'
-//       },
-//       {
-//         value: 'sketch',
-//         label: 'Sketch Templates'
-//       },
-//       {
-//         value: 'docs',
-//         label: 'Design Documentation'
-//       }
-//     ]
-//   }
-// ]
+
+const genderOptions = [
+  { label: '男', value: 'male' },
+  { label: '女', value: 'female' }
+]
+
+const departmentOptions = [
+  { label: '技术部', value: 'tech' },
+  { label: '市场部', value: 'marketing' },
+  { label: '销售部', value: 'sales' },
+  { label: '人事部', value: 'hr' },
+  { label: '财务部', value: 'finance' }
+]
+
+const positionOptions = [
+  { label: '工程师', value: 'engineer' },
+  { label: '经理', value: 'manager' },
+  { label: '总监', value: 'director' },
+  { label: '专员', value: 'specialist' },
+  { label: '分析师', value: 'analyst' }
+]
+
+const skillOptions = [
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'Vue.js', value: 'vue' },
+  { label: 'React', value: 'react' },
+  { label: 'Node.js', value: 'nodejs' },
+  { label: 'Python', value: 'python' },
+  { label: 'Java', value: 'java' }
+]
+
+const workTypeOptions = [
+  { label: '全职', value: 'fulltime' },
+  { label: '兼职', value: 'parttime' },
+  { label: '合同工', value: 'contract' }
+]
 
 model.onChange(f => {})
 </script>

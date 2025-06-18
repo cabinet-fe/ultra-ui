@@ -20,15 +20,11 @@ export type BatchEditFeature = 'create' | 'update' | 'delete'
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
   extends TableProps {
-  /** 是否可调节尺寸 */
-  resizable?: boolean
   /**
    * 表单模型
    * @description 该模型优先级要大于列配置
    */
   model?: Model
-  /** 是否开启快速编辑 */
-  quickEdit?: boolean
   /** 表格标题 */
   title?: string
   /**

@@ -7,7 +7,7 @@
       :data-index="index"
       :class="[
         bem.is('current', row.isCurrent && tableProps.highlightCurrent),
-        bem.is('even', index % 2 === 1)
+        getStripeCls(index)
       ]"
     />
 
@@ -36,6 +36,12 @@ defineOptions({
 const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } =
   inject(TableDIKey)!
 const { leafColumns } = columnConfig
+
+const getStripeCls = computed(() => {
+  return tableProps.stripe
+    ? (index: number) => bem.is('stripe', index % 2 === 1)
+    : () => ''
+})
 
 const tableRows = computed(() => {
   if (!virtualEnabled.value) {

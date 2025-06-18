@@ -3,7 +3,7 @@ import {
   CircleCheckFilled,
   InfoFilled,
   WarningFilled,
-  CircleCloseFilled,
+  CircleClose,
   QuestionFilled
 } from 'icon-ultra'
 import type { DefineComponent } from 'vue'
@@ -13,7 +13,7 @@ const typeIcons = {
   info: QuestionFilled,
   success: CircleCheckFilled,
   warn: WarningFilled,
-  error: CircleCloseFilled
+  error: CircleClose
 }
 export function getTypeIcon(
   type: MessageType,

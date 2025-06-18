@@ -1,5 +1,5 @@
 import { useModel } from '@ui/compositions'
-import type { TableEmits, TableProps, TableRow } from '@ui/types'
+import type { TableColumn, TableEmits, TableProps, TableRow } from '@ui/types'
 import { Forest, getChainValue } from 'cat-kit/fe'
 import { shallowRef, watch } from 'vue'
 import { TableRowNode } from './node/row'
@@ -150,14 +150,18 @@ export function useRows(options: Options) {
     getFlattedRows()
   }
 
-  const handleRowClick = (row: TableRow, e: MouseEvent) => {
-    emit('row-click', row, e)
-
+  function handleRowClick(row: TableRow, e: MouseEvent) {
     if (row === currentRow.value) {
       currentRow.value = undefined
     } else {
       currentRow.value = row
     }
+
+    emit('row-click', row, e)
+  }
+
+  function handleCellClick(row: TableRow, column: TableColumn, e: MouseEvent) {
+    emit('cell-click', row, column, e)
   }
 
   function getRowByData(data: Record<string, any>) {
@@ -183,6 +187,9 @@ export function useRows(options: Options) {
 
     /** 行点击 */
     handleRowClick,
+
+    /** 单元格点击 */
+    handleCellClick,
 
     /** 通过数据获取表格行 */
     getRowByData

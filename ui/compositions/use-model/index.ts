@@ -49,7 +49,6 @@ export function useModel<
   Name extends keyof Props = 'modelValue',
   Local extends boolean = true
 >(options: ModelOptions<Props, Name, Local>): any {
-
   const {
     props,
     propName = 'modelValue',

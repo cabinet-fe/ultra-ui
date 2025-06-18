@@ -44,7 +44,7 @@ import {
   CircleCheckFilled,
   InfoFilled,
   WarningFilled,
-  CircleCloseFilled,
+  CircleClose,
   QuestionFilled
 } from 'icon-ultra'
 import { UIcon } from '../icon'
@@ -75,7 +75,7 @@ const typeIcon = computed(() => {
       info: QuestionFilled,
       success: CircleCheckFilled,
       warning: WarningFilled,
-      danger: CircleCloseFilled
+      danger: CircleClose
     }[type.value]
   )
 })

@@ -4,7 +4,8 @@ import type {
   TableColumnSlotsScope,
   TableColumnRenderContext,
   TableRow,
-  RenderReturn
+  RenderReturn,
+  TableColumn
 } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { ColumnConfig } from './use-columns'
@@ -27,6 +28,12 @@ export const TableDIKey: InjectionKey<
     columnConfig: ColumnConfig
     /** 事件处理方法 */
     handleRowClick: (row: TableRow, ev: MouseEvent) => void
+    /** 单元格点击 */
+    handleCellClick: (
+      row: TableRow,
+      column: TableColumn,
+      ev: MouseEvent
+    ) => void
     /** 表格列插槽node */
     getColumnSlotsNode: (
       ctx: TableColumnSlotsScope | TableColumnRenderContext

@@ -36,8 +36,15 @@ $root-name: table;
   @include m.e(row) {
     &:hover {
       @include m.bem($root-name, cell) {
-        background-color: fn.use-var(table, hover, bg) !important;
-        color: fn.use-var(table, hover, color) !important;
+        background-color: fn.use-var(table, hover, bg);
+        color: fn.use-var(table, hover, color);
+      }
+    }
+
+    @include m.is(stripe) {
+      @include m.bem($root-name, cell) {
+        background-color: fn.use-var(table, stripe, bg);
+        color: fn.use-var(table, stripe, color);
       }
     }
 
@@ -50,36 +57,16 @@ $root-name: table;
     }
 
     @include m.is(current) {
-      @include m.bem($root-name, cell) {
-        background-color: fn.use-var(color, primary, light-3) !important;
-        color: fn.use-var(text-color, white) !important;
+      & > {
+        @include m.bem($root-name, cell) {
+          background-color: fn.use-var(color, primary, light-9);
+        }
       }
     }
 
     &:not(:last-child) {
       @include m.bem($root-name, cell) {
-        &:not(:last-child) {
-          box-shadow: -1px -1px fn.use-var(table, border-color) inset;
-        }
-      }
-    }
-
-    &:last-child {
-      @include m.bem($root-name, cell) {
-        &:not(:last-child) {
-          box-shadow: -1px 0px fn.use-var(table, border-color) inset;
-        }
-      }
-    }
-  }
-
-  @include m.is(stripe) {
-    @include m.bem($root-name, row) {
-      @include m.is(even) {
-        td {
-          background-color: fn.use-var(table, stripe, bg);
-          color: fn.use-var(table, stripe, color);
-        }
+        border-bottom: 1px solid fn.use-var(table, border-color);
       }
     }
   }
@@ -120,6 +107,14 @@ $root-name: table;
     z-index: 1;
     user-select: none;
 
+    &:hover {
+      @include m.bem($root-name, cell) {
+        box-shadow:
+          -1px 0px fn.use-var(table, border-color) inset,
+          0px -1px fn.use-var(table, border-color) inset;
+      }
+    }
+
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
         box-shadow:
@@ -131,7 +126,6 @@ $root-name: table;
 
   @include m.e(head) {
     @include m.bem($root-name, cell) {
-      box-shadow: -1px -1px 1px fn.use-var(table, border-color) inset;
       background-color: fn.use-var(table, header, bg);
       font-weight: normal;
       color: fn.use-var(table, header, color);
@@ -148,12 +142,13 @@ $root-name: table;
   }
 
   @include m.e(resize-line) {
+    pointer-events: none;
     position: absolute;
     width: 1px;
     height: 100%;
     top: 0;
     z-index: 1;
-    background-color: fn.use-var(border-color);
+    background-color: fn.use-var(table, border-color);
   }
 
   @include m.e(body) {
@@ -170,12 +165,6 @@ $root-name: table;
     position: sticky;
     left: 0;
     bottom: 0;
-
-    @include m.bem($root-name, cell) {
-      box-shadow:
-        -1px -1px 1px fn.use-var(table, border-color) inset,
-        0px 1px 1px fn.use-var(table, border-color) inset;
-    }
   }
 
   @include m.e(cell) {
@@ -183,10 +172,6 @@ $root-name: table;
     word-break: break-all;
     position: relative;
     line-height: 1;
-
-    &:last-child {
-      box-shadow: 0px -1px fn.use-var(table, border-color) inset;
-    }
 
     @each $position in (left, center, right) {
       @include m.is($position) {

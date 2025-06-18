@@ -23,11 +23,7 @@
           @click="handleCreate(row.index)"
           title="新增到下一行"
         />
-        <u-button
-          :icon="FileCopy"
-          @click="handleCopy(row)"
-          title="复制到下一行"
-        />
+        <u-button :icon="Copy" @click="handleCopy(row)" title="复制到下一行" />
       </ButtonCommonProps>
     </template>
 
@@ -55,7 +51,7 @@ import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UTable } from '../table'
 import { UButton } from '../button'
-import { Plus, Minus, FileCopy } from 'icon-ultra'
+import { Plus, Minus, Copy } from 'icon-ultra'
 import { useComponentProps } from '@ui/compositions'
 import type { TableRowNode } from '../table/node/row'
 

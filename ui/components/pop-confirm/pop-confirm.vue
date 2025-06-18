@@ -39,7 +39,7 @@ import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { ref } from 'vue'
 import { UIcon } from '../icon'
-import { HelpFilled } from 'icon-ultra'
+import { QuestionFilled } from 'icon-ultra'
 
 defineOptions({
   name: 'PopConfirm'
@@ -49,7 +49,7 @@ const emit = defineEmits<PopConfirmEmits>()
 
 withDefaults(defineProps<PopConfirmProps>(), {
   trigger: 'click',
-  icon: HelpFilled,
+  icon: QuestionFilled,
   direction: 'bottom',
   iconColor: '#ffc107',
   confirmText: '确认',

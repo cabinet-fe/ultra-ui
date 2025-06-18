@@ -46,11 +46,26 @@ export async function build() {
         external: ['vue', 'icon-ultra', 'cat-kit/fe'],
         output: {
           chunkFileNames: 'venders/[name].js',
-          manualChunks(id) {
-            const cm = id.match(/@codemirror\/lang-([a-zA-Z0-9]+)/)
-            if (cm) {
-              return `editor-${cm[1]}`
-            }
+
+          advancedChunks: {
+            groups: [
+              {
+                test: /@codemirror\/lang-javascript/,
+                name: 'editor-lang-javascript'
+              },
+              {
+                test: /@codemirror\/lang-sql/,
+                name: 'editor-lang-sql'
+              },
+              {
+                test: /@codemirror\/lang-java/,
+                name: 'editor-lang-java'
+              },
+              {
+                test: /@codemirror\/lang-json/,
+                name: 'editor-lang-json'
+              }
+            ]
           }
         }
       }

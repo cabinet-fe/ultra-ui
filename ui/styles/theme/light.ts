@@ -3,7 +3,7 @@ import { UITheme } from './ui-theme'
 
 export const lightTheme = new UITheme({
   color: {
-    primary: '#3670f7',
+    primary: '#1E88E5',
     success: '#2ba471',
     warning: '#e37318',
     danger: '#d54941',
@@ -139,13 +139,13 @@ export const lightTheme = new UITheme({
   },
 
   table: {
-    'border-color': '#ececec',
+    'border-color': '#e9e9e9',
     header: {
       bg: '#f4f5f7',
       color: cssVar('text-color-title')
     },
     stripe: {
-      bg: '#f7f8fa',
+      bg: '#f8fafc',
       color: 'inherit'
     },
     hover: {

@@ -4,13 +4,12 @@ import { resolve } from 'node:path'
 import { writeFile } from 'node:fs/promises'
 
 export async function genInstall() {
-  const entries = await fg.glob(
-    ['components/**/style.ts', 'directives/**/style.ts'],
-    {
+  const entries = (
+    await fg.glob(['components/**/style.ts', 'directives/**/style.ts'], {
       ignore: ['**/node_modules', '**/disabled.*/**', '**/_*.scss'],
       cwd: UI_ROOT
-    }
-  )
+    })
+  ).sort()
 
   const stylesImports = entries
     .map(entry => `import './${entry.replace(/\.ts$/, '')}'`)

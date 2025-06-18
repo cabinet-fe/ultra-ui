@@ -38,7 +38,7 @@
         @cancel="cancelEvent"
         confirm-text="继续"
         cancel-text="结束"
-        :icon="Wps"
+        :icon="Word"
       >
         <template #reference>
           <u-button>删除</u-button>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { Wps } from 'icon-ultra'
+import { Word } from 'icon-ultra'
 import CustomCard from '../card/custom-card.vue'
 
 const confirmEvent = () => {

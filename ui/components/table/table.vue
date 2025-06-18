@@ -4,8 +4,7 @@
       cls.b,
       cls.m(size),
       bem.is('all-expanded', allExpanded),
-      bem.is('text-ellipsis', textEllipsis),
-      bem.is('stripe', stripe)
+      bem.is('text-ellipsis', textEllipsis)
     ]"
     ref="scrollRef"
     :content-class="cls.e('content')"
@@ -128,6 +127,7 @@ const {
   toggleAllTreeRowExpand,
   rowForest,
   handleRowClick,
+  handleCellClick,
   getRowByData
 } = useRows({
   props,
@@ -227,6 +227,7 @@ provide(TableDIKey, {
   checkedRows,
   columnConfig,
   handleRowClick,
+  handleCellClick,
   getColumnSlotsNode,
   getHeaderSlotsNode,
   getCellClass,

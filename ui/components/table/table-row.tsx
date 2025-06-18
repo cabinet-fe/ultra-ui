@@ -29,6 +29,7 @@ export default defineComponent({
       toggleTreeRowExpand,
       getCellCtx,
       handleRowClick,
+      handleCellClick,
       tableProps,
       measureElement
     } = inject(TableDIKey)!
@@ -109,6 +110,8 @@ export default defineComponent({
                 left={column.style.left}
                 right={column.style.right}
                 key={row.uid + column.key}
+                // @ts-ignore
+                onClick={e => handleCellClick(row, column, e)}
                 {...cellSpan}
               >
                 {cellNode}

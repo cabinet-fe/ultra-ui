@@ -6,7 +6,7 @@
   "type": "module",
   "dependencies": {
     "vite-helper": "1.0.5",
-    "vue-router": "^4.3.2",
+    "vue-router": "^4.5.1",
     "ultra-ui": "workspace:*"
   },
   "devDependencies": {

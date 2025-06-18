@@ -4,28 +4,172 @@
 
 $root-name: theme;
 @include m.b($root-name) {
-  width: 300px;
+  width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: fn.use-var(gap, default);
+  border: 1px solid fn.use-var(border, color);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, top);
 
-  @include m.e(group-content) {
-    padding: fn.use-var(gap, default);
+  @include m.e(group) {
+    margin-bottom: fn.use-var(gap, large);
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, default);
+    overflow: hidden;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   @include m.e(group-title) {
     padding: fn.use-var(gap, default);
     background-color: fn.use-var(color, default);
+    font-weight: 600;
+    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, title);
+    border-bottom: 1px solid fn.use-var(border, color);
+  }
+
+  @include m.e(group-content) {
+    padding: fn.use-var(gap, default);
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(group-item) {
+    @include m.flex;
+    align-items: center;
+    margin-bottom: fn.use-var(gap, default);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &-content {
+      flex-grow: 1;
+      margin-left: fn.use-var(gap, default);
+    }
   }
 
   @include m.e(group-label) {
     flex-shrink: 0;
-    padding: fn.use-var(gap, default);
+    min-width: 80px;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    font-weight: 500;
   }
 
-  @include m.e(group-item) {
-    margin-bottom: fn.use-var(gap, default);
-    @include m.flex;
+  @include m.e(color-input) {
+    width: 40px;
+    height: 32px;
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, default);
+    cursor: pointer;
+    background: none;
+    padding: 0;
 
-    &-content {
-      flex-grow: 1;
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border: none;
+      border-radius: calc(fn.use-var(radius, default) - 1px);
+    }
+
+    &::-moz-color-swatch {
+      border: none;
+      border-radius: calc(fn.use-var(radius, default) - 1px);
+    }
+  }
+
+  @include m.e(text-input) {
+    width: 100%;
+    height: 32px;
+    padding: 0 fn.use-var(gap, default);
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, default);
+    font-size: fn.use-var(font-size-main, default);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, main);
+
+    &:focus {
+      outline: none;
+      border-color: fn.use-var(color, primary);
+    }
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(actions) {
+    @include m.flex;
+    gap: fn.use-var(gap, default);
+    margin-top: fn.use-var(gap, large);
+    padding-top: fn.use-var(gap, default);
+    border-top: 1px solid fn.use-var(border, color);
+  }
+
+  @include m.e(reset-btn) {
+    flex: 1;
+    height: 36px;
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+      border-color: fn.use-var(color, primary);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  @include m.e(export-btn) {
+    flex: 1;
+    height: 36px;
+    border: 1px solid fn.use-var(color, primary);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(color, primary);
+    color: white;
+    font-size: fn.use-var(font-size-main, default);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: fn.use-var(color, primary-dark-1);
+      border-color: fn.use-var(color, primary-dark-1);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  // 滚动条样式
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: fn.use-var(bg-color, middle);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: fn.use-var(border, color);
+    border-radius: 3px;
+
+    &:hover {
+      background: fn.use-var(text-color, assist);
     }
   }
 }

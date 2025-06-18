@@ -4,6 +4,8 @@
     "composite": true,
     "declaration": true,
     "types": ["vite/client"],
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
     "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "paths": {
