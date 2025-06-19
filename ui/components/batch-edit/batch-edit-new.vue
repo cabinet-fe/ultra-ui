@@ -3,6 +3,7 @@
     :columns="columnsWithOperation"
     :data="data"
     :current-row="currentRow"
+    @update:current-row="handleUpdateCurrentRow"
     highlight-current
     :class="cls.b"
     checkable
@@ -76,7 +77,7 @@ import { type FormModel, UForm } from '../form'
 import { UTable } from '../table'
 import { UScroll } from '../scroll'
 import { UTip } from '../tip'
-import { computed, nextTick, shallowRef } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 import { UButton } from '../button'
 import { Copy, Edit, Delete, Plus, AddChild } from 'icon-ultra'
 import { useComponentProps } from '@ui/compositions'
@@ -89,7 +90,7 @@ defineOptions({
 const { columns = [], model, data } = defineProps<BatchEditProps<FormModel>>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Record<string, any>[]): void
+  (e: 'update:data', value: Record<string, any>[]): void
 }>()
 
 const cls = bem('batch-edit')
@@ -120,28 +121,25 @@ const visible = shallowRef(false)
 const triggerDom = shallowRef<HTMLElement>()
 const currentRow = shallowRef<TableRow>()
 
-function open(row: TableRow) {
-  close()
-  nextTick(() => {
-    visible.value = true
-    model?.setData(row.data)
-  })
+watch(visible, v => {
+  if (!v) {
+    model?.clearValidate()
+    model?.resetData()
+  }
+})
+
+watch(currentRow, r => {
+  visible.value = !!r ? true : false
+})
+
+function handleUpdateCurrentRow(row?: TableRow) {
+  currentRow.value = row
+  if (!visible.value) {
+    nextTick(() => {
+      currentRow.value = undefined
+    })
+  }
 }
-
-function close() {
-  model?.clearValidate()
-  model?.resetData()
-  visible.value = false
-}
-
-// watchEffect(() => {
-//   if (!visible.value) {
-//     model?.clearValidate()
-//     model?.resetData()
-//   }
-// })
-
-function handleRowClick(row: TableRow, e: MouseEvent) {}
 
 function handleAdd(row: TableRow, e: MouseEvent) {
   console.log(row, e)
@@ -150,11 +148,18 @@ function handleAdd(row: TableRow, e: MouseEvent) {
 function handleEdit(row: TableRow, e: MouseEvent) {
   if (row === currentRow.value) {
     currentRow.value = undefined
-    return close()
   } else {
-    currentRow.value = row
     triggerDom.value = e.currentTarget as HTMLElement
-    open(row)
+    if (!currentRow.value) {
+      currentRow.value = row
+      return model?.setData(row.data)
+    }
+    currentRow.value = undefined
+
+    nextTick(() => {
+      currentRow.value = row
+      model?.setData(row.data)
+    })
   }
 }
 
@@ -163,11 +168,11 @@ function handleCopy(row: TableRow, e: MouseEvent) {
 }
 
 function handleDelete(row: TableRow) {
-  emit('update:modelValue', data?.filter((_, i) => i !== row.index) ?? [])
+  emit('update:data', data?.filter((_, i) => i !== row.index) ?? [])
 }
 
 function handleClose() {
-  close()
+  currentRow.value = undefined
 }
 
 async function handleSubmit() {

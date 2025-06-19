@@ -36,6 +36,8 @@ export * from './dialog'
 
 // export * from './disabled.text-editor'
 
+export * from './drawer'
+
 export * from './dropdown'
 
 export * from './empty'

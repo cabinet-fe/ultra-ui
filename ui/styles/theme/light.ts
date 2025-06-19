@@ -52,8 +52,8 @@ export const lightTheme = new UITheme({
   },
 
   radius: defineBySize({
-    small: 2,
-    default: 4,
+    small: 4,
+    default: 6,
     large: 8
   }),
 
@@ -112,7 +112,7 @@ export const lightTheme = new UITheme({
   }),
 
   shadow: {
-    color: 'rgba(0, 0, 0, 0.1)',
+    color: '#0000001a',
     x: 0,
     y: 0,
     blur: 4,

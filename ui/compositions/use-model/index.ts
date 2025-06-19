@@ -85,7 +85,7 @@ export function useModel<
     __v_isRef: true,
 
     get value(): Props[Name] {
-      return props[propName] as Props[Name]
+      return (props[propName] ?? defaultValue) as Props[Name]
     },
 
     set value(v: Props[Name]) {

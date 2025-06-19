@@ -37,7 +37,7 @@
       <template #header:age> 年龄 </template>
 
       <template #column:name="{ row }">
-        <u-tag>{{ row.data.name }}</u-tag>
+        <u-tag type="primary">{{ row.data.name }}</u-tag>
       </template>
 
       <!-- <template v-if="state.editing"> -->

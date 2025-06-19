@@ -39,6 +39,7 @@ $root-name: card;
 
   @include m.e(header) {
     border-bottom: fn.use-var(border);
+    color: fn.use-var(text-color, title);
   }
 
   @include m.e(cover) {

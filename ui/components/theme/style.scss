@@ -4,19 +4,69 @@
 
 $root-name: theme;
 @include m.b($root-name) {
-  width: 350px;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: fn.use-var(gap, default);
-  border: 1px solid fn.use-var(border, color);
-  border-radius: fn.use-var(radius, default);
-  background-color: fn.use-var(bg-color, top);
+  width: 380px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: fn.use-var(radius, large);
+  background: linear-gradient(
+    135deg,
+    fn.use-var(bg-color, top) 0%,
+    fn.use-var(bg-color, middle) 100%
+  );
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+
+  // 添加装饰性背景
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      fn.use-var(color, primary),
+      transparent
+    );
+    opacity: 0.6;
+  }
+
+  @include m.e(content) {
+    flex: 1;
+    overflow-y: auto;
+    padding: fn.use-var(gap, large);
+    position: relative;
+  }
 
   @include m.e(group) {
     margin-bottom: fn.use-var(gap, large);
-    border: 1px solid fn.use-var(border, color);
+    border: none;
     border-radius: fn.use-var(radius, default);
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
 
     &:last-of-type {
       margin-bottom: 0;
@@ -24,23 +74,70 @@ $root-name: theme;
   }
 
   @include m.e(group-title) {
-    padding: fn.use-var(gap, default);
-    background-color: fn.use-var(color, default);
+    padding: fn.use-var(gap, default) fn.use-var(gap, large);
+    background: linear-gradient(
+      135deg,
+      fn.use-var(color, primary) 0%,
+      fn.use-var(color, primary) 100%
+    );
     font-weight: 600;
     font-size: fn.use-var(font-size-main, default);
-    color: fn.use-var(text-color, title);
-    border-bottom: 1px solid fn.use-var(border, color);
+    color: white;
+    border: none;
+    position: relative;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    // 添加亮色叠加层
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      pointer-events: none;
+    }
+
+    // 添加装饰性渐变条
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      z-index: 1;
+    }
   }
 
   @include m.e(group-content) {
-    padding: fn.use-var(gap, default);
-    background-color: fn.use-var(bg-color, top);
+    padding: fn.use-var(gap, large);
+    background: rgba(255, 255, 255, 0.02);
   }
 
   @include m.e(group-item) {
     @include m.flex;
     align-items: center;
     margin-bottom: fn.use-var(gap, default);
+    padding: fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, small);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(4px);
+    }
 
     &:last-child {
       margin-bottom: 0;
@@ -54,20 +151,30 @@ $root-name: theme;
 
   @include m.e(group-label) {
     flex-shrink: 0;
-    min-width: 80px;
+    min-width: 85px;
     font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, main);
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
   }
 
   @include m.e(color-input) {
     width: 40px;
     height: 32px;
-    border: 1px solid fn.use-var(border, color);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: fn.use-var(radius, default);
     cursor: pointer;
     background: none;
     padding: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      border-color: fn.use-var(color, primary);
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
 
     &::-webkit-color-swatch-wrapper {
       padding: 0;
@@ -75,101 +182,226 @@ $root-name: theme;
 
     &::-webkit-color-swatch {
       border: none;
-      border-radius: calc(fn.use-var(radius, default) - 1px);
+      border-radius: calc(fn.use-var(radius, default) - 2px);
     }
 
     &::-moz-color-swatch {
       border: none;
-      border-radius: calc(fn.use-var(radius, default) - 1px);
+      border-radius: calc(fn.use-var(radius, default) - 2px);
     }
   }
 
   @include m.e(text-input) {
     width: 100%;
-    height: 32px;
+    height: 36px;
     padding: 0 fn.use-var(gap, default);
-    border: 1px solid fn.use-var(border, color);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: fn.use-var(radius, default);
     font-size: fn.use-var(font-size-main, default);
-    background-color: fn.use-var(bg-color, top);
+    background: rgba(255, 255, 255, 0.05);
     color: fn.use-var(text-color, main);
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
 
     &:focus {
       outline: none;
       border-color: fn.use-var(color, primary);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(fn.use-var(color, primary), 0.1);
     }
 
     &::placeholder {
       color: fn.use-var(text-color, placeholder);
+      opacity: 0.7;
     }
   }
 
   @include m.e(actions) {
     @include m.flex;
     gap: fn.use-var(gap, default);
-    margin-top: fn.use-var(gap, large);
-    padding-top: fn.use-var(gap, default);
-    border-top: 1px solid fn.use-var(border, color);
+    padding: fn.use-var(gap, large);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+    position: relative;
+
+    // 添加上边框光效
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: fn.use-var(gap, large);
+      right: fn.use-var(gap, large);
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+    }
   }
 
   @include m.e(reset-btn) {
     flex: 1;
-    height: 36px;
-    border: 1px solid fn.use-var(border, color);
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, top);
+    background: rgba(255, 255, 255, 0.05);
     color: fn.use-var(text-color, main);
     font-size: fn.use-var(font-size-main, default);
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+
+    // 添加光泽效果
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: left 0.5s ease;
+    }
 
     &:hover {
-      background-color: fn.use-var(bg-color, hover);
-      border-color: fn.use-var(color, primary);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+      &::before {
+        left: 100%;
+      }
     }
 
     &:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
   }
 
   @include m.e(export-btn) {
     flex: 1;
-    height: 36px;
-    border: 1px solid fn.use-var(color, primary);
+    height: 40px;
+    border: 2px solid fn.use-var(color, primary);
     border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(color, primary);
+    background: fn.use-var(color, primary);
     color: white;
     font-size: fn.use-var(font-size-main, default);
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+
+    // 添加渐变叠加层
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    // 添加光泽效果
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      transition: left 0.5s ease;
+      z-index: 2;
+    }
 
     &:hover {
-      background-color: fn.use-var(color, primary-dark-1);
-      border-color: fn.use-var(color, primary-dark-1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(fn.use-var(color, primary), 0.3);
+
+      &::before {
+        opacity: 0.2;
+      }
+
+      &::after {
+        left: 100%;
+      }
     }
 
     &:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
   }
 
-  // 滚动条样式
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+  // 自定义滚动条样式
+  @include m.e(content) {
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
 
-  &::-webkit-scrollbar-track {
-    background: fn.use-var(bg-color, middle);
-    border-radius: 3px;
-  }
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      margin: 4px;
+    }
 
-  &::-webkit-scrollbar-thumb {
-    background: fn.use-var(border, color);
-    border-radius: 3px;
+    &::-webkit-scrollbar-thumb {
+      background: fn.use-var(color, primary);
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      position: relative;
 
-    &:hover {
-      background: fn.use-var(text-color, assist);
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    &::-webkit-scrollbar-corner {
+      background: transparent;
     }
   }
+
+  // 添加进入动画
+  @keyframes slideInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  animation: slideInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

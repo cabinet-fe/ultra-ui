@@ -17,8 +17,10 @@
         </span>
 
         <span>
-          <u-checkbox v-model="isDark" />
+          <u-checkbox v-model="isDark"> 暗黑主题 </u-checkbox>
         </span>
+
+        <u-button :icon="Setting" @click="handleSetting"></u-button>
       </div>
 
       <router-view v-slot="{ Component }">
@@ -29,6 +31,13 @@
     </u-scroll>
 
     <!-- <u-watermark text="Ultra UI" append-to-body /> -->
+
+    <div class="drawer" v-if="showDrawer">
+      <div>
+        <u-button type="primary" @click="handleClose">关闭</u-button>
+      </div>
+      <u-theme />
+    </div>
   </div>
 </template>
 
@@ -37,9 +46,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 import {
   useConfig,
-  vRipple,
-  contextmenu,
-  message,
+  vClickOutside,
   loadTheme,
   lightTheme,
   darkTheme,
@@ -48,6 +55,7 @@ import {
 } from 'ultra-ui'
 import { ref, shallowRef, watch, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common.js'
+import { Setting } from 'icon-ultra'
 
 const router = useRouter()
 const route = useRoute()
@@ -93,6 +101,15 @@ const smoothThemeTransition = (newTheme: UITheme) => {
       document.documentElement.classList.remove('theme-transitioning')
     }, 300)
   })
+}
+
+const showDrawer = ref(false)
+const handleSetting = () => {
+  showDrawer.value = true
+}
+
+const handleClose = () => {
+  showDrawer.value = false
 }
 </script>
 

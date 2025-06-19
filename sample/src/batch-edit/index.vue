@@ -26,7 +26,6 @@
       v-model:data="data"
       v-model:checked="checked"
       checkable
-      :quick-edit="quickEdit"
       :features="features"
       :model="model"
       :tree="tree"

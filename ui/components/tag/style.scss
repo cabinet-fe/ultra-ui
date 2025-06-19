@@ -13,6 +13,9 @@ $root-name: tag;
   border: 1px solid fn.use-var(text-color, main);
   @include m.flex(inline-flex, flex-start, center);
 
+  // 进入动画
+  animation: tag-zoom-in 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
   @include m.e(content) {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -64,5 +67,20 @@ $root-name: tag;
         }
       }
     }
+  }
+}
+
+// 进入缩放动画定义
+@keyframes tag-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale3d(0, 0, 1);
+  }
+  80% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
   }
 }
