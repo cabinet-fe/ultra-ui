@@ -7,7 +7,10 @@ import { kebabCase } from 'cat-kit/fe'
  * @param unit 单位
  * @returns
  */
-export function withUnit(value: number | string | undefined, unit: string) {
+export function withUnit(
+  value: number | string | undefined,
+  unit: string
+): string | undefined {
   return value === undefined
     ? undefined
     : typeof value === 'number' || !isNaN(+value)
@@ -20,7 +23,7 @@ export function withUnit(value: number | string | undefined, unit: string) {
  * @param el 元素
  * @param styles 样式
  */
-export function setStyles(el: HTMLElement, styles: CSSProperties) {
+export function setStyles(el: HTMLElement, styles: CSSProperties): void {
   if (el.attributeStyleMap) {
     Object.keys(styles).forEach(key => {
       const value = styles[key]
@@ -42,7 +45,7 @@ export function setStyles(el: HTMLElement, styles: CSSProperties) {
  * @param el dom元素
  * @param props 要移除的样式属性
  */
-export function removeStyles(el: HTMLElement, props: string[]) {
+export function removeStyles(el: HTMLElement, props: string[]): void {
   if (el.attributeStyleMap) {
     props.forEach(key => {
       el.attributeStyleMap.delete(kebabCase(key))

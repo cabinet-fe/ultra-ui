@@ -1,7 +1,7 @@
 import { useModel } from '@ui/compositions'
 import type { TableColumn, TableEmits, TableProps, TableRow } from '@ui/types'
 import { Forest, getChainValue } from 'cat-kit/fe'
-import { shallowRef, watch } from 'vue'
+import { type ShallowRef, shallowRef, watch } from 'vue'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -9,7 +9,18 @@ interface Options {
   emit: TableEmits
 }
 
-export function useRows(options: Options) {
+interface UseRowsReturned {
+  rowForest: ShallowRef<Forest<TableRow> | undefined>
+  rows: ShallowRef<TableRow[]>
+  toggleTreeRowExpand: (node: TableRow) => void
+  allExpanded: ShallowRef<boolean>
+  toggleAllTreeRowExpand: () => void
+  handleRowClick: (row: TableRow, e: MouseEvent) => void
+  handleCellClick: (row: TableRow, column: TableColumn, e: MouseEvent) => void
+  getRowByData: (data: Record<string, any>) => TableRow | undefined
+}
+
+export function useRows(options: Options): UseRowsReturned {
   const { props, emit } = options
 
   /** 所有可见的行 */
@@ -22,18 +33,22 @@ export function useRows(options: Options) {
   const currentRow = useModel({
     props,
     emit,
-    propName: 'currentRow',
-    shallow: true
+    propName: 'current',
+    shallow: true,
+    local: !!props.highlightCurrent
   })
 
-  watch(currentRow, (row, oldRow) => {
-    if (oldRow) {
-      oldRow.isCurrent = false
+  watch(
+    () => currentRow.value,
+    (row, oldRow) => {
+      if (oldRow) {
+        oldRow.isCurrent = false
+      }
+      if (row) {
+        row.isCurrent = true
+      }
     }
-    if (row) {
-      row.isCurrent = true
-    }
-  })
+  )
 
   watch(rows, rows => emit('update:rows', rows))
   watch(rowForest, forest => emit('update:forest', forest))
@@ -62,7 +77,7 @@ export function useRows(options: Options) {
     }
   }
 
-  function getRows(data: Record<string, any>[]) {
+  function getRows(data: Record<string, any>[]): TableRow[] {
     let result: TableRow[] = []
     let i = 0
     tempRowDicts = new WeakMap()
@@ -80,7 +95,7 @@ export function useRows(options: Options) {
     return result
   }
 
-  function getRowForest(data: Record<string, any>[]) {
+  function getRowForest(data: Record<string, any>[]): Forest<TableRow> {
     tempRowDicts = new WeakMap()
     const ret = Forest.create(data, {
       createNode(val, index) {
@@ -121,7 +136,7 @@ export function useRows(options: Options) {
     { immediate: true }
   )
 
-  function getFlattedRows() {
+  function getFlattedRows(): void {
     if (!rowForest.value) return
     const result: TableRow[] = []
 
@@ -136,13 +151,13 @@ export function useRows(options: Options) {
     rows.value = result
   }
 
-  function toggleTreeRowExpand(node: TableRow) {
+  function toggleTreeRowExpand(node: TableRow): void {
     node.expanded = !node.expanded
     getFlattedRows()
   }
 
   const allExpanded = shallowRef(props.defaultExpandAll ?? false)
-  function toggleAllTreeRowExpand() {
+  function toggleAllTreeRowExpand(): void {
     allExpanded.value = !allExpanded.value
     rowForest.value?.dft(node => {
       node.expanded = allExpanded.value
@@ -150,7 +165,7 @@ export function useRows(options: Options) {
     getFlattedRows()
   }
 
-  function handleRowClick(row: TableRow, e: MouseEvent) {
+  function handleRowClick(row: TableRow, e: MouseEvent): void {
     if (row === currentRow.value) {
       currentRow.value = undefined
     } else {
@@ -160,11 +175,15 @@ export function useRows(options: Options) {
     emit('row-click', row, e)
   }
 
-  function handleCellClick(row: TableRow, column: TableColumn, e: MouseEvent) {
+  function handleCellClick(
+    row: TableRow,
+    column: TableColumn,
+    e: MouseEvent
+  ): void {
     emit('cell-click', row, column, e)
   }
 
-  function getRowByData(data: Record<string, any>) {
+  function getRowByData(data: Record<string, any>): TableRow | undefined {
     return rowDicts.get(data)
   }
 

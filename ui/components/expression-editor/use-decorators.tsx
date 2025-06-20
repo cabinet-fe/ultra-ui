@@ -1,8 +1,14 @@
 import type { LexicalEditor } from 'lexical'
 import type { DefineComponent, VNode } from 'vue'
-import { Teleport, computed, onBeforeUnmount, shallowRef } from 'vue'
+import {
+  Teleport,
+  computed,
+  onBeforeUnmount,
+  shallowRef,
+  type ComputedRef
+} from 'vue'
 
-export function useDecorators(editor: LexicalEditor) {
+export function useDecorators(editor: LexicalEditor): ComputedRef<VNode[]> {
   const decorators = shallowRef(editor.getDecorators<DefineComponent>())
 
   const removeListener = editor.registerDecoratorListener<DefineComponent>(

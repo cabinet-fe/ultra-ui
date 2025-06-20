@@ -1,5 +1,11 @@
 import { debounce } from 'cat-kit/fe'
-import { computed, shallowRef, watch } from 'vue'
+import {
+  computed,
+  shallowRef,
+  watch,
+  type ShallowRef,
+  type ComputedRef
+} from 'vue'
 
 interface Options<O extends Record<string, any>> {
   props: {
@@ -8,7 +14,15 @@ interface Options<O extends Record<string, any>> {
     valueKey: string
   }
 }
-export function useOptions<O extends Record<string, any>>(o: Options<O>) {
+
+interface UseOptionsReturned<O extends Record<string, any>> {
+  queryString: ShallowRef<string>
+  options: ComputedRef<O[]>
+}
+
+export function useOptions<O extends Record<string, any>>(
+  o: Options<O>
+): UseOptionsReturned<O> {
   const { props } = o
 
   /** 筛选 */

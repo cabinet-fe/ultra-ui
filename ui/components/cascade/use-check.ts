@@ -22,7 +22,17 @@ interface CheckOptions {
   getPanelItemList: (data?: CascadeNode[]) => void
 }
 
-export function useCheck(options: CheckOptions) {
+interface UseCheckReturned {
+  hovered: ShallowRef<boolean>
+  tags: ComputedRef<CascadeNode[]>
+  checkedSet: ShallowRef<Set<CascadeNode>>
+  restTag: ComputedRef<number>
+  handleCloseTag: (tag: CascadeNode) => void
+  updateMultipleValue: () => void
+  checkItem: (item: CascadeNode, checked: boolean) => void
+}
+
+export function useCheck(options: CheckOptions): UseCheckReturned {
   const {
     props,
     emit,

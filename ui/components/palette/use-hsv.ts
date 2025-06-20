@@ -1,8 +1,25 @@
 import { n } from 'cat-kit'
-import { reactive, readonly, ref, computed } from 'vue'
+import {
+  reactive,
+  readonly,
+  ref,
+  computed,
+  type Ref,
+  type ComputedRef
+} from 'vue'
 import { HUE2RGB } from './color-transform'
+import type { PaletteRGB } from '@ui/types'
 
-export function useHSV() {
+interface UseHSVReturned {
+  HSV: { h: number; s: number; v: number }
+  alpha: Ref<number>
+  hueRGB: ComputedRef<PaletteRGB>
+  updateHue: (deg: number) => void
+  updateSV: ({ s, v }: { s: number; v: number }) => void
+  updateAlpha: (a: number) => void
+}
+
+export function useHSV(): UseHSVReturned {
   const HSV = reactive({ h: 0, s: 1, v: 1 })
   /** 透明度 */
   const alpha = ref(1)

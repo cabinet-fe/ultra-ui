@@ -1,6 +1,13 @@
 import type { DatePanelEmits, DatePanelProps, PanelType } from '@ui/types'
-import { bem } from '@ui/utils'
-import { provide, shallowRef, watch } from 'vue'
+import { bem, type BEM } from '@ui/utils'
+import {
+  provide,
+  shallowRef,
+  watch,
+  type ShallowRef,
+  type ComputedRef
+} from 'vue'
+import type { Dater } from 'cat-kit/fe'
 import { DatePanelDIKey } from './di'
 import { usePanelDate } from './use-panel-date'
 import { useDateSelect } from './use-date-select'
@@ -10,7 +17,13 @@ interface PanelOptions {
   emit: DatePanelEmits
 }
 
-export function usePanel(options: PanelOptions) {
+interface UsePanelReturned {
+  cls: BEM<'date-panel', 'u-'>
+  panelType: ShallowRef<PanelType>
+  panelDate: ComputedRef<Dater>
+}
+
+export function usePanel(options: PanelOptions): UsePanelReturned {
   const { props, emit } = options
 
   /** 组件类 */

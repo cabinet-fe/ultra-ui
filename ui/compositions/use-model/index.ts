@@ -2,8 +2,7 @@ import { type Ref, ref, watch, shallowRef } from 'vue'
 
 interface ModelOptions<
   Props extends Record<string, unknown>,
-  Name extends keyof Props,
-  Local extends boolean = true
+  Name extends keyof Props
 > {
   /** 组件定义的属性 */
   props: Props
@@ -12,7 +11,7 @@ interface ModelOptions<
   /** 事件触发函数 */
   emit: (...args: any[]) => void
   /** 是否为本地模式, 默认为true, 本地模式允许组件不受控来触发视图更新 */
-  local?: Local
+  local?: boolean
   /** 默认值 */
   defaultValue?: Props[Name]
   /**
@@ -34,21 +33,14 @@ interface ModelOptions<
 export function useModel<
   Props extends Record<string, any>,
   Name extends keyof Props = 'modelValue'
->(options: ModelOptions<Props, Name, true>): Ref<Props[Name]>
-export function useModel<
-  Props extends Record<string, any>,
-  Name extends keyof Props = 'modelValue'
 >(
-  options: ModelOptions<Props, Name, false>
-): {
-  __v_isRef: boolean
-  value: Props[Name]
-}
-export function useModel<
-  Props extends Record<string, any>,
-  Name extends keyof Props = 'modelValue',
-  Local extends boolean = true
->(options: ModelOptions<Props, Name, Local>): any {
+  options: ModelOptions<Props, Name>
+):
+  | Ref<Props[Name] | undefined>
+  | {
+      __v_isRef: boolean
+      value: Props[Name]
+    } {
   const {
     props,
     propName = 'modelValue',

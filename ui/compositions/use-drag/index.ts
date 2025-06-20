@@ -39,7 +39,9 @@ interface DragOptions {
  * 拖动组合式方法
  * @param options 拖动选项
  */
-export function useDrag(options: DragOptions) {
+export function useDrag(options: DragOptions): {
+  update: (options: { offsetX?: number; offsetY?: number }) => void
+} {
   const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, initial } =
     options
 

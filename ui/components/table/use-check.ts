@@ -30,7 +30,15 @@ interface Options {
   cls: BEM<'table'>
 }
 
-export function useCheck(options: Options) {
+interface UseCheckReturned {
+  checkedRows: ShallowRef<Set<TableRow>>
+  clearChecked: () => void
+  clearSelected: () => void
+  createCheckColumn: () => TableColumn
+  createSelectColumn: () => TableColumn
+}
+
+export function useCheck(options: Options): UseCheckReturned {
   const { rows, rowForest, props, emit, size, cls } = options
 
   const checkedRows = shallowRef(new Set<TableRow>())

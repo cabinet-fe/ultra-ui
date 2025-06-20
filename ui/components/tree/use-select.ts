@@ -1,4 +1,10 @@
-import { nextTick, shallowRef, watch, type ComputedRef } from 'vue'
+import {
+  nextTick,
+  shallowRef,
+  watch,
+  type ComputedRef,
+  type ShallowRef
+} from 'vue'
 import type { TreeEmit, TreeProps } from '@ui/types'
 import type { TreeNode } from './tree-node'
 
@@ -9,10 +15,15 @@ interface Options {
   getFlattedNodes: () => void
 }
 
+interface UseSelectReturned {
+  selectedData: ShallowRef<Record<string, any> | undefined>
+  handleSelect: (node: TreeNode) => void
+}
+
 /**
  * 单选
  */
-export function useSelect(options: Options) {
+export function useSelect(options: Options): UseSelectReturned {
   const { emit, props, nodeDict, getFlattedNodes } = options
   let selectedData = shallowRef<Record<string, any>>()
 

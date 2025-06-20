@@ -14,7 +14,14 @@ interface Options {
   leafColumns: ShallowRef<ColumnNode[]>
 }
 
-export function useColResize(options: Options) {
+interface UseColResizeReturned {
+  resizeLineRef: ShallowRef<HTMLElement | undefined>
+  colgroupRef: ShallowRef<HTMLElement | undefined>
+  showResizeLine: ShallowRef<boolean>
+  handleResizeMousedown: (e: MouseEvent, resizeColumn: ColumnNode) => void
+}
+
+export function useColResize(options: Options): UseColResizeReturned {
   const { scrollRef, leafColumns } = options
 
   const showResizeLine = shallowRef(false)
@@ -73,7 +80,7 @@ export function useColResize(options: Options) {
 
   watchEffect(correctColumnStyle)
 
-  function updateResizeLine(transformX: number) {
+  function updateResizeLine(transformX: number): void {
     if (!resizeLineRef.value) return
     resizeLineRef.value.style.transform = `translateX(${transformX}px)`
   }
@@ -85,7 +92,10 @@ export function useColResize(options: Options) {
   let originWidth = 0
   let currentResizeColumn: ColumnNode | null = null
 
-  function handleResizeMousedown(e: MouseEvent, resizeColumn: ColumnNode) {
+  function handleResizeMousedown(
+    e: MouseEvent,
+    resizeColumn: ColumnNode
+  ): void {
     const tableEl = scrollRef.value?.el
     if (!tableEl) return
 
@@ -105,11 +115,11 @@ export function useColResize(options: Options) {
     document.addEventListener('mouseup', handleResizeMouseup)
   }
 
-  function handleResizeMousemove(e: MouseEvent) {
+  function handleResizeMousemove(e: MouseEvent): void {
     updateResizeLine(e.pageX - containerLeft)
   }
 
-  function handleResizeMouseup(e: MouseEvent) {
+  function handleResizeMouseup(e: MouseEvent): void {
     currentResizeColumn!.width = Math.max(
       originWidth + e.pageX - originX,
       currentResizeColumn!.minWidth!

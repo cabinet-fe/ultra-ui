@@ -1,5 +1,12 @@
 import { debounce } from 'cat-kit/fe'
-import { computed, shallowRef, watch, type ModelRef } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  type ShallowRef,
+  shallowRef,
+  watch,
+  type ModelRef
+} from 'vue'
 
 interface Options {
   model: ModelRef<string | undefined>
@@ -8,7 +15,13 @@ interface Options {
   }
 }
 
-export function useSuggestions(options: Options) {
+interface UseSuggestionsReturned {
+  suggestions: ComputedRef<string[]>
+  cachedSuggestion: ComputedRef<string | undefined>
+  appendedSuggestions: ShallowRef<string[]>
+}
+
+export function useSuggestions(options: Options): UseSuggestionsReturned {
   const { model, props } = options
   const remoteSuggestions = shallowRef<string[]>([])
   const filteredSuggestions = shallowRef<string[]>([])

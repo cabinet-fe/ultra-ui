@@ -66,7 +66,7 @@ export function showRipple(
     /** 波纹类 */
     rippleClass?: string
   }
-) {
+): HTMLElement {
   // 添加波纹类
   !el.classList.contains(cls.b) && el.classList.add(cls.b)
   el.dataset.class = cls.b

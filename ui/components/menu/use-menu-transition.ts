@@ -1,6 +1,14 @@
 import { removeStyles, setStyles } from '@ui/utils'
 
-export function useMenuTransition() {
+interface UseMenuTransitionReturned {
+  enter: (el: HTMLElement) => void
+  afterEnter: (el: HTMLElement) => void
+  beforeLeave: (el: HTMLElement) => void
+  leave: (el: HTMLElement) => void
+  afterLeave: (el: HTMLElement) => void
+}
+
+export function useMenuTransition(): UseMenuTransitionReturned {
   const enterTransition = 'height 0.3s ease'
   const leaveTransition = enterTransition
 

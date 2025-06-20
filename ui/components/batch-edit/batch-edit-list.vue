@@ -50,9 +50,7 @@
       v-if="
         !props.readonly &&
         featureSets.has('create') &&
-        (props.quickEdit ||
-          (state.type === 'create' && !state.visible) ||
-          state.type === 'update')
+        ((state.type === 'create' && !state.visible) || state.type === 'update')
       "
     >
       <div :class="cls.e('add')">
@@ -114,9 +112,7 @@ const tableProps = computed(() => {
     'readonly',
     'deleteMethod',
     'saveMethod',
-    'features',
-    'resizable',
-    'quickEdit'
+    'features'
   ])
 })
 

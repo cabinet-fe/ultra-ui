@@ -1,13 +1,29 @@
 import type { GroupInputEmits, GroupInputProps } from '@ui/types'
 import { createIncrease } from '@ui/utils'
-import { isReactive, nextTick, shallowReactive, shallowRef, watch } from 'vue'
+import {
+  isReactive,
+  nextTick,
+  shallowReactive,
+  shallowRef,
+  watch,
+  type ShallowRef
+} from 'vue'
 
 interface Options {
   props: GroupInputProps
   emit: GroupInputEmits
 }
 
-export function useGroupItems(options: Options) {
+interface UseGroupItemsReturned {
+  items: ShallowRef<{ id: number; data: Record<string, any> }[]>
+  createItem: (data: Record<string, any>) => {
+    id: number
+    data: Record<string, any>
+  }
+  runByEvent: (cb: () => void) => void
+}
+
+export function useGroupItems(options: Options): UseGroupItemsReturned {
   const { props, emit } = options
 
   const id = createIncrease(1)

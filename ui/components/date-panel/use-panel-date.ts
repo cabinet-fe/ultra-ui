@@ -1,12 +1,23 @@
 import { date, type Dater } from 'cat-kit/fe'
-import { computed, shallowRef } from 'vue'
+import { computed, type ComputedRef, shallowRef } from 'vue'
 import type { DatePanelProps } from '@ui/types'
 
 interface PanelDateOptions {
   props: DatePanelProps
 }
 
-export function usePanelDate(options: PanelDateOptions) {
+interface UsePanelDateReturned {
+  panelDate: ComputedRef<Dater>
+  updatePanelDate: (date: Dater) => void
+  toPrevYear: () => void
+  toNextYear: () => void
+  toPrevMonth: () => void
+  toNextMonth: () => void
+  toPrevTenYears: () => void
+  toNextTenYears: () => void
+}
+
+export function usePanelDate(options: PanelDateOptions): UsePanelDateReturned {
   const { props } = options
 
   /** 当前面板日期 */

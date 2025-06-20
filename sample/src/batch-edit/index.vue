@@ -13,12 +13,6 @@
       <u-button @click="dialogVisible = !dialogVisible">打开编辑</u-button>
     </div>
 
-    <!-- <u-dialog
-      v-model="dialogVisible"
-      style="width: 1100px"
-      title="批量编辑"
-      v-slot="{ maximized }"
-    > -->
     <u-batch-edit
       :columns="columns"
       :readonly="readonly"
@@ -166,7 +160,6 @@
           /> -->
       </template>
     </u-batch-edit>
-    <!-- </u-dialog> -->
   </div>
 </template>
 

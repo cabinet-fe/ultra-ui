@@ -1,11 +1,15 @@
-import { ref } from "vue"
+import { ref, type Ref } from 'vue'
 
 /**
  * 聚焦
  * @param cb 回调
  * @returns
  */
-export function useFocus(cb?: (focused: boolean) => void) {
+export function useFocus(cb?: (focused: boolean) => void): {
+  focus: Ref<boolean>
+  handleBlur: () => void
+  handleFocus: () => void
+} {
   const focus = ref(false)
 
   const handleFocus = () => {

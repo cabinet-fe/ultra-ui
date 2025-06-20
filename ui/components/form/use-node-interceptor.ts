@@ -32,7 +32,9 @@ const id = createIncrease(1)
  * @param options 选项
  * @returns
  */
-export function useNodeInterceptor(options: Options) {
+export function useNodeInterceptor(options: Options): {
+  getSlotsNodes: () => SlotRenderItem[] | null
+} {
   const { props } = options
   const slots = useSlots()
 

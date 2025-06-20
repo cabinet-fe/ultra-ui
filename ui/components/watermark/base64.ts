@@ -24,7 +24,9 @@ async function readFileAsBase64(file: File): Promise<string> {
   })
 }
 
-export async function downloadFileByBase64(urlOrFile: string | File) {
+export async function downloadFileByBase64(
+  urlOrFile: string | File
+): Promise<string> {
   let base64Data: string
   if (isImageUrl(urlOrFile as string)) {
     // 网络图片转base64

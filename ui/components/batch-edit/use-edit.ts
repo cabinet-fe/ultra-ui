@@ -92,10 +92,6 @@ export function useEdit(options: Options): EditReturned {
     if (changedByUserInput) {
       state.dataUpdated = true
     }
-
-    if (props.quickEdit) {
-      state.row && setChainValue(state.row.data, field, val)
-    }
   }
 
   watch(
@@ -111,18 +107,6 @@ export function useEdit(options: Options): EditReturned {
     { immediate: true }
   )
 
-  watch(
-    () => props.quickEdit,
-    quickEdit => {
-      state.row = undefined
-      state.type = 'create'
-      state.visible = false
-      state.dataUpdated = false
-      props.model?.resetData()
-    },
-    { immediate: true }
-  )
-
   const childrenKey = computed(() => {
     return typeof props.tree === 'string' ? props.tree : 'children'
   })
@@ -133,12 +117,6 @@ export function useEdit(options: Options): EditReturned {
    */
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
-
-    if (props.quickEdit) {
-      if (!isReactive(item)) {
-        item = shallowReactive(item)
-      }
-    }
 
     const parent = Forest.visit(
       data ?? [],
@@ -177,9 +155,6 @@ export function useEdit(options: Options): EditReturned {
     cb()
 
     let item: Record<string, any> | undefined = undefined
-    if (props.quickEdit) {
-      item = insert(getInsertData())
-    }
 
     await nextTick()
 

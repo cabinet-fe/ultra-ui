@@ -7,7 +7,11 @@ interface Options {
   getFlattedNodes: () => void
 }
 
-export function useFilter(options: Options) {
+interface UseFilterReturned {
+  filter: (filterMethod: string | ((node: TreeNode) => boolean)) => void
+}
+
+export function useFilter(options: Options): UseFilterReturned {
   const { forest, getFlattedNodes } = options
 
   /**

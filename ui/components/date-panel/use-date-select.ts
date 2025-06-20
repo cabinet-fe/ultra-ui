@@ -1,6 +1,6 @@
 import type { DatePanelProps, PanelType, DatePanelEmits } from '@ui/types'
 import type { Dater } from 'cat-kit/fe'
-import { type Ref, computed, shallowRef } from 'vue'
+import { type Ref, computed, type ComputedRef, shallowRef } from 'vue'
 
 interface DateSelectOptions {
   props: DatePanelProps
@@ -9,7 +9,16 @@ interface DateSelectOptions {
   updatePanelDate: (date: Dater) => void
 }
 
-export function useDateSelect(options: DateSelectOptions) {
+interface UseDateSelectReturned {
+  handleDateSelect: (date: Dater) => void
+  handleDateRangeHover: (date: Dater) => void
+  resetRangeDateTemp: () => void
+  rangeDate: ComputedRef<[Dater, Dater] | undefined>
+}
+
+export function useDateSelect(
+  options: DateSelectOptions
+): UseDateSelectReturned {
   const { props, panelType, emit, updatePanelDate } = options
 
   /** 面板顺序 */

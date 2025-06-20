@@ -1,4 +1,4 @@
-import { computed, type ShallowRef } from 'vue'
+import { computed, type ShallowRef, type ComputedRef } from 'vue'
 import type { SliderProps } from '@ui/types'
 
 interface Options {
@@ -6,7 +6,13 @@ interface Options {
   sliderSize: ShallowRef<number>
 }
 
-export const useStops = (options: Options) => {
+interface UseStopsReturned {
+  stops: ComputedRef<number[]>
+  getStopStyle: (position: number) => { bottom?: string; left?: string }
+  setStepButtonPosition: (newPosition: number) => number
+}
+
+export const useStops = (options: Options): UseStopsReturned => {
   const { sliderProps, sliderSize } = options
   /** 断点位置(px) */
   let stops = computed(() => {

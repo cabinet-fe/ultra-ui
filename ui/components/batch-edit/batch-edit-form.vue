@@ -40,7 +40,7 @@
         关闭
       </u-button>
       <u-button
-        v-if="!props.readonly && !props.quickEdit && state.dataUpdated"
+        v-if="!props.readonly && state.dataUpdated"
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
         @click="handleSave"

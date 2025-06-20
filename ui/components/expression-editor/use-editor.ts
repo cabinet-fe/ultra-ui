@@ -1,4 +1,9 @@
-import { $createParagraphNode, $getRoot, createEditor } from 'lexical'
+import {
+  $createParagraphNode,
+  $getRoot,
+  createEditor,
+  type LexicalEditor
+} from 'lexical'
 import { VariableNode } from './nodes/variable-node'
 import { registerPlainText } from './plain-text'
 import { nextTick, watchEffect, type Ref, type ShallowRef } from 'vue'
@@ -15,7 +20,7 @@ interface EditorOptions {
   container: ShallowRef<HTMLElement | null>
 }
 
-export function useEditor(options: EditorOptions) {
+export function useEditor(options: EditorOptions): LexicalEditor {
   const { disabled, readonly, container, props, emit, cls } = options
 
   function getEditable() {

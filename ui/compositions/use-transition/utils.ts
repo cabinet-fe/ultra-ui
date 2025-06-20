@@ -13,7 +13,7 @@ export function watchTransition(
     onEnd: (dom: HTMLElement) => void
     onCancel: (dom: HTMLElement) => void
   }
-) {
+): void {
   const runCallback = (e: TransitionEvent, cb: (el: HTMLElement) => void) => {
     e.stopPropagation()
     if (

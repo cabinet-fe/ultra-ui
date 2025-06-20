@@ -1,11 +1,32 @@
 import { useResizeObserver } from '@ui/compositions'
 import type { SliderProps } from '@ui/types'
-import { ref, shallowReactive, shallowRef, type ShallowRef } from 'vue'
+import {
+  ref,
+  shallowReactive,
+  shallowRef,
+  type ShallowRef,
+  type Ref
+} from 'vue'
+
+interface UseSlideReturned {
+  onePosition: Ref<number>
+  twoPosition: Ref<number>
+  barStyles: {
+    width: string
+    height: string
+    left: string
+    bottom: string
+  }
+  minValue: Ref<number>
+  maxValue: Ref<number>
+  runwayRef: ShallowRef<HTMLElement | undefined>
+  updateSliderBarSize: (props: { x: number; y: number }) => void
+}
 
 export const useSlide = (
   props: SliderProps,
   sliderSize: ShallowRef<number>
-) => {
+): UseSlideReturned => {
   /** 第一个值的位置 */
   let onePosition = ref(0)
   /** 第二个值的位置 */

@@ -4,7 +4,7 @@
     :cols="cols"
     rows="100%"
     gap="8px"
-    :resizable="resizable"
+    resizable
     @keyup.esc="handleClose"
   >
     <!-- 编辑列表 -->
@@ -43,7 +43,6 @@ defineOptions({
 
 const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   cols: () => ['1fr', '400px'],
-  resizable: true,
   mode: 'normal'
 })
 

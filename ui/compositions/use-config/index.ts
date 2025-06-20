@@ -30,7 +30,10 @@ const state = reactive<State>({
   }
 })
 
-export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize) {
+export function setDocumentSize(
+  size: ComponentSize,
+  oldSize?: ComponentSize
+): void {
   oldSize && document.documentElement.classList.remove(oldSize)
   document.documentElement.classList.add(size)
 }
@@ -53,10 +56,13 @@ function deepSet(original: Record<string, any>, extend: Record<string, any>) {
   })
 }
 
-export function useConfig() {
+export function useConfig(): {
+  config: Readonly<State>
+  setConfig: (conf: Partial<State>) => void
+} {
   return {
     /** 全局配置 */
-    config: readonly(state),
+    config: readonly(state) as Readonly<State>,
     /**
      * 设置全局配置项
      * @param conf

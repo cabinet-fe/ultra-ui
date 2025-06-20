@@ -4,7 +4,8 @@ import {
   shallowRef,
   triggerRef,
   watch,
-  type ShallowRef
+  type ShallowRef,
+  type ComputedRef
 } from 'vue'
 import { Forest } from 'cat-kit/fe'
 import type {
@@ -26,7 +27,19 @@ interface SelectOptions {
   dropdownRef: ShallowRef<DropdownExposed | undefined>
 }
 
-export function useSelect(options: SelectOptions) {
+interface UseSelectReturned {
+  displayedValue: ComputedRef<string | undefined>
+  selectItem: (panelIndex: number, item: CascadeNode) => void
+  selectedNodeKeys: ShallowRef<string[]>
+  updateSingleValue: () => void
+  initSingleSelect: () => void
+  panelItemList: ShallowRef<PanelItem[]>
+  getPanelItemList: (data?: CascadeNode[]) => void
+  setPanelItem: (panelIndex: number, panelData?: CascadeNode[]) => void
+  createPanelItem: (nodes: CascadeNode[]) => PanelItem
+}
+
+export function useSelect(options: SelectOptions): UseSelectReturned {
   const { props, emit, dataMap, updater, dropdownRef, forest } = options
 
   /** 选中的节点key */

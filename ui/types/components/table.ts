@@ -107,10 +107,16 @@ export interface TableProps<
         colspan: number
       }
     | undefined
-  /** 高亮当前选中行 */
+
+  /** 当前点击的行 */
+  current?: TableRow<DataItem>
+
+  /**
+   * 高亮当前点击的行，即使没有设置current属性
+   * @default false
+   *
+   */
   highlightCurrent?: boolean
-  /** 当前选中行 */
-  currentRow?: TableRow<DataItem>
   /**
    * 行key
    * @description 用于标识行的唯一性，对于单选和多选来说是必须的
@@ -219,7 +225,7 @@ export interface TableEmits<
     ev: MouseEvent
   ): void
   /** 当前行变更 */
-  (e: 'update:currentRow', row?: TableRow<DataItem>): void
+  (e: 'update:current', row?: TableRow<DataItem>): void
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */

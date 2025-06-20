@@ -2,13 +2,20 @@
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
 
-@include m.b(checkbox-group) {
+$root-name: checkbox-group;
+@include m.b($root-name) {
   line-height: 1;
   vertical-align: middle;
   @include m.flex($display: inline-flex, $wrap: wrap);
 
   @include m.size using ($size) {
     gap: calc(fn.use-var(gap, $size) * 2);
+
+    @include m.bem($root-name, tags) {
+      gap: calc(
+        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
+      );
+    }
   }
 
   @include m.is(block) {
@@ -17,6 +24,20 @@
     @include m.bem(checkbox) {
       margin: 0;
       display: flex;
+    }
+  }
+
+  @include m.e(tags) {
+    flex-grow: 1;
+    @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
+  }
+
+  @include m.e(readonly-tags) {
+    padding-left: 0;
+    padding-right: 0;
+
+    @include m.bem(tag) {
+      border: 1px dashed fn.use-var(text-color, main);
     }
   }
 }

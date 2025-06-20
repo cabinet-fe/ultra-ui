@@ -31,9 +31,9 @@ export class DynamicFormModel {
   /**
    * 不同表单对应的key
    */
-  formKeys = new Map<number, string[]>()
+  formKeys: Map<number, string[]> = new Map()
 
-  readonly errors = shallowReactive<Map<string, string[] | undefined>>(
+  readonly errors: Map<string, string[] | undefined> = shallowReactive(
     new Map()
   )
 
@@ -48,11 +48,11 @@ export class DynamicFormModel {
   private _allKeys: string[] = []
 
   /** 所有的键 */
-  get allKeys() {
+  get allKeys(): string[] {
     return this._allKeys
   }
 
-  private getAllKeys() {
+  private getAllKeys(): void {
     this._allKeys = Object.keys(this.fields)
   }
 
@@ -71,7 +71,7 @@ export class DynamicFormModel {
     this.watchData()
   }
 
-  private watchData() {
+  private watchData(): void {
     const { oldData } = this
     watch(this.data, data => {
       let changedKeys: string[] = []
@@ -94,7 +94,7 @@ export class DynamicFormModel {
     })
   }
 
-  append(fields: Record<string, FormModelItem>) {
+  append(fields: Record<string, FormModelItem>): void {
     for (const key in fields) {
       this.add(key, fields[key] ?? {})
     }
@@ -105,7 +105,7 @@ export class DynamicFormModel {
    * @param field 字段
    * @param item 字段配置项
    */
-  add(field: string, item: FormModelItem) {
+  add(field: string, item: FormModelItem): void {
     this.fields[field] = item
     const { value } = item
     const v = typeof value === 'function' ? value() : value
@@ -122,7 +122,7 @@ export class DynamicFormModel {
    * 移除字段
    * @param field 字段
    */
-  delete(field: string) {
+  delete(field: string): void {
     delete this.fields[field]
     this.getAllKeys()
   }
@@ -131,11 +131,11 @@ export class DynamicFormModel {
    * 监听值变更
    * @param cb 回调
    */
-  onChange(cb: (field: string, val: any) => void) {
+  onChange(cb: (field: string, val: any) => void): void {
     this.modelChangeCallback.add(cb)
   }
 
-  offChange(cb: (field: string, val: any) => void) {
+  offChange(cb: (field: string, val: any) => void): void {
     this.modelChangeCallback.delete(cb)
   }
 
@@ -216,7 +216,7 @@ export class DynamicFormModel {
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Record<string, any>, config?: DataSettingConfig) {
+  setData(formData: Record<string, any>, config?: DataSettingConfig): void {
     const { validate = true } = config || {}
 
     if (!validate) {
@@ -231,7 +231,7 @@ export class DynamicFormModel {
     })
   }
 
-  clearValidate() {
+  clearValidate(): void {
     this.errors.clear()
   }
 }

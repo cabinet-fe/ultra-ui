@@ -30,12 +30,12 @@ export class FormModel<
    * @description
    * 这个值会在表单组件渲染时由表单设置，因为只有真正渲染的组件才应该被校验
    */
-  formKeys = new Map<number, (keyof Fields)[]>()
+  formKeys: Map<number, (keyof Fields)[]> = new Map()
 
   /** 初始数据 */
   readonly initialData: ModelData<Fields>
 
-  readonly errors = shallowReactive<Map<keyof Fields, string[] | undefined>>(
+  readonly errors: Map<keyof Fields, string[] | undefined> = shallowReactive(
     new Map()
   )
 
@@ -85,7 +85,9 @@ export class FormModel<
    * @description 设置响应式值时，会自动监听值的变化，并进行校验
    * @param proxyData 响应式的值
    */
-  setProxyData(proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>) {
+  setProxyData(
+    proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>
+  ): void {
     const data = middleProxy(proxyData, {
       set: (field, val) => {
         this.modelChangeCallback.forEach(cb => cb(field, val))
@@ -195,7 +197,7 @@ export class FormModel<
   setData(
     formData: Partial<ModelData<Fields> & Record<string, any>>,
     config?: DataSettingConfig
-  ) {
+  ): FormModel<Fields> {
     const { validate = true } = config || {}
 
     if (!validate) {
@@ -217,7 +219,7 @@ export class FormModel<
    * @description 初始值在重置数据和查看原始数据时会用到
    * @param data 初始值
    */
-  setInitialData(data: Partial<ModelData<Fields>>) {
+  setInitialData(data: Partial<ModelData<Fields>>): FormModel<Fields> {
     this.allKeys.forEach(key => {
       setChainValue(this.initialData, key, getChainValue(data, key))
     })
@@ -234,35 +236,12 @@ export class FormModel<
    * 监听值变更
    * @param cb 回调
    */
-  onChange(cb: (field: keyof Fields, val: any) => void) {
+  onChange(cb: (field: keyof Fields, val: any) => void): void {
     this.modelChangeCallback.add(cb)
   }
 
   /** 关闭监听值变更 */
-  offChange(cb: (field: keyof Fields, val: any) => void) {
+  offChange(cb: (field: keyof Fields, val: any) => void): void {
     this.modelChangeCallback.delete(cb)
   }
 }
-
-// function getFieldValue(fieldItem: FormModelItem | FM<any>) {
-//   if (fieldItem instanceof FM) {
-//     return fieldItem.data
-//   }
-//   return fieldItem.value
-// }
-
-// class FM<T extends Record<string, FormModelItem | FM<T>>> {
-//   data: Record<string, any> = {}
-//   constructor(fields: T) {
-//     const rawData = {}
-
-//     for (const key in fields) {
-//       const fieldItem = fields[key]!
-//       if (fieldItem instanceof FM) {
-//         rawData[key] = fieldItem.data
-//       } else {
-//         rawData[key] = fieldItem.value
-//       }
-//     }
-//   }
-// }

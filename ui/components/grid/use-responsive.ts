@@ -4,7 +4,8 @@ import {
   watch,
   type ShallowRef,
   shallowReactive,
-  onBeforeUnmount
+  onBeforeUnmount,
+  type ComputedRef
 } from 'vue'
 import type { Breakpoint, GridEmits, GridItemProps, GridProps } from '@ui/types'
 import { debounce, equal } from 'cat-kit/fe'
@@ -18,7 +19,15 @@ interface ResponsiveOptions {
   gridRef: ShallowRef<HTMLElement | null>
 }
 
-export function useResponsive(options: ResponsiveOptions) {
+interface UseResponsiveReturned {
+  responsive: ComputedRef<boolean>
+  gridItemsProps: Set<GridItemProps>
+  currentBreakpoint: ShallowRef<Breakpoint | undefined>
+}
+
+export function useResponsive(
+  options: ResponsiveOptions
+): UseResponsiveReturned {
   const { props, gridRef, emit } = options
 
   const gridItemsProps = shallowReactive<Set<GridItemProps>>(new Set())

@@ -48,7 +48,7 @@ export function scrollIntoContainerView(
     block?: ScrollViewPosition
     inline?: ScrollViewPosition
   }
-) {
+): void {
   container = container || getNearestScrollParent(el)
   if (!container) return
 

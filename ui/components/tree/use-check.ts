@@ -10,7 +10,12 @@ interface Options {
   getFlattedNodes: () => void
 }
 
-export function useCheck(options: Options) {
+interface UseCheckReturned {
+  checkedData: Set<Record<string, any>>
+  toggleCheck: (node: TreeNode, check: boolean, ctrlKey?: boolean) => void
+}
+
+export function useCheck(options: Options): UseCheckReturned {
   const { emit, props, nodeDict, getFlattedNodes } = options
 
   const checkedData = new Set<Record<string, any>>()

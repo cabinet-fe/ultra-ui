@@ -96,7 +96,13 @@ export function useResizeObserver(
 /**
  * 监听元素尺寸变化
  */
-export function useObserverCallback() {
+export function useObserverCallback(): {
+  observeEl: <El extends HTMLElement>(
+    el: El,
+    cb: (entry: Omit<ResizeObserverEntry, 'target'> & { target: El }) => void
+  ) => void
+  unobserveEl: (el: HTMLElement) => void
+} {
   const observerElMap = new Map<HTMLElement, Function>()
 
   const observer = new ResizeObserver(entries => {

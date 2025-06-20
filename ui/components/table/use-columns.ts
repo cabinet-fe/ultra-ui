@@ -21,7 +21,7 @@ import { ColumnNode } from './node/col'
 export function defineTableColumns(
   columns: TableColumn[],
   commonProps?: Partial<Pick<TableColumn, 'align' | 'minWidth'>>
-) {
+): TableColumn[] {
   columns.forEach(col => {
     Tree.dft(col, node => {
       for (const key in commonProps) {

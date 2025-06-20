@@ -1,4 +1,4 @@
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
 import { TreeNode } from './tree-node'
 import type { TreeProps } from '@ui/types'
 import { Forest } from 'cat-kit/fe'
@@ -7,7 +7,13 @@ interface Options {
   props: TreeProps
 }
 
-export function useTreeNodes(options: Options) {
+interface UseTreeNodesReturned {
+  nodes: ShallowRef<TreeNode[]>
+  forest: ComputedRef<Forest<TreeNode>>
+  getFlattedNodes: () => void
+  nodeDict: ComputedRef<Map<string | number, TreeNode>>
+}
+export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const { props } = options
 
   /** 森林 */

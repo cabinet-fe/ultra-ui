@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size), bem.is('block', block)]">
+  <div :class="[cls.b, cls.m(size), bem.is('block', block)]" v-if="!readonly">
     <u-checkbox
       v-for="item of items"
       :key="item[valueKey]"
@@ -11,6 +11,18 @@
       {{ item[labelKey] }}
     </u-checkbox>
   </div>
+
+  <div v-else-if="model?.length" :class="[cls.m(size), cls.e('readonly-tags')]">
+    <div :class="cls.e('tags')">
+      <u-tag v-for="tag of model" :key="tag">
+        {{ getLabel(tag) }}
+      </u-tag>
+    </div>
+  </div>
+
+  <span v-else :class="formItemViewerCls">
+    {{ FORM_EMPTY_CONTENT }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -18,6 +30,9 @@ import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { UTag } from '../tag'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'CheckboxGroup'
@@ -26,7 +41,8 @@ defineOptions({
 const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   labelKey: 'label',
   valueKey: 'value',
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 defineEmits<CheckboxGroupEmits>()
@@ -37,10 +53,14 @@ const cls = bem('checkbox-group')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false
-})
+const { size, disabled, readonly } = useFormFallbackProps(
+  [formProps ?? {}, props],
+  {
+    size: 'default',
+    disabled: false,
+    readonly: false
+  }
+)
 
 /**
  * 获取checkbox的选中状态
@@ -71,5 +91,11 @@ const handleUpdate = (
   } else {
     model.value = model.value?.filter(v => v !== value)
   }
+}
+
+const getLabel = (value: string | number) => {
+  const { items, valueKey, labelKey } = props
+  const item = items.find(item => item[valueKey] === value)
+  return item?.[labelKey]
 }
 </script>

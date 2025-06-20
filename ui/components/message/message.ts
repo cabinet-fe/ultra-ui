@@ -75,7 +75,6 @@ function renderMessageBox() {
   messageApp.mount(container)
 }
 
-// @ts-ignore
 export const message: Message = function (options) {
   if (typeof options === 'string') {
     options = {
@@ -84,7 +83,7 @@ export const message: Message = function (options) {
   }
   createMessage(options)
   renderMessageBox()
-}
+} as Message
 
 const messageTypes = ['success', 'warn', 'info', 'error', 'default'] as const
 messageTypes.forEach(type => {

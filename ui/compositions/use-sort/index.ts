@@ -6,15 +6,13 @@ interface Content {
 }
 
 interface Options {
-  target:
-  // | HTMLElement
-  | ShallowRef<HTMLElement | undefined>
-  | Ref<HTMLElement | undefined>
+  target: // | HTMLElement
+  ShallowRef<HTMLElement | undefined> | Ref<HTMLElement | undefined>
 
   onChange(c: Content): void
 }
 
-export function useSort({ target, onChange }: Options) {
+export function useSort({ target, onChange }: Options): void {
   // 实现
   const dragState = {
     oldIndex: 0,
@@ -26,28 +24,31 @@ export function useSort({ target, onChange }: Options) {
   }
   watch(
     () => target.value,
-    (target) => {
+    target => {
       const children: Element[] = Array.from(target?.children!)
       const exchange = (oldIndex: number, newIndex: number) => {
         target?.insertBefore(children[newIndex]!, children[oldIndex]!)
-        target?.insertBefore(children[oldIndex]!, children[newIndex]!.nextSibling)
+        target?.insertBefore(
+          children[oldIndex]!,
+          children[newIndex]!.nextSibling
+        )
       }
       children.forEach((child: any, index: number) => {
         // child.setAttribute('draggable', 'true')
         child.setAttribute('drag-id', index)
 
-        child.addEventListener('dragstart', (e) => {
+        child.addEventListener('dragstart', e => {
           dragState.oldIndex = e.target.getAttribute('drag-id')
           dragState.dragId = dragState.oldIndex
           dragState.dragIndex = index
         })
-        child.addEventListener('drag', (e) => {
+        child.addEventListener('drag', e => {
           e.preventDefault()
         })
-        child.addEventListener('dragover', (e) => {
+        child.addEventListener('dragover', e => {
           e.preventDefault()
         })
-        child.addEventListener('dragenter', (e) => {
+        child.addEventListener('dragenter', e => {
           e.preventDefault()
           dragState.targetId = e.target.getAttribute('drag-id')
           dragState.targetIndex = index
@@ -58,16 +59,25 @@ export function useSort({ target, onChange }: Options) {
               exchange(dragState.targetIndex, dragState.dragIndex)
             }
 
-            children[dragState.targetIndex]?.setAttribute('drag-id', `${dragState.dragId}`)
-            children[dragState.dragIndex]?.setAttribute('drag-id', `${dragState.targetId}`)
+            children[dragState.targetIndex]?.setAttribute(
+              'drag-id',
+              `${dragState.dragId}`
+            )
+            children[dragState.dragIndex]?.setAttribute(
+              'drag-id',
+              `${dragState.targetId}`
+            )
 
             dragState.dragId = dragState.targetId
             dragState.newIndex = dragState.targetId
           }
         })
-        child.addEventListener('dragend', (e) => {
+        child.addEventListener('dragend', e => {
           e.preventDefault()
-          onChange({ newIndex: Number(dragState.newIndex), oldIndex: Number(dragState.oldIndex) })
+          onChange({
+            newIndex: Number(dragState.newIndex),
+            oldIndex: Number(dragState.oldIndex)
+          })
         })
       })
     }

@@ -5,6 +5,8 @@ import type { BatchEditColumn } from '@ui/types'
  * @param columns 列
  * @returns
  */
-export function defineBatchEditColumns(columns: BatchEditColumn[]) {
+export function defineBatchEditColumns(
+  columns: BatchEditColumn[]
+): BatchEditColumn[] {
   return columns
 }

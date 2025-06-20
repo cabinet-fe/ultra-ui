@@ -1,7 +1,7 @@
 import { setStyles } from '@ui/utils'
 import { nextTick } from 'vue'
 
-export function calcTextareaHeight(el: HTMLTextAreaElement) {
+export function calcTextareaHeight(el: HTMLTextAreaElement): void {
   setStyles(el, {
     height: 'auto'
   })

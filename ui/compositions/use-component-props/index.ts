@@ -1,5 +1,11 @@
 import { extractNormalVNodes } from '@ui/utils'
-import { defineComponent, isRef, type MaybeRef, createVNode } from 'vue'
+import {
+  defineComponent,
+  isRef,
+  type MaybeRef,
+  createVNode,
+  type Component
+} from 'vue'
 
 /**
  * 生成一个用于设置组件通用属性的组件
@@ -8,7 +14,7 @@ import { defineComponent, isRef, type MaybeRef, createVNode } from 'vue'
  */
 export function useComponentProps<T extends Record<string, any>>(
   props: MaybeRef<T & Record<string, any>>
-) {
+): Component {
   return defineComponent({
     name: 'ComponentCommonProps',
     inheritAttrs: false,

@@ -1,8 +1,14 @@
-import { ref } from 'vue'
+import { type ShallowRef, ref } from 'vue'
 import { debounce } from 'cat-kit/fe'
 import type { ScrollPosition } from '@ui/types'
 
-export function useColumnFixed() {
+interface UseColumnFixedReturned {
+  leftFixed: ShallowRef<boolean>
+  rightFixed: ShallowRef<boolean>
+  handleScroll: (e: Required<ScrollPosition>) => void
+}
+
+export function useColumnFixed(): UseColumnFixedReturned {
   const leftFixed = ref(false)
   const rightFixed = ref(false)
 

@@ -1,13 +1,28 @@
-import { computed, inject, shallowRef, watch } from 'vue'
+import {
+  computed,
+  inject,
+  shallowRef,
+  watch,
+  type ShallowRef,
+  type ComputedRef
+} from 'vue'
 import type { MenuItem } from '@ui/types'
 import { MenuDIKey } from './di'
-import { scrollIntoContainerView } from '@ui/utils'
+import { scrollIntoContainerView, type BEM } from '@ui/utils'
 
 interface Options {
   itemProps: { menu: MenuItem; depth: number }
 }
 
-export function useMenuItem(options: Options) {
+interface UseMenuItemReturned {
+  cls: BEM<'menu'>
+  collapsedCls: BEM<'collapsed-menu'>
+  itemRef: ShallowRef<HTMLElement | undefined>
+  active: ComputedRef<boolean>
+  handleClickMenu: () => void
+}
+
+export function useMenuItem(options: Options): UseMenuItemReturned {
   const { itemProps } = options
   const { cls, collapsedCls, menuProps, menuEmit } = inject(MenuDIKey)!
   const itemRef = shallowRef<HTMLElement>()

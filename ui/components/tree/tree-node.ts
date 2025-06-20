@@ -18,7 +18,7 @@ export class TreeNode<
   /** 子节点选中数量 */
   childrenCheckCount = 0
 
-  get indeterminate() {
+  get indeterminate(): boolean {
     if (!this.children) return false
     return (
       this.childrenCheckCount > 0 &&
@@ -59,7 +59,7 @@ export class TreeNode<
    * 向上冒泡设置
    * @param setter 设置函数, 返回 false 则停止冒泡
    */
-  bubbleSet(setter: (node: TreeNode<Val>) => boolean | void) {
+  bubbleSet(setter: (node: TreeNode<Val>) => boolean | void): void {
     const ret = setter(this)
     ret !== false && this.parent?.bubbleSet(setter)
   }
