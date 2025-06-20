@@ -15,7 +15,7 @@ export interface BatchEditColumn extends TableColumn {
   // defaultValue?: any | (() => any)
 }
 
-export type BatchEditFeature = 'create' | 'update' | 'delete'
+export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete'
 
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>

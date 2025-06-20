@@ -1,13 +1,11 @@
 import { type ShallowRef, shallowRef, watch } from 'vue'
-import type { BatchEditProps } from '@ui/types'
+import type { BatchEditProps, BatchEditFeature } from '@ui/types'
 
-type TipType = 'add' | 'edit' | 'copy' | 'delete'
-
-interface TipReturned {
+export interface TipReturned {
   visible: ShallowRef<boolean>
   triggerDom: ShallowRef<HTMLElement | undefined>
-  tipType: ShallowRef<TipType | undefined>
-  open: (type: TipType, triggerDom: HTMLElement) => void
+  tipType: ShallowRef<BatchEditFeature | undefined>
+  open: (type: BatchEditFeature, triggerDom: HTMLElement) => void
   close: () => void
   handleSubmit: () => Promise<void>
 }
@@ -17,9 +15,9 @@ export function useTip(options: { props: BatchEditProps }): TipReturned {
 
   const visible = shallowRef(false)
   const triggerDom = shallowRef<HTMLElement>()
-  const tipType = shallowRef<TipType>()
+  const tipType = shallowRef<BatchEditFeature>()
 
-  function open(type: TipType, dom: HTMLElement) {
+  function open(type: BatchEditFeature, dom: HTMLElement) {
     visible.value = true
     tipType.value = type
     triggerDom.value = dom

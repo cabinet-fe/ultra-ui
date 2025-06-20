@@ -35,7 +35,9 @@
         :class="cls.e('tip')"
       >
         <template #content>
-          <div :class="cls.e('form-title')">编辑</div>
+          <div :class="cls.e('form-title')" v-if="tipType">
+            {{ titleDict[tipType] }}
+          </div>
           <u-scroll
             :class="cls.e('form-scroll')"
             :content-class="cls.e('form-scroll-content')"
@@ -115,16 +117,22 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   loading: false
 })
 
+const { visible, triggerDom, tipType, open, close, handleSubmit } = useTip({
+  props
+})
+
+const titleDict = {
+  create: '新增',
+  update: '编辑',
+  copy: '复制'
+}
+
 const { currentRow, handleEdit, handleAdd, handleCopy, handleDelete } = useEdit(
   {
     emit,
     props
   }
 )
-
-const { visible, triggerDom, tipType, open, close, handleSubmit } = useTip({
-  props
-})
 
 watch(currentRow, r => {
   visible.value = !!r ? true : false

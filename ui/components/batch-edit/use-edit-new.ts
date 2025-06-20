@@ -1,5 +1,6 @@
 import { nextTick, type ShallowRef, shallowRef } from 'vue'
 import type { BatchEditEmits, BatchEditProps, TableRow } from '@ui/types'
+import type { TipReturned } from './use-tip'
 
 interface EditReturned {
   currentRow: ShallowRef<TableRow | undefined>
@@ -12,8 +13,9 @@ interface EditReturned {
 export function useEdit(options: {
   props: BatchEditProps
   emit: BatchEditEmits
+  open: TipReturned['open']
 }): EditReturned {
-  const { props, emit } = options
+  const { props, emit, open } = options
 
   /**
    * 当前操作行
