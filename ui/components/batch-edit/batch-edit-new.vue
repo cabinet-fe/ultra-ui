@@ -1,25 +1,41 @@
 <template>
   <u-table
+    v-bind="tableProps"
     :columns="columnsWithOperation"
-    :data="data"
-    :current-row="currentRow"
+    :current="currentRow"
     :class="cls.b"
-    checkable
   >
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop>
-        <u-button :icon="Edit" title="编辑" @click="handleEdit(row, $event)" />
-        <u-button :icon="Plus" title="新增" @click="handleAdd(row, $event)" />
+        <u-button
+          :icon="Edit"
+          title="编辑"
+          v-if="featureSets.has('update')"
+          @click="handleEdit(row, $event)"
+        />
+        <u-button
+          :icon="Plus"
+          title="新增"
+          v-if="featureSets.has('create')"
+          @click="handleAdd(row, $event)"
+        />
         <u-button
           :icon="AddChild"
           title="新增子项"
+          v-if="featureSets.has('create') && !!tree"
           @click="handleAdd(row, $event)"
         />
-        <u-button :icon="Copy" title="复制" @click="handleCopy(row, $event)" />
+        <u-button
+          :icon="Copy"
+          title="复制"
+          v-if="featureSets.has('copy')"
+          @click="handleCopy(row, $event)"
+        />
         <u-button
           :icon="Delete"
           type="danger"
           title="删除"
+          v-if="featureSets.has('delete')"
           @click="handleDelete(row)"
         />
       </ButtonWrap>
@@ -84,6 +100,7 @@ import { useComponentProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { useEdit } from './use-edit-new'
 import { useTip } from './use-tip'
+import { omit } from 'cat-kit/fe'
 
 defineOptions({
   name: 'BatchEdit'
@@ -91,6 +108,23 @@ defineOptions({
 
 const props = defineProps<BatchEditProps<FormModel>>()
 const emit = defineEmits<BatchEditEmits>()
+
+const tableProps = computed(() => {
+  return omit(props, [
+    'model',
+    'columns',
+    'cols',
+    'readonly',
+    'deleteMethod',
+    'saveMethod',
+    'features',
+    'current'
+  ])
+})
+
+const featureSets = computed(() => {
+  return new Set(props.features ?? ['create', 'delete', 'update', 'copy'])
+})
 
 const cls = bem('batch-edit')
 
@@ -117,7 +151,7 @@ const ButtonWrap = useComponentProps<ButtonProps>({
   loading: false
 })
 
-const { visible, triggerDom, tipType, open, close, handleSubmit } = useTip({
+const { visible, triggerDom, tipType, open, handleSubmit } = useTip({
   props
 })
 
@@ -130,7 +164,8 @@ const titleDict = {
 const { currentRow, handleEdit, handleAdd, handleCopy, handleDelete } = useEdit(
   {
     emit,
-    props
+    props,
+    open
   }
 )
 

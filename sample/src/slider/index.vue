@@ -1,84 +1,65 @@
 <template>
   <div>
-    基础用法: (min: 20 max: 100)
-    <u-slider v-model="sliderValue" :max="100" :min="20"></u-slider>
-    <p>值: {{ sliderValue }}</p>
+    <!-- 配置面板 -->
+    <u-card class="mb-2">
+      <u-card-header> 配置选项 </u-card-header>
 
-    <u-slider v-model="sliderValue" :max="100" :min="20"></u-slider>
+      <u-card-content>
+        <u-form :model="config" no-tips :cols="7">
+          <u-number-input
+            field="min"
+            :min="0"
+            :max="config.data.max"
+            label="最小值"
+            placeholder="设置最小值"
+          />
+          <u-number-input
+            field="max"
+            :min="config.data.min"
+            label="最大值"
+            placeholder="设置最大值"
+          />
+          <u-number-input
+            field="step"
+            label="步长"
+            :min="1"
+            :max="config.data.max"
+            placeholder="设置步长"
+          />
+          <u-checkbox field="showStops" label="显示刻度" />
+          <u-checkbox field="range" label="范围选择" />
+          <u-checkbox field="disabled" label="禁用状态" />
+          <u-checkbox field="readonly" label="只读模式" />
+        </u-form>
+      </u-card-content>
+    </u-card>
 
-    垂直 (需要传入height)
-    <div>
-      <u-slider
-        v-model="sliderValue"
-        :step="10"
-        :max="100"
-        :min="20"
-        vertical
-        show-stops
-      ></u-slider>
+    <!-- 演示区域 -->
+    <u-card>
+      <u-card-header> 滑块演示 </u-card-header>
 
-      <u-slider
-        v-model="sliderValue"
-        :step="10"
-        :max="100"
-        :min="20"
-        vertical
-        show-stops
-      ></u-slider>
-    </div>
+      <u-card-content>
+        <u-slider v-model="sliderValue" v-bind="config.data" />
 
-    step 步长(x)
-    <div>
-      <u-slider
-        v-model="sliderValue"
-        :min="0"
-        :max="100"
-        :step="10"
-        show-stops
-      ></u-slider>
-    </div>
-
-    范围
-    <div>
-      <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
-      <u-slider v-model="rangeValue" :step="10" show-stops range> </u-slider>
-      {{ rangeValue }}
-    </div>
-
-    垂直范围
-    <div>
-      <u-slider v-model="rangeValue" range vertical> </u-slider>
-      <u-slider v-model="rangeValue" range vertical> </u-slider>
-    </div>
-
-    禁用
-    <div>
-      <u-slider v-model="sliderValue" disabled />
-    </div>
-
-    表单
-    {{ model }}
-    <u-form :model="model">
-      <u-input field="name" label="姓名" tips="四个字以内" />
-      <u-slider field="number" label="滑块"></u-slider>
-    </u-form>
+        {{ sliderValue }}
+      </u-card-content>
+    </u-card>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="tsx" setup>
+import { FormModel } from '@ui/components'
 import { ref } from 'vue'
-import { FormModel } from 'ultra-ui'
 
-// const getRandom = () => Math.random()
-
-const model = new FormModel({
-  name: {},
-  number: { required: true }
+const config = new FormModel({
+  min: { value: 10 },
+  max: { value: 100 },
+  step: { value: 10 },
+  showStops: { value: true },
+  range: { value: false },
+  disabled: { value: false },
+  readonly: { value: false }
 })
 
-const sliderValue = ref()
-
-/** 范围 */
-const rangeValue = ref()
+const sliderValue = ref(20)
 </script>
-<style lang="scss" scoped></style>

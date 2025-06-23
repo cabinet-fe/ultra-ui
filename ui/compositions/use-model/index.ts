@@ -11,7 +11,7 @@ interface ModelOptions<
   /** 事件触发函数 */
   emit: (...args: any[]) => void
   /** 是否为本地模式, 默认为true, 本地模式允许组件不受控来触发视图更新 */
-  local?: boolean
+  local?: boolean | (() => boolean)
   /** 默认值 */
   defaultValue?: Props[Name]
   /**
@@ -51,23 +51,36 @@ export function useModel<
   } = options
 
   if (local) {
-    const _value = props[propName] ?? defaultValue
+    const _default = props[propName] ?? defaultValue
     const r = shallow ? shallowRef : ref
+
     // 创建一个响应式对象
-    const value: Ref<Props[Name] | undefined> =
-      _value !== undefined ? r(_value) : r()
+    const _value = r(_default)
 
     // 监听属性的变更
     watch(
       () => props[propName],
       v => {
-        value.value = v
+        _value.value = v
       }
     )
 
-    watch(value, v => {
-      v !== props[propName] && emit(`update:${propName as string}`, v)
-    })
+    const getLocal = () => {
+      return typeof local === 'function' ? local() : local
+    }
+
+    const value = {
+      __v_isRef: true,
+      get value() {
+        return _value.value
+      },
+      set value(v) {
+        v !== _value.value && emit(`update:${propName as string}`, v)
+        if (getLocal()) {
+          _value.value = v
+        }
+      }
+    }
 
     return value
   }

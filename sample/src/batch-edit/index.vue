@@ -1,10 +1,11 @@
 <template>
   <div>
     <div>
-      <u-checkbox v-model="readonly">只读</u-checkbox>
-      <u-checkbox v-model="tree">树形</u-checkbox>
-      <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
-      <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
+      <div class="flex gap-4">
+        <u-checkbox v-model="readonly">只读</u-checkbox>
+        <u-checkbox v-model="tree">树形</u-checkbox>
+        <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
+      </div>
 
       <u-checkbox-group :items="items" v-model="features"></u-checkbox-group>
     </div>
@@ -173,7 +174,6 @@ import type { BatchEditFeature } from '@ui/types'
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
-const quickEdit = shallowRef(false)
 const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
@@ -279,11 +279,17 @@ const model = new FormModel({
   unit: {}
 })
 
-const features = shallowRef<BatchEditFeature[]>(['create', 'update', 'delete'])
+const features = shallowRef<BatchEditFeature[]>([
+  'create',
+  'update',
+  'copy',
+  'delete'
+])
 
 const items = [
   { label: '新增', value: 'create' },
   { label: '更新', value: 'update' },
+  { label: '复制', value: 'copy' },
   { label: '删除', value: 'delete' }
 ]
 

@@ -50,7 +50,7 @@ export class VariableNode extends DecoratorNode<VNode> {
     return false
   }
 
-  override decorate() {
+  override decorate(): VNode {
     return <VariableBlock>{this.__variable}</VariableBlock>
   }
 }

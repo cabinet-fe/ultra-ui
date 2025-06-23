@@ -35,7 +35,7 @@ export function useRows(options: Options): UseRowsReturned {
     emit,
     propName: 'current',
     shallow: true,
-    local: !!props.highlightCurrent
+    local: () => !!props.highlightCurrent
   })
 
   watch(

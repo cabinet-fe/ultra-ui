@@ -2,12 +2,9 @@ import type { FormComponentProps } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 滑块组件属性 */
-export interface SliderProps extends FormComponentProps {
-  modelValue?: number[] | number
-  disabled?: boolean | undefined
-  /** 是否垂直 */
-  vertical?: boolean
-  height?: number
+export interface SliderProps<T extends number | [number, number]>
+  extends FormComponentProps {
+  modelValue?: T
   min?: number
   max?: number
   /** 步长模式 */
@@ -19,23 +16,8 @@ export interface SliderProps extends FormComponentProps {
 }
 
 /** 滑块组件定义的事件 */
-export interface SliderEmits {
-  (e: 'update:modelValue', value: number[] | number): void
-}
-
-export interface SliderButtonEmits {
-  (e: 'update:modelValue', value: number): void
-
-  (e: 'dragPosition', value: number): void
-
-  (e: 'dragEnd', value: number): void
-
-  (e: 'getDragPx', value: number): void
-}
-
-export interface SliderButtonTransform {
-  x: number
-  y: number
+export interface SliderEmits<T extends number | [number, number]> {
+  (e: 'update:modelValue', value: T): void
 }
 
 /** 滑块组件暴露的属性和方法(组件内部使用) */

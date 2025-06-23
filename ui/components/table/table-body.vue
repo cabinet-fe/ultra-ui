@@ -5,10 +5,7 @@
       :row="row"
       :key="row.uid"
       :data-index="index"
-      :class="[
-        bem.is('current', row.isCurrent && tableProps.highlightCurrent),
-        getStripeCls(index)
-      ]"
+      :class="[bem.is('current', row.isCurrent), getStripeCls(index)]"
     />
 
     <!-- 空 -->

@@ -12,5 +12,15 @@
   },
   "scripts": {
     "dts": "vue-tsc --declaration --emitDeclarationOnly"
+  },
+  "devDependencies": {
+    "codemirror": "^6.0.2",
+    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-sql": "^6.9.0",
+    "@codemirror/lang-java": "^6.0.2",
+    "@codemirror/lang-json": "^6.0.2",
+    "@floating-ui/dom": "^1.7.1",
+    "@tanstack/vue-virtual": "^3.13.10",
+    "lexical": "^0.31.2"
   }
 }

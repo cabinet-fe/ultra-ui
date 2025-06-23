@@ -1,16 +1,14 @@
-import type { SliderEmits, SliderProps } from '@ui/types'
+import type { SliderProps } from '@ui/types'
 import type { BEM } from '@ui/utils'
-import type { ComputedRef, InjectionKey, ModelRef, ShallowRef } from 'vue'
+import type { ComputedRef, InjectionKey } from 'vue'
 
 export interface SliderContext {
   cls: BEM<'slider'>
-  runwayRef: ShallowRef<HTMLElement | undefined>
-  sliderSize: ShallowRef<number>
-  emit: SliderEmits
-  sliderProps: SliderProps
-  model: ModelRef<number | number[] | undefined>
+  range: [number, number]
+  sliderProps: SliderProps<[number, number] | number>
   disabled: ComputedRef<boolean>
-  setSliderBarSize: ({ x, y }: { x: number; y: number }) => void
+  value2SliderOffset: (value: number) => number
+  sliderOffset2Value: (offset: number) => number
 }
 
 export const sliderContextKey: InjectionKey<SliderContext> =

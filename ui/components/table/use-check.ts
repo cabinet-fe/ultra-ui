@@ -256,11 +256,11 @@ export function useCheck(options: Options): UseCheckReturned {
           return checkboxNode
         }
 
-        const expandNode = createVNode('i', {
-          text: true,
-          class: cls.e('expand-space')
-        })
-        return [expandNode, checkboxNode]
+        // const expandNode = createVNode('i', {
+        //   text: true,
+        //   class: cls.e('expand-space')
+        // })
+        return [checkboxNode]
       },
       render(ctx) {
         const { row } = ctx
@@ -305,11 +305,11 @@ export function useCheck(options: Options): UseCheckReturned {
           return '单选'
         }
 
-        const expandNode = createVNode('i', {
-          text: true,
-          class: cls.e('expand-space')
-        })
-        return [expandNode, createTextVNode('单选')]
+        // const expandNode = createVNode('i', {
+        //   text: true,
+        //   class: cls.e('expand-space')
+        // })
+        return [createTextVNode('单选')]
       },
 
       render({ row }) {

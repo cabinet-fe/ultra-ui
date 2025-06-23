@@ -69,7 +69,7 @@ const alphaSliderBG = computed(() => {
   return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0), rgba(${r}, ${g}, ${b}, 1))`
 })
 
-function init() {
+function init(): void {
   getAlphaWidth()
   alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * alpha.value : 0
 }

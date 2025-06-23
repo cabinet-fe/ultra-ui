@@ -7,140 +7,82 @@
 // 方便拼接
 $root-name: slider;
 
-$button-size: 36;
+$track-size: (
+  small: 6px,
+  default: 8px,
+  large: 10px
+);
+$margin: (
+  small: 6px,
+  default: 8px,
+  large: 10px
+);
 
 @include m.b($root-name) {
-  @include m.size using ($size) {
-    padding: calc(fn.use-var(form-component-height, $size) / 2.8);
-    height: fn.use-var(form-component-height, $size);
+  background-color: fn.use-var(color, disabled);
+  position: relative;
+  cursor: pointer;
 
-    @include m.bem($root-name, button) {
-      width: calc(fn.use-var(form-component-height, $size) / 1.5);
-      height: calc(fn.use-var(form-component-height, $size) / 1.5);
-    }
-
-    @include m.bem($root-name, runway) {
-      border-radius: fn.use-var(radius, $size);
-    }
-
-    @include m.bem($root-name, bar) {
-      border-radius: fn.use-var(radius, $size);
-    }
-
-    @include m.is(vertical) {
-      width: fn.use-var(form-component-height, $size);
-    }
-  }
-
-  @include m.is(vertical) {
-    height: initial;
-    @include m.bem($root-name, button-wrap) {
-      bottom: #{math.div(-$button-size, 2.5)}px;
-      top: unset;
-    }
-
-    @include m.bem($root-name, runway) {
-      width: 100%;
-      height: 100%;
-    }
-
-    @include m.bem($root-name, bar) {
-      bottom: 0;
-      pointer-events: none;
-    }
-
-    @include m.bem($root-name, stop) {
-      position: absolute;
-      pointer-events: none;
-      width: 100%;
-      height: 10px;
-      border-radius: 50%;
-      background: fn.use-var(color-default-light-7);
-      z-index: 10;
-    }
+  @include m.is(range) {
+    cursor: default;
   }
 
   @include m.is(disabled) {
+    cursor: not-allowed;
+
     @include m.bem($root-name, bar) {
-      background-color: fn.use-var(color-default-dark-3);
-      cursor: no-drop;
+      background-color: fn.use-var(color, disabled, dark-1);
     }
 
-    @include m.bem($root-name, runway) {
-      cursor: no-drop;
-    }
-
-    @include m.bem($root-name, button) {
-      border: solid 2px fn.use-var(color-default-dark-3);
-      cursor: no-drop;
-
-      &:active {
-        cursor: no-drop;
-        transform: none;
-      }
+    @include m.bem($root-name, thumb) {
+      cursor: not-allowed;
+      border-color: fn.use-var(color, disabled, dark-1);
       &:hover {
-        transform: none;
+        box-shadow: none;
       }
     }
   }
 
-  @include m.e(runway) {
-    height: 100%;
-    background-color: fn.use-var(color, primary, light-9);
-    position: relative;
-    cursor: pointer;
+  @include m.size using($size) {
+    $track-size: map.get($track-size, $size);
+    $margin-y: map.get($margin, $size);
+    $thumb-size: $track-size + $margin-y * 2;
+    $margin-x: math.div($thumb-size, 2);
+
+    height: $track-size;
+    margin: $margin-y $margin-x;
+    border-radius: $track-size;
+
+    @include m.bem($root-name, thumb) {
+      width: $thumb-size;
+      height: $thumb-size;
+      top: -$margin-y;
+      left: -$margin-x;
+    }
   }
 
   @include m.e(bar) {
-    width: 100%;
     position: absolute;
-    pointer-events: none;
-    z-index: 1;
-    left: 0;
     height: 100%;
-    background-color: #007bff;
+    border-radius: 12px;
+    background-color: fn.use-var(color, primary);
   }
 
-  @include m.e(button-wrap) {
-    width: $button-size + px;
-    height: $button-size + px;
-    line-height: $button-size + px;
-    position: absolute;
-    top: math.div(-$button-size, 2.5) + px;
-    z-index: 1;
-    user-select: none;
-    text-align: center;
-    left: math.div(-$button-size + 10, 2) + px;
-    cursor: grab;
-  }
-
-  @include m.e(button) {
-    display: inline-block;
-    vertical-align: middle;
-    border: solid 2px fn.use-var(color-primary);
-    background-color: fn.use-var(bg-color-top);
+  @include m.e(thumb) {
     border-radius: 50%;
-    box-sizing: border-box;
-    transition: transform 0.2s;
-    user-select: none;
+    background-color: fn.use-var(bg-color, top);
+    position: absolute;
+    cursor: grab;
+    border: 3px solid fn.use-var(color, primary);
+    transition: box-shadow 0.2s;
+
+    &:hover,
+    &:active {
+      box-shadow: 0 0 4px 0px fn.use-var(color, primary);
+    }
 
     &:active {
       cursor: grabbing;
-      transform: scale(1.2);
     }
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
-
-  @include m.e(stop) {
-    position: absolute;
-    pointer-events: none;
-    width: 10px;
-    height: 100%;
-    border-radius: 50%;
-    background: #fafcfd;
-    z-index: 10;
-    background-color: fn.use-var(color-default-light-7);
   }
 }

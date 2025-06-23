@@ -39,15 +39,18 @@ export function useEdit(options: {
   }
 
   async function handleAdd(row: TableRow, e: MouseEvent) {
+    open('create', e.currentTarget as HTMLElement)
     setCurrentRow(row)
   }
 
   async function handleEdit(row: TableRow, e: MouseEvent) {
+    open('update', e.currentTarget as HTMLElement)
     setCurrentRow(row)
   }
 
   async function handleCopy(row: TableRow, e: MouseEvent) {
-    console.log(row, e)
+    open('copy', e.currentTarget as HTMLElement)
+    setCurrentRow(row)
   }
 
   async function handleDelete(row: TableRow) {

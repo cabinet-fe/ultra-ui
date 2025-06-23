@@ -1,4 +1,4 @@
-import { defineComponent, type PropType, type VNodeRef } from 'vue'
+import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
 import { inject } from 'vue'
 import { TableDIKey } from './di'
 import UTabelCell from './table-cell.vue'
@@ -7,17 +7,14 @@ import { ArrowRight } from 'icon-ultra'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 import type { JSX } from 'vue/jsx-runtime'
-import type { TableRow } from '@ui/types'
+import type { TableRow as ITableRow } from '@ui/types'
 
-export default defineComponent({
+const TableRow: DefineComponent<{
+  row: ITableRow
+}> = defineComponent({
   name: 'TableRow',
 
-  props: {
-    row: {
-      type: Object as PropType<TableRow>,
-      required: true
-    }
-  },
+  props: ['row'],
 
   setup(props) {
     const { row } = props
@@ -123,3 +120,5 @@ export default defineComponent({
     }
   }
 })
+
+export default TableRow

@@ -8,7 +8,11 @@ interface UseColumnFixedReturned {
   handleScroll: (e: Required<ScrollPosition>) => void
 }
 
-export function useColumnFixed(): UseColumnFixedReturned {
+/**
+ * 固定列
+ * @returns
+ */
+export function useFixedColumns(): UseColumnFixedReturned {
   const leftFixed = ref(false)
   const rightFixed = ref(false)
 

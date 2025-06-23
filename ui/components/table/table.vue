@@ -88,7 +88,7 @@ import { useFallbackProps, useVirtual } from '@ui/compositions'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
 import type { TableRowNode } from './node/row'
-import { useColumnFixed } from './use-column-fixed'
+import { useFixedColumns } from './use-fixed-columns'
 import { useColResize } from './use-col-resize'
 import type { ColumnNode } from './node/col'
 
@@ -161,7 +161,7 @@ const columnConfig = useColumns({
 
 const { leafColumns } = columnConfig
 
-const { handleScroll, leftFixed, rightFixed } = useColumnFixed()
+const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
 
 // 在表格中提供的通用方法和属性
 const {

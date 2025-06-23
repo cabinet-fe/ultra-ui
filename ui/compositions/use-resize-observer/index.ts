@@ -1,8 +1,8 @@
 import { type Ref, type ShallowRef, onBeforeUnmount, watch } from 'vue'
 
 export type RefElement =
-  | ShallowRef<HTMLElement | undefined>
-  | Ref<HTMLElement | undefined>
+  | ShallowRef<HTMLElement | undefined | null>
+  | Ref<HTMLElement | undefined | null>
 
 interface ResizeObserverOptions {
   /** 目标节点 */

@@ -1,8 +1,8 @@
-import { defineComponent, inject } from 'vue'
+import { defineComponent, inject, type DefineComponent } from 'vue'
 import { TableDIKey, TableResizeKey } from './di'
 import { bem, withUnit } from '@ui/utils'
 
-export default defineComponent({
+const TableHead: DefineComponent = defineComponent({
   name: 'TableHead',
   setup() {
     const { cls, columnConfig, getHeaderSlotsNode, getHeaderCellClass } =
@@ -50,3 +50,5 @@ export default defineComponent({
     )
   }
 })
+
+export default TableHead

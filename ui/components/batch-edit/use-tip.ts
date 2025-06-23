@@ -6,7 +6,7 @@ export interface TipReturned {
   triggerDom: ShallowRef<HTMLElement | undefined>
   tipType: ShallowRef<BatchEditFeature | undefined>
   open: (type: BatchEditFeature, triggerDom: HTMLElement) => void
-  close: () => void
+
   handleSubmit: () => Promise<void>
 }
 
@@ -18,15 +18,8 @@ export function useTip(options: { props: BatchEditProps }): TipReturned {
   const tipType = shallowRef<BatchEditFeature>()
 
   function open(type: BatchEditFeature, dom: HTMLElement) {
-    visible.value = true
     tipType.value = type
     triggerDom.value = dom
-  }
-
-  function close() {
-    visible.value = false
-    triggerDom.value = undefined
-    tipType.value = undefined
   }
 
   watch(visible, v => {
@@ -47,7 +40,7 @@ export function useTip(options: { props: BatchEditProps }): TipReturned {
     triggerDom,
     tipType,
     open,
-    close,
+
     handleSubmit
   }
 }

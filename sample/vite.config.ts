@@ -1,12 +1,11 @@
 import { defineConfig } from 'vite'
-import Vue from '@vitejs/plugin-vue'
-import VueJSX from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
-import { autoResolveComponent } from 'vite-helper'
+import { autoResolveComponent, pluginPresets } from '@builder/vite'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { existModule } from 'cat-kit/be'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import UnoCSS from 'unocss/vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -31,8 +30,31 @@ export default defineConfig(() => {
     },
 
     plugins: [
-      Vue(),
-      VueJSX(),
+      pluginPresets(['unplugin-components', 'vue', 'vue-jsx'], {
+        'unplugin-components': {
+          resolvers: [
+            autoResolveComponent({
+              prefix: 'U',
+              lib: 'ultra-ui',
+              sideEffects(kebabName, lib) {
+                let moduleId = `${lib}/components/${kebabName}/style.ts`
+                while (!existModule(moduleId)) {
+                  const preKebabName = kebabName
+                  kebabName = kebabName.replace(/-[a-z]$/, '')
+                  if (preKebabName === kebabName) return
+                  moduleId = `${lib}/components/${kebabName}/style.ts`
+                }
+                return moduleId
+              }
+            })
+          ],
+          dts: true,
+          include: [/\.vue$/]
+        }
+      }),
+
+      UnoCSS(),
+
       vueDevTools({
         launchEditor: 'cursor'
       }),
@@ -58,10 +80,6 @@ export default defineConfig(() => {
       })
     ],
 
-    server: {
-      port: 7788,
-      host: true,
-      hmr: true
-    }
+    server: { port: 7788 }
   }
 })

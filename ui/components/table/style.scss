@@ -71,15 +71,9 @@ $root-name: table;
     }
   }
 
-  @include m.e(expand-toggle) {
+  @include m.e(expand-toggle, expand-all) {
     margin-right: fn.use-var(gap, small);
 
-    & > i {
-      transition: transform 0.25s;
-    }
-  }
-
-  @include m.e(expand-all) {
     & > i {
       transition: transform 0.25s;
     }
