@@ -7,8 +7,7 @@ export interface SliderContext {
   range: [number, number]
   sliderProps: SliderProps<[number, number] | number>
   disabled: ComputedRef<boolean>
-  value2SliderOffset: (value: number) => number
-  sliderOffset2Value: (offset: number) => number
+  getOffsetByStep: (offset: number) => number
 }
 
 export const sliderContextKey: InjectionKey<SliderContext> =

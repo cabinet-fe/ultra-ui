@@ -14,43 +14,60 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const { cls, range, disabled } = inject(sliderContextKey)!
+const { cls, range, disabled, sliderProps, getOffsetByStep } =
+  inject(sliderContextKey)!
 
 const thumbRef = useTemplateRef('thumb')
 
-const style = computed(() => ({
-  transform: `translate(${props.modelValue}px, 0)`
-}))
+const style = computed(() => {
+  if (sliderProps.vertical) {
+    return {
+      transform: `translate(0, ${props.modelValue}px)`
+    }
+  }
+  return {
+    transform: `translate(${props.modelValue}px, 0)`
+  }
+})
 
 const { updateAndLock, update } = useUpdateLock()
 
-function updateModel(v: number) {
-  emit('update:modelValue', v)
+function updateModel(offset: number) {
+  offset = getOffsetByStep(offset)
+  emit('update:modelValue', offset)
+  return offset
 }
 
 const dragger = useDrag({
   target: computed(() => (disabled.value ? null : thumbRef.value)),
 
-  onDrag({ offsetX }) {
+  onDrag({ offsetX, offsetY }) {
     updateAndLock(() => {
-      updateModel(offsetX)
+      updateModel(sliderProps.vertical ? offsetY : offsetX)
     })
   },
   rangeX: range,
-  onDragEnd({ offsetX }) {
+  rangeY: range,
+  onDragEnd({ offsetX, offsetY }) {
     updateAndLock(() => {
-      updateModel(offsetX)
-      dragger.update({ offsetX })
+      const offset = updateModel(sliderProps.vertical ? offsetY : offsetX)
+      updateDragger(offset)
     })
   }
 })
 
+function updateDragger(offset: number) {
+  if (sliderProps.vertical) {
+    dragger.update({ offsetY: offset })
+  } else {
+    dragger.update({ offsetX: offset })
+  }
+}
+
 watch(
   () => props.modelValue,
-  v => {
-    update(() => {
-      dragger.update({ offsetX: v })
-    })
+  offset => {
+    update(() => updateDragger(offset))
   }
 )
 </script>

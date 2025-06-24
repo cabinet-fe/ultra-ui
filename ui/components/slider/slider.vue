@@ -9,6 +9,12 @@
 
     <slider-thumb v-model="offset1" @click.stop />
     <slider-thumb v-if="range" v-model="offset2" @click.stop />
+
+    <div
+      v-for="tick in ticks"
+      :style="{ [vertical ? 'bottom' : 'left']: `${tick}%` }"
+      :class="cls.e('tick')"
+    />
   </div>
 
   <div v-else>
@@ -55,7 +61,9 @@ const className = computed(() => {
     cls.b,
     cls.m(size.value),
     bem.is('disabled', disabled.value),
-    bem.is('range', props.range)
+    bem.is('range', props.range),
+    bem.is('horizontal', !props.vertical),
+    bem.is('vertical', props.vertical)
   ]
 })
 
@@ -66,19 +74,24 @@ const {
   slideRange,
   sliderSize,
   sliderOffset2Value,
-  value2SliderOffset
+  value2SliderOffset,
+  getOffsetByStep
 } = useSlider(props)
 
 const barStyles = computed(() => {
+  const { vertical } = props
+  const offsetProp = vertical ? 'bottom' : 'left'
+  const sizeProp = vertical ? 'height' : 'width'
+
   if (!props.range) {
     return {
-      left: 0,
-      width: `${offset1.value}px`
+      [offsetProp]: 0,
+      [sizeProp]: `${Math.abs(offset1.value)}px`
     }
   }
   return {
-    left: `${Math.min(offset1.value, offset2.value)}px`,
-    width: `${Math.abs(offset1.value - offset2.value)}px`
+    [offsetProp]: `${Math.min(Math.abs(offset1.value), Math.abs(offset2.value))}px`,
+    [sizeProp]: `${Math.abs(offset1.value - offset2.value)}px`
   }
 })
 
@@ -101,6 +114,18 @@ watch(
   { immediate: true }
 )
 
+const ticks = computed(() => {
+  const { step, min, max } = props
+  if (!step) return []
+  const tickLength = Math.ceil((max! - min!) / step)
+  const offsetPercent = (step / (max! - min!)) * 100
+
+  return [
+    ...Array.from({ length: tickLength }, (_, i) => i * offsetPercent),
+    100
+  ]
+})
+
 watch([offset1, offset2], v => {
   updateAndLock(() => {
     if (props.range) {
@@ -116,9 +141,8 @@ function handleClickSlider(e: MouseEvent) {
 
   // 获取点击位置相对于滑块的偏移量
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const offsetX = e.clientX - rect.left
 
-  offset1.value = offsetX
+  offset1.value = getOffsetByStep(e.clientX - rect.left)
 }
 
 provide(sliderContextKey, {
@@ -126,7 +150,6 @@ provide(sliderContextKey, {
   disabled,
   range: slideRange,
   cls,
-  value2SliderOffset,
-  sliderOffset2Value
+  getOffsetByStep
 })
 </script>

@@ -5,14 +5,26 @@ import type { DeconstructValue } from '../helper'
 export interface SliderProps<T extends number | [number, number]>
   extends FormComponentProps {
   modelValue?: T
+  /**
+   * 最小值
+   * @default 0
+   */
   min?: number
+  /**
+   * 最大值
+   * @default 100
+   */
   max?: number
-  /** 步长模式 */
+  /**
+   * 步长
+   * - 如果设置步长, 则滑块会按照步长进行滑动
+   * - 同时，滑块上将会显示步长刻度
+   */
   step?: number
-  /** 是否是范围模式 */
+  /** 是否是范围滑块 */
   range?: boolean
-  /** 是否显示断点 */
-  showStops?: boolean
+  /** 是否是垂直模式 */
+  vertical?: boolean
 }
 
 /** 滑块组件定义的事件 */

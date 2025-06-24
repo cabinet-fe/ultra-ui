@@ -26,7 +26,7 @@
             :max="config.data.max"
             placeholder="设置步长"
           />
-          <u-checkbox field="showStops" label="显示刻度" />
+          <u-checkbox field="vertical" label="垂直模式" />
           <u-checkbox field="range" label="范围选择" />
           <u-checkbox field="disabled" label="禁用状态" />
           <u-checkbox field="readonly" label="只读模式" />
@@ -39,7 +39,13 @@
       <u-card-header> 滑块演示 </u-card-header>
 
       <u-card-content>
-        <u-slider v-model="sliderValue" v-bind="config.data" />
+        <u-slider
+          v-model="sliderValue"
+          v-bind="config.data"
+          :style="{
+            height: config.data.vertical ? '300px' : undefined
+          }"
+        />
 
         {{ sliderValue }}
       </u-card-content>
@@ -55,7 +61,7 @@ const config = new FormModel({
   min: { value: 10 },
   max: { value: 100 },
   step: { value: 10 },
-  showStops: { value: true },
+  vertical: { value: false },
   range: { value: false },
   disabled: { value: false },
   readonly: { value: false }

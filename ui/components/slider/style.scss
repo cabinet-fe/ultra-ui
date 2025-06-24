@@ -12,10 +12,11 @@ $track-size: (
   default: 8px,
   large: 10px
 );
-$margin: (
-  small: 6px,
-  default: 8px,
-  large: 10px
+
+$thumb-size: (
+  small: 18px,
+  default: 24px,
+  large: 30px
 );
 
 @include m.b($root-name) {
@@ -43,29 +44,85 @@ $margin: (
     }
   }
 
+  @include m.e(tick) {
+    position: absolute;
+    z-index: 0;
+    height: 4px;
+    width: 4px;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(bar) {
+    position: absolute;
+    border-radius: 12px;
+    background-color: fn.use-var(color, primary);
+  }
+
+  @include m.is(horizontal) {
+    width: 100%;
+
+    @include m.bem($root-name, tick) {
+      transform: translateX(-50%);
+    }
+
+    @include m.bem($root-name, bar) {
+      height: 100%;
+    }
+  }
+
+  @include m.is(vertical) {
+    height: 100%;
+
+    @include m.bem($root-name, tick) {
+      transform: translateY(-50%);
+    }
+
+    @include m.bem($root-name, bar) {
+      width: 100%;
+    }
+  }
+
   @include m.size using($size) {
     $track-size: map.get($track-size, $size);
-    $margin-y: map.get($margin, $size);
-    $thumb-size: $track-size + $margin-y * 2;
-    $margin-x: math.div($thumb-size, 2);
+    $thumb-size: map.get($thumb-size, $size);
+    $margin-y: math.div($thumb-size - $track-size + 4px, 2);
+    $margin-x: math.div($thumb-size + 4px, 2);
 
-    height: $track-size;
-    margin: $margin-y $margin-x;
     border-radius: $track-size;
 
     @include m.bem($root-name, thumb) {
       width: $thumb-size;
       height: $thumb-size;
-      top: -$margin-y;
-      left: -$margin-x;
     }
-  }
 
-  @include m.e(bar) {
-    position: absolute;
-    height: 100%;
-    border-radius: 12px;
-    background-color: fn.use-var(color, primary);
+    @include m.is(horizontal) {
+      height: $track-size;
+      margin: $margin-y $margin-x;
+
+      @include m.bem($root-name, thumb) {
+        top: -(math.div($thumb-size - $track-size, 2));
+        left: -(math.div($thumb-size, 2));
+      }
+
+      @include m.bem($root-name, tick) {
+        top: math.div($track-size - 4px, 2);
+      }
+    }
+
+    @include m.is(vertical) {
+      width: $track-size;
+      margin: $margin-x $margin-y;
+
+      @include m.bem($root-name, thumb) {
+        left: -(math.div($thumb-size - $track-size, 2));
+        bottom: -(math.div($thumb-size, 2));
+      }
+
+      @include m.bem($root-name, tick) {
+        left: math.div($track-size - 4px, 2);
+      }
+    }
   }
 
   @include m.e(thumb) {
@@ -73,6 +130,7 @@ $margin: (
     background-color: fn.use-var(bg-color, top);
     position: absolute;
     cursor: grab;
+    z-index: 1;
     border: 3px solid fn.use-var(color, primary);
     transition: box-shadow 0.2s;
 
