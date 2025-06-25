@@ -4,14 +4,13 @@
     "composite": true,
     "declaration": true,
     "types": ["vite/client"],
-    "jsx": "preserve",
-    "jsxImportSource": "vue",
     "isolatedDeclarations": true,
     "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "paths": {
       "@ui/*": ["./*"]
     },
+    "erasableSyntaxOnly": true,
     "outDir": "../dist"
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],

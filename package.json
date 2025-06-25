@@ -8,8 +8,7 @@
     "export": "bun cli/export/index.ts",
     "rename:types": "bun cli/rename/types",
     "update": "bun update",
-    "postinstall": "simple-git-hooks",
-    "cz": "czg ai"
+    "postinstall": "simple-git-hooks"
   },
   "keywords": [
     "完全TS开发的Vue3组件库",
@@ -28,8 +27,8 @@
   ],
   "devDependencies": {
     "@types/bun": "^1.2.17",
-    "@vitejs/plugin-vue": "^5.2.4",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "cat-kit": "^3.7.12",
     "fast-glob": "^3.3.3",
