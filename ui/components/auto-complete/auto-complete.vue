@@ -5,6 +5,7 @@
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
+    @update:visible="isFirstOpen.value = true"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     :disabled="disabled"
   >
@@ -135,10 +136,11 @@ watch(scrollRef, scroll => {
   }
 })
 
-const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({
-  props,
-  model
-})
+const { suggestions, appendedSuggestions, cachedSuggestion, isFirstOpen } =
+  useSuggestions({
+    props,
+    model
+  })
 
 /** 选中选项 */
 const handleSelect = (option: string) => {

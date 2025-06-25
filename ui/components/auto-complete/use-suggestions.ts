@@ -19,6 +19,7 @@ interface UseSuggestionsReturned {
   suggestions: ComputedRef<string[]>
   cachedSuggestion: ComputedRef<string | undefined>
   appendedSuggestions: ShallowRef<string[]>
+  isFirstOpen: { value: boolean }
 }
 
 export function useSuggestions(options: Options): UseSuggestionsReturned {
@@ -27,6 +28,10 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
   const filteredSuggestions = shallowRef<string[]>([])
   // 追加的建议
   const appendedSuggestions = shallowRef<string[]>([])
+
+  const isFirstOpen = {
+    value: true
+  }
 
   const suggestions = computed(() => {
     const { suggestions } = props
@@ -59,6 +64,18 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
           ]
           return
         }
+
+        if (isFirstOpen.value) {
+          filteredSuggestions.value = [
+            ...(propsSuggestions ?? []),
+            ...appendedSuggestions.value
+          ]
+
+          isFirstOpen.value = false
+
+          return
+        }
+
         filteredSuggestions.value = [
           ...(propsSuggestions?.filter(item => item.includes(v)) ?? []),
           ...appendedSuggestions.value.filter(item => item.includes(v))
@@ -73,6 +90,7 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
   return {
     suggestions,
     cachedSuggestion,
-    appendedSuggestions
+    appendedSuggestions,
+    isFirstOpen
   }
 }
