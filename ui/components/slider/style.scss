@@ -7,23 +7,19 @@
 // 方便拼接
 $root-name: slider;
 
+$slider-size: (
+  small: 18px,
+  default: 24px,
+  large: 30px
+);
+
 $track-size: (
   small: 6px,
   default: 8px,
   large: 10px
 );
 
-$thumb-size: (
-  small: 18px,
-  default: 24px,
-  large: 30px
-);
-
 @include m.b($root-name) {
-  background-color: fn.use-var(color, disabled);
-  position: relative;
-  cursor: pointer;
-
   @include m.is(range) {
     cursor: default;
   }
@@ -42,6 +38,14 @@ $thumb-size: (
         box-shadow: none;
       }
     }
+  }
+
+  @include m.e(track) {
+    background-color: fn.use-var(color, disabled);
+    position: relative;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
   }
 
   @include m.e(tick) {
@@ -75,7 +79,7 @@ $thumb-size: (
     height: 100%;
 
     @include m.bem($root-name, tick) {
-      transform: translateY(-50%);
+      transform: translateY(50%);
     }
 
     @include m.bem($root-name, bar) {
@@ -84,25 +88,25 @@ $thumb-size: (
   }
 
   @include m.size using($size) {
+    $slider-size: map.get($slider-size, $size);
     $track-size: map.get($track-size, $size);
-    $thumb-size: map.get($thumb-size, $size);
-    $margin-y: math.div($thumb-size - $track-size + 4px, 2);
-    $margin-x: math.div($thumb-size + 4px, 2);
+    $padding-y: math.div($slider-size - $track-size, 2);
+    $padding-x: math.div($slider-size, 2);
 
     border-radius: $track-size;
 
     @include m.bem($root-name, thumb) {
-      width: $thumb-size;
-      height: $thumb-size;
+      width: $slider-size;
+      height: $slider-size;
     }
 
     @include m.is(horizontal) {
-      height: $track-size;
-      margin: $margin-y $margin-x;
+      height: $slider-size;
+      padding: $padding-y $padding-x;
 
       @include m.bem($root-name, thumb) {
-        top: -(math.div($thumb-size - $track-size, 2));
-        left: -(math.div($thumb-size, 2));
+        top: -(math.div($slider-size - $track-size, 2));
+        left: -(math.div($slider-size, 2));
       }
 
       @include m.bem($root-name, tick) {
@@ -111,12 +115,12 @@ $thumb-size: (
     }
 
     @include m.is(vertical) {
-      width: $track-size;
-      margin: $margin-x $margin-y;
+      width: $slider-size;
+      padding: $padding-x $padding-y;
 
       @include m.bem($root-name, thumb) {
-        left: -(math.div($thumb-size - $track-size, 2));
-        bottom: -(math.div($thumb-size, 2));
+        left: -(math.div($slider-size - $track-size, 2));
+        bottom: -(math.div($slider-size, 2));
       }
 
       @include m.bem($root-name, tick) {
@@ -131,13 +135,7 @@ $thumb-size: (
     position: absolute;
     cursor: grab;
     z-index: 1;
-    border: 3px solid fn.use-var(color, primary);
-    transition: box-shadow 0.2s;
-
-    &:hover,
-    &:active {
-      box-shadow: 0 0 4px 0px fn.use-var(color, primary);
-    }
+    border: 4px solid fn.use-var(color, primary);
 
     &:active {
       cursor: grabbing;

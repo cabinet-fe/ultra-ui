@@ -10,20 +10,26 @@
             field="min"
             :min="0"
             :max="config.data.max"
+            :step="10"
             label="最小值"
+            :clearable="false"
             placeholder="设置最小值"
           />
           <u-number-input
             field="max"
             :min="config.data.min"
             label="最大值"
+            :step="10"
+            :clearable="false"
             placeholder="设置最大值"
           />
           <u-number-input
             field="step"
             label="步长"
-            :min="1"
+            :min="0"
             :max="config.data.max"
+            :step="5"
+            :clearable="false"
             placeholder="设置步长"
           />
           <u-checkbox field="vertical" label="垂直模式" />
@@ -58,9 +64,9 @@ import { FormModel } from '@ui/components'
 import { ref } from 'vue'
 
 const config = new FormModel({
-  min: { value: 10 },
+  min: { value: 0 },
   max: { value: 100 },
-  step: { value: 10 },
+  step: { value: 0 },
   vertical: { value: false },
   range: { value: false },
   disabled: { value: false },

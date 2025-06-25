@@ -1,20 +1,17 @@
 <template>
-  <div
-    v-if="!readonly"
-    :class="className"
-    ref="sliderRef"
-    @click="handleClickSlider"
-  >
-    <div :class="cls.e('bar')" :style="barStyles" />
+  <div v-if="!readonly" :class="className">
+    <div :class="cls.e('track')" ref="sliderRef" @click="handleClickSlider">
+      <div :class="cls.e('bar')" :style="barStyles" />
 
-    <slider-thumb v-model="offset1" @click.stop />
-    <slider-thumb v-if="range" v-model="offset2" @click.stop />
+      <slider-thumb v-model="offset1" @click.stop />
+      <slider-thumb v-if="range" v-model="offset2" @click.stop />
 
-    <div
-      v-for="tick in ticks"
-      :style="{ [vertical ? 'bottom' : 'left']: `${tick}%` }"
-      :class="cls.e('tick')"
-    />
+      <div
+        v-for="tick in ticks"
+        :style="{ [vertical ? 'bottom' : 'left']: `${tick}%` }"
+        :class="cls.e('tick')"
+      />
+    </div>
   </div>
 
   <div v-else>
@@ -97,17 +94,22 @@ const barStyles = computed(() => {
 
 const { updateAndLock, update } = useUpdateLock()
 
-// 回显
 watch(
-  [() => props.modelValue, sliderSize],
-  ([v, size]) => {
+  [
+    sliderSize,
+    ...['modelValue', 'range', 'max', 'min', 'vertical'].map(
+      k => () => props[k]
+    )
+  ],
+  ([size, value, range]) => {
     update(() => {
-      if (v === undefined || size === 0) return
-      if (props.range) {
-        offset1.value = value2SliderOffset(v[0])
-        offset2.value = value2SliderOffset(v[1])
+      if (value === undefined || size === 0) return
+      console.log(1)
+      if (range) {
+        offset1.value = value2SliderOffset((value as [number, number])[0])
+        offset2.value = value2SliderOffset((value as [number, number])[1])
       } else {
-        offset1.value = value2SliderOffset(v as number)
+        offset1.value = value2SliderOffset(value as number)
       }
     })
   },
