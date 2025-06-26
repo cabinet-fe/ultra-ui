@@ -5,7 +5,6 @@
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
-    @update:visible="isFirstOpen.value = true"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     :disabled="disabled"
   >
@@ -86,6 +85,7 @@ import { useSuggestions } from './use-suggestions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { DropdownExposed, ScrollExposed } from '@ui/types'
 import { formItemViewerCls } from '../form-item/helper'
+import { useKeyboard } from './use-keyboard'
 
 defineOptions({
   name: 'AutoComplete',
@@ -125,6 +125,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
 )
 
 const dropdownRef = shallowRef<DropdownExposed>()
+const dropdownVisible = shallowRef(false)
 const scrollRef = shallowRef<ScrollExposed>()
 
 watch(scrollRef, scroll => {
@@ -136,11 +137,16 @@ watch(scrollRef, scroll => {
   }
 })
 
-const { suggestions, appendedSuggestions, cachedSuggestion, isFirstOpen } =
-  useSuggestions({
-    props,
-    model
-  })
+const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({
+  props,
+  model
+})
+
+useKeyboard({
+  dropdownVisible,
+  model,
+  suggestions
+})
 
 /** 选中选项 */
 const handleSelect = (option: string) => {
@@ -159,6 +165,4 @@ const handleSelectCachedOption = (cachedOption: string) => {
   appendedSuggestions.value = [...appendedSuggestions.value, cachedOption]
   dropdownRef.value?.close()
 }
-
-const dropdownVisible = shallowRef(false)
 </script>

@@ -19,26 +19,26 @@ interface UseSuggestionsReturned {
   suggestions: ComputedRef<string[]>
   cachedSuggestion: ComputedRef<string | undefined>
   appendedSuggestions: ShallowRef<string[]>
-  isFirstOpen: { value: boolean }
 }
 
 export function useSuggestions(options: Options): UseSuggestionsReturned {
   const { model, props } = options
-  const remoteSuggestions = shallowRef<string[]>([])
-  const filteredSuggestions = shallowRef<string[]>([])
-  // 追加的建议
-  const appendedSuggestions = shallowRef<string[]>([])
 
-  const isFirstOpen = {
-    value: true
-  }
+  /**
+   * 动态的建议
+   */
+  const dynamicSuggestions = shallowRef<string[]>([])
+  /** 过滤后的建议 */
+  const filteredSuggestions = shallowRef<string[]>([])
+
+  const appendedSuggestions = shallowRef<string[]>([])
 
   const suggestions = computed(() => {
     const { suggestions } = props
     if (!suggestions) return appendedSuggestions.value
 
     if (typeof suggestions === 'function') {
-      return remoteSuggestions.value.concat(appendedSuggestions.value)
+      return dynamicSuggestions.value.concat(appendedSuggestions.value)
     }
 
     return filteredSuggestions.value
@@ -55,24 +55,13 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
     debounce(async ([v, propsSuggestions]) => {
       if (typeof propsSuggestions === 'function') {
         const suggestions = await propsSuggestions(v)
-        remoteSuggestions.value = suggestions ?? []
+        dynamicSuggestions.value = suggestions ?? []
       } else {
         if (!v) {
           filteredSuggestions.value = [
             ...(propsSuggestions ?? []),
             ...appendedSuggestions.value
           ]
-          return
-        }
-
-        if (isFirstOpen.value) {
-          filteredSuggestions.value = [
-            ...(propsSuggestions ?? []),
-            ...appendedSuggestions.value
-          ]
-
-          isFirstOpen.value = false
-
           return
         }
 
@@ -90,7 +79,6 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
   return {
     suggestions,
     cachedSuggestion,
-    appendedSuggestions,
-    isFirstOpen
+    appendedSuggestions
   }
 }
