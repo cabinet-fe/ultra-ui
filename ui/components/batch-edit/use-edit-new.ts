@@ -8,6 +8,7 @@ interface EditReturned {
   handleAdd: (row: TableRow, e: MouseEvent) => Promise<void>
   handleCopy: (row: TableRow, e: MouseEvent) => Promise<void>
   handleDelete: (row: TableRow) => Promise<void>
+  handleCellClick: (row: TableRow, column: any, ev: MouseEvent) => void
 }
 
 export function useEdit(options: {
@@ -57,11 +58,17 @@ export function useEdit(options: {
     emit('update:data', props.data?.filter((_, i) => i !== row.index) ?? [])
   }
 
+  function handleCellClick(row: TableRow, _, ev: MouseEvent) {
+    open('view', ev.currentTarget as HTMLElement)
+    setCurrentRow(row)
+  }
+
   return {
     currentRow,
     handleEdit,
     handleAdd,
     handleCopy,
-    handleDelete
+    handleDelete,
+    handleCellClick
   }
 }

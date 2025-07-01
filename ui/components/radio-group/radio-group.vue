@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, bem.is('block', block)]" v-if="!readonly">
+  <div :class="[cls.b, bem.is('block', block), cls.m(size)]" v-if="!readonly">
     <u-radio
       v-for="item of items"
       :key="item[valueKey]"

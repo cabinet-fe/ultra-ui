@@ -1,58 +1,60 @@
 <template>
   <Teleport to="body">
-    <transition name="fade" @after-leave="emit('closed')">
-      <div
-        v-if="visible || opened"
-        v-show="visible"
-        :class="[cls.e('overlay'), bem.is('modal', modal)]"
-        :style="{ zIndex: currentZIndex }"
-        ref="overlayRef"
-        @mousedown="handleOverlayClick"
-        @keyup.esc="close"
-        tabindex="0"
-      >
-        <transition :name="transitionName">
-          <div
-            v-show="visible"
-            v-bind="$attrs"
-            :class="drawerClass"
-            :style="drawerStyle"
-            ref="drawerRef"
-            @mousedown.stop
-          >
-            <!-- 头部 -->
+    <div v-if="visible" :class="cls.e('overlay')">
+      <transition name="fade" @after-leave="emit('closed')">
+        <div
+          v-if="visible || opened"
+          v-show="visible"
+          :class="cls.b"
+          :style="{ zIndex: currentZIndex }"
+          ref="overlayRef"
+          @mousedown="handleOverlayClick"
+          @keyup.esc="close"
+          tabindex="0"
+        >
+          <transition :name="transitionName">
             <div
-              v-if="title || closable || $slots.header"
-              :class="cls.e('header')"
+              v-show="visible"
+              v-bind="$attrs"
+              :class="drawerClass"
+              :style="drawerStyle"
+              ref="drawerRef"
+              @mousedown.stop
             >
-              <div :class="cls.e('title')">
-                <slot name="header">
-                  {{ title }}
-                </slot>
-              </div>
-              <u-icon
-                v-if="closable"
-                :class="cls.e('close')"
-                @click="close"
-                title="关闭"
+              <!-- 头部 -->
+              <div
+                v-if="title || closable || $slots.header"
+                :class="cls.e('header')"
               >
-                <Close />
-              </u-icon>
-            </div>
+                <div :class="cls.e('title')">
+                  <slot name="header">
+                    {{ title }}
+                  </slot>
+                </div>
+                <u-icon
+                  v-if="closable"
+                  :class="cls.e('close')"
+                  @click="close"
+                  title="关闭"
+                >
+                  <Close />
+                </u-icon>
+              </div>
 
-            <!-- 内容 -->
-            <div :class="cls.e('body')">
-              <slot />
-            </div>
+              <!-- 内容 -->
+              <div :class="cls.e('body')">
+                <slot />
+              </div>
 
-            <!-- 底部 -->
-            <div v-if="$slots.footer" :class="cls.e('footer')">
-              <slot name="footer" />
+              <!-- 底部 -->
+              <div v-if="$slots.footer" :class="cls.e('footer')">
+                <slot name="footer" />
+              </div>
             </div>
-          </div>
-        </transition>
-      </div>
-    </transition>
+          </transition>
+        </div>
+      </transition>
+    </div>
   </Teleport>
 </template>
 

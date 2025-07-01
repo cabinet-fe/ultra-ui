@@ -4,6 +4,7 @@
     :columns="columnsWithOperation"
     :current="currentRow"
     :class="cls.b"
+    @cell-click="handleCellClick"
   >
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop>
@@ -87,7 +88,8 @@ import type {
   BatchEditEmits,
   BatchEditProps,
   ButtonProps,
-  TableColumn
+  TableColumn,
+  TableRow
 } from '@ui/types'
 import { type FormModel, UForm } from '../form'
 import { UTable } from '../table'
@@ -158,16 +160,22 @@ const { visible, triggerDom, tipType, open, handleSubmit } = useTip({
 const titleDict = {
   create: '新增',
   update: '编辑',
-  copy: '复制'
+  copy: '复制',
+  view: '查看'
 }
 
-const { currentRow, handleEdit, handleAdd, handleCopy, handleDelete } = useEdit(
-  {
-    emit,
-    props,
-    open
-  }
-)
+const {
+  currentRow,
+  handleEdit,
+  handleAdd,
+  handleCopy,
+  handleDelete,
+  handleCellClick
+} = useEdit({
+  emit,
+  props,
+  open
+})
 
 watch(currentRow, r => {
   visible.value = !!r ? true : false

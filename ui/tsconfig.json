@@ -10,7 +10,7 @@
     "paths": {
       "@ui/*": ["./*"]
     },
-    "erasableSyntaxOnly": true,
+
     "outDir": "../dist"
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
