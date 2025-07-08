@@ -51,7 +51,7 @@
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import type { GroupInputEmits, GroupInputProps } from '@ui/types'
 import { bem } from '@ui/utils'
-import { Minus, Plus } from 'icon-ultra'
+import { Minus, Plus } from '@ultra/icon'
 import { useGroupItems } from './use-group-items'
 import { computed } from 'vue'
 import { UButton } from '../button'

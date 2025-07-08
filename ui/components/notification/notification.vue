@@ -46,7 +46,7 @@ import {
   WarningFilled,
   CircleClose,
   QuestionFilled
-} from 'icon-ultra'
+} from '@ultra/icon'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
 

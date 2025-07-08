@@ -88,7 +88,7 @@ import type {
 import { bem } from '@ui/utils'
 import { useConfig, useFallbackProps } from '@ui/compositions'
 import { computed, reactive, shallowRef, watch } from 'vue'
-import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from 'icon-ultra'
+import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra/icon'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'

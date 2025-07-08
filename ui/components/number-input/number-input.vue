@@ -52,7 +52,7 @@ import type {
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
 import { n, Tween, obj, isUndef } from 'cat-kit/fe'
-import { ArrowUp, ArrowDown } from 'icon-ultra'
+import { ArrowUp, ArrowDown } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'

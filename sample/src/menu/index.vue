@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { shallowRef, ref, reactive, computed } from 'vue'
-import { HouseFilled, UserGroup, Lock, Cart } from 'icon-ultra'
+import { HouseFilled, UserGroup, Lock, Cart } from '@ultra/icon'
 import { useRoute, useRouter } from 'vue-router'
 
 const menus = shallowRef<any[]>([

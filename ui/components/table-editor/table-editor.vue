@@ -51,7 +51,7 @@ import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UTable } from '../table'
 import { UButton } from '../button'
-import { Plus, Minus, Copy } from 'icon-ultra'
+import { Plus, Minus, Copy } from '@ultra/icon'
 import { useComponentProps } from '@ui/compositions'
 import type { TableRowNode } from '../table/node/row'
 

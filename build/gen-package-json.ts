@@ -64,7 +64,7 @@ export async function genPackageJson() {
 
   pkg.version = rootPkgJson.version
   pkg.peerDependencies = {
-    ...obj(rootPkgJson.devDependencies).pick(['vue', 'cat-kit', 'icon-ultra'])
+    ...obj(rootPkgJson.devDependencies).pick(['vue', 'cat-kit', '@ultra/icon'])
   }
 
   await writeFile(

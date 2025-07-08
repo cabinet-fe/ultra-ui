@@ -98,7 +98,7 @@ import {
 import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
-import { Close, Maximum, Recover } from 'icon-ultra'
+import { Close, Maximum, Recover } from '@ultra/icon'
 import { useMaximum } from './use-maximum'
 import { DialogDIKey } from './di'
 import { UNodeRender } from '../node-render'

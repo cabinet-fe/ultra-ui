@@ -56,7 +56,7 @@ import { computed } from 'vue'
 import type { StepsProps, StepsEmits, StepItem, ComponentSize } from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
-import { Check } from 'icon-ultra'
+import { Check } from '@ultra/icon'
 import { UIcon } from '../icon'
 
 defineOptions({

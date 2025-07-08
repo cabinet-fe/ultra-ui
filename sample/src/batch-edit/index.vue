@@ -283,14 +283,16 @@ const features = shallowRef<BatchEditFeature[]>([
   'create',
   'update',
   'copy',
-  'delete'
+  'delete',
+  'view'
 ])
 
 const items = [
   { label: '新增', value: 'create' },
   { label: '更新', value: 'update' },
   { label: '复制', value: 'copy' },
-  { label: '删除', value: 'delete' }
+  { label: '删除', value: 'delete' },
+  { label: '查看', value: 'view' }
 ]
 
 const asynchronous = shallowRef(false)

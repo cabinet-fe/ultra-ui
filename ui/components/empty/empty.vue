@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import type { EmptyProps } from '@ui/types'
 import { bem } from '@ui/utils'
-import { Empty } from 'icon-ultra'
+import { Empty } from '@ultra/icon'
 import { UIcon } from '../icon'
 
 defineOptions({

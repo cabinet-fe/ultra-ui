@@ -1,205 +1,137 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/functions' as fn;
 @use '../../styles/vars';
+@use 'sass:map';
+@use 'sass:string';
 
 // 方便拼接
 $root-name: drawer;
+$overlay-name: #{$root-name}-overlay;
 
+$edge-offset: 12px;
+$drawer-size: 300px;
+
+$close-size: 48px;
 @include m.b($root-name) {
-  position: fixed;
-  background: var(--u-bg-color-page);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  pointer-events: auto; // 确保抽屉内容可以接收点击事件
-
-  // 左侧抽屉
-  @include m.m(left) {
-    top: 0;
-    left: 0;
-    bottom: 0;
-    border-radius: 0 8px 8px 0;
-
-    @include m.m(edge) {
-      border-radius: 0;
-    }
-
-    @include m.m(inset) {
-      top: 16px;
-      left: 16px;
-      bottom: 16px;
-      border-radius: 8px;
-    }
-  }
-
-  // 右侧抽屉
-  @include m.m(right) {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 8px 0 0 8px;
-
-    @include m.m(edge) {
-      border-radius: 0;
-    }
-
-    @include m.m(inset) {
-      top: 16px;
-      right: 16px;
-      bottom: 16px;
-      border-radius: 8px;
-    }
-  }
-
-  // 顶部抽屉
-  @include m.m(top) {
-    top: 0;
-    left: 0;
-    right: 0;
-    border-radius: 0 0 8px 8px;
-
-    @include m.m(edge) {
-      border-radius: 0;
-    }
-
-    @include m.m(inset) {
-      top: 16px;
-      left: 16px;
-      right: 16px;
-      border-radius: 8px;
-    }
-  }
-
-  // 底部抽屉
-  @include m.m(bottom) {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-radius: 8px 8px 0 0;
-
-    @include m.m(edge) {
-      border-radius: 0;
-    }
-
-    @include m.m(inset) {
-      bottom: 16px;
-      left: 16px;
-      right: 16px;
-      border-radius: 8px;
-    }
-  }
-
-  @include m.e(header) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--u-border-color);
-    flex-shrink: 0;
-  }
-
-  @include m.e(title) {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--u-text-color-primary);
-  }
+  position: absolute;
+  border-radius: fn.use-var(radius, large);
+  background-color: fn.use-var(bg-color, top, alpha);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 10px 2px fn.use-var(shadow, color);
 
   @include m.e(close) {
-    color: var(--u-text-color-secondary);
+    position: absolute;
+    width: $close-size;
+    height: $close-size;
     cursor: pointer;
-    transition: color 0.2s;
+    font-size: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    &:hover {
-      color: var(--u-text-color-primary);
+  @include m.is(right, left) {
+    top: $edge-offset;
+    bottom: $edge-offset;
+    height: calc(100% - $edge-offset * 2);
+    width: $drawer-size;
+
+    @include m.bem($root-name, close) {
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
     }
   }
 
-  @include m.e(body) {
-    flex: 1;
-    padding: 20px;
-    overflow: auto;
+  @include m.is(top, bottom) {
+    left: $edge-offset;
+    right: $edge-offset;
+    width: calc(100% - $edge-offset * 2);
+    height: $drawer-size;
+
+    @include m.bem($root-name, close) {
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+    }
   }
 
-  @include m.e(footer) {
-    padding: 16px 20px;
-    border-top: 1px solid var(--u-border-color);
-    flex-shrink: 0;
+  @include m.is(right) {
+    right: $edge-offset;
+
+    @include m.bem($root-name, close) {
+      left: -($close-size + 4px);
+    }
   }
 
-  @include m.e(overlay) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: 999;
+  @include m.is(left) {
+    left: $edge-offset;
 
-    @include m.is(modal, false) {
-      background: transparent;
-      pointer-events: none;
+    @include m.bem($root-name, close) {
+      right: -($close-size + 4px);
+    }
+  }
+
+  @include m.is(top) {
+    top: $edge-offset;
+
+    @include m.bem($root-name, close) {
+      bottom: -($close-size + 4px);
+    }
+  }
+
+  @include m.is(bottom) {
+    bottom: $edge-offset;
+
+    @include m.bem($root-name, close) {
+      top: -($close-size + 4px);
     }
   }
 }
 
-// body 样式，当抽屉打开时阻止背景滚动
-body#{fn.bem($root-name, null, opened)},
-body.u-drawer--opened {
+@include m.b($overlay-name) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: transparent;
   overflow: hidden;
 }
 
-// 遮罩层淡入淡出动画
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+$directions: (right, left, top, bottom);
+
+$direction-map: (
+  right: translateX(260px),
+  left: translateX(-260px),
+  top: translateY(-260px),
+  bottom: translateY(260px)
+);
+
+@function get-selector($direction, $type) {
+  @return '.' + drawer-slide-#{$direction}-#{$type}-active;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+@function get-active($type) {
+  $active: '';
+  @each $direction in $directions {
+    $active: $active + ',' + get-selector($direction, $type);
+  }
+  @return string.slice($active, 2, -1);
 }
 
-// 左侧抽屉滑动动画
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+#{get-active(enter)} {
+  transition: transform 0.3s cubic-bezier(0.46, 1.29, 0.46, 1.04);
 }
 
-.slide-left-enter-from,
-.slide-left-leave-to {
-  transform: translateX(-100%);
+#{get-active(leave)} {
+  transition: transform 0.3s ease-in-out;
 }
 
-// 右侧抽屉滑动动画
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.slide-right-enter-from,
-.slide-right-leave-to {
-  transform: translateX(100%);
-}
-
-// 顶部抽屉滑动动画
-.slide-top-enter-active,
-.slide-top-leave-active {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.slide-top-enter-from,
-.slide-top-leave-to {
-  transform: translateY(-100%);
-}
-
-// 底部抽屉滑动动画
-.slide-bottom-enter-active,
-.slide-bottom-leave-active {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.slide-bottom-enter-from,
-.slide-bottom-leave-to {
-  transform: translateY(100%);
+@each $direction in $directions {
+  .drawer-slide-#{$direction}-enter-from,
+  .drawer-slide-#{$direction}-leave-to {
+    transform: map.get($direction-map, $direction);
+  }
 }

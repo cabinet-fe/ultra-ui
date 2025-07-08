@@ -5,7 +5,7 @@ import {
   WarningFilled,
   CircleClose,
   QuestionFilled
-} from 'icon-ultra'
+} from '@ultra/icon'
 import type { DefineComponent } from 'vue'
 
 const typeIcons = {

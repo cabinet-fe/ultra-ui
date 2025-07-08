@@ -48,7 +48,7 @@ import type {
 } from '@ui/types'
 import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
-import { Loading } from 'icon-ultra'
+import { Loading } from '@ultra/icon'
 import { vRipple } from '@ui/directives'
 import { useFallbackProps } from '@ui/compositions'
 

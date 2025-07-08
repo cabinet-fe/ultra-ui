@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 import { UIcon } from '@ui/components'
-import { DArrowLeft, DArrowRight } from 'icon-ultra'
+import { DArrowLeft, DArrowRight } from '@ultra/icon'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 

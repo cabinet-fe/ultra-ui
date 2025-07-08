@@ -19,8 +19,8 @@
     "@codemirror/lang-sql": "^6.9.0",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-json": "^6.0.2",
-    "@floating-ui/dom": "^1.7.1",
-    "@tanstack/vue-virtual": "^3.13.10",
+    "@floating-ui/dom": "^1.7.2",
+    "@tanstack/vue-virtual": "^3.13.12",
     "lexical": "^0.32.1",
     "@lexical/utils": "^0.32.1"
   }

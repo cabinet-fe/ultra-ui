@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { MenuDIKey } from './di'
-import { ArrowRight } from 'icon-ultra'
+import { ArrowRight } from '@ultra/icon'
 import { UIcon } from '../icon'
 import type { MenuItem } from '@ui/types'
 import UMenuItem from './menu-item.vue'

@@ -15,5 +15,5 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, Loading } from 'icon-ultra'
+import { ArrowLeft, ArrowRight, Loading } from '@ultra/icon'
 </script>

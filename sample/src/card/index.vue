@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreFilled, Star, Lock } from 'icon-ultra'
+import { MoreFilled, Star, Lock } from '@ultra/icon'
 import { type ButtonProps, useComponentProps } from 'ultra-ui'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({

@@ -18,7 +18,7 @@ $root-name: batch-edit;
 
   @include m.e(form-scroll) {
     max-height: 500px;
-    width: 800px;
+    width: 900px;
 
     &-content {
       padding: fn.use-var(gap, large);

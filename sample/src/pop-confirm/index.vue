@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { Word } from 'icon-ultra'
+import { Word } from '@ultra/icon'
 import CustomCard from '../card/custom-card.vue'
 
 const confirmEvent = () => {

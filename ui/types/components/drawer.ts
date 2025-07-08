@@ -12,20 +12,11 @@ export interface DrawerProps {
   modelValue?: boolean
   /** 抽屉方向 */
   direction?: DrawerDirection
-  /** 抽屉尺寸 */
-  size?: string | number
-  /** 抽屉模式，edge: 贴边，inset: 离边界有距离 */
-  mode?: DrawerMode
-  /** 是否显示遮罩层 */
-  modal?: boolean
-  /** 点击遮罩层是否关闭 */
-  maskClosable?: boolean
+
   /** 是否显示关闭按钮 */
-  closable?: boolean
+  showClose?: boolean
   /** 抽屉标题 */
   title?: string
-  /** 层级 */
-  zIndex?: number
 }
 
 /** 抽屉组件定义的事件 */
@@ -38,10 +29,7 @@ export interface DrawerEmits {
 }
 
 /** 抽屉组件暴露的属性和方法(组件内部使用) */
-export interface _DrawerExposed {
-  /** 关闭抽屉 */
-  close: () => void
-}
+export interface _DrawerExposed {}
 
 /** 抽屉组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type DrawerExposed = DeconstructValue<_DrawerExposed>

@@ -60,7 +60,7 @@ import {
   watch,
   type CSSProperties
 } from 'vue'
-import { Close, Plus } from 'icon-ultra'
+import { Close, Plus } from '@ultra/icon'
 import { useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'

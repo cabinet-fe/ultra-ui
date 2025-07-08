@@ -88,13 +88,13 @@ useDrag({
 
 defineExpose({
   /** 更新滚动条状态 */
-  update(_size: number, _offset: number) {
+  update(_size: number, _offset: number): void {
     size.value = _size
     offset.value = _offset
   },
 
   /** 设置轨道尺寸 */
-  setTrackSize(size: number) {
+  setTrackSize(size: number): void {
     trackSize = size
   }
 })

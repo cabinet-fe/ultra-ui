@@ -19,7 +19,7 @@ import type { TagEmits, TagProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
-import { Close } from 'icon-ultra'
+import { Close } from '@ultra/icon'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 
 defineOptions({

@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { computed, inject, type Slots } from 'vue'
 import { omit } from 'cat-kit/fe'
-import { Delete, InsertToPrev, InsertToNext, AddChild } from 'icon-ultra'
+import { Delete, InsertToPrev, InsertToNext, AddChild } from '@ultra/icon'
 import { BatchEditDIKey } from './di'
 import { useComponentProps } from '@ui/compositions'
 import { UTable } from '../table'

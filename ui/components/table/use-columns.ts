@@ -9,7 +9,7 @@ import {
   type ShallowRef
 } from 'vue'
 import { UButton } from '../button'
-import { ArrowRight } from 'icon-ultra'
+import { ArrowRight } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { type BEM } from '@ui/utils'
 import { ColumnNode } from './node/col'

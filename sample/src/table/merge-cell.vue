@@ -29,7 +29,7 @@
 import { defineTableColumns, type TableRow } from 'ultra-ui'
 import { nextTick, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Plus } from 'icon-ultra'
+import { Plus } from '@ultra/icon'
 
 let data = shallowRef<Record<string, any>[]>([
   {

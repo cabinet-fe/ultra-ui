@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Edit, Refresh } from 'icon-ultra'
+import { Edit, Refresh } from '@ultra/icon'
 import { bem } from 'ultra-ui'
 import { shallowRef } from 'vue'
 

@@ -73,7 +73,7 @@ import { UDatePanel } from '../date-panel'
 import { date, type Dater } from 'cat-kit/fe'
 import { UDropdown } from '../dropdown'
 import { useUpdateLock } from '@ui/compositions'
-import { Calendar, Close } from 'icon-ultra'
+import { Calendar, Close } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { formItemViewerCls } from '../form-item/helper'
 

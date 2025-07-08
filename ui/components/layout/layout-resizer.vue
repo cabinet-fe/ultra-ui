@@ -15,7 +15,7 @@ import { computed, inject, shallowReactive, shallowRef } from 'vue'
 import { LayoutDIKey } from './di'
 import { bem } from '@ui/utils'
 import { useDrag } from '@ui/compositions'
-import { Move } from 'icon-ultra'
+import { Move } from '@ultra/icon'
 import { UIcon } from '../icon'
 
 defineOptions({

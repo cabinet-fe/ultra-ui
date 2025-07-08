@@ -53,6 +53,7 @@ $root-name: scroll;
   // 滚动条
   @include m.e(bar-x, bar-y) {
     opacity: 0;
+    cursor: default;
     position: absolute;
     border-radius: $bar-size;
     background-color: rgba($color: $bar-color, $alpha: 0.4);

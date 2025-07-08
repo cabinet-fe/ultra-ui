@@ -4,10 +4,15 @@
     :columns="columnsWithOperation"
     :current="currentRow"
     :class="cls.b"
-    @cell-click="handleCellClick"
   >
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop>
+        <u-button
+          :icon="View"
+          title="查看"
+          v-if="featureSets.has('view')"
+          @click="handleView(row, $event)"
+        />
         <u-button
           :icon="Edit"
           title="编辑"
@@ -16,7 +21,7 @@
         />
         <u-button
           :icon="Plus"
-          title="新增"
+          title="下方新增"
           v-if="featureSets.has('create')"
           @click="handleAdd(row, $event)"
         />
@@ -63,7 +68,6 @@
               :model="model!"
               :readonly="readonly"
               :label-width="labelWidth"
-              :cols="3"
             >
               <template #default="{ data, model }">
                 <slot name="form" v-bind="{ data, model }" />
@@ -88,8 +92,7 @@ import type {
   BatchEditEmits,
   BatchEditProps,
   ButtonProps,
-  TableColumn,
-  TableRow
+  TableColumn
 } from '@ui/types'
 import { type FormModel, UForm } from '../form'
 import { UTable } from '../table'
@@ -97,7 +100,7 @@ import { UScroll } from '../scroll'
 import { UTip } from '../tip'
 import { computed, watch } from 'vue'
 import { UButton } from '../button'
-import { Copy, Edit, Delete, Plus, AddChild } from 'icon-ultra'
+import { Copy, Edit, Delete, Plus, AddChild, View } from '@ultra/icon'
 import { useComponentProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { useEdit } from './use-edit-new'
@@ -125,7 +128,9 @@ const tableProps = computed(() => {
 })
 
 const featureSets = computed(() => {
-  return new Set(props.features ?? ['create', 'delete', 'update', 'copy'])
+  return new Set(
+    props.features ?? ['create', 'delete', 'update', 'copy', 'view']
+  )
 })
 
 const cls = bem('batch-edit')
@@ -138,7 +143,7 @@ const columnsWithOperation = computed<TableColumn[]>(() => {
       key: '__action__',
       align: 'center',
       fixed: 'right',
-      width: 180,
+      width: 196,
       resizable: false
     }
   ]
@@ -170,7 +175,7 @@ const {
   handleAdd,
   handleCopy,
   handleDelete,
-  handleCellClick
+  handleView
 } = useEdit({
   emit,
   props,

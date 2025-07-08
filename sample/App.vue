@@ -55,7 +55,7 @@ import {
 } from 'ultra-ui'
 import { ref, shallowRef, watch, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types/component-common.js'
-import { Setting } from 'icon-ultra'
+import { Setting } from '@ultra/icon'
 
 const router = useRouter()
 const route = useRoute()

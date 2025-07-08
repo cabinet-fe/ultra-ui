@@ -4,7 +4,7 @@
       <u-radio-group
         radioType="btn"
         :items="
-          items.map((item) => {
+          items.map(item => {
             return { label: item.label, value: item.key }
           })
         "
@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
 import { defineSteps, UIcon } from 'ultra-ui'
-import { Edit, Setting } from 'icon-ultra'
+import { Edit, Setting } from '@ultra/icon'
 
 const config = reactive({
   active: '1' as any,
@@ -66,7 +66,7 @@ const config = reactive({
 
 watch(
   () => config.finished,
-  (val) => {
+  val => {
     val ? (config.active = null) : (config.active = '1')
   }
 )

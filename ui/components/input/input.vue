@@ -62,7 +62,7 @@ import {
 } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
-import { Close } from 'icon-ultra'
+import { Close } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { formItemViewerCls } from '../form-item/helper'

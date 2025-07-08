@@ -65,7 +65,7 @@
 import { shallowReactive } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import type { ColorType } from '@ui/types'
-import { WarnTriangleFilled } from 'icon-ultra'
+import { WarnTriangleFilled } from '@ultra/icon'
 
 const config = shallowReactive({
   percentage: 0,
