@@ -8,8 +8,6 @@ const app = createApp({
   render: () => h(App)
 })
 
-// app.use(UltraUI)
-
 app.use(router)
 
 app.mount('#app')

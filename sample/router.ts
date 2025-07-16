@@ -1,4 +1,10 @@
-import { createRouter, createWebHistory, type RouteComponent } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteComponent,
+  type Router,
+  type RouteRecordRaw
+} from 'vue-router'
 
 const modules = import.meta.glob<true, string, { default: RouteComponent }>(
   './src/**/index.vue'
@@ -6,15 +12,17 @@ const modules = import.meta.glob<true, string, { default: RouteComponent }>(
 
 const paths = Object.keys(modules)
 
-export const routes = paths.map(path => {
+export const routes: RouteRecordRaw[] = paths.map(path => {
+  const name = path.match(/src\/([A-z-]+)\/index.vue/)![1]!
+
   return {
-    name: path.match(/src\/([A-z-]+)\/index.vue/)![1]!,
+    name,
     component: modules[path]!,
     path: path.replace(/^\.\/src([\s\S]+)\.vue$/g, '$1')
   }
 })
 
-export const router = createRouter({
+export const router: Router = createRouter({
   routes: [
     ...(routes[0]
       ? [
@@ -27,8 +35,4 @@ export const router = createRouter({
     ...routes
   ],
   history: createWebHistory('/')
-})
-
-router.beforeEach((to, from, next) => {
-  next()
 })

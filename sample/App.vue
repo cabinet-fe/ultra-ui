@@ -46,7 +46,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 import {
   useConfig,
-  vClickOutside,
   loadTheme,
   lightTheme,
   darkTheme,
@@ -67,7 +66,7 @@ const { setConfig } = useConfig()
 const size = shallowRef<ComponentSize>('default')
 
 const menus = routes.map(item => ({
-  title: item.name,
+  title: item.name as string,
   path: item.path
 }))
 
