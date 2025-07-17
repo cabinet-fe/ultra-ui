@@ -1,7 +1,7 @@
 import { cssVar, defineBySize } from '../helper'
 import { UITheme } from './ui-theme'
 
-export const lightTheme = new UITheme({
+export const lightTheme: UITheme = new UITheme({
   color: {
     primary: '#1E88E5',
     success: '#2ba471',
@@ -152,5 +152,13 @@ export const lightTheme = new UITheme({
       bg: cssVar('bg-color-hover'),
       color: 'inherit'
     }
+  },
+
+  switch: {
+    height: defineBySize({
+      small: 18,
+      default: 20,
+      large: 24
+    })
   }
 })

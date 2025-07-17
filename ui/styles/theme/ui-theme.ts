@@ -101,7 +101,7 @@ export class UITheme {
     return `--bg-filter: ${filter.blur} ${filter.saturate}`
   }
 
-  render() {
+  render(): void {
     const ruleText = [
       this.renderBase(this.theme),
       this.renderTypeColor(),
@@ -126,7 +126,7 @@ export class UITheme {
     }
   }
 
-  new(customTheme: RecursivePartial<Theme> = {}) {
+  new(customTheme: RecursivePartial<Theme> = {}): UITheme {
     function delEmpty(obj: Record<string, any>) {
       Object.keys(obj).forEach(key => {
         const value = obj[key]

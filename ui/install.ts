@@ -1,4 +1,3 @@
-
 import type { App } from 'vue'
 import * as components from './components'
 import * as directives from './directives'
@@ -61,6 +60,7 @@ import './components/scroll/style'
 import './components/select/style'
 import './components/slider/style'
 import './components/steps/style'
+import './components/switch/style'
 import './components/table-editor/style'
 import './components/table/style'
 import './components/tabs/style'
@@ -74,7 +74,7 @@ import './components/tree/style'
 import './components/watermark/style'
 import './directives/ripple/style'
 
-export function UltraUI(app: App) {
+export function UltraUI(app: App): void {
   Object.keys(components).forEach(key => {
     if (key.startsWith('U')) {
       const component = components[key]

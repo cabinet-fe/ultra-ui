@@ -53,10 +53,10 @@
     </template>
   </u-dropdown>
 
-  <span v-else :class="formItemViewerCls">
+  <template v-else>
     {{ displayedOfStart || FORM_EMPTY_CONTENT }} 至
     {{ displayedOfEnd || FORM_EMPTY_CONTENT }}
-  </span>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -75,7 +75,6 @@ import { UDropdown } from '../dropdown'
 import { useUpdateLock } from '@ui/compositions'
 import { Calendar, Close } from '@ultra/icon'
 import { UIcon } from '../icon'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'DateRangePicker'

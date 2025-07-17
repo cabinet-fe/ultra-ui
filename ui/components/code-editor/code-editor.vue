@@ -23,7 +23,6 @@ import {
 import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'
-import { formItemViewerCls } from '../form-item/helper'
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   disabled: undefined,

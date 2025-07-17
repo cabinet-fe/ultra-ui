@@ -96,7 +96,9 @@
     </div>
   </div>
 
-  <span v-else :class="formItemViewerCls">{{ FORM_EMPTY_CONTENT }}</span>
+  <template v-else>
+    {{ FORM_EMPTY_CONTENT }}
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -120,7 +122,6 @@ import { omit, Tree } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
 import type { DropdownExposed } from '@ui/types'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'MultiTreeSelect'

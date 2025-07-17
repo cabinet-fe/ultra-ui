@@ -15,8 +15,10 @@
       </template>
     </label>
 
-    <section :class="cls.e('content')">
-      <slot></slot>
+    <section :class="cls.e('wrapper')">
+      <div :class="cls.e('content')">
+        <slot></slot>
+      </div>
 
       <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
       <section

@@ -1,7 +1,8 @@
 import { cssVar } from '../helper'
 import { lightTheme } from './light'
+import type { UITheme } from './ui-theme'
 
-export const darkTheme = lightTheme.new({
+export const darkTheme: UITheme = lightTheme.new({
   // 主色调 - 使用更柔和的蓝色系
   color: {
     primary: '#4f8ff7', // 柔和的蓝色，比浅色主题稍微亮一些

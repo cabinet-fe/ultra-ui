@@ -39,7 +39,8 @@ defineOptions({
 const props = withDefaults(defineProps<SliderProps<T>>(), {
   min: 0,
   max: 100,
-  disabled: undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<SliderEmits<T>>()

@@ -132,9 +132,9 @@
     </div>
   </div>
 
-  <span v-else :class="formItemViewerCls">
+  <template v-else>
     {{ FORM_EMPTY_CONTENT }}
-  </span>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -171,7 +171,6 @@ import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'MultiSelect'

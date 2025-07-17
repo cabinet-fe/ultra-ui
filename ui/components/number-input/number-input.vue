@@ -38,9 +38,9 @@
     </template>
   </u-input>
 
-  <span v-else :class="formItemViewerCls">
+  <template v-else>
     {{ displayed || FORM_EMPTY_CONTENT }}
-  </span>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -58,7 +58,6 @@ import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { vRipple } from '@ui/directives'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'NumberInput'

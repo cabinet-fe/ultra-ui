@@ -1,0 +1,12 @@
+---
+description: 组件编写指南
+alwaysApply: false
+---
+
+## 示例代码
+
+示例代码在 sample 下， 不要在其他地方创建示例代码
+
+## 类工具
+
+样式类统一基于 `ui/utils` 中的 `bem` 方法创建

@@ -107,9 +107,9 @@
         </u-tag>
       </div>
     </div>
-    <span v-else :class="formItemViewerCls">
+    <template v-else>
       {{ displayedValue || FORM_EMPTY_CONTENT }}
-    </span>
+    </template>
   </template>
 </template>
 
@@ -136,7 +136,6 @@ import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
 import { CascadeNode } from './node'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'Cascade'

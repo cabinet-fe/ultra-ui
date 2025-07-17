@@ -112,6 +112,8 @@ export * from './slider'
 
 export * from './steps'
 
+export * from './switch'
+
 export * from './table'
 
 export * from './table-editor'

@@ -101,6 +101,17 @@ export type Theme = {
     /** 大尺寸表单组件高度 */
     large: number
   }
+
+  /** 开关 */
+  switch: {
+    /** 高度 */
+    height: {
+      small: number
+      default: number
+      large: number
+    }
+  }
+
   menu: {
     /** 菜单高度 */
     height: {

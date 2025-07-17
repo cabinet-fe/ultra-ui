@@ -48,9 +48,9 @@
     </span>
   </div>
 
-  <span v-else :class="formItemViewerCls">
+  <template v-else>
     {{ generateModel || FORM_EMPTY_CONTENT }}
-  </span>
+  </template>
 </template>
 
 <script lang="tsx" setup>
@@ -65,7 +65,6 @@ import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 import { Close } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'Input'

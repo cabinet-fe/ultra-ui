@@ -44,7 +44,9 @@
     </ul>
   </template>
 
-  <span v-else :class="formItemViewerCls">{{ FORM_EMPTY_CONTENT }}</span>
+  <template v-else>
+    {{ FORM_EMPTY_CONTENT }}
+  </template>
 </template>
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
@@ -56,7 +58,6 @@ import { useGroupItems } from './use-group-items'
 import { computed } from 'vue'
 import { UButton } from '../button'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'GroupInput'

@@ -34,7 +34,7 @@
     </Transition>
   </div>
 
-  <span v-else style="white-space: pre-wrap" :class="formItemViewerCls">
+  <span v-else style="white-space: pre-wrap">
     {{ model || FORM_EMPTY_CONTENT }}
   </span>
 </template>
@@ -52,7 +52,6 @@ import {
 } from '@ui/compositions'
 import { calcTextareaHeight } from './utils'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'Textarea'

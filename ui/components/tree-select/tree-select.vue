@@ -51,9 +51,9 @@
     </template>
   </u-dropdown>
 
-  <span v-else :class="formItemViewerCls">{{
-    text || label || FORM_EMPTY_CONTENT
-  }}</span>
+  <template v-else>
+    {{ text || label || FORM_EMPTY_CONTENT }}
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -69,7 +69,6 @@ import { computed, nextTick, shallowRef, watch } from 'vue'
 import { Tree, getChainValue, omit } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
-import { formItemViewerCls } from '../form-item/helper'
 
 defineOptions({
   name: 'TreeSelect'
