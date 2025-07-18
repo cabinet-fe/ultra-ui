@@ -1,8 +1,10 @@
 <template>
   <li
     :class="optionClass"
-    v-ripple="disabled ? false : rippleClass"
-    @click="!disabled && emit('check', !checked)"
+    @click="handleClick"
+    @mousedown="handleMousedown"
+    @mouseup="handleMouseup"
+    @mouseleave="handleMouseleave"
     :ref="measureElement"
   >
     <u-checkbox
@@ -18,16 +20,16 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { inject, onBeforeUnmount } from 'vue'
 import { MultiSelectDIKey } from './di'
-import { vRipple } from '@ui/directives'
 import { UCheckbox } from '../checkbox'
+import { Ripple } from '@ui/directives'
 
 defineOptions({
   name: 'MultiSelectOption'
 })
 
-const { disabled = false } = defineProps<{
+const { disabled = false, checked } = defineProps<{
   option: Record<string, any>
   disabled?: boolean
   checked: boolean
@@ -39,4 +41,33 @@ const emit = defineEmits<{
 }>()
 
 const { optionClass, rippleClass, checkboxClass } = inject(MultiSelectDIKey)!
+
+let ripple: Ripple | null = null
+
+function handleClick(e) {
+  if (disabled) return
+  emit('check', !checked)
+}
+
+function handleMousedown(e: MouseEvent) {
+  if (disabled) return
+
+  ripple = new Ripple(e.currentTarget as HTMLElement, {
+    rippleClass
+  })
+  ripple.showByEvent(e)
+}
+
+function handleMouseleave() {
+  ripple?.remove()
+}
+
+function handleMouseup() {
+  ripple?.remove()
+}
+
+onBeforeUnmount(() => {
+  ripple?.remove()
+  ripple = null
+})
 </script>

@@ -13,8 +13,8 @@ interface RippleConfig {
   rippleClass?: string
   /** 波纹动画时长 */
   duration?: number
-  /** 是否自动隐藏 */
-  autoHide?: boolean
+  /** 是否自动移除 */
+  autoRemove?: boolean
 }
 
 export class Ripple {
@@ -22,7 +22,7 @@ export class Ripple {
 
   private container: HTMLElement
 
-  private rippleElements: HTMLElement[] = []
+  private currentRippleEl?: HTMLElement
 
   private config?: RippleConfig
 
@@ -33,7 +33,7 @@ export class Ripple {
     }
   }
 
-  private containerRect: DOMRect
+  private containerRect?: DOMRect
 
   private getContainerRect(): DOMRect {
     if (this.containerRect) return this.containerRect
@@ -56,6 +56,14 @@ export class Ripple {
     return { x: clientX - left, y: clientY - top }
   }
 
+  private markTransitionEnd(el: HTMLElement) {
+    el.dataset.transitionend = 'true'
+  }
+
+  private markRemovable(el: HTMLElement) {
+    el.dataset.removable = 'true'
+  }
+
   /**
    * 计算波纹半径
    * @param centerPosition 波纹圆心位置
@@ -75,9 +83,14 @@ export class Ripple {
    */
   private createRippleEl(centerPosition: RipplePosition) {
     const { cls } = Ripple
-    const { config } = this
+    const { config, container } = this
+
+    if (!container.classList.contains(cls.b)) {
+      container.classList.add(cls.b)
+    }
 
     const rippleEl = document.createElement('span')
+    this.currentRippleEl = rippleEl
     rippleEl.classList.add(cls.e('el'))
     config?.rippleClass && rippleEl.classList.add(config.rippleClass)
 
@@ -99,8 +112,10 @@ export class Ripple {
 
     const transitionEndHandler = (e: TransitionEvent) => {
       if (e.propertyName !== 'transform') return
+
       rippleEl.removeEventListener('transitionend', transitionEndHandler)
-      rippleEl.dataset.transitionend = 'true'
+      this.markTransitionEnd(rippleEl)
+      // 尝试移除
       this.removeRippleEl(rippleEl)
     }
 
@@ -108,19 +123,21 @@ export class Ripple {
 
     this.container.appendChild(rippleEl)
 
+    if (config?.autoRemove) {
+      this.markRemovable(rippleEl)
+    }
+
     nextFrame(() => {
       setStyles(rippleEl, {
         transform: 'scale3d(1, 1, 1)'
       })
     })
-
-    return rippleEl
   }
 
   private removeRippleEl(rippleEl: HTMLElement): void {
-    const { transitionend, canHide } = rippleEl.dataset
+    const { transitionend, removable } = rippleEl.dataset
 
-    if (transitionend !== 'true' || canHide !== 'true') return
+    if (transitionend !== 'true' || removable !== 'true') return
 
     const transitionEndHandler = (e: TransitionEvent) => {
       if (e.propertyName !== 'opacity') return
@@ -130,43 +147,49 @@ export class Ripple {
     }
 
     rippleEl.addEventListener('transitionend', transitionEndHandler)
-    rippleEl.classList.add(bem.is('hide'))
+    rippleEl.classList.add(bem.is('removing'))
   }
 
+  /**
+   * 显示波纹
+   * @param centerPosition 波纹圆心位置
+   */
   show(centerPosition: RipplePosition): void {
-    const rippleEl = this.createRippleEl(centerPosition)
-    this.rippleElements.push(rippleEl)
+    this.createRippleEl(centerPosition)
   }
 
+  /**
+   * 根据事件对象显示波纹
+   * @param e 事件对象
+   */
   showByEvent(e: MouseEvent | TouchEvent): void {
     const centerPosition = this.getRippleCenterPosition(
       e instanceof MouseEvent ? e : e.touches[0]!
     )
-    const rippleEl = this.createRippleEl(centerPosition)
-    this.rippleElements.push(rippleEl)
+    this.createRippleEl(centerPosition)
   }
 
-  hide(): void {
-    let el: HTMLElement | undefined
-
-    this.rippleElements.forEach(el => {
-      el.dataset.canHide = 'true'
-    })
-    while ((el = this.rippleElements.pop())) {
-      if (el.dataset.transitionend === 'true') {
-        this.removeRippleEl(el)
-      }
+  /**
+   * 移除波纹
+   * - 如果已经在Ripple配置中增加了autoRemove属性，则不需要调用此方法
+   */
+  remove(): void {
+    let el = this.currentRippleEl
+    if (el) {
+      this.markRemovable(el)
+      this.removeRippleEl(el)
+      el = undefined
+      this.currentRippleEl = undefined
     }
   }
+
+  /**
+   * 重置容器矩形
+   * - 当容器大小发生变化时，需要重置容器矩形
+   * 否则计算的波纹半径不准确
+   * - 大部分情况下不需要调用此方法
+   */
+  resetContainerRect(): void {
+    this.containerRect = undefined
+  }
 }
-
-const ripple = new Ripple(document.body)
-
-setTimeout(() => {
-  ripple.show({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  })
-
-  ripple.hide()
-}, 1000)

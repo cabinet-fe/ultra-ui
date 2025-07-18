@@ -18,7 +18,7 @@
     transition-timing-function: cubic-bezier(0.82, 0.84, 0.28, 0.92);
     transition-duration: 300ms;
 
-    @include m.is(hide) {
+    @include m.is(removing) {
       opacity: 0 !important;
     }
   }

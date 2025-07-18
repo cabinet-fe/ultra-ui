@@ -7,15 +7,14 @@ function handleMousedown(e: MouseEvent) {
   const container = e.currentTarget as HTMLElement
   const ripple = rippleMap.get(container) || new Ripple(container)
   ripple.showByEvent(e)
-  rippleMap.set(container, ripple)
 }
 
 function handleMouseup(e: MouseEvent) {
-  rippleMap.get(e.currentTarget as HTMLElement)?.hide()
+  rippleMap.get(e.currentTarget as HTMLElement)?.remove()
 }
 
 function handleMouseleave(e: MouseEvent) {
-  rippleMap.get(e.currentTarget as HTMLElement)?.hide()
+  rippleMap.get(e.currentTarget as HTMLElement)?.remove()
 }
 
 /**
@@ -32,7 +31,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
     el,
     new Ripple(el, {
       rippleClass: binding.value,
-      duration: binding.arg
+      duration: binding.arg ? Number(binding.arg) : undefined
     })
   )
 
@@ -54,6 +53,8 @@ const unregisterEvents = (el: HTMLElement) => {
   el.removeEventListener('mouseleave', handleMouseleave)
 }
 
+export { Ripple }
+
 export const vRipple: ObjectDirective<HTMLElement> = {
   // 元素的dom挂载后注册按下事件
   mounted: registerEvents,
@@ -63,8 +64,6 @@ export const vRipple: ObjectDirective<HTMLElement> = {
 
   // 元素更新时移除旧有事件并重新添加事件
   updated(el, binding) {
-    el.dataset.class && el.classList.add(el.dataset.class)
-
     const registered = !!binding.oldValue
     if (binding.value && !registered) {
       registerEvents(el, binding)
