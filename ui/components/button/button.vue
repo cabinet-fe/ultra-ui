@@ -5,7 +5,7 @@
     aria-label="button"
     @click="handleClick"
     ref="buttonRef"
-    v-ripple:600="ripple"
+    v-ripple="ripple"
   >
     <!-- 加载图标 -->
     <u-icon

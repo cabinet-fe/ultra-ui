@@ -52,6 +52,15 @@ export function useDrag(options: DragOptions): {
   let offsetX = initial?.offsetX ?? 0
   let offsetY = initial?.offsetY ?? 0
 
+  // 拖拽参数
+  const dragParams: DragParams = {
+    x: 0,
+    y: 0,
+    offsetX: 0,
+    offsetY: 0,
+    e: null as any
+  }
+
   // 先取
   const onselectstart = document.onselectstart
 
@@ -78,51 +87,52 @@ export function useDrag(options: DragOptions): {
     document.addEventListener('mouseup', handleMouseup)
   }
 
-  const getOffset = (e: MouseEvent) => {
-    let _offsetX = offsetX + e.x - originX
-    let _offsetY = offsetY + e.y - originY
+  const getOffsetXWithRange = (deltaX: number) => {
+    return Math.max(rangeX![0], Math.min(rangeX![1], offsetX + deltaX))
+  }
 
-    // 范围修正
-    if (rangeX) {
-      _offsetX = Math.max(rangeX[0], Math.min(rangeX[1], _offsetX))
-    }
-    if (rangeY) {
-      _offsetY = Math.max(rangeY[0], Math.min(rangeY[1], _offsetY))
-    }
+  const getOffsetXWithoutRange = (deltaX: number) => {
+    return offsetX + deltaX
+  }
 
-    return {
-      offsetX: _offsetX,
-      offsetY: _offsetY
-    }
+  const getOffsetYWithRange = (deltaY: number) => {
+    return Math.max(rangeY![0], Math.min(rangeY![1], offsetY + deltaY))
+  }
+
+  const getOffsetYWithoutRange = (deltaY: number) => {
+    return offsetY + deltaY
+  }
+
+  const getOffsetX = rangeX ? getOffsetXWithRange : getOffsetXWithoutRange
+  const getOffsetY = rangeY ? getOffsetYWithRange : getOffsetYWithoutRange
+
+  // 避免重复创建对象影响内存占用
+  const setDragParam = (e: MouseEvent) => {
+    dragParams.x = e.x - originX
+    dragParams.y = e.y - originY
+    dragParams.offsetX = getOffsetX(dragParams.x)
+    dragParams.offsetY = getOffsetY(dragParams.y)
+    dragParams.e = e
   }
 
   const handleMousemove = (e: MouseEvent) => {
-    onDrag?.({
-      x: e.x - originX,
-      y: e.y - originY,
-      ...getOffset(e),
-      e
-    })
+    setDragParam(e)
+    onDrag?.(dragParams)
   }
 
   const handleMouseup = (e: MouseEvent) => {
-    const draggedX = e.x - originX
-    const draggedY = e.y - originY
+    setDragParam(e)
+    offsetX = dragParams.offsetX
+    offsetY = dragParams.offsetY
 
-    const offset = getOffset(e)
-
-    offsetX = offset.offsetX
-    offsetY = offset.offsetY
-
-    onDragEnd?.({
-      x: draggedX,
-      y: draggedY,
-      offsetX,
-      offsetY,
-      e
-    })
+    onDragEnd?.(dragParams)
     document.onselectstart = onselectstart
 
+    cleanup()
+  }
+
+  // 统一的清理函数
+  const cleanup = () => {
     document.removeEventListener('mousemove', handleMousemove)
     document.removeEventListener('mouseup', handleMouseup)
   }
@@ -139,8 +149,7 @@ export function useDrag(options: DragOptions): {
 
   onBeforeUnmount(() => {
     target.value?.removeEventListener('mousedown', handleMousedown)
-    document.removeEventListener('mousemove', handleMousemove)
-    document.removeEventListener('mouseup', handleMouseup)
+    cleanup()
   })
 
   return {
