@@ -8,14 +8,22 @@
 $root-name: drawer;
 $overlay-name: #{$root-name}-overlay;
 
-$edge-offset: 12px;
-$drawer-size: 300px;
-
+$edge-offset: 4px;
+$drawer-size: 320px;
 $close-size: 48px;
+
+$directions: (right, left, top, bottom);
+
+$direction-map: (
+  right: translateX(100%),
+  left: translateX(-100%),
+  top: translateY(-100%),
+  bottom: translateY(100%)
+);
 @include m.b($root-name) {
   position: absolute;
   border-radius: fn.use-var(radius, large);
-  background-color: fn.use-var(bg-color, top, alpha);
+  background-color: fn.use-var(bg-color, top);
   backdrop-filter: blur(10px);
   box-shadow: 0 0 10px 2px fn.use-var(shadow, color);
 
@@ -29,6 +37,12 @@ $close-size: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  @each $direction in $directions {
+    @include m.is($direction) {
+      --transform: #{map.get($direction-map, $direction)};
+    }
   }
 
   @include m.is(right, left) {
@@ -96,23 +110,17 @@ $close-size: 48px;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: transparent;
+  background-color: rgba($color: #000000, $alpha: 0.32);
   overflow: hidden;
 }
 
-$directions: (right, left, top, bottom);
-
-$direction-map: (
-  right: translateX(260px),
-  left: translateX(-260px),
-  top: translateY(-260px),
-  bottom: translateY(260px)
-);
+// 动画
 
 @function get-selector($direction, $type) {
   @return '.' + drawer-slide-#{$direction}-#{$type}-active;
 }
 
+// 获取激活状态选择器
 @function get-active($type) {
   $active: '';
   @each $direction in $directions {
@@ -132,6 +140,6 @@ $direction-map: (
 @each $direction in $directions {
   .drawer-slide-#{$direction}-enter-from,
   .drawer-slide-#{$direction}-leave-to {
-    transform: map.get($direction-map, $direction);
+    transform: var(--transform);
   }
 }

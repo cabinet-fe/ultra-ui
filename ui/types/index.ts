@@ -138,6 +138,8 @@ export * from './components/grid'
 
 export * from './components/expression-editor'
 
+export * from './components/animation'
+
 export * from './components/auto-complete'
 
 export * from './components/switch'

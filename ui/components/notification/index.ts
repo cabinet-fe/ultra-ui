@@ -135,7 +135,7 @@ const createWrapper = (options: NotificationProps) => {
   }
 }
 
-export const Notification = (options: NotificationProps) => {
+export const Notification = (options: NotificationProps): void => {
   const position = options.position || 'bottom-right'
   const container = document.createElement('div')
   const id = `notification_${count++}`

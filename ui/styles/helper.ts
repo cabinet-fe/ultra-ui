@@ -29,7 +29,7 @@ export function mixColor(
   color1: `#${string}`,
   color2: `#${string}`,
   ratio: number
-) {
+): string {
   if (ratio > 1) throw new Error('ratio的值在0-1之间')
   const color1RGB = HEXToRGB(color1)
   const color2RGB = HEXToRGB(color2)
@@ -51,7 +51,7 @@ export function mixColor(
 
 export function defineBySize(
   variable: Record<'small' | 'default' | 'large', number>
-) {
+): Record<'small' | 'default' | 'large', number> {
   return variable
 }
 

@@ -1,32 +1,39 @@
 <template>
   <Teleport to="body">
-    <transition :name="transitionName" mode="out-in">
+    <transition name="fade" mode="out-in" @enter="onEnter">
       <div
-        v-if="visible"
+        v-if="overlayVisible"
         :class="overlayCls.b"
         :style="{
           zIndex: zIndex()
         }"
         @click="close"
       >
-        <div
-          v-bind="$attrs"
-          :class="drawerClass"
-          :style="drawerStyle"
-          @click.stop
+        <transition
+          :name="transitionName"
+          appear
+          @after-leave="onAfterDrawerLeave"
         >
-          <span :class="cls.e('close')" @click="close" v-if="showClose">
-            <u-icon><Close /></u-icon>
-          </span>
-          <slot />
-        </div>
+          <div
+            v-bind="$attrs"
+            v-if="drawerVisible"
+            :class="drawerClass"
+            :style="drawerStyle"
+            @click.stop
+          >
+            <span :class="cls.e('close')" @click="close" v-if="showClose">
+              <u-icon><Close /></u-icon>
+            </span>
+            <slot />
+          </div>
+        </transition>
       </div>
     </transition>
   </Teleport>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import type { DrawerProps, DrawerEmits } from '@ui/types'
 import { bem, zIndex } from '@ui/utils'
 import { UIcon } from '../icon'
@@ -47,9 +54,11 @@ const emit = defineEmits<DrawerEmits>()
 const cls = bem('drawer')
 const overlayCls = bem('drawer-overlay')
 
-const visible = defineModel<boolean>({
+const overlayVisible = defineModel<boolean>({
   default: false
 })
+
+const drawerVisible = shallowRef(false)
 
 // 根据方向计算过渡动画名称
 const transitionName = computed(() => {
@@ -68,9 +77,17 @@ const drawerStyle = computed(() => {
   return style
 })
 
+const onEnter = () => {
+  drawerVisible.value = true
+}
+
+const onAfterDrawerLeave = () => {
+  overlayVisible.value = false
+}
+
 // 关闭抽屉
 const close = () => {
-  visible.value = false
+  drawerVisible.value = false
   emit('close')
 }
 </script>

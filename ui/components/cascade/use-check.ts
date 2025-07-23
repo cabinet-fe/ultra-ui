@@ -82,7 +82,8 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
 
   const restTag = computed(() => {
     const { visibilityLimit, modelValue } = props
-    return (modelValue?.length ?? 0) - visibilityLimit!
+
+    return Math.max((modelValue?.length ?? 0) - visibilityLimit!, 0)
   })
 
   function handleCloseTag(tag: CascadeNode) {

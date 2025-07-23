@@ -5,7 +5,7 @@ import MContextMenu from './context-menu.vue'
 let node: VNode
 
 export const contextmenu = {
-  pop(options: ContextMenuProps) {
+  pop(options: ContextMenuProps): void {
     if (node) {
       render(null, document.body)
     }

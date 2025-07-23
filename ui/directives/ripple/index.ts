@@ -5,8 +5,7 @@ const rippleMap = new Map<HTMLElement, Ripple>()
 
 function handleMousedown(e: MouseEvent) {
   const container = e.currentTarget as HTMLElement
-  const ripple = rippleMap.get(container) || new Ripple(container)
-  ripple.showByEvent(e)
+  rippleMap.get(container)?.showByEvent(e)
 }
 
 function handleMouseup(e: MouseEvent) {

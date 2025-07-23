@@ -1,6 +1,6 @@
 import { readDir } from 'cat-kit/be'
 import { UI_PATH } from '../shared'
-import inquirer from 'inquirer'
+import { checkbox } from '@inquirer/prompts'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
@@ -9,16 +9,13 @@ const packages = await readDir(UI_PATH, {
   readType: 'dir'
 })
 
-const { packageName } = await inquirer.prompt<{
-  packageName: string
-}>([
-  {
-    message: '导出哪个包?',
-    type: 'list',
-    choices: packages,
-    name: 'packageName'
-  }
-])
+const packageNames = await checkbox({
+  message: '导出哪些包?',
+  choices: packages.map(p => ({
+    name: p.name,
+    value: p.name
+  }))
+})
 
 /**
  *
@@ -68,12 +65,15 @@ async function getContent(targetPackage: string, prefix: string) {
 }
 
 async function exportEntry() {
-  const targetPackage = join(UI_PATH, packageName)
-
-  writeFile(
-    join(targetPackage, 'index.ts'),
-    await getContent(targetPackage, './'),
-    'utf-8'
+  await Promise.all(
+    packageNames.map(async pkg => {
+      const targetPackage = join(UI_PATH, pkg)
+      await writeFile(
+        join(targetPackage, 'index.ts'),
+        await getContent(targetPackage, './'),
+        'utf-8'
+      )
+    })
   )
 }
 

@@ -1,5 +1,5 @@
 import {
-  type PropType,
+  type DefineComponent,
   type VNode,
   type VNodeArrayChildren,
   defineComponent,
@@ -7,25 +7,21 @@ import {
   mergeProps
 } from 'vue'
 
-export default defineComponent({
+const NodeRender: DefineComponent<{
+  content:
+    | null
+    | undefined
+    | VNodeArrayChildren
+    | VNode
+    | string
+    | number
+    | boolean
+}> = defineComponent({
   name: 'NodeRender',
 
   inheritAttrs: false,
 
-  props: {
-    /** 渲染内容 */
-    content: {
-      type: [Object, Array, String, Boolean, Number] as PropType<
-        | null
-        | undefined
-        | VNodeArrayChildren
-        | VNode
-        | string
-        | number
-        | boolean
-      >
-    }
-  },
+  props: ['content'],
 
   render() {
     const { content, $slots, $attrs, $props } = this
@@ -46,3 +42,5 @@ export default defineComponent({
     return content
   }
 })
+
+export default NodeRender

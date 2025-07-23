@@ -5,13 +5,12 @@
   "author": "whj",
   "type": "module",
   "devDependencies": {
-    "inquirer": "^9.2.19",
-    "rollup": "4.16.3",
-    "esbuild": "^0.20.2",
-    "fs-extra": "^11.2.0",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "@types/inquirer": "^9.0.7",
-    "prettier": "^3.2.5",
-    "picocolors": "^1.0.0"
+    "@inquirer/prompts": "^7.7.1",
+    "rollup": "^4.45.1",
+    "esbuild": "^0.25.8",
+    "fs-extra": "^11.3.0",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "prettier": "^3.6.2",
+    "picocolors": "^1.1.1"
   }
 }

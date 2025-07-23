@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="fade" @after-leave="emit('closed')">
+    <transition name="fade" @after-leave="emit('closed')" @enter="onEnter">
       <div
         v-if="visible || opened"
         v-show="visible"
@@ -10,64 +10,67 @@
         @keyup.esc="close"
         tabindex="0"
       >
-        <div
-          v-bind="$attrs"
-          :class="className"
-          ref="dialogRef"
-          @mousedown.stop="handleIncreaseZIndex"
-        >
-          <section
-            :class="headerCls"
-            ref="headerRef"
-            @transitionend.stop
-            @transitioncancel.stop
+        <transition name="fade">
+          <div
+            v-if="dialogVisible"
+            v-bind="$attrs"
+            :class="className"
+            ref="dialogRef"
+            @mousedown.stop="handleIncreaseZIndex"
           >
-            <div :class="cls.e('title')" @mousedown.stop>
-              <slot name="header">
-                {{ header || title }}
-              </slot>
-            </div>
+            <section
+              :class="headerCls"
+              ref="headerRef"
+              @transitionend.stop
+              @transitioncancel.stop
+            >
+              <div :class="cls.e('title')" @mousedown.stop>
+                <slot name="header">
+                  {{ header || title }}
+                </slot>
+              </div>
 
-            <div :class="cls.e('buttons')" @mousedown.stop>
-              <u-icon
-                v-if="maximized"
-                :class="cls.e('btn-recover')"
-                @click="toggleMaximize(false)"
-                title="还原"
-              >
-                <Recover />
-              </u-icon>
-              <u-icon
-                v-else
-                :class="cls.e('btn-maximize')"
-                @click="toggleMaximize(true)"
-                title="最大化"
-              >
-                <Maximum />
-              </u-icon>
-              <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
-                <Close />
-              </u-icon>
-            </div>
-          </section>
+              <div :class="cls.e('buttons')" @mousedown.stop>
+                <u-icon
+                  v-if="maximized"
+                  :class="cls.e('btn-recover')"
+                  @click="toggleMaximize(false)"
+                  title="还原"
+                >
+                  <Recover />
+                </u-icon>
+                <u-icon
+                  v-else
+                  :class="cls.e('btn-maximize')"
+                  @click="toggleMaximize(true)"
+                  title="最大化"
+                >
+                  <Maximum />
+                </u-icon>
+                <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
+                  <Close />
+                </u-icon>
+              </div>
+            </section>
 
-          <u-scroll
-            tag="section"
-            :class="cls.e('body')"
-            ref="bodyRef"
-            :content-style="{
-              height: maximized ? '100%' : undefined
-            }"
-            @transitionend.stop
-            @transitioncancel.stop
-          >
-            <slot v-bind="{ maximized }" />
-          </u-scroll>
+            <u-scroll
+              tag="section"
+              :class="cls.e('body')"
+              ref="bodyRef"
+              :content-style="{
+                height: maximized ? '100%' : undefined
+              }"
+              @transitionend.stop
+              @transitioncancel.stop
+            >
+              <slot v-bind="{ maximized }" />
+            </u-scroll>
 
-          <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
-            <slot name="footer" v-bind="{ close }" />
-          </section>
-        </div>
+            <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
+              <slot name="footer" v-bind="{ close }" />
+            </section>
+          </div>
+        </transition>
       </div>
     </transition>
   </Teleport>
@@ -150,12 +153,18 @@ const visible = defineModel<boolean>({
   default: false
 })
 
+const dialogVisible = shallowRef(false)
+
 function getTriggerNode() {
   const nodes = slots.trigger?.()
   if (!nodes?.length) return null
 
   const node = extractNormalVNodes(nodes)[0]
   return node
+}
+
+function onEnter() {
+  dialogVisible.value = true
 }
 
 const dialogTransition = useTransition('style', {
