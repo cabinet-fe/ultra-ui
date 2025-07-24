@@ -239,5 +239,10 @@ export type Theme = {
       bg: string
       color: string
     }
+    /** 当前行 */
+    current: {
+      bg: string
+      color: string
+    }
   }
 }

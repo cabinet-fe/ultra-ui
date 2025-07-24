@@ -12,7 +12,7 @@
   >
     <template #suffix>
       <Transition name="fade">
-        <UIcon :class="cls.e('visibility-toggle')" :size="14">
+        <UIcon :class="cls.e('visibility-toggle')" :size="18">
           <Hide v-if="pwdVisible" />
           <View v-else />
         </UIcon>

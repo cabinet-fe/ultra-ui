@@ -1,3 +1,3 @@
-export { default as UBatchEdit } from './batch-edit-new.vue'
+export { default as UBatchEdit } from './batch-edit.vue'
 
 export * from './helper'

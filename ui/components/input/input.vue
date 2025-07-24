@@ -10,7 +10,8 @@
       :class="prefixClass"
       @click="handlePrefixClick"
     >
-      <slot name="prefix">{{ prefix }}</slot>
+      {{ prefix }}
+      <slot name="prefix"></slot>
     </span>
 
     <input
@@ -44,7 +45,8 @@
       @click="handleSuffixClick"
       v-if="$slots.suffix || suffix"
     >
-      <slot name="suffix">{{ suffix }}</slot>
+      {{ suffix }}
+      <slot name="suffix"></slot>
     </span>
   </div>
 

@@ -57,8 +57,6 @@ defineOptions({
 
 const props = defineProps<FormProps<Model>>()
 
-const model = toRef(() => props.model)
-
 defineSlots<{
   default(props: {
     /** 表单数据 */
@@ -83,14 +81,13 @@ useFormComponent(props)
 const { getSlotsNodes } = useNodeInterceptor({ props })
 
 function handleUpdateValue(field: string, value: any) {
-  const { data } = model.value ?? {}
-  if (!data) return
-
-  setChainValue(data, field, value)
+  const { model } = props
+  if (!model) return
+  setChainValue(model.data, field, value)
 }
 
 function showInitialNode(field: string) {
-  const { data, initialData } = model.value ?? {}
+  const { data, initialData } = props.model || {}
 
   const currentValue = getChainValue(data, field)
   const initialValue = getChainValue(initialData, field)

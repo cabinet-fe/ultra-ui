@@ -1,6 +1,10 @@
 <template>
   <Teleport to="body">
-    <transition name="fade" @after-leave="emit('closed')" @enter="onEnter">
+    <transition
+      name="fade"
+      @after-leave="emit('closed')"
+      @enter="onOverlayEnter"
+    >
       <div
         v-if="visible || opened"
         v-show="visible"
@@ -10,7 +14,7 @@
         @keyup.esc="close"
         tabindex="0"
       >
-        <transition name="fade">
+        <transition name="spring" @after-leave="onAfterDialogLeave">
           <div
             v-if="dialogVisible"
             v-bind="$attrs"
@@ -84,21 +88,15 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch, nextTick, computed, provide } from 'vue'
+import { shallowRef, watch, computed, provide } from 'vue'
 import type {
   DialogProps,
   DialogEmits,
   DialogExposed,
   ComponentSize
 } from '@ui/types'
-import {
-  bem,
-  extractNormalVNodes,
-  nextFrame,
-  setStyles,
-  zIndex
-} from '@ui/utils'
-import { useDrag, useFallbackProps, useTransition } from '@ui/compositions'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
+import { useDrag, useFallbackProps } from '@ui/compositions'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { Close, Maximum, Recover } from '@ultra/icon'
@@ -163,24 +161,13 @@ function getTriggerNode() {
   return node
 }
 
-function onEnter() {
+function onOverlayEnter() {
   dialogVisible.value = true
 }
 
-const dialogTransition = useTransition('style', {
-  target: dialogRef,
-
-  enterTo: {
-    transform: 'scale3d(1, 1, 1) translate3d(0, 0, 0)'
-  },
-
-  enterActive: {
-    transition: 'transform .25s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-  },
-  leaveActive: {
-    transition: 'transform .25s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-  }
-})
+function onAfterDialogLeave() {
+  visible.value = false
+}
 
 const { toggleMaximize, maximized } = useMaximum({
   dialogRef,
@@ -197,41 +184,13 @@ const className = computed(() => {
 let opened = false
 
 watch(visible, v => {
-  if (!v) {
-    document.body.classList.remove(cls.m('opened'))
-
-    dialogTransition.leave()
-    nextFrame(() => {
-      dialogRef.value &&
-        setStyles(dialogRef.value, {
-          transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
-        })
-    })
-
-    return
-  }
+  if (!v) return
 
   if (!opened) opened = true
-
-  document.body.classList.add(cls.m('opened'))
 
   // 初始化位置偏移量
   translated.x = 0
   translated.y = 0
-
-  // 在overlay渲染后，为dialog设置一个初始变换值
-  nextTick(() => {
-    overlayRef.value && setStyles(overlayRef.value, { zIndex: zIndex() })
-
-    dialogRef.value &&
-      setStyles(dialogRef.value, {
-        transform: 'scale3d(0.5, 0.5, 1) translate3d(0, 0, 0)'
-      })
-    // 先等overlay层动画开始再开始dialog过渡,否则过渡效果不会产生
-    nextFrame(() => {
-      dialogTransition.enter()
-    })
-  })
 })
 
 /** dialog位移的位置 */
@@ -285,7 +244,7 @@ function handleIncreaseZIndex() {
 
 /** 关闭 */
 const close = () => {
-  visible.value = false
+  dialogVisible.value = false
 }
 
 provide(DialogDIKey, {

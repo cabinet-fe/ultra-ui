@@ -23,7 +23,7 @@ $root-name: dialog;
 @include m.b($root-name) {
   pointer-events: auto;
   border-radius: fn.use-var(radius, large);
-  will-change: transform;
+  will-change: transform, opacity;
   display: flex;
   flex-direction: column;
   max-height: 90vh;

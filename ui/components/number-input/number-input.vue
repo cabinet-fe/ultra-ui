@@ -15,6 +15,7 @@
     :disabled="disabled"
   >
     <template #suffix v-if="step !== undefined && step !== false">
+      <slot name="suffix" />
       <div :class="cls.e('step')">
         <u-icon
           @click="increase"
@@ -73,6 +74,7 @@ const emit = defineEmits<NumberInputEmits>()
 
 const slots = defineSlots<{
   prefix?: () => any
+  suffix?: () => any
 }>()
 
 const { formProps } = useFormComponent()
@@ -87,7 +89,14 @@ const { size, disabled, readonly } = useFormFallbackProps(
 )
 
 const inputProps = computed(() => {
-  return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
+  return obj(props).pick([
+    'clearable',
+    'disabled',
+    'placeholder',
+    'size',
+    'prefix',
+    'suffix'
+  ])
 })
 
 const inputRef = shallowRef<InputExposed>()

@@ -35,8 +35,6 @@ $root-name: tabs;
     letter-spacing: 1px;
     color: fn.use-var(text-color, main);
     user-select: none;
-    transition-property: background-color;
-    transition-duration: 0.25s;
     position: relative;
 
     &::after {
@@ -44,6 +42,7 @@ $root-name: tabs;
       position: absolute;
       background-color: fn.use-var(color, primary);
       transition-duration: 0.25s;
+      transition-property: transform;
       transition-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
     }
 
@@ -56,7 +55,6 @@ $root-name: tabs;
 
     @include m.is(active) {
       color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, light-9);
     }
   }
 
@@ -82,13 +80,13 @@ $root-name: tabs;
       bottom: 0;
       left: 0;
       height: 2px;
-      width: 0;
-      transition-property: width;
+      width: 100%;
+      transform: scaleX(0);
     }
 
     @include m.is(active) {
       &::after {
-        width: 100%;
+        transform: scaleX(1);
       }
     }
   }
@@ -99,10 +97,6 @@ $root-name: tabs;
   }
   @include position(top, header) {
     border-bottom: fn.use-var(border);
-  }
-
-  @include position(top, header-item) {
-    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
   }
 
   // 位置下
@@ -123,16 +117,16 @@ $root-name: tabs;
 
   @include position((left, right), header-item) {
     &::after {
-      top: 50%;
+      top: 0;
       width: 2px;
-      height: 0;
-      transform: translateY(-50%);
-      transition-property: height;
+      height: 100%;
+
+      transform: scaleY(0);
     }
 
     @include m.is(active) {
       &::after {
-        height: 100%;
+        transform: scaleY(1);
       }
     }
   }

@@ -1,7 +1,7 @@
 import type { DirectiveBinding, ObjectDirective } from 'vue'
 import { Ripple } from './ripple'
 
-const rippleMap = new Map<HTMLElement, Ripple>()
+const rippleMap = new WeakMap<HTMLElement, Ripple>()
 
 function handleMousedown(e: MouseEvent) {
   const container = e.currentTarget as HTMLElement
@@ -44,8 +44,7 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
  * @param el 元素
  */
 const unregisterEvents = (el: HTMLElement) => {
-  delete el.dataset.rippleClass
-  delete el.dataset.duration
+  rippleMap.get(el)?.remove()
   rippleMap.delete(el)
   el.removeEventListener('mousedown', handleMousedown)
   el.removeEventListener('mouseup', handleMouseup)
@@ -55,19 +54,35 @@ const unregisterEvents = (el: HTMLElement) => {
 export { Ripple }
 
 export const vRipple: ObjectDirective<HTMLElement> = {
-  // 元素的dom挂载后注册按下事件
   mounted: registerEvents,
 
-  // 元素卸载前注销事件
   unmounted: unregisterEvents,
 
-  // 元素更新时移除旧有事件并重新添加事件
-  updated(el, binding) {
-    const registered = !!binding.oldValue
-    if (binding.value && !registered) {
-      registerEvents(el, binding)
-    } else if (!binding.value && registered) {
-      unregisterEvents(el)
+  beforeUpdate(el, binding) {
+    // console.log(el.classList.contains(Ripple.cls.b))
+  },
+
+  updated(el, binding, vnode, prevVNode) {
+    console.log(vnode.props, prevVNode.props)
+    const registered = binding.oldValue !== false
+
+    if (
+      !el.classList.contains(Ripple.cls.b)
+      // rippleMap.get(el)?.rippleElAmount
+    ) {
+      el.classList.add(Ripple.cls.b)
+    }
+
+    if (binding.value !== false) {
+      if (!registered) {
+        registerEvents(el, binding)
+      } else {
+        // class被重置时重新添加
+      }
+    } else {
+      if (registered) {
+        unregisterEvents(el)
+      }
     }
   }
 }

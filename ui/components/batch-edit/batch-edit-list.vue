@@ -6,7 +6,7 @@
     :columns="columns"
     highlight-current
     :current-row="state.row"
-    @update:current-row="handleUpdateCurrentRow"
+    @update:current="handleUpdateCurrentRow"
     @update:checked="emit('update:checked', $event)"
     @update:selected="emit('update:selected', $event)"
     ref="tableRef"

@@ -7,7 +7,7 @@ import type {
 } from '@ui/types'
 import { middleProxy, Validator } from '@ui/utils'
 import { getChainValue, setChainValue } from 'cat-kit/fe'
-import { reactive, shallowReactive, watch, type Reactive } from 'vue'
+import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
 
 /**
  * 表单模型
@@ -158,6 +158,11 @@ export class FormModel<
     }
 
     if (errors.size > 0) {
+      nextTick(() => {
+        document.querySelector('.u-form-item.is-error')?.scrollIntoView({
+          block: 'nearest'
+        })
+      })
       return Promise.reject(false)
     }
 

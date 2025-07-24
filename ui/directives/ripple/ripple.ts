@@ -1,4 +1,4 @@
-import { bem, nextFrame, setStyles } from '@ui/utils'
+import { bem, nextFrame, setStyles, type BEM } from '@ui/utils'
 import type { CSSProperties } from 'vue'
 
 type MouseOrTouchEvent = MouseEvent | Touch
@@ -18,7 +18,7 @@ interface RippleConfig {
 }
 
 export class Ripple {
-  private static cls = bem('ripple')
+  static cls: BEM<'ripple'> = bem('ripple')
 
   private container: HTMLElement
 
@@ -26,11 +26,29 @@ export class Ripple {
 
   private config?: RippleConfig
 
+  private _rippleAmount = 0
+
+  private set rippleElAmount(amount: number) {
+    this._rippleAmount = amount
+    if (amount === 0) {
+      this.container.classList.remove(Ripple.cls.b)
+    }
+  }
+
+  /** 波纹元素数量 */
+  get rippleElAmount(): number {
+    return this._rippleAmount
+  }
+
   constructor(container: HTMLElement, config?: RippleConfig) {
     this.container = container
     if (config) {
       this.config = config
     }
+  }
+
+  getContainer(): HTMLElement {
+    return this.container
   }
 
   private containerRect?: DOMRect
@@ -84,7 +102,6 @@ export class Ripple {
   private createRippleEl(centerPosition: RipplePosition) {
     const { cls } = Ripple
     const { config, container } = this
-
     if (!container.classList.contains(cls.b)) {
       container.classList.add(cls.b)
     }
@@ -122,6 +139,7 @@ export class Ripple {
     rippleEl.addEventListener('transitionend', transitionEndHandler)
 
     this.container.appendChild(rippleEl)
+    this.rippleElAmount++
 
     if (config?.autoRemove) {
       this.markRemovable(rippleEl)
@@ -139,14 +157,23 @@ export class Ripple {
 
     if (transitionend !== 'true' || removable !== 'true') return
 
-    const transitionEndHandler = (e: TransitionEvent) => {
+    const transitionEndOrCancelHandler = (e: TransitionEvent) => {
       if (e.propertyName !== 'opacity') return
 
-      rippleEl.removeEventListener('transitionend', transitionEndHandler)
+      rippleEl.removeEventListener(
+        'transitionend',
+        transitionEndOrCancelHandler
+      )
+      rippleEl.removeEventListener(
+        'transitioncancel',
+        transitionEndOrCancelHandler
+      )
       rippleEl.remove()
+      this.rippleElAmount--
     }
 
-    rippleEl.addEventListener('transitionend', transitionEndHandler)
+    rippleEl.addEventListener('transitionend', transitionEndOrCancelHandler)
+    rippleEl.addEventListener('transitioncancel', transitionEndOrCancelHandler)
     rippleEl.classList.add(bem.is('removing'))
   }
 

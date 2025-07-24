@@ -8,100 +8,115 @@
     </u-number-input>
   </div>
 
-  <!-- <u-dialog title="表单" style="width: 1000px" @closed="model.resetData()">
+  <u-dialog title="表单" style="width: 400px" @closed="model.resetData()">
     <template #trigger>
       <u-button type="primary">打开弹框</u-button>
-    </template> -->
+    </template>
 
-  <CustomCard title="表单">
-    <u-form
-      :disabled="disabled"
-      :readonly="readonly"
-      :model="model"
-      label-width="200px"
-      ref="formRef"
-    >
-      <template #default="{ data }">
-        <u-radio-group
-          :items="[
-            { label: '男', value: 'male' },
-            { label: '女', value: 'female' }
-          ]"
-          label="性别"
-          field="sex"
+    <CustomCard title="表单">
+      <u-form
+        :disabled="disabled"
+        :readonly="readonly"
+        :model="model"
+        label-width="200px"
+        ref="formRef"
+      >
+        <template #default="{ data }">
+          <u-radio-group
+            :items="[
+              { label: '男', value: 'male' },
+              { label: '女', value: 'female' }
+            ]"
+            label="性别"
+            field="sex"
+          />
+
+          <u-input
+            field="name"
+            v-if="data.sex === 'female'"
+            label="姓名"
+            key="name"
+            tips="四个字以内爱就是一段结婚登记喝点水数据库会收到回复就肯定是即所得"
+          />
+
+          <u-input
+            key="nest.name"
+            field="nest.name"
+            tips="氨基酸的话啥叫客户当今时代是稍等和反抗精神的发货就开始的话飞机喀什的"
+            label="嵌套名称"
+          />
+          <u-number-input field="nest.price" label="嵌套价格" suffix="元" />
+
+          <u-password-input field="pwd" label="密码" />
+          <u-number-input field="age" label="年龄" />
+          <u-number-input
+            field="debt"
+            currency
+            label="借款"
+            :step="10"
+            suffix="元"
+          >
+          </u-number-input>
+          <u-input :prefix="'333'" field="phone" label="手机" />
+          <u-input field="email" label="邮箱" />
+          <u-select field="unit" label="单位" :options="units" />
+          <u-multi-select
+            field="interest"
+            label="兴趣"
+            :options="interestList"
+          />
+
+          <u-date-picker field="date" label="日期" />
+          <u-cascade
+            field="cascade"
+            label="单选级联选择器"
+            :data="cascadeData"
+          />
+        </template>
+      </u-form>
+
+      <br />
+
+      <u-form
+        :disabled="disabled"
+        :readonly="readonly"
+        :model="model"
+        label-width="200px"
+      >
+        <u-checkbox field="freeze" label="是否冻结" />
+        <u-switch
+          field="freeze"
+          label="是否冻结"
+          active-text="是"
+          inactive-text="否"
+        />
+        <u-textarea field="remarks" label="备注" span="full" />
+        <u-slider field="slider" label="滑块" />
+        <u-tree-select
+          field="treeSelect"
+          label="树形下拉"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          filterable
+        />
+        <u-multi-tree-select
+          field="treeChecked"
+          label="树形多选"
+          label-key="name"
+          value-key="id"
+          :data="treeData"
+          filterable
         />
 
-        <u-input
-          field="name"
-          v-if="data.sex === 'female'"
-          label="姓名"
-          key="name"
-          tips="四个字以内爱就是一段结婚登记喝点水数据库会收到回复就肯定是即所得"
+        <u-auto-complete
+          field="complete1"
+          label="complete1"
+          :suggestions="interestList.map(item => item.label)"
+          label-key="label"
         />
 
-        <u-input
-          key="nest.name"
-          field="nest.name"
-          tips="氨基酸的话啥叫客户当今时代是稍等和反抗精神的发货就开始的话飞机喀什的"
-          label="嵌套名称"
-        />
-        <u-number-input field="nest.price" label="嵌套价格" />
-
-        <u-password-input field="pwd" label="密码" />
-        <u-number-input field="age" label="年龄" />
-        <u-number-input field="debt" currency label="借款" :step="1" />
-        <u-input :prefix="'333'" field="phone" label="手机" />
-        <u-input field="email" label="邮箱" />
-        <u-select field="unit" label="单位" :options="units" />
-        <u-multi-select field="interest" label="兴趣" :options="interestList" />
-
-        <u-date-picker field="date" label="日期" />
-        <u-cascade field="cascade" label="单选级联选择器" :data="cascadeData" />
-      </template>
-    </u-form>
-
-    <br />
-
-    <u-form
-      :disabled="disabled"
-      :readonly="readonly"
-      :model="model"
-      label-width="200px"
-    >
-      <u-checkbox field="freeze" label="是否冻结" />
-      <u-switch
-        field="freeze"
-        label="是否冻结"
-        active-text="是"
-        inactive-text="否"
-      />
-      <u-textarea field="remarks" label="备注" span="full" />
-      <u-slider field="slider" label="滑块" />
-      <u-tree-select
-        field="treeSelect"
-        label="树形下拉"
-        label-key="name"
-        value-key="id"
-        :data="treeData"
-        filterable
-      />
-      <u-multi-tree-select
-        field="treeChecked"
-        label="树形多选"
-        label-key="name"
-        value-key="id"
-        :data="treeData"
-        filterable
-      />
-
-      <u-auto-complete
-        field="complete1"
-        label="complete1"
-        :suggestions="interestList.map(item => item.label)"
-        label-key="label"
-      />
-
-      <!-- <u-auto-complete
+        <!-- <u-auto-complete
           field="complete2"
           label="complete2"
           :suggestions="interestList.map(item => item.label)"
@@ -109,24 +124,24 @@
           multiple
         /> -->
 
-      <!-- <u-text-editor label="内容" height="80px" field="tex" /> -->
+        <!-- <u-text-editor label="内容" height="80px" field="tex" /> -->
 
-      <u-group-input field="group" label="分组输入" v-slot="{ item }">
-        <u-input v-model="item.value1" />
-        <u-input v-model="item.value2" />
-      </u-group-input>
-    </u-form>
+        <u-group-input field="group" label="分组输入" v-slot="{ item }">
+          <u-input v-model="item.value1" />
+          <u-input v-model="item.value2" />
+        </u-group-input>
+      </u-form>
 
-    <div style="display: flex; justify-content: flex-end; gap: 8px">
-      <u-button type="primary" @click="handleSetData">设置值</u-button>
-      <u-button type="primary" @click="handleValidate">校验</u-button>
-      <u-button @click="model.resetData()">重置数据</u-button>
-      <u-button type="success" @click="model.clearValidate()">
-        清除校验
-      </u-button>
-    </div>
-  </CustomCard>
-  <!-- </u-dialog> -->
+      <div style="display: flex; justify-content: flex-end; gap: 8px">
+        <u-button type="primary" @click="handleSetData">设置值</u-button>
+        <u-button type="primary" @click="handleValidate">校验</u-button>
+        <u-button @click="model.resetData()">重置数据</u-button>
+        <u-button type="success" @click="model.clearValidate()">
+          清除校验
+        </u-button>
+      </div>
+    </CustomCard>
+  </u-dialog>
 </template>
 
 <script lang="ts" setup>

@@ -105,7 +105,7 @@ watch(
   ([size, value, range]) => {
     update(() => {
       if (value === undefined || size === 0) return
-      console.log(1)
+
       if (range) {
         offset1.value = value2SliderOffset((value as [number, number])[0])
         offset2.value = value2SliderOffset((value as [number, number])[1])

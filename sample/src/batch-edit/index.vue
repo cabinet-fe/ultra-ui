@@ -14,144 +14,154 @@
       <u-button @click="dialogVisible = !dialogVisible">打开编辑</u-button>
     </div>
 
-    <u-batch-edit
-      :columns="columns"
-      :readonly="readonly"
-      :resizable="resizable"
-      v-model:data="data"
-      v-model:checked="checked"
-      checkable
-      :features="features"
-      :model="model"
-      :tree="tree"
-      style="height: 500px"
-      :delete-method="asynchronous ? deleteMethod : undefined"
-      :save-method="asynchronous ? saveMethod : undefined"
-      @created="
-        model.setData({
-          age: 666
-        })
-      "
-    >
-      <template #column:name="{ row }">
-        <span :style="`padding-left: ${row.depth * 20}px;`">
-          {{ row.depth }} {{ row.data.name }}
-        </span>
-      </template>
-      <template #form="{ data }">
-        <!-- 基础信息 -->
-        <u-input field="name" label="姓名" placeholder="请输入姓名" />
-        <u-number-input field="age" label="年龄" :min="0" :max="120" />
-        <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
-        <u-input field="phone" label="电话" placeholder="请输入电话号码" />
+    <u-dialog v-model="dialogVisible" style="width: 1000px">
+      <u-batch-edit
+        :columns="columns"
+        :readonly="readonly"
+        :resizable="resizable"
+        v-model:data="data"
+        v-model:checked="checked"
+        checkable
+        :features="features"
+        :model="model"
+        :tree="tree"
+        style="height: 500px"
+        :delete-method="asynchronous ? deleteMethod : undefined"
+        :save-method="asynchronous ? saveMethod : undefined"
+        @created="
+          model.setData({
+            age: 666
+          })
+        "
+      >
+        <template #column:name="{ row }">
+          <span :style="`padding-left: ${row.depth * 20}px;`">
+            {{ row.depth }} {{ row.data.name }}
+          </span>
+        </template>
+        <template #form="{ data }">
+          <!-- 基础信息 -->
+          <u-input field="name" label="姓名" placeholder="请输入姓名" />
+          <u-number-input field="age" label="年龄" :min="0" :max="120" />
+          <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
+          <u-input field="phone" label="电话" placeholder="请输入电话号码" />
 
-        <!-- 选择器类型 -->
-        <u-select
-          field="gender"
-          label="性别"
-          :options="genderOptions"
-          label-key="label"
-          value-key="value"
-          placeholder="请选择性别"
-        />
-        <u-select
-          field="department"
-          label="部门"
-          :options="departmentOptions"
-          label-key="label"
-          value-key="value"
-          placeholder="请选择部门"
-        />
-        <u-select
-          field="position"
-          label="职位"
-          :options="positionOptions"
-          label-key="label"
-          value-key="value"
-          placeholder="请选择职位"
-        />
-        <u-select
-          field="unit"
-          label="单位"
-          :options="units"
-          label-key="label"
-          value-key="value"
-          placeholder="请选择单位"
-        />
+          <!-- 选择器类型 -->
+          <u-select
+            field="gender"
+            label="性别"
+            :options="genderOptions"
+            label-key="label"
+            value-key="value"
+            placeholder="请选择性别"
+          />
+          <u-select
+            field="department"
+            label="部门"
+            :options="departmentOptions"
+            label-key="label"
+            value-key="value"
+            placeholder="请选择部门"
+          />
+          <u-select
+            field="position"
+            label="职位"
+            :options="positionOptions"
+            label-key="label"
+            value-key="value"
+            placeholder="请选择职位"
+          />
+          <u-select
+            field="unit"
+            label="单位"
+            :options="units"
+            label-key="label"
+            value-key="value"
+            placeholder="请选择单位"
+          />
 
-        <!-- 日期时间 -->
-        <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
-        <u-date-picker
-          field="joinDate"
-          label="入职日期"
-          placeholder="请选择入职日期"
-        />
+          <!-- 日期时间 -->
+          <u-date-picker
+            field="birthday"
+            label="生日"
+            placeholder="请选择生日"
+          />
+          <u-date-picker
+            field="joinDate"
+            label="入职日期"
+            placeholder="请选择入职日期"
+          />
 
-        <!-- 数值输入 -->
-        <u-number-input field="salary" label="薪资" :min="0" :step="100" />
-        <u-number-input
-          field="score"
-          label="评分"
-          :min="0"
-          :max="100"
-          :step="0.1"
-        />
+          <!-- 数值输入 -->
+          <u-number-input field="salary" label="薪资" :min="0" :step="100" />
+          <u-number-input
+            field="score"
+            label="评分"
+            :min="0"
+            :max="100"
+            :step="0.1"
+          />
 
-        <!-- 多行文本 -->
-        <u-textarea
-          field="address"
-          label="地址"
-          placeholder="请输入详细地址"
-          span="full"
-        />
-        <u-textarea
-          field="description"
-          label="个人描述"
-          placeholder="请输入个人描述"
-          span="full"
-        />
+          <!-- 多行文本 -->
+          <u-textarea
+            field="address"
+            label="地址"
+            placeholder="请输入详细地址"
+            span="full"
+          />
+          <u-textarea
+            field="description"
+            label="个人描述"
+            placeholder="请输入个人描述"
+            span="full"
+          />
 
-        <!-- 复选框和单选框 -->
-        <u-checkbox-group
-          field="skills"
-          label="技能"
-          :items="skillOptions"
-          span="full"
-        />
-        <u-radio-group
-          field="workType"
-          label="工作类型"
-          :items="workTypeOptions"
-        />
+          <!-- 复选框和单选框 -->
+          <u-checkbox-group
+            field="skills"
+            label="技能"
+            :items="skillOptions"
+            span="full"
+          />
+          <u-radio-group
+            field="workType"
+            label="工作类型"
+            :items="workTypeOptions"
+          />
 
-        <!-- 高级组件 -->
-        <u-code-editor
-          field="code"
-          label="代码片段"
-          language="json"
-          span="full"
-        />
-        <u-slider field="experience" label="工作经验(年)" :min="0" :max="20" />
+          <!-- 高级组件 -->
+          <u-code-editor
+            field="code"
+            label="代码片段"
+            language="json"
+            span="full"
+          />
+          <u-slider
+            field="experience"
+            label="工作经验(年)"
+            :min="0"
+            :max="20"
+          />
 
-        <!-- 条件显示字段 -->
-        <u-input
-          v-if="!data.age || data.age < 25"
-          field="emergencyContact"
-          label="紧急联系人"
-        />
-        <u-input
-          v-if="data.department === 'tech'"
-          field="programmingLanguage"
-          label="主要编程语言"
-        />
+          <!-- 条件显示字段 -->
+          <u-input
+            v-if="!data.age || data.age < 25"
+            field="emergencyContact"
+            label="紧急联系人"
+          />
+          <u-input
+            v-if="data.department === 'tech'"
+            field="programmingLanguage"
+            label="主要编程语言"
+          />
 
-        <!-- 嵌套字段 -->
-        <u-input field="props.label" label="标签" />
-        <u-input field="props.field" label="字段" />
-        <u-input field="contact.qq" label="QQ号码" />
-        <u-input field="contact.wechat" label="微信号" />
+          <!-- 嵌套字段 -->
+          <u-input field="props.label" label="标签" />
+          <u-input field="props.field" label="字段" />
+          <u-input field="contact.qq" label="QQ号码" />
+          <u-input field="contact.wechat" label="微信号" />
 
-        <!-- <u-cascade
+          <!-- <u-cascade
             field="cascade"
             label="单选级联选择器"
             :options="area.area"
@@ -159,8 +169,9 @@
             value-key="code"
             filterable
           /> -->
-      </template>
-    </u-batch-edit>
+        </template>
+      </u-batch-edit>
+    </u-dialog>
   </div>
 </template>
 

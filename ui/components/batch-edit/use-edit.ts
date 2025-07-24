@@ -210,7 +210,7 @@ export function useEdit(options: Options): EditReturned {
       try {
         await fn.apply(null, args)
       } catch (error) {
-        console.log(error)
+        console.error(error)
       }
       state.loading = false
       if (state.row) {
