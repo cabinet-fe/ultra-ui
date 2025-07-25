@@ -1,4 +1,5 @@
-import { bem, nextFrame, setStyles, type BEM } from '@ui/utils'
+import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@ui/utils'
+import { pick } from 'cat-kit'
 import type { CSSProperties } from 'vue'
 
 type MouseOrTouchEvent = MouseEvent | Touch
@@ -17,27 +18,33 @@ interface RippleConfig {
   autoRemove?: boolean
 }
 
+interface ContainerStyle {
+  position: string
+  overflow: string
+}
+
 export class Ripple {
   static cls: BEM<'ripple'> = bem('ripple')
 
   private container: HTMLElement
+  private containerRect?: DOMRect
+  private containerComputedStyle?: ContainerStyle
+  private containerStyle?: ContainerStyle
 
   private currentRippleEl?: HTMLElement
 
   private config?: RippleConfig
 
-  private _rippleAmount = 0
+  private _amount = 0
 
-  private set rippleElAmount(amount: number) {
-    this._rippleAmount = amount
-    if (amount === 0) {
-      this.container.classList.remove(Ripple.cls.b)
-    }
+  private set amount(amount: number) {
+    this._amount = amount
+    amount === 0 && this.resetContainerStyle()
   }
 
   /** 波纹元素数量 */
-  get rippleElAmount(): number {
-    return this._rippleAmount
+  private get amount(): number {
+    return this._amount
   }
 
   constructor(container: HTMLElement, config?: RippleConfig) {
@@ -50,8 +57,6 @@ export class Ripple {
   getContainer(): HTMLElement {
     return this.container
   }
-
-  private containerRect?: DOMRect
 
   private getContainerRect(): DOMRect {
     if (this.containerRect) return this.containerRect
@@ -95,20 +100,72 @@ export class Ripple {
     return Math.ceil(Math.sqrt(edgeA ** 2 + edgeB ** 2))
   }
 
+  private setContainerStyle() {
+    const { container } = this
+
+    // 获取元素原本的内联样式设置
+    if (this.amount === 0 && !this.containerStyle) {
+      this.containerStyle = {
+        position: container.style.position,
+        overflow: container.style.overflow
+      }
+    }
+
+    if (!this.containerComputedStyle) {
+      this.containerComputedStyle = pick(window.getComputedStyle(container), [
+        'overflow',
+        'position'
+      ])
+    }
+    const { position, overflow } = this.containerComputedStyle
+    const style: CSSProperties = {}
+
+    if (position === 'static') {
+      style.position = 'relative'
+    }
+    if (overflow !== 'hidden') {
+      style.overflow = 'hidden'
+    }
+
+    setStyles(container, style)
+  }
+
+  private resetContainerStyle() {
+    const { container, containerStyle } = this
+    if (!containerStyle) {
+      return removeStyles(container, ['overflow', 'position'])
+    }
+
+    const attrsToRemoved: string[] = []
+
+    if (!containerStyle.overflow) {
+      attrsToRemoved.push('overflow')
+    }
+
+    if (!containerStyle.position) {
+      attrsToRemoved.push('position')
+    }
+
+    removeStyles(container, attrsToRemoved)
+
+    if (!attrsToRemoved.length) {
+      setStyles(container, containerStyle as CSSProperties)
+    }
+  }
+
   /**
    * 创建波纹元素
    * @param centerPosition 波纹圆心位置
    */
-  private createRippleEl(centerPosition: RipplePosition) {
-    const { cls } = Ripple
-    const { config, container } = this
-    if (!container.classList.contains(cls.b)) {
-      container.classList.add(cls.b)
-    }
+  private createRipple(centerPosition: RipplePosition) {
+    const { config } = this
+
+    // 必须在创建ripple元素之前调用
+    this.setContainerStyle()
 
     const rippleEl = document.createElement('span')
     this.currentRippleEl = rippleEl
-    rippleEl.classList.add(cls.e('el'))
+    rippleEl.classList.add(Ripple.cls.b)
     config?.rippleClass && rippleEl.classList.add(config.rippleClass)
 
     const radius = this.calcRippleRadius(centerPosition)
@@ -139,12 +196,13 @@ export class Ripple {
     rippleEl.addEventListener('transitionend', transitionEndHandler)
 
     this.container.appendChild(rippleEl)
-    this.rippleElAmount++
+    this.amount++
 
     if (config?.autoRemove) {
       this.markRemovable(rippleEl)
     }
 
+    // 触发动画
     nextFrame(() => {
       setStyles(rippleEl, {
         transform: 'scale3d(1, 1, 1)'
@@ -169,7 +227,7 @@ export class Ripple {
         transitionEndOrCancelHandler
       )
       rippleEl.remove()
-      this.rippleElAmount--
+      this.amount--
     }
 
     rippleEl.addEventListener('transitionend', transitionEndOrCancelHandler)
@@ -182,7 +240,7 @@ export class Ripple {
    * @param centerPosition 波纹圆心位置
    */
   show(centerPosition: RipplePosition): void {
-    this.createRippleEl(centerPosition)
+    this.createRipple(centerPosition)
   }
 
   /**
@@ -193,7 +251,7 @@ export class Ripple {
     const centerPosition = this.getRippleCenterPosition(
       e instanceof MouseEvent ? e : e.touches[0]!
     )
-    this.createRippleEl(centerPosition)
+    this.createRipple(centerPosition)
   }
 
   /**

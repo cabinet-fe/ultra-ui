@@ -5,11 +5,25 @@ const rippleMap = new WeakMap<HTMLElement, Ripple>()
 
 function handleMousedown(e: MouseEvent) {
   const container = e.currentTarget as HTMLElement
-  rippleMap.get(container)?.showByEvent(e)
-}
 
-function handleMouseup(e: MouseEvent) {
-  rippleMap.get(e.currentTarget as HTMLElement)?.remove()
+  const mouseupHandler = () => {
+    rippleMap.get(container)?.remove()
+    document.removeEventListener('mouseup', mouseupHandler)
+  }
+
+  document.addEventListener('mouseup', mouseupHandler)
+
+  let ripple = rippleMap.get(container)
+  if (!ripple) {
+    const { rippleClass, duration } = container.dataset
+    ripple = new Ripple(container, {
+      rippleClass,
+      duration: duration ? Number(duration) : undefined
+    })
+    rippleMap.set(container, ripple)
+  }
+
+  ripple.showByEvent(e)
 }
 
 function handleMouseleave(e: MouseEvent) {
@@ -23,19 +37,10 @@ function handleMouseleave(e: MouseEvent) {
  * @todo 如有必要将来可添加触摸事件
  */
 const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
-  // 如果指令绑定的值为false则不应用该事件. eg: v-ripple="false"
+  // 如果指令绑定的值为false则不应用该事件.
   if (binding.value === false) return
 
-  rippleMap.set(
-    el,
-    new Ripple(el, {
-      rippleClass: binding.value,
-      duration: binding.arg ? Number(binding.arg) : undefined
-    })
-  )
-
   el.addEventListener('mousedown', handleMousedown)
-  el.addEventListener('mouseup', handleMouseup)
   el.addEventListener('mouseleave', handleMouseleave)
 }
 
@@ -44,40 +49,37 @@ const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
  * @param el 元素
  */
 const unregisterEvents = (el: HTMLElement) => {
-  rippleMap.get(el)?.remove()
-  rippleMap.delete(el)
   el.removeEventListener('mousedown', handleMousedown)
-  el.removeEventListener('mouseup', handleMouseup)
   el.removeEventListener('mouseleave', handleMouseleave)
 }
 
 export { Ripple }
 
 export const vRipple: ObjectDirective<HTMLElement> = {
-  mounted: registerEvents,
+  mounted: (el, binding) => {
+    if (binding.value !== false) {
+      el.dataset.rippleClass = binding.value
+    }
 
-  unmounted: unregisterEvents,
+    if (binding.arg) {
+      el.dataset.duration = binding.arg
+    }
 
-  beforeUpdate(el, binding) {
-    // console.log(el.classList.contains(Ripple.cls.b))
+    registerEvents(el, binding)
   },
 
-  updated(el, binding, vnode, prevVNode) {
-    console.log(vnode.props, prevVNode.props)
-    const registered = binding.oldValue !== false
+  unmounted: el => {
+    unregisterEvents(el)
+    rippleMap.get(el)?.remove()
+    rippleMap.delete(el)
+  },
 
-    if (
-      !el.classList.contains(Ripple.cls.b)
-      // rippleMap.get(el)?.rippleElAmount
-    ) {
-      el.classList.add(Ripple.cls.b)
-    }
+  updated(el, binding) {
+    const registered = binding.oldValue !== false
 
     if (binding.value !== false) {
       if (!registered) {
         registerEvents(el, binding)
-      } else {
-        // class被重置时重新添加
       }
     } else {
       if (registered) {

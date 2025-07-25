@@ -7,6 +7,7 @@ $root-name: button;
 
 @include m.b($root-name) {
   color: fn.use-var(text-color, main);
+
   line-height: 1;
   outline: none;
   text-decoration: none;

@@ -291,6 +291,9 @@ export function useEdit(options: Options): EditReturned {
 
   function handleClose() {
     state.visible = false
+    if (state.row) {
+      state.row.isCurrent = false
+    }
     state.row = undefined
     state.parentRow = undefined
     props.model?.resetData()

@@ -1,9 +1,5 @@
 <template>
-  <u-card
-    :class="cls.e('form')"
-    integrate
-    v-if="state.visible && !!props.model"
-  >
+  <u-card :class="cls.e('form')" v-if="state.visible && !!props.model">
     <u-card-header>
       <template v-if="props.readonly">详情</template>
       <template v-else-if="!!state.parentRow">新增子级</template>
@@ -35,14 +31,14 @@
     </transition>
 
     <u-card-action :class="cls.e('action')">
-      <!-- <u-button
+      <u-button
         text
         type="primary"
         :loading="state.loading"
         @click="handleClose"
       >
         关闭
-      </u-button> -->
+      </u-button>
       <u-button
         v-if="!props.readonly && state.dataUpdated"
         :type="state.type === 'create' ? 'success' : 'primary'"
