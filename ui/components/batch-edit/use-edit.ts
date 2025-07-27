@@ -149,6 +149,9 @@ export function useEdit(options: Options): EditReturned {
 
   async function runCreate(cb: () => void) {
     state.parentRow = undefined
+    if (state.row) {
+      state.row.isCurrent = false
+    }
     state.row = undefined
     state.type = 'create'
     props.model?.resetData()

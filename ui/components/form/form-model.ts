@@ -158,11 +158,13 @@ export class FormModel<
     }
 
     if (errors.size > 0) {
-      nextTick(() => {
-        document.querySelector('.u-form-item.is-error')?.scrollIntoView({
-          block: 'nearest'
+      if (!fields) {
+        nextTick(() => {
+          document.querySelector('.u-form-item.is-error')?.scrollIntoView({
+            block: 'nearest'
+          })
         })
-      })
+      }
       return Promise.reject(false)
     }
 

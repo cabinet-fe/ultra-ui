@@ -67,7 +67,7 @@ $root-name: select;
       }
 
       @include m.bem($root-name, options) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+        padding: fn.use-var(gap, $size);
       }
 
       @include m.bem($root-name, option) {

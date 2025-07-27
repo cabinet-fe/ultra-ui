@@ -4,6 +4,7 @@ import { Ripple } from './ripple'
 const rippleMap = new WeakMap<HTMLElement, Ripple>()
 
 function handleMousedown(e: MouseEvent) {
+  if (e.button !== 0) return
   const container = e.currentTarget as HTMLElement
 
   const mouseupHandler = () => {
