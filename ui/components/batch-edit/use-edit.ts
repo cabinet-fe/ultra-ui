@@ -1,6 +1,5 @@
 import {
   computed,
-  isReactive,
   nextTick,
   shallowReactive,
   shallowRef,
