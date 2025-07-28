@@ -17,7 +17,14 @@ const TipNestDIKey: InjectionKey<{
  * @param visible 当前tip显示变量
  * @returns
  */
-export function useNest(visible: Ref<boolean>): Ref<boolean> {
+export function useNest(
+  visible:
+    | Ref<boolean | undefined>
+    | {
+        __v_isRef: boolean
+        value: boolean
+      }
+): Ref<boolean> {
   /**
    * 子级提示框
    */

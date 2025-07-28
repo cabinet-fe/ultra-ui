@@ -19,7 +19,6 @@ async function getEntries() {
       'styles/index.ts',
       'install.ts',
       'components/**/style.ts',
-
       'directives/**/style.ts'
     ],
     {

@@ -12,14 +12,6 @@ export async function build() {
       alias: [{ find: '@ui', replacement: UI_ROOT }]
     },
 
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern'
-        }
-      }
-    },
-
     plugins: [
       vue({
         isProduction: true

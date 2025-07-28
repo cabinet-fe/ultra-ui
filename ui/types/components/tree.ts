@@ -79,7 +79,7 @@ export interface TreeEmit {
   /** 节点右键菜单事件 */
   (e: 'node-contextmenu', event: MouseEvent, node: TreeNode): void
   /** 选中项同步完成事件 */
-  (e: 'selected-synced', selected?: Record<string, any>)
+  (e: 'selected-synced', selected?: Record<string, any>): void
 }
 
 export interface TreeNodeProps {

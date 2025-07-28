@@ -1,7 +1,7 @@
 import { type Dater, date } from 'cat-kit/fe'
 import type { CalendarDay, CalendarMonth, CalendarYear } from '@ui/types'
 
-export const weekDays = ['日', '一', '二', '三', '四', '五', '六']
+export const weekDays: string[] = ['日', '一', '二', '三', '四', '五', '六']
 
 /**
  * 获取一个月的天数

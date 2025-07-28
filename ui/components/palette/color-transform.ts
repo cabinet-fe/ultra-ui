@@ -61,7 +61,7 @@ export function HSV2RGB(hsv: PaletteHSV): PaletteRGB {
  * @param alpha 透明度
  * @returns HEX 颜色
  */
-export function RGB2HEX(RGB: PaletteRGB, alpha = 1) {
+export function RGB2HEX(RGB: PaletteRGB, alpha = 1): string {
   let hexStr = ['r', 'g', 'b']
     .map(key => RGB[key].toString(16).padStart(2, '0'))
     .join('')

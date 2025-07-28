@@ -35,7 +35,10 @@ export function getContainerBreakpoint(width: number): Breakpoint {
  * @param colConf 断点配置
  * @param breakpoint 断点
  */
-export function getBreakpointCols(colConf: BreakCols, breakpoint?: Breakpoint) {
+export function getBreakpointCols(
+  colConf: BreakCols,
+  breakpoint?: Breakpoint
+): number {
   if (!breakpoint) return DEFAULT_COLS
   const { name, level } = breakpoint
   const cols = colConf[name]

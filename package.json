@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.3.58",
+  "version": "0.4.0",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -33,7 +33,7 @@
     "cat-kit": "^3.7.13",
     "fast-glob": "^3.3.3",
     "@ultra/icon": "^1.0.0",
-    "rollup": "^4.45.1",
+    "rollup": "^4.46.0",
     "rollup-plugin-esbuild": "^6.2.1",
     "sass-embedded": "^1.89.2",
     "simple-git-hooks": "^2.13.0",
@@ -43,7 +43,7 @@
     "vitest": "^3.2.4",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
-    "vue-tsc": "^3.0.3",
+    "vue-tsc": "^3.0.4",
     "@builder/cli": "^1.0.12",
     "tsx": "^4.20.3"
   },

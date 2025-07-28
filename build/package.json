@@ -2,7 +2,7 @@
   "name": "build",
   "type": "module",
   "scripts": {
-    "release": "tsx ./index.ts"
+    "release": "bun ./index.ts"
   },
   "devDependencies": {
     "@builder/cli": "^3.0.0",

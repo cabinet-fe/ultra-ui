@@ -24,7 +24,7 @@ import * as directives from './directives'
 import './styles'
 ${stylesImports}
 
-export function UltraUI(app: App) {
+export function UltraUI(app: App): void {
   Object.keys(components).forEach(key => {
     if (key.startsWith('U')) {
       const component = components[key]

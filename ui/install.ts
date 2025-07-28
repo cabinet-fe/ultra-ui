@@ -1,3 +1,4 @@
+
 import type { App } from 'vue'
 import * as components from './components'
 import * as directives from './directives'
@@ -5,6 +6,7 @@ import * as directives from './directives'
 // 引入样式
 import './styles'
 import './components/action/style'
+import './components/animation/style'
 import './components/auto-complete/style'
 import './components/badge/style'
 import './components/batch-edit/style'

@@ -16,7 +16,8 @@ export async function getEntries() {
       '**/__test__',
       '**/disabled.*/**',
       'types/**',
-      '**/style.ts'
+      '**/style.ts',
+      'styles/index.ts'
     ]
   })
 

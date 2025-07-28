@@ -17,7 +17,20 @@ interface Options<DataItem extends Record<string, any> = Record<string, any>> {
   rightFixed: Ref<boolean>
 }
 
-export function useTable(options: Options) {
+interface UseTableReturn {
+  getColumnSlotsNode: (
+    ctx: TableColumnSlotsScope | TableColumnRenderContext
+  ) => RenderReturn
+  getHeaderSlotsNode: (ctx: { column: ColumnNode }) => RenderReturn
+  getCellClass: (column: ColumnNode) => string
+  getHeaderCellClass: (column: ColumnNode) => string
+  getCellCtx: (
+    row: TableRow,
+    column: ColumnNode
+  ) => TableColumnSlotsScope | TableColumnRenderContext
+}
+
+export function useTable(options: Options): UseTableReturn {
   const { props, cls, leftFixed, rightFixed } = options
 
   const slots = useSlots()

@@ -54,7 +54,7 @@ const sliderDragger = useDrag({
   }
 })
 
-function init() {
+function init(): void {
   getSliderWidth()
   transformX.value = (sliderWidth * HSV.h) / 360
 }

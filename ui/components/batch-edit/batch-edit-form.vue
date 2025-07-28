@@ -34,14 +34,12 @@
       <u-button
         text
         type="primary"
-        size="small"
         :loading="state.loading"
         @click="handleClose"
       >
         关闭
       </u-button>
       <u-button
-        size="small"
         v-if="!props.readonly && state.dataUpdated"
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"

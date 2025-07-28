@@ -4,7 +4,7 @@
 
 <script lang="tsx" setup>
 import type { ActionGroupProps } from '@ui/types'
-import { ArrowDown, MoreFilled } from '@ultra/icon'
+import { ArrowDown } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
 import { type VNode } from 'vue'

@@ -72,7 +72,7 @@ useDrag({
 })
 
 defineExpose({
-  update(_offset: number) {
+  update(_offset: number): void {
     offset = _offset
     if (!props.horizontal) {
       offsets.x = offset + 'px'

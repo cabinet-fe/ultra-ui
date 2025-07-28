@@ -100,7 +100,7 @@ const canvasBackground = computed(() => {
   return `linear-gradient(to right, rgb(255, 255, 255), rgb(${r}, ${g}, ${b}))`
 })
 
-function init() {
+function init(): void {
   getCanvasSize()
   transform.x = canvasSize.width * HSV.s
   transform.y = canvasSize.height * (1 - HSV.v)
