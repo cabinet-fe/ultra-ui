@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch, computed, provide } from 'vue'
+import { shallowRef, watch, computed, provide, nextTick } from 'vue'
 import type {
   DialogProps,
   DialogEmits,
@@ -191,6 +191,10 @@ watch(visible, v => {
   // 初始化位置偏移量
   translated.x = 0
   translated.y = 0
+
+  nextTick(() => {
+    setStyles(overlayRef.value!, { zIndex: zIndex() })
+  })
 })
 
 /** dialog位移的位置 */
