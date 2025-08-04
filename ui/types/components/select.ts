@@ -36,6 +36,8 @@ export interface SelectProps extends FormComponentProps {
    * @default 跟随触发元素的宽度
    */
   width?: string
+  /** 是否允许创建新的选项 */
+  creatable?: boolean
 }
 
 export interface SelectEmits {

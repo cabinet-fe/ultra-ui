@@ -10,6 +10,7 @@
     :disabled="disabled"
     :min-width="minWidth"
     :width="width"
+    @keydown="handleKeydown"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -22,6 +23,7 @@
           selected ? (getChainValue(selected, labelKey) ?? label) : modelValue
         "
         @clear="handleClear"
+        @keydown="handleKeydown"
         native-readonly
       >
         <template #prefix v-if="$slots.prefix">
@@ -38,7 +40,12 @@
     <template #content>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input placeholder="输入关键字进行搜索" v-model="queryString">
+        <u-input
+          placeholder="输入关键字进行搜索"
+          tabindex="0"
+          v-focus
+          v-model="queryString"
+        >
           <template #suffix>
             <u-icon><Search /></u-icon>
           </template>
@@ -63,8 +70,8 @@
           <!-- @vue-ignore -->
           <li
             v-for="{ option, index, val, label, key, offset } of virtualOptions"
-            :class="[optionClass, bem.is('selected', val === model)]"
-            @click="handleSelect(option)"
+            :class="[optionClass, bem.is('selected', index === currentIndex)]"
+            @click="handleSelect(option, index)"
             :key="key"
             :style="{
               transform: `translateY(${offset}px)`
@@ -81,11 +88,9 @@
         <template v-else>
           <li
             v-for="(option, index) of options"
-            :class="[
-              optionClass,
-              bem.is('selected', getChainValue(option, valueKey) === model)
-            ]"
-            @click="handleSelect(option)"
+            :class="[optionClass, bem.is('selected', index === currentIndex)]"
+            @click="handleSelect(option, index)"
+            :data-index="index"
             :title="getChainValue(option, labelKey)"
             :key="getChainValue(option, valueKey)"
           >
@@ -120,6 +125,7 @@ import { bem, withUnit, scrollIntoContainerView } from '@ui/utils'
 import {
   useFormComponent,
   useFormFallbackProps,
+  useUpdateLock,
   useVirtual
 } from '@ui/compositions'
 import { UDropdown } from '../dropdown'
@@ -128,9 +134,11 @@ import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from '@ultra/icon'
 import { useOptions } from './use-options'
+import { useKeyboard } from './use-keyboard'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
+import { vFocus } from '@ui/directives'
 
 defineOptions({
   name: 'Select'
@@ -167,6 +175,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
 )
 
 const model = defineModel<string | number>()
+const currentIndex = shallowRef(-1)
 const label = defineModel('text')
 const selected = shallowRef<Record<string, any>>()
 
@@ -177,37 +186,38 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options } = useOptions({
+const { queryString, options, temOptionsToCreatedOptions } = useOptions({
   props
 })
 
-let modelIsChangedBySelected = false
-let setIsChangedByModel = false
+const { update, updateAndLock } = useUpdateLock()
+
 watch(
   [model, options],
   ([modelValue, options]) => {
-    if (!options?.length || modelIsChangedBySelected) return
-    setIsChangedByModel = true
-    if (modelValue !== undefined) {
-      const { valueKey } = props
-      selected.value = options.find(option => option[valueKey] === modelValue)
-    } else {
-      selected.value = undefined
-    }
-    setIsChangedByModel = false
+    update(() => {
+      if (!options?.length) return
+
+      if (modelValue !== undefined) {
+        const { valueKey } = props
+        currentIndex.value = options.findIndex(
+          option => getChainValue(option, valueKey) === modelValue
+        )
+        selected.value = options[currentIndex.value]
+      } else {
+        currentIndex.value = -1
+        selected.value = undefined
+      }
+    })
   },
   { immediate: true }
 )
 
 watch(selected, selected => {
-  if (setIsChangedByModel) return
-
-  modelIsChangedBySelected = true
-
-  model.value = selected?.[props.valueKey] ?? ''
-  label.value = selected?.[props.labelKey] ?? ''
-
-  modelIsChangedBySelected = false
+  updateAndLock(() => {
+    model.value = selected?.[props.valueKey]
+    label.value = selected?.[props.labelKey]
+  })
 })
 
 const { virtualList, totalHeight, virtualEnabled, scrollTo, measureElement } =
@@ -240,7 +250,7 @@ watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
 
   if (virtualEnabled) {
     const index = options.value.findIndex(option => option === selected.value)
-    index !== -1 && nextTick(() => scrollTo(index))
+    index !== -1 && dropdownVisible.value && nextTick(() => scrollTo(index))
   } else {
     const selectedEl =
       scroll?.contentRef?.getElementsByClassName('is-selected')[0]
@@ -262,14 +272,31 @@ watch(dropdownVisible, v => {
 })
 
 /** 单选 */
-const handleSelect = (option: Record<string, any>) => {
+const handleSelect = (option: Record<string, any>, index: number) => {
   selected.value = option
-  dropdownRef.value?.close()
   emit('change', option)
+  if (option.__isTemp) {
+    temOptionsToCreatedOptions()
+  }
+  currentIndex.value = index
+  dropdownRef.value?.close()
 }
 
 /** 清除选项 */
 const handleClear = () => {
   selected.value = undefined
 }
+
+function getCurrentEl() {
+  return scrollRef.value?.contentRef?.querySelector('li.is-selected') as
+    | HTMLElement
+    | undefined
+}
+
+const { handleKeydown } = useKeyboard({
+  options,
+  currentIndex,
+  selectOption: handleSelect,
+  getCurrentEl
+})
 </script>

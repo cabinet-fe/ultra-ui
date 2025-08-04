@@ -39,6 +39,8 @@ export interface DropdownProps {
 export interface DropdownEmits {
   /** 下拉框显示或隐藏事件 */
   (e: 'update:visible', visible: boolean): void
+  /** 键盘事件 */
+  (e: 'keydown', event: KeyboardEvent): void
 }
 
 /** 下拉框组件暴露的属性和方法(组件内部使用) */

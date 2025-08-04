@@ -1,12 +1,14 @@
 <template>
   <div style="display: flex; justify-content: center">
     <CustomCard width="400px" title="使用">
-      <u-checkbox v-model="filterable">过滤</u-checkbox>
-      <u-select
-        v-model="selected"
-        :filterable="filterable"
-        :options="options"
-      />
+      <div style="margin-bottom: 8px">
+        <div style="font-size: 12px; color: #666; margin-bottom: 4px">
+          键盘导航: ↑↓ 选择选项，Enter 确认，Esc 关闭
+        </div>
+        <u-checkbox v-model="filterable">过滤</u-checkbox>
+        <u-checkbox v-model="creatable">允许创建</u-checkbox>
+      </div>
+      <u-select v-model="selected" :filterable :creatable :options="options" />
       <u-number-input v-model="count" step />
     </CustomCard>
 
@@ -37,10 +39,11 @@ watchEffect(() => {
 const selected = shallowRef()
 
 setTimeout(() => {
-  selected.value = '20'
+  selected.value = '1'
 })
 
 const filterable = shallowRef(true)
+const creatable = shallowRef(true)
 
 const optionsGetter = async (qs: string) => {
   if (!qs) return []

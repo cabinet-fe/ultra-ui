@@ -11,12 +11,13 @@
   <Teleport :to="`#${popperContainerId}`">
     <component
       v-if="dropdownVisible"
+      ref="contentRef"
       :is="contentTag"
       :class="dropdownContentClass"
-      ref="contentRef"
       :style="[{ zIndex: zIndex() }, contentStyle]"
       @mouseenter="eventsHandlers.onMouseenter"
       @mouseleave="eventsHandlers.onMouseleave"
+      @keydown="emit('keydown', $event)"
       v-click-outside="trigger === 'click' ? handleClickOutside : undefined"
     >
       <slot name="content" />

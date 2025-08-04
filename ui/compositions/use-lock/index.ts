@@ -1,5 +1,3 @@
-// 数据回显是一个查询过程
-
 import { nextTick } from 'vue'
 
 type Update = (fn: Function) => any
