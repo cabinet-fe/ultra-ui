@@ -44,7 +44,7 @@ export interface SelectEmits {
   /** 触发更新label事件 */
   (e: 'update:label', label?: string): void
   (e: 'update:modelValue', modelValue?: any): void
-  (e: 'change', option: Record<string, any>): void
+  (e: 'change', option?: Record<string, any>): void
 }
 
 export interface _SelectExposed {

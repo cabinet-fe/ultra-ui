@@ -285,6 +285,7 @@ const handleSelect = (option: Record<string, any>, index: number) => {
 /** 清除选项 */
 const handleClear = () => {
   selected.value = undefined
+  emit('change', undefined)
 }
 
 function getCurrentEl() {
