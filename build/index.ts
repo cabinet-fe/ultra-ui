@@ -21,6 +21,7 @@ async function boot() {
     await $({
       cwd: resolve(__dirname, '../dist')
     })`npm publish --registry http://192.168.31.250:6005`
+    console.log('发布成功')
   } catch (error: any) {
     console.error(error.stderr?.toString())
   }
