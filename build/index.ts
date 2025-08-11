@@ -18,6 +18,7 @@ async function boot() {
   await copyFiles()
   await genPackageJson()
   try {
+    console.log('开始发布')
     await $({
       cwd: resolve(__dirname, '../dist')
     })`npm publish --registry http://192.168.31.250:6005`
