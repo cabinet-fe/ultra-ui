@@ -4,6 +4,15 @@
 
 $root-name: table;
 
+@mixin hover {
+  &:hover {
+    @include m.bem($root-name, cell) {
+      background-color: fn.use-var(table, hover, bg);
+      color: fn.use-var(table, hover, color);
+    }
+  }
+}
+
 @include m.b($root-name) {
   width: 100%;
   position: relative;
@@ -34,18 +43,15 @@ $root-name: table;
   }
 
   @include m.e(row) {
-    &:hover {
-      @include m.bem($root-name, cell) {
-        background-color: fn.use-var(table, hover, bg);
-        color: fn.use-var(table, hover, color);
-      }
-    }
+    @include hover;
 
     @include m.is(stripe) {
       @include m.bem($root-name, cell) {
         background-color: fn.use-var(table, stripe, bg);
         color: fn.use-var(table, stripe, color);
       }
+
+      @include hover;
     }
 
     @include m.is(expanded) {
