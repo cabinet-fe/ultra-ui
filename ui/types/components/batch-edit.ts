@@ -1,5 +1,5 @@
 import type { IFormModel } from './form'
-import type { TableColumn, TableEmits, TableProps } from './table'
+import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
 import type { DeconstructValue } from '../helper'
 
 /** 批量编辑列 */
@@ -15,7 +15,13 @@ export interface BatchEditColumn extends TableColumn {
   // defaultValue?: any | (() => any)
 }
 
-export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete' | 'view'
+export type BatchEditFeature =
+  | 'create'
+  | 'update'
+  | 'copy'
+  | 'delete'
+  | 'view'
+  | 'createChild'
 
 /** 批量编辑组件属性 */
 export interface BatchEditProps<Model extends IFormModel = IFormModel>
@@ -52,7 +58,9 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
   ) => Promise<any> | any
 
   /** 可用功能 */
-  features?: Array<BatchEditFeature>
+  features?:
+    | Array<BatchEditFeature>
+    | Record<BatchEditFeature, boolean | ((row: TableRow) => boolean)>
 }
 
 /** 批量编辑组件定义的事件 */

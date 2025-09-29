@@ -129,7 +129,8 @@ const tableProps = computed(() => {
 
 const featureSets = computed(() => {
   return new Set(
-    props.features ?? ['create', 'delete', 'update', 'copy', 'view']
+    ['create', 'delete', 'update', 'copy', 'view']
+    // props.features ?? ['create', 'delete', 'update', 'copy', 'view']
   )
 })
 

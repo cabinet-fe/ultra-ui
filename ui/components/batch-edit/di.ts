@@ -2,7 +2,8 @@ import type {
   BatchEditEmits,
   BatchEditFeature,
   BatchEditProps,
-  TableExposed
+  TableExposed,
+  TableRow
 } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
@@ -14,6 +15,9 @@ export const BatchEditDIKey: InjectionKey<
     props: BatchEditProps<FormModel>
     emit: BatchEditEmits
     tableRef: ShallowRef<TableExposed | undefined>
-    featureSets: ComputedRef<Set<BatchEditFeature>>
+    staticFeatures: ComputedRef<Set<BatchEditFeature>>
+    dynamicFeatures: ComputedRef<
+      Record<BatchEditFeature, ((row?: TableRow) => boolean) | undefined>
+    >
   } & EditReturned
 > = Symbol('BatchEditDIKey')

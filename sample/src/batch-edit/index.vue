@@ -22,8 +22,10 @@
         v-model:data="data"
         v-model:checked="checked"
         checkable
-        :features="features"
         :model="model"
+        :features="{
+          createChild: row => row.depth < 2
+        }"
         :tree="tree"
         style="height: 500px"
         :delete-method="asynchronous ? deleteMethod : undefined"
@@ -310,7 +312,8 @@ const asynchronous = shallowRef(false)
 
 const deleteMethod = async row => {
   await sleep(2000)
-  message.success('删除成功')
+  // message.success('删除成功')
+  return Promise.reject('删除失败')
 }
 
 const saveMethod = async (data, type) => {

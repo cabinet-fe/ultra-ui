@@ -48,10 +48,56 @@ const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
 
 const emit = defineEmits<BatchEditEmits>()
 
-const featureSets = computed(() => {
-  return new Set<BatchEditFeature>(
-    props.features ?? ['create', 'delete', 'update']
-  )
+const staticFeatures = computed(() => {
+  const { features } = props
+
+  if (Array.isArray(features)) {
+    return new Set(features)
+  }
+
+  const defaultFeatures = new Set<BatchEditFeature>([
+    'create',
+    'delete',
+    'update',
+    'createChild'
+  ])
+
+  if (!features) {
+    return defaultFeatures
+  }
+
+  // 排除函数和false的部分
+  Object.entries(features).forEach(([key, value]) => {
+    if (typeof value === 'function' || value === false) {
+      defaultFeatures.delete(key as BatchEditFeature)
+    }
+  })
+  return defaultFeatures
+})
+
+const dynamicFeatures = computed<
+  Record<BatchEditFeature, ((row?: TableRow) => boolean) | undefined>
+>(() => {
+  const { features } = props
+  if (!Array.isArray(features) && typeof features === 'object') {
+    const ret = Object.entries(features)
+      .filter(([_, value]) => {
+        return typeof value === 'function'
+      })
+      .reduce(
+        (acc, [key, value]) => {
+          acc[key] = value
+          return acc
+        },
+        {} as Record<BatchEditFeature, (row?: TableRow) => boolean>
+      )
+    return ret
+  }
+
+  return {} as Record<
+    BatchEditFeature,
+    ((row?: TableRow) => boolean) | undefined
+  >
 })
 
 const slots = defineSlots<
@@ -92,7 +138,8 @@ provide(BatchEditDIKey, {
   props,
   emit,
   tableRef,
-  featureSets,
+  staticFeatures,
+  dynamicFeatures,
   ...editCtx
 })
 

@@ -13,7 +13,9 @@
   >
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop :loading="row.operating">
-        <template v-if="featureSets.has('create')">
+        <template
+          v-if="staticFeatures.has('create') || dynamicFeatures.create?.(row)"
+        >
           <u-button
             @click="handleInsertToPrev(row)"
             :icon="InsertToPrev"
@@ -24,17 +26,21 @@
             :icon="InsertToNext"
             title="插入到下一行"
           />
-
-          <u-button
-            v-if="props.tree"
-            @click="handleInsertChild(row)"
-            :icon="AddChild"
-            title="添加子项"
-          />
         </template>
 
         <u-button
-          v-if="featureSets.has('delete')"
+          v-if="
+            props.tree &&
+            (staticFeatures.has('createChild') ||
+              dynamicFeatures.createChild?.(row))
+          "
+          @click="handleInsertChild(row)"
+          :icon="AddChild"
+          title="添加子项"
+        />
+
+        <u-button
+          v-if="staticFeatures.has('delete') || dynamicFeatures.delete?.(row)"
           :icon="Delete"
           type="danger"
           title="删除"
@@ -49,7 +55,7 @@
       #append
       v-if="
         !props.readonly &&
-        featureSets.has('create') &&
+        (staticFeatures.has('create') || dynamicFeatures.create?.()) &&
         ((state.type === 'create' && !state.visible) || state.type === 'update')
       "
     >
@@ -96,7 +102,8 @@ const {
   tableRef,
   props,
   emit,
-  featureSets,
+  staticFeatures,
+  dynamicFeatures,
   handleCreate,
   handleDelete,
   handleInsertToNext,
@@ -117,10 +124,11 @@ const tableProps = computed(() => {
 })
 
 const hasNot = (value: BatchEditFeature[]) =>
-  value.every(v => !featureSets.value.has(v))
+  value.every(v => !staticFeatures.value.has(v))
 
 const columns = computed(() => {
-  if (props.readonly || hasNot(['create', 'delete'])) return props.columns
+  if (props.readonly || hasNot(['create', 'delete', 'createChild']))
+    return props.columns
 
   return (props.columns ?? []).concat({
     name: '操作',
@@ -142,7 +150,10 @@ const ButtonWrap = useComponentProps<ButtonProps>({
 })
 
 function handleUpdateCurrentRow(row?: TableRow) {
-  if (featureSets.value.has('update')) {
+  if (
+    staticFeatures.value.has('update') ||
+    dynamicFeatures.value.update?.(row)
+  ) {
     state.row = row
   }
 }
