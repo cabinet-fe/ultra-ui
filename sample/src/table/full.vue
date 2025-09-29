@@ -1,5 +1,6 @@
 <template>
   <CustomCard title="使用方式">
+    <u-button @click="handleClose" type="primary">展示最后两条</u-button>
     <u-checkbox
       v-model="state.checkable"
       @update:model-value="state.selectable = false"
@@ -51,7 +52,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from 'ultra-ui'
-import { shallowReactive, shallowRef, watch } from 'vue'
+import { ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Tree } from 'cat-kit/fe'
 
@@ -116,7 +117,8 @@ const _columns = defineTableColumns(
   { minWidth: 100 }
 )
 
-const data = Array.from({ length: 1000 }).map((_, index) => {
+const data = ref<Record<string, any>[]>(
+   Array.from({ length: 1000 }).map((_, index) => {
   return {
     sex: index % 2 === 0 ? '男' : '女',
     name: 'name' + index,
@@ -158,11 +160,17 @@ const data = Array.from({ length: 1000 }).map((_, index) => {
     ]
   }
 })
-
+)
 const checked = shallowRef([])
 const selected = shallowRef(data[0]!)
 
 const columns = shallowRef<any[]>([])
+
+const handleClose = () => {
+  const newData = data.value.splice(data.value.length - 2, 2)
+  console.log(newData)
+  data.value=newData
+}
 
 watch(
   multiLevelHeader,

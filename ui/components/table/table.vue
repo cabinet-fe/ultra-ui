@@ -217,6 +217,19 @@ watch(
   { immediate: true }
 )
 
+// 不是虚拟列表重置cls.e('body')偏移量
+watch(
+  virtualEnabled,
+  (enabled) => {
+    if (!enabled && scrollRef.value?.containerRef) {
+      setStyles(scrollRef.value.el?.querySelector(`.${cls.e('body')}`)!, {
+        transform: 'translate3d(0px, 0px, 0px)'
+      })
+    }
+  },
+  { immediate: true }
+)
+
 const tipRef = shallowRef()
 
 provide(TableDIKey, {
