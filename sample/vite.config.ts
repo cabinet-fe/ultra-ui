@@ -80,11 +80,11 @@ export default defineConfig(() => {
       })
     ],
 
-    optimizeDeps: {
-      rollupOptions: {
-        jsx: 'preserve' as const
-      }
-    },
+    // optimizeDeps: {
+    //   rollupOptions: {
+    //     jsx: 'preserve' as const
+    //   }
+    // },
 
     server: { port: 7788, host: true }
   }

@@ -111,7 +111,7 @@ const buttons = [
 const active = shallowRef(0)
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .space {
   padding: 8px;
   & > * {

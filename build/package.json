@@ -8,6 +8,6 @@
     "@builder/cli": "^3.0.0",
     "tsdown": "^0.13.0",
     "unplugin-vue": "^7.0.0",
-    "vue-tsc": "^3.0.3"
+    "vue-tsc": "3.0.3"
   }
 }

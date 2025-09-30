@@ -1,6 +1,6 @@
 {
   "name": "ultra",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "组件库",
   "type": "module",
   "scripts": {
@@ -41,9 +41,9 @@
     "typescript": "5.9.2",
     "vite": "npm:rolldown-vite@^7.1.0",
     "vitest": "^3.2.4",
-    "vue": "^3.5.18",
+    "vue": "3.5.18",
     "vue-router": "^4.5.1",
-    "vue-tsc": "^3.0.5",
+    "vue-tsc": "3.0.5",
     "@builder/cli": "^3.0.0",
     "tsx": "^4.20.3"
   },

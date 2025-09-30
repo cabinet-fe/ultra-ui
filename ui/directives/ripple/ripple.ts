@@ -156,7 +156,7 @@ export class Ripple {
   private setContainerStyle() {
     const { container } = this
 
-    // 获取元素原本的内联样式设置
+    // 获取元素原本的内联样式
     if (this.amount === 0 && !this.containerStyle) {
       this.containerStyle = {
         position: container.style.position,
@@ -177,6 +177,7 @@ export class Ripple {
     if (position === 'static') {
       style.position = 'relative'
     }
+
     // 如果溢出不是隐藏，设置为隐藏以裁剪波纹边界
     if (overflow !== 'hidden') {
       style.overflow = 'hidden'

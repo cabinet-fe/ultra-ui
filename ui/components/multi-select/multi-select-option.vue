@@ -55,6 +55,7 @@ function handleMousedown(e: MouseEvent) {
   ripple = new Ripple(e.currentTarget as HTMLElement, {
     rippleClass
   })
+
   ripple.showByEvent(e)
 }
 

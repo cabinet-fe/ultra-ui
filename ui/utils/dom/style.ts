@@ -24,20 +24,25 @@ export function withUnit(
  * @param styles 样式
  */
 export function setStyles(el: HTMLElement, styles: CSSProperties): void {
-  if (el.attributeStyleMap) {
-    Object.keys(styles).forEach(key => {
-      const value = styles[key]
-      if (!value && value !== 0) {
-        el.attributeStyleMap.delete(kebabCase(key))
-      } else {
-        el.attributeStyleMap.set(kebabCase(key), value)
-      }
-    })
-  } else {
-    Object.keys(styles).forEach(key => {
-      el.style[key] = styles[key]
-    })
-  }
+  Object.keys(styles).forEach(key => {
+    el.style[key] = styles[key]
+  })
+  // TODO: 此处有问题，在某些情况下会导致样式设置失效
+  // 例如在 Tabs 组件中无法设置overflow属性
+  // if (el.attributeStyleMap) {
+  //   Object.keys(styles).forEach(key => {
+  //     const value = styles[key]
+  //     if (!value && value !== 0) {
+  //       el.attributeStyleMap.delete(kebabCase(key))
+  //     } else {
+  //       el.attributeStyleMap.set(kebabCase(key), value)
+  //     }
+  //   })
+  // } else {
+  //   Object.keys(styles).forEach(key => {
+  //     el.style[key] = styles[key]
+  //   })
+  // }
 }
 
 /**

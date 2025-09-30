@@ -9,8 +9,8 @@
           bem.is('active', model === item.key),
           bem.is('disabled', item.disabled === true)
         ]"
-        @click.stop="handleClick(item, index)"
         v-ripple="item.disabled ? false : cls.e('ripple')"
+        @click.stop="handleClick(item, index)"
       >
         <slot :name="`name:${item.key}`">
           {{ item.name }}
@@ -140,6 +140,7 @@ watch(
 
 const handleClick = (item: TabItem, _index: number) => {
   if (item.disabled) return
+
   changedByEvent = true
   index.value = _index
   model.value = item.key
