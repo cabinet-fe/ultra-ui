@@ -57,10 +57,25 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
     parentData?: Record<string, any>
   ) => Promise<any> | any
 
-  /** 可用功能 */
+  /**
+   * 可用功能，不穿则对功能没有任何限制
+   *
+   * ## 用法
+   * ```ts
+   * // 只允许新增和更新
+   * const features = ['create', 'update']
+   * // 不允许新增，并且只有当行深度小于2时才允许新增子级，对其他功能不做限制
+   * const features = {
+   *   create: false,
+   *   createChild: row => row.depth < 2
+   * }
+   * ```
+   */
   features?:
     | Array<BatchEditFeature>
-    | Record<BatchEditFeature, boolean | ((row: TableRow) => boolean)>
+    | {
+        [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean)
+      }
 }
 
 /** 批量编辑组件定义的事件 */
