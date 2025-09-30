@@ -6,7 +6,7 @@
   },
   "devDependencies": {
     "@builder/cli": "^3.0.0",
-    "tsdown": "^0.13.0",
+    "tsdown": "^0.15.5",
     "unplugin-vue": "^7.0.0",
     "vue-tsc": "3.0.3"
   }

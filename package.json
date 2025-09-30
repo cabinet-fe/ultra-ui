@@ -48,6 +48,6 @@
     "tsx": "^4.20.3"
   },
   "simple-git-hooks": {
-    "commit-msg": "bun cli/verify-commit/index.ts"
+    "commit-msg": "bun bc verify-commit"
   }
 }
