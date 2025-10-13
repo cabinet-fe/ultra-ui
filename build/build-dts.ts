@@ -12,19 +12,19 @@ export async function buildDTS() {
     cwd: resolve(__dirname, '../ui')
   })`vue-tsc --emitDeclarationOnly --declaration -p tsconfig.json`
 
-  const files = await fg.glob('**/*.d.ts', {
-    cwd: DIST_ROOT,
-    absolute: true
-  })
-  files.forEach(async file => {
-    const content = await readFile(file, 'utf-8')
+  // const files = await fg.glob('**/*.d.ts', {
+  //   cwd: DIST_ROOT,
+  //   absolute: true
+  // })
+  // files.forEach(async file => {
+  //   const content = await readFile(file, 'utf-8')
 
-    writeFile(
-      file,
-      content.replace(
-        /@ui/g,
-        relative(dirname(file), DIST_ROOT).replace(/\\/g, '/')
-      )
-    )
-  })
+  //   writeFile(
+  //     file,
+  //     content.replace(
+  //       /@ui/g,
+  //       relative(dirname(file), DIST_ROOT).replace(/\\/g, '/')
+  //     )
+  //   )
+  // })
 }
