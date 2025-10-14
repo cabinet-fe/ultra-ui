@@ -8,10 +8,9 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export async function buildDTS() {
-  console.log(resolve(__dirname, '../ui'))
   await $({
     cwd: resolve(__dirname, '../ui')
-  })`vue-tsc --emitDeclarationOnly --declaration -p tsconfig.json`
+  })`bun run dts`
 
   const files = await fg.glob('**/*.d.ts', {
     cwd: DIST_ROOT,

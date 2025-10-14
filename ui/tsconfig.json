@@ -4,7 +4,6 @@
     "composite": true,
     "declaration": true,
     "types": ["vite/client"],
-    "isolatedDeclarations": true,
     "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "paths": {
