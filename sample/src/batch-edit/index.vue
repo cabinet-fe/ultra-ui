@@ -28,7 +28,8 @@
         }"
         :actions-props="{
           delete: {
-            needConfirm: true
+            needConfirm: true,
+            circle: false
           }
         }"
         :tree="tree"
@@ -187,7 +188,7 @@ import { sleep } from 'cat-kit/fe'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
-import type { BatchEditFeature } from '@ui/types'
+import type { BatchEditFeature } from 'ultra-ui/types'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)

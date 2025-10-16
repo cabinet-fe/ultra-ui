@@ -1,0 +1,12 @@
+{
+  "extends": "ts-conf-base/tsconfig.vue.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "types": ["vite/client"],
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": "./"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
+  "exclude": ["node_modules", "**/__test__/**/*"]
+}

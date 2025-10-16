@@ -78,6 +78,18 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
         [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean)
       }
 
+  /**
+   * 操作按钮的属性配置, 可以是action组件的任意属性
+   * @example
+   * ```ts
+   * const actionsProps = {
+   *   delete: {
+   *     needConfirm: true,
+   *     circle: false
+   *   }
+   * }
+   * ```
+   */
   actionsProps?: Partial<Record<BatchEditFeature, ActionProps>>
 }
 
