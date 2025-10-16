@@ -2,16 +2,30 @@
   <u-pop-confirm
     v-if="needConfirm"
     title="确认执行此操作吗？"
-    @confirm="handleConfirm"
     style="display: inline-block"
     direction="left"
+    @confirm="handleConfirm"
   >
     <template #reference>
-      <u-button :class="cls.b" v-bind="props"><slot /></u-button>
+      <u-button
+        :class="cls.b"
+        :loading
+        :circle
+        v-bind="{ ...buttonProps, ...$attrs }"
+      >
+        <slot />
+      </u-button>
     </template>
   </u-pop-confirm>
 
-  <u-button v-else :class="cls.b" v-bind="props" @click="emit('run')">
+  <u-button
+    v-else
+    :class="cls.b"
+    :loading
+    :circle
+    v-bind="{ ...buttonProps, ...$attrs }"
+    @click.stop="emit('run')"
+  >
     <slot />
   </u-button>
 </template>
@@ -20,19 +34,27 @@
 import type { ActionEmits, ActionProps } from '@ui/types'
 import { bem } from '@ui/utils'
 import { UButton } from '../button'
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import { ActionDIKey } from './di'
 import { UPopConfirm } from '../pop-confirm'
+import { omit } from 'cat-kit'
 
 defineOptions({
-  name: 'Action'
+  name: 'Action',
+  inheritAttrs: false
 })
 
 const props = withDefaults(defineProps<ActionProps>(), {
   size: 'small',
   text: true,
   type: 'primary',
-  inDropdown: false
+  inDropdown: false,
+  loading: undefined,
+  circle: undefined
+})
+
+const buttonProps = computed(() => {
+  return omit(props, ['needConfirm', 'loading', 'circle'])
 })
 
 const emit = defineEmits<ActionEmits>()
@@ -41,8 +63,14 @@ const cls = bem('action')
 
 const ctx = inject(ActionDIKey, undefined)
 
+const loading = computed(() => {
+  return props.loading ?? ctx?.groupProps.loading
+})
+
+const circle = computed(() => {
+  return props.circle ?? ctx?.groupProps.circle
+})
 function handleConfirm() {
   emit('run')
-  ctx?.close()
 }
 </script>

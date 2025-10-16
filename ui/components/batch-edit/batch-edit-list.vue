@@ -12,41 +12,45 @@
     ref="tableRef"
   >
     <template #column:__action__="{ row }">
-      <ButtonWrap tag="div" @click.stop :loading="row.operating">
+      <u-action-group @click.stop circle :loading="row.operating">
         <template
           v-if="staticFeatures.has('create') || dynamicFeatures.create?.(row)"
         >
-          <u-button
-            @click="handleInsertToPrev(row)"
+          <u-action
+            @run="handleInsertToPrev(row)"
             :icon="InsertToPrev"
             title="插入到上一行"
+            v-bind="props.actionsProps?.create"
           />
-          <u-button
-            @click="handleInsertToNext(row)"
+          <u-action
+            @run="handleInsertToNext(row)"
             :icon="InsertToNext"
             title="插入到下一行"
+            v-bind="props.actionsProps?.create"
           />
         </template>
 
-        <u-button
+        <u-action
           v-if="
             props.tree &&
             (staticFeatures.has('createChild') ||
               dynamicFeatures.createChild?.(row))
           "
-          @click="handleInsertChild(row)"
+          @run="handleInsertChild(row)"
           :icon="AddChild"
           title="添加子项"
+          v-bind="props.actionsProps?.createChild"
         />
 
-        <u-button
+        <u-action
           v-if="staticFeatures.has('delete') || dynamicFeatures.delete?.(row)"
           :icon="Delete"
           type="danger"
           title="删除"
-          @click="handleDelete(row)"
+          @run="handleDelete(row)"
+          v-bind="props.actionsProps?.delete"
         />
-      </ButtonWrap>
+      </u-action-group>
     </template>
 
     <template #empty v-if="!props.readonly"> {{ null }} </template>
@@ -66,6 +70,7 @@
           @click.stop="handleCreate"
           :loading="state.loading"
           text
+          v-bind="props.actionsProps?.create"
         >
           <span
             style="position: sticky; left: 50%; transform: translateX(-50%)"
@@ -83,10 +88,10 @@ import { computed, inject, type Slots } from 'vue'
 import { omit } from 'cat-kit/fe'
 import { Delete, InsertToPrev, InsertToNext, AddChild } from '@ultra/icon'
 import { BatchEditDIKey } from './di'
-import { useComponentProps } from '@ui/compositions'
 import { UTable } from '../table'
 import { UButton } from '../button'
-import type { BatchEditFeature, ButtonProps, TableRow } from '@ui/types'
+import { UActionGroup, UAction } from '../action'
+import type { BatchEditFeature, TableRow } from '@ui/types'
 
 defineOptions({
   name: 'BatchEditList'
@@ -138,15 +143,6 @@ const columns = computed(() => {
     fixed: 'right',
     resizable: false
   })
-})
-
-const ButtonWrap = useComponentProps<ButtonProps>({
-  size: 'small',
-  circle: true,
-  text: true,
-  type: 'primary',
-  style: { fontSize: '16px', marginRight: '6px' },
-  loading: false
 })
 
 function handleUpdateCurrentRow(row?: TableRow) {

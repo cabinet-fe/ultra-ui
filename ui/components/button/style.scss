@@ -132,6 +132,10 @@ $root-name: button;
   @include m.is(circle) {
     border-radius: 50%;
     padding: 0;
+
+    @include m.bem($root-name, (icon-left, icon-right)) {
+      margin: 0;
+    }
   }
 
   // 文本形态

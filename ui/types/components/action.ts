@@ -12,6 +12,11 @@ export interface ActionProps extends ButtonProps {
 
 /** 操作组组件属性 */
 export interface ActionGroupProps {
+  /** 是否加载中 */
+  loading?: boolean
+  /** 是否为圆形按钮， 适用于图标类 */
+  circle?: boolean
+
   /** 最大可显示数量 */
   max?: number
 }

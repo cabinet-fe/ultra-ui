@@ -7,9 +7,10 @@ import type { ActionGroupProps } from '@ui/types'
 import { ArrowDown } from '@ultra/icon'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
-import { type VNode } from 'vue'
+import { provide, type VNode } from 'vue'
 import { bem, extractNormalVNodes } from '@ui/utils'
 import { UTip } from '../tip'
+import { ActionDIKey } from './di'
 
 defineOptions({
   name: 'ActionGroup',
@@ -17,7 +18,9 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<ActionGroupProps>(), {
-  max: 3
+  max: 3,
+  loading: false,
+  circle: false
 })
 
 const cls = bem('action-group')
@@ -63,4 +66,8 @@ function getSlotsNodes() {
 
   return dropdown ? [...normalNodes, dropdown] : normalNodes
 }
+
+provide(ActionDIKey, {
+  groupProps: props
+})
 </script>

@@ -26,6 +26,11 @@
         :features="{
           createChild: row => row.depth < 2
         }"
+        :actions-props="{
+          delete: {
+            needConfirm: true
+          }
+        }"
         :tree="tree"
         style="height: 500px"
         :delete-method="asynchronous ? deleteMethod : undefined"

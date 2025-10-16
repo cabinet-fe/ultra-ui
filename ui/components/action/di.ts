@@ -1,7 +1,6 @@
+import type { ActionGroupProps } from '@ui/types'
 import type { InjectionKey } from 'vue'
 
 export const ActionDIKey: InjectionKey<{
-  open(): void
-  close(): void
-  stopClose(): void
+  groupProps: ActionGroupProps
 }> = Symbol('ActionDIKey')

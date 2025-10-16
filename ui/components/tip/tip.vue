@@ -139,7 +139,8 @@ const handleClickOutside = (e: MouseEvent) => {
 let closeTimer: number | undefined = undefined
 
 /** 弹出 */
-const open = () => {
+const open = (e?: PointerEvent) => {
+  e?.stopPropagation()
   closeTimer !== undefined && clearTimeout(closeTimer)
   updateVisible(true)
 }

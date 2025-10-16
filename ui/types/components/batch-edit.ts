@@ -1,6 +1,7 @@
 import type { IFormModel } from './form'
 import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
 import type { DeconstructValue } from '../helper'
+import type { ActionProps } from './action'
 
 /** 批量编辑列 */
 export interface BatchEditColumn extends TableColumn {
@@ -76,6 +77,8 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel>
     | {
         [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean)
       }
+
+  actionsProps?: Partial<Record<BatchEditFeature, ActionProps>>
 }
 
 /** 批量编辑组件定义的事件 */
