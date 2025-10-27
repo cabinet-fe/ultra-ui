@@ -62,15 +62,15 @@
     "ui": {
       "name": "ultra-ui",
       "devDependencies": {
-        "@codemirror/lang-java": "^6.0.2",
-        "@codemirror/lang-javascript": "^6.2.4",
-        "@codemirror/lang-json": "^6.0.2",
-        "@codemirror/lang-sql": "^6.9.0",
-        "@floating-ui/dom": "^1.7.2",
-        "@lexical/utils": "^0.32.1",
-        "@tanstack/vue-virtual": "^3.13.12",
-        "codemirror": "^6.0.2",
-        "lexical": "^0.32.1",
+        "@codemirror/lang-java": "latest",
+        "@codemirror/lang-javascript": "latest",
+        "@codemirror/lang-json": "latest",
+        "@codemirror/lang-sql": "latest",
+        "@floating-ui/dom": "latest",
+        "@lexical/utils": "latest",
+        "@tanstack/vue-virtual": "latest",
+        "codemirror": "latest",
+        "lexical": "latest",
       },
     },
   },
@@ -409,17 +409,19 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "http://192.168.31.250:6005/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@lexical/clipboard": ["@lexical/clipboard@0.32.1", "http://192.168.31.250:6005/@lexical/clipboard/-/clipboard-0.32.1.tgz", { "dependencies": { "@lexical/html": "0.32.1", "@lexical/list": "0.32.1", "@lexical/selection": "0.32.1", "@lexical/utils": "0.32.1", "lexical": "0.32.1" } }, "sha512-oO7CuMVh3EFEqtE6+7Ccf7jMD5RNUmSdTnFm/X4kYNGqs9lgGt8j5PgSk7oP9OuAjxKNdBTbltSlh54CX3AUIg=="],
+    "@lexical/clipboard": ["@lexical/clipboard@0.37.0", "http://192.168.31.250:6005/@lexical/clipboard/-/clipboard-0.37.0.tgz", { "dependencies": { "@lexical/html": "0.37.0", "@lexical/list": "0.37.0", "@lexical/selection": "0.37.0", "@lexical/utils": "0.37.0", "lexical": "0.37.0" } }, "sha512-hRwASFX/ilaI5r8YOcZuQgONFshRgCPfdxfofNL7uruSFYAO6LkUhsjzZwUgf0DbmCJmbBADFw15FSthgCUhGA=="],
 
-    "@lexical/html": ["@lexical/html@0.32.1", "http://192.168.31.250:6005/@lexical/html/-/html-0.32.1.tgz", { "dependencies": { "@lexical/selection": "0.32.1", "@lexical/utils": "0.32.1", "lexical": "0.32.1" } }, "sha512-uctCdC9gVzx/Sw9CimT4C2IDfSbfEGYunyIrJBpsfcdqp0rroGNizjIoZNBH3xcgkk9UDboSADo+wimbzEoy8A=="],
+    "@lexical/extension": ["@lexical/extension@0.37.0", "http://192.168.31.250:6005/@lexical/extension/-/extension-0.37.0.tgz", { "dependencies": { "@lexical/utils": "0.37.0", "@preact/signals-core": "^1.11.0", "lexical": "0.37.0" } }, "sha512-Z58f2tIdz9bn8gltUu5cVg37qROGha38dUZv20gI2GeNugXAkoPzJYEcxlI1D/26tkevJ/7VaFUr9PTk+iKmaA=="],
 
-    "@lexical/list": ["@lexical/list@0.32.1", "http://192.168.31.250:6005/@lexical/list/-/list-0.32.1.tgz", { "dependencies": { "@lexical/selection": "0.32.1", "@lexical/utils": "0.32.1", "lexical": "0.32.1" } }, "sha512-3zShCfEdAvodR6mQ5CNN1gcEwfV341LXJzWCIkZzG1cPwaiBHUlT7TynQtKTPn1sATCEMmxoDG0/T+itsRNZgA=="],
+    "@lexical/html": ["@lexical/html@0.37.0", "http://192.168.31.250:6005/@lexical/html/-/html-0.37.0.tgz", { "dependencies": { "@lexical/selection": "0.37.0", "@lexical/utils": "0.37.0", "lexical": "0.37.0" } }, "sha512-oTsBc45eL8/lmF7fqGR+UCjrJYP04gumzf5nk4TczrxWL2pM4GIMLLKG1mpQI2H1MDiRLzq3T/xdI7Gh74z7Zw=="],
 
-    "@lexical/selection": ["@lexical/selection@0.32.1", "http://192.168.31.250:6005/@lexical/selection/-/selection-0.32.1.tgz", { "dependencies": { "lexical": "0.32.1" } }, "sha512-X1aXJdq/5EOuSuMOqK3t+rEVmpqLf+vc2Kl5YuP8+gGWUbXuxR6iryrQuy1mAViZpF/5qw4HO/Sb+9JjubaZEg=="],
+    "@lexical/list": ["@lexical/list@0.37.0", "http://192.168.31.250:6005/@lexical/list/-/list-0.37.0.tgz", { "dependencies": { "@lexical/extension": "0.37.0", "@lexical/selection": "0.37.0", "@lexical/utils": "0.37.0", "lexical": "0.37.0" } }, "sha512-AOC6yAA3mfNvJKbwo+kvAbPJI+13yF2ISA65vbA578CugvJ08zIVgM+pSzxquGhD0ioJY3cXVW7+gdkCP1qu5g=="],
 
-    "@lexical/table": ["@lexical/table@0.32.1", "http://192.168.31.250:6005/@lexical/table/-/table-0.32.1.tgz", { "dependencies": { "@lexical/clipboard": "0.32.1", "@lexical/utils": "0.32.1", "lexical": "0.32.1" } }, "sha512-sGk2jUbQHj5hatpxRyl6IE2oWsjRnYhmaP94THzn95/uK69o8eSizcnd148WzYsX8Zz+L9PTLS1xjvCbfLTP+A=="],
+    "@lexical/selection": ["@lexical/selection@0.37.0", "http://192.168.31.250:6005/@lexical/selection/-/selection-0.37.0.tgz", { "dependencies": { "lexical": "0.37.0" } }, "sha512-Lix1s2r71jHfsTEs4q/YqK2s3uXKOnyA3fd1VDMWysO+bZzRwEO5+qyDvENZ0WrXSDCnlibNFV1HttWX9/zqyw=="],
 
-    "@lexical/utils": ["@lexical/utils@0.32.1", "http://192.168.31.250:6005/@lexical/utils/-/utils-0.32.1.tgz", { "dependencies": { "@lexical/list": "0.32.1", "@lexical/selection": "0.32.1", "@lexical/table": "0.32.1", "lexical": "0.32.1" } }, "sha512-ZaqZZksNIHJd+g8GXc11D1ESi8JzsdLVQZ+9odXVaNxtwDIaGIqMSccFyuZ9VSoJDde4JXZkgp/0PShbAZDkyw=="],
+    "@lexical/table": ["@lexical/table@0.37.0", "http://192.168.31.250:6005/@lexical/table/-/table-0.37.0.tgz", { "dependencies": { "@lexical/clipboard": "0.37.0", "@lexical/extension": "0.37.0", "@lexical/utils": "0.37.0", "lexical": "0.37.0" } }, "sha512-g7S8ml8kIujEDLWlzYKETgPCQ2U9oeWqdytRuHjHGi/rjAAGHSej5IRqTPIMxNP3VVQHnBoQ+Y9hBtjiuddhgQ=="],
+
+    "@lexical/utils": ["@lexical/utils@0.37.0", "http://192.168.31.250:6005/@lexical/utils/-/utils-0.37.0.tgz", { "dependencies": { "@lexical/list": "0.37.0", "@lexical/selection": "0.37.0", "@lexical/table": "0.37.0", "lexical": "0.37.0" } }, "sha512-CFp4diY/kR5RqhzQSl/7SwsMod1sgLpI1FBifcOuJ6L/S6YywGpEB4B7aV5zqW21A/jU2T+2NZtxSUn6S+9gMg=="],
 
     "@lezer/common": ["@lezer/common@1.2.3", "http://192.168.31.250:6005/@lezer/common/-/common-1.2.3.tgz", {}, "sha512-w7ojc8ejBqr2REPsWxJjrMFsA/ysDCFICn8zEOR9mrqzOu2amhITYuLD8ag6XZf0CFXDrhKqw7+tW8cX66NaDA=="],
 
@@ -476,6 +478,8 @@
     "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.1", "http://192.168.31.250:6005/@parcel/watcher-win32-x64/-/watcher-win32-x64-2.5.1.tgz", { "os": "win32", "cpu": "x64" }, "sha512-9lHBdJITeNR++EvSQVUcaZoWupyHfXe1jZvGZ06O/5MflPcuPLtEphScIBL+AiCWBO46tDSHzWyD0uDmmZqsgA=="],
 
     "@polka/url": ["@polka/url@1.0.0-next.29", "http://192.168.31.250:6005/@polka/url/-/url-1.0.0-next.29.tgz", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
+
+    "@preact/signals-core": ["@preact/signals-core@1.12.1", "http://192.168.31.250:6005/@preact/signals-core/-/signals-core-1.12.1.tgz", {}, "sha512-BwbTXpj+9QutoZLQvbttRg5x3l5468qaV2kufh+51yha1c53ep5dY4kTuZR35+3pAZxpfQerGJiQqg34ZNZ6uA=="],
 
     "@quansync/fs": ["@quansync/fs@0.1.5", "http://192.168.31.250:6005/@quansync/fs/-/fs-0.1.5.tgz", { "dependencies": { "quansync": "^0.2.11" } }, "sha512-lNS9hL2aS2NZgNW7BBj+6EBl4rOf8l+tQ0eRY6JWCI8jI2kc53gSoqbjojU0OnAWhzoXiOjFyGsHcDGePB3lhA=="],
 
@@ -919,7 +923,7 @@
 
     "kolorist": ["kolorist@1.8.0", "http://192.168.31.250:6005/kolorist/-/kolorist-1.8.0.tgz", {}, "sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ=="],
 
-    "lexical": ["lexical@0.32.1", "http://192.168.31.250:6005/lexical/-/lexical-0.32.1.tgz", {}, "sha512-Rvr9p00zUwzjXIqElIjMDyl/24QHw68yaqmXUWIT3lSdSAr8OpjSJK3iWBLZwVZwwpVhwShZRckomc+3vSb/zw=="],
+    "lexical": ["lexical@0.37.0", "http://192.168.31.250:6005/lexical/-/lexical-0.37.0.tgz", {}, "sha512-r5VJR2TioQPAsZATfktnJFrGIiy6gjQN8b/+0a2u1d7/QTH7lhbB7byhGSvcq1iaa1TV/xcf/pFV55a5V5hTDQ=="],
 
     "lightningcss": ["lightningcss@1.30.2", "http://192.168.31.250:6005/lightningcss/-/lightningcss-1.30.2.tgz", { "dependencies": { "detect-libc": "^2.0.3" }, "optionalDependencies": { "lightningcss-android-arm64": "1.30.2", "lightningcss-darwin-arm64": "1.30.2", "lightningcss-darwin-x64": "1.30.2", "lightningcss-freebsd-x64": "1.30.2", "lightningcss-linux-arm-gnueabihf": "1.30.2", "lightningcss-linux-arm64-gnu": "1.30.2", "lightningcss-linux-arm64-musl": "1.30.2", "lightningcss-linux-x64-gnu": "1.30.2", "lightningcss-linux-x64-musl": "1.30.2", "lightningcss-win32-arm64-msvc": "1.30.2", "lightningcss-win32-x64-msvc": "1.30.2" } }, "sha512-utfs7Pr5uJyyvDETitgsaqSyjCb2qNRAtuqUeWIAKztsOYdcACf2KtARYXg2pSvhkt+9NfoaNY7fxjl6nuMjIQ=="],
 

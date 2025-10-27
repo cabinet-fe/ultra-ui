@@ -31,12 +31,12 @@
     >
       <u-checkbox
         v-if="treeProps.checkable"
+        :class="cls.e('checkbox')"
         :model-value="node.checked"
         :indeterminate="node.indeterminate"
-        @change="handleChange"
         :disabled="node.disabled"
+        @change="handleChange"
         @click.stop
-        :class="cls.e('checkbox')"
       />
 
       <u-node-render :content="getTreeSlotsNode({ node, data: node.data })" />

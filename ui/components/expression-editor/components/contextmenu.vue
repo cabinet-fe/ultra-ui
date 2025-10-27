@@ -9,7 +9,7 @@
     style="width: 150px"
   >
     <template #content>
-      <ul :class="cls.e('variable-list')">
+      <ul :class="cls.e('variable-list')" v-if="editorProps.variables?.length">
         <li
           v-for="(item, i) in editorProps.variables"
           :key="item.value"
@@ -20,81 +20,82 @@
           {{ item.label }}
         </li>
       </ul>
+      <div v-else :class="cls.e('variable-empty')">暂无可用变量</div>
     </template>
   </u-tip>
 </template>
 
 <script lang="ts" setup>
-import { UTip } from '../../tip'
-import { ExpressionEditorDIKey } from '../di'
-import { inject, onBeforeUnmount, ref, watch } from 'vue'
-import type { VariableItem } from '@ui/types'
-import { bem } from '@ui/utils'
+import { UTip } from "../../tip";
+import { ExpressionEditorDIKey } from "../di";
+import { inject, onBeforeUnmount, ref, watch } from "vue";
+import type { VariableItem } from "@ui/types";
+import { bem } from "@ui/utils";
 
 defineOptions({
-  name: 'Contextmenu'
-})
+  name: "Contextmenu",
+});
 
 const props = defineProps<{
-  visible: boolean
-  triggerDom?: HTMLElement
-}>()
+  visible: boolean;
+  triggerDom?: HTMLElement;
+}>();
 
 const emit = defineEmits<{
-  (e: 'select', variable: VariableItem): void
-  (e: 'update:visible', visible: boolean): void
-}>()
+  (e: "select", variable: VariableItem): void;
+  (e: "update:visible", visible: boolean): void;
+}>();
 
-const { cls, editorProps } = inject(ExpressionEditorDIKey)!
+const { cls, editorProps } = inject(ExpressionEditorDIKey)!;
 
-const activeIndex = ref(0)
+const activeIndex = ref(0);
 
 function updateVisible(visible: boolean) {
-  emit('update:visible', visible)
+  emit("update:visible", visible);
 }
 
 function handleSelect(item: VariableItem) {
-  emit('select', item)
-  updateVisible(false)
+  emit("select", item);
+  updateVisible(false);
 }
 
 function keydownHandler(e: KeyboardEvent) {
-  if (!editorProps.variables?.length) return
+  if (!editorProps.variables?.length) return;
 
-  if (e.key === 'ArrowDown') {
-    e.preventDefault()
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
     activeIndex.value = Math.min(
       editorProps.variables.length - 1,
-      activeIndex.value + 1
-    )
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault()
-    activeIndex.value = Math.max(0, activeIndex.value - 1)
-  } else if (e.key === 'Enter') {
-    e.preventDefault()
-    const selectedItem = editorProps.variables[activeIndex.value]
+      activeIndex.value + 1,
+    );
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    activeIndex.value = Math.max(0, activeIndex.value - 1);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    const selectedItem = editorProps.variables[activeIndex.value];
     if (selectedItem) {
-      handleSelect(selectedItem)
+      handleSelect(selectedItem);
     }
-  } else if (e.key === 'Escape') {
-    e.preventDefault()
-    updateVisible(false)
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    updateVisible(false);
   }
 }
 
 function init() {
-  activeIndex.value = 0
-  document.addEventListener('keydown', keydownHandler)
+  activeIndex.value = 0;
+  document.addEventListener("keydown", keydownHandler);
 }
 
 function reset() {
-  document.removeEventListener('keydown', keydownHandler)
+  document.removeEventListener("keydown", keydownHandler);
 }
 
-onBeforeUnmount(reset)
+onBeforeUnmount(reset);
 
 watch(
   () => props.visible,
-  v => (v ? init() : reset())
-)
+  (v) => (v ? init() : reset()),
+);
 </script>

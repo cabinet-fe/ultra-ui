@@ -16,12 +16,12 @@
   "devDependencies": {
     "codemirror": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.4",
-    "@codemirror/lang-sql": "^6.9.0",
+    "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-json": "^6.0.2",
-    "@floating-ui/dom": "^1.7.2",
+    "@floating-ui/dom": "^1.7.4",
     "@tanstack/vue-virtual": "^3.13.12",
-    "lexical": "^0.32.1",
-    "@lexical/utils": "^0.32.1"
+    "lexical": "^0.37.0",
+    "@lexical/utils": "^0.37.0"
   }
 }

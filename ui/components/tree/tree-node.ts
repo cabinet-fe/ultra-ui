@@ -21,8 +21,8 @@ export class TreeNode<
   get indeterminate(): boolean {
     if (!this.children) return false
     return (
-      this.childrenCheckCount > 0 &&
-      this.childrenCheckCount < this.children.length
+      this.childrenCheckCount > 0
+      // && this.childrenCheckCount < this.children.length
     )
   }
 

@@ -8,6 +8,7 @@ $root-name: switch;
   align-items: center;
   cursor: pointer;
   user-select: none;
+  vertical-align: middle;
   gap: fn.use-var(gap, default);
 
   // 状态样式

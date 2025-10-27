@@ -14,7 +14,7 @@
       :contenteditable="!readonly && !disabled"
     ></div>
 
-    <div :class="cls.e('placeholder')" v-if="!modelValue">
+    <div :class="cls.e('placeholder')" v-if="showPlaceholder">
       {{ placeholder }}
     </div>
 
@@ -31,49 +31,53 @@
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps, VariableItem } from '@ui/types'
-import { bem } from '@ui/utils'
-import { useTemplateRef, provide, computed, type VNode } from 'vue'
-import { ExpressionEditorDIKey } from './di'
-import Contextmenu from './components/contextmenu.vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { useEditor } from './use-editor'
-import { useDecorators } from './use-decorators'
-import { useContext } from './use-context'
-import { $createTextNode } from 'lexical'
-import { $createVariableNode } from './nodes/variable-node'
+import type { ExpressionEditorProps, VariableItem } from "@ui/types";
+import { bem } from "@ui/utils";
+import { useTemplateRef, provide, computed, type VNode } from "vue";
+import { ExpressionEditorDIKey } from "./di";
+import Contextmenu from "./components/contextmenu.vue";
+import { useFormComponent, useFormFallbackProps } from "@ui/compositions";
+import { useEditor } from "./use-editor";
+import { useDecorators } from "./use-decorators";
+import { useContext } from "./use-context";
+import { $createTextNode, $getRoot } from "lexical";
+import { $createVariableNode, $isVariableNode } from "./nodes/variable-node";
 
 defineOptions({
-  name: 'ExpressionEditor'
-})
+  name: "ExpressionEditor",
+});
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
-  placeholder: '请输入表达式，输入@可插入变量'
-})
+  placeholder: "请输入表达式，输入 @ 可插入变量",
+});
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+  (e: "update:modelValue", value: string): void;
+}>();
 
-const cls = bem('expression-editor')
+const showPlaceholder = computed(
+  () => !props.modelValue || props.modelValue.trim() === "",
+);
 
-const { formProps } = useFormComponent()
+const cls = bem("expression-editor");
+
+const { formProps } = useFormComponent();
 
 const { size, disabled, readonly } = useFormFallbackProps([
   formProps ?? {},
-  props
-])
+  props,
+]);
 
 const className = computed(() => {
   return [
     cls.b,
     cls.m(size.value),
-    bem.is('disabled', disabled.value),
-    bem.is('readonly', readonly.value)
-  ]
-})
+    bem.is("disabled", disabled.value),
+    bem.is("readonly", readonly.value),
+  ];
+});
 
-const containerRef = useTemplateRef('container')
+const containerRef = useTemplateRef("container");
 
 const editor = useEditor({
   disabled,
@@ -81,39 +85,65 @@ const editor = useEditor({
   cls,
   container: containerRef,
   props,
-  emit
-})
+  emit,
+});
 
 const { contextVisible, contextTriggerDom, textNode, charPosition } =
-  useContext(editor)
+  useContext(editor);
 
-const decorators = useDecorators(editor)
+const decorators = useDecorators(editor);
 
 function Decorators(props: { decorators: VNode[] }) {
-  return props.decorators
+  return props.decorators;
 }
 
 // 处理变量选择
 function handleVariableSelect(variable: VariableItem) {
-  if (disabled.value || readonly.value) return
+  if (disabled.value || readonly.value) return;
 
   editor.update(() => {
-    const textContent = textNode.value?.getTextContent()
-    if (!textContent) return
-    const newNode = $createVariableNode(variable.value)
+    const textContent = textNode.value?.getTextContent();
+    if (!textContent) return;
+    const newNode = $createVariableNode(variable.value);
     const nodeBefore = $createTextNode(
-      textContent.slice(0, charPosition.value - 1)
-    )
-    const nodeAfter = $createTextNode(textContent.slice(charPosition.value))
-    textNode.value?.replace(nodeBefore)
-    nodeBefore.insertAfter(newNode)
-    newNode.insertAfter(nodeAfter)
-    newNode.selectEnd()
-  })
+      textContent.slice(0, charPosition.value - 1),
+    );
+    const nodeAfter = $createTextNode(textContent.slice(charPosition.value));
+    textNode.value?.replace(nodeBefore);
+    nodeBefore.insertAfter(newNode);
+    newNode.insertAfter(nodeAfter);
+    newNode.selectEnd();
+  });
+}
+
+// 更新变量节点的函数
+function updateVariableNode(oldValue: string, newValue: string) {
+  editor.update(() => {
+    const root = $getRoot();
+
+    // 递归遍历所有节点
+    function traverse(node: any) {
+      if ($isVariableNode(node)) {
+        if (node.getVariable() === oldValue) {
+          node.updateVariable(newValue);
+        }
+      }
+
+      // 如果节点有 getChildren 方法，继续遍历
+      if (typeof node.getChildren === "function") {
+        const children = node.getChildren();
+        children.forEach((child: any) => traverse(child));
+      }
+    }
+
+    traverse(root);
+  });
 }
 
 provide(ExpressionEditorDIKey, {
   cls,
-  editorProps: props
-})
+  editorProps: props,
+  editor,
+  updateVariableNode,
+});
 </script>
