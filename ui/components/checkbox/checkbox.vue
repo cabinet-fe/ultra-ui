@@ -1,5 +1,5 @@
 <template>
-  <label :class="className" v-if="!readonly">
+  <label :class="className">
     <span :class="cls.e('wrap')">
       <transition name="zoom-in" mode="out-in">
         <svg viewBox="0 0 64 64" v-if="checked" fill="currentColor">
@@ -21,17 +21,6 @@
 
     <span :class="cls.e('label')" v-if="$slots.default"><slot /> </span>
   </label>
-
-  <u-tag
-    v-else-if="checked !== undefined"
-    :type="checked ? 'success' : 'danger'"
-  >
-    {{ checked ? '是' : '否' }}
-  </u-tag>
-
-  <template v-else>
-    {{ FORM_EMPTY_CONTENT }}
-  </template>
 </template>
 
 <script lang="ts" setup>
@@ -39,8 +28,6 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import type { CheckboxProps, CheckboxEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed } from 'vue'
-import { UTag } from '../tag'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
 
 defineOptions({
   name: 'Checkbox'
@@ -71,11 +58,13 @@ const className = computed(() => {
     cls.b,
     cls.m(size.value),
     bem.is('disabled', disabled.value),
+    bem.is('readonly', readonly.value),
     bem.is('checked', checked.value || props.indeterminate)
   ]
 })
 
 const handleInput = (e: MouseEvent) => {
+  if (readonly.value) return
   const target = e.target as HTMLInputElement
   checked.value = target.checked
   emit('change', target.checked, e)

@@ -31,6 +31,10 @@ $root-name: checkbox;
     }
   }
 
+  @include m.is(readonly) {
+    cursor: default;
+  }
+
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
 

@@ -8,7 +8,7 @@
     </u-number-input>
   </div>
 
-  <u-dialog title="表单" style="width: 400px" @closed="model.resetData()">
+  <u-dialog title="表单" style="width: 900px" @closed="model.resetData()">
     <template #trigger>
       <u-button type="primary">打开弹框</u-button>
     </template>

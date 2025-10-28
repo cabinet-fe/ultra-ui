@@ -6,8 +6,8 @@
       @enter="onOverlayEnter"
     >
       <div
-        v-if="visible || opened"
-        v-show="visible"
+        v-if="overlayVisible || opened"
+        v-show="overlayVisible"
         :class="[cls.e('overlay'), bem.is('modal', modal)]"
         ref="overlayRef"
         @mousedown="modal && close()"
@@ -151,7 +151,16 @@ const visible = defineModel<boolean>({
   default: false
 })
 
+const overlayVisible = shallowRef(false)
 const dialogVisible = shallowRef(false)
+
+watch(visible, v => {
+  if (v) {
+    overlayVisible.value = true
+  } else {
+    dialogVisible.value = false
+  }
+})
 
 function getTriggerNode() {
   const nodes = slots.trigger?.()
@@ -166,7 +175,7 @@ function onOverlayEnter() {
 }
 
 function onAfterDialogLeave() {
-  visible.value = false
+  overlayVisible.value = false
 }
 
 const { toggleMaximize, maximized } = useMaximum({
@@ -248,7 +257,7 @@ function handleIncreaseZIndex() {
 
 /** 关闭 */
 const close = () => {
-  dialogVisible.value = false
+  visible.value = false
 }
 
 provide(DialogDIKey, {
