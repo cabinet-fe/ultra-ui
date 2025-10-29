@@ -27,9 +27,6 @@
   ],
   "devDependencies": {
     "@types/bun": "^1.2.20",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vitejs/plugin-vue-jsx": "^5.0.1",
-    "autoprefixer": "^10.4.21",
     "cat-kit": "^3.7.13",
     "fast-glob": "^3.3.3",
     "@ultra/icon": "^1.0.0",

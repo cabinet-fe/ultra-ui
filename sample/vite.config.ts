@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import Components from 'unplugin-vue-components/vite'
 import { autoResolveComponent, pluginPresets } from '@builder/vite'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
@@ -57,26 +56,6 @@ export default defineConfig(() => {
 
       vueDevTools({
         launchEditor: 'cursor'
-      }),
-      Components({
-        resolvers: [
-          autoResolveComponent({
-            prefix: 'U',
-            lib: 'ultra-ui',
-            sideEffects(kebabName, lib) {
-              let moduleId = `${lib}/components/${kebabName}/style.ts`
-              while (!existModule(moduleId)) {
-                const preKebabName = kebabName
-                kebabName = kebabName.replace(/-[a-z]$/, '')
-                if (preKebabName === kebabName) return
-                moduleId = `${lib}/components/${kebabName}/style.ts`
-              }
-              return moduleId
-            }
-          })
-        ],
-        dts: true,
-        include: [/\.vue$/]
       })
     ],
 
