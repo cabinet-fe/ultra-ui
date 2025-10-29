@@ -71,11 +71,13 @@ export class Virtualizer {
   verticalScrollHandler = (event: Event) => {
     const { scrollTop } = event.target as HTMLElement;
     this.offsetSize = scrollTop;
+    this.notifyUpdate();
   };
 
   horizontalScrollHandler = (event: Event) => {
     const { scrollLeft } = event.target as HTMLElement;
     this.offsetSize = scrollLeft;
+    this.notifyUpdate();
   };
 
   constructor(
@@ -95,7 +97,24 @@ export class Virtualizer {
    * @param index 元素索引
    * @returns 元素的偏移量
    */
-  private getItemOffset(index: number): number {}
+  private getItemOffset(index: number): number {
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      offset += this.getItemSize(i);
+    }
+    return offset;
+  }
+
+  /** 通知更新 */
+  private notifyUpdate() {
+    if (this.events.update) {
+      const items = this.getItems();
+      this.events.update({
+        items,
+        totalSize: this.totalSize,
+      });
+    }
+  }
 
   private getItems(): VirtualItem[] {
     const { containerSize, offsetSize } = this;
@@ -162,6 +181,7 @@ export class Virtualizer {
       totalSize += this.getItemSize(i);
     }
     this.totalSize = totalSize;
+    this.notifyUpdate();
   }
 
   /**
@@ -174,6 +194,7 @@ export class Virtualizer {
     const diff = size - oldSize;
     this.itemSizeCache[index] = size;
     this.totalSize += diff;
+    this.notifyUpdate();
   }
 
   /** 重置虚拟状态 */
@@ -206,7 +227,14 @@ export class Virtualizer {
         passive: true,
       },
     );
-    this.resizeObserver = new ResizeObserver(() => {
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (this.options.direction === "vertical") {
+          this.containerSize = entry.contentRect.height;
+        } else {
+          this.containerSize = entry.contentRect.width;
+        }
+      }
       this.calcTotalSize();
     });
     this.resizeObserver.observe(el);
@@ -229,9 +257,20 @@ export class Virtualizer {
     return this.getItems();
   }
 
-  scrollTo(offset: number) {}
+  scrollTo(offset: number) {
+    if (!this.container) return;
 
-  scrollToIndex(index: number) {}
+    if (this.options.direction === "vertical") {
+      this.container.scrollTop = offset;
+    } else {
+      this.container.scrollLeft = offset;
+    }
+  }
+
+  scrollToIndex(index: number) {
+    const offset = this.getItemOffset(index);
+    this.scrollTo(offset);
+  }
 }
 
 const v = new Virtualizer(({ items, totalSize }) => {
