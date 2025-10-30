@@ -10,16 +10,35 @@ export interface StepItem {
 export interface StepsProps {
   modelValue?: string
   active: string | null | undefined
+  /**
+   * 步骤项
+   */
   items: StepItem[]
+  /**
+   * 方向
+   * @default 'horizontal'
+   */
   direction?: 'horizontal' | 'vertical'
   readonly?: boolean
-  finishStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
-  processStatus?: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'default'
+  finishStatus?:
+    | 'primary'
+    | 'info'
+    | 'success'
+    | 'warning'
+    | 'danger'
+    | 'default'
+  processStatus?:
+    | 'primary'
+    | 'info'
+    | 'success'
+    | 'warning'
+    | 'danger'
+    | 'default'
 }
 
 /** 步骤组件组件定义的事件 */
 export interface StepsEmits {
-  // (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: string): void
   (e: 'update:active', value: string): void
   (e: 'stepClick', item: StepItem): void
 }

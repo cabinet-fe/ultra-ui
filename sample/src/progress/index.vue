@@ -24,6 +24,7 @@
           v-model="config.size"
           style="width: 100px"
           :min="0"
+          :max="200"
           :step="10"
         />
       </div>
@@ -64,7 +65,7 @@
 <script lang="ts" setup>
 import { shallowReactive } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ColorType } from '@ui/types'
+import type { ColorType } from 'ultra-ui'
 import { Warning } from '@ultra/icon'
 
 const config = shallowReactive({

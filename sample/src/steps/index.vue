@@ -86,7 +86,7 @@ let items = defineSteps(
 }
 .wrap {
   width: 600px;
-  height: 600px;
+  // height: 600px;
   border: 1px solid gold;
 }
 </style>

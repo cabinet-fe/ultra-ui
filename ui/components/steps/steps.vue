@@ -1,5 +1,5 @@
 <template>
-  <ol :class="[cls.b, cls.e(direction!), cls.m(size)]">
+  <ol :class="[cls.b, bem.is(direction!), cls.m(size)]">
     <li
       :class="[
         cls.e('step'),
