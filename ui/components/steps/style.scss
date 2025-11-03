@@ -33,8 +33,15 @@ $root-name: steps;
     }
   }
 
-  @include m.e(icon-wrap) {
+  @include m.e(node) {
     position: relative;
+  }
+
+  @include m.e(link) {
+    background-color: currentColor;
+    position: absolute;
+    margin: auto;
+    z-index: 0;
   }
 
   @include m.e(icon) {
@@ -47,7 +54,7 @@ $root-name: steps;
   }
 
   /** 步骤项描述 */
-  @include m.e(description) {
+  @include m.e(content) {
     padding: 4px 0;
   }
 
@@ -63,12 +70,8 @@ $root-name: steps;
     @include m.bem($root-name, link) {
       width: 100%;
       height: 2px;
-      background-color: currentColor;
-      position: absolute;
       top: 0;
       bottom: 0;
-      margin: auto;
-      z-index: 0;
     }
 
     @include m.bem($root-name, icon) {
@@ -77,30 +80,32 @@ $root-name: steps;
     }
 
     @include m.is(align-center) {
-      @include m.bem($root-name, (description, icon-wrap)) {
+      @include m.bem($root-name, (content, node)) {
         display: flex;
         align-items: center;
         justify-content: center;
       }
 
       @include m.bem($root-name, link) {
-        width: 50%;
-
-        @include m.is(prev) {
-          left: 0;
-        }
-        @include m.is(next) {
-          right: 0;
-        }
+        left: 50%;
       }
     }
   }
 
   @include m.is(vertical) {
+    @include m.bem($root-name, node) {
+      padding: 20px 0;
+    }
     @include m.bem($root-name, item) {
-      min-height: 60px;
       display: flex;
       align-items: center;
+    }
+
+    @include m.bem($root-name, link) {
+      height: 100%;
+      width: 2px;
+      left: 0;
+      right: 0;
     }
   }
 

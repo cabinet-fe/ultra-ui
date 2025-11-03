@@ -1,5 +1,7 @@
 <template>
-  <u-steps :items="items" :current="1" />
+  <u-steps :items="items" :current="1" animation="pulse">
+    <template #icon></template>
+  </u-steps>
 </template>
 
 <script setup lang="ts">

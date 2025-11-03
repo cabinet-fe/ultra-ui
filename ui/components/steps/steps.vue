@@ -9,15 +9,8 @@
       ]"
       @click="handleStepClick(item, index)"
     >
-      <div :class="cls.e('icon-wrap')">
-        <i
-          :class="[cls.e('link'), bem.is('prev')]"
-          v-if="index !== 0 && (direction === 'vertical' || alignCenter)"
-        ></i>
-        <i
-          :class="[cls.e('link'), bem.is('next')]"
-          v-if="index !== items.length - 1"
-        ></i>
+      <div :class="cls.e('node')">
+        <i :class="cls.e('link')" v-if="index !== items.length - 1"></i>
 
         <span :class="cls.e('icon')">
           <slot name="icon" :item="item" :index="index">
@@ -32,8 +25,8 @@
         </span>
       </div>
 
-      <div :class="cls.e('description')">
-        <slot name="desc" :item="item" :index="index">
+      <div :class="cls.e('content')">
+        <slot name="content" :item="item" :index="index">
           {{ getChainValue(item, labelKey) }}
         </slot>
       </div>
@@ -53,7 +46,6 @@ import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from '@ultra/icon'
 import { UIcon } from '../icon'
-import { UScroll } from '../scroll'
 import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
@@ -70,7 +62,7 @@ const emit = defineEmits<StepsEmits>()
 
 defineSlots<{
   icon?: (scope: StepsSlotScope) => any
-  desc?: (scope: StepsSlotScope) => any
+  content?: (scope: StepsSlotScope) => any
 }>()
 
 const cls = bem('steps')
@@ -84,8 +76,8 @@ const className = computed(() => {
   const ret: string[] = [
     cls.b,
     bem.is(direction),
-    bem.is('align-center', props.alignCenter),
     cls.m(size.value),
+    bem.is('align-center', props.alignCenter),
     cls.em('finished', finishedStepType)
   ]
   currentStepType && ret.push(cls.em('current', currentStepType))

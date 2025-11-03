@@ -36,6 +36,11 @@
     </div>
 
     <u-steps :items :current v-bind="config" />
+
+    <u-button-group>
+      <u-button @click="current--">上一步</u-button>
+      <u-button @click="current++">下一步</u-button>
+    </u-button-group>
   </div>
 </template>
 
