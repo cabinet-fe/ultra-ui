@@ -171,6 +171,7 @@ const handleDragX = debounce(
   (offset: number, size: number) => {
     const container = containerRef.value!
     const { clientWidth, scrollWidth } = container
+
     container.scrollLeft =
       (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
   },

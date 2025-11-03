@@ -10,6 +10,7 @@ $root-name: scroll;
   // 弹性布局方向为列方向，以便于父级设置最大高度时能应用滚动
   flex-direction: column;
   overflow: hidden;
+  scroll-behavior: auto;
 
   // 滚动容器
   @include m.e(container) {

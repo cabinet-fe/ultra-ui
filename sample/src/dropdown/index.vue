@@ -6,9 +6,7 @@
       <CustomCard title="虚拟触发">
         <div>
           <u-button
-            @mouseenter="
-              dropdownRef?.open({ virtual: spanRef, real: $event.target })
-            "
+            @mouseenter="dropdownRef?.open({ trigger: spanRef })"
             @mouseleave="dropdownRef?.close()"
           >
             浮动触发离开关闭
@@ -88,10 +86,7 @@ const dropdownRef = shallowRef<DropdownExposed>()
 
 const spanRef = shallowRef<HTMLSpanElement>()
 
-function handleClickTrigger(e: MouseEvent) {
-  dropdownRef.value?.open({
-    virtual: spanRef.value,
-    real: e.target as HTMLElement
-  })
+function handleClickTrigger() {
+  dropdownRef.value?.open({ trigger: spanRef.value })
 }
 </script>

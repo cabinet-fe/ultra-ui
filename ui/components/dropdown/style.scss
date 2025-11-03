@@ -6,8 +6,6 @@
 $root-name: dropdown;
 
 @include m.b($root-name) {
-  display: inline-block;
-
   @include m.e(content) {
     position: absolute;
     background-color: fn.use-var(bg-color, top);

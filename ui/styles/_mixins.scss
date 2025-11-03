@@ -64,6 +64,13 @@
   }
 }
 
+@mixin em($element, $modifier) {
+  $selector: '&__' + #{$element} + '--' + $modifier;
+  #{$selector} {
+    @content;
+  }
+}
+
 @mixin is($types...) {
   @each $type in $types {
     &.is-#{$type} {

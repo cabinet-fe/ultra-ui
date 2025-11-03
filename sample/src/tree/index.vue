@@ -33,10 +33,12 @@
         value-key="id"
         ref="treeRef"
         height="200px"
+        v-model:checked="checked"
         @update:selected="handleNodeClick"
         @update:checked="handleCheck"
         v-bind="config"
       />
+      {{ checked }}
     </CustomCard>
 
     <CustomCard title="自定义内容">
@@ -66,10 +68,12 @@ const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
 const data1 = shallowRef<any[]>([])
 
+const checked = shallowRef<any[]>()
+
 function refreshData() {
   data1.value = Array.from({ length: 1000 }).map((_, index) => ({
     name: '手抓饼' + index,
-    id: index,
+    id: `${index}`,
     children: [
       { name: '鱼香肉丝-1'.repeat(5), id: `${index}-1` },
       { name: '鱼香肉丝-2', id: `${index}-2` }
@@ -81,12 +85,16 @@ setTimeout(() => {
   refreshData()
 }, 500)
 
+setTimeout(() => {
+  checked.value = ['0-1']
+}, 1000)
+
 const config = shallowReactive({
-  checkable: false,
+  checkable: true,
   selectable: false,
   expandAll: false,
   expandOnClickNode: false,
-  checkStrictly: false
+  checkStrictly: true
 })
 
 let select = shallowRef(9)

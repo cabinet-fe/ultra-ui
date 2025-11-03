@@ -38,122 +38,122 @@ import {
   onBeforeUnmount,
   toRef,
   watch,
-  nextTick,
-} from "vue";
-import { bem, extractNormalVNodes, zIndex } from "@ui/utils";
-import { vClickOutside } from "@ui/directives";
-import type { TipProps, ComponentSize, TipEmits } from "@ui/types";
-import { useFallbackProps, usePop } from "@ui/compositions";
-import { UNodeRender } from "../node-render";
-import { useNest } from "./use-nest";
+  nextTick
+} from 'vue'
+import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
+import { vClickOutside } from '@ui/directives'
+import type { TipProps, ComponentSize, TipEmits } from '@ui/types'
+import { useFallbackProps, usePop } from '@ui/compositions'
+import { UNodeRender } from '../node-render'
+import { useNest } from './use-nest'
 
-defineOptions({ name: "Tip" });
+defineOptions({ name: 'Tip' })
 
 const props = withDefaults(defineProps<TipProps>(), {
-  content: "",
-  trigger: "hover",
-  direction: "top",
-  alignment: "center",
-  contentTag: "div",
-  visible: undefined,
-});
+  content: '',
+  trigger: 'hover',
+  direction: 'top',
+  alignment: 'center',
+  contentTag: 'div',
+  visible: undefined
+})
 
-const emit = defineEmits<TipEmits>();
+const emit = defineEmits<TipEmits>()
 
-const cls = bem("tip");
-const slots = useSlots();
+const cls = bem('tip')
+const slots = useSlots()
 const { size } = useFallbackProps([props], {
-  size: "default" as ComponentSize,
-});
+  size: 'default' as ComponentSize
+})
 
 const contentClass = computed(() => {
-  const fixed = [cls.e("content"), cls.m(size.value)];
-  const className = props.class;
+  const fixed = [cls.e('content'), cls.m(size.value)]
+  const className = props.class
   if (!Array.isArray(className)) {
-    return [...fixed, className];
+    return [...fixed, className]
   }
-  return [...fixed, ...className];
-});
+  return [...fixed, ...className]
+})
 
-const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>();
-const contentRef = shallowRef<HTMLElement>();
-const arrowRef = shallowRef<HTMLElement>();
+const triggerRef = shallowRef<InstanceType<typeof UNodeRender>>()
+const contentRef = shallowRef<HTMLElement>()
+const arrowRef = shallowRef<HTMLElement>()
 
-const _visible = shallowRef(false);
+const _visible = shallowRef(false)
 
 const visible = computed(() => {
-  return props.visible !== undefined ? props.visible : _visible.value;
-});
+  return props.visible !== undefined ? props.visible : _visible.value
+})
 
 function updateVisible(v: boolean) {
   if (props.visible === undefined) {
-    _visible.value = v;
+    _visible.value = v
   } else {
-    emit("update:visible", v);
+    emit('update:visible', v)
   }
 }
 
-const tipVisible = useNest(visible);
+const tipVisible = useNest(visible)
 
 function renderDefaultSlotTrigger() {
-  const nodes = slots.default?.();
-  if (!nodes?.length) return null;
-  const node = extractNormalVNodes(nodes)[0];
-  return node;
+  const nodes = slots.default?.()
+  if (!nodes?.length) return null
+  const node = extractNormalVNodes(nodes)[0]
+  return node
 }
 
 const eventsHandlers = computed(() => {
-  const { trigger, disabled } = props;
+  const { trigger, disabled } = props
 
-  const handlers: Record<string, Function> = {};
+  const handlers: Record<string, Function> = {}
 
-  if (disabled) return handlers;
+  if (disabled) return handlers
 
-  if (trigger === "click") {
-    handlers.onClick = open;
-  } else if (trigger === "hover") {
-    handlers.onMouseenter = open;
-    handlers.onMouseleave = close;
+  if (trigger === 'click') {
+    handlers.onClick = open
+  } else if (trigger === 'hover') {
+    handlers.onMouseenter = open
+    handlers.onMouseleave = close
   }
 
-  return handlers;
-});
+  return handlers
+})
 
 const handleClickOutside = (e: MouseEvent) => {
-  if (props.trigger === "hover") return;
+  if (props.trigger === 'hover') return
 
   // 点击的元素在触发元素中则啥也
   if (
-    props.trigger === "click" &&
+    props.trigger === 'click' &&
     triggerDom.value.contains(e.target as Node)
   ) {
-    return;
+    return
   }
-  close();
-};
+  close()
+}
 
-let closeTimer: number | undefined = undefined;
+let closeTimer: number | undefined = undefined
 
 /** 弹出 */
 const open = (e?: PointerEvent) => {
-  e?.stopPropagation();
-  closeTimer !== undefined && clearTimeout(closeTimer);
-  updateVisible(true);
-};
+  e?.stopPropagation()
+  closeTimer !== undefined && clearTimeout(closeTimer)
+  updateVisible(true)
+}
 /** 关闭 */
 const close = () => {
-  if (props.trigger === "hover") {
+  if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
-      updateVisible(false);
-    }, 250);
+      updateVisible(false)
+    }, 250)
   } else {
-    updateVisible(false);
+    updateVisible(false)
   }
-};
+}
 
 const triggerDom = computed(() => {
-  return props.triggerDom || triggerRef.value?.$el;
-});
+  return props.triggerDom || triggerRef.value?.$el
+})
 
 const { popperContainerId } = usePop({
   triggerRef: triggerDom,
@@ -162,21 +162,21 @@ const { popperContainerId } = usePop({
   direction: toRef(() => props.direction),
   alignment: toRef(() => props.alignment),
   onTriggerPositionChange() {
-    close();
-  },
-});
+    close()
+  }
+})
 
 watch(triggerDom, () => {
   if (visible.value) {
-    close();
-    nextTick(() => open());
+    close()
+    nextTick(() => open())
   }
-});
+})
 
 /** 外部节点 */
-const externalNode = shallowRef<any>();
+const externalNode = shallowRef<any>()
 
 onBeforeUnmount(() => {
-  clearTimeout(closeTimer);
-});
+  clearTimeout(closeTimer)
+})
 </script>

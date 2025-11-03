@@ -98,7 +98,7 @@ export class Ripple {
    * @returns 容器矩形区域
    */
   private getContainerRect(): DOMRect {
-    if (this.containerRect) return this.containerRect
+    // if (this.containerRect) return this.containerRect
     const rect = this.container.getBoundingClientRect()
     this.containerRect = rect
     return this.containerRect

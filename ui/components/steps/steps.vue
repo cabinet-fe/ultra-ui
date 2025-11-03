@@ -1,51 +1,41 @@
 <template>
-  <ol :class="[cls.b, bem.is(direction!), cls.m(size)]">
+  <ol :class="className">
     <li
-      :class="[
-        cls.e('step'),
-        bem.is('readonly', readonly),
-        bem.is(processStatus!, active === item.key),
-        bem.is(finishStatus!, index < currentIndex)
-      ]"
       v-for="(item, index) in items"
-      @click="readonly ? void 0 : stepClick(item)"
+      :class="[
+        cls.e('item'),
+        bem.is('current', index === currentIndex),
+        bem.is('finished', index < currentIndex)
+      ]"
+      @click="handleStepClick(item, index)"
     >
-      <div :class="[cls.e('icon'), bem.is(direction)]">
-        <div
-          :class="[
-            cls.em('icon', 'line'),
-            bem.is(processStatus!, active === item.key),
-            bem.is(finishStatus!, index < currentIndex)
-          ]"
-          v-if="index !== 0"
-        ></div>
-        <div :class="cls.em('icon', 'placeholder')" v-else></div>
-        <component
-          v-if="slots.icon"
-          :is="icons[index]"
-          :class="[cls.em('icon', 'number')]"
-        ></component>
-        <div v-else :class="[cls.em('icon', 'number')]">
-          <UIcon v-if="index < currentIndex"><Check /></UIcon>
-          <span v-else>{{ index + 1 }}</span>
-        </div>
-        <div
-          :class="[
-            cls.em('icon', 'line'),
-            bem.is(processStatus!, index === currentIndex - 1),
-            bem.is(finishStatus!, index < currentIndex - 1)
-          ]"
+      <div :class="cls.e('icon-wrap')">
+        <i
+          :class="[cls.e('link'), bem.is('prev')]"
+          v-if="index !== 0 && (direction === 'vertical' || alignCenter)"
+        ></i>
+        <i
+          :class="[cls.e('link'), bem.is('next')]"
           v-if="index !== items.length - 1"
-        ></div>
-        <div :class="cls.em('icon', 'placeholder')" v-else></div>
+        ></i>
+
+        <span :class="cls.e('icon')">
+          <slot name="icon" :item="item" :index="index">
+            <UIcon v-if="index < currentIndex">
+              <Check />
+            </UIcon>
+
+            <template v-else>
+              {{ index + 1 }}
+            </template>
+          </slot>
+        </span>
       </div>
 
-      <div :class="[cls.e('description')]">
-        <component
-          v-if="slots.desc && descs[index]"
-          :is="descs[index]"
-        ></component>
-        <span v-else>{{ item.label }}</span>
+      <div :class="cls.e('description')">
+        <slot name="desc" :item="item" :index="index">
+          {{ getChainValue(item, labelKey) }}
+        </slot>
       </div>
     </li>
   </ol>
@@ -53,53 +43,81 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type { StepsProps, StepsEmits, StepItem, ComponentSize } from '@ui/types'
+import type {
+  StepsProps,
+  StepsEmits,
+  ComponentSize,
+  StepsSlotScope
+} from '@ui/types'
 import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from '@ultra/icon'
 import { UIcon } from '../icon'
+import { UScroll } from '../scroll'
+import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
   name: 'Steps'
 })
 
-const slots = defineSlots<{
-  icon?: () => any
-  desc?: () => any
-}>()
-
-/** 图标位插槽 */
-const icons = computed(() => {
-  return slots.icon ? slots.icon()[0]?.children || [] : []
-})
-/** 描述位插槽 */
-const descs = computed(() => {
-  return slots.desc ? slots.desc()[0]?.children || [] : []
-})
-/** 当前活动序号 */
-const currentIndex = computed(() => {
-  return props.active
-    ? props.items.findIndex(item => item.key === props.active)
-    : props.items.length + 1
-})
-
 const props = withDefaults(defineProps<StepsProps>(), {
   direction: 'horizontal',
-  readonly: true,
-  processStatus: 'default',
-  finishStatus: 'success'
+  finishedStepType: 'success',
+  labelKey: 'label'
 })
 
 const emit = defineEmits<StepsEmits>()
+
+defineSlots<{
+  icon?: (scope: StepsSlotScope) => any
+  desc?: (scope: StepsSlotScope) => any
+}>()
+
+const cls = bem('steps')
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const cls = bem('steps')
-/** 点击步骤切换活动序号 */
-const stepClick = (item: StepItem) => {
-  emit('stepClick', item)
-  emit('update:active', item.key)
+const className = computed(() => {
+  const { direction, currentStepType, finishedStepType } = props
+  const ret: string[] = [
+    cls.b,
+    bem.is(direction),
+    bem.is('align-center', props.alignCenter),
+    cls.m(size.value),
+    cls.em('finished', finishedStepType)
+  ]
+  currentStepType && ret.push(cls.em('current', currentStepType))
+  return ret
+})
+
+const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
+  const { currentKey, items } = props
+  if (!currentKey) return undefined
+  return items.reduce(
+    (acc, item, index) => {
+      acc[getChainValue(item, currentKey)] = index
+      return acc
+    },
+    {} as Record<string, number>
+  )
+})
+
+/** 当前活动序号 */
+const currentIndex = computed(() => {
+  const { currentKey, current } = props
+  if (!currentKey) return current as number
+  if (!current) return -1
+  return currentToIndexMap.value?.[current] ?? -1
+})
+
+// 点击步骤项
+function handleStepClick(item: Record<string, any>, index: number) {
+  emit('item-click', item, index)
+  emit(
+    'update:current',
+    props.currentKey ? getChainValue(item, props.currentKey) : index
+  )
 }
 </script>

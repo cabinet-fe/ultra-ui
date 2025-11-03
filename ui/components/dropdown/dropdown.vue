@@ -1,12 +1,5 @@
 <template>
-  <div
-    v-if="slots.trigger"
-    :class="cls.b"
-    v-bind="{ ...eventsHandlers, ...$attrs }"
-    ref="triggerRef"
-  >
-    <slot name="trigger" />
-  </div>
+  <UNodeRender :content="renderTriggerNode()" ref="trigger" />
 
   <Teleport :to="`#${popperContainerId}`">
     <component
@@ -27,11 +20,18 @@
 
 <script lang="ts" setup>
 import type { DropdownProps, DropdownExposed, DropdownEmits } from '@ui/types'
-import { bem, setStyles, zIndex } from '@ui/utils'
-import { shallowRef, computed } from 'vue'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
+import {
+  shallowRef,
+  computed,
+  createVNode,
+  cloneVNode,
+  useTemplateRef
+} from 'vue'
 import { vClickOutside } from '@ui/directives'
 import { useModel, usePop, useTransition } from '@ui/compositions'
 import { useNest } from '../tip/use-nest'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'Dropdown',
@@ -40,8 +40,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<DropdownProps>(), {
   trigger: 'hover',
-  contentTag: 'div',
-  clickWhetherHide: false
+  contentTag: 'div'
 })
 
 const emit = defineEmits<DropdownEmits>()
@@ -65,9 +64,13 @@ const dropdownContentClass = computed(() => {
   return [...fixed, ...className]
 })
 
-const triggerRef = shallowRef<HTMLElement>()
+const triggerRef = useTemplateRef('trigger')
+const customTriggerRef = shallowRef<HTMLElement>()
 const contentRef = shallowRef<HTMLElement>()
-let realTrigger: HTMLElement | undefined
+
+const triggerDom = computed(() => {
+  return customTriggerRef.value || triggerRef.value?.$el
+})
 
 /**显示隐藏 */
 const visible = useModel({
@@ -81,26 +84,35 @@ const dropdownVisible = useNest(visible)
 
 let closeTimer: number | undefined
 
+function renderTriggerNode() {
+  const slotsNode = slots.trigger?.()
+  if (!slotsNode) return null
+  const nodes = extractNormalVNodes(slotsNode)
+  const props = {
+    class: cls.b,
+    ...eventsHandlers.value
+  }
+  if (nodes.length === 1) return cloneVNode(nodes[0]!, props)
+
+  return createVNode('div', props, nodes)
+}
+
 function stopClose() {
   closeTimer !== undefined && clearTimeout(closeTimer)
 }
 
 /** 打开下拉框 */
-function open(trigger?: { virtual?: HTMLElement; real?: HTMLElement }) {
+function open(config?: { trigger?: HTMLElement }) {
   stopClose()
-  const { virtual, real } = trigger || {}
-  if (virtual && virtual instanceof HTMLElement) {
-    triggerRef.value = virtual
-
-    realTrigger = real || virtual
+  const { trigger } = config || {}
+  if (trigger && trigger instanceof HTMLElement) {
+    customTriggerRef.value = trigger
   }
 
   visible.value = true
 }
 
 function close() {
-  realTrigger = undefined
-
   if (props.trigger === 'hover') {
     // 给200毫秒重新浮动的缓冲时间
     closeTimer = setTimeout(() => {
@@ -113,23 +125,19 @@ function close() {
 
 /** 点击外部 */
 function handleClickOutside(e: MouseEvent) {
-  if (props.clickWhetherHide) return
-  // 点击触发且点击元素属于触发元素内（包含触发元素本身）时不关闭
-  if (
-    props.trigger === 'click' &&
-    (triggerRef.value?.contains(e.target as Node) ||
-      realTrigger?.contains(e.target as Node))
-  ) {
+  const { trigger } = props
+  // 当下拉框为点击时触发时，点击触发元素时不关闭
+  // 其他任何时候点击外部都关闭下拉器
+  if (trigger === 'click' && triggerDom.value.contains(e.target as Node)) {
     return
   }
-
   close()
 }
 
 const transitionName = shallowRef('slide-down')
 
 const { update, popperContainerId } = usePop({
-  triggerRef,
+  triggerRef: triggerDom,
   contentRef,
   direction: 'bottom',
   alignment: 'start',

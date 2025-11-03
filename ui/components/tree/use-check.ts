@@ -1,7 +1,7 @@
 import type { TreeEmit, TreeProps } from '@ui/types'
 import { nextTick, watch, type ComputedRef } from 'vue'
 import type { TreeNode } from './tree-node'
-import { Tree } from 'cat-kit/fe'
+import { getChainValue, Tree } from 'cat-kit/fe'
 
 interface Options {
   emit: TreeEmit
@@ -44,16 +44,13 @@ export function useCheck(options: Options): UseCheckReturned {
   // 回显
   watch(
     [() => props.checked, nodeDict],
-    ([c, nodeDict], [oc]) => {
+    ([c, nodeDict]) => {
       // 事件已经触发模型变更了，所以不再进行下面的计算
       if (checkedByEvent || !props.checkable) return
 
       if (!nodeDict.size) return
+      checkedData.clear()
 
-      oc?.forEach(v => {
-        const node = nodeDict.get(v)
-        node && uncheckNode(node)
-      })
       c?.forEach(v => {
         const node = nodeDict.get(v)
         if (node) {
@@ -127,7 +124,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
     emit(
       'update:checked',
-      checkedArr.map(item => item[props.valueKey!]),
+      checkedArr.map(item => getChainValue(item, props.valueKey!)),
       checkedArr
     )
 

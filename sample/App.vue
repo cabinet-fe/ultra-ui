@@ -8,36 +8,62 @@
     ></u-menu>
 
     <u-scroll tag="div" class="main">
-      <div style="border-bottom: 1px solid #eee; margin-bottom: 10px">
-        组件尺寸
-        <span>
-          <u-radio value="small" v-model="size">小</u-radio>
-          <u-radio value="default" v-model="size">中</u-radio>
-          <u-radio value="large" v-model="size">大</u-radio>
-        </span>
+      <div class="control-bar">
+        <div class="control-section">
+          <div class="control-group">
+            <span class="control-label">组件尺寸</span>
+            <div class="radio-group">
+              <u-radio value="small" v-model="size">小</u-radio>
+              <u-radio value="default" v-model="size">中</u-radio>
+              <u-radio value="large" v-model="size">大</u-radio>
+            </div>
+          </div>
 
-        <span>
-          <u-checkbox v-model="isDark"> 暗黑主题 </u-checkbox>
-        </span>
+          <div class="control-group">
+            <u-switch
+              v-model="isDark"
+              active-text="浅色"
+              inactive-text="深色"
+            ></u-switch>
+          </div>
+        </div>
 
-        <u-button :icon="Setting" @click="handleSetting"></u-button>
+        <div class="control-actions">
+          <u-button
+            :icon="Setting"
+            @click="handleSetting"
+            type="text"
+            class="setting-btn"
+            >设置</u-button
+          >
+        </div>
       </div>
 
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <div class="content-container">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <div class="router-content">
+              <component :is="Component" />
+            </div>
+          </transition>
+        </router-view>
+      </div>
     </u-scroll>
 
     <!-- <u-watermark text="Ultra UI" append-to-body /> -->
 
-    <div class="drawer" v-if="showDrawer">
-      <div>
-        <u-button type="primary" @click="handleClose">关闭</u-button>
+    <!-- 内置抽屉组件 -->
+    <u-drawer
+      v-model:visible="showDrawer"
+      title="主题设置"
+      direction="right"
+      width="360px"
+      :show-close="true"
+    >
+      <div class="drawer-content">
+        <u-theme />
       </div>
-      <u-theme />
-    </div>
+    </u-drawer>
   </div>
 </template>
 
@@ -112,28 +138,183 @@ const handleClose = () => {
 }
 </script>
 
-<style lang="scss" scoped>
-@use '@ui/styles/functions' as fn;
+<style lang="scss">
+@function use-var($basename, $nodes...) {
+  $suffix: '';
+
+  @each $node in $nodes {
+    $suffix: $suffix + '-' + $node;
+  }
+
+  @return var(--#{$basename}#{$suffix});
+}
 
 .container {
   height: 100vh;
   display: flex;
-  background-color: fn.use-var(bg-color, bottom);
+  background-color: use-var(bg-color, bottom);
+  overflow: hidden;
 }
 
 $width: 240px;
 .aside {
   width: $width;
-  border-right: fn.use-var(border);
-
+  border-right: 1px solid use-var(border, color);
   flex-shrink: 0;
+  backdrop-filter: var(--bg-filter-blur);
+  background-color: use-var(bg-color, top);
 }
 
 .main {
   width: calc(100% - $width);
+  display: flex;
+  flex-direction: column;
 
   & > :deep(.u-scroll__container) {
-    padding: 10px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
+.control-bar {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: use-var(bg-color, middle);
+  backdrop-filter: var(--bg-filter-blur);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.control-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-label {
+  font-size: 13px;
+  color: use-var(text-color, second);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+
+  :deep(.u-radio) {
+    margin-right: 0;
+  }
+}
+
+.theme-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+
+  .theme-icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.control-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-btn {
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: use-var(bg-color, hover);
+    transform: translateY(-1px);
+  }
+}
+
+.content-container {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: use-var(bg-color, bottom);
+}
+
+// 抽屉内容样式
+.drawer-content {
+  padding: 20px;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .control-bar {
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px 16px;
+  }
+
+  .control-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .control-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .content-container {
+    padding: 16px;
+  }
+
+  .drawer {
+    width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  $width: 200px;
+  .aside {
+    width: $width;
+  }
+
+  .main {
+    width: calc(100% - $width);
+  }
+
+  .control-bar {
+    padding: 8px 12px;
+  }
+
+  .drawer {
+    width: 100%;
+  }
+
+  .content-container {
+    padding: 12px;
   }
 }
 </style>
@@ -146,5 +327,62 @@ $width: 240px;
       color 0.3s ease,
       border-color 0.3s ease !important;
   }
+}
+
+// 优化页面过渡动画
+.fade-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  filter: blur(2px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+  filter: blur(1px);
+}
+
+// 路由切换时的容器动画
+.router-content {
+  position: relative;
+  min-height: 400px;
+  width: 100%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+}
+
+.fade-enter-active .router-content::before,
+.fade-leave-active .router-content::before {
+  opacity: 1;
+}
+
+// 优化选择状态
+::selection {
+  background-color: var(--color-primary);
+  color: use-var(text-color, white);
 }
 </style>

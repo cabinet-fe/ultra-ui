@@ -29,10 +29,6 @@ export interface DropdownProps {
   visible?: boolean
   /** 禁用 */
   disabled?: boolean
-  /**
-   * 点击外部是否隐藏
-   */
-  clickWhetherHide?: boolean
 }
 
 /** 下拉框组件定义的事件 */
@@ -46,17 +42,12 @@ export interface DropdownEmits {
 /** 下拉框组件暴露的属性和方法(组件内部使用) */
 export interface _DropdownExposed {
   /**
-   * 打开
-   * @param trigger 触发元素
+   * 打开下拉擦菜单
+   * @param config 配置
    */
-  open: (trigger?: {
-    /** 虚拟触发元素 */
-    virtual?: HTMLElement
-    /**
-     * 真实触发元素
-     * @description 如果不指定则和虚拟触发元素一致
-     */
-    real?: HTMLElement
+  open: (config?: {
+    /** 自定义触发元素 */
+    trigger?: HTMLElement
   }) => void
   /** 关闭 */
   close: () => void
