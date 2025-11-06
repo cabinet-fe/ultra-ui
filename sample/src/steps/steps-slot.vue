@@ -8,9 +8,7 @@
 
     <template #content="{ item }">
       <div>{{ item.label }}</div>
-      <div>
-        {{ item.description }}
-      </div>
+      <div>{{ item.description }}</div>
     </template>
   </u-steps>
 </template>
