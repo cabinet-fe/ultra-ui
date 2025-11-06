@@ -44,6 +44,24 @@ $root-name: steps;
     z-index: 0;
   }
 
+  @keyframes steps-link-flow-horizontal {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 20px 0;
+    }
+  }
+
+  @keyframes steps-link-flow-vertical {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 0 20px;
+    }
+  }
+
   @include m.e(icon) {
     display: flex;
     cursor: default;
@@ -69,6 +87,21 @@ $root-name: steps;
     @include m.bem($root-name, item) {
       flex: 1;
       min-width: 150px;
+
+      @include m.is(current) {
+        @include m.bem($root-name, link) {
+          background-color: transparent;
+          background-image: linear-gradient(
+            to right,
+            currentColor 0%,
+            currentColor 50%,
+            transparent 50%,
+            transparent 100%
+          );
+          background-size: 20px 2px;
+          animation: steps-link-flow-horizontal 1s linear infinite;
+        }
+      }
     }
 
     @include m.bem($root-name, link) {
@@ -98,6 +131,21 @@ $root-name: steps;
     @include m.bem($root-name, item) {
       display: flex;
       align-items: center;
+
+      @include m.is(current) {
+        @include m.bem($root-name, link) {
+          background-color: transparent;
+          background-image: linear-gradient(
+            to bottom,
+            currentColor 0%,
+            currentColor 50%,
+            transparent 50%,
+            transparent 100%
+          );
+          background-size: 2px 20px;
+          animation: steps-link-flow-vertical 1s linear infinite;
+        }
+      }
     }
 
     @include m.bem($root-name, link) {
