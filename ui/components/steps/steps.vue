@@ -1,20 +1,24 @@
 <template>
-  <ol :class="className">
+  <ol :class="className" ref="steps">
     <li
       v-for="(item, index) in items"
       :class="[
         cls.e('item'),
         bem.is('current', index === currentIndex),
-        bem.is('finished', index < currentIndex)
+        bem.is('finished', currentIndex === undefined || index < currentIndex)
       ]"
       @click="handleStepClick(item, index)"
     >
       <div :class="cls.e('node')">
         <i :class="cls.e('link')" v-if="index !== items.length - 1"></i>
 
-        <span :class="cls.e('icon')">
+        <span
+          :class="cls.e('icon')"
+          @mouseenter="handleStepMouseenter($event, item, index)"
+          @mouseleave="handleStepMouseleave"
+        >
           <slot name="icon" :item="item" :index="index">
-            <UIcon v-if="index < currentIndex">
+            <UIcon v-if="currentIndex === undefined || index < currentIndex">
               <Check />
             </UIcon>
 
@@ -31,11 +35,23 @@
         </slot>
       </div>
     </li>
+
+    <u-tip
+      v-if="slots.tip"
+      ref="tip"
+      :trigger-dom="tipTriggerDom"
+      v-model:visible="tipVisible"
+      @update:visible="handleTipUpdateVisible"
+    >
+      <template #content>
+        <UNodeRender :content="tipContent" />
+      </template>
+    </u-tip>
   </ol>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import type {
   StepsProps,
   StepsEmits,
@@ -46,7 +62,9 @@ import { bem } from '@ui/utils'
 import { useFallbackProps } from '@ui/compositions'
 import { Check } from '@ultra/icon'
 import { UIcon } from '../icon'
-import { getChainValue } from 'cat-kit/fe'
+import { UTip } from '../tip'
+import { getChainValue, n } from 'cat-kit/fe'
+import { UNodeRender } from '../node-render'
 
 defineOptions({
   name: 'Steps'
@@ -60,9 +78,10 @@ const props = withDefaults(defineProps<StepsProps>(), {
 
 const emit = defineEmits<StepsEmits>()
 
-defineSlots<{
+const slots = defineSlots<{
   icon?: (scope: StepsSlotScope) => any
   content?: (scope: StepsSlotScope) => any
+  tip?: (scope: StepsSlotScope) => any
 }>()
 
 const cls = bem('steps')
@@ -84,6 +103,8 @@ const className = computed(() => {
   return ret
 })
 
+const stepsRef = useTemplateRef('steps')
+
 const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
   const { currentKey, items } = props
   if (!currentKey) return undefined
@@ -96,12 +117,28 @@ const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
   )
 })
 
-/** 当前活动序号 */
-const currentIndex = computed(() => {
+/** 当前索引 */
+const currentIndex = computed<number | undefined>(() => {
   const { currentKey, current } = props
-  if (!currentKey) return current as number
-  if (!current) return -1
-  return currentToIndexMap.value?.[current] ?? -1
+  if (current === undefined) return undefined
+
+  if (currentKey) {
+    return currentToIndexMap.value?.[current]
+  }
+
+  if (typeof current !== 'number') return undefined
+  return n(current).range(0, props.items.length - 1)
+})
+
+watch(currentIndex, index => {
+  if (index === undefined || props.direction === 'vertical') return
+  const step = stepsRef.value?.children[index]
+  if (step) {
+    step.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    })
+  }
 })
 
 // 点击步骤项
@@ -111,5 +148,39 @@ function handleStepClick(item: Record<string, any>, index: number) {
     'update:current',
     props.currentKey ? getChainValue(item, props.currentKey) : index
   )
+}
+
+// 提示
+const tipVisible = shallowRef(false)
+const tipTriggerDom = shallowRef<HTMLElement>()
+const tipContent = shallowRef()
+
+function handleStepMouseenter(
+  event: MouseEvent,
+  item: Record<string, any>,
+  index: number
+) {
+  if (!slots.tip) return
+  tipTriggerDom.value = event.target as HTMLElement
+  tipVisible.value = true
+  tipContent.value = slots.tip?.({ item, index })
+}
+
+let timer: number | undefined = undefined
+function closeTip() {
+  timer = setTimeout(() => {
+    tipVisible.value = false
+    tipContent.value = undefined
+    tipTriggerDom.value = undefined
+  }, 250)
+}
+
+function handleTipUpdateVisible(visible: boolean) {
+  visible && clearTimeout(timer)
+}
+
+function handleStepMouseleave() {
+  if (!slots.tip) return
+  closeTip()
 }
 </script>

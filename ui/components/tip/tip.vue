@@ -98,8 +98,7 @@ const tipVisible = useNest(visible)
 function renderDefaultSlotTrigger() {
   const nodes = slots.default?.()
   if (!nodes?.length) return null
-  const node = extractNormalVNodes(nodes)[0]
-  return node
+  return extractNormalVNodes(nodes)[0]
 }
 
 const eventsHandlers = computed(() => {
@@ -138,6 +137,7 @@ let closeTimer: number | undefined = undefined
 const open = (e?: PointerEvent) => {
   e?.stopPropagation()
   closeTimer !== undefined && clearTimeout(closeTimer)
+
   updateVisible(true)
 }
 /** 关闭 */
@@ -166,8 +166,9 @@ const { popperContainerId } = usePop({
   }
 })
 
-watch(triggerDom, () => {
-  if (visible.value) {
+watch(triggerDom, dom => {
+  // TODO: 看起来不是很优雅
+  if (dom?.nodeType === Node.ELEMENT_NODE && visible.value) {
     close()
     nextTick(() => open())
   }

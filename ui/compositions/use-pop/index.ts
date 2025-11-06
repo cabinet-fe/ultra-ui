@@ -100,7 +100,12 @@ export function usePop(options: Options): PopResult {
     const triggerEl = triggerRef.value
     const contentEl = contentRef.value
 
-    if (!triggerEl || !contentEl) return
+    if (
+      !(triggerEl instanceof HTMLElement) ||
+      !(contentEl instanceof HTMLElement)
+    ) {
+      return
+    }
 
     onBeforeUpdate?.(triggerEl, contentEl)
 

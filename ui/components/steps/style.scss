@@ -46,6 +46,7 @@ $root-name: steps;
 
   @include m.e(icon) {
     display: flex;
+    cursor: default;
     border: 2px solid currentColor;
     border-radius: 50%;
     align-items: center;
@@ -63,6 +64,7 @@ $root-name: steps;
   @include m.is(horizontal) {
     display: flex;
     justify-content: space-between;
+    overflow: hidden;
 
     @include m.bem($root-name, item) {
       flex: 1;
