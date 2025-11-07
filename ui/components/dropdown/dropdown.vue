@@ -26,7 +26,8 @@ import {
   computed,
   createVNode,
   cloneVNode,
-  useTemplateRef
+  useTemplateRef,
+  useAttrs
 } from 'vue'
 import { vClickOutside } from '@ui/directives'
 import { useModel, usePop, useTransition } from '@ui/compositions'
@@ -84,12 +85,14 @@ const dropdownVisible = useNest(visible)
 
 let closeTimer: number | undefined
 
+const attrs = useAttrs()
 function renderTriggerNode() {
   const slotsNode = slots.trigger?.()
   if (!slotsNode) return null
   const nodes = extractNormalVNodes(slotsNode)
   const props = {
     class: cls.b,
+    ...attrs,
     ...eventsHandlers.value
   }
   if (nodes.length === 1) return cloneVNode(nodes[0]!, props)
