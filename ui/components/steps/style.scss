@@ -62,6 +62,21 @@ $root-name: steps;
     }
   }
 
+  @keyframes steps-icon-breathing {
+    0% {
+      color: fn.use-var(text-color, placeholder);
+      border-color: fn.use-var(text-color, placeholder);
+    }
+    50% {
+      color: currentColor;
+      border-color: currentColor;
+    }
+    100% {
+      color: fn.use-var(text-color, placeholder);
+      border-color: fn.use-var(text-color, placeholder);
+    }
+  }
+
   @include m.e(icon) {
     display: flex;
     cursor: default;
@@ -72,6 +87,16 @@ $root-name: steps;
     background-color: fn.use-var(bg-color, top);
     position: relative;
     z-index: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  @include m.bem($root-name, item) {
+    @include m.is(current) {
+      @include m.bem($root-name, icon) {
+        animation: steps-icon-breathing 2s ease-in-out infinite;
+        will-change: opacity;
+      }
+    }
   }
 
   /** 步骤项描述 */
@@ -98,7 +123,7 @@ $root-name: steps;
             transparent 50%,
             transparent 100%
           );
-          background-size: 20px 2px;
+          background-size: 10px 2px;
           animation: steps-link-flow-horizontal 1s linear infinite;
         }
       }
@@ -142,7 +167,7 @@ $root-name: steps;
             transparent 50%,
             transparent 100%
           );
-          background-size: 2px 20px;
+          background-size: 2px 10px;
           animation: steps-link-flow-vertical 1s linear infinite;
         }
       }
