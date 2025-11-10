@@ -150,12 +150,9 @@ $root-name: steps;
   }
 
   @include m.is(vertical) {
-    @include m.bem($root-name, node) {
-      padding: 20px 0;
-    }
     @include m.bem($root-name, item) {
-      display: flex;
-      align-items: center;
+      min-height: 60px;
+      @include m.flex($align: stretch, $wrap: nowrap);
 
       @include m.is(current) {
         @include m.bem($root-name, link) {

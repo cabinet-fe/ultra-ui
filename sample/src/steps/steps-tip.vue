@@ -1,4 +1,5 @@
 <template>
+  <div>鼠标浮动在图标上</div>
   <u-steps :items :current="current">
     <template #tip="{ item }">
       {{ item.tip }}
