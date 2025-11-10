@@ -37,16 +37,16 @@ const columns = defineTableColumns([
   {
     key: 'score',
     name: '分数',
-    align: 'center',
-    summary(ctx) {
-      if (ctx.checkedRows.size) {
-        return Array.from(ctx.checkedRows).reduce(
-          (acc, cur) => acc + cur.data[ctx.column.key],
-          0
-        )
-      }
-      return ctx.total
-    }
+    align: 'center'
+    // summary(ctx) {
+    //   if (ctx.checkedRows.size) {
+    //     return Array.from(ctx.checkedRows).reduce(
+    //       (acc, cur) => acc + cur.data[ctx.column.key],
+    //       0
+    //     )
+    //   }
+    //   return ctx.total
+    // }
   },
   { key: 'action', name: '操作', align: 'center' }
 ])

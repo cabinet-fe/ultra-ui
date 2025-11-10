@@ -71,9 +71,11 @@ $root-name: table;
       }
     }
 
+    // 内部行之间的边框，使用负边距避免叠加
     &:not(:last-child) {
       @include m.bem($root-name, cell) {
         border-bottom: 1px solid fn.use-var(table, border-color);
+        margin-bottom: -1px;
       }
     }
   }
@@ -96,8 +98,10 @@ $root-name: table;
 
   @include m.is(border) {
     @include m.bem($root-name, cell) {
+      // 内部列之间的边框，使用负边距避免叠加
       &:not(:last-child) {
         border-right: 1px solid fn.use-var(table, border-color);
+        margin-right: -1px;
       }
     }
   }
@@ -126,8 +130,13 @@ $root-name: table;
 
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
-        border-right: 1px solid fn.use-var(table, border-color);
+        // 多级表头内部边框，使用负边距避免叠加
+        &:not(:last-child) {
+          border-right: 1px solid fn.use-var(table, border-color);
+          margin-right: -1px;
+        }
         border-bottom: 1px solid fn.use-var(table, border-color);
+        margin-bottom: -1px;
       }
     }
   }
@@ -174,8 +183,10 @@ $root-name: table;
     left: 0;
     bottom: 0;
 
+    // 表脚与表体之间的分隔线，使用负边距避免叠加
     @include m.bem($root-name, cell) {
       border-top: 1px solid fn.use-var(table, border-color);
+      margin-top: -1px;
     }
   }
 

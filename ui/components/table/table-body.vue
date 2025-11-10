@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, nextTick, shallowRef, watch } from 'vue'
+import { computed, inject, shallowRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import UTableRow from './table-row'
 import { UEmpty } from '../empty'
