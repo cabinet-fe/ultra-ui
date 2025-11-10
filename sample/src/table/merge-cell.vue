@@ -7,6 +7,7 @@
       :columns="columns"
       style="height: 300px"
       :stripe="false"
+      border
     >
       <template #column:secondQuota="{ val, row }">
         <span>{{ val }}</span>

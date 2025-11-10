@@ -94,6 +94,14 @@ $root-name: table;
     }
   }
 
+  @include m.is(border) {
+    @include m.bem($root-name, cell) {
+      &:not(:last-child) {
+        border-right: 1px solid fn.use-var(table, border-color);
+      }
+    }
+  }
+
   @include m.e(expand-space) {
     display: inline-block;
     font-size: 0;
@@ -118,9 +126,8 @@ $root-name: table;
 
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
-        box-shadow:
-          -1px 0px fn.use-var(table, border-color) inset,
-          0px -1px fn.use-var(table, border-color) inset;
+        border-right: 1px solid fn.use-var(table, border-color);
+        border-bottom: 1px solid fn.use-var(table, border-color);
       }
     }
   }
@@ -166,6 +173,10 @@ $root-name: table;
     position: sticky;
     left: 0;
     bottom: 0;
+
+    @include m.bem($root-name, cell) {
+      border-top: 1px solid fn.use-var(table, border-color);
+    }
   }
 
   @include m.e(cell) {

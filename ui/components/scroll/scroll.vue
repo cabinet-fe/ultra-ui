@@ -6,8 +6,6 @@
       @scroll.passive="handleScroll"
       :style="containerStyle"
     >
-      <slot name="content" />
-
       <component
         ref="contentRef"
         :style="contentStyle"
@@ -201,17 +199,16 @@ const scrollToLeft = (left: number) => {
   if (!container) return
 
   container.scrollTo({
-    left,
-    behavior: 'smooth'
+    left
   })
 }
 
 const scrollToTop = (top: number) => {
   const container = containerRef.value
   if (!container) return
+
   container.scrollTo({
-    top,
-    behavior: 'smooth'
+    top
   })
 }
 

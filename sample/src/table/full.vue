@@ -1,26 +1,34 @@
 <template>
   <CustomCard title="使用方式">
-    <u-button @click="handleClose" type="primary">展示最后两条</u-button>
-    <u-checkbox
-      v-model="state.checkable"
-      @update:model-value="state.selectable = false"
-    >
-      多选
-    </u-checkbox>
-    <u-checkbox
-      v-model="state.selectable"
-      @update:model-value="state.checkable = false"
-    >
-      单选
-    </u-checkbox>
-    <u-checkbox v-model="state.tree">树形结构</u-checkbox>
-    <u-checkbox v-model="state.textEllipsis">文本溢出省略</u-checkbox>
-    <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
-    <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
-    <u-checkbox v-model="showData">显示数据</u-checkbox>
-    <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
-    <u-checkbox v-model="state.showIndex">显示序号</u-checkbox>
-    <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
+    <div>
+      <u-button @click="toggleData" type="primary"
+        >{{ dataLen }}条数据</u-button
+      >
+    </div>
+
+    <div style="display: flex; gap: 20px">
+      <u-checkbox
+        v-model="state.checkable"
+        @update:model-value="state.selectable = false"
+      >
+        多选
+      </u-checkbox>
+      <u-checkbox
+        v-model="state.selectable"
+        @update:model-value="state.checkable = false"
+      >
+        单选
+      </u-checkbox>
+      <u-checkbox v-model="state.tree">树形结构</u-checkbox>
+      <u-checkbox v-model="state.textEllipsis">文本溢出省略</u-checkbox>
+      <u-checkbox v-model="fixedHeight">固定高度</u-checkbox>
+      <u-checkbox v-model="multiLevelHeader">多级表头</u-checkbox>
+      <u-checkbox v-model="showData">显示数据</u-checkbox>
+      <u-checkbox v-model="state.editing">编辑模式</u-checkbox>
+      <u-checkbox v-model="state.showIndex">显示序号</u-checkbox>
+      <u-checkbox v-model="state.highlightCurrent">高亮选中行</u-checkbox>
+      <u-checkbox v-model="state.border">边框</u-checkbox>
+    </div>
 
     <u-table
       v-if="true"
@@ -52,7 +60,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from 'ultra-ui'
-import { ref, shallowReactive, shallowRef, watch } from 'vue'
+import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Tree } from 'cat-kit/fe'
 
@@ -63,7 +71,8 @@ const state = shallowReactive({
   showIndex: false,
   highlightCurrent: false,
   editing: false,
-  textEllipsis: false
+  textEllipsis: false,
+  border: false
 })
 
 const fixedHeight = shallowRef(true)
@@ -117,59 +126,58 @@ const _columns = defineTableColumns(
   { minWidth: 100 }
 )
 
-const data = ref<Record<string, any>[]>(
-   Array.from({ length: 1000 }).map((_, index) => {
-  return {
-    sex: index % 2 === 0 ? '男' : '女',
-    name: 'name' + index,
-    age: Math.round(Math.random() * 100),
-    province: '江苏省' + index,
-    city: '苏州市' + index,
-    area: '姑苏区' + index,
-    street: `金昌街道${index}`.repeat(Math.round(Math.random() * 4)),
-    community: `彩香花园${index}`,
-    b: 'aa',
-    a: 'aa',
-    children: [
-      {
-        sex: '未知',
-        name: 'name' + index + '-0',
-        age: Math.round(Math.random() * 100),
-        province: '江苏省',
-        city: '苏州市',
-        area: '姑苏区',
-        street: '金昌街道',
-        community: '彩香花园',
-        b: 'aa',
-        a: 'aa',
-        children: [
-          {
-            sex: '未知',
-            name: 'name' + index + '-0-0',
-            age: Math.round(Math.random() * 100),
-            province: '江苏省',
-            city: '苏州市',
-            area: '姑苏区',
-            street: '金昌街道',
-            community: '彩香花园',
-            b: 'aa',
-            a: 'aa'
-          }
-        ]
-      }
-    ]
-  }
+const dataLen = shallowRef(1000)
+const data = computed(() => {
+  return Array.from({ length: dataLen.value }).map((_, index) => {
+    return {
+      sex: index % 2 === 0 ? '男' : '女',
+      name: 'name' + index,
+      age: Math.round(Math.random() * 100),
+      province: '江苏省' + index,
+      city: '苏州市' + index,
+      area: '姑苏区' + index,
+      street: `金昌街道${index}`.repeat(Math.round(Math.random() * 4)),
+      community: `彩香花园${index}`,
+      b: 'aa',
+      a: 'aa',
+      children: [
+        {
+          sex: '未知',
+          name: 'name' + index + '-0',
+          age: Math.round(Math.random() * 100),
+          province: '江苏省',
+          city: '苏州市',
+          area: '姑苏区',
+          street: '金昌街道',
+          community: '彩香花园',
+          b: 'aa',
+          a: 'aa',
+          children: [
+            {
+              sex: '未知',
+              name: 'name' + index + '-0-0',
+              age: Math.round(Math.random() * 100),
+              province: '江苏省',
+              city: '苏州市',
+              area: '姑苏区',
+              street: '金昌街道',
+              community: '彩香花园',
+              b: 'aa',
+              a: 'aa'
+            }
+          ]
+        }
+      ]
+    }
+  })
 })
-)
 const checked = shallowRef([])
-const selected = shallowRef(data[0]!)
+const selected = shallowRef(data.value[0]!)
 
 const columns = shallowRef<any[]>([])
 
-const handleClose = () => {
-  const newData = data.value.splice(data.value.length - 2, 2)
-  console.log(newData)
-  data.value=newData
+const toggleData = () => {
+  dataLen.value = dataLen.value === 1000 ? 72 : 1000
 }
 
 watch(

@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, shallowRef, watch } from 'vue'
+import { computed, inject, nextTick, shallowRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import UTableRow from './table-row'
 import { UEmpty } from '../empty'
@@ -60,10 +60,18 @@ const tableRows = computed(() => {
 
 const bodyRef = shallowRef<HTMLElement>()
 
-watch(virtualList, list => {
+function setBodyTransform(transformY: number) {
   bodyRef.value &&
     setStyles(bodyRef.value, {
-      transform: `translate3d(0, ${list[0]?.start ?? 0}px, 0)`
+      transform: `translate3d(0, ${transformY}px, 0)`
     })
+}
+
+watch(virtualList, list => {
+  setBodyTransform(list[0]?.start ?? 0)
+})
+
+defineExpose({
+  setBodyTransform
 })
 </script>

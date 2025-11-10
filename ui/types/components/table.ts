@@ -129,6 +129,11 @@ export interface TableProps<
    */
   stripe?: boolean
   /**
+   * 是否开启边框
+   * @default false
+   */
+  border?: boolean
+  /**
    * 虚拟列表阈值
    * @default 80
    */

@@ -8,7 +8,7 @@
       always
     >
       <ul>
-        <li style="width: 2000px" v-for="i of 2" :key="i">
+        <li style="width: 2000px" v-for="i of 200" :key="i">
           {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
           }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
           }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
@@ -30,6 +30,9 @@
         </template>
       </u-dropdown>
     </u-scroll>
+
+    <u-button @click="scrollToTop">滚动到顶部</u-button>
+    <u-button @click="scrollToLeft">滚动到左侧</u-button>
   </div>
 </template>
 
@@ -38,6 +41,18 @@ import type { ScrollExposed } from 'ultra-ui'
 import { shallowRef } from 'vue'
 
 const scrollbarRef = shallowRef<ScrollExposed>()
+
+function scrollToTop() {
+  scrollbarRef.value?.scrollTo({
+    y: 0
+  })
+}
+
+function scrollToLeft() {
+  scrollbarRef.value?.scrollTo({
+    x: 0
+  })
+}
 </script>
 
 <style lang="scss">

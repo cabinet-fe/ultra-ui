@@ -3,6 +3,7 @@
     :class="[
       cls.b,
       cls.m(size),
+      bem.is('border', border),
       bem.is('all-expanded', allExpanded),
       bem.is('text-ellipsis', textEllipsis)
     ]"
@@ -24,7 +25,7 @@
       </colgroup>
       <UTableHead />
 
-      <u-table-body>
+      <u-table-body ref="tableBody">
         <slot name="body" :columns="leafColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">
@@ -70,6 +71,7 @@ import type {
 import { bem, setStyles, withUnit } from '@ui/utils'
 import {
   computed,
+  nextTick,
   provide,
   shallowRef,
   toRef,
@@ -209,26 +211,21 @@ const spaceRef = shallowRef<HTMLElement>()
 watch(
   spaceHeight,
   spaceHeight => {
-    spaceRef.value &&
-      setStyles(spaceRef.value, {
-        height: spaceHeight ? `${spaceHeight}px` : undefined
-      })
+    nextTick(() => {
+      spaceRef.value &&
+        setStyles(spaceRef.value, {
+          height: spaceHeight ? `${spaceHeight}px` : undefined
+        })
+    })
   },
   { immediate: true }
 )
 
-// 不是虚拟列表重置cls.e('body')偏移量
-watch(
-  virtualEnabled,
-  (enabled) => {
-    if (!enabled && scrollRef.value?.containerRef) {
-      setStyles(scrollRef.value.el?.querySelector(`.${cls.e('body')}`)!, {
-        transform: 'translate3d(0px, 0px, 0px)'
-      })
-    }
-  },
-  { immediate: true }
-)
+const tableBodyRef = useTemplateRef('tableBody')
+watch(rows, () => {
+  tableBodyRef.value?.setBodyTransform(0)
+  scrollRef.value?.scrollTo({ y: 0 })
+})
 
 const tipRef = shallowRef()
 
