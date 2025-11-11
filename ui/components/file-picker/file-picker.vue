@@ -42,6 +42,7 @@ const handleChange = (e: Event) => {
 }
 
 function handleClickPicker() {
+  console.log(11)
   if (props.disabled) return
   fileRef.value?.click()
 }

@@ -11,6 +11,7 @@
         :class="cls.b"
         :loading
         :circle
+        :propagate="false"
         v-bind="{ ...buttonProps, ...$attrs }"
       >
         <slot />
@@ -23,8 +24,9 @@
     :class="cls.b"
     :loading
     :circle
+    :propagate="false"
     v-bind="{ ...buttonProps, ...$attrs }"
-    @click.stop="emit('run')"
+    @click="emit('run')"
   >
     <slot />
   </u-button>
@@ -54,7 +56,7 @@ const props = withDefaults(defineProps<ActionProps>(), {
 })
 
 const buttonProps = computed(() => {
-  return omit(props, ['needConfirm', 'loading', 'circle'])
+  return omit(props, ['needConfirm', 'loading', 'circle', 'propagate'])
 })
 
 const emit = defineEmits<ActionEmits>()
