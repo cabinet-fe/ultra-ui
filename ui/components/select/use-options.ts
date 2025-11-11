@@ -17,6 +17,8 @@ interface UseOptionsReturned {
   queryString: ShallowRef<string>
   /** 选项 */
   options: ComputedRef<Record<string, any>[]>
+  /** 所有选项 */
+  allOptions: ComputedRef<Record<string, any>[]>
   /** 将临时选项转换为创建的选项 */
   temOptionsToCreatedOptions: () => void
 }
@@ -74,6 +76,12 @@ export function useOptions(o: Options): UseOptionsReturned {
     }
   }
 
+  const allOptions = computed(() => {
+    const { options } = props
+    if (typeof options === 'function') return remoteOptions.value
+    return options ?? []
+  })
+
   /** 展示的选项 */
   const options = computed(() => {
     const { options } = props
@@ -126,6 +134,7 @@ export function useOptions(o: Options): UseOptionsReturned {
   return {
     queryString,
     options,
+    allOptions,
     temOptionsToCreatedOptions
   }
 }

@@ -10,6 +10,7 @@
     ref="dropdownRef"
     :min-width="minWidth"
     :width="width"
+    @update:visible="handleDropdownVisible"
   >
     <template #trigger>
       <!-- 默认展示 -->
@@ -325,4 +326,10 @@ const hiddenCount = computed(() => {
   }
   return 0
 })
+
+const handleDropdownVisible = (visible: boolean) => {
+  if (!visible) {
+    qs.value = ''
+  }
+}
 </script>

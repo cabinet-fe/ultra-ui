@@ -16,8 +16,13 @@ $root-name: table;
 @include m.b($root-name) {
   width: 100%;
   position: relative;
+  border: 1px solid fn.use-var(table, border-color);
+  border-bottom: none;
+  overflow: hidden;
 
   @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+
     @include m.bem($root-name, expand-toggle) {
       font-size: fn.use-var(font-size, main, $size);
     }
@@ -70,14 +75,6 @@ $root-name: table;
         }
       }
     }
-
-    // 内部行之间的边框，使用负边距避免叠加
-    &:not(:last-child) {
-      @include m.bem($root-name, cell) {
-        border-bottom: 1px solid fn.use-var(table, border-color);
-        margin-bottom: -1px;
-      }
-    }
   }
 
   @include m.e(expand-toggle, expand-all) {
@@ -97,12 +94,10 @@ $root-name: table;
   }
 
   @include m.is(border) {
+    border-right: none;
     @include m.bem($root-name, cell) {
-      // 内部列之间的边框，使用负边距避免叠加
-      &:not(:last-child) {
-        border-right: 1px solid fn.use-var(table, border-color);
-        margin-right: -1px;
-      }
+      border-right: 1px solid fn.use-var(table, border-color);
+      margin-right: -1px;
     }
   }
 
@@ -130,11 +125,8 @@ $root-name: table;
 
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
-        // 多级表头内部边框，使用负边距避免叠加
-        &:not(:last-child) {
-          border-right: 1px solid fn.use-var(table, border-color);
-          margin-right: -1px;
-        }
+        border-right: 1px solid fn.use-var(table, border-color);
+        margin-right: -1px;
         border-bottom: 1px solid fn.use-var(table, border-color);
         margin-bottom: -1px;
       }
@@ -186,6 +178,7 @@ $root-name: table;
     // 表脚与表体之间的分隔线，使用负边距避免叠加
     @include m.bem($root-name, cell) {
       border-top: 1px solid fn.use-var(table, border-color);
+
       margin-top: -1px;
     }
   }
@@ -193,6 +186,9 @@ $root-name: table;
   @include m.e(cell) {
     background-color: fn.use-var(bg-color, top);
     word-break: break-all;
+    border-bottom: 1px solid fn.use-var(table, border-color);
+    margin-bottom: -1px;
+
     position: relative;
     line-height: 1;
 

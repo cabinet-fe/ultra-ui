@@ -38,6 +38,24 @@ export interface SelectProps extends FormComponentProps {
   width?: string
   /** 是否允许创建新的选项 */
   creatable?: boolean
+
+  /**
+   * 配置网格布局
+   *
+   * - 开启网格布局将会导致虚拟滚动失效，因此网格布局不适合大量数据
+   * @example
+   * ```ts
+   * const grid = true
+   * // 或者
+   * const grid = {
+   *   cols: 12,
+   *   gap: 10
+   * }
+   */
+  grid?: {
+    cols: number
+    gap?: number
+  }
 }
 
 export interface SelectEmits {

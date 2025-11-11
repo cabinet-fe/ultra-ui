@@ -32,6 +32,15 @@ $root-name: select;
         }
       }
     }
+
+    @include m.is(grid) {
+      display: grid;
+
+      @include m.bem($root-name, option) {
+        height: auto;
+        line-height: auto;
+      }
+    }
   }
 
   @include m.e(option) {

@@ -11,6 +11,7 @@
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     :disabled="disabled"
+    @update:visible="handleDropdownVisible"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -206,7 +207,7 @@ const scrollRef = shallowRef<ScrollExposed>()
 
 const hovered = shallowRef(false)
 
-const { options, queryString } = useOptions({
+const { options, queryString, allOptions } = useOptions({
   props
 })
 
@@ -253,7 +254,7 @@ const indeterminate = computed(() => {
 const optionsMap = computed(() => {
   const { valueKey } = props
   return new Map<string | number, Record<string, any>>(
-    options.value.map(option => [option[valueKey], option])
+    allOptions.value.map(option => [option[valueKey], option])
   )
 })
 
@@ -321,6 +322,12 @@ const tags = computed(() => {
 const restTag = computed(() => {
   return (model.value?.length ?? 0) - tags.value.length
 })
+
+const handleDropdownVisible = (visible: boolean) => {
+  if (!visible) {
+    queryString.value = ''
+  }
+}
 
 const handleCheck = (option: Record<string, any>, checked: boolean) => {
   if (checked) {

@@ -2,7 +2,7 @@
   <div>
     <CustomCard title="使用">
       <u-multi-select
-        :max="3"
+        :max="4"
         :visibility-limit="20"
         filterable
         v-model="checked"

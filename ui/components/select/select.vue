@@ -11,6 +11,7 @@
     :min-width="minWidth"
     :width="width"
     @keydown="handleKeydown"
+    @update:visible="handleDropdownVisible"
   >
     <!-- 触发 -->
     <template #trigger>
@@ -60,10 +61,15 @@
         ref="scrollRef"
         :content-class="[
           cls.e('options-wrap'),
-          bem.is('virtual', virtualEnabled)
+          bem.is('virtual', virtualEnabled),
+          bem.is('grid', !!grid)
         ]"
         :content-style="{
-          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
+          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined,
+          gridTemplateColumns: grid
+            ? `repeat(${grid.cols}, minmax(0px, 1fr))`
+            : undefined,
+          gridGap: grid ? withUnit(grid.gap, 'px') : undefined
         }"
       >
         <template v-if="virtualEnabled">
@@ -158,6 +164,8 @@ const emit = defineEmits<SelectEmits>()
 defineSlots<{
   /** 前缀插槽 */
   prefix?: () => any
+  /** 默认插槽 */
+  default?: (scope: { option: Record<string, any>; index: number }) => any
 }>()
 
 const cls = bem('select')
@@ -220,14 +228,23 @@ watch(selected, selected => {
   })
 })
 
-const { virtualList, totalHeight, virtualEnabled, scrollTo, measureElement } =
-  useVirtual({
-    count: computed(() => options.value.length),
-    virtualThreshold: 80,
-    scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-    gap: 2,
-    estimateSize: () => 40
-  })
+const {
+  virtualList,
+  totalHeight,
+  virtualEnabled: _virtualEnabled,
+  scrollTo,
+  measureElement
+} = useVirtual({
+  count: computed(() => options.value.length),
+  virtualThreshold: 80,
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
+  gap: 2,
+  estimateSize: () => 40
+})
+
+const virtualEnabled = computed(() => {
+  return _virtualEnabled.value && !props.grid
+})
 
 const virtualOptions = computed(() => {
   const _options = options.value
@@ -270,6 +287,12 @@ watch(dropdownVisible, v => {
     queryString.value = ''
   }
 })
+
+const handleDropdownVisible = (visible: boolean) => {
+  if (!visible) {
+    queryString.value = ''
+  }
+}
 
 /** 单选 */
 const handleSelect = (option: Record<string, any>, index: number) => {

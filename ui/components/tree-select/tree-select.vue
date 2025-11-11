@@ -8,6 +8,7 @@
     ref="dropdownRef"
     :min-width="minWidth"
     :width="width"
+    @update:visible="handleDropdownVisible"
   >
     <template #trigger>
       <u-input
@@ -191,5 +192,11 @@ const handleSelect = (
   emit('change', selected, selectedData)
   emit('update:text', label.value)
   dropdownRef.value?.close()
+}
+
+const handleDropdownVisible = (visible: boolean) => {
+  if (!visible) {
+    qs.value = ''
+  }
 }
 </script>

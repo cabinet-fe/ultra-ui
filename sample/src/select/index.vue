@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; justify-content: center">
+  <div>
     <CustomCard width="400px" title="使用">
       <div style="margin-bottom: 8px">
         <div style="font-size: 12px; color: #666; margin-bottom: 4px">
@@ -9,13 +9,32 @@
         <u-checkbox v-model="creatable">允许创建</u-checkbox>
       </div>
       <u-select v-model="selected" :filterable :creatable :options="options" />
-      <u-number-input v-model="count" step />
     </CustomCard>
 
     <CustomCard width="400px" title="函数选项">
       <div>自动启用filter属性</div>
 
       <u-select v-model="selected" :options="optionsGetter" />
+    </CustomCard>
+
+    <CustomCard width="400px" title="网格布局">
+      <u-select
+        v-model="selected"
+        :options="options"
+        filterable
+        value-key="value"
+        :grid="{ cols: 4, gap: 10 }"
+        v-slot="{ option }"
+      >
+        <div style="height: 80px; text-align: center">
+          <div>
+            <u-icon :size="30">
+              <Monitor />
+            </u-icon>
+          </div>
+          {{ option?.label }}
+        </div>
+      </u-select>
     </CustomCard>
   </div>
 </template>
@@ -24,6 +43,7 @@
 import { shallowRef, watchEffect } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { sleep } from 'cat-kit/fe'
+import { Monitor } from '@ultra/icon'
 
 const options = shallowRef<any[]>([])
 
