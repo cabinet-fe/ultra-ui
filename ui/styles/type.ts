@@ -244,5 +244,10 @@ export type Theme = {
       bg: string
       color: string
     }
+    /** 选中行 */
+    checked: {
+      bg: string
+      color: string
+    }
   }
 }

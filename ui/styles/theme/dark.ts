@@ -97,6 +97,14 @@ export const darkTheme: UITheme = lightTheme.new({
     hover: {
       bg: '#333333', // 悬停行背景色
       color: cssVar('text-color-title')
+    },
+    current: {
+      bg: cssVar('bg-color-hover'),
+      color: 'inherit'
+    },
+    checked: {
+      bg: cssVar('color-primary-dark-1' as any),
+      color: 'inherit'
     }
   }
 })

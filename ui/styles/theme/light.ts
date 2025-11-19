@@ -155,6 +155,10 @@ export const lightTheme: UITheme = new UITheme({
     current: {
       bg: cssVar('bg-color-hover'),
       color: 'inherit'
+    },
+    checked: {
+      bg: cssVar('color-primary-light-9' as any),
+      color: 'inherit'
     }
   },
 
