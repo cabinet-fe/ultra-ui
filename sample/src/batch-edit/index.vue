@@ -26,8 +26,8 @@
         :actions-props="{
           delete: {
             needConfirm: true,
-            circle: false,
-          },
+            circle: false
+          }
         }"
         :tree="tree"
         style="height: 500px"
@@ -35,7 +35,7 @@
         :save-method="asynchronous ? saveMethod : undefined"
         @created="
           model.setData({
-            age: 666,
+            age: 666
           })
         "
       >
@@ -44,7 +44,8 @@
             {{ row.depth }} {{ row.data.name }}
           </span>
         </template>
-        <template #form="{ data }">
+        <template #form="{ data, depth }">
+          {{ depth }}
           <!-- 基础信息 -->
           <u-input field="name" label="姓名" placeholder="请输入姓名" />
           <u-number-input field="age" label="年龄" :min="0" :max="120" />
@@ -181,56 +182,41 @@
 </template>
 
 <script lang="ts" setup>
-import { sleep } from "cat-kit/fe";
-import { FormModel, message, defineTableColumns } from "ultra-ui";
-import { shallowRef } from "vue";
-import "ultra-ui/components/message/style.js";
-import type { BatchEditFeature } from "ultra-ui/types";
+import { sleep } from 'cat-kit/fe'
+import { FormModel, message, defineTableColumns } from 'ultra-ui'
+import { shallowRef } from 'vue'
+import 'ultra-ui/components/message/style.js'
+import type { BatchEditFeature } from 'ultra-ui/types'
 
-const readonly = shallowRef(false);
-const tree = shallowRef(false);
-const resizable = shallowRef(true);
-const dialogVisible = shallowRef(false);
+const readonly = shallowRef(false)
+const tree = shallowRef(false)
+const resizable = shallowRef(true)
+const dialogVisible = shallowRef(false)
 
 const columns = defineTableColumns([
-  { name: "姓名", key: "name", rules: { required: true }, width: 120 },
-  { name: "年龄", key: "age", rules: { max: 120 }, width: 80 },
-  { name: "性别", key: "gender", width: 80 },
-  { name: "部门", key: "department", width: 120 },
-  { name: "职位", key: "position", width: 120 },
-  { name: "邮箱", key: "email", width: 180 },
-  { name: "电话", key: "phone", width: 120 },
-  { name: "薪资", key: "salary", width: 100 },
-  { name: "评分", key: "score", width: 80 },
-  { name: "工作类型", key: "workType", width: 100 },
-  { name: "入职日期", key: "joinDate", width: 120 },
-  { name: "单选级联选择器", key: "cascade", width: 150 },
-]);
+  { name: '姓名', key: 'name', rules: { required: true }, width: 120 },
+  { name: '年龄', key: 'age', rules: { max: 120 }, width: 80 },
+  { name: '性别', key: 'gender', width: 80 },
+  { name: '部门', key: 'department', width: 120 },
+  { name: '职位', key: 'position', width: 120 },
+  { name: '邮箱', key: 'email', width: 180 },
+  { name: '电话', key: 'phone', width: 120 },
+  { name: '薪资', key: 'salary', width: 100 },
+  { name: '评分', key: 'score', width: 80 },
+  { name: '工作类型', key: 'workType', width: 100 },
+  { name: '入职日期', key: 'joinDate', width: 120 },
+  { name: '单选级联选择器', key: 'cascade', width: 150 }
+])
 
-const data = shallowRef();
-const checked = shallowRef([]);
+const data = shallowRef()
+const checked = shallowRef([])
 
 setTimeout(() => {
-  const names = [
-    "张三",
-    "李四",
-    "王五",
-    "赵六",
-    "钱七",
-    "孙八",
-    "周九",
-    "吴十",
-  ];
-  const departments = ["tech", "marketing", "sales", "hr", "finance"];
-  const positions = [
-    "engineer",
-    "manager",
-    "director",
-    "specialist",
-    "analyst",
-  ];
-  const genders = ["male", "female"];
-  const workTypes = ["fulltime", "parttime", "contract"];
+  const names = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十']
+  const departments = ['tech', 'marketing', 'sales', 'hr', 'finance']
+  const positions = ['engineer', 'manager', 'director', 'specialist', 'analyst']
+  const genders = ['male', 'female']
+  const workTypes = ['fulltime', 'parttime', 'contract']
 
   data.value = Array.from({ length: 8 }).map((_, i) => ({
     name: names[i] || `员工${i}`,
@@ -239,53 +225,53 @@ setTimeout(() => {
     department: departments[Math.floor(Math.random() * departments.length)],
     position: positions[Math.floor(Math.random() * positions.length)],
     email: `user${i}@company.com`,
-    phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, "0")}`,
+    phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, '0')}`,
     salary: (Math.floor(Math.random() * 20) + 5) * 1000,
     score: Math.floor(Math.random() * 100),
     workType: workTypes[Math.floor(Math.random() * workTypes.length)],
     joinDate: new Date(
       2020 + Math.floor(Math.random() * 4),
       Math.floor(Math.random() * 12),
-      Math.floor(Math.random() * 28) + 1,
+      Math.floor(Math.random() * 28) + 1
     )
       .toISOString()
-      .split("T")[0],
+      .split('T')[0],
     birthday: new Date(
       1980 + Math.floor(Math.random() * 30),
       Math.floor(Math.random() * 12),
-      Math.floor(Math.random() * 28) + 1,
+      Math.floor(Math.random() * 28) + 1
     )
       .toISOString()
-      .split("T")[0],
+      .split('T')[0],
     address: `北京市朝阳区某街道${i + 1}号`,
     description: `这是员工${i + 1}的个人描述`,
-    skills: ["javascript", "vue"].slice(0, Math.floor(Math.random() * 3) + 1),
+    skills: ['javascript', 'vue'].slice(0, Math.floor(Math.random() * 3) + 1),
     experience: Math.floor(Math.random() * 15),
     props: {
       label: `标签${i}`,
-      field: `field${i}`,
+      field: `field${i}`
     },
     contact: {
       qq: `12345678${i}`,
-      wechat: `wx_user${i}`,
+      wechat: `wx_user${i}`
     },
-    id: Math.random(),
-  }));
-}, 500);
+    id: Math.random()
+  }))
+}, 500)
 
 const model = new FormModel({
   name: { required: true },
   age: {
     max: 120,
     min: 0,
-    value: () => Math.floor(Math.random() * 40) + 20,
+    value: () => Math.floor(Math.random() * 40) + 20
   },
   email: {
     required: true,
-    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "请输入有效的邮箱地址"],
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址']
   },
   phone: {
-    match: [/^1[3-9]\d{9}$/, "请输入有效的手机号码"],
+    match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码']
   },
   gender: { required: true },
   department: { required: true },
@@ -301,88 +287,88 @@ const model = new FormModel({
   experience: { min: 0, max: 20 },
   emergencyContact: { required: true },
   programmingLanguage: {},
-  "props.field": {},
-  "props.label": {},
-  "contact.qq": {},
-  "contact.wechat": {},
+  'props.field': {},
+  'props.label': {},
+  'contact.qq': {},
+  'contact.wechat': {},
   cascade: {},
   code: {},
-  unit: {},
-});
+  unit: {}
+})
 
 const features = shallowRef<BatchEditFeature[]>([
-  "create",
-  "update",
-  "copy",
-  "delete",
-  "view",
-]);
+  'create',
+  'update',
+  'copy',
+  'delete',
+  'view'
+])
 
 const items = [
-  { label: "新增", value: "create" },
-  { label: "更新", value: "update" },
-  { label: "复制", value: "copy" },
-  { label: "删除", value: "delete" },
-  { label: "查看", value: "view" },
-];
+  { label: '新增', value: 'create' },
+  { label: '更新', value: 'update' },
+  { label: '复制', value: 'copy' },
+  { label: '删除', value: 'delete' },
+  { label: '查看', value: 'view' }
+]
 
-const asynchronous = shallowRef(false);
+const asynchronous = shallowRef(false)
 
-const deleteMethod = async (row) => {
-  await sleep(2000);
+const deleteMethod = async row => {
+  await sleep(2000)
   // message.success('删除成功')
-  return Promise.reject("删除失败");
-};
+  return Promise.reject('删除失败')
+}
 
 const saveMethod = async (data, type) => {
-  await sleep(2000);
-  message.success("保存成功");
-};
+  await sleep(2000)
+  message.success('保存成功')
+}
 
 // 选项数据
 const units = [
-  { label: "单位1", value: "1" },
-  { label: "单位2", value: "2" },
-  { label: "单位3", value: "3" },
-];
+  { label: '单位1', value: '1' },
+  { label: '单位2', value: '2' },
+  { label: '单位3', value: '3' }
+]
 
 const genderOptions = [
-  { label: "男", value: "male" },
-  { label: "女", value: "female" },
-];
+  { label: '男', value: 'male' },
+  { label: '女', value: 'female' }
+]
 
 const departmentOptions = [
-  { label: "技术部", value: "tech" },
-  { label: "市场部", value: "marketing" },
-  { label: "销售部", value: "sales" },
-  { label: "人事部", value: "hr" },
-  { label: "财务部", value: "finance" },
-];
+  { label: '技术部', value: 'tech' },
+  { label: '市场部', value: 'marketing' },
+  { label: '销售部', value: 'sales' },
+  { label: '人事部', value: 'hr' },
+  { label: '财务部', value: 'finance' }
+]
 
 const positionOptions = [
-  { label: "工程师", value: "engineer" },
-  { label: "经理", value: "manager" },
-  { label: "总监", value: "director" },
-  { label: "专员", value: "specialist" },
-  { label: "分析师", value: "analyst" },
-];
+  { label: '工程师', value: 'engineer' },
+  { label: '经理', value: 'manager' },
+  { label: '总监', value: 'director' },
+  { label: '专员', value: 'specialist' },
+  { label: '分析师', value: 'analyst' }
+]
 
 const skillOptions = [
-  { label: "JavaScript", value: "javascript" },
-  { label: "Vue.js", value: "vue" },
-  { label: "React", value: "react" },
-  { label: "Node.js", value: "nodejs" },
-  { label: "Python", value: "python" },
-  { label: "Java", value: "java" },
-];
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'Vue.js', value: 'vue' },
+  { label: 'React', value: 'react' },
+  { label: 'Node.js', value: 'nodejs' },
+  { label: 'Python', value: 'python' },
+  { label: 'Java', value: 'java' }
+]
 
 const workTypeOptions = [
-  { label: "全职", value: "fulltime" },
-  { label: "兼职", value: "parttime" },
-  { label: "合同工", value: "contract" },
-];
+  { label: '全职', value: 'fulltime' },
+  { label: '兼职', value: 'parttime' },
+  { label: '合同工', value: 'contract' }
+]
 
-model.onChange((f) => {});
+model.onChange(f => {})
 </script>
 
 <style lang="scss" scoped></style>

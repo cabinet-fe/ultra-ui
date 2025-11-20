@@ -107,6 +107,8 @@ const slots = defineSlots<
       data: Model['data']
       /** 表单模型 */
       model: Model
+      /** 当前编辑的层级 */
+      depth?: number
       /** 当前编辑的行 */
       row?: TableRow
       /** 当前编辑的行索引 */

@@ -21,6 +21,8 @@ interface Options {
 }
 
 export interface BatchEditStates {
+  /** 层级 */
+  depth?: number
   visible: boolean
   type: 'create' | 'update'
   loading: boolean
@@ -48,6 +50,7 @@ export function useEdit(options: Options): EditReturned {
 
   /** 组件状态 */
   const state = shallowReactive<BatchEditStates>({
+    depth: undefined,
     visible: false,
     type: 'create',
     loading: false,
@@ -176,18 +179,21 @@ export function useEdit(options: Options): EditReturned {
   function handleCreate() {
     const { data } = props
     runCreate(() => {
+      state.depth = 1
       insertIndexes.value = [data?.length ?? 0]
     })
   }
 
   function handleInsertToPrev(row: TableRow) {
     runCreate(() => {
+      state.depth = row.depth
       insertIndexes.value = [...row.indexes]
     })
   }
 
   function handleInsertToNext(row: TableRow) {
     runCreate(() => {
+      state.depth = row.depth
       insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
     })
   }
@@ -195,6 +201,7 @@ export function useEdit(options: Options): EditReturned {
   function handleInsertChild(row: TableRow) {
     runCreate(() => {
       state.parentRow = row
+      state.depth = row.depth + 1
       row.expanded = true
 
       insertIndexes.value = [...row.indexes, row.children?.length ?? 0]
@@ -286,6 +293,7 @@ export function useEdit(options: Options): EditReturned {
 
     if (state.row === row) {
       state.row = undefined
+      state.depth = undefined
     }
 
     emit('update:data', data)
@@ -298,6 +306,7 @@ export function useEdit(options: Options): EditReturned {
     }
     state.row = undefined
     state.parentRow = undefined
+    state.depth = undefined
     props.model?.resetData()
     insertIndexes.value = []
   }

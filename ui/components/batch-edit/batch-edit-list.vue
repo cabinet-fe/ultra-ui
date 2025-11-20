@@ -84,22 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, type Slots } from "vue";
-import { omit } from "cat-kit/fe";
-import { Delete, InsertToPrev, InsertToNext, AddChild } from "@ultra/icon";
-import { BatchEditDIKey } from "./di";
-import { UTable } from "../table";
-import { UButton } from "../button";
-import { UActionGroup, UAction } from "../action";
-import type { BatchEditFeature, TableRow } from "@ui/types";
+import { computed, inject, type Slots } from 'vue'
+import { omit } from 'cat-kit/fe'
+import { Delete, InsertToPrev, InsertToNext, AddChild } from '@ultra/icon'
+import { BatchEditDIKey } from './di'
+import { UTable } from '../table'
+import { UButton } from '../button'
+import { UActionGroup, UAction } from '../action'
+import type { BatchEditFeature, TableRow } from '@ui/types'
 
 defineOptions({
-  name: "BatchEditList",
-});
+  name: 'BatchEditList'
+})
 
 defineProps<{
-  slots: Slots;
-}>();
+  slots: Slots
+}>()
 
 const {
   cls,
@@ -113,44 +113,45 @@ const {
   handleDelete,
   handleInsertToNext,
   handleInsertToPrev,
-  handleInsertChild,
-} = inject(BatchEditDIKey)!;
+  handleInsertChild
+} = inject(BatchEditDIKey)!
 
 const tableProps = computed(() => {
   return omit(props, [
-    "model",
-    "columns",
-    "cols",
-    "readonly",
-    "deleteMethod",
-    "saveMethod",
-    "features",
-  ]);
-});
+    'model',
+    'columns',
+    'cols',
+    'readonly',
+    'deleteMethod',
+    'saveMethod',
+    'features'
+  ])
+})
 
 const hasNot = (value: BatchEditFeature[]) =>
-  value.every((v) => !staticFeatures.value.has(v));
+  value.every(v => !staticFeatures.value.has(v))
 
 const columns = computed(() => {
-  if (props.readonly || hasNot(["create", "delete", "createChild"]))
-    return props.columns;
+  if (props.readonly || hasNot(['create', 'delete', 'createChild']))
+    return props.columns
 
   return (props.columns ?? []).concat({
-    name: "操作",
-    key: "__action__",
-    align: "center",
+    name: '操作',
+    key: '__action__',
+    align: 'center',
     width: 180,
-    fixed: "right",
-    resizable: false,
-  });
-});
+    fixed: 'right',
+    resizable: false
+  })
+})
 
 function handleUpdateCurrentRow(row?: TableRow) {
   if (
-    staticFeatures.value.has("update") ||
+    staticFeatures.value.has('update') ||
     dynamicFeatures.value.update?.(row)
   ) {
-    state.row = row;
+    state.row = row
+    state.depth = row?.depth
   }
 }
 </script>

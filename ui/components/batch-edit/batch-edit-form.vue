@@ -21,6 +21,7 @@
                 data,
                 model,
                 row: state.row,
+                depth: state.depth,
                 indexes: insertIndexes,
                 index: state.row?.index
               }"
