@@ -41,6 +41,18 @@
         :max="1000"
       />
     </div>
+
+    <div>
+      倍数:
+      <u-number-input
+        v-model="number2"
+        :multiple="10000"
+        format="currency"
+        suffix="万元"
+      />
+
+      {{ number2 }}
+    </div>
   </div>
 </template>
 
@@ -49,4 +61,6 @@ import { shallowRef } from 'vue'
 
 const number = shallowRef(2.999)
 const currency = shallowRef(false)
+
+const number2 = shallowRef(10000)
 </script>

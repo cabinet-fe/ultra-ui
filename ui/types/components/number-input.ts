@@ -17,6 +17,8 @@ export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
   max?: number
   /** 最小值 */
   min?: number
+  /** 倍数 */
+  multiple?: number
 }
 
 /** 数字输入组件定义的事件 */
