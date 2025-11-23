@@ -1,12 +1,17 @@
 import { $createTextNode, type LexicalNode } from 'lexical'
 import { $createVariableNode } from './nodes/variable-node'
+import type { VariableItem } from '@ui/types'
 
 /**
  * 解析表达式内容
  * @param content 表达式内容
+ * @param variableMap 变量映射表（可选，用于查找 label）
  * @returns 节点列表
  */
-export function parseContent(content: string): LexicalNode[] {
+export function parseContent(
+  content: string,
+  variableMap?: Map<string, VariableItem>
+): LexicalNode[] {
   const nodes: LexicalNode[] = []
 
   let prevItem: null | RegExpExecArray = null
@@ -24,7 +29,9 @@ export function parseContent(content: string): LexicalNode[] {
 
     prevItem = item
 
-    nodes.push($createVariableNode(variable))
+    // 从映射表中查找对应的 label
+    const label = variableMap?.get(variable)?.label
+    nodes.push($createVariableNode(variable, label))
   }
 
   return nodes

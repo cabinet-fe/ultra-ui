@@ -4,16 +4,17 @@ import {
   type SerializedLexicalNode,
   type NodeKey
 } from 'lexical'
-// import VariableBlock from "../components/variable-block.vue";
 import { UTag } from '../../tag'
 import type { VNode } from 'vue'
 
 interface SerializedVariableNode extends SerializedLexicalNode {
   variable: string
+  label?: string
 }
 
 export class VariableNode extends DecoratorNode<VNode> {
   __variable: string
+  __label: string
   __text: string
   __domNode: HTMLElement | null = null
 
@@ -22,18 +23,23 @@ export class VariableNode extends DecoratorNode<VNode> {
   }
 
   static override clone(node: VariableNode): VariableNode {
-    return new VariableNode(node.__variable, node.__key)
+    return new VariableNode(node.__variable, node.__label, node.__key)
   }
 
   static override importJSON(
     serializedNode: SerializedVariableNode
   ): VariableNode {
-    return new VariableNode(serializedNode.variable)
+    return new VariableNode(
+      serializedNode.variable,
+      serializedNode.label || serializedNode.variable
+    )
   }
 
-  constructor(variable: string, key?: NodeKey) {
+  constructor(variable: string, label?: string, key?: NodeKey) {
     super(key)
+
     this.__variable = variable
+    this.__label = label || variable
     this.__text = `{${variable}}`
   }
 
@@ -53,20 +59,25 @@ export class VariableNode extends DecoratorNode<VNode> {
 
   override decorate(): VNode {
     return (
-      <UTag size='small' style='margin: 0 2px' type='primary' dark round>
-        {this.__variable}
+      <UTag size='small' style='margin: 0 2px' type='primary' round>
+        {this.__label}
       </UTag>
     )
   }
 
-  updateVariable(newVariable: string): void {
+  updateVariable(newVariable: string, newLabel?: string): void {
     const writable = this.getWritable()
     writable.__variable = newVariable
+    writable.__label = newLabel || newVariable
     writable.__text = `{${newVariable}}`
   }
 
   getVariable(): string {
     return this.__variable
+  }
+
+  getLabel(): string {
+    return this.__label
   }
 }
 
@@ -76,6 +87,9 @@ export function $isVariableNode(node: LexicalNode | null | undefined): boolean {
 }
 
 /** 创建变量节点 */
-export function $createVariableNode(variable: string): VariableNode {
-  return new VariableNode(variable)
+export function $createVariableNode(
+  variable: string,
+  label?: string
+): VariableNode {
+  return new VariableNode(variable, label)
 }

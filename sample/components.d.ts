@@ -37,6 +37,7 @@ declare module 'vue' {
     UDialog: typeof import('ultra-ui')['UDialog']
     UDrawer: typeof import('ultra-ui')['UDrawer']
     UDropdown: typeof import('ultra-ui')['UDropdown']
+    UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
     UFilePicker: typeof import('ultra-ui')['UFilePicker']
     UForm: typeof import('ultra-ui')['UForm']
     UGroupInput: typeof import('ultra-ui')['UGroupInput']
@@ -67,6 +68,7 @@ declare module 'vue' {
     UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
+    UWatermark: typeof import('ultra-ui')['UWatermark']
   }
 }
 
@@ -97,6 +99,7 @@ declare global {
   const UDialog: typeof import('ultra-ui')['UDialog']
   const UDrawer: typeof import('ultra-ui')['UDrawer']
   const UDropdown: typeof import('ultra-ui')['UDropdown']
+  const UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
   const UFilePicker: typeof import('ultra-ui')['UFilePicker']
   const UForm: typeof import('ultra-ui')['UForm']
   const UGroupInput: typeof import('ultra-ui')['UGroupInput']
@@ -127,4 +130,5 @@ declare global {
   const UTip: typeof import('ultra-ui')['UTip']
   const UTree: typeof import('ultra-ui')['UTree']
   const UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
+  const UWatermark: typeof import('ultra-ui')['UWatermark']
 }

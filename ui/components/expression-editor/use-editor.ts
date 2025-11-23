@@ -8,8 +8,10 @@ import { VariableNode } from './nodes/variable-node'
 import { registerPlainText } from './plain-text'
 import { nextTick, watchEffect, type Ref, type ShallowRef } from 'vue'
 import { parseContent } from './parser'
-import type { ExpressionEditorEmits, ExpressionEditorProps } from '@ui/types'
+import type { ExpressionEditorEmits, ExpressionEditorProps, VariableItem } from '@ui/types'
 import type { BEM } from '@ui/utils'
+import { createVariableMap } from './di'
+import { computed } from 'vue'
 
 interface EditorOptions {
   disabled: Ref<boolean>
@@ -60,6 +62,9 @@ export function useEditor(options: EditorOptions): LexicalEditor {
     container.value && editor.setRootElement(container.value)
   })
 
+  // 创建变量映射表
+  const variableMap = computed(() => createVariableMap(props.variables))
+
   function renderModelValue() {
     changeByModel = true
     const { modelValue } = props
@@ -69,7 +74,7 @@ export function useEditor(options: EditorOptions): LexicalEditor {
       const root = $getRoot()
       root.clear()
       const paragraph = $createParagraphNode()
-      const nodes = parseContent(modelValue)
+      const nodes = parseContent(modelValue, variableMap.value)
       paragraph.append(...nodes)
       root.append(paragraph)
 

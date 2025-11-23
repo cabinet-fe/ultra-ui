@@ -28,6 +28,7 @@ export function useContext(editor: LexicalEditor): {
 
   function openContextMenu(triggerElement: HTMLElement) {
     contextVisible.value = true
+
     contextTriggerDom.value = triggerElement
   }
 
@@ -51,6 +52,11 @@ export function useContext(editor: LexicalEditor): {
       () => {
         const selection = $getSelection()
 
+        // 如果菜单已经打开，不要因为失焦而关闭（用户可能在输入搜索框）
+        if (contextVisible.value) {
+          return true
+        }
+
         // 选区类型必须为rangeSelection且选取的anchor和focus的offset值必须一致
         // 否则关闭上下文菜单
         if (
@@ -66,26 +72,37 @@ export function useContext(editor: LexicalEditor): {
         const node = selection.focus.getNode()
         const textContent = node.getTextContent()
 
+        // 检测光标是否在 '@' 左右
+        const isAtTriggerLeft =
+          textContent[cursorPosition - 1] === CONTEXT_TRIGGER_CHAR
+        const isAtTriggerRight =
+          textContent[cursorPosition] === CONTEXT_TRIGGER_CHAR
+
         // 光标左右的字符都不是'@'时，关闭上下文菜单
-        if (
-          textContent[cursorPosition - 1] !== CONTEXT_TRIGGER_CHAR &&
-          textContent[cursorPosition] !== CONTEXT_TRIGGER_CHAR
-        ) {
+        if (!isAtTriggerLeft && !isAtTriggerRight) {
           closeContextMenu()
           return false
         }
 
-        // 如果弹框已经打开
-        if (contextVisible.value) {
-          return false
-        }
-
+        // 更新文本节点和光标位置
+        // 如果光标在 '@' 右侧，charPosition 需要加 1，以便正确替换文本
         textNode.value = node as TextNode
-        charPosition.value = cursorPosition
+        charPosition.value = isAtTriggerRight
+          ? cursorPosition + 1
+          : cursorPosition
 
         const triggerDom = editor.getElementByKey(node.getKey())
 
-        triggerDom && openContextMenu(triggerDom)
+        // 如果弹框已经打开，更新位置；否则打开弹框
+        if (contextVisible.value) {
+          // 更新触发元素位置（如果变化了）
+          if (triggerDom && triggerDom !== contextTriggerDom.value) {
+            contextTriggerDom.value = triggerDom
+          }
+        } else {
+          triggerDom && openContextMenu(triggerDom)
+        }
+
         return true
       },
       COMMAND_PRIORITY_EDITOR
