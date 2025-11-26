@@ -55,7 +55,7 @@ export function useOptions(o: Options): UseOptionsReturned {
   }
 
   const setTempOption = (qs: string, options?: Record<string, any>[]) => {
-    if (!qs?.trim()) {
+    if (!qs?.trim() || !props.creatable) {
       tempOptions.value = []
       return
     }
