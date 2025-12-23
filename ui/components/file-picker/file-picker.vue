@@ -19,6 +19,7 @@
 import type { UploaderProps, UploaderEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { shallowRef } from 'vue'
+import { matchAccept } from './helper'
 
 defineOptions({
   name: 'FilePicker'
@@ -37,7 +38,10 @@ const fileRef = shallowRef<HTMLInputElement>()
 
 const handleChange = (e: Event) => {
   const target = e.target as HTMLInputElement
-  emit('pick', Array.prototype.slice.call(target.files) as File[])
+  const files = Array.prototype.slice.call(target.files) as File[]
+  const filteredFiles = files.filter(file => matchAccept(file, props.accept))
+
+  emit('pick', filteredFiles)
   target.value = ''
 }
 
