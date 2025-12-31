@@ -52,7 +52,15 @@ const pkg: Record<string, any> = {
       default: './version.js',
       import: './version.js'
     }
-  }
+  },
+
+  sideEffects: [
+    '*.css',
+    './styles/**',
+    './install.js',
+    './**/style.js',
+    './**/style.css'
+  ]
 }
 
 export async function genPackageJson() {
@@ -65,6 +73,23 @@ export async function genPackageJson() {
   pkg.version = rootPkgJson.version
   pkg.peerDependencies = {
     ...obj(rootPkgJson.devDependencies).pick(['vue', 'cat-kit', '@ultra/icon'])
+  }
+
+  // 可选依赖：仅在使用特定组件时需要安装
+  pkg.optionalDependencies = {
+    // UCodeEditor 需要
+    codemirror: '^6.0.0',
+    '@codemirror/lang-javascript': '^6.2.0',
+    '@codemirror/lang-sql': '^6.10.0',
+    '@codemirror/lang-java': '^6.0.0',
+    '@codemirror/lang-json': '^6.0.0',
+    // UExpressionEditor 需要
+    lexical: '^0.37.0',
+    '@lexical/utils': '^0.37.0',
+    // 弹出层组件需要
+    '@floating-ui/dom': '^1.7.0',
+    // 虚拟滚动需要
+    '@tanstack/vue-virtual': '^3.13.0'
   }
 
   await writeFile(
