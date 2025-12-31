@@ -10,14 +10,6 @@
     "./install": "./install.ts",
     "./styles": "./styles/index.ts"
   },
-  "sideEffects": [
-    "*.css",
-    "*.scss",
-    "./styles/**",
-    "./install.ts",
-    "./**/style.ts",
-    "./**/style.scss"
-  ],
   "scripts": {
     "dts": "vue-tsc --declaration --emitDeclarationOnly"
   },

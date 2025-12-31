@@ -35,26 +35,7 @@ export async function build() {
 
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖
-        external: [
-          // 核心框架
-          'vue',
-          '@ultra/icon',
-          'cat-kit/fe',
-
-          // CodeMirror 系列（约 400KB）
-          /^codemirror/,
-          /^@codemirror\//,
-
-          // Lexical 系列（约 250KB）
-          /^lexical/,
-          /^@lexical\//,
-
-          // Floating UI（约 30KB）
-          /^@floating-ui\//,
-
-          // Virtual 列表（约 20KB）
-          /^@tanstack\//
-        ],
+        external: ['vue', '@ultra/icon', 'cat-kit/fe'],
         output: {
           chunkFileNames: 'venders/[name].js',
 
