@@ -1,15 +1,13 @@
 {
-  "extends": "ts-conf-base/tsconfig.vue.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "types": ["vite/client"],
     "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "paths": {
       "@ui/*": ["./*"]
     },
-
     "outDir": "../dist"
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],

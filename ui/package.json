@@ -1,6 +1,7 @@
 {
   "name": "ultra-ui",
   "type": "module",
+  "sideEffects": false,
   "module": "./index.ts",
   "main": "./index.ts",
   "exports": {
@@ -10,18 +11,19 @@
     "./install": "./install.ts",
     "./styles": "./styles/index.ts"
   },
-  "scripts": {
-    "dts": "vue-tsc --declaration --emitDeclarationOnly"
-  },
-  "devDependencies": {
+
+  "peerDependencies": {
+    "vue": "^3.5.26",
+    "cat-kit": "^3.7.14",
+    "@ultra/icon": "^1.0.1",
     "codemirror": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-json": "^6.0.2",
     "@floating-ui/dom": "^1.7.4",
-    "@tanstack/vue-virtual": "^3.13.12",
-    "lexical": "^0.37.0",
-    "@lexical/utils": "^0.37.0"
+    "@tanstack/vue-virtual": "^3.13.18",
+    "lexical": "^0.39.0",
+    "@lexical/utils": "^0.39.0"
   }
 }

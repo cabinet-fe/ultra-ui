@@ -6,11 +6,13 @@
   "type": "module",
   "dependencies": {
     "@builder/vite": "^2.1.1",
-    "vue-router": "^4.5.1",
+    "vue-router": "^4.6.4",
     "ultra-ui": "workspace:*"
+
   },
   "devDependencies": {
-    "vite-plugin-vue-devtools": "^8.0.2",
-    "unocss": "^66.3.3"
+    "vite-plugin-vue-devtools": "^8.0.5",
+    "unocss": "^66.5.12",
+    "vite": "^7.3.1"
   }
 }

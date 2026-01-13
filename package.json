@@ -23,26 +23,18 @@
     "sample",
     "cli",
     "build",
+    "build-down",
     "ui"
   ],
   "devDependencies": {
-    "@types/bun": "^1.3.1",
-    "cat-kit": "^3.7.14",
+    "@types/bun": "^1.3.5",
     "fast-glob": "^3.3.3",
-    "@ultra/icon": "^1.0.1",
-    "rollup": "4.34.8",
-    "rollup-plugin-esbuild": "^6.2.1",
-    "sass-embedded": "^1.93.3",
     "simple-git-hooks": "^2.13.1",
-    "ts-conf-base": "^2.4.2",
-    "typescript": "5.9.2",
-    "vite": "npm:rolldown-vite@latest",
-    "vitest": "^3.2.4",
-    "vue": "3.5.18",
-    "vue-router": "^4.6.3",
-    "vue-tsc": "3.1.1",
+    "typescript": "5.9.3",
+    "vitest": "^4.0.16",
     "@builder/cli": "^3.0.1",
-    "tsx": "^4.20.6"
+    "tsx": "^4.21.0",
+    "@cat-kit/tsconfig": "^1.0.0"
   },
   "simple-git-hooks": {
     "commit-msg": "bun bc verify-commit"
