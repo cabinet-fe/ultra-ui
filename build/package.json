@@ -2,11 +2,12 @@
   "name": "build",
   "type": "module",
   "scripts": {
-    "release": "bun ./index.ts"
+    "release": "bun ./index.ts",
+    "build-only": "bun ./index.ts build-only"
   },
   "devDependencies": {
     "@builder/cli": "^3.0.0",
-    "tsdown": "^0.15.5",
-    "unplugin-vue": "^7.0.0"
+    "tsdown": "^0.15.12",
+    "unplugin-vue": "^7.1.0"
   }
 }

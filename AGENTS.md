@@ -22,6 +22,11 @@
 
 - [TypeScript](dev-prompts/languages/typescript.md)
 
+## 技术栈
+
+- **包管理器**：bun
+
+
 ## 代码审查
 
 **每次**代码生成都要经过必要的审查，以符合上述规范。

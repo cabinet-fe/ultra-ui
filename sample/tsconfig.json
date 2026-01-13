@@ -1,5 +1,5 @@
 {
-  "extends": "ts-conf-base/tsconfig.vue.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,

@@ -67,7 +67,6 @@ export function extractNormalVNodes(
 ): VNode[] {
   nodes.forEach(node => {
     if (!isVNode(node)) {
-      console.log(node)
       if (typeof node === 'string' || typeof node === 'number') {
         results.push(createTextVNode(String(node)))
       }

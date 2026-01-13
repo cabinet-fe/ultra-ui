@@ -10,13 +10,15 @@ import { dirname, resolve } from 'node:path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-async function boot() {
+async function boot(buildOnly: boolean) {
   await genInstall()
   await build()
   await buildDTS()
   await buildStyles()
   await copyFiles()
   await genPackageJson()
+  // build-only: do NOT publish
+  if (buildOnly) return
   try {
     console.log('开始发布')
     await $({
@@ -29,4 +31,4 @@ async function boot() {
   }
 }
 
-boot()
+boot(process.argv.includes('build-only'))
