@@ -4,8 +4,6 @@ import { lightTheme } from './theme/light'
 import { darkTheme } from './theme/dark'
 import { shallowRef, type ShallowRef } from 'vue'
 
-const { config } = useConfig()
-
 export const currentTheme: ShallowRef<UITheme | undefined> =
   shallowRef<UITheme>()
 /**
@@ -20,6 +18,8 @@ export function loadTheme(theme?: UITheme): void {
 
   currentTheme.value.render()
 
+  const { config } = useConfig()
+  if (typeof document === 'undefined') return
   document.documentElement.classList.add(config.size)
 }
 

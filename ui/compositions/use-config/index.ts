@@ -34,11 +34,22 @@ export function setDocumentSize(
   size: ComponentSize,
   oldSize?: ComponentSize
 ): void {
+  if (typeof document === 'undefined') return
   oldSize && document.documentElement.classList.remove(oldSize)
   document.documentElement.classList.add(size)
 }
 
-watch(() => state.size, setDocumentSize)
+let stopDocumentSizeSync: (() => void) | null = null
+
+function ensureDocumentSizeSync(): void {
+  if (stopDocumentSizeSync) return
+  if (typeof document === 'undefined') return
+
+  stopDocumentSizeSync = watch(
+    () => state.size,
+    (size, oldSize) => setDocumentSize(size, oldSize)
+  )
+}
 
 function deepSet(original: Record<string, any>, extend: Record<string, any>) {
   Object.keys(extend).forEach(key => {
@@ -60,6 +71,7 @@ export function useConfig(): {
   config: Readonly<State>
   setConfig: (conf: Partial<State>) => void
 } {
+  ensureDocumentSizeSync()
   return {
     /** 全局配置 */
     config: readonly(state) as Readonly<State>,

@@ -272,17 +272,3 @@ export class Virtualizer {
     this.scrollTo(offset);
   }
 }
-
-const v = new Virtualizer(({ items, totalSize }) => {
-  console.log("totalSize", totalSize);
-  console.log("items", items);
-});
-
-v.connect(document.body);
-
-// 模拟请求
-setTimeout(() => {
-  v.setOptions({
-    length: 3000,
-  });
-}, 300);

@@ -1,5 +1,5 @@
 import { createIncrease } from '@ui/utils'
-import { shallowReactive, watch, type ObjectDirective } from 'vue'
+import { shallowReactive, type ObjectDirective } from 'vue'
 
 const uid = createIncrease(1000)
 const targets = shallowReactive(
@@ -39,12 +39,15 @@ function removeEvent() {
   eventAdded = false
 }
 
-watch(targets, async targets => {
+function syncDocumentEvents(): void {
+  if (typeof document === 'undefined') return
+
   if (targets.size > 0) {
-    return addEvent()
+    addEvent()
+  } else {
+    removeEvent()
   }
-  removeEvent()
-})
+}
 
 export const vClickOutside: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
@@ -58,12 +61,14 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
       handler: binding.value,
       el
     })
+    syncDocumentEvents()
   },
 
   updated(el, binding) {
     if (!binding.value) {
       if (!el.dataset.outsideId) return
       targets.delete(el.dataset.outsideId)
+      syncDocumentEvents()
     } else {
       if (!el.dataset.outsideId) {
         el.dataset.outsideId = String(uid())
@@ -73,10 +78,12 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
         handler: binding.value,
         el
       })
+      syncDocumentEvents()
     }
   },
 
   unmounted(el: HTMLElement) {
     targets.delete(el.dataset.outsideId!)
+    syncDocumentEvents()
   }
 }
