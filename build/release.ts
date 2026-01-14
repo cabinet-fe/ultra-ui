@@ -230,7 +230,7 @@ export async function createTag(
  */
 export async function publish(cwd: string = DIST_ROOT): Promise<void> {
   console.log(`\n📦 正在发布到 npm...`)
-  await $({ cwd })`npm publish`
+  await $({ cwd })`npm publish --registry http://192.168.31.250:6005`
   console.log(`  ✅ 发布成功`)
 }
 
