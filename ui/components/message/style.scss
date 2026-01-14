@@ -80,5 +80,6 @@ $root-name: message;
   以便能够正确地计算移动的动画。 */
 .#{$root-name}-leave-active {
   position: absolute;
+
   width: max-content;
 }

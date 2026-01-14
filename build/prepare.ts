@@ -1,25 +1,22 @@
+import fg from 'fast-glob'
 import { resolve } from 'node:path'
 import { ROOT, DIST_ROOT, UI_ROOT } from './shared'
-import { copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
+import { cp, copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
+
+export async function copy(
+  patterns: string | string[],
+  srcDir: string,
+  destDir: string
+) {
+  const files = await fg(patterns, { cwd: srcDir })
+  await Promise.all(
+    files.map(file => cp(resolve(srcDir, file), resolve(destDir, file)))
+  )
+}
 
 export async function copyFiles() {
   await copyFile(resolve(ROOT, 'README.md'), resolve(DIST_ROOT, 'README.md'))
-  // await copyFile(
-  //   resolve(UI_ROOT, 'styles/fonts/Inter.woff2'),
-  //   resolve(DIST_ROOT, 'styles/fonts/Inter.woff2')
-  // )
-  await copyFile(
-    resolve(UI_ROOT, 'styles/_vars.scss'),
-    resolve(DIST_ROOT, 'styles/_vars.scss')
-  )
-  await copyFile(
-    resolve(UI_ROOT, 'styles/_mixins.scss'),
-    resolve(DIST_ROOT, 'styles/_mixins.scss')
-  )
-  await copyFile(
-    resolve(UI_ROOT, 'styles/_functions.scss'),
-    resolve(DIST_ROOT, 'styles/_functions.scss')
-  )
+  await copy(['styles/_*.scss', 'styles/fonts/*'], UI_ROOT, DIST_ROOT)
 }
 
 export async function genFiles() {

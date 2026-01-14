@@ -1,97 +1,122 @@
-import { createApp, h, shallowReactive, type App } from 'vue'
-import type { MessageOptions, Message } from '@ui/types'
+import { h, render, shallowReactive } from 'vue'
+import type { MessageOptions, Message, MessageInstance } from '@ui/types'
 import { bem, setStyles, zIndex } from '@ui/utils'
 import UMessageBox from './message-box.vue'
 
 const cls = bem('message')
 
-let messageApp: App | null = null
+/** 消息项数据结构 */
+type MessageItem = MessageOptions & { key: string }
 
-const messages = shallowReactive<Array<MessageOptions & { key: string }>>([])
+/** --- 状态管理 --- */
+let container: HTMLElement | null = null
+const messages = shallowReactive<MessageItem[]>([])
 
-/** 消息关闭回调Map，key是消息的uid */
+/** 消息关闭后回调 */
 const closedCallbacks = new Map<string, () => void>()
-/**
- * 消息dom的渲染计数。
- * @description 这个计数在创建消息时+1，在消息离开动画结束后减一
- */
-let count = 0
-/** 用于确定消息实例的全局唯一id */
+
+/** 用于计数正在显示的 DOM 节点 (包含动画执行中) */
+let activeCount = 0
 let uid = 0
 
-/** 在关闭后离开动画也结束后的回调 */
-function onClosed(uid: string) {
-  count--
+/** --- 内部辅助函数 --- */
 
-  const cb = closedCallbacks.get(uid)
+/** 彻底销毁容器 */
+const destroy = () => {
+  if (container) {
+    render(null, container)
+    document.body.removeChild(container)
+    container = null
+  }
+}
+
+/** 离开动画结束后的清理 */
+const handleClosed = (id: string) => {
+  activeCount--
+
+  const cb = closedCallbacks.get(id)
   if (cb) {
     cb()
-    closedCallbacks.delete(uid)
+    closedCallbacks.delete(id)
   }
 
-  if (count === 0 && messageApp) {
-    messageApp.unmount()
-    document.body.removeChild(messageApp._container)
-    messageApp = null
-  }
+  // 没有活跃消息时销毁容器，保持页面干净
+  if (activeCount === 0) destroy()
 }
 
-/** 在关闭但离开动画还未结束时的回调 */
-function onClose(index: number) {
-  messages.splice(index, 1)
+/** 触发关闭 (仅从数组移除，触发 Transition 离开动画) */
+const handleClose = (id: string) => {
+  const index = messages.findIndex(m => m.key === id)
+  if (index !== -1) messages.splice(index, 1)
 }
 
-function createMessage(options: MessageOptions) {
-  const { onClosed, ...messageOptions } = options
+/** 挂载并渲染容器 */
+const ensureContainer = () => {
+  if (container) return container
 
-  count++
-  const key = String(uid++)
-
-  // 收集关闭后回调
-  onClosed && closedCallbacks.set(key, onClosed)
-
-  messages.push({ key, ...messageOptions })
-
-  if (messageApp?._container) {
-    setStyles(messageApp?._container, { zIndex: zIndex() })
-  }
-
-  return key
+  container = document.createElement('ul')
+  container.className = cls.e('container')
+  document.body.appendChild(container)
+  return container
 }
 
-/** 渲染消息盒子 */
-function renderMessageBox() {
-  if (!messages.length || messageApp) return
+/** 执行 Vue 渲染逻辑 */
+const updateView = () => {
+  const el = ensureContainer()
+  setStyles(el, { zIndex: zIndex() })
 
-  messageApp = createApp({
-    render: () => h(UMessageBox, { messages, onClosed, onClose })
+  const vnode = h(UMessageBox, {
+    messages,
+    onClosed: handleClosed,
+    onClose: (i: number) => messages.splice(i, 1)
   })
 
-  const container = document.createElement('ul')
-  container.className = cls.e('container')
-  setStyles(container, { zIndex: zIndex() })
-  document.body.appendChild(container)
-
-  messageApp.mount(container)
+  vnode.appContext = message._context
+  render(vnode, el)
 }
 
-export const message: Message = function (options) {
-  if (typeof options === 'string') {
-    options = {
-      message: options
-    }
-  }
-  createMessage(options)
-  renderMessageBox()
-} as Message
+/** 创建消息实例 */
+const createMessage = (options: MessageOptions): MessageInstance => {
+  const { onClosed: userOnClosed, ...messageOptions } = options
+  const id = `msg_${uid++}`
+  activeCount++
 
+  // 生命周期 Promise
+  let resolveClosed: () => void
+  const onClosed = new Promise<void>(r => (resolveClosed = r))
+
+  closedCallbacks.set(id, () => {
+    userOnClosed?.()
+    resolveClosed()
+  })
+
+  messages.push({ key: id, ...messageOptions })
+  updateView()
+
+  return {
+    id,
+    close: () => handleClose(id),
+    onClosed
+  }
+}
+
+/** --- 导出 API --- */
+
+export const message = (options => {
+  const mergedOptions =
+    typeof options === 'string' ? { message: options } : options
+  return createMessage(mergedOptions)
+}) as Message
+
+message._context = null
+
+// 挂载快捷方法: message.success(...)
 const messageTypes = ['success', 'warn', 'info', 'error', 'default'] as const
 messageTypes.forEach(type => {
-  message[type] = function (msg, config) {
-    return message({ message: msg, type, ...config })
-  }
+  message[type] = (msg, config) => message({ ...config, message: msg, type })
 })
 
-message.closeAll = function () {
-  messages.splice(0).forEach(message => message.onClose?.())
+/** 关闭所有当前显示的消息 */
+message.closeAll = () => {
+  messages.splice(0)
 }

@@ -1,10 +1,11 @@
 import { createIncrease } from '@ui/utils'
-import { shallowReactive, type ObjectDirective } from 'vue'
+import type { ObjectDirective } from 'vue'
 
 const uid = createIncrease(1000)
-const targets = shallowReactive(
-  new Map<string, { handler: (e: MouseEvent) => void; el: HTMLElement }>()
-)
+const targets = new Map<
+  string,
+  { handler: (e: MouseEvent) => void; el: HTMLElement }
+>()
 
 let eventAdded = false
 let mousedownEvent: MouseEvent | undefined

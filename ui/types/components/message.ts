@@ -1,5 +1,5 @@
 import type { DeconstructValue } from '../helper'
-import type { DefineComponent } from 'vue'
+import type { DefineComponent, AppContext } from 'vue'
 
 /** 消息类型 */
 export type MessageType = 'success' | 'warn' | 'info' | 'error' | 'default'
@@ -14,20 +14,32 @@ export type MessageOptions = MessageProps & {
 
 type MsgAliasConf = Omit<MessageOptions, 'type' | 'message'>
 
+export interface MessageInstance {
+  /** 消息唯一标识 */
+  id: string
+  /** 手动关闭消息 */
+  close(): void
+  /** 消息彻底销毁后的 Promise (包括动画结束) */
+  onClosed: Promise<void>
+}
+
 export interface Message {
-  (options: MessageOptions | MessageType): string
+  /** 创建消息 */
+  (options: MessageOptions | string): MessageInstance
   /** 关闭所有的消息 */
   closeAll(): void
   /** 成功消息 */
-  success(message: string, config?: MsgAliasConf): void
+  success(message: string, config?: MsgAliasConf): MessageInstance
   /** 警告消息 */
-  warn(message: string, config?: MsgAliasConf): void
+  warn(message: string, config?: MsgAliasConf): MessageInstance
   /** 信息消息 */
-  info(message: string, config?: MsgAliasConf): void
+  info(message: string, config?: MsgAliasConf): MessageInstance
   /** 错误消息 */
-  error(message: string, config?: MsgAliasConf): void
+  error(message: string, config?: MsgAliasConf): MessageInstance
   /** 默认消息 */
-  default(message: string, config?: MsgAliasConf): void
+  default(message: string, config?: MsgAliasConf): MessageInstance
+  /** 设置全局渲染上下文 */
+  _context: AppContext | null
 }
 
 /** 消息弹框组件组件属性 */

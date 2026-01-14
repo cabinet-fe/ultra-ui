@@ -5,19 +5,10 @@ import { fileURLToPath } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import UnoCSS from 'unocss/vite'
 import { createRequire } from 'node:module'
-
+import { existModule } from 'cat-kit/be'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const r = createRequire(import.meta.url)
-
-const existModule = (id: string) => {
-  try {
-    r.resolve(id)
-    return true
-  } catch (e) {
-    return false
-  }
-}
 
 export default defineConfig(() => {
   return {
