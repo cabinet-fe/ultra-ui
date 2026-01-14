@@ -6,7 +6,8 @@ import VueJSX from 'unplugin-vue-jsx/rolldown'
 
 export async function build() {
   await tsdownBuild({
-    entry: [resolve(UI_ROOT, 'index.ts')],
+    cwd: UI_ROOT,
+    entry: 'index.ts',
     alias: { '@ui': UI_ROOT },
     unbundle: true,
     platform: 'browser',
@@ -19,11 +20,9 @@ export async function build() {
     format: ['es'],
     sourcemap: true,
     dts: {
-      vue: true,
-      tsconfig: resolve(UI_ROOT, 'tsconfig.json')
+      vue: true
     },
 
-    outDir: DIST_ROOT,
-    external: ['vue', '@ultra/icon', 'cat-kit/fe', 'cat-kit']
+    outDir: DIST_ROOT
   })
 }
