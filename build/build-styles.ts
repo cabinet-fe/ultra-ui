@@ -1,6 +1,4 @@
-import { cp } from 'node:fs/promises'
-import { basename, dirname, relative, resolve } from 'node:path'
-import { statSync } from 'node:fs'
+import { dirname, relative, resolve } from 'node:path'
 import { compileAsync } from 'sass-embedded'
 import { DIST_ROOT, UI_ROOT } from './shared'
 import { build as tsdownBuild } from 'tsdown'
@@ -117,34 +115,40 @@ function scssPlugin(): Plugin {
     },
 
     /**
-     * 转换 style.ts 文件
+     * 转换 style.ts 和 styles/index.ts 文件
      * 将导入路径重写为正确的格式
      */
     transform: {
-      filter: { id: /style\.ts$/ },
+      filter: { id: /(style|styles\/index)\.ts$/ },
       handler(code, id) {
         let transformed = code
 
-        // 1. 将 import '@ui/styles/xxx.scss' 重写为相对路径 CSS 导入
-        //    计算从当前文件到 styles 目录的相对路径
         const currentDir = dirname(relative(UI_ROOT, id))
-        const relativeToStyles = relative(currentDir, 'styles')
 
+        // 1. 将 import '@ui/styles/xxx.scss' 重写为相对路径 CSS 导入
+        const relativeToStyles = relative(currentDir, 'styles')
         transformed = transformed.replace(
           /import\s+['"]@ui\/styles\/([^'"]+)\.scss['"]/g,
           (_, path) => `import '${relativeToStyles}/${path}.css'`
         )
 
-        // 2. 将 import './style.scss' 重写为 import './style.css'
+        // 2. 将 import '@ui/components/xxx/style' 重写为相对路径
+        const relativeToComponents = relative(currentDir, 'components')
+        transformed = transformed.replace(
+          /import\s+['"]@ui\/components\/([^'"]+\/style)['"]/g,
+          (_, path) => `import '${relativeToComponents}/${path}.js'`
+        )
+
+        // 3. 将 import './style.scss' 重写为 import './style.css'
         transformed = transformed.replace(
           /import\s+['"]([^'"]+)\.scss['"]/g,
           "import '$1.css'"
         )
 
-        // 3. 将 import '../xxx/style' 重写为 import '../xxx/style.js'
-        //    匹配不带扩展名的 style 导入
+        // 4. 将 import '../xxx/style' 重写为 import '../xxx/style.js'
+        //    匹配不带扩展名的相对路径 style 导入
         transformed = transformed.replace(
-          /import\s+['"]([^'"]+\/style)['"]/g,
+          /import\s+['"](\.[^'"]+\/style)['"]/g,
           "import '$1.js'"
         )
 
