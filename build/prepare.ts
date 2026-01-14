@@ -2,8 +2,24 @@ import { resolve } from 'node:path'
 import { ROOT, DIST_ROOT, UI_ROOT } from './shared'
 import { copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
 
-export function copyFiles() {
-  return copyFile(resolve(ROOT, 'README.md'), resolve(DIST_ROOT, 'README.md'))
+export async function copyFiles() {
+  await copyFile(resolve(ROOT, 'README.md'), resolve(DIST_ROOT, 'README.md'))
+  // await copyFile(
+  //   resolve(UI_ROOT, 'styles/fonts/Inter.woff2'),
+  //   resolve(DIST_ROOT, 'styles/fonts/Inter.woff2')
+  // )
+  await copyFile(
+    resolve(UI_ROOT, 'styles/_vars.scss'),
+    resolve(DIST_ROOT, 'styles/_vars.scss')
+  )
+  await copyFile(
+    resolve(UI_ROOT, 'styles/_mixins.scss'),
+    resolve(DIST_ROOT, 'styles/_mixins.scss')
+  )
+  await copyFile(
+    resolve(UI_ROOT, 'styles/_functions.scss'),
+    resolve(DIST_ROOT, 'styles/_functions.scss')
+  )
 }
 
 export async function genFiles() {
