@@ -8,23 +8,12 @@ import type { Plugin } from 'rolldown'
 const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
 /**
- * 解析导入路径，支持 @ui 别名
- */
-function resolveImportPath(source: string, importer: string): string {
-  // 处理 @ui 别名
-  if (source.startsWith('@ui/')) {
-    return resolve(UI_ROOT, source.slice(4)) // 移除 '@ui/' 前缀
-  }
-  // 相对路径
-  return resolve(dirname(importer), source)
-}
-
-/**
- * SCSS 插件
+ * SCSS 优化插件
  *
- * - 将 .scss 导入编译为 CSS 并输出
- * - 在 JS 中重写导入路径为 .css
- * - 将 .css 和 style.js 导入标记为外部模块
+ * 利用 resolveId 钩子拦截样式相关导入：
+ * 1. 使用 this.resolve() 解析别名（如 @ui）为真实路径。
+ * 2. 编译 SCSS 并将其重写为 .css 的相对路径。
+ * 3. 将 style/css/js 导入转换为正确的相对路径并标记为外部。
  */
 function scssPlugin(): Plugin {
   return {
@@ -38,123 +27,65 @@ function scssPlugin(): Plugin {
       async handler(source, importer) {
         if (!importer) return null
 
-        // 处理 .css 导入 - 标记为外部模块
-        if (source.endsWith('.css')) {
-          return {
-            id: source,
-            external: true
-          }
-        }
+        // 1. 调用内置解析器（支持 alias 配置）
+        const resolved = await this.resolve(source, importer, {
+          skipSelf: true
+        })
+        if (!resolved) return null
 
-        // 处理 .js 导入 - 标记为外部模块
-        if (source.endsWith('.js')) {
-          return {
-            id: source,
-            external: true
-          }
-        }
+        const absolutePath = resolved.id
 
-        // 处理无扩展名的 style 导入 - 标记为外部模块并重写为 .js
-        if (source.endsWith('/style')) {
-          return {
-            id: source + '.js',
-            external: true
-          }
-        }
+        // 只处理项目内部（UI_ROOT）的模块
+        if (!absolutePath.startsWith(UI_ROOT)) return null
 
-        // 处理 .scss 导入
-        if (source.endsWith('.scss')) {
-          const resolved = resolveImportPath(source, importer)
-
-          // 计算相对于 UI_ROOT 的路径，用于确定输出位置
-          const relativeToUI = relative(UI_ROOT, resolved)
+        // 2. 处理 SCSS 编译
+        if (absolutePath.endsWith('.scss')) {
+          const relativeToUI = relative(UI_ROOT, absolutePath)
           const cssOutputPath = resolve(
             DIST_ROOT,
             relativeToUI.replace(/\.scss$/, '.css')
           )
 
-          // 编译 SCSS 文件
-          try {
-            const result = await compileAsync(resolved, {
-              loadPaths: [UI_ROOT, dirname(resolved)]
-            })
-
-            compiledScssMap.set(resolved, {
-              css: result.css,
-              outputPath: cssOutputPath
-            })
-          } catch (error) {
-            console.error(`Failed to compile SCSS: ${resolved}`, error)
-            throw error
+          // 编译 scss（如果地图中不存在）
+          if (!compiledScssMap.has(absolutePath)) {
+            try {
+              const result = await compileAsync(absolutePath, {
+                loadPaths: [UI_ROOT, dirname(absolutePath)]
+              })
+              compiledScssMap.set(absolutePath, {
+                css: result.css,
+                outputPath: cssOutputPath
+              })
+            } catch (error) {
+              console.error(`Failed to compile SCSS: ${absolutePath}`, error)
+              throw error
+            }
           }
 
-          // 返回一个虚拟 ID，表示这是需要处理的 SCSS
-          return {
-            id: `\0scss:${resolved}`,
-            external: false
-          }
+          // 将导入重写为相对路径的 .css
+          let relativePath = relative(
+            dirname(importer),
+            absolutePath.replace(/\.scss$/, '.css')
+          )
+          if (!relativePath.startsWith('.')) relativePath = './' + relativePath
+          return { id: relativePath, external: true }
         }
 
-        return null
-      }
-    },
+        // 3. 处理其他样式相关的 JS/CSS 导入
+        // 目标是将 @ui/... 转换为正确的相对路径并确保后缀正确 (.js)
+        let targetPath = absolutePath.replace(/\.ts$/, '.js')
 
-    /**
-     * 加载虚拟的 SCSS 模块
-     * 返回空模块，因为实际的 CSS 会单独输出
-     */
-    load: {
-      filter: { id: /^\0scss:/ },
-      handler() {
-        // 返回空模块，CSS 文件会单独输出
-        return {
-          code: '',
-          map: null
+        // 如果是无后缀的 style 导入，补齐 .js
+        if (source.endsWith('/style') && !targetPath.endsWith('.js')) {
+          targetPath += '.js'
         }
-      }
-    },
 
-    /**
-     * 转换 style.ts 和 styles/index.ts 文件
-     * 将导入路径重写为正确的格式
-     */
-    transform: {
-      filter: { id: /(style|styles\/index)\.ts$/ },
-      handler(code, id) {
-        let transformed = code
-
-        const currentDir = dirname(relative(UI_ROOT, id))
-
-        // 1. 将 import '@ui/styles/xxx.scss' 重写为相对路径 CSS 导入
-        const relativeToStyles = relative(currentDir, 'styles')
-        transformed = transformed.replace(
-          /import\s+['"]@ui\/styles\/([^'"]+)\.scss['"]/g,
-          (_, path) => `import '${relativeToStyles}/${path}.css'`
-        )
-
-        // 2. 将 import '@ui/components/xxx/style' 重写为相对路径
-        const relativeToComponents = relative(currentDir, 'components')
-        transformed = transformed.replace(
-          /import\s+['"]@ui\/components\/([^'"]+\/style)['"]/g,
-          (_, path) => `import '${relativeToComponents}/${path}.js'`
-        )
-
-        // 3. 将 import './style.scss' 重写为 import './style.css'
-        transformed = transformed.replace(
-          /import\s+['"]([^'"]+)\.scss['"]/g,
-          "import '$1.css'"
-        )
-
-        // 4. 将 import '../xxx/style' 重写为 import '../xxx/style.js'
-        //    匹配不带扩展名的相对路径 style 导入
-        transformed = transformed.replace(
-          /import\s+['"](\.[^'"]+\/style)['"]/g,
-          "import '$1.js'"
-        )
+        let relativePath = relative(dirname(importer), targetPath)
+        if (!relativePath.startsWith('.')) relativePath = './' + relativePath
 
         return {
-          code: transformed,
-          map: null
+          id: relativePath,
+          external: true
         }
       }
     },
