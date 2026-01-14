@@ -182,7 +182,7 @@ const el = shallowRef<HTMLInputElement>()
 const generateModel = computed(() => {
   if (!model.value) return ''
 
-  return `${props.prefix ?? ''}${model.value}`
+  return `${props.prefix ?? ''}${model.value}${props.suffix ?? ''}`
 })
 
 defineExpose<_InputExposed>({

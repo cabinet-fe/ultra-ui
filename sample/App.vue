@@ -32,7 +32,7 @@
           <u-button
             :icon="Setting"
             @click="handleSetting"
-            type="text"
+            text
             class="setting-btn"
             >设置</u-button
           >
@@ -79,7 +79,7 @@ import {
   type MenuItem
 } from 'ultra-ui'
 import { ref, shallowRef, watch, watchEffect } from 'vue'
-import type { ComponentSize } from 'ultra-ui/types/component-common.js'
+import type { ComponentSize } from 'ultra-ui/types'
 import { Setting } from '@ultra/icon'
 
 const router = useRouter()

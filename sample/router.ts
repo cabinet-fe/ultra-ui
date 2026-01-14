@@ -6,7 +6,7 @@ import {
   type RouteRecordRaw
 } from 'vue-router'
 
-const modules = import.meta.glob<true, string, { default: RouteComponent }>(
+const modules = import.meta.glob<{ default: RouteComponent }>(
   './src/**/index.vue'
 )
 

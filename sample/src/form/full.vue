@@ -37,7 +37,7 @@
         <u-radio-group
           :items="[
             { label: '男', value: 'male' },
-            { label: '女', value: 'female' },
+            { label: '女', value: 'female' }
           ]"
           label="性别"
           field="sex"
@@ -57,10 +57,15 @@
           tips="氨基酸的话啥叫客户当今时代是稍等和反抗精神的发货就开始的话飞机喀什的"
           label="嵌套名称"
         />
-        <u-number-input field="nest.price" label="嵌套价格" suffix="元" />
+        <u-number-input
+          field="nest.price"
+          label="嵌套价格"
+          currency
+          suffix="元"
+        />
 
         <u-password-input field="pwd" label="密码" />
-        <u-number-input field="age" label="年龄" />
+        <u-number-input field="age" label="年龄" suffix="岁" />
         <u-number-input
           field="debt"
           currency
@@ -116,7 +121,7 @@
       <u-auto-complete
         field="complete1"
         label="complete1"
-        :suggestions="interestList.map((item) => item.label)"
+        :suggestions="interestList.map(item => item.label)"
         label-key="label"
       />
 
@@ -139,42 +144,43 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from "ultra-ui";
-import { shallowReactive, shallowRef } from "vue";
-import CustomCard from "../card/custom-card.vue";
-import { date } from "cat-kit/fe";
-import { CascadeData, TreeData } from "./data";
+import { FormModel } from 'ultra-ui'
+import { shallowReactive, shallowRef } from 'vue'
+import CustomCard from '../card/custom-card.vue'
+import { date } from 'cat-kit/fe'
+import { CascadeData, TreeData } from './data'
 
-const readonly = shallowRef(false);
-const disabled = shallowRef(false);
-const ageRules = shallowReactive({ required: true });
+const readonly = shallowRef(false)
+const disabled = shallowRef(false)
+const ageRules = shallowReactive({ required: true, value: 20 })
 
-const num = shallowRef(1);
+const num = shallowRef(1099)
 
 const model = new FormModel({
   age: ageRules,
-  "nest.name": { required: true, value: "aa" },
-  "nest.price": {
+  'nest.name': { required: true, value: 'aa' },
+  'nest.price': {
     required: true,
-    value: () => num.value,
+
+    value: () => num.value
   },
   phone: {
     validator(value) {
-      if (!value) return "";
-      if (/^1[1-9]{10}$/.test(value)) return "";
-      return "你得输入一个手机号";
-    },
+      if (!value) return ''
+      if (/^1[1-9]{10}$/.test(value)) return ''
+      return '你得输入一个手机号'
+    }
   },
   abc: { required: true },
   freeze: {},
-  sex: { value: "female", required: true },
-  pwd: { value: "", required: true },
+  sex: { value: 'female', required: true },
+  pwd: { value: '', required: true },
   debt: { min: 10, value: 66666 },
   email: {
     match: [
       /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-      "这个时候你得输入一个邮箱",
-    ],
+      '这个时候你得输入一个邮箱'
+    ]
   },
   unit: { required: true },
   interest: { required: true },
@@ -182,54 +188,54 @@ const model = new FormModel({
   slider: {},
   date: { required: true, value: date().format() },
   guide: {
-    value: [{ attributes: { bold: true }, insert: "22eee" }],
-    required: true,
+    value: [{ attributes: { bold: true }, insert: '22eee' }],
+    required: true
   },
-  treeChecked: { required: true, value: () => ["4-11"] },
+  treeChecked: { required: true, value: () => ['4-11'] },
   treeSelect: { required: true, value: () => 11 },
-  complete1: { value: "test", required: true },
-  complete2: { value: () => ["张三", "李四"], required: true },
+  complete1: { value: 'test', required: true },
+  complete2: { value: () => ['张三', '李四'], required: true },
   group: { required: true },
   cascade: { required: true },
-  tex: { required: true },
-});
+  tex: { required: true }
+})
 
 const units = [
-  { label: "单位1", value: "1" },
-  { label: "单位2", value: "2" },
-  { label: "单位3", value: "3" },
-];
+  { label: '单位1', value: '1' },
+  { label: '单位2', value: '2' },
+  { label: '单位3', value: '3' }
+]
 
 const interestList = [
-  { label: "电影", value: "1" },
-  { label: "健身", value: "2" },
-  { label: "读书", value: "3" },
-  { label: "游戏", value: "4" },
-  { label: "科技", value: "5" },
-  { label: "音乐", value: "6" },
-];
+  { label: '电影', value: '1' },
+  { label: '健身', value: '2' },
+  { label: '读书', value: '3' },
+  { label: '游戏', value: '4' },
+  { label: '科技', value: '5' },
+  { label: '音乐', value: '6' }
+]
 
 function handleSetData() {
   model.setData({
     name: null,
     unit: null,
-    interest: ["1", "2", "3"],
-  });
+    interest: ['1', '2', '3']
+  })
 }
 
-const treeData = shallowRef<any[]>([]);
+const treeData = shallowRef<any[]>([])
 
 setTimeout(() => {
-  treeData.value = TreeData;
-}, 1000);
+  treeData.value = TreeData
+}, 1000)
 
-const cascadeData = shallowRef<any[]>([]);
+const cascadeData = shallowRef<any[]>([])
 
 setTimeout(() => {
-  cascadeData.value = CascadeData;
-}, 1000);
+  cascadeData.value = CascadeData
+}, 1000)
 
 async function handleValidate() {
-  await model.validate();
+  await model.validate()
 }
 </script>

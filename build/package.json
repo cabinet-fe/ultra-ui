@@ -2,12 +2,18 @@
   "name": "build",
   "type": "module",
   "scripts": {
-    "release": "bun ./index.ts",
-    "build-only": "bun ./index.ts build-only"
+    "build": "bun index.ts",
+    "release": "bun index.ts --release"
   },
   "devDependencies": {
-    "@builder/cli": "^3.0.0",
-    "tsdown": "^0.15.12",
-    "unplugin-vue": "^7.1.0"
+    "tsdown": "^0.20.0-beta.2",
+    "unplugin-vue": "^7.1.0",
+    "vue-tsc": "^3.2.2",
+    "unplugin-vue-jsx": "^0.8.1",
+    "sass-embedded": "^1.97.2",
+    "rolldown": "^1.0.0-beta.59",
+    "@cat-kit/be": "^1.0.0",
+    "@inquirer/prompts": "^8.2.0",
+    "execa": "^9.6.1"
   }
 }

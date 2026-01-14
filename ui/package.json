@@ -1,9 +1,10 @@
 {
   "name": "ultra-ui",
   "type": "module",
+  "version": "0.4.25",
+  "description": "组件库",
   "sideEffects": false,
   "module": "./index.ts",
-  "main": "./index.ts",
   "exports": {
     ".": "./index.ts",
     "./*": "./*",
@@ -11,19 +12,34 @@
     "./install": "./install.ts",
     "./styles": "./styles/index.ts"
   },
-
-  "peerDependencies": {
-    "vue": "^3.5.26",
-    "cat-kit": "^3.7.14",
-    "@ultra/icon": "^1.0.1",
+  "dependencies": {
     "codemirror": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/view": "^6.39.10",
+    "@codemirror/state": "^6.5.3",
     "@floating-ui/dom": "^1.7.4",
     "@tanstack/vue-virtual": "^3.13.18",
     "lexical": "^0.39.0",
-    "@lexical/utils": "^0.39.0"
+    "@lexical/utils": "^0.39.0",
+    "@lexical/clipboard": "^0.39.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.26",
+    "cat-kit": "^3.7.14",
+    "@ultra/icon": "^1.0.1"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": false
+    },
+    "cat-kit": {
+      "optional": false
+    },
+    "@ultra/icon": {
+      "optional": false
+    }
   }
 }

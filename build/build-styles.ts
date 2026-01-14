@@ -1,169 +1,197 @@
-import { cp, writeFile } from 'node:fs/promises'
-import { basename, dirname, extname, resolve, relative } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import fg from 'fast-glob'
-import { rollup } from 'rollup'
-import esbuild from 'rollup-plugin-esbuild'
-import { compileAsync } from 'sass-embedded'
+import { cp } from 'node:fs/promises'
+import { basename, dirname, relative, resolve } from 'node:path'
 import { statSync } from 'node:fs'
+import { compileAsync } from 'sass-embedded'
+import { DIST_ROOT, UI_ROOT } from './shared'
+import { build as tsdownBuild } from 'tsdown'
+import type { Plugin } from 'rolldown'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+// 存储已编译的 SCSS 文件信息
+const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
-const excludeFiles = new Set(['index.ts'])
-
-const UI_ROOT = resolve(__dirname, '../ui')
-
-async function getEntries() {
-  const entries = await fg.glob(
-    [
-      'styles/index.ts',
-      'install.ts',
-      'components/**/style.ts',
-      'directives/**/style.ts'
-    ],
-    {
-      ignore: ['**/node_modules', '**/disabled.*/**'],
-      cwd: UI_ROOT
-    }
-  )
-
-  // 生成如下格式
-  /**
-   * {
-   *   'components/button/style': resolve(__dirname, '../ui/components/button/style.ts'),
-   *    ...
-   * }
-   */
-  return Object.fromEntries(
-    entries.map(entry => [
-      entry.slice(0, -extname(entry).length),
-      resolve(UI_ROOT, entry)
-    ])
-  )
-}
-
-async function getScssEntries() {
-  const entries = await fg.glob(
-    ['components/**/*.scss', 'directives/**/*.scss', 'styles/**/*.scss'],
-    {
-      ignore: ['**/node_modules', '**/disabled.*/**', '**/_*.scss'],
-      cwd: UI_ROOT
-    }
-  )
-
-  return entries
-}
-
-async function buildStyleEntry() {
-  const entry = await getEntries()
-
-  const bundle = await rollup({
-    input: entry,
-
-    // 排除scss文件直接复制到打包后的目录即可
-    external(source) {
-      if (source.endsWith('.css')) return true
-      return false
-    },
-
-    logLevel: 'warn',
-
-    plugins: [
-      esbuild({
-        minify: false,
-        format: 'esm'
-      }),
-      {
-        name: 'alias',
-        resolveId: {
-          order: 'pre',
-          handler(source, importer) {
-            // 如果导入来源是scss文件，则将导入来源替换为css文件
-            if (source.endsWith('.scss')) {
-              source = source.replace(/\.scss$/, '.css')
-            }
-
-            // 如果导入来源以@ui开头，则将导入来源替换为相对于导入文件的相对路径
-            if (source.startsWith('@ui') && importer) {
-              source = relative(
-                dirname(importer),
-                source.replace('@ui', UI_ROOT)
-              ).replace(/\\/g, '/')
-            }
-
-            if (source.endsWith('style')) {
-              source = source + '.js'
-            }
-
-            // 表示入口文件
-            if (!importer) {
-              return source
-            }
-
-            // 标记为外部文件，不进行额外地构建
-            return {
-              id: source,
-              external: true
-            }
-          }
-        }
-      }
-    ]
-  })
-
-  bundle.write({
-    dir: resolve(__dirname, '../dist'),
-    format: 'es'
-  })
-}
-
-async function buildCSS() {
-  const entries = await getScssEntries()
-
-  const results = await Promise.all(
-    entries.map(async entry => {
-      const result = await compileAsync(resolve(UI_ROOT, entry))
-      return {
-        path: resolve(__dirname, '../dist', entry).slice(0, -5) + '.css',
-        css: result.css
-      }
-    })
-  )
-
-  results.forEach(result => {
-    writeFile(result.path, result.css)
-  })
+/**
+ * 解析导入路径，支持 @ui 别名
+ */
+function resolveImportPath(source: string, importer: string): string {
+  // 处理 @ui 别名
+  if (source.startsWith('@ui/')) {
+    return resolve(UI_ROOT, source.slice(4)) // 移除 '@ui/' 前缀
+  }
+  // 相对路径
+  return resolve(dirname(importer), source)
 }
 
 /**
- * 构建样式
+ * SCSS 插件
+ *
+ * - 将 .scss 导入编译为 CSS 并输出
+ * - 在 JS 中重写导入路径为 .css
+ * - 将 .css 和 style.js 导入标记为外部模块
  */
-export async function buildStyles() {
-  /** 拷贝公用样式 */
-  await cp(
-    resolve(__dirname, '../ui/styles'),
-    resolve(__dirname, '../dist/styles'),
-    {
-      recursive: true,
-      filter: src => {
-        if (statSync(src).isDirectory()) return true
-        const filename = basename(src)
+function scssPlugin(): Plugin {
+  return {
+    name: 'scss',
 
-        if (
-          (/^_.*\.scss$/.test(filename) || /\.woff2$/.test(filename)) &&
-          !excludeFiles.has(filename)
-        ) {
-          return true
+    /**
+     * 解析模块导入
+     */
+    resolveId: {
+      filter: { id: /\.(scss|css|js)$|\/style$/ },
+      async handler(source, importer) {
+        if (!importer) return null
+
+        // 处理 .css 导入 - 标记为外部模块
+        if (source.endsWith('.css')) {
+          return {
+            id: source,
+            external: true
+          }
         }
 
-        return false
+        // 处理 .js 导入 - 标记为外部模块
+        if (source.endsWith('.js')) {
+          return {
+            id: source,
+            external: true
+          }
+        }
+
+        // 处理无扩展名的 style 导入 - 标记为外部模块并重写为 .js
+        if (source.endsWith('/style')) {
+          return {
+            id: source + '.js',
+            external: true
+          }
+        }
+
+        // 处理 .scss 导入
+        if (source.endsWith('.scss')) {
+          const resolved = resolveImportPath(source, importer)
+
+          // 计算相对于 UI_ROOT 的路径，用于确定输出位置
+          const relativeToUI = relative(UI_ROOT, resolved)
+          const cssOutputPath = resolve(
+            DIST_ROOT,
+            relativeToUI.replace(/\.scss$/, '.css')
+          )
+
+          // 编译 SCSS 文件
+          try {
+            const result = await compileAsync(resolved, {
+              loadPaths: [UI_ROOT, dirname(resolved)]
+            })
+
+            compiledScssMap.set(resolved, {
+              css: result.css,
+              outputPath: cssOutputPath
+            })
+          } catch (error) {
+            console.error(`Failed to compile SCSS: ${resolved}`, error)
+            throw error
+          }
+
+          // 返回一个虚拟 ID，表示这是需要处理的 SCSS
+          return {
+            id: `\0scss:${resolved}`,
+            external: false
+          }
+        }
+
+        return null
       }
+    },
+
+    /**
+     * 加载虚拟的 SCSS 模块
+     * 返回空模块，因为实际的 CSS 会单独输出
+     */
+    load: {
+      filter: { id: /^\0scss:/ },
+      handler() {
+        // 返回空模块，CSS 文件会单独输出
+        return {
+          code: '',
+          map: null
+        }
+      }
+    },
+
+    /**
+     * 转换 style.ts 文件
+     * 将导入路径重写为正确的格式
+     */
+    transform: {
+      filter: { id: /style\.ts$/ },
+      handler(code, id) {
+        let transformed = code
+
+        // 1. 将 import '@ui/styles/xxx.scss' 重写为相对路径 CSS 导入
+        //    计算从当前文件到 styles 目录的相对路径
+        const currentDir = dirname(relative(UI_ROOT, id))
+        const relativeToStyles = relative(currentDir, 'styles')
+
+        transformed = transformed.replace(
+          /import\s+['"]@ui\/styles\/([^'"]+)\.scss['"]/g,
+          (_, path) => `import '${relativeToStyles}/${path}.css'`
+        )
+
+        // 2. 将 import './style.scss' 重写为 import './style.css'
+        transformed = transformed.replace(
+          /import\s+['"]([^'"]+)\.scss['"]/g,
+          "import '$1.css'"
+        )
+
+        // 3. 将 import '../xxx/style' 重写为 import '../xxx/style.js'
+        //    匹配不带扩展名的 style 导入
+        transformed = transformed.replace(
+          /import\s+['"]([^'"]+\/style)['"]/g,
+          "import '$1.js'"
+        )
+
+        return {
+          code: transformed,
+          map: null
+        }
+      }
+    },
+
+    /**
+     * 在生成阶段输出编译后的 CSS 文件
+     */
+    async generateBundle() {
+      for (const [_scssPath, { css, outputPath }] of compiledScssMap) {
+        // 计算相对于 DIST_ROOT 的文件名
+        const fileName = relative(DIST_ROOT, outputPath)
+
+        this.emitFile({
+          type: 'asset',
+          fileName,
+          source: css
+        })
+      }
+
+      // 清理缓存
+      compiledScssMap.clear()
     }
-  )
+  }
+}
 
-  /** 构建组件样式 */
-  await buildCSS()
-
-  /** 构建组件入口 */
-  await buildStyleEntry()
+export async function buildStyles() {
+  await tsdownBuild({
+    cwd: UI_ROOT,
+    alias: { '@ui': UI_ROOT },
+    logLevel: 'warn',
+    entry: [
+      'components/**/style.ts',
+      'directives/**/style.ts',
+      'styles/index.ts'
+    ],
+    plugins: [scssPlugin()],
+    unbundle: true,
+    clean: false,
+    platform: 'browser',
+    format: ['es'],
+    dts: true,
+    outDir: DIST_ROOT
+  })
 }

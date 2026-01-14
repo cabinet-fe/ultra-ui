@@ -1,7 +1,5 @@
 {
   "name": "ultra",
-  "version": "0.4.24",
-  "description": "组件库",
   "type": "module",
   "scripts": {
     "gen": "bun cli/gen-component/index.ts",
@@ -23,7 +21,6 @@
     "sample",
     "cli",
     "build",
-    "build-down",
     "ui"
   ],
   "devDependencies": {

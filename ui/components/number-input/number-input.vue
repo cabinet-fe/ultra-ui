@@ -40,7 +40,7 @@
   </u-input>
 
   <template v-else>
-    {{ displayed || FORM_EMPTY_CONTENT }}
+    {{ generateDisplayed || FORM_EMPTY_CONTENT }}
   </template>
 </template>
 
@@ -116,6 +116,12 @@ const model = defineModel<NumberInputProps['modelValue']>()
 const displayed = shallowRef('')
 
 const focused = shallowRef(false)
+
+const generateDisplayed = computed(() => {
+  if (!displayed.value) return ''
+
+  return `${props.prefix ?? ''}${displayed.value}${props.suffix ?? ''}`
+})
 
 /** 步长 */
 const stepVal = computed<number>(() => {

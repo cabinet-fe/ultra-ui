@@ -6,10 +6,6 @@
   "type": "module",
   "devDependencies": {
     "@inquirer/prompts": "^7.10.1",
-    "rollup": "^4.55.1",
-    "esbuild": "^0.25.12",
-    "fs-extra": "^11.3.3",
-    "rollup-plugin-esbuild": "^6.2.1",
     "prettier": "^3.7.4",
     "picocolors": "^1.1.1"
   }

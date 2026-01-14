@@ -1,34 +1,28 @@
-import { buildStyles } from './build-styles'
-import { copyFiles } from './copy'
+import { resolve } from 'node:path'
 import { build } from './build'
-import { buildDTS } from './build-dts'
-import { genPackageJson } from './gen-package-json'
-import { genInstall } from './gen-install'
-import { $ } from 'execa'
-import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { buildStyles } from './build-styles'
+import { copyFiles, genFiles } from './prepare'
+import { release, promptVersion, updateVersion } from './release'
+import { UI_ROOT } from './shared'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const isRelease = process.argv.includes('--release')
 
-async function boot(buildOnly: boolean) {
-  await genInstall()
+async function boot(isRelease: boolean) {
+  let version: string | undefined
+
+  if (isRelease) {
+    version = await promptVersion()
+    await updateVersion(version, [resolve(UI_ROOT, 'package.json')])
+  }
+
   await build()
-  await buildDTS()
   await buildStyles()
   await copyFiles()
-  await genPackageJson()
-  // build-only: do NOT publish
-  if (buildOnly) return
-  try {
-    console.log('开始发布')
-    await $({
-      cwd: resolve(__dirname, '../dist'),
-      stdio: 'inherit'
-    })`npm publish --registry http://192.168.31.250:6005`
-    console.log('发布成功')
-  } catch (error: any) {
-    console.error(error.stderr?.toString())
+  await genFiles()
+
+  if (isRelease && version) {
+    await release(version)
   }
 }
 
-boot(process.argv.includes('build-only'))
+boot(isRelease)

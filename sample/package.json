@@ -5,14 +5,17 @@
   },
   "type": "module",
   "dependencies": {
-    "@builder/vite": "^2.1.1",
+    "@builder/vite": "^2.1.2",
+    "@ultra/icon": "^1.0.1",
     "vue-router": "^4.6.4",
+    "vue": "^3.5.26",
     "ultra-ui": "workspace:*"
-
   },
   "devDependencies": {
     "vite-plugin-vue-devtools": "^8.0.5",
     "unocss": "^66.5.12",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "cat-kit": "^3.7.14",
+    "sass-embedded": "^1.97.2"
   }
 }
