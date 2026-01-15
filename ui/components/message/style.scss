@@ -65,9 +65,13 @@ $root-name: message;
 .#{$root-name}-move, /* 对移动中的元素应用的过渡 */
 .#{$root-name}-enter-active,
 .#{$root-name}-leave-active {
-  transition-duration: 0.3s;
+  transition-duration: 3s;
   transition-timing-function: ease;
   transition-property: opacity, transform;
+}
+
+.#{$root-name}-leave-active {
+  // transition-duration: 30s;
 }
 
 .#{$root-name}-enter-from,
