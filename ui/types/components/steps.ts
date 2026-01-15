@@ -1,4 +1,4 @@
-import type { ColorType } from '../component-common'
+import type { ColorType, ComponentSize } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 步骤组件组件属性 */
@@ -7,6 +7,10 @@ export interface StepsProps {
    * 当前步骤项，默认为步骤的索引
    */
   current?: string | number
+  /**
+   * 尺寸
+   */
+  size?: ComponentSize
   /**
    * 步骤项
    */

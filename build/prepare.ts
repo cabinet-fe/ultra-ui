@@ -31,6 +31,7 @@ export async function genFiles() {
         import: './index.js'
       },
       './*': {
+        types: './*.d.ts',
         default: './*',
         import: './*'
       },
