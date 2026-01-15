@@ -1,9 +1,15 @@
 {
   "name": "ultra-ui",
   "type": "module",
-  "version": "0.4.30",
+  "version": "0.4.32",
   "description": "组件库",
-  "sideEffects": false,
+  "sideEffects": [
+    "components/**/style.js",
+    "directives/**/style.js",
+    "styles/index.js",
+    "*.css",
+    "*.scss"
+  ],
   "module": "./index.ts",
   "exports": {
     ".": "./index.ts",
@@ -28,7 +34,7 @@
   },
   "peerDependencies": {
     "vue": "^3.5.26",
-    "cat-kit": "^3.7.14",
+    "cat-kit": "^3.7.15",
     "@ultra/icon": "^1.0.1"
   },
   "peerDependenciesMeta": {

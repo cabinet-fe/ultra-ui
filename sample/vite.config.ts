@@ -4,13 +4,10 @@ import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import UnoCSS from 'unocss/vite'
-import { createRequire } from 'node:module'
 import { existModule } from 'cat-kit/be'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-const r = createRequire(import.meta.url)
-
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
   return {
     base: '/',
 
@@ -38,13 +35,14 @@ export default defineConfig(() => {
               prefix: 'U',
               lib: 'ultra-ui',
               sideEffects(kebabName, lib) {
-                let moduleId = `${lib}/components/${kebabName}/style.ts`
+                const ext = 'ts'
+                let moduleId = `${lib}/components/${kebabName}/style.${ext}`
 
                 while (!existModule(moduleId)) {
                   const preKebabName = kebabName
                   kebabName = kebabName.replace(/-[a-z]$/, '')
                   if (preKebabName === kebabName) return
-                  moduleId = `${lib}/components/${kebabName}/style.ts`
+                  moduleId = `${lib}/components/${kebabName}/style.${ext}`
                 }
 
                 return moduleId

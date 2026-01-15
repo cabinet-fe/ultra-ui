@@ -23,6 +23,7 @@ export async function genFiles() {
   const pkgJSON = await readJson(resolve(UI_ROOT, 'package.json'))
 
   Object.assign(pkgJSON, {
+    name: 'ultra-ui',
     exports: {
       '.': {
         types: './index.d.ts',
