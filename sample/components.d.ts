@@ -61,6 +61,7 @@ declare module 'vue' {
     UPasswordInput: typeof import('ultra-ui')['UPasswordInput']
     UPopConfirm: typeof import('ultra-ui')['UPopConfirm']
     UProgress: typeof import('ultra-ui')['UProgress']
+    UProgressNodes: typeof import('ultra-ui')['UProgressNodes']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
     URadioGroups: typeof import('ultra-ui')['URadioGroups']

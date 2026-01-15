@@ -1,16 +1,153 @@
 <template>
-  <div :class="cls.b"></div>
+  <div
+    ref="container"
+    :class="className"
+    :style="containerStyle"
+    @wheel="handleWheel"
+    @scroll="checkScroll"
+  >
+    <div :class="cls.e('list')">
+      <div
+        v-for="(node, index) in nodes"
+        :key="node.key ?? index"
+        :class="[
+          cls.e('item'),
+          bem.is('checked', isChecked(node, index)),
+          bem.is('active', isActive(node))
+        ]"
+        @click="handleClick(node, index)"
+      >
+        <div :class="cls.e('node')">
+          <!-- 虚线连接 -->
+          <div v-if="index !== nodes.length - 1" :class="cls.e('link')"></div>
+
+          <!-- 节点圆点 -->
+          <span :class="cls.e('dot')">
+            <slot name="icon" :node="node" :index="index" />
+          </span>
+        </div>
+
+        <div :class="cls.e('label')">
+          <slot :node="node" :index="index">
+            {{ getLabel(node) }}
+          </slot>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import type { ProgressNodesProps } from '@ui/types'
+import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
+import type { ProgressNodesProps, ProgressNodeItem, ProgressNodesEmits } from '@ui/types'
+import { useDrag, useResizeObserver } from '@ui/compositions'
 import { bem } from '@ui/utils'
+import { getChainValue } from 'cat-kit/fe'
 
 defineOptions({
   name: 'ProgressNodes'
 })
 
-defineProps<ProgressNodesProps>()
+const props = withDefaults(defineProps<ProgressNodesProps>(), {
+  colorType: 'primary',
+  labelKey: 'label',
+  valueKey: 'value'
+})
+
+const emit = defineEmits<ProgressNodesEmits>()
+
+const modelValue = defineModel<string | number>()
+
+const { nodes } = toRefs(props)
 
 const cls = bem('progress-nodes')
+const containerRef = useTemplateRef('container')
+const isDragging = shallowRef(false)
+const showMaskStart = shallowRef(false)
+const showMaskEnd = shallowRef(false)
+
+const className = computed(() => [
+  cls.b,
+  cls.m(props.colorType),
+  bem.is('dragging', isDragging.value),
+  bem.is('mask-start', showMaskStart.value),
+  bem.is('mask-end', showMaskEnd.value)
+])
+
+const containerStyle = computed(() => {
+  const style: Record<string, string> = {}
+  const maxWidth = toCssSize(props.maxWidth)
+  if (maxWidth) style.maxWidth = maxWidth
+  return style
+})
+
+let startScrollLeft = 0
+
+useDrag({
+  target: containerRef,
+  onDragStart() {
+    const container = containerRef.value
+    if (!container) return
+    isDragging.value = true
+    startScrollLeft = container.scrollLeft
+  },
+  onDrag({ x }) {
+    const container = containerRef.value
+    if (!container) return
+    container.scrollLeft = startScrollLeft - x
+  },
+  onDragEnd() {
+    isDragging.value = false
+  }
+})
+
+useResizeObserver({
+  targets: containerRef,
+  onResize: checkScroll
+})
+
+watch(nodes, () => {
+  nextTick(checkScroll)
+}, { deep: true })
+
+function checkScroll() {
+  const container = containerRef.value
+  if (!container) return
+
+  const { scrollLeft, scrollWidth, clientWidth } = container
+  showMaskStart.value = scrollLeft > 0
+  showMaskEnd.value = scrollLeft + clientWidth < scrollWidth - 1
+}
+
+function isChecked(node: ProgressNodeItem, index: number) {
+  return props.check?.(node, index) ?? false
+}
+
+function isActive(node: ProgressNodeItem) {
+  const value = getChainValue(node, props.valueKey)
+  return modelValue.value === value
+}
+
+function getLabel(node: ProgressNodeItem) {
+  return getChainValue(node, props.labelKey)
+}
+
+function handleClick(node: ProgressNodeItem, index: number) {
+  const value = getChainValue(node, props.valueKey)
+  modelValue.value = value
+  emit('click', node, index)
+}
+
+function handleWheel(event: WheelEvent) {
+  const container = containerRef.value
+  if (!container) return
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+  container.scrollLeft += event.deltaY
+  event.preventDefault()
+}
+
+function toCssSize(value?: number | string) {
+  if (value === undefined) return undefined
+  return typeof value === 'number' ? `${value}px` : value
+}
 </script>

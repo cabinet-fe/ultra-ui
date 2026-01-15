@@ -133,3 +133,5 @@ export * from './tree-select'
 export * from './tree'
 
 export * from './watermark'
+
+export * from './progress-nodes'

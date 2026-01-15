@@ -1,13 +1,39 @@
+import type { ColorType } from '../component-common'
 import type { DeconstructValue } from '../helper'
 
 /** 进度节点组件属性 */
 export interface ProgressNodesProps {
-  modelValue?: string
+  /** 当前选中节点的值 */
+  modelValue?: string | number
+  /** 节点列表 */
+  nodes: ProgressNodeItem[]
+  /** 检查节点是否选中的函数 */
+  check?: (node: ProgressNodeItem, index: number) => boolean
+  /** 高亮颜色类型 */
+  colorType?: ColorType
+  /** 最大宽度（用于水平方向滚动） */
+  maxWidth?: number | string
+  /** 标签键名 */
+  labelKey?: string
+  /** 值键名 */
+  valueKey?: string
 }
 
 /** 进度节点组件定义的事件 */
 export interface ProgressNodesEmits {
-  (e: 'update:modelValue', value: string): void
+  /** 点击节点时触发 */
+  (e: 'click', node: ProgressNodeItem, index: number): void
+  /** 更新选中值时触发 */
+  (e: 'update:modelValue', value: string | number): void
+}
+
+/** 进度节点数据 */
+export interface ProgressNodeItem {
+  /** 节点唯一标识 */
+  key?: string | number
+  /** 节点显示文本 */
+  label?: string
+  [key: string]: any
 }
 
 /** 进度节点组件暴露的属性和方法(组件内部使用) */
