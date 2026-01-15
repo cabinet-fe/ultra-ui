@@ -1,5 +1,3 @@
-
-
 export * from './components/cascade'
 
 export * from './components/message'
@@ -21,6 +19,8 @@ export * from './components/scroll'
 export * from './components/watermark'
 
 export * from './components/progress'
+
+export * from './components/progress-nodes'
 
 export * from './components/pop-confirm'
 

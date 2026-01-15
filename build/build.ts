@@ -7,7 +7,7 @@ import VueJSX from 'unplugin-vue-jsx/rolldown'
 export async function build() {
   await tsdownBuild({
     cwd: UI_ROOT,
-    entry: 'index.ts',
+    entry: ['index.ts', 'types/index.ts'],
     alias: { '@ui': UI_ROOT },
     unbundle: true,
     platform: 'browser',
