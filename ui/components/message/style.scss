@@ -11,14 +11,19 @@ $root-name: message;
   line-height: 1;
   align-items: center;
   margin-bottom: fn.use-var(gap, large);
+  pointer-events: auto;
 
   @include m.e(container) {
-    flex-direction: column;
     position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: fn.use-var(gap, default) 0;
-    left: 50%;
-    transform: translate(-50%, 0);
+    pointer-events: none;
 
     @include m.flex;
   }
@@ -65,13 +70,9 @@ $root-name: message;
 .#{$root-name}-move, /* 对移动中的元素应用的过渡 */
 .#{$root-name}-enter-active,
 .#{$root-name}-leave-active {
-  transition-duration: 3s;
+  transition-duration: 0.3s;
   transition-timing-function: ease;
   transition-property: opacity, transform;
-}
-
-.#{$root-name}-leave-active {
-  // transition-duration: 30s;
 }
 
 .#{$root-name}-enter-from,
@@ -84,6 +85,5 @@ $root-name: message;
   以便能够正确地计算移动的动画。 */
 .#{$root-name}-leave-active {
   position: absolute;
-
   width: max-content;
 }
