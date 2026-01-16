@@ -4,11 +4,11 @@
 
     <u-select
       :class="cls.e('size-select')"
-      :model-value="currentSize"
-      @update:model-value="handleUpdateSize"
+      v-model="pageSize"
       size="small"
       :options="sizeOptions"
       :clearable="false"
+      @change="handleChangePageSize"
     />
 
     <ul :class="[cls.e('pages')]" v-if="!simple">
@@ -102,8 +102,7 @@ defineOptions({
 const { config } = useConfig()
 
 const props = withDefaults(defineProps<PaginatorProps>(), {
-  total: 0,
-  pageNumber: 1
+  total: 0
 })
 
 const emit = defineEmits<PaginatorEmits>()
@@ -114,21 +113,32 @@ const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
+const pageNumber = defineModel<number>('pageNumber', {
+  default: 1
+})
 
-function updatePageNumber(value: number) {
-  emit('update:pageNumber', value)
+const pageSize = defineModel<number>('pageSize', {
+  default: 10
+})
+
+
+function emitPageSize(value: number) {
+  emit('change:pageSize', value)
 }
 
-const handleUpdateSize = (value: number) => {
-  emit('update:pageSize', value)
-  // 重置页码为1
-  updatePageNumber(1)
+function emitPageNumber(value: number) {
+  emit('change:pageNumber', value)
+}
+
+const handleChangePageSize = (size?: Record<string, any>) => {
+  pageNumber.value = 1
+  emitPageSize(size?.value)
 }
 
 function handleChangePageNumber(num: number) {
   if (props.pageNumber === num) return
-
-  updatePageNumber(num)
+  pageNumber.value = num
+  emitPageNumber(pageNumber.value)
 }
 
 
@@ -152,7 +162,7 @@ const sizeOptions = computed(() => {
 
 /** 做多显示5个页码 */
 const pageNumbers = computed(() => {
-  const startPageNum = n(props.pageNumber - 2).range(
+  const startPageNum = n(pageNumber.value - 2).range(
     1,
     Math.max(totalPages.value - 4, 1)
   )
@@ -163,34 +173,40 @@ const pageNumbers = computed(() => {
 })
 
 const preDisabled = computed(() => {
-  return props.pageNumber <= 1
+  return pageNumber.value <= 1
 })
 const nextDisabled = computed(() => {
-  return props.pageNumber >= totalPages.value
+  return pageNumber.value >= totalPages.value
 })
 
 function handleJumpToFirst() {
   if (preDisabled.value) return
-  updatePageNumber(1)
+  pageNumber.value = 1
+  emitPageNumber(pageNumber.value)
 }
 function handleJumpToLast() {
   if (nextDisabled.value) return
-  updatePageNumber(totalPages.value)
+  pageNumber.value = totalPages.value
+  emitPageNumber(pageNumber.value)
 }
 function handleJumpToPrev() {
   if (preDisabled.value) return
-  updatePageNumber(props.pageNumber - 1)
+  pageNumber.value = pageNumber.value - 1
+  emitPageNumber(pageNumber.value)
 }
 function handleJumpToNext() {
   if (nextDisabled.value) return
-  updatePageNumber(props.pageNumber + 1)
+
+  pageNumber.value = pageNumber.value + 1
+  emitPageNumber(pageNumber.value)
 }
 
 function handleKeyEnter(e: KeyboardEvent) {
   const target = e.target as HTMLInputElement
   const val = +target.value
   if (!isNaN(val) && val > 0 && val <= totalPages.value) {
-    updatePageNumber(val)
+    pageNumber.value = val
+    emitPageNumber(pageNumber.value)
   }
 }
 

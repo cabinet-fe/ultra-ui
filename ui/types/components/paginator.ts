@@ -20,7 +20,9 @@ export interface PaginatorProps {
 /** 分页器组件组件定义的事件 */
 export interface PaginatorEmits {
   (e: 'update:pageNumber', value: number): void
+  (e: 'change:pageNumber', value: number): void
   (e: 'update:pageSize', value: number): void
+  (e: 'change:pageSize', value: number): void
 }
 
 /** 分页器组件组件暴露的属性和方法(组件内部使用) */
