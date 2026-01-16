@@ -28,7 +28,7 @@
 
     <CustomCard title="可滚动/拖拽">
       <u-progress-nodes
-        v-model="activeNode"
+
         :nodes="longNodes"
         :check="isChecked"
         color-type="success"

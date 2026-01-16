@@ -13,7 +13,7 @@ $root-name: progress-nodes;
   position: relative;
   color: var(--node-color);
   overflow: auto;
-  cursor: grab;
+  cursor: default;
 
   // 隐藏滚动条但保留功能
   scrollbar-width: none;
@@ -21,6 +21,9 @@ $root-name: progress-nodes;
     display: none;
   }
 
+  @include m.is(scrollable) {
+    cursor: grab;
+  }
   @include m.is(dragging) {
     cursor: grabbing;
   }
@@ -154,9 +157,8 @@ $root-name: progress-nodes;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
     text-align: center;
-    padding: 8px 12px;
+    padding: 4px;
   }
 
   @include m.e(node) {

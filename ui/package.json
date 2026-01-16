@@ -1,7 +1,7 @@
 {
   "name": "ultra-ui",
   "type": "module",
-  "version": "0.4.35",
+  "version": "0.4.36",
   "description": "组件库",
   "sideEffects": [
     "components/**/style.js",

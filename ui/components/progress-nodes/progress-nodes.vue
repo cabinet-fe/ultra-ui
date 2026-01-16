@@ -6,8 +6,8 @@
     @wheel="handleWheel"
     @scroll="checkScroll"
   >
-    <div :class="cls.e('list')">
-      <div
+    <ul :class="cls.e('list')">
+      <li
         v-for="(node, index) in nodes"
         :key="node.key ?? index"
         :class="[
@@ -32,8 +32,8 @@
             {{ getLabel(node) }}
           </slot>
         </div>
-      </div>
-    </div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -56,19 +56,21 @@ const props = withDefaults(defineProps<ProgressNodesProps>(), {
 
 const emit = defineEmits<ProgressNodesEmits>()
 
-const modelValue = defineModel<string | number>()
+
 
 const { nodes } = toRefs(props)
 
 const cls = bem('progress-nodes')
 const containerRef = useTemplateRef('container')
 const isDragging = shallowRef(false)
+const isScrollable = shallowRef(false)
 const showMaskStart = shallowRef(false)
 const showMaskEnd = shallowRef(false)
 
 const className = computed(() => [
   cls.b,
   cls.m(props.colorType),
+  bem.is('scrollable', isScrollable.value),
   bem.is('dragging', isDragging.value),
   bem.is('mask-start', showMaskStart.value),
   bem.is('mask-end', showMaskEnd.value)
@@ -86,12 +88,14 @@ let startScrollLeft = 0
 useDrag({
   target: containerRef,
   onDragStart() {
+    if (!isScrollable.value) return
     const container = containerRef.value
     if (!container) return
     isDragging.value = true
     startScrollLeft = container.scrollLeft
   },
   onDrag({ x }) {
+    if (!isScrollable.value) return
     const container = containerRef.value
     if (!container) return
     container.scrollLeft = startScrollLeft - x
@@ -115,6 +119,7 @@ function checkScroll() {
   if (!container) return
 
   const { scrollLeft, scrollWidth, clientWidth } = container
+  isScrollable.value = scrollWidth > clientWidth + 1
   showMaskStart.value = scrollLeft > 0
   showMaskEnd.value = scrollLeft + clientWidth < scrollWidth - 1
 }
@@ -125,7 +130,7 @@ function isChecked(node: ProgressNodeItem, index: number) {
 
 function isActive(node: ProgressNodeItem) {
   const value = getChainValue(node, props.valueKey)
-  return modelValue.value === value
+  return props.modelValue === value
 }
 
 function getLabel(node: ProgressNodeItem) {
@@ -134,7 +139,7 @@ function getLabel(node: ProgressNodeItem) {
 
 function handleClick(node: ProgressNodeItem, index: number) {
   const value = getChainValue(node, props.valueKey)
-  modelValue.value = value
+  emit('update:modelValue', value)
   emit('click', node, index)
 }
 
