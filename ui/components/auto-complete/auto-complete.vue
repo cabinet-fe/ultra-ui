@@ -17,9 +17,7 @@
         :placeholder="placeholder"
         :clearable="clearable"
         v-model="model"
-        @keyup.enter="
-          cachedSuggestion && handleSelectCachedOption(cachedSuggestion)
-        "
+        @keydown="handleInputKeydown"
       >
         <template #suffix v-if="slots.suffix">
           <slot name="suffix" />
@@ -36,7 +34,7 @@
       <u-scroll tag="ul" :class="cls.e('options')" ref="scrollRef">
         <li
           v-if="cachedSuggestion"
-          :class="[optionClass]"
+          :class="[optionClass, bem.is('active', isCachedActive)]"
           @click="handleSelectCachedOption(cachedSuggestion)"
           v-ripple="cls.e('ripple')"
           :data-key="cachedSuggestion"
@@ -49,7 +47,11 @@
 
         <li
           v-for="(option, index) of suggestions"
-          :class="[optionClass, bem.is('selected', option === model)]"
+          :class="[
+            optionClass,
+            bem.is('selected', option === model),
+            bem.is('active', isActiveOption(index))
+          ]"
           @click="handleSelect(option)"
           v-ripple="cls.e('ripple')"
           :data-key="option"
@@ -69,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import type {
   AutoCompleteEmits,
   AutoCompleteProps,
@@ -141,10 +143,66 @@ const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({
   model
 })
 
-useKeyboard({
+const keyboardOptions = computed(() => {
+  const currentSuggestions = suggestions.value
+  return cachedSuggestion.value
+    ? [cachedSuggestion.value, ...currentSuggestions]
+    : currentSuggestions
+})
+
+const { point, handleKeydown } = useKeyboard({
+  options: keyboardOptions,
   dropdownVisible,
-  model,
-  suggestions
+  getDefaultIndex: options => {
+    if (!options.length) return -1
+    if (model.value) {
+      const matchIndex = options.indexOf(model.value)
+      if (matchIndex > -1) return matchIndex
+    }
+    return 0
+  },
+  onSelect: (option, index) => {
+    if (cachedSuggestion.value && index === 0) {
+      handleSelectCachedOption(option)
+      return
+    }
+    handleSelect(option)
+  }
+})
+
+const isCachedActive = computed(
+  () => !!cachedSuggestion.value && point.value === 0
+)
+
+const isActiveOption = (index: number) => {
+  const offset = cachedSuggestion.value ? 1 : 0
+  return point.value === index + offset
+}
+
+const handleInputKeydown = (event: KeyboardEvent) => {
+  if (
+    !dropdownVisible.value &&
+    event.key === 'Enter' &&
+    cachedSuggestion.value
+  ) {
+    event.preventDefault()
+    event.stopPropagation()
+    handleSelectCachedOption(cachedSuggestion.value)
+    return
+  }
+  handleKeydown(event)
+}
+
+watch([point, keyboardOptions], ([currentPoint, options]) => {
+  if (!scrollRef.value || currentPoint < 0) return
+  const currentOption = options[currentPoint]
+  if (!currentOption) return
+  const target = scrollRef.value.contentRef?.querySelector(
+    `li[data-key="${currentOption}"]`
+  ) as HTMLElement | null
+  if (target) {
+    scrollIntoContainerView(target, scrollRef.value.containerRef ?? null)
+  }
 })
 
 /** 选中选项 */

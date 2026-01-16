@@ -1,9 +1,10 @@
-import { type ComputedRef, type ModelRef, type Ref, ref } from 'vue'
+import { type ComputedRef, type Ref, ref, watch } from 'vue'
 
 interface Options {
-  model: ModelRef<string | undefined>
-  suggestions: ComputedRef<string[]>
+  options: ComputedRef<string[]>
   dropdownVisible: Ref<boolean>
+  onSelect: (option: string, index: number) => void
+  getDefaultIndex?: (options: string[]) => number
 }
 
 interface UseKeyboardReturned {
@@ -12,37 +13,80 @@ interface UseKeyboardReturned {
 }
 
 export function useKeyboard(options: Options): UseKeyboardReturned {
-  const { suggestions, model, dropdownVisible } = options
+  const {
+    options: selectableOptions,
+    dropdownVisible,
+    onSelect,
+    getDefaultIndex
+  } = options
   const keys = new Set(['ArrowUp', 'ArrowDown', 'Enter', 'Escape'])
 
-  const point = ref(0)
+  const point = ref(-1)
+
+  const resolveDefaultPoint = () => {
+    if (!selectableOptions.value.length) return -1
+    if (getDefaultIndex) {
+      const index = getDefaultIndex(selectableOptions.value)
+      if (index >= 0 && index < selectableOptions.value.length) {
+        return index
+      }
+    }
+    return 0
+  }
+
+  watch(
+    [selectableOptions, dropdownVisible],
+    ([value, visible]) => {
+      if (!value.length || !visible) {
+        point.value = -1
+        return
+      }
+      if (point.value === -1 || point.value >= value.length) {
+        point.value = resolveDefaultPoint()
+      }
+    },
+    { immediate: true }
+  )
 
   function moveToNext() {
-    const nextPoint = point.value + 1
-    if (nextPoint < suggestions.value.length) {
-      point.value = nextPoint
-    } else {
-      point.value = 0
+    if (!selectableOptions.value.length) return
+    if (!dropdownVisible.value) {
+      dropdownVisible.value = true
+      point.value = resolveDefaultPoint()
+      return
     }
+    const nextPoint = point.value + 1
+    point.value =
+      nextPoint < selectableOptions.value.length ? nextPoint : 0
   }
 
   function moveToPrev() {
-    const prevPoint = point.value - 1
-    if (prevPoint > -1) {
-      point.value = prevPoint
-    } else {
-      point.value = suggestions.value.length - 1
+    if (!selectableOptions.value.length) return
+    if (!dropdownVisible.value) {
+      dropdownVisible.value = true
+      point.value = selectableOptions.value.length - 1
+      return
     }
+    const prevPoint = point.value - 1
+    point.value =
+      prevPoint > -1
+        ? prevPoint
+        : selectableOptions.value.length - 1
   }
 
   function selectOption() {
     if (!dropdownVisible.value) {
-      dropdownVisible.value = true
+      if (selectableOptions.value.length) {
+        dropdownVisible.value = true
+        if (point.value === -1) {
+          point.value = resolveDefaultPoint()
+        }
+      }
       return
     }
-    const suggestion = suggestions.value[point.value]
-    if (suggestion) {
-      model.value = suggestion
+    const suggestion = selectableOptions.value[point.value]
+    if (suggestion && point.value > -1) {
+      onSelect(suggestion, point.value)
     }
     dropdownVisible.value = false
   }

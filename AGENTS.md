@@ -26,6 +26,22 @@
 
 - **包管理器**：bun
 
+## 项目结构
+
+编写新功能或者进行更改时**按需参考**下面的项目结构，以便复用已有的代码，例如工具，颜色混入等：
+
+- `ui/`：核心组件库源码
+  - `components/`：组件实现（`.vue`/`.ts`/`.scss`）
+  - `types/`：组件与通用类型定义（`components/*.ts`、`component-common.ts`）
+  - `compositions/`：组合式能力与跨组件逻辑（如 `use-model`、`use-transition`）
+  - `directives/`：指令实现与样式（如 `ripple`、`click-outside`）
+  - `styles/`：主题、变量、混入、全局样式与动画
+  - `utils/`：DOM/表单/响应式等工具函数
+  - `shared/`：库内共享常量与入口聚合
+  - `index.ts`：组件库入口导出
+  - `install.ts`：插件安装与全局注册
+  - `package.json`、`tsconfig.json`：库内构建配置
+
 
 ## 代码审查
 

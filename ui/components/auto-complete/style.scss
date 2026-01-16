@@ -36,6 +36,10 @@ $root-name: auto-complete;
       background-color: fn.use-var(color, primary, light-9);
     }
 
+    @include m.is(active) {
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
     @include m.is(selected) {
       background-color: fn.use-var(color, primary, light-3);
       color: fn.use-var(text-color, white);
