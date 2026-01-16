@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
-import type { ProgressNodesProps, ProgressNodeItem, ProgressNodesEmits } from '@ui/types'
+import type { ProgressNodesProps, ProgressNodesEmits } from '@ui/types'
 import { useDrag, useResizeObserver } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
@@ -124,20 +124,20 @@ function checkScroll() {
   showMaskEnd.value = scrollLeft + clientWidth < scrollWidth - 1
 }
 
-function isChecked(node: ProgressNodeItem, index: number) {
+function isChecked(node: Record<string, any>, index: number) {
   return props.check?.(node, index) ?? false
 }
 
-function isActive(node: ProgressNodeItem) {
+function isActive(node: Record<string, any>) {
   const value = getChainValue(node, props.valueKey)
   return props.modelValue === value
 }
 
-function getLabel(node: ProgressNodeItem) {
+function getLabel(node: Record<string, any>) {
   return getChainValue(node, props.labelKey)
 }
 
-function handleClick(node: ProgressNodeItem, index: number) {
+function handleClick(node: Record<string, any>, index: number) {
   const value = getChainValue(node, props.valueKey)
   emit('update:modelValue', value)
   emit('click', node, index)
