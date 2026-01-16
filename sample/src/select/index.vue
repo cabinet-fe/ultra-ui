@@ -18,14 +18,8 @@
     </CustomCard>
 
     <CustomCard width="400px" title="网格布局">
-      <u-select
-        v-model="selected"
-        :options="options"
-        filterable
-        value-key="value"
-        :grid="{ cols: 4, gap: 10 }"
-        v-slot="{ option }"
-      >
+      <u-select v-model="selected" :options="options" filterable value-key="value" :grid="{ cols: 4, gap: 10 }"
+        v-slot="{ option }">
         <div style="height: 80px; text-align: center">
           <div>
             <u-icon :size="30">
@@ -36,6 +30,11 @@
         </div>
       </u-select>
     </CustomCard>
+
+    <u-form :model="model">
+      <u-input label="选项" field="options"></u-input>
+      <u-select label="选择" field="select" value-key="value" :clearable="false" :options="options1" />
+    </u-form>
   </div>
 </template>
 
@@ -44,6 +43,7 @@ import { shallowRef, watchEffect } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { sleep } from 'cat-kit/fe'
 import { Monitor } from '@ultra/icon'
+import { FormModel } from 'ultra-ui'
 
 const options = shallowRef<any[]>([])
 
@@ -55,6 +55,47 @@ watchEffect(() => {
     value: i + ''
   }))
 })
+
+const model = new FormModel({
+  select: { value: 12 },
+  options: {
+    value: '40,100',
+    validator(value, data) {
+      if (value.includes('，')) {
+        return '请使用英文标点分隔'
+      }
+      return ''
+    }
+  }
+})
+
+const options1 = shallowRef(model.data.options
+  ?.split(',')
+  .map(i => {
+    const n = +i
+    return { label: i, value: n }
+  })
+  .filter(i => !isNaN(i.value)))
+
+  model.onChange((field, val) => {
+  field === 'select' && console.log(field, val)
+
+
+})
+
+
+
+setTimeout(() => {
+  model.setData({
+    options: '10',
+    select: 10
+  })
+  options1.value = [{
+    value: 10,
+    label: '10'
+  }]
+}, 500)
+
 
 const selected = shallowRef()
 

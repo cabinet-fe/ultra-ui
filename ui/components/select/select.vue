@@ -1,90 +1,58 @@
 <template>
-  <u-dropdown
-    v-if="!readonly"
-    trigger="click"
-    :class="[cls.b, bem.is('disabled', disabled)]"
-    ref="dropdownRef"
-    v-model:visible="dropdownVisible"
-    :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
-    :content-style="contentStyle"
-    :disabled="disabled"
-    :min-width="minWidth"
-    :width="width"
-    @keydown="handleKeydown"
-    @update:visible="handleDropdownVisible"
-  >
+  <u-dropdown v-if="!readonly" trigger="click" :class="[cls.b, bem.is('disabled', disabled)]" ref="dropdownRef"
+    v-model:visible="dropdownVisible" :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
+    :content-style="contentStyle" :disabled="disabled" :min-width="minWidth" :width="width" @keydown="handleKeydown"
+    @update:visible="handleDropdownVisible">
     <!-- 触发 -->
     <template #trigger>
-      <u-input
-        :size="size"
-        :disabled="disabled"
-        :placeholder="placeholder"
-        :clearable="clearable"
-        :model-value="
-          selected ? (getChainValue(selected, labelKey) ?? label) : modelValue
-        "
-        @clear="handleClear"
-        @keydown="handleKeydown"
-        native-readonly
-      >
+      <div>
+        <u-input :size="size" :disabled="disabled" :placeholder="placeholder" :clearable="clearable" :model-value="selected ? (getChainValue(selected, labelKey) ?? label) : modelValue" @clear="handleClear" @keydown="handleKeydown" native-readonly>
         <template #prefix v-if="$slots.prefix">
           <slot name="prefix" />
         </template>
 
         <template #suffix>
-          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
+          <u-icon :class="cls.e('arrow')">
+            <ArrowDown />
+          </u-icon>
         </template>
       </u-input>
+      </div>
+
     </template>
 
     <!-- 下拉内容 -->
     <template #content>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input
-          placeholder="输入关键字进行搜索"
-          tabindex="0"
-          v-focus
-          v-model="queryString"
-        >
+        <u-input placeholder="输入关键字进行搜索" tabindex="0" v-focus v-model="queryString">
           <template #suffix>
-            <u-icon><Search /></u-icon>
+            <u-icon>
+              <Search />
+            </u-icon>
           </template>
         </u-input>
       </div>
 
       <!-- 单选列表 -->
-      <u-scroll
-        v-if="options.length"
-        tag="ul"
-        :class="cls.e('options')"
-        ref="scrollRef"
-        :content-class="[
-          cls.e('options-wrap'),
-          bem.is('virtual', virtualEnabled),
-          bem.is('grid', !!grid)
-        ]"
-        :content-style="{
+      <u-scroll v-if="options.length" tag="ul" :class="cls.e('options')" ref="scrollRef" :content-class="[
+        cls.e('options-wrap'),
+        bem.is('virtual', virtualEnabled),
+        bem.is('grid', !!grid)
+      ]" :content-style="{
           height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined,
           gridTemplateColumns: grid
             ? `repeat(${grid.cols}, minmax(0px, 1fr))`
             : undefined,
           gridGap: grid ? withUnit(grid.gap, 'px') : undefined
-        }"
-      >
+        }">
         <template v-if="virtualEnabled">
           <!-- @vue-ignore -->
-          <li
-            v-for="{ option, index, val, label, key, offset } of virtualOptions"
-            :class="[optionClass, bem.is('selected', index === currentIndex)]"
-            @click="handleSelect(option, index)"
-            :key="key"
-            :style="{
+          <li v-for="{ option, index, val, label, key, offset } of virtualOptions"
+            :class="[optionClass, bem.is('selected', index === currentIndex)]" @click="handleSelect(option, index)"
+            :key="key" :style="{
               transform: `translateY(${offset}px)`
-            }"
-            :data-index="index"
-            :ref="measureElement"
-          >
+            }" :data-index="index" :ref="measureElement">
             <slot v-bind="{ option, index }">
               {{ label }}
             </slot>
@@ -92,14 +60,9 @@
         </template>
 
         <template v-else>
-          <li
-            v-for="(option, index) of options"
-            :class="[optionClass, bem.is('selected', index === currentIndex)]"
-            @click="handleSelect(option, index)"
-            :data-index="index"
-            :title="getChainValue(option, labelKey)"
-            :key="getChainValue(option, valueKey)"
-          >
+          <li v-for="(option, index) of options" :class="[optionClass, bem.is('selected', index === currentIndex)]"
+            @click="handleSelect(option, index)" :data-index="index" :title="getChainValue(option, labelKey)"
+            :key="getChainValue(option, valueKey)">
             <slot v-bind="{ option, index }">
               {{ getChainValue(option, labelKey) }}
             </slot>
@@ -182,7 +145,6 @@ const { size, disabled, readonly } = useFormFallbackProps(
   }
 )
 
-const model = defineModel<string | number>()
 const currentIndex = shallowRef(-1)
 const label = defineModel('text')
 const selected = shallowRef<Record<string, any>>()
@@ -198,35 +160,31 @@ const { queryString, options, temOptionsToCreatedOptions } = useOptions({
   props
 })
 
-const { update, updateAndLock } = useUpdateLock()
 
+
+let userSelecting = false
+// 回显
 watch(
-  [model, options],
+  [() => props.modelValue, options],
   ([modelValue, options]) => {
-    update(() => {
-      if (!options?.length) return
+    if (userSelecting) return
+    if (!options?.length) return
 
-      if (modelValue !== undefined) {
-        const { valueKey } = props
-        currentIndex.value = options.findIndex(
-          option => getChainValue(option, valueKey) === modelValue
-        )
-        selected.value = options[currentIndex.value]
-      } else {
-        currentIndex.value = -1
-        selected.value = undefined
-      }
-    })
+    if (modelValue !== undefined) {
+      const { valueKey } = props
+      currentIndex.value = options.findIndex(
+        option => getChainValue(option, valueKey) === modelValue
+      )
+      selected.value = options[currentIndex.value]
+
+    } else {
+      currentIndex.value = -1
+      selected.value = undefined
+    }
   },
   { immediate: true }
 )
 
-watch(selected, selected => {
-  updateAndLock(() => {
-    model.value = selected?.[props.valueKey]
-    label.value = selected?.[props.labelKey]
-  })
-})
 
 const {
   virtualList,
@@ -263,7 +221,7 @@ const virtualOptions = computed(() => {
 })
 
 watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
-  if (!scroll || !model.value) return
+  if (!scroll || !props.modelValue) return
 
   if (virtualEnabled) {
     const index = options.value.findIndex(option => option === selected.value)
@@ -296,13 +254,19 @@ const handleDropdownVisible = (visible: boolean) => {
 
 /** 单选 */
 const handleSelect = (option: Record<string, any>, index: number) => {
+  userSelecting = true
   selected.value = option
+
+  emit('update:modelValue', option?.[props.valueKey])
+  label.value = option?.[props.labelKey]
   emit('change', option)
   if (option.__isTemp) {
     temOptionsToCreatedOptions()
   }
   currentIndex.value = index
   dropdownRef.value?.close()
+
+  userSelecting = false
 }
 
 /** 清除选项 */

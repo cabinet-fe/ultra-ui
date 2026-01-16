@@ -87,7 +87,7 @@ import type {
 } from '@ui/types'
 import { bem } from '@ui/utils'
 import { useConfig, useFallbackProps } from '@ui/compositions'
-import { computed, reactive, shallowRef, watch } from 'vue'
+import { computed, reactive, shallowRef } from 'vue'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra/icon'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
@@ -131,8 +131,8 @@ function emitPageNumber(value: number) {
 }
 
 const handleChangePageSize = (size?: Record<string, any>) => {
-  pageNumber.value = 1
   emitPageSize(size?.value)
+  pageNumber.value = 1
 }
 
 function handleChangePageNumber(num: number) {
@@ -140,8 +140,6 @@ function handleChangePageNumber(num: number) {
   pageNumber.value = num
   emitPageNumber(pageNumber.value)
 }
-
-
 
 const currentSize = computed(() => {
   return props.pageSize ?? config.paginator.pageSize

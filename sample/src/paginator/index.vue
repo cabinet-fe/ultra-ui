@@ -17,6 +17,9 @@
     <u-paginator
       v-model:page-number="pageState.current"
       v-model:page-size="pageState.size"
+      @change:page-number="console.log"
+      @update:page-size="console.log( 'input', $event,)"
+      @change:page-size="console.log(pageState.size)"
       :total="120"
       :simple="config.simple"
       :disabled="config.disabled"
