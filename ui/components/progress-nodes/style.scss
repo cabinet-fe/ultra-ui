@@ -87,10 +87,8 @@ $root-name: progress-nodes;
     background-color: fn.use-var(bg-color, top);
     box-sizing: border-box;
     transition: background-color 0.2s, border-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     z-index: 1;
+    @include m.flex($align: center, $justify: center);
 
     > * {
       font-size: 10px;
@@ -159,6 +157,7 @@ $root-name: progress-nodes;
     align-items: center;
     text-align: center;
     padding: 4px;
+    gap: 2px;
   }
 
   @include m.e(node) {

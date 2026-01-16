@@ -53,6 +53,10 @@
       <template #column:age="{ model }" v-if="state.editing">
         <u-number-input v-bind="model"></u-number-input>
       </template>
+
+      <template #row:expand="{ rowData }">
+        <div>1</div>
+      </template>
       <!-- </template> -->
     </u-table>
   </CustomCard>

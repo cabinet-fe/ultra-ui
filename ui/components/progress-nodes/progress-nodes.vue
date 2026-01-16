@@ -3,7 +3,7 @@
     ref="container"
     :class="className"
     :style="containerStyle"
-    @wheel="handleWheel"
+
     @scroll="checkScroll"
   >
     <ul :class="cls.e('list')">
@@ -141,14 +141,6 @@ function handleClick(node: Record<string, any>, index: number) {
   const value = getChainValue(node, props.valueKey)
   emit('update:modelValue', value)
   emit('click', node, index)
-}
-
-function handleWheel(event: WheelEvent) {
-  const container = containerRef.value
-  if (!container) return
-  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
-  container.scrollLeft += event.deltaY
-  event.preventDefault()
 }
 
 function toCssSize(value?: number | string) {

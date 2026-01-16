@@ -66,7 +66,8 @@ import type {
   _TableExposed,
   TableColumnSlotsScope,
   ComponentSize,
-  ScrollExposed
+  ScrollExposed,
+  TableRowSlotsScope
 } from '@ui/types'
 import { bem, setStyles, withUnit } from '@ui/utils'
 import {
@@ -109,6 +110,7 @@ const emit = defineEmits<TableEmits>()
 const slots = defineSlots<{
   [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
   [key: `header:${string}`]: (props: { column: ColumnNode }) => any
+  'row:expand'?: (props: TableRowSlotsScope) => any
   foot?: (props: { columns: ColumnNode[]; rows: TableRowNode[] }) => any
   body?: (props: { columns: ColumnNode[]; rows: TableRowNode[] }) => any
   empty?: () => any
@@ -181,7 +183,8 @@ const {
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({
+
+const { showResizeLine, resizeLineRef,  colgroupRef } = useColResize({
   scrollRef,
   leafColumns
 })

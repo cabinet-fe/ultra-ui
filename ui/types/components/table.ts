@@ -103,9 +103,9 @@ export interface TableProps<
   /** 单元格合并 */
   mergeCell?: (ctx: TableColumnRenderContext) =>
     | {
-        rowspan: number
-        colspan: number
-      }
+      rowspan: number
+      colspan: number
+    }
     | undefined
 
   /** 当前点击的行 */
@@ -204,6 +204,13 @@ export interface TableColumnSlotsScope extends TableColumnRenderContext {
     modelValue: any
     'onUpdate:modelValue': (val: any) => void
   }
+}
+
+export interface TableRowSlotsScope {
+  row: TableRow
+  rowData: Record<string, any>
+  columns: TableColumnNode[]
+  index: number
 }
 
 /** 表格组件定义的事件 */
