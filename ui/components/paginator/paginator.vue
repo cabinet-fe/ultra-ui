@@ -102,10 +102,11 @@ defineOptions({
 const { config } = useConfig()
 
 const props = withDefaults(defineProps<PaginatorProps>(), {
-  total: 0
+  total: 0,
+  pageNumber: 1
 })
 
-defineEmits<PaginatorEmits>()
+const emit = defineEmits<PaginatorEmits>()
 
 const cls = bem('paginator')
 
@@ -113,28 +114,27 @@ const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const pageNumber = defineModel('pageNumber', {
-  default: 1
-})
 
-const pageSize = defineModel<number>('pageSize')
+function updatePageNumber(value: number) {
+  emit('update:pageNumber', value)
+}
 
-const handleUpdateSize = (value?: number) => {
-  pageSize.value = value
+const handleUpdateSize = (value: number) => {
+  emit('update:pageSize', value)
+  // 重置页码为1
+  updatePageNumber(1)
 }
 
 function handleChangePageNumber(num: number) {
-  if (pageNumber.value === num) return
+  if (props.pageNumber === num) return
 
-  pageNumber.value = num
+  updatePageNumber(num)
 }
 
-watch(pageSize, () => {
-  pageNumber.value = 1
-})
+
 
 const currentSize = computed(() => {
-  return pageSize.value ?? config.paginator.pageSize
+  return props.pageSize ?? config.paginator.pageSize
 })
 
 /** 完整页码 */
@@ -152,7 +152,7 @@ const sizeOptions = computed(() => {
 
 /** 做多显示5个页码 */
 const pageNumbers = computed(() => {
-  const startPageNum = n(pageNumber.value - 2).range(
+  const startPageNum = n(props.pageNumber - 2).range(
     1,
     Math.max(totalPages.value - 4, 1)
   )
@@ -163,34 +163,34 @@ const pageNumbers = computed(() => {
 })
 
 const preDisabled = computed(() => {
-  return pageNumber.value <= 1
+  return props.pageNumber <= 1
 })
 const nextDisabled = computed(() => {
-  return pageNumber.value >= totalPages.value
+  return props.pageNumber >= totalPages.value
 })
 
 function handleJumpToFirst() {
   if (preDisabled.value) return
-  pageNumber.value = 1
+  updatePageNumber(1)
 }
 function handleJumpToLast() {
   if (nextDisabled.value) return
-  pageNumber.value = totalPages.value
+  updatePageNumber(totalPages.value)
 }
 function handleJumpToPrev() {
   if (preDisabled.value) return
-  pageNumber.value -= 1
+  updatePageNumber(props.pageNumber - 1)
 }
 function handleJumpToNext() {
   if (nextDisabled.value) return
-  pageNumber.value += 1
+  updatePageNumber(props.pageNumber + 1)
 }
 
 function handleKeyEnter(e: KeyboardEvent) {
   const target = e.target as HTMLInputElement
   const val = +target.value
   if (!isNaN(val) && val > 0 && val <= totalPages.value) {
-    pageNumber.value = val
+    updatePageNumber(val)
   }
 }
 
