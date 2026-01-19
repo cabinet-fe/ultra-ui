@@ -39,6 +39,7 @@
       }"
       row-key="name"
       v-bind="state"
+      expandable
       v-model:checked="checked"
       v-model:selected="selected"
       ref="tableRef"
@@ -54,8 +55,11 @@
         <u-number-input v-bind="model"></u-number-input>
       </template>
 
-      <template #row:expand="{ rowData }">
-        <div>1</div>
+      <template #row:expand="{ columns, row }">
+        <div v-for="column in columns">
+
+          {{ column.name }}: {{ row.data[column.key] }}
+        </div>
       </template>
       <!-- </template> -->
     </u-table>

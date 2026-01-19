@@ -41,7 +41,11 @@
         关闭
       </u-button>
       <u-button
-        v-if="!props.readonly && state.dataUpdated"
+        v-if="
+          !props.readonly &&
+          state.dataUpdated &&
+          (staticFeatures.has('create') || dynamicFeatures.create?.(state.row))
+        "
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
         @click="handleSave"
@@ -65,6 +69,14 @@ defineOptions({
   name: 'BatchEditForm'
 })
 
-const { cls, props, state, insertIndexes, handleSave, handleClose } =
-  inject(BatchEditDIKey)!
+const {
+  cls,
+  props,
+  state,
+  insertIndexes,
+  handleSave,
+  handleClose,
+  staticFeatures,
+  dynamicFeatures
+} = inject(BatchEditDIKey)!
 </script>

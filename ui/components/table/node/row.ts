@@ -1,6 +1,10 @@
 import { TreeNode } from 'cat-kit/fe'
 import { isReactive, shallowReactive } from 'vue'
 
+
+/**
+ * TODO: 优化参数，对大数据量来说，对象字面量参数会使内存占用过高
+ */
 export class TableRowNode<
   Data extends Record<string, any> = Record<string, any>
 > extends TreeNode<Data> {
@@ -12,6 +16,8 @@ export class TableRowNode<
     if (this.depth === 1) return [this.index]
     return this.parent.indexes.concat(this.index)
   }
+
+  isExpandRow = false
 
   /** 是否操作中 */
   operating = false
@@ -48,5 +54,18 @@ export class TableRowNode<
     }
     this.uid = uid
     return shallowReactive(this)
+  }
+
+
+  copy() {
+    const row = new TableRowNode({
+      data: this.data,
+      index: this.index,
+      uid: `expand_${this.uid}`
+    })
+
+    row.isExpandRow = true
+
+    return row
   }
 }

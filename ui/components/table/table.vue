@@ -59,7 +59,7 @@
   </u-scroll>
 </template>
 
-<script lang="ts" setup generic="DataItem extends Record<string, any>">
+<script lang="ts" setup>
 import type {
   TableProps,
   TableEmits,
@@ -99,7 +99,7 @@ defineOptions({
   name: 'Table'
 })
 
-const props = withDefaults(defineProps<TableProps<DataItem>>(), {
+const props = withDefaults(defineProps<TableProps>(), {
   tree: false,
   stripe: true,
   textOverflow: 'line-break',
@@ -116,6 +116,8 @@ const slots = defineSlots<{
   empty?: () => any
   append?: () => any
 }>()
+
+
 
 const cls = bem('table')
 
@@ -170,6 +172,7 @@ const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
 // 在表格中提供的通用方法和属性
 const {
   getColumnSlotsNode,
+  getExpandRowSlotsNode,
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,
@@ -242,6 +245,7 @@ provide(TableDIKey, {
   handleRowClick,
   handleCellClick,
   getColumnSlotsNode,
+  getExpandRowSlotsNode,
   getHeaderSlotsNode,
   getCellClass,
   getCellCtx,

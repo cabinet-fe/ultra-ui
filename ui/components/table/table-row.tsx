@@ -9,7 +9,7 @@ import { UIcon } from '../icon'
 import type { JSX } from 'vue/jsx-runtime'
 import type { TableRow as ITableRow } from '@ui/types'
 
-const TableRow: DefineComponent<{
+export const UTableRow: DefineComponent<{
   row: ITableRow
 }> = defineComponent({
   name: 'TableRow',
@@ -42,6 +42,7 @@ const TableRow: DefineComponent<{
         const cellSpan = tableProps.mergeCell?.(expandCtx)
 
         if (!cellSpan || (cellSpan.colspan && cellSpan.rowspan)) {
+          const marginLeft = tableProps.tree ? (row.depth - 1) * 14 : 0
           expandCell = (
             <UTabelCell
               column={_expandColumn}
@@ -50,7 +51,7 @@ const TableRow: DefineComponent<{
               key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
             >
-              {!row.isLeaf ? (
+              {(!row.isLeaf || !row.isExpandRow )? (
                 <UButton
                   text
                   class={cls.e('expand-toggle')}
@@ -61,7 +62,7 @@ const TableRow: DefineComponent<{
                     e.stopPropagation()
                     toggleTreeRowExpand(row)
                   }}
-                  style={`margin-left: ${(row.depth - 1) * 14}px`}
+                  style={`margin-left: ${marginLeft}px`}
                 >
                   <UIcon>
                     <ArrowRight />
@@ -70,9 +71,10 @@ const TableRow: DefineComponent<{
               ) : (
                 <i
                   class={cls.e('expand-space')}
-                  style={`margin-left: ${(row.depth - 1) * 14}px`}
+                  style={`margin-left: ${marginLeft}px`}
                 ></i>
               )}
+
               {getColumnSlotsNode(expandCtx)}
             </UTabelCell>
           )
@@ -121,4 +123,32 @@ const TableRow: DefineComponent<{
   }
 })
 
-export default TableRow
+
+export const UExpandTableRow = defineComponent({
+  name: 'ExpandTableRow',
+  props: ['row'],
+  setup(props) {
+    const { getExpandRowSlotsNode, cls, measureElement, columnConfig } = inject(TableDIKey)!
+    const { leafColumns } = columnConfig
+
+    return () => {
+      const { row} = props
+      const node =  getExpandRowSlotsNode({
+        row,
+        index: row.index,
+        columns: leafColumns.value,
+        rowData: row.data
+      })
+      return <tr
+        class={cls.e('row')}
+        ref={measureElement as VNodeRef}
+
+      >
+        <td colspan={leafColumns.value.length}>
+        { node  }
+        </td>
+      </tr>
+    }
+  }
+})
+

@@ -5,7 +5,8 @@ import type {
   TableColumnRenderContext,
   TableRow,
   RenderReturn,
-  TableColumn
+  TableColumn,
+  TableRowSlotsScope
 } from '@ui/types'
 import type { BEM } from '@ui/utils'
 import type { ColumnConfig } from './use-columns'
@@ -38,11 +39,13 @@ export const TableDIKey: InjectionKey<
     getColumnSlotsNode: (
       ctx: TableColumnSlotsScope | TableColumnRenderContext
     ) => RenderReturn
+    /** 展开行插槽node */
+    getExpandRowSlotsNode: (ctx: TableRowSlotsScope) => RenderReturn
     /** 表头插槽node */
     getHeaderSlotsNode: (ctx: { column: ColumnNode }) => RenderReturn
 
     /** 展开/隐藏子节点 */
-    toggleTreeRowExpand: (row: TableRow<Record<string, any>>) => void
+    toggleTreeRowExpand: (row: TableRow) => void
 
     /** 获取单元格的类 */
     getCellClass: (column: ColumnNode) => string

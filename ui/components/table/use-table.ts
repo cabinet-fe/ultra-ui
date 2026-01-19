@@ -4,14 +4,15 @@ import type {
   TableColumnSlotsScope,
   TableProps,
   TableRow,
-  RenderReturn
+  RenderReturn,
+  TableRowSlotsScope
 } from '@ui/types'
 import { bem, type BEM } from '@ui/utils'
 import { getChainValue } from 'cat-kit/fe'
 import type { ColumnNode } from './node/col'
 
-interface Options<DataItem extends Record<string, any> = Record<string, any>> {
-  props: TableProps<DataItem>
+interface Options {
+  props: TableProps
   cls: BEM<'table'>
   leftFixed: Ref<boolean>
   rightFixed: Ref<boolean>
@@ -22,6 +23,7 @@ interface UseTableReturn {
     ctx: TableColumnSlotsScope | TableColumnRenderContext
   ) => RenderReturn
   getHeaderSlotsNode: (ctx: { column: ColumnNode }) => RenderReturn
+  getExpandRowSlotsNode: (ctx: TableRowSlotsScope) => RenderReturn
   getCellClass: (column: ColumnNode) => string
   getHeaderCellClass: (column: ColumnNode) => string
   getCellCtx: (
@@ -62,6 +64,13 @@ export function useTable(options: Options): UseTableReturn {
     if (slotsRender) return slotsRender(ctx)
 
     return column.name
+  }
+
+  const getExpandRowSlotsNode = (ctx: TableRowSlotsScope): RenderReturn => {
+    const slotsRender = props.slots?.['row:expand'] ?? slots['row:expand']
+
+    if (slotsRender) return slotsRender(ctx)
+    return null
   }
 
   const cellCls = cls.e('cell')
@@ -125,6 +134,11 @@ export function useTable(options: Options): UseTableReturn {
      * @param ctx 表头渲染上下文
      */
     getHeaderSlotsNode,
+    /**
+     * 获取展开行插槽VNode
+     * @param ctx 展开行渲染上下文
+     */
+    getExpandRowSlotsNode,
     /**
      * 获取单元格类名
      * @param column 列

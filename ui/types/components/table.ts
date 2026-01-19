@@ -64,21 +64,19 @@ export interface TableColumn {
 }
 
 /** 表格组件属性 */
-export interface TableProps<
-  DataItem extends Record<string, any> = Record<string, any>
-> {
+export interface TableProps {
   size?: ComponentSize
   /** 表格数据 */
-  data?: DataItem[]
+  data?: Record<string, any>[]
   /** 表格列 */
   columns?: TableColumn[]
   /** 多选时的已选项 */
-  checked?: DataItem[]
+  checked?: Record<string, any>[]
   /**
    * 单选时的已选项
    * @description 该属性需要指定rowKey来表示唯一性
    */
-  selected?: DataItem
+  selected?: Record<string, any>
   /**
    * 多选
    * @description 该属性需要指定rowKey来表示唯一性
@@ -109,7 +107,7 @@ export interface TableProps<
     | undefined
 
   /** 当前点击的行 */
-  current?: TableRow<DataItem>
+  current?: TableRow
 
   /**
    * 高亮当前点击的行，即使没有设置current属性
@@ -138,16 +136,17 @@ export interface TableProps<
    * @default 80
    */
   virtualThreshold?: number
-
+  /** 是否开启展开行, 只在非树形模式下有效 */
+  expandable?: boolean
+  /** 是否开启虚拟列表 */
+  virtual?: boolean
   /**  默认展开全部 */
   defaultExpandAll?: boolean
   /** 文本溢出省略 */
   textEllipsis?: boolean
 }
 
-export interface TableRow<
-  DataItem extends Record<string, any> = Record<string, any>
-> extends TreeNode<DataItem> {
+export interface TableRow extends TreeNode<Record<string, any>> {
   /** 是否展开 */
   expanded: boolean
   /** 操作中 */
@@ -158,11 +157,14 @@ export interface TableRow<
   isCurrent: boolean
   /** id */
   uid: number | string
+  /** 索引路径 */
   indexes: number[]
   /** 子row */
-  children?: TableRow<DataItem>[]
+  children?: TableRow[]
   /** 父row */
-  parent: TableRow<DataItem> | null
+  parent: TableRow | null
+  /** 是否为展开行 */
+  isExpandRow: boolean
 }
 
 export interface TableColumnNode extends TreeNode<TableColumn> {
@@ -222,22 +224,22 @@ export interface TableEmits<
   /** 单选 */
   (e: 'update:selected', value: DataItem | undefined): void
   /** 行数据更新 */
-  (e: 'update:rows', rows: TableRow<DataItem>[]): void
+  (e: 'update:rows', rows: TableRow[]): void
   /** 树形数据森林结构更新 */
-  (e: 'update:forest', rows?: Forest<TableRow<DataItem>>): void
+  (e: 'update:forest', rows?: Forest<TableRow>): void
   /**
    * 行点击事件
    */
-  (e: 'row-click', row: TableRow<DataItem>, ev: MouseEvent): void
+  (e: 'row-click', row: TableRow, ev: MouseEvent): void
   /** 单元格点击 */
   (
     e: 'cell-click',
-    row: TableRow<DataItem>,
+    row: TableRow,
     column: TableColumn,
     ev: MouseEvent
   ): void
   /** 当前行变更 */
-  (e: 'update:current', row?: TableRow<DataItem>): void
+  (e: 'update:current', row?: TableRow): void
 }
 
 /** 表格组件暴露的属性和方法(组件内部使用) */

@@ -117,8 +117,8 @@ export function useColumns(options: Options): ColumnConfig {
     )
 
   watch(
-    [preColumns, () => props.columns, () => props.tree],
-    ([preColumns, columns, tree]) => {
+    [preColumns, () => props.columns, () => props.tree, () => props.expandable],
+    ([preColumns, columns, tree, expandable]) => {
       /** 固定到左侧的列 */
       const fixedOnLeft: TableColumn[] = [...preColumns]
       /** 未固定的列 */
@@ -152,7 +152,7 @@ export function useColumns(options: Options): ColumnConfig {
 
       // 树形表格需要给第一列添加展开按钮
       // 因此要重新设置第一列的宽度和对齐方式
-      if (!!tree && firstColumn) {
+      if ((!!tree || expandable) && firstColumn) {
         firstColumn.align = 'left'
         firstColumn.width = firstColumn.width
           ? firstColumn.width + 60
@@ -162,15 +162,15 @@ export function useColumns(options: Options): ColumnConfig {
 
         firstColumn.nameRender = oldNameRender
           ? ctx => {
-              const oldNodes = oldNameRender!(ctx)
-              return [
-                renderExpandAll(),
-                ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
-              ]
-            }
+            const oldNodes = oldNameRender!(ctx)
+            return [
+              renderExpandAll(),
+              ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
+            ]
+          }
           : () => {
-              return [renderExpandAll(), firstColumn.name]
-            }
+            return [renderExpandAll(), firstColumn.name]
+          }
       }
 
       const result = Forest.create(sortedColumns, {
@@ -229,8 +229,8 @@ export function useColumns(options: Options): ColumnConfig {
 
   // 监听列的变化
   watch(
-    [columnForest, () => props.tree],
-    ([forest]) => {
+    [columnForest, () => props.tree, () => props.expandable],
+    ([forest, tree, expandable]) => {
       const _columns: ColumnNode[] = []
 
       forest?.dft(node => {
@@ -241,7 +241,7 @@ export function useColumns(options: Options): ColumnConfig {
 
       leafColumns.value = _columns
 
-      if (props.tree) {
+      if (tree || expandable) {
         expandColumn.value = _columns[0]
         columns.value = _columns.slice(1)
       } else {
@@ -251,6 +251,8 @@ export function useColumns(options: Options): ColumnConfig {
     },
     { immediate: true }
   )
+
+
 
   return {
     /** 第一列 */

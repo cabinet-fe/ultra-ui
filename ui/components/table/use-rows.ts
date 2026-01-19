@@ -1,7 +1,7 @@
+import { shallowRef, watch, type ShallowRef } from 'vue'
+import { Forest, getChainValue } from 'cat-kit/fe'
 import { useModel } from '@ui/compositions'
 import type { TableColumn, TableEmits, TableProps, TableRow } from '@ui/types'
-import { Forest, getChainValue } from 'cat-kit/fe'
-import { type ShallowRef, shallowRef, watch } from 'vue'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -10,26 +10,39 @@ interface Options {
 }
 
 interface UseRowsReturned {
+  /** 所有的行森林（树形数据） */
   rowForest: ShallowRef<Forest<TableRow> | undefined>
-  rows: ShallowRef<TableRow[]>
+  /** 当前可见的展平行列表 */
+  rows: ShallowRef<TableRowNode[]>
+  /** 切换树形行节点的展开/折叠 */
   toggleTreeRowExpand: (node: TableRow) => void
+  /** 是否全部展开 */
   allExpanded: ShallowRef<boolean>
+  /** 切换全部展开/折叠 */
   toggleAllTreeRowExpand: () => void
+  /** 行点击处理 */
   handleRowClick: (row: TableRow, e: MouseEvent) => void
+  /** 单元格点击处理 */
   handleCellClick: (row: TableRow, column: TableColumn, e: MouseEvent) => void
+  /** 根据原始数据对象获取对应的 TableRow */
   getRowByData: (data: Record<string, any>) => TableRow | undefined
 }
 
 export function useRows(options: Options): UseRowsReturned {
   const { props, emit } = options
 
+  // --- 状态定义 ---
+
   /** 所有可见的行 */
-  const rows = shallowRef<TableRow[]>([])
-  /** 行树 */
-  const rowForest = shallowRef<Forest<TableRow>>()
+  const rows = shallowRef<TableRowNode[]>([])
+  /** 数据行， 不包括展开和折叠的行 */
+  const dataRows = shallowRef<TableRowNode[]>([])
+  /** 行森林（数据结构树） */
+  const rowForest = shallowRef<Forest<TableRowNode>>()
+  /** 树形节点是否全部展开 */
+  const allExpanded = shallowRef(props.defaultExpandAll ?? false)
 
-  let uid = 0
-
+  /** 当前高亮的行 */
   const currentRow = useModel({
     props,
     emit,
@@ -38,56 +51,49 @@ export function useRows(options: Options): UseRowsReturned {
     local: () => !!props.highlightCurrent
   })
 
-  watch(
-    () => currentRow.value,
-    (row, oldRow) => {
-      if (oldRow) {
-        oldRow.isCurrent = false
-      }
-      if (row) {
-        row.isCurrent = true
-      }
-    }
-  )
+  // --- 行字典维护 (性能优化) ---
 
-  watch(rows, rows => emit('update:rows', rows))
-  watch(rowForest, forest => emit('update:forest', forest))
+  /**
+   * 用于优化增删改时的性能。
+   * 原理：Vue 的组件在属性发生改变时会重新渲染，通过 WeakMap 缓存 data -> TableRow 的映射，
+   * 可以在数据更新时复用已有的 TableRowNode 实例，避免重复创建和 DOM 抖动。
+   */
+  let rowDicts = new WeakMap<Record<string, any>, TableRowNode>()
+  let tempRowDicts: null | WeakMap<Record<string, any>, TableRowNode> = null
+  let uidSeed = 0
 
-  // 用于优化增删改时的性能
-  // 原理：vue的组件在属性发生改变时会重新渲染，这个就是为了让数据保持一致
-  let rowDicts = new WeakMap<Record<string, any>, TableRow>()
-  let tempRowDicts: null | WeakMap<Record<string, any>, TableRow> = null
-
+  /** 获取行唯一标识 */
   const getRowUID = props.rowKey
-    ? (rowData: Record<string, any>) =>
-        rowData && getChainValue(rowData, props.rowKey!)
-    : () => uid++
+    ? (rowData: Record<string, any>) => rowData && getChainValue(rowData, props.rowKey!)
+    : () => uidSeed++
 
+  /** 创建或复用 TableRow 实例 */
   const createRow = (data: Record<string, any>, index: number) => {
     const existRow = data ? rowDicts.get(data) : undefined
     if (existRow) {
       existRow.index = index
       return existRow
-    } else {
-      return new TableRowNode({
-        data,
-        index,
-        uid: getRowUID(data)
-      })
     }
+    return new TableRowNode({
+      data,
+      index,
+      uid: getRowUID(data)
+    })
   }
 
-  function getRows(data: Record<string, any>[]): TableRow[] {
-    let result: TableRow[] = []
-    let i = 0
+  // --- 行处理逻辑 ---
+
+  /** 处理常规扁平列表 */
+  function getDataRows(data: Record<string, any>[]): TableRowNode[] {
+    let i = data.length
+    const result = new Array(i)
     tempRowDicts = new WeakMap()
 
-    while (i < data.length) {
+    while (i--) {
       const dataItem = data[i]!
       const row = createRow(dataItem, i)
-      result.push(row)
+      result[i] = row
       tempRowDicts.set(dataItem, row)
-      i++
     }
 
     rowDicts = tempRowDicts
@@ -95,7 +101,22 @@ export function useRows(options: Options): UseRowsReturned {
     return result
   }
 
-  function getRowForest(data: Record<string, any>[]): Forest<TableRow> {
+  function expandDataRows(): void {
+    const result: TableRowNode[] = []
+    let i = -1
+    while (++i < dataRows.value.length) {
+      const row = dataRows.value[i]!
+      result.push(row)
+      if (row.expanded) {
+        result.push(row.copy())
+      }
+    }
+    rows.value = result
+  }
+
+
+  /** 处理树形森林结构 */
+  function getRowForest(data: Record<string, any>[]): Forest<TableRowNode> {
     tempRowDicts = new WeakMap()
     const ret = Forest.create(data, {
       createNode(val, index) {
@@ -111,10 +132,42 @@ export function useRows(options: Options): UseRowsReturned {
 
     rowDicts = tempRowDicts
     tempRowDicts = null
-
     return ret
   }
 
+  /** 展平树形结构为可见行列表 */
+  function updateFlattedRows(): void {
+    if (!rowForest.value) return
+    const result: TableRowNode[] = []
+
+    rowForest.value.dft(node => {
+      // 深度优先遍历：如果是根节点(depth===1)或父节点已展开，则该节点可见
+      if (node.parent?.expanded || node.depth === 1) {
+        result.push(node)
+        return true
+      }
+      return false
+    })
+
+    rows.value = result
+  }
+
+  // --- 副作用监听 ---
+
+  // 监听当前行切换，维护 isCurrent 状态
+  watch(
+    () => currentRow.value,
+    (row, oldRow) => {
+      if (oldRow) oldRow.isCurrent = false
+      if (row) row.isCurrent = true
+    }
+  )
+
+  // 同步状态给外部
+  watch(rows, rows => emit('update:rows', rows))
+  watch(rowForest, forest => emit('update:forest', forest))
+
+  // 核心：监听原始数据变化，重新构建行列表或树
   watch(
     [() => props.data, () => props.tree, () => props.defaultExpandAll],
     ([data, tree]) => {
@@ -127,59 +180,44 @@ export function useRows(options: Options): UseRowsReturned {
 
       if (!tree) {
         rowForest.value = undefined
-        rows.value = getRows(data)
+        dataRows.value = getDataRows(data)
+        rows.value = dataRows.value
       } else {
+        dataRows.value = []
         rowForest.value = getRowForest(data)
-        getFlattedRows()
+        updateFlattedRows()
       }
     },
     { immediate: true }
   )
 
-  function getFlattedRows(): void {
-    if (!rowForest.value) return
-    const result: TableRow[] = []
-
-    rowForest.value?.dft(node => {
-      if (node.parent?.expanded || node.depth === 1) {
-        result.push(node)
-        return true
-      }
-      return false
-    })
-
-    rows.value = result
-  }
+  // --- 交互方法 ---
 
   function toggleTreeRowExpand(node: TableRow): void {
     node.expanded = !node.expanded
-    getFlattedRows()
+
+    if (props.tree) {
+      return updateFlattedRows()
+    }
+    if (props.expandable) {
+      expandDataRows()
+    }
   }
 
-  const allExpanded = shallowRef(props.defaultExpandAll ?? false)
   function toggleAllTreeRowExpand(): void {
     allExpanded.value = !allExpanded.value
     rowForest.value?.dft(node => {
       node.expanded = allExpanded.value
     })
-    getFlattedRows()
+    updateFlattedRows()
   }
 
   function handleRowClick(row: TableRow, e: MouseEvent): void {
-    if (row === currentRow.value) {
-      currentRow.value = undefined
-    } else {
-      currentRow.value = row
-    }
-
+    currentRow.value = currentRow.value === row ? undefined : row
     emit('row-click', row, e)
   }
 
-  function handleCellClick(
-    row: TableRow,
-    column: TableColumn,
-    e: MouseEvent
-  ): void {
+  function handleCellClick(row: TableRow, column: TableColumn, e: MouseEvent): void {
     emit('cell-click', row, column, e)
   }
 
@@ -188,29 +226,14 @@ export function useRows(options: Options): UseRowsReturned {
   }
 
   return {
-    /** 数据树 */
     rowForest,
-
-    /** 数据行 */
     rows,
-    /**
-     * 切换节点的显示隐藏
-     * @param node 节点
-     */
-    toggleTreeRowExpand,
-
-    /** 所有树形节点是否展开 */
     allExpanded,
-    /** 切换所有树形节点的显示隐藏 */
+    toggleTreeRowExpand,
     toggleAllTreeRowExpand,
-
-    /** 行点击 */
     handleRowClick,
-
-    /** 单元格点击 */
     handleCellClick,
+    getRowByData,
 
-    /** 通过数据获取表格行 */
-    getRowByData
   }
 }
