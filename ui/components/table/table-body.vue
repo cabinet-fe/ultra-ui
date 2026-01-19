@@ -1,17 +1,12 @@
 <template>
   <tbody :class="cls.e('body')" ref="bodyRef">
-    <template v-for="{ row, index } of tableRows" :key="row.uid">
-      <UExpandTableRow
-        v-if="row.isExpandRow"
-        :row="row"
-        :data-index="index"
-        :class="[bem.is('current', row.isCurrent), getStripeCls(index)]"
-      />
+    <template v-for="{ row, index, stripeIndex } of tableRows" :key="row.uid">
+      <UExpandTableRow v-if="row.isExpandRow" :row="row" :data-index="index" />
       <UTableRow
         v-else
         :row="row"
         :data-index="index"
-        :class="[bem.is('current', row.isCurrent), getStripeCls(index)]"
+        :class="[bem.is('current', row.isCurrent), getStripeCls(stripeIndex)]"
       />
     </template>
 
@@ -54,6 +49,7 @@ const tableRows = computed(() => {
     return rows.value.map((row, index) => {
       return {
         row,
+        stripeIndex: row.index,
         index
       }
     })
@@ -63,7 +59,7 @@ const tableRows = computed(() => {
   return virtualList.value.map(item => {
     return {
       row: rows.value[item.index]!,
-
+      stripeIndex: rows.value[item.index]!.index,
       index: item.index
     }
   })

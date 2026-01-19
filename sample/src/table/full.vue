@@ -1,9 +1,10 @@
 <template>
   <CustomCard title="使用方式">
     <div>
-      <u-button @click="toggleData" type="primary"
-        >{{ dataLen }}条数据</u-button
-      >
+      <u-button @click="toggleData" type="primary">
+        {{ dataLen }}
+        条数据
+      </u-button>
     </div>
 
     <div style="display: flex; gap: 20px">
@@ -39,7 +40,6 @@
       }"
       row-key="name"
       v-bind="state"
-      expandable
       v-model:checked="checked"
       v-model:selected="selected"
       ref="tableRef"
@@ -55,12 +55,6 @@
         <u-number-input v-bind="model"></u-number-input>
       </template>
 
-      <template #row:expand="{ columns, row }">
-        <div v-for="column in columns">
-
-          {{ column.name }}: {{ row.data[column.key] }}
-        </div>
-      </template>
       <!-- </template> -->
     </u-table>
   </CustomCard>

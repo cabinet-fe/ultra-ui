@@ -64,7 +64,8 @@ export function useRows(options: Options): UseRowsReturned {
 
   /** 获取行唯一标识 */
   const getRowUID = props.rowKey
-    ? (rowData: Record<string, any>) => rowData && getChainValue(rowData, props.rowKey!)
+    ? (rowData: Record<string, any>) =>
+        rowData && getChainValue(rowData, props.rowKey!)
     : () => uidSeed++
 
   /** 创建或复用 TableRow 实例 */
@@ -113,7 +114,6 @@ export function useRows(options: Options): UseRowsReturned {
     }
     rows.value = result
   }
-
 
   /** 处理树形森林结构 */
   function getRowForest(data: Record<string, any>[]): Forest<TableRowNode> {
@@ -206,10 +206,20 @@ export function useRows(options: Options): UseRowsReturned {
 
   function toggleAllTreeRowExpand(): void {
     allExpanded.value = !allExpanded.value
-    rowForest.value?.dft(node => {
-      node.expanded = allExpanded.value
-    })
-    updateFlattedRows()
+    if (props.tree) {
+      rowForest.value?.dft(node => {
+        node.expanded = allExpanded.value
+      })
+      updateFlattedRows()
+      return
+    }
+    if (props.expandable) {
+      dataRows.value.forEach(row => {
+        row.expanded = allExpanded.value
+      })
+      expandDataRows()
+      return
+    }
   }
 
   function handleRowClick(row: TableRow, e: MouseEvent): void {
@@ -217,7 +227,11 @@ export function useRows(options: Options): UseRowsReturned {
     emit('row-click', row, e)
   }
 
-  function handleCellClick(row: TableRow, column: TableColumn, e: MouseEvent): void {
+  function handleCellClick(
+    row: TableRow,
+    column: TableColumn,
+    e: MouseEvent
+  ): void {
     emit('cell-click', row, column, e)
   }
 
@@ -233,7 +247,6 @@ export function useRows(options: Options): UseRowsReturned {
     toggleAllTreeRowExpand,
     handleRowClick,
     handleCellClick,
-    getRowByData,
-
+    getRowByData
   }
 }

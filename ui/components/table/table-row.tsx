@@ -51,7 +51,7 @@ export const UTableRow: DefineComponent<{
               key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
             >
-              {(!row.isLeaf || !row.isExpandRow )? (
+              {!row.isLeaf || !row.isExpandRow ? (
                 <UButton
                   text
                   class={cls.e('expand-toggle')}
@@ -123,32 +123,29 @@ export const UTableRow: DefineComponent<{
   }
 })
 
-
 export const UExpandTableRow = defineComponent({
   name: 'ExpandTableRow',
   props: ['row'],
   setup(props) {
-    const { getExpandRowSlotsNode, cls, measureElement, columnConfig } = inject(TableDIKey)!
+    const { getExpandRowSlotsNode, cls, measureElement, columnConfig } =
+      inject(TableDIKey)!
     const { leafColumns } = columnConfig
 
     return () => {
-      const { row} = props
-      const node =  getExpandRowSlotsNode({
+      const { row } = props
+      const node = getExpandRowSlotsNode({
         row,
         index: row.index,
         columns: leafColumns.value,
         rowData: row.data
       })
-      return <tr
-        class={cls.e('row')}
-        ref={measureElement as VNodeRef}
-
-      >
-        <td colspan={leafColumns.value.length}>
-        { node  }
-        </td>
-      </tr>
+      return (
+        <tr class={cls.e('row')} ref={measureElement as VNodeRef}>
+          <td colspan={leafColumns.value.length} class={cls.e('cell')}>
+            {node}
+          </td>
+        </tr>
+      )
     }
   }
 })
-
