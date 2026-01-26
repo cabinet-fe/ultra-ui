@@ -27,6 +27,8 @@ declare module 'vue' {
     UDialog: typeof import('ultra-ui')['UDialog']
     UDrawer: typeof import('ultra-ui')['UDrawer']
     UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
+    UForm: typeof import('ultra-ui')['UForm']
+    UIcon: typeof import('ultra-ui')['UIcon']
     UInput: typeof import('ultra-ui')['UInput']
     UMenu: typeof import('ultra-ui')['UMenu']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']

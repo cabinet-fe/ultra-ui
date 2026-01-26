@@ -28,7 +28,7 @@
     "fast-glob": "^3.3.3",
     "simple-git-hooks": "^2.13.1",
     "typescript": "5.9.3",
-    "vitest": "^4.0.17",
+    "vitest": "^4.0.18",
     "@builder/cli": "^3.0.3",
     "tsx": "^4.21.0",
     "@cat-kit/tsconfig": "^1.0.0"

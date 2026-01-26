@@ -11,7 +11,7 @@
       <u-select v-model="selected" :filterable :creatable :options="options" />
     </CustomCard>
 
-    <CustomCard width="400px" title="函数选项">
+    <!-- <CustomCard width="400px" title="函数选项">
       <div>自动启用filter属性</div>
 
       <u-select v-model="selected" :options="optionsGetter" />
@@ -34,7 +34,7 @@
     <u-form :model="model">
       <u-input label="选项" field="options"></u-input>
       <u-select label="选择" field="select" value-key="value" :clearable="false" :options="options1" />
-    </u-form>
+    </u-form> -->
   </div>
 </template>
 
@@ -69,33 +69,24 @@ const model = new FormModel({
   }
 })
 
-const options1 = shallowRef(model.data.options
-  ?.split(',')
-  .map(i => {
-    const n = +i
-    return { label: i, value: n }
-  })
-  .filter(i => !isNaN(i.value)))
+const options1 = shallowRef(
+  model.data.options
+    ?.split(',')
+    .map(i => {
+      const n = +i
+      return { label: i, value: n }
+    })
+    .filter(i => !isNaN(i.value))
+)
 
-  model.onChange((field, val) => {
+model.onChange((field, val) => {
   field === 'select' && console.log(field, val)
-
-
 })
 
-
-
 setTimeout(() => {
-  model.setData({
-    options: '10',
-    select: 10
-  })
-  options1.value = [{
-    value: 10,
-    label: '10'
-  }]
+  model.setData({ options: '10', select: 10 })
+  options1.value = [{ value: 10, label: '10' }]
 }, 500)
-
 
 const selected = shallowRef()
 
