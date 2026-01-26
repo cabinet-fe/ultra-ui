@@ -26,6 +26,7 @@ declare module 'vue' {
     UDatePicker: typeof import('ultra-ui')['UDatePicker']
     UDialog: typeof import('ultra-ui')['UDialog']
     UDrawer: typeof import('ultra-ui')['UDrawer']
+    UExpressionEditor: typeof import('ultra-ui')['UExpressionEditor']
     UInput: typeof import('ultra-ui')['UInput']
     UMenu: typeof import('ultra-ui')['UMenu']
     UNumberInput: typeof import('ultra-ui')['UNumberInput']

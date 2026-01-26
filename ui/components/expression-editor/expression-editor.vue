@@ -1,12 +1,5 @@
 <template>
   <div :class="className">
-    <!-- 工具栏 -->
-    <!-- <div :class="cls.e('tools')">
-      <u-icon :size="16" @click="showVariablePicker" ref="variable-picker-btn">
-        <Variable />
-      </u-icon>
-    </div> -->
-
     <!-- 编辑容器 -->
     <div
       :class="cls.e('container')"

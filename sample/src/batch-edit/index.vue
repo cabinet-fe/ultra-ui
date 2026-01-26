@@ -23,21 +23,13 @@
         v-model:checked="checked"
         checkable
         :model="model"
-        :actions-props="{
-          delete: {
-            needConfirm: true,
-            circle: false
-          }
-        }"
+        :actions-props="{ delete: { needConfirm: true, circle: false } }"
+        :features="features"
         :tree="tree"
         style="height: 500px"
         :delete-method="asynchronous ? deleteMethod : undefined"
         :save-method="asynchronous ? saveMethod : undefined"
-        @created="
-          model.setData({
-            age: 666
-          })
-        "
+        @created="model.setData({ age: 666 })"
       >
         <template #column:name="{ row }">
           <span :style="`padding-left: ${row.depth * 20}px;`">
@@ -247,32 +239,20 @@ setTimeout(() => {
     description: `这是员工${i + 1}的个人描述`,
     skills: ['javascript', 'vue'].slice(0, Math.floor(Math.random() * 3) + 1),
     experience: Math.floor(Math.random() * 15),
-    props: {
-      label: `标签${i}`,
-      field: `field${i}`
-    },
-    contact: {
-      qq: `12345678${i}`,
-      wechat: `wx_user${i}`
-    },
+    props: { label: `标签${i}`, field: `field${i}` },
+    contact: { qq: `12345678${i}`, wechat: `wx_user${i}` },
     id: Math.random()
   }))
 }, 500)
 
 const model = new FormModel({
   name: { required: true },
-  age: {
-    max: 120,
-    min: 0,
-    value: () => Math.floor(Math.random() * 40) + 20
-  },
+  age: { max: 120, min: 0, value: () => Math.floor(Math.random() * 40) + 20 },
   email: {
     required: true,
     match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址']
   },
-  phone: {
-    match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码']
-  },
+  phone: { match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码'] },
   gender: { required: true },
   department: { required: true },
   position: { required: true },

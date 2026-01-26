@@ -44,7 +44,10 @@
         v-if="
           !props.readonly &&
           state.dataUpdated &&
-          (staticFeatures.has('create') || dynamicFeatures.create?.(state.row))
+          (staticFeatures.has('create') ||
+            staticFeatures.has('update') ||
+            dynamicFeatures.create?.(state.row) ||
+            dynamicFeatures.update?.(state.row))
         "
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
@@ -65,9 +68,7 @@ import { BatchEditDIKey } from './di'
 import { UScroll } from '../scroll'
 import { UButton } from '../button'
 
-defineOptions({
-  name: 'BatchEditForm'
-})
+defineOptions({ name: 'BatchEditForm' })
 
 const {
   cls,
