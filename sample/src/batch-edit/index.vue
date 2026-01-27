@@ -277,9 +277,13 @@ const featureList: BatchEditFeature[] = [
 
 const features = shallowRef(featureList)
 
+function canCreate() {
+  return data.value?.length < 10
+}
+
 const dynamicFeatures = computed(() => {
   return {
-    create: () => data.value?.length < 10,
+    create: canCreate,
     ...Object.fromEntries(featureList.map(i => [i, features.value.includes(i)]))
   }
 })
