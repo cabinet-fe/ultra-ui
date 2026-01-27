@@ -40,15 +40,9 @@
       >
         关闭
       </u-button>
+
       <u-button
-        v-if="
-          !props.readonly &&
-          state.dataUpdated &&
-          (staticFeatures.has('create') ||
-            staticFeatures.has('update') ||
-            dynamicFeatures.create?.(state.row) ||
-            dynamicFeatures.update?.(state.row))
-        "
+        v-if="!props.readonly && state.dataUpdated && (creatable || updatable)"
         :type="state.type === 'create' ? 'success' : 'primary'"
         :loading="state.loading"
         @click="handleSave"
@@ -61,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import { UForm } from '../form'
 import { UCard, UCardAction, UCardHeader } from '../card'
 import { BatchEditDIKey } from './di'
@@ -80,4 +74,20 @@ const {
   staticFeatures,
   dynamicFeatures
 } = inject(BatchEditDIKey)!
+
+const creatable = computed(() => {
+  return (
+    state.type === 'create' &&
+    (staticFeatures.value.has('create') ||
+      dynamicFeatures.value.create?.(state.row))
+  )
+})
+
+const updatable = computed(() => {
+  return (
+    state.type === 'update' &&
+    (staticFeatures.value.has('update') ||
+      dynamicFeatures.value.update?.(state.row))
+  )
+})
 </script>

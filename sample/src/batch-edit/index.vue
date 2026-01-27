@@ -14,152 +14,142 @@
       <u-button @click="dialogVisible = !dialogVisible">打开编辑</u-button>
     </div>
 
-    <u-dialog v-model="dialogVisible" style="width: 1000px">
-      <u-batch-edit
-        :columns="columns"
-        :readonly="readonly"
-        :resizable="resizable"
-        v-model:data="data"
-        v-model:checked="checked"
-        checkable
-        :model="model"
-        :actions-props="{ delete: { needConfirm: true, circle: false } }"
-        :features="features"
-        :tree="tree"
-        style="height: 500px"
-        :delete-method="asynchronous ? deleteMethod : undefined"
-        :save-method="asynchronous ? saveMethod : undefined"
-        @created="model.setData({ age: 666 })"
-      >
-        <template #column:name="{ row }">
-          <span :style="`padding-left: ${row.depth * 20}px;`">
-            {{ row.depth }} {{ row.data.name }}
-          </span>
-        </template>
-        <template #form="{ data, depth }">
-          {{ depth }}
-          <!-- 基础信息 -->
-          <u-input field="name" label="姓名" placeholder="请输入姓名" />
-          <u-number-input field="age" label="年龄" :min="0" :max="120" />
-          <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
-          <u-input field="phone" label="电话" placeholder="请输入电话号码" />
+    <u-batch-edit
+      :columns="columns"
+      :readonly="readonly"
+      :resizable="resizable"
+      v-model:data="data"
+      v-model:checked="checked"
+      checkable
+      :model="model"
+      :actions-props="{ delete: { needConfirm: true, circle: false } }"
+      :features="dynamicFeatures"
+      :tree="tree"
+      style="max-height: 500px"
+      :delete-method="asynchronous ? deleteMethod : undefined"
+      :save-method="asynchronous ? saveMethod : undefined"
+      @created="model.setData({ age: 666 })"
+    >
+      <template #column:name="{ row }">
+        <span :style="`padding-left: ${row.depth * 20}px;`">
+          {{ row.depth }} {{ row.data.name }}
+        </span>
+      </template>
+      <template #form="{ data, depth }">
+        {{ depth }}
+        <!-- 基础信息 -->
+        <u-input field="name" label="姓名" placeholder="请输入姓名" />
+        <u-number-input field="age" label="年龄" :min="0" :max="120" />
+        <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
+        <u-input field="phone" label="电话" placeholder="请输入电话号码" />
 
-          <!-- 选择器类型 -->
-          <u-select
-            field="gender"
-            label="性别"
-            :options="genderOptions"
-            label-key="label"
-            value-key="value"
-            placeholder="请选择性别"
-          />
-          <u-select
-            field="department"
-            label="部门"
-            :options="departmentOptions"
-            label-key="label"
-            value-key="value"
-            placeholder="请选择部门"
-          />
-          <u-select
-            field="position"
-            label="职位"
-            :options="positionOptions"
-            label-key="label"
-            value-key="value"
-            placeholder="请选择职位"
-          />
-          <u-select
-            field="unit"
-            label="单位"
-            :options="units"
-            label-key="label"
-            value-key="value"
-            placeholder="请选择单位"
-          />
+        <!-- 选择器类型 -->
+        <u-select
+          field="gender"
+          label="性别"
+          :options="genderOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择性别"
+        />
+        <u-select
+          field="department"
+          label="部门"
+          :options="departmentOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择部门"
+        />
+        <u-select
+          field="position"
+          label="职位"
+          :options="positionOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择职位"
+        />
+        <u-select
+          field="unit"
+          label="单位"
+          :options="units"
+          label-key="label"
+          value-key="value"
+          placeholder="请选择单位"
+        />
 
-          <!-- 日期时间 -->
-          <u-date-picker
-            field="birthday"
-            label="生日"
-            placeholder="请选择生日"
-          />
-          <u-date-picker
-            field="joinDate"
-            label="入职日期"
-            placeholder="请选择入职日期"
-          />
+        <!-- 日期时间 -->
+        <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
+        <u-date-picker
+          field="joinDate"
+          label="入职日期"
+          placeholder="请选择入职日期"
+        />
 
-          <!-- 数值输入 -->
-          <u-number-input field="salary" label="薪资" :min="0" :step="100" />
-          <u-number-input
-            field="score"
-            label="评分"
-            :min="0"
-            :max="100"
-            :step="0.1"
-          />
+        <!-- 数值输入 -->
+        <u-number-input field="salary" label="薪资" :min="0" :step="100" />
+        <u-number-input
+          field="score"
+          label="评分"
+          :min="0"
+          :max="100"
+          :step="0.1"
+        />
 
-          <!-- 多行文本 -->
-          <u-textarea
-            field="address"
-            label="地址"
-            placeholder="请输入详细地址"
-            span="full"
-          />
-          <u-textarea
-            field="description"
-            label="个人描述"
-            placeholder="请输入个人描述"
-            span="full"
-          />
+        <!-- 多行文本 -->
+        <u-textarea
+          field="address"
+          label="地址"
+          placeholder="请输入详细地址"
+          span="full"
+        />
+        <u-textarea
+          field="description"
+          label="个人描述"
+          placeholder="请输入个人描述"
+          span="full"
+        />
 
-          <!-- 复选框和单选框 -->
-          <u-checkbox-group
-            field="skills"
-            label="技能"
-            :items="skillOptions"
-            span="full"
-          />
-          <u-radio-group
-            field="workType"
-            label="工作类型"
-            :items="workTypeOptions"
-          />
+        <!-- 复选框和单选框 -->
+        <u-checkbox-group
+          field="skills"
+          label="技能"
+          :items="skillOptions"
+          span="full"
+        />
+        <u-radio-group
+          field="workType"
+          label="工作类型"
+          :items="workTypeOptions"
+        />
 
-          <!-- 高级组件 -->
-          <u-code-editor
-            field="code"
-            label="代码片段"
-            language="json"
-            span="full"
-          />
-          <u-slider
-            field="experience"
-            label="工作经验(年)"
-            :min="0"
-            :max="20"
-          />
+        <!-- 高级组件 -->
+        <u-code-editor
+          field="code"
+          label="代码片段"
+          language="json"
+          span="full"
+        />
+        <u-slider field="experience" label="工作经验(年)" :min="0" :max="20" />
 
-          <!-- 条件显示字段 -->
-          <u-input
-            v-if="!data.age || data.age < 25"
-            field="emergencyContact"
-            label="紧急联系人"
-          />
-          <u-input
-            v-if="data.department === 'tech'"
-            field="programmingLanguage"
-            label="主要编程语言"
-          />
+        <!-- 条件显示字段 -->
+        <u-input
+          v-if="!data.age || data.age < 25"
+          field="emergencyContact"
+          label="紧急联系人"
+        />
+        <u-input
+          v-if="data.department === 'tech'"
+          field="programmingLanguage"
+          label="主要编程语言"
+        />
 
-          <!-- 嵌套字段 -->
-          <u-input field="props.label" label="标签" />
-          <u-input field="props.field" label="字段" />
-          <u-input field="contact.qq" label="QQ号码" />
-          <u-input field="contact.wechat" label="微信号" />
+        <!-- 嵌套字段 -->
+        <u-input field="props.label" label="标签" />
+        <u-input field="props.field" label="字段" />
+        <u-input field="contact.qq" label="QQ号码" />
+        <u-input field="contact.wechat" label="微信号" />
 
-          <!-- <u-cascade
+        <!-- <u-cascade
             field="cascade"
             label="单选级联选择器"
             :options="area.area"
@@ -167,16 +157,17 @@
             value-key="code"
             filterable
           /> -->
-        </template>
-      </u-batch-edit>
-    </u-dialog>
+      </template>
+    </u-batch-edit>
+
+    <u-dialog v-model="dialogVisible" style="width: 1000px"> </u-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { sleep } from 'cat-kit/fe'
+import { date, sleep } from 'cat-kit/fe'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
-import { shallowRef } from 'vue'
+import { computed, shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'
 import type { BatchEditFeature } from 'ultra-ui/types'
 
@@ -246,26 +237,27 @@ setTimeout(() => {
 }, 500)
 
 const model = new FormModel({
-  name: { required: true },
+  name: { required: true, value: () => '张三' + Math.random().toFixed(2) },
   age: { max: 120, min: 0, value: () => Math.floor(Math.random() * 40) + 20 },
   email: {
     required: true,
+    value: () => `user${Math.random().toFixed(2)}@company.com`,
     match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址']
   },
   phone: { match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码'] },
-  gender: { required: true },
-  department: { required: true },
-  position: { required: true },
+  gender: { required: true, value: 'male' },
+  department: { required: true, value: 'tech' },
+  position: { required: true, value: 'engineer' },
   salary: { min: 0 },
   score: { min: 0, max: 100 },
-  workType: { required: true },
-  joinDate: { required: true },
+  workType: { required: true, value: 'fulltime' },
+  joinDate: { required: true, value: date().format() },
   birthday: {},
   address: {},
   description: {},
   skills: {},
   experience: { min: 0, max: 20 },
-  emergencyContact: { required: true },
+  emergencyContact: { required: true, value: 'asd' },
   programmingLanguage: {},
   'props.field': {},
   'props.label': {},
@@ -276,16 +268,23 @@ const model = new FormModel({
   unit: {}
 })
 
-const features = shallowRef<BatchEditFeature[]>([
-  'create',
+const featureList: BatchEditFeature[] = [
   'update',
   'copy',
   'delete',
   'view'
-])
+] as const
+
+const features = shallowRef(featureList)
+
+const dynamicFeatures = computed(() => {
+  return {
+    create: () => data.value?.length < 10,
+    ...Object.fromEntries(featureList.map(i => [i, features.value.includes(i)]))
+  }
+})
 
 const items = [
-  { label: '新增', value: 'create' },
   { label: '更新', value: 'update' },
   { label: '复制', value: 'copy' },
   { label: '删除', value: 'delete' },

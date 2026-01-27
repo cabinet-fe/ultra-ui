@@ -28,7 +28,7 @@ import type {
   TableRow
 } from '@ui/types'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
-import { type FormModel } from '../form'
+import type { FormModel } from '../form'
 import { ULayout } from '../layout'
 import { bem } from '@ui/utils'
 import { DialogDIKey } from '../dialog/di'
@@ -37,9 +37,7 @@ import { BatchEditDIKey } from './di'
 import BatchEditList from './batch-edit-list.vue'
 import BatchEditForm from './batch-edit-form.vue'
 
-defineOptions({
-  name: 'BatchEdit'
-})
+defineOptions({ name: 'BatchEdit' })
 
 const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
   cols: () => ['1fr', '400px'],
@@ -127,11 +125,7 @@ const cls = bem('batch-edit')
 
 const tableRef = shallowRef<TableExposed>()
 
-const editCtx = useEdit({
-  props,
-  emit,
-  tableRef
-})
+const editCtx = useEdit({ props, emit, tableRef })
 
 const { state, handleClose } = editCtx
 
