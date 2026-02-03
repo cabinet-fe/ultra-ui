@@ -1,10 +1,4 @@
-import {
-  nextTick,
-  provide,
-  shallowRef,
-  watchEffect,
-  type ShallowRef
-} from 'vue'
+import { nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
 import { TableResizeKey } from './di'
 import type { ScrollExposed } from '@ui/types'
 import type { ColumnNode } from './node/col'
@@ -49,23 +43,17 @@ export function useColResize(options: Options): UseColResizeReturned {
     if (allColumnsWidth < containerWidth) {
       const freeWidth = containerWidth - allColumnsWidth
 
-      const allocatableColumns = leafColumns.value.filter(
-        column => column.resizable !== false
-      )
+      const allocatableColumns = leafColumns.value.filter((column) => column.resizable !== false)
 
       const allocatedWidth = freeWidth / allocatableColumns.length
 
-      allocatableColumns.forEach(column => {
+      allocatableColumns.forEach((column) => {
         column.width = (column.width ?? column.minWidth!) + allocatedWidth
       })
     }
 
-    const fixedLeft = leafColumns.value.filter(
-      column => column.fixed === 'left'
-    )
-    const fixedRight = leafColumns.value.filter(
-      column => column.fixed === 'right'
-    )
+    const fixedLeft = leafColumns.value.filter((column) => column.fixed === 'left')
+    const fixedRight = leafColumns.value.filter((column) => column.fixed === 'right')
 
     fixedLeft.reduce((acc, cur) => {
       cur.style.left = acc
@@ -92,10 +80,7 @@ export function useColResize(options: Options): UseColResizeReturned {
   let originWidth = 0
   let currentResizeColumn: ColumnNode | null = null
 
-  function handleResizeMousedown(
-    e: MouseEvent,
-    resizeColumn: ColumnNode
-  ): void {
+  function handleResizeMousedown(e: MouseEvent, resizeColumn: ColumnNode): void {
     const tableEl = scrollRef.value?.el
     if (!tableEl) return
 
@@ -122,7 +107,7 @@ export function useColResize(options: Options): UseColResizeReturned {
   function handleResizeMouseup(e: MouseEvent): void {
     currentResizeColumn!.width = Math.max(
       originWidth + e.pageX - originX,
-      currentResizeColumn!.minWidth!
+      currentResizeColumn!.minWidth!,
     )
 
     showResizeLine.value = false
@@ -135,13 +120,13 @@ export function useColResize(options: Options): UseColResizeReturned {
 
   provide(TableResizeKey, {
     handleResizeMousedown,
-    headerRef
+    headerRef,
   })
 
   return {
     resizeLineRef,
     colgroupRef,
     showResizeLine,
-    handleResizeMousedown
+    handleResizeMousedown,
   }
 }

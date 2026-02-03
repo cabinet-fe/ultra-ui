@@ -49,11 +49,7 @@
 
     <slot name="append" />
 
-    <div
-      v-if="showResizeLine"
-      :class="cls.e('resize-line')"
-      ref="resizeLineRef"
-    ></div>
+    <div v-if="showResizeLine" :class="cls.e('resize-line')" ref="resizeLineRef"></div>
 
     <u-tip v-if="textEllipsis" ref="tipRef"> </u-tip>
   </u-scroll>
@@ -70,15 +66,7 @@ import type {
   TableRowSlotsScope
 } from '@ui/types'
 import { bem, setStyles, withUnit } from '@ui/utils'
-import {
-  computed,
-  nextTick,
-  provide,
-  shallowRef,
-  toRef,
-  useTemplateRef,
-  watch
-} from 'vue'
+import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
 import { useColumns } from './use-columns'
@@ -117,8 +105,6 @@ const slots = defineSlots<{
   append?: () => any
 }>()
 
-
-
 const cls = bem('table')
 
 const { size } = useFallbackProps([props], {
@@ -141,20 +127,15 @@ const {
 })
 
 // 选中
-const {
-  createCheckColumn,
-  createSelectColumn,
-  clearChecked,
-  clearSelected,
-  checkedRows
-} = useCheck({
-  size,
-  props,
-  rows,
-  rowForest,
-  emit,
-  cls
-})
+const { createCheckColumn, createSelectColumn, clearChecked, clearSelected, checkedRows } =
+  useCheck({
+    size,
+    props,
+    rows,
+    rowForest,
+    emit,
+    cls
+  })
 
 // 列
 const columnConfig = useColumns({
@@ -186,8 +167,7 @@ const {
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-
-const { showResizeLine, resizeLineRef,  colgroupRef } = useColResize({
+const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({
   scrollRef,
   leafColumns
 })
@@ -216,7 +196,7 @@ const spaceRef = shallowRef<HTMLElement>()
 
 watch(
   spaceHeight,
-  spaceHeight => {
+  (spaceHeight) => {
     nextTick(() => {
       spaceRef.value &&
         setStyles(spaceRef.value, {
