@@ -1,19 +1,14 @@
 import { camelCase } from 'cat-kit/be'
-import { cp, mkdir, rm, writeFile } from 'fs/promises'
-import { join, resolve } from 'path'
-import { COMPONENT_PATH, UI_PATH } from '../shared'
 import { existsSync } from 'fs'
-import prettier from 'prettier'
+import { cp, mkdir, rm, writeFile } from 'fs/promises'
+import { format } from 'oxfmt'
+import { join, resolve } from 'path'
+
 import type { ComponentCtx } from './type'
 
-const NAME_SPACE = 'U'
+import { COMPONENT_PATH, UI_PATH } from '../shared'
 
-const extMap = {
-  ts: 'typescript',
-  vue: 'vue',
-  scss: 'scss',
-  json: 'json'
-}
+const NAME_SPACE = 'U'
 
 /**
  * 写入内容到目标文件
@@ -25,27 +20,18 @@ const extMap = {
 async function write(ctx: ComponentCtx, content: string, ext: string) {
   const targetDir = resolve(COMPONENT_PATH, ctx.componentName)
   if (!existsSync(targetDir)) {
-    await mkdir(targetDir, {
-      recursive: true
-    })
+    await mkdir(targetDir, { recursive: true })
   }
 
-  const extRE = /\.([A-z\d]+)$/
-
-  const contentFormatted = await prettier.format(content, {
-    parser: extMap[ext.match(extRE)![1]!] || 'html',
+  const { code } = await format('aa', content, {
     singleQuote: true,
     semi: false,
-
     trailingComma: 'none'
   })
 
-  const filePath = resolve(
-    targetDir,
-    ext.startsWith('.') ? ctx.componentName + ext : ext
-  )
+  const filePath = resolve(targetDir, ext.startsWith('.') ? ctx.componentName + ext : ext)
 
-  await writeFile(filePath, contentFormatted, 'utf-8')
+  await writeFile(filePath, code, 'utf-8')
 
   return filePath
 }
@@ -101,9 +87,7 @@ export function renderTypeFile(ctx: ComponentCtx) {
     (e: 'update:modelValue', value: string): void
   }
 
-  /** ${
-    ctx.componentDesc || ctx.componentName
-  }组件暴露的属性和方法(组件内部使用) */
+  /** ${ctx.componentDesc || ctx.componentName}组件暴露的属性和方法(组件内部使用) */
   export interface _${upperCamelCase}Exposed {
 
   }
@@ -115,11 +99,8 @@ export function renderTypeFile(ctx: ComponentCtx) {
 
   `
 
-  write(ctx, content, '.ts').then(async filePath => {
-    await cp(
-      filePath,
-      join(UI_PATH, 'types/components', ctx.componentName + '.ts')
-    )
+  write(ctx, content, '.ts').then(async (filePath) => {
+    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.ts'))
     rm(filePath)
   })
 }

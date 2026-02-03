@@ -6,5 +6,6 @@
   "trailingComma": "none",
   "jsxSingleQuote": true,
   "objectWrap": "collapse",
+  "experimentalSortPackageJson": true,
   "experimentalSortImports": {}
 }

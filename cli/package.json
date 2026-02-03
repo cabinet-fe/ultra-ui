@@ -6,8 +6,8 @@
   "type": "module",
   "devDependencies": {
     "@inquirer/prompts": "^8.2.0",
-    "prettier": "^3.7.4",
-    "picocolors": "^1.1.1",
-    "cat-kit": "^3.7.15"
+    "cat-kit": "^3.7.15",
+    "oxfmt": "^0.28.0",
+    "picocolors": "^1.1.1"
   }
 }

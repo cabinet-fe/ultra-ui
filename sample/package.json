@@ -7,8 +7,8 @@
   "dependencies": {
     "@builder/vite": "^2.1.2",
     "@ultra/icon": "^1.0.1",
-    "vue-router": "^4.6.4",
-    "vue": "^3.5.26",
+    "vue-router": "^5.0.2",
+    "vue": "^3.5.27",
     "ultra-ui": "workspace:*"
   },
   "devDependencies": {
@@ -16,6 +16,6 @@
     "unocss": "^66.5.12",
     "vite": "^7.3.1",
     "cat-kit": "^3.7.14",
-    "sass-embedded": "^1.97.2"
+    "sass-embedded": "^1.97.3"
   }
 }

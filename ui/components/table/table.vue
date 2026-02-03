@@ -34,13 +34,7 @@
       </u-table-body>
 
       <!-- 占用空间，用来撑开表格高度 -->
-      <tbody
-        v-if="virtualEnabled"
-        ref="spaceRef"
-        :style="{
-          width: '1px'
-        }"
-      ></tbody>
+      <tbody v-if="virtualEnabled" ref="spaceRef" :style="{ width: '1px' }"></tbody>
 
       <u-table-foot ref="tableFoot">
         <slot name="foot" :columns="leafColumns" :rows="rows" />
@@ -83,9 +77,7 @@ import { useFixedColumns } from './use-fixed-columns'
 import { useColResize } from './use-col-resize'
 import type { ColumnNode } from './node/col'
 
-defineOptions({
-  name: 'Table'
-})
+defineOptions({ name: 'Table' })
 
 const props = withDefaults(defineProps<TableProps>(), {
   tree: false,
@@ -107,9 +99,7 @@ const slots = defineSlots<{
 
 const cls = bem('table')
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 // 行
 const {
@@ -121,21 +111,11 @@ const {
   handleRowClick,
   handleCellClick,
   getRowByData
-} = useRows({
-  props,
-  emit
-})
+} = useRows({ props, emit })
 
 // 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected, checkedRows } =
-  useCheck({
-    size,
-    props,
-    rows,
-    rowForest,
-    emit,
-    cls
-  })
+  useCheck({ size, props, rows, rowForest, emit, cls })
 
 // 列
 const columnConfig = useColumns({
@@ -158,19 +138,11 @@ const {
   getCellClass,
   getCellCtx,
   getHeaderCellClass
-} = useTable({
-  props,
-  cls,
-  leftFixed,
-  rightFixed
-})
+} = useTable({ props, cls, leftFixed, rightFixed })
 
 const scrollRef = shallowRef<ScrollExposed>()
 
-const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({
-  scrollRef,
-  leafColumns
-})
+const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({ scrollRef, leafColumns })
 
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
@@ -199,9 +171,7 @@ watch(
   (spaceHeight) => {
     nextTick(() => {
       spaceRef.value &&
-        setStyles(spaceRef.value, {
-          height: spaceHeight ? `${spaceHeight}px` : undefined
-        })
+        setStyles(spaceRef.value, { height: spaceHeight ? `${spaceHeight}px` : undefined })
     })
   },
   { immediate: true }
