@@ -5,14 +5,14 @@
 See: `.planning/PROJECT.md` (updated 2026-02-12)
 
 **Core value:** Teams can ship consistent, maintainable UI faster with production-ready Vue components.
-**Current focus:** Milestone v0.5.0 requirements definition for expression editor refactor
+**Current focus:** Milestone v0.5.0 — expression editor refactor
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: -
-Status: Defining requirements
-Last activity: 2026-02-12 - Milestone v0.5.0 started
+Phase: 1 of 5 (Visual Foundation)
+Plan: 0 of 1 in current phase
+Status: Ready to plan
+Last activity: 2026-02-12 — Roadmap created
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -40,8 +40,8 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in `PROJECT.md` Key Decisions table.
 Recent decisions affecting current work:
 
-- v0.5.0 milestone focuses on expression editor refactor
-- Research-first approach selected before requirement finalization
+- v0.5.0 roadmap: 5 phases (visual → stability → picker → drag-drop → architecture)
+- All 11 v1 requirements mapped; no orphans
 
 ### Pending Todos
 
@@ -54,5 +54,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Milestone initialization and requirement scoping
+Stopped at: Roadmap created; ready for `/gsd:plan-phase 1`
 Resume file: None
