@@ -56,10 +56,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can trigger variable picker with `@` and insert variables without interrupting typing flow
   2. User can navigate variable picker with ArrowUp/ArrowDown, confirm with Enter, dismiss with Escape
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 03-01: (TBD during plan-phase)
+- [ ] 03-01: Command-to-picker wiring, variable picker registration, handleVariableSelect revalidation
 
 ### Phase 4: Drag-Drop
 
