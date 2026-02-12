@@ -4,6 +4,8 @@ import type { DeconstructValue } from '../helper'
 export interface VariableItem {
   label: string
   value: string
+  /** 可选类型标识（如 string、number） */
+  type?: string
   /** 子级变量（支持树形结构） */
   children?: VariableItem[]
 }

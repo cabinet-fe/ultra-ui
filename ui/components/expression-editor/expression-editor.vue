@@ -101,7 +101,11 @@ function handleVariableSelect(variable: VariableItem) {
   editor.update(() => {
     const textContent = textNode.value?.getTextContent()
     if (!textContent) return
-    const newNode = $createVariableNode(variable.value, variable.label)
+    const newNode = $createVariableNode(
+      variable.value,
+      variable.label,
+      variable.type
+    )
     const nodeBefore = $createTextNode(
       textContent.slice(0, charPosition.value - 1)
     )
@@ -122,18 +126,16 @@ function updateVariableNode(
   editor.update(() => {
     const root = $getRoot()
 
-    // 如果没有提供 label，从映射表中查找
-    let label = newLabel
-    if (!label) {
-      const variable = variableMap.value.get(newValue)
-      label = variable?.label || newValue
-    }
+    // 如果没有提供 label 或 type，从映射表中查找
+    const variable = variableMap.value.get(newValue)
+    const label = newLabel ?? variable?.label ?? newValue
+    const type = variable?.type
 
     // 递归遍历所有节点
     function traverse(node: any) {
       if ($isVariableNode(node)) {
         if (node.getVariable() === oldValue) {
-          node.updateVariable(newValue, label)
+          node.updateVariable(newValue, label, type)
         }
       }
 

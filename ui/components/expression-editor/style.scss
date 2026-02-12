@@ -164,55 +164,6 @@ $root-name: expression-editor;
     }
   }
 
-  @include m.e(var-block) {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 3px 12px;
-    margin: 0 2px;
-    background: fn.use-var(color, primary);
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 13px;
-    color: #ffffff;
-    font-weight: 600;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    vertical-align: middle;
-    white-space: nowrap;
-    line-height: 1.5;
-
-    &:hover {
-      filter: brightness(1.1);
-      transform: scale(1.02);
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-
-    &.selected {
-      background: fn.use-var(color, primary, dark-2);
-      transform: scale(1.02);
-    }
-
-    i {
-      font-style: normal;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    span {
-      color: #ffffff;
-    }
-  }
-
-  @include m.e(var-node-icon) {
-    color: #ffffff;
-    margin-right: 1px;
-    font-weight: 700;
-  }
-
   @include m.e(filter) {
     padding: 6px;
     border-bottom: fn.use-var(border);
