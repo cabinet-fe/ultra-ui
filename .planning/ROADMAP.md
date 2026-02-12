@@ -41,10 +41,12 @@ Plans:
   1. User can type without cursor jump, text loss, or overwrite when v-model syncs from parent
   2. User can compose IME (Chinese/Japanese/Korean) without interruption or corruption
   3. User can parse, edit, and re-serialize `{variable}` expressions without format break
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 02-01: (TBD during plan-phase)
+- [ ] 02-01: Model sync — equality check, lastEmittedValue guard, SKIP_DOM_SELECTION_TAG
+- [ ] 02-02: IME safety — isComposing check in PreventDefaultListener
+- [ ] 02-03: Format compatibility — parser trailing text fix, fixture round-trip tests
 
 ### Phase 3: Variable Picker Interaction
 
@@ -92,7 +94,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
-| 2. Input Stability | 0/1 | Not started | - |
+| 2. Input Stability | 0/3 | Not started | - |
 | 3. Variable Picker Interaction | 0/1 | Not started | - |
 | 4. Drag-Drop | 0/1 | Not started | - |
 | 5. Architecture Refactor | 0/1 | Not started | - |
