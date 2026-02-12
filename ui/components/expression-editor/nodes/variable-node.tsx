@@ -8,15 +8,16 @@ import { UTag } from '../../tag'
 import type { VNode } from 'vue'
 
 interface SerializedVariableNode extends SerializedLexicalNode {
+  type: 'variable'
   variable: string
   label?: string
-  type?: string
+  variableType?: string
 }
 
 export class VariableNode extends DecoratorNode<VNode> {
   __variable: string
   __label: string
-  __type: string
+  __variableType: string
   __text: string
   __domNode: HTMLElement | null = null
 
@@ -28,18 +29,19 @@ export class VariableNode extends DecoratorNode<VNode> {
     return new VariableNode(
       node.__variable,
       node.__label,
-      node.__type,
+      node.__variableType,
       node.__key
     )
   }
 
   static override importJSON(
-    serializedNode: SerializedVariableNode
+    serializedNode: SerializedLexicalNode
   ): VariableNode {
+    const variableNode = serializedNode as SerializedVariableNode
     return new VariableNode(
-      serializedNode.variable,
-      serializedNode.label || serializedNode.variable,
-      serializedNode.type
+      variableNode.variable,
+      variableNode.label || variableNode.variable,
+      variableNode.variableType
     )
   }
 
@@ -48,7 +50,7 @@ export class VariableNode extends DecoratorNode<VNode> {
 
     this.__variable = variable
     this.__label = label || variable
-    this.__type = type || ''
+    this.__variableType = type || ''
     this.__text = `{${variable}}`
   }
 
@@ -67,8 +69,8 @@ export class VariableNode extends DecoratorNode<VNode> {
   }
 
   override decorate(): VNode {
-    const displayText = this.__type
-      ? `${this.__label} (${this.__type})`
+    const displayText = this.__variableType
+      ? `${this.__label} (${this.__variableType})`
       : this.__label
     return (
       <UTag
@@ -87,7 +89,7 @@ export class VariableNode extends DecoratorNode<VNode> {
     const writable = this.getWritable()
     writable.__variable = newVariable
     writable.__label = newLabel || newVariable
-    writable.__type = newType ?? writable.__type
+    writable.__variableType = newType ?? writable.__variableType
     writable.__text = `{${newVariable}}`
   }
 
@@ -99,8 +101,18 @@ export class VariableNode extends DecoratorNode<VNode> {
     return this.__label
   }
 
-  getType(): string {
-    return this.__type
+  getVariableType(): string {
+    return this.__variableType
+  }
+
+  override exportJSON(): SerializedVariableNode {
+    return {
+      ...super.exportJSON(),
+      type: 'variable',
+      variable: this.__variable,
+      label: this.__label,
+      variableType: this.__variableType
+    }
   }
 }
 

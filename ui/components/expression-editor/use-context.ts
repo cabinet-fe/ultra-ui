@@ -86,10 +86,10 @@ export function useContext(editor: LexicalEditor): {
 
         // 更新文本节点和光标位置
         // charPosition: index of first char after '@' (for slice in handleVariableSelect)
-        // isAtTriggerRight: cursor after '@' → cursorPosition = triggerIndex+1 → charPosition = cursorPosition
-        // isAtTriggerLeft: cursor before '@' → cursorPosition = triggerIndex → charPosition = cursorPosition+1
+        // isAtTriggerLeft: '@' is left of cursor (cursor already after '@') → charPosition = cursorPosition
+        // isAtTriggerRight: '@' is right of cursor (cursor before '@') → charPosition = cursorPosition + 1
         textNode.value = node as TextNode
-        charPosition.value = isAtTriggerRight ? cursorPosition : cursorPosition + 1
+        charPosition.value = isAtTriggerLeft ? cursorPosition : cursorPosition + 1
 
         const triggerDom = editor.getElementByKey(node.getKey())
 
