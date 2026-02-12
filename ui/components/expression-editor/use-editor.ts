@@ -43,14 +43,22 @@ export function useEditor(options: EditorOptions): LexicalEditor {
 
   let changeByUser = false
   let changeByModel = false
+  let lastEmittedValue: string | null = null
 
   editor.registerTextContentListener(text => {
     if (changeByModel) return
 
     emit('update:modelValue', text)
+    lastEmittedValue = text
     changeByUser = true
     nextTick(() => {
-      changeByUser = false
+      if (lastEmittedValue === props.modelValue) {
+        changeByUser = false
+      } else {
+        setTimeout(() => {
+          changeByUser = false
+        }, 0)
+      }
     })
   })
 
@@ -86,6 +94,8 @@ export function useEditor(options: EditorOptions): LexicalEditor {
 
   watchEffect(() => {
     if (changeByUser) return
+    const current = editor.getEditorState().read(() => $getRoot().getTextContent())
+    if (props.modelValue === current) return
     renderModelValue()
   })
 
