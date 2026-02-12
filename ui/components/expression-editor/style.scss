@@ -107,7 +107,7 @@ $root-name: expression-editor;
   @include m.e(variable-empty) {
     padding: 16px;
     text-align: center;
-    color: #6b7280;
+    color: fn.use-var(text-color, second);
     font-size: 13px;
     font-weight: 500;
   }
@@ -118,24 +118,24 @@ $root-name: expression-editor;
     list-style: none;
     max-height: 240px;
     overflow-y: auto;
-    background-color: #ffffff;
+    background-color: fn.use-var(bg-color, top);
 
     &::-webkit-scrollbar {
       width: 8px;
     }
 
     &::-webkit-scrollbar-track {
-      background-color: #f3f4f6;
-      border-radius: 4px;
+      background-color: fn.use-var(bg-color, middle);
+      border-radius: fn.use-var(radius, small);
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: #9ca3af;
-      border-radius: 4px;
-      border: 2px solid #f3f4f6;
+      background-color: fn.use-var(text-color, placeholder);
+      border-radius: fn.use-var(radius, small);
+      border: 2px solid fn.use-var(bg-color, middle);
 
       &:hover {
-        background-color: #6b7280;
+        background-color: fn.use-var(text-color, second);
       }
     }
   }
@@ -145,9 +145,9 @@ $root-name: expression-editor;
     margin: 2px 6px;
     cursor: pointer;
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 6px;
+    border-radius: fn.use-var(radius, default);
     font-size: 13px;
-    color: #1f2937;
+    color: fn.use-var(text-color, main);
     font-weight: 500;
 
     &:hover {
@@ -158,9 +158,9 @@ $root-name: expression-editor;
 
     @include m.is('active') {
       background-color: fn.use-var(color, primary);
-      color: #ffffff;
+      color: fn.use-var(text-color, white);
       font-weight: 600;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px fn.use-var(shadow, color);
     }
   }
 
@@ -174,9 +174,9 @@ $root-name: expression-editor;
     align-items: center;
     padding: 6px 10px;
     border-bottom: fn.use-var(border);
-    background-color: #f9fafb;
+    background-color: fn.use-var(bg-color, middle);
     font-size: 12px;
-    color: #6b7280;
+    color: fn.use-var(text-color, second);
     overflow-x: auto;
     white-space: nowrap;
 
@@ -189,11 +189,11 @@ $root-name: expression-editor;
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: #d1d5db;
+      background-color: fn.use-var(border, color);
       border-radius: 2px;
 
       &:hover {
-        background-color: #9ca3af;
+        background-color: fn.use-var(text-color, placeholder);
       }
     }
   }
@@ -209,11 +209,11 @@ $root-name: expression-editor;
     transition: all 0.15s ease;
     font-weight: 500;
     padding: 2px 6px;
-    border-radius: 3px;
+    border-radius: fn.use-var(radius, small);
 
     &:hover {
       color: fn.use-var(color, primary);
-      background-color: #f3f4f6;
+      background-color: fn.use-var(bg-color, hover);
     }
 
     &--active {
@@ -224,7 +224,7 @@ $root-name: expression-editor;
 
   @include m.e(breadcrumb-separator) {
     font-size: 10px;
-    color: #9ca3af;
+    color: fn.use-var(text-color, placeholder);
     margin: 0 2px;
   }
 
@@ -251,24 +251,24 @@ $root-name: expression-editor;
     justify-content: space-between;
     gap: 8px;
     transition: all 0.12s ease;
-    color: #1f2937;
+    color: fn.use-var(text-color, main);
     font-size: 13px;
     line-height: 1.4;
-    border-radius: 4px;
+    border-radius: fn.use-var(radius, small);
     margin: 1px 4px;
 
     &:hover {
-      background-color: #f3f4f6;
+      background-color: fn.use-var(bg-color, hover);
     }
 
     @include m.is(active) {
       background-color: fn.use-var(color, primary);
-      color: #ffffff;
+      color: fn.use-var(text-color, white);
       font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 1px 3px fn.use-var(shadow, color);
 
       @include m.bem($root-name, item-expand) {
-        color: #ffffff;
+        color: fn.use-var(text-color, white);
       }
     }
 
@@ -286,7 +286,7 @@ $root-name: expression-editor;
 
   @include m.e(item-expand) {
     flex-shrink: 0;
-    color: #9ca3af;
+    color: fn.use-var(text-color, placeholder);
     font-size: 11px;
     transition: color 0.15s ease;
   }
