@@ -11,7 +11,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - Decimal phases (e.g., 2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Visual Foundation** — Design tokens and state feedback
-- [ ] **Phase 2: Input Stability** — Model sync, IME, format compatibility
+- [x] **Phase 2: Input Stability** — Model sync, IME, format compatibility
 - [ ] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
 - [ ] **Phase 4: Drag-Drop** — Implement or document
 - [ ] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
@@ -44,9 +44,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 02-01: Model sync — equality check, lastEmittedValue guard, SKIP_DOM_SELECTION_TAG
-- [ ] 02-02: IME safety — isComposing check in PreventDefaultListener
-- [ ] 02-03: Format compatibility — parser trailing text fix, fixture round-trip tests
+- [x] 02-01: Model sync — equality check, lastEmittedValue guard, SKIP_DOM_SELECTION_TAG
+- [x] 02-02: IME safety — isComposing check in PreventDefaultListener
+- [x] 02-03: Format compatibility — parser trailing text fix, fixture round-trip tests
 
 ### Phase 3: Variable Picker Interaction
 
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
-| 2. Input Stability | 0/3 | Not started | - |
+| 2. Input Stability | 3/3 | Complete | 2026-02-12 |
 | 3. Variable Picker Interaction | 0/1 | Not started | - |
 | 4. Drag-Drop | 0/1 | Not started | - |
 | 5. Architecture Refactor | 0/1 | Not started | - |
