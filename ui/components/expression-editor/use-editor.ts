@@ -2,6 +2,7 @@ import {
   $createParagraphNode,
   $getRoot,
   createEditor,
+  SKIP_DOM_SELECTION_TAG,
   type LexicalEditor
 } from 'lexical'
 import { VariableNode } from './nodes/variable-node'
@@ -78,17 +79,20 @@ export function useEditor(options: EditorOptions): LexicalEditor {
     const { modelValue } = props
     if (!modelValue) return
 
-    editor.update(() => {
-      const root = $getRoot()
-      root.clear()
-      const paragraph = $createParagraphNode()
-      const nodes = parseContent(modelValue, variableMap.value)
-      paragraph.append(...nodes)
-      root.append(paragraph)
+    editor.update(
+      () => {
+        const root = $getRoot()
+        root.clear()
+        const paragraph = $createParagraphNode()
+        const nodes = parseContent(modelValue, variableMap.value)
+        paragraph.append(...nodes)
+        root.append(paragraph)
+      },
+      { tag: SKIP_DOM_SELECTION_TAG }
+    )
 
-      nextTick(() => {
-        changeByModel = false
-      })
+    nextTick(() => {
+      changeByModel = false
     })
   }
 
