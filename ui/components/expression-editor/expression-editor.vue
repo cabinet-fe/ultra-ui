@@ -34,7 +34,7 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useEditor } from './use-editor'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'
-import { $createTextNode, $getRoot } from 'lexical'
+import { $createTextNode, $getNodeByKey, $getRoot } from 'lexical'
 import { $createVariableNode, $isVariableNode } from './nodes/variable-node'
 
 defineOptions({
@@ -98,19 +98,25 @@ function Decorators(props: { decorators: VNode[] }) {
 function handleVariableSelect(variable: VariableItem) {
   if (disabled.value || readonly.value) return
 
+  const nodeKey = textNode.value?.getKey()
+  if (!nodeKey) return
+
   editor.update(() => {
-    const textContent = textNode.value?.getTextContent()
-    if (!textContent) return
+    const targetNode = $getNodeByKey(nodeKey)
+    if (!targetNode) return
+
+    const textContent = targetNode.getTextContent()
+    if (!textContent || !textContent.includes('@')) return
+
+    const pos = charPosition.value
     const newNode = $createVariableNode(
       variable.value,
       variable.label,
       variable.type
     )
-    const nodeBefore = $createTextNode(
-      textContent.slice(0, charPosition.value - 1)
-    )
-    const nodeAfter = $createTextNode(textContent.slice(charPosition.value))
-    textNode.value?.replace(nodeBefore)
+    const nodeBefore = $createTextNode(textContent.slice(0, pos - 1))
+    const nodeAfter = $createTextNode(textContent.slice(pos))
+    targetNode.replace(nodeBefore)
     nodeBefore.insertAfter(newNode)
     newNode.insertAfter(nodeAfter)
     newNode.selectEnd()
