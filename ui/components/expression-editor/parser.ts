@@ -34,5 +34,12 @@ export function parseContent(
     nodes.push($createVariableNode(variable, label))
   }
 
+  if (prevItem) {
+    const tail = content.slice(prevItem.index! + prevItem[0].length)
+    if (tail) nodes.push($createTextNode(tail))
+  } else if (content) {
+    nodes.push($createTextNode(content))
+  }
+
   return nodes
 }
