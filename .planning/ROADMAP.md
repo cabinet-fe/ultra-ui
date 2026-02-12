@@ -10,7 +10,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - Integer phases (1, 2, 3, 4, 5): Planned milestone work
 - Decimal phases (e.g., 2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Visual Foundation** — Design tokens and state feedback
+- [x] **Phase 1: Visual Foundation** — Design tokens and state feedback
 - [ ] **Phase 2: Input Stability** — Model sync, IME, format compatibility
 - [ ] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
 - [ ] **Phase 4: Drag-Drop** — Implement or document
@@ -30,7 +30,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 **Plans:** 1 plan
 
 Plans:
-- [ ] 01-01: Design tokens, state feedback, variable nodes, picker panel
+- [x] 01-01: Design tokens, state feedback, variable nodes, picker panel
 
 ### Phase 2: Input Stability
 
@@ -91,7 +91,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Visual Foundation | 0/1 | Ready | - |
+| 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
 | 2. Input Stability | 0/1 | Not started | - |
 | 3. Variable Picker Interaction | 0/1 | Not started | - |
 | 4. Drag-Drop | 0/1 | Not started | - |
