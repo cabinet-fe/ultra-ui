@@ -27,10 +27,10 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
   1. User can see expression editor using design tokens (color, border, radius, shadow)
   2. User can see distinct visual feedback for default, focus, disabled, and readonly states
   3. User can view variable nodes and variable picker panels without flickering or inconsistency
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 01-01: (TBD during plan-phase)
+- [ ] 01-01: Design tokens, state feedback, variable nodes, picker panel
 
 ### Phase 2: Input Stability
 
@@ -91,7 +91,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Visual Foundation | 0/1 | Not started | - |
+| 1. Visual Foundation | 0/1 | Ready | - |
 | 2. Input Stability | 0/1 | Not started | - |
 | 3. Variable Picker Interaction | 0/1 | Not started | - |
 | 4. Drag-Drop | 0/1 | Not started | - |
