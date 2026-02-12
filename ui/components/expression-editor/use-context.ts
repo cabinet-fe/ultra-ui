@@ -38,6 +38,7 @@ export function useContext(editor: LexicalEditor): {
   }
 
   function PreventDefaultListener(event: KeyboardEvent) {
+    if (event.isComposing) return false
     if (contextVisible.value) {
       event.preventDefault()
       return true
