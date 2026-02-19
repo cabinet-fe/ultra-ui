@@ -93,7 +93,7 @@ import { UIcon } from '../../icon'
 import { UScroll } from '../../scroll'
 import { UEmpty } from '../../empty'
 import { ExpressionEditorDIKey } from '../di'
-import { inject, ref, computed, watch, onBeforeUnmount } from 'vue'
+import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
 import { Search, ArrowRight } from '@ultra/icon'
@@ -106,6 +106,9 @@ const props = defineProps<{
   visible: boolean
   triggerDom?: HTMLElement
   filterable?: boolean
+  registerPickerKeyHandler?: (
+    handler: ((e: KeyboardEvent) => void) | null
+  ) => void
 }>()
 
 const emit = defineEmits<{
@@ -308,7 +311,12 @@ watch(
   }
 )
 
+onMounted(() => {
+  props.registerPickerKeyHandler?.(handleKeydown)
+})
+
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
+  props.registerPickerKeyHandler?.(null)
 })
 </script>

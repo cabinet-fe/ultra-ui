@@ -19,6 +19,7 @@
       v-model:visible="contextVisible"
       :trigger-dom="contextTriggerDom"
       :filterable="true"
+      :register-picker-key-handler="registerPickerKeyHandler"
       @select="handleVariableSelect"
     />
   </div>
@@ -82,8 +83,13 @@ const editor = useEditor({
   emit
 })
 
-const { contextVisible, contextTriggerDom, textNode, charPosition } =
-  useContext(editor)
+const {
+  contextVisible,
+  contextTriggerDom,
+  textNode,
+  charPosition,
+  registerPickerKeyHandler
+} = useContext(editor)
 
 const decorators = useDecorators(editor)
 
