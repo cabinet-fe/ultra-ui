@@ -20,11 +20,23 @@ export function useContext(editor: LexicalEditor): {
   contextTriggerDom: ShallowRef<HTMLElement | undefined>
   textNode: ShallowRef<TextNode | undefined>
   charPosition: ShallowRef<number>
+  registerPickerKeyHandler: (
+    handler: ((e: KeyboardEvent) => void) | null
+  ) => void
 } {
   const contextVisible = shallowRef(false)
   const contextTriggerDom = shallowRef<HTMLElement>()
   const textNode = shallowRef<TextNode>()
   const charPosition = shallowRef(0)
+  const pickerKeyHandlerRef = shallowRef<
+    ((e: KeyboardEvent) => void) | null
+  >(null)
+
+  function registerPickerKeyHandler(
+    handler: ((e: KeyboardEvent) => void) | null
+  ) {
+    pickerKeyHandlerRef.value = handler
+  }
 
   function openContextMenu(triggerElement: HTMLElement) {
     contextVisible.value = true
@@ -41,6 +53,7 @@ export function useContext(editor: LexicalEditor): {
     if (event.isComposing) return false
     if (contextVisible.value) {
       event.preventDefault()
+      pickerKeyHandlerRef.value?.(event)
       return true
     }
     return false
@@ -140,6 +153,7 @@ export function useContext(editor: LexicalEditor): {
     contextVisible,
     contextTriggerDom,
     textNode,
-    charPosition
+    charPosition,
+    registerPickerKeyHandler
   }
 }
