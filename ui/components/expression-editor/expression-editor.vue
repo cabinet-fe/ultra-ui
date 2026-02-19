@@ -35,7 +35,13 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { useEditor } from './use-editor'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'
-import { $createTextNode, $getNodeByKey, $getRoot } from 'lexical'
+import {
+  $createTextNode,
+  $getNodeByKey,
+  $getRoot,
+  $getSelection,
+  $isRangeSelection
+} from 'lexical'
 import { $createVariableNode, $isVariableNode } from './nodes/variable-node'
 
 defineOptions({
@@ -111,8 +117,14 @@ function handleVariableSelect(variable: VariableItem) {
     const targetNode = $getNodeByKey(nodeKey)
     if (!targetNode) return
 
+    const selection = $getSelection()
+    if (!$isRangeSelection(selection)) return
+
+    const focusNode = selection.focus.getNode()
+    if (focusNode.getKey() !== targetNode.getKey()) return
+
     const textContent = targetNode.getTextContent()
-    if (!textContent || !textContent.includes('@')) return
+    if (!textContent?.includes('@')) return
 
     const pos = charPosition.value
     const newNode = $createVariableNode(
