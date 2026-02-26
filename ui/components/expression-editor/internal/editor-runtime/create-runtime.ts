@@ -7,7 +7,6 @@ import type {
   ExpressionEditorRuntime
 } from '../contracts/editor-runtime'
 import { VariableNode } from '../../nodes/variable-node'
-import { registerPlainText } from '../../plain-text'
 import { createVariableMap } from '../../di'
 import { createModelSync } from './model-sync'
 
@@ -49,8 +48,6 @@ export function createExpressionEditorRuntime(
       paragraph: cls.e('paragraph')
     }
   })
-
-  registerPlainText(editor)
 
   watchEffect(() => {
     editor.setEditable(resolveEditable(disabled, readonly))

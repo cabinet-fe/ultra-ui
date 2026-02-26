@@ -12,7 +12,7 @@ import {
   TextNode
 } from 'lexical'
 import { mergeRegister } from '@lexical/utils'
-import { onBeforeUnmount, shallowRef, type ShallowRef } from 'vue'
+import { shallowRef, type ShallowRef } from 'vue'
 import { CONTEXT_TRIGGER_CHAR } from './constants'
 
 export function useContext(editor: LexicalEditor): {
@@ -23,6 +23,8 @@ export function useContext(editor: LexicalEditor): {
   registerPickerKeyHandler: (
     handler: ((e: KeyboardEvent) => void) | null
   ) => void
+  /** Returns cleanup for context-key commands. Injected into registerCommandPacks. */
+  registerContextCommands: () => () => void
 } {
   const contextVisible = shallowRef(false)
   const contextTriggerDom = shallowRef<HTMLElement>()
@@ -59,10 +61,11 @@ export function useContext(editor: LexicalEditor): {
     return false
   }
 
-  const removeListener = mergeRegister(
-    // 选取变更命令，实现呼出上下文菜单的核心
-    editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
+  function registerContextCommands(): () => void {
+    return mergeRegister(
+      // 选取变更命令，实现呼出上下文菜单的核心
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
       () => {
         const selection = $getSelection()
 
@@ -119,41 +122,39 @@ export function useContext(editor: LexicalEditor): {
 
         return true
       },
-      COMMAND_PRIORITY_EDITOR
-    ),
+        COMMAND_PRIORITY_EDITOR
+      ),
 
-    // 当上下文菜单显示时，阻止下面的命令的默认行为
-    editor.registerCommand(
-      KEY_ENTER_COMMAND,
-      PreventDefaultListener,
-      COMMAND_PRIORITY_LOW
-    ),
-    editor.registerCommand(
-      KEY_ESCAPE_COMMAND,
-      PreventDefaultListener,
-      COMMAND_PRIORITY_LOW
-    ),
-    editor.registerCommand(
-      KEY_ARROW_UP_COMMAND,
-      PreventDefaultListener,
-      COMMAND_PRIORITY_LOW
-    ),
-    editor.registerCommand(
-      KEY_ARROW_DOWN_COMMAND,
-      PreventDefaultListener,
-      COMMAND_PRIORITY_LOW
+      // 当上下文菜单显示时，阻止下面的命令的默认行为
+      editor.registerCommand(
+        KEY_ENTER_COMMAND,
+        PreventDefaultListener,
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        KEY_ESCAPE_COMMAND,
+        PreventDefaultListener,
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        KEY_ARROW_UP_COMMAND,
+        PreventDefaultListener,
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        KEY_ARROW_DOWN_COMMAND,
+        PreventDefaultListener,
+        COMMAND_PRIORITY_LOW
+      )
     )
-  )
-
-  onBeforeUnmount(() => {
-    removeListener()
-  })
+  }
 
   return {
     contextVisible,
     contextTriggerDom,
     textNode,
     charPosition,
-    registerPickerKeyHandler
+    registerPickerKeyHandler,
+    registerContextCommands
   }
 }

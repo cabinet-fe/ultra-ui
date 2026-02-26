@@ -72,6 +72,7 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { createExpressionEditorRuntime } from './internal/editor-runtime'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'
+import { registerPlainText } from './plain-text'
 import { $getRoot } from 'lexical'
 import { $isVariableNode } from './nodes/variable-node'
 import { insertVariableAtTrigger } from './internal/features/insertion/insertion-service'
@@ -133,8 +134,13 @@ const {
   contextTriggerDom,
   textNode,
   charPosition,
-  registerPickerKeyHandler
+  registerPickerKeyHandler,
+  registerContextCommands
 } = useContext(editor)
+
+registerPlainText(editor, {
+  getContextCommands: registerContextCommands
+})
 
 const decorators = useDecorators(editor)
 const nativeDnDSupported = supportsNativeDnD()
