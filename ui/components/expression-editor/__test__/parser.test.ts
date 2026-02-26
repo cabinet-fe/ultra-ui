@@ -55,4 +55,13 @@ describe('parseContent', () => {
     const input = 'prefix{a}suffix'
     expect(parseAndSerialize(input)).toBe(input)
   })
+
+  it('round-trips empty string (refactor behavior consistency)', () => {
+    expect(parseAndSerialize('')).toBe('')
+  })
+
+  it('preserves text with unclosed brace as plain text (no variable match)', () => {
+    const input = 'hello{unclosed'
+    expect(parseAndSerialize(input)).toBe(input)
+  })
 })

@@ -122,6 +122,19 @@ describe('expression drag drop', () => {
     expect(getEditorText(editor)).toBe(initial)
   })
 
+  it('returns false when moveVariableByDirection is called with non-existent key (refactor behavior)', () => {
+    const editor = createTestEditor('{a} {b}')
+    let moved = false
+    editor.update(
+      () => {
+        moved = moveVariableByDirection('non-existent-key', -1, false)
+      },
+      { discrete: true }
+    )
+    expect(moved).toBe(false)
+    expect(getVariableOrder(editor)).toEqual(['a', 'b'])
+  })
+
   it('uses the same reorder behavior for fallback move and drop payload', () => {
     const input = 'start {a} middle {b} end {c}'
     const fallbackEditor = createTestEditor(input)
