@@ -10,6 +10,16 @@
       • <strong>ESC</strong>：关闭面板
     </p>
 
+    <h4>拖拽行为矩阵（实现为真源）</h4>
+    <ul>
+      <li>合法拖拽源：仅支持变量节点（{variable}）直接拖拽，普通文本与空白不是拖拽源。</li>
+      <li>合法目标粒度：按变量插槽计算，hover 到纯文本区域时自动 snap 到最近合法插入位。</li>
+      <li>非法 drop：外部数据源、跨表达式区域或无效 payload 会 silent revert（仅清理反馈，不改内容）。</li>
+      <li>drop 后焦点：焦点回到被移动变量，便于连续重排。</li>
+      <li>桌面优先：优先使用原生 DnD；原生不可用时显示变量“上移/下移”作为等价交互。</li>
+      <li>边界规则：首项禁上移、末项禁下移；readonly/disabled 下不触发重排。</li>
+    </ul>
+
     <div style="margin-bottom: 20px">
       <u-expression-editor
         v-model="expression"
