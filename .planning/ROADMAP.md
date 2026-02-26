@@ -85,7 +85,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Public facade freeze + runtime/sync boundary extraction
-- [ ] 05-02-PLAN.md — Capability command packs + typed mutation gateway
+- [x] 05-02-PLAN.md — Capability command packs + typed mutation gateway
 - [ ] 05-03-PLAN.md — API compatibility gates + architecture boundary regression tests
 
 ## Progress
@@ -99,4 +99,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Input Stability | 3/3 | Complete | 2026-02-12 |
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
-| 5. Architecture Refactor | 1/3 | In Progress | - |
+| 5. Architecture Refactor | 2/3 | In Progress | - |
