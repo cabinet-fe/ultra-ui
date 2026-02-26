@@ -6,6 +6,10 @@ import {
 } from 'lexical'
 import { UTag } from '../../tag'
 import type { VNode } from 'vue'
+import {
+  EXPRESSION_VARIABLE_DRAG_KEY_ATTR,
+  EXPRESSION_VARIABLE_DRAG_MARKER_ATTR
+} from '../constants'
 
 interface SerializedVariableNode extends SerializedLexicalNode {
   type: 'variable'
@@ -57,6 +61,10 @@ export class VariableNode extends DecoratorNode<VNode> {
   override createDOM(): HTMLElement {
     const span = document.createElement('span')
     span.style.display = 'inline-block'
+    span.classList.add('ultra-expression-variable-source')
+    span.setAttribute(EXPRESSION_VARIABLE_DRAG_MARKER_ATTR, 'true')
+    span.setAttribute(EXPRESSION_VARIABLE_DRAG_KEY_ATTR, this.getKey())
+    span.draggable = true
     return span
   }
 

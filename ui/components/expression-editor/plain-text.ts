@@ -25,6 +25,7 @@ import {
   DELETE_LINE_COMMAND,
   DELETE_WORD_COMMAND,
   DRAGSTART_COMMAND,
+  DRAGOVER_COMMAND,
   DROP_COMMAND,
   INSERT_LINE_BREAK_COMMAND,
   INSERT_PARAGRAPH_COMMAND,
@@ -39,6 +40,20 @@ import {
   SELECT_ALL_COMMAND
 } from 'lexical'
 import { onBeforeUnmount } from 'vue'
+import { EXPRESSION_VARIABLE_DRAG_TYPE } from './constants'
+import {
+  applyDropReorder,
+  autoScrollWhenNearEdge,
+  beginDragVisualState,
+  clearDropIndicator,
+  clearDragVisualState,
+  ensureDropScopeId,
+  readDragSourceKey,
+  readInternalDragPayload,
+  resolveDropSlot,
+  showDropIndicator,
+  writeInternalDragPayload
+} from './use-expression-drag-drop'
 
 function onCopyForPlainText(
   event: CommandPayloadType<typeof COPY_COMMAND>,
@@ -377,31 +392,129 @@ export function registerPlainText(editor: LexicalEditor): void {
       COMMAND_PRIORITY_EDITOR
     ),
     editor.registerCommand<DragEvent>(
-      DROP_COMMAND,
+      DRAGSTART_COMMAND,
       event => {
-        const selection = $getSelection()
-
-        if (!$isRangeSelection(selection)) {
+        if (!editor.isEditable()) {
           return false
         }
 
-        // TODO: 在将来某个时候实现拖放功能。
-        event.preventDefault()
+        const sourceKey = readDragSourceKey(event.target)
+        if (!sourceKey) {
+          return false
+        }
+
+        const rootElement = editor.getRootElement()
+        if (!rootElement || !(event.target instanceof Node)) {
+          return false
+        }
+        if (!rootElement.contains(event.target)) {
+          return false
+        }
+
+        const scopeId = ensureDropScopeId(editor)
+        if (!scopeId || !event.dataTransfer) {
+          return false
+        }
+
+        event.dataTransfer.effectAllowed = 'move'
+        writeInternalDragPayload(event.dataTransfer, {
+          action: 'move-variable',
+          sourceKey,
+          scopeId
+        })
+        event.dataTransfer.setData('text/plain', '{move-variable}')
+
+        const sourceElement = rootElement.querySelector<HTMLElement>(
+          `[data-ultra-expression-variable-key="${sourceKey}"]`
+        )
+        beginDragVisualState(editor, sourceElement)
+
         return true
       },
       COMMAND_PRIORITY_EDITOR
     ),
     editor.registerCommand<DragEvent>(
-      DRAGSTART_COMMAND,
+      DRAGOVER_COMMAND,
       event => {
-        const selection = $getSelection()
-
-        if (!$isRangeSelection(selection)) {
+        const rootElement = editor.getRootElement()
+        if (!rootElement || !(event.target instanceof Node)) {
+          return false
+        }
+        if (!rootElement.contains(event.target)) {
           return false
         }
 
-        // TODO: 在将来某个时候实现拖放功能。
+        const payload = readInternalDragPayload(event.dataTransfer)
+        if (!payload) {
+          clearDropIndicator(editor)
+          return false
+        }
+
+        const scopeId = ensureDropScopeId(editor)
+        if (payload.scopeId !== scopeId) {
+          clearDropIndicator(editor)
+          return false
+        }
+
+        const dropSlot = resolveDropSlot(editor, event)
+        if (dropSlot === null) {
+          clearDropIndicator(editor)
+          return false
+        }
+
         event.preventDefault()
+        if (event.dataTransfer) {
+          event.dataTransfer.dropEffect = 'move'
+        }
+
+        showDropIndicator(editor, dropSlot)
+        autoScrollWhenNearEdge(rootElement, event.clientY)
+        return true
+      },
+      COMMAND_PRIORITY_EDITOR
+    ),
+    editor.registerCommand<DragEvent>(
+      DROP_COMMAND,
+      event => {
+        const hasInternalPayload =
+          event.dataTransfer?.types.includes(EXPRESSION_VARIABLE_DRAG_TYPE) ??
+          false
+        if (!hasInternalPayload) {
+          return false
+        }
+
+        event.preventDefault()
+
+        const rootElement = editor.getRootElement()
+        const scopeId = ensureDropScopeId(editor)
+        if (!rootElement || !scopeId || !(event.target instanceof Node)) {
+          clearDragVisualState(editor)
+          return true
+        }
+        if (!rootElement.contains(event.target)) {
+          clearDragVisualState(editor)
+          return true
+        }
+
+        const dropSlot = resolveDropSlot(editor, event)
+        if (dropSlot === null) {
+          clearDragVisualState(editor)
+          return true
+        }
+
+        const payloadText =
+          event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ?? null
+
+        editor.update(() => {
+          applyDropReorder({
+            payloadText,
+            scopeId,
+            targetSlot: dropSlot,
+            focusMovedNode: true
+          })
+        })
+
+        clearDragVisualState(editor)
         return true
       },
       COMMAND_PRIORITY_EDITOR
@@ -409,6 +522,7 @@ export function registerPlainText(editor: LexicalEditor): void {
   )
 
   onBeforeUnmount(() => {
+    clearDragVisualState(editor)
     removeListener()
   })
 }
