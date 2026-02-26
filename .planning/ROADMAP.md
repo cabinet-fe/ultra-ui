@@ -56,7 +56,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can trigger variable picker with `@` and insert variables without interrupting typing flow
   2. User can navigate variable picker with ArrowUp/ArrowDown, confirm with Enter, dismiss with Escape
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 03-01: Command-to-picker wiring, variable picker registration, handleVariableSelect revalidation
@@ -95,6 +95,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
 | 2. Input Stability | 3/3 | Complete | 2026-02-12 |
-| 3. Variable Picker Interaction | 1/1 | Complete | 2026-02-26 |
+| 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 0/1 | Not started | - |
 | 5. Architecture Refactor | 0/1 | Not started | - |

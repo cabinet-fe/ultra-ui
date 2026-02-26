@@ -9,9 +9,9 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 ### Visual Experience
 
-- [ ] **UI-01**: User can see expression editor visuals aligned with Ultra UI design tokens (color, border, radius, shadow).
-- [ ] **UI-02**: User can clearly distinguish default, focus, disabled, and readonly states through consistent visual feedback.
-- [ ] **UI-03**: User can view variable nodes and variable picker panels with consistent, readable, non-flickering presentation.
+- [x] **UI-01**: User can see expression editor visuals aligned with Ultra UI design tokens (color, border, radius, shadow).
+- [x] **UI-02**: User can clearly distinguish default, focus, disabled, and readonly states through consistent visual feedback.
+- [x] **UI-03**: User can view variable nodes and variable picker panels with consistent, readable, non-flickering presentation.
 
 ### Interaction Experience
 
@@ -56,9 +56,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UI-01 | Phase 1 | Pending |
-| UI-02 | Phase 1 | Pending |
-| UI-03 | Phase 1 | Pending |
+| UI-01 | Phase 1 | Complete |
+| UI-02 | Phase 1 | Complete |
+| UI-03 | Phase 1 | Complete |
 | UX-01 | Phase 3 | Pending |
 | UX-02 | Phase 3 | Pending |
 | UX-03 | Phase 4 | Pending |
