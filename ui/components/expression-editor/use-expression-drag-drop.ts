@@ -18,6 +18,7 @@ interface DragVisualState {
   indicatorEl: HTMLDivElement | null
   sourceEl: HTMLElement | null
   cleanupDragEnd: (() => void) | null
+  activePayload: InternalDragPayload | null
 }
 
 interface DropAnchor {
@@ -57,7 +58,8 @@ function getDragVisualState(editor: LexicalEditor): DragVisualState {
   const created: DragVisualState = {
     indicatorEl: null,
     sourceEl: null,
-    cleanupDragEnd: null
+    cleanupDragEnd: null,
+    activePayload: null
   }
   dragVisualStateMap.set(editor, created)
   return created
@@ -257,10 +259,12 @@ export function readInternalDragPayload(
 
 export function beginDragVisualState(
   editor: LexicalEditor,
-  sourceEl: HTMLElement | null
+  sourceEl: HTMLElement | null,
+  payload?: InternalDragPayload
 ): void {
   const state = getDragVisualState(editor)
   clearDragVisualState(editor)
+  state.activePayload = payload ?? null
 
   if (!sourceEl) return
   sourceEl.classList.add(DRAG_SOURCE_CLASS)
@@ -273,6 +277,12 @@ export function beginDragVisualState(
   state.cleanupDragEnd = () => {
     window.removeEventListener('dragend', onDragEnd, true)
   }
+}
+
+export function getActiveInternalDragPayload(
+  editor: LexicalEditor
+): InternalDragPayload | null {
+  return getDragVisualState(editor).activePayload
 }
 
 export function showDropIndicator(editor: LexicalEditor, slot: number): void {
@@ -321,6 +331,8 @@ export function clearDragVisualState(editor: LexicalEditor): void {
     state.cleanupDragEnd()
     state.cleanupDragEnd = null
   }
+
+  state.activePayload = null
 }
 
 export function autoScrollWhenNearEdge(

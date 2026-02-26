@@ -48,6 +48,7 @@ import {
   clearDropIndicator,
   clearDragVisualState,
   ensureDropScopeId,
+  getActiveInternalDragPayload,
   readDragSourceKey,
   readInternalDragPayload,
   resolveDropSlot,
@@ -427,7 +428,11 @@ export function registerPlainText(editor: LexicalEditor): void {
         const sourceElement = rootElement.querySelector<HTMLElement>(
           `[data-ultra-expression-variable-key="${sourceKey}"]`
         )
-        beginDragVisualState(editor, sourceElement)
+        beginDragVisualState(editor, sourceElement, {
+          action: 'move-variable',
+          sourceKey,
+          scopeId
+        })
 
         return true
       },
@@ -444,7 +449,9 @@ export function registerPlainText(editor: LexicalEditor): void {
           return false
         }
 
-        const payload = readInternalDragPayload(event.dataTransfer)
+        const payload =
+          readInternalDragPayload(event.dataTransfer) ??
+          getActiveInternalDragPayload(editor)
         if (!payload) {
           clearDropIndicator(editor)
           return false
@@ -476,10 +483,10 @@ export function registerPlainText(editor: LexicalEditor): void {
     editor.registerCommand<DragEvent>(
       DROP_COMMAND,
       event => {
-        const hasInternalPayload =
-          event.dataTransfer?.types.includes(EXPRESSION_VARIABLE_DRAG_TYPE) ??
-          false
-        if (!hasInternalPayload) {
+        const payload =
+          readInternalDragPayload(event.dataTransfer) ??
+          getActiveInternalDragPayload(editor)
+        if (!payload) {
           return false
         }
 
@@ -503,7 +510,8 @@ export function registerPlainText(editor: LexicalEditor): void {
         }
 
         const payloadText =
-          event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ?? null
+          event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ??
+          JSON.stringify(payload)
 
         editor.update(() => {
           applyDropReorder({
