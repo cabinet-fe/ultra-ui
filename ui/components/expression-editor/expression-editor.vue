@@ -7,6 +7,36 @@
       :contenteditable="!readonly && !disabled"
     ></div>
 
+    <div v-if="showFallbackControls" :class="cls.e('fallback')">
+      <div
+        v-for="(item, index) in fallbackVariables"
+        :key="item.key"
+        :class="cls.e('fallback-item')"
+      >
+        <span :class="cls.e('fallback-label')">
+          {{ item.label || item.variable }}
+        </span>
+        <div :class="cls.e('fallback-actions')">
+          <button
+            type="button"
+            :class="cls.e('fallback-button')"
+            :disabled="disabled || readonly || index === 0"
+            @click="moveVariable(item.key, -1)"
+          >
+            上移
+          </button>
+          <button
+            type="button"
+            :class="cls.e('fallback-button')"
+            :disabled="disabled || readonly || index === fallbackVariables.length - 1"
+            @click="moveVariable(item.key, 1)"
+          >
+            下移
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div :class="cls.e('placeholder')" v-if="showPlaceholder">
       {{ placeholder }}
     </div>
@@ -28,7 +58,14 @@
 <script lang="ts" setup>
 import type { ExpressionEditorProps, VariableItem } from '@ui/types'
 import { bem } from '@ui/utils'
-import { useTemplateRef, provide, computed, type VNode } from 'vue'
+import {
+  useTemplateRef,
+  provide,
+  computed,
+  onBeforeUnmount,
+  shallowRef,
+  type VNode
+} from 'vue'
 import { ExpressionEditorDIKey, createVariableMap } from './di'
 import VariablePicker from './components/variable-picker.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
@@ -43,6 +80,11 @@ import {
   $isRangeSelection
 } from 'lexical'
 import { $createVariableNode, $isVariableNode } from './nodes/variable-node'
+import {
+  collectVariableNodeDescriptors,
+  moveVariableByDirection,
+  supportsNativeDnD
+} from './use-expression-drag-drop'
 
 defineOptions({
   name: 'ExpressionEditor'
@@ -98,12 +140,33 @@ const {
 } = useContext(editor)
 
 const decorators = useDecorators(editor)
+const nativeDnDSupported = supportsNativeDnD()
+const fallbackVariables = shallowRef(collectVariableNodeDescriptors(editor))
+const showFallbackControls = computed(
+  () => !nativeDnDSupported && fallbackVariables.value.length > 1
+)
+
+const removeFallbackSync = editor.registerUpdateListener(() => {
+  fallbackVariables.value = collectVariableNodeDescriptors(editor)
+})
+
+onBeforeUnmount(() => {
+  removeFallbackSync()
+})
 
 // 创建变量映射表
 const variableMap = computed(() => createVariableMap(props.variables))
 
 function Decorators(props: { decorators: VNode[] }) {
   return props.decorators
+}
+
+function moveVariable(variableKey: string, direction: -1 | 1) {
+  if (disabled.value || readonly.value) return
+
+  editor.update(() => {
+    moveVariableByDirection(variableKey, direction, true)
+  })
 }
 
 // 处理变量选择
