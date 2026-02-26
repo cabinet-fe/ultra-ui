@@ -67,7 +67,7 @@ function getVariableKey(editor: LexicalEditor, variable: string): string {
   return descriptor.key
 }
 
-describe('expression drag drop', () => {
+describe('expression drag drop (ARCH-01 drag-drop boundary)', () => {
   it('reorders variable sequence correctly', () => {
     const editor = createTestEditor('A {first} + {second} + {third}')
     const secondKey = getVariableKey(editor, 'second')

@@ -21,7 +21,8 @@
     "export": "bun cli/export/index.ts",
     "rename:types": "bun cli/rename/types",
     "update": "bun update",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks",
+    "test:phase5": "bunx vitest run ui/components/expression-editor/__test__/architecture-compatibility.test.ts ui/components/expression-editor/__test__/architecture-boundaries.test.ts ui/components/expression-editor/__test__/parser.test.ts ui/components/expression-editor/__test__/drag-drop.test.ts"
   },
   "devDependencies": {
     "@builder/cli": "^3.0.3",

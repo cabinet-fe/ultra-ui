@@ -30,7 +30,7 @@ function parseAndSerialize(content: string): string {
   return serialized
 }
 
-describe('parseContent', () => {
+describe('parseContent (ARCH-01 parse boundary)', () => {
   it('round-trips hello{foo}world (trailing text preserved)', () => {
     const input = 'hello{foo}world'
     expect(parseAndSerialize(input)).toBe(input)
