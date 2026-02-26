@@ -15,8 +15,8 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 ### Interaction Experience
 
-- [ ] **UX-01**: User can trigger variable picker with `@` and insert variables without interrupting typing flow.
-- [ ] **UX-02**: User can complete variable selection workflow using keyboard (ArrowUp/ArrowDown/Enter/Escape) with predictable behavior.
+- [x] **UX-01**: User can trigger variable picker with `@` and insert variables without interrupting typing flow.
+- [x] **UX-02**: User can complete variable selection workflow using keyboard (ArrowUp/ArrowDown/Enter/Escape) with predictable behavior.
 - [x] **UX-03**: User can perform expression drag/drop (or equivalent documented interaction) with behavior consistent with component documentation.
 
 ### Architecture Maintainability
@@ -26,8 +26,8 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 ### Stability and Compatibility
 
-- [ ] **STAB-01**: User input remains stable under external `v-model` sync (no cursor jump, text loss, or overwrite races).
-- [ ] **STAB-02**: User can input expressions with IME (Chinese/Japanese/Korean) without composition interruption or corruption.
+- [x] **STAB-01**: User input remains stable under external `v-model` sync (no cursor jump, text loss, or overwrite races).
+- [x] **STAB-02**: User can input expressions with IME (Chinese/Japanese/Korean) without composition interruption or corruption.
 - [x] **STAB-03**: Existing `{variable}` expression strings remain parseable, editable, and serializable after the refactor.
 
 ## v2 Requirements
@@ -59,13 +59,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-01 | Phase 1 | Complete |
 | UI-02 | Phase 1 | Complete |
 | UI-03 | Phase 1 | Complete |
-| UX-01 | Phase 7 | Pending |
-| UX-02 | Phase 7 | Pending |
+| UX-01 | Phase 7 | Complete |
+| UX-02 | Phase 7 | Complete |
 | UX-03 | Phase 6 | Complete |
 | ARCH-01 | Phase 6 | Complete |
 | ARCH-02 | Phase 6 | Complete |
-| STAB-01 | Phase 7 | Pending |
-| STAB-02 | Phase 7 | Pending |
+| STAB-01 | Phase 7 | Complete |
+| STAB-02 | Phase 7 | Complete |
 | STAB-03 | Phase 6 | Complete |
 
 **Coverage:**
