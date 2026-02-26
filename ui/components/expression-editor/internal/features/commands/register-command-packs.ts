@@ -40,8 +40,8 @@ import {
   SELECT_ALL_COMMAND
 } from 'lexical'
 import { EXPRESSION_VARIABLE_DRAG_TYPE } from '../../../constants'
+import { reorderVariable } from '../drag-drop/drag-drop-service'
 import {
-  applyDropReorder,
   autoScrollWhenNearEdge,
   beginDragVisualState,
   clearDropIndicator,
@@ -495,13 +495,11 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
           event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ??
           JSON.stringify(payload)
 
-        editor.update(() => {
-          applyDropReorder({
-            payloadText,
-            scopeId,
-            targetSlot: dropSlot,
-            focusMovedNode: true
-          })
+        reorderVariable(editor, {
+          payloadText,
+          scopeId,
+          targetSlot: dropSlot,
+          focusMovedNode: true
         })
 
         clearDragVisualState(editor)

@@ -72,17 +72,14 @@ import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { createExpressionEditorRuntime } from './internal/editor-runtime'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'
+import { $getRoot } from 'lexical'
+import { $isVariableNode } from './nodes/variable-node'
+import { insertVariableAtTrigger } from './internal/features/insertion/insertion-service'
 import {
-  $createTextNode,
-  $getNodeByKey,
-  $getRoot,
-  $getSelection,
-  $isRangeSelection
-} from 'lexical'
-import { $createVariableNode, $isVariableNode } from './nodes/variable-node'
+  moveVariableByDirection
+} from './internal/features/drag-drop/drag-drop-service'
 import {
   collectVariableNodeDescriptors,
-  moveVariableByDirection,
   supportsNativeDnD
 } from './use-expression-drag-drop'
 
@@ -164,9 +161,7 @@ function Decorators(props: { decorators: VNode[] }) {
 function moveVariable(variableKey: string, direction: -1 | 1) {
   if (disabled.value || readonly.value) return
 
-  editor.update(() => {
-    moveVariableByDirection(variableKey, direction, true)
-  })
+  moveVariableByDirection(editor, variableKey, direction, true)
 }
 
 // 处理变量选择
@@ -176,31 +171,14 @@ function handleVariableSelect(variable: VariableItem) {
   const nodeKey = textNode.value?.getKey()
   if (!nodeKey) return
 
-  editor.update(() => {
-    const targetNode = $getNodeByKey(nodeKey)
-    if (!targetNode) return
-
-    const selection = $getSelection()
-    if (!$isRangeSelection(selection)) return
-
-    const focusNode = selection.focus.getNode()
-    if (focusNode.getKey() !== targetNode.getKey()) return
-
-    const textContent = targetNode.getTextContent()
-    if (!textContent?.includes('@')) return
-
-    const pos = charPosition.value
-    const newNode = $createVariableNode(
-      variable.value,
-      variable.label,
-      variable.type
-    )
-    const nodeBefore = $createTextNode(textContent.slice(0, pos - 1))
-    const nodeAfter = $createTextNode(textContent.slice(pos))
-    targetNode.replace(nodeBefore)
-    nodeBefore.insertAfter(newNode)
-    newNode.insertAfter(nodeAfter)
-    newNode.selectEnd()
+  insertVariableAtTrigger(editor, {
+    nodeKey,
+    charPosition: charPosition.value,
+    variable: {
+      value: variable.value,
+      label: variable.label,
+      type: variable.type
+    }
   })
 }
 
