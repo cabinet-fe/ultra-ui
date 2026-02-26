@@ -17,18 +17,18 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 - [ ] **UX-01**: User can trigger variable picker with `@` and insert variables without interrupting typing flow.
 - [ ] **UX-02**: User can complete variable selection workflow using keyboard (ArrowUp/ArrowDown/Enter/Escape) with predictable behavior.
-- [ ] **UX-03**: User can perform expression drag/drop (or equivalent documented interaction) with behavior consistent with component documentation.
+- [x] **UX-03**: User can perform expression drag/drop (or equivalent documented interaction) with behavior consistent with component documentation.
 
 ### Architecture Maintainability
 
-- [ ] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
-- [ ] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
+- [x] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
+- [x] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
 
 ### Stability and Compatibility
 
 - [ ] **STAB-01**: User input remains stable under external `v-model` sync (no cursor jump, text loss, or overwrite races).
 - [ ] **STAB-02**: User can input expressions with IME (Chinese/Japanese/Korean) without composition interruption or corruption.
-- [ ] **STAB-03**: Existing `{variable}` expression strings remain parseable, editable, and serializable after the refactor.
+- [x] **STAB-03**: Existing `{variable}` expression strings remain parseable, editable, and serializable after the refactor.
 
 ## v2 Requirements
 
@@ -61,12 +61,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-03 | Phase 1 | Complete |
 | UX-01 | Phase 7 | Pending |
 | UX-02 | Phase 7 | Pending |
-| UX-03 | Phase 6 | Pending |
-| ARCH-01 | Phase 6 | Pending |
-| ARCH-02 | Phase 6 | Pending |
+| UX-03 | Phase 6 | Complete |
+| ARCH-01 | Phase 6 | Complete |
+| ARCH-02 | Phase 6 | Complete |
 | STAB-01 | Phase 7 | Pending |
 | STAB-02 | Phase 7 | Pending |
-| STAB-03 | Phase 6 | Pending |
+| STAB-03 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 11 total

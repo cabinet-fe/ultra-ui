@@ -9,12 +9,12 @@ See: `.planning/PROJECT.md` (updated 2026-02-12)
 
 ## Current Position
 
-Phase: 5 of 5 (Architecture Refactor)
-Plan: 3 of 3 in current phase (completed)
-Status: Phase 5 complete; all plans executed
-Last activity: 2026-02-26 — Completed 05-03 architecture verification gates
+Phase: 6 of 7 (Repair Phase 5 Regression Gate)
+Plan: 1 of 1 in current phase (completed)
+Status: Phase 6 complete; ready for Phase 7
+Last activity: 2026-02-26 — Completed 06-01 phase5 regression gate repair
 
-Progress: [██████████] 100%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -39,6 +39,7 @@ Progress: [██████████] 100%
 - Trend: Architecture refactor started with runtime boundary baseline
 | Phase 05 P02 | 2 min | 3 tasks | 8 files |
 | Phase 05 P03 | 4 min | 3 tasks | 8 files |
+| Phase 06 P01 | 1 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Recent decisions affecting current work:
 - [Phase 05-02]: Command packs split by capability; insertion/drag-drop use typed mutation gateways; use-context injects registerContextCommands into command packs.
 - [Phase 05-03]: ARCH-02 compatibility gate + ARCH-01 boundary regression tests; test:phase5 unified regression command.
 - [Phase 05]: ARCH-02 compatibility gate + ARCH-01 boundary regression tests; test:phase5 runs vitest only (tsc excluded due to pre-existing .vue resolution)
+- [Phase 06]: Recovered deleted regression tests from commit 8e4557e7 to preserve assertion intent and avoid manual drift.
+- [Phase 06]: Stabilized phase5 gate by adding Vitest @ui alias while keeping test:phase5 as explicit target list.
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 05-03-PLAN.md
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None

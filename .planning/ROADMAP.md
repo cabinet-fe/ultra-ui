@@ -15,7 +15,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - [x] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
 - [x] **Phase 4: Drag-Drop** — Implement or document
 - [x] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
-- [ ] **Phase 6: Repair Phase 5 Regression Gate** — Restore `test:phase5` automation closure
+- [x] **Phase 6: Repair Phase 5 Regression Gate** — Restore `test:phase5` automation closure (completed 2026-02-26)
 - [ ] **Phase 7: Milestone Traceability Sync** — Align requirements ledger with verification evidence
 
 ## Phase Details
@@ -100,10 +100,10 @@ Plans:
   1. `bun run test:phase5` resolves valid test targets and executes successfully
   2. Phase 5 compatibility and boundary regression checks are automated through stable test wiring
   3. Regression gate evidence is reproducible and can be rerun in CI/local workflows
-**Plans:** 0/1 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 06-01: Repair `test:phase5` targets, align test entrypoints, and verify stable pass
+- [x] 06-01: Repair `test:phase5` targets, align test entrypoints, and verify stable pass
 
 ### Phase 7: Milestone Traceability Sync
 
@@ -132,5 +132,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
 | 5. Architecture Refactor | 3/3 | Complete    | 2026-02-26 |
-| 6. Repair Phase 5 Regression Gate | 0/1 | Planned | - |
+| 6. Repair Phase 5 Regression Gate | 1/1 | Complete   | 2026-02-26 |
 | 7. Milestone Traceability Sync | 0/1 | Planned | - |
