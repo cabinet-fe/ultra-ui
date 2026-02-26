@@ -21,8 +21,8 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 ### Architecture Maintainability
 
-- [ ] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
-- [ ] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
+- [x] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
+- [x] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
 
 ### Stability and Compatibility
 
@@ -62,8 +62,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-01 | Phase 3 | Pending |
 | UX-02 | Phase 3 | Pending |
 | UX-03 | Phase 4 | Complete |
-| ARCH-01 | Phase 5 | Pending |
-| ARCH-02 | Phase 5 | Pending |
+| ARCH-01 | Phase 5 | Complete |
+| ARCH-02 | Phase 5 | Complete |
 | STAB-01 | Phase 2 | Pending |
 | STAB-02 | Phase 2 | Pending |
 | STAB-03 | Phase 2 | Pending |
