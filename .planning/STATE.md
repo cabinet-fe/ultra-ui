@@ -9,10 +9,10 @@ See: `.planning/PROJECT.md` (updated 2026-02-12)
 
 ## Current Position
 
-Phase: 3 of 5 (Variable Picker Interaction)
+Phase: 4 of 5 (Drag-Drop)
 Plan: 1 of 1 in current phase
-Status: Phase 3 complete; ready to plan Phase 4
-Last activity: 2026-02-26 — Phase 3 Plan 01 executed and verified
+Status: Phase 4 context gathered; ready to plan Phase 4
+Last activity: 2026-02-26 — Phase 4 context captured and committed
 
 Progress: [██████░░░░] 60%
 
@@ -51,6 +51,8 @@ Recent decisions affecting current work:
 - 02-03: Parser — trailing text and no-match handling; parse/serialize inside editor.update() for tests
 - [Phase 03]: Dual-path keyboard: Lexical command intercept when focus in editor, document listener when focus in picker u-input
 - [Phase 03]: Selection revalidation via $getNodeByKey + $getSelection before insert — abort if cursor moved or node content changed
+- [Phase 04]: Drag/drop scope fixed to variable-node-only, internal-only, same-expression reordering
+- [Phase 04]: Desktop-first direct-drag + ghost/insertion indicator; fallback move up/down controls when native DnD unsupported
 
 ### Pending Todos
 
@@ -63,5 +65,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 03-01-PLAN.md; Phase 3 complete; next `/gsd:plan-phase 4`
-Resume file: None
+Stopped at: Phase 4 context gathered; next `/gsd:plan-phase 4`
+Resume file: .planning/phases/04-drag-drop/04-CONTEXT.md
