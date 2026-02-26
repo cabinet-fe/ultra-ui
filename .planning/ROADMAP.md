@@ -96,5 +96,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
 | 2. Input Stability | 3/3 | Complete | 2026-02-12 |
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
-| 4. Drag-Drop | 1/1 | Complete | 2026-02-26 |
+| 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
 | 5. Architecture Refactor | 0/1 | Not started | - |
