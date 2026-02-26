@@ -132,5 +132,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
 | 5. Architecture Refactor | 3/3 | Complete    | 2026-02-26 |
-| 6. Repair Phase 5 Regression Gate | 1/1 | Complete   | 2026-02-26 |
+| 6. Repair Phase 5 Regression Gate | 1/1 | Complete    | 2026-02-26 |
 | 7. Milestone Traceability Sync | 0/1 | Planned | - |
