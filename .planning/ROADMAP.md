@@ -14,7 +14,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - [x] **Phase 2: Input Stability** — Model sync, IME, format compatibility
 - [x] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
 - [x] **Phase 4: Drag-Drop** — Implement or document
-- [ ] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
+- [x] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
 
 ## Phase Details
 
@@ -86,7 +86,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Public facade freeze + runtime/sync boundary extraction
 - [x] 05-02-PLAN.md — Capability command packs + typed mutation gateway
-- [ ] 05-03-PLAN.md — API compatibility gates + architecture boundary regression tests
+- [x] 05-03-PLAN.md — API compatibility gates + architecture boundary regression tests
 
 ## Progress
 
@@ -99,4 +99,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Input Stability | 3/3 | Complete | 2026-02-12 |
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
-| 5. Architecture Refactor | 2/3 | In Progress | - |
+| 5. Architecture Refactor | 3/3 | Complete | 2026-02-26 |
