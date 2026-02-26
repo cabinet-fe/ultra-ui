@@ -17,12 +17,12 @@ Requirements for milestone `v0.5.0` (重构表达式组件). Each maps to exactl
 
 - [ ] **UX-01**: User can trigger variable picker with `@` and insert variables without interrupting typing flow.
 - [ ] **UX-02**: User can complete variable selection workflow using keyboard (ArrowUp/ArrowDown/Enter/Escape) with predictable behavior.
-- [x] **UX-03**: User can perform expression drag/drop (or equivalent documented interaction) with behavior consistent with component documentation.
+- [ ] **UX-03**: User can perform expression drag/drop (or equivalent documented interaction) with behavior consistent with component documentation.
 
 ### Architecture Maintainability
 
-- [x] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
-- [x] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
+- [ ] **ARCH-01**: Developer can identify and modify expression editor responsibilities in modular boundaries (sync, insertion, drag/drop, rendering) without touching unrelated code paths.
+- [ ] **ARCH-02**: Developer can extend expression editor internals while preserving existing public API compatibility for consumers.
 
 ### Stability and Compatibility
 
@@ -59,14 +59,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-01 | Phase 1 | Complete |
 | UI-02 | Phase 1 | Complete |
 | UI-03 | Phase 1 | Complete |
-| UX-01 | Phase 3 | Pending |
-| UX-02 | Phase 3 | Pending |
-| UX-03 | Phase 4 | Complete |
-| ARCH-01 | Phase 5 | Complete |
-| ARCH-02 | Phase 5 | Complete |
-| STAB-01 | Phase 2 | Pending |
-| STAB-02 | Phase 2 | Pending |
-| STAB-03 | Phase 2 | Pending |
+| UX-01 | Phase 7 | Pending |
+| UX-02 | Phase 7 | Pending |
+| UX-03 | Phase 6 | Pending |
+| ARCH-01 | Phase 6 | Pending |
+| ARCH-02 | Phase 6 | Pending |
+| STAB-01 | Phase 7 | Pending |
+| STAB-02 | Phase 7 | Pending |
+| STAB-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 11 total
@@ -75,4 +75,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-12*
-*Last updated: 2026-02-12 after roadmap creation*
+*Last updated: 2026-02-26 after audit gap phase planning*

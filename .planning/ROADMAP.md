@@ -15,6 +15,8 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - [x] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
 - [x] **Phase 4: Drag-Drop** — Implement or document
 - [x] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
+- [ ] **Phase 6: Repair Phase 5 Regression Gate** — Restore `test:phase5` automation closure
+- [ ] **Phase 7: Milestone Traceability Sync** — Align requirements ledger with verification evidence
 
 ## Phase Details
 
@@ -88,10 +90,40 @@ Plans:
 - [x] 05-02-PLAN.md — Capability command packs + typed mutation gateway
 - [x] 05-03-PLAN.md — API compatibility gates + architecture boundary regression tests
 
+### Phase 6: Repair Phase 5 Regression Gate
+
+**Goal:** Restore reproducible automated regression closure for Phase 5 verification gates
+**Depends on:** Phase 5
+**Requirements:** ARCH-01, ARCH-02, STAB-03, UX-03
+**Gap Closure:** Closes audit gaps INT-01 and FLOW-01
+**Success Criteria** (what must be TRUE):
+  1. `bun run test:phase5` resolves valid test targets and executes successfully
+  2. Phase 5 compatibility and boundary regression checks are automated through stable test wiring
+  3. Regression gate evidence is reproducible and can be rerun in CI/local workflows
+**Plans:** 0/1 plans complete
+
+Plans:
+- [ ] 06-01: Repair `test:phase5` targets, align test entrypoints, and verify stable pass
+
+### Phase 7: Milestone Traceability Sync
+
+**Goal:** Synchronize milestone requirement traceability across REQUIREMENTS, SUMMARY, and verification artifacts
+**Depends on:** Phase 6
+**Requirements:** UX-01, UX-02, STAB-01, STAB-02
+**Gap Closure:** Closes audit gap INT-02 and listed milestone-meta tech debt
+**Success Criteria** (what must be TRUE):
+  1. REQUIREMENTS checklist and traceability status match current verification outcomes
+  2. Phase SUMMARY frontmatter includes consistent `requirements-completed` entries
+  3. Cross-source requirement status reconciliation no longer reports partial due to metadata drift
+**Plans:** 0/1 plans complete
+
+Plans:
+- [ ] 07-01: Reconcile requirements ledger and summary frontmatter with verification outputs
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -100,3 +132,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
 | 5. Architecture Refactor | 3/3 | Complete    | 2026-02-26 |
+| 6. Repair Phase 5 Regression Gate | 0/1 | Planned | - |
+| 7. Milestone Traceability Sync | 0/1 | Planned | - |
