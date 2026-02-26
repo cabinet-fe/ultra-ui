@@ -16,7 +16,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - [x] **Phase 4: Drag-Drop** — Implement or document
 - [x] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
 - [x] **Phase 6: Repair Phase 5 Regression Gate** — Restore `test:phase5` automation closure (completed 2026-02-26)
-- [ ] **Phase 7: Milestone Traceability Sync** — Align requirements ledger with verification evidence
+- [x] **Phase 7: Milestone Traceability Sync** — Align requirements ledger with verification evidence (completed 2026-02-26)
 
 ## Phase Details
 
@@ -115,10 +115,10 @@ Plans:
   1. REQUIREMENTS checklist and traceability status match current verification outcomes
   2. Phase SUMMARY frontmatter includes consistent `requirements-completed` entries
   3. Cross-source requirement status reconciliation no longer reports partial due to metadata drift
-**Plans:** 0/1 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 07-01: Reconcile requirements ledger and summary frontmatter with verification outputs
+- [x] 07-01: Reconcile requirements ledger and summary frontmatter with verification outputs
 
 ## Progress
 
@@ -133,4 +133,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Drag-Drop | 1/1 | Complete    | 2026-02-26 |
 | 5. Architecture Refactor | 3/3 | Complete    | 2026-02-26 |
 | 6. Repair Phase 5 Regression Gate | 1/1 | Complete    | 2026-02-26 |
-| 7. Milestone Traceability Sync | 0/1 | Planned | - |
+| 7. Milestone Traceability Sync | 1/1 | Complete | 2026-02-26 |
