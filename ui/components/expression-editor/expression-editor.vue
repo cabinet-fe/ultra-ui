@@ -69,7 +69,7 @@ import {
 import { ExpressionEditorDIKey, createVariableMap } from './di'
 import VariablePicker from './components/variable-picker.vue'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { useEditor } from './use-editor'
+import { createExpressionEditorRuntime } from './internal/editor-runtime'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'
 import {
@@ -122,7 +122,7 @@ const className = computed(() => {
 
 const containerRef = useTemplateRef('container')
 
-const editor = useEditor({
+const { editor } = createExpressionEditorRuntime({
   disabled,
   readonly,
   cls,
