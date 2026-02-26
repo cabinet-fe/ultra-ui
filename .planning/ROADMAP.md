@@ -13,7 +13,7 @@ This roadmap delivers the expression editor refactor for milestone v0.5.0. Phase
 - [x] **Phase 1: Visual Foundation** — Design tokens and state feedback
 - [x] **Phase 2: Input Stability** — Model sync, IME, format compatibility
 - [x] **Phase 3: Variable Picker Interaction** — @ trigger & keyboard
-- [ ] **Phase 4: Drag-Drop** — Implement or document
+- [x] **Phase 4: Drag-Drop** — Implement or document
 - [ ] **Phase 5: Architecture Refactor** — Modular boundaries, extensibility
 
 ## Phase Details
@@ -68,10 +68,10 @@ Plans:
 **Requirements:** UX-03
 **Success Criteria** (what must be TRUE):
   1. User can perform expression drag/drop (or equivalent documented interaction) with behavior matching component documentation
-**Plans:** TBD
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 04-01: (TBD during plan-phase)
+- [x] 04-01: Variable-node-only internal drag/drop, fallback move controls, tests and behavior matrix
 
 ### Phase 5: Architecture Refactor
 
@@ -96,5 +96,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Visual Foundation | 1/1 | Complete | 2026-02-12 |
 | 2. Input Stability | 3/3 | Complete | 2026-02-12 |
 | 3. Variable Picker Interaction | 1/1 | Complete    | 2026-02-26 |
-| 4. Drag-Drop | 0/1 | Not started | - |
+| 4. Drag-Drop | 1/1 | Complete | 2026-02-26 |
 | 5. Architecture Refactor | 0/1 | Not started | - |

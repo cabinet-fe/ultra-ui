@@ -10,18 +10,18 @@ See: `.planning/PROJECT.md` (updated 2026-02-12)
 ## Current Position
 
 Phase: 4 of 5 (Drag-Drop)
-Plan: 1 of 1 in current phase
-Status: Phase 4 context gathered; ready to plan Phase 4
-Last activity: 2026-02-26 — Phase 4 context captured and committed
+Plan: 1 of 1 in current phase (completed)
+Status: Phase 4 implementation complete; ready to plan Phase 5
+Last activity: 2026-02-26 — Completed 04-01 drag-drop execution
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: ~16 min
-- Total execution time: ~80 min
+- Total plans completed: 6
+- Average duration: ~15 min
+- Total execution time: ~88 min
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [██████░░░░] 60%
 | 02-input-stability | 3 | 3 | ~15 min |
 
 | 03-variable-picker-interaction | 1 | 1 | ~5 min |
+| 04-drag-drop | 1 | 1 | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01, 02-02, 02-01, 02-03, 03-01
-- Trend: Phase 3 complete
+- Last 5 plans: 02-02, 02-01, 02-03, 03-01, 04-01
+- Trend: Phase 4 complete
 
 ## Accumulated Context
 
@@ -53,6 +54,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Selection revalidation via $getNodeByKey + $getSelection before insert — abort if cursor moved or node content changed
 - [Phase 04]: Drag/drop scope fixed to variable-node-only, internal-only, same-expression reordering
 - [Phase 04]: Desktop-first direct-drag + ghost/insertion indicator; fallback move up/down controls when native DnD unsupported
+- [Phase 04-drag-drop]: Drop target uses variable slot model and plain-text hover snaps to nearest legal slot.
+- [Phase 04-drag-drop]: Invalid payload or cross-scope drop is handled as silent revert to keep content unchanged.
+- [Phase 04-drag-drop]: Fallback move up/down uses the same moveVariableByDirection/reorderVariableNode path as native drop.
 
 ### Pending Todos
 
@@ -65,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Phase 4 context gathered; next `/gsd:plan-phase 4`
-Resume file: .planning/phases/04-drag-drop/04-CONTEXT.md
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/ROADMAP.md
