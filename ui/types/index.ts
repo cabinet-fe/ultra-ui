@@ -146,6 +146,8 @@ export * from './components/switch'
 
 export * from './components/steps'
 
+export * from './components/rich-text-editor'
+
 export * from './helper'
 
 export * from './component-common'

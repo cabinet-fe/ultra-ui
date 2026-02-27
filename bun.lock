@@ -71,6 +71,13 @@
         "@codemirror/view": "^6.39.12",
         "@floating-ui/dom": "^1.7.5",
         "@lexical/clipboard": "^0.40.0",
+        "@lexical/code": "^0.40.0",
+        "@lexical/history": "^0.40.0",
+        "@lexical/html": "^0.40.0",
+        "@lexical/link": "^0.40.0",
+        "@lexical/list": "^0.40.0",
+        "@lexical/rich-text": "^0.40.0",
+        "@lexical/selection": "^0.40.0",
         "@lexical/utils": "^0.40.0",
         "@tanstack/vue-virtual": "^3.13.18",
         "codemirror": "^6.0.2",
@@ -424,11 +431,21 @@
 
     "@lexical/clipboard": ["@lexical/clipboard@0.40.0", "http://192.168.31.250:6005/@lexical/clipboard/-/clipboard-0.40.0.tgz", { "dependencies": { "@lexical/html": "0.40.0", "@lexical/list": "0.40.0", "@lexical/selection": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-FWyAKwbGbmwLbG6biyxB/MQkELzcbd6E89Xufarbx/1VZ2pX/BMaeVD4J7ojHgIZ4omTNI6nKH26K4wWySCIGQ=="],
 
+    "@lexical/code": ["@lexical/code@0.40.0", "http://192.168.31.250:6005/@lexical/code/-/code-0.40.0.tgz", { "dependencies": { "@lexical/utils": "0.40.0", "lexical": "0.40.0", "prismjs": "^1.30.0" } }, "sha512-xbo3lW3OC7sz0UnoME0tXQcgnekmuvsGAb1HZpFHAF0ZUCquB6/yK0+9QzknrTBH9y3Urqx0vM54xAqNQISOtg=="],
+
+    "@lexical/dragon": ["@lexical/dragon@0.40.0", "http://192.168.31.250:6005/@lexical/dragon/-/dragon-0.40.0.tgz", { "dependencies": { "@lexical/extension": "0.40.0", "lexical": "0.40.0" } }, "sha512-QWBZw89CAkw2b3Fl942DxJ7M8/XxFFvVubw9Z7Ac6wgUkGgtF2wrK9F0H8cPZ3pzbUqL1v1EtwW1/XhlLfmQqw=="],
+
     "@lexical/extension": ["@lexical/extension@0.40.0", "http://192.168.31.250:6005/@lexical/extension/-/extension-0.40.0.tgz", { "dependencies": { "@lexical/utils": "0.40.0", "@preact/signals-core": "^1.11.0", "lexical": "0.40.0" } }, "sha512-kipdm0f+xe8ctxHt9S3NPZazMX3ILqIk5xMWxX2svdsRc7qIeMkl+5SLWnBqQA+e5ztLJqa7GSA4WMqu/dBZDQ=="],
+
+    "@lexical/history": ["@lexical/history@0.40.0", "http://192.168.31.250:6005/@lexical/history/-/history-0.40.0.tgz", { "dependencies": { "@lexical/extension": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-Jo/9Z1fPlv+IpBkUaVstyKminXWjM1A1yR9UPZv4a3B3e8Rn0gqa+EaY5CXSvscnmh2EHSD8I4s59D4rirUy8Q=="],
 
     "@lexical/html": ["@lexical/html@0.40.0", "http://192.168.31.250:6005/@lexical/html/-/html-0.40.0.tgz", { "dependencies": { "@lexical/selection": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-5EZeHbp9Q3Op2KRoVfFvX4QyMizYW5SJkrWkGG6h6g/Z9EDNjb3C7Wjqx7ZosCHcFze6Pgic/0yEaCc2fSUcEg=="],
 
+    "@lexical/link": ["@lexical/link@0.40.0", "http://192.168.31.250:6005/@lexical/link/-/link-0.40.0.tgz", { "dependencies": { "@lexical/extension": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-4EVMJQ6tKJR+1+YAJ2mhVsRR6Edk6b81hWKjnMZITKhEOKjylxO7bwuXYVYPEckBzL2mXkEhYX5aFnig5+HkMQ=="],
+
     "@lexical/list": ["@lexical/list@0.40.0", "http://192.168.31.250:6005/@lexical/list/-/list-0.40.0.tgz", { "dependencies": { "@lexical/extension": "0.40.0", "@lexical/selection": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-YHStiN56DOc6tDu/3LwalPtHH8/1R+peiDF+/ePpla9aSDJclAqhxRBYsqSZhO6Hu5QhAEIi2Me7Gi+uZdmCTw=="],
+
+    "@lexical/rich-text": ["@lexical/rich-text@0.40.0", "http://192.168.31.250:6005/@lexical/rich-text/-/rich-text-0.40.0.tgz", { "dependencies": { "@lexical/clipboard": "0.40.0", "@lexical/dragon": "0.40.0", "@lexical/selection": "0.40.0", "@lexical/utils": "0.40.0", "lexical": "0.40.0" } }, "sha512-aHW9gSYGzEfZNxx14j2xJhihrnKaWA1aoudteP4r7TkNlbfJ3xG9dxp7ItwrAKJlfvI0gkMc1/aZOUIqESbAkw=="],
 
     "@lexical/selection": ["@lexical/selection@0.40.0", "http://192.168.31.250:6005/@lexical/selection/-/selection-0.40.0.tgz", { "dependencies": { "lexical": "0.40.0" } }, "sha512-iFwZufMlIx9fZ+K3NQip9oxoHzuP+V9rVdkLnfUWC7aO4HNxVPSryEfUnbAs+F5xlOzyVHsu7Xa+CMHfIL8/gQ=="],
 
@@ -1041,6 +1058,8 @@
     "postcss": ["postcss@8.5.6", "http://192.168.31.250:6005/postcss/-/postcss-8.5.6.tgz", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
 
     "pretty-ms": ["pretty-ms@9.3.0", "http://192.168.31.250:6005/pretty-ms/-/pretty-ms-9.3.0.tgz", { "dependencies": { "parse-ms": "^4.0.0" } }, "sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ=="],
+
+    "prismjs": ["prismjs@1.30.0", "http://192.168.31.250:6005/prismjs/-/prismjs-1.30.0.tgz", {}, "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="],
 
     "quansync": ["quansync@1.0.0", "http://192.168.31.250:6005/quansync/-/quansync-1.0.0.tgz", {}, "sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA=="],
 

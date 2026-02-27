@@ -4,21 +4,14 @@
       <u-button @click="setValue">设置初始值</u-button>
     </div>
 
-    <!-- <CustomCard title="基础用法">
-      <UTextEditor v-model="modelValue" height="500px" />
-    </CustomCard>
+    <URichTextEditor v-model="modelValue" />
 
-    <CustomCard title="禁用">
-      <UTextEditor v-model="modelValue" height="500px" disabled />
-    </CustomCard>
+    <URichTextEditor v-model="modelValue" disabled />
 
-    <CustomCard title="只读">
-      <UTextEditor v-model="modelValue" height="500px" readonly />
-    </CustomCard> -->
+    <URichTextEditor v-model="modelValue" readonly />
   </div>
 </template>
 <script lang="ts" setup>
-// import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
 const modelValue = shallowRef()
@@ -27,3 +20,4 @@ function setValue() {
   modelValue.value = '<p>你好</p><p>世界</p>'
 }
 </script>
+

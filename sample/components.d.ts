@@ -37,6 +37,7 @@ declare module 'vue' {
     UNumberInput: typeof import('ultra-ui')['UNumberInput']
     URadio: typeof import('ultra-ui')['URadio']
     URadioGroup: typeof import('ultra-ui')['URadioGroup']
+    URichTextEditor: typeof import('ultra-ui')['URichTextEditor']
     UScroll: typeof import('ultra-ui')['UScroll']
     USelect: typeof import('ultra-ui')['USelect']
     USlider: typeof import('ultra-ui')['USlider']

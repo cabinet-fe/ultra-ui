@@ -102,6 +102,8 @@ export * from './radio-group'
 
 export * from './radio'
 
+export * from './rich-text-editor'
+
 export * from './scroll'
 
 export * from './select'
