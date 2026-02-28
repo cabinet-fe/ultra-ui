@@ -1,17 +1,16 @@
-import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
-import { inject } from 'vue'
-import { TableDIKey } from './di'
-import UTabelCell from './table-cell.vue'
+import type { TableRow as ITableRow } from '@ui/types'
 import { bem } from '@ui/utils'
 import { ArrowRight } from '@ultra/icon'
+import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
+import { inject } from 'vue'
+import type { JSX } from 'vue/jsx-runtime'
+
 import { UButton } from '../button'
 import { UIcon } from '../icon'
-import type { JSX } from 'vue/jsx-runtime'
-import type { TableRow as ITableRow } from '@ui/types'
+import { TableDIKey } from './di'
+import UTabelCell from './table-cell.vue'
 
-export const UTableRow: DefineComponent<{
-  row: ITableRow
-}> = defineComponent({
+export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
   name: 'TableRow',
 
   props: ['row'],
@@ -51,14 +50,14 @@ export const UTableRow: DefineComponent<{
               key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
             >
-              {!row.isLeaf || !row.isExpandRow ? (
+              {!row.isLeaf || (tableProps.expandable && !row.isExpandRow) ? (
                 <UButton
                   text
                   class={cls.e('expand-toggle')}
                   type='primary'
                   size='small'
                   circle
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation()
                     toggleTreeRowExpand(row)
                   }}
@@ -69,10 +68,7 @@ export const UTableRow: DefineComponent<{
                   </UIcon>
                 </UButton>
               ) : (
-                <i
-                  class={cls.e('expand-space')}
-                  style={`margin-left: ${marginLeft}px`}
-                ></i>
+                <i class={cls.e('expand-space')} style={`margin-left: ${marginLeft}px`}></i>
               )}
 
               {getColumnSlotsNode(expandCtx)}
@@ -83,18 +79,14 @@ export const UTableRow: DefineComponent<{
 
       return (
         <tr
-          class={[
-            cls.e('row'),
-            bem.is('expanded', row.expanded),
-            bem.is('checked', row.checked)
-          ]}
-          onClick={e => handleRowClick(row, e)}
+          class={[cls.e('row'), bem.is('expanded', row.expanded), bem.is('checked', row.checked)]}
+          onClick={(e) => handleRowClick(row, e)}
           ref={measureElement as VNodeRef}
           key={row.uid}
         >
           {expandCell}
 
-          {columns.value.map(column => {
+          {columns.value.map((column) => {
             const cellCtx = getCellCtx(row, column)
             const cellSpan = tableProps.mergeCell?.(cellCtx)
             if (cellSpan && (!cellSpan.colspan || !cellSpan.rowspan)) {
@@ -110,7 +102,7 @@ export const UTableRow: DefineComponent<{
                 right={column.style.right}
                 key={row.uid + column.key}
                 // @ts-ignore
-                onClick={e => handleCellClick(row, column, e)}
+                onClick={(e) => handleCellClick(row, column, e)}
                 {...cellSpan}
               >
                 {cellNode}
@@ -127,8 +119,7 @@ export const UExpandTableRow = defineComponent({
   name: 'ExpandTableRow',
   props: ['row'],
   setup(props) {
-    const { getExpandRowSlotsNode, cls, measureElement, columnConfig } =
-      inject(TableDIKey)!
+    const { getExpandRowSlotsNode, cls, measureElement, columnConfig } = inject(TableDIKey)!
     const { leafColumns } = columnConfig
 
     return () => {

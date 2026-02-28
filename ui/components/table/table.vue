@@ -45,7 +45,7 @@
 
     <div v-if="showResizeLine" :class="cls.e('resize-line')" ref="resizeLineRef"></div>
 
-    <u-tip v-if="textEllipsis" ref="tipRef"> </u-tip>
+    <!-- <u-tip v-if="textEllipsis" ref="tip"> </u-tip> -->
   </u-scroll>
 </template>
 
@@ -64,7 +64,7 @@ import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch }
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
 import { useColumns } from './use-columns'
-import { UTip } from '../tip'
+// import { UTip } from '../tip'
 import UTableHead from './table-head'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
@@ -178,12 +178,15 @@ watch(
 )
 
 const tableBodyRef = useTemplateRef('tableBody')
-watch(rows, () => {
-  tableBodyRef.value?.setBodyTransform(0)
-  scrollRef.value?.scrollTo({ y: 0 })
-})
+watch(
+  () => props.data,
+  () => {
+    tableBodyRef.value?.setBodyTransform(0)
+    scrollRef.value?.scrollTo({ y: 0 })
+  }
+)
 
-const tipRef = shallowRef()
+// const tipRef = useTemplateRef('tip')
 
 provide(TableDIKey, {
   tableProps: props,
