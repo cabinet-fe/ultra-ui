@@ -27,10 +27,7 @@ $menu-name: $root-name + '-panel-item';
     @include m.is(multiple) {
       min-height: fn.use-var(form-component-height, $size);
       border-radius: fn.use-var(radius, $size);
-      padding: calc(
-          (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) /
-            2
-        )
+      padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2)
         calc(fn.use-var(gap, $size) / 2);
 
       @include m.bem($root-name, clear) {
@@ -39,9 +36,7 @@ $menu-name: $root-name + '-panel-item';
     }
 
     @include m.bem($root-name, tags) {
-      gap: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      );
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
     }
   }
 
@@ -83,6 +78,12 @@ $menu-name: $root-name + '-panel-item';
     flex-grow: 1;
     user-select: none;
     color: fn.use-var(text-color, placeholder);
+  }
+
+  @include m.is(disabled) {
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
   }
 }
 

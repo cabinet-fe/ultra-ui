@@ -15,42 +15,33 @@
   >
     <!-- 触发 -->
     <template #trigger>
-      <div>
-        <u-input
-          :size="size"
-          :disabled="disabled"
-          :placeholder="placeholder"
-          :clearable="clearable"
-          :model-value="
-            selected ? (getChainValue(selected, labelKey) ?? label) : modelValue
-          "
-          @clear="handleClear"
-          @keydown="handleKeydown"
-          native-readonly
-        >
-          <template #prefix v-if="$slots.prefix">
-            <slot name="prefix" />
-          </template>
+      <u-input
+        :size="size"
+        :disabled="disabled"
+        :placeholder="placeholder"
+        :clearable="clearable"
+        :model-value="selected ? (getChainValue(selected, labelKey) ?? label) : modelValue"
+        @clear="handleClear"
+        @keydown="handleKeydown"
+        native-readonly
+      >
+        <template #prefix v-if="$slots.prefix">
+          <slot name="prefix" />
+        </template>
 
-          <template #suffix>
-            <u-icon :class="cls.e('arrow')">
-              <ArrowDown />
-            </u-icon>
-          </template>
-        </u-input>
-      </div>
+        <template #suffix>
+          <u-icon :class="cls.e('arrow')">
+            <ArrowDown />
+          </u-icon>
+        </template>
+      </u-input>
     </template>
 
     <!-- 下拉内容 -->
     <template #content>
       <!-- 过滤器 -->
       <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input
-          placeholder="输入关键字进行搜索"
-          tabindex="0"
-          v-focus
-          v-model="queryString"
-        >
+        <u-input placeholder="输入关键字进行搜索" tabindex="0" v-focus v-model="queryString">
           <template #suffix>
             <u-icon>
               <Search />
@@ -72,9 +63,7 @@
         ]"
         :content-style="{
           height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined,
-          gridTemplateColumns: grid
-            ? `repeat(${grid.cols}, minmax(0px, 1fr))`
-            : undefined,
+          gridTemplateColumns: grid ? `repeat(${grid.cols}, minmax(0px, 1fr))` : undefined,
           gridGap: grid ? withUnit(grid.gap, 'px') : undefined
         }"
       >
@@ -132,11 +121,7 @@ import type {
   ScrollExposed
 } from '@ui/types'
 import { bem, withUnit, scrollIntoContainerView } from '@ui/utils'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useVirtual
-} from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
 import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
@@ -174,10 +159,11 @@ const cls = bem('select')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  { size: 'default', disabled: false, readonly: false }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const currentIndex = shallowRef(-1)
 const label = defineModel('text')
@@ -190,9 +176,7 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, temOptionsToCreatedOptions } = useOptions({
-  props
-})
+const { queryString, options, temOptionsToCreatedOptions } = useOptions({ props })
 
 // TODO: 优化
 let userSelecting = false
@@ -217,7 +201,7 @@ watch(
     if (modelValue !== undefined) {
       const { valueKey } = props
       currentIndex.value = options.findIndex(
-        option => getChainValue(option, valueKey) === modelValue
+        (option) => getChainValue(option, valueKey) === modelValue
       )
       selected.value = options[currentIndex.value]
     } else {
@@ -249,7 +233,7 @@ const virtualEnabled = computed(() => {
 const virtualOptions = computed(() => {
   const _options = options.value
   const { labelKey, valueKey } = props
-  return virtualList.value.map(item => {
+  return virtualList.value.map((item) => {
     const option = _options[item.index]!
     return {
       option,
@@ -266,23 +250,19 @@ watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
   if (!scroll || !props.modelValue) return
 
   if (virtualEnabled) {
-    const index = options.value.findIndex(option => option === selected.value)
+    const index = options.value.findIndex((option) => option === selected.value)
     index !== -1 && dropdownVisible.value && nextTick(() => scrollTo(index))
   } else {
-    const selectedEl =
-      scroll?.contentRef?.getElementsByClassName('is-selected')[0]
+    const selectedEl = scroll?.contentRef?.getElementsByClassName('is-selected')[0]
     if (selectedEl) {
-      scrollIntoContainerView(
-        selectedEl as HTMLElement,
-        scroll.containerRef ?? null
-      )
+      scrollIntoContainerView(selectedEl as HTMLElement, scroll.containerRef ?? null)
     }
   }
 })
 
 const dropdownVisible = shallowRef(false)
 
-watch(dropdownVisible, v => {
+watch(dropdownVisible, (v) => {
   if (!v) {
     queryString.value = ''
   }
@@ -321,9 +301,7 @@ const handleClear = () => {
 }
 
 function getCurrentEl() {
-  return scrollRef.value?.contentRef?.querySelector('li.is-selected') as
-    | HTMLElement
-    | undefined
+  return scrollRef.value?.contentRef?.querySelector('li.is-selected') as HTMLElement | undefined
 }
 
 const { handleKeydown } = useKeyboard({

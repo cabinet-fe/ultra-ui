@@ -5,6 +5,7 @@
     trigger="click"
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
     :content-style="contentStyle"
+    :disabled="disabled"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
     ref="dropdownRef"
@@ -32,11 +33,7 @@
       </div>
       <!-- 清空 icon -->
       <transition name="zoom-in" mode="out-in">
-        <u-icon
-          v-if="showClear"
-          :class="cls.e('clear')"
-          @click.stop="handleClear"
-        >
+        <u-icon v-if="showClear" :class="cls.e('clear')" @click.stop="handleClear">
           <Close />
         </u-icon>
 
@@ -57,12 +54,7 @@
           全选
         </u-checkbox>
 
-        <u-button
-          size="small"
-          text
-          type="primary"
-          @click="handleToggleExpandAll"
-        >
+        <u-button size="small" text type="primary" @click="handleToggleExpandAll">
           {{ allExpanded ? '收起全部' : '展开全部' }}
         </u-button>
       </div>
@@ -103,11 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  MultiTreeSelectProps,
-  MultiTreeSelectEmits,
-  TreeExposed
-} from '@ui/types'
+import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '@ui/types'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { bem } from '@ui/utils'
 import { UDropdown } from '../dropdown'
@@ -124,9 +112,7 @@ import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
 import type { DropdownExposed } from '@ui/types'
 
-defineOptions({
-  name: 'MultiTreeSelect'
-})
+defineOptions({ name: 'MultiTreeSelect' })
 
 const cls = bem('multi-tree-select')
 
@@ -161,19 +147,15 @@ const treeProps = computed(() => {
 
 const emit = defineEmits<MultiTreeSelectEmits>()
 
-const slots = defineSlots<{
-  default?: (props: TreeSlotsScope) => any
-}>()
+const slots = defineSlots<{ default?: (props: TreeSlotsScope) => any }>()
 
 /**过滤 */
 const qs = shallowRef('')
-watch(qs, qs => {
+watch(qs, (qs) => {
   treeRef.value?.filter(qs)
 })
 
-const model = defineModel<(string | number)[]>({
-  default: () => []
-})
+const model = defineModel<(string | number)[]>({ default: () => [] })
 
 const hovered = shallowRef(false)
 
@@ -181,15 +163,10 @@ const tags = shallowRef<Record<string, any>[]>([])
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const showClear = computed(() => {
-  return (
-    props.clearable && model.value?.length && hovered.value && !disabled.value
-  )
+  return props.clearable && model.value?.length && hovered.value && !disabled.value
 })
 
 const treeRef = shallowRef<TreeExposed>()
@@ -223,10 +200,7 @@ const handleCheckAll = (checked: boolean) => {
 }
 
 /**选中 */
-const handleCheck = (
-  checked: (string | number)[],
-  checkedData: Record<string, any>[]
-) => {
+const handleCheck = (checked: (string | number)[], checkedData: Record<string, any>[]) => {
   markEvent()
   tags.value = checkedData
   emit('change', checkedData!)
@@ -254,15 +228,15 @@ const keyDicts = shallowRef(new Map<string | number, Record<string, any>>())
 
 watch(
   () => props.data,
-  data => {
+  (data) => {
     if (!data?.length) {
       keyDicts.value = new Map()
     } else {
       const newDict = new Map()
-      data.forEach(item => {
+      data.forEach((item) => {
         Tree.dft(
           item,
-          v => {
+          (v) => {
             newDict.set(v[props.valueKey], v)
           },
           props.childrenKey
@@ -284,7 +258,7 @@ watch(
       return
     }
 
-    tags.value = model.filter(v => keyDicts.has(v)).map(v => keyDicts.get(v)!)
+    tags.value = model.filter((v) => keyDicts.has(v)).map((v) => keyDicts.get(v)!)
   },
   { immediate: true }
 )
@@ -295,7 +269,7 @@ function handleToggleExpandAll() {
   allExpanded.value ? treeRef.value?.expandAll() : treeRef.value?.collapseAll()
 }
 
-watch(treeRef, treeRef => {
+watch(treeRef, (treeRef) => {
   if (!treeRef) {
     allExpanded.value = props.expandAll
   }

@@ -8,6 +8,7 @@
     ref="dropdownRef"
     :min-width="minWidth"
     :width="width"
+    :disabled="disabled"
     @update:visible="handleDropdownVisible"
   >
     <template #trigger>
@@ -71,9 +72,7 @@ import { Tree, getChainValue, omit } from 'cat-kit/fe'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { TreeSlotsScope } from '../tree/di'
 
-defineOptions({
-  name: 'TreeSelect'
-})
+defineOptions({ name: 'TreeSelect' })
 
 const props = withDefaults(defineProps<TreeSelectProps>(), {
   labelKey: 'label',
@@ -115,7 +114,7 @@ const cls = bem('tree-select')
 
 /**过滤 */
 const qs = shallowRef('')
-watch(qs, qs => {
+watch(qs, (qs) => {
   treeRef.value?.filter(qs)
 })
 
@@ -125,10 +124,7 @@ const label = shallowRef<string>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const treeRef = shallowRef<TreeExposed>()
 
@@ -155,8 +151,8 @@ watch(
     }
 
     let founded = false
-    data.some(item => {
-      Tree.dft(item, v => {
+    data.some((item) => {
+      Tree.dft(item, (v) => {
         if (v[props.valueKey] === model) {
           label.value = v[props.labelKey]
           founded = true
@@ -167,15 +163,10 @@ watch(
       return founded
     })
   },
-  {
-    immediate: true
-  }
+  { immediate: true }
 )
 
-const handleSelect = (
-  selected?: string | number,
-  selectedData?: Record<string, any>
-) => {
+const handleSelect = (selected?: string | number, selectedData?: Record<string, any>) => {
   changedByEvent = true
   nextTick(() => {
     changedByEvent = false
