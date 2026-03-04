@@ -1,6 +1,6 @@
 {
   "name": "ultra-ui",
-  "version": "0.4.49",
+  "version": "0.4.50",
   "description": "组件库",
   "type": "module",
   "sideEffects": [
@@ -27,7 +27,6 @@
     "@codemirror/view": "^6.39.12",
     "@floating-ui/dom": "^1.7.5",
     "@lexical/clipboard": "^0.40.0",
-    "@lexical/code": "^0.40.0",
     "@lexical/history": "^0.40.0",
     "@lexical/html": "^0.40.0",
     "@lexical/link": "^0.40.0",

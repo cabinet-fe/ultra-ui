@@ -3,15 +3,9 @@
     <template v-for="(item, index) in toolbar" :key="index">
       <div v-if="item === '|'" :class="cls.e('separator')"></div>
 
-      <div
-        v-else-if="item === 'heading'"
-        :class="[cls.e('toolbar-dropdown')]"
-      >
+      <div v-else-if="item === 'heading'" :class="[cls.e('toolbar-dropdown')]">
         <select
-          :class="[
-            cls.e('heading-select'),
-            { 'is-disabled': disabled }
-          ]"
+          :class="[cls.e('heading-select'), { 'is-disabled': disabled }]"
           :value="activeHeading"
           :disabled="disabled"
           @change="onHeadingChange"
@@ -58,24 +52,9 @@ import {
   $createParagraphNode,
   type RangeSelection
 } from 'lexical'
-import {
-  $createHeadingNode,
-  $isHeadingNode,
-  type HeadingTagType
-} from '@lexical/rich-text'
-import {
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-  ListNode
-} from '@lexical/list'
-import {
-  $isLinkNode,
-  TOGGLE_LINK_COMMAND
-} from '@lexical/link'
-import {
-  $createCodeNode,
-  $isCodeNode
-} from '@lexical/code'
+import { $createHeadingNode, $isHeadingNode, type HeadingTagType } from '@lexical/rich-text'
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode } from '@lexical/list'
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { $isQuoteNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
 import { $getNearestNodeOfType } from '@lexical/utils'
@@ -93,28 +72,24 @@ const isBold = ref(false)
 const isItalic = ref(false)
 const isUnderline = ref(false)
 const isStrikethrough = ref(false)
-const isCode = ref(false)
 const isLink = ref(false)
 const isBulletList = ref(false)
 const isOrderedList = ref(false)
 const isBlockquote = ref(false)
-const isCodeBlock = ref(false)
 const activeHeading = ref('paragraph')
 
 let cleanupListener: (() => void) | null = null
 
 function setupListener(editorInstance: LexicalEditor) {
   cleanupListener?.()
-  cleanupListener = editorInstance.registerUpdateListener(
-    ({ editorState }) => {
-      editorState.read(() => {
-        const selection = $getSelection()
-        if (!$isRangeSelection(selection)) return
+  cleanupListener = editorInstance.registerUpdateListener(({ editorState }) => {
+    editorState.read(() => {
+      const selection = $getSelection()
+      if (!$isRangeSelection(selection)) return
 
-        updateToolbarState(selection)
-      })
-    }
-  )
+      updateToolbarState(selection)
+    })
+  })
 }
 
 function updateToolbarState(selection: RangeSelection) {
@@ -122,13 +97,10 @@ function updateToolbarState(selection: RangeSelection) {
   isItalic.value = selection.hasFormat('italic')
   isUnderline.value = selection.hasFormat('underline')
   isStrikethrough.value = selection.hasFormat('strikethrough')
-  isCode.value = selection.hasFormat('code')
 
   // Check block type
   const anchorNode = selection.anchor.getNode()
-  let element = anchorNode.getKey() === 'root'
-    ? anchorNode
-    : anchorNode.getTopLevelElementOrThrow()
+  let element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow()
 
   if ($isHeadingNode(element)) {
     activeHeading.value = (element as any).getTag()
@@ -149,9 +121,6 @@ function updateToolbarState(selection: RangeSelection) {
 
   // Check blockquote
   isBlockquote.value = $isQuoteNode(element)
-
-  // Check code block
-  isCodeBlock.value = $isCodeNode(element)
 
   // Check link
   const parent = anchorNode.getParent()
@@ -178,16 +147,12 @@ function isActive(item: ToolbarItem): boolean {
       return isUnderline.value
     case 'strikethrough':
       return isStrikethrough.value
-    case 'code':
-      return isCode.value
     case 'bullet-list':
       return isBulletList.value
     case 'ordered-list':
       return isOrderedList.value
     case 'blockquote':
       return isBlockquote.value
-    case 'code-block':
-      return isCodeBlock.value
     case 'link':
       return isLink.value
     default:
@@ -233,18 +198,6 @@ function onToolbarAction(item: ToolbarItem) {
         }
       })
       break
-    case 'code-block':
-      editorInstance.update(() => {
-        const selection = $getSelection()
-        if ($isRangeSelection(selection)) {
-          if (isCodeBlock.value) {
-            $setBlocksType(selection, () => $createParagraphNode())
-          } else {
-            $setBlocksType(selection, () => $createCodeNode())
-          }
-        }
-      })
-      break
     case 'link':
       toggleLink(editorInstance)
       break
@@ -272,9 +225,7 @@ function onHeadingChange(event: Event) {
       if (value === 'paragraph') {
         $setBlocksType(selection, () => $createParagraphNode())
       } else {
-        $setBlocksType(selection, () =>
-          $createHeadingNode(value as HeadingTagType)
-        )
+        $setBlocksType(selection, () => $createHeadingNode(value as HeadingTagType))
       }
     }
   })
@@ -324,14 +275,21 @@ function getTitle(item: ToolbarItem): string {
 function getIcon(item: ToolbarItem): string {
   const icons: Record<string, string> = {
     bold: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>',
-    italic: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>',
-    underline: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>',
-    strikethrough: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>',
+    italic:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>',
+    underline:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>',
+    strikethrough:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>',
     code: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-    'bullet-list': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
-    'ordered-list': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>',
-    blockquote: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/></svg>',
-    'code-block': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="m8 10-3 2 3 2"/><path d="m16 10 3 2-3 2"/><path d="m13 7-2 10"/></svg>',
+    'bullet-list':
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+    'ordered-list':
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>',
+    blockquote:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/></svg>',
+    'code-block':
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="m8 10-3 2 3 2"/><path d="m16 10 3 2-3 2"/><path d="m13 7-2 10"/></svg>',
     link: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
     undo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>',
     redo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>'

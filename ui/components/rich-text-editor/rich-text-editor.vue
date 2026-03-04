@@ -7,11 +7,12 @@
       :disabled="isDisabled"
     />
     <div :class="cls.e('content')">
-      <div ref="editorContainer" :class="cls.e('editable')" :contenteditable="!isDisabled && !isReadonly"></div>
       <div
-        v-if="showPlaceholder"
-        :class="cls.e('placeholder')"
-      >
+        ref="editorContainer"
+        :class="cls.e('editable')"
+        :contenteditable="!isDisabled && !isReadonly"
+      ></div>
+      <div v-if="showPlaceholder" :class="cls.e('placeholder')">
         {{ placeholder }}
       </div>
     </div>
@@ -35,51 +36,16 @@ const LEXICAL_THEME = {
     bold: 'u-rte-bold',
     italic: 'u-rte-italic',
     underline: 'u-rte-underline',
-    strikethrough: 'u-rte-strikethrough',
-    code: 'u-rte-code'
+    strikethrough: 'u-rte-strikethrough'
   },
   list: {
     ul: 'u-rte-ul',
     ol: 'u-rte-ol',
     listitem: 'u-rte-li',
-    nested: {
-      listitem: 'u-rte-li--nested'
-    }
+    nested: { listitem: 'u-rte-li--nested' }
   },
   quote: 'u-rte-blockquote',
-  code: 'u-rte-code-block',
-  codeHighlight: {
-    atrule: 'u-rte-token-attr',
-    attr: 'u-rte-token-attr',
-    boolean: 'u-rte-token-property',
-    builtin: 'u-rte-token-selector',
-    cdata: 'u-rte-token-comment',
-    char: 'u-rte-token-selector',
-    class: 'u-rte-token-function',
-    'class-name': 'u-rte-token-function',
-    comment: 'u-rte-token-comment',
-    constant: 'u-rte-token-property',
-    deleted: 'u-rte-token-property',
-    doctype: 'u-rte-token-comment',
-    entity: 'u-rte-token-operator',
-    function: 'u-rte-token-function',
-    important: 'u-rte-token-variable',
-    inserted: 'u-rte-token-selector',
-    keyword: 'u-rte-token-attr',
-    namespace: 'u-rte-token-variable',
-    number: 'u-rte-token-property',
-    operator: 'u-rte-token-operator',
-    prolog: 'u-rte-token-comment',
-    property: 'u-rte-token-property',
-    punctuation: 'u-rte-token-punctuation',
-    regex: 'u-rte-token-variable',
-    selector: 'u-rte-token-selector',
-    string: 'u-rte-token-selector',
-    symbol: 'u-rte-token-property',
-    tag: 'u-rte-token-property',
-    url: 'u-rte-token-operator',
-    variable: 'u-rte-token-variable'
-  },
+
   link: 'u-rte-link',
   image: 'u-rte-image'
 }
@@ -94,28 +60,18 @@ const DEFAULT_TOOLBAR: ToolbarItem[] = [
   'italic',
   'underline',
   'strikethrough',
-  'code',
   '|',
   'bullet-list',
   'ordered-list',
   '|',
   'blockquote',
-  'code-block',
   '|',
   'link'
 ]
 </script>
 
 <script lang="ts" setup>
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  shallowRef,
-  useTemplateRef,
-  watch
-} from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { bem } from '@ui/utils'
 import type { RichTextEditorProps } from '@ui/types'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
@@ -124,7 +80,6 @@ import { registerRichText } from '@lexical/rich-text'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
 import { ListNode, ListItemNode, registerList } from '@lexical/list'
 import { LinkNode, AutoLinkNode } from '@lexical/link'
-import { CodeNode, CodeHighlightNode } from '@lexical/code'
 import { registerHistory, createEmptyHistoryState } from '@lexical/history'
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import Toolbar from './toolbar.vue'
@@ -143,10 +98,7 @@ const cls = bem('rich-text-editor')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const isDisabled = computed(() => !!disabled.value)
 const isReadonly = computed(() => !!readonly.value)
@@ -176,16 +128,7 @@ function initEditor() {
   const editorInstance = createEditor({
     namespace: 'URichTextEditor',
     theme: LEXICAL_THEME,
-    nodes: [
-      HeadingNode,
-      QuoteNode,
-      ListNode,
-      ListItemNode,
-      LinkNode,
-      AutoLinkNode,
-      CodeNode,
-      CodeHighlightNode
-    ],
+    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AutoLinkNode],
     editable: !isDisabled.value && !isReadonly.value,
     onError: (error: Error) => {
       console.error('Lexical error:', error)
@@ -197,9 +140,7 @@ function initEditor() {
   // Register plugins
   cleanupFns.push(registerRichText(editorInstance))
   cleanupFns.push(registerList(editorInstance))
-  cleanupFns.push(
-    registerHistory(editorInstance, createEmptyHistoryState(), 300)
-  )
+  cleanupFns.push(registerHistory(editorInstance, createEmptyHistoryState(), 300))
 
   // Set initial value
   if (model.value) {
@@ -280,32 +221,29 @@ function setEditorContent(editorInstance: LexicalEditor, value: string) {
 }
 
 // Watch external model changes
-watch(
-  model,
-  (newVal) => {
-    if (!editor.value || isComposing) return
+watch(model, (newVal) => {
+  if (!editor.value || isComposing) return
 
-    const editorInstance = editor.value
+  const editorInstance = editor.value
 
-    // Compare current content to avoid circular updates
-    editorInstance.getEditorState().read(() => {
-      let currentValue: string
-      if (props.format === 'json') {
-        currentValue = JSON.stringify(editorInstance.getEditorState().toJSON())
-      } else {
-        currentValue = $generateHtmlFromNodes(editorInstance)
-      }
+  // Compare current content to avoid circular updates
+  editorInstance.getEditorState().read(() => {
+    let currentValue: string
+    if (props.format === 'json') {
+      currentValue = JSON.stringify(editorInstance.getEditorState().toJSON())
+    } else {
+      currentValue = $generateHtmlFromNodes(editorInstance)
+    }
 
-      if (currentValue !== newVal) {
-        isComposing = true
-        setEditorContent(editorInstance, newVal ?? '')
-        queueMicrotask(() => {
-          isComposing = false
-        })
-      }
-    })
-  }
-)
+    if (currentValue !== newVal) {
+      isComposing = true
+      setEditorContent(editorInstance, newVal ?? '')
+      queueMicrotask(() => {
+        isComposing = false
+      })
+    }
+  })
+})
 
 // Watch disabled/readonly changes
 watch([isDisabled, isReadonly], () => {
@@ -319,7 +257,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  cleanupFns.forEach(fn => fn())
+  cleanupFns.forEach((fn) => fn())
   cleanupFns = []
   editor.value = null
 })
