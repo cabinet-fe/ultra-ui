@@ -1,7 +1,8 @@
 import type { TreeEmit, TreeProps } from '@ui/types'
-import { nextTick, watch, type ComputedRef } from 'vue'
-import type { TreeNode } from './tree-node'
 import { getChainValue, Tree } from 'cat-kit/fe'
+import { nextTick, watch, type ComputedRef } from 'vue'
+
+import type { TreeNode } from './tree-node'
 
 interface Options {
   emit: TreeEmit
@@ -51,11 +52,11 @@ export function useCheck(options: Options): UseCheckReturned {
       if (!nodeDict.size) return
       checkedData.clear()
 
-      c?.forEach(v => {
+      c?.forEach((v) => {
         const node = nodeDict.get(v)
         if (node) {
           checkNode(node)
-          node.bubbleSet(node => {
+          node.bubbleSet((node) => {
             if (node.parent) {
               if (node.parent.expanded) return false
               node.parent.expanded = true
@@ -75,7 +76,7 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       checkNode(node)
     } else {
-      Tree.dft(node, node => {
+      Tree.dft(node, (node) => {
         !node.disabled && checkNode(node)
       })
     }
@@ -83,12 +84,11 @@ export function useCheck(options: Options): UseCheckReturned {
     // 非严格选择时还需要更新祖先节点，
     // 一旦子节点全部选中，父节点也要设置为选中状态
     if (!checkStrictly) {
-      node.bubbleSet(node => {
+      node.bubbleSet((node) => {
         const { parent } = node
 
         if (parent && parent.depth > 0) {
-          const parentChecked =
-            parent.childrenCheckCount === parent.children!.length
+          const parentChecked = parent.childrenCheckCount === parent.children!.length
 
           parentChecked ? checkNode(parent) : uncheckNode(parent)
         }
@@ -101,12 +101,14 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       uncheckNode(node)
     } else {
-      Tree.dft(node, node => uncheckNode(node))
+      Tree.dft(node, (node) => {
+        !node.disabled && uncheckNode(node)
+      })
     }
 
     // 非严格模式下，取消选中时，需要更新父节点
     if (!checkStrictly) {
-      node.bubbleSet(node => {
+      node.bubbleSet((node) => {
         const { parent } = node
         if (parent && parent.depth > 0) {
           uncheckNode(parent)
@@ -124,7 +126,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
     emit(
       'update:checked',
-      checkedArr.map(item => getChainValue(item, props.valueKey!)),
+      checkedArr.map((item) => getChainValue(item, props.valueKey!)),
       checkedArr
     )
 
@@ -133,8 +135,5 @@ export function useCheck(options: Options): UseCheckReturned {
     })
   }
 
-  return {
-    checkedData,
-    toggleCheck
-  }
+  return { checkedData, toggleCheck }
 }
