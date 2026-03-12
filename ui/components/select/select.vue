@@ -176,7 +176,7 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, temOptionsToCreatedOptions } = useOptions({ props })
+const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({ props })
 
 // TODO: 优化
 let userSelecting = false
@@ -295,6 +295,7 @@ const handleSelect = (option: Record<string, any>, index: number) => {
 const handleClear = () => {
   lock()
   selected.value = undefined
+  clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)
   unlock()

@@ -21,6 +21,8 @@ interface UseOptionsReturned {
   allOptions: ComputedRef<Record<string, any>[]>
   /** 将临时选项转换为创建的选项 */
   temOptionsToCreatedOptions: () => void
+  /** 清空用户创建的选项 */
+  clearCreatedOptions: () => void
 }
 
 // 允许创建的实现
@@ -52,6 +54,10 @@ export function useOptions(o: Options): UseOptionsReturned {
         __isTemp: false
       }
     })
+  }
+
+  function clearCreatedOptions() {
+    createdOptions.value = []
   }
 
   const setTempOption = (qs: string, options?: Record<string, any>[]) => {
@@ -135,6 +141,7 @@ export function useOptions(o: Options): UseOptionsReturned {
     queryString,
     options,
     allOptions,
-    temOptionsToCreatedOptions
+    temOptionsToCreatedOptions,
+    clearCreatedOptions
   }
 }
