@@ -15,6 +15,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UAction: typeof import('ultra-ui')['UAction']
     UActionGroup: typeof import('ultra-ui')['UActionGroup']
+    UAnimation: typeof import('ultra-ui')['UAnimation']
     UAutoComplete: typeof import('ultra-ui')['UAutoComplete']
     UBatchEdit: typeof import('ultra-ui')['UBatchEdit']
     UButton: typeof import('ultra-ui')['UButton']
@@ -53,6 +54,7 @@ declare module 'vue' {
     UText: typeof import('ultra-ui')['UText']
     UTextarea: typeof import('ultra-ui')['UTextarea']
     UTheme: typeof import('ultra-ui')['UTheme']
+    UTip: typeof import('ultra-ui')['UTip']
     UTree: typeof import('ultra-ui')['UTree']
     UTreeSelect: typeof import('ultra-ui')['UTreeSelect']
   }
