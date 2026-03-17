@@ -5,6 +5,7 @@
         :max="4"
         :visibility-limit="20"
         filterable
+        creatable
         v-model="checked"
         :options="options"
         @update:model-value="console.log"
@@ -19,10 +20,7 @@
 import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 
-const options = Array.from({ length: 60 }).map((_, i) => ({
-  label: `选项${i}`,
-  value: i
-}))
+const options = Array.from({ length: 60 }).map((_, i) => ({ label: `选项${i}`, value: i }))
 
 const checked = shallowRef([1, 2, 3])
 

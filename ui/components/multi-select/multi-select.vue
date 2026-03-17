@@ -57,14 +57,16 @@
           全选
         </u-checkbox>
 
-        <span>
-          已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }}
-        </span>
+        <span> 已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }} </span>
       </div>
 
       <!-- 过滤器 -->
       <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input placeholder="输入关键字进行过滤" v-model="queryString">
+        <u-input
+          placeholder="输入关键字进行过滤"
+          v-model="queryString"
+          @keydown.enter.prevent="handleCreateByEnter"
+        >
           <template #suffix>
             <u-icon><Search /></u-icon>
           </template>
@@ -77,13 +79,8 @@
         :class="[cls.e('options')]"
         ref="scrollRef"
         v-if="options.length"
-        :content-class="[
-          cls.e('options-wrap'),
-          bem.is('virtual', virtualEnabled)
-        ]"
-        :content-style="{
-          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
-        }"
+        :content-class="[cls.e('options-wrap'), bem.is('virtual', virtualEnabled)]"
+        :content-style="{ height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined }"
       >
         <template v-if="virtualEnabled">
           <u-multi-select-option
@@ -139,27 +136,11 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  computed,
-  shallowRef,
-  shallowReactive,
-  watch,
-  provide,
-  nextTick
-} from 'vue'
-import type {
-  MultiSelectEmits,
-  MultiSelectProps,
-  ScrollExposed,
-  DropdownExposed
-} from '@ui/types'
+import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
+import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '@ui/types'
 import { bem, withUnit } from '@ui/utils'
 import { UTag } from '../tag'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useVirtual
-} from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
@@ -173,9 +154,7 @@ import { useOptions } from '../select/use-options'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
 
-defineOptions({
-  name: 'MultiSelect'
-})
+defineOptions({ name: 'MultiSelect' })
 
 const props = withDefaults(defineProps<MultiSelectProps>(), {
   labelKey: 'label',
@@ -194,36 +173,48 @@ const cls = bem('multi-select')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const scrollRef = shallowRef<ScrollExposed>()
 
 const hovered = shallowRef(false)
 
-const { options, queryString, allOptions } = useOptions({
-  props
+const { options: rawOptions, queryString, allOptions: rawAllOptions } = useOptions({ props })
+
+const createdOptions = shallowRef<Record<string, any>[]>([])
+
+const options = computed(() => {
+  const base = rawOptions.value
+  if (!props.creatable || !createdOptions.value.length) return base
+
+  const { valueKey } = props
+  const createdValues = new Set(createdOptions.value.map((o) => getChainValue(o, valueKey)))
+  const deduped = base.filter((o) => !(o.__isTemp && createdValues.has(getChainValue(o, valueKey))))
+  const dedupedValues = new Set(deduped.map((o) => getChainValue(o, valueKey)))
+  const toAdd = createdOptions.value.filter((o) => !dedupedValues.has(getChainValue(o, valueKey)))
+  return [...toAdd, ...deduped]
 })
 
-const { totalHeight, virtualList, virtualEnabled, measureElement } = useVirtual(
-  {
-    virtualThreshold: 80,
-    estimateSize: () => 40,
-    count: computed(() => options.value.length),
-    scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
-  }
-)
+const allOptions = computed(() => {
+  if (!props.creatable || !createdOptions.value.length) return rawAllOptions.value
+  return [...createdOptions.value, ...rawAllOptions.value]
+})
+
+const { totalHeight, virtualList, virtualEnabled, measureElement } = useVirtual({
+  virtualThreshold: 80,
+  estimateSize: () => 40,
+  count: computed(() => options.value.length),
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
 
 const virtualOptions = computed(() => {
   const { valueKey, labelKey } = props
   const _options = options.value
-  return virtualList.value.map(v => {
+  return virtualList.value.map((v) => {
     const option = _options[v.index]!
     const val = getChainValue(option, valueKey)
     return {
@@ -238,7 +229,7 @@ const virtualOptions = computed(() => {
 })
 
 const filterable = computed(() => {
-  return props.filterable || typeof props.options === 'function'
+  return props.filterable || props.creatable || typeof props.options === 'function'
 })
 
 const model = defineModel<Array<string | number>>()
@@ -254,50 +245,35 @@ const indeterminate = computed(() => {
 const optionsMap = computed(() => {
   const { valueKey } = props
   return new Map<string | number, Record<string, any>>(
-    allOptions.value.map(option => [option[valueKey], option])
+    allOptions.value.map((option) => [option[valueKey], option])
   )
 })
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-// 当model是通过checkedSet改变而更新时不触发model watch处理函数
-let modelIsChangedBySet = false
-let setIsChangedByModel = false
+let internalChange = false
+
 watch(
   [model, optionsMap],
   ([model, optionsMap]) => {
-    // 由用户手动勾选的不会触发
-    if (modelIsChangedBySet) return
-
-    setIsChangedByModel = true
+    if (internalChange) {
+      internalChange = false
+      return
+    }
     checkedSet.clear()
-
     if (optionsMap.size && model?.length) {
-      model.forEach(v => {
+      model.forEach((v) => {
         const option = optionsMap.get(v)
         option && checkedSet.add(option)
       })
     }
-
-    nextTick(() => {
-      setIsChangedByModel = false
-    })
   },
   { immediate: true }
 )
 
-watch(checkedSet, () => {
-  if (setIsChangedByModel) return
-
-  const { valueKey } = props
-  modelIsChangedBySet = true
-  const checkedArr = Array.from(checkedSet)
-  model.value = checkedArr.map(option => option[valueKey])
-  emit('change', checkedArr)
-  nextTick(() => {
-    modelIsChangedBySet = false
-  })
-})
+const emitChange = () => {
+  emit('change', Array.from(checkedSet))
+}
 
 const tags = computed(() => {
   let tags: Record<string, any>[] = []
@@ -311,7 +287,7 @@ const tags = computed(() => {
     visibilityLimit = model.value?.length ?? 0
   }
 
-  model.value?.slice(0, visibilityLimit).forEach(k => {
+  model.value?.slice(0, visibilityLimit).forEach((k) => {
     const option = optionsMap.value.get(k)
     option && tags.push(option)
   })
@@ -330,34 +306,125 @@ const handleDropdownVisible = (visible: boolean) => {
 }
 
 const handleCheck = (option: Record<string, any>, checked: boolean) => {
+  const { valueKey, labelKey } = props
   if (checked) {
-    checkedSet.add(option)
+    if (option.__isTemp && props.creatable) {
+      const created: Record<string, any> = {
+        [labelKey]: getChainValue(option, labelKey),
+        [valueKey]: getChainValue(option, valueKey)
+      }
+      createdOptions.value = [...createdOptions.value, created]
+      checkedSet.add(created)
+      internalChange = true
+      model.value = [...(model.value ?? []), getChainValue(created, valueKey)]
+      queryString.value = ''
+    } else if (!checkedSet.has(option)) {
+      checkedSet.add(option)
+      internalChange = true
+      model.value = [...(model.value ?? []), getChainValue(option, valueKey)]
+    }
   } else {
     checkedSet.delete(option)
+    const val = getChainValue(option, valueKey)
+    internalChange = true
+    model.value = (model.value ?? []).filter((v) => v !== val)
+    removeCreatedOption(option)
   }
 
+  emitChange()
   dropdownRef.value?.updateDropdown()
 }
 
 /** 全选 */
 const handleCheckAll = (checked: boolean) => {
+  const { valueKey } = props
   if (checked) {
-    options.value.forEach(option => checkedSet.add(option))
+    options.value.forEach((option) => {
+      if (!option.__isTemp) checkedSet.add(option)
+    })
+    internalChange = true
+    model.value = Array.from(checkedSet).map((o) => getChainValue(o, valueKey))
   } else {
     checkedSet.clear()
+    internalChange = true
+    model.value = []
+    if (props.creatable) {
+      createdOptions.value = []
+    }
   }
 
+  emitChange()
   dropdownRef.value?.updateDropdown()
 }
 
 /** 清除选项 */
 const handleClear = () => {
-  model.value = []
   checkedSet.clear()
+  internalChange = true
+  model.value = []
+  if (props.creatable) {
+    createdOptions.value = []
+  }
+  emit('change', [])
 }
 
 const handleClose = (option: Record<string, any>) => {
   checkedSet.delete(option)
+  const val = getChainValue(option, props.valueKey)
+  internalChange = true
+  model.value = (model.value ?? []).filter((v) => v !== val)
+  removeCreatedOption(option)
+  emitChange()
+}
+
+const removeCreatedOption = (option: Record<string, any>) => {
+  if (!props.creatable || !createdOptions.value.length) return
+  const { valueKey } = props
+  const val = getChainValue(option, valueKey)
+  createdOptions.value = createdOptions.value.filter((o) => getChainValue(o, valueKey) !== val)
+}
+
+const handleCreateByEnter = () => {
+  if (!props.creatable) return
+  const qs = queryString.value?.trim()
+  if (!qs) return
+
+  const { labelKey, valueKey } = props
+
+  const existingCreated = createdOptions.value.find((o) => getChainValue(o, valueKey) === qs)
+  if (existingCreated) {
+    if (!checkedSet.has(existingCreated)) {
+      checkedSet.add(existingCreated)
+      internalChange = true
+      model.value = [...(model.value ?? []), getChainValue(existingCreated, valueKey)]
+    }
+    queryString.value = ''
+    emitChange()
+    dropdownRef.value?.updateDropdown()
+    return
+  }
+
+  const exactMatch = rawOptions.value.find((o) => !o.__isTemp && getChainValue(o, labelKey) === qs)
+  if (exactMatch) {
+    if (!checkedSet.has(exactMatch)) {
+      checkedSet.add(exactMatch)
+      internalChange = true
+      model.value = [...(model.value ?? []), getChainValue(exactMatch, valueKey)]
+    }
+    queryString.value = ''
+    emitChange()
+    dropdownRef.value?.updateDropdown()
+    return
+  }
+
+  const created: Record<string, any> = { [labelKey]: qs, [valueKey]: qs }
+  createdOptions.value = [...createdOptions.value, created]
+  checkedSet.add(created)
+  internalChange = true
+  model.value = [...(model.value ?? []), qs]
+  queryString.value = ''
+  emitChange()
+  dropdownRef.value?.updateDropdown()
 }
 
 const isDisabled = (option: Record<string, any>) => {
@@ -369,9 +436,5 @@ const optionClass = cls.e('option')
 const rippleClass = cls.e('ripple')
 const checkboxClass = cls.e('checkbox')
 
-provide(MultiSelectDIKey, {
-  optionClass,
-  rippleClass,
-  checkboxClass
-})
+provide(MultiSelectDIKey, { optionClass, rippleClass, checkboxClass })
 </script>

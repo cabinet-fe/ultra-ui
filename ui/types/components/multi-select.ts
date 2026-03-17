@@ -35,6 +35,8 @@ export interface MultiSelectProps extends FormComponentProps {
    * @default '220px'
    */
   width?: string
+  /** 是否允许创建新选项 */
+  creatable?: boolean
 }
 
 /** multi-select组件定义的事件 */
