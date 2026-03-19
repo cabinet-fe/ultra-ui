@@ -322,10 +322,10 @@ $width: 240px;
 <style lang="scss">
 .theme-transitioning {
   * {
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease,
-      border-color 0.3s ease !important;
+    // 只覆盖过渡时长与曲线，避免把组件自身的 transition-property
+    //（例如 switch thumb 的 transform）在主题切换时整体抹掉。
+    transition-duration: 0.3s !important;
+    transition-timing-function: ease !important;
   }
 }
 

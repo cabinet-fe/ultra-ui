@@ -65,29 +65,29 @@ export const lightTheme: UITheme = new UITheme({
 
   menu: {
     height: defineBySize({
-      small: 32,
-      default: 44,
-      large: 56
+      small: 28,
+      default: 32,
+      large: 36
     }),
 
     hover: {
-      bg: 'var(--color-primary-light-9)',
-      color: 'inherit'
+      bg: 'rgba(148, 163, 184, 0.12)',
+      color: 'var(--text-color-title)'
     },
 
     active: {
-      bg: 'var(--color-primary-light-5)',
-      color: 'inherit'
+      bg: 'rgba(59, 130, 246, 0.12)',
+      color: 'var(--color-primary-dark-1)'
     },
 
     bg: {
-      color: 'var(--bg-color-top-alpha)',
-      blur: 'var(--bg-filter-blur)',
-      saturate: 'var(--bg-filter-saturate)',
+      color: 'var(--bg-color-top)',
+      blur: 'none',
+      saturate: 'none',
       image: ''
     },
 
-    color: '#303133'
+    color: '#0f172a'
   },
 
   'font-family':

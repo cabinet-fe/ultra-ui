@@ -1,31 +1,26 @@
-import {
-  computed,
-  inject,
-  shallowRef,
-  watch,
-  type ShallowRef,
-  type ComputedRef
-} from 'vue'
 import type { MenuItem } from '@ui/types'
-import { MenuDIKey } from './di'
+
 import { scrollIntoContainerView, type BEM } from '@ui/utils'
+import { computed, inject, shallowRef, watch, type ShallowRef, type ComputedRef } from 'vue'
+
+import { MenuDIKey } from './di'
 
 interface Options {
   itemProps: { menu: MenuItem; depth: number }
+  itemRef: ShallowRef<HTMLElement | null>
 }
 
 interface UseMenuItemReturned {
   cls: BEM<'menu'>
   collapsedCls: BEM<'collapsed-menu'>
-  itemRef: ShallowRef<HTMLElement | undefined>
+
   active: ComputedRef<boolean>
   handleClickMenu: () => void
 }
 
 export function useMenuItem(options: Options): UseMenuItemReturned {
-  const { itemProps } = options
+  const { itemProps, itemRef } = options
   const { cls, collapsedCls, menuProps, menuEmit } = inject(MenuDIKey)!
-  const itemRef = shallowRef<HTMLElement>()
 
   const active = computed(() => {
     return menuProps.currentPath === itemProps.menu.path
@@ -42,6 +37,7 @@ export function useMenuItem(options: Options): UseMenuItemReturned {
   })
 
   function handleClickMenu() {
+    if (itemProps.menu.disabled) return
     changedByClick = true
     menuEmit('item-click', itemProps.menu)
   }
@@ -49,7 +45,7 @@ export function useMenuItem(options: Options): UseMenuItemReturned {
   return {
     cls,
     collapsedCls,
-    itemRef,
+
     active,
     handleClickMenu
   }

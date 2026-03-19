@@ -1,11 +1,13 @@
 <template>
-  <li :class="cls.e('sub')">
+  <li :class="[cls.e('sub'), bem.is('expanded', expanded)]">
     <div
-      :class="cls.e('sub-content')"
+      :class="[
+        cls.e('sub-content'),
+        bem.is('first-level', depth === 0),
+        bem.is('expanded', expanded),
+        bem.is('branch-active', branchActive)
+      ]"
       @click="handleToggleExpand"
-      :style="{
-        paddingLeft: 8 + depth * 20 + 'px'
-      }"
     >
       <UMenuIcon v-if="menu.icon" :icon="menu.icon" :class="cls.e('icon')" />
 
@@ -72,12 +74,26 @@ const props = defineProps<{
   depth: number
 }>()
 
-const { cls, expandedPath } = inject(MenuDIKey)!
+const { cls, expandedPath, menuProps } = inject(MenuDIKey)!
 
 const { enter, afterEnter, beforeLeave, leave, afterLeave } =
   useMenuTransition()
 
 const expanded = computed(() => expandedPath.has(props.menu.path))
+
+const branchActive = computed(() => {
+  const currentPath = menuProps.currentPath
+  if (!currentPath) return false
+
+  const check = (items?: MenuItem[]) => {
+    return (
+      items?.some(item => item.path === currentPath || check(item.children)) ??
+      false
+    )
+  }
+
+  return check(props.menu.children)
+})
 
 function handleToggleExpand() {
   const { menu } = props

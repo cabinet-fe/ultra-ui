@@ -17,17 +17,17 @@ bun vitest                           # 运行测试
 
 ## 技术栈
 
-| 类别 | 技术 | 版本 |
-|------|------|------|
-| 框架 | Vue 3 (Composition API + `<script setup>`) | ^3.5.29 |
-| 语言 | TypeScript | 5.9.3 |
-| 运行时 | Bun | - |
-| 构建 | tsdown + Rolldown | - |
-| 样式 | SCSS + BEM + CSS 变量 | sass-embedded |
-| 测试 | Vitest | ^4.0.18 |
-| 格式化 | oxfmt (CLI 生成代码) | - |
-| Git Hooks | simple-git-hooks (commit-msg) | - |
-| 核心依赖 | cat-kit, @ultra/icon | peer |
+| 类别      | 技术                                       | 版本          |
+| --------- | ------------------------------------------ | ------------- |
+| 框架      | Vue 3 (Composition API + `<script setup>`) | ^3.5.29       |
+| 语言      | TypeScript                                 | 5.9.3         |
+| 运行时    | Bun                                        | -             |
+| 构建      | tsdown + Rolldown                          | -             |
+| 样式      | SCSS + BEM + CSS 变量                      | sass-embedded |
+| 测试      | Vitest                                     | ^4.0.18       |
+| 格式化    | oxfmt (CLI 生成代码)                       | -             |
+| Git Hooks | simple-git-hooks (commit-msg)              | -             |
+| 核心依赖  | cat-kit, @ultra/icon                       | peer          |
 
 ## 目录结构
 
@@ -62,13 +62,13 @@ ultra-ui/
 
 每个组件目录 `ui/components/<name>/` 包含：
 
-| 文件 | 用途 |
-|------|------|
-| `<name>.vue` | 主组件 SFC |
-| `index.ts` | 导出 `U<PascalName>` |
-| `style.scss` | BEM 样式 |
-| `style.ts` | 样式入口（导入依赖样式 + style.scss） |
-| `use-*.ts` | 可选，组合式逻辑拆分 |
+| 文件         | 用途                                  |
+| ------------ | ------------------------------------- |
+| `<name>.vue` | 主组件 SFC                            |
+| `index.ts`   | 导出 `U<PascalName>`                  |
+| `style.scss` | BEM 样式                              |
+| `style.ts`   | 样式入口（导入依赖样式 + style.scss） |
+| `use-*.ts`   | 可选，组合式逻辑拆分                  |
 
 **类型定义放在** `ui/types/components/<name>.ts`，不在组件目录内。
 
@@ -104,6 +104,7 @@ const cls = bem('xxx')
 ### 表单组件
 
 表单组件额外使用：
+
 - `useFormComponent(props)` — 注入表单上下文
 - `useFormFallbackProps(props)` — 从 Form 继承 `size`/`disabled`/`readonly`
 - Props 继承 `FormComponentProps`
@@ -120,9 +121,12 @@ const cls = bem('xxx')
 
 @include m.b(component-name) {
   // fn.use-var(text-color, main) → var(--u-text-color-main)
-  @include m.e(element) { }
-  @include m.m(modifier) { }
-  @include m.is(active) { }
+  @include m.e(element) {
+  }
+  @include m.m(modifier) {
+  }
+  @include m.is(active) {
+  }
 }
 ```
 
@@ -139,14 +143,14 @@ const cls = bem('xxx')
 
 ## 路径别名
 
-| 别名 | 指向 |
-|------|------|
-| `@ui/*` | `ui/*`（tsconfig paths + vite alias） |
-| `ultra-ui` | `ui/index.ts`（仅 sample） |
+| 别名       | 指向                                  |
+| ---------- | ------------------------------------- |
+| `@ui/*`    | `ui/*`（tsconfig paths + vite alias） |
+| `ultra-ui` | `ui/index.ts`（仅 sample）            |
 
 ## 约束
 
 - **不使用 ESLint/Prettier/Biome**，无自动格式化配置。
-- Commit message 通过 `simple-git-hooks` + `bc verify-commit` 校验。
+- Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
 - `sideEffects` 声明：组件 `style.ts`、指令样式、`styles/` 目录、`.css`、`.scss`。
 - 测试文件放在组件目录的 `__test__/` 下，tsconfig 中被 exclude。

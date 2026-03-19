@@ -3,7 +3,7 @@
     hide-arrow
     direction="right"
     alignment="start"
-    :class="collapsedCls.m(size)"
+    :class="[collapsedCls.m(size), collapsedCls.e('panel')]"
     style="padding: 0"
     v-model:visible="visible"
   >

@@ -8,14 +8,10 @@
         bem.is('first-level'),
         bem.is('disabled', menu.disabled ?? false)
       ]"
-      ref="itemRef"
+      ref="item"
       @click="handleClickMenu"
     >
-      <UMenuIcon
-        v-if="menu.icon"
-        :icon="menu.icon"
-        :class="collapsedCls.e('icon')"
-      />
+      <UMenuIcon v-if="menu.icon" :icon="menu.icon" :class="collapsedCls.e('icon')" />
       <span v-else>{{ menu.title[0] }}</span>
     </li>
 
@@ -32,14 +28,10 @@
       bem.is('active', active),
       bem.is('disabled', menu.disabled ?? false)
     ]"
-    ref="itemRef"
+    ref="item"
     @click="_handleClickMenu"
   >
-    <UMenuIcon
-      v-if="menu.icon"
-      :icon="menu.icon"
-      :class="collapsedCls.e('icon')"
-    />
+    <UMenuIcon v-if="menu.icon" :icon="menu.icon" :class="collapsedCls.e('icon')" />
 
     <!-- 文本 -->
     <span :class="collapsedCls.e('item-title')">
@@ -54,21 +46,17 @@ import { bem } from '@ui/utils'
 import { UTip } from '../tip'
 import UMenuIcon from './menu-icon.vue'
 import { useMenuItem } from './use-menu-item'
+import { useTemplateRef } from 'vue'
 
-defineOptions({
-  name: 'MenuItemCollapsed'
-})
+defineOptions({ name: 'MenuItemCollapsed' })
 
-const props = defineProps<{
-  menu: MenuItem
-  depth: number
-}>()
+const props = defineProps<{ menu: MenuItem; depth: number }>()
+
+const itemRef = useTemplateRef('item')
 
 const emit = defineEmits(['click'])
 
-const { collapsedCls, active, handleClickMenu, itemRef } = useMenuItem({
-  itemProps: props
-})
+const { collapsedCls, active, handleClickMenu } = useMenuItem({ itemProps: props, itemRef })
 
 function _handleClickMenu() {
   handleClickMenu()

@@ -67,17 +67,17 @@ export const darkTheme: UITheme = lightTheme.new({
   // 菜单样式
   menu: {
     hover: {
-      bg: 'var(--color-primary-dark-7)', // 悬停时使用主色的深色变体
+      bg: 'rgba(148, 163, 184, 0.14)', // 更轻的中性悬停色
       color: cssVar('text-color-title')
     },
     active: {
-      bg: 'var(--color-primary-dark-5)', // 激活时使用主色的中等深色
+      bg: 'rgba(96, 165, 250, 0.2)', // 收敛激活底色，配合强调条显示
       color: cssVar('text-color-white')
     },
     bg: {
-      color: cssVar('bg-color-top'), // 使用顶层背景色
-      blur: cssVar('bg-filter-blur'),
-      saturate: cssVar('bg-filter-saturate'),
+      color: cssVar('bg-color-middle'), // 收敛为实体面板背景
+      blur: 'none',
+      saturate: 'none',
       image: ''
     },
     color: cssVar('text-color-main') // 使用主要文字颜色

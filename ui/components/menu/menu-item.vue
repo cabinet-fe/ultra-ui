@@ -2,13 +2,11 @@
   <li
     :class="[
       cls.e('item'),
+      bem.is('first-level', depth === 0),
       bem.is('active', active),
       bem.is('disabled', menu.disabled ?? false)
     ]"
-    :style="{
-      paddingLeft: `${depth * 20 + 8}px`
-    }"
-    ref="itemRef"
+    ref="item"
     @click="handleClickMenu"
   >
     <MenuIcon v-if="menu.icon" :icon="menu.icon" :class="cls.e('icon')" />
@@ -25,17 +23,13 @@ import type { MenuItem } from '@ui/types'
 import { bem } from '@ui/utils'
 import MenuIcon from './menu-icon.vue'
 import { useMenuItem } from './use-menu-item'
+import { useTemplateRef } from 'vue'
 
-defineOptions({
-  name: 'MenuItem'
-})
+defineOptions({ name: 'MenuItem' })
 
-const props = defineProps<{
-  menu: MenuItem
-  depth: number
-}>()
+const props = defineProps<{ menu: MenuItem; depth: number }>()
 
-const { cls, active, handleClickMenu, itemRef } = useMenuItem({
-  itemProps: props
-})
+const itemRef = useTemplateRef('item')
+
+const { cls, active, handleClickMenu } = useMenuItem({ itemProps: props, itemRef })
 </script>
