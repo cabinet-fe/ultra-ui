@@ -20,22 +20,8 @@
           </div>
 
           <div class="control-group">
-            <u-switch
-              v-model="isDark"
-              active-text="浅色"
-              inactive-text="深色"
-            ></u-switch>
+            <u-switch v-model="isDark" active-text="浅色" inactive-text="深色"></u-switch>
           </div>
-        </div>
-
-        <div class="control-actions">
-          <u-button
-            :icon="Setting"
-            @click="handleSetting"
-            text
-            class="setting-btn"
-            >设置</u-button
-          >
         </div>
       </div>
 
@@ -55,12 +41,19 @@
     <!-- 内置抽屉组件 -->
     <u-drawer
       v-model:visible="showDrawer"
-      title="主题设置"
+      title="Theme Studio"
       direction="right"
-      width="360px"
+      width="520px"
       :show-close="true"
     >
       <div class="drawer-content">
+        <div class="drawer-intro">
+          <div>
+            <strong>可视化主题配置器</strong>
+            <p>在这里直接修改 Theme 变量，变更会即时注入当前页面并支持导出。</p>
+          </div>
+          <span class="drawer-intro__badge">{{ themeModeLabel }}</span>
+        </div>
         <u-theme />
       </div>
     </u-drawer>
@@ -72,13 +65,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
 import {
   useConfig,
+  currentTheme,
   loadTheme,
   lightTheme,
   darkTheme,
   UITheme,
   type MenuItem
 } from 'ultra-ui'
-import { ref, shallowRef, watch, watchEffect } from 'vue'
+import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
 import type { ComponentSize } from 'ultra-ui/types'
 import { Setting } from '@ultra/icon'
 
@@ -91,26 +85,37 @@ const handleClick = (item: MenuItem) => {
 const { setConfig } = useConfig()
 const size = shallowRef<ComponentSize>('default')
 
-const menus = routes.map(item => ({
-  title: item.name as string,
-  path: item.path
-}))
+const menus = routes.map((item) => ({ title: item.name as string, path: item.path }))
 
 watchEffect(() => {
-  setConfig({
-    size: size.value
-  })
+  setConfig({ size: size.value })
 })
 
 const localIsDark = localStorage.getItem('isDark')
 const isDark = ref(localIsDark ? JSON.parse(localIsDark) : false)
 
-watch(isDark, d => {
+watch(isDark, (d) => {
   localStorage.setItem('isDark', JSON.stringify(d))
   smoothThemeTransition(d ? darkTheme : lightTheme)
 })
 
 loadTheme(isDark.value ? darkTheme : lightTheme)
+
+const activeTheme = computed(() => {
+  return currentTheme.value?.theme ?? (isDark.value ? darkTheme.theme : lightTheme.theme)
+})
+
+const themeModeLabel = computed(() => {
+  return isDark.value ? '深色基线' : '浅色基线'
+})
+
+const themeSwatches = computed(() => {
+  return [
+    { label: 'P', value: activeTheme.value.color.primary },
+    { label: 'T', value: activeTheme.value.bg.color.top },
+    { label: 'M', value: activeTheme.value['text-color'].main }
+  ]
+})
 
 // 带过渡动画的主题切换
 const smoothThemeTransition = (newTheme: UITheme) => {
@@ -240,7 +245,65 @@ $width: 240px;
 .control-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.theme-brief {
+  display: grid;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background:
+    linear-gradient(135deg, rgba(30, 136, 229, 0.08), rgba(15, 23, 42, 0.02)),
+    use-var(bg-color, top);
+}
+
+.theme-brief__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: use-var(color, primary);
+}
+
+.theme-brief__meta {
+  display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.theme-brief__mode {
+  font-size: 12px;
+  color: use-var(text-color, second);
+}
+
+.theme-brief__swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+    0 6px 14px rgba(15, 23, 42, 0.12);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.theme-trigger {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(30, 136, 229, 0.16);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light-3));
+  box-shadow: 0 12px 24px rgba(30, 136, 229, 0.22);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .setting-btn {
@@ -254,6 +317,70 @@ $width: 240px;
   }
 }
 
+.theme-dock {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background:
+    linear-gradient(135deg, rgba(30, 136, 229, 0.14), rgba(15, 23, 42, 0.04)),
+    use-var(bg-color, top);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 48px rgba(15, 23, 42, 0.22);
+  }
+}
+
+.theme-dock__copy {
+  display: grid;
+  gap: 2px;
+
+  strong {
+    font-size: 13px;
+    color: use-var(text-color, title);
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: use-var(text-color, second);
+  }
+}
+
+.theme-dock__swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-dock__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.theme-dock__mode {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 700;
+  color: use-var(text-color, title);
+}
+
 .content-container {
   flex: 1;
   padding: 24px;
@@ -263,7 +390,43 @@ $width: 240px;
 
 // 抽屉内容样式
 .drawer-content {
+  display: grid;
+  gap: 12px;
   padding: 20px;
+}
+
+.drawer-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background:
+    linear-gradient(135deg, rgba(30, 136, 229, 0.08), transparent 56%), use-var(bg-color, top);
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    color: use-var(text-color, title);
+  }
+
+  p {
+    margin: 0;
+    color: use-var(text-color, second);
+    line-height: 1.5;
+  }
+}
+
+.drawer-intro__badge {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(30, 136, 229, 0.1);
+  color: use-var(color, primary);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 // 响应式设计
@@ -290,8 +453,24 @@ $width: 240px;
     padding: 16px;
   }
 
-  .drawer {
-    width: 320px;
+  .control-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .theme-brief {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .theme-dock {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .drawer-intro {
+    flex-direction: column;
   }
 }
 
@@ -315,6 +494,20 @@ $width: 240px;
 
   .content-container {
     padding: 12px;
+  }
+
+  .theme-brief__meta {
+    flex-wrap: wrap;
+  }
+
+  .theme-trigger,
+  .setting-btn {
+    flex: 1;
+  }
+
+  .theme-dock {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

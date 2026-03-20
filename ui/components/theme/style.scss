@@ -3,391 +3,448 @@
 @use '../../styles/vars';
 
 $root-name: theme;
+
 @include m.b($root-name) {
-  width: 380px;
-  max-height: 85vh;
   display: flex;
   flex-direction: column;
-  border: none;
+  gap: 12px;
+  width: 100%;
+  max-height: calc(100vh - 160px);
+  padding: 14px;
+  border: fn.use-var(border);
   border-radius: fn.use-var(radius, large);
-  background: linear-gradient(
-    135deg,
-    fn.use-var(bg-color, top) 0%,
-    fn.use-var(bg-color, middle) 100%
-  );
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(30, 136, 229, 0.14),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      fn.use-var(bg-color, top) 0%,
+      fn.use-var(bg-color, middle) 100%
+    );
   box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  position: relative;
+    0 18px 48px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(150%);
   overflow: hidden;
 
-  // 添加装饰性背景
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      fn.use-var(color, primary),
-      transparent
-    );
-    opacity: 0.6;
+  @include m.e(header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 4px;
   }
 
-  @include m.e(content) {
+  @include m.e(header-copy) {
+    strong {
+      display: block;
+      font-size: 16px;
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(tags) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @include m.e(tag) {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(30, 136, 229, 0.08);
+    color: fn.use-var(color, primary);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  @include m.e(toolbar) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @include m.e(search) {
     flex: 1;
-    overflow-y: auto;
-    padding: fn.use-var(gap, large);
-    position: relative;
+    min-width: 0;
   }
 
-  @include m.e(group) {
-    margin-bottom: fn.use-var(gap, large);
+  @include m.e(body) {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    gap: 16px;
+  }
+
+  @include m.e(toggle, preset, nav-item) {
+    appearance: none;
     border: none;
-    border-radius: fn.use-var(radius, default);
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: none;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  @include m.e(toggle) {
+    flex-shrink: 0;
+    height: fn.use-var(form-component-height, default);
+    padding: 0 14px;
+    border-radius: 999px;
+    color: fn.use-var(text-color, second);
+    background: rgba(148, 163, 184, 0.12);
+    transition: all 0.22s ease;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      background: rgba(148, 163, 184, 0.18);
+      color: fn.use-var(text-color, title);
     }
 
-    &:last-of-type {
-      margin-bottom: 0;
+    @include m.is(active) {
+      background: rgba(30, 136, 229, 0.12);
+      color: fn.use-var(color, primary);
+      box-shadow: inset 0 0 0 1px rgba(30, 136, 229, 0.18);
     }
   }
 
-  @include m.e(group-title) {
-    padding: fn.use-var(gap, default) fn.use-var(gap, large);
-    background: linear-gradient(
-      135deg,
-      fn.use-var(color, primary) 0%,
-      fn.use-var(color, primary) 100%
-    );
-    font-weight: 600;
-    font-size: fn.use-var(font-size-main, default);
-    color: white;
-    border: none;
-    position: relative;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  @include m.e(nav) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 220px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 
-    // 添加亮色叠加层
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background: rgba(148, 163, 184, 0.2);
+    }
+  }
+
+  @include m.e(nav-item) {
+    display: grid;
+    gap: 3px;
+    padding: 10px 12px;
+    text-align: left;
+    border-radius: fn.use-var(radius, default);
+    background: fn.use-var(bg-color, top);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    transition: all 0.22s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      background: fn.use-var(bg-color, hover);
+      border-color: rgba(30, 136, 229, 0.16);
+    }
+
+    @include m.is(active) {
       background: linear-gradient(
         135deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 100%
+        rgba(30, 136, 229, 0.14),
+        fn.use-var(bg-color, top)
       );
-      pointer-events: none;
+      border-color: rgba(30, 136, 229, 0.22);
+      box-shadow: 0 8px 20px rgba(30, 136, 229, 0.12);
     }
 
-    // 添加装饰性渐变条
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-      );
-      z-index: 1;
+    @include m.is(disabled) {
+      opacity: 0.55;
     }
   }
 
-  @include m.e(group-content) {
-    padding: fn.use-var(gap, large);
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  @include m.e(group-item) {
-    @include m.flex;
-    align-items: center;
-    margin-bottom: fn.use-var(gap, default);
-    padding: fn.use-var(gap, small);
-    border-radius: fn.use-var(radius, small);
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.05);
-      transform: translateX(4px);
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    &-content {
-      flex-grow: 1;
-      margin-left: fn.use-var(gap, default);
-    }
-  }
-
-  @include m.e(group-label) {
-    flex-shrink: 0;
-    min-width: 85px;
-    font-size: fn.use-var(font-size-main, small);
-    color: fn.use-var(text-color, main);
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
-  }
-
-  @include m.e(color-input) {
-    width: 40px;
-    height: 32px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: fn.use-var(radius, default);
-    cursor: pointer;
-    background: none;
-    padding: 0;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      border-color: fn.use-var(color, primary);
-      transform: scale(1.05);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    &::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    &::-webkit-color-swatch {
-      border: none;
-      border-radius: calc(fn.use-var(radius, default) - 2px);
-    }
-
-    &::-moz-color-swatch {
-      border: none;
-      border-radius: calc(fn.use-var(radius, default) - 2px);
-    }
-  }
-
-  @include m.e(text-input) {
-    width: 100%;
-    height: 36px;
-    padding: 0 fn.use-var(gap, default);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: fn.use-var(radius, default);
+  @include m.e(nav-main) {
     font-size: fn.use-var(font-size-main, default);
-    background: rgba(255, 255, 255, 0.05);
-    color: fn.use-var(text-color, main);
-    transition: all 0.2s ease;
-    backdrop-filter: blur(10px);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
 
-    &:focus {
-      outline: none;
-      border-color: fn.use-var(color, primary);
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 0 3px rgba(fn.use-var(color, primary), 0.1);
+  @include m.e(nav-meta) {
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.4;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(panel) {
+    flex: 1;
+    min-height: 0;
+    border-radius: fn.use-var(radius, large);
+    background:
+      linear-gradient(
+        180deg,
+        fn.use-var(bg-color, top),
+        fn.use-var(bg-color, middle)
+      );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  @include m.e(panel-head) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  }
+
+  @include m.e(panel-title) {
+    margin: 0;
+    font-size: 15px;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(panel-desc) {
+    margin: 4px 0 0;
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.45;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(panel-count) {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(30, 136, 229, 0.08);
+    color: fn.use-var(color, primary);
+    font-size: fn.use-var(font-size-assist, default);
+    font-weight: 700;
+  }
+
+  @include m.e(list) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 12px 14px 14px;
+    overflow-y: auto;
+    align-items: start;
+    align-content: start;
+  }
+
+  @include m.e(item) {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-radius: fn.use-var(radius, default);
+    background: fn.use-var(bg-color, top);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    transition: all 0.22s ease;
+
+    &:hover {
+      border-color: rgba(30, 136, 229, 0.16);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
     }
 
-    &::placeholder {
-      color: fn.use-var(text-color, placeholder);
-      opacity: 0.7;
+    @include m.is(changed) {
+      background: linear-gradient(
+        135deg,
+        rgba(30, 136, 229, 0.08),
+        fn.use-var(bg-color, top)
+      );
+      border-color: rgba(30, 136, 229, 0.18);
+    }
+  }
+
+  @include m.e(item-head) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  @include m.e(item-copy) {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  @include m.e(item-meta) {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  @include m.e(item-label) {
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(item-code-label) {
+    flex-shrink: 0;
+    font-size: 11px;
+    line-height: 1.3;
+    color: fn.use-var(text-color, assist);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  @include m.e(item-code) {
+    font-size: 11px;
+    line-height: 1.3;
+    color: fn.use-var(text-color, second);
+    word-break: break-all;
+  }
+
+  @include m.e(item-badge) {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(30, 136, 229, 0.1);
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  @include m.e(item-hint) {
+    margin: 0;
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.45;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(palette-field) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  @include m.e(palette-custom) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    :deep(.u-palette) {
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06);
+    }
+
+    :deep(.u-input) {
+      flex: 1;
+      width: 0;
+    }
+  }
+
+  @include m.e(palette-var) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    :deep(.u-select) {
+      flex: 1;
+      width: 0;
+    }
+  }
+
+  @include m.e(palette-var-label) {
+    font-size: fn.use-var(font-size-assist, default);
+    color: fn.use-var(text-color, second);
+    flex-shrink: 0;
+    width: 68px;
+    text-align: right;
+  }
+
+  @include m.e(empty) {
+    padding: 24px 16px;
+    text-align: center;
+
+    strong {
+      display: block;
+      margin-bottom: 6px;
+      color: fn.use-var(text-color, title);
+    }
+
+    p {
+      margin: 0;
+      font-size: fn.use-var(font-size-main, small);
+      color: fn.use-var(text-color, second);
     }
   }
 
   @include m.e(actions) {
-    @include m.flex;
-    gap: fn.use-var(gap, default);
-    padding: fn.use-var(gap, large);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-    backdrop-filter: blur(20px);
-    flex-shrink: 0;
-    position: relative;
-
-    // 添加上边框光效
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: fn.use-var(gap, large);
-      right: fn.use-var(gap, large);
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-      );
-    }
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(2, auto);
+    gap: 8px;
+    align-items: center;
   }
 
-  @include m.e(reset-btn) {
+  @include m.e(preset-group) {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  @include m.e(preset) {
     flex: 1;
-    height: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    min-width: 0;
+    height: fn.use-var(form-component-height, default);
+    padding: 0 12px;
     border-radius: fn.use-var(radius, default);
-    background: rgba(255, 255, 255, 0.05);
+    background: fn.use-var(bg-color, top);
+    border: 1px solid rgba(148, 163, 184, 0.16);
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, default);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-
-    // 添加光泽效果
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-      );
-      transition: left 0.5s ease;
-    }
+    transition: all 0.22s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-      &::before {
-        left: 100%;
-      }
-    }
-
-    &:active {
-      transform: translateY(0);
+      border-color: rgba(30, 136, 229, 0.18);
+      color: fn.use-var(color, primary);
+      background: fn.use-var(bg-color, hover);
     }
   }
 
-  @include m.e(export-btn) {
-    flex: 1;
-    height: 40px;
-    border: 2px solid fn.use-var(color, primary);
-    border-radius: fn.use-var(radius, default);
-    background: fn.use-var(color, primary);
-    color: white;
-    font-size: fn.use-var(font-size-main, default);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-
-    // 添加渐变叠加层
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(
-        135deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 100%
-      );
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    // 添加光泽效果
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-      );
-      transition: left 0.5s ease;
-      z-index: 2;
-    }
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(fn.use-var(color, primary), 0.3);
-
-      &::before {
-        opacity: 0.2;
-      }
-
-      &::after {
-        left: 100%;
-      }
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
+  @include m.e(action-btn) {
+    min-width: 74px;
   }
 
-  // 自定义滚动条样式
-  @include m.e(content) {
-    &::-webkit-scrollbar {
-      width: 8px;
+  :deep(.u-input),
+  :deep(.u-number-input),
+  :deep(.u-select) {
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    gap: 10px;
+
+    @include m.e(header) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
     }
 
-    &::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-      margin: 4px;
+    @include m.e(body) {
+      flex-direction: column;
     }
 
-    &::-webkit-scrollbar-thumb {
-      background: fn.use-var(color, primary);
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      position: relative;
-
-      &:hover {
-        opacity: 0.8;
-      }
+    @include m.e(nav) {
+      width: auto;
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding-bottom: 4px;
     }
 
-    &::-webkit-scrollbar-corner {
-      background: transparent;
+    @include m.e(nav-item) {
+      flex-shrink: 0;
+    }
+
+    @include m.e(toolbar) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    @include m.e(actions) {
+      grid-template-columns: 1fr;
     }
   }
 }
