@@ -1,11 +1,5 @@
 import { extractNormalVNodes } from '@ui/utils'
-import {
-  defineComponent,
-  isRef,
-  type MaybeRef,
-  createVNode,
-  type Component
-} from 'vue'
+import { defineComponent, isRef, type MaybeRef, createVNode, type Component } from 'vue'
 
 /**
  * 生成一个用于设置组件通用属性的组件
@@ -21,9 +15,7 @@ export function useComponentProps<T extends Record<string, any>>(
 
     props: {
       /** 渲染一个标准html5标签 */
-      tag: {
-        type: String
-      }
+      tag: { type: String }
     },
 
     setup(componentProps, { slots, attrs }) {
@@ -36,6 +28,7 @@ export function useComponentProps<T extends Record<string, any>>(
           return undefined
         }
         const nodes = extractNormalVNodes(slots.default?.() ?? [])
+        console.log(nodes)
         if (!nodes?.length) return undefined
 
         let i = 0
@@ -45,7 +38,7 @@ export function useComponentProps<T extends Record<string, any>>(
           if (!node.props) {
             node.props = {}
           }
-          Object.keys(props).forEach(key => {
+          Object.keys(props).forEach((key) => {
             // node中已定义
             if (node.props![key] !== undefined) return
             node.props![key] = props[key]
@@ -62,6 +55,8 @@ export function useComponentProps<T extends Record<string, any>>(
       return () => {
         const _props = isRef(props) ? props.value : props
         const nodes = mergeNodesProps(_props)
+
+        console.log(nodes, _props)
 
         // 如果渲染一个根元素将options中定义的props之外的属性合并到tag中
         if (componentProps.tag) {
