@@ -37,12 +37,8 @@
 
       <u-card-action style="display: flex; justify-content: space-between; align-items: center">
         <u-text :max-rows="1" as="title"> 卡片描述 </u-text>
-        <button-common-props tag="span" size="small">
-          <template #default>
-            <template v-for="btn of buttons">
-              <u-button :icon="btn.icon" :type="btn.type" />
-            </template>
-          </template>
+        <button-common-props tag="span" size="small" :loading="loading">
+          <u-button v-for="btn of buttons" :icon="btn.icon" :type="btn.type" @click="handleClick" />
         </button-common-props>
       </u-card-action>
     </u-card>
@@ -52,13 +48,14 @@
 <script setup lang="ts">
 import { MoreFilled, Star, Lock } from '@ultra/icon'
 import { type ButtonProps, useComponentProps } from 'ultra-ui'
+import { shallowRef } from 'vue'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
   circle: true,
   // type: 'primary',
   // text: true,
   iconSize: 18,
-  loading: true
+  loading: false
 })
 
 const buttons = [
@@ -66,6 +63,15 @@ const buttons = [
   { type: 'warning', icon: Lock },
   { icon: MoreFilled }
 ]
+
+const loading = shallowRef(false)
+
+function handleClick() {
+  loading.value = true
+  setTimeout(() => {
+    loading.value = false
+  }, 1000)
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite'
 import { autoResolveComponent, pluginPresets } from '@builder/vite'
-import { dirname, resolve } from 'path'
-import { fileURLToPath } from 'url'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import UnoCSS from 'unocss/vite'
 import { existModule } from 'cat-kit/be'
+import { dirname, resolve } from 'path'
+import UnoCSS from 'unocss/vite'
+import { fileURLToPath } from 'url'
+import { defineConfig } from 'vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig(({ mode }) => {
@@ -14,14 +14,8 @@ export default defineConfig(({ mode }) => {
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
       alias: [
-        {
-          find: /^ultra-ui$/,
-          replacement: resolve(__dirname, '../ui/index.ts')
-        },
-        {
-          find: /^ultra-ui\/(.*)$/,
-          replacement: resolve(__dirname, `../ui/$1`)
-        },
+        { find: /^ultra-ui$/, replacement: resolve(__dirname, '../ui/index.ts') },
+        { find: /^ultra-ui\/(.*)$/, replacement: resolve(__dirname, `../ui/$1`) },
 
         { find: /^@ui\/(.*)$/, replacement: resolve(__dirname, `../ui/$1`) }
       ]
@@ -49,16 +43,14 @@ export default defineConfig(({ mode }) => {
               }
             })
           ],
-          dts: true,
-          include: [/\.vue$/]
+          dts: true
+          // include: [/\.vue$/]
         }
       }),
 
       UnoCSS(),
 
-      vueDevTools({
-        launchEditor: 'cursor'
-      })
+      vueDevTools({ launchEditor: 'cursor' })
     ],
 
     server: { port: 7788, host: true }

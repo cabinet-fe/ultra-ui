@@ -1,5 +1,5 @@
 import { extractNormalVNodes } from '@ui/utils'
-import { defineComponent, isRef, type MaybeRef, createVNode, type Component } from 'vue'
+import { defineComponent, isRef, type MaybeRef, createVNode, cloneVNode, type Component } from 'vue'
 
 /**
  * 生成一个用于设置组件通用属性的组件
@@ -19,48 +19,36 @@ export function useComponentProps<T extends Record<string, any>>(
     },
 
     setup(componentProps, { slots, attrs }) {
-      /**
-       * 合并VNode的属性
-       */
-      const mergeNodesProps = (props: Record<string, any>) => {
-        if (!props) {
-          console.error('mergeNodesProps期望有1个参数props, 此处为0个')
-          return undefined
-        }
+      const isPropsRef = isRef(props)
+      // 非 ref 时 keys 固定，缓存避免每次 render 重复计算
+      const staticKeys = isPropsRef ? null : Object.keys(props)
+
+      const mergeNodesProps = (commonProps: Record<string, any>) => {
         const nodes = extractNormalVNodes(slots.default?.() ?? [])
-        console.log(nodes)
         if (!nodes?.length) return undefined
 
-        let i = 0
-        while (i < nodes.length) {
-          const node = nodes[i]!
-
-          if (!node.props) {
-            node.props = {}
+        const keys = staticKeys ?? Object.keys(commonProps)
+        return nodes.map((node) => {
+          const mergedProps: Record<string, any> = {}
+          let count = 0
+          for (let i = 0; i < keys.length; i++) {
+            const key = keys[i]!
+            // node中已定义的属性优先
+            if (node.props?.[key] !== undefined) continue
+            mergedProps[key] = attrs[key] !== undefined ? attrs[key] : commonProps[key]
+            count++
           }
-          Object.keys(props).forEach((key) => {
-            // node中已定义
-            if (node.props![key] !== undefined) return
-            node.props![key] = props[key]
-            if (attrs[key] !== undefined) {
-              node.props![key] = attrs[key]
-            }
-          })
-          i++
-        }
-
-        return nodes
+          return count > 0 ? cloneVNode(node, mergedProps) : node
+        })
       }
 
       return () => {
-        const _props = isRef(props) ? props.value : props
+        const _props = isPropsRef ? props.value : props
         const nodes = mergeNodesProps(_props)
 
-        console.log(nodes, _props)
-
-        // 如果渲染一个根元素将options中定义的props之外的属性合并到tag中
         if (componentProps.tag) {
-          const tagProps = Object.keys(attrs).reduce((acc, cur) => {
+          if (!nodes) return undefined
+          const tagProps = Object.keys(attrs).reduce<Record<string, any>>((acc, cur) => {
             if (!(cur in _props)) {
               acc[cur] = attrs[cur]
             }
