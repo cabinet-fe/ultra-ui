@@ -57,7 +57,7 @@ export const lightTheme: UITheme = new UITheme({
   },
 
   'font-family':
-    'Inter, "Roboto", "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif',
+    'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
 
   'font-size-title': defineBySize({ small: 16, default: 16, large: 18 }),
 

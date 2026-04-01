@@ -5,11 +5,6 @@
 @use 'functions' as fn;
 @use 'vars';
 
-@font-face {
-  font-family: Inter;
-  src: url(./fonts/Inter.woff2);
-}
-
 // 初始化
 html {
   font-family: fn.use-var(font-family);
