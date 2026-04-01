@@ -21,25 +21,14 @@ export const lightTheme: UITheme = new UITheme({
       black: '#000000'
     },
 
-    filter: {
-      blur: 'blur(16px)',
-      saturate: 'saturate(180%)'
-    }
+    filter: { blur: 'blur(16px)', saturate: 'saturate(180%)' }
   },
 
-  border: {
-    color: '#dcdfe6',
-    width: 1,
-    style: 'solid'
-  },
+  border: { color: '#dcdfe6', width: 1, style: 'solid' },
 
-  checkbox: {
-    border: '#ccc'
-  },
+  checkbox: { border: '#ccc' },
 
-  radio: {
-    border: '#ccc'
-  },
+  radio: { border: '#ccc' },
 
   'text-color': {
     title: '#303133',
@@ -51,41 +40,18 @@ export const lightTheme: UITheme = new UITheme({
     white: '#fff'
   },
 
-  radius: defineBySize({
-    small: 4,
-    default: 6,
-    large: 8
-  }),
+  radius: defineBySize({ small: 4, default: 6, large: 8 }),
 
-  'form-component-height': defineBySize({
-    small: 24,
-    default: 32,
-    large: 40
-  }),
+  'form-component-height': defineBySize({ small: 24, default: 32, large: 40 }),
 
   menu: {
-    height: defineBySize({
-      small: 28,
-      default: 32,
-      large: 36
-    }),
+    height: defineBySize({ small: 32, default: 36, large: 40 }),
 
-    hover: {
-      bg: 'rgba(148, 163, 184, 0.12)',
-      color: 'var(--text-color-title)'
-    },
+    hover: { bg: 'rgba(148, 163, 184, 0.12)', color: 'var(--text-color-title)' },
 
-    active: {
-      bg: 'rgba(59, 130, 246, 0.12)',
-      color: 'var(--color-primary-dark-1)'
-    },
+    active: { bg: 'rgba(59, 130, 246, 0.12)', color: 'var(--color-primary-dark-1)' },
 
-    bg: {
-      color: 'var(--bg-color-top)',
-      blur: 'none',
-      saturate: 'none',
-      image: ''
-    },
+    bg: { color: 'var(--bg-color-top)', blur: 'none', saturate: 'none', image: '' },
 
     color: '#0f172a'
   },
@@ -93,80 +59,28 @@ export const lightTheme: UITheme = new UITheme({
   'font-family':
     'Inter, "Roboto", "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif',
 
-  'font-size-title': defineBySize({
-    small: 16,
-    default: 16,
-    large: 18
-  }),
+  'font-size-title': defineBySize({ small: 16, default: 16, large: 18 }),
 
-  'font-size-main': defineBySize({
-    small: 12,
-    default: 14,
-    large: 16
-  }),
+  'font-size-main': defineBySize({ small: 12, default: 14, large: 16 }),
 
-  'font-size-assist': defineBySize({
-    small: 12,
-    default: 12,
-    large: 14
-  }),
+  'font-size-assist': defineBySize({ small: 12, default: 12, large: 14 }),
 
-  shadow: {
-    color: '#0000001a',
-    x: 0,
-    y: 0,
-    blur: 4,
-    spread: 1
-  },
+  shadow: { color: '#0000001a', x: 0, y: 0, blur: 4, spread: 1 },
 
-  tag: defineBySize({
-    small: 20,
-    default: 24,
-    large: 28
-  }),
+  tag: defineBySize({ small: 20, default: 24, large: 28 }),
 
-  gap: defineBySize({
-    small: 6,
-    default: 8,
-    large: 12
-  }),
+  gap: defineBySize({ small: 6, default: 8, large: 12 }),
 
-  breakpoint: {
-    xs: 600,
-    sm: 960,
-    md: 1280,
-    lg: 1920
-  },
+  breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 },
 
   table: {
     'border-color': '#e9e9e9',
-    header: {
-      bg: '#f4f5f7',
-      color: cssVar('text-color-title')
-    },
-    stripe: {
-      bg: '#f8fafc',
-      color: 'inherit'
-    },
-    hover: {
-      bg: cssVar('bg-color-hover'),
-      color: 'inherit'
-    },
-    current: {
-      bg: cssVar('bg-color-hover'),
-      color: 'inherit'
-    },
-    checked: {
-      bg: cssVar('color-primary-light-9' as any),
-      color: 'inherit'
-    }
+    header: { bg: '#f4f5f7', color: cssVar('text-color-title') },
+    stripe: { bg: '#f8fafc', color: 'inherit' },
+    hover: { bg: cssVar('bg-color-hover'), color: 'inherit' },
+    current: { bg: cssVar('bg-color-hover'), color: 'inherit' },
+    checked: { bg: cssVar('color-primary-light-9' as any), color: 'inherit' }
   },
 
-  switch: {
-    height: defineBySize({
-      small: 18,
-      default: 20,
-      large: 24
-    })
-  }
+  switch: { height: defineBySize({ small: 18, default: 20, large: 24 }) }
 })
