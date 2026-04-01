@@ -37,8 +37,23 @@ $collapsed-menu: collapsed-menu;
     }
 
     @include m.is(active) {
+      position: relative;
       background-color: fn.use-var(menu, active, bg);
       color: fn.use-var(menu, active, color);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 3px;
+        height: 56%;
+        min-height: 10px;
+        border-radius: 9999px;
+        background-color: fn.use-var(color, primary);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
     }
 
     @include m.is(disabled) {
@@ -61,7 +76,7 @@ $collapsed-menu: collapsed-menu;
   #{$b}__item + #{$b}__sub,
   #{$b}__sub + #{$b}__item,
   #{$b}__sub + #{$b}__sub {
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   @include m.size using ($size) {
@@ -130,17 +145,27 @@ $collapsed-menu: collapsed-menu;
     overflow: hidden;
     margin: 2px 0 0 12px;
     padding: 2px 0 2px 8px;
-    border-left: 1px solid fn.use-var(border, color);
+    border-left: 1px solid
+      color-mix(in srgb, #{fn.use-var(border, color)} 52%, transparent);
+
+    @supports selector(:has(*)) {
+      &:has(.#{vars.$namespace}menu__item.is-active) {
+        border-left-color: fn.use-var(color, primary);
+      }
+    }
   }
 
   @include m.e(sub-expand) {
     transition:
-      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.2s cubic-bezier(0.4, 0, 1, 1),
       color 0.18s ease;
 
     @include m.is(expanded) {
       transform: rotate(90deg);
       color: fn.use-var(text-color, title);
+      transition:
+        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.18s ease;
     }
   }
 }

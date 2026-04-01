@@ -1,6 +1,6 @@
 # Menu 组件动画优化与样式美化
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -46,8 +46,8 @@
 
 ## 影响范围
 
-- `ui/components/menu/use-menu-transition.ts`：过渡参数拆分、动画属性收敛、`padding-top` 策略调整。
-- `ui/components/menu/style.scss`：箭头 transition、激活指示条、`sub-list` 边线与间距规则。
-- （按需）`ui/components/menu/menu-sub.vue`：若 `:has()` 无法满足语义时，补充最小 class 标记以支持边线高亮。
-- 验证范围：普通菜单与 `collapsed-menu` 两种模式；亮色/暗色主题切换。
+- `ui/components/menu/use-menu-transition.ts`：enter/leave 分离过渡字符串；仅过渡 `height`、`padding-top`（与 height 同步）、`opacity`；移除 `transform`；`will-change` 收敛为 `height, opacity`。
+- `ui/components/menu/style.scss`：相邻块 `margin-top` 2px→3px；激活态左侧主色指示为 `::before` 圆角短条（垂直居中、高约 56%、宽 3px）；`sub-list` 左边线 `color-mix` 半透明 + `@supports selector(:has(*))` 下含激活子项时主色高亮；`sub-expand` 展开/收起与面板 enter/leave 时长曲线对齐。
 ## 历史补丁
+
+- patch-1: 激活态左侧指示改为圆角短条

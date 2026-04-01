@@ -8,20 +8,15 @@ interface UseMenuTransitionReturned {
   afterLeave: (el: HTMLElement) => void
 }
 
-export function useMenuTransition(): UseMenuTransitionReturned {
-  const transition =
-    'height 0.24s cubic-bezier(0.22, 1, 0.36, 1), padding-top 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)'
+const transitionEnter =
+  'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
 
+const transitionLeave =
+  'height 0.2s cubic-bezier(0.4, 0, 1, 1), padding-top 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.12s cubic-bezier(0.4, 0, 1, 1)'
+
+export function useMenuTransition(): UseMenuTransitionReturned {
   function resetStyles(el: HTMLElement) {
-    removeStyles(el, [
-      'height',
-      'padding-top',
-      'overflow',
-      'transition',
-      'opacity',
-      'transform',
-      'will-change'
-    ])
+    removeStyles(el, ['height', 'padding-top', 'overflow', 'transition', 'opacity', 'will-change'])
   }
 
   function enter(el: HTMLElement) {
@@ -33,17 +28,15 @@ export function useMenuTransition(): UseMenuTransitionReturned {
       paddingTop: 0,
       overflow: 'hidden',
       opacity: 0,
-      transform: 'translateY(-2px)',
-      transition,
-      willChange: 'height, padding-top, opacity, transform'
+      transition: transitionEnter,
+      willChange: 'height, opacity'
     })
 
     requestAnimationFrame(() => {
       setStyles(el, {
         height: `${height}px`,
         paddingTop,
-        opacity: 1,
-        transform: 'translateY(0)'
+        opacity: 1
       })
     })
   }
@@ -60,9 +53,8 @@ export function useMenuTransition(): UseMenuTransitionReturned {
       paddingTop,
       overflow: 'hidden',
       opacity: 1,
-      transform: 'translateY(0)',
-      transition,
-      willChange: 'height, padding-top, opacity, transform'
+      transition: transitionLeave,
+      willChange: 'height, opacity'
     })
   }
 
@@ -73,8 +65,7 @@ export function useMenuTransition(): UseMenuTransitionReturned {
     setStyles(el, {
       height: 0,
       paddingTop: 0,
-      opacity: 0,
-      transform: 'translateY(-2px)'
+      opacity: 0
     })
   }
 
