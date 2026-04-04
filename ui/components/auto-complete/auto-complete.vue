@@ -72,11 +72,7 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef, watch } from 'vue'
-import type {
-  AutoCompleteEmits,
-  AutoCompleteProps,
-  _AutoCompleteExposed
-} from '@ui/types'
+import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '@ui/types'
 import { bem, scrollIntoContainerView } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { UDropdown } from '../dropdown'
@@ -88,10 +84,7 @@ import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { DropdownExposed, ScrollExposed } from '@ui/types'
 import { useKeyboard } from './use-keyboard'
 
-defineOptions({
-  name: 'AutoComplete',
-  inheritAttrs: false
-})
+defineOptions({ name: 'AutoComplete', inheritAttrs: false })
 
 const props = withDefaults(defineProps<AutoCompleteProps>(), {
   placeholder: '请输入',
@@ -116,32 +109,24 @@ const cls = bem('auto-complete')
 const optionClass = cls.e('option')
 
 const { formProps } = useFormComponent()
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const dropdownRef = shallowRef<DropdownExposed>()
 const dropdownVisible = shallowRef(false)
 const scrollRef = shallowRef<ScrollExposed>()
 
-watch(scrollRef, scroll => {
+watch(scrollRef, (scroll) => {
   if (scroll && model.value !== undefined) {
-    const li = scroll.contentRef!.querySelector(
-      `li[data-key="${model.value}"]`
-    ) as HTMLElement
+    const li = scroll.contentRef!.querySelector(`li[data-key="${model.value}"]`) as HTMLElement
     li && scrollIntoContainerView(li, scroll.containerRef ?? null)
   }
 })
 
-const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({
-  props,
-  model
-})
+const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({ props, model })
 
 const keyboardOptions = computed(() => {
   const currentSuggestions = suggestions.value
@@ -153,7 +138,7 @@ const keyboardOptions = computed(() => {
 const { point, handleKeydown } = useKeyboard({
   options: keyboardOptions,
   dropdownVisible,
-  getDefaultIndex: options => {
+  getDefaultIndex: (options) => {
     if (!options.length) return -1
     if (model.value) {
       const matchIndex = options.indexOf(model.value)
@@ -170,9 +155,7 @@ const { point, handleKeydown } = useKeyboard({
   }
 })
 
-const isCachedActive = computed(
-  () => !!cachedSuggestion.value && point.value === 0
-)
+const isCachedActive = computed(() => !!cachedSuggestion.value && point.value === 0)
 
 const isActiveOption = (index: number) => {
   const offset = cachedSuggestion.value ? 1 : 0
@@ -180,11 +163,7 @@ const isActiveOption = (index: number) => {
 }
 
 const handleInputKeydown = (event: KeyboardEvent) => {
-  if (
-    !dropdownVisible.value &&
-    event.key === 'Enter' &&
-    cachedSuggestion.value
-  ) {
+  if (!dropdownVisible.value && event.key === 'Enter' && cachedSuggestion.value) {
     event.preventDefault()
     event.stopPropagation()
     handleSelectCachedOption(cachedSuggestion.value)

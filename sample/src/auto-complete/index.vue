@@ -27,6 +27,6 @@ const value = shallowRef('')
 const suggestionsGetter = (modelValue?: string) => {
   if (!modelValue) return suggestions
 
-  return suggestions.filter(s => s === modelValue)
+  return suggestions.filter((s) => s === modelValue)
 }
 </script>

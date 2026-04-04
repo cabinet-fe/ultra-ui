@@ -21,28 +21,15 @@
 <script lang="ts" setup>
 import type { DropdownProps, DropdownExposed, DropdownEmits } from '@ui/types'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
-import {
-  shallowRef,
-  computed,
-  createVNode,
-  cloneVNode,
-  useTemplateRef,
-  useAttrs
-} from 'vue'
+import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs } from 'vue'
 import { vClickOutside } from '@ui/directives'
 import { useModel, usePop, useTransition } from '@ui/compositions'
 import { useNest } from '../tip/use-nest'
 import { UNodeRender } from '../node-render'
 
-defineOptions({
-  name: 'Dropdown',
-  inheritAttrs: false
-})
+defineOptions({ name: 'Dropdown', inheritAttrs: false })
 
-const props = withDefaults(defineProps<DropdownProps>(), {
-  trigger: 'hover',
-  contentTag: 'div'
-})
+const props = withDefaults(defineProps<DropdownProps>(), { trigger: 'hover', contentTag: 'div' })
 
 const emit = defineEmits<DropdownEmits>()
 
@@ -74,12 +61,7 @@ const triggerDom = computed(() => {
 })
 
 /**显示隐藏 */
-const visible = useModel({
-  defaultValue: false,
-  propName: 'visible',
-  props,
-  emit
-})
+const visible = useModel({ defaultValue: false, propName: 'visible', props, emit })
 
 const dropdownVisible = useNest(visible)
 
@@ -90,11 +72,7 @@ function renderTriggerNode() {
   const slotsNode = slots.trigger?.()
   if (!slotsNode) return null
   const nodes = extractNormalVNodes(slotsNode)
-  const props = {
-    class: cls.b,
-    ...attrs,
-    ...eventsHandlers.value
-  }
+  const props = { class: cls.b, ...attrs, ...eventsHandlers.value }
   if (nodes.length === 1) return cloneVNode(nodes[0]!, props)
 
   return createVNode('div', props, nodes)
@@ -145,9 +123,7 @@ const { update, popperContainerId } = usePop({
   direction: 'bottom',
   alignment: 'start',
   onPop(position) {
-    transitionName.value = position.placement.includes('top')
-      ? 'slide-up'
-      : 'slide-down'
+    transitionName.value = position.placement.includes('top') ? 'slide-up' : 'slide-down'
 
     transition.enter()
   },
