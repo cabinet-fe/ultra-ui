@@ -114,6 +114,8 @@ export * from './components/tip'
 
 export * from './components/number-input'
 
+export * from './components/number-range-input'
+
 export * from './components/theme'
 
 export * from './components/loading'

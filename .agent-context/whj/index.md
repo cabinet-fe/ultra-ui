@@ -7,3 +7,4 @@
 - [x] [优化 Theme 组件设计](./done/plan-7-20260320/plan.md)
 - [x] [Menu 组件动画优化与样式美化](./done/plan-8-20260401/plan.md)
 - [x] [全局默认字体替换为系统字体栈](./done/plan-9-20260401/plan.md)
+- [x] [新增数字范围输入组件（UNumberRangeInput）](./done/plan-10-20260405/plan.md)

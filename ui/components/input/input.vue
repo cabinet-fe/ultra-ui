@@ -30,16 +30,14 @@
       :disabled="disabled"
       :readonly="nativeReadonly"
     />
-    <Transition name="zoom-in" mode="out-in">
-      <UIcon
-        v-if="clearable && model && hovered && !disabled"
-        :class="cls.e('clear')"
-        title="清除"
-        @click.stop="clearModelValue"
-      >
-        <Close />
-      </UIcon>
-    </Transition>
+    <UIcon
+      v-if="clearable && !disabled && model"
+      :class="[cls.e('clear'), bem.is('hidden', !hovered)]"
+      title="清除"
+      @click.stop="clearModelValue"
+    >
+      <Close />
+    </UIcon>
     <span
       :class="suffixClass"
       @click="handleSuffixClick"

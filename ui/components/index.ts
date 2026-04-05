@@ -86,6 +86,8 @@ export * from './notification'
 
 export * from './number-input'
 
+export * from './number-range-input'
+
 export * from './number'
 
 export * from './paginator'

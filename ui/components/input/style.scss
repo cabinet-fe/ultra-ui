@@ -77,10 +77,18 @@ $root-name: input;
   }
 
   @include m.e(clear) {
+    flex-shrink: 0;
+    width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     color: fn.use-var(text-color, main);
-    min-width: 20px;
-    flex-shrink: 0;
+
+    @include m.is(hidden) {
+      opacity: 0;
+      pointer-events: none;
+    }
   }
 
   @include m.is(disabled) {
