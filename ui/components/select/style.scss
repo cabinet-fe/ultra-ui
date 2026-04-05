@@ -1,13 +1,17 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/functions' as fn;
-@use '../../styles/vars';
 
 $root-name: select;
 @include m.b($root-name) {
   width: 100%;
 
   @include m.e(content-filter) {
-    border-bottom: fn.use-var(border);
+    border-bottom: 1px solid fn.use-var(border, color);
+    background-color: fn.use-var(bg-color, middle);
+
+    @include m.bem(input) {
+      box-shadow: none;
+    }
   }
 
   @include m.e(options) {
@@ -21,6 +25,13 @@ $root-name: select;
   }
 
   @include m.e(options-wrap) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
     @include m.is(virtual) {
       position: relative;
 
@@ -35,6 +46,7 @@ $root-name: select;
 
     @include m.is(grid) {
       display: grid;
+      gap: unset;
 
       @include m.bem($root-name, option) {
         height: auto;
@@ -47,21 +59,38 @@ $root-name: select;
     cursor: pointer;
     user-select: none;
     width: 100%;
+    box-sizing: border-box;
+    color: fn.use-var(text-color, main);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     @include m.ellipsis;
 
-    &:not(:first-child) {
-      margin-top: 2px;
-    }
-
     &:hover {
-      background-color: fn.use-var(bg-color, hover);
+      background-color: fn.use-var(menu, hover, bg);
+      color: fn.use-var(menu, hover, color);
     }
 
     @include m.is(selected) {
-      background-color: fn.use-var(color, primary, light-9);
-      color: fn.use-var(color, primary);
-      font-weight: bold;
+      position: relative;
+      background-color: fn.use-var(menu, active, bg);
+      color: fn.use-var(menu, active, color);
+      font-weight: 600;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 3px;
+        height: 56%;
+        min-height: 10px;
+        border-radius: 9999px;
+        background-color: fn.use-var(color, primary);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
     }
   }
 

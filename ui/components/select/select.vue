@@ -222,7 +222,7 @@ const {
   count: computed(() => options.value.length),
   virtualThreshold: 80,
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  gap: 2,
+  gap: 4,
   estimateSize: () => 40
 })
 
