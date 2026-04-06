@@ -1,4 +1,4 @@
-import type { ComponentProps } from '../component-common'
+import type { ComponentProps } from '@ultra-ui/core'
 
 export type TabItem = {
   /**

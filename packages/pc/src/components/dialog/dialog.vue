@@ -41,7 +41,7 @@
                   @click="toggleMaximize(false)"
                   title="还原"
                 >
-                  <Recover />
+                  <Minimize />
                 </u-icon>
                 <u-icon
                   v-else
@@ -49,10 +49,10 @@
                   @click="toggleMaximize(true)"
                   title="最大化"
                 >
-                  <Maximum />
+                  <Maximize />
                 </u-icon>
                 <u-icon :class="cls.e('btn-close')" @click="close" title="关闭">
-                  <Close />
+                  <X />
                 </u-icon>
               </div>
             </section>
@@ -94,16 +94,16 @@ import type {
   DialogEmits,
   DialogExposed,
   ComponentSize
-} from '@ui/types'
-import { bem, extractNormalVNodes, setStyles, zIndex } from '@ui/utils'
-import { useDrag, useFallbackProps } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/core'
+import { useDrag, useFallbackProps } from '@ultra-ui/core'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
-import { Close, Maximum, Recover } from '@ultra/icon'
+import { Maximize, Minimize, X } from 'lucide-vue-next'
 import { useMaximum } from './use-maximum'
 import { DialogDIKey } from './di'
 import { UNodeRender } from '../node-render'
-import type { ScrollExposed } from '@ui/types'
+import type { ScrollExposed } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'Dialog',

@@ -1,6 +1,6 @@
 import { h, render, shallowReactive } from 'vue'
-import type { MessageOptions, Message, MessageInstance } from '@ui/types'
-import { bem, setStyles, zIndex } from '@ui/utils'
+import type { MessageOptions, Message, MessageInstance } from '@ultra-ui/pc/types'
+import { bem, setStyles, zIndex } from '@ultra-ui/core'
 import UMessageBox from './message-box.vue'
 
 const cls = bem('message')

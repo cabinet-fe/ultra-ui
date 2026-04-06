@@ -1,6 +1,6 @@
 import { defineComponent, inject, type DefineComponent } from 'vue'
 import { TableDIKey, TableResizeKey } from './di'
-import { bem, withUnit } from '@ui/utils'
+import { bem, withUnit } from '@ultra-ui/core'
 
 const TableHead: DefineComponent = defineComponent({
   name: 'TableHead',

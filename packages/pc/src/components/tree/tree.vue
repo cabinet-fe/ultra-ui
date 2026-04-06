@@ -36,8 +36,8 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ui/utils'
-import type { TreeProps, TreeEmit, _TreeExposed } from '@ui/types'
+import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ultra-ui/core'
+import type { TreeProps, TreeEmit, _TreeExposed } from '@ultra-ui/pc/types'
 import {
   computed,
   provide,
@@ -49,13 +49,13 @@ import {
 } from 'vue'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'
 import { UEmpty } from '../empty'
-import { useVirtual } from '@ui/compositions'
+import { useVirtual } from '@ultra-ui/core'
 import { UScroll } from '../scroll'
-import type { ScrollExposed } from '@ui/types'
+import type { ScrollExposed } from '@ultra-ui/pc/types'
 import { useTreeNodes } from './use-tree-nodes'
 import { useFilter } from './use-filter'
 

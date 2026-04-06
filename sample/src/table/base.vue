@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns } from "@ultra-ui/pc"
 import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
 

@@ -7,16 +7,16 @@ import {
   type ShallowRef,
   type ComputedRef
 } from 'vue'
-import { Forest } from 'cat-kit/fe'
+import { Forest } from '@ultra-ui/core'
 import type {
   CascadeProps,
   CascadeEmits,
   CascadeNode,
   DropdownExposed,
   PanelItem
-} from '@ui/types'
-import { createIncrease } from '@ui/utils'
-import type { Updater } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { createIncrease } from '@ultra-ui/core'
+import type { Updater } from '@ultra-ui/core'
 
 interface SelectOptions {
   props: CascadeProps

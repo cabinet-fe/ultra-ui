@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 import type { InputProps } from './input'
 
 /** 密码输入组件属性 */

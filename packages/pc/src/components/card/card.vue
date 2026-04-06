@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@ui/utils'
-import type { CardProps } from '@ui/types'
+import { bem, withUnit } from '@ultra-ui/core'
+import type { CardProps } from '@ultra-ui/pc/types'
 import { computed, provide } from 'vue'
 import { CardDIKey } from './di'
-import { useFormFallbackProps } from '@ui/compositions'
+import { useFormFallbackProps } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Card'

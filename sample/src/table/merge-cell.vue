@@ -27,10 +27,10 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns, type TableRow } from 'ultra-ui'
+import { defineTableColumns, type TableRow } from "@ultra-ui/pc"
 import { nextTick, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Plus } from '@ultra/icon'
+import { Plus } from 'lucide-vue-next'
 
 let data = shallowRef<Record<string, any>[]>([
   {

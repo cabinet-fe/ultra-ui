@@ -1,7 +1,7 @@
 import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
-import 'ultra-ui/styles'
+import '@ultra-ui/styles'
 import 'virtual:uno.css'
 
 const app = createApp({

@@ -57,7 +57,7 @@
             :class="cls.e('clear')"
             @click.stop="handleClear"
           >
-            <Close />
+            <X />
           </u-icon>
 
           <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
@@ -118,20 +118,21 @@ import {
   useFormComponent,
   useFormFallbackProps,
   useUpdateLock
-} from '@ui/compositions'
-import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
-import { bem } from '@ui/utils'
+} from '@ultra-ui/core'
+import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
-import { ArrowDown, Search, Close } from '@ultra/icon'
+import { ArrowDown, Search, X } from 'lucide-vue-next'
 import { CascadeDIKey } from './di'
 import { UInput } from '../input'
 import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 import UCascadePanelItem from './cascade-panel-item.vue'
-import { Forest, getChainValue } from 'cat-kit/fe'
+import { getChainValue } from '@ultra-ui/core'
+import { Forest } from '@ultra-ui/core'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 import { useCheck } from './use-check'

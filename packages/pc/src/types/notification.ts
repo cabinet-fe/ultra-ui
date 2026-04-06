@@ -1,5 +1,5 @@
-import type { DeconstructValue } from '../helper'
-import type { ColorType } from '../component-common'
+import type { DeconstructValue } from '@ultra-ui/core'
+import type { ColorType } from '@ultra-ui/core'
 import type { DefineComponent, RendererElement } from 'vue'
 
 /** 通知组件组件属性 */

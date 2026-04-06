@@ -41,7 +41,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ProgressNodeItem } from 'ultra-ui/types'
+import type { ProgressNodeItem } from '@ultra-ui/pc/types'
 
 const checkedIndexes = ref([0, 1])
 const activeNode = ref<string>()

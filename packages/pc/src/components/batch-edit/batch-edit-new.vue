@@ -8,13 +8,13 @@
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop>
         <u-button
-          :icon="View"
+          :icon="Eye"
           title="查看"
           v-if="featureSets.has('view')"
           @click="handleView(row, $event)"
         />
         <u-button
-          :icon="Edit"
+          :icon="Pencil"
           title="编辑"
           v-if="featureSets.has('update')"
           @click="handleEdit(row, $event)"
@@ -26,7 +26,7 @@
           @click="handleAdd(row, $event)"
         />
         <u-button
-          :icon="AddChild"
+          :icon="CopyPlus"
           title="新增子项"
           v-if="featureSets.has('create') && !!tree"
           @click="handleAdd(row, $event)"
@@ -38,7 +38,7 @@
           @click="handleCopy(row, $event)"
         />
         <u-button
-          :icon="Delete"
+          :icon="Trash2"
           type="danger"
           title="删除"
           v-if="featureSets.has('delete')"
@@ -93,19 +93,19 @@ import type {
   BatchEditProps,
   ButtonProps,
   TableColumn
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { type FormModel, UForm } from '../form'
 import { UTable } from '../table'
 import { UScroll } from '../scroll'
 import { UTip } from '../tip'
 import { computed, watch } from 'vue'
 import { UButton } from '../button'
-import { Copy, Edit, Delete, Plus, AddChild, View } from '@ultra/icon'
-import { useComponentProps } from '@ui/compositions'
-import { bem } from '@ui/utils'
+import { Copy, CopyPlus, Eye, Pencil, Plus, Trash2 } from 'lucide-vue-next'
+import { useComponentProps } from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
 import { useEdit } from './use-edit-new'
 import { useTip } from './use-tip'
-import { omit } from 'cat-kit/fe'
+import { o } from '@cat-kit/core'
 
 defineOptions({
   name: 'BatchEdit'
@@ -115,7 +115,7 @@ const props = defineProps<BatchEditProps<FormModel>>()
 const emit = defineEmits<BatchEditEmits>()
 
 const tableProps = computed(() => {
-  return omit(props, [
+  return o(props).omit([
     'model',
     'columns',
     'cols',

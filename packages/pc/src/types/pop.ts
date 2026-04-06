@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 气泡弹框组件属性 */
 export interface PopProps {

@@ -1,5 +1,5 @@
-import type { Dater } from 'cat-kit/fe'
-import type { FormComponentProps } from '../component-common'
+import type { Dater } from '@cat-kit/core'
+import type { FormComponentProps } from '@ultra-ui/core'
 
 export type PanelType = 'day' | 'month' | 'year'
 

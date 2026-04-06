@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { shallowRef, useTemplateRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { TipAlign, TipDirection } from 'ultra-ui/types'
+import type { TipAlign, TipDirection } from '@ultra-ui/pc/types'
 
 const directions = ['top', 'bottom', 'left', 'right'].map(d => ({
   label: d,

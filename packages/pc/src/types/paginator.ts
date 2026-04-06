@@ -1,5 +1,5 @@
 import type { ShallowRef } from 'vue'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 分页器组件组件属性 */
 export interface PaginatorProps {

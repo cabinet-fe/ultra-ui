@@ -6,9 +6,9 @@ import type {
   TableRow,
   RenderReturn,
   TableRowSlotsScope
-} from '@ui/types'
-import { bem, type BEM } from '@ui/utils'
-import { getChainValue } from 'cat-kit/fe'
+} from '@ultra-ui/pc/types'
+import { bem, type BEM } from '@ultra-ui/core'
+import { getChainValue } from '@ultra-ui/core'
 import type { ColumnNode } from './node/col'
 
 interface Options {

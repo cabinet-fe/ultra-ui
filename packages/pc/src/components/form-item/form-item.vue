@@ -36,10 +36,10 @@
 </template>
 
 <script lang="tsx" setup>
-import { bem, withUnit } from '@ui/utils'
-import type { FormItemProps, ComponentSize } from '@ui/types'
+import { bem, withUnit } from '@ultra-ui/core'
+import type { FormItemProps, ComponentSize } from '@ultra-ui/pc/types'
 import { type CSSProperties, computed } from 'vue'
-import { useConfig, useFallbackProps, useFormComponent } from '@ui/compositions'
+import { useConfig, useFallbackProps, useFormComponent } from '@ultra-ui/core'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 import { formItemCls as cls } from './helper'

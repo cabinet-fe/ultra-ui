@@ -1,0 +1,15 @@
+{
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": ".",
+    "paths": {
+      "@ultra-ui/pc/types": ["./src/types/index.ts"]
+    },
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],
+  "exclude": ["node_modules", "**/__test__/**/*"]
+}

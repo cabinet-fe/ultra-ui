@@ -1,6 +1,6 @@
 import { isRef, watch, type CSSProperties } from 'vue'
 import type { Returned, StyleTransitionOptions } from './type'
-import { createToggle, nextFrame, setStyles } from '@ui/utils'
+import { createToggle, nextFrame, setStyles } from '../../utils'
 import { watchTransition } from './utils'
 
 export function useStyleTransition(options: StyleTransitionOptions): Returned {

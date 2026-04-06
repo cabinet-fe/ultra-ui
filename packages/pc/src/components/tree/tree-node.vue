@@ -47,13 +47,13 @@
 <script lang="ts" setup>
 import { TreeDIKey } from './di'
 import { inject } from 'vue'
-import { bem, withUnit } from '@ui/utils'
+import { bem, withUnit } from '@ultra-ui/core'
 import { UIcon } from '../icon'
-import { ArrowRight } from '@ultra/icon'
-import type { TreeNodeProps } from '@ui/types'
+import { ArrowRight } from 'lucide-vue-next'
+import type { TreeNodeProps } from '@ultra-ui/pc/types'
 import UCheckbox from '../checkbox/checkbox.vue'
 import { UNodeRender } from '../node-render'
-import { vRipple } from '@ui/directives'
+import { vRipple } from '@ultra-ui/directives'
 
 defineOptions({
   name: 'TreeNode'

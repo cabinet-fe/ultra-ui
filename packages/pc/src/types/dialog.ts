@@ -1,5 +1,5 @@
-import type { ComponentSize } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { ComponentSize } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 对话框组件属性 */
 export interface DialogProps {

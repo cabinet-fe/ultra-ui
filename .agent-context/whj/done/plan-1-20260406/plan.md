@@ -1,6 +1,6 @@
 # Monorepo 重构与依赖迁移
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -327,4 +327,19 @@ export * from './theme'
 
 ## 影响范围
 
+- `packages/core/src/utils/data-structure/`（Forest/Tree 兼容实现）、`packages/core/src/utils/index.ts`
+- `packages/pc/src/components/`（cascade、table、tree、menu、multi-tree-select、tree-select、message-confirm、select 等）、`packages/pc/src/types/`、`packages/pc/tsconfig.json`
+- `packages/core/`、`packages/styles/`、`packages/directives/`、`packages/pc/`（新建子包与自 `ui/` 迁移的源码）
+- 根目录 `package.json`、`tsconfig.json`、`vitest.config.ts`
+- `sample/`（依赖、`vite.config.ts`、入口与示例中的导入与图标；`code-editor` 与示例页 `@ultra-ui/*` 导入）
+- `packages/pc/src/components/code-editor/code-editor.vue`（workspace 内禁止依赖 `ultra-ui` 别名）
+- `cli/`（`shared.ts`、`gen-component/render-file.ts`、子包 `package.json`）
+- `build/`（`shared.ts`、`build.ts`、`build-styles.ts`、`prepare.ts`）
+- 已移除原 `ui/` 目录下的 `package.json`、`tsconfig.json`、`index.ts`
+
+**说明**：评审后已在 `packages/core` 增加与旧版 `Forest.create` / `dft` / `bft` / `nodes` / `size` 及数据树 `Tree.dft` / `Tree.dftWithPath` 对齐的实现；`packages/pc` 中 cascade / table / tree / menu 等已改为使用 `@ultra-ui/core` 的 `Forest` / `Tree` 或节点实例的 `dfs`。完整 `tsc` / `bun install` 需在证书与 registry 正常的环境执行。
+
 ## 历史补丁
+
+- patch-1: 评审修复（Tree/Forest 兼容层、错误导入与类型、表单/消息等小问题）
+- patch-2: sample 预览可运行（code-editor 与 sample 导入修复、`dev` 脚本）

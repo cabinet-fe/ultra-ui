@@ -9,11 +9,11 @@
     </u-icon>
 
     <u-icon :size="200">
-      <Loading />
+      <LoaderCircle />
     </u-icon>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, Loading } from '@ultra/icon'
+import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-vue-next'
 </script>

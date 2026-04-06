@@ -23,9 +23,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { RadioProps, RadioEmits } from '@ui/types'
-import { bem } from '@ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import type { RadioProps, RadioEmits } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 
 defineOptions({

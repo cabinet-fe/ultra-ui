@@ -33,8 +33,8 @@ import type {
   FloatButtonProps,
   FloatButtonEmits,
   ButtonExposed
-} from '@ui/types'
-import { bem, removeStyles, setStyles } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import { bem, removeStyles, setStyles } from '@ultra-ui/core'
 import { UIcon } from '../icon'
 import { shallowRef } from 'vue'
 import { UButton } from '../button'

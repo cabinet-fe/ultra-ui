@@ -26,11 +26,11 @@ import type {
   TableColumnSlotsScope,
   TableExposed,
   TableRow
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
 import type { FormModel } from '../form'
 import { ULayout } from '../layout'
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 import { DialogDIKey } from '../dialog/di'
 import { useEdit } from './use-edit'
 import { BatchEditDIKey } from './di'

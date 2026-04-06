@@ -62,7 +62,8 @@
 </template>
 
 <script lang="ts" setup>
-import { setStyles, useTransition, type ButtonExposed } from 'ultra-ui'
+import { setStyles, useTransition } from '@ultra-ui/core'
+import type { ButtonExposed } from '@ultra-ui/pc/types'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)
@@ -111,7 +112,7 @@ watch(visible2, v => {
 </script>
 
 <style lang="scss" scoped>
-@use 'ultra-ui/styles/anime/slide';
+@use '@ultra-ui/styles/anime/slide';
 .box {
   display: flex;
   flex-direction: column;

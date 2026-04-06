@@ -10,7 +10,7 @@ import type {
   ExpressionEditorEmits,
   ExpressionEditorProps,
   VariableItem
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 
 interface CreateModelSyncOptions {
   editor: LexicalEditor

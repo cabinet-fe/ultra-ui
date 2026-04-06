@@ -1,4 +1,4 @@
-import type { ColorType, FormComponentProps } from '../component-common'
+import type { ColorType, FormComponentProps } from '@ultra-ui/core'
 
 /** 复选框组件属性 */
 export interface CheckboxProps extends FormComponentProps {

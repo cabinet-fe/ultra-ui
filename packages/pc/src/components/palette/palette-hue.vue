@@ -8,7 +8,7 @@
 import { inject, onMounted } from 'vue'
 import { PaletteDIKey } from './di'
 import { shallowRef, computed } from 'vue'
-import { useDrag } from '@ui/compositions'
+import { useDrag } from '@ultra-ui/core'
 
 defineOptions({
   name: 'PaletteHue'

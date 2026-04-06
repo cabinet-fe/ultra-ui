@@ -4,8 +4,9 @@
 
 <script lang="ts" setup>
 import { computed, reactive, watch } from 'vue'
-import type { NumberProps } from '@ui/types'
-import { Tween, n } from 'cat-kit/fe'
+import type { NumberProps } from '@ultra-ui/pc/types'
+import { n } from '@cat-kit/core'
+import { Tween } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Number'

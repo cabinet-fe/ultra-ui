@@ -94,9 +94,9 @@ import { UScroll } from '../../scroll'
 import { UEmpty } from '../../empty'
 import { ExpressionEditorDIKey } from '../di'
 import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import type { VariableItem } from '@ui/types'
-import { bem } from '@ui/utils'
-import { Search, ArrowRight } from '@ultra/icon'
+import type { VariableItem } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { ArrowRight, Search } from 'lucide-vue-next'
 
 defineOptions({
   name: 'VariablePicker'

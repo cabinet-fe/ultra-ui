@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
-import type { IconProps } from '@ui/types'
+import { bem } from '@ultra-ui/core'
+import type { IconProps } from '@ultra-ui/pc/types'
 import { type CSSProperties, computed } from 'vue'
-import { withUnit } from '@ui/utils'
+import { withUnit } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Icon'

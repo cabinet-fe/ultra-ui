@@ -1,4 +1,4 @@
-import { createIncrease } from '@ui/utils'
+import { createIncrease } from '@ultra-ui/core'
 import type { ObjectDirective } from 'vue'
 
 const uid = createIncrease(1000)

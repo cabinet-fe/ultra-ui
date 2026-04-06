@@ -29,7 +29,7 @@
         :class="cls.m('clear')"
         @click.stop="handleClear"
       >
-        <Close />
+        <X />
       </u-icon>
     </Transition>
   </div>
@@ -40,18 +40,18 @@
 </template>
 
 <script lang="ts" setup>
-import type { TextareaProps, TextareaEmits, ComponentSize } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { TextareaProps, TextareaEmits, ComponentSize } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'
-import { Close } from '@ultra/icon'
+import { X } from 'lucide-vue-next'
 import {
   useFocus,
   useFormComponent,
   useFormFallbackProps
-} from '@ui/compositions'
+} from '@ultra-ui/core'
 import { calcTextareaHeight } from './utils'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Textarea'

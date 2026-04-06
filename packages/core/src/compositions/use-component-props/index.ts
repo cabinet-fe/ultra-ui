@@ -1,4 +1,4 @@
-import { extractNormalVNodes } from '@ui/utils'
+import { extractNormalVNodes } from '../../utils'
 import { defineComponent, isRef, type MaybeRef, createVNode, cloneVNode, type Component } from 'vue'
 
 /**

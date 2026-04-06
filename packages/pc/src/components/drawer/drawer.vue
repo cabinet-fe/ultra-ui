@@ -22,7 +22,7 @@
             @click.stop
           >
             <span :class="cls.e('close')" @click="close" v-if="showClose">
-              <u-icon><Close /></u-icon>
+              <u-icon><X /></u-icon>
             </span>
             <slot />
           </div>
@@ -34,10 +34,10 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef } from 'vue'
-import type { DrawerProps, DrawerEmits } from '@ui/types'
-import { bem, zIndex } from '@ui/utils'
+import type { DrawerProps, DrawerEmits } from '@ultra-ui/pc/types'
+import { bem, zIndex } from '@ultra-ui/core'
 import { UIcon } from '../icon'
-import { Close } from '@ultra/icon'
+import { X } from 'lucide-vue-next'
 
 defineOptions({
   name: 'Drawer',

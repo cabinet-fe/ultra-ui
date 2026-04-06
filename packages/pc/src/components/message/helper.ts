@@ -1,19 +1,19 @@
-import type { ColorType, MessageType } from '@ui/types'
+import type { ColorType, MessageType } from '@ultra-ui/pc/types'
 import {
-  CircleCheckFilled,
-  InfoFilled,
-  WarningFilled,
-  CircleClose,
-  QuestionFilled
-} from '@ultra/icon'
+  AlertTriangle,
+  CircleCheck,
+  CircleHelp,
+  CircleX,
+  Info
+} from 'lucide-vue-next'
 import type { DefineComponent } from 'vue'
 
 const typeIcons = {
-  default: InfoFilled,
-  info: QuestionFilled,
-  success: CircleCheckFilled,
-  warn: WarningFilled,
-  error: CircleClose
+  default: Info,
+  info: CircleHelp,
+  success: CircleCheck,
+  warn: AlertTriangle,
+  error: CircleX
 }
 export function getTypeIcon(
   type: MessageType,

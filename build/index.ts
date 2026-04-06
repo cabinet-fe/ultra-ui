@@ -1,27 +1,30 @@
 import { resolve } from 'node:path'
 import { build } from './build'
-import { buildStyles } from './build-styles'
-import { copyFiles, genFiles } from './prepare'
+import { copyFiles, genFiles, writeDistPackageJson } from './prepare'
 import { release, promptVersion, updateVersion } from './release'
-import { UI_ROOT } from './shared'
+import { PUBLISH_PACKAGES } from './shared'
 
 const isRelease = process.argv.includes('--release')
+const dryRun = process.argv.includes('--dry-run')
 
 async function boot(isRelease: boolean) {
   let version: string | undefined
 
   if (isRelease) {
     version = await promptVersion()
-    await updateVersion(version, [resolve(UI_ROOT, 'package.json')])
+    await updateVersion(
+      version,
+      PUBLISH_PACKAGES.map(({ root }) => resolve(root, 'package.json'))
+    )
   }
 
   await build()
-  await buildStyles()
+  await writeDistPackageJson()
   await copyFiles()
   await genFiles()
 
   if (isRelease && version) {
-    await release(version)
+    await release(version, { dryRun })
   }
 }
 

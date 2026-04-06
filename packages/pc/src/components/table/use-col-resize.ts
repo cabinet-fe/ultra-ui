@@ -1,6 +1,6 @@
 import { nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
 import { TableResizeKey } from './di'
-import type { ScrollExposed } from '@ui/types'
+import type { ScrollExposed } from '@ultra-ui/pc/types'
 import type { ColumnNode } from './node/col'
 
 interface Options {

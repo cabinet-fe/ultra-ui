@@ -30,18 +30,18 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 import type {
   ButtonEmits,
   ButtonProps,
   _ButtonExposed,
   ComponentSize
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
-import { Loading } from '@ultra/icon'
-import { vRipple } from '@ui/directives'
-import { useFallbackProps } from '@ui/compositions'
+import { LoaderCircle } from 'lucide-vue-next'
+import { vRipple } from '@ultra-ui/directives'
+import { useFallbackProps } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Button'
@@ -49,7 +49,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   iconPosition: 'left',
-  loadingIcon: () => Loading,
+  loadingIcon: () => LoaderCircle,
   disabled: false,
   propagate: true
 })

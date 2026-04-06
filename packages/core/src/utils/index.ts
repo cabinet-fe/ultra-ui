@@ -20,4 +20,16 @@ export * from './helper/make-bem'
 
 export * from './helper/vue'
 
+export * from './helper/obj-map'
+
+export * from './helper/equal'
+
+export * from './helper/tween'
+
+export * from './helper/chain'
+
+export * from './helper/forest-visit'
+
+export * from './data-structure'
+
 export * from './reactive/proxy'

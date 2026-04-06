@@ -1,7 +1,8 @@
 import { shallowRef, watch, type ShallowRef } from 'vue'
-import { Forest, getChainValue } from 'cat-kit/fe'
-import { useModel } from '@ui/compositions'
-import type { TableColumn, TableEmits, TableProps, TableRow } from '@ui/types'
+import { getChainValue } from '@ultra-ui/core'
+import { Forest } from '@ultra-ui/core'
+import { useModel } from '@ultra-ui/core'
+import type { TableColumn, TableEmits, TableProps, TableRow } from '@ultra-ui/pc/types'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -78,7 +79,7 @@ export function useRows(options: Options): UseRowsReturned {
     return new TableRowNode({
       data,
       index,
-      uid: getRowUID(data)
+      uid: getRowUID(data) as string | number
     })
   }
 
@@ -118,7 +119,7 @@ export function useRows(options: Options): UseRowsReturned {
   /** 处理树形森林结构 */
   function getRowForest(data: Record<string, any>[]): Forest<TableRowNode> {
     tempRowDicts = new WeakMap()
-    const ret = Forest.create(data, {
+    const ret = Forest.create<TableRowNode>(data, {
       createNode(val, index) {
         const row = createRow(val, index)
         if (props.defaultExpandAll) {
@@ -144,7 +145,7 @@ export function useRows(options: Options): UseRowsReturned {
       // 深度优先遍历：如果是根节点(depth===1)或父节点已展开，则该节点可见
       if (node.parent?.expanded || node.depth === 1) {
         result.push(node)
-        return true
+        return
       }
       return false
     })

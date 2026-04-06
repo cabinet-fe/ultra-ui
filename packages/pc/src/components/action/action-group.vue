@@ -3,12 +3,12 @@
 </template>
 
 <script lang="tsx" setup>
-import type { ActionGroupProps } from "@ui/types";
-import { ArrowDown } from "@ultra/icon";
+import type { ActionGroupProps } from '@ultra-ui/pc/types'
+import { ArrowDown } from 'lucide-vue-next'
 import { UIcon } from "../icon";
 import { UButton } from "../button";
 import { provide, type VNode } from "vue";
-import { bem, extractNormalVNodes } from "@ui/utils";
+import { bem, extractNormalVNodes } from '@ultra-ui/core'
 import { UTip } from "../tip";
 import { ActionDIKey } from "./di";
 

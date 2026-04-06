@@ -1,5 +1,5 @@
-import type { DatePanelProps, PanelType, DatePanelEmits } from '@ui/types'
-import type { Dater } from 'cat-kit/fe'
+import type { DatePanelProps, PanelType, DatePanelEmits } from '@ultra-ui/pc/types'
+import type { Dater } from '@cat-kit/core'
 import { type Ref, computed, type ComputedRef, shallowRef } from 'vue'
 
 interface DateSelectOptions {

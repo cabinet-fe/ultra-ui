@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 动画组件属性 */
 export interface AnimationProps {

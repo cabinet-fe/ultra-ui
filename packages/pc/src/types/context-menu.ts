@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
-import type { DeconstructValue } from '../helper'
-import type { ComponentProps } from '../component-common'
+import type { DeconstructValue } from '@ultra-ui/core'
+import type { ComponentProps } from '@ultra-ui/core'
 
 /**
  * 右键菜单项

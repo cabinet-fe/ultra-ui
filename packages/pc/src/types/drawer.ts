@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 抽屉方向 */
 export type DrawerDirection = 'left' | 'right' | 'top' | 'bottom'

@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'vue'
-import type { DeconstructValue } from '../helper'
+import type {
+  DeconstructValue,
+  TipAlign,
+  TipDirection
+} from '@ultra-ui/core'
 
-export type TipDirection = 'top' | 'bottom' | 'left' | 'right'
-
-export type TipAlign = 'start' | 'center' | 'end'
+export type { TipAlign, TipDirection }
 
 /** tip提示组件组件属性 */
 export interface TipProps {

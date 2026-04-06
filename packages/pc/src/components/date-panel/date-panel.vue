@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatePanelEmits, DatePanelProps } from '@ui/types'
+import type { DatePanelEmits, DatePanelProps } from '@ultra-ui/pc/types'
 import DayPanel from './panels/day.vue'
 import MonthPanel from './panels/month.vue'
 import YearPanel from './panels/year.vue'

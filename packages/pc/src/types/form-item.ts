@@ -1,4 +1,4 @@
-import type { FormComponentProps } from '../component-common'
+import type { FormComponentProps } from '@ultra-ui/core'
 
 /** 组件项组件属性 */
 export interface FormItemProps extends FormComponentProps {

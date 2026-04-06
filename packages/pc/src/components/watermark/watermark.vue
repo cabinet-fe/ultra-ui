@@ -22,10 +22,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { WatermarkProps, WatermarkEmits } from '@ui/types'
-import { bem, setStyles, zIndex } from '@ui/utils'
+import type { WatermarkProps, WatermarkEmits } from '@ultra-ui/pc/types'
+import { bem, setStyles, zIndex } from '@ultra-ui/core'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
-import { debounce } from 'cat-kit/fe'
+import { debounce } from '@cat-kit/core'
 
 defineOptions({
   name: 'Watermark'

@@ -45,7 +45,7 @@
           <span v-if="percentage < 70"></span>
           <span v-else-if="percentage < 90">内存所剩不多 </span>
           <span v-else>
-            内存严重不足 <u-icon><Warning /></u-icon>
+            内存严重不足 <u-icon><AlertTriangle /></u-icon>
           </span>
         </template>
       </u-progress>
@@ -65,8 +65,8 @@
 <script lang="ts" setup>
 import { shallowReactive } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ColorType } from 'ultra-ui'
-import { Warning } from '@ultra/icon'
+import type { ColorType } from "@ultra-ui/pc"
+import { AlertTriangle } from 'lucide-vue-next'
 
 const config = shallowReactive({
   percentage: 0,

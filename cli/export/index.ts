@@ -1,21 +1,33 @@
-import { readDir } from 'cat-kit/be'
-import { UI_PATH } from '../shared'
-import { checkbox } from '@inquirer/prompts'
-import { join } from 'node:path'
+import { readDir } from '@cat-kit/be'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { checkbox } from '@inquirer/prompts'
 
-const packages = await readDir(UI_PATH, {
-  readType: 'dir'
-})
+import { UI_PATH } from '../shared'
+
+const topEntries = await readDir(UI_PATH)
+const topDirs = topEntries.filter(
+  e => e.isDirectory && e.depth === 0 && e.name !== 'node_modules'
+)
 
 const packageNames = await checkbox({
   message: '导出哪些包?',
-  choices: packages.map(p => ({
+  choices: topDirs.map(p => ({
     name: p.name,
     value: p.name
   }))
 })
+
+function childFilter(entry: { name: string; isFile: boolean; isDirectory: boolean }) {
+  if (entry.isFile) {
+    return entry.name !== 'index.ts' && entry.name.endsWith('.ts')
+  }
+  if (entry.isDirectory) {
+    return !/(__test__|node_modules)/.test(entry.name)
+  }
+  return false
+}
 
 /**
  *
@@ -25,39 +37,34 @@ const packageNames = await checkbox({
  */
 async function getContent(targetPackage: string, prefix: string) {
   const dirs = await readDir(targetPackage, {
-    filter(dirent) {
-      if (dirent.isFile()) {
-        return dirent.name !== 'index.ts' && /\.ts$/.test(dirent.name)
-      } else {
-        return !/(__test__|node_modules)/.test(dirent.name)
-      }
-    }
+    filter: childFilter
   })
 
   const contents = await Promise.all(
-    dirs.map(async dir => {
-      if (dir.type === 'dir') {
-        const existEntry = existsSync(join(dir.path, 'index.ts'))
+    dirs.map(async entry => {
+      if (entry.isDirectory) {
+        const existEntry = existsSync(join(entry.path, 'index.ts'))
 
         if (existEntry) {
-          return `export * from '${prefix}${dir.name}'`
-        } else {
-          const childDirs = await readDir(dir.path, {
-            readType: 'file'
-          })
-          return childDirs
-            .map(
-              childDir =>
-                `export * from '${prefix}${dir.name}/${childDir.name.replace(
-                  childDir.ext,
-                  ''
-                )}'`
-            )
-            .join('\n\n')
+          return `export * from '${prefix}${entry.name}'`
         }
+
+        const childFiles = await readDir(entry.path, {
+          onlyFiles: true,
+          filter: e => e.name.endsWith('.ts') && e.name !== 'index.ts'
+        })
+
+        return (childFiles as string[])
+          .map(filePath => {
+            const base = filePath.split(/[/\\]/).pop()!
+            const stem = base.replace(/\.ts$/, '')
+            return `export * from '${prefix}${entry.name}/${stem}'`
+          })
+          .join('\n\n')
       }
 
-      return `export * from '${prefix}${dir.name.replace(dir.ext, '')}'`
+      const stem = entry.name.replace(/\.ts$/, '')
+      return `export * from '${prefix}${stem}'`
     })
   )
 

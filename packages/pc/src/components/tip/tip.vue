@@ -40,10 +40,10 @@ import {
   watch,
   nextTick
 } from 'vue'
-import { bem, extractNormalVNodes, zIndex } from '@ui/utils'
-import { vClickOutside } from '@ui/directives'
-import type { TipProps, ComponentSize, TipEmits } from '@ui/types'
-import { useFallbackProps, usePop } from '@ui/compositions'
+import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/core'
+import { vClickOutside } from '@ultra-ui/directives'
+import type { TipProps, ComponentSize, TipEmits } from '@ultra-ui/pc/types'
+import { useFallbackProps, usePop } from '@ultra-ui/core'
 import { UNodeRender } from '../node-render'
 import { useNest } from './use-nest'
 

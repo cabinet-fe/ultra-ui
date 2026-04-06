@@ -1,5 +1,5 @@
-import type { FormComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 滑块组件属性 */
 export interface SliderProps<T extends number | [number, number]>

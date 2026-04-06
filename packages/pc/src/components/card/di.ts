@@ -1,6 +1,6 @@
-import type { BEM } from '@ui/utils'
+import type { BEM } from '@ultra-ui/core'
 import type { InjectionKey } from 'vue'
-import type { CardProps } from '@ui/types'
+import type { CardProps } from '@ultra-ui/pc/types'
 
 export interface CardContext {
   cls: BEM<'card'>

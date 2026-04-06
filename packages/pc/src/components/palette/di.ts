@@ -1,7 +1,7 @@
-import type { PaletteHSV, PaletteRGB } from '@ui/types'
-import type { BEM } from '@ui/utils'
+import type { PaletteHSV, PaletteRGB } from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
-import type { Updater } from '@ui/compositions'
+import type { Updater } from '@ultra-ui/core'
 
 export const PaletteDIKey: InjectionKey<{
   cls: BEM<'palette', 'u-'>

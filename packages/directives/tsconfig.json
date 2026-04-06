@@ -1,0 +1,12 @@
+{
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": ".",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

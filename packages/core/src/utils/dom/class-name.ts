@@ -1,4 +1,4 @@
-import { CLS_PREFIX } from '@ui/shared'
+import { CLS_PREFIX } from '../../shared'
 import { makeBEM, type BEMFactory } from '../helper/make-bem'
 
 export const bem: BEMFactory<typeof CLS_PREFIX> = makeBEM(CLS_PREFIX)

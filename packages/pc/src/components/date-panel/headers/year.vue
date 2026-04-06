@@ -1,20 +1,20 @@
 <template>
   <div :class="cls.e('header')">
     <u-icon @click="toPrevTenYears" title="上个十年">
-      <DArrowLeft />
+      <ChevronsLeft />
     </u-icon>
 
     <span> {{ startYear }} ~ {{ endYear }} </span>
 
     <u-icon @click="toNextTenYears" title="下个十年">
-      <DArrowRight />
+      <ChevronsRight />
     </u-icon>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@ui/components'
-import { DArrowLeft, DArrowRight } from '@ultra/icon'
+import { UIcon } from '../../icon'
+import { ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'

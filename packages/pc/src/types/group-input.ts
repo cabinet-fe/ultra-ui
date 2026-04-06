@@ -1,6 +1,6 @@
 import type { StyleValue } from 'vue'
-import type { FormComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { FormComponentProps } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 分组输入组件属性 */
 export interface GroupInputProps<

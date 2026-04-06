@@ -43,13 +43,13 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { MenuDIKey } from './di'
-import { ArrowRight } from '@ultra/icon'
+import { ArrowRight } from 'lucide-vue-next'
 import { UIcon } from '../icon'
-import type { MenuItem } from '@ui/types'
+import type { MenuItem } from '@ultra-ui/pc/types'
 import UMenuItem from './menu-item.vue'
 import { getKey } from './helper'
 import { useMenuTransition } from './use-menu-transition'
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 import UMenuIcon from './menu-icon.vue'
 
 defineOptions({ name: 'MenuSub' })

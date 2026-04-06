@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { Notification } from '@ui/components'
-import '@ui/components/notification/style.scss'
+import { Notification } from '@ultra-ui/pc/components/notification/index'
+import '@ultra-ui/pc/components/notification/style'
 import { reactive, ref } from 'vue'
 
 const config = reactive({

@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { LoadingProps, ComponentSize } from '@ui/types'
-import { bem, zIndex } from '@ui/utils'
+import type { LoadingProps, ComponentSize } from '@ultra-ui/pc/types'
+import { bem, zIndex } from '@ultra-ui/core'
 import { computed } from 'vue'
-import { useFallbackProps } from '@ui/compositions'
+import { useFallbackProps } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Loading'

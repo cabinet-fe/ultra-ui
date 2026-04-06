@@ -23,7 +23,7 @@
             @click.stop="handleClose(item, index)"
             @mousedown.stop
           >
-            <Close />
+            <X />
           </u-icon>
           <i v-else :class="cls.e('close-placeholder')"></i>
         </template>
@@ -50,8 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import {
   computed,
   createVNode,
@@ -60,11 +60,11 @@ import {
   watch,
   type CSSProperties
 } from 'vue'
-import { Close, Plus } from '@ultra/icon'
-import { useFallbackProps } from '@ui/compositions'
+import { Plus, X } from 'lucide-vue-next'
+import { useFallbackProps } from '@ultra-ui/core'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
-import { vRipple } from '@ui/directives'
+import { vRipple } from '@ultra-ui/directives'
 
 defineOptions({
   name: 'Tabs'

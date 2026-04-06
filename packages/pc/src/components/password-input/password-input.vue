@@ -13,8 +13,8 @@
     <template #suffix>
       <Transition name="fade">
         <UIcon :class="cls.e('visibility-toggle')" :size="18">
-          <Hide v-if="pwdVisible" />
-          <View v-else />
+          <EyeOff v-if="pwdVisible" />
+          <Eye v-else />
         </UIcon>
       </Transition>
     </template>
@@ -26,14 +26,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { PasswordInputProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { PasswordInputProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { View, Hide } from '@ultra/icon'
+import { Eye, EyeOff } from 'lucide-vue-next'
 import { computed, nextTick, shallowRef } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { obj } from 'cat-kit/fe'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { o } from '@cat-kit/core'
 
 defineOptions({
   name: 'PasswordInput'
@@ -61,7 +61,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
 )
 
 const inputProps = computed(() => {
-  return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
+  return o(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
 })
 
 const cls = bem('password-input')

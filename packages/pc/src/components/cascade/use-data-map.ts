@@ -1,5 +1,6 @@
-import { Forest, getChainValue } from 'cat-kit/fe'
-import type { CascadeNode, CascadeProps } from '@ui/types'
+import { getChainValue } from '@ultra-ui/core'
+import { Forest } from '@ultra-ui/core'
+import type { CascadeNode, CascadeProps } from '@ultra-ui/pc/types'
 import {
   shallowRef,
   triggerRef,
@@ -30,7 +31,7 @@ export function useDataMap(options: DataMapOptions): UseDataMapReturned {
     forest.value.dft(node => {
       const value = getChainValue(node.data, valueKey!)
       if (value !== null && value !== undefined) {
-        dataMap.value.set(value, node)
+        dataMap.value.set(String(value), node)
       }
     })
 

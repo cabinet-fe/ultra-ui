@@ -1,5 +1,5 @@
 import type { Component } from 'vue'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 import type { TipProps } from './tip'
 
 /** 气泡确认框组件属性 */

@@ -49,16 +49,17 @@ import type {
   NumberInputEmits,
   NumberInputProps,
   InputExposed
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
-import { n, Tween, obj, isUndef } from 'cat-kit/fe'
-import { ArrowUp, ArrowDown } from '@ultra/icon'
+import { n, isUndef, o } from '@cat-kit/core'
+import { Tween } from '@ultra-ui/core'
+import { ArrowDown, ArrowUp } from 'lucide-vue-next'
 import { UIcon } from '../icon'
-import { bem } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { vRipple } from '@ui/directives'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { bem } from '@ultra-ui/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { vRipple } from '@ultra-ui/directives'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'NumberInput'
@@ -89,7 +90,7 @@ const { size, disabled, readonly } = useFormFallbackProps(
 )
 
 const inputProps = computed(() => {
-  return obj(props).pick([
+  return o(props).pick([
     'clearable',
     'disabled',
     'placeholder',

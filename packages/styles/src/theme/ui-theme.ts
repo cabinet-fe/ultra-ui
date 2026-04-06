@@ -1,7 +1,7 @@
-import { isObj, kebabCase, merge } from 'cat-kit/fe'
+import { isObj, o, str } from '@cat-kit/core'
 import { mixColor } from '../helper'
 import type { Theme } from '../type'
-import { withUnit } from '@ui/utils'
+import { withUnit } from '@ultra-ui/core'
 import { reactive, toRaw, watch } from 'vue'
 
 type RecursivePartial<T> = {
@@ -25,7 +25,7 @@ export class UITheme {
   ) {
     Object.keys(theme).forEach(key => {
       const value = theme[key]
-      const varKey = `${parentKey.startsWith('-') ? parentKey : kebabCase(parentKey)}-${kebabCase(key)}`
+      const varKey = `${parentKey.startsWith('-') ? parentKey : str(parentKey).kebabCase()}-${str(key).kebabCase()}`
       if (typeof value === 'object') {
         this.renderBase(value, themeRules, varKey)
       } else {
@@ -141,10 +141,9 @@ export class UITheme {
 
     delEmpty(customTheme)
 
-    const themeConfig = merge(
-      JSON.parse(JSON.stringify(toRaw(this.theme))),
-      customTheme
-    )
+    const themeConfig = o(
+      JSON.parse(JSON.stringify(toRaw(this.theme))) as Record<string, unknown>
+    ).merge(customTheme as Record<string, unknown>) as Theme
     return new UITheme(themeConfig)
   }
 }

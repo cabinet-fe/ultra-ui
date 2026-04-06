@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 import { getTenYears } from '../../calendar/utils'
 import { computed } from 'vue'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
-import type { CalendarYear } from '@ui/types'
-import type { Dater } from 'cat-kit'
+import type { CalendarYear } from '@ultra-ui/pc/types'
+import type { Dater } from '@cat-kit/core'
 
 defineOptions({
   name: 'DatePanelYear'

@@ -1,5 +1,5 @@
-import type { DeconstructValue } from '../helper'
-import type { ColorType, ComponentProps } from '../component-common'
+import type { DeconstructValue } from '@ultra-ui/core'
+import type { ColorType, ComponentProps } from '@ultra-ui/core'
 
 /** 消息确认框组件属性 */
 export interface MessageConfirmProps extends ComponentProps {

@@ -39,10 +39,10 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
-import type { ProgressNodesProps, ProgressNodesEmits } from '@ui/types'
-import { useDrag, useResizeObserver } from '@ui/compositions'
-import { bem } from '@ui/utils'
-import { getChainValue } from 'cat-kit/fe'
+import type { ProgressNodesProps, ProgressNodesEmits } from '@ultra-ui/pc/types'
+import { useDrag, useResizeObserver } from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
+import { getChainValue } from '@ultra-ui/core'
 
 defineOptions({
   name: 'ProgressNodes'

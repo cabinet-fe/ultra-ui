@@ -33,13 +33,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { ActionEmits, ActionProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { ActionEmits, ActionProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UButton } from '../button'
 import { computed, inject } from 'vue'
 import { ActionDIKey } from './di'
 import { UPopConfirm } from '../pop-confirm'
-import { omit } from 'cat-kit'
+import { o } from '@cat-kit/core'
 
 defineOptions({
   name: 'Action',
@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<ActionProps>(), {
 })
 
 const buttonProps = computed(() => {
-  return omit(props, ['needConfirm', 'loading', 'circle', 'propagate'])
+  return o(props).omit(['needConfirm', 'loading', 'circle', 'propagate'])
 })
 
 const emit = defineEmits<ActionEmits>()

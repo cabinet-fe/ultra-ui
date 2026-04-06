@@ -2,7 +2,7 @@
   <div :class="cls.e('header')">
     <div>
       <u-icon @click="toPrevYear" title="上一年">
-        <DArrowLeft />
+        <ChevronsLeft />
       </u-icon>
       <u-icon @click="toPrevMonth" title="上个月">
         <ArrowLeft />
@@ -23,15 +23,15 @@
         <ArrowRight />
       </u-icon>
       <u-icon @click="toNextYear" title="下一年">
-        <DArrowRight />
+        <ChevronsRight />
       </u-icon>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@ui/components'
-import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra/icon'
+import { UIcon } from '../../icon'
+import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 

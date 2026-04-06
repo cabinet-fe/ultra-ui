@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
 import { PaletteDIKey } from './di'
-import { useDrag } from '@ui/compositions'
+import { useDrag } from '@ultra-ui/core'
 
 defineOptions({
   name: 'PaletteSV'

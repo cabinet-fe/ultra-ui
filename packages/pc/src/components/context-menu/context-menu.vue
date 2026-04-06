@@ -24,14 +24,14 @@ import type {
   ContextMenuItem,
   ContextMenuProps,
   ComponentSize
-} from '@ui/types'
-import { bem, withUnit, zIndex } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import { bem, withUnit, zIndex } from '@ultra-ui/core'
 import { computed, provide, shallowRef, type CSSProperties } from 'vue'
 import { ContextMenuDIKey } from './di'
 import UContextMenuItem from './context-menu-item.vue'
-import { objMap } from 'cat-kit/fe'
-import { useFallbackProps } from '@ui/compositions'
-import { vClickOutside } from '@ui/directives'
+import { objMap } from '@ultra-ui/core'
+import { useFallbackProps } from '@ultra-ui/core'
+import { vClickOutside } from '@ultra-ui/directives'
 
 defineOptions({
   name: 'ContextMenu'

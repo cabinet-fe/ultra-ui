@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Lock } from '@ultra/icon'
+import { Lock } from 'lucide-vue-next'
 
 const current = ref(2)
 const items = Array.from({ length: 5 }, (_, index) => ({

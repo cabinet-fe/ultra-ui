@@ -1,5 +1,5 @@
-import type { DeconstructValue } from '../helper'
-import type { FormComponentProps } from '../component-common'
+import type { DeconstructValue } from '@ultra-ui/core'
+import type { FormComponentProps } from '@ultra-ui/core'
 
 /** textarea组件属性 */
 export interface TextareaProps extends FormComponentProps {

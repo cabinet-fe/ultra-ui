@@ -37,7 +37,7 @@
           :class="cls.e('clear')"
           @click.stop="handleClear"
         >
-          <Close />
+          <X />
         </u-icon>
 
         <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
@@ -137,22 +137,22 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
-import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '@ui/types'
-import { bem, withUnit } from '@ui/utils'
+import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '@ultra-ui/pc/types'
+import { bem, withUnit } from '@ultra-ui/core'
 import { UTag } from '../tag'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/core'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { UEmpty } from '../empty'
-import { ArrowDown, Search, Close } from '@ultra/icon'
+import { ArrowDown, Search, X } from 'lucide-vue-next'
 import UMultiSelectOption from './multi-select-option.vue'
 import { MultiSelectDIKey } from './di'
 import { useOptions } from '../select/use-options'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { getChainValue } from 'cat-kit/fe'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
+import { getChainValue } from '@ultra-ui/core'
 
 defineOptions({ name: 'MultiSelect' })
 

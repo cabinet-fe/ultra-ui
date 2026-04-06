@@ -1,6 +1,6 @@
-import type { Dater } from 'cat-kit/fe'
-import type { FormComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { Dater } from '@cat-kit/core'
+import type { FormComponentProps } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** date-picker组件属性 */
 export interface DatePickerProps extends FormComponentProps {

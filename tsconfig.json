@@ -3,6 +3,9 @@
   "references": [
     { "path": "./cli/tsconfig.json" },
     { "path": "./tsconfig.node.json" },
-    { "path": "./ui/tsconfig.json" }
+    { "path": "./packages/core/tsconfig.json" },
+    { "path": "./packages/styles/tsconfig.json" },
+    { "path": "./packages/directives/tsconfig.json" },
+    { "path": "./packages/pc/tsconfig.json" }
   ]
 }

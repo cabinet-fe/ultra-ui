@@ -44,10 +44,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { ProgressProps, ColorType } from '@ui/types'
-import { bem, withUnit } from '@ui/utils'
+import type { ProgressProps, ColorType } from '@ultra-ui/pc/types'
+import { bem, withUnit } from '@ultra-ui/core'
 import { computed } from 'vue'
-import { n } from 'cat-kit/fe'
+import { n } from '@cat-kit/core'
 
 defineOptions({
   name: 'Progress'

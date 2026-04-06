@@ -1,18 +1,20 @@
-import { readDir } from 'cat-kit/be'
-import { resolve } from 'path'
-import { UI_PATH } from '../shared'
+import { readDir } from '@cat-kit/be'
 import { cp, rm } from 'fs/promises'
+import { resolve } from 'path'
 
-readDir(resolve(UI_PATH, 'types'), {
+import { UI_PATH } from '../shared'
+
+const typesDir = resolve(UI_PATH, 'types')
+const dtsFiles = await readDir(typesDir, {
   recursive: true,
-  async callback(dir) {
-    if (dir.type === 'file') {
-      if (!/\.d\.ts$/.test(dir.path)) return
-      const targetFilePath = dir.path.replace(/\.d\.ts$/, '.ts')
-      await cp(dir.path, targetFilePath, {
-        force: true
-      })
-      rm(dir.path)
-    }
-  }
+  onlyFiles: true,
+  filter: e => e.name.endsWith('.d.ts')
 })
+
+for (const filePath of dtsFiles as string[]) {
+  const targetFilePath = filePath.replace(/\.d\.ts$/, '.ts')
+  await cp(filePath, targetFilePath, {
+    force: true
+  })
+  await rm(filePath)
+}

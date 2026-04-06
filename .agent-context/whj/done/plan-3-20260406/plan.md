@@ -1,6 +1,6 @@
 # 版本发布与收尾
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -192,4 +192,18 @@ import '@ultra-ui/styles'
 
 ## 影响范围
 
+- `AGENTS.md`
+- `MIGRATION.md`
+- `.npmrc`
+- `vitest.config.ts`
+- `build/prepare.ts`
+- `build/index.ts`
+- `cli/export/index.ts`
+- `cli/rename/types.ts`
+- `cli/gen-component/render-file.ts`
+- `packages/pc/src/types/theme.ts`
+- `sample/vite.config.ts`
+
 ## 历史补丁
+
+- patch-1: review 后修正 dist 内 package.json 路径与 AGENTS 核心依赖表述

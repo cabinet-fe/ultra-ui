@@ -41,8 +41,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatePickerEmits, DatePickerProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { DatePickerEmits, DatePickerProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UDropdown } from '../dropdown'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
@@ -50,13 +50,13 @@ import {
   useFormComponent,
   useFormFallbackProps,
   useUpdateLock
-} from '@ui/compositions'
+} from '@ultra-ui/core'
 import { computed, shallowRef, watch } from 'vue'
-import { Calendar } from '@ultra/icon'
+import { Calendar } from 'lucide-vue-next'
 import { UDatePanel } from '../date-panel'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import type { DropdownExposed } from '@ui/types'
-import { date, type Dater } from 'cat-kit/fe'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
+import type { DropdownExposed } from '@ultra-ui/pc/types'
+import { date, type Dater } from '@cat-kit/core'
 
 defineOptions({
   name: 'DatePicker'

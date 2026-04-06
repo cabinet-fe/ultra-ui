@@ -14,12 +14,12 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 import { getYearMonths } from '../../calendar/utils'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
-import type { CalendarMonth } from '@ui/types'
-import type { Dater } from 'cat-kit/fe'
+import type { CalendarMonth } from '@ultra-ui/pc/types'
+import type { Dater } from '@cat-kit/core'
 
 defineOptions({
   name: 'DatePanelMonth'

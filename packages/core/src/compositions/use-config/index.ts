@@ -1,6 +1,6 @@
 import { reactive, readonly, watch } from 'vue'
-import type { ComponentSize } from '@ui/types'
-import { isObj } from 'cat-kit/fe'
+import type { ComponentSize } from '../../types/component-common'
+import { isObj } from '@cat-kit/core'
 
 interface State {
   /** 是否开启动画，机器老可以关闭动画来获得性能 */

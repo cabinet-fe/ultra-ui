@@ -1,5 +1,5 @@
-import type { TreeEmit, TreeProps } from '@ui/types'
-import { getChainValue, Tree } from 'cat-kit/fe'
+import type { TreeEmit, TreeProps } from '@ultra-ui/pc/types'
+import { getChainValue } from '@ultra-ui/core'
 import { nextTick, watch, type ComputedRef } from 'vue'
 
 import type { TreeNode } from './tree-node'
@@ -76,8 +76,8 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       checkNode(node)
     } else {
-      Tree.dft(node, (node) => {
-        !node.disabled && checkNode(node)
+      node.dfs(sub => {
+        !sub.disabled && checkNode(sub)
       })
     }
 
@@ -101,8 +101,8 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       uncheckNode(node)
     } else {
-      Tree.dft(node, (node) => {
-        !node.disabled && uncheckNode(node)
+      node.dfs(sub => {
+        !sub.disabled && uncheckNode(sub)
       })
     }
 

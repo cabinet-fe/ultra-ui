@@ -1,5 +1,5 @@
-import { type Dater, date } from 'cat-kit/fe'
-import type { CalendarDay, CalendarMonth, CalendarYear } from '@ui/types'
+import { type Dater, date } from '@cat-kit/core'
+import type { CalendarDay, CalendarMonth, CalendarYear } from '@ultra-ui/pc/types'
 
 export const weekDays: string[] = ['日', '一', '二', '三', '四', '五', '六']
 

@@ -33,17 +33,17 @@
 </template>
 
 <script lang="ts" setup>
-import type { MenuEmits, MenuProps, ComponentSize } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { MenuEmits, MenuProps, ComponentSize } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, provide, shallowReactive, watch } from 'vue'
 import { MenuDIKey } from './di'
-import { useFallbackProps } from '@ui/compositions'
+import { useFallbackProps } from '@ultra-ui/core'
 import UMenuSub from './menu-sub.vue'
 import UMenuItem from './menu-item.vue'
 import UMenuSubCollapsed from './menu-sub-collapsed.vue'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { UScroll } from '../scroll'
-import { Tree } from 'cat-kit/fe'
+import { Tree } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Menu'

@@ -26,9 +26,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { SwitchEmits, SwitchProps, _SwitchExposed } from '@ui/types'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { bem } from '@ui/utils'
+import type { SwitchEmits, SwitchProps, _SwitchExposed } from '@ultra-ui/pc/types'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 
 defineOptions({

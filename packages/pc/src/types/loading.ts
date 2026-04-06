@@ -1,4 +1,4 @@
-import type {DeconstructValue} from "../helper"
+import type { DeconstructValue } from '@ultra-ui/core'
 
 export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner'
 

@@ -1,4 +1,4 @@
-import { useConfig } from '@ui/compositions'
+import { useConfig } from '@ultra-ui/core'
 import type { UITheme } from './theme/ui-theme'
 import { lightTheme } from './theme/light'
 import { darkTheme } from './theme/dark'

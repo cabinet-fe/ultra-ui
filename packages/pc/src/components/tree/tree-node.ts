@@ -1,13 +1,10 @@
-import { TreeNode as _TreeNode, getChainValue } from 'cat-kit/fe'
+import { getChainValue } from '@ultra-ui/core'
+import { TreeNode as _TreeNode } from '@cat-kit/core'
 import { shallowReactive } from 'vue'
 
 export class TreeNode<
   Val extends Record<string, any> = Record<string, any>
 > extends _TreeNode<Val> {
-  override parent: TreeNode<Val> | null = null
-
-  override children?: TreeNode<Val>[] = undefined
-
   expanded = false
   loading = false
   loaded = false
@@ -31,19 +28,17 @@ export class TreeNode<
 
   constructor(params: {
     data: Val
-    index: number
-    parent?: any
+    parent?: TreeNode<Val>
     labelKey: string
     valueKey: string
   }) {
-    const { data, index, parent, labelKey, valueKey } = params
-    super(data, index)
-    if (parent) {
-      this.parent = parent
-    }
+    const { data, parent, labelKey, valueKey } = params
+    super(data)
     this.labelKey = labelKey
     this.valueKey = valueKey
-
+    if (parent !== undefined) {
+      ;(this as { parent?: TreeNode<Val> }).parent = parent
+    }
     return shallowReactive(this)
   }
 
@@ -61,6 +56,7 @@ export class TreeNode<
    */
   bubbleSet(setter: (node: TreeNode<Val>) => boolean | void): void {
     const ret = setter(this)
-    ret !== false && this.parent?.bubbleSet(setter)
+    const p = this.parent as TreeNode<Val> | undefined
+    ret !== false && p?.bubbleSet(setter)
   }
 }

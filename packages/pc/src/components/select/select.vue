@@ -119,20 +119,20 @@ import type {
   _SelectExposed,
   DropdownExposed,
   ScrollExposed
-} from '@ui/types'
-import { bem, withUnit, scrollIntoContainerView } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { bem, withUnit, scrollIntoContainerView } from '@ultra-ui/core'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/core'
 import { UDropdown } from '../dropdown'
 import { UScroll } from '../scroll'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { ArrowDown, Search } from '@ultra/icon'
+import { ArrowDown, Search } from 'lucide-vue-next'
 import { useOptions } from './use-options'
 import { useKeyboard } from './use-keyboard'
 import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import { getChainValue } from 'cat-kit/fe'
-import { vFocus } from '@ui/directives'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
+import { getChainValue } from '@ultra-ui/core'
+import { vFocus } from '@ultra-ui/directives'
 
 defineOptions({ name: 'Select' })
 

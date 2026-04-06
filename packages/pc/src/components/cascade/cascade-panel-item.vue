@@ -35,10 +35,10 @@ import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'
 import { UScroll } from '../scroll'
 import { CascadeDIKey } from './di'
 import { UIcon } from '../icon'
-import { ArrowRight } from '@ultra/icon'
-import { bem, scrollIntoContainerView } from '@ui/utils'
+import { ArrowRight } from 'lucide-vue-next'
+import { bem, scrollIntoContainerView } from '@ultra-ui/core'
 import { UCheckbox } from '../checkbox'
-import type { CascadeNode } from '@ui/types'
+import type { CascadeNode } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'UCascadePanelItem'

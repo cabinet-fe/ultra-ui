@@ -31,13 +31,13 @@ import type {
   NumberRangeInputEmits,
   NumberRangeInputProps,
   NumberRangeTuple
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { UNumberInput } from '../number-input'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
-import { n, obj } from 'cat-kit/fe'
-import { bem } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { n, o } from '@cat-kit/core'
+import { bem } from '@ultra-ui/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'NumberRangeInput'
@@ -151,7 +151,7 @@ onMounted(() => {
 })
 
 const numberInputBind = computed(() => {
-  return obj(props).pick([
+  return o(props).pick([
     'clearable',
     'prefix',
     'suffix',

@@ -32,14 +32,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { PopConfirmProps, PopConfirmEmits } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { PopConfirmProps, PopConfirmEmits } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UTip } from '../tip'
 import { UButton } from '../button'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { ref } from 'vue'
 import { UIcon } from '../icon'
-import { QuestionFilled } from '@ultra/icon'
+import { CircleHelp } from 'lucide-vue-next'
 
 defineOptions({
   name: 'PopConfirm'
@@ -49,7 +49,7 @@ const emit = defineEmits<PopConfirmEmits>()
 
 withDefaults(defineProps<PopConfirmProps>(), {
   trigger: 'click',
-  icon: QuestionFilled,
+  icon: CircleHelp,
   direction: 'bottom',
   iconColor: '#ffc107',
   confirmText: '确认',

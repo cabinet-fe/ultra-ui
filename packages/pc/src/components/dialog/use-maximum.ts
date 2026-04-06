@@ -1,5 +1,5 @@
-import { useTransition } from '@ui/compositions'
-import { type BEM, removeStyles, setStyles } from '@ui/utils'
+import { useTransition } from '@ultra-ui/core'
+import { type BEM, removeStyles, setStyles } from '@ultra-ui/core'
 import { shallowRef, type ShallowRef } from 'vue'
 
 interface Options {

@@ -1,5 +1,5 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '@ui/types'
-import { bem, type BEM } from '@ui/utils'
+import type { DatePanelEmits, DatePanelProps, PanelType } from '@ultra-ui/pc/types'
+import { bem, type BEM } from '@ultra-ui/core'
 import {
   provide,
   shallowRef,
@@ -7,7 +7,7 @@ import {
   type ShallowRef,
   type ComputedRef
 } from 'vue'
-import type { Dater } from 'cat-kit/fe'
+import type { Dater } from '@cat-kit/core'
 import { DatePanelDIKey } from './di'
 import { usePanelDate } from './use-panel-date'
 import { useDateSelect } from './use-date-select'

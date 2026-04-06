@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import type { SliderProps, SliderEmits } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { SliderProps, SliderEmits } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, provide, watch } from 'vue'
 import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
@@ -29,7 +29,7 @@ import {
   useFormComponent,
   useFormFallbackProps,
   useUpdateLock
-} from '@ui/compositions'
+} from '@ultra-ui/core'
 import { useSlider } from './use-slider'
 
 defineOptions({

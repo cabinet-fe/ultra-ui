@@ -1,5 +1,5 @@
-import type { GroupInputEmits, GroupInputProps } from '@ui/types'
-import { createIncrease } from '@ui/utils'
+import type { GroupInputEmits, GroupInputProps } from '@ultra-ui/pc/types'
+import { createIncrease } from '@ultra-ui/core'
 import {
   isReactive,
   nextTick,

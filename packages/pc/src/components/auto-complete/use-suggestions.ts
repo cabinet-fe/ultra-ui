@@ -1,4 +1,4 @@
-import { debounce } from 'cat-kit/fe'
+import { debounce } from '@cat-kit/core'
 import {
   computed,
   type ComputedRef,

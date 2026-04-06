@@ -1,5 +1,5 @@
-@use '../../styles/mixins' as m;
-@use '../../styles/functions' as fn;
+@use 'mixins' as m;
+@use 'functions' as fn;
 
 @include m.b(number-range-input) {
   display: inline-flex;

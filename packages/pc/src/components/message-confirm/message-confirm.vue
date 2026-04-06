@@ -27,12 +27,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageConfirmProps, ColorType, ComponentSize } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { MessageConfirmProps, ColorType, ComponentSize } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UButton } from '../button'
-import { useFallbackProps } from '@ui/compositions'
+import { useFallbackProps } from '@ultra-ui/core'
 import { ref, onMounted } from 'vue'
-import { zIndex } from '@ui/utils'
+import { zIndex } from '@ultra-ui/core'
 
 defineOptions({
   name: 'MessageConfirm'

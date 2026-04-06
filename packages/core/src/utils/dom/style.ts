@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'vue'
-import { kebabCase } from 'cat-kit/fe'
+import { str } from '@cat-kit/core'
 
 /**
  * 给数值加上单位
@@ -33,9 +33,9 @@ export function setStyles(el: HTMLElement, styles: CSSProperties): void {
   //   Object.keys(styles).forEach(key => {
   //     const value = styles[key]
   //     if (!value && value !== 0) {
-  //       el.attributeStyleMap.delete(kebabCase(key))
+  //       el.attributeStyleMap.delete(str(key).kebabCase())
   //     } else {
-  //       el.attributeStyleMap.set(kebabCase(key), value)
+  //       el.attributeStyleMap.set(str(key).kebabCase(), value)
   //     }
   //   })
   // } else {
@@ -53,7 +53,7 @@ export function setStyles(el: HTMLElement, styles: CSSProperties): void {
 export function removeStyles(el: HTMLElement, props: string[]): void {
   if (el.attributeStyleMap) {
     props.forEach(key => {
-      el.attributeStyleMap.delete(kebabCase(key))
+      el.attributeStyleMap.delete(str(key).kebabCase())
     })
   } else {
     props.forEach(key => {

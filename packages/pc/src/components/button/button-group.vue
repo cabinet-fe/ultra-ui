@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
-import type { ButtonProps } from '@ui/types'
+import { bem } from '@ultra-ui/core'
+import type { ButtonProps } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'ButtonGroup'

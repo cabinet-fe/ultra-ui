@@ -1,9 +1,9 @@
 import { type InjectionKey, inject, provide } from 'vue'
-import type { FormProps } from '@ui/types'
+import type { FormContextProps } from '../../types/form-context'
 
 type DIContext = {
   /** 表单属性 */
-  formProps: FormProps
+  formProps: FormContextProps
 }
 
 const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')
@@ -13,7 +13,7 @@ const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')
  * @param props 表单属性
  * @returns
  */
-export function useFormComponent(props: FormProps): void
+export function useFormComponent(props: FormContextProps): void
 /**
  * 表单内的组件的组合式方法
  * @returns 提供一个form的上下文

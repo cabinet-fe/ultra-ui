@@ -34,7 +34,7 @@
           title="清除"
           @click.stop="handleClear"
         >
-          <Close />
+          <X />
         </UIcon>
 
         <u-icon :class="cls.e('icon')" v-else><Calendar /></u-icon>
@@ -60,20 +60,20 @@
 </template>
 
 <script lang="ts" setup>
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 import type {
   DateRangePickerEmits,
   DateRangePickerProps,
   DropdownExposed
-} from '@ui/types'
-import { bem } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, shallowRef, watch } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { UDatePanel } from '../date-panel'
-import { date, type Dater } from 'cat-kit/fe'
+import { date, type Dater } from '@cat-kit/core'
 import { UDropdown } from '../dropdown'
-import { useUpdateLock } from '@ui/compositions'
-import { Calendar, Close } from '@ultra/icon'
+import { useUpdateLock } from '@ultra-ui/core'
+import { Calendar, X } from 'lucide-vue-next'
 import { UIcon } from '../icon'
 
 defineOptions({

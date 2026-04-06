@@ -1,12 +1,11 @@
-import type { TreeNode as _TreeNode, Forest } from 'cat-kit/fe'
-import type { DeconstructValue } from '../helper'
+import type { TreeNode as _TreeNode } from '@cat-kit/core'
+import type { Forest } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface TreeNode<
   Data extends Record<string, any> = Record<string, any>
 > extends _TreeNode<Data> {
-  parent: TreeNode<Data> | null
-  children?: TreeNode<Data>[]
   valueKey: string
   labelKey: string
   visible: boolean

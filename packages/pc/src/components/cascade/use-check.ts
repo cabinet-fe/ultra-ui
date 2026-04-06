@@ -1,5 +1,5 @@
-import type { CascadeProps, CascadeEmits, CascadeNode } from '@ui/types'
-import type { Forest } from 'cat-kit'
+import type { CascadeProps, CascadeEmits, CascadeNode } from '@ultra-ui/pc/types'
+import type { Forest } from '@ultra-ui/core'
 import {
   computed,
   shallowRef,
@@ -9,7 +9,7 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
-import type { Updater } from '@ui/compositions'
+import type { Updater } from '@ultra-ui/core'
 
 interface CheckOptions {
   props: CascadeProps
@@ -93,11 +93,11 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
 
   function checkItem(item: CascadeNode, checked: boolean) {
     if (checked) {
-      item.dft(node => {
+      item.dfs(node => {
         checkedSet.value.add(node)
       })
     } else {
-      item.dft(node => {
+      item.dfs(node => {
         checkedSet.value.delete(node)
       })
     }

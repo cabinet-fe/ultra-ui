@@ -58,8 +58,8 @@ import type {
   ComponentSize,
   ScrollExposed,
   TableRowSlotsScope
-} from '@ui/types'
-import { bem, setStyles, withUnit } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import { bem, setStyles, withUnit } from '@ultra-ui/core'
 import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { useRows } from './use-rows'
@@ -69,7 +69,7 @@ import UTableHead from './table-head'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
 import { UScroll } from '../scroll'
-import { useFallbackProps, useVirtual } from '@ui/compositions'
+import { useFallbackProps, useVirtual } from '@ultra-ui/core'
 import { useCheck } from './use-check'
 import { useTable } from './use-table'
 import type { TableRowNode } from './node/row'

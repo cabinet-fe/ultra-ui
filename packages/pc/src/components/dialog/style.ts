@@ -1,5 +1,5 @@
 import '../icon/style'
 import '../scroll/style'
-import '@ui/styles/anime/fade.scss'
-import '@ui/styles/anime/spring.scss'
+import '@ultra-ui/styles/anime/fade.scss'
+import '@ultra-ui/styles/anime/spring.scss'
 import './style.scss'

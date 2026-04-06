@@ -23,7 +23,7 @@
 import { inject, onBeforeUnmount } from 'vue'
 import { MultiSelectDIKey } from './di'
 import { UCheckbox } from '../checkbox'
-import { Ripple } from '@ui/directives'
+import { Ripple } from '@ultra-ui/directives'
 
 defineOptions({
   name: 'MultiSelectOption'

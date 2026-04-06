@@ -41,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuItem } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { MenuItem } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UTip } from '../tip'
 import UMenuIcon from './menu-icon.vue'
 import { useMenuItem } from './use-menu-item'

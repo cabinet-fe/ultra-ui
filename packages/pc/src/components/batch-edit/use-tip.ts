@@ -1,5 +1,5 @@
 import { type ShallowRef, shallowRef, watch } from 'vue'
-import type { BatchEditProps, BatchEditFeature } from '@ui/types'
+import type { BatchEditProps, BatchEditFeature } from '@ultra-ui/pc/types'
 
 export interface TipReturned {
   visible: ShallowRef<boolean>

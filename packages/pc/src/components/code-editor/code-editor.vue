@@ -12,14 +12,14 @@ import {
   useTemplateRef,
   watch
 } from 'vue'
-import { bem } from '@ui/utils'
-import type { CodeEditorLang, CodeEditorProps } from '@ui/types'
 import {
-  UScroll,
+  bem,
   useFormComponent,
   useFormFallbackProps,
   zIndex
-} from 'ultra-ui'
+} from '@ultra-ui/core'
+import type { CodeEditorLang, CodeEditorProps } from '@ultra-ui/pc/types'
+import { UScroll } from '../scroll'
 import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'

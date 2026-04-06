@@ -1,7 +1,7 @@
 import type { ShallowRef } from 'vue'
-import type { ComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
-import type { ValidateRule } from '../utils/form/validate'
+import type { ComponentProps } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
+import type { ValidateRule } from '@ultra-ui/core'
 
 export interface FormModelItem<Val = any> extends ValidateRule {
   /** 模型值 */

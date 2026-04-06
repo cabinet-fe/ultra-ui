@@ -1,9 +1,7 @@
-import { TreeNode } from 'cat-kit/fe'
+import { TreeNode } from '@cat-kit/core'
 import { shallowReactive } from 'vue'
 
-export class CascadeNode extends TreeNode {
-  parent: CascadeNode | null = null
-  children?: CascadeNode[]
+export class CascadeNode extends TreeNode<Record<string, any>> {
   visible = true
 
   value: string
@@ -16,14 +14,10 @@ export class CascadeNode extends TreeNode {
     label: string
     parent?: CascadeNode
   }) {
-    const { data, index, parent, value, label } = options
-    super(data, index)
-    if (parent) {
-      this.parent = parent
-    }
+    const { data, value, label } = options
+    super(data)
     this.value = value
     this.label = label
-
     return shallowReactive(this)
   }
 }

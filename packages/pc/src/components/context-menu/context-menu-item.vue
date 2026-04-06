@@ -10,7 +10,7 @@
     @click="handleClickMenu"
   >
     <u-icon v-if="loading" :class="bem.is('loading')">
-      <Loading />
+      <LoaderCircle />
     </u-icon>
     <template v-else>
       <u-icon v-if="menu.icon">
@@ -26,11 +26,11 @@
 <script lang="ts" setup>
 import { computed, inject, shallowRef } from 'vue'
 import { ContextMenuDIKey } from './di'
-import type { ContextMenuItem } from '@ui/types'
-import { vRipple } from '@ui/directives'
+import type { ContextMenuItem } from '@ultra-ui/pc/types'
+import { vRipple } from '@ultra-ui/directives'
 import { UIcon } from '../icon'
-import { Loading } from '@ultra/icon'
-import { bem } from '@ui/utils'
+import { LoaderCircle } from 'lucide-vue-next'
+import { bem } from '@ultra-ui/core'
 
 defineOptions({
   name: 'ContextMenuItem'

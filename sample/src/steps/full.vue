@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ColorType } from 'ultra-ui'
+import type { ColorType } from "@ultra-ui/pc"
 import { shallowReactive, shallowRef } from 'vue'
 
 const directions = [

@@ -1,4 +1,4 @@
-import type { FormModelItem } from '@ui/types'
+import type { FormModelItem } from '@ultra-ui/pc/types'
 
 /**
  * 定义表单项

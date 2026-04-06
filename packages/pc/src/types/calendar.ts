@@ -1,5 +1,5 @@
-import type { Dater } from 'cat-kit/fe'
-import type { DeconstructValue } from '../helper'
+import type { Dater } from '@cat-kit/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** day接口 */
 export interface CalendarDay {

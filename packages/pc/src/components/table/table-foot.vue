@@ -31,10 +31,10 @@
 import { computed, inject } from 'vue'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './node/col'
-import { n } from 'cat-kit/fe'
+import { n } from '@cat-kit/core'
 import { UNodeRender } from '../node-render'
-import { withUnit } from '@ui/utils'
-import type { RenderReturn } from '@ui/types/helper'
+import { withUnit } from '@ultra-ui/core'
+import type { RenderReturn } from '@ultra-ui/core'
 
 defineOptions({
   name: 'TableFoot'

@@ -9,18 +9,18 @@
       @click.stop="handleClose"
       :class="cls.e('icon-close')"
     >
-      <Close />
+      <X />
     </u-icon>
   </span>
 </template>
 
 <script lang="ts" setup>
-import type { TagEmits, TagProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { TagEmits, TagProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 import { UIcon } from '../icon'
-import { Close } from '@ultra/icon'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { X } from 'lucide-vue-next'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Tag'

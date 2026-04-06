@@ -186,9 +186,9 @@
 </template>
 
 <script lang="ts" setup>
-import { type Theme, UITheme, currentTheme, darkTheme, lightTheme, loadTheme } from '@ui/styles/theme'
-import type { ThemeProps, _ThemeExposed } from '@ui/types'
-import { bem } from '@ui/utils'
+import { type Theme, UITheme, currentTheme, darkTheme, lightTheme, loadTheme } from '@ultra-ui/styles/theme'
+import type { ThemeProps, _ThemeExposed } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed, shallowRef, watch, watchEffect } from 'vue'
 import { UNumberInput } from '../number-input'
 import { UPalette } from '../palette'

@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ui/components'
+import { FormModel } from '@ultra-ui/pc'
 
 const model = new FormModel({
   name: {},

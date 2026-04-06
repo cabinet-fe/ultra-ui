@@ -17,7 +17,7 @@
 import { inject } from 'vue'
 import type { ColumnNode } from './node/col'
 import { TableDIKey } from './di'
-import { withUnit } from '@ui/utils'
+import { withUnit } from '@ultra-ui/core'
 
 defineOptions({
   name: 'TableCell'

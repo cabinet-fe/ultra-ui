@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 import type { DefineComponent, AppContext } from 'vue'
 
 /** 消息类型 */

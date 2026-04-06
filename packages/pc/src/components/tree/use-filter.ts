@@ -1,6 +1,6 @@
 import type { ShallowRef } from 'vue'
 import type { TreeNode } from './tree-node'
-import type { Forest } from 'cat-kit/fe'
+import type { Forest } from '@ultra-ui/core'
 
 interface Options {
   forest: ShallowRef<Forest<TreeNode>>

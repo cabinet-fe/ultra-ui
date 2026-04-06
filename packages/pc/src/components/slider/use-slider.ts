@@ -1,6 +1,6 @@
-import type { SliderProps } from '@ui/types'
+import type { SliderProps } from '@ultra-ui/pc/types'
 import { ref, type Ref, type ShallowRef, shallowRef } from 'vue'
-import { useResizeObserver } from '@ui/compositions'
+import { useResizeObserver } from '@ultra-ui/core'
 
 interface UseSliderReturn {
   offset1: Ref<number>

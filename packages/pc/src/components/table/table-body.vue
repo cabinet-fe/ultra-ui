@@ -28,7 +28,7 @@ import { computed, inject, shallowRef, watch } from 'vue'
 import { TableDIKey } from './di'
 import { UTableRow, UExpandTableRow } from './table-row'
 import { UEmpty } from '../empty'
-import { bem, setStyles } from '@ui/utils'
+import { bem, setStyles } from '@ultra-ui/core'
 
 defineOptions({
   name: 'TableBody'

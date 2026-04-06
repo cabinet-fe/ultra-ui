@@ -1,11 +1,11 @@
-import type { Undef } from '@ui/types/helper'
+import type { Undef } from '../../types/helper'
 import type {
   ValidateRule,
   Data,
   ValidatorConfig,
   PresetRule
-} from '@ui/types/utils/form/validate'
-import { getChainValue } from 'cat-kit/fe'
+} from '../../types/utils/form/validate'
+import { getChainValue } from '../helper/chain'
 
 const isEmpty = (value: any): value is null | undefined => {
   return value === null || value === undefined

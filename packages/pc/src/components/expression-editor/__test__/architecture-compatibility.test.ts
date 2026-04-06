@@ -4,7 +4,7 @@
  * Failure here maps directly to roadmap acceptance criteria.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { ExpressionEditorEmits, ExpressionEditorProps, VariableItem } from '@ui/types'
+import type { ExpressionEditorEmits, ExpressionEditorProps, VariableItem } from '@ultra-ui/pc/types'
 
 vi.mock('../expression-editor.vue', () => ({
   default: { name: 'ExpressionEditor' }

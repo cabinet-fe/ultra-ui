@@ -1,4 +1,4 @@
-import { camelCase } from 'cat-kit/be'
+import { str } from '@cat-kit/core'
 import { existsSync } from 'fs'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
 import { format } from 'oxfmt'
@@ -37,7 +37,7 @@ async function write(ctx: ComponentCtx, content: string, ext: string) {
 }
 
 export function renderVueFile(ctx: ComponentCtx) {
-  const upperCamelCase = camelCase(ctx.componentName, 'upper')
+  const upperCamelCase = str(ctx.componentName).camelCase('upper')
 
   const componentProps = `${upperCamelCase}Props`
 
@@ -51,8 +51,8 @@ export function renderVueFile(ctx: ComponentCtx) {
   </template>
 
   <script lang="ts" setup>
-  import type { ${componentProps} } from '@ui/types'
-  import { bem } from '@ui/utils'
+  import type { ${componentProps} } from '../types/${ctx.componentName}'
+  import { bem } from '@ultra-ui/core'
 
   defineOptions({
     name: '${upperCamelCase}'
@@ -68,14 +68,14 @@ export function renderVueFile(ctx: ComponentCtx) {
 }
 
 export function renderTypeFile(ctx: ComponentCtx) {
-  const upperCamelCase = camelCase(ctx.componentName, 'upper')
+  const upperCamelCase = str(ctx.componentName).camelCase('upper')
 
   const PropsName = `${upperCamelCase}Props`
 
   const EmitsName = `${upperCamelCase}Emits`
 
   const content = `
-  import type { DeconstructValue } from "../helper"
+  import type { DeconstructValue } from '@ultra-ui/core'
 
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {
@@ -100,13 +100,13 @@ export function renderTypeFile(ctx: ComponentCtx) {
   `
 
   write(ctx, content, '.ts').then(async (filePath) => {
-    await cp(filePath, join(UI_PATH, 'types/components', ctx.componentName + '.ts'))
+    await cp(filePath, join(UI_PATH, 'types', ctx.componentName + '.ts'))
     rm(filePath)
   })
 }
 
 export function renderIndexFile(ctx: ComponentCtx) {
-  const upperCamelCase = camelCase(ctx.componentName, 'upper')
+  const upperCamelCase = str(ctx.componentName).camelCase('upper')
 
   const content = `
   export { default as ${NAME_SPACE}${upperCamelCase} } from './${ctx.componentName}.vue'
@@ -117,9 +117,9 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
 export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
-  @use '../../styles/mixins' as m;
-  @use '../../styles/functions' as fn;
-  @use '../../styles/vars';
+  @use 'mixins' as m;
+  @use 'functions' as fn;
+  @use 'vars';
 
   // 方便拼接
   $root-name: ${ctx.componentName};

@@ -7,10 +7,10 @@ import type {
   RenderReturn,
   TableColumn,
   TableRowSlotsScope
-} from '@ui/types'
-import type { BEM } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
 import type { ColumnConfig } from './use-columns'
-import type { VirtualReturned } from '@ui/compositions'
+import type { VirtualReturned } from '@ultra-ui/core'
 import type { ColumnNode } from './node/col'
 
 export const TableDIKey: InjectionKey<

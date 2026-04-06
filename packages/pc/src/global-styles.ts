@@ -1,0 +1,6 @@
+import '@ultra-ui/styles'
+import './components/context-menu/style'
+import './components/message/style'
+import './components/notification/style'
+import './components/message-confirm/style'
+import './components/loading/style'

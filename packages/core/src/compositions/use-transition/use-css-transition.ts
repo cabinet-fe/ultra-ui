@@ -1,6 +1,6 @@
 import { isRef, watch, onBeforeUnmount, computed } from 'vue'
 import type { Returned, CssTransitionOptions } from './type'
-import { createToggle } from '@ui/utils'
+import { createToggle } from '../../utils'
 
 /**
  * 使用css过渡

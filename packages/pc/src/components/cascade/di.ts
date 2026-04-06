@@ -1,5 +1,5 @@
-import type { BEM } from '@ui/utils'
-import type { CascadeProps, ComponentSize } from '@ui/types'
+import type { BEM, ComponentSize } from '@ultra-ui/core'
+import type { CascadeProps } from '@ultra-ui/pc/types'
 import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
 
 export const CascadeDIKey: InjectionKey<{

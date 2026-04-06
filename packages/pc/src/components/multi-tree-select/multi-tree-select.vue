@@ -34,7 +34,7 @@
       <!-- 清空 icon -->
       <transition name="zoom-in" mode="out-in">
         <u-icon v-if="showClear" :class="cls.e('clear')" @click.stop="handleClear">
-          <Close />
+          <X />
         </u-icon>
 
         <!-- 下拉 icon -->
@@ -95,22 +95,23 @@
 </template>
 
 <script lang="ts" setup>
-import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '@ui/types'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { bem } from '@ui/utils'
+import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '@ultra-ui/pc/types'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
 import { UDropdown } from '../dropdown'
 import { UTree } from '../tree'
 import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 import { UButton } from '../button'
-import { ArrowDown, Close, Search } from '@ultra/icon'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { ArrowDown, Search, X } from 'lucide-vue-next'
+import { computed, nextTick, shallowRef, unref, watch } from 'vue'
 import { UCheckbox } from '../checkbox'
-import { omit, Tree } from 'cat-kit/fe'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { o } from '@cat-kit/core'
+import { Tree } from '@ultra-ui/core'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 import type { TreeSlotsScope } from '../tree/di'
-import type { DropdownExposed } from '@ui/types'
+import type { DropdownExposed } from '@ultra-ui/pc/types'
 
 defineOptions({ name: 'MultiTreeSelect' })
 
@@ -130,7 +131,7 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
 })
 
 const treeProps = computed(() => {
-  return omit(props, [
+  return o(props).omit([
     'tips',
     'field',
     'placeholder',
@@ -184,7 +185,8 @@ function markEvent() {
 
 /**是否全选 */
 const allChecked = computed(() => {
-  return model.value?.length === treeRef.value?.forest.size
+  const f = treeRef.value && unref(treeRef.value.forest)
+  return model.value?.length === f?.size
 })
 
 /**部分 */

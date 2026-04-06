@@ -28,9 +28,9 @@ import type {
   GridInputProps,
   GridInputEmits,
   GridInputExposed
-} from '@ui/types'
-import { bem } from '@ui/utils'
-import { useFallbackProps } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { useFallbackProps } from '@ultra-ui/core'
 
 defineOptions({
   name: 'GridInput'

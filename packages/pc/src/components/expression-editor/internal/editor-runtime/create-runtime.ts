@@ -1,7 +1,7 @@
 import { createEditor } from 'lexical'
 import { watchEffect, computed, type Ref, type ShallowRef } from 'vue'
-import type { ExpressionEditorEmits, ExpressionEditorProps } from '@ui/types'
-import type { BEM } from '@ui/utils'
+import type { ExpressionEditorEmits, ExpressionEditorProps } from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
 import type {
   EditorMutationGateway,
   ExpressionEditorRuntime

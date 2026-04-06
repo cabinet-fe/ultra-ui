@@ -7,8 +7,8 @@ import {
   type ComputePositionReturn,
   type Placement
 } from '@floating-ui/dom'
-import type { TipAlign, TipDirection } from '@ui/types'
-import { getScrollParents, setStyles } from '@ui/utils'
+import type { TipAlign, TipDirection } from '../../types/tip-geometry'
+import { getScrollParents, setStyles } from '@ultra-ui/core'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
 
 interface Options {

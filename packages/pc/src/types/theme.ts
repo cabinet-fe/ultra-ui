@@ -1,5 +1,5 @@
-import type { UITheme } from '@ui/styles/theme'
-import type { DeconstructValue } from '../helper'
+import type { UITheme } from '@ultra-ui/styles'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 主题组件属性 */
 export interface ThemeProps {

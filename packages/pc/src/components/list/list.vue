@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { ListProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { ListProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UScroll } from '../scroll'
-import { useFallbackProps } from '@ui/compositions'
-import type { ComponentSize } from '@ui/types'
+import { useFallbackProps } from '@ultra-ui/core'
+import type { ComponentSize } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'List'

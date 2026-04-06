@@ -41,15 +41,15 @@
 
 <script lang="tsx" setup generic="Model extends FormModel | DynamicFormModel">
 import { UGrid } from '../grid'
-import { bem } from '@ui/utils'
-import { useFormComponent } from '@ui/compositions'
+import { bem } from '@ultra-ui/core'
+import { useFormComponent } from '@ultra-ui/core'
 import { useNodeInterceptor } from './use-node-interceptor'
 import { UFormItem } from '../form-item'
 import { shallowRef, toRef } from 'vue'
-import { getChainValue, setChainValue } from 'cat-kit/fe'
+import { getChainValue, setChainValue } from '@ultra-ui/core'
 import type { FormModel } from './form-model'
 import type { DynamicFormModel } from './dynamic-form-model'
-import type { BreakCols, GridExposed, FormProps, _FormExposed } from '@ui/types'
+import type { BreakCols, GridExposed, FormProps, _FormExposed } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'Form'

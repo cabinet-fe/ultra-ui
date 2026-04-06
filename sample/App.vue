@@ -71,10 +71,10 @@ import {
   darkTheme,
   UITheme,
   type MenuItem
-} from 'ultra-ui'
+} from '@ultra-ui/pc'
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
-import type { ComponentSize } from 'ultra-ui/types'
-import { Setting } from '@ultra/icon'
+import type { ComponentSize } from '@ultra-ui/pc/types'
+import { Settings } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()

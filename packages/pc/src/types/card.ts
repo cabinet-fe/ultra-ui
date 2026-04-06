@@ -1,5 +1,5 @@
-import type { ComponentProps } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { ComponentProps } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 卡片组件属性 */
 export interface CardProps extends ComponentProps {

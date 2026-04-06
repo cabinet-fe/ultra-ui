@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 
 defineOptions({
   name: 'ListItem'

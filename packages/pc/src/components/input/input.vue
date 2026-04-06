@@ -36,7 +36,7 @@
       title="清除"
       @click.stop="clearModelValue"
     >
-      <Close />
+      <X />
     </UIcon>
     <span
       :class="suffixClass"
@@ -54,17 +54,17 @@
 </template>
 
 <script lang="tsx" setup>
-import type { InputEmits, InputProps, _InputExposed } from '@ui/types'
+import type { InputEmits, InputProps, _InputExposed } from '@ultra-ui/pc/types'
 import {
   useFocus,
   useFormComponent,
   useFormFallbackProps
-} from '@ui/compositions'
-import { bem } from '@ui/utils'
+} from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
-import { Close } from '@ultra/icon'
+import { X } from 'lucide-vue-next'
 import { UIcon } from '../icon'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Input'

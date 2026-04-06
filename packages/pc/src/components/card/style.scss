@@ -1,7 +1,7 @@
 @use 'sass:map';
-@use '../../styles/mixins' as m;
-@use '../../styles/vars';
-@use '../../styles/functions' as fn;
+@use 'mixins' as m;
+@use 'vars';
+@use 'functions' as fn;
 
 $root-name: card;
 @include m.b($root-name) {

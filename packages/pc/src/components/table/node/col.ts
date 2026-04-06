@@ -1,10 +1,8 @@
-import { TreeNode } from 'cat-kit/fe'
+import { TreeNode } from '@cat-kit/core'
 import { reactive, shallowReactive } from 'vue'
-import type { TableColumn, TableColumnAlign } from '@ui/types'
+import type { TableColumn, TableColumnAlign } from '@ultra-ui/pc/types'
 
 export class ColumnNode extends TreeNode<TableColumn> {
-  children?: ColumnNode[] | undefined
-  parent: ColumnNode | null = null
   /** 叶子节点数量 */
   leafs?: number
 
@@ -96,6 +94,7 @@ export class ColumnNode extends TreeNode<TableColumn> {
   style: Record<string, number> = reactive({})
 
   constructor(val: TableColumn, index: number) {
-    super(val ? shallowReactive(val) : val, index)
+    super(val ? shallowReactive(val) : val)
+    this.index = index
   }
 }

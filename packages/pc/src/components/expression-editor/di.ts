@@ -1,5 +1,5 @@
-import type { ExpressionEditorProps, VariableItem } from '@ui/types'
-import type { BEM } from '@ui/utils'
+import type { ExpressionEditorProps, VariableItem } from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
 import type { InjectionKey, ComputedRef } from 'vue'
 import type { LexicalEditor } from 'lexical'
 

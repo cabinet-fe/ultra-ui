@@ -5,7 +5,7 @@ import {
   provide,
   Transition
 } from 'vue'
-import type { AnimationProps } from '@ui/types'
+import type { AnimationProps } from '@ultra-ui/pc/types'
 import { AnimationDIKey } from './di'
 
 const Animation: DefineComponent<AnimationProps> = defineComponent({

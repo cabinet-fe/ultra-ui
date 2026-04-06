@@ -18,17 +18,17 @@
       v-if="closable || duration === 0"
       @click.stop="immediateClose"
     >
-      <UIcon><Close /></UIcon>
+      <UIcon><X /></UIcon>
     </div>
   </li>
 </template>
 
 <script lang="ts" setup>
-import type { MessageProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { MessageProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { onMounted } from 'vue'
-import { useFallbackProps } from '@ui/compositions'
-import { Close } from '@ultra/icon'
+import { useFallbackProps } from '@ultra-ui/core'
+import { X } from 'lucide-vue-next'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'
 

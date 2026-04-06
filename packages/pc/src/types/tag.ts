@@ -1,4 +1,4 @@
-import type { ColorType, ComponentSize } from '../component-common'
+import type { ColorType, ComponentSize } from '@ultra-ui/core'
 
 /** 标签组件属性 */
 export interface TagProps {

@@ -1,5 +1,6 @@
-import type { TableColumn, TableProps } from '@ui/types'
-import { Forest, Tree, last } from 'cat-kit/fe'
+import type { TableColumn, TableProps } from '@ultra-ui/pc/types'
+import { last } from '@cat-kit/core'
+import { Forest, Tree } from '@ultra-ui/core'
 import {
   computed,
   createVNode,
@@ -9,9 +10,9 @@ import {
   type ShallowRef
 } from 'vue'
 import { UButton } from '../button'
-import { ArrowRight } from '@ultra/icon'
+import { ArrowRight } from 'lucide-vue-next'
 import { UIcon } from '../icon'
-import { type BEM } from '@ui/utils'
+import { type BEM } from '@ultra-ui/core'
 import { ColumnNode } from './node/col'
 
 /**
@@ -173,7 +174,7 @@ export function useColumns(options: Options): ColumnConfig {
           }
       }
 
-      const result = Forest.create(sortedColumns, {
+      const result = Forest.create<ColumnNode>(sortedColumns, {
         createNode(data, index) {
           return new ColumnNode(data, index)
         }

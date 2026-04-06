@@ -22,7 +22,7 @@
 
     <div class="space">
       <div>圆形</div>
-      <u-button type="primary" circle :icon="Edit"></u-button>
+      <u-button type="primary" circle :icon="Pencil"></u-button>
     </div>
 
     <!-- disabled -->
@@ -39,7 +39,7 @@
     <!-- loading -->
     <div class="space">
       <div>加载</div>
-      <u-button loading :loadingIcon="Refresh">默认</u-button>
+      <u-button loading :loadingIcon="RefreshCw">默认</u-button>
       <u-button loading type="primary">主题</u-button>
       <u-button loading type="success">成功</u-button>
       <u-button loading type="warning">警告</u-button>
@@ -96,8 +96,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Edit, Refresh } from '@ultra/icon'
-import { bem } from 'ultra-ui'
+import { Pencil, RefreshCw } from 'lucide-vue-next'
+import { bem } from '@ultra-ui/core'
 import { shallowRef } from 'vue'
 
 const buttons = [

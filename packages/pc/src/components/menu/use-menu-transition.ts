@@ -1,4 +1,4 @@
-import { removeStyles, setStyles } from '@ui/utils'
+import { removeStyles, setStyles } from '@ultra-ui/core'
 
 interface UseMenuTransitionReturned {
   enter: (el: HTMLElement) => void

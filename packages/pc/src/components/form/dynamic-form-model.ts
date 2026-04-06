@@ -1,6 +1,6 @@
-import type { FormModelItem, DataSettingConfig } from '@ui/types'
-import { Validator } from '@ui/utils'
-import { getChainValue, setChainValue } from 'cat-kit/fe'
+import type { FormModelItem, DataSettingConfig } from '@ultra-ui/pc/types'
+import { Validator } from '@ultra-ui/core'
+import { getChainValue, setChainValue } from '@ultra-ui/core'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'
 
 /**

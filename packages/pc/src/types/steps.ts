@@ -1,5 +1,5 @@
-import type { ColorType, ComponentSize } from '../component-common'
-import type { DeconstructValue } from '../helper'
+import type { ColorType, ComponentSize } from '@ultra-ui/core'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 步骤组件组件属性 */
 export interface StepsProps {

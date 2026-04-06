@@ -46,8 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { MoreFilled, Star, Lock } from '@ultra/icon'
-import { type ButtonProps, useComponentProps } from 'ultra-ui'
+import { MoreHorizontal, Star, Lock } from 'lucide-vue-next'
+import { useComponentProps } from '@ultra-ui/core'
+import type { ButtonProps } from '@ultra-ui/pc/types'
 import { shallowRef } from 'vue'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
@@ -61,7 +62,7 @@ const ButtonCommonProps = useComponentProps<ButtonProps>({
 const buttons = [
   { type: 'primary', icon: Star },
   { type: 'warning', icon: Lock },
-  { icon: MoreFilled }
+  { icon: MoreHorizontal }
 ]
 
 const loading = shallowRef(false)

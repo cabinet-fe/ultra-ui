@@ -32,18 +32,18 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@ui/utils'
+import { bem, withUnit } from '@ultra-ui/core'
 import type {
   ScrollPosition,
   _ScrollExposed,
   ScrollProps,
   ScrollEmits
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
-import { useResizeObserver } from '@ui/compositions'
+import { useResizeObserver } from '@ultra-ui/core'
 import { ScrollDIKey } from './di'
-import { debounce } from 'cat-kit/fe'
+import { debounce } from '@cat-kit/core'
 
 defineOptions({
   name: 'Scroll'

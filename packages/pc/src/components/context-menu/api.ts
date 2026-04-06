@@ -1,4 +1,4 @@
-import type { ContextMenuProps } from '@ui/types'
+import type { ContextMenuProps } from '@ultra-ui/pc/types'
 import { createVNode, render, type VNode } from 'vue'
 import MContextMenu from './context-menu.vue'
 

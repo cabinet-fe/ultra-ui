@@ -10,10 +10,10 @@
   ],
   "author": "cabinet-fe",
   "workspaces": [
+    "packages/*",
     "sample",
     "cli",
-    "build",
-    "ui"
+    "build"
   ],
   "type": "module",
   "scripts": {

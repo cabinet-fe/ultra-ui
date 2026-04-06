@@ -1,4 +1,4 @@
-import type { FormComponentProps } from '../component-common'
+import type { FormComponentProps } from '@ultra-ui/core'
 
 /** 复选框组, 用来选择一组数据组件属性 */
 export interface CheckboxGroupProps extends FormComponentProps {

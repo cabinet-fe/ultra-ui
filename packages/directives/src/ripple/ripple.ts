@@ -1,5 +1,5 @@
-import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@ui/utils'
-import { pick } from 'cat-kit'
+import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@ultra-ui/core'
+import { o } from '@cat-kit/core'
 import type { CSSProperties } from 'vue'
 
 /** 鼠标或触摸事件类型 */
@@ -165,10 +165,12 @@ export class Ripple {
     }
 
     if (!this.containerComputedStyle) {
-      this.containerComputedStyle = pick(window.getComputedStyle(container), [
-        'overflow',
-        'position'
-      ])
+      this.containerComputedStyle = o(
+        window.getComputedStyle(container) as unknown as Record<string, string>
+      ).pick(['overflow', 'position']) as Pick<
+        CSSStyleDeclaration,
+        'overflow' | 'position'
+      >
     }
     const { position, overflow } = this.containerComputedStyle
     const style: CSSProperties = {}

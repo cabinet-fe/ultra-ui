@@ -1,6 +1,6 @@
-import type { ColorType, ComponentProps } from "../component-common";
-import type { Component, ShallowRef } from "vue";
-import type { DeconstructValue } from "../helper";
+import type { ColorType, ComponentProps } from '@ultra-ui/core'
+import type { Component, ShallowRef } from 'vue'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 按钮类型 */
 export type ButtonType = ColorType;

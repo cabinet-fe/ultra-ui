@@ -11,8 +11,14 @@ import type {
   BatchEditEmits,
   BatchEditProps,
   TableExposed
-} from '@ui/types'
-import { Forest, getChainValue, last, safeRun, setChainValue } from 'cat-kit/fe'
+} from '@ultra-ui/pc/types'
+import {
+  forestVisit,
+  getChainValue,
+  last,
+  safeRun,
+  setChainValue
+} from '@ultra-ui/core'
 
 interface Options {
   props: BatchEditProps
@@ -120,7 +126,7 @@ export function useEdit(options: Options): EditReturned {
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
 
-    const parent = Forest.visit(
+    const parent = forestVisit(
       data ?? [],
       insertIndexes.value.slice(0, -1),
       childrenKey.value
@@ -274,7 +280,7 @@ export function useEdit(options: Options): EditReturned {
 
     const data = [...(props.data ?? [])]
 
-    const parent = Forest.visit(
+    const parent = forestVisit(
       data,
       row.indexes.slice(0, -1),
       childrenKey.value

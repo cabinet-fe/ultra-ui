@@ -1,7 +1,7 @@
-import type { MessageConfirmProps, ColorType } from '@ui/types'
+import type { MessageConfirmProps, ColorType } from '@ultra-ui/pc/types'
 import UMessageConfirm from './message-confirm.vue'
 import { createVNode, render } from 'vue'
-import { zIndex } from '@ui/utils'
+import { zIndex } from '@ultra-ui/core'
 
 const ColorTypeArray: ColorType[] = [
   'primary',
@@ -20,9 +20,7 @@ type MessageConfirmTypeFn = {
   ) => void
 } & MessageConfirmFn
 
-const MessageConfirm: MessageConfirmFn & Partial<MessageConfirmTypeFn> = (
-  options: MessageConfirmProps
-) => {
+function MessageConfirm(options: MessageConfirmProps) {
   const container = document.createElement('div')
   const vm = createVNode(UMessageConfirm, {
     ...options,

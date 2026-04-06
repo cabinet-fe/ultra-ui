@@ -1,4 +1,4 @@
-import type { PaletteRGB, PaletteHSV } from '@ui/types'
+import type { PaletteRGB, PaletteHSV } from '@ultra-ui/pc/types'
 
 /**
  * 将色相值转换为 RGB 颜色

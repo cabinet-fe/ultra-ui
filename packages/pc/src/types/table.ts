@@ -1,7 +1,8 @@
-import type { Forest, TreeNode } from 'cat-kit/fe'
-import type { DeconstructValue, RenderReturn } from '../helper'
+import type { TreeNode } from '@cat-kit/core'
+import type { Forest } from '@ultra-ui/core'
+import type { DeconstructValue, RenderReturn } from '@ultra-ui/core'
 import type { ShallowRef, Slots, VNode } from 'vue'
-import type { ComponentSize } from '../component-common'
+import type { ComponentSize } from '@ultra-ui/core'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 
@@ -159,19 +160,11 @@ export interface TableRow extends TreeNode<Record<string, any>> {
   uid: number | string
   /** 索引路径 */
   indexes: number[]
-  /** 子row */
-  children?: TableRow[]
-  /** 父row */
-  parent: TableRow | null
   /** 是否为展开行 */
   isExpandRow: boolean
 }
 
 export interface TableColumnNode extends TreeNode<TableColumn> {
-  /** 子列 */
-  children?: TableColumnNode[] | undefined
-  /** 父列 */
-  parent: TableColumnNode | null
   /** 叶子节点数量 */
   leafs?: number
   key: string

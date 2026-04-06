@@ -56,8 +56,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps, VariableItem } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { ExpressionEditorProps, VariableItem } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import {
   useTemplateRef,
   provide,
@@ -68,7 +68,7 @@ import {
 } from 'vue'
 import { ExpressionEditorDIKey, createVariableMap } from './di'
 import VariablePicker from './components/variable-picker.vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { createExpressionEditorRuntime } from './internal/editor-runtime'
 import { useDecorators } from './use-decorators'
 import { useContext } from './use-context'

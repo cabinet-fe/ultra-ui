@@ -1,7 +1,7 @@
 import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
 import { TreeNode } from './tree-node'
-import type { TreeProps } from '@ui/types'
-import { Forest } from 'cat-kit/fe'
+import type { TreeProps } from '@ultra-ui/pc/types'
+import { Forest } from '@ultra-ui/core'
 
 interface Options {
   props: TreeProps
@@ -20,10 +20,9 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const forest = computed(() => {
     const { disabledNode, expandAll = false, valueKey, labelKey } = props
 
-    function createNode(data: Record<string, any>, index: number) {
+    function createNode(data: Record<string, any>, _index: number) {
       const node = new TreeNode({
         data,
-        index,
         valueKey: valueKey!,
         labelKey: labelKey!
       })
@@ -31,7 +30,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
       return node
     }
 
-    return Forest.create(props.data!, {
+    return Forest.create<TreeNode>(props.data!, {
       createNode: disabledNode
         ? (data, index) => {
             const node = createNode(data, index)

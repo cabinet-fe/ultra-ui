@@ -18,13 +18,13 @@
         >
           <u-action
             @run="handleInsertToPrev(row)"
-            :icon="InsertToPrev"
+            :icon="BetweenVerticalStart"
             title="插入到上一行"
             v-bind="props.actionsProps?.create"
           />
           <u-action
             @run="handleInsertToNext(row)"
-            :icon="InsertToNext"
+            :icon="BetweenVerticalEnd"
             title="插入到下一行"
             v-bind="props.actionsProps?.create"
           />
@@ -37,14 +37,14 @@
               dynamicFeatures.createChild?.(row))
           "
           @run="handleInsertChild(row)"
-          :icon="AddChild"
+          :icon="CopyPlus"
           title="添加子项"
           v-bind="props.actionsProps?.createChild"
         />
 
         <u-action
           v-if="staticFeatures.has('delete') || dynamicFeatures.delete?.(row)"
-          :icon="Delete"
+          :icon="Trash2"
           type="danger"
           title="删除"
           @run="handleDelete(row)"
@@ -85,13 +85,13 @@
 
 <script setup lang="ts">
 import { computed, inject, type Slots } from 'vue'
-import { omit } from 'cat-kit/fe'
-import { Delete, InsertToPrev, InsertToNext, AddChild } from '@ultra/icon'
+import { o } from '@cat-kit/core'
+import { BetweenVerticalEnd, BetweenVerticalStart, CopyPlus, Trash2 } from 'lucide-vue-next'
 import { BatchEditDIKey } from './di'
 import { UTable } from '../table'
 import { UButton } from '../button'
 import { UActionGroup, UAction } from '../action'
-import type { BatchEditFeature, TableRow } from '@ui/types'
+import type { BatchEditFeature, TableRow } from '@ultra-ui/pc/types'
 
 defineOptions({
   name: 'BatchEditList'
@@ -117,7 +117,7 @@ const {
 } = inject(BatchEditDIKey)!
 
 const tableProps = computed(() => {
-  return omit(props, [
+  return o(props).omit([
     'model',
     'columns',
     'cols',

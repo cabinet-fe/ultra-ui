@@ -26,12 +26,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ui/types'
+import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ultra-ui/pc/types'
 import { UCheckbox } from '../checkbox'
-import { bem } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
+import { bem } from '@ultra-ui/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { UTag } from '../tag'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'CheckboxGroup'

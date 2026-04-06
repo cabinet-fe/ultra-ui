@@ -1,6 +1,6 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '@ui/types'
-import type { BEM } from '@ui/utils'
-import type { Dater } from 'cat-kit/fe'
+import type { DatePanelEmits, DatePanelProps, PanelType } from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
+import type { Dater } from '@cat-kit/core'
 import type { ComputedRef, InjectionKey, Ref } from 'vue'
 
 export interface DatePanelContext {

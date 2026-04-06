@@ -1,8 +1,8 @@
 export { default as UNotification } from './notification.vue'
 import UNotification from './notification.vue'
 import { createVNode, render, type VNode, reactive } from 'vue'
-import type { NotificationProps } from '@ui/types'
-import { zIndex } from '@ui/utils'
+import type { NotificationProps } from '@ultra-ui/pc/types'
+import { zIndex } from '@ultra-ui/core'
 
 type NotificationItem = {
   vm: VNode

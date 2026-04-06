@@ -40,8 +40,8 @@
 
 <script lang="ts" setup>
 import { ref, onBeforeUnmount, watch } from 'vue'
-import { bem } from '@ui/utils'
-import type { ToolbarItem } from '@ui/types'
+import { bem } from '@ultra-ui/core'
+import type { ToolbarItem } from '@ultra-ui/pc/types'
 import {
   $getSelection,
   $isRangeSelection,

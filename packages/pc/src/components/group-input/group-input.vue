@@ -50,14 +50,14 @@
 </template>
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { GroupInputEmits, GroupInputProps } from '@ui/types'
-import { bem } from '@ui/utils'
-import { Minus, Plus } from '@ultra/icon'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import type { GroupInputEmits, GroupInputProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { Minus, Plus } from 'lucide-vue-next'
 import { useGroupItems } from './use-group-items'
 import { computed } from 'vue'
 import { UButton } from '../button'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'GroupInput'

@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { GridItemProps } from '@ui/types'
+import type { GridItemProps } from '@ultra-ui/pc/types'
 import { computed, inject, type CSSProperties, watch } from 'vue'
 import { GridDIKey } from './di'
-import { bem } from '@ui/utils'
+import { bem } from '@ultra-ui/core'
 
 defineOptions({
   name: 'GridItem'

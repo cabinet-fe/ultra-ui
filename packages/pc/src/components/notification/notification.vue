@@ -24,7 +24,7 @@
         </div>
       </div>
       <div :class="cls.e('close')" v-if="closable" @click.stop="close">
-        <UIcon><Close /></UIcon>
+        <UIcon><X /></UIcon>
       </div>
     </div>
   </transition>
@@ -35,18 +35,18 @@ import type {
   NotificationProps,
   NotificationExposed,
   ColorType
-} from '@ui/types'
-import { bem } from '@ui/utils'
-import { useFallbackProps } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { useFallbackProps } from '@ultra-ui/core'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'
 import {
-  Close,
-  CircleCheckFilled,
-  InfoFilled,
-  WarningFilled,
-  CircleClose,
-  QuestionFilled
-} from '@ultra/icon'
+  AlertTriangle,
+  CircleCheck,
+  CircleHelp,
+  CircleX,
+  Info,
+  X
+} from 'lucide-vue-next'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
 
@@ -71,11 +71,11 @@ const typeIcon = computed(() => {
   return (
     props.icon ||
     {
-      primary: InfoFilled,
-      info: QuestionFilled,
-      success: CircleCheckFilled,
-      warning: WarningFilled,
-      danger: CircleClose
+      primary: Info,
+      info: CircleHelp,
+      success: CircleCheck,
+      warning: AlertTriangle,
+      danger: CircleX
     }[type.value]
   )
 })

@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { LayoutProps } from '@ui/types'
-import { bem, withUnit } from '@ui/utils'
+import type { LayoutProps } from '@ultra-ui/pc/types'
+import { bem, withUnit } from '@ultra-ui/core'
 import {
   computed,
   shallowRef,
@@ -38,7 +38,7 @@ import {
 } from 'vue'
 import ULayoutResizer from './layout-resizer.vue'
 import { LayoutDIKey } from './di'
-import { useResizeObserver } from '@ui/compositions'
+import { useResizeObserver } from '@ultra-ui/core'
 
 defineOptions({
   name: 'Layout'

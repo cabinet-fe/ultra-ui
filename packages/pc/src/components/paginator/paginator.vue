@@ -20,7 +20,7 @@
         v-ripple="!preDisabled"
       >
         <span v-if="hovered.first">1</span>
-        <UIcon v-else><DArrowLeft /></UIcon>
+        <UIcon v-else><ChevronsLeft /></UIcon>
       </li>
 
       <li
@@ -56,7 +56,7 @@
         v-ripple="!nextDisabled"
       >
         <span v-if="hovered.last">{{ totalPages }}</span>
-        <UIcon v-else><DArrowRight /></UIcon>
+        <UIcon v-else><ChevronsRight /></UIcon>
       </li>
     </ul>
 
@@ -84,16 +84,16 @@ import type {
   PaginatorEmits,
   _PaginatorExposed,
   ComponentSize
-} from '@ui/types'
-import { bem } from '@ui/utils'
-import { useConfig, useFallbackProps } from '@ui/compositions'
+} from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { useConfig, useFallbackProps } from '@ultra-ui/core'
 import { computed, reactive, shallowRef } from 'vue'
-import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra/icon'
+import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'
-import { vRipple } from '@ui/directives'
-import { n } from 'cat-kit/fe'
+import { vRipple } from '@ultra-ui/directives'
+import { n } from '@cat-kit/core'
 
 defineOptions({
   name: 'Paginator'

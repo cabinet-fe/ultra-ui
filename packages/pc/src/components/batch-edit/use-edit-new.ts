@@ -1,5 +1,5 @@
 import { nextTick, type ShallowRef, shallowRef } from 'vue'
-import type { BatchEditEmits, BatchEditProps, TableRow } from '@ui/types'
+import type { BatchEditEmits, BatchEditProps, TableRow } from '@ultra-ui/pc/types'
 import type { TipReturned } from './use-tip'
 
 interface EditReturned {

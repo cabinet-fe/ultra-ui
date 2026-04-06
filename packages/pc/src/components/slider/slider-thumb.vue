@@ -4,7 +4,7 @@
 <script lang="ts" setup>
 import { computed, inject, useTemplateRef, watch } from 'vue'
 import { sliderContextKey } from './di'
-import { useDrag, useUpdateLock } from '@ui/compositions'
+import { useDrag, useUpdateLock } from '@ultra-ui/core'
 
 const props = defineProps<{
   modelValue: number

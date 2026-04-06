@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 多量自动完成组件组件属性 */
 export interface MultiAutoCompleteProps {

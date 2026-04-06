@@ -46,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { TableEditorProps, TableEditorEmits, TableColumn } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { TableEditorProps, TableEditorEmits, TableColumn } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 import { UTable } from '../table'
 import { UButton } from '../button'
-import { Plus, Minus, Copy } from '@ultra/icon'
-import { useComponentProps } from '@ui/compositions'
+import { Copy, Minus, Plus } from 'lucide-vue-next'
+import { useComponentProps } from '@ultra-ui/core'
 import type { TableRowNode } from '../table/node/row'
 
 defineOptions({

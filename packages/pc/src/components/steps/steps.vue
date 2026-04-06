@@ -57,13 +57,14 @@ import type {
   StepsEmits,
   ComponentSize,
   StepsSlotScope
-} from '@ui/types'
-import { bem } from '@ui/utils'
-import { useFallbackProps } from '@ui/compositions'
-import { Check } from '@ultra/icon'
+} from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
+import { useFallbackProps } from '@ultra-ui/core'
+import { Check } from 'lucide-vue-next'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
-import { getChainValue, n } from 'cat-kit/fe'
+import { getChainValue } from '@ultra-ui/core'
+import { n } from '@cat-kit/core'
 import { UNodeRender } from '../node-render'
 
 defineOptions({

@@ -16,10 +16,11 @@ import type {
   TableEmits,
   TableProps,
   ComponentSize
-} from '@ui/types'
+} from '@ultra-ui/pc/types'
 import { UCheckbox } from '../checkbox'
-import { getChainValue, type Forest } from 'cat-kit/fe'
-import type { BEM } from '@ui/utils'
+import { getChainValue } from '@ultra-ui/core'
+import type { Forest } from '@ultra-ui/core'
+import type { BEM } from '@ultra-ui/core'
 
 interface Options {
   rows: ShallowRef<TableRow[] | undefined>
@@ -222,7 +223,7 @@ export function useCheck(options: Options): UseCheckReturned {
       ? (row: TableRow) => checkedRows.value.add(row)
       : (row: TableRow) => checkedRows.value.delete(row)
 
-    row.dft(node => {
+    row.dfs(node => {
       node.checked = check
       cb(node)
     })

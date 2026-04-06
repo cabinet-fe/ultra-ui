@@ -4,8 +4,8 @@ import type {
   BatchEditProps,
   TableExposed,
   TableRow
-} from '@ui/types'
-import type { BEM } from '@ui/utils'
+} from '@ultra-ui/pc/types'
+import type { BEM } from '@ultra-ui/core'
 import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
 import type { EditReturned } from './use-edit'
 import type { FormModel } from '../form'

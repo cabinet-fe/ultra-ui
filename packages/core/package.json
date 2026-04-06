@@ -1,0 +1,32 @@
+{
+  "name": "@ultra-ui/core",
+  "version": "1.0.0",
+  "type": "module",
+  "files": ["dist"],
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    },
+    "./version": {
+      "types": "./dist/version.d.ts",
+      "import": "./dist/version.js"
+    }
+  },
+  "dependencies": {
+    "@cat-kit/core": "^1.0.0",
+    "@floating-ui/dom": "^1.7.5",
+    "@tanstack/vue-virtual": "^3.13.18"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.27"
+  }
+}

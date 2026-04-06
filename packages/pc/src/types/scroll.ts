@@ -1,5 +1,5 @@
 import type { CSSProperties, ShallowRef } from 'vue'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 export type ScrollPosition = {
   /** 横向位置 */

@@ -1,7 +1,7 @@
-import type { FormProps } from '@ui/types'
+import type { FormProps } from '@ultra-ui/pc/types'
 import { onBeforeUnmount, useSlots, type VNode } from 'vue'
-import { pick } from 'cat-kit/fe'
-import { createIncrease, extractNormalVNodes } from '@ui/utils'
+import { o } from '@cat-kit/core'
+import { createIncrease, extractNormalVNodes } from '@ultra-ui/core'
 
 interface Options {
   props: FormProps
@@ -63,7 +63,7 @@ export function useNodeInterceptor(options: Options): {
       const { props, type } = node
       const item = {
         isFormItem: (type as any)?.name === 'FormItem',
-        formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
+        formItemProps: o(props ?? {}).pick(FORM_ITEM_PROPS),
         node,
         field: props?.field,
         modelValue: props?.['model-value'] ?? props?.modelValue

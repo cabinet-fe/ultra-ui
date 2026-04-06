@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { RadioGroupProps, RadioGroupEmits } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { RadioGroupProps, RadioGroupEmits } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import URadio from '../radio/radio.vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'RadioGroup'

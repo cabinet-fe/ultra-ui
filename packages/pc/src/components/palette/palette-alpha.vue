@@ -18,7 +18,7 @@
 <script lang="ts" setup>
 import { PaletteDIKey } from './di'
 import { computed, inject, shallowRef, onMounted, watch } from 'vue'
-import { useDrag } from '@ui/compositions'
+import { useDrag } from '@ultra-ui/core'
 
 defineOptions({
   name: 'PaletteAlpha'

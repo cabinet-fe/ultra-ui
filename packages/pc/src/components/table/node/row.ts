@@ -1,6 +1,5 @@
-import { TreeNode } from 'cat-kit/fe'
+import { TreeNode } from '@cat-kit/core'
 import { isReactive, shallowReactive } from 'vue'
-
 
 /**
  * TODO: 优化参数，对大数据量来说，对象字面量参数会使内存占用过高
@@ -33,10 +32,6 @@ export class TableRowNode<
 
   uid: number | string
 
-  override children?: TableRowNode<Data>[] = undefined
-
-  override parent: TableRowNode<Data> | null = null
-
   /**
    *
    * @param data 一个普通对象或者一个响应式对象
@@ -47,15 +42,16 @@ export class TableRowNode<
   constructor(options: { data: Data; index: number; uid: number | string }) {
     const { data, index, uid } = options
 
-    if (!data) {
-      super(data, index)
-    } else {
-      super(isReactive(data) ? data : shallowReactive(data), index)
-    }
+    const d = data
+      ? isReactive(data)
+        ? data
+        : shallowReactive(data)
+      : ({} as Data)
+    super(d)
+    this.index = index
     this.uid = uid
     return shallowReactive(this)
   }
-
 
   copy() {
     const row = new TableRowNode({

@@ -59,17 +59,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '@ui/types'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { bem } from '@ui/utils'
+import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '@ultra-ui/pc/types'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import { bem } from '@ultra-ui/core'
 import { UDropdown } from '../dropdown'
 import { UTree } from '../tree'
 import { UInput } from '../input'
 import { UIcon } from '../icon'
-import { ArrowDown, Search } from '@ultra/icon'
+import { ArrowDown, Search } from 'lucide-vue-next'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import { Tree, getChainValue, omit } from 'cat-kit/fe'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { getChainValue } from '@ultra-ui/core'
+import { o } from '@cat-kit/core'
+import { Tree } from '@ultra-ui/core'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 import type { TreeSlotsScope } from '../tree/di'
 
 defineOptions({ name: 'TreeSelect' })
@@ -96,7 +98,7 @@ const slots = defineSlots<{
 }>()
 
 const treeProps = computed(() => {
-  return omit(props, [
+  return o(props).omit([
     'tips',
     'field',
     'placeholder',

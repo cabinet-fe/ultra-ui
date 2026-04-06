@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 
 /** 快速批量编辑组件属性 */
 export interface QuickBatchEditProps {

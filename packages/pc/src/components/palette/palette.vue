@@ -30,15 +30,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { PaletteProps } from '@ui/types'
-import { bem } from '@ui/utils'
+import type { PaletteProps } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { UTip } from '../tip'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 import {
   useFormComponent,
   useFormFallbackProps,
   useUpdateLock
-} from '@ui/compositions'
+} from '@ultra-ui/core'
 import PaletteSV from './palette-sv.vue'
 import PaletteHue from './palette-hue.vue'
 import PaletteAlpha from './palette-alpha.vue'

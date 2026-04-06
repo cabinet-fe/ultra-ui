@@ -61,10 +61,10 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns } from "@ultra-ui/pc"
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Tree } from 'cat-kit/fe'
+import { Tree } from '@cat-kit/core'
 
 const state = shallowReactive({
   checkable: false,

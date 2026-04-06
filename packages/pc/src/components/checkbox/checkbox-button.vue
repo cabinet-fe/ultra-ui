@@ -16,12 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import type { CheckboxButtonProps, CheckboxButtonEmits } from '@ui/types'
-import { bem } from '@ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
+import type { CheckboxButtonProps, CheckboxButtonEmits } from '@ultra-ui/pc/types'
+import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 import { UTag } from '../tag'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 
 defineOptions({
   name: 'CheckboxButton'

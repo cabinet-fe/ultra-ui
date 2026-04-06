@@ -1,6 +1,6 @@
-import type { FormComponentProps } from '@ui/types/component-common'
-import { bem, type BEM } from '@ui/utils'
-import { pick } from 'cat-kit/fe'
+import type { FormComponentProps } from '@ultra-ui/core'
+import { bem, type BEM } from '@ultra-ui/core'
+import { o } from '@cat-kit/core'
 
 /**
  * 获取表单项的属性
@@ -10,7 +10,7 @@ import { pick } from 'cat-kit/fe'
 export function getFormItemProps(
   props: FormComponentProps
 ): Pick<FormComponentProps, 'label' | 'field' | 'readonly' | 'span' | 'tips'> {
-  return pick(props, ['label', 'field', 'readonly', 'span', 'tips'])
+  return o(props).pick(['label', 'field', 'readonly', 'span', 'tips'])
 }
 
 export const formItemCls: BEM<'form-item'> = bem('form-item')

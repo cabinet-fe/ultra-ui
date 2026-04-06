@@ -165,11 +165,11 @@
 </template>
 
 <script lang="ts" setup>
-import { date, sleep } from 'cat-kit/fe'
-import { FormModel, message, defineTableColumns } from 'ultra-ui'
+import { date, sleep } from '@cat-kit/core'
+import { FormModel, message, defineTableColumns } from "@ultra-ui/pc"
 import { computed, shallowRef } from 'vue'
-import 'ultra-ui/components/message/style.js'
-import type { BatchEditFeature } from 'ultra-ui/types'
+import '@ultra-ui/pc/components/message/style'
+import type { BatchEditFeature } from '@ultra-ui/pc/types'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)

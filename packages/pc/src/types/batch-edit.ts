@@ -1,6 +1,6 @@
 import type { IFormModel } from './form'
 import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
-import type { DeconstructValue } from '../helper'
+import type { DeconstructValue } from '@ultra-ui/core'
 import type { ActionProps } from './action'
 
 /** 批量编辑列 */

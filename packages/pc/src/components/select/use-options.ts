@@ -1,5 +1,6 @@
-import type { SelectProps } from '@ui/types'
-import { debounce, getChainValue } from 'cat-kit/fe'
+import type { SelectProps } from '@ultra-ui/pc/types'
+import { getChainValue } from '@ultra-ui/core'
+import { debounce } from '@cat-kit/core'
 import {
   computed,
   shallowRef,
@@ -125,7 +126,7 @@ export function useOptions(o: Options): UseOptionsReturned {
 
         const _filteredOptions =
           propsOptions?.filter(item => {
-            return getChainValue(item, labelKey!)?.includes(qs) ?? false
+            return String(getChainValue(item, labelKey!) ?? '').includes(qs)
           }) ?? []
 
         setTempOption(qs, _filteredOptions)
