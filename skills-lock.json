@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "use-cat-kit": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "6ccf32cbcbe92ce384268dc4269f37a20bd0fa4aae0a5d4e71b9556005042219"
+    }
+  }
+}
