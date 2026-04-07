@@ -34,7 +34,7 @@ import type {
 } from '@ultra-ui/pc/types'
 import { UNumberInput } from '../number-input'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
-import { n, o } from '@cat-kit/core'
+import { n, $n, o } from '@cat-kit/core'
 import { bem } from '@ultra-ui/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
@@ -201,7 +201,7 @@ function formatNumberPart(num: number): string {
     multiple
   } = props
 
-  const displayValue = multiple ? n.div(num, multiple) : num
+  const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
     ? n(displayValue).currency('CNY', {

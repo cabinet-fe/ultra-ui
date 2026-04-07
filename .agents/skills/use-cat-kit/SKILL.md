@@ -1,87 +1,57 @@
 ---
 name: use-cat-kit
 description: >
-  cat-kit monorepo 各包的 API 文档与使用指南。当需要使用 @cat-kit/* 包编写代码、查找可用 API、
-  了解包的功能或查阅用法示例时使用此技能。覆盖包：core（类型判断、对象/数组/字符串/数字操作、
-  日期、环境检测、性能优化、观察者模式、数据结构）、http（HTTPClient、插件系统）、
-  fe（存储、文件、剪贴板、虚拟滚动）、be（文件系统、配置、日志、缓存、网络、系统、调度器）、
-  excel（工作簿模型、读写、流式解析）、maintenance（monorepo管理、依赖分析、版本、构建、发布）、
-  agent-context（ac-workflow CLI 与 Skill）、cli（提交信息校验）。
+  Cat-kit @cat-kit/* API typings mirrored under skills/use-cat-kit/generated from package dist (npm-aligned).
+  Use when coding against @cat-kit/core, http, fe, be, excel, maintenance, or agent-context / cat-cli CLIs.
+  Read generated/<pkg>/index.d.ts and related .d.ts; run bun run sync-use-cat-kit-api from repo root to refresh.
 ---
 
 # use-cat-kit
 
-cat-kit 各包的 API 参考。按需读取对应 reference 文件，不要一次全部加载。
+## 权威 API（与 npm typings 一致）
 
-## 导入约定
+各包 **`dist` 生成的 `.d.ts`** 镜像在：
 
-```typescript
-// tests、docs 包内用 /src 路径
-import { o, date } from '@cat-kit/<pkg>/src'
-// 其他包用构建产物
-import { o, date } from '@cat-kit/core'
-```
+**`skills/use-cat-kit/generated/<包目录名>/`**
 
-## @cat-kit/core — 通用工具（零依赖）
+例如：`generated/core/index.d.ts`、`generated/http/index.d.ts`。  
+元数据与版本见 **`generated/manifest.json`**，说明见 **`generated/README.md`**。
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| 数据处理 | `o()` `arr()` `str()` `n()` 类型判断 转换函数 | [core/data.md](references/core/data.md) |
-| 日期 | `date()` `Dater` 格式化/解析/比较/计算 | [core/date.md](references/core/date.md) |
-| 环境检测 | `getRuntime` `getOSType` `getBrowserType` | [core/env.md](references/core/env.md) |
-| 性能优化 | `debounce` `throttle` `parallel` `sleep` `safeRun` | [core/optimize.md](references/core/optimize.md) |
-| 观察者 | `Observable` | [core/pattern.md](references/core/pattern.md) |
-| 数据结构 | `dfs` `TreeManager` `Forest` | [core/data-structure.md](references/core/data-structure.md) |
+**刷新**：在仓库根执行
 
-## @cat-kit/http — HTTP 客户端（Browser）
+- `bun run sync-use-cat-kit-api` — 仅复制（需已构建各包 `dist`）
+- `bun run sync-use-cat-kit-api:build` — 先 `buildLib`（tsdown）+ `tsc`（agent-context、cli），再复制
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| 客户端 | `HTTPClient` get/post/put/delete/patch group abort | [http/client.md](references/http/client.md) |
-| 插件 | `TokenPlugin` `MethodOverridePlugin` 自定义插件 | [http/plugins.md](references/http/plugins.md) |
+脚本路径：`skills/use-cat-kit/scripts/sync-api-from-dist.ts`
 
-## @cat-kit/fe — 前端工具（Browser）
+## 心智模型
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| 存储 | `storage` `storageKey` `cookie` | [fe/storage.md](references/fe/storage.md) |
-| 文件 | `readChunks` `saveBlob` | [fe/file.md](references/fe/file.md) |
-| Web API | `clipboard` `queryPermission` | [fe/web-api.md](references/fe/web-api.md) |
-| 虚拟滚动 | `Virtualizer` `VirtualContainer` | [fe/virtualizer.md](references/fe/virtualizer.md) |
+1. **公共 API**：以各包根导出的类型为准，从 **`generated/<pkg>/index.d.ts`** 起顺着 `import` / 同目录 `.d.ts` 阅读（`preserveModules` 产物与源码结构大致对应）。
+2. **查证顺序**：`generated/**/*.d.ts` → 需要实现细节时再看 `packages/<pkg>/src`。
+3. **环境**：`core` / `http` / `excel` / `maintenance` 偏通用；`fe` 为 browser；`be` 为 node；`agent-context` / `cli` 以 CLI 为主。
 
-## @cat-kit/be — 后端工具（Node.js/Bun）
+## 本仓库内导入（与根目录 AGENTS.md 一致）
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| 文件系统 | `readDirRecursive` `readFile` `writeFile` `watchFile` | [be/fs.md](references/be/fs.md) |
-| 配置 | `readConfig` `ConfigManager` YAML/TOML/JSON | [be/config.md](references/be/config.md) |
-| 日志 | `createLogger` debug/info/warn/error | [be/logger.md](references/be/logger.md) |
-| 缓存 | `LRUCache` | [be/cache.md](references/be/cache.md) |
-| 网络 | `isPortAvailable` `ping` `downloadFile` | [be/net.md](references/be/net.md) |
-| 系统 | `getCPUUsage` `getMemoryUsage` `monitorSystem` | [be/system.md](references/be/system.md) |
-| 调度 | `Scheduler` `CronExpression` | [be/scheduler.md](references/be/scheduler.md) |
+- **`@cat-kit/tests`、`@cat-kit/docs`**：可对其它包使用 `@cat-kit/<pkg>/src`。
+- **其余包互相引用**：使用 **`@cat-kit/<pkg>` 的 dist**，不要用 `/src`。
+- **集中测试**在 `packages/tests/`，引入被测代码可用 `@cat-kit/<pkg>/src`。
 
-## @cat-kit/excel — Excel 读写（通用）
+## 包一览
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| 模型 | `Workbook` `Worksheet` `Row` `Cell` | [excel/model.md](references/excel/model.md) |
-| 读写 | `readWorkbook` `readWorkbookStream` `writeWorkbook` | [excel/io.md](references/excel/io.md) |
-| 工具 | `columnToIndex` `dateToExcelSerial` 错误类型 | [excel/tools.md](references/excel/tools.md) |
+| 包名 | generated 目录 | 主题导航 |
+|------|----------------|----------|
+| `@cat-kit/core` | `generated/core/` | [references/core/](references/core/data.md) |
+| `@cat-kit/http` | `generated/http/` | [references/http/](references/http/client.md) |
+| `@cat-kit/fe` | `generated/fe/` | [references/fe/](references/fe/storage.md) |
+| `@cat-kit/be` | `generated/be/` | [references/be/](references/be/fs.md) |
+| `@cat-kit/excel` | `generated/excel/` | [references/excel/](references/excel/model.md) |
+| `@cat-kit/maintenance` | `generated/maintenance/` | [references/maintenance/](references/maintenance/monorepo.md) |
+| `@cat-kit/agent-context` | `generated/agent-context/` | [references/agent-context.md](references/agent-context.md) |
+| `@cat-kit/cli` | `generated/cli/` | [references/cli.md](references/cli.md) |
 
-## @cat-kit/maintenance — Monorepo 维护（Node.js）
+外置安装与版本说明：[_meta.md](references/_meta.md)。长文教程见仓库 `docs/`。
 
-| 模块 | 关键 API | 文件 |
-|---|---|---|
-| Monorepo | `Monorepo` `WorkspaceGroup` `buildLib` | [maintenance/monorepo.md](references/maintenance/monorepo.md) |
-| 依赖分析 | `checkCircularDependencies` `buildDependencyGraph` | [maintenance/deps.md](references/maintenance/deps.md) |
-| 版本 | `parseSemver` `incrementVersion` `bumpVersion` | [maintenance/version.md](references/maintenance/version.md) |
-| 发布 | `createGitTag` `commitAndPush` `publishPackage` | [maintenance/release.md](references/maintenance/release.md) |
+## 使用方式
 
-## @cat-kit/agent-context — ac-workflow（Node.js CLI）
-
-→ [agent-context.md](references/agent-context.md) — 生命周期、CLI、Action、协作场景
-
-## @cat-kit/cli — 命令行工具（Node.js）
-
-→ [cli.md](references/cli.md) — `cat-cli verify-commit` 提交信息校验
+- **优先只打开与本问题相关的 `generated/<pkg>/` 下若干 `.d.ts`**，不要一次加载整棵 generated 树。
+- `references/*.md` 仅作分模块导航；类型以 **`generated`** 为准。

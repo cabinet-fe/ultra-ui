@@ -50,12 +50,12 @@ export class UITheme {
   private renderTypeColor() {
     const { color } = this.theme
 
-    const types = Object.keys(color)
+    const types = Object.keys(color) as (keyof typeof color)[]
     const rates = [1, 3, 5, 7, 9]
 
     const varsText = types
       .map(type => {
-        let colorValue = color[type]! as `#${string}`
+        let colorValue = color[type] as `#${string}`
 
         const rateColors = rates
           .map(rate => {
@@ -90,9 +90,9 @@ export class UITheme {
 
   private renderBGColorAlpha() {
     const { color } = this.theme.bg
-    const bgs = Object.keys(color)
+    const bgs = Object.keys(color) as (keyof typeof color)[]
     return bgs
-      .map(type => `--bg-color-${type}-alpha: ${color[type]}aa`)
+      .map(type => `--bg-color-${String(type)}-alpha: ${color[type]}aa`)
       .join(';')
   }
 

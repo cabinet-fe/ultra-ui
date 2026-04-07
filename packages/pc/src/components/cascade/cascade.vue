@@ -122,7 +122,7 @@ import {
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ultra-ui/pc/types'
 import { bem } from '@ultra-ui/core'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
-import { ArrowDown, Search, X } from 'lucide-vue-next'
+import { ArrowDown, Search, X } from '@lucide/vue'
 import { CascadeDIKey } from './di'
 import { UInput } from '../input'
 import { UTag } from '../tag'

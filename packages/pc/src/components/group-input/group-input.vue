@@ -53,7 +53,7 @@
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import type { GroupInputEmits, GroupInputProps } from '@ultra-ui/pc/types'
 import { bem } from '@ultra-ui/core'
-import { Minus, Plus } from 'lucide-vue-next'
+import { Minus, Plus } from '@lucide/vue'
 import { useGroupItems } from './use-group-items'
 import { computed } from 'vue'
 import { UButton } from '../button'

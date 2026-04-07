@@ -60,7 +60,7 @@ import type {
 } from '@ultra-ui/pc/types'
 import { bem } from '@ultra-ui/core'
 import { useFallbackProps } from '@ultra-ui/core'
-import { Check } from 'lucide-vue-next'
+import { Check } from '@lucide/vue'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import { getChainValue } from '@ultra-ui/core'

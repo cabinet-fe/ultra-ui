@@ -1,19 +1,5 @@
-# be — LRU 缓存
+# be — cache
 
-```typescript
-import { LRUCache } from '@cat-kit/be'
+**权威 typings**：[`generated/be/cache/`](../../generated/be/cache/)
 
-const cache = new LRUCache<string, any>({
-  maxSize: 100,
-  ttl?: number,
-  onEvict?: (key, value) => {}
-})
-
-cache.set('key', value, ttl?)
-cache.get('key')
-cache.has('key')
-cache.delete('key')
-cache.clear()
-cache.size
-cache.keys() / cache.values() / cache.entries()
-```
+源码：`packages/be/src/cache/`

@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
-import { Search } from 'lucide-vue-next'
+import { Search } from '@lucide/vue'
 import CustomCard from '../card/custom-card.vue'
 
 const value = shallowRef('abc')

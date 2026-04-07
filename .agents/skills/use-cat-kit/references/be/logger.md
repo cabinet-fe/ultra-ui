@@ -1,17 +1,5 @@
-# be — 日志系统
+# be — logger
 
-```typescript
-import { createLogger } from '@cat-kit/be'
+**权威 typings**：[`generated/be/logger/`](../../generated/be/logger/)
 
-const logger = createLogger({
-  level?: 'debug' | 'info' | 'warn' | 'error',
-  prefix?, timestamp?, color?, output?
-})
-
-logger.debug('detail')
-logger.info('message')
-logger.warn('warning')
-logger.error('error', error)
-
-const child = logger.child({ prefix: 'HTTP' })
-```
+源码：`packages/be/src/logger/`

@@ -62,6 +62,11 @@ export default defineConfig(() => {
   return {
     base: '/',
 
+    // 生产构建默认 lightningcss；与 esbuild 混用时可显式指定（见 Vite build.cssMinify）。
+    build: {
+      cssMinify: 'esbuild' as const,
+    },
+
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
       alias: [

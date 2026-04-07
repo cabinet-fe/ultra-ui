@@ -15,5 +15,5 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, LoaderCircle } from '@lucide/vue'
 </script>

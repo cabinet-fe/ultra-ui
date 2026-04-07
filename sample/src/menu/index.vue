@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { shallowRef, ref, reactive, computed } from 'vue'
-import { House, Users, Lock, ShoppingCart } from 'lucide-vue-next'
+import { House, Users, Lock, ShoppingCart } from '@lucide/vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const menus = shallowRef<any[]>([

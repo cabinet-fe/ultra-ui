@@ -46,7 +46,8 @@ export function useTable(options: Options): UseTableReturn {
 
     if (render) return render(ctx)
 
-    const slotsRender = props.slots?.[`column:${key}`] ?? slots[`column:${key}`]
+    const slotsRender =
+      props.forwardedSlots?.[`column:${key}`] ?? slots[`column:${key}`]
 
     if (slotsRender) return slotsRender(ctx)
 
@@ -59,7 +60,8 @@ export function useTable(options: Options): UseTableReturn {
 
     if (nameRender) return nameRender(ctx)
 
-    const slotsRender = props.slots?.[`header:${key}`] ?? slots[`header:${key}`]
+    const slotsRender =
+      props.forwardedSlots?.[`header:${key}`] ?? slots[`header:${key}`]
 
     if (slotsRender) return slotsRender(ctx)
 
@@ -67,7 +69,8 @@ export function useTable(options: Options): UseTableReturn {
   }
 
   const getExpandRowSlotsNode = (ctx: TableRowSlotsScope): RenderReturn => {
-    const slotsRender = props.slots?.['row:expand'] ?? slots['row:expand']
+    const slotsRender =
+      props.forwardedSlots?.['row:expand'] ?? slots['row:expand']
 
     if (slotsRender) return slotsRender(ctx)
     return null

@@ -62,7 +62,7 @@ import {
 } from '@ultra-ui/core'
 import { bem } from '@ultra-ui/core'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import { UIcon } from '../icon'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/core'
 

@@ -29,7 +29,7 @@ import { ContextMenuDIKey } from './di'
 import type { ContextMenuItem } from '@ultra-ui/pc/types'
 import { vRipple } from '@ultra-ui/directives'
 import { UIcon } from '../icon'
-import { LoaderCircle } from 'lucide-vue-next'
+import { LoaderCircle } from '@lucide/vue'
 import { bem } from '@ultra-ui/core'
 
 defineOptions({

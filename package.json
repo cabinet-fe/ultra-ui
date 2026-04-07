@@ -1,5 +1,8 @@
 {
   "name": "ultra",
+  "overrides": {
+    "estree-walker": "2.0.2"
+  },
   "keywords": [
     "Vue",
     "Vue UI",
@@ -19,23 +22,28 @@
   "scripts": {
     "gen": "bun cli/gen-component/index.ts",
     "export": "bun cli/export/index.ts",
+    "gen:pc-install-registry": "bun run cli/gen-pc-install-registry.ts",
     "rename:types": "bun cli/rename/types",
     "update": "bun update",
     "postinstall": "simple-git-hooks"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.3",
-    "@cat-kit/tsconfig": "^1.0.0",
-    "@types/bun": "^1.3.9",
-    "@vitejs/plugin-vue": "^6.0.4",
+    "@cat-kit/tsconfig": "^2.0.0",
+    "@types/bun": "^1.3.11",
+    "@types/node": "^22",
+    "@vitejs/plugin-vue": "^6.0.5",
     "fast-glob": "^3.3.3",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "vite-plugin-inspect": "^11.3.3",
-    "vitest": "^4.0.18",
-    "vue": "^3.5.29"
+    "vitest": "^4.1.2",
+    "vue": "^3.5.32"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cat-cli verify-commit"
+  },
+  "patchedDependencies": {
+    "@lucide/vue@1.7.0": "patches/@lucide%2Fvue@1.7.0.patch"
   }
 }

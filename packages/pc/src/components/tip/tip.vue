@@ -1,10 +1,8 @@
 <template>
   <!-- 触发 -->
-  <UNodeRender
-    v-bind="eventsHandlers"
-    :content="renderDefaultSlotTrigger()"
-    ref="triggerRef"
-  />
+  <UNodeRender v-bind="eventsHandlers" ref="triggerRef">
+    <slot />
+  </UNodeRender>
 
   <!-- 弹出内容 -->
   <teleport :to="`#${popperContainerId}`">
@@ -34,13 +32,12 @@
 import {
   shallowRef,
   computed,
-  useSlots,
   onBeforeUnmount,
   toRef,
   watch,
   nextTick
 } from 'vue'
-import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/core'
+import { bem, zIndex } from '@ultra-ui/core'
 import { vClickOutside } from '@ultra-ui/directives'
 import type { TipProps, ComponentSize, TipEmits } from '@ultra-ui/pc/types'
 import { useFallbackProps, usePop } from '@ultra-ui/core'
@@ -61,7 +58,6 @@ const props = withDefaults(defineProps<TipProps>(), {
 const emit = defineEmits<TipEmits>()
 
 const cls = bem('tip')
-const slots = useSlots()
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
@@ -94,12 +90,6 @@ function updateVisible(v: boolean) {
 }
 
 const tipVisible = useNest(visible)
-
-function renderDefaultSlotTrigger() {
-  const nodes = slots.default?.()
-  if (!nodes?.length) return null
-  return extractNormalVNodes(nodes)[0]
-}
 
 const eventsHandlers = computed(() => {
   const { trigger, disabled } = props

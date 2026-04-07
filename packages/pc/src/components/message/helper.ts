@@ -5,7 +5,7 @@ import {
   CircleHelp,
   CircleX,
   Info
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { DefineComponent } from 'vue'
 
 const typeIcons = {
@@ -22,11 +22,11 @@ export function getTypeIcon(
   return (icon ?? typeIcons[type]) as any
 }
 
-const typeColors = {
+const typeColors: Partial<Record<MessageType, ColorType>> = {
   error: 'danger',
   warn: 'warning'
 }
 
 export function getTypeColor(type: MessageType): ColorType {
-  return typeColors[type] ?? type
+  return typeColors[type] ?? (type as ColorType)
 }

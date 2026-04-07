@@ -14,7 +14,7 @@
 
 <script lang="ts" setup>
 import { UIcon } from '../../icon'
-import { ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
+import { ChevronsLeft, ChevronsRight } from '@lucide/vue'
 import { computed } from 'vue'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'

@@ -4,18 +4,22 @@ import { createVNode, render, type VNode, reactive } from 'vue'
 import type { NotificationProps } from '@ultra-ui/pc/types'
 import { zIndex } from '@ultra-ui/core'
 
+type NotificationPosition = NonNullable<NotificationProps['position']>
+
 type NotificationItem = {
   vm: VNode
 }
 
-const notificationQueue = reactive({
-  'bottom-right': [] as NotificationItem[],
-  'bottom-left': [] as NotificationItem[],
-  'top-right': [] as NotificationItem[],
-  'top-left': [] as NotificationItem[]
+type NotificationQueue = Record<NotificationPosition, NotificationItem[]>
+
+const notificationQueue = reactive<NotificationQueue>({
+  'bottom-right': [],
+  'bottom-left': [],
+  'top-right': [],
+  'top-left': []
 })
 
-const length = (key: string) => {
+const length = (key: NotificationPosition) => {
   return notificationQueue[key].length
 }
 
@@ -23,7 +27,7 @@ let count = 1
 
 const close = (
   id: string,
-  position: string,
+  position: NotificationPosition,
   userClose?: (vm: VNode) => void
 ) => {
   const index = notificationQueue[position].findIndex(({ vm }) => {
@@ -55,7 +59,7 @@ const close = (
 }
 
 const createWrapper = (options: NotificationProps) => {
-  const position = options.position || 'bottom-right'
+  const position: NotificationPosition = options.position ?? 'bottom-right'
   if (document.getElementById(`notification-${position}-id`)) {
     return document.getElementById(`notification-${position}-id`)
   } else {
@@ -136,7 +140,7 @@ const createWrapper = (options: NotificationProps) => {
 }
 
 export const Notification = (options: NotificationProps): void => {
-  const position = options.position || 'bottom-right'
+  const position: NotificationPosition = options.position ?? 'bottom-right'
   const container = document.createElement('div')
   const id = `notification_${count++}`
 

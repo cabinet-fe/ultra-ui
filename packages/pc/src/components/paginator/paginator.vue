@@ -88,7 +88,7 @@ import type {
 import { bem } from '@ultra-ui/core'
 import { useConfig, useFallbackProps } from '@ultra-ui/core'
 import { computed, reactive, shallowRef } from 'vue'
-import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight } from '@lucide/vue'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 import { UIcon } from '../icon'

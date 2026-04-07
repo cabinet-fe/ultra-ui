@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { MenuDIKey } from './di'
-import { ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from '@lucide/vue'
 import { UIcon } from '../icon'
 import type { MenuItem } from '@ultra-ui/pc/types'
 import UMenuItem from './menu-item.vue'

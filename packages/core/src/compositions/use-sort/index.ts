@@ -37,20 +37,23 @@ export function useSort({ target, onChange }: Options): void {
         // child.setAttribute('draggable', 'true')
         child.setAttribute('drag-id', index)
 
-        child.addEventListener('dragstart', e => {
-          dragState.oldIndex = e.target.getAttribute('drag-id')
-          dragState.dragId = dragState.oldIndex
+        child.addEventListener('dragstart', (e: DragEvent) => {
+          const id = Number((e.target as Element).getAttribute('drag-id'))
+          dragState.oldIndex = id
+          dragState.dragId = id
           dragState.dragIndex = index
         })
-        child.addEventListener('drag', e => {
+        child.addEventListener('drag', (e: DragEvent) => {
           e.preventDefault()
         })
-        child.addEventListener('dragover', e => {
+        child.addEventListener('dragover', (e: DragEvent) => {
           e.preventDefault()
         })
-        child.addEventListener('dragenter', e => {
+        child.addEventListener('dragenter', (e: DragEvent) => {
           e.preventDefault()
-          dragState.targetId = e.target.getAttribute('drag-id')
+          dragState.targetId = Number(
+            (e.target as Element).getAttribute('drag-id')
+          )
           dragState.targetIndex = index
           if (dragState.dragIndex !== index) {
             if (dragState.targetId > dragState.dragId) {
@@ -72,7 +75,7 @@ export function useSort({ target, onChange }: Options): void {
             dragState.newIndex = dragState.targetId
           }
         })
-        child.addEventListener('dragend', e => {
+        child.addEventListener('dragend', (e: DragEvent) => {
           e.preventDefault()
           onChange({
             newIndex: Number(dragState.newIndex),

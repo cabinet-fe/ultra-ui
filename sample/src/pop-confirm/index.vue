@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { FileText } from 'lucide-vue-next'
+import { FileText } from '@lucide/vue'
 import CustomCard from '../card/custom-card.vue'
 
 const confirmEvent = () => {

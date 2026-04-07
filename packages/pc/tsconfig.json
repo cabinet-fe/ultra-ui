@@ -4,10 +4,9 @@
     "composite": true,
     "declaration": true,
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
-    "paths": {
-      "@ultra-ui/pc/types": ["./src/types/index.ts"]
-    },
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "paths": { "@ultra-ui/pc/types": ["./src/types/index.ts"] },
     "outDir": "./dist"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],

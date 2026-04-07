@@ -39,7 +39,7 @@ import type {
 } from '@ultra-ui/pc/types'
 import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
-import { LoaderCircle } from 'lucide-vue-next'
+import { LoaderCircle } from '@lucide/vue'
 import { vRipple } from '@ultra-ui/directives'
 import { useFallbackProps } from '@ultra-ui/core'
 

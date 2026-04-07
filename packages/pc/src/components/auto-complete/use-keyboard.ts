@@ -107,7 +107,9 @@ export function useKeyboard(options: Options): UseKeyboardReturned {
     if (!keys.has(key)) return
     event.preventDefault()
     event.stopPropagation()
-    keyHandlerMap[key]()
+    if (key in keyHandlerMap) {
+      keyHandlerMap[key as keyof typeof keyHandlerMap]()
+    }
   }
 
   return {

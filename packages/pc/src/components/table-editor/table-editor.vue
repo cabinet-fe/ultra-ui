@@ -5,7 +5,7 @@
     :class="cls.b"
     :stripe="false"
     show-index
-    :slots="$slots"
+    :forwarded-slots="$slots"
   >
     <template #column:__operation="{ row }">
       <ButtonCommonProps
@@ -51,7 +51,7 @@ import { bem } from '@ultra-ui/core'
 import { computed } from 'vue'
 import { UTable } from '../table'
 import { UButton } from '../button'
-import { Copy, Minus, Plus } from 'lucide-vue-next'
+import { Copy, Minus, Plus } from '@lucide/vue'
 import { useComponentProps } from '@ultra-ui/core'
 import type { TableRowNode } from '../table/node/row'
 

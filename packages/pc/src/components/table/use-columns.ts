@@ -10,7 +10,7 @@ import {
   type ShallowRef
 } from 'vue'
 import { UButton } from '../button'
-import { ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from '@lucide/vue'
 import { UIcon } from '../icon'
 import { type BEM } from '@ultra-ui/core'
 import { ColumnNode } from './node/col'
@@ -25,9 +25,12 @@ export function defineTableColumns(
 ): TableColumn[] {
   columns.forEach(col => {
     Tree.dft(col, node => {
-      for (const key in commonProps) {
-        if (node[key] !== undefined) continue
-        node[key] = commonProps[key]
+      if (!commonProps) return
+      if (node.align === undefined && commonProps.align !== undefined) {
+        node.align = commonProps.align
+      }
+      if (node.minWidth === undefined && commonProps.minWidth !== undefined) {
+        node.minWidth = commonProps.minWidth
       }
     })
   })
@@ -109,7 +112,7 @@ export function useColumns(options: Options): ColumnConfig {
         type: 'primary',
         size: 'small',
         circle: true,
-        onClick: e => {
+        onClick: (e: MouseEvent) => {
           e.stopPropagation()
           toggleAllTreeRowExpand()
         }

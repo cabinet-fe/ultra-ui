@@ -39,7 +39,7 @@ import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
 import { ref } from 'vue'
 import { UIcon } from '../icon'
-import { CircleHelp } from 'lucide-vue-next'
+import { CircleHelp } from '@lucide/vue'
 
 defineOptions({
   name: 'PopConfirm'

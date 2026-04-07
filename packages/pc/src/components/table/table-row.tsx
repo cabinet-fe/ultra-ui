@@ -1,6 +1,6 @@
 import type { TableRow as ITableRow } from '@ultra-ui/pc/types'
 import { bem } from '@ultra-ui/core'
-import { ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from '@lucide/vue'
 import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
 import { inject } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
@@ -49,30 +49,34 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
               right={_expandColumn.style.right}
               key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
-            >
-              {!row.isLeaf || (tableProps.expandable && !row.isExpandRow) ? (
-                <UButton
-                  text
-                  class={cls.e('expand-toggle')}
-                  type='primary'
-                  size='small'
-                  circle
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleTreeRowExpand(row)
-                  }}
-                  style={`margin-left: ${marginLeft}px`}
-                >
-                  <UIcon>
-                    <ArrowRight />
-                  </UIcon>
-                </UButton>
-              ) : (
-                <i class={cls.e('expand-space')} style={`margin-left: ${marginLeft}px`}></i>
-              )}
-
-              {getColumnSlotsNode(expandCtx)}
-            </UTabelCell>
+              v-slots={{
+                default: () => (
+                  <>
+                    {!row.isLeaf || (tableProps.expandable && !row.isExpandRow) ? (
+                      <UButton
+                        text
+                        class={cls.e('expand-toggle')}
+                        type='primary'
+                        size='small'
+                        circle
+                        onClick={(e: MouseEvent) => {
+                          e.stopPropagation()
+                          toggleTreeRowExpand(row)
+                        }}
+                        style={`margin-left: ${marginLeft}px`}
+                      >
+                        <UIcon>
+                          <ArrowRight />
+                        </UIcon>
+                      </UButton>
+                    ) : (
+                      <i class={cls.e('expand-space')} style={`margin-left: ${marginLeft}px`}></i>
+                    )}
+                    {getColumnSlotsNode(expandCtx)}
+                  </>
+                )
+              }}
+            />
           )
         }
       }
@@ -93,8 +97,6 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
               return null
             }
 
-            const cellNode = getColumnSlotsNode(cellCtx)
-
             return (
               <UTabelCell
                 column={column}
@@ -104,9 +106,10 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
                 // @ts-ignore
                 onClick={(e) => handleCellClick(row, column, e)}
                 {...cellSpan}
-              >
-                {cellNode}
-              </UTabelCell>
+                v-slots={{
+                  default: () => getColumnSlotsNode(cellCtx)
+                }}
+              />
             )
           })}
         </tr>

@@ -1,8 +1,9 @@
-
 import type { App } from 'vue'
-import * as components from './components'
-import * as directives from '@ultra-ui/directives'
 
+import { vClickOutside, vFocus, vRipple } from '@ultra-ui/directives'
+
+import { pcInstallComponents } from './component-install-registry'
+import { vLoading } from './components/loading/directive'
 // 引入样式
 import './global-styles'
 import './components/action/style'
@@ -39,6 +40,7 @@ import './components/icon/style'
 import './components/input/style'
 import './components/layout/style'
 import './components/list/style'
+import './components/loading/style'
 import './components/menu/style'
 import './components/multi-select/style'
 import './components/multi-tree-select/style'
@@ -72,18 +74,16 @@ import './components/tree/style'
 import './components/watermark/style'
 import '@ultra-ui/directives/ripple/style'
 
+const pcInstallDirectives = { vClickOutside, vFocus, vRipple } as const
+
 export function UltraUI(app: App): void {
-  Object.keys(components).forEach(key => {
-    if (key.startsWith('U')) {
-      const component = components[key]
-      component && app.component(key, component)
-    }
+  Object.entries(pcInstallComponents).forEach(([name, component]) => {
+    app.component(name, component)
   })
 
-  Object.keys(directives).forEach(key => {
-    if (key.startsWith('v')) {
-      const directive = directives[key]
-      directive && app.directive(key.slice(1), directive)
-    }
+  Object.entries(pcInstallDirectives).forEach(([key, directive]) => {
+    app.directive(key.slice(1), directive)
   })
+
+  app.directive('loading', vLoading)
 }

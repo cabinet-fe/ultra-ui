@@ -2,7 +2,9 @@
   "extends": "@cat-kit/tsconfig/tsconfig.node.json",
   "compilerOptions": {
     "composite": true,
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "include": ["sample/vite.config.ts"]
 }

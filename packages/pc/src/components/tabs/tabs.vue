@@ -60,7 +60,7 @@ import {
   watch,
   type CSSProperties
 } from 'vue'
-import { Plus, X } from 'lucide-vue-next'
+import { Plus, X } from '@lucide/vue'
 import { useFallbackProps } from '@ultra-ui/core'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'

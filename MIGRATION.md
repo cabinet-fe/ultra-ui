@@ -44,11 +44,11 @@ import '@ultra-ui/styles'
 
 内部实现已迁移到 `@cat-kit/core`、`@cat-kit/be` 等；应用一般只需声明上述 `@ultra-ui/*` 包。
 
-## 图标：@ultra/icon → lucide-vue-next
+## 图标：@ultra/icon → @lucide/vue
 
-组件库内图标已改为 `lucide-vue-next`。若你的代码曾从 `@ultra/icon` 按名引用，请按下表替换**组件名**与导入包名（`'@ultra/icon'` → `'lucide-vue-next'`）。
+组件库内图标已改为 `@lucide/vue`。若你的代码曾从 `@ultra/icon` 按名引用，请按下表替换**组件名**与导入包名（`'@ultra/icon'` → `'@lucide/vue'`）。
 
-| @ultra/icon     | lucide-vue-next      |
+| @ultra/icon     | @lucide/vue      |
 | --------------- | -------------------- |
 | ArrowDown       | ArrowDown            |
 | ArrowUp         | ArrowUp              |
@@ -76,6 +76,8 @@ import '@ultra-ui/styles'
 | AddChild        | CopyPlus             |
 | InsertToPrev    | BetweenVerticalStart |
 | InsertToNext    | BetweenVerticalEnd   |
+
+**组件特例**：`NumberInput` 启用步进（`step`）时，上下按钮使用 `ChevronUp`、`ChevronDown`，与上表中通用箭头命名不同，更符合数值增减控件习惯；若业务侧自定义同款 UI，可按需选用。
 
 ## TypeScript 路径别名
 

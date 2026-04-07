@@ -22,14 +22,14 @@
           v-ripple="!disabled && increasable"
           :class="bem.is('disabled', disabled || !increasable)"
         >
-          <ArrowUp />
+          <ChevronUp />
         </u-icon>
         <u-icon
           @click="decrease"
           v-ripple="!disabled && reducible"
           :class="bem.is('disabled', disabled || !reducible)"
         >
-          <ArrowDown />
+          <ChevronDown />
         </u-icon>
       </div>
     </template>
@@ -52,9 +52,9 @@ import type {
 } from '@ultra-ui/pc/types'
 import { UInput } from '../input'
 import { computed, shallowRef, watch } from 'vue'
-import { n, isUndef, o } from '@cat-kit/core'
+import { n, $n, isUndef, o } from '@cat-kit/core'
 import { Tween } from '@ultra-ui/core'
-import { ArrowDown, ArrowUp } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp } from '@lucide/vue'
 import { UIcon } from '../icon'
 import { bem } from '@ultra-ui/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/core'
@@ -136,7 +136,7 @@ const increasable = computed(() => {
   const { max, multiple } = props
   if (isUndef(max) || isUndef(model.value)) return true
   // 如果存在倍数，先将 model.value 除以倍数得到原始值再比较
-  const rawValue = multiple ? n.div(model.value, multiple) : model.value
+  const rawValue = multiple ? $n.div(model.value, multiple) : model.value
   return rawValue < max
 })
 
@@ -145,7 +145,7 @@ const reducible = computed(() => {
   const { min, multiple } = props
   if (isUndef(min) || isUndef(model.value)) return true
   // 如果存在倍数，先将 model.value 除以倍数得到原始值再比较
-  const rawValue = multiple ? n.div(model.value, multiple) : model.value
+  const rawValue = multiple ? $n.div(model.value, multiple) : model.value
   return rawValue > min
 })
 
@@ -155,7 +155,7 @@ const defaultMaxPrecision = computed(() => {
   // 如果存在倍数，基于原始值计算精度
   const rawValue =
     multiple && model.value !== undefined
-      ? n.div(model.value, multiple)
+      ? $n.div(model.value, multiple)
       : model.value
   return Math.max(
     String(rawValue).split('.')[1]?.length ?? 0,
@@ -180,7 +180,7 @@ function getDisplayed(num?: number): string {
   } = props
 
   // 如果存在倍数，先将实际值除以倍数得到原始值
-  const displayValue = multiple ? n.div(num, multiple) : num
+  const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
     ? n(displayValue).currency('CNY', {
@@ -221,7 +221,7 @@ function parseDisplayed(str: string): number | undefined {
   let result: number | undefined
   if (isNaN(number)) {
     if (model.value === undefined) return undefined
-    result = multiple ? n.div(model.value, multiple) : model.value
+    result = multiple ? $n.div(model.value, multiple) : model.value
   } else {
     result = number
   }
@@ -238,7 +238,7 @@ function parseDisplayed(str: string): number | undefined {
   )
 
   // 如果存在倍数，将原始值乘以倍数返回实际值
-  return multiple ? n.mul(fixedResult, multiple) : fixedResult
+  return multiple ? $n.mul(fixedResult, multiple) : fixedResult
 }
 
 /**
@@ -251,11 +251,11 @@ function getValidValue<T extends undefined | number>(val: T): T {
 
   // 如果存在倍数，先将值除以倍数得到原始值进行验证，验证后再乘以倍数
   if (multiple) {
-    const rawVal = n.div(val, multiple)
+    const rawVal = $n.div(val, multiple)
     let validRawVal = rawVal
     if (min !== undefined && rawVal < min) validRawVal = min
     if (max !== undefined && rawVal > max) validRawVal = max
-    return n.mul(validRawVal, multiple) as T
+    return $n.mul(validRawVal, multiple) as T
   }
 
   if (min !== undefined && val < min) return min as T
@@ -286,7 +286,7 @@ const tween = new Tween(
       if (!_rawInput) return
       const { multiple } = props
       // 如果存在倍数，tween.state.n 存储的是原始值，需要乘以倍数后传给 getDisplayed
-      const actualValue = multiple ? n.mul(state.n, multiple) : state.n
+      const actualValue = multiple ? $n.mul(state.n, multiple) : state.n
       _rawInput.value = getDisplayed(actualValue)
     },
     // 动画进行的过程值有可能被改变, 因此在onComplete中确保还原的是原本的值
@@ -306,19 +306,19 @@ function increase(): void {
 
   if (multiple) {
     // 如果存在倍数，先将实际值除以倍数得到原始值
-    const rawVal = n.div(val, multiple)
+    const rawVal = $n.div(val, multiple)
     // 在原始值基础上加步长
-    const newRawVal = n.plus(rawVal, stepVal.value)
+    const newRawVal = $n.plus(rawVal, stepVal.value)
     // 乘以倍数得到新的实际值
-    const newVal = n.mul(newRawVal, multiple)
+    const newVal = $n.mul(newRawVal, multiple)
     const target = getValidValue(newVal)
     model.value = target
     // tween 动画在原始值上进行
-    tween.state.n = n.div(target, multiple)
-    tween.to({ n: n.div(target, multiple) })
+    tween.state.n = $n.div(target, multiple)
+    tween.to({ n: $n.div(target, multiple) })
   } else {
     tween.state.n = val
-    const target = getValidValue(n.plus(val, stepVal.value))
+    const target = getValidValue($n.plus(val, stepVal.value))
     model.value = target
     tween.to({ n: target })
   }
@@ -332,19 +332,19 @@ function decrease(): void {
 
   if (multiple) {
     // 如果存在倍数，先将实际值除以倍数得到原始值
-    const rawVal = n.div(val, multiple)
+    const rawVal = $n.div(val, multiple)
     // 在原始值基础上减步长
-    const newRawVal = n.minus(rawVal, stepVal.value)
+    const newRawVal = $n.minus(rawVal, stepVal.value)
     // 乘以倍数得到新的实际值
-    const newVal = n.mul(newRawVal, multiple)
+    const newVal = $n.mul(newRawVal, multiple)
     const target = getValidValue(newVal)
     model.value = target
     // tween 动画在原始值上进行
-    tween.state.n = n.div(target, multiple)
-    tween.to({ n: n.div(target, multiple) })
+    tween.state.n = $n.div(target, multiple)
+    tween.to({ n: $n.div(target, multiple) })
   } else {
     tween.state.n = val
-    const target = getValidValue(n.minus(val, stepVal.value))
+    const target = getValidValue($n.minus(val, stepVal.value))
     model.value = target
     tween.to({ n: target })
   }
@@ -371,14 +371,14 @@ function handleFocus(): void {
 
   if (multiple) {
     // 如果存在倍数，先除以倍数得到原始值进行精度修正，再乘以倍数
-    const rawVal = n.div(model.value, multiple)
+    const rawVal = $n.div(model.value, multiple)
     const fixedRawVal = +n(rawVal).fixed(
       precision ?? {
         maxPrecision,
         minPrecision
       }
     )
-    model.value = n.mul(fixedRawVal, multiple)
+    model.value = $n.mul(fixedRawVal, multiple)
   } else {
     model.value = +n(model.value).fixed(
       precision ?? {

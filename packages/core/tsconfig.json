@@ -4,8 +4,8 @@
     "composite": true,
     "declaration": true,
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
-    "paths": {},
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "./dist"
   },
   "include": ["src/**/*.ts"],

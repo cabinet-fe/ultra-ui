@@ -31,7 +31,7 @@
 import { computed, inject } from 'vue'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './node/col'
-import { n } from '@cat-kit/core'
+import { $n } from '@cat-kit/core'
 import { UNodeRender } from '../node-render'
 import { withUnit } from '@ultra-ui/core'
 import type { RenderReturn } from '@ultra-ui/core'
@@ -54,7 +54,7 @@ function computeSummary(key: string) {
   let i = 0
 
   while (i < rows.value.length) {
-    sum = n.plus(sum, rows.value[i]!.data[key] ?? 0)
+    sum = $n.plus(sum, rows.value[i]!.data[key] ?? 0)
     if (isNaN(sum)) return sum
     i++
   }

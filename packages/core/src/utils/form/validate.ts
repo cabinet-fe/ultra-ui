@@ -188,10 +188,13 @@ export class Validator<
     }
 
     // 校验规则
-    for (const ruleKey in normalRules) {
+    for (const ruleKey of Object.keys(normalRules) as (keyof typeof ruleTypes)[]) {
       const validate = ruleTypes[ruleKey]
       if (!validate) continue
-      const err = validate(value, normalRules[ruleKey])
+      const err = validate(
+        value,
+        normalRules[ruleKey as keyof typeof normalRules] as never
+      )
       err && errors.push(err)
     }
 
@@ -226,11 +229,14 @@ export class Validator<
     }
 
     // 校验规则
-    for (const ruleKey in normalRules) {
+    for (const ruleKey of Object.keys(normalRules) as (keyof typeof ruleTypes)[]) {
       const validate = ruleTypes[ruleKey]
       if (!validate) continue
 
-      const err = validate(value, normalRules[ruleKey])
+      const err = validate(
+        value,
+        normalRules[ruleKey as keyof typeof normalRules] as never
+      )
 
       if (err) {
         errors.push(err)

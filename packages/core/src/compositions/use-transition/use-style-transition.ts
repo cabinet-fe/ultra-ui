@@ -20,16 +20,16 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   const getDom = (): HTMLElement | undefined =>
     isRef(target) ? target.value : target
 
-  /** 进入动画前的初始状态 */
-  const transitionOriginStyle: CSSProperties = {}
+  /** 进入动画前的初始状态（动态键，不限于 CSSProperties 字面量） */
+  const transitionOriginStyle: Record<string, unknown> = {}
 
   /** 获取过渡样式的初始样式 */
-  const getOriginStyles = (styles: CSSProperties) => {
+  const getOriginStyles = (styles: CSSProperties): CSSProperties => {
     return Object.fromEntries(
       Object.keys(styles).map(key => {
         return [key, transitionOriginStyle[key]]
       })
-    )
+    ) as CSSProperties
   }
   // 监听dom并获取dom在进入动画之前的样式
   // ...Object.keys(enterFrom ?? {}),
@@ -40,7 +40,7 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
       if (dom) {
         const map = dom.attributeStyleMap
         ~[...Object.keys(enterTo), ...Object.keys(enterActive)].forEach(key => {
-          transitionOriginStyle[key] = map.get(key)
+          transitionOriginStyle[key] = map.get(key) as unknown
         })
       } else {
         Object.keys(transitionOriginStyle).forEach(key => {

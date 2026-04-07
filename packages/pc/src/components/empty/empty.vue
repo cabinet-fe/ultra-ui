@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import type { EmptyProps } from '@ultra-ui/pc/types'
 import { bem } from '@ultra-ui/core'
-import { PackageOpen } from 'lucide-vue-next'
+import { PackageOpen } from '@lucide/vue'
 import { UIcon } from '../icon'
 
 defineOptions({

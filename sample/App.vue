@@ -74,7 +74,7 @@ import {
 } from '@ultra-ui/pc'
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
 import type { ComponentSize } from '@ultra-ui/pc/types'
-import { Settings } from 'lucide-vue-next'
+import { Settings } from '@lucide/vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -175,7 +175,7 @@ $width: 240px;
   display: flex;
   flex-direction: column;
 
-  & > :deep(.u-scroll__container) {
+  & > .u-scroll__container {
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -221,7 +221,7 @@ $width: 240px;
   display: flex;
   gap: 12px;
 
-  :deep(.u-radio) {
+  .u-radio {
     margin-right: 0;
   }
 }

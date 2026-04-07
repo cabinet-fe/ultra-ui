@@ -1,3 +1,4 @@
 - [x] [Monorepo 重构与依赖迁移](./done/plan-1-20260406/plan.md)
 - [x] [构建与开发环境重建](./done/plan-2-20260406/plan.md)
 - [x] [版本发布与收尾](./done/plan-3-20260406/plan.md)
+- [x] [修复 sample 组件演示页错误](./done/plan-4-20260406/plan.md)

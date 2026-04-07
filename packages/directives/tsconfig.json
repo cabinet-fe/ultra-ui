@@ -4,9 +4,10 @@
     "composite": true,
     "declaration": true,
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules"]
 }

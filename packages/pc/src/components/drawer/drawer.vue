@@ -37,7 +37,7 @@ import { computed, shallowRef } from 'vue'
 import type { DrawerProps, DrawerEmits } from '@ultra-ui/pc/types'
 import { bem, zIndex } from '@ultra-ui/core'
 import { UIcon } from '../icon'
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 
 defineOptions({
   name: 'Drawer',

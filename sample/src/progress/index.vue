@@ -66,7 +66,7 @@
 import { shallowReactive } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import type { ColorType } from "@ultra-ui/pc"
-import { AlertTriangle } from 'lucide-vue-next'
+import { AlertTriangle } from '@lucide/vue'
 
 const config = shallowReactive({
   percentage: 0,

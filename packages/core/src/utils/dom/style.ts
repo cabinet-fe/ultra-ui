@@ -24,9 +24,7 @@ export function withUnit(
  * @param styles 样式
  */
 export function setStyles(el: HTMLElement, styles: CSSProperties): void {
-  Object.keys(styles).forEach(key => {
-    el.style[key] = styles[key]
-  })
+  Object.assign(el.style, styles)
   // TODO: 此处有问题，在某些情况下会导致样式设置失效
   // 例如在 Tabs 组件中无法设置overflow属性
   // if (el.attributeStyleMap) {

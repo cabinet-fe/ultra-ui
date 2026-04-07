@@ -42,7 +42,7 @@
 import { shallowRef, watchEffect } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { sleep } from '@cat-kit/core'
-import { Monitor } from 'lucide-vue-next'
+import { Monitor } from '@lucide/vue'
 import { FormModel } from "@ultra-ui/pc"
 
 const options = shallowRef<any[]>([])

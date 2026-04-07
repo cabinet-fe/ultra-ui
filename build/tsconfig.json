@@ -5,7 +5,8 @@
     "declaration": true,
     "types": ["@types/bun"],
     "lib": ["ESNext"],
-    "module": "ESNext"
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "exclude": ["node_modules"],
   "include": ["*.ts"]

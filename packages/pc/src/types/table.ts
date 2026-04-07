@@ -94,11 +94,11 @@ export interface TableProps {
    */
   tree?: boolean | string
   /**
-   * 作用域插槽
+   * 从外层组件转发的作用域插槽（避免使用 prop 名 `slots`，与 Vue 运行时插槽语义冲突）
    * @description
-   * 使用此插槽可以自定义使用外部组件的插槽而无需一级一级的嵌套
+   * 使用此方式可以自定义使用外部组件的插槽而无需一级一级嵌套
    */
-  slots?: Readonly<Slots>
+  forwardedSlots?: Readonly<Slots>
   /** 单元格合并 */
   mergeCell?: (ctx: TableColumnRenderContext) =>
     | {

@@ -27,7 +27,7 @@ import type {
   TableExposed,
   TableRow
 } from '@ultra-ui/pc/types'
-import { computed, inject, provide, shallowRef, watch } from 'vue'
+import { computed, inject, provide, shallowRef, useSlots, watch } from 'vue'
 import type { FormModel } from '../form'
 import { ULayout } from '../layout'
 import { bem } from '@ultra-ui/core'
@@ -98,7 +98,7 @@ const dynamicFeatures = computed<
   >
 })
 
-const slots = defineSlots<
+defineSlots<
   {
     form?: (props: {
       /** 表单数据 */
@@ -120,6 +120,9 @@ const slots = defineSlots<
     [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
   }>
 >()
+
+/** 转发给内嵌表格的插槽（generic 组件内不能依赖 defineSlots 的返回值作为运行时对象） */
+const slots = useSlots()
 
 const cls = bem('batch-edit')
 

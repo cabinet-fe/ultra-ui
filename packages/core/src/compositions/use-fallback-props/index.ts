@@ -17,6 +17,8 @@ export function useFallbackProps<
 
   let result = {} as R
 
+  const configRecord = config as Record<string, unknown>
+
   for (const key in fallbackProps) {
     if (fallbackProps.hasOwnProperty(key)) {
       const defaultValue = fallbackProps[key]
@@ -29,7 +31,7 @@ export function useFallbackProps<
           }
         }
 
-        return config[key as string] ?? defaultValue
+        return configRecord[key as string] ?? defaultValue
       })
 
       result[key as keyof F] = ref as R[keyof F]

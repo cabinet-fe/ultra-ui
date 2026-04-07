@@ -46,7 +46,7 @@ import {
   CircleX,
   Info,
   X
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
 

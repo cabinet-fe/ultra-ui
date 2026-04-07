@@ -73,7 +73,7 @@ import { UDatePanel } from '../date-panel'
 import { date, type Dater } from '@cat-kit/core'
 import { UDropdown } from '../dropdown'
 import { useUpdateLock } from '@ultra-ui/core'
-import { Calendar, X } from 'lucide-vue-next'
+import { Calendar, X } from '@lucide/vue'
 import { UIcon } from '../icon'
 
 defineOptions({

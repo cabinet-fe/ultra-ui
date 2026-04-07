@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { computed, reactive, watch } from 'vue'
 import type { NumberProps } from '@ultra-ui/pc/types'
-import { n } from '@cat-kit/core'
+import { $n } from '@cat-kit/core'
 import { Tween } from '@ultra-ui/core'
 
 defineOptions({
@@ -31,7 +31,7 @@ const tween = computed(() =>
 )
 
 const formatter = computed(() => {
-  return n.formatter({
+  return $n.formatter({
     currency: props.format === 'currency' ? 'CNY' : undefined,
     style: props.format,
     precision: props.precision,

@@ -1,23 +1,5 @@
-# maintenance — 发布与 Git
+# maintenance — release
 
-```typescript
-import { createGitTag, commitAndPush, publishPackage } from '@cat-kit/maintenance'
+**权威 typings**：[`generated/maintenance/release/`](../../generated/maintenance/release/)
 
-await commitAndPush({
-  cwd, message,
-  addAll?, allowEmpty?, remote?, branch?, pushTags?
-})
-// { commitHash, branch }
-
-await createGitTag({
-  cwd, tag,
-  message?, push?, remote?, force?
-})
-
-await publishPackage({
-  cwd, registry?, tag?, otp?, dryRun?,
-  access?, provenance?, workspace?, workspaces?
-})
-```
-
-错误类型：`GitError`、`PublishError`。
+源码：`packages/maintenance/src/release/`

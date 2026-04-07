@@ -55,7 +55,8 @@ export function useKeyboard(config: UseKeyboardConfig): UseKeyboardReturned {
 
   /** 键盘事件处理 */
   const handleKeydown = (e: KeyboardEvent) => {
-    keyHandler[e.key]?.(e)
+    const key = e.key as keyof typeof keyHandler
+    keyHandler[key]?.(e)
   }
 
   return {

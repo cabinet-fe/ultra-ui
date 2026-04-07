@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Pencil, RefreshCw } from 'lucide-vue-next'
+import { Pencil, RefreshCw } from '@lucide/vue'
 import { bem } from '@ultra-ui/core'
 import { shallowRef } from 'vue'
 

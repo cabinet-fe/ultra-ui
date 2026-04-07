@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreHorizontal, Star, Lock } from 'lucide-vue-next'
+import { MoreHorizontal, Star, Lock } from '@lucide/vue'
 import { useComponentProps } from '@ultra-ui/core'
 import type { ButtonProps } from '@ultra-ui/pc/types'
 import { shallowRef } from 'vue'

@@ -1,73 +1,65 @@
-<template>
-  <component v-for="node of getSlotsNodes()" :key="node.key" :is="node" />
-</template>
-
-<script lang="tsx" setup>
+<script lang="tsx">
 import type { ActionGroupProps } from '@ultra-ui/pc/types'
-import { ArrowDown } from 'lucide-vue-next'
-import { UIcon } from "../icon";
-import { UButton } from "../button";
-import { provide, type VNode } from "vue";
+import { ArrowDown } from '@lucide/vue'
+import { UIcon } from '../icon'
+import { UButton } from '../button'
+import { cloneVNode, defineComponent, provide, useSlots } from 'vue'
 import { bem, extractNormalVNodes } from '@ultra-ui/core'
-import { UTip } from "../tip";
-import { ActionDIKey } from "./di";
+import { UTip } from '../tip'
+import { ActionDIKey } from './di'
 
-defineOptions({
-  name: "ActionGroup",
+export default defineComponent({
+  name: 'ActionGroup',
   inheritAttrs: false,
-});
+  props: {
+    max: { type: Number, default: 3 },
+    loading: { type: Boolean, default: false },
+    circle: { type: Boolean, default: false }
+  },
+  setup(props: ActionGroupProps) {
+    const cls = bem('action-group')
+    const actionCls = bem('action')
+    const slots = useSlots()
 
-const props = withDefaults(defineProps<ActionGroupProps>(), {
-  max: 3,
-  loading: false,
-  circle: false,
-});
+    provide(ActionDIKey, {
+      groupProps: props
+    })
 
-const cls = bem("action-group");
-const actionCls = bem("action");
+    return () => {
+      const nodes = slots.default?.() ?? []
+      const extractedNodes = extractNormalVNodes(nodes).filter(node => {
+        const t = node.type as { name?: string } | string | undefined
+        return typeof t === 'object' && t?.name === 'Action'
+      })
 
-const slots = defineSlots<{
-  default?: () => VNode[];
-}>();
+      let normalNodes: (typeof extractedNodes)[number][] = []
+      let hiddenNodes: (typeof extractedNodes)[number][] = []
+      if (extractedNodes.length === props.max) {
+        normalNodes = extractedNodes
+      } else {
+        normalNodes = extractedNodes.slice(0, props.max - 1)
+        hiddenNodes = extractedNodes.slice(props.max - 1)
+      }
 
-function getSlotsNodes() {
-  const nodes = slots.default?.();
+      const dropdown = hiddenNodes.length ? (
+        <UTip direction="bottom" class={cls.e('dropdown')}>
+          {{
+            content: () => hiddenNodes,
+            default: () => (
+              <UButton text size="small" type="primary" class={actionCls.b}>
+                更多
+                <UIcon>
+                  <ArrowDown />
+                </UIcon>
+              </UButton>
+            )
+          }}
+        </UTip>
+      ) : null
 
-  if (!nodes) return [];
-  const extractedNodes = extractNormalVNodes(nodes).filter(
-    // @ts-ignore
-    (node) => node.type?.name === "Action",
-  );
-
-  let normalNodes: VNode[] = [];
-  let hiddenNodes: VNode[] = [];
-  if (extractedNodes.length === props.max) {
-    normalNodes = extractedNodes;
-  } else {
-    normalNodes = extractedNodes.slice(0, props.max - 1);
-    hiddenNodes = extractedNodes.slice(props.max - 1);
+      const clonedNormal = normalNodes.map(n => cloneVNode(n))
+      return dropdown ? [...clonedNormal, dropdown] : clonedNormal
+    }
   }
-
-  const dropdown = hiddenNodes.length ? (
-    <UTip direction="bottom" class={cls.e("dropdown")}>
-      {{
-        content: () => hiddenNodes,
-        default: () => (
-          <UButton text size="small" type="primary" class={actionCls.b}>
-            更多
-            <UIcon>
-              <ArrowDown />
-            </UIcon>
-          </UButton>
-        ),
-      }}
-    </UTip>
-  ) : null;
-
-  return dropdown ? [...normalNodes, dropdown] : normalNodes;
-}
-
-provide(ActionDIKey, {
-  groupProps: props,
-});
+})
 </script>

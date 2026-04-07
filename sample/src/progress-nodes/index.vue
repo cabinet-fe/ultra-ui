@@ -67,6 +67,16 @@ const isChecked = (_node: ProgressNodeItem, index: number) => {
 </script>
 
 <style lang="scss" scoped>
+@function use-var($basename, $nodes...) {
+  $suffix: '';
+
+  @each $node in $nodes {
+    $suffix: $suffix + '-' + $node;
+  }
+
+  @return var(--#{$basename}#{$suffix});
+}
+
 .progressNodesDemo {
   display: flex;
   flex-direction: column;
@@ -84,7 +94,7 @@ const isChecked = (_node: ProgressNodeItem, index: number) => {
 }
 
 .label {
-  color: var(--text-color-second);
+  color: use-var(text-color, second);
   font-size: 12px;
 }
 </style>

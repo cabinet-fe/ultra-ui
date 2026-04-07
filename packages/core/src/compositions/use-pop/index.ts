@@ -143,7 +143,8 @@ export function usePop(options: Options): PopResult {
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow
 
-      const arrowPlacement = arrowPlacementDict[placement.split('-')[0]!]
+      const edge = placement.split('-')[0] as keyof typeof arrowPlacementDict
+      const arrowPlacement = arrowPlacementDict[edge]
       const size = `${arrowSize}px`
       // 箭头半径
       const arrowRadius = arrowSize / 2

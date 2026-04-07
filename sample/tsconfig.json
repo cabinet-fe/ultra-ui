@@ -5,7 +5,8 @@
     "declaration": true,
     "types": ["vite/client"],
     "lib": ["DOM", "ESNext"],
-    "baseUrl": "./"
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]

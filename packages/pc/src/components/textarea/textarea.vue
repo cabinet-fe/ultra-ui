@@ -44,7 +44,7 @@ import type { TextareaProps, TextareaEmits, ComponentSize } from '@ultra-ui/pc/t
 import { bem } from '@ultra-ui/core'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import {
   useFocus,
   useFormComponent,

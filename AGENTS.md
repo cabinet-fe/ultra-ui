@@ -27,7 +27,7 @@ bun vitest                           # 运行测试
 | 测试      | Vitest                                     | ^4.0.18       |
 | 格式化    | oxfmt (CLI 生成代码)                       | -             |
 | Git Hooks | simple-git-hooks (commit-msg)              | -             |
-| 核心依赖  | `@cat-kit/core`（core 包依赖）+ peer `vue`；`lucide-vue-next`（pc 包依赖） | -             |
+| 核心依赖  | `@cat-kit/core`（core 包依赖）+ peer `vue`；`@lucide/vue`（pc 包依赖） | -             |
 
 ## 目录结构
 

@@ -1,32 +1,5 @@
-# excel — 地址与日期工具
+# excel — types / errors / address / date
 
-## 地址
+**权威 typings**：[`generated/excel/types.d.ts`](../../generated/excel/types.d.ts) · [`generated/excel/errors.d.ts`](../../generated/excel/errors.d.ts) · [`generated/excel/address.d.ts`](../../generated/excel/address.d.ts) · [`generated/excel/date.d.ts`](../../generated/excel/date.d.ts)
 
-```typescript
-import {
-  columnToIndex, indexToColumn,
-  parseCellAddress, formatCellAddress,
-  pixelsToExcelWidth, excelWidthToPixels
-} from '@cat-kit/excel'
-
-columnToIndex('AA')          // 27
-indexToColumn(27)            // 'AA'
-parseCellAddress('C10')      // { row: 10, col: 3 }
-formatCellAddress(10, 3)     // 'C10'
-pixelsToExcelWidth(140)      // 20
-```
-
-列/行 1-based，最大列 16384（XFD），最大行 1048576。
-
-## 日期序列号
-
-```typescript
-import { dateToExcelSerial, excelSerialToDate } from '@cat-kit/excel'
-
-dateToExcelSerial(new Date(), 1900)
-excelSerialToDate(45000, 1900)
-```
-
-## 错误类型
-
-`ExcelParseError`(解析) / `ExcelWriteError`(写入) / `ExcelSchemaError`(结构) / `ExcelValueError`(参数)
+源码：`packages/excel/src/types.ts`、`errors.ts`、`address.ts`、`date.ts`

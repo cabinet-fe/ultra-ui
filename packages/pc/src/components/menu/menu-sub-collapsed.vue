@@ -67,7 +67,7 @@ import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'
 import { bem } from '@ultra-ui/core'
-import { ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from '@lucide/vue'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 

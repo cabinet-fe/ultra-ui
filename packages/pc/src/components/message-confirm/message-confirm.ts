@@ -31,8 +31,10 @@ function MessageConfirm(options: MessageConfirmProps) {
   document.body.appendChild(container.firstElementChild!)
 }
 
+const api = MessageConfirm as MessageConfirmTypeFn
+
 ColorTypeArray.forEach(type => {
-  MessageConfirm[type] = (
+  api[type] = (
     message: string,
     onClose?: (action: 'cancel' | 'confirm') => void
   ) => {
@@ -44,4 +46,4 @@ ColorTypeArray.forEach(type => {
   }
 })
 
-export default MessageConfirm as MessageConfirmTypeFn
+export default api

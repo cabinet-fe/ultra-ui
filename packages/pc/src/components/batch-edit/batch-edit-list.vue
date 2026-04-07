@@ -1,7 +1,7 @@
 <template>
   <u-table
     v-bind="tableProps"
-    :slots="slots"
+    :forwarded-slots="slots"
     :class="cls.e('table')"
     :columns="columns"
     highlight-current
@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { computed, inject, type Slots } from 'vue'
 import { o } from '@cat-kit/core'
-import { BetweenVerticalEnd, BetweenVerticalStart, CopyPlus, Trash2 } from 'lucide-vue-next'
+import { BetweenVerticalEnd, BetweenVerticalStart, CopyPlus, Trash2 } from '@lucide/vue'
 import { BatchEditDIKey } from './di'
 import { UTable } from '../table'
 import { UButton } from '../button'
@@ -124,7 +124,11 @@ const tableProps = computed(() => {
     'readonly',
     'deleteMethod',
     'saveMethod',
-    'features'
+    'features',
+    'actionsProps',
+    'labelWidth',
+    'title',
+    'forwardedSlots'
   ])
 })
 

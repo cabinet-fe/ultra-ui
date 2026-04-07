@@ -2,9 +2,11 @@ import {
   type DefineComponent,
   type VNode,
   type VNodeArrayChildren,
+  cloneVNode,
   defineComponent,
   isVNode,
-  mergeProps
+  mergeProps,
+  useAttrs
 } from 'vue'
 
 const NodeRender: DefineComponent<{
@@ -23,23 +25,30 @@ const NodeRender: DefineComponent<{
 
   props: ['content'],
 
-  render() {
-    const { content, $slots, $attrs, $props } = this
+  setup(props, { slots }) {
+    const attrs = useAttrs()
 
-    if (content === undefined) {
-      return $slots.default?.()
-    }
+    return () => {
+      const { content } = props
 
-    if (Array.isArray(content)) {
+      if (content === undefined) {
+        return slots.default?.()
+      }
+
+      if (Array.isArray(content)) {
+        return content
+      }
+
+      if (isVNode(content)) {
+        const hasAttrs = attrs && Object.keys(attrs).length > 0
+        if (!hasAttrs) {
+          return content
+        }
+        return cloneVNode(content, mergeProps(content.props ?? {}, attrs))
+      }
+
       return content
     }
-
-    if (isVNode(content)) {
-      content.props = $attrs ? mergeProps(content.props ?? {}, $attrs) : $props
-      return content
-    }
-
-    return content
   }
 })
 
