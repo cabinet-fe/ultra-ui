@@ -1,1 +1,0 @@
-export { contextmenu } from './api'

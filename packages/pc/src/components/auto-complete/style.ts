@@ -1,8 +1,0 @@
-import '../dropdown/style'
-import '../scroll/style'
-import '../input/style'
-import '../icon/style'
-import '@ultra-ui/directives/ripple/style'
-import '../tag/style'
-import '@ultra-ui/styles/anime/zoom-in.scss'
-import './style.scss'
