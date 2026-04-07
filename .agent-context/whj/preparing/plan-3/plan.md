@@ -6,7 +6,7 @@
 
 在保留 SCSS + BEM 核心架构的前提下，优化 CSS 变量管理和主题切换机制。当前主题系统通过 `UITheme` JS 类将 Theme 对象序列化为 CSS 变量字符串并注入 `:root` 的 `<style>` 标签，存在以下可改进点：CSS 变量命名不统一（部分有 `--u-` 前缀，部分无）、主题切换依赖运行时 JS 操作 DOM、缺少原生 `prefers-color-scheme` 支持、组件特定 token 混在全局 Theme 类型中导致类型臃肿。优化后应实现更清晰的 token 分层、更优雅的暗色模式支持、更轻量的运行时开销。
 
-> 注意：本计划的所有路径均基于 Plan 2 完成后的新结构（`packages/`），如 `@ultra-ui/utils/src/styles/` 对应旧路径 `ui/styles/`。
+> 本计划的所有路径均基于 Plan 5 完成后的新结构（`packages/`）。
 
 ## 内容
 
@@ -53,7 +53,7 @@
 | 层级 | 旧 token 名 | 新 token 名 | 归属包 | 默认值/fallback |
 |------|------------|------------|--------|----------------|
 
-完成标准：分层设计文档完成，包含从旧 token 到新 token 的完整映射表，token 命名表确定，无歧义。
+完成标准：分层设计文档完成，包含从旧 token 到新 token 的完整映射表，无歧义。
 
 ### 3. 重构 Theme 类型和 UITheme 类
 
@@ -74,7 +74,6 @@
 - `loadTheme(theme?)` 保留，用于初始化主题实例和加载自定义主题配置
 - `setTheme('light' | 'dark' | 'auto')` 新增，用于切换内置主题和暗色模式
 - `UITheme.new()` 保留，用于创建派生主题
-- 文档中说明三者的职责分工
 
 **向后兼容策略**：
 - 过渡期（至少一个主版本周期）同时生成带前缀（`--u-color-primary`）和不带前缀（`--color-primary`）的 CSS 变量
@@ -82,7 +81,7 @@
 - 在控制台输出一次性的 deprecation warning（仅开发环境），提示消费者迁移到 `--u-` 前缀
 - 在后续大版本中移除无前缀变量
 
-完成标准：UITheme API 变更后，`lightTheme` / `darkTheme` 能正确切换；`auto` 模式响应系统暗色偏好；无前缀变量仍可用（deprecation）。
+完成标准：`lightTheme` / `darkTheme` 能正确切换；`auto` 模式响应系统暗色偏好；无前缀变量仍可用（deprecation）。
 
 ### 4. 更新 SCSS 基础设施
 
@@ -95,56 +94,52 @@
 - 新增 `fn.component-var($component, $property, $fallback: null)` 函数，签名：
   - 输入：`component-var(table, border-color, var(--u-border-color))`
   - 输出：`var(--u-table-border-color, var(--u-border-color))`
-  - 用于组件级 token 的声明和引用
 
 **更新 `_mixins.scss`**：
 - 新增 `m.dark()` mixin，在其内部为暗色模式声明组件 token 的覆盖值
 - 选择器策略：同时生成 `[data-theme="dark"]` 和 `@media (prefers-color-scheme: dark):not([data-theme="light"])` 两种选择器
-  - `[data-theme="dark"]` 覆盖显式设置的暗色模式
-  - `@media` + `:not([data-theme="light"])` 覆盖 auto 模式且系统为暗色的情况
 
-**关键约束**：`fn.use-var()` 的修改与 Step 5 的组件样式迁移必须在同一批次完成（不分批），因为前缀变更会影响所有使用该函数的组件。或者，若需分批迁移，则新增 `fn.use-var-v2()` 函数供新 token 系统使用，待所有组件迁移完毕后删除旧 `fn.use-var()` 并重命名 v2 → use-var。
+**关键约束**：`fn.use-var()` 的修改与 Step 5 的组件样式迁移必须在同一批次完成（不分批），因为前缀变更影响所有使用该函数的组件。或者，新增 `fn.use-var-v2()` 供新 token 系统使用，待全部迁移完毕后删除旧版并重命名。
 
-完成标准：SCSS 工具函数和 mixin 更新后，不影响现有 BEM 类名输出；新增的 `dark()` mixin 和 `component-var()` 函数可用。
+完成标准：SCSS 工具函数和 mixin 更新后，不影响现有 BEM 类名输出；`dark()` mixin 和 `component-var()` 函数可用。
 
 ### 5. 迁移组件样式到新 token 系统
 
-**执行策略**：由于 `fn.use-var()` 前缀变更影响全局，本步骤必须一次性完成所有组件的迁移，不可分批。
+**执行策略**：由于 `fn.use-var()` 前缀变更影响全局，本步骤必须一次性完成所有组件迁移。
 
-对全部 71 个组件执行：
+对全部组件执行：
 - 将组件 `.scss` 中硬编码的 CSS 变量名替换为通过 `fn.use-var()` 或 `fn.component-var()` 生成的变量引用
-- 将原 Theme 类型中的组件 token 移入对应组件的 SCSS，使用 CSS 变量 fallback 机制：`var(--u-table-border-color, var(--u-border-color))`
+- 将原 Theme 类型中的组件 token 移入对应组件的 SCSS，使用 CSS 变量 fallback：`var(--u-table-border-color, var(--u-border-color))`
 - 为有暗色模式差异的组件添加 `m.dark()` 规则块
-- 更新组件的 `style.ts` 入口（若依赖了 styles 子路径的导入）
+- 更新组件的 `style.ts` 入口（若依赖了 styles 子路径导入）
 
-完成标准：所有组件样式使用统一的 token 引用方式；`lightTheme` 和 `darkTheme` 下所有组件视觉正确；旧无前缀变量仍通过兼容层生效。
+完成标准：所有组件样式使用统一 token 引用；`lightTheme` 和 `darkTheme` 下组件视觉正确；旧无前缀变量通过兼容层生效。
 
 ### 6. 验证和清理
 
-- 运行 `bun vitest --run` 确保无回归
-- 在 sample 应用中验证：
+- `bun vitest --run` 无回归
+- sample 应用验证：
   - light 主题：所有组件视觉正确
   - dark 主题：所有组件视觉正确
   - auto 模式：响应系统暗色偏好切换
-  - 自定义主题：`UITheme.new()` 创建派生主题工作正常
-  - 无前缀变量兼容：在自定义 CSS 中使用 `var(--color-primary)` 仍可生效
+  - 自定义主题：`UITheme.new()` 创建派生主题正常
+  - 无前缀变量兼容：自定义 CSS 中 `var(--color-primary)` 仍生效
 - 更新 AGENTS.md 中的主题系统描述
-- 更新 README 或 CHANGELOG，标记 CSS 变量前缀变更为 deprecation（非 breaking）
 
-完成标准：所有测试通过；三种主题模式（light/dark/auto）+ 自定义主题在 sample 中表现正确；无残留的旧 token 引用（除兼容层外）。
+完成标准：所有测试通过；三种主题模式 + 自定义主题在 sample 中正确；无残留旧 token 引用（除兼容层外）。
 
 ## 回滚策略
 
-在执行 Step 3（UITheme 重构）之前打 git tag `pre-theme-optimization`。Step 3-5 是高风险步骤，建议每步骤完成后提交 commit。若主题系统重构导致大面积视觉回归，可回退到 tag。
+在 Step 3（UITheme 重构）之前打 git tag `pre-theme-optimization`。Step 3-5 是高风险步骤，每步骤完成后提交 commit。
 
 ## 影响范围
 
 - `packages/utils/src/styles/type.ts`：Theme 类型精简
 - `packages/utils/src/styles/theme/ui-theme.ts`：UITheme 类重构
 - `packages/utils/src/styles/theme/light.ts`、`dark.ts`：交叉引用前缀更新
-- `packages/utils/src/styles/_vars.scss`、`_functions.scss`、`_mixins.scss`：SCSS 基础设施更新
-- `packages/desktop/src/components/*/style.scss`：全部 71 个组件样式文件
+- `packages/utils/src/styles/_vars.scss`、`_functions.scss`、`_mixins.scss`：SCSS 基础设施
+- `packages/desktop/src/components/*/style.scss`：全部组件样式文件
 - `packages/desktop/src/components/*/style.ts`：组件样式入口（部分）
-- `AGENTS.md`：主题系统描述更新
+- `AGENTS.md`：主题系统描述
 
 ## 历史补丁
