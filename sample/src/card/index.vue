@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { MoreHorizontal, Star, Lock } from '@lucide/vue'
 import { useComponentProps } from '@ultra-ui/core'
-import type { ButtonProps } from '@ultra-ui/pc/types'
+import type { ButtonProps, ColorType } from '@ultra-ui/pc/types'
 import { shallowRef } from 'vue'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({
@@ -59,7 +59,7 @@ const ButtonCommonProps = useComponentProps<ButtonProps>({
   loading: false
 })
 
-const buttons = [
+const buttons: { type?: ColorType; icon: typeof Star }[] = [
   { type: 'primary', icon: Star },
   { type: 'warning', icon: Lock },
   { icon: MoreHorizontal }

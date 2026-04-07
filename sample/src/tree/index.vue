@@ -58,7 +58,7 @@ const data1 = shallowRef<any[]>([])
 
 const checked = shallowRef<any[]>()
 
-function disabledNode(node) {
+function disabledNode(node: Record<string, unknown>) {
   return node.id === '0-1'
 }
 
@@ -93,11 +93,11 @@ let select = shallowRef(9)
 
 watch([select, treeRef1, data], ([select, tree]) => {}, { immediate: true })
 
-const handleNodeClick = (selected) => {
+const handleNodeClick = (selected: unknown) => {
   console.log('点击了节点', selected)
 }
 
-const handleCheck = (...args) => {
+const handleCheck = (...args: unknown[]) => {
   console.log('选中了', ...args)
 }
 

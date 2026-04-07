@@ -6,7 +6,8 @@
     "types": ["vite/client"],
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "noUnusedLocals": false
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]

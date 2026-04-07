@@ -48,12 +48,10 @@ export class Virtualizer {
   private offsetSize = 0
 
   constructor(option: VirtualizerOption) {
-    Object.keys(option).forEach(key => {
-      const optionVal = option[key]
-      if (optionVal !== undefined) {
-        this[key] = option[key]
-      }
-    })
+    if (option.length !== undefined) this.length = option.length
+    if (option.buffer !== undefined) this.buffer = option.buffer
+    if (option.estimateSize !== undefined) this.estimateSize = option.estimateSize
+    if (option.onChange !== undefined) this.onChange = option.onChange
 
     if (this.length) {
       this.calcTotalSize()
@@ -142,12 +140,9 @@ export class Virtualizer {
       this.updateLength(length)
     }
 
-    Object.keys(rest).forEach(key => {
-      const optionVal = rest[key]
-      if (optionVal !== undefined) {
-        this[key] = optionVal
-      }
-    })
+    if (rest.containerSize !== undefined) this.containerSize = rest.containerSize
+    if (rest.offsetSize !== undefined) this.offsetSize = rest.offsetSize
+    if (rest.buffer !== undefined) this.buffer = rest.buffer
 
     this.onChange?.({
       items: this.getItems(),
@@ -222,11 +217,8 @@ export class VirtualContainer {
   private resizeObserver?: ResizeObserver
 
   constructor(option?: { horizontal?: Virtualizer; vertical?: Virtualizer }) {
-    if (option) {
-      Object.keys(option).forEach(key => {
-        this[key] = option[key]
-      })
-    }
+    if (option?.horizontal !== undefined) this.horizontal = option.horizontal
+    if (option?.vertical !== undefined) this.vertical = option.vertical
   }
 
   private handleScroll = (e: Event) => {
@@ -313,5 +305,3 @@ export class VirtualContainer {
   }
 }
 
-
-)

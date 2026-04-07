@@ -6,8 +6,11 @@
 type CurrencyType = 'CNY' | 'CNY_HAN';
 /** 货币格式化配置 */
 type CurrencyConfig = {
-  /** 保留小数位数 */precision?: number; /** 最小小数位数 */
-  minPrecision?: number; /** 最大小数位数 */
+  /** 保留小数位数 */
+  precision?: number;
+  /** 最小小数位数 */
+  minPrecision?: number;
+  /** 最大小数位数 */
   maxPrecision?: number;
 };
 /**
@@ -37,7 +40,9 @@ declare class Num {
    * @example n(1.2345).fixed(2) // '1.23'
    */
   fixed(precision: number | {
-    /** 最小精度 */minPrecision?: number; /** 最大精度 */
+    /** 最小精度 */
+    minPrecision?: number;
+    /** 最大精度 */
     maxPrecision?: number;
   }): string;
   /**

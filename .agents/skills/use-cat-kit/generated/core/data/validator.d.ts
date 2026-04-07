@@ -82,11 +82,13 @@ interface OptionalOptions<T> {
  * 可选字段：当输入为 undefined 时通过（返回 undefined 或 default）
  */
 declare function optional<T>(parser: Parser<T>, options?: OptionalOptions<T>): Parser<T | undefined>;
+declare function vObject<S extends Record<string, Parser<any>>>(schema: S): Validator<InferObjectSchema<S>>;
+declare function vOptional<T>(parser: Parser<T>, options?: OptionalOptions<T>): Parser<T | undefined>;
 declare function vString(): Parser<string>;
 declare function vNumber(): Parser<number>;
 declare function vBoolean(): Parser<boolean>;
 declare function vDate(): Parser<Date>;
 declare function vArray<T>(item: Parser<T>): Parser<T[]>;
 //#endregion
-export { InferObjectSchema, OptionalOptions, Parser, SafeParseResult, ValidationError, ValidationIssue, Validator, createValidator, object, optional, vArray, vBoolean, vDate, vNumber, vString };
+export { InferObjectSchema, OptionalOptions, Parser, SafeParseResult, ValidationError, ValidationIssue, Validator, createValidator, object, optional, vArray, vBoolean, vDate, vNumber, vObject, vOptional, vString };
 //# sourceMappingURL=validator.d.ts.map

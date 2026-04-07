@@ -8,6 +8,7 @@
     :rowspan="rowspan"
     :colspan="colspan"
     v-if="rowspan !== 0 && colspan !== 0"
+    @click="onClick"
   >
     <slot />
   </td>
@@ -23,12 +24,13 @@ defineOptions({
   name: 'TableCell'
 })
 
-const { column } = defineProps<{
+const { column, onClick } = defineProps<{
   column: ColumnNode
   left?: number
   right?: number
   rowspan?: number
   colspan?: number
+  onClick?: (e: MouseEvent) => void
 }>()
 
 const { getCellClass } = inject(TableDIKey)!

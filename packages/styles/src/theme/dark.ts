@@ -103,7 +103,7 @@ export const darkTheme: UITheme = lightTheme.new({
       color: 'inherit'
     },
     checked: {
-      bg: cssVar('color-primary-dark-1' as any),
+      bg: 'var(--color-primary-dark-1)',
       color: 'inherit'
     }
   }

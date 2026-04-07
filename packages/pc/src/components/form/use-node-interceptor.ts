@@ -27,6 +27,12 @@ const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
 
 const id = createIncrease(1)
 
+function vnodeTypeComponentName(type: VNode['type']): string | undefined {
+  if (type == null || typeof type !== 'object') return undefined
+  const name = (type as { name?: unknown }).name
+  return typeof name === 'string' ? name : undefined
+}
+
 /**
  * 虚拟node拦截
  * @param options 选项
@@ -62,7 +68,7 @@ export function useNodeInterceptor(options: Options): {
 
       const { props, type } = node
       const item = {
-        isFormItem: (type as any)?.name === 'FormItem',
+        isFormItem: vnodeTypeComponentName(type) === 'FormItem',
         formItemProps: o(props ?? {}).pick(FORM_ITEM_PROPS),
         node,
         field: props?.field,

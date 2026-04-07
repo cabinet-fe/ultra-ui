@@ -63,18 +63,16 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
+import { useConfig } from '@ultra-ui/pc'
 import {
-  useConfig,
   currentTheme,
   loadTheme,
   lightTheme,
   darkTheme,
-  UITheme,
-  type MenuItem
-} from '@ultra-ui/pc'
+  UITheme
+} from '@ultra-ui/styles'
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
-import type { ComponentSize } from '@ultra-ui/pc/types'
-import { Settings } from '@lucide/vue'
+import type { ComponentSize, MenuItem } from '@ultra-ui/pc/types'
 
 const router = useRouter()
 const route = useRoute()

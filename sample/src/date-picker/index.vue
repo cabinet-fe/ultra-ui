@@ -20,7 +20,7 @@ import { date } from '@cat-kit/core'
 
 const d = shallowRef(date().format('yyyy-MM-dd HH:mm:ss'))
 
-function disabledDate(d) {
+function disabledDate(d: { timestamp: number }) {
   return d.timestamp <= Date.now()
 }
 

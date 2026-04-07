@@ -51,8 +51,8 @@ import CustomCard from '../card/custom-card.vue'
 
 const treeSelect = shallowRef()
 
-const disabledNode = data => {
-  return data.id % 4 === 0
+const disabledNode = (data: Record<string, unknown>) => {
+  return Number(data.id) % 4 === 0
 }
 
 const data = shallowRef<any[]>([
@@ -99,7 +99,7 @@ setTimeout(() => {
   }))
 }, 1000)
 
-const handleChange = (val, selected) => {
+const handleChange = (val: unknown, selected: unknown) => {
   console.log(val, selected)
 }
 

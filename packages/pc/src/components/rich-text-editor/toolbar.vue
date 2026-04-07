@@ -103,7 +103,7 @@ function updateToolbarState(selection: RangeSelection) {
   let element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow()
 
   if ($isHeadingNode(element)) {
-    activeHeading.value = (element as any).getTag()
+    activeHeading.value = element.getTag()
   } else {
     activeHeading.value = 'paragraph'
   }
@@ -111,7 +111,7 @@ function updateToolbarState(selection: RangeSelection) {
   // Check list
   const parentList = $getNearestNodeOfType(anchorNode, ListNode)
   if (parentList) {
-    const listType = (parentList as any).getListType()
+    const listType = parentList.getListType()
     isBulletList.value = listType === 'bullet'
     isOrderedList.value = listType === 'number'
   } else {

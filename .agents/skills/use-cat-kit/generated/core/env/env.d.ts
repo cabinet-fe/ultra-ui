@@ -1,13 +1,6 @@
 //#region src/env/env.d.ts
 /**
  * 获取当前运行环境
- *
- * 通过 `globalThis` 探测，避免直接引用未声明的全局。判定顺序：
- * 1. 若存在 `globalThis.window`（含 `undefined` 以外的占位），视为 `browser`。
- * 2. 否则若存在 `globalThis.process`，视为 `node`。
- *
- * 因此 Electron 等同时存在 `window` 与 Node `process` 时结果为 `browser`。若未来改为优先 `process`，属 breaking，须 major 与迁移说明。
- *
  * @returns 'browser' | 'node' | 'unknown'
  */
 declare function getRuntime(): 'browser' | 'node' | 'unknown';
@@ -84,20 +77,16 @@ type EnvironmentSummary = {
   browser: BrowserType;
   browserVersion: string | null;
   device: DeviceType;
-  touchSupported: boolean;
 } | {
   runtime: 'node';
   os: OSType;
   nodeVersion: string | null;
-} | {
-  runtime: 'unknown';
-  os: OSType;
 };
 /**
  * 获取环境信息摘要
  * @returns 环境信息对象
  */
-declare function getEnvironmentSummary(): EnvironmentSummary;
+declare function getEnvironmentSummary(): Record<string, any>;
 //#endregion
 export { BrowserType, DeviceType, EnvironmentSummary, OSType, getBrowserType, getBrowserVersion, getDeviceType, getEnvironmentSummary, getNodeVersion, getOSType, getRuntime, isDesktop, isInBrowser, isInNode, isMobile, isTablet, isTouchDevice };
 //# sourceMappingURL=env.d.ts.map

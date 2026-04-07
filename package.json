@@ -24,6 +24,8 @@
     "export": "bun cli/export/index.ts",
     "gen:pc-install-registry": "bun run cli/gen-pc-install-registry.ts",
     "rename:types": "bun cli/rename/types",
+    "sync-use-cat-kit-api": "bun .agents/skills/use-cat-kit/scripts/sync-api-from-dist.ts",
+    "typecheck:sample": "bun run --cwd sample typecheck",
     "update": "bun update",
     "postinstall": "simple-git-hooks"
   },
@@ -42,8 +44,5 @@
   },
   "simple-git-hooks": {
     "commit-msg": "bun cat-cli verify-commit"
-  },
-  "patchedDependencies": {
-    "@lucide/vue@1.7.0": "patches/@lucide%2Fvue@1.7.0.patch"
   }
 }

@@ -103,8 +103,7 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
                 left={column.style.left}
                 right={column.style.right}
                 key={row.uid + column.key}
-                // @ts-ignore
-                onClick={(e) => handleCellClick(row, column, e)}
+                onClick={(e: MouseEvent) => handleCellClick(row, column, e)}
                 {...cellSpan}
                 v-slots={{
                   default: () => getColumnSlotsNode(cellCtx)

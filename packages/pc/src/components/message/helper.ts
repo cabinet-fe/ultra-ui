@@ -6,7 +6,7 @@ import {
   CircleX,
   Info
 } from '@lucide/vue'
-import type { DefineComponent } from 'vue'
+import type { Component } from 'vue'
 
 const typeIcons = {
   default: Info,
@@ -17,9 +17,9 @@ const typeIcons = {
 }
 export function getTypeIcon(
   type: MessageType,
-  icon?: DefineComponent
-): DefineComponent {
-  return (icon ?? typeIcons[type]) as any
+  icon?: Component
+): Component {
+  return icon ?? typeIcons[type]
 }
 
 const typeColors: Partial<Record<MessageType, ColorType>> = {

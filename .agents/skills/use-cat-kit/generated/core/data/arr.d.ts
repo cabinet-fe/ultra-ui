@@ -1,4 +1,4 @@
-//#region src/data/array.d.ts
+//#region src/data/arr.d.ts
 type Last<T> = T extends [...any, infer L] ? L : T extends (infer P)[] ? P : undefined;
 /**
  * 获取数组最后一位
@@ -68,4 +68,4 @@ declare class Arr<T> {
 declare function arr<T>(arr: T[]): Arr<T>;
 //#endregion
 export { arr, eachRight, last, omitArr, union, unionBy };
-//# sourceMappingURL=array.d.ts.map
+//# sourceMappingURL=arr.d.ts.map

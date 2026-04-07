@@ -3,7 +3,7 @@
     <div class="config">
       <ul>
         <li v-for="item in configList">
-          <u-checkbox v-model="config[item.key]"
+          <u-checkbox v-model="config[item.key as keyof typeof config]"
             >{{ item.label }}：{{ item.key }}</u-checkbox
           >
         </li>

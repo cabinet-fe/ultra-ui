@@ -29,9 +29,9 @@ declare class CatString {
  * @returns 字符串操作对象
  * @example
  * ```ts
- * const s = str('hello-world')
- * s.camelCase() // 'helloWorld'
- * s.kebabCase() // 'hello-world'
+ * const str = str('hello-world')
+ * str.camelCase() // 'helloWorld'
+ * str.kebabCase() // 'hello-world'
  * ```
  */
 declare function str(str: string): CatString;

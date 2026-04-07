@@ -6,6 +6,8 @@ export interface CheckboxProps extends FormComponentProps {
   indeterminate?: boolean
   /** 是否选中  */
   modelValue?: boolean
+  /** 根节点（label）原生 click，供表格等函数式渲染场景 */
+  onClick?: (e: MouseEvent) => void
 }
 
 export interface CheckboxButtonProps extends FormComponentProps {

@@ -27,7 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns, type TableRow } from "@ultra-ui/pc"
+import { defineTableColumns, type TableRow } from '@ultra-ui/pc'
+import type { TableColumnRenderContext } from '@ultra-ui/pc/types'
 import { nextTick, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Plus } from '@lucide/vue'
@@ -84,15 +85,19 @@ const columns = defineTableColumns([
   }
 ])
 
-function getValSpanDict(keys: string[]) {
-  const keyDict = {}
+type SpanCell = { times: number; start: number }
+type SpanDict = Record<string, Record<string, SpanCell>>
+
+function getValSpanDict(keys: string[]): SpanDict {
+  const keyDict: SpanDict = {}
 
   keys.forEach(key => {
-    keyDict[key] = data.value.reduce((acc, item, index) => {
-      if (acc[item[key]]) {
-        acc[item[key]].times++
+    keyDict[key] = data.value.reduce<Record<string, SpanCell>>((acc, item, index) => {
+      const cell = item[key] as string
+      if (acc[cell]) {
+        acc[cell].times++
       } else {
-        acc[item[key]] = {
+        acc[cell] = {
           times: 1,
           start: index
         }
@@ -104,7 +109,7 @@ function getValSpanDict(keys: string[]) {
   return keyDict
 }
 
-let columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
+let columnsSpanDict: SpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
 const reloading = shallowRef(false)
 function handleAdd(row: TableRow) {
   data.value = [
@@ -125,11 +130,14 @@ function handleAdd(row: TableRow) {
   columnsSpanDict = getValSpanDict(['firstQuota', 'secondQuota'])
 }
 
-function mergeCell(ctx) {
+function mergeCell(ctx: TableColumnRenderContext) {
   const { row, column, val } = ctx
+  const key = column.key as string
+  const valKey = String(val)
 
-  if (columnsSpanDict[column.key]) {
-    const { times, start } = columnsSpanDict[column.key][val]
+  const cellSpan = columnsSpanDict[key]?.[valKey]
+  if (cellSpan) {
+    const { times, start } = cellSpan
 
     if (start === row.index) {
       return {

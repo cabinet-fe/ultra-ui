@@ -24,8 +24,8 @@ import { TreeData } from '../form/data'
 
 const treeCheckable = shallowRef(['8', '9'])
 
-const disabledNode = data => {
-  return data.id % 4 === 0
+const disabledNode = (data: Record<string, unknown>) => {
+  return Number(data.id) % 4 === 0
 }
 const data = shallowRef<any[]>([])
 
@@ -33,5 +33,5 @@ setTimeout(() => {
   data.value = TreeData
 }, 2000)
 
-const handleChange = value => {}
+const handleChange = (_value: Record<string, unknown>[]) => {}
 </script>

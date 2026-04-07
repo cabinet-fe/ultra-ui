@@ -1,54 +1,54 @@
 {
-  "generatedAt": "2026-04-07T01:36:30.731Z",
-  "repoRoot": "/Users/whj/codes/cat-kit",
+  "generatedAt": "2026-04-07T02:35:58.500Z",
+  "repoRoot": "/Users/whj/codes/ultra-ui",
   "packages": {
     "core": {
       "npmName": "@cat-kit/core",
       "version": "1.0.0",
-      "dtsFiles": 17,
-      "distRelative": "packages/core/dist"
+      "dtsFiles": 16,
+      "distRelative": "packages/core/node_modules/@cat-kit/core/dist"
     },
     "http": {
       "npmName": "@cat-kit/http",
-      "version": "1.0.0",
-      "dtsFiles": 6,
-      "distRelative": "packages/http/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/http/dist)"
     },
     "fe": {
       "npmName": "@cat-kit/fe",
-      "version": "1.0.0",
-      "dtsFiles": 8,
-      "distRelative": "packages/fe/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/fe/dist)"
     },
     "be": {
       "npmName": "@cat-kit/be",
-      "version": "1.0.0",
-      "dtsFiles": 25,
-      "distRelative": "packages/be/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/be/dist)"
     },
     "excel": {
       "npmName": "@cat-kit/excel",
-      "version": "1.0.0",
-      "dtsFiles": 12,
-      "distRelative": "packages/excel/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/excel/dist)"
     },
     "maintenance": {
       "npmName": "@cat-kit/maintenance",
-      "version": "1.0.1",
-      "dtsFiles": 21,
-      "distRelative": "packages/maintenance/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/maintenance/dist)"
     },
     "agent-context": {
       "npmName": "@cat-kit/agent-context",
-      "version": "1.4.1",
-      "dtsFiles": 2,
-      "distRelative": "packages/agent-context/dist"
+      "version": "0.0.0",
+      "dtsFiles": 0,
+      "distRelative": "(missing @cat-kit/agent-context/dist)"
     },
     "cli": {
       "npmName": "@cat-kit/cli",
       "version": "1.0.3",
-      "dtsFiles": 2,
-      "distRelative": "packages/cli/dist"
+      "dtsFiles": 1,
+      "distRelative": "node_modules/@cat-kit/cli/dist"
     }
   }
 }

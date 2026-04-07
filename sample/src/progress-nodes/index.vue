@@ -41,12 +41,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ProgressNodeItem } from '@ultra-ui/pc/types'
+type DemoNode = { value: string; label: string }
 
 const checkedIndexes = ref([0, 1])
 const activeNode = ref<string>()
 
-const nodes: ProgressNodeItem[] = Array.from({ length: 6 }, (_, index) => ({
+const nodes: DemoNode[] = Array.from({ length: 6 }, (_, index) => ({
   value: `node-${index + 1}`,
   label: `节点 ${index + 1}`
 }))
@@ -56,12 +56,12 @@ const checkboxItems = nodes.map((node, index) => ({
   value: index
 }))
 
-const longNodes: ProgressNodeItem[] = Array.from({ length: 18 }, (_, index) => ({
+const longNodes: DemoNode[] = Array.from({ length: 18 }, (_, index) => ({
   value: `long-node-${index + 1}`,
   label: `节点 ${index + 1}`
 }))
 
-const isChecked = (_node: ProgressNodeItem, index: number) => {
+const isChecked = (_node: Record<string, unknown>, index: number) => {
   return checkedIndexes.value.includes(index)
 }
 </script>

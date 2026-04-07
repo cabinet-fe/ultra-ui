@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, getCurrentInstance } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import type {
   GridInputProps,
   GridInputEmits,
@@ -58,7 +58,7 @@ const position = ref<number>(-1)
 
 const blur = ref<boolean>(false)
 
-const instance = getCurrentInstance()
+const itemsRef = useTemplateRef<HTMLLIElement[]>('items')
 
 const focus = async (index?: number) => {
   if (index === undefined) {
@@ -69,7 +69,8 @@ const focus = async (index?: number) => {
     index = valueArray.value.length
   }
   position.value = index
-  let dom = (instance?.refs.items as any)[index]
+  const list = itemsRef.value
+  const dom = Array.isArray(list) ? list[index] : list
   dom?.focus()
   blur.value = false
 }
@@ -113,7 +114,7 @@ const baseOperation = {
   }
 }
 
-const onKeydown = (e: any, value: string, index: number) => {
+const onKeydown = (e: KeyboardEvent, value: string, index: number) => {
   if (_numberReg.value.test(e.key)) {
     changeValue(e.key, index)
     return

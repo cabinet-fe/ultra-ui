@@ -297,13 +297,13 @@ const items = [
 
 const asynchronous = shallowRef(false)
 
-const deleteMethod = async row => {
+const deleteMethod = async (_rows: Record<string, unknown>[]) => {
   await sleep(2000)
   // message.success('删除成功')
   return Promise.reject('删除失败')
 }
 
-const saveMethod = async (data, type) => {
+const saveMethod = async (data: Record<string, unknown>, type: string) => {
   await sleep(2000)
   message.success('保存成功')
 }

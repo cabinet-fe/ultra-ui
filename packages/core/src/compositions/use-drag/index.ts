@@ -13,6 +13,8 @@ interface DragParams {
   e: MouseEvent
 }
 
+type DragParamsMutable = Omit<DragParams, 'e'> & { e: MouseEvent | undefined }
+
 interface DragOptions {
   /** 拖动目标 */
   target:
@@ -52,13 +54,13 @@ export function useDrag(options: DragOptions): {
   let offsetX = initial?.offsetX ?? 0
   let offsetY = initial?.offsetY ?? 0
 
-  // 拖拽参数
-  const dragParams: DragParams = {
+  // 拖拽参数（e 在 setDragParam 之后、回调触发前写入）
+  const dragParams: DragParamsMutable = {
     x: 0,
     y: 0,
     offsetX: 0,
     offsetY: 0,
-    e: null as any
+    e: undefined
   }
 
   // 先取
@@ -117,7 +119,7 @@ export function useDrag(options: DragOptions): {
 
   const handleMousemove = (e: MouseEvent) => {
     setDragParam(e)
-    onDrag?.(dragParams)
+    onDrag?.(dragParams as DragParams)
   }
 
   const handleMouseup = (e: MouseEvent) => {
@@ -125,7 +127,7 @@ export function useDrag(options: DragOptions): {
     offsetX = dragParams.offsetX
     offsetY = dragParams.offsetY
 
-    onDragEnd?.(dragParams)
+    onDragEnd?.(dragParams as DragParams)
     document.onselectstart = onselectstart
 
     cleanup()

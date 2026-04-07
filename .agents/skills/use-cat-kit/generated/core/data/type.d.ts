@@ -12,8 +12,7 @@ declare function getDataType(value: any): DataType;
  */
 declare function isObj(value: any): value is Record<string, any>;
 /**
- * 是否是数组。实现委托 `Array.isArray`，与原生「是否为数组」的结论一致（含跨 realm 等边界）。
- * 若仅需布尔判断且不需要本包导出的类型守卫，可直接使用 `Array.isArray`。
+ * 是否是数组
  * @param value 值
  */
 declare function isArray(value: any): value is Array<any>;
@@ -46,7 +45,7 @@ declare function isFunction(value: any): value is Function;
  * 是否是布尔值
  * @param value 值
  */
-declare function isBool(value: any): value is boolean;
+declare function isBol(value: any): value is boolean;
 /**
  * 是否是文件
  * @param value 值
@@ -118,5 +117,5 @@ declare function isUndef(value: any): value is undefined;
  */
 declare function isEmpty(value: any): boolean;
 //#endregion
-export { getDataType, isArray, isArrayBuffer, isBlob, isBool, isDate, isEmpty, isFile, isFormData, isFunction, isInt16Array, isInt32Array, isInt8Array, isNull, isNumber, isObj, isPromise, isString, isSymbol, isUint16Array, isUint32Array, isUint8Array, isUndef };
+export { getDataType, isArray, isArrayBuffer, isBlob, isBol, isDate, isEmpty, isFile, isFormData, isFunction, isInt16Array, isInt32Array, isInt8Array, isNull, isNumber, isObj, isPromise, isString, isSymbol, isUint16Array, isUint32Array, isUint8Array, isUndef };
 //# sourceMappingURL=type.d.ts.map

@@ -13,9 +13,7 @@
   >
     <template #column:__action__="{ row }">
       <u-action-group @click.stop :loading="row.operating" :max="9">
-        <template
-          v-if="staticFeatures.has('create') || dynamicFeatures.create?.(row)"
-        >
+        <template v-if="staticFeatures.has('create') || dynamicFeatures.create?.(row)">
           <u-action
             @run="handleInsertToPrev(row)"
             :icon="BetweenVerticalStart"
@@ -32,9 +30,7 @@
 
         <u-action
           v-if="
-            props.tree &&
-            (staticFeatures.has('createChild') ||
-              dynamicFeatures.createChild?.(row))
+            props.tree && (staticFeatures.has('createChild') || dynamicFeatures.createChild?.(row))
           "
           @run="handleInsertChild(row)"
           :icon="CopyPlus"
@@ -72,11 +68,7 @@
           text
           v-bind="props.actionsProps?.create"
         >
-          <span
-            style="position: sticky; left: 50%; transform: translateX(-50%)"
-          >
-            新增
-          </span>
+          <span style="position: sticky; left: 50%; transform: translateX(-50%)"> 新增 </span>
         </u-button>
       </div>
     </template>
@@ -84,14 +76,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, type Slots } from 'vue'
 import { o } from '@cat-kit/core'
 import { BetweenVerticalEnd, BetweenVerticalStart, CopyPlus, Trash2 } from '@lucide/vue'
-import { BatchEditDIKey } from './di'
-import { UTable } from '../table'
-import { UButton } from '../button'
-import { UActionGroup, UAction } from '../action'
 import type { BatchEditFeature, TableRow } from '@ultra-ui/pc/types'
+import { computed, inject, type Slots } from 'vue'
+
+import { UActionGroup, UAction } from '../action'
+import { UButton } from '../button'
+import { UTable } from '../table'
+import { BatchEditDIKey } from './di'
 
 defineOptions({
   name: 'BatchEditList'
@@ -132,12 +125,10 @@ const tableProps = computed(() => {
   ])
 })
 
-const hasNot = (value: BatchEditFeature[]) =>
-  value.every(v => !staticFeatures.value.has(v))
+const hasNot = (value: BatchEditFeature[]) => value.every((v) => !staticFeatures.value.has(v))
 
 const columns = computed(() => {
-  if (props.readonly || hasNot(['create', 'delete', 'createChild']))
-    return props.columns
+  if (props.readonly || hasNot(['create', 'delete', 'createChild'])) return props.columns
 
   return (props.columns ?? []).concat({
     name: '操作',
@@ -150,10 +141,7 @@ const columns = computed(() => {
 })
 
 function handleUpdateCurrentRow(row?: TableRow) {
-  if (
-    staticFeatures.value.has('update') ||
-    dynamicFeatures.value.update?.(row)
-  ) {
+  if (staticFeatures.value.has('update') || dynamicFeatures.value.update?.(row)) {
     state.row = row
     state.depth = row?.depth
   }

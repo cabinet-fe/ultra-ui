@@ -79,7 +79,7 @@ export const lightTheme: UITheme = new UITheme({
     stripe: { bg: '#f8fafc', color: 'inherit' },
     hover: { bg: cssVar('bg-color-hover'), color: 'inherit' },
     current: { bg: cssVar('bg-color-hover'), color: 'inherit' },
-    checked: { bg: cssVar('color-primary-light-9' as any), color: 'inherit' }
+    checked: { bg: 'var(--color-primary-light-9)', color: 'inherit' }
   },
 
   switch: { height: defineBySize({ small: 18, default: 20, large: 24 }) }

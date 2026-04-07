@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { MessageConfirm } from '@ultra-ui/pc/components/message-confirm/index'
+import { MessageConfirm } from '@ultra-ui/pc'
 import '@ultra-ui/pc/components/message-confirm/style'
 import { reactive } from 'vue'
 
@@ -43,7 +43,7 @@ const showMsg = () => {
     confirmButtonType: config.confirmButtonType,
     confirmButtonText: config.confirmButtonText,
     cancelButtonText: config.cancelButtonText,
-    onClose: (action) => {
+    onClose: (action: 'cancel' | 'confirm') => {
       console.log(action)
     }
   })

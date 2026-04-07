@@ -8,6 +8,8 @@ Vue 3 组件库，完全 TypeScript 开发，BEM + CSS 变量主题系统。
 bun install                          # 安装依赖
 bun sample/vite.config.ts            # 无效，用下面的方式启动
 cd sample && bun dev                 # 启动开发预览 (localhost:7788)
+bun run typecheck:sample             # sample 端 vue-tsc --noEmit
+bun run sync-use-cat-kit-api         # 将 node_modules 中 @cat-kit 的 .d.ts 同步到 .agents/skills/use-cat-kit/generated
 bun cli/gen-component/index.ts       # 交互式生成新组件
 bun cli/export/index.ts              # 重新导出组件
 cd build && bun index.ts             # 构建各 workspace 包到 packages/*/dist/

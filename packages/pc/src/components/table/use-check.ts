@@ -266,7 +266,6 @@ export function useCheck(options: Options): UseCheckReturned {
       render(ctx) {
         const { row } = ctx
 
-        // @ts-ignore
         return createVNode(UCheckbox, {
           class: checkboxClass,
           modelValue: row.checked,
@@ -314,7 +313,6 @@ export function useCheck(options: Options): UseCheckReturned {
       },
 
       render({ row }) {
-        // @ts-ignore
         return createVNode(UCheckbox, {
           class: checkboxClass,
           modelValue: row.checked,

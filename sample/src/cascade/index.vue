@@ -49,8 +49,8 @@ const propsModel = new FormModel({
 
 const data = shallowRef<any[]>([])
 
-const disabledNode = data => {
-  return data.code % 2 === 0
+const disabledNode = (data: { code: string | number }) => {
+  return Number(data.code) % 2 === 0
 }
 
 // 模拟回显

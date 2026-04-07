@@ -64,7 +64,16 @@
 import { defineTableColumns } from "@ultra-ui/pc"
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Tree } from '@cat-kit/core'
+import type { TableColumn } from '@ultra-ui/pc/types'
+
+function flattenLeafColumns(cols: TableColumn[]): TableColumn[] {
+  const out: TableColumn[] = []
+  for (const c of cols) {
+    if (c.children?.length) out.push(...flattenLeafColumns(c.children))
+    else out.push(c)
+  }
+  return out
+}
 
 const state = shallowReactive({
   checkable: false,
@@ -188,14 +197,7 @@ watch(
     if (v) {
       columns.value = _columns
     } else {
-      let r: any[] = []
-
-      Tree.dft({ children: _columns }, item => {
-        if (item.children?.length) return
-        r.push(item)
-      })
-
-      columns.value = r
+      columns.value = flattenLeafColumns(_columns)
     }
   },
   { immediate: true }
