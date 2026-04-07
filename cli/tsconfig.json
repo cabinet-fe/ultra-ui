@@ -1,0 +1,10 @@
+{
+  "extends": "@cat-kit/tsconfig/tsconfig.node.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "types": ["@types/bun"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

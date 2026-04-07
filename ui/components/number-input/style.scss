@@ -1,0 +1,35 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: number-input;
+@include m.b($root-name) {
+  @include m.e(step) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-around;
+
+    @include m.bem(icon) {
+      cursor: pointer;
+      transition: color 0.25s;
+      width: 20px;
+      border-radius: fn.use-var(radius, default);
+
+      &:hover {
+        color: fn.use-var(color, primary);
+      }
+
+      @include m.is(disabled) {
+        cursor: not-allowed;
+        color: fn.use-var(text-color, disabled);
+      }
+    }
+  }
+
+  @include m.size using ($size) {
+    @include m.bem(icon) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+}

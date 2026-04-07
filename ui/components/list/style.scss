@@ -1,0 +1,16 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: list;
+$item-name: $root-name + '-item';
+@include m.b($root-name) {
+  @include m.size using ($size) {
+    @include m.b($item-name) {
+      padding: 0 fn.use-var(gap, $size);
+      border-radius: fn.use-var(radius, $size);
+      height: fn.use-var(form-component-height, $size);
+      line-height: fn.use-var(form-component-height, $size);
+    }
+  }
+}

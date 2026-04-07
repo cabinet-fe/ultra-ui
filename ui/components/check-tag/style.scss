@@ -1,0 +1,27 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+@include m.b(check-tag) {
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  height: 24px;
+  padding: 0 9px;
+  color: #333;
+  border: 1px solid fn.use-var(color-primary);
+  border-radius: fn.use-var(radius-default);
+  background: fn.use-var(color-primary-light-9);
+  &:hover {
+    background-color: fn.use-var(color-primary-light-7);
+  }
+
+  @include m.is(checked) {
+    cursor: pointer;
+    color: #fff;
+    border: 1px solid fn.use-var(color-primary-dark-3);
+    background-color: fn.use-var(color-primary-dark-3);
+  }
+}

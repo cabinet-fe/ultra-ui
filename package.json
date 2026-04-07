@@ -1,0 +1,41 @@
+{
+  "name": "ultra",
+  "keywords": [
+    "Vue",
+    "Vue UI",
+    "Vue3",
+    "Vue组件",
+    "前端框架",
+    "完全TS开发的Vue3组件库"
+  ],
+  "author": "cabinet-fe",
+  "workspaces": [
+    "sample",
+    "cli",
+    "build",
+    "ui"
+  ],
+  "type": "module",
+  "scripts": {
+    "gen": "bun cli/gen-component/index.ts",
+    "export": "bun cli/export/index.ts",
+    "rename:types": "bun cli/rename/types",
+    "update": "bun update",
+    "postinstall": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@cat-kit/cli": "^1.0.3",
+    "@cat-kit/tsconfig": "^1.0.0",
+    "@types/bun": "^1.3.9",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "fast-glob": "^3.3.3",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "5.9.3",
+    "vite-plugin-inspect": "^11.3.3",
+    "vitest": "^4.0.18",
+    "vue": "^3.5.29"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "bun cat-cli verify-commit"
+  }
+}

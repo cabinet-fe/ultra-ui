@@ -1,0 +1,6 @@
+import '../number-input/style'
+import '../palette/style'
+import '../input/style'
+import '../button/style'
+import '../select/style'
+import './style.scss'

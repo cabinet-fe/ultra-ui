@@ -1,0 +1,177 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+$root-name: progress-nodes;
+
+@include m.b($root-name) {
+  // CSS 变量定义
+  --checked-color: #{fn.use-var(color, primary)};
+  --node-color: #{fn.use-var(text-color, placeholder)};
+  --dot-size: 14px;
+
+  position: relative;
+  color: var(--node-color);
+  overflow: auto;
+  cursor: default;
+
+  // 隐藏滚动条但保留功能
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @include m.is(scrollable) {
+    cursor: grab;
+  }
+  @include m.is(dragging) {
+    cursor: grabbing;
+  }
+
+  // 颜色类型变体
+  @each $type in vars.$color-types {
+    @include m.m($type) {
+      --checked-color: #{fn.use-var(color, $type)};
+    }
+  }
+
+  // 列表容器
+  @include m.e(list) {
+    position: relative;
+    display: flex;
+    padding: 0;
+    margin: 0;
+  }
+
+  // 节点项
+  @include m.e(item) {
+    font-weight: 600;
+    color: inherit;
+    flex: 0 0 auto;
+    transition: background-color 0.2s, color 0.2s;
+    border-radius: fn.use-var(radius, base);
+
+    &:hover {
+      @include m.bem($root-name, dot) {
+        border-color: fn.use-var(text-color, second);
+      }
+
+      @include m.bem($root-name, label) {
+        color: fn.use-var(text-color, primary);
+      }
+    }
+  }
+
+  // 节点容器
+  @include m.e(node) {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 虚线连接
+  @include m.e(link) {
+    position: absolute;
+    border-style: dashed;
+    border-color: fn.use-var(border, color);
+  }
+
+  // 节点圆点
+  @include m.e(dot) {
+    position: relative;
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, top);
+    box-sizing: border-box;
+    transition: background-color 0.2s, border-color 0.2s;
+    z-index: 1;
+    @include m.flex($align: center, $justify: center);
+
+    > * {
+      font-size: 10px;
+    }
+  }
+
+  // 标签
+  @include m.e(label) {
+    font-size: fn.use-var(font-size-assist, small);
+    color: fn.use-var(text-color, second);
+    transition: color 0.2s;
+    @include m.ellipsis;
+  }
+
+  // checked 状态 - 圆点填充 colorType 颜色
+  @include m.bem($root-name, item) {
+    @include m.is(checked) {
+      color: var(--checked-color);
+
+      @include m.bem($root-name, dot) {
+        background-color: var(--checked-color);
+        border-color: var(--checked-color);
+      }
+
+      @include m.bem($root-name, label) {
+        color: var(--checked-color);
+      }
+    }
+  }
+
+  // active 状态 - 淡灰色背景 + 圆角
+  @include m.bem($root-name, item) {
+    @include m.is(active) {
+      isolation: isolate;
+      background-color: fn.use-var(bg-color, hover);
+      border-radius: fn.use-var(radius, default);
+    }
+  }
+
+  // 遮罩渐变
+  &.is-mask-start {
+    mask-image: linear-gradient(90deg, transparent, #000 30px);
+  }
+  &.is-mask-end {
+    mask-image: linear-gradient(270deg, transparent, #000 30px);
+  }
+  &.is-mask-start.is-mask-end {
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 30px,
+      #000 calc(100% - 30px),
+      transparent
+    );
+  }
+
+  @include m.e(list) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  @include m.e(item) {
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4px;
+    gap: 2px;
+  }
+
+  @include m.e(node) {
+    width: 100%;
+  }
+
+  @include m.e(link) {
+    // 宽度需要跨越当前 item 的右 padding + 下一个 item 的左 padding
+    width: calc(100% - var(--dot-size) + 24px);
+    height: 0;
+    border-width: 1px 0 0 0;
+    left: calc(50% + var(--dot-size) / 2);
+    top: 50%;
+    transform: translateY(-50%);
+
+  }
+}

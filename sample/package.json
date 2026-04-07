@@ -1,0 +1,23 @@
+{
+  "name": "sample",
+  "type": "module",
+  "scripts": {
+    "play": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@builder/vite": "^2.1.2",
+    "@ultra/icon": "^1.0.1",
+    "ultra-ui": "workspace:*",
+    "vue": "^3.5.27",
+    "vue-router": "^5.0.2"
+  },
+  "devDependencies": {
+    "cat-kit": "^3.7.14",
+    "sass-embedded": "^1.97.3",
+    "unocss": "^66.5.12",
+    "vite": "^7.3.1",
+    "vite-plugin-vue-devtools": "^8.0.5"
+  }
+}

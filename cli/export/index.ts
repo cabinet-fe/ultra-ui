@@ -1,0 +1,80 @@
+import { readDir } from 'cat-kit/be'
+import { UI_PATH } from '../shared'
+import { checkbox } from '@inquirer/prompts'
+import { join } from 'node:path'
+import { existsSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
+
+const packages = await readDir(UI_PATH, {
+  readType: 'dir'
+})
+
+const packageNames = await checkbox({
+  message: '导出哪些包?',
+  choices: packages.map(p => ({
+    name: p.name,
+    value: p.name
+  }))
+})
+
+/**
+ *
+ * @param targetPackage 目标包名
+ * @param prefix 导出前缀
+ * @returns
+ */
+async function getContent(targetPackage: string, prefix: string) {
+  const dirs = await readDir(targetPackage, {
+    filter(dirent) {
+      if (dirent.isFile()) {
+        return dirent.name !== 'index.ts' && /\.ts$/.test(dirent.name)
+      } else {
+        return !/(__test__|node_modules)/.test(dirent.name)
+      }
+    }
+  })
+
+  const contents = await Promise.all(
+    dirs.map(async dir => {
+      if (dir.type === 'dir') {
+        const existEntry = existsSync(join(dir.path, 'index.ts'))
+
+        if (existEntry) {
+          return `export * from '${prefix}${dir.name}'`
+        } else {
+          const childDirs = await readDir(dir.path, {
+            readType: 'file'
+          })
+          return childDirs
+            .map(
+              childDir =>
+                `export * from '${prefix}${dir.name}/${childDir.name.replace(
+                  childDir.ext,
+                  ''
+                )}'`
+            )
+            .join('\n\n')
+        }
+      }
+
+      return `export * from '${prefix}${dir.name.replace(dir.ext, '')}'`
+    })
+  )
+
+  return contents.join('\n\n')
+}
+
+async function exportEntry() {
+  await Promise.all(
+    packageNames.map(async pkg => {
+      const targetPackage = join(UI_PATH, pkg)
+      await writeFile(
+        join(targetPackage, 'index.ts'),
+        await getContent(targetPackage, './'),
+        'utf-8'
+      )
+    })
+  )
+}
+
+exportEntry()

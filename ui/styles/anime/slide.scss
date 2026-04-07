@@ -1,0 +1,28 @@
+.slide-down,
+.slide-up {
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+  }
+
+  &-enter-active,
+  &-leave-active {
+    transition:
+      transform 0.2s cubic-bezier(0, 0, 0.2, 1),
+      opacity 0.2s cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.slide-down {
+  &-enter-from,
+  &-leave-to {
+    transform: translateY(-10px);
+  }
+}
+
+.slide-up {
+  &-enter-from,
+  &-leave-to {
+    transform: translateY(10px);
+  }
+}

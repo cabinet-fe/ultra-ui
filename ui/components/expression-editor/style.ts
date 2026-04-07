@@ -1,0 +1,8 @@
+import '../tip/style'
+import '../input/style'
+import '../icon/style'
+import '../scroll/style'
+import '../empty/style'
+import '../tag/style'
+
+import './style.scss'

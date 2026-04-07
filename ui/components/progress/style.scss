@@ -1,0 +1,60 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: progress;
+
+@include m.b($root-name) {
+  $bar-height: 1.3em;
+
+  @include m.e(bar-wrap) {
+    height: $bar-height;
+    background-color: fn.use-var(bg-color, hover);
+    border-radius: $bar-height;
+    overflow: hidden;
+  }
+
+  @include m.e(bar) {
+    height: 100%;
+    color: fn.use-var(text-color, white);
+    overflow: hidden;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    @include m.flex($justify: center);
+  }
+
+  // 环形进度条
+  @include m.e(circle) {
+    width: 100px;
+    height: 100px;
+    position: relative;
+
+    & > svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  @include m.e(circle-content) {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    @include m.flex($justify: center);
+  }
+
+  @include m.e(circle-ring) {
+    transition: stroke-dasharray 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  // 颜色
+  @each $type, $_ in vars.$color-types {
+    @include m.m($type) {
+      @include m.bem($root-name, bar) {
+        background-color: fn.use-var(color, $type);
+      }
+    }
+  }
+}

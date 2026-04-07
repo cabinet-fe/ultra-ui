@@ -1,0 +1,13 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "脚本命令",
+  "author": "whj",
+  "type": "module",
+  "devDependencies": {
+    "@inquirer/prompts": "^8.2.0",
+    "cat-kit": "^3.7.15",
+    "oxfmt": "^0.28.0",
+    "picocolors": "^1.1.1"
+  }
+}

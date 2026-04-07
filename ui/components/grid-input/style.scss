@@ -1,0 +1,59 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: grid-input;
+
+@include m.b($root-name) {
+  @include m.size using ($size) {
+    @include m.bem($root-name, item) {
+      width: fn.use-var(form-component-height, $size);
+      height: fn.use-var(form-component-height, $size);
+      line-height: fn.use-var(form-component-height, $size);
+      border: fn.use-var(border);
+      border-radius: fn.use-var(gap, $size);
+      outline: none;
+      text-align: center;
+      display: inline-block;
+      vertical-align: middle;
+      position: relative;
+
+      &:not(:last-child) {
+        margin-right: fn.use-var(gap, $size);
+      }
+
+      @include m.is(focus) {
+        border-color: fn.use-var(color, primary);
+
+        @keyframes fade {
+          0% {
+            opacity: 0.2;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+
+        @include m.bem($root-name, item, text) {
+          color: fn.use-var(color, primary);
+          animation: fade 1s linear infinite alternate;
+        }
+
+        @include m.bem($root-name, item, cursor) {
+          position: absolute;
+          width: 2px;
+          height: calc(fn.use-var(form-component-height, $size) / 2);
+          background: fn.use-var(color, primary);
+          content: '';
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          animation: fade 1s linear infinite alternate;
+        }
+      }
+    }
+  }
+}

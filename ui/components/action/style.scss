@@ -1,0 +1,27 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/functions' as fn;
+@use '../../styles/vars';
+
+// 方便拼接
+$root-name: action;
+$group-name: action-group;
+
+@include m.b($group-name) {
+  @include m.e(dropdown) {
+    padding: 6px;
+    min-width: 100px;
+
+    @include m.b(button) {
+      width: 100%;
+      display: block;
+      margin-left: 0 !important;
+      margin-bottom: 6px;
+    }
+  }
+}
+
+@include m.b($root-name) {
+  & + & {
+    margin-left: 6px;
+  }
+}
