@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "types": ["@types/bun"]
+  }
+}

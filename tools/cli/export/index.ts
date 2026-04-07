@@ -1,12 +1,12 @@
-import { readDir } from 'cat-kit/be'
+import { readDir } from '@cat-kit/be'
 import { UI_PATH } from '../shared'
 import { checkbox } from '@inquirer/prompts'
-import { join } from 'node:path'
+import { basename, extname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
 const packages = await readDir(UI_PATH, {
-  readType: 'dir'
+  filter: e => e.isDirectory
 })
 
 const packageNames = await checkbox({
@@ -25,39 +25,36 @@ const packageNames = await checkbox({
  */
 async function getContent(targetPackage: string, prefix: string) {
   const dirs = await readDir(targetPackage, {
-    filter(dirent) {
-      if (dirent.isFile()) {
-        return dirent.name !== 'index.ts' && /\.ts$/.test(dirent.name)
-      } else {
-        return !/(__test__|node_modules)/.test(dirent.name)
+    filter(entry) {
+      if (entry.isFile) {
+        return entry.name !== 'index.ts' && /\.ts$/.test(entry.name)
       }
+      return !/(__test__|node_modules)/.test(entry.name)
     }
   })
 
   const contents = await Promise.all(
     dirs.map(async dir => {
-      if (dir.type === 'dir') {
+      if (dir.isDirectory) {
         const existEntry = existsSync(join(dir.path, 'index.ts'))
 
         if (existEntry) {
           return `export * from '${prefix}${dir.name}'`
-        } else {
-          const childDirs = await readDir(dir.path, {
-            readType: 'file'
-          })
-          return childDirs
-            .map(
-              childDir =>
-                `export * from '${prefix}${dir.name}/${childDir.name.replace(
-                  childDir.ext,
-                  ''
-                )}'`
-            )
-            .join('\n\n')
         }
+        const childFiles = await readDir(dir.path, {
+          onlyFiles: true,
+          filter: e => /\.ts$/.test(e.name)
+        })
+        return childFiles
+          .map(childPath => {
+            const stem = basename(childPath, extname(childPath))
+            return `export * from '${prefix}${dir.name}/${stem}'`
+          })
+          .join('\n\n')
       }
 
-      return `export * from '${prefix}${dir.name.replace(dir.ext, '')}'`
+      const stem = basename(dir.path, extname(dir.path))
+      return `export * from '${prefix}${stem}'`
     })
   )
 

@@ -1,0 +1,144 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+@use 'sass:math';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: slider;
+
+$slider-size: (
+  small: 18px,
+  default: 24px,
+  large: 30px
+);
+
+$track-size: (
+  small: 6px,
+  default: 8px,
+  large: 10px
+);
+
+@include m.b($root-name) {
+  @include m.is(range) {
+    cursor: default;
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, bar) {
+      background-color: fn.use-var(color, disabled, dark-1);
+    }
+
+    @include m.bem($root-name, thumb) {
+      cursor: not-allowed;
+      border-color: fn.use-var(color, disabled, dark-1);
+      &:hover {
+        box-shadow: none;
+      }
+    }
+  }
+
+  @include m.e(track) {
+    background-color: fn.use-var(color, disabled);
+    position: relative;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+  }
+
+  @include m.e(tick) {
+    position: absolute;
+    z-index: 0;
+    height: 4px;
+    width: 4px;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(bar) {
+    position: absolute;
+    border-radius: 12px;
+    background-color: fn.use-var(color, primary);
+  }
+
+  @include m.is(horizontal) {
+    width: 100%;
+
+    @include m.bem($root-name, tick) {
+      transform: translateX(-50%);
+    }
+
+    @include m.bem($root-name, bar) {
+      height: 100%;
+    }
+  }
+
+  @include m.is(vertical) {
+    height: 100%;
+
+    @include m.bem($root-name, tick) {
+      transform: translateY(50%);
+    }
+
+    @include m.bem($root-name, bar) {
+      width: 100%;
+    }
+  }
+
+  @include m.size using($size) {
+    $slider-size: map.get($slider-size, $size);
+    $track-size: map.get($track-size, $size);
+    $padding-y: math.div($slider-size - $track-size, 2);
+    $padding-x: math.div($slider-size, 2);
+
+    border-radius: $track-size;
+
+    @include m.bem($root-name, thumb) {
+      width: $slider-size;
+      height: $slider-size;
+    }
+
+    @include m.is(horizontal) {
+      height: $slider-size;
+      padding: $padding-y $padding-x;
+
+      @include m.bem($root-name, thumb) {
+        top: -(math.div($slider-size - $track-size, 2));
+        left: -(math.div($slider-size, 2));
+      }
+
+      @include m.bem($root-name, tick) {
+        top: math.div($track-size - 4px, 2);
+      }
+    }
+
+    @include m.is(vertical) {
+      width: $slider-size;
+      padding: $padding-x $padding-y;
+
+      @include m.bem($root-name, thumb) {
+        left: -(math.div($slider-size - $track-size, 2));
+        bottom: -(math.div($slider-size, 2));
+      }
+
+      @include m.bem($root-name, tick) {
+        left: math.div($track-size - 4px, 2);
+      }
+    }
+  }
+
+  @include m.e(thumb) {
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, top);
+    position: absolute;
+    cursor: grab;
+    z-index: 1;
+    border: 4px solid fn.use-var(color, primary);
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}

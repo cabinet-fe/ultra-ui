@@ -32,9 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { message } from '@ui/components'
-import '@ui/components/message/style.scss'
-import type { MessageType } from '@ui/types'
+import { message } from '@ultra-ui/desktop/components'
+import '@ultra-ui/desktop/components/message/style.scss'
+import type { MessageType } from '@ultra-ui/desktop/types'
 import { reactive } from 'vue'
 
 const config = reactive({

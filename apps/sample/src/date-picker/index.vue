@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { date } from 'cat-kit/fe'
+import { date } from '@cat-kit/core'
 
 const d = shallowRef(date().format('yyyy-MM-dd HH:mm:ss'))
 

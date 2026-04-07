@@ -1,0 +1,13 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+$root-name: file-picker;
+@include m.b($root-name) {
+  display: inline-block;
+
+  @include m.e(native) {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

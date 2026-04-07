@@ -147,7 +147,7 @@
 import { FormModel } from 'ultra-ui'
 import { shallowReactive, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { date } from 'cat-kit/fe'
+import { date } from '@cat-kit/core'
 import { CascadeData, TreeData } from './data'
 
 const readonly = shallowRef(false)

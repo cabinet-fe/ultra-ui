@@ -1,6 +1,6 @@
 import fg from 'fast-glob'
 import { resolve } from 'node:path'
-import { ROOT, DIST_ROOT, UI_ROOT } from './shared'
+import { ROOT, DIST_ROOT, DESKTOP_PKG, UTILS_SRC } from './shared'
 import { cp, copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
 
 export async function copy(
@@ -16,11 +16,11 @@ export async function copy(
 
 export async function copyFiles() {
   await copyFile(resolve(ROOT, 'README.md'), resolve(DIST_ROOT, 'README.md'))
-  await copy(['styles/_*.scss', 'styles/fonts/*'], UI_ROOT, DIST_ROOT)
+  await copy(['styles/_*.scss', 'styles/fonts/*'], UTILS_SRC, DIST_ROOT)
 }
 
 export async function genFiles() {
-  const pkgJSON = await readJson(resolve(UI_ROOT, 'package.json'))
+  const pkgJSON = await readJson(resolve(DESKTOP_PKG, 'package.json'))
 
   Object.assign(pkgJSON, {
     name: 'ultra-ui',

@@ -1,33 +1,54 @@
-import { dirname, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { compileAsync } from 'sass-embedded'
-import { DIST_ROOT, UI_ROOT } from './shared'
+import {
+  DESKTOP_SRC,
+  DIRECTIVES_SRC,
+  DIST_ROOT,
+  PACKAGES,
+  UTILS_SRC,
+  workspaceTsAliases
+} from './shared'
 import { build as tsdownBuild } from 'tsdown'
-import type { Plugin } from 'rolldown'
+import type { ModuleFormat, Plugin } from 'rolldown'
 
-// 存储已编译的 SCSS 文件信息
 const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
-/**
- * SCSS 优化插件
- *
- * 利用 resolveId 钩子拦截样式相关导入：
- * 1. 使用 this.resolve() 解析别名（如 @ui）为真实路径。
- * 2. 编译 SCSS 并将其重写为 .css 的相对路径。
- * 3. 将 style/css/js 导入转换为正确的相对路径并标记为外部。
- */
+function isUnderDir(dir: string, abs: string): boolean {
+  const base = resolve(dir) + sep
+  const p = resolve(abs)
+  return p === resolve(dir) || p.startsWith(base)
+}
+
+function isWorkspaceSource(abs: string): boolean {
+  return isUnderDir(PACKAGES, abs)
+}
+
+/** SCSS 绝对路径 → dist 内相对路径（.css） */
+function scssDistRelativePath(absolutePath: string): string {
+  if (isUnderDir(DESKTOP_SRC, absolutePath)) {
+    return relative(DESKTOP_SRC, absolutePath).replace(/\.scss$/, '.css')
+  }
+  if (isUnderDir(UTILS_SRC, absolutePath)) {
+    return relative(UTILS_SRC, absolutePath).replace(/\.scss$/, '.css')
+  }
+  if (isUnderDir(DIRECTIVES_SRC, absolutePath)) {
+    return join('directives', relative(DIRECTIVES_SRC, absolutePath)).replace(
+      /\.scss$/,
+      '.css'
+    )
+  }
+  throw new Error(`Unexpected scss path: ${absolutePath}`)
+}
+
 function scssPlugin(): Plugin {
   return {
     name: 'scss',
 
-    /**
-     * 解析模块导入
-     */
     resolveId: {
       filter: { id: /\.(scss|css|js)$|\/style$/ },
       async handler(source, importer) {
         if (!importer) return null
 
-        // 1. 调用内置解析器（支持 alias 配置）
         const resolved = await this.resolve(source, importer, {
           skipSelf: true
         })
@@ -35,22 +56,16 @@ function scssPlugin(): Plugin {
 
         const absolutePath = resolved.id
 
-        // 只处理项目内部（UI_ROOT）的模块
-        if (!absolutePath.startsWith(UI_ROOT)) return null
+        if (!isWorkspaceSource(absolutePath)) return null
 
-        // 2. 处理 SCSS 编译
         if (absolutePath.endsWith('.scss')) {
-          const relativeToUI = relative(UI_ROOT, absolutePath)
-          const cssOutputPath = resolve(
-            DIST_ROOT,
-            relativeToUI.replace(/\.scss$/, '.css')
-          )
+          const relCss = scssDistRelativePath(absolutePath)
+          const cssOutputPath = resolve(DIST_ROOT, relCss)
 
-          // 编译 scss（如果地图中不存在）
           if (!compiledScssMap.has(absolutePath)) {
             try {
               const result = await compileAsync(absolutePath, {
-                loadPaths: [UI_ROOT, dirname(absolutePath)]
+                loadPaths: [PACKAGES, dirname(absolutePath)]
               })
               compiledScssMap.set(absolutePath, {
                 css: result.css,
@@ -62,20 +77,16 @@ function scssPlugin(): Plugin {
             }
           }
 
-          // 将导入重写为相对路径的 .css
-          let relativePath = relative(
+          let relPath = relative(
             dirname(importer),
             absolutePath.replace(/\.scss$/, '.css')
           )
-          if (!relativePath.startsWith('.')) relativePath = './' + relativePath
-          return { id: relativePath, external: true }
+          if (!relPath.startsWith('.')) relPath = './' + relPath
+          return { id: relPath, external: true }
         }
 
-        // 3. 处理其他样式相关的 JS/CSS 导入
-        // 目标是将 @ui/... 转换为正确的相对路径并确保后缀正确 (.js)
         let targetPath = absolutePath.replace(/\.ts$/, '.js')
 
-        // 如果是无后缀的 style 导入，补齐 .js
         if (source.endsWith('/style') && !targetPath.endsWith('.js')) {
           targetPath += '.js'
         }
@@ -90,12 +101,8 @@ function scssPlugin(): Plugin {
       }
     },
 
-    /**
-     * 在生成阶段输出编译后的 CSS 文件
-     */
     async generateBundle() {
       for (const [_scssPath, { css, outputPath }] of compiledScssMap) {
-        // 计算相对于 DIST_ROOT 的文件名
         const fileName = relative(DIST_ROOT, outputPath)
 
         this.emitFile({
@@ -105,28 +112,39 @@ function scssPlugin(): Plugin {
         })
       }
 
-      // 清理缓存
       compiledScssMap.clear()
     }
   }
 }
 
+const styleBuildBase = {
+  logLevel: 'warn' as const,
+  plugins: [scssPlugin()],
+  unbundle: true,
+  clean: false,
+  platform: 'browser' as const,
+  format: ['es'] as ModuleFormat[],
+  dts: true,
+  outDir: DIST_ROOT,
+  alias: { ...workspaceTsAliases }
+}
+
 export async function buildStyles() {
   await tsdownBuild({
-    cwd: UI_ROOT,
-    alias: { '@ui': UI_ROOT },
-    logLevel: 'warn',
-    entry: [
-      'components/**/style.ts',
-      'directives/**/style.ts',
-      'styles/index.ts'
-    ],
-    plugins: [scssPlugin()],
-    unbundle: true,
-    clean: false,
-    platform: 'browser',
-    format: ['es'],
-    dts: true,
-    outDir: DIST_ROOT
+    ...styleBuildBase,
+    cwd: DESKTOP_SRC,
+    entry: ['components/**/style.ts']
+  })
+
+  await tsdownBuild({
+    ...styleBuildBase,
+    cwd: DIRECTIVES_SRC,
+    entry: ['**/style.ts']
+  })
+
+  await tsdownBuild({
+    ...styleBuildBase,
+    cwd: UTILS_SRC,
+    entry: ['styles/index.ts']
   })
 }

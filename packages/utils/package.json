@@ -6,8 +6,45 @@
     "build": "tsc -b"
   },
   "exports": {
-    ".": { "import": "./src/index.ts" },
-    "./styles/*": { "sass": "./src/styles/*", "default": "./dist/styles/*" }
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "import": "./src/types/index.ts"
+    },
+    "./types/helper": "./src/types/helper.ts",
+    "./types/component-common": "./src/types/component-common.ts",
+    "./types/tip-geometry": "./src/types/tip-geometry.ts",
+    "./types/utils/*": "./src/types/utils/*",
+    "./types/*": "./src/types/*",
+    "./styles": {
+      "types": "./src/styles/index.ts",
+      "import": "./src/styles/index.ts"
+    },
+    "./styles/theme": {
+      "types": "./src/styles/theme.ts",
+      "import": "./src/styles/theme.ts"
+    },
+    "./styles/*": {
+      "sass": "./src/styles/*",
+      "types": "./src/styles/*",
+      "import": "./src/styles/*"
+    },
+    "./shared": {
+      "types": "./src/shared/index.ts",
+      "import": "./src/shared/index.ts"
+    },
+    "./shared/*": "./src/shared/*"
+  },
+  "sideEffects": [
+    "src/styles/**",
+    "*.css",
+    "*.scss"
+  ],
+  "dependencies": {
+    "@cat-kit/core": "^1.0.0"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

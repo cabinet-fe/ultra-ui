@@ -1,0 +1,6 @@
+{
+  "name": "@ultra-ui/ts-config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared TypeScript presets for workspace packages (Turborepo-style internal config)"
+}

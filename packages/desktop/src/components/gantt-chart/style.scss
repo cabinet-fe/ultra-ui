@@ -1,0 +1,6 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+@include m.b(gantt-chart) {
+}

@@ -1,0 +1,13 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+$root-name: password-input;
+
+@include m.b($root-name) {
+
+
+  @include m.e(visibility-toggle) {
+    // cursor: pointer;
+  }
+}

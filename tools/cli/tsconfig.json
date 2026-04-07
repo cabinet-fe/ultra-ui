@@ -1,12 +1,11 @@
 {
-  "extends": "@cat-kit/tsconfig/tsconfig.node.json",
+  "extends": "../../packages/ts-config/node-tools.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "rootDir": ".",
-    "outDir": "./dist-tsc",
-    "types": ["@types/bun"]
+    "outDir": "./dist-tsc"
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist-tsc"]
 }

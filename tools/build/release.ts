@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { select, confirm, input } from '@inquirer/prompts'
 import { readJson, writeJson } from '@cat-kit/be'
 import { $ } from 'execa'
-import { ROOT, UI_ROOT, DIST_ROOT } from './shared'
+import { ROOT, DESKTOP_PKG, DIST_ROOT } from './shared'
 
 // ========================= 类型定义 =========================
 
@@ -74,7 +74,7 @@ async function tagExists(tag: string): Promise<boolean> {
  * @returns 新版本号字符串
  */
 export async function promptVersion(): Promise<string> {
-  const pkgPath = resolve(UI_ROOT, 'package.json')
+  const pkgPath = resolve(DESKTOP_PKG, 'package.json')
   const pkg = await readJson<{ version: string }>(pkgPath)
   const currentVersion = pkg.version
   const current = parseVersion(currentVersion)

@@ -3,7 +3,7 @@ import { build } from './build'
 import { buildStyles } from './build-styles'
 import { copyFiles, genFiles } from './prepare'
 import { release, promptVersion, updateVersion } from './release'
-import { UI_ROOT } from './shared'
+import { DESKTOP_PKG } from './shared'
 
 const isRelease = process.argv.includes('--release')
 
@@ -12,7 +12,7 @@ async function boot(isRelease: boolean) {
 
   if (isRelease) {
     version = await promptVersion()
-    await updateVersion(version, [resolve(UI_ROOT, 'package.json')])
+    await updateVersion(version, [resolve(DESKTOP_PKG, 'package.json')])
   }
 
   await build()

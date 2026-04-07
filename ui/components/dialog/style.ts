@@ -1,5 +1,0 @@
-import '../icon/style'
-import '../scroll/style'
-import '@ui/styles/anime/fade.scss'
-import '@ui/styles/anime/spring.scss'
-import './style.scss'

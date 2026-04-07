@@ -1,0 +1,22 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+// 方便拼接
+$root-name: table-editor;
+
+@include m.b($root-name) {
+  @include m.bem(table, body) {
+    @include m.bem(table, cell) {
+      padding: 2px;
+
+      [class^='u-input'] {
+        box-shadow: none;
+      }
+
+      & > [class^='u-'] {
+        box-shadow: none;
+      }
+    }
+  }
+}

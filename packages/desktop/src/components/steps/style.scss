@@ -1,0 +1,196 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+@use 'sass:map';
+
+// 方便拼接
+$root-name: steps;
+
+@include m.b($root-name) {
+  padding: 0;
+  margin: 0;
+
+  /** 颜色变量 */
+  @each $type in vars.$color-types {
+    @include m.em(finished, $type) {
+      --finished-color: #{fn.use-var(color, $type)};
+    }
+    @include m.em(current, $type) {
+      --current-color: #{fn.use-var(color, $type)};
+    }
+  }
+
+  /** 步骤项 */
+  @include m.e(item) {
+    font-weight: 600;
+    color: fn.use-var(text-color, placeholder);
+
+    @include m.is(finished) {
+      color: var(--finished-color);
+    }
+    @include m.is(current) {
+      color: var(--current-color);
+    }
+  }
+
+  @include m.e(node) {
+    position: relative;
+  }
+
+  @include m.e(link) {
+    background-color: currentColor;
+    position: absolute;
+    margin: auto;
+    z-index: 0;
+  }
+
+  @keyframes steps-link-flow-horizontal {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 20px 0;
+    }
+  }
+
+  @keyframes steps-link-flow-vertical {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 0 20px;
+    }
+  }
+
+  @keyframes steps-icon-breathing {
+    0% {
+      color: fn.use-var(text-color, placeholder);
+      border-color: fn.use-var(text-color, placeholder);
+    }
+    50% {
+      color: currentColor;
+      border-color: currentColor;
+    }
+    100% {
+      color: fn.use-var(text-color, placeholder);
+      border-color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(icon) {
+    display: flex;
+    cursor: default;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background-color: fn.use-var(bg-color, top);
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  @include m.bem($root-name, item) {
+    @include m.is(current) {
+      @include m.bem($root-name, icon) {
+        animation: steps-icon-breathing 2s ease-in-out infinite;
+        will-change: opacity;
+      }
+    }
+  }
+
+  /** 步骤项描述 */
+  @include m.e(content) {
+    padding: 4px 0;
+  }
+
+  @include m.is(horizontal) {
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+
+    @include m.bem($root-name, item) {
+      flex: 1;
+      min-width: 150px;
+
+      @include m.is(current) {
+        @include m.bem($root-name, link) {
+          background-color: transparent;
+          background-image: linear-gradient(
+            to right,
+            currentColor 0%,
+            currentColor 50%,
+            transparent 50%,
+            transparent 100%
+          );
+          background-size: 10px 2px;
+          animation: steps-link-flow-horizontal 1s linear infinite;
+        }
+      }
+    }
+
+    @include m.bem($root-name, link) {
+      width: 100%;
+      height: 2px;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    @include m.is(align-center) {
+      @include m.bem($root-name, (content, node)) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @include m.bem($root-name, link) {
+        left: 50%;
+      }
+    }
+  }
+
+  @include m.is(vertical) {
+    @include m.bem($root-name, item) {
+      min-height: 60px;
+      @include m.flex($align: stretch, $wrap: nowrap);
+
+      @include m.is(current) {
+        @include m.bem($root-name, link) {
+          background-color: transparent;
+          background-image: linear-gradient(
+            to bottom,
+            currentColor 0%,
+            currentColor 50%,
+            transparent 50%,
+            transparent 100%
+          );
+          background-size: 2px 10px;
+          animation: steps-link-flow-vertical 1s linear infinite;
+        }
+      }
+    }
+
+    @include m.bem($root-name, link) {
+      height: 100%;
+      width: 2px;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+  }
+
+  @include m.size using ($size) {
+    @include m.is(vertical) {
+      @include m.bem($root-name, item) {
+        gap: fn.use-var(gap, $size);
+      }
+    }
+
+    @include m.bem($root-name, icon) {
+      font-size: fn.use-var(font-size-title, $size);
+      width: fn.use-var(form-component-height, $size);
+      height: fn.use-var(form-component-height, $size);
+    }
+  }
+}

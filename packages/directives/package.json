@@ -6,7 +6,8 @@
     "build": "tsc -b"
   },
   "exports": {
-    ".": { "import": "./src/index.ts" }
+    ".": { "import": "./src/index.ts" },
+    "./ripple/style": { "import": "./src/ripple/style.ts" }
   },
   "peerDependencies": {
     "vue": "^3.5.0"

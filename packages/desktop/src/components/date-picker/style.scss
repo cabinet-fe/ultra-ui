@@ -1,0 +1,15 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+// 方便拼接
+$root-name: date-picker;
+
+@include m.b($root-name) {
+  width: 100%;
+  @include m.size using ($size) {
+    @include m.bem($root-name, icon) {
+      font-size: calc(fn.use-var(form-component-height, $size) / 2 + 2px);
+    }
+  }
+}

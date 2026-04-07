@@ -56,7 +56,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { FormModel } from '@ui/components'
+import { FormModel } from '@ultra-ui/desktop/components'
 
 const basicSwitch = ref(false)
 const textSwitch = ref(true)

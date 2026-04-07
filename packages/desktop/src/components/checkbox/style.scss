@@ -1,0 +1,104 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+$root-name: checkbox;
+@include m.b($root-name) {
+  user-select: none;
+  vertical-align: middle;
+  cursor: pointer;
+  @include m.flex(inline-flex);
+
+  @include m.is(checked) {
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(disabled) {
+      @include m.bem($root-name, wrap) {
+        background-color: fn.use-var(text-color, disabled);
+        border-color: fn.use-var(border, color);
+      }
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, disabled);
+    }
+  }
+
+  @include m.is(readonly) {
+    cursor: default;
+  }
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+
+    @include m.bem($root-name, wrap) {
+      height: calc(fn.use-var(form-component-height, $size) / 2);
+      width: calc(fn.use-var(form-component-height, $size) / 2);
+    }
+
+    @include m.bem($root-name, label) {
+      margin-left: fn.use-var(gap, $size);
+    }
+  }
+
+  @include m.e(wrap) {
+    border: fn.use-var(border, width) fn.use-var(border, style)
+      fn.use-var(checkbox, border);
+    border-radius: fn.use-var(radius, default);
+    color: #fff;
+    transition: background-color 0.15s ease;
+    @include m.flex(inline-flex, center);
+  }
+
+  @include m.e(label) {
+    line-height: 1em;
+  }
+
+  @include m.m(indeterminate) {
+    background-color: #fff;
+    width: 10px;
+    height: 2px;
+    vertical-align: middle;
+  }
+}
+
+$button-name: checkbox-button;
+@include m.b($button-name) {
+  border: fn.use-var(border);
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 0 0.8em;
+
+  @include m.size using ($size) {
+    height: fn.use-var(form-component-height, $size);
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.is(round) {
+      border-radius: calc(fn.use-var(form-component-height, $size) / 2);
+    }
+  }
+
+  @each $type in vars.$color-types {
+    @include m.is($type) {
+      &:hover {
+        background-color: fn.use-var(color, $type, light-9);
+      }
+
+      @include m.is(checked) {
+        background-color: fn.use-var(color, $type, light-9);
+        color: fn.use-var(color, $type);
+        border-color: fn.use-var(color, $type);
+      }
+    }
+  }
+}

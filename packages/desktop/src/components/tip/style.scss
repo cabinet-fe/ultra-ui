@@ -1,0 +1,63 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+$root-name: tip;
+
+@include m.b($root-name) {
+  width: max-content;
+
+  @include m.e(content) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: fn.use-var(shadow);
+    border-radius: fn.use-var(radius, default);
+    color: fn.use-var(text-color, main);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: -1;
+      background-color: fn.use-var(bg-color, top);
+      border-radius: fn.use-var(radius, default);
+    }
+  }
+
+  @include m.e(arrow) {
+    position: absolute;
+    z-index: -1;
+    box-shadow: fn.use-var(shadow);
+    background-color: fn.use-var(bg-color, top);
+    transform: rotate(45deg);
+  }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size, main, $size);
+    padding: fn.use-var(gap, $size);
+  }
+}
+
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
+  transition-property: opacity, transform;
+}
+
+.#{$root-name}-enter-active {
+  transition-timing-function: ease;
+  transition-duration: 0.25s;
+}
+.#{$root-name}-leave-active {
+  transition-timing-function: ease-out;
+  transition-duration: 0.15s;
+}
+
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}

@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { getChainValue } from "cat-kit";
+import { getChainValue } from '@ultra-ui/utils';
 import { computed } from "vue";
 import { shallowRef } from "vue";
 

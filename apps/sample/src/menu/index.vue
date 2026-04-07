@@ -231,7 +231,7 @@ const menus1 = ref([
 </script>
 
 <style scoped lang="scss">
-@use '@ui/styles/functions' as fn;
+@use 'utils/src/styles/functions' as fn;
 
 .config {
   display: flex;

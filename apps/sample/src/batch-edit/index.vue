@@ -165,7 +165,7 @@
 </template>
 
 <script lang="ts" setup>
-import { date, sleep } from 'cat-kit/fe'
+import { date, sleep } from '@cat-kit/core'
 import { FormModel, message, defineTableColumns } from 'ultra-ui'
 import { computed, shallowRef } from 'vue'
 import 'ultra-ui/components/message/style.js'

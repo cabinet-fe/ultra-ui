@@ -10,11 +10,12 @@ bun apps/sample/vite.config.ts                # 无效，用下面的方式启�
 cd apps/sample && bun dev                      # 启动开发预览 (localhost:7788)
 bun tools/cli/gen-component/index.ts         # 交互式生成新组件
 bun tools/cli/export/index.ts                # 重新导出组件
-cd tools/build && bun index.ts               # 构建产物到 dist/
+cd tools/build && bun index.ts               # 构建产物到 dist/（入口 packages/desktop/src，样式含 directives/utils）
 cd tools/build && bun index.ts --release     # 构建 + 发版
 bun vitest                                     # 运行测试
 bun run lint                                   # oxlint
 bun run format                                 # oxfmt
+bun run build                                  # turbo run build（各包 build 拓扑）
 bunx turbo build --dry-run                     # Turborepo 任务拓扑（dry-run）
 ```
 
@@ -31,31 +32,22 @@ bunx turbo build --dry-run                     # Turborepo 任务拓扑（dry-ru
 | 格式化    | oxfmt + oxlint                             | -             |
 | Monorepo  | Turborepo + workspaces                     | -             |
 | Git Hooks | simple-git-hooks (commit-msg)              | -             |
-| 核心依赖  | cat-kit, @ultra/icon                       | peer          |
+| 核心依赖  | `@cat-kit/core`（日期/数值/定时器等）、`cat-kit`（仅 `Tree`/`Forest`/`TreeNode` 等 v3 数据结构 API；勿再用 `cat-kit/fe` 子路径）、`@ultra-ui/utils`（`getChainValue`/`Tween`/`pick` 等与 v3 fe 对齐的辅助）、`@cat-kit/be`（CLI/构建）、`@ultra/icon` | peer / deps   |
 
 ## 目录结构
 
 ```
 ultra-ui/
 ├── apps/sample/            # 开发预览应用 (Vite, port 7788)
-├── packages/               # @ultra-ui/* 包（utils / compositions / directives / desktop / mobile / icons）
+├── packages/
+│   ├── utils/              # @ultra-ui/utils（工具、共享类型、styles、shared）
+│   ├── compositions/     # @ultra-ui/compositions
+│   ├── directives/         # @ultra-ui/directives
+│   ├── desktop/            # @ultra-ui/desktop（组件、types、入口、install）
+│   ├── ts-config/          # 共享 TS 预设（extends，内部包）
+│   ├── mobile/ / icons/    # 其他包
 ├── tools/build/            # 构建脚本 (tsdown)
 ├── tools/cli/              # CLI 工具 (组件生成、导出)
-├── ui/                     # 组件库源码（Plan 5 迁移前暂保留）
-│   ├── components/         # 所有组件 (60+)
-│   ├── compositions/       # 组合式函数
-│   ├── directives/         # 指令 (click-outside, focus, ripple)
-│   ├── shared/             # 共享常量
-│   ├── styles/             # 主题、SCSS mixins、CSS 变量
-│   ├── types/              # 类型定义 (与组件目录分离)
-│   │   ├── components/     # 各组件的 Props/Emits/Exposed
-│   │   ├── utils/          # 工具类型
-│   │   ├── component-common.ts
-│   │   └── helper.ts
-│   ├── utils/              # 工具函数 (dom, form, reactive)
-│   ├── index.ts            # 库入口
-│   ├── install.ts          # 全量注册
-│   └── package.json        # 版本 0.4.51
 ├── package.json            # Monorepo 根 (workspaces)
 ├── tsconfig.json
 └── vitest.config.ts
@@ -65,7 +57,7 @@ ultra-ui/
 
 ### 文件结构
 
-每个组件目录 `ui/components/<name>/` 包含：
+每个组件目录 `packages/desktop/src/components/<name>/` 包含：
 
 | 文件         | 用途                                  |
 | ------------ | ------------------------------------- |
@@ -75,7 +67,7 @@ ultra-ui/
 | `style.ts`   | 样式入口（导入依赖样式 + style.scss） |
 | `use-*.ts`   | 可选，组合式逻辑拆分                  |
 
-**类型定义放在** `ui/types/components/<name>.ts`，不在组件目录内。
+**类型定义放在** `packages/desktop/src/types/<name>.ts`，不在组件目录内。
 
 ### 命名约定
 
@@ -95,8 +87,8 @@ ultra-ui/
 </template>
 
 <script setup lang="ts">
-import { bem } from '@ui/utils'
-import type { XxxProps } from '@ui/types'
+import { bem } from '@ultra-ui/utils'
+import type { XxxProps } from '@ultra-ui/desktop/types'
 
 defineOptions({ name: 'Xxx' })
 
@@ -120,9 +112,9 @@ const cls = bem('xxx')
 ### BEM + SCSS
 
 ```scss
-@use '../../styles/mixins' as m;
-@use '../../styles/vars';
-@use '../../styles/functions' as fn;
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/vars';
+@use 'utils/src/styles/functions' as fn;
 
 @include m.b(component-name) {
   // fn.use-var(text-color, main) → var(--u-text-color-main)
@@ -135,23 +127,27 @@ const cls = bem('xxx')
 }
 ```
 
-- 命名空间变量：`$namespace: 'u-'`（`ui/styles/_vars.scss`）
-- BEM mixins：`b/e/m/em/is`（`ui/styles/_mixins.scss`）
-- CSS 变量函数：`fn.use-var()`（`ui/styles/_functions.scss`）
+- 命名空间变量：`$namespace: 'u-'`（`packages/utils/src/styles/_vars.scss`）
+- BEM mixins：`b/e/m/em/is`（`packages/utils/src/styles/_mixins.scss`）
+- CSS 变量函数：`fn.use-var()`（`packages/utils/src/styles/_functions.scss`）
+- 构建/预览需配置 Sass `loadPaths` 包含 monorepo `packages/`，以便解析 `utils/src/styles/...`
 
 ### 主题
 
-- `loadTheme(theme?)` 加载主题
+- `loadTheme(theme?)`（`@ultra-ui/compositions`）加载主题
 - `lightTheme` / `darkTheme` 预设
 - `UITheme` 类：将 Theme 对象转为 CSS 变量注入 `:root`
-- 主题结构定义在 `ui/styles/type.ts`（color、bg、border、radius、shadow 等）
+- 主题结构定义在 `packages/utils/src/styles/type.ts`（color、bg、border、radius、shadow 等）
 
 ## 路径别名
 
-| 别名       | 指向                                  |
-| ---------- | ------------------------------------- |
-| `@ui/*`    | `ui/*`（tsconfig paths + vite alias） |
-| `ultra-ui` | `ui/index.ts`（仅 sample）            |
+| 别名 | 指向 |
+| ---- | ---- |
+| `@ultra-ui/utils` | `packages/utils/src` |
+| `@ultra-ui/desktop` | `packages/desktop/src` |
+| `@ultra-ui/compositions` | `packages/compositions/src` |
+| `@ultra-ui/directives` | `packages/directives/src` |
+| `ultra-ui` | 兼容指向 `packages/desktop/src/index.ts`（sample Vite alias） |
 
 ## 约束
 

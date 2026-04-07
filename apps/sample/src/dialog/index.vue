@@ -111,7 +111,7 @@ watch(visible2, v => {
 </script>
 
 <style lang="scss" scoped>
-@use 'ultra-ui/styles/anime/slide';
+@use 'utils/src/styles/anime/slide';
 .box {
   display: flex;
   flex-direction: column;

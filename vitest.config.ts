@@ -6,7 +6,18 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@ui': fileURLToPath(new URL('./ui', import.meta.url))
+      '@ultra-ui/desktop': fileURLToPath(
+        new URL('./packages/desktop/src', import.meta.url)
+      ),
+      '@ultra-ui/utils': fileURLToPath(
+        new URL('./packages/utils/src', import.meta.url)
+      ),
+      '@ultra-ui/compositions': fileURLToPath(
+        new URL('./packages/compositions/src', import.meta.url)
+      ),
+      '@ultra-ui/directives': fileURLToPath(
+        new URL('./packages/directives/src', import.meta.url)
+      )
     }
   },
   test: {

@@ -60,7 +60,7 @@
 </template>
 
 <script lang="tsx" setup>
-import { FormModel } from '@ui/components'
+import { FormModel } from '@ultra-ui/desktop/components'
 import { ref } from 'vue'
 
 const config = new FormModel({

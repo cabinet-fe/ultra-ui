@@ -1,0 +1,380 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+// 方便拼接
+$root-name: expression-editor;
+
+@include m.b($root-name) {
+  position: relative;
+  background-color: fn.use-var(bg-color, top);
+  border-width: fn.use-var(border, width);
+  border-style: fn.use-var(border, style);
+  border-color: fn.use-var(border, color);
+  border-radius: fn.use-var(radius, default);
+
+  &:hover:not(.is-disabled):not(.is-readonly) {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-within:not(.is-disabled):not(.is-readonly) {
+    border-color: fn.use-var(color, primary);
+    outline: none;
+  }
+
+  @include m.is('disabled') {
+    background-color: fn.use-var(color, disabled);
+    cursor: not-allowed;
+    border-color: fn.use-var(border, color);
+
+    &:hover {
+      border-color: fn.use-var(border, color);
+    }
+  }
+
+  @include m.is('readonly') {
+    background-color: fn.use-var(bg-color, middle);
+    cursor: default;
+    border-color: fn.use-var(border, color);
+    user-select: text;
+
+    &:hover {
+      border-color: fn.use-var(border, color);
+    }
+  }
+
+  @include m.e(tools) {
+    text-align: right;
+    margin-bottom: fn.use-var(gap, small);
+
+    & > * {
+      cursor: pointer;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: fn.use-var(color, primary);
+      }
+    }
+  }
+
+  @include m.e(paragraph) {
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+  }
+
+  @include m.e(placeholder) {
+    position: absolute;
+    color: fn.use-var(text-color, placeholder);
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.2s ease;
+    font-weight: 400;
+  }
+
+  @include m.e(container) {
+    position: relative;
+    outline: none;
+    min-height: 1.5em;
+    line-height: 1.6;
+    color: fn.use-var(text-color, main);
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow-y: auto;
+
+    &:empty::before {
+      content: '\200b'; // Zero-width space to maintain height
+    }
+
+    .ultra-expression-variable-source {
+      cursor: grab;
+    }
+
+    .ultra-expression-variable-source.is-dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .expression-editor__drop-indicator {
+      position: absolute;
+      width: 2px;
+      border-radius: 999px;
+      transform: translateX(-1px);
+      pointer-events: none;
+      background-color: fn.use-var(color, primary);
+      box-shadow: 0 0 0 1px fn.use-var(color, primary, light-8);
+      transition: opacity 0.12s ease;
+      z-index: 3;
+    }
+  }
+
+  @include m.e(fallback) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: fn.use-var(border);
+  }
+
+  @include m.e(fallback-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  @include m.e(fallback-label) {
+    min-width: 0;
+    flex: 1;
+    font-size: 12px;
+    color: fn.use-var(text-color, main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @include m.e(fallback-actions) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(fallback-button) {
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, main);
+    font-size: 12px;
+    line-height: 1;
+    height: 22px;
+    padding: 0 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+
+    &:hover:not(:disabled) {
+      color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary, light-9);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, placeholder);
+      border-color: fn.use-var(border, color);
+      background-color: fn.use-var(bg-color, middle);
+    }
+  }
+
+  @include m.size using ($size) {
+    min-height: fn.use-var(form-component-height, $size);
+    padding: fn.use-var(gap, $size);
+
+    @include m.bem($root-name, placeholder) {
+      top: fn.use-var(gap, $size);
+      left: fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($root-name, container) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(variable-empty) {
+    padding: 16px;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  @include m.e(variable-list) {
+    padding: 6px 0;
+    margin: 0;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    background-color: fn.use-var(bg-color, top);
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: fn.use-var(bg-color, middle);
+      border-radius: fn.use-var(radius, small);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: fn.use-var(text-color, placeholder);
+      border-radius: fn.use-var(radius, small);
+      border: 2px solid fn.use-var(bg-color, middle);
+
+      &:hover {
+        background-color: fn.use-var(text-color, second);
+      }
+    }
+  }
+
+  @include m.e(variable-item) {
+    padding: 8px 14px;
+    margin: 2px 6px;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: fn.use-var(radius, default);
+    font-size: 13px;
+    color: fn.use-var(text-color, main);
+    font-weight: 500;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-9);
+      color: fn.use-var(color, primary);
+      transform: translateX(2px);
+    }
+
+    @include m.is('active') {
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+      font-weight: 600;
+      box-shadow: 0 2px 4px fn.use-var(shadow, color);
+    }
+  }
+
+  @include m.e(filter) {
+    padding: 6px;
+    border-bottom: fn.use-var(border);
+  }
+
+  @include m.e(breadcrumbs) {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: fn.use-var(border);
+    background-color: fn.use-var(bg-color, middle);
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+    overflow-x: auto;
+    white-space: nowrap;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: fn.use-var(border, color);
+      border-radius: 2px;
+
+      &:hover {
+        background-color: fn.use-var(text-color, placeholder);
+      }
+    }
+  }
+
+  @include m.e(breadcrumb-item) {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  @include m.e(breadcrumb-link) {
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: fn.use-var(radius, small);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &--active {
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+
+  @include m.e(breadcrumb-separator) {
+    font-size: 10px;
+    color: fn.use-var(text-color, placeholder);
+    margin: 0 2px;
+  }
+
+  @include m.e(panel) {
+    min-height: 200px;
+    max-height: 360px;
+  }
+
+  @include m.e(panel-list) {
+    height: 100%;
+    min-height: 200px;
+  }
+
+  @include m.e(panel-content) {
+    padding: 2px 0;
+  }
+
+  @include m.e(item) {
+    padding: 5px 10px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.12s ease;
+    color: fn.use-var(text-color, main);
+    font-size: 13px;
+    line-height: 1.4;
+    border-radius: fn.use-var(radius, small);
+    margin: 1px 4px;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+      font-weight: 500;
+      box-shadow: 0 1px 3px fn.use-var(shadow, color);
+
+      @include m.bem($root-name, item-expand) {
+        color: fn.use-var(text-color, white);
+      }
+    }
+
+    @include m.is(leaf) {
+      // 叶子节点样式
+    }
+  }
+
+  @include m.e(item-label) {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @include m.e(item-expand) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, placeholder);
+    font-size: 11px;
+    transition: color 0.15s ease;
+  }
+
+  @include m.e(empty) {
+    padding: 40px 20px;
+    text-align: center;
+  }
+}

@@ -1,0 +1,86 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+$root-name: textarea;
+
+@include m.b($root-name) {
+  position: relative;
+  width: 100%;
+  box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
+  vertical-align: middle;
+
+  &:hover {
+    // 悬浮时边框颜色为 var(--u-color-primary);
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, native) {
+      padding: calc(fn.use-var(gap, $size) / 2);
+      min-height: fn.use-var(form-component-height, $size);
+      padding-right: 20px;
+    }
+
+    @include m.bem($root-name, clear) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(native) {
+    color: fn.use-var(text-color, main);
+    outline: none;
+    border: none;
+    background-color: transparent;
+    font-family: fn.use-var(font-family);
+    font-size: 1em;
+    width: 100%;
+    display: block;
+    padding: 0;
+    resize: vertical;
+    overflow: auto;
+    line-height: 1.3;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.is(focus) {
+    // 使用变量 color 和 primary 设置内阴影和边框颜色
+    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+
+    @include m.bem($root-name, native) {
+      cursor: not-allowed;
+      resize: none;
+    }
+  }
+
+  @include m.m(count) {
+    display: block;
+    position: absolute;
+    bottom: 8px;
+    right: 4px;
+    font-size: 12px;
+    background: fn.use-var(bg-color, middle);
+  }
+
+  @include m.m(clear) {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    cursor: pointer;
+    color: fn.use-var(text-color, main);
+    min-width: 20px;
+  }
+}

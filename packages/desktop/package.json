@@ -5,14 +5,24 @@
   "scripts": {
     "build": "tsc -b"
   },
+  "sideEffects": [
+    "src/components/**/style.ts",
+    "*.css",
+    "*.scss"
+  ],
   "exports": {
-    ".": { "import": "./src/index.ts" }
+    ".": { "import": "./src/index.ts" },
+    "./types": { "import": "./src/types/index.ts" },
+    "./install": { "import": "./src/install.ts" }
   },
   "peerDependencies": {
     "vue": "^3.5.0",
-    "@ultra-ui/icons": "workspace:*"
+    "@ultra-ui/icons": "workspace:*",
+    "@ultra/icon": "^1.0.1"
   },
   "dependencies": {
+    "@cat-kit/core": "^1.0.0",
+    "cat-kit": "^3.7.15",
     "@ultra-ui/utils": "workspace:*",
     "@ultra-ui/compositions": "workspace:*",
     "@ultra-ui/directives": "workspace:*",

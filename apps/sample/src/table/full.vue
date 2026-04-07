@@ -64,7 +64,7 @@
 import { defineTableColumns } from 'ultra-ui'
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Tree } from 'cat-kit/fe'
+import { Tree } from 'cat-kit'
 
 const state = shallowReactive({
   checkable: false,

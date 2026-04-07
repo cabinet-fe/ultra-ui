@@ -1,0 +1,9 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+@use 'utils/src/styles/vars';
+
+// 方便拼接
+$root-name: condition-editor;
+
+@include m.b($root-name) {
+}

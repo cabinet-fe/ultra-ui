@@ -1,0 +1,14 @@
+@use 'utils/src/styles/mixins' as m;
+@use 'utils/src/styles/functions' as fn;
+
+@include m.b(number-range-input) {
+  display: inline-flex;
+  align-items: center;
+  gap: fn.use-var(gap, small);
+
+  @include m.e(separator) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, secondary);
+    line-height: 1;
+  }
+}

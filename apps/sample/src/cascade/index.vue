@@ -34,7 +34,7 @@
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { area } from './area.js'
-import { FormModel } from '@ui/components'
+import { FormModel } from '@ultra-ui/desktop/components'
 
 const value = shallowRef()
 

@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ui/components'
+import { FormModel } from '@ultra-ui/desktop/components'
 import { ref } from 'vue'
 
 const model = new FormModel({

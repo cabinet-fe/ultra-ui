@@ -9,7 +9,6 @@
     { "path": "./packages/desktop/tsconfig.json" },
     { "path": "./packages/mobile/tsconfig.json" },
     { "path": "./packages/icons/tsconfig.json" },
-    { "path": "./tsconfig.node.json" },
-    { "path": "./ui/tsconfig.json" }
+    { "path": "./tsconfig.node.json" }
   ]
 }

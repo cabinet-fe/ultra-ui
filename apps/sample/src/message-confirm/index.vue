@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { MessageConfirm } from '@ui/components'
-import '@ui/components/message-confirm/style.scss'
+import { MessageConfirm } from '@ultra-ui/desktop/components'
+import '@ultra-ui/desktop/components/message-confirm/style.scss'
 import { reactive } from 'vue'
 
 const config = reactive({
