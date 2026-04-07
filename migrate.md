@@ -11,6 +11,9 @@ UI 拆分为以下几个包：
 - `@ultra-ui/compositions`：共享组合式函数
 - `@ultra-ui/utils`：共享工具函数
 
+- `@ultra-ui/datasource`：数据源连接器 UI
+- `@ultra-ui/report`：报表设计组件
+
 ## 2. cat-kit 迁移到 `@cat-kit/*` 系列包
 
 使用 `use-cat-kit` 技能，将 `cat-kit` 迁移到 `@cat-kit/*` 系列包。
