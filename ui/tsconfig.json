@@ -3,7 +3,11 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
+    "ignoreDeprecations": "6.0",
     "lib": ["DOM", "ESNext"],
+    "strict": false,
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": false,
     "baseUrl": "./",
     "paths": {
       "@ui/*": ["./*"]

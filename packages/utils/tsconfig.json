@@ -3,10 +3,11 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "rootDir": ".",
-    "outDir": "./dist-tsc",
+    "declarationMap": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "types": ["@types/bun"]
   },
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

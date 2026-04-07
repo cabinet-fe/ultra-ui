@@ -24,7 +24,9 @@ export class DynamicFormModel {
   }
 
   /** 表单规则 */
-  readonly fields: Record<string, FormModelItem> = shallowReactive({})
+  readonly fields: Record<string, FormModelItem> = shallowReactive(
+    {} as Record<string, FormModelItem>
+  )
 
   private validator: Validator
 

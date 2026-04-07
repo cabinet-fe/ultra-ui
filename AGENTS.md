@@ -5,27 +5,31 @@ Vue 3 组件库，完全 TypeScript 开发，BEM + CSS 变量主题系统。
 ## 常用命令
 
 ```bash
-bun install                          # 安装依赖
-bun sample/vite.config.ts            # 无效，用下面的方式启动
-cd sample && bun dev                 # 启动开发预览 (localhost:7788)
-bun cli/gen-component/index.ts       # 交互式生成新组件
-bun cli/export/index.ts              # 重新导出组件
-cd build && bun index.ts             # 构建产物到 dist/
-cd build && bun index.ts --release   # 构建 + 发版
-bun vitest                           # 运行测试
+bun install                                    # 安装依赖
+bun apps/sample/vite.config.ts                # 无效，用下面的方式启动
+cd apps/sample && bun dev                      # 启动开发预览 (localhost:7788)
+bun tools/cli/gen-component/index.ts         # 交互式生成新组件
+bun tools/cli/export/index.ts                # 重新导出组件
+cd tools/build && bun index.ts               # 构建产物到 dist/
+cd tools/build && bun index.ts --release     # 构建 + 发版
+bun vitest                                     # 运行测试
+bun run lint                                   # oxlint
+bun run format                                 # oxfmt
+bunx turbo build --dry-run                     # Turborepo 任务拓扑（dry-run）
 ```
 
 ## 技术栈
 
 | 类别      | 技术                                       | 版本          |
 | --------- | ------------------------------------------ | ------------- |
-| 框架      | Vue 3 (Composition API + `<script setup>`) | ^3.5.29       |
-| 语言      | TypeScript                                 | 5.9.3         |
+| 框架      | Vue 3 (Composition API + `<script setup>`) | ^3.5.32       |
+| 语言      | TypeScript                                 | ^6.0          |
 | 运行时    | Bun                                        | -             |
 | 构建      | tsdown + Rolldown                          | -             |
 | 样式      | SCSS + BEM + CSS 变量                      | sass-embedded |
-| 测试      | Vitest                                     | ^4.0.18       |
-| 格式化    | oxfmt (CLI 生成代码)                       | -             |
+| 测试      | Vitest                                     | ^4.1          |
+| 格式化    | oxfmt + oxlint                             | -             |
+| Monorepo  | Turborepo + workspaces                     | -             |
 | Git Hooks | simple-git-hooks (commit-msg)              | -             |
 | 核心依赖  | cat-kit, @ultra/icon                       | peer          |
 
@@ -33,10 +37,11 @@ bun vitest                           # 运行测试
 
 ```
 ultra-ui/
-├── build/                  # 构建脚本 (tsdown)
-├── cli/                    # CLI 工具 (组件生成、导出)
-├── sample/                 # 开发预览应用 (Vite, port 7788)
-├── ui/                     # 组件库源码
+├── apps/sample/            # 开发预览应用 (Vite, port 7788)
+├── packages/               # @ultra-ui/* 包（utils / compositions / directives / desktop / mobile / icons）
+├── tools/build/            # 构建脚本 (tsdown)
+├── tools/cli/              # CLI 工具 (组件生成、导出)
+├── ui/                     # 组件库源码（Plan 5 迁移前暂保留）
 │   ├── components/         # 所有组件 (60+)
 │   ├── compositions/       # 组合式函数
 │   ├── directives/         # 指令 (click-outside, focus, ripple)

@@ -1,0 +1,3 @@
+- [x] [Monorepo 基础设施 + 工具链升级](./done/plan-1-20260407/plan.md)
+- [ ] [源码迁移 + 包拆分](./plan-2/plan.md)
+- [ ] [主题系统优化](./preparing/plan-3/plan.md)

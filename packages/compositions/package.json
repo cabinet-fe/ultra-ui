@@ -1,0 +1,17 @@
+{
+  "name": "@ultra-ui/compositions",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "exports": {
+    ".": { "import": "./src/index.ts" }
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@ultra-ui/utils": "workspace:*"
+  }
+}

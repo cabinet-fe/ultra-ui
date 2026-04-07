@@ -4,10 +4,13 @@
   "description": "脚本命令",
   "author": "whj",
   "type": "module",
+  "scripts": {
+    "build": "tsc -b"
+  },
   "devDependencies": {
-    "@inquirer/prompts": "^8.2.0",
+    "@inquirer/prompts": "^8.4.0",
     "cat-kit": "^3.7.15",
-    "oxfmt": "^0.28.0",
+    "oxfmt": "^0.44.0",
     "picocolors": "^1.1.1"
   }
 }

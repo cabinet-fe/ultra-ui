@@ -1,6 +1,6 @@
 # Monorepo 基础设施 + 工具链升级
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -171,11 +171,27 @@
 
 ## 影响范围
 
-- `tools/build/shared.ts`：ROOT 路径修正
-- `tsconfig.json`、`tsconfig.node.json`：references 和 paths
-- `package.json`（根）：workspaces、scripts、devDependencies
-- `tools/build/package.json`、`apps/sample/package.json`：devDependencies
-- `.gitignore`：新增 `.turbo/`
-- 新增：`turbo.json`、`oxlint.json`、`packages/*/package.json`、`packages/*/tsconfig.json`、`packages/*/src/index.ts`
+- `AGENTS.md`：命令与目录说明
+- `package.json`（根）：workspaces、`packageManager`、scripts、devDependencies
+- `tsconfig.json`、`tsconfig.node.json`、`turbo.json`、`oxlint.json`
+- `.gitignore`：`.turbo/`、`tools/build/dist-tsc/`、`tools/cli/dist-tsc/`、`apps/sample/.tsc-vite-config/`
+- `apps/sample/`（自 `sample/` 迁移）：`package.json`、`vite.config.ts`
+- `tools/build/`（自 `build/` 迁移）：`package.json`、`tsconfig.json`、`shared.ts`、`build.ts`
+- `tools/cli/`（自 `cli/` 迁移）：`package.json`、`tsconfig.json`、`shared.ts`
+- `ui/package.json`、`ui/tsconfig.json`、`ui/env.d.ts`
+- `ui/components/form/dynamic-form-model.ts`、`ui/components/menu/use-menu-item.ts`
+- `packages/utils/`、`packages/compositions/`、`packages/directives/`、`packages/desktop/`、`packages/mobile/`、`packages/icons/`（各 `package.json`、`tsconfig.json`、`src/index.ts`；`packages/utils` 另含 `src/styles/.gitkeep`）
+- `bun.lock`
+
+## 实施备注
+
+- **SCSS**：已采用方案 A，`sass ... --pkg-importer=node` PoC 通过后已删除临时 SCSS 文件；`@ultra-ui/utils` 已配置 `exports` 的 `sass` 条件。
+- **TS 6 + @cat-kit/tsconfig 2**：`ui/` 在 `tsconfig` 中显式关闭 `strict` / `noUncheckedIndexedAccess` / `noImplicitAny` 以兼容存量代码；新增 `ui/env.d.ts` 声明 `*.vue` / `*.scss`。
+- **oxlint**：根脚本为 `oxlint -c oxlint.json --vue-plugin .`；`style` 类规则关闭以减少与 oxfmt 冲突；修正 `apps/sample/src/table/virtualizer.ts` 尾部多余 `)` 导致的解析错误。
+- **vite-plugin-inspect**：保持 `^11.3.3`（未跟 npm latest 的 beta）。
+- **Turborepo**：各 `@ultra-ui/*` 与 `tools/cli` 增加 `build: tsc -b`；`ultra-ui` 增加 `build: bun ../tools/build/index.ts`，便于 `turbo` 依赖图完整。
+- **simple-git-hooks**：未新增 pre-commit 的 `oxfmt`（按计划「评估」结论暂不接入）。
 
 ## 历史补丁
+
+- patch-1: tsc 产物目录隔离（`dist-tsc` / `.tsc-vite-config`）

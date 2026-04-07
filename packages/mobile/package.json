@@ -1,0 +1,14 @@
+{
+  "name": "@ultra-ui/mobile",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "exports": {
+    ".": { "import": "./src/index.ts" }
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  }
+}

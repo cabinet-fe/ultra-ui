@@ -3,6 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
+    "rootDir": ".",
+    "outDir": "./dist-tsc",
     "types": ["@types/bun"],
     "lib": ["ESNext"],
     "module": "ESNext"

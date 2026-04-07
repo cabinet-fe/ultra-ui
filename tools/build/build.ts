@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 import { build as tsdownBuild } from 'tsdown'
 import { DIST_ROOT, UI_ROOT } from './shared'
 import Vue from 'unplugin-vue/rolldown'

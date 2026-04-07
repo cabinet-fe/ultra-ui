@@ -14,10 +14,10 @@ export default defineConfig(({ mode }) => {
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
       alias: [
-        { find: /^ultra-ui$/, replacement: resolve(__dirname, '../ui/index.ts') },
-        { find: /^ultra-ui\/(.*)$/, replacement: resolve(__dirname, `../ui/$1`) },
+        { find: /^ultra-ui$/, replacement: resolve(__dirname, '../../ui/index.ts') },
+        { find: /^ultra-ui\/(.*)$/, replacement: resolve(__dirname, `../../ui/$1`) },
 
-        { find: /^@ui\/(.*)$/, replacement: resolve(__dirname, `../ui/$1`) }
+        { find: /^@ui\/(.*)$/, replacement: resolve(__dirname, `../../ui/$1`) }
       ]
     },
 

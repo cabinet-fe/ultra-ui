@@ -110,3 +110,9 @@ dist/*
 .idea
 .history
 .vscode
+
+.turbo/
+
+tools/build/dist-tsc/
+tools/cli/dist-tsc/
+apps/sample/.tsc-vite-config/
