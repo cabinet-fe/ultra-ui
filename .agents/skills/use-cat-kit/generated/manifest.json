@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-04-07T01:36:30.731Z",
+  "repoRoot": "/Users/whj/codes/cat-kit",
+  "packages": {
+    "core": {
+      "npmName": "@cat-kit/core",
+      "version": "1.0.0",
+      "dtsFiles": 17,
+      "distRelative": "packages/core/dist"
+    },
+    "http": {
+      "npmName": "@cat-kit/http",
+      "version": "1.0.0",
+      "dtsFiles": 6,
+      "distRelative": "packages/http/dist"
+    },
+    "fe": {
+      "npmName": "@cat-kit/fe",
+      "version": "1.0.0",
+      "dtsFiles": 8,
+      "distRelative": "packages/fe/dist"
+    },
+    "be": {
+      "npmName": "@cat-kit/be",
+      "version": "1.0.0",
+      "dtsFiles": 25,
+      "distRelative": "packages/be/dist"
+    },
+    "excel": {
+      "npmName": "@cat-kit/excel",
+      "version": "1.0.0",
+      "dtsFiles": 12,
+      "distRelative": "packages/excel/dist"
+    },
+    "maintenance": {
+      "npmName": "@cat-kit/maintenance",
+      "version": "1.0.1",
+      "dtsFiles": 21,
+      "distRelative": "packages/maintenance/dist"
+    },
+    "agent-context": {
+      "npmName": "@cat-kit/agent-context",
+      "version": "1.4.1",
+      "dtsFiles": 2,
+      "distRelative": "packages/agent-context/dist"
+    },
+    "cli": {
+      "npmName": "@cat-kit/cli",
+      "version": "1.0.3",
+      "dtsFiles": 2,
+      "distRelative": "packages/cli/dist"
+    }
+  }
+}
