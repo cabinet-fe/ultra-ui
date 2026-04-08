@@ -1,3 +1,4 @@
+import './style'
 import type { DirectiveBinding, ObjectDirective } from 'vue'
 import { Ripple } from './ripple'
 

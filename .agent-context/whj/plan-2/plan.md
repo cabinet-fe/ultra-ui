@@ -235,9 +235,11 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 - `tools/cli/shared.ts`、`gen-component/render-file.ts` 等；`apps/sample/`：`package.json`、`vite.config.ts`、演示页 import
 - 根 `package.json`（`private`、`build`/`dev`/`test` 脚本）、`tsconfig.node.json`、`turbo.json`、`vitest.config.ts`、`bun.lock`
 - `tools/build`：`packages/desktop/src` 为主入口，样式构建覆盖 desktop / directives / utils；`bun run build`（turbo）可完整通过
+- `packages/directives/src/ripple/ripple.ts`：inline 容器波纹裁剪时的 display 处理
 
 ## 历史补丁
 
 - patch-1: 移除 cat-kit-fe-compat、修正 TS 继承与 Turborepo 根脚本
 - patch-2: 修复 tools/build 对齐 packages/* 与 `turbo run build`
 - patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@ultra-ui/utils`（树结构暂保留 cat-kit 入口）
+- patch-4: 修复 v-ripple 在 inline 容器上 overflow:hidden 导致点击后异常变宽

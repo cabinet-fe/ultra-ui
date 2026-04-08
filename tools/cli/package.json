@@ -8,8 +8,8 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "@cat-kit/be": "^1.0.0",
-    "@inquirer/prompts": "^8.4.0",
+    "@cat-kit/be": "^1.0.1",
+    "@inquirer/prompts": "^8.4.1",
     "oxfmt": "^0.44.0",
     "picocolors": "^1.1.1"
   }

@@ -75,7 +75,6 @@ import './components/tip/style'
 import './components/tree-select/style'
 import './components/tree/style'
 import './components/watermark/style'
-import '@ultra-ui/directives/ripple/style'
 
 export function UltraUI(app: App): void {
   Object.keys(components).forEach(key => {

@@ -5,6 +5,10 @@
   "scripts": {
     "build": "tsc -b"
   },
+  "sideEffects": [
+    "src/**/style.ts",
+    "src/**/*.scss"
+  ],
   "exports": {
     ".": { "import": "./src/index.ts" },
     "./ripple/style": { "import": "./src/ripple/style.ts" }
