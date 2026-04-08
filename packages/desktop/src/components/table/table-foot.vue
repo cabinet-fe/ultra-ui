@@ -28,25 +28,25 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject } from 'vue'
-import { TableDIKey } from './di'
-import type { ColumnNode } from './node/col'
-import { n } from '@cat-kit/core'
-import { UNodeRender } from '../node-render'
+import { $n } from '@cat-kit/core'
 import { withUnit } from '@ultra-ui/utils'
 import type { RenderReturn } from '@ultra-ui/utils/types/helper'
+import { computed, inject } from 'vue'
+
+import { UNodeRender } from '../node-render'
+import { TableDIKey } from './di'
+import type { ColumnNode } from './node/col'
 
 defineOptions({
   name: 'TableFoot'
 })
 
-const { cls, columnConfig, rows, checkedRows, tableSlots, getCellClass } =
-  inject(TableDIKey)!
+const { cls, columnConfig, rows, checkedRows, tableSlots, getCellClass } = inject(TableDIKey)!
 
 const { leafColumns } = columnConfig
 
 const showSummary = computed(() => {
-  return leafColumns.value.some(col => !!col.data.summary)
+  return leafColumns.value.some((col) => !!col.data.summary)
 })
 
 function computeSummary(key: string) {
@@ -54,7 +54,7 @@ function computeSummary(key: string) {
   let i = 0
 
   while (i < rows.value.length) {
-    sum = n.plus(sum, rows.value[i]!.data[key] ?? 0)
+    sum = $n.plus(sum, rows.value[i]!.data[key] ?? 0)
     if (isNaN(sum)) return sum
     i++
   }

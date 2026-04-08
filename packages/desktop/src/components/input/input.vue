@@ -5,11 +5,7 @@
     @mouseleave="handleMouseLeave"
     v-if="!readonly"
   >
-    <span
-      v-if="$slots.prefix || prefix"
-      :class="prefixClass"
-      @click="handlePrefixClick"
-    >
+    <span v-if="$slots.prefix || prefix" :class="prefixClass" @click="handlePrefixClick">
       {{ prefix }}
       <slot name="prefix"></slot>
     </span>
@@ -38,11 +34,7 @@
     >
       <Close />
     </UIcon>
-    <span
-      :class="suffixClass"
-      @click="handleSuffixClick"
-      v-if="$slots.suffix || suffix"
-    >
+    <span :class="suffixClass" @click="handleSuffixClick" v-if="$slots.suffix || suffix">
       {{ suffix }}
       <slot name="suffix"></slot>
     </span>
@@ -54,17 +46,14 @@
 </template>
 
 <script lang="tsx" setup>
+import { useFocus, useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import type { InputEmits, InputProps, _InputExposed } from '@ultra-ui/desktop/types'
-import {
-  useFocus,
-  useFormComponent,
-  useFormFallbackProps
-} from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
-import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
-import { Close } from '@ultra/icon'
-import { UIcon } from '../icon'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { Close } from '@ultra/icon'
+import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
+
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'Input'
@@ -87,13 +76,14 @@ const cls = bem('input')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
-const { focus, handleBlur, handleFocus } = useFocus(focused => {
-  focused ? emit('focus') : emit('blur')
+const { focus, handleBlur, handleFocus } = useFocus((focused) => {
+  if (focused) {
+    emit('focus')
+  } else {
+    emit('blur')
+  }
 })
 
 const inputClass = computed(() => {
@@ -106,15 +96,9 @@ const inputClass = computed(() => {
   ]
 })
 
-const prefixClass = [
-  cls.e('prefix'),
-  bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])
-]
+const prefixClass = [cls.e('prefix'), bem.is('clickable', !!inst?.vnode.props?.['onPrefix:click'])]
 
-const suffixClass = [
-  cls.e('suffix'),
-  bem.is('clickable', !!inst?.vnode.props?.['onSuffix:click'])
-]
+const suffixClass = [cls.e('suffix'), bem.is('clickable', !!inst?.vnode.props?.['onSuffix:click'])]
 
 let isComposing = false
 

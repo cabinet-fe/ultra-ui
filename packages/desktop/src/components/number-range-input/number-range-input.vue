@@ -27,17 +27,18 @@
 </template>
 
 <script lang="ts" setup>
+import { n, o } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import type {
   NumberRangeInputEmits,
   NumberRangeInputProps,
   NumberRangeTuple
 } from '@ultra-ui/desktop/types'
-import { UNumberInput } from '../number-input'
-import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
-import { n, o } from '@cat-kit/core'
 import { bem } from '@ultra-ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
+
+import { UNumberInput } from '../number-input'
 
 defineOptions({
   name: 'NumberRangeInput'
@@ -59,24 +60,16 @@ const inst = getCurrentInstance()
 function splitBound(): boolean {
   const p = inst?.vnode.props
   if (!p) return false
-  return (
-    'start' in p ||
-    'onUpdate:start' in p ||
-    'end' in p ||
-    'onUpdate:end' in p
-  )
+  return 'start' in p || 'onUpdate:start' in p || 'end' in p || 'onUpdate:end' in p
 }
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const cls = bem('number-range-input')
 
@@ -93,10 +86,7 @@ const endRef = defineModel<number | undefined>('end')
 
 let syncGuard = false
 
-function normalizeFromSplit(
-  s: number | undefined,
-  e: number | undefined
-): NumberRangeTuple {
+function normalizeFromSplit(s: number | undefined, e: number | undefined): NumberRangeTuple {
   let nextS = s
   let nextE = e
   if (nextS !== undefined && nextE !== undefined && nextS > nextE) nextE = nextS
@@ -105,7 +95,7 @@ function normalizeFromSplit(
 
 watch(
   model,
-  t => {
+  (t) => {
     if (syncGuard) return
     syncGuard = true
     const tuple = t ?? [undefined, undefined]
@@ -193,15 +183,9 @@ const endModel = computed({
 })
 
 function formatNumberPart(num: number): string {
-  const {
-    currency,
-    precision,
-    minPrecision,
-    maxPrecision,
-    multiple
-  } = props
+  const { currency, precision, minPrecision, maxPrecision, multiple } = props
 
-  const displayValue = multiple ? n.div(num, multiple) : num
+  const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
     ? n(displayValue).currency('CNY', {

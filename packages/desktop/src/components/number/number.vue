@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch } from 'vue'
+import { $n } from '@cat-kit/core'
 import type { NumberProps } from '@ultra-ui/desktop/types'
-import { n } from '@cat-kit/core'
 import { Tween } from '@ultra-ui/utils'
+import { computed, reactive, watch } from 'vue'
 
 defineOptions({
   name: 'Number'
@@ -31,7 +31,7 @@ const tween = computed(() =>
 )
 
 const formatter = computed(() => {
-  return n.formatter({
+  return $n.formatter({
     currency: props.format === 'currency' ? 'CNY' : undefined,
     style: props.format,
     precision: props.precision,
@@ -47,9 +47,7 @@ const formatted = computed(() => {
 watch(
   () => props.value,
   () => {
-    props.tween
-      ? tween.value?.to({ value: props.value })
-      : (number.value = props.value)
+    props.tween ? tween.value.to({ value: props.value }) : (number.value = props.value)
   },
   { immediate: true }
 )
