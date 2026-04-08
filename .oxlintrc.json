@@ -1,5 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "vue"],
   "categories": {
     "correctness": "warn",
     "suspicious": "warn",
@@ -8,5 +9,7 @@
     "style": "off",
     "restriction": "off",
     "nursery": "off"
-  }
+  },
+  "ignorePatterns": [".agents/**"],
+  "rules": {}
 }

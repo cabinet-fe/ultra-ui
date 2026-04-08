@@ -33,7 +33,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
         data,
         index,
         depth,
-        parent: parent ?? null,
+        parent,
         valueKey: valueKey!,
         labelKey: labelKey!
       })

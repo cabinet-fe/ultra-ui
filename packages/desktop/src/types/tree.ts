@@ -5,7 +5,7 @@ import type { ComputedRef, ShallowRef } from 'vue'
 export interface TreeNode<
   Data extends Record<string, any> = Record<string, any>
 > extends ITreeNode<Data, TreeNode<Data>> {
-  parent?: TreeNode<Data> | null
+  parent?: TreeNode<Data>
   children?: TreeNode<Data>[]
   valueKey: string
   labelKey: string

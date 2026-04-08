@@ -6,8 +6,7 @@ Vue 3 组件库，完全 TypeScript 开发，BEM + CSS 变量主题系统。
 
 ```bash
 bun install                                    # 安装依赖
-bun apps/sample/vite.config.ts                # 无效，用下面的方式启动
-cd apps/sample && bun dev                      # 启动开发预览 (localhost:7788)
+cd playgrounds/desktop && bun dev              # 启动开发预览 (Vite 默认端口见该包配置)
 bun tools/cli/gen-component/index.ts         # 交互式生成新组件
 bun tools/cli/export/index.ts                # 重新导出组件
 cd tools/build && bun index.ts               # 构建产物到 dist/（入口 packages/desktop/src，样式含 directives/utils）
@@ -38,13 +37,12 @@ bunx turbo build --dry-run                     # Turborepo 任务拓扑（dry-ru
 
 ```
 ultra-ui/
-├── apps/sample/            # 开发预览应用 (Vite, port 7788)
+├── playgrounds/            # 开发预览应用 (Vite)
 ├── packages/
 │   ├── utils/              # @ultra-ui/utils（工具、共享类型、styles、shared）
 │   ├── compositions/     # @ultra-ui/compositions
 │   ├── directives/         # @ultra-ui/directives
 │   ├── desktop/            # @ultra-ui/desktop（组件、types、入口、install）
-│   ├── ts-config/          # 共享 TS 预设（extends，内部包）
 │   ├── mobile/ / icons/    # 其他包
 ├── tools/build/            # 构建脚本 (tsdown)
 ├── tools/cli/              # CLI 工具 (组件生成、导出)

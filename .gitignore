@@ -115,4 +115,4 @@ dist/*
 
 tools/build/dist-tsc/
 tools/cli/dist-tsc/
-apps/sample/.tsc-vite-config/
+.tsc-vite-config/

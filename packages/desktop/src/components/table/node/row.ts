@@ -7,7 +7,7 @@ import { isReactive, shallowReactive } from 'vue'
  */
 export class TableRowNode<
   Data extends Record<string, any> = Record<string, any>
-> extends TreeNode<Data> {
+> extends TreeNode<Data, TableRowNode<Data>> {
   /** 索引路径 */
   get indexes(): number[] {
     if (!this.parent) return [this.index]
@@ -32,8 +32,6 @@ export class TableRowNode<
 
   override children?: TableRowNode<Data>[] = undefined
 
-  override parent: TableRowNode<Data> | null = null
-
   /**
    *
    * @param data 一个普通对象或者一个响应式对象
@@ -47,15 +45,15 @@ export class TableRowNode<
     data: Data
     index: number
     depth: number
-    parent?: TableRowNode<Data> | null
+    parent?: TableRowNode<Data>
     uid: number | string
   }) {
     const { data, index, depth, parent, uid } = options
 
     if (!data) {
-      super(data as Data, index, depth, parent ?? undefined)
+      super(data as Data, index, depth, parent)
     } else {
-      super(isReactive(data) ? data : shallowReactive(data), index, depth, parent ?? undefined)
+      super(isReactive(data) ? data : shallowReactive(data), index, depth, parent)
     }
     this.uid = uid
     return shallowReactive(this)

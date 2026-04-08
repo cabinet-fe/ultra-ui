@@ -1,12 +1,15 @@
 {
-  "extends": "../ts-config/vue-library.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "composite": false,
     "declaration": true,
     "declarationMap": true,
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": false,
     "rootDir": "./src",
     "outDir": "./dist",
-    "strict": false
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "include": [
     "src/vue/**/*.vue",

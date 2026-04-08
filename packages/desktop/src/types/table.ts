@@ -162,7 +162,7 @@ export interface TableRow extends TreeNode<Record<string, any>> {
   /** 子row */
   children?: TableRow[]
   /** 父row */
-  parent: TableRow | null
+  parent?: TableRow
   /** 是否为展开行 */
   isExpandRow: boolean
 }
@@ -171,7 +171,7 @@ export interface TableColumnNode extends TreeNode<TableColumn> {
   /** 子列 */
   children?: TableColumnNode[] | undefined
   /** 父列 */
-  parent: TableColumnNode | null
+  parent?: TableColumnNode
   /** 叶子节点数量 */
   leafs?: number
   key: string

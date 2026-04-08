@@ -84,7 +84,7 @@ export function useColumns(options: Options): ColumnConfig {
     return columns
   })
 
-  const columnForest = shallowRef<Forest<Record<string, unknown>, any>>()
+  const columnForest = shallowRef<Forest<TableColumn, any>>()
 
   const renderExpandAll = () =>
     createVNode(
@@ -156,7 +156,7 @@ export function useColumns(options: Options): ColumnConfig {
             }
       }
 
-      const result = new Forest({
+      const result = new Forest<TableColumn, any>({
         data: sortedColumns,
         createNode(data, index, depth, _f, parent) {
           return new ColumnNode(data, index, depth, parent)

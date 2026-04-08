@@ -1,11 +1,6 @@
 {
   "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "types": ["vite/client"],
-    "lib": ["DOM", "ESNext"]
-  },
+  "compilerOptions": { "noEmit": true, "skipLibCheck": true, "skipDefaultLibCheck": true },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]
 }

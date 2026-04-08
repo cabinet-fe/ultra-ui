@@ -1,20 +1,13 @@
 {
-  "extends": "../ts-config/vue-library.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "declarationMap": true,
-    "strict": false,
-    "noImplicitAny": false,
-    "noUncheckedIndexedAccess": false,
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],
-  "exclude": ["node_modules", "**/__test__/**/*"],
-  "references": [
-    { "path": "../utils/tsconfig.json" },
-    { "path": "../compositions/tsconfig.json" },
-    { "path": "../directives/tsconfig.json" }
-  ]
+  "exclude": ["node_modules", "**/__test__/**/*"]
 }

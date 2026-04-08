@@ -4,7 +4,7 @@ import type { TableColumn, TableColumnAlign } from '@ultra-ui/desktop/types'
 
 export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   declare children?: ColumnNode[] | undefined
-  declare parent: ColumnNode | null
+  declare parent?: ColumnNode
   /** 叶子节点数量 */
   leafs?: number
 
@@ -99,13 +99,13 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     val: TableColumn,
     index: number,
     depth: number,
-    parent?: ColumnNode | null
+    parent?: ColumnNode
   ) {
     super(
       val ? shallowReactive(val) : val,
       index,
       depth,
-      parent ?? undefined
+      parent
     )
   }
 }

@@ -1,12 +1,13 @@
 {
-  "extends": "../../packages/ts-config/node-tools.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.bun.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "rootDir": ".",
     "outDir": "./dist-tsc",
-    "lib": ["ESNext"],
-    "module": "ESNext"
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "exclude": ["node_modules", "dist-tsc"],
   "include": ["*.ts"]

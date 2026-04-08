@@ -34,12 +34,12 @@ export class TreeNode<
     data: Val
     index: number
     depth: number
-    parent?: TreeNode<Val> | null
+    parent?: TreeNode<Val>
     labelKey: string
     valueKey: string
   }) {
     const { data, index, depth, parent, labelKey, valueKey } = params
-    super(data, index, depth, parent ?? undefined)
+    super(data, index, depth, parent)
     this.labelKey = labelKey
     this.valueKey = valueKey
 

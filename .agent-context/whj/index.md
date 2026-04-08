@@ -2,3 +2,4 @@
 - [x] [源码迁移 + 包拆分](./done/plan-2-20260408/plan.md)
 - [x] [主题系统优化](./done/plan-3-20260408/plan.md)
 - [x] [@ultra-ui/icons 资源与构建管线](./done/plan-4-20260408/plan.md)
+- [x] [Monorepo tsconfig 与工具链统一](./done/plan-5-20260408/plan.md)

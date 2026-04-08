@@ -17,7 +17,9 @@ function isDevEnv(): boolean {
   } catch {
     /* ignore */
   }
-  return typeof process !== 'undefined' && process.env.NODE_ENV !== 'production'
+  const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } })
+    .process
+  return typeof proc !== 'undefined' && proc.env?.NODE_ENV !== 'production'
 }
 
 export class UITheme {
