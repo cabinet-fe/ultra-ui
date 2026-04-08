@@ -52,7 +52,7 @@ import { vRipple } from '@ultra-ui/directives'
 import { Tween } from '@ultra-ui/utils'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { ArrowUp, ArrowDown } from '@ultra/icon'
+import { ArrowDown, ArrowUp } from '@ultra-ui/icons/normal'
 import { computed, shallowRef, watch } from 'vue'
 
 import { UIcon } from '../icon'

@@ -1,13 +1,12 @@
 {
-  "extends": "../ts-config/browser.json",
+  "extends": "../ts-config/vue-library.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
+    "composite": false,
+    "declaration": false,
+    "noEmit": true,
     "rootDir": "./src",
-    "outDir": "./dist",
     "strict": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "src/env.d.ts"],
+  "exclude": ["node_modules", "src/vue"]
 }

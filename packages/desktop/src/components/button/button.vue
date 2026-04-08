@@ -39,7 +39,7 @@ import type {
 } from '@ultra-ui/desktop/types'
 import { computed, shallowRef } from 'vue'
 import { UIcon } from '../icon'
-import { Loading } from '@ultra/icon'
+import { Loading } from '@ultra-ui/icons/normal'
 import { vRipple } from '@ultra-ui/directives'
 import { useFallbackProps } from '@ultra-ui/compositions'
 

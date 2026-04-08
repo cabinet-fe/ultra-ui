@@ -15,7 +15,6 @@
   "references": [
     { "path": "../utils/tsconfig.json" },
     { "path": "../compositions/tsconfig.json" },
-    { "path": "../directives/tsconfig.json" },
-    { "path": "../icons/tsconfig.json" }
+    { "path": "../directives/tsconfig.json" }
   ]
 }

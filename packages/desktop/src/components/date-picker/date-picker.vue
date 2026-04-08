@@ -52,7 +52,7 @@ import {
   useUpdateLock
 } from '@ultra-ui/compositions'
 import { computed, shallowRef, watch } from 'vue'
-import { Calendar } from '@ultra/icon'
+import { Calendar } from '@ultra-ui/icons/normal'
 import { UDatePanel } from '../date-panel'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import type { DropdownExposed } from '@ultra-ui/desktop/types'

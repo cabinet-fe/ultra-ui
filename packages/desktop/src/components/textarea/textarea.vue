@@ -44,7 +44,7 @@ import type { TextareaProps, TextareaEmits, ComponentSize } from '@ultra-ui/desk
 import { bem } from '@ultra-ui/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'
-import { Close } from '@ultra/icon'
+import { Close } from '@ultra-ui/icons/normal'
 import {
   useFocus,
   useFormComponent,

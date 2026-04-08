@@ -1,0 +1,13 @@
+<!-- @ultra-ui/icons generated sha256:e4b7449a3cd04906 gen:2 source:src/svg/normal/database.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'Database' })
+</script>
+<template>
+  <svg
+  xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"
+  width="1em"
+  height="1em"
+  >
+    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>
+  </svg>
+</template>

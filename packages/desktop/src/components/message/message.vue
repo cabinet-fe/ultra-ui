@@ -28,7 +28,7 @@ import type { MessageProps } from '@ultra-ui/desktop/types'
 import { bem } from '@ultra-ui/utils'
 import { onMounted } from 'vue'
 import { useFallbackProps } from '@ultra-ui/compositions'
-import { Close } from '@ultra/icon'
+import { Close } from '@ultra-ui/icons/normal'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'
 

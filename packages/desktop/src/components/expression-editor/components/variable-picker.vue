@@ -96,7 +96,7 @@ import { ExpressionEditorDIKey } from '../di'
 import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { VariableItem } from '@ultra-ui/desktop/types'
 import { bem } from '@ultra-ui/utils'
-import { Search, ArrowRight } from '@ultra/icon'
+import { ArrowRight, Search } from '@ultra-ui/icons/normal'
 
 defineOptions({
   name: 'VariablePicker'

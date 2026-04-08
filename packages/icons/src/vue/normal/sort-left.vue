@@ -1,0 +1,13 @@
+<!-- @ultra-ui/icons generated sha256:c244824e656863d2 gen:2 source:src/svg/normal/sort-left.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'SortLeft' })
+</script>
+<template>
+  <svg
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+  width="1em"
+  height="1em"
+  >
+    <path fill="currentColor" d="M3.207 9h11.296a.5.5 0 0 1 .497.504v.01a.486.486 0 0 1-.498.486H2.072a.53.53 0 0 1-.374-.905l3.598-3.598a.484.484 0 0 1 .694-.008l.008.008a.51.51 0 0 1-.002.714z"/>
+  </svg>
+</template>

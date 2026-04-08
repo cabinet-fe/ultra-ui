@@ -50,7 +50,7 @@ import { useFocus, useFormComponent, useFormFallbackProps } from '@ultra-ui/comp
 import type { InputEmits, InputProps, _InputExposed } from '@ultra-ui/desktop/types'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { Close } from '@ultra/icon'
+import { Close } from '@ultra-ui/icons/normal'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 
 import { UIcon } from '../icon'

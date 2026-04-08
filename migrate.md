@@ -6,7 +6,7 @@ UI 拆分为以下几个包：
 
 - `@ultra-ui/desktop`：基础 PC 端组件
 - `@ultra-ui/mobile`：基础移动端组件，暂时不会有， 先创建好包结构
-- `@ultra-ui/icons`：图标库，暂时不会有，可以创建包结构，我已有图标 svg 文件，从别的项目迁移过来，后续将会替换 `@ultra/icon` 依赖
+- `@ultra-ui/icons`：图标库；具名导出 `import { X } from '@ultra-ui/icons/normal'` / `.../colorful` / 根 `.../icons`；仍支持默认导入子路径 `@ultra-ui/icons/vue/normal/<name>`。已替代原 `@ultra/icon`。
 - `@ultra-ui/directives`：共享自定义指令
 - `@ultra-ui/compositions`：共享组合式函数
 - `@ultra-ui/utils`：共享工具函数

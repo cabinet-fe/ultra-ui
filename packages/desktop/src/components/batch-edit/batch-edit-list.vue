@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { computed, inject, type Slots } from 'vue'
 import { omit } from '@ultra-ui/utils'
-import { Delete, InsertToPrev, InsertToNext, AddChild } from '@ultra/icon'
+import { AddChild, Delete, InsertToNext, InsertToPrev } from '@ultra-ui/icons/normal'
 import { BatchEditDIKey } from './di'
 import { UTable } from '../table'
 import { UButton } from '../button'

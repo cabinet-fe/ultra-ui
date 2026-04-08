@@ -60,7 +60,7 @@ import type {
 } from '@ultra-ui/desktop/types'
 import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
-import { Check } from '@ultra/icon'
+import { Check } from '@ultra-ui/icons/normal'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
 import { n } from '@cat-kit/core'

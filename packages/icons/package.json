@@ -2,10 +2,42 @@
   "name": "@ultra-ui/icons",
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "build": "tsc -b"
-  },
+  "sideEffects": false,
   "exports": {
-    ".": { "import": "./src/index.ts" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./normal": {
+      "types": "./dist/normal.d.ts",
+      "import": "./dist/normal.js"
+    },
+    "./colorful": {
+      "types": "./dist/colorful.d.ts",
+      "import": "./dist/colorful.js"
+    },
+    "./vue/normal/*": {
+      "types": "./dist/vue/normal/*.d.ts",
+      "import": "./dist/vue/normal/*.js"
+    },
+    "./vue/colorful/*": {
+      "types": "./dist/vue/colorful/*.d.ts",
+      "import": "./dist/vue/colorful/*.js"
+    }
+  },
+  "scripts": {
+    "icons:rename": "bun ./scripts/rename-svg-icons.ts",
+    "icons:format": "bun ./scripts/format-svg.ts",
+    "icons:gen": "bun ./scripts/gen-vue-icons.ts && bun ./scripts/gen-icon-barrels.ts",
+    "icons:build-vue": "bun ./scripts/build-vue-icons.ts",
+    "build": "bun run icons:gen && bun run icons:build-vue"
+  },
+  "devDependencies": {
+    "svgo": "^4.0.1",
+    "tsdown": "^0.21.7",
+    "unplugin-vue": "^7.1.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   }
 }

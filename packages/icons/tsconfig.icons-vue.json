@@ -1,0 +1,19 @@
+{
+  "extends": "../ts-config/vue-library.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": false
+  },
+  "include": [
+    "src/vue/**/*.vue",
+    "src/env.d.ts",
+    "src/normal.ts",
+    "src/colorful.ts",
+    "src/index.ts"
+  ],
+  "exclude": ["node_modules"]
+}

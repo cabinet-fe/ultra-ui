@@ -122,7 +122,7 @@ import {
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ultra-ui/desktop/types'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
-import { ArrowDown, Search, Close } from '@ultra/icon'
+import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
 import { CascadeDIKey } from './di'
 import { UInput } from '../input'
 import { UTag } from '../tag'

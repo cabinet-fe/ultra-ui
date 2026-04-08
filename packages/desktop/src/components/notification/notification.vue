@@ -39,14 +39,7 @@ import type {
 import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'
-import {
-  Close,
-  CircleCheckFilled,
-  InfoFilled,
-  WarningFilled,
-  CircleClose,
-  QuestionFilled
-} from '@ultra/icon'
+import { CircleCheckFilled, CircleClose, Close, InfoFilled, QuestionFilled, WarningFilled } from '@ultra-ui/icons/normal'
 import { UIcon } from '../icon'
 import { UButton } from '../button'
 

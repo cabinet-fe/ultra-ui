@@ -29,7 +29,7 @@ import { ContextMenuDIKey } from './di'
 import type { ContextMenuItem } from '@ultra-ui/desktop/types'
 import { vRipple } from '@ultra-ui/directives'
 import { UIcon } from '../icon'
-import { Loading } from '@ultra/icon'
+import { Loading } from '@ultra-ui/icons/normal'
 import { bem } from '@ultra-ui/utils'
 
 defineOptions({

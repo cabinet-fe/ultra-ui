@@ -1,3 +1,4 @@
 - [x] [Monorepo 基础设施 + 工具链升级](./done/plan-1-20260407/plan.md)
 - [x] [源码迁移 + 包拆分](./done/plan-2-20260408/plan.md)
-- [ ] [主题系统优化](./plan-3/plan.md)
+- [x] [主题系统优化](./done/plan-3-20260408/plan.md)
+- [ ] [@ultra-ui/icons 资源与构建管线](./plan-4/plan.md)

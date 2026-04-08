@@ -1,11 +1,5 @@
 import type { ColorType, MessageType } from '@ultra-ui/desktop/types'
-import {
-  CircleCheckFilled,
-  InfoFilled,
-  WarningFilled,
-  CircleClose,
-  QuestionFilled
-} from '@ultra/icon'
+import { CircleCheckFilled, CircleClose, InfoFilled, QuestionFilled, WarningFilled } from '@ultra-ui/icons/normal'
 import type { DefineComponent } from 'vue'
 
 const typeIcons = {

@@ -39,7 +39,7 @@ import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { ref } from 'vue'
 import { UIcon } from '../icon'
-import { QuestionFilled } from '@ultra/icon'
+import { QuestionFilled } from '@ultra-ui/icons/normal'
 
 defineOptions({
   name: 'PopConfirm'

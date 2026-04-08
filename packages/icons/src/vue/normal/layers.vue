@@ -1,0 +1,13 @@
+<!-- @ultra-ui/icons generated sha256:7a6df87aed24ae17 gen:2 source:src/svg/normal/layers.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'Layers' })
+</script>
+<template>
+  <svg
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+  width="1em"
+  height="1em"
+  >
+    <path fill="currentColor" fill-rule="evenodd" d="m8 7.508 6.073-2.53c.41-.171.41-.778 0-.949L8 1.5 1.926 4.03c-.41.171-.41.778 0 .949zm0-1.1L3.427 4.505 8 2.599l4.572 1.905zM1.499 7.892c0 .223.137.423.34.513l5.961 2.62a.5.5 0 0 0 .4 0l5.958-2.62a.56.56 0 0 0 .341-.512.564.564 0 0 0-.789-.518L8.2 9.797a.5.5 0 0 1-.4 0L2.288 7.373a.564.564 0 0 0-.789.518m0 3.393c0 .223.137.423.34.512l5.961 2.62a.5.5 0 0 0 .4 0l5.958-2.619a.56.56 0 0 0 .341-.512.564.564 0 0 0-.789-.518L8.2 13.19a.5.5 0 0 1-.4 0l-5.512-2.424a.564.564 0 0 0-.789.518"/>
+  </svg>
+</template>
