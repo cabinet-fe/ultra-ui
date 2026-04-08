@@ -4,7 +4,6 @@ import type { TableColumn, TableEmits, TableProps, TableRow } from '@ultra-ui/de
 import { getChainValue } from '@ultra-ui/utils'
 import { shallowRef, watch, type ShallowRef } from 'vue'
 
-import { forestRootsDftPrune } from '../../utils/tree-walk'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -145,23 +144,7 @@ export function useRows(options: Options): UseRowsReturned {
   /** 展平树形结构为可见行列表 */
   function updateFlattedRows(): void {
     if (!rowForest.value) return
-    const result: TableRowNode[] = []
-    const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
-
-    forestRootsDftPrune(
-      rowForest.value.roots,
-      (node) => {
-        // 深度优先：根行 (depth===0) 或父节点已展开时可见；不可见则不再深入子树
-        if (node.parent?.expanded || node.depth === 0) {
-          result.push(node)
-          return
-        }
-        return false
-      },
-      childrenKey
-    )
-
-    rows.value = result
+    rows.value = rowForest.value.flattenVisible(n => n.expanded)
   }
 
   // --- 副作用监听 ---

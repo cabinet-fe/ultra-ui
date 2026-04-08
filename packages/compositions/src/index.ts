@@ -13,6 +13,7 @@ export * from './use-focus'
 export * from './use-form-component'
 
 export * from './use-lock'
+
 export * from './use-model'
 
 export * from './use-pop'
@@ -20,8 +21,6 @@ export * from './use-pop'
 export * from './use-reactive-size'
 
 export * from './use-resize-observer'
-
-export * from './use-sort'
 
 export * from './use-transition'
 

@@ -13,8 +13,29 @@ import type {
   TableExposed
 } from '@ultra-ui/desktop/types'
 import { last, safeRun } from '@cat-kit/core'
-import { visitDataTreeByPath } from '../../utils/tree-walk'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
+
+/** 按索引路径在原始数据树中定位节点（等价于历史 Forest.visit 路径访问） */
+function visitDataByIndexPath<T extends Record<string, unknown>>(
+  roots: T[],
+  indexPath: number[],
+  childrenKey: string
+): T | undefined {
+  if (!indexPath.length) return undefined
+  let currentList: T[] | undefined = roots
+  let node: T | undefined
+  for (let i = 0; i < indexPath.length; i++) {
+    const idx = indexPath[i]!
+    if (!currentList) return undefined
+    node = currentList[idx]
+    if (node === undefined) return undefined
+    if (i < indexPath.length - 1) {
+      const next = node[childrenKey]
+      currentList = Array.isArray(next) ? (next as T[]) : undefined
+    }
+  }
+  return node
+}
 
 interface Options {
   props: BatchEditProps
@@ -122,7 +143,7 @@ export function useEdit(options: Options): EditReturned {
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
 
-    const parent = visitDataTreeByPath(
+    const parent = visitDataByIndexPath(
       data ?? [],
       insertIndexes.value.slice(0, -1),
       childrenKey.value
@@ -276,7 +297,7 @@ export function useEdit(options: Options): EditReturned {
 
     const data = [...(props.data ?? [])]
 
-    const parent = visitDataTreeByPath(
+    const parent = visitDataByIndexPath(
       data,
       row.indexes.slice(0, -1),
       childrenKey.value

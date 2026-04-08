@@ -33,17 +33,18 @@
 </template>
 
 <script lang="ts" setup>
-import type { MenuEmits, MenuProps, ComponentSize } from '@ultra-ui/desktop/types'
+import { useFallbackProps } from '@ultra-ui/compositions'
+import type { MenuEmits, MenuProps, ComponentSize } from '@ultra-ui/desktop'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, shallowReactive, watch } from 'vue'
+
+import { UScroll } from '../scroll'
 import { MenuDIKey } from './di'
-import { useFallbackProps } from '@ultra-ui/compositions'
-import UMenuSub from './menu-sub.vue'
+import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import UMenuItem from './menu-item.vue'
 import UMenuSubCollapsed from './menu-sub-collapsed.vue'
-import UMenuItemCollapsed from './menu-item-collapsed.vue'
-import { UScroll } from '../scroll'
-import { treeDftWithPath } from '../../utils/tree-walk'
+import UMenuSub from './menu-sub.vue'
+import { walkMenuWithPath } from './walk-menu-path'
 
 defineOptions({
   name: 'Menu'
@@ -75,10 +76,10 @@ watch(
   [() => props.currentPath, () => props.menus],
   ([currentPath, menus]) => {
     if (!currentPath || !menus) return
-    menus.forEach(item => {
-      treeDftWithPath(item, (item, nodePath) => {
-        if (item.path === currentPath) {
-          nodePath.slice(0, -1).forEach(path => {
+    menus.forEach((menu) => {
+      walkMenuWithPath(menu, (node, nodePath) => {
+        if (node.path === currentPath) {
+          nodePath.slice(0, -1).forEach((path) => {
             expandedPath.add(path.path)
           })
           return false

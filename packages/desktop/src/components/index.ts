@@ -1,7 +1,5 @@
 export * from './action'
 
-export * from './animation'
-
 export * from './auto-complete'
 
 export * from './badge'

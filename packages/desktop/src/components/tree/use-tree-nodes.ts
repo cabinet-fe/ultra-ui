@@ -2,7 +2,6 @@ import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
 import { TreeNode } from './tree-node'
 import type { TreeProps } from '@ultra-ui/desktop/types'
 import { Forest } from '@cat-kit/core'
-import { forestRootsDftPrune } from '../../utils/tree-walk'
 
 interface Options {
   props: TreeProps
@@ -75,17 +74,9 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
 
   /** 获取碾平后的节点 */
   function getFlattedNodes() {
-    const _nodes: TreeNode[] = []
-    const childrenKey = props.childrenKey ?? 'children'
-    forestRootsDftPrune(
-      forest.value.roots,
-      node => {
-        node.visible && _nodes.push(node)
-        if (!node.expanded) return false
-      },
-      childrenKey
-    )
-    nodes.value = _nodes
+    nodes.value = forest.value
+      .flattenVisible(n => n.expanded)
+      .filter(n => n.visible)
   }
 
   return {
