@@ -4,3 +4,5 @@
 - [x] [@ultra-ui/icons 资源与构建管线](./done/plan-4-20260408/plan.md)
 - [x] [Monorepo tsconfig 与工具链统一](./done/plan-5-20260408/plan.md)
 - [x] [移除 tree-walk，改用 @cat-kit/core](./done/plan-6-20260408/plan.md)
+- [x] [playground 源码解析与条件导出](./done/plan-7-20260408/plan.md)
+- [x] [playground 移除 ultra-ui 裸包名引入](./done/plan-8-20260408/plan.md)

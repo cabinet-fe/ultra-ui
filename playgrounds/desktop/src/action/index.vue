@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns } from '@ultra-ui/desktop'
 import { shallowRef } from 'vue'
 
 const columns = defineTableColumns([

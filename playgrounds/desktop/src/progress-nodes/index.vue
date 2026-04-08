@@ -41,7 +41,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ProgressNodeItem } from 'ultra-ui/types'
+
+/** 演示用节点结构（与 UProgressNodes 的 nodes 项字段一致） */
+interface ProgressNodeItem {
+  value: string
+  label: string
+}
 
 const checkedIndexes = ref([0, 1])
 const activeNode = ref<string>()

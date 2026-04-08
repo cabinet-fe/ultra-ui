@@ -27,7 +27,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns, type TableRow } from 'ultra-ui'
+import { defineTableColumns } from '@ultra-ui/desktop'
+import type { TableRow } from '@ultra-ui/desktop/types'
 import { nextTick, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { Plus } from '@ultra-ui/icons/normal'

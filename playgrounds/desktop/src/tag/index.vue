@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import type { ColorType } from 'ultra-ui'
+import type { ColorType } from '@ultra-ui/desktop/types'
 
 const tags = shallowRef<
   Array<{

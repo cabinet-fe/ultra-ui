@@ -9,6 +9,7 @@
   "dependencies": {
     "@builder/vite": "^2.1.2",
     "@cat-kit/core": "^1.0.0",
+    "@ultra-ui/compositions": "workspace:*",
     "@ultra-ui/desktop": "workspace:*",
     "@ultra-ui/directives": "workspace:*",
     "@ultra-ui/icons": "workspace:*",

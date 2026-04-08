@@ -7,9 +7,6 @@ import { defineConfig } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const desktopRoot = resolve(__dirname, '../../packages/desktop/src')
-const utilsRoot = resolve(__dirname, '../../packages/utils/src')
-const iconsRoot = resolve(__dirname, '../../packages/icons/src')
-const iconsVueRoot = resolve(iconsRoot, 'vue')
 
 function existModule(moduleId: string): boolean {
   if (!moduleId.startsWith('@ultra-ui/desktop/')) return false
@@ -38,27 +35,6 @@ export default defineConfig(() => {
         '@lezer/lr',
         'codemirror'
       ],
-      alias: [
-        { find: /^@ultra-ui\/desktop(\/.*)?$/, replacement: `${desktopRoot}$1` },
-        { find: /^@ultra-ui\/utils(\/.*)?$/, replacement: `${utilsRoot}$1` },
-        {
-          find: /^@ultra-ui\/compositions$/,
-          replacement: resolve(__dirname, '../../packages/compositions/src/index.ts')
-        },
-        {
-          find: /^@ultra-ui\/directives(\/.*)?$/,
-          replacement: resolve(__dirname, '../../packages/directives/src$1')
-        },
-        {
-          find: /^@ultra-ui\/icons\/vue\/(.+)$/,
-          replacement: `${iconsVueRoot}/$1.vue`
-        },
-        { find: /^@ultra-ui\/icons\/normal$/, replacement: resolve(iconsRoot, 'normal.ts') },
-        { find: /^@ultra-ui\/icons\/colorful$/, replacement: resolve(iconsRoot, 'colorful.ts') },
-        { find: /^@ultra-ui\/icons$/, replacement: resolve(iconsRoot, 'index.ts') },
-        { find: /^ultra-ui$/, replacement: resolve(desktopRoot, 'index.ts') },
-        { find: /^ultra-ui\/(.*)$/, replacement: `${desktopRoot}/$1` }
-      ]
     },
 
     css: { preprocessorOptions: { scss: { loadPaths: [resolve(__dirname, '../../packages')] } } },

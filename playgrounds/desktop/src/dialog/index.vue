@@ -62,7 +62,9 @@
 </template>
 
 <script lang="ts" setup>
-import { setStyles, useTransition, type ButtonExposed } from 'ultra-ui'
+import { useTransition } from '@ultra-ui/compositions'
+import type { ButtonExposed } from '@ultra-ui/desktop/types'
+import { setStyles } from '@ultra-ui/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)

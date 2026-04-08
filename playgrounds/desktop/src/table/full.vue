@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns } from '@ultra-ui/desktop'
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { dfs } from '@cat-kit/core'

@@ -10,8 +10,16 @@
     "src/**/*.scss"
   ],
   "exports": {
-    ".": { "import": "./src/index.ts" },
-    "./ripple/style": { "import": "./src/ripple/style.ts" }
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./ripple/style": {
+      "types": "./src/ripple/style.ts",
+      "development": "./src/ripple/style.ts",
+      "import": "./src/ripple/style.ts"
+    }
   },
   "peerDependencies": {
     "vue": "^3.5.0"

@@ -8,35 +8,65 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
+      "development": "./src/index.ts",
       "import": "./src/index.ts"
     },
     "./types": {
       "types": "./src/types/index.ts",
+      "development": "./src/types/index.ts",
       "import": "./src/types/index.ts"
     },
-    "./types/helper": "./src/types/helper.ts",
-    "./types/component-common": "./src/types/component-common.ts",
-    "./types/tip-geometry": "./src/types/tip-geometry.ts",
-    "./types/utils/*": "./src/types/utils/*",
-    "./types/*": "./src/types/*",
+    "./types/helper": {
+      "types": "./src/types/helper.ts",
+      "development": "./src/types/helper.ts",
+      "import": "./src/types/helper.ts"
+    },
+    "./types/component-common": {
+      "types": "./src/types/component-common.ts",
+      "development": "./src/types/component-common.ts",
+      "import": "./src/types/component-common.ts"
+    },
+    "./types/tip-geometry": {
+      "types": "./src/types/tip-geometry.ts",
+      "development": "./src/types/tip-geometry.ts",
+      "import": "./src/types/tip-geometry.ts"
+    },
+    "./types/utils/*": {
+      "types": "./src/types/utils/*",
+      "development": "./src/types/utils/*",
+      "import": "./src/types/utils/*"
+    },
+    "./types/*": {
+      "types": "./src/types/*",
+      "development": "./src/types/*",
+      "import": "./src/types/*"
+    },
     "./styles": {
       "types": "./src/styles/index.ts",
+      "development": "./src/styles/index.ts",
       "import": "./src/styles/index.ts"
     },
     "./styles/theme": {
       "types": "./src/styles/theme.ts",
+      "development": "./src/styles/theme.ts",
       "import": "./src/styles/theme.ts"
     },
     "./styles/*": {
       "sass": "./src/styles/*",
       "types": "./src/styles/*",
+      "development": "./src/styles/*",
       "import": "./src/styles/*"
     },
     "./shared": {
       "types": "./src/shared/index.ts",
+      "development": "./src/shared/index.ts",
       "import": "./src/shared/index.ts"
     },
-    "./shared/*": "./src/shared/*"
+    "./shared/*": {
+      "types": "./src/shared/*",
+      "development": "./src/shared/*",
+      "import": "./src/shared/*"
+    }
   },
   "sideEffects": [
     "src/styles/**",

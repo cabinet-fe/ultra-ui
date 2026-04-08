@@ -97,7 +97,7 @@
 
 <script lang="ts" setup>
 import { Edit, Refresh } from '@ultra-ui/icons/normal'
-import { bem } from 'ultra-ui'
+import { bem } from '@ultra-ui/utils'
 import { shallowRef } from 'vue'
 
 const buttons = [

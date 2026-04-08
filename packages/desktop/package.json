@@ -11,9 +11,26 @@
     "*.scss"
   ],
   "exports": {
-    ".": { "import": "./src/index.ts" },
-    "./types": { "import": "./src/types/index.ts" },
-    "./install": { "import": "./src/install.ts" }
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "development": "./src/types/index.ts",
+      "import": "./src/types/index.ts"
+    },
+    "./install": {
+      "types": "./src/install.ts",
+      "development": "./src/install.ts",
+      "import": "./src/install.ts"
+    },
+    "./*": {
+      "types": "./src/*",
+      "development": "./src/*",
+      "import": "./src/*"
+    }
   },
   "peerDependencies": {
     "vue": "^3.5.0",

@@ -144,7 +144,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from 'ultra-ui'
+import { FormModel } from '@ultra-ui/desktop'
 import { shallowReactive, shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 import { date } from '@cat-kit/core'

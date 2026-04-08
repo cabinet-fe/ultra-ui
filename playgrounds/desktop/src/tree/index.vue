@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TreeExposed } from 'ultra-ui'
+import type { TreeExposed } from '@ultra-ui/desktop/types'
 import CustomCard from '../card/custom-card.vue'
 import { shallowReactive, shallowRef, watch } from 'vue'
 

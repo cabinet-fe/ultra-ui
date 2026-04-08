@@ -68,15 +68,14 @@
 <script lang="tsx" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { routes } from './router'
+import { loadTheme, useConfig } from '@ultra-ui/compositions'
+import type { ComponentSize, MenuItem } from '@ultra-ui/desktop/types'
 import {
-  useConfig,
   currentTheme,
-  loadTheme,
   lightTheme,
   darkTheme,
-  UITheme,
-  type MenuItem
-} from 'ultra-ui'
+  UITheme
+} from '@ultra-ui/utils/styles/theme'
 import {
   computed,
   onMounted,
@@ -86,7 +85,6 @@ import {
   watch,
   watchEffect
 } from 'vue'
-import type { ComponentSize } from 'ultra-ui/types'
 import { Setting } from '@ultra-ui/icons/normal'
 
 const router = useRouter()
