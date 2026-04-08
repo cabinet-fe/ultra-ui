@@ -170,31 +170,35 @@ export function useColumns(options: Options): ColumnConfig {
 
   const headers = computed(() => {
     const headers: ColumnNode[][] = []
+    const forest = columnForest.value
+    if (!forest) return headers
 
-    let currentLayer: ColumnNode[] = []
-    let layerDepth = -1
-    columnForest.value?.bfs((node) => {
-      if (layerDepth !== node.depth) {
-        if (currentLayer.length) {
-          headers.push(currentLayer)
+    // Forest.bfs 对每个根单独 BFS，按 depth 拼行会把后续根节点错放到深层，且根节点无 parent，
+    // 回溯 leafs 时会读到 undefined。这里从所有根一次性层序遍历，与多列表头布局一致。
+    const queue: ColumnNode[] = [...forest.roots]
+    while (queue.length > 0) {
+      const size = queue.length
+      const layer: ColumnNode[] = []
+      for (let i = 0; i < size; i++) {
+        const node = queue.shift()!
+        layer.push(node)
+        const ch = node.children
+        if (ch?.length) {
+          for (const c of ch) {
+            queue.push(c)
+          }
         }
-        layerDepth = node.depth
-        currentLayer = [node]
-      } else {
-        currentLayer.push(node)
       }
-    })
-    if (currentLayer.length) {
-      headers.push(currentLayer)
+      headers.push(layer)
     }
-    currentLayer = []
 
     // 从叶子节点开始回溯计算每个节点的累计叶子节点数量，叶子节点数量代表表头的宽度
     for (let i = headers.length - 1; i > 0; i--) {
       const header = headers[i]!
 
       header.forEach((node) => {
-        const parent = node.parent!
+        const parent = node.parent
+        if (!parent) return
         if (parent.leafs !== undefined) return
         parent.leafs = parent.children!.reduce((sum, node) => {
           return sum + (node.leafs ?? 1)

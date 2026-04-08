@@ -6,12 +6,13 @@
 
     <u-radio-group :items="items" v-model="type"></u-radio-group>
     <u-button @click="load">加载数据</u-button>
- </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from 'ultra-ui'
+import { defineTableColumns } from '@ultra-ui/desktop'
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 let loading = shallowRef(false)

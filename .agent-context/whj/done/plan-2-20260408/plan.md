@@ -236,6 +236,8 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 - 根 `package.json`（`private`、`build`/`dev`/`test` 脚本）、`tsconfig.node.json`、`turbo.json`、`vitest.config.ts`、`bun.lock`
 - `tools/build`：`packages/desktop/src` 为主入口，样式构建覆盖 desktop / directives / utils；`bun run build`（turbo）可完整通过
 - `packages/directives/src/ripple/ripple.ts`：inline 容器波纹裁剪时的 display 处理
+- `packages/desktop/src/components/table/use-columns.ts`：多根列 Forest 表头层序与 leafs 回溯
+- `apps/sample/vite.config.ts`：CodeMirror 依赖 dedupe 与 optimizeDeps，避免 sample 中多实例 @codemirror/state
 
 ## 历史补丁
 
@@ -244,3 +246,5 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 - patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@ultra-ui/utils`（树结构暂保留 cat-kit 入口）
 - patch-4: 修复 v-ripple 在 inline 容器上 overflow:hidden 导致点击后异常变宽
 - patch-5: Tree/Forest/TreeNode 全面迁移至 @cat-kit/core，移除 cat-kit 依赖
+- patch-6: 表格表头按 Forest 多根修正层序遍历，修复 leafs 回溯崩溃
+- patch-7: sample Vite 对 CodeMirror 做 dedupe，修复 code-editor 演示页多实例崩溃

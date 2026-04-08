@@ -1,12 +1,8 @@
-import {
-  createVNode,
-  render,
-  type DirectiveBinding,
-  type ObjectDirective
-} from 'vue'
-import LoadingComponent from './loading.vue'
-import { bem } from '@ultra-ui/utils'
 import type { LoadingType } from '@ultra-ui/desktop/types'
+import { bem } from '@ultra-ui/utils'
+import { createVNode, render, type DirectiveBinding, type ObjectDirective } from 'vue'
+
+import LoadingComponent from './loading.vue'
 
 const loadingCls = bem('loading')
 const loadingContainerCls = loadingCls.e('container')
@@ -14,9 +10,7 @@ const loadingContainerCls = loadingCls.e('container')
 function renderLoading(el: HTMLElement, binding: DirectiveBinding) {
   el.classList.add(loadingContainerCls)
 
-  const node = createVNode(LoadingComponent, {
-    type: binding.arg as LoadingType
-  })
+  const node = createVNode(LoadingComponent, { type: binding.arg as LoadingType })
 
   render(node, el)
 }

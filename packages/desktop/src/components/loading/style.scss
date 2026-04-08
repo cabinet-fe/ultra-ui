@@ -57,12 +57,7 @@ $root-name: loading;
         content: '';
         grid-area: 1/1;
 
-        --c: no-repeat
-          radial-gradient(
-            farthest-side,
-            #{fn.use-var(text-color, main)} 92%,
-            #0000
-          );
+        --c: no-repeat radial-gradient(farthest-side, #{fn.use-var(text-color, main)} 92%, #0000);
         background:
           var(--c) 50% 0,
           var(--c) 50% 100%,
@@ -85,12 +80,7 @@ $root-name: loading;
     @include m.bem($root-name, loader) {
       width: 40px;
       height: 20px;
-      --c: no-repeat
-        radial-gradient(
-          farthest-side,
-          #{fn.use-var(text-color, main)} 93%,
-          #0000
-        );
+      --c: no-repeat radial-gradient(farthest-side, #{fn.use-var(text-color, main)} 93%, #0000);
       background:
         var(--c) 0 0,
         var(--c) 50% 0;

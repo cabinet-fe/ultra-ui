@@ -1,6 +1,7 @@
 
 import type { App } from 'vue'
 import * as components from './components'
+import { vLoading } from './components/loading'
 import * as directives from '@ultra-ui/directives'
 
 // 引入样式
@@ -90,4 +91,6 @@ export function UltraUI(app: App): void {
       directive && app.directive(key.slice(1), directive)
     }
   })
+
+  app.directive('Loading', vLoading)
 }

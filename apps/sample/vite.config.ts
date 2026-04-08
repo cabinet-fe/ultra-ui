@@ -1,10 +1,9 @@
-import { autoResolveComponent, pluginPresets } from '@builder/vite'
 import { existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import UnoCSS from 'unocss/vite'
 import { fileURLToPath } from 'node:url'
+
+import { autoResolveComponent, pluginPresets } from '@builder/vite'
 import { defineConfig } from 'vite'
-import vueDevTools from 'vite-plugin-vue-devtools'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const desktopRoot = resolve(__dirname, '../../packages/desktop/src')
@@ -22,15 +21,24 @@ export default defineConfig(() => {
 
     resolve: {
       extensions: ['.ts', '.js', '.json', '.tsx'],
+      // CodeMirror 在 node_modules 内存在多份 @codemirror/*，会触发
+      // "Unrecognized extension value... multiple instances of @codemirror/state"
+      dedupe: [
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/language',
+        '@codemirror/commands',
+        '@codemirror/search',
+        '@codemirror/autocomplete',
+        '@codemirror/lint',
+        '@lezer/common',
+        '@lezer/highlight',
+        '@lezer/lr',
+        'codemirror'
+      ],
       alias: [
-        {
-          find: /^@ultra-ui\/desktop(\/.*)?$/,
-          replacement: `${desktopRoot}$1`
-        },
-        {
-          find: /^@ultra-ui\/utils(\/.*)?$/,
-          replacement: `${utilsRoot}$1`
-        },
+        { find: /^@ultra-ui\/desktop(\/.*)?$/, replacement: `${desktopRoot}$1` },
+        { find: /^@ultra-ui\/utils(\/.*)?$/, replacement: `${utilsRoot}$1` },
         {
           find: /^@ultra-ui\/compositions$/,
           replacement: resolve(__dirname, '../../packages/compositions/src/index.ts')
@@ -40,20 +48,11 @@ export default defineConfig(() => {
           replacement: resolve(__dirname, '../../packages/directives/src$1')
         },
         { find: /^ultra-ui$/, replacement: resolve(desktopRoot, 'index.ts') },
-        {
-          find: /^ultra-ui\/(.*)$/,
-          replacement: `${desktopRoot}/$1`
-        }
+        { find: /^ultra-ui\/(.*)$/, replacement: `${desktopRoot}/$1` }
       ]
     },
 
-    css: {
-      preprocessorOptions: {
-        scss: {
-          loadPaths: [resolve(__dirname, '../../packages')]
-        }
-      }
-    },
+    css: { preprocessorOptions: { scss: { loadPaths: [resolve(__dirname, '../../packages')] } } },
 
     plugins: [
       pluginPresets(['unplugin-components', 'vue', 'vue-jsx'], {
@@ -79,13 +78,21 @@ export default defineConfig(() => {
           ],
           dts: true
         }
-      }),
-
-      UnoCSS(),
-
-      vueDevTools({ launchEditor: 'cursor' })
+      })
     ],
 
-    server: { port: 7788, host: true }
+    server: { port: 7788, host: true },
+
+    optimizeDeps: {
+      include: [
+        'codemirror',
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-sql',
+        '@codemirror/lang-java',
+        '@codemirror/lang-json'
+      ]
+    }
   }
 })
