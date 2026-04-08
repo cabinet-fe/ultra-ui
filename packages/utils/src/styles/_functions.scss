@@ -1,7 +1,7 @@
 @use 'vars';
 @use 'sass:list';
 
-// 使用单个变量
+// 使用单个变量（全局主题 token，`--u-*`）
 @function use-var($basename, $nodes...) {
   $suffix: '';
 
@@ -9,7 +9,16 @@
     $suffix: $suffix + '-' + $node;
   }
 
-  @return var(--#{$basename}#{$suffix});
+  @return var(--u-#{$basename}#{$suffix});
+}
+
+// 组件级 token：`var(--u-{component}-{property}[, fallback])`
+@function component-var($component, $property, $fallback: null) {
+  @if $fallback == null {
+    @return var(--u-#{$component}-#{$property});
+  }
+
+  @return var(--u-#{$component}-#{$property}, #{$fallback});
 }
 
 // 使用多个变量

@@ -7,16 +7,42 @@ $root-name: table;
 @mixin hover {
   &:hover {
     @include m.bem($root-name, cell) {
-      background-color: fn.use-var(table, hover, bg);
-      color: fn.use-var(table, hover, color);
+      background-color: var(--u-table-hover-bg);
+      color: var(--u-table-hover-color);
     }
   }
 }
 
 @include m.b($root-name) {
+  --u-table-border-color: #e9e9e9;
+  --u-table-header-bg: #f4f5f7;
+  --u-table-header-color: #{fn.use-var(text-color, title)};
+  --u-table-stripe-bg: #f8fafc;
+  --u-table-stripe-color: inherit;
+  --u-table-hover-bg: #{fn.use-var(bg-color, hover)};
+  --u-table-hover-color: inherit;
+  --u-table-current-bg: #{fn.use-var(bg-color, hover)};
+  --u-table-current-color: inherit;
+  --u-table-checked-bg: var(--u-color-primary-light-9);
+  --u-table-checked-color: inherit;
+
+  @include m.dark() {
+    --u-table-border-color: #404040;
+    --u-table-header-bg: #2a2a2a;
+    --u-table-header-color: #{fn.use-var(text-color, main)};
+    --u-table-stripe-bg: #2a2a2a;
+    --u-table-stripe-color: #{fn.use-var(text-color, main)};
+    --u-table-hover-bg: #333333;
+    --u-table-hover-color: #{fn.use-var(text-color, title)};
+    --u-table-current-bg: #{fn.use-var(bg-color, hover)};
+    --u-table-current-color: inherit;
+    --u-table-checked-bg: var(--u-color-primary-dark-1);
+    --u-table-checked-color: inherit;
+  }
+
   width: 100%;
   position: relative;
-  border: 1px solid fn.use-var(table, border-color);
+  border: 1px solid var(--u-table-border-color);
   border-bottom: none;
   overflow: hidden;
 
@@ -52,8 +78,8 @@ $root-name: table;
 
     @include m.is(stripe) {
       @include m.bem($root-name, cell) {
-        background-color: fn.use-var(table, stripe, bg);
-        color: fn.use-var(table, stripe, color);
+        background-color: var(--u-table-stripe-bg);
+        color: var(--u-table-stripe-color);
       }
 
       @include hover;
@@ -70,8 +96,8 @@ $root-name: table;
     @include m.is(current) {
       & > {
         @include m.bem($root-name, cell) {
-          background-color: fn.use-var(table, current, bg);
-          color: fn.use-var(table, current, color);
+          background-color: var(--u-table-current-bg);
+          color: var(--u-table-current-color);
         }
       }
     }
@@ -79,8 +105,8 @@ $root-name: table;
     @include m.is(checked) {
       & > {
         @include m.bem($root-name, cell) {
-          background-color: fn.use-var(table, checked, bg);
-          color: fn.use-var(table, checked, color);
+          background-color: var(--u-table-checked-bg);
+          color: var(--u-table-checked-color);
         }
       }
     }
@@ -105,7 +131,7 @@ $root-name: table;
   @include m.is(border) {
     border-right: none;
     @include m.bem($root-name, cell) {
-      border-right: 1px solid fn.use-var(table, border-color);
+      border-right: 1px solid var(--u-table-border-color);
       margin-right: -1px;
     }
   }
@@ -127,16 +153,16 @@ $root-name: table;
     &:hover {
       @include m.bem($root-name, cell) {
         box-shadow:
-          -1px 0px fn.use-var(table, border-color) inset,
-          0px -1px fn.use-var(table, border-color) inset;
+          -1px 0px var(--u-table-border-color) inset,
+          0px -1px var(--u-table-border-color) inset;
       }
     }
 
     @include m.is(multistage) {
       @include m.bem($root-name, cell) {
-        border-right: 1px solid fn.use-var(table, border-color);
+        border-right: 1px solid var(--u-table-border-color);
         margin-right: -1px;
-        border-bottom: 1px solid fn.use-var(table, border-color);
+        border-bottom: 1px solid var(--u-table-border-color);
         margin-bottom: -1px;
       }
     }
@@ -144,9 +170,9 @@ $root-name: table;
 
   @include m.e(head) {
     @include m.bem($root-name, cell) {
-      background-color: fn.use-var(table, header, bg);
+      background-color: var(--u-table-header-bg);
       font-weight: normal;
-      color: fn.use-var(table, header, color);
+      color: var(--u-table-header-color);
     }
   }
 
@@ -166,7 +192,7 @@ $root-name: table;
     height: 100%;
     top: 0;
     z-index: 1;
-    background-color: fn.use-var(table, border-color);
+    background-color: var(--u-table-border-color);
   }
 
   @include m.e(body) {
@@ -186,7 +212,7 @@ $root-name: table;
 
     // 表脚与表体之间的分隔线，使用负边距避免叠加
     @include m.bem($root-name, cell) {
-      border-top: 1px solid fn.use-var(table, border-color);
+      border-top: 1px solid var(--u-table-border-color);
 
       margin-top: -1px;
     }
@@ -195,7 +221,7 @@ $root-name: table;
   @include m.e(cell) {
     background-color: fn.use-var(bg-color, top);
     word-break: break-all;
-    border-bottom: 1px solid fn.use-var(table, border-color);
+    border-bottom: 1px solid var(--u-table-border-color);
     margin-bottom: -1px;
 
     position: relative;

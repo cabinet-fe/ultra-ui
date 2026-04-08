@@ -3,6 +3,18 @@
 
 $root-name: select;
 @include m.b($root-name) {
+  --u-menu-hover-bg: rgba(148, 163, 184, 0.12);
+  --u-menu-hover-color: #{fn.use-var(text-color, title)};
+  --u-menu-active-bg: rgba(59, 130, 246, 0.12);
+  --u-menu-active-color: var(--u-color-primary-dark-1);
+
+  @include m.dark() {
+    --u-menu-hover-bg: rgba(148, 163, 184, 0.14);
+    --u-menu-hover-color: #{fn.use-var(text-color, title)};
+    --u-menu-active-bg: rgba(96, 165, 250, 0.2);
+    --u-menu-active-color: #{fn.use-var(text-color, white)};
+  }
+
   width: 100%;
 
   @include m.e(content-filter) {
@@ -68,14 +80,14 @@ $root-name: select;
     @include m.ellipsis;
 
     &:hover {
-      background-color: fn.use-var(menu, hover, bg);
-      color: fn.use-var(menu, hover, color);
+      background-color: var(--u-menu-hover-bg);
+      color: var(--u-menu-hover-color);
     }
 
     @include m.is(selected) {
       position: relative;
-      background-color: fn.use-var(menu, active, bg);
-      color: fn.use-var(menu, active, color);
+      background-color: var(--u-menu-active-bg);
+      color: var(--u-menu-active-color);
       font-weight: 600;
 
       &::before {

@@ -4,6 +4,13 @@
 @use 'sass:map';
 
 $root-name: tag;
+
+:root {
+  --u-tag-small: 20px;
+  --u-tag-default: 24px;
+  --u-tag-large: 28px;
+}
+
 @include m.b($root-name) {
   cursor: default;
   color: fn.use-var(text-color, main);
@@ -30,7 +37,7 @@ $root-name: tag;
   }
 
   @include m.size using ($size) {
-    height: fn.use-var(tag, $size);
+    height: var(--u-tag-#{$size});
     font-size: fn.use-var(font-size-main, $size);
     padding: 0 fn.use-var(gap, $size);
     border-radius: fn.use-var(radius, $size);
@@ -40,7 +47,7 @@ $root-name: tag;
     }
 
     @include m.is(round) {
-      border-radius: calc(fn.use-var(tag, $size) / 2);
+      border-radius: calc(var(--u-tag-#{$size}) / 2);
     }
   }
 

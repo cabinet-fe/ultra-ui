@@ -1,4 +1,4 @@
-import type { RGBColor, Theme } from './type'
+import type { RGBColor } from './type'
 
 /** 实现十六进制颜色转RGB颜色，包括透明度 */
 export function HEXToRGB(color: string): RGBColor {
@@ -55,20 +55,10 @@ export function defineBySize(
   return variable
 }
 
-// 递归类型定义
-type DeepKeyof<T> = T extends object
-  ? {
-      [K in keyof T]: T[K] extends object
-        ? `${K & string}-${DeepKeyof<T[K]> & string}`
-        : K
-    }[keyof T]
-  : never
-
 /**
- * 根据属性名获取css变量
- * @param prop - 属性名
- * @returns 返回css变量
+ * 引用全局主题 CSS 变量（`--u-*` 命名空间）
+ * @param prop - 与 Theme 结构对应的连字符路径，如 `text-color-title`、`bg-color-hover`
  */
-export function cssVar(prop: DeepKeyof<Theme>): string {
-  return `var(--${prop})`
+export function cssVar(prop: string): string {
+  return `var(--u-${prop})`
 }

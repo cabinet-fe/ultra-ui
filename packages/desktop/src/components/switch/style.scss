@@ -4,6 +4,10 @@
 
 $root-name: switch;
 @include m.b($root-name) {
+  --u-switch-height-small: 18px;
+  --u-switch-height-default: 20px;
+  --u-switch-height-large: 24px;
+
   display: inline-flex;
   align-items: center;
   cursor: pointer;
@@ -37,13 +41,13 @@ $root-name: switch;
   // 尺寸样式
   @include m.size using ($size) {
     @include m.bem($root-name, button) {
-      height: fn.use-var(switch-height, $size);
-      width: calc(fn.use-var(switch-height, $size) * 2 - 4px);
+      height: var(--u-switch-height-#{$size});
+      width: calc(var(--u-switch-height-#{$size}) * 2 - 4px);
     }
 
     @include m.bem($root-name, thumb) {
-      width: calc(fn.use-var(switch-height, $size) - 4px);
-      height: calc(fn.use-var(switch-height, $size) - 4px);
+      width: calc(var(--u-switch-height-#{$size}) - 4px);
+      height: calc(var(--u-switch-height-#{$size}) - 4px);
     }
   }
 

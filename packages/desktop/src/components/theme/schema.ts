@@ -186,8 +186,6 @@ export const THEME_SECTIONS: ThemeSection[] = [
     title: '表单尺度',
     description: '统一基础控件的边角、尺寸和节奏，让组件家族看起来更一致。',
     fields: [
-      paletteField('checkbox.border', '复选框边框', ['checkbox', 'border']),
-      paletteField('radio.border', '单选框边框', ['radio', 'border']),
       pxField('radius.small', '小圆角', ['radius', 'small'], 0, 24),
       pxField('radius.default', '默认圆角', ['radius', 'default'], 0, 24),
       pxField('radius.large', '大圆角', ['radius', 'large'], 0, 32),
@@ -212,81 +210,9 @@ export const THEME_SECTIONS: ThemeSection[] = [
         24,
         64
       ),
-      pxField('switch.height.small', '小开关高度', ['switch', 'height', 'small'], 14, 28),
-      pxField(
-        'switch.height.default',
-        '默认开关高度',
-        ['switch', 'height', 'default'],
-        16,
-        32
-      ),
-      pxField('switch.height.large', '大开关高度', ['switch', 'height', 'large'], 18, 36),
-      pxField('tag.small', '小标签高度', ['tag', 'small'], 16, 32),
-      pxField('tag.default', '默认标签高度', ['tag', 'default'], 18, 40),
-      pxField('tag.large', '大标签高度', ['tag', 'large'], 20, 48),
       pxField('gap.small', '小间距', ['gap', 'small'], 0, 20),
       pxField('gap.default', '默认间距', ['gap', 'default'], 0, 24),
       pxField('gap.large', '大间距', ['gap', 'large'], 0, 32)
-    ]
-  },
-  {
-    key: 'menu',
-    title: '菜单系统',
-    description: '控制导航菜单的高度、悬停态、激活态和面板背景表现。',
-    fields: [
-      pxField('menu.height.small', '小菜单高度', ['menu', 'height', 'small'], 20, 48),
-      pxField(
-        'menu.height.default',
-        '默认菜单高度',
-        ['menu', 'height', 'default'],
-        24,
-        56
-      ),
-      pxField('menu.height.large', '大菜单高度', ['menu', 'height', 'large'], 28, 64),
-      paletteField('menu.color', '菜单文字颜色', ['menu', 'color']),
-      paletteField(
-        'menu.hover.bg',
-        '悬停背景',
-        ['menu', 'hover', 'bg']
-      ),
-      paletteField(
-        'menu.hover.color',
-        '悬停文字',
-        ['menu', 'hover', 'color']
-      ),
-      paletteField(
-        'menu.active.bg',
-        '激活背景',
-        ['menu', 'active', 'bg']
-      ),
-      paletteField(
-        'menu.active.color',
-        '激活文字',
-        ['menu', 'active', 'color']
-      ),
-      paletteField(
-        'menu.bg.color',
-        '菜单背景色',
-        ['menu', 'bg', 'color']
-      ),
-      inputField(
-        'menu.bg.blur',
-        '菜单背景模糊',
-        ['menu', 'bg', 'blur'],
-        '例如：blur(12px)'
-      ),
-      inputField(
-        'menu.bg.saturate',
-        '菜单背景饱和度',
-        ['menu', 'bg', 'saturate'],
-        '例如：saturate(180%)'
-      ),
-      inputField(
-        'menu.bg.image',
-        '菜单背景图片',
-        ['menu', 'bg', 'image'],
-        '例如：https://...'
-      )
     ]
   },
   {
@@ -362,68 +288,6 @@ export const THEME_SECTIONS: ThemeSection[] = [
         ['font-size-assist', 'large'],
         8,
         24
-      )
-    ]
-  },
-  {
-    key: 'table',
-    title: '表格状态',
-    description: '覆盖表头、条纹、悬停、当前行与选中行的视觉反馈。',
-    fields: [
-      paletteField(
-        'table.border-color',
-        '表格边框颜色',
-        ['table', 'border-color']
-      ),
-      paletteField(
-        'table.header.bg',
-        '表头背景',
-        ['table', 'header', 'bg']
-      ),
-      paletteField(
-        'table.header.color',
-        '表头文字',
-        ['table', 'header', 'color']
-      ),
-      paletteField(
-        'table.stripe.bg',
-        '条纹背景',
-        ['table', 'stripe', 'bg']
-      ),
-      paletteField(
-        'table.stripe.color',
-        '条纹文字',
-        ['table', 'stripe', 'color']
-      ),
-      paletteField(
-        'table.hover.bg',
-        '悬停背景',
-        ['table', 'hover', 'bg']
-      ),
-      paletteField(
-        'table.hover.color',
-        '悬停文字',
-        ['table', 'hover', 'color']
-      ),
-      paletteField(
-        'table.current.bg',
-        '当前行背景',
-        ['table', 'current', 'bg']
-      ),
-      paletteField(
-        'table.current.color',
-        '当前行文字',
-        ['table', 'current', 'color']
-      ),
-      paletteField(
-        'table.checked.bg',
-        '选中行背景',
-        ['table', 'checked', 'bg']
-      ),
-      paletteField(
-        'table.checked.color',
-        '选中行文字',
-        ['table', 'checked', 'color']
       )
     ]
   },

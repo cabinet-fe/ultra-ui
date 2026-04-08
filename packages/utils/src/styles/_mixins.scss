@@ -135,7 +135,20 @@
 }
 
 @function breakpoint($point) {
-  @return var(--breakpoint-#{$point});
+  @return var(--u-breakpoint-#{$point});
+}
+
+/** 暗色：data-theme 与系统偏好，与 UITheme.injectBuiltInThemes 选择器策略一致 */
+@mixin dark {
+  html[data-theme='dark'] & {
+    @content;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) & {
+      @content;
+    }
+  }
 }
 
 @mixin xs {

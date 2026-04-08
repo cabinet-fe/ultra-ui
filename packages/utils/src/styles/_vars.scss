@@ -2,6 +2,12 @@
 
 $namespace: 'u-';
 
+// 与全局 CSS 变量对齐的语义化别名（便于 SCSS 中直接引用）
+$color-primary: var(--u-color-primary);
+$text-color-main: var(--u-text-color-main);
+$border-color: var(--u-border-color);
+$bg-color-top: var(--u-bg-color-top);
+
 // 定义size映射的函数, 保证尺寸的统一性, size-vars(small, default, large)
 // 例子：
 // size-vars((height: 24px), (height: 32px), (height: 40px))

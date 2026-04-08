@@ -4,6 +4,10 @@
 
 $root-name: checkbox;
 @include m.b($root-name) {
+  @include m.dark() {
+    --u-checkbox-border: #595959;
+  }
+
   user-select: none;
   vertical-align: middle;
   cursor: pointer;
@@ -50,7 +54,7 @@ $root-name: checkbox;
 
   @include m.e(wrap) {
     border: fn.use-var(border, width) fn.use-var(border, style)
-      fn.use-var(checkbox, border);
+      #{fn.component-var(checkbox, border, #ccc)};
     border-radius: fn.use-var(radius, default);
     color: #fff;
     transition: background-color 0.15s ease;

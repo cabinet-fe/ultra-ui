@@ -20,7 +20,12 @@
           </div>
 
           <div class="control-group">
-            <u-switch v-model="isDark" active-text="浅色" inactive-text="深色"></u-switch>
+            <span class="control-label">外观</span>
+            <div class="radio-group">
+              <u-radio value="light" v-model="themeMode">浅色</u-radio>
+              <u-radio value="dark" v-model="themeMode">深色</u-radio>
+              <u-radio value="auto" v-model="themeMode">系统</u-radio>
+            </div>
           </div>
         </div>
       </div>
@@ -72,7 +77,15 @@ import {
   UITheme,
   type MenuItem
 } from 'ultra-ui'
-import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  watch,
+  watchEffect
+} from 'vue'
 import type { ComponentSize } from 'ultra-ui/types'
 import { Setting } from '@ultra/icon'
 
@@ -91,22 +104,68 @@ watchEffect(() => {
   setConfig({ size: size.value })
 })
 
-const localIsDark = localStorage.getItem('isDark')
-const isDark = ref(localIsDark ? JSON.parse(localIsDark) : false)
+type SampleThemeMode = 'light' | 'dark' | 'auto'
 
-watch(isDark, (d) => {
-  localStorage.setItem('isDark', JSON.stringify(d))
-  smoothThemeTransition(d ? darkTheme : lightTheme)
+function readInitialThemeMode(): SampleThemeMode {
+  const stored = localStorage.getItem('themeMode')
+  if (stored === 'light' || stored === 'dark' || stored === 'auto') {
+    return stored
+  }
+  const legacy = localStorage.getItem('isDark')
+  if (legacy !== null) {
+    try {
+      return JSON.parse(legacy) ? 'dark' : 'light'
+    } catch {
+      /* ignore */
+    }
+  }
+  return 'light'
+}
+
+const themeMode = ref<SampleThemeMode>(readInitialThemeMode())
+
+const prefersDark = ref(
+  typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+)
+let removePrefListener: (() => void) | undefined
+
+onMounted(() => {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)')
+  prefersDark.value = mq.matches
+  const onChange = (e: MediaQueryListEvent) => {
+    prefersDark.value = e.matches
+  }
+  mq.addEventListener('change', onChange)
+  removePrefListener = () => mq.removeEventListener('change', onChange)
 })
 
-loadTheme(isDark.value ? darkTheme : lightTheme)
+onUnmounted(() => removePrefListener?.())
+
+const effectiveDark = computed(() => {
+  if (themeMode.value === 'dark') return true
+  if (themeMode.value === 'light') return false
+  return prefersDark.value
+})
+
+watch(themeMode, (m) => {
+  localStorage.setItem('themeMode', m)
+  applyThemeWithTransition(m)
+})
+
+loadTheme()
+UITheme.setTheme(themeMode.value)
 
 const activeTheme = computed(() => {
-  return currentTheme.value?.theme ?? (isDark.value ? darkTheme.theme : lightTheme.theme)
+  return (
+    currentTheme.value?.theme ??
+    (effectiveDark.value ? darkTheme.theme : lightTheme.theme)
+  )
 })
 
 const themeModeLabel = computed(() => {
-  return isDark.value ? '深色基线' : '浅色基线'
+  if (themeMode.value === 'auto') return '跟随系统'
+  return themeMode.value === 'dark' ? '深色基线' : '浅色基线'
 })
 
 const themeSwatches = computed(() => {
@@ -117,16 +176,12 @@ const themeSwatches = computed(() => {
   ]
 })
 
-// 带过渡动画的主题切换
-const smoothThemeTransition = (newTheme: UITheme) => {
-  // 添加过渡类
+function applyThemeWithTransition(mode: SampleThemeMode) {
   document.documentElement.classList.add('theme-transitioning')
 
   requestAnimationFrame(() => {
-    // 应用新主题
-    loadTheme(newTheme)
+    UITheme.setTheme(mode)
 
-    // 移除过渡类
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning')
     }, 300)
@@ -151,7 +206,7 @@ const handleClose = () => {
     $suffix: $suffix + '-' + $node;
   }
 
-  @return var(--#{$basename}#{$suffix});
+  @return var(--u-#{$basename}#{$suffix});
 }
 
 .container {
@@ -166,7 +221,7 @@ $width: 240px;
   width: $width;
   border-right: 1px solid use-var(border, color);
   flex-shrink: 0;
-  backdrop-filter: var(--bg-filter-blur);
+  backdrop-filter: var(--u-bg-filter);
   background-color: use-var(bg-color, top);
 }
 
@@ -187,7 +242,7 @@ $width: 240px;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: use-var(bg-color, middle);
-  backdrop-filter: var(--bg-filter-blur);
+  backdrop-filter: var(--u-bg-filter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -298,7 +353,11 @@ $width: 240px;
   padding: 0 16px;
   border-radius: 12px;
   border: 1px solid rgba(30, 136, 229, 0.16);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light-3));
+  background: linear-gradient(
+    135deg,
+    var(--u-color-primary),
+    var(--u-color-primary-light-3)
+  );
   box-shadow: 0 12px 24px rgba(30, 136, 229, 0.22);
 
   &:hover {
@@ -575,7 +634,7 @@ $width: 240px;
 
 // 优化选择状态
 ::selection {
-  background-color: var(--color-primary);
+  background-color: var(--u-color-primary);
   color: use-var(text-color, white);
 }
 </style>

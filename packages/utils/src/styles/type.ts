@@ -3,6 +3,7 @@
  */
 export type RGBColor = [number, number, number]
 
+/** 仅含全局 token；组件级 token 由各组件 SCSS 以 `--u-{component}-*` 声明 */
 export type Theme = {
   /** 主题色 */
   color: {
@@ -54,18 +55,6 @@ export type Theme = {
     style: string
   }
 
-  /** 复选框 */
-  checkbox: {
-    /** 边框颜色 */
-    border: string
-  }
-
-  /** 单选框 */
-  radio: {
-    /** 边框颜色 */
-    border: string
-  }
-
   /** 文字色 */
   'text-color': {
     /** 标题文字颜色 */
@@ -100,51 +89,6 @@ export type Theme = {
     default: number
     /** 大尺寸表单组件高度 */
     large: number
-  }
-
-  /** 开关 */
-  switch: {
-    /** 高度 */
-    height: {
-      small: number
-      default: number
-      large: number
-    }
-  }
-
-  menu: {
-    /** 菜单高度 */
-    height: {
-      /** 小尺寸菜单高度 */
-      small: number
-      /** 默认尺寸菜单高度 */
-      default: number
-      /** 大尺寸菜单高度 */
-      large: number
-    }
-
-    color: string
-
-    hover: {
-      bg: string
-      color: string
-    }
-
-    active: {
-      bg: string
-      color: string
-    }
-
-    bg: {
-      /** 菜单背景色 */
-      color: string
-      /** 菜单背景模糊 */
-      blur: string
-      /** 菜单背景饱和度 */
-      saturate: string
-      /** 菜单背景图片 */
-      image: string
-    }
   }
 
   /** 字体族 */
@@ -189,15 +133,6 @@ export type Theme = {
     /** 阴影扩散半径 */
     spread: number
   }
-  /** 标签尺寸 */
-  tag: {
-    /** 小尺寸标签 */
-    small: number
-    /** 默认尺寸标签 */
-    default: number
-    /** 大尺寸标签 */
-    large: number
-  }
   /** 间距 */
   gap: {
     /** 小间距 */
@@ -217,37 +152,5 @@ export type Theme = {
     md: number
     /** 大屏幕断点 */
     lg: number
-  }
-
-  /** 表格 */
-  table: {
-    /** 表格边框颜色 */
-    'border-color': string
-
-    header: {
-      color: string
-      bg: string
-    }
-
-    /** 斑马线颜色 */
-    stripe: {
-      bg: string
-      color: string
-    }
-    /** 行悬浮颜色 */
-    hover: {
-      bg: string
-      color: string
-    }
-    /** 当前行 */
-    current: {
-      bg: string
-      color: string
-    }
-    /** 选中行 */
-    checked: {
-      bg: string
-      color: string
-    }
   }
 }

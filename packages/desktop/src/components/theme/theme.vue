@@ -366,7 +366,7 @@ function setByPath(source: Record<string, any>, path: string[], value: any) {
 }
 
 function getCssVarName(path: string[]) {
-  return `--${path.join('-')}`
+  return `--u-${path.join('-')}`
 }
 
 function getThemePath(path: string[]) {

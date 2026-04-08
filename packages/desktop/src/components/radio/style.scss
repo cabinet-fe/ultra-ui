@@ -4,6 +4,10 @@
 
 $root-name: radio;
 @include m.b($root-name) {
+  @include m.dark() {
+    --u-radio-border: #595959;
+  }
+
   cursor: pointer;
   vertical-align: middle;
   user-select: none;
@@ -34,7 +38,7 @@ $root-name: radio;
   @include m.e(button) {
     border-radius: 50%;
     border: fn.use-var(border, width) fn.use-var(border, style)
-      fn.use-var(radio, border);
+      #{fn.component-var(radio, border, #ccc)};
     overflow: hidden;
   }
 

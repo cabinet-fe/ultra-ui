@@ -1,9 +1,10 @@
-import { shallowRef, watch, type ShallowRef } from 'vue'
 import { Forest } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
-import { forestRootsDftPrune } from '../../utils/tree-walk'
 import { useModel } from '@ultra-ui/compositions'
 import type { TableColumn, TableEmits, TableProps, TableRow } from '@ultra-ui/desktop/types'
+import { getChainValue } from '@ultra-ui/utils'
+import { shallowRef, watch, type ShallowRef } from 'vue'
+
+import { forestRootsDftPrune } from '../../utils/tree-walk'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -66,8 +67,7 @@ export function useRows(options: Options): UseRowsReturned {
 
   /** 获取行唯一标识 */
   const getRowUID = props.rowKey
-    ? (rowData: Record<string, any>) =>
-        rowData && getChainValue(rowData, props.rowKey!)
+    ? (rowData: Record<string, any>) => rowData && getChainValue(rowData, props.rowKey!)
     : () => uidSeed++
 
   /** 创建或复用 TableRow 实例 */
@@ -84,13 +84,7 @@ export function useRows(options: Options): UseRowsReturned {
       existRow.parent = parent
       return existRow
     }
-    return new TableRowNode({
-      data,
-      index,
-      depth,
-      parent,
-      uid: getRowUID(data)
-    })
+    return new TableRowNode({ data, index, depth, parent, uid: getRowUID(data) })
   }
 
   // --- 行处理逻辑 ---
@@ -156,7 +150,7 @@ export function useRows(options: Options): UseRowsReturned {
 
     forestRootsDftPrune(
       rowForest.value.roots,
-      node => {
+      (node) => {
         // 深度优先：根行 (depth===0) 或父节点已展开时可见；不可见则不再深入子树
         if (node.parent?.expanded || node.depth === 0) {
           result.push(node)
@@ -182,8 +176,8 @@ export function useRows(options: Options): UseRowsReturned {
   )
 
   // 同步状态给外部
-  watch(rows, rows => emit('update:rows', rows))
-  watch(rowForest, forest => emit('update:forest', forest))
+  watch(rows, (rows) => emit('update:rows', rows))
+  watch(rowForest, (forest) => emit('update:forest', forest))
 
   // 核心：监听原始数据变化，重新构建行列表或树
   watch(
@@ -225,14 +219,14 @@ export function useRows(options: Options): UseRowsReturned {
   function toggleAllTreeRowExpand(): void {
     allExpanded.value = !allExpanded.value
     if (props.tree) {
-      rowForest.value?.dfs(node => {
+      rowForest.value?.dfs((node) => {
         node.expanded = allExpanded.value
       })
       updateFlattedRows()
       return
     }
     if (props.expandable) {
-      dataRows.value.forEach(row => {
+      dataRows.value.forEach((row) => {
         row.expanded = allExpanded.value
       })
       expandDataRows()
@@ -245,11 +239,7 @@ export function useRows(options: Options): UseRowsReturned {
     emit('row-click', row, e)
   }
 
-  function handleCellClick(
-    row: TableRow,
-    column: TableColumn,
-    e: MouseEvent
-  ): void {
+  function handleCellClick(row: TableRow, column: TableColumn, e: MouseEvent): void {
     emit('cell-click', row, column, e)
   }
 

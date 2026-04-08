@@ -134,10 +134,11 @@ const cls = bem('xxx')
 
 ### 主题
 
-- `loadTheme(theme?)`（`@ultra-ui/compositions`）加载主题
-- `lightTheme` / `darkTheme` 预设
-- `UITheme` 类：将 Theme 对象转为 CSS 变量注入 `:root`
-- 主题结构定义在 `packages/utils/src/styles/type.ts`（color、bg、border、radius、shadow 等）
+- `loadTheme(theme?)`（`@ultra-ui/compositions`）：不传参时注入内置 light/dark 全量变量并支持系统暗色偏好；传入自定义 `UITheme` 时用单次 `html { }` 注入
+- `setTheme('light' | 'dark' | 'auto')`（`@ultra-ui/compositions` / `@ultra-ui/utils/styles/theme`）：在 `<html>` 上设置或清除 `data-theme`，与注入样式中的 `@media (prefers-color-scheme: dark)` 规则配合
+- `lightTheme` / `darkTheme` 预设（`UITheme` 实例，`reactive: false`）
+- `UITheme`：将 `Theme` 序列化为 `--u-*` CSS 变量；`render()` 优先 `adoptedStyleSheets`，否则回退 `<style id="ultra-ui-theme">`；过渡期同步生成无前缀别名并输出一次性弃用警告
+- 全局 `Theme` 类型见 `packages/utils/src/styles/type.ts`（仅全局 token）；菜单、表格等组件 token 在对应组件 `style.scss` 中以 `--u-{component}-*` 声明，可用 `fn.component-var()` 与 `m.dark()` 覆盖
 
 ## 路径别名
 

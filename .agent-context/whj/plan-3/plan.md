@@ -1,6 +1,6 @@
 # 主题系统优化
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -134,12 +134,24 @@
 
 ## 影响范围
 
-- `packages/utils/src/styles/type.ts`：Theme 类型精简
-- `packages/utils/src/styles/theme/ui-theme.ts`：UITheme 类重构
-- `packages/utils/src/styles/theme/light.ts`、`dark.ts`：交叉引用前缀更新
-- `packages/utils/src/styles/_vars.scss`、`_functions.scss`、`_mixins.scss`：SCSS 基础设施
-- `packages/desktop/src/components/*/style.scss`：全部组件样式文件
-- `packages/desktop/src/components/*/style.ts`：组件样式入口（部分）
+- `packages/utils/src/styles/type.ts`：Theme 仅保留全局 token
+- `packages/utils/src/styles/helper.ts`：`cssVar` 改为 `--u-*`
+- `packages/utils/src/styles/theme/ui-theme.ts`：`--u-*` 注入、legacy 别名、`adoptedStyleSheets` 降级、`injectBuiltInThemes`、`setTheme`
+- `packages/utils/src/styles/theme/light.ts`、`dark.ts`：移除组件 token，内置实例 `reactive: false`
+- `packages/utils/src/styles/theme.ts`：导出 `setTheme`
+- `packages/utils/src/styles/_vars.scss`、`_functions.scss`、`_mixins.scss`：`use-var` 前缀、`component-var`、`breakpoint` 前缀、`dark` mixin
+- `packages/compositions/src/load-theme.ts`：内置双主题注入与 `setTheme` 再导出
+- `packages/desktop/src/components/table/style.scss`、`menu/style.scss`、`select/style.scss`、`tag/style.scss`、`switch/style.scss`、`checkbox/style.scss`、`radio/style.scss`：组件 token 与暗色覆盖
+- `packages/desktop/src/components/theme/schema.ts`、`theme.vue`：主题编辑器字段与 CSS 变量名展示
+- `apps/sample/App.vue`：`loadTheme()` + `UITheme.setTheme`（含 `auto`）、示例样式 `--u-*`
+- `packages/compositions/src/load-theme.ts`：移除与值导入冲突的 `import type { UITheme }`，修复 Vite 解析错误
 - `AGENTS.md`：主题系统描述
+- `.agent-context/whj/plan-3/patch-1.md`：审计摘要
+- `packages/utils/src/styles/theme/__test__/ui-theme.test.ts`：UITheme 单测
+- `.agent-context/whj/plan-3/patch-2.md`：补丁说明与映射摘要
 
 ## 历史补丁
+
+- patch-1: 主题系统审计摘要（`patch-1.md`）
+- patch-2: Review 跟进（sample `auto`、UITheme 单测、映射摘要）（`patch-2.md`）
+- patch-3: 修复 load-theme 中 UITheme 重复声明导致 sample 无法构建（`patch-3.md`）
