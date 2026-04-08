@@ -43,7 +43,7 @@ import UMenuItem from './menu-item.vue'
 import UMenuSubCollapsed from './menu-sub-collapsed.vue'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { UScroll } from '../scroll'
-import { Tree } from 'cat-kit'
+import { treeDftWithPath } from '../../utils/tree-walk'
 
 defineOptions({
   name: 'Menu'
@@ -76,7 +76,7 @@ watch(
   ([currentPath, menus]) => {
     if (!currentPath || !menus) return
     menus.forEach(item => {
-      Tree.dftWithPath(item, (item, nodePath) => {
+      treeDftWithPath(item, (item, nodePath) => {
         if (item.path === currentPath) {
           nodePath.slice(0, -1).forEach(path => {
             expandedPath.add(path.path)

@@ -1,10 +1,10 @@
-import { TreeNode } from 'cat-kit'
+import { TreeNode } from '@cat-kit/core'
 import { reactive, shallowReactive } from 'vue'
 import type { TableColumn, TableColumnAlign } from '@ultra-ui/desktop/types'
 
-export class ColumnNode extends TreeNode<TableColumn> {
-  children?: ColumnNode[] | undefined
-  parent: ColumnNode | null = null
+export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
+  declare children?: ColumnNode[] | undefined
+  declare parent: ColumnNode | null
   /** 叶子节点数量 */
   leafs?: number
 
@@ -71,7 +71,7 @@ export class ColumnNode extends TreeNode<TableColumn> {
 
   /** 列固定方向 */
   get fixed(): 'left' | 'right' | undefined {
-    if (this.depth > 1) return
+    if (this.depth > 0) return
     return this.data.fixed
   }
   set fixed(val) {
@@ -95,7 +95,17 @@ export class ColumnNode extends TreeNode<TableColumn> {
 
   style: Record<string, number> = reactive({})
 
-  constructor(val: TableColumn, index: number) {
-    super(val ? shallowReactive(val) : val, index)
+  constructor(
+    val: TableColumn,
+    index: number,
+    depth: number,
+    parent?: ColumnNode | null
+  ) {
+    super(
+      val ? shallowReactive(val) : val,
+      index,
+      depth,
+      parent ?? undefined
+    )
   }
 }

@@ -203,7 +203,7 @@ defineExpose<_TreeExposed>({
   checkNode: toggleCheck,
   selectNode: handleSelect,
   checkAll(check: boolean) {
-    forest.value.nodes.forEach(node => {
+    forest.value.roots.forEach(node => {
       toggleCheck(node, check)
     })
   },
@@ -216,13 +216,13 @@ defineExpose<_TreeExposed>({
   scrollTo,
 
   expandAll() {
-    forest.value.dft(node => {
+    forest.value.dfs(node => {
       node.expanded = true
     })
     getFlattedNodes()
   },
   collapseAll() {
-    forest.value.dft(node => {
+    forest.value.dfs(node => {
       node.expanded = false
     })
     getFlattedNodes()

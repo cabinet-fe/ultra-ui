@@ -1,8 +1,9 @@
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
-import type { TreeNode } from 'cat-kit'
+import type { ITreeNode } from '@cat-kit/core'
 
-export interface CascadeNode extends TreeNode {
+export interface CascadeNode
+  extends ITreeNode<Record<string, any>, CascadeNode> {
   parent: CascadeNode | null
   children?: CascadeNode[]
   visible: boolean

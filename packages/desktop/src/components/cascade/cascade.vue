@@ -131,7 +131,7 @@ import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import UCascadePanelItem from './cascade-panel-item.vue'
-import { Forest } from 'cat-kit'
+import { Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
@@ -170,25 +170,30 @@ const { size, disabled, readonly } = useFormFallbackProps(
 const dropdownRef = shallowRef<DropdownExposed>()
 
 const forest = computed(() => {
-  return Forest.create(props.data ?? [], {
-    createNode: (data, index) => {
+  return new Forest<Record<string, unknown>, any>({
+    data: (props.data ?? []) as Record<string, unknown>[],
+    childrenKey: props.childrenKey,
+    createNode: (data, index, depth, _forest, parent) => {
       if (!data) {
         return new CascadeNode({
           data,
           index,
+          depth,
           value: '',
-          label: ''
+          label: '',
+          parent
         })
       }
 
       return new CascadeNode({
         data,
         index,
+        depth,
         value: getChainValue(data, props.valueKey) ?? '',
-        label: getChainValue(data, props.labelKey) ?? ''
+        label: getChainValue(data, props.labelKey) ?? '',
+        parent
       })
-    },
-    childrenKey: props.childrenKey
+    }
   })
 })
 
@@ -271,18 +276,18 @@ const qs = shallowRef<string>('')
 watch([qs, forest], ([qs, forest]) => {
   const { filterable } = props
   if (!filterable || !qs) {
-    forest.dft(node => (node.visible = true))
-    getPanelItemList(forest.nodes)
+    forest.dfs(node => (node.visible = true))
+    getPanelItemList(forest.roots)
     return
   }
 
   const cache = new Set<CascadeNode>()
 
-  forest.dft(node => {
+  forest.dfs(node => {
     if (node.label?.toLowerCase().includes(qs.toLowerCase())) {
       node.visible = true
       let parent = node.parent
-      while (parent && parent.depth !== 0 && !cache.has(parent)) {
+      while (parent && !cache.has(parent)) {
         parent.visible = true
         cache.add(parent)
         parent = parent.parent
@@ -292,7 +297,7 @@ watch([qs, forest], ([qs, forest]) => {
     }
   })
 
-  panelItemList.value = [createPanelItem(forest.nodes)]
+  panelItemList.value = [createPanelItem(forest.roots)]
 })
 
 provide(CascadeDIKey, {

@@ -1,4 +1,4 @@
-import { Forest } from 'cat-kit'
+import { Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import type { CascadeNode, CascadeProps } from '@ultra-ui/desktop/types'
 import {
@@ -11,7 +11,7 @@ import {
 
 interface DataMapOptions {
   props: CascadeProps
-  forest: ComputedRef<Forest<CascadeNode>>
+  forest: ComputedRef<Forest<Record<string, unknown>, any>>
 }
 
 /** 数据映射相关逻辑 */
@@ -28,7 +28,7 @@ export function useDataMap(options: DataMapOptions): UseDataMapReturned {
 
     dataMap.value.clear()
 
-    forest.value.dft(node => {
+    forest.value.dfs(node => {
       const value = getChainValue(node.data, valueKey!)
       if (value !== null && value !== undefined) {
         dataMap.value.set(value, node)

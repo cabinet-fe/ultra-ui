@@ -1,4 +1,4 @@
-import { TreeNode } from 'cat-kit'
+import { TreeNode } from '@cat-kit/core'
 import { isReactive, shallowReactive } from 'vue'
 
 
@@ -10,10 +10,7 @@ export class TableRowNode<
 > extends TreeNode<Data> {
   /** 索引路径 */
   get indexes(): number[] {
-    const isVirtualRoot = this.depth === 0 && !this.isLeaf
-    if (isVirtualRoot) return []
     if (!this.parent) return [this.index]
-    if (this.depth === 1) return [this.index]
     return this.parent.indexes.concat(this.index)
   }
 
@@ -41,16 +38,24 @@ export class TableRowNode<
    *
    * @param data 一个普通对象或者一个响应式对象
    * @param index 索引值
+   * @param depth 深度（根为 0）
+   * @param parent 父行节点
    * @param uid 行唯一标识
    * @returns
    */
-  constructor(options: { data: Data; index: number; uid: number | string }) {
-    const { data, index, uid } = options
+  constructor(options: {
+    data: Data
+    index: number
+    depth: number
+    parent?: TableRowNode<Data> | null
+    uid: number | string
+  }) {
+    const { data, index, depth, parent, uid } = options
 
     if (!data) {
-      super(data, index)
+      super(data as Data, index, depth, parent ?? undefined)
     } else {
-      super(isReactive(data) ? data : shallowReactive(data), index)
+      super(isReactive(data) ? data : shallowReactive(data), index, depth, parent ?? undefined)
     }
     this.uid = uid
     return shallowReactive(this)
@@ -61,6 +66,8 @@ export class TableRowNode<
     const row = new TableRowNode({
       data: this.data,
       index: this.index,
+      depth: this.depth,
+      parent: this.parent ?? undefined,
       uid: `expand_${this.uid}`
     })
 

@@ -229,7 +229,7 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 - 已删除 `ui/` 目录；源码位于 `packages/utils`、`packages/compositions`、`packages/directives`、`packages/desktop`
 - 新增 `packages/ts-config`（共享 TS 预设：`browser.json`、`vue-library.json`、`node-tools.json`）；前端库包改为继承浏览器预设，不再误用 `tsconfig.node`
-- `@ultra-ui/desktop` 与 `apps/sample` 依赖 `@cat-kit/core` 与 `cat-kit`：通用工具走 `@cat-kit/core` 与 `@ultra-ui/utils`；`Tree`/`Forest`/`TreeNode` 暂从 `cat-kit` 包入口导入（与 v3 fe 同源），**禁止**再写 `cat-kit/fe` 子路径
+- `@ultra-ui/desktop` 与 `apps/sample` 仅依赖 `@cat-kit/core`（含 `Forest`/`TreeNode`/`dfs`/`bfs`）；树遍历语义差异由 `packages/desktop/src/utils/tree-walk.ts` 辅助函数承担
 - `packages/desktop` 全量组件与类型、`packages/utils` 工具与样式、`compositions`/`directives` 的 import 与 SCSS（`utils/src/styles/*` + Vite `loadPaths`）
 - `tools/cli`：`export`/`rename` 适配 `@cat-kit/be` 当前 `readDir` / `DirEntry` API；`tsconfig` 排除 `dist-tsc` 避免声明输出被当作输入
 - `tools/cli/shared.ts`、`gen-component/render-file.ts` 等；`apps/sample/`：`package.json`、`vite.config.ts`、演示页 import
@@ -243,3 +243,4 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 - patch-2: 修复 tools/build 对齐 packages/* 与 `turbo run build`
 - patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@ultra-ui/utils`（树结构暂保留 cat-kit 入口）
 - patch-4: 修复 v-ripple 在 inline 容器上 overflow:hidden 导致点击后异常变宽
+- patch-5: Tree/Forest/TreeNode 全面迁移至 @cat-kit/core，移除 cat-kit 依赖

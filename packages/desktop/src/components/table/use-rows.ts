@@ -1,6 +1,7 @@
 import { shallowRef, watch, type ShallowRef } from 'vue'
-import { Forest } from 'cat-kit'
+import { Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
+import { forestRootsDftPrune } from '../../utils/tree-walk'
 import { useModel } from '@ultra-ui/compositions'
 import type { TableColumn, TableEmits, TableProps, TableRow } from '@ultra-ui/desktop/types'
 import { TableRowNode } from './node/row'
@@ -12,7 +13,7 @@ interface Options {
 
 interface UseRowsReturned {
   /** 所有的行森林（树形数据） */
-  rowForest: ShallowRef<Forest<TableRow> | undefined>
+  rowForest: ShallowRef<Forest<Record<string, unknown>, any> | undefined>
   /** 当前可见的展平行列表 */
   rows: ShallowRef<TableRowNode[]>
   /** 切换树形行节点的展开/折叠 */
@@ -39,7 +40,7 @@ export function useRows(options: Options): UseRowsReturned {
   /** 数据行， 不包括展开和折叠的行 */
   const dataRows = shallowRef<TableRowNode[]>([])
   /** 行森林（数据结构树） */
-  const rowForest = shallowRef<Forest<TableRowNode>>()
+  const rowForest = shallowRef<Forest<Record<string, unknown>, any>>()
   /** 树形节点是否全部展开 */
   const allExpanded = shallowRef(props.defaultExpandAll ?? false)
 
@@ -70,15 +71,24 @@ export function useRows(options: Options): UseRowsReturned {
     : () => uidSeed++
 
   /** 创建或复用 TableRow 实例 */
-  const createRow = (data: Record<string, any>, index: number) => {
+  const createRow = (
+    data: Record<string, any>,
+    index: number,
+    depth = 0,
+    parent?: TableRowNode
+  ) => {
     const existRow = data ? rowDicts.get(data) : undefined
     if (existRow) {
       existRow.index = index
+      existRow.depth = depth
+      existRow.parent = parent
       return existRow
     }
     return new TableRowNode({
       data,
       index,
+      depth,
+      parent,
       uid: getRowUID(data)
     })
   }
@@ -117,18 +127,20 @@ export function useRows(options: Options): UseRowsReturned {
   }
 
   /** 处理树形森林结构 */
-  function getRowForest(data: Record<string, any>[]): Forest<TableRowNode> {
+  function getRowForest(data: Record<string, any>[]): Forest<Record<string, unknown>, any> {
     tempRowDicts = new WeakMap()
-    const ret = Forest.create(data, {
-      createNode(val, index) {
-        const row = createRow(val, index)
+    const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
+    const ret = new Forest<Record<string, unknown>, any>({
+      data,
+      childrenKey,
+      createNode(val, index, depth, _forest, parent) {
+        const row = createRow(val, index, depth, parent)
         if (props.defaultExpandAll) {
           row.expanded = true
         }
         val && tempRowDicts!.set(val, row)
         return row
-      },
-      childrenKey: typeof props.tree === 'string' ? props.tree : 'children'
+      }
     })
 
     rowDicts = tempRowDicts
@@ -140,15 +152,20 @@ export function useRows(options: Options): UseRowsReturned {
   function updateFlattedRows(): void {
     if (!rowForest.value) return
     const result: TableRowNode[] = []
+    const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
 
-    rowForest.value.dft(node => {
-      // 深度优先遍历：如果是根节点(depth===1)或父节点已展开，则该节点可见
-      if (node.parent?.expanded || node.depth === 1) {
-        result.push(node)
-        return true
-      }
-      return false
-    })
+    forestRootsDftPrune(
+      rowForest.value.roots,
+      node => {
+        // 深度优先：根行 (depth===0) 或父节点已展开时可见；不可见则不再深入子树
+        if (node.parent?.expanded || node.depth === 0) {
+          result.push(node)
+          return
+        }
+        return false
+      },
+      childrenKey
+    )
 
     rows.value = result
   }
@@ -208,7 +225,7 @@ export function useRows(options: Options): UseRowsReturned {
   function toggleAllTreeRowExpand(): void {
     allExpanded.value = !allExpanded.value
     if (props.tree) {
-      rowForest.value?.dft(node => {
+      rowForest.value?.dfs(node => {
         node.expanded = allExpanded.value
       })
       updateFlattedRows()

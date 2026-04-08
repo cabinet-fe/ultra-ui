@@ -1,5 +1,5 @@
 import type { TreeEmit, TreeProps } from '@ultra-ui/desktop/types'
-import { Tree } from 'cat-kit'
+import { dfs } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import { nextTick, watch, type ComputedRef } from 'vue'
 
@@ -77,9 +77,14 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       checkNode(node)
     } else {
-      Tree.dft(node, (node) => {
-        !node.disabled && checkNode(node)
-      })
+      dfs(
+        node as unknown as Record<string, unknown>,
+        n => {
+          const tn = n as unknown as TreeNode
+          !tn.disabled && checkNode(tn)
+        },
+        props.childrenKey ?? 'children'
+      )
     }
 
     // 非严格选择时还需要更新祖先节点，
@@ -88,7 +93,7 @@ export function useCheck(options: Options): UseCheckReturned {
       node.bubbleSet((node) => {
         const { parent } = node
 
-        if (parent && parent.depth > 0) {
+        if (parent) {
           const parentChecked = parent.childrenCheckCount === parent.children!.length
 
           parentChecked ? checkNode(parent) : uncheckNode(parent)
@@ -102,16 +107,21 @@ export function useCheck(options: Options): UseCheckReturned {
     if (ctrlKey) {
       uncheckNode(node)
     } else {
-      Tree.dft(node, (node) => {
-        !node.disabled && uncheckNode(node)
-      })
+      dfs(
+        node as unknown as Record<string, unknown>,
+        n => {
+          const tn = n as unknown as TreeNode
+          !tn.disabled && uncheckNode(tn)
+        },
+        props.childrenKey ?? 'children'
+      )
     }
 
     // 非严格模式下，取消选中时，需要更新父节点
     if (!checkStrictly) {
       node.bubbleSet((node) => {
         const { parent } = node
-        if (parent && parent.depth > 0) {
+        if (parent) {
           uncheckNode(parent)
         }
       })

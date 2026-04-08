@@ -1,9 +1,9 @@
 import type { ShallowRef } from 'vue'
 import type { TreeNode } from './tree-node'
-import type { Forest } from 'cat-kit'
+import type { Forest } from '@cat-kit/core'
 
 interface Options {
-  forest: ShallowRef<Forest<TreeNode>>
+  forest: ShallowRef<Forest<Record<string, unknown>, any>>
   getFlattedNodes: () => void
 }
 
@@ -36,7 +36,7 @@ export function useFilter(options: Options): UseFilterReturned {
     node.visible = true
     let parent = node.parent
 
-    while (parent && parent.depth !== 0 && !traceCache.has(parent)) {
+    while (parent && !traceCache.has(parent)) {
       traceCache.add(parent)
       parent.expanded = true
       parent.visible = true
@@ -57,7 +57,7 @@ export function useFilter(options: Options): UseFilterReturned {
         ? (node: TreeNode) => defaultFilter(node, filterMethod)
         : filterMethod
 
-    forest.value.dft(node => {
+    forest.value.dfs(node => {
       if (filterFn(node)) {
         trace(node)
       } else {

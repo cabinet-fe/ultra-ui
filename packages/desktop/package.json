@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@cat-kit/core": "^1.0.0",
-    "cat-kit": "^3.7.15",
     "@ultra-ui/utils": "workspace:*",
     "@ultra-ui/compositions": "workspace:*",
     "@ultra-ui/directives": "workspace:*",

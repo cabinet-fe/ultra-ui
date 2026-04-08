@@ -1,7 +1,8 @@
 import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
 import { TreeNode } from './tree-node'
 import type { TreeProps } from '@ultra-ui/desktop/types'
-import { Forest } from 'cat-kit'
+import { Forest } from '@cat-kit/core'
+import { forestRootsDftPrune } from '../../utils/tree-walk'
 
 interface Options {
   props: TreeProps
@@ -9,7 +10,7 @@ interface Options {
 
 interface UseTreeNodesReturned {
   nodes: ShallowRef<TreeNode[]>
-  forest: ComputedRef<Forest<TreeNode>>
+  forest: ComputedRef<Forest<Record<string, unknown>, any>>
   getFlattedNodes: () => void
   nodeDict: ComputedRef<Map<string | number, TreeNode>>
 }
@@ -19,11 +20,20 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   /** 森林 */
   const forest = computed(() => {
     const { disabledNode, expandAll = false, valueKey, labelKey } = props
+    const childrenKey = props.childrenKey ?? 'children'
 
-    function createNode(data: Record<string, any>, index: number) {
+    function createNode(
+      data: Record<string, any>,
+      index: number,
+      depth: number,
+      _f: Forest<Record<string, unknown>, any>,
+      parent?: TreeNode
+    ) {
       const node = new TreeNode({
         data,
         index,
+        depth,
+        parent: parent ?? null,
         valueKey: valueKey!,
         labelKey: labelKey!
       })
@@ -31,16 +41,19 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
       return node
     }
 
-    return Forest.create(props.data!, {
+    return new Forest<Record<string, unknown>, any>({
+      data: props.data! as Record<string, unknown>[],
+      childrenKey,
       createNode: disabledNode
-        ? (data, index) => {
-            const node = createNode(data, index)
+        ? (data, index, depth, f, parent) => {
+            const node = createNode(data as Record<string, any>, index, depth, f, parent as TreeNode)
             if (data) {
               node.disabled = disabledNode(data, node) ?? false
             }
             return node
           }
-        : createNode
+        : (data, index, depth, f, parent) =>
+            createNode(data as Record<string, any>, index, depth, f, parent as TreeNode)
     })
   })
 
@@ -53,7 +66,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const nodeDict = computed(() => {
     const dict = new Map<string | number, TreeNode>()
 
-    forest.value.dft(node => {
+    forest.value.dfs(node => {
       dict.set(node.key, node)
     })
 
@@ -63,10 +76,15 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   /** 获取碾平后的节点 */
   function getFlattedNodes() {
     const _nodes: TreeNode[] = []
-    forest.value.dft(node => {
-      node.visible && _nodes.push(node)
-      if (!node.expanded) return false
-    })
+    const childrenKey = props.childrenKey ?? 'children'
+    forestRootsDftPrune(
+      forest.value.roots,
+      node => {
+        node.visible && _nodes.push(node)
+        if (!node.expanded) return false
+      },
+      childrenKey
+    )
     nodes.value = _nodes
   }
 

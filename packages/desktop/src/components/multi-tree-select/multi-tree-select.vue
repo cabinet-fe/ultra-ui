@@ -107,7 +107,7 @@ import { UButton } from '../button'
 import { ArrowDown, Close, Search } from '@ultra/icon'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 import { UCheckbox } from '../checkbox'
-import { Tree } from 'cat-kit'
+import { dfs } from '@cat-kit/core'
 import { omit } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import type { TreeSlotsScope } from '../tree/di'
@@ -235,7 +235,7 @@ watch(
     } else {
       const newDict = new Map()
       data.forEach((item) => {
-        Tree.dft(
+        dfs(
           item,
           (v) => {
             newDict.set(v[props.valueKey], v)

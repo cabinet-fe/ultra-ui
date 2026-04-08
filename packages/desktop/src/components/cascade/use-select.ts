@@ -4,10 +4,11 @@ import {
   shallowRef,
   triggerRef,
   watch,
-  type ShallowRef,
-  type ComputedRef
+  type ComputedRef,
+  type Ref,
+  type ShallowRef
 } from 'vue'
-import { Forest } from 'cat-kit'
+import { Forest } from '@cat-kit/core'
 import type {
   CascadeProps,
   CascadeEmits,
@@ -22,9 +23,9 @@ interface SelectOptions {
   props: CascadeProps
   emit: CascadeEmits
   updater: Updater
-  forest: ShallowRef<Forest<CascadeNode>>
-  dataMap: ShallowRef<Map<string, CascadeNode>>
-  dropdownRef: ShallowRef<DropdownExposed | undefined>
+  forest: Ref<Forest<Record<string, unknown>, any>>
+  dataMap: Ref<Map<string, CascadeNode>>
+  dropdownRef: Ref<DropdownExposed | undefined>
 }
 
 interface UseSelectReturned {
@@ -143,10 +144,10 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
     if (modelValue && typeof modelValue === 'string') {
       const nodes = modelValue.split(separator!)
       selectedNodeKeys.value = nodes
-      getPanelItemList(forest.value.nodes)
+      getPanelItemList(forest.value.roots)
     } else {
       selectedNodeKeys.value = []
-      getPanelItemList(forest.value.nodes)
+      getPanelItemList(forest.value.roots)
     }
   }
 

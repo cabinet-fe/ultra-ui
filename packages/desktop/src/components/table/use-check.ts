@@ -18,13 +18,13 @@ import type {
   ComponentSize
 } from '@ultra-ui/desktop/types'
 import { UCheckbox } from '../checkbox'
-import { type Forest } from 'cat-kit'
+import { dfs, type Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import type { BEM } from '@ultra-ui/utils'
 
 interface Options {
   rows: ShallowRef<TableRow[] | undefined>
-  rowForest: ShallowRef<Forest<TableRow> | undefined>
+  rowForest: ShallowRef<Forest<Record<string, unknown>, any> | undefined>
   props: TableProps
   emit: TableEmits<any>
   size: ComputedRef<ComponentSize>
@@ -182,12 +182,12 @@ export function useCheck(options: Options): UseCheckReturned {
 
   function handleCheckAllTree(check: boolean) {
     if (check) {
-      rowForest.value?.dft(row => {
+      rowForest.value?.dfs(row => {
         row.checked = true
         checkedRows.value.add(row)
       })
     } else {
-      rowForest.value?.dft(row => {
+      rowForest.value?.dfs(row => {
         row.checked = false
       })
       checkedRows.value.clear()
@@ -223,10 +223,16 @@ export function useCheck(options: Options): UseCheckReturned {
       ? (row: TableRow) => checkedRows.value.add(row)
       : (row: TableRow) => checkedRows.value.delete(row)
 
-    row.dft(node => {
-      node.checked = check
-      cb(node)
-    })
+    const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
+    dfs(
+      row as unknown as Record<string, unknown>,
+      node => {
+        const r = node as unknown as TableRow
+        r.checked = check
+        cb(r)
+      },
+      childrenKey
+    )
 
     triggerCheckedRows()
   }

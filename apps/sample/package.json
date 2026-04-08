@@ -10,7 +10,6 @@
   "dependencies": {
     "@builder/vite": "^2.1.2",
     "@cat-kit/core": "^1.0.0",
-    "cat-kit": "^3.7.15",
     "@ultra-ui/desktop": "workspace:*",
     "@ultra-ui/utils": "workspace:*",
     "@ultra/icon": "^1.0.1",

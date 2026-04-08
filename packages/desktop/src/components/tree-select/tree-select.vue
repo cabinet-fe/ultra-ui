@@ -68,7 +68,7 @@ import { UInput } from '../input'
 import { UIcon } from '../icon'
 import { ArrowDown, Search } from '@ultra/icon'
 import { computed, nextTick, shallowRef, watch } from 'vue'
-import { Tree } from 'cat-kit'
+import { dfs } from '@cat-kit/core'
 import { getChainValue, omit } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import type { TreeSlotsScope } from '../tree/di'
@@ -152,14 +152,19 @@ watch(
     }
 
     let founded = false
-    data.some((item) => {
-      Tree.dft(item, (v) => {
-        if (v[props.valueKey] === model) {
-          label.value = v[props.labelKey]
-          founded = true
-          return false
-        }
-      })
+    const childrenKey = props.childrenKey ?? 'children'
+    data.some(item => {
+      dfs(
+        item,
+        v => {
+          if (v[props.valueKey] === model) {
+            label.value = v[props.labelKey]
+            founded = true
+            return true
+          }
+        },
+        childrenKey
+      )
 
       return founded
     })

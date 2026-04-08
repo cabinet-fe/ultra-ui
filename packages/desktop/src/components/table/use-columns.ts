@@ -1,18 +1,11 @@
+import { Forest, dfs, last } from '@cat-kit/core'
 import type { TableColumn, TableProps } from '@ultra-ui/desktop/types'
-import { last } from '@cat-kit/core'
-import { Forest, Tree } from 'cat-kit'
-import {
-  computed,
-  createVNode,
-  shallowRef,
-  watch,
-  type ComputedRef,
-  type ShallowRef
-} from 'vue'
-import { UButton } from '../button'
-import { ArrowRight } from '@ultra/icon'
-import { UIcon } from '../icon'
 import { type BEM } from '@ultra-ui/utils'
+import { ArrowRight } from '@ultra/icon'
+import { computed, createVNode, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
+
+import { UButton } from '../button'
+import { UIcon } from '../icon'
 import { ColumnNode } from './node/col'
 
 /**
@@ -23,8 +16,8 @@ export function defineTableColumns(
   columns: TableColumn[],
   commonProps?: Partial<Pick<TableColumn, 'align' | 'minWidth'>>
 ): TableColumn[] {
-  columns.forEach(col => {
-    Tree.dft(col, node => {
+  columns.forEach((col) => {
+    dfs(col, (node) => {
       for (const key in commonProps) {
         if (node[key] !== undefined) continue
         node[key] = commonProps[key]
@@ -60,13 +53,7 @@ interface Options {
 }
 
 export function useColumns(options: Options): ColumnConfig {
-  const {
-    props,
-    createCheckColumn,
-    createSelectColumn,
-    toggleAllTreeRowExpand,
-    cls
-  } = options
+  const { props, createCheckColumn, createSelectColumn, toggleAllTreeRowExpand, cls } = options
 
   /** 前置列 */
   const preColumns = computed<TableColumn[]>(() => {
@@ -97,7 +84,7 @@ export function useColumns(options: Options): ColumnConfig {
     return columns
   })
 
-  const columnForest = shallowRef<Forest<ColumnNode>>()
+  const columnForest = shallowRef<Forest<Record<string, unknown>, any>>()
 
   const renderExpandAll = () =>
     createVNode(
@@ -109,7 +96,7 @@ export function useColumns(options: Options): ColumnConfig {
         type: 'primary',
         size: 'small',
         circle: true,
-        onClick: e => {
+        onClick: (e) => {
           e.stopPropagation()
           toggleAllTreeRowExpand()
         }
@@ -127,7 +114,7 @@ export function useColumns(options: Options): ColumnConfig {
       /** 固定到右侧的列 */
       const fixedOnRight: TableColumn[] = []
 
-      columns?.forEach(column => {
+      columns?.forEach((column) => {
         if (!column.fixed || column.children) {
           column.fixed = undefined
           return unfixed.push(column)
@@ -155,28 +142,24 @@ export function useColumns(options: Options): ColumnConfig {
       // 因此要重新设置第一列的宽度和对齐方式
       if ((!!tree || expandable) && firstColumn) {
         firstColumn.align = 'left'
-        firstColumn.width = firstColumn.width
-          ? firstColumn.width + 60
-          : undefined
+        firstColumn.width = firstColumn.width ? firstColumn.width + 60 : undefined
 
         const oldNameRender = firstColumn.nameRender
 
         firstColumn.nameRender = oldNameRender
-          ? ctx => {
-            const oldNodes = oldNameRender!(ctx)
-            return [
-              renderExpandAll(),
-              ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])
-            ]
-          }
+          ? (ctx) => {
+              const oldNodes = oldNameRender!(ctx)
+              return [renderExpandAll(), ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])]
+            }
           : () => {
-            return [renderExpandAll(), firstColumn.name]
-          }
+              return [renderExpandAll(), firstColumn.name]
+            }
       }
 
-      const result = Forest.create(sortedColumns, {
-        createNode(data, index) {
-          return new ColumnNode(data, index)
+      const result = new Forest({
+        data: sortedColumns,
+        createNode(data, index, depth, _f, parent) {
+          return new ColumnNode(data, index, depth, parent)
         }
       })
 
@@ -190,7 +173,7 @@ export function useColumns(options: Options): ColumnConfig {
 
     let currentLayer: ColumnNode[] = []
     let layerDepth = -1
-    columnForest.value?.bft(node => {
+    columnForest.value?.bfs((node) => {
       if (layerDepth !== node.depth) {
         if (currentLayer.length) {
           headers.push(currentLayer)
@@ -201,14 +184,16 @@ export function useColumns(options: Options): ColumnConfig {
         currentLayer.push(node)
       }
     })
-    currentLayer.length && headers.push(currentLayer)
+    if (currentLayer.length) {
+      headers.push(currentLayer)
+    }
     currentLayer = []
 
     // 从叶子节点开始回溯计算每个节点的累计叶子节点数量，叶子节点数量代表表头的宽度
     for (let i = headers.length - 1; i > 0; i--) {
       const header = headers[i]!
 
-      header.forEach(node => {
+      header.forEach((node) => {
         const parent = node.parent!
         if (parent.leafs !== undefined) return
         parent.leafs = parent.children!.reduce((sum, node) => {
@@ -234,7 +219,7 @@ export function useColumns(options: Options): ColumnConfig {
     ([forest, tree, expandable]) => {
       const _columns: ColumnNode[] = []
 
-      forest?.dft(node => {
+      forest?.dfs((node) => {
         if (node.isLeaf) {
           _columns.push(node)
         }
@@ -252,8 +237,6 @@ export function useColumns(options: Options): ColumnConfig {
     },
     { immediate: true }
   )
-
-
 
   return {
     /** 第一列 */

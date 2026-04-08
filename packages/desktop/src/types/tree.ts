@@ -1,11 +1,11 @@
-import type { TreeNode as _TreeNode, Forest } from 'cat-kit'
+import type { Forest, ITreeNode } from '@cat-kit/core'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface TreeNode<
   Data extends Record<string, any> = Record<string, any>
-> extends _TreeNode<Data> {
-  parent: TreeNode<Data> | null
+> extends ITreeNode<Data, TreeNode<Data>> {
+  parent?: TreeNode<Data> | null
   children?: TreeNode<Data>[]
   valueKey: string
   labelKey: string
@@ -96,7 +96,7 @@ export interface _TreeExposed {
    * @param filter 过滤器或一个字符串
    */
   filter(filter: string | ((node: TreeNode) => boolean)): void
-  forest: ComputedRef<Forest<TreeNode>>
+  forest: ComputedRef<Forest<Record<string, unknown>, any>>
   nodes: ShallowRef<TreeNode[]>
   /** 多选选择节点 */
   checkNode: (node: TreeNode, check: boolean) => void

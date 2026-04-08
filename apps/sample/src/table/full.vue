@@ -64,7 +64,7 @@
 import { defineTableColumns } from 'ultra-ui'
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 import CustomCard from '../card/custom-card.vue'
-import { Tree } from 'cat-kit'
+import { dfs } from '@cat-kit/core'
 
 const state = shallowReactive({
   checkable: false,
@@ -190,7 +190,7 @@ watch(
     } else {
       let r: any[] = []
 
-      Tree.dft({ children: _columns }, item => {
+      dfs({ children: _columns }, item => {
         if (item.children?.length) return
         r.push(item)
       })

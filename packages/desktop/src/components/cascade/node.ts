@@ -10,15 +10,13 @@ export class CascadeNode<T extends Record<string, any>> extends TreeNode<T, Casc
   constructor(options: {
     data: Record<string, any>
     index: number
+    depth: number
     value: string
     label: string
-    parent?: CascadeNode
+    parent?: CascadeNode<T>
   }) {
-    const { data, index, parent, value, label } = options
-    super(data, index)
-    if (parent) {
-      this.parent = parent
-    }
+    const { data, index, depth, parent, value, label } = options
+    super(data as T, index, depth, parent)
     this.value = value
     this.label = label
 

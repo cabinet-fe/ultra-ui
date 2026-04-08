@@ -1,5 +1,5 @@
 import type { CascadeProps, CascadeEmits, CascadeNode } from '@ultra-ui/desktop/types'
-import type { Forest } from 'cat-kit'
+import { dfs, type Forest } from '@cat-kit/core'
 import {
   computed,
   shallowRef,
@@ -17,7 +17,7 @@ interface CheckOptions {
   dataMap: ShallowRef<Map<string, CascadeNode>>
   disabled: Ref<boolean>
   readonly: Ref<boolean>
-  forest: ComputedRef<Forest<CascadeNode>>
+  forest: Ref<Forest<Record<string, unknown>, any>>
   updater: Updater
   getPanelItemList: (data?: CascadeNode[]) => void
 }
@@ -92,14 +92,15 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
   }
 
   function checkItem(item: CascadeNode, checked: boolean) {
+    const childrenKey = props.childrenKey ?? 'children'
     if (checked) {
-      item.dft(node => {
-        checkedSet.value.add(node)
-      })
+      dfs(item as unknown as Record<string, unknown>, node => {
+        checkedSet.value.add(node as unknown as CascadeNode)
+      }, childrenKey)
     } else {
-      item.dft(node => {
-        checkedSet.value.delete(node)
-      })
+      dfs(item as unknown as Record<string, unknown>, node => {
+        checkedSet.value.delete(node as unknown as CascadeNode)
+      }, childrenKey)
     }
 
     triggerRef(checkedSet)

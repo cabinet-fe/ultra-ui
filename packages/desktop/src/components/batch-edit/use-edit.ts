@@ -13,7 +13,7 @@ import type {
   TableExposed
 } from '@ultra-ui/desktop/types'
 import { last, safeRun } from '@cat-kit/core'
-import { Forest } from 'cat-kit'
+import { visitDataTreeByPath } from '../../utils/tree-walk'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
 
 interface Options {
@@ -122,7 +122,7 @@ export function useEdit(options: Options): EditReturned {
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
 
-    const parent = Forest.visit(
+    const parent = visitDataTreeByPath(
       data ?? [],
       insertIndexes.value.slice(0, -1),
       childrenKey.value
@@ -276,7 +276,7 @@ export function useEdit(options: Options): EditReturned {
 
     const data = [...(props.data ?? [])]
 
-    const parent = Forest.visit(
+    const parent = visitDataTreeByPath(
       data,
       row.indexes.slice(0, -1),
       childrenKey.value

@@ -1,13 +1,13 @@
-import { TreeNode as _TreeNode } from 'cat-kit'
+import { TreeNode as CoreTreeNode } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import { shallowReactive } from 'vue'
 
 export class TreeNode<
   Val extends Record<string, any> = Record<string, any>
-> extends _TreeNode<Val> {
-  override parent: TreeNode<Val> | null = null
+> extends CoreTreeNode<Val, TreeNode<Val>> {
+  declare parent?: TreeNode<Val>
 
-  override children?: TreeNode<Val>[] = undefined
+  declare children?: TreeNode<Val>[]
 
   expanded = false
   loading = false
@@ -33,15 +33,13 @@ export class TreeNode<
   constructor(params: {
     data: Val
     index: number
-    parent?: any
+    depth: number
+    parent?: TreeNode<Val> | null
     labelKey: string
     valueKey: string
   }) {
-    const { data, index, parent, labelKey, valueKey } = params
-    super(data, index)
-    if (parent) {
-      this.parent = parent
-    }
+    const { data, index, depth, parent, labelKey, valueKey } = params
+    super(data, index, depth, parent ?? undefined)
     this.labelKey = labelKey
     this.valueKey = valueKey
 

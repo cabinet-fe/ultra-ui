@@ -32,7 +32,7 @@ bunx turbo build --dry-run                     # Turborepo 任务拓扑（dry-ru
 | 格式化    | oxfmt + oxlint                             | -             |
 | Monorepo  | Turborepo + workspaces                     | -             |
 | Git Hooks | simple-git-hooks (commit-msg)              | -             |
-| 核心依赖  | `@cat-kit/core`（日期/数值/定时器等）、`cat-kit`（仅 `Tree`/`Forest`/`TreeNode` 等 v3 数据结构 API；勿再用 `cat-kit/fe` 子路径）、`@ultra-ui/utils`（`getChainValue`/`Tween`/`pick` 等与 v3 fe 对齐的辅助）、`@cat-kit/be`（CLI/构建）、`@ultra/icon` | peer / deps   |
+| 核心依赖  | `@cat-kit/core`（日期/数值/定时器、`TreeNode`/`Forest`/`dfs`/`bfs` 等数据结构 API）、`@ultra-ui/utils`（`getChainValue`/`Tween`/`pick` 等与 v3 fe 对齐的辅助）、`@cat-kit/be`（CLI/构建）、`@ultra/icon` | peer / deps   |
 
 ## 目录结构
 

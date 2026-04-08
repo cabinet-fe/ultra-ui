@@ -1,4 +1,4 @@
-import type { Forest, TreeNode } from 'cat-kit'
+import type { Forest, TreeNode } from '@cat-kit/core'
 import type { DeconstructValue, RenderReturn } from '@ultra-ui/utils/types/helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
 import type { ComponentSize } from '@ultra-ui/utils/types/component-common'
@@ -226,7 +226,7 @@ export interface TableEmits<
   /** 行数据更新 */
   (e: 'update:rows', rows: TableRow[]): void
   /** 树形数据森林结构更新 */
-  (e: 'update:forest', rows?: Forest<TableRow>): void
+  (e: 'update:forest', rows?: Forest<Record<string, unknown>, any>): void
   /**
    * 行点击事件
    */
