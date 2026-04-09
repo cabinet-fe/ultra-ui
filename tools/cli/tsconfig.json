@@ -4,10 +4,10 @@
     "composite": true,
     "declaration": true,
     "rootDir": ".",
-    "outDir": "./dist-tsc",
+    "outDir": "./dist",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist-tsc"]
+  "exclude": ["node_modules", "dist"]
 }
