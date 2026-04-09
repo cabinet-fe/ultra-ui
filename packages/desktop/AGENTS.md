@@ -8,6 +8,7 @@
 src/
 ├── index.ts              # export * from './components' + export type * from './types'
 ├── install.ts            # UltraUI 全局注册函数（组件 + 指令 + 样式）
+├── styles/               # 全局 normalize.scss + anime/ 过渡 SCSS（组件 style.ts 相对路径引入）
 ├── components/           # 组件目录（~70 个子目录）
 │   ├── <name>/           # 单个组件
 │   │   ├── <name>.vue    # 主组件 SFC

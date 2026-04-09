@@ -1,5 +1,9 @@
 import { dirname, join, relative, resolve, sep } from 'node:path'
+
+import type { ModuleFormat, Plugin } from 'rolldown'
 import { compileAsync } from 'sass-embedded'
+import { build as tsdownBuild } from 'tsdown'
+
 import {
   DESKTOP_SRC,
   DIRECTIVES_SRC,
@@ -8,8 +12,6 @@ import {
   UTILS_SRC,
   workspaceTsAliases
 } from './shared'
-import { build as tsdownBuild } from 'tsdown'
-import type { ModuleFormat, Plugin } from 'rolldown'
 
 const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
@@ -32,10 +34,7 @@ function scssDistRelativePath(absolutePath: string): string {
     return relative(UTILS_SRC, absolutePath).replace(/\.scss$/, '.css')
   }
   if (isUnderDir(DIRECTIVES_SRC, absolutePath)) {
-    return join('directives', relative(DIRECTIVES_SRC, absolutePath)).replace(
-      /\.scss$/,
-      '.css'
-    )
+    return join('directives', relative(DIRECTIVES_SRC, absolutePath)).replace(/\.scss$/, '.css')
   }
   throw new Error(`Unexpected scss path: ${absolutePath}`)
 }
@@ -49,9 +48,7 @@ function scssPlugin(): Plugin {
       async handler(source, importer) {
         if (!importer) return null
 
-        const resolved = await this.resolve(source, importer, {
-          skipSelf: true
-        })
+        const resolved = await this.resolve(source, importer, { skipSelf: true })
         if (!resolved) return null
 
         const absolutePath = resolved.id
@@ -67,20 +64,14 @@ function scssPlugin(): Plugin {
               const result = await compileAsync(absolutePath, {
                 loadPaths: [PACKAGES, dirname(absolutePath)]
               })
-              compiledScssMap.set(absolutePath, {
-                css: result.css,
-                outputPath: cssOutputPath
-              })
+              compiledScssMap.set(absolutePath, { css: result.css, outputPath: cssOutputPath })
             } catch (error) {
               console.error(`Failed to compile SCSS: ${absolutePath}`, error)
               throw error
             }
           }
 
-          let relPath = relative(
-            dirname(importer),
-            absolutePath.replace(/\.scss$/, '.css')
-          )
+          let relPath = relative(dirname(importer), absolutePath.replace(/\.scss$/, '.css'))
           if (!relPath.startsWith('.')) relPath = './' + relPath
           return { id: relPath, external: true }
         }
@@ -94,10 +85,7 @@ function scssPlugin(): Plugin {
         let relativePath = relative(dirname(importer), targetPath)
         if (!relativePath.startsWith('.')) relativePath = './' + relativePath
 
-        return {
-          id: relativePath,
-          external: true
-        }
+        return { id: relativePath, external: true }
       }
     },
 
@@ -105,11 +93,7 @@ function scssPlugin(): Plugin {
       for (const [_scssPath, { css, outputPath }] of compiledScssMap) {
         const fileName = relative(DIST_ROOT, outputPath)
 
-        this.emitFile({
-          type: 'asset',
-          fileName,
-          source: css
-        })
+        this.emitFile({ type: 'asset', fileName, source: css })
       }
 
       compiledScssMap.clear()
@@ -133,18 +117,8 @@ export async function buildStyles() {
   await tsdownBuild({
     ...styleBuildBase,
     cwd: DESKTOP_SRC,
-    entry: ['components/**/style.ts']
+    entry: ['components/**/style.ts', 'styles/index.ts']
   })
 
-  await tsdownBuild({
-    ...styleBuildBase,
-    cwd: DIRECTIVES_SRC,
-    entry: ['**/style.ts']
-  })
-
-  await tsdownBuild({
-    ...styleBuildBase,
-    cwd: UTILS_SRC,
-    entry: ['styles/index.ts']
-  })
+  await tsdownBuild({ ...styleBuildBase, cwd: DIRECTIVES_SRC, entry: ['**/style.ts'] })
 }

@@ -77,9 +77,7 @@ export class Tween<State extends Record<string, number> = Record<string, number>
       onComplete: () => {
         for (const key in state) {
           if (key in this.state) {
-            ;(this.state as Record<string, number>)[key] = state[
-              key as keyof State
-            ] as number
+            ;(this.state as Record<string, number>)[key] = state[key as keyof State] as number
           }
         }
         this.onUpdate?.(this.state)
@@ -88,9 +86,7 @@ export class Tween<State extends Record<string, number> = Record<string, number>
       tick: (progress) => {
         for (const key in stateDistance) {
           const pk = key as keyof State
-          const target =
-            (prevState[pk] as number) +
-            easingFunction(progress) * stateDistance[key]!
+          const target = (prevState[pk] as number) + easingFunction(progress) * stateDistance[key]!
           ;(this.state as Record<string, number>)[key] = target
         }
         this.onUpdate?.(this.state)
@@ -113,11 +109,9 @@ export class Tween<State extends Record<string, number> = Record<string, number>
     linear: (p: number) => p,
     easeInQuad: (p: number) => p * p,
     easeOutQuad: (p: number) => p * (2 - p),
-    easeInOutQuad: (p: number) =>
-      p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p,
+    easeInOutQuad: (p: number) => (p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p),
     easeInBack: (p: number) => p * p * ((2.70158 + 1) * p - 1),
-    easeOutBack: (p: number) =>
-      1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2),
+    easeOutBack: (p: number) => 1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2),
     easeInOutBack: (p: number) => {
       const c1 = 1.70158
       const c2 = c1 * 1.525

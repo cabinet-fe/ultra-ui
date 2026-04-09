@@ -1,9 +1,5 @@
 /** BEM实例 */
-export type BEM<
-  N extends string,
-  P extends string = 'u-',
-  B extends string = `${P}${N}`
-> = {
+export type BEM<N extends string, P extends string = 'u-', B extends string = `${P}${N}`> = {
   /** BEM中的块 */
   b: B
 
@@ -33,10 +29,7 @@ export type BEM<
    * @param m 修饰符名
    * @returns
    */
-  em<const E extends string, const M extends string>(
-    e: E,
-    m: M
-  ): `${B}__${E}--${M}`
+  em<const E extends string, const M extends string>(e: E, m: M): `${B}__${E}--${M}`
 }
 
 /** BEM工厂 */
@@ -62,9 +55,7 @@ export interface BEMFactory<Prefix extends string> {
  * 创建一个bem函数
  * @param prefix 前缀
  */
-export function makeBEM<Prefix extends '' | `${string}-`>(
-  prefix: Prefix
-): BEMFactory<Prefix> {
+export function makeBEM<Prefix extends '' | `${string}-`>(prefix: Prefix): BEMFactory<Prefix> {
   /**
    * css类命名辅助
    * @param name 类block名称

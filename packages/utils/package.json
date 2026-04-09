@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "type": "module",
   "sideEffects": [
-    "src/styles/**",
     "*.css",
     "*.scss"
   ],
@@ -42,16 +41,6 @@
       "types": "./src/types/*",
       "development": "./src/types/*",
       "import": "./src/types/*"
-    },
-    "./styles": {
-      "types": "./src/styles/index.ts",
-      "development": "./src/styles/index.ts",
-      "import": "./src/styles/index.ts"
-    },
-    "./styles/theme": {
-      "types": "./src/styles/theme.ts",
-      "development": "./src/styles/theme.ts",
-      "import": "./src/styles/theme.ts"
     },
     "./styles/*": {
       "sass": "./src/styles/*",

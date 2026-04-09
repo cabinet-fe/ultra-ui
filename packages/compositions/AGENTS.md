@@ -6,7 +6,8 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 
 | 模块 | 主要导出 | 用途 |
 | ---- | -------- | ---- |
-| `load-theme` | `loadTheme`, `setTheme`, `lightTheme`, `darkTheme` | 主题加载与切换（SSR 兼容需在 `onMounted` 中调用） |
+| `load-theme` | `loadTheme`, `setTheme`, `currentTheme` | 主题加载与切换（SSR 兼容需在 `onMounted` 中调用） |
+| `theme`（`@ultra-ui/compositions/theme`） | `UITheme`, `lightTheme`, `darkTheme`, `Theme` 类型, `cssVar`, `mixColor`, `HEXToRGB` 等 | 主题类、内置预设、全局 token 类型与颜色辅助 |
 | `use-component-props` | `useComponentProps` | 组件属性处理 |
 | `use-config` | `useConfig`, `setDocumentSize` | 全局配置（尺寸等） |
 | `use-drag` | `useDrag` | 拖拽行为 |

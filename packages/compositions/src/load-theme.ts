@@ -1,11 +1,15 @@
-import {
-  currentTheme,
-  darkTheme,
-  lightTheme,
-  UITheme,
-  setTheme
-} from '@ultra-ui/utils/styles/theme'
+import { shallowRef, type ShallowRef } from 'vue'
+
+import { darkTheme } from './theme/dark'
+import { lightTheme } from './theme/light'
+import { UITheme } from './theme/ui-theme'
 import { useConfig } from './use-config'
+
+export const currentTheme: ShallowRef<UITheme | undefined> = shallowRef<UITheme>()
+
+export function setTheme(mode: 'light' | 'dark' | 'auto'): void {
+  UITheme.setTheme(mode)
+}
 
 /**
  * @description 加载主题, 如果你是 SSR 环境,
@@ -40,5 +44,3 @@ export function loadTheme(theme?: UITheme): void {
     theme.render()
   }
 }
-
-export { darkTheme, lightTheme, setTheme }

@@ -14,12 +14,10 @@ const escapeRegexp = (term: string): string =>
  * @param substrings 需要匹配的字串列表
  */
 export function getHighlightChunks(str: string, substrings: string[]): HighlightChunk[] {
-  const _substrings = substrings
-    .filter(s => !!s)
-    .map(s => escapeRegexp(s.trim()))
+  const _substrings = substrings.filter((s) => !!s).map((s) => escapeRegexp(s.trim()))
   const re = new RegExp(`(${_substrings.join('|')})`, 'gi')
   return str
     .split(re)
     .filter(Boolean)
-    .map(text => ({ text, highlight: re.test(text) }))
+    .map((text) => ({ text, highlight: re.test(text) }))
 }

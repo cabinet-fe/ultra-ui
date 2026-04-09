@@ -11,7 +11,6 @@
     </div>
 
     <div :class="cls.e('toolbar')">
-
       <u-input
         v-model="keyword"
         :class="cls.e('search')"
@@ -43,142 +42,132 @@
           <span :class="cls.e('nav-main')">{{ section.title }}</span>
           <span :class="cls.e('nav-meta')">
             {{ section.visibleFields.length }}/{{ section.fields.length }}
-            <template v-if="section.changedCount">
-              · {{ section.changedCount }} 改动
-            </template>
+            <template v-if="section.changedCount"> · {{ section.changedCount }} 改动 </template>
           </span>
         </button>
       </div>
 
       <div :class="cls.e('panel')">
         <div v-if="activeState" :class="cls.e('panel-head')">
-        <div>
-          <h4 :class="cls.e('panel-title')">{{ activeState.title }}</h4>
-          <p :class="cls.e('panel-desc')">{{ activeState.description }}</p>
+          <div>
+            <h4 :class="cls.e('panel-title')">{{ activeState.title }}</h4>
+            <p :class="cls.e('panel-desc')">{{ activeState.description }}</p>
+          </div>
+
+          <div :class="cls.e('panel-count')">{{ activeState.visibleFields.length }} 项</div>
         </div>
 
-        <div :class="cls.e('panel-count')">
-          {{ activeState.visibleFields.length }} 项
-        </div>
-      </div>
+        <div v-if="activeState?.visibleFields.length" :class="cls.e('list')">
+          <div
+            v-for="field in activeState.visibleFields"
+            :key="field.key"
+            :class="[cls.e('item'), bem.is('changed', isFieldChanged(field))]"
+          >
+            <div :class="cls.e('item-head')">
+              <div :class="cls.e('item-copy')">
+                <label :class="cls.e('item-label')">{{ field.label }}</label>
+                <div :class="cls.e('item-meta')">
+                  <span :class="cls.e('item-code-label')">Theme</span>
+                  <code :class="cls.e('item-code')">{{ getThemePath(field.path) }}</code>
+                </div>
+                <div :class="cls.e('item-meta')">
+                  <span :class="cls.e('item-code-label')">CSS</span>
+                  <code :class="cls.e('item-code')">{{ getCssVarName(field.path) }}</code>
+                </div>
+              </div>
 
-      <div v-if="activeState?.visibleFields.length" :class="cls.e('list')">
-        <div
-          v-for="field in activeState.visibleFields"
-          :key="field.key"
-          :class="[cls.e('item'), bem.is('changed', isFieldChanged(field))]"
-        >
-          <div :class="cls.e('item-head')">
-            <div :class="cls.e('item-copy')">
-              <label :class="cls.e('item-label')">{{ field.label }}</label>
-              <div :class="cls.e('item-meta')">
-                <span :class="cls.e('item-code-label')">Theme</span>
-                <code :class="cls.e('item-code')">{{ getThemePath(field.path) }}</code>
-              </div>
-              <div :class="cls.e('item-meta')">
-                <span :class="cls.e('item-code-label')">CSS</span>
-                <code :class="cls.e('item-code')">{{ getCssVarName(field.path) }}</code>
-              </div>
+              <span v-if="isFieldChanged(field)" :class="cls.e('item-badge')"> 已修改 </span>
             </div>
 
-            <span v-if="isFieldChanged(field)" :class="cls.e('item-badge')">
-              已修改
-            </span>
+            <div v-if="field.kind === 'palette'" :class="cls.e('palette-field')">
+              <template v-if="field.path[0] === 'color'">
+                <div :class="cls.e('palette-custom')">
+                  <u-palette
+                    :model-value="String(getFieldValue(field) ?? '')"
+                    @update:model-value="(value) => updateField(field, value)"
+                  />
+                  <u-input
+                    :model-value="String(getFieldValue(field) ?? '')"
+                    placeholder="例如：#1E88E5"
+                    @update:model-value="(value) => updateField(field, value)"
+                  />
+                </div>
+              </template>
+              <template v-else>
+                <div :class="cls.e('palette-custom')">
+                  <u-palette
+                    :model-value="
+                      String(getFieldValue(field) ?? '').startsWith('var')
+                        ? ''
+                        : String(getFieldValue(field) ?? '')
+                    "
+                    @update:model-value="(value) => updateField(field, value)"
+                  />
+                  <u-input
+                    :model-value="String(getFieldValue(field) ?? '')"
+                    placeholder="输入颜色或变量"
+                    @update:model-value="(value) => updateField(field, value)"
+                  />
+                </div>
+                <div :class="cls.e('palette-var')">
+                  <span :class="cls.e('palette-var-label')">或选择变量</span>
+                  <u-select
+                    :model-value="
+                      String(getFieldValue(field) ?? '').startsWith('var')
+                        ? String(getFieldValue(field) ?? '')
+                        : ''
+                    "
+                    :options="colorVarOptions"
+                    clearable
+                    placeholder="选择预设变量"
+                    @update:model-value="(value) => updateField(field, value ?? '')"
+                  >
+                    <template #default="{ option }">
+                      <div style="display: flex; align-items: center; gap: 8px">
+                        <div
+                          :style="`width: 14px; height: 14px; border-radius: 4px; background: ${option.value}`"
+                        />
+                        <span style="font-size: 13px">{{ option.label }}</span>
+                      </div>
+                    </template>
+                  </u-select>
+                </div>
+              </template>
+            </div>
+
+            <component
+              v-else
+              :is="getFieldComponent(field)"
+              :model-value="getFieldValue(field)"
+              v-bind="getFieldProps(field)"
+              @update:model-value="(value) => updateField(field, value)"
+            />
+
+            <p v-if="field.hint || field.placeholder" :class="cls.e('item-hint')">
+              {{ field.hint ?? field.placeholder }}
+            </p>
           </div>
-
-          <div v-if="field.kind === 'palette'" :class="cls.e('palette-field')">
-            <template v-if="field.path[0] === 'color'">
-              <div :class="cls.e('palette-custom')">
-                <u-palette
-                  :model-value="String(getFieldValue(field) ?? '')"
-                  @update:model-value="value => updateField(field, value)"
-                />
-                <u-input
-                  :model-value="String(getFieldValue(field) ?? '')"
-                  placeholder="例如：#1E88E5"
-                  @update:model-value="value => updateField(field, value)"
-                />
-              </div>
-            </template>
-            <template v-else>
-              <div :class="cls.e('palette-custom')">
-                <u-palette
-                  :model-value="String(getFieldValue(field) ?? '').startsWith('var') ? '' : String(getFieldValue(field) ?? '')"
-                  @update:model-value="value => updateField(field, value)"
-                />
-                <u-input
-                  :model-value="String(getFieldValue(field) ?? '')"
-                  placeholder="输入颜色或变量"
-                  @update:model-value="value => updateField(field, value)"
-                />
-              </div>
-              <div :class="cls.e('palette-var')">
-                <span :class="cls.e('palette-var-label')">或选择变量</span>
-                <u-select
-                  :model-value="String(getFieldValue(field) ?? '').startsWith('var') ? String(getFieldValue(field) ?? '') : ''"
-                  :options="colorVarOptions"
-                  clearable
-                  placeholder="选择预设变量"
-                  @update:model-value="value => updateField(field, value ?? '')"
-                >
-                  <template #default="{ option }">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                      <div :style="`width: 14px; height: 14px; border-radius: 4px; background: ${option.value}`" />
-                      <span style="font-size: 13px">{{ option.label }}</span>
-                    </div>
-                  </template>
-                </u-select>
-              </div>
-            </template>
-          </div>
-
-          <component
-            v-else
-            :is="getFieldComponent(field)"
-            :model-value="getFieldValue(field)"
-            v-bind="getFieldProps(field)"
-            @update:model-value="value => updateField(field, value)"
-          />
-
-          <p v-if="field.hint || field.placeholder" :class="cls.e('item-hint')">
-            {{ field.hint ?? field.placeholder }}
-          </p>
         </div>
-      </div>
 
-      <div v-else :class="cls.e('empty')">
-        <strong>没有匹配项</strong>
-        <p>换一个关键字，或关闭“仅看改动”后再继续筛选。</p>
-      </div>
+        <div v-else :class="cls.e('empty')">
+          <strong>没有匹配项</strong>
+          <p>换一个关键字，或关闭“仅看改动”后再继续筛选。</p>
+        </div>
       </div>
     </div>
 
     <div :class="cls.e('actions')">
       <div :class="cls.e('preset-group')">
-        <button
-          type="button"
-          :class="cls.e('preset')"
-          @click="applyPreset('light')"
-        >
+        <button type="button" :class="cls.e('preset')" @click="applyPreset('light')">
           浅色预设
         </button>
-        <button
-          type="button"
-          :class="cls.e('preset')"
-          @click="applyPreset('dark')"
-        >
+        <button type="button" :class="cls.e('preset')" @click="applyPreset('dark')">
           深色预设
         </button>
       </div>
 
-      <u-button :class="cls.e('action-btn')" @click="handleResetTheme">
-        重置
-      </u-button>
-      <u-button
-        :class="cls.e('action-btn')"
-        type="primary"
-        @click="handleExportTheme"
-      >
+      <u-button :class="cls.e('action-btn')" @click="handleResetTheme"> 重置 </u-button>
+      <u-button :class="cls.e('action-btn')" type="primary" @click="handleExportTheme">
         导出
       </u-button>
     </div>
@@ -193,14 +182,15 @@ import {
   currentTheme,
   darkTheme,
   lightTheme
-} from '@ultra-ui/utils/styles/theme'
-import type { ThemeProps, _ThemeExposed } from '../../types'
+} from '@ultra-ui/compositions/theme'
 import { bem } from '@ultra-ui/utils'
 import { computed, shallowRef, watch, watchEffect } from 'vue'
+
+import type { ThemeProps, _ThemeExposed } from '../../types'
+import { UButton } from '../button'
+import { UInput } from '../input'
 import { UNumberInput } from '../number-input'
 import { UPalette } from '../palette'
-import { UInput } from '../input'
-import { UButton } from '../button'
 import { USelect } from '../select'
 import { THEME_SECTIONS } from './schema'
 import type { ThemeField } from './schema'
@@ -219,8 +209,8 @@ const activeSection = shallowRef(THEME_SECTIONS[0]!.key)
 
 const colorVarOptions = computed(() => {
   const options: { label: string; value: string }[] = []
-  THEME_SECTIONS.forEach(section => {
-    section.fields.forEach(field => {
+  THEME_SECTIONS.forEach((section) => {
+    section.fields.forEach((field) => {
       if (field.kind === 'palette') {
         const varName = `var(${getCssVarName(field.path)})`
         options.push({
@@ -232,7 +222,6 @@ const colorVarOptions = computed(() => {
   })
   return options
 })
-
 
 const editorTheme = shallowRef<UITheme>()
 const baselineTheme = shallowRef<Theme>(createThemeSnapshot(lightTheme.theme))
@@ -247,12 +236,10 @@ const sourceTheme = computed(() => {
 
 watch(
   sourceTheme,
-  theme => {
+  (theme) => {
     if (!props.theme && theme === editorTheme.value) return
 
-    const nextTheme = props.theme
-      ? theme
-      : new UITheme(createThemeSnapshot(theme.theme))
+    const nextTheme = props.theme ? theme : new UITheme(createThemeSnapshot(theme.theme))
 
     editorTheme.value = nextTheme
     baselineTheme.value = createThemeSnapshot(nextTheme.theme)
@@ -275,8 +262,8 @@ watch(
 const changedFieldKeys = computed(() => {
   const keys = new Set<string>()
 
-  THEME_SECTIONS.forEach(section => {
-    section.fields.forEach(field => {
+  THEME_SECTIONS.forEach((section) => {
+    section.fields.forEach((field) => {
       if (
         getByPath(editorTheme.value?.theme ?? lightTheme.theme, field.path) !==
         getByPath(baselineTheme.value, field.path)
@@ -292,12 +279,12 @@ const changedFieldKeys = computed(() => {
 const sectionStates = computed(() => {
   const normalizedKeyword = keyword.value.trim().toLowerCase()
 
-  return THEME_SECTIONS.map(section => {
+  return THEME_SECTIONS.map((section) => {
     const sectionMatched = `${section.title} ${section.description}`
       .toLowerCase()
       .includes(normalizedKeyword)
 
-    const visibleFields = section.fields.filter(field => {
+    const visibleFields = section.fields.filter((field) => {
       const matchesKeyword =
         !normalizedKeyword ||
         sectionMatched ||
@@ -314,7 +301,7 @@ const sectionStates = computed(() => {
       return true
     })
 
-    const changedCount = section.fields.filter(field => {
+    const changedCount = section.fields.filter((field) => {
       return changedFieldKeys.value.has(field.key)
     }).length
 
@@ -327,25 +314,23 @@ const sectionStates = computed(() => {
 })
 
 watchEffect(() => {
-  const current = sectionStates.value.find(section => {
+  const current = sectionStates.value.find((section) => {
     return section.key === activeSection.value && section.visibleFields.length
   })
 
   if (current) return
 
   activeSection.value =
-    sectionStates.value.find(section => section.visibleFields.length)?.key ??
+    sectionStates.value.find((section) => section.visibleFields.length)?.key ??
     THEME_SECTIONS[0]!.key
 })
 
 const activeState = computed(() => {
   return (
-    sectionStates.value.find(section => section.key === activeSection.value) ??
+    sectionStates.value.find((section) => section.key === activeSection.value) ??
     sectionStates.value[0]
   )
 })
-
-
 
 function createThemeSnapshot(theme: Theme): Theme {
   return JSON.parse(JSON.stringify(theme)) as Theme
@@ -358,7 +343,7 @@ function getByPath(source: Record<string, any>, path: string[]) {
 function setByPath(source: Record<string, any>, path: string[], value: any) {
   let current = source
 
-  path.slice(0, -1).forEach(key => {
+  path.slice(0, -1).forEach((key) => {
     current = current[key]
   })
 
@@ -450,7 +435,10 @@ function applySnapshot(snapshot: Theme, label?: string) {
 }
 
 function applyPreset(type: 'light' | 'dark') {
-  applySnapshot(type === 'dark' ? darkPreset : lightPreset, type === 'dark' ? '深色预设' : '浅色预设')
+  applySnapshot(
+    type === 'dark' ? darkPreset : lightPreset,
+    type === 'dark' ? '深色预设' : '浅色预设'
+  )
 }
 
 function handleResetTheme() {

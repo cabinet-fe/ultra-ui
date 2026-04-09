@@ -1,4 +1,4 @@
-import type { UITheme } from '@ultra-ui/utils/styles/theme'
+import type { UITheme } from '@ultra-ui/compositions/theme'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
 /** 主题组件属性 */

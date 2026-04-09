@@ -66,26 +66,14 @@
 </template>
 
 <script lang="tsx" setup>
-import { useRoute, useRouter } from 'vue-router'
-import { routes } from './router'
 import { loadTheme, useConfig } from '@ultra-ui/compositions'
+import { currentTheme, lightTheme, darkTheme, UITheme } from '@ultra-ui/compositions/theme'
 import type { ComponentSize, MenuItem } from '@ultra-ui/desktop/types'
-import {
-  currentTheme,
-  lightTheme,
-  darkTheme,
-  UITheme
-} from '@ultra-ui/utils/styles/theme'
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  ref,
-  shallowRef,
-  watch,
-  watchEffect
-} from 'vue'
 import { Setting } from '@ultra-ui/icons/normal'
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { routes } from './router'
 
 const router = useRouter()
 const route = useRoute()
@@ -123,8 +111,7 @@ function readInitialThemeMode(): SampleThemeMode {
 const themeMode = ref<SampleThemeMode>(readInitialThemeMode())
 
 const prefersDark = ref(
-  typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
+  typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
 )
 let removePrefListener: (() => void) | undefined
 
@@ -155,10 +142,7 @@ loadTheme()
 UITheme.setTheme(themeMode.value)
 
 const activeTheme = computed(() => {
-  return (
-    currentTheme.value?.theme ??
-    (effectiveDark.value ? darkTheme.theme : lightTheme.theme)
-  )
+  return currentTheme.value?.theme ?? (effectiveDark.value ? darkTheme.theme : lightTheme.theme)
 })
 
 const themeModeLabel = computed(() => {
@@ -351,11 +335,7 @@ $width: 240px;
   padding: 0 16px;
   border-radius: 12px;
   border: 1px solid rgba(30, 136, 229, 0.16);
-  background: linear-gradient(
-    135deg,
-    var(--u-color-primary),
-    var(--u-color-primary-light-3)
-  );
+  background: linear-gradient(135deg, var(--u-color-primary), var(--u-color-primary-light-3));
   box-shadow: 0 12px 24px rgba(30, 136, 229, 0.22);
 
   &:hover {

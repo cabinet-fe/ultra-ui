@@ -37,8 +37,8 @@ bun run build                                # turbo run build（各包 build �
 ```
 ultra-ui/
 ├── packages/
-│   ├── utils/           # @ultra-ui/utils — 工具函数、共享类型、样式系统（→ AGENTS.md）
-│   ├── compositions/    # @ultra-ui/compositions — Vue 组合式函数（→ AGENTS.md）
+│   ├── utils/           # @ultra-ui/utils — 工具函数、共享类型、BEM SCSS 基础设施（→ AGENTS.md）
+│   ├── compositions/    # @ultra-ui/compositions — Vue 组合式函数与主题系统（→ AGENTS.md）
 │   ├── directives/      # @ultra-ui/directives — Vue 自定义指令（→ AGENTS.md）
 │   ├── desktop/         # @ultra-ui/desktop — 桌面端组件库主包（→ AGENTS.md）
 │   ├── icons/           # @ultra-ui/icons — SVG 图标组件（→ AGENTS.md）

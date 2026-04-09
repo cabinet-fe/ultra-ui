@@ -57,8 +57,6 @@ export default defineConfig(() => {
 
     resolve: { extensions: ['.ts', '.js', '.json', '.tsx'] },
 
-    css: { preprocessorOptions: { scss: { loadPaths: [resolve(__dirname, '../../packages')] } } },
-
     plugins: [vue(), vueJsx(), Components({ resolvers: [ultraUiDesktopResolver()], dts: true })],
 
     server: { port: 7788, host: true }

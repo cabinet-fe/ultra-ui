@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
+
 import { lightTheme } from '../light'
 import { UITheme } from '../ui-theme'
 
 describe('UITheme', () => {
   it('themeToDeclarationList emits only --u-prefixed custom properties', () => {
     const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
-    expect(decls.some(d => d.startsWith('--u-color-primary:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-color-primary:'))).toBe(true)
     for (const d of decls) {
       const name = d.split(':')[0]?.trim()
       if (!name) continue

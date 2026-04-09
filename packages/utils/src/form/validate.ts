@@ -1,11 +1,7 @@
-import type { Undef } from '../../types/helper'
-import type {
-  ValidateRule,
-  Data,
-  ValidatorConfig,
-  PresetRule
-} from '../../types/utils/form/validate'
-import { getChainValue } from '../helper/data-compat'
+import { o } from '@cat-kit/core'
+
+import type { Undef } from '../types/helper'
+import type { ValidateRule, Data, ValidatorConfig, PresetRule } from '../types/utils/form/validate'
 
 const isEmpty = (value: any): value is null | undefined => {
   return value === null || value === undefined
@@ -13,7 +9,7 @@ const isEmpty = (value: any): value is null | undefined => {
 
 const presetRules: Record<PresetRule, (value: string) => string | undefined> = {
   email(v) {
-    const re = /^([\w\_\-]+)@([\w\-]+[\.]?)*[\w]+\.[a-zA-Z]{2,10}$/
+    const re = /^([\w_-]+)@([\w-]+[.]?)*[\w]+\.[a-zA-Z]{2,10}$/
     if (!re.test(v)) {
       return '邮箱格式不正确'
     }
@@ -31,8 +27,7 @@ const presetRules: Record<PresetRule, (value: string) => string | undefined> = {
     }
   },
   url(v) {
-    const re =
-      /^(ftp|https?)\:\/\/([\w\_\-]+)\.([\w\-]+[\.]?)*[\w]+\.[a-zA-Z]{2,10}(.*)/
+    const re = /^(ftp|https?):\/\/([\w_-]+)\.([\w-]+[.]?)*[\w]+\.[a-zA-Z]{2,10}(.*)/
     if (!re.test(v)) {
       return '链接格式不正确'
     }
@@ -76,16 +71,14 @@ const ruleTypes = {
     if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须大于等于${_rule}`
-    if (!Array.isArray(value) && typeof value !== 'string')
-      return `${value}不是一个字符串或数组`
+    if (!Array.isArray(value) && typeof value !== 'string') return `${value}不是一个字符串或数组`
     if (value.length < _rule) return errMsg
   },
   maxLen(value: any, rule: ValidateRule['maxLen']): Undef<string> {
     if (isEmpty(value)) return
     let _rule = Array.isArray(rule) ? rule[0] : rule!
     let errMsg = Array.isArray(rule) ? rule[1] : `该项长度必须小于等于:${_rule}`
-    if (!Array.isArray(value) && typeof value !== 'string')
-      return `${value}不是一个字符串或数组`
+    if (!Array.isArray(value) && typeof value !== 'string') return `${value}不是一个字符串或数组`
     if (value.length > _rule) return errMsg
   },
   match(value: any, rule: ValidateRule['match']): Undef<string> {
@@ -175,7 +168,7 @@ export class Validator<
 
   private async validateValue(data: Record<any, any>, field: Field) {
     const rules = this.rules[field]!
-    const value = getChainValue(data, field as string)
+    const value = o(data).get(field as string)
 
     const { validator, required, ...normalRules } = rules
 
@@ -204,12 +197,9 @@ export class Validator<
     return errors
   }
 
-  private async validateValueLazy(
-    data: Record<any, any>,
-    field: Field
-  ): Promise<string[]> {
+  private async validateValueLazy(data: Record<any, any>, field: Field): Promise<string[]> {
     const rules = this.rules[field]
-    const value = getChainValue(data, field as string)
+    const value = o(data).get(field as string)
     let errors: string[] = []
 
     if (!rules) return errors
@@ -277,10 +267,7 @@ export class Validator<
    * @param fields 字段
    * @returns
    */
-  async validate(
-    data: Data,
-    fields?: Field | Field[]
-  ): Promise<{ [key in Field]?: string[] }> {
+  async validate(data: Data, fields?: Field | Field[]): Promise<{ [key in Field]?: string[] }> {
     return Array.isArray(data)
       ? this.validateManyData(data, fields)
       : this.validateSingleData(data, fields)

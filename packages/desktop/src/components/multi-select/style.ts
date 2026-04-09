@@ -6,6 +6,5 @@ import '../dropdown/style'
 import '../tag/style'
 import '../empty/style'
 import '@ultra-ui/directives'
-import '@ultra-ui/utils/styles/anime/zoom-in.scss'
-
+import '../../styles/anime/zoom-in.scss'
 import './style.scss'

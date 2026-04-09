@@ -1,11 +1,11 @@
-
+import * as directives from '@ultra-ui/directives'
 import type { App } from 'vue'
+
 import * as components from './components'
 import { vLoading } from './components/loading'
-import * as directives from '@ultra-ui/directives'
 
 // 引入样式
-import '@ultra-ui/utils/styles'
+import './styles/normalize.scss'
 import './components/action/style'
 import './components/animation/style'
 import './components/auto-complete/style'
@@ -78,14 +78,14 @@ import './components/tree/style'
 import './components/watermark/style'
 
 export function UltraUI(app: App): void {
-  Object.keys(components).forEach(key => {
+  Object.keys(components).forEach((key) => {
     if (key.startsWith('U')) {
       const component = components[key]
       component && app.component(key, component)
     }
   })
 
-  Object.keys(directives).forEach(key => {
+  Object.keys(directives).forEach((key) => {
     if (key.startsWith('v')) {
       const directive = directives[key]
       directive && app.directive(key.slice(1), directive)

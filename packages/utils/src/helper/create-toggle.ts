@@ -1,7 +1,4 @@
-type Active =
-  | boolean
-  | ((active: boolean) => boolean)
-  | ((active: boolean) => Promise<boolean>)
+type Active = boolean | ((active: boolean) => boolean) | ((active: boolean) => Promise<boolean>)
 
 type ToggleReturn = [{ value: boolean }, (active: Active) => void]
 /**
@@ -10,13 +7,8 @@ type ToggleReturn = [{ value: boolean }, (active: Active) => void]
  * @param onChange 值变化时的回调
  * @returns
  */
-export function createToggle(
-  initial = false,
-  onChange?: (active: boolean) => void
-): ToggleReturn {
-  const state = {
-    value: initial
-  }
+export function createToggle(initial = false, onChange?: (active: boolean) => void): ToggleReturn {
+  const state = { value: initial }
 
   function toggle(active: Active) {
     if (typeof active === 'boolean') {
