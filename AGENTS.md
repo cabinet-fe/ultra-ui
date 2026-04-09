@@ -94,3 +94,4 @@ ultra-ui/
 
 - Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
 - `sideEffects` 声明：组件 `style.ts`、指令样式、`styles/` 目录、`.css`、`.scss`。
+- 使用`tsc`校验时不得输出任何文件，包括声明文件
