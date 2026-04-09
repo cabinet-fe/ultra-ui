@@ -8,11 +8,12 @@
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { UScroll } from '../..'
-import type { CodeEditorLang, CodeEditorProps } from '../../types'
 import { bem, zIndex } from '@ultra-ui/utils'
 import { EditorView, basicSetup } from 'codemirror'
 import { computed, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
+
+import type { CodeEditorLang, CodeEditorProps } from '../../types'
+import { UScroll } from '../scroll'
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   disabled: undefined,
@@ -96,22 +97,22 @@ watch([containerRef, () => props.language, disabled, readonly], renderEditor)
 
 watch(
   [() => props.modelValue, editor],
-  ([v, editor]) => {
-    if (!editor) return
+  ([v, e]) => {
+    if (!e) return
 
-    if (editor.composing || editor.state.doc.toJSON().join('\n') === v) {
+    if (e.composing || e.state.doc.toJSON().join('\n') === v) {
       return
     }
-    const isSelectionOutOfRange = !editor?.state.selection.ranges.every(
+    const isSelectionOutOfRange = !e?.state.selection.ranges.every(
       (range) => range.anchor < (v?.length ?? 0) && range.head < (v?.length ?? 0)
     )
-    editor?.dispatch({
+    e?.dispatch({
       changes: {
         from: 0,
-        to: editor?.state.doc.length,
+        to: e?.state.doc.length,
         insert: v
       },
-      selection: isSelectionOutOfRange ? { anchor: 0, head: 0 } : editor?.state.selection,
+      selection: isSelectionOutOfRange ? { anchor: 0, head: 0 } : e?.state.selection,
       scrollIntoView: true
     })
   },

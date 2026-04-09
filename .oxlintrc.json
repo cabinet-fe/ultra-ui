@@ -10,6 +10,7 @@
     "restriction": "off",
     "nursery": "off"
   },
+
   "ignorePatterns": [".agents/**"],
-  "rules": {}
+  "rules": { "no-unused-expressions": "off" }
 }

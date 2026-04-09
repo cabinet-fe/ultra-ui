@@ -46,8 +46,5 @@ export function useUpdateLock(): Updater {
     lockedCount--
   }
 
-  return {
-    updateAndLock,
-    update
-  }
+  return { updateAndLock, update }
 }

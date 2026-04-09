@@ -1,7 +1,7 @@
 import type { ObjectDirective } from 'vue'
 
 export const vFocus: ObjectDirective<HTMLElement> = {
-  mounted: el => {
+  mounted: (el) => {
     if (el.tagName === 'INPUT') {
       el.focus()
     } else {

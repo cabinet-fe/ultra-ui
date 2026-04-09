@@ -1,9 +1,6 @@
 import { type Ref, ref, watch, shallowRef } from 'vue'
 
-interface ModelOptions<
-  Props extends Record<string, unknown>,
-  Name extends keyof Props
-> {
+interface ModelOptions<Props extends Record<string, unknown>, Name extends keyof Props> {
   /** 组件定义的属性 */
   props: Props
   /** 属性名称 */
@@ -35,12 +32,7 @@ export function useModel<
   Name extends keyof Props = 'modelValue'
 >(
   options: ModelOptions<Props, Name>
-):
-  | Ref<Props[Name] | undefined>
-  | {
-      __v_isRef: boolean
-      value: Props[Name]
-    } {
+): Ref<Props[Name] | undefined> | { __v_isRef: boolean; value: Props[Name] } {
   const {
     props,
     propName = 'modelValue',
@@ -60,7 +52,7 @@ export function useModel<
     // 监听属性的变更
     watch(
       () => props[propName],
-      v => {
+      (v) => {
         _value.value = v
       }
     )
@@ -75,7 +67,9 @@ export function useModel<
         return _value.value
       },
       set value(v) {
-        v !== _value.value && emit(`update:${propName as string}`, v)
+        if (v !== _value.value) {
+          emit(`update:${propName as string}`, v)
+        }
         if (getLocal()) {
           _value.value = v
         }

@@ -1,4 +1,5 @@
 import { computed, reactive } from 'vue'
+
 import { useResizeObserver, type RefElement } from '../use-resize-observer'
 
 interface ElementSize {
@@ -13,20 +14,12 @@ interface ElementSize {
  */
 export function useReactiveSize(target: RefElement): ElementSize
 export function useReactiveSize(targets: RefElement[]): ElementSize[]
-export function useReactiveSize(
-  targets: RefElement | RefElement[]
-): ElementSize | ElementSize[] {
+export function useReactiveSize(targets: RefElement | RefElement[]): ElementSize | ElementSize[] {
   const sizes = Array.isArray(targets)
     ? targets.map(() => {
-        return reactive({
-          width: 0,
-          height: 0
-        })
+        return reactive({ width: 0, height: 0 })
       })
-    : reactive({
-        width: 0,
-        height: 0
-      })
+    : reactive({ width: 0, height: 0 })
 
   const sizesMap = Array.isArray(targets)
     ? computed(() => {
@@ -39,15 +32,13 @@ export function useReactiveSize(
         return new WeakMap(entries)
       })
     : computed(() => {
-        return new WeakMap(
-          targets.value ? [[targets.value, sizes as ElementSize]] : []
-        )
+        return new WeakMap(targets.value ? [[targets.value, sizes as ElementSize]] : [])
       })
 
   useResizeObserver({
     targets,
     onResize(entries) {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         const borderBoxSize = entry.borderBoxSize[0]!
         const size = sizesMap.value.get(entry.target as HTMLElement)
         if (size && borderBoxSize) {

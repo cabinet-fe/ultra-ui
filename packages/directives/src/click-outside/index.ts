@@ -2,10 +2,7 @@ import { createIncrease } from '@ultra-ui/utils'
 import type { ObjectDirective } from 'vue'
 
 const uid = createIncrease(1000)
-const targets = new Map<
-  string,
-  { handler: (e: MouseEvent) => void; el: HTMLElement }
->()
+const targets = new Map<string, { handler: (e: MouseEvent) => void; el: HTMLElement }>()
 
 let eventAdded = false
 let mousedownEvent: MouseEvent | undefined
@@ -58,10 +55,7 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
     const id = String(uid())
     el.dataset.outsideId = id
 
-    targets.set(id, {
-      handler: binding.value,
-      el
-    })
+    targets.set(id, { handler: binding.value, el })
     syncDocumentEvents()
   },
 
@@ -75,10 +69,7 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
         el.dataset.outsideId = String(uid())
       }
 
-      targets.set(el.dataset.outsideId!, {
-        handler: binding.value,
-        el
-      })
+      targets.set(el.dataset.outsideId!, { handler: binding.value, el })
       syncDocumentEvents()
     }
   },

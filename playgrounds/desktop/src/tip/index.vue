@@ -4,9 +4,7 @@
       方向:
       <u-radio-group :items="directions" v-model="direction"> </u-radio-group>
     </div>
-    <div>
-      对齐: <u-radio-group :items="aligns" v-model="alignment"> </u-radio-group>
-    </div>
+    <div>对齐: <u-radio-group :items="aligns" v-model="alignment"> </u-radio-group></div>
     <div>
       触发方式:
       <u-radio-group :items="triggers" v-model="trigger"> </u-radio-group>
@@ -21,9 +19,7 @@
           :content="content"
           style="max-width: 300px"
         >
-          <u-button type="primary" text style="margin-right: 10px"
-            >触发</u-button
-          >
+          <u-button type="primary" text style="margin-right: 10px">触发</u-button>
         </u-tip>
       </div>
     </CustomCard>
@@ -32,11 +28,7 @@
       <u-button @click="pop(dom2?.el)" ref="dom1"> 触发按钮1 </u-button>
       <u-button @click="pop(dom1?.el)" ref="dom2"> 触发按钮2 </u-button>
 
-      <u-tip
-        trigger="click"
-        :trigger-dom="triggerDom"
-        v-model:visible="visible"
-      >
+      <u-tip trigger="click" :trigger-dom="triggerDom" v-model:visible="visible">
         <template #content>两极反转</template>
       </u-tip>
     </CustomCard>
@@ -44,19 +36,20 @@
 </template>
 
 <script setup lang="ts">
+import type { TipAlign, TipDirection } from '@ultra-ui/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
-import CustomCard from '../card/custom-card.vue'
-import type { TipAlign, TipDirection } from '@ultra-ui/desktop/types'
 
-const directions = ['top', 'bottom', 'left', 'right'].map(d => ({
+import CustomCard from '../card/custom-card.vue'
+
+const directions = ['top', 'bottom', 'left', 'right'].map((d) => ({
   label: d,
   value: d
 }))
-const aligns = ['start', 'center', 'end'].map(d => ({
+const aligns = ['start', 'center', 'end'].map((d) => ({
   label: d,
   value: d
 }))
-const triggers = ['hover', 'click'].map(d => ({
+const triggers = ['hover', 'click'].map((d) => ({
   label: d,
   value: d
 }))

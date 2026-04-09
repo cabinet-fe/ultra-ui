@@ -1,6 +1,6 @@
-import { reactive, readonly, watch } from 'vue'
-import type { ComponentSize } from '@ultra-ui/utils/types'
 import { isObj } from '@cat-kit/core'
+import type { ComponentSize } from '@ultra-ui/utils/types'
+import { reactive, readonly, watch } from 'vue'
 
 interface State {
   /** 是否开启动画，机器老可以关闭动画来获得性能 */
@@ -12,30 +12,21 @@ interface State {
     /** 标签宽度 */
     labelWidth?: number | number
   }
-  paginator: {
-    pageSize: number
-    pageSizeOptions: number[]
-  }
+  paginator: { pageSize: number; pageSizeOptions: number[] }
 }
 
 const state = reactive<State>({
   animation: true,
   size: 'default',
-  form: {
-    labelWidth: 80
-  },
-  paginator: {
-    pageSize: 40,
-    pageSizeOptions: [40, 100, 200, 500, 1000]
-  }
+  form: { labelWidth: 80 },
+  paginator: { pageSize: 40, pageSizeOptions: [40, 100, 200, 500, 1000] }
 })
 
-export function setDocumentSize(
-  size: ComponentSize,
-  oldSize?: ComponentSize
-): void {
+export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize): void {
   if (typeof document === 'undefined') return
-  oldSize && document.documentElement.classList.remove(oldSize)
+  if (oldSize) {
+    document.documentElement.classList.remove(oldSize)
+  }
   document.documentElement.classList.add(size)
 }
 
@@ -52,7 +43,7 @@ function ensureDocumentSizeSync(): void {
 }
 
 function deepSet(original: Record<string, any>, extend: Record<string, any>) {
-  Object.keys(extend).forEach(key => {
+  Object.keys(extend).forEach((key) => {
     const val = original[key]
     const targetVal = extend[key]
     if (isObj(val)) {

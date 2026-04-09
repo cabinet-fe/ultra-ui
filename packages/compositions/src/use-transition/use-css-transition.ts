@@ -1,6 +1,18 @@
-import { isRef, watch, onBeforeUnmount, computed } from 'vue'
-import type { Returned, CssTransitionOptions } from './type'
 import { createToggle } from '@ultra-ui/utils'
+import { isRef, watch, onBeforeUnmount, computed } from 'vue'
+
+import type { Returned, CssTransitionOptions } from './type'
+
+const increaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
+  el._count = (el._count ?? 0) + 1
+}
+
+const decreaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
+  el._count = (el._count ?? 0) - 1
+  if (el._count <= 0) {
+    delete el._count
+  }
+}
 
 /**
  * 使用css过渡
@@ -74,20 +86,9 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     })
   }
 
-  const [active, toggle] = createToggle(false, active => {
-    active ? startTransitionIn() : startTransitionOut()
+  const [active, toggle] = createToggle(false, (_active) => {
+    _active ? startTransitionIn() : startTransitionOut()
   })
-
-  const increaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
-    el._count = (el._count ?? 0) + 1
-  }
-
-  const decreaseTransitionCount = (el: HTMLElement & { _count?: number }) => {
-    el._count = (el._count ?? 0) - 1
-    if (el._count <= 0) {
-      delete el._count
-    }
-  }
 
   const transitionEndHandler = (e: TransitionEvent) => {
     e.stopPropagation()
@@ -158,11 +159,11 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   }
 
   if (isRef(target)) {
-    watch(target, (target, oldTarget) => {
+    watch(target, (_target, oldTarget) => {
       if (oldTarget) {
         removeEvent(oldTarget)
       }
-      target && addEvent(target)
+      _target && addEvent(_target)
     })
   } else if (target) {
     addEvent(target)

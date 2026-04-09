@@ -13,18 +13,18 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '../..'
 import { DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
 import { computed } from 'vue'
 import { inject } from 'vue'
+
+import { UIcon } from '../../icon'
 import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelYearHeader'
 })
 
-const { panelDate, toPrevTenYears, toNextTenYears, cls } =
-  inject(DatePanelDIKey)!
+const { panelDate, toPrevTenYears, toNextTenYears, cls } = inject(DatePanelDIKey)!
 
 const startYear = computed(() => {
   return panelDate.value.year - (panelDate.value.year % 10) + 1

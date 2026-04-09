@@ -1,6 +1,7 @@
-import { isRef, watch, type CSSProperties } from 'vue'
-import type { Returned, StyleTransitionOptions } from './type'
 import { createToggle, nextFrame, setStyles } from '@ultra-ui/utils'
+import { isRef, watch, type CSSProperties } from 'vue'
+
+import type { Returned, StyleTransitionOptions } from './type'
 import { watchTransition } from './utils'
 
 export function useStyleTransition(options: StyleTransitionOptions): Returned {
@@ -17,8 +18,7 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     leaveCanceled
   } = options
 
-  const getDom = (): HTMLElement | undefined =>
-    isRef(target) ? target.value : target
+  const getDom = (): HTMLElement | undefined => (isRef(target) ? target.value : target)
 
   /** 进入动画前的初始状态 */
   const transitionOriginStyle: CSSProperties = {}
@@ -26,8 +26,8 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   /** 获取过渡样式的初始样式 */
   const getOriginStyles = (styles: CSSProperties) => {
     return Object.fromEntries(
-      Object.keys(styles).map(key => {
-        return [key, transitionOriginStyle[key]]
+      Object.keys(styles).map((key) => {
+        return [key, transitionOriginStyle[key as keyof CSSProperties]]
       })
     )
   }
@@ -36,21 +36,19 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
   // ...Object.keys(leaveTo ?? {}),
   watch(
     () => getDom(),
-    dom => {
+    (dom) => {
       if (dom) {
         const map = dom.attributeStyleMap
-        ~[...Object.keys(enterTo), ...Object.keys(enterActive)].forEach(key => {
+        ~[...Object.keys(enterTo), ...Object.keys(enterActive)].forEach((key) => {
           transitionOriginStyle[key] = map.get(key)
         })
       } else {
-        Object.keys(transitionOriginStyle).forEach(key => {
-          delete transitionOriginStyle[key]
+        Object.keys(transitionOriginStyle).forEach((key) => {
+          delete transitionOriginStyle[key as keyof CSSProperties]
         })
       }
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   /**
@@ -150,7 +148,7 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     })
   }
 
-  const [active, toggle] = createToggle(false, active => {
+  const [active, toggle] = createToggle(false, (active) => {
     active ? startEnter() : startLeave()
   })
 
@@ -180,9 +178,5 @@ export function useStyleTransition(options: StyleTransitionOptions): Returned {
     }
   })
 
-  return {
-    toggle,
-    enter: () => toggle(true),
-    leave: () => toggle(false)
-  }
+  return { toggle, enter: () => toggle(true), leave: () => toggle(false) }
 }

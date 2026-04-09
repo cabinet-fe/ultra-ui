@@ -15,9 +15,7 @@ interface DragParams {
 
 interface DragOptions {
   /** 拖动目标 */
-  target:
-    | ShallowRef<HTMLElement | undefined | null>
-    | Ref<HTMLElement | undefined | null>
+  target: ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
   /** 拖动开始 */
   onDragStart?(e: MouseEvent): void
   /** 拖动结束 */
@@ -29,10 +27,7 @@ interface DragOptions {
   /** 垂直拖动范围 */
   rangeY?: [number, number]
   /** 初始偏移量 */
-  initial?: {
-    offsetX?: number
-    offsetY?: number
-  }
+  initial?: { offsetX?: number; offsetY?: number }
 }
 
 /**
@@ -42,8 +37,7 @@ interface DragOptions {
 export function useDrag(options: DragOptions): {
   update: (options: { offsetX?: number; offsetY?: number }) => void
 } {
-  const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, initial } =
-    options
+  const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, initial } = options
 
   // 鼠标拖拽前的坐标
   let originX = 0
@@ -53,13 +47,7 @@ export function useDrag(options: DragOptions): {
   let offsetY = initial?.offsetY ?? 0
 
   // 拖拽参数
-  const dragParams: DragParams = {
-    x: 0,
-    y: 0,
-    offsetX: 0,
-    offsetY: 0,
-    e: null as any
-  }
+  const dragParams: DragParams = { x: 0, y: 0, offsetX: 0, offsetY: 0, e: null as any }
 
   // 先取
   const onselectstart = document.onselectstart
@@ -81,9 +69,7 @@ export function useDrag(options: DragOptions): {
 
     // 禁止浏览器的选中事件, 直到mouseup事件触发时还原
     document.onselectstart = () => false
-    document.addEventListener('mousemove', handleMousemove, {
-      passive: true
-    })
+    document.addEventListener('mousemove', handleMousemove, { passive: true })
     document.addEventListener('mouseup', handleMouseup)
   }
 

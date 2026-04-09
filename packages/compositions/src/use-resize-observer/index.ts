@@ -24,12 +24,9 @@ export type ResizeObserverReturn = {
  * @param targets 目标节点
  * @param observer 观察器
  */
-function unobserve(
-  targets: RefElement | RefElement[],
-  observer?: ResizeObserver
-) {
+function unobserve(targets: RefElement | RefElement[], observer?: ResizeObserver) {
   if (Array.isArray(targets)) {
-    return targets.forEach(target => unobserve(target, observer))
+    return targets.forEach((target) => unobserve(target, observer))
   }
   if (!targets.value || !observer) return
   observer.unobserve(targets.value)
@@ -40,9 +37,7 @@ function unobserve(
  * 监听目标尺寸变化
  * @param options 选项
  */
-export function useResizeObserver(
-  options: ResizeObserverOptions
-): ResizeObserverReturn {
+export function useResizeObserver(options: ResizeObserverOptions): ResizeObserverReturn {
   const { targets, onResize } = options
 
   let observer: ResizeObserver | undefined
@@ -52,7 +47,7 @@ export function useResizeObserver(
       targets,
       (val, oldVal) => {
         // 清除旧的观察
-        oldVal.forEach(target => {
+        oldVal.forEach((target) => {
           target && observer?.unobserve(target)
         })
 
@@ -60,7 +55,7 @@ export function useResizeObserver(
           observer = new ResizeObserver(onResize)
         }
 
-        val.forEach(target => {
+        val.forEach((target) => {
           target && observer?.observe(target)
         })
       },
@@ -105,8 +100,8 @@ export function useObserverCallback(): {
 } {
   const observerElMap = new Map<HTMLElement, Function>()
 
-  const observer = new ResizeObserver(entries => {
-    entries.forEach(entry => {
+  const observer = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
       const target = entry.target as HTMLElement
       if (!target.dataset.ob) {
         target.dataset.ob = 'true'
@@ -149,8 +144,5 @@ export function useObserverCallback(): {
     observer.disconnect()
   })
 
-  return {
-    observeEl,
-    unobserveEl
-  }
+  return { observeEl, unobserveEl }
 }

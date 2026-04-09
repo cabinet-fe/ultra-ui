@@ -145,12 +145,9 @@ const cls = bem('xxx')
 | `@ultra-ui/utils` | `packages/utils/src` |
 | `@ultra-ui/desktop` | `packages/desktop/src` |
 | `@ultra-ui/compositions` | `packages/compositions/src` |
-| `@ultra-ui/directives` | `packages/directives/src` |
-| `ultra-ui` | 兼容指向 `packages/desktop/src/index.ts`（sample Vite alias） |
+| `@ultra-ui/directives` | `packages/directives/src` ||
 
 ## 约束
 
-- **不使用 ESLint/Prettier/Biome**，无自动格式化配置。
 - Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
 - `sideEffects` 声明：组件 `style.ts`、指令样式、`styles/` 目录、`.css`、`.scss`。
-- 测试文件放在组件目录的 `__test__/` 下，tsconfig 中被 exclude。

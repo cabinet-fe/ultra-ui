@@ -33,13 +33,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { ActionEmits, ActionProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
-import { UButton } from '../button'
-import { computed, inject } from 'vue'
-import { ActionDIKey } from './di'
-import { UPopConfirm } from '../pop-confirm'
 import { omit } from '@ultra-ui/utils'
+import { computed, inject } from 'vue'
+
+import type { ActionEmits, ActionProps } from '../../types'
+import { UButton } from '../button'
+import { UPopConfirm } from '../pop-confirm'
+import { ActionDIKey } from './di'
 
 defineOptions({
   name: 'Action',

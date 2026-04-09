@@ -1,10 +1,7 @@
 import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@ultra-ui/utils'
 import type { CSSProperties } from 'vue'
 
-function pick<T extends object, K extends keyof T>(
-  obj: T,
-  keys: readonly K[]
-): Pick<T, K> {
+function pick<T extends object, K extends keyof T>(obj: T, keys: readonly K[]): Pick<T, K> {
   const out: Partial<Pick<T, K>> = {}
   for (const k of keys) {
     if (k in obj) out[k] = obj[k]
@@ -120,10 +117,7 @@ export class Ripple {
    * @param e 鼠标或触摸事件
    * @returns 波纹圆心位置
    */
-  private getRippleCenterPosition(e: MouseOrTouchEvent): {
-    x: number
-    y: number
-  } {
+  private getRippleCenterPosition(e: MouseOrTouchEvent): { x: number; y: number } {
     const { left, top } = this.getContainerRect()
     const { clientX, clientY } = e
     return { x: clientX - left, y: clientY - top }
@@ -279,9 +273,7 @@ export class Ripple {
 
     // 触发缩放动画
     nextFrame(() => {
-      setStyles(rippleEl, {
-        transform: 'scale3d(1, 1, 1)'
-      })
+      setStyles(rippleEl, { transform: 'scale3d(1, 1, 1)' })
     })
   }
 
@@ -299,14 +291,8 @@ export class Ripple {
     const transitionEndOrCancelHandler = (e: TransitionEvent) => {
       if (e.propertyName !== 'opacity') return
 
-      rippleEl.removeEventListener(
-        'transitionend',
-        transitionEndOrCancelHandler
-      )
-      rippleEl.removeEventListener(
-        'transitioncancel',
-        transitionEndOrCancelHandler
-      )
+      rippleEl.removeEventListener('transitionend', transitionEndOrCancelHandler)
+      rippleEl.removeEventListener('transitioncancel', transitionEndOrCancelHandler)
       rippleEl.remove()
       this.amount--
     }
@@ -331,9 +317,7 @@ export class Ripple {
    * @param e 鼠标或触摸事件对象
    */
   showByEvent(e: MouseEvent | TouchEvent): void {
-    const centerPosition = this.getRippleCenterPosition(
-      e instanceof MouseEvent ? e : e.touches[0]!
-    )
+    const centerPosition = this.getRippleCenterPosition(e instanceof MouseEvent ? e : e.touches[0]!)
     this.createRipple(centerPosition)
   }
 

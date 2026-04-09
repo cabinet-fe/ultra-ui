@@ -71,18 +71,19 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, watch } from 'vue'
-import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '../../types'
-import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { UDropdown } from '../dropdown'
-import { UScroll } from '../scroll'
 import { vRipple } from '@ultra-ui/directives'
-import { UInput } from '../input'
-import { useSuggestions } from './use-suggestions'
+import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, shallowRef, watch } from 'vue'
+
+import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '../../types'
 import type { DropdownExposed, ScrollExposed } from '../../types'
+import { UDropdown } from '../dropdown'
+import { UInput } from '../input'
+import { UScroll } from '../scroll'
 import { useKeyboard } from './use-keyboard'
+import { useSuggestions } from './use-suggestions'
 
 defineOptions({ name: 'AutoComplete', inheritAttrs: false })
 

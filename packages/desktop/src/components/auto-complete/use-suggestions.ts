@@ -1,18 +1,9 @@
 import { debounce } from '@cat-kit/core'
-import {
-  computed,
-  type ComputedRef,
-  type ShallowRef,
-  shallowRef,
-  watch,
-  type ModelRef
-} from 'vue'
+import { computed, type ComputedRef, type ShallowRef, shallowRef, watch, type ModelRef } from 'vue'
 
 interface Options {
   model: ModelRef<string | undefined>
-  props: {
-    suggestions?: string[] | ((qs?: string) => Promise<string[]> | string[])
-  }
+  props: { suggestions?: string[] | ((qs?: string) => Promise<string[]> | string[]) }
 }
 
 interface UseSuggestionsReturned {
@@ -34,10 +25,9 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
   const appendedSuggestions = shallowRef<string[]>([])
 
   const suggestions = computed(() => {
-    const { suggestions } = props
-    if (!suggestions) return appendedSuggestions.value
+    if (!props.suggestions) return appendedSuggestions.value
 
-    if (typeof suggestions === 'function') {
+    if (typeof props.suggestions === 'function') {
       return dynamicSuggestions.value.concat(appendedSuggestions.value)
     }
 
@@ -54,31 +44,21 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
     [model, () => props.suggestions],
     debounce(async ([v, propsSuggestions]) => {
       if (typeof propsSuggestions === 'function') {
-        const suggestions = await propsSuggestions(v)
-        dynamicSuggestions.value = suggestions ?? []
+        dynamicSuggestions.value = (await propsSuggestions(v)) ?? []
       } else {
         if (!v) {
-          filteredSuggestions.value = [
-            ...(propsSuggestions ?? []),
-            ...appendedSuggestions.value
-          ]
+          filteredSuggestions.value = [...(propsSuggestions ?? []), ...appendedSuggestions.value]
           return
         }
 
         filteredSuggestions.value = [
-          ...(propsSuggestions?.filter(item => item.includes(v)) ?? []),
-          ...appendedSuggestions.value.filter(item => item.includes(v))
+          ...(propsSuggestions?.filter((item) => item.includes(v)) ?? []),
+          ...appendedSuggestions.value.filter((item) => item.includes(v))
         ]
       }
     }, 200),
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
-  return {
-    suggestions,
-    cachedSuggestion,
-    appendedSuggestions
-  }
+  return { suggestions, cachedSuggestion, appendedSuggestions }
 }

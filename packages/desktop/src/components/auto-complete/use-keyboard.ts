@@ -13,12 +13,7 @@ interface UseKeyboardReturned {
 }
 
 export function useKeyboard(options: Options): UseKeyboardReturned {
-  const {
-    options: selectableOptions,
-    dropdownVisible,
-    onSelect,
-    getDefaultIndex
-  } = options
+  const { options: selectableOptions, dropdownVisible, onSelect, getDefaultIndex } = options
   const keys = new Set(['ArrowUp', 'ArrowDown', 'Enter', 'Escape'])
 
   const point = ref(-1)
@@ -56,8 +51,7 @@ export function useKeyboard(options: Options): UseKeyboardReturned {
       return
     }
     const nextPoint = point.value + 1
-    point.value =
-      nextPoint < selectableOptions.value.length ? nextPoint : 0
+    point.value = nextPoint < selectableOptions.value.length ? nextPoint : 0
   }
 
   function moveToPrev() {
@@ -68,10 +62,7 @@ export function useKeyboard(options: Options): UseKeyboardReturned {
       return
     }
     const prevPoint = point.value - 1
-    point.value =
-      prevPoint > -1
-        ? prevPoint
-        : selectableOptions.value.length - 1
+    point.value = prevPoint > -1 ? prevPoint : selectableOptions.value.length - 1
   }
 
   function selectOption() {

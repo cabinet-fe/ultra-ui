@@ -30,22 +30,16 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '../..'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
 import { inject } from 'vue'
+
+import { UIcon } from '../../icon'
 import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelDayHeader'
 })
 
-const {
-  panelDate,
-  panelType,
-  cls,
-  toPrevMonth,
-  toNextMonth,
-  toPrevYear,
-  toNextYear
-} = inject(DatePanelDIKey)!
+const { panelDate, panelType, cls, toPrevMonth, toNextMonth, toPrevYear, toNextYear } =
+  inject(DatePanelDIKey)!
 </script>

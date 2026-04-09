@@ -1,5 +1,5 @@
-import { type InjectionKey, inject, provide } from 'vue'
 import type { FormContextInjectProps } from '@ultra-ui/utils/types'
+import { type InjectionKey, inject, provide } from 'vue'
 
 type DIContext = {
   /** 表单属性 */
@@ -24,13 +24,8 @@ export function useFormComponent(): {
 } & Partial<DIContext>
 export function useFormComponent(props?: any): any {
   if (props) {
-    return provide(FormComponentDIKey, {
-      formProps: props
-    })
+    return provide(FormComponentDIKey, { formProps: props })
   }
   const context = inject(FormComponentDIKey, undefined) || {}
-  return {
-    inForm: !!context,
-    ...context
-  }
+  return { inForm: !!context, ...context }
 }

@@ -7,9 +7,11 @@ import {
   type ComputePositionReturn,
   type Placement
 } from '@floating-ui/dom'
-import type { TipAlign, TipDirection } from '@ultra-ui/utils/types/tip-geometry'
 import { getScrollParents, setStyles } from '@ultra-ui/utils'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
+
+type TipDirection = 'top' | 'bottom' | 'left' | 'right'
+type TipAlign = 'center' | 'start' | 'end'
 
 interface Options {
   /** 触发元素 */
@@ -81,12 +83,7 @@ export function usePop(options: Options): PopResult {
   } = options
 
   /** 箭头位置 */
-  const arrowPlacementDict = {
-    top: 'bottom',
-    right: 'left',
-    bottom: 'top',
-    left: 'right'
-  }
+  const arrowPlacementDict = { top: 'bottom', right: 'left', bottom: 'top', left: 'right' }
 
   function getMaybeRefValue<T>(value?: Ref<T> | T) {
     return isRef(value) ? value.value : value
@@ -100,21 +97,14 @@ export function usePop(options: Options): PopResult {
     const triggerEl = triggerRef.value
     const contentEl = contentRef.value
 
-    if (
-      !(triggerEl instanceof HTMLElement) ||
-      !(contentEl instanceof HTMLElement)
-    ) {
+    if (!(triggerEl instanceof HTMLElement) || !(contentEl instanceof HTMLElement)) {
       return
     }
 
     onBeforeUpdate?.(triggerEl, contentEl)
 
     // 计算位置 ↓↓↓
-    const middleware = [
-      offset(arrowRef?.value ? arrowSize : 6),
-      flip(),
-      shift()
-    ]
+    const middleware = [offset(arrowRef?.value ? arrowSize : 6), flip(), shift()]
 
     if (arrowRef?.value) {
       middleware.push(arrow({ element: arrowRef.value }))
@@ -126,16 +116,12 @@ export function usePop(options: Options): PopResult {
     const position = await computePosition(triggerEl, contentEl, {
       middleware,
 
-      placement:
-        `${_direction}${_alignment === 'center' ? '' : `-${_alignment}`}` as Placement
+      placement: `${_direction}${_alignment === 'center' ? '' : `-${_alignment}`}` as Placement
     })
 
     const { x, y, middlewareData, placement } = position
 
-    setStyles(contentEl, {
-      left: `${x}px`,
-      top: `${y}px`
-    })
+    setStyles(contentEl, { left: `${x}px`, top: `${y}px` })
     callbackOnPop && onPop?.(position)
     onAfterUpdate?.(position)
 
@@ -143,7 +129,8 @@ export function usePop(options: Options): PopResult {
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow
 
-      const arrowPlacement = arrowPlacementDict[placement.split('-')[0]!]
+      const arrowPlacement =
+        arrowPlacementDict[placement.split('-')[0]! as keyof typeof arrowPlacementDict]
       const size = `${arrowSize}px`
       // 箭头半径
       const arrowRadius = arrowSize / 2
@@ -166,7 +153,7 @@ export function usePop(options: Options): PopResult {
     if (!triggerRef.value) return
     if (onTriggerPositionChange) {
       scrollParents = getScrollParents(triggerRef.value)
-      scrollParents.forEach(el => {
+      scrollParents.forEach((el) => {
         el.addEventListener('scroll', onTriggerPositionChange)
       })
     }
@@ -175,7 +162,7 @@ export function usePop(options: Options): PopResult {
   /** 移除触发器元素祖先元素的滚动事件 */
   function removeScrollEvents() {
     if (onTriggerPositionChange) {
-      scrollParents.forEach(el => {
+      scrollParents.forEach((el) => {
         el.removeEventListener('scroll', onTriggerPositionChange)
       })
     }
@@ -184,21 +171,15 @@ export function usePop(options: Options): PopResult {
   }
 
   function addResizeEvents() {
-    onTriggerPositionChange &&
-      window.addEventListener('resize', onTriggerPositionChange)
+    onTriggerPositionChange && window.addEventListener('resize', onTriggerPositionChange)
   }
 
   function removeResizeEvents() {
-    onTriggerPositionChange &&
-      window.removeEventListener('resize', onTriggerPositionChange)
+    onTriggerPositionChange && window.removeEventListener('resize', onTriggerPositionChange)
   }
 
   watch(
-    [
-      contentRef,
-      () => getMaybeRefValue(direction),
-      () => getMaybeRefValue(alignment)
-    ],
+    [contentRef, () => getMaybeRefValue(direction), () => getMaybeRefValue(alignment)],
     ([content]) => {
       if (content) {
         update(true)

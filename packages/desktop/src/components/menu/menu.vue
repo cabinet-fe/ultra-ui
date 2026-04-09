@@ -37,7 +37,7 @@ import { useFallbackProps } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, shallowReactive, watch } from 'vue'
 
-import type { MenuEmits, MenuProps, ComponentSize } from '../..'
+import type { MenuEmits, MenuProps, ComponentSize } from '../../types'
 import { UScroll } from '../scroll'
 import { MenuDIKey } from './di'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'

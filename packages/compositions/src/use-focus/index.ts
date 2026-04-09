@@ -22,9 +22,5 @@ export function useFocus(cb?: (focused: boolean) => void): {
     cb?.(focus.value)
   }
 
-  return {
-    focus,
-    handleBlur,
-    handleFocus
-  }
+  return { focus, handleBlur, handleFocus }
 }

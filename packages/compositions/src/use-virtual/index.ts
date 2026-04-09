@@ -1,4 +1,11 @@
 import {
+  elementScroll,
+  observeElementOffset,
+  observeElementRect,
+  type VirtualItem,
+  Virtualizer
+} from '@tanstack/vue-virtual'
+import {
   computed,
   isRef,
   onScopeDispose,
@@ -8,13 +15,6 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
-import {
-  elementScroll,
-  observeElementOffset,
-  observeElementRect,
-  type VirtualItem,
-  Virtualizer
-} from '@tanstack/vue-virtual'
 
 interface Options {
   /** 指定启用虚拟列表的阈值 */
@@ -29,9 +29,7 @@ interface Options {
   gap?: number
 }
 
-type CustomVirtualItem = Omit<VirtualItem, 'key'> & {
-  key: number | string
-}
+type CustomVirtualItem = Omit<VirtualItem, 'key'> & { key: number | string }
 
 export type VirtualReturned = {
   /** 虚拟列表 */
@@ -46,20 +44,18 @@ export type VirtualReturned = {
   virtualEnabled: ComputedRef<boolean>
 }
 
+const defaultEstimateSize = () => 34
+
 export function useVirtual(options: Options): VirtualReturned {
   const { count, scrollEl, estimateSize, virtualThreshold, gap } = options
 
   const enabled = computed(() => {
     if (isRef(virtualThreshold)) {
-      return virtualThreshold.value
-        ? count.value > virtualThreshold.value
-        : true
+      return virtualThreshold.value ? count.value > virtualThreshold.value : true
     }
 
     return virtualThreshold ? count.value > virtualThreshold : true
   })
-
-  const defaultEstimateSize = () => 34
 
   const virtualList = shallowRef<CustomVirtualItem[]>([])
 
@@ -96,7 +92,7 @@ export function useVirtual(options: Options): VirtualReturned {
 
   watch(
     scrollEl,
-    el => {
+    (el) => {
       el && v._willUpdate()
     },
     { immediate: true }
@@ -104,8 +100,8 @@ export function useVirtual(options: Options): VirtualReturned {
 
   watch(
     () => virtualizerOptions.value,
-    options => {
-      v.setOptions(options)
+    (o) => {
+      v.setOptions(o)
 
       v._willUpdate()
 
@@ -118,9 +114,7 @@ export function useVirtual(options: Options): VirtualReturned {
   })
 
   function scrollTo(index: number) {
-    v.scrollToIndex(index, {
-      align: 'center'
-    })
+    v.scrollToIndex(index, { align: 'center' })
   }
 
   /** 测量元素高度 */
@@ -132,11 +126,5 @@ export function useVirtual(options: Options): VirtualReturned {
     return undefined
   }
 
-  return {
-    virtualEnabled: enabled,
-    virtualList,
-    totalHeight,
-    measureElement,
-    scrollTo
-  }
+  return { virtualEnabled: enabled, virtualList, totalHeight, measureElement, scrollTo }
 }
