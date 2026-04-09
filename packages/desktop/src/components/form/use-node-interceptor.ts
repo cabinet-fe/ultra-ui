@@ -1,7 +1,8 @@
-import type { FormProps } from '../../types'
-import { onBeforeUnmount, useSlots, type VNode } from 'vue'
-import { pick } from '@ultra-ui/utils'
+import { o } from '@cat-kit/core'
 import { createIncrease, extractNormalVNodes } from '@ultra-ui/utils'
+import { onBeforeUnmount, useSlots, type VNode } from 'vue'
+
+import type { FormProps } from '../../types'
 
 interface Options {
   props: FormProps
@@ -23,8 +24,6 @@ export type SlotRenderItem =
       modelValue?: any
     }
 
-const FORM_ITEM_PROPS = ['label', 'field', 'span', 'tips', 'readonly']
-
 const id = createIncrease(1)
 
 /**
@@ -42,10 +41,7 @@ export function useNodeInterceptor(options: Options): {
 
   function getSlotsNodes() {
     const { model } = props
-    const nodes = slots.default?.({
-      model,
-      data: model?.data
-    })
+    const nodes = slots.default?.({ model, data: model?.data })
     if (!nodes?.length) return null
 
     const flattedNodes = extractNormalVNodes(nodes)
@@ -63,7 +59,13 @@ export function useNodeInterceptor(options: Options): {
       const { props, type } = node
       const item = {
         isFormItem: (type as any)?.name === 'FormItem',
-        formItemProps: pick(props ?? {}, FORM_ITEM_PROPS),
+        formItemProps: o((props ?? {}) as Record<string, any>).pick([
+          'label',
+          'field',
+          'span',
+          'tips',
+          'readonly'
+        ]),
         node,
         field: props?.field,
         modelValue: props?.['model-value'] ?? props?.modelValue
@@ -81,7 +83,5 @@ export function useNodeInterceptor(options: Options): {
     props.model?.formKeys.delete(formId)
   })
 
-  return {
-    getSlotsNodes
-  }
+  return { getSlotsNodes }
 }

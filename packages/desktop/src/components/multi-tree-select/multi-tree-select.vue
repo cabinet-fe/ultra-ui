@@ -95,23 +95,22 @@
 </template>
 
 <script lang="ts" setup>
-import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
+import { dfs, o } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
+import { bem, FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+
+import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
+import type { DropdownExposed } from '../../types'
+import { UButton } from '../button'
+import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
-import { UTree } from '../tree'
-import { UTag } from '../tag'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
-import { UButton } from '../button'
-import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
-import { computed, nextTick, shallowRef, watch } from 'vue'
-import { UCheckbox } from '../checkbox'
-import { dfs } from '@cat-kit/core'
-import { omit } from '@ultra-ui/utils'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { UTag } from '../tag'
+import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
-import type { DropdownExposed } from '../../types'
 
 defineOptions({ name: 'MultiTreeSelect' })
 
@@ -131,7 +130,7 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
 })
 
 const treeProps = computed(() => {
-  return omit(props, [
+  return o(props as Record<string, any>).omit([
     'tips',
     'field',
     'placeholder',

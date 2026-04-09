@@ -34,5 +34,17 @@
 - `packages/desktop/src/components/tree/use-check.ts`
 - `packages/desktop/src/components/tree-select/tree-select.vue`
 - `playgrounds/desktop/src/expression-editor/index.vue`
+- `packages/compositions/src/theme/ui-theme.ts`
+- `packages/desktop/src/components/context-menu/context-menu.vue`
+- `packages/desktop/src/components/grid/use-responsive.ts`
+- `packages/desktop/src/components/form-item/helper.ts`
+- `packages/desktop/src/components/form/use-node-interceptor.ts`
+- `packages/desktop/src/components/batch-edit/batch-edit-list.vue`
+- `packages/desktop/src/components/batch-edit/batch-edit-new.vue`
+- `packages/desktop/src/components/action/action.vue`
+- `packages/desktop/src/components/tree-select/tree-select.vue`
+- `packages/desktop/src/components/multi-tree-select/multi-tree-select.vue`
 
 ## 历史补丁
+
+- patch-1: utils 工具迁移至 @cat-kit/core（主题 / omit / pick / 断点比较）

@@ -19,19 +19,19 @@
 </template>
 
 <script lang="ts" setup>
+import { useFallbackProps } from '@ultra-ui/compositions'
+import { vClickOutside } from '@ultra-ui/directives'
+import { bem, withUnit, zIndex } from '@ultra-ui/utils'
+import { computed, provide, shallowRef, type CSSProperties } from 'vue'
+
 import type {
   ContextMenuEmits,
   ContextMenuItem,
   ContextMenuProps,
   ComponentSize
 } from '../../types'
-import { bem, withUnit, zIndex } from '@ultra-ui/utils'
-import { computed, provide, shallowRef, type CSSProperties } from 'vue'
-import { ContextMenuDIKey } from './di'
 import UContextMenuItem from './context-menu-item.vue'
-import { objMap } from '@ultra-ui/utils'
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { vClickOutside } from '@ultra-ui/directives'
+import { ContextMenuDIKey } from './di'
 
 defineOptions({
   name: 'ContextMenu'
@@ -79,7 +79,9 @@ const computePosition = () => {
   const positionX = position.left ? 'left' : 'right'
   position.transformOrigin = `${positionY} ${positionX}`
 
-  return objMap(position, v => withUnit(v, 'px'))
+  return Object.fromEntries(
+    Object.entries(position).map(([k, v]) => [k, withUnit(v as number | string | undefined, 'px')])
+  ) as CSSProperties
 }
 
 const style = computed<CSSProperties>(() => {

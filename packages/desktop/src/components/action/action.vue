@@ -33,8 +33,8 @@
 </template>
 
 <script lang="ts" setup>
+import { o } from '@cat-kit/core'
 import { bem } from '@ultra-ui/utils'
-import { omit } from '@ultra-ui/utils'
 import { computed, inject } from 'vue'
 
 import type { ActionEmits, ActionProps } from '../../types'
@@ -57,7 +57,7 @@ const props = withDefaults(defineProps<ActionProps>(), {
 })
 
 const buttonProps = computed(() => {
-  return omit(props, ['needConfirm', 'loading', 'circle', 'propagate'])
+  return o(props as Record<string, any>).omit(['needConfirm', 'loading', 'circle', 'propagate'])
 })
 
 const emit = defineEmits<ActionEmits>()

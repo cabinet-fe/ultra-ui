@@ -76,11 +76,11 @@
 </template>
 
 <script setup lang="ts">
-import type { BatchEditFeature, TableRow } from '../../types'
+import { o } from '@cat-kit/core'
 import { AddChild, Delete, InsertToNext, InsertToPrev } from '@ultra-ui/icons/normal'
-import { omit } from '@ultra-ui/utils'
 import { computed, inject, type Slots } from 'vue'
 
+import type { BatchEditFeature, TableRow } from '../../types'
 import { UActionGroup, UAction } from '../action'
 import { UButton } from '../button'
 import { UTable } from '../table'
@@ -110,7 +110,7 @@ const {
 } = inject(BatchEditDIKey)!
 
 const tableProps = computed(() => {
-  return omit(props, [
+  return o(props as Record<string, any>).omit([
     'model',
     'columns',
     'cols',

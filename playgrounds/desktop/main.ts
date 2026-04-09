@@ -3,7 +3,7 @@ import { createApp, h } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 
-import '@ultra-ui/desktop/styles/normalize.scss'
+import '@ultra-ui/styles/normalize'
 
 const app = createApp({ render: () => h(App) })
 

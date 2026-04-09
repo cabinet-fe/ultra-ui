@@ -74,18 +74,13 @@
 </template>
 
 <script lang="ts" setup>
+import { o } from '@cat-kit/core'
 import { useComponentProps } from '@ultra-ui/compositions'
-import type {
-  BatchEditEmits,
-  BatchEditProps,
-  ButtonProps,
-  TableColumn
-} from '../../types'
 import { AddChild, Copy, Delete, Edit, Plus, View } from '@ultra-ui/icons'
 import { bem } from '@ultra-ui/utils'
-import { omit } from '@ultra-ui/utils'
 import { computed, watch } from 'vue'
 
+import type { BatchEditEmits, BatchEditProps, ButtonProps, TableColumn } from '../../types'
 import { UButton } from '../button'
 import { type FormModel, UForm } from '../form'
 import { UScroll } from '../scroll'
@@ -102,7 +97,7 @@ const props = defineProps<BatchEditProps<FormModel>>()
 const emit = defineEmits<BatchEditEmits>()
 
 const tableProps = computed(() => {
-  return omit(props, [
+  return o(props as Record<string, any>).omit([
     'model',
     'columns',
     'cols',

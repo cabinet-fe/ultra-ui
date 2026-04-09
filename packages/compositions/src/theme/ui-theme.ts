@@ -1,4 +1,5 @@
-import { isObj, kebabCase, mergeDeep, withUnit } from '@ultra-ui/utils'
+import { isObj, o, str } from '@cat-kit/core'
+import { withUnit } from '@ultra-ui/utils'
 import { reactive, toRaw, watch } from 'vue'
 
 import { mixColor } from './helper'
@@ -57,7 +58,7 @@ export class UITheme {
   ): string[] {
     Object.keys(theme).forEach((key) => {
       const value = theme[key]
-      const varKey = `${parentKey.startsWith('-') ? parentKey : kebabCase(parentKey)}-${kebabCase(key)}`
+      const varKey = `${parentKey.startsWith('-') ? parentKey : str(parentKey).kebabCase()}-${str(key).kebabCase()}`
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         this.renderBase(value as Record<string, unknown>, themeRules, varKey)
       } else {
@@ -257,7 +258,8 @@ export class UITheme {
 
     delEmpty(customTheme as Record<string, unknown>)
 
-    const themeConfig = mergeDeep(JSON.parse(JSON.stringify(toRaw(this.theme))), customTheme)
-    return new UITheme(themeConfig, { reactive: this.reactiveEnabled })
+    const base = JSON.parse(JSON.stringify(toRaw(this.theme))) as Record<string, any>
+    o(base).deepExtend(customTheme as Record<string, any>)
+    return new UITheme(base as Theme, { reactive: this.reactiveEnabled })
   }
 }

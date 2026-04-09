@@ -1,3 +1,5 @@
+import { debounce } from '@cat-kit/core'
+import type { Undef } from '@ultra-ui/utils/types/helper'
 import {
   computed,
   shallowRef,
@@ -7,11 +9,9 @@ import {
   onBeforeUnmount,
   type ComputedRef
 } from 'vue'
+
 import type { Breakpoint, GridEmits, GridItemProps, GridProps } from '../../types'
-import { debounce } from '@cat-kit/core'
-import { equal } from '@ultra-ui/utils'
 import { getContainerBreakpoint } from './breakpoint'
-import type { Undef } from '@ultra-ui/utils/types/helper'
 
 interface ResponsiveOptions {
   props: GridProps
@@ -26,17 +26,13 @@ interface UseResponsiveReturned {
   currentBreakpoint: ShallowRef<Breakpoint | undefined>
 }
 
-export function useResponsive(
-  options: ResponsiveOptions
-): UseResponsiveReturned {
+export function useResponsive(options: ResponsiveOptions): UseResponsiveReturned {
   const { props, gridRef, emit } = options
 
   const gridItemsProps = shallowReactive<Set<GridItemProps>>(new Set())
 
   const responsive = computed(() => {
-    return (
-      (props.cols && typeof props.cols !== 'number') || !!gridItemsProps.size
-    )
+    return (props.cols && typeof props.cols !== 'number') || !!gridItemsProps.size
   })
 
   const currentBreakpoint = shallowRef<Breakpoint>()
@@ -63,7 +59,14 @@ export function useResponsive(
           const rect = target.getBoundingClientRect()
           emit('resize', rect)
           const breakpoint = getContainerBreakpoint(target.offsetWidth)
-          if (equal(currentBreakpoint.value, breakpoint)) return
+          const prev = currentBreakpoint.value
+          if (
+            prev !== undefined &&
+            prev.name === breakpoint.name &&
+            prev.level === breakpoint.level
+          ) {
+            return
+          }
           currentBreakpoint.value = breakpoint
           emit('breakpoint-change', breakpoint)
         }, 0)
@@ -78,9 +81,5 @@ export function useResponsive(
     observer?.disconnect()
   })
 
-  return {
-    responsive,
-    gridItemsProps,
-    currentBreakpoint
-  }
+  return { responsive, gridItemsProps, currentBreakpoint }
 }

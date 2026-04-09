@@ -59,13 +59,10 @@
 </template>
 
 <script lang="ts" setup>
-import { dfs } from '@cat-kit/core'
-import { o } from '@cat-kit/core'
+import { dfs, o } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { ArrowDown, Search } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
-import { omit } from '@ultra-ui/utils'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
@@ -99,7 +96,7 @@ const slots = defineSlots<{
 }>()
 
 const treeProps = computed(() => {
-  return omit(props, [
+  return o(props as Record<string, any>).omit([
     'tips',
     'field',
     'placeholder',
