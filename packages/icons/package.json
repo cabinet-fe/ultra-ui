@@ -18,16 +18,6 @@
       "types": "./dist/colorful.d.ts",
       "development": "./src/colorful.ts",
       "import": "./dist/colorful.js"
-    },
-    "./vue/normal/*": {
-      "types": "./dist/vue/normal/*.d.ts",
-      "development": "./src/vue/normal/*.vue",
-      "import": "./dist/vue/normal/*.js"
-    },
-    "./vue/colorful/*": {
-      "types": "./dist/vue/colorful/*.d.ts",
-      "development": "./src/vue/colorful/*.vue",
-      "import": "./dist/vue/colorful/*.js"
     }
   },
   "scripts": {

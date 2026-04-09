@@ -6,3 +6,4 @@
 - [x] [移除 tree-walk，改用 @cat-kit/core](./done/plan-6-20260408/plan.md)
 - [x] [playground 源码解析与条件导出](./done/plan-7-20260408/plan.md)
 - [x] [playground 移除 ultra-ui 裸包名引入](./done/plan-8-20260408/plan.md)
+- [x] [CodeMirror 单实例（根因修复）](./done/plan-9-20260409/plan.md)

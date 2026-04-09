@@ -1,10 +1,5 @@
 <template>
-  <u-table
-    v-bind="tableProps"
-    :columns="columnsWithOperation"
-    :current="currentRow"
-    :class="cls.b"
-  >
+  <u-table v-bind="tableProps" :columns="columnsWithOperation" :current="currentRow" :class="cls.b">
     <template #column:__action__="{ row }">
       <ButtonWrap tag="div" @click.stop>
         <u-button
@@ -60,15 +55,8 @@
           <div :class="cls.e('form-title')" v-if="tipType">
             {{ titleDict[tipType] }}
           </div>
-          <u-scroll
-            :class="cls.e('form-scroll')"
-            :content-class="cls.e('form-scroll-content')"
-          >
-            <u-form
-              :model="model!"
-              :readonly="readonly"
-              :label-width="labelWidth"
-            >
+          <u-scroll :class="cls.e('form-scroll')" :content-class="cls.e('form-scroll-content')">
+            <u-form :model="model!" :readonly="readonly" :label-width="labelWidth">
               <template #default="{ data, model }">
                 <slot name="form" v-bind="{ data, model }" />
               </template>
@@ -77,9 +65,7 @@
 
           <div :class="cls.e('form-action')">
             <u-button @click="handleClose" type="primary" text> 关闭 </u-button>
-            <u-button type="primary" @click="handleSubmit" v-if="!readonly">
-              提交
-            </u-button>
+            <u-button type="primary" @click="handleSubmit" v-if="!readonly"> 提交 </u-button>
           </div>
         </template>
       </u-tip>
@@ -88,24 +74,25 @@
 </template>
 
 <script lang="ts" setup>
+import { useComponentProps } from '@ultra-ui/compositions'
 import type {
   BatchEditEmits,
   BatchEditProps,
   ButtonProps,
   TableColumn
 } from '@ultra-ui/desktop/types'
-import { type FormModel, UForm } from '../form'
-import { UTable } from '../table'
-import { UScroll } from '../scroll'
-import { UTip } from '../tip'
-import { computed, watch } from 'vue'
-import { UButton } from '../button'
-import { AddChild, Copy, Delete, Edit, Plus, View } from '@ultra-ui/icons/normal'
-import { useComponentProps } from '@ultra-ui/compositions'
+import { AddChild, Copy, Delete, Edit, Plus, View } from '@ultra-ui/icons'
 import { bem } from '@ultra-ui/utils'
+import { omit } from '@ultra-ui/utils'
+import { computed, watch } from 'vue'
+
+import { UButton } from '../button'
+import { type FormModel, UForm } from '../form'
+import { UScroll } from '../scroll'
+import { UTable } from '../table'
+import { UTip } from '../tip'
 import { useEdit } from './use-edit-new'
 import { useTip } from './use-tip'
-import { omit } from '@ultra-ui/utils'
 
 defineOptions({
   name: 'BatchEdit'
@@ -170,20 +157,13 @@ const titleDict = {
   view: '查看'
 }
 
-const {
-  currentRow,
-  handleEdit,
-  handleAdd,
-  handleCopy,
-  handleDelete,
-  handleView
-} = useEdit({
+const { currentRow, handleEdit, handleAdd, handleCopy, handleDelete, handleView } = useEdit({
   emit,
   props,
   open
 })
 
-watch(currentRow, r => {
+watch(currentRow, (r) => {
   visible.value = !!r ? true : false
 })
 

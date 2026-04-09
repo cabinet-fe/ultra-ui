@@ -5,8 +5,6 @@ import type { BatchEditColumn } from '@ultra-ui/desktop/types'
  * @param columns 列
  * @returns
  */
-export function defineBatchEditColumns(
-  columns: BatchEditColumn[]
-): BatchEditColumn[] {
+export function defineBatchEditColumns(columns: BatchEditColumn[]): BatchEditColumn[] {
   return columns
 }

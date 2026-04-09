@@ -5,20 +5,14 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  computed,
-  onBeforeUnmount,
-  shallowRef,
-  useTemplateRef,
-  watch
-} from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem, zIndex } from '@ultra-ui/utils'
-import type { CodeEditorLang, CodeEditorProps } from '@ultra-ui/desktop/types'
-import { UScroll } from '@ultra-ui/desktop'
-import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { UScroll } from '@ultra-ui/desktop'
+import type { CodeEditorLang, CodeEditorProps } from '@ultra-ui/desktop/types'
+import { bem, zIndex } from '@ultra-ui/utils'
+import { EditorView, basicSetup } from 'codemirror'
+import { computed, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   disabled: undefined,
@@ -31,10 +25,7 @@ const cls = bem('code-editor')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const className = computed<string[]>(() => {
   return [
@@ -50,13 +41,10 @@ const containerRef = useTemplateRef('container')
 const editor = shallowRef<EditorView | null>(null)
 
 const langLoaders: Record<CodeEditorLang, () => Promise<any>> = {
-  js: () =>
-    import('@codemirror/lang-javascript').then(m =>
-      m.javascript({ typescript: true })
-    ),
-  sql: () => import('@codemirror/lang-sql').then(m => m.sql()),
-  java: () => import('@codemirror/lang-java').then(m => m.java()),
-  json: () => import('@codemirror/lang-json').then(m => m.json())
+  js: () => import('@codemirror/lang-javascript').then((m) => m.javascript({ typescript: true })),
+  sql: () => import('@codemirror/lang-sql').then((m) => m.sql()),
+  java: () => import('@codemirror/lang-java').then((m) => m.java()),
+  json: () => import('@codemirror/lang-json').then((m) => m.json())
 }
 
 async function renderEditor() {
@@ -115,7 +103,7 @@ watch(
       return
     }
     const isSelectionOutOfRange = !editor?.state.selection.ranges.every(
-      range => range.anchor < (v?.length ?? 0) && range.head < (v?.length ?? 0)
+      (range) => range.anchor < (v?.length ?? 0) && range.head < (v?.length ?? 0)
     )
     editor?.dispatch({
       changes: {
@@ -123,9 +111,7 @@ watch(
         to: editor?.state.doc.length,
         insert: v
       },
-      selection: isSelectionOutOfRange
-        ? { anchor: 0, head: 0 }
-        : editor?.state.selection,
+      selection: isSelectionOutOfRange ? { anchor: 0, head: 0 } : editor?.state.selection,
       scrollIntoView: true
     })
   },

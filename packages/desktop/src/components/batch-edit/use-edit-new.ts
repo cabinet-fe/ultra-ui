@@ -1,5 +1,6 @@
-import { nextTick, type ShallowRef, shallowRef } from 'vue'
 import type { BatchEditEmits, BatchEditProps, TableRow } from '@ultra-ui/desktop/types'
+import { nextTick, type ShallowRef, shallowRef } from 'vue'
+
 import type { TipReturned } from './use-tip'
 
 interface EditReturned {
@@ -63,12 +64,5 @@ export function useEdit(options: {
     setCurrentRow(row)
   }
 
-  return {
-    currentRow,
-    handleEdit,
-    handleAdd,
-    handleCopy,
-    handleDelete,
-    handleView
-  }
+  return { currentRow, handleEdit, handleAdd, handleCopy, handleDelete, handleView }
 }

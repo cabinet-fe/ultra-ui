@@ -7,5 +7,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
-  "include": ["playgrounds/desktop/vite.config.ts", "playgrounds/icons/vite.config.ts"]
+  "include": [
+    "playgrounds/desktop/vite.config.ts",
+    "playgrounds/icons/vite.config.ts",
+    "packages/icons/scripts/*.ts"
+  ]
 }

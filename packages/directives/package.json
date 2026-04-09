@@ -2,9 +2,6 @@
   "name": "@ultra-ui/directives",
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "build": "bun -e 'void 0'"
-  },
   "sideEffects": [
     "src/**/style.ts",
     "src/**/*.scss"
@@ -21,10 +18,13 @@
       "import": "./src/ripple/style.ts"
     }
   },
-  "peerDependencies": {
-    "vue": "^3.5.0"
+  "scripts": {
+    "build": "bun -e 'void 0'"
   },
   "dependencies": {
     "@ultra-ui/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   }
 }

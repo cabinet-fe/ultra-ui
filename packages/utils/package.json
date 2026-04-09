@@ -2,9 +2,11 @@
   "name": "@ultra-ui/utils",
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "build": "bun -e 'void 0'"
-  },
+  "sideEffects": [
+    "src/styles/**",
+    "*.css",
+    "*.scss"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -68,11 +70,9 @@
       "import": "./src/shared/*"
     }
   },
-  "sideEffects": [
-    "src/styles/**",
-    "*.css",
-    "*.scss"
-  ],
+  "scripts": {
+    "build": "bun -e 'void 0'"
+  },
   "dependencies": {
     "@cat-kit/core": "^1.0.1"
   },

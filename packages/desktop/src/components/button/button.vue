@@ -13,10 +13,7 @@
     </u-icon>
 
     <!-- 左侧图标 -->
-    <u-icon
-      v-if="!!icon && iconPosition === 'left' && !loading"
-      :size="iconSize"
-    >
+    <u-icon v-if="!!icon && iconPosition === 'left' && !loading" :size="iconSize">
       <component :is="icon" />
     </u-icon>
 
@@ -30,18 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ultra-ui/utils'
-import type {
-  ButtonEmits,
-  ButtonProps,
-  _ButtonExposed,
-  ComponentSize
-} from '@ultra-ui/desktop/types'
-import { computed, shallowRef } from 'vue'
-import { UIcon } from '../icon'
-import { Loading } from '@ultra-ui/icons/normal'
-import { vRipple } from '@ultra-ui/directives'
 import { useFallbackProps } from '@ultra-ui/compositions'
+import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '@ultra-ui/desktop'
+import { vRipple } from '@ultra-ui/directives'
+import { Loading } from '@ultra-ui/icons'
+import { bem } from '@ultra-ui/utils'
+import { computed, shallowRef } from 'vue'
+
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'Button'

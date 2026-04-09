@@ -32,14 +32,7 @@
     </transition>
 
     <u-card-action :class="cls.e('action')">
-      <u-button
-        text
-        type="primary"
-        :loading="state.loading"
-        @click="handleClose"
-      >
-        关闭
-      </u-button>
+      <u-button text type="primary" :loading="state.loading" @click="handleClose"> 关闭 </u-button>
 
       <u-button
         v-if="!props.readonly && state.dataUpdated && (creatable || updatable)"
@@ -56,11 +49,12 @@
 
 <script lang="ts" setup>
 import { computed, inject } from 'vue'
-import { UForm } from '../form'
-import { UCard, UCardAction, UCardHeader } from '../card'
-import { BatchEditDIKey } from './di'
-import { UScroll } from '../scroll'
+
 import { UButton } from '../button'
+import { UCard, UCardAction, UCardHeader } from '../card'
+import { UForm } from '../form'
+import { UScroll } from '../scroll'
+import { BatchEditDIKey } from './di'
 
 defineOptions({ name: 'BatchEditForm' })
 
@@ -78,16 +72,14 @@ const {
 const creatable = computed(() => {
   return (
     state.type === 'create' &&
-    (staticFeatures.value.has('create') ||
-      dynamicFeatures.value.create?.(state.row))
+    (staticFeatures.value.has('create') || dynamicFeatures.value.create?.(state.row))
   )
 })
 
 const updatable = computed(() => {
   return (
     state.type === 'update' &&
-    (staticFeatures.value.has('update') ||
-      dynamicFeatures.value.update?.(state.row))
+    (staticFeatures.value.has('update') || dynamicFeatures.value.update?.(state.row))
   )
 })
 </script>

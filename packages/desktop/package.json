@@ -2,9 +2,6 @@
   "name": "@ultra-ui/desktop",
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "build": "bun -e 'void 0'"
-  },
   "sideEffects": [
     "src/components/**/style.ts",
     "*.css",
@@ -12,36 +9,23 @@
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "import": "./src/index.ts"
-    },
-    "./types": {
-      "types": "./src/types/index.ts",
-      "development": "./src/types/index.ts",
-      "import": "./src/types/index.ts"
+      "import": "./dist/index.js"
     },
     "./install": {
-      "types": "./src/install.ts",
+      "types": "./dist/install.d.ts",
       "development": "./src/install.ts",
-      "import": "./src/install.ts"
+      "import": "./dist/install.js"
     },
     "./*": {
-      "types": "./src/*",
+      "types": "./dist/*.d.ts",
       "development": "./src/*",
-      "import": "./src/*"
+      "import": "./dist/*.js"
     }
-  },
-  "peerDependencies": {
-    "vue": "^3.5.0",
-    "@ultra-ui/icons": "workspace:*"
   },
   "dependencies": {
     "@cat-kit/core": "^1.0.0",
-    "@ultra-ui/icons": "workspace:*",
-    "@ultra-ui/utils": "workspace:*",
-    "@ultra-ui/compositions": "workspace:*",
-    "@ultra-ui/directives": "workspace:*",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-json": "^6.0.2",
@@ -58,7 +42,15 @@
     "@lexical/selection": "^0.42.0",
     "@lexical/utils": "^0.42.0",
     "@tanstack/vue-virtual": "^3.13.23",
+    "@ultra-ui/compositions": "workspace:*",
+    "@ultra-ui/directives": "workspace:*",
+    "@ultra-ui/icons": "workspace:*",
+    "@ultra-ui/utils": "workspace:*",
     "codemirror": "^6.0.2",
     "lexical": "^0.42.0"
+  },
+  "peerDependencies": {
+    "@ultra-ui/icons": "workspace:*",
+    "vue": "^3.5.0"
   }
 }

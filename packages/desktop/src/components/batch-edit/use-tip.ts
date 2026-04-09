@@ -1,5 +1,5 @@
-import { type ShallowRef, shallowRef, watch } from 'vue'
 import type { BatchEditProps, BatchEditFeature } from '@ultra-ui/desktop/types'
+import { type ShallowRef, shallowRef, watch } from 'vue'
 
 export interface TipReturned {
   visible: ShallowRef<boolean>
@@ -22,7 +22,7 @@ export function useTip(options: { props: BatchEditProps }): TipReturned {
     triggerDom.value = dom
   }
 
-  watch(visible, v => {
+  watch(visible, (v) => {
     if (!v) {
       const { model } = props
       model?.clearValidate()

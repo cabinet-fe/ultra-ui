@@ -15,15 +15,15 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@ultra-ui/desktop/components'
-import { DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
+import { DArrowLeft, DArrowRight } from '@ultra-ui/icons'
 import { inject } from 'vue'
+
+import { UIcon } from '../../icon'
 import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelMonthHeader'
 })
 
-const { panelDate, panelType, toPrevYear, toNextYear, cls } =
-  inject(DatePanelDIKey)!
+const { panelDate, panelType, toPrevYear, toNextYear, cls } = inject(DatePanelDIKey)!
 </script>

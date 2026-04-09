@@ -19,22 +19,7 @@ export default defineConfig(() => {
     base: '/',
 
     resolve: {
-      extensions: ['.ts', '.js', '.json', '.tsx'],
-      // CodeMirror 在 node_modules 内存在多份 @codemirror/*，会触发
-      // "Unrecognized extension value... multiple instances of @codemirror/state"
-      dedupe: [
-        '@codemirror/state',
-        '@codemirror/view',
-        '@codemirror/language',
-        '@codemirror/commands',
-        '@codemirror/search',
-        '@codemirror/autocomplete',
-        '@codemirror/lint',
-        '@lezer/common',
-        '@lezer/highlight',
-        '@lezer/lr',
-        'codemirror'
-      ],
+      extensions: ['.ts', '.js', '.json', '.tsx']
     },
 
     css: { preprocessorOptions: { scss: { loadPaths: [resolve(__dirname, '../../packages')] } } },
@@ -66,18 +51,6 @@ export default defineConfig(() => {
       })
     ],
 
-    server: { port: 7788, host: true },
-
-    optimizeDeps: {
-      include: [
-        'codemirror',
-        '@codemirror/state',
-        '@codemirror/view',
-        '@codemirror/lang-javascript',
-        '@codemirror/lang-sql',
-        '@codemirror/lang-java',
-        '@codemirror/lang-json'
-      ]
-    }
+    server: { port: 7788, host: true }
   }
 })

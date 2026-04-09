@@ -1,19 +1,12 @@
-import {
-  computed,
-  nextTick,
-  shallowReactive,
-  shallowRef,
-  watch,
-  type ShallowRef
-} from 'vue'
+import { last, safeRun } from '@cat-kit/core'
 import type {
   TableRow,
   BatchEditEmits,
   BatchEditProps,
   TableExposed
 } from '@ultra-ui/desktop/types'
-import { last, safeRun } from '@cat-kit/core'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
+import { computed, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
 /** 按索引路径在原始数据树中定位节点（等价于历史 Forest.visit 路径访问） */
 function visitDataByIndexPath<T extends Record<string, unknown>>(
@@ -84,7 +77,7 @@ export function useEdit(options: Options): EditReturned {
 
   watch(
     () => state.visible,
-    v => {
+    (v) => {
       if (!v) {
         state.dataUpdated = false
       }
@@ -96,7 +89,7 @@ export function useEdit(options: Options): EditReturned {
 
   watch(
     () => state.row,
-    row => {
+    (row) => {
       props.model?.resetData()
       if (row) {
         state.type = 'update'
@@ -166,10 +159,7 @@ export function useEdit(options: Options): EditReturned {
   }
 
   function getInsertData(): Record<string, any> {
-    return safeRun(
-      () => JSON.parse(JSON.stringify(props.model?.data ?? {})),
-      {}
-    )
+    return safeRun(() => JSON.parse(JSON.stringify(props.model?.data ?? {})), {})
   }
 
   async function runCreate(cb: () => void) {
@@ -231,9 +221,7 @@ export function useEdit(options: Options): EditReturned {
     })
   }
 
-  function runWithLoading<Arg extends any[]>(
-    fn: (...args: Arg) => Promise<void> | void
-  ) {
+  function runWithLoading<Arg extends any[]>(fn: (...args: Arg) => Promise<void> | void) {
     return async (...args: Arg) => {
       state.loading = true
       if (state.row) {
@@ -282,7 +270,7 @@ export function useEdit(options: Options): EditReturned {
     if (state.type === 'update') {
       const { row } = state
       row &&
-        model.allKeys.forEach(key => {
+        model.allKeys.forEach((key) => {
           setChainValue(row.data, key, getChainValue(item, key))
         })
     }
@@ -297,11 +285,7 @@ export function useEdit(options: Options): EditReturned {
 
     const data = [...(props.data ?? [])]
 
-    const parent = visitDataByIndexPath(
-      data,
-      row.indexes.slice(0, -1),
-      childrenKey.value
-    )
+    const parent = visitDataByIndexPath(data, row.indexes.slice(0, -1), childrenKey.value)
 
     if (parent) {
       const children = parent[childrenKey.value]
