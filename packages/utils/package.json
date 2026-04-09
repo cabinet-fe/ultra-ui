@@ -8,55 +8,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "import": "./src/index.ts"
+      "import": "./dist/index.js"
     },
-    "./types": {
-      "types": "./src/types/index.ts",
-      "development": "./src/types/index.ts",
-      "import": "./src/types/index.ts"
-    },
-    "./types/helper": {
-      "types": "./src/types/helper.ts",
-      "development": "./src/types/helper.ts",
-      "import": "./src/types/helper.ts"
-    },
-    "./types/component-common": {
-      "types": "./src/types/component-common.ts",
-      "development": "./src/types/component-common.ts",
-      "import": "./src/types/component-common.ts"
-    },
-    "./types/tip-geometry": {
-      "types": "./src/types/tip-geometry.ts",
-      "development": "./src/types/tip-geometry.ts",
-      "import": "./src/types/tip-geometry.ts"
-    },
-    "./types/utils/*": {
-      "types": "./src/types/utils/*",
-      "development": "./src/types/utils/*",
-      "import": "./src/types/utils/*"
-    },
-    "./types/*": {
-      "types": "./src/types/*",
-      "development": "./src/types/*",
-      "import": "./src/types/*"
-    },
-    "./styles/*": {
-      "sass": "./src/styles/*",
-      "types": "./src/styles/*",
-      "development": "./src/styles/*",
-      "import": "./src/styles/*"
-    },
-    "./shared": {
-      "types": "./src/shared/index.ts",
-      "development": "./src/shared/index.ts",
-      "import": "./src/shared/index.ts"
-    },
-    "./shared/*": {
-      "types": "./src/shared/*",
-      "development": "./src/shared/*",
-      "import": "./src/shared/*"
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "development": "./src/*",
+      "import": "./dist/*.js"
     }
   },
   "scripts": {
