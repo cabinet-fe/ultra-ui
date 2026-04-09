@@ -40,6 +40,6 @@ src/
 
 ## 依赖
 
-- **依赖**：`@ultra-ui/utils`
+- **依赖**：`@ultra-ui/utils`、`@ultra-ui/styles`（SCSS 使用 `pkg:@ultra-ui/styles/mixins` 等）
 - **peer**：`vue ^3.5.0`
 - **被依赖**：`@ultra-ui/desktop`（`install.ts` 中批量注册）

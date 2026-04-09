@@ -18,6 +18,8 @@
       "@ultra-ui/icons/normal": ["../../packages/icons/src/normal.ts"],
       "@ultra-ui/icons/colorful": ["../../packages/icons/src/colorful.ts"],
       "@ultra-ui/icons/*": ["../../packages/icons/src/*"],
+      "@ultra-ui/styles": ["../../packages/styles/src/index.ts"],
+      "@ultra-ui/styles/*": ["../../packages/styles/src/*"],
       "@ultra-ui/utils": ["../../packages/utils/src/index.ts"],
       "@ultra-ui/utils/*": ["../../packages/utils/src/*"]
     }

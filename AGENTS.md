@@ -37,7 +37,8 @@ bun run build                                # turbo run build（各包 build �
 ```
 ultra-ui/
 ├── packages/
-│   ├── utils/           # @ultra-ui/utils — 工具函数、共享类型、BEM SCSS 基础设施（→ AGENTS.md）
+│   ├── utils/           # @ultra-ui/utils — 工具函数、共享类型（→ AGENTS.md）
+│   ├── styles/          # @ultra-ui/styles — 共享 SCSS（BEM、normalize、动画）（→ AGENTS.md）
 │   ├── compositions/    # @ultra-ui/compositions — Vue 组合式函数与主题系统（→ AGENTS.md）
 │   ├── directives/      # @ultra-ui/directives — Vue 自定义指令（→ AGENTS.md）
 │   ├── desktop/         # @ultra-ui/desktop — 桌面端组件库主包（→ AGENTS.md）
@@ -71,11 +72,14 @@ ultra-ui/
      playgrounds/desktop
 ```
 
+`@ultra-ui/styles`（共享 SCSS）被 `desktop`、`directives`、`playgrounds/desktop` 依赖；Sass 使用 `pkg:@ultra-ui/styles/...`，构建与预览需配置 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
+
 ## 路径别名
 
 | 别名                    | 指向                       |
 | ----------------------- | -------------------------- |
 | `@ultra-ui/utils`       | `packages/utils/src`       |
+| `@ultra-ui/styles`      | `packages/styles/src`      |
 | `@ultra-ui/desktop`     | `packages/desktop/src`     |
 | `@ultra-ui/compositions`| `packages/compositions/src`|
 | `@ultra-ui/directives`  | `packages/directives/src`  |
@@ -93,5 +97,5 @@ ultra-ui/
 ## 约束
 
 - Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
-- `sideEffects` 声明：组件 `style.ts`、指令样式、`styles/` 目录、`.css`、`.scss`。
+- `sideEffects` 声明：组件 `style.ts`、指令样式、`@ultra-ui/styles` 的 `.scss` 与副作用 TS 入口、`.css`、`.scss`。
 - 使用`tsc`校验时不得输出任何文件，包括声明文件

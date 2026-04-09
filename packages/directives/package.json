@@ -22,6 +22,7 @@
     "build": "bun -e 'void 0'"
   },
   "dependencies": {
+    "@ultra-ui/styles": "workspace:*",
     "@ultra-ui/utils": "workspace:*"
   },
   "peerDependencies": {

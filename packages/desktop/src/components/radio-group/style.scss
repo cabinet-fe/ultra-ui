@@ -1,6 +1,6 @@
-@use 'utils/src/styles/mixins' as m;
-@use 'utils/src/styles/functions' as fn;
-@use 'utils/src/styles/vars';
+@use 'pkg:@ultra-ui/styles/mixins' as m;
+@use 'pkg:@ultra-ui/styles/functions' as fn;
+@use 'pkg:@ultra-ui/styles/vars';
 
 @include m.b(radio-group) {
   vertical-align: middle;

@@ -1,6 +1,6 @@
-@use 'utils/src/styles/mixins' as m;
-@use 'utils/src/styles/functions' as fn;
-@use 'utils/src/styles/vars';
+@use 'pkg:@ultra-ui/styles/mixins' as m;
+@use 'pkg:@ultra-ui/styles/functions' as fn;
+@use 'pkg:@ultra-ui/styles/vars';
 
 $root-name: dialog;
 
@@ -27,8 +27,7 @@ $root-name: dialog;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  box-shadow: fn.use-var(shadow-x) fn.use-var(shadow-y) 10px 2px
-    fn.use-var(shadow-color);
+  box-shadow: fn.use-var(shadow-x) fn.use-var(shadow-y) 10px 2px fn.use-var(shadow-color);
   flex-wrap: nowrap;
   overflow: hidden;
   @include m.size using ($size) {

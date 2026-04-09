@@ -12,14 +12,7 @@
       :collapsed="config.collapsed"
       :current-path="currentPath"
       :style="{ width: config.collapsed ? '64px' : '260px' }"
-      @item-click="
-        router.replace({
-          path: route.path,
-          query: {
-            currentPath: $event.path
-          }
-        })
-      "
+      @item-click="router.replace({ path: route.path, query: { currentPath: $event.path } })"
       class="menu-wrapper"
     >
     </u-menu>
@@ -27,8 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, reactive, computed } from 'vue'
 import { Cart, HouseFilled, Lock, UserGroup } from '@ultra-ui/icons/normal'
+import { shallowRef, ref, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const menus = shallowRef<any[]>([
@@ -231,7 +224,7 @@ const menus1 = ref([
 </script>
 
 <style scoped lang="scss">
-@use 'utils/src/styles/functions' as fn;
+@use 'pkg:@ultra-ui/styles/functions' as fn;
 
 .config {
   display: flex;

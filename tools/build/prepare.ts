@@ -1,22 +1,22 @@
-import fg from 'fast-glob'
 import { resolve } from 'node:path'
-import { ROOT, DIST_ROOT, DESKTOP_PKG, UTILS_SRC } from './shared'
-import { cp, copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
 
-export async function copy(
-  patterns: string | string[],
-  srcDir: string,
-  destDir: string
-) {
+import { cp, copyFile, readJson, writeFile, writeJson } from '@cat-kit/be'
+import fg from 'fast-glob'
+
+import { ROOT, DIST_ROOT, DESKTOP_PKG, STYLES_SRC } from './shared'
+
+export async function copy(patterns: string | string[], srcDir: string, destDir: string) {
   const files = await fg(patterns, { cwd: srcDir })
-  await Promise.all(
-    files.map(file => cp(resolve(srcDir, file), resolve(destDir, file)))
-  )
+  await Promise.all(files.map((file) => cp(resolve(srcDir, file), resolve(destDir, file))))
 }
 
 export async function copyFiles() {
   await copyFile(resolve(ROOT, 'README.md'), resolve(DIST_ROOT, 'README.md'))
-  await copy(['styles/_*.scss', 'styles/fonts/*'], UTILS_SRC, DIST_ROOT)
+  await copy(
+    ['_*.scss', 'normalize.scss', 'anime/*.scss', 'fonts/*'],
+    STYLES_SRC,
+    resolve(DIST_ROOT, 'styles')
+  )
 }
 
 export async function genFiles() {
@@ -25,27 +25,11 @@ export async function genFiles() {
   Object.assign(pkgJSON, {
     name: 'ultra-ui',
     exports: {
-      '.': {
-        types: './index.d.ts',
-        default: './index.js',
-        import: './index.js'
-      },
-      './*': {
-        types: './*.d.ts',
-        default: './*',
-        import: './*'
-      },
-      './version': {
-        types: './version.d.ts',
-        default: './version.js',
-        import: './version.js'
-      },
+      '.': { types: './index.d.ts', default: './index.js', import: './index.js' },
+      './*': { types: './*.d.ts', default: './*', import: './*' },
+      './version': { types: './version.d.ts', default: './version.js', import: './version.js' },
       './types': './types/index.d.ts',
-      './install': {
-        types: './install.d.ts',
-        default: './install.js',
-        import: './install.js'
-      },
+      './install': { types: './install.d.ts', default: './install.js', import: './install.js' },
       './styles': {
         types: './styles/index.d.ts',
         default: './styles/index.js',
@@ -58,9 +42,6 @@ export async function genFiles() {
 
   const version = pkgJSON.version
 
-  await writeFile(
-    resolve(DIST_ROOT, 'version.js'),
-    `export const version = '${version}'`
-  )
+  await writeFile(resolve(DIST_ROOT, 'version.js'), `export const version = '${version}'`)
   await writeJson(resolve(DIST_ROOT, 'package.json'), pkgJSON)
 }

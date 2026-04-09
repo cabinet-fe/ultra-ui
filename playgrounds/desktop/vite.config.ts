@@ -4,12 +4,15 @@ import { fileURLToPath } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { NodePackageImporter } from 'sass-embedded'
 import type { ComponentResolver } from 'unplugin-vue-components/types'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const repoRoot = resolve(__dirname, '../..')
 const desktopRoot = resolve(__dirname, '../../packages/desktop/src')
+const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 function existModule(moduleId: string): boolean {
   if (!moduleId.startsWith('@ultra-ui/desktop/')) return false
@@ -54,6 +57,10 @@ function ultraUiDesktopResolver(): ComponentResolver {
 export default defineConfig(() => {
   return {
     base: '/',
+
+    css: {
+      preprocessorOptions: { scss: { api: 'modern-compiler', importers: [nodePkgImporter] } }
+    },
 
     resolve: { extensions: ['.ts', '.js', '.json', '.tsx'] },
 

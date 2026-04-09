@@ -1,6 +1,6 @@
 # AGENTS.md — @ultra-ui/utils
 
-工具函数、共享类型与 BEM/SCSS 基础设施包。是整个组件库的底层依赖，不含任何 Vue 组件。主题 TS 与全局 normalize、动画 SCSS 在 `@ultra-ui/compositions` / `@ultra-ui/desktop` 中维护。
+工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）在 **`@ultra-ui/styles`**；主题 TS 在 **`@ultra-ui/compositions`**。
 
 ## 目录结构
 
@@ -19,10 +19,6 @@ src/
 │   ├── component-common.ts # 组件公共类型（Size, FormComponentProps 等）
 │   ├── form-context.ts   # 表单上下文类型
 │   └── utils/            # 工具相关类型
-└── styles/               # BEM SCSS 基础设施（供组件 SCSS 与 directives 引用）
-    ├── _vars.scss        # 命名空间变量（$namespace: 'u-'）
-    ├── _mixins.scss      # BEM mixins（b/e/m/em/is）
-    └── _functions.scss   # CSS 变量函数（use-var, component-var）
 ```
 
 ## 导出子路径
@@ -31,15 +27,16 @@ src/
 | ------ | ---- |
 | `@ultra-ui/utils` | 工具函数 + 共享 + 类型聚合 |
 | `@ultra-ui/utils/types` | 仅类型（含 `component-common`、`helper` 等子路径） |
-| `@ultra-ui/utils/styles/*` | SCSS partial 直接访问（含 `sass` 条件） |
 | `@ultra-ui/utils/shared` | 共享常量 |
 
 ## BEM + SCSS
 
+组件与指令的样式文件使用 **`@ultra-ui/styles`**，Sass 侧写 `pkg:`（详见 `packages/styles/AGENTS.md`）：
+
 ```scss
-@use 'utils/src/styles/mixins' as m;
-@use 'utils/src/styles/vars';
-@use 'utils/src/styles/functions' as fn;
+@use 'pkg:@ultra-ui/styles/mixins' as m;
+@use 'pkg:@ultra-ui/styles/vars';
+@use 'pkg:@ultra-ui/styles/functions' as fn;
 
 @include m.b(component-name) {
   color: fn.use-var(text-color, main); // → var(--u-text-color-main)
@@ -51,7 +48,7 @@ src/
 
 - 命名空间 `$namespace: 'u-'`，BEM 分隔符 `__`（element）、`--`（modifier）
 - 组件级 CSS 变量：`fn.component-var()` + `m.dark()` 覆盖暗色
-- 构建/预览时 Sass `loadPaths` 必须包含 `packages/`，以解析 `utils/src/styles/...`
+- 编译入口需启用 `NodePackageImporter`（入口目录为 monorepo 根），以解析 `pkg:@ultra-ui/styles/...`
 - 组件级 token 在各组件 `style.scss` 中以 `--u-{component}-*` 声明
 
 ## 关键工具函数
@@ -71,4 +68,4 @@ src/
 
 - **依赖**：`@cat-kit/core`
 - **peer**：`vue ^3.5.0`
-- **被依赖**：compositions、directives、desktop
+- **被依赖**：compositions、directives、desktop（样式资产由 `@ultra-ui/styles` 单独提供）

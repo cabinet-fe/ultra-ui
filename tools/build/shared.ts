@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -15,6 +15,10 @@ export const DESKTOP_SRC = resolve(DESKTOP_PKG, 'src')
 
 export const UTILS_SRC = resolve(PACKAGES, 'utils/src')
 
+/** @ultra-ui/styles 源码根（SCSS + normalize 入口 TS） */
+export const STYLES_PKG = resolve(PACKAGES, 'styles')
+export const STYLES_SRC = resolve(STYLES_PKG, 'src')
+
 export const COMPOSITIONS_SRC = resolve(PACKAGES, 'compositions/src')
 
 export const DIRECTIVES_SRC = resolve(PACKAGES, 'directives/src')
@@ -26,7 +30,9 @@ export const DIST_ROOT = resolve(ROOT, 'dist')
 
 export const workspaceTsAliases = {
   'ultra-ui': DESKTOP_SRC,
+  '@ultra-ui/utils/types': resolve(UTILS_SRC, 'types'),
   '@ultra-ui/utils': UTILS_SRC,
+  '@ultra-ui/styles': STYLES_SRC,
   '@ultra-ui/compositions': COMPOSITIONS_SRC,
   '@ultra-ui/directives': DIRECTIVES_SRC,
   '@ultra-ui/desktop/types': resolve(DESKTOP_SRC, 'types'),

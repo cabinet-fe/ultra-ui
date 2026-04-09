@@ -1,18 +1,18 @@
 import { existsSync } from 'fs'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
-import { format } from 'oxfmt'
 import { join, resolve } from 'path'
 
-import type { ComponentCtx } from './type'
+import { format } from 'oxfmt'
 
 import { COMPONENT_PATH, UI_PATH } from '../shared'
+import type { ComponentCtx } from './type'
 
 const NAME_SPACE = 'U'
 
 function upperCamelCaseFromKebab(name: string): string {
   return name
     .split(/[-_]/)
-    .map(s => (s ? s[0]!.toUpperCase() + s.slice(1) : ''))
+    .map((s) => (s ? s[0]!.toUpperCase() + s.slice(1) : ''))
     .join('')
 }
 
@@ -123,9 +123,9 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
 export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
-  @use 'utils/src/styles/mixins' as m;
-  @use 'utils/src/styles/functions' as fn;
-  @use 'utils/src/styles/vars';
+  @use 'pkg:@ultra-ui/styles/mixins' as m;
+  @use 'pkg:@ultra-ui/styles/functions' as fn;
+  @use 'pkg:@ultra-ui/styles/vars';
 
   // 方便拼接
   $root-name: ${ctx.componentName};

@@ -4,6 +4,7 @@
     { "path": "./tools/cli/tsconfig.json" },
     { "path": "./tools/build/tsconfig.json" },
     { "path": "./packages/utils/tsconfig.json" },
+    { "path": "./packages/styles/tsconfig.json" },
     { "path": "./packages/compositions/tsconfig.json" },
     { "path": "./packages/directives/tsconfig.json" },
     { "path": "./packages/desktop/tsconfig.json" },

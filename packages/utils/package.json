@@ -2,10 +2,7 @@
   "name": "@ultra-ui/utils",
   "version": "0.1.0",
   "type": "module",
-  "sideEffects": [
-    "*.css",
-    "*.scss"
-  ],
+  "sideEffects": ["*.css"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

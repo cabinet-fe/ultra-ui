@@ -1,5 +1,5 @@
-@use 'utils/src/styles/mixins' as m;
-@use 'utils/src/styles/functions' as fn;
+@use 'pkg:@ultra-ui/styles/mixins' as m;
+@use 'pkg:@ultra-ui/styles/functions' as fn;
 
 @include m.b(number-range-input) {
   display: inline-flex;

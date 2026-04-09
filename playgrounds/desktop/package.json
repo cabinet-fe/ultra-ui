@@ -12,6 +12,7 @@
     "@ultra-ui/desktop": "workspace:*",
     "@ultra-ui/directives": "workspace:*",
     "@ultra-ui/icons": "workspace:*",
+    "@ultra-ui/styles": "workspace:*",
     "@ultra-ui/utils": "workspace:*",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"

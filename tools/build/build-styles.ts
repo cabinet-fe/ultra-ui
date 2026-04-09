@@ -1,7 +1,7 @@
 import { dirname, join, relative, resolve, sep } from 'node:path'
 
 import type { ModuleFormat, Plugin } from 'rolldown'
-import { compileAsync } from 'sass-embedded'
+import { compileAsync, NodePackageImporter } from 'sass-embedded'
 import { build as tsdownBuild } from 'tsdown'
 
 import {
@@ -9,9 +9,12 @@ import {
   DIRECTIVES_SRC,
   DIST_ROOT,
   PACKAGES,
-  UTILS_SRC,
+  ROOT,
+  STYLES_SRC,
   workspaceTsAliases
 } from './shared'
+
+const nodePkgImporter = new NodePackageImporter(ROOT)
 
 const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
@@ -30,8 +33,8 @@ function scssDistRelativePath(absolutePath: string): string {
   if (isUnderDir(DESKTOP_SRC, absolutePath)) {
     return relative(DESKTOP_SRC, absolutePath).replace(/\.scss$/, '.css')
   }
-  if (isUnderDir(UTILS_SRC, absolutePath)) {
-    return relative(UTILS_SRC, absolutePath).replace(/\.scss$/, '.css')
+  if (isUnderDir(STYLES_SRC, absolutePath)) {
+    return join('styles', relative(STYLES_SRC, absolutePath)).replace(/\.scss$/, '.css')
   }
   if (isUnderDir(DIRECTIVES_SRC, absolutePath)) {
     return join('directives', relative(DIRECTIVES_SRC, absolutePath)).replace(/\.scss$/, '.css')
@@ -62,7 +65,8 @@ function scssPlugin(): Plugin {
           if (!compiledScssMap.has(absolutePath)) {
             try {
               const result = await compileAsync(absolutePath, {
-                loadPaths: [PACKAGES, dirname(absolutePath)]
+                importers: [nodePkgImporter],
+                loadPaths: [dirname(absolutePath)]
               })
               compiledScssMap.set(absolutePath, { css: result.css, outputPath: cssOutputPath })
             } catch (error) {
@@ -114,11 +118,9 @@ const styleBuildBase = {
 }
 
 export async function buildStyles() {
-  await tsdownBuild({
-    ...styleBuildBase,
-    cwd: DESKTOP_SRC,
-    entry: ['components/**/style.ts', 'styles/index.ts']
-  })
+  await tsdownBuild({ ...styleBuildBase, cwd: DESKTOP_SRC, entry: ['components/**/style.ts'] })
 
   await tsdownBuild({ ...styleBuildBase, cwd: DIRECTIVES_SRC, entry: ['**/style.ts'] })
+
+  await tsdownBuild({ ...styleBuildBase, cwd: STYLES_SRC, entry: ['index.ts'] })
 }

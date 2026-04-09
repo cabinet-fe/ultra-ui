@@ -1,0 +1,32 @@
+{
+  "name": "@ultra-ui/styles",
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": [
+    "*.scss",
+    "src/index.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./normalize": {
+      "sass": "./src/normalize.scss",
+      "default": "./src/normalize.scss"
+    },
+    "./mixins": {
+      "sass": "./src/_mixins.scss"
+    },
+    "./vars": {
+      "sass": "./src/_vars.scss"
+    },
+    "./functions": {
+      "sass": "./src/_functions.scss"
+    }
+  },
+  "scripts": {
+    "build": "bun -e 'void 0'"
+  }
+}

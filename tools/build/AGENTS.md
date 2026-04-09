@@ -26,10 +26,11 @@ boot()
 
 | 文件 | 职责 |
 | ---- | ---- |
-| `index.ts` | 入口，编排构建流程 |
+| `index.ts` | 入口：主包 `build()` 后 **以 Node 子进程** 执行 `cli-build-styles.ts`（`tsx`），再 `copyFiles` / `genFiles`（避免 Bun 同进程二次加载 sass 崩溃） |
+| `cli-build-styles.ts` | 仅调用 `buildStyles()`，供子进程执行 |
 | `build.ts` | tsdown 编译 desktop/src 的 JS + DTS（unbundle 模式，Vue/JSX 插件） |
-| `build-styles.ts` | 三轮 tsdown：desktop 组件样式 → directives 样式 → utils 样式入口；自定义 scss 插件用 sass-embedded 编译 |
-| `prepare.ts` | copyFiles（README、SCSS 源文件、字体）+ genFiles（发布 package.json、version.js） |
+| `build-styles.ts` | 三轮 tsdown：desktop 组件样式 → directives 样式 → `@ultra-ui/styles` 的 normalize 入口；scss 插件用 sass-embedded + `NodePackageImporter`（`ROOT`）编译 |
+| `prepare.ts` | copyFiles（README、`packages/styles/src` 下 SCSS 源、字体占位）+ genFiles（发布 package.json、version.js） |
 | `release.ts` | npm publish 流程 |
 | `shared.ts` | 路径常量 + workspace 别名映射 |
 
@@ -42,6 +43,7 @@ boot()
 | `DESKTOP_PKG` | `packages/desktop` |
 | `DESKTOP_SRC` | `packages/desktop/src` |
 | `UTILS_SRC` | `packages/utils/src` |
+| `STYLES_PKG` / `STYLES_SRC` | `packages/styles`、`packages/styles/src` |
 | `COMPOSITIONS_SRC` | `packages/compositions/src` |
 | `DIRECTIVES_SRC` | `packages/directives/src` |
 | `DIST_ROOT` | `dist/`（仓库根） |

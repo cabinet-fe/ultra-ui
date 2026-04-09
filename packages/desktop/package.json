@@ -43,6 +43,7 @@
     "@ultra-ui/compositions": "workspace:*",
     "@ultra-ui/directives": "workspace:*",
     "@ultra-ui/icons": "workspace:*",
+    "@ultra-ui/styles": "workspace:*",
     "@ultra-ui/utils": "workspace:*",
     "codemirror": "^6.0.2",
     "lexical": "^0.42.0"

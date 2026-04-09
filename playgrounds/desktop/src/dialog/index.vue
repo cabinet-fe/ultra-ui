@@ -36,10 +36,7 @@
 
       <template #footer>
         <u-button type="primary" text @click="visible = false">取消</u-button>
-        <u-pop-confirm
-          @confirm="visible = false"
-          title="确认删除吗asds sad asd"
-        >
+        <u-pop-confirm @confirm="visible = false" title="确认删除吗asds sad asd">
           <template #reference>
             <u-button type="primary">确认</u-button>
           </template>
@@ -47,9 +44,7 @@
       </template>
     </u-dialog>
 
-    <u-button ref="buttonRef" @click="transition.toggle(a => !a)">
-      移动
-    </u-button>
+    <u-button ref="buttonRef" @click="transition.toggle((a) => !a)"> 移动 </u-button>
 
     <u-button @click="visible2 = !visible2">弹出</u-button>
 
@@ -97,7 +92,7 @@ const transition2 = useTransition('css', {
   target: boxRef
 })
 
-watch(visible2, v => {
+watch(visible2, (v) => {
   if (v) {
     nextTick(() => {
       setStyles(boxRef.value!, {
@@ -113,7 +108,7 @@ watch(visible2, v => {
 </script>
 
 <style lang="scss" scoped>
-@use 'utils/src/styles/anime/slide';
+@use 'pkg:@ultra-ui/styles/anime/slide.scss' as *;
 .box {
   display: flex;
   flex-direction: column;

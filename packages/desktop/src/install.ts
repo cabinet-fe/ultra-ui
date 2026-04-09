@@ -5,7 +5,7 @@ import * as components from './components'
 import { vLoading } from './components/loading'
 
 // 引入样式
-import './styles/normalize.scss'
+import '@ultra-ui/styles/normalize.scss'
 import './components/action/style'
 import './components/animation/style'
 import './components/auto-complete/style'

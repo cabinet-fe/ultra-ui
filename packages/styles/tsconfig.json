@@ -1,0 +1,14 @@
+{
+  "extends": "@cat-kit/tsconfig/tsconfig.web.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "customConditions": ["development"]
+  },
+  "include": ["src/**/*.ts", "src/env.d.ts"],
+  "exclude": ["node_modules"]
+}
