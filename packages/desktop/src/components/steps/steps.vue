@@ -57,7 +57,7 @@ import type {
   StepsEmits,
   ComponentSize,
   StepsSlotScope
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
 import { Check } from '@ultra-ui/icons/normal'

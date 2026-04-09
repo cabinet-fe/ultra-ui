@@ -15,7 +15,7 @@ import type {
   CascadeNode,
   DropdownExposed,
   PanelItem
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { createIncrease } from '@ultra-ui/utils'
 import type { Updater } from '@ultra-ui/compositions'
 

@@ -1,12 +1,5 @@
 <template>
-  <u-layout
-    :class="cls.b"
-    :cols="cols"
-    rows="100%"
-    gap="8px"
-    resizable
-    @keyup.esc="handleClose"
-  >
+  <u-layout :class="cls.b" :cols="cols" rows="100%" gap="8px" resizable @keyup.esc="handleClose">
     <!-- 编辑列表 -->
     <BatchEditList :slots="slots" />
 
@@ -19,6 +12,9 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel">
+import { bem } from '@ultra-ui/utils'
+import { computed, inject, provide, shallowRef, watch } from 'vue'
+
 import type {
   BatchEditEmits,
   BatchEditFeature,
@@ -26,16 +22,14 @@ import type {
   TableColumnSlotsScope,
   TableExposed,
   TableRow
-} from '@ultra-ui/desktop/types'
-import { computed, inject, provide, shallowRef, watch } from 'vue'
+} from '../../types'
+import { DialogDIKey } from '../dialog/di'
 import type { FormModel } from '../form'
 import { ULayout } from '../layout'
-import { bem } from '@ultra-ui/utils'
-import { DialogDIKey } from '../dialog/di'
-import { useEdit } from './use-edit'
-import { BatchEditDIKey } from './di'
-import BatchEditList from './batch-edit-list.vue'
 import BatchEditForm from './batch-edit-form.vue'
+import BatchEditList from './batch-edit-list.vue'
+import { BatchEditDIKey } from './di'
+import { useEdit } from './use-edit'
 
 defineOptions({ name: 'BatchEdit' })
 
@@ -53,12 +47,7 @@ const staticFeatures = computed(() => {
     return new Set(features)
   }
 
-  const defaultFeatures = new Set<BatchEditFeature>([
-    'create',
-    'delete',
-    'update',
-    'createChild'
-  ])
+  const defaultFeatures = new Set<BatchEditFeature>(['create', 'delete', 'update', 'createChild'])
 
   if (!features) {
     return defaultFeatures
@@ -92,10 +81,7 @@ const dynamicFeatures = computed<
     return ret
   }
 
-  return {} as Record<
-    BatchEditFeature,
-    ((row?: TableRow) => boolean) | undefined
-  >
+  return {} as Record<BatchEditFeature, ((row?: TableRow) => boolean) | undefined>
 })
 
 const slots = defineSlots<
@@ -143,7 +129,7 @@ const dialogCtx = inject(DialogDIKey, undefined)
 
 // 如果在dialog上下文中
 dialogCtx &&
-  watch(dialogCtx.visible, visible => {
+  watch(dialogCtx.visible, (visible) => {
     !visible && editCtx.handleClose()
   })
 

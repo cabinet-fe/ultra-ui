@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, withUnit } from '@ultra-ui/utils'
-import type { CardProps } from '@ultra-ui/desktop/types'
+import type { CardProps } from '../../types'
 import { computed, provide } from 'vue'
 import { CardDIKey } from './di'
 import { useFormFallbackProps } from '@ultra-ui/compositions'

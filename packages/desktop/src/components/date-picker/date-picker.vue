@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatePickerEmits, DatePickerProps } from '@ultra-ui/desktop/types'
+import type { DatePickerEmits, DatePickerProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { UDropdown } from '../dropdown'
 import { UInput } from '../input'
@@ -55,7 +55,7 @@ import { computed, shallowRef, watch } from 'vue'
 import { Calendar } from '@ultra-ui/icons/normal'
 import { UDatePanel } from '../date-panel'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import type { DropdownExposed } from '@ultra-ui/desktop/types'
+import type { DropdownExposed } from '../../types'
 import { date, type Dater } from '@cat-kit/core'
 
 defineOptions({

@@ -47,7 +47,7 @@
 <script lang="ts" setup>
 import { $n, n, o, isUndef } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { NumberInputEmits, NumberInputProps, InputExposed } from '@ultra-ui/desktop/types'
+import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../types'
 import { vRipple } from '@ultra-ui/directives'
 import { Tween } from '@ultra-ui/utils'
 import { bem } from '@ultra-ui/utils'

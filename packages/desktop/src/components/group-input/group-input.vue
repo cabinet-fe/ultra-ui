@@ -51,7 +51,7 @@
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { GroupInputEmits, GroupInputProps } from '@ultra-ui/desktop/types'
+import type { GroupInputEmits, GroupInputProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { Minus, Plus } from '@ultra-ui/icons/normal'
 import { useGroupItems } from './use-group-items'

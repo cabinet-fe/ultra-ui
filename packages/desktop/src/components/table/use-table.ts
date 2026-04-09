@@ -6,7 +6,7 @@ import type {
   TableRow,
   RenderReturn,
   TableRowSlotsScope
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, type BEM } from '@ultra-ui/utils'
 import { getChainValue } from '@ultra-ui/utils'
 import type { ColumnNode } from './node/col'

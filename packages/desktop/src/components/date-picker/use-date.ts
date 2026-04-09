@@ -1,4 +1,4 @@
-import type { DatePickerEmits, DatePickerProps } from '@ultra-ui/desktop/types'
+import type { DatePickerEmits, DatePickerProps } from '../../types'
 import { bem, type BEM } from '@ultra-ui/utils'
 import { date, type Dater } from '@cat-kit/core'
 import {

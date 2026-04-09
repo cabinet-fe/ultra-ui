@@ -80,7 +80,7 @@ import type {
   BatchEditProps,
   ButtonProps,
   TableColumn
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { AddChild, Copy, Delete, Edit, Plus, View } from '@ultra-ui/icons'
 import { bem } from '@ultra-ui/utils'
 import { omit } from '@ultra-ui/utils'

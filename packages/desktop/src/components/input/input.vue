@@ -47,7 +47,7 @@
 
 <script lang="tsx" setup>
 import { useFocus, useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { InputEmits, InputProps, _InputExposed } from '@ultra-ui/desktop/types'
+import type { InputEmits, InputProps, _InputExposed } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import { Close } from '@ultra-ui/icons/normal'

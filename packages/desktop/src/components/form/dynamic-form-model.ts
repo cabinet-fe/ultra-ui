@@ -1,4 +1,4 @@
-import type { FormModelItem, DataSettingConfig } from '@ultra-ui/desktop/types'
+import type { FormModelItem, DataSettingConfig } from '../../types'
 import { Validator } from '@ultra-ui/utils'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'

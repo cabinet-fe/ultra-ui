@@ -1,5 +1,5 @@
 import type { InjectionKey, ShallowReactive, ShallowRef } from 'vue'
-import type { Breakpoint, GridItemProps } from '@ultra-ui/desktop/types'
+import type { Breakpoint, GridItemProps } from '../../types'
 
 export interface GridContext {
   /** 当前断点 */

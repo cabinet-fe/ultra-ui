@@ -26,7 +26,7 @@ import { computed } from 'vue'
 import { bem } from '@ultra-ui/utils'
 import { getMonthDays, weekDays } from '../../calendar/utils'
 import type { Dater } from '@cat-kit/core'
-import type { CalendarDay } from '@ultra-ui/desktop/types'
+import type { CalendarDay } from '../../../types'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
 

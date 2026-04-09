@@ -58,7 +58,7 @@ import type {
   ComponentSize,
   ScrollExposed,
   TableRowSlotsScope
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, setStyles, withUnit } from '@ultra-ui/utils'
 import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 import { TableDIKey } from './di'

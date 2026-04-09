@@ -65,7 +65,7 @@ import type {
   DateRangePickerEmits,
   DateRangePickerProps,
   DropdownExposed
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed, shallowRef, watch } from 'vue'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'

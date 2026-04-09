@@ -94,7 +94,7 @@ import { UScroll } from '../../scroll'
 import { UEmpty } from '../../empty'
 import { ExpressionEditorDIKey } from '../di'
 import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import type { VariableItem } from '@ultra-ui/desktop/types'
+import type { VariableItem } from '../../../types'
 import { bem } from '@ultra-ui/utils'
 import { ArrowRight, Search } from '@ultra-ui/icons/normal'
 

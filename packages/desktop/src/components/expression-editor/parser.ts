@@ -1,6 +1,6 @@
 import { $createTextNode, type LexicalNode } from 'lexical'
 import { $createVariableNode } from './nodes/variable-node'
-import type { VariableItem } from '@ultra-ui/desktop/types'
+import type { VariableItem } from '../../types'
 
 /**
  * 解析表达式内容

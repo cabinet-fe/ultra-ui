@@ -4,7 +4,7 @@ import type {
   ModelRules,
   DataSettingConfig,
   IFormModel
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { middleProxy, Validator } from '@ultra-ui/utils'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
 import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'

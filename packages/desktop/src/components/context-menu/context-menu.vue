@@ -24,7 +24,7 @@ import type {
   ContextMenuItem,
   ContextMenuProps,
   ComponentSize
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, withUnit, zIndex } from '@ultra-ui/utils'
 import { computed, provide, shallowRef, type CSSProperties } from 'vue'
 import { ContextMenuDIKey } from './di'

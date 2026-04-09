@@ -37,7 +37,7 @@
 
 <script lang="tsx" setup>
 import { bem, withUnit } from '@ultra-ui/utils'
-import type { FormItemProps, ComponentSize } from '@ultra-ui/desktop/types'
+import type { FormItemProps, ComponentSize } from '../../types'
 import { type CSSProperties, computed } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ultra-ui/compositions'
 import { UGridItem } from '../grid'

@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@ultra-ui/desktop/components'
+import { UIcon } from '../..'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'

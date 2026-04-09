@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '@ultra-ui/desktop/types'
+import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import {
   computed,

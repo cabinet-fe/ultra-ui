@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PaletteProps } from '@ultra-ui/desktop/types'
+import type { PaletteProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { UTip } from '../tip'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'

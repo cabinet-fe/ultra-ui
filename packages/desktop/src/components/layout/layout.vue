@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { LayoutProps } from '@ultra-ui/desktop/types'
+import type { LayoutProps } from '../../types'
 import { bem, withUnit } from '@ultra-ui/utils'
 import {
   computed,

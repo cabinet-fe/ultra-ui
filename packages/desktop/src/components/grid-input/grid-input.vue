@@ -28,7 +28,7 @@ import type {
   GridInputProps,
   GridInputEmits,
   GridInputExposed
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
 

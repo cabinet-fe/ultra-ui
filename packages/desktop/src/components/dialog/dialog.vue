@@ -94,7 +94,7 @@ import type {
   DialogEmits,
   DialogExposed,
   ComponentSize
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
 import { useDrag, useFallbackProps } from '@ultra-ui/compositions'
 import { UIcon } from '../icon'
@@ -103,7 +103,7 @@ import { Close, Maximum, Recover } from '@ultra-ui/icons/normal'
 import { useMaximum } from './use-maximum'
 import { DialogDIKey } from './di'
 import { UNodeRender } from '../node-render'
-import type { ScrollExposed } from '@ultra-ui/desktop/types'
+import type { ScrollExposed } from '../../types'
 
 defineOptions({
   name: 'Dialog',

@@ -34,10 +34,10 @@
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@ultra-ui/compositions'
-import type { MenuEmits, MenuProps, ComponentSize } from '@ultra-ui/desktop'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, shallowReactive, watch } from 'vue'
 
+import type { MenuEmits, MenuProps, ComponentSize } from '../..'
 import { UScroll } from '../scroll'
 import { MenuDIKey } from './di'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'

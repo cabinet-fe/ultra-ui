@@ -7,7 +7,7 @@ import type {
   RenderReturn,
   TableColumn,
   TableRowSlotsScope
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { ColumnConfig } from './use-columns'
 import type { VirtualReturned } from '@ultra-ui/compositions'

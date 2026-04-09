@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { type CSSProperties, computed, inject } from 'vue'
 import { CardDIKey } from './di'
-import type { CardActionProps } from '@ultra-ui/desktop/types'
+import type { CardActionProps } from '../../types'
 
 defineOptions({ name: 'CardAction' })
 

@@ -62,7 +62,7 @@
 import { inject, ref } from 'vue'
 import { MenuDIKey } from './di'
 import { UTip } from '../tip'
-import type { MenuItem } from '@ultra-ui/desktop/types'
+import type { MenuItem } from '../../types'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'

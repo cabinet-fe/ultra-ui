@@ -84,7 +84,7 @@ import type {
   PaginatorEmits,
   _PaginatorExposed,
   ComponentSize
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { useConfig, useFallbackProps } from '@ultra-ui/compositions'
 import { computed, reactive, shallowRef } from 'vue'

@@ -1,4 +1,4 @@
-import type { MessageConfirmProps, ColorType } from '@ultra-ui/desktop/types'
+import type { MessageConfirmProps, ColorType } from '../../types'
 import UMessageConfirm from './message-confirm.vue'
 import { createVNode, render } from 'vue'
 import { zIndex } from '@ultra-ui/utils'

@@ -1,4 +1,4 @@
-import type { BatchEditProps, BatchEditFeature } from '@ultra-ui/desktop/types'
+import type { BatchEditProps, BatchEditFeature } from '../../types'
 import { type ShallowRef, shallowRef, watch } from 'vue'
 
 export interface TipReturned {

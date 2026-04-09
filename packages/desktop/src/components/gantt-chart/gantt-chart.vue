@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { GanttChartProps } from '@ultra-ui/desktop/types'
+import type { GanttChartProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 
 defineOptions({

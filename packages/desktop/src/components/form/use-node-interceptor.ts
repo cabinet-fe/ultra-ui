@@ -1,4 +1,4 @@
-import type { FormProps } from '@ultra-ui/desktop/types'
+import type { FormProps } from '../../types'
 import { onBeforeUnmount, useSlots, type VNode } from 'vue'
 import { pick } from '@ultra-ui/utils'
 import { createIncrease, extractNormalVNodes } from '@ultra-ui/utils'

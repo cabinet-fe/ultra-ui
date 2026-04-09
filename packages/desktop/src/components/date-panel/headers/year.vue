@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@ultra-ui/desktop/components'
+import { UIcon } from '../..'
 import { DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
 import { computed } from 'vue'
 import { inject } from 'vue'

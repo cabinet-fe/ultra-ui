@@ -1,4 +1,4 @@
-import type { BreakpointName, BreakCols, Breakpoint } from '@ultra-ui/desktop/types'
+import type { BreakpointName, BreakCols, Breakpoint } from '../../types'
 
 export const DEFAULT_COLS = 24
 

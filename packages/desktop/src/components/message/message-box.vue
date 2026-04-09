@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageOptions } from '@ultra-ui/desktop/types'
+import type { MessageOptions } from '../../types'
 import UMessage from './message.vue'
 
 defineOptions({

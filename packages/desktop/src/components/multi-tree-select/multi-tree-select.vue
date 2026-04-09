@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '@ultra-ui/desktop/types'
+import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
 import { UDropdown } from '../dropdown'
@@ -111,7 +111,7 @@ import { dfs } from '@cat-kit/core'
 import { omit } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import type { TreeSlotsScope } from '../tree/di'
-import type { DropdownExposed } from '@ultra-ui/desktop/types'
+import type { DropdownExposed } from '../../types'
 
 defineOptions({ name: 'MultiTreeSelect' })
 

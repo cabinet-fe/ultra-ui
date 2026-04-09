@@ -49,7 +49,7 @@ import { shallowRef, toRef } from 'vue'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
 import type { FormModel } from './form-model'
 import type { DynamicFormModel } from './dynamic-form-model'
-import type { BreakCols, GridExposed, FormProps, _FormExposed } from '@ultra-ui/desktop/types'
+import type { BreakCols, GridExposed, FormProps, _FormExposed } from '../../types'
 
 defineOptions({
   name: 'Form'

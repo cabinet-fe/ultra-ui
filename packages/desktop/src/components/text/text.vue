@@ -13,7 +13,7 @@ import {
   h,
   createTextVNode
 } from 'vue'
-import type { TextProps } from '@ultra-ui/desktop/types'
+import type { TextProps } from '../../types'
 import { bem, withUnit, isTextNode, getHighlightChunks } from '@ultra-ui/utils'
 import { UNodeRender } from '../node-render'
 

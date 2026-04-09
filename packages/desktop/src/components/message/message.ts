@@ -1,5 +1,5 @@
 import { h, render, shallowReactive } from 'vue'
-import type { MessageOptions, Message, MessageInstance } from '@ultra-ui/desktop/types'
+import type { MessageOptions, Message, MessageInstance } from '../../types'
 import { bem, setStyles, zIndex } from '@ultra-ui/utils'
 import UMessageBox from './message-box.vue'
 

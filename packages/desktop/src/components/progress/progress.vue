@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ProgressProps, ColorType } from '@ultra-ui/desktop/types'
+import type { ProgressProps, ColorType } from '../../types'
 import { bem, withUnit } from '@ultra-ui/utils'
 import { computed } from 'vue'
 import { n } from '@cat-kit/core'

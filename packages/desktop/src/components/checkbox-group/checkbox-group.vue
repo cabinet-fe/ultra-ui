@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { CheckboxGroupProps, CheckboxGroupEmits } from '@ultra-ui/desktop/types'
+import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'
 import { bem } from '@ultra-ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'

@@ -33,7 +33,7 @@ import type {
   NumberRangeInputEmits,
   NumberRangeInputProps,
   NumberRangeTuple
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'

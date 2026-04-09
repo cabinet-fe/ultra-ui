@@ -1,6 +1,6 @@
 import { TreeNode } from '@cat-kit/core'
 import { reactive, shallowReactive } from 'vue'
-import type { TableColumn, TableColumnAlign } from '@ultra-ui/desktop/types'
+import type { TableColumn, TableColumnAlign } from '../../../types'
 
 export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   declare children?: ColumnNode[] | undefined

@@ -137,7 +137,7 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
-import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '@ultra-ui/desktop/types'
+import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '../../types'
 import { bem, withUnit } from '@ultra-ui/utils'
 import { UTag } from '../tag'
 import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/compositions'

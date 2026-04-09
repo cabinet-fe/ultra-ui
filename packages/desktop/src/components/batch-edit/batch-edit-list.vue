@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BatchEditFeature, TableRow } from '@ultra-ui/desktop/types'
+import type { BatchEditFeature, TableRow } from '../../types'
 import { AddChild, Delete, InsertToNext, InsertToPrev } from '@ultra-ui/icons/normal'
 import { omit } from '@ultra-ui/utils'
 import { computed, inject, type Slots } from 'vue'

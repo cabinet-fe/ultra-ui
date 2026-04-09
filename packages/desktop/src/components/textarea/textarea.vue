@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TextareaProps, TextareaEmits, ComponentSize } from '@ultra-ui/desktop/types'
+import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { UIcon } from '../icon'

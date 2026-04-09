@@ -18,7 +18,7 @@ import { bem } from '@ultra-ui/utils'
 import { getYearMonths } from '../../calendar/utils'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
-import type { CalendarMonth } from '@ultra-ui/desktop/types'
+import type { CalendarMonth } from '../../../types'
 import type { Dater } from '@cat-kit/core'
 
 defineOptions({

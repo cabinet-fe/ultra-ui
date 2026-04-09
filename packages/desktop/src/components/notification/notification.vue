@@ -35,7 +35,7 @@ import type {
   NotificationProps,
   NotificationExposed,
   ColorType
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'

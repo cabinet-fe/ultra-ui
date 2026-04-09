@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import type { ToolbarItem } from '@ultra-ui/desktop/types'
+import type { ToolbarItem } from '../../types'
 
 const LEXICAL_THEME = {
   paragraph: 'u-rte-paragraph',
@@ -73,7 +73,7 @@ const DEFAULT_TOOLBAR: ToolbarItem[] = [
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { bem } from '@ultra-ui/utils'
-import type { RichTextEditorProps } from '@ultra-ui/desktop/types'
+import type { RichTextEditorProps } from '../../types'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { createEditor, $getRoot, $createParagraphNode, type LexicalEditor } from 'lexical'
 import { registerRichText } from '@lexical/rich-text'

@@ -7,7 +7,7 @@ import {
   onBeforeUnmount,
   type ComputedRef
 } from 'vue'
-import type { Breakpoint, GridEmits, GridItemProps, GridProps } from '@ultra-ui/desktop/types'
+import type { Breakpoint, GridEmits, GridItemProps, GridProps } from '../../types'
 import { debounce } from '@cat-kit/core'
 import { equal } from '@ultra-ui/utils'
 import { getContainerBreakpoint } from './breakpoint'

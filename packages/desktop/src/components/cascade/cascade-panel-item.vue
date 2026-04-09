@@ -38,7 +38,7 @@ import { UIcon } from '../icon'
 import { ArrowRight } from '@ultra-ui/icons/normal'
 import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
 import { UCheckbox } from '../checkbox'
-import type { CascadeNode } from '@ultra-ui/desktop/types'
+import type { CascadeNode } from '../../types'
 
 defineOptions({
   name: 'UCascadePanelItem'

@@ -42,7 +42,7 @@ import {
 } from 'vue'
 import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/utils'
 import { vClickOutside } from '@ultra-ui/directives'
-import type { TipProps, ComponentSize, TipEmits } from '@ultra-ui/desktop/types'
+import type { TipProps, ComponentSize, TipEmits } from '../../types'
 import { useFallbackProps, usePop } from '@ultra-ui/compositions'
 import { UNodeRender } from '../node-render'
 import { useNest } from './use-nest'

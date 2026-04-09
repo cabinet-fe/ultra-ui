@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TableEditorProps, TableEditorEmits, TableColumn } from '@ultra-ui/desktop/types'
+import type { TableEditorProps, TableEditorEmits, TableColumn } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
 import { UTable } from '../table'

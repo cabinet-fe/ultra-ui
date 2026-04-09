@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import { computed, inject, shallowRef } from 'vue'
 import { ContextMenuDIKey } from './di'
-import type { ContextMenuItem } from '@ultra-ui/desktop/types'
+import type { ContextMenuItem } from '../../types'
 import { vRipple } from '@ultra-ui/directives'
 import { UIcon } from '../icon'
 import { Loading } from '@ultra-ui/icons/normal'

@@ -8,7 +8,7 @@ import {
   type ComputedRef
 } from 'vue'
 import { HUE2RGB } from './color-transform'
-import type { PaletteRGB } from '@ultra-ui/desktop/types'
+import type { PaletteRGB } from '../../types'
 
 interface UseHSVReturned {
   HSV: { h: number; s: number; v: number }

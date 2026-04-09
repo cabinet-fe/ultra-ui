@@ -119,7 +119,7 @@ import type {
   _SelectExposed,
   DropdownExposed,
   ScrollExposed
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
 import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/compositions'
 import { UDropdown } from '../dropdown'

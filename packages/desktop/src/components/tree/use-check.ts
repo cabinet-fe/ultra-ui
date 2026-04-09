@@ -1,4 +1,4 @@
-import type { TreeEmit, TreeProps } from '@ultra-ui/desktop/types'
+import type { TreeEmit, TreeProps } from '../../types'
 import { dfs } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import { nextTick, watch, type ComputedRef } from 'vue'

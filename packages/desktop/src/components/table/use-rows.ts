@@ -1,6 +1,6 @@
 import { Forest } from '@cat-kit/core'
 import { useModel } from '@ultra-ui/compositions'
-import type { TableColumn, TableEmits, TableProps, TableRow } from '@ultra-ui/desktop/types'
+import type { TableColumn, TableEmits, TableProps, TableRow } from '../../types'
 import { getChainValue } from '@ultra-ui/utils'
 import { shallowRef, watch, type ShallowRef } from 'vue'
 

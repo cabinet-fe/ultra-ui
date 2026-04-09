@@ -4,7 +4,7 @@ import type {
   BatchEditProps,
   TableExposed,
   TableRow
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
 

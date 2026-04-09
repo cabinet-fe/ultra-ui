@@ -1,4 +1,4 @@
-import type { CascadeProps, CascadeEmits, CascadeNode } from '@ultra-ui/desktop/types'
+import type { CascadeProps, CascadeEmits, CascadeNode } from '../../types'
 import { dfs, type Forest } from '@cat-kit/core'
 import {
   computed,

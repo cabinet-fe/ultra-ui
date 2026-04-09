@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { LoadingProps, ComponentSize } from '@ultra-ui/desktop/types'
+import type { LoadingProps, ComponentSize } from '../../types'
 import { bem, zIndex } from '@ultra-ui/utils'
 import { computed } from 'vue'
 import { useFallbackProps } from '@ultra-ui/compositions'

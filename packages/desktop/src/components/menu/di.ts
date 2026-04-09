@@ -1,7 +1,9 @@
 import type { BEM } from '@ultra-ui/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
-import type { MenuProps, MenuEmits } from '@ultra-ui/desktop/types'
-import type { ComponentSize } from '@ultra-ui/desktop/types'
+
+import type { MenuProps, MenuEmits } from '../../types'
+import type { ComponentSize } from '../../types'
+
 export interface MenuContext {
   cls: BEM<'menu', 'u-'>
   collapsedCls: BEM<'collapsed-menu', 'u-'>

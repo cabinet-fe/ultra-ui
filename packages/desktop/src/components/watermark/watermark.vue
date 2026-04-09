@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { WatermarkProps, WatermarkEmits } from '@ultra-ui/desktop/types'
+import type { WatermarkProps, WatermarkEmits } from '../../types'
 import { bem, setStyles, zIndex } from '@ultra-ui/utils'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 import { debounce } from '@cat-kit/core'

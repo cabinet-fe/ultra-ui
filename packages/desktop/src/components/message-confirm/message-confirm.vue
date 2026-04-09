@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageConfirmProps, ColorType, ComponentSize } from '@ultra-ui/desktop/types'
+import type { MessageConfirmProps, ColorType, ComponentSize } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { UButton } from '../button'
 import { useFallbackProps } from '@ultra-ui/compositions'

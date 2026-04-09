@@ -18,7 +18,7 @@ import { getTenYears } from '../../calendar/utils'
 import { computed } from 'vue'
 import { inject } from 'vue'
 import { DatePanelDIKey } from '../di'
-import type { CalendarYear } from '@ultra-ui/desktop/types'
+import type { CalendarYear } from '../../../types'
 import type { Dater } from '@cat-kit/core'
 
 defineOptions({

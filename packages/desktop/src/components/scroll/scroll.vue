@@ -38,7 +38,7 @@ import type {
   _ScrollExposed,
   ScrollProps,
   ScrollEmits
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 import UScrollBar from './scroll-bar.vue'
 import { useResizeObserver } from '@ultra-ui/compositions'

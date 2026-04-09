@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ButtonProps } from '@ultra-ui/desktop'
+import type { ButtonProps } from '../..'
 import { bem } from '@ultra-ui/utils'
 
 defineOptions({

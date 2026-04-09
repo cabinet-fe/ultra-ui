@@ -1,6 +1,6 @@
 import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
 import { TreeNode } from './tree-node'
-import type { TreeProps } from '@ultra-ui/desktop/types'
+import type { TreeProps } from '../../types'
 import { Forest } from '@cat-kit/core'
 
 interface Options {

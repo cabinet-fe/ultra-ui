@@ -37,7 +37,7 @@
 
 <script lang="ts" setup>
 import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
-import type { TreeProps, TreeEmit, _TreeExposed } from '@ultra-ui/desktop/types'
+import type { TreeProps, TreeEmit, _TreeExposed } from '../../types'
 import {
   computed,
   provide,
@@ -55,7 +55,7 @@ import { useCheck } from './use-check'
 import { UEmpty } from '../empty'
 import { useVirtual } from '@ultra-ui/compositions'
 import { UScroll } from '../scroll'
-import type { ScrollExposed } from '@ultra-ui/desktop/types'
+import type { ScrollExposed } from '../../types'
 import { useTreeNodes } from './use-tree-nodes'
 import { useFilter } from './use-filter'
 

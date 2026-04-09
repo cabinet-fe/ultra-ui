@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem, removeStyles, setStyles, withUnit } from '@ultra-ui/utils'
-import type { GridProps, GridEmits, _GridExposed } from '@ultra-ui/desktop/types'
+import type { GridProps, GridEmits, _GridExposed } from '../../types'
 import { GridDIKey } from './di'
 import {
   type CSSProperties,

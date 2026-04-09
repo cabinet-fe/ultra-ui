@@ -1,4 +1,4 @@
-import type { PaletteHSV, PaletteRGB } from '@ultra-ui/desktop/types'
+import type { PaletteHSV, PaletteRGB } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
 import type { Updater } from '@ultra-ui/compositions'

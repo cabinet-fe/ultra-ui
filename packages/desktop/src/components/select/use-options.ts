@@ -1,4 +1,4 @@
-import type { SelectProps } from '@ultra-ui/desktop/types'
+import type { SelectProps } from '../../types'
 import { debounce } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
 import {

@@ -1,5 +1,5 @@
 import { Forest, dfs, last } from '@cat-kit/core'
-import type { TableColumn, TableProps } from '@ultra-ui/desktop/types'
+import type { TableColumn, TableProps } from '../../types'
 import { type BEM } from '@ultra-ui/utils'
 import { ArrowRight } from '@ultra-ui/icons/normal'
 import { computed, createVNode, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'

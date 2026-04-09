@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps, VariableItem } from '@ultra-ui/desktop/types'
+import type { ExpressionEditorProps, VariableItem } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import {
   useTemplateRef,

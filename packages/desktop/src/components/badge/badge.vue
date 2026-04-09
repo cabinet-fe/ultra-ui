@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
-import type { BadgeProps, ComponentSize } from '@ultra-ui/desktop/types'
+import type { BadgeProps, ComponentSize } from '../../types'
 import { bem, setStyles, zIndex } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
 

@@ -119,7 +119,7 @@ import {
   useFormFallbackProps,
   useUpdateLock
 } from '@ultra-ui/compositions'
-import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ultra-ui/desktop/types'
+import type { CascadeProps, CascadeEmits, DropdownExposed } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
 import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'

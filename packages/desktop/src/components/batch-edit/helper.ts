@@ -1,4 +1,4 @@
-import type { BatchEditColumn } from '@ultra-ui/desktop/types'
+import type { BatchEditColumn } from '../../types'
 
 /**
  * 定义批量编辑组件的列

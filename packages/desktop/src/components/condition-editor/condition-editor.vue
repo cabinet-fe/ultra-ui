@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ConditionEditorProps } from '@ultra-ui/desktop/types'
+import type { ConditionEditorProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 
 defineOptions({

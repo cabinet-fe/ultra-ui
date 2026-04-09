@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { UploaderProps, UploaderEmits } from '@ultra-ui/desktop/types'
+import type { UploaderProps, UploaderEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { shallowRef, ref } from 'vue'
 import { matchAccept } from './helper'

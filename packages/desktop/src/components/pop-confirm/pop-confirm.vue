@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PopConfirmProps, PopConfirmEmits } from '@ultra-ui/desktop/types'
+import type { PopConfirmProps, PopConfirmEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { UTip } from '../tip'
 import { UButton } from '../button'

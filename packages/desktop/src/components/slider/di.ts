@@ -1,4 +1,4 @@
-import type { SliderProps } from '@ultra-ui/desktop/types'
+import type { SliderProps } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
 

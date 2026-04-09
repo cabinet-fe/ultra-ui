@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@ultra-ui/utils'
-import type { IconProps } from '@ultra-ui/desktop/types'
+import type { IconProps } from '../../types'
 import { type CSSProperties, computed } from 'vue'
 import { withUnit } from '@ultra-ui/utils'
 

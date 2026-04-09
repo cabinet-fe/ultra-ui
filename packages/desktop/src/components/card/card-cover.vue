@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { computed, inject } from 'vue'
 import { CardDIKey } from './di'
-import type { CardCoverProps } from '@ultra-ui/desktop/types'
+import type { CardCoverProps } from '../../types'
 import { withUnit, bem } from '@ultra-ui/utils'
 
 defineOptions({ name: 'CardCover' })

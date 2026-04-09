@@ -1,4 +1,4 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '@ultra-ui/desktop/types'
+import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { Dater } from '@cat-kit/core'
 import type { ComputedRef, InjectionKey, Ref } from 'vue'

@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { GridItemProps } from '@ultra-ui/desktop/types'
+import type { GridItemProps } from '../../types'
 import { computed, inject, type CSSProperties, watch } from 'vue'
 import { GridDIKey } from './di'
 import { bem } from '@ultra-ui/utils'

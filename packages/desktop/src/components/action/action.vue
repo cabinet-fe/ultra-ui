@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ActionEmits, ActionProps } from '@ultra-ui/desktop/types'
+import type { ActionEmits, ActionProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { UButton } from '../button'
 import { computed, inject } from 'vue'

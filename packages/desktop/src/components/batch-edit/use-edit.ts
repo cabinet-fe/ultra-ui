@@ -4,7 +4,7 @@ import type {
   BatchEditEmits,
   BatchEditProps,
   TableExposed
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { getChainValue, setChainValue } from '@ultra-ui/utils'
 import { computed, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 

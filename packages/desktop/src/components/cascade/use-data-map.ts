@@ -1,6 +1,6 @@
 import { Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'
-import type { CascadeNode, CascadeProps } from '@ultra-ui/desktop/types'
+import type { CascadeNode, CascadeProps } from '../../types'
 import {
   shallowRef,
   triggerRef,

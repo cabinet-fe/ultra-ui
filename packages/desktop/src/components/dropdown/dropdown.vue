@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { DropdownProps, DropdownExposed, DropdownEmits } from '@ultra-ui/desktop/types'
+import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
 import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs } from 'vue'
 import { vClickOutside } from '@ultra-ui/directives'

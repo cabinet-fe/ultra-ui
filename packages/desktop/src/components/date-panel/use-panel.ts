@@ -1,4 +1,4 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '@ultra-ui/desktop/types'
+import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
 import { bem, type BEM } from '@ultra-ui/utils'
 import {
   provide,

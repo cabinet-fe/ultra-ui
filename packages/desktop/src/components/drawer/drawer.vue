@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import { computed, shallowRef } from 'vue'
-import type { DrawerProps, DrawerEmits } from '@ultra-ui/desktop/types'
+import type { DrawerProps, DrawerEmits } from '../../types'
 import { bem, zIndex } from '@ultra-ui/utils'
 import { UIcon } from '../icon'
 import { Close } from '@ultra-ui/icons/normal'

@@ -33,7 +33,7 @@ import type {
   FloatButtonProps,
   FloatButtonEmits,
   ButtonExposed
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { bem, removeStyles, setStyles } from '@ultra-ui/utils'
 import { UIcon } from '../icon'
 import { shallowRef } from 'vue'

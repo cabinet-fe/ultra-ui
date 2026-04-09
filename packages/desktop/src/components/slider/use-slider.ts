@@ -1,4 +1,4 @@
-import type { SliderProps } from '@ultra-ui/desktop/types'
+import type { SliderProps } from '../../types'
 import { ref, type Ref, type ShallowRef, shallowRef } from 'vue'
 import { useResizeObserver } from '@ultra-ui/compositions'
 

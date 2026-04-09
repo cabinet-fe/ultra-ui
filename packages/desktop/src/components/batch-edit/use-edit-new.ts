@@ -1,4 +1,4 @@
-import type { BatchEditEmits, BatchEditProps, TableRow } from '@ultra-ui/desktop/types'
+import type { BatchEditEmits, BatchEditProps, TableRow } from '../../types'
 import { nextTick, type ShallowRef, shallowRef } from 'vue'
 
 import type { TipReturned } from './use-tip'

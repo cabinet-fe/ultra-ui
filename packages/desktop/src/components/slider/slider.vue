@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import type { SliderProps, SliderEmits } from '@ultra-ui/desktop/types'
+import type { SliderProps, SliderEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, watch } from 'vue'
 import { sliderContextKey } from './di'

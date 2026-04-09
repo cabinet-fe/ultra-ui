@@ -1,5 +1,5 @@
 import type { InjectionKey, VNode } from 'vue'
-import type { TreeEmit, TreeProps, TreeNode } from '@ultra-ui/desktop/types'
+import type { TreeEmit, TreeProps, TreeNode } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 
 export interface TreeSlotsScope {

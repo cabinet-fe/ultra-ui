@@ -1,4 +1,4 @@
-import type { ExpressionEditorProps, VariableItem } from '@ultra-ui/desktop/types'
+import type { ExpressionEditorProps, VariableItem } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { InjectionKey, ComputedRef } from 'vue'
 import type { LexicalEditor } from 'lexical'

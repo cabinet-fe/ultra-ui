@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { CheckboxProps, CheckboxEmits } from '@ultra-ui/desktop/types'
+import type { CheckboxProps, CheckboxEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
 

@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '@ultra-ui/desktop/types'
+import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
 import { UDropdown } from '../dropdown'

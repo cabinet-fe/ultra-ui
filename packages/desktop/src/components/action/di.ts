@@ -1,4 +1,4 @@
-import type { ActionGroupProps } from '@ultra-ui/desktop/types'
+import type { ActionGroupProps } from '../../types'
 import type { InjectionKey } from 'vue'
 
 export const ActionDIKey: InjectionKey<{

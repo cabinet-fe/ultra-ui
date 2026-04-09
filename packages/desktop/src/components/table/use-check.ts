@@ -16,7 +16,7 @@ import type {
   TableEmits,
   TableProps,
   ComponentSize
-} from '@ultra-ui/desktop/types'
+} from '../../types'
 import { UCheckbox } from '../checkbox'
 import { dfs, type Forest } from '@cat-kit/core'
 import { getChainValue } from '@ultra-ui/utils'

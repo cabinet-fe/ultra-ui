@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { MessageProps } from '@ultra-ui/desktop/types'
+import type { MessageProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { onMounted } from 'vue'
 import { useFallbackProps } from '@ultra-ui/compositions'

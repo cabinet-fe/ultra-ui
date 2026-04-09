@@ -5,7 +5,7 @@ import {
   type ComputedRef,
   type ShallowRef
 } from 'vue'
-import type { TreeEmit, TreeProps } from '@ultra-ui/desktop/types'
+import type { TreeEmit, TreeProps } from '../../types'
 import type { TreeNode } from './tree-node'
 
 interface Options {
