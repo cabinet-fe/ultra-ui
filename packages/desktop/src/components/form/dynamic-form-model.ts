@@ -1,7 +1,8 @@
-import type { FormModelItem, DataSettingConfig } from '../../types'
+import { o } from '@cat-kit/core'
 import { Validator } from '@ultra-ui/utils'
-import { getChainValue, setChainValue } from '@ultra-ui/utils'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'
+
+import type { FormModelItem, DataSettingConfig } from '../../types'
 
 /**
  * 动态表单模型
@@ -35,17 +36,14 @@ export class DynamicFormModel {
    */
   formKeys: Map<number, string[]> = new Map()
 
-  readonly errors: Map<string, string[] | undefined> = shallowReactive(
-    new Map()
-  )
+  readonly errors: Map<string, string[] | undefined> = shallowReactive(new Map())
 
   /**
    * 是否在表单值更新时校验
    */
   private validateOnFieldChange = true
 
-  private modelChangeCallback: Set<(fields: string, val: any) => void> =
-    new Set()
+  private modelChangeCallback: Set<(fields: string, val: any) => void> = new Set()
 
   private _allKeys: string[] = []
 
@@ -75,16 +73,16 @@ export class DynamicFormModel {
 
   private watchData(): void {
     const { oldData } = this
-    watch(this.data, data => {
+    watch(this.data, (data) => {
       let changedKeys: string[] = []
 
-      this.allKeys.forEach(key => {
-        const oldVal = getChainValue(oldData, key)
-        const newVal = getChainValue(data, key)
+      this.allKeys.forEach((key) => {
+        const oldVal = o(oldData).get(key)
+        const newVal = o(data).get(key)
         if (oldVal !== newVal) {
-          this.modelChangeCallback.forEach(cb => cb(key, newVal))
+          this.modelChangeCallback.forEach((cb) => cb(key, newVal))
           changedKeys.push(key)
-          setChainValue(oldData, key, newVal)
+          o(oldData).set(key, newVal)
         }
       })
 
@@ -115,8 +113,8 @@ export class DynamicFormModel {
     if (v !== undefined) {
       this.initialData[field] = JSON.parse(JSON.stringify(v))
     }
-    setChainValue(this.data, field, v)
-    setChainValue(this.oldData, field, v)
+    o(this.data).set(field, v)
+    o(this.oldData).set(field, v)
     this.getAllKeys()
   }
 
@@ -144,10 +142,7 @@ export class DynamicFormModel {
   async validate(fields?: string | string[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(
-      data,
-      this.getValidateFields(fields)
-    )
+    const results = await validator.validate(data, this.getValidateFields(fields))
 
     // 设置错误提示
     if (!fields) {
@@ -156,7 +151,7 @@ export class DynamicFormModel {
         errors.set(field, results[field])
       }
     } else {
-      ~(Array.isArray(fields) ? fields : [fields]).forEach(field => {
+      ~(Array.isArray(fields) ? fields : [fields]).forEach((field) => {
         const errs = results[field]
         if (errs?.length) {
           errors.set(field, errs)
@@ -173,7 +168,7 @@ export class DynamicFormModel {
     if (!fields) {
       if (this.formKeys.size) {
         let _fields: string[] = []
-        this.formKeys.forEach(fields => {
+        this.formKeys.forEach((fields) => {
           _fields = _fields.concat(fields)
         })
         return _fields
@@ -204,12 +199,8 @@ export class DynamicFormModel {
 
     this.validateOnFieldChange = false
 
-    keys.forEach(field => {
-      setChainValue(
-        this.data,
-        field as string,
-        getChainValue(this.initialData, field as string)
-      )
+    keys.forEach((field) => {
+      o(this.data).set(field as string, o(this.initialData).get(field as string))
     })
   }
 
@@ -225,10 +216,10 @@ export class DynamicFormModel {
       this.validateOnFieldChange = false
     }
 
-    this.allKeys.forEach(key => {
-      const value = getChainValue(formData, key)
+    this.allKeys.forEach((key) => {
+      const value = o(formData).get(key)
       if (value !== undefined) {
-        setChainValue(this.data, key, value)
+        o(this.data).set(key, value)
       }
     })
   }

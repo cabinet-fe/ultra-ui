@@ -59,18 +59,20 @@
 </template>
 
 <script lang="ts" setup>
-import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
-import { UDropdown } from '../dropdown'
-import { UTree } from '../tree'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
-import { ArrowDown, Search } from '@ultra-ui/icons/normal'
-import { computed, nextTick, shallowRef, watch } from 'vue'
 import { dfs } from '@cat-kit/core'
-import { getChainValue, omit } from '@ultra-ui/utils'
+import { o } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { ArrowDown, Search } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { omit } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+
+import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
+import { UDropdown } from '../dropdown'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
 
 defineOptions({ name: 'TreeSelect' })
@@ -153,10 +155,10 @@ watch(
 
     let founded = false
     const childrenKey = props.childrenKey ?? 'children'
-    data.some(item => {
+    data.some((item) => {
       dfs(
         item,
-        v => {
+        (v) => {
           if (v[props.valueKey] === model) {
             label.value = v[props.labelKey]
             founded = true
@@ -181,7 +183,7 @@ const handleSelect = (selected?: string | number, selectedData?: Record<string, 
   model.value = selected ?? ''
 
   if (selectedData) {
-    label.value = getChainValue(selectedData, props.labelKey)
+    label.value = o(selectedData).get(props.labelKey)
   } else {
     label.value = ''
   }

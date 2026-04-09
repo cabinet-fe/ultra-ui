@@ -31,7 +31,7 @@
 
       <div :class="cls.e('content')">
         <slot name="content" :item="item" :index="index">
-          {{ getChainValue(item, labelKey) }}
+          {{ o(item).get(labelKey) }}
         </slot>
       </div>
     </li>
@@ -51,21 +51,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, useTemplateRef, watch } from 'vue'
-import type {
-  StepsProps,
-  StepsEmits,
-  ComponentSize,
-  StepsSlotScope
-} from '../../types'
-import { bem } from '@ultra-ui/utils'
+import { n, o } from '@cat-kit/core'
 import { useFallbackProps } from '@ultra-ui/compositions'
 import { Check } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
+
+import type { StepsProps, StepsEmits, ComponentSize, StepsSlotScope } from '../../types'
 import { UIcon } from '../icon'
-import { UTip } from '../tip'
-import { n } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
 import { UNodeRender } from '../node-render'
+import { UTip } from '../tip'
 
 defineOptions({
   name: 'Steps'
@@ -111,7 +106,7 @@ const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
   if (!currentKey) return undefined
   return items.reduce(
     (acc, item, index) => {
-      acc[getChainValue(item, currentKey)] = index
+      acc[o(item).get(currentKey)] = index
       return acc
     },
     {} as Record<string, number>
@@ -131,7 +126,7 @@ const currentIndex = computed<number | undefined>(() => {
   return n(current).range(0, props.items.length - 1)
 })
 
-watch(currentIndex, index => {
+watch(currentIndex, (index) => {
   if (index === undefined || props.direction === 'vertical') return
   const step = stepsRef.value?.children[index]
   if (step) {
@@ -145,10 +140,7 @@ watch(currentIndex, index => {
 // 点击步骤项
 function handleStepClick(item: Record<string, any>, index: number) {
   emit('item-click', item, index)
-  emit(
-    'update:current',
-    props.currentKey ? getChainValue(item, props.currentKey) : index
-  )
+  emit('update:current', props.currentKey ? o(item).get(props.currentKey) : index)
 }
 
 // 提示
@@ -156,11 +148,7 @@ const tipVisible = shallowRef(false)
 const tipTriggerDom = shallowRef<HTMLElement>()
 const tipContent = shallowRef()
 
-function handleStepMouseenter(
-  event: MouseEvent,
-  item: Record<string, any>,
-  index: number
-) {
+function handleStepMouseenter(event: MouseEvent, item: Record<string, any>, index: number) {
   if (!slots.tip) return
   tipTriggerDom.value = event.target as HTMLElement
   tipVisible.value = true

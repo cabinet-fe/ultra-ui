@@ -1,11 +1,5 @@
 <template>
-  <div
-    ref="container"
-    :class="className"
-    :style="containerStyle"
-
-    @scroll="checkScroll"
-  >
+  <div ref="container" :class="className" :style="containerStyle" @scroll="checkScroll">
     <ul :class="cls.e('list')">
       <li
         v-for="(node, index) in nodes"
@@ -38,11 +32,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
-import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'
+import { o } from '@cat-kit/core'
 import { useDrag, useResizeObserver } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
-import { getChainValue } from '@ultra-ui/utils'
+import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
+
+import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'
 
 defineOptions({
   name: 'ProgressNodes'
@@ -55,8 +50,6 @@ const props = withDefaults(defineProps<ProgressNodesProps>(), {
 })
 
 const emit = defineEmits<ProgressNodesEmits>()
-
-
 
 const { nodes } = toRefs(props)
 
@@ -110,9 +103,13 @@ useResizeObserver({
   onResize: checkScroll
 })
 
-watch(nodes, () => {
-  nextTick(checkScroll)
-}, { deep: true })
+watch(
+  nodes,
+  () => {
+    nextTick(checkScroll)
+  },
+  { deep: true }
+)
 
 function checkScroll() {
   const container = containerRef.value
@@ -129,16 +126,16 @@ function isChecked(node: Record<string, any>, index: number) {
 }
 
 function isActive(node: Record<string, any>) {
-  const value = getChainValue(node, props.valueKey)
+  const value = o(node).get(props.valueKey)
   return props.modelValue === value
 }
 
 function getLabel(node: Record<string, any>) {
-  return getChainValue(node, props.labelKey)
+  return o(node).get(props.labelKey)
 }
 
 function handleClick(node: Record<string, any>, index: number) {
-  const value = getChainValue(node, props.valueKey)
+  const value = o(node).get(props.valueKey)
   emit('update:modelValue', value)
   emit('click', node, index)
 }

@@ -1,8 +1,7 @@
-import type { TreeEmit, TreeProps } from '../../types'
-import { dfs } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
+import { dfs, o } from '@cat-kit/core'
 import { nextTick, watch, type ComputedRef } from 'vue'
 
+import type { TreeEmit, TreeProps } from '../../types'
 import type { TreeNode } from './tree-node'
 
 interface Options {
@@ -79,7 +78,7 @@ export function useCheck(options: Options): UseCheckReturned {
     } else {
       dfs(
         node as unknown as Record<string, unknown>,
-        n => {
+        (n) => {
           const tn = n as unknown as TreeNode
           !tn.disabled && checkNode(tn)
         },
@@ -109,7 +108,7 @@ export function useCheck(options: Options): UseCheckReturned {
     } else {
       dfs(
         node as unknown as Record<string, unknown>,
-        n => {
+        (n) => {
           const tn = n as unknown as TreeNode
           !tn.disabled && uncheckNode(tn)
         },
@@ -137,7 +136,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
     emit(
       'update:checked',
-      checkedArr.map((item) => getChainValue(item, props.valueKey!)),
+      checkedArr.map((item) => o(item).get(props.valueKey!)),
       checkedArr
     )
 

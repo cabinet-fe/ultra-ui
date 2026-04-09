@@ -1,4 +1,7 @@
+import { o } from '@cat-kit/core'
+import { bem, type BEM } from '@ultra-ui/utils'
 import { useSlots, type Ref } from 'vue'
+
 import type {
   TableColumnRenderContext,
   TableColumnSlotsScope,
@@ -7,8 +10,6 @@ import type {
   RenderReturn,
   TableRowSlotsScope
 } from '../../types'
-import { bem, type BEM } from '@ultra-ui/utils'
-import { getChainValue } from '@ultra-ui/utils'
 import type { ColumnNode } from './node/col'
 
 interface Options {
@@ -19,9 +20,7 @@ interface Options {
 }
 
 interface UseTableReturn {
-  getColumnSlotsNode: (
-    ctx: TableColumnSlotsScope | TableColumnRenderContext
-  ) => RenderReturn
+  getColumnSlotsNode: (ctx: TableColumnSlotsScope | TableColumnRenderContext) => RenderReturn
   getHeaderSlotsNode: (ctx: { column: ColumnNode }) => RenderReturn
   getExpandRowSlotsNode: (ctx: TableRowSlotsScope) => RenderReturn
   getCellClass: (column: ColumnNode) => string
@@ -78,13 +77,9 @@ export function useTable(options: Options): UseTableReturn {
   const getCommonClassName = (column: ColumnNode): string => {
     const classList: string[] = [cellCls]
 
-    leftFixed.value &&
-      column.isLastFixed &&
-      classList.push(bem.is('last-fixed'))
+    leftFixed.value && column.isLastFixed && classList.push(bem.is('last-fixed'))
 
-    rightFixed.value &&
-      column.isFirstFixed &&
-      classList.push(bem.is('first-fixed'))
+    rightFixed.value && column.isFirstFixed && classList.push(bem.is('first-fixed'))
 
     if (column.fixed) {
       classList.push(bem.is('fixed-' + column.fixed))
@@ -105,7 +100,7 @@ export function useTable(options: Options): UseTableReturn {
     column: ColumnNode
   ): TableColumnSlotsScope | TableColumnRenderContext => {
     const rowData = row.data
-    const val = column.key ? getChainValue(rowData, column.key) : undefined
+    const val = column.key ? o(rowData).get(column.key) : undefined
 
     const ctx = {
       row,

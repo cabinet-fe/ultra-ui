@@ -1,12 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
-    :class="[
-      cls.b,
-      bem.is('disabled', disabled),
-      bem.is('multiple', multiple),
-      cls.m(size)
-    ]"
+    :class="[cls.b, bem.is('disabled', disabled), bem.is('multiple', multiple), cls.m(size)]"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
     ref="dropdownRef"
@@ -68,12 +63,7 @@
     <template #content>
       <!-- 过滤 -->
       <div v-if="filterable" :class="cls.e('panel-filter')">
-        <u-input
-          placeholder="输入关键字进行过滤"
-          v-model="qs"
-          :size="size"
-          clearable
-        >
+        <u-input placeholder="输入关键字进行过滤" v-model="qs" :size="size" clearable>
           <template #suffix>
             <u-icon><Search /></u-icon>
           </template>
@@ -114,29 +104,25 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ultra-ui/compositions'
-import type { CascadeProps, CascadeEmits, DropdownExposed } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
+import { Forest, o } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
 import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
-import { CascadeDIKey } from './di'
-import { UInput } from '../input'
-import { UTag } from '../tag'
-import { UIcon } from '../icon'
+import { bem } from '@ultra-ui/utils'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
+
+import type { CascadeProps, CascadeEmits, DropdownExposed } from '../../types'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UTag } from '../tag'
 import UCascadePanelItem from './cascade-panel-item.vue'
-import { Forest } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
+import { CascadeDIKey } from './di'
+import { CascadeNode } from './node'
+import { useCheck } from './use-check'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
-import { useCheck } from './use-check'
-import { CascadeNode } from './node'
 
 defineOptions({
   name: 'Cascade'
@@ -162,10 +148,11 @@ const cls = bem('cascade')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  { size: 'default', disabled: false, readonly: false }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
@@ -189,8 +176,8 @@ const forest = computed(() => {
         data,
         index,
         depth,
-        value: getChainValue(data, props.valueKey) ?? '',
-        label: getChainValue(data, props.labelKey) ?? '',
+        value: o(data).get(props.valueKey) ?? '',
+        label: o(data).get(props.labelKey) ?? '',
         parent
       })
     }
@@ -219,24 +206,17 @@ const {
   dropdownRef
 })
 
-const {
-  hovered,
-  tags,
-  restTag,
-  updateMultipleValue,
-  handleCloseTag,
-  checkItem,
-  checkedSet
-} = useCheck({
-  props,
-  forest,
-  getPanelItemList,
-  emit,
-  dataMap,
-  updater,
-  disabled,
-  readonly
-})
+const { hovered, tags, restTag, updateMultipleValue, handleCloseTag, checkItem, checkedSet } =
+  useCheck({
+    props,
+    forest,
+    getPanelItemList,
+    emit,
+    dataMap,
+    updater,
+    disabled,
+    readonly
+  })
 
 function handleClick(panelIndex: number, item: CascadeNode) {
   // 选择
@@ -276,14 +256,14 @@ const qs = shallowRef<string>('')
 watch([qs, forest], ([qs, forest]) => {
   const { filterable } = props
   if (!filterable || !qs) {
-    forest.dfs(node => (node.visible = true))
+    forest.dfs((node) => (node.visible = true))
     getPanelItemList(forest.roots)
     return
   }
 
   const cache = new Set<CascadeNode>()
 
-  forest.dfs(node => {
+  forest.dfs((node) => {
     if (node.label?.toLowerCase().includes(qs.toLowerCase())) {
       node.visible = true
       let parent = node.parent

@@ -1,9 +1,8 @@
-import { Forest } from '@cat-kit/core'
+import { Forest, o } from '@cat-kit/core'
 import { useModel } from '@ultra-ui/compositions'
-import type { TableColumn, TableEmits, TableProps, TableRow } from '../../types'
-import { getChainValue } from '@ultra-ui/utils'
 import { shallowRef, watch, type ShallowRef } from 'vue'
 
+import type { TableColumn, TableEmits, TableProps, TableRow } from '../../types'
 import { TableRowNode } from './node/row'
 
 interface Options {
@@ -66,7 +65,7 @@ export function useRows(options: Options): UseRowsReturned {
 
   /** 获取行唯一标识 */
   const getRowUID = props.rowKey
-    ? (rowData: Record<string, any>) => rowData && getChainValue(rowData, props.rowKey!)
+    ? (rowData: Record<string, any>) => rowData && o(rowData).get(props.rowKey!)
     : () => uidSeed++
 
   /** 创建或复用 TableRow 实例 */
@@ -144,7 +143,7 @@ export function useRows(options: Options): UseRowsReturned {
   /** 展平树形结构为可见行列表 */
   function updateFlattedRows(): void {
     if (!rowForest.value) return
-    rows.value = rowForest.value.flattenVisible(n => n.expanded)
+    rows.value = rowForest.value.flattenVisible((n) => n.expanded)
   }
 
   // --- 副作用监听 ---

@@ -1,13 +1,7 @@
-import { Forest } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
+import { Forest, o } from '@cat-kit/core'
+import { shallowRef, triggerRef, watchEffect, type ComputedRef, type ShallowRef } from 'vue'
+
 import type { CascadeNode, CascadeProps } from '../../types'
-import {
-  shallowRef,
-  triggerRef,
-  watchEffect,
-  type ComputedRef,
-  type ShallowRef
-} from 'vue'
 
 interface DataMapOptions {
   props: CascadeProps
@@ -28,8 +22,8 @@ export function useDataMap(options: DataMapOptions): UseDataMapReturned {
 
     dataMap.value.clear()
 
-    forest.value.dfs(node => {
-      const value = getChainValue(node.data, valueKey!)
+    forest.value.dfs((node) => {
+      const value = o(node.data).get(valueKey!)
       if (value !== null && value !== undefined) {
         dataMap.value.set(value, node)
       }

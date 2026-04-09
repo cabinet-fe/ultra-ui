@@ -1,10 +1,10 @@
-import { TreeNode as CoreTreeNode } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
+import { TreeNode as CoreTreeNode, o } from '@cat-kit/core'
 import { shallowReactive } from 'vue'
 
-export class TreeNode<
-  Val extends Record<string, any> = Record<string, any>
-> extends CoreTreeNode<Val, TreeNode<Val>> {
+export class TreeNode<Val extends Record<string, any> = Record<string, any>> extends CoreTreeNode<
+  Val,
+  TreeNode<Val>
+> {
   declare parent?: TreeNode<Val>
 
   declare children?: TreeNode<Val>[]
@@ -47,11 +47,11 @@ export class TreeNode<
   }
 
   get label(): string {
-    return String(getChainValue(this.data, this.labelKey))
+    return String(o(this.data).get(this.labelKey))
   }
 
   get key(): string | number {
-    return getChainValue(this.data, this.valueKey)
+    return o(this.data).get(this.valueKey) as string | number
   }
 
   /**

@@ -1,3 +1,7 @@
+import { o } from '@cat-kit/core'
+import { middleProxy, Validator } from '@ultra-ui/utils'
+import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
+
 import type {
   FormModelItem,
   ModelData,
@@ -5,17 +9,13 @@ import type {
   DataSettingConfig,
   IFormModel
 } from '../../types'
-import { middleProxy, Validator } from '@ultra-ui/utils'
-import { getChainValue, setChainValue } from '@ultra-ui/utils'
-import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
 
 /**
  * 表单模型
  */
 export class FormModel<
   Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
-> implements IFormModel<Fields>
-{
+> implements IFormModel<Fields> {
   /** 表单数据 */
   data!: ModelData<Fields>
 
@@ -35,9 +35,7 @@ export class FormModel<
   /** 初始数据 */
   readonly initialData: ModelData<Fields>
 
-  readonly errors: Map<keyof Fields, string[] | undefined> = shallowReactive(
-    new Map()
-  )
+  readonly errors: Map<keyof Fields, string[] | undefined> = shallowReactive(new Map())
 
   private validator: Validator<ModelRules<Fields>>
 
@@ -46,8 +44,7 @@ export class FormModel<
    */
   private validateOnFieldChange = true
 
-  private modelChangeCallback: Set<(fields: string, val: any) => void> =
-    new Set()
+  private modelChangeCallback: Set<(fields: string, val: any) => void> = new Set()
 
   constructor(fields: Fields) {
     this.fields = fields
@@ -61,13 +58,13 @@ export class FormModel<
       let v = value
 
       if (typeof value === 'function') {
-        watch(value, v => {
-          setChainValue(this.initialData, key, v)
+        watch(value, (v) => {
+          o(this.initialData).set(key, v)
         })
         v = value()
       }
 
-      setChainValue(rawData, key, v)
+      o(rawData).set(key, v)
     }
 
     this.allKeys = allKeys
@@ -85,15 +82,13 @@ export class FormModel<
    * @description 设置响应式值时，会自动监听值的变化，并进行校验
    * @param proxyData 响应式的值
    */
-  setProxyData(
-    proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>
-  ): void {
+  setProxyData(proxyData: ModelData<Fields> | Reactive<ModelData<Fields>>): void {
     const data = middleProxy(proxyData, {
       set: (field, val) => {
-        this.modelChangeCallback.forEach(cb => cb(field, val))
+        this.modelChangeCallback.forEach((cb) => cb(field, val))
       },
 
-      changed: fields => {
+      changed: (fields) => {
         if (!this.validateOnFieldChange) {
           this.validateOnFieldChange = true
           return
@@ -109,7 +104,7 @@ export class FormModel<
     if (!fields) {
       if (this.formKeys.size) {
         let _fields: (keyof Fields)[] = []
-        this.formKeys.forEach(fields => {
+        this.formKeys.forEach((fields) => {
           _fields = _fields.concat(fields)
         })
         return _fields
@@ -132,10 +127,7 @@ export class FormModel<
   async validate(fields?: keyof Fields | (keyof Fields)[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(
-      data,
-      this.getValidateFields(fields)
-    )
+    const results = await validator.validate(data, this.getValidateFields(fields))
 
     // 全量校验
     if (!fields) {
@@ -147,7 +139,7 @@ export class FormModel<
     }
     // 局部校验
     else {
-      ~(Array.isArray(fields) ? fields : [fields]).forEach(field => {
+      ~(Array.isArray(fields) ? fields : [fields]).forEach((field) => {
         const errs = results[field]
         if (errs?.length) {
           errors.set(field, errs)
@@ -160,9 +152,7 @@ export class FormModel<
     if (errors.size > 0) {
       if (!fields) {
         nextTick(() => {
-          document.querySelector('.u-form-item.is-error')?.scrollIntoView({
-            block: 'nearest'
-          })
+          document.querySelector('.u-form-item.is-error')?.scrollIntoView({ block: 'nearest' })
         })
       }
       return Promise.reject(false)
@@ -187,12 +177,8 @@ export class FormModel<
 
     this.validateOnFieldChange = false
 
-    keys.forEach(field => {
-      setChainValue(
-        this.data,
-        field as string,
-        getChainValue(this.initialData, field as string)
-      )
+    keys.forEach((field) => {
+      o(this.data).set(field as string, o(this.initialData).get(field as string))
     })
   }
 
@@ -211,10 +197,10 @@ export class FormModel<
       this.validateOnFieldChange = false
     }
 
-    this.allKeys.forEach(key => {
-      const value = getChainValue(formData, key)
+    this.allKeys.forEach((key) => {
+      const value = o(formData).get(key)
       if (value !== undefined) {
-        setChainValue(this.data, key, value)
+        o(this.data).set(key, value)
       }
     })
 
@@ -227,8 +213,8 @@ export class FormModel<
    * @param data 初始值
    */
   setInitialData(data: Partial<ModelData<Fields>>): FormModel<Fields> {
-    this.allKeys.forEach(key => {
-      setChainValue(this.initialData, key, getChainValue(data, key))
+    this.allKeys.forEach((key) => {
+      o(this.initialData).set(key, o(data).get(key))
     })
 
     return this

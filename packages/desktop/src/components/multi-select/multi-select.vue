@@ -105,12 +105,12 @@
             v-for="(option, index) of options"
             :option="option"
             :disabled="isDisabled(option)"
-            :key="getChainValue(option, valueKey)"
+            :key="chainObj(option).get(valueKey)"
             @check="handleCheck(option, $event)"
             :checked="checkedSet.has(option)"
           >
             <slot v-bind="{ option, index }">
-              {{ getChainValue(option, labelKey) }}
+              {{ chainObj(option).get(labelKey) }}
             </slot>
           </u-multi-select-option>
         </template>
@@ -136,23 +136,29 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
-import type { MultiSelectEmits, MultiSelectProps, ScrollExposed, DropdownExposed } from '../../types'
-import { bem, withUnit } from '@ultra-ui/utils'
-import { UTag } from '../tag'
+import { o as chainObj } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/compositions'
+import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
+import { bem, withUnit } from '@ultra-ui/utils'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
+
+import type {
+  MultiSelectEmits,
+  MultiSelectProps,
+  ScrollExposed,
+  DropdownExposed
+} from '../../types'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
-import { UScroll } from '../scroll'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
 import { UEmpty } from '../empty'
-import { ArrowDown, Close, Search } from '@ultra-ui/icons/normal'
-import UMultiSelectOption from './multi-select-option.vue'
-import { MultiSelectDIKey } from './di'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UScroll } from '../scroll'
 import { useOptions } from '../select/use-options'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { getChainValue } from '@ultra-ui/utils'
+import { UTag } from '../tag'
+import { MultiSelectDIKey } from './di'
+import UMultiSelectOption from './multi-select-option.vue'
 
 defineOptions({ name: 'MultiSelect' })
 
@@ -192,10 +198,10 @@ const options = computed(() => {
   if (!props.creatable || !createdOptions.value.length) return base
 
   const { valueKey } = props
-  const createdValues = new Set(createdOptions.value.map((o) => getChainValue(o, valueKey)))
-  const deduped = base.filter((o) => !(o.__isTemp && createdValues.has(getChainValue(o, valueKey))))
-  const dedupedValues = new Set(deduped.map((o) => getChainValue(o, valueKey)))
-  const toAdd = createdOptions.value.filter((o) => !dedupedValues.has(getChainValue(o, valueKey)))
+  const createdValues = new Set(createdOptions.value.map((o) => chainObj(o).get(valueKey)))
+  const deduped = base.filter((o) => !(o.__isTemp && createdValues.has(chainObj(o).get(valueKey))))
+  const dedupedValues = new Set(deduped.map((o) => chainObj(o).get(valueKey)))
+  const toAdd = createdOptions.value.filter((o) => !dedupedValues.has(chainObj(o).get(valueKey)))
   return [...toAdd, ...deduped]
 })
 
@@ -216,14 +222,14 @@ const virtualOptions = computed(() => {
   const _options = options.value
   return virtualList.value.map((v) => {
     const option = _options[v.index]!
-    const val = getChainValue(option, valueKey)
+    const val = chainObj(option).get(valueKey)
     return {
       option,
       index: v.index,
       val,
       key: v.key,
       offset: v.start,
-      label: getChainValue(option, labelKey)
+      label: chainObj(option).get(labelKey)
     }
   })
 })
@@ -310,22 +316,22 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
   if (checked) {
     if (option.__isTemp && props.creatable) {
       const created: Record<string, any> = {
-        [labelKey]: getChainValue(option, labelKey),
-        [valueKey]: getChainValue(option, valueKey)
+        [labelKey]: chainObj(option).get(labelKey),
+        [valueKey]: chainObj(option).get(valueKey)
       }
       createdOptions.value = [...createdOptions.value, created]
       checkedSet.add(created)
       internalChange = true
-      model.value = [...(model.value ?? []), getChainValue(created, valueKey)]
+      model.value = [...(model.value ?? []), chainObj(created).get(valueKey)]
       queryString.value = ''
     } else if (!checkedSet.has(option)) {
       checkedSet.add(option)
       internalChange = true
-      model.value = [...(model.value ?? []), getChainValue(option, valueKey)]
+      model.value = [...(model.value ?? []), chainObj(option).get(valueKey)]
     }
   } else {
     checkedSet.delete(option)
-    const val = getChainValue(option, valueKey)
+    const val = chainObj(option).get(valueKey)
     internalChange = true
     model.value = (model.value ?? []).filter((v) => v !== val)
     removeCreatedOption(option)
@@ -343,7 +349,7 @@ const handleCheckAll = (checked: boolean) => {
       if (!option.__isTemp) checkedSet.add(option)
     })
     internalChange = true
-    model.value = Array.from(checkedSet).map((o) => getChainValue(o, valueKey))
+    model.value = Array.from(checkedSet).map((o) => chainObj(o).get(valueKey))
   } else {
     checkedSet.clear()
     internalChange = true
@@ -370,7 +376,7 @@ const handleClear = () => {
 
 const handleClose = (option: Record<string, any>) => {
   checkedSet.delete(option)
-  const val = getChainValue(option, props.valueKey)
+  const val = chainObj(option).get(props.valueKey)
   internalChange = true
   model.value = (model.value ?? []).filter((v) => v !== val)
   removeCreatedOption(option)
@@ -380,8 +386,8 @@ const handleClose = (option: Record<string, any>) => {
 const removeCreatedOption = (option: Record<string, any>) => {
   if (!props.creatable || !createdOptions.value.length) return
   const { valueKey } = props
-  const val = getChainValue(option, valueKey)
-  createdOptions.value = createdOptions.value.filter((o) => getChainValue(o, valueKey) !== val)
+  const val = chainObj(option).get(valueKey)
+  createdOptions.value = createdOptions.value.filter((o) => chainObj(o).get(valueKey) !== val)
 }
 
 const handleCreateByEnter = () => {
@@ -391,12 +397,12 @@ const handleCreateByEnter = () => {
 
   const { labelKey, valueKey } = props
 
-  const existingCreated = createdOptions.value.find((o) => getChainValue(o, valueKey) === qs)
+  const existingCreated = createdOptions.value.find((o) => chainObj(o).get(valueKey) === qs)
   if (existingCreated) {
     if (!checkedSet.has(existingCreated)) {
       checkedSet.add(existingCreated)
       internalChange = true
-      model.value = [...(model.value ?? []), getChainValue(existingCreated, valueKey)]
+      model.value = [...(model.value ?? []), chainObj(existingCreated).get(valueKey)]
     }
     queryString.value = ''
     emitChange()
@@ -404,12 +410,12 @@ const handleCreateByEnter = () => {
     return
   }
 
-  const exactMatch = rawOptions.value.find((o) => !o.__isTemp && getChainValue(o, labelKey) === qs)
+  const exactMatch = rawOptions.value.find((o) => !o.__isTemp && chainObj(o).get(labelKey) === qs)
   if (exactMatch) {
     if (!checkedSet.has(exactMatch)) {
       checkedSet.add(exactMatch)
       internalChange = true
-      model.value = [...(model.value ?? []), getChainValue(exactMatch, valueKey)]
+      model.value = [...(model.value ?? []), chainObj(exactMatch).get(valueKey)]
     }
     queryString.value = ''
     emitChange()

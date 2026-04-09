@@ -1,13 +1,7 @@
+import { debounce, o as chainObj } from '@cat-kit/core'
+import { computed, shallowRef, watch, type ShallowRef, type ComputedRef } from 'vue'
+
 import type { SelectProps } from '../../types'
-import { debounce } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
-import {
-  computed,
-  shallowRef,
-  watch,
-  type ShallowRef,
-  type ComputedRef
-} from 'vue'
 
 interface Options {
   props: SelectProps
@@ -40,20 +34,13 @@ export function useOptions(o: Options): UseOptionsReturned {
   const remoteOptions = shallowRef<Record<string, any>[]>([])
   const filteredOptions = shallowRef<Record<string, any>[]>([])
   // 临时选项
-  const tempOptions = shallowRef<({ __isTemp: true } & Record<string, any>)[]>(
-    []
-  )
+  const tempOptions = shallowRef<({ __isTemp: true } & Record<string, any>)[]>([])
   // 创建的选项
-  const createdOptions = shallowRef<
-    ({ __isTemp: false } & Record<string, any>)[]
-  >([])
+  const createdOptions = shallowRef<({ __isTemp: false } & Record<string, any>)[]>([])
 
   function temOptionsToCreatedOptions() {
-    createdOptions.value = tempOptions.value.map(item => {
-      return {
-        ...item,
-        __isTemp: false
-      }
+    createdOptions.value = tempOptions.value.map((item) => {
+      return { ...item, __isTemp: false }
     })
   }
 
@@ -67,19 +54,13 @@ export function useOptions(o: Options): UseOptionsReturned {
       return
     }
     const exactMatch = options
-      ? options.some(option => {
-          return getChainValue(option, props.labelKey!) === qs
+      ? options.some((option) => {
+          return chainObj(option).get(props.labelKey!) === qs
         })
       : false
 
     if (!exactMatch) {
-      tempOptions.value = [
-        {
-          [props.labelKey!]: qs,
-          [props.valueKey!]: qs,
-          __isTemp: true
-        }
-      ]
+      tempOptions.value = [{ [props.labelKey!]: qs, [props.valueKey!]: qs, __isTemp: true }]
     }
   }
 
@@ -95,9 +76,7 @@ export function useOptions(o: Options): UseOptionsReturned {
 
     if (typeof options === 'function') return remoteOptions.value
 
-    const prependOptions = tempOptions.value?.length
-      ? tempOptions.value
-      : createdOptions.value
+    const prependOptions = tempOptions.value?.length ? tempOptions.value : createdOptions.value
 
     if (!options) {
       return prependOptions
@@ -125,24 +104,16 @@ export function useOptions(o: Options): UseOptionsReturned {
         }
 
         const _filteredOptions =
-          propsOptions?.filter(item => {
-            return getChainValue(item, labelKey!)?.includes(qs) ?? false
+          propsOptions?.filter((item) => {
+            return chainObj(item).get(labelKey!)?.includes(qs) ?? false
           }) ?? []
 
         setTempOption(qs, _filteredOptions)
         filteredOptions.value = _filteredOptions
       }
     }, 200),
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
-  return {
-    queryString,
-    options,
-    allOptions,
-    temOptionsToCreatedOptions,
-    clearCreatedOptions
-  }
+  return { queryString, options, allOptions, temOptionsToCreatedOptions, clearCreatedOptions }
 }

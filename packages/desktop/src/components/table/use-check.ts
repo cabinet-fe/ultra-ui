@@ -1,3 +1,5 @@
+import { dfs, o, type Forest } from '@cat-kit/core'
+import type { BEM } from '@ultra-ui/utils'
 import {
   computed,
   createTextVNode,
@@ -10,17 +12,9 @@ import {
   type ComputedRef,
   type ShallowRef
 } from 'vue'
-import type {
-  TableRow,
-  TableColumn,
-  TableEmits,
-  TableProps,
-  ComponentSize
-} from '../../types'
+
+import type { TableRow, TableColumn, TableEmits, TableProps, ComponentSize } from '../../types'
 import { UCheckbox } from '../checkbox'
-import { dfs, type Forest } from '@cat-kit/core'
-import { getChainValue } from '@ultra-ui/utils'
-import type { BEM } from '@ultra-ui/utils'
 
 interface Options {
   rows: ShallowRef<TableRow[] | undefined>
@@ -51,7 +45,7 @@ export function useCheck(options: Options): UseCheckReturned {
   }
 
   function clearChecked() {
-    checkedRows.value.forEach(row => {
+    checkedRows.value.forEach((row) => {
       row.checked = false
     })
     checkedRows.value.clear()
@@ -65,21 +59,15 @@ export function useCheck(options: Options): UseCheckReturned {
     }
   }
 
-  watch(
-    [() => props.checkable, () => props.selectable, () => rows.value],
-    () => {
-      clearChecked()
-      clearSelected()
-    }
-  )
+  watch([() => props.checkable, () => props.selectable, () => rows.value], () => {
+    clearChecked()
+    clearSelected()
+  })
 
-  watch(selectedRow, selectedRow => {
+  watch(selectedRow, (selectedRow) => {
     if (changedByModel) return
     changedByEvent = true
-    emit(
-      'update:selected',
-      selectedRow?.data ? toRaw(selectedRow.data) : undefined
-    )
+    emit('update:selected', selectedRow?.data ? toRaw(selectedRow.data) : undefined)
     nextTick(() => {
       changedByEvent = false
     })
@@ -87,12 +75,12 @@ export function useCheck(options: Options): UseCheckReturned {
 
   let changedByEvent = false
   let changedByModel = false
-  watch(checkedRows, checkedRows => {
+  watch(checkedRows, (checkedRows) => {
     if (changedByModel) return
     changedByEvent = true
     emit(
       'update:checked',
-      Array.from(checkedRows).map(row => toRaw(row.data))
+      Array.from(checkedRows).map((row) => toRaw(row.data))
     )
     nextTick(() => {
       changedByEvent = false
@@ -132,8 +120,10 @@ export function useCheck(options: Options): UseCheckReturned {
 
       clearChecked()
 
-      checked?.forEach(item => {
-        const row = dicts?.get(getChainValue(item, rowKey))
+      checked?.forEach((item) => {
+        const uid = o(item).get(rowKey)
+        if (uid === undefined || uid === null) return
+        const row = dicts?.get(uid as string | number)
         if (!row) return
 
         row.checked = true
@@ -159,7 +149,9 @@ export function useCheck(options: Options): UseCheckReturned {
       rows !== oRows && setDicts()
 
       if (selected) {
-        const row = dicts?.get(getChainValue(selected, rowKey))
+        const uid = o(selected).get(rowKey)
+        const row =
+          uid === undefined || uid === null ? undefined : dicts?.get(uid as string | number)
         if (row) {
           row.checked = true
           selectedRow.value = row
@@ -182,12 +174,12 @@ export function useCheck(options: Options): UseCheckReturned {
 
   function handleCheckAllTree(check: boolean) {
     if (check) {
-      rowForest.value?.dfs(row => {
+      rowForest.value?.dfs((row) => {
         row.checked = true
         checkedRows.value.add(row)
       })
     } else {
-      rowForest.value?.dfs(row => {
+      rowForest.value?.dfs((row) => {
         row.checked = false
       })
       checkedRows.value.clear()
@@ -197,12 +189,12 @@ export function useCheck(options: Options): UseCheckReturned {
 
   function handleCheckAllRows(check: boolean) {
     if (check) {
-      rows.value?.forEach(row => {
+      rows.value?.forEach((row) => {
         row.checked = true
         checkedRows.value.add(row)
       })
     } else {
-      rows.value?.forEach(row => {
+      rows.value?.forEach((row) => {
         row.checked = false
       })
       checkedRows.value.clear()
@@ -226,7 +218,7 @@ export function useCheck(options: Options): UseCheckReturned {
     const childrenKey = typeof props.tree === 'string' ? props.tree : 'children'
     dfs(
       row as unknown as Record<string, unknown>,
-      node => {
+      (node) => {
         const r = node as unknown as TableRow
         r.checked = check
         cb(r)
@@ -333,11 +325,5 @@ export function useCheck(options: Options): UseCheckReturned {
     }
   }
 
-  return {
-    checkedRows,
-    createCheckColumn,
-    createSelectColumn,
-    clearChecked,
-    clearSelected
-  }
+  return { checkedRows, createCheckColumn, createSelectColumn, clearChecked, clearSelected }
 }

@@ -1,12 +1,7 @@
-import { last, safeRun } from '@cat-kit/core'
-import type {
-  TableRow,
-  BatchEditEmits,
-  BatchEditProps,
-  TableExposed
-} from '../../types'
-import { getChainValue, setChainValue } from '@ultra-ui/utils'
+import { last, o, safeRun } from '@cat-kit/core'
 import { computed, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
+
+import type { TableRow, BatchEditEmits, BatchEditProps, TableExposed } from '../../types'
 
 /** 按索引路径在原始数据树中定位节点（等价于历史 Forest.visit 路径访问） */
 function visitDataByIndexPath<T extends Record<string, unknown>>(
@@ -271,7 +266,7 @@ export function useEdit(options: Options): EditReturned {
       const { row } = state
       row &&
         model.allKeys.forEach((key) => {
-          setChainValue(row.data, key, getChainValue(item, key))
+          o(row.data).set(key, o(item).get(key))
         })
     }
   })

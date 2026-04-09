@@ -20,7 +20,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="selected ? (getChainValue(selected, labelKey) ?? label) : modelValue"
+        :model-value="selected ? (o(selected).get(labelKey) ?? label) : modelValue"
         @clear="handleClear"
         @keydown="handleKeydown"
         native-readonly
@@ -90,11 +90,11 @@
             :class="[optionClass, bem.is('selected', index === currentIndex)]"
             @click="handleSelect(option, index)"
             :data-index="index"
-            :title="getChainValue(option, labelKey)"
-            :key="getChainValue(option, valueKey)"
+            :title="o(option).get(labelKey)"
+            :key="o(option).get(valueKey)"
           >
             <slot v-bind="{ option, index }">
-              {{ getChainValue(option, labelKey) }}
+              {{ o(option).get(labelKey) }}
             </slot>
           </li>
         </template>
@@ -112,7 +112,14 @@
 </template>
 
 <script lang="ts" setup>
+import { o } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/compositions'
+import { vFocus } from '@ultra-ui/directives'
+import { ArrowDown, Search } from '@ultra-ui/icons/normal'
+import { bem, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
+
 import type {
   SelectEmits,
   SelectProps,
@@ -120,19 +127,13 @@ import type {
   DropdownExposed,
   ScrollExposed
 } from '../../types'
-import { bem, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@ultra-ui/compositions'
 import { UDropdown } from '../dropdown'
-import { UScroll } from '../scroll'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
-import { ArrowDown, Search } from '@ultra-ui/icons/normal'
-import { useOptions } from './use-options'
-import { useKeyboard } from './use-keyboard'
 import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { getChainValue } from '@ultra-ui/utils'
-import { vFocus } from '@ultra-ui/directives'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UScroll } from '../scroll'
+import { useKeyboard } from './use-keyboard'
+import { useOptions } from './use-options'
 
 defineOptions({ name: 'Select' })
 
@@ -176,7 +177,9 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({ props })
+const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({
+  props
+})
 
 // TODO: 优化
 let userSelecting = false
@@ -200,9 +203,7 @@ watch(
 
     if (modelValue !== undefined) {
       const { valueKey } = props
-      currentIndex.value = options.findIndex(
-        (option) => getChainValue(option, valueKey) === modelValue
-      )
+      currentIndex.value = options.findIndex((option) => o(option).get(valueKey) === modelValue)
       selected.value = options[currentIndex.value]
     } else {
       currentIndex.value = -1
@@ -238,8 +239,8 @@ const virtualOptions = computed(() => {
     return {
       option,
       index: item.index,
-      label: getChainValue(option, labelKey),
-      val: getChainValue(option, valueKey),
+      label: o(option).get(labelKey),
+      val: o(option).get(valueKey),
       key: item.key,
       offset: item.start
     }

@@ -7,13 +7,7 @@
     :class="[cls.b, bem.is('readonly', readonly)]"
   >
     <template
-      v-for="{
-        node,
-        isFormItem,
-        formItemProps,
-        field,
-        modelValue
-      } of getSlotsNodes()"
+      v-for="{ node, isFormItem, formItemProps, field, modelValue } of getSlotsNodes()"
       :key="node.key"
     >
       <component v-if="isFormItem || !field" :is="node" />
@@ -21,18 +15,14 @@
       <u-form-item v-else v-bind="formItemProps">
         <component
           :is="node"
-          :model-value="modelValue ?? getChainValue(model?.data ?? {}, field)"
+          :model-value="modelValue ?? o(model?.data ?? {}).get(field)"
           @update:model-value="handleUpdateValue(field, $event)"
         />
 
         <div :class="cls.e('data-before')" v-if="showInitialNode(field)">
           <i :class="cls.e('changed-tag')">变更前：</i>
 
-          <component
-            :is="node"
-            readonly
-            :model-value="getChainValue(model?.initialData ?? {}, field)"
-          />
+          <component :is="node" readonly :model-value="o(model?.initialData ?? {}).get(field)" />
         </div>
       </u-form-item>
     </template>
@@ -40,16 +30,17 @@
 </template>
 
 <script lang="tsx" setup generic="Model extends FormModel | DynamicFormModel">
-import { UGrid } from '../grid'
-import { bem } from '@ultra-ui/utils'
+import { o } from '@cat-kit/core'
 import { useFormComponent } from '@ultra-ui/compositions'
-import { useNodeInterceptor } from './use-node-interceptor'
-import { UFormItem } from '../form-item'
+import { bem } from '@ultra-ui/utils'
 import { shallowRef, toRef } from 'vue'
-import { getChainValue, setChainValue } from '@ultra-ui/utils'
-import type { FormModel } from './form-model'
-import type { DynamicFormModel } from './dynamic-form-model'
+
 import type { BreakCols, GridExposed, FormProps, _FormExposed } from '../../types'
+import { UFormItem } from '../form-item'
+import { UGrid } from '../grid'
+import type { DynamicFormModel } from './dynamic-form-model'
+import type { FormModel } from './form-model'
+import { useNodeInterceptor } from './use-node-interceptor'
 
 defineOptions({
   name: 'Form'
@@ -83,18 +74,15 @@ const { getSlotsNodes } = useNodeInterceptor({ props })
 function handleUpdateValue(field: string, value: any) {
   const { model } = props
   if (!model) return
-  setChainValue(model.data, field, value)
+  o(model.data).set(field, value)
 }
 
 function showInitialNode(field: string) {
   const { data, initialData } = props.model || {}
 
-  const currentValue = getChainValue(data, field)
-  const initialValue = getChainValue(initialData, field)
-  const notEqual = !(
-    initialValue === currentValue ||
-    (!initialValue && !currentValue)
-  )
+  const currentValue = o(data ?? {}).get(field)
+  const initialValue = o(initialData ?? {}).get(field)
+  const notEqual = !(initialValue === currentValue || (!initialValue && !currentValue))
 
   return props.showInitialData && notEqual
 }
