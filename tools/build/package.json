@@ -9,7 +9,7 @@
     "@cat-kit/be": "^1.0.1",
     "@inquirer/prompts": "^8.4.1",
     "execa": "^9.6.1",
-    "rolldown": "^1.0.0-rc.13",
+    "rolldown": "^1.0.0-rc.14",
     "sass-embedded": "^1.99.0",
     "tsdown": "^0.21.7",
     "unplugin-vue": "^7.1.1",

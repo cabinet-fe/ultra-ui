@@ -4,25 +4,25 @@
   "packages": {
     "core": {
       "npmName": "@cat-kit/core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dtsFiles": 17,
       "distRelative": "packages/core/dist"
     },
     "http": {
       "npmName": "@cat-kit/http",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dtsFiles": 6,
       "distRelative": "packages/http/dist"
     },
     "fe": {
       "npmName": "@cat-kit/fe",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dtsFiles": 8,
       "distRelative": "packages/fe/dist"
     },
     "be": {
       "npmName": "@cat-kit/be",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dtsFiles": 25,
       "distRelative": "packages/be/dist"
     },
