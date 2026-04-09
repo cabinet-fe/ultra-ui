@@ -9,3 +9,5 @@
 - [x] [CodeMirror 单实例（根因修复）](./done/plan-9-20260409/plan.md)
 - [x] [包内相对路径 + TS 开发期类型解析](./done/plan-10-20260409/plan.md)
 - [x] [重构 AGENTS.md — 渐进式披露](./done/plan-11-20260409/plan.md)
+- [x] [工具链与 DX 改进](./done/plan-12-20260409/plan.md)
+- [ ] [Utils 样式代码重构](./plan-13/plan.md)

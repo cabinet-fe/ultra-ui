@@ -12,6 +12,8 @@
   "scripts": {},
   "dependencies": {
     "@cat-kit/core": "^1.0.1",
+    "@floating-ui/dom": "^1.7.6",
+    "@tanstack/vue-virtual": "^3.13.23",
     "@ultra-ui/utils": "workspace:*"
   },
   "peerDependencies": {
