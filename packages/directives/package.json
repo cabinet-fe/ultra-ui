@@ -8,14 +8,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "import": "./src/index.ts"
+      "import": "./dist/index.js"
     },
     "./ripple/style": {
-      "types": "./src/ripple/style.ts",
+      "types": "./dist/ripple/style.d.ts",
       "development": "./src/ripple/style.ts",
-      "import": "./src/ripple/style.ts"
+      "import": "./dist/ripple/style.js"
     }
   },
   "scripts": {

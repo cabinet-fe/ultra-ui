@@ -2,21 +2,19 @@
   "name": "@ultra-ui/compositions",
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "build": "bun -e 'void 0'"
-  },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "import": "./src/index.ts"
+      "import": "./dist/index.js"
     }
   },
-  "peerDependencies": {
-    "vue": "^3.5.0"
-  },
+  "scripts": {},
   "dependencies": {
     "@cat-kit/core": "^1.0.1",
     "@ultra-ui/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   }
 }

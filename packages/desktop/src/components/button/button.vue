@@ -28,12 +28,12 @@
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@ultra-ui/compositions'
-import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '@ultra-ui/desktop'
 import { vRipple } from '@ultra-ui/directives'
 import { Loading } from '@ultra-ui/icons'
 import { bem } from '@ultra-ui/utils'
 import { computed, shallowRef } from 'vue'
 
+import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 
 defineOptions({
