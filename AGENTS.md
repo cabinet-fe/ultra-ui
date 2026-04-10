@@ -98,4 +98,5 @@ ultra-ui/
 
 - Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
 - `sideEffects` 声明：组件 `style.ts`、指令样式、`@ultra-ui/styles` 的 `.scss` 与副作用 TS 入口、`.css`、`.scss`。
-- 使用`tsc`校验时不得输出任何文件，包括声明文件
+- 使用`tsc`校验时不得输出任何文件，包括声明文件。
+- 本项目基于 typescript 6.x 版本，并且全部包的 tsconfig.json 配置都基于 `@cat-kit/tsconfig`, 不得使用任何方式跳过或者避免类型错误。

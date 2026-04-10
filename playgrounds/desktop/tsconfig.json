@@ -5,24 +5,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
-    "ignoreDeprecations": "6.0",
-    "customConditions": ["development"],
-    "baseUrl": ".",
-    "paths": {
-      "@ultra-ui/desktop": ["../../packages/desktop/src/index.ts"],
-      "@ultra-ui/desktop/*": ["../../packages/desktop/src/*"],
-      "@ultra-ui/compositions": ["../../packages/compositions/src/index.ts"],
-      "@ultra-ui/directives": ["../../packages/directives/src/index.ts"],
-      "@ultra-ui/directives/*": ["../../packages/directives/src/*"],
-      "@ultra-ui/icons": ["../../packages/icons/src/index.ts"],
-      "@ultra-ui/icons/normal": ["../../packages/icons/src/normal.ts"],
-      "@ultra-ui/icons/colorful": ["../../packages/icons/src/colorful.ts"],
-      "@ultra-ui/icons/*": ["../../packages/icons/src/*"],
-      "@ultra-ui/styles": ["../../packages/styles/src/index.ts"],
-      "@ultra-ui/styles/*": ["../../packages/styles/src/*"],
-      "@ultra-ui/utils": ["../../packages/utils/src/index.ts"],
-      "@ultra-ui/utils/*": ["../../packages/utils/src/*"]
-    }
+    "customConditions": ["development"]
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
   "exclude": ["node_modules", "**/__test__/**/*"]
