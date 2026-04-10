@@ -10,4 +10,4 @@
 - [x] [包内相对路径 + TS 开发期类型解析](./done/plan-10-20260409/plan.md)
 - [x] [重构 AGENTS.md — 渐进式披露](./done/plan-11-20260409/plan.md)
 - [x] [工具链与 DX 改进](./done/plan-12-20260409/plan.md)
-- [x] [getChainValue / setChainValue → `o().get` / `o().set`](./plan-13/plan.md)
+- [x] [getChainValue / setChainValue → @cat-kit/core `o().get` / `o().set`](./done/plan-13-20260410/plan.md)
