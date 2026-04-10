@@ -27,17 +27,13 @@
 </template>
 
 <script lang="ts" setup>
-import { n, o } from '@cat-kit/core'
+import { n, $n, o } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type {
-  NumberRangeInputEmits,
-  NumberRangeInputProps,
-  NumberRangeTuple
-} from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 
+import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
 import { UNumberInput } from '../number-input'
 
 defineOptions({

@@ -47,14 +47,14 @@
 <script lang="ts" setup>
 import { $n, n, o, isUndef } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../types'
 import { vRipple } from '@ultra-ui/directives'
+import { ArrowDown, ArrowUp } from '@ultra-ui/icons/normal'
 import { Tween } from '@ultra-ui/utils'
 import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { ArrowDown, ArrowUp } from '@ultra-ui/icons/normal'
 import { computed, shallowRef, watch } from 'vue'
 
+import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../types'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
