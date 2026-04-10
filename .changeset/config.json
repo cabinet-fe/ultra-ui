@@ -16,5 +16,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@ultra-ui/mobile", "build", "cli", "play-desktop"]
+  "ignore": ["@ultra-ui/mobile", "cli", "play-desktop"]
 }

@@ -8,7 +8,6 @@
     }
   },
   "scripts": {
-    "build": "bun -e 'void 0'",
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {

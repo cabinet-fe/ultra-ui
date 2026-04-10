@@ -303,12 +303,12 @@ $root-name: theme;
     align-items: center;
     gap: 8px;
 
-    :deep(.u-palette) {
+    .u-palette {
       flex-shrink: 0;
       box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06);
     }
 
-    :deep(.u-input) {
+    .u-input {
       flex: 1;
       width: 0;
     }
@@ -319,7 +319,7 @@ $root-name: theme;
     align-items: center;
     gap: 8px;
 
-    :deep(.u-select) {
+    .u-select {
       flex: 1;
       width: 0;
     }
@@ -385,9 +385,9 @@ $root-name: theme;
     min-width: 74px;
   }
 
-  :deep(.u-input),
-  :deep(.u-number-input),
-  :deep(.u-select) {
+  .u-input,
+  .u-number-input,
+  .u-select {
     width: 100%;
   }
 

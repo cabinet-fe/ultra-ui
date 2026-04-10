@@ -14,3 +14,4 @@
 - [x] [构建系统迁移：集中式 tools/build → 每包独立 tsdown + Turborepo 编排](./done/plan-14-20260410/plan.md)
 - [x] [主题 TS 迁入 @ultra-ui/styles](./done/plan-15-20260410/plan.md)
 - [x] [GitHub Actions + Changesets 自动化发版](./done/plan-16-20260410/plan.md)
+- [x] [全局类型与质量问题扫荡](./done/plan-17-20260410/plan.md)
