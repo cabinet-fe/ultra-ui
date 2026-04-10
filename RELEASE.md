@@ -30,7 +30,7 @@
 
    Tag 须匹配 **`v主.次.修`**（如 `v1.2.3`）或 **`v主.次.修-预发布`**（如 `v1.2.3-beta.1`）；不要使用 `v1`、无点分段等模糊 tag。Tag **必须指向已 bump 版本后的提交**（与即将发布的 npm 版本一致）。
 
-5. **CI**：工作流 **Release** 会安装依赖、执行 `bun run release`（构建 `@ultra-ui/*` 并 `changeset publish`），随后创建 GitHub Release：
+5. **CI**：工作流 **Release** 会安装依赖、执行 `bun run release`（构建除 `@ultra-ui/mobile` 外的 `@ultra-ui/*` 并 `changeset publish`），随后创建 GitHub Release：
    - 若存在 `packages/desktop/CHANGELOG.md`（Changesets 在 `version-packages` 后生成），则取文件中 **第一个 `##` 版本段落** 作为 Release 正文；
    - 否则使用 GitHub 自动生成的 Release Notes。
 
