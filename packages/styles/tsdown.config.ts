@@ -8,7 +8,7 @@ const dir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(dir, '../..')
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/theme/index.ts'],
   format: ['esm'],
   unbundle: true,
   dts: true,
@@ -16,6 +16,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
+  deps: { neverBundle: ['@ultra-ui/utils', '@cat-kit/core', 'vue', '@ultra-ui/compositions'] },
   css: {
     preprocessorOptions: {
       scss: { api: 'modern-compiler', importers: [new NodePackageImporter(repoRoot)] }

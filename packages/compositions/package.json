@@ -7,11 +7,6 @@
       "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
       "import": "./dist/index.js"
-    },
-    "./theme": {
-      "types": "./dist/theme/index.d.ts",
-      "development": "./src/theme/index.ts",
-      "import": "./dist/theme/index.js"
     }
   },
   "files": [

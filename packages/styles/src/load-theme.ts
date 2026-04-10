@@ -1,9 +1,9 @@
+import { useConfig } from '@ultra-ui/compositions'
 import { shallowRef, type ShallowRef } from 'vue'
 
 import { darkTheme } from './theme/dark'
 import { lightTheme } from './theme/light'
 import { UITheme } from './theme/ui-theme'
-import { useConfig } from './use-config'
 
 export const currentTheme: ShallowRef<UITheme | undefined> = shallowRef<UITheme>()
 

@@ -127,10 +127,18 @@
     "packages/styles": {
       "name": "@ultra-ui/styles",
       "version": "0.1.0",
+      "dependencies": {
+        "@cat-kit/core": "^1.0.1",
+        "@ultra-ui/compositions": "workspace:*",
+        "@ultra-ui/utils": "workspace:*",
+      },
       "devDependencies": {
         "@tsdown/css": "^0.21.7",
         "sass-embedded": "^1.99.0",
         "tsdown": "^0.21.7",
+      },
+      "peerDependencies": {
+        "vue": "^3.5.0",
       },
     },
     "packages/utils": {

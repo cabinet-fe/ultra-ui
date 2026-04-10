@@ -66,9 +66,9 @@
 </template>
 
 <script lang="tsx" setup>
-import { loadTheme, useConfig } from '@ultra-ui/compositions'
-import { currentTheme, lightTheme, darkTheme, UITheme } from '@ultra-ui/compositions/theme'
+import { useConfig } from '@ultra-ui/compositions'
 import type { ComponentSize, MenuItem } from '@ultra-ui/desktop'
+import { currentTheme, lightTheme, darkTheme, UITheme, loadTheme } from '@ultra-ui/styles/theme'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

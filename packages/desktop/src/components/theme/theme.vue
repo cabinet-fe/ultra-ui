@@ -175,14 +175,14 @@
 </template>
 
 <script lang="ts" setup>
-import { loadTheme } from '@ultra-ui/compositions'
 import {
   type Theme,
   UITheme,
   currentTheme,
   darkTheme,
-  lightTheme
-} from '@ultra-ui/compositions/theme'
+  lightTheme,
+  loadTheme
+} from '@ultra-ui/styles/theme'
 import { bem } from '@ultra-ui/utils'
 import { computed, shallowRef, watch, watchEffect } from 'vue'
 

@@ -1,6 +1,6 @@
 # AGENTS.md — @ultra-ui/utils
 
-工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）在 **`@ultra-ui/styles`**；主题 TS 在 **`@ultra-ui/compositions`**。
+工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）与主题 TS（`@ultra-ui/styles/theme`）在 **`@ultra-ui/styles`**。
 
 ## 目录结构
 

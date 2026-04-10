@@ -38,8 +38,8 @@ bun run format                               # oxfmt
 ultra-ui/
 ├── packages/
 │   ├── utils/           # @ultra-ui/utils — 工具函数、共享类型（→ AGENTS.md）
-│   ├── styles/          # @ultra-ui/styles — 共享 SCSS（BEM、normalize、动画）（→ AGENTS.md）
-│   ├── compositions/    # @ultra-ui/compositions — Vue 组合式函数与主题系统（→ AGENTS.md）
+│   ├── styles/          # @ultra-ui/styles — 共享 SCSS 与主题 TS（`@ultra-ui/styles/theme`）（→ AGENTS.md）
+│   ├── compositions/    # @ultra-ui/compositions — Vue 组合式函数（→ AGENTS.md）
 │   ├── directives/      # @ultra-ui/directives — Vue 自定义指令（→ AGENTS.md）
 │   ├── desktop/         # @ultra-ui/desktop — 桌面端组件库主包（→ AGENTS.md）
 │   ├── icons/           # @ultra-ui/icons — SVG 图标组件（→ AGENTS.md）
@@ -72,7 +72,7 @@ ultra-ui/
      playgrounds/desktop
 ```
 
-`@ultra-ui/styles`（共享 SCSS）被 `desktop`、`directives`、`playgrounds/desktop` 依赖；Sass 使用 `pkg:@ultra-ui/styles/...`，构建与预览需配置 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
+`@ultra-ui/styles`（共享 SCSS + `@ultra-ui/styles/theme`）被 `desktop`、`directives`、`playgrounds/desktop` 等依赖；**`theme` 子路径在运行时依赖 `@ultra-ui/compositions`（`useConfig`），`compositions` 不得再导出 `theme`，以免包循环。** Sass 使用 `pkg:@ultra-ui/styles/...`，构建与预览需配置 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
 
 ## 路径别名
 

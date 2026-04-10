@@ -1,9 +1,3 @@
-export * from './load-theme'
-
-export { UITheme, cssVar, darkTheme, defineBySize, HEXToRGB, lightTheme, mixColor } from './theme'
-
-export type { RGBColor, Theme } from './theme/type'
-
 export * from './use-component-props'
 
 export * from './use-config'

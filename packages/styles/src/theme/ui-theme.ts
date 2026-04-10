@@ -171,7 +171,7 @@ export class UITheme {
     if (!isDevEnv() || UITheme.legacyDeprecationWarned) return
     UITheme.legacyDeprecationWarned = true
     console.warn(
-      '[@ultra-ui/compositions] Theme CSS variables now prefer the `--u-` namespace. ' +
+      '[@ultra-ui/styles] Theme CSS variables now prefer the `--u-` namespace. ' +
         'Unprefixed aliases (e.g. `--color-primary`) are deprecated and will be removed in a future major version.'
     )
   }

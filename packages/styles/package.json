@@ -4,7 +4,9 @@
   "type": "module",
   "sideEffects": [
     "*.scss",
-    "src/index.ts"
+    "src/index.ts",
+    "src/load-theme.ts",
+    "src/theme/index.ts"
   ],
   "files": [
     "dist",
@@ -47,6 +49,12 @@
       "import": "./src/anime/*",
       "default": "./src/anime/*"
     },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "development": "./src/theme/index.ts",
+      "import": "./dist/theme/index.js",
+      "default": "./dist/theme/index.js"
+    },
     "./*": {
       "sass": "./src/*",
       "development": "./src/*",
@@ -57,6 +65,14 @@
   "scripts": {
     "build": "tsdown && bun scripts/copy-scss.ts",
     "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@cat-kit/core": "^1.0.1",
+    "@ultra-ui/compositions": "workspace:*",
+    "@ultra-ui/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",
