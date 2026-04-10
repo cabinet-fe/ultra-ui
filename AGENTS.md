@@ -12,7 +12,7 @@ bun tools/cli/export/index.ts               # 重新导出组件
 bun run build                               # turbo run build（各包 tsdown 拓扑 → dist/）
 bun run check-types                         # turbo run check-types
 bun run test                                # turbo run test（playground 调根目录 scripts/vitest-run.ts 跑 vitest）
-cd tools/build && bun index.ts --release    # 对齐版本 + turbo build + 多包 npm publish
+bun run changeset                           # 记录变更（见 RELEASE.md：Version PR 仅 bump；推送 v*.*.* tag 后 CI 发布）
 bun run lint                                 # oxlint
 bun run format                               # oxfmt
 ```

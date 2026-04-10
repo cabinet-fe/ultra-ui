@@ -27,11 +27,15 @@
     "update": "bun update",
     "postinstall": "simple-git-hooks",
     "lint": "oxlint .",
-    "format": "oxfmt ."
+    "format": "oxfmt .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter='@ultra-ui/*' && changeset publish"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.3",
     "@cat-kit/tsconfig": "^2.0.1",
+    "@changesets/cli": "^2.30.0",
     "@tsdown/css": "^0.21.7",
     "@types/bun": "^1.3.11",
     "@vitejs/plugin-vue": "^6.0.5",
