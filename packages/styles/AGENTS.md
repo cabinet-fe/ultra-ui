@@ -23,18 +23,18 @@
 `pkg:` **仅**用于 Sass 的 `@use` / `@forward`。TS 侧用包导出路径，由 bundler / Node 解析：
 
 ```ts
-import '@ultra-ui/styles/normalize.scss'
+import '@ultra-ui/styles/normalize'
 import '@ultra-ui/styles/anime/fade.scss'
 ```
 
-全量 normalize 副作用入口：`@ultra-ui/styles`（`src/index.ts` 引入 `normalize.scss`）。
+全量 样式 副作用入口：`@ultra-ui/styles`（`src/index.ts` 引入 `normalize.scss` 和 `anime/*.scss`）。
 
 ## `exports` 子路径（摘要）
 
 | 子路径 | 说明 |
 | ------ | ---- |
-| `@ultra-ui/styles` | TS 入口，副作用引入 normalize |
-| `@ultra-ui/styles/normalize.scss` | 全局 normalize |
+| `@ultra-ui/styles` | 通用样式全量导入 |
+| `@ultra-ui/styles/normalize` | 全局 normalize |
 | `@ultra-ui/styles/mixins` | `sass` → `_mixins.scss` |
 | `@ultra-ui/styles/vars` | `sass` → `_vars.scss` |
 | `@ultra-ui/styles/functions` | `sass` → `_functions.scss` |
