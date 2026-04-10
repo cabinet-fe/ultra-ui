@@ -9,12 +9,12 @@ bun install                                  # 安装依赖
 cd playgrounds/desktop && bun dev            # 启动开发预览 (端口 7788)
 bun tools/cli/gen-component/index.ts         # 交互式生成新组件
 bun tools/cli/export/index.ts               # 重新导出组件
-cd tools/build && bun index.ts              # 构建产物到 dist/
-cd tools/build && bun index.ts --release    # 构建 + 发版
-bun vitest                                   # 运行测试
+bun run build                               # turbo run build（各包 tsdown 拓扑 → dist/）
+bun run check-types                         # turbo run check-types
+bun run test                                # turbo run test（playground 调根目录 scripts/vitest-run.ts 跑 vitest）
+cd tools/build && bun index.ts --release    # 对齐版本 + turbo build + 多包 npm publish
 bun run lint                                 # oxlint
 bun run format                               # oxfmt
-bun run build                                # turbo run build（各包 build 拓扑）
 ```
 
 ## 技术栈

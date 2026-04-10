@@ -6,30 +6,61 @@
     "*.scss",
     "src/index.ts"
   ],
+  "files": [
+    "dist",
+    "src"
+  ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "default": "./src/index.ts"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./normalize": {
       "sass": "./src/normalize.scss",
+      "development": "./src/normalize.scss",
+      "import": "./src/normalize.scss",
       "default": "./src/normalize.scss"
     },
     "./mixins": {
-      "sass": "./src/_mixins.scss"
+      "sass": "./src/_mixins.scss",
+      "development": "./src/_mixins.scss",
+      "import": "./src/_mixins.scss",
+      "default": "./src/_mixins.scss"
     },
     "./vars": {
-      "sass": "./src/_vars.scss"
+      "sass": "./src/_vars.scss",
+      "development": "./src/_vars.scss",
+      "import": "./src/_vars.scss",
+      "default": "./src/_vars.scss"
     },
     "./functions": {
-      "sass": "./src/_functions.scss"
+      "sass": "./src/_functions.scss",
+      "development": "./src/_functions.scss",
+      "import": "./src/_functions.scss",
+      "default": "./src/_functions.scss"
+    },
+    "./anime/*": {
+      "sass": "./src/anime/*",
+      "development": "./src/anime/*",
+      "import": "./src/anime/*",
+      "default": "./src/anime/*"
     },
     "./*": {
-      "sass": "./src/*"
+      "sass": "./src/*",
+      "development": "./src/*",
+      "import": "./src/*",
+      "default": "./src/*"
     }
   },
   "scripts": {
-    "build": "bun -e 'void 0'"
+    "build": "tsdown && bun scripts/copy-scss.ts",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@tsdown/css": "^0.21.7",
+    "sass-embedded": "^1.99.0",
+    "tsdown": "^0.21.7"
   }
 }

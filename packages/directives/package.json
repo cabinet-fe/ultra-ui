@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "type": "module",
   "sideEffects": [
-    "src/**/style.ts",
-    "src/**/*.scss"
+    "dist/**/style.js",
+    "dist/**/*.css"
+  ],
+  "files": [
+    "dist",
+    "src"
   ],
   "exports": {
     ".": {
@@ -19,7 +23,13 @@
     }
   },
   "scripts": {
-    "build": "bun -e 'void 0'"
+    "build": "tsdown",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@tsdown/css": "^0.21.7",
+    "sass-embedded": "^1.99.0",
+    "tsdown": "^0.21.7"
   },
   "dependencies": {
     "@ultra-ui/styles": "workspace:*",

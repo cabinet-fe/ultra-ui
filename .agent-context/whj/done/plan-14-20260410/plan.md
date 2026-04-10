@@ -1,6 +1,6 @@
 # 构建系统迁移：集中式 tools/build → 每包独立 tsdown + Turborepo 编排
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -224,4 +224,19 @@ icons 已有独立构建流程。检查并确保：
 
 ## 影响范围
 
+- `package.json`、`turbo.json`、`bun.lock`、`AGENTS.md`
+- `scripts/vitest-run.ts`（根目录 Vitest 入口，供 playground 的 turbo test 调用）
+- `packages/utils/`：`tsdown.config.ts`（双入口含 `src/types/index.ts`）、`package.json`（`files`、`exports` 含 `./types` 与 `./types/*`）
+- `packages/styles/`：`tsdown.config.ts`、`package.json`、`scripts/copy-scss.ts`
+- `packages/compositions/`：`tsdown.config.ts`、`package.json`
+- `packages/directives/`：`tsdown.config.ts`、`package.json`
+- `packages/desktop/`：`tsdown.config.ts`、`package.json`、`src/install.ts`（移除不存在的 `animation/style` 引用）、`src/types/index.ts`（`export type * from '@ultra-ui/utils/types'`）
+- `packages/icons/`、`packages/mobile/`：`package.json`（`check-types`）
+- `playgrounds/desktop/package.json`（`test` 脚本）
+- `tools/build/`：删除 `build.ts`、`build-styles.ts`、`cli-build-styles.ts`、`prepare.ts`、`shared.ts`；重写 `index.ts`、`release.ts`、`package.json`、`AGENTS.md`
+- `tools/cli/package.json`（`check-types`）
+- patch-1：`AGENTS.md`、`turbo.json`（vitest 相关全局依赖与 test inputs）；删除 `packages/styles/` 包根误生成的 `.scss` / `anime/` 副本
+
 ## 历史补丁
+
+- patch-1: review 后小修 — 文档、turbo 测试缓存输入、清理 styles 包根误生成 SCSS

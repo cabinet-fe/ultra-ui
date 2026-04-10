@@ -1,3 +1,5 @@
+export type * from '@ultra-ui/utils/types'
+
 export * from './cascade'
 export * from './message'
 export * from './multi-select'

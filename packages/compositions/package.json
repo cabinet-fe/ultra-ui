@@ -14,7 +14,17 @@
       "import": "./dist/theme/index.js"
     }
   },
-  "scripts": {},
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "tsdown": "^0.21.7"
+  },
   "dependencies": {
     "@cat-kit/core": "^1.0.1",
     "@floating-ui/dom": "^1.7.6",

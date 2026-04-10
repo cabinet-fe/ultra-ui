@@ -2,20 +2,15 @@
   "name": "build",
   "type": "module",
   "scripts": {
-    "build": "bun index.ts",
+    "build": "bun -e 'void 0'",
+    "check-types": "tsc -p tsconfig.json --noEmit",
     "release": "bun index.ts --release"
   },
   "devDependencies": {
     "@cat-kit/be": "^1.0.1",
+    "@cat-kit/tsconfig": "^2.0.1",
     "@inquirer/prompts": "^8.4.1",
     "execa": "^9.6.1",
-    "rolldown": "^1.0.0-rc.15",
-    "sass-embedded": "^1.99.0",
-    "tsdown": "^0.21.7",
-    "tsx": "^4.21.0",
-    "unplugin-vue": "^7.1.1",
-    "unplugin-vue-jsx": "^0.8.1",
-    "vue": "^3.5.32",
-    "vue-tsc": "^3.2.6"
+    "typescript": "^6.0.2"
   }
 }

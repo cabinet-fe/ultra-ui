@@ -1,10 +1,22 @@
-import { resolve } from 'node:path'
-import { select, confirm, input } from '@inquirer/prompts'
-import { readJson, writeJson } from '@cat-kit/be'
-import { $ } from 'execa'
-import { ROOT, DESKTOP_PKG, DIST_ROOT } from './shared'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// ========================= 类型定义 =========================
+import { readJson, writeJson } from '@cat-kit/be'
+import { select, confirm, input } from '@inquirer/prompts'
+import { $ } from 'execa'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const ROOT = resolve(__dirname, '../..')
+const DESKTOP_PKG = resolve(ROOT, 'packages/desktop')
+
+const PUBLISH_PKG_ROOTS = [
+  resolve(ROOT, 'packages/utils'),
+  resolve(ROOT, 'packages/styles'),
+  resolve(ROOT, 'packages/compositions'),
+  resolve(ROOT, 'packages/directives'),
+  resolve(ROOT, 'packages/desktop'),
+  resolve(ROOT, 'packages/icons')
+] as const
 
 type ReleaseType = 'patch' | 'minor' | 'major' | 'custom' | 'current'
 
@@ -14,32 +26,20 @@ interface Version {
   patch: number
 }
 
-// ========================= 版本解析工具 =========================
-
-/** 解析版本号字符串为结构化对象 */
 function parseVersion(version: string): Version {
   const match = version.match(/^(\d+)\.(\d+)\.(\d+)/)
   if (!match) {
     throw new Error(`无效的版本号格式: ${version}`)
   }
   const [, major, minor, patch] = match
-  return {
-    major: parseInt(major!, 10),
-    minor: parseInt(minor!, 10),
-    patch: parseInt(patch!, 10)
-  }
+  return { major: parseInt(major!, 10), minor: parseInt(minor!, 10), patch: parseInt(patch!, 10) }
 }
 
-/** 将版本对象序列化为字符串 */
 function formatVersion(version: Version): string {
   return `${version.major}.${version.minor}.${version.patch}`
 }
 
-/** 根据发布类型递增版本号 */
-function bumpVersion(
-  current: Version,
-  type: Exclude<ReleaseType, 'custom'>
-): Version {
+function bumpVersion(current: Version, type: Exclude<ReleaseType, 'custom'>): Version {
   switch (type) {
     case 'patch':
       return { ...current, patch: current.patch + 1 }
@@ -52,12 +52,8 @@ function bumpVersion(
   }
 }
 
-// ========================= Git 操作封装 =========================
-
-/** 创建绑定到 ROOT 目录的 execa 实例 */
 const $$ = $({ cwd: ROOT })
 
-/** 检查是否存在指定的 tag */
 async function tagExists(tag: string): Promise<boolean> {
   try {
     await $$`git rev-parse refs/tags/${tag}`
@@ -67,12 +63,6 @@ async function tagExists(tag: string): Promise<boolean> {
   }
 }
 
-// ========================= 核心发布函数 =========================
-
-/**
- * 交互式选择版本更新类型
- * @returns 新版本号字符串
- */
 export async function promptVersion(): Promise<string> {
   const pkgPath = resolve(DESKTOP_PKG, 'package.json')
   const pkg = await readJson<{ version: string }>(pkgPath)
@@ -96,14 +86,8 @@ export async function promptVersion(): Promise<string> {
         name: `major (${formatVersion(bumpVersion(current, 'major'))}) - 重大变更`,
         value: 'major'
       },
-      {
-        name: `当前版本 (${currentVersion})`,
-        value: 'current'
-      },
-      {
-        name: '自定义版本',
-        value: 'custom'
-      }
+      { name: `当前版本 (${currentVersion})`, value: 'current' },
+      { name: '自定义版本', value: 'custom' }
     ]
   })
 
@@ -112,7 +96,7 @@ export async function promptVersion(): Promise<string> {
   if (releaseType === 'custom') {
     newVersion = await input({
       message: '输入自定义版本号 (格式: x.y.z)',
-      validate: value => {
+      validate: (value) => {
         if (!/^\d+\.\d+\.\d+$/.test(value)) {
           return '版本号格式无效，请使用 x.y.z 格式'
         }
@@ -126,15 +110,7 @@ export async function promptVersion(): Promise<string> {
   return newVersion
 }
 
-/**
- * 更新 package.json 中的版本号
- * @param version 新版本号
- * @param targets 需要更新的 package.json 路径列表
- */
-export async function updateVersion(
-  version: string,
-  targets: string[]
-): Promise<void> {
+export async function updateVersion(version: string, targets: string[]): Promise<void> {
   for (const target of targets) {
     const pkg = await readJson<Record<string, unknown>>(target)
     pkg.version = version
@@ -143,18 +119,9 @@ export async function updateVersion(
   }
 }
 
-/**
- * 创建版本提交
- * @param version 版本号
- * @param files 需要暂存的文件列表（为空时暂存所有变更）
- */
-export async function commitRelease(
-  version: string,
-  files?: string[]
-): Promise<void> {
+export async function commitRelease(version: string, files?: string[]): Promise<void> {
   console.log(`\n📝 正在创建提交...`)
 
-  // 暂存文件
   if (files && files.length > 0) {
     for (const file of files) {
       await $$`git add ${file}`
@@ -163,31 +130,20 @@ export async function commitRelease(
     await $$`git add -A`
   }
 
-  // 检查是否有需要提交的内容
   const { stdout: status } = await $$`git status --porcelain`
   if (!status) {
     console.log('  ⚠️  没有需要提交的变更')
     return
   }
 
-  // 创建提交
   const commitMessage = `release: v${version}`
   await $$`git commit -m ${commitMessage}`
   console.log(`  ✅ 已创建提交: ${commitMessage}`)
 }
 
-/**
- * 创建 Git 标签
- * @param version 版本号
- * @param options.message 标签消息（可选）
- * @param options.push 是否推送到远程（默认 false）
- */
 export async function createTag(
   version: string,
-  options?: {
-    message?: string
-    push?: boolean
-  }
+  options?: { message?: string; push?: boolean }
 ): Promise<void> {
   const tag = `v${version}`
   const message = options?.message ?? `Release ${tag}`
@@ -195,7 +151,6 @@ export async function createTag(
 
   console.log(`\n🏷️  正在创建标签...`)
 
-  // 检查 tag 是否已存在
   if (await tagExists(tag)) {
     const shouldOverwrite = await confirm({
       message: `标签 ${tag} 已存在，是否覆盖？`,
@@ -207,15 +162,12 @@ export async function createTag(
       return
     }
 
-    // 删除本地已存在的 tag
     await $$`git tag -d ${tag}`
   }
 
-  // 创建带注释的 tag
   await $$`git tag -a ${tag} -m ${message}`
   console.log(`  ✅ 已创建标签: ${tag}`)
 
-  // 推送到远程
   if (push) {
     console.log(`\n🚀 正在推送到远程...`)
     await $$`git push`
@@ -224,33 +176,24 @@ export async function createTag(
   }
 }
 
-/**
- * 发布到 npm
- * @param cwd 发布目录，默认为 DIST_ROOT
- */
-export async function publish(cwd: string = DIST_ROOT): Promise<void> {
-  console.log(`\n📦 正在发布到 npm...`)
-  await $({ cwd })`npm publish --registry http://192.168.31.250:6005`
-  console.log(`  ✅ 发布成功`)
+const REGISTRY = 'http://192.168.31.250:6005'
+
+export async function publishAll(): Promise<void> {
+  console.log(`\n📦 正在发布到 npm（${REGISTRY}）...`)
+  for (const dir of PUBLISH_PKG_ROOTS) {
+    const pkg = await readJson<{ name: string }>(resolve(dir, 'package.json'))
+    console.log(`  → ${pkg.name}`)
+    await $({ cwd: dir })`npm publish --registry ${REGISTRY}`
+  }
+  console.log(`  ✅ 全部包已发布`)
 }
 
-/**
- * 完整的发布流程
- * 包含: 提交 -> 打标签 -> 推送 -> npm 发布
- * @param version 版本号
- */
 export async function release(version: string): Promise<void> {
-  // 1. 提交
   await commitRelease(version)
 
-  // 2. 创建标签
   await createTag(version)
 
-  // 3. 询问是否推送
-  const shouldPush = await confirm({
-    message: '是否推送提交和标签到远程仓库？',
-    default: true
-  })
+  const shouldPush = await confirm({ message: '是否推送提交和标签到远程仓库？', default: true })
 
   if (shouldPush) {
     console.log(`\n🚀 正在推送到远程...`)
@@ -258,8 +201,11 @@ export async function release(version: string): Promise<void> {
     console.log(`  ✅ 已推送提交和标签到远程`)
   }
 
-  // 4. 发布到 npm
-  await publish()
+  await publishAll()
 
   console.log(`\n🎉 发布 v${version} 完成！\n`)
+}
+
+export function versionTargets(): string[] {
+  return PUBLISH_PKG_ROOTS.map((d) => resolve(d, 'package.json'))
 }

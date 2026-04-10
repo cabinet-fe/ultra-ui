@@ -21,6 +21,7 @@
     }
   },
   "scripts": {
+    "check-types": "tsc -p tsconfig.json --noEmit",
     "icons:rename": "bun ./scripts/rename-svg-icons.ts",
     "icons:format": "bun ./scripts/format-svg.ts",
     "icons:gen": "bun ./scripts/gen-vue-icons.ts && bun ./scripts/gen-icon-barrels.ts",

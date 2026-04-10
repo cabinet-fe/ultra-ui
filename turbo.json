@@ -1,9 +1,31 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalDependencies": ["tsconfig.json", "vitest.config.ts"],
   "tasks": {
-    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
-    "lint": { "dependsOn": [] },
-    "format": { "dependsOn": [] },
-    "test": { "dependsOn": ["^build"] }
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsdown.config.ts", "tsconfig.json", "package.json", "scripts/**"],
+      "outputs": ["dist/**"]
+    },
+    "check-types": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig.json", "package.json"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "format": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["package.json", "../../vitest.config.ts", "../../scripts/vitest-run.ts"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
   }
 }

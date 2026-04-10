@@ -11,3 +11,4 @@
 - [x] [重构 AGENTS.md — 渐进式披露](./done/plan-11-20260409/plan.md)
 - [x] [工具链与 DX 改进](./done/plan-12-20260409/plan.md)
 - [x] [getChainValue / setChainValue → @cat-kit/core `o().get` / `o().set`](./done/plan-13-20260410/plan.md)
+- [x] [构建系统迁移：集中式 tools/build → 每包独立 tsdown + Turborepo 编排](./done/plan-14-20260410/plan.md)
