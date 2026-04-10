@@ -19,12 +19,12 @@
 
 <script lang="ts" setup>
 import type { DatePanelEmits, DatePanelProps } from '../../types'
-import DayPanel from './panels/day.vue'
-import MonthPanel from './panels/month.vue'
-import YearPanel from './panels/year.vue'
 import DayHeader from './headers/day.vue'
 import MonthHeader from './headers/month.vue'
 import YearHeader from './headers/year.vue'
+import DayPanel from './panels/day.vue'
+import MonthPanel from './panels/month.vue'
+import YearPanel from './panels/year.vue'
 import { usePanel } from './use-panel'
 
 defineOptions({

@@ -6,8 +6,9 @@
 
 <script lang="ts" setup>
 import { computed, inject, type CSSProperties } from 'vue'
-import { CardDIKey } from './di'
+
 import type { CardContentProps } from '../../types'
+import { CardDIKey } from './di'
 
 defineOptions({ name: 'CardContent' })
 

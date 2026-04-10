@@ -1,6 +1,7 @@
-import { h, render, shallowReactive } from 'vue'
-import type { MessageOptions, Message, MessageInstance } from '../../types'
 import { bem, setStyles, zIndex } from '@ultra-ui/utils'
+import { h, render, shallowReactive } from 'vue'
+
+import type { MessageOptions, Message, MessageInstance } from '../../types'
 import UMessageBox from './message-box.vue'
 
 const cls = bem('message')
@@ -46,7 +47,7 @@ const handleClosed = (id: string) => {
 
 /** 触发关闭 (仅从数组移除，触发 Transition 离开动画) */
 const handleClose = (id: string) => {
-  const index = messages.findIndex(m => m.key === id)
+  const index = messages.findIndex((m) => m.key === id)
   if (index !== -1) messages.splice(index, 1)
 }
 
@@ -83,7 +84,7 @@ const createMessage = (options: MessageOptions): MessageInstance => {
 
   // 生命周期 Promise
   let resolveClosed: () => void
-  const onClosed = new Promise<void>(r => (resolveClosed = r))
+  const onClosed = new Promise<void>((r) => (resolveClosed = r))
 
   closedCallbacks.set(id, () => {
     userOnClosed?.()
@@ -93,18 +94,13 @@ const createMessage = (options: MessageOptions): MessageInstance => {
   messages.push({ key: id, ...messageOptions })
   updateView()
 
-  return {
-    id,
-    close: () => handleClose(id),
-    onClosed
-  }
+  return { id, close: () => handleClose(id), onClosed }
 }
 
 /** --- 导出 API --- */
 
-export const message = (options => {
-  const mergedOptions =
-    typeof options === 'string' ? { message: options } : options
+export const message = ((options) => {
+  const mergedOptions = typeof options === 'string' ? { message: options } : options
   return createMessage(mergedOptions)
 }) as Message
 
@@ -112,7 +108,7 @@ message._context = null
 
 // 挂载快捷方法: message.success(...)
 const messageTypes = ['success', 'warn', 'info', 'error', 'default'] as const
-messageTypes.forEach(type => {
+messageTypes.forEach((type) => {
   message[type] = (msg, config) => message({ ...config, message: msg, type })
 })
 

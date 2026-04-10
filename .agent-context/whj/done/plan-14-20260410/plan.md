@@ -8,19 +8,20 @@
 
 ### 关键决策记录
 
-| 决策项 | 结论 |
-|--------|------|
-| 构建工具 | tsdown（项目已在用，专为库设计，未来将成为 Vite library mode 底层） |
-| 发布模型 | 各包独立发布（@ultra-ui/utils, @ultra-ui/desktop 等） |
-| 向后兼容 | 不保留 `ultra-ui` 包名，直接切换 |
-| SCSS 处理 | @tsdown/css 统一处理 |
-| 发版工具 | 精简 tools/build 为 release 脚本，后续考虑 changesets |
+| 决策项    | 结论                                                                |
+| --------- | ------------------------------------------------------------------- |
+| 构建工具  | tsdown（项目已在用，专为库设计，未来将成为 Vite library mode 底层） |
+| 发布模型  | 各包独立发布（@ultra-ui/utils, @ultra-ui/desktop 等）               |
+| 向后兼容  | 不保留 `ultra-ui` 包名，直接切换                                    |
+| SCSS 处理 | @tsdown/css 统一处理                                                |
+| 发版工具  | 精简 tools/build 为 release 脚本，后续考虑 changesets               |
 
 ## 内容
 
 ### 步骤 1：安装新增依赖
 
 在仓库根目录安装 `@tsdown/css`。确认以下已有依赖版本满足需求（不满足则升级）：
+
 - `tsdown` >= 0.21
 - `unplugin-vue` / `unplugin-vue-jsx`
 - `sass-embedded`
@@ -47,20 +48,10 @@
       "inputs": ["src/**", "tsconfig.json"],
       "outputs": []
     },
-    "lint": {
-      "outputs": []
-    },
-    "format": {
-      "outputs": []
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
+    "lint": { "outputs": [] },
+    "format": { "outputs": [] },
+    "test": { "dependsOn": ["build"], "outputs": [] },
+    "dev": { "cache": false, "persistent": true }
   }
 }
 ```
@@ -155,7 +146,7 @@
 
 2. 更新 `packages/desktop/package.json`：
    - `scripts.build`: `"tsdown"`
-   - `exports`: 
+   - `exports`:
      - `.`: types + development + import（主入口）
      - `./*`: types + development + import（组件子路径，如 `@ultra-ui/desktop/button`）
      - `./types`: 类型入口
@@ -169,6 +160,7 @@
 ### 步骤 8：调整 packages/icons 构建（如需）
 
 icons 已有独立构建流程。检查并确保：
+
 - `scripts.build` 命令可被 turbo 正确调度
 - 产物输出到 `dist/`，与 turbo.json 的 `outputs: ["dist/**"]` 一致
 - 无需改动则跳过此步骤

@@ -1,10 +1,7 @@
 <template>
   <td
     :class="getCellClass(column)"
-    :style="{
-      left: withUnit(left, 'px'),
-      right: withUnit(right, 'px')
-    }"
+    :style="{ left: withUnit(left, 'px'), right: withUnit(right, 'px') }"
     :rowspan="rowspan"
     :colspan="colspan"
     v-if="rowspan !== 0 && colspan !== 0"
@@ -14,10 +11,11 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue'
-import type { ColumnNode } from './node/col'
-import { TableDIKey } from './di'
 import { withUnit } from '@ultra-ui/utils'
+import { inject } from 'vue'
+
+import { TableDIKey } from './di'
+import type { ColumnNode } from './node/col'
 
 defineOptions({
   name: 'TableCell'

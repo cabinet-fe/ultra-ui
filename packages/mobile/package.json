@@ -2,12 +2,14 @@
   "name": "@ultra-ui/mobile",
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
   "scripts": {
     "build": "bun -e 'void 0'",
     "check-types": "tsc -p tsconfig.json --noEmit"
-  },
-  "exports": {
-    ".": { "import": "./src/index.ts" }
   },
   "peerDependencies": {
     "vue": "^3.5.0"

@@ -50,6 +50,10 @@
 </template>
 
 <script lang="ts" setup>
+import { useFallbackProps, useVirtual } from '@ultra-ui/compositions'
+import { bem, setStyles, withUnit } from '@ultra-ui/utils'
+import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+
 import type {
   TableProps,
   TableEmits,
@@ -59,23 +63,20 @@ import type {
   ScrollExposed,
   TableRowSlotsScope
 } from '../../types'
-import { bem, setStyles, withUnit } from '@ultra-ui/utils'
-import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+import { UScroll } from '../scroll'
 import { TableDIKey } from './di'
-import { useRows } from './use-rows'
-import { useColumns } from './use-columns'
-// import { UTip } from '../tip'
-import UTableHead from './table-head'
+import type { ColumnNode } from './node/col'
+import type { TableRowNode } from './node/row'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
-import { UScroll } from '../scroll'
-import { useFallbackProps, useVirtual } from '@ultra-ui/compositions'
+// import { UTip } from '../tip'
+import UTableHead from './table-head'
 import { useCheck } from './use-check'
-import { useTable } from './use-table'
-import type { TableRowNode } from './node/row'
-import { useFixedColumns } from './use-fixed-columns'
 import { useColResize } from './use-col-resize'
-import type { ColumnNode } from './node/col'
+import { useColumns } from './use-columns'
+import { useFixedColumns } from './use-fixed-columns'
+import { useRows } from './use-rows'
+import { useTable } from './use-table'
 
 defineOptions({ name: 'Table' })
 

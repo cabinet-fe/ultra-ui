@@ -26,6 +26,7 @@
 ### 步骤 2：生成 `packages/utils/AGENTS.md`
 
 内容：
+
 - 包职责：工具函数、共享类型、样式系统（BEM/SCSS/CSS变量/主题）
 - `src/` 目录结构说明（utils/、shared/、types/、styles/ 各模块作用）
 - 样式系统详细说明：BEM mixin 用法（`b/e/m/em/is`）、CSS 变量函数（`fn.use-var()`）、命名空间变量、Sass loadPaths 要求
@@ -36,6 +37,7 @@
 ### 步骤 3：生成 `packages/compositions/AGENTS.md`
 
 内容：
+
 - 包职责：Vue 3 组合式函数集合
 - 所有 composition 函数列表及一句话描述
 - 关键 API 用法模式（`loadTheme`、`useFormComponent`、`useFormFallbackProps`、`useModel`、`usePop`、`useTransition` 等）
@@ -44,6 +46,7 @@
 ### 步骤 4：生成 `packages/directives/AGENTS.md`
 
 内容：
+
 - 包职责：Vue 自定义指令
 - 全部指令列表及用途：`vFocus`、`vClickOutside`、`vRipple`
 - ripple 指令样式子路径导出说明
@@ -52,6 +55,7 @@
 ### 步骤 5：生成 `packages/desktop/AGENTS.md`
 
 内容：
+
 - 包职责：桌面端 UI 组件库主包
 - 组件文件结构（`<name>.vue` / `index.ts` / `style.scss` / `style.ts` / `use-*.ts` / `di.ts`）
 - 类型定义位置（`src/types/<name>.ts`）
@@ -63,6 +67,7 @@
 ### 步骤 6：生成 `packages/icons/AGENTS.md`
 
 内容：
+
 - 包职责：SVG 图标组件库
 - 导出路径：`/normal`、`/colorful`
 - 生成工作流：`icons:rename` → `icons:format` → `icons:gen` → `icons:build-vue` → `build`
@@ -73,6 +78,7 @@
 ### 步骤 7：生成 `tools/build/AGENTS.md`
 
 内容：
+
 - 职责：构建流水线（tsdown + Rolldown + sass-embedded）
 - 构建流程：`build()` → `buildStyles()` → `copyFiles()` → `genFiles()` → 可选 `release()`
 - 关键文件说明：`index.ts`（入口）、`build.ts`（JS/DTS）、`build-styles.ts`（SCSS→CSS）、`prepare.ts`（复制+生成发布 package.json）、`release.ts`（发版）、`shared.ts`（路径常量/别名）
@@ -83,6 +89,7 @@
 ### 步骤 8：生成 `tools/cli/AGENTS.md`
 
 内容：
+
 - 职责：开发辅助 CLI 工具集
 - 工具列表：`gen-component`（交互式组件脚手架）、`export`（barrel 文件重写）、`rename/types`（.d.ts → .ts 迁移）
 - 各工具入口路径与调用方式
@@ -91,6 +98,7 @@
 ### 步骤 9：生成 `playgrounds/desktop/AGENTS.md`
 
 内容：
+
 - 职责：组件开发预览应用
 - 启动方式：`bun dev`（端口 7788）
 - Vite 配置要点：SCSS loadPaths、unplugin-components 自动解析、Vue DevTools

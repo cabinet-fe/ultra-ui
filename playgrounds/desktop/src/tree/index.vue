@@ -48,8 +48,9 @@
 
 <script lang="ts" setup>
 import type { TreeExposed } from '@ultra-ui/desktop/types'
-import CustomCard from '../card/custom-card.vue'
 import { shallowReactive, shallowRef, watch } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const treeRef = shallowRef<TreeExposed>()
 const treeRef1 = shallowRef<TreeExposed>()

@@ -10,7 +10,7 @@
 bun run changeset
 ```
 
-按提示选择 semver  bump 类型并写摘要；会生成 `.changeset/<id>.md`，随代码一并提交。
+按提示选择 semver bump 类型并写摘要；会生成 `.changeset/<id>.md`，随代码一并提交。
 
 ## 仓库密钥
 

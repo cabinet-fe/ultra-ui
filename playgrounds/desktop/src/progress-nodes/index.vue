@@ -28,7 +28,6 @@
 
     <CustomCard title="可滚动/拖拽">
       <u-progress-nodes
-
         :nodes="longNodes"
         :check="isChecked"
         color-type="success"
@@ -40,6 +39,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 /** 演示用节点结构（与 UProgressNodes 的 nodes 项字段一致） */

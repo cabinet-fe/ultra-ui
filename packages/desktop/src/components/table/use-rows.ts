@@ -90,7 +90,7 @@ export function useRows(options: Options): UseRowsReturned {
   /** 处理常规扁平列表 */
   function getDataRows(data: Record<string, any>[]): TableRowNode[] {
     let i = data.length
-    const result = new Array(i)
+    const result = Array.from({ length: i }) as TableRowNode[]
     tempRowDicts = new WeakMap()
 
     while (i--) {

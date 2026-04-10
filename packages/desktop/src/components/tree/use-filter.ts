@@ -1,6 +1,7 @@
-import type { ShallowRef } from 'vue'
-import type { TreeNode } from './tree-node'
 import type { Forest } from '@cat-kit/core'
+import type { ShallowRef } from 'vue'
+
+import type { TreeNode } from './tree-node'
 
 interface Options {
   forest: ShallowRef<Forest<Record<string, unknown>, any>>
@@ -57,7 +58,7 @@ export function useFilter(options: Options): UseFilterReturned {
         ? (node: TreeNode) => defaultFilter(node, filterMethod)
         : filterMethod
 
-    forest.value.dfs(node => {
+    forest.value.dfs((node) => {
       if (filterFn(node)) {
         trace(node)
       } else {
@@ -68,7 +69,5 @@ export function useFilter(options: Options): UseFilterReturned {
     getFlattedNodes()
   }
 
-  return {
-    filter
-  }
+  return { filter }
 }

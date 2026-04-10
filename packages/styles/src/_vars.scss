@@ -18,10 +18,7 @@ $bg-color-top: var(--u-bg-color-top);
   $size-result: ();
 
   @for $i from 1 through length($size-types) {
-    $size-result: map.merge(
-      $size-result,
-      (#{nth($size-types, $i)}: nth($sizes, $i))
-    );
+    $size-result: map.merge($size-result, (#{nth($size-types, $i)}: nth($sizes, $i)));
   }
   @return $size-result;
 }

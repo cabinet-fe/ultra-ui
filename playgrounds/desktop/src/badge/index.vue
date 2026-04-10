@@ -13,9 +13,7 @@
       <u-badge :value="120" color="green">
         <u-button>color</u-button>
       </u-badge>
-      <u-badge dot>
-        未读消息
-      </u-badge>
+      <u-badge dot> 未读消息 </u-badge>
       <u-badge :value="120" hidden>
         <u-button>hidden</u-button>
       </u-badge>

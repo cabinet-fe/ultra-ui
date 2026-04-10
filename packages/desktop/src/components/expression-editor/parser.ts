@@ -1,6 +1,7 @@
 import { $createTextNode, type LexicalNode } from 'lexical'
-import { $createVariableNode } from './nodes/variable-node'
+
 import type { VariableItem } from '../../types'
+import { $createVariableNode } from './nodes/variable-node'
 
 /**
  * 解析表达式内容

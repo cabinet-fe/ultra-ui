@@ -24,31 +24,18 @@
       </div>
 
       <!-- 面包屑导航 -->
-      <div
-        v-if="breadcrumbs.length > 1 && !searchQuery"
-        :class="cls.e('breadcrumbs')"
-      >
-        <span
-          v-for="(crumb, index) in breadcrumbs"
-          :key="index"
-          :class="cls.e('breadcrumb-item')"
-        >
+      <div v-if="breadcrumbs.length > 1 && !searchQuery" :class="cls.e('breadcrumbs')">
+        <span v-for="(crumb, index) in breadcrumbs" :key="index" :class="cls.e('breadcrumb-item')">
           <span
             :class="[
               cls.e('breadcrumb-link'),
-              {
-                [cls.e('breadcrumb-link--active')]:
-                  index === breadcrumbs.length - 1
-              }
+              { [cls.e('breadcrumb-link--active')]: index === breadcrumbs.length - 1 }
             ]"
             @click="navigateToBreadcrumb(index)"
           >
             {{ crumb.label }}
           </span>
-          <u-icon
-            v-if="index < breadcrumbs.length - 1"
-            :class="cls.e('breadcrumb-separator')"
-          >
+          <u-icon v-if="index < breadcrumbs.length - 1" :class="cls.e('breadcrumb-separator')">
             <ArrowRight />
           </u-icon>
         </span>
@@ -56,11 +43,7 @@
 
       <!-- 单面板 -->
       <div :class="cls.e('panel')" v-if="currentList.length">
-        <u-scroll
-          tag="ul"
-          :class="cls.e('panel-list')"
-          :content-class="cls.e('panel-content')"
-        >
+        <u-scroll tag="ul" :class="cls.e('panel-list')" :content-class="cls.e('panel-content')">
           <li
             v-for="(item, idx) in currentList"
             :key="item.value ?? idx"
@@ -87,16 +70,17 @@
 </template>
 
 <script lang="ts" setup>
-import { UTip } from '../../tip'
-import { UInput } from '../../input'
-import { UIcon } from '../../icon'
-import { UScroll } from '../../scroll'
-import { UEmpty } from '../../empty'
-import { ExpressionEditorDIKey } from '../di'
-import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import type { VariableItem } from '../../../types'
-import { bem } from '@ultra-ui/utils'
 import { ArrowRight, Search } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+
+import type { VariableItem } from '../../../types'
+import { UEmpty } from '../../empty'
+import { UIcon } from '../../icon'
+import { UInput } from '../../input'
+import { UScroll } from '../../scroll'
+import { UTip } from '../../tip'
+import { ExpressionEditorDIKey } from '../di'
 
 defineOptions({
   name: 'VariablePicker'
@@ -106,9 +90,7 @@ const props = defineProps<{
   visible: boolean
   triggerDom?: HTMLElement
   filterable?: boolean
-  registerPickerKeyHandler?: (
-    handler: ((e: KeyboardEvent) => void) | null
-  ) => void
+  registerPickerKeyHandler?: (handler: ((e: KeyboardEvent) => void) | null) => void
 }>()
 
 const emit = defineEmits<{
@@ -136,7 +118,7 @@ function flattenVariables(
     if (!item.children || item.children.length === 0) {
       result.push({
         ...item,
-        label: currentPath.map(p => p.label).join(' / ')
+        label: currentPath.map((p) => p.label).join(' / ')
       })
     } else {
       // 递归处理子节点
@@ -159,7 +141,7 @@ const filteredVariables = computed(() => {
   // 搜索模式：扁平化并过滤
   const flat = flattenVariables(variables)
   const query = searchQuery.value.toLowerCase()
-  return flat.filter(item => item.label.toLowerCase().includes(query))
+  return flat.filter((item) => item.label.toLowerCase().includes(query))
 })
 
 // 当前显示的列表（单面板）
@@ -171,7 +153,7 @@ const currentList = computed(() => {
     // 正常模式：根据导航路径显示当前层级
     let current: VariableItem[] = filteredVariables.value
     for (const pathItem of navigationPath.value) {
-      const found = current.find(item => item.value === pathItem.value)
+      const found = current.find((item) => item.value === pathItem.value)
       if (found?.children) {
         current = found.children
       } else {
@@ -261,10 +243,7 @@ function handleKeydown(e: KeyboardEvent) {
 
   if (e.key === 'ArrowDown') {
     e.preventDefault()
-    activeIndex.value = Math.min(
-      currentList.value.length - 1,
-      activeIndex.value + 1
-    )
+    activeIndex.value = Math.min(currentList.value.length - 1, activeIndex.value + 1)
   } else if (e.key === 'ArrowUp') {
     e.preventDefault()
     activeIndex.value = Math.max(0, activeIndex.value - 1)
@@ -302,7 +281,7 @@ function handleKeydown(e: KeyboardEvent) {
 // 监听键盘事件
 watch(
   () => props.visible,
-  v => {
+  (v) => {
     if (v) {
       document.addEventListener('keydown', handleKeydown)
     } else {

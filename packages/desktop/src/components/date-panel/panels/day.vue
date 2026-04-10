@@ -22,12 +22,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { bem } from '@ultra-ui/utils'
-import { getMonthDays, weekDays } from '../../calendar/utils'
 import type { Dater } from '@cat-kit/core'
-import type { CalendarDay } from '../../../types'
+import { bem } from '@ultra-ui/utils'
+import { computed } from 'vue'
 import { inject } from 'vue'
+
+import type { CalendarDay } from '../../../types'
+import { getMonthDays, weekDays } from '../../calendar/utils'
 import { DatePanelDIKey } from '../di'
 
 defineOptions({
@@ -35,14 +36,8 @@ defineOptions({
   inheritAttrs: false
 })
 
-const {
-  panelDate,
-  rangeDate,
-  panelProps,
-  cls,
-  handleDateSelect,
-  handleDateRangeHover
-} = inject(DatePanelDIKey)!
+const { panelDate, rangeDate, panelProps, cls, handleDateSelect, handleDateRangeHover } =
+  inject(DatePanelDIKey)!
 
 const days = computed<CalendarDay[]>(() => {
   return getMonthDays(panelDate.value.timestamp, panelProps.disabledDate)

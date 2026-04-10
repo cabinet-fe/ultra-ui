@@ -1,7 +1,7 @@
 import type { Forest, TreeNode } from '@cat-kit/core'
+import type { ComponentSize } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue, RenderReturn } from '@ultra-ui/utils/types/helper'
 import type { ShallowRef, Slots, VNode } from 'vue'
-import type { ComponentSize } from '@ultra-ui/utils/types/component-common'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 
@@ -27,12 +27,7 @@ export interface TableColumn {
   /** 表头渲染，优先级大于name属性 */
   nameRender?: (ctx: {
     column: TableColumnNode
-  }) =>
-    | VNode
-    | string
-    | null
-    | undefined
-    | (VNode | string | null | undefined)[]
+  }) => VNode | string | null | undefined | (VNode | string | null | undefined)[]
   /** 列最大宽度 */
   width?: number
   /** 列最小宽度 */
@@ -99,12 +94,7 @@ export interface TableProps {
    */
   slots?: Readonly<Slots>
   /** 单元格合并 */
-  mergeCell?: (ctx: TableColumnRenderContext) =>
-    | {
-      rowspan: number
-      colspan: number
-    }
-    | undefined
+  mergeCell?: (ctx: TableColumnRenderContext) => { rowspan: number; colspan: number } | undefined
 
   /** 当前点击的行 */
   current?: TableRow
@@ -202,10 +192,7 @@ export interface TableColumnRenderContext {
 /** 表格列插槽作用域 */
 export interface TableColumnSlotsScope extends TableColumnRenderContext {
   /** 交互模型 */
-  model: {
-    modelValue: any
-    'onUpdate:modelValue': (val: any) => void
-  }
+  model: { modelValue: any; 'onUpdate:modelValue': (val: any) => void }
 }
 
 export interface TableRowSlotsScope {
@@ -216,9 +203,7 @@ export interface TableRowSlotsScope {
 }
 
 /** 表格组件定义的事件 */
-export interface TableEmits<
-  DataItem extends Record<string, any> = Record<string, any>
-> {
+export interface TableEmits<DataItem extends Record<string, any> = Record<string, any>> {
   /** 多选 */
   (e: 'update:checked', value: DataItem[]): void
   /** 单选 */
@@ -232,12 +217,7 @@ export interface TableEmits<
    */
   (e: 'row-click', row: TableRow, ev: MouseEvent): void
   /** 单元格点击 */
-  (
-    e: 'cell-click',
-    row: TableRow,
-    column: TableColumn,
-    ev: MouseEvent
-  ): void
+  (e: 'cell-click', row: TableRow, column: TableColumn, ev: MouseEvent): void
   /** 当前行变更 */
   (e: 'update:current', row?: TableRow): void
 }

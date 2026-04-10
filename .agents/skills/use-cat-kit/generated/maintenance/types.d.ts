@@ -3,60 +3,58 @@
  * package.json 类型定义
  */
 interface PackageJson {
-  name: string;
-  version: string;
-  description?: string;
-  private?: boolean;
-  type?: 'module' | 'commonjs';
-  exports?: Record<string, any>;
-  files?: string[];
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-  peerDependencies?: Record<string, string>;
-  peerDependenciesMeta?: Record<string, {
-    optional?: boolean;
-  }>;
-  workspaces?: string[];
-  scripts?: Record<string, string>;
-  [key: string]: any;
+  name: string
+  version: string
+  description?: string
+  private?: boolean
+  type?: 'module' | 'commonjs'
+  exports?: Record<string, any>
+  files?: string[]
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  peerDependencies?: Record<string, string>
+  peerDependenciesMeta?: Record<string, { optional?: boolean }>
+  workspaces?: string[]
+  scripts?: Record<string, string>
+  [key: string]: any
 }
 /**
  * 验证结果接口
  */
 interface ValidationResult {
   /** 是否通过验证 */
-  valid: boolean;
+  valid: boolean
   /** 错误列表 */
-  errors: ValidationErrorInfo[];
+  errors: ValidationErrorInfo[]
   /** 警告列表 */
-  warnings: ValidationWarning[];
+  warnings: ValidationWarning[]
 }
 /**
  * 验证错误信息
  */
 interface ValidationErrorInfo {
   /** 错误代码 */
-  code: string;
+  code: string
   /** 错误消息 */
-  message: string;
+  message: string
   /** 相关文件路径 */
-  file?: string;
+  file?: string
   /** 相关字段 */
-  field?: string;
+  field?: string
 }
 /**
  * 验证警告
  */
 interface ValidationWarning {
   /** 警告代码 */
-  code: string;
+  code: string
   /** 警告消息 */
-  message: string;
+  message: string
   /** 相关文件路径 */
-  file?: string;
+  file?: string
   /** 相关字段 */
-  field?: string;
+  field?: string
 }
 //#endregion
-export { PackageJson, ValidationErrorInfo, ValidationResult, ValidationWarning };
+export { PackageJson, ValidationErrorInfo, ValidationResult, ValidationWarning }
 //# sourceMappingURL=types.d.ts.map

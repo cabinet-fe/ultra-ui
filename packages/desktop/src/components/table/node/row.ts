@@ -1,13 +1,13 @@
 import { TreeNode } from '@cat-kit/core'
 import { isReactive, shallowReactive } from 'vue'
 
-
 /**
  * TODO: 优化参数，对大数据量来说，对象字面量参数会使内存占用过高
  */
-export class TableRowNode<
-  Data extends Record<string, any> = Record<string, any>
-> extends TreeNode<Data, TableRowNode<Data>> {
+export class TableRowNode<Data extends Record<string, any> = Record<string, any>> extends TreeNode<
+  Data,
+  TableRowNode<Data>
+> {
   /** 索引路径 */
   get indexes(): number[] {
     if (!this.parent) return [this.index]
@@ -58,7 +58,6 @@ export class TableRowNode<
     this.uid = uid
     return shallowReactive(this)
   }
-
 
   copy() {
     const row = new TableRowNode({

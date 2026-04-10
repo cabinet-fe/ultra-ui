@@ -17,9 +17,7 @@ $root-name: multi-select;
   @include m.size using ($size) {
     min-height: fn.use-var(form-component-height, $size);
     border-radius: fn.use-var(radius, $size);
-    padding: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      )
+    padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2)
       calc(fn.use-var(gap, $size) / 2);
 
     @include m.bem($root-name, clear) {
@@ -27,9 +25,7 @@ $root-name: multi-select;
     }
 
     @include m.bem($root-name, tags) {
-      gap: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      );
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
     }
   }
 
@@ -110,8 +106,7 @@ $root-name: multi-select;
         padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
       }
       @include m.bem($root-name, content-header) {
-        padding: calc(fn.use-var(gap, $size) / 2)
-          calc(fn.use-var(gap, $size) * 2);
+        padding: calc(fn.use-var(gap, $size) / 2) calc(fn.use-var(gap, $size) * 2);
         border-bottom: fn.use-var(border);
       }
 

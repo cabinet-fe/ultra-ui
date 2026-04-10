@@ -16,11 +16,7 @@
     </div>
 
     <u-form :model="model" :disabled="disabled" :readonly="readonly">
-      <u-code-editor
-        field="code"
-        :language="language"
-        label="代码"
-      ></u-code-editor>
+      <u-code-editor field="code" :language="language" label="代码"></u-code-editor>
     </u-form>
 
     <pre>{{ model.data.code }}</pre>
@@ -28,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ultra-ui/desktop/components'
+import { FormModel } from '@ultra-ui/desktop'
 import { ref } from 'vue'
 
 const model = new FormModel({

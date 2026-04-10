@@ -18,16 +18,10 @@ export function getContainerBreakpoint(width: number): Breakpoint {
   for (let i = 0; i < points.length; i++) {
     const point = points[i]!
     if (width < point[0]) {
-      return {
-        name: point[1],
-        level: i + 1
-      }
+      return { name: point[1], level: i + 1 }
     }
   }
-  return {
-    name: 'xl',
-    level: 5
-  }
+  return { name: 'xl', level: 5 }
 }
 
 /**
@@ -35,10 +29,7 @@ export function getContainerBreakpoint(width: number): Breakpoint {
  * @param colConf 断点配置
  * @param breakpoint 断点
  */
-export function getBreakpointCols(
-  colConf: BreakCols,
-  breakpoint?: Breakpoint
-): number {
+export function getBreakpointCols(colConf: BreakCols, breakpoint?: Breakpoint): number {
   if (!breakpoint) return DEFAULT_COLS
   const { name, level } = breakpoint
   const cols = colConf[name]

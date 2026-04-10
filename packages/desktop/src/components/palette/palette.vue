@@ -5,13 +5,7 @@
     v-model:visible="visible"
     :disabled="disabled || readonly"
   >
-    <span
-      :class="className"
-      :style="{
-        backgroundColor: color
-      }"
-    >
-    </span>
+    <span :class="className" :style="{ backgroundColor: color }"> </span>
 
     <template #content>
       <!-- 饱和度和亮度 -->
@@ -30,22 +24,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { PaletteProps } from '../../types'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
-import { UTip } from '../tip'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ultra-ui/compositions'
-import PaletteSV from './palette-sv.vue'
-import PaletteHue from './palette-hue.vue'
+
+import type { PaletteProps } from '../../types'
+import { UTip } from '../tip'
+import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
+import { PaletteDIKey } from './di'
 import PaletteAlpha from './palette-alpha.vue'
 import PaletteColorSwitch from './palette-color-switch.vue'
+import PaletteHue from './palette-hue.vue'
+import PaletteSV from './palette-sv.vue'
 import { useHSV } from './use-hsv'
-import { PaletteDIKey } from './di'
-import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 
 defineOptions({
   name: 'Palette'
@@ -58,10 +49,7 @@ const props = withDefaults(defineProps<PaletteProps>(), {
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const cls = bem('palette')
 
@@ -95,7 +83,7 @@ const paletteAlphaRef = useTemplateRef('palette-alpha')
 
 watch(
   color,
-  color => {
+  (color) => {
     if (!color) return
 
     updater.update(() => {

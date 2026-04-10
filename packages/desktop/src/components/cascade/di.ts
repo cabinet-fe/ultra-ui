@@ -1,6 +1,7 @@
 import type { BEM } from '@ultra-ui/utils'
-import type { CascadeProps, ComponentSize } from '../../types'
 import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
+
+import type { CascadeProps, ComponentSize } from '../../types'
 
 export const CascadeDIKey: InjectionKey<{
   /** 样式*/

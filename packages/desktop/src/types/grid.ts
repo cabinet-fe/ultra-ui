@@ -1,6 +1,6 @@
-import type { ShallowRef } from 'vue'
 import type { BreakpointName } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { ShallowRef } from 'vue'
 
 export interface Breakpoint {
   name: BreakpointName

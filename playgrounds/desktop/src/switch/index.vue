@@ -7,12 +7,7 @@
 
     <CustomCard title="带文字描述">
       <div>开关状态: {{ textSwitch }}</div>
-      <u-switch
-        v-model="textSwitch"
-        show-text
-        active-text="开启"
-        inactive-text="关闭"
-      />
+      <u-switch v-model="textSwitch" show-text active-text="开启" inactive-text="关闭" />
     </CustomCard>
 
     <CustomCard title="不同尺寸">
@@ -54,9 +49,10 @@
 </template>
 
 <script lang="ts" setup>
+import { FormModel } from '@ultra-ui/desktop'
 import { ref } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
-import { FormModel } from '@ultra-ui/desktop/components'
 
 const basicSwitch = ref(false)
 const textSwitch = ref(true)

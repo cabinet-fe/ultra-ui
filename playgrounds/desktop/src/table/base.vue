@@ -1,12 +1,6 @@
 <template>
   <CustomCard title="基础用法">
-    <u-table
-      :data="students"
-      :columns="columns"
-      v-model:checked="checked"
-      show-index
-      checkable
-    >
+    <u-table :data="students" :columns="columns" v-model:checked="checked" show-index checkable>
       <template #column:action>
         <u-action-group :max="4">
           <u-action need-confirm type="danger">删除</u-action>
@@ -18,8 +12,9 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from '@ultra-ui/desktop'
-import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const students = [
   { id: 1, name: '张三', age: 15, grade: '高一', class: '1班', score: 95 },

@@ -21,7 +21,7 @@
  * @throws {Error} 当路径存在但不是目录时抛出错误
  * @throws {Error} 当目录操作失败时抛出错误
  */
-declare function emptyDir(dirPath: string): Promise<void>;
+declare function emptyDir(dirPath: string): Promise<void>
 //#endregion
-export { emptyDir };
+export { emptyDir }
 //# sourceMappingURL=empty-dir.d.ts.map

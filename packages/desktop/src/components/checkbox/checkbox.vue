@@ -11,13 +11,7 @@
       </transition>
     </span>
 
-    <input
-      type="checkbox"
-      :checked="checked"
-      :disabled="disabled"
-      hidden
-      @click="handleInput"
-    />
+    <input type="checkbox" :checked="checked" :disabled="disabled" hidden @click="handleInput" />
 
     <span :class="cls.e('label')" v-if="$slots.default"><slot /> </span>
   </label>
@@ -25,9 +19,10 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { CheckboxProps, CheckboxEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
+
+import type { CheckboxProps, CheckboxEmits } from '../../types'
 
 defineOptions({
   name: 'Checkbox'
@@ -44,14 +39,11 @@ const checked = defineModel<boolean>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const className = computed(() => {
   return [

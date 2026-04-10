@@ -12,20 +12,13 @@
       "inputs": ["src/**", "tsconfig.json", "package.json"],
       "outputs": []
     },
-    "lint": {
-      "outputs": []
-    },
-    "format": {
-      "outputs": []
-    },
+    "lint": { "outputs": [] },
+    "format": { "outputs": [] },
     "test": {
       "dependsOn": ["build"],
       "inputs": ["package.json", "../../vitest.config.ts", "../../scripts/vitest-run.ts"],
       "outputs": []
     },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
+    "dev": { "cache": false, "persistent": true }
   }
 }

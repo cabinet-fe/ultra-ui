@@ -2,9 +2,10 @@ import type { Forest, ITreeNode } from '@cat-kit/core'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { ComputedRef, ShallowRef } from 'vue'
 
-export interface TreeNode<
-  Data extends Record<string, any> = Record<string, any>
-> extends ITreeNode<Data, TreeNode<Data>> {
+export interface TreeNode<Data extends Record<string, any> = Record<string, any>> extends ITreeNode<
+  Data,
+  TreeNode<Data>
+> {
   parent?: TreeNode<Data>
   children?: TreeNode<Data>[]
   valueKey: string
@@ -64,18 +65,9 @@ export interface TreeEmit {
   /** 节点点击事件 */
   (e: 'node-click', node: TreeNode): void
   /** 单选选中项 */
-  (
-    e: 'update:selected',
-    selected?: any,
-    selectedData?: Record<string, any>,
-    node?: TreeNode
-  ): void
+  (e: 'update:selected', selected?: any, selectedData?: Record<string, any>, node?: TreeNode): void
   /** 多选选中项 */
-  (
-    e: 'update:checked',
-    checked: any[],
-    checkedData: Record<string, any>[]
-  ): void
+  (e: 'update:checked', checked: any[], checkedData: Record<string, any>[]): void
   /** 节点右键菜单事件 */
   (e: 'node-contextmenu', event: MouseEvent, node: TreeNode): void
   /** 选中项同步完成事件 */

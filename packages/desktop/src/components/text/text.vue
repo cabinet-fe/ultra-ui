@@ -5,16 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type CSSProperties,
-  type VNode,
-  computed,
-  useSlots,
-  h,
-  createTextVNode
-} from 'vue'
-import type { TextProps } from '../../types'
 import { bem, withUnit, isTextNode, getHighlightChunks } from '@ultra-ui/utils'
+import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode } from 'vue'
+
+import type { TextProps } from '../../types'
 import { UNodeRender } from '../node-render'
 
 defineOptions({
@@ -28,12 +22,7 @@ const props = withDefaults(defineProps<TextProps>(), {
 const cls = bem('text')
 
 const classList = computed(() => {
-  return [
-    cls.b,
-    bem.is(props.as),
-    bem.is('bold', props.bold),
-    bem.is('italic', props.italic)
-  ]
+  return [cls.b, bem.is(props.as), bem.is('bold', props.bold), bem.is('italic', props.italic)]
 })
 
 const style = computed(() => {
@@ -57,7 +46,7 @@ const getTextVNode = () => {
   if (!nodes?.length) return undefined
 
   // 只允许渲染文本
-  const textNodes = nodes.filter(node => isTextNode(node))
+  const textNodes = nodes.filter((node) => isTextNode(node))
 
   const { highlight } = props
 
@@ -71,7 +60,7 @@ const getTextVNode = () => {
       Array.isArray(highlight) ? highlight : [highlight]
     )
 
-    chunks.forEach(chunk => {
+    chunks.forEach((chunk) => {
       if (chunk.highlight) {
         nodes.push(h('mark', chunk.text))
       } else {

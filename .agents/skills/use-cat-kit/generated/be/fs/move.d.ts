@@ -7,7 +7,7 @@ interface MoveOptions {
    * 如果目标路径已存在，是否覆盖
    * @default false
    */
-  overwrite?: boolean;
+  overwrite?: boolean
 }
 /**
  * 移动文件或目录到新位置
@@ -34,7 +34,7 @@ interface MoveOptions {
  * @throws {Error} 当源路径和目标路径类型不一致时抛出错误
  * @throws {Error} 当目标路径已存在且 overwrite 为 false 时抛出错误
  */
-declare function movePath(src: string, dest: string, options?: MoveOptions): Promise<void>;
+declare function movePath(src: string, dest: string, options?: MoveOptions): Promise<void>
 //#endregion
-export { MoveOptions, movePath };
+export { MoveOptions, movePath }
 //# sourceMappingURL=move.d.ts.map

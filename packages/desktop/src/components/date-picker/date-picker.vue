@@ -25,13 +25,7 @@
     </template>
 
     <template #content>
-      <UDatePanel
-        :size
-        :type
-        :disabled-date
-        :date="currentDate"
-        @select:date="handleSelectDate"
-      />
+      <UDatePanel :size :type :disabled-date :date="currentDate" @select:date="handleSelectDate" />
     </template>
   </u-dropdown>
 
@@ -41,22 +35,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatePickerEmits, DatePickerProps } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { UDropdown } from '../dropdown'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ultra-ui/compositions'
-import { computed, shallowRef, watch } from 'vue'
-import { Calendar } from '@ultra-ui/icons/normal'
-import { UDatePanel } from '../date-panel'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import type { DropdownExposed } from '../../types'
 import { date, type Dater } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
+import { Calendar } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, shallowRef, watch } from 'vue'
+
+import type { DatePickerEmits, DatePickerProps } from '../../types'
+import type { DropdownExposed } from '../../types'
+import { UDatePanel } from '../date-panel'
+import { UDropdown } from '../dropdown'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
 
 defineOptions({
   name: 'DatePicker'
@@ -76,14 +67,11 @@ const cls = bem('date-picker')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]
@@ -106,7 +94,7 @@ const { update, updateAndLock } = useUpdateLock()
 
 watch(
   () => props.modelValue,
-  modelValue => {
+  (modelValue) => {
     update(() => {
       currentDate.value = modelValue ? date(modelValue) : undefined
     })

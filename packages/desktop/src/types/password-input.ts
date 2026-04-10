@@ -1,4 +1,5 @@
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+
 import type { InputProps } from './input'
 
 /** 密码输入组件属性 */

@@ -1,5 +1,5 @@
 //#region src/config/merge.d.ts
-type Mergeable = Record<string, any>;
+type Mergeable = Record<string, any>
 /**
  * 深度合并多个配置对象
  *
@@ -18,7 +18,7 @@ type Mergeable = Record<string, any>;
  * @returns 合并后的新对象
  * @template T 配置对象类型
  */
-declare function mergeConfig<T extends Mergeable>(...configs: Array<Partial<T>>): T;
+declare function mergeConfig<T extends Mergeable>(...configs: Array<Partial<T>>): T
 //#endregion
-export { mergeConfig };
+export { mergeConfig }
 //# sourceMappingURL=merge.d.ts.map

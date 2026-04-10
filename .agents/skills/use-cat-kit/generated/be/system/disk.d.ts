@@ -4,15 +4,15 @@
  */
 interface DiskInfo {
   /** 磁盘路径 */
-  path: string;
+  path: string
   /** 总容量（字节） */
-  total: number;
+  total: number
   /** 空闲容量（字节） */
-  free: number;
+  free: number
   /** 已用容量（字节） */
-  used: number;
+  used: number
   /** 使用率（百分比） */
-  usedPercent: number;
+  usedPercent: number
 }
 /**
  * 获取指定路径所在磁盘的容量信息
@@ -23,7 +23,7 @@ interface DiskInfo {
  * @returns 磁盘容量、剩余与使用信息
  * @throws {Error} 当无法获取磁盘信息时抛出错误
  */
-declare function getDiskInfo(path?: string): Promise<DiskInfo>;
+declare function getDiskInfo(path?: string): Promise<DiskInfo>
 //#endregion
-export { DiskInfo, getDiskInfo };
+export { DiskInfo, getDiskInfo }
 //# sourceMappingURL=disk.d.ts.map

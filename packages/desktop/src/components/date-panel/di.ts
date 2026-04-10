@@ -1,7 +1,8 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
-import type { BEM } from '@ultra-ui/utils'
 import type { Dater } from '@cat-kit/core'
+import type { BEM } from '@ultra-ui/utils'
 import type { ComputedRef, InjectionKey, Ref } from 'vue'
+
+import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
 
 export interface DatePanelContext {
   cls: BEM<'date-panel'>
@@ -31,5 +32,4 @@ export interface DatePanelContext {
   toPrevTenYears: () => void
 }
 
-export const DatePanelDIKey: InjectionKey<DatePanelContext> =
-  Symbol('DatePanelDIKey')
+export const DatePanelDIKey: InjectionKey<DatePanelContext> = Symbol('DatePanelDIKey')

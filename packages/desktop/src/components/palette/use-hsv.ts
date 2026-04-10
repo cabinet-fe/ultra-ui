@@ -1,14 +1,8 @@
 import { n } from '@cat-kit/core'
-import {
-  reactive,
-  readonly,
-  ref,
-  computed,
-  type Ref,
-  type ComputedRef
-} from 'vue'
-import { HUE2RGB } from './color-transform'
+import { reactive, readonly, ref, computed, type Ref, type ComputedRef } from 'vue'
+
 import type { PaletteRGB } from '../../types'
+import { HUE2RGB } from './color-transform'
 
 interface UseHSVReturned {
   HSV: { h: number; s: number; v: number }

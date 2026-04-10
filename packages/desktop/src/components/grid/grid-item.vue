@@ -5,10 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { GridItemProps } from '../../types'
-import { computed, inject, type CSSProperties, watch } from 'vue'
-import { GridDIKey } from './di'
 import { bem } from '@ultra-ui/utils'
+import { computed, inject, type CSSProperties, watch } from 'vue'
+
+import type { GridItemProps } from '../../types'
+import { GridDIKey } from './di'
 
 defineOptions({
   name: 'GridItem'
@@ -47,7 +48,7 @@ const style = computed<CSSProperties>(() => {
 
 watch(
   () => props.span,
-  span => {
+  (span) => {
     if (typeof span === 'object') {
       gridItemsProps?.add(props)
     } else {

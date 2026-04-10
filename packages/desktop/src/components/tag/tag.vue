@@ -4,23 +4,20 @@
       <slot />
     </span>
 
-    <u-icon
-      v-if="closable"
-      @click.stop="handleClose"
-      :class="cls.e('icon-close')"
-    >
+    <u-icon v-if="closable" @click.stop="handleClose" :class="cls.e('icon-close')">
       <Close />
     </u-icon>
   </span>
 </template>
 
 <script lang="ts" setup>
-import type { TagEmits, TagProps } from '../../types'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { Close } from '@ultra-ui/icons/normal'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
+
+import type { TagEmits, TagProps } from '../../types'
 import { UIcon } from '../icon'
-import { Close } from '@ultra-ui/icons/normal'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 
 defineOptions({
   name: 'Tag'

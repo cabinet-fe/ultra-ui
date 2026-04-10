@@ -2,7 +2,7 @@
 /**
  * 配置文件格式
  */
-type ConfigFormat = 'json' | 'yaml' | 'toml';
+type ConfigFormat = 'json' | 'yaml' | 'toml'
 /**
  * 加载配置选项
  *
@@ -10,28 +10,28 @@ type ConfigFormat = 'json' | 'yaml' | 'toml';
  */
 interface LoadConfigOptions<T extends Record<string, unknown>> {
   /** 工作目录，默认使用 `process.cwd()` */
-  cwd?: string;
+  cwd?: string
   /** 配置文件格式，如果不指定会根据文件扩展名自动检测 */
-  format?: ConfigFormat;
+  format?: ConfigFormat
   /** 默认配置值，会与加载的配置合并 */
-  defaults?: Partial<T>;
+  defaults?: Partial<T>
   /**
    * 自定义解析器（覆盖 format）
    *
    * 如果提供了自定义解析器，将忽略 format 选项。
    */
-  parser?: (source: string) => T | Promise<T>;
+  parser?: (source: string) => T | Promise<T>
   /**
    * 自定义校验逻辑
    *
    * 如果校验失败应抛出错误。
    */
-  validate?: (config: T) => void;
+  validate?: (config: T) => void
   /**
    * 是否与 defaults 深度合并
    * @default true
    */
-  mergeDefaults?: boolean;
+  mergeDefaults?: boolean
 }
 /**
  * 加载并解析配置文件
@@ -62,7 +62,10 @@ interface LoadConfigOptions<T extends Record<string, unknown>> {
  * @throws {Error} 当文件读取失败或解析失败时
  * @template T 配置对象类型
  */
-declare function loadConfig<T extends Record<string, unknown> = Record<string, unknown>>(filePath: string, options?: LoadConfigOptions<T>): Promise<T>;
+declare function loadConfig<T extends Record<string, unknown> = Record<string, unknown>>(
+  filePath: string,
+  options?: LoadConfigOptions<T>
+): Promise<T>
 //#endregion
-export { ConfigFormat, LoadConfigOptions, loadConfig };
+export { ConfigFormat, LoadConfigOptions, loadConfig }
 //# sourceMappingURL=config.d.ts.map

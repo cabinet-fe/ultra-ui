@@ -1,13 +1,7 @@
-import type { GroupInputEmits, GroupInputProps } from '../../types'
 import { createIncrease } from '@ultra-ui/utils'
-import {
-  isReactive,
-  nextTick,
-  shallowReactive,
-  shallowRef,
-  watch,
-  type ShallowRef
-} from 'vue'
+import { isReactive, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
+
+import type { GroupInputEmits, GroupInputProps } from '../../types'
 
 interface Options {
   props: GroupInputProps
@@ -16,10 +10,7 @@ interface Options {
 
 interface UseGroupItemsReturned {
   items: ShallowRef<{ id: number; data: Record<string, any> }[]>
-  createItem: (data: Record<string, any>) => {
-    id: number
-    data: Record<string, any>
-  }
+  createItem: (data: Record<string, any>) => { id: number; data: Record<string, any> }
   runByEvent: (cb: () => void) => void
 }
 
@@ -31,10 +22,7 @@ export function useGroupItems(options: Options): UseGroupItemsReturned {
   const items = shallowRef<{ id: number; data: Record<string, any> }[]>([])
 
   function createItem(data: Record<string, any>) {
-    return {
-      data: isReactive(data) ? data : shallowReactive(data),
-      id: id()
-    }
+    return { data: isReactive(data) ? data : shallowReactive(data), id: id() }
   }
 
   let changedByEvent = false
@@ -49,7 +37,7 @@ export function useGroupItems(options: Options): UseGroupItemsReturned {
 
   watch(
     () => props.modelValue,
-    modelValue => {
+    (modelValue) => {
       if (changedByEvent) return
       changedByModelValue = true
       items.value = modelValue?.map(createItem) ?? []
@@ -60,17 +48,13 @@ export function useGroupItems(options: Options): UseGroupItemsReturned {
     { immediate: true }
   )
 
-  watch(items, items => {
+  watch(items, (items) => {
     if (changedByModelValue) return
     emit(
       'update:modelValue',
-      items.map(item => item.data)
+      items.map((item) => item.data)
     )
   })
 
-  return {
-    items,
-    createItem,
-    runByEvent
-  }
+  return { items, createItem, runByEvent }
 }

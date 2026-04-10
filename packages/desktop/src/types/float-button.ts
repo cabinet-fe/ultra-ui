@@ -1,6 +1,7 @@
-import type { Component } from 'vue'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { ComponentProps } from '@ultra-ui/utils/types/component-common'
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { Component } from 'vue'
+
 import type { ButtonType } from './button'
 
 export interface FloatButtonItem {

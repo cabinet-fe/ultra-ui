@@ -5,6 +5,7 @@ import {
   $isRangeSelection,
   type LexicalEditor
 } from 'lexical'
+
 import { $createVariableNode } from '../../../nodes/variable-node'
 
 export interface InsertVariableInput {

@@ -161,7 +161,7 @@ export class DynamicFormModel {
       })
     }
 
-    return errors.size > 0 ? false : true
+    return errors.size === 0
   }
 
   private getValidateFields(fields?: string | string[]) {

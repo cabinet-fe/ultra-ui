@@ -1,4 +1,5 @@
 import type { LexicalEditor } from 'lexical'
+
 import {
   applyDropReorder,
   moveVariableByDirection as moveVariableByDirectionImpl
@@ -15,10 +16,7 @@ export interface ReorderVariableInput {
  * Typed mutation gateway for variable reorder via drop payload.
  * Runs update internally; all mutations go through editor.update.
  */
-export function reorderVariable(
-  editor: LexicalEditor,
-  input: ReorderVariableInput
-): boolean {
+export function reorderVariable(editor: LexicalEditor, input: ReorderVariableInput): boolean {
   let result = false
 
   editor.update(() => {
@@ -46,11 +44,7 @@ export function moveVariableByDirection(
   let result = false
 
   editor.update(() => {
-    result = moveVariableByDirectionImpl(
-      sourceKey,
-      direction,
-      focusMovedNode
-    )
+    result = moveVariableByDirectionImpl(sourceKey, direction, focusMovedNode)
   })
 
   return result

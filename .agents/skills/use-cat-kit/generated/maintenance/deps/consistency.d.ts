@@ -1,4 +1,4 @@
-import { ConsistencyResult, PackageInfo } from "./types.js";
+import { ConsistencyResult, PackageInfo } from './types.js'
 
 //#region src/deps/consistency.d.ts
 /**
@@ -31,9 +31,10 @@ import { ConsistencyResult, PackageInfo } from "./types.js";
  * }
  * ```
  */
-declare function checkVersionConsistency(packages: PackageInfo[], options?: {
-  /** 忽略的依赖包（不检查版本一致性） */ignore?: string[];
-}): ConsistencyResult;
+declare function checkVersionConsistency(
+  packages: PackageInfo[],
+  options?: { /** 忽略的依赖包（不检查版本一致性） */ ignore?: string[] }
+): ConsistencyResult
 //#endregion
-export { checkVersionConsistency };
+export { checkVersionConsistency }
 //# sourceMappingURL=consistency.d.ts.map

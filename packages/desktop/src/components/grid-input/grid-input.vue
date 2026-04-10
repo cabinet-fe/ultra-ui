@@ -14,23 +14,17 @@
         {{ valueArray[index] }}
       </span>
 
-      <span
-        :class="cls.em('item', 'cursor')"
-        v-else-if="index === position"
-      ></span>
+      <span :class="cls.em('item', 'cursor')" v-else-if="index === position"></span>
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, getCurrentInstance } from 'vue'
-import type {
-  GridInputProps,
-  GridInputEmits,
-  GridInputExposed
-} from '../../types'
-import { bem } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
+import { bem } from '@ultra-ui/utils'
+import { computed, ref, getCurrentInstance } from 'vue'
+
+import type { GridInputProps, GridInputEmits, GridInputExposed } from '../../types'
 
 defineOptions({
   name: 'GridInput'
@@ -69,7 +63,8 @@ const focus = async (index?: number) => {
     index = valueArray.value.length
   }
   position.value = index
-  let dom = (instance?.refs.items as any)[index]
+  const items = (instance?.refs as { items?: unknown })?.items as any
+  let dom = items?.[index]
   dom?.focus()
   blur.value = false
 }
@@ -88,7 +83,7 @@ const changeValue = (value: string, index: number) => {
   position.value++
   focus()
 
-  emit('input', valueArray.value.filter(v => v).join(props.separator))
+  emit('input', valueArray.value.filter((v) => v).join(props.separator))
 }
 
 const baseOperation = {
@@ -101,7 +96,7 @@ const baseOperation = {
     if (index !== 0) {
       focus(index - 1)
     }
-    emit('input', valueArray.value.filter(v => v).join(props.separator))
+    emit('input', valueArray.value.filter((v) => v).join(props.separator))
   },
   ArrowLeft: (value: string, index: number) => {
     if (index === 0) return

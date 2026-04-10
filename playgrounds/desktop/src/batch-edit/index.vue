@@ -79,64 +79,26 @@
 
         <!-- 日期时间 -->
         <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
-        <u-date-picker
-          field="joinDate"
-          label="入职日期"
-          placeholder="请选择入职日期"
-        />
+        <u-date-picker field="joinDate" label="入职日期" placeholder="请选择入职日期" />
 
         <!-- 数值输入 -->
         <u-number-input field="salary" label="薪资" :min="0" :step="100" />
-        <u-number-input
-          field="score"
-          label="评分"
-          :min="0"
-          :max="100"
-          :step="0.1"
-        />
+        <u-number-input field="score" label="评分" :min="0" :max="100" :step="0.1" />
 
         <!-- 多行文本 -->
-        <u-textarea
-          field="address"
-          label="地址"
-          placeholder="请输入详细地址"
-          span="full"
-        />
-        <u-textarea
-          field="description"
-          label="个人描述"
-          placeholder="请输入个人描述"
-          span="full"
-        />
+        <u-textarea field="address" label="地址" placeholder="请输入详细地址" span="full" />
+        <u-textarea field="description" label="个人描述" placeholder="请输入个人描述" span="full" />
 
         <!-- 复选框和单选框 -->
-        <u-checkbox-group
-          field="skills"
-          label="技能"
-          :items="skillOptions"
-          span="full"
-        />
-        <u-radio-group
-          field="workType"
-          label="工作类型"
-          :items="workTypeOptions"
-        />
+        <u-checkbox-group field="skills" label="技能" :items="skillOptions" span="full" />
+        <u-radio-group field="workType" label="工作类型" :items="workTypeOptions" />
 
         <!-- 高级组件 -->
-        <u-code-editor
-          field="code"
-          label="代码片段"
-          language="json"
-          span="full"
-        />
+        <u-code-editor field="code" label="代码片段" language="json" span="full" />
         <u-slider field="experience" label="工作经验(年)" :min="0" :max="20" />
 
         <!-- 条件显示字段 -->
-        <u-input
-          v-if="!data.age || data.age < 25"
-          field="emergencyContact"
-          label="紧急联系人"
-        />
+        <u-input v-if="!data.age || data.age < 25" field="emergencyContact" label="紧急联系人" />
         <u-input
           v-if="data.department === 'tech'"
           field="programmingLanguage"
@@ -169,7 +131,7 @@ import { date, sleep } from '@cat-kit/core'
 import { FormModel, defineTableColumns, message } from '@ultra-ui/desktop'
 import type { BatchEditFeature } from '@ultra-ui/desktop/types'
 import { computed, shallowRef } from 'vue'
-import '@ultra-ui/desktop/components/message/style.scss'
+import '@ultra-ui/desktop/components/message/style.ts'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
@@ -268,12 +230,7 @@ const model = new FormModel({
   unit: {}
 })
 
-const featureList: BatchEditFeature[] = [
-  'update',
-  'copy',
-  'delete',
-  'view'
-] as const
+const featureList: BatchEditFeature[] = ['update', 'copy', 'delete', 'view'] as const
 
 const features = shallowRef(featureList)
 
@@ -284,7 +241,7 @@ function canCreate() {
 const dynamicFeatures = computed(() => {
   return {
     create: canCreate,
-    ...Object.fromEntries(featureList.map(i => [i, features.value.includes(i)]))
+    ...Object.fromEntries(featureList.map((i) => [i, features.value.includes(i)]))
   }
 })
 
@@ -297,7 +254,7 @@ const items = [
 
 const asynchronous = shallowRef(false)
 
-const deleteMethod = async row => {
+const deleteMethod = async (row) => {
   await sleep(2000)
   // message.success('删除成功')
   return Promise.reject('删除失败')
@@ -351,7 +308,7 @@ const workTypeOptions = [
   { label: '合同工', value: 'contract' }
 ]
 
-model.onChange(f => {})
+model.onChange((f) => {})
 </script>
 
 <style lang="scss" scoped></style>

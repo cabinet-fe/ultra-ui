@@ -299,7 +299,7 @@ export function useCheck(options: Options): UseCheckReturned {
       width,
       align: 'center',
       fixed: 'left',
-      nameRender(ctx) {
+      nameRender(_ctx) {
         if (!props.tree) {
           return '单选'
         }

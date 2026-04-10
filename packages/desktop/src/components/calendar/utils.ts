@@ -1,4 +1,5 @@
 import { type Dater, date } from '@cat-kit/core'
+
 import type { CalendarDay, CalendarMonth, CalendarYear } from '../../types'
 
 export const weekDays: string[] = ['日', '一', '二', '三', '四', '五', '六']
@@ -20,13 +21,8 @@ export function getMonthDays(
 
   // 本月天数
   d.setDay(1)
-  const currentMonthDays: CalendarDay[] = Array.from({
-    length: d.getDays()
-  }).map((_, i) => {
-    const day: CalendarDay = {
-      date: d.calc(i, 'days'),
-      type: 'current'
-    }
+  const currentMonthDays: CalendarDay[] = Array.from({ length: d.getDays() }).map((_, i) => {
+    const day: CalendarDay = { date: d.calc(i, 'days'), type: 'current' }
     day.isToday = day.date.format() === todayStr
     day.disabled = disabledDate?.(day.date)
     return day
@@ -44,10 +40,7 @@ export function getMonthDays(
     d.setDay(0)
     let i = 0
     while (i < firstDayWeek) {
-      const day: CalendarDay = {
-        date: d.calc(-i, 'days'),
-        type: 'pre'
-      }
+      const day: CalendarDay = { date: d.calc(-i, 'days'), type: 'pre' }
       day.disabled = disabledDate?.(day.date)
       preMonthDays.unshift(day)
       i++
@@ -61,10 +54,7 @@ export function getMonthDays(
   d.setMonth(d.month + 2).setDay(1)
 
   while (j < nextMonthDaysAmount) {
-    const day: CalendarDay = {
-      date: d.calc(j++, 'days'),
-      type: 'next'
-    }
+    const day: CalendarDay = { date: d.calc(j++, 'days'), type: 'next' }
     day.disabled = disabledDate?.(day.date)
     nextMonthDays.push(day)
   }
@@ -98,12 +88,7 @@ export function getYearMonths(
     monthDate.setMinutes(59)
     monthDate.setSeconds(59)
 
-    return {
-      key: ym,
-      month,
-      date: monthDate,
-      disabled: disabledDate?.(monthDate)
-    }
+    return { key: ym, month, date: monthDate, disabled: disabledDate?.(monthDate) }
   })
 }
 
@@ -128,10 +113,6 @@ export function getTenYears(
 
     const yearDate = date(`${year}-12-31 23:59:59`)
 
-    return {
-      year,
-      date: yearDate,
-      disabled: disabledDate?.(yearDate)
-    }
+    return { year, date: yearDate, disabled: disabledDate?.(yearDate) }
   })
 }

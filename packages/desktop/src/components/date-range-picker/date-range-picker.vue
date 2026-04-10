@@ -60,20 +60,17 @@
 </template>
 
 <script lang="ts" setup>
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import type {
-  DateRangePickerEmits,
-  DateRangePickerProps,
-  DropdownExposed
-} from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { computed, shallowRef, watch } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { UDatePanel } from '../date-panel'
 import { date, type Dater } from '@cat-kit/core'
-import { UDropdown } from '../dropdown'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { useUpdateLock } from '@ultra-ui/compositions'
 import { Calendar, Close } from '@ultra-ui/icons/normal'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { bem } from '@ultra-ui/utils'
+import { computed, shallowRef, watch } from 'vue'
+
+import type { DateRangePickerEmits, DateRangePickerProps, DropdownExposed } from '../../types'
+import { UDatePanel } from '../date-panel'
+import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 
 defineOptions({
@@ -98,14 +95,11 @@ const className = computed(() => {
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
@@ -132,7 +126,7 @@ const formatStr = computed(() => {
 
 watch(
   () => props.modelValue,
-  val => {
+  (val) => {
     update(() => {
       if (val?.length === 2) {
         currentRangeDate.value = [date(val[0]), date(val[1])]
@@ -145,10 +139,7 @@ watch(
 async function handleSelect(rangeDate: [Dater, Dater] | undefined) {
   await updateAndLock(() => {
     currentRangeDate.value = rangeDate
-    emit(
-      'update:modelValue',
-      rangeDate?.map(d => d.format(formatStr.value)) as [string, string]
-    )
+    emit('update:modelValue', rangeDate?.map((d) => d.format(formatStr.value)) as [string, string])
   })
   dropdownRef.value?.close()
 }

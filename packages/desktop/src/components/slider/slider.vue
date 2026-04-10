@@ -20,16 +20,13 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import type { SliderProps, SliderEmits } from '../../types'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
 import { computed, provide, watch } from 'vue'
+
+import type { SliderProps, SliderEmits } from '../../types'
 import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ultra-ui/compositions'
 import { useSlider } from './use-slider'
 
 defineOptions({
@@ -49,10 +46,7 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const className = computed(() => {
   return [
@@ -96,12 +90,7 @@ const barStyles = computed(() => {
 const { updateAndLock, update } = useUpdateLock()
 
 watch(
-  [
-    sliderSize,
-    ...['modelValue', 'range', 'max', 'min', 'vertical'].map(
-      k => () => props[k]
-    )
-  ],
+  [sliderSize, ...['modelValue', 'range', 'max', 'min', 'vertical'].map((k) => () => props[k])],
   ([size, value, range]) => {
     update(() => {
       if (value === undefined || size === 0) return
@@ -123,13 +112,10 @@ const ticks = computed(() => {
   const tickLength = Math.ceil((max! - min!) / step)
   const offsetPercent = (step / (max! - min!)) * 100
 
-  return [
-    ...Array.from({ length: tickLength }, (_, i) => i * offsetPercent),
-    100
-  ]
+  return [...Array.from({ length: tickLength }, (_, i) => i * offsetPercent), 100]
 })
 
-watch([offset1, offset2], v => {
+watch([offset1, offset2], (v) => {
   updateAndLock(() => {
     if (props.range) {
       emit('update:modelValue', v.map(sliderOffset2Value).sort() as T)

@@ -1,5 +1,6 @@
 import { TreeNode } from '@cat-kit/core'
 import { reactive, shallowReactive } from 'vue'
+
 import type { TableColumn, TableColumnAlign } from '../../../types'
 
 export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
@@ -95,17 +96,7 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
 
   style: Record<string, number> = reactive({})
 
-  constructor(
-    val: TableColumn,
-    index: number,
-    depth: number,
-    parent?: ColumnNode
-  ) {
-    super(
-      val ? shallowReactive(val) : val,
-      index,
-      depth,
-      parent
-    )
+  constructor(val: TableColumn, index: number, depth: number, parent?: ColumnNode) {
+    super(val ? shallowReactive(val) : val, index, depth, parent)
   }
 }

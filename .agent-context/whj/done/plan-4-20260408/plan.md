@@ -102,4 +102,3 @@
 - patch-3: tsdown 生成 dts（移除 vue-tsc）+ `apps/icons-example` Lucide 风格预览
 - patch-4: format-svg 适配 SVGO 4.x（optimize 抛错、Output 仅含 data）
 - patch-5: 生成 Vue 图标移除 `size` prop，根 svg 固定 1em + `gen` 跳过标记
-

@@ -111,7 +111,7 @@ export class UITheme {
       .join(';')
   }
 
-  private renderShadow(theme: Theme): string {
+  private renderShadow(_theme: Theme): string {
     const shadow = ['x', 'y', 'blur', 'spread', 'color']
       .map((k) => `var(--u-shadow-${k})`)
       .join(' ')

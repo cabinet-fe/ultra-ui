@@ -82,10 +82,7 @@ $root-name: auto-complete;
     border-radius: fn.use-var(radius, $size);
 
     @include m.is(multiple) {
-      padding: calc(
-          (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) /
-            2
-        )
+      padding: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2)
         calc(fn.use-var(gap, $size) / 2);
       padding-left: 0;
     }
@@ -96,9 +93,7 @@ $root-name: auto-complete;
     }
 
     @include m.bem($root-name, tags) {
-      gap: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      );
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
       @include m.bem($root-name, tag) {
         &:first-of-type {
           margin-left: calc(fn.use-var(gap, $size) / 2);

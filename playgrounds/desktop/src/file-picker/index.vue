@@ -45,9 +45,10 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
-import CustomCard from '../card/custom-card.vue'
 import { Upload } from '@ultra-ui/icons/normal'
+import { shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const files = shallowRef<File[]>([])
 </script>

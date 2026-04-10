@@ -1,16 +1,11 @@
-import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
-import { bem, type BEM } from '@ultra-ui/utils'
-import {
-  provide,
-  shallowRef,
-  watch,
-  type ShallowRef,
-  type ComputedRef
-} from 'vue'
 import type { Dater } from '@cat-kit/core'
+import { bem, type BEM } from '@ultra-ui/utils'
+import { provide, shallowRef, watch, type ShallowRef, type ComputedRef } from 'vue'
+
+import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'
 import { DatePanelDIKey } from './di'
-import { usePanelDate } from './use-panel-date'
 import { useDateSelect } from './use-date-select'
+import { usePanelDate } from './use-panel-date'
 
 interface PanelOptions {
   props: DatePanelProps
@@ -34,7 +29,7 @@ export function usePanel(options: PanelOptions): UsePanelReturned {
 
   watch(
     () => props.type,
-    type => {
+    (type) => {
       if (type === 'date') {
         panelType.value = 'day'
       } else if (type === 'month') {
@@ -46,9 +41,7 @@ export function usePanel(options: PanelOptions): UsePanelReturned {
     { immediate: true }
   )
 
-  const { panelDate, updatePanelDate, ...panelDateRest } = usePanelDate({
-    props
-  })
+  const { panelDate, updatePanelDate, ...panelDateRest } = usePanelDate({ props })
 
   const { handleDateSelect, handleDateRangeHover, rangeDate } = useDateSelect({
     props,
@@ -74,9 +67,5 @@ export function usePanel(options: PanelOptions): UsePanelReturned {
     handleDateRangeHover
   })
 
-  return {
-    cls,
-    panelType,
-    panelDate
-  }
+  return { cls, panelType, panelDate }
 }

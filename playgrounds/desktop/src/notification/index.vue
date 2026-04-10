@@ -19,7 +19,7 @@
           { label: 'bottom-right', value: 'bottom-right' },
           { label: 'bottom-left', value: 'bottom-left' },
           { label: 'top-right', value: 'top-right' },
-          { label: 'top-left', value: 'top-left' },
+          { label: 'top-left', value: 'top-left' }
         ]"
         v-model="config.position"
       />
@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { Notification } from '@ultra-ui/desktop/components'
-import '@ultra-ui/desktop/components/notification/style.scss'
+import { Notification } from '@ultra-ui/desktop'
+import '@ultra-ui/desktop/components/notification/style.ts'
 import { reactive, ref } from 'vue'
 
 const config = reactive({
@@ -48,7 +48,7 @@ const config = reactive({
 let count = ref(0)
 
 const showMsg = () => {
-  count.value ++
+  count.value++
   Notification({
     title: `${count.value}-Event has been created`,
     message:
@@ -62,7 +62,6 @@ const showMsg = () => {
     position: config.position as any
   })
 }
-
 </script>
 
 <style lang="scss" scoped>

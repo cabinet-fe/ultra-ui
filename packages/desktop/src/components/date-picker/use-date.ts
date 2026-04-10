@@ -1,6 +1,5 @@
-import type { DatePickerEmits, DatePickerProps } from '../../types'
-import { bem, type BEM } from '@ultra-ui/utils'
 import { date, type Dater } from '@cat-kit/core'
+import { bem, type BEM } from '@ultra-ui/utils'
 import {
   computed,
   inject,
@@ -10,6 +9,8 @@ import {
   type ComputedRef,
   type InjectionKey
 } from 'vue'
+
+import type { DatePickerEmits, DatePickerProps } from '../../types'
 
 interface DateProvideConfig {
   props: DatePickerProps
@@ -58,34 +59,20 @@ interface DatePickerContext {
 
 const diKey: InjectionKey<DatePickerContext> = Symbol('DatePickerDIKey')
 
-export function useDate(
-  type: 'provide',
-  config: DateProvideConfig
-): DatePickerContext
+export function useDate(type: 'provide', config: DateProvideConfig): DatePickerContext
 export function useDate(type: 'inject'): DatePickerContext
-export function useDate(
-  type: 'provide' | 'inject',
-  config?: DateProvideConfig
-): DatePickerContext {
+export function useDate(type: 'provide' | 'inject', config?: DateProvideConfig): DatePickerContext {
   if (type === 'inject') {
     return inject(diKey)!
   }
 
   const { props, emit, closeDropdown } = config!
-  const formats = {
-    date: 'yyyy-MM-dd',
-    month: 'yyyy-MM',
-    year: 'yyyy'
-  }
+  const formats = { date: 'yyyy-MM-dd', month: 'yyyy-MM', year: 'yyyy' }
   const formatStr = computed(() => {
     return props.format ?? formats[props.type!]
   })
 
-  const typePanels = {
-    date: ['year', 'month', 'day'],
-    month: ['year', 'month'],
-    year: ['year']
-  }
+  const typePanels = { date: ['year', 'month', 'day'], month: ['year', 'month'], year: ['year'] }
 
   /** 组件类 */
   const cls = bem('date-picker')
@@ -105,7 +92,7 @@ export function useDate(
 
   watch(
     () => props.modelValue,
-    v => {
+    (v) => {
       state.date = v ? date(v) : undefined
       updatePanelDate()
     }

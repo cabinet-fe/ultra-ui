@@ -1,16 +1,8 @@
-import {
-  $createParagraphNode,
-  $getRoot,
-  SKIP_DOM_SELECTION_TAG,
-  type LexicalEditor
-} from 'lexical'
+import { $createParagraphNode, $getRoot, SKIP_DOM_SELECTION_TAG, type LexicalEditor } from 'lexical'
 import { nextTick, watchEffect, type ComputedRef } from 'vue'
+
+import type { ExpressionEditorEmits, ExpressionEditorProps, VariableItem } from '../../../../types'
 import { parseContent } from '../../parser'
-import type {
-  ExpressionEditorEmits,
-  ExpressionEditorProps,
-  VariableItem
-} from '../../../../types'
 
 interface CreateModelSyncOptions {
   editor: LexicalEditor
@@ -48,7 +40,7 @@ export function createModelSync(options: CreateModelSyncOptions) {
     })
   }
 
-  editor.registerTextContentListener(text => {
+  editor.registerTextContentListener((text) => {
     if (changeByModel) return
 
     emit('update:modelValue', text)
@@ -72,7 +64,5 @@ export function createModelSync(options: CreateModelSyncOptions) {
     syncFromModelValue()
   })
 
-  return {
-    syncFromModelValue
-  }
+  return { syncFromModelValue }
 }

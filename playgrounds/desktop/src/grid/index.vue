@@ -23,24 +23,11 @@
 
     <u-card>
       <u-card-header>
-        <h3>
-          基于容器自身的响应式布局。改变浏览器尺寸查看， 当前尺寸:{{
-            point?.name
-          }}
-        </h3>
+        <h3>基于容器自身的响应式布局。改变浏览器尺寸查看， 当前尺寸:{{ point?.name }}</h3>
       </u-card-header>
 
       <u-card-content>
-        <u-grid
-          :gap="8"
-          :cols="{
-            xs: 2,
-            sm: 3,
-            md: 4,
-            lg: 6
-          }"
-          @breakpoint-change="point = $event"
-        >
+        <u-grid :gap="8" :cols="{ xs: 2, sm: 3, md: 4, lg: 6 }" @breakpoint-change="point = $event">
           <u-grid-item :span="1" class="col-item" v-for="i of 6" :key="i">
             {{ i }}
           </u-grid-item>

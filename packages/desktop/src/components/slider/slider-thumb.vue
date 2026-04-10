@@ -2,9 +2,10 @@
   <div ref="thumb" :class="cls.e('thumb')" :style></div>
 </template>
 <script lang="ts" setup>
-import { computed, inject, useTemplateRef, watch } from 'vue'
-import { sliderContextKey } from './di'
 import { useDrag, useUpdateLock } from '@ultra-ui/compositions'
+import { computed, inject, useTemplateRef, watch } from 'vue'
+
+import { sliderContextKey } from './di'
 
 const props = defineProps<{
   modelValue: number
@@ -14,8 +15,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const { cls, range, disabled, sliderProps, getOffsetByStep } =
-  inject(sliderContextKey)!
+const { cls, range, disabled, sliderProps, getOffsetByStep } = inject(sliderContextKey)!
 
 const thumbRef = useTemplateRef('thumb')
 
@@ -66,7 +66,7 @@ function updateDragger(offset: number) {
 
 watch(
   () => props.modelValue,
-  offset => {
+  (offset) => {
     update(() => updateDragger(offset))
   }
 )

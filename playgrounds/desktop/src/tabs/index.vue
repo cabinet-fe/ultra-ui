@@ -3,9 +3,7 @@
     <div class="config">
       <ul>
         <li v-for="item in configList">
-          <u-checkbox v-model="config[item.key]"
-            >{{ item.label }}：{{ item.key }}</u-checkbox
-          >
+          <u-checkbox v-model="config[item.key]">{{ item.label }}：{{ item.key }}</u-checkbox>
         </li>
         <li>
           <div>方位：position</div>
@@ -32,9 +30,7 @@
           :editable="config.editable"
           :keep-alive="config.keepAlive"
           @create="items = [...items, { name: 'aaa', key: 'aaa' }]"
-          :style="{
-            height: config.fixedHeight ? '300px' : ''
-          }"
+          :style="{ height: config.fixedHeight ? '300px' : '' }"
         >
           <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
 
@@ -73,9 +69,7 @@
           :position="config.position"
           :editable="config.editable"
           :keep-alive="config.keepAlive"
-          :style="{
-            height: config.fixedHeight ? '300px' : ''
-          }"
+          :style="{ height: config.fixedHeight ? '300px' : '' }"
         ></u-tabs>
 
         <template #trigger>
@@ -88,14 +82,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 import CompA from './comp-a.vue'
 import CompB from './comp-b.vue'
 // let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
 
-let items = shallowRef<
-  Array<{ name: string; key: string; disabled?: boolean }>
->([])
+let items = shallowRef<Array<{ name: string; key: string; disabled?: boolean }>>([])
 
 setTimeout(() => {
   items.value = [

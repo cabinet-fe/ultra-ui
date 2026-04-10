@@ -1,8 +1,14 @@
 {
   "name": "@ultra-ui/utils",
   "version": "0.1.0",
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -25,19 +31,15 @@
       "import": "./dist/*.js"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
-  "devDependencies": {
-    "tsdown": "^0.21.7"
-  },
   "dependencies": {
     "@cat-kit/core": "^1.0.1"
+  },
+  "devDependencies": {
+    "tsdown": "^0.21.7"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

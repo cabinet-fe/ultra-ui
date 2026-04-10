@@ -6,20 +6,19 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('../../tag', () => ({
-  UTag: () => null
-}))
+vi.mock('../../tag', () => ({ UTag: () => null }))
 import { createEditor } from 'lexical'
 import { ref, shallowRef } from 'vue'
-import { VariableNode } from '../nodes/variable-node'
+
+import type { ExpressionEditorRuntime } from '../internal/contracts/editor-runtime'
 import { createExpressionEditorRuntime } from '../internal/editor-runtime'
 import { registerCommandPacks } from '../internal/features/commands/register-command-packs'
-import { insertVariableAtTrigger } from '../internal/features/insertion/insertion-service'
 import {
   moveVariableByDirection,
   reorderVariable
 } from '../internal/features/drag-drop/drag-drop-service'
-import type { ExpressionEditorRuntime } from '../internal/contracts/editor-runtime'
+import { insertVariableAtTrigger } from '../internal/features/insertion/insertion-service'
+import { VariableNode } from '../nodes/variable-node'
 
 describe('ARCH-01: sync boundary', () => {
   it('createExpressionEditorRuntime returns runtime with editor, mutations, syncFromModelValue', () => {
@@ -70,11 +69,7 @@ describe('ARCH-01: sync boundary', () => {
 
 describe('ARCH-01: insertion boundary', () => {
   it('insertVariableAtTrigger is callable and returns boolean', () => {
-    const editor = createEditor({
-      namespace: 'Test',
-      nodes: [VariableNode],
-      onError: () => {}
-    })
+    const editor = createEditor({ namespace: 'Test', nodes: [VariableNode], onError: () => {} })
     const result = insertVariableAtTrigger(editor, {
       nodeKey: 'nonexistent',
       charPosition: 0,
@@ -86,25 +81,13 @@ describe('ARCH-01: insertion boundary', () => {
 
 describe('ARCH-01: drag-drop boundary', () => {
   it('reorderVariable is callable and returns boolean', () => {
-    const editor = createEditor({
-      namespace: 'Test',
-      nodes: [VariableNode],
-      onError: () => {}
-    })
-    const result = reorderVariable(editor, {
-      payloadText: null,
-      scopeId: 'test',
-      targetSlot: 0
-    })
+    const editor = createEditor({ namespace: 'Test', nodes: [VariableNode], onError: () => {} })
+    const result = reorderVariable(editor, { payloadText: null, scopeId: 'test', targetSlot: 0 })
     expect(typeof result).toBe('boolean')
   })
 
   it('moveVariableByDirection is callable and returns boolean', () => {
-    const editor = createEditor({
-      namespace: 'Test',
-      nodes: [VariableNode],
-      onError: () => {}
-    })
+    const editor = createEditor({ namespace: 'Test', nodes: [VariableNode], onError: () => {} })
     const result = moveVariableByDirection(editor, 'nonexistent-key', -1, false)
     expect(typeof result).toBe('boolean')
   })
@@ -112,11 +95,7 @@ describe('ARCH-01: drag-drop boundary', () => {
 
 describe('ARCH-01: command packs boundary', () => {
   it('registerCommandPacks returns cleanup function', () => {
-    const editor = createEditor({
-      namespace: 'Test',
-      nodes: [VariableNode],
-      onError: () => {}
-    })
+    const editor = createEditor({ namespace: 'Test', nodes: [VariableNode], onError: () => {} })
     const cleanup = registerCommandPacks(editor)
     expect(typeof cleanup).toBe('function')
     cleanup()

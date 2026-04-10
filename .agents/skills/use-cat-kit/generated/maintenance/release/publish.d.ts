@@ -1,4 +1,4 @@
-import { PublishOptions, PublishResult } from "./types.js";
+import { PublishOptions, PublishResult } from './types.js'
 
 //#region src/release/publish.d.ts
 /**
@@ -52,7 +52,7 @@ import { PublishOptions, PublishResult } from "./types.js";
  * })
  * ```
  */
-declare function publishPackage(options: PublishOptions): Promise<PublishResult>;
+declare function publishPackage(options: PublishOptions): Promise<PublishResult>
 //#endregion
-export { publishPackage };
+export { publishPackage }
 //# sourceMappingURL=publish.d.ts.map

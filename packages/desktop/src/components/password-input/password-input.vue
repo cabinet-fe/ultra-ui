@@ -26,14 +26,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { PasswordInputProps } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
-import { Hide, View } from '@ultra-ui/icons/normal'
-import { computed, nextTick, shallowRef } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { o } from '@cat-kit/core'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { Hide, View } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { computed, nextTick, shallowRef } from 'vue'
+
+import type { PasswordInputProps } from '../../types'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
 
 defineOptions({
   name: 'PasswordInput'
@@ -51,14 +52,11 @@ const slots = defineSlots<{
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const inputProps = computed(() => {
   return o(props).pick(['clearable', 'disabled', 'placeholder', 'size'])

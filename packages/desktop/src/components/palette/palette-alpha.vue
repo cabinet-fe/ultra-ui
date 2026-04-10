@@ -1,24 +1,16 @@
 <template>
   <div :class="cls.e('alpha')" ref="alphaRef">
-    <div
-      :class="cls.e('alpha-bg')"
-      :style="{
-        background: alphaSliderBG
-      }"
-    ></div>
+    <div :class="cls.e('alpha-bg')" :style="{ background: alphaSliderBG }"></div>
 
-    <span
-      :class="cls.e('alpha-thumb')"
-      @click.stop
-      :style="alphaThumbStyle"
-    ></span>
+    <span :class="cls.e('alpha-thumb')" @click.stop :style="alphaThumbStyle"></span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { PaletteDIKey } from './di'
-import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 import { useDrag } from '@ultra-ui/compositions'
+import { computed, inject, shallowRef, onMounted, watch } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteAlpha'
@@ -80,10 +72,9 @@ onMounted(() => {
 
 watch(
   alpha,
-  newAlphaValue => {
+  (newAlphaValue) => {
     updater.update(() => {
-      alphaThumbTransformX.value =
-        alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
+      alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
     })
   },
   { flush: 'post' }

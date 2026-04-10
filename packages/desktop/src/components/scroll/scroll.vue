@@ -16,34 +16,20 @@
       </component>
     </div>
 
-    <u-scroll-bar
-      type="y"
-      :class="cls.e('bar-y')"
-      @drag="handleDragY"
-      ref="barY"
-    />
-    <u-scroll-bar
-      type="x"
-      :class="cls.e('bar-x')"
-      @drag="handleDragX"
-      ref="barX"
-    />
+    <u-scroll-bar type="y" :class="cls.e('bar-y')" @drag="handleDragY" ref="barY" />
+    <u-scroll-bar type="x" :class="cls.e('bar-x')" @drag="handleDragX" ref="barX" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@ultra-ui/utils'
-import type {
-  ScrollPosition,
-  _ScrollExposed,
-  ScrollProps,
-  ScrollEmits
-} from '../../types'
-import { type CSSProperties, computed, provide, shallowRef } from 'vue'
-import UScrollBar from './scroll-bar.vue'
-import { useResizeObserver } from '@ultra-ui/compositions'
-import { ScrollDIKey } from './di'
 import { debounce } from '@cat-kit/core'
+import { useResizeObserver } from '@ultra-ui/compositions'
+import { bem, withUnit } from '@ultra-ui/utils'
+import { type CSSProperties, computed, provide, shallowRef } from 'vue'
+
+import type { ScrollPosition, _ScrollExposed, ScrollProps, ScrollEmits } from '../../types'
+import { ScrollDIKey } from './di'
+import UScrollBar from './scroll-bar.vue'
 
 defineOptions({
   name: 'Scroll'
@@ -92,7 +78,7 @@ const trackSize = {
 
 useResizeObserver({
   targets: [contentRef, scrollRef],
-  onResize: entries => {
+  onResize: (entries) => {
     if (entries.length && scrollRef.value) {
       const { clientHeight, clientWidth } = scrollRef.value
 
@@ -105,7 +91,7 @@ useResizeObserver({
 
       emit(
         'resize',
-        entries.map(entry => entry.target as HTMLElement)
+        entries.map((entry) => entry.target as HTMLElement)
       )
     }
   }
@@ -135,14 +121,9 @@ const updateBar = () => {
   })
 
   if (scrollHeight !== clientHeight) {
-    const barYHeight = Math.max(
-      (clientHeight / scrollHeight) * trackSize.height,
-      minSize
-    )
+    const barYHeight = Math.max((clientHeight / scrollHeight) * trackSize.height, minSize)
 
-    const barYTop =
-      (scrollTop / (scrollHeight - clientHeight)) *
-      (trackSize.height - barYHeight)
+    const barYTop = (scrollTop / (scrollHeight - clientHeight)) * (trackSize.height - barYHeight)
 
     barY.value?.update(barYHeight, barYTop)
   } else {
@@ -150,13 +131,9 @@ const updateBar = () => {
   }
 
   if (scrollWidth !== clientWidth) {
-    const barXWidth = Math.max(
-      (clientWidth / scrollWidth) * trackSize.width,
-      minSize
-    )
+    const barXWidth = Math.max((clientWidth / scrollWidth) * trackSize.width, minSize)
 
-    const barXLeft =
-      (scrollLeft / (scrollWidth - clientWidth)) * (trackSize.width - barXWidth)
+    const barXLeft = (scrollLeft / (scrollWidth - clientWidth)) * (trackSize.width - barXWidth)
 
     barX.value?.update(barXWidth, barXLeft)
   } else {
@@ -170,8 +147,7 @@ const handleDragX = debounce(
     const container = containerRef.value!
     const { clientWidth, scrollWidth } = container
 
-    container.scrollLeft =
-      (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
+    container.scrollLeft = (offset / (trackSize.width - size)) * (scrollWidth - clientWidth)
   },
   props.dragDebounce ?? 0,
   false
@@ -181,15 +157,14 @@ const handleDragY = debounce(
   (offset: number, size: number) => {
     const container = containerRef.value!
     const { clientHeight, scrollHeight } = container
-    container.scrollTop =
-      (offset / (trackSize.height - size)) * (scrollHeight - clientHeight)
+    container.scrollTop = (offset / (trackSize.height - size)) * (scrollHeight - clientHeight)
   },
   props.dragDebounce ?? 0,
   false
 )
 
 // 滚动事件
-const handleScroll = e => {
+const handleScroll = (e) => {
   updateBar()
 }
 

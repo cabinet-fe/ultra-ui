@@ -33,11 +33,7 @@ export function useMenuTransition(): UseMenuTransitionReturned {
     })
 
     requestAnimationFrame(() => {
-      setStyles(el, {
-        height: `${height}px`,
-        paddingTop,
-        opacity: 1
-      })
+      setStyles(el, { height: `${height}px`, paddingTop, opacity: 1 })
     })
   }
 
@@ -62,22 +58,12 @@ export function useMenuTransition(): UseMenuTransitionReturned {
     // 强制刷新，避免收起时浏览器合并样式导致动画缺失
     void el.offsetHeight
 
-    setStyles(el, {
-      height: 0,
-      paddingTop: 0,
-      opacity: 0
-    })
+    setStyles(el, { height: 0, paddingTop: 0, opacity: 0 })
   }
 
   function afterLeave(el: HTMLElement) {
     resetStyles(el)
   }
 
-  return {
-    enter,
-    afterEnter,
-    beforeLeave,
-    leave,
-    afterLeave
-  }
+  return { enter, afterEnter, beforeLeave, leave, afterLeave }
 }

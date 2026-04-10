@@ -12,9 +12,7 @@ $root-name: checkbox-group;
     gap: calc(fn.use-var(gap, $size) * 2);
 
     @include m.bem($root-name, tags) {
-      gap: calc(
-        (fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2
-      );
+      gap: calc((fn.use-var(form-component-height, $size) - fn.use-var(tag, $size)) / 2);
     }
   }
 

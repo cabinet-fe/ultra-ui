@@ -8,16 +8,10 @@
     </div>
 
     <div style="display: flex; gap: 20px">
-      <u-checkbox
-        v-model="state.checkable"
-        @update:model-value="state.selectable = false"
-      >
+      <u-checkbox v-model="state.checkable" @update:model-value="state.selectable = false">
         多选
       </u-checkbox>
-      <u-checkbox
-        v-model="state.selectable"
-        @update:model-value="state.checkable = false"
-      >
+      <u-checkbox v-model="state.selectable" @update:model-value="state.checkable = false">
         单选
       </u-checkbox>
       <u-checkbox v-model="state.tree">树形结构</u-checkbox>
@@ -35,9 +29,7 @@
       v-if="true"
       :data="data"
       :columns="columns"
-      :style="{
-        height: fixedHeight ? '700px' : ''
-      }"
+      :style="{ height: fixedHeight ? '700px' : '' }"
       row-key="name"
       v-bind="state"
       v-model:checked="checked"
@@ -61,10 +53,11 @@
 </template>
 
 <script lang="ts" setup>
+import { dfs } from '@cat-kit/core'
 import { defineTableColumns } from '@ultra-ui/desktop'
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
-import { dfs } from '@cat-kit/core'
 
 const state = shallowReactive({
   checkable: false,
@@ -184,13 +177,13 @@ const toggleData = () => {
 
 watch(
   multiLevelHeader,
-  v => {
+  (v) => {
     if (v) {
       columns.value = _columns
     } else {
       let r: any[] = []
 
-      dfs({ children: _columns }, item => {
+      dfs({ children: _columns }, (item) => {
         if (item.children?.length) return
         r.push(item)
       })

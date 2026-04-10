@@ -11,13 +11,11 @@ import { Logo } from '@ultra-ui/icons/colorful'
 
 ## 导出子路径
 
-
-| 子路径                        | 用途                      |
-| -------------------------- | ----------------------- |
+| 子路径                     | 用途                          |
+| -------------------------- | ----------------------------- |
 | `@ultra-ui/icons`          | 全部图标（normal + colorful） |
 | `@ultra-ui/icons/normal`   | 单色图标集合                  |
 | `@ultra-ui/icons/colorful` | 多色图标集合                  |
-
 
 ## 目录结构
 
@@ -57,4 +55,3 @@ bun run build            # 快捷：icons:gen + icons:build-vue
 
 - **peer**：`vue ^3.5.0`
 - **devDependencies**：`svgo`、`tsdown`、`unplugin-vue`
-

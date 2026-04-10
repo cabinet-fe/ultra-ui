@@ -27,11 +27,7 @@ export function HUE2RGB(h: number): PaletteRGB {
     ;[r, g, b] = [1, 0, x]
   }
   // 将RGB值从0-1范围映射到0-255范围
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255)
-  }
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) }
 }
 
 /**
@@ -63,7 +59,7 @@ export function HSV2RGB(hsv: PaletteHSV): PaletteRGB {
  */
 export function RGB2HEX(RGB: PaletteRGB, alpha = 1): string {
   let hexStr = ['r', 'g', 'b']
-    .map(key => RGB[key].toString(16).padStart(2, '0'))
+    .map((key) => RGB[key].toString(16).padStart(2, '0'))
     .join('')
     .toUpperCase()
 
@@ -111,15 +107,8 @@ export function RGB2HSV(RGB: PaletteRGB): PaletteHSV {
  * @param hex HEX 颜色
  * @returns RGB 颜色
  */
-export function HEX2RGBA(hex: string): {
-  RGB: PaletteRGB
-  alpha: number
-} {
-  const rgb = {
-    r: 0,
-    g: 0,
-    b: 0
-  }
+export function HEX2RGBA(hex: string): { RGB: PaletteRGB; alpha: number } {
+  const rgb = { r: 0, g: 0, b: 0 }
   let alpha = 1
 
   if (hex.startsWith('#')) {
@@ -129,7 +118,7 @@ export function HEX2RGBA(hex: string): {
   if (hex.length === 3 || hex.length === 4) {
     hex = hex
       .split('')
-      .map(char => char + char)
+      .map((char) => char + char)
       .join('')
   }
 
@@ -141,8 +130,5 @@ export function HEX2RGBA(hex: string): {
   rgb.g = parseInt(hex.slice(2, 4), 16)
   rgb.b = parseInt(hex.slice(4, 6), 16)
 
-  return {
-    RGB: rgb,
-    alpha
-  }
+  return { RGB: rgb, alpha }
 }

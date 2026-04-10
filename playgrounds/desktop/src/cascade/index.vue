@@ -31,10 +31,11 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { FormModel } from '@ultra-ui/desktop'
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 import { area } from './area.js'
-import { FormModel } from '@ultra-ui/desktop/components'
 
 const value = shallowRef()
 
@@ -49,7 +50,7 @@ const propsModel = new FormModel({
 
 const data = shallowRef<any[]>([])
 
-const disabledNode = data => {
+const disabledNode = (data) => {
   return data.code % 2 === 0
 }
 

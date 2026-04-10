@@ -1,20 +1,10 @@
 <template>
   <div
-    :class="[
-      cls.e('node'),
-      bem.is('expanded', node.expanded),
-      bem.is('disabled', node.disabled)
-    ]"
-    :style="{
-      paddingLeft: withUnit(node.depth * 20 - 20, 'px')
-    }"
+    :class="[cls.e('node'), bem.is('expanded', node.expanded), bem.is('disabled', node.disabled)]"
+    :style="{ paddingLeft: withUnit(node.depth * 20 - 20, 'px') }"
     :ref="measureElement"
   >
-    <u-icon
-      v-if="!node.isLeaf"
-      :class="cls.e('expand-icon')"
-      @click.stop="toggleExpand"
-    >
+    <u-icon v-if="!node.isLeaf" :class="cls.e('expand-icon')" @click.stop="toggleExpand">
       <ArrowRight />
     </u-icon>
     <i v-else :class="cls.e('icon-placeholder')"> </i>
@@ -24,9 +14,7 @@
       @click="handleClick"
       @contextmenu="treeEmit('node-contextmenu', $event, node)"
       v-ripple="
-        (treeProps.checkable || treeProps.selectable) && !node.disabled
-          ? cls.e('ripple')
-          : false
+        (treeProps.checkable || treeProps.selectable) && !node.disabled ? cls.e('ripple') : false
       "
     >
       <u-checkbox
@@ -45,15 +33,16 @@
 </template>
 
 <script lang="ts" setup>
-import { TreeDIKey } from './di'
-import { inject } from 'vue'
-import { bem, withUnit } from '@ultra-ui/utils'
-import { UIcon } from '../icon'
+import { vRipple } from '@ultra-ui/directives'
 import { ArrowRight } from '@ultra-ui/icons/normal'
+import { bem, withUnit } from '@ultra-ui/utils'
+import { inject } from 'vue'
+
 import type { TreeNodeProps } from '../../types'
 import UCheckbox from '../checkbox/checkbox.vue'
+import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
-import { vRipple } from '@ultra-ui/directives'
+import { TreeDIKey } from './di'
 
 defineOptions({
   name: 'TreeNode'
@@ -61,15 +50,8 @@ defineOptions({
 
 const props = defineProps<TreeNodeProps>()
 
-const {
-  treeProps,
-  treeEmit,
-  cls,
-  getTreeSlotsNode,
-  getFlattedNodes,
-  toggleCheck,
-  handleSelect
-} = inject(TreeDIKey)!
+const { treeProps, treeEmit, cls, getTreeSlotsNode, getFlattedNodes, toggleCheck, handleSelect } =
+  inject(TreeDIKey)!
 
 function toggleExpand() {
   const { node } = props

@@ -4,9 +4,9 @@
  */
 interface PortCheckOptions {
   /** 主机地址，默认 '127.0.0.1' */
-  host?: string;
+  host?: string
   /** 超时时间（毫秒），默认 1000 */
-  timeout?: number;
+  timeout?: number
 }
 /**
  * 检查端口是否可用
@@ -32,7 +32,7 @@ interface PortCheckOptions {
  * @param options - 主机地址和超时时间选项
  * @returns 端口可用时返回 `true`，被占用或超时返回 `false`
  */
-declare function isPortAvailable(port: number, options?: PortCheckOptions): Promise<boolean>;
+declare function isPortAvailable(port: number, options?: PortCheckOptions): Promise<boolean>
 //#endregion
-export { PortCheckOptions, isPortAvailable };
+export { PortCheckOptions, isPortAvailable }
 //# sourceMappingURL=port.d.ts.map

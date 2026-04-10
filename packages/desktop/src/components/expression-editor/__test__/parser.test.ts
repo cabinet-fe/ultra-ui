@@ -1,11 +1,10 @@
-import { vi } from 'vitest'
 import { createEditor } from 'lexical'
 import type { LexicalNode } from 'lexical'
+import { vi } from 'vitest'
+
 import { VariableNode } from '../nodes/variable-node'
 
-vi.mock('../../tag', () => ({
-  UTag: () => null
-}))
+vi.mock('../../tag', () => ({ UTag: () => null }))
 
 import { parseContent } from '../parser'
 
@@ -14,11 +13,7 @@ function serializeNodes(nodes: LexicalNode[]): string {
 }
 
 function parseAndSerialize(content: string): string {
-  const editor = createEditor({
-    namespace: 'Test',
-    nodes: [VariableNode],
-    onError: () => {}
-  })
+  const editor = createEditor({ namespace: 'Test', nodes: [VariableNode], onError: () => {} })
   let serialized = ''
   editor.update(
     () => {

@@ -1,5 +1,6 @@
-import { type ShallowRef, ref } from 'vue'
 import { debounce } from '@cat-kit/core'
+import { type ShallowRef, ref } from 'vue'
+
 import type { ScrollPosition } from '../../types'
 
 interface UseColumnFixedReturned {
@@ -31,9 +32,5 @@ export function useFixedColumns(): UseColumnFixedReturned {
     }
   }, 50)
 
-  return {
-    leftFixed,
-    rightFixed,
-    handleScroll
-  }
+  return { leftFixed, rightFixed, handleScroll }
 }

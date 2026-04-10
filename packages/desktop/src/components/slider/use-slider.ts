@@ -1,6 +1,7 @@
-import type { SliderProps } from '../../types'
-import { ref, type Ref, type ShallowRef, shallowRef } from 'vue'
 import { useResizeObserver } from '@ultra-ui/compositions'
+import { ref, type Ref, type ShallowRef, shallowRef } from 'vue'
+
+import type { SliderProps } from '../../types'
 
 interface UseSliderReturn {
   offset1: Ref<number>
@@ -13,9 +14,7 @@ interface UseSliderReturn {
   getOffsetByStep: (offset: number) => number
 }
 
-export function useSlider(
-  props: SliderProps<number | [number, number]>
-): UseSliderReturn {
+export function useSlider(props: SliderProps<number | [number, number]>): UseSliderReturn {
   const sliderRef = shallowRef<HTMLElement>()
   const sliderSize = ref(0)
   const slideRange: [number, number] = [0, 0]

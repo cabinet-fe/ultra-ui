@@ -1,4 +1,4 @@
-import { GitCommitAndPushOptions, GitCommitResult, GitTagOptions, GitTagResult } from "./types.js";
+import { GitCommitAndPushOptions, GitCommitResult, GitTagOptions, GitTagResult } from './types.js'
 
 //#region src/release/git.d.ts
 /**
@@ -8,7 +8,7 @@ import { GitCommitAndPushOptions, GitCommitResult, GitTagOptions, GitTagResult }
  * @returns 命令输出
  * @throws {GitError} 当 git 命令执行失败时
  */
-declare function execGit(cwd: string, args: string[]): Promise<string>;
+declare function execGit(cwd: string, args: string[]): Promise<string>
 /**
  * 创建 git tag（可选推送）
  * @param options - 创建配置
@@ -24,7 +24,7 @@ declare function execGit(cwd: string, args: string[]): Promise<string>;
  * })
  * ```
  */
-declare function createGitTag(options: GitTagOptions): Promise<GitTagResult>;
+declare function createGitTag(options: GitTagOptions): Promise<GitTagResult>
 /**
  * 提交并推送代码（可选推送 tag）
  *
@@ -42,7 +42,7 @@ declare function createGitTag(options: GitTagOptions): Promise<GitTagResult>;
  * })
  * ```
  */
-declare function commitAndPush(options: GitCommitAndPushOptions): Promise<GitCommitResult>;
+declare function commitAndPush(options: GitCommitAndPushOptions): Promise<GitCommitResult>
 //#endregion
-export { commitAndPush, createGitTag, execGit };
+export { commitAndPush, createGitTag, execGit }
 //# sourceMappingURL=git.d.ts.map

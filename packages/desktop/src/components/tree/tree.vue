@@ -2,9 +2,7 @@
   <u-scroll
     :class="className"
     ref="scrollRef"
-    :content-style="{
-      height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined
-    }"
+    :content-style="{ height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined }"
     :content-class="[cls.e('wrap'), bem.is('virtual', virtualEnabled)]"
   >
     <template v-if="virtualEnabled">
@@ -15,9 +13,7 @@
         :class="bem.is('selected', node.data === selectedData)"
         :data-index="index"
         :measure-element="measureElement"
-        :style="{
-          transform: `translateY(${offset}px)`
-        }"
+        :style="{ transform: `translateY(${offset}px)` }"
       />
     </template>
     <template v-else>
@@ -36,28 +32,21 @@
 </template>
 
 <script lang="ts" setup>
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { useVirtual } from '@ultra-ui/compositions'
 import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
+import { computed, provide, shallowRef, useSlots, watch, watchEffect, type VNode } from 'vue'
+
 import type { TreeProps, TreeEmit, _TreeExposed } from '../../types'
-import {
-  computed,
-  provide,
-  shallowRef,
-  useSlots,
-  watch,
-  watchEffect,
-  type VNode
-} from 'vue'
+import type { ScrollExposed } from '../../types'
+import { UEmpty } from '../empty'
+import { UScroll } from '../scroll'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
 import UTreeNode from './tree-node.vue'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { useSelect } from './use-select'
 import { useCheck } from './use-check'
-import { UEmpty } from '../empty'
-import { useVirtual } from '@ultra-ui/compositions'
-import { UScroll } from '../scroll'
-import type { ScrollExposed } from '../../types'
-import { useTreeNodes } from './use-tree-nodes'
 import { useFilter } from './use-filter'
+import { useSelect } from './use-select'
+import { useTreeNodes } from './use-tree-nodes'
 
 defineOptions({
   name: 'Tree'
@@ -133,19 +122,18 @@ const { checkedData, toggleCheck } = useCheck({
   getFlattedNodes
 })
 
-const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } =
-  useVirtual({
-    count: computed(() => nodes.value.length),
-    estimateSize: () => 40,
-    gap: 2,
-    virtualThreshold: 80,
-    scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
-  })
+const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } = useVirtual({
+  count: computed(() => nodes.value.length),
+  estimateSize: () => 40,
+  gap: 2,
+  virtualThreshold: 80,
+  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+})
 
 const virtualNodes = computed(() => {
   const _nodes = nodes.value
 
-  return virtualList.value.map(item => {
+  return virtualList.value.map((item) => {
     const node = _nodes[item.index]!
     return {
       node,
@@ -163,10 +151,10 @@ function scrollIntoView() {
 
   if (selectable) {
     if (!selectedData.value) return
-    index = nodes.value.findIndex(node => node.data === selectedData.value)
+    index = nodes.value.findIndex((node) => node.data === selectedData.value)
   } else if (checkable) {
     if (!checkedData.size) return
-    index = nodes.value.findIndex(node => checkedData.has(node.data))
+    index = nodes.value.findIndex((node) => checkedData.has(node.data))
   }
 
   if (virtualEnabled.value) {
@@ -203,7 +191,7 @@ defineExpose<_TreeExposed>({
   checkNode: toggleCheck,
   selectNode: handleSelect,
   checkAll(check: boolean) {
-    forest.value.roots.forEach(node => {
+    forest.value.roots.forEach((node) => {
       toggleCheck(node, check)
     })
   },
@@ -216,13 +204,13 @@ defineExpose<_TreeExposed>({
   scrollTo,
 
   expandAll() {
-    forest.value.dfs(node => {
+    forest.value.dfs((node) => {
       node.expanded = true
     })
     getFlattedNodes()
   },
   collapseAll() {
-    forest.value.dfs(node => {
+    forest.value.dfs((node) => {
       node.expanded = false
     })
     getFlattedNodes()

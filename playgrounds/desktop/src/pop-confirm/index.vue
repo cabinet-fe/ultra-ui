@@ -1,13 +1,7 @@
 <template>
   <div>
     <CustomCard title="气泡">
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
+      <div style="display: flex; align-items: center; justify-content: space-between">
         <u-pop-confirm
           title="Are you sure to delete this?"
           @confirm="confirmEvent"
@@ -50,6 +44,7 @@
 
 <script setup lang="ts">
 import { Word } from '@ultra-ui/icons/colorful'
+
 import CustomCard from '../card/custom-card.vue'
 
 const confirmEvent = () => {

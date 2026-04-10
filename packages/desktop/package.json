@@ -1,14 +1,14 @@
 {
   "name": "@ultra-ui/desktop",
   "version": "0.1.0",
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "sideEffects": [
     "dist/**/style.js",
     "dist/**/*.css"
-  ],
-  "files": [
-    "dist",
-    "src"
   ],
   "exports": {
     ".": {
@@ -16,16 +16,20 @@
       "development": "./src/index.ts",
       "import": "./dist/index.js"
     },
-    "./install": {
-      "types": "./dist/install.d.ts",
-      "development": "./src/install.ts",
-      "import": "./dist/install.js"
+    "./components/*/style.ts": {
+      "types": "./dist/components/*/style.d.ts",
+      "development": "./src/components/*/style.ts",
+      "import": "./dist/components/*/style.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
       "development": "./src/*",
       "import": "./dist/*.js"
     }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@cat-kit/core": "^1.0.1",
@@ -51,18 +55,6 @@
     "codemirror": "^6.0.2",
     "lexical": "^0.42.0"
   },
-  "peerDependencies": {
-    "@ultra-ui/compositions": "workspace:*",
-    "@ultra-ui/directives": "workspace:*",
-    "@ultra-ui/icons": "workspace:*",
-    "@ultra-ui/styles": "workspace:*",
-    "@ultra-ui/utils": "workspace:*",
-    "vue": "^3.5.0"
-  },
-  "scripts": {
-    "build": "tsdown",
-    "check-types": "tsc -p tsconfig.json --noEmit"
-  },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",
     "sass-embedded": "^1.99.0",
@@ -70,5 +62,13 @@
     "unplugin-vue": "^7.1.1",
     "unplugin-vue-jsx": "^0.8.1",
     "vue-tsc": "^3.2.6"
+  },
+  "peerDependencies": {
+    "@ultra-ui/compositions": "workspace:*",
+    "@ultra-ui/directives": "workspace:*",
+    "@ultra-ui/icons": "workspace:*",
+    "@ultra-ui/styles": "workspace:*",
+    "@ultra-ui/utils": "workspace:*",
+    "vue": "^3.5.0"
   }
 }

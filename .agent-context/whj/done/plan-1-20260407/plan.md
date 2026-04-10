@@ -28,18 +28,19 @@
 
 将 `sample/` 移动到 `apps/sample/`，将 `build/` 移动到 `tools/build/`，将 `cli/` 移动到 `tools/cli/`。在 `packages/` 下创建 6 个包目录：
 
-| 包目录 | npm 包名 | 说明 |
-|--------|----------|------|
-| `packages/utils/` | `@ultra-ui/utils` | 共享工具函数、类型、样式基础 |
-| `packages/compositions/` | `@ultra-ui/compositions` | 共享组合式函数 |
-| `packages/directives/` | `@ultra-ui/directives` | 共享自定义指令 |
-| `packages/desktop/` | `@ultra-ui/desktop` | PC 端组件库 |
-| `packages/mobile/` | `@ultra-ui/mobile` | 移动端组件库（仅骨架） |
-| `packages/icons/` | `@ultra-ui/icons` | 图标库（仅骨架） |
+| 包目录                   | npm 包名                 | 说明                         |
+| ------------------------ | ------------------------ | ---------------------------- |
+| `packages/utils/`        | `@ultra-ui/utils`        | 共享工具函数、类型、样式基础 |
+| `packages/compositions/` | `@ultra-ui/compositions` | 共享组合式函数               |
+| `packages/directives/`   | `@ultra-ui/directives`   | 共享自定义指令               |
+| `packages/desktop/`      | `@ultra-ui/desktop`      | PC 端组件库                  |
+| `packages/mobile/`       | `@ultra-ui/mobile`       | 移动端组件库（仅骨架）       |
+| `packages/icons/`        | `@ultra-ui/icons`        | 图标库（仅骨架）             |
 
 每个包创建：`package.json`、`tsconfig.json`、`src/index.ts`。
 
 **移动后路径修正**：
+
 - `tools/build/shared.ts`：将 `resolve(__dirname, '..')` 修正为 `resolve(__dirname, '../..')`，确保 `ROOT` 仍指向项目根。
 - 逐一检查 `tools/build/` 和 `tools/cli/` 中使用 `__dirname` 或相对路径的文件，修正路径。
 
@@ -113,11 +114,13 @@
 ### 6. 配置 oxc 工具链
 
 **oxlint**：
+
 - `bun add -D oxlint`
 - 根目录创建 `oxlint.json`：`recommended` 基线，关闭与 oxfmt 冲突的格式类规则，评估 Vue 专用规则集
 - 根 scripts 添加 `lint` 命令
 
 **oxfmt**：
+
 - 确认 `.oxfmtrc.json` 配置完整
 - `turbo.json` 注册 `format` pipeline
 - 评估是否集成到 `simple-git-hooks` 的 pre-commit hook
@@ -130,28 +133,28 @@
 
 更新以下依赖到最新稳定版：
 
-| 依赖 | 当前版本 |
-|------|----------|
-| `vue` | ^3.5.29 |
-| `vitest` | ^4.0.18 |
-| `@vitejs/plugin-vue` | ^6.0.4 |
-| `sass-embedded` | ^1.97.3（需 ≥ 1.71） |
-| `tsdown` | ^0.20.1 |
-| `rolldown` | ^1.0.0-rc.2 |
-| `vite` | ^7.3.1 |
-| `simple-git-hooks` | ^2.13.1 |
-| `fast-glob` | ^3.3.3 |
-| `@types/bun` | ^1.3.9 |
-| `unplugin-vue` | ^7.1.1 |
-| `unplugin-vue-jsx` | ^0.8.1 |
-| `vue-tsc` | ^3.2.4 |
-| `execa` | ^9.6.1 |
-| `@inquirer/prompts` | ^8.2.0 |
-| `vite-plugin-inspect` | ^11.3.3 |
-| `vite-plugin-vue-devtools` | ^8.0.5 |
-| `unocss` | ^66.5.12 |
-| `@cat-kit/cli` | ^1.0.3 |
-| `@cat-kit/be` | ^1.0.0 |
+| 依赖                       | 当前版本             |
+| -------------------------- | -------------------- |
+| `vue`                      | ^3.5.29              |
+| `vitest`                   | ^4.0.18              |
+| `@vitejs/plugin-vue`       | ^6.0.4               |
+| `sass-embedded`            | ^1.97.3（需 ≥ 1.71） |
+| `tsdown`                   | ^0.20.1              |
+| `rolldown`                 | ^1.0.0-rc.2          |
+| `vite`                     | ^7.3.1               |
+| `simple-git-hooks`         | ^2.13.1              |
+| `fast-glob`                | ^3.3.3               |
+| `@types/bun`               | ^1.3.9               |
+| `unplugin-vue`             | ^7.1.1               |
+| `unplugin-vue-jsx`         | ^0.8.1               |
+| `vue-tsc`                  | ^3.2.4               |
+| `execa`                    | ^9.6.1               |
+| `@inquirer/prompts`        | ^8.2.0               |
+| `vite-plugin-inspect`      | ^11.3.3              |
+| `vite-plugin-vue-devtools` | ^8.0.5               |
+| `unocss`                   | ^66.5.12             |
+| `@cat-kit/cli`             | ^1.0.3               |
+| `@cat-kit/be`              | ^1.0.0               |
 
 完成标准：`bun install` 无冲突；依赖均为最新稳定版。
 

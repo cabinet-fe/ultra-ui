@@ -5,9 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { CheckTagEmits, CheckTagProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
+
+import type { CheckTagEmits, CheckTagProps } from '../../types'
 
 defineOptions({
   name: 'CheckTag'

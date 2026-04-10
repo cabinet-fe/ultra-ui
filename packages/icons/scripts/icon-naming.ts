@@ -8,9 +8,7 @@
  */
 
 /** 已知 basename（无扩展名）笔误 → 规范名 */
-export const KNOWN_TYPOS: Readonly<Record<string, string>> = {
-  'sort-rigth': 'sort-right'
-}
+export const KNOWN_TYPOS: Readonly<Record<string, string>> = { 'sort-rigth': 'sort-right' }
 
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -29,6 +27,6 @@ export function suggestBasename(basenameWithoutExt: string): string {
 export function kebabBasenameToComponentName(kebabBase: string): string {
   return suggestBasename(kebabBase)
     .split('-')
-    .map(s => s.slice(0, 1).toUpperCase() + s.slice(1))
+    .map((s) => s.slice(0, 1).toUpperCase() + s.slice(1))
     .join('')
 }

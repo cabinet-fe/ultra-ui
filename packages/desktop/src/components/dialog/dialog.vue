@@ -1,10 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition
-      name="fade"
-      @after-leave="emit('closed')"
-      @enter="onOverlayEnter"
-    >
+    <transition name="fade" @after-leave="emit('closed')" @enter="onOverlayEnter">
       <div
         v-if="overlayVisible || opened"
         v-show="overlayVisible"
@@ -22,12 +18,7 @@
             ref="dialogRef"
             @mousedown.stop="handleIncreaseZIndex"
           >
-            <section
-              :class="headerCls"
-              ref="headerRef"
-              @transitionend.stop
-              @transitioncancel.stop
-            >
+            <section :class="headerCls" ref="headerRef" @transitionend.stop @transitioncancel.stop>
               <div :class="cls.e('title')" @mousedown.stop>
                 <slot name="header">
                   {{ header || title }}
@@ -61,9 +52,7 @@
               tag="section"
               :class="cls.e('body')"
               ref="bodyRef"
-              :content-style="{
-                height: maximized ? '100%' : undefined
-              }"
+              :content-style="{ height: maximized ? '100%' : undefined }"
               @transitionend.stop
               @transitioncancel.stop
             >
@@ -80,30 +69,22 @@
   </Teleport>
 
   <!-- 触发 -->
-  <UNodeRender
-    @click="visible = !visible"
-    :content="getTriggerNode()"
-    ref="triggerRef"
-  />
+  <UNodeRender @click="visible = !visible" :content="getTriggerNode()" ref="triggerRef" />
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch, computed, provide, nextTick } from 'vue'
-import type {
-  DialogProps,
-  DialogEmits,
-  DialogExposed,
-  ComponentSize
-} from '../../types'
-import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
 import { useDrag, useFallbackProps } from '@ultra-ui/compositions'
-import { UIcon } from '../icon'
-import { UScroll } from '../scroll'
 import { Close, Maximum, Recover } from '@ultra-ui/icons/normal'
-import { useMaximum } from './use-maximum'
-import { DialogDIKey } from './di'
-import { UNodeRender } from '../node-render'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
+import { shallowRef, watch, computed, provide, nextTick } from 'vue'
+
+import type { DialogProps, DialogEmits, DialogExposed, ComponentSize } from '../../types'
 import type { ScrollExposed } from '../../types'
+import { UIcon } from '../icon'
+import { UNodeRender } from '../node-render'
+import { UScroll } from '../scroll'
+import { DialogDIKey } from './di'
+import { useMaximum } from './use-maximum'
 
 defineOptions({
   name: 'Dialog',
@@ -154,7 +135,7 @@ const visible = defineModel<boolean>({
 const overlayVisible = shallowRef(false)
 const dialogVisible = shallowRef(false)
 
-watch(visible, v => {
+watch(visible, (v) => {
   if (v) {
     overlayVisible.value = true
   } else {
@@ -192,7 +173,7 @@ const className = computed(() => {
  */
 let opened = false
 
-watch(visible, v => {
+watch(visible, (v) => {
   if (!v) return
 
   if (!opened) opened = true

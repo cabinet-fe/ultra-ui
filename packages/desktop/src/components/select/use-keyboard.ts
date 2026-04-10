@@ -17,19 +17,14 @@ export function useKeyboard(config: UseKeyboardConfig): UseKeyboardReturned {
 
   async function navToCurrent() {
     await nextTick()
-    getCurrentEl()?.scrollIntoView({
-      block: 'nearest'
-    })
+    getCurrentEl()?.scrollIntoView({ block: 'nearest' })
   }
 
   const keyHandler = {
     ArrowDown: (e: KeyboardEvent) => {
       if (!options.value) return
       e.preventDefault()
-      currentIndex.value = Math.min(
-        currentIndex.value + 1,
-        options.value.length - 1
-      )
+      currentIndex.value = Math.min(currentIndex.value + 1, options.value.length - 1)
       navToCurrent()
     },
 
@@ -43,10 +38,7 @@ export function useKeyboard(config: UseKeyboardConfig): UseKeyboardReturned {
     Enter: (e: KeyboardEvent) => {
       if (!options.value) return
       e.preventDefault()
-      if (
-        currentIndex.value >= 0 &&
-        currentIndex.value < options.value.length
-      ) {
+      if (currentIndex.value >= 0 && currentIndex.value < options.value.length) {
         const selectedOption = options.value[currentIndex.value]!
         selectOption(selectedOption, currentIndex.value)
       }
@@ -58,7 +50,5 @@ export function useKeyboard(config: UseKeyboardConfig): UseKeyboardReturned {
     keyHandler[e.key]?.(e)
   }
 
-  return {
-    handleKeydown
-  }
+  return { handleKeydown }
 }

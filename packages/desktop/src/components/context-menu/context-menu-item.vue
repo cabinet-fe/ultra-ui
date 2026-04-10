@@ -24,13 +24,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, shallowRef } from 'vue'
-import { ContextMenuDIKey } from './di'
-import type { ContextMenuItem } from '../../types'
 import { vRipple } from '@ultra-ui/directives'
-import { UIcon } from '../icon'
 import { Loading } from '@ultra-ui/icons/normal'
 import { bem } from '@ultra-ui/utils'
+import { computed, inject, shallowRef } from 'vue'
+
+import type { ContextMenuItem } from '../../types'
+import { UIcon } from '../icon'
+import { ContextMenuDIKey } from './di'
 
 defineOptions({
   name: 'ContextMenuItem'
@@ -50,10 +51,7 @@ const { cls } = inject(ContextMenuDIKey)!
 const loading = shallowRef(false)
 
 const disabled = computed(() => {
-  return (
-    (typeof menu.disabled === 'function' ? menu.disabled() : menu.disabled) ??
-    false
-  )
+  return (typeof menu.disabled === 'function' ? menu.disabled() : menu.disabled) ?? false
 })
 
 function handleClickMenu() {

@@ -7,29 +7,17 @@
 
     <CustomCard title="深色">
       <u-tag dark>默认</u-tag>
-      <u-tag v-for="item of types" dark :type="item">{{
-        item.toUpperCase()
-      }}</u-tag>
+      <u-tag v-for="item of types" dark :type="item">{{ item.toUpperCase() }}</u-tag>
     </CustomCard>
 
     <CustomCard title="可移除">
-      <u-tag
-        v-for="(item, index) in tags"
-        :type="item.type"
-        closable
-        @close="handleClose(index)"
-      >
+      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
         {{ item.name }}
       </u-tag>
     </CustomCard>
 
     <CustomCard title="动态编辑">
-      <u-tag
-        v-for="(item, index) in tags"
-        :type="item.type"
-        closable
-        @close="handleClose(index)"
-      >
+      <u-tag v-for="(item, index) in tags" :type="item.type" closable @close="handleClose(index)">
         {{ item.name }}
       </u-tag>
     </CustomCard>
@@ -49,9 +37,10 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
-import CustomCard from '../card/custom-card.vue'
 import type { ColorType } from '@ultra-ui/desktop/types'
+import { shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const tags = shallowRef<
   Array<{

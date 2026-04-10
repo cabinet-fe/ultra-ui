@@ -1,11 +1,7 @@
-import {
-  DecoratorNode,
-  type LexicalNode,
-  type SerializedLexicalNode,
-  type NodeKey
-} from 'lexical'
-import { UTag } from '../../tag'
+import { DecoratorNode, type LexicalNode, type SerializedLexicalNode, type NodeKey } from 'lexical'
 import type { VNode } from 'vue'
+
+import { UTag } from '../../tag'
 import {
   EXPRESSION_VARIABLE_DRAG_KEY_ATTR,
   EXPRESSION_VARIABLE_DRAG_MARKER_ATTR
@@ -30,17 +26,10 @@ export class VariableNode extends DecoratorNode<VNode> {
   }
 
   static override clone(node: VariableNode): VariableNode {
-    return new VariableNode(
-      node.__variable,
-      node.__label,
-      node.__variableType,
-      node.__key
-    )
+    return new VariableNode(node.__variable, node.__label, node.__variableType, node.__key)
   }
 
-  static override importJSON(
-    serializedNode: SerializedLexicalNode
-  ): VariableNode {
+  static override importJSON(serializedNode: SerializedLexicalNode): VariableNode {
     const variableNode = serializedNode as SerializedVariableNode
     return new VariableNode(
       variableNode.variable,
@@ -81,13 +70,7 @@ export class VariableNode extends DecoratorNode<VNode> {
       ? `${this.__label} (${this.__variableType})`
       : this.__label
     return (
-      <UTag
-        size='small'
-        style='margin: 0 2px'
-        type='primary'
-        round
-        title={this.__label}
-      >
+      <UTag size='small' style='margin: 0 2px' type='primary' round title={this.__label}>
         {displayText}
       </UTag>
     )
@@ -130,10 +113,6 @@ export function $isVariableNode(node: LexicalNode | null | undefined): boolean {
 }
 
 /** 创建变量节点 */
-export function $createVariableNode(
-  variable: string,
-  label?: string,
-  type?: string
-): VariableNode {
+export function $createVariableNode(variable: string, label?: string, type?: string): VariableNode {
   return new VariableNode(variable, label, type)
 }

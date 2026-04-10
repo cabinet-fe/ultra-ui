@@ -22,48 +22,26 @@
       <u-button @click="topVisible = true" type="primary">顶部抽屉</u-button>
       <u-button @click="bottomVisible = true" type="primary">底部抽屉</u-button>
 
-      <u-drawer
-        v-model="leftVisible"
-        direction="left"
-        title="左侧抽屉"
-        :size="300"
-      >
+      <u-drawer v-model="leftVisible" direction="left" title="左侧抽屉" :size="300">
         <p>这是从左侧弹出的抽屉</p>
       </u-drawer>
 
-      <u-drawer
-        v-model="rightVisible"
-        direction="right"
-        title="右侧抽屉"
-        :size="400"
-      >
+      <u-drawer v-model="rightVisible" direction="right" title="右侧抽屉" :size="400">
         <p>这是从右侧弹出的抽屉</p>
       </u-drawer>
 
-      <u-drawer
-        v-model="topVisible"
-        direction="top"
-        title="顶部抽屉"
-        :size="200"
-      >
+      <u-drawer v-model="topVisible" direction="top" title="顶部抽屉" :size="200">
         <p>这是从顶部弹出的抽屉</p>
       </u-drawer>
 
-      <u-drawer
-        v-model="bottomVisible"
-        direction="bottom"
-        title="底部抽屉"
-        :size="250"
-      >
+      <u-drawer v-model="bottomVisible" direction="bottom" title="底部抽屉" :size="250">
         <p>这是从底部弹出的抽屉</p>
       </u-drawer>
     </div>
 
     <div class="demo-section">
       <h3>自定义配置</h3>
-      <u-button @click="customVisible = true" type="primary"
-        >自定义抽屉</u-button
-      >
+      <u-button @click="customVisible = true" type="primary">自定义抽屉</u-button>
 
       <u-drawer
         v-model="customVisible"

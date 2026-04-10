@@ -3,10 +3,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, shallowRef } from 'vue'
 import { useDrag } from '@ultra-ui/compositions'
-import { ScrollDIKey } from './di'
 import { bem } from '@ultra-ui/utils'
+import { computed, inject, shallowRef } from 'vue'
+
+import { ScrollDIKey } from './di'
 
 defineOptions({
   name: 'ScrollBar'

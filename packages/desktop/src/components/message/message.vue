@@ -13,22 +13,19 @@
     <div :class="cls.e('content')" v-else>
       {{ message }}
     </div>
-    <div
-      :class="cls.e('close')"
-      v-if="closable || duration === 0"
-      @click.stop="immediateClose"
-    >
+    <div :class="cls.e('close')" v-if="closable || duration === 0" @click.stop="immediateClose">
       <UIcon><Close /></UIcon>
     </div>
   </li>
 </template>
 
 <script lang="ts" setup>
-import type { MessageProps } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { onMounted } from 'vue'
 import { useFallbackProps } from '@ultra-ui/compositions'
 import { Close } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { onMounted } from 'vue'
+
+import type { MessageProps } from '../../types'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'
 

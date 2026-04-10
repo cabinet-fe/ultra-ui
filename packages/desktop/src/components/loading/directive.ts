@@ -1,7 +1,7 @@
-import type { LoadingType } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { createVNode, render, type DirectiveBinding, type ObjectDirective } from 'vue'
 
+import type { LoadingType } from '../../types'
 import LoadingComponent from './loading.vue'
 
 const loadingCls = bem('loading')

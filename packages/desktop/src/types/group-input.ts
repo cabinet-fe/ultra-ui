@@ -1,6 +1,6 @@
-import type { StyleValue } from 'vue'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { StyleValue } from 'vue'
 
 /** 分组输入组件属性 */
 export interface GroupInputProps<
@@ -18,9 +18,7 @@ export interface GroupInputProps<
 }
 
 /** 分组输入组件定义的事件 */
-export interface GroupInputEmits<
-  GroupItem extends Record<string, any> = Record<string, any>
-> {
+export interface GroupInputEmits<GroupItem extends Record<string, any> = Record<string, any>> {
   (e: 'update:modelValue', modelValue: GroupItem[]): void
 }
 

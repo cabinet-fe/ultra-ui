@@ -12,7 +12,7 @@ const GLOBS = ['src/svg/normal/**/*.svg', 'src/svg/colorful/**/*.svg'] as const
 let changed = 0
 for (const pattern of GLOBS) {
   const files = await fg(pattern, { cwd: PKG_ROOT, absolute: true })
-  for (const file of files.sort()) {
+  for (const file of files.toSorted()) {
     let input: string
     try {
       input = readFileSync(file, 'utf8')

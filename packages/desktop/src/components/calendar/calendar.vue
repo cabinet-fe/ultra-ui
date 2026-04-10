@@ -13,9 +13,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { CalendarProps } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
+
+import type { CalendarProps } from '../../types'
 import { getMonthDays } from './utils'
 
 defineOptions({

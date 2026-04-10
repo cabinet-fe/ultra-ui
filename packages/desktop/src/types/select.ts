@@ -1,6 +1,6 @@
-import type { CSSProperties, ShallowRef } from 'vue'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { CSSProperties, ShallowRef } from 'vue'
 
 /** 选择器组件属性 */
 export interface SelectProps extends FormComponentProps {
@@ -52,10 +52,7 @@ export interface SelectProps extends FormComponentProps {
    *   gap: 10
    * }
    */
-  grid?: {
-    cols: number
-    gap?: number
-  }
+  grid?: { cols: number; gap?: number }
 }
 
 export interface SelectEmits {

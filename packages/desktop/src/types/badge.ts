@@ -1,5 +1,5 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { ColorType, ComponentProps } from '@ultra-ui/utils/types/component-common'
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
 /** 徽章组件属性 */
 export interface BadgeProps extends ComponentProps {

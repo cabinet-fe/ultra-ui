@@ -22,7 +22,7 @@
       <u-radio-group
         :items="items"
         v-model="radio1"
-        :disabled-item="item => item.value === '1'"
+        :disabled-item="(item) => item.value === '1'"
       />
     </CustomCard>
   </div>
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const radio1 = shallowRef('1')

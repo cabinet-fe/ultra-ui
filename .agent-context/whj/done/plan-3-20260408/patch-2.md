@@ -8,21 +8,21 @@
 
 ## 全局 token 映射摘要（`Theme` → `--u-*`）
 
-| Theme 路径（概念） | CSS 变量示例 |
-|-------------------|-------------|
-| `color.primary` | `--u-color-primary` |
-| `bg.color.top` | `--u-bg-color-top` |
-| `text-color.main` | `--u-text-color-main` |
-| `border.color` / `width` / `style` | `--u-border-color` 等；复合 `--u-border` |
-| `radius.*` | `--u-radius-small` … |
-| `form-component-height.*` | `--u-form-component-height-small` … |
-| `font-family` | `--u-font-family` |
-| `font-size-*.*` | `--u-font-size-title-small` … |
-| `shadow.*` | `--u-shadow-color` …；复合 `--u-shadow` |
-| `gap.*` | `--u-gap-small` … |
-| `breakpoint.*` | `--u-breakpoint-xs` … |
-| 色阶（由 `UITheme` 派生） | `--u-color-{type}-light-{1..9}`、`--u-color-{type}-dark-{1..9}` |
-| 派生 | `--u-bg-color-{slot}-alpha`、`--u-bg-filter` |
+| Theme 路径（概念）                 | CSS 变量示例                                                    |
+| ---------------------------------- | --------------------------------------------------------------- |
+| `color.primary`                    | `--u-color-primary`                                             |
+| `bg.color.top`                     | `--u-bg-color-top`                                              |
+| `text-color.main`                  | `--u-text-color-main`                                           |
+| `border.color` / `width` / `style` | `--u-border-color` 等；复合 `--u-border`                        |
+| `radius.*`                         | `--u-radius-small` …                                            |
+| `form-component-height.*`          | `--u-form-component-height-small` …                             |
+| `font-family`                      | `--u-font-family`                                               |
+| `font-size-*.*`                    | `--u-font-size-title-small` …                                   |
+| `shadow.*`                         | `--u-shadow-color` …；复合 `--u-shadow`                         |
+| `gap.*`                            | `--u-gap-small` …                                               |
+| `breakpoint.*`                     | `--u-breakpoint-xs` …                                           |
+| 色阶（由 `UITheme` 派生）          | `--u-color-{type}-light-{1..9}`、`--u-color-{type}-dark-{1..9}` |
+| 派生                               | `--u-bg-color-{slot}-alpha`、`--u-bg-filter`                    |
 
 **组件 token（已迁出 `Theme`）**：在各自 `style.scss` 中以 `--u-{component}-*` 声明（如 `--u-table-border-color`、`--u-menu-hover-bg`），引用侧使用 `fn.component-var()` 或直接使用 `var(--u-…)`；暗色覆盖用 `m.dark()`。
 

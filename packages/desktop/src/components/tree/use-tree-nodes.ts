@@ -1,7 +1,8 @@
-import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
-import { TreeNode } from './tree-node'
-import type { TreeProps } from '../../types'
 import { Forest } from '@cat-kit/core'
+import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
+
+import type { TreeProps } from '../../types'
+import { TreeNode } from './tree-node'
 
 interface Options {
   props: TreeProps
@@ -45,7 +46,13 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
       childrenKey,
       createNode: disabledNode
         ? (data, index, depth, f, parent) => {
-            const node = createNode(data as Record<string, any>, index, depth, f, parent as TreeNode)
+            const node = createNode(
+              data as Record<string, any>,
+              index,
+              depth,
+              f,
+              parent as TreeNode
+            )
             if (data) {
               node.disabled = disabledNode(data, node) ?? false
             }
@@ -65,7 +72,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const nodeDict = computed(() => {
     const dict = new Map<string | number, TreeNode>()
 
-    forest.value.dfs(node => {
+    forest.value.dfs((node) => {
       dict.set(node.key, node)
     })
 
@@ -74,15 +81,8 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
 
   /** 获取碾平后的节点 */
   function getFlattedNodes() {
-    nodes.value = forest.value
-      .flattenVisible(n => n.expanded)
-      .filter(n => n.visible)
+    nodes.value = forest.value.flattenVisible((n) => n.expanded).filter((n) => n.visible)
   }
 
-  return {
-    nodes,
-    forest,
-    getFlattedNodes,
-    nodeDict
-  }
+  return { nodes, forest, getFlattedNodes, nodeDict }
 }

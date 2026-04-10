@@ -1,6 +1,7 @@
-import type { SliderProps } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
+
+import type { SliderProps } from '../../types'
 
 export interface SliderContext {
   cls: BEM<'slider'>
@@ -10,5 +11,4 @@ export interface SliderContext {
   getOffsetByStep: (offset: number) => number
 }
 
-export const sliderContextKey: InjectionKey<SliderContext> =
-  Symbol('sliderContextKey')
+export const sliderContextKey: InjectionKey<SliderContext> = Symbol('sliderContextKey')

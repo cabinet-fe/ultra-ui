@@ -1,4 +1,7 @@
+import type { VirtualReturned } from '@ultra-ui/compositions'
+import type { BEM } from '@ultra-ui/utils'
 import type { InjectionKey, ShallowRef, Slots } from 'vue'
+
 import type {
   TableProps,
   TableColumnSlotsScope,
@@ -8,10 +11,8 @@ import type {
   TableColumn,
   TableRowSlotsScope
 } from '../../types'
-import type { BEM } from '@ultra-ui/utils'
-import type { ColumnConfig } from './use-columns'
-import type { VirtualReturned } from '@ultra-ui/compositions'
 import type { ColumnNode } from './node/col'
+import type { ColumnConfig } from './use-columns'
 
 export const TableDIKey: InjectionKey<
   {
@@ -30,15 +31,9 @@ export const TableDIKey: InjectionKey<
     /** 事件处理方法 */
     handleRowClick: (row: TableRow, ev: MouseEvent) => void
     /** 单元格点击 */
-    handleCellClick: (
-      row: TableRow,
-      column: TableColumn,
-      ev: MouseEvent
-    ) => void
+    handleCellClick: (row: TableRow, column: TableColumn, ev: MouseEvent) => void
     /** 表格列插槽node */
-    getColumnSlotsNode: (
-      ctx: TableColumnSlotsScope | TableColumnRenderContext
-    ) => RenderReturn
+    getColumnSlotsNode: (ctx: TableColumnSlotsScope | TableColumnRenderContext) => RenderReturn
     /** 展开行插槽node */
     getExpandRowSlotsNode: (ctx: TableRowSlotsScope) => RenderReturn
     /** 表头插槽node */

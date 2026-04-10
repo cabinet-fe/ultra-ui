@@ -14,9 +14,7 @@
         :size="size"
         :type="item.type ?? 'primary'"
         ref="itemsRef"
-        :style="{
-          transitionDelay: index * 0.1 + 's'
-        }"
+        :style="{ transitionDelay: index * 0.1 + 's' }"
         @transitionend="handleTransitionEnd(index, $event)"
         @click="emit('click', item.key)"
         :title="item.name ?? item.key"
@@ -29,15 +27,12 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  FloatButtonProps,
-  FloatButtonEmits,
-  ButtonExposed
-} from '../../types'
 import { bem, removeStyles, setStyles } from '@ultra-ui/utils'
-import { UIcon } from '../icon'
 import { shallowRef } from 'vue'
+
+import type { FloatButtonProps, FloatButtonEmits, ButtonExposed } from '../../types'
 import { UButton } from '../button'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'FloatButton'
@@ -58,13 +53,13 @@ const hovered = shallowRef(false)
 const handleMouseEnter = () => {
   hovered.value = true
 
-  itemsRef.value?.forEach(item => {
+  itemsRef.value?.forEach((item) => {
     setStyles(item.el!, { display: 'flex' })
   })
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      itemsRef.value?.forEach(item => {
+      itemsRef.value?.forEach((item) => {
         item.el!.classList.add(hoveredCls)
       })
     })
@@ -72,7 +67,7 @@ const handleMouseEnter = () => {
 }
 const handleMouseLeave = () => {
   hovered.value = false
-  itemsRef.value?.forEach(item => {
+  itemsRef.value?.forEach((item) => {
     item.el!.classList.remove(hoveredCls)
   })
 }
@@ -85,7 +80,7 @@ const handleMouseLeave = () => {
 const handleTransitionEnd = (index: number, e: TransitionEvent) => {
   if (index !== 1 || hovered.value) return
 
-  itemsRef.value?.forEach(item => {
+  itemsRef.value?.forEach((item) => {
     removeStyles(item.el!, ['display'])
   })
 }

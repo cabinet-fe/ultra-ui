@@ -1,14 +1,9 @@
 <template>
   <div>
-    <div
-      style="display: flex; gap: 30px; align-items: center; margin-bottom: 20px"
-    >
+    <div style="display: flex; gap: 30px; align-items: center; margin-bottom: 20px">
       <div>
         方向:
-        <u-radio-group
-          v-model="config.direction"
-          :items="directions"
-        ></u-radio-group>
+        <u-radio-group v-model="config.direction" :items="directions"></u-radio-group>
       </div>
 
       <div v-if="config.direction === 'horizontal'">

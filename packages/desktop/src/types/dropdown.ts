@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'vue'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { CSSProperties } from 'vue'
 
 /** 下拉框组件属性 */
 export interface DropdownProps {

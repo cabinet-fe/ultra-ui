@@ -1,16 +1,16 @@
 {
   "name": "@ultra-ui/styles",
   "version": "0.1.0",
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "sideEffects": [
     "*.scss",
     "src/index.ts",
     "src/load-theme.ts",
     "src/theme/index.ts"
-  ],
-  "files": [
-    "dist",
-    "src"
   ],
   "exports": {
     ".": {
@@ -71,12 +71,12 @@
     "@ultra-ui/compositions": "workspace:*",
     "@ultra-ui/utils": "workspace:*"
   },
-  "peerDependencies": {
-    "vue": "^3.5.0"
-  },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",
     "sass-embedded": "^1.99.0",
     "tsdown": "^0.21.7"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   }
 }

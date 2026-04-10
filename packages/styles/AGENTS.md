@@ -31,15 +31,15 @@ import '@ultra-ui/styles/anime/fade.scss'
 
 ## `exports` 子路径（摘要）
 
-| 子路径 | 说明 |
-| ------ | ---- |
-| `@ultra-ui/styles` | 通用样式全量导入 |
-| `@ultra-ui/styles/normalize` | 全局 normalize |
-| `@ultra-ui/styles/mixins` | `sass` → `_mixins.scss` |
-| `@ultra-ui/styles/vars` | `sass` → `_vars.scss` |
-| `@ultra-ui/styles/functions` | `sass` → `_functions.scss` |
-| `@ultra-ui/styles/anime/*.scss` | 过渡动画 |
-| `@ultra-ui/styles/theme` | 主题运行时（`loadTheme`、`UITheme`、预设与 token 类型） |
+| 子路径                          | 说明                                                    |
+| ------------------------------- | ------------------------------------------------------- |
+| `@ultra-ui/styles`              | 通用样式全量导入                                        |
+| `@ultra-ui/styles/normalize`    | 全局 normalize                                          |
+| `@ultra-ui/styles/mixins`       | `sass` → `_mixins.scss`                                 |
+| `@ultra-ui/styles/vars`         | `sass` → `_vars.scss`                                   |
+| `@ultra-ui/styles/functions`    | `sass` → `_functions.scss`                              |
+| `@ultra-ui/styles/anime/*.scss` | 过渡动画                                                |
+| `@ultra-ui/styles/theme`        | 主题运行时（`loadTheme`、`UITheme`、预设与 token 类型） |
 
 ## 依赖
 

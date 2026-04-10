@@ -1,31 +1,19 @@
 <template>
   <Teleport v-if="appendToBody" to="body">
-    <div
-      :class="cls.b"
-      ref="watermark"
-      :style="{
-        zIndex: zIndex()
-      }"
-    ></div>
+    <div :class="cls.b" ref="watermark" :style="{ zIndex: zIndex() }"></div>
   </Teleport>
 
-  <div
-    v-else
-    :class="cls.b"
-    ref="watermark"
-    :style="{
-      zIndex: zIndex()
-    }"
-  >
+  <div v-else :class="cls.b" ref="watermark" :style="{ zIndex: zIndex() }">
     <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { WatermarkProps, WatermarkEmits } from '../../types'
+import { debounce } from '@cat-kit/core'
 import { bem, setStyles, zIndex } from '@ultra-ui/utils'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
-import { debounce } from '@cat-kit/core'
+
+import type { WatermarkProps, WatermarkEmits } from '../../types'
 
 defineOptions({
   name: 'Watermark'

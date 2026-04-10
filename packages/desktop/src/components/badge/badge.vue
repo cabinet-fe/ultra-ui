@@ -6,10 +6,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
-import type { BadgeProps, ComponentSize } from '../../types'
-import { bem, setStyles, zIndex } from '@ultra-ui/utils'
 import { useFallbackProps } from '@ultra-ui/compositions'
+import { bem, setStyles, zIndex } from '@ultra-ui/utils'
+import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
+
+import type { BadgeProps, ComponentSize } from '../../types'
 
 defineOptions({
   name: 'Badge'

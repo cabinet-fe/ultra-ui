@@ -1,4 +1,4 @@
-import { DependencyGraph, PackageInfo } from "./types.js";
+import { DependencyGraph, PackageInfo } from './types.js'
 
 //#region src/deps/graph.d.ts
 /**
@@ -20,9 +20,9 @@ import { DependencyGraph, PackageInfo } from "./types.js";
  * console.log(`包含 ${graph.nodes.length} 个节点和 ${graph.edges.length} 条边`)
  * ```
  */
-declare function buildDependencyGraph(packages: (PackageInfo & {
-  version: string;
-})[]): DependencyGraph;
+declare function buildDependencyGraph(
+  packages: (PackageInfo & { version: string })[]
+): DependencyGraph
 /**
  * 可视化依赖关系图（生成 Mermaid 格式）
  *
@@ -39,10 +39,13 @@ declare function buildDependencyGraph(packages: (PackageInfo & {
  * //   cat-kit/fe-->cat-kit/core
  * ```
  */
-declare function visualizeDependencyGraph(graph: DependencyGraph, options?: {
-  /** 是否包含外部依赖（默认 false） */includeExternal?: boolean; /** 是否区分依赖类型（默认 true） */
-  distinguishTypes?: boolean;
-}): string;
+declare function visualizeDependencyGraph(
+  graph: DependencyGraph,
+  options?: {
+    /** 是否包含外部依赖（默认 false） */ includeExternal?: boolean /** 是否区分依赖类型（默认 true） */
+    distinguishTypes?: boolean
+  }
+): string
 //#endregion
-export { buildDependencyGraph, visualizeDependencyGraph };
+export { buildDependencyGraph, visualizeDependencyGraph }
 //# sourceMappingURL=graph.d.ts.map

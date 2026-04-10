@@ -1,9 +1,7 @@
 <template>
   <div
     :class="className"
-    :style="{
-      transform: `translate3d(${offsets.x}, ${offsets.y}, 0)`
-    }"
+    :style="{ transform: `translate3d(${offsets.x}, ${offsets.y}, 0)` }"
     ref="resizerRef"
   >
     <u-icon :size="10"> <Move /> </u-icon>
@@ -11,12 +9,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, shallowReactive, shallowRef } from 'vue'
-import { LayoutDIKey } from './di'
-import { bem } from '@ultra-ui/utils'
 import { useDrag } from '@ultra-ui/compositions'
 import { Move } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { computed, inject, shallowReactive, shallowRef } from 'vue'
+
 import { UIcon } from '../icon'
+import { LayoutDIKey } from './di'
 
 defineOptions({
   name: 'LayoutResizer'

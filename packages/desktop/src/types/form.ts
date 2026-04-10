@@ -1,7 +1,7 @@
-import type { ShallowRef } from 'vue'
+import type { ValidateRule } from '@ultra-ui/utils/types'
 import type { ComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
-import type { ValidateRule } from '@ultra-ui/utils/types'
+import type { ShallowRef } from 'vue'
 
 export interface FormModelItem<Val = any> extends ValidateRule {
   /** 模型值 */
@@ -9,9 +9,7 @@ export interface FormModelItem<Val = any> extends ValidateRule {
 }
 
 export type ModelData<Fields extends Record<string, FormModelItem>> = {
-  [key in keyof Fields]: Fields[key]['value'] extends () => infer T
-    ? T
-    : Fields[key]['value']
+  [key in keyof Fields]: Fields[key]['value'] extends () => infer T ? T : Fields[key]['value']
 }
 
 export type ModelRules<Fields extends Record<string, FormModelItem>> = {
@@ -54,10 +52,7 @@ export type IFormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(
-    formData: Partial<ModelData<Fields>>,
-    config?: DataSettingConfig
-  ): void
+  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig): void
   /** 清除校验 */
   clearValidate(): void
   /** 监听值变更 */
@@ -67,8 +62,7 @@ export type IFormModel<
 }
 
 /** 表单组件属性 */
-export interface FormProps<Model extends IFormModel = IFormModel>
-  extends ComponentProps {
+export interface FormProps<Model extends IFormModel = IFormModel> extends ComponentProps {
   /**
    * 自定义表单列数
    * - 默认根据尺寸断点自动排列

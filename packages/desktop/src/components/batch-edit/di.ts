@@ -1,3 +1,6 @@
+import type { BEM } from '@ultra-ui/utils'
+import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
+
 import type {
   BatchEditEmits,
   BatchEditFeature,
@@ -5,9 +8,6 @@ import type {
   TableExposed,
   TableRow
 } from '../../types'
-import type { BEM } from '@ultra-ui/utils'
-import type { ComputedRef, InjectionKey, ShallowRef } from 'vue'
-
 import type { FormModel } from '../form'
 import type { EditReturned } from './use-edit'
 export const BatchEditDIKey: InjectionKey<

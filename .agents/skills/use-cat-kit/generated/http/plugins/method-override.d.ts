@@ -1,4 +1,4 @@
-import { ClientPlugin, RequestMethod } from "../types.js";
+import { ClientPlugin, RequestMethod } from '../types.js'
 
 //#region src/plugins/method-override.d.ts
 /**
@@ -9,17 +9,17 @@ interface MethodOverridePluginOptions {
    * 需要被重写的请求方法
    * - 默认为 ['DELETE', 'PUT', 'PATCH']
    */
-  methods?: RequestMethod[];
+  methods?: RequestMethod[]
   /**
    * 重写后的请求方法
    * - 默认为 'POST'
    */
-  overrideMethod?: RequestMethod;
+  overrideMethod?: RequestMethod
   /**
    * 方法覆盖请求头名称
    * - 默认为 'X-HTTP-Method-Override'
    */
-  headerName?: string;
+  headerName?: string
 }
 /**
  * 方法重写插件
@@ -36,7 +36,7 @@ interface MethodOverridePluginOptions {
  * })
  * ```
  */
-declare function MethodOverridePlugin(options?: MethodOverridePluginOptions): ClientPlugin;
+declare function MethodOverridePlugin(options?: MethodOverridePluginOptions): ClientPlugin
 //#endregion
-export { MethodOverridePlugin, MethodOverridePluginOptions };
+export { MethodOverridePlugin, MethodOverridePluginOptions }
 //# sourceMappingURL=method-override.d.ts.map

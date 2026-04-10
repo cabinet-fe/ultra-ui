@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef, watch } from 'vue'
-import type { Component } from 'vue'
-
 import * as ColorfulIcons from '@ultra-ui/icons/colorful'
 import * as NormalIcons from '@ultra-ui/icons/normal'
+import { computed, ref, shallowRef, watch } from 'vue'
+import type { Component } from 'vue'
 
 type SetKey = 'normal' | 'colorful'
 
@@ -46,9 +45,7 @@ const filtered = computed(() => {
   const q = query.value.trim().toLowerCase()
   const list = sets[activeSet.value]
   if (!q) return list
-  return list.filter(
-    i => i.kebab.includes(q) || i.pascal.toLowerCase().includes(q)
-  )
+  return list.filter((i) => i.kebab.includes(q) || i.pascal.toLowerCase().includes(q))
 })
 
 watch(activeSet, () => {

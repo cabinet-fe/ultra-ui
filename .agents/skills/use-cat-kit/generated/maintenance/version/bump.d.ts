@@ -1,4 +1,4 @@
-import { BumpOptions, BumpResult } from "./types.js";
+import { BumpOptions, BumpResult } from './types.js'
 
 //#region src/version/bump.d.ts
 /**
@@ -41,7 +41,7 @@ import { BumpOptions, BumpResult } from "./types.js";
  * })
  * ```
  */
-declare function bumpVersion(pkgPath: string, options?: BumpOptions): Promise<BumpResult>;
+declare function bumpVersion(pkgPath: string, options?: BumpOptions): Promise<BumpResult>
 //#endregion
-export { bumpVersion };
+export { bumpVersion }
 //# sourceMappingURL=bump.d.ts.map

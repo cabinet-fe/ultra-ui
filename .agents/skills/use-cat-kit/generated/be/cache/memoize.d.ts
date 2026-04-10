@@ -9,15 +9,15 @@
  */
 interface CacheAdapter<K, V> {
   /** 获取缓存值 */
-  get(key: K): V | undefined;
+  get(key: K): V | undefined
   /** 设置缓存值 */
-  set(key: K, value: V, ttl?: number): void;
+  set(key: K, value: V, ttl?: number): void
   /** 检查键是否存在 */
-  has(key: K): boolean;
+  has(key: K): boolean
   /** 删除缓存项 */
-  delete(key: K): boolean;
+  delete(key: K): boolean
   /** 清空所有缓存 */
-  clear(): void;
+  clear(): void
 }
 /**
  * 函数记忆化选项
@@ -27,11 +27,11 @@ interface CacheAdapter<K, V> {
  */
 interface MemoizeOptions<F extends (...args: any[]) => any, K> {
   /** 自定义缓存实现，默认使用 LRUCache */
-  cache?: CacheAdapter<K, Awaited<ReturnType<F>>>;
+  cache?: CacheAdapter<K, Awaited<ReturnType<F>>>
   /** 自定义键解析函数，默认使用 JSON.stringify */
-  resolver?: (...args: Parameters<F>) => K;
+  resolver?: (...args: Parameters<F>) => K
   /** 默认过期时间（毫秒） */
-  ttl?: number;
+  ttl?: number
 }
 /**
  * 为函数添加缓存能力（记忆化）
@@ -62,10 +62,10 @@ interface MemoizeOptions<F extends (...args: any[]) => any, K> {
  * @returns 带缓存功能的函数，并附带 `cache` 和 `clear` 属性
  * @template F 函数类型
  */
-declare function memoize<F extends (...args: any[]) => any>(fn: F, options?: MemoizeOptions<F, unknown>): F & {
-  cache: CacheAdapter<unknown, Awaited<ReturnType<F>>>;
-  clear(): void;
-};
+declare function memoize<F extends (...args: any[]) => any>(
+  fn: F,
+  options?: MemoizeOptions<F, unknown>
+): F & { cache: CacheAdapter<unknown, Awaited<ReturnType<F>>>; clear(): void }
 //#endregion
-export { CacheAdapter, MemoizeOptions, memoize };
+export { CacheAdapter, MemoizeOptions, memoize }
 //# sourceMappingURL=memoize.d.ts.map

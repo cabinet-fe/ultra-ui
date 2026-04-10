@@ -5,9 +5,7 @@ import type { FormModelItem } from '../../types'
  * @param item 表单项
  * @returns
  */
-export function formField<Val = unknown>(
-  item?: FormModelItem<Val>
-): FormModelItem<Val> {
+export function formField<Val = unknown>(item?: FormModelItem<Val>): FormModelItem<Val> {
   if (!item) {
     return {}
   }

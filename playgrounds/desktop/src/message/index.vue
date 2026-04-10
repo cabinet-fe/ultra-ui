@@ -12,11 +12,7 @@
         ]"
         v-model="config.type"
       />
-      <u-number-input
-        v-model="config.duration"
-        :step="1000"
-        :min="0"
-      ></u-number-input>
+      <u-number-input v-model="config.duration" :step="1000" :min="0"></u-number-input>
       <div>
         <u-checkbox v-model="config.closable">closable</u-checkbox>
       </div>
@@ -32,8 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import { message } from '@ultra-ui/desktop/components'
-import '@ultra-ui/desktop/components/message/style.scss'
+import { message } from '@ultra-ui/desktop'
+import '@ultra-ui/desktop/components/message/style.ts'
 import type { MessageType } from '@ultra-ui/desktop/types'
 import { reactive } from 'vue'
 

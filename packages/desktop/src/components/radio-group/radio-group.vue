@@ -14,19 +14,17 @@
   </div>
 
   <template v-else>
-    {{
-      items.find(item => item[valueKey] === model)?.[labelKey] ||
-      FORM_EMPTY_CONTENT
-    }}
+    {{ items.find((item) => item[valueKey] === model)?.[labelKey] || FORM_EMPTY_CONTENT }}
   </template>
 </template>
 
 <script lang="ts" setup>
-import type { RadioGroupProps, RadioGroupEmits } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import URadio from '../radio/radio.vue'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+
+import type { RadioGroupProps, RadioGroupEmits } from '../../types'
+import URadio from '../radio/radio.vue'
 
 defineOptions({
   name: 'RadioGroup'
@@ -45,14 +43,11 @@ const emit = defineEmits<RadioGroupEmits>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const cls = bem('radio-group')
 

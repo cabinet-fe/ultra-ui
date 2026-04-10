@@ -1,10 +1,10 @@
-import type { TableRow as ITableRow } from '../../types'
-import { bem } from '@ultra-ui/utils'
 import { ArrowRight } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
 import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
 import { inject } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
 
+import type { TableRow as ITableRow } from '../../types'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { TableDIKey } from './di'

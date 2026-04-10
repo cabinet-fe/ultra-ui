@@ -39,9 +39,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeUnmount, watch } from 'vue'
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode } from '@lexical/list'
+import { $createHeadingNode, $isHeadingNode, type HeadingTagType } from '@lexical/rich-text'
+import { $isQuoteNode, $createQuoteNode } from '@lexical/rich-text'
+import { $setBlocksType } from '@lexical/selection'
+import { $getNearestNodeOfType } from '@lexical/utils'
 import { bem } from '@ultra-ui/utils'
-import type { ToolbarItem } from '../../types'
 import {
   $getSelection,
   $isRangeSelection,
@@ -52,12 +56,9 @@ import {
   $createParagraphNode,
   type RangeSelection
 } from 'lexical'
-import { $createHeadingNode, $isHeadingNode, type HeadingTagType } from '@lexical/rich-text'
-import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode } from '@lexical/list'
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
-import { $isQuoteNode, $createQuoteNode } from '@lexical/rich-text'
-import { $setBlocksType } from '@lexical/selection'
-import { $getNearestNodeOfType } from '@lexical/utils'
+import { ref, onBeforeUnmount, watch } from 'vue'
+
+import type { ToolbarItem } from '../../types'
 
 const props = defineProps<{
   editor: LexicalEditor | null

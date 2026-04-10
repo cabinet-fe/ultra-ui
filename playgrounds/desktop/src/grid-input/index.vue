@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
 import type { GridInputExposed } from '@ultra-ui/desktop/types'
+import { shallowRef } from 'vue'
 
 const inputRef = shallowRef<GridInputExposed>()
 

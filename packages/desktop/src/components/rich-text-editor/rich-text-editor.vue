@@ -71,17 +71,18 @@ const DEFAULT_TOOLBAR: ToolbarItem[] = [
 </script>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
-import { bem } from '@ultra-ui/utils'
-import type { RichTextEditorProps } from '../../types'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { createEditor, $getRoot, $createParagraphNode, type LexicalEditor } from 'lexical'
-import { registerRichText } from '@lexical/rich-text'
-import { HeadingNode, QuoteNode } from '@lexical/rich-text'
-import { ListNode, ListItemNode, registerList } from '@lexical/list'
-import { LinkNode, AutoLinkNode } from '@lexical/link'
 import { registerHistory, createEmptyHistoryState } from '@lexical/history'
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
+import { LinkNode, AutoLinkNode } from '@lexical/link'
+import { ListNode, ListItemNode, registerList } from '@lexical/list'
+import { registerRichText } from '@lexical/rich-text'
+import { HeadingNode, QuoteNode } from '@lexical/rich-text'
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { bem } from '@ultra-ui/utils'
+import { createEditor, $getRoot, $createParagraphNode, type LexicalEditor } from 'lexical'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+
+import type { RichTextEditorProps } from '../../types'
 import Toolbar from './toolbar.vue'
 
 const props = withDefaults(defineProps<RichTextEditorProps>(), {

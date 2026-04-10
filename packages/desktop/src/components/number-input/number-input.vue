@@ -198,7 +198,7 @@ function parseDisplayed(str: string): number | undefined {
   if (!str) return undefined
 
   // 将货币格式去掉再转化为数字
-  const number = +str.replace(/\,/g, '')
+  const number = +str.replace(/,/g, '')
   const { multiple } = props
 
   // 如果解析失败，使用当前值作为回退

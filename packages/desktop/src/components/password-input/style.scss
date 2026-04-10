@@ -5,8 +5,6 @@
 $root-name: password-input;
 
 @include m.b($root-name) {
-
-
   @include m.e(visibility-toggle) {
     // cursor: pointer;
   }

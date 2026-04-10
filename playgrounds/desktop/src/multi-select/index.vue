@@ -17,8 +17,9 @@
 </template>
 
 <script lang="ts" setup>
-import CustomCard from '../card/custom-card.vue'
 import { shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const options = Array.from({ length: 60 }).map((_, i) => ({ label: `选项${i}`, value: i }))
 

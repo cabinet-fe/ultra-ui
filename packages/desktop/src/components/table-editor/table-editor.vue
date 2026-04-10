@@ -8,21 +8,9 @@
     :slots="$slots"
   >
     <template #column:__operation="{ row }">
-      <ButtonCommonProps
-        tag="div"
-        style="display: flex; justify-content: center; gap: 8px"
-      >
-        <u-button
-          type="danger"
-          @click="handleDelete(row.index)"
-          :icon="Minus"
-          title="移除"
-        />
-        <u-button
-          :icon="Plus"
-          @click="handleCreate(row.index)"
-          title="新增到下一行"
-        />
+      <ButtonCommonProps tag="div" style="display: flex; justify-content: center; gap: 8px">
+        <u-button type="danger" @click="handleDelete(row.index)" :icon="Minus" title="移除" />
+        <u-button :icon="Plus" @click="handleCreate(row.index)" title="新增到下一行" />
         <u-button :icon="Copy" @click="handleCopy(row)" title="复制到下一行" />
       </ButtonCommonProps>
     </template>
@@ -46,13 +34,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { TableEditorProps, TableEditorEmits, TableColumn } from '../../types'
+import { useComponentProps } from '@ultra-ui/compositions'
+import { Copy, Minus, Plus } from '@ultra-ui/icons/normal'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
-import { UTable } from '../table'
+
+import type { TableEditorProps, TableEditorEmits, TableColumn } from '../../types'
 import { UButton } from '../button'
-import { Copy, Minus, Plus } from '@ultra-ui/icons/normal'
-import { useComponentProps } from '@ultra-ui/compositions'
+import { UTable } from '../table'
 import type { TableRowNode } from '../table/node/row'
 
 defineOptions({

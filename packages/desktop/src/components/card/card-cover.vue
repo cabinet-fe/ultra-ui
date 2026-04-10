@@ -11,10 +11,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject } from 'vue'
-import { CardDIKey } from './di'
-import type { CardCoverProps } from '../../types'
 import { withUnit, bem } from '@ultra-ui/utils'
+import { computed, inject } from 'vue'
+
+import type { CardCoverProps } from '../../types'
+import { CardDIKey } from './di'
 
 defineOptions({ name: 'CardCover' })
 

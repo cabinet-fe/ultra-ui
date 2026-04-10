@@ -31,9 +31,10 @@
 3. 从 `playgrounds/desktop/package.json` 的 dependencies 中移除 `@builder/vite`
 4. 运行 `bun install`，启动 playground（`cd playgrounds/desktop && bun dev`）验证组件自动导入和样式加载正常
 
-### 2. Turbo build 限制为 packages/* 目录
+### 2. Turbo build 限制为 packages/\* 目录
 
 当前 `turbo run build` 会触及所有 workspace。经确认：
+
 - `tools/build` 有 `"build": "bun index.ts"`（构建流水线本身，不应被 turbo 构建）
 - `tools/cli` 有 `"build": "bun -e 'void 0'"`（空操作）
 - `playgrounds/desktop` 和 `playgrounds/icons` 有 `"build": "vite build"`（playground 预览构建，不需要 turbo 管理）

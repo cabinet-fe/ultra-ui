@@ -31,14 +31,15 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'
-import { UScroll } from '../scroll'
-import { CascadeDIKey } from './di'
-import { UIcon } from '../icon'
 import { ArrowRight } from '@ultra-ui/icons/normal'
 import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
-import { UCheckbox } from '../checkbox'
+import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'
+
 import type { CascadeNode } from '../../types'
+import { UCheckbox } from '../checkbox'
+import { UIcon } from '../icon'
+import { UScroll } from '../scroll'
+import { CascadeDIKey } from './di'
 
 defineOptions({
   name: 'UCascadePanelItem'
@@ -74,15 +75,10 @@ const itemRefs = shallowRef<HTMLElement[]>([])
 const scrollContainerRef = useTemplateRef('scroll-container')
 
 onMounted(() => {
-  const activeItem = itemRefs.value.find(el =>
-    el.classList.contains(bem.is('active'))
-  )
+  const activeItem = itemRefs.value.find((el) => el.classList.contains(bem.is('active')))
   if (activeItem) {
     setTimeout(() => {
-      scrollIntoContainerView(
-        activeItem,
-        scrollContainerRef.value?.containerRef ?? null
-      )
+      scrollIntoContainerView(activeItem, scrollContainerRef.value?.containerRef ?? null)
     })
   }
 })

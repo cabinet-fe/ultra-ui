@@ -1,6 +1,6 @@
-import type { BatchEditEmits, BatchEditProps, TableRow } from '../../types'
 import { nextTick, type ShallowRef, shallowRef } from 'vue'
 
+import type { BatchEditEmits, BatchEditProps, TableRow } from '../../types'
 import type { TipReturned } from './use-tip'
 
 interface EditReturned {

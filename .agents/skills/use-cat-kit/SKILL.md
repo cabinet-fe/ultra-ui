@@ -38,18 +38,18 @@ description: >
 
 ## 包一览
 
-| 包名 | generated 目录 | 主题导航 |
-|------|----------------|----------|
-| `@cat-kit/core` | `generated/core/` | [references/core/](references/core/data.md) |
-| `@cat-kit/http` | `generated/http/` | [references/http/](references/http/client.md) |
-| `@cat-kit/fe` | `generated/fe/` | [references/fe/](references/fe/storage.md) |
-| `@cat-kit/be` | `generated/be/` | [references/be/](references/be/fs.md) |
-| `@cat-kit/excel` | `generated/excel/` | [references/excel/](references/excel/model.md) |
-| `@cat-kit/maintenance` | `generated/maintenance/` | [references/maintenance/](references/maintenance/monorepo.md) |
-| `@cat-kit/agent-context` | `generated/agent-context/` | [references/agent-context.md](references/agent-context.md) |
-| `@cat-kit/cli` | `generated/cli/` | [references/cli.md](references/cli.md) |
+| 包名                     | generated 目录             | 主题导航                                                      |
+| ------------------------ | -------------------------- | ------------------------------------------------------------- |
+| `@cat-kit/core`          | `generated/core/`          | [references/core/](references/core/data.md)                   |
+| `@cat-kit/http`          | `generated/http/`          | [references/http/](references/http/client.md)                 |
+| `@cat-kit/fe`            | `generated/fe/`            | [references/fe/](references/fe/storage.md)                    |
+| `@cat-kit/be`            | `generated/be/`            | [references/be/](references/be/fs.md)                         |
+| `@cat-kit/excel`         | `generated/excel/`         | [references/excel/](references/excel/model.md)                |
+| `@cat-kit/maintenance`   | `generated/maintenance/`   | [references/maintenance/](references/maintenance/monorepo.md) |
+| `@cat-kit/agent-context` | `generated/agent-context/` | [references/agent-context.md](references/agent-context.md)    |
+| `@cat-kit/cli`           | `generated/cli/`           | [references/cli.md](references/cli.md)                        |
 
-外置安装与版本说明：[_meta.md](references/_meta.md)。长文教程见仓库 `docs/`。
+外置安装与版本说明：[\_meta.md](references/_meta.md)。长文教程见仓库 `docs/`。
 
 ## 使用方式
 

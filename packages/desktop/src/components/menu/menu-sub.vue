@@ -41,16 +41,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import { MenuDIKey } from './di'
 import { ArrowRight } from '@ultra-ui/icons/normal'
-import { UIcon } from '../icon'
-import type { MenuItem } from '../../types'
-import UMenuItem from './menu-item.vue'
-import { getKey } from './helper'
-import { useMenuTransition } from './use-menu-transition'
 import { bem } from '@ultra-ui/utils'
+import { computed, inject } from 'vue'
+
+import type { MenuItem } from '../../types'
+import { UIcon } from '../icon'
+import { MenuDIKey } from './di'
+import { getKey } from './helper'
 import UMenuIcon from './menu-icon.vue'
+import UMenuItem from './menu-item.vue'
+import { useMenuTransition } from './use-menu-transition'
 
 defineOptions({ name: 'MenuSub' })
 

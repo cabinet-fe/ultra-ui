@@ -17,7 +17,7 @@
  * @throws {Error} 当路径存在但不是目录时抛出错误
  * @throws {Error} 当目录创建失败时抛出错误
  */
-declare function ensureDir(dirPath: string): Promise<void>;
+declare function ensureDir(dirPath: string): Promise<void>
 //#endregion
-export { ensureDir };
+export { ensureDir }
 //# sourceMappingURL=ensure-dir.d.ts.map

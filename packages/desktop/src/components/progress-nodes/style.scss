@@ -48,7 +48,9 @@ $root-name: progress-nodes;
     font-weight: 600;
     color: inherit;
     flex: 0 0 auto;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
     border-radius: fn.use-var(radius, base);
 
     &:hover {
@@ -86,7 +88,9 @@ $root-name: progress-nodes;
     border-radius: 50%;
     background-color: fn.use-var(bg-color, top);
     box-sizing: border-box;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
     z-index: 1;
     @include m.flex($align: center, $justify: center);
 
@@ -136,13 +140,7 @@ $root-name: progress-nodes;
     mask-image: linear-gradient(270deg, transparent, #000 30px);
   }
   &.is-mask-start.is-mask-end {
-    mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 30px,
-      #000 calc(100% - 30px),
-      transparent
-    );
+    mask-image: linear-gradient(90deg, transparent, #000 30px, #000 calc(100% - 30px), transparent);
   }
 
   @include m.e(list) {
@@ -172,6 +170,5 @@ $root-name: progress-nodes;
     left: calc(50% + var(--dot-size) / 2);
     top: 50%;
     transform: translateY(-50%);
-
   }
 }

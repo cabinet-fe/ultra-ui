@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const suggestions = Array.from({ length: 100 }, (v, i) => {

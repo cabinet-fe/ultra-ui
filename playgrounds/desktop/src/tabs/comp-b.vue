@@ -6,5 +6,5 @@ const msg = ref('')
 <template>
   <p>Current component: B</p>
   <span>Message is: {{ msg }}</span>
-  <input v-model="msg">
+  <input v-model="msg" />
 </template>

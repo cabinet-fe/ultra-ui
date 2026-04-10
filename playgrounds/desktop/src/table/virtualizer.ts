@@ -5,10 +5,7 @@
 
 type EstimateSize = (index: number) => number
 
-type VirtualizerChange = (ctx: {
-  items: VirtualItem[]
-  totalSize: number
-}) => void
+type VirtualizerChange = (ctx: { items: VirtualItem[]; totalSize: number }) => void
 
 interface VirtualizerOption {
   /** 长度 */
@@ -48,7 +45,7 @@ export class Virtualizer {
   private offsetSize = 0
 
   constructor(option: VirtualizerOption) {
-    Object.keys(option).forEach(key => {
+    Object.keys(option).forEach((key) => {
       const optionVal = option[key]
       if (optionVal !== undefined) {
         this[key] = option[key]
@@ -119,11 +116,7 @@ export class Virtualizer {
     // 生成虚拟项
     const items: VirtualItem[] = []
     for (let i = startIndex; i <= Math.min(endIndex, length - 1); i++) {
-      items.push({
-        index: i,
-        start: this.getItemStart(i),
-        size: this.getItemSize(i)
-      })
+      items.push({ index: i, start: this.getItemStart(i), size: this.getItemSize(i) })
     }
 
     return items
@@ -142,17 +135,14 @@ export class Virtualizer {
       this.updateLength(length)
     }
 
-    Object.keys(rest).forEach(key => {
+    Object.keys(rest).forEach((key) => {
       const optionVal = rest[key]
       if (optionVal !== undefined) {
         this[key] = optionVal
       }
     })
 
-    this.onChange?.({
-      items: this.getItems(),
-      totalSize: this.totalSize
-    })
+    this.onChange?.({ items: this.getItems(), totalSize: this.totalSize })
   }
 
   private calcTotalSize(): void {
@@ -178,10 +168,7 @@ export class Virtualizer {
     this.clearStartCacheFrom(index + 1)
 
     // 触发更新
-    this.onChange?.({
-      items: this.getItems(),
-      totalSize: this.totalSize
-    })
+    this.onChange?.({ items: this.getItems(), totalSize: this.totalSize })
   }
 
   private clearStartCacheFrom(index: number): void {
@@ -196,10 +183,7 @@ export class Virtualizer {
     this.itemStartCache = {}
     this.offsetSize = 0
     this.calcTotalSize()
-    this.onChange?.({
-      items: this.getItems(),
-      totalSize: this.totalSize
-    })
+    this.onChange?.({ items: this.getItems(), totalSize: this.totalSize })
   }
 
   /** 获取总尺寸 */
@@ -223,7 +207,7 @@ export class VirtualContainer {
 
   constructor(option?: { horizontal?: Virtualizer; vertical?: Virtualizer }) {
     if (option) {
-      Object.keys(option).forEach(key => {
+      Object.keys(option).forEach((key) => {
         this[key] = option[key]
       })
     }
@@ -234,15 +218,11 @@ export class VirtualContainer {
     this.scrollDistance = target.scrollTop
 
     // 更新垂直虚拟化器的偏移量
-    this.vertical?.update({
-      offsetSize: this.scrollDistance
-    })
+    this.vertical?.update({ offsetSize: this.scrollDistance })
 
     // 更新水平虚拟化器的偏移量（如果存在）
     if (this.horizontal) {
-      this.horizontal.update({
-        offsetSize: target.scrollLeft
-      })
+      this.horizontal.update({ offsetSize: target.scrollLeft })
     }
   }
 
@@ -253,12 +233,8 @@ export class VirtualContainer {
       const boxSize = entry?.contentBoxSize?.[0]
       if (!boxSize) return
 
-      this.vertical?.update({
-        containerSize: boxSize.blockSize
-      })
-      this.horizontal?.update({
-        containerSize: boxSize.inlineSize
-      })
+      this.vertical?.update({ containerSize: boxSize.blockSize })
+      this.horizontal?.update({ containerSize: boxSize.inlineSize })
     })
 
     this.resizeObserver.observe(this.container)
@@ -277,9 +253,7 @@ export class VirtualContainer {
 
     this.watchContainerSize()
 
-    this.container.addEventListener('scroll', this.handleScroll, {
-      passive: true
-    })
+    this.container.addEventListener('scroll', this.handleScroll, { passive: true })
   }
 
   disconnect(): void {
@@ -305,11 +279,10 @@ export class VirtualContainer {
   scrollToIndex(index: number): void {
     if (this.vertical) {
       const items = this.vertical.getVisibleItems()
-      const targetItem = items.find(item => item.index === index)
+      const targetItem = items.find((item) => item.index === index)
       if (targetItem) {
         this.scrollTo(targetItem.start)
       }
     }
   }
 }
-

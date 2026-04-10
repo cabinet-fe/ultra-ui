@@ -26,12 +26,13 @@
 </template>
 
 <script lang="ts" setup>
+import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
+import { bem } from '@ultra-ui/utils'
+import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'
-import { bem } from '@ultra-ui/utils'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { UTag } from '../tag'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
 
 defineOptions({
   name: 'CheckboxGroup'
@@ -52,14 +53,11 @@ const cls = bem('checkbox-group')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 /**
  * 获取checkbox的选中状态
@@ -78,23 +76,20 @@ const getCheckStatus = (item: Record<string, string | number>): boolean => {
  * @param  checked - 指示是否选中
  * @param item - 更新的项
  */
-const handleUpdate = (
-  checked: boolean,
-  item: Record<string, string | number>
-) => {
+const handleUpdate = (checked: boolean, item: Record<string, string | number>) => {
   const { valueKey } = props
   const value = item[valueKey]
   if (!value) return
   if (checked) {
     model.value = [...(model.value ?? []), value]
   } else {
-    model.value = model.value?.filter(v => v !== value)
+    model.value = model.value?.filter((v) => v !== value)
   }
 }
 
 const getLabel = (value: string | number) => {
   const { items, valueKey, labelKey } = props
-  const item = items.find(item => item[valueKey] === value)
+  const item = items.find((item) => item[valueKey] === value)
   return item?.[labelKey]
 }
 </script>

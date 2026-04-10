@@ -159,7 +159,7 @@ const { currentRow, handleEdit, handleAdd, handleCopy, handleDelete, handleView 
 })
 
 watch(currentRow, (r) => {
-  visible.value = !!r ? true : false
+  visible.value = Boolean(r)
 })
 
 function handleClose() {

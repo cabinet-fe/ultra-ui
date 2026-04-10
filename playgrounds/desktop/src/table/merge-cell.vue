@@ -11,12 +11,7 @@
     >
       <template #column:secondQuota="{ val, row }">
         <span>{{ val }}</span>
-        <u-button
-          circle
-          type="primary"
-          :icon="Plus"
-          @click="handleAdd(row)"
-        ></u-button>
+        <u-button circle type="primary" :icon="Plus" @click="handleAdd(row)"></u-button>
       </template>
 
       <template #column:thirdQuota="{ model }">
@@ -29,9 +24,10 @@
 <script lang="ts" setup>
 import { defineTableColumns } from '@ultra-ui/desktop'
 import type { TableRow } from '@ultra-ui/desktop/types'
-import { nextTick, shallowRef } from 'vue'
-import CustomCard from '../card/custom-card.vue'
 import { Plus } from '@ultra-ui/icons/normal'
+import { nextTick, shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 let data = shallowRef<Record<string, any>[]>([
   {
@@ -88,7 +84,7 @@ const columns = defineTableColumns([
 function getValSpanDict(keys: string[]) {
   const keyDict = {}
 
-  keys.forEach(key => {
+  keys.forEach((key) => {
     keyDict[key] = data.value.reduce((acc, item, index) => {
       if (acc[item[key]]) {
         acc[item[key]].times++

@@ -1,12 +1,8 @@
 // 生成一个初始化的组件
 import { input } from '@inquirer/prompts'
-import {
-  renderIndexFile,
-  renderStyleFile,
-  renderTypeFile,
-  renderVueFile
-} from './render-file'
 import pc from 'picocolors'
+
+import { renderIndexFile, renderStyleFile, renderTypeFile, renderVueFile } from './render-file'
 const validTag = new Set([
   'div',
   'p',
@@ -43,9 +39,7 @@ const componentName = await input({
     if (!isLower) return '文件名称应满足英文小写，多个单词使用中划线拼接'
     return true
   },
-  theme: {
-    prefix: pc.green('必填')
-  }
+  theme: { prefix: pc.green('必填') }
 })
 
 const rootElement = await input({
@@ -56,18 +50,9 @@ const rootElement = await input({
   }
 })
 
-const componentDesc = await input({
-  message: '文件描述',
-  theme: {
-    prefix: pc.gray('选填')
-  }
-})
+const componentDesc = await input({ message: '文件描述', theme: { prefix: pc.gray('选填') } })
 
-const answer = {
-  componentName,
-  rootElement,
-  componentDesc
-}
+const answer = { componentName, rootElement, componentDesc }
 
 renderVueFile(answer)
 renderTypeFile(answer)

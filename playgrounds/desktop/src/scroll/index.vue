@@ -1,18 +1,12 @@
 <template>
   <div>
-    <u-scroll
-      style="padding: 10px"
-      tag="div"
-      class="scroll"
-      ref="scrollbarRef"
-      always
-    >
+    <u-scroll style="padding: 10px" tag="div" class="scroll" ref="scrollbarRef" always>
       <ul>
         <li style="width: 2000px" v-for="i of 200" :key="i">
-          {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
-          }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
-          }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
-          }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}
+          {{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
+          }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
+          }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i }}{{ i
+          }}{{ i }}{{ i }}
         </li>
       </ul>
 

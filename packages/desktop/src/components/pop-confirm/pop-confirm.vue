@@ -32,14 +32,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { PopConfirmProps, PopConfirmEmits } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { UTip } from '../tip'
-import { UButton } from '../button'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { ref } from 'vue'
-import { UIcon } from '../icon'
 import { QuestionFilled } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { ref } from 'vue'
+
+import type { PopConfirmProps, PopConfirmEmits } from '../../types'
+import { UButton } from '../button'
+import { UIcon } from '../icon'
+import { UTip } from '../tip'
 
 defineOptions({
   name: 'PopConfirm'

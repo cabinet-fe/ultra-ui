@@ -12,20 +12,21 @@
 
 将以下源码从 `ui/` 移入 `packages/utils/src/`：
 
-| 源路径 | 目标路径 |
-|--------|----------|
-| `ui/utils/` | `packages/utils/src/utils/` |
-| `ui/types/utils/` | `packages/utils/src/types/utils/` |
-| `ui/types/component-common.ts` | `packages/utils/src/types/component-common.ts` |
-| `ui/types/helper.ts` | `packages/utils/src/types/helper.ts` |
-| `ui/types/index.ts` | `packages/utils/src/types/index.ts`（仅保留共享类型导出） |
-| `ui/shared/` | `packages/utils/src/shared/` |
-| `ui/styles/` | `packages/utils/src/styles/` |
+| 源路径                         | 目标路径                                                  |
+| ------------------------------ | --------------------------------------------------------- |
+| `ui/utils/`                    | `packages/utils/src/utils/`                               |
+| `ui/types/utils/`              | `packages/utils/src/types/utils/`                         |
+| `ui/types/component-common.ts` | `packages/utils/src/types/component-common.ts`            |
+| `ui/types/helper.ts`           | `packages/utils/src/types/helper.ts`                      |
+| `ui/types/index.ts`            | `packages/utils/src/types/index.ts`（仅保留共享类型导出） |
+| `ui/shared/`                   | `packages/utils/src/shared/`                              |
+| `ui/styles/`                   | `packages/utils/src/styles/`                              |
 
 更新 `packages/utils/src/index.ts` 统一导出所有公共 API。
 更新 `packages/utils/package.json` 的 `exports` 子路径导出（`./styles/*`、`./types`、`./shared`）。
 
 **utils 范围内的 cat-kit 迁移**：
+
 - `styles/theme/ui-theme.ts`：`import { ... } from 'cat-kit/fe'` → `import { ... } from '@cat-kit/fe'`
 - `packages/utils/package.json` 添加 `dependencies: { "@cat-kit/fe": "latest" }`
 
@@ -36,6 +37,7 @@
 将 `ui/compositions/` 整体移入 `packages/compositions/src/`。
 
 **import 更新**：
+
 - `@ui/utils` → `@ultra-ui/utils`
 - `cat-kit` / `cat-kit/fe` → `@cat-kit/core` / `@cat-kit/fe`
 
@@ -49,6 +51,7 @@
 将 `ui/directives/` 整体移入 `packages/directives/src/`。
 
 **import 更新**：
+
 - `@ui/utils` → `@ultra-ui/utils`
 - `cat-kit` → `@cat-kit/core`
 
@@ -68,39 +71,39 @@
 
 全局替换 `packages/desktop/` 下的 import，精确映射表：
 
-| 旧 import | 新 import | 说明 |
-|-----------|-----------|------|
-| `@ui/utils` | `@ultra-ui/utils` | 工具函数 |
-| `@ui/compositions/*` | `@ultra-ui/compositions` | 组合式函数 |
-| `@ui/directives/*` | `@ultra-ui/directives` | 指令 |
-| `@ui/types/components/*` | `../types/*` 或 `../../types/*` | desktop 内部相对路径 |
-| `@ui/types/utils/*` | `@ultra-ui/utils/types/utils/*` | 工具类型 |
-| `@ui/types/component-common` | `@ultra-ui/utils/types/component-common` | 共享组件基础类型 |
-| `@ui/types/helper` | `@ultra-ui/utils/types/helper` | 辅助类型 |
-| `@ui/types`（barrel） | 按实际导入内容分流到上述规则 | 需逐文件检查 |
-| `@ui/styles/*` | `@ultra-ui/utils/styles/*` | 样式工具 |
-| `@ui/shared/*` | `@ultra-ui/utils/shared/*` | 共享常量 |
+| 旧 import                    | 新 import                                | 说明                 |
+| ---------------------------- | ---------------------------------------- | -------------------- |
+| `@ui/utils`                  | `@ultra-ui/utils`                        | 工具函数             |
+| `@ui/compositions/*`         | `@ultra-ui/compositions`                 | 组合式函数           |
+| `@ui/directives/*`           | `@ultra-ui/directives`                   | 指令                 |
+| `@ui/types/components/*`     | `../types/*` 或 `../../types/*`          | desktop 内部相对路径 |
+| `@ui/types/utils/*`          | `@ultra-ui/utils/types/utils/*`          | 工具类型             |
+| `@ui/types/component-common` | `@ultra-ui/utils/types/component-common` | 共享组件基础类型     |
+| `@ui/types/helper`           | `@ultra-ui/utils/types/helper`           | 辅助类型             |
+| `@ui/types`（barrel）        | 按实际导入内容分流到上述规则             | 需逐文件检查         |
+| `@ui/styles/*`               | `@ultra-ui/utils/styles/*`               | 样式工具             |
+| `@ui/shared/*`               | `@ultra-ui/utils/shared/*`               | 共享常量             |
 
 **4c. 改写 SCSS 跨包引用**
 
 基于 Plan 4 Step 0 确定的方案（预期为 `pkg:` importer），批量替换组件 `style.scss` 中的 SCSS 引用：
 
-| 旧引用 | 新引用 |
-|--------|--------|
-| `@use '../../styles/mixins' as m;` | `@use 'pkg:@ultra-ui/utils/styles/mixins' as m;` |
-| `@use '../../styles/vars';` | `@use 'pkg:@ultra-ui/utils/styles/vars';` |
+| 旧引用                                 | 新引用                                               |
+| -------------------------------------- | ---------------------------------------------------- |
+| `@use '../../styles/mixins' as m;`     | `@use 'pkg:@ultra-ui/utils/styles/mixins' as m;`     |
+| `@use '../../styles/vars';`            | `@use 'pkg:@ultra-ui/utils/styles/vars';`            |
 | `@use '../../styles/functions' as fn;` | `@use 'pkg:@ultra-ui/utils/styles/functions' as fn;` |
 
 注意：部分组件可能有额外的 `@use` 引用（如引用其他组件样式），需逐文件检查完整的 `@use` 列表。
 
-**4d. cat-kit → @cat-kit/***
+**4d. cat-kit → @cat-kit/\***
 
 全局替换 `packages/desktop/` 下的 cat-kit 导入：
 
-| 旧 import | 新 import |
-|-----------|-----------|
-| `from 'cat-kit'` | `from '@cat-kit/core'` |
-| `from 'cat-kit/fe'` | `from '@cat-kit/fe'` |
+| 旧 import                     | 新 import                           |
+| ----------------------------- | ----------------------------------- |
+| `from 'cat-kit'`              | `from '@cat-kit/core'`              |
+| `from 'cat-kit/fe'`           | `from '@cat-kit/fe'`                |
 | `type { ... } from 'cat-kit'` | `type { ... } from '@cat-kit/core'` |
 
 使用 use-cat-kit 技能的 API 类型定义验证导入映射正确性。
@@ -122,14 +125,14 @@
 
 ### 5. 迁移 tools/ 和 apps/ 中的 cat-kit 导入
 
-| 文件 | 旧 import | 新 import |
-|------|-----------|-----------|
-| `tools/cli/export/index.ts` | `cat-kit/be` | `@cat-kit/be` |
-| `tools/cli/gen-component/render-file.ts` | `cat-kit/be` | `@cat-kit/be` |
-| `tools/cli/rename/types.ts` | `cat-kit/be` | `@cat-kit/be` |
-| `tools/build/release.ts` | `@cat-kit/be` | 确认已正确 |
-| `tools/build/prepare.ts` | `@cat-kit/be` | 确认已正确 |
-| `apps/sample/vite.config.ts` | `cat-kit/be` | `@cat-kit/be` |
+| 文件                                     | 旧 import     | 新 import     |
+| ---------------------------------------- | ------------- | ------------- |
+| `tools/cli/export/index.ts`              | `cat-kit/be`  | `@cat-kit/be` |
+| `tools/cli/gen-component/render-file.ts` | `cat-kit/be`  | `@cat-kit/be` |
+| `tools/cli/rename/types.ts`              | `cat-kit/be`  | `@cat-kit/be` |
+| `tools/build/release.ts`                 | `@cat-kit/be` | 确认已正确    |
+| `tools/build/prepare.ts`                 | `@cat-kit/be` | 确认已正确    |
+| `apps/sample/vite.config.ts`             | `cat-kit/be`  | `@cat-kit/be` |
 
 更新对应 `package.json` 依赖：移除 `cat-kit`，添加 `@cat-kit/be`。
 
@@ -145,6 +148,7 @@
 - `@ultra-ui/desktop`：entry `src/index.ts` + 组件 `style.ts` 入口，输出 `dist/`，包含 SCSS 编译
 
 **构建脚本改造**：
+
 - 从 `tools/build/build-styles.ts` 提取 `scssPlugin` 为独立共享模块 `tools/build/plugins/scss-plugin.ts`
 - 移除 `scssPlugin` 对 `UI_ROOT` 的硬编码依赖，改为接受 `rootDir` 参数
 - 配置 SCSS 编译的 `pkg:` importer 以支持跨包引用
@@ -158,15 +162,16 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 更新 `apps/sample/` 中的导入：
 
-| 旧 import | 新 import |
-|-----------|-----------|
-| `from 'ultra-ui'` | `from '@ultra-ui/desktop'` |
-| `from 'ultra-ui/types'` | `from '@ultra-ui/desktop/types'` 或 `@ultra-ui/utils/types` |
-| `from 'ultra-ui/styles'` | `from '@ultra-ui/utils/styles'` |
+| 旧 import                | 新 import                                                   |
+| ------------------------ | ----------------------------------------------------------- |
+| `from 'ultra-ui'`        | `from '@ultra-ui/desktop'`                                  |
+| `from 'ultra-ui/types'`  | `from '@ultra-ui/desktop/types'` 或 `@ultra-ui/utils/types` |
+| `from 'ultra-ui/styles'` | `from '@ultra-ui/utils/styles'`                             |
 
 更新 `apps/sample/package.json`：移除 `ultra-ui`，添加 `@ultra-ui/desktop: "workspace:*"`、`@ultra-ui/utils: "workspace:*"`。
 
 更新 `apps/sample/vite.config.ts`：
+
 - 移除旧 `ultra-ui` 别名
 - 更新 `autoResolveComponent` 中的 `lib` 参数和 `sideEffects` 路径
 - 确认 `@builder/vite` 对新包结构的兼容性，不兼容则编写自定义解析逻辑
@@ -183,6 +188,7 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 - `apps/sample` dev server 正常
 
 同步操作：
+
 - 根 `workspaces` 移除 `"ui"`
 - 根 `tsconfig.json` 移除 `@ui/` paths 别名
 - 根 `tsconfig.json` 移除 `ui/` 相关 references
@@ -192,17 +198,20 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 ### 9. 更新 AGENTS.md、CLI 模板和配置
 
 **AGENTS.md**：
+
 - 更新目录结构（至少到第二层）
 - 更新包命名和构建命令
 - 更新路径别名说明（`@ui/` → `@ultra-ui/*`）
 - 更新组件开发规范中的文件结构和 import 示例
 
 **CLI 模板（`tools/cli/gen-component/render-file.ts`）**：
+
 - `@ui/types` → 新导入路径
 - `@ui/utils` → `@ultra-ui/utils`
 - SCSS 中的 `@use '../../styles/...'` → `@use 'pkg:@ultra-ui/utils/styles/...'`
 
 **配置文件**：
+
 - `vitest.config.ts` 路径别名更新
 - `tsconfig.json` solution references（移除 `ui/`）
 - `.gitignore`（各包 `dist/`）
@@ -242,7 +251,7 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 ## 历史补丁
 
 - patch-1: 移除 cat-kit-fe-compat、修正 TS 继承与 Turborepo 根脚本
-- patch-2: 修复 tools/build 对齐 packages/* 与 `turbo run build`
+- patch-2: 修复 tools/build 对齐 packages/\* 与 `turbo run build`
 - patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@ultra-ui/utils`（树结构暂保留 cat-kit 入口）
 - patch-4: 修复 v-ripple 在 inline 容器上 overflow:hidden 导致点击后异常变宽
 - patch-5: Tree/Forest/TreeNode 全面迁移至 @cat-kit/core，移除 cat-kit 依赖

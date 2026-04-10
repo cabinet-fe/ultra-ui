@@ -1,15 +1,9 @@
+import { $createParagraphNode, $getRoot, createEditor, type LexicalEditor } from 'lexical'
 import { vi } from 'vitest'
-import {
-  $createParagraphNode,
-  $getRoot,
-  createEditor,
-  type LexicalEditor
-} from 'lexical'
+
 import { VariableNode } from '../nodes/variable-node'
 
-vi.mock('../../tag', () => ({
-  UTag: () => null
-}))
+vi.mock('../../tag', () => ({ UTag: () => null }))
 
 import { parseContent } from '../parser'
 import {
@@ -54,12 +48,12 @@ function stripVariableTokens(content: string): string {
 }
 
 function getVariableOrder(editor: LexicalEditor): string[] {
-  return collectVariableNodeDescriptors(editor).map(item => item.variable)
+  return collectVariableNodeDescriptors(editor).map((item) => item.variable)
 }
 
 function getVariableKey(editor: LexicalEditor, variable: string): string {
   const descriptor = collectVariableNodeDescriptors(editor).find(
-    item => item.variable === variable
+    (item) => item.variable === variable
   )
   if (!descriptor) {
     throw new Error(`Cannot find variable: ${variable}`)

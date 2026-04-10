@@ -6,17 +6,12 @@
 
 <script lang="ts" setup>
 import { bem, removeStyles, setStyles, withUnit } from '@ultra-ui/utils'
+import { type CSSProperties, provide, watch, useTemplateRef, computed } from 'vue'
+
 import type { GridProps, GridEmits, _GridExposed } from '../../types'
-import { GridDIKey } from './di'
-import {
-  type CSSProperties,
-  provide,
-  watch,
-  useTemplateRef,
-  computed
-} from 'vue'
-import { useResponsive } from './use-responsive'
 import { getBreakpointCols } from './breakpoint'
+import { GridDIKey } from './di'
+import { useResponsive } from './use-responsive'
 
 defineOptions({
   name: 'Grid'

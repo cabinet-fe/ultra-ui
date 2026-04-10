@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ultra-ui/desktop/components'
+import { FormModel } from '@ultra-ui/desktop'
 import { reactive } from 'vue'
 
 const model = new FormModel({

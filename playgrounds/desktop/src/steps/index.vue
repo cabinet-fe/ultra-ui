@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import CustomCard from '../card/custom-card.vue'
 import Basic from './basic.vue'
-import StepsSlot from './steps-slot.vue'
 import Full from './full.vue'
+import StepsSlot from './steps-slot.vue'
 import StepTip from './steps-tip.vue'
 </script>

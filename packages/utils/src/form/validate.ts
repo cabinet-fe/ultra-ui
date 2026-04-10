@@ -148,6 +148,7 @@ export class Validator<
       // 校验字段
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i]!
+        // oxlint-disable-next-line eslint(no-await-in-loop)
         const errors = await this.validateValueLazy(data, field)
         if (errors.length === 0) continue
         fieldErrors[field] = errors
@@ -157,6 +158,7 @@ export class Validator<
       // 校验字段
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i]!
+        // oxlint-disable-next-line eslint(no-await-in-loop)
         const errors = await this.validateValue(data, field)
         if (errors.length === 0) continue
         fieldErrors[field] = errors
@@ -251,6 +253,7 @@ export class Validator<
     let i = 0
     while (i < data.length) {
       const item = data[i]!
+      // oxlint-disable-next-line eslint(no-await-in-loop)
       const fieldErrors = await this.validateSingleData(item, field)
       if (Object.keys(fieldErrors).length > 0) {
         return fieldErrors

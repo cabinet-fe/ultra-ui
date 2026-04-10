@@ -45,8 +45,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
 import type { NumberRangeTuple } from '@ultra-ui/desktop/types'
+import { ref } from 'vue'
 
 const range = ref<NumberRangeTuple>([undefined, undefined])
 const bounded = ref<NumberRangeTuple>([10, 80])

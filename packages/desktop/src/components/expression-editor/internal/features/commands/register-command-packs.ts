@@ -1,10 +1,4 @@
-import type { CommandPayloadType, LexicalEditor } from 'lexical'
-
-import {
-  $getHtmlContent,
-  $insertDataTransferForPlainText
-} from '@lexical/clipboard'
-
+import { $getHtmlContent, $insertDataTransferForPlainText } from '@lexical/clipboard'
 import {
   CAN_USE_BEFORE_INPUT,
   IS_APPLE_WEBKIT,
@@ -13,6 +7,7 @@ import {
   mergeRegister,
   objectKlassEquals
 } from '@lexical/utils'
+import type { CommandPayloadType, LexicalEditor } from 'lexical'
 import {
   $getSelection,
   $isRangeSelection,
@@ -39,8 +34,8 @@ import {
   REMOVE_TEXT_COMMAND,
   SELECT_ALL_COMMAND
 } from 'lexical'
+
 import { EXPRESSION_VARIABLE_DRAG_TYPE } from '../../../constants'
-import { reorderVariable } from '../drag-drop/drag-drop-service'
 import {
   autoScrollWhenNearEdge,
   beginDragVisualState,
@@ -54,6 +49,7 @@ import {
   showDropIndicator,
   writeInternalDragPayload
 } from '../../../use-expression-drag-drop'
+import { reorderVariable } from '../drag-drop/drag-drop-service'
 
 function onCopyForPlainText(
   event: CommandPayloadType<typeof COPY_COMMAND>,
@@ -61,9 +57,7 @@ function onCopyForPlainText(
 ): void {
   editor.update(() => {
     if (event !== null) {
-      const clipboardData = objectKlassEquals(event, KeyboardEvent)
-        ? null
-        : event.clipboardData
+      const clipboardData = objectKlassEquals(event, KeyboardEvent) ? null : event.clipboardData
       const selection = $getSelection()
 
       if (selection !== null && clipboardData != null) {
@@ -88,16 +82,12 @@ function onPasteForPlainText(
   editor.update(
     () => {
       const selection = $getSelection()
-      const clipboardData = objectKlassEquals(event, ClipboardEvent)
-        ? event.clipboardData
-        : null
+      const clipboardData = objectKlassEquals(event, ClipboardEvent) ? event.clipboardData : null
       if (clipboardData != null && $isRangeSelection(selection)) {
         $insertDataTransferForPlainText(clipboardData, selection)
       }
     },
-    {
-      tag: PASTE_TAG
-    }
+    { tag: PASTE_TAG }
   )
 }
 
@@ -119,7 +109,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
   return mergeRegister(
     editor.registerCommand<boolean>(
       DELETE_CHARACTER_COMMAND,
-      isBackward => {
+      (isBackward) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -133,7 +123,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<boolean>(
       DELETE_WORD_COMMAND,
-      isBackward => {
+      (isBackward) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -147,7 +137,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<boolean>(
       DELETE_LINE_COMMAND,
-      isBackward => {
+      (isBackward) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -162,7 +152,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
 
     editor.registerCommand<InputEvent | string>(
       CONTROLLED_TEXT_INSERTION_COMMAND,
-      eventOrText => {
+      (eventOrText) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -205,7 +195,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<boolean>(
       INSERT_LINE_BREAK_COMMAND,
-      selectStart => {
+      (selectStart) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -259,7 +249,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<KeyboardEvent>(
       KEY_BACKSPACE_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -277,7 +267,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<KeyboardEvent>(
       KEY_DELETE_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -291,7 +281,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<KeyboardEvent | null>(
       KEY_ENTER_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -299,10 +289,7 @@ function registerTextEditingCommands(editor: LexicalEditor): () => void {
         }
 
         if (event !== null) {
-          if (
-            (IS_IOS || IS_SAFARI || IS_APPLE_WEBKIT) &&
-            CAN_USE_BEFORE_INPUT
-          ) {
+          if ((IS_IOS || IS_SAFARI || IS_APPLE_WEBKIT) && CAN_USE_BEFORE_INPUT) {
             return false
           }
 
@@ -329,7 +316,7 @@ function registerClipboardCommands(editor: LexicalEditor): () => void {
   return mergeRegister(
     editor.registerCommand(
       COPY_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -343,7 +330,7 @@ function registerClipboardCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand(
       CUT_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -357,7 +344,7 @@ function registerClipboardCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand(
       PASTE_COMMAND,
-      event => {
+      (event) => {
         const selection = $getSelection()
 
         if (!$isRangeSelection(selection)) {
@@ -376,7 +363,7 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
   return mergeRegister(
     editor.registerCommand<DragEvent>(
       DRAGSTART_COMMAND,
-      event => {
+      (event) => {
         if (!editor.isEditable()) {
           return false
         }
@@ -410,11 +397,7 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
         const sourceElement = rootElement.querySelector<HTMLElement>(
           `[data-ultra-expression-variable-key="${sourceKey}"]`
         )
-        beginDragVisualState(editor, sourceElement, {
-          action: 'move-variable',
-          sourceKey,
-          scopeId
-        })
+        beginDragVisualState(editor, sourceElement, { action: 'move-variable', sourceKey, scopeId })
 
         return true
       },
@@ -422,7 +405,7 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<DragEvent>(
       DRAGOVER_COMMAND,
-      event => {
+      (event) => {
         const rootElement = editor.getRootElement()
         if (!rootElement || !(event.target instanceof Node)) {
           return false
@@ -432,8 +415,7 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
         }
 
         const payload =
-          readInternalDragPayload(event.dataTransfer) ??
-          getActiveInternalDragPayload(editor)
+          readInternalDragPayload(event.dataTransfer) ?? getActiveInternalDragPayload(editor)
         if (!payload) {
           clearDropIndicator(editor)
           return false
@@ -464,10 +446,9 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
     ),
     editor.registerCommand<DragEvent>(
       DROP_COMMAND,
-      event => {
+      (event) => {
         const payload =
-          readInternalDragPayload(event.dataTransfer) ??
-          getActiveInternalDragPayload(editor)
+          readInternalDragPayload(event.dataTransfer) ?? getActiveInternalDragPayload(editor)
         if (!payload) {
           return false
         }
@@ -492,8 +473,7 @@ function registerDragDropCommands(editor: LexicalEditor): () => void {
         }
 
         const payloadText =
-          event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ??
-          JSON.stringify(payload)
+          event.dataTransfer?.getData(EXPRESSION_VARIABLE_DRAG_TYPE) ?? JSON.stringify(payload)
 
         reorderVariable(editor, {
           payloadText,

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <CustomCard
-      title="菜单选择器单选、禁用某项、过滤、选择完选项值自动关闭弹窗"
-    >
+    <CustomCard title="菜单选择器单选、禁用某项、过滤、选择完选项值自动关闭弹窗">
       {{ { treeSelect } }}
       <u-tree-select
         v-model="treeSelect"
@@ -47,11 +45,12 @@
 
 <script setup lang="ts">
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const treeSelect = shallowRef()
 
-const disabledNode = data => {
+const disabledNode = (data) => {
   return data.id % 4 === 0
 }
 

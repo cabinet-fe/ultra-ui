@@ -14,14 +14,7 @@
       :style="{ height: withUnit(size, 'px'), width: withUnit(size, 'px') }"
     >
       <svg viewBox="0 0 100 100">
-        <circle
-          cx="50"
-          cy="50"
-          :r="r"
-          fill="none"
-          stroke="#f5f8fa"
-          stroke-width="8"
-        />
+        <circle cx="50" cy="50" :r="r" fill="none" stroke="#f5f8fa" stroke-width="8" />
         <circle
           :class="cls.e('circle-ring')"
           cx="50"
@@ -44,10 +37,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { ProgressProps, ColorType } from '../../types'
+import { n } from '@cat-kit/core'
 import { bem, withUnit } from '@ultra-ui/utils'
 import { computed } from 'vue'
-import { n } from '@cat-kit/core'
+
+import type { ProgressProps, ColorType } from '../../types'
 
 defineOptions({
   name: 'Progress'

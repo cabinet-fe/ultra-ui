@@ -7,11 +7,11 @@ interface LRUCacheOptions {
    * 最大缓存容量
    * @default 100
    */
-  maxSize?: number;
+  maxSize?: number
   /**
    * 默认过期时间（毫秒）
    */
-  ttl?: number;
+  ttl?: number
 }
 /**
  * LRU（最近最少使用）缓存实现
@@ -33,16 +33,16 @@ interface LRUCacheOptions {
  * @template V 值的类型
  */
 declare class LRUCache<K, V> {
-  private readonly cache;
-  private readonly maxSize;
-  private readonly ttl?;
+  private readonly cache
+  private readonly maxSize
+  private readonly ttl?
   /**
    * 创建 LRU 缓存实例
    * @param options - 缓存选项
    */
-  constructor(options?: LRUCacheOptions);
-  private isExpired;
-  private touch;
+  constructor(options?: LRUCacheOptions)
+  private isExpired
+  private touch
   /**
    * 获取缓存值
    *
@@ -51,14 +51,14 @@ declare class LRUCache<K, V> {
    * @param key - 缓存键
    * @returns 缓存值，如果不存在或已过期则返回 `undefined`
    */
-  get(key: K): V | undefined;
+  get(key: K): V | undefined
   /**
    * 检查键是否存在且未过期
    *
    * @param key - 缓存键
    * @returns 如果键存在且未过期返回 `true`，否则返回 `false`
    */
-  has(key: K): boolean;
+  has(key: K): boolean
   /**
    * 设置缓存值
    *
@@ -68,24 +68,24 @@ declare class LRUCache<K, V> {
    * @param value - 缓存值
    * @param ttl - 过期时间（毫秒），如果未指定则使用默认 TTL
    */
-  set(key: K, value: V, ttl?: number): void;
+  set(key: K, value: V, ttl?: number): void
   /**
    * 删除指定的缓存项
    *
    * @param key - 要删除的缓存键
    * @returns 如果键存在并成功删除返回 `true`，否则返回 `false`
    */
-  delete(key: K): boolean;
+  delete(key: K): boolean
   /**
    * 清空所有缓存项
    */
-  clear(): void;
+  clear(): void
   /**
    * 获取所有缓存键的迭代器
    *
    * @returns 键的迭代器
    */
-  keys(): IterableIterator<K>;
+  keys(): IterableIterator<K>
   /**
    * 获取所有缓存值的迭代器
    *
@@ -93,13 +93,13 @@ declare class LRUCache<K, V> {
    *
    * @returns 值的迭代器
    */
-  values(): IterableIterator<V>;
+  values(): IterableIterator<V>
   /**
    * 获取当前缓存中的条目数量
    * @returns 缓存条目数量
    */
-  get size(): number;
+  get size(): number
 }
 //#endregion
-export { LRUCache, LRUCacheOptions };
+export { LRUCache, LRUCacheOptions }
 //# sourceMappingURL=lru-cache.d.ts.map

@@ -5,10 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted } from 'vue'
-import { PaletteDIKey } from './di'
-import { shallowRef, computed } from 'vue'
 import { useDrag } from '@ultra-ui/compositions'
+import { inject, onMounted } from 'vue'
+import { shallowRef, computed } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteHue'

@@ -4,9 +4,9 @@
  */
 interface CronFieldConfig {
   /** 最小值 */
-  min: number;
+  min: number
   /** 最大值 */
-  max: number;
+  max: number
 }
 /**
  * Cron 表达式解析器
@@ -24,25 +24,25 @@ interface CronFieldConfig {
  * ```
  */
 declare class CronExpression {
-  private readonly minutes;
-  private readonly hours;
-  private readonly days;
-  private readonly months;
-  private readonly weekdays;
+  private readonly minutes
+  private readonly hours
+  private readonly days
+  private readonly months
+  private readonly weekdays
   /**
    * 创建 Cron 表达式实例
    *
    * @param expression - 5 位 Cron 表达式字符串
    * @throws {Error} 当表达式格式不正确时抛出错误
    */
-  constructor(expression: string);
+  constructor(expression: string)
   /**
    * 获取下一次执行时间
    *
    * @param from - 起始时间，默认使用当前时间
    * @returns 下一次执行时间，如果无法找到则返回 `null`
    */
-  getNextDate(from?: Date): Date | null;
+  getNextDate(from?: Date): Date | null
 }
 /**
  * 解析 Cron 表达式
@@ -53,7 +53,7 @@ declare class CronExpression {
  * @returns CronExpression 实例
  * @throws {Error} 当表达式格式不正确时抛出错误
  */
-declare function parseCron(expression: string): CronExpression;
+declare function parseCron(expression: string): CronExpression
 //#endregion
-export { CronExpression, CronFieldConfig, parseCron };
+export { CronExpression, CronFieldConfig, parseCron }
 //# sourceMappingURL=cron.d.ts.map

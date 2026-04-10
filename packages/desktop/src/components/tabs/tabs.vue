@@ -29,11 +29,7 @@
         </template>
       </li>
 
-      <li
-        v-if="editable"
-        :class="[cls.e('header-item'), cls.e('add')]"
-        @click="handleAdd"
-      >
+      <li v-if="editable" :class="[cls.e('header-item'), cls.e('add')]" @click="handleAdd">
         <u-icon>
           <Plus />
         </u-icon>
@@ -50,21 +46,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import {
-  computed,
-  createVNode,
-  nextTick,
-  shallowRef,
-  watch,
-  type CSSProperties
-} from 'vue'
-import { Close, Plus } from '@ultra-ui/icons/normal'
 import { useFallbackProps } from '@ultra-ui/compositions'
+import { vRipple } from '@ultra-ui/directives'
+import { Close, Plus } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { computed, createVNode, nextTick, shallowRef, watch, type CSSProperties } from 'vue'
+
+import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
-import { vRipple } from '@ultra-ui/directives'
 
 defineOptions({
   name: 'Tabs'
@@ -104,7 +94,7 @@ watch(
   [model, () => props.items],
   ([model, items]) => {
     if (changedByEvent) return
-    index.value = items.findIndex(item => item.key === model)
+    index.value = items.findIndex((item) => item.key === model)
   },
   { immediate: true }
 )
@@ -154,11 +144,7 @@ const renderSlots = () => {
   if (!key) return null
   const nodes = slots[key]?.({ key })
   if (Array.isArray(nodes)) {
-    return createVNode(
-      UScroll,
-      { class: cls.e('content') },
-      { default: () => nodes }
-    )
+    return createVNode(UScroll, { class: cls.e('content') }, { default: () => nodes })
   }
   return nodes
 }

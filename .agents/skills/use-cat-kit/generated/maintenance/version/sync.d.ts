@@ -1,4 +1,4 @@
-import { PackageVersionConfig } from "./types.js";
+import { PackageVersionConfig } from './types.js'
 
 //#region src/version/sync.d.ts
 /**
@@ -30,9 +30,11 @@ import { PackageVersionConfig } from "./types.js";
  * })
  * ```
  */
-declare function syncPeerDependencies(packages: PackageVersionConfig[], version: string, options?: {
-  /** 只同步指定的包名（不指定则同步所有 peerDependencies） */only?: string[];
-}): Promise<void>;
+declare function syncPeerDependencies(
+  packages: PackageVersionConfig[],
+  version: string,
+  options?: { /** 只同步指定的包名（不指定则同步所有 peerDependencies） */ only?: string[] }
+): Promise<void>
 /**
  * 同步 dependencies 中的工作空间版本约束
  *
@@ -56,9 +58,11 @@ declare function syncPeerDependencies(packages: PackageVersionConfig[], version:
  * await syncDependencies(packages, '1.2.3')
  * ```
  */
-declare function syncDependencies(packages: PackageVersionConfig[], version: string, options?: {
-  /** 只同步指定的包名 */only?: string[];
-}): Promise<void>;
+declare function syncDependencies(
+  packages: PackageVersionConfig[],
+  version: string,
+  options?: { /** 只同步指定的包名 */ only?: string[] }
+): Promise<void>
 //#endregion
-export { syncDependencies, syncPeerDependencies };
+export { syncDependencies, syncPeerDependencies }
 //# sourceMappingURL=sync.d.ts.map

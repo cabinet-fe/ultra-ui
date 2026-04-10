@@ -4,8 +4,10 @@ import type { NumberInputProps } from './number-input'
 export type NumberRangeTuple = [number | undefined, number | undefined]
 
 /** 数字范围输入组件属性 */
-export interface NumberRangeInputProps
-  extends Omit<NumberInputProps, 'modelValue' | 'placeholder'> {
+export interface NumberRangeInputProps extends Omit<
+  NumberInputProps,
+  'modelValue' | 'placeholder'
+> {
   modelValue?: NumberRangeTuple
   /** 与 `modelValue[0]` 同步，可用 `v-model:start` */
   start?: number
@@ -21,10 +23,7 @@ export interface NumberRangeInputProps
 
 /** 数字范围输入组件事件 */
 export interface NumberRangeInputEmits {
-  (
-    event: 'update:modelValue',
-    value: NumberRangeTuple
-  ): void
+  (event: 'update:modelValue', value: NumberRangeTuple): void
   (event: 'update:start', value: number | undefined): void
   (event: 'update:end', value: number | undefined): void
   (event: 'change', value: NumberRangeTuple): void

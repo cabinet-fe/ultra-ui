@@ -1,5 +1,5 @@
-import './style'
 import type { DirectiveBinding, ObjectDirective } from 'vue'
+
 import { Ripple } from './ripple'
 
 const rippleMap = new WeakMap<HTMLElement, Ripple>()
@@ -70,7 +70,7 @@ export const vRipple: ObjectDirective<HTMLElement> = {
     registerEvents(el, binding)
   },
 
-  unmounted: el => {
+  unmounted: (el) => {
     unregisterEvents(el)
     rippleMap.get(el)?.remove()
     rippleMap.delete(el)

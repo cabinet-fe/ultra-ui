@@ -1,11 +1,11 @@
-import type { CSSProperties } from 'vue'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { CSSProperties } from 'vue'
+
 import type { TreeProps } from './tree'
 /** 树形多选组件组件属性 */
 export interface MultiTreeSelectProps
-  extends FormComponentProps,
-    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+  extends FormComponentProps, Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
   modelValue?: (string | number)[]
 
   /**自定义占位文字 */

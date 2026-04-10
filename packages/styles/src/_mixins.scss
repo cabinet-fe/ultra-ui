@@ -4,12 +4,7 @@
 @use 'functions' as fn;
 
 /** flex布局 */
-@mixin flex(
-  $display: flex,
-  $justify: flex-start,
-  $align: center,
-  $wrap: nowrap
-) {
+@mixin flex($display: flex, $justify: flex-start, $align: center, $wrap: nowrap) {
   display: $display;
   justify-content: $justify;
   align-items: $align;

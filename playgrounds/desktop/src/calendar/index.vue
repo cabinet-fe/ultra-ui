@@ -8,6 +8,4 @@
 
 <script lang="ts" setup>
 import CustomCard from '../card/custom-card.vue'
-
-
 </script>

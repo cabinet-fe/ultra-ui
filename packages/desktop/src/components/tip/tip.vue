@@ -1,10 +1,6 @@
 <template>
   <!-- 触发 -->
-  <UNodeRender
-    v-bind="eventsHandlers"
-    :content="renderDefaultSlotTrigger()"
-    ref="triggerRef"
-  />
+  <UNodeRender v-bind="eventsHandlers" :content="renderDefaultSlotTrigger()" ref="triggerRef" />
 
   <!-- 弹出内容 -->
   <teleport :to="`#${popperContainerId}`">
@@ -31,19 +27,12 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  shallowRef,
-  computed,
-  useSlots,
-  onBeforeUnmount,
-  toRef,
-  watch,
-  nextTick
-} from 'vue'
-import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/utils'
-import { vClickOutside } from '@ultra-ui/directives'
-import type { TipProps, ComponentSize, TipEmits } from '../../types'
 import { useFallbackProps, usePop } from '@ultra-ui/compositions'
+import { vClickOutside } from '@ultra-ui/directives'
+import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/utils'
+import { shallowRef, computed, useSlots, onBeforeUnmount, toRef, watch, nextTick } from 'vue'
+
+import type { TipProps, ComponentSize, TipEmits } from '../../types'
 import { UNodeRender } from '../node-render'
 import { useNest } from './use-nest'
 
@@ -122,10 +111,7 @@ const handleClickOutside = (e: MouseEvent) => {
   if (props.trigger === 'hover') return
 
   // 点击的元素在触发元素中则啥也
-  if (
-    props.trigger === 'click' &&
-    triggerDom.value.contains(e.target as Node)
-  ) {
+  if (props.trigger === 'click' && triggerDom.value.contains(e.target as Node)) {
     return
   }
   close()
@@ -166,7 +152,7 @@ const { popperContainerId } = usePop({
   }
 })
 
-watch(triggerDom, dom => {
+watch(triggerDom, (dom) => {
   // TODO: 看起来不是很优雅
   if (dom?.nodeType === Node.ELEMENT_NODE && visible.value) {
     close()

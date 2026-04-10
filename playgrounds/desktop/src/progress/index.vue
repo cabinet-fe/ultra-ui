@@ -20,13 +20,7 @@
       <div>
         <span>环形进度条尺寸 </span>
 
-        <u-number-input
-          v-model="config.size"
-          style="width: 100px"
-          :min="0"
-          :max="200"
-          :step="10"
-        />
+        <u-number-input v-model="config.size" style="width: 100px" :min="0" :max="200" :step="10" />
       </div>
     </CustomCard>
 
@@ -63,10 +57,11 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowReactive } from 'vue'
-import CustomCard from '../card/custom-card.vue'
 import type { ColorType } from '@ultra-ui/desktop/types'
 import { Warning } from '@ultra-ui/icons/normal'
+import { shallowReactive } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const config = shallowReactive({
   percentage: 0,
@@ -74,7 +69,7 @@ const config = shallowReactive({
   size: 100
 })
 
-const types = ['primary', 'info', 'success', 'warning', 'danger'].map(t => {
+const types = ['primary', 'info', 'success', 'warning', 'danger'].map((t) => {
   return {
     label: t,
     value: t

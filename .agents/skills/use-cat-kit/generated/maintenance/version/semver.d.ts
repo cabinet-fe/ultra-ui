@@ -1,4 +1,4 @@
-import { BumpType, SemverVersion } from "./types.js";
+import { BumpType, SemverVersion } from './types.js'
 
 //#region src/version/semver.d.ts
 /**
@@ -12,7 +12,7 @@ import { BumpType, SemverVersion } from "./types.js";
  * // { major: 1, minor: 2, patch: 3, prerelease: ['alpha', '1'], raw: '1.2.3-alpha.1' }
  * ```
  */
-declare function parseSemver(version: string): SemverVersion;
+declare function parseSemver(version: string): SemverVersion
 /**
  * 验证版本号格式是否有效
  * @param version - 版本字符串
@@ -24,7 +24,7 @@ declare function parseSemver(version: string): SemverVersion;
  * isValidSemver('invalid')       // false
  * ```
  */
-declare function isValidSemver(version: string): boolean;
+declare function isValidSemver(version: string): boolean
 /**
  * 比较两个版本号
  * @param v1 - 版本号 1（字符串或版本对象）
@@ -38,7 +38,7 @@ declare function isValidSemver(version: string): boolean;
  * compareSemver('1.0.0-alpha', '1.0.0')   // -1 (预发布版本小于正式版本)
  * ```
  */
-declare function compareSemver(v1: string | SemverVersion, v2: string | SemverVersion): number;
+declare function compareSemver(v1: string | SemverVersion, v2: string | SemverVersion): number
 /**
  * 递增版本号
  * @param version - 当前版本号
@@ -57,7 +57,7 @@ declare function compareSemver(v1: string | SemverVersion, v2: string | SemverVe
  * incrementVersion('1.2.3', 'prerelease', 'beta') // '1.2.3-beta.0'
  * ```
  */
-declare function incrementVersion(version: string, type: BumpType, preid?: string): string;
+declare function incrementVersion(version: string, type: BumpType, preid?: string): string
 //#endregion
-export { compareSemver, incrementVersion, isValidSemver, parseSemver };
+export { compareSemver, incrementVersion, isValidSemver, parseSemver }
 //# sourceMappingURL=semver.d.ts.map

@@ -8,11 +8,7 @@
     </u-number-input>
   </div>
 
-  <u-dialog
-    title="表单"
-    style="width: 900px; height: 500px"
-    @closed="model.resetData()"
-  >
+  <u-dialog title="表单" style="width: 900px; height: 500px" @closed="model.resetData()">
     <template #trigger>
       <u-button type="primary">打开弹框</u-button>
     </template>
@@ -21,9 +17,7 @@
       <u-button type="primary" @click="handleSetData">设置值</u-button>
       <u-button type="primary" @click="handleValidate">校验</u-button>
       <u-button @click="model.resetData()">重置数据</u-button>
-      <u-button type="success" @click="model.clearValidate()">
-        清除校验
-      </u-button>
+      <u-button type="success" @click="model.clearValidate()"> 清除校验 </u-button>
     </template>
 
     <u-form
@@ -57,23 +51,11 @@
           tips="氨基酸的话啥叫客户当今时代是稍等和反抗精神的发货就开始的话飞机喀什的"
           label="嵌套名称"
         />
-        <u-number-input
-          field="nest.price"
-          label="嵌套价格"
-          currency
-          suffix="元"
-        />
+        <u-number-input field="nest.price" label="嵌套价格" currency suffix="元" />
 
         <u-password-input field="pwd" label="密码" />
         <u-number-input field="age" label="年龄" suffix="岁" />
-        <u-number-input
-          field="debt"
-          currency
-          label="借款"
-          :step="10"
-          suffix="元"
-        >
-        </u-number-input>
+        <u-number-input field="debt" currency label="借款" :step="10" suffix="元"> </u-number-input>
         <u-input :prefix="'333'" field="phone" label="手机" />
         <u-input field="email" label="邮箱" />
         <u-select field="unit" label="单位" :options="units" />
@@ -86,19 +68,9 @@
 
     <br />
 
-    <u-form
-      :disabled="disabled"
-      :readonly="readonly"
-      :model="model"
-      label-width="200px"
-    >
+    <u-form :disabled="disabled" :readonly="readonly" :model="model" label-width="200px">
       <u-checkbox field="freeze" label="是否冻结" />
-      <u-switch
-        field="freeze"
-        label="是否冻结"
-        active-text="是"
-        inactive-text="否"
-      />
+      <u-switch field="freeze" label="是否冻结" active-text="是" inactive-text="否" />
       <u-textarea field="remarks" label="备注" span="full" />
       <u-slider field="slider" label="滑块" />
       <u-tree-select
@@ -121,7 +93,7 @@
       <u-auto-complete
         field="complete1"
         label="complete1"
-        :suggestions="interestList.map(item => item.label)"
+        :suggestions="interestList.map((item) => item.label)"
         label-key="label"
       />
 
@@ -144,10 +116,11 @@
 </template>
 
 <script lang="ts" setup>
+import { date } from '@cat-kit/core'
 import { FormModel } from '@ultra-ui/desktop'
 import { shallowReactive, shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
-import { date } from '@cat-kit/core'
 import { CascadeData, TreeData } from './data'
 
 const readonly = shallowRef(false)
@@ -177,10 +150,7 @@ const model = new FormModel({
   pwd: { value: '', required: true },
   debt: { min: 10, value: 66666 },
   email: {
-    match: [
-      /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
-      '这个时候你得输入一个邮箱'
-    ]
+    match: [/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/, '这个时候你得输入一个邮箱']
   },
   unit: { required: true },
   interest: { required: true },

@@ -24,7 +24,7 @@
 **审计报告模板**（每个 token 一行）：
 
 | Token 名 | JS 端来源 | SCSS 端使用次数 | 有 `u-` 前缀 | light 覆盖 | dark 覆盖 | 状态 |
-|----------|-----------|----------------|-------------|-----------|-----------|------|
+| -------- | --------- | --------------- | ------------ | ---------- | --------- | ---- |
 
 产出：审计报告记录在本计划的 patch 中。
 
@@ -35,6 +35,7 @@
 基于审计结果，设计新的 token 分层：
 
 **全局 token（@ultra-ui/utils/styles）**：
+
 - 颜色系统：`--u-color-primary`、`--u-color-success`、`--u-bg-*`、`--u-text-*`
 - 排版系统：`--u-font-family`、`--u-font-size-*`
 - 间距系统：`--u-gap-*`、`--u-radius-*`
@@ -43,6 +44,7 @@
 - 尺寸系统：`--u-form-component-height-*`
 
 **组件 token（各组件 style.scss 内部）**：
+
 - 将 Theme 类型中的组件特定 token（menu、table、checkbox、radio、switch、tag）从全局 Theme 移入对应组件的 SCSS 文件中，通过全局 token 派生
 - 例如 `--u-table-border-color` 默认值为 `var(--u-border-color)`，可被主题覆盖
 
@@ -51,13 +53,14 @@
 **设计文档模板**：
 
 | 层级 | 旧 token 名 | 新 token 名 | 归属包 | 默认值/fallback |
-|------|------------|------------|--------|----------------|
+| ---- | ----------- | ----------- | ------ | --------------- |
 
 完成标准：分层设计文档完成，包含从旧 token 到新 token 的完整映射表，无歧义。
 
 ### 3. 重构 Theme 类型和 UITheme 类
 
 **重构 Theme 类型**（`packages/utils/src/styles/type.ts`）：
+
 - 移除组件特定 token（menu、table、checkbox、radio、switch、tag），仅保留全局 token
 - 简化类型结构，减少嵌套层级
 
@@ -71,11 +74,13 @@
   - `'auto'`：移除 `data-theme` 属性，由 `@media (prefers-color-scheme: dark)` 和 CSS 规则生效
 
 **API 演进策略**：
+
 - `loadTheme(theme?)` 保留，用于初始化主题实例和加载自定义主题配置
 - `setTheme('light' | 'dark' | 'auto')` 新增，用于切换内置主题和暗色模式
 - `UITheme.new()` 保留，用于创建派生主题
 
 **向后兼容策略**：
+
 - 过渡期（至少一个主版本周期）同时生成带前缀（`--u-color-primary`）和不带前缀（`--color-primary`）的 CSS 变量
 - 在 `render()` 方法中，为每个 `--u-xxx` 变量额外生成一条 `--xxx` 的同值变量
 - 在控制台输出一次性的 deprecation warning（仅开发环境），提示消费者迁移到 `--u-` 前缀
@@ -86,16 +91,19 @@
 ### 4. 更新 SCSS 基础设施
 
 **更新 `_vars.scss`**：
+
 - 确保 `$namespace` 与 CSS 变量前缀 `--u-` 一致
 - 新增语义化 SCSS 变量映射（如 `$color-primary: var(--u-color-primary)`）
 
 **更新 `_functions.scss`**：
+
 - `fn.use-var()` 函数**保持签名不变**，内部修改为输出统一 `--u-` 前缀格式
 - 新增 `fn.component-var($component, $property, $fallback: null)` 函数，签名：
   - 输入：`component-var(table, border-color, var(--u-border-color))`
   - 输出：`var(--u-table-border-color, var(--u-border-color))`
 
 **更新 `_mixins.scss`**：
+
 - 新增 `m.dark()` mixin，在其内部为暗色模式声明组件 token 的覆盖值
 - 选择器策略：同时生成 `[data-theme="dark"]` 和 `@media (prefers-color-scheme: dark):not([data-theme="light"])` 两种选择器
 
@@ -108,6 +116,7 @@
 **执行策略**：由于 `fn.use-var()` 前缀变更影响全局，本步骤必须一次性完成所有组件迁移。
 
 对全部组件执行：
+
 - 将组件 `.scss` 中硬编码的 CSS 变量名替换为通过 `fn.use-var()` 或 `fn.component-var()` 生成的变量引用
 - 将原 Theme 类型中的组件 token 移入对应组件的 SCSS，使用 CSS 变量 fallback：`var(--u-table-border-color, var(--u-border-color))`
 - 为有暗色模式差异的组件添加 `m.dark()` 规则块

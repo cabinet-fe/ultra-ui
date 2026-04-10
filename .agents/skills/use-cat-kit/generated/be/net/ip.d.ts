@@ -4,9 +4,9 @@
  */
 interface GetLocalIPOptions {
   /** IP 地址族，默认 'IPv4' */
-  family?: 'IPv4' | 'IPv6';
+  family?: 'IPv4' | 'IPv6'
   /** 是否包含内网地址，默认 false（只返回公网地址） */
-  includeInternal?: boolean;
+  includeInternal?: boolean
 }
 /**
  * 获取本机网卡的首个匹配 IP 地址
@@ -25,7 +25,7 @@ interface GetLocalIPOptions {
  * @param options - 地址族与是否包含内网地址
  * @returns 匹配到的 IP 地址，若不存在则为 `undefined`
  */
-declare function getLocalIP(options?: GetLocalIPOptions): string | undefined;
+declare function getLocalIP(options?: GetLocalIPOptions): string | undefined
 //#endregion
-export { GetLocalIPOptions, getLocalIP };
+export { GetLocalIPOptions, getLocalIP }
 //# sourceMappingURL=ip.d.ts.map

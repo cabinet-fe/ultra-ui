@@ -1,4 +1,4 @@
-import type {DeconstructValue} from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
 export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner'
 
@@ -10,7 +10,7 @@ export interface LoadingProps {
 
 /** loading组件定义的事件 */
 export interface LoadingEmits {
-  (e: "update:modelValue", value: string): void
+  (e: 'update:modelValue', value: string): void
 }
 
 /** loading组件暴露的属性和方法(组件内部使用) */

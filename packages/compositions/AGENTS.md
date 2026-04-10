@@ -4,21 +4,21 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 
 ## 组合式函数列表
 
-| 模块 | 主要导出 | 用途 |
-| ---- | -------- | ---- |
-| `use-component-props` | `useComponentProps` | 组件属性处理 |
-| `use-config` | `useConfig`, `setDocumentSize` | 全局配置（尺寸等） |
-| `use-drag` | `useDrag` | 拖拽行为 |
-| `use-fallback-props` | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退（组件 → 表单 → 全局配置） |
-| `use-focus` | `useFocus` | 焦点管理 |
-| `use-form-component` | `useFormComponent` | 表单上下文注入/消费（provide/inject） |
-| `use-lock` | `useUpdateLock` | 更新锁（防止并发更新） |
-| `use-model` | `useModel` | 双向绑定封装（local/proxy 两种模式） |
-| `use-pop` | `usePop` | 浮框定位（基于 `@floating-ui/dom`） |
-| `use-reactive-size` | `useReactiveSize` | 响应式尺寸监听 |
-| `use-resize-observer` | `useResizeObserver`, `useObserverCallback` | ResizeObserver 封装 |
-| `use-transition` | `useTransition` | 过渡动画（css/style 两种模式） |
-| `use-virtual` | `useVirtual` | 虚拟滚动 |
+| 模块                  | 主要导出                                   | 用途                                   |
+| --------------------- | ------------------------------------------ | -------------------------------------- |
+| `use-component-props` | `useComponentProps`                        | 组件属性处理                           |
+| `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）                     |
+| `use-drag`            | `useDrag`                                  | 拖拽行为                               |
+| `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退（组件 → 表单 → 全局配置） |
+| `use-focus`           | `useFocus`                                 | 焦点管理                               |
+| `use-form-component`  | `useFormComponent`                         | 表单上下文注入/消费（provide/inject）  |
+| `use-lock`            | `useUpdateLock`                            | 更新锁（防止并发更新）                 |
+| `use-model`           | `useModel`                                 | 双向绑定封装（local/proxy 两种模式）   |
+| `use-pop`             | `usePop`                                   | 浮框定位（基于 `@floating-ui/dom`）    |
+| `use-reactive-size`   | `useReactiveSize`                          | 响应式尺寸监听                         |
+| `use-resize-observer` | `useResizeObserver`, `useObserverCallback` | ResizeObserver 封装                    |
+| `use-transition`      | `useTransition`                            | 过渡动画（css/style 两种模式）         |
+| `use-virtual`         | `useVirtual`                               | 虚拟滚动                               |
 
 ## 表单组件相关
 

@@ -1,6 +1,7 @@
-import type { DatePanelProps, PanelType, DatePanelEmits } from '../../types'
 import type { Dater } from '@cat-kit/core'
 import { type Ref, computed, type ComputedRef, shallowRef } from 'vue'
+
+import type { DatePanelProps, PanelType, DatePanelEmits } from '../../types'
 
 interface DateSelectOptions {
   props: DatePanelProps
@@ -16,19 +17,13 @@ interface UseDateSelectReturned {
   rangeDate: ComputedRef<[Dater, Dater] | undefined>
 }
 
-export function useDateSelect(
-  options: DateSelectOptions
-): UseDateSelectReturned {
+export function useDateSelect(options: DateSelectOptions): UseDateSelectReturned {
   const { props, panelType, emit, updatePanelDate } = options
 
   /** 面板顺序 */
   const panelSequence: PanelType[] = ['year', 'month', 'day']
 
-  const typeMapToPanelType = {
-    year: 'year',
-    month: 'month',
-    date: 'day'
-  }
+  const typeMapToPanelType = { year: 'year', month: 'month', date: 'day' }
 
   /**
    * 临时日期范围, 在点击第一次范围日期时使用
@@ -117,10 +112,5 @@ export function useDateSelect(
     }
   }
 
-  return {
-    handleDateSelect,
-    handleDateRangeHover,
-    resetRangeDateTemp,
-    rangeDate
-  }
+  return { handleDateSelect, handleDateRangeHover, resetRangeDateTemp, rangeDate }
 }

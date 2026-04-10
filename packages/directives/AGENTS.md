@@ -4,11 +4,11 @@ Vue 自定义指令集合。
 
 ## 指令列表
 
-| 指令 | 用途 | 实现要点 |
-| ---- | ---- | -------- |
-| `vFocus` | 挂载时自动聚焦 input | 支持直接 input 或容器内查找 input |
-| `vClickOutside` | 点击元素外部触发回调 | document 级 mousedown + click 协调，WeakMap 管理实例 |
-| `vRipple` | 水波纹点击效果 | mousedown 触发，支持 `binding.value` 控制启用/禁用和自定义类名，`binding.arg` 控制持续时间 |
+| 指令            | 用途                 | 实现要点                                                                                   |
+| --------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| `vFocus`        | 挂载时自动聚焦 input | 支持直接 input 或容器内查找 input                                                          |
+| `vClickOutside` | 点击元素外部触发回调 | document 级 mousedown + click 协调，WeakMap 管理实例                                       |
+| `vRipple`       | 水波纹点击效果       | mousedown 触发，支持 `binding.value` 控制启用/禁用和自定义类名，`binding.arg` 控制持续时间 |
 
 ## 目录结构
 
@@ -26,9 +26,9 @@ src/
 
 ## 导出子路径
 
-| 子路径 | 用途 |
-| ------ | ---- |
-| `@ultra-ui/directives` | 全部指令 |
+| 子路径                              | 用途                               |
+| ----------------------------------- | ---------------------------------- |
+| `@ultra-ui/directives`              | 全部指令                           |
 | `@ultra-ui/directives/ripple/style` | 单独引入 ripple 样式（构建侧使用） |
 
 ## 新增指令约定

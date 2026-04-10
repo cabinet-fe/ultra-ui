@@ -19,17 +19,17 @@ bun run format                               # oxfmt
 
 ## 技术栈
 
-| 类别      | 技术                                       | 版本          |
-| --------- | ------------------------------------------ | ------------- |
-| 框架      | Vue 3 (Composition API + `<script setup>`) | ^3.5.32       |
-| 语言      | TypeScript                                 | ^6.0          |
-| 运行时    | Bun                                        | -             |
-| 构建      | tsdown + Rolldown                          | -             |
-| 样式      | SCSS + BEM + CSS 变量                      | sass-embedded |
-| 测试      | Vitest                                     | ^4.1          |
-| 格式化    | oxfmt + oxlint                             | -             |
-| Monorepo  | Turborepo + workspaces                     | -             |
-| Git Hooks | simple-git-hooks (commit-msg)              | -             |
+| 类别      | 技术                                                                                                        | 版本          |
+| --------- | ----------------------------------------------------------------------------------------------------------- | ------------- |
+| 框架      | Vue 3 (Composition API + `<script setup>`)                                                                  | ^3.5.32       |
+| 语言      | TypeScript                                                                                                  | ^6.0          |
+| 运行时    | Bun                                                                                                         | -             |
+| 构建      | tsdown + Rolldown                                                                                           | -             |
+| 样式      | SCSS + BEM + CSS 变量                                                                                       | sass-embedded |
+| 测试      | Vitest                                                                                                      | ^4.1          |
+| 格式化    | oxfmt + oxlint                                                                                              | -             |
+| Monorepo  | Turborepo + workspaces                                                                                      | -             |
+| Git Hooks | simple-git-hooks (commit-msg)                                                                               | -             |
 | 核心依赖  | `@cat-kit/core`（日期/数值/定时器、树结构等数据结构）、`@cat-kit/be`（CLI/构建）、`@ultra-ui/icons`（图标） | peer / deps   |
 
 ## 目录结构
@@ -76,23 +76,23 @@ ultra-ui/
 
 ## 路径别名
 
-| 别名                    | 指向                       |
-| ----------------------- | -------------------------- |
-| `@ultra-ui/utils`       | `packages/utils/src`       |
-| `@ultra-ui/styles`      | `packages/styles/src`      |
-| `@ultra-ui/desktop`     | `packages/desktop/src`     |
-| `@ultra-ui/compositions`| `packages/compositions/src`|
-| `@ultra-ui/directives`  | `packages/directives/src`  |
+| 别名                     | 指向                        |
+| ------------------------ | --------------------------- |
+| `@ultra-ui/utils`        | `packages/utils/src`        |
+| `@ultra-ui/styles`       | `packages/styles/src`       |
+| `@ultra-ui/desktop`      | `packages/desktop/src`      |
+| `@ultra-ui/compositions` | `packages/compositions/src` |
+| `@ultra-ui/directives`   | `packages/directives/src`   |
 
 ## 全局命名约定
 
-| 对象     | 规则                         | 示例                              |
-| -------- | ---------------------------- | --------------------------------- |
-| 组件名   | `U` + PascalCase             | `UButton`、`USelect`              |
-| CSS 类   | `u-` + BEM                   | `u-button`、`u-button__icon`      |
-| 指令名   | `v` + camelCase              | `vRipple`、`vClickOutside`        |
-| 目录名   | kebab-case                   | `date-picker`、`number-input`     |
-| 类型命名 | `<Name>Props` / `<Name>Emits`| `ButtonProps`、`_ButtonExposed`（内部）、`ButtonExposed`（导出） |
+| 对象     | 规则                          | 示例                                                             |
+| -------- | ----------------------------- | ---------------------------------------------------------------- |
+| 组件名   | `U` + PascalCase              | `UButton`、`USelect`                                             |
+| CSS 类   | `u-` + BEM                    | `u-button`、`u-button__icon`                                     |
+| 指令名   | `v` + camelCase               | `vRipple`、`vClickOutside`                                       |
+| 目录名   | kebab-case                    | `date-picker`、`number-input`                                    |
+| 类型命名 | `<Name>Props` / `<Name>Emits` | `ButtonProps`、`_ButtonExposed`（内部）、`ButtonExposed`（导出） |
 
 ## 约束
 

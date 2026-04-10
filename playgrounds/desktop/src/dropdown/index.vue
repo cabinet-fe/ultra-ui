@@ -16,9 +16,7 @@
         <br />
 
         <div>
-          <u-button @click="handleClickTrigger" style="margin-right: 10px">
-            点击触发
-          </u-button>
+          <u-button @click="handleClickTrigger" style="margin-right: 10px"> 点击触发 </u-button>
         </div>
 
         <br />
@@ -27,12 +25,7 @@
           <span ref="spanRef">触发位置</span>
         </div>
 
-        <u-dropdown
-          class="bb"
-          width="200px"
-          ref="dropdownRef"
-          :trigger="trigger"
-        >
+        <u-dropdown class="bb" width="200px" ref="dropdownRef" :trigger="trigger">
           <template #content>
             <ul>
               <li>第一层hover第一层hover第一层hover第一层hover第一层hover</li>
@@ -73,6 +66,7 @@
 <script setup lang="ts">
 import type { DropdownExposed } from '@ultra-ui/desktop/types'
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const items = [

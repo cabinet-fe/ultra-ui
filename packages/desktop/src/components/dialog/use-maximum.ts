@@ -47,8 +47,5 @@ export function useMaximum(options: Options): Returned {
     }
   }
 
-  return {
-    maximized,
-    toggleMaximize
-  }
+  return { maximized, toggleMaximize }
 }

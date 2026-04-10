@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { LayoutProps } from '../../types'
+import { useResizeObserver } from '@ultra-ui/compositions'
 import { bem, withUnit } from '@ultra-ui/utils'
 import {
   computed,
@@ -36,9 +36,10 @@ import {
   watch,
   nextTick
 } from 'vue'
-import ULayoutResizer from './layout-resizer.vue'
+
+import type { LayoutProps } from '../../types'
 import { LayoutDIKey } from './di'
-import { useResizeObserver } from '@ultra-ui/compositions'
+import ULayoutResizer from './layout-resizer.vue'
 
 defineOptions({
   name: 'Layout'
@@ -65,11 +66,7 @@ const style = computed<CSSProperties>(() => {
   const { rows, gap, resizable } = props
   return {
     gridTemplateColumns: templateCols.value.join(' '),
-    gridTemplateRows: rows
-      ? typeof rows === 'string'
-        ? rows
-        : rows.join(' ')
-      : '',
+    gridTemplateRows: rows ? (typeof rows === 'string' ? rows : rows.join(' ')) : '',
     columnGap: resizable ? '10px' : withUnit(gap, 'px')
   }
 })
@@ -119,8 +116,7 @@ const handleStartResize = (index: number) => {
   nextSize = templateCols.value[index + 1]!
 
   if (!prevSize.endsWith('px') && !nextSize.endsWith('px')) {
-    const rect =
-      containerRef.value?.children[index + 1]?.getBoundingClientRect()
+    const rect = containerRef.value?.children[index + 1]?.getBoundingClientRect()
     if (rect) {
       nextSize = rect.width + 'px'
     }

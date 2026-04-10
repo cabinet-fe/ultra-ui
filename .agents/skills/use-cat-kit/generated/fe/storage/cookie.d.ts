@@ -6,23 +6,23 @@ interface CookieOptions {
   /**
    * Cookie过期时间（秒数或Date对象）
    */
-  expires?: number | Date;
+  expires?: number | Date
   /**
    * Cookie路径
    */
-  path?: string;
+  path?: string
   /**
    * Cookie域名
    */
-  domain?: string;
+  domain?: string
   /**
    * 是否仅通过HTTPS传输
    */
-  secure?: boolean;
+  secure?: boolean
   /**
    * 同站策略
    */
-  sameSite?: 'Strict' | 'Lax' | 'None';
+  sameSite?: 'Strict' | 'Lax' | 'None'
 }
 /**
  * Cookie操作工具类
@@ -60,37 +60,37 @@ declare const cookie: {
    * @param value - cookie 值
    * @param options - 配置选项
    */
-  set(key: string, value: string, options?: CookieOptions): void;
+  set(key: string, value: string, options?: CookieOptions): void
   /**
    * 获取指定键名的 cookie 值
    * @param key - cookie 键名
    * @returns cookie 值，如果不存在则返回 null
    */
-  get(key: string): string | null;
+  get(key: string): string | null
   /**
    * 删除指定键名的 cookie
    * @param key - cookie 键名
    * @param options - 配置选项
    */
-  remove(key: string, options?: Pick<CookieOptions, "path" | "domain">): void;
+  remove(key: string, options?: Pick<CookieOptions, 'path' | 'domain'>): void
   /**
    * 检查指定键名的 cookie 是否存在
    * @param key - cookie 键名
    * @returns 如果 cookie 存在返回 true，否则返回 false
    */
-  has(key: string): boolean;
+  has(key: string): boolean
   /**
    * 获取所有 cookie
    * @returns 包含所有 cookie 的键值对对象
    */
-  getAll(): Record<string, string>;
+  getAll(): Record<string, string>
   /**
    * 清空所有 cookie
    * @remarks
    * 此操作会删除当前域名下的所有 cookie
    */
-  clear(): void;
-};
+  clear(): void
+}
 //#endregion
-export { CookieOptions, cookie };
+export { CookieOptions, cookie }
 //# sourceMappingURL=cookie.d.ts.map

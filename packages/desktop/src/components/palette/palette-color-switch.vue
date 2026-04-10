@@ -10,12 +10,7 @@
       :pattern="pattern"
     />
 
-    <u-button
-      text
-      type="primary"
-      :class="cls.e('clear-btn')"
-      @click="emit('clear')"
-    >
+    <u-button text type="primary" :class="cls.e('clear-btn')" @click="emit('clear')">
       清除
     </u-button>
   </div>
@@ -23,9 +18,10 @@
 
 <script lang="ts" setup>
 import { inject } from 'vue'
-import { PaletteDIKey } from './di'
+
 import { UButton } from '../button'
 import { UInput } from '../input'
+import { PaletteDIKey } from './di'
 
 defineProps<{
   color?: string

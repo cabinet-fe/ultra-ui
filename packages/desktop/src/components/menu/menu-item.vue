@@ -19,11 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuItem } from '../../types'
 import { bem } from '@ultra-ui/utils'
+import { useTemplateRef } from 'vue'
+
+import type { MenuItem } from '../../types'
 import MenuIcon from './menu-icon.vue'
 import { useMenuItem } from './use-menu-item'
-import { useTemplateRef } from 'vue'
 
 defineOptions({ name: 'MenuItem' })
 

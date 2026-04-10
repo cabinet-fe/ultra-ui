@@ -8,14 +8,7 @@ import {
 } from 'vue'
 
 const NodeRender: DefineComponent<{
-  content:
-    | null
-    | undefined
-    | VNodeArrayChildren
-    | VNode
-    | string
-    | number
-    | boolean
+  content: null | undefined | VNodeArrayChildren | VNode | string | number | boolean
 }> = defineComponent({
   name: 'NodeRender',
 

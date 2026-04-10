@@ -56,33 +56,22 @@
 </template>
 
 <script lang="ts" setup>
-import type { ExpressionEditorProps, VariableItem } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import {
-  useTemplateRef,
-  provide,
-  computed,
-  onBeforeUnmount,
-  shallowRef,
-  type VNode
-} from 'vue'
-import { ExpressionEditorDIKey, createVariableMap } from './di'
-import VariablePicker from './components/variable-picker.vue'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { createExpressionEditorRuntime } from './internal/editor-runtime'
-import { useDecorators } from './use-decorators'
-import { useContext } from './use-context'
-import { registerPlainText } from './plain-text'
+import { bem } from '@ultra-ui/utils'
 import { $getRoot } from 'lexical'
-import { $isVariableNode } from './nodes/variable-node'
+import { useTemplateRef, provide, computed, onBeforeUnmount, shallowRef, type VNode } from 'vue'
+
+import type { ExpressionEditorProps, VariableItem } from '../../types'
+import VariablePicker from './components/variable-picker.vue'
+import { ExpressionEditorDIKey, createVariableMap } from './di'
+import { createExpressionEditorRuntime } from './internal/editor-runtime'
+import { moveVariableByDirection } from './internal/features/drag-drop/drag-drop-service'
 import { insertVariableAtTrigger } from './internal/features/insertion/insertion-service'
-import {
-  moveVariableByDirection
-} from './internal/features/drag-drop/drag-drop-service'
-import {
-  collectVariableNodeDescriptors,
-  supportsNativeDnD
-} from './use-expression-drag-drop'
+import { $isVariableNode } from './nodes/variable-node'
+import { registerPlainText } from './plain-text'
+import { useContext } from './use-context'
+import { useDecorators } from './use-decorators'
+import { collectVariableNodeDescriptors, supportsNativeDnD } from './use-expression-drag-drop'
 
 defineOptions({
   name: 'ExpressionEditor'
@@ -96,18 +85,13 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const showPlaceholder = computed(
-  () => !props.modelValue || props.modelValue.trim() === ''
-)
+const showPlaceholder = computed(() => !props.modelValue || props.modelValue.trim() === '')
 
 const cls = bem('expression-editor')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const className = computed(() => {
   return [
@@ -189,11 +173,7 @@ function handleVariableSelect(variable: VariableItem) {
 }
 
 // 更新变量节点的函数
-function updateVariableNode(
-  oldValue: string,
-  newValue: string,
-  newLabel?: string
-) {
+function updateVariableNode(oldValue: string, newValue: string, newLabel?: string) {
   editor.update(() => {
     const root = $getRoot()
 

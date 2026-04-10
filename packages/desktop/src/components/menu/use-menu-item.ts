@@ -1,8 +1,7 @@
-import type { MenuItem } from '../../types'
-
 import { scrollIntoContainerView, type BEM } from '@ultra-ui/utils'
 import { computed, inject, watch, type ShallowRef, type ComputedRef } from 'vue'
 
+import type { MenuItem } from '../../types'
 import { MenuDIKey } from './di'
 
 interface Options {

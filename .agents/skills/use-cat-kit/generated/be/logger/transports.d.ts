@@ -1,4 +1,4 @@
-import { LogEntry, LogFormat, LogLevel } from "./logger.js";
+import { LogEntry, LogFormat, LogLevel } from './logger.js'
 
 //#region src/logger/transports.d.ts
 /**
@@ -8,7 +8,7 @@ import { LogEntry, LogFormat, LogLevel } from "./logger.js";
  */
 interface Transport {
   /** 最低日志级别，低于此级别的日志不会被输出 */
-  level?: LogLevel;
+  level?: LogLevel
   /**
    * 写入日志条目
    *
@@ -16,16 +16,16 @@ interface Transport {
    * @param formatted - 格式化后的日志字符串
    * @param format - 日志格式
    */
-  write(entry: LogEntry, formatted: string, format: LogFormat): void | Promise<void>;
+  write(entry: LogEntry, formatted: string, format: LogFormat): void | Promise<void>
 }
 /**
  * 控制台传输器选项
  */
 interface ConsoleTransportOptions {
   /** 是否使用颜色，默认 true */
-  useColors?: boolean;
+  useColors?: boolean
   /** 日志级别 */
-  level?: LogLevel;
+  level?: LogLevel
 }
 /**
  * 控制台日志传输器
@@ -39,14 +39,14 @@ interface ConsoleTransportOptions {
  * ```
  */
 declare class ConsoleTransport implements Transport {
-  private readonly options;
-  level?: LogLevel;
+  private readonly options
+  level?: LogLevel
   /**
    * 创建控制台传输器实例
    * @param options - 传输器选项
    */
-  constructor(options?: ConsoleTransportOptions);
-  write(entry: LogEntry, formatted: string, format: LogFormat): void;
+  constructor(options?: ConsoleTransportOptions)
+  write(entry: LogEntry, formatted: string, format: LogFormat): void
 }
 /**
  * 文件传输器选项
@@ -57,13 +57,13 @@ interface FileTransportOptions {
    * - 目录：日志文件按日期命名（如 2024-01-15.log）
    * - 文件：直接写入该文件
    */
-  path: string;
+  path: string
   /** 最大文件大小（字节），超过此大小会自动轮转或创建新文件 */
-  maxSize?: number;
+  maxSize?: number
   /** 换行符，默认 '\n' */
-  newline?: string;
+  newline?: string
   /** 日志级别 */
-  level?: LogLevel;
+  level?: LogLevel
 }
 /**
  * 文件日志传输器
@@ -86,26 +86,26 @@ interface FileTransportOptions {
  * ```
  */
 declare class FileTransport implements Transport {
-  private readonly options;
-  level?: LogLevel;
-  private queue;
-  private isDirectory;
+  private readonly options
+  level?: LogLevel
+  private queue
+  private isDirectory
   /**
    * 创建文件传输器实例
    * @param options - 传输器选项
    */
-  constructor(options: FileTransportOptions);
-  write(_: LogEntry, formatted: string, _format: LogFormat): Promise<void>;
+  constructor(options: FileTransportOptions)
+  write(_: LogEntry, formatted: string, _format: LogFormat): Promise<void>
   /**
    * 获取当前日志文件路径
    */
-  private getLogFilePath;
-  private writeInternal;
+  private getLogFilePath
+  private writeInternal
   /**
    * 处理文件大小限制
    */
-  private handleSizeLimit;
+  private handleSizeLimit
 }
 //#endregion
-export { ConsoleTransport, ConsoleTransportOptions, FileTransport, FileTransportOptions, Transport };
+export { ConsoleTransport, ConsoleTransportOptions, FileTransport, FileTransportOptions, Transport }
 //# sourceMappingURL=transports.d.ts.map

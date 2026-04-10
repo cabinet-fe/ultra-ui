@@ -4,16 +4,16 @@
  */
 interface FileCacheOptions {
   /** 缓存目录路径 */
-  dir: string;
+  dir: string
   /**
    * 默认过期时间（毫秒）
    */
-  ttl?: number;
+  ttl?: number
   /**
    * 文件后缀
    * @default '.json'
    */
-  extension?: string;
+  extension?: string
 }
 /**
  * 基于文件系统的缓存实现
@@ -34,16 +34,16 @@ interface FileCacheOptions {
  * @template V 缓存值的类型
  */
 declare class FileCache<V> {
-  private readonly dir;
-  private readonly ttl?;
-  private readonly extension;
+  private readonly dir
+  private readonly ttl?
+  private readonly extension
   /**
    * 创建文件缓存实例
    * @param options - 缓存选项
    */
-  constructor(options: FileCacheOptions);
-  private getFilePath;
-  private isExpired;
+  constructor(options: FileCacheOptions)
+  private getFilePath
+  private isExpired
   /**
    * 获取缓存值
    *
@@ -53,7 +53,7 @@ declare class FileCache<V> {
    * @returns 缓存值，如果不存在或已过期则返回 `undefined`
    * @throws {Error} 当文件读取失败时抛出错误
    */
-  get(key: string): Promise<V | undefined>;
+  get(key: string): Promise<V | undefined>
   /**
    * 设置缓存值
    *
@@ -64,7 +64,7 @@ declare class FileCache<V> {
    * @param ttl - 过期时间（毫秒），如果未指定则使用默认 TTL
    * @throws {Error} 当文件写入失败时抛出错误
    */
-  set(key: string, value: V, ttl?: number): Promise<void>;
+  set(key: string, value: V, ttl?: number): Promise<void>
   /**
    * 删除指定的缓存项
    *
@@ -72,7 +72,7 @@ declare class FileCache<V> {
    * @returns 如果键存在并成功删除返回 `true`，如果文件不存在返回 `false`
    * @throws {Error} 当文件删除失败时抛出错误
    */
-  delete(key: string): Promise<boolean>;
+  delete(key: string): Promise<boolean>
   /**
    * 清空所有缓存项
    *
@@ -80,8 +80,8 @@ declare class FileCache<V> {
    *
    * @throws {Error} 当目录操作失败时抛出错误
    */
-  clear(): Promise<void>;
+  clear(): Promise<void>
 }
 //#endregion
-export { FileCache, FileCacheOptions };
+export { FileCache, FileCacheOptions }
 //# sourceMappingURL=file-cache.d.ts.map

@@ -10,9 +10,9 @@
 
 <script lang="ts" setup>
 defineProps<{
-  title?: string;
-  height?: string;
-}>();
+  title?: string
+  height?: string
+}>()
 </script>
 
 <style lang="scss" scoped>

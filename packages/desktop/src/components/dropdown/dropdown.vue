@@ -19,13 +19,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'
+import { useModel, usePop, useTransition } from '@ultra-ui/compositions'
+import { vClickOutside } from '@ultra-ui/directives'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
 import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs } from 'vue'
-import { vClickOutside } from '@ultra-ui/directives'
-import { useModel, usePop, useTransition } from '@ultra-ui/compositions'
-import { useNest } from '../tip/use-nest'
+
+import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'
 import { UNodeRender } from '../node-render'
+import { useNest } from '../tip/use-nest'
 
 defineOptions({ name: 'Dropdown', inheritAttrs: false })
 

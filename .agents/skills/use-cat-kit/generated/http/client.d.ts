@@ -1,13 +1,13 @@
-import { AliasRequestConfig, ClientConfig, HTTPResponse, RequestConfig } from "./types.js";
+import { AliasRequestConfig, ClientConfig, HTTPResponse, RequestConfig } from './types.js'
 
 //#region src/client.d.ts
 /** 插件触发的单次请求最多允许的重试次数（retryCount 0 为首次，共最多 11 次尝试） */
-declare const MAX_PLUGIN_RETRIES = 10;
+declare const MAX_PLUGIN_RETRIES = 10
 /**
  * 合并请求配置：headers / query 做对象级合并；标量类字段仅在 patch 显式传入且非 undefined 时覆盖。
  * `undefined` 不用于清空已有配置。
  */
-declare function mergeRequestConfig(base: RequestConfig, patch: RequestConfig): RequestConfig;
+declare function mergeRequestConfig(base: RequestConfig, patch: RequestConfig): RequestConfig
 /**
  * HTTP 请求客户端
  *
@@ -36,42 +36,42 @@ declare function mergeRequestConfig(base: RequestConfig, patch: RequestConfig): 
  */
 declare class HTTPClient {
   /** 请求前缀 */
-  private prefix;
+  private prefix
   /** 客户端配置 */
-  private config;
+  private config
   /** 请求引擎 */
-  private engine;
+  private engine
   /**
    * 创建 HTTP 客户端实例
    * @param prefix 请求前缀
    * @param config 客户端配置
    */
-  constructor(prefix?: string, config?: ClientConfig);
-  private getRequestUrl;
-  private isAbsoluteUrl;
-  private appendQueryParams;
+  constructor(prefix?: string, config?: ClientConfig)
+  private getRequestUrl
+  private isAbsoluteUrl
+  private appendQueryParams
   /**
    * 获取请求配置
    * @param config 当前请求配置
    * @returns 合并后的请求配置
    */
-  private getRequestConfig;
-  private runOnErrorPlugins;
-  private _executeRequest;
+  private getRequestConfig
+  private runOnErrorPlugins
+  private _executeRequest
   /**
    * 发送 HTTP 请求
    * @param url 请求地址
    * @param config 请求配置
    * @returns Promise<HTTPResponse>
    */
-  request<T = any>(url: string, config?: RequestConfig): Promise<HTTPResponse<T>>;
+  request<T = any>(url: string, config?: RequestConfig): Promise<HTTPResponse<T>>
   /**
    * 发送 GET 请求
    * @param url 请求地址
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  get<T>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>;
+  get<T>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
   /**
    * 发送 POST 请求
    * @param url 请求地址
@@ -79,7 +79,11 @@ declare class HTTPClient {
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  post<T = any>(url: string, body?: RequestConfig['body'], config?: Omit<RequestConfig, 'method' | 'body'>): Promise<HTTPResponse<T>>;
+  post<T = any>(
+    url: string,
+    body?: RequestConfig['body'],
+    config?: Omit<RequestConfig, 'method' | 'body'>
+  ): Promise<HTTPResponse<T>>
   /**
    * 发送 PUT 请求
    * @param url 请求地址
@@ -87,14 +91,18 @@ declare class HTTPClient {
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  put<T = any>(url: string, body?: RequestConfig['body'], config?: Omit<RequestConfig, 'method' | 'body'>): Promise<HTTPResponse<T>>;
+  put<T = any>(
+    url: string,
+    body?: RequestConfig['body'],
+    config?: Omit<RequestConfig, 'method' | 'body'>
+  ): Promise<HTTPResponse<T>>
   /**
    * 发送 DELETE 请求
    * @param url 请求地址
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  delete<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>;
+  delete<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>
   /**
    * 发送 PATCH 请求
    * @param url 请求地址
@@ -102,25 +110,29 @@ declare class HTTPClient {
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  patch<T = any>(url: string, body?: RequestConfig['body'], config?: Omit<RequestConfig, 'method' | 'body'>): Promise<HTTPResponse<T>>;
+  patch<T = any>(
+    url: string,
+    body?: RequestConfig['body'],
+    config?: Omit<RequestConfig, 'method' | 'body'>
+  ): Promise<HTTPResponse<T>>
   /**
    * 发送 HEAD 请求
    * @param url 请求地址
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  head<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>;
+  head<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>
   /**
    * 发送 OPTIONS 请求
    * @param url 请求地址
    * @param config 请求选项
    * @returns Promise<HTTPResponse>
    */
-  options<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>;
+  options<T = any>(url: string, config?: Omit<RequestConfig, 'method'>): Promise<HTTPResponse<T>>
   /**
    * 中止所有请求
    */
-  abort(): void;
+  abort(): void
   /**
    * 创建请求分组
    * @param prefix 分组前缀
@@ -138,8 +150,8 @@ declare class HTTPClient {
    * userGroup.abort()
    * ```
    */
-  group(prefix: string): HTTPClient;
+  group(prefix: string): HTTPClient
 }
 //#endregion
-export { HTTPClient, MAX_PLUGIN_RETRIES, mergeRequestConfig };
+export { HTTPClient, MAX_PLUGIN_RETRIES, mergeRequestConfig }
 //# sourceMappingURL=client.d.ts.map

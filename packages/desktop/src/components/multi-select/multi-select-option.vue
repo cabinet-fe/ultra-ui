@@ -20,10 +20,11 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onBeforeUnmount } from 'vue'
-import { MultiSelectDIKey } from './di'
-import { UCheckbox } from '../checkbox'
 import { Ripple } from '@ultra-ui/directives'
+import { inject, onBeforeUnmount } from 'vue'
+
+import { UCheckbox } from '../checkbox'
+import { MultiSelectDIKey } from './di'
 
 defineOptions({
   name: 'MultiSelectOption'

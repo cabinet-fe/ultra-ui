@@ -40,18 +40,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
-import { bem } from '@ultra-ui/utils'
-import { computed, ref, shallowRef, watch } from 'vue'
-import { UIcon } from '../icon'
+import { useFocus, useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { Close } from '@ultra-ui/icons/normal'
-import {
-  useFocus,
-  useFormComponent,
-  useFormFallbackProps
-} from '@ultra-ui/compositions'
-import { calcTextareaHeight } from './utils'
+import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed, ref, shallowRef, watch } from 'vue'
+
+import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
+import { UIcon } from '../icon'
+import { calcTextareaHeight } from './utils'
 
 defineOptions({
   name: 'Textarea'
@@ -70,14 +67,11 @@ const cls = bem('textarea')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default' as ComponentSize,
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default' as ComponentSize,
+  disabled: false,
+  readonly: false
+})
 
 const emit = defineEmits<TextareaEmits>()
 
@@ -87,7 +81,7 @@ const model = defineModel<string>()
 
 const hovered = shallowRef(false)
 
-const { focus, handleBlur, handleFocus } = useFocus(focused => {
+const { focus, handleBlur, handleFocus } = useFocus((focused) => {
   focused ? emit('focus') : emit('blur')
 })
 

@@ -4,7 +4,9 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { basename, dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import fg from 'fast-glob'
+
 import { kebabBasenameToComponentName } from './icon-naming'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -52,7 +54,10 @@ function normalizeMonochromeSvgFragment(fragment: string): string {
       .replace(/\bstroke\s*=\s*["']black["']/gi, 'stroke="currentColor"')
       // rgb(0,0,0) 等形式较少见于已 SVGO 产物，保留简单替换
       .replace(/\bfill\s*=\s*["']rgb\s*\(\s*0\s*,\s*0\s*,\s*0\s*\)["']/gi, 'fill="currentColor"')
-      .replace(/\bstroke\s*=\s*["']rgb\s*\(\s*0\s*,\s*0\s*,\s*0\s*\)["']/gi, 'stroke="currentColor"')
+      .replace(
+        /\bstroke\s*=\s*["']rgb\s*\(\s*0\s*,\s*0\s*,\s*0\s*\)["']/gi,
+        'stroke="currentColor"'
+      )
   )
 }
 
@@ -71,7 +76,7 @@ let skipped = 0
 
 for (const { glob, outDir, mono } of SOURCES) {
   const files = await fg(glob, { cwd: PKG_ROOT, absolute: true })
-  for (const abs of files.sort()) {
+  for (const abs of files.toSorted()) {
     const svgRaw = readFileSync(abs, 'utf8')
     const hash = shortHash(svgRaw)
     const baseName = basename(abs, '.svg')

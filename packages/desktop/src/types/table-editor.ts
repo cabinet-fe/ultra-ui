@@ -1,4 +1,5 @@
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+
 import type { TableProps } from './table'
 
 /** 表格型编辑器组件属性 */

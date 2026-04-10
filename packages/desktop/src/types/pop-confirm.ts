@@ -1,10 +1,13 @@
-import type { Component } from 'vue'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { Component } from 'vue'
+
 import type { TipProps } from './tip'
 
 /** 气泡确认框组件属性 */
-export interface PopConfirmProps
-  extends Pick<TipProps, 'alignment' | 'direction' | 'trigger' | 'contentTag'> {
+export interface PopConfirmProps extends Pick<
+  TipProps,
+  'alignment' | 'direction' | 'trigger' | 'contentTag'
+> {
   /**文字 */
   title?: string
   /**icon 图标*/

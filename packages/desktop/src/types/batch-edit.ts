@@ -1,7 +1,8 @@
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+
+import type { ActionProps } from './action'
 import type { IFormModel } from './form'
 import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
-import type { ActionProps } from './action'
 
 /** 批量编辑列 */
 export interface BatchEditColumn extends TableColumn {
@@ -16,17 +17,10 @@ export interface BatchEditColumn extends TableColumn {
   // defaultValue?: any | (() => any)
 }
 
-export type BatchEditFeature =
-  | 'create'
-  | 'update'
-  | 'copy'
-  | 'delete'
-  | 'view'
-  | 'createChild'
+export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete' | 'view' | 'createChild'
 
 /** 批量编辑组件属性 */
-export interface BatchEditProps<Model extends IFormModel = IFormModel>
-  extends TableProps {
+export interface BatchEditProps<Model extends IFormModel = IFormModel> extends TableProps {
   /**
    * 表单模型
    * @description 该模型优先级要大于列配置

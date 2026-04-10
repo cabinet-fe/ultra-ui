@@ -6,9 +6,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { EmptyProps } from '../../types'
-import { bem } from '@ultra-ui/utils'
 import { Empty } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+
+import type { EmptyProps } from '../../types'
 import { UIcon } from '../icon'
 
 defineOptions({

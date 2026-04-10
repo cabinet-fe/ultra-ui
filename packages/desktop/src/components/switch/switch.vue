@@ -8,10 +8,7 @@
       :disabled="disabled"
       @input="handleInput"
     />
-    <span
-      :class="[cls.e('text'), bem.is('selected', !model)]"
-      v-if="inactiveText"
-    >
+    <span :class="[cls.e('text'), bem.is('selected', !model)]" v-if="inactiveText">
       {{ inactiveText }}
     </span>
 
@@ -26,10 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { SwitchEmits, SwitchProps, _SwitchExposed } from '../../types'
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { bem } from '@ultra-ui/utils'
 import { computed } from 'vue'
+
+import type { SwitchEmits, SwitchProps, _SwitchExposed } from '../../types'
 
 defineOptions({
   name: 'Switch'
@@ -48,10 +46,7 @@ const cls = bem('switch')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const switchClass = computed(() => {
   return [

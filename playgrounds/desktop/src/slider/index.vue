@@ -48,9 +48,7 @@
         <u-slider
           v-model="sliderValue"
           v-bind="config.data"
-          :style="{
-            height: config.data.vertical ? '300px' : undefined
-          }"
+          :style="{ height: config.data.vertical ? '300px' : undefined }"
         />
 
         {{ sliderValue }}
@@ -60,7 +58,7 @@
 </template>
 
 <script lang="tsx" setup>
-import { FormModel } from '@ultra-ui/desktop/components'
+import { FormModel } from '@ultra-ui/desktop'
 import { ref } from 'vue'
 
 const config = new FormModel({

@@ -3,10 +3,7 @@
     <slot />
   </div>
 
-  <u-tag
-    v-else-if="checked !== undefined"
-    :type="checked ? 'success' : 'danger'"
-  >
+  <u-tag v-else-if="checked !== undefined" :type="checked ? 'success' : 'danger'">
     {{ checked ? '是' : '否' }}
   </u-tag>
 
@@ -17,11 +14,12 @@
 
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
-import { computed } from 'vue'
-import { UTag } from '../tag'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed } from 'vue'
+
+import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
+import { UTag } from '../tag'
 
 defineOptions({
   name: 'CheckboxButton'
@@ -46,14 +44,11 @@ const checked = defineModel<boolean>()
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const className = computed(() => {
   return [

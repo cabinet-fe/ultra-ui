@@ -1,9 +1,9 @@
 //#region src/file/read.d.ts
 interface ReadChunksOptions {
   /** 每次读取的块大小，默认 10MB */
-  chunkSize?: number;
+  chunkSize?: number
   /** 开始读取的偏移量 */
-  offset?: number;
+  offset?: number
 }
 /**
  * 分块读取文件，返回 AsyncGenerator
@@ -29,7 +29,10 @@ interface ReadChunksOptions {
  * await reader.return(undefined)
  * ```
  */
-declare function readChunks(file: Blob | File, options?: ReadChunksOptions): AsyncGenerator<Uint8Array>;
+declare function readChunks(
+  file: Blob | File,
+  options?: ReadChunksOptions
+): AsyncGenerator<Uint8Array>
 //#endregion
-export { ReadChunksOptions, readChunks };
+export { ReadChunksOptions, readChunks }
 //# sourceMappingURL=read.d.ts.map

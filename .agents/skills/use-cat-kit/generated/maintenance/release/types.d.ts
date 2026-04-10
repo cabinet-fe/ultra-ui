@@ -1,4 +1,4 @@
-import { ProtocolResolveOptions } from "./protocol.js";
+import { ProtocolResolveOptions } from './protocol.js'
 
 //#region src/release/types.d.ts
 /**
@@ -6,36 +6,36 @@ import { ProtocolResolveOptions } from "./protocol.js";
  */
 interface GitTagOptions {
   /** 仓库根目录（绝对路径） */
-  cwd: string;
+  cwd: string
   /** tag 名称 */
-  tag: string;
+  tag: string
   /** 注释内容，未提供时使用 tag 文本 */
-  message?: string;
+  message?: string
   /** 是否推送到远端 */
-  push?: boolean;
+  push?: boolean
   /** 推送使用的远端名称，默认 origin */
-  remote?: string;
+  remote?: string
   /** 是否允许覆盖已有 tag */
-  force?: boolean;
+  force?: boolean
 }
 /**
  * 提交并推送代码的选项
  */
 interface GitCommitAndPushOptions {
   /** 仓库根目录（绝对路径） */
-  cwd: string;
+  cwd: string
   /** 提交信息 */
-  message: string;
+  message: string
   /** 是否自动执行 git add -A，默认 true */
-  addAll?: boolean;
+  addAll?: boolean
   /** 是否允许空提交 */
-  allowEmpty?: boolean;
+  allowEmpty?: boolean
   /** 推送远端名称，默认 origin */
-  remote?: string;
+  remote?: string
   /** 推送分支名称，默认当前分支 */
-  branch?: string;
+  branch?: string
   /** 是否同时推送所有 tag */
-  pushTags?: boolean;
+  pushTags?: boolean
 }
 /**
  * npm 发布选项
@@ -47,7 +47,7 @@ interface GitCommitAndPushOptions {
  */
 interface PublishOptions {
   /** 仓库根目录或包所在目录 */
-  cwd: string;
+  cwd: string
   /**
    * 要发布的工作区名称或路径列表
    *
@@ -65,7 +65,7 @@ interface PublishOptions {
    * })
    * ```
    */
-  workspace?: string[];
+  workspace?: string[]
   /**
    * 是否发布所有工作区
    *
@@ -80,27 +80,27 @@ interface PublishOptions {
    * })
    * ```
    */
-  workspaces?: boolean;
+  workspaces?: boolean
   /**
    * 是否包含根工作区
    *
    * 仅在 workspace 或 workspaces 生效时有效
    */
-  includeWorkspaceRoot?: boolean;
+  includeWorkspaceRoot?: boolean
   /** 自定义 registry，默认使用 npm 官方源 */
-  registry?: string;
+  registry?: string
   /** 发布 dist-tag，默认 latest */
-  tag?: string;
+  tag?: string
   /** 2FA 动态验证码 */
-  otp?: string;
+  otp?: string
   /** 是否仅做 dry-run，不真正上传 */
-  dryRun?: boolean;
+  dryRun?: boolean
   /** 包访问级别 */
-  access?: 'public' | 'restricted';
+  access?: 'public' | 'restricted'
   /** 启用 provenance（npm 9+ 支持，需要在 CI/CD 环境中使用） */
-  provenance?: boolean;
+  provenance?: boolean
   /** provenance 文件路径（与 provenance 互斥） */
-  provenanceFile?: string;
+  provenanceFile?: string
   /**
    * 协议解析选项
    *
@@ -130,7 +130,7 @@ interface PublishOptions {
    * })
    * ```
    */
-  resolveProtocol?: ProtocolResolveOptions;
+  resolveProtocol?: ProtocolResolveOptions
   /**
    * 需要解析协议的包目录列表（批量发布模式）
    *
@@ -155,31 +155,38 @@ interface PublishOptions {
    * })
    * ```
    */
-  resolveProtocolDirs?: string[];
+  resolveProtocolDirs?: string[]
 }
 /**
  * 提交结果
  */
 interface GitCommitResult {
   /** 完整提交哈希 */
-  commitHash: string;
+  commitHash: string
   /** 推送的分支 */
-  branch: string;
+  branch: string
 }
 /**
  * tag 结果
  */
 interface GitTagResult {
   /** 创建的 tag 名称 */
-  tag: string;
+  tag: string
 }
 /**
  * 发布结果
  */
 interface PublishResult {
   /** 发布命令输出 */
-  output: string;
+  output: string
 }
 //#endregion
-export { GitCommitAndPushOptions, GitCommitResult, GitTagOptions, GitTagResult, PublishOptions, PublishResult };
+export {
+  GitCommitAndPushOptions,
+  GitCommitResult,
+  GitTagOptions,
+  GitTagResult,
+  PublishOptions,
+  PublishResult
+}
 //# sourceMappingURL=types.d.ts.map

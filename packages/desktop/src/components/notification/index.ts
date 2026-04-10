@@ -1,12 +1,11 @@
 export { default as UNotification } from './notification.vue'
-import UNotification from './notification.vue'
-import { createVNode, render, type VNode, reactive } from 'vue'
-import type { NotificationProps } from '../../types'
 import { zIndex } from '@ultra-ui/utils'
+import { createVNode, render, type VNode, reactive } from 'vue'
 
-type NotificationItem = {
-  vm: VNode
-}
+import type { NotificationProps } from '../../types'
+import UNotification from './notification.vue'
+
+type NotificationItem = { vm: VNode }
 
 const notificationQueue = reactive({
   'bottom-right': [] as NotificationItem[],
@@ -21,27 +20,19 @@ const length = (key: string) => {
 
 let count = 1
 
-const close = (
-  id: string,
-  position: string,
-  userClose?: (vm: VNode) => void
-) => {
+const close = (id: string, position: string, userClose?: (vm: VNode) => void) => {
   const index = notificationQueue[position].findIndex(({ vm }) => {
     return id === vm.component!.props.id
   })
   if (index > -1) {
     const { vm } = notificationQueue[position][index]!
     userClose?.(vm)
-    let offset = Number(
-      notificationQueue[position][index]!.vm.component!.props.offset
-    )
+    let offset = Number(notificationQueue[position][index]!.vm.component!.props.offset)
     notificationQueue[position].splice(index, 1)
     let temp = 0
     for (let i = length(position); i > 0; i--) {
       if (i < index + 1) {
-        temp = Number(
-          notificationQueue[position][i - 1]!.vm.component!.props.offset
-        )
+        temp = Number(notificationQueue[position][i - 1]!.vm.component!.props.offset)
         notificationQueue[position][i - 1]!.vm.component!.props.offset = offset
         offset = temp
       }
@@ -64,10 +55,7 @@ const createWrapper = (options: NotificationProps) => {
     wrapper.id = `notification-${position}-id`
     Object.assign(
       wrapper.style,
-      {
-        position: 'fixed',
-        textAlign: 'center'
-      },
+      { position: 'fixed', textAlign: 'center' },
       {
         'top-right': { top: `${offset}px`, right: `${offset}px` },
         'top-left': { top: `${offset}px`, left: `${offset}px` },
@@ -82,19 +70,13 @@ const createWrapper = (options: NotificationProps) => {
         let width = 0
         let height = 0
         for (let i = length(position); i > 0; i--) {
-          notificationQueue[position][
-            i - 1
-          ]!.vm.component!.exposed!.clearTimer()
+          notificationQueue[position][i - 1]!.vm.component!.exposed!.clearTimer()
           if (i === length(position)) {
             width = notificationQueue[position][i - 1]!.vm.el?.offsetWidth + 8
           }
-          notificationQueue[position][i - 1]!.vm.component!.props.offset =
-            innerOffset
-          innerOffset +=
-            notificationQueue[position][i - 1]!.vm.el?.offsetHeight / 2 + 5
-          if (innerCount < 3)
-            height +=
-              notificationQueue[position][i - 1]!.vm.el?.offsetHeight + 10
+          notificationQueue[position][i - 1]!.vm.component!.props.offset = innerOffset
+          innerOffset += notificationQueue[position][i - 1]!.vm.el?.offsetHeight / 2 + 5
+          if (innerCount < 3) height += notificationQueue[position][i - 1]!.vm.el?.offsetHeight + 10
           innerCount++
         }
 
@@ -112,14 +94,10 @@ const createWrapper = (options: NotificationProps) => {
         let innerCount = 0
         let height = 0
         for (let i = length(position); i > 0; i--) {
-          notificationQueue[position][
-            i - 1
-          ]!.vm.component!.exposed!.startTimer()
+          notificationQueue[position][i - 1]!.vm.component!.exposed!.startTimer()
           if (i === length(position))
-            height =
-              notificationQueue[position][i - 1]!.vm.el?.offsetHeight + 80
-          notificationQueue[position][i - 1]!.vm.component!.props.offset =
-            innerOffset
+            height = notificationQueue[position][i - 1]!.vm.el?.offsetHeight + 80
+          notificationQueue[position][i - 1]!.vm.component!.props.offset = innerOffset
           if (innerCount < 2) innerOffset += 10
           innerCount++
         }
@@ -145,8 +123,7 @@ export const Notification = (options: NotificationProps): void => {
     let innerCount = 0
     for (let i = length(position); i > 0; i--) {
       if (innerCount < 2) innerOffset += 10
-      notificationQueue[position][i - 1]!.vm.component!.props.offset =
-        innerOffset
+      notificationQueue[position][i - 1]!.vm.component!.props.offset = innerOffset
       innerCount++
     }
   }

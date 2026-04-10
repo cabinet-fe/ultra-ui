@@ -2,8 +2,7 @@ import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
 /** 滑块组件属性 */
-export interface SliderProps<T extends number | [number, number]>
-  extends FormComponentProps {
+export interface SliderProps<T extends number | [number, number]> extends FormComponentProps {
   modelValue?: T
   /**
    * 最小值

@@ -1,14 +1,14 @@
 {
   "name": "@ultra-ui/directives",
   "version": "0.1.0",
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "sideEffects": [
     "dist/**/style.js",
     "dist/**/*.css"
-  ],
-  "files": [
-    "dist",
-    "src"
   ],
   "exports": {
     ".": {
@@ -16,24 +16,24 @@
       "development": "./src/index.ts",
       "import": "./dist/index.js"
     },
-    "./ripple/style": {
-      "types": "./dist/ripple/style.d.ts",
-      "development": "./src/ripple/style.ts",
-      "import": "./dist/ripple/style.js"
+    "./*": {
+      "types": "./dist/*",
+      "development": "./src/*",
+      "import": "./dist/*"
     }
   },
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
+  "dependencies": {
+    "@ultra-ui/styles": "workspace:*",
+    "@ultra-ui/utils": "workspace:*"
+  },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",
     "sass-embedded": "^1.99.0",
     "tsdown": "^0.21.7"
-  },
-  "dependencies": {
-    "@ultra-ui/styles": "workspace:*",
-    "@ultra-ui/utils": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

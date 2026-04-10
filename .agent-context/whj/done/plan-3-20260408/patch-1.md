@@ -2,7 +2,7 @@
 
 ## 1. Token 统计（`packages/utils/src/styles/type.ts` 重构前）
 
-- 约 **120+** 叶子配置项分布在 color、bg、border、text-color、radius、form-component-height、font-*、shadow、gap、breakpoint 及 **menu / table / checkbox / radio / switch / tag** 等组件分组中。
+- 约 **120+** 叶子配置项分布在 color、bg、border、text-color、radius、form-component-height、font-\*、shadow、gap、breakpoint 及 **menu / table / checkbox / radio / switch / tag** 等组件分组中。
 
 ## 2. SCSS 中 `var(--*)` 与 `fn.use-var`（重构前）
 
@@ -17,12 +17,12 @@
 
 ## 4. 主要结论
 
-| 类别 | 说明 |
-|------|------|
-| 命名 | 全局变量缺统一 `--u-` 命名空间；BEM 的 `$namespace: u-` 与 CSS 变量前缀不一致 |
-| 组件 token | menu/table/checkbox 等与全局 Theme 耦合，类型臃肿 |
-| 暗色 | 依赖切换 `UITheme` 实例并整表重渲染，无 `prefers-color-scheme` / `data-theme` 分层 |
-| 运行时 | 仅 `<style>` 注入，未使用 `adoptedStyleSheets` |
+| 类别       | 说明                                                                               |
+| ---------- | ---------------------------------------------------------------------------------- |
+| 命名       | 全局变量缺统一 `--u-` 命名空间；BEM 的 `$namespace: u-` 与 CSS 变量前缀不一致      |
+| 组件 token | menu/table/checkbox 等与全局 Theme 耦合，类型臃肿                                  |
+| 暗色       | 依赖切换 `UITheme` 实例并整表重渲染，无 `prefers-color-scheme` / `data-theme` 分层 |
+| 运行时     | 仅 `<style>` 注入，未使用 `adoptedStyleSheets`                                     |
 
 ## 5. `light` / `dark` 中 `var(--...)` 交叉引用（抽样）
 

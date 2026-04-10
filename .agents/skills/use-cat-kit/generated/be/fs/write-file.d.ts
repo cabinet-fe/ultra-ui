@@ -1,4 +1,4 @@
-import { Readable } from "node:stream";
+import { Readable } from 'node:stream'
 
 //#region src/fs/write-file.d.ts
 /**
@@ -6,12 +6,12 @@ import { Readable } from "node:stream";
  */
 interface WriteFileOptions {
   /** 文件编码，默认 'utf8' */
-  encoding?: BufferEncoding;
+  encoding?: BufferEncoding
   /**
    * 文件权限模式，默认 0o666
    * @example 0o644
    */
-  mode?: number;
+  mode?: number
   /**
    * 文件系统标志
    * - 'w': 写入（默认），如果文件存在则截断
@@ -19,12 +19,19 @@ interface WriteFileOptions {
    * - 'wx': 写入，如果文件存在则失败
    * @default 'w'
    */
-  flag?: 'w' | 'a' | 'wx';
+  flag?: 'w' | 'a' | 'wx'
 }
 /**
  * 支持的写入数据类型
  */
-type WriteFileData = string | Buffer | NodeJS.ArrayBufferView | ReadableStream<Uint8Array> | Readable | AsyncIterable<string | Buffer | NodeJS.ArrayBufferView> | Iterable<string | Buffer | NodeJS.ArrayBufferView>;
+type WriteFileData =
+  | string
+  | Buffer
+  | NodeJS.ArrayBufferView
+  | ReadableStream<Uint8Array>
+  | Readable
+  | AsyncIterable<string | Buffer | NodeJS.ArrayBufferView>
+  | Iterable<string | Buffer | NodeJS.ArrayBufferView>
 /**
  * 写入文件
  *
@@ -58,7 +65,11 @@ type WriteFileData = string | Buffer | NodeJS.ArrayBufferView | ReadableStream<U
  * @param options - 写入选项
  * @throws {Error} 当写入失败时抛出错误
  */
-declare function writeFile(filePath: string, data: WriteFileData, options?: WriteFileOptions): Promise<void>;
+declare function writeFile(
+  filePath: string,
+  data: WriteFileData,
+  options?: WriteFileOptions
+): Promise<void>
 //#endregion
-export { WriteFileData, WriteFileOptions, writeFile };
+export { WriteFileData, WriteFileOptions, writeFile }
 //# sourceMappingURL=write-file.d.ts.map

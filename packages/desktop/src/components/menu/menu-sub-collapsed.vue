@@ -7,17 +7,8 @@
     style="padding: 0"
     v-model:visible="visible"
   >
-    <li
-      :class="[
-        collapsedCls.e('sub-content'),
-        bem.is('first-level', depth === 0)
-      ]"
-    >
-      <MenuIcon
-        v-if="menu.icon"
-        :icon="menu.icon"
-        :class="collapsedCls.e('icon')"
-      />
+    <li :class="[collapsedCls.e('sub-content'), bem.is('first-level', depth === 0)]">
+      <MenuIcon v-if="menu.icon" :icon="menu.icon" :class="collapsedCls.e('icon')" />
 
       <span v-else>{{ menu.title[0] }}</span>
 
@@ -35,10 +26,7 @@
 
     <template #content>
       <u-scroll tag="ul" :class="collapsedCls.e('sub-list')">
-        <template
-          v-for="(child, index) of menu.children!"
-          :key="getKey(index, parentKey)"
-        >
+        <template v-for="(child, index) of menu.children!" :key="getKey(index, parentKey)">
           <UMenuItemCollapsed
             v-if="!child.children?.length"
             :menu="child"
@@ -59,17 +47,18 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import { MenuDIKey } from './di'
-import { UTip } from '../tip'
-import type { MenuItem } from '../../types'
-import UMenuItemCollapsed from './menu-item-collapsed.vue'
-import { getKey } from './helper'
-import MenuIcon from './menu-icon.vue'
-import { bem } from '@ultra-ui/utils'
 import { ArrowRight } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { inject, ref } from 'vue'
+
+import type { MenuItem } from '../../types'
 import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
+import { UTip } from '../tip'
+import { MenuDIKey } from './di'
+import { getKey } from './helper'
+import MenuIcon from './menu-icon.vue'
+import UMenuItemCollapsed from './menu-item-collapsed.vue'
 
 defineOptions({
   name: 'MenuSubCollapsed'

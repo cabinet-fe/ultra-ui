@@ -20,4 +20,3 @@ function setValue() {
   modelValue.value = '<p>你好</p><p>世界</p>'
 }
 </script>
-

@@ -1,3 +1,6 @@
+import { Forest } from '@cat-kit/core'
+import type { Updater } from '@ultra-ui/compositions'
+import { createIncrease } from '@ultra-ui/utils'
 import {
   computed,
   nextTick,
@@ -8,7 +11,7 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
-import { Forest } from '@cat-kit/core'
+
 import type {
   CascadeProps,
   CascadeEmits,
@@ -16,8 +19,6 @@ import type {
   DropdownExposed,
   PanelItem
 } from '../../types'
-import { createIncrease } from '@ultra-ui/utils'
-import type { Updater } from '@ultra-ui/compositions'
 
 interface SelectOptions {
   props: CascadeProps
@@ -52,17 +53,15 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   const panelItemList = shallowRef<PanelItem[]>([])
   const uid = createIncrease()
   function createPanelItem(nodes: CascadeNode[]): PanelItem {
-    return { key: uid(), nodes: nodes.filter(node => node.visible) }
+    return { key: uid(), nodes: nodes.filter((node) => node.visible) }
   }
 
   const displayedValue = computed(() => {
     const { modelValue, separator } = props
     const valueNodes =
-      modelValue && typeof modelValue === 'string'
-        ? modelValue.split(separator!)
-        : undefined
+      modelValue && typeof modelValue === 'string' ? modelValue.split(separator!) : undefined
     return valueNodes
-      ?.map(v => {
+      ?.map((v) => {
         const node = dataMap.value.get(v)
         return node?.label ?? v
       })
@@ -74,10 +73,9 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
     if (!data?.length) return panelItemList
     _panelItemList.push(createPanelItem(data))
 
-    selectedNodeKeys.value.slice(0, -1).forEach(key => {
+    selectedNodeKeys.value.slice(0, -1).forEach((key) => {
       const node = dataMap.value.get(key)
-      node?.children?.length &&
-        _panelItemList.push(createPanelItem(node.children))
+      node?.children?.length && _panelItemList.push(createPanelItem(node.children))
     })
 
     panelItemList.value = _panelItemList
@@ -102,7 +100,7 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
       : undefined
 
     const targetLabel = selectedNodeKeys.value
-      .map(key => {
+      .map((key) => {
         const node = dataMap.value.get(key)
         return node?.label
       })

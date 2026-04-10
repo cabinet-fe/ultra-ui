@@ -2,15 +2,10 @@ import { setStyles } from '@ultra-ui/utils'
 import { nextTick } from 'vue'
 
 export function calcTextareaHeight(el: HTMLTextAreaElement): void {
-  setStyles(el, {
-    height: 'auto'
-  })
+  setStyles(el, { height: 'auto' })
   nextTick(() => {
     const { scrollHeight } = el
 
-    setStyles(el, {
-      overflow: 'hidden',
-      height: scrollHeight + 'px'
-    })
+    setStyles(el, { overflow: 'hidden', height: scrollHeight + 'px' })
   })
 }

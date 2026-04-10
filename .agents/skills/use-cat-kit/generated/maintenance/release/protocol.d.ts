@@ -1,4 +1,4 @@
-import { PackageJson } from "../types.js";
+import { PackageJson } from '../types.js'
 
 //#region src/release/protocol.d.ts
 /**
@@ -6,45 +6,45 @@ import { PackageJson } from "../types.js";
  */
 interface WorkspaceProtocolResolution {
   /** 原始协议值 (如 "workspace:*") */
-  original: string;
+  original: string
   /** 解析后的版本范围 (如 "^1.0.0") */
-  resolved: string;
+  resolved: string
 }
 /**
  * catalog 协议解析结果
  */
 interface CatalogProtocolResolution {
   /** 原始协议值 (如 "catalog:react18") */
-  original: string;
+  original: string
   /** 解析后的版本范围 (如 "^18.3.1") */
-  resolved: string;
+  resolved: string
 }
 /**
  * 工作区信息 (用于解析 workspace 协议)
  */
 interface WorkspaceInfo {
   /** 包名 */
-  name: string;
+  name: string
   /** 版本号 */
-  version: string;
+  version: string
 }
 /**
  * Catalog 定义 (来自 pnpm-workspace.yaml 或 package.json)
  */
 interface CatalogDefinition {
   /** 默认 catalog */
-  default?: Record<string, string>;
+  default?: Record<string, string>
   /** 命名 catalog */
-  [name: string]: Record<string, string> | undefined;
+  [name: string]: Record<string, string> | undefined
 }
 /**
  * 协议解析选项
  */
 interface ProtocolResolveOptions {
   /** 工作区信息列表 (用于解析 workspace 协议) */
-  workspaces?: WorkspaceInfo[];
+  workspaces?: WorkspaceInfo[]
   /** Catalog 定义 (用于解析 catalog 协议) */
-  catalogs?: CatalogDefinition;
+  catalogs?: CatalogDefinition
 }
 /**
  * 解析 workspace 协议
@@ -67,7 +67,7 @@ interface ProtocolResolveOptions {
  * resolveWorkspaceProtocol('workspace:^2.0.0', '1.2.3') // '^2.0.0'
  * ```
  */
-declare function resolveWorkspaceProtocol(protocol: string, targetVersion: string): string;
+declare function resolveWorkspaceProtocol(protocol: string, targetVersion: string): string
 /**
  * 解析 catalog 协议
  *
@@ -91,11 +91,15 @@ declare function resolveWorkspaceProtocol(protocol: string, targetVersion: strin
  * resolveCatalogProtocol('catalog:react18', 'react', catalogs) // '^18.3.1'
  * ```
  */
-declare function resolveCatalogProtocol(protocol: string, depName: string, catalogs: CatalogDefinition): string | null;
+declare function resolveCatalogProtocol(
+  protocol: string,
+  depName: string,
+  catalogs: CatalogDefinition
+): string | null
 /**
  * 检查版本字符串是否是协议格式
  */
-declare function isProtocolVersion(version: string): boolean;
+declare function isProtocolVersion(version: string): boolean
 /**
  * 处理 package.json 中的协议，返回转换后的副本
  *
@@ -128,7 +132,7 @@ declare function isProtocolVersion(version: string): boolean;
  * // }
  * ```
  */
-declare function resolveProtocols(pkg: PackageJson, options: ProtocolResolveOptions): PackageJson;
+declare function resolveProtocols(pkg: PackageJson, options: ProtocolResolveOptions): PackageJson
 /**
  * 包装发布流程，临时替换 package.json 中的协议
  *
@@ -155,7 +159,11 @@ declare function resolveProtocols(pkg: PackageJson, options: ProtocolResolveOpti
  * // 执行完毕后 package.json 已恢复
  * ```
  */
-declare function withResolvedProtocols<T>(pkgDir: string, options: ProtocolResolveOptions, publishFn: () => Promise<T>): Promise<T>;
+declare function withResolvedProtocols<T>(
+  pkgDir: string,
+  options: ProtocolResolveOptions,
+  publishFn: () => Promise<T>
+): Promise<T>
 /**
  * 批量包装发布流程，临时替换多个包的 package.json 中的协议
  *
@@ -182,7 +190,23 @@ declare function withResolvedProtocols<T>(pkgDir: string, options: ProtocolResol
  * // 执行完毕后所有 package.json 已恢复
  * ```
  */
-declare function withResolvedProtocolsBatch<T>(pkgDirs: string[], options: ProtocolResolveOptions, publishFn: () => Promise<T>): Promise<T>;
+declare function withResolvedProtocolsBatch<T>(
+  pkgDirs: string[],
+  options: ProtocolResolveOptions,
+  publishFn: () => Promise<T>
+): Promise<T>
 //#endregion
-export { CatalogDefinition, CatalogProtocolResolution, ProtocolResolveOptions, WorkspaceInfo, WorkspaceProtocolResolution, isProtocolVersion, resolveCatalogProtocol, resolveProtocols, resolveWorkspaceProtocol, withResolvedProtocols, withResolvedProtocolsBatch };
+export {
+  CatalogDefinition,
+  CatalogProtocolResolution,
+  ProtocolResolveOptions,
+  WorkspaceInfo,
+  WorkspaceProtocolResolution,
+  isProtocolVersion,
+  resolveCatalogProtocol,
+  resolveProtocols,
+  resolveWorkspaceProtocol,
+  withResolvedProtocols,
+  withResolvedProtocolsBatch
+}
 //# sourceMappingURL=protocol.d.ts.map

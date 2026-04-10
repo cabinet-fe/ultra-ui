@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import Base from './base.vue'
-import Full from './full.vue'
 import Expand from './expand.vue'
+import Full from './full.vue'
 import MergeCell from './merge-cell.vue'
 </script>

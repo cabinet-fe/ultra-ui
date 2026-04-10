@@ -1,13 +1,11 @@
+import type { BEM } from '@ultra-ui/utils'
 import { createEditor } from 'lexical'
 import { watchEffect, computed, type Ref, type ShallowRef } from 'vue'
+
 import type { ExpressionEditorEmits, ExpressionEditorProps } from '../../../../types'
-import type { BEM } from '@ultra-ui/utils'
-import type {
-  EditorMutationGateway,
-  ExpressionEditorRuntime
-} from '../contracts/editor-runtime'
-import { VariableNode } from '../../nodes/variable-node'
 import { createVariableMap } from '../../di'
+import { VariableNode } from '../../nodes/variable-node'
+import type { EditorMutationGateway, ExpressionEditorRuntime } from '../contracts/editor-runtime'
 import { createModelSync } from './model-sync'
 
 export interface CreateExpressionEditorRuntimeOptions {
@@ -44,9 +42,7 @@ export function createExpressionEditorRuntime(
     nodes: [VariableNode],
     onError: console.error,
     editable: resolveEditable(disabled, readonly),
-    theme: {
-      paragraph: cls.e('paragraph')
-    }
+    theme: { paragraph: cls.e('paragraph') }
   })
 
   watchEffect(() => {
@@ -58,12 +54,7 @@ export function createExpressionEditorRuntime(
   })
 
   const variableMap = computed(() => createVariableMap(props.variables))
-  const sync = createModelSync({
-    editor,
-    props,
-    emit,
-    variableMap
-  })
+  const sync = createModelSync({ editor, props, emit, variableMap })
 
   return {
     editor,

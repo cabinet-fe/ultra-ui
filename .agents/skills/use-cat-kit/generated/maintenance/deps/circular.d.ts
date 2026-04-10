@@ -1,4 +1,4 @@
-import { CircularDependencyResult, PackageInfo } from "./types.js";
+import { CircularDependencyResult, PackageInfo } from './types.js'
 
 //#region src/deps/circular.d.ts
 /**
@@ -27,7 +27,7 @@ import { CircularDependencyResult, PackageInfo } from "./types.js";
  * }
  * ```
  */
-declare function checkCircularDependencies(packages: PackageInfo[]): CircularDependencyResult;
+declare function checkCircularDependencies(packages: PackageInfo[]): CircularDependencyResult
 //#endregion
-export { checkCircularDependencies };
+export { checkCircularDependencies }
 //# sourceMappingURL=circular.d.ts.map

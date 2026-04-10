@@ -9,11 +9,11 @@
 
 ## 角色分工
 
-| 环节 | 触发方式 | 说明 |
-|------|----------|------|
-| 记录变更 | 本地 `bun run changeset` | 生成 `.changeset/*.md`，随功能 PR 合并进 `main` |
+| 环节       | 触发方式                                   | 说明                                                                                                                         |
+| ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 记录变更   | 本地 `bun run changeset`                   | 生成 `.changeset/*.md`，随功能 PR 合并进 `main`                                                                              |
 | 合并版本号 | **Version Packages PR**（推荐）或本地 bump | 由 `.github/workflows/version-pr.yml` 在有未消费 changeset 时打开/更新 PR；合并后各包版本与 changelog 已更新，**仍不会发布** |
-| 正式发布 | **推送 tag** | `.github/workflows/release.yml` 在符合 `v*.*.*` 或 `v*.*.*-*`（预发布）的 tag 上执行 `bun run release` 并创建 GitHub Release |
+| 正式发布   | **推送 tag**                               | `.github/workflows/release.yml` 在符合 `v*.*.*` 或 `v*.*.*-*`（预发布）的 tag 上执行 `bun run release` 并创建 GitHub Release |
 
 ## 推荐操作步骤（维护者）
 

@@ -7,18 +7,24 @@ const srcRoot = join(pkgRoot, 'src')
 const distRoot = join(pkgRoot, 'dist')
 
 async function walkScss(dir: string): Promise<string[]> {
-  const out: string[] = []
-  for (const name of await readdir(dir, { withFileTypes: true })) {
-    const p = join(dir, name.name)
-    if (name.isDirectory()) out.push(...(await walkScss(p)))
-    else if (name.name.endsWith('.scss')) out.push(p)
-  }
-  return out
+  const entries = await readdir(dir, { withFileTypes: true })
+  const nested = await Promise.all(
+    entries.map(async (name) => {
+      const p = join(dir, name.name)
+      if (name.isDirectory()) return walkScss(p)
+      if (name.name.endsWith('.scss')) return [p]
+      return []
+    })
+  )
+  return nested.flat()
 }
 
-for (const abs of await walkScss(srcRoot)) {
-  const rel = relative(srcRoot, abs)
-  const dest = join(distRoot, rel)
-  await mkdir(dirname(dest), { recursive: true })
-  await copyFile(abs, dest)
-}
+const scssFiles = await walkScss(srcRoot)
+await Promise.all(
+  scssFiles.map(async (abs) => {
+    const rel = relative(srcRoot, abs)
+    const dest = join(distRoot, rel)
+    await mkdir(dirname(dest), { recursive: true })
+    await copyFile(abs, dest)
+  })
+)

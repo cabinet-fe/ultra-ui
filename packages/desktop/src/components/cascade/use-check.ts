@@ -1,5 +1,5 @@
-import type { CascadeProps, CascadeEmits, CascadeNode } from '../../types'
 import { dfs, type Forest } from '@cat-kit/core'
+import type { Updater } from '@ultra-ui/compositions'
 import {
   computed,
   shallowRef,
@@ -9,7 +9,8 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
-import type { Updater } from '@ultra-ui/compositions'
+
+import type { CascadeProps, CascadeEmits, CascadeNode } from '../../types'
 
 interface CheckOptions {
   props: CascadeProps
@@ -33,16 +34,7 @@ interface UseCheckReturned {
 }
 
 export function useCheck(options: CheckOptions): UseCheckReturned {
-  const {
-    props,
-    emit,
-    dataMap,
-    disabled,
-    readonly,
-    forest,
-    updater,
-    getPanelItemList
-  } = options
+  const { props, emit, dataMap, disabled, readonly, forest, updater, getPanelItemList } = options
 
   const hovered = shallowRef(false)
 
@@ -64,7 +56,7 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
       visibilityLimit = props.modelValue?.length ?? 0
     }
 
-    modelValue.slice(0, visibilityLimit).forEach(k => {
+    modelValue.slice(0, visibilityLimit).forEach((k) => {
       const option = dataMap.value.get(k)
       option && tags.push(option)
     })
@@ -74,8 +66,8 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
 
   function updateMultipleValue() {
     const checkedArr = Array.from(checkedSet.value)
-    const targetValues = checkedArr.map(item => item.value)
-    const targetLabels = checkedArr.map(item => item.label)
+    const targetValues = checkedArr.map((item) => item.value)
+    const targetLabels = checkedArr.map((item) => item.label)
     emit('update:modelValue', targetValues)
     emit('change', targetValues, targetLabels, checkedArr)
   }
@@ -94,13 +86,21 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
   function checkItem(item: CascadeNode, checked: boolean) {
     const childrenKey = props.childrenKey ?? 'children'
     if (checked) {
-      dfs(item as unknown as Record<string, unknown>, node => {
-        checkedSet.value.add(node as unknown as CascadeNode)
-      }, childrenKey)
+      dfs(
+        item as unknown as Record<string, unknown>,
+        (node) => {
+          checkedSet.value.add(node as unknown as CascadeNode)
+        },
+        childrenKey
+      )
     } else {
-      dfs(item as unknown as Record<string, unknown>, node => {
-        checkedSet.value.delete(node as unknown as CascadeNode)
-      }, childrenKey)
+      dfs(
+        item as unknown as Record<string, unknown>,
+        (node) => {
+          checkedSet.value.delete(node as unknown as CascadeNode)
+        },
+        childrenKey
+      )
     }
 
     triggerRef(checkedSet)
@@ -112,7 +112,7 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
     const { modelValue } = props
     getPanelItemList()
     if (Array.isArray(modelValue)) {
-      checkedSet.value = new Set(modelValue.map(v => dataMap.value.get(v)!))
+      checkedSet.value = new Set(modelValue.map((v) => dataMap.value.get(v)!))
     }
   }
 
@@ -124,13 +124,5 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
     { immediate: false }
   )
 
-  return {
-    hovered,
-    tags,
-    checkedSet,
-    restTag,
-    handleCloseTag,
-    updateMultipleValue,
-    checkItem
-  }
+  return { hovered, tags, checkedSet, restTag, handleCloseTag, updateMultipleValue, checkItem }
 }

@@ -1,21 +1,11 @@
 <template>
   <ul :class="[cls.b, cls.m(size)]" v-if="!readonly">
     <li v-if="isEmpty && creatable">
-      <u-button
-        style="width: 100%"
-        :icon="Plus"
-        @click="handleAdd(0)"
-        :size="size"
-      >
+      <u-button style="width: 100%" :icon="Plus" @click="handleAdd(0)" :size="size">
         新增
       </u-button>
     </li>
-    <li
-      v-for="(item, index) of items"
-      :key="item.id"
-      :class="cls.e('item')"
-      :style="itemStyle"
-    >
+    <li v-for="(item, index) of items" :key="item.id" :class="cls.e('item')" :style="itemStyle">
       <slot v-bind="{ item: item.data, index }" />
       <span :class="cls.e('actions')">
         <u-button
@@ -25,13 +15,7 @@
           :size="size"
           @click="handleRemove(index)"
         />
-        <u-button
-          :icon="Plus"
-          circle
-          :disabled="disabled"
-          :size="size"
-          @click="handleAdd(index)"
-        />
+        <u-button :icon="Plus" circle :disabled="disabled" :size="size" @click="handleAdd(index)" />
       </span>
     </li>
   </ul>
@@ -51,13 +35,14 @@
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
 import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import type { GroupInputEmits, GroupInputProps } from '../../types'
-import { bem } from '@ultra-ui/utils'
 import { Minus, Plus } from '@ultra-ui/icons/normal'
-import { useGroupItems } from './use-group-items'
-import { computed } from 'vue'
-import { UButton } from '../button'
+import { bem } from '@ultra-ui/utils'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { computed } from 'vue'
+
+import type { GroupInputEmits, GroupInputProps } from '../../types'
+import { UButton } from '../button'
+import { useGroupItems } from './use-group-items'
 
 defineOptions({
   name: 'GroupInput'
@@ -75,14 +60,11 @@ const emit = defineEmits<GroupInputEmits>()
 const cls = bem('group-input')
 
 const { formProps } = useFormComponent()
-const { disabled, size, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { disabled, size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const { items, createItem, runByEvent } = useGroupItems({
   props,
@@ -105,10 +87,7 @@ function handleAdd(index: number) {
 
 function handleRemove(index: number) {
   runByEvent(() => {
-    items.value = [
-      ...items.value.slice(0, index),
-      ...items.value.slice(index + 1)
-    ]
+    items.value = [...items.value.slice(0, index), ...items.value.slice(index + 1)]
   })
 }
 </script>

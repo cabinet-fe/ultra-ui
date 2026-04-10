@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { inject } from 'vue'
+
 import { ThemeDIKey } from './di'
 
 defineProps<{

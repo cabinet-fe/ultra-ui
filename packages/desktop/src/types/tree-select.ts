@@ -1,12 +1,12 @@
-import type { CSSProperties } from 'vue'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { CSSProperties } from 'vue'
+
 import type { TreeProps } from './tree'
 
 /** 树形选择器组件属性 */
 export interface TreeSelectProps
-  extends FormComponentProps,
-    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+  extends FormComponentProps, Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
   modelValue?: string | number
 
   /** 自定义占位文字 */
@@ -43,11 +43,7 @@ export interface TreeSelectProps
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
   (e: 'clear'): void
-  (
-    e: 'change',
-    value?: string | number,
-    selectedData?: Record<string, any>
-  ): void
+  (e: 'change', value?: string | number, selectedData?: Record<string, any>): void
   (e: 'update:text', text?: string): void
 }
 

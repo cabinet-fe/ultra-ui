@@ -21,10 +21,7 @@
       </div>
 
       <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
-      <section
-        :class="cls.e('error')"
-        v-if="!formProps?.readonly && !formProps?.noTips"
-      >
+      <section :class="cls.e('error')" v-if="!formProps?.readonly && !formProps?.noTips">
         <transition name="form-item-tips" mode="out-in">
           <span :class="cls.e('error-text')" v-if="!!errorTips">
             {{ errorTips }}
@@ -36,10 +33,11 @@
 </template>
 
 <script lang="tsx" setup>
-import { bem, withUnit } from '@ultra-ui/utils'
-import type { FormItemProps, ComponentSize } from '../../types'
-import { type CSSProperties, computed } from 'vue'
 import { useConfig, useFallbackProps, useFormComponent } from '@ultra-ui/compositions'
+import { bem, withUnit } from '@ultra-ui/utils'
+import { type CSSProperties, computed } from 'vue'
+
+import type { FormItemProps, ComponentSize } from '../../types'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 import { formItemCls as cls } from './helper'
@@ -69,18 +67,13 @@ const { size, readonly } = useFallbackProps([formProps ?? {}, props], {
 })
 
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(
-    ' '
-  )
+  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(' ')
 })
 
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   return {
-    width: withUnit(
-      props.labelWidth ?? formProps?.labelWidth ?? config.form.labelWidth,
-      'px'
-    )
+    width: withUnit(props.labelWidth ?? formProps?.labelWidth ?? config.form.labelWidth, 'px')
   }
 })
 
@@ -96,6 +89,6 @@ const fieldRequired = computed<boolean>(() => {
   const { field } = props
   if (!field || readonly.value) return false
   const required = formProps?.model?.fields[field]?.required
-  return required ? true : false
+  return Boolean(required)
 })
 </script>

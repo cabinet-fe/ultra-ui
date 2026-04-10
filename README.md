@@ -201,12 +201,7 @@ function createUser(name: string, age: number, email: string, phone: string) {
 }
 
 // ✅ 使用对象参数
-function createUser(params: {
-  name: string
-  age: number
-  email: string
-  phone: string
-}): User {
+function createUser(params: { name: string; age: number; email: string; phone: string }): User {
   // ...
 }
 ```

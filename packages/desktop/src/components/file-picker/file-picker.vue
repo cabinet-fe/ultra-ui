@@ -23,9 +23,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { UploaderProps, UploaderEmits } from '../../types'
 import { bem } from '@ultra-ui/utils'
 import { shallowRef, ref } from 'vue'
+
+import type { UploaderProps, UploaderEmits } from '../../types'
 import { matchAccept } from './helper'
 
 defineOptions({
@@ -45,7 +46,7 @@ const fileRef = shallowRef<HTMLInputElement>()
 const isDragover = ref(false)
 
 const processFiles = (files: File[]) => {
-  const filteredFiles = files.filter(file => matchAccept(file, props.accept))
+  const filteredFiles = files.filter((file) => matchAccept(file, props.accept))
   emit('pick', filteredFiles)
 }
 

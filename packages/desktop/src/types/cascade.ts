@@ -1,9 +1,8 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
-import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { ITreeNode } from '@cat-kit/core'
+import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
-export interface CascadeNode
-  extends ITreeNode<Record<string, any>, CascadeNode> {
+export interface CascadeNode extends ITreeNode<Record<string, any>, CascadeNode> {
   children?: CascadeNode[]
   visible: boolean
   value: string
@@ -59,18 +58,8 @@ export interface PanelItem {
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
   (e: 'update:modelValue', value?: string | string[]): void
-  (
-    e: 'change',
-    value: string[],
-    label: string[],
-    data: Record<string, any>[]
-  ): void
-  (
-    e: 'change',
-    value?: string,
-    label?: string,
-    item?: Record<string, any>
-  ): void
+  (e: 'change', value: string[], label: string[], data: Record<string, any>[]): void
+  (e: 'change', value?: string, label?: string, item?: Record<string, any>): void
   (e: 'clear'): void
 }
 

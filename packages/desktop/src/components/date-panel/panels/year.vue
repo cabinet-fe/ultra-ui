@@ -13,26 +13,21 @@
 </template>
 
 <script lang="ts" setup>
+import type { Dater } from '@cat-kit/core'
 import { bem } from '@ultra-ui/utils'
-import { getTenYears } from '../../calendar/utils'
 import { computed } from 'vue'
 import { inject } from 'vue'
-import { DatePanelDIKey } from '../di'
+
 import type { CalendarYear } from '../../../types'
-import type { Dater } from '@cat-kit/core'
+import { getTenYears } from '../../calendar/utils'
+import { DatePanelDIKey } from '../di'
 
 defineOptions({
   name: 'DatePanelYear'
 })
 
-const {
-  panelDate,
-  rangeDate,
-  panelProps,
-  cls,
-  handleDateSelect,
-  handleDateRangeHover
-} = inject(DatePanelDIKey)!
+const { panelDate, rangeDate, panelProps, cls, handleDateSelect, handleDateRangeHover } =
+  inject(DatePanelDIKey)!
 
 const years = computed(() => {
   return getTenYears(panelDate.value.timestamp, panelProps.disabledDate)

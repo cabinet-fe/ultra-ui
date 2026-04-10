@@ -1,10 +1,7 @@
 <template>
   <!-- 调色画布 -->
   <div :class="cls.e('sv')" ref="svRef">
-    <div
-      :class="cls.e('sv-s')"
-      :style="{ backgroundImage: canvasBackground }"
-    ></div>
+    <div :class="cls.e('sv-s')" :style="{ backgroundImage: canvasBackground }"></div>
     <div :class="cls.e('sv-v')">{{}}</div>
 
     <div
@@ -18,9 +15,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
-import { PaletteDIKey } from './di'
 import { useDrag } from '@ultra-ui/compositions'
+import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteSV'

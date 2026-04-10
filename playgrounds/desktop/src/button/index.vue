@@ -4,11 +4,7 @@
       <div>类别展示</div>
       <u-button>默认</u-button>
 
-      <u-button
-        :type="button.type"
-        v-for="button of buttons"
-        :disabled="undefined"
-      >
+      <u-button :type="button.type" v-for="button of buttons" :disabled="undefined">
         {{ button.text }}
       </u-button>
     </div>

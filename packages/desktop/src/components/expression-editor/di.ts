@@ -1,22 +1,18 @@
-import type { ExpressionEditorProps, VariableItem } from '../../types'
 import type { BEM } from '@ultra-ui/utils'
-import type { InjectionKey, ComputedRef } from 'vue'
 import type { LexicalEditor } from 'lexical'
+import type { InjectionKey, ComputedRef } from 'vue'
+
+import type { ExpressionEditorProps, VariableItem } from '../../types'
 
 /**
  * 扁平化变量树，创建 value -> VariableItem 的映射
  * @param variables 变量列表（支持树形结构）
  * @returns value -> VariableItem 的映射表
  */
-export function createVariableMap(
-  variables?: VariableItem[]
-): Map<string, VariableItem> {
+export function createVariableMap(variables?: VariableItem[]): Map<string, VariableItem> {
   const map = new Map<string, VariableItem>()
 
-  function traverse(
-    items: VariableItem[] | undefined,
-    parentPath: string[] = []
-  ) {
+  function traverse(items: VariableItem[] | undefined, parentPath: string[] = []) {
     if (!items) return
 
     for (const item of items) {
@@ -41,11 +37,7 @@ export const ExpressionEditorDIKey: InjectionKey<{
   /** 编辑器实例 */
   editor: LexicalEditor
   /** 更新变量节点 */
-  updateVariableNode: (
-    oldValue: string,
-    newValue: string,
-    newLabel?: string
-  ) => void
+  updateVariableNode: (oldValue: string, newValue: string, newLabel?: string) => void
   /** 变量映射表 (value -> VariableItem) */
   variableMap: ComputedRef<Map<string, VariableItem>>
 }> = Symbol('ExpressionEditorDIKey')

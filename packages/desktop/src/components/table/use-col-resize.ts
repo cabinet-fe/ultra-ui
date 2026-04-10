@@ -1,6 +1,7 @@
 import { nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
-import { TableResizeKey } from './di'
+
 import type { ScrollExposed } from '../../types'
+import { TableResizeKey } from './di'
 import type { ColumnNode } from './node/col'
 
 interface Options {
@@ -107,7 +108,7 @@ export function useColResize(options: Options): UseColResizeReturned {
   function handleResizeMouseup(e: MouseEvent): void {
     currentResizeColumn!.width = Math.max(
       originWidth + e.pageX - originX,
-      currentResizeColumn!.minWidth!,
+      currentResizeColumn!.minWidth!
     )
 
     showResizeLine.value = false
@@ -118,15 +119,7 @@ export function useColResize(options: Options): UseColResizeReturned {
     document.removeEventListener('mousemove', handleResizeMousemove)
   }
 
-  provide(TableResizeKey, {
-    handleResizeMousedown,
-    headerRef,
-  })
+  provide(TableResizeKey, { handleResizeMousedown, headerRef })
 
-  return {
-    resizeLineRef,
-    colgroupRef,
-    showResizeLine,
-    handleResizeMousedown,
-  }
+  return { resizeLineRef, colgroupRef, showResizeLine, handleResizeMousedown }
 }

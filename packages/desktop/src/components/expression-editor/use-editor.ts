@@ -1,4 +1,5 @@
 import type { LexicalEditor } from 'lexical'
+
 import {
   createExpressionEditorRuntime,
   type CreateExpressionEditorRuntimeOptions

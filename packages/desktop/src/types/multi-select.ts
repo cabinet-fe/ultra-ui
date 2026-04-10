@@ -1,6 +1,6 @@
-import type { CSSProperties } from 'vue'
 import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
 import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { CSSProperties } from 'vue'
 
 /** multi-select组件属性 */
 export interface MultiSelectProps extends FormComponentProps {

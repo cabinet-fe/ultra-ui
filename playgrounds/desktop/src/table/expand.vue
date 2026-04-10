@@ -1,12 +1,6 @@
 <template>
   <CustomCard title="展开行 (嵌套子表格)">
-    <u-table
-      :data="data"
-      :columns="columns"
-      row-key="id"
-      expandable
-      style="max-height: 750px"
-    >
+    <u-table :data="data" :columns="columns" row-key="id" expandable style="max-height: 750px">
       <template #row:expand="{ rowData }">
         <u-table
           :data="rowData.subOrders"
@@ -24,6 +18,7 @@
 <script lang="ts" setup>
 import { defineTableColumns } from '@ultra-ui/desktop'
 import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const columns = defineTableColumns([

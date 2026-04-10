@@ -79,21 +79,17 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  PaginatorProps,
-  PaginatorEmits,
-  _PaginatorExposed,
-  ComponentSize
-} from '../../types'
-import { bem } from '@ultra-ui/utils'
+import { n } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@ultra-ui/compositions'
-import { computed, reactive, shallowRef } from 'vue'
+import { vRipple } from '@ultra-ui/directives'
 import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
+import { bem } from '@ultra-ui/utils'
+import { computed, reactive, shallowRef } from 'vue'
+
+import type { PaginatorProps, PaginatorEmits, _PaginatorExposed, ComponentSize } from '../../types'
+import { UIcon } from '../icon'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
-import { UIcon } from '../icon'
-import { vRipple } from '@ultra-ui/directives'
-import { n } from '@cat-kit/core'
 
 defineOptions({
   name: 'Paginator'
@@ -120,7 +116,6 @@ const pageNumber = defineModel<number>('pageNumber', {
 const pageSize = defineModel<number>('pageSize', {
   default: 10
 })
-
 
 function emitPageSize(value: number) {
   emit('change:pageSize', value)
@@ -151,19 +146,14 @@ const totalPages = computed(() => {
 })
 
 const sizeOptions = computed(() => {
-  return (props.pageSizeOptions ?? config.paginator.pageSizeOptions).map(
-    value => {
-      return { label: `${value}条`, value }
-    }
-  )
+  return (props.pageSizeOptions ?? config.paginator.pageSizeOptions).map((value) => {
+    return { label: `${value}条`, value }
+  })
 })
 
 /** 做多显示5个页码 */
 const pageNumbers = computed(() => {
-  const startPageNum = n(pageNumber.value - 2).range(
-    1,
-    Math.max(totalPages.value - 4, 1)
-  )
+  const startPageNum = n(pageNumber.value - 2).range(1, Math.max(totalPages.value - 4, 1))
 
   return Array.from({ length: Math.min(totalPages.value, 5) }).map(
     (_, index) => startPageNum + index

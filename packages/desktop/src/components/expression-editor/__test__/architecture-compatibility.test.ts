@@ -4,11 +4,10 @@
  * Failure here maps directly to roadmap acceptance criteria.
  */
 import { describe, expect, it, vi } from 'vitest'
+
 import type { ExpressionEditorEmits, ExpressionEditorProps, VariableItem } from '../../../types'
 
-vi.mock('../expression-editor.vue', () => ({
-  default: { name: 'ExpressionEditor' }
-}))
+vi.mock('../expression-editor.vue', () => ({ default: { name: 'ExpressionEditor' } }))
 
 import { UExpressionEditor } from '../index'
 
@@ -20,16 +19,8 @@ describe('ARCH-02: UExpressionEditor public API compatibility', () => {
   })
 
   it('ExpressionEditorProps has required keys: modelValue, placeholder, variables', () => {
-    const requiredKeys: (keyof ExpressionEditorProps)[] = [
-      'modelValue',
-      'placeholder',
-      'variables'
-    ]
-    const props: ExpressionEditorProps = {
-      modelValue: '',
-      placeholder: 'test',
-      variables: []
-    }
+    const requiredKeys: (keyof ExpressionEditorProps)[] = ['modelValue', 'placeholder', 'variables']
+    const props: ExpressionEditorProps = { modelValue: '', placeholder: 'test', variables: [] }
     for (const key of requiredKeys) {
       expect(key in props || typeof (props as Record<string, unknown>)[key] !== 'undefined').toBe(
         true
@@ -38,9 +29,7 @@ describe('ARCH-02: UExpressionEditor public API compatibility', () => {
   })
 
   it('ExpressionEditorProps modelValue accepts string', () => {
-    const props: ExpressionEditorProps = {
-      modelValue: 'hello{foo}'
-    }
+    const props: ExpressionEditorProps = { modelValue: 'hello{foo}' }
     expect(props.modelValue).toBe('hello{foo}')
   })
 
@@ -49,9 +38,7 @@ describe('ARCH-02: UExpressionEditor public API compatibility', () => {
       { label: 'Foo', value: 'foo' },
       { label: 'Bar', value: 'bar', type: 'string' }
     ]
-    const props: ExpressionEditorProps = {
-      variables: items
-    }
+    const props: ExpressionEditorProps = { variables: items }
     expect(props.variables).toEqual(items)
   })
 

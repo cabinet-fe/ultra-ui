@@ -39,11 +39,12 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watchEffect } from 'vue'
-import CustomCard from '../card/custom-card.vue'
 import { sleep } from '@cat-kit/core'
-import { Monitor } from '@ultra-ui/icons/normal'
 import { FormModel } from '@ultra-ui/desktop'
+import { Monitor } from '@ultra-ui/icons/normal'
+import { shallowRef, watchEffect } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const options = shallowRef<any[]>([])
 
@@ -72,11 +73,11 @@ const model = new FormModel({
 const options1 = shallowRef(
   model.data.options
     ?.split(',')
-    .map(i => {
+    .map((i) => {
       const n = +i
       return { label: i, value: n }
     })
-    .filter(i => !isNaN(i.value))
+    .filter((i) => !isNaN(i.value))
 )
 
 model.onChange((field, val) => {
@@ -100,6 +101,6 @@ const creatable = shallowRef(true)
 const optionsGetter = async (qs: string) => {
   if (!qs) return []
   await sleep(200)
-  return options.value.filter(o => o.label.includes(qs))
+  return options.value.filter((o) => o.label.includes(qs))
 }
 </script>

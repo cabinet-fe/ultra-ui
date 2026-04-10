@@ -11,7 +11,7 @@
  * saveBlob(blob, 'hello.txt')
  * ```
  */
-declare function saveBlob(blob: Blob, filename: string): void;
+declare function saveBlob(blob: Blob, filename: string): void
 //#endregion
-export { saveBlob };
+export { saveBlob }
 //# sourceMappingURL=saver.d.ts.map

@@ -16,10 +16,7 @@ export function watchTransition(
 ): void {
   const runCallback = (e: TransitionEvent, cb: (el: HTMLElement) => void) => {
     e.stopPropagation()
-    if (
-      e.target !== domGetter() ||
-      !config.styleKeys.includes(e.propertyName)
-    ) {
+    if (e.target !== domGetter() || !config.styleKeys.includes(e.propertyName)) {
       return
     }
 

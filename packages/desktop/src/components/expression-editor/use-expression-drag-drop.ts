@@ -1,9 +1,5 @@
-import {
-  $getNodeByKey,
-  $getRoot,
-  type LexicalEditor,
-  type LexicalNode
-} from 'lexical'
+import { $getNodeByKey, $getRoot, type LexicalEditor, type LexicalNode } from 'lexical'
+
 import {
   EXPRESSION_DROP_SCOPE_ATTR,
   EXPRESSION_VARIABLE_DRAG_KEY_ATTR,
@@ -75,21 +71,14 @@ function hasChildren(
   return typeof (node as { getChildren?: unknown }).getChildren === 'function'
 }
 
-function traverseVariableNodes(
-  node: LexicalNode,
-  collector: VariableNodeDescriptor[]
-): void {
+function traverseVariableNodes(node: LexicalNode, collector: VariableNodeDescriptor[]): void {
   if (node instanceof VariableNode) {
-    collector.push({
-      key: node.getKey(),
-      variable: node.getVariable(),
-      label: node.getLabel()
-    })
+    collector.push({ key: node.getKey(), variable: node.getVariable(), label: node.getLabel() })
     return
   }
 
   if (!hasChildren(node)) return
-  node.getChildren().forEach(child => traverseVariableNodes(child, collector))
+  node.getChildren().forEach((child) => traverseVariableNodes(child, collector))
 }
 
 function $collectVariableNodeDescriptors(): VariableNodeDescriptor[] {
@@ -100,9 +89,7 @@ function $collectVariableNodeDescriptors(): VariableNodeDescriptor[] {
 }
 
 function getDropIndicator(rootElement: HTMLElement): HTMLDivElement {
-  const existing = rootElement.querySelector<HTMLDivElement>(
-    `.${DROP_INDICATOR_CLASS}`
-  )
+  const existing = rootElement.querySelector<HTMLDivElement>(`.${DROP_INDICATOR_CLASS}`)
   if (existing) return existing
 
   const indicator = document.createElement('div')
@@ -117,19 +104,15 @@ function getDropAnchors(editor: LexicalEditor): DropAnchor[] {
   if (descriptors.length === 0) return []
 
   const rects = descriptors
-    .map(descriptor => editor.getElementByKey(descriptor.key))
+    .map((descriptor) => editor.getElementByKey(descriptor.key))
     .filter((element): element is HTMLElement => element instanceof HTMLElement)
-    .map(element => element.getBoundingClientRect())
+    .map((element) => element.getBoundingClientRect())
 
   if (rects.length === 0) return []
 
   const anchors: DropAnchor[] = []
   const first = rects[0]!
-  anchors.push({
-    x: first.left,
-    y: first.top,
-    height: first.height
-  })
+  anchors.push({ x: first.left, y: first.top, height: first.height })
 
   for (let index = 0; index < rects.length - 1; index++) {
     const currentRect = rects[index]!
@@ -142,11 +125,7 @@ function getDropAnchors(editor: LexicalEditor): DropAnchor[] {
   }
 
   const last = rects[rects.length - 1]!
-  anchors.push({
-    x: last.right,
-    y: last.top,
-    height: last.height
-  })
+  anchors.push({ x: last.right, y: last.top, height: last.height })
 
   return anchors
 }
@@ -167,9 +146,7 @@ export function supportsNativeDnD(): boolean {
   return hasDragApi && !coarsePointer
 }
 
-export function collectVariableNodeDescriptors(
-  editor: LexicalEditor
-): VariableNodeDescriptor[] {
+export function collectVariableNodeDescriptors(editor: LexicalEditor): VariableNodeDescriptor[] {
   let descriptors: VariableNodeDescriptor[] = []
   editor.getEditorState().read(() => {
     descriptors = $collectVariableNodeDescriptors()
@@ -189,14 +166,10 @@ export function ensureDropScopeId(editor: LexicalEditor): string {
   return generated
 }
 
-export function findVariableDragSource(
-  target: EventTarget | null
-): HTMLElement | null {
+export function findVariableDragSource(target: EventTarget | null): HTMLElement | null {
   if (!isHTMLElement(target)) return null
 
-  return target.closest<HTMLElement>(
-    `[${EXPRESSION_VARIABLE_DRAG_MARKER_ATTR}="true"]`
-  )
+  return target.closest<HTMLElement>(`[${EXPRESSION_VARIABLE_DRAG_MARKER_ATTR}="true"]`)
 }
 
 export function readDragSourceKey(target: EventTarget | null): string | null {
@@ -215,15 +188,10 @@ export function writeInternalDragPayload(
   payload: InternalDragPayload
 ): void {
   if (!dataTransfer) return
-  dataTransfer.setData(
-    EXPRESSION_VARIABLE_DRAG_TYPE,
-    createInternalDragPayload(payload)
-  )
+  dataTransfer.setData(EXPRESSION_VARIABLE_DRAG_TYPE, createInternalDragPayload(payload))
 }
 
-export function parseInternalDragPayload(
-  payloadText: string | null
-): InternalDragPayload | null {
+export function parseInternalDragPayload(payloadText: string | null): InternalDragPayload | null {
   if (!payloadText) return null
 
   try {
@@ -238,11 +206,7 @@ export function parseInternalDragPayload(
       return null
     }
 
-    return {
-      action: parsed.action,
-      scopeId: parsed.scopeId,
-      sourceKey: parsed.sourceKey
-    }
+    return { action: parsed.action, scopeId: parsed.scopeId, sourceKey: parsed.sourceKey }
   } catch {
     return null
   }
@@ -252,9 +216,7 @@ export function readInternalDragPayload(
   dataTransfer: DataTransfer | null
 ): InternalDragPayload | null {
   if (!dataTransfer) return null
-  return parseInternalDragPayload(
-    dataTransfer.getData(EXPRESSION_VARIABLE_DRAG_TYPE)
-  )
+  return parseInternalDragPayload(dataTransfer.getData(EXPRESSION_VARIABLE_DRAG_TYPE))
 }
 
 export function beginDragVisualState(
@@ -279,9 +241,7 @@ export function beginDragVisualState(
   }
 }
 
-export function getActiveInternalDragPayload(
-  editor: LexicalEditor
-): InternalDragPayload | null {
+export function getActiveInternalDragPayload(editor: LexicalEditor): InternalDragPayload | null {
   return getDragVisualState(editor).activePayload
 }
 
@@ -335,10 +295,7 @@ export function clearDragVisualState(editor: LexicalEditor): void {
   state.activePayload = null
 }
 
-export function autoScrollWhenNearEdge(
-  container: HTMLElement,
-  pointerY: number
-): void {
+export function autoScrollWhenNearEdge(container: HTMLElement, pointerY: number): void {
   const rect = container.getBoundingClientRect()
   const threshold = 24
   const step = 10
@@ -353,10 +310,7 @@ export function autoScrollWhenNearEdge(
   }
 }
 
-export function resolveDropSlot(
-  editor: LexicalEditor,
-  event: DragEvent
-): number | null {
+export function resolveDropSlot(editor: LexicalEditor, event: DragEvent): number | null {
   const rootElement = editor.getRootElement()
   if (!rootElement || !isHTMLElement(event.target)) return null
   if (!rootElement.contains(event.target)) return null
@@ -386,7 +340,7 @@ export function reorderVariableNode(
   const nodes = $collectVariableNodeDescriptors()
   if (nodes.length <= 1) return false
 
-  const sourceIndex = nodes.findIndex(item => item.key === sourceKey)
+  const sourceIndex = nodes.findIndex((item) => item.key === sourceKey)
   if (sourceIndex < 0) return false
   if (targetSlot < 0 || targetSlot > nodes.length) return false
   if (targetSlot === sourceIndex || targetSlot === sourceIndex + 1) return false
@@ -394,7 +348,7 @@ export function reorderVariableNode(
   const sourceNode = $getNodeByKey(sourceKey)
   if (!(sourceNode instanceof VariableNode)) return false
 
-  const remaining = nodes.filter(item => item.key !== sourceKey)
+  const remaining = nodes.filter((item) => item.key !== sourceKey)
   const insertionIndex = targetSlot > sourceIndex ? targetSlot - 1 : targetSlot
   const reference = remaining[insertionIndex]
 
@@ -423,7 +377,7 @@ export function moveVariableByDirection(
   focusMovedNode = true
 ): boolean {
   const nodes = $collectVariableNodeDescriptors()
-  const sourceIndex = nodes.findIndex(item => item.key === sourceKey)
+  const sourceIndex = nodes.findIndex((item) => item.key === sourceKey)
   if (sourceIndex < 0) return false
 
   const targetIndex = sourceIndex + direction
@@ -438,9 +392,5 @@ export function applyDropReorder(options: ApplyDropReorderOptions): boolean {
   if (!payload) return false
   if (payload.scopeId !== options.scopeId) return false
 
-  return reorderVariableNode(
-    payload.sourceKey,
-    options.targetSlot,
-    options.focusMovedNode ?? true
-  )
+  return reorderVariableNode(payload.sourceKey, options.targetSlot, options.focusMovedNode ?? true)
 }

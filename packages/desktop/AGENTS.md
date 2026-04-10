@@ -58,11 +58,12 @@ export interface ButtonEmits {
   (name: 'click', e: MouseEvent): void
 }
 
-export interface _ButtonExposed {    // 内部用（带下划线）
+export interface _ButtonExposed {
+  // 内部用（带下划线）
   el: ShallowRef<HTMLButtonElement | undefined>
 }
 
-export type ButtonExposed = DeconstructValue<_ButtonExposed>  // 导出用
+export type ButtonExposed = DeconstructValue<_ButtonExposed> // 导出用
 ```
 
 命名规则：`<Name>Props`、`<Name>Emits`、`_<Name>Exposed`（内部）、`<Name>Exposed`（导出）。
@@ -76,7 +77,9 @@ import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils/shared'
 
 // Props 继承 FormComponentProps
-interface InputProps extends FormComponentProps { /* ... */ }
+interface InputProps extends FormComponentProps {
+  /* ... */
+}
 
 // 组件内
 const { inForm, formProps } = useFormComponent()
@@ -92,7 +95,9 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps, props])
 
 ```ts
 // di.ts
-export const TableDIKey: InjectionKey<{ /* context type */ }> = Symbol('TableDIKey')
+export const TableDIKey: InjectionKey<{
+  /* context type */
+}> = Symbol('TableDIKey')
 
 // 父组件中 provide
 provide(TableDIKey, context)
@@ -112,11 +117,11 @@ app.use(UltraUI)
 
 ## 导出子路径
 
-| 子路径 | 用途 |
-| ------ | ---- |
-| `@ultra-ui/desktop` | 全部组件 + 类型 |
-| `@ultra-ui/desktop/install` | 全局注册函数 |
-| `@ultra-ui/desktop/*` | 深度子路径（按需引入组件/类型） |
+| 子路径                      | 用途                            |
+| --------------------------- | ------------------------------- |
+| `@ultra-ui/desktop`         | 全部组件 + 类型                 |
+| `@ultra-ui/desktop/install` | 全局注册函数                    |
+| `@ultra-ui/desktop/*`       | 深度子路径（按需引入组件/类型） |
 
 ## 依赖
 

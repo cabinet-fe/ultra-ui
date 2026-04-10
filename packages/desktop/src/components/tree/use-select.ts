@@ -1,10 +1,5 @@
-import {
-  nextTick,
-  shallowRef,
-  watch,
-  type ComputedRef,
-  type ShallowRef
-} from 'vue'
+import { nextTick, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
+
 import type { TreeEmit, TreeProps } from '../../types'
 import type { TreeNode } from './tree-node'
 
@@ -37,7 +32,7 @@ export function useSelect(options: Options): UseSelectReturned {
         const node = nodeDict.get(s)
         if (node) {
           selectedData.value = node.data
-          node.bubbleSet(node => {
+          node.bubbleSet((node) => {
             if (node.parent) {
               if (node.parent.expanded) return false
               node.parent.expanded = true
@@ -58,23 +53,14 @@ export function useSelect(options: Options): UseSelectReturned {
   const handleSelect = (node: TreeNode) => {
     selectByEvent = true
     if (node.disabled) return
-    selectedData.value =
-      node.data === selectedData.value ? undefined : node.data
+    selectedData.value = node.data === selectedData.value ? undefined : node.data
 
-    emit(
-      'update:selected',
-      selectedData.value?.[props.valueKey!],
-      selectedData.value,
-      node
-    )
+    emit('update:selected', selectedData.value?.[props.valueKey!], selectedData.value, node)
 
     nextTick(() => {
       selectByEvent = false
     })
   }
 
-  return {
-    selectedData,
-    handleSelect
-  }
+  return { selectedData, handleSelect }
 }

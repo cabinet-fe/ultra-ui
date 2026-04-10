@@ -14,12 +14,8 @@
       >
         <u-number :value="number" tween format="currency" :min-precision="1" />
       </div>
-      <u-button type="primary" plain size="small" @click="number -= 1000">
-        -1000
-      </u-button>
-      <u-button type="primary" plain size="small" @click="number += 1000">
-        +1000
-      </u-button>
+      <u-button type="primary" plain size="small" @click="number -= 1000"> -1000 </u-button>
+      <u-button type="primary" plain size="small" @click="number += 1000"> +1000 </u-button>
     </div>
 
     <div>

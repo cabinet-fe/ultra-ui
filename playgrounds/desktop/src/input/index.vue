@@ -3,12 +3,7 @@
     <div>普通: <u-input v-model="value" /></div>
     <div>
       前缀和后缀以及可清空:
-      <u-input
-        v-model="value"
-        @suffix:click="console.log"
-        prefix="前缀"
-        clearable
-      >
+      <u-input v-model="value" @suffix:click="console.log" prefix="前缀" clearable>
         <template #suffix>
           <u-icon :size="14"><Search /></u-icon>
         </template>
@@ -21,8 +16,9 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from 'vue'
 import { Search } from '@ultra-ui/icons/normal'
+import { shallowRef } from 'vue'
+
 import CustomCard from '../card/custom-card.vue'
 
 const value = shallowRef('abc')

@@ -1,8 +1,8 @@
-import { ReadOptions, WorkbookInput } from "../types.js";
-import { Workbook } from "../model/workbook.js";
+import { Workbook } from '../model/workbook.js'
+import { ReadOptions, WorkbookInput } from '../types.js'
 
 //#region src/read/read-workbook.d.ts
-declare function readWorkbook(input: WorkbookInput, options?: ReadOptions): Promise<Workbook>;
+declare function readWorkbook(input: WorkbookInput, options?: ReadOptions): Promise<Workbook>
 //#endregion
-export { readWorkbook };
+export { readWorkbook }
 //# sourceMappingURL=read-workbook.d.ts.map

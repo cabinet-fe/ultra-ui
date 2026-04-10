@@ -1,5 +1,5 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 import type { ComponentSize } from '@ultra-ui/utils/types/component-common'
+import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
 
 export interface ListProps {
   size?: ComponentSize

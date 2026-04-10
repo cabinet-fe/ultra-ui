@@ -24,24 +24,22 @@
 </template>
 
 <script lang="ts" setup>
+import { bem, setStyles } from '@ultra-ui/utils'
 import { computed, inject, shallowRef, watch } from 'vue'
+
+import { UEmpty } from '../empty'
 import { TableDIKey } from './di'
 import { UTableRow, UExpandTableRow } from './table-row'
-import { UEmpty } from '../empty'
-import { bem, setStyles } from '@ultra-ui/utils'
 
 defineOptions({
   name: 'TableBody'
 })
 
-const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } =
-  inject(TableDIKey)!
+const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } = inject(TableDIKey)!
 const { leafColumns } = columnConfig
 
 const getStripeCls = computed(() => {
-  return tableProps.stripe
-    ? (index: number) => bem.is('stripe', index % 2 === 1)
-    : () => ''
+  return tableProps.stripe ? (index: number) => bem.is('stripe', index % 2 === 1) : () => ''
 })
 
 const tableRows = computed(() => {
@@ -56,7 +54,7 @@ const tableRows = computed(() => {
   }
 
   // 虚拟列表
-  return virtualList.value.map(item => {
+  return virtualList.value.map((item) => {
     return {
       row: rows.value[item.index]!,
       stripeIndex: rows.value[item.index]!.index,
@@ -74,7 +72,7 @@ function setBodyTransform(transformY: number) {
     })
 }
 
-watch(virtualList, list => {
+watch(virtualList, (list) => {
   setBodyTransform(list[0]?.start ?? 0)
 })
 

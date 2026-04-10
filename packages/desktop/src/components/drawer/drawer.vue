@@ -1,19 +1,8 @@
 <template>
   <Teleport to="body">
     <transition name="fade" mode="out-in" @enter="onEnter">
-      <div
-        v-if="overlayVisible"
-        :class="overlayCls.b"
-        :style="{
-          zIndex: zIndex()
-        }"
-        @click="close"
-      >
-        <transition
-          :name="transitionName"
-          appear
-          @after-leave="onAfterDrawerLeave"
-        >
+      <div v-if="overlayVisible" :class="overlayCls.b" :style="{ zIndex: zIndex() }" @click="close">
+        <transition :name="transitionName" appear @after-leave="onAfterDrawerLeave">
           <div
             v-bind="$attrs"
             v-if="drawerVisible"
@@ -33,11 +22,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef } from 'vue'
-import type { DrawerProps, DrawerEmits } from '../../types'
-import { bem, zIndex } from '@ultra-ui/utils'
-import { UIcon } from '../icon'
 import { Close } from '@ultra-ui/icons/normal'
+import { bem, zIndex } from '@ultra-ui/utils'
+import { computed, shallowRef } from 'vue'
+
+import type { DrawerProps, DrawerEmits } from '../../types'
+import { UIcon } from '../icon'
 
 defineOptions({
   name: 'Drawer',
