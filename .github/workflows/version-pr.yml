@@ -15,6 +15,8 @@ jobs:
   version:
     name: Create or update Version PR
     runs-on: ubuntu-latest
+    env:
+      SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4

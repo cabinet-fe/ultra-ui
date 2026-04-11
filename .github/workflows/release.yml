@@ -15,6 +15,10 @@ jobs:
   release:
     name: Publish and create GitHub Release
     runs-on: ubuntu-latest
+    # Bun 将依赖放在 node_modules/.bun/pkg@ver/node_modules/pkg，simple-git-hooks
+    # 会误判项目根并 ENOENT；CI 也不需要写本地 git hooks。
+    env:
+      SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
