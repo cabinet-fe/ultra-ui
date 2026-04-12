@@ -1,0 +1,4 @@
+interface:
+  display_name: "Veltra Styles"
+  short_description: "Work with @veltra/styles theme and Sass infrastructure"
+  default_prompt: "Use $veltra-styles to inspect or modify @veltra/styles Sass infrastructure, theme runtime, or integration setup."

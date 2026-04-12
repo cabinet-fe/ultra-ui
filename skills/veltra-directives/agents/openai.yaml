@@ -1,0 +1,4 @@
+interface:
+  display_name: "Veltra Directives"
+  short_description: "Work with @veltra/directives and directive contracts"
+  default_prompt: "Use $veltra-directives to inspect or modify @veltra/directives behavior, bindings, or side-effect style entries."

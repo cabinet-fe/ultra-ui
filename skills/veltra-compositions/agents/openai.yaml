@@ -1,0 +1,4 @@
+interface:
+  display_name: "Veltra Compositions"
+  short_description: "Work with @veltra/compositions hooks and shared logic"
+  default_prompt: "Use $veltra-compositions to inspect or modify @veltra/compositions hooks, form context, or virtual/pop logic."

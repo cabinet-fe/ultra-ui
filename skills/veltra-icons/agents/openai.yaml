@@ -1,0 +1,4 @@
+interface:
+  display_name: "Veltra Icons"
+  short_description: "Work with @veltra/icons usage and generation pipeline"
+  default_prompt: "Use $veltra-icons to inspect or modify @veltra/icons imports, SVG sources, or the icon generation pipeline."
