@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:08cd7d72ba44720b gen:2 source:src/svg/normal/poweroff.svg -->
+<!-- @veltra/icons generated sha256:08cd7d72ba44720b gen:2 source:src/svg/normal/poweroff.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Poweroff' })
 </script>

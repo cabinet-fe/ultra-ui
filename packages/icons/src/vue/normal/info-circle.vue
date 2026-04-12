@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:a47a8ff4200103d3 gen:2 source:src/svg/normal/info-circle.svg -->
+<!-- @veltra/icons generated sha256:a47a8ff4200103d3 gen:2 source:src/svg/normal/info-circle.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'InfoCircle' })
 </script>

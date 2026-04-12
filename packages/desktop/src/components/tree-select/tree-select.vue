@@ -60,9 +60,9 @@
 
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { ArrowDown, Search } from '@ultra-ui/icons/normal'
-import { bem, FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { ArrowDown, Search } from '@veltra/icons/normal'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'

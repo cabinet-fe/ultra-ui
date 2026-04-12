@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ScrollExposed } from '@ultra-ui/desktop/types'
+import type { ScrollExposed } from '@veltra/desktop/types'
 import { shallowRef } from 'vue'
 
 const scrollbarRef = shallowRef<ScrollExposed>()

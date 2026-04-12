@@ -50,8 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps, useVirtual } from '@ultra-ui/compositions'
-import { bem, setStyles, withUnit } from '@ultra-ui/utils'
+import { useFallbackProps, useVirtual } from '@veltra/compositions'
+import { bem, setStyles, withUnit } from '@veltra/utils'
 import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
 import type {

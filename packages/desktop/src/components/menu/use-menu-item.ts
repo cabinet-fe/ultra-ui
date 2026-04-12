@@ -1,4 +1,4 @@
-import { scrollIntoContainerView, type BEM } from '@ultra-ui/utils'
+import { scrollIntoContainerView, type BEM } from '@veltra/utils'
 import { computed, inject, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { MenuItem } from '../../types'

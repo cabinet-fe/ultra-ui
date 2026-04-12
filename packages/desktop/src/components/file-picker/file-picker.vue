@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { shallowRef, ref } from 'vue'
 
 import type { UploaderProps, UploaderEmits } from '../../types'

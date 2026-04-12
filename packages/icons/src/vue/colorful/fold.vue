@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:fc45d101f3f57c3c gen:2 source:src/svg/colorful/fold.svg -->
+<!-- @veltra/icons generated sha256:fc45d101f3f57c3c gen:2 source:src/svg/colorful/fold.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Fold' })
 </script>

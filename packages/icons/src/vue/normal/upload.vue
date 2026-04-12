@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0dcb47175ff115a5 gen:2 source:src/svg/normal/upload.svg -->
+<!-- @veltra/icons generated sha256:0dcb47175ff115a5 gen:2 source:src/svg/normal/upload.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Upload' })
 </script>

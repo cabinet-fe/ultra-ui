@@ -14,4 +14,4 @@ bun run changeset
 
 ## 仓库密钥
 
-在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中配置 `NPM_TOKEN`（具备发布 `@ultra-ui/*` 的 token）。若使用自建 registry，可在 workflow 中增加写 `.npmrc` 的步骤（勿把 token 写入仓库）。
+在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中配置 `NPM_TOKEN`（具备发布 `@veltra/*` 的 token）。若使用自建 registry，可在 workflow 中增加写 `.npmrc` 的步骤（勿把 token 写入仓库）。

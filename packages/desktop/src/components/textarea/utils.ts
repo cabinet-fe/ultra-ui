@@ -1,4 +1,4 @@
-import { setStyles } from '@ultra-ui/utils'
+import { setStyles } from '@veltra/utils'
 import { nextTick } from 'vue'
 
 export function calcTextareaHeight(el: HTMLTextAreaElement): void {

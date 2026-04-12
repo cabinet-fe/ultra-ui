@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:a7b62697ba964d90 gen:2 source:src/svg/colorful/unknown-file.svg -->
+<!-- @veltra/icons generated sha256:a7b62697ba964d90 gen:2 source:src/svg/colorful/unknown-file.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UnknownFile' })
 </script>

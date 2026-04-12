@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:58a491c67e35255f gen:2 source:src/svg/normal/bottom.svg -->
+<!-- @veltra/icons generated sha256:58a491c67e35255f gen:2 source:src/svg/normal/bottom.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Bottom' })
 </script>

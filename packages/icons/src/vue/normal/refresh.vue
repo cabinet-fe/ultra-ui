@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:54729d4b3d8fcad3 gen:2 source:src/svg/normal/refresh.svg -->
+<!-- @veltra/icons generated sha256:54729d4b3d8fcad3 gen:2 source:src/svg/normal/refresh.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Refresh' })
 </script>

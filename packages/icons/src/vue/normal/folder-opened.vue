@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:d0620d02126aa80d gen:2 source:src/svg/normal/folder-opened.svg -->
+<!-- @veltra/icons generated sha256:d0620d02126aa80d gen:2 source:src/svg/normal/folder-opened.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FolderOpened' })
 </script>

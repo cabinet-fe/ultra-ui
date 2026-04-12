@@ -33,8 +33,8 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useDrag, useResizeObserver } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useDrag, useResizeObserver } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
 
 import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'

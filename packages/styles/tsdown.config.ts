@@ -16,7 +16,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
-  deps: { neverBundle: ['@ultra-ui/utils', '@cat-kit/core', 'vue', '@ultra-ui/compositions'] },
+  deps: { neverBundle: ['@veltra/utils', '@cat-kit/core', 'vue', '@veltra/compositions'] },
   css: {
     preprocessorOptions: {
       scss: { api: 'modern-compiler', importers: [new NodePackageImporter(repoRoot)] }

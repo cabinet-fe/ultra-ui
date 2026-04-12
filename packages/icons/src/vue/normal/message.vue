@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:f13dbdb7518e43bc gen:2 source:src/svg/normal/message.svg -->
+<!-- @veltra/icons generated sha256:f13dbdb7518e43bc gen:2 source:src/svg/normal/message.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Message' })
 </script>

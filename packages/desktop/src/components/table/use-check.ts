@@ -1,5 +1,5 @@
 import { dfs, o, type Forest } from '@cat-kit/core'
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import {
   computed,
   createTextVNode,

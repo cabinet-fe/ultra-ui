@@ -9,8 +9,8 @@
 
 ## 内容
 
-1. 扫描 `packages/desktop/src`，将 `@ultra-ui/desktop`、`@ultra-ui/desktop/types`、`@ultra-ui/desktop/components` 替换为自文件到 `src/index.ts`、`src/types/index.ts`、`src/components/index.ts` 的相对路径（不含扩展名，目录导入等价于原 subpath）。
-2. 在 `packages/desktop/tsconfig.json` 中增加 `baseUrl` 与 `paths`：映射本包子路径及 workspace 依赖 `@ultra-ui/compositions`、`@ultra-ui/directives`、`@ultra-ui/icons`（含 `normal`/`colorful`）到对应包的 `src`。
+1. 扫描 `packages/desktop/src`，将 `@veltra/desktop`、`@veltra/desktop/types`、`@veltra/desktop/components` 替换为自文件到 `src/index.ts`、`src/types/index.ts`、`src/components/index.ts` 的相对路径（不含扩展名，目录导入等价于原 subpath）。
+2. 在 `packages/desktop/tsconfig.json` 中增加 `baseUrl` 与 `paths`：映射本包子路径及 workspace 依赖 `@veltra/compositions`、`@veltra/directives`、`@veltra/icons`（含 `normal`/`colorful`）到对应包的 `src`。
 3. 在 `packages/directives`、`packages/icons`、`packages/compositions` 的 `tsconfig.json` 中为各自包名增加指向 `src` 的 `paths`（供包内或工具链解析）。
 4. 在 `playgrounds/desktop/tsconfig.json` 中增加从 playground 根到各包 `src` 的 `paths`，保证预览应用内 TS 与 Vite 一致。
 5. 运行 `bunx tsc -b`（或项目既有类型检查命令）验证通过。

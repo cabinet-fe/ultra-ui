@@ -1,5 +1,5 @@
 {
-  "name": "@ultra-ui/styles",
+  "name": "@veltra/styles",
   "version": "1.0.0",
   "files": [
     "dist",
@@ -68,8 +68,8 @@
   },
   "dependencies": {
     "@cat-kit/core": "^1.0.1",
-    "@ultra-ui/compositions": "workspace:*",
-    "@ultra-ui/utils": "workspace:*"
+    "@veltra/compositions": "workspace:*",
+    "@veltra/utils": "workspace:*"
   },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",

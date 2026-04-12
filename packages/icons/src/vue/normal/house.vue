@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:6ea601a870613316 gen:2 source:src/svg/normal/house.svg -->
+<!-- @veltra/icons generated sha256:6ea601a870613316 gen:2 source:src/svg/normal/house.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'House' })
 </script>

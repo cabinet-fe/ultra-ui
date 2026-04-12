@@ -46,10 +46,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { vRipple } from '@ultra-ui/directives'
-import { Close, Plus } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { vRipple } from '@veltra/directives'
+import { Close, Plus } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, createVNode, nextTick, shallowRef, watch, type CSSProperties } from 'vue'
 
 import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '../../types'

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:f8660fd061db43db gen:2 source:src/svg/normal/deep-thinking.svg -->
+<!-- @veltra/icons generated sha256:f8660fd061db43db gen:2 source:src/svg/normal/deep-thinking.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'DeepThinking' })
 </script>

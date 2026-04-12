@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { FloatButtonItem } from '@ultra-ui/desktop/types'
+import type { FloatButtonItem } from '@veltra/desktop/types'
 
 const items: FloatButtonItem[] = [
   { key: 'a', name: '你' },

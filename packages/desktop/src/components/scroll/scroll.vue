@@ -23,8 +23,8 @@
 
 <script lang="ts" setup>
 import { debounce } from '@cat-kit/core'
-import { useResizeObserver } from '@ultra-ui/compositions'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { useResizeObserver } from '@veltra/compositions'
+import { bem, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed, provide, shallowRef } from 'vue'
 
 import type { ScrollPosition, _ScrollExposed, ScrollProps, ScrollEmits } from '../../types'

@@ -11,7 +11,7 @@ export default defineConfig({
   outDir: 'dist',
   deps: {
     neverBundle: [
-      '@ultra-ui/utils',
+      '@veltra/utils',
       '@cat-kit/core',
       'vue',
       '@floating-ui/dom',

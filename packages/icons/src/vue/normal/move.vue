@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:9b2a38771821fe67 gen:2 source:src/svg/normal/move.svg -->
+<!-- @veltra/icons generated sha256:9b2a38771821fe67 gen:2 source:src/svg/normal/move.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Move' })
 </script>

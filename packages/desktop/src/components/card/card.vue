@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { useFormFallbackProps } from '@veltra/compositions'
+import { bem, withUnit } from '@veltra/utils'
 import { computed, provide } from 'vue'
 
 import type { CardProps } from '../../types'

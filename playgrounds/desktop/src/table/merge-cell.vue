@@ -22,9 +22,9 @@
 </template>
 
 <script lang="ts" setup>
-import { defineTableColumns } from '@ultra-ui/desktop'
-import type { TableRow } from '@ultra-ui/desktop/types'
-import { Plus } from '@ultra-ui/icons/normal'
+import { defineTableColumns } from '@veltra/desktop'
+import type { TableRow } from '@veltra/desktop/types'
+import { Plus } from '@veltra/icons/normal'
 import { nextTick, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

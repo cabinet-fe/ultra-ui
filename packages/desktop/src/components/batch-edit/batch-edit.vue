@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup generic="Model extends FormModel">
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
 
 import type {

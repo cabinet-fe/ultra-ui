@@ -1,5 +1,5 @@
-import type { ComponentSize } from '@ultra-ui/utils/types/component-common'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { ComponentSize } from '@veltra/utils/types/component-common'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** 对话框组件属性 */
 export interface DialogProps {

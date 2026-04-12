@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:971876d7ee2c9d58 gen:2 source:src/svg/normal/maximum.svg -->
+<!-- @veltra/icons generated sha256:971876d7ee2c9d58 gen:2 source:src/svg/normal/maximum.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Maximum' })
 </script>

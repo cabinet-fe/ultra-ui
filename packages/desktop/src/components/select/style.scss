@@ -1,5 +1,5 @@
-@use 'pkg:@ultra-ui/styles/mixins' as m;
-@use 'pkg:@ultra-ui/styles/functions' as fn;
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: select;
 @include m.b($root-name) {

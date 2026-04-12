@@ -27,10 +27,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { vRipple } from '@ultra-ui/directives'
-import { Loading } from '@ultra-ui/icons'
-import { bem } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { vRipple } from '@veltra/directives'
+import { Loading } from '@veltra/icons'
+import { bem } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'
 
 import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '../../types'

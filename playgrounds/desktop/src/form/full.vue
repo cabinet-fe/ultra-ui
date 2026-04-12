@@ -117,7 +117,7 @@
 
 <script lang="ts" setup>
 import { date } from '@cat-kit/core'
-import { FormModel } from '@ultra-ui/desktop'
+import { FormModel } from '@veltra/desktop'
 import { shallowReactive, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

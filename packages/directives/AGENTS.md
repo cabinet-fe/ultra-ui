@@ -1,4 +1,4 @@
-# AGENTS.md — @ultra-ui/directives
+# AGENTS.md — @veltra/directives
 
 Vue 自定义指令集合。
 
@@ -28,8 +28,8 @@ src/
 
 | 子路径                              | 用途                               |
 | ----------------------------------- | ---------------------------------- |
-| `@ultra-ui/directives`              | 全部指令                           |
-| `@ultra-ui/directives/ripple/style` | 单独引入 ripple 样式（构建侧使用） |
+| `@veltra/directives`              | 全部指令                           |
+| `@veltra/directives/ripple/style` | 单独引入 ripple 样式（构建侧使用） |
 
 ## 新增指令约定
 
@@ -40,6 +40,6 @@ src/
 
 ## 依赖
 
-- **依赖**：`@ultra-ui/utils`、`@ultra-ui/styles`（SCSS 使用 `pkg:@ultra-ui/styles/mixins` 等）
+- **依赖**：`@veltra/utils`、`@veltra/styles`（SCSS 使用 `pkg:@veltra/styles/mixins` 等）
 - **peer**：`vue ^3.5.0`
-- **被依赖**：`@ultra-ui/desktop`（`install.ts` 中批量注册）
+- **被依赖**：`@veltra/desktop`（`install.ts` 中批量注册）

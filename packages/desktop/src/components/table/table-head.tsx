@@ -1,4 +1,4 @@
-import { bem, withUnit } from '@ultra-ui/utils'
+import { bem, withUnit } from '@veltra/utils'
 import { defineComponent, inject, type DefineComponent } from 'vue'
 
 import { TableDIKey, TableResizeKey } from './di'

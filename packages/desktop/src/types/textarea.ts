@@ -1,5 +1,5 @@
-import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { FormComponentProps } from '@veltra/utils/types/component-common'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** textarea组件属性 */
 export interface TextareaProps extends FormComponentProps {

@@ -32,9 +32,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { QuestionFilled } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { QuestionFilled } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { ref } from 'vue'
 
 import type { PopConfirmProps, PopConfirmEmits } from '../../types'

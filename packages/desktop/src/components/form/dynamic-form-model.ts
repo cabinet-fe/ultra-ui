@@ -1,5 +1,5 @@
 import { o } from '@cat-kit/core'
-import { Validator } from '@ultra-ui/utils'
+import { Validator } from '@veltra/utils'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'
 
 import type { FormModelItem, DataSettingConfig } from '../../types'

@@ -40,8 +40,8 @@
 
 <script lang="ts" setup>
 import { sleep } from '@cat-kit/core'
-import { FormModel } from '@ultra-ui/desktop'
-import { Monitor } from '@ultra-ui/icons/normal'
+import { FormModel } from '@veltra/desktop'
+import { Monitor } from '@veltra/icons/normal'
 import { shallowRef, watchEffect } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

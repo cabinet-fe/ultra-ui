@@ -15,8 +15,8 @@ const desktopRoot = resolve(__dirname, '../../packages/desktop/src')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 function existModule(moduleId: string): boolean {
-  if (!moduleId.startsWith('@ultra-ui/desktop/')) return false
-  const rel = moduleId.slice('@ultra-ui/desktop/'.length)
+  if (!moduleId.startsWith('@veltra/desktop/')) return false
+  const rel = moduleId.slice('@veltra/desktop/'.length)
   return existsSync(resolve(desktopRoot, rel))
 }
 
@@ -29,13 +29,13 @@ function pascalWithoutUPrefixToKebab(name: string): string {
 
 function resolveStyleSideEffects(kebabName: string): string | undefined {
   const ext = 'ts'
-  let moduleId = `@ultra-ui/desktop/components/${kebabName}/style.${ext}`
+  let moduleId = `@veltra/desktop/components/${kebabName}/style.${ext}`
 
   while (!existModule(moduleId)) {
     const preKebabName = kebabName
     kebabName = kebabName.replace(/-[a-z]$/, '')
     if (preKebabName === kebabName) return
-    moduleId = `@ultra-ui/desktop/components/${kebabName}/style.${ext}`
+    moduleId = `@veltra/desktop/components/${kebabName}/style.${ext}`
   }
 
   return moduleId
@@ -49,7 +49,7 @@ function ultraUiDesktopResolver(): ComponentResolver {
       const kebab = pascalWithoutUPrefixToKebab(name.slice(1))
       if (!kebab) return
 
-      return { name, from: '@ultra-ui/desktop', sideEffects: resolveStyleSideEffects(kebab) }
+      return { name, from: '@veltra/desktop', sideEffects: resolveStyleSideEffects(kebab) }
     }
   }
 }

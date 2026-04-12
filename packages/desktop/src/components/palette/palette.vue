@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { PaletteProps } from '../../types'

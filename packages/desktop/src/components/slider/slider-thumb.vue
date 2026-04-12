@@ -2,7 +2,7 @@
   <div ref="thumb" :class="cls.e('thumb')" :style></div>
 </template>
 <script lang="ts" setup>
-import { useDrag, useUpdateLock } from '@ultra-ui/compositions'
+import { useDrag, useUpdateLock } from '@veltra/compositions'
 import { computed, inject, useTemplateRef, watch } from 'vue'
 
 import { sliderContextKey } from './di'

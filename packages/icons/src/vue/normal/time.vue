@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:df7559b50c9287ca gen:2 source:src/svg/normal/time.svg -->
+<!-- @veltra/icons generated sha256:df7559b50c9287ca gen:2 source:src/svg/normal/time.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Time' })
 </script>

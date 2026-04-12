@@ -1,4 +1,4 @@
-import type { ComponentProps } from '@ultra-ui/utils/types/component-common'
+import type { ComponentProps } from '@veltra/utils/types/component-common'
 
 export type TabItem = {
   /**

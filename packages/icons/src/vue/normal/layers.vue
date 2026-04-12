@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:7a6df87aed24ae17 gen:2 source:src/svg/normal/layers.svg -->
+<!-- @veltra/icons generated sha256:7a6df87aed24ae17 gen:2 source:src/svg/normal/layers.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Layers' })
 </script>

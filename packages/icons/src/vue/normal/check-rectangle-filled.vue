@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0f62047643db574f gen:2 source:src/svg/normal/check-rectangle-filled.svg -->
+<!-- @veltra/icons generated sha256:0f62047643db574f gen:2 source:src/svg/normal/check-rectangle-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CheckRectangleFilled' })
 </script>

@@ -4,11 +4,11 @@
 
 <script lang="tsx" setup>
 import type { ActionGroupProps } from "../../types";
-import { ArrowDown } from '@ultra-ui/icons/normal'
+import { ArrowDown } from '@veltra/icons/normal'
 import { UIcon } from "../icon";
 import { UButton } from "../button";
 import { provide, type VNode } from "vue";
-import { bem, extractNormalVNodes } from "@ultra-ui/utils";
+import { bem, extractNormalVNodes } from "@veltra/utils";
 import { UTip } from "../tip";
 import { ActionDIKey } from "./di";
 

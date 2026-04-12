@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 import type { DefineComponent } from 'vue'
 
 /** 菜单项 */

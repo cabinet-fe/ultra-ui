@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowRight } from '@ultra-ui/icons/normal'
-import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
+import { ArrowRight } from '@veltra/icons/normal'
+import { bem, scrollIntoContainerView } from '@veltra/utils'
 import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'
 
 import type { CascadeNode } from '../../types'

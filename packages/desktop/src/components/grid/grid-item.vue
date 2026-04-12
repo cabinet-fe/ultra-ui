@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { computed, inject, type CSSProperties, watch } from 'vue'
 
 import type { GridItemProps } from '../../types'

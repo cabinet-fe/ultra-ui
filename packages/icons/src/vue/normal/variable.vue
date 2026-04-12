@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:07438092b2d2b432 gen:2 source:src/svg/normal/variable.svg -->
+<!-- @veltra/icons generated sha256:07438092b2d2b432 gen:2 source:src/svg/normal/variable.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Variable' })
 </script>

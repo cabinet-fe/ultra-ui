@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { Cart, HouseFilled, Lock, UserGroup } from '@ultra-ui/icons/normal'
+import { Cart, HouseFilled, Lock, UserGroup } from '@veltra/icons/normal'
 import { shallowRef, ref, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -224,7 +224,7 @@ const menus1 = ref([
 </script>
 
 <style scoped lang="scss">
-@use 'pkg:@ultra-ui/styles/functions' as fn;
+@use 'pkg:@veltra/styles/functions' as fn;
 
 .config {
   display: flex;

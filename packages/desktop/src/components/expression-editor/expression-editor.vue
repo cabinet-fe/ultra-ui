@@ -56,8 +56,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { $getRoot } from 'lexical'
 import { useTemplateRef, provide, computed, onBeforeUnmount, shallowRef, type VNode } from 'vue'
 

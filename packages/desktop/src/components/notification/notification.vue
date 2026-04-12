@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
+import { useFallbackProps } from '@veltra/compositions'
 import {
   CircleCheckFilled,
   CircleClose,
@@ -37,8 +37,8 @@ import {
   InfoFilled,
   QuestionFilled,
   WarningFilled
-} from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+} from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { ref, computed, onMounted, type CSSProperties } from 'vue'
 
 import type { NotificationProps, NotificationExposed, ColorType } from '../../types'

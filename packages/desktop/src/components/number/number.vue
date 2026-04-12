@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { $n } from '@cat-kit/core'
-import { Tween } from '@ultra-ui/utils'
+import { Tween } from '@veltra/utils'
 import { computed, reactive, watch } from 'vue'
 
 import type { NumberProps } from '../../types'

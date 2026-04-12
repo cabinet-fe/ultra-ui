@@ -4,7 +4,7 @@ import {
   InfoFilled,
   QuestionFilled,
   WarningFilled
-} from '@ultra-ui/icons/normal'
+} from '@veltra/icons/normal'
 import type { DefineComponent } from 'vue'
 
 import type { ColorType, MessageType } from '../../types'

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:a38c06b0ba0caf53 gen:2 source:src/svg/normal/discount.svg -->
+<!-- @veltra/icons generated sha256:a38c06b0ba0caf53 gen:2 source:src/svg/normal/discount.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Discount' })
 </script>

@@ -1,6 +1,6 @@
 import { Forest } from '@cat-kit/core'
-import type { Updater } from '@ultra-ui/compositions'
-import { createIncrease } from '@ultra-ui/utils'
+import type { Updater } from '@veltra/compositions'
+import { createIncrease } from '@veltra/utils'
 import {
   computed,
   nextTick,

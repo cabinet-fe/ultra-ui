@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:9b1ee1063f38e02a gen:2 source:src/svg/normal/mobile.svg -->
+<!-- @veltra/icons generated sha256:9b1ee1063f38e02a gen:2 source:src/svg/normal/mobile.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Mobile' })
 </script>

@@ -1,6 +1,6 @@
 import { Forest, dfs, last } from '@cat-kit/core'
-import { ArrowRight } from '@ultra-ui/icons/normal'
-import { type BEM } from '@ultra-ui/utils'
+import { ArrowRight } from '@veltra/icons/normal'
+import { type BEM } from '@veltra/utils'
 import { computed, createVNode, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { TableColumn, TableProps } from '../../types'

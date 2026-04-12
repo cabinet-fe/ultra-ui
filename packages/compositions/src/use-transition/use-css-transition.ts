@@ -1,4 +1,4 @@
-import { createToggle } from '@ultra-ui/utils'
+import { createToggle } from '@veltra/utils'
 import { isRef, watch, onBeforeUnmount, computed } from 'vue'
 
 import type { Returned, CssTransitionOptions } from './type'

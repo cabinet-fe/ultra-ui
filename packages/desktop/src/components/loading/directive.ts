@@ -1,4 +1,4 @@
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { createVNode, render, type DirectiveBinding, type ObjectDirective } from 'vue'
 
 import type { LoadingType } from '../../types'

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3b7b1cccf1f66ad0 gen:2 source:src/svg/normal/zoom-in.svg -->
+<!-- @veltra/icons generated sha256:3b7b1cccf1f66ad0 gen:2 source:src/svg/normal/zoom-in.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ZoomIn' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:4c6791615ea70bd5 gen:2 source:src/svg/normal/remove.svg -->
+<!-- @veltra/icons generated sha256:4c6791615ea70bd5 gen:2 source:src/svg/normal/remove.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Remove' })
 </script>

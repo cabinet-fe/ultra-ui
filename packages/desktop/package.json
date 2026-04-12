@@ -1,5 +1,5 @@
 {
-  "name": "@ultra-ui/desktop",
+  "name": "@veltra/desktop",
   "version": "1.0.0",
   "files": [
     "dist",
@@ -47,11 +47,11 @@
     "@lexical/rich-text": "^0.42.0",
     "@lexical/selection": "^0.42.0",
     "@lexical/utils": "^0.42.0",
-    "@ultra-ui/compositions": "workspace:*",
-    "@ultra-ui/directives": "workspace:*",
-    "@ultra-ui/icons": "workspace:*",
-    "@ultra-ui/styles": "workspace:*",
-    "@ultra-ui/utils": "workspace:*",
+    "@veltra/compositions": "workspace:*",
+    "@veltra/directives": "workspace:*",
+    "@veltra/icons": "workspace:*",
+    "@veltra/styles": "workspace:*",
+    "@veltra/utils": "workspace:*",
     "codemirror": "^6.0.2",
     "lexical": "^0.42.0"
   },
@@ -64,11 +64,11 @@
     "vue-tsc": "^3.2.6"
   },
   "peerDependencies": {
-    "@ultra-ui/compositions": "workspace:*",
-    "@ultra-ui/directives": "workspace:*",
-    "@ultra-ui/icons": "workspace:*",
-    "@ultra-ui/styles": "workspace:*",
-    "@ultra-ui/utils": "workspace:*",
+    "@veltra/compositions": "workspace:*",
+    "@veltra/directives": "workspace:*",
+    "@veltra/icons": "workspace:*",
+    "@veltra/styles": "workspace:*",
+    "@veltra/utils": "workspace:*",
     "vue": "^3.5.0"
   }
 }

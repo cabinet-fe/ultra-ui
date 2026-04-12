@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:46acd10d8e1ee92b gen:2 source:src/svg/normal/remove-filled.svg -->
+<!-- @veltra/icons generated sha256:46acd10d8e1ee92b gen:2 source:src/svg/normal/remove-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'RemoveFilled' })
 </script>

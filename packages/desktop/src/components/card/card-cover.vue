@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { withUnit, bem } from '@ultra-ui/utils'
+import { withUnit, bem } from '@veltra/utils'
 import { computed, inject } from 'vue'
 
 import type { CardCoverProps } from '../../types'

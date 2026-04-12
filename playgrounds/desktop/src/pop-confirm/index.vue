@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { Word } from '@ultra-ui/icons/colorful'
+import { Word } from '@veltra/icons/colorful'
 
 import CustomCard from '../card/custom-card.vue'
 

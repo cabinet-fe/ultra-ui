@@ -29,8 +29,8 @@
 
 <script lang="ts" setup>
 import { $n } from '@cat-kit/core'
-import { withUnit } from '@ultra-ui/utils'
-import type { RenderReturn } from '@ultra-ui/utils/types/helper'
+import { withUnit } from '@veltra/utils'
+import type { RenderReturn } from '@veltra/utils/types/helper'
 import { computed, inject } from 'vue'
 
 import { UNodeRender } from '../node-render'

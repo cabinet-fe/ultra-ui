@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ultra-ui/utils'
-import { withUnit } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 import { type CSSProperties, computed } from 'vue'
 
 import type { IconProps } from '../../types'

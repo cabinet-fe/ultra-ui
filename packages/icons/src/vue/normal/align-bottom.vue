@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0c27e27609066bb1 gen:2 source:src/svg/normal/align-bottom.svg -->
+<!-- @veltra/icons generated sha256:0c27e27609066bb1 gen:2 source:src/svg/normal/align-bottom.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AlignBottom' })
 </script>

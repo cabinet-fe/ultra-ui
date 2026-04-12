@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { o } from '@cat-kit/core'
-import { AddChild, Delete, InsertToNext, InsertToPrev } from '@ultra-ui/icons/normal'
+import { AddChild, Delete, InsertToNext, InsertToPrev } from '@veltra/icons/normal'
 import { computed, inject, type Slots } from 'vue'
 
 import type { BatchEditFeature, TableRow } from '../../types'

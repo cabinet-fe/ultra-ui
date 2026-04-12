@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:f7a8d97e9e217507 gen:2 source:src/svg/normal/call.svg -->
+<!-- @veltra/icons generated sha256:f7a8d97e9e217507 gen:2 source:src/svg/normal/call.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Call' })
 </script>

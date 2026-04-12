@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:227c22af84682ff8 gen:2 source:src/svg/normal/zoom-out.svg -->
+<!-- @veltra/icons generated sha256:227c22af84682ff8 gen:2 source:src/svg/normal/zoom-out.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ZoomOut' })
 </script>

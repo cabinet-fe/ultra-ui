@@ -1,5 +1,5 @@
 {
-  "name": "@ultra-ui/compositions",
+  "name": "@veltra/compositions",
   "version": "1.0.0",
   "files": [
     "dist",
@@ -21,7 +21,7 @@
     "@cat-kit/core": "^1.0.1",
     "@floating-ui/dom": "^1.7.6",
     "@tanstack/vue-virtual": "^3.13.23",
-    "@ultra-ui/utils": "workspace:*"
+    "@veltra/utils": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "^0.21.7"

@@ -34,10 +34,10 @@
 </template>
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { Minus, Plus } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { Minus, Plus } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { GroupInputEmits, GroupInputProps } from '../../types'

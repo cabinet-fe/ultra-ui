@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:77551d3e9ede4543 gen:2 source:src/svg/normal/caret-right.svg -->
+<!-- @veltra/icons generated sha256:77551d3e9ede4543 gen:2 source:src/svg/normal/caret-right.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CaretRight' })
 </script>

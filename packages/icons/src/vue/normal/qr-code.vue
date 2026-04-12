@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:e2469342df8b847d gen:2 source:src/svg/normal/qr-code.svg -->
+<!-- @veltra/icons generated sha256:e2469342df8b847d gen:2 source:src/svg/normal/qr-code.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'QrCode' })
 </script>

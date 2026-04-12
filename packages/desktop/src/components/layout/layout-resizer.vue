@@ -9,9 +9,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useDrag } from '@ultra-ui/compositions'
-import { Move } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useDrag } from '@veltra/compositions'
+import { Move } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, inject, shallowReactive, shallowRef } from 'vue'
 
 import { UIcon } from '../icon'

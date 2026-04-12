@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3d8ef5659b93dec0 gen:2 source:src/svg/normal/check.svg -->
+<!-- @veltra/icons generated sha256:3d8ef5659b93dec0 gen:2 source:src/svg/normal/check.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Check' })
 </script>

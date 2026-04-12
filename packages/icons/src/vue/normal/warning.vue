@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:732fe7648ea8ede4 gen:2 source:src/svg/normal/warning.svg -->
+<!-- @veltra/icons generated sha256:732fe7648ea8ede4 gen:2 source:src/svg/normal/warning.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Warning' })
 </script>

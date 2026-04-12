@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useDrag } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useDrag } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed, inject, shallowRef } from 'vue'
 
 import { ScrollDIKey } from './di'

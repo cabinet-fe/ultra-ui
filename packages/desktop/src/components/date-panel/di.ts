@@ -1,5 +1,5 @@
 import type { Dater } from '@cat-kit/core'
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import type { ComputedRef, InjectionKey, Ref } from 'vue'
 
 import type { DatePanelEmits, DatePanelProps, PanelType } from '../../types'

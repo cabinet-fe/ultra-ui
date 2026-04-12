@@ -1,4 +1,4 @@
-# @ultra-ui/icons 资源与构建管线
+# @veltra/icons 资源与构建管线
 
 > 状态: 已执行
 
@@ -61,7 +61,7 @@
 **`package.json`**：
 
 - 将主 `build` 扩展为：在 `tsc` 之前或之后串联图标构建（具体顺序以实现时不破坏类型检查为准）；声明 `"sideEffects": false` 指向仅含无副作用的 ESM 产物路径（若根入口存在副作用则缩小 `sideEffects` 范围，避免误标）。
-- **`exports`**：提供子路径，例如 `@ultra-ui/icons/vue/normal/<basename>`、`@ultra-ui/icons/vue/colorful/<basename>` 映射到 `dist/vue/normal/<basename>.js`（扩展名以 tsdown 实际输出为准）；根入口 `.` 仅导出类型/元数据或显式文档化为「全量慎用」，避免默认全图标打包。
+- **`exports`**：提供子路径，例如 `@veltra/icons/vue/normal/<basename>`、`@veltra/icons/vue/colorful/<basename>` 映射到 `dist/vue/normal/<basename>.js`（扩展名以 tsdown 实际输出为准）；根入口 `.` 仅导出类型/元数据或显式文档化为「全量慎用」，避免默认全图标打包。
 
 **验收（按需导出）**：
 
@@ -82,12 +82,12 @@
 - `packages/icons/src/vue/**`（由 `icons:gen` 生成）、`packages/icons/src/env.d.ts`、`packages/icons/tsconfig.json`、`packages/icons/tsconfig.icons-vue.json`
 - `packages/icons/package.json`（exports、scripts、sideEffects、依赖）
 - `packages/icons/src/svg/normal/sort-rigth.svg` → `sort-right.svg`（git mv）
-- `packages/desktop/package.json`（`@ultra-ui/icons` workspace 依赖，便于 turbo 构建顺序）
+- `packages/desktop/package.json`（`@veltra/icons` workspace 依赖，便于 turbo 构建顺序）
 - `apps/sample/package.json`、`apps/sample/src/icon/index.vue`（按需子路径与 `UIcon` 联调）
 - `apps/icons-example/**`（独立图标预览：Vue + Vite，端口 7789）
 - `playgrounds/icons/**`（workspace 图标预览）
 - 根目录 `bun.lock`（依赖锁定）
-- `packages/desktop/src/components/**`（图标导入自 `@ultra-ui/icons` 子路径）
+- `packages/desktop/src/components/**`（图标导入自 `@veltra/icons` 子路径）
 - `apps/sample/vite.config.ts`、`apps/sample/**/*.vue`
 - `AGENTS.md`、`migrate.md`
 - `packages/icons/src/normal.ts`、`packages/icons/src/colorful.ts`、`packages/icons/scripts/gen-icon-barrels.ts`（icons:gen 生成/更新）
@@ -97,8 +97,8 @@
 ## 历史补丁
 
 - patch-6: playgrounds/icons 预览卡片缩小、图标放大
-- patch-1: 迁移 @ultra/icon → @ultra-ui/icons
-- patch-2: 具名导出入口 `@ultra-ui/icons` / `@ultra-ui/icons/normal`（及 colorful）
+- patch-1: 迁移 @ultra/icon → @veltra/icons
+- patch-2: 具名导出入口 `@veltra/icons` / `@veltra/icons/normal`（及 colorful）
 - patch-3: tsdown 生成 dts（移除 vue-tsc）+ `apps/icons-example` Lucide 风格预览
 - patch-4: format-svg 适配 SVGO 4.x（optimize 抛错、Output 仅含 data）
 - patch-5: 生成 Vue 图标移除 `size` prop，根 svg 固定 1em + `gen` 跳过标记

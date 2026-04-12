@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { computed, inject } from 'vue'
 
 import type { ActionEmits, ActionProps } from '../../types'

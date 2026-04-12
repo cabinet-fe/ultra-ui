@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:473aaa1149ac8e1c gen:2 source:src/svg/normal/add-child.svg -->
+<!-- @veltra/icons generated sha256:473aaa1149ac8e1c gen:2 source:src/svg/normal/add-child.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AddChild' })
 </script>

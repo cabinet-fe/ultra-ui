@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ripple } from '@ultra-ui/directives'
+import { Ripple } from '@veltra/directives'
 import { inject, onBeforeUnmount } from 'vue'
 
 import { UCheckbox } from '../checkbox'

@@ -1,4 +1,4 @@
-# AGENTS.md — @ultra-ui/desktop
+# AGENTS.md — @veltra/desktop
 
 桌面端 UI 组件库主包，包含 70+ 个 Vue 3 组件。
 
@@ -18,7 +18,7 @@ src/
 │   │   └── di.ts         # 可选，依赖注入 key（InjectionKey）
 │   └── index.ts          # barrel 聚合导出所有组件
 └── types/                # 类型定义目录（~77 个文件）
-    ├── index.ts          # 先 re-export @ultra-ui/utils/types，再导出各组件类型
+    ├── index.ts          # 先 re-export @veltra/utils/types，再导出各组件类型
     └── <name>.ts         # 组件 Props/Emits/Exposed 定义
 ```
 
@@ -32,8 +32,8 @@ src/
 </template>
 
 <script setup lang="ts">
-import { bem } from '@ultra-ui/utils'
-import type { XxxProps } from '@ultra-ui/desktop/types'
+import { bem } from '@veltra/utils'
+import type { XxxProps } from '@veltra/desktop/types'
 
 defineOptions({ name: 'Xxx' })
 
@@ -73,8 +73,8 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed> // 导出用
 表单组件在基础模式上额外使用：
 
 ```ts
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils/shared'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
 
 // Props 继承 FormComponentProps
 interface InputProps extends FormComponentProps {
@@ -109,22 +109,22 @@ const context = inject(TableDIKey)!
 ## install.ts 全局注册
 
 ```ts
-import { UltraUI } from '@ultra-ui/desktop/install'
+import { UltraUI } from '@veltra/desktop/install'
 app.use(UltraUI)
 ```
 
-注册所有 `U*` 组件、`@ultra-ui/directives` 中的 `v*` 指令、以及 `vLoading` 指令。同时导入全量样式。
+注册所有 `U*` 组件、`@veltra/directives` 中的 `v*` 指令、以及 `vLoading` 指令。同时导入全量样式。
 
 ## 导出子路径
 
 | 子路径                      | 用途                            |
 | --------------------------- | ------------------------------- |
-| `@ultra-ui/desktop`         | 全部组件 + 类型                 |
-| `@ultra-ui/desktop/install` | 全局注册函数                    |
-| `@ultra-ui/desktop/*`       | 深度子路径（按需引入组件/类型） |
+| `@veltra/desktop`         | 全部组件 + 类型                 |
+| `@veltra/desktop/install` | 全局注册函数                    |
+| `@veltra/desktop/*`       | 深度子路径（按需引入组件/类型） |
 
 ## 依赖
 
-- **workspace**：`@ultra-ui/utils`、`@ultra-ui/styles`、`@ultra-ui/compositions`、`@ultra-ui/directives`、`@ultra-ui/icons`
+- **workspace**：`@veltra/utils`、`@veltra/styles`、`@veltra/compositions`、`@veltra/directives`、`@veltra/icons`
 - **外部**：`@floating-ui/dom`、`@tanstack/vue-virtual`、CodeMirror 系列、Lexical 系列、`@cat-kit/core`
-- **peer**：`vue ^3.5.0`、`@ultra-ui/icons`
+- **peer**：`vue ^3.5.0`、`@veltra/icons`

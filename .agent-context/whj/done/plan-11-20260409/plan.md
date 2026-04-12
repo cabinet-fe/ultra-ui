@@ -41,7 +41,7 @@
 - 包职责：Vue 3 组合式函数集合
 - 所有 composition 函数列表及一句话描述
 - 关键 API 用法模式（`loadTheme`、`useFormComponent`、`useFormFallbackProps`、`useModel`、`usePop`、`useTransition` 等）
-- 依赖关系：`@cat-kit/core` + `@ultra-ui/utils`
+- 依赖关系：`@cat-kit/core` + `@veltra/utils`
 
 ### 步骤 4：生成 `packages/directives/AGENTS.md`
 
@@ -72,7 +72,7 @@
 - 导出路径：`/normal`、`/colorful`
 - 生成工作流：`icons:rename` → `icons:format` → `icons:gen` → `icons:build-vue` → `build`
 - 文件结构：`src/vue/` 生成的 SFC、`normal.ts` / `colorful.ts` 自动导出
-- 使用方式：`import { X } from '@ultra-ui/icons/normal'`
+- 使用方式：`import { X } from '@veltra/icons/normal'`
 - 注意事项：`src/normal.ts` / `colorful.ts` 为自动生成文件，不要手动编辑
 
 ### 步骤 7：生成 `tools/build/AGENTS.md`

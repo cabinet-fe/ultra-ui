@@ -96,7 +96,7 @@ for (const { glob, outDir, mono } of SOURCES) {
       process.exit(1)
     }
 
-    const vue = `<!-- @ultra-ui/icons generated sha256:${hash} ${GEN_TAG} source:${relSvg} -->
+    const vue = `<!-- @veltra/icons generated sha256:${hash} ${GEN_TAG} source:${relSvg} -->
 <script setup lang="ts">
 defineOptions({ name: '${name}' })
 </script>

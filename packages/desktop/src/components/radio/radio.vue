@@ -23,8 +23,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { RadioProps, RadioEmits } from '../../types'

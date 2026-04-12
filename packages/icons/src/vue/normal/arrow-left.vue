@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3658691447aca7a9 gen:2 source:src/svg/normal/arrow-left.svg -->
+<!-- @veltra/icons generated sha256:3658691447aca7a9 gen:2 source:src/svg/normal/arrow-left.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ArrowLeft' })
 </script>

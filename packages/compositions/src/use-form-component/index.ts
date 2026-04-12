@@ -1,4 +1,4 @@
-import type { FormContextInjectProps } from '@ultra-ui/utils/types'
+import type { FormContextInjectProps } from '@veltra/utils/types'
 import { type InjectionKey, inject, provide } from 'vue'
 
 type DIContext = {

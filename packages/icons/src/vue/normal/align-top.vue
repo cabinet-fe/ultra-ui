@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:114211b48e3e2436 gen:2 source:src/svg/normal/align-top.svg -->
+<!-- @veltra/icons generated sha256:114211b48e3e2436 gen:2 source:src/svg/normal/align-top.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AlignTop' })
 </script>

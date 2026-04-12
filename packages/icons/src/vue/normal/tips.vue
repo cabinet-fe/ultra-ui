@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:959ca34852e96fe2 gen:2 source:src/svg/normal/tips.svg -->
+<!-- @veltra/icons generated sha256:959ca34852e96fe2 gen:2 source:src/svg/normal/tips.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Tips' })
 </script>

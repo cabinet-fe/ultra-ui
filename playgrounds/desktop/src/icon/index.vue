@@ -19,5 +19,5 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, Check, Loading } from '@ultra-ui/icons/normal'
+import { ArrowLeft, ArrowRight, Check, Loading } from '@veltra/icons/normal'
 </script>

@@ -1,4 +1,4 @@
-import { zIndex } from '@ultra-ui/utils'
+import { zIndex } from '@veltra/utils'
 import { createVNode, render } from 'vue'
 
 import type { MessageConfirmProps, ColorType } from '../../types'

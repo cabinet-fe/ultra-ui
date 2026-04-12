@@ -182,8 +182,8 @@ import {
   darkTheme,
   lightTheme,
   loadTheme
-} from '@ultra-ui/styles/theme'
-import { bem } from '@ultra-ui/utils'
+} from '@veltra/styles/theme'
+import { bem } from '@veltra/utils'
 import { computed, shallowRef, watch, watchEffect } from 'vue'
 
 import type { ThemeProps, _ThemeExposed } from '../../types'

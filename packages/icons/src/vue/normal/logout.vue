@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:1d6e6fc8dfcbe141 gen:2 source:src/svg/normal/logout.svg -->
+<!-- @veltra/icons generated sha256:1d6e6fc8dfcbe141 gen:2 source:src/svg/normal/logout.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Logout' })
 </script>

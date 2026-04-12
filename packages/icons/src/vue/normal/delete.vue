@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0a42b9fcf3a20fd4 gen:2 source:src/svg/normal/delete.svg -->
+<!-- @veltra/icons generated sha256:0a42b9fcf3a20fd4 gen:2 source:src/svg/normal/delete.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Delete' })
 </script>

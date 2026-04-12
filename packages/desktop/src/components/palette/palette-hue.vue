@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useDrag } from '@ultra-ui/compositions'
+import { useDrag } from '@veltra/compositions'
 import { inject, onMounted } from 'vue'
 import { shallowRef, computed } from 'vue'
 

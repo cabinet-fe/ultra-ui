@@ -16,7 +16,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
-  deps: { neverBundle: ['@ultra-ui/utils', '@ultra-ui/styles', 'vue'] },
+  deps: { neverBundle: ['@veltra/utils', '@veltra/styles', 'vue'] },
   css: {
     inject: true,
     preprocessorOptions: {

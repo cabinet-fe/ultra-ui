@@ -7,8 +7,8 @@
 <script lang="ts" setup>
 import { EditorState } from '@codemirror/state'
 import { tooltips } from '@codemirror/view'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem, zIndex } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { bem, zIndex } from '@veltra/utils'
 import { EditorView, basicSetup } from 'codemirror'
 import { computed, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 

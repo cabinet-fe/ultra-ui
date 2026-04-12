@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0551d5bfe68e6107 gen:2 source:src/svg/normal/caret-bottom.svg -->
+<!-- @veltra/icons generated sha256:0551d5bfe68e6107 gen:2 source:src/svg/normal/caret-bottom.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CaretBottom' })
 </script>

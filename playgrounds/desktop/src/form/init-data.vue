@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ultra-ui/desktop'
+import { FormModel } from '@veltra/desktop'
 
 const model = new FormModel({
   name: {},

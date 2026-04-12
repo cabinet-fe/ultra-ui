@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { bem, zIndex } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { bem, zIndex } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { LoadingProps, ComponentSize } from '../../types'

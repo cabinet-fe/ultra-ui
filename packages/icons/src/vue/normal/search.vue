@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:1e4d8cb061fab16c gen:2 source:src/svg/normal/search.svg -->
+<!-- @veltra/icons generated sha256:1e4d8cb061fab16c gen:2 source:src/svg/normal/search.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Search' })
 </script>

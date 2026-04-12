@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed, provide, watch } from 'vue'
 
 import type { SliderProps, SliderEmits } from '../../types'

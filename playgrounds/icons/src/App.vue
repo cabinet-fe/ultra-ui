@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import * as ColorfulIcons from '@ultra-ui/icons/colorful'
-import * as NormalIcons from '@ultra-ui/icons/normal'
+import * as ColorfulIcons from '@veltra/icons/colorful'
+import * as NormalIcons from '@veltra/icons/normal'
 import { computed, ref, shallowRef, watch } from 'vue'
 import type { Component } from 'vue'
 
@@ -53,7 +53,7 @@ watch(activeSet, () => {
 })
 
 async function copyImport(item: IconItem) {
-  const line = `import { ${item.pascal} } from '@ultra-ui/icons/${activeSet.value}'`
+  const line = `import { ${item.pascal} } from '@veltra/icons/${activeSet.value}'`
   try {
     await navigator.clipboard.writeText(line)
     copiedLine.value = line
@@ -74,7 +74,7 @@ async function copyImport(item: IconItem) {
         <div class="icons-app__brand">
           <h1 class="icons-app__title">Ultra Icons</h1>
           <p class="icons-app__subtitle">
-            来自 <code>@ultra-ui/icons</code> 的 Vue 图标组件，点击卡片复制 import 语句。
+            来自 <code>@veltra/icons</code> 的 Vue 图标组件，点击卡片复制 import 语句。
           </p>
         </div>
         <div class="icons-app__tabs" role="tablist">

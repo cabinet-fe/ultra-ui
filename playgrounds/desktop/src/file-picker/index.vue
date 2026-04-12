@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Upload } from '@ultra-ui/icons/normal'
+import { Upload } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

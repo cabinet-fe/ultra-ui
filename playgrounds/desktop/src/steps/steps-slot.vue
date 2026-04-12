@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { Lock } from '@ultra-ui/icons/normal'
+import { Lock } from '@veltra/icons/normal'
 import { ref } from 'vue'
 
 const current = ref(2)

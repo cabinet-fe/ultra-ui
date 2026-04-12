@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:ceda10f261067b07 gen:2 source:src/svg/normal/help.svg -->
+<!-- @veltra/icons generated sha256:ceda10f261067b07 gen:2 source:src/svg/normal/help.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Help' })
 </script>

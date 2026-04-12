@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Empty } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { Empty } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 
 import type { EmptyProps } from '../../types'
 import { UIcon } from '../icon'

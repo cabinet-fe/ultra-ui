@@ -1,5 +1,5 @@
 import { Forest, o } from '@cat-kit/core'
-import { useModel } from '@ultra-ui/compositions'
+import { useModel } from '@veltra/compositions'
 import { shallowRef, watch, type ShallowRef } from 'vue'
 
 import type { TableColumn, TableEmits, TableProps, TableRow } from '../../types'

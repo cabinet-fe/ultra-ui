@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3db6e25345308437 gen:2 source:src/svg/colorful/pdf.svg -->
+<!-- @veltra/icons generated sha256:3db6e25345308437 gen:2 source:src/svg/colorful/pdf.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Pdf' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:eb7d632acc79117f gen:2 source:src/svg/normal/sort-right.svg -->
+<!-- @veltra/icons generated sha256:eb7d632acc79117f gen:2 source:src/svg/normal/sort-right.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'SortRight' })
 </script>

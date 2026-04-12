@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:67f6b42238c1dde6 gen:2 source:src/svg/normal/empty.svg -->
+<!-- @veltra/icons generated sha256:67f6b42238c1dde6 gen:2 source:src/svg/normal/empty.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Empty' })
 </script>

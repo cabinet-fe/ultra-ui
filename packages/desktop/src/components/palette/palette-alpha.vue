@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useDrag } from '@ultra-ui/compositions'
+import { useDrag } from '@veltra/compositions'
 import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 
 import { PaletteDIKey } from './di'

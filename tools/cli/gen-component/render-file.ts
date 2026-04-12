@@ -57,8 +57,8 @@ export function renderVueFile(ctx: ComponentCtx) {
   </template>
 
   <script lang="ts" setup>
-  import type { ${componentProps} } from '@ultra-ui/desktop/types'
-  import { bem } from '@ultra-ui/utils'
+  import type { ${componentProps} } from '@veltra/desktop/types'
+  import { bem } from '@veltra/utils'
 
   defineOptions({
     name: '${upperCamelCase}'
@@ -81,7 +81,7 @@ export function renderTypeFile(ctx: ComponentCtx) {
   const EmitsName = `${upperCamelCase}Emits`
 
   const content = `
-  import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+  import type { DeconstructValue } from '@veltra/utils/types/helper'
 
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {
@@ -123,9 +123,9 @@ export function renderIndexFile(ctx: ComponentCtx) {
 
 export function renderStyleFile(ctx: ComponentCtx) {
   const scssContent = `
-  @use 'pkg:@ultra-ui/styles/mixins' as m;
-  @use 'pkg:@ultra-ui/styles/functions' as fn;
-  @use 'pkg:@ultra-ui/styles/vars';
+  @use 'pkg:@veltra/styles/mixins' as m;
+  @use 'pkg:@veltra/styles/functions' as fn;
+  @use 'pkg:@veltra/styles/vars';
 
   // 方便拼接
   $root-name: ${ctx.componentName};

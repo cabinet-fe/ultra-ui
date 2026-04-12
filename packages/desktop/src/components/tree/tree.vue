@@ -32,9 +32,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { useVirtual } from '@ultra-ui/compositions'
-import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useVirtual } from '@veltra/compositions'
+import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@veltra/utils'
 import { computed, provide, shallowRef, useSlots, watch, watchEffect, type VNode } from 'vue'
 
 import type { TreeProps, TreeEmit, _TreeExposed } from '../../types'

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:29a7fe26c22f7da1 gen:2 source:src/svg/normal/right.svg -->
+<!-- @veltra/icons generated sha256:29a7fe26c22f7da1 gen:2 source:src/svg/normal/right.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Right' })
 </script>

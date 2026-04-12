@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3053d193f40f01dc gen:2 source:src/svg/colorful/power-point.svg -->
+<!-- @veltra/icons generated sha256:3053d193f40f01dc gen:2 source:src/svg/colorful/power-point.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PowerPoint' })
 </script>

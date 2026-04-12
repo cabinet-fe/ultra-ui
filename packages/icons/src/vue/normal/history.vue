@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:100e0a587feb690b gen:2 source:src/svg/normal/history.svg -->
+<!-- @veltra/icons generated sha256:100e0a587feb690b gen:2 source:src/svg/normal/history.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'History' })
 </script>

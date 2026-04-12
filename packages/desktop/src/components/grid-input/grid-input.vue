@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { computed, ref, getCurrentInstance } from 'vue'
 
 import type { GridInputProps, GridInputEmits, GridInputExposed } from '../../types'

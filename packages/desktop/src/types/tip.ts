@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 import type { CSSProperties } from 'vue'
 
 export type TipDirection = 'top' | 'bottom' | 'left' | 'right'

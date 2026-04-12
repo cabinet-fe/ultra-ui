@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:2877c290ad63269a gen:2 source:src/svg/normal/clear.svg -->
+<!-- @veltra/icons generated sha256:2877c290ad63269a gen:2 source:src/svg/normal/clear.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Clear' })
 </script>

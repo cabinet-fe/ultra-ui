@@ -4,22 +4,17 @@
   "commit": false,
   "fixed": [
     [
-      "@ultra-ui/utils",
-      "@ultra-ui/styles",
-      "@ultra-ui/compositions",
-      "@ultra-ui/directives",
-      "@ultra-ui/desktop",
-      "@ultra-ui/icons"
+      "@veltra/utils",
+      "@veltra/styles",
+      "@veltra/compositions",
+      "@veltra/directives",
+      "@veltra/desktop",
+      "@veltra/icons"
     ]
   ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@ultra-ui/mobile",
-    "cli",
-    "play-desktop",
-    "play-icons"
-  ]
+  "ignore": ["@veltra/mobile", "cli", "play-desktop", "play-icons"]
 }

@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** watermark组件属性 */
 export interface WatermarkProps {

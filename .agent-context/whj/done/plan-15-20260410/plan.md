@@ -1,4 +1,4 @@
-# 主题 TS 迁入 @ultra-ui/styles
+# 主题 TS 迁入 @veltra/styles
 
 > 状态: 已执行
 
@@ -8,12 +8,12 @@
 
 ## 内容
 
-1. 在 `packages/styles/src` 新增 `theme/`（自 compositions 平移：`ui-theme`、`light`/`dark`、`helper`、`type`、`index`）与根级 `load-theme.ts`；`load-theme` 继续从 `@ultra-ui/compositions` 引入 `useConfig`。
-2. 平移 `theme/__test__/ui-theme.test.ts`；将 `ui-theme.ts` 中控制台提示前缀改为 `@ultra-ui/styles`。
-3. 更新 `packages/styles/package.json`：增加 `exports["./theme"]`；增加 `dependencies`（`@cat-kit/core`、`@ultra-ui/utils`、`@ultra-ui/compositions`）与 `peerDependencies`（`vue`）；扩展 `sideEffects` 覆盖主题 TS 入口。
+1. 在 `packages/styles/src` 新增 `theme/`（自 compositions 平移：`ui-theme`、`light`/`dark`、`helper`、`type`、`index`）与根级 `load-theme.ts`；`load-theme` 继续从 `@veltra/compositions` 引入 `useConfig`。
+2. 平移 `theme/__test__/ui-theme.test.ts`；将 `ui-theme.ts` 中控制台提示前缀改为 `@veltra/styles`。
+3. 更新 `packages/styles/package.json`：增加 `exports["./theme"]`；增加 `dependencies`（`@cat-kit/core`、`@veltra/utils`、`@veltra/compositions`）与 `peerDependencies`（`vue`）；扩展 `sideEffects` 覆盖主题 TS 入口。
 4. 更新 `packages/styles/tsdown.config.ts`：`entry` 增加 `src/theme/index.ts`。
 5. 从 `packages/compositions` 删除上述文件；`src/index.ts` 移除 `load-theme` 与 `theme` 相关导出；`package.json` 移除 `./theme` export；`tsdown.config.ts` 仅保留 `src/index.ts`。
-6. 更新引用：`playgrounds/desktop/App.vue`、`packages/desktop` 的 `theme.vue` 与 `types/theme.ts`：主题 API 改为 `@ultra-ui/styles/theme`，`loadTheme` 从该子路径或与子路径一并导入。
+6. 更新引用：`playgrounds/desktop/App.vue`、`packages/desktop` 的 `theme.vue` 与 `types/theme.ts`：主题 API 改为 `@veltra/styles/theme`，`loadTheme` 从该子路径或与子路径一并导入。
 7. 修正 `packages/compositions/AGENTS.md` 与 `packages/styles/AGENTS.md` 中与主题位置相关的描述。
 8. 在仓库根执行 `bun install`（如有）、`turbo run build` / `check-types` / `test` 验证。
 

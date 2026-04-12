@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { CheckTagEmits, CheckTagProps } from '../../types'

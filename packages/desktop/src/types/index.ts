@@ -1,4 +1,4 @@
-export type * from '@ultra-ui/utils/types'
+export type * from '@veltra/utils/types'
 
 export * from './cascade'
 export * from './message'

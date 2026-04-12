@@ -26,8 +26,8 @@ src/table/index.vue   → /table/index
 
 ## Vite 配置要点
 
-- **SCSS**：`sass-embedded` 现代 API + `NodePackageImporter`（入口目录为仓库根），解析 `pkg:@ultra-ui/styles/...`
-- **unplugin-components**：`U` 前缀组件自动从 `@ultra-ui/desktop` 解析，同时自动引入对应 `style.ts`
+- **SCSS**：`sass-embedded` 现代 API + `NodePackageImporter`（入口目录为仓库根），解析 `pkg:@veltra/styles/...`
+- **unplugin-components**：`U` 前缀组件自动从 `@veltra/desktop` 解析，同时自动引入对应 `style.ts`
 - **端口**：7788，`host: true`
 
 ## 项目结构
@@ -47,6 +47,6 @@ src/table/index.vue   → /table/index
 
 ## 依赖
 
-- `@ultra-ui/compositions`、`@ultra-ui/desktop`、`@ultra-ui/directives`、`@ultra-ui/icons`、`@ultra-ui/styles`、`@ultra-ui/utils`
+- `@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/styles`、`@veltra/utils`
 - `vue`、`vue-router`
 - `sass-embedded`、`unocss`、`vite-plugin-vue-devtools`

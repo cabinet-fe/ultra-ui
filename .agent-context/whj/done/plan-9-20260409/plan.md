@@ -8,7 +8,7 @@
 
 ## 内容
 
-1. 在 monorepo 根 `package.json` 增加 `overrides`，将 `@codemirror/state`、`@codemirror/view` 及易嵌套的核心 `@codemirror/*` 固定为与 `@ultra-ui/desktop` 一致的单一版本，使安装后仅一份物理包。
+1. 在 monorepo 根 `package.json` 增加 `overrides`，将 `@codemirror/state`、`@codemirror/view` 及易嵌套的核心 `@codemirror/*` 固定为与 `@veltra/desktop` 一致的单一版本，使安装后仅一份物理包。
 2. 执行 `bun install` 并验证 `node_modules` 下不再存在嵌套的 `@codemirror/state`。
 3. 从 `playgrounds/desktop/vite.config.ts` 移除 CodeMirror 相关的 `resolve.dedupe` 与 `optimizeDeps.include` 配置块。
 

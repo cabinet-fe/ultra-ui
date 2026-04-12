@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DArrowLeft, DArrowRight } from '@ultra-ui/icons'
+import { DArrowLeft, DArrowRight } from '@veltra/icons'
 import { inject } from 'vue'
 
 import { UIcon } from '../../icon'

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:b66a13a23f0eef9c gen:2 source:src/svg/normal/triangle-alert.svg -->
+<!-- @veltra/icons generated sha256:b66a13a23f0eef9c gen:2 source:src/svg/normal/triangle-alert.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'TriangleAlert' })
 </script>

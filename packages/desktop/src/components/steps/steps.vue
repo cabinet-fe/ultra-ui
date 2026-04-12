@@ -52,9 +52,9 @@
 
 <script lang="ts" setup>
 import { n, o } from '@cat-kit/core'
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { Check } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { Check } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { StepsProps, StepsEmits, ComponentSize, StepsSlotScope } from '../../types'

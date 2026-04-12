@@ -73,9 +73,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useDrag, useFallbackProps } from '@ultra-ui/compositions'
-import { Close, Maximum, Recover } from '@ultra-ui/icons/normal'
-import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
+import { useDrag, useFallbackProps } from '@veltra/compositions'
+import { Close, Maximum, Recover } from '@veltra/icons/normal'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'
 import { shallowRef, watch, computed, provide, nextTick } from 'vue'
 
 import type { DialogProps, DialogEmits, DialogExposed, ComponentSize } from '../../types'

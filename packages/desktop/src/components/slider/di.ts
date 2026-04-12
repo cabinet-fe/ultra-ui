@@ -1,4 +1,4 @@
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
 
 import type { SliderProps } from '../../types'

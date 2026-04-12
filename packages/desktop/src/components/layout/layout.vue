@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useResizeObserver } from '@ultra-ui/compositions'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { useResizeObserver } from '@veltra/compositions'
+import { bem, withUnit } from '@veltra/utils'
 import {
   computed,
   shallowRef,

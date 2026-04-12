@@ -80,10 +80,10 @@
 
 <script lang="ts" setup>
 import { n } from '@cat-kit/core'
-import { useConfig, useFallbackProps } from '@ultra-ui/compositions'
-import { vRipple } from '@ultra-ui/directives'
-import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useConfig, useFallbackProps } from '@veltra/compositions'
+import { vRipple } from '@veltra/directives'
+import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, reactive, shallowRef } from 'vue'
 
 import type { PaginatorProps, PaginatorEmits, _PaginatorExposed, ComponentSize } from '../../types'

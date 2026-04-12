@@ -7,7 +7,7 @@ import {
   type ComputePositionReturn,
   type Placement
 } from '@floating-ui/dom'
-import { getScrollParents, setStyles } from '@ultra-ui/utils'
+import { getScrollParents, setStyles } from '@veltra/utils'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
 
 type TipDirection = 'top' | 'bottom' | 'left' | 'right'

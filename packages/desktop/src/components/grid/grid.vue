@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, removeStyles, setStyles, withUnit } from '@ultra-ui/utils'
+import { bem, removeStyles, setStyles, withUnit } from '@veltra/utils'
 import { type CSSProperties, provide, watch, useTemplateRef, computed } from 'vue'
 
 import type { GridProps, GridEmits, _GridExposed } from '../../types'

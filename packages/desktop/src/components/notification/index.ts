@@ -1,5 +1,5 @@
 export { default as UNotification } from './notification.vue'
-import { zIndex } from '@ultra-ui/utils'
+import { zIndex } from '@veltra/utils'
 import { createVNode, render, type VNode, reactive } from 'vue'
 
 import type { NotificationProps } from '../../types'

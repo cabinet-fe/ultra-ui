@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, removeStyles, setStyles } from '@ultra-ui/utils'
+import { bem, removeStyles, setStyles } from '@veltra/utils'
 import { shallowRef } from 'vue'
 
 import type { FloatButtonProps, FloatButtonEmits, ButtonExposed } from '../../types'

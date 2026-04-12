@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:b21dde33cbb1f9ef gen:2 source:src/svg/normal/user-group-clear.svg -->
+<!-- @veltra/icons generated sha256:b21dde33cbb1f9ef gen:2 source:src/svg/normal/user-group-clear.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserGroupClear' })
 </script>

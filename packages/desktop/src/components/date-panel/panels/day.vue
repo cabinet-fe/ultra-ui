@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import type { Dater } from '@cat-kit/core'
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 import { inject } from 'vue'
 

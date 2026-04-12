@@ -1,5 +1,5 @@
-import type { VirtualReturned } from '@ultra-ui/compositions'
-import type { BEM } from '@ultra-ui/utils'
+import type { VirtualReturned } from '@veltra/compositions'
+import type { BEM } from '@veltra/utils'
 import type { InjectionKey, ShallowRef, Slots } from 'vue'
 
 import type {

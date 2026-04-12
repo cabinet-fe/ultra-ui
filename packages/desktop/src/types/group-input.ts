@@ -1,5 +1,5 @@
-import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { FormComponentProps } from '@veltra/utils/types/component-common'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 import type { StyleValue } from 'vue'
 
 /** 分组输入组件属性 */

@@ -1,4 +1,4 @@
-import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@ultra-ui/utils'
+import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
 function pick<T extends object, K extends keyof T>(obj: T, keys: readonly K[]): Pick<T, K> {

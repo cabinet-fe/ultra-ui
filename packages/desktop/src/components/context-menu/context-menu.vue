@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { vClickOutside } from '@ultra-ui/directives'
-import { bem, withUnit, zIndex } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { vClickOutside } from '@veltra/directives'
+import { bem, withUnit, zIndex } from '@veltra/utils'
 import { computed, provide, shallowRef, type CSSProperties } from 'vue'
 
 import type {

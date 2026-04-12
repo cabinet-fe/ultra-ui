@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit, isTextNode, getHighlightChunks } from '@ultra-ui/utils'
+import { bem, withUnit, isTextNode, getHighlightChunks } from '@veltra/utils'
 import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode } from 'vue'
 
 import type { TextProps } from '../../types'

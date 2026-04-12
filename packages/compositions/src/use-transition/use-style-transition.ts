@@ -1,4 +1,4 @@
-import { createToggle, nextFrame, setStyles } from '@ultra-ui/utils'
+import { createToggle, nextFrame, setStyles } from '@veltra/utils'
 import { isRef, watch, type CSSProperties } from 'vue'
 
 import type { Returned, StyleTransitionOptions } from './type'

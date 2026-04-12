@@ -1,5 +1,5 @@
-import type { Updater } from '@ultra-ui/compositions'
-import type { BEM } from '@ultra-ui/utils'
+import type { Updater } from '@veltra/compositions'
+import type { BEM } from '@veltra/utils'
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
 
 import type { PaletteHSV, PaletteRGB } from '../../types'

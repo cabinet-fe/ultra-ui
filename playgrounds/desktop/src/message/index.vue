@@ -28,9 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import { message } from '@ultra-ui/desktop'
-import '@ultra-ui/desktop/components/message/style.ts'
-import type { MessageType } from '@ultra-ui/desktop/types'
+import { message } from '@veltra/desktop'
+import '@veltra/desktop/components/message/style.ts'
+import type { MessageType } from '@veltra/desktop/types'
 import { reactive } from 'vue'
 
 const config = reactive({

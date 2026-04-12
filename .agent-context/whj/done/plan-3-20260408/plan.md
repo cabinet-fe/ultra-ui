@@ -34,7 +34,7 @@
 
 基于审计结果，设计新的 token 分层：
 
-**全局 token（@ultra-ui/utils/styles）**：
+**全局 token（@veltra/utils/styles）**：
 
 - 颜色系统：`--u-color-primary`、`--u-color-success`、`--u-bg-*`、`--u-text-*`
 - 排版系统：`--u-font-family`、`--u-font-size-*`

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:d22ba972ad80f4fd gen:2 source:src/svg/normal/location.svg -->
+<!-- @veltra/icons generated sha256:d22ba972ad80f4fd gen:2 source:src/svg/normal/location.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Location' })
 </script>

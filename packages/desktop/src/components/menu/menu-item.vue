@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import { useTemplateRef } from 'vue'
 
 import type { MenuItem } from '../../types'

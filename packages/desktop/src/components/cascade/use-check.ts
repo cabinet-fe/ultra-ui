@@ -1,5 +1,5 @@
 import { dfs, type Forest } from '@cat-kit/core'
-import type { Updater } from '@ultra-ui/compositions'
+import type { Updater } from '@veltra/compositions'
 import {
   computed,
   shallowRef,

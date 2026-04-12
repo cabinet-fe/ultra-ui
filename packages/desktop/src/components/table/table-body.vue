@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, setStyles } from '@ultra-ui/utils'
+import { bem, setStyles } from '@veltra/utils'
 import { computed, inject, shallowRef, watch } from 'vue'
 
 import { UEmpty } from '../empty'

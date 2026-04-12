@@ -1,6 +1,6 @@
-# AGENTS.md — @ultra-ui/utils
+# AGENTS.md — @veltra/utils
 
-工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）与主题 TS（`@ultra-ui/styles/theme`）在 **`@ultra-ui/styles`**。
+工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）与主题 TS（`@veltra/styles/theme`）在 **`@veltra/styles`**。
 
 ## 目录结构
 
@@ -25,18 +25,18 @@ src/
 
 | 子路径                   | 用途                                               |
 | ------------------------ | -------------------------------------------------- |
-| `@ultra-ui/utils`        | 工具函数 + 共享 + 类型聚合                         |
-| `@ultra-ui/utils/types`  | 仅类型（含 `component-common`、`helper` 等子路径） |
-| `@ultra-ui/utils/shared` | 共享常量                                           |
+| `@veltra/utils`        | 工具函数 + 共享 + 类型聚合                         |
+| `@veltra/utils/types`  | 仅类型（含 `component-common`、`helper` 等子路径） |
+| `@veltra/utils/shared` | 共享常量                                           |
 
 ## BEM + SCSS
 
-组件与指令的样式文件使用 **`@ultra-ui/styles`**，Sass 侧写 `pkg:`（详见 `packages/styles/AGENTS.md`）：
+组件与指令的样式文件使用 **`@veltra/styles`**，Sass 侧写 `pkg:`（详见 `packages/styles/AGENTS.md`）：
 
 ```scss
-@use 'pkg:@ultra-ui/styles/mixins' as m;
-@use 'pkg:@ultra-ui/styles/vars';
-@use 'pkg:@ultra-ui/styles/functions' as fn;
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/vars';
+@use 'pkg:@veltra/styles/functions' as fn;
 
 @include m.b(component-name) {
   color: fn.use-var(text-color, main); // → var(--u-text-color-main)
@@ -51,7 +51,7 @@ src/
 
 - 命名空间 `$namespace: 'u-'`，BEM 分隔符 `__`（element）、`--`（modifier）
 - 组件级 CSS 变量：`fn.component-var()` + `m.dark()` 覆盖暗色
-- 编译入口需启用 `NodePackageImporter`（入口目录为 monorepo 根），以解析 `pkg:@ultra-ui/styles/...`
+- 编译入口需启用 `NodePackageImporter`（入口目录为 monorepo 根），以解析 `pkg:@veltra/styles/...`
 - 组件级 token 在各组件 `style.scss` 中以 `--u-{component}-*` 声明
 
 ## 关键工具函数
@@ -71,4 +71,4 @@ src/
 
 - **依赖**：`@cat-kit/core`
 - **peer**：`vue ^3.5.0`
-- **被依赖**：compositions、directives、desktop（样式资产由 `@ultra-ui/styles` 单独提供）
+- **被依赖**：compositions、directives、desktop（样式资产由 `@veltra/styles` 单独提供）

@@ -1,5 +1,5 @@
 import { o } from '@cat-kit/core'
-import { bem, type BEM } from '@ultra-ui/utils'
+import { bem, type BEM } from '@veltra/utils'
 import { useSlots, type Ref } from 'vue'
 
 import type {

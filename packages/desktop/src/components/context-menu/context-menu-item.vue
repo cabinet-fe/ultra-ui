@@ -24,9 +24,9 @@
 </template>
 
 <script lang="ts" setup>
-import { vRipple } from '@ultra-ui/directives'
-import { Loading } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { vRipple } from '@veltra/directives'
+import { Loading } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, inject, shallowRef } from 'vue'
 
 import type { ContextMenuItem } from '../../types'

@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps, usePop } from '@ultra-ui/compositions'
-import { vClickOutside } from '@ultra-ui/directives'
-import { bem, extractNormalVNodes, zIndex } from '@ultra-ui/utils'
+import { useFallbackProps, usePop } from '@veltra/compositions'
+import { vClickOutside } from '@veltra/directives'
+import { bem, extractNormalVNodes, zIndex } from '@veltra/utils'
 import { shallowRef, computed, useSlots, onBeforeUnmount, toRef, watch, nextTick } from 'vue'
 
 import type { TipProps, ComponentSize, TipEmits } from '../../types'

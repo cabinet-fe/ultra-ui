@@ -66,9 +66,9 @@
 </template>
 
 <script lang="tsx" setup>
-import { useConfig } from '@ultra-ui/compositions'
-import type { ComponentSize, MenuItem } from '@ultra-ui/desktop'
-import { currentTheme, lightTheme, darkTheme, UITheme, loadTheme } from '@ultra-ui/styles/theme'
+import { useConfig } from '@veltra/compositions'
+import type { ComponentSize, MenuItem } from '@veltra/desktop'
+import { currentTheme, lightTheme, darkTheme, UITheme, loadTheme } from '@veltra/styles/theme'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

@@ -1,4 +1,4 @@
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import type { LexicalEditor } from 'lexical'
 import type { InjectionKey, ComputedRef } from 'vue'
 

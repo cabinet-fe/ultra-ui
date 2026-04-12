@@ -1,4 +1,4 @@
-import { bem, setStyles, zIndex } from '@ultra-ui/utils'
+import { bem, setStyles, zIndex } from '@veltra/utils'
 import { h, render, shallowReactive } from 'vue'
 
 import type { MessageOptions, Message, MessageInstance } from '../../types'

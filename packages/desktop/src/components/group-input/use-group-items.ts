@@ -1,4 +1,4 @@
-import { createIncrease } from '@ultra-ui/utils'
+import { createIncrease } from '@veltra/utils'
 import { isReactive, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
 import type { GroupInputEmits, GroupInputProps } from '../../types'

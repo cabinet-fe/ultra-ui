@@ -92,8 +92,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Edit, Refresh } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { Edit, Refresh } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { shallowRef } from 'vue'
 
 const buttons = [

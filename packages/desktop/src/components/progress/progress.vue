@@ -38,7 +38,7 @@
 
 <script lang="ts" setup>
 import { n } from '@cat-kit/core'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { bem, withUnit } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { ProgressProps, ColorType } from '../../types'

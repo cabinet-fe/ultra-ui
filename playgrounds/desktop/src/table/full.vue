@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { dfs } from '@cat-kit/core'
-import { defineTableColumns } from '@ultra-ui/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 import { computed, ref, shallowReactive, shallowRef, watch } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

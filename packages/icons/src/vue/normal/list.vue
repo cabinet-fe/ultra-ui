@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:a54440c33440ce34 gen:2 source:src/svg/normal/list.svg -->
+<!-- @veltra/icons generated sha256:a54440c33440ce34 gen:2 source:src/svg/normal/list.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'List' })
 </script>

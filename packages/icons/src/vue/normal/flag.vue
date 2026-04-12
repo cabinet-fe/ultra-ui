@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:0333fa18528e33be gen:2 source:src/svg/normal/flag.svg -->
+<!-- @veltra/icons generated sha256:0333fa18528e33be gen:2 source:src/svg/normal/flag.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Flag' })
 </script>

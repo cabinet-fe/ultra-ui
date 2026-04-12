@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
+import { ArrowLeft, ArrowRight, DArrowLeft, DArrowRight } from '@veltra/icons/normal'
 import { inject } from 'vue'
 
 import { UIcon } from '../../icon'

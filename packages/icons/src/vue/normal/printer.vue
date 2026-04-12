@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:400a1774c63082ac gen:2 source:src/svg/normal/printer.svg -->
+<!-- @veltra/icons generated sha256:400a1774c63082ac gen:2 source:src/svg/normal/printer.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Printer' })
 </script>

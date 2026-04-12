@@ -26,9 +26,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT } from '@veltra/utils'
 
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'

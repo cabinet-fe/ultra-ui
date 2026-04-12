@@ -22,11 +22,11 @@ export default defineConfig({
   deps: {
     neverBundle: [
       'vue',
-      '@ultra-ui/utils',
-      '@ultra-ui/compositions',
-      '@ultra-ui/directives',
-      '@ultra-ui/styles',
-      '@ultra-ui/icons',
+      '@veltra/utils',
+      '@veltra/compositions',
+      '@veltra/directives',
+      '@veltra/styles',
+      '@veltra/icons',
       '@cat-kit/core',
       '@codemirror/lang-java',
       '@codemirror/lang-javascript',

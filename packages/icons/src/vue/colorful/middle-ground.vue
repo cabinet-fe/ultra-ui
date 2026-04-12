@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:17e2fbfe46db9656 gen:2 source:src/svg/colorful/middle-ground.svg -->
+<!-- @veltra/icons generated sha256:17e2fbfe46db9656 gen:2 source:src/svg/colorful/middle-ground.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MiddleGround' })
 </script>

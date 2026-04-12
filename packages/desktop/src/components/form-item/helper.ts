@@ -1,6 +1,6 @@
 import { o } from '@cat-kit/core'
-import { bem, type BEM } from '@ultra-ui/utils'
-import type { FormComponentProps } from '@ultra-ui/utils/types'
+import { bem, type BEM } from '@veltra/utils'
+import type { FormComponentProps } from '@veltra/utils/types'
 
 /**
  * 获取表单项的属性

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:c4703ae04db741c1 gen:2 source:src/svg/normal/scan.svg -->
+<!-- @veltra/icons generated sha256:c4703ae04db741c1 gen:2 source:src/svg/normal/scan.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Scan' })
 </script>

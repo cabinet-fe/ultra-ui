@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:c049c30fcf03dc46 gen:2 source:src/svg/normal/bell-filled.svg -->
+<!-- @veltra/icons generated sha256:c049c30fcf03dc46 gen:2 source:src/svg/normal/bell-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'BellFilled' })
 </script>

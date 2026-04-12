@@ -128,10 +128,10 @@
 
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
-import { FormModel, defineTableColumns, message } from '@ultra-ui/desktop'
-import type { BatchEditFeature } from '@ultra-ui/desktop/types'
+import { FormModel, defineTableColumns, message } from '@veltra/desktop'
+import type { BatchEditFeature } from '@veltra/desktop/types'
 import { computed, shallowRef } from 'vue'
-import '@ultra-ui/desktop/components/message/style.ts'
+import '@veltra/desktop/components/message/style.ts'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)

@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:03958c134e1e2d9b gen:2 source:src/svg/normal/calendar.svg -->
+<!-- @veltra/icons generated sha256:03958c134e1e2d9b gen:2 source:src/svg/normal/calendar.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Calendar' })
 </script>

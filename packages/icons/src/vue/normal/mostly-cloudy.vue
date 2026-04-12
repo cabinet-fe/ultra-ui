@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:c3da175ea27c3627 gen:2 source:src/svg/normal/mostly-cloudy.svg -->
+<!-- @veltra/icons generated sha256:c3da175ea27c3627 gen:2 source:src/svg/normal/mostly-cloudy.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MostlyCloudy' })
 </script>

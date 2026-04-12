@@ -1,6 +1,6 @@
-@use 'pkg:@ultra-ui/styles/mixins' as m;
-@use 'pkg:@ultra-ui/styles/functions' as fn;
-@use 'pkg:@ultra-ui/styles/vars';
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
 
 // 方便拼接
 $root-name: code-editor;

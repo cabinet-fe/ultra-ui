@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:e00484cfbbb8b595 gen:2 source:src/svg/normal/monitor.svg -->
+<!-- @veltra/icons generated sha256:e00484cfbbb8b595 gen:2 source:src/svg/normal/monitor.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Monitor' })
 </script>

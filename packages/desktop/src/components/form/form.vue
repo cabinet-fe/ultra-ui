@@ -31,8 +31,8 @@
 
 <script lang="tsx" setup generic="Model extends FormModel | DynamicFormModel">
 import { o } from '@cat-kit/core'
-import { useFormComponent } from '@ultra-ui/compositions'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent } from '@veltra/compositions'
+import { bem } from '@veltra/utils'
 import { shallowRef, toRef } from 'vue'
 
 import type { BreakCols, GridExposed, FormProps, _FormExposed } from '../../types'

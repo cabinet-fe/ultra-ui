@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:14fb8cd75115a1f9 gen:2 source:src/svg/normal/service.svg -->
+<!-- @veltra/icons generated sha256:14fb8cd75115a1f9 gen:2 source:src/svg/normal/service.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Service' })
 </script>

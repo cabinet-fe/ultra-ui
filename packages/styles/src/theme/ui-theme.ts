@@ -1,5 +1,5 @@
 import { isObj, o, str } from '@cat-kit/core'
-import { withUnit } from '@ultra-ui/utils'
+import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
 import { mixColor } from './helper'
@@ -171,7 +171,7 @@ export class UITheme {
     if (!isDevEnv() || UITheme.legacyDeprecationWarned) return
     UITheme.legacyDeprecationWarned = true
     console.warn(
-      '[@ultra-ui/styles] Theme CSS variables now prefer the `--u-` namespace. ' +
+      '[@veltra/styles] Theme CSS variables now prefer the `--u-` namespace. ' +
         'Unprefixed aliases (e.g. `--color-primary`) are deprecated and will be removed in a future major version.'
     )
   }

@@ -1,5 +1,5 @@
 import type { Dater } from '@cat-kit/core'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** day接口 */
 export interface CalendarDay {

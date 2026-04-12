@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@ultra-ui/desktop'
+import { FormModel } from '@veltra/desktop'
 import { ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

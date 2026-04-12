@@ -11,7 +11,7 @@
 | 决策项    | 结论                                                                |
 | --------- | ------------------------------------------------------------------- |
 | 构建工具  | tsdown（项目已在用，专为库设计，未来将成为 Vite library mode 底层） |
-| 发布模型  | 各包独立发布（@ultra-ui/utils, @ultra-ui/desktop 等）               |
+| 发布模型  | 各包独立发布（@veltra/utils, @veltra/desktop 等）               |
 | 向后兼容  | 不保留 `ultra-ui` 包名，直接切换                                    |
 | SCSS 处理 | @tsdown/css 统一处理                                                |
 | 发版工具  | 精简 tools/build 为 release 脚本，后续考虑 changesets               |
@@ -104,7 +104,7 @@
 1. 创建 `packages/compositions/tsdown.config.ts`：
    - `entry`: `src/index.ts`、`src/theme/index.ts`（对应现有 exports 的 `./theme`）
    - `format`: `['esm']`、`unbundle`: `true`、`dts`: `true`
-   - 外部化 `@ultra-ui/utils`、`@cat-kit/core`、`vue`
+   - 外部化 `@veltra/utils`、`@cat-kit/core`、`vue`
 
 2. 更新 `packages/compositions/package.json`：
    - `scripts.build`: `"tsdown"`
@@ -112,7 +112,7 @@
 
 3. 验证产物。
 
-**完成标准**：`packages/compositions/dist/` 生成正确产物，import `@ultra-ui/utils` 被外部化而非内联。
+**完成标准**：`packages/compositions/dist/` 生成正确产物，import `@veltra/utils` 被外部化而非内联。
 
 ### 步骤 6：为 packages/directives 创建独立构建
 
@@ -120,7 +120,7 @@
    - `entry`: `src/index.ts`（主入口）+ `src/**/style.ts`（各指令样式入口）
    - `format`: `['esm']`、`unbundle`: `true`、`dts`: `true`
    - 启用 `@tsdown/css` 处理 SCSS
-   - 外部化 `@ultra-ui/utils`、`@ultra-ui/styles`、`vue`
+   - 外部化 `@veltra/utils`、`@veltra/styles`、`vue`
 
 2. 更新 `packages/directives/package.json`：
    - `scripts.build`: `"tsdown"`
@@ -141,21 +141,21 @@
    - `dts`: `{ vue: true }`（生成 Vue 组件的类型声明）
    - `plugins`: `unplugin-vue/rolldown`、`unplugin-vue-jsx/rolldown`
    - 启用 `@tsdown/css` 处理 SFC 内的 SCSS 和 style.ts 中引入的 SCSS
-   - 配置 SCSS `preprocessorOptions` 以支持 `pkg:@ultra-ui/styles/...` 导入
-   - 外部化：`vue`、`@ultra-ui/utils`、`@ultra-ui/compositions`、`@ultra-ui/directives`、`@ultra-ui/styles`、`@ultra-ui/icons`、`@cat-kit/core`
+   - 配置 SCSS `preprocessorOptions` 以支持 `pkg:@veltra/styles/...` 导入
+   - 外部化：`vue`、`@veltra/utils`、`@veltra/compositions`、`@veltra/directives`、`@veltra/styles`、`@veltra/icons`、`@cat-kit/core`
 
 2. 更新 `packages/desktop/package.json`：
    - `scripts.build`: `"tsdown"`
    - `exports`:
      - `.`: types + development + import（主入口）
-     - `./*`: types + development + import（组件子路径，如 `@ultra-ui/desktop/button`）
+     - `./*`: types + development + import（组件子路径，如 `@veltra/desktop/button`）
      - `./types`: 类型入口
-   - `peerDependencies`: `vue`、`@ultra-ui/utils`、`@ultra-ui/compositions`、`@ultra-ui/directives`、`@ultra-ui/styles`、`@ultra-ui/icons`
+   - `peerDependencies`: `vue`、`@veltra/utils`、`@veltra/compositions`、`@veltra/directives`、`@veltra/styles`、`@veltra/icons`
    - `sideEffects`: 指向 dist 下的 style 文件
 
 3. 验证完整产物：组件 JS、Vue DTS、per-component CSS。
 
-**完成标准**：`turbo run build --filter=@ultra-ui/desktop` 按拓扑顺序先构建依赖包再构建 desktop，全部成功，dist 中有完整的 ESM + DTS + CSS 产物。
+**完成标准**：`turbo run build --filter=@veltra/desktop` 按拓扑顺序先构建依赖包再构建 desktop，全部成功，dist 中有完整的 ESM + DTS + CSS 产物。
 
 ### 步骤 8：调整 packages/icons 构建（如需）
 
@@ -165,7 +165,7 @@ icons 已有独立构建流程。检查并确保：
 - 产物输出到 `dist/`，与 turbo.json 的 `outputs: ["dist/**"]` 一致
 - 无需改动则跳过此步骤
 
-**完成标准**：`turbo run build --filter=@ultra-ui/icons` 成功。
+**完成标准**：`turbo run build --filter=@veltra/icons` 成功。
 
 ### 步骤 9：更新根 package.json scripts
 
@@ -206,7 +206,7 @@ icons 已有独立构建流程。检查并确保：
 5. 各包 `dist/` 产物检查：
    - utils: ESM + DTS
    - styles: ESM + CSS + SCSS 源文件
-   - compositions: ESM + DTS（外部化 @ultra-ui/utils）
+   - compositions: ESM + DTS（外部化 @veltra/utils）
    - directives: ESM + DTS + CSS（外部化依赖）
    - desktop: ESM + DTS(Vue) + CSS（外部化所有内部依赖）
    - icons: ESM + DTS（已有构建）
@@ -222,7 +222,7 @@ icons 已有独立构建流程。检查并确保：
 - `packages/styles/`：`tsdown.config.ts`、`package.json`、`scripts/copy-scss.ts`
 - `packages/compositions/`：`tsdown.config.ts`、`package.json`
 - `packages/directives/`：`tsdown.config.ts`、`package.json`
-- `packages/desktop/`：`tsdown.config.ts`、`package.json`、`src/install.ts`（移除不存在的 `animation/style` 引用）、`src/types/index.ts`（`export type * from '@ultra-ui/utils/types'`）
+- `packages/desktop/`：`tsdown.config.ts`、`package.json`、`src/install.ts`（移除不存在的 `animation/style` 引用）、`src/types/index.ts`（`export type * from '@veltra/utils/types'`）
 - `packages/icons/`、`packages/mobile/`：`package.json`（`check-types`）
 - `playgrounds/desktop/package.json`（`test` 脚本）
 - `tools/build/`：删除 `build.ts`、`build-styles.ts`、`cli-build-styles.ts`、`prepare.ts`、`shared.ts`；重写 `index.ts`、`release.ts`、`package.json`、`AGENTS.md`

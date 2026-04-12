@@ -1,4 +1,4 @@
-import type { DeconstructValue, FormComponentProps } from '@ultra-ui/utils'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 /** 输入框组件属性 */

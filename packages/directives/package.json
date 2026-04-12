@@ -1,5 +1,5 @@
 {
-  "name": "@ultra-ui/directives",
+  "name": "@veltra/directives",
   "version": "1.0.0",
   "files": [
     "dist",
@@ -27,8 +27,8 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@ultra-ui/styles": "workspace:*",
-    "@ultra-ui/utils": "workspace:*"
+    "@veltra/styles": "workspace:*",
+    "@veltra/utils": "workspace:*"
   },
   "devDependencies": {
     "@tsdown/css": "^0.21.7",

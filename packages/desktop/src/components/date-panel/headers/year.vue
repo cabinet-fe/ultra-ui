@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DArrowLeft, DArrowRight } from '@ultra-ui/icons/normal'
+import { DArrowLeft, DArrowRight } from '@veltra/icons/normal'
 import { computed } from 'vue'
 import { inject } from 'vue'
 

@@ -1,5 +1,5 @@
-import type { ColorType } from '@ultra-ui/utils/types/component-common'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { ColorType } from '@veltra/utils/types/component-common'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** progress组件属性 */
 export interface ProgressProps {

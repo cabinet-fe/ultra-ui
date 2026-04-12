@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NumberRangeTuple } from '@ultra-ui/desktop/types'
+import type { NumberRangeTuple } from '@veltra/desktop/types'
 import { ref } from 'vue'
 
 const range = ref<NumberRangeTuple>([undefined, undefined])

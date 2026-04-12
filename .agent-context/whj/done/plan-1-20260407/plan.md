@@ -4,7 +4,7 @@
 
 ## 目标
 
-建立 Turborepo monorepo 基础设施，创建 `@ultra-ui/*` 六包结构（含包配置和入口声明），升级 TypeScript 6.x、oxc 工具链，更新全部依赖到最新版本。完成后 monorepo 工具链就绪、各包 workspace 可被正确解析，为 Plan 5 的源码迁移奠定基础。
+建立 Turborepo monorepo 基础设施，创建 `@veltra/*` 六包结构（含包配置和入口声明），升级 TypeScript 6.x、oxc 工具链，更新全部依赖到最新版本。完成后 monorepo 工具链就绪、各包 workspace 可被正确解析，为 Plan 5 的源码迁移奠定基础。
 
 > `ui/` 源码在本计划中保持原位不动，`@ui/` tsconfig 别名保留供 `ui/` 内部编译使用。Plan 5 迁移源码时彻底消除 `@ui/`。
 
@@ -12,13 +12,13 @@
 
 ### 0. SCSS 跨包导入方案（技术决策）
 
-拆包后 `styles/` 将位于 `@ultra-ui/utils`，71 个组件 SCSS 将位于 `@ultra-ui/desktop`。当前组件使用相对路径 `@use '../../styles/mixins' as m;` 引用样式基础设施，拆包后路径断裂。
+拆包后 `styles/` 将位于 `@veltra/utils`，71 个组件 SCSS 将位于 `@veltra/desktop`。当前组件使用相对路径 `@use '../../styles/mixins' as m;` 引用样式基础设施，拆包后路径断裂。
 
 **评估并验证以下方案（推荐方案 A）**：
 
-- **方案 A（推荐）**：Dart Sass `pkg:` importer（需 sass-embedded ≥ 1.71）。组件 SCSS 中写 `@use 'pkg:@ultra-ui/utils/styles/mixins' as m;`。`@ultra-ui/utils` 的 `package.json` 添加 `exports` 的 `"sass"` condition 指向 `.scss` 源文件。
-- **方案 B（备选）**：tsdown SCSS 插件配置 `loadPaths` 包含 `node_modules/@ultra-ui/utils/src/`。
-- **方案 C（最后手段）**：在 `@ultra-ui/desktop` 内保留样式转发文件。
+- **方案 A（推荐）**：Dart Sass `pkg:` importer（需 sass-embedded ≥ 1.71）。组件 SCSS 中写 `@use 'pkg:@veltra/utils/styles/mixins' as m;`。`@veltra/utils` 的 `package.json` 添加 `exports` 的 `"sass"` condition 指向 `.scss` 源文件。
+- **方案 B（备选）**：tsdown SCSS 插件配置 `loadPaths` 包含 `node_modules/@veltra/utils/src/`。
+- **方案 C（最后手段）**：在 `@veltra/desktop` 内保留样式转发文件。
 
 **PoC 验证**：创建最小化测试——在 `packages/desktop/` 下写一个引用 `packages/utils/` 中 SCSS 的测试文件，用当前版本 `sass-embedded` 编译，确认方案 A 可行。PoC 验证后删除测试文件。
 
@@ -30,12 +30,12 @@
 
 | 包目录                   | npm 包名                 | 说明                         |
 | ------------------------ | ------------------------ | ---------------------------- |
-| `packages/utils/`        | `@ultra-ui/utils`        | 共享工具函数、类型、样式基础 |
-| `packages/compositions/` | `@ultra-ui/compositions` | 共享组合式函数               |
-| `packages/directives/`   | `@ultra-ui/directives`   | 共享自定义指令               |
-| `packages/desktop/`      | `@ultra-ui/desktop`      | PC 端组件库                  |
-| `packages/mobile/`       | `@ultra-ui/mobile`       | 移动端组件库（仅骨架）       |
-| `packages/icons/`        | `@ultra-ui/icons`        | 图标库（仅骨架）             |
+| `packages/utils/`        | `@veltra/utils`        | 共享工具函数、类型、样式基础 |
+| `packages/compositions/` | `@veltra/compositions` | 共享组合式函数               |
+| `packages/directives/`   | `@veltra/directives`   | 共享自定义指令               |
+| `packages/desktop/`      | `@veltra/desktop`      | PC 端组件库                  |
+| `packages/mobile/`       | `@veltra/mobile`       | 移动端组件库（仅骨架）       |
+| `packages/icons/`        | `@veltra/icons`        | 图标库（仅骨架）             |
 
 每个包创建：`package.json`、`tsconfig.json`、`src/index.ts`。
 
@@ -48,18 +48,18 @@
 
 ### 2. 编写各包 package.json
 
-每个 package.json 包含：`name`（@ultra-ui/xxx）、`version`（0.1.0）、`type`（module）、`exports`、依赖声明。依赖拓扑：
+每个 package.json 包含：`name`（@veltra/xxx）、`version`（0.1.0）、`type`（module）、`exports`、依赖声明。依赖拓扑：
 
 ```
-@ultra-ui/utils         → peerDeps: vue
-@ultra-ui/compositions  → peerDeps: vue; deps: @ultra-ui/utils
-@ultra-ui/directives    → peerDeps: vue; deps: @ultra-ui/utils
-@ultra-ui/desktop       → peerDeps: vue, @ultra-ui/icons; deps: @ultra-ui/utils, @ultra-ui/compositions, @ultra-ui/directives, @cat-kit/core, @cat-kit/fe, @floating-ui/dom, @tanstack/vue-virtual, codemirror 系列, lexical 系列
-@ultra-ui/mobile        → peerDeps: vue（仅骨架）
-@ultra-ui/icons         → 无 peerDeps（仅骨架）
+@veltra/utils         → peerDeps: vue
+@veltra/compositions  → peerDeps: vue; deps: @veltra/utils
+@veltra/directives    → peerDeps: vue; deps: @veltra/utils
+@veltra/desktop       → peerDeps: vue, @veltra/icons; deps: @veltra/utils, @veltra/compositions, @veltra/directives, @cat-kit/core, @cat-kit/fe, @floating-ui/dom, @tanstack/vue-virtual, codemirror 系列, lexical 系列
+@veltra/mobile        → peerDeps: vue（仅骨架）
+@veltra/icons         → 无 peerDeps（仅骨架）
 ```
 
-`@ultra-ui/utils` 额外配置 SCSS exports（基于 Step 0 决策）：
+`@veltra/utils` 额外配置 SCSS exports（基于 Step 0 决策）：
 
 ```json
 "exports": {
@@ -188,11 +188,11 @@
 
 ## 实施备注
 
-- **SCSS**：已采用方案 A，`sass ... --pkg-importer=node` PoC 通过后已删除临时 SCSS 文件；`@ultra-ui/utils` 已配置 `exports` 的 `sass` 条件。
+- **SCSS**：已采用方案 A，`sass ... --pkg-importer=node` PoC 通过后已删除临时 SCSS 文件；`@veltra/utils` 已配置 `exports` 的 `sass` 条件。
 - **TS 6 + @cat-kit/tsconfig 2**：`ui/` 在 `tsconfig` 中显式关闭 `strict` / `noUncheckedIndexedAccess` / `noImplicitAny` 以兼容存量代码；新增 `ui/env.d.ts` 声明 `*.vue` / `*.scss`。
 - **oxlint**：根脚本为 `oxlint -c oxlint.json --vue-plugin .`；`style` 类规则关闭以减少与 oxfmt 冲突；修正 `apps/sample/src/table/virtualizer.ts` 尾部多余 `)` 导致的解析错误。
 - **vite-plugin-inspect**：保持 `^11.3.3`（未跟 npm latest 的 beta）。
-- **Turborepo**：各 `@ultra-ui/*` 与 `tools/cli` 增加 `build: tsc -b`；`ultra-ui` 增加 `build: bun ../tools/build/index.ts`，便于 `turbo` 依赖图完整。
+- **Turborepo**：各 `@veltra/*` 与 `tools/cli` 增加 `build: tsc -b`；`ultra-ui` 增加 `build: bun ../tools/build/index.ts`，便于 `turbo` 依赖图完整。
 - **simple-git-hooks**：未新增 pre-commit 的 `oxfmt`（按计划「评估」结论暂不接入）。
 
 ## 历史补丁

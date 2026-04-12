@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:1080ca0f4a331a8f gen:2 source:src/svg/normal/page-last.svg -->
+<!-- @veltra/icons generated sha256:1080ca0f4a331a8f gen:2 source:src/svg/normal/page-last.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PageLast' })
 </script>

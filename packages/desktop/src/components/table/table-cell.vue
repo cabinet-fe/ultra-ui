@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { withUnit } from '@ultra-ui/utils'
+import { withUnit } from '@veltra/utils'
 import { inject } from 'vue'
 
 import { TableDIKey } from './di'

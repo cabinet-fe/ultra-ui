@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:45c65efff6d001b0 gen:2 source:src/svg/normal/filter.svg -->
+<!-- @veltra/icons generated sha256:45c65efff6d001b0 gen:2 source:src/svg/normal/filter.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Filter' })
 </script>

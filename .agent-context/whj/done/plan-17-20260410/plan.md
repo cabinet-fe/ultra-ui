@@ -23,7 +23,7 @@
 - `packages/icons/src/svg/colorful/index.ts`、`packages/icons/src/svg/normal/index.ts`（非空占位导出）
 - `packages/mobile/src/index.ts`（占位类型导出，替代 `export {}`）
 - `packages/desktop` 内若干组件与 `tools/cli/export/index.ts`、`tools/cli/rename/types.ts` 的小幅 lint/类型友好修改
-- `playgrounds/desktop/src` 多处：修正非法 `@ultra-ui/desktop/components` 根导入、`.scss` → `.style.ts` 侧链、`message-confirm` 导入来源
+- `playgrounds/desktop/src` 多处：修正非法 `@veltra/desktop/components` 根导入、`.scss` → `.style.ts` 侧链、`message-confirm` 导入来源
 - `scripts/vitest-run.ts`（新增，恢复 turbo `play-desktop#test` 入口）
 - 根目录 `待解决歧义.md`
 

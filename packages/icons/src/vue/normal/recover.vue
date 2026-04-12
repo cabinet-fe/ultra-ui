@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:6def58d910a24d57 gen:2 source:src/svg/normal/recover.svg -->
+<!-- @veltra/icons generated sha256:6def58d910a24d57 gen:2 source:src/svg/normal/recover.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Recover' })
 </script>

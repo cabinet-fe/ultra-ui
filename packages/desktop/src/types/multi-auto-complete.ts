@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** 多量自动完成组件组件属性 */
 export interface MultiAutoCompleteProps {

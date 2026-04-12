@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:e71916af138d1c83 gen:2 source:src/svg/normal/credit-card.svg -->
+<!-- @veltra/icons generated sha256:e71916af138d1c83 gen:2 source:src/svg/normal/credit-card.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CreditCard' })
 </script>

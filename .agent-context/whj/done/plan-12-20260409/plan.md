@@ -20,7 +20,7 @@
      ```ts
      {
        name: 'default',           // 默认导出
-       from: '@ultra-ui/desktop/components/<kebabName>',
+       from: '@veltra/desktop/components/<kebabName>',
        sideEffects: '<style.ts 路径或 undefined>'
      }
      ```

@@ -1,5 +1,5 @@
 import { o } from '@cat-kit/core'
-import { middleProxy, Validator } from '@ultra-ui/utils'
+import { middleProxy, Validator } from '@veltra/utils'
 import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
 
 import type {

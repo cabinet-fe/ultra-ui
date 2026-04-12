@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { MessageConfirm } from '@ultra-ui/desktop'
-import '@ultra-ui/desktop/components/message-confirm/style.ts'
+import { MessageConfirm } from '@veltra/desktop'
+import '@veltra/desktop/components/message-confirm/style.ts'
 import { reactive } from 'vue'
 
 const config = reactive({

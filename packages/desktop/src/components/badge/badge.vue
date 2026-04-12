@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { bem, setStyles, zIndex } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { bem, setStyles, zIndex } from '@veltra/utils'
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 
 import type { BadgeProps, ComponentSize } from '../../types'

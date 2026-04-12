@@ -33,8 +33,8 @@
 </template>
 
 <script lang="tsx" setup>
-import { useConfig, useFallbackProps, useFormComponent } from '@ultra-ui/compositions'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { useConfig, useFallbackProps, useFormComponent } from '@veltra/compositions'
+import { bem, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed } from 'vue'
 
 import type { FormItemProps, ComponentSize } from '../../types'

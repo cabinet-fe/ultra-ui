@@ -61,11 +61,11 @@
 
 <script lang="ts" setup>
 import { date, type Dater } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { useUpdateLock } from '@ultra-ui/compositions'
-import { Calendar, Close } from '@ultra-ui/icons/normal'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
-import { bem } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useUpdateLock } from '@veltra/compositions'
+import { Calendar, Close } from '@veltra/icons/normal'
+import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { DateRangePickerEmits, DateRangePickerProps, DropdownExposed } from '../../types'

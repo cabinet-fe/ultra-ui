@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner'
 

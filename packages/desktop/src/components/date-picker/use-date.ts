@@ -1,5 +1,5 @@
 import { date, type Dater } from '@cat-kit/core'
-import { bem, type BEM } from '@ultra-ui/utils'
+import { bem, type BEM } from '@veltra/utils'
 import {
   computed,
   inject,

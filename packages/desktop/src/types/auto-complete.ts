@@ -1,5 +1,5 @@
-import type { FormComponentProps } from '@ultra-ui/utils/types/component-common'
-import type { DeconstructValue } from '@ultra-ui/utils/types/helper'
+import type { FormComponentProps } from '@veltra/utils/types/component-common'
+import type { DeconstructValue } from '@veltra/utils/types/helper'
 
 /** 自动补全组件组件属性 */
 export interface AutoCompleteProps extends FormComponentProps {

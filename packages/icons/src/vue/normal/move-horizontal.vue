@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:5137d2fa2f966102 gen:2 source:src/svg/normal/move-horizontal.svg -->
+<!-- @veltra/icons generated sha256:5137d2fa2f966102 gen:2 source:src/svg/normal/move-horizontal.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MoveHorizontal' })
 </script>

@@ -71,10 +71,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@ultra-ui/compositions'
-import { vRipple } from '@ultra-ui/directives'
-import { bem, scrollIntoContainerView } from '@ultra-ui/utils'
-import { FORM_EMPTY_CONTENT } from '@ultra-ui/utils'
+import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { vRipple } from '@veltra/directives'
+import { bem, scrollIntoContainerView } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '../../types'

@@ -1,4 +1,4 @@
-import { useResizeObserver } from '@ultra-ui/compositions'
+import { useResizeObserver } from '@veltra/compositions'
 import { ref, type Ref, type ShallowRef, shallowRef } from 'vue'
 
 import type { SliderProps } from '../../types'

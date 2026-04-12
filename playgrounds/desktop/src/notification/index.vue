@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { Notification } from '@ultra-ui/desktop'
-import '@ultra-ui/desktop/components/notification/style.ts'
+import { Notification } from '@veltra/desktop'
+import '@veltra/desktop/components/notification/style.ts'
 import { reactive, ref } from 'vue'
 
 const config = reactive({

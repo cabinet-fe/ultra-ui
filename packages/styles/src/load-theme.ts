@@ -1,4 +1,4 @@
-import { useConfig } from '@ultra-ui/compositions'
+import { useConfig } from '@veltra/compositions'
 import { shallowRef, type ShallowRef } from 'vue'
 
 import { darkTheme } from './theme/dark'

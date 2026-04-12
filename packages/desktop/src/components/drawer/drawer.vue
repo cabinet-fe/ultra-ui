@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Close } from '@ultra-ui/icons/normal'
-import { bem, zIndex } from '@ultra-ui/utils'
+import { Close } from '@veltra/icons/normal'
+import { bem, zIndex } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'
 
 import type { DrawerProps, DrawerEmits } from '../../types'

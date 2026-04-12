@@ -1,4 +1,4 @@
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import type { InjectionKey } from 'vue'
 
 interface LayoutContext {

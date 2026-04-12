@@ -75,9 +75,9 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useComponentProps } from '@ultra-ui/compositions'
-import { AddChild, Copy, Delete, Edit, Plus, View } from '@ultra-ui/icons'
-import { bem } from '@ultra-ui/utils'
+import { useComponentProps } from '@veltra/compositions'
+import { AddChild, Copy, Delete, Edit, Plus, View } from '@veltra/icons'
+import { bem } from '@veltra/utils'
 import { computed, watch } from 'vue'
 
 import type { BatchEditEmits, BatchEditProps, ButtonProps, TableColumn } from '../../types'

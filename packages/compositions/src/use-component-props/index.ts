@@ -1,4 +1,4 @@
-import { extractNormalVNodes } from '@ultra-ui/utils'
+import { extractNormalVNodes } from '@veltra/utils'
 import { defineComponent, isRef, type MaybeRef, createVNode, cloneVNode, type Component } from 'vue'
 
 /**

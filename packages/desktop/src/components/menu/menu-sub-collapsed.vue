@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowRight } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { ArrowRight } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { inject, ref } from 'vue'
 
 import type { MenuItem } from '../../types'

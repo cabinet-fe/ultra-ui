@@ -58,7 +58,7 @@
 </template>
 
 <script lang="tsx" setup>
-import { FormModel } from '@ultra-ui/desktop'
+import { FormModel } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const config = new FormModel({

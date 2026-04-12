@@ -57,9 +57,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useTransition } from '@ultra-ui/compositions'
-import type { ButtonExposed } from '@ultra-ui/desktop/types'
-import { setStyles } from '@ultra-ui/utils'
+import { useTransition } from '@veltra/compositions'
+import type { ButtonExposed } from '@veltra/desktop/types'
+import { setStyles } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)
@@ -108,7 +108,7 @@ watch(visible2, (v) => {
 </script>
 
 <style lang="scss" scoped>
-@use 'pkg:@ultra-ui/styles/anime/slide.scss' as *;
+@use 'pkg:@veltra/styles/anime/slide.scss' as *;
 .box {
   display: flex;
   flex-direction: column;

@@ -4,7 +4,7 @@
 
 ## 目标
 
-将全仓对 `getChainValue`、`setChainValue`（自 `@ultra-ui/utils`）的引用，统一改为 `@cat-kit/core` 的 `o(obj).get(prop)`、`o(obj).set(prop, value)`，与 cat-kit 对象工具 API 对齐，去掉对已迁移/缺失 utils 链式读写函数的依赖。
+将全仓对 `getChainValue`、`setChainValue`（自 `@veltra/utils`）的引用，统一改为 `@cat-kit/core` 的 `o(obj).get(prop)`、`o(obj).set(prop, value)`，与 cat-kit 对象工具 API 对齐，去掉对已迁移/缺失 utils 链式读写函数的依赖。
 
 ## 内容
 

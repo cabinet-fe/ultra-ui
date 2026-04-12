@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useModel, usePop, useTransition } from '@ultra-ui/compositions'
-import { vClickOutside } from '@ultra-ui/directives'
-import { bem, extractNormalVNodes, setStyles, zIndex } from '@ultra-ui/utils'
+import { useModel, usePop, useTransition } from '@veltra/compositions'
+import { vClickOutside } from '@veltra/directives'
+import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'
 import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs } from 'vue'
 
 import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'

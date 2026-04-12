@@ -45,7 +45,7 @@ import { $createHeadingNode, $isHeadingNode, type HeadingTagType } from '@lexica
 import { $isQuoteNode, $createQuoteNode } from '@lexical/rich-text'
 import { $setBlocksType } from '@lexical/selection'
 import { $getNearestNodeOfType } from '@lexical/utils'
-import { bem } from '@ultra-ui/utils'
+import { bem } from '@veltra/utils'
 import {
   $getSelection,
   $isRangeSelection,

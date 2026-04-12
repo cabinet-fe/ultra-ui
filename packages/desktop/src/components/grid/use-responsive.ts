@@ -1,5 +1,5 @@
 import { debounce } from '@cat-kit/core'
-import type { Undef } from '@ultra-ui/utils/types/helper'
+import type { Undef } from '@veltra/utils/types/helper'
 import {
   computed,
   shallowRef,

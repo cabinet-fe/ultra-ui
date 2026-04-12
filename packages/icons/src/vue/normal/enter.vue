@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:562cfd94cb7f1b3e gen:2 source:src/svg/normal/enter.svg -->
+<!-- @veltra/icons generated sha256:562cfd94cb7f1b3e gen:2 source:src/svg/normal/enter.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Enter' })
 </script>

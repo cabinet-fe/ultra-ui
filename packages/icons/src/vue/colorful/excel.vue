@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:5737044d6cc566cd gen:2 source:src/svg/colorful/excel.svg -->
+<!-- @veltra/icons generated sha256:5737044d6cc566cd gen:2 source:src/svg/colorful/excel.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Excel' })
 </script>

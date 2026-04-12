@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:9288e61b15c0d805 gen:2 source:src/svg/colorful/txt.svg -->
+<!-- @veltra/icons generated sha256:9288e61b15c0d805 gen:2 source:src/svg/colorful/txt.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Txt' })
 </script>

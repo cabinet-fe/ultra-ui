@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:9a1d975dd790b811 gen:2 source:src/svg/colorful/title.svg -->
+<!-- @veltra/icons generated sha256:9a1d975dd790b811 gen:2 source:src/svg/colorful/title.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Title' })
 </script>

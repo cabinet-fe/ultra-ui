@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:36ab9ce3925a4475 gen:2 source:src/svg/normal/share.svg -->
+<!-- @veltra/icons generated sha256:36ab9ce3925a4475 gen:2 source:src/svg/normal/share.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Share' })
 </script>

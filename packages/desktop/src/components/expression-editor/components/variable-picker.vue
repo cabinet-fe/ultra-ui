@@ -70,8 +70,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowRight, Search } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { ArrowRight, Search } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 
 import type { VariableItem } from '../../../types'

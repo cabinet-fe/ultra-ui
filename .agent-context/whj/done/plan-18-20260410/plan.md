@@ -4,12 +4,12 @@
 
 ## 目标
 
-将 `packages/*` 下各包 `version` 统一为 `1.0.0`；通过 Changesets 对 **`packages` 下除 `@ultra-ui/mobile` 外的全部 `@ultra-ui/*` 包** 进行 version/publish；`@ultra-ui/mobile` 与 `cli`、`play-desktop`、`play-icons` 等不参与 release；`fixed` 锁定六个发布包同版本。（初版计划曾误写为「仅发 mobile」，见 `patch-1` 修正。）
+将 `packages/*` 下各包 `version` 统一为 `1.0.0`；通过 Changesets 对 **`packages` 下除 `@veltra/mobile` 外的全部 `@veltra/*` 包** 进行 version/publish；`@veltra/mobile` 与 `cli`、`play-desktop`、`play-icons` 等不参与 release；`fixed` 锁定六个发布包同版本。（初版计划曾误写为「仅发 mobile」，见 `patch-1` 修正。）
 
 ## 内容
 
 1. 将 `packages/utils`、`styles`、`compositions`、`directives`、`desktop`、`icons`、`mobile` 的 `package.json` 中 `"version"` 改为 `"1.0.0"`。
-2. 编辑 `.changeset/config.json`：`fixed` 锁定六个 `@ultra-ui` 发布包；`ignore` 含 `@ultra-ui/mobile`、`cli`、`play-desktop`、`play-icons`（以 `patch-1` 为准，替代初稿中「仅发 mobile」的反向配置）。
+2. 编辑 `.changeset/config.json`：`fixed` 锁定六个 `@veltra` 发布包；`ignore` 含 `@veltra/mobile`、`cli`、`play-desktop`、`play-icons`（以 `patch-1` 为准，替代初稿中「仅发 mobile」的反向配置）。
 3. 在回复中说明 GitHub Actions `NPM_TOKEN` 与本地 `npm login` / `~/.npmrc` 配置方式（不写真实 token）。
 
 ## 影响范围

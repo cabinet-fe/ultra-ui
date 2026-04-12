@@ -4,11 +4,11 @@
 
 ## 目标
 
-将 `ui/` 全部源码迁移到 `packages/` 下对应包中，消除 `@ui/` 路径别名，完成 `cat-kit` → `@cat-kit/*` 导入迁移，配置各包独立构建，更新 sample 应用和 CLI 工具。完成后 `ui/` 目录不再存在，`@ui/` 路径别名被彻底移除，整个项目统一使用 `@ultra-ui/*` 包结构和 `@cat-kit/*` 依赖。
+将 `ui/` 全部源码迁移到 `packages/` 下对应包中，消除 `@ui/` 路径别名，完成 `cat-kit` → `@cat-kit/*` 导入迁移，配置各包独立构建，更新 sample 应用和 CLI 工具。完成后 `ui/` 目录不再存在，`@ui/` 路径别名被彻底移除，整个项目统一使用 `@veltra/*` 包结构和 `@cat-kit/*` 依赖。
 
 ## 内容
 
-### 1. 迁移 @ultra-ui/utils
+### 1. 迁移 @veltra/utils
 
 将以下源码从 `ui/` 移入 `packages/utils/src/`：
 
@@ -32,34 +32,34 @@
 
 完成标准：`tsc --build packages/utils` 无报错。
 
-### 2. 迁移 @ultra-ui/compositions
+### 2. 迁移 @veltra/compositions
 
 将 `ui/compositions/` 整体移入 `packages/compositions/src/`。
 
 **import 更新**：
 
-- `@ui/utils` → `@ultra-ui/utils`
+- `@ui/utils` → `@veltra/utils`
 - `cat-kit` / `cat-kit/fe` → `@cat-kit/core` / `@cat-kit/fe`
 
-更新 `packages/compositions/package.json` 依赖：`@ultra-ui/utils: "workspace:*"`，按需添加 `@cat-kit/core` / `@cat-kit/fe`。
+更新 `packages/compositions/package.json` 依赖：`@veltra/utils: "workspace:*"`，按需添加 `@cat-kit/core` / `@cat-kit/fe`。
 更新 `packages/compositions/src/index.ts` 导出。
 
 完成标准：`tsc --build packages/compositions` 无报错。
 
-### 3. 迁移 @ultra-ui/directives
+### 3. 迁移 @veltra/directives
 
 将 `ui/directives/` 整体移入 `packages/directives/src/`。
 
 **import 更新**：
 
-- `@ui/utils` → `@ultra-ui/utils`
+- `@ui/utils` → `@veltra/utils`
 - `cat-kit` → `@cat-kit/core`
 
-更新 `packages/directives/package.json` 依赖：`@ultra-ui/utils: "workspace:*"`、`@cat-kit/core`。
+更新 `packages/directives/package.json` 依赖：`@veltra/utils: "workspace:*"`、`@cat-kit/core`。
 
 完成标准：`tsc --build packages/directives` 无报错。
 
-### 4. 迁移 @ultra-ui/desktop
+### 4. 迁移 @veltra/desktop
 
 **4a. 移动源码**
 
@@ -73,16 +73,16 @@
 
 | 旧 import                    | 新 import                                | 说明                 |
 | ---------------------------- | ---------------------------------------- | -------------------- |
-| `@ui/utils`                  | `@ultra-ui/utils`                        | 工具函数             |
-| `@ui/compositions/*`         | `@ultra-ui/compositions`                 | 组合式函数           |
-| `@ui/directives/*`           | `@ultra-ui/directives`                   | 指令                 |
+| `@ui/utils`                  | `@veltra/utils`                        | 工具函数             |
+| `@ui/compositions/*`         | `@veltra/compositions`                 | 组合式函数           |
+| `@ui/directives/*`           | `@veltra/directives`                   | 指令                 |
 | `@ui/types/components/*`     | `../types/*` 或 `../../types/*`          | desktop 内部相对路径 |
-| `@ui/types/utils/*`          | `@ultra-ui/utils/types/utils/*`          | 工具类型             |
-| `@ui/types/component-common` | `@ultra-ui/utils/types/component-common` | 共享组件基础类型     |
-| `@ui/types/helper`           | `@ultra-ui/utils/types/helper`           | 辅助类型             |
+| `@ui/types/utils/*`          | `@veltra/utils/types/utils/*`          | 工具类型             |
+| `@ui/types/component-common` | `@veltra/utils/types/component-common` | 共享组件基础类型     |
+| `@ui/types/helper`           | `@veltra/utils/types/helper`           | 辅助类型             |
 | `@ui/types`（barrel）        | 按实际导入内容分流到上述规则             | 需逐文件检查         |
-| `@ui/styles/*`               | `@ultra-ui/utils/styles/*`               | 样式工具             |
-| `@ui/shared/*`               | `@ultra-ui/utils/shared/*`               | 共享常量             |
+| `@ui/styles/*`               | `@veltra/utils/styles/*`               | 样式工具             |
+| `@ui/shared/*`               | `@veltra/utils/shared/*`               | 共享常量             |
 
 **4c. 改写 SCSS 跨包引用**
 
@@ -90,9 +90,9 @@
 
 | 旧引用                                 | 新引用                                               |
 | -------------------------------------- | ---------------------------------------------------- |
-| `@use '../../styles/mixins' as m;`     | `@use 'pkg:@ultra-ui/utils/styles/mixins' as m;`     |
-| `@use '../../styles/vars';`            | `@use 'pkg:@ultra-ui/utils/styles/vars';`            |
-| `@use '../../styles/functions' as fn;` | `@use 'pkg:@ultra-ui/utils/styles/functions' as fn;` |
+| `@use '../../styles/mixins' as m;`     | `@use 'pkg:@veltra/utils/styles/mixins' as m;`     |
+| `@use '../../styles/vars';`            | `@use 'pkg:@veltra/utils/styles/vars';`            |
+| `@use '../../styles/functions' as fn;` | `@use 'pkg:@veltra/utils/styles/functions' as fn;` |
 
 注意：部分组件可能有额外的 `@use` 引用（如引用其他组件样式），需逐文件检查完整的 `@use` 列表。
 
@@ -142,10 +142,10 @@
 
 为每个包在 `package.json` 中添加 `build` script，配置 tsdown：
 
-- `@ultra-ui/utils`：entry `src/index.ts`，输出 `dist/`，包含 SCSS 源文件复制
-- `@ultra-ui/compositions`：entry `src/index.ts`，输出 `dist/`
-- `@ultra-ui/directives`：entry `src/index.ts`，输出 `dist/`，包含样式构建
-- `@ultra-ui/desktop`：entry `src/index.ts` + 组件 `style.ts` 入口，输出 `dist/`，包含 SCSS 编译
+- `@veltra/utils`：entry `src/index.ts`，输出 `dist/`，包含 SCSS 源文件复制
+- `@veltra/compositions`：entry `src/index.ts`，输出 `dist/`
+- `@veltra/directives`：entry `src/index.ts`，输出 `dist/`，包含样式构建
+- `@veltra/desktop`：entry `src/index.ts` + 组件 `style.ts` 入口，输出 `dist/`，包含 SCSS 编译
 
 **构建脚本改造**：
 
@@ -164,11 +164,11 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 | 旧 import                | 新 import                                                   |
 | ------------------------ | ----------------------------------------------------------- |
-| `from 'ultra-ui'`        | `from '@ultra-ui/desktop'`                                  |
-| `from 'ultra-ui/types'`  | `from '@ultra-ui/desktop/types'` 或 `@ultra-ui/utils/types` |
-| `from 'ultra-ui/styles'` | `from '@ultra-ui/utils/styles'`                             |
+| `from 'ultra-ui'`        | `from '@veltra/desktop'`                                  |
+| `from 'ultra-ui/types'`  | `from '@veltra/desktop/types'` 或 `@veltra/utils/types` |
+| `from 'ultra-ui/styles'` | `from '@veltra/utils/styles'`                             |
 
-更新 `apps/sample/package.json`：移除 `ultra-ui`，添加 `@ultra-ui/desktop: "workspace:*"`、`@ultra-ui/utils: "workspace:*"`。
+更新 `apps/sample/package.json`：移除 `ultra-ui`，添加 `@veltra/desktop: "workspace:*"`、`@veltra/utils: "workspace:*"`。
 
 更新 `apps/sample/vite.config.ts`：
 
@@ -201,14 +201,14 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 - 更新目录结构（至少到第二层）
 - 更新包命名和构建命令
-- 更新路径别名说明（`@ui/` → `@ultra-ui/*`）
+- 更新路径别名说明（`@ui/` → `@veltra/*`）
 - 更新组件开发规范中的文件结构和 import 示例
 
 **CLI 模板（`tools/cli/gen-component/render-file.ts`）**：
 
 - `@ui/types` → 新导入路径
-- `@ui/utils` → `@ultra-ui/utils`
-- SCSS 中的 `@use '../../styles/...'` → `@use 'pkg:@ultra-ui/utils/styles/...'`
+- `@ui/utils` → `@veltra/utils`
+- SCSS 中的 `@use '../../styles/...'` → `@use 'pkg:@veltra/utils/styles/...'`
 
 **配置文件**：
 
@@ -238,7 +238,7 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 - 已删除 `ui/` 目录；源码位于 `packages/utils`、`packages/compositions`、`packages/directives`、`packages/desktop`
 - 新增 `packages/ts-config`（共享 TS 预设：`browser.json`、`vue-library.json`、`node-tools.json`）；前端库包改为继承浏览器预设，不再误用 `tsconfig.node`
-- `@ultra-ui/desktop` 与 `apps/sample` 仅依赖 `@cat-kit/core`（含 `Forest`/`TreeNode`/`dfs`/`bfs`）；树遍历语义差异由 `packages/desktop/src/utils/tree-walk.ts` 辅助函数承担
+- `@veltra/desktop` 与 `apps/sample` 仅依赖 `@cat-kit/core`（含 `Forest`/`TreeNode`/`dfs`/`bfs`）；树遍历语义差异由 `packages/desktop/src/utils/tree-walk.ts` 辅助函数承担
 - `packages/desktop` 全量组件与类型、`packages/utils` 工具与样式、`compositions`/`directives` 的 import 与 SCSS（`utils/src/styles/*` + Vite `loadPaths`）
 - `tools/cli`：`export`/`rename` 适配 `@cat-kit/be` 当前 `readDir` / `DirEntry` API；`tsconfig` 排除 `dist-tsc` 避免声明输出被当作输入
 - `tools/cli/shared.ts`、`gen-component/render-file.ts` 等；`apps/sample/`：`package.json`、`vite.config.ts`、演示页 import
@@ -252,7 +252,7 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 - patch-1: 移除 cat-kit-fe-compat、修正 TS 继承与 Turborepo 根脚本
 - patch-2: 修复 tools/build 对齐 packages/\* 与 `turbo run build`
-- patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@ultra-ui/utils`（树结构暂保留 cat-kit 入口）
+- patch-3: 废除 `cat-kit/fe`，拆分 `@cat-kit/core` / `cat-kit` / `@veltra/utils`（树结构暂保留 cat-kit 入口）
 - patch-4: 修复 v-ripple 在 inline 容器上 overflow:hidden 导致点击后异常变宽
 - patch-5: Tree/Forest/TreeNode 全面迁移至 @cat-kit/core，移除 cat-kit 依赖
 - patch-6: 表格表头按 Forest 多根修正层序遍历，修复 leafs 回溯崩溃

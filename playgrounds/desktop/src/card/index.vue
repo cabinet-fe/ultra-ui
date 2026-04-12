@@ -46,9 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { useComponentProps } from '@ultra-ui/compositions'
-import type { ButtonProps } from '@ultra-ui/desktop/types'
-import { Lock, MoreFilled, Star } from '@ultra-ui/icons/normal'
+import { useComponentProps } from '@veltra/compositions'
+import type { ButtonProps } from '@veltra/desktop/types'
+import { Lock, MoreFilled, Star } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 
 const ButtonCommonProps = useComponentProps<ButtonProps>({

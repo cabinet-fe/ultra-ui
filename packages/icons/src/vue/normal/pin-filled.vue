@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:3249f79960d03a8e gen:2 source:src/svg/normal/pin-filled.svg -->
+<!-- @veltra/icons generated sha256:3249f79960d03a8e gen:2 source:src/svg/normal/pin-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PinFilled' })
 </script>

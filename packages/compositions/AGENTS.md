@@ -1,4 +1,4 @@
-# AGENTS.md — @ultra-ui/compositions
+# AGENTS.md — @veltra/compositions
 
 Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 
@@ -47,6 +47,6 @@ const model = useModel({ props, emit, local: false })
 
 ## 依赖
 
-- **依赖**：`@cat-kit/core`、`@ultra-ui/utils`
+- **依赖**：`@cat-kit/core`、`@veltra/utils`
 - **peer**：`vue ^3.5.0`
-- **被依赖**：`@ultra-ui/desktop`
+- **被依赖**：`@veltra/desktop`

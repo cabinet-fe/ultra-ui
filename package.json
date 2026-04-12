@@ -1,5 +1,5 @@
 {
-  "name": "ultra",
+  "name": "veltra",
   "private": true,
   "keywords": [
     "Vue",
@@ -30,7 +30,7 @@
     "format": "oxfmt .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter='@ultra-ui/*' --filter='!@ultra-ui/mobile' && changeset publish"
+    "release": "turbo run build --filter='@veltra/*' --filter='!@veltra/mobile' && changeset publish"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.3",

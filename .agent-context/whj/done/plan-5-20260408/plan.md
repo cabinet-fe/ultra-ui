@@ -4,7 +4,7 @@
 
 ## 目标
 
-统一根目录开发工具链版本（TypeScript 6.x、Vite、Oxc、Vitest、Turbo、`@cat-kit/tsconfig` 2.x）；各包仅声明运行时依赖并保持同包版本一致；移除冗余的 `@ultra-ui/ts-config`，各包 `extends` 直接使用 `@cat-kit/tsconfig` 的 web / vue / bun 预设。
+统一根目录开发工具链版本（TypeScript 6.x、Vite、Oxc、Vitest、Turbo、`@cat-kit/tsconfig` 2.x）；各包仅声明运行时依赖并保持同包版本一致；移除冗余的 `@veltra/ts-config`，各包 `extends` 直接使用 `@cat-kit/tsconfig` 的 web / vue / bun 预设。
 
 ## 内容
 
@@ -16,7 +16,7 @@
 
 ## 影响范围
 
-- `package.json`、`bun.lock`（含各 `@ultra-ui/*` 与 `tools/cli` 的 `build` 脚本，见 patch-4）
+- `package.json`、`bun.lock`（含各 `@veltra/*` 与 `tools/cli` 的 `build` 脚本，见 patch-4）
 - `tsconfig.node.json`
 - `packages/utils`、`packages/compositions`、`packages/directives`、`packages/mobile`、`packages/desktop`、`packages/icons` 下各 `tsconfig*.json`
 - `tools/build/tsconfig.json`、`tools/cli/tsconfig.json`

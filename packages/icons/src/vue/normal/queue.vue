@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:397f8583cae986b0 gen:2 source:src/svg/normal/queue.svg -->
+<!-- @veltra/icons generated sha256:397f8583cae986b0 gen:2 source:src/svg/normal/queue.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Queue' })
 </script>

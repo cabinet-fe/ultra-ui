@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps } from '@ultra-ui/compositions'
-import { Close } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useFallbackProps } from '@veltra/compositions'
+import { Close } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { onMounted } from 'vue'
 
 import type { MessageProps } from '../../types'

@@ -1,4 +1,4 @@
-import type { BEM } from '@ultra-ui/utils'
+import type { BEM } from '@veltra/utils'
 import { createEditor } from 'lexical'
 import { watchEffect, computed, type Ref, type ShallowRef } from 'vue'
 

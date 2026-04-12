@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:90495f390755249e gen:2 source:src/svg/normal/unlink.svg -->
+<!-- @veltra/icons generated sha256:90495f390755249e gen:2 source:src/svg/normal/unlink.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Unlink' })
 </script>

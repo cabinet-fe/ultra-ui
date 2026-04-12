@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:b76f08427c70282f gen:2 source:src/svg/normal/rotate-left.svg -->
+<!-- @veltra/icons generated sha256:b76f08427c70282f gen:2 source:src/svg/normal/rotate-left.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'RotateLeft' })
 </script>

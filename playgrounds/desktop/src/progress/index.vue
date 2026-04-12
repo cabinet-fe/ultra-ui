@@ -57,8 +57,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { ColorType } from '@ultra-ui/desktop/types'
-import { Warning } from '@ultra-ui/icons/normal'
+import type { ColorType } from '@veltra/desktop/types'
+import { Warning } from '@veltra/icons/normal'
 import { shallowReactive } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import { debounce } from '@cat-kit/core'
-import { bem, setStyles, zIndex } from '@ultra-ui/utils'
+import { bem, setStyles, zIndex } from '@veltra/utils'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 
 import type { WatermarkProps, WatermarkEmits } from '../../types'

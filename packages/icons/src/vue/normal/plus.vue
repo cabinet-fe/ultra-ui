@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:f290ca6bfc9429b0 gen:2 source:src/svg/normal/plus.svg -->
+<!-- @veltra/icons generated sha256:f290ca6bfc9429b0 gen:2 source:src/svg/normal/plus.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Plus' })
 </script>

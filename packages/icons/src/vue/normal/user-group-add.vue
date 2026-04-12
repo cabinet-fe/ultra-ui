@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:b5d53f6a3e1d19d6 gen:2 source:src/svg/normal/user-group-add.svg -->
+<!-- @veltra/icons generated sha256:b5d53f6a3e1d19d6 gen:2 source:src/svg/normal/user-group-add.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserGroupAdd' })
 </script>

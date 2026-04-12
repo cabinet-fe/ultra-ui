@@ -1,21 +1,21 @@
-# AGENTS.md — @ultra-ui/icons
+# AGENTS.md — @veltra/icons
 
 SVG 图标组件库，将 SVG 文件自动转换为 Vue SFC 并导出。
 
 ## 使用方式
 
 ```ts
-import { Search, Close } from '@ultra-ui/icons/normal'
-import { Logo } from '@ultra-ui/icons/colorful'
+import { Search, Close } from '@veltra/icons/normal'
+import { Logo } from '@veltra/icons/colorful'
 ```
 
 ## 导出子路径
 
 | 子路径                     | 用途                          |
 | -------------------------- | ----------------------------- |
-| `@ultra-ui/icons`          | 全部图标（normal + colorful） |
-| `@ultra-ui/icons/normal`   | 单色图标集合                  |
-| `@ultra-ui/icons/colorful` | 多色图标集合                  |
+| `@veltra/icons`          | 全部图标（normal + colorful） |
+| `@veltra/icons/normal`   | 单色图标集合                  |
+| `@veltra/icons/colorful` | 多色图标集合                  |
 
 ## 目录结构
 

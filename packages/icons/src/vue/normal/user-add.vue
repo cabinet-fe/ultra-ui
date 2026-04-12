@@ -1,4 +1,4 @@
-<!-- @ultra-ui/icons generated sha256:354c2c8818d1f22f gen:2 source:src/svg/normal/user-add.svg -->
+<!-- @veltra/icons generated sha256:354c2c8818d1f22f gen:2 source:src/svg/normal/user-add.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserAdd' })
 </script>

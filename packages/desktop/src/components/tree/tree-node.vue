@@ -33,9 +33,9 @@
 </template>
 
 <script lang="ts" setup>
-import { vRipple } from '@ultra-ui/directives'
-import { ArrowRight } from '@ultra-ui/icons/normal'
-import { bem, withUnit } from '@ultra-ui/utils'
+import { vRipple } from '@veltra/directives'
+import { ArrowRight } from '@veltra/icons/normal'
+import { bem, withUnit } from '@veltra/utils'
 import { inject } from 'vue'
 
 import type { TreeNodeProps } from '../../types'

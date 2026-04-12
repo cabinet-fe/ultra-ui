@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useComponentProps } from '@ultra-ui/compositions'
-import { Copy, Minus, Plus } from '@ultra-ui/icons/normal'
-import { bem } from '@ultra-ui/utils'
+import { useComponentProps } from '@veltra/compositions'
+import { Copy, Minus, Plus } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { TableEditorProps, TableEditorEmits, TableColumn } from '../../types'
