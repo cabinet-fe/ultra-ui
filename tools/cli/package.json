@@ -1,5 +1,6 @@
 {
   "name": "cli",
+  "private": true,
   "version": "1.0.0",
   "description": "脚本命令",
   "author": "whj",
