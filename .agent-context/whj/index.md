@@ -16,3 +16,4 @@
 - [x] [GitHub Actions + Changesets 自动化发版](./done/plan-16-20260410/plan.md)
 - [x] [全局类型与质量问题扫荡](./done/plan-17-20260410/plan.md)
 - [x] [packages 版本 1.0.0 与 Changesets 发布范围（除 mobile）](./done/plan-18-20260410/plan.md)
+- [x] [发布时展开内部 workspace 依赖版本](./done/plan-19-20260413/plan.md)

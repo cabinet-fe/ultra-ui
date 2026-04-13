@@ -1,6 +1,6 @@
 # AGENTS.md — @veltra/utils
 
-工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）与主题 TS（`@veltra/styles/theme`）在 **`@veltra/styles`**。
+工具函数、共享类型包。是整个组件库的底层依赖，不含任何 Vue 组件。共享 SCSS（BEM partial、normalize、动画）与主题 TS（`@veltra/styles/theme`）在 `**@veltra/styles**`。
 
 ## 目录结构
 
@@ -23,14 +23,16 @@ src/
 
 ## 导出子路径
 
-| 子路径                    | 用途                       |
-| ------------------------- | -------------------------- |
-| `@veltra/utils`         | 工具函数 + 共享 + 类型聚合 |
-| `@veltra/utils/shared`  | 共享常量                   |
+
+| 子路径                    | 用途               |
+| ---------------------- | ---------------- |
+| `@veltra/utils`        | 工具函数 + 共享 + 类型聚合 |
+| `@veltra/utils/shared` | 共享常量             |
+
 
 ## BEM + SCSS
 
-组件与指令的样式文件使用 **`@veltra/styles`**，Sass 侧写 `pkg:`（详见 `packages/styles/AGENTS.md`）：
+组件与指令的样式文件使用 `**@veltra/styles**`，Sass 侧写 `pkg:`（详见 `packages/styles/AGENTS.md`）：
 
 ```scss
 @use 'pkg:@veltra/styles/mixins' as m;
@@ -55,19 +57,22 @@ src/
 
 ## 关键工具函数
 
-| 模块              | 导出         | 用途                       |
-| ----------------- | ------------ | -------------------------- |
-| `helper/make-bem` | `bem()`      | 创建 BEM 类名工具实例      |
-| `helper/tween`    | `Tween`      | 补间动画                   |
-| `helper/frame`    | `frame`      | requestAnimationFrame 封装 |
-| `helper/vue`      | Vue 相关辅助 | —                          |
-| `dom/z-index`     | z-index 管理 | —                          |
-| `dom/position`    | 位置计算     | —                          |
-| `form/validate`   | 表单校验     | —                          |
-| `reactive/proxy`  | 响应式代理   | —                          |
+
+| 模块                | 导出         | 用途                       |
+| ----------------- | ---------- | ------------------------ |
+| `helper/make-bem` | `bem()`    | 创建 BEM 类名工具实例            |
+| `helper/tween`    | `Tween`    | 补间动画                     |
+| `helper/frame`    | `frame`    | requestAnimationFrame 封装 |
+| `helper/vue`      | Vue 相关辅助   | —                        |
+| `dom/z-index`     | z-index 管理 | —                        |
+| `dom/position`    | 位置计算       | —                        |
+| `form/validate`   | 表单校验       | —                        |
+| `reactive/proxy`  | 响应式代理      | —                        |
+
 
 ## 依赖
 
 - **依赖**：`@cat-kit/core`
 - **peer**：`vue ^3.5.0`
 - **被依赖**：compositions、directives、desktop（样式资产由 `@veltra/styles` 单独提供）
+
