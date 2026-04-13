@@ -10,3 +10,4 @@
 - [x] [新增数字范围输入组件（UNumberRangeInput）](./done/plan-10-20260405/plan.md)
 - [x] [Select 下拉列表面板样式优化](./done/plan-11-20260413/plan.md)
 - [x] [区间数字输入（v-model / v-model:start / v-model:end）核验与示例](./done/plan-12-20260413/plan.md)
+- [x] [修复 number-range-input 区间顺序校验时机](./done/plan-13-20260413/plan.md)

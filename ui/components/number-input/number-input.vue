@@ -16,7 +16,8 @@
   >
     <template #suffix v-if="step !== undefined && step !== false">
       <slot name="suffix" />
-      <div :class="cls.e('step')">
+      <!-- capture + prevent：在默认失焦行为之前拦截，避免先 blur 再 click 时用旧 props 覆盖 model -->
+      <div :class="cls.e('step')" @mousedown.capture.prevent>
         <u-icon
           @click="increase"
           v-ripple="!disabled && increasable"
@@ -98,6 +99,9 @@ const className = computed(() => {
 
 /** 实际值 */
 const model = defineModel<NumberInputProps['modelValue']>()
+
+/** 步进数字动画进行中，避免在动画未完成时重复步进绕过 min/max 等规则 */
+const steppingTweening = shallowRef(false)
 
 // 展示值
 const displayed = shallowRef('')
@@ -262,6 +266,12 @@ function handleChange() {
   emit('change', model.value)
 }
 
+function syncStepInputDomFromModel(): void {
+  const _rawInput = inputDom.value
+  if (!_rawInput) return
+  _rawInput.value = getDisplayed(model.value)
+}
+
 const tween = new Tween(
   { n: model.value ?? 0 },
   {
@@ -275,16 +285,15 @@ const tween = new Tween(
     },
     // 动画进行的过程值有可能被改变, 因此在onComplete中确保还原的是原本的值
     onComplete() {
-      const _rawInput = inputDom.value
-      if (!_rawInput) return
-      _rawInput.value = getDisplayed(model.value)
+      steppingTweening.value = false
+      syncStepInputDomFromModel()
     }
   }
 )
 
 /** 增 */
 function increase(): void {
-  if (disabled.value) return
+  if (disabled.value || steppingTweening.value || !increasable.value) return
   const { multiple } = props
   const val = model.value ?? 0
 
@@ -297,20 +306,23 @@ function increase(): void {
     const newVal = n.mul(newRawVal, multiple)
     const target = getValidValue(newVal)
     model.value = target
-    // tween 动画在原始值上进行
-    tween.state.n = n.div(target, multiple)
+    // tween 动画在原始值上进行：从当前 raw 播放到目标 raw（此前误设为终点导致状态与动画不一致）
+    tween.state.n = rawVal
+    steppingTweening.value = true
     tween.to({ n: n.div(target, multiple) })
   } else {
     tween.state.n = val
     const target = getValidValue(n.plus(val, stepVal.value))
     model.value = target
+    steppingTweening.value = true
     tween.to({ n: target })
   }
+  emit('change', model.value)
 }
 
 /** 减 */
 function decrease(): void {
-  if (disabled.value) return
+  if (disabled.value || steppingTweening.value || !reducible.value) return
   const { multiple } = props
   const val = model.value ?? 0
 
@@ -323,15 +335,17 @@ function decrease(): void {
     const newVal = n.mul(newRawVal, multiple)
     const target = getValidValue(newVal)
     model.value = target
-    // tween 动画在原始值上进行
-    tween.state.n = n.div(target, multiple)
+    tween.state.n = rawVal
+    steppingTweening.value = true
     tween.to({ n: n.div(target, multiple) })
   } else {
     tween.state.n = val
     const target = getValidValue(n.minus(val, stepVal.value))
     model.value = target
+    steppingTweening.value = true
     tween.to({ n: target })
   }
+  emit('change', model.value)
 }
 
 function handleKeydown(e: KeyboardEvent): void {
@@ -375,6 +389,8 @@ function handleFocus(): void {
 
 function handleBlur(): void {
   focused.value = false
+  // 步进动画进行中勿用 props 回写，避免与 Tween/子组件提交不同步的旧 v-model 把值拉回边界内从而可再次步进「绕过」观感
+  if (steppingTweening.value) return
   model.value = props.modelValue
 }
 </script>

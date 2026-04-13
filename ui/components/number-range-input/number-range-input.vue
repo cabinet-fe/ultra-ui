@@ -7,7 +7,7 @@
       :readonly="readonly"
       :size="size"
       v-bind="numberInputBind"
-      @change="emitChange"
+      @change="handleSideChange"
     />
     <span :class="cls.e('separator')">{{ separator }}</span>
     <u-number-input
@@ -17,7 +17,7 @@
       :readonly="readonly"
       :size="size"
       v-bind="numberInputBind"
-      @change="emitChange"
+      @change="handleSideChange"
     />
   </div>
 
@@ -110,10 +110,10 @@ watch(
   () => {
     if (!splitBound() || syncGuard) return
     syncGuard = true
-    const normalized = normalizeFromSplit(startRef.value, endRef.value)
+    const next: NumberRangeTuple = [startRef.value, endRef.value]
     const cur = model.value ?? [undefined, undefined]
-    if (cur[0] !== normalized[0] || cur[1] !== normalized[1]) {
-      model.value = normalized
+    if (cur[0] !== next[0] || cur[1] !== next[1]) {
+      model.value = next
     }
     nextTick(() => {
       syncGuard = false
@@ -159,10 +159,7 @@ const startModel = computed({
   },
   set(v: number | undefined) {
     const cur = model.value ?? [undefined, undefined]
-    const end = cur[1]
-    let nextEnd = end
-    if (v !== undefined && end !== undefined && v > end) nextEnd = v
-    model.value = [v, nextEnd]
+    model.value = [v, cur[1]]
   }
 })
 
@@ -172,10 +169,7 @@ const endModel = computed({
   },
   set(v: number | undefined) {
     const cur = model.value ?? [undefined, undefined]
-    const start = cur[0]
-    let nextStart = start
-    if (v !== undefined && start !== undefined && v < start) nextStart = v
-    model.value = [nextStart, v]
+    model.value = [cur[0], v]
   }
 })
 
@@ -213,26 +207,43 @@ function emitChange(): void {
   emit('change', model.value ?? [undefined, undefined])
 }
 
-function syncPartialPairOnBlur(): void {
-  if (!props.autoPair || disabled.value || readonly.value) return
+/** 单侧 `change`（含步进器）：先归一化区间顺序再向外派发，避免仅失焦才修正时步进可绕过规则。 */
+function handleSideChange(): void {
+  applyNormalizeRangeOrderOnBlur()
+  emitChange()
+}
+
+/** @returns 是否写入了 `model` */
+function applySyncPartialPairOnBlur(): boolean {
+  if (!props.autoPair || disabled.value || readonly.value) return false
   const cur = model.value ?? [undefined, undefined]
   const s = cur[0]
   const e = cur[1]
   const sOk = s !== undefined
   const eOk = e !== undefined
-  if (sOk === eOk) return
+  if (sOk === eOk) return false
   const fill = (sOk ? s : e) as number
   const normalized = normalizeFromSplit(fill, fill)
-  if (cur[0] === normalized[0] && cur[1] === normalized[1]) return
+  if (cur[0] === normalized[0] && cur[1] === normalized[1]) return false
   model.value = normalized
-  emitChange()
+  return true
+}
+
+/** 焦点离开整个控件后：两侧均有值且起始大于结束时，将结束抬到起始（与历史 normalize 一致）。 */
+function applyNormalizeRangeOrderOnBlur(): boolean {
+  if (disabled.value || readonly.value) return false
+  const cur = model.value ?? [undefined, undefined]
+  const normalized = normalizeFromSplit(cur[0], cur[1])
+  if (cur[0] === normalized[0] && cur[1] === normalized[1]) return false
+  model.value = normalized
+  return true
 }
 
 function handleRangeFocusOut(e: FocusEvent): void {
-  if (!props.autoPair) return
   const root = e.currentTarget as HTMLElement
   const related = e.relatedTarget as Node | null
   if (related && root.contains(related)) return
-  syncPartialPairOnBlur()
+  const changed = applySyncPartialPairOnBlur() || applyNormalizeRangeOrderOnBlur()
+  if (changed) emitChange()
 }
 </script>
