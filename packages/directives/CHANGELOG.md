@@ -1,5 +1,14 @@
 # @veltra/directives
 
+## 1.0.6
+
+### Patch Changes
+
+- ab2d8e6: 新增一个 vite 包
+- Updated dependencies [ab2d8e6]
+  - @veltra/styles@1.0.6
+  - @veltra/utils@1.0.6
+
 ## 1.0.5
 
 ### Patch Changes
