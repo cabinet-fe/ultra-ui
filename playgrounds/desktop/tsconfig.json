@@ -1,12 +1,13 @@
 {
   "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
-    "noEmit": true,
+    "composite": true,
+    "declaration": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
     "customConditions": ["development"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue"],
-  "exclude": ["node_modules", "**/__test__/**/*"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],
+  "exclude": ["node_modules"]
 }
