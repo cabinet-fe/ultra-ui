@@ -1,6 +1,5 @@
 import type { Dater } from '@cat-kit/core'
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** date-picker组件属性 */
 export interface DatePickerProps extends FormComponentProps {

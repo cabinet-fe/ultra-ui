@@ -139,8 +139,7 @@
 import { o as chainObj } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps, useVirtual } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
-import { bem, withUnit } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT, withUnit } from '@veltra/utils'
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
 
 import type {

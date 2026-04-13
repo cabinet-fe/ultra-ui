@@ -73,8 +73,7 @@
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
-import { bem, scrollIntoContainerView } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '../../types'

@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 
 /** 密码输入框组件组件属性 */
 export interface GridInputProps {

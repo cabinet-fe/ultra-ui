@@ -1,5 +1,4 @@
-import type { ColorType } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ColorType, DeconstructValue } from '@veltra/utils'
 import type { DefineComponent, RendererElement } from 'vue'
 
 /** 通知组件组件属性 */

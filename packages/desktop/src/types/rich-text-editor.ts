@@ -1,5 +1,4 @@
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 富文本数据格式 */
 export type RichTextFormat = 'html' | 'json'

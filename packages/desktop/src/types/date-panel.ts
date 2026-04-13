@@ -1,5 +1,5 @@
 import type { Dater } from '@cat-kit/core'
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
+import type { FormComponentProps } from '@veltra/utils'
 
 export type PanelType = 'day' | 'month' | 'year'
 

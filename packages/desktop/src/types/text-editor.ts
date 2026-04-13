@@ -1,5 +1,4 @@
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** text-editor组件属性 */
 export interface BarType {

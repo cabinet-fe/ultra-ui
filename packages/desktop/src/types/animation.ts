@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 
 /** 动画组件属性 */
 export interface AnimationProps {

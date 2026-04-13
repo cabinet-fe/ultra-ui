@@ -1,6 +1,6 @@
 {
   "name": "@veltra/desktop",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "files": [
     "dist",
     "src"
@@ -17,6 +17,7 @@
       "import": "./dist/index.js"
     },
     "./*": {
+      "types": "./dist/*",
       "development": "./src/*",
       "import": "./dist/*"
     }

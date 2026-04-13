@@ -1,6 +1,5 @@
 import type { Forest, TreeNode } from '@cat-kit/core'
-import type { ComponentSize } from '@veltra/utils/types/component-common'
-import type { DeconstructValue, RenderReturn } from '@veltra/utils/types/helper'
+import type { ComponentSize, DeconstructValue, RenderReturn } from '@veltra/utils'
 import type { ShallowRef, Slots, VNode } from 'vue'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'

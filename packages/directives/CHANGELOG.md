@@ -1,5 +1,14 @@
 # @veltra/directives
 
+## 1.0.4
+
+### Patch Changes
+
+- Fix published subpath exports so npm consumers resolve wildcard entries to the correct built files.
+- Updated dependencies
+  - @veltra/utils@1.0.4
+  - @veltra/styles@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes

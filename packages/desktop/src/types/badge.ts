@@ -1,5 +1,4 @@
-import type { ColorType, ComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ColorType, ComponentProps, DeconstructValue } from '@veltra/utils'
 
 /** 徽章组件属性 */
 export interface BadgeProps extends ComponentProps {

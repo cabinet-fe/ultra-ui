@@ -38,8 +38,7 @@
 import { date, type Dater } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
 import { Calendar } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { DatePickerEmits, DatePickerProps } from '../../types'

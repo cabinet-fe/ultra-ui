@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 import type { Component } from 'vue'
 
 import type { TipProps } from './tip'

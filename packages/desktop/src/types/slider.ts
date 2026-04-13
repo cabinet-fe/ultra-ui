@@ -1,5 +1,4 @@
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 滑块组件属性 */
 export interface SliderProps<T extends number | [number, number]> extends FormComponentProps {

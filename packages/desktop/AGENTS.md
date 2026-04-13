@@ -18,7 +18,7 @@ src/
 │   │   └── di.ts         # 可选，依赖注入 key（InjectionKey）
 │   └── index.ts          # barrel 聚合导出所有组件
 └── types/                # 类型定义目录（~77 个文件）
-    ├── index.ts          # 先 re-export @veltra/utils/types，再导出各组件类型
+    ├── index.ts          # 先 re-export @veltra/utils，再导出各组件类型
     └── <name>.ts         # 组件 Props/Emits/Exposed 定义
 ```
 

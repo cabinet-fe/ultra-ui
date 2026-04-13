@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.0.4
+
+### Patch Changes
+
+- Fix published subpath exports so npm consumers resolve wildcard entries to the correct built files.
+
 ## 1.0.3
 
 ### Patch Changes

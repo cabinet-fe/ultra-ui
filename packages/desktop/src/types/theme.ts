@@ -1,5 +1,5 @@
 import type { UITheme } from '@veltra/styles/theme'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 
 /** 主题组件属性 */
 export interface ThemeProps {

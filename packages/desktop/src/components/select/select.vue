@@ -116,8 +116,7 @@ import { o } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps, useVirtual } from '@veltra/compositions'
 import { vFocus } from '@veltra/directives'
 import { ArrowDown, Search } from '@veltra/icons/normal'
-import { bem, withUnit, scrollIntoContainerView } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type {

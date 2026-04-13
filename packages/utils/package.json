@@ -1,6 +1,6 @@
 {
   "name": "@veltra/utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "files": [
     "dist",
     "src"
@@ -15,12 +15,8 @@
       "development": "./src/index.ts",
       "import": "./dist/index.js"
     },
-    "./types": {
-      "types": "./dist/types/index.d.ts",
-      "development": "./src/types/index.ts",
-      "import": "./dist/types/index.js"
-    },
     "./*": {
+      "types": "./dist/*",
       "development": "./src/*",
       "import": "./dist/*"
     }

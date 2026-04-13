@@ -1,5 +1,4 @@
-import type { ColorType, ComponentSize } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ColorType, ComponentSize, DeconstructValue } from '@veltra/utils'
 
 /** 步骤组件组件属性 */
 export interface StepsProps {

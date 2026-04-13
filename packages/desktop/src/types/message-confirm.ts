@@ -1,5 +1,4 @@
-import type { ColorType, ComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ColorType, ComponentProps, DeconstructValue } from '@veltra/utils'
 
 /** 消息确认框组件属性 */
 export interface MessageConfirmProps extends ComponentProps {

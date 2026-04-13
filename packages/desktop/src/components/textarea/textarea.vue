@@ -42,8 +42,7 @@
 <script lang="ts" setup>
 import { useFocus, useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'

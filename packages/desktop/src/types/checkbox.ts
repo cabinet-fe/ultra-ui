@@ -1,4 +1,4 @@
-import type { ColorType, FormComponentProps } from '@veltra/utils/types/component-common'
+import type { ColorType, FormComponentProps } from '@veltra/utils'
 
 /** 复选框组件属性 */
 export interface CheckboxProps extends FormComponentProps {

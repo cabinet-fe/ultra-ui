@@ -1,4 +1,4 @@
-import type { ComponentSize } from '@veltra/utils/types'
+import type { ComponentSize } from '@veltra/utils'
 import { computed, type ComputedRef } from 'vue'
 
 import { useConfig } from '../use-config'

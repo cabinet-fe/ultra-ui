@@ -1,4 +1,4 @@
-export type * from '@veltra/utils/types'
+export type * from '@veltra/utils'
 
 export * from './cascade'
 export * from './message'

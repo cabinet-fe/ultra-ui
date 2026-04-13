@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
 /** 下拉框组件属性 */

@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 /** 分页器组件组件属性 */

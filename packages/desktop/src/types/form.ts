@@ -1,6 +1,4 @@
-import type { ValidateRule } from '@veltra/utils/types'
-import type { ComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ComponentProps, DeconstructValue, ValidateRule } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 export interface FormModelItem<Val = any> extends ValidateRule {

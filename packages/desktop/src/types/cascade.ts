@@ -1,6 +1,5 @@
 import type { ITreeNode } from '@cat-kit/core'
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 export interface CascadeNode extends ITreeNode<Record<string, any>, CascadeNode> {
   children?: CascadeNode[]

@@ -1,5 +1,5 @@
 import type { Forest, ITreeNode } from '@cat-kit/core'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface TreeNode<Data extends Record<string, any> = Record<string, any>> extends ITreeNode<

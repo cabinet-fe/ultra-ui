@@ -1,4 +1,4 @@
-import type { FormComponentProps } from '@veltra/utils/types/component-common'
+import type { FormComponentProps } from '@veltra/utils'
 
 /** 组件项组件属性 */
 export interface FormItemProps extends FormComponentProps {

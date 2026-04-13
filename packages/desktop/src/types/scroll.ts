@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { DeconstructValue } from '@veltra/utils'
 import type { CSSProperties, ShallowRef } from 'vue'
 
 export type ScrollPosition = {

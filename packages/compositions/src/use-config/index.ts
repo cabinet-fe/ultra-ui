@@ -1,5 +1,5 @@
 import { isObj } from '@cat-kit/core'
-import type { ComponentSize } from '@veltra/utils/types'
+import type { ComponentSize } from '@veltra/utils'
 import { reactive, readonly, watch } from 'vue'
 
 interface State {

@@ -1,5 +1,4 @@
-import type { ComponentSize } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 export interface ListProps {
   size?: ComponentSize

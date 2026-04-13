@@ -29,8 +29,7 @@
 <script lang="ts" setup>
 import { n, $n, o } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'

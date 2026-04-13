@@ -48,8 +48,7 @@
 <script lang="tsx" setup>
 import { useFocus, useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 
 import type { InputEmits, InputProps, _InputExposed } from '../../types'

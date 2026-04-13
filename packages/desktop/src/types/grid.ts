@@ -1,5 +1,4 @@
-import type { BreakpointName } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { BreakpointName, DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 export interface Breakpoint {

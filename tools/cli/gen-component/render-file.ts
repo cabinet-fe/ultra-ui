@@ -81,7 +81,7 @@ export function renderTypeFile(ctx: ComponentCtx) {
   const EmitsName = `${upperCamelCase}Emits`
 
   const content = `
-  import type { DeconstructValue } from '@veltra/utils/types/helper'
+  import type { DeconstructValue } from '@veltra/utils'
 
   /** ${ctx.componentDesc || ctx.componentName}组件属性 */
   export interface ${PropsName} {

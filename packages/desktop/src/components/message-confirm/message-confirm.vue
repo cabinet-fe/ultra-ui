@@ -28,8 +28,7 @@
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
-import { zIndex } from '@veltra/utils'
+import { bem, zIndex } from '@veltra/utils'
 import { ref, onMounted } from 'vue'
 
 import type { MessageConfirmProps, ColorType, ComponentSize } from '../../types'

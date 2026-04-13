@@ -1,5 +1,4 @@
-import type { ComponentProps } from '@veltra/utils/types/component-common'
-import type { DeconstructValue } from '@veltra/utils/types/helper'
+import type { ComponentProps, DeconstructValue } from '@veltra/utils'
 import type { Component } from 'vue'
 
 /**
