@@ -16,15 +16,9 @@
       "development": "./src/index.ts",
       "import": "./dist/index.js"
     },
-    "./components/*/style.ts": {
-      "types": "./dist/components/*/style.d.ts",
-      "development": "./src/components/*/style.ts",
-      "import": "./dist/components/*/style.js"
-    },
     "./*": {
-      "types": "./dist/*.d.ts",
       "development": "./src/*",
-      "import": "./dist/*.js"
+      "import": "./dist/*"
     }
   },
   "scripts": {

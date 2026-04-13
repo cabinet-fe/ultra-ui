@@ -19,7 +19,7 @@
     "./*": {
       "types": "./dist/*",
       "development": "./src/*",
-      "import": "./dist/*/*"
+      "import": "./dist/*"
     }
   },
   "scripts": {

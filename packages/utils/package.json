@@ -20,15 +20,9 @@
       "development": "./src/types/index.ts",
       "import": "./dist/types/index.js"
     },
-    "./types/*": {
-      "types": "./dist/types/*.d.ts",
-      "development": "./src/types/*",
-      "import": "./dist/types/*.js"
-    },
     "./*": {
-      "types": "./dist/*.d.ts",
       "development": "./src/*",
-      "import": "./dist/*.js"
+      "import": "./dist/*"
     }
   },
   "scripts": {
