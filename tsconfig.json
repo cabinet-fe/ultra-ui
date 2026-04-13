@@ -9,7 +9,7 @@
     { "path": "./packages/desktop/tsconfig.json" },
     { "path": "./packages/mobile/tsconfig.json" },
     { "path": "./packages/icons/tsconfig.json" },
-    { "path": "./packages/vite-plugin/tsconfig.json" },
+    { "path": "./packages/vite/tsconfig.json" },
     { "path": "./tsconfig.node.json" }
   ]
 }

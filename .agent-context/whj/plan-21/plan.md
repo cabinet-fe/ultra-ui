@@ -59,5 +59,9 @@
 - `packages/vite-plugin/src/resolver.ts` — 新建，VeltraDesktopUIResolver 实现
 - `packages/vite-plugin/AGENTS.md` — 新建，包文档
 - `playgrounds/desktop/package.json` — 修改，`@veltra/vite-plugin` → `@veltra/vite`
+- `package.json` — 根 devDependencies 增加 `@types/node`、`unplugin-vue-components`
+- `packages/vite/package.json` — 移除通用 devDependencies，仅保留 `@veltra/desktop`
 
 ## 历史补丁
+
+- patch-1: @veltra/vite 通用 devDependencies 上收至仓库根
