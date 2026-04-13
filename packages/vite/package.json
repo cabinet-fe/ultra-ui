@@ -1,0 +1,32 @@
+{
+  "name": "@veltra/vite",
+  "version": "1.0.0",
+  "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop)",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@veltra/desktop": "workspace:*",
+    "tsdown": "^0.21.7",
+    "typescript": "^6.0.2",
+    "unplugin-vue-components": "^32.0.0"
+  },
+  "peerDependencies": {
+    "@veltra/desktop": "workspace:*",
+    "unplugin-vue-components": ">=32.0.0"
+  }
+}

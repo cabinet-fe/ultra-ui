@@ -1,0 +1,14 @@
+{
+  "extends": "@cat-kit/tsconfig/tsconfig.node.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "customConditions": ["development"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

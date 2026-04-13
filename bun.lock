@@ -156,8 +156,8 @@
       },
     },
     "packages/vite-plugin": {
-      "name": "@veltra/vite-plugin",
-      "version": "1.0.5",
+      "name": "@veltra/vite",
+      "version": "1.0.0",
       "devDependencies": {
         "@types/node": "^22.0.0",
         "@veltra/desktop": "workspace:*",
@@ -184,7 +184,7 @@
         "vue-router": "^5.0.4",
       },
       "devDependencies": {
-        "@veltra/vite-plugin": "workspace:*",
+        "@veltra/vite": "workspace:*",
         "sass-embedded": "^1.99.0",
         "typescript": "^6.0.2",
         "unplugin-vue-components": "^32.0.0",
@@ -691,7 +691,7 @@
 
     "@veltra/utils": ["@veltra/utils@workspace:packages/utils"],
 
-    "@veltra/vite-plugin": ["@veltra/vite-plugin@workspace:packages/vite-plugin"],
+    "@veltra/vite": ["@veltra/vite@workspace:packages/vite-plugin"],
 
     "@vitejs/devtools-kit": ["@vitejs/devtools-kit@0.1.13", "https://registry.npmmirror.com/@vitejs/devtools-kit/-/devtools-kit-0.1.13.tgz", { "dependencies": { "@vitejs/devtools-rpc": "0.1.13", "birpc": "^4.0.0", "ohash": "^2.0.11" }, "peerDependencies": { "vite": "*" } }, "sha512-8TqyrrPTB8KNGb2ukVHNo4aMhGYJgUypVNMnqOvxaWYln3QAXK6CFxifK3lZGOHWKAUqWAiTmZUsYzV4S0Kn7g=="],
 
