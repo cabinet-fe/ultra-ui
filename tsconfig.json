@@ -2,7 +2,6 @@
   "files": [],
   "references": [
     { "path": "./tools/cli/tsconfig.json" },
-    { "path": "./tools/build/tsconfig.json" },
     { "path": "./packages/utils/tsconfig.json" },
     { "path": "./packages/styles/tsconfig.json" },
     { "path": "./packages/compositions/tsconfig.json" },
@@ -10,6 +9,7 @@
     { "path": "./packages/desktop/tsconfig.json" },
     { "path": "./packages/mobile/tsconfig.json" },
     { "path": "./packages/icons/tsconfig.json" },
+    { "path": "./packages/vite-plugin/tsconfig.json" },
     { "path": "./tsconfig.node.json" }
   ]
 }

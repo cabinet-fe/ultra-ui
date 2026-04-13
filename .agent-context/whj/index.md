@@ -17,3 +17,4 @@
 - [x] [全局类型与质量问题扫荡](./done/plan-17-20260410/plan.md)
 - [x] [packages 版本 1.0.0 与 Changesets 发布范围（除 mobile）](./done/plan-18-20260410/plan.md)
 - [x] [发布时展开内部 workspace 依赖版本](./done/plan-19-20260413/plan.md)
+- [x] [统一 @veltra/utils 类型导入](./done/plan-20-20260413/plan.md)

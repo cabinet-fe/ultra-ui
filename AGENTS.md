@@ -19,17 +19,17 @@ bun run format                               # oxfmt
 
 ## 技术栈
 
-| 类别      | 技术                                                                                                        | 版本          |
-| --------- | ----------------------------------------------------------------------------------------------------------- | ------------- |
-| 框架      | Vue 3 (Composition API + `<script setup>`)                                                                  | ^3.5.32       |
-| 语言      | TypeScript                                                                                                  | ^6.0          |
-| 运行时    | Bun                                                                                                         | -             |
-| 构建      | tsdown + Rolldown                                                                                           | -             |
-| 样式      | SCSS + BEM + CSS 变量                                                                                       | sass-embedded |
-| 测试      | Vitest                                                                                                      | ^4.1          |
-| 格式化    | oxfmt + oxlint                                                                                              | -             |
-| Monorepo  | Turborepo + workspaces                                                                                      | -             |
-| Git Hooks | simple-git-hooks (commit-msg)                                                                               | -             |
+| 类别      | 技术                                                                                                      | 版本          |
+| --------- | --------------------------------------------------------------------------------------------------------- | ------------- |
+| 框架      | Vue 3 (Composition API + `<script setup>`)                                                                | ^3.5.32       |
+| 语言      | TypeScript                                                                                                | ^6.0          |
+| 运行时    | Bun                                                                                                       | -             |
+| 构建      | tsdown + Rolldown                                                                                         | -             |
+| 样式      | SCSS + BEM + CSS 变量                                                                                     | sass-embedded |
+| 测试      | Vitest                                                                                                    | ^4.1          |
+| 格式化    | oxfmt + oxlint                                                                                            | -             |
+| Monorepo  | Turborepo + workspaces                                                                                    | -             |
+| Git Hooks | simple-git-hooks (commit-msg)                                                                             | -             |
 | 核心依赖  | `@cat-kit/core`（日期/数值/定时器、树结构等数据结构）、`@cat-kit/be`（CLI/构建）、`@veltra/icons`（图标） | peer / deps   |
 
 ## 目录结构
@@ -45,7 +45,6 @@ ultra-ui/
 │   ├── icons/           # @veltra/icons — SVG 图标组件（→ AGENTS.md）
 │   └── mobile/          # @veltra/mobile — 移动端（占位，暂无内容）
 ├── tools/
-│   ├── build/           # 构建流水线（→ AGENTS.md）
 │   └── cli/             # 开发辅助 CLI 工具（→ AGENTS.md）
 ├── playgrounds/
 │   └── desktop/         # 组件开发预览应用（→ AGENTS.md）
@@ -76,8 +75,8 @@ ultra-ui/
 
 ## 路径别名
 
-| 别名                     | 指向                        |
-| ------------------------ | --------------------------- |
+| 别名                   | 指向                        |
+| ---------------------- | --------------------------- |
 | `@veltra/utils`        | `packages/utils/src`        |
 | `@veltra/styles`       | `packages/styles/src`       |
 | `@veltra/desktop`      | `packages/desktop/src`      |

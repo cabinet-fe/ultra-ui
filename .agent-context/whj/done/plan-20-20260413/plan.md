@@ -19,5 +19,9 @@
 - `packages/desktop/src/types/**`、`packages/desktop/src/components/form-item/helper.ts`、`packages/desktop/src/components/grid/use-responsive.ts`、`packages/desktop/src/components/table/table-foot.vue`：类型导入改为 `@veltra/utils`。
 - `packages/compositions/src/use-config/index.ts`、`use-fallback-props/index.ts`、`use-form-component/index.ts`：同上。
 - `tools/cli/gen-component/render-file.ts`：模板中的类型导入改为 `@veltra/utils`。
+- `packages/icons/scripts/gen-vue-icons.ts`：图标 SFC 生成不再输出根 `svg` 的 `width`/`height`。
+- `packages/icons/src/vue/normal/*.vue`、`packages/icons/src/vue/colorful/*.vue`：随 `icons:gen` 全量重生成。
 
 ## 历史补丁
+
+- patch-1: 图标 Vue 生成移除根 svg 宽高
