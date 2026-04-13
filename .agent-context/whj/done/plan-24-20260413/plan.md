@@ -1,6 +1,6 @@
 # 创建 use-compositions 和 use-styles-theme 文档型技能
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -8,11 +8,12 @@
 
 ## 内容
 
-### 1. 创建 use-compositions 技能
+### 1. 创建 veltra-compositions 技能
 
 目录结构：
+
 ```
-.agents/skills/use-compositions/
+skills/veltra-compositions/
 ├── SKILL.md                    # 函数目录、API 签名速查、使用场景（≤300 行）
 ├── scripts/
 │   └── sync-docs.ts            # 同步脚本：从 compositions/src/ 各子目录的 index.ts 提取完整源码
@@ -24,6 +25,7 @@
 ```
 
 **SKILL.md 内容**：
+
 - frontmatter：触发词包括"组合式函数、composable、useModel、usePop、useVirtual、表单回退"等
 - 函数速查表（函数名 | 用途 | 关键参数 | 返回值），14 行
 - 导入约定（`import { useXxx } from '@veltra/compositions'`）
@@ -32,17 +34,19 @@
 **同步脚本**：读取 `packages/compositions/src/` 下每个子目录的所有 `.ts` 文件完整源码，按函数名组织输出到 `api-reference.md`。
 
 **usage-patterns.md**：
+
 - useModel 的 local vs proxy 模式，附 desktop 中 input/select 组件的实际调用代码
 - useFallbackProps 的三级回退链（组件 props → 表单 context → 全局 config），附实际组件示例
 - usePop 的浮层定位集成，附 select/dropdown 组件的实际调用
 - useVirtual 的虚拟滚动集成，附 tree/list 组件的实际调用
 - useTransition 的 CSS vs Style 模式，附 dialog/drawer 组件的实际调用
 
-### 2. 创建 use-styles-theme 技能
+### 2. 创建 veltra-styles 技能
 
 目录结构：
+
 ```
-.agents/skills/use-styles-theme/
+skills/veltra-styles/
 ├── SKILL.md                    # 主题系统架构、BEM 速查、SCSS 导入约定（≤300 行）
 ├── scripts/
 │   └── sync-docs.ts            # 同步脚本：从 styles/src/ 提取 SCSS 和 TS 源码
@@ -56,6 +60,7 @@
 ```
 
 **SKILL.md 内容**：
+
 - frontmatter：触发词包括"主题、样式、BEM、CSS 变量、深色模式、SCSS、theme"等
 - 主题系统架构概述：Theme 类型 → UITheme 实例 → CSS 变量注入 → SCSS 消费
 - BEM 命名速查：`@include m.b(name)` → `.u-name`、`@include m.e(el)` → `&__el`、`@include m.m(mod)` → `&--mod`、`@include m.is(state)` → `.is-state`
@@ -64,11 +69,13 @@
 - TS 主题 API 速查：`loadTheme()` / `setTheme('dark')` / `UITheme.new(partial)` / `currentTheme`
 
 **同步脚本**：
+
 - 读取 `_mixins.scss`、`_functions.scss`、`_vars.scss` 完整源码 → `scss-api.md`
 - 读取 `theme/type.ts`、`theme/light.ts`、`theme/dark.ts` → `theme-tokens.md`
 - 读取 `theme/ui-theme.ts`、`load-theme.ts`、`theme/helper.ts` → `theme-ts-api.md`
 
 **theming-guide.md**：
+
 - 快速开始：`loadTheme()` 一行代码启用默认主题
 - 深色模式：`setTheme('dark'|'light'|'auto')` + CSS `@include m.dark()` 适配
 - 自定义主题：`lightTheme.new({ color: { primary: '#xxx' } })` 扩展预设
@@ -78,9 +85,26 @@
 ### 3. 注册同步命令
 
 在根 `package.json` 添加：
-- `"sync-use-compositions": "bun .agents/skills/use-compositions/scripts/sync-docs.ts"`
-- `"sync-use-styles-theme": "bun .agents/skills/use-styles-theme/scripts/sync-docs.ts"`
+
+- `"sync-veltra-compositions": "bun skills/veltra-compositions/scripts/sync-docs.ts"`
+- `"sync-veltra-styles": "bun skills/veltra-styles/scripts/sync-docs.ts"`
 
 ## 影响范围
 
+- `skills/veltra-compositions/SKILL.md`
+- `skills/veltra-compositions/scripts/sync-docs.ts`
+- `skills/veltra-compositions/generated/manifest.json`
+- `skills/veltra-compositions/generated/api-reference.md`
+- `skills/veltra-compositions/references/usage-patterns.md`
+- `skills/veltra-styles/SKILL.md`
+- `skills/veltra-styles/scripts/sync-docs.ts`
+- `skills/veltra-styles/generated/manifest.json`
+- `skills/veltra-styles/generated/theme-tokens.md`
+- `skills/veltra-styles/generated/scss-api.md`
+- `skills/veltra-styles/generated/theme-ts-api.md`
+- `skills/veltra-styles/references/theming-guide.md`
+- `package.json`
+
 ## 历史补丁
+
+- patch-1: plan-24 审查后续修补（usage-patterns 补 tree 虚拟化、SKILL 延伸阅读、列表 Markdown）

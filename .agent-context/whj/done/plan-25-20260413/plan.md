@@ -1,6 +1,6 @@
 # 创建 use-utils 和 use-directives 文档型技能
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -8,11 +8,12 @@
 
 ## 内容
 
-### 1. 创建 use-utils 技能
+### 1. 创建 veltra-utils 技能
 
 目录结构：
+
 ```
-.agents/skills/use-utils/
+skills/veltra-utils/
 ├── SKILL.md                    # 工具函数目录、导入约定（≤200 行）
 ├── scripts/
 │   └── sync-docs.ts            # 同步脚本：从 utils/src/ 提取完整源码
@@ -25,6 +26,7 @@
 ```
 
 **SKILL.md 内容**：
+
 - frontmatter：触发词包括"工具函数、BEM、DOM、校验、Validator、z-index、类名"等
 - 按模块分组的函数目录：
   - DOM（addClass/removeClass, getScrollParents, scrollIntoContainerView, withUnit, setStyles/removeStyles, zIndex, getHighlightChunks）
@@ -39,15 +41,17 @@
 **同步脚本**：逐文件读取 `packages/utils/src/` 下所有 `.ts` 文件完整源码。按模块目录组织输出：`dom/*.ts` → DOM 章节、`form/*.ts` → 表单章节、`helper/*.ts` → 辅助章节、`reactive/*.ts` → 响应式章节、`shared/*.ts` + `types/*.ts` → shared-types.md。
 
 **bem-guide.md**：
+
 - `bem` 实例的完整 API（`bem.b()`, `bem.e()`, `bem.m()`, `bem.is()` 等方法签名和返回值）
 - 在组件 `.vue` 中使用 BEM 类名的典型模式（从 desktop 组件 button.vue 等提取真实代码）
 - `makeBEM` 自定义前缀工厂
 
-### 2. 创建 use-directives 技能
+### 2. 创建 veltra-directives 技能
 
 目录结构：
+
 ```
-.agents/skills/use-directives/
+skills/veltra-directives/
 ├── SKILL.md                    # 指令目录、用法速查（≤150 行）
 ├── scripts/
 │   └── sync-docs.ts            # 同步脚本
@@ -57,6 +61,7 @@
 ```
 
 **SKILL.md 内容**：
+
 - frontmatter：触发词包括"指令、directive、vFocus、vClickOutside、vRipple、水波纹、点击外部、聚焦"等
 - 3 个指令的快速用法（每个 5-8 行示例代码）：
   - `vFocus`：`<input v-focus />` 或 `<div v-focus>` 容器内自动查找 input
@@ -70,9 +75,22 @@
 ### 3. 注册同步命令
 
 在根 `package.json` 添加：
-- `"sync-use-utils": "bun .agents/skills/use-utils/scripts/sync-docs.ts"`
-- `"sync-use-directives": "bun .agents/skills/use-directives/scripts/sync-docs.ts"`
+
+- `"sync-veltra-utils": "bun skills/veltra-utils/scripts/sync-docs.ts"`
+- `"sync-veltra-directives": "bun skills/veltra-directives/scripts/sync-docs.ts"`
 
 ## 影响范围
+
+- `skills/veltra-utils/SKILL.md`
+- `skills/veltra-utils/scripts/sync-docs.ts`
+- `skills/veltra-utils/references/bem-guide.md`
+- `skills/veltra-utils/generated/manifest.json`
+- `skills/veltra-utils/generated/api-reference.md`
+- `skills/veltra-utils/generated/shared-types.md`
+- `skills/veltra-directives/SKILL.md`
+- `skills/veltra-directives/scripts/sync-docs.ts`
+- `skills/veltra-directives/generated/manifest.json`
+- `skills/veltra-directives/generated/api-reference.md`
+- `package.json`（新增 `sync-veltra-utils`、`sync-veltra-directives` 脚本）
 
 ## 历史补丁

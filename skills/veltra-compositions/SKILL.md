@@ -1,29 +1,106 @@
 ---
 name: veltra-compositions
-description: 面向 `@veltra/compositions` 的 Vue 3 composition 文档技能。用于理解或修改 `useConfig`、`useModel`、`useFormComponent`、`useFormFallbackProps`、`usePop`、`useVirtual`、`useTransition` 等通用组合式逻辑，或在 `@veltra/desktop` 组件中追踪共享状态、表单上下文、浮层定位与虚拟列表行为时使用。
+description: >
+  @veltra/compositions 组合式函数（composable）文档与源码镜像。
+  当实现或重构涉及组合式函数、composable、useModel、usePop、useVirtual、
+  表单回退（useFallbackProps / useFormFallbackProps）、useConfig、
+  useTransition、useDrag、useFocus、浮层定位、虚拟滚动、更新锁等逻辑时使用。
+  详细实现请读 generated/api-reference.md；集成模式见 references/usage-patterns.md。
 ---
 
-# Veltra Compositions
+# veltra-compositions
 
-## 先选参考面
+## 生成物
 
-- 需要先在消费项目里定位 `@veltra/compositions` 的源码、类型声明或安装产物时，读取 [references/source-discovery.md](references/source-discovery.md)
-- 需要查模块清单和源码入口时，读取 [references/api-map.md](references/api-map.md)
-- 需要套现有模式写新 hook 或排查交互链路时，读取 [references/patterns.md](references/patterns.md)
+| 文件 | 内容 |
+|------|------|
+| [generated/api-reference.md](generated/api-reference.md) | 各 `use-*` 子目录下全部 `.ts` 源码 |
+| [generated/manifest.json](generated/manifest.json) | 同步时间与模块文件列表 |
+| [references/usage-patterns.md](references/usage-patterns.md) | desktop 中的真实调用片段 |
 
-## 用本 skill 时优先记住
+运行 `bun run sync-veltra-compositions`（根 `package.json`）可重新生成 `generated/`。
 
-- 这是 Vue 3 组合式逻辑层，不负责样式资源
-- 公共逻辑优先沉淀在这里，而不是复制进单个组件目录
-- 依赖边界是 `vue`、`@cat-kit/core`、`@veltra/utils`，不要把 `desktop` 组件语义反向塞进来
-- 表单、浮层、虚拟列表是最常见复用场景
+## 导入约定
 
-## 快速源码锚点
+```typescript
+import {
+  useModel,
+  usePop,
+  useVirtual,
+  useTransition,
+  useFallbackProps,
+  useFormFallbackProps,
+  useFormComponent,
+  useConfig,
+  useComponentProps,
+  useDrag,
+  useFocus,
+  useReactiveSize,
+  useResizeObserver,
+  useObserverCallback,
+  useUpdateLock
+} from '@veltra/compositions'
+```
 
-- `packages/compositions/src/index.ts`
-- `packages/compositions/src/use-config/index.ts`
-- `packages/compositions/src/use-model/index.ts`
-- `packages/compositions/src/use-form-component/index.ts`
-- `packages/compositions/src/use-fallback-props/index.ts`
-- `packages/compositions/src/use-pop/index.ts`
-- `packages/compositions/src/use-virtual/index.ts`
+按需只引入用到的函数即可；无默认导出。
+
+## 函数速查（14）
+
+| 函数 | 用途 | 关键参数 / 行为 | 返回值要点 |
+|------|------|-----------------|------------|
+| `useModel` | 自定义 v-model（非 `defineModel` 场景） | `propName`、`local`（bool 或函数）、`shallow` | 类 ref 的 `{ value }` |
+| `useUpdateLock` | 防止更新环路 | 无 | `{ update, updateAndLock }` |
+| `useDrag` | 拖拽（如对话框标题栏） | 目标 ref、边界等 | 拖拽状态与控制 |
+| `useFocus` | 焦点与 hover 语义 | 回调 | `focus`、`handleFocus`、`handleBlur` 等 |
+| `useTransition` | 过渡：`css` 或 `style` | `target`、`name` / style 关键帧 | `enter`、`leave` |
+| `usePop` | Popper 定位 | `triggerRef`、`contentRef`、`direction` | `update`、`popperContainerId` |
+| `useReactiveSize` | 响应式测量尺寸 | 元素 / 尺寸源 | 尺寸 ref |
+| `useResizeObserver` / `useObserverCallback` | `ResizeObserver` 与回调辅助 | 监听目标、选项 | 见 `use-resize-observer` 源码 |
+| `useVirtual` | 虚拟列表 | `count`、`scrollEl`、`estimateSize` | `virtualList`、`measureElement` 等 |
+| `useFallbackProps` | props → 全局 config 回退 | 源对象数组、默认值表 | 各字段 ref |
+| `useFormFallbackProps` | 表单场景三级回退 | `[formProps, props]` + 默认值 | 同上 |
+| `useFormComponent` | 表单 provide / inject | 父级传入 `props`；子级无参 | `formProps`、`inForm` 等 |
+| `useConfig` | 全局文档/尺寸等配置 | 读配置 | `config` 等 |
+| `useComponentProps` | 规范化组件 props | 视具体 API | 见源码 |
+
+## 按场景选用
+
+### 状态与并发
+
+- **useModel**：需要非 `modelValue` 的 prop 名、或 `local` 函数在受控/非受控间切换（如表格 `current` 行）。
+- **useUpdateLock**：异步更新链上防止重入。
+
+### UI 交互
+
+- **useDrag**、**useFocus**：对话框拖拽、输入框聚焦管理。
+- **useTransition**：浮层、对话框内部需要程序触发 `enter`/`leave` 的过渡（常与 **usePop** 搭配）。
+
+### 布局与列表
+
+- **usePop**：下拉、Tooltip 等浮动层定位。
+- **useReactiveSize**、**useResizeObserver**：随容器变化重算布局。
+- **useVirtual**：大列表、下拉选项、表格体虚拟化。
+
+### 表单
+
+- **useFormComponent**：在 `UForm` 与子控件间同步上下文。
+- **useFormFallbackProps**：表单子组件上统一 `size` / `disabled` / `readonly` 等。
+- **useFallbackProps**：脱离表单时的同一套回退逻辑。
+- **useConfig**：读取全局尺寸等，与 `@veltra/styles` 的 `loadTheme` 协同。
+
+### 组件增强
+
+- **useComponentProps**：对传入 props 做归一化或兼容层（见源码中注释）。
+
+## 延伸阅读（旧版参考文档）
+
+与 `generated/` 镜像互补：源码定位、模块地图与编写模式。
+
+- [references/source-discovery.md](references/source-discovery.md)
+- [references/api-map.md](references/api-map.md)
+- [references/patterns.md](references/patterns.md)
+
+## 维护
+
+- 源码权威位置：`packages/compositions/src/`。
+- 修改 API 后请运行 `bun run sync-veltra-compositions` 更新 `generated/`，以便技能文档与类型保持一致。

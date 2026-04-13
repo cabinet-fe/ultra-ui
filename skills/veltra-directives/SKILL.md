@@ -1,29 +1,78 @@
 ---
 name: veltra-directives
-description: 面向 `@veltra/directives` 的 Vue 自定义指令文档技能。用于理解或修改 `vFocus`、`vClickOutside`、`vRipple` 的绑定契约、文档级事件清理、样式副作用入口与导出约定，或新增需要在 `@veltra/desktop` 中批量复用的指令时使用。
+description: >
+  @veltra/directives Vue 自定义指令文档（vFocus、vClickOutside、vRipple）。
+  当涉及指令、directive、聚焦、点击外部关闭、水波纹、ripple 样式引入时使用。
+  完整源码见 generated/api-reference.md。
 ---
 
-# Veltra Directives
+# veltra-directives
 
-## 先判断你在做什么
+## 生成物
 
-- 需要先在消费项目里定位 `@veltra/directives` 的源码、样式入口或安装产物时，读取 [references/source-discovery.md](references/source-discovery.md)
-- 查现有三条指令行为与 binding 约束时，读取 [references/api.md](references/api.md)
-- 新增或重构指令目录、`style.ts`、exports 与 sideEffects 时，读取 [references/authoring.md](references/authoring.md)
+| 文件 | 内容 |
+|------|------|
+| [generated/api-reference.md](generated/api-reference.md) | 各指令目录下 `.ts` 与 ripple 的 `.scss` 源码 |
+| [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
 
-## 处理指令时保持这些约束
+根目录执行 `bun run sync-veltra-directives` 可重新生成 `generated/`。
 
-- 指令命名使用 `v` + camelCase
-- 导出类型使用 `ObjectDirective`
-- 需要样式时必须提供 `style.ts` 副作用入口
-- 所有 document/window 级监听都要有明确的注册与清理
-- 与样式系统集成时走 `@veltra/styles` 的 Sass 基础设施，不要在这里发明新的样式约定
+## 指令速查
 
-## 快速源码锚点
+### `vFocus`
 
-- `packages/directives/src/index.ts`
-- `packages/directives/src/focus/index.ts`
-- `packages/directives/src/click-outside/index.ts`
-- `packages/directives/src/ripple/index.ts`
-- `packages/directives/src/ripple/ripple.ts`
-- `packages/directives/src/ripple/style.ts`
+挂载时聚焦：可直接用在 `<input>` 上，或用在容器上由指令在内部查找 `input`。
+
+```vue
+<input v-focus />
+<div v-focus>
+  <input />
+</div>
+```
+
+### `vClickOutside`
+
+在元素外按下并点击时触发回调（常用于关闭浮层）。
+
+```vue
+<div v-click-outside="handleClose">...</div>
+```
+
+```ts
+function handleClose() {
+  open.value = false
+}
+```
+
+### `vRipple`
+
+- 默认启用：`<button v-ripple>`
+- 禁用：`<button v-ripple="false">`
+- 自定义动画时长（毫秒，指令 arg）：`<button v-ripple:300>`
+- 自定义波纹元素类名：`<button v-ripple="'my-ripple-class'">`
+
+## 注册方式
+
+**全局**：在消费项目中通常使用根目录 `README.md` 的完整引入方式：`import { UltraUI } from 'ultra-ui/install'` 后 `app.use(UltraUI)`，会注册组件与附带指令（含上述三者）。在 monorepo 内联 `@veltra/desktop` 时，以当前应用使用的安装入口为准。
+
+**按需**：
+
+```typescript
+import { vFocus, vClickOutside, vRipple } from '@veltra/directives'
+
+app.directive('focus', vFocus)
+app.directive('click-outside', vClickOutside)
+app.directive('ripple', vRipple)
+```
+
+（模板中 `v-focus` 对应注册名 `focus`，依此类推。）
+
+## 样式依赖
+
+`vRipple` 依赖波纹样式，按需构建时需单独引入：
+
+```typescript
+import '@veltra/directives/ripple/style'
+```
+
+否则波纹无视觉样式；走 `UltraUI` 全量安装并已引入全量样式时，一般已包含波纹样式链路。

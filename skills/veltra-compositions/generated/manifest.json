@@ -1,0 +1,88 @@
+{
+  "syncedAt": "2026-04-13T09:02:07.622Z",
+  "sourceRoot": "packages/compositions/src",
+  "modules": [
+    {
+      "name": "use-component-props",
+      "files": [
+        "use-component-props/index.ts"
+      ]
+    },
+    {
+      "name": "use-config",
+      "files": [
+        "use-config/index.ts"
+      ]
+    },
+    {
+      "name": "use-drag",
+      "files": [
+        "use-drag/index.ts"
+      ]
+    },
+    {
+      "name": "use-fallback-props",
+      "files": [
+        "use-fallback-props/index.ts"
+      ]
+    },
+    {
+      "name": "use-focus",
+      "files": [
+        "use-focus/index.ts"
+      ]
+    },
+    {
+      "name": "use-form-component",
+      "files": [
+        "use-form-component/index.ts"
+      ]
+    },
+    {
+      "name": "use-lock",
+      "files": [
+        "use-lock/index.ts"
+      ]
+    },
+    {
+      "name": "use-model",
+      "files": [
+        "use-model/index.ts"
+      ]
+    },
+    {
+      "name": "use-pop",
+      "files": [
+        "use-pop/index.ts"
+      ]
+    },
+    {
+      "name": "use-reactive-size",
+      "files": [
+        "use-reactive-size/index.ts"
+      ]
+    },
+    {
+      "name": "use-resize-observer",
+      "files": [
+        "use-resize-observer/index.ts"
+      ]
+    },
+    {
+      "name": "use-transition",
+      "files": [
+        "use-transition/index.ts",
+        "use-transition/type.ts",
+        "use-transition/use-css-transition.ts",
+        "use-transition/use-style-transition.ts",
+        "use-transition/utils.ts"
+      ]
+    },
+    {
+      "name": "use-virtual",
+      "files": [
+        "use-virtual/index.ts"
+      ]
+    }
+  ]
+}

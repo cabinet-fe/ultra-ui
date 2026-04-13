@@ -1,0 +1,20 @@
+{
+  "syncedAt": "2026-04-13T09:02:07.640Z",
+  "outputs": {
+    "theme-tokens.md": [
+      "theme/type.ts",
+      "theme/light.ts",
+      "theme/dark.ts"
+    ],
+    "scss-api.md": [
+      "_mixins.scss",
+      "_functions.scss",
+      "_vars.scss"
+    ],
+    "theme-ts-api.md": [
+      "theme/ui-theme.ts",
+      "load-theme.ts",
+      "theme/helper.ts"
+    ]
+  }
+}

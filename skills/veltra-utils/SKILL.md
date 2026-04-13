@@ -1,38 +1,116 @@
 ---
 name: veltra-utils
-description: 面向 `@veltra/utils` 的底层工具、共享常量与类型文档技能。用于追踪 BEM/class-name、DOM helper、表单校验、响应式辅助、共享类型与子路径导出，或在修改 `@veltra/compositions`、`@veltra/directives`、`@veltra/desktop` 时需要回到基础能力层定位实现与边界时使用。
+description: >
+  @veltra/utils 工具函数与共享类型文档。
+  当涉及工具函数、BEM、类名、DOM 操作、滚动、高亮、z-index、表单校验、Validator、
+  补间 Tween、帧回调、浅计算、响应式 middleProxy、命名空间常量、ComponentSize、
+  FormComponentProps 等时使用。详细源码见 generated/api-reference.md 与
+  generated/shared-types.md；BEM 用法见 references/bem-guide.md。
 ---
 
-# Veltra Utils
+# veltra-utils
 
-## 先判断任务落点
+## 生成物
 
-优先在这些场景使用本 skill：
+| 文件 | 内容 |
+|------|------|
+| [generated/api-reference.md](generated/api-reference.md) | `dom/`、`form/`、`helper/`、`reactive/` 与根 `index.ts` 源码 |
+| [generated/shared-types.md](generated/shared-types.md) | `shared/`、`types/` 下全部 `.ts` 源码 |
+| [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
+| [references/bem-guide.md](references/bem-guide.md) | `bem` / `makeBEM` API 与组件内用法 |
 
-- 修改或排查 `@veltra/utils` 的 public export、shared constant、type export
-- 需要理解 `bem()`、`bem.is()`、`FORM_EMPTY_CONTENT`、`Validator`、DOM helper 的真实行为
-- 在上层包里遇到基础类型或 helper 的来源不明，需要追溯到 `packages/utils/src`
+根目录执行 `bun run sync-veltra-utils` 可重新生成 `generated/`。
 
-如果任务主要是 Sass token、主题注入或 `pkg:@veltra/styles/...`，改用 `veltra-styles`。
+## 导入约定
 
-## 按需读取 references
+```typescript
+import {
+  bem,
+  addClass,
+  removeClass,
+  getScrollParents,
+  scrollIntoContainerView,
+  withUnit,
+  setStyles,
+  removeStyles,
+  zIndex,
+  getHighlightChunks,
+  Validator,
+  makeBEM,
+  createIncrease,
+  createToggle,
+  Tween,
+  nextFrame,
+  shallowComputed,
+  isTextNode,
+  isFragment,
+  isComment,
+  isTemplate,
+  extractNormalVNodes,
+  middleProxy
+} from '@veltra/utils'
 
-- 先读 [references/source-discovery.md](references/source-discovery.md)：当 skill 被复制到其它项目，需要先定位 `@veltra/utils` 的源码、声明文件或安装产物时
-- 先读 [references/api-map.md](references/api-map.md)：需要知道导出面、子路径、源码入口时
-- 再读 [references/patterns.md](references/patterns.md)：需要扩展 helper、保持依赖边界、复用现有模式时
+import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
+```
 
-## 遵守这些约束
+按需引入即可；无默认导出。共享常量与部分类型也可从 `@veltra/utils/shared` 引用。
 
-- 把 `@veltra/utils` 视为最低层 workspace 包，不要反向依赖 `@veltra/compositions`、`@veltra/styles`、`@veltra/desktop`
-- 把样式系统留在 `@veltra/styles`；`utils` 只放 TS helper、shared constant、type
-- 保持导出可 tree-shake，避免无必要副作用
-- 新增能力时先复用现有目录语义：`dom/`、`helper/`、`form/`、`reactive/`、`shared/`、`types/`
+## 按目录的函数速查
 
-## 快速源码锚点
+### DOM
 
-- `packages/utils/src/index.ts`
-- `packages/utils/src/dom/class-name.ts`
-- `packages/utils/src/helper/make-bem.ts`
-- `packages/utils/src/form/validate.ts`
-- `packages/utils/src/types/component-common.ts`
-- `packages/utils/src/shared/constants.ts`
+| 符号 | 用途 |
+|------|------|
+| `addClass` / `removeClass` | 元素 class 增删 |
+| `getScrollParents` | 可滚动祖先链 |
+| `scrollIntoContainerView` | 在容器内滚入视区 |
+| `withUnit` | 数值补单位 |
+| `setStyles` / `removeStyles` | 行内样式批量设置/清理 |
+| `zIndex` | 全局 z-index 栈 |
+| `getHighlightChunks` | 文本高亮分片 |
+| `bem` | 默认 `u-` 前缀的 BEM 工厂（见 [bem-guide.md](references/bem-guide.md)） |
+
+### 表单校验
+
+| 符号 | 用途 |
+|------|------|
+| `Validator` | 表单校验器 |
+
+### 辅助
+
+| 符号 | 用途 |
+|------|------|
+| `makeBEM` | 自定义前缀 BEM 工厂 |
+| `createIncrease` / `createToggle` | 递增 id、布尔切换 |
+| `Tween` | 补间 |
+| `nextFrame` | `requestAnimationFrame` 封装 |
+| `shallowComputed` | 浅层 computed 辅助 |
+
+### Vue 辅助
+
+| 符号 | 用途 |
+|------|------|
+| `isTextNode` / `isFragment` / `isComment` / `isTemplate` | 节点类型判断 |
+| `extractNormalVNodes` | 规范化 vnode 列表 |
+
+### 响应式
+
+| 符号 | 用途 |
+|------|------|
+| `middleProxy` | 中间层代理工具 |
+
+### 常量（`@veltra/utils/shared`）
+
+| 符号 | 用途 |
+|------|------|
+| `NAME_SPACE` / `CLS_PREFIX` | 类名前缀 |
+| `FORM_EMPTY_CONTENT` | 表单只读占位展示 |
+
+## 共享类型速查
+
+常用类型定义在 `types/` 中镜像于 [shared-types.md](generated/shared-types.md)，例如：
+
+- `ComponentSize`、`ColorType`（见 `types/component-common.ts`）
+- `FormComponentProps` 及表单上下文类型（见 `types/form-context.ts` 等）
+
+具体字段以生成文件中的源码为准。

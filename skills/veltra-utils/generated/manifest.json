@@ -1,0 +1,54 @@
+{
+  "syncedAt": "2026-04-13T09:08:38.661Z",
+  "sourceRoot": "packages/utils/src",
+  "apiReference": [
+    {
+      "section": "包入口",
+      "files": [
+        "index.ts"
+      ]
+    },
+    {
+      "section": "DOM",
+      "files": [
+        "dom/class-name.ts",
+        "dom/highlight.ts",
+        "dom/position.ts",
+        "dom/style.ts",
+        "dom/z-index.ts"
+      ]
+    },
+    {
+      "section": "表单校验",
+      "files": [
+        "form/validate.ts"
+      ]
+    },
+    {
+      "section": "辅助",
+      "files": [
+        "helper/create-increase.ts",
+        "helper/create-toggle.ts",
+        "helper/frame.ts",
+        "helper/make-bem.ts",
+        "helper/tween.ts",
+        "helper/vue.ts"
+      ]
+    },
+    {
+      "section": "响应式",
+      "files": [
+        "reactive/proxy.ts"
+      ]
+    }
+  ],
+  "sharedTypes": [
+    "shared/constants.ts",
+    "shared/index.ts",
+    "types/component-common.ts",
+    "types/form-context.ts",
+    "types/helper.ts",
+    "types/index.ts",
+    "types/utils/form/validate.ts"
+  ]
+}

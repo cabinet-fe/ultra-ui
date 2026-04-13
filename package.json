@@ -31,7 +31,11 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter='@veltra/*' --filter='!@veltra/mobile' && bun tools/cli/release/with-resolved-workspace-versions.ts changeset publish",
-    "sync-veltra-desktop": "bun skills/veltra-desktop/scripts/sync-docs.ts"
+    "sync-veltra-desktop": "bun skills/veltra-desktop/scripts/sync-docs.ts",
+    "sync-veltra-compositions": "bun skills/veltra-compositions/scripts/sync-docs.ts",
+    "sync-veltra-styles": "bun skills/veltra-styles/scripts/sync-docs.ts",
+    "sync-veltra-utils": "bun skills/veltra-utils/scripts/sync-docs.ts",
+    "sync-veltra-directives": "bun skills/veltra-directives/scripts/sync-docs.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.3",

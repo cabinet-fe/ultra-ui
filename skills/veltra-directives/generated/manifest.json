@@ -1,0 +1,33 @@
+{
+  "syncedAt": "2026-04-13T09:08:38.676Z",
+  "sourceRoot": "packages/directives/src",
+  "directives": [
+    {
+      "name": "包入口",
+      "files": [
+        "index.ts"
+      ]
+    },
+    {
+      "name": "vFocus",
+      "files": [
+        "focus/index.ts"
+      ]
+    },
+    {
+      "name": "vClickOutside",
+      "files": [
+        "click-outside/index.ts"
+      ]
+    },
+    {
+      "name": "vRipple",
+      "files": [
+        "ripple/index.ts",
+        "ripple/ripple.ts",
+        "ripple/style.scss",
+        "ripple/style.ts"
+      ]
+    }
+  ]
+}
