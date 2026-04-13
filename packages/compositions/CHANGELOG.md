@@ -1,5 +1,13 @@
 # @veltra/compositions
 
+## 1.0.3
+
+### Patch Changes
+
+- Fix published package manifests to strip `exports.development` conditions from npm tarballs during release.
+- Updated dependencies
+  - @veltra/utils@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes

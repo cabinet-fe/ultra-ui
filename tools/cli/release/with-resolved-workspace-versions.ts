@@ -8,6 +8,7 @@ type PackageJson = {
   name?: string
   version?: string
   private?: boolean
+  exports?: unknown
   dependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
   optionalDependencies?: Record<string, string>
@@ -39,6 +40,41 @@ function resolveWorkspaceRange(range: string, version: string) {
     default:
       throw new Error(`暂不支持的 workspace 协议: ${range}`)
   }
+}
+
+/** 发布 tarball 不应携带 Node `development` 条件，否则宿主 Vite 等会优先指向源码路径，易与 unplugin-vue-components 等解析链路冲突。 */
+function stripDevelopmentExportConditions(node: unknown): boolean {
+  if (node === null || typeof node !== 'object') {
+    return false
+  }
+
+  if (Array.isArray(node)) {
+    let changed = false
+
+    for (const item of node) {
+      if (stripDevelopmentExportConditions(item)) {
+        changed = true
+      }
+    }
+
+    return changed
+  }
+
+  const obj = node as Record<string, unknown>
+  let changed = false
+
+  if (Object.hasOwn(obj, 'development')) {
+    delete obj.development
+    changed = true
+  }
+
+  for (const value of Object.values(obj)) {
+    if (stripDevelopmentExportConditions(value)) {
+      changed = true
+    }
+  }
+
+  return changed
 }
 
 async function loadPackageManifests() {
@@ -80,6 +116,10 @@ function rewriteManifest(manifest: Manifest, versionMap: Map<string, string>) {
   }
 
   let changed = false
+
+  if (packageJson.exports !== undefined && stripDevelopmentExportConditions(packageJson.exports)) {
+    changed = true
+  }
 
   for (const field of DEPENDENCY_FIELDS) {
     const deps = packageJson[field]
@@ -152,12 +192,12 @@ async function main() {
 
     if (rewrittenManifests.length > 0) {
       console.log(
-        `已为发布临时展开内部依赖版本: ${rewrittenManifests
+        `已为发布临时改写 package.json（workspace 依赖与/或 exports）: ${rewrittenManifests
           .map((manifest) => manifest.packageJson.name)
           .join(', ')}`
       )
     } else {
-      console.log('未发现需要展开的内部 workspace 依赖')
+      console.log('未发现需要为发布临时改写的内部包清单')
     }
 
     const subprocess = Bun.spawn(publishCommand, {

@@ -30,14 +30,14 @@
 
    Tag 须匹配 **`v主.次.修`**（如 `v1.2.3`）或 **`v主.次.修-预发布`**（如 `v1.2.3-beta.1`）；不要使用 `v1`、无点分段等模糊 tag。Tag **必须指向已 bump 版本后的提交**（与即将发布的 npm 版本一致）。
 
-5. **CI**：工作流 **Release** 会安装依赖、执行 `bun run release`（构建除 `@veltra/mobile` 外的 `@veltra/*`，并在 `changeset publish` 前临时把内部 `workspace:*` 依赖展开为当前包版本），随后创建 GitHub Release：
+5. **CI**：工作流 **Release** 会安装依赖、执行 `bun run release`（构建除 `@veltra/mobile` 外的 `@veltra/*`，并在 `changeset publish` 前临时把内部 `workspace:*` 依赖展开为当前包版本，同时从各包的 `exports` 中移除仅供仓库内联调使用的 `development` 条件），随后创建 GitHub Release：
    - 若存在 `packages/desktop/CHANGELOG.md`（Changesets 在 `version-packages` 后生成），则取文件中 **第一个 `##` 版本段落** 作为 Release 正文；
    - 否则使用 GitHub 自动生成的 Release Notes。
 
 ## 故障与注意
 
 - 若 `npm publish` 失败，工作流会失败，**可能尚未创建 GitHub Release**；修复问题后需重新推送 tag（通常需删除远端 tag 再重建，或改用新 patch 版本号），避免重复发布同一版本到 registry。
-- 发布脚本只会在发布命令执行期间临时改写待发布包的 `package.json`，命令结束后自动恢复仓库里的 `workspace:*` 声明；日常开发与 Version PR 不需要手工改这些依赖协议。
+- 发布脚本只会在发布命令执行期间临时改写待发布包的 `package.json`（内部 `workspace:*` 展开与 `exports` 去掉 `development`），命令结束后自动恢复仓库里的原始清单；日常开发与 Version PR 不需要手工改这些字段。
 - 误推 tag 会触发发布流程；可通过 GitHub 环境与分支保护限制谁可推送 tag。
 
 更细的 changeset 用法见 [.changeset/README.md](.changeset/README.md)。

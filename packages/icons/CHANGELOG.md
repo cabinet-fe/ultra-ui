@@ -1,5 +1,11 @@
 # @veltra/icons
 
+## 1.0.3
+
+### Patch Changes
+
+- Fix published package manifests to strip `exports.development` conditions from npm tarballs during release.
+
 ## 1.0.2
 
 ### Patch Changes
