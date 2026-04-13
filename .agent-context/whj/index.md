@@ -20,3 +20,6 @@
 - [x] [统一 @veltra/utils 类型导入](./done/plan-20-20260413/plan.md)
 - [x] [创建 @veltra/vite 包 — VeltraDesktopUIResolver](./done/plan-21-20260413/plan.md)
 - [x] [新增 UBreadcrumb 面包屑组件](./done/plan-22-20260413/plan.md)
+- [x] [创建 veltra-desktop 文档型技能](./done/plan-23-20260413/plan.md)
+- [ ] [创建 use-compositions 和 use-styles-theme 文档型技能](./plan-24/plan.md)
+- [ ] [创建 use-utils 和 use-directives 文档型技能](./preparing/plan-25/plan.md)

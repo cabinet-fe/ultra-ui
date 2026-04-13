@@ -1,0 +1,120 @@
+{
+  "syncedAt": "2026-04-13T08:49:45.459Z",
+  "totalComponents": 71,
+  "categories": {
+    "form": {
+      "label": "表单",
+      "components": [
+        "form",
+        "form-item",
+        "input",
+        "textarea",
+        "password-input",
+        "number-input",
+        "number-range-input",
+        "select",
+        "multi-select",
+        "cascade",
+        "multi-tree-select",
+        "tree-select",
+        "auto-complete",
+        "checkbox",
+        "checkbox-group",
+        "radio",
+        "radio-group",
+        "switch",
+        "slider",
+        "date-picker",
+        "date-range-picker",
+        "date-panel",
+        "file-picker",
+        "grid-input",
+        "group-input"
+      ]
+    },
+    "data-display": {
+      "label": "数据展示",
+      "components": [
+        "table",
+        "tree",
+        "list",
+        "grid",
+        "paginator",
+        "tag",
+        "badge",
+        "text",
+        "number",
+        "calendar",
+        "gantt-chart",
+        "progress-nodes"
+      ]
+    },
+    "feedback": {
+      "label": "反馈通知",
+      "components": [
+        "message",
+        "notification",
+        "dialog",
+        "drawer",
+        "pop-confirm",
+        "message-confirm",
+        "loading",
+        "progress",
+        "tip",
+        "empty"
+      ]
+    },
+    "navigation": {
+      "label": "导航",
+      "components": [
+        "menu",
+        "breadcrumb",
+        "tabs",
+        "steps",
+        "dropdown",
+        "float-button",
+        "context-menu"
+      ]
+    },
+    "layout": {
+      "label": "布局容器",
+      "components": [
+        "layout",
+        "card",
+        "scroll",
+        "watermark"
+      ]
+    },
+    "editor": {
+      "label": "编辑器",
+      "components": [
+        "code-editor",
+        "rich-text-editor",
+        "expression-editor",
+        "condition-editor",
+        "table-editor",
+        "batch-edit"
+      ]
+    },
+    "general": {
+      "label": "通用",
+      "components": [
+        "button",
+        "icon",
+        "action",
+        "check-tag",
+        "theme",
+        "palette",
+        "node-render"
+      ]
+    }
+  },
+  "sharedTypes": [
+    "animation",
+    "css-transition",
+    "pop",
+    "quick-batch-edit",
+    "multi-auto-complete",
+    "text-editor"
+  ]
+}

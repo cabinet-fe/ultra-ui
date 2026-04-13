@@ -1,6 +1,6 @@
-# 创建 use-desktop 文档型技能
+# 创建 veltra-desktop 文档型技能
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -27,7 +27,7 @@
 ### 2. 设计技能目录结构
 
 ```
-.agents/skills/use-desktop/
+skills/veltra-desktop/
 ├── SKILL.md                          # ≤500 行：分类概览、导入约定、核心开发模式
 ├── scripts/
 │   └── sync-docs.ts                  # 同步脚本
@@ -81,12 +81,12 @@
    ```
    ```
 
-7. **注册命令**：在根 `package.json` 的 `scripts` 中添加 `"sync-use-desktop": "bun .agents/skills/use-desktop/scripts/sync-docs.ts"`。
+7. **注册命令**：在根 `package.json` 的 `scripts` 中添加 `"sync-veltra-desktop": "bun skills/veltra-desktop/scripts/sync-docs.ts"`。
 
 ### 4. 编写 SKILL.md（目标 ≤300 行）
 
 内容结构：
-- **frontmatter**：`name: use-desktop`，`description` 包含触发词：组件库、UI 组件、表单、表格、对话框、选择器等
+- **frontmatter**：`name: veltra-desktop`，`description` 包含触发词：组件库、UI 组件、表单、表格、对话框、选择器等
 - **分类概览**：7 个分类 × 2 行（分类名 + 组件计数 + 指向 `generated/` 文件的链接），~20 行
 - **导入约定**：自动按需导入（resolver 配置，模板中用 `u-kebab-case` 或 `UPascalCase`）、手动导入场景（类型 `import type { XxxProps } from '@veltra/desktop'`、图标 `@veltra/icons/normal`、工具类 `FormModel` 等），~30 行
 - **核心开发模式**（精简要点，每个 5-8 行）：
@@ -112,7 +112,7 @@
 
 ### 6. 执行同步脚本并验证
 
-- 运行 `bun run sync-use-desktop`
+- 运行 `bun run sync-veltra-desktop`
 - 验证 `generated/manifest.json` 中组件数 = 71
 - 抽检 3 个分类文件（form.md、data-display.md、general.md）确认类型定义和示例都已正确填充
 - 检查无 playground 示例的组件是否标注了"暂无示例"
@@ -128,4 +128,26 @@
 
 ## 影响范围
 
+### 新增文件
+- `skills/veltra-desktop/SKILL.md` — 技能主文件（226 行）
+- `skills/veltra-desktop/scripts/sync-docs.ts` — 同步脚本
+- `skills/veltra-desktop/references/dev-patterns.md` — 组件使用模式指南（268 行）
+- `skills/veltra-desktop/generated/catalog.md` — 71 组件完整目录表
+- `skills/veltra-desktop/generated/form.md` — 25 个表单组件类型 + 示例
+- `skills/veltra-desktop/generated/data-display.md` — 12 个数据展示组件
+- `skills/veltra-desktop/generated/feedback.md` — 10 个反馈通知组件
+- `skills/veltra-desktop/generated/navigation.md` — 7 个导航组件
+- `skills/veltra-desktop/generated/layout.md` — 4 个布局容器组件
+- `skills/veltra-desktop/generated/editor.md` — 6 个编辑器组件
+- `skills/veltra-desktop/generated/general.md` — 7 个通用组件
+- `skills/veltra-desktop/generated/shared-types.md` — 共享类型定义
+- `skills/veltra-desktop/generated/manifest.json` — 同步元数据
+
+### 修改文件
+- `package.json` — 添加 `sync-veltra-desktop` 脚本命令
+- `skills/AGENTS.md` — skills 目录级约束文件
+
 ## 历史补丁
+- `patch-1`: 修正 `use-desktop` 技能目录到 `skills/use-desktop`
+- `patch-2`: 将技能内容替换到 `skills/veltra-desktop`
+- `patch-3`: 为 skills/ 目录添加 AGENTS.md 约束
