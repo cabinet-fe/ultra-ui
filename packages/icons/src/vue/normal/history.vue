@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:100e0a587feb690b gen:2 source:src/svg/normal/history.svg -->
+<!-- @veltra/icons generated sha256:100e0a587feb690b gen:4 source:src/svg/normal/history.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'History' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

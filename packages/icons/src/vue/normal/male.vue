@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:8360740e53ac56fb gen:2 source:src/svg/normal/male.svg -->
+<!-- @veltra/icons generated sha256:8360740e53ac56fb gen:4 source:src/svg/normal/male.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Male' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

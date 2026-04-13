@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:a7b62697ba964d90 gen:2 source:src/svg/colorful/unknown-file.svg -->
+<!-- @veltra/icons generated sha256:a7b62697ba964d90 gen:4 source:src/svg/colorful/unknown-file.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UnknownFile' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
     <defs>
       <clipPath id="a"><rect width="16" height="16" rx="0" /></clipPath>
     </defs>

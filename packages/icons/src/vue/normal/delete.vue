@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0a42b9fcf3a20fd4 gen:2 source:src/svg/normal/delete.svg -->
+<!-- @veltra/icons generated sha256:0a42b9fcf3a20fd4 gen:4 source:src/svg/normal/delete.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Delete' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Delete' })
     stroke-linejoin="round"
     stroke-width="1.333"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
   </svg>

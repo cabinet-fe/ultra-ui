@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:507740f6ecaac714 gen:2 source:src/svg/normal/server.svg -->
+<!-- @veltra/icons generated sha256:507740f6ecaac714 gen:4 source:src/svg/normal/server.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Server' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Server' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
     <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />

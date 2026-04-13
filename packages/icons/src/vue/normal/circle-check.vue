@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:f21c5621439c11f4 gen:2 source:src/svg/normal/circle-check.svg -->
+<!-- @veltra/icons generated sha256:f21c5621439c11f4 gen:4 source:src/svg/normal/circle-check.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CircleCheck' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

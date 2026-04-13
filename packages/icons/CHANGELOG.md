@@ -1,5 +1,11 @@
 # @veltra/icons
 
+## 1.0.5
+
+### Patch Changes
+
+- Refresh generated icon components and update icon rendering output.
+
 ## 1.0.4
 
 ## 1.0.3

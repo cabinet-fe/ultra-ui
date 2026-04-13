@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5498e59c9df47b92 gen:2 source:src/svg/normal/minus.svg -->
+<!-- @veltra/icons generated sha256:5498e59c9df47b92 gen:4 source:src/svg/normal/minus.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Minus' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Minus' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <path d="M5 12h14" />
   </svg>

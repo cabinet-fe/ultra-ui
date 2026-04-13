@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:089af0b5ff3e4765 gen:2 source:src/svg/normal/insert-to-prev.svg -->
+<!-- @veltra/icons generated sha256:089af0b5ff3e4765 gen:4 source:src/svg/normal/insert-to-prev.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'InsertToPrev' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'InsertToPrev' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <path d="M16 12H3m13 6H3m7-12H3m18 12V8a2 2 0 0 0-2-2h-5" />
     <path d="m16 8-2-2 2-2" />

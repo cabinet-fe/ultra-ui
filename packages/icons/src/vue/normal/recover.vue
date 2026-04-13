@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:6def58d910a24d57 gen:2 source:src/svg/normal/recover.svg -->
+<!-- @veltra/icons generated sha256:6def58d910a24d57 gen:4 source:src/svg/normal/recover.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Recover' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       d="M6.5 5.793V3h1v4.005c0 .276-.22.495-.495.495H3v-1h2.793L2.146 2.854l.708-.708zm3 4.414V13h-1V8.995c0-.276.22-.495.495-.495H13v1h-2.793l3.647 3.646-.708.708z"

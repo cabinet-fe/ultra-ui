@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:cc5a4e6f7a0adaea gen:2 source:src/svg/normal/sun.svg -->
+<!-- @veltra/icons generated sha256:cc5a4e6f7a0adaea gen:4 source:src/svg/normal/sun.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Sun' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Sun' })
     stroke-linejoin="round"
     stroke-width="1.333"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <circle cx="12" cy="12" r="4" />
     <path

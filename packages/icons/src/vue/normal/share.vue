@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:36ab9ce3925a4475 gen:2 source:src/svg/normal/share.svg -->
+<!-- @veltra/icons generated sha256:36ab9ce3925a4475 gen:4 source:src/svg/normal/share.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Share' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:d0620d02126aa80d gen:2 source:src/svg/normal/folder-opened.svg -->
+<!-- @veltra/icons generated sha256:d0620d02126aa80d gen:4 source:src/svg/normal/folder-opened.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FolderOpened' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:df7559b50c9287ca gen:2 source:src/svg/normal/time.svg -->
+<!-- @veltra/icons generated sha256:df7559b50c9287ca gen:4 source:src/svg/normal/time.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Time' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

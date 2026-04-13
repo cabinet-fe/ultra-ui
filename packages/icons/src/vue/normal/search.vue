@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:1e4d8cb061fab16c gen:2 source:src/svg/normal/search.svg -->
+<!-- @veltra/icons generated sha256:1e4d8cb061fab16c gen:4 source:src/svg/normal/search.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Search' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Search' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <path d="m21 21-4.34-4.34" />
     <circle cx="11" cy="11" r="8" />

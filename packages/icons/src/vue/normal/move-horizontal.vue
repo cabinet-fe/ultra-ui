@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5137d2fa2f966102 gen:2 source:src/svg/normal/move-horizontal.svg -->
+<!-- @veltra/icons generated sha256:5137d2fa2f966102 gen:4 source:src/svg/normal/move-horizontal.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MoveHorizontal' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'MoveHorizontal' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <circle cx="12" cy="9" r="1" />
     <circle cx="19" cy="9" r="1" />

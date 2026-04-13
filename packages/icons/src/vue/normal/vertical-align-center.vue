@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:2d8a66774ac47178 gen:2 source:src/svg/normal/vertical-align-center.svg -->
+<!-- @veltra/icons generated sha256:2d8a66774ac47178 gen:4 source:src/svg/normal/vertical-align-center.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'VerticalAlignCenter' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

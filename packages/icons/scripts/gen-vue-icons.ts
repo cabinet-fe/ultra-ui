@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG_ROOT = join(__dirname, '..')
 
 /** 与模板约定同步递增；变更生成模板时必须 bump，否则 mtime/hash 跳过会漏更新 */
-const GEN_TAG = 'gen:2'
+const GEN_TAG = 'gen:4'
 
 const SOURCES = [
   { glob: 'src/svg/normal/**/*.svg', outDir: 'src/vue/normal', mono: true },
@@ -68,7 +68,7 @@ function serializeSvgAttrs(attrs: Record<string, string>): string {
     if (skip.has(k.toLowerCase())) continue
     parts.push(`${k}="${v.replace(/"/g, '&quot;')}"`)
   }
-  return parts.join(' ')
+  return parts.join('\n    ')
 }
 
 let written = 0
@@ -85,12 +85,12 @@ for (const { glob, outDir, mono } of SOURCES) {
     const outAbs = join(PKG_ROOT, outDir, `${baseName}.vue`)
 
     let inner: string
-    let attrStr: string
+    let svgOpen: string
     try {
       const { attrs, inner: rawInner } = parseSvgRoot(svgRaw)
       inner = mono ? normalizeMonochromeSvgFragment(rawInner) : rawInner
       const rest = serializeSvgAttrs(attrs)
-      attrStr = [rest, 'width="1em"', 'height="1em"'].filter(Boolean).join('\n  ')
+      svgOpen = rest ? `  <svg\n    ${rest}\n  >` : '  <svg>'
     } catch (e) {
       console.error(`parse failed: ${relSvg}`, e)
       process.exit(1)
@@ -101,9 +101,7 @@ for (const { glob, outDir, mono } of SOURCES) {
 defineOptions({ name: '${name}' })
 </script>
 <template>
-  <svg
-  ${attrStr}
-  >
+${svgOpen}
 ${inner.replace(/^/gm, '    ')}
   </svg>
 </template>

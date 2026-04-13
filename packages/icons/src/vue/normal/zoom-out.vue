@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:227c22af84682ff8 gen:2 source:src/svg/normal/zoom-out.svg -->
+<!-- @veltra/icons generated sha256:227c22af84682ff8 gen:4 source:src/svg/normal/zoom-out.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ZoomOut' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'ZoomOut' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <circle cx="11" cy="11" r="8" />
     <path d="m21 21-4.35-4.35M8 11h6" />

@@ -1,9 +1,9 @@
-<!-- @veltra/icons generated sha256:1e31b6f71575ad30 gen:2 source:src/svg/normal/user-circle.svg -->
+<!-- @veltra/icons generated sha256:1e31b6f71575ad30 gen:4 source:src/svg/normal/user-circle.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserCircle' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
       fill="currentColor"
       fill-rule="evenodd"

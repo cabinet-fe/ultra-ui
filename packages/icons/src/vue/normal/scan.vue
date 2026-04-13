@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c4703ae04db741c1 gen:2 source:src/svg/normal/scan.svg -->
+<!-- @veltra/icons generated sha256:c4703ae04db741c1 gen:4 source:src/svg/normal/scan.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Scan' })
 </script>
@@ -11,8 +11,6 @@ defineOptions({ name: 'Scan' })
     stroke-linejoin="round"
     stroke-width="2"
     viewBox="0 0 24 24"
-    width="1em"
-    height="1em"
   >
     <path
       d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2m4-5h10"
