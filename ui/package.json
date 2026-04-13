@@ -1,6 +1,6 @@
 {
   "name": "ultra-ui",
-  "version": "0.4.55",
+  "version": "0.4.56",
   "description": "组件库",
   "type": "module",
   "sideEffects": [
@@ -25,7 +25,7 @@
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.5.3",
     "@codemirror/view": "^6.39.12",
-    "@floating-ui/dom": "^1.7.5",
+    "@floating-ui/dom": "^1.7.6",
     "@lexical/clipboard": "^0.40.0",
     "@lexical/history": "^0.40.0",
     "@lexical/html": "^0.40.0",
@@ -34,14 +34,14 @@
     "@lexical/rich-text": "^0.40.0",
     "@lexical/selection": "^0.40.0",
     "@lexical/utils": "^0.40.0",
-    "@tanstack/vue-virtual": "^3.13.18",
+    "@tanstack/vue-virtual": "^3.13.23",
     "codemirror": "^6.0.2",
     "lexical": "^0.40.0"
   },
   "peerDependencies": {
     "@ultra/icon": "^1.0.1",
     "cat-kit": "^3.7.15",
-    "vue": "^3.5.27"
+    "vue": "^3.5.32"
   },
   "peerDependenciesMeta": {
     "vue": {

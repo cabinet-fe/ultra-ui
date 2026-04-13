@@ -41,6 +41,33 @@
         separator="至"
       />
     </section>
+
+    <section>
+      <h3>autoPair</h3>
+      <p>
+        仅填一侧后点到外部失焦，另一侧会自动与已填值相同，避免
+        <code>[n, undefined]</code> / <code>[undefined, n]</code>。
+      </p>
+      <p>{{ mirrorPartial }}</p>
+      <u-number-range-input v-model="mirrorPartial" auto-pair />
+    </section>
+
+    <section>
+      <h3>元组与子模型同时绑定</h3>
+      <p>
+        两侧输入仍由元组 <code>v-model</code> 驱动；<code>v-model:start</code> /
+        <code>v-model:end</code> 与之保持同步，便于父组件既拿元组又单独监听起止。
+      </p>
+      <p>元组: {{ combined }}；拆分: {{ combinedStart }} / {{ combinedEnd }}</p>
+      <u-number-range-input
+        v-model="combined"
+        v-model:start="combinedStart"
+        v-model:end="combinedEnd"
+        :min="0"
+        :max="100"
+        separator="~"
+      />
+    </section>
   </div>
 </template>
 
@@ -52,6 +79,12 @@ const range = ref<NumberRangeTuple>([undefined, undefined])
 const bounded = ref<NumberRangeTuple>([10, 80])
 const splitStart = ref<number | undefined>(5)
 const splitEnd = ref<number | undefined>(20)
+
+const combined = ref<NumberRangeTuple>([12, 48])
+const combinedStart = ref<number | undefined>(12)
+const combinedEnd = ref<number | undefined>(48)
+
+const mirrorPartial = ref<NumberRangeTuple>([undefined, undefined])
 </script>
 
 <style scoped>

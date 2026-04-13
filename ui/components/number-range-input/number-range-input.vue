@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" :class="className">
+  <div v-if="!readonly" :class="className" @focusout="handleRangeFocusOut">
     <u-number-input
       v-model="startModel"
       :placeholder="startPlaceholder"
@@ -27,17 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  NumberRangeInputEmits,
-  NumberRangeInputProps,
-  NumberRangeTuple
-} from '@ui/types'
-import { UNumberInput } from '../number-input'
-import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
-import { n, obj } from 'cat-kit/fe'
-import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '@ui/types'
+import { bem } from '@ui/utils'
+import { n, obj } from 'cat-kit/fe'
+import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
+
+import { UNumberInput } from '../number-input'
 
 defineOptions({
   name: 'NumberRangeInput'
@@ -48,6 +45,7 @@ const props = withDefaults(defineProps<NumberRangeInputProps>(), {
   endPlaceholder: '请输入',
   separator: '~',
   clearable: true,
+  autoPair: false,
   disabled: undefined,
   readonly: undefined
 })
@@ -59,24 +57,16 @@ const inst = getCurrentInstance()
 function splitBound(): boolean {
   const p = inst?.vnode.props
   if (!p) return false
-  return (
-    'start' in p ||
-    'onUpdate:start' in p ||
-    'end' in p ||
-    'onUpdate:end' in p
-  )
+  return 'start' in p || 'onUpdate:start' in p || 'end' in p || 'onUpdate:end' in p
 }
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const cls = bem('number-range-input')
 
@@ -93,10 +83,7 @@ const endRef = defineModel<number | undefined>('end')
 
 let syncGuard = false
 
-function normalizeFromSplit(
-  s: number | undefined,
-  e: number | undefined
-): NumberRangeTuple {
+function normalizeFromSplit(s: number | undefined, e: number | undefined): NumberRangeTuple {
   let nextS = s
   let nextE = e
   if (nextS !== undefined && nextE !== undefined && nextS > nextE) nextE = nextS
@@ -105,7 +92,7 @@ function normalizeFromSplit(
 
 watch(
   model,
-  t => {
+  (t) => {
     if (syncGuard) return
     syncGuard = true
     const tuple = t ?? [undefined, undefined]
@@ -193,13 +180,7 @@ const endModel = computed({
 })
 
 function formatNumberPart(num: number): string {
-  const {
-    currency,
-    precision,
-    minPrecision,
-    maxPrecision,
-    multiple
-  } = props
+  const { currency, precision, minPrecision, maxPrecision, multiple } = props
 
   const displayValue = multiple ? n.div(num, multiple) : num
 
@@ -230,5 +211,28 @@ const readonlyText = computed(() => {
 
 function emitChange(): void {
   emit('change', model.value ?? [undefined, undefined])
+}
+
+function syncPartialPairOnBlur(): void {
+  if (!props.autoPair || disabled.value || readonly.value) return
+  const cur = model.value ?? [undefined, undefined]
+  const s = cur[0]
+  const e = cur[1]
+  const sOk = s !== undefined
+  const eOk = e !== undefined
+  if (sOk === eOk) return
+  const fill = (sOk ? s : e) as number
+  const normalized = normalizeFromSplit(fill, fill)
+  if (cur[0] === normalized[0] && cur[1] === normalized[1]) return
+  model.value = normalized
+  emitChange()
+}
+
+function handleRangeFocusOut(e: FocusEvent): void {
+  if (!props.autoPair) return
+  const root = e.currentTarget as HTMLElement
+  const related = e.relatedTarget as Node | null
+  if (related && root.contains(related)) return
+  syncPartialPairOnBlur()
 }
 </script>

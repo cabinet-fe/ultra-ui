@@ -8,3 +8,5 @@
 - [x] [Menu 组件动画优化与样式美化](./done/plan-8-20260401/plan.md)
 - [x] [全局默认字体替换为系统字体栈](./done/plan-9-20260401/plan.md)
 - [x] [新增数字范围输入组件（UNumberRangeInput）](./done/plan-10-20260405/plan.md)
+- [x] [Select 下拉列表面板样式优化](./done/plan-11-20260413/plan.md)
+- [x] [区间数字输入（v-model / v-model:start / v-model:end）核验与示例](./done/plan-12-20260413/plan.md)

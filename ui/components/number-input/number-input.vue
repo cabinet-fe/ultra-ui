@@ -45,20 +45,17 @@
 </template>
 
 <script lang="ts" setup>
-import type {
-  NumberInputEmits,
-  NumberInputProps,
-  InputExposed
-} from '@ui/types'
-import { UInput } from '../input'
-import { computed, shallowRef, watch } from 'vue'
-import { n, Tween, obj, isUndef } from 'cat-kit/fe'
-import { ArrowUp, ArrowDown } from '@ultra/icon'
-import { UIcon } from '../icon'
-import { bem } from '@ui/utils'
 import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
 import { vRipple } from '@ui/directives'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import type { NumberInputEmits, NumberInputProps, InputExposed } from '@ui/types'
+import { bem } from '@ui/utils'
+import { ArrowUp, ArrowDown } from '@ultra/icon'
+import { n, Tween, obj, isUndef } from 'cat-kit/fe'
+import { computed, shallowRef, watch } from 'vue'
+
+import { UIcon } from '../icon'
+import { UInput } from '../input'
 
 defineOptions({
   name: 'NumberInput'
@@ -79,24 +76,14 @@ const slots = defineSlots<{
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const inputProps = computed(() => {
-  return obj(props).pick([
-    'clearable',
-    'disabled',
-    'placeholder',
-    'size',
-    'prefix',
-    'suffix'
-  ])
+  return obj(props).pick(['clearable', 'disabled', 'placeholder', 'size', 'prefix', 'suffix'])
 })
 
 const inputRef = shallowRef<InputExposed>()
@@ -153,9 +140,7 @@ const defaultMaxPrecision = computed(() => {
   const { multiple } = props
   // 如果存在倍数，基于原始值计算精度
   const rawValue =
-    multiple && model.value !== undefined
-      ? n.div(model.value, multiple)
-      : model.value
+    multiple && model.value !== undefined ? n.div(model.value, multiple) : model.value
   return Math.max(
     String(rawValue).split('.')[1]?.length ?? 0,
     String(stepVal.value).split('.')[1]?.length ?? 0
@@ -264,7 +249,7 @@ function getValidValue<T extends undefined | number>(val: T): T {
 
 function handleUpdateModelValue(input: string): void {
   const newVal = parseDisplayed(input)
-  model.value = getValidValue(newVal) ?? 0
+  model.value = getValidValue(newVal)
   displayed.value = input
 }
 

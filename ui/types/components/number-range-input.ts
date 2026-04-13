@@ -17,6 +17,11 @@ export interface NumberRangeInputProps
   endPlaceholder?: string
   /** 中间分隔文案 */
   separator?: string
+  /**
+   * 为 true 时，焦点离开整个区间控件后若仅填写了起始或结束之一，
+   * 将另一侧自动设为相同值，避免元组出现一侧为 `undefined`。
+   */
+  autoPair?: boolean
 }
 
 /** 数字范围输入组件事件 */
