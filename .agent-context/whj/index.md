@@ -19,3 +19,4 @@
 - [x] [发布时展开内部 workspace 依赖版本](./done/plan-19-20260413/plan.md)
 - [x] [统一 @veltra/utils 类型导入](./done/plan-20-20260413/plan.md)
 - [x] [创建 @veltra/vite 包 — VeltraDesktopUIResolver](./done/plan-21-20260413/plan.md)
+- [x] [新增 UBreadcrumb 面包屑组件](./done/plan-22-20260413/plan.md)
