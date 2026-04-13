@@ -39,6 +39,7 @@ description: 面向 `@veltra/desktop` 的桌面端组件库文档技能。用于
 - `packages/desktop/src/index.ts`
 - `packages/desktop/src/components/index.ts`
 - `packages/desktop/src/types/index.ts`
+- `packages/desktop/src/components/breadcrumb/breadcrumb.vue`
 - `packages/desktop/src/components/button/button.vue`
 - `packages/desktop/src/components/form/form.vue`
 - `packages/desktop/src/components/select/select.vue`
