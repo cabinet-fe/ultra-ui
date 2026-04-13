@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from '@veltra/desktop'
-import type { TableRow } from '@veltra/desktop/types'
+import type { TableRow } from '@veltra/desktop'
 import { Plus } from '@veltra/icons/normal'
 import { nextTick, shallowRef } from 'vue'
 

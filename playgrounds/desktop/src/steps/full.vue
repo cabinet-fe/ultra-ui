@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ColorType } from '@veltra/desktop/types'
+import type { ColorType } from '@veltra/desktop'
 import { shallowReactive, shallowRef } from 'vue'
 
 const directions = [

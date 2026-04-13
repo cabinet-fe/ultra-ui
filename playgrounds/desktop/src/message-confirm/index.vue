@@ -25,7 +25,6 @@
 
 <script setup lang="ts">
 import { MessageConfirm } from '@veltra/desktop'
-import '@veltra/desktop/components/message-confirm/style.ts'
 import { reactive } from 'vue'
 
 const config = reactive({

@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { ColorType } from '@veltra/desktop/types'
+import type { ColorType } from '@veltra/desktop'
 import { Warning } from '@veltra/icons/normal'
 import { shallowReactive } from 'vue'
 

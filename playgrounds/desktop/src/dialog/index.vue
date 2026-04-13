@@ -58,7 +58,7 @@
 
 <script lang="ts" setup>
 import { useTransition } from '@veltra/compositions'
-import type { ButtonExposed } from '@veltra/desktop/types'
+import type { ButtonExposed } from '@veltra/desktop'
 import { setStyles } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
