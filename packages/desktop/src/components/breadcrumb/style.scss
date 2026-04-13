@@ -1,0 +1,84 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: breadcrumb;
+
+:root {
+  --u-breadcrumb-small: 20px;
+  --u-breadcrumb-default: 22px;
+  --u-breadcrumb-large: 24px;
+}
+
+@include m.b($root-name) {
+  color: fn.use-var(text-color, second);
+  line-height: 1.4;
+
+  @include m.e(list) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  @include m.e(item) {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  @include m.e(separator) {
+    display: flex;
+    align-items: center;
+    margin: 0 fn.use-var(gap, base);
+    color: fn.use-var(text-color, placeholder);
+    user-select: none;
+  }
+
+  @include m.e(inner) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+  }
+
+  @include m.e(link) {
+    color: fn.use-var(text-color, second);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: fn.use-var(radius, small);
+    transition: color 0.15s ease;
+
+    &:hover:not(.is-disabled) {
+      color: fn.use-var(color, primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid fn.use-var(color, primary);
+      outline-offset: 2px;
+    }
+  }
+
+  @include m.bem($root-name, inner) {
+    &.is-current {
+      color: fn.use-var(text-color, main);
+      font-weight: 600;
+      cursor: default;
+    }
+
+    &.is-disabled {
+      color: fn.use-var(text-color, placeholder);
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.size using ($size) {
+    min-height: var(--u-breadcrumb-#{$size});
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.bem($root-name, separator) {
+      margin: 0 calc(fn.use-var(gap, $size) / 2);
+    }
+  }
+}

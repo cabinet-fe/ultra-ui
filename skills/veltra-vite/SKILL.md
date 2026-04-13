@@ -1,28 +1,34 @@
 ---
 name: veltra-vite
-description: 指导在 Vite 中集成 `@veltra/vite`（`VeltraDesktopUIResolver`）与 `unplugin-vue-components`，理解样式副作用路径、`development`/`import` exports 分流、共目录子组件的样式映射。在用户配置或排查 Vite 自动按需组件与样式、对比 playground 与宿主项目差异时使用。
+description: 面向 @veltra/vite 的 Vite 集成文档技能。用于在任意 Vite 项目中接入 VeltraDesktopUIResolver 与 unplugin-vue-components，排查 @veltra/desktop 组件自动导入、样式 sideEffects、development 和 import 条件导出差异，或确认消费项目里 @veltra/vite 安装产物与源码位置时使用。
 ---
 
-# Veltra Vite（@veltra/vite）
+# Veltra Vite
 
-## 权威文档
+## 先判断你在做什么
 
-实现细节、导出表与共目录映射清单以仓库内为准，先读：
+- 需要先在当前项目里定位 `@veltra/vite`、`@veltra/desktop`、安装产物或 workspace 源码时，读取 [references/source-discovery.md](references/source-discovery.md)
+- 需要新增或修正 `vite.config.ts` 里的 resolver 配置、确认依赖与最小接入方式时，读取 [references/integration.md](references/integration.md)
+- 需要排查组件没有自动导入、样式没进来、dev/build 行为不一致、子组件样式映射异常时，读取 [references/troubleshooting.md](references/troubleshooting.md)
+- 需要确认 resolver 的精确契约、`importStyle` 选项和共目录样式映射表时，读取 [references/resolver-contract.md](references/resolver-contract.md)
 
-- `packages/vite/AGENTS.md`
+## 执行时保持这些约束
 
-## 集成要点
+- 把 `@veltra/vite` 当作消费侧集成包，不要假设当前环境一定存在本仓库的 `packages/vite`
+- `VeltraDesktopUIResolver()` 只负责 `@veltra/desktop` 组件自动导入，不负责安装依赖、不负责处理非 `U` 前缀组件
+- 样式副作用默认开启；只有显式传入 `importStyle: false` 时才关闭
+- 样式副作用路径固定指向 `@veltra/desktop/components/<dir>/style`，不要在消费项目里手写 `src` 或 `dist` 路径
+- dev 与 build 的样式解析依赖 `@veltra/desktop` 的条件导出；排错时优先检查被消费包的 `exports`，不要先怀疑 resolver 本身
 
-- **包名**：`@veltra/vite`；源码在 `packages/vite/src/`（`resolver.ts`、`index.ts`）。
-- **peer**：宿主须安装 `@veltra/desktop` 与 `unplugin-vue-components`（版本见包内 `peerDependencies`）。
-- **用法**：在 `vite.config.ts` 中 `import Components from 'unplugin-vue-components/vite'`，`resolvers` 传入 `VeltraDesktopUIResolver()`；可选 `VeltraDesktopUIResolver({ importStyle: false })` 关闭样式副作用。
-- **样式路径**：resolver 的 `sideEffects` 指向 `@veltra/desktop/components/<dir>/style`（无扩展名），由 `@veltra/desktop` 的 `exports` 条件在 **dev**（`development` → 源码 `style.ts` + SCSS/HMR）与 **build**（`import` → `dist` 预编译样式入口）之间切换。
+## 处理跨包问题时顺带查这些 skill
 
-## 本仓库参考实现
+- 组件实现、`style.ts` 入口与组件目录约定：`veltra-desktop`
+- Sass 基础设施、`pkg:@veltra/styles/...` 与主题运行时：`veltra-styles`
 
-- `playgrounds/desktop/vite.config.ts`：`Components({ resolvers: [VeltraDesktopUIResolver()], dts: true })`，以及 SCSS `NodePackageImporter`（`pkg:@veltra/styles/...` 与 playground 的 `AGENTS.md`）。
+## 快速源码锚点
 
-## 跨包排查时顺带读
-
-- 组件与 `style.ts` 约定：`veltra-desktop`
-- 主题与 SCSS 管线：`veltra-styles`
+- `node_modules/@veltra/vite/package.json`
+- `node_modules/@veltra/vite/src/resolver.ts`
+- `node_modules/@veltra/vite/dist/index.mjs`
+- `node_modules/@veltra/vite/dist/index.d.mts`
+- `node_modules/@veltra/desktop/package.json`

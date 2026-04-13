@@ -6,6 +6,8 @@ export * from './badge'
 
 export * from './batch-edit'
 
+export * from './breadcrumb'
+
 export * from './button'
 
 export * from './calendar'

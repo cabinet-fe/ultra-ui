@@ -18,7 +18,7 @@
 
 ### 导航与布局
 
-`action`, `button`, `check-tag`, `float-button`, `icon`, `layout`, `menu`, `paginator`, `scroll`, `steps`, `tabs`
+`action`, `breadcrumb`, `button`, `check-tag`, `float-button`, `icon`, `layout`, `menu`, `paginator`, `scroll`, `steps`, `tabs`
 
 ### 编辑器与复杂交互
 
