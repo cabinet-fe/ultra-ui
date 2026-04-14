@@ -23,3 +23,4 @@
 - [x] [创建 veltra-desktop 文档型技能](./done/plan-23-20260413/plan.md)
 - [x] [创建 use-compositions 和 use-styles-theme 文档型技能](./done/plan-24-20260413/plan.md)
 - [x] [创建 use-utils 和 use-directives 文档型技能](./done/plan-25-20260413/plan.md)
+- [x] [skills 与 playground 瘦身与脚本归集](./done/plan-26-20260414/plan.md)

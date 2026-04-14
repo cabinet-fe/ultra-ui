@@ -3,7 +3,7 @@ name: veltra-directives
 description: >
   @veltra/directives Vue 自定义指令文档（vFocus、vClickOutside、vRipple）。
   当涉及指令、directive、聚焦、点击外部关闭、水波纹、ripple 样式引入时使用。
-  完整源码见 generated/api-reference.md。
+  完整源码见 `generated/groups/*.md` 与 [generated/index.md](generated/index.md)。
 ---
 
 # veltra-directives
@@ -12,10 +12,11 @@ description: >
 
 | 文件 | 内容 |
 |------|------|
-| [generated/api-reference.md](generated/api-reference.md) | 各指令目录下 `.ts` 与 ripple 的 `.scss` 源码 |
+| [generated/index.md](generated/index.md) | 指令组索引 |
+| [generated/groups/](generated/groups/) | 每组一篇（包入口、vFocus、vClickOutside、vRipple 等） |
 | [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
 
-根目录执行 `bun run sync-veltra-directives` 可重新生成 `generated/`。
+根目录执行 `bun run sync-veltra-directives` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
 ## 指令速查
 

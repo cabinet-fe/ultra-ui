@@ -1,9 +1,6 @@
 # Theme tokens（类型与 light/dark 预设）
 
-## `theme/type.ts`
-
 ```typescript
-// 来源: packages/styles/src/theme/type.ts
 /**
  * RGB颜色[红,绿,蓝]
  */
@@ -162,10 +159,9 @@ export type Theme = {
 }
 ```
 
-## `theme/light.ts`
+---
 
 ```typescript
-// 来源: packages/styles/src/theme/light.ts
 import { defineBySize } from './helper'
 import { UITheme } from './ui-theme'
 
@@ -228,10 +224,9 @@ export const lightTheme: UITheme = new UITheme(
 )
 ```
 
-## `theme/dark.ts`
+---
 
 ```typescript
-// 来源: packages/styles/src/theme/dark.ts
 import { lightTheme } from './light'
 
 export const darkTheme = lightTheme.new({
@@ -271,4 +266,3 @@ export const darkTheme = lightTheme.new({
   shadow: { color: 'rgba(255, 255, 255, 0.2)', x: 0, y: 2, blur: 8, spread: 0 }
 })
 ```
-

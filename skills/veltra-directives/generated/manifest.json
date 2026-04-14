@@ -1,33 +1,41 @@
 {
-  "syncedAt": "2026-04-13T09:08:38.676Z",
+  "syncedAt": "2026-04-14T00:53:40.844Z",
   "sourceRoot": "packages/directives/src",
   "directives": [
     {
       "name": "包入口",
+      "slug": "package-entry",
       "files": [
         "index.ts"
-      ]
+      ],
+      "docFile": "groups/package-entry.md"
     },
     {
       "name": "vFocus",
+      "slug": "v-focus",
       "files": [
         "focus/index.ts"
-      ]
+      ],
+      "docFile": "groups/v-focus.md"
     },
     {
       "name": "vClickOutside",
+      "slug": "v-click-outside",
       "files": [
         "click-outside/index.ts"
-      ]
+      ],
+      "docFile": "groups/v-click-outside.md"
     },
     {
       "name": "vRipple",
+      "slug": "v-ripple",
       "files": [
         "ripple/index.ts",
         "ripple/ripple.ts",
         "ripple/style.scss",
         "ripple/style.ts"
-      ]
+      ],
+      "docFile": "groups/v-ripple.md"
     }
   ]
 }

@@ -4,7 +4,7 @@ description: >
   @veltra/utils 工具函数与共享类型文档。
   当涉及工具函数、BEM、类名、DOM 操作、滚动、高亮、z-index、表单校验、Validator、
   补间 Tween、帧回调、浅计算、响应式 middleProxy、命名空间常量、ComponentSize、
-  FormComponentProps 等时使用。详细源码见 generated/api-reference.md 与
+  FormComponentProps 等时使用。详细源码见 `generated/api/*.md` 与
   generated/shared-types.md；BEM 用法见 references/bem-guide.md。
 ---
 
@@ -14,12 +14,12 @@ description: >
 
 | 文件 | 内容 |
 |------|------|
-| [generated/api-reference.md](generated/api-reference.md) | `dom/`、`form/`、`helper/`、`reactive/` 与根 `index.ts` 源码 |
+| [generated/api/](generated/api/) | 按域拆分：`entry.md`、`dom.md`、`form.md`、`helper.md`、`reactive.md` |
 | [generated/shared-types.md](generated/shared-types.md) | `shared/`、`types/` 下全部 `.ts` 源码 |
 | [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
 | [references/bem-guide.md](references/bem-guide.md) | `bem` / `makeBEM` API 与组件内用法 |
 
-根目录执行 `bun run sync-veltra-utils` 可重新生成 `generated/`。
+根目录执行 `bun run sync-veltra-utils` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
 ## 导入约定
 

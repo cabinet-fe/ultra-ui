@@ -1,6 +1,6 @@
 # BEM 类名工具（`bem` / `makeBEM`）
 
-`@veltra/utils` 在运行时通过 `makeBEM(CLS_PREFIX)` 得到默认的 `bem`（前缀为 `u-`，见 `dom/class-name.ts`）。类型定义在 `helper/make-bem.ts`（同步见 `generated/api-reference.md`）。
+`@veltra/utils` 在运行时通过 `makeBEM(CLS_PREFIX)` 得到默认的 `bem`（前缀为 `u-`，见 `dom/class-name.ts`）。类型定义在 `helper/make-bem.ts`（同步见 `generated/api/helper.md`）。
 
 ## `BEM` 实例 API
 

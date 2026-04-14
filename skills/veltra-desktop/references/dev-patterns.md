@@ -132,7 +132,7 @@ const columns = defineTableColumns([
 ### 单元格合并与行展开
 
 参阅 playground `table/merge-cell.vue`（合并）和 `table/expand.vue`（展开）的完整示例，
-对应类型定义见 [data-display.md](../generated/data-display.md) 中 `TableProps` 的 `mergeCell` 和 `expandable` 属性。
+对应类型定义见 [table.md](../generated/components/table.md) 中 `TableProps` 的 `mergeCell` 和 `expandable` 属性。
 
 ## 树组件场景
 
@@ -265,4 +265,4 @@ message.closeAll()
 ### Notification（通知）
 
 通知组件用法类似 message，适用于需要更多内容展示的场景。
-详见 [feedback.md](../generated/feedback.md) 中 `NotificationProps` 类型定义。
+详见 [notification.md](../generated/components/notification.md) 中 `NotificationProps` 类型定义。

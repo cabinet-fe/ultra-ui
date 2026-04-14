@@ -20,7 +20,7 @@ description: >
 | [generated/manifest.json](generated/manifest.json) | 同步时间与输出文件列表 |
 | [references/theming-guide.md](references/theming-guide.md) | 快速开始、暗色、自定义主题、组件 token |
 
-运行 `bun run sync-veltra-styles` 重新生成 `generated/`。
+运行 `bun run sync-veltra-styles` 或 `bun run sync-skills` 重新生成 `generated/`。
 
 ## 主题数据流（概览）
 
@@ -84,4 +84,4 @@ description: >
 ## 维护
 
 - 权威源码：`packages/styles/src/`（SCSS partial 与 `theme/`、`load-theme.ts`）。
-- 变更 token 或主题逻辑后运行 `bun run sync-veltra-styles`，并检查 desktop 组件 SCSS 中的变量名是否仍对齐。
+- 变更 token 或主题逻辑后运行 `bun run sync-veltra-styles` / `sync-skills`，并检查 desktop 组件 SCSS 中的变量名是否仍对齐。

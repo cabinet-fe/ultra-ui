@@ -1,138 +1,99 @@
 <template>
-  <div class="wrapper">
-    <div class="config">
-      <ul>
-        <li v-for="item in configList">
-          <u-checkbox v-model="config[item.key]">{{ item.label }}：{{ item.key }}</u-checkbox>
-        </li>
-        <li>
-          <div>方位：position</div>
-          <u-radio-group
-            radioType="btn"
-            :items="[
-              { label: '上', value: 'top' },
-              { label: '下', value: 'bottom' },
-              { label: '左', value: 'left' },
-              { label: '右', value: 'right' }
-            ]"
-            v-model="config.position"
-          />
-        </li>
-      </ul>
-    </div>
+  <div class="wrap">
+    <ul class="cfg">
+      <li v-for="item in configList" :key="item.key">
+        <u-checkbox v-model="config[item.key]">{{ item.label }}</u-checkbox>
+      </li>
+      <li>
+        <span class="lbl">position</span>
+        <u-radio-group
+          :items="[
+            { label: '上', value: 'top' },
+            { label: '下', value: 'bottom' },
+            { label: '左', value: 'left' },
+            { label: '右', value: 'right' }
+          ]"
+          v-model="config.position"
+        />
+      </li>
+    </ul>
 
-    <CustomCard title="使用和插槽的类型提示">
-      <div @click="console.log('wrap clicked')">
-        <u-tabs
-          v-model:items="items"
-          v-model="active"
-          :position="config.position"
-          :editable="config.editable"
-          :keep-alive="config.keepAlive"
-          @create="items = [...items, { name: 'aaa', key: 'aaa' }]"
-          :style="{ height: config.fixedHeight ? '300px' : '' }"
-        >
-          <!-- <template v-for="item in items" #[item.name]>{{ item }}</template> -->
+    <u-tabs
+      v-model:items="items"
+      v-model="active"
+      :position="config.position"
+      :editable="config.editable"
+      :keep-alive="config.keepAlive"
+      :style="{ height: config.fixedHeight ? '300px' : '' }"
+      @create="onTabCreate"
+    >
+      <template #a>
+        <p>面板 A</p>
+      </template>
+      <template #c>
+        <p>面板 C</p>
+      </template>
+    </u-tabs>
 
-          <template #a>
-            <CompA />
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-            <div>22</div>
-          </template>
-
-          <template #c>
-            <CompB />
-          </template>
-
-          <template #name:a>666</template>
-        </u-tabs>
-      </div>
-    </CustomCard>
-
-    <CustomCard title="弹框中">
-      <u-dialog>
-        <u-tabs
-          v-model:items="items"
-          v-model="active"
-          :position="config.position"
-          :editable="config.editable"
-          :keep-alive="config.keepAlive"
-          :style="{ height: config.fixedHeight ? '300px' : '' }"
-        ></u-tabs>
-
-        <template #trigger>
-          <u-button>打开</u-button>
-        </template>
-      </u-dialog>
-    </CustomCard>
+    <u-dialog>
+      <u-tabs
+        v-model:items="items"
+        v-model="active"
+        :position="config.position"
+        :editable="config.editable"
+        :keep-alive="config.keepAlive"
+        :style="{ height: config.fixedHeight ? '240px' : '' }"
+      />
+      <template #trigger>
+        <u-button>弹层内 Tabs</u-button>
+      </template>
+    </u-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, shallowRef } from 'vue'
+import { reactive, ref, shallowRef } from 'vue'
 
-import CustomCard from '../card/custom-card.vue'
-import CompA from './comp-a.vue'
-import CompB from './comp-b.vue'
-// let items = ref(['TabOne', 'TabTwo', 'TabThree', 'TabFour'])
-
-let items = shallowRef<Array<{ name: string; key: string; disabled?: boolean }>>([])
-
-setTimeout(() => {
-  items.value = [
-    { key: 'a', name: '测试标题1' },
-    { key: 'b', name: '测试标题22', disabled: true },
-    { key: 'c', name: '测试标题333' },
-    { key: 'dd', name: '测试标题4444' }
-  ]
-}, 1000)
+const items = shallowRef([
+  { key: 'a', name: 'Tab A' },
+  { key: 'b', name: 'Tab B', disabled: true },
+  { key: 'c', name: 'Tab C' }
+])
 
 const active = ref<string>('c')
-
-const count = ref(0)
 
 const configList = [
   { label: '可编辑', key: 'editable' },
   { label: '保活', key: 'keepAlive' },
   { label: '固定高度', key: 'fixedHeight' }
-  // { label: '排序', key: 'sortable' }
-]
+] as const
+
 const config = reactive({
   editable: false,
-  sortable: false,
   keepAlive: false,
-  position: 'top' as any,
+  position: 'top' as 'top' | 'bottom' | 'left' | 'right',
   fixedHeight: false
 })
+
+function onTabCreate() {
+  const list = items.value
+  items.value = [...list, { name: '新页', key: `new-${list.length}` }]
+}
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-  .config {
-    border: 1px dashed #eee;
-  }
-  .display {
-    width: 600px;
-    height: 400px;
-    border: 1px solid gold;
-  }
-  .title {
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 50px;
-  }
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cfg {
+  border: 1px dashed var(--u-color-border, #ddd);
+  padding: 8px 12px;
+  list-style: none;
+  margin: 0;
+}
+.lbl {
+  margin-right: 8px;
 }
 </style>

@@ -154,4 +154,4 @@ const maximizeTransition = useTransition('css', {
 })
 ```
 
-`useTransition('style', …)` 用于需要直接操纵内联样式的过渡；完整选项与工具函数见 `generated/api-reference.md` 中 `use-transition` 章节。
+`useTransition('style', …)` 用于需要直接操纵内联样式的过渡；完整选项与工具函数见 `generated/modules/use-transition.md`。

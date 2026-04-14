@@ -1,9 +1,6 @@
 # SCSS API（mixins / functions / vars）
 
-## `_mixins.scss`
-
 ```scss
-// 来源: packages/styles/src/_mixins.scss
 @use 'vars';
 @use 'sass:list';
 @use 'sass:map';
@@ -183,10 +180,9 @@
 }
 ```
 
-## `_functions.scss`
+---
 
 ```scss
-// 来源: packages/styles/src/_functions.scss
 @use 'vars';
 @use 'sass:list';
 
@@ -238,10 +234,9 @@
 }
 ```
 
-## `_vars.scss`
+---
 
 ```scss
-// 来源: packages/styles/src/_vars.scss
 @use 'sass:map';
 
 $namespace: 'u-';
@@ -287,4 +282,3 @@ $color-types: (
   default
 );
 ```
-

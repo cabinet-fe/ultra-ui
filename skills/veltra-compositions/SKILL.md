@@ -5,7 +5,7 @@ description: >
   当实现或重构涉及组合式函数、composable、useModel、usePop、useVirtual、
   表单回退（useFallbackProps / useFormFallbackProps）、useConfig、
   useTransition、useDrag、useFocus、浮层定位、虚拟滚动、更新锁等逻辑时使用。
-  详细实现请读 generated/api-reference.md；集成模式见 references/usage-patterns.md。
+  详细实现请读 `generated/modules/*.md`；集成模式见 references/usage-patterns.md。
 ---
 
 # veltra-compositions
@@ -14,11 +14,11 @@ description: >
 
 | 文件 | 内容 |
 |------|------|
-| [generated/api-reference.md](generated/api-reference.md) | 各 `use-*` 子目录下全部 `.ts` 源码 |
+| [generated/modules/](generated/modules/) | 每个 `use-*` 一篇，含该模块下全部 `.ts` 源码 |
 | [generated/manifest.json](generated/manifest.json) | 同步时间与模块文件列表 |
 | [references/usage-patterns.md](references/usage-patterns.md) | desktop 中的真实调用片段 |
 
-运行 `bun run sync-veltra-compositions`（根 `package.json`）可重新生成 `generated/`。
+运行 `bun run sync-veltra-compositions` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
 ## 导入约定
 

@@ -1,12 +1,6 @@
 # @veltra/utils — 共享常量与类型源码
 
-
-> 由 `skills/veltra-utils/scripts/sync-docs.ts` 自 `packages/utils/src/shared/` 与 `packages/utils/src/types/` 生成。
-
-## `shared/constants.ts`
-
 ```typescript
-// 来源: packages/utils/src/shared/constants.ts
 /** 命名前缀 */
 export const NAME_SPACE = 'U'
 
@@ -17,17 +11,15 @@ export const CLS_PREFIX = `${NAME_SPACE.toLowerCase()}-` as 'u-'
 export const FORM_EMPTY_CONTENT = '-'
 ```
 
-## `shared/index.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/shared/index.ts
 export * from './constants'
 ```
 
-## `types/component-common.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/types/component-common.ts
 export type ComponentSize = 'small' | 'default' | 'large'
 
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -71,18 +63,16 @@ export interface PropsWithServerQuery {
 }
 ```
 
-## `types/form-context.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/types/form-context.ts
 /** 表单 provide/inject 上下文（完整 props 见 @veltra/desktop/types/form） */
 export type FormContextInjectProps = Record<string, unknown>
 ```
 
-## `types/helper.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/types/helper.ts
 import type { VNode } from 'vue'
 
 export type Null<T> = null | T
@@ -116,20 +106,18 @@ export type RenderReturn =
   | number
 ```
 
-## `types/index.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/types/index.ts
 export * from './helper'
 export * from './component-common'
 export * from './form-context'
 export * from './utils/form/validate'
 ```
 
-## `types/utils/form/validate.ts`
+---
 
 ```typescript
-// 来源: packages/utils/src/types/utils/form/validate.ts
 export type Data = Record<string, any>
 
 export type PresetRule = 'email' | 'phone' | 'num' | 'url' | 'idCard'
@@ -164,4 +152,3 @@ export interface ValidatorConfig {
   lazy?: boolean
 }
 ```
-

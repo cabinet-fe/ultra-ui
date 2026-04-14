@@ -1,9 +1,6 @@
 # 共享类型
 
-## animation
-
 ```typescript
-// 来源: packages/desktop/src/types/animation.ts
 import type { DeconstructValue } from '@veltra/utils'
 
 /** 动画组件属性 */
@@ -29,10 +26,9 @@ export interface _AnimationExposed {}
 export type AnimationExposed = DeconstructValue<_AnimationExposed>
 ```
 
-## css-transition
+---
 
 ```typescript
-// 来源: packages/desktop/src/types/css-transition.ts
 import type { DeconstructValue } from '@veltra/utils'
 
 /** 过渡组件属性 */
@@ -73,10 +69,9 @@ export interface _CssTransitionExposed {
 export type CssTransitionExposed = DeconstructValue<_CssTransitionExposed>
 ```
 
-## pop
+---
 
 ```typescript
-// 来源: packages/desktop/src/types/pop.ts
 import type { DeconstructValue } from '@veltra/utils'
 
 /** 气泡弹框组件属性 */
@@ -96,10 +91,9 @@ export interface _PopExposed {}
 export type PopExposed = DeconstructValue<_PopExposed>
 ```
 
-## quick-batch-edit
+---
 
 ```typescript
-// 来源: packages/desktop/src/types/quick-batch-edit.ts
 import type { DeconstructValue } from '@veltra/utils'
 
 /** 快速批量编辑组件属性 */
@@ -119,10 +113,9 @@ export interface _QuickBatchEditExposed {}
 export type QuickBatchEditExposed = DeconstructValue<_QuickBatchEditExposed>
 ```
 
-## multi-auto-complete
+---
 
 ```typescript
-// 来源: packages/desktop/src/types/multi-auto-complete.ts
 import type { DeconstructValue } from '@veltra/utils'
 
 /** 多量自动完成组件组件属性 */
@@ -142,10 +135,9 @@ export interface _MultiAutoCompleteExposed {}
 export type MultiAutoCompleteExposed = DeconstructValue<_MultiAutoCompleteExposed>
 ```
 
-## text-editor
+---
 
 ```typescript
-// 来源: packages/desktop/src/types/text-editor.ts
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** text-editor组件属性 */

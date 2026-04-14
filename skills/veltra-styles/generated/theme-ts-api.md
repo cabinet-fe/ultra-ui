@@ -1,9 +1,6 @@
 # 主题 TypeScript API（UITheme / loadTheme / helper）
 
-## `theme/ui-theme.ts`
-
 ```typescript
-// 来源: packages/styles/src/theme/ui-theme.ts
 import { isObj, o, str } from '@cat-kit/core'
 import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
@@ -271,10 +268,9 @@ export class UITheme {
 }
 ```
 
-## `load-theme.ts`
+---
 
 ```typescript
-// 来源: packages/styles/src/load-theme.ts
 import { useConfig } from '@veltra/compositions'
 import { shallowRef, type ShallowRef } from 'vue'
 
@@ -323,10 +319,9 @@ export function loadTheme(theme?: UITheme): void {
 }
 ```
 
-## `theme/helper.ts`
+---
 
 ```typescript
-// 来源: packages/styles/src/theme/helper.ts
 import type { RGBColor } from './type'
 
 /** 实现十六进制颜色转RGB颜色，包括透明度 */
@@ -386,4 +381,3 @@ export function cssVar(prop: string): string {
   return `var(--u-${prop})`
 }
 ```
-
