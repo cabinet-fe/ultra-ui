@@ -24,3 +24,4 @@
 - [x] [创建 use-compositions 和 use-styles-theme 文档型技能](./done/plan-24-20260413/plan.md)
 - [x] [创建 use-utils 和 use-directives 文档型技能](./done/plan-25-20260413/plan.md)
 - [x] [skills 与 playground 瘦身与脚本归集](./done/plan-26-20260414/plan.md)
+- [x] [修复 desktop 构建后 style 依赖丢失](./done/plan-27-20260414/plan.md)

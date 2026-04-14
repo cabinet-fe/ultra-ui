@@ -11,7 +11,7 @@ $collapsed-menu: collapsed-menu;
   --u-menu-hover-bg: rgba(148, 163, 184, 0.12);
   --u-menu-hover-color: #{fn.use-var(text-color, title)};
   --u-menu-active-bg: rgba(59, 130, 246, 0.12);
-  --u-menu-active-color: var(--u-color-primary-dark-1);
+  --u-menu-active-color: #{fn.use-var(color, primary, dark, 1)};
   --u-menu-height-small: 32px;
   --u-menu-height-default: 36px;
   --u-menu-height-large: 40px;

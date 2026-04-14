@@ -23,7 +23,7 @@ $root-name: table;
   --u-table-hover-color: inherit;
   --u-table-current-bg: #{fn.use-var(bg-color, hover)};
   --u-table-current-color: inherit;
-  --u-table-checked-bg: var(--u-color-primary-light-9);
+  --u-table-checked-bg: #{fn.use-var(color, primary, light-9)};
   --u-table-checked-color: inherit;
 
   @include m.dark() {
@@ -36,7 +36,7 @@ $root-name: table;
     --u-table-hover-color: #{fn.use-var(text-color, title)};
     --u-table-current-bg: #{fn.use-var(bg-color, hover)};
     --u-table-current-color: inherit;
-    --u-table-checked-bg: var(--u-color-primary-dark-1);
+    --u-table-checked-bg: #{fn.use-var(color, primary, dark, 1)};
     --u-table-checked-color: inherit;
   }
 

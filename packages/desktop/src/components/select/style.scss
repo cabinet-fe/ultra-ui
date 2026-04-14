@@ -3,18 +3,6 @@
 
 $root-name: select;
 @include m.b($root-name) {
-  --u-menu-hover-bg: rgba(148, 163, 184, 0.12);
-  --u-menu-hover-color: #{fn.use-var(text-color, title)};
-  --u-menu-active-bg: rgba(59, 130, 246, 0.12);
-  --u-menu-active-color: var(--u-color-primary-dark-1);
-
-  @include m.dark() {
-    --u-menu-hover-bg: rgba(148, 163, 184, 0.14);
-    --u-menu-hover-color: #{fn.use-var(text-color, title)};
-    --u-menu-active-bg: rgba(96, 165, 250, 0.2);
-    --u-menu-active-color: #{fn.use-var(text-color, white)};
-  }
-
   width: 100%;
 
   @include m.e(content-filter) {
@@ -111,6 +99,19 @@ $root-name: select;
   }
 
   @include m.e(panel) {
+    // u-dropdown 内容 Teleport 至 popper，--u-menu-* 须挂在 panel 供选项继承
+    --u-menu-hover-bg: rgba(148, 163, 184, 0.12);
+    --u-menu-hover-color: #{fn.use-var(text-color, title)};
+    --u-menu-active-bg: rgba(59, 130, 246, 0.12);
+    --u-menu-active-color: #{fn.use-var(color, primary, dark, 1)};
+
+    @include m.dark() {
+      --u-menu-hover-bg: rgba(148, 163, 184, 0.14);
+      --u-menu-hover-color: #{fn.use-var(text-color, title)};
+      --u-menu-active-bg: rgba(96, 165, 250, 0.2);
+      --u-menu-active-color: #{fn.use-var(text-color, white)};
+    }
+
     @include m.size using ($size) {
       @include m.bem($root-name, content-filter) {
         padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
