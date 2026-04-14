@@ -4,10 +4,6 @@
 
 $root-name: radio;
 @include m.b($root-name) {
-  @include m.dark() {
-    --u-radio-border: #595959;
-  }
-
   cursor: pointer;
   vertical-align: middle;
   user-select: none;

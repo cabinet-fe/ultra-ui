@@ -5,13 +5,8 @@
 $root-name: progress-nodes;
 
 @include m.b($root-name) {
-  // CSS 变量定义
-  --checked-color: #{fn.use-var(color, primary)};
-  --node-color: #{fn.use-var(text-color, placeholder)};
-  --dot-size: 14px;
-
   position: relative;
-  color: var(--node-color);
+  color: #{fn.use-var(text-color, placeholder)};
   overflow: auto;
   cursor: default;
 
@@ -26,13 +21,6 @@ $root-name: progress-nodes;
   }
   @include m.is(dragging) {
     cursor: grabbing;
-  }
-
-  // 颜色类型变体
-  @each $type in vars.$color-types {
-    @include m.m($type) {
-      --checked-color: #{fn.use-var(color, $type)};
-    }
   }
 
   // 列表容器
@@ -82,8 +70,8 @@ $root-name: progress-nodes;
   // 节点圆点
   @include m.e(dot) {
     position: relative;
-    width: var(--dot-size);
-    height: var(--dot-size);
+    width: 14px;
+    height: 14px;
     border: 2px solid currentColor;
     border-radius: 50%;
     background-color: fn.use-var(bg-color, top);
@@ -107,18 +95,36 @@ $root-name: progress-nodes;
     @include m.ellipsis;
   }
 
-  // checked 状态 - 圆点填充 colorType 颜色
   @include m.bem($root-name, item) {
     @include m.is(checked) {
-      color: var(--checked-color);
+      color: #{fn.use-var(color, primary)};
 
       @include m.bem($root-name, dot) {
-        background-color: var(--checked-color);
-        border-color: var(--checked-color);
+        background-color: #{fn.use-var(color, primary)};
+        border-color: #{fn.use-var(color, primary)};
       }
 
       @include m.bem($root-name, label) {
-        color: var(--checked-color);
+        color: #{fn.use-var(color, primary)};
+      }
+    }
+  }
+
+  @each $type in vars.$color-types {
+    @include m.m($type) {
+      @include m.bem($root-name, item) {
+        @include m.is(checked) {
+          color: #{fn.use-var(color, $type)};
+
+          @include m.bem($root-name, dot) {
+            background-color: #{fn.use-var(color, $type)};
+            border-color: #{fn.use-var(color, $type)};
+          }
+
+          @include m.bem($root-name, label) {
+            color: #{fn.use-var(color, $type)};
+          }
+        }
       }
     }
   }
@@ -164,10 +170,10 @@ $root-name: progress-nodes;
 
   @include m.e(link) {
     // 宽度需要跨越当前 item 的右 padding + 下一个 item 的左 padding
-    width: calc(100% - var(--dot-size) + 24px);
+    width: calc(100% - 14px + 24px);
     height: 0;
     border-width: 1px 0 0 0;
-    left: calc(50% + var(--dot-size) / 2);
+    left: calc(50% + 14px / 2);
     top: 50%;
     transform: translateY(-50%);
   }

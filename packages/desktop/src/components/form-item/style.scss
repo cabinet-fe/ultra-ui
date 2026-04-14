@@ -75,9 +75,8 @@ $root-name: form-item;
 
   @include m.e(error) {
     width: 100%;
-    --height: #{fn.use-var(font-size-main, default)};
-    height: calc(var(--height) + 4px);
-    line-height: calc(var(--height) + 2px);
+    height: calc(#{fn.use-var(font-size-main, default)} + 4px);
+    line-height: calc(#{fn.use-var(font-size-main, default)} + 2px);
     overflow: hidden;
     color: fn.use-var(text-color, main);
     font-size: fn.use-var(font-size-assist, default);

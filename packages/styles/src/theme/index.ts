@@ -1,3 +1,10 @@
+export {
+  componentCssVarsDark,
+  componentCssVarsDarkDecls,
+  componentCssVarsLight,
+  componentCssVarsLightDecls,
+  themeTokenVar
+} from './component-css-vars'
 export { UITheme } from './ui-theme'
 export { lightTheme } from './light'
 export { darkTheme } from './dark'

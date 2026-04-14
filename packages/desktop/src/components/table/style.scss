@@ -14,32 +14,6 @@ $root-name: table;
 }
 
 @include m.b($root-name) {
-  --u-table-border-color: #e9e9e9;
-  --u-table-header-bg: #f4f5f7;
-  --u-table-header-color: #{fn.use-var(text-color, title)};
-  --u-table-stripe-bg: #f8fafc;
-  --u-table-stripe-color: inherit;
-  --u-table-hover-bg: #{fn.use-var(bg-color, hover)};
-  --u-table-hover-color: inherit;
-  --u-table-current-bg: #{fn.use-var(bg-color, hover)};
-  --u-table-current-color: inherit;
-  --u-table-checked-bg: #{fn.use-var(color, primary, light-9)};
-  --u-table-checked-color: inherit;
-
-  @include m.dark() {
-    --u-table-border-color: #404040;
-    --u-table-header-bg: #2a2a2a;
-    --u-table-header-color: #{fn.use-var(text-color, main)};
-    --u-table-stripe-bg: #2a2a2a;
-    --u-table-stripe-color: #{fn.use-var(text-color, main)};
-    --u-table-hover-bg: #333333;
-    --u-table-hover-color: #{fn.use-var(text-color, title)};
-    --u-table-current-bg: #{fn.use-var(bg-color, hover)};
-    --u-table-current-color: inherit;
-    --u-table-checked-bg: #{fn.use-var(color, primary, dark, 1)};
-    --u-table-checked-color: inherit;
-  }
-
   width: 100%;
   position: relative;
   border: 1px solid var(--u-table-border-color);

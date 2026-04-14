@@ -3,12 +3,6 @@
 
 $root-name: breadcrumb;
 
-:root {
-  --u-breadcrumb-small: 20px;
-  --u-breadcrumb-default: 22px;
-  --u-breadcrumb-large: 24px;
-}
-
 @include m.b($root-name) {
   color: fn.use-var(text-color, second);
   line-height: 1.4;
