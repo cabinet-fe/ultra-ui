@@ -5,12 +5,6 @@
 
 $root-name: tag;
 
-:root {
-  --u-tag-small: 20px;
-  --u-tag-default: 24px;
-  --u-tag-large: 28px;
-}
-
 @include m.b($root-name) {
   cursor: default;
   color: fn.use-var(text-color, main);

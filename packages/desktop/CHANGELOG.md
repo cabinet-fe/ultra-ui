@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.0.8
+
+### Patch Changes
+
+- f758a81: 修复样式问题
+- Updated dependencies [f758a81]
+  - @veltra/compositions@1.0.8
+  - @veltra/directives@1.0.8
+  - @veltra/styles@1.0.8
+  - @veltra/icons@1.0.8
+  - @veltra/utils@1.0.8
+
 ## 1.0.7
 
 ### Patch Changes

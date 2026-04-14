@@ -10,13 +10,20 @@ $root-name: steps;
   padding: 0;
   margin: 0;
 
-  /** 颜色变量 */
   @each $type in vars.$color-types {
     @include m.em(finished, $type) {
-      --finished-color: #{fn.use-var(color, $type)};
+      @include m.e(item) {
+        @include m.is(finished) {
+          color: fn.use-var(color, $type);
+        }
+      }
     }
     @include m.em(current, $type) {
-      --current-color: #{fn.use-var(color, $type)};
+      @include m.e(item) {
+        @include m.is(current) {
+          color: fn.use-var(color, $type);
+        }
+      }
     }
   }
 
@@ -24,13 +31,6 @@ $root-name: steps;
   @include m.e(item) {
     font-weight: 600;
     color: fn.use-var(text-color, placeholder);
-
-    @include m.is(finished) {
-      color: var(--finished-color);
-    }
-    @include m.is(current) {
-      color: var(--current-color);
-    }
   }
 
   @include m.e(node) {

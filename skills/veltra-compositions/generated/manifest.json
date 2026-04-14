@@ -1,0 +1,101 @@
+{
+  "syncedAt": "2026-04-14T00:53:40.802Z",
+  "sourceRoot": "packages/compositions/src",
+  "modules": [
+    {
+      "name": "use-component-props",
+      "files": [
+        "use-component-props/index.ts"
+      ],
+      "docFile": "modules/use-component-props.md"
+    },
+    {
+      "name": "use-config",
+      "files": [
+        "use-config/index.ts"
+      ],
+      "docFile": "modules/use-config.md"
+    },
+    {
+      "name": "use-drag",
+      "files": [
+        "use-drag/index.ts"
+      ],
+      "docFile": "modules/use-drag.md"
+    },
+    {
+      "name": "use-fallback-props",
+      "files": [
+        "use-fallback-props/index.ts"
+      ],
+      "docFile": "modules/use-fallback-props.md"
+    },
+    {
+      "name": "use-focus",
+      "files": [
+        "use-focus/index.ts"
+      ],
+      "docFile": "modules/use-focus.md"
+    },
+    {
+      "name": "use-form-component",
+      "files": [
+        "use-form-component/index.ts"
+      ],
+      "docFile": "modules/use-form-component.md"
+    },
+    {
+      "name": "use-lock",
+      "files": [
+        "use-lock/index.ts"
+      ],
+      "docFile": "modules/use-lock.md"
+    },
+    {
+      "name": "use-model",
+      "files": [
+        "use-model/index.ts"
+      ],
+      "docFile": "modules/use-model.md"
+    },
+    {
+      "name": "use-pop",
+      "files": [
+        "use-pop/index.ts"
+      ],
+      "docFile": "modules/use-pop.md"
+    },
+    {
+      "name": "use-reactive-size",
+      "files": [
+        "use-reactive-size/index.ts"
+      ],
+      "docFile": "modules/use-reactive-size.md"
+    },
+    {
+      "name": "use-resize-observer",
+      "files": [
+        "use-resize-observer/index.ts"
+      ],
+      "docFile": "modules/use-resize-observer.md"
+    },
+    {
+      "name": "use-transition",
+      "files": [
+        "use-transition/index.ts",
+        "use-transition/type.ts",
+        "use-transition/use-css-transition.ts",
+        "use-transition/use-style-transition.ts",
+        "use-transition/utils.ts"
+      ],
+      "docFile": "modules/use-transition.md"
+    },
+    {
+      "name": "use-virtual",
+      "files": [
+        "use-virtual/index.ts"
+      ],
+      "docFile": "modules/use-virtual.md"
+    }
+  ]
+}

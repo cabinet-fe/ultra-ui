@@ -7,28 +7,6 @@ $root-name: menu;
 $collapsed-menu: collapsed-menu;
 
 @include m.b($root-name, $collapsed-menu) {
-  --u-menu-color: #0f172a;
-  --u-menu-hover-bg: rgba(148, 163, 184, 0.12);
-  --u-menu-hover-color: #{fn.use-var(text-color, title)};
-  --u-menu-active-bg: rgba(59, 130, 246, 0.12);
-  --u-menu-active-color: var(--u-color-primary-dark-1);
-  --u-menu-height-small: 32px;
-  --u-menu-height-default: 36px;
-  --u-menu-height-large: 40px;
-  --u-menu-bg-color: #{fn.use-var(bg-color, top)};
-  --u-menu-bg-blur: none;
-  --u-menu-bg-saturate: none;
-  --u-menu-bg-image: none;
-
-  @include m.dark() {
-    --u-menu-color: #{fn.use-var(text-color, main)};
-    --u-menu-hover-bg: rgba(148, 163, 184, 0.14);
-    --u-menu-hover-color: #{fn.use-var(text-color, title)};
-    --u-menu-active-bg: rgba(96, 165, 250, 0.2);
-    --u-menu-active-color: #{fn.use-var(text-color, white)};
-    --u-menu-bg-color: #{fn.use-var(bg-color, middle)};
-  }
-
   user-select: none;
   color: var(--u-menu-color);
 
@@ -124,15 +102,6 @@ $collapsed-menu: collapsed-menu;
 }
 
 @include m.b($root-name) {
-  --u-menu-bg-color: #{fn.use-var(bg-color, top)};
-  --u-menu-bg-blur: none;
-  --u-menu-bg-saturate: none;
-  --u-menu-bg-image: none;
-
-  @include m.dark() {
-    --u-menu-bg-color: #{fn.use-var(bg-color, middle)};
-  }
-
   margin: 0;
   padding: 0;
   background-color: var(--u-menu-bg-color);

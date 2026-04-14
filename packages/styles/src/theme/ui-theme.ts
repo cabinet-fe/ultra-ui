@@ -2,6 +2,7 @@ import { isObj, o, str } from '@cat-kit/core'
 import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
+import { componentCssVarsDarkDecls, componentCssVarsLightDecls } from './component-css-vars'
 import { mixColor } from './helper'
 import type { Theme } from './type'
 
@@ -219,8 +220,14 @@ export class UITheme {
 
   /** 内置 light/dark：支持 data-theme 与 prefers-color-scheme */
   static injectBuiltInThemes(light: UITheme, dark: UITheme): void {
-    const lightDecls = light.themeToDeclarationList(toRaw(light.theme))
-    const darkDecls = dark.themeToDeclarationList(toRaw(dark.theme))
+    const lightDecls = [
+      ...light.themeToDeclarationList(toRaw(light.theme)),
+      ...componentCssVarsLightDecls
+    ]
+    const darkDecls = [
+      ...dark.themeToDeclarationList(toRaw(dark.theme)),
+      ...componentCssVarsDarkDecls
+    ]
     const lightBlock = UITheme.declarationBlock(lightDecls)
     const darkBlock = UITheme.declarationBlock(darkDecls)
 
@@ -237,7 +244,7 @@ export class UITheme {
   }
 
   render(): void {
-    const decls = this.themeToDeclarationList(toRaw(this.theme))
+    const decls = [...this.themeToDeclarationList(toRaw(this.theme)), ...componentCssVarsLightDecls]
     const block = UITheme.declarationBlock(decls)
     const css = `html { ${block} }`
     UITheme.applyGlobalCSS(css)

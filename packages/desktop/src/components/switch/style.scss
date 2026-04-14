@@ -4,10 +4,6 @@
 
 $root-name: switch;
 @include m.b($root-name) {
-  --u-switch-height-small: 18px;
-  --u-switch-height-default: 20px;
-  --u-switch-height-large: 24px;
-
   display: inline-flex;
   align-items: center;
   cursor: pointer;

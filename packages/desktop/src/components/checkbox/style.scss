@@ -4,10 +4,6 @@
 
 $root-name: checkbox;
 @include m.b($root-name) {
-  @include m.dark() {
-    --u-checkbox-border: #595959;
-  }
-
   user-select: none;
   vertical-align: middle;
   cursor: pointer;

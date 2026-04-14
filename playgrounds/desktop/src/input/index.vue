@@ -19,13 +19,5 @@
 import { Search } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 
-import CustomCard from '../card/custom-card.vue'
-
 const value = shallowRef('abc')
-
-const number = shallowRef(0)
-
-setTimeout(() => {
-  number.value = 10000
-}, 200)
 </script>

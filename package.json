@@ -30,7 +30,8 @@
     "format": "oxfmt .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter='@veltra/*' --filter='!@veltra/mobile' && bun tools/cli/release/with-resolved-workspace-versions.ts changeset publish"
+    "release": "turbo run build --filter='@veltra/*' --filter='!@veltra/mobile' && bun tools/cli/release/with-resolved-workspace-versions.ts changeset publish",
+    "sync-skills": "bun tools/skills-sync/sync-all.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.3",

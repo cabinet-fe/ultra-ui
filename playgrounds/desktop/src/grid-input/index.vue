@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { GridInputExposed } from '@veltra/desktop/types'
+import type { GridInputExposed } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const inputRef = shallowRef<GridInputExposed>()

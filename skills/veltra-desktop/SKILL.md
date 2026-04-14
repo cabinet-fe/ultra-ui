@@ -1,47 +1,61 @@
 ---
 name: veltra-desktop
-description: 面向 `@veltra/desktop` 的桌面端组件库文档技能。用于新增、修改、排查或按需引入桌面组件，追踪 `src/components` 与 `src/types` 的配套关系，维护 `style.ts` 副作用入口、表单组件模式、`di.ts` 上下文、内置 `vLoading` 指令，以及借助 `playgrounds/desktop` 示例快速理解真实用法时使用。
+description: >
+  @veltra/desktop 组件库（71 个组件）的 Props/Emits/Exposed 类型文档。
+  当开发页面涉及 UI 组件、表单、表格、对话框、选择器、树、消息通知、编辑器、导航菜单等时使用。
+  先查 catalog，再打开 generated/components/ 下单文件；分类索引见 generated/categories/。
 ---
 
-# Veltra Desktop
+# veltra-desktop
 
-## 先选入口，不要一口气读完
+## 分类概览
 
-- 先读 [references/source-discovery.md](references/source-discovery.md)
-  当 skill 被复制到其它项目，需要先找到 `@veltra/desktop` 的 workspace 源码、`node_modules` 安装产物、类型声明、playground 替代物时
-- 先读 [references/architecture.md](references/architecture.md)
-  当你需要理解包结构、依赖关系、当前仓库的真实边界与已知偏差时
-- 再读 [references/component-authoring.md](references/component-authoring.md)
-  当你要新增组件、修复组件、补类型或补样式副作用入口时
-- 再读 [references/component-catalog.md](references/component-catalog.md)
-  当你要找某个组件、按功能浏览已有实现、判断有没有 playground 示例时
-- 最后读 [references/playground.md](references/playground.md)
-  当你要跑示例、追踪路由、看自动按需引样式链路时
+| 分类 | 数量 | 索引 | 组件举例 |
+|------|------|------|----------|
+| 表单 | 25 | [categories/form.md](generated/categories/form.md) | form, input, select, date-picker |
+| 数据展示 | 12 | [categories/data-display.md](generated/categories/data-display.md) | table, tree, list, paginator |
+| 反馈通知 | 10 | [categories/feedback.md](generated/categories/feedback.md) | message, dialog, drawer, loading |
+| 导航 | 7 | [categories/navigation.md](generated/categories/navigation.md) | menu, tabs, breadcrumb |
+| 布局容器 | 4 | [categories/layout.md](generated/categories/layout.md) | layout, card, scroll |
+| 编辑器 | 6 | [categories/editor.md](generated/categories/editor.md) | code-editor, table-editor |
+| 通用 | 7 | [categories/general.md](generated/categories/general.md) | button, icon, action |
 
-## 执行时坚持这些事实
+- 全量目录表：[catalog.md](generated/catalog.md)
+- 每组件类型片段：`generated/components/<name>.md`
+- 共享类型：[shared-types.md](generated/shared-types.md)
 
-- 组件源码在 `src/components/<name>/`
-- 公开类型不写在组件目录，统一放在 `src/types/<name>.ts`
-- 样式副作用入口必须走 `style.ts`
-- 表单控件优先使用 `useFormComponent()` 与 `useFormFallbackProps()`
-- 复杂父子上下文优先使用 `di.ts`
-- 组件名使用 `U` + PascalCase，目录名使用 kebab-case
+根目录执行 `bun run sync-veltra-desktop` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
-## 处理跨包问题时顺带查这些邻近 skill
+## 导入约定
 
-- 样式基础设施与 theme runtime：`veltra-styles`
-- 公共逻辑 hook：`veltra-compositions`
-- 公共指令：`veltra-directives`
-- 图标来源与生成：`veltra-icons`
+### 自动按需导入（推荐）
 
-## 快速源码锚点
+`unplugin-components` + `U` 前缀解析；模板中 `<u-button>` 与 `<UButton>` 等价，resolver 会引入对应 `style.ts`。
 
-- `packages/desktop/src/index.ts`
-- `packages/desktop/src/components/index.ts`
-- `packages/desktop/src/types/index.ts`
-- `packages/desktop/src/components/breadcrumb/breadcrumb.vue`
-- `packages/desktop/src/components/button/button.vue`
-- `packages/desktop/src/components/form/form.vue`
-- `packages/desktop/src/components/select/select.vue`
-- `packages/desktop/src/components/table/table.vue`
-- `packages/desktop/src/components/theme/theme.vue`
+### 手动导入
+
+```typescript
+import type { ButtonProps, TableColumn, FormExposed } from '@veltra/desktop'
+import { FormModel, DynamicFormModel, defineTableColumns, message } from '@veltra/desktop'
+import { Edit, Delete, Search } from '@veltra/icons/normal'
+```
+
+## 核心模式（摘要）
+
+- **v-model**：表单组件统一 `modelValue` / `update:modelValue`。
+- **FormModel + `<u-form field>`**：`model.validate()`、`resetData()`、`setData()`、`clearValidate()`。
+- **表格列**：`defineTableColumns`，列插槽 `#column:<key>`；树用 `#default` 等作用域插槽。
+- **Exposed**：`shallowRef<TreeExposed>()` 等访问实例方法。
+
+更完整的用法与边界见 [references/dev-patterns.md](references/dev-patterns.md)。
+
+## 参考索引
+
+| 路径 | 内容 |
+|------|------|
+| `generated/catalog.md` | 组件目录表（含链到各 `components/*.md`） |
+| `generated/categories/*.md` | 分类 → 组件文档链接 |
+| `generated/components/*.md` | 单组件类型定义 |
+| `generated/shared-types.md` | 共享 types |
+| `generated/manifest.json` | 同步元数据 |
+| `references/dev-patterns.md` | 使用模式与排错 |

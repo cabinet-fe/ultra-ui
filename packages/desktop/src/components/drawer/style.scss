@@ -39,12 +39,6 @@ $direction-map: (
     justify-content: center;
   }
 
-  @each $direction in $directions {
-    @include m.is($direction) {
-      --transform: #{map.get($direction-map, $direction)};
-    }
-  }
-
   @include m.is(right, left) {
     top: $edge-offset;
     bottom: $edge-offset;
@@ -137,9 +131,22 @@ $direction-map: (
   transition: transform 0.3s ease-in-out;
 }
 
-@each $direction in $directions {
-  .drawer-slide-#{$direction}-enter-from,
-  .drawer-slide-#{$direction}-leave-to {
-    transform: var(--transform);
-  }
+.drawer-slide-right-enter-from,
+.drawer-slide-right-leave-to {
+  transform: #{map.get($direction-map, right)};
+}
+
+.drawer-slide-left-enter-from,
+.drawer-slide-left-leave-to {
+  transform: #{map.get($direction-map, left)};
+}
+
+.drawer-slide-top-enter-from,
+.drawer-slide-top-leave-to {
+  transform: #{map.get($direction-map, top)};
+}
+
+.drawer-slide-bottom-enter-from,
+.drawer-slide-bottom-leave-to {
+  transform: #{map.get($direction-map, bottom)};
 }

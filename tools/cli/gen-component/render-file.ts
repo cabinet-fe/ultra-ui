@@ -57,7 +57,7 @@ export function renderVueFile(ctx: ComponentCtx) {
   </template>
 
   <script lang="ts" setup>
-  import type { ${componentProps} } from '@veltra/desktop/types'
+  import type { ${componentProps} } from '@veltra/desktop'
   import { bem } from '@veltra/utils'
 
   defineOptions({

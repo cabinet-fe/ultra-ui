@@ -29,8 +29,7 @@
 
 <script setup lang="ts">
 import { message } from '@veltra/desktop'
-import '@veltra/desktop/components/message/style.ts'
-import type { MessageType } from '@veltra/desktop/types'
+import type { MessageType } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const config = reactive({
