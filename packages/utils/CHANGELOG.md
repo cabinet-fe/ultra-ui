@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.0.8
+
+### Patch Changes
+
+- f758a81: 修复样式问题
+
 ## 1.0.7
 
 ### Patch Changes
