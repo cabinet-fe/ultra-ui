@@ -93,9 +93,7 @@
             :title="getChainValue(option, labelKey)"
             :key="getChainValue(option, valueKey)"
           >
-            <slot v-bind="{ option, index }">
-              {{ getChainValue(option, labelKey) }}
-            </slot>
+            <slot v-bind="{ option, index }"> {{ getChainValue(option, labelKey) }} </slot>
           </li>
         </template>
       </u-scroll>
@@ -112,7 +110,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
+import { vFocus } from '@ui/directives'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type {
   SelectEmits,
   SelectProps,
@@ -121,18 +121,17 @@ import type {
   ScrollExposed
 } from '@ui/types'
 import { bem, withUnit, scrollIntoContainerView } from '@ui/utils'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
-import { UDropdown } from '../dropdown'
-import { UScroll } from '../scroll'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
 import { ArrowDown, Search } from '@ultra/icon'
-import { useOptions } from './use-options'
-import { useKeyboard } from './use-keyboard'
-import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import { getChainValue } from 'cat-kit/fe'
-import { vFocus } from '@ui/directives'
+import { computed, nextTick, shallowRef, watch } from 'vue'
+
+import { UDropdown } from '../dropdown'
+import { UEmpty } from '../empty'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UScroll } from '../scroll'
+import { useKeyboard } from './use-keyboard'
+import { useOptions } from './use-options'
 
 defineOptions({ name: 'Select' })
 
@@ -176,7 +175,9 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({ props })
+const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({
+  props
+})
 
 // TODO: 优化
 let userSelecting = false
@@ -295,6 +296,7 @@ const handleSelect = (option: Record<string, any>, index: number) => {
 const handleClear = () => {
   lock()
   selected.value = undefined
+  currentIndex.value = -1
   clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)

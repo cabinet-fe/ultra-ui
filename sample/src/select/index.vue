@@ -11,15 +11,21 @@
       <u-select v-model="selected" :filterable :creatable :options="options" />
     </CustomCard>
 
-    <!-- <CustomCard width="400px" title="函数选项">
+    <CustomCard width="400px" title="函数选项">
       <div>自动启用filter属性</div>
 
       <u-select v-model="selected" :options="optionsGetter" />
     </CustomCard>
 
     <CustomCard width="400px" title="网格布局">
-      <u-select v-model="selected" :options="options" filterable value-key="value" :grid="{ cols: 4, gap: 10 }"
-        v-slot="{ option }">
+      <u-select
+        v-model="selected"
+        :options="options"
+        filterable
+        value-key="value"
+        :grid="{ cols: 4, gap: 10 }"
+        v-slot="{ option }"
+      >
         <div style="height: 80px; text-align: center">
           <div>
             <u-icon :size="30">
@@ -30,20 +36,16 @@
         </div>
       </u-select>
     </CustomCard>
-
-    <u-form :model="model">
-      <u-input label="选项" field="options"></u-input>
-      <u-select label="选择" field="select" value-key="value" :clearable="false" :options="options1" />
-    </u-form> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watchEffect } from 'vue'
-import CustomCard from '../card/custom-card.vue'
-import { sleep } from 'cat-kit/fe'
 import { Monitor } from '@ultra/icon'
+import { sleep } from 'cat-kit/fe'
 import { FormModel } from 'ultra-ui'
+import { shallowRef, watchEffect } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
 
 const options = shallowRef<any[]>([])
 
@@ -72,11 +74,11 @@ const model = new FormModel({
 const options1 = shallowRef(
   model.data.options
     ?.split(',')
-    .map(i => {
+    .map((i) => {
       const n = +i
       return { label: i, value: n }
     })
-    .filter(i => !isNaN(i.value))
+    .filter((i) => !isNaN(i.value))
 )
 
 model.onChange((field, val) => {
@@ -100,6 +102,6 @@ const creatable = shallowRef(true)
 const optionsGetter = async (qs: string) => {
   if (!qs) return []
   await sleep(200)
-  return options.value.filter(o => o.label.includes(qs))
+  return options.value.filter((o) => o.label.includes(qs))
 }
 </script>
