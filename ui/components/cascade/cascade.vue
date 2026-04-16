@@ -1,12 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
-    :class="[
-      cls.b,
-      bem.is('disabled', disabled),
-      bem.is('multiple', multiple),
-      cls.m(size)
-    ]"
+    :class="[cls.b, bem.is('disabled', disabled), bem.is('multiple', multiple), cls.m(size)]"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
     ref="dropdownRef"
@@ -68,12 +63,7 @@
     <template #content>
       <!-- 过滤 -->
       <div v-if="filterable" :class="cls.e('panel-filter')">
-        <u-input
-          placeholder="输入关键字进行过滤"
-          v-model="qs"
-          :size="size"
-          clearable
-        >
+        <u-input placeholder="输入关键字进行过滤" v-model="qs" :size="size" clearable>
           <template #suffix>
             <u-icon><Search /></u-icon>
           </template>
@@ -114,28 +104,25 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ui/compositions'
+import { useFormComponent, useFormFallbackProps, useUserOpration } from '@ui/compositions'
+import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '@ui/types'
 import { bem } from '@ui/utils'
-import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
 import { ArrowDown, Search, Close } from '@ultra/icon'
-import { CascadeDIKey } from './di'
-import { UInput } from '../input'
-import { UTag } from '../tag'
-import { UIcon } from '../icon'
+import { Forest, getChainValue } from 'cat-kit/fe'
+import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
+
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
-import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
+import { UTag } from '../tag'
 import UCascadePanelItem from './cascade-panel-item.vue'
-import { Forest, getChainValue } from 'cat-kit/fe'
+import { CascadeDIKey } from './di'
+import { CascadeNode } from './node'
+import { useCheck } from './use-check'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
-import { useCheck } from './use-check'
-import { CascadeNode } from './node'
 
 defineOptions({
   name: 'Cascade'
@@ -161,10 +148,11 @@ const cls = bem('cascade')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  { size: 'default', disabled: false, readonly: false }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
@@ -194,7 +182,7 @@ const forest = computed(() => {
 const { dataMap } = useDataMap({ props, forest })
 
 // 初始化更新辅助
-const updater = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 const {
   displayedValue,
@@ -209,49 +197,41 @@ const {
   emit,
   dataMap,
   forest,
-  updater,
+  isUserOprating,
   dropdownRef
 })
 
-const {
-  hovered,
-  tags,
-  restTag,
-  updateMultipleValue,
-  handleCloseTag,
-  checkItem,
-  checkedSet
-} = useCheck({
-  props,
-  forest,
-  getPanelItemList,
-  emit,
-  dataMap,
-  updater,
-  disabled,
-  readonly
-})
+const { hovered, tags, restTag, updateMultipleValue, handleCloseTag, checkItem, checkedSet } =
+  useCheck({
+    props,
+    forest,
+    getPanelItemList,
+    emit,
+    dataMap,
+    isUserOprating,
+    disabled,
+    readonly
+  })
 
-function handleClick(panelIndex: number, item: CascadeNode) {
+const handleClick = markAsUserOpration((panelIndex: number, item: CascadeNode) => {
   // 选择
   selectItem(panelIndex, item)
 
+  if (props.multiple) return
+
   // 更新数据
-  !props.multiple &&
-    updater.updateAndLock(() => {
-      if (!props.strict) {
-        updateSingleValue()
-      } else if (!item.children?.length) {
-        updateSingleValue()
-      }
-    })
-}
+  if (!props.strict) {
+    updateSingleValue()
+  } else if (!item.children?.length) {
+    updateSingleValue()
+  }
+})
 
-function handleCheck(item: CascadeNode, checked: boolean) {
-  updater.updateAndLock(() => checkItem(item, checked))
-}
+const handleCheck = markAsUserOpration((item: CascadeNode, checked: boolean) => {
+  checkItem(item, checked)
+})
 
-function handleClear() {
+const handleClear = markAsUserOpration(() => {
   if (props.multiple) {
     checkedSet.value.clear()
     triggerRef(checkedSet)
@@ -261,8 +241,10 @@ function handleClear() {
     updateSingleValue()
   }
 
+  getPanelItemList(forest.value.nodes)
+
   emit('clear')
-}
+})
 
 // 过滤
 const qs = shallowRef<string>('')
@@ -270,14 +252,14 @@ const qs = shallowRef<string>('')
 watch([qs, forest], ([qs, forest]) => {
   const { filterable } = props
   if (!filterable || !qs) {
-    forest.dft(node => (node.visible = true))
+    forest.dft((node) => (node.visible = true))
     getPanelItemList(forest.nodes)
     return
   }
 
   const cache = new Set<CascadeNode>()
 
-  forest.dft(node => {
+  forest.dft((node) => {
     if (node.label?.toLowerCase().includes(qs.toLowerCase())) {
       node.visible = true
       let parent = node.parent

@@ -1,10 +1,7 @@
 <template>
   <!-- 调色画布 -->
   <div :class="cls.e('sv')" ref="svRef">
-    <div
-      :class="cls.e('sv-s')"
-      :style="{ backgroundImage: canvasBackground }"
-    ></div>
+    <div :class="cls.e('sv-s')" :style="{ backgroundImage: canvasBackground }"></div>
     <div :class="cls.e('sv-v')">{{}}</div>
 
     <div
@@ -18,15 +15,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
-import { PaletteDIKey } from './di'
 import { useDrag } from '@ui/compositions'
+import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteSV'
 })
 
-const { cls, hueRGB, HSV, updateSV, updater } = inject(PaletteDIKey)!
+const { cls, hueRGB, HSV, updateSV, markAsUserOpration } = inject(PaletteDIKey)!
 
 const svRef = shallowRef<HTMLDivElement>()
 
@@ -60,21 +58,19 @@ const svThumbStyle = computed(() => {
   }
 })
 
-function updateThumb(offsetX: number, offsetY: number) {
-  updater.updateAndLock(() => {
-    transform.x = offsetX
-    transform.y = offsetY
+const updateThumb = markAsUserOpration((offsetX: number, offsetY: number) => {
+  transform.x = offsetX
+  transform.y = offsetY
 
-    // 根据画布位置计算饱和度和亮度
-    // 水平方向表示饱和度，从左到右饱和度逐渐增高
-    // 垂直方向表示亮度，上亮下暗
-    const s = Math.max(0, Math.min(1, offsetX / canvasSize.width))
-    const v = Math.max(0, Math.min(1, 1 - offsetY / canvasSize.height))
+  // 根据画布位置计算饱和度和亮度
+  // 水平方向表示饱和度，从左到右饱和度逐渐增高
+  // 垂直方向表示亮度，上亮下暗
+  const s = Math.max(0, Math.min(1, offsetX / canvasSize.width))
+  const v = Math.max(0, Math.min(1, 1 - offsetY / canvasSize.height))
 
-    // 更新饱和度和亮度
-    updateSV({ s, v })
-  })
-}
+  // 更新饱和度和亮度
+  updateSV({ s, v })
+})
 
 const svDragger = useDrag({
   target: svRef,

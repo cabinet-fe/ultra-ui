@@ -25,13 +25,7 @@
     </template>
 
     <template #content>
-      <UDatePanel
-        :size
-        :type
-        :disabled-date
-        :date="currentDate"
-        @select:date="handleSelectDate"
-      />
+      <UDatePanel :size :type :disabled-date :date="currentDate" @select:date="handleSelectDate" />
     </template>
   </u-dropdown>
 
@@ -41,22 +35,19 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatePickerEmits, DatePickerProps } from '@ui/types'
-import { bem } from '@ui/utils'
-import { UDropdown } from '../dropdown'
-import { UInput } from '../input'
-import { UIcon } from '../icon'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ui/compositions'
-import { computed, shallowRef, watch } from 'vue'
-import { Calendar } from '@ultra/icon'
-import { UDatePanel } from '../date-panel'
+import { useFormComponent, useFormFallbackProps, useUserOpration } from '@ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
+import type { DatePickerEmits, DatePickerProps } from '@ui/types'
 import type { DropdownExposed } from '@ui/types'
+import { bem } from '@ui/utils'
+import { Calendar } from '@ultra/icon'
 import { date, type Dater } from 'cat-kit/fe'
+import { computed, shallowRef, watch } from 'vue'
+
+import { UDatePanel } from '../date-panel'
+import { UDropdown } from '../dropdown'
+import { UIcon } from '../icon'
+import { UInput } from '../input'
 
 defineOptions({
   name: 'DatePicker'
@@ -76,14 +67,11 @@ const cls = bem('date-picker')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]
@@ -102,14 +90,13 @@ const formatStr = computed(() => {
 
 const currentDate = shallowRef<Dater>()
 
-const { update, updateAndLock } = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 watch(
   () => props.modelValue,
-  modelValue => {
-    update(() => {
-      currentDate.value = modelValue ? date(modelValue) : undefined
-    })
+  (modelValue) => {
+    if (isUserOprating()) return
+    currentDate.value = modelValue ? date(modelValue) : undefined
   },
   { immediate: true }
 )
@@ -118,16 +105,14 @@ const displayedValue = computed(() => {
   return currentDate.value?.format(formatStr.value) ?? ''
 })
 
-async function handleSelectDate(date: Dater) {
-  await updateAndLock(() => {
-    currentDate.value = date
-    emit('update:modelValue', date.format(formatStr.value))
-  })
+const handleSelectDate = markAsUserOpration(async (date: Dater) => {
+  currentDate.value = date
+  emit('update:modelValue', date.format(formatStr.value))
   dropdownRef.value?.close()
-}
+})
 
-function handleClear() {
+const handleClear = markAsUserOpration(() => {
   currentDate.value = undefined
   emit('update:modelValue', undefined)
-}
+})
 </script>

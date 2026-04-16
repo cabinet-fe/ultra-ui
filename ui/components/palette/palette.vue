@@ -5,13 +5,7 @@
     v-model:visible="visible"
     :disabled="disabled || readonly"
   >
-    <span
-      :class="className"
-      :style="{
-        backgroundColor: color
-      }"
-    >
-    </span>
+    <span :class="className" :style="{ backgroundColor: color }"> </span>
 
     <template #content>
       <!-- 饱和度和亮度 -->
@@ -30,22 +24,19 @@
 </template>
 
 <script lang="ts" setup>
+import { useFormComponent, useFormFallbackProps, useUserOpration } from '@ui/compositions'
 import type { PaletteProps } from '@ui/types'
 import { bem } from '@ui/utils'
-import { UTip } from '../tip'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ui/compositions'
-import PaletteSV from './palette-sv.vue'
-import PaletteHue from './palette-hue.vue'
+
+import { UTip } from '../tip'
+import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
+import { PaletteDIKey } from './di'
 import PaletteAlpha from './palette-alpha.vue'
 import PaletteColorSwitch from './palette-color-switch.vue'
+import PaletteHue from './palette-hue.vue'
+import PaletteSV from './palette-sv.vue'
 import { useHSV } from './use-hsv'
-import { PaletteDIKey } from './di'
-import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 
 defineOptions({
   name: 'Palette'
@@ -58,10 +49,7 @@ const props = withDefaults(defineProps<PaletteProps>(), {
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const cls = bem('palette')
 
@@ -73,7 +61,7 @@ const { HSV, alpha, ...rest } = useHSV()
 
 const color = defineModel<string>()
 const RGB = computed(() => HSV2RGB(HSV))
-const updater = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 watch([alpha, RGB], ([alpha, RGB]) => {
   color.value = `#${RGB2HEX(RGB, alpha)}`
@@ -81,13 +69,11 @@ watch([alpha, RGB], ([alpha, RGB]) => {
 
 const visible = shallowRef(false)
 
-function handleClear() {
-  updater.updateAndLock(() => {
-    color.value = ''
-    rest.updateAlpha(1)
-    visible.value = false
-  })
-}
+const handleClear = markAsUserOpration(() => {
+  color.value = ''
+  rest.updateAlpha(1)
+  visible.value = false
+})
 
 const paletteSVRef = useTemplateRef('palette-sv')
 const paletteHueRef = useTemplateRef('palette-hue')
@@ -95,20 +81,19 @@ const paletteAlphaRef = useTemplateRef('palette-alpha')
 
 watch(
   color,
-  color => {
+  (color) => {
     if (!color) return
+    if (isUserOprating()) return
 
-    updater.update(() => {
-      const { RGB, alpha } = HEX2RGBA(color)
-      const hsv = RGB2HSV(RGB)
-      rest.updateHue(hsv.h)
-      rest.updateSV({ s: hsv.s, v: hsv.v })
-      rest.updateAlpha(alpha)
+    const { RGB, alpha } = HEX2RGBA(color)
+    const hsv = RGB2HSV(RGB)
+    rest.updateHue(hsv.h)
+    rest.updateSV({ s: hsv.s, v: hsv.v })
+    rest.updateAlpha(alpha)
 
-      paletteSVRef.value?.init()
-      paletteHueRef.value?.init()
-      paletteAlphaRef.value?.init()
-    })
+    paletteSVRef.value?.init()
+    paletteHueRef.value?.init()
+    paletteAlphaRef.value?.init()
   },
   { immediate: true }
 )
@@ -118,7 +103,8 @@ provide(PaletteDIKey, {
   HSV,
   RGB,
   alpha,
-  updater,
+  isUserOprating,
+  markAsUserOpration,
   ...rest
 })
 </script>

@@ -46,8 +46,34 @@ export function useUpdateLock(): Updater {
     lockedCount--
   }
 
-  return {
-    updateAndLock,
-    update
+  return { updateAndLock, update }
+}
+
+export type MarkAsUserOpration = <T extends (...args: any[]) => void | Promise<void>>(
+  fn: T
+) => (...args: Parameters<T>) => Promise<void>
+
+export function useUserOpration() {
+  let opratingCount = 0
+
+  const markAsUserOpration: MarkAsUserOpration = (fn) => {
+    return async function (...args) {
+      opratingCount++
+
+      try {
+        await fn(...args)
+      } catch (error) {
+        console.error(error)
+      }
+      await nextTick()
+
+      opratingCount--
+    }
   }
+
+  function isUserOprating() {
+    return opratingCount > 0
+  }
+
+  return { isUserOprating, markAsUserOpration }
 }

@@ -5,16 +5,17 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted } from 'vue'
-import { PaletteDIKey } from './di'
-import { shallowRef, computed } from 'vue'
 import { useDrag } from '@ui/compositions'
+import { inject, onMounted } from 'vue'
+import { shallowRef, computed } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteHue'
 })
 
-const { cls, updateHue, HSV, updater } = inject(PaletteDIKey)!
+const { cls, updateHue, HSV, markAsUserOpration } = inject(PaletteDIKey)!
 
 const hueRef = shallowRef<HTMLElement>()
 
@@ -32,12 +33,10 @@ function getSliderWidth() {
   rangeX[1] = sliderWidth
 }
 
-function updateOffsetX(offsetX: number) {
-  updater.updateAndLock(() => {
-    transformX.value = offsetX
-    updateHue(Math.round((offsetX / sliderWidth) * 360))
-  })
-}
+const updateOffsetX = markAsUserOpration((offsetX: number) => {
+  transformX.value = offsetX
+  updateHue(Math.round((offsetX / sliderWidth) * 360))
+})
 
 const sliderDragger = useDrag({
   target: hueRef,

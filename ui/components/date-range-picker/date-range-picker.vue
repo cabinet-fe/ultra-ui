@@ -60,20 +60,16 @@
 </template>
 
 <script lang="ts" setup>
+import { useFormComponent, useFormFallbackProps, useUserOpration } from '@ui/compositions'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
-import type {
-  DateRangePickerEmits,
-  DateRangePickerProps,
-  DropdownExposed
-} from '@ui/types'
+import type { DateRangePickerEmits, DateRangePickerProps, DropdownExposed } from '@ui/types'
 import { bem } from '@ui/utils'
-import { computed, shallowRef, watch } from 'vue'
-import { useFormComponent, useFormFallbackProps } from '@ui/compositions'
-import { UDatePanel } from '../date-panel'
-import { date, type Dater } from 'cat-kit/fe'
-import { UDropdown } from '../dropdown'
-import { useUpdateLock } from '@ui/compositions'
 import { Calendar, Close } from '@ultra/icon'
+import { date, type Dater } from 'cat-kit/fe'
+import { computed, shallowRef, watch } from 'vue'
+
+import { UDatePanel } from '../date-panel'
+import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 
 defineOptions({
@@ -98,18 +94,15 @@ const className = computed(() => {
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps(
-  [formProps ?? {}, props],
-  {
-    size: 'default',
-    disabled: false,
-    readonly: false
-  }
-)
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const { update, updateAndLock } = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 const currentRangeDate = shallowRef<[Dater, Dater]>()
 
@@ -132,26 +125,20 @@ const formatStr = computed(() => {
 
 watch(
   () => props.modelValue,
-  val => {
-    update(() => {
-      if (val?.length === 2) {
-        currentRangeDate.value = [date(val[0]), date(val[1])]
-      }
-    })
+  (val) => {
+    if (isUserOprating()) return
+    if (val?.length === 2) {
+      currentRangeDate.value = [date(val[0]), date(val[1])]
+    }
   },
   { immediate: true }
 )
 
-async function handleSelect(rangeDate: [Dater, Dater] | undefined) {
-  await updateAndLock(() => {
-    currentRangeDate.value = rangeDate
-    emit(
-      'update:modelValue',
-      rangeDate?.map(d => d.format(formatStr.value)) as [string, string]
-    )
-  })
+const handleSelect = markAsUserOpration(async (rangeDate: [Dater, Dater] | undefined) => {
+  currentRangeDate.value = rangeDate
+  emit('update:modelValue', rangeDate?.map((d) => d.format(formatStr.value)) as [string, string])
   dropdownRef.value?.close()
-}
+})
 
 const hovered = shallowRef(false)
 

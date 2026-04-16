@@ -110,7 +110,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@ui/compositions'
+import {
+  useFormComponent,
+  useFormFallbackProps,
+  useUserOpration,
+  useVirtual
+} from '@ui/compositions'
 import { vFocus } from '@ui/directives'
 import { FORM_EMPTY_CONTENT } from '@ui/shared'
 import type {
@@ -179,23 +184,13 @@ const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } 
   props
 })
 
-// TODO: 优化
-let userSelecting = false
-function lock() {
-  userSelecting = true
-}
-
-function unlock() {
-  nextTick(() => {
-    userSelecting = false
-  })
-}
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 // 回显
 watch(
   [() => props.modelValue, options],
   ([modelValue, options]) => {
-    if (userSelecting) return
+    if (isUserOprating()) return
 
     if (!options?.length) return
 
@@ -276,8 +271,7 @@ const handleDropdownVisible = (visible: boolean) => {
 }
 
 /** 单选 */
-const handleSelect = (option: Record<string, any>, index: number) => {
-  lock()
+const handleSelect = markAsUserOpration((option: Record<string, any>, index: number) => {
   selected.value = option
 
   emit('update:modelValue', option?.[props.valueKey])
@@ -288,20 +282,16 @@ const handleSelect = (option: Record<string, any>, index: number) => {
   }
   currentIndex.value = index
   dropdownRef.value?.close()
-
-  unlock()
-}
+})
 
 /** 清除选项 */
-const handleClear = () => {
-  lock()
+const handleClear = markAsUserOpration(() => {
   selected.value = undefined
   currentIndex.value = -1
   clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)
-  unlock()
-}
+})
 
 function getCurrentEl() {
   return scrollRef.value?.contentRef?.querySelector('li.is-selected') as HTMLElement | undefined

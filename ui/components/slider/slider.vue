@@ -20,16 +20,13 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
+import { useFormComponent, useFormFallbackProps, useUserOpration } from '@ui/compositions'
 import type { SliderProps, SliderEmits } from '@ui/types'
 import { bem } from '@ui/utils'
 import { computed, provide, watch } from 'vue'
+
 import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
-import {
-  useFormComponent,
-  useFormFallbackProps,
-  useUpdateLock
-} from '@ui/compositions'
 import { useSlider } from './use-slider'
 
 defineOptions({
@@ -49,10 +46,7 @@ const cls = bem('slider')
 
 const { formProps } = useFormComponent()
 
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const className = computed(() => {
   return [
@@ -93,26 +87,20 @@ const barStyles = computed(() => {
   }
 })
 
-const { updateAndLock, update } = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 watch(
-  [
-    sliderSize,
-    ...['modelValue', 'range', 'max', 'min', 'vertical'].map(
-      k => () => props[k]
-    )
-  ],
+  [sliderSize, ...['modelValue', 'range', 'max', 'min', 'vertical'].map((k) => () => props[k])],
   ([size, value, range]) => {
-    update(() => {
-      if (value === undefined || size === 0) return
+    if (isUserOprating()) return
+    if (value === undefined || size === 0) return
 
-      if (range) {
-        offset1.value = value2SliderOffset((value as [number, number])[0])
-        offset2.value = value2SliderOffset((value as [number, number])[1])
-      } else {
-        offset1.value = value2SliderOffset(value as number)
-      }
-    })
+    if (range) {
+      offset1.value = value2SliderOffset((value as [number, number])[0])
+      offset2.value = value2SliderOffset((value as [number, number])[1])
+    } else {
+      offset1.value = value2SliderOffset(value as number)
+    }
   },
   { immediate: true }
 )
@@ -123,21 +111,19 @@ const ticks = computed(() => {
   const tickLength = Math.ceil((max! - min!) / step)
   const offsetPercent = (step / (max! - min!)) * 100
 
-  return [
-    ...Array.from({ length: tickLength }, (_, i) => i * offsetPercent),
-    100
-  ]
+  return [...Array.from({ length: tickLength }, (_, i) => i * offsetPercent), 100]
 })
 
-watch([offset1, offset2], v => {
-  updateAndLock(() => {
+watch(
+  [offset1, offset2],
+  markAsUserOpration((v) => {
     if (props.range) {
       emit('update:modelValue', v.map(sliderOffset2Value).sort() as T)
     } else {
       emit('update:modelValue', sliderOffset2Value(v[0]) as T)
     }
   })
-})
+)
 
 function handleClickSlider(e: MouseEvent) {
   if (disabled.value || props.range) return

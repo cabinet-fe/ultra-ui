@@ -1,30 +1,23 @@
 <template>
   <div :class="cls.e('alpha')" ref="alphaRef">
-    <div
-      :class="cls.e('alpha-bg')"
-      :style="{
-        background: alphaSliderBG
-      }"
-    ></div>
+    <div :class="cls.e('alpha-bg')" :style="{ background: alphaSliderBG }"></div>
 
-    <span
-      :class="cls.e('alpha-thumb')"
-      @click.stop
-      :style="alphaThumbStyle"
-    ></span>
+    <span :class="cls.e('alpha-thumb')" @click.stop :style="alphaThumbStyle"></span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { PaletteDIKey } from './di'
-import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 import { useDrag } from '@ui/compositions'
+import { computed, inject, shallowRef, onMounted, watch } from 'vue'
+
+import { PaletteDIKey } from './di'
 
 defineOptions({
   name: 'PaletteAlpha'
 })
 
-const { cls, updateAlpha, hueRGB, alpha, updater } = inject(PaletteDIKey)!
+const { cls, updateAlpha, hueRGB, alpha, markAsUserOpration, isUserOprating } =
+  inject(PaletteDIKey)!
 
 const alphaRef = shallowRef<HTMLElement>()
 
@@ -42,12 +35,10 @@ function getAlphaWidth() {
   rangeX[1] = alphaWidth
 }
 
-function updateOffsetX(offsetX: number) {
-  updater.updateAndLock(() => {
-    alphaThumbTransformX.value = offsetX
-    updateAlpha(alphaWidth > 0 ? offsetX / alphaWidth : 0)
-  })
-}
+const updateOffsetX = markAsUserOpration((offsetX: number) => {
+  alphaThumbTransformX.value = offsetX
+  updateAlpha(alphaWidth > 0 ? offsetX / alphaWidth : 0)
+})
 
 const alphaDragger = useDrag({
   target: alphaRef,
@@ -80,11 +71,9 @@ onMounted(() => {
 
 watch(
   alpha,
-  newAlphaValue => {
-    updater.update(() => {
-      alphaThumbTransformX.value =
-        alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
-    })
+  (newAlphaValue) => {
+    if (isUserOprating()) return
+    alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
   },
   { flush: 'post' }
 )

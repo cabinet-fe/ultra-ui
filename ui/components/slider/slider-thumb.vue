@@ -2,9 +2,10 @@
   <div ref="thumb" :class="cls.e('thumb')" :style></div>
 </template>
 <script lang="ts" setup>
+import { useDrag, useUserOpration } from '@ui/compositions'
 import { computed, inject, useTemplateRef, watch } from 'vue'
+
 import { sliderContextKey } from './di'
-import { useDrag, useUpdateLock } from '@ui/compositions'
 
 const props = defineProps<{
   modelValue: number
@@ -14,8 +15,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const { cls, range, disabled, sliderProps, getOffsetByStep } =
-  inject(sliderContextKey)!
+const { cls, range, disabled, sliderProps, getOffsetByStep } = inject(sliderContextKey)!
 
 const thumbRef = useTemplateRef('thumb')
 
@@ -30,7 +30,7 @@ const style = computed(() => {
   }
 })
 
-const { updateAndLock, update } = useUpdateLock()
+const { isUserOprating, markAsUserOpration } = useUserOpration()
 
 function updateModel(offset: number) {
   offset = getOffsetByStep(offset)
@@ -41,19 +41,15 @@ function updateModel(offset: number) {
 const dragger = useDrag({
   target: computed(() => (disabled.value ? null : thumbRef.value)),
 
-  onDrag({ offsetX, offsetY }) {
-    updateAndLock(() => {
-      updateModel(sliderProps.vertical ? offsetY : offsetX)
-    })
-  },
+  onDrag: markAsUserOpration(({ offsetX, offsetY }) => {
+    updateModel(sliderProps.vertical ? offsetY : offsetX)
+  }),
   rangeX: range,
   rangeY: range,
-  onDragEnd({ offsetX, offsetY }) {
-    updateAndLock(() => {
-      const offset = updateModel(sliderProps.vertical ? offsetY : offsetX)
-      updateDragger(offset)
-    })
-  }
+  onDragEnd: markAsUserOpration(({ offsetX, offsetY }) => {
+    const offset = updateModel(sliderProps.vertical ? offsetY : offsetX)
+    updateDragger(offset)
+  })
 })
 
 function updateDragger(offset: number) {
@@ -66,8 +62,9 @@ function updateDragger(offset: number) {
 
 watch(
   () => props.modelValue,
-  offset => {
-    update(() => updateDragger(offset))
+  (offset) => {
+    if (isUserOprating()) return
+    updateDragger(offset)
   }
 )
 </script>
