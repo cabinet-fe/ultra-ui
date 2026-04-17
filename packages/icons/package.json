@@ -5,18 +5,18 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./normal": {
-      "types": "./dist/normal.d.ts",
       "development": "./src/normal.ts",
+      "types": "./dist/normal.d.ts",
       "import": "./dist/normal.js"
     },
     "./colorful": {
-      "types": "./dist/colorful.d.ts",
       "development": "./src/colorful.ts",
+      "types": "./dist/colorful.d.ts",
       "import": "./dist/colorful.js"
     }
   },
