@@ -1,5 +1,4 @@
 import { Forest } from '@cat-kit/core'
-import type { Updater } from '@veltra/compositions'
 import { createIncrease } from '@veltra/utils'
 import {
   computed,
@@ -23,7 +22,7 @@ import type {
 interface SelectOptions {
   props: CascadeProps
   emit: CascadeEmits
-  updater: Updater
+  isUserActive: () => boolean
   forest: Ref<Forest<Record<string, unknown>, any>>
   dataMap: Ref<Map<string, CascadeNode>>
   dropdownRef: Ref<DropdownExposed | undefined>
@@ -42,7 +41,7 @@ interface UseSelectReturned {
 }
 
 export function useSelect(options: SelectOptions): UseSelectReturned {
-  const { props, emit, dataMap, updater, dropdownRef, forest } = options
+  const { props, emit, dataMap, isUserActive, dropdownRef, forest } = options
 
   /** 选中的节点key */
   const selectedNodeKeys = shallowRef<string[]>([])
@@ -152,8 +151,8 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   watch(
     [() => props.multiple, () => props.modelValue, forest],
     ([multiple]) => {
-      if (multiple) return
-      updater.update(() => initSingleSelect())
+      if (multiple || isUserActive()) return
+      initSingleSelect()
     },
     { immediate: true }
   )

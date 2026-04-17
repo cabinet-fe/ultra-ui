@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-04-14T00:53:40.802Z",
+  "syncedAt": "2026-04-17T04:07:14.512Z",
   "sourceRoot": "packages/compositions/src",
   "modules": [
     {
@@ -45,13 +45,6 @@
       "docFile": "modules/use-form-component.md"
     },
     {
-      "name": "use-lock",
-      "files": [
-        "use-lock/index.ts"
-      ],
-      "docFile": "modules/use-lock.md"
-    },
-    {
       "name": "use-model",
       "files": [
         "use-model/index.ts"
@@ -89,6 +82,13 @@
         "use-transition/utils.ts"
       ],
       "docFile": "modules/use-transition.md"
+    },
+    {
+      "name": "use-user-action",
+      "files": [
+        "use-user-action/index.ts"
+      ],
+      "docFile": "modules/use-user-action.md"
     },
     {
       "name": "use-virtual",

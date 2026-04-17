@@ -2,7 +2,7 @@
   <div ref="thumb" :class="cls.e('thumb')" :style></div>
 </template>
 <script lang="ts" setup>
-import { useDrag, useUpdateLock } from '@veltra/compositions'
+import { useDrag, useUserAction } from '@veltra/compositions'
 import { computed, inject, useTemplateRef, watch } from 'vue'
 
 import { sliderContextKey } from './di'
@@ -30,7 +30,7 @@ const style = computed(() => {
   }
 })
 
-const { updateAndLock, update } = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 function updateModel(offset: number) {
   offset = getOffsetByStep(offset)
@@ -41,19 +41,15 @@ function updateModel(offset: number) {
 const dragger = useDrag({
   target: computed(() => (disabled.value ? null : thumbRef.value)),
 
-  onDrag({ offsetX, offsetY }) {
-    updateAndLock(() => {
-      updateModel(sliderProps.vertical ? offsetY : offsetX)
-    })
-  },
+  onDrag: userAction(({ offsetX, offsetY }) => {
+    updateModel(sliderProps.vertical ? offsetY : offsetX)
+  }),
   rangeX: range,
   rangeY: range,
-  onDragEnd({ offsetX, offsetY }) {
-    updateAndLock(() => {
-      const offset = updateModel(sliderProps.vertical ? offsetY : offsetX)
-      updateDragger(offset)
-    })
-  }
+  onDragEnd: userAction(({ offsetX, offsetY }) => {
+    const offset = updateModel(sliderProps.vertical ? offsetY : offsetX)
+    updateDragger(offset)
+  })
 })
 
 function updateDragger(offset: number) {
@@ -67,7 +63,8 @@ function updateDragger(offset: number) {
 watch(
   () => props.modelValue,
   (offset) => {
-    update(() => updateDragger(offset))
+    if (isUserActive()) return
+    updateDragger(offset)
   }
 )
 </script>

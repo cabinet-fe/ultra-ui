@@ -4,7 +4,7 @@ description: >
   @veltra/compositions 组合式函数（composable）文档与源码镜像。
   当实现或重构涉及组合式函数、composable、useModel、usePop、useVirtual、
   表单回退（useFallbackProps / useFormFallbackProps）、useConfig、
-  useTransition、useDrag、useFocus、浮层定位、虚拟滚动、更新锁等逻辑时使用。
+  useTransition、useDrag、useFocus、浮层定位、虚拟滚动、用户动作追踪等逻辑时使用。
   详细实现请读 `generated/modules/*.md`；集成模式见 references/usage-patterns.md。
 ---
 
@@ -38,7 +38,7 @@ import {
   useReactiveSize,
   useResizeObserver,
   useObserverCallback,
-  useUpdateLock
+  useUserAction
 } from '@veltra/compositions'
 ```
 
@@ -49,7 +49,7 @@ import {
 | 函数 | 用途 | 关键参数 / 行为 | 返回值要点 |
 |------|------|-----------------|------------|
 | `useModel` | 自定义 v-model（非 `defineModel` 场景） | `propName`、`local`（bool 或函数）、`shallow` | 类 ref 的 `{ value }` |
-| `useUpdateLock` | 防止更新环路 | 无 | `{ update, updateAndLock }` |
+| `useUserAction` | 用户动作期间阻断 modelValue 回流副作用 | 无 | `{ userAction, isUserActive }` |
 | `useDrag` | 拖拽（如对话框标题栏） | 目标 ref、边界等 | 拖拽状态与控制 |
 | `useFocus` | 焦点与 hover 语义 | 回调 | `focus`、`handleFocus`、`handleBlur` 等 |
 | `useTransition` | 过渡：`css` 或 `style` | `target`、`name` / style 关键帧 | `enter`、`leave` |
@@ -68,7 +68,7 @@ import {
 ### 状态与并发
 
 - **useModel**：需要非 `modelValue` 的 prop 名、或 `local` 函数在受控/非受控间切换（如表格 `current` 行）。
-- **useUpdateLock**：异步更新链上防止重入。
+- **useUserAction**：用户动作期间阻断由 `modelValue` 回流引起的同步副作用；通过 `userAction(fn)` 包装事件处理函数（不要自调用），副作用侧用 `isUserActive()` 早返。
 
 ### UI 交互
 

@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -61,7 +61,7 @@ const { HSV, alpha, ...rest } = useHSV()
 
 const color = defineModel<string>()
 const RGB = computed(() => HSV2RGB(HSV))
-const updater = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 watch([alpha, RGB], ([alpha, RGB]) => {
   color.value = `#${RGB2HEX(RGB, alpha)}`
@@ -69,13 +69,11 @@ watch([alpha, RGB], ([alpha, RGB]) => {
 
 const visible = shallowRef(false)
 
-function handleClear() {
-  updater.updateAndLock(() => {
-    color.value = ''
-    rest.updateAlpha(1)
-    visible.value = false
-  })
-}
+const handleClear = userAction(() => {
+  color.value = ''
+  rest.updateAlpha(1)
+  visible.value = false
+})
 
 const paletteSVRef = useTemplateRef('palette-sv')
 const paletteHueRef = useTemplateRef('palette-hue')
@@ -85,18 +83,17 @@ watch(
   color,
   (color) => {
     if (!color) return
+    if (isUserActive()) return
 
-    updater.update(() => {
-      const { RGB, alpha } = HEX2RGBA(color)
-      const hsv = RGB2HSV(RGB)
-      rest.updateHue(hsv.h)
-      rest.updateSV({ s: hsv.s, v: hsv.v })
-      rest.updateAlpha(alpha)
+    const { RGB, alpha } = HEX2RGBA(color)
+    const hsv = RGB2HSV(RGB)
+    rest.updateHue(hsv.h)
+    rest.updateSV({ s: hsv.s, v: hsv.v })
+    rest.updateAlpha(alpha)
 
-      paletteSVRef.value?.init()
-      paletteHueRef.value?.init()
-      paletteAlphaRef.value?.init()
-    })
+    paletteSVRef.value?.init()
+    paletteHueRef.value?.init()
+    paletteAlphaRef.value?.init()
   },
   { immediate: true }
 )
@@ -106,7 +103,8 @@ provide(PaletteDIKey, {
   HSV,
   RGB,
   alpha,
-  updater,
+  userAction,
+  isUserActive,
   ...rest
 })
 </script>

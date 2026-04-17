@@ -10,7 +10,7 @@
 - `use-fallback-props`
 - `use-focus`
 - `use-form-component`
-- `use-lock`
+- `use-user-action`
 - `use-model`
 - `use-pop`
 - `use-reactive-size`

@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, provide, watch } from 'vue'
 
@@ -87,21 +87,20 @@ const barStyles = computed(() => {
   }
 })
 
-const { updateAndLock, update } = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 watch(
   [sliderSize, ...['modelValue', 'range', 'max', 'min', 'vertical'].map((k) => () => props[k])],
   ([size, value, range]) => {
-    update(() => {
-      if (value === undefined || size === 0) return
+    if (isUserActive()) return
+    if (value === undefined || size === 0) return
 
-      if (range) {
-        offset1.value = value2SliderOffset((value as [number, number])[0])
-        offset2.value = value2SliderOffset((value as [number, number])[1])
-      } else {
-        offset1.value = value2SliderOffset(value as number)
-      }
-    })
+    if (range) {
+      offset1.value = value2SliderOffset((value as [number, number])[0])
+      offset2.value = value2SliderOffset((value as [number, number])[1])
+    } else {
+      offset1.value = value2SliderOffset(value as number)
+    }
   },
   { immediate: true }
 )
@@ -115,15 +114,16 @@ const ticks = computed(() => {
   return [...Array.from({ length: tickLength }, (_, i) => i * offsetPercent), 100]
 })
 
-watch([offset1, offset2], (v) => {
-  updateAndLock(() => {
+watch(
+  [offset1, offset2],
+  userAction((v) => {
     if (props.range) {
       emit('update:modelValue', v.map(sliderOffset2Value).sort() as T)
     } else {
       emit('update:modelValue', sliderOffset2Value(v[0]) as T)
     }
   })
-})
+)
 
 function handleClickSlider(e: MouseEvent) {
   if (disabled.value || props.range) return

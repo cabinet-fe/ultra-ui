@@ -36,7 +36,7 @@
 
 <script lang="ts" setup>
 import { date, type Dater } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Calendar } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
@@ -89,14 +89,13 @@ const formatStr = computed(() => {
 
 const currentDate = shallowRef<Dater>()
 
-const { update, updateAndLock } = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 watch(
   () => props.modelValue,
   (modelValue) => {
-    update(() => {
-      currentDate.value = modelValue ? date(modelValue) : undefined
-    })
+    if (isUserActive()) return
+    currentDate.value = modelValue ? date(modelValue) : undefined
   },
   { immediate: true }
 )
@@ -105,11 +104,13 @@ const displayedValue = computed(() => {
   return currentDate.value?.format(formatStr.value) ?? ''
 })
 
+const commitSelectedDate = userAction((date: Dater) => {
+  currentDate.value = date
+  emit('update:modelValue', date.format(formatStr.value))
+})
+
 async function handleSelectDate(date: Dater) {
-  await updateAndLock(() => {
-    currentDate.value = date
-    emit('update:modelValue', date.format(formatStr.value))
-  })
+  await commitSelectedDate(date)
   dropdownRef.value?.close()
 }
 

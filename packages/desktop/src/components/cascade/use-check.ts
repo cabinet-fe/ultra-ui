@@ -1,5 +1,4 @@
 import { dfs, type Forest } from '@cat-kit/core'
-import type { Updater } from '@veltra/compositions'
 import {
   computed,
   shallowRef,
@@ -19,7 +18,7 @@ interface CheckOptions {
   disabled: Ref<boolean>
   readonly: Ref<boolean>
   forest: Ref<Forest<Record<string, unknown>, any>>
-  updater: Updater
+  isUserActive: () => boolean
   getPanelItemList: (data?: CascadeNode[]) => void
 }
 
@@ -34,7 +33,8 @@ interface UseCheckReturned {
 }
 
 export function useCheck(options: CheckOptions): UseCheckReturned {
-  const { props, emit, dataMap, disabled, readonly, forest, updater, getPanelItemList } = options
+  const { props, emit, dataMap, disabled, readonly, forest, isUserActive, getPanelItemList } =
+    options
 
   const hovered = shallowRef(false)
 
@@ -119,7 +119,8 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
   watch(
     [() => props.multiple, () => props.modelValue, forest],
     ([multiple]) => {
-      multiple && updater.update(() => initMultipleCheck())
+      if (!multiple || isUserActive()) return
+      initMultipleCheck()
     },
     { immediate: false }
   )

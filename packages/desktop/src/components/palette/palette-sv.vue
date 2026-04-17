@@ -24,7 +24,7 @@ defineOptions({
   name: 'PaletteSV'
 })
 
-const { cls, hueRGB, HSV, updateSV, updater } = inject(PaletteDIKey)!
+const { cls, hueRGB, HSV, updateSV, userAction } = inject(PaletteDIKey)!
 
 const svRef = shallowRef<HTMLDivElement>()
 
@@ -58,21 +58,19 @@ const svThumbStyle = computed(() => {
   }
 })
 
-function updateThumb(offsetX: number, offsetY: number) {
-  updater.updateAndLock(() => {
-    transform.x = offsetX
-    transform.y = offsetY
+const updateThumb = userAction((offsetX: number, offsetY: number) => {
+  transform.x = offsetX
+  transform.y = offsetY
 
-    // 根据画布位置计算饱和度和亮度
-    // 水平方向表示饱和度，从左到右饱和度逐渐增高
-    // 垂直方向表示亮度，上亮下暗
-    const s = Math.max(0, Math.min(1, offsetX / canvasSize.width))
-    const v = Math.max(0, Math.min(1, 1 - offsetY / canvasSize.height))
+  // 根据画布位置计算饱和度和亮度
+  // 水平方向表示饱和度，从左到右饱和度逐渐增高
+  // 垂直方向表示亮度，上亮下暗
+  const s = Math.max(0, Math.min(1, offsetX / canvasSize.width))
+  const v = Math.max(0, Math.min(1, 1 - offsetY / canvasSize.height))
 
-    // 更新饱和度和亮度
-    updateSV({ s, v })
-  })
-}
+  // 更新饱和度和亮度
+  updateSV({ s, v })
+})
 
 const svDragger = useDrag({
   target: svRef,

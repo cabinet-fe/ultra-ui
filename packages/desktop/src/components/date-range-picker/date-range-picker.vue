@@ -61,8 +61,7 @@
 
 <script lang="ts" setup>
 import { date, type Dater } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
-import { useUpdateLock } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Calendar, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
@@ -102,7 +101,7 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
-const { update, updateAndLock } = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 const currentRangeDate = shallowRef<[Dater, Dater]>()
 
@@ -126,20 +125,21 @@ const formatStr = computed(() => {
 watch(
   () => props.modelValue,
   (val) => {
-    update(() => {
-      if (val?.length === 2) {
-        currentRangeDate.value = [date(val[0]), date(val[1])]
-      }
-    })
+    if (isUserActive()) return
+    if (val?.length === 2) {
+      currentRangeDate.value = [date(val[0]), date(val[1])]
+    }
   },
   { immediate: true }
 )
 
+const commitSelectedRange = userAction((rangeDate: [Dater, Dater] | undefined) => {
+  currentRangeDate.value = rangeDate
+  emit('update:modelValue', rangeDate?.map((d) => d.format(formatStr.value)) as [string, string])
+})
+
 async function handleSelect(rangeDate: [Dater, Dater] | undefined) {
-  await updateAndLock(() => {
-    currentRangeDate.value = rangeDate
-    emit('update:modelValue', rangeDate?.map((d) => d.format(formatStr.value)) as [string, string])
-  })
+  await commitSelectedRange(rangeDate)
   dropdownRef.value?.close()
 }
 

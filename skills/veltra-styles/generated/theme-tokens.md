@@ -6,7 +6,7 @@
  */
 export type RGBColor = [number, number, number]
 
-/** 仅含全局 token；组件级 token 由各组件 SCSS 以 `--u-{component}-*` 声明 */
+/** 仅含全局 token；组件级 `--u-*` 由 `theme/component-css-vars.ts` 随 `loadTheme` 注入 */
 export type Theme = {
   /** 主题色 */
   color: {

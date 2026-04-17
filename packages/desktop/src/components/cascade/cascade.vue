@@ -105,7 +105,7 @@
 
 <script lang="ts" setup>
 import { Forest, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useUpdateLock } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
@@ -185,8 +185,7 @@ const forest = computed(() => {
 
 const { dataMap } = useDataMap({ props, forest })
 
-// 初始化更新辅助
-const updater = useUpdateLock()
+const { userAction, isUserActive } = useUserAction()
 
 const {
   displayedValue,
@@ -201,7 +200,7 @@ const {
   emit,
   dataMap,
   forest,
-  updater,
+  isUserActive,
   dropdownRef
 })
 
@@ -212,29 +211,30 @@ const { hovered, tags, restTag, updateMultipleValue, handleCloseTag, checkItem, 
     getPanelItemList,
     emit,
     dataMap,
-    updater,
+    isUserActive,
     disabled,
     readonly
   })
 
+const commitSingleSelect = userAction((item: CascadeNode) => {
+  if (!props.strict) {
+    updateSingleValue()
+  } else if (!item.children?.length) {
+    updateSingleValue()
+  }
+})
+
 function handleClick(panelIndex: number, item: CascadeNode) {
-  // 选择
   selectItem(panelIndex, item)
 
-  // 更新数据
-  !props.multiple &&
-    updater.updateAndLock(() => {
-      if (!props.strict) {
-        updateSingleValue()
-      } else if (!item.children?.length) {
-        updateSingleValue()
-      }
-    })
+  if (!props.multiple) {
+    commitSingleSelect(item)
+  }
 }
 
-function handleCheck(item: CascadeNode, checked: boolean) {
-  updater.updateAndLock(() => checkItem(item, checked))
-}
+const handleCheck = userAction((item: CascadeNode, checked: boolean) => {
+  checkItem(item, checked)
+})
 
 function handleClear() {
   if (props.multiple) {

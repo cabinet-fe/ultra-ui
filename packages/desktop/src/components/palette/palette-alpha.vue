@@ -16,7 +16,7 @@ defineOptions({
   name: 'PaletteAlpha'
 })
 
-const { cls, updateAlpha, hueRGB, alpha, updater } = inject(PaletteDIKey)!
+const { cls, updateAlpha, hueRGB, alpha, userAction, isUserActive } = inject(PaletteDIKey)!
 
 const alphaRef = shallowRef<HTMLElement>()
 
@@ -34,12 +34,10 @@ function getAlphaWidth() {
   rangeX[1] = alphaWidth
 }
 
-function updateOffsetX(offsetX: number) {
-  updater.updateAndLock(() => {
-    alphaThumbTransformX.value = offsetX
-    updateAlpha(alphaWidth > 0 ? offsetX / alphaWidth : 0)
-  })
-}
+const updateOffsetX = userAction((offsetX: number) => {
+  alphaThumbTransformX.value = offsetX
+  updateAlpha(alphaWidth > 0 ? offsetX / alphaWidth : 0)
+})
 
 const alphaDragger = useDrag({
   target: alphaRef,
@@ -73,9 +71,8 @@ onMounted(() => {
 watch(
   alpha,
   (newAlphaValue) => {
-    updater.update(() => {
-      alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
-    })
+    if (isUserActive()) return
+    alphaThumbTransformX.value = alphaWidth > 0 ? alphaWidth * newAlphaValue : 0
   },
   { flush: 'post' }
 )

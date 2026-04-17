@@ -1,4 +1,4 @@
-import type { Updater } from '@veltra/compositions'
+import type { UserAction } from '@veltra/compositions'
 import type { BEM } from '@veltra/utils'
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
 
@@ -14,8 +14,10 @@ export const PaletteDIKey: InjectionKey<{
   RGB: ComputedRef<PaletteRGB>
   /** 透明度 */
   alpha: Ref<number>
-  /** 更新器 */
-  updater: Updater
+  /** 将函数包装为用户动作（阻断 modelValue 回流副作用） */
+  userAction: UserAction
+  /** 当前是否处于用户动作期间 */
+  isUserActive: () => boolean
   /** 更新色调 */
   updateHue: (deg: number) => void
   /** 更新调色盘透明度 */

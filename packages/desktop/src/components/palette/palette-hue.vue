@@ -15,7 +15,7 @@ defineOptions({
   name: 'PaletteHue'
 })
 
-const { cls, updateHue, HSV, updater } = inject(PaletteDIKey)!
+const { cls, updateHue, HSV, userAction } = inject(PaletteDIKey)!
 
 const hueRef = shallowRef<HTMLElement>()
 
@@ -33,12 +33,10 @@ function getSliderWidth() {
   rangeX[1] = sliderWidth
 }
 
-function updateOffsetX(offsetX: number) {
-  updater.updateAndLock(() => {
-    transformX.value = offsetX
-    updateHue(Math.round((offsetX / sliderWidth) * 360))
-  })
-}
+const updateOffsetX = userAction((offsetX: number) => {
+  transformX.value = offsetX
+  updateHue(Math.round((offsetX / sliderWidth) * 360))
+})
 
 const sliderDragger = useDrag({
   target: hueRef,
