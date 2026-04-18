@@ -27,3 +27,4 @@
 - [x] [修复 desktop 构建后 style 依赖丢失](./done/plan-27-20260414/plan.md)
 - [x] [组件 CSS 变量迁入 @veltra/styles 并在 loadTheme 注入](./done/plan-28-20260417/plan.md)
 - [x] [将 use-lock 重构为语义化的 use-interaction](./done/plan-29-20260417/plan.md)
+- [x] [修复 @veltra/\* 包 exports 条件顺序，让 development 条件真正生效](./done/plan-30-20260418/plan.md)

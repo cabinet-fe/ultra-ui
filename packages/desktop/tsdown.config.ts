@@ -38,6 +38,13 @@ export default defineConfig({
       '@codemirror/lang-sql',
       '@codemirror/state',
       '@codemirror/view',
+      '@embedpdf/core',
+      '@embedpdf/engines',
+      '@embedpdf/plugin-document-manager',
+      '@embedpdf/plugin-render',
+      '@embedpdf/plugin-scroll',
+      '@embedpdf/plugin-viewport',
+      '@cat-kit/excel',
       '@lexical/clipboard',
       '@lexical/history',
       '@lexical/html',
@@ -46,7 +53,9 @@ export default defineConfig({
       '@lexical/rich-text',
       '@lexical/selection',
       '@lexical/utils',
+      '@visactor/vtable',
       'codemirror',
+      'docx-preview',
       'lexical'
     ]
   },

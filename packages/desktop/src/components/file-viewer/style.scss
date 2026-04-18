@@ -1,0 +1,412 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+@include m.b(file-viewer) {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  color: fn.use-var(text-color, main);
+  background: fn.use-var(bg-color, top);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid fn.use-var(border, color);
+
+  @include m.e(sidebar) {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid fn.use-var(border, color);
+    background: fn.use-var(bg-color, middle);
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  @include m.e(sidebar-head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 18px 20px 10px;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(sidebar-title) {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  @include m.e(sidebar-count) {
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(list) {
+    flex: 1;
+    min-height: 0;
+    padding: 4px 10px 16px;
+  }
+
+  @include m.e(list-empty) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(item) {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    margin: 2px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease,
+      transform 0.18s ease;
+
+    &:hover {
+      background: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 14%, transparent);
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(item-meta) {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+    flex: 1;
+  }
+
+  @include m.e(item-name) {
+    font-size: 13px;
+    line-height: 1.4;
+    @include m.ellipsis;
+  }
+
+  @include m.e(item-size) {
+    font-size: 11px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(badge) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: fn.use-var(text-color, placeholder);
+
+    @include m.em(badge, image) {
+      background: #0ea5e9;
+    }
+
+    @include m.em(badge, video) {
+      background: #ef4444;
+    }
+
+    @include m.em(badge, pdf) {
+      background: #dc2626;
+    }
+
+    @include m.em(badge, sheet) {
+      background: #16a34a;
+    }
+
+    @include m.em(badge, docx) {
+      background: #2563eb;
+    }
+
+    @include m.em(badge, text) {
+      background: #64748b;
+    }
+  }
+
+  @include m.e(stage) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  @include m.e(stage-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 22px;
+    border-bottom: 1px solid fn.use-var(border, color);
+    background: fn.use-var(bg-color, top);
+    flex-shrink: 0;
+  }
+
+  @include m.e(stage-title) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  @include m.e(stage-name) {
+    font-size: 14px;
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    @include m.ellipsis;
+  }
+
+  @include m.e(stage-sub) {
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+    flex-shrink: 0;
+  }
+
+  @include m.e(stage-actions) {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(action) {
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: 1px solid fn.use-var(border, color);
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+      background 0.18s,
+      border-color 0.18s,
+      color 0.18s;
+
+    &:not(:disabled):hover {
+      border-color: fn.use-var(color, primary);
+      color: fn.use-var(color, primary);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    @include m.em(action, primary) {
+      background: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+      color: #fff;
+
+      &:not(:disabled):hover {
+        color: #fff;
+        filter: brightness(1.05);
+      }
+    }
+  }
+
+  @include m.e(body) {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: fn.use-var(bg-color, bottom);
+    overflow: hidden;
+  }
+
+  @include m.e(empty) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(image) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    user-select: none;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      border-radius: 6px;
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    @include m.is(actual) {
+      img {
+        max-width: none;
+        max-height: none;
+        object-fit: none;
+        cursor: zoom-out;
+      }
+    }
+  }
+
+  @include m.e(video) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      outline: none;
+    }
+  }
+
+  @include m.e(text) {
+    position: absolute;
+    inset: 0;
+  }
+
+  @include m.e(text-pre) {
+    margin: 0;
+    padding: 20px 24px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    white-space: pre;
+    tab-size: 2;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(pdf) {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  @include m.e(pdf-viewport) {
+    width: 100%;
+    height: 100%;
+    background: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(pdf-page) {
+    margin: 16px auto;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  }
+
+  @include m.e(docx) {
+    position: absolute;
+    inset: 0;
+    background: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(docx-body) {
+    padding: 24px;
+
+    :deep(.u-file-viewer__docx-doc) {
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      color: #222;
+    }
+  }
+
+  @include m.e(sheet) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(sheet-note) {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+    background: fn.use-var(bg-color, top);
+    border-bottom: 1px solid fn.use-var(border, color);
+    flex-shrink: 0;
+  }
+
+  @include m.e(sheet-tabs) {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    border-bottom: 1px solid fn.use-var(border, color);
+    background: fn.use-var(bg-color, top);
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+
+  @include m.e(sheet-tab) {
+    flex-shrink: 0;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+      background 0.18s,
+      color 0.18s;
+
+    &:hover {
+      background: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, main);
+    }
+
+    @include m.is(active) {
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 14%, transparent);
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(sheet-stage) {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  @include m.e(loading) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: fn.use-var(text-color, second);
+    font-size: 13px;
+    pointer-events: none;
+  }
+}
+
+.u-file-viewer-fade-enter-active,
+.u-file-viewer-fade-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.u-file-viewer-fade-enter-from,
+.u-file-viewer-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
