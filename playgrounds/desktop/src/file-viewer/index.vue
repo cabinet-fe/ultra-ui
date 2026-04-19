@@ -6,38 +6,44 @@
         <h2 class="fv-demo__title">一个面板，预览所有常用格式</h2>
         <p class="fv-demo__lede">
           图片 / 视频 / PDF / XLSX / CSV / DOCX / TXT
-          都在这里。侧栏切换、懒加载预览器、切换时即时释放上一份内存。
+          都在这里。点击「打开预览」以全屏模态方式查看，支持 ESC 或点击背景关闭。
         </p>
       </div>
-      <div class="fv-demo__pick">
-        <u-file-picker multiple accept="*" @pick="onPick">
-          <u-button type="primary">加入预览</u-button>
+      <div class="fv-demo__actions">
+        <u-button type="primary" @click="previewOpen = true">打开预览</u-button>
+        <u-file-picker multiple @pick="onPick">
+          <u-button>加入预览</u-button>
         </u-file-picker>
         <u-button v-if="localCount > 0" @click="clearLocal">清空本地文件</u-button>
       </div>
     </header>
 
-    <div class="fv-demo__viewer">
-      <u-file-viewer v-model="active" :files="files" @error="onError" />
-    </div>
-
-    <section class="fv-demo__notes">
-      <h4>样例资源</h4>
-      <ul>
-        <li v-for="f in sampleFiles" :key="f.name">
-          <span class="fv-demo__chip">{{ (f.kind || 'AUTO').toUpperCase() }}</span>
-          <span>{{ f.name }}</span>
-          <a v-if="typeof f.src === 'string'" :href="f.src" target="_blank" rel="noopener">
-            {{ f.src }}
-          </a>
+    <section class="fv-demo__files">
+      <header class="fv-demo__files-head">
+        <h4>当前待预览文件</h4>
+        <span class="fv-demo__files-count">{{ files.length }} 个</span>
+      </header>
+      <ul class="fv-demo__files-list">
+        <li
+          v-for="f in files"
+          :key="f.id"
+          class="fv-demo__file"
+          :class="{ 'fv-demo__file--active': f.id === active }"
+          @click="openAt(f.id)"
+        >
+          <span class="fv-demo__chip">{{ resolveKind(f).toUpperCase() }}</span>
+          <span class="fv-demo__file-name">{{ f.name }}</span>
+          <span class="fv-demo__file-meta">{{ resolveMeta(f) }}</span>
         </li>
       </ul>
     </section>
+
+    <u-file-viewer v-model="active" v-model:open="previewOpen" :files="files" @error="onError" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { FileViewerItem } from '@veltra/desktop'
+import type { FileViewerItem, FileViewerKind } from '@veltra/desktop'
 import { computed, ref, shallowRef } from 'vue'
 
 const sampleTxt =
@@ -112,12 +118,14 @@ const sampleFiles: FileViewerItem[] = [
 
 const localFiles = shallowRef<FileViewerItem[]>([])
 const active = ref<string | undefined>(sampleFiles[0]?.id)
+const previewOpen = ref(false)
 
 const files = computed<FileViewerItem[]>(() => [...sampleFiles, ...localFiles.value])
 
 const localCount = computed(() => localFiles.value.length)
 
 function onPick(picked: File[]) {
+  if (!picked.length) return
   const next: FileViewerItem[] = picked.map((f, i) => ({
     id: `local-${Date.now()}-${i}`,
     name: f.name,
@@ -127,6 +135,7 @@ function onPick(picked: File[]) {
   }))
   localFiles.value = [...localFiles.value, ...next]
   if (next[0]) active.value = next[0].id
+  previewOpen.value = true
 }
 
 function clearLocal() {
@@ -134,6 +143,39 @@ function clearLocal() {
   if (!sampleFiles.some((f) => f.id === active.value)) {
     active.value = sampleFiles[0]?.id
   }
+}
+
+function openAt(id: string | undefined) {
+  if (!id) return
+  active.value = id
+  previewOpen.value = true
+}
+
+function resolveKind(f: FileViewerItem): FileViewerKind {
+  if (f.kind) return f.kind
+  const ext = f.name.split('.').pop()?.toLowerCase() ?? ''
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(ext)) return 'image'
+  if (['mp4', 'webm', 'mov', 'm4v', 'ogv'].includes(ext)) return 'video'
+  if (ext === 'pdf') return 'pdf'
+  if (['xlsx', 'xlsm', 'xlsb', 'csv'].includes(ext)) return 'sheet'
+  if (ext === 'docx') return 'docx'
+  return 'text'
+}
+
+function resolveMeta(f: FileViewerItem): string {
+  if (f.size) {
+    if (f.size < 1024) return `${f.size} B`
+    if (f.size < 1024 * 1024) return `${(f.size / 1024).toFixed(1)} KB`
+    return `${(f.size / 1024 / 1024).toFixed(1)} MB`
+  }
+  if (typeof f.src === 'string') {
+    try {
+      return new URL(f.src, window.location.href).hostname || '—'
+    } catch {
+      return '—'
+    }
+  }
+  return '本地文件'
 }
 
 function onError(err: { file: FileViewerItem; error: unknown }) {
@@ -145,8 +187,8 @@ function onError(err: { file: FileViewerItem; error: unknown }) {
 .fv-demo {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 1400px;
+  gap: 24px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
@@ -155,7 +197,7 @@ function onError(err: { file: FileViewerItem; error: unknown }) {
   align-items: flex-end;
   justify-content: space-between;
   gap: 32px;
-  padding: 8px 4px;
+  padding: 8px 4px 0;
 }
 
 .fv-demo__copy {
@@ -183,58 +225,86 @@ function onError(err: { file: FileViewerItem; error: unknown }) {
 .fv-demo__lede {
   margin: 0;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--u-text-color-second);
 }
 
-.fv-demo__pick {
+.fv-demo__actions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.fv-demo__viewer {
-  height: 72vh;
-  min-height: 560px;
-}
-
-.fv-demo__notes {
-  padding: 16px 20px 20px;
+.fv-demo__files {
   border: 1px solid var(--u-border-color);
   border-radius: 12px;
   background: var(--u-bg-color-top);
+  overflow: hidden;
 }
 
-.fv-demo__notes h4 {
-  margin: 0 0 10px;
+.fv-demo__files-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--u-border-color);
+}
+
+.fv-demo__files-head h4 {
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--u-text-color-title);
 }
 
-.fv-demo__notes ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 8px;
-}
-
-.fv-demo__notes li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12.5px;
+.fv-demo__files-count {
+  font-size: 12px;
   color: var(--u-text-color-second);
 }
 
-.fv-demo__notes a {
-  color: var(--u-color-primary);
-  text-decoration: none;
+.fv-demo__files-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+}
+
+.fv-demo__file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+
+  &:hover {
+    background: var(--u-bg-color-hover);
+  }
+
+  &--active {
+    background: color-mix(in srgb, var(--u-color-primary) 12%, transparent);
+  }
+}
+
+.fv-demo__file-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--u-text-color-main);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.fv-demo__file-meta {
+  font-size: 11.5px;
+  color: var(--u-text-color-second);
+  flex-shrink: 0;
 }
 
 .fv-demo__chip {

@@ -36,11 +36,23 @@ export interface FileViewerProps {
   sheetMaxRows?: number
   /** 是否显示下载按钮，默认 true */
   downloadable?: boolean
+  /**
+   * 全屏模态模式开关（支持 v-model:open）。
+   *
+   * - `undefined`（缺省）：内嵌模式，组件在原位置渲染
+   * - `true` / `false`：进入模态模式，Teleport 到 body，按本值控制显隐
+   */
+  open?: boolean
+  /** 模态模式下点击背景是否关闭，默认 true */
+  closeOnClickBackdrop?: boolean
+  /** 模态模式下按 ESC 是否关闭，默认 true */
+  closeOnEsc?: boolean
 }
 
 /** 文件预览组件事件 */
 export interface FileViewerEmits {
   (e: 'update:modelValue', id: string): void
+  (e: 'update:open', value: boolean): void
   (e: 'change', file: FileViewerItem): void
   (e: 'error', err: { file: FileViewerItem; error: unknown }): void
 }

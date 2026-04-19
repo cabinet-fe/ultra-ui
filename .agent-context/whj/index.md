@@ -28,3 +28,4 @@
 - [x] [组件 CSS 变量迁入 @veltra/styles 并在 loadTheme 注入](./done/plan-28-20260417/plan.md)
 - [x] [将 use-lock 重构为语义化的 use-interaction](./done/plan-29-20260417/plan.md)
 - [x] [修复 @veltra/\* 包 exports 条件顺序，让 development 条件真正生效](./done/plan-30-20260418/plan.md)
+- [x] [新增 UFileViewer 组件：多格式文件预览器（xlsx/csv/pdf/video/image/txt/docx）](./done/plan-31-20260419/plan.md)

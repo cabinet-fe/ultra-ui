@@ -666,9 +666,10 @@ const sampleFiles: FileViewerItem[] = [
 
 - `packages/desktop/package.json`：新增 `@cat-kit/excel`、`@embedpdf/core`、`@embedpdf/engines`、`@embedpdf/plugin-document-manager`、`@embedpdf/plugin-render`、`@embedpdf/plugin-scroll`、`@embedpdf/plugin-viewport`、`@visactor/vtable`、`docx-preview` 依赖
 - `packages/desktop/tsdown.config.ts`：将上述依赖列入 `deps.neverBundle`
-- `packages/desktop/src/types/file-viewer.ts`：新增类型定义
+- `packages/desktop/src/types/file-viewer.ts`：新增类型定义（补丁 1 扩展模态相关 props/emits）
 - `packages/desktop/src/types/index.ts`：导出 `file-viewer` 类型
-- `packages/desktop/src/components/file-viewer/file-viewer.vue`：主组件
+- `packages/desktop/src/components/file-picker/helper.ts`：补丁 1 修正 `matchAccept` 对通配符与扩展名的匹配
+- `packages/desktop/src/components/file-viewer/file-viewer.vue`：主组件（补丁 1 增加模态模式、关闭按钮、ESC/背景点击、body 滚动锁）
 - `packages/desktop/src/components/file-viewer/helper.ts`：工具函数
 - `packages/desktop/src/components/file-viewer/previewers/image-previewer.vue`
 - `packages/desktop/src/components/file-viewer/previewers/video-previewer.vue`
@@ -676,11 +677,13 @@ const sampleFiles: FileViewerItem[] = [
 - `packages/desktop/src/components/file-viewer/previewers/pdf-previewer.vue`
 - `packages/desktop/src/components/file-viewer/previewers/docx-previewer.vue`
 - `packages/desktop/src/components/file-viewer/previewers/sheet-previewer.vue`
-- `packages/desktop/src/components/file-viewer/style.scss`
+- `packages/desktop/src/components/file-viewer/style.scss`（补丁 1 新增 `is-modal` 全屏布局、backdrop 遮罩、modal 过渡、icon 关闭按钮样式）
 - `packages/desktop/src/components/file-viewer/style.ts`
 - `packages/desktop/src/components/file-viewer/index.ts`
 - `packages/desktop/src/components/index.ts`：导出 `file-viewer` 组件
-- `playgrounds/desktop/src/file-viewer/index.vue`：演示页
+- `playgrounds/desktop/src/file-viewer/index.vue`：演示页（补丁 1 改为模态打开 + 修复加入预览）
 - `bun.lock`：依赖锁定
 
 ## 历史补丁
+
+- patch-1: 为 UFileViewer 增加全屏模态模式并修复 UFilePicker 通配符匹配

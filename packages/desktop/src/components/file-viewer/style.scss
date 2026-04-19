@@ -2,6 +2,7 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 
 @include m.b(file-viewer) {
+  position: relative;
   display: flex;
   width: 100%;
   height: 100%;
@@ -11,6 +12,53 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid fn.use-var(border, color);
+
+  @include m.e(inner) {
+    // 内嵌模式下透明包装，直接把子节点暴露为根的 flex 子项
+    display: contents;
+  }
+
+  @include m.is(modal) {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 3vw, 48px);
+    min-height: 0;
+    max-height: none;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    outline: none;
+  }
+
+  // 模态下的后代覆盖（必须用 & 自拼接，避免 m.e() 误拼为 .is-modal__xxx）
+  &.is-modal &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.52);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  &.is-modal &__inner {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    max-width: 1440px;
+    background: fn.use-var(bg-color, top);
+    border: 1px solid fn.use-var(border, color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px rgba(15, 23, 42, 0.32),
+      0 2px 8px rgba(15, 23, 42, 0.18);
+    z-index: 1;
+  }
 
   @include m.e(sidebar) {
     display: flex;
@@ -215,6 +263,21 @@
         filter: brightness(1.05);
       }
     }
+
+    @include m.em(action, icon) {
+      width: 30px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      color: fn.use-var(text-color, second);
+
+      &:not(:disabled):hover {
+        border-color: fn.use-var(color, danger);
+        color: fn.use-var(color, danger);
+      }
+    }
   }
 
   @include m.e(body) {
@@ -409,4 +472,33 @@
 .u-file-viewer-fade-leave-to {
   opacity: 0;
   transform: translateY(6px);
+}
+
+.u-file-viewer-modal-enter-active,
+.u-file-viewer-modal-leave-active {
+  transition: opacity 0.22s ease;
+
+  .u-file-viewer__inner {
+    transition:
+      opacity 0.24s ease,
+      transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .u-file-viewer__backdrop {
+    transition: opacity 0.22s ease;
+  }
+}
+
+.u-file-viewer-modal-enter-from,
+.u-file-viewer-modal-leave-to {
+  opacity: 1;
+
+  .u-file-viewer__inner {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  .u-file-viewer__backdrop {
+    opacity: 0;
+  }
 }
