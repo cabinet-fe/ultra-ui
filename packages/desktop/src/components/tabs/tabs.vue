@@ -1,145 +1,97 @@
 <template>
-  <div :class="[cls.b, cls.m(position!), cls.m(size)]">
-    <ul :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
-      <li
-        v-for="(item, index) in tabItems"
-        :key="item.key"
-        :class="[
-          cls.e('header-item'),
-          bem.is('active', model === item.key),
-          bem.is('disabled', item.disabled === true)
-        ]"
-        v-ripple="item.disabled ? false : cls.e('ripple')"
-        @click.stop="handleClick(item, index)"
-      >
-        <slot :name="`name:${item.key}`">
-          {{ item.name }}
-        </slot>
-
-        <template v-if="editable">
-          <u-icon
-            v-if="!item.disabled"
-            :class="cls.e('close')"
-            @click.stop="handleClose(item, index)"
-            @mousedown.stop
-          >
-            <Close />
-          </u-icon>
-          <i v-else :class="cls.e('close-placeholder')"></i>
-        </template>
-      </li>
-
-      <li v-if="editable" :class="[cls.e('header-item'), cls.e('add')]" @click="handleAdd">
-        <u-icon>
-          <Plus />
-        </u-icon>
-      </li>
-    </ul>
-
+  <u-tabs-horizontal
+    v-if="isHorizontal"
+    v-model="model"
+    :items="items"
+    :position="position as 'top' | 'bottom'"
+    :size="size"
+    :rounded="rounded"
+    :closable="closable"
+    :block="block"
+    @click="onClick"
+    @close="onClose"
+  >
+    <template v-for="(_, name) in nameSlots" :key="name" #[name]>
+      <slot :name="name" />
+    </template>
     <transition name="fade" mode="out-in">
-      <KeepAlive v-if="keepAlive">
-        <component :key="model" :is="renderSlots()" />
-      </KeepAlive>
-      <component v-else :key="model" :is="renderSlots()" />
+      <keep-alive v-if="keepAlive">
+        <component :key="model" :is="renderContent()" />
+      </keep-alive>
+      <component v-else :key="model" :is="renderContent()" />
     </transition>
-  </div>
+  </u-tabs-horizontal>
+
+  <u-tabs-vertical
+    v-else
+    v-model="model"
+    :items="items"
+    :position="position as 'left' | 'right'"
+    :size="size"
+    :rounded="rounded"
+    :closable="closable"
+    @click="onClick"
+    @close="onClose"
+  >
+    <template v-for="(_, name) in nameSlots" :key="name" #[name]>
+      <slot :name="name" />
+    </template>
+    <transition name="fade" mode="out-in">
+      <keep-alive v-if="keepAlive">
+        <component :key="model" :is="renderContent()" />
+      </keep-alive>
+      <component v-else :key="model" :is="renderContent()" />
+    </transition>
+  </u-tabs-vertical>
 </template>
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
-import { vRipple } from '@veltra/directives'
-import { Close, Plus } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, createVNode, nextTick, shallowRef, watch, type CSSProperties } from 'vue'
+import { computed, createVNode, useSlots } from 'vue'
 
-import type { TabItem, TabsProps, TabsEmits, ComponentSize } from '../../types'
-import { UIcon } from '../icon'
+import type { ComponentSize, TabItem, TabsEmits, TabsProps } from '../../types'
 import { UScroll } from '../scroll'
+import UTabsHorizontal from './tabs-horizontal.vue'
+import UTabsVertical from './tabs-vertical.vue'
 
-defineOptions({
-  name: 'Tabs'
-})
+defineOptions({ name: 'Tabs' })
 
 const props = withDefaults(defineProps<TabsProps>(), {
-  position: 'top'
+  position: 'top',
+  rounded: true,
+  closable: false,
+  block: false,
+  keepAlive: false
 })
 
 const emit = defineEmits<TabsEmits>()
 
-const slots = defineSlots<{
-  [key: string]: (props: { key: string }) => any
-  [key: `name:${string}`]: () => any
-}>()
+const slots = useSlots() as Record<string, ((props?: any) => any) | undefined>
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const tabItems = computed(() => {
-  return props.items
-})
-
 const cls = bem('tabs')
 
-const headerRef = shallowRef<HTMLElement>()
-
-/** 当前活动标签 */
-const index = shallowRef(-1)
 const model = defineModel<string>()
 
-const markStyle = shallowRef<CSSProperties>({})
+const isHorizontal = computed(() => props.position === 'top' || props.position === 'bottom')
 
-let changedByEvent = false
-watch(
-  [model, () => props.items],
-  ([model, items]) => {
-    if (changedByEvent) return
-    index.value = items.findIndex((item) => item.key === model)
-  },
-  { immediate: true }
-)
+/** 仅转发 `name:${key}` 命名槽，default 槽由本组件自己提供内容区 */
+const nameSlots = computed(() => {
+  const result: Record<string, true> = {}
+  for (const key of Object.keys(slots)) {
+    if (key.startsWith('name:')) result[key] = true
+  }
+  return result
+})
 
-watch(
-  [index, () => props.position, () => props.editable],
-  async ([index, position, editable]) => {
-    if (index === -1 || editable) return
-    await nextTick()
+const onClick = (item: TabItem, index: number) => emit('click', item, index)
+const onClose = (item: TabItem, index: number) => emit('close', item, index)
 
-    const headerEl = headerRef.value!
-
-    const headerRect = headerEl.getBoundingClientRect()
-    const el = headerEl.children[index]! as HTMLLIElement
-    const { offsetWidth, offsetHeight } = el
-
-    const rect = el.getBoundingClientRect()
-
-    if (position === 'top' || position === 'bottom') {
-      markStyle.value = {
-        width: offsetWidth + 'px',
-        transform: `translate3d(${rect.left - headerRect.left}px, 0, 0)`
-      }
-    } else {
-      markStyle.value = {
-        height: offsetHeight + 'px',
-        transform: `translate3d(0, ${rect.top - headerRect.top}px, 0)`
-      }
-    }
-  },
-  { immediate: true }
-)
-
-const handleClick = (item: TabItem, _index: number) => {
-  if (item.disabled) return
-
-  changedByEvent = true
-  index.value = _index
-  model.value = item.key
-  nextTick(() => {
-    changedByEvent = false
-  })
-}
-
-const renderSlots = () => {
+const renderContent = () => {
   const key = model.value
   if (!key) return null
   const nodes = slots[key]?.({ key })
@@ -147,21 +99,5 @@ const renderSlots = () => {
     return createVNode(UScroll, { class: cls.e('content') }, { default: () => nodes })
   }
   return nodes
-}
-
-/** 关闭标签 */
-const handleClose = (item: TabItem, index: number) => {
-  const { items } = props
-  if (model.value === item.key) {
-    model.value = (items[index + 1] ?? items[index - 1])!.key
-  }
-
-  emit('update:items', [...items.slice(0, index), ...items.slice(index + 1)])
-
-  emit('delete', item, index)
-}
-
-const handleAdd = () => {
-  emit('create')
 }
 </script>

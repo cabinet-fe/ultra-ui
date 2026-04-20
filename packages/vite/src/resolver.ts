@@ -26,7 +26,9 @@ const SHARED_STYLE_DIR: Record<string, string> = {
   'grid-item': 'grid',
   'list-item': 'list',
   'menu-sub': 'menu',
-  'menu-item': 'menu'
+  'menu-item': 'menu',
+  'tabs-horizontal': 'tabs',
+  'tabs-vertical': 'tabs'
 }
 
 function pascalToKebab(str: string): string {

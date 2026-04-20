@@ -210,6 +210,7 @@ $width: 240px;
   width: calc(100% - $width);
   display: flex;
   flex-direction: column;
+  background-color: #fff;
 
   & > :deep(.u-scroll__container) {
     padding: 0;
@@ -421,7 +422,7 @@ $width: 240px;
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background: use-var(bg-color, bottom);
+  background: #fff;
 }
 
 // 抽屉内容样式

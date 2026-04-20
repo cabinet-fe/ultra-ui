@@ -6,6 +6,15 @@
 
 $root-name: tabs;
 
+/** shadcn-like tabs：TabsList 作为 muted 背景容器，active TabsTrigger 使用白底 + 轻阴影。
+ *  rounded=true 时使用胶囊（pill）圆角，rounded=false 时完全直角。 */
+$list-bg: fn.use-var(bg-color, hover);
+$list-radius: 9999px;
+$item-radius: 9999px;
+$list-padding: 4px;
+$active-bg: fn.use-var(bg-color, top);
+$active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+
 @mixin position($p, $e: ()) {
   @include m.m($p...) {
     @if (list.length($e) > 0) {
@@ -20,9 +29,40 @@ $root-name: tabs;
 
 @include m.b($root-name) {
   display: flex;
+  gap: fn.use-var(gap, small);
+
+  // 水平布局（top/bottom）的外壳：TabsList 容器 + 可选 nav 按钮
+  @include m.e(header-wrap) {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    max-width: 100%;
+    min-width: 0;
+    position: relative;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: $list-padding;
+    background-color: $list-bg;
+    border-radius: $list-radius;
+  }
+
+  @include m.e(viewport) {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   @include m.e(header) {
     flex-shrink: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   @include m.e(content) {
@@ -31,22 +71,27 @@ $root-name: tabs;
 
   @include m.e(header-item) {
     cursor: pointer;
-    font-weight: 600;
-    letter-spacing: 1px;
+    font-weight: 500;
+    letter-spacing: 0.25px;
     color: fn.use-var(text-color, main);
     user-select: none;
     position: relative;
+    border-radius: $item-radius;
+    background-color: transparent;
+    box-shadow: none;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 
-    &::after {
-      content: '';
-      position: absolute;
-      background-color: fn.use-var(color, primary);
-      transition-duration: 0.25s;
-      transition-property: transform;
-      transition-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+    &:not(.is-active):not(.is-disabled):hover {
+      color: fn.use-var(text-color, title);
     }
-
-    @include m.flex;
 
     @include m.is(disabled) {
       color: fn.use-var(text-color, disabled);
@@ -54,140 +99,189 @@ $root-name: tabs;
     }
 
     @include m.is(active) {
-      color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, title);
+      background-color: $active-bg;
+      box-shadow: $active-shadow;
     }
   }
 
+  @include m.e(header-item-label) {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  // 关闭按钮：紧贴 label，悬浮时加重
   @include m.e(close) {
-    width: 0;
-    transition-property: width, margin-left;
-    transition-duration: 0.25s;
-    margin-left: 0;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: fn.use-var(text-color, secondary);
+    cursor: pointer;
+    border-radius: 9999px;
+    font-size: 12px;
+    line-height: 1;
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease,
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(text-color, title);
+      background-color: rgba(15, 23, 42, 0.08);
+    }
+
+    &:active {
+      background-color: rgba(15, 23, 42, 0.14);
+    }
   }
 
-  @include m.e(close-placeholder) {
-    height: 1em;
-    width: 1em;
-    margin-left: fn.use-var(gap, small);
-  }
-
+  // 水平布局下 header 使用 inline-flex 紧凑排列（不使用间距，间距由 wrap gap 管理）
   @include position((top, bottom), header) {
     @include m.flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    gap: 2px;
   }
 
+  // 水平 tabs 关闭按钮：仅当 item hover / 键盘聚焦时出现（带缩放 + 渐显动画）
   @include position((top, bottom), header-item) {
-    &::after {
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      width: 100%;
-      transform: scaleX(0);
+    @include m.bem($root-name, close) {
+      opacity: 0;
+      transform: scale(0.6);
+      pointer-events: none;
     }
 
-    @include m.is(active) {
-      &::after {
-        transform: scaleX(1);
+    &:hover,
+    &:focus-visible,
+    &:focus-within {
+      @include m.bem($root-name, close) {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
       }
     }
   }
 
-  // 位置上
+  // nav 按钮嵌入 wrap 中：透明底、hover 显示白底与阴影（与 active item 风格呼应）
+  @include m.e(nav) {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    user-select: none;
+    border-radius: $item-radius;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      opacity 0.2s ease;
+
+    &:hover:not(:disabled) {
+      color: fn.use-var(text-color, title);
+      background-color: $active-bg;
+      box-shadow: $active-shadow;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+
+  // 位置上 / 下
   @include position(top) {
     flex-direction: column;
   }
-  @include position(top, header) {
-    border-bottom: fn.use-var(border);
-  }
-
-  // 位置下
   @include position(bottom) {
     flex-direction: column-reverse;
   }
-  @include position(bottom, header) {
-    border-top: fn.use-var(border);
-  }
 
-  @include position(bottom, header-item) {
-    border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
-  }
-
+  // 垂直布局：header 本身作为 TabsList 容器
   @include position((left, right), content) {
     height: 100%;
   }
 
+  @include position((left, right), header) {
+    display: inline-flex;
+    flex-direction: column;
+    align-self: flex-start;
+    gap: 2px;
+    padding: $list-padding;
+    background-color: $list-bg;
+    border-radius: $list-radius;
+  }
+
   @include position((left, right), header-item) {
-    &::after {
-      top: 0;
-      width: 2px;
-      height: 100%;
-
-      transform: scaleY(0);
-    }
-
-    @include m.is(active) {
-      &::after {
-        transform: scaleY(1);
-      }
-    }
+    justify-content: space-between;
   }
 
-  // 位置左
-  @include position(left, header) {
-    border-right: fn.use-var(border);
-  }
-
-  @include position(left, header-item) {
-    border-radius: fn.use-var(radius, large) 0 0 fn.use-var(radius, large);
-    justify-content: flex-end;
-
-    &::after {
-      right: 0;
-    }
-  }
-
-  // 位置右
   @include position(right) {
     flex-direction: row-reverse;
   }
-  @include position(right, header) {
-    border-left: fn.use-var(border);
-  }
-  @include position(right, header-item) {
-    border-radius: 0 fn.use-var(radius, large) fn.use-var(radius, large) 0;
 
-    &::after {
-      left: 0;
+  // 关闭圆角：容器与 item 均变直角；边框模式下保持清爽
+  @include m.is(not-rounded) {
+    @include m.bem($root-name, header-wrap) {
+      border-radius: 0;
+    }
+    @include m.bem($root-name, header) {
+      border-radius: 0;
+    }
+    @include m.bem($root-name, header-item) {
+      border-radius: 0;
+    }
+    @include m.bem($root-name, nav) {
+      border-radius: 0;
+    }
+    @include m.bem($root-name, close) {
+      border-radius: 0;
     }
   }
 
-  // 尺寸
+  // block：水平布局下 header-wrap 占满父容器宽度，背景完整铺开；tab-item 宽度保持不变
+  @include m.is(block) {
+    @include m.bem($root-name, header-wrap) {
+      display: flex;
+      width: 100%;
+      max-width: 100%;
+      align-self: stretch;
+    }
+  }
+
+  // 独立使用（无内容面板）时去掉 block 层 gap，避免出现额外间距
+  @include m.is(bar-only) {
+    gap: 0;
+  }
+
+  // 尺寸：item 与 nav 使用相同高度以保证 wrap 内部对齐
   @include m.size using ($size) {
     @include m.bem($root-name, header-item) {
       height: fn.use-var(form-component-height, $size);
       padding: 0 fn.use-var(gap, $size);
-
-      &:hover {
-        @include m.bem($root-name, close) {
-          width: fn.use-var(font-size-main, $size);
-          margin-left: fn.use-var(gap, small);
-        }
-      }
     }
-  }
-
-  @include m.m(left, right) {
-    @include m.bem($root-name, close) {
-      width: auto;
+    @include m.bem($root-name, nav) {
+      width: fn.use-var(form-component-height, $size);
+      height: fn.use-var(form-component-height, $size);
     }
   }
 
   @include m.e(content) {
     width: 100%;
     border-radius: fn.use-var(radius, default);
-  }
-
-  @include m.e(ripple) {
-    background-color: fn.use-var(color, primary);
-    opacity: 0.1;
   }
 }
