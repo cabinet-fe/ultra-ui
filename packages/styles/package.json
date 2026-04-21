@@ -67,14 +67,9 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.0.1",
+    "@cat-kit/core": "^1.0.3",
     "@veltra/compositions": "workspace:*",
     "@veltra/utils": "workspace:*"
-  },
-  "devDependencies": {
-    "@tsdown/css": "^0.21.7",
-    "sass-embedded": "^1.99.0",
-    "tsdown": "^0.21.7"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

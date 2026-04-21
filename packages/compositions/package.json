@@ -18,13 +18,10 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.0.1",
+    "@cat-kit/core": "^1.0.3",
     "@floating-ui/dom": "^1.7.6",
     "@tanstack/vue-virtual": "^3.13.23",
     "@veltra/utils": "workspace:*"
-  },
-  "devDependencies": {
-    "tsdown": "^0.21.7"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

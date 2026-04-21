@@ -29,9 +29,7 @@
     "build": "bun run icons:gen && bun run icons:build-vue"
   },
   "devDependencies": {
-    "svgo": "^4.0.1",
-    "tsdown": "^0.21.7",
-    "unplugin-vue": "^7.1.1"
+    "svgo": "^4.0.1"
   },
   "peerDependencies": {
     "vue": "^3.5.0"
