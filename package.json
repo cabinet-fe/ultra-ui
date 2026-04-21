@@ -75,7 +75,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,vue,js,jsx}": [
-      "oxlint",
+      "oxlint --no-error-on-unmatched-pattern",
       "oxfmt --write"
     ]
   },
