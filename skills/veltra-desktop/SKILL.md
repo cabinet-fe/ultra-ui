@@ -10,15 +10,15 @@ description: >
 
 ## 分类概览
 
-| 分类 | 数量 | 索引 | 组件举例 |
-|------|------|------|----------|
-| 表单 | 25 | [categories/form.md](generated/categories/form.md) | form, input, select, date-picker |
-| 数据展示 | 12 | [categories/data-display.md](generated/categories/data-display.md) | table, tree, list, paginator |
-| 反馈通知 | 10 | [categories/feedback.md](generated/categories/feedback.md) | message, dialog, drawer, loading |
-| 导航 | 7 | [categories/navigation.md](generated/categories/navigation.md) | menu, tabs, breadcrumb |
-| 布局容器 | 4 | [categories/layout.md](generated/categories/layout.md) | layout, card, scroll |
-| 编辑器 | 6 | [categories/editor.md](generated/categories/editor.md) | code-editor, table-editor |
-| 通用 | 7 | [categories/general.md](generated/categories/general.md) | button, icon, action |
+| 分类     | 数量 | 索引                                                               | 组件举例                         |
+| -------- | ---- | ------------------------------------------------------------------ | -------------------------------- |
+| 表单     | 25   | [categories/form.md](generated/categories/form.md)                 | form, input, select, date-picker |
+| 数据展示 | 12   | [categories/data-display.md](generated/categories/data-display.md) | table, tree, list, paginator     |
+| 反馈通知 | 10   | [categories/feedback.md](generated/categories/feedback.md)         | message, dialog, drawer, loading |
+| 导航     | 7    | [categories/navigation.md](generated/categories/navigation.md)     | menu, tabs, breadcrumb           |
+| 布局容器 | 4    | [categories/layout.md](generated/categories/layout.md)             | layout, card, scroll             |
+| 编辑器   | 6    | [categories/editor.md](generated/categories/editor.md)             | code-editor, table-editor        |
+| 通用     | 7    | [categories/general.md](generated/categories/general.md)           | button, icon, action             |
 
 - 全量目录表：[catalog.md](generated/catalog.md)
 - 每组件类型片段：`generated/components/<name>.md`
@@ -51,11 +51,11 @@ import { Edit, Delete, Search } from '@veltra/icons/normal'
 
 ## 参考索引
 
-| 路径 | 内容 |
-|------|------|
-| `generated/catalog.md` | 组件目录表（含链到各 `components/*.md`） |
-| `generated/categories/*.md` | 分类 → 组件文档链接 |
-| `generated/components/*.md` | 单组件类型定义 |
-| `generated/shared-types.md` | 共享 types |
-| `generated/manifest.json` | 同步元数据 |
-| `references/dev-patterns.md` | 使用模式与排错 |
+| 路径                         | 内容                                     |
+| ---------------------------- | ---------------------------------------- |
+| `generated/catalog.md`       | 组件目录表（含链到各 `components/*.md`） |
+| `generated/categories/*.md`  | 分类 → 组件文档链接                      |
+| `generated/components/*.md`  | 单组件类型定义                           |
+| `generated/shared-types.md`  | 共享 types                               |
+| `generated/manifest.json`    | 同步元数据                               |
+| `references/dev-patterns.md` | 使用模式与排错                           |

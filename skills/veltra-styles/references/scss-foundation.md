@@ -57,10 +57,13 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 
 @include m.b(button) {
-  @include m.css-var('u-button', (
-    height: 32px,
-    radius: 8px
-  ));
+  @include m.css-var(
+    'u-button',
+    (
+      height: 32px,
+      radius: 8px
+    )
+  );
 
   height: fn.component-var(button, height);
 

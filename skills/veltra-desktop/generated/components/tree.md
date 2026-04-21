@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { Forest, ITreeNode } from '@cat-kit/core'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef, ShallowRef } from 'vue'
@@ -114,5 +113,4 @@ export interface _TreeExposed {
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TreeExposed = DeconstructValue<_TreeExposed>
-
 ```

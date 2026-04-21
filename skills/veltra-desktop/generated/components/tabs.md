@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ComponentProps } from '@veltra/utils'
 
 export type TabItem = {
@@ -59,5 +58,4 @@ export interface _TabsExposed {}
 export interface TabsExposed {
   delete(key: number | string): void
 }
-
 ```

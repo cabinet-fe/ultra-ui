@@ -287,7 +287,9 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
   <section :class="cls.e('stage')">
     <header :class="cls.e('stage-head')" v-if="activeFile">
       <div :class="cls.e('stage-title')">
-        <span :class="[cls.e('badge'), cls.em('badge', activeFile.kind)]">{{ label(activeFile.kind) }}</span>
+        <span :class="[cls.e('badge'), cls.em('badge', activeFile.kind)]"
+          >{{ label(activeFile.kind) }}</span
+        >
         <span :class="cls.e('stage-name')">{{ activeFile.name }}</span>
       </div>
       <div :class="cls.e('stage-actions')">
@@ -371,7 +373,9 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
     margin: 2px 0;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease;
 
     &:hover {
       background: fn.use-var(bg-color, hover);
@@ -415,12 +419,24 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
     color: #fff;
     background: fn.use-var(text-color, placeholder);
 
-    @include m.em(badge, image)  { background: #0ea5e9; }
-    @include m.em(badge, video)  { background: #ef4444; }
-    @include m.em(badge, pdf)    { background: #dc2626; }
-    @include m.em(badge, sheet)  { background: #16a34a; }
-    @include m.em(badge, docx)   { background: #2563eb; }
-    @include m.em(badge, text)   { background: #64748b; }
+    @include m.em(badge, image) {
+      background: #0ea5e9;
+    }
+    @include m.em(badge, video) {
+      background: #ef4444;
+    }
+    @include m.em(badge, pdf) {
+      background: #dc2626;
+    }
+    @include m.em(badge, sheet) {
+      background: #16a34a;
+    }
+    @include m.em(badge, docx) {
+      background: #2563eb;
+    }
+    @include m.em(badge, text) {
+      background: #64748b;
+    }
   }
 
   @include m.e(stage) {
@@ -468,7 +484,10 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
     color: inherit;
     font-size: 12px;
     cursor: pointer;
-    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    transition:
+      background 0.18s,
+      border-color 0.18s,
+      color 0.18s;
 
     &:not(:disabled):hover {
       border-color: fn.use-var(color, primary);
@@ -576,7 +595,9 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
 
 .u-file-viewer-fade-enter-active,
 .u-file-viewer-fade-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 
 .u-file-viewer-fade-enter-from,
@@ -619,21 +640,13 @@ export { default as UFileViewer } from './file-viewer.vue'
 
 ```ts
 const sampleFiles: FileViewerItem[] = [
-  {
-    name: 'Mountains.jpg',
-    src: 'https://picsum.photos/id/1018/1600/900',
-    kind: 'image'
-  },
+  { name: 'Mountains.jpg', src: 'https://picsum.photos/id/1018/1600/900', kind: 'image' },
   {
     name: 'BigBuckBunny.mp4',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     kind: 'video'
   },
-  {
-    name: 'Ebook.pdf',
-    src: 'https://snippet.embedpdf.com/ebook.pdf',
-    kind: 'pdf'
-  },
+  { name: 'Ebook.pdf', src: 'https://snippet.embedpdf.com/ebook.pdf', kind: 'pdf' },
   {
     name: 'Readme.txt',
     src:

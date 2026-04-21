@@ -1,4 +1,4 @@
-# Select 下拉 --u-menu-* 与 use-var 修正
+# Select 下拉 --u-menu-\* 与 use-var 修正
 
 ## 补丁内容
 

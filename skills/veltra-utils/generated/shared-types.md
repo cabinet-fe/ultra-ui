@@ -41,9 +41,7 @@ export interface FormComponentProps extends ComponentProps {
   span?:
     | number
     | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */
@@ -90,9 +88,7 @@ export type DeconstructValue<E extends Record<string, any>> = {
 }
 
 /** 索引类型 */
-export type Index<Keys extends string, Val> = {
-  [key in Keys]?: Val
-}
+export type Index<Keys extends string, Val> = { [key in Keys]?: Val }
 
 /**
  * 渲染函数返回内容

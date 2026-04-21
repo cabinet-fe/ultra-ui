@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 /** 文本组件属性 */
 export interface TextProps {
   /** 使用预设文本类型, 默认content正文 */
@@ -32,5 +31,4 @@ export interface _TextExposed {}
 
 /** 文本组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export interface TextExposed {}
-
 ```

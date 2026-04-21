@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 富文本数据格式 */
@@ -47,5 +46,4 @@ export interface _RichTextEditorExposed {}
 
 /** 富文本编辑器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type RichTextEditorExposed = DeconstructValue<_RichTextEditorExposed>
-
 ```

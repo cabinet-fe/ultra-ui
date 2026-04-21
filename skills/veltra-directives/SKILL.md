@@ -10,11 +10,11 @@ description: >
 
 ## 生成物
 
-| 文件 | 内容 |
-|------|------|
-| [generated/index.md](generated/index.md) | 指令组索引 |
-| [generated/groups/](generated/groups/) | 每组一篇（包入口、vFocus、vClickOutside、vRipple 等） |
-| [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
+| 文件                                               | 内容                                                  |
+| -------------------------------------------------- | ----------------------------------------------------- |
+| [generated/index.md](generated/index.md)           | 指令组索引                                            |
+| [generated/groups/](generated/groups/)             | 每组一篇（包入口、vFocus、vClickOutside、vRipple 等） |
+| [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表                                    |
 
 根目录执行 `bun run sync-veltra-directives` 或 `bun run sync-skills` 可重新生成 `generated/`。
 

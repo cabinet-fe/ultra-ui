@@ -12,13 +12,13 @@ description: >
 
 ## 生成物
 
-| 文件 | 内容 |
-|------|------|
-| [generated/theme-tokens.md](generated/theme-tokens.md) | `Theme` 类型与 `light`/`dark` 预设 TS |
-| [generated/scss-api.md](generated/scss-api.md) | `_mixins`、`_functions`、`_vars` 完整 SCSS |
-| [generated/theme-ts-api.md](generated/theme-ts-api.md) | `UITheme`、`loadTheme`、`helper` 等 TS |
-| [generated/manifest.json](generated/manifest.json) | 同步时间与输出文件列表 |
-| [references/theming-guide.md](references/theming-guide.md) | 快速开始、暗色、自定义主题、组件 token |
+| 文件                                                       | 内容                                       |
+| ---------------------------------------------------------- | ------------------------------------------ |
+| [generated/theme-tokens.md](generated/theme-tokens.md)     | `Theme` 类型与 `light`/`dark` 预设 TS      |
+| [generated/scss-api.md](generated/scss-api.md)             | `_mixins`、`_functions`、`_vars` 完整 SCSS |
+| [generated/theme-ts-api.md](generated/theme-ts-api.md)     | `UITheme`、`loadTheme`、`helper` 等 TS     |
+| [generated/manifest.json](generated/manifest.json)         | 同步时间与输出文件列表                     |
+| [references/theming-guide.md](references/theming-guide.md) | 快速开始、暗色、自定义主题、组件 token     |
 
 运行 `bun run sync-veltra-styles` 或 `bun run sync-skills` 重新生成 `generated/`。
 
@@ -33,12 +33,12 @@ description: >
 
 在 `@use 'pkg:@veltra/styles/mixins' as m` 前提下：
 
-| Mixin | 生成类名示例 | 典型用途 |
-|-------|--------------|----------|
-| `@include m.b(name)` | `.u-name` | 块根 |
-| `@include m.e(el)` | `&__el`（位于块内） | 元素 |
-| `@include m.m(mod)` | `&--mod` | 修饰符 |
-| `@include m.is(state)` | `.is-state` | 状态 class |
+| Mixin                  | 生成类名示例        | 典型用途   |
+| ---------------------- | ------------------- | ---------- |
+| `@include m.b(name)`   | `.u-name`           | 块根       |
+| `@include m.e(el)`     | `&__el`（位于块内） | 元素       |
+| `@include m.m(mod)`    | `&--mod`            | 修饰符     |
+| `@include m.is(state)` | `.is-state`         | 状态 class |
 
 `m.dark()` 等包装在 `generated/scss-api.md` 的 `_mixins.scss` 中可查全文。
 
@@ -61,12 +61,12 @@ description: >
 
 ## TypeScript 主题 API 速查
 
-| API | 作用 |
-|-----|------|
-| `loadTheme(theme?)` | 注入主题；无参时使用内置 light + dark 预设 |
-| `setTheme('light' \| 'dark' \| 'auto')` | 切换 `data-theme` 或跟随系统 |
-| `UITheme.new(partialTheme)` / `lightTheme.new(...)` | 由预设派生自定义 `UITheme` |
-| `currentTheme` | `ShallowRef<UITheme \| undefined>`，当前活动主题实例 |
+| API                                                 | 作用                                                 |
+| --------------------------------------------------- | ---------------------------------------------------- |
+| `loadTheme(theme?)`                                 | 注入主题；无参时使用内置 light + dark 预设           |
+| `setTheme('light' \| 'dark' \| 'auto')`             | 切换 `data-theme` 或跟随系统                         |
+| `UITheme.new(partialTheme)` / `lightTheme.new(...)` | 由预设派生自定义 `UITheme`                           |
+| `currentTheme`                                      | `ShallowRef<UITheme \| undefined>`，当前活动主题实例 |
 
 ## 与 `@veltra/compositions` 的交界
 

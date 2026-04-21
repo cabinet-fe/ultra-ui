@@ -19,12 +19,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [VeltraDesktopUIResolver()]
-    })
-  ]
+  plugins: [vue(), Components({ resolvers: [VeltraDesktopUIResolver()] })]
 })
 ```
 
@@ -33,9 +28,7 @@ export default defineConfig({
 关闭自动样式副作用：
 
 ```ts
-Components({
-  resolvers: [VeltraDesktopUIResolver({ importStyle: false })]
-})
+Components({ resolvers: [VeltraDesktopUIResolver({ importStyle: false })] })
 ```
 
 这样只保留组件自动导入，不再自动附带 `style` 入口。

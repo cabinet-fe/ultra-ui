@@ -1,4 +1,4 @@
 interface:
-  display_name: "Veltra Vite"
-  short_description: "Work with @veltra/vite Vite integration"
-  default_prompt: "Use $veltra-vite to inspect or fix @veltra/vite resolver setup, auto-import behavior, or style sideEffects in a Vite project."
+  display_name: 'Veltra Vite'
+  short_description: 'Work with @veltra/vite Vite integration'
+  default_prompt: 'Use $veltra-vite to inspect or fix @veltra/vite resolver setup, auto-import behavior, or style sideEffects in a Vite project.'

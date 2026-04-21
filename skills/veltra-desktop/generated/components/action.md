@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { DeconstructValue } from '@veltra/utils'
 
 import type { ButtonProps } from './button'
@@ -38,5 +37,4 @@ export interface _ActionExposed {}
 
 /** 操作组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type ActionExposed = DeconstructValue<_ActionExposed>
-
 ```

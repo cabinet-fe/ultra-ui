@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { UITheme } from '@veltra/styles/theme'
 import type { DeconstructValue } from '@veltra/utils'
 
@@ -27,5 +26,4 @@ export interface _ThemeExposed {
 
 /** 主题组件暴露的属性和方法 */
 export type ThemeExposed = DeconstructValue<_ThemeExposed>
-
 ```

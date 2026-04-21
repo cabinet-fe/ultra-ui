@@ -10,15 +10,15 @@
 
 ### 1. 组件分类（已对照 `src/components/index.ts` 的 71 个导出逐一验证）
 
-| 分类 | 数量 | generated 文件 | 组件 |
-|------|------|----------------|------|
-| 表单 | 25 | `form.md` | form, form-item, input, textarea, password-input, number-input, number-range-input, select, multi-select, cascade, multi-tree-select, tree-select, auto-complete, checkbox, checkbox-group, radio, radio-group, switch, slider, date-picker, date-range-picker, date-panel, file-picker, grid-input, group-input |
-| 数据展示 | 12 | `data-display.md` | table, tree, list, grid, paginator, tag, badge, text, number, calendar, gantt-chart, progress-nodes |
-| 反馈通知 | 10 | `feedback.md` | message, notification, dialog, drawer, pop-confirm, message-confirm, loading, progress, tip, empty |
-| 导航 | 7 | `navigation.md` | menu, breadcrumb, tabs, steps, dropdown, float-button, context-menu |
-| 布局容器 | 4 | `layout.md` | layout, card, scroll, watermark |
-| 编辑器 | 6 | `editor.md` | code-editor, rich-text-editor, expression-editor, condition-editor, table-editor, batch-edit |
-| 通用 | 7 | `general.md` | button, icon, action, check-tag, theme, palette, node-render |
+| 分类     | 数量 | generated 文件    | 组件                                                                                                                                                                                                                                                                                                             |
+| -------- | ---- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 表单     | 25   | `form.md`         | form, form-item, input, textarea, password-input, number-input, number-range-input, select, multi-select, cascade, multi-tree-select, tree-select, auto-complete, checkbox, checkbox-group, radio, radio-group, switch, slider, date-picker, date-range-picker, date-panel, file-picker, grid-input, group-input |
+| 数据展示 | 12   | `data-display.md` | table, tree, list, grid, paginator, tag, badge, text, number, calendar, gantt-chart, progress-nodes                                                                                                                                                                                                              |
+| 反馈通知 | 10   | `feedback.md`     | message, notification, dialog, drawer, pop-confirm, message-confirm, loading, progress, tip, empty                                                                                                                                                                                                               |
+| 导航     | 7    | `navigation.md`   | menu, breadcrumb, tabs, steps, dropdown, float-button, context-menu                                                                                                                                                                                                                                              |
+| 布局容器 | 4    | `layout.md`       | layout, card, scroll, watermark                                                                                                                                                                                                                                                                                  |
+| 编辑器   | 6    | `editor.md`       | code-editor, rich-text-editor, expression-editor, condition-editor, table-editor, batch-edit                                                                                                                                                                                                                     |
+| 通用     | 7    | `general.md`      | button, icon, action, check-tag, theme, palette, node-render                                                                                                                                                                                                                                                     |
 
 共享类型（非独立组件）：`animation.ts`、`css-transition.ts`、`pop.ts`、`index.ts`（re-export）→ 纳入 `generated/shared-types.md`。
 
@@ -63,7 +63,8 @@ skills/veltra-desktop/
 5. **Manifest**：记录同步时间、组件总数、各分类组件列表、共享类型列表。
 
 6. **产物格式**：每个分类 markdown 文件的结构为：
-   ```
+
+   ````
    # {分类名}
 
    ## {组件名} (U{PascalName})
@@ -72,13 +73,17 @@ skills/veltra-desktop/
    ```typescript
    // 来源: packages/desktop/src/types/{name}.ts
    {完整文件内容}
-   ```
+   ````
 
    ### 使用示例
+
    ```vue
    <!-- 来源: playgrounds/desktop/src/{name}/index.vue -->
    {完整文件内容}
    ```
+
+   ```
+
    ```
 
 7. **注册命令**：在根 `package.json` 的 `scripts` 中添加 `"sync-veltra-desktop": "bun skills/veltra-desktop/scripts/sync-docs.ts"`。
@@ -86,6 +91,7 @@ skills/veltra-desktop/
 ### 4. 编写 SKILL.md（目标 ≤300 行）
 
 内容结构：
+
 - **frontmatter**：`name: veltra-desktop`，`description` 包含触发词：组件库、UI 组件、表单、表格、对话框、选择器等
 - **分类概览**：7 个分类 × 2 行（分类名 + 组件计数 + 指向 `generated/` 文件的链接），~20 行
 - **导入约定**：自动按需导入（resolver 配置，模板中用 `u-kebab-case` 或 `UPascalCase`）、手动导入场景（类型 `import type { XxxProps } from '@veltra/desktop'`、图标 `@veltra/icons/normal`、工具类 `FormModel` 等），~30 行
@@ -95,13 +101,14 @@ skills/veltra-desktop/
   - 插槽用法（作用域插槽 v-slot）
   - 事件处理约定（update:xxx）
   - 组件 ref（Exposed 类型）
-  ~40 行
+    ~40 行
 - **渐进式引导**：简单组件（button, tag）→ 表单组件（input, select）→ 复合数据组件（table, tree）→ 编辑器组件，每级给出典型代码片段，~60 行
 - **参考文件索引**：指向 generated/ 和 references/ 的完整文件列表，~15 行
 
 ### 5. 编写 references/dev-patterns.md
 
 聚焦 **desktop 组件使用模式**（不涉及 styles/compositions 的内容，那些属于对应技能）：
+
 - **表单场景**：FormModel 创建、字段校验规则、表单提交流程、嵌套表单
 - **表格场景**：defineTableColumns 列定义、行展开、单元格合并、虚拟滚动大数据
 - **树组件场景**：多选/单选切换、节点过滤、禁用节点、自定义内容插槽
@@ -129,6 +136,7 @@ skills/veltra-desktop/
 ## 影响范围
 
 ### 新增文件
+
 - `skills/veltra-desktop/SKILL.md` — 技能主文件（226 行）
 - `skills/veltra-desktop/scripts/sync-docs.ts` — 同步脚本
 - `skills/veltra-desktop/references/dev-patterns.md` — 组件使用模式指南（268 行）
@@ -144,10 +152,12 @@ skills/veltra-desktop/
 - `skills/veltra-desktop/generated/manifest.json` — 同步元数据
 
 ### 修改文件
+
 - `package.json` — 添加 `sync-veltra-desktop` 脚本命令
 - `skills/AGENTS.md` — skills 目录级约束文件
 
 ## 历史补丁
+
 - `patch-1`: 修正 `use-desktop` 技能目录到 `skills/use-desktop`
 - `patch-2`: 将技能内容替换到 `skills/veltra-desktop`
 - `patch-3`: 为 skills/ 目录添加 AGENTS.md 约束

@@ -20,6 +20,6 @@
 ## 历史补丁
 
 - patch-1: 恢复 style 副作用链并修复 dist 摇树裁掉依赖
-- patch-2: Select 下拉 --u-menu-* 与 use-var 修正
+- patch-2: Select 下拉 --u-menu-\* 与 use-var 修正
 - patch-3: 恢复 tsdown 多入口与 Sass api；同步 plan 正文与审查结论
 - patch-4: tsdown 入口精简与移除 Sass api

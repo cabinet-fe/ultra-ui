@@ -45,6 +45,11 @@ src/table/index.vue   → /table/index
     └── ...
 ```
 
+## 浏览器连接调试
+
+- 在大部分情况下，你应该尝试调用浏览器连接工具来调试页面验证页面效果是否达到预期，如果不能达到预期则需要重新更改代码确保能够按预期交付
+- 有时候开发服务已经启动，你应该先尝试请求该服务看是否在线，再尝试是否需要自行启动开发服务器
+
 ## 依赖
 
 - `@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/styles`、`@veltra/utils`

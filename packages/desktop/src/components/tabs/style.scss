@@ -1,54 +1,81 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
-@use 'sass:map';
-@use 'sass:list';
 
-$root-name: tabs;
-
-/** shadcn-like tabs：TabsList 作为 muted 背景容器，active TabsTrigger 使用白底 + 轻阴影。
- *  rounded=true 时使用胶囊（pill）圆角，rounded=false 时完全直角。 */
+/** shadcn 风格 TabsList：hover 背景底色容器 + 白底活动态；rounded=true 时水平为胶囊状。 */
 $list-bg: fn.use-var(bg-color, hover);
-$list-radius: 9999px;
-$item-radius: 9999px;
+$list-radius: fn.use-var(radius, default);
+$item-radius: calc(fn.use-var(radius, default) - 2px);
 $list-padding: 4px;
 $active-bg: fn.use-var(bg-color, top);
-$active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+$active-shadow:
+  0 1px 2px rgba(15, 23, 42, 0.08),
+  0 1px 3px rgba(15, 23, 42, 0.06);
 
-@mixin position($p, $e: ()) {
-  @include m.m($p...) {
-    @if (list.length($e) > 0) {
-      @include m.bem($root-name, $e) {
-        @content;
-      }
-    } @else {
-      @content;
+/* ===== 复合标签页：bar + content 布局容器 ===== */
+@include m.b(tabs) {
+  display: flex;
+  gap: fn.use-var(gap, small);
+
+  @include m.e(content) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    border-radius: fn.use-var(radius, default);
+  }
+
+  @include m.m(top) {
+    flex-direction: column;
+  }
+
+  @include m.m(bottom) {
+    flex-direction: column-reverse;
+  }
+
+  @include m.m(left) {
+    flex-direction: row;
+
+    @include m.bem(tabs, content) {
+      height: 100%;
+    }
+  }
+
+  @include m.m(right) {
+    flex-direction: row-reverse;
+
+    @include m.bem(tabs, content) {
+      height: 100%;
     }
   }
 }
 
-@include m.b($root-name) {
-  display: flex;
-  gap: fn.use-var(gap, small);
+/* ===== 标签栏（独立组件）：水平 / 垂直 ===== */
+@include m.b(tabs-bar) {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  min-width: 0;
+  // 仅水平方向内边距；上下空间迁移到 __viewport，避免 __viewport 的 overflow 裁切激活态 box-shadow
+  padding: 0 $list-padding;
+  background-color: $list-bg;
+  border-radius: $list-radius;
+  gap: 2px;
 
-  // 水平布局（top/bottom）的外壳：TabsList 容器 + 可选 nav 按钮
-  @include m.e(header-wrap) {
-    display: inline-flex;
+  @include m.m(horizontal) {
     align-items: center;
-    align-self: flex-start;
-    max-width: 100%;
-    min-width: 0;
     position: relative;
     flex-shrink: 0;
-    gap: 2px;
-    padding: $list-padding;
-    background-color: $list-bg;
-    border-radius: $list-radius;
+  }
+
+  @include m.m(vertical) {
+    flex-direction: column;
   }
 
   @include m.e(viewport) {
     flex: 1 1 auto;
     min-width: 0;
+    // 上下 padding 与 overflow-y: hidden 配合：裁切发生在 padding-box 外沿，
+    // 激活 __item 的 box-shadow 得以在 padding 区域内完整渲染
+    padding: $list-padding 0;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -58,18 +85,17 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     }
   }
 
-  @include m.e(header) {
+  @include m.e(list) {
+    display: inline-flex;
+    flex-wrap: nowrap;
     flex-shrink: 0;
-    list-style: none;
+    width: max-content;
     margin: 0;
     padding: 0;
+    gap: 2px;
   }
 
-  @include m.e(content) {
-    flex-grow: 1;
-  }
-
-  @include m.e(header-item) {
+  @include m.e(item) {
     cursor: pointer;
     font-weight: 500;
     letter-spacing: 0.25px;
@@ -79,15 +105,17 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     border-radius: $item-radius;
     background-color: transparent;
     box-shadow: none;
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease,
-      box-shadow 0.2s ease;
+    border: none;
+    outline: none;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 0;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:not(.is-active):not(.is-disabled):hover {
       color: fn.use-var(text-color, title);
@@ -105,13 +133,13 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     }
   }
 
-  @include m.e(header-item-label) {
+  @include m.e(item-label) {
     display: inline-flex;
     align-items: center;
     min-width: 0;
   }
 
-  // 关闭按钮：紧贴 label，悬浮时加重
+  // 关闭按钮基础样式；水平 / 垂直布局下的显隐策略不同（见下方各自的修饰符块）
   @include m.e(close) {
     flex: 0 0 auto;
     display: inline-flex;
@@ -119,17 +147,19 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     justify-content: center;
     width: 16px;
     height: 16px;
+    margin-left: 6px;
+    overflow: hidden;
     padding: 0;
     border: none;
     background: transparent;
     color: fn.use-var(text-color, secondary);
     cursor: pointer;
-    border-radius: 9999px;
+    border-radius: fn.use-var(radius, default);
     font-size: 12px;
     line-height: 1;
-    opacity: 1;
-    transform: scale(1);
     transition:
+      width 0.18s ease,
+      margin-left 0.18s ease,
       opacity 0.18s ease,
       transform 0.18s ease,
       color 0.15s ease,
@@ -145,34 +175,37 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     }
   }
 
-  // 水平布局下 header 使用 inline-flex 紧凑排列（不使用间距，间距由 wrap gap 管理）
-  @include position((top, bottom), header) {
-    @include m.flex;
-    flex-wrap: nowrap;
-    width: max-content;
-    gap: 2px;
-  }
+  // 水平：关闭按钮默认隐藏（宽/透明度为 0），item hover 时渐显
+  @include m.m(horizontal) {
+    @include m.bem(tabs-bar, item) {
+      @include m.bem(tabs-bar, close) {
+        width: 0;
+        margin-left: 0;
+        opacity: 0;
+        transform: scale(0.6);
+        pointer-events: none;
+      }
 
-  // 水平 tabs 关闭按钮：仅当 item hover / 键盘聚焦时出现（带缩放 + 渐显动画）
-  @include position((top, bottom), header-item) {
-    @include m.bem($root-name, close) {
-      opacity: 0;
-      transform: scale(0.6);
-      pointer-events: none;
-    }
-
-    &:hover,
-    &:focus-visible,
-    &:focus-within {
-      @include m.bem($root-name, close) {
-        opacity: 1;
-        transform: scale(1);
-        pointer-events: auto;
+      &:hover {
+        @include m.bem(tabs-bar, close) {
+          width: 16px;
+          margin-left: 6px;
+          opacity: 1;
+          transform: scale(1);
+          pointer-events: auto;
+        }
       }
     }
   }
 
-  // nav 按钮嵌入 wrap 中：透明底、hover 显示白底与阴影（与 active item 风格呼应）
+  // 垂直：关闭按钮常显（用户指定，默认且只能一直显示）
+  @include m.m(vertical) {
+    @include m.bem(tabs-bar, item) {
+      justify-content: space-between;
+    }
+  }
+
+  // 导航按钮（仅水平布局渲染）：透明底、hover 时接近 active item 风格
   @include m.e(nav) {
     flex: 0 0 auto;
     display: inline-flex;
@@ -203,85 +236,41 @@ $active-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.0
     }
   }
 
-  // 位置上 / 下
-  @include position(top) {
-    flex-direction: column;
-  }
-  @include position(bottom) {
-    flex-direction: column-reverse;
-  }
-
-  // 垂直布局：header 本身作为 TabsList 容器
-  @include position((left, right), content) {
-    height: 100%;
-  }
-
-  @include position((left, right), header) {
-    display: inline-flex;
-    flex-direction: column;
-    align-self: flex-start;
-    gap: 2px;
-    padding: $list-padding;
-    background-color: $list-bg;
-    border-radius: $list-radius;
-  }
-
-  @include position((left, right), header-item) {
-    justify-content: space-between;
-  }
-
-  @include position(right) {
-    flex-direction: row-reverse;
-  }
-
-  // 关闭圆角：容器与 item 均变直角；边框模式下保持清爽
-  @include m.is(not-rounded) {
-    @include m.bem($root-name, header-wrap) {
-      border-radius: 0;
-    }
-    @include m.bem($root-name, header) {
-      border-radius: 0;
-    }
-    @include m.bem($root-name, header-item) {
-      border-radius: 0;
-    }
-    @include m.bem($root-name, nav) {
-      border-radius: 0;
-    }
-    @include m.bem($root-name, close) {
-      border-radius: 0;
-    }
-  }
-
-  // block：水平布局下 header-wrap 占满父容器宽度，背景完整铺开；tab-item 宽度保持不变
+  // 填充宽度（仅水平布局生效）：容器铺满父级，items 自身宽度保持不变
   @include m.is(block) {
-    @include m.bem($root-name, header-wrap) {
-      display: flex;
-      width: 100%;
-      max-width: 100%;
-      align-self: stretch;
-    }
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    align-self: stretch;
   }
 
-  // 独立使用（无内容面板）时去掉 block 层 gap，避免出现额外间距
-  @include m.is(bar-only) {
-    gap: 0;
-  }
-
-  // 尺寸：item 与 nav 使用相同高度以保证 wrap 内部对齐
   @include m.size using ($size) {
-    @include m.bem($root-name, header-item) {
-      height: fn.use-var(form-component-height, $size);
+    @include m.bem(tabs-bar, item) {
+      height: calc(fn.use-var(form-component-height, $size) - 4px);
       padding: 0 fn.use-var(gap, $size);
     }
-    @include m.bem($root-name, nav) {
-      width: fn.use-var(form-component-height, $size);
-      height: fn.use-var(form-component-height, $size);
+    @include m.bem(tabs-bar, nav) {
+      width: calc(fn.use-var(form-component-height, $size) - 4px);
+      height: calc(fn.use-var(form-component-height, $size) - 4px);
     }
   }
 
-  @include m.e(content) {
-    width: 100%;
-    border-radius: fn.use-var(radius, default);
+  // 胶囊风格：item / nav 始终 pill；容器形状按方向分治——
+  // 水平：容器也变为胶囊；
+  // 垂直：容器保持常规圆角（修复高度较大时 9999px 产生的奇怪形变）。
+  @include m.is(rounded) {
+    @include m.bem(tabs-bar, item) {
+      border-radius: 9999px;
+    }
+
+    @include m.bem(tabs-bar, nav) {
+      border-radius: 9999px;
+    }
+  }
+
+  @include m.m(horizontal) {
+    @include m.is(rounded) {
+      border-radius: 9999px;
+    }
   }
 }

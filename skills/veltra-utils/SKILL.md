@@ -12,12 +12,12 @@ description: >
 
 ## 生成物
 
-| 文件 | 内容 |
-|------|------|
-| [generated/api/](generated/api/) | 按域拆分：`entry.md`、`dom.md`、`form.md`、`helper.md`、`reactive.md` |
-| [generated/shared-types.md](generated/shared-types.md) | `shared/`、`types/` 下全部 `.ts` 源码 |
-| [generated/manifest.json](generated/manifest.json) | 同步时间与文件列表 |
-| [references/bem-guide.md](references/bem-guide.md) | `bem` / `makeBEM` API 与组件内用法 |
+| 文件                                                   | 内容                                                                  |
+| ------------------------------------------------------ | --------------------------------------------------------------------- |
+| [generated/api/](generated/api/)                       | 按域拆分：`entry.md`、`dom.md`、`form.md`、`helper.md`、`reactive.md` |
+| [generated/shared-types.md](generated/shared-types.md) | `shared/`、`types/` 下全部 `.ts` 源码                                 |
+| [generated/manifest.json](generated/manifest.json)     | 同步时间与文件列表                                                    |
+| [references/bem-guide.md](references/bem-guide.md)     | `bem` / `makeBEM` API 与组件内用法                                    |
 
 根目录执行 `bun run sync-veltra-utils` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
@@ -59,52 +59,52 @@ import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared
 
 ### DOM
 
-| 符号 | 用途 |
-|------|------|
-| `addClass` / `removeClass` | 元素 class 增删 |
-| `getScrollParents` | 可滚动祖先链 |
-| `scrollIntoContainerView` | 在容器内滚入视区 |
-| `withUnit` | 数值补单位 |
-| `setStyles` / `removeStyles` | 行内样式批量设置/清理 |
-| `zIndex` | 全局 z-index 栈 |
-| `getHighlightChunks` | 文本高亮分片 |
-| `bem` | 默认 `u-` 前缀的 BEM 工厂（见 [bem-guide.md](references/bem-guide.md)） |
+| 符号                         | 用途                                                                    |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `addClass` / `removeClass`   | 元素 class 增删                                                         |
+| `getScrollParents`           | 可滚动祖先链                                                            |
+| `scrollIntoContainerView`    | 在容器内滚入视区                                                        |
+| `withUnit`                   | 数值补单位                                                              |
+| `setStyles` / `removeStyles` | 行内样式批量设置/清理                                                   |
+| `zIndex`                     | 全局 z-index 栈                                                         |
+| `getHighlightChunks`         | 文本高亮分片                                                            |
+| `bem`                        | 默认 `u-` 前缀的 BEM 工厂（见 [bem-guide.md](references/bem-guide.md)） |
 
 ### 表单校验
 
-| 符号 | 用途 |
-|------|------|
+| 符号        | 用途       |
+| ----------- | ---------- |
 | `Validator` | 表单校验器 |
 
 ### 辅助
 
-| 符号 | 用途 |
-|------|------|
-| `makeBEM` | 自定义前缀 BEM 工厂 |
-| `createIncrease` / `createToggle` | 递增 id、布尔切换 |
-| `Tween` | 补间 |
-| `nextFrame` | `requestAnimationFrame` 封装 |
-| `shallowComputed` | 浅层 computed 辅助 |
+| 符号                              | 用途                         |
+| --------------------------------- | ---------------------------- |
+| `makeBEM`                         | 自定义前缀 BEM 工厂          |
+| `createIncrease` / `createToggle` | 递增 id、布尔切换            |
+| `Tween`                           | 补间                         |
+| `nextFrame`                       | `requestAnimationFrame` 封装 |
+| `shallowComputed`                 | 浅层 computed 辅助           |
 
 ### Vue 辅助
 
-| 符号 | 用途 |
-|------|------|
-| `isTextNode` / `isFragment` / `isComment` / `isTemplate` | 节点类型判断 |
-| `extractNormalVNodes` | 规范化 vnode 列表 |
+| 符号                                                     | 用途              |
+| -------------------------------------------------------- | ----------------- |
+| `isTextNode` / `isFragment` / `isComment` / `isTemplate` | 节点类型判断      |
+| `extractNormalVNodes`                                    | 规范化 vnode 列表 |
 
 ### 响应式
 
-| 符号 | 用途 |
-|------|------|
+| 符号          | 用途           |
+| ------------- | -------------- |
 | `middleProxy` | 中间层代理工具 |
 
 ### 常量（`@veltra/utils/shared`）
 
-| 符号 | 用途 |
-|------|------|
-| `NAME_SPACE` / `CLS_PREFIX` | 类名前缀 |
-| `FORM_EMPTY_CONTENT` | 表单只读占位展示 |
+| 符号                        | 用途             |
+| --------------------------- | ---------------- |
+| `NAME_SPACE` / `CLS_PREFIX` | 类名前缀         |
+| `FORM_EMPTY_CONTENT`        | 表单只读占位展示 |
 
 ## 共享类型速查
 

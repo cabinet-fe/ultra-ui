@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ColorType, ComponentProps, DeconstructValue } from '@veltra/utils'
 import type { Component, ShallowRef } from 'vue'
 
@@ -48,5 +47,4 @@ export interface _ButtonExposed {
 
 /** 按钮暴露的属性和方法 */
 export type ButtonExposed = DeconstructValue<_ButtonExposed>
-
 ```

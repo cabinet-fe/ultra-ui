@@ -1,4 +1,4 @@
 interface:
-  display_name: "Veltra Desktop"
-  short_description: "Work with @veltra/desktop components, types, and demos"
-  default_prompt: "Use $veltra-desktop to inspect or modify @veltra/desktop components, type definitions, style entries, or playground demos."
+  display_name: 'Veltra Desktop'
+  short_description: 'Work with @veltra/desktop components, types, and demos'
+  default_prompt: 'Use $veltra-desktop to inspect or modify @veltra/desktop components, type definitions, style entries, or playground demos.'

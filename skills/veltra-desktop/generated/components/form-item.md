@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { FormComponentProps } from '@veltra/utils'
 
 /** 组件项组件属性 */
@@ -17,5 +16,4 @@ export interface FormItemEmits {}
 
 /** 组件项组件暴露的属性和方法 */
 export interface FormItemExposed {}
-
 ```

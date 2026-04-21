@@ -11,7 +11,7 @@
 | 决策项    | 结论                                                                |
 | --------- | ------------------------------------------------------------------- |
 | 构建工具  | tsdown（项目已在用，专为库设计，未来将成为 Vite library mode 底层） |
-| 发布模型  | 各包独立发布（@veltra/utils, @veltra/desktop 等）               |
+| 发布模型  | 各包独立发布（@veltra/utils, @veltra/desktop 等）                   |
 | 向后兼容  | 不保留 `ultra-ui` 包名，直接切换                                    |
 | SCSS 处理 | @tsdown/css 统一处理                                                |
 | 发版工具  | 精简 tools/build 为 release 脚本，后续考虑 changesets               |

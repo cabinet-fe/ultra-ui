@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ColorType, ComponentSize } from '@veltra/utils'
 
 /** 标签组件属性 */
@@ -23,5 +22,4 @@ export interface TagEmits {
   (e: 'close'): void
 }
 export interface TagExposed {}
-
 ```

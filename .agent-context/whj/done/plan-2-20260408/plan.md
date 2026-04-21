@@ -71,16 +71,16 @@
 
 全局替换 `packages/desktop/` 下的 import，精确映射表：
 
-| 旧 import                    | 新 import                                | 说明                 |
-| ---------------------------- | ---------------------------------------- | -------------------- |
+| 旧 import                    | 新 import                              | 说明                 |
+| ---------------------------- | -------------------------------------- | -------------------- |
 | `@ui/utils`                  | `@veltra/utils`                        | 工具函数             |
 | `@ui/compositions/*`         | `@veltra/compositions`                 | 组合式函数           |
 | `@ui/directives/*`           | `@veltra/directives`                   | 指令                 |
-| `@ui/types/components/*`     | `../types/*` 或 `../../types/*`          | desktop 内部相对路径 |
+| `@ui/types/components/*`     | `../types/*` 或 `../../types/*`        | desktop 内部相对路径 |
 | `@ui/types/utils/*`          | `@veltra/utils/types/utils/*`          | 工具类型             |
 | `@ui/types/component-common` | `@veltra/utils/types/component-common` | 共享组件基础类型     |
 | `@ui/types/helper`           | `@veltra/utils/types/helper`           | 辅助类型             |
-| `@ui/types`（barrel）        | 按实际导入内容分流到上述规则             | 需逐文件检查         |
+| `@ui/types`（barrel）        | 按实际导入内容分流到上述规则           | 需逐文件检查         |
 | `@ui/styles/*`               | `@veltra/utils/styles/*`               | 样式工具             |
 | `@ui/shared/*`               | `@veltra/utils/shared/*`               | 共享常量             |
 
@@ -88,8 +88,8 @@
 
 基于 Plan 4 Step 0 确定的方案（预期为 `pkg:` importer），批量替换组件 `style.scss` 中的 SCSS 引用：
 
-| 旧引用                                 | 新引用                                               |
-| -------------------------------------- | ---------------------------------------------------- |
+| 旧引用                                 | 新引用                                             |
+| -------------------------------------- | -------------------------------------------------- |
 | `@use '../../styles/mixins' as m;`     | `@use 'pkg:@veltra/utils/styles/mixins' as m;`     |
 | `@use '../../styles/vars';`            | `@use 'pkg:@veltra/utils/styles/vars';`            |
 | `@use '../../styles/functions' as fn;` | `@use 'pkg:@veltra/utils/styles/functions' as fn;` |
@@ -162,11 +162,11 @@ Turborepo 按拓扑顺序执行 `turbo build`（utils → compositions/directive
 
 更新 `apps/sample/` 中的导入：
 
-| 旧 import                | 新 import                                                   |
-| ------------------------ | ----------------------------------------------------------- |
-| `from 'ultra-ui'`        | `from '@veltra/desktop'`                                  |
+| 旧 import                | 新 import                                               |
+| ------------------------ | ------------------------------------------------------- |
+| `from 'ultra-ui'`        | `from '@veltra/desktop'`                                |
 | `from 'ultra-ui/types'`  | `from '@veltra/desktop/types'` 或 `@veltra/utils/types` |
-| `from 'ultra-ui/styles'` | `from '@veltra/utils/styles'`                             |
+| `from 'ultra-ui/styles'` | `from '@veltra/utils/styles'`                           |
 
 更新 `apps/sample/package.json`：移除 `ultra-ui`，添加 `@veltra/desktop: "workspace:*"`、`@veltra/utils: "workspace:*"`。
 

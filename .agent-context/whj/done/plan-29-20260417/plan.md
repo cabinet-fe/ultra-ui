@@ -7,6 +7,7 @@
 `@veltra/compositions` 中的 `useUpdateLock` 名义上是"更新锁"，但在组件中的真实语义是"用户正在交互，阻断由 `modelValue` 回流引起的同步副作用"。当前 API `{ update, updateAndLock }` 语义隐晦：`update(fn)` 实际是"未交互时才执行"，`updateAndLock(fn)` 是"标记交互中并执行"。调用方需要理解内部锁计数才能正确使用，易出错。
 
 本次重构将其改名为 `useInteraction`，返回：
+
 1. **闭包包装函数** `track(fn)`：把一次用户触发的业务函数包装为"执行期间标记为交互中"的新函数，调用方自然地在事件/watch 回调处包装
 2. **状态查询函数** `isInteracting()`：副作用方自行判断，如 `if (isInteracting()) return`
 

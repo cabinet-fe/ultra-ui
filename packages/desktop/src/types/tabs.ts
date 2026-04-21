@@ -28,12 +28,6 @@ export interface TabsHorizontalProps {
   /** 标签项 */
   items: TabItem[]
   /**
-   * 是否应用圆角
-   * @description 开启时使用胶囊状圆角；关闭时完全直角
-   * @default true
-   */
-  rounded?: boolean
-  /**
    * 是否可关闭
    * @description 作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮
    * @default false
@@ -45,6 +39,11 @@ export interface TabsHorizontalProps {
    * @default false
    */
   block?: boolean
+  /**
+   * 是否开启圆角胶囊风格
+   * @default false
+   */
+  rounded?: boolean
   /**
    * 位置
    * @default 'top'
@@ -61,16 +60,16 @@ export interface TabsVerticalProps {
   /** 标签项 */
   items: TabItem[]
   /**
-   * 是否应用圆角
-   * @default true
-   */
-  rounded?: boolean
-  /**
    * 是否可关闭
    * @description 作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮
    * @default false
    */
   closable?: boolean
+  /**
+   * 是否开启圆角胶囊风格
+   * @default false
+   */
+  rounded?: boolean
   /**
    * 位置
    * @default 'left'
@@ -99,12 +98,6 @@ export interface TabsProps extends ComponentProps {
   /** 标签项 */
   items: TabItem[]
   /**
-   * 是否应用圆角
-   * @description 开启时使用胶囊状圆角；关闭时完全直角
-   * @default true
-   */
-  rounded?: boolean
-  /**
    * 是否可关闭
    * @description 作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮
    * @default false
@@ -116,6 +109,11 @@ export interface TabsProps extends ComponentProps {
    * @default false
    */
   block?: boolean
+  /**
+   * 是否开启圆角胶囊风格
+   * @default false
+   */
+  rounded?: boolean
   /** 显示位置 */
   position?: 'left' | 'right' | 'top' | 'bottom'
   /**
@@ -132,10 +130,10 @@ export interface TabsEmits {
   (e: 'close', item: TabItem, index: number): void
 }
 
-/** 标签页组件组件暴露的属性和方法(组件内部使用) */
+/** 标签页组件暴露的属性和方法(组件内部使用) */
 export interface _TabsExposed {}
 
-/** 标签页组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+/** 标签页组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export interface TabsExposed {}
 
 /** 水平标签栏暴露的属性和方法(组件内部使用) */

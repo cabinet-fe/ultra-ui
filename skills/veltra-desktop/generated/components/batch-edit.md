@@ -2,8 +2,7 @@
 
 ## 类型
 
-```typescript
-
+````typescript
 import type { DeconstructValue } from '@veltra/utils'
 
 import type { ActionProps } from './action'
@@ -74,9 +73,7 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel> extends T
    */
   features?:
     | Array<BatchEditFeature>
-    | {
-        [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean)
-      }
+    | { [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean) }
 
   /**
    * 操作按钮的属性配置, 可以是action组件的任意属性
@@ -104,5 +101,4 @@ export interface _BatchEditExposed {}
 
 /** 批量编辑组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type BatchEditExposed = DeconstructValue<_BatchEditExposed>
-
-```
+````

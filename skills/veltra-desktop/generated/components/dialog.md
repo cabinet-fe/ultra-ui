@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 /** 对话框组件属性 */
@@ -38,5 +37,4 @@ export interface _DialogExposed {
 
 /** 对话框组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type DialogExposed = DeconstructValue<_DialogExposed>
-
 ```

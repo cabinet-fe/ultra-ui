@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 /** 数字组件属性 */
 export interface NumberProps {
   /** 数字数值 */
@@ -35,5 +34,4 @@ export interface NumberEmits {}
 
 /** 数字组件暴露的属性和方法 */
 export interface NumberExposed {}
-
 ```

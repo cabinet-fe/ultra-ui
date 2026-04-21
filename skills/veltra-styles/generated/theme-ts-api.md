@@ -9,9 +9,7 @@ import { componentCssVarsDarkDecls, componentCssVarsLightDecls } from './compone
 import { mixColor } from './helper'
 import type { Theme } from './type'
 
-type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P]
-}
+type RecursivePartial<T> = { [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P] }
 
 function isDevEnv(): boolean {
   try {

@@ -9,11 +9,7 @@
 当前所有 `@veltra/*` 包 `package.json` 的 `exports` 条件顺序均为：
 
 ```json
-{
-  "types": "./dist/index.d.ts",
-  "development": "./src/index.ts",
-  "import": "./dist/index.js"
-}
+{ "types": "./dist/index.d.ts", "development": "./src/index.ts", "import": "./dist/index.js" }
 ```
 
 TypeScript 在解析 `exports` 时按键的声明顺序匹配，`types` 条件默认一直激活且排在最前，所以 `development` 条件永远抢不到，IDE「转到定义」/ 类型悬浮始终跳到 `dist/*.d.ts`。

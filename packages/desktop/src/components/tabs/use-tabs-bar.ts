@@ -14,7 +14,7 @@ import type { TabItem } from '../../types'
 
 interface UseTabsBarOptions {
   viewportRef: ShallowRef<HTMLElement | undefined>
-  headerRef: ShallowRef<HTMLElement | undefined>
+  listRef: ShallowRef<HTMLElement | undefined>
   items: Ref<TabItem[]>
   model: ModelRef<string | undefined>
 }
@@ -26,7 +26,7 @@ interface UseTabsBarOptions {
  * - 绑定 wheel / scroll / resize 事件
  */
 export function useTabsBar(options: UseTabsBarOptions) {
-  const { viewportRef, headerRef, items, model } = options
+  const { viewportRef, listRef, items, model } = options
 
   const showNav = shallowRef(false)
   const canPrev = shallowRef(false)
@@ -53,13 +53,13 @@ export function useTabsBar(options: UseTabsBarOptions) {
   /** 活动标签自动滚入视野 */
   const ensureActiveVisible = () => {
     const vp = viewportRef.value
-    const header = headerRef.value
-    if (!vp || !header) return
+    const list = listRef.value
+    if (!vp || !list) return
     const activeKey = model.value
     if (!activeKey) return
     const activeIndex = items.value.findIndex((i) => i.key === activeKey)
     if (activeIndex < 0) return
-    const el = header.children[activeIndex] as HTMLElement | undefined
+    const el = list.children[activeIndex] as HTMLElement | undefined
     if (!el) return
 
     const vpRect = vp.getBoundingClientRect()
@@ -82,7 +82,7 @@ export function useTabsBar(options: UseTabsBarOptions) {
     vp.scrollLeft += e.deltaY
   }
 
-  useResizeObserver({ targets: [viewportRef, headerRef], onResize: () => updateNavState() })
+  useResizeObserver({ targets: [viewportRef, listRef], onResize: () => updateNavState() })
 
   watch(model, async () => {
     await nextTick()

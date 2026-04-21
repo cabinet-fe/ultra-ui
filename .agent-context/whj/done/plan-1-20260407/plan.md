@@ -28,8 +28,8 @@
 
 将 `sample/` 移动到 `apps/sample/`，将 `build/` 移动到 `tools/build/`，将 `cli/` 移动到 `tools/cli/`。在 `packages/` 下创建 6 个包目录：
 
-| 包目录                   | npm 包名                 | 说明                         |
-| ------------------------ | ------------------------ | ---------------------------- |
+| 包目录                   | npm 包名               | 说明                         |
+| ------------------------ | ---------------------- | ---------------------------- |
 | `packages/utils/`        | `@veltra/utils`        | 共享工具函数、类型、样式基础 |
 | `packages/compositions/` | `@veltra/compositions` | 共享组合式函数               |
 | `packages/directives/`   | `@veltra/directives`   | 共享自定义指令               |

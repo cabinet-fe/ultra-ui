@@ -252,7 +252,13 @@ import { message } from '@veltra/desktop'
 
 message({ message: '操作成功', type: 'success' })
 message({ message: '操作失败', type: 'error', duration: 5000 })
-message({ message: '提示信息', closable: true, onClosed() { console.log('已关闭') } })
+message({
+  message: '提示信息',
+  closable: true,
+  onClosed() {
+    console.log('已关闭')
+  }
+})
 
 // 关闭所有消息
 message.closeAll()

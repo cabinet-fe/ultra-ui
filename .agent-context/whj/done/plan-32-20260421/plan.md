@@ -54,7 +54,7 @@
 
       <div :class="cls.e('viewport')" ref="viewportRef">
         <ul :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
-          <li v-for="(item, index) in tabItems" :key="item.key" ... >
+          <li v-for="(item, index) in tabItems" :key="item.key" ...>
             <slot :name="`name:${item.key}`">{{ item.name }}</slot>
           </li>
         </ul>
@@ -73,7 +73,7 @@
 
     <!-- 垂直布局（left/right）：直接渲染 ul（本次不处理溢出） -->
     <ul v-else :class="[cls.e('header'), cls.em('header', position!)]" ref="headerRef">
-      <li v-for="(item, index) in tabItems" :key="item.key" ... >
+      <li v-for="(item, index) in tabItems" :key="item.key" ...>
         <slot :name="`name:${item.key}`">{{ item.name }}</slot>
       </li>
     </ul>
@@ -94,6 +94,7 @@
 - `<li>` 内部不再包含 close 按钮、close-placeholder、+新增按钮；仅保留 slot 内容。
 - 由于 `v-if` 两支都包含 `<ul ref="headerRef">`，`headerRef` 始终可访问（两分支仅出现其一，不冲突）。
 - `<li>` 的 class 与 `v-ripple` / `@click.stop="handleClick(item, index)"` 绑定保持不变：
+
   ```
   :class="[
     cls.e('header-item'),
@@ -128,14 +129,13 @@
   ```
 - **`renderSlots` 保持不变**。
 - **新增 ref**：
+
   ```ts
   const viewportRef = shallowRef<HTMLElement>()
   const showNav = shallowRef(false)
   const canPrev = shallowRef(false)
   const canNext = shallowRef(false)
-  const isHorizontal = computed(
-    () => props.position === 'top' || props.position === 'bottom'
-  )
+  const isHorizontal = computed(() => props.position === 'top' || props.position === 'bottom')
   ```
 
   2.3. **溢出滚动逻辑（新增）**：
@@ -180,6 +180,7 @@
   - `watch(() => props.position, async () => { await nextTick(); updateNavState() })`
   - viewport 的滚动事件（`passive`）：通过原生 `addEventListener('scroll', updateNavState, { passive: true })` 在 `onMounted` 绑定，`onBeforeUnmount` 解绑。
 - **鼠标滚轮水平滚动（完整明确的绑定方式，仅此一种）**：
+
   ```ts
   const handleWheel = (e: WheelEvent) => {
     if (!showNav.value) return
@@ -205,6 +206,7 @@
     vp.removeEventListener('scroll', updateNavState)
   })
   ```
+
   > 注：**模板上不绑定 `@wheel`**，避免与此处手动绑定冲突。
 
   2.4. **活动指示器**：继续使用 `::after` 伪元素 + `scaleX/scaleY` 动画（在 active LI 上），不使用 JS 计算位置，已删除 markStyle 相关死代码。
@@ -326,7 +328,7 @@
     - left：`border-radius: 2px 0 0 2px`（挂右边）
     - right：`border-radius: 0 2px 2px 0`（挂左边）
 
-  3.4. **删除 close 相关样式**：
+    3.4. **删除 close 相关样式**：
 
 - 删除 `@include m.e(close) { ... }` 块
 - 删除 `@include m.e(close-placeholder) { ... }` 块
@@ -416,3 +418,9 @@
 - patch-1: shadcn 风格视觉改版
 - patch-2: 交付调试 + 新增 rounded/closable 属性 + 拆出 UTabsHorizontal / UTabsVertical 独立组件
 - patch-3: 水平 tabs 胶囊圆角 + hover 出现的 close 按钮 + 填充宽度
+- patch-4: 未知补丁
+- patch-5: 移除圆角配置并优化 DOM 结构
+- patch-6: 修复组件黑边框与过度圆角
+- patch-7: 新增 rounded 属性与优化 close 按钮显示逻辑
+- patch-8: 语义化重命名 + 解耦 tabs 组件结构 + 修复垂直圆角与关闭按钮
+- patch-9: 修复水平 tabs 激活项上下阴影被 viewport 裁切

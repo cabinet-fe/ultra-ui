@@ -1,48 +1,38 @@
 <template>
-  <u-tabs-horizontal
-    v-if="isHorizontal"
-    v-model="model"
-    :items="items"
-    :position="position as 'top' | 'bottom'"
-    :size="size"
-    :rounded="rounded"
-    :closable="closable"
-    :block="block"
-    @click="onClick"
-    @close="onClose"
-  >
-    <template v-for="(_, name) in nameSlots" :key="name" #[name]>
-      <slot :name="name" />
-    </template>
-    <transition name="fade" mode="out-in">
-      <keep-alive v-if="keepAlive">
-        <component :key="model" :is="renderContent()" />
-      </keep-alive>
-      <component v-else :key="model" :is="renderContent()" />
-    </transition>
-  </u-tabs-horizontal>
+  <div :class="[cls.b, cls.m(position!)]">
+    <u-tabs-horizontal
+      v-if="isHorizontal"
+      v-model="model"
+      :items="items"
+      :position="horizontalPosition"
+      :size="size"
+      :closable="closable"
+      :block="block"
+      :rounded="rounded"
+      @click="onClick"
+      @close="onClose"
+    />
+    <u-tabs-vertical
+      v-else
+      v-model="model"
+      :items="items"
+      :position="verticalPosition"
+      :size="size"
+      :closable="closable"
+      :rounded="rounded"
+      @click="onClick"
+      @close="onClose"
+    />
 
-  <u-tabs-vertical
-    v-else
-    v-model="model"
-    :items="items"
-    :position="position as 'left' | 'right'"
-    :size="size"
-    :rounded="rounded"
-    :closable="closable"
-    @click="onClick"
-    @close="onClose"
-  >
-    <template v-for="(_, name) in nameSlots" :key="name" #[name]>
-      <slot :name="name" />
-    </template>
-    <transition name="fade" mode="out-in">
-      <keep-alive v-if="keepAlive">
-        <component :key="model" :is="renderContent()" />
-      </keep-alive>
-      <component v-else :key="model" :is="renderContent()" />
-    </transition>
-  </u-tabs-vertical>
+    <div v-if="hasContentSlots" :class="cls.e('content')">
+      <transition name="fade" mode="out-in">
+        <keep-alive v-if="keepAlive">
+          <component :key="model" :is="renderContent()" />
+        </keep-alive>
+        <component v-else :key="model" :is="renderContent()" />
+      </transition>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -59,9 +49,9 @@ defineOptions({ name: 'Tabs' })
 
 const props = withDefaults(defineProps<TabsProps>(), {
   position: 'top',
-  rounded: true,
   closable: false,
   block: false,
+  rounded: false,
   keepAlive: false
 })
 
@@ -79,14 +69,17 @@ const model = defineModel<string>()
 
 const isHorizontal = computed(() => props.position === 'top' || props.position === 'bottom')
 
-/** 仅转发 `name:${key}` 命名槽，default 槽由本组件自己提供内容区 */
-const nameSlots = computed(() => {
-  const result: Record<string, true> = {}
-  for (const key of Object.keys(slots)) {
-    if (key.startsWith('name:')) result[key] = true
-  }
-  return result
-})
+/** 避免模板中使用类型断言：收敛 position 到水平 / 垂直子组件所需的子集。 */
+const horizontalPosition = computed<'top' | 'bottom'>(() =>
+  props.position === 'bottom' ? 'bottom' : 'top'
+)
+
+const verticalPosition = computed<'left' | 'right'>(() =>
+  props.position === 'right' ? 'right' : 'left'
+)
+
+/** 是否存在任一内容面板插槽；没有则不渲染内容区域。 */
+const hasContentSlots = computed(() => Object.keys(slots).length > 0)
 
 const onClick = (item: TabItem, index: number) => emit('click', item, index)
 const onClose = (item: TabItem, index: number) => emit('close', item, index)
@@ -96,7 +89,7 @@ const renderContent = () => {
   if (!key) return null
   const nodes = slots[key]?.({ key })
   if (Array.isArray(nodes)) {
-    return createVNode(UScroll, { class: cls.e('content') }, { default: () => nodes })
+    return createVNode(UScroll, null, { default: () => nodes })
   }
   return nodes
 }

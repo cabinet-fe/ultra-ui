@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { VNode } from 'vue'
 
 /** 虚拟dom渲染组件属性 */
@@ -13,5 +12,4 @@ export interface NodeRenderProps {
 
 /** 虚拟dom渲染暴露的属性和方法 */
 export interface NodeRenderExposed {}
-
 ```

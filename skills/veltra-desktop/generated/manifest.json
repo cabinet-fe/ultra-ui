@@ -76,15 +76,7 @@
         "context-menu"
       ]
     },
-    "layout": {
-      "label": "布局容器",
-      "components": [
-        "layout",
-        "card",
-        "scroll",
-        "watermark"
-      ]
-    },
+    "layout": { "label": "布局容器", "components": ["layout", "card", "scroll", "watermark"] },
     "editor": {
       "label": "编辑器",
       "components": [
@@ -98,15 +90,7 @@
     },
     "general": {
       "label": "通用",
-      "components": [
-        "button",
-        "icon",
-        "action",
-        "check-tag",
-        "theme",
-        "palette",
-        "node-render"
-      ]
+      "components": ["button", "icon", "action", "check-tag", "theme", "palette", "node-render"]
     }
   },
   "sharedTypes": [

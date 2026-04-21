@@ -13,9 +13,7 @@ import { useConfig } from '../use-config'
  */
 export function useFallbackProps<
   F extends Record<string, any>,
-  R extends {
-    [key in keyof F]: ComputedRef<F[key]>
-  }
+  R extends { [key in keyof F]: ComputedRef<F[key]> }
 >(propsList: Record<string, any>[], fallbackProps: F): R {
   const { config } = useConfig()
 

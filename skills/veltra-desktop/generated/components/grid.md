@@ -2,8 +2,7 @@
 
 ## 类型
 
-```typescript
-
+````typescript
 import type { BreakpointName, DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
@@ -75,9 +74,7 @@ export interface GridItemProps {
   span?:
     | number
     | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 容器标签 */
   tag?: string
 }
@@ -89,5 +86,4 @@ export interface _GridExposed {
 
 /** 网格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type GridExposed = DeconstructValue<_GridExposed>
-
-```
+````

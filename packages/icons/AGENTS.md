@@ -11,8 +11,8 @@ import { Logo } from '@veltra/icons/colorful'
 
 ## 导出子路径
 
-| 子路径                     | 用途                          |
-| -------------------------- | ----------------------------- |
+| 子路径                   | 用途                          |
+| ------------------------ | ----------------------------- |
 | `@veltra/icons`          | 全部图标（normal + colorful） |
 | `@veltra/icons/normal`   | 单色图标集合                  |
 | `@veltra/icons/colorful` | 多色图标集合                  |

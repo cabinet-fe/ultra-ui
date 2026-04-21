@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { DeconstructValue } from '@veltra/utils'
 
 export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner'
@@ -24,5 +23,4 @@ export interface _LoadingExposed {}
 
 /** loading组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type LoadingExposed = DeconstructValue<_LoadingExposed>
-
 ```

@@ -1,6 +1,5 @@
 # 布局容器
 
-
 各组件类型定义见 [`../components/`](../components/)：
 
 - [layout](../components/layout.md)

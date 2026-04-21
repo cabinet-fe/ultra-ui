@@ -57,9 +57,7 @@ useFormComponent(props)
 
 ```typescript
 // packages/desktop/src/components/button/button.vue
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 ```
 
 ## usePop：浮层与 `floating-ui`

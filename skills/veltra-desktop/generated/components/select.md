@@ -2,8 +2,7 @@
 
 ## 类型
 
-```typescript
-
+````typescript
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { CSSProperties, ShallowRef } from 'vue'
 
@@ -73,5 +72,4 @@ export interface _SelectExposed {
 }
 
 export type SelectExposed = DeconstructValue<_SelectExposed>
-
-```
+````

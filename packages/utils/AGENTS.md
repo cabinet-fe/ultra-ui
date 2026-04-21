@@ -23,12 +23,10 @@ src/
 
 ## 导出子路径
 
-
-| 子路径                    | 用途               |
-| ---------------------- | ---------------- |
+| 子路径                 | 用途                       |
+| ---------------------- | -------------------------- |
 | `@veltra/utils`        | 工具函数 + 共享 + 类型聚合 |
-| `@veltra/utils/shared` | 共享常量             |
-
+| `@veltra/utils/shared` | 共享常量                   |
 
 ## BEM + SCSS
 
@@ -57,22 +55,19 @@ src/
 
 ## 关键工具函数
 
-
-| 模块                | 导出         | 用途                       |
-| ----------------- | ---------- | ------------------------ |
-| `helper/make-bem` | `bem()`    | 创建 BEM 类名工具实例            |
-| `helper/tween`    | `Tween`    | 补间动画                     |
-| `helper/frame`    | `frame`    | requestAnimationFrame 封装 |
-| `helper/vue`      | Vue 相关辅助   | —                        |
-| `dom/z-index`     | z-index 管理 | —                        |
-| `dom/position`    | 位置计算       | —                        |
-| `form/validate`   | 表单校验       | —                        |
-| `reactive/proxy`  | 响应式代理      | —                        |
-
+| 模块              | 导出         | 用途                       |
+| ----------------- | ------------ | -------------------------- |
+| `helper/make-bem` | `bem()`      | 创建 BEM 类名工具实例      |
+| `helper/tween`    | `Tween`      | 补间动画                   |
+| `helper/frame`    | `frame`      | requestAnimationFrame 封装 |
+| `helper/vue`      | Vue 相关辅助 | —                          |
+| `dom/z-index`     | z-index 管理 | —                          |
+| `dom/position`    | 位置计算     | —                          |
+| `form/validate`   | 表单校验     | —                          |
+| `reactive/proxy`  | 响应式代理   | —                          |
 
 ## 依赖
 
 - **依赖**：`@cat-kit/core`
 - **peer**：`vue ^3.5.0`
 - **被依赖**：compositions、directives、desktop（样式资产由 `@veltra/styles` 单独提供）
-

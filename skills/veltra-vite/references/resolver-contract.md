@@ -34,19 +34,19 @@ Resolver 对组件名执行这些规则：
 
 这些组件没有独立 `style.ts`，会复用父目录样式入口：
 
-| 组件 kebab 名 | 样式目录 |
-| --- | --- |
-| `button-group` | `button` |
-| `action-group` | `action` |
-| `card-header` | `card` |
-| `card-cover` | `card` |
-| `card-content` | `card` |
-| `card-action` | `card` |
+| 组件 kebab 名     | 样式目录   |
+| ----------------- | ---------- |
+| `button-group`    | `button`   |
+| `action-group`    | `action`   |
+| `card-header`     | `card`     |
+| `card-cover`      | `card`     |
+| `card-content`    | `card`     |
+| `card-action`     | `card`     |
 | `checkbox-button` | `checkbox` |
-| `grid-item` | `grid` |
-| `list-item` | `list` |
-| `menu-sub` | `menu` |
-| `menu-item` | `menu` |
+| `grid-item`       | `grid`     |
+| `list-item`       | `list`     |
+| `menu-sub`        | `menu`     |
+| `menu-item`       | `menu`     |
 
 ## 判断问题是否属于 resolver
 

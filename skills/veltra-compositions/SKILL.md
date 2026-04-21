@@ -12,11 +12,11 @@ description: >
 
 ## 生成物
 
-| 文件 | 内容 |
-|------|------|
-| [generated/modules/](generated/modules/) | 每个 `use-*` 一篇，含该模块下全部 `.ts` 源码 |
-| [generated/manifest.json](generated/manifest.json) | 同步时间与模块文件列表 |
-| [references/usage-patterns.md](references/usage-patterns.md) | desktop 中的真实调用片段 |
+| 文件                                                         | 内容                                         |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| [generated/modules/](generated/modules/)                     | 每个 `use-*` 一篇，含该模块下全部 `.ts` 源码 |
+| [generated/manifest.json](generated/manifest.json)           | 同步时间与模块文件列表                       |
+| [references/usage-patterns.md](references/usage-patterns.md) | desktop 中的真实调用片段                     |
 
 运行 `bun run sync-veltra-compositions` 或 `bun run sync-skills` 可重新生成 `generated/`。
 
@@ -46,22 +46,22 @@ import {
 
 ## 函数速查（14）
 
-| 函数 | 用途 | 关键参数 / 行为 | 返回值要点 |
-|------|------|-----------------|------------|
-| `useModel` | 自定义 v-model（非 `defineModel` 场景） | `propName`、`local`（bool 或函数）、`shallow` | 类 ref 的 `{ value }` |
-| `useUserAction` | 用户动作期间阻断 modelValue 回流副作用 | 无 | `{ userAction, isUserActive }` |
-| `useDrag` | 拖拽（如对话框标题栏） | 目标 ref、边界等 | 拖拽状态与控制 |
-| `useFocus` | 焦点与 hover 语义 | 回调 | `focus`、`handleFocus`、`handleBlur` 等 |
-| `useTransition` | 过渡：`css` 或 `style` | `target`、`name` / style 关键帧 | `enter`、`leave` |
-| `usePop` | Popper 定位 | `triggerRef`、`contentRef`、`direction` | `update`、`popperContainerId` |
-| `useReactiveSize` | 响应式测量尺寸 | 元素 / 尺寸源 | 尺寸 ref |
-| `useResizeObserver` / `useObserverCallback` | `ResizeObserver` 与回调辅助 | 监听目标、选项 | 见 `use-resize-observer` 源码 |
-| `useVirtual` | 虚拟列表 | `count`、`scrollEl`、`estimateSize` | `virtualList`、`measureElement` 等 |
-| `useFallbackProps` | props → 全局 config 回退 | 源对象数组、默认值表 | 各字段 ref |
-| `useFormFallbackProps` | 表单场景三级回退 | `[formProps, props]` + 默认值 | 同上 |
-| `useFormComponent` | 表单 provide / inject | 父级传入 `props`；子级无参 | `formProps`、`inForm` 等 |
-| `useConfig` | 全局文档/尺寸等配置 | 读配置 | `config` 等 |
-| `useComponentProps` | 规范化组件 props | 视具体 API | 见源码 |
+| 函数                                        | 用途                                    | 关键参数 / 行为                               | 返回值要点                              |
+| ------------------------------------------- | --------------------------------------- | --------------------------------------------- | --------------------------------------- |
+| `useModel`                                  | 自定义 v-model（非 `defineModel` 场景） | `propName`、`local`（bool 或函数）、`shallow` | 类 ref 的 `{ value }`                   |
+| `useUserAction`                             | 用户动作期间阻断 modelValue 回流副作用  | 无                                            | `{ userAction, isUserActive }`          |
+| `useDrag`                                   | 拖拽（如对话框标题栏）                  | 目标 ref、边界等                              | 拖拽状态与控制                          |
+| `useFocus`                                  | 焦点与 hover 语义                       | 回调                                          | `focus`、`handleFocus`、`handleBlur` 等 |
+| `useTransition`                             | 过渡：`css` 或 `style`                  | `target`、`name` / style 关键帧               | `enter`、`leave`                        |
+| `usePop`                                    | Popper 定位                             | `triggerRef`、`contentRef`、`direction`       | `update`、`popperContainerId`           |
+| `useReactiveSize`                           | 响应式测量尺寸                          | 元素 / 尺寸源                                 | 尺寸 ref                                |
+| `useResizeObserver` / `useObserverCallback` | `ResizeObserver` 与回调辅助             | 监听目标、选项                                | 见 `use-resize-observer` 源码           |
+| `useVirtual`                                | 虚拟列表                                | `count`、`scrollEl`、`estimateSize`           | `virtualList`、`measureElement` 等      |
+| `useFallbackProps`                          | props → 全局 config 回退                | 源对象数组、默认值表                          | 各字段 ref                              |
+| `useFormFallbackProps`                      | 表单场景三级回退                        | `[formProps, props]` + 默认值                 | 同上                                    |
+| `useFormComponent`                          | 表单 provide / inject                   | 父级传入 `props`；子级无参                    | `formProps`、`inForm` 等                |
+| `useConfig`                                 | 全局文档/尺寸等配置                     | 读配置                                        | `config` 等                             |
+| `useComponentProps`                         | 规范化组件 props                        | 视具体 API                                    | 见源码                                  |
 
 ## 按场景选用
 

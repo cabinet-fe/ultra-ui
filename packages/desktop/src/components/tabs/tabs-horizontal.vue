@@ -2,70 +2,67 @@
   <div
     :class="[
       cls.b,
-      cls.m(position!),
+      cls.m('horizontal'),
+      cls.m(position),
       cls.m(size),
-      bem.is('not-rounded', !rounded),
       bem.is('block', block),
-      bem.is('bar-only', !$slots.default)
+      bem.is('rounded', rounded)
     ]"
   >
-    <div :class="[cls.e('header-wrap'), cls.em('header-wrap', position!)]">
-      <button
-        v-show="showNav"
-        type="button"
-        :class="[cls.e('nav'), cls.em('nav', 'prev')]"
-        :disabled="!canPrev"
-        @click="scrollByStep(-1)"
-      >
-        <u-icon>
-          <ArrowLeft />
-        </u-icon>
-      </button>
+    <button
+      v-show="showNav"
+      type="button"
+      :class="[cls.e('nav'), cls.em('nav', 'prev')]"
+      :disabled="!canPrev"
+      @click="scrollByStep(-1)"
+    >
+      <u-icon>
+        <ArrowLeft />
+      </u-icon>
+    </button>
 
-      <div ref="viewportRef" :class="cls.e('viewport')">
-        <ul ref="headerRef" :class="[cls.e('header'), cls.em('header', position!)]">
-          <li
-            v-for="(item, index) in items"
-            :key="item.key"
-            :class="[
-              cls.e('header-item'),
-              bem.is('active', model === item.key),
-              bem.is('disabled', item.disabled === true)
-            ]"
-            @click.stop="handleClick(item, index)"
+    <div ref="viewportRef" :class="cls.e('viewport')">
+      <div ref="listRef" :class="cls.e('list')">
+        <button
+          type="button"
+          role="tab"
+          v-for="(item, index) in items"
+          :key="item.key"
+          :class="[
+            cls.e('item'),
+            bem.is('active', model === item.key),
+            bem.is('disabled', item.disabled === true)
+          ]"
+          @click.stop="handleClick(item, index)"
+        >
+          <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
+          <span
+            v-if="isItemClosable(item)"
+            role="button"
+            tabindex="0"
+            :class="cls.e('close')"
+            :aria-label="`close ${item.name ?? item.key}`"
+            @click.stop="handleClose(item, index)"
           >
-            <span :class="cls.e('header-item-label')">
-              <slot :name="`name:${item.key}`">{{ item.name ?? item.key }}</slot>
-            </span>
-            <button
-              v-if="isItemClosable(item)"
-              type="button"
-              :class="cls.e('close')"
-              :aria-label="`close ${item.name ?? item.key}`"
-              @click.stop="handleClose(item, index)"
-            >
-              <u-icon>
-                <Close />
-              </u-icon>
-            </button>
-          </li>
-        </ul>
+            <u-icon>
+              <Close />
+            </u-icon>
+          </span>
+        </button>
       </div>
-
-      <button
-        v-show="showNav"
-        type="button"
-        :class="[cls.e('nav'), cls.em('nav', 'next')]"
-        :disabled="!canNext"
-        @click="scrollByStep(1)"
-      >
-        <u-icon>
-          <ArrowRight />
-        </u-icon>
-      </button>
     </div>
 
-    <slot />
+    <button
+      v-show="showNav"
+      type="button"
+      :class="[cls.e('nav'), cls.em('nav', 'next')]"
+      :disabled="!canNext"
+      @click="scrollByStep(1)"
+    >
+      <u-icon>
+        <ArrowRight />
+      </u-icon>
+    </button>
   </div>
 </template>
 
@@ -75,66 +72,37 @@ import { ArrowLeft, ArrowRight, Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'
 
-import type { ComponentSize, TabItem } from '../../types'
+import type { ComponentSize, TabItem, TabsHorizontalEmits, TabsHorizontalProps } from '../../types'
 import { UIcon } from '../icon'
 import { useTabsBar } from './use-tabs-bar'
 
 defineOptions({ name: 'TabsHorizontal' })
 
-const props = withDefaults(
-  defineProps<{
-    /** 组件尺寸 */
-    size?: ComponentSize
-    /** 当前激活的标签 key */
-    modelValue?: string
-    /** 标签项 */
-    items: TabItem[]
-    /** 是否应用圆角 */
-    rounded?: boolean
-    /** 是否可关闭 */
-    closable?: boolean
-    /** 是否填充父容器宽度 */
-    block?: boolean
-    /** 位置 */
-    position?: 'top' | 'bottom'
-  }>(),
-  {
-    position: 'top',
-    rounded: true,
-    closable: false,
-    block: false
-  }
-)
+const props = withDefaults(defineProps<TabsHorizontalProps>(), {
+  position: 'top',
+  closable: false,
+  block: false,
+  rounded: false
+})
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-  (e: 'click', item: TabItem, index: number): void
-  (e: 'close', item: TabItem, index: number): void
-}>()
-
-defineSlots<{
-  /** 内容区域（由 UTabs 注入；独立使用时一般留空） */
-  default?: () => any
-  /** 自定义某个 tab 的名称 */
-  [key: `name:${string}`]: () => any
-}>()
+const emit = defineEmits<TabsHorizontalEmits>()
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize
 })
 
-const cls = bem('tabs')
+const cls = bem('tabs-bar')
 
 const model = defineModel<string>()
 
 const viewportRef = shallowRef<HTMLElement>()
-const headerRef = shallowRef<HTMLElement>()
+const listRef = shallowRef<HTMLElement>()
 
 const itemsRef = computed(() => props.items)
 
 const { showNav, canPrev, canNext, scrollByStep } = useTabsBar({
   viewportRef,
-  headerRef,
+  listRef,
   items: itemsRef,
   model
 })

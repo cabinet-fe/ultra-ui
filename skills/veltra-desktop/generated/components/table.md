@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { Forest, TreeNode } from '@cat-kit/core'
 import type { ComponentSize, DeconstructValue, RenderReturn } from '@veltra/utils'
 import type { ShallowRef, Slots, VNode } from 'vue'
@@ -242,5 +241,4 @@ export interface _TableExposed {
 
 /** 表格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TableExposed = DeconstructValue<_TableExposed>
-
 ```

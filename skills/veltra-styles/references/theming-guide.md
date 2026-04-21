@@ -30,11 +30,7 @@ setTheme('dark') // 或 'light' | 'auto'
 ```typescript
 import { lightTheme, UITheme } from '@veltra/styles/theme'
 
-const custom = lightTheme.new({
-  color: {
-    primary: '#0066cc'
-  }
-})
+const custom = lightTheme.new({ color: { primary: '#0066cc' } })
 
 loadTheme(custom)
 ```

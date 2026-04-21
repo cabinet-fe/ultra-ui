@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ColorType, ComponentProps, DeconstructValue } from '@veltra/utils'
 
 /** 徽章组件属性 */
@@ -32,5 +31,4 @@ export interface _BadgeExposed {}
 
 /** 徽章组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type BadgeExposed = DeconstructValue<_BadgeExposed>
-
 ```

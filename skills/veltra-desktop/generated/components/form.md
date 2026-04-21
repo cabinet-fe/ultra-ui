@@ -3,7 +3,6 @@
 ## 类型
 
 ```typescript
-
 import type { ComponentProps, DeconstructValue, ValidateRule } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
@@ -91,5 +90,4 @@ export interface _FormExposed {
 }
 
 export type FormExposed = DeconstructValue<_FormExposed>
-
 ```
