@@ -1,0 +1,12 @@
+{
+  // Bun 侧脚本沿用通用配置，再根据运行时做小范围覆盖
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // 保持与根配置一致的产出目标，方便利用最新版 Bun 特性
+    "target": "ESNext",
+    // Bun 环境不需要 DOM 声明，精简到纯 ESNext
+    "lib": ["ESNext"],
+    // 自动注入 @types/bun，获得 fs、path 等 API 智能提示
+    "types": ["bun"]
+  }
+}

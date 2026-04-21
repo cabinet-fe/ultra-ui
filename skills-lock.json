@@ -1,10 +1,50 @@
 {
   "version": 1,
   "skills": {
+    "cat-kit-agent-context": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "52421522cb854b53570de5afc8f0b838a8b31c7d635cce95f85bf907494a22dc"
+    },
+    "cat-kit-be": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "f2ecf9a932255321c6b06271c8dd9f4d358a0efbcaca40a9896a73fb51e35e96"
+    },
+    "cat-kit-cli": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "be69d2f789c26ac74a87beb49ed483e0f870523510a5cd69cf9a15e182616eaf"
+    },
+    "cat-kit-core": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "33232f644fb2f064dcf86a5ca07d03a62e2779c9b205b9f9532ece6e3a2730eb"
+    },
+    "cat-kit-fe": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "1f7f6cee005977df043c85ac4024600aa9f3a5efd2934c3bfb671fa4ad0fd259"
+    },
+    "cat-kit-http": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "c48991c172e23cf5338604ce9a7277e04febf2596d359d69b2444b5f1a14204b"
+    },
+    "cat-kit-tsconfig": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "292d43bd1e8a39b33ea6801636bc242c1c40730719cdf672e6f51577f5f4a17a"
+    },
+    "cat-kit-vitepress-theme": {
+      "source": "cabinet-fe/cat-kit",
+      "sourceType": "github",
+      "computedHash": "7241df3fc0093c6ab2d949b637c219b2a9a00e97eaf0808babdf84692155b1eb"
+    },
     "use-cat-kit": {
       "source": "cabinet-fe/cat-kit",
       "sourceType": "github",
-      "computedHash": "0297f34bdd296a3c82cf5c61ced1d370e3599d31e6617ddcb9dbe36ae17c5605"
+      "computedHash": "800464b3ab29ff0cca4056ecd41dc3d663a9b10297bdc5960a643794c49faae4"
     }
   }
 }

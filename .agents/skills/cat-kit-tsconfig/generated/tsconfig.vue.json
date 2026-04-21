@@ -1,0 +1,15 @@
+{
+  // Vue 项目共用基础规则，再补齐对单文件组件与 JSX 的支持
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // 构建时的降级策略交给 Vite，TS 只需理解最新语法
+    // 参考: https://cn.vitejs.dev/config/build-options.html#build-target
+    "target": "ESNext",
+    // 保留 JSX/TSX，不让 TS 主动转换，交给 Vue 插件处理
+    "jsx": "preserve",
+    // 指定 JSX 工厂为 Vue 3（自动注入 h / Fragment）
+    "jsxImportSource": "vue",
+    // 额外类型定义交由 Vite 插件注入，这里保持为空即可
+    "types": []
+  }
+}

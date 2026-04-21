@@ -1,0 +1,10 @@
+{
+  // 浏览器端 Demo 的增量配置：补齐 DOM API
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // 面向现代浏览器，包含 DOM 与迭代器相关的声明
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    // 这里无需额外的全局类型，保留默认值即可
+    "types": []
+  }
+}

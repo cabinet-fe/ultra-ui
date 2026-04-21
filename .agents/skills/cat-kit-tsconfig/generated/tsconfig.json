@@ -1,0 +1,49 @@
+{
+  // 统一的 TS 配置入口，建议在编辑器中将此文件识别为 JSON with Comments 以启用 schema 提示
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // 使用最新语法编译，Vite 等工具会按需再降级
+    "target": "ESNext",
+    // 产出 ES Module，方便与 ESM 构建链串联
+    "module": "ESNext",
+
+    // 不允许项目混入 .js 文件，保持源码纯 TypeScript
+    "allowJs": false,
+    // 允许把 `import * as Space from 'x'` 简写成默认导入，兼容常见写法
+    "allowSyntheticDefaultImports": true,
+
+    // TypeScript 6.0 起 `strict` 默认为 true；不再逐项写 strict 子开关
+    // （含原 `noImplicitAny: false`，移除后与 strict 一致、启用 noImplicitAny）
+    "noImplicitAny": false,
+
+    // ---- 非 strict 合集、但需显式开启的额外检查
+    // import/export 会按原样输出，避免多余的 helper 污染
+    "verbatimModuleSyntax": true,
+    // 类方法重写必须使用 override 关键字，避免误覆盖（不在 strict 合集内）
+    "noImplicitOverride": true,
+    // 索引访问会自动加上 undefined，提示先做存在性判断
+    "noUncheckedIndexedAccess": true,
+    // 单文件模块编译隔离（保证所有文件都能安全转绎）
+    "isolatedModules": true,
+    // 强制将文件均视为模块
+    "moduleDetection": "force",
+
+    // ---- 代码质量守护
+    // 提示未使用的局部变量，防止遗忘的草稿代码
+    "noUnusedLocals": true,
+    // 未使用的函数参数暂时允许，兼容部分接口实现
+    "noUnusedParameters": false,
+    // 如果出现永远跑不到的代码，直接报错
+    "allowUnreachableCode": false,
+
+    // ---- 模块解析与兼容性
+    // 采用 bundler 解析策略，贴合 Vite/Rspack 等现代工具
+    "moduleResolution": "bundler",
+    // CommonJS 依赖也能愉快地用默认导入
+    "esModuleInterop": true,
+    // 导入路径大小写必须和文件系统一致，避免跨平台问题
+    "forceConsistentCasingInFileNames": true,
+    // 跳过 node_modules 中的类型检查，加快构建
+    "skipLibCheck": true
+  }
+}
