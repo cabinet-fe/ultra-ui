@@ -2,8 +2,9 @@
 name: ac-workflow
 description: 基于协议的、简洁高效的代理上下文工作流。当提及初始化、计划、重构、重新计划、上下文工作流、规划、实现、优化、补丁、快速实现时使用。
 metadata:
-  version: 1.4.2
+  version: 2.0.0
 ---
+
 
 # 代理上下文工作流（ac-workflow）
 
@@ -25,22 +26,22 @@ metadata:
 **在执行任何协议或决策之前**，必须先在 shell 中运行以下脚本获取上下文快照：
 
 ```sh
-node <SKILL_DIR>/scripts/get-context-info.mjs
+node <SKILL_DIR>/scripts/get-context-info.js
 ```
 
 其中 `<SKILL_DIR>` 是本 SKILL.md 文件所在的目录路径。
 
 脚本输出 JSON，包含以下关键字段（后续协议步骤直接引用这些值，禁止自行探索文件系统来获取）：
 
-| 字段                | 含义                                                     |
-| ------------------- | -------------------------------------------------------- |
-| `scope`             | 当前作用域名称                                           |
+| 字段 | 含义 |
+|------|------|
+| `scope` | 当前作用域名称 |
 | `currentPlanStatus` | 当前计划状态：`"未执行"` / `"已执行"` / `null`（无计划） |
-| `currentPlanNumber` | 当前计划编号（无计划时为 `null`）                        |
-| `currentPlanDir`    | 当前计划目录路径（无计划时为 `null`）                    |
-| `currentPlanFile`   | 当前计划文件路径（无计划时为 `null`）                    |
-| `nextPlanNumber`    | 下一个可用的计划编号                                     |
-| `nextPatchNumber`   | 下一个可用的补丁编号（无计划时为 `null`）                |
+| `currentPlanNumber` | 当前计划编号（无计划时为 `null`） |
+| `currentPlanDir` | 当前计划目录路径（无计划时为 `null`） |
+| `currentPlanFile` | 当前计划文件路径（无计划时为 `null`） |
+| `nextPlanNumber` | 下一个可用的计划编号 |
+| `nextPatchNumber` | 下一个可用的补丁编号（无计划时为 `null`） |
 
 > **此步骤是一切操作的前提。** 不执行脚本 → 不进入任何协议。脚本报错 → 根据错误信息修正后重新执行，直到成功。
 
@@ -63,30 +64,30 @@ node <SKILL_DIR>/scripts/get-context-info.mjs
 
 ### 状态 A：`currentPlanStatus` 为 `null`（无当前计划）
 
-| 用户意图                         | 动作 | 协议文件             |
-| -------------------------------- | ---- | -------------------- |
+| 用户意图 | 动作 | 协议文件 |
+|----------|------|----------|
 | 初始化项目上下文、补全 AGENTS.md | init | `references/init.md` |
-| 给需求出计划、拆分任务           | plan | `references/plan.md` |
-| 快速出计划并实施                 | rush | `references/rush.md` |
+| 给需求出计划、拆分任务 | plan | `references/plan.md` |
+| 快速出计划并实施 | rush | `references/rush.md` |
 
 ### 状态 B：`currentPlanStatus` 为 `"未执行"`
 
-| 用户意图                           | 动作              | 协议文件                                              |
-| ---------------------------------- | ----------------- | ----------------------------------------------------- |
-| 按计划开始做、实现当前计划         | implement         | `references/implement.md`                             |
-| 重做计划、调整方案                 | replan            | `references/replan.md`                                |
-| 审查当前计划                       | review            | `references/review.md`                                |
-| 用户提出新需求且与当前计划**相关** | replan            | `references/replan.md`                                |
+| 用户意图 | 动作 | 协议文件 |
+|----------|------|----------|
+| 按计划开始做、实现当前计划 | implement | `references/implement.md` |
+| 重做计划、调整方案 | replan | `references/replan.md` |
+| 审查当前计划 | review | `references/review.md` |
+| 用户提出新需求且与当前计划**相关** | replan | `references/replan.md` |
 | 用户提出新需求且与当前计划**无关** | → AskUserQuestion | 选项：1) 归档当前计划后创建新计划（推荐） 2) 终止操作 |
 
 ### 状态 C：`currentPlanStatus` 为 `"已执行"`
 
-| 用户意图                           | 动作              | 协议文件                                      |
-| ---------------------------------- | ----------------- | --------------------------------------------- |
-| 实施后不满意、追加需求、修补问题   | patch             | `references/patch.md`                         |
-| 审查实施结果                       | review            | `references/review.md`                        |
-| 任务彻底完成、归档当前计划         | done              | 运行 `agent-context done`                     |
-| 用户提出新需求且与当前计划**相关** | patch             | `references/patch.md`                         |
+| 用户意图 | 动作 | 协议文件 |
+|----------|------|----------|
+| 实施后不满意、追加需求、修补问题 | patch | `references/patch.md` |
+| 审查实施结果 | review | `references/review.md` |
+| 任务彻底完成、归档当前计划 | done | 运行 `agent-context done` |
+| 用户提出新需求且与当前计划**相关** | patch | `references/patch.md` |
 | 用户提出新需求且与当前计划**无关** | → AskUserQuestion | 选项：1) 归档后创建新计划（推荐） 2) 终止操作 |
 
 > **关联性判断**：当用户提出变更需求时，对照当前 `plan.md` 的 `## 目标` 判断关联性。若无法确定 → 通过 AskUserQuestion 让用户确认。

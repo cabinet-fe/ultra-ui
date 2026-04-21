@@ -34,7 +34,7 @@
     "sync-skills": "bun tools/skills-sync/sync-all.ts"
   },
   "devDependencies": {
-    "@cat-kit/cli": "^1.0.4",
+    "@cat-kit/cli": "^1.0.6",
     "@cat-kit/tsconfig": "^2.0.1",
     "@changesets/cli": "^2.31.0",
     "@tsdown/css": "^0.21.9",
@@ -55,8 +55,8 @@
     "unplugin-vue-components": "^32.0.0",
     "unplugin-vue-jsx": "^0.8.1",
     "vite": "^8.0.9",
-    "vite-plugin-inspect": "^11.3.3",
-    "vitest": "^4.1.4",
+    "vite-plugin-inspect": "^12.0.0-beta.1",
+    "vitest": "^4.1.5",
     "vue": "^3.5.32",
     "vue-tsc": "^3.2.7"
   },
