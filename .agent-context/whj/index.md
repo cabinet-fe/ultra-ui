@@ -32,3 +32,4 @@
 - [x] [优化 Tabs 组件样式与水平溢出处理](./done/plan-32-20260421/plan.md)
 - [x] [优化 Monorepo 工具链依赖归属](./done/plan-33-20260421/plan.md)
 - [x] [用 @cat-kit/fe Virtualizer 替代 @tanstack/vue-virtual](./done/plan-34-20260422/plan.md)
+- [x] [Tree 组件样式重塑与性能优化](./done/plan-35-20260423/plan.md)
