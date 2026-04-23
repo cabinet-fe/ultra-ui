@@ -11,7 +11,7 @@
         :node="node"
         :key="key"
         :class="bem.is('selected', node.data === selectedData)"
-        :data-index="index"
+        :index="index"
         :measure-element="measureElement"
         :style="{ transform: `translateY(${offset}px)` }"
       />
@@ -122,9 +122,22 @@ const { checkedData, toggleCheck } = useCheck({
   getFlattedNodes
 })
 
+const estimateSize = (): number => {
+  // 基于 style.scss 中节点稳态高度推算的默认值；
+  // 实际高度仍由 `measureElement` 通过 ResizeObserver 回填覆盖。
+  switch (size.value) {
+    case 'small':
+      return 32
+    case 'large':
+      return 44
+    default:
+      return 36
+  }
+}
+
 const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } = useVirtual({
   count: computed(() => nodes.value.length),
-  estimateSize: () => 40,
+  estimateSize,
   gap: 2,
   virtualThreshold: 80,
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null)

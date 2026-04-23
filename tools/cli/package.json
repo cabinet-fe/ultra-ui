@@ -10,7 +10,7 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@cat-kit/be": "^1.0.3",
+    "@cat-kit/be": "^1.1.1",
     "@inquirer/prompts": "^8.4.2",
     "picocolors": "^1.1.1"
   }

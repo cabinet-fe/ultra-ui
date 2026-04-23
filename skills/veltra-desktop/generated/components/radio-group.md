@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 /** 单选框默认父组件组件属性 */
 export interface RadioGroupProps extends FormComponentProps {
@@ -41,4 +42,5 @@ export interface _RadioGroupExposed {}
 
 /** 单选框默认父组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type RadioGroupExposed = DeconstructValue<_RadioGroupExposed>
+
 ```

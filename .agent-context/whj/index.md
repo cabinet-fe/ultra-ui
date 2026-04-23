@@ -31,3 +31,4 @@
 - [x] [新增 UFileViewer 组件：多格式文件预览器（xlsx/csv/pdf/video/image/txt/docx）](./done/plan-31-20260419/plan.md)
 - [x] [优化 Tabs 组件样式与水平溢出处理](./done/plan-32-20260421/plan.md)
 - [x] [优化 Monorepo 工具链依赖归属](./done/plan-33-20260421/plan.md)
+- [x] [用 @cat-kit/fe Virtualizer 替代 @tanstack/vue-virtual](./done/plan-34-20260422/plan.md)

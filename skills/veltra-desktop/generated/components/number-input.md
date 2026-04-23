@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { InputProps } from './input'
 
 /** 数字输入组件属性 */
@@ -34,4 +35,5 @@ export interface NumberInputEmits {
 
 /** 数字输入组件暴露的属性和方法 */
 export interface NumberInputExposed {}
+
 ```

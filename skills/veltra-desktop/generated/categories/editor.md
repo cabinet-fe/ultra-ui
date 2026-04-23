@@ -1,5 +1,6 @@
 # 编辑器
 
+
 各组件类型定义见 [`../components/`](../components/)：
 
 - [code-editor](../components/code-editor.md)

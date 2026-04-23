@@ -13,8 +13,10 @@ import {
 } from './tween.js'
 import {
   EstimateSize,
+  GetItemKey,
   VirtualAlign,
   VirtualItem,
+  VirtualMeasurement,
   VirtualRange,
   VirtualScrollOptions,
   VirtualSnapshot,
@@ -28,6 +30,7 @@ export {
   CookieOptions,
   EstimateSize,
   ExtractStorageKey,
+  GetItemKey,
   ReadChunksOptions,
   StorageKey,
   Tween,
@@ -38,6 +41,7 @@ export {
   TweenState,
   VirtualAlign,
   VirtualItem,
+  VirtualMeasurement,
   VirtualRange,
   VirtualScrollOptions,
   VirtualSnapshot,

@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { FormComponentProps, DeconstructValue } from '@veltra/utils'
 
 /** 自动补全组件组件属性 */
@@ -27,4 +28,5 @@ export interface _AutoCompleteExposed {}
 
 /** 自动补全组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type AutoCompleteExposed = DeconstructValue<_AutoCompleteExposed>
+
 ```

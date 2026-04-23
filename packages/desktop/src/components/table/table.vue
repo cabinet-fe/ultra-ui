@@ -25,7 +25,14 @@
       </colgroup>
       <UTableHead />
 
-      <u-table-body ref="tableBody">
+      <!-- 虚拟滚动上占位：替代 tbody transform，避免 table-layout: fixed 下列宽抖动 -->
+      <tbody v-if="virtualEnabled && beforeSize > 0" aria-hidden="true">
+        <tr :style="{ height: `${beforeSize}px` }">
+          <td :colspan="leafColumns.length" style="padding: 0; border: none"></td>
+        </tr>
+      </tbody>
+
+      <u-table-body>
         <slot name="body" :columns="leafColumns" :rows="rows" />
 
         <template #empty v-if="slots.empty">
@@ -33,8 +40,12 @@
         </template>
       </u-table-body>
 
-      <!-- 占用空间，用来撑开表格高度 -->
-      <tbody v-if="virtualEnabled" ref="spaceRef" :style="{ width: '1px' }"></tbody>
+      <!-- 虚拟滚动下占位 -->
+      <tbody v-if="virtualEnabled && afterSize > 0" aria-hidden="true">
+        <tr :style="{ height: `${afterSize}px` }">
+          <td :colspan="leafColumns.length" style="padding: 0; border: none"></td>
+        </tr>
+      </tbody>
 
       <u-table-foot ref="tableFoot">
         <slot name="foot" :columns="leafColumns" :rows="rows" />
@@ -51,8 +62,8 @@
 
 <script lang="ts" setup>
 import { useFallbackProps, useVirtual } from '@veltra/compositions'
-import { bem, setStyles, withUnit } from '@veltra/utils'
-import { computed, nextTick, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+import { bem, withUnit } from '@veltra/utils'
+import { computed, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
 import type {
   TableProps,
@@ -148,41 +159,17 @@ const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({ scrollRef,
 const virtualCtx = useVirtual({
   count: computed(() => rows.value.length),
   scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  estimateSize: () => 52,
+  // 默认行高度约 41px（默认尺寸下 padding + 边框 + 一行文字）；
+  // 首个真实渲染行落定后 `useVirtual` 会按实测值自动校准，估值偏差 1~2px 亦不引起抖动。
+  estimateSize: () => 41,
   virtualThreshold: toRef(props, 'virtualThreshold')
 })
 
-const { virtualList, totalHeight, virtualEnabled } = virtualCtx
+const { virtualEnabled, beforeSize, afterSize } = virtualCtx
 
-const spaceHeight = computed(() => {
-  if (virtualList.value.length) {
-    return (
-      totalHeight.value -
-      virtualList.value[virtualList.value.length - 1]!.end +
-      virtualList.value[0]!.start
-    )
-  }
-  return totalHeight.value
-})
-
-const spaceRef = shallowRef<HTMLElement>()
-
-watch(
-  spaceHeight,
-  (spaceHeight) => {
-    nextTick(() => {
-      spaceRef.value &&
-        setStyles(spaceRef.value, { height: spaceHeight ? `${spaceHeight}px` : undefined })
-    })
-  },
-  { immediate: true }
-)
-
-const tableBodyRef = useTemplateRef('tableBody')
 watch(
   () => props.data,
   () => {
-    tableBodyRef.value?.setBodyTransform(0)
     scrollRef.value?.scrollTo({ y: 0 })
   }
 )

@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { Dater } from '@cat-kit/core'
 import type { FormComponentProps } from '@veltra/utils'
 
@@ -21,4 +22,5 @@ export interface DatePanelEmits {
   (e: 'select:date', date: Dater): void
   (e: 'select:range-date', rangeDate?: [Dater, Dater]): void
 }
+
 ```

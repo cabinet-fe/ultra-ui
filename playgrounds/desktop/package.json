@@ -9,15 +9,15 @@
     "test": "bun ../../scripts/vitest-run.ts"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.0.3",
+    "@cat-kit/core": "^1.1.1",
     "@veltra/compositions": "workspace:*",
     "@veltra/desktop": "workspace:*",
     "@veltra/directives": "workspace:*",
     "@veltra/icons": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
-    "vue": "^3.5.32",
-    "vue-router": "^5.0.4"
+    "vue": "^3.5.33",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@veltra/vite": "workspace:*",

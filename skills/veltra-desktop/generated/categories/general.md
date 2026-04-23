@@ -1,5 +1,6 @@
 # 通用
 
+
 各组件类型定义见 [`../components/`](../components/)：
 
 - [button](../components/button.md)

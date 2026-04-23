@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { ColorType, FormComponentProps } from '@veltra/utils'
 
 /** 复选框组件属性 */
@@ -34,4 +35,5 @@ export interface CheckboxButtonEmits {
 
 /** 复选框暴露的属性和方法 */
 export interface CheckboxExposed {}
+
 ```

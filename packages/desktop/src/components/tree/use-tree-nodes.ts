@@ -1,5 +1,5 @@
 import { Forest } from '@cat-kit/core'
-import { computed, shallowRef, type ShallowRef, type ComputedRef } from 'vue'
+import { computed, shallowRef, triggerRef, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { TreeProps } from '../../types'
 import { TreeNode } from './tree-node'
@@ -13,12 +13,29 @@ interface UseTreeNodesReturned {
   forest: ComputedRef<Forest<Record<string, unknown>, any>>
   getFlattedNodes: () => void
   nodeDict: ComputedRef<Map<string | number, TreeNode>>
+  /** 强制刷新 `nodes` 的订阅者（供字段级别变化但列表引用不变时手动触发）。 */
+  triggerNodes: () => void
 }
+
 export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const { props } = options
 
-  /** 森林 */
-  const forest = computed(() => {
+  // forest / nodeDict 保持为 shallowRef 而非 computed：
+  // - computed 会因为任一 prop 变化（尤其是内联 disabledNode 函数）而整棵重建，
+  //   丢失 expanded/checked/visible 等运行时状态；
+  // - 显式 watch 仅在真正影响结构的输入变化时才重建，行为可控、可测量。
+  const forestRef = shallowRef<Forest<Record<string, unknown>, any>>(
+    new Forest<Record<string, unknown>, any>({
+      data: [],
+      childrenKey: props.childrenKey ?? 'children'
+    })
+  )
+
+  const nodeDictRef = shallowRef<Map<string | number, TreeNode>>(new Map())
+
+  const nodes = shallowRef<TreeNode[]>([])
+
+  function buildForest(): Forest<Record<string, unknown>, any> {
     const { disabledNode, expandAll = false, valueKey, labelKey } = props
     const childrenKey = props.childrenKey ?? 'children'
 
@@ -26,9 +43,8 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
       data: Record<string, any>,
       index: number,
       depth: number,
-      _f: Forest<Record<string, unknown>, any>,
       parent?: TreeNode
-    ) {
+    ): TreeNode {
       const node = new TreeNode({
         data,
         index,
@@ -42,47 +58,82 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
     }
 
     return new Forest<Record<string, unknown>, any>({
-      data: props.data! as Record<string, unknown>[],
+      data: (props.data ?? []) as Record<string, unknown>[],
       childrenKey,
       createNode: disabledNode
-        ? (data, index, depth, f, parent) => {
-            const node = createNode(
-              data as Record<string, any>,
-              index,
-              depth,
-              f,
-              parent as TreeNode
-            )
+        ? (data, index, depth, _f, parent) => {
+            const node = createNode(data as Record<string, any>, index, depth, parent as TreeNode)
             if (data) {
-              node.disabled = disabledNode(data, node) ?? false
+              node.disabled = disabledNode(data as Record<string, any>, node) ?? false
             }
             return node
           }
-        : (data, index, depth, f, parent) =>
-            createNode(data as Record<string, any>, index, depth, f, parent as TreeNode)
+        : (data, index, depth, _f, parent) =>
+            createNode(data as Record<string, any>, index, depth, parent as TreeNode)
     })
-  })
-
-  /** 碾平后的节点 */
-  const nodes = shallowRef<TreeNode[]>([])
-
-  /**
-   * 节点的字典，key为指定的valueKey的值
-   */
-  const nodeDict = computed(() => {
-    const dict = new Map<string | number, TreeNode>()
-
-    forest.value.dfs((node) => {
-      dict.set(node.key, node)
-    })
-
-    return dict
-  })
-
-  /** 获取碾平后的节点 */
-  function getFlattedNodes() {
-    nodes.value = forest.value.flattenVisible((n) => n.expanded).filter((n) => n.visible)
   }
 
-  return { nodes, forest, getFlattedNodes, nodeDict }
+  function rebuildForest(): void {
+    const nextForest = buildForest()
+    const nextDict = new Map<string | number, TreeNode>()
+
+    // 构建森林的同时一次 DFS 同步填充字典，
+    // 避免旧版 “forest computed → nodeDict computed” 两次完整遍历。
+    nextForest.dfs((node) => {
+      nextDict.set(node.key, node)
+    })
+
+    forestRef.value = nextForest
+    nodeDictRef.value = nextDict
+
+    getFlattedNodes()
+  }
+
+  /** 按展开与可见性扁平化：仅一次 DFS。 */
+  function getFlattedNodes(): void {
+    const result: TreeNode[] = []
+    const roots = forestRef.value.roots as TreeNode[]
+
+    const stack: TreeNode[] = []
+    for (let i = roots.length - 1; i >= 0; i--) {
+      stack.push(roots[i]!)
+    }
+
+    while (stack.length) {
+      const node = stack.pop()!
+      if (!node.visible) continue
+      result.push(node)
+      if (node.expanded && node.children && node.children.length) {
+        for (let i = node.children.length - 1; i >= 0; i--) {
+          stack.push(node.children[i]!)
+        }
+      }
+    }
+
+    nodes.value = result
+  }
+
+  function triggerNodes(): void {
+    triggerRef(nodes)
+  }
+
+  watch(
+    [
+      () => props.data,
+      () => props.disabledNode,
+      () => props.childrenKey,
+      () => props.valueKey,
+      () => props.labelKey,
+      () => props.expandAll
+    ],
+    () => {
+      rebuildForest()
+    },
+    { immediate: true }
+  )
+
+  const forest = computed(() => forestRef.value)
+  const nodeDict = computed(() => nodeDictRef.value)
+
+  return { nodes, forest, getFlattedNodes, nodeDict, triggerNodes }
 }

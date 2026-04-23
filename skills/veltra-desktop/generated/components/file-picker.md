@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 文件上传器组件属性 */
@@ -26,4 +27,5 @@ export interface _UploaderExposed {}
 
 /** 文件上传器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type UploaderExposed = DeconstructValue<_UploaderExposed>
+
 ```

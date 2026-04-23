@@ -1,6 +1,6 @@
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { defineComponent, type DefineComponent, type VNodeRef } from 'vue'
+import { defineComponent, type DefineComponent } from 'vue'
 import { inject } from 'vue'
 import type { JSX } from 'vue/jsx-runtime'
 
@@ -10,14 +10,15 @@ import { UIcon } from '../icon'
 import { TableDIKey } from './di'
 import UTabelCell from './table-cell.vue'
 
-export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
+export const UTableRow: DefineComponent<{ row: ITableRow; index: number }> = defineComponent({
   name: 'TableRow',
 
-  props: ['row'],
+  props: {
+    row: { type: Object as () => ITableRow, required: true },
+    index: { type: Number, required: true }
+  },
 
   setup(props) {
-    const { row } = props
-
     const {
       cls,
       columnConfig,
@@ -30,9 +31,14 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
       measureElement
     } = inject(TableDIKey)!
 
+    const measureRef = (el: unknown) => {
+      measureElement(el as Element | null, props.index)
+    }
+
     const { columns, expandColumn } = columnConfig
 
     return () => {
+      const { row } = props
       const _expandColumn = expandColumn.value
 
       let expandCell: JSX.Element | null = null
@@ -81,7 +87,7 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
         <tr
           class={[cls.e('row'), bem.is('expanded', row.expanded), bem.is('checked', row.checked)]}
           onClick={(e) => handleRowClick(row, e)}
-          ref={measureElement as VNodeRef}
+          ref={measureRef}
           key={row.uid}
         >
           {expandCell}
@@ -117,10 +123,17 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
 
 export const UExpandTableRow = defineComponent({
   name: 'ExpandTableRow',
-  props: ['row'],
+  props: {
+    row: { type: Object as () => ITableRow, required: true },
+    index: { type: Number, required: true }
+  },
   setup(props) {
     const { getExpandRowSlotsNode, cls, measureElement, columnConfig } = inject(TableDIKey)!
     const { leafColumns } = columnConfig
+
+    const measureRef = (el: unknown) => {
+      measureElement(el as Element | null, props.index)
+    }
 
     return () => {
       const { row } = props
@@ -131,7 +144,7 @@ export const UExpandTableRow = defineComponent({
         rowData: row.data
       })
       return (
-        <tr class={cls.e('row')} ref={measureElement as VNodeRef}>
+        <tr class={cls.e('row')} ref={measureRef}>
           <td colspan={leafColumns.value.length} class={cls.e('cell')}>
             {node}
           </td>

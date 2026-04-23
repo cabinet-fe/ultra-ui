@@ -5,7 +5,7 @@
     @mousedown="handleMousedown"
     @mouseup="handleMouseup"
     @mouseleave="handleMouseleave"
-    :ref="measureElement"
+    :ref="measureRef"
   >
     <u-checkbox
       :class="checkboxClass"
@@ -30,12 +30,25 @@ defineOptions({
   name: 'MultiSelectOption'
 })
 
-const { disabled = false, checked } = defineProps<{
+const props = defineProps<{
   option: Record<string, any>
   disabled?: boolean
   checked: boolean
-  measureElement?: (el: any) => void
+  /**
+   * 虚拟项索引：对应 `options` 数组中的绝对位置。
+   * 非虚拟模式下可省略；虚拟模式下必须传入，否则元素卸载时 Virtualizer 无法及时解绑，
+   * 会因为 ResizeObserver 对脱离 DOM 的元素回调 size=0 而污染尺寸缓存。
+   */
+  index?: number
+  measureElement?: (el: Element | null, index: number) => void
 }>()
+
+const { disabled = false, checked } = props
+
+function measureRef(el: unknown) {
+  if (typeof props.index !== 'number' || !props.measureElement) return
+  props.measureElement(el as Element | null, props.index)
+}
 
 const emit = defineEmits<{
   (e: 'check', checked: boolean): void

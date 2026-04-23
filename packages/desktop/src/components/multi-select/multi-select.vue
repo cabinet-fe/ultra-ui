@@ -91,7 +91,7 @@
             :style="{ transform: `translateY(${offset}px)` }"
             @check="handleCheck(option, $event)"
             :checked="checkedSet.has(option)"
-            :data-index="index"
+            :index="index"
             :measure-element="measureElement"
           >
             <slot v-bind="{ option, index }">

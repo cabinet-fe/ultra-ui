@@ -1,11 +1,11 @@
 <template>
-  <tbody :class="cls.e('body')" ref="bodyRef">
+  <tbody :class="cls.e('body')">
     <template v-for="{ row, index, stripeIndex } of tableRows" :key="row.uid">
-      <UExpandTableRow v-if="row.isExpandRow" :row="row" :data-index="index" />
+      <UExpandTableRow v-if="row.isExpandRow" :row="row" :index="index" />
       <UTableRow
         v-else
         :row="row"
-        :data-index="index"
+        :index="index"
         :class="[bem.is('current', row.isCurrent), getStripeCls(stripeIndex)]"
       />
     </template>
@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, setStyles } from '@veltra/utils'
-import { computed, inject, shallowRef, watch } from 'vue'
+import { bem } from '@veltra/utils'
+import { computed, inject } from 'vue'
 
 import { UEmpty } from '../empty'
 import { TableDIKey } from './di'
@@ -53,7 +53,7 @@ const tableRows = computed(() => {
     })
   }
 
-  // 虚拟列表
+  // 虚拟列表：仅渲染可视窗口内的行，位置由 table.vue 中的 before/after 占位 tbody 撑开
   return virtualList.value.map((item) => {
     return {
       row: rows.value[item.index]!,
@@ -61,22 +61,5 @@ const tableRows = computed(() => {
       index: item.index
     }
   })
-})
-
-const bodyRef = shallowRef<HTMLElement>()
-
-function setBodyTransform(transformY: number) {
-  bodyRef.value &&
-    setStyles(bodyRef.value, {
-      transform: `translate3d(0, ${transformY}px, 0)`
-    })
-}
-
-watch(virtualList, (list) => {
-  setBodyTransform(list[0]?.start ?? 0)
-})
-
-defineExpose({
-  setBodyTransform
 })
 </script>

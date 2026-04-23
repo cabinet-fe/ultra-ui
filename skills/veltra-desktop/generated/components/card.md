@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { ComponentProps, DeconstructValue } from '@veltra/utils'
 
 /** 卡片组件属性 */
@@ -36,4 +37,5 @@ export interface CardEmits {}
 export interface _CardExposed {}
 
 export type CardExposed = DeconstructValue<_CardExposed>
+
 ```

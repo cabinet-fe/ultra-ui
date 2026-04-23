@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { NumberInputProps } from './number-input'
 
 /** 数字范围 [起始, 结束] */
@@ -36,4 +37,5 @@ export interface NumberRangeInputEmits {
 
 /** 数字范围输入组件暴露 */
 export interface NumberRangeInputExposed {}
+
 ```

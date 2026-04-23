@@ -1,13 +1,14 @@
 <template>
   <div
     :class="[cls.e('node'), bem.is('expanded', node.expanded), bem.is('disabled', node.disabled)]"
-    :style="{ paddingLeft: withUnit(node.depth * 20 - 20, 'px') }"
-    :ref="measureElement"
+    :ref="measureRef"
   >
+    <span v-for="i in node.depth" :key="i" :class="cls.e('indent')" aria-hidden="true"></span>
+
     <u-icon v-if="!node.isLeaf" :class="cls.e('expand-icon')" @click.stop="toggleExpand">
       <ArrowRight />
     </u-icon>
-    <i v-else :class="cls.e('icon-placeholder')"> </i>
+    <i v-else :class="[cls.e('indent'), cls.em('indent', 'leaf')]" aria-hidden="true"></i>
 
     <div
       :class="cls.e('node-content')"
@@ -35,7 +36,7 @@
 <script lang="ts" setup>
 import { vRipple } from '@veltra/directives'
 import { ArrowRight } from '@veltra/icons/normal'
-import { bem, withUnit } from '@veltra/utils'
+import { bem } from '@veltra/utils'
 import { inject } from 'vue'
 
 import type { TreeNodeProps } from '../../types'
@@ -52,6 +53,11 @@ const props = defineProps<TreeNodeProps>()
 
 const { treeProps, treeEmit, cls, getTreeSlotsNode, getFlattedNodes, toggleCheck, handleSelect } =
   inject(TreeDIKey)!
+
+function measureRef(el: unknown) {
+  if (typeof props.index !== 'number' || !props.measureElement) return
+  props.measureElement(el as Element | null, props.index)
+}
 
 function toggleExpand() {
   const { node } = props

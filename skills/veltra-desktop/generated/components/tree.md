@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { Forest, ITreeNode } from '@cat-kit/core'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef, ShallowRef } from 'vue'
@@ -81,7 +82,12 @@ export interface TreeEmit {
 
 export interface TreeNodeProps {
   node: TreeNode
-  measureElement?: (el: any) => void
+  /**
+   * 虚拟项索引：对应 `nodes` 数组中的绝对位置。
+   * 需要传入以便在节点卸载时正确通知 `Virtualizer` 解绑，避免 size=0 的脏测量。
+   */
+  index?: number
+  measureElement?: (el: Element | null, index: number) => void
 }
 
 /** 树组件暴露的属性和方法(组件内部使用) */
@@ -113,4 +119,5 @@ export interface _TreeExposed {
 
 /** 树组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type TreeExposed = DeconstructValue<_TreeExposed>
+
 ```

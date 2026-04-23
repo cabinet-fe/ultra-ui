@@ -76,7 +76,7 @@
             :key="key"
             :style="{ transform: `translateY(${offset}px)` }"
             :data-index="index"
-            :ref="measureElement"
+            :ref="(el) => measureElement(el as Element | null, index)"
           >
             <slot v-bind="{ option, index }">
               {{ label }}

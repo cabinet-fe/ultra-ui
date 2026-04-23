@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
@@ -55,4 +56,5 @@ export interface _MultiTreeSelectExposed {}
 
 /** 树形多选组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type MultiTreeSelectExposed = DeconstructValue<_MultiTreeSelectExposed>
+
 ```

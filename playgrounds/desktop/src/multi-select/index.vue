@@ -21,7 +21,7 @@ import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
-const options = Array.from({ length: 60 }).map((_, i) => ({ label: `选项${i}`, value: i }))
+const options = Array.from({ length: 200 }).map((_, i) => ({ label: `选项${i}`, value: i }))
 
 const checked = shallowRef([1, 2, 3])
 

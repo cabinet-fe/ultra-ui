@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json'
@@ -24,4 +25,5 @@ export interface _CodeEditorExposed {}
 
 /** 代码编辑器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type CodeEditorExposed = DeconstructValue<_CodeEditorExposed>
+
 ```

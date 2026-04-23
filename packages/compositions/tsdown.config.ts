@@ -10,12 +10,6 @@ export default defineConfig({
   clean: true,
   outDir: 'dist',
   deps: {
-    neverBundle: [
-      '@veltra/utils',
-      '@cat-kit/core',
-      'vue',
-      '@floating-ui/dom',
-      '@tanstack/vue-virtual'
-    ]
+    neverBundle: ['@veltra/utils', '@cat-kit/core', '@cat-kit/fe', 'vue', '@floating-ui/dom']
   }
 })

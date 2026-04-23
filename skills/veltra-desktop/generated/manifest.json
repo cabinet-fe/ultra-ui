@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-04-17T02:17:13.435Z",
+  "syncedAt": "2026-04-22T01:14:46.964Z",
   "totalComponents": 71,
   "categories": {
     "form": {
@@ -76,7 +76,15 @@
         "context-menu"
       ]
     },
-    "layout": { "label": "布局容器", "components": ["layout", "card", "scroll", "watermark"] },
+    "layout": {
+      "label": "布局容器",
+      "components": [
+        "layout",
+        "card",
+        "scroll",
+        "watermark"
+      ]
+    },
     "editor": {
       "label": "编辑器",
       "components": [
@@ -90,7 +98,15 @@
     },
     "general": {
       "label": "通用",
-      "components": ["button", "icon", "action", "check-tag", "theme", "palette", "node-render"]
+      "components": [
+        "button",
+        "icon",
+        "action",
+        "check-tag",
+        "theme",
+        "palette",
+        "node-render"
+      ]
     }
   },
   "sharedTypes": [

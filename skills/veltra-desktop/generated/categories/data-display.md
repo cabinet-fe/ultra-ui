@@ -1,5 +1,6 @@
 # 数据展示
 
+
 各组件类型定义见 [`../components/`](../components/)：
 
 - [table](../components/table.md)

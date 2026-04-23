@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 /** 面包屑单项 */
@@ -47,4 +48,5 @@ export interface BreadcrumbEmits {
 export interface _BreadcrumbExposed {}
 
 export type BreadcrumbExposed = DeconstructValue<_BreadcrumbExposed>
+
 ```

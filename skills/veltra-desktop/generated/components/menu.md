@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue } from '@veltra/utils'
 import type { DefineComponent } from 'vue'
 
@@ -44,4 +45,5 @@ export interface _MenuExposed {}
 
 /** 菜单组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type MenuExposed = DeconstructValue<_MenuExposed>
+
 ```

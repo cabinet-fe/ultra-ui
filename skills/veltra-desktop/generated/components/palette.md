@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 色调 */
@@ -39,4 +40,5 @@ export interface _PaletteExposed {}
 
 /** 调色盘组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type PaletteExposed = DeconstructValue<_PaletteExposed>
+
 ```

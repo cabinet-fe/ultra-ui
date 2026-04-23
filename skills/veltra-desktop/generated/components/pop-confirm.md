@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue } from '@veltra/utils'
 import type { Component } from 'vue'
 
@@ -42,4 +43,5 @@ export interface _PopConfirmExposed {}
 
 /** 气泡确认框组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type PopConfirmExposed = DeconstructValue<_PopConfirmExposed>
+
 ```

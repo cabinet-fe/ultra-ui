@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { Dater } from '@cat-kit/core'
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
@@ -33,4 +34,5 @@ export interface _DatePickerExposed {}
 
 /** date-picker组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type DatePickerExposed = DeconstructValue<_DatePickerExposed>
+
 ```

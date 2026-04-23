@@ -1,7 +1,23 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
+@use 'sass:map';
 
 $root-name: tree;
+
+// 每一级缩进与展开图标 / 叶子占位保持一致的宽度，
+// 保证节点内容在各层之间横向对齐。
+$indent-width: 20px;
+$indent-leaf-width: 20px;
+$expand-icon-size: 20px;
+// 节点稳态高度，与 `tree.vue` 中 `estimateSize` 协同，用于虚拟滚动初始估算。
+$node-min-height-small: 28px;
+$node-min-height-default: 32px;
+$node-min-height-large: 40px;
+$node-min-heights: (
+  small: $node-min-height-small,
+  default: $node-min-height-default,
+  large: $node-min-height-large
+);
 
 @include m.b($root-name) {
   @include m.size using ($size) {
@@ -9,10 +25,15 @@ $root-name: tree;
       border-radius: fn.use-var(radius, $size);
       padding: fn.use-var(gap, $size);
       line-height: 1;
+      gap: fn.use-var(gap, $size);
     }
 
     @include m.bem($root-name, checkbox) {
       margin-right: fn.use-var(gap, $size);
+    }
+
+    @include m.bem($root-name, node) {
+      min-height: map.get($node-min-heights, $size);
     }
   }
 
@@ -32,8 +53,20 @@ $root-name: tree;
         width: 100%;
       }
     }
+
+    // 非虚拟模式通过相邻兄弟间距提供呼吸；
+    // 虚拟模式下改由 virtualizer 的 gap 参数统一负责。
+    &:not(.is-virtual) {
+      @include m.bem($root-name, node) {
+        & + & {
+          margin-top: 2px;
+        }
+      }
+    }
   }
 
+  // 选中 / 勾选态下，对节点内容提供 hover 反馈；
+  // 禁用节点不参与 hover 反馈，避免假性交互。
   @include m.is(selectable, checkable) {
     @include m.bem($root-name, node) {
       &:not(.is-disabled) {
@@ -47,15 +80,27 @@ $root-name: tree;
   }
 
   @include m.e(node) {
+    position: relative;
     cursor: pointer;
-    margin-bottom: 0.2rem;
     @include m.flex($align: center);
 
     @include m.is(selected) {
+      // 左侧 3px 色带，配合淡色背景共同构成选中态。
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 4px;
+        bottom: 4px;
+        width: 3px;
+        border-radius: 3px;
+        background-color: fn.use-var(color, primary);
+      }
+
       @include m.bem($root-name, node-content) {
-        background-color: fn.use-var(color, primary, light-9) !important;
+        background-color: fn.use-var(color, primary, light-9);
         color: fn.use-var(color, primary);
-        font-weight: bold;
+        font-weight: 500;
       }
     }
 
@@ -67,43 +112,41 @@ $root-name: tree;
 
     @include m.is(disabled) {
       cursor: not-allowed;
+
       @include m.bem($root-name, node-content) {
         color: fn.use-var(text-color, disabled);
+
+        &:hover {
+          background-color: transparent;
+        }
       }
     }
   }
 
-  @include m.e(expand-icon, icon-placeholder) {
+  // 纯缩进占位：每级 20px 空白，不绘制连接线，
+  // 视觉层级由缩进 + 展开图标 + 选中态共同表达。
+  @include m.e(indent) {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: $indent-width;
+
+    @include m.em(indent, leaf) {
+      width: $indent-leaf-width;
+    }
   }
 
   @include m.e(expand-icon) {
     cursor: pointer;
-    transition:
-      transform 0.2s,
-      background-color 0.2s;
     flex-shrink: 0;
-    font-size: 20px;
+    width: $expand-icon-size;
+    height: $expand-icon-size;
+    font-size: $expand-icon-size;
     border-radius: 50%;
+    transition:
+      transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-9);
-    }
-  }
-
-  @include m.e(icon-placeholder) {
-    padding: 5px;
-
-    &::before {
-      content: '';
-      box-sizing: border-box;
-      width: 100%;
-      height: 100%;
-      display: block;
-      border-radius: 50%;
-      border: 2px solid fn.use-var(text-color, main);
+      background-color: fn.use-var(bg-color, hover);
     }
   }
 
@@ -111,17 +154,19 @@ $root-name: tree;
     flex-grow: 1;
     overflow: hidden;
     user-select: none;
-    word-break: break-all;
-    transition: background-color 0.25s;
+    word-break: break-word;
+    transition: background-color 0.2s ease;
     @include m.flex($align: center);
   }
 
   @include m.e(ripple) {
-    background-color: fn.use-var(color, primary, light-7);
-    opacity: 0.5;
+    background-color: fn.use-var(color, primary, light-5);
+    opacity: 0.25;
   }
 
   @include m.e(empty) {
     text-align: center;
+    padding: fn.use-var(gap, default) 0;
+    color: fn.use-var(text-color, secondary);
   }
 }

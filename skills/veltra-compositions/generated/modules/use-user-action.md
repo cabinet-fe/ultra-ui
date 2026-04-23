@@ -1,6 +1,6 @@
 # use-user-action
 
-````typescript
+```typescript
 import { nextTick } from 'vue'
 
 export type UserAction = <T extends (...args: any[]) => void | Promise<void>>(
@@ -57,4 +57,4 @@ export function useUserAction(): UserActionResult {
 
   return { isUserActive, userAction }
 }
-````
+```

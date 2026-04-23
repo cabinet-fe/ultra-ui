@@ -27,7 +27,7 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.0.3",
+    "@cat-kit/core": "^1.1.1",
     "@cat-kit/excel": "^1.0.1",
     "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -35,12 +35,12 @@
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "^6.41.1",
-    "@embedpdf/core": "^2.14.0",
-    "@embedpdf/engines": "^2.14.0",
-    "@embedpdf/plugin-document-manager": "^2.14.0",
-    "@embedpdf/plugin-render": "^2.14.0",
-    "@embedpdf/plugin-scroll": "^2.14.0",
-    "@embedpdf/plugin-viewport": "^2.14.0",
+    "@embedpdf/core": "^2.14.1",
+    "@embedpdf/engines": "^2.14.1",
+    "@embedpdf/plugin-document-manager": "^2.14.1",
+    "@embedpdf/plugin-render": "^2.14.1",
+    "@embedpdf/plugin-scroll": "^2.14.1",
+    "@embedpdf/plugin-viewport": "^2.14.1",
     "@lexical/clipboard": "^0.43.0",
     "@lexical/history": "^0.43.0",
     "@lexical/html": "^0.43.0",
@@ -65,6 +65,6 @@
     "@veltra/icons": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
-    "vue": "^3.5.0"
+    "vue": "^3.5.33"
   }
 }

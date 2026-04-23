@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { DeconstructValue } from '@veltra/utils'
 import type { CSSProperties, ShallowRef } from 'vue'
 
@@ -90,4 +91,5 @@ export interface _ScrollExposed {
 }
 
 export type ScrollExposed = DeconstructValue<_ScrollExposed>
+
 ```

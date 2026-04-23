@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { FormComponentProps } from '@veltra/utils'
 
 /** 复选框组, 用来选择一组数据组件属性 */
@@ -26,4 +27,5 @@ export interface CheckboxGroupEmits {
 
 /** 复选框组, 用来选择一组数据暴露的属性和方法 */
 export interface CheckboxGroupExposed {}
+
 ```

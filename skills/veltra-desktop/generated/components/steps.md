@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { ColorType, ComponentSize, DeconstructValue } from '@veltra/utils'
 
 /** 步骤组件组件属性 */
@@ -70,4 +71,5 @@ export interface _StepsExposed {}
 
 /** 步骤组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type StepsExposed = DeconstructValue<_StepsExposed>
+
 ```

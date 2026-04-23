@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { Dater } from '@cat-kit/core'
 import type { DeconstructValue } from '@veltra/utils'
 
@@ -50,4 +51,5 @@ export interface _CalendarExposed {}
 
 /** 日历组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type CalendarExposed = DeconstructValue<_CalendarExposed>
+
 ```

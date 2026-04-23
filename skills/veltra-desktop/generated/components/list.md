@@ -3,6 +3,7 @@
 ## 类型
 
 ```typescript
+
 import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 export interface ListProps {
@@ -16,4 +17,5 @@ export interface ListEmits {}
 export interface _ListExposed {}
 
 export type ListExposed = DeconstructValue<_ListExposed>
+
 ```
