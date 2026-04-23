@@ -1,6 +1,6 @@
 # Table 性能基线：playground 压测页与内置采集控制台
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -130,4 +130,22 @@ interface BenchmarkReport {
 
 ## 影响范围
 
+- `playgrounds/desktop/src/table-benchmark/index.vue`（新增）：压测页骨架、顶部控制区、`u-table` 实例、wiring 至 `BenchmarkPanel`。
+- `playgrounds/desktop/src/table-benchmark/benchmark-panel.vue`（新增）：右侧固定抽屉；FPS / 首行耗时 / long task / 内存采集；滚动压测；baseline 保存与 diff 展示。
+- `playgrounds/desktop/src/table-benchmark/bench.ts`（新增）：`Scenario` / `BenchmarkReport` 类型；LCG + `createRows` / `createColumns`；`scenarioKey` + `saveBaseline` / `loadBaseline`；`percentile` 工具。
+
+playground 的路由与组件自动注册由 `playgrounds/desktop/src/main.ts` 中的 `import.meta.glob('./*/index.vue')` 扫描完成，新增目录 `table-benchmark/` 后侧边菜单与 `/table-benchmark/index` 路由自动生效，无需改动路由文件。
+
+`u-table` 源码未修改；未新增生产依赖；`performance.memory` / `PerformanceObserver` 在使用前均做可选检查。
+
+## 实现偏差说明
+
+plan-38 的执行者（以及后续基于本工具做优化对比的任何人）需要理解以下三处偏离字面规范的决策，它们不影响 baseline 的可比性，但会影响对指标语义的解读。
+
+1. **首行耗时采集**：plan 步骤 3(b) 要求借助 `useVirtual.measureElement` 的首次触发来打 `table-first-row` mark。实现改为 `BenchmarkPanel` 在每次 `重建数据` 后通过 rAF 轮询 `.u-table__body tr:first-child` 的 `offsetHeight` 是否 `> 0`。改动原因：`u-table` 虚拟列表对 `<tr>` 采用 `v-for` 复用，数据变更后 `measureElement` 并不重新触发；同时 plan 明确禁止修改 `u-table` 源码或包一层 directive。rAF + `offsetHeight` 查询强制布局同步，能稳定识别「首行已布局」的帧。
+2. **滚动速度不再恒定 `2000 px/s`**：按 plan 规定，1e5 行 × 30 列单向滚动需要 10 分钟以上，3 loop 全跑约 1 小时，不是可交互工具。实现里改为 `speed = max(2000 px/s, maxTop / 5000ms)`，确保任何数据规模下单向滚动都在 5s 以内，3 loop 约 30s。对 baseline 的影响：极小数据集（maxTop < 10k）仍维持 `2000 px/s`；大数据集下 baseline 与 current 使用的是同一速度公式，差值有可比性，但跨 scenario 的横向比较需要自行归一化（通常 FPS 比较仍在同 scenario 内进行，故可忽略）。
+3. **long task observer 配置**：plan 写法 `new PerformanceObserver({ entryTypes: ['longtask'] })` 在 Chromium 中会报错——`buffered: true` 必须与单数 `type` 搭配。实现改为 `observe({ type: 'longtask', buffered: true })`，语义与 plan 等价。
+
 ## 历史补丁
+
+- patch-1: review-fix-1：heap interval 泄漏防御与大规模场景验收

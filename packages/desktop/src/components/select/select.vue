@@ -50,7 +50,10 @@
         </u-input>
       </div>
 
-      <!-- 单选列表 -->
+      <!--
+        单选列表。虚拟化启用时，内容容器 height 由 useVirtualizer 命令式写入；
+        此处 content-style 仅承担 grid 相关样式，避免 height 变化触发模板重渲染。
+      -->
       <u-scroll
         v-if="options.length"
         tag="ul"
@@ -62,7 +65,6 @@
           bem.is('grid', !!grid)
         ]"
         :content-style="{
-          height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined,
           gridTemplateColumns: grid ? `repeat(${grid.cols}, minmax(0px, 1fr))` : undefined,
           gridGap: grid ? withUnit(grid.gap, 'px') : undefined
         }"
@@ -76,7 +78,7 @@
             :key="key"
             :style="{ transform: `translateY(${offset}px)` }"
             :data-index="index"
-            :ref="(el) => measureElement(el as Element | null, index)"
+            :ref="(el) => measureElement(index, el as Element | null)"
           >
             <slot v-bind="{ option, index }">
               {{ label }}
@@ -113,7 +115,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { vFocus } from '@veltra/directives'
 import { ArrowDown, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
@@ -212,39 +214,39 @@ watch(
   { immediate: true }
 )
 
-const {
-  virtualList,
-  totalHeight,
-  virtualEnabled: _virtualEnabled,
-  scrollTo,
-  measureElement
-} = useVirtual({
+const baseVirtualEnabled = computed(() => options.value.length > 80)
+const virtualEnabled = computed(() => baseVirtualEnabled.value && !props.grid)
+
+const { virtualizer, items } = useVirtualizer({
   count: computed(() => options.value.length),
-  virtualThreshold: 80,
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
+  scrollEl: () => scrollRef.value?.containerRef ?? null,
+  contentEl: () => (virtualEnabled.value ? (scrollRef.value?.contentRef ?? null) : null),
   gap: 4,
   estimateSize: () => 40
-})
-
-const virtualEnabled = computed(() => {
-  return _virtualEnabled.value && !props.grid
 })
 
 const virtualOptions = computed(() => {
   const _options = options.value
   const { labelKey, valueKey } = props
-  return virtualList.value.map((item) => {
+  return items.value.map((item) => {
     const option = _options[item.index]!
     return {
       option,
       index: item.index,
       label: o(option).get(labelKey),
       val: o(option).get(valueKey),
-      key: item.key,
+      key: item.index,
       offset: item.start
     }
   })
 })
+
+const measureElement: (index: number, el: Element | null) => void = (index, el) =>
+  virtualizer.measureElement(index, el)
+
+function scrollTo(index: number): void {
+  virtualizer.scrollToIndex(index, { align: 'center' })
+}
 
 watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
   if (!scroll || !props.modelValue) return

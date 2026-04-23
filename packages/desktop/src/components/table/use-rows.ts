@@ -1,6 +1,6 @@
 import { Forest, o } from '@cat-kit/core'
 import { useModel } from '@veltra/compositions'
-import { shallowRef, watch, type ShallowRef } from 'vue'
+import { shallowRef, watch, type Ref, type ShallowRef } from 'vue'
 
 import type { TableColumn, TableEmits, TableProps, TableRow } from '../../types'
 import { TableRowNode } from './node/row'
@@ -8,6 +8,14 @@ import { TableRowNode } from './node/row'
 interface Options {
   props: TableProps
   emit: TableEmits
+  /**
+   * D2：滚动中 (`true`) 跳过 `currentRow` 高亮写入。
+   *
+   * 行点击处理会通过 `currentRow` watcher 把 `isCurrent` 切换到新行 / 旧行上，
+   * 触发对应 `<tr>` 的 class 重绘。在滚动期间 (移动端/触控板惯性滚动常见)
+   * 意外点击不应改变高亮，因此直接跳过；滚动结束后的正常点击仍会生效。
+   */
+  isScrolling?: Ref<boolean>
 }
 
 interface UseRowsReturned {
@@ -30,7 +38,7 @@ interface UseRowsReturned {
 }
 
 export function useRows(options: Options): UseRowsReturned {
-  const { props, emit } = options
+  const { props, emit, isScrolling } = options
 
   // --- 状态定义 ---
 
@@ -217,7 +225,10 @@ export function useRows(options: Options): UseRowsReturned {
   }
 
   function handleRowClick(row: TableRow, e: MouseEvent): void {
-    currentRow.value = currentRow.value === row ? undefined : row
+    // D2：滚动中的点击（多为惯性滚动误触）不应改变 currentRow 高亮。
+    if (!isScrolling?.value) {
+      currentRow.value = currentRow.value === row ? undefined : row
+    }
     emit('row-click', row, e)
   }
 

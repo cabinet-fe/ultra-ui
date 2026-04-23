@@ -1,5 +1,17 @@
 # @veltra/styles
 
+## 1.0.9
+
+### Patch Changes
+
+- 81dbe41: 重构 use-lock -> use-user-action, 更加符合直觉
+- 组件优化
+- Updated dependencies
+- Updated dependencies [81dbe41]
+- Updated dependencies
+  - @veltra/compositions@1.0.9
+  - @veltra/utils@1.0.9
+
 ## 1.0.8
 
 ### Patch Changes

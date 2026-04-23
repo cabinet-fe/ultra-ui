@@ -32,7 +32,7 @@ rg -n '"@veltra/compositions"|name\": \"@veltra/compositions\"|exports|types' pa
 如果包目录不好找，就从调用点反推：
 
 ```bash
-rg -n "from '@veltra/compositions'|useFormComponent\\(|useModel\\(|useVirtual\\(|usePop\\(" .
+rg -n "from '@veltra/compositions'|useFormComponent\\(|useModel\\(|useVirtualizer\\(|usePop\\(" .
 ```
 
 先找真实 import，再回到包实现。

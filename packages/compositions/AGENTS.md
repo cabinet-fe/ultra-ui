@@ -18,7 +18,7 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 | `use-reactive-size`   | `useReactiveSize`                          | 响应式尺寸监听                                     |
 | `use-resize-observer` | `useResizeObserver`, `useObserverCallback` | ResizeObserver 封装                                |
 | `use-transition`      | `useTransition`                            | 过渡动画（css/style 两种模式）                     |
-| `use-virtual`         | `useVirtual`                               | 虚拟滚动                                           |
+| `use-virtualizer`     | `useVirtualizer`                           | 虚拟滚动低阶适配层（返回 `{ virtualizer, snapshot, items, isScrolling }`；传入 `contentEl` / `beforeEl` / `afterEl` 时尺寸走 DOM 命令式写入，不经 Vue 响应式） |
 
 ## 表单组件相关
 

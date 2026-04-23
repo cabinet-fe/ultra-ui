@@ -40,14 +40,14 @@ const props = defineProps<{
    * 会因为 ResizeObserver 对脱离 DOM 的元素回调 size=0 而污染尺寸缓存。
    */
   index?: number
-  measureElement?: (el: Element | null, index: number) => void
+  measureElement?: (index: number, el: Element | null) => void
 }>()
 
 const { disabled = false, checked } = props
 
 function measureRef(el: unknown) {
   if (typeof props.index !== 'number' || !props.measureElement) return
-  props.measureElement(el as Element | null, props.index)
+  props.measureElement(props.index, el as Element | null)
 }
 
 const emit = defineEmits<{

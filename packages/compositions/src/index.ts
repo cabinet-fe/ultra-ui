@@ -22,4 +22,4 @@ export * from './use-resize-observer'
 
 export * from './use-transition'
 
-export * from './use-virtual'
+export * from './use-virtualizer'

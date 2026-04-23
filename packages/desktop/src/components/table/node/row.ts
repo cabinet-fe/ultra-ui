@@ -28,7 +28,16 @@ export class TableRowNode<Data extends Record<string, any> = Record<string, any>
   /** 是否选中 */
   checked = false
 
-  uid: number | string
+  /**
+   * 行的稳定唯一标识。
+   *
+   * E2 不变式：`uid` 在单个 `TableRowNode` 实例的生命周期内不可变更。
+   * `useVirtualizer` 的 `getItemKey: i => rows[i].uid` 依赖该不变式来复用测量缓存；
+   * 若 uid 在运行时变更，虚拟列表的尺寸表会错配导致滚动抖动。
+   * 当前代码路径（`createRow` / `copy`）始终为每个新节点分配一次 uid，
+   * 所以该不变式天然成立；此处使用 `readonly` 做编译期锁定。
+   */
+  readonly uid: number | string
 
   override children?: TableRowNode<Data>[] = undefined
 

@@ -87,7 +87,7 @@ export interface TreeNodeProps {
    * 需要传入以便在节点卸载时正确通知 `Virtualizer` 解绑，避免 size=0 的脏测量。
    */
   index?: number
-  measureElement?: (el: Element | null, index: number) => void
+  measureElement?: (index: number, el: Element | null) => void
 }
 
 /** 树组件暴露的属性和方法(组件内部使用) */

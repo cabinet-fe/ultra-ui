@@ -74,13 +74,16 @@
       </div>
 
       <!-- 多选列表 -->
+      <!--
+        虚拟化启用时内容容器 height 由 useVirtualizer 命令式写入；
+        模板不再绑定 totalSize，避免尺寸变化引起重渲染。
+      -->
       <u-scroll
         tag="ul"
         :class="[cls.e('options')]"
         ref="scrollRef"
         v-if="options.length"
         :content-class="[cls.e('options-wrap'), bem.is('virtual', virtualEnabled)]"
-        :content-style="{ height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined }"
       >
         <template v-if="virtualEnabled">
           <u-multi-select-option
@@ -137,9 +140,9 @@
 
 <script lang="ts" setup>
 import { o as chainObj } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useVirtual } from '@veltra/compositions'
+import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, withUnit } from '@veltra/utils'
+import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
 
 import type {
@@ -209,29 +212,34 @@ const allOptions = computed(() => {
   return [...createdOptions.value, ...rawAllOptions.value]
 })
 
-const { totalHeight, virtualList, virtualEnabled, measureElement } = useVirtual({
-  virtualThreshold: 80,
+const virtualEnabled = computed(() => options.value.length > 80)
+
+const { virtualizer, items } = useVirtualizer({
   estimateSize: () => 40,
   count: computed(() => options.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  scrollEl: () => scrollRef.value?.containerRef ?? null,
+  contentEl: () => (virtualEnabled.value ? (scrollRef.value?.contentRef ?? null) : null)
 })
 
 const virtualOptions = computed(() => {
   const { valueKey, labelKey } = props
   const _options = options.value
-  return virtualList.value.map((v) => {
+  return items.value.map((v) => {
     const option = _options[v.index]!
     const val = chainObj(option).get(valueKey)
     return {
       option,
       index: v.index,
       val,
-      key: v.key,
+      key: v.index,
       offset: v.start,
       label: chainObj(option).get(labelKey)
     }
   })
 })
+
+const measureElement: (index: number, el: Element | null) => void = (index, el) =>
+  virtualizer.measureElement(index, el)
 
 const filterable = computed(() => {
   return props.filterable || props.creatable || typeof props.options === 'function'

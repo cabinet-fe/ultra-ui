@@ -11,6 +11,7 @@
     :content-class="cls.e('content')"
     @scroll="handleScroll"
   >
+    {{ console.log(1) }}
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
         <col
@@ -25,9 +26,13 @@
       </colgroup>
       <UTableHead />
 
-      <!-- 虚拟滚动上占位：替代 tbody transform，避免 table-layout: fixed 下列宽抖动 -->
-      <tbody v-if="virtualEnabled && beforeSize > 0" aria-hidden="true">
-        <tr :style="{ height: `${beforeSize}px` }">
+      <!--
+        虚拟滚动上占位：替代 tbody transform，避免 table-layout: fixed 下列宽抖动。
+        高度由 useVirtualizer 命令式写入 `style.height`，不经过模板响应式绑定，
+        因此滚动窗口变化不会引起表格模板重渲染。
+      -->
+      <tbody v-if="virtualEnabled" aria-hidden="true">
+        <tr ref="beforeSpacerRef">
           <td :colspan="leafColumns.length" style="padding: 0; border: none"></td>
         </tr>
       </tbody>
@@ -40,9 +45,9 @@
         </template>
       </u-table-body>
 
-      <!-- 虚拟滚动下占位 -->
-      <tbody v-if="virtualEnabled && afterSize > 0" aria-hidden="true">
-        <tr :style="{ height: `${afterSize}px` }">
+      <!-- 虚拟滚动下占位（高度由 useVirtualizer 命令式写入） -->
+      <tbody v-if="virtualEnabled" aria-hidden="true">
+        <tr ref="afterSpacerRef">
           <td :colspan="leafColumns.length" style="padding: 0; border: none"></td>
         </tr>
       </tbody>
@@ -61,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps, useVirtual } from '@veltra/compositions'
+import { useFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { computed, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
@@ -113,7 +118,16 @@ const cls = bem('table')
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
-// 行
+const scrollRef = shallowRef<ScrollExposed>()
+
+// 占位 tr 的 DOM 句柄；交给 useVirtualizer 直接命令式写 style.height。
+const beforeSpacerRef = useTemplateRef<HTMLElement>('beforeSpacerRef')
+const afterSpacerRef = useTemplateRef<HTMLElement>('afterSpacerRef')
+
+// 行（useRows / useFixedColumns 需要 isScrolling，而虚拟化 hook 又依赖 rows.length；
+// 先用中继占位，下方 isScrolling 到位后 watch 回灌）。
+const isScrollingRelay = shallowRef(false)
+
 const {
   rows,
   toggleTreeRowExpand,
@@ -123,13 +137,11 @@ const {
   handleRowClick,
   handleCellClick,
   getRowByData
-} = useRows({ props, emit })
+} = useRows({ props, emit, isScrolling: isScrollingRelay })
 
-// 选中
 const { createCheckColumn, createSelectColumn, clearChecked, clearSelected, checkedRows } =
   useCheck({ size, props, rows, rowForest, emit, cls })
 
-// 列
 const columnConfig = useColumns({
   props,
   createCheckColumn,
@@ -140,9 +152,10 @@ const columnConfig = useColumns({
 
 const { leafColumns } = columnConfig
 
-const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
+const { handleScroll, leftFixed, rightFixed } = useFixedColumns({
+  isScrolling: isScrollingRelay
+})
 
-// 在表格中提供的通用方法和属性
 const {
   getColumnSlotsNode,
   getExpandRowSlotsNode,
@@ -152,25 +165,51 @@ const {
   getHeaderCellClass
 } = useTable({ props, cls, leftFixed, rightFixed })
 
-const scrollRef = shallowRef<ScrollExposed>()
-
 const { showResizeLine, resizeLineRef, colgroupRef } = useColResize({ scrollRef, leafColumns })
 
-const virtualCtx = useVirtual({
+const { virtualizer, items, isScrolling } = useVirtualizer({
   count: computed(() => rows.value.length),
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null),
-  // 默认行高度约 41px（默认尺寸下 padding + 边框 + 一行文字）；
-  // 首个真实渲染行落定后 `useVirtual` 会按实测值自动校准，估值偏差 1~2px 亦不引起抖动。
+  scrollEl: () => scrollRef.value?.containerRef ?? null,
+  beforeEl: beforeSpacerRef,
+  afterEl: afterSpacerRef,
   estimateSize: () => 41,
-  virtualThreshold: toRef(props, 'virtualThreshold')
+  // 注意：getItemKey 在构造期一次性写入底层 Virtualizer；闭包每次读的是当前 rows.value，
+  // rows 引用整体替换后 key 仍有效（无需再 setOptions）。
+  getItemKey: (i) => rows.value[i]?.uid ?? i
 })
 
-const { virtualEnabled, beforeSize, afterSize } = virtualCtx
+const virtualEnabled = computed(() => {
+  const t = props.virtualThreshold
+  return t ? rows.value.length > t : true
+})
+
+// 把虚拟化 isScrolling 回灌到中继，供 useRows / useFixedColumns 读取。
+watch(isScrolling, (v) => {
+  isScrollingRelay.value = v
+})
+
+/**
+ * E1：数据替换时的条件置顶。
+ *
+ * 旧实现无差别地 `scrollTo({ y: 0 })`，在「行内增删 / 排序 / 单行更新」等
+ * 场景会把用户当前阅读位置跳走；仅在「翻页 / 显著数据集替换」时才需要复位。
+ *
+ * 判定阈值：|Δlen| / max(newLen, oldLen) ≥ 0.5，即行数变化量超过更大侧的一半时视为显著变化。
+ * 选择 0.5 是因为典型的分页/搜索场景会带来 50% 以上的行数差（通常完全替换数据集），
+ * 而行内追加 / 删除个位数通常只带来 <5% 的变化；两者区分度足够宽。
+ */
+const LENGTH_DELTA_RATIO_TO_RESET_SCROLL = 0.5
 
 watch(
   () => props.data,
-  () => {
-    scrollRef.value?.scrollTo({ y: 0 })
+  (next, prev) => {
+    const nextLen = next?.length ?? 0
+    const prevLen = prev?.length ?? 0
+    const denom = Math.max(nextLen, prevLen, 1)
+    const ratio = Math.abs(nextLen - prevLen) / denom
+    if (ratio >= LENGTH_DELTA_RATIO_TO_RESET_SCROLL) {
+      scrollRef.value?.scrollTo({ y: 0 })
+    }
   }
 )
 
@@ -193,7 +232,9 @@ provide(TableDIKey, {
   getHeaderCellClass,
   // tipRef,
   toggleTreeRowExpand,
-  ...virtualCtx
+  virtualList: items,
+  virtualEnabled,
+  measureElement: (index, el) => virtualizer.measureElement(index, el)
 })
 
 const tableFootRef = useTemplateRef('tableFoot')

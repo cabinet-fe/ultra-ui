@@ -56,7 +56,7 @@ const { treeProps, treeEmit, cls, getTreeSlotsNode, getFlattedNodes, toggleCheck
 
 function measureRef(el: unknown) {
   if (typeof props.index !== 'number' || !props.measureElement) return
-  props.measureElement(el as Element | null, props.index)
+  props.measureElement(props.index, el as Element | null)
 }
 
 function toggleExpand() {

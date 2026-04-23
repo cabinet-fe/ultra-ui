@@ -2,7 +2,7 @@
 name: veltra-compositions
 description: >
   @veltra/compositions 组合式函数（composable）文档与源码镜像。
-  当实现或重构涉及组合式函数、composable、useModel、usePop、useVirtual、
+  当实现或重构涉及组合式函数、composable、useModel、usePop、useVirtualizer、
   表单回退（useFallbackProps / useFormFallbackProps）、useConfig、
   useTransition、useDrag、useFocus、浮层定位、虚拟滚动、用户动作追踪等逻辑时使用。
   详细实现请读 `generated/modules/*.md`；集成模式见 references/usage-patterns.md。
@@ -26,7 +26,7 @@ description: >
 import {
   useModel,
   usePop,
-  useVirtual,
+  useVirtualizer,
   useTransition,
   useFallbackProps,
   useFormFallbackProps,
@@ -56,7 +56,7 @@ import {
 | `usePop`                                    | Popper 定位                             | `triggerRef`、`contentRef`、`direction`       | `update`、`popperContainerId`           |
 | `useReactiveSize`                           | 响应式测量尺寸                          | 元素 / 尺寸源                                 | 尺寸 ref                                |
 | `useResizeObserver` / `useObserverCallback` | `ResizeObserver` 与回调辅助             | 监听目标、选项                                | 见 `use-resize-observer` 源码           |
-| `useVirtual`                                | 虚拟列表                                | `count`、`scrollEl`、`estimateSize`           | `virtualList`、`measureElement` 等      |
+| `useVirtualizer`                            | 虚拟列表低阶适配层                      | `count`、`scrollEl`、`contentEl` / `beforeEl` / `afterEl`、`estimateSize` | `{ virtualizer, snapshot, items, isScrolling }`；尺寸走 DOM 命令式写入，业务语义由消费者组装 |
 | `useFallbackProps`                          | props → 全局 config 回退                | 源对象数组、默认值表                          | 各字段 ref                              |
 | `useFormFallbackProps`                      | 表单场景三级回退                        | `[formProps, props]` + 默认值                 | 同上                                    |
 | `useFormComponent`                          | 表单 provide / inject                   | 父级传入 `props`；子级无参                    | `formProps`、`inForm` 等                |
@@ -79,7 +79,7 @@ import {
 
 - **usePop**：下拉、Tooltip 等浮动层定位。
 - **useReactiveSize**、**useResizeObserver**：随容器变化重算布局。
-- **useVirtual**：大列表、下拉选项、表格体虚拟化。
+- **useVirtualizer**：大列表、下拉选项、表格体虚拟化的 Vue 胶水层；返回 `{ virtualizer, snapshot, items, isScrolling }`，尺寸走 DOM 命令式写入（`contentEl` / `beforeEl` / `afterEl`），`virtualEnabled` / `v-for :key` / `scrollTo` 对齐模式等业务语义由消费者显式组装。
 
 ### 表单
 

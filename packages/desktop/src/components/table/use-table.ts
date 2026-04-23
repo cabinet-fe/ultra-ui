@@ -1,6 +1,6 @@
 import { o } from '@cat-kit/core'
 import { bem, type BEM } from '@veltra/utils'
-import { useSlots, type Ref } from 'vue'
+import { useSlots, watch, type Ref } from 'vue'
 
 import type {
   TableColumnRenderContext,
@@ -87,12 +87,36 @@ export function useTable(options: Options): UseTableReturn {
     return classList.join(' ')
   }
 
+  /**
+   * B1: 单元格类名按 ColumnNode 身份缓存。
+   *
+   * 对同一列，类名只取决于 (column.fixed, column.isLastFixed, column.isFirstFixed,
+   * column.align, leftFixed, rightFixed)。其中前四个绑定在 ColumnNode 实例上，
+   * 后两个在 leftFixed/rightFixed 变化时失效缓存即可。用 WeakMap 以 ColumnNode
+   * 为键可避免字符串 key 的拼接/哈希开销，且列树重建时节点随 GC 自动释放。
+   */
+  let cellClassCache = new WeakMap<ColumnNode, string>()
+  let headerCellClassCache = new WeakMap<ColumnNode, string>()
+
+  watch([leftFixed, rightFixed], () => {
+    cellClassCache = new WeakMap()
+    headerCellClassCache = new WeakMap()
+  })
+
   const getCellClass = (column: ColumnNode): string => {
-    return getCommonClassName(column) + ` ${bem.is(column.align)}`
+    const cached = cellClassCache.get(column)
+    if (cached !== undefined) return cached
+    const result = getCommonClassName(column) + ` ${bem.is(column.align)}`
+    cellClassCache.set(column, result)
+    return result
   }
 
   const getHeaderCellClass = (column: ColumnNode): string => {
-    return getCommonClassName(column) + ` ${bem.is(column.headerAlign)}`
+    const cached = headerCellClassCache.get(column)
+    if (cached !== undefined) return cached
+    const result = getCommonClassName(column) + ` ${bem.is(column.headerAlign)}`
+    headerCellClassCache.set(column, result)
+    return result
   }
 
   const getCellCtx = (

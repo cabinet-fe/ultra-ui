@@ -1,8 +1,14 @@
 {
-  "syncedAt": "2026-04-17T02:17:13.469Z",
+  "syncedAt": "2026-04-23T09:01:11.272Z",
   "sourceRoot": "packages/utils/src",
   "apiReference": [
-    { "section": "包入口", "files": ["index.ts"], "docFile": "api/entry.md" },
+    {
+      "section": "包入口",
+      "files": [
+        "index.ts"
+      ],
+      "docFile": "api/entry.md"
+    },
     {
       "section": "DOM",
       "files": [
@@ -14,7 +20,13 @@
       ],
       "docFile": "api/dom.md"
     },
-    { "section": "表单校验", "files": ["form/validate.ts"], "docFile": "api/form.md" },
+    {
+      "section": "表单校验",
+      "files": [
+        "form/validate.ts"
+      ],
+      "docFile": "api/form.md"
+    },
     {
       "section": "辅助",
       "files": [
@@ -27,7 +39,13 @@
       ],
       "docFile": "api/helper.md"
     },
-    { "section": "响应式", "files": ["reactive/proxy.ts"], "docFile": "api/reactive.md" }
+    {
+      "section": "响应式",
+      "files": [
+        "reactive/proxy.ts"
+      ],
+      "docFile": "api/reactive.md"
+    }
   ],
   "sharedTypes": [
     "shared/constants.ts",

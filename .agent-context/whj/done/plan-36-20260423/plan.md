@@ -1,6 +1,6 @@
 # use-virtual 对接新 Virtualizer API（破坏性升级）
 
-> 状态: 未执行
+> 状态: 已执行
 
 ## 目标
 
@@ -117,13 +117,30 @@ function measureElement(el: Element | null, index: number) {
 
 在 `implement` 阶段收尾前，逐条勾选：
 
-- [ ] `use-virtual/index.ts` 内零 `mount(` / `unmount(` / `overscan` 残留。
-- [ ] `VirtualReturned` 暴露 `isScrolling`。
-- [ ] 4 处调用方 TS 编译通过。
-- [ ] Table 传入了 `getItemKey`，Tree 传入了 `getItemKey`。
-- [ ] Select / MultiSelect 手动 demo 无回归。
-- [ ] skill 文档已同步。
+- [x] `use-virtual/index.ts` 内零 `mount(` / `unmount(` / `overscan` 残留。
+- [x] `VirtualReturned` 暴露 `isScrolling`。
+- [x] 4 处调用方 TS 编译通过（仓库内遗留的 `@vue/reactivity` 版本不一致、`@cat-kit/core` `Buffer` 等 3rd 方告警与本计划无关）。
+- [x] Table 传入了 `getItemKey`，Tree 传入了 `getItemKey`。
+- [x] Select / MultiSelect 手动 demo 无回归（playground 浏览器冒烟：`/select/index` / `/tree/index` / `/table/index` 均正常渲染，无新增运行时错误）。
+- [x] skill 文档已同步（`generated/modules/use-virtual.md`、`generated/manifest.json`、`references/api-map.md`、`references/usage-patterns.md`）。
 
 ## 影响范围
+
+- `packages/compositions/src/use-virtual/index.ts`
+  - `Options`：`overscan` → `buffer`（默认 4），新增 `horizontal`、`getItemKey`（支持普通函数 / `Ref`）。
+  - `VirtualReturned`：新增 `isScrolling: ShallowRef<boolean>`。
+  - 实例化切换到 `new Virtualizer({ buffer, horizontal, getItemKey, useMeasuredAverage: true, ... })`；滚动容器绑定改为 `v.connect` / `v.disconnect`；快照回调同步 `isScrolling`。
+  - 移除 `estimateCalibrated` / `calibrationSkipped` / `MAX_CALIBRATION_ATTEMPTS` 首帧校准逻辑；`measureElement` 简化为仅 `v.measureElement(index, el)`。
+  - 新增 `watch` 针对 `Ref` 形态 `getItemKey` 做 `v.setOptions({ getItemKey })`。
+- `packages/desktop/src/components/table/table.vue`
+  - `useVirtual({...})` 新增 `getItemKey: (i) => rows.value[i]?.uid ?? i`；`provide(TableDIKey, { ...virtualCtx })` 已天然携带新增的 `isScrolling`，供 plan-38 消费。
+- `packages/desktop/src/components/tree/tree.vue`
+  - `useVirtual({...})` 新增 `getItemKey: (i) => nodes.value[i]?.key ?? i`。
+- `packages/desktop/src/components/select/select.vue`、`packages/desktop/src/components/multi-select/multi-select.vue`
+  - 未改动；不使用 `overscan` / `getItemKey`，对新 API 向后兼容。
+- `skills/veltra-compositions/generated/modules/use-virtual.md`、`skills/veltra-compositions/generated/manifest.json`
+  - 由 `tools/skills-sync/sync-veltra-compositions.ts` 覆盖式重生成。
+- `skills/veltra-compositions/references/api-map.md`、`skills/veltra-compositions/references/usage-patterns.md`
+  - 手动同步 `useVirtual` 的新能力（`isScrolling`、`getItemKey`、`useMeasuredAverage` 等）与两段示例代码。
 
 ## 历史补丁

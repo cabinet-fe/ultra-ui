@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-04-22T01:14:46.329Z",
+  "syncedAt": "2026-04-23T09:01:11.253Z",
   "sourceRoot": "packages/compositions/src",
   "modules": [
     {
@@ -91,11 +91,11 @@
       "docFile": "modules/use-user-action.md"
     },
     {
-      "name": "use-virtual",
+      "name": "use-virtualizer",
       "files": [
-        "use-virtual/index.ts"
+        "use-virtualizer/index.ts"
       ],
-      "docFile": "modules/use-virtual.md"
+      "docFile": "modules/use-virtualizer.md"
     }
   ]
 }

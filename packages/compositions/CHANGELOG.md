@@ -1,5 +1,16 @@
 # @veltra/compositions
 
+## 1.0.9
+
+### Patch Changes
+
+- 更新 @cat-kit/fe 到 1.1.2 版本
+- 81dbe41: 重构 use-lock -> use-user-action, 更加符合直觉
+- 组件优化
+- Updated dependencies [81dbe41]
+- Updated dependencies
+  - @veltra/utils@1.0.9
+
 ## 1.0.8
 
 ### Patch Changes

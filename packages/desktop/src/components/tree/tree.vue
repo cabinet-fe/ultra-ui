@@ -2,7 +2,6 @@
   <u-scroll
     :class="className"
     ref="scrollRef"
-    :content-style="{ height: virtualEnabled ? withUnit(totalHeight, 'px') : undefined }"
     :content-class="[cls.e('wrap'), bem.is('virtual', virtualEnabled)]"
   >
     <template v-if="virtualEnabled">
@@ -32,9 +31,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
-import { useVirtual } from '@veltra/compositions'
-import { bem, nextFrame, withUnit, scrollIntoContainerView } from '@veltra/utils'
+import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { bem, nextFrame, scrollIntoContainerView } from '@veltra/utils'
 import { computed, provide, shallowRef, useSlots, watch, watchEffect, type VNode } from 'vue'
 
 import type { TreeProps, TreeEmit, _TreeExposed } from '../../types'
@@ -135,27 +133,43 @@ const estimateSize = (): number => {
   }
 }
 
-const { totalHeight, virtualList, scrollTo, virtualEnabled, measureElement } = useVirtual({
+// 80 阈值内化为消费者侧语义；低于此值时不启用虚拟化。
+const virtualEnabled = computed(() => nodes.value.length > 80)
+
+const { virtualizer, items } = useVirtualizer({
   count: computed(() => nodes.value.length),
+  scrollEl: () => scrollRef.value?.containerRef ?? null,
+  // 仅在虚拟化启用时把内容容器的 height 撑开到 totalSize；
+  // 关闭时传 null，hook 会清除此前写入的内联 height，回到 CSS 默认。
+  contentEl: () => (virtualEnabled.value ? (scrollRef.value?.contentRef ?? null) : null),
   estimateSize,
   gap: 2,
-  virtualThreshold: 80,
-  scrollEl: computed(() => scrollRef.value?.containerRef ?? null)
+  // 以节点稳定 key 作为虚拟项身份，展开 / 收起 / 过滤引起的 nodes 数组变更
+  // 保留未移动节点的真实测量值，避免再次滚动首屏抖动。
+  getItemKey: (i) => nodes.value[i]?.key ?? i
 })
 
+// 身份稳定性已由底层 `getItemKey` 保证；直接以 `node.key` 作为 Vue 层 key。
+// `item.index` 仅作为 nodes / snapshot 竞态边缘的 fallback。
 const virtualNodes = computed(() => {
   const _nodes = nodes.value
-
-  return virtualList.value.map((item) => {
+  return items.value.map((item) => {
     const node = _nodes[item.index]!
     return {
       node,
-      key: node.key || item.key,
+      key: node?.key ?? item.index,
       offset: item.start,
       index: item.index
     }
   })
 })
+
+const measureElement: (index: number, el: Element | null) => void = (index, el) =>
+  virtualizer.measureElement(index, el)
+
+function scrollTo(index: number): void {
+  virtualizer.scrollToIndex(index, { align: 'center' })
+}
 
 function scrollIntoView() {
   const { selectable, checkable, scrollToView } = props

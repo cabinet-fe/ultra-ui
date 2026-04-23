@@ -33,3 +33,6 @@
 - [x] [优化 Monorepo 工具链依赖归属](./done/plan-33-20260421/plan.md)
 - [x] [用 @cat-kit/fe Virtualizer 替代 @tanstack/vue-virtual](./done/plan-34-20260422/plan.md)
 - [x] [Tree 组件样式重塑与性能优化](./done/plan-35-20260423/plan.md)
+- [x] [use-virtual 对接新 Virtualizer API（破坏性升级）](./done/plan-36-20260423/plan.md)
+- [x] [Table 性能基线：playground 压测页与内置采集控制台](./done/plan-37-20260423/plan.md)
+- [x] [use-virtual 降级为 useVirtualizer 薄适配层](./done/plan-38-20260423/plan.md)
