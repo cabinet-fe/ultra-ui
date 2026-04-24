@@ -16,9 +16,7 @@
       :disabled="!canPrev"
       @click="scrollByStep(-1)"
     >
-      <u-icon>
-        <ArrowLeft />
-      </u-icon>
+      <u-icon> <ArrowLeft /> </u-icon>
     </button>
 
     <div ref="viewportRef" :class="cls.e('viewport')">
@@ -35,7 +33,10 @@
           ]"
           @click.stop="handleClick(item, index)"
         >
-          <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
+          <slot :name="`name:${item.key}`" :item="item">
+            <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
+          </slot>
+
           <span
             v-if="isItemClosable(item)"
             role="button"
@@ -59,9 +60,7 @@
       :disabled="!canNext"
       @click="scrollByStep(1)"
     >
-      <u-icon>
-        <ArrowRight />
-      </u-icon>
+      <u-icon> <ArrowRight /> </u-icon>
     </button>
   </div>
 </template>
@@ -86,6 +85,10 @@ const props = withDefaults(defineProps<TabsHorizontalProps>(), {
 })
 
 const emit = defineEmits<TabsHorizontalEmits>()
+
+defineSlots<{
+  [key: `name:${string}`]: (props: { item: TabItem }) => any
+}>()
 
 const { size } = useFallbackProps([props], {
   size: 'default' as ComponentSize

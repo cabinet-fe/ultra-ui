@@ -72,6 +72,8 @@ const isChecked = (_node: ProgressNodeItem, index: number) => {
 </script>
 
 <style lang="scss" scoped>
+@use 'pkg:@veltra/styles/functions' as fn;
+
 .progressNodesDemo {
   display: flex;
   flex-direction: column;
@@ -89,7 +91,7 @@ const isChecked = (_node: ProgressNodeItem, index: number) => {
 }
 
 .label {
-  color: var(--text-color-second);
+  color: fn.use-var(text-color, second);
   font-size: 12px;
 }
 </style>

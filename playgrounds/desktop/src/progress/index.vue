@@ -50,7 +50,7 @@
         :type="getType"
         v-slot="{ percentage, type }"
       >
-        <div :style="`color: var(--color-${type})`">{{ percentage }}%</div>
+        <div :style="`color: var(--u-color-${type})`">{{ percentage }}%</div>
       </u-progress>
     </CustomCard>
   </div>

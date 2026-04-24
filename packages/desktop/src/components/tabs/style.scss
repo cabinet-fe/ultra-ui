@@ -68,6 +68,9 @@ $active-shadow:
 
   @include m.m(vertical) {
     flex-direction: column;
+    // 垂直方向没有 __viewport 承载上下 padding，这里直接为容器补上垂直内边距，
+    // 与水平 __viewport 的 padding: $list-padding 0 对称，避免首/末 item 紧贴边沿
+    padding-block: $list-padding;
   }
 
   @include m.e(viewport) {
@@ -113,9 +116,9 @@ $active-shadow:
     justify-content: center;
     gap: 0;
     transition:
-      color 0.2s ease,
-      background-color 0.2s ease,
-      box-shadow 0.2s ease;
+      color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:not(.is-active):not(.is-disabled):hover {
       color: fn.use-var(text-color, title);
@@ -127,7 +130,7 @@ $active-shadow:
     }
 
     @include m.is(active) {
-      color: fn.use-var(text-color, title);
+      color: fn.use-var(color, primary);
       background-color: $active-bg;
       box-shadow: $active-shadow;
     }

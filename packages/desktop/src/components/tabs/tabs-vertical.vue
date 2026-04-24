@@ -14,7 +14,9 @@
       ]"
       @click.stop="handleClick(item, index)"
     >
-      <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
+      <slot :name="`name:${item.key}`" :item="item">
+        <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
+      </slot>
       <span
         v-if="isItemClosable(item)"
         role="button"

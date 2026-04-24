@@ -10,23 +10,8 @@ type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P]
 }
 
-function isDevEnv(): boolean {
-  try {
-    if (typeof import.meta !== 'undefined') {
-      const env = (import.meta as { env?: { DEV?: boolean } }).env
-      if (env?.DEV === true) return true
-    }
-  } catch {
-    /* ignore */
-  }
-  const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
-  return typeof proc !== 'undefined' && proc.env?.NODE_ENV !== 'production'
-}
-
 export class UITheme {
   static themeID = 'ultra-ui-theme'
-
-  private static legacyDeprecationWarned = false
 
   private static adoptedSheet: CSSStyleSheet | null = null
 
@@ -132,7 +117,7 @@ export class UITheme {
     return `--u-bg-filter: ${filter.blur} ${filter.saturate}`
   }
 
-  /** 主题变量声明（不含 legacy 副本） */
+  /** 主题变量声明列表，均为 `--u-` 前缀的 CSS 自定义属性 */
   themeToDeclarationList(theme: Theme): string[] {
     const raw = theme as unknown as Record<string, unknown>
     const lines: string[] = [...this.renderBase(raw)]
@@ -154,33 +139,8 @@ export class UITheme {
     return lines
   }
 
-  private static withLegacyDuplicates(decls: string[]): string {
-    const legacy: string[] = []
-    for (const decl of decls) {
-      const idx = decl.indexOf(':')
-      if (idx === -1) continue
-      const name = decl.slice(0, idx).trim()
-      const value = decl.slice(idx + 1).trim()
-      if (name.startsWith('--u-')) {
-        legacy.push(`--${name.slice(4)}: ${value}`)
-      }
-    }
-    return [...decls, ...legacy].join(';')
-  }
-
-  private static warnLegacyOnce(): void {
-    if (!isDevEnv() || UITheme.legacyDeprecationWarned) return
-    UITheme.legacyDeprecationWarned = true
-    console.warn(
-      '[@veltra/styles] Theme CSS variables now prefer the `--u-` namespace. ' +
-        'Unprefixed aliases (e.g. `--color-primary`) are deprecated and will be removed in a future major version.'
-    )
-  }
-
   private static declarationBlock(decls: string[]): string {
-    const merged = UITheme.withLegacyDuplicates(decls)
-    UITheme.warnLegacyOnce()
-    return merged
+    return decls.join(';')
   }
 
   private static removeExistingStyleTag(doc: Document): void {

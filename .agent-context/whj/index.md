@@ -36,3 +36,4 @@
 - [x] [use-virtual 对接新 Virtualizer API（破坏性升级）](./done/plan-36-20260423/plan.md)
 - [x] [Table 性能基线：playground 压测页与内置采集控制台](./done/plan-37-20260423/plan.md)
 - [x] [use-virtual 降级为 useVirtualizer 薄适配层](./done/plan-38-20260423/plan.md)
+- [x] [移除 legacy 主题兼容层 & 优化 Tabs 选中视觉](./done/plan-39-20260424/plan.md)

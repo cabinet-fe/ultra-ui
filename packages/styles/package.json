@@ -63,7 +63,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown && bun scripts/copy-scss.ts",
+    "build": "tsdown",
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

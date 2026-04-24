@@ -78,7 +78,7 @@ const className = computed(() => {
 
 /** 描边 */
 const stroke = computed(() => {
-  return `var(--color-${type.value})`
+  return `var(--u-color-${type.value})`
 })
 
 const r = 44

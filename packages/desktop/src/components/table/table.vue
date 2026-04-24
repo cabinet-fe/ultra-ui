@@ -11,7 +11,6 @@
     :content-class="cls.e('content')"
     @scroll="handleScroll"
   >
-    {{ console.log(1) }}
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
         <col
