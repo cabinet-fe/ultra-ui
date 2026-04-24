@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.0.10
+
+### Patch Changes
+
+- f1bce93: 优化 tabs 组件样式
+- Updated dependencies [f1bce93]
+  - @veltra/styles@1.0.10
+  - @veltra/directives@1.0.10
+  - @veltra/utils@1.0.10
+  - @veltra/compositions@1.0.10
+  - @veltra/icons@1.0.10
+
 ## 1.0.9
 
 ### Patch Changes
