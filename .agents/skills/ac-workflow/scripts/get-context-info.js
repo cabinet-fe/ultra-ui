@@ -20,6 +20,14 @@ export function resolveRuntimeContext(argv = process.argv.slice(2)) {
   const env = resolveEnvConfig(acRoot)
   const scope = env.scope
   const scopeDir = join(acRoot, scope)
+
+  const validationErrors = collectValidationErrors(scopeDir)
+  if (validationErrors.length > 0) {
+    const message =
+      '校验未通过，先修复再继续：\n' + validationErrors.map((e) => '- ' + e).join('\n')
+    throw new Error(message)
+  }
+
   const currentPlan = resolveCurrentPlan(scopeDir)
   const patchPlanDir = options.planDir ? resolve(cwd, options.planDir) : (currentPlan?.dir ?? null)
 
@@ -213,7 +221,51 @@ function readPlanNumbers(parentDir, pattern) {
     .sort((a, b) => a - b)
 }
 
+function collectValidationErrors(scopeDir) {
+  const errors = []
+  const current = readPlanDirNames(scopeDir, PLAN_DIR_RE)
+  if (current.length > 1) {
+    errors.push('检测到多个当前计划: ' + current.join(', '))
+  }
+
+  validatePlanFiles(scopeDir, PLAN_DIR_RE, errors)
+  validatePlanFiles(join(scopeDir, 'preparing'), PLAN_DIR_RE, errors)
+  validatePlanFiles(join(scopeDir, 'done'), DONE_DIR_RE, errors)
+  return errors
+}
+
+function validatePlanFiles(parentDir, pattern, errors) {
+  if (!existsSync(parentDir)) return
+
+  for (const name of readPlanDirNames(parentDir, pattern)) {
+    const planFile = join(parentDir, name, PLAN_FILE_NAME)
+    if (!existsSync(planFile)) {
+      errors.push('计划缺少 plan.md: ' + planFile)
+      continue
+    }
+
+    const content = readFileSync(planFile, 'utf8')
+    if (!STATUS_RE.test(content)) {
+      errors.push('计划状态行必须是 "> 状态: 未执行" 或 "> 状态: 已执行": ' + planFile)
+    }
+  }
+}
+
+function readPlanDirNames(parentDir, pattern) {
+  if (!existsSync(parentDir)) return []
+
+  return readdirSync(parentDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && pattern.test(entry.name))
+    .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b))
+}
+
 // ── Main ─────────────────────────────────────────────
 
-const context = resolveRuntimeContext()
-writeJson(context)
+try {
+  const context = resolveRuntimeContext()
+  writeJson(context)
+} catch (error) {
+  process.stderr.write((error instanceof Error ? error.message : String(error)) + '\n')
+  process.exitCode = 1
+}

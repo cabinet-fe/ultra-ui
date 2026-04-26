@@ -18,8 +18,8 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.1.1",
-    "@cat-kit/fe": "^1.1.1",
+    "@cat-kit/core": "^1.1.3",
+    "@cat-kit/fe": "^1.1.3",
     "@floating-ui/dom": "^1.7.6",
     "@veltra/utils": "workspace:*"
   },

@@ -67,7 +67,7 @@
     "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.1.1",
+    "@cat-kit/core": "^1.1.3",
     "@veltra/compositions": "workspace:*",
     "@veltra/utils": "workspace:*"
   },
