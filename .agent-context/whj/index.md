@@ -37,3 +37,4 @@
 - [x] [Table 性能基线：playground 压测页与内置采集控制台](./done/plan-37-20260423/plan.md)
 - [x] [use-virtual 降级为 useVirtualizer 薄适配层](./done/plan-38-20260423/plan.md)
 - [x] [移除 legacy 主题兼容层 & 优化 Tabs 选中视觉](./done/plan-39-20260424/plan.md)
+- [x] [FileViewer 预览体验升级](./done/plan-40-20260427/plan.md)

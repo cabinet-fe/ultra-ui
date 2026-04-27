@@ -2,19 +2,23 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 
 @include m.b(file-viewer) {
+  --u-file-viewer-canvas: #101114;
+  --u-file-viewer-canvas-soft: #17191f;
+  --u-file-viewer-page-shadow: 0 24px 72px rgba(0, 0, 0, 0.34);
+
   position: relative;
   display: flex;
   width: 100%;
   height: 100%;
-  min-height: 480px;
+  min-height: 520px;
   color: fn.use-var(text-color, main);
   background: fn.use-var(bg-color, top);
-  border-radius: 12px;
-  overflow: hidden;
   border: 1px solid fn.use-var(border, color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.08);
 
   @include m.e(inner) {
-    // 内嵌模式下透明包装，直接把子节点暴露为根的 flex 子项
     display: contents;
   }
 
@@ -23,9 +27,9 @@
     inset: 0;
     z-index: 2000;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(16px, 3vw, 48px);
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
     min-height: 0;
     max-height: none;
     background: transparent;
@@ -33,66 +37,98 @@
     border-radius: 0;
     overflow: visible;
     outline: none;
+    box-shadow: none;
   }
 
-  // 模态下的后代覆盖（必须用 & 自拼接，避免 m.e() 误拼为 .is-modal__xxx）
   &.is-modal &__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.52);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background:
+      linear-gradient(180deg, rgba(5, 7, 11, 0.78), rgba(4, 5, 8, 0.94)),
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.06),
+        transparent 24%,
+        transparent 76%,
+        rgba(255, 255, 255, 0.035)
+      );
+    backdrop-filter: blur(18px) saturate(1.16);
+    -webkit-backdrop-filter: blur(18px) saturate(1.16);
   }
 
   &.is-modal &__inner {
+    display: contents;
+  }
+
+  &.is-modal &__sidebar,
+  &.is-modal &__stage {
     position: relative;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    max-width: 1440px;
-    background: fn.use-var(bg-color, top);
-    border: 1px solid fn.use-var(border, color);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow:
-      0 24px 64px rgba(15, 23, 42, 0.32),
-      0 2px 8px rgba(15, 23, 42, 0.18);
     z-index: 1;
+    pointer-events: auto;
   }
 
   @include m.e(sidebar) {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid fn.use-var(border, color);
-    background: fn.use-var(bg-color, middle);
     flex-shrink: 0;
-    min-width: 0;
+    min-width: 220px;
+    max-width: 380px;
+    min-height: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 34%),
+      fn.use-var(bg-color, middle);
+    border-right: 1px solid fn.use-var(border, color);
+  }
+
+  &.is-modal &__sidebar {
+    color: rgba(255, 255, 255, 0.82);
+    background: linear-gradient(
+      90deg,
+      rgba(8, 10, 15, 0.76),
+      rgba(8, 10, 15, 0.58) 78%,
+      rgba(8, 10, 15, 0.34)
+    );
+    border-right: 1px solid rgba(255, 255, 255, 0.055);
+    box-shadow: none;
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
   }
 
   @include m.e(sidebar-head) {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 18px 20px 10px;
+    gap: 12px;
+    padding: 14px 12px 6px;
     color: fn.use-var(text-color, title);
   }
 
+  &.is-modal &__sidebar-head {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
   @include m.e(sidebar-title) {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 620;
+    line-height: 1.2;
   }
 
   @include m.e(sidebar-count) {
-    font-size: 12px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
     color: fn.use-var(text-color, second);
+  }
+
+  &.is-modal &__sidebar-count,
+  &.is-modal &__item-size {
+    color: rgba(255, 255, 255, 0.48);
   }
 
   @include m.e(list) {
     flex: 1;
     min-height: 0;
-    padding: 4px 10px 16px;
+    padding: 4px 8px 12px;
   }
 
   @include m.e(list-empty) {
@@ -104,92 +140,166 @@
   }
 
   @include m.e(item) {
+    position: relative;
     display: flex;
-    gap: 12px;
     align-items: center;
-    padding: 10px 12px;
-    margin: 2px 0;
-    border-radius: 8px;
+    gap: 12px;
+    min-height: 42px;
+    padding: 7px 8px 7px 12px;
+    margin: 0;
+    border-radius: 6px;
     cursor: pointer;
     transition:
       background 0.18s ease,
-      color 0.18s ease,
-      transform 0.18s ease;
+      color 0.18s ease;
+
+    &::before {
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      border-radius: 999px;
+      background: fn.use-var(color, primary);
+      content: '';
+      opacity: 0;
+      transform: scaleY(0.45);
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+    }
 
     &:hover {
       background: fn.use-var(bg-color, hover);
     }
 
     @include m.is(active) {
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 14%, transparent);
-      color: fn.use-var(color, primary);
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 8%, transparent);
+
+      &::before {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+    }
+  }
+
+  &.is-modal &__item {
+    color: rgba(255, 255, 255, 0.78);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    @include m.is(active) {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.07);
+
+      &::before {
+        background: rgba(255, 255, 255, 0.82);
+      }
     }
   }
 
   @include m.e(item-meta) {
     display: flex;
-    flex-direction: column;
-    min-width: 0;
-    gap: 2px;
     flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
   }
 
   @include m.e(item-name) {
+    color: fn.use-var(text-color, title);
     font-size: 13px;
-    line-height: 1.4;
+    font-weight: 520;
+    line-height: 1.35;
+
     @include m.ellipsis;
+  }
+
+  &.is-modal &__item-name {
+    color: rgba(255, 255, 255, 0.86);
   }
 
   @include m.e(item-size) {
     font-size: 11px;
+    line-height: 1;
     color: fn.use-var(text-color, second);
   }
 
-  @include m.e(badge) {
+  @include m.e(item-kind) {
     flex-shrink: 0;
+    min-width: 30px;
+    color: fn.use-var(text-color, placeholder);
+    font-size: 10px;
+    font-weight: 720;
+    line-height: 1;
+    text-align: right;
+  }
+
+  &.is-modal &__item-kind {
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  &.is-modal &__item.is-active &__item-kind {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  @include m.e(badge) {
+    --u-file-viewer-kind: #{fn.use-var(text-color, second)};
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 28px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #fff;
-    background: fn.use-var(text-color, placeholder);
+    flex-shrink: 0;
+    width: 40px;
+    height: 26px;
+    border: 1px solid color-mix(in srgb, var(--u-file-viewer-kind) 28%, transparent);
+    border-radius: 7px;
+    color: var(--u-file-viewer-kind);
+    background: color-mix(in srgb, var(--u-file-viewer-kind) 10%, transparent);
+    font-size: 10px;
+    font-weight: 760;
+    line-height: 1;
+  }
 
-    @include m.em(badge, image) {
-      background: #0ea5e9;
-    }
+  @include m.em(badge, image) {
+    --u-file-viewer-kind: #0891b2;
+  }
 
-    @include m.em(badge, video) {
-      background: #ef4444;
-    }
+  @include m.em(badge, video) {
+    --u-file-viewer-kind: #db2777;
+  }
 
-    @include m.em(badge, pdf) {
-      background: #dc2626;
-    }
+  @include m.em(badge, pdf) {
+    --u-file-viewer-kind: #dc2626;
+  }
 
-    @include m.em(badge, sheet) {
-      background: #16a34a;
-    }
+  @include m.em(badge, sheet) {
+    --u-file-viewer-kind: #15803d;
+  }
 
-    @include m.em(badge, docx) {
-      background: #2563eb;
-    }
+  @include m.em(badge, docx) {
+    --u-file-viewer-kind: #2563eb;
+  }
 
-    @include m.em(badge, text) {
-      background: #64748b;
-    }
+  @include m.em(badge, text) {
+    --u-file-viewer-kind: #64748b;
   }
 
   @include m.e(stage) {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     min-width: 0;
     min-height: 0;
+    background: fn.use-var(bg-color, top);
+  }
+
+  &.is-modal &__stage {
+    position: relative;
+    color: rgba(255, 255, 255, 0.86);
+    background: transparent;
   }
 
   @include m.e(stage-head) {
@@ -197,95 +307,247 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 22px;
+    min-height: 66px;
+    padding: 12px 14px 12px 18px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent), fn.use-var(bg-color, top);
     border-bottom: 1px solid fn.use-var(border, color);
-    background: fn.use-var(bg-color, top);
     flex-shrink: 0;
+  }
+
+  &.is-modal &__stage-head {
+    min-height: 64px;
+    color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(
+      180deg,
+      rgba(9, 11, 16, 0.72),
+      rgba(9, 11, 16, 0.28) 72%,
+      transparent
+    );
+    border-bottom-color: transparent;
+    box-shadow: none;
+    backdrop-filter: blur(16px) saturate(1.08);
+    -webkit-backdrop-filter: blur(16px) saturate(1.08);
   }
 
   @include m.e(stage-title) {
     display: flex;
     align-items: center;
-    gap: 12px;
     min-width: 0;
+    gap: 12px;
+  }
+
+  @include m.e(stage-copy) {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 5px;
   }
 
   @include m.e(stage-name) {
-    font-size: 14px;
-    font-weight: 600;
     color: fn.use-var(text-color, title);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.25;
+
     @include m.ellipsis;
   }
 
+  &.is-modal &__stage-name {
+    color: rgba(255, 255, 255, 0.94);
+  }
+
   @include m.e(stage-sub) {
-    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
     color: fn.use-var(text-color, second);
-    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1;
+
+    span + span {
+      position: relative;
+      padding-left: 8px;
+
+      &::before {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
+        content: '';
+        transform: translateY(-50%);
+      }
+    }
+  }
+
+  &.is-modal &__stage-sub {
+    color: rgba(255, 255, 255, 0.52);
   }
 
   @include m.e(stage-actions) {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @include m.e(action-group) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 34px;
+    padding: 2px;
+    border: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 86%, transparent);
+    border-radius: 8px;
+    background: fn.use-var(bg-color, middle);
+  }
+
+  &.is-modal &__action-group {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.055) inset;
   }
 
   @include m.e(action) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     height: 30px;
-    padding: 0 14px;
+    padding: 0 12px;
+    border: 1px solid transparent;
     border-radius: 6px;
-    border: 1px solid fn.use-var(border, color);
     background: transparent;
-    color: inherit;
+    color: fn.use-var(text-color, second);
     font-size: 12px;
+    line-height: 1;
     cursor: pointer;
     transition:
-      background 0.18s,
-      border-color 0.18s,
-      color 0.18s;
+      background 0.16s ease,
+      border-color 0.16s ease,
+      color 0.16s ease,
+      transform 0.16s ease;
 
     &:not(:disabled):hover {
-      border-color: fn.use-var(color, primary);
       color: fn.use-var(color, primary);
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 10%, transparent);
+    }
+
+    &:not(:disabled):active {
+      transform: translateY(1px);
     }
 
     &:disabled {
-      opacity: 0.45;
+      opacity: 0.38;
       cursor: not-allowed;
     }
+  }
 
-    @include m.em(action, primary) {
-      background: fn.use-var(color, primary);
-      border-color: fn.use-var(color, primary);
+  &.is-modal &__action {
+    color: rgba(255, 255, 255, 0.68);
+
+    &:not(:disabled):hover {
       color: #fff;
-
-      &:not(:disabled):hover {
-        color: #fff;
-        filter: brightness(1.05);
-      }
+      background: rgba(255, 255, 255, 0.1);
     }
+  }
 
-    @include m.em(action, icon) {
-      width: 30px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 4px;
-      color: fn.use-var(text-color, second);
+  @include m.em(action, icon) {
+    width: 30px;
+    padding: 0;
+  }
 
-      &:not(:disabled):hover {
-        border-color: fn.use-var(color, danger);
-        color: fn.use-var(color, danger);
-      }
+  @include m.em(action, primary) {
+    color: #fff;
+    background: fn.use-var(color, primary);
+    border-color: fn.use-var(color, primary);
+
+    &:not(:disabled):hover {
+      color: #fff;
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 88%, #fff);
     }
+  }
+
+  &.is-modal &__action--primary {
+    color: #06111d;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.92);
+
+    &:not(:disabled):hover {
+      color: #06111d;
+      background: #fff;
+    }
+  }
+
+  @include m.e(zoom-value) {
+    min-width: 48px;
+    color: fn.use-var(text-color, title);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    user-select: none;
+  }
+
+  &.is-modal &__zoom-value {
+    color: rgba(255, 255, 255, 0.84);
   }
 
   @include m.e(body) {
     position: relative;
     flex: 1;
     min-height: 0;
-    background: fn.use-var(bg-color, bottom);
     overflow: hidden;
+    background:
+      linear-gradient(180deg, var(--u-file-viewer-canvas-soft), var(--u-file-viewer-canvas)),
+      var(--u-file-viewer-canvas);
+  }
+
+  &.is-modal &__body {
+    background:
+      linear-gradient(180deg, rgba(13, 16, 23, 0.58), rgba(5, 6, 10, 0.82)),
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.035),
+        transparent 22%,
+        transparent 78%,
+        rgba(255, 255, 255, 0.025)
+      );
+    box-shadow: none;
+  }
+
+  @include m.e(viewport) {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.e(previewer) {
+    transform-origin: center center;
+    transition: transform 0.18s ease;
+    will-change: transform;
+  }
+
+  &__viewport.is-pannable {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  &__viewport.is-dragging {
+    cursor: grabbing;
+  }
+
+  &__viewport.is-dragging &__previewer {
+    transition: none;
+    pointer-events: none;
   }
 
   @include m.e(empty) {
@@ -294,7 +556,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: fn.use-var(text-color, second);
+    color: rgba(255, 255, 255, 0.68);
   }
 
   @include m.e(image) {
@@ -303,25 +565,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: clamp(20px, 3vw, 44px);
     user-select: none;
 
     img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      transition: transform 0.3s ease;
       border-radius: 6px;
-      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+      background: #fff;
+      box-shadow: var(--u-file-viewer-page-shadow);
     }
+  }
 
-    @include m.is(actual) {
-      img {
-        max-width: none;
-        max-height: none;
-        object-fit: none;
-        cursor: zoom-out;
-      }
+  &.is-modal &__image {
+    padding: clamp(18px, 4vw, 64px);
+
+    img {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+      box-shadow:
+        0 38px 110px rgba(0, 0, 0, 0.52),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
     }
   }
 
@@ -340,20 +605,30 @@
     }
   }
 
+  &.is-modal &__video {
+    background: transparent;
+  }
+
   @include m.e(text) {
     position: absolute;
     inset: 0;
+    background: #111318;
+  }
+
+  &.is-modal &__text {
+    background: rgba(5, 7, 10, 0.76);
   }
 
   @include m.e(text-pre) {
+    min-width: max-content;
     margin: 0;
-    padding: 20px 24px;
+    padding: 22px 26px;
+    color: rgba(255, 255, 255, 0.86);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12.5px;
-    line-height: 1.55;
-    white-space: pre;
+    line-height: 1.65;
     tab-size: 2;
-    color: fn.use-var(text-color, main);
+    white-space: pre;
   }
 
   @include m.e(pdf) {
@@ -365,29 +640,47 @@
   @include m.e(pdf-viewport) {
     width: 100%;
     height: 100%;
-    background: fn.use-var(bg-color, middle);
+    background: transparent;
   }
 
   @include m.e(pdf-page) {
-    margin: 16px auto;
+    margin: 24px auto;
     background: #fff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--u-file-viewer-page-shadow);
+  }
+
+  &.is-modal &__pdf-page {
+    margin: clamp(24px, 3vw, 44px) auto;
+    box-shadow:
+      0 38px 110px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 
   @include m.e(docx) {
     position: absolute;
     inset: 0;
-    background: fn.use-var(bg-color, middle);
+    background: transparent;
   }
 
   @include m.e(docx-body) {
-    padding: 24px;
+    min-height: 100%;
+    padding: clamp(22px, 3vw, 44px);
 
     :deep(.u-file-viewer__docx-doc) {
       margin: 0 auto;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
       color: #222;
+      background: #fff;
+      box-shadow: var(--u-file-viewer-page-shadow);
+    }
+  }
+
+  &.is-modal &__docx-body {
+    padding: clamp(24px, 4vw, 64px);
+
+    :deep(.u-file-viewer__docx-doc) {
+      box-shadow:
+        0 38px 110px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
     }
   }
 
@@ -396,22 +689,34 @@
     inset: 0;
     display: flex;
     flex-direction: column;
-    background: fn.use-var(bg-color, middle);
+    background: fn.use-var(bg-color, top);
+  }
+
+  &.is-modal &__sheet {
+    background: rgba(8, 10, 14, 0.82);
   }
 
   @include m.e(sheet-note) {
     padding: 8px 16px;
-    font-size: 12px;
     color: fn.use-var(text-color, second);
     background: fn.use-var(bg-color, top);
     border-bottom: 1px solid fn.use-var(border, color);
+    font-size: 12px;
+    line-height: 1.4;
     flex-shrink: 0;
+  }
+
+  &.is-modal &__sheet-note,
+  &.is-modal &__sheet-tabs {
+    color: rgba(255, 255, 255, 0.62);
+    background: rgba(10, 12, 18, 0.78);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 
   @include m.e(sheet-tabs) {
     display: flex;
-    gap: 4px;
-    padding: 8px 12px;
+    gap: 6px;
+    padding: 9px 12px;
     border-bottom: 1px solid fn.use-var(border, color);
     background: fn.use-var(bg-color, top);
     flex-shrink: 0;
@@ -422,15 +727,16 @@
     flex-shrink: 0;
     height: 28px;
     padding: 0 12px;
-    border-radius: 6px;
     border: 1px solid transparent;
+    border-radius: 6px;
     background: transparent;
     color: fn.use-var(text-color, second);
     font-size: 12px;
     cursor: pointer;
     transition:
-      background 0.18s,
-      color 0.18s;
+      background 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease;
 
     &:hover {
       background: fn.use-var(bg-color, hover);
@@ -438,8 +744,24 @@
     }
 
     @include m.is(active) {
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 14%, transparent);
       color: fn.use-var(color, primary);
+      background: color-mix(in srgb, #{fn.use-var(color, primary)} 11%, transparent);
+      border-color: color-mix(in srgb, #{fn.use-var(color, primary)} 22%, transparent);
+    }
+  }
+
+  &.is-modal &__sheet-tab {
+    color: rgba(255, 255, 255, 0.58);
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    @include m.is(active) {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.13);
     }
   }
 
@@ -455,17 +777,51 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: fn.use-var(text-color, second);
+    color: rgba(255, 255, 255, 0.72);
+    background: color-mix(in srgb, var(--u-file-viewer-canvas) 74%, transparent);
     font-size: 13px;
     pointer-events: none;
+  }
+
+  @media (max-width: 720px) {
+    &:not(.is-modal) {
+      flex-direction: column;
+    }
+
+    &.is-modal {
+      flex-direction: column;
+    }
+
+    @include m.e(sidebar) {
+      width: 100% !important;
+      max-width: none;
+      height: 164px;
+      border-right: none;
+      border-bottom: 1px solid fn.use-var(border, color);
+    }
+
+    &.is-modal &__sidebar {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+      border-right: none;
+    }
+
+    @include m.e(stage-head) {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    @include m.e(stage-actions) {
+      justify-content: flex-start;
+      width: 100%;
+    }
   }
 }
 
 .u-file-viewer-fade-enter-active,
 .u-file-viewer-fade-leave-active {
   transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .u-file-viewer-fade-enter-from,
@@ -476,29 +832,15 @@
 
 .u-file-viewer-modal-enter-active,
 .u-file-viewer-modal-leave-active {
-  transition: opacity 0.22s ease;
+  transition: opacity 0.18s ease;
+  will-change: opacity;
+}
 
-  .u-file-viewer__inner {
-    transition:
-      opacity 0.24s ease,
-      transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .u-file-viewer__backdrop {
-    transition: opacity 0.22s ease;
-  }
+.u-file-viewer-modal-leave-active {
+  pointer-events: none;
 }
 
 .u-file-viewer-modal-enter-from,
 .u-file-viewer-modal-leave-to {
-  opacity: 1;
-
-  .u-file-viewer__inner {
-    opacity: 0;
-    transform: translateY(12px) scale(0.985);
-  }
-
-  .u-file-viewer__backdrop {
-    opacity: 0;
-  }
+  opacity: 0;
 }

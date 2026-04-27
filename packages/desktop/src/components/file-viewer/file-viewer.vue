@@ -20,15 +20,14 @@
                 v-for="f in normalizedFiles"
                 :key="f.id"
                 :class="[cls.e('item'), bem.is('active', f.id === activeId)]"
+                :title="f.name"
                 @click="activate(f.id)"
               >
-                <span :class="[cls.e('badge'), cls.em('badge', f.kind)]">
-                  {{ label(f.kind) }}
-                </span>
                 <span :class="cls.e('item-meta')">
                   <span :class="cls.e('item-name')" :title="f.name">{{ f.name }}</span>
                   <span :class="cls.e('item-size')">{{ formatBytes(f.size) }}</span>
                 </span>
+                <span :class="cls.e('item-kind')">{{ label(f.kind) }}</span>
               </li>
               <li v-if="!normalizedFiles.length" :class="cls.e('list-empty')">
                 <u-empty text="暂无文件" :size="32" />
@@ -42,27 +41,93 @@
                 <span v-if="activeFile" :class="[cls.e('badge'), cls.em('badge', activeFile.kind)]">
                   {{ label(activeFile.kind) }}
                 </span>
-                <span :class="cls.e('stage-name')">
-                  {{ activeFile?.name ?? '—' }}
-                </span>
-                <span v-if="activeFile?.size" :class="cls.e('stage-sub')">
-                  {{ formatBytes(activeFile.size) }}
+                <span :class="cls.e('stage-copy')">
+                  <span :class="cls.e('stage-name')" :title="activeFile?.name">
+                    {{ activeFile?.name ?? '—' }}
+                  </span>
+                  <span v-if="activeFile" :class="cls.e('stage-sub')">
+                    <span>{{ activeIndexLabel }}</span>
+                    <span v-if="activeFile.size">{{ formatBytes(activeFile.size) }}</span>
+                  </span>
                 </span>
               </div>
               <div :class="cls.e('stage-actions')">
-                <button :class="cls.e('action')" :disabled="!hasPrev" type="button" @click="prev">
-                  上一个
-                </button>
-                <button :class="cls.e('action')" :disabled="!hasNext" type="button" @click="next">
-                  下一个
-                </button>
+                <span :class="cls.e('action-group')">
+                  <button
+                    :class="[cls.e('action'), cls.em('action', 'icon')]"
+                    :disabled="!hasPrev"
+                    type="button"
+                    aria-label="上一个"
+                    title="上一个"
+                    @click="prev"
+                  >
+                    <u-icon :size="15">
+                      <ArrowLeft />
+                    </u-icon>
+                  </button>
+                  <button
+                    :class="[cls.e('action'), cls.em('action', 'icon')]"
+                    :disabled="!hasNext"
+                    type="button"
+                    aria-label="下一个"
+                    title="下一个"
+                    @click="next"
+                  >
+                    <u-icon :size="15">
+                      <ArrowRight />
+                    </u-icon>
+                  </button>
+                </span>
+                <span v-if="isTransformable" :class="cls.e('action-group')">
+                  <button
+                    :class="[cls.e('action'), cls.em('action', 'icon')]"
+                    :disabled="zoomOutDisabled"
+                    type="button"
+                    aria-label="缩小"
+                    title="缩小"
+                    @click="zoomOut"
+                  >
+                    <u-icon :size="15">
+                      <ZoomOut />
+                    </u-icon>
+                  </button>
+                  <span :class="cls.e('zoom-value')">{{ zoomPercent }}</span>
+                  <button
+                    :class="[cls.e('action'), cls.em('action', 'icon')]"
+                    :disabled="zoomInDisabled"
+                    type="button"
+                    aria-label="放大"
+                    title="放大"
+                    @click="zoomIn"
+                  >
+                    <u-icon :size="15">
+                      <ZoomIn />
+                    </u-icon>
+                  </button>
+                  <button
+                    :class="[cls.e('action'), cls.em('action', 'icon')]"
+                    :disabled="isTransformReset"
+                    type="button"
+                    aria-label="重置视图"
+                    title="重置视图"
+                    @click="resetTransform"
+                  >
+                    <u-icon :size="15">
+                      <Refresh />
+                    </u-icon>
+                  </button>
+                </span>
                 <button
                   v-if="downloadable && activeFile"
-                  :class="[cls.e('action'), cls.em('action', 'primary')]"
+                  :class="[cls.e('action'), cls.em('action', 'primary'), cls.em('action', 'icon')]"
                   type="button"
+                  aria-label="下载"
+                  title="下载"
                   @click="download"
                 >
-                  下载
+                  <u-icon :size="15">
+                    <Download />
+                  </u-icon>
                 </button>
                 <button
                   v-if="isModal"
@@ -80,14 +145,30 @@
             </header>
             <div :class="cls.e('body')">
               <transition name="u-file-viewer-fade" mode="out-in">
-                <component
-                  :is="PreviewerMap[activeFile.kind]"
+                <div
                   v-if="activeFile"
                   :key="activeFile.id"
-                  :file="activeFile"
-                  :max-rows="sheetMaxRows"
-                  @error="handleChildError"
-                />
+                  :class="[
+                    cls.e('viewport'),
+                    bem.is('transformable', isTransformable),
+                    bem.is('pannable', canPan),
+                    bem.is('dragging', isDragging)
+                  ]"
+                  @pointerdown="handleViewportPointerDown"
+                  @pointermove="handleViewportPointerMove"
+                  @pointerup="handleViewportPointerEnd"
+                  @pointercancel="handleViewportPointerEnd"
+                  @dblclick="handleViewportDblclick"
+                >
+                  <component
+                    :is="PreviewerMap[activeFile.kind]"
+                    :file="activeFile"
+                    :max-rows="sheetMaxRows"
+                    :class="isTransformable ? cls.e('previewer') : undefined"
+                    :style="previewerStyle"
+                    @error="handleChildError"
+                  />
+                </div>
                 <div v-else :class="cls.e('empty')">
                   <u-empty text="暂无可预览文件" />
                 </div>
@@ -101,9 +182,26 @@
 </template>
 
 <script lang="ts" setup>
-import { Close } from '@veltra/icons/normal'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Close,
+  Download,
+  Refresh,
+  ZoomIn,
+  ZoomOut
+} from '@veltra/icons/normal'
 import { bem, withUnit } from '@veltra/utils'
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, shallowRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  watch
+} from 'vue'
+import type { CSSProperties } from 'vue'
 
 import type {
   _FileViewerExposed,
@@ -136,10 +234,29 @@ const emit = defineEmits<FileViewerEmits>()
 
 const cls = bem('file-viewer')
 
+const MIN_SCALE = 0.5
+const MAX_SCALE = 3
+const SCALE_STEP = 0.25
+const TRANSFORMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf', 'docx'])
+
 const activeId = defineModel<string | undefined>('modelValue', { default: undefined })
 const openModel = defineModel<boolean | undefined>('open', { default: undefined })
 
 const rootRef = shallowRef<HTMLDivElement>()
+const scale = ref(1)
+const offsetX = ref(0)
+const offsetY = ref(0)
+const isDragging = ref(false)
+
+let dragState:
+  | {
+      pointerId: number
+      startX: number
+      startY: number
+      originX: number
+      originY: number
+    }
+  | undefined
 
 const PreviewerMap: Record<FileViewerKind, ReturnType<typeof defineAsyncComponent>> = {
   image: defineAsyncComponent(() => import('./previewers/image-previewer.vue')),
@@ -185,6 +302,33 @@ const sidebarWidthCss = computed(() => {
 /** 是否启用模态模式：只要父组件显式传入 open（含 v-model:open），即进入模态 */
 const isModal = computed(() => openModel.value !== undefined)
 
+const activeIndexLabel = computed(() =>
+  activeIndex.value >= 0 ? `${activeIndex.value + 1} / ${normalizedFiles.value.length}` : ''
+)
+
+const isTransformable = computed(
+  () => !!activeFile.value && TRANSFORMABLE_KINDS.has(activeFile.value.kind)
+)
+
+const canPan = computed(() => isTransformable.value && scale.value > 1)
+
+const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
+
+const zoomInDisabled = computed(() => !isTransformable.value || scale.value >= MAX_SCALE)
+
+const zoomOutDisabled = computed(() => !isTransformable.value || scale.value <= MIN_SCALE)
+
+const isTransformReset = computed(
+  () => scale.value === 1 && offsetX.value === 0 && offsetY.value === 0
+)
+
+const previewerStyle = computed<CSSProperties | undefined>(() => {
+  if (!isTransformable.value) return undefined
+  return {
+    transform: `translate3d(${offsetX.value}px, ${offsetY.value}px, 0) scale(${scale.value})`
+  }
+})
+
 function label(kind: FileViewerKind): string {
   return FILE_VIEWER_KIND_LABEL[kind]
 }
@@ -208,6 +352,83 @@ function next() {
   if (i < 0 || i >= normalizedFiles.value.length - 1) return
   const target = normalizedFiles.value[i + 1]
   if (target) activate(target.id)
+}
+
+function normalizeScale(value: number): number {
+  const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
+  return Math.round(clamped * 100) / 100
+}
+
+function setScale(value: number) {
+  scale.value = normalizeScale(value)
+  if (scale.value <= 1) {
+    offsetX.value = 0
+    offsetY.value = 0
+  }
+}
+
+function zoomIn() {
+  if (!isTransformable.value) return
+  setScale(scale.value + SCALE_STEP)
+}
+
+function zoomOut() {
+  if (!isTransformable.value) return
+  setScale(scale.value - SCALE_STEP)
+}
+
+function resetTransform() {
+  scale.value = 1
+  offsetX.value = 0
+  offsetY.value = 0
+  dragState = undefined
+  isDragging.value = false
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  return !!target.closest('button, a, input, textarea, select, video, [contenteditable="true"]')
+}
+
+function handleViewportPointerDown(e: PointerEvent) {
+  if (!canPan.value || e.button !== 0 || isInteractiveTarget(e.target)) return
+
+  dragState = {
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    originX: offsetX.value,
+    originY: offsetY.value
+  }
+  isDragging.value = true
+  const el = e.currentTarget as HTMLElement
+  el.setPointerCapture(e.pointerId)
+  e.preventDefault()
+}
+
+function handleViewportPointerMove(e: PointerEvent) {
+  if (!dragState || dragState.pointerId !== e.pointerId) return
+  offsetX.value = dragState.originX + e.clientX - dragState.startX
+  offsetY.value = dragState.originY + e.clientY - dragState.startY
+}
+
+function handleViewportPointerEnd(e: PointerEvent) {
+  if (!dragState || dragState.pointerId !== e.pointerId) return
+  const el = e.currentTarget as HTMLElement
+  if (el.hasPointerCapture(e.pointerId)) {
+    el.releasePointerCapture(e.pointerId)
+  }
+  dragState = undefined
+  isDragging.value = false
+}
+
+function handleViewportDblclick() {
+  if (!isTransformable.value) return
+  if (scale.value === 1) {
+    setScale(2)
+  } else {
+    resetTransform()
+  }
 }
 
 async function download() {
@@ -255,6 +476,11 @@ watch(
     }
   },
   { immediate: true }
+)
+
+watch(
+  () => activeFile.value?.id,
+  () => resetTransform()
 )
 
 // 模态打开时：锁定 body 滚动 + 让容器获得焦点以便接收 ESC

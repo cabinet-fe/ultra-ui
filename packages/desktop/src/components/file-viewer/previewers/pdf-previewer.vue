@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.e('pdf')">
+  <div :class="cls.e('pdf')" v-bind="attrs">
     <div v-if="!engine || isLoading" :class="cls.e('loading')">正在加载 PDF 引擎…</div>
     <EmbedPDF v-else-if="pdfUrl" :engine="engine" :plugins="plugins" v-slot="{ activeDocumentId }">
       <DocumentContent
@@ -36,17 +36,18 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue'
 import { ScrollPluginPackage, Scroller } from '@embedpdf/plugin-scroll/vue'
 import { ViewportPluginPackage, Viewport } from '@embedpdf/plugin-viewport/vue'
 import { bem } from '@veltra/utils'
-import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, shallowRef, useAttrs, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
 
-defineOptions({ name: 'FileViewerPdfPreviewer' })
+defineOptions({ name: 'FileViewerPdfPreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 
 const emit = defineEmits<{ (e: 'error', err: unknown): void }>()
 
 const cls = bem('file-viewer')
+const attrs = useAttrs()
 
 const { engine, isLoading, error } = usePdfiumEngine()
 

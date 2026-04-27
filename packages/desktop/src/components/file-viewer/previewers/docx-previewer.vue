@@ -1,5 +1,5 @@
 <template>
-  <u-scroll tag="div" :class="cls.e('docx')">
+  <u-scroll tag="div" :class="cls.e('docx')" v-bind="attrs">
     <div ref="container" :class="cls.e('docx-body')" />
     <div v-if="loading" :class="cls.e('loading')">加载中…</div>
   </u-scroll>
@@ -7,18 +7,19 @@
 
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
-import { onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { onBeforeUnmount, ref, useAttrs, useTemplateRef, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { UScroll } from '../../scroll'
 
-defineOptions({ name: 'FileViewerDocxPreviewer' })
+defineOptions({ name: 'FileViewerDocxPreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 
 const emit = defineEmits<{ (e: 'error', err: unknown): void }>()
 
 const cls = bem('file-viewer')
+const attrs = useAttrs()
 
 const container = useTemplateRef<HTMLDivElement>('container')
 const loading = ref(true)

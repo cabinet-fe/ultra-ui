@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.e('image'), bem.is('actual', actual)]">
+  <div :class="cls.e('image')" v-bind="attrs">
     <img
       v-if="url"
       :src="url"
@@ -7,7 +7,6 @@
       draggable="false"
       @load="loading = false"
       @error="onImgError"
-      @dblclick="actual = !actual"
     />
     <div v-if="loading" :class="cls.e('loading')">加载中…</div>
     <div v-if="failed" :class="cls.e('loading')">图片加载失败</div>
@@ -16,22 +15,22 @@
 
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
-import { onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, useAttrs, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
 
-defineOptions({ name: 'FileViewerImagePreviewer' })
+defineOptions({ name: 'FileViewerImagePreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 
 const emit = defineEmits<{ (e: 'error', err: unknown): void }>()
 
 const cls = bem('file-viewer')
+const attrs = useAttrs()
 
 const url = shallowRef<string>('')
 const loading = ref(true)
 const failed = ref(false)
-const actual = ref(false)
 
 let revoke: (() => void) | undefined
 
