@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.0.11
+
+### Patch Changes
+
+- 0b04546: 优化文件预览组件,样式更美观,体验更好
+- 8992a55: 优化 code-editor 组件, 使用 one-dark 主题
+  - @veltra/utils@1.0.11
+  - @veltra/styles@1.0.11
+  - @veltra/compositions@1.0.11
+  - @veltra/directives@1.0.11
+  - @veltra/icons@1.0.11
+
 ## 1.0.10
 
 ### Patch Changes

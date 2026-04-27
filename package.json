@@ -34,6 +34,7 @@
     "sync-skills": "bun tools/skills-sync/sync-all.ts"
   },
   "dependencies": {
+    "@cat-kit/core": "^1.1.3",
     "@cat-kit/fe": "^1.1.3"
   },
   "devDependencies": {
