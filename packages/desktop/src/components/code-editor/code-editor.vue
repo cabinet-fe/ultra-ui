@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
 import { EditorState } from '@codemirror/state'
+import { oneDark } from '@codemirror/theme-one-dark'
 import { tooltips } from '@codemirror/view'
 import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { bem, zIndex } from '@veltra/utils'
@@ -56,6 +57,7 @@ async function renderEditor() {
 
   const extensions = [
     basicSetup,
+    oneDark,
     tooltips({
       parent: document.body
     }),
