@@ -1,55 +1,11 @@
 {
   "version": 1,
   "skills": {
-    "ac-workflow": {
+    "cat-kit": {
       "source": "cabinet-fe/cat-kit",
+      "ref": "main",
       "sourceType": "github",
-      "computedHash": "79d2726abb8d7c8861eb9f6dc07285302d94376d81cf44d309855b7588cf266b"
-    },
-    "cat-kit-agent-context": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "624b52310cfaaf1993f474494f4491e8b5b0c351bebbc7357d664cecb06e4e04"
-    },
-    "cat-kit-be": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "88915a19a918591990d84e044e2dba8024940d2bfc90d5e554ff751b08e92afe"
-    },
-    "cat-kit-cli": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "6078a752bd439ebc0b69b58422707b2dee6fad1a29bbb4bae9498ae1aeba1f08"
-    },
-    "cat-kit-core": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "5cd90295e1d277f57ae574129aac842fb1b04fcb8a4853a757d4a3bed7eaf57e"
-    },
-    "cat-kit-fe": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "9ce248175e1e3173706d8ac5634a8dd6110cd8af0ac0da81905a715ae6ac3acb"
-    },
-    "cat-kit-http": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "66994443a82dc33d32e93470a8af3de5525e81101040f238fe4e951d0116bc1f"
-    },
-    "cat-kit-tsconfig": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "13c02070e480405be2b9cab83b89687c67d7305c021ce0ff35d9d82b9f78f4bc"
-    },
-    "cat-kit-vitepress-theme": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "8be7471312c8506840e6eddf080f1c4a2a14459b6bacf5a6e280bca14ea5aa1a"
-    },
-    "use-cat-kit": {
-      "source": "cabinet-fe/cat-kit",
-      "sourceType": "github",
-      "computedHash": "800464b3ab29ff0cca4056ecd41dc3d663a9b10297bdc5960a643794c49faae4"
+      "computedHash": "2073524d332d74b3db1b96432bf52cccaac8c36f0fa1b13bdf43dee398d1d177"
     }
   }
 }
