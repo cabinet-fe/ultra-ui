@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.0.10
+
+### Patch Changes
+
+- f1bce93: 修复样式导入入口副作用丢失的问题
+  - @veltra/utils@1.0.10
+  - @veltra/compositions@1.0.10
+
 ## 1.0.9
 
 ### Patch Changes
