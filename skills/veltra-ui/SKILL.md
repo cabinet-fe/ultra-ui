@@ -1,7 +1,7 @@
 ---
 name: veltra-ui
 description: >
-  Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件、组合式函数、自定义指令、
+  Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件目录、80+ U 组件导出、组合式函数、自定义指令、
   SCSS/BEM 样式体系、主题系统、图标库及 Vite 插件。当你需要在项目中使用 @veltra/* 生态包时，
   本技能提供精确的 API 签名、类型定义和实际代码示例。
 ---
@@ -21,7 +21,7 @@ bun add @veltra/vite -D
 
 | 包名                   | 范畴                | 文档入口                                               | 常用场景                           |
 | ---------------------- | ------------------- | ------------------------------------------------------ | ---------------------------------- |
-| `@veltra/desktop`      | 70+ Vue 3 组件      | packages/desktop/index.md | 使用组件、查询 Props/Emits/Slots   |
+| `@veltra/desktop`      | 70+ 组件目录 / 80+ U 组件导出 | packages/desktop/index.md | 使用组件、查询 Props/Emits/Slots   |
 | `@veltra/compositions` | 13 个组合式函数     | packages/compositions.md   | 表单回退、浮框定位、拖拽、虚拟滚动 |
 | `@veltra/directives`   | 3 个自定义指令      | packages/directives.md       | v-ripple、v-click-outside、v-focus |
 | `@veltra/utils`        | 工具函数 + 共享类型 | packages/utils.md                 | BEM 类名、类型定义、常量           |
@@ -64,5 +64,6 @@ bun add @veltra/vite -D
 ## 约定
 
 - 所有导入均通过主包路径 `@veltra/desktop` 引入，示例 `import { UButton } from '@veltra/desktop'`
+- 全局安装通过 `@veltra/desktop/install` 引入，示例 `import UltraUI from '@veltra/desktop/install'`
 - 类型导入使用 `import type { ButtonProps } from '@veltra/desktop'`
 - CSS 类名前缀 `u-`，组件名前缀 `U`，指令名前缀 `v`

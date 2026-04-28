@@ -22,7 +22,7 @@
 
 | 文档 | 内容 |
 |------|------|
-| packages/desktop/index.md | **全部 73 个组件索引**（按字母序） |
+| packages/desktop/index.md | **70+ 组件目录 / 80+ U 组件导出索引**（按字母序） |
 | packages/desktop/installation.md | 安装、注册、按需引入 |
 | packages/desktop/patterns.md | Props/Emits/Slots/Exposed 通用模式 |
 | `packages/desktop/components/*.md` | 每个组件的独立文档（Props/Emits/示例） |

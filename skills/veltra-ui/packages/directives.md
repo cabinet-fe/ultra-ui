@@ -218,7 +218,7 @@ app.directive('focus', vFocus)
 app.mount('#app')
 ```
 
-使用 `@veltra/desktop` 的 `app.use(UltraUI)` 会自动注册全部指令。
+使用 `@veltra/desktop/install` 的 `app.use(UltraUI)` 会自动注册这些指令，并额外注册 `v-loading`。
 
 ---
 
@@ -226,4 +226,3 @@ app.mount('#app')
 
 - desktop/components/button.md — Button 组件内置 `v-ripple`
 - desktop/components/dialog.md — Dialog 中常用 `v-click-outside`
-

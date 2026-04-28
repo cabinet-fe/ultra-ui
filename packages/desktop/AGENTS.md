@@ -121,6 +121,7 @@ app.use(UltraUI)
 | ------------------------- | ------------------------------- |
 | `@veltra/desktop`         | 全部组件 + 类型                 |
 | `@veltra/desktop/install` | 全局注册函数                    |
+| `@veltra/desktop/style`   | 全量组件样式                    |
 | `@veltra/desktop/*`       | 深度子路径（按需引入组件/类型） |
 
 ## 依赖

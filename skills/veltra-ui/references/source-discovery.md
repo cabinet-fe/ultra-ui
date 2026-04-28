@@ -19,17 +19,17 @@ ls node_modules/@veltra/vite/dist/
 
 | 包 | 产物入口 | 类型声明入口 |
 |---|---|---|
-| `@veltra/desktop` | `dist/index.mjs` | `dist/index.d.mts` |
-| `@veltra/compositions` | `dist/index.mjs` | `dist/index.d.mts` |
-| `@veltra/utils` | `dist/index.mjs` | `dist/index.d.mts` |
-| `@veltra/styles` | `dist/index.mjs`（副作用入口） | `dist/index.d.mts` |
-| `@veltra/directives` | `dist/index.mjs` | `dist/index.d.mts` |
-| `@veltra/icons` | `dist/index.mjs` | `dist/index.d.mts` |
+| `@veltra/desktop` | `dist/index.js` | `dist/index.d.ts` |
+| `@veltra/compositions` | `dist/index.js` | `dist/index.d.ts` |
+| `@veltra/utils` | `dist/index.js` | `dist/index.d.ts` |
+| `@veltra/styles` | `dist/index.js` | `dist/index.d.ts` |
+| `@veltra/directives` | `dist/index.js` | `dist/index.d.ts` |
+| `@veltra/icons` | `dist/index.js` | `dist/index.d.ts` |
 | `@veltra/vite` | `dist/index.mjs` | `dist/index.d.mts` |
 
 ## 子路径导出
 
-各包均支持子路径导出，可按需引入：
+各包通过 `package.json` 的 `exports` 声明子路径，可按需引入：
 
 ```ts
 // 按需引入组件
@@ -64,8 +64,8 @@ jq '.exports' node_modules/@veltra/compositions/package.json
 
 ```bash
 # 查看所有可用类型
-cat node_modules/@veltra/desktop"export.*Props"
-cat node_modules/@veltra/desktop"export.*Emits"
+rg "export .*Props" node_modules/@veltra/desktop/dist/index.d.ts
+rg "export .*Emits" node_modules/@veltra/desktop/dist/index.d.ts
 ```
 
 ```ts
@@ -92,4 +92,3 @@ export default {
   }
 }
 ```
-

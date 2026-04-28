@@ -37,6 +37,8 @@ Resolver 返回的样式副作用路径 `@veltra/desktop/components/<dir>/style`
 | `vite dev`（开发）   | `development` | `src/components/<dir>/style.ts`  | 源码 SCSS 管线，支持 HMR |
 | `vite build`（生产） | `import`      | `dist/components/<dir>/style.js` | 预编译，CSS 已 inject    |
 
+Resolver 只解析当前 `@veltra/desktop` 真实导出的 `U*` 组件名；未知组件名不会被映射到不存在的导出。`include` / `exclude` 使用样式目录名过滤，`importStyle` 控制是否返回样式副作用。
+
 ## 共目录组件映射
 
 部分子组件与父组件共享同一目录和 `style.ts`，resolver 内部维护 `SHARED_STYLE_DIR` 映射表：
@@ -50,6 +52,7 @@ Resolver 返回的样式副作用路径 `@veltra/desktop/components/<dir>/style`
 | `grid-item`                        | `grid`     |
 | `list-item`                        | `list`     |
 | `menu-sub/item`                    | `menu`     |
+| `tabs-horizontal/vertical`          | `tabs`     |
 
 ## 依赖
 

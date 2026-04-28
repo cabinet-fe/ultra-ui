@@ -7,6 +7,12 @@
 | installation.md | 安装、注册、按需引入 |
 | patterns.md | Props/Emits/Slots/Exposed 通用约定 |
 
+## 导出事实
+
+- `@veltra/desktop` 根入口只导出组件、函数和类型；全局 plugin 从 `@veltra/desktop/install` 引入。
+- 当前组件目录为 70+，`U*` 组件导出为 80+；以本页列表和 `packages/desktop/src/components/index.ts` 为准。
+- 当前没有 `UAvatar` / `avatar` 组件导出。
+
 ## 所有组件
 
 | 组件 | 文档 |

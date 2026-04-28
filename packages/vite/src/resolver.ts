@@ -2,6 +2,17 @@ import type { ComponentResolver } from 'unplugin-vue-components/types'
 
 export interface VeltraDesktopUIResolverOptions {
   /**
+   * Component style directories to exclude.
+   * @example ['button', 'loading']
+   */
+  exclude?: string[]
+  /**
+   * Component style directories to include. Empty or omitted means all known
+   * desktop components are eligible.
+   * @example ['button', 'input', 'dialog']
+   */
+  include?: string[]
+  /**
    * Whether to import component styles as side effects.
    * @default true
    */
@@ -31,6 +42,94 @@ const SHARED_STYLE_DIR: Record<string, string> = {
   'tabs-vertical': 'tabs'
 }
 
+const DESKTOP_COMPONENTS = new Set([
+  'UAction',
+  'UActionGroup',
+  'UAutoComplete',
+  'UBadge',
+  'UBatchEdit',
+  'UBreadcrumb',
+  'UButton',
+  'UButtonGroup',
+  'UCalendar',
+  'UCard',
+  'UCardAction',
+  'UCardContent',
+  'UCardCover',
+  'UCardHeader',
+  'UCascade',
+  'UCheckTag',
+  'UCheckbox',
+  'UCheckboxButton',
+  'UCheckboxGroup',
+  'UCodeEditor',
+  'UConditionEditor',
+  'UContextMenu',
+  'UDatePanel',
+  'UDatePicker',
+  'UDateRangePicker',
+  'UDialog',
+  'UDrawer',
+  'UDropdown',
+  'UEmpty',
+  'UExpressionEditor',
+  'UFilePicker',
+  'UFileViewer',
+  'UFloatButton',
+  'UForm',
+  'UFormItem',
+  'UGanttChart',
+  'UGrid',
+  'UGridInput',
+  'UGridItem',
+  'UGroupInput',
+  'UIcon',
+  'UInput',
+  'ULayout',
+  'UList',
+  'UListItem',
+  'ULoading',
+  'UMenu',
+  'UMenuItem',
+  'UMenuSub',
+  'UMessage',
+  'UMessageConfirm',
+  'UMultiSelect',
+  'UMultiTreeSelect',
+  'UNodeRender',
+  'UNotification',
+  'UNumber',
+  'UNumberInput',
+  'UNumberRangeInput',
+  'UPaginator',
+  'UPalette',
+  'UPasswordInput',
+  'UPopConfirm',
+  'UProgress',
+  'UProgressNodes',
+  'URadio',
+  'URadioGroup',
+  'URichTextEditor',
+  'UScroll',
+  'USelect',
+  'USlider',
+  'USteps',
+  'USwitch',
+  'UTable',
+  'UTableEditor',
+  'UTabs',
+  'UTabsHorizontal',
+  'UTabsVertical',
+  'UTag',
+  'UText',
+  'UTextarea',
+  'UTheme',
+  'UTip',
+  'UTree',
+  'UTreeSelect',
+  'UWatermark'
+])
+
 function pascalToKebab(str: string): string {
   return str.replace(/[A-Z]/g, (char, index) => (index > 0 ? '-' : '') + char.toLowerCase())
 }
@@ -48,15 +147,19 @@ function pascalToKebab(str: string): string {
 export function VeltraDesktopUIResolver(
   options: VeltraDesktopUIResolverOptions = {}
 ): ComponentResolver {
-  const { importStyle = true } = options
+  const { exclude = [], importStyle = true, include = [] } = options
+  const excluded = new Set(exclude)
+  const included = new Set(include)
 
   return {
     type: 'component',
     resolve(name: string) {
-      if (!/^U[A-Z]/.test(name)) return
+      if (!DESKTOP_COMPONENTS.has(name)) return
 
       const kebabName = pascalToKebab(name.slice(1))
       const styleDir = SHARED_STYLE_DIR[kebabName] ?? kebabName
+      if (excluded.has(styleDir)) return
+      if (included.size > 0 && !included.has(styleDir)) return
 
       return {
         name,

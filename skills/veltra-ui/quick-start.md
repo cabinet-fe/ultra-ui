@@ -10,7 +10,7 @@
 bun add @veltra/desktop @veltra/icons
 ```
 
-`@veltra/desktop` 自动带入 `@veltra/utils`、`@veltra/compositions`、`@veltra/directives`、`@veltra/styles` 等 peer 依赖。详细安装及配置见 [installation.md → 安装](packages/desktop/installation.md#安装)。
+`@veltra/desktop` 声明了 `@veltra/utils`、`@veltra/compositions`、`@veltra/directives`、`@veltra/styles`、`@veltra/icons` 等 workspace peer；大多数包管理器会自动处理。详细安装及配置见 [installation.md → 安装](packages/desktop/installation.md#安装)。
 
 ## 全局注册
 
@@ -18,14 +18,14 @@ bun add @veltra/desktop @veltra/icons
 // main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
-import UltraUI from '@veltra/desktop'
+import UltraUI from '@veltra/desktop/install'
 
 const app = createApp(App)
 app.use(UltraUI)
 app.mount('#app')
 ```
 
-`app.use(UltraUI)` 注册全部 `U*` 组件 + `v*` 指令并注入样式。详见 [installation.md → 全局注册](packages/desktop/installation.md#全局注册)。
+`app.use(UltraUI)` 注册全部 `U*` 组件、`v-ripple` / `v-click-outside` / `v-focus` / `v-loading` 指令，并注入全部组件样式。`@veltra/desktop` 根入口只提供 named exports，不提供默认 plugin。详见 [installation.md → 全局注册](packages/desktop/installation.md#全局注册)。
 
 ## 按需引入
 
@@ -33,6 +33,8 @@ app.mount('#app')
 <script setup lang="ts">
 import { UButton } from '@veltra/desktop'
 import { UInput } from '@veltra/desktop'
+import '@veltra/desktop/components/button/style'
+import '@veltra/desktop/components/input/style'
 </script>
 
 <template>
@@ -41,7 +43,7 @@ import { UInput } from '@veltra/desktop'
 </template>
 ```
 
-样式自动通过 `style.ts` 副作用入口加载。详见 [installation.md → 按需引入](packages/desktop/installation.md#按需引入)。
+手动按需引入时需要同时导入对应组件的 `style` 子路径；使用 Vite 自动导入时 resolver 会自动注入样式副作用。详见 [installation.md → 按需引入](packages/desktop/installation.md#按需引入)。
 
 ## Vite 自动导入（推荐）
 
@@ -102,4 +104,3 @@ loadTheme()
 - [core-concepts.md](core-concepts.md) — 理解 BEM 类名、主题系统和组件模式
 - [packages/desktop/index.md](packages/desktop/index.md) — 浏览全部组件
 - [packages/styles.md](packages/styles.md) — 深入了解样式和主题
-

@@ -41,16 +41,22 @@ export default defineConfig({
 ```ts
 interface VeltraDesktopUIResolverOptions {
   /**
-   * 排除特定组件（组件目录名）
+   * 排除特定组件样式目录名
    * @example ['button', 'loading']
    */
   exclude?: string[]
 
   /**
-   * 仅包含特定组件
+   * 仅包含特定组件样式目录名
    * @example ['button', 'input', 'dialog']
    */
   include?: string[]
+
+  /**
+   * 是否自动导入组件样式副作用
+   * @default true
+   */
+  importStyle?: boolean
 }
 ```
 
@@ -76,8 +82,7 @@ VeltraDesktopUIResolver({
    - `import { UButton } from '@veltra/desktop'`
    - 自动加载对应的 `style.ts` 副作用入口
 
-2. 图标组件同样自动解析：
-   - `<Search>` → `import { Search } from '@veltra/icons/normal'`
+2. 解析器只处理 `@veltra/desktop` 真实导出的 `U*` 组件；不存在的组件名（如 `UAvatar`）不会被解析。
 
 3. 开发模式 vs 生产模式：
    - **开发模式**：解析源码中的 `style.ts`（包含完整 SCSS）
@@ -139,11 +144,11 @@ export default defineConfig({
 
 - 模板中组件名支持 `PascalCase`（`<UButton>`）和 `kebab-case`（`<u-button>`）两种写法
 - 异步组件（`defineAsyncComponent`）需要手动导入，不在解析器范围内
-- 指令（`v-ripple` 等）需要手动全局注册或按需导入
+- 指令（`v-ripple` 等）需要手动全局注册、按需导入，或通过 `@veltra/desktop/install` 注册
 
 ---
 
 ## 相关文档
 
 - ../quick-start.md — 完整的项目初始化配置
-- icons.md — 图标自动导入
+- icons.md — 图标组件导入

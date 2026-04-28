@@ -87,21 +87,17 @@ import { Logo, BrandIcon } from '@veltra/icons/colorful'
 
 ## Vite 自动导入
 
-配置 `unplugin-vue-components` + `VeltraDesktopUIResolver` 后，可直接在模板中使用图标而无需手动 import：
+`@veltra/vite` 当前只提供 `@veltra/desktop` 的 `U*` 组件 resolver，不解析 `@veltra/icons`。图标默认使用手动 import：
 
-```vue
-<template>
-  <!-- 自动导入 -->
-  <Search />
-  <Close />
-  <ArrowDown />
-</template>
+```ts
+import { Search, Close, ArrowDown } from '@veltra/icons/normal'
 ```
+
+如果项目希望自动导入图标，需要为 `unplugin-vue-components` 额外配置自定义 resolver。
 
 ---
 
 ## 相关文档
 
 - desktop/components/icon.md — UIcon 组件用法
-- vite.md — Vite 自动导入配置
-
+- vite.md — `@veltra/desktop` 组件自动导入配置

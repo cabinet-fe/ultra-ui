@@ -10,7 +10,7 @@ const dir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(dir, '../..')
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/components/**/style.ts'],
+  entry: ['src/index.ts', 'src/install.ts', 'src/style.ts', 'src/components/**/style.ts'],
   format: ['esm'],
   /** 组件 style.ts 多为「仅副作用、无导出」链；默认摇树会裁掉对其它 style 的 import，导致 dist 丢失依赖 CSS。 */
   treeshake: {

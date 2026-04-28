@@ -12,7 +12,7 @@
 
 - 🎯 **极致性能** - 精心优化，确保每个组件都能提供卓越性能
 - 💎 **TypeScript** - 完全使用 TypeScript 开发，提供完整的类型定义
-- 🎨 **60+ 组件** - 丰富的组件库，覆盖常见业务场景
+- 🎨 **70+ 组件目录 / 80+ U 组件导出** - 丰富的组件库，覆盖常见业务场景
 - 📦 **按需引入** - 支持 Tree Shaking，减小打包体积
 - 🛠️ **开发友好** - 清晰的代码结构，易于维护和扩展
 - 🌈 **现代化** - 基于 Vue 3.5+ 最新特性开发
@@ -22,25 +22,25 @@
 使用 bun（推荐）：
 
 ```bash
-bun add ultra-ui
+bun add @veltra/desktop @veltra/icons
 ```
 
 使用 npm：
 
 ```bash
-npm install ultra-ui
+npm install @veltra/desktop @veltra/icons
 ```
 
 使用 yarn：
 
 ```bash
-yarn add ultra-ui
+yarn add @veltra/desktop @veltra/icons
 ```
 
 使用 pnpm：
 
 ```bash
-pnpm add ultra-ui
+pnpm add @veltra/desktop @veltra/icons
 ```
 
 ## 🚀 快速开始
@@ -49,8 +49,7 @@ pnpm add ultra-ui
 
 ```ts
 import { createApp } from 'vue'
-import { UltraUI } from 'ultra-ui/install'
-import 'ultra-ui/styles'
+import UltraUI from '@veltra/desktop/install'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -68,8 +67,9 @@ app.mount('#app')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UButton, UInput } from 'ultra-ui'
-import 'ultra-ui/styles'
+import { UButton, UInput } from '@veltra/desktop'
+import '@veltra/desktop/components/button/style'
+import '@veltra/desktop/components/input/style'
 
 const value = ref('')
 const handleClick = () => {
@@ -101,52 +101,51 @@ bun install
 ### 启动开发服务器
 
 ```bash
-cd sample
-bun run dev
+cd playgrounds/desktop
+bun dev
 ```
 
 ### 构建组件库
 
 ```bash
-cd build
 bun run build
 ```
 
 ### 生成新组件
 
 ```bash
-bun run gen
+bun tools/cli/gen-component/index.ts
 ```
 
 ## 📁 项目结构
 
 ```
 ultra-ui/
-├── ui/                # 组件源代码
-│   ├── components/   # 所有组件
-│   ├── compositions/ # 组合式函数
-│   ├── directives/   # 自定义指令
-│   ├── styles/       # 样式文件
-│   ├── types/        # TypeScript 类型定义
-│   └── utils/        # 工具函数
-├── sample/           # 组件示例和演示
-├── build/            # 构建脚本
-├── cli/              # 命令行工具
-└── dist/             # 构建输出目录
+├── packages/
+│   ├── desktop/      # @veltra/desktop 桌面端组件库
+│   ├── compositions/ # @veltra/compositions 组合式函数
+│   ├── directives/   # @veltra/directives 自定义指令
+│   ├── styles/       # @veltra/styles 样式与主题
+│   ├── icons/        # @veltra/icons SVG 图标组件
+│   └── utils/        # @veltra/utils 工具函数与共享类型
+├── playgrounds/
+│   └── desktop/      # 桌面端组件开发预览
+└── tools/cli/        # 开发辅助 CLI
 ```
 
 ## 💻 脚本命令
 
-- `bun run gen` - 生成新组件
-- `bun run export` - 导出组件
-- `bun run rename:types` - 重命名类型
+- `bun tools/cli/gen-component/index.ts` - 生成新组件
+- `bun tools/cli/export/index.ts` - 重新导出组件
+- `bun run check-types` - 类型检查
+- `bun run build` - 构建各包
 - `bun update` - 更新依赖
 
 ## 🛠️ 技术栈
 
 - **Vue 3.5** - 渐进式 JavaScript 框架
-- **TypeScript 5.9** - JavaScript 的超集
-- **Vite (Rolldown)** - 下一代前端构建工具
+- **TypeScript 6** - JavaScript 的超集
+- **tsdown + Rolldown** - 组件库构建
 - **SCSS** - CSS 预处理器
 - **Vitest** - 单元测试框架
 - **Bun** - 快速的 JavaScript 运行时

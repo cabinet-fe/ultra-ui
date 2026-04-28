@@ -7,6 +7,12 @@
   ],
   "type": "module",
   "sideEffects": [
+    "src/install.ts",
+    "src/style.ts",
+    "src/**/style.ts",
+    "src/**/*.scss",
+    "dist/install.js",
+    "dist/style.js",
     "dist/**/style.js",
     "dist/**/*.css"
   ],
@@ -15,6 +21,16 @@
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./install": {
+      "development": "./src/install.ts",
+      "types": "./dist/install.d.ts",
+      "import": "./dist/install.js"
+    },
+    "./style": {
+      "development": "./src/style.ts",
+      "types": "./dist/style.d.ts",
+      "import": "./dist/style.js"
     },
     "./*": {
       "development": "./src/*",
