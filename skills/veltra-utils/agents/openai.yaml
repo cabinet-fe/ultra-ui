@@ -1,4 +1,0 @@
-interface:
-  display_name: 'Veltra Utils'
-  short_description: 'Work with @veltra/utils helpers, types, and exports'
-  default_prompt: 'Use $veltra-utils to inspect or modify @veltra/utils helpers, shared types, or exports in this repo.'
