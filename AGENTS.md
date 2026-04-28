@@ -10,9 +10,11 @@ cd playgrounds/desktop && bun dev            # 启动开发预览 (端口 7788)
 bun tools/cli/gen-component/index.ts         # 交互式生成新组件
 bun tools/cli/export/index.ts               # 重新导出组件
 bun run build                               # turbo run build（各包 tsdown 拓扑 → dist/）
+bun run build:packages                      # 只构建 packages（发布 CI 使用，排除 @veltra/mobile）
 bun run check-types                         # turbo run check-types
 bun run test                                # turbo run test（playground 调根目录 scripts/vitest-run.ts 跑 vitest）
-bun run changeset                           # 记录变更（见 RELEASE.md：Version PR 仅 bump；推送 v*.*.* tag 后 CI 发布）
+bun run changeset                           # 记录变更（见 RELEASE.md）
+bun run release                             # dev 分支本地落版本号并推送；CI 自动测试/构建/发布/release notes
 bun run lint                                 # oxlint
 bun run format                               # oxfmt
 ```

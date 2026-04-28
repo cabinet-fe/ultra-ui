@@ -10,6 +10,7 @@
   "include": [
     "playgrounds/desktop/vite.config.ts",
     "playgrounds/icons/vite.config.ts",
+    "scripts/*.ts",
     "packages/icons/scripts/*.ts",
     "packages/**/tsdown.config.ts"
   ]

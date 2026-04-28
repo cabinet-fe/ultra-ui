@@ -18,6 +18,7 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*' --filter='!@veltra/mobile'",
     "check-types": "turbo run check-types",
     "dev": "turbo run dev",
     "test": "turbo run test",
@@ -30,7 +31,7 @@
     "format": "oxfmt .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter='@veltra/*' --filter='!@veltra/mobile' && bun tools/cli/release/with-resolved-workspace-versions.ts changeset publish",
+    "release": "bun run scripts/release.ts",
     "sync-skills": "bun tools/skills-sync/sync-all.ts"
   },
   "dependencies": {

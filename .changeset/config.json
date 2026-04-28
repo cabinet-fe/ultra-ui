@@ -14,7 +14,7 @@
   ],
   "linked": [],
   "access": "public",
-  "baseBranch": "main",
+  "baseBranch": "dev",
   "updateInternalDependencies": "patch",
   "ignore": ["@veltra/mobile", "cli", "play-desktop", "play-icons"]
 }
