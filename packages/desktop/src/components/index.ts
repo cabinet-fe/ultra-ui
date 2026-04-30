@@ -141,3 +141,4 @@ export * from './watermark'
 export * from './progress-nodes'
 
 export * from './file-viewer'
+export * from './collapse'

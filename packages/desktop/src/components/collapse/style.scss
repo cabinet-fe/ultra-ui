@@ -1,0 +1,76 @@
+@use 'sass:map';
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/vars';
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: collapse;
+
+@include m.b($root-name) {
+  border-top: fn.use-var(border);
+  border-bottom: fn.use-var(border);
+
+  @include m.e(item) {
+    &:not(:first-child) {
+      border-top: fn.use-var(border);
+    }
+  }
+
+  @include m.e(header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: fn.use-var(gap, default) 0;
+    cursor: pointer;
+    font-size: fn.use-var(font-size-title, default);
+    color: fn.use-var(text-color, title);
+    transition: color fn.use-var(transition, normal);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, placeholder);
+      &:hover {
+        color: fn.use-var(text-color, placeholder);
+      }
+    }
+
+    @include m.is(active) {
+      & + #{fn.bem($root-name, content-wrapper)} {
+        grid-template-rows: 1fr;
+      }
+
+      #{fn.bem($root-name, icon)} {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    font-weight: bold;
+  }
+
+  @include m.e(icon) {
+    transition: transform fn.use-var(transition, normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.e(content-wrapper) {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows fn.use-var(transition, normal);
+    overflow: hidden;
+  }
+
+  @include m.e(content) {
+    min-height: 0;
+    padding-bottom: fn.use-var(gap, default);
+    color: fn.use-var(text-color, default);
+    font-size: fn.use-var(font-size-main, default);
+  }
+}
