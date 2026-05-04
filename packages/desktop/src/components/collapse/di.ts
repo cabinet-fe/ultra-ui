@@ -1,13 +1,15 @@
-import type { BEM } from '@veltra/utils'
-import type { ComputedRef, InjectionKey } from 'vue'
+import type { BEM, ComponentSize } from '@veltra/utils'
+import type { Component, ComputedRef, InjectionKey } from 'vue'
 
-import type { CollapseProps } from '../../types'
+import type { CollapseIconPosition, CollapseValue } from '../../types'
 
 export interface CollapseContext {
-  cls: BEM
-  collapseProps: CollapseProps
-  activeValues: ComputedRef<(string | number)[]>
-  handleItemClick: (value: string | number) => void
+  cls: BEM<'collapse'>
+  size: ComputedRef<ComponentSize>
+  iconPosition: ComputedRef<CollapseIconPosition>
+  expandIcon: ComputedRef<Component | undefined>
+  activeValues: ComputedRef<CollapseValue[]>
+  toggle: (value: CollapseValue) => void
 }
 
 export const CollapseDIKey: InjectionKey<CollapseContext> = Symbol('Collapse')

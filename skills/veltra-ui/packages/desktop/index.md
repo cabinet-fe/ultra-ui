@@ -30,6 +30,7 @@
 | **UCheckbox** / UCheckboxButton | components/checkbox.md |
 | **UCheckboxGroup** | components/checkbox-group.md |
 | **UCodeEditor** | components/code-editor.md |
+| **UCollapse** / UCollapseItem | components/collapse.md |
 | **UConditionEditor** | components/condition-editor.md |
 | **UContextMenu** (contextmenu API) | components/context-menu.md |
 | **UDatePanel** | components/date-panel.md |

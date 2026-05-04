@@ -28,6 +28,7 @@ export interface VeltraDesktopUIResolverOptions {
  */
 const SHARED_STYLE_DIR: Record<string, string> = {
   'button-group': 'button',
+  'collapse-item': 'collapse',
   'action-group': 'action',
   'card-header': 'card',
   'card-cover': 'card',
@@ -60,6 +61,8 @@ const DESKTOP_COMPONENTS = new Set([
   'UCascade',
   'UCheckTag',
   'UCheckbox',
+  'UCollapse',
+  'UCollapseItem',
   'UCheckboxButton',
   'UCheckboxGroup',
   'UCodeEditor',

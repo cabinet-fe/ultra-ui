@@ -5,72 +5,182 @@
 
 $root-name: collapse;
 
-@include m.b($root-name) {
-  border-top: fn.use-var(border);
-  border-bottom: fn.use-var(border);
+// 与 tabs/menu 一致的 Material standard 缓动
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: 0.18s $ease;
+$transition-normal: 0.24s $ease;
 
-  @include m.e(item) {
-    &:not(:first-child) {
-      border-top: fn.use-var(border);
+// 各尺寸的水平 / 垂直内边距：决定 header 和 content 的呼吸感
+// 节奏在配置项分组场景下既不过紧、也不过松
+$header-padding-x: (
+  small: 12px,
+  default: 16px,
+  large: 20px
+);
+$header-padding-y: (
+  small: 10px,
+  default: 14px,
+  large: 18px
+);
+
+@include m.b($root-name) {
+  width: 100%;
+  font-size: fn.use-var(font-size-main, default);
+  color: fn.use-var(text-color, main);
+
+  // ===== Bordered（默认）：整体一张卡片，项之间细线分隔 =====
+  // 面向"配置项分组"场景：清晰边界 + 克制反馈，不抢内部控件视觉
+  @include m.is(bordered) {
+    border: 1px solid fn.use-var(border, color);
+    border-radius: calc(fn.use-var(radius, large) + 2px);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 1px 3px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+
+    @include m.e(item) {
+      &:not(:first-child) {
+        border-top: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 60%, transparent);
+      }
     }
   }
 
+  // ===== Item 通用 =====
+  @include m.e(item) {
+    @include m.is(disabled) {
+      opacity: 0.55;
+    }
+  }
+
+  // ===== Header =====
+  // 反馈策略：
+  //   - hover：仅背景轻微变化（"我可点击"信号）
+  //   - active：仅 font-weight 加重 + 箭头旋转（"我已展开"信号由内容显现承担）
+  //   - 颜色不切换到 primary，避免在大量配置块同时展开时产生视觉嘈杂
   @include m.e(header) {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: fn.use-var(gap, default) 0;
+    gap: 10px;
     cursor: pointer;
-    font-size: fn.use-var(font-size-title, default);
+    font-weight: 500;
+    letter-spacing: 0.01em;
     color: fn.use-var(text-color, title);
-    transition: color fn.use-var(transition, normal);
+    user-select: none;
+    outline: none;
+    transition:
+      color $transition-fast,
+      background-color $transition-fast;
 
-    &:hover {
-      color: fn.use-var(color, primary);
+    &:hover:not(.is-disabled) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
     }
 
     @include m.is(disabled) {
       cursor: not-allowed;
       color: fn.use-var(text-color, placeholder);
+
       &:hover {
+        background-color: transparent;
         color: fn.use-var(text-color, placeholder);
       }
     }
 
     @include m.is(active) {
-      & + #{fn.bem($root-name, content-wrapper)} {
-        grid-template-rows: 1fr;
-      }
+      font-weight: 600;
 
       #{fn.bem($root-name, icon)} {
         transform: rotate(90deg);
+        color: fn.use-var(text-color, second);
       }
     }
   }
 
+  // ===== Title =====
   @include m.e(title) {
-    flex: 1;
-    font-weight: bold;
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.5;
   }
 
+  // ===== Icon =====
   @include m.e(icon) {
-    transition: transform fn.use-var(transition, normal);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 auto;
+    color: fn.use-var(text-color, placeholder);
+    transition:
+      transform $transition-normal,
+      color $transition-fast;
+    will-change: transform;
   }
 
+  // ===== Content wrapper =====
+  // 高度由 collapse-item.vue 的 JS 在 isActive 切换时驱动：
+  //   未挂载前 → CSS 兜底 height: 0
+  //   未激活   → 0px（带 transition）
+  //   激活中   → 0 → scrollHeight（CSS transition: height）
+  //   已激活   → auto（动画结束后回归，避免锁死内容动态变化）
+  // 比 grid-template-rows: 0fr ↔ 1fr 减少每帧 grid 布局重算，嵌套场景显著更流畅。
   @include m.e(content-wrapper) {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows fn.use-var(transition, normal);
     overflow: hidden;
+    height: 0;
+    transition: height $transition-normal;
   }
 
   @include m.e(content) {
-    min-height: 0;
-    padding-bottom: fn.use-var(gap, default);
-    color: fn.use-var(text-color, default);
-    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, main);
+    line-height: 1.7;
+  }
+
+  // ===== Sizes =====
+  // padding-bottom 始终生效；inactive 时由 wrapper height: 0 + overflow: hidden
+  // 自然裁切，scrollHeight 计算因此始终一致，避免动画首帧抖动。
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.bem($root-name, header) {
+      padding: map.get($header-padding-y, $size) map.get($header-padding-x, $size);
+      font-size: fn.use-var(font-size-title, $size);
+    }
+
+    @include m.bem($root-name, content) {
+      font-size: fn.use-var(font-size-main, $size);
+      padding: 0 map.get($header-padding-x, $size) map.get($header-padding-y, $size);
+    }
+  }
+
+  // ===== Ghost（无边框）：项级胶囊化，反馈完全由 item hover 承担 =====
+  // 嵌入卡片 / 对话框时使用，不引入额外的容器边界
+  &:not(.is-bordered) {
+    background-color: transparent;
+
+    #{fn.bem($root-name, item)} {
+      border-radius: calc(fn.use-var(radius, default) + 2px);
+      transition: background-color $transition-fast;
+
+      & + #{fn.bem($root-name, item)} {
+        margin-top: 4px;
+      }
+
+      &:hover:not(.is-disabled) {
+        background-color: fn.use-var(bg-color, hover);
+      }
+    }
+
+    // ghost 下 header 自身不再单独 hover，由 item 整体承载
+    #{fn.bem($root-name, header)} {
+      border-radius: inherit;
+
+      &:hover:not(.is-disabled) {
+        background-color: transparent;
+      }
+    }
   }
 }

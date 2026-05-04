@@ -116,3 +116,5 @@ dist/*
 tools/build/dist-tsc/
 tools/cli/dist-tsc/
 .tsc-vite-config/
+
+.playwright-cli/
