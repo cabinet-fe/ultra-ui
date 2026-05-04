@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.0.13
+
+### Patch Changes
+
+- de2c2ce: 重构 Collapse 组件 props 类型：`CollapseProps` 改为继承 `ComponentProps` 复用通用 `size`，组件内部不再显式列出各个 prop，直接使用 `defineProps<CollapseProps>()`。
+  - @veltra/utils@1.0.13
+  - @veltra/styles@1.0.13
+  - @veltra/compositions@1.0.13
+  - @veltra/directives@1.0.13
+  - @veltra/icons@1.0.13
+
 ## 1.0.12
 
 ### Patch Changes
