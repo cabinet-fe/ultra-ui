@@ -11,7 +11,6 @@ import { computed, provide } from 'vue'
 
 import type {
   CollapseEmits,
-  CollapseIconPosition,
   CollapseModelValue,
   CollapseProps,
   CollapseValue,
@@ -23,29 +22,11 @@ defineOptions({
   name: 'Collapse'
 })
 
-// 显式列出所有 props 并在编译期内联，避免 Vue SFC 编译器对跨文件
-// 复杂类型（如 `vue` 的 `Component`）解析失败时静默丢弃后续 props。
-const props = withDefaults(
-  defineProps<{
-    /** 当前展开项的 value（单个或多个） */
-    modelValue?: CollapseModelValue
-    /** 是否手风琴模式（一次只能展开一项） */
-    accordion?: boolean
-    /** 是否显示外层与项之间的分隔线（设为 false 时为 ghost 风格） */
-    bordered?: boolean
-    /** 展开/收起图标位置 */
-    iconPosition?: CollapseIconPosition
-    /** 自定义展开图标组件，活动态会自动旋转 90° */
-    expandIcon?: CollapseProps['expandIcon']
-    /** 组件尺寸 */
-    size?: CollapseProps['size']
-  }>(),
-  {
-    accordion: false,
-    bordered: true,
-    iconPosition: 'right'
-  }
-)
+const props = withDefaults(defineProps<CollapseProps>(), {
+  accordion: false,
+  bordered: true,
+  iconPosition: 'right'
+})
 const emit = defineEmits<CollapseEmits>()
 
 const cls = bem('collapse')

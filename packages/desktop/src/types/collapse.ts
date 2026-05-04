@@ -1,4 +1,4 @@
-import type { ComponentSize, DeconstructValue } from '@veltra/utils'
+import type { ComponentProps, DeconstructValue } from '@veltra/utils'
 import type { Component } from 'vue'
 
 /** Collapse 项的唯一标识 */
@@ -11,11 +11,14 @@ export type CollapseModelValue = CollapseValue | CollapseValue[]
 export type CollapseIconPosition = 'left' | 'right'
 
 /** Collapse 组件属性 */
-export interface CollapseProps {
+export interface CollapseProps extends ComponentProps {
   /** 当前展开项的 value（单个或多个） */
   modelValue?: CollapseModelValue
 
-  /** 是否手风琴模式（一次只能展开一项） */
+  /**
+   * 是否手风琴模式（一次只能展开一项）
+   * @default false
+   */
   accordion?: boolean
 
   /**
@@ -35,9 +38,6 @@ export interface CollapseProps {
    * 接受任意 Vue 组件（SFC、Functional Component 等）。
    */
   expandIcon?: Component
-
-  /** 组件尺寸，与全局尺寸 token 联动 */
-  size?: ComponentSize
 }
 
 export interface CollapseEmits {
