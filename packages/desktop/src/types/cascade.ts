@@ -1,8 +1,9 @@
-import type { ITreeNode } from '@cat-kit/core'
+import type { TreeNode } from '@cat-kit/core'
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
-export interface CascadeNode extends ITreeNode<Record<string, any>, CascadeNode> {
-  children?: CascadeNode[]
+export interface CascadeNode<
+  Data extends Record<string, any> = Record<string, any>
+> extends TreeNode<Data, CascadeNode<Data>> {
   visible: boolean
   value: string
   label: string

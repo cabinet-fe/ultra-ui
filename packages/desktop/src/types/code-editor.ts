@@ -2,11 +2,18 @@ import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json'
 
-/** 代码编辑器组件属性 */
-export interface CodeEditorProps extends FormComponentProps {
+/** 代码编辑器组件属性（不支持 `size`） */
+export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   modelValue?: string
   /** 定义语言 */
   language?: CodeEditorLang
+  /** 是否使用暗色主题 */
+  dark?: boolean
+  /**
+   * 默认显示的行数，用于撑起编辑器最小高度，超出后滚动
+   * @default 8
+   */
+  defaultLines?: number
 }
 
 /** 代码编辑器组件定义的事件 */

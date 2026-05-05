@@ -2,32 +2,32 @@
   <div>
     <h3>两栏布局</h3>
     <u-layout cols="200px 1fr" class="layout">
-      <aside class="aside"></aside>
-      <main class="main"></main>
+      <div class="l-aside"></div>
+      <div class="l-main"></div>
     </u-layout>
 
     <h3>三栏布局</h3>
     <u-layout cols="60px 200px 1fr" class="layout">
-      <div class="nav"></div>
-      <aside class="aside"></aside>
-      <main class="main"></main>
+      <div class="l-nav"></div>
+      <div class="l-aside"></div>
+      <div class="l-main"></div>
     </u-layout>
 
     <h3>布局示例</h3>
     <u-layout cols="60px 200px 1fr">
-      <div class="nav"></div>
-      <aside class="aside"></aside>
-      <main class="main">
-        <nav class="menu-bar"></nav>
+      <div class="l-nav"></div>
+      <div class="l-aside"></div>
+      <div class="l-main">
+        <div class="menu-bar"></div>
         <div class="content"></div>
-      </main>
+      </div>
     </u-layout>
 
     <h3>尺寸可调节</h3>
     <u-layout cols="300px 1fr 300px" resizable>
-      <div class="nav"></div>
-      <aside class="aside"></aside>
-      <main class="main"></main>
+      <div class="l-nav"></div>
+      <div class="l-aside"></div>
+      <div class="l-main"></div>
     </u-layout>
   </div>
 </template>
@@ -35,19 +35,19 @@
 <script lang="ts" setup></script>
 
 <style lang="scss" scoped>
-.nav,
-.aside,
-.main {
+.l-nav,
+.l-aside,
+.l-main {
   height: 600px;
 }
-.nav {
+.l-nav {
   background-color: rgb(113, 152, 139);
 }
-.aside {
+.l-aside {
   background-color: #ccc;
 }
 
-.main {
+.l-main {
   background-color: #f2f2f2;
 }
 

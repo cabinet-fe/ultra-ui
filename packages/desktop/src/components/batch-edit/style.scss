@@ -2,67 +2,281 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
-@keyframes blink {
-  0% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 $root-name: batch-edit;
 
 @include m.b($root-name) {
-  // border: fn.use-var(border);
+  position: relative;
   overflow: hidden;
-
   border-radius: fn.use-var(radius, default);
 
-  @include m.e(table, form-wrap) {
+  // ---------- 表格容器 ----------
+  @include m.e(table) {
     flex-grow: 1;
   }
 
-  @include m.e(list, form) {
+  // ---------- 行内悬浮动作条（操作列） ----------
+  // 操作组使用 `u-action-group` 的 hover 模式
+  // 这里在父级表格行 hover / 当前激活时强制显现整组
+  .u-table__row:hover .#{vars.$namespace}action-group.is-hover,
+  .u-table__row.is-current .#{vars.$namespace}action-group.is-hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, #{fn.use-var(bg-color, top)} 70%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 4px color-mix(in srgb, #{fn.use-var(shadow, color)} 35%, transparent);
+  }
+
+  // ---------- 底部"新增一行"按钮 ----------
+  // 按钮通过水平方向 sticky 始终贴住滚动视口左侧，
+  // 避免列很长横向滚动时按钮内容被滚出视口外
+  @include m.e(add) {
+    position: sticky;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 8px 12px;
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(add-btn) {
+    --add-color: #{fn.use-var(color, primary)};
+    --add-border: #{color-mix(in srgb, fn.use-var(color, primary) 60%, transparent)};
+    --add-bg: #{color-mix(in srgb, fn.use-var(color, primary) 5%, transparent)};
+
+    position: sticky;
+    left: 12px;
+    height: 36px;
+    min-width: 220px;
+    max-width: 320px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 20px;
+    background: var(--add-bg);
+    border: 1px dashed var(--add-border);
+    border-radius: fn.use-var(radius, default);
+    color: var(--add-color);
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 0.18s ease,
+      color 0.18s ease,
+      background-color 0.18s ease,
+      transform 0.18s ease;
+    font-family: inherit;
+
+    &:hover:not(:disabled) {
+      --add-border: #{fn.use-var(color, primary)};
+      --add-bg: #{fn.use-var(color, primary, light-9)};
+      border-style: solid;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    @include m.is(loading) {
+      pointer-events: none;
+    }
+  }
+
+  @include m.e(add-icon) {
+    font-size: 16px;
+    display: inline-flex;
+    transition: transform 0.18s ease;
+  }
+
+  .#{vars.$namespace}#{$root-name}__add-btn:hover .#{vars.$namespace}#{$root-name}__add-icon {
+    transform: rotate(90deg);
+  }
+
+  @include m.e(add-label) {
+    line-height: 1;
+  }
+
+  // ---------- 右侧表单侧栏 ----------
+  @include m.e(form) {
+    --u-batch-edit-form-radius: #{fn.use-var(radius, large)};
+    --u-batch-edit-form-padding: 16px;
+
     display: flex;
     flex-direction: column;
-  }
-
-  @include m.e(form) {
     background-color: fn.use-var(bg-color, top);
+    border-radius: var(--u-batch-edit-form-radius);
+    box-shadow:
+      0 1px 2px color-mix(in srgb, #{fn.use-var(shadow, color)} 40%, transparent),
+      0 12px 32px -16px color-mix(in srgb, #{fn.use-var(shadow, color)} 50%, transparent);
+    overflow: hidden;
+    isolation: isolate;
+    min-height: 0;
 
-    &-wrap {
-      padding: 8px 12px;
+    // 顶部装饰渐变条
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        fn.use-var(color, primary) 0%,
+        color-mix(in srgb, #{fn.use-var(color, primary)} 50%, transparent) 100%
+      );
+      opacity: 0.7;
+      z-index: 1;
     }
   }
 
-  @include m.e(tools) {
-    padding: 0 fn.use-var(gap, default);
+  @include m.e(form-header) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-bottom: 1px solid fn.use-var(border-color);
+    flex-shrink: 0;
   }
 
-  @include m.e(add) {
-    width: 100%;
-    // background-color: fn.use-var(bg-color, top);
-    position: sticky;
-    bottom: 0;
-    padding: 4px;
+  @include m.e(form-icon) {
+    --tone-color: #{fn.use-var(color, primary)};
+    --tone-bg: #{fn.use-var(color, primary, light-9)};
 
-    & > {
-      @include m.bem(button) {
-        width: 100%;
-        text-align: unset;
-        display: block;
-      }
+    width: 30px;
+    height: 30px;
+    border-radius: fn.use-var(radius, default);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--tone-color);
+    background-color: var(--tone-bg);
+    font-size: 16px;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    @include m.is(create) {
+      --tone-color: #{fn.use-var(color, success)};
+      --tone-bg: #{fn.use-var(color, success, light-9)};
+    }
+    @include m.is(child) {
+      --tone-color: #{fn.use-var(color, warning)};
+      --tone-bg: #{fn.use-var(color, warning, light-9)};
+    }
+    @include m.is(view) {
+      --tone-color: #{fn.use-var(text-color, second)};
+      --tone-bg: #{fn.use-var(bg-color, hover)};
     }
   }
 
-  @include m.e(action) {
-    @include m.flex($justify: space-between);
-  }
+  @include m.e(form-title) {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 
-  @include m.bem(table, row) {
-    @include m.is(blink) {
-      animation: blink 0.5s ease-in;
+    &-text {
+      margin: 0;
+      font-size: fn.use-var(font-size-title, default);
+      font-weight: 600;
+      color: fn.use-var(text-color, title);
+      line-height: 1.25;
     }
   }
+
+  @include m.e(form-chip) {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 1px 8px;
+    font-size: 12px;
+    line-height: 18px;
+    border-radius: 999px;
+    background-color: fn.use-var(bg-color, hover);
+    color: fn.use-var(text-color, second);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  @include m.e(form-close) {
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  @include m.e(form-body) {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    // 仅限定 batch-edit 内的 u-form 表单滚动区内边距
+    .#{vars.$namespace}form__body {
+      padding: 10px var(--u-batch-edit-form-padding) 4px;
+    }
+  }
+
+  @include m.e(form-footer) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 12px;
+    border-top: 1px solid fn.use-var(border-color);
+    background-color: fn.use-var(bg-color, top);
+    flex-shrink: 0;
+  }
+
+  @include m.e(form-hint) {
+    font-size: 12px;
+    color: fn.use-var(text-color, placeholder);
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    & > kbd {
+      display: inline-block;
+      min-width: 18px;
+      padding: 1px 5px;
+      margin: 0 1px;
+      font-size: 11px;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+        monospace;
+      color: fn.use-var(text-color, second);
+      background-color: fn.use-var(bg-color, hover);
+      border: 1px solid fn.use-var(border-color);
+      border-radius: 4px;
+      line-height: 1;
+      vertical-align: 1px;
+    }
+  }
+
+  @include m.e(form-actions) {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+}
+
+// 表单面板进出过渡：从右侧滑入并轻微缩放
+.batch-edit-panel-enter-active,
+.batch-edit-panel-leave-active {
+  transition:
+    transform 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.24s ease;
+}
+
+.batch-edit-panel-enter-from,
+.batch-edit-panel-leave-to {
+  transform: translateX(16px) scale(0.985);
+  opacity: 0;
 }

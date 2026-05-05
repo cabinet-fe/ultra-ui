@@ -8,7 +8,9 @@
     <u-icon v-if="!node.isLeaf" :class="cls.e('expand-icon')" @click.stop="toggleExpand">
       <ArrowRight />
     </u-icon>
-    <i v-else :class="[cls.e('indent'), cls.em('indent', 'leaf')]" aria-hidden="true"></i>
+    <u-icon v-else :class="cls.e('leaf-icon')" aria-hidden="true">
+      <Dot />
+    </u-icon>
 
     <div
       :class="cls.e('node-content')"
@@ -35,7 +37,7 @@
 
 <script lang="ts" setup>
 import { vRipple } from '@veltra/directives'
-import { ArrowRight } from '@veltra/icons/normal'
+import { ArrowRight, Dot } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { inject } from 'vue'
 

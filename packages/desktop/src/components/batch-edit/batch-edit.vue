@@ -1,5 +1,13 @@
 <template>
-  <u-layout :class="cls.b" :cols="cols" rows="100%" gap="8px" resizable @keyup.esc="handleClose">
+  <u-layout
+    :class="cls.b"
+    :cols="cols"
+    rows="100%"
+    gap="8px"
+    resizable
+    @keydown="handleKeydown"
+    tabindex="-1"
+  >
     <!-- 编辑列表 -->
     <BatchEditList :slots="slots" />
 
@@ -34,7 +42,7 @@ import { useEdit } from './use-edit'
 defineOptions({ name: 'BatchEdit' })
 
 const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
-  cols: () => ['1fr', '400px'],
+  cols: () => ['1fr', '420px'],
   mode: 'normal'
 })
 
@@ -53,10 +61,13 @@ const staticFeatures = computed(() => {
     return defaultFeatures
   }
 
-  // 排除函数和false的部分
+  // 函数与 false 的特性视为关闭；显式 true 视为开启（即便不在默认集合内）
   Object.entries(features).forEach(([key, value]) => {
+    const k = key as BatchEditFeature
     if (typeof value === 'function' || value === false) {
-      defaultFeatures.delete(key as BatchEditFeature)
+      defaultFeatures.delete(k)
+    } else if (value === true) {
+      defaultFeatures.add(k)
     }
   })
   return defaultFeatures
@@ -113,7 +124,7 @@ const tableRef = shallowRef<TableExposed>()
 
 const editCtx = useEdit({ props, emit, tableRef })
 
-const { state, handleClose } = editCtx
+const { state, handleClose, handleSave, handleDelete, handleCreate } = editCtx
 
 provide(BatchEditDIKey, {
   cls,
@@ -127,7 +138,6 @@ provide(BatchEditDIKey, {
 
 const dialogCtx = inject(DialogDIKey, undefined)
 
-// 如果在dialog上下文中
 dialogCtx &&
   watch(dialogCtx.visible, (visible) => {
     !visible && editCtx.handleClose()
@@ -136,4 +146,45 @@ dialogCtx &&
 const cols = computed(() => {
   return !!state.row || state.visible ? props.cols : undefined
 })
+
+/**
+ * 键盘快捷键：
+ * - Esc        关闭表单
+ * - ⌘/Ctrl + S   保存
+ * - ⌘/Ctrl + Backspace 删除当前编辑行
+ * - ⌘/Ctrl + N   新增（仅在不在表单中时）
+ */
+function handleKeydown(e: KeyboardEvent) {
+  if (props.readonly && e.key !== 'Escape') return
+
+  if (e.key === 'Escape') {
+    if (state.visible) {
+      e.preventDefault()
+      handleClose()
+    }
+    return
+  }
+
+  const meta = e.metaKey || e.ctrlKey
+  if (!meta) return
+
+  const key = e.key.toLowerCase()
+
+  if (key === 's' && state.visible) {
+    e.preventDefault()
+    handleSave()
+    return
+  }
+
+  if (e.key === 'Backspace' && state.row && state.type === 'update') {
+    e.preventDefault()
+    handleDelete(state.row)
+    return
+  }
+
+  if (key === 'n' && !state.visible) {
+    e.preventDefault()
+    handleCreate()
+  }
+}
 </script>

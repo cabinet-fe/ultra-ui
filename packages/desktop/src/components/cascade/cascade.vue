@@ -255,7 +255,9 @@ const qs = shallowRef<string>('')
 watch([qs, forest], ([qs, forest]) => {
   const { filterable } = props
   if (!filterable || !qs) {
-    forest.dfs((node) => (node.visible = true))
+    forest.dfs((node) => {
+      node.visible = true
+    })
     getPanelItemList(forest.roots)
     return
   }

@@ -22,7 +22,7 @@
       v-model:checked="checked"
       checkable
       :model="model"
-      :actions-props="{ delete: { needConfirm: true, circle: false } }"
+      :actions-props="{ delete: { needConfirm: true } }"
       :features="dynamicFeatures"
       :tree="tree"
       style="max-height: 500px"

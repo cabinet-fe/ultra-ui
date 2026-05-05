@@ -50,6 +50,8 @@ export interface EditReturned {
   handleSave: () => Promise<void>
   handleClose: () => void
   handleCreate: () => void
+  handleEdit: (row: TableRow) => void
+  handleCopy: (row: TableRow) => void
   handleDelete: (row: TableRow) => Promise<void>
   handleInsertToNext: (row: TableRow) => void
   handleInsertToPrev: (row: TableRow) => void
@@ -79,8 +81,17 @@ export function useEdit(options: Options): EditReturned {
     }
   )
 
-  /** 是否是用户输入产生的值变更 */
-  let changedByUserInput = true
+  /**
+   * 「打开行 / 切换 type」时记录的基线快照
+   * @description
+   * 用于 changeCb 内部比对 — 若新值与基线相等（深比较）视为无改动，避免某些组件在 mount
+   * 阶段把规范化后的值再写回模型时被误判为「用户已修改」
+   */
+  let baselineSnapshot: Record<string, any> | undefined
+
+  function snapshotModelData() {
+    return safeRun(() => JSON.parse(JSON.stringify(props.model?.data ?? {})), {})
+  }
 
   watch(
     () => state.row,
@@ -89,22 +100,40 @@ export function useEdit(options: Options): EditReturned {
       if (row) {
         state.type = 'update'
         state.visible = true
-        changedByUserInput = false
         props.model?.setData(row.data)
-        nextTick(() => {
-          changedByUserInput = true
-        })
       } else {
         state.visible = false
       }
-    }
+      baselineSnapshot = snapshotModelData()
+      state.dataUpdated = false
+    },
+    // sync 保证 setData 完成后立刻取快照，避免 mount 期间组件回写值时丢基线
+    { flush: 'sync' }
   )
 
-  const changeCb = (_field: string, _val: any) => {
-    // 检测到为用户变更时，为数据添加一个已更改状态从而显示修改按钮
-    if (changedByUserInput) {
-      state.dataUpdated = true
+  const changeCb = (field: string, val: any) => {
+    // 与基线比较 — 同值（如组件 mount 时把当前值再写一次）不算"用户修改"
+    if (baselineSnapshot) {
+      const baseVal = o(baselineSnapshot).get(field)
+      if (isSameValue(baseVal, val)) {
+        return
+      }
     }
+    state.dataUpdated = true
+  }
+
+  function isSameValue(a: any, b: any) {
+    if (a === b) return true
+    if (a == null && b == null) return true
+    if (typeof a !== typeof b) return false
+    if (typeof a === 'object') {
+      try {
+        return JSON.stringify(a) === JSON.stringify(b)
+      } catch {
+        return false
+      }
+    }
+    return false
   }
 
   watch(
@@ -216,6 +245,22 @@ export function useEdit(options: Options): EditReturned {
     })
   }
 
+  /** 编辑指定行（等同于点击行） */
+  function handleEdit(row: TableRow) {
+    state.row = row
+    state.depth = row.depth
+  }
+
+  /** 复制指定行：在其下方以 create 模式打开表单，并预填副本数据 */
+  function handleCopy(row: TableRow) {
+    runCreate(() => {
+      state.depth = row.depth
+      insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
+      const cloned = safeRun(() => JSON.parse(JSON.stringify(row.data ?? {})), {})
+      props.model?.setData(cloned)
+    })
+  }
+
   function runWithLoading<Arg extends any[]>(fn: (...args: Arg) => Promise<void> | void) {
     return async (...args: Arg) => {
       state.loading = true
@@ -321,6 +366,8 @@ export function useEdit(options: Options): EditReturned {
     handleInsertToNext,
     handleInsertToPrev,
     handleCreate,
+    handleEdit,
+    handleCopy,
     handleClose,
     handleSave
   }

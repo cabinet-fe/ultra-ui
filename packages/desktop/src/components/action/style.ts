@@ -1,4 +1,5 @@
 import '../button/style'
-import '../dropdown/style'
+import '../icon/style'
 import '../pop-confirm/style'
+import '../tip/style'
 import './style.scss'

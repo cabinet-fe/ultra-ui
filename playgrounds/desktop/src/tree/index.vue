@@ -43,6 +43,14 @@
         </template>
       </UTree>
     </CustomCard>
+
+    <CustomCard title="只有一级数据(全部叶子)">
+      <UTree :data="flatData" label-key="name" value-key="id" height="200px" selectable />
+    </CustomCard>
+
+    <CustomCard title="只有一级数据(全部叶子, 多选)">
+      <UTree :data="flatData" label-key="name" value-key="id" height="200px" checkable />
+    </CustomCard>
   </div>
 </template>
 
@@ -56,6 +64,12 @@ const treeRef = shallowRef<TreeExposed>()
 const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
 const data1 = shallowRef<any[]>([])
+const flatData = shallowRef<any[]>(
+  Array.from({ length: 8 }).map((_, i) => ({
+    name: `叶子节点 ${i}`,
+    id: `leaf-${i}`
+  }))
+)
 
 const checked = shallowRef<any[]>()
 

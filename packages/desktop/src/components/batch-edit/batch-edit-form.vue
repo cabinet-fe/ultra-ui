@@ -1,58 +1,87 @@
 <template>
-  <u-card :class="cls.e('form')" v-if="state.visible && !!props.model">
-    <u-card-header>
-      <template v-if="props.readonly">详情</template>
-      <template v-else-if="!!state.parentRow">新增子级</template>
-      <template v-else-if="state.type === 'create'">新增</template>
-      <template v-else-if="state.type === 'update'">编辑</template>
-    </u-card-header>
+  <transition name="batch-edit-panel" appear>
+    <aside :class="cls.e('form')" v-if="state.visible && !!props.model">
+      <header :class="cls.e('form-header')">
+        <span :class="[cls.e('form-icon'), bem.is(headerInfo.tone)]">
+          <u-icon>
+            <component :is="headerInfo.icon" />
+          </u-icon>
+        </span>
+        <div :class="cls.e('form-title')">
+          <h3 :class="cls.e('form-title-text')">{{ headerInfo.title }}</h3>
+          <span v-if="headerInfo.chip" :class="cls.e('form-chip')">
+            {{ headerInfo.chip }}
+          </span>
+        </div>
+        <u-button
+          :class="cls.e('form-close')"
+          :icon="Close"
+          text
+          circle
+          size="small"
+          title="关闭"
+          @click="handleClose"
+        />
+      </header>
 
-    <transition name="fade" appear mode="out-in">
-      <u-scroll always :class="cls.e('form-wrap')">
-        <u-form
-          :model="props.model"
-          :readonly="props.readonly"
-          @keyup.enter="handleSave"
-          :label-width="props.labelWidth"
-        >
-          <template #default="{ data, model }">
-            <slot
-              v-bind="{
-                data,
-                model,
-                row: state.row,
-                depth: state.depth,
-                indexes: insertIndexes,
-                index: state.row?.index
-              }"
-            />
-          </template>
-        </u-form>
-      </u-scroll>
-    </transition>
+      <transition name="fade" appear mode="out-in">
+        <u-scroll always :class="cls.e('form-body')" :key="bodyKey">
+          <u-form
+            :model="props.model"
+            :readonly="props.readonly"
+            @keyup.enter="handleSave"
+            :label-width="props.labelWidth"
+          >
+            <template #default="{ data, model }">
+              <slot
+                v-bind="{
+                  data,
+                  model,
+                  row: state.row,
+                  depth: state.depth,
+                  indexes: insertIndexes,
+                  index: state.row?.index
+                }"
+              />
+            </template>
+          </u-form>
+        </u-scroll>
+      </transition>
 
-    <u-card-action :class="cls.e('action')">
-      <u-button text type="primary" :loading="state.loading" @click="handleClose"> 关闭 </u-button>
+      <footer :class="cls.e('form-footer')">
+        <span :class="cls.e('form-hint')" v-if="!props.readonly && state.dataUpdated">
+          有未保存改动
+        </span>
+        <span :class="cls.e('form-hint')" v-else-if="!props.readonly">
+          <kbd>Enter</kbd> 保存 · <kbd>Esc</kbd> 关闭
+        </span>
+        <span :class="cls.e('form-hint')" v-else>只读模式</span>
 
-      <u-button
-        v-if="!props.readonly && state.dataUpdated && (creatable || updatable)"
-        :type="state.type === 'create' ? 'success' : 'primary'"
-        :loading="state.loading"
-        @click="handleSave"
-        plain
-      >
-        确认{{ state.type === 'create' ? '新增' : '修改' }}
-      </u-button>
-    </u-card-action>
-  </u-card>
+        <div :class="cls.e('form-actions')">
+          <u-button text :loading="state.loading" @click="handleClose"> 取消 </u-button>
+          <u-button
+            v-if="!props.readonly && (creatable || updatable)"
+            :type="state.type === 'create' ? 'success' : 'primary'"
+            :loading="state.loading"
+            :disabled="!state.dataUpdated"
+            @click="handleSave"
+          >
+            {{ state.type === 'create' ? '保存新增' : '保存修改' }}
+          </u-button>
+        </div>
+      </footer>
+    </aside>
+  </transition>
 </template>
 
 <script lang="ts" setup>
-import { computed, inject } from 'vue'
+import { AddChild, Close, EditPen, Plus, View } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
+import { computed, inject, type Component } from 'vue'
 
 import { UButton } from '../button'
-import { UCard, UCardAction, UCardHeader } from '../card'
 import { UForm } from '../form'
+import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { BatchEditDIKey } from './di'
 
@@ -81,5 +110,52 @@ const updatable = computed(() => {
     state.type === 'update' &&
     (staticFeatures.value.has('update') || dynamicFeatures.value.update?.(state.row))
   )
+})
+
+interface HeaderInfo {
+  icon: Component
+  title: string
+  chip?: string
+  tone: 'create' | 'update' | 'view' | 'child'
+}
+
+const headerInfo = computed<HeaderInfo>(() => {
+  if (props.readonly) {
+    return {
+      icon: View,
+      title: '查看详情',
+      chip: state.row ? `第 ${state.row.index + 1} 行` : undefined,
+      tone: 'view'
+    }
+  }
+  if (state.parentRow) {
+    return {
+      icon: AddChild,
+      title: '新增子级',
+      chip: `归属于第 ${state.parentRow.index + 1} 行`,
+      tone: 'child'
+    }
+  }
+  if (state.type === 'create') {
+    return {
+      icon: Plus,
+      title: '新增',
+      chip: insertIndexes.value.length
+        ? `插入到第 ${insertIndexes.value[insertIndexes.value.length - 1]! + 1} 位`
+        : undefined,
+      tone: 'create'
+    }
+  }
+  return {
+    icon: EditPen,
+    title: '编辑',
+    chip: state.row ? `第 ${state.row.index + 1} 行` : undefined,
+    tone: 'update'
+  }
+})
+
+/** 通过 row 切换 / 类型切换驱动表单内容淡出淡入 */
+const bodyKey = computed(() => {
+  return `${state.type}-${state.row?.uid ?? 'create'}-${state.parentRow?.uid ?? 'root'}`
 })
 </script>

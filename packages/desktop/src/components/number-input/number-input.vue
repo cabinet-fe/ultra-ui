@@ -181,9 +181,9 @@ function getDisplayed(num?: number): string {
 
 watch(
   [model, focused, () => props.currency],
-  ([model, focused]) => {
-    if (focused) return
-    displayed.value = getDisplayed(model)
+  ([modelValue, inputFocused]) => {
+    if (inputFocused) return
+    displayed.value = getDisplayed(modelValue)
   },
   { immediate: true }
 )
@@ -248,7 +248,7 @@ function getValidValue<T extends undefined | number>(val: T): T {
 
 function handleUpdateModelValue(input: string): void {
   const newVal = parseDisplayed(input)
-  model.value = getValidValue(newVal) ?? 0
+  model.value = getValidValue(newVal)
   displayed.value = input
 }
 

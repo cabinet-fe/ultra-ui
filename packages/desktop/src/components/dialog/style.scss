@@ -23,7 +23,6 @@ $root-name: dialog;
 @include m.b($root-name) {
   pointer-events: auto;
   border-radius: fn.use-var(radius, large);
-  will-change: transform, opacity;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
@@ -119,12 +118,13 @@ $root-name: dialog;
   }
 }
 
-// // 弹框最大化动画进入后的类
+// 弹框最大化动画进入后的类
 .#{$root-name}-maximize-enter-to {
   width: 100vw !important;
   height: 100vh !important;
   max-height: 100vh;
-  transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
+  // 重置拖拽偏移; 不动 scale 以免与 spring leave 的 scale: 0 冲突
+  translate: 0 0 !important;
   @include m.bem($root-name, header) {
     &:active {
       cursor: default;
@@ -135,7 +135,7 @@ $root-name: dialog;
 // 弹框最大化动画激活时的类
 .#{$root-name}-maximize-enter-active,
 .#{$root-name}-maximize-leave-active {
-  transition-property: width, height, transform;
+  transition-property: width, height, translate;
   transition-duration: 0.25s;
 }
 

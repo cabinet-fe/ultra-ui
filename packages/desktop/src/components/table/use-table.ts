@@ -103,7 +103,21 @@ export function useTable(options: Options): UseTableReturn {
     headerCellClassCache = new WeakMap()
   })
 
+  /**
+   * B2: 即便缓存命中也需读取 `leftFixed` / `rightFixed`，将其登记为调用方
+   * render effect 的响应式依赖。
+   *
+   * 否则横向滚动时虽然 `watch` 已经清空缓存，但已渲染的单元格没有任何依赖
+   * 把这两个 ref 串联到自己的 render，导致 `is-last-fixed` / `is-first-fixed`
+   * 阴影 class 不会被刷新——只有垂直滚动让虚拟列表新挂载行时（render 首次
+   * 命中空缓存读到最新值）才能看到阴影。
+   *
+   * 父级 `useTable` 的 watch effect id 早于子 `TableRow` 的 render effect，
+   * 同一 flush 周期中缓存会先被清空，再轮到 render 重跑读到最新值。
+   */
   const getCellClass = (column: ColumnNode): string => {
+    void leftFixed.value
+    void rightFixed.value
     const cached = cellClassCache.get(column)
     if (cached !== undefined) return cached
     const result = getCommonClassName(column) + ` ${bem.is(column.align)}`
@@ -112,6 +126,8 @@ export function useTable(options: Options): UseTableReturn {
   }
 
   const getHeaderCellClass = (column: ColumnNode): string => {
+    void leftFixed.value
+    void rightFixed.value
     const cached = headerCellClassCache.get(column)
     if (cached !== undefined) return cached
     const result = getCommonClassName(column) + ` ${bem.is(column.headerAlign)}`

@@ -2,7 +2,7 @@
   <u-table
     v-bind="tableProps"
     :slots="slots"
-    :class="cls.e('table')"
+    :class="[cls.e('table'), bem.is('editing', state.visible)]"
     :columns="columns"
     highlight-current
     :current-row="state.row"
@@ -12,40 +12,40 @@
     ref="tableRef"
   >
     <template #column:__action__="{ row }">
-      <u-action-group @click.stop :loading="row.operating" :max="9">
-        <template v-if="staticFeatures.has('create') || dynamicFeatures.create?.(row)">
-          <u-action
-            @run="handleInsertToPrev(row)"
-            :icon="InsertToPrev"
-            title="插入到上一行"
-            v-bind="props.actionsProps?.create"
-          />
-          <u-action
-            @run="handleInsertToNext(row)"
-            :icon="InsertToNext"
-            title="插入到下一行"
-            v-bind="props.actionsProps?.create"
-          />
-        </template>
-
+      <u-action-group :class="cls.e('row-actions')" hover circle :max="3" @click.stop>
         <u-action
-          v-if="
-            props.tree && (staticFeatures.has('createChild') || dynamicFeatures.createChild?.(row))
-          "
-          @run="handleInsertChild(row)"
-          :icon="AddChild"
-          title="添加子项"
-          v-bind="props.actionsProps?.createChild"
+          v-if="canEdit(row)"
+          :icon="props.readonly ? View : EditPen"
+          :title="props.readonly ? '查看' : '编辑'"
+          @run="handleEdit(row)"
+          v-bind="props.actionsProps?.update"
         />
 
         <u-action
-          v-if="staticFeatures.has('delete') || dynamicFeatures.delete?.(row)"
+          v-if="canDelete(row)"
           :icon="Delete"
           type="danger"
           title="删除"
           @run="handleDelete(row)"
           v-bind="props.actionsProps?.delete"
         />
+
+        <u-action v-if="allowed('create', row)" in-dropdown @run="handleInsertToPrev(row)">
+          在上方插入
+        </u-action>
+        <u-action v-if="allowed('create', row)" in-dropdown @run="handleInsertToNext(row)">
+          在下方插入
+        </u-action>
+        <u-action
+          v-if="!!props.tree && allowed('createChild', row)"
+          in-dropdown
+          @run="handleInsertChild(row)"
+        >
+          添加子级
+        </u-action>
+        <u-action v-if="allowed('copy', row)" in-dropdown @run="handleCopy(row)">
+          复制此行
+        </u-action>
       </u-action-group>
     </template>
 
@@ -60,16 +60,17 @@
       "
     >
       <div :class="cls.e('add')">
-        <u-button
-          plain
-          type="primary"
+        <button
+          type="button"
+          :class="[cls.e('add-btn'), bem.is('loading', state.loading)]"
+          :disabled="state.loading"
           @click.stop="handleCreate"
-          :loading="state.loading"
-          text
-          v-bind="props.actionsProps?.create"
         >
-          <span style="position: sticky; left: 50%; transform: translateX(-50%)"> 新增 </span>
-        </u-button>
+          <u-icon :class="cls.e('add-icon')">
+            <Plus />
+          </u-icon>
+          <span :class="cls.e('add-label')">新增一行</span>
+        </button>
       </div>
     </template>
   </u-table>
@@ -77,12 +78,13 @@
 
 <script setup lang="ts">
 import { o } from '@cat-kit/core'
-import { AddChild, Delete, InsertToNext, InsertToPrev } from '@veltra/icons/normal'
+import { Delete, EditPen, Plus, View } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
 import { computed, inject, type Slots } from 'vue'
 
 import type { BatchEditFeature, TableRow } from '../../types'
-import { UActionGroup, UAction } from '../action'
-import { UButton } from '../button'
+import { UAction, UActionGroup } from '../action'
+import { UIcon } from '../icon'
 import { UTable } from '../table'
 import { BatchEditDIKey } from './di'
 
@@ -103,6 +105,8 @@ const {
   staticFeatures,
   dynamicFeatures,
   handleCreate,
+  handleEdit,
+  handleCopy,
   handleDelete,
   handleInsertToNext,
   handleInsertToPrev,
@@ -123,23 +127,36 @@ const tableProps = computed(() => {
 
 const hasNot = (value: BatchEditFeature[]) => value.every((v) => !staticFeatures.value.has(v))
 
+const allowed = (feature: BatchEditFeature, row?: TableRow) => {
+  return staticFeatures.value.has(feature) || !!dynamicFeatures.value[feature]?.(row)
+}
+
 const columns = computed(() => {
-  if (props.readonly || hasNot(['create', 'delete', 'createChild'])) return props.columns
+  if (props.readonly || hasNot(['create', 'delete', 'createChild', 'update', 'copy']))
+    return props.columns
 
   return (props.columns ?? []).concat({
     name: '操作',
     key: '__action__',
     align: 'center',
-    width: 180,
+    width: 132,
     fixed: 'right',
     resizable: false
   })
 })
 
 function handleUpdateCurrentRow(row?: TableRow) {
-  if (staticFeatures.value.has('update') || dynamicFeatures.value.update?.(row)) {
+  if (allowed('update', row)) {
     state.row = row
     state.depth = row?.depth
   }
+}
+
+function canEdit(row: TableRow) {
+  return !props.readonly ? allowed('update', row) : true
+}
+
+function canDelete(row: TableRow) {
+  return !props.readonly && allowed('delete', row)
 }
 </script>

@@ -59,7 +59,7 @@ watchEffect(() => {
     templateCols.value = []
     return
   }
-  templateCols.value = typeof cols === 'string' ? cols.split(' ') : cols
+  templateCols.value = typeof cols === 'string' ? cols.split(' ') : [...cols]
 })
 
 const style = computed<CSSProperties>(() => {
@@ -109,27 +109,25 @@ useResizeObserver({
 
 // const resizing = shallowRef(false)
 
-let prevSize = '0'
-let nextSize = '0'
+let prevSize = 0
+let nextSize = 0
 const handleStartResize = (index: number) => {
-  prevSize = templateCols.value[index]!
-  nextSize = templateCols.value[index + 1]!
+  const container = containerRef.value
+  if (!container) return
 
-  if (!prevSize.endsWith('px') && !nextSize.endsWith('px')) {
-    const rect = containerRef.value?.children[index + 1]?.getBoundingClientRect()
-    if (rect) {
-      nextSize = rect.width + 'px'
-    }
-  }
-  // resizing.value = true
+  // 拖拽前把相邻两列按实际渲染宽度固定成 px，
+  // 这样拖拽时两列等量增减、容器整体宽度保持不变。
+  const prevDom = container.children[index] as HTMLElement | undefined
+  const nextDom = container.children[index + 1] as HTMLElement | undefined
+  prevSize = prevDom ? prevDom.getBoundingClientRect().width : 0
+  nextSize = nextDom ? nextDom.getBoundingClientRect().width : 0
 }
 const handleResize = (offset: number, index: number) => {
-  if (prevSize?.endsWith('px')) {
-    templateCols.value[index] = `${parseInt(prevSize) + offset}px`
-  }
-  if (nextSize?.endsWith('px')) {
-    templateCols.value[index + 1] = `${parseInt(nextSize) - offset}px`
-  }
+  // 钳位到 [-prevSize, nextSize]，避免轨道尺寸出现负值——
+  // 一旦 grid-template-columns 中带负值，整条声明会被浏览器丢弃。
+  const clamped = Math.max(-prevSize, Math.min(nextSize, offset))
+  templateCols.value[index] = `${prevSize + clamped}px`
+  templateCols.value[index + 1] = `${nextSize - clamped}px`
 }
 
 provide(LayoutDIKey, {

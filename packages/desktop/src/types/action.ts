@@ -1,4 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils'
+import type { ColorType, DeconstructValue } from '@veltra/utils'
 
 import type { ButtonProps } from './button'
 
@@ -7,7 +7,10 @@ export interface ActionProps extends ButtonProps {
   /** 是否需要确认 */
   needConfirm?: boolean
 
-  /** 是否为下拉菜单中的操作项 */
+  /**
+   * 是否始终位于下拉菜单中，无视 `max` 限制
+   * @default false
+   */
   inDropdown?: boolean
 }
 
@@ -15,11 +18,46 @@ export interface ActionProps extends ButtonProps {
 export interface ActionGroupProps {
   /** 是否加载中 */
   loading?: boolean
-  /** 是否为圆形按钮， 适用于图标类 */
+  /**
+   * 是否为圆形按钮，适用于图标类。`hover` 模式下默认对所有子项生效
+   * @default false
+   */
   circle?: boolean
 
-  /** 最大可显示数量 */
+  /**
+   * 最大可显示按钮数量，超出部分自动收纳到下拉菜单
+   * @default 3
+   */
   max?: number
+
+  /**
+   * 紧凑悬浮模式
+   *
+   * @description
+   * - 默认半透明，悬浮在父容器上方时完全显现
+   * - 提供圆角胶囊容器与磨砂背景，更适合表格行内操作栏
+   * - "更多"按钮也会切换为图标态以与其他操作按钮保持一致
+   * @default false
+   */
+  hover?: boolean
+
+  /**
+   * 子项默认尺寸
+   * @default 'small'
+   */
+  size?: 'small' | 'default' | 'large'
+
+  /**
+   * 子项默认是否使用文本样式
+   * @default true
+   */
+  text?: boolean
+
+  /**
+   * 子项默认按钮类型
+   * @default 'primary'
+   */
+  type?: ColorType
 }
 
 /** 操作组件定义的事件 */

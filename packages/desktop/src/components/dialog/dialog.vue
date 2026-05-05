@@ -193,12 +193,16 @@ const translated = {
   y: 0
 }
 
-/** 更新弹框位置 */
+/**
+ * 更新弹框位置
+ * 使用独立 `translate` 而非整体 `transform`, 与 spring 动画的 `scale` 解耦,
+ * 避免动画期间整体 transform 被关键帧覆盖、动画结束后又"啪"地跳回内联位置
+ */
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
   setStyles(dom, {
-    transform: `scale3d(1, 1, 1) translate3d(${x}px, ${y}px, 0)`
+    translate: `${x}px ${y}px`
   })
 }
 

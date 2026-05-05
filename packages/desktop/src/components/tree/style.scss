@@ -1,23 +1,11 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'sass:map';
 
 $root-name: tree;
 
-// 每一级缩进与展开图标 / 叶子占位保持一致的宽度，
+// 每一级缩进与展开图标 / 叶子图标保持一致的宽度，
 // 保证节点内容在各层之间横向对齐。
 $indent-width: 20px;
-$indent-leaf-width: 20px;
-$expand-icon-size: 20px;
-// 节点稳态高度，与 `tree.vue` 中 `estimateSize` 协同，用于虚拟滚动初始估算。
-$node-min-height-small: 28px;
-$node-min-height-default: 32px;
-$node-min-height-large: 40px;
-$node-min-heights: (
-  small: $node-min-height-small,
-  default: $node-min-height-default,
-  large: $node-min-height-large
-);
 
 @include m.b($root-name) {
   @include m.size using ($size) {
@@ -33,7 +21,7 @@ $node-min-heights: (
     }
 
     @include m.bem($root-name, node) {
-      min-height: map.get($node-min-heights, $size);
+      min-height: fn.use-var(form-component-height, $size);
     }
   }
 
@@ -85,22 +73,23 @@ $node-min-heights: (
     @include m.flex($align: center);
 
     @include m.is(selected) {
-      // 左侧 3px 色带，配合淡色背景共同构成选中态。
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 4px;
-        bottom: 4px;
-        width: 3px;
-        border-radius: 3px;
-        background-color: fn.use-var(color, primary);
-      }
-
       @include m.bem($root-name, node-content) {
         background-color: fn.use-var(color, primary, light-9);
         color: fn.use-var(color, primary);
         font-weight: 500;
+
+        // 左侧 3px 色带，配合淡色背景共同构成选中态；
+        // 贴在节点内容（而非整行）左侧，避免与缩进 / 图标错位。
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 4px;
+          bottom: 4px;
+          width: 3px;
+          border-radius: 3px;
+          background-color: fn.use-var(color, primary);
+        }
       }
     }
 
@@ -128,18 +117,14 @@ $node-min-heights: (
   @include m.e(indent) {
     flex-shrink: 0;
     width: $indent-width;
-
-    @include m.em(indent, leaf) {
-      width: $indent-leaf-width;
-    }
   }
 
   @include m.e(expand-icon) {
     cursor: pointer;
     flex-shrink: 0;
-    width: $expand-icon-size;
-    height: $expand-icon-size;
-    font-size: $expand-icon-size;
+    width: $indent-width;
+    height: $indent-width;
+    font-size: $indent-width;
     border-radius: 50%;
     transition:
       transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
@@ -150,7 +135,19 @@ $node-min-heights: (
     }
   }
 
+  // 叶子节点的占位标识：与展开图标占据相同尺寸以保持同列对齐，
+  // 通过淡色 + 缩小的圆点显式表达"叶子"语义，避免空白看起来像缺失。
+  @include m.e(leaf-icon) {
+    flex-shrink: 0;
+    width: $indent-width;
+    height: $indent-width;
+    font-size: $indent-width;
+    color: fn.use-var(text-color, placeholder);
+    pointer-events: none;
+  }
+
   @include m.e(node-content) {
+    position: relative;
     flex-grow: 1;
     overflow: hidden;
     user-select: none;

@@ -2,32 +2,130 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
-// 方便拼接
 $root-name: code-editor;
 
 @include m.b($root-name) {
-  max-height: 300px;
-  width: 100%;
-  box-shadow: inset 0 0 1px 1px fn.use-var(border-color);
-  transition: box-shadow 0.25s ease;
+  --u-code-editor-default-lines: 8;
+  --u-code-editor-line-height: 1.6;
+  --u-code-editor-font-size: 13px;
+  --u-code-editor-padding-block: 6px;
+  --u-code-editor-bg: #{fn.use-var(bg, color, top)};
+  --u-code-editor-fg: #{fn.use-var(text-color, main)};
+  --u-code-editor-border: #{fn.use-var(border, color)};
+  --u-code-editor-gutter-fg: #{fn.use-var(text-color, placeholder)};
+  --u-code-editor-active-bg: rgba(30, 136, 229, 0.06);
+  --u-code-editor-selection-bg: rgba(30, 136, 229, 0.18);
 
-  &:hover {
-    box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+  position: relative;
+  width: 100%;
+  max-height: 480px;
+  border-radius: fn.use-var(radius, default);
+  background-color: var(--u-code-editor-bg);
+  box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+
+  &:hover,
+  &:focus-within {
+    box-shadow: inset 0 0 0 1px fn.use-var(color, primary);
   }
 
-  @include m.size using ($size) {
-    min-height: fn.use-var(form-component-height, $size);
-    border-radius: fn.use-var(radius, $size);
-    padding: 2px calc(fn.use-var(gap, $size) / 2);
+  .cm-editor {
+    background: transparent;
+    color: var(--u-code-editor-fg);
+    font-size: var(--u-code-editor-font-size);
+    line-height: var(--u-code-editor-line-height);
+    font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, Consolas,
+      'Liberation Mono', monospace;
+    outline: none;
+
+    &.cm-focused {
+      outline: none;
+    }
+
+    .cm-scroller {
+      font-family: inherit;
+      line-height: inherit;
+      overflow: visible;
+    }
+
+    .cm-content {
+      padding: var(--u-code-editor-padding-block) 0;
+      min-height: calc(
+        var(--u-code-editor-default-lines) * var(--u-code-editor-line-height) *
+          var(--u-code-editor-font-size) + var(--u-code-editor-padding-block) * 2
+      );
+      caret-color: fn.use-var(color, primary);
+    }
+
+    .cm-line {
+      padding: 0 8px;
+    }
+
+    .cm-gutters {
+      background-color: transparent;
+      color: var(--u-code-editor-gutter-fg);
+      border-right: 1px solid var(--u-code-editor-border);
+      user-select: none;
+    }
+
+    .cm-gutterElement-phantom {
+      color: var(--u-code-editor-gutter-fg);
+      opacity: 0.45;
+      padding: 0 3px 0 5px;
+      text-align: right;
+      white-space: nowrap;
+      min-width: 1ch;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    .cm-activeLineGutter,
+    .cm-activeLine {
+      background-color: var(--u-code-editor-active-bg);
+    }
+
+    .cm-selectionBackground,
+    ::selection {
+      background-color: var(--u-code-editor-selection-bg);
+    }
+
+    .cm-cursor {
+      border-left-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.is(dark) {
+    --u-code-editor-bg: #282c34;
+    --u-code-editor-fg: #abb2bf;
+    --u-code-editor-border: rgba(255, 255, 255, 0.08);
+    --u-code-editor-gutter-fg: #5c6370;
+    --u-code-editor-active-bg: rgba(255, 255, 255, 0.04);
+    --u-code-editor-selection-bg: rgba(99, 162, 255, 0.25);
   }
 
   @include m.is(disabled) {
     background-color: fn.use-var(color, disabled);
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
     cursor: not-allowed;
+
+    &:hover,
+    &:focus-within {
+      box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
+    }
+
+    .cm-editor,
+    .cm-content {
+      cursor: not-allowed;
+    }
   }
 
   @include m.is(readonly) {
-    box-shadow: none;
+    box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
+
+    &:hover,
+    &:focus-within {
+      box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
+    }
   }
 }
