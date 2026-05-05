@@ -1,42 +1,41 @@
+// 用 CSS 独立变换属性 `scale`/`translate` 取代整体 `transform`,
+// 避免动画与拖拽内联样式互相覆盖、动画结束瞬间内联 transform 反扑导致跳帧
 @keyframes spring-in {
   0% {
-    transform: scale(0);
+    scale: 0;
   }
   40% {
-    transform: scale(1.1);
+    scale: 1.1;
   }
   60% {
-    transform: scale(1);
+    scale: 1;
   }
   80% {
-    transform: scale(1.02);
+    scale: 1.02;
   }
   100% {
-    transform: scale(1);
+    scale: 1;
   }
 }
 
-// @keyframes spring-out {
-//   100% {
-//     transform: scale3d(0, 0, 0) translate3d(0, 0, 0);
-//     opacity: 0;
-//   }
-// }
-
 .spring-enter-active {
   transform-origin: center;
+  will-change: scale;
   animation: spring-in 0.5s ease-in-out;
 }
 
 .spring-leave-active {
-  // animation: spring-out 0.4s cubic-bezier(0.64, -0.32, 0.66, 1.06);
-
+  transform-origin: center;
+  will-change: scale, translate, opacity;
   transition:
-    transform 0.4s cubic-bezier(0.64, -0.32, 0.66, 1.06),
+    scale 0.4s cubic-bezier(0.64, -0.32, 0.66, 1.06),
+    translate 0.4s cubic-bezier(0.64, -0.32, 0.66, 1.06),
     opacity 0.4s cubic-bezier(0.64, -0.32, 0.66, 1.06);
 }
 
 .spring-leave-to {
-  transform: scale3d(0, 0, 0) translate3d(0, 0, 0) !important;
+  scale: 0;
+  // 离开时归位到中心 (即便此前被拖拽过), 与原行为一致; !important 用于覆盖拖拽内联样式
+  translate: 0 0 !important;
   opacity: 0;
 }

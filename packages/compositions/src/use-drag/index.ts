@@ -53,13 +53,9 @@ export function useDrag(options: DragOptions): {
   const onselectstart = document.onselectstart
 
   const handleMousedown = (e: MouseEvent) => {
-    // 阻止事件冒泡
     e.stopPropagation()
-    // 鼠标左键按下有效
     if (e.button !== 0) return
-    // 放置拖拽时选择内容
     window.getSelection()?.removeAllRanges()
-    // 阻止后续的事件监听器被执行
     e.stopImmediatePropagation()
 
     originX = e.x
