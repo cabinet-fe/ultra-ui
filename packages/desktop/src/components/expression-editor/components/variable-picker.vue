@@ -5,297 +5,302 @@
     direction="bottom"
     :trigger-dom="triggerDom"
     :visible="visible"
-    @update:visible="updateVisible($event)"
+    @update:visible="handleVisibleChange($event)"
   >
     <template #content>
-      <!-- 搜索框 -->
-      <div v-if="filterable" :class="cls.e('filter')">
-        <u-input
-          placeholder="输入关键字进行过滤"
-          v-model="searchQuery"
-          :size="'small'"
-          clearable
-          @input="handleSearch"
-        >
-          <template #suffix>
-            <u-icon><Search /></u-icon>
-          </template>
-        </u-input>
-      </div>
-
-      <!-- 面包屑导航 -->
-      <div v-if="breadcrumbs.length > 1 && !searchQuery" :class="cls.e('breadcrumbs')">
-        <span v-for="(crumb, index) in breadcrumbs" :key="index" :class="cls.e('breadcrumb-item')">
-          <span
-            :class="[
-              cls.e('breadcrumb-link'),
-              { [cls.e('breadcrumb-link--active')]: index === breadcrumbs.length - 1 }
-            ]"
-            @click="navigateToBreadcrumb(index)"
-          >
-            {{ crumb.label }}
-          </span>
-          <u-icon v-if="index < breadcrumbs.length - 1" :class="cls.e('breadcrumb-separator')">
-            <ArrowRight />
-          </u-icon>
-        </span>
-      </div>
-
-      <!-- 单面板 -->
-      <div :class="cls.e('panel')" v-if="currentList.length">
-        <u-scroll tag="ul" :class="cls.e('panel-list')" :content-class="cls.e('panel-content')">
-          <li
-            v-for="(item, idx) in currentList"
-            :key="item.value ?? idx"
-            :class="getItemCls(item, idx)"
-            @click="handleItemClick(item)"
-            @mouseenter="activeIndex = idx"
-          >
-            <span :class="cls.e('item-label')">
-              {{ item.label }}
-            </span>
-            <u-icon v-if="item.children?.length" :class="cls.e('item-expand')">
+      <div :class="cls.e('picker')" @mousedown.prevent>
+        <!-- 面包屑：仅逐级模式且非根级显示 -->
+        <div v-if="!isFlat && navPath.length > 0" :class="cls.e('breadcrumbs')">
+          <span :class="cls.e('breadcrumb-item')">
+            <span :class="cls.e('breadcrumb-link')" @click="navigateTo(0)">全部变量</span>
+            <u-icon :class="cls.e('breadcrumb-separator')">
               <ArrowRight />
             </u-icon>
-          </li>
-        </u-scroll>
-      </div>
+          </span>
+          <span
+            v-for="(crumb, i) in navPath"
+            :key="`${i}-${crumb.value}`"
+            :class="cls.e('breadcrumb-item')"
+          >
+            <span
+              :class="[
+                cls.e('breadcrumb-link'),
+                { [cls.em('breadcrumb-link', 'active')]: i === navPath.length - 1 }
+              ]"
+              @click="navigateTo(i + 1)"
+              >{{ crumb.label }}</span
+            >
+            <u-icon v-if="i < navPath.length - 1" :class="cls.e('breadcrumb-separator')">
+              <ArrowRight />
+            </u-icon>
+          </span>
+        </div>
 
-      <!-- 空状态 -->
-      <div v-else :class="cls.e('empty')">
-        <UEmpty description="暂无可用变量" />
+        <div :class="cls.e('picker-body')">
+          <div :class="cls.e('panel')" v-if="currentList.length > 0">
+            <u-scroll tag="ul" :class="cls.e('panel-list')" :content-class="cls.e('panel-content')">
+              <li
+                v-for="(item, idx) in currentList"
+                :key="`${idx}-${item.value}`"
+                :data-idx="idx"
+                :class="getItemCls(item, idx)"
+                @click="handleItemClick(item, idx)"
+                @mouseenter="activeIndex = idx"
+              >
+                <span :class="cls.e('item-label')">{{ item.label }}</span>
+                <u-icon v-if="!isFlat && hasChildren(item)" :class="cls.e('item-expand')">
+                  <ArrowRight />
+                </u-icon>
+              </li>
+            </u-scroll>
+          </div>
+          <div v-else :class="cls.e('empty')">
+            <UEmpty description="暂无可用变量" />
+          </div>
+
+          <PathPreview v-if="isFlat && activePath.length > 0" :path="activePath" />
+        </div>
       </div>
     </template>
   </u-tip>
 </template>
 
 <script lang="ts" setup>
-import { ArrowRight, Search } from '@veltra/icons/normal'
+import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { inject, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import type { VariableItem } from '../../../types'
 import { UEmpty } from '../../empty'
 import { UIcon } from '../../icon'
-import { UInput } from '../../input'
 import { UScroll } from '../../scroll'
 import { UTip } from '../../tip'
-import { ExpressionEditorDIKey } from '../di'
+import PathPreview from './path-preview.vue'
 
 defineOptions({
   name: 'VariablePicker'
 })
 
+interface FlatItem extends VariableItem {
+  /** 仅扁平模式使用：从根到当前节点的路径 */
+  __path: VariableItem[]
+}
+
 const props = defineProps<{
   visible: boolean
   triggerDom?: HTMLElement
-  filterable?: boolean
-  registerPickerKeyHandler?: (handler: ((e: KeyboardEvent) => void) | null) => void
+  /** 顶层变量树 */
+  variables?: VariableItem[]
+  /** 来自编辑器 mention 状态的过滤字符串。空 = 逐级模式；非空 = 扁平模式。 */
+  filter: string
+  /** 是否允许选中分支节点 */
+  selectableLevels: 'leaf' | 'any'
 }>()
 
 const emit = defineEmits<{
-  (e: 'select', variable: VariableItem): void
+  (e: 'select', item: VariableItem): void
   (e: 'update:visible', visible: boolean): void
+  /** 用户主动取消（按 Esc）。编辑器据此把 mention 状态置为 dismissed。 */
+  (e: 'dismiss'): void
 }>()
 
-const { cls, editorProps, variableMap } = inject(ExpressionEditorDIKey)!
+const cls = bem('expression-editor')
 
-const searchQuery = ref('')
-const activeIndex = ref<number>(-1)
-const navigationPath = ref<VariableItem[]>([]) // 当前导航路径
+const navPath = ref<VariableItem[]>([])
+const activeIndex = ref(0)
 
-// 扁平化变量树，用于搜索
-function flattenVariables(
-  items: VariableItem[] | undefined,
-  parentPath: VariableItem[] = []
-): VariableItem[] {
-  if (!items) return []
-  const result: VariableItem[] = []
+const isFlat = computed(() => props.filter !== '')
 
-  for (const item of items) {
-    const currentPath = [...parentPath, item]
-    // 如果是叶子节点，添加到结果中
-    if (!item.children || item.children.length === 0) {
-      result.push({
-        ...item,
-        label: currentPath.map((p) => p.label).join(' / ')
-      })
-    } else {
-      // 递归处理子节点
-      result.push(...flattenVariables(item.children, currentPath))
-    }
-  }
-
-  return result
+function hasChildren(item: VariableItem): boolean {
+  return !!item.children && item.children.length > 0
 }
 
-// 过滤后的变量列表
-const filteredVariables = computed(() => {
-  const { variables } = editorProps
-  if (!variables || variables.length === 0) return []
+function isLeaf(item: VariableItem): boolean {
+  return !hasChildren(item)
+}
 
-  if (!searchQuery.value.trim()) {
-    return variables
+/** 当前层级展示的列表（来源依模式而定） */
+const currentList = computed<VariableItem[]>(() => {
+  const variables = props.variables ?? []
+  if (isFlat.value) return flatList.value
+  let level: VariableItem[] = variables
+  for (const node of navPath.value) {
+    const found = level.find((it) => it.value === node.value)
+    if (!found || !found.children) break
+    level = found.children
   }
-
-  // 搜索模式：扁平化并过滤
-  const flat = flattenVariables(variables)
-  const query = searchQuery.value.toLowerCase()
-  return flat.filter((item) => item.label.toLowerCase().includes(query))
+  return level
 })
 
-// 当前显示的列表（单面板）
-const currentList = computed(() => {
-  if (searchQuery.value.trim()) {
-    // 搜索模式：显示过滤后的扁平列表
-    return filteredVariables.value
-  } else {
-    // 正常模式：根据导航路径显示当前层级
-    let current: VariableItem[] = filteredVariables.value
-    for (const pathItem of navigationPath.value) {
-      const found = current.find((item) => item.value === pathItem.value)
-      if (found?.children) {
-        current = found.children
+/** 扁平模式下：根据 selectableLevels 拍平 + 过滤 */
+const flatList = computed<FlatItem[]>(() => {
+  const variables = props.variables ?? []
+  const out: FlatItem[] = []
+  const includeBranches = props.selectableLevels === 'any'
+  function walk(items: VariableItem[], path: VariableItem[]) {
+    for (const it of items) {
+      const nextPath = [...path, it]
+      if (isLeaf(it)) {
+        out.push({ ...it, __path: nextPath })
       } else {
-        break
+        if (includeBranches) out.push({ ...it, __path: nextPath })
+        walk(it.children!, nextPath)
       }
     }
-    return current
   }
+  walk(variables, [])
+  const q = props.filter.toLowerCase()
+  return out.filter((it) => it.label.toLowerCase().includes(q))
 })
 
-// 面包屑导航
-const breadcrumbs = computed(() => {
-  return [{ label: '全部变量', value: '' }, ...navigationPath.value]
+/** 当前 active 项；扁平模式下用于驱动路径预览 */
+const activePath = computed<VariableItem[]>(() => {
+  if (!isFlat.value) return []
+  const item = flatList.value[activeIndex.value] as FlatItem | undefined
+  return item ? item.__path : []
 })
 
-function getItemCls(item: VariableItem, index: number): string[] {
-  const isActive = activeIndex.value === index
-  const isLeaf = !item.children || item.children.length === 0
-
-  return [cls.e('item'), bem.is('active', isActive), bem.is('leaf', isLeaf)]
+function getItemCls(_item: VariableItem, idx: number) {
+  return [cls.e('item'), bem.is('active', idx === activeIndex.value)]
 }
 
-function handleItemClick(item: VariableItem) {
-  // 如果有子节点，导航到下一级
-  if (item.children && item.children.length > 0) {
-    navigationPath.value.push(item)
-    activeIndex.value = -1
+function navigateTo(i: number) {
+  // 0 = 全部变量；i 之后表示进入到 navPath[i-1]
+  navPath.value = navPath.value.slice(0, i)
+  activeIndex.value = 0
+}
+
+function handleItemClick(item: VariableItem, idx: number) {
+  activeIndex.value = idx
+  selectActive()
+}
+
+function selectActive() {
+  const item = currentList.value[activeIndex.value]
+  if (!item) return
+
+  if (isFlat.value) {
+    // 扁平模式始终是「选中并替换」
+    emit('select', flattenSourceFor(item))
     return
   }
 
-  // 叶子节点：选择并关闭
-  const fullItem = variableMap.value.get(item.value)
-  if (fullItem) {
-    emit('select', fullItem)
-  } else {
-    emit('select', item)
-  }
-  updateVisible(false)
-}
-
-// 面包屑导航
-function navigateToBreadcrumb(index: number) {
-  if (index === 0) {
-    // 点击"全部变量"，返回根级
-    navigationPath.value = []
-  } else {
-    // 导航到指定层级
-    navigationPath.value = navigationPath.value.slice(0, index)
-  }
-  activeIndex.value = -1
-}
-
-function handleSearch() {
-  // 搜索时重置导航路径
-  navigationPath.value = []
-  activeIndex.value = -1
-}
-
-function updateVisible(visible: boolean) {
-  emit('update:visible', visible)
-  if (!visible) {
-    // 关闭时重置状态
-    navigationPath.value = []
-    searchQuery.value = ''
-    activeIndex.value = -1
-  }
-}
-
-// 处理键盘事件
-function handleKeydown(e: KeyboardEvent) {
-  if (!props.visible) return
-
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    updateVisible(false)
-    return
-  }
-
-  if (currentList.value.length === 0) return
-
-  // 初始化 activeIndex
-  if (activeIndex.value === -1 && currentList.value.length > 0) {
+  // 逐级模式
+  if (hasChildren(item)) {
+    if (props.selectableLevels === 'any') {
+      // Enter 在分支项上：选中分支本身
+      emit('select', item)
+      return
+    }
+    // 默认 'leaf'：进入下一级
+    navPath.value = [...navPath.value, item]
     activeIndex.value = 0
+    return
   }
-
-  const currentItem = currentList.value[activeIndex.value]
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault()
-    activeIndex.value = Math.min(currentList.value.length - 1, activeIndex.value + 1)
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault()
-    activeIndex.value = Math.max(0, activeIndex.value - 1)
-  } else if (e.key === ' ' || e.key === 'Spacebar') {
-    // 空格键：导航到下一级（仅对有子项的项有效）
-    e.preventDefault()
-    if (currentItem?.children && currentItem.children.length > 0) {
-      handleItemClick(currentItem)
-    }
-  } else if (e.key === 'ArrowRight') {
-    // 右箭头：导航到下一级（仅对有子项的项有效）
-    e.preventDefault()
-    if (currentItem?.children && currentItem.children.length > 0) {
-      handleItemClick(currentItem)
-    }
-  } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
-    // 左箭头/退格：返回上一级
-    e.preventDefault()
-    if (navigationPath.value.length > 0) {
-      navigationPath.value.pop()
-      activeIndex.value = 0
-    }
-  } else if (e.key === 'Enter') {
-    // 回车键：确定选择（仅对最末级项有效）
-    e.preventDefault()
-    if (currentItem) {
-      if (!currentItem.children || currentItem.children.length === 0) {
-        // 只有叶子节点才能选择
-        handleItemClick(currentItem)
-      }
-    }
-  }
+  emit('select', item)
 }
 
-// 监听键盘事件
+function flattenSourceFor(it: VariableItem): VariableItem {
+  const flat = it as FlatItem
+  // 还原为「不带 __path 的纯 VariableItem」，避免泄漏内部字段
+  const out: VariableItem = { value: flat.value, label: flat.label }
+  if (flat.type) out.type = flat.type
+  if (flat.children) out.children = flat.children
+  return out
+}
+
+function moveActive(delta: -1 | 1) {
+  const max = currentList.value.length - 1
+  if (max < 0) return
+  let next = activeIndex.value + delta
+  if (next < 0) next = 0
+  if (next > max) next = max
+  activeIndex.value = next
+  scrollActiveIntoView()
+}
+
+function scrollActiveIntoView() {
+  void nextTick(() => {
+    const list = document.querySelector(`.${cls.e('panel-list')}`)
+    if (!list) return
+    const item = list.querySelector(`[data-idx="${activeIndex.value}"]`)
+    if (item && 'scrollIntoView' in item) {
+      ;(item as HTMLElement).scrollIntoView({ block: 'nearest' })
+    }
+  })
+}
+
+function handleVisibleChange(v: boolean) {
+  emit('update:visible', v)
+  if (!v) reset()
+}
+
+function reset() {
+  navPath.value = []
+  activeIndex.value = 0
+}
+
 watch(
   () => props.visible,
   (v) => {
-    if (v) {
-      document.addEventListener('keydown', handleKeydown)
-    } else {
-      document.removeEventListener('keydown', handleKeydown)
-    }
+    if (!v) reset()
+    else activeIndex.value = 0
   }
 )
 
-onMounted(() => {
-  props.registerPickerKeyHandler?.(handleKeydown)
-})
+watch(
+  () => props.filter,
+  () => {
+    // 过滤词变化：重置 active；逐级 → 扁平时清空 navPath
+    activeIndex.value = 0
+    if (isFlat.value) navPath.value = []
+  }
+)
 
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeydown)
-  props.registerPickerKeyHandler?.(null)
-})
+/**
+ * 由父级 forward 进来的键盘事件。
+ * 返回 true 表示已处理（外部应 preventDefault）。
+ */
+function handleKeydown(e: KeyboardEvent): boolean {
+  if (!props.visible) return false
+
+  switch (e.key) {
+    case 'Escape':
+      emit('dismiss')
+      emit('update:visible', false)
+      reset()
+      return true
+    case 'ArrowDown':
+      moveActive(1)
+      return true
+    case 'ArrowUp':
+      moveActive(-1)
+      return true
+    case 'ArrowLeft':
+      // 仅逐级模式：返回上一级；扁平模式下不拦截，让光标正常移动并触发 mention dismiss
+      if (!isFlat.value && navPath.value.length > 0) {
+        navPath.value = navPath.value.slice(0, -1)
+        activeIndex.value = 0
+        return true
+      }
+      return false
+    case 'ArrowRight': {
+      if (isFlat.value) return false
+      const item = currentList.value[activeIndex.value]
+      if (item && hasChildren(item)) {
+        navPath.value = [...navPath.value, item]
+        activeIndex.value = 0
+        return true
+      }
+      return false
+    }
+    case 'Enter':
+      selectActive()
+      return true
+    default:
+      return false
+  }
+}
+
+defineExpose({ handleKeydown })
 </script>

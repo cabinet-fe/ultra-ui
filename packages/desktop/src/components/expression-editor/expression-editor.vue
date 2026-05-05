@@ -1,56 +1,29 @@
 <template>
   <div :class="className">
-    <!-- 编辑容器 -->
     <div
-      :class="cls.e('container')"
       ref="container"
+      :class="cls.e('container')"
       :contenteditable="!readonly && !disabled"
+      :data-empty="isEmpty || undefined"
+      :data-placeholder="props.placeholder"
+      @keydown="onKeydown"
+      @blur="onBlur"
     ></div>
 
-    <div v-if="showFallbackControls" :class="cls.e('fallback')">
-      <div
-        v-for="(item, index) in fallbackVariables"
-        :key="item.key"
-        :class="cls.e('fallback-item')"
-      >
-        <span :class="cls.e('fallback-label')">
-          {{ item.label || item.variable }}
-        </span>
-        <div :class="cls.e('fallback-actions')">
-          <button
-            type="button"
-            :class="cls.e('fallback-button')"
-            :disabled="disabled || readonly || index === 0"
-            @click="moveVariable(item.key, -1)"
-          >
-            上移
-          </button>
-          <button
-            type="button"
-            :class="cls.e('fallback-button')"
-            :disabled="disabled || readonly || index === fallbackVariables.length - 1"
-            @click="moveVariable(item.key, 1)"
-          >
-            下移
-          </button>
-        </div>
-      </div>
+    <div v-if="showPlaceholder" :class="cls.e('placeholder')">
+      {{ props.placeholder }}
     </div>
 
-    <div :class="cls.e('placeholder')" v-if="showPlaceholder">
-      {{ placeholder }}
-    </div>
-
-    <!-- 渲染装饰器节点，内部通过Vue的Teleport组件渲染至节点中 -->
-    <Decorators :decorators="decorators" />
-
-    <!-- 变量选择器 -->
     <VariablePicker
-      v-model:visible="contextVisible"
-      :trigger-dom="contextTriggerDom"
-      :filterable="true"
-      :register-picker-key-handler="registerPickerKeyHandler"
-      @select="handleVariableSelect"
+      ref="pickerRef"
+      :visible="pickerVisible"
+      :trigger-dom="pickerTriggerDom"
+      :variables="props.variables"
+      :filter="pickerFilter"
+      :selectable-levels="props.selectableLevels ?? 'leaf'"
+      @select="onPickerSelect"
+      @dismiss="onPickerDismiss"
+      @update:visible="onPickerVisibleChange"
     />
   </div>
 </template>
@@ -58,154 +31,214 @@
 <script lang="ts" setup>
 import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
-import { $getRoot } from 'lexical'
-import { useTemplateRef, provide, computed, onBeforeUnmount, shallowRef, type VNode } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  shallowRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 
 import type { ExpressionEditorProps, VariableItem } from '../../types'
 import VariablePicker from './components/variable-picker.vue'
-import { ExpressionEditorDIKey, createVariableMap } from './di'
-import { createExpressionEditorRuntime } from './internal/editor-runtime'
-import { moveVariableByDirection } from './internal/features/drag-drop/drag-drop-service'
-import { insertVariableAtTrigger } from './internal/features/insertion/insertion-service'
-import { $isVariableNode } from './nodes/variable-node'
-import { registerPlainText } from './plain-text'
-import { useContext } from './use-context'
-import { useDecorators } from './use-decorators'
-import { collectVariableNodeDescriptors, supportsNativeDnD } from './use-expression-drag-drop'
+import { createEditor, type EditorAPI } from './core/editor'
+import { createMention, type MentionAPI } from './core/mention'
+import { parse, type Doc } from './core/model'
+import { createVariableMap } from './di'
 
 defineOptions({
   name: 'ExpressionEditor'
 })
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
-  placeholder: '请输入表达式，输入 @ 可插入变量'
+  placeholder: '请输入表达式，输入 @ 可插入变量',
+  selectableLevels: 'leaf'
 })
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const showPlaceholder = computed(() => !props.modelValue || props.modelValue.trim() === '')
-
 const cls = bem('expression-editor')
-
 const { formProps } = useFormComponent()
-
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
-const className = computed(() => {
-  return [
-    cls.b,
-    cls.m(size.value),
-    bem.is('disabled', disabled.value),
-    bem.is('readonly', readonly.value)
-  ]
-})
+const containerRef = useTemplateRef<HTMLDivElement>('container')
+const pickerRef = useTemplateRef<{ handleKeydown: (e: KeyboardEvent) => boolean }>('pickerRef')
 
-const containerRef = useTemplateRef('container')
+const className = computed(() => [
+  cls.b,
+  cls.m(size.value),
+  bem.is('disabled', disabled.value),
+  bem.is('readonly', readonly.value)
+])
 
-const { editor } = createExpressionEditorRuntime({
-  disabled,
-  readonly,
-  cls,
-  container: containerRef,
-  props,
-  emit
-})
+const variableMap = computed(() => createVariableMap(props.variables))
 
-const {
-  contextVisible,
-  contextTriggerDom,
-  textNode,
-  charPosition,
-  registerPickerKeyHandler,
-  registerContextCommands
-} = useContext(editor)
+const editorRef = shallowRef<EditorAPI | null>(null)
+const mention: MentionAPI = createMention()
 
-registerPlainText(editor, {
-  getContextCommands: registerContextCommands
-})
+const currentDoc = shallowRef<Doc>([])
+const isEmpty = computed(() => currentDoc.value.length === 0)
+const showPlaceholder = computed(() => isEmpty.value && !disabled.value)
 
-const decorators = useDecorators(editor)
-const nativeDnDSupported = supportsNativeDnD()
-const fallbackVariables = shallowRef(collectVariableNodeDescriptors(editor))
-const showFallbackControls = computed(
-  () => !nativeDnDSupported && fallbackVariables.value.length > 1
-)
+const pickerMode = shallowRef<'mention' | 'reselect' | null>(null)
+const pickerTriggerDom = shallowRef<HTMLElement | undefined>(undefined)
+const reselectingSegIdx = shallowRef<number | null>(null)
+const pickerFilter = shallowRef('')
 
-const removeFallbackSync = editor.registerUpdateListener(() => {
-  fallbackVariables.value = collectVariableNodeDescriptors(editor)
+const pickerVisible = computed(() => pickerMode.value !== null)
+
+function syncMention() {
+  const editor = editorRef.value
+  if (!editor) return
+  if (pickerMode.value === 'reselect') return
+  const caret = editor.getCaretOffset()
+  const state = mention.update(currentDoc.value, caret)
+  if (state) {
+    pickerMode.value = 'mention'
+    pickerFilter.value = state.filter
+    pickerTriggerDom.value = containerRef.value ?? undefined
+  } else if (pickerMode.value === 'mention') {
+    closePicker()
+  }
+}
+
+function closePicker() {
+  pickerMode.value = null
+  reselectingSegIdx.value = null
+  pickerFilter.value = ''
+}
+
+onMounted(() => {
+  if (!containerRef.value) return
+  const initialDoc = parse(props.modelValue ?? '', variableMap.value)
+  currentDoc.value = initialDoc
+
+  const editor = createEditor({
+    container: containerRef.value,
+    cls,
+    initialDoc,
+    getVariableMap: () => variableMap.value,
+    onChange: (doc) => {
+      currentDoc.value = doc
+      const value = serializeFromDoc(doc)
+      if (value !== (props.modelValue ?? '')) emit('update:modelValue', value)
+      syncMention()
+    },
+    onSelectionChange: () => {
+      syncMention()
+    },
+    onChipReselect: ({ chipEl, segIndex }) => {
+      if (disabled.value || readonly.value) return
+      mention.commit()
+      pickerMode.value = 'reselect'
+      pickerFilter.value = ''
+      pickerTriggerDom.value = chipEl
+      reselectingSegIdx.value = segIndex
+    },
+    onChipRemove: ({ segIndex }) => {
+      if (disabled.value || readonly.value) return
+      editor.removeVarAt(segIndex)
+    }
+  })
+  editorRef.value = editor
 })
 
 onBeforeUnmount(() => {
-  removeFallbackSync()
+  editorRef.value?.dispose()
 })
 
-// 创建变量映射表
-const variableMap = computed(() => createVariableMap(props.variables))
-
-function Decorators(props: { decorators: VNode[] }) {
-  return props.decorators
+function serializeFromDoc(doc: Doc): string {
+  let s = ''
+  for (const seg of doc) s += seg.kind === 'text' ? seg.value : `{${seg.value}}`
+  return s
 }
 
-function moveVariable(variableKey: string, direction: -1 | 1) {
-  if (disabled.value || readonly.value) return
+watch(
+  () => props.modelValue,
+  (v) => {
+    const editor = editorRef.value
+    if (!editor) return
+    if (v === editor.getValue()) return
+    editor.setValue(v ?? '')
+  }
+)
 
-  moveVariableByDirection(editor, variableKey, direction, true)
-}
-
-// 处理变量选择
-function handleVariableSelect(variable: VariableItem) {
-  if (disabled.value || readonly.value) return
-
-  const nodeKey = textNode.value?.getKey()
-  if (!nodeKey) return
-
-  insertVariableAtTrigger(editor, {
-    nodeKey,
-    charPosition: charPosition.value,
-    variable: {
-      value: variable.value,
-      label: variable.label,
-      type: variable.type
-    }
-  })
-}
-
-// 更新变量节点的函数
-function updateVariableNode(oldValue: string, newValue: string, newLabel?: string) {
-  editor.update(() => {
-    const root = $getRoot()
-
-    // 如果没有提供 label 或 type，从映射表中查找
-    const variable = variableMap.value.get(newValue)
-    const label = newLabel ?? variable?.label ?? newValue
-    const type = variable?.type
-
-    // 递归遍历所有节点
-    function traverse(node: any) {
-      if ($isVariableNode(node)) {
-        if (node.getVariable() === oldValue) {
-          node.updateVariable(newValue, label, type)
-        }
-      }
-
-      // 如果节点有 getChildren 方法，继续遍历
-      if (typeof node.getChildren === 'function') {
-        const children = node.getChildren()
-        children.forEach((child: any) => traverse(child))
-      }
-    }
-
-    traverse(root)
-  })
-}
-
-provide(ExpressionEditorDIKey, {
-  cls,
-  editorProps: props,
-  editor,
-  updateVariableNode,
-  variableMap
+watch(variableMap, () => {
+  // variables 变化：重渲染以刷新 chip label / type
+  const editor = editorRef.value
+  if (!editor) return
+  editor.setValue(editor.getValue())
 })
+
+function onKeydown(e: KeyboardEvent) {
+  if (disabled.value || readonly.value) return
+  // mention / reselect 激活时，优先把箭头键 / Enter / Esc 转给 picker
+  if (pickerMode.value !== null) {
+    const handledByPicker = pickerRef.value?.handleKeydown(e)
+    if (handledByPicker) {
+      e.preventDefault()
+      return
+    }
+  }
+
+  if (pickerMode.value === 'mention') {
+    // 这些键导致 mention 退出（保留 @filter 文本，光标继续移动）
+    if (e.key === ' ' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      mention.dismiss()
+      closePicker()
+    }
+  }
+}
+
+function onBlur() {
+  if (pickerMode.value === 'mention') {
+    mention.dismiss()
+    // 下一帧再关闭，避免和 picker 内 click 冲突
+    void nextTick(() => closePicker())
+  }
+}
+
+function onPickerSelect(item: VariableItem) {
+  const editor = editorRef.value
+  if (!editor) return
+
+  if (pickerMode.value === 'mention') {
+    const state = mention.getState()
+    if (!state) return
+    const anchor = state.anchorOffset
+    const caret = editor.getCaretOffset() ?? anchor + state.filter.length + 1
+    editor.replaceRangeWithVar(anchor, caret, {
+      value: item.value,
+      label: item.label,
+      ...(item.type ? { type: item.type } : {})
+    })
+    mention.commit()
+  } else if (pickerMode.value === 'reselect') {
+    const idx = reselectingSegIdx.value
+    if (idx !== null) {
+      editor.replaceVarAt(idx, {
+        value: item.value,
+        label: item.label,
+        ...(item.type ? { type: item.type } : {})
+      })
+    }
+  }
+  closePicker()
+}
+
+function onPickerDismiss() {
+  if (pickerMode.value === 'mention') mention.dismiss()
+  closePicker()
+}
+
+function onPickerVisibleChange(v: boolean) {
+  if (!v && pickerMode.value !== null) {
+    if (pickerMode.value === 'mention') mention.dismiss()
+    closePicker()
+  }
+}
 </script>

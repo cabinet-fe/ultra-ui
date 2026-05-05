@@ -1,48 +1,54 @@
 <template>
   <div>
     <h3>表达式编辑器示例</h3>
-    <p>
-      输入 @ 可以触发变量选择器。键盘操作：<br />
-      • <strong>上下键</strong>：在列表中导航<br />
-      • <strong>空格键</strong>：进入下一级（仅对有子项的变量有效）<br />
-      • <strong>回车键</strong>：选择变量（仅对最末级变量有效）<br />
-      • <strong>左键/退格</strong>：返回上一级<br />
-      • <strong>ESC</strong>：关闭面板
-    </p>
-
-    <h4>拖拽行为矩阵（实现为真源）</h4>
+    <p>新版交互（Lexical 已移除）：</p>
     <ul>
-      <li>合法拖拽源：仅支持变量节点（{variable}）直接拖拽，普通文本与空白不是拖拽源。</li>
-      <li>合法目标粒度：按变量插槽计算，hover 到纯文本区域时自动 snap 到最近合法插入位。</li>
+      <li>键入 <code>@</code> 唤起变量选择面板。<code>@filter</code> 后键入字符即时过滤。</li>
       <li>
-        非法 drop：外部数据源、跨表达式区域或无效 payload 会 silent revert（仅清理反馈，不改内容）。
+        面板键盘：<strong>↑↓</strong> 移动焦点；<strong>←</strong> 返回上一级；<strong
+          >→ / Enter</strong
+        >
+        进入下一级或选中（行为依 <code>selectableLevels</code>）。
       </li>
-      <li>drop 后焦点：焦点回到被移动变量，便于连续重排。</li>
-      <li>桌面优先：优先使用原生 DnD；原生不可用时显示变量“上移/下移”作为等价交互。</li>
-      <li>边界规则：首项禁上移、末项禁下移；readonly/disabled 下不触发重排。</li>
+      <li>
+        <strong>Esc / 空格 / ←→</strong> 退出 mention，<code>@filter</code> 文本保留为普通字符。
+      </li>
+      <li>
+        变量 chip：<strong>hover</strong> 出现 ×；<strong>点击 chip 主体</strong>原地重选；<strong
+          >点击 ×</strong
+        >
+        直接删除。
+      </li>
+      <li>原生方向键即可跨 chip 移动光标，Backspace 在 chip 边界一次删除整个 chip。</li>
     </ul>
 
     <div style="margin-bottom: 20px">
+      <h4>默认（仅叶子可选）</h4>
       <u-expression-editor
         v-model="expression"
         :variables="variables"
-        placeholder="请输入表达式，输入@可插入变量"
+        placeholder="请输入表达式，输入 @ 可插入变量"
       />
     </div>
 
     <div style="margin-bottom: 20px">
-      <h4>表达式：</h4>
+      <h4>selectableLevels="any"（分支节点也可选中）</h4>
+      <u-expression-editor
+        v-model="anyLevelsExpr"
+        :variables="variables"
+        selectable-levels="any"
+        placeholder="@ 触发，分支项 Enter 选中分支本身、→ 进入下级"
+      />
+    </div>
+
+    <div style="margin-bottom: 20px">
+      <h4>表达式（v-model）：</h4>
       <pre>{{ expression }}</pre>
     </div>
 
     <div style="margin-bottom: 20px">
       <h4>值替换：</h4>
       <pre>{{ value }}</pre>
-    </div>
-
-    <div style="margin-bottom: 20px">
-      <h4>变量列表（树形结构）：</h4>
-      <pre>{{ JSON.stringify(variables, null, 2) }}</pre>
     </div>
 
     <div style="margin-bottom: 20px">
@@ -59,14 +65,13 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { computed } from 'vue'
-import { shallowRef } from 'vue'
+import { computed, shallowRef } from 'vue'
 
 const expression = shallowRef(
   '你好{form.user.name}, 欢迎来到{form.company.name}，入职{form.department.name}为{form.position}职位'
 )
+const anyLevelsExpr = shallowRef('选中整个分支：{form.user}')
 
-// 更丰富的树形变量结构
 const variables = [
   {
     label: '表单数据',
@@ -115,20 +120,9 @@ const variables = [
 
 const data = {
   form: {
-    user: {
-      name: '张三',
-      age: 28,
-      email: 'zhangsan@example.com'
-    },
-    company: {
-      name: 'bilibili',
-      address: '上海市杨浦区',
-      phone: '021-12345678'
-    },
-    department: {
-      name: '研发部',
-      code: 'DEV001'
-    },
+    user: { name: '张三', age: 28, email: 'zhangsan@example.com' },
+    company: { name: 'bilibili', address: '上海市杨浦区', phone: '021-12345678' },
+    department: { name: '研发部', code: 'DEV001' },
     position: '前端工程师',
     date: '2025-01-01'
   },
@@ -139,13 +133,9 @@ const data = {
   }
 }
 
-function getValue(expression: string, data: any) {
-  return expression.replace(/\{([^}]+)\}/g, (match, key) => {
-    return o(data).get(key)
-  })
+function getValue(expr: string, source: any) {
+  return expr.replace(/\{([^}]+)\}/g, (_, key) => o(source).get(key))
 }
 
-const value = computed(() => {
-  return getValue(expression.value, data)
-})
+const value = computed(() => getValue(expression.value, data))
 </script>
