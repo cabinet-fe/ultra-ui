@@ -1,5 +1,21 @@
 # @veltra/desktop
 
+## 1.0.14
+
+### Patch Changes
+
+- 3da006a: - desktop: 重写 expression-editor，移除 lexical 依赖；batch-edit 合并精简实现
+  - desktop: action / cascade / code-editor / dialog / layout / number-input / table / tree 体验与样式细节优化
+  - icons: 新增 dot 图标
+  - styles: 调整 spring 动效曲线
+  - compositions: 精简 use-drag 内部实现
+- Updated dependencies [3da006a]
+  - @veltra/icons@1.0.14
+  - @veltra/styles@1.0.14
+  - @veltra/compositions@1.0.14
+  - @veltra/directives@1.0.14
+  - @veltra/utils@1.0.14
+
 ## 1.0.13
 
 ### Patch Changes
