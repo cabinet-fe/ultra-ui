@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.0.15
+
+### Patch Changes
+
+- d8b4829: fix: expression-editor IME 合成保护 & chip 样式调整 & tip 重定位优化
+  - @veltra/utils@1.0.15
+  - @veltra/styles@1.0.15
+  - @veltra/compositions@1.0.15
+  - @veltra/directives@1.0.15
+  - @veltra/icons@1.0.15
+
 ## 1.0.14
 
 ### Patch Changes
