@@ -81,8 +81,8 @@ $root-name: expression-editor;
     height: 22px;
     line-height: 1;
     font-size: 12px;
-    color: fn.use-var(text-color, white);
-    background-color: fn.use-var(color, primary);
+    color: fn.use-var(color, primary);
+    background-color: fn.use-var(color, primary, light-9);
     border-radius: 999px;
     cursor: pointer;
     user-select: none;
@@ -91,7 +91,8 @@ $root-name: expression-editor;
       box-shadow 0.12s ease;
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-2);
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary, light-8);
       box-shadow: 0 1px 4px fn.use-var(shadow, color);
 
       .#{vars.$namespace}#{$root-name}__chip-close {
@@ -120,7 +121,7 @@ $root-name: expression-editor;
     overflow: hidden;
     font-size: 14px;
     line-height: 1;
-    color: fn.use-var(text-color, white);
+    color: fn.use-var(color, primary);
     opacity: 0;
     transition:
       opacity 0.12s ease,

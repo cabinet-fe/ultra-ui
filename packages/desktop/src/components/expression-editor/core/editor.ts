@@ -368,6 +368,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     insertPlainTextAtCaret(text)
   }
   function onSelectionChange() {
+    if (composing) return
     if (!opts.onSelectionChange) return
     const sel = document.getSelection()
     if (!sel || sel.rangeCount === 0) {

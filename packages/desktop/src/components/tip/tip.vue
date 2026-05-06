@@ -141,7 +141,7 @@ const triggerDom = computed(() => {
   return props.triggerDom || triggerRef.value?.$el
 })
 
-const { popperContainerId } = usePop({
+const { update, popperContainerId } = usePop({
   triggerRef: triggerDom,
   contentRef,
   arrowRef,
@@ -155,8 +155,9 @@ const { popperContainerId } = usePop({
 watch(triggerDom, (dom) => {
   // TODO: 看起来不是很优雅
   if (dom?.nodeType === Node.ELEMENT_NODE && visible.value) {
-    close()
-    nextTick(() => open())
+    nextTick(() => {
+      void update()
+    })
   }
 })
 

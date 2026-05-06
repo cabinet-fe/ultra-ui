@@ -3,6 +3,7 @@
     hide-arrow
     alignment="start"
     direction="bottom"
+    trigger="click"
     :trigger-dom="triggerDom"
     :visible="visible"
     @update:visible="handleVisibleChange($event)"
