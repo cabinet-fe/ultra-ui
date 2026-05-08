@@ -11,6 +11,16 @@
       <div class="control-bar">
         <div class="control-section">
           <div class="control-group">
+            <span class="control-label">主题包</span>
+            <div class="radio-group">
+              <u-radio value="default" v-model="themePreset">默认</u-radio>
+              <u-radio value="shadcn" v-model="themePreset">Shadcn</u-radio>
+              <u-radio value="hero" v-model="themePreset">Hero</u-radio>
+              <u-radio value="glass" v-model="themePreset">玻璃</u-radio>
+            </div>
+          </div>
+
+          <div class="control-group">
             <span class="control-label">组件尺寸</span>
             <div class="radio-group">
               <u-radio value="small" v-model="size">小</u-radio>
@@ -68,7 +78,19 @@
 <script lang="tsx" setup>
 import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, MenuItem } from '@veltra/desktop'
-import { currentTheme, lightTheme, darkTheme, UITheme, loadTheme } from '@veltra/styles/theme'
+import {
+  currentTheme,
+  lightTheme,
+  darkTheme,
+  shadcnLightTheme,
+  shadcnDarkTheme,
+  heroLightTheme,
+  heroDarkTheme,
+  UITheme,
+  glassDarkTheme,
+  glassLightTheme,
+  loadTheme
+} from '@veltra/styles/theme'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -126,18 +148,30 @@ onMounted(() => {
 
 onUnmounted(() => removePrefListener?.())
 
+const themePreset = ref(localStorage.getItem('themePreset') || 'default')
+watch(themePreset, (v) => localStorage.setItem('themePreset', v))
+
+const getThemesByPreset = (preset: string) => {
+  if (preset === 'shadcn') return { light: shadcnLightTheme, dark: shadcnDarkTheme }
+  if (preset === 'hero') return { light: heroLightTheme, dark: heroDarkTheme }
+  if (preset === 'glass') return { light: glassLightTheme, dark: glassDarkTheme }
+
+  return { light: lightTheme, dark: darkTheme }
+}
+
 const effectiveDark = computed(() => {
   if (themeMode.value === 'dark') return true
   if (themeMode.value === 'light') return false
   return prefersDark.value
 })
 
-watch(themeMode, (m) => {
+watch([themeMode, themePreset], ([m, p]) => {
   localStorage.setItem('themeMode', m)
-  applyThemeWithTransition(m)
+  applyThemeWithTransition(m, p)
 })
 
-loadTheme()
+const initial = getThemesByPreset(themePreset.value)
+UITheme.injectBuiltInThemes(initial.light, initial.dark)
 UITheme.setTheme(themeMode.value)
 
 const activeTheme = computed(() => {
@@ -157,10 +191,12 @@ const themeSwatches = computed(() => {
   ]
 })
 
-function applyThemeWithTransition(mode: SampleThemeMode) {
+function applyThemeWithTransition(mode: SampleThemeMode, preset: string = themePreset.value) {
   document.documentElement.classList.add('theme-transitioning')
 
   requestAnimationFrame(() => {
+    const { light, dark } = getThemesByPreset(preset)
+    UITheme.injectBuiltInThemes(light, dark)
     UITheme.setTheme(mode)
 
     setTimeout(() => {
@@ -210,7 +246,7 @@ $width: 240px;
   width: calc(100% - $width);
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: use-var(bg-color, bottom);
 
   & > :deep(.u-scroll__container) {
     padding: 0;
@@ -222,14 +258,13 @@ $width: 240px;
 
 .control-bar {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid use-var(border, color);
   background: use-var(bg-color, middle);
   backdrop-filter: var(--u-bg-filter);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -422,7 +457,7 @@ $width: 240px;
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background: #fff;
+  background: use-var(bg-color, bottom);
 }
 
 // 抽屉内容样式
@@ -608,11 +643,5 @@ $width: 240px;
 .fade-enter-active .router-content::before,
 .fade-leave-active .router-content::before {
   opacity: 1;
-}
-
-// 优化选择状态
-::selection {
-  background-color: var(--u-color-primary);
-  color: use-var(text-color, white);
 }
 </style>
