@@ -12,6 +12,6 @@
       "@cat-kit/fe": ["../../node_modules/@cat-kit/fe/dist/index.d.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "*.d.ts", "*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "*.d.ts", "*.ts", "*.vue"],
   "exclude": ["node_modules", "vite.config.ts"]
 }

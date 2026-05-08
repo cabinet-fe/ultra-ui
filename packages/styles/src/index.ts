@@ -1,5 +1,2 @@
-import './normalize.scss'
-import './anime/fade.scss'
-import './anime/slide.scss'
-import './anime/spring.scss'
-import './anime/zoom-in.scss'
+import './normalize'
+import './anime'

@@ -8,6 +8,7 @@
   "type": "module",
   "sideEffects": [
     "*.scss",
+    "*.css",
     "src/index.ts",
     "src/load-theme.ts",
     "src/theme/index.ts"
@@ -22,8 +23,8 @@
     "./normalize": {
       "sass": "./src/normalize.scss",
       "development": "./src/normalize.scss",
-      "import": "./src/normalize.scss",
-      "default": "./src/normalize.scss"
+      "import": "./dist/normalize.css",
+      "default": "./dist/normalize.css"
     },
     "./mixins": {
       "sass": "./src/_mixins.scss",
@@ -58,8 +59,8 @@
     "./*": {
       "sass": "./src/*",
       "development": "./src/*",
-      "import": "./src/*",
-      "default": "./src/*"
+      "import": "./dist/*",
+      "default": "./dist/*"
     }
   },
   "scripts": {

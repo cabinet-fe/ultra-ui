@@ -8,7 +8,7 @@ const dir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(dir, '../..')
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/theme/index.ts'],
+  entry: ['src/index.ts', 'src/theme/index.ts', 'src/normalize.ts'],
 
   treeshake: { moduleSideEffects: [{ test: /src\/index\.ts$/, sideEffects: true }] },
   format: ['esm'],
