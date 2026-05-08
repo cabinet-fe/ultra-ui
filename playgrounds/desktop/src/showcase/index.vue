@@ -1,10 +1,5 @@
 <template>
   <div class="showcase">
-    <!-- Floating Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
     <!-- Hero Section -->
     <div class="hero">
       <div class="hero-badge">
@@ -476,42 +471,6 @@ const collapseActive = ref('1')
   margin: 0 auto;
   padding: 40px 20px 80px;
   overflow: visible;
-  background-color: #c7d2fe;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(79, 70, 229, 0.4), transparent),
-    radial-gradient(ellipse 70% 70% at 90% 10%, rgba(236, 72, 153, 0.35), transparent),
-    radial-gradient(ellipse 60% 60% at 50% 90%, rgba(6, 182, 212, 0.35), transparent),
-    radial-gradient(ellipse 50% 50% at 80% 60%, rgba(139, 92, 246, 0.3), transparent);
-}
-
-:global(html[data-theme='dark'] .showcase) {
-  background-color: #020617;
-  background-image:
-    radial-gradient(ellipse 70% 50% at 15% 30%, rgba(99, 102, 241, 0.35), transparent),
-    radial-gradient(ellipse 60% 60% at 85% 20%, rgba(236, 72, 153, 0.3), transparent),
-    radial-gradient(ellipse 50% 50% at 50% 85%, rgba(14, 165, 233, 0.3), transparent);
-}
-
-/* 网格层 */
-.showcase::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: -50vw;
-  right: -50vw;
-  height: 800px;
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-  background-size: 50px 50px;
-  z-index: 0;
-  pointer-events: none;
-}
-
-:global(html[data-theme='dark'] .showcase::before) {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
 }
 
 .hero {
@@ -595,27 +554,10 @@ const collapseActive = ref('1')
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--u-bg-color-top);
-  border: 1px solid var(--u-border-color);
-  border-radius: var(--u-radius-large);
-  backdrop-filter: var(--u-bg-filter);
-  -webkit-backdrop-filter: var(--u-bg-filter);
-}
-
-.bento-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px var(--u-shadow-color, rgba(0, 0, 0, 0.06));
 }
 
 .card-header {
   padding: 24px 24px 16px;
-  border-bottom: 1px solid var(--u-border-color);
-  background: var(--u-bg-color-top);
-  border-top-left-radius: var(--u-radius-large);
-  border-top-right-radius: var(--u-radius-large);
 }
 
 .card-header h3 {
@@ -834,64 +776,5 @@ const collapseActive = ref('1')
 :deep(.u-card__header),
 :deep(.u-card__body) {
   padding: 0 !important;
-}
-
-/* Floating Orbs */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  animation: float 20s ease-in-out infinite;
-}
-
-.orb-1 {
-  width: 400px;
-  height: 400px;
-  top: 10%;
-  left: 5%;
-  background: rgba(99, 102, 241, 0.15);
-  animation-delay: 0s;
-}
-
-.orb-2 {
-  width: 500px;
-  height: 500px;
-  top: 30%;
-  right: 5%;
-  background: rgba(236, 72, 153, 0.12);
-  animation-delay: -7s;
-}
-
-.orb-3 {
-  width: 350px;
-  height: 350px;
-  bottom: 15%;
-  left: 40%;
-  background: rgba(14, 165, 233, 0.12);
-  animation-delay: -14s;
-}
-
-:global(html[data-theme='dark'] .orb-1) {
-  background: rgba(99, 102, 241, 0.25);
-}
-
-:global(html[data-theme='dark'] .orb-2) {
-  background: rgba(236, 72, 153, 0.22);
-}
-
-:global(html[data-theme='dark'] .orb-3) {
-  background: rgba(14, 165, 233, 0.2);
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
 }
 </style>

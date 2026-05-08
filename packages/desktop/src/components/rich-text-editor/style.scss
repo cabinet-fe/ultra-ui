@@ -55,8 +55,10 @@ $root-name: rich-text-editor;
     transition: all 0.15s ease;
     padding: 0;
 
-    &:hover:not(.is-disabled) {
-      background-color: fn.use-var(color, hover);
+    @include m.is-not(disabled) {
+      &:hover {
+        background-color: fn.use-var(color, hover);
+      }
     }
 
     &.is-active {
@@ -112,8 +114,10 @@ $root-name: rich-text-editor;
     background-repeat: no-repeat;
     background-position: right 6px center;
 
-    &:hover:not(.is-disabled) {
-      border-color: fn.use-var(color, primary);
+    @include m.is-not(disabled) {
+      &:hover {
+        border-color: fn.use-var(color, primary);
+      }
     }
 
     &:focus {

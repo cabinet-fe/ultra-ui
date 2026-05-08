@@ -40,7 +40,8 @@ $root-name: dialog;
     flex-shrink: 0;
     overflow: hidden;
     background-color: fn.use-var(bg-color, middle);
-    // backdrop-filter: fn.use-var(bg-filter);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   // 弹框头

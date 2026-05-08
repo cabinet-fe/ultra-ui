@@ -8,6 +8,8 @@ $root-name: card;
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
   overflow: hidden;
 
   @include m.is(integrate) {

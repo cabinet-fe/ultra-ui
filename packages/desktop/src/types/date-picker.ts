@@ -3,7 +3,7 @@ import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** date-picker组件属性 */
 export interface DatePickerProps extends FormComponentProps {
-  modelValue?: string
+  modelValue?: string | number | Date
   /** 占位 */
   placeholder?: string
   /** 日期类型 */
@@ -20,7 +20,7 @@ export interface DatePickerProps extends FormComponentProps {
 
 /** date-picker组件定义的事件 */
 export interface DatePickerEmits {
-  (e: 'update:modelValue', value?: string): void
+  (e: 'update:modelValue', value?: string | number | Date): void
 }
 
 /** date-picker组件暴露的属性和方法(组件内部使用) */

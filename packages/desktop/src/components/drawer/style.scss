@@ -24,7 +24,8 @@ $direction-map: (
   position: absolute;
   border-radius: fn.use-var(radius, large);
   background-color: fn.use-var(bg-color, top);
-  backdrop-filter: blur(10px);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
   box-shadow: 0 0 10px 2px fn.use-var(shadow, color);
 
   @include m.e(close) {

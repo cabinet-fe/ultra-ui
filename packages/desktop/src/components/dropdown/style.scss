@@ -12,6 +12,8 @@ $root-name: dropdown;
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     box-shadow: fn.use-var(shadow);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
     top: 0;
     left: 0;
   }

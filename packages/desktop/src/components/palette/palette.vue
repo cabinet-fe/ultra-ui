@@ -63,16 +63,26 @@ const color = defineModel<string>()
 const RGB = computed(() => HSV2RGB(HSV))
 const { userAction, isUserActive } = useUserAction()
 
-watch([alpha, RGB], ([alpha, RGB]) => {
-  color.value = `#${RGB2HEX(RGB, alpha)}`
-})
-
 const visible = shallowRef(false)
 
+/** 清除时跳过一次内部状态到 color 的同步，防止 updateAlpha 把已清空的 color 覆盖回来 */
+let skipColorUpdate = false
+
 const handleClear = userAction(() => {
+  if (alpha.value !== 1) {
+    skipColorUpdate = true
+  }
   color.value = ''
   rest.updateAlpha(1)
   visible.value = false
+})
+
+watch([alpha, RGB], ([alpha, RGB]) => {
+  if (skipColorUpdate) {
+    skipColorUpdate = false
+    return
+  }
+  color.value = `#${RGB2HEX(RGB, alpha)}`
 })
 
 const paletteSVRef = useTemplateRef('palette-sv')

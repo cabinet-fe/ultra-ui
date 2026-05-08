@@ -4,6 +4,36 @@
 
 $root-name: number-input;
 @include m.b($root-name) {
+  @include m.e(suffix) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  @include m.e(suffix-content) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.e(clear) {
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 20px;
+    border-radius: fn.use-var(radius, default);
+    transition: color 0.25s;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(hidden) {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
   @include m.e(step) {
     display: flex;
     flex-direction: column;

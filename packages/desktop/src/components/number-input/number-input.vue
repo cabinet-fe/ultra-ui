@@ -10,13 +10,30 @@
     @keydown.stop="handleKeydown"
     @focus="handleFocus"
     @blur="handleBlur"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
     :size="size"
     :readonly="readonly"
     :disabled="disabled"
+    :clearable="false"
   >
-    <template #suffix v-if="step !== undefined && step !== false">
-      <slot name="suffix" />
-      <div :class="cls.e('step')">
+    <template #suffix v-if="hasSuffix">
+      <span :class="cls.e('suffix')">
+        <u-icon
+          v-if="props.clearable"
+          :class="[cls.e('clear'), bem.is('hidden', !showClear)]"
+          :title="showClear ? '清除' : undefined"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </u-icon>
+        <span v-if="hasCustomSuffix" :class="cls.e('suffix-content')">
+          {{ suffix }}
+          <slot name="suffix" />
+        </span>
+      </span>
+
+      <div v-if="showStep" :class="cls.e('step')">
         <u-icon
           @click="increase"
           v-ripple="!disabled && increasable"
@@ -48,7 +65,7 @@
 import { $n, n, o, isUndef } from '@cat-kit/core'
 import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
-import { ArrowDown, ArrowUp } from '@veltra/icons/normal'
+import { ArrowDown, ArrowUp, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, Tween } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
@@ -82,7 +99,7 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 })
 
 const inputProps = computed(() => {
-  return o(props).pick(['clearable', 'disabled', 'placeholder', 'size', 'prefix', 'suffix'])
+  return o(props).pick(['disabled', 'placeholder', 'size', 'prefix'])
 })
 
 const inputRef = shallowRef<InputExposed>()
@@ -102,11 +119,22 @@ const model = defineModel<NumberInputProps['modelValue']>()
 const displayed = shallowRef('')
 
 const focused = shallowRef(false)
+const hovered = shallowRef(false)
 
 const generateDisplayed = computed(() => {
   if (!displayed.value) return ''
 
   return `${props.prefix ?? ''}${displayed.value}${props.suffix ?? ''}`
+})
+
+const showStep = computed(() => props.step !== undefined && props.step !== false)
+
+const hasCustomSuffix = computed(() => !!props.suffix || !!slots.suffix)
+
+const hasSuffix = computed(() => props.clearable || hasCustomSuffix.value || showStep.value)
+
+const showClear = computed(() => {
+  return props.clearable && !disabled.value && displayed.value !== '' && hovered.value
 })
 
 /** 步长 */
@@ -252,6 +280,13 @@ function handleUpdateModelValue(input: string): void {
   displayed.value = input
 }
 
+function handleClear(): void {
+  if (!showClear.value) return
+  model.value = undefined
+  displayed.value = ''
+  emit('clear')
+}
+
 /**
  * 处理输入值变化的函数, 该函数仅在输入框失去焦点时触发,
  * 主要用于在输入非数字的情况下的修正处理
@@ -375,5 +410,13 @@ function handleFocus(): void {
 function handleBlur(): void {
   focused.value = false
   model.value = props.modelValue
+}
+
+function handleMouseEnter(): void {
+  hovered.value = true
+}
+
+function handleMouseLeave(): void {
+  hovered.value = false
 }
 </script>

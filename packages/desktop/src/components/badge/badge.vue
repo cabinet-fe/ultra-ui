@@ -28,7 +28,10 @@ const { size } = useFallbackProps([props], {
 
 const badgeValue = computed(() => {
   if (props.dot) return ''
-  return props.value! > props.max ? `${props.max}+` : props.value
+  if (typeof props.value === 'number' && typeof props.max === 'number') {
+    return props.value > props.max ? `${props.max}+` : props.value
+  }
+  return props.value
 })
 
 const classList = computed(() => {

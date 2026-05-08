@@ -21,8 +21,8 @@ $root-name: batch-edit;
   .u-table__row.is-current .#{vars.$namespace}action-group.is-hover {
     opacity: 1;
     background-color: color-mix(in srgb, #{fn.use-var(bg-color, top)} 70%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
     box-shadow: 0 1px 4px color-mix(in srgb, #{fn.use-var(shadow, color)} 35%, transparent);
   }
 

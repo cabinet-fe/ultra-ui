@@ -114,7 +114,8 @@ export class UITheme {
 
   private renderBGFilter(theme: Theme): string {
     const { filter } = theme.bg
-    return `--u-bg-filter: ${filter.blur} ${filter.saturate}`
+    const value = filter.blur === 'none' ? 'none' : `${filter.blur} ${filter.saturate}`
+    return `--u-bg-filter: ${value}`
   }
 
   /** 主题变量声明列表，均为 `--u-` 前缀的 CSS 自定义属性 */

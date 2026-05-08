@@ -120,8 +120,10 @@ $active-shadow:
       background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
       box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
-    &:not(.is-active):not(.is-disabled):hover {
-      color: fn.use-var(text-color, title);
+    @include m.is-not(active, disabled) {
+      &:hover {
+        color: fn.use-var(text-color, title);
+      }
     }
 
     @include m.is(disabled) {

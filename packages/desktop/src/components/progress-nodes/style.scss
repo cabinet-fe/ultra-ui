@@ -64,7 +64,7 @@ $root-name: progress-nodes;
   @include m.e(link) {
     position: absolute;
     border-style: dashed;
-    border-color: fn.use-var(border, color);
+    border-color: fn.use-var(text, color, placeholder);
   }
 
   // 节点圆点

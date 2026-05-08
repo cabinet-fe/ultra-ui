@@ -3,6 +3,7 @@
 @use 'pkg:@veltra/styles/vars';
 
 $root-name: checkbox;
+
 @include m.b($root-name) {
   user-select: none;
   vertical-align: middle;
@@ -51,7 +52,7 @@ $root-name: checkbox;
   @include m.e(wrap) {
     border: fn.use-var(border, width) fn.use-var(border, style)
       #{fn.component-var(checkbox, border, #ccc)};
-    border-radius: fn.use-var(radius, default);
+    border-radius: 6px;
     color: #fff;
     transition: background-color 0.15s ease;
     @include m.flex(inline-flex, center);

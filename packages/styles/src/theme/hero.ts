@@ -10,16 +10,7 @@ export const heroLightTheme = lightTheme.new({
     disabled: '#f4f4f5',
     default: '#f4f4f5'
   },
-  bg: {
-    color: {
-      bottom: '#fcfcfc',
-      middle: '#ffffff',
-      top: '#ffffff',
-      hover: '#f4f4f5',
-      black: '#000000'
-    }
-  },
-  border: { color: '#e4e4e7' },
+  border: { width: 2, color: '#00000000' },
   'text-color': {
     title: '#11181C',
     main: '#11181C',
@@ -36,7 +27,7 @@ export const heroLightTheme = lightTheme.new({
     y: 4,
     blur: 14,
     spread: 0,
-    emboss: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06)'
+    emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 3px 0px #0000000f'
   }
 })
 
@@ -67,6 +58,6 @@ export const heroDarkTheme = heroLightTheme.new({
     y: 4,
     blur: 14,
     spread: 0,
-    emboss: '0 2px 8px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.15)'
+    emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 1px 0 #0000000f'
   }
 })

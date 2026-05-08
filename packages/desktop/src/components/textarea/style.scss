@@ -13,8 +13,10 @@ $root-name: textarea;
   overflow: hidden;
   vertical-align: middle;
 
-  &:hover {
-    border-color: fn.use-var(color, primary);
+  @include m.is-not(disabled) {
+    &:hover {
+      border-color: fn.use-var(color, primary);
+    }
   }
 
   @include m.size using ($size) {

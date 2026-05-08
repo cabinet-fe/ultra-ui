@@ -52,8 +52,8 @@
         transparent 76%,
         rgba(255, 255, 255, 0.035)
       );
-    backdrop-filter: blur(18px) saturate(1.16);
-    -webkit-backdrop-filter: blur(18px) saturate(1.16);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   &.is-modal &__inner {
@@ -90,8 +90,8 @@
     );
     border-right: 1px solid rgba(255, 255, 255, 0.055);
     box-shadow: none;
-    backdrop-filter: blur(18px) saturate(1.08);
-    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   @include m.e(sidebar-head) {
@@ -326,8 +326,8 @@
     );
     border-bottom-color: transparent;
     box-shadow: none;
-    backdrop-filter: blur(16px) saturate(1.08);
-    -webkit-backdrop-filter: blur(16px) saturate(1.08);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   @include m.e(stage-title) {
@@ -784,7 +784,7 @@
   }
 
   @media (max-width: 720px) {
-    &:not(.is-modal) {
+    @include m.is-not(modal) {
       flex-direction: column;
     }
 

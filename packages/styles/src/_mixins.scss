@@ -74,6 +74,18 @@
   }
 }
 
+@mixin is-not($types...) {
+  $selector: '&';
+
+  @each $type in $types {
+    $selector: '#{$selector}:not(.is-#{$type})';
+  }
+
+  #{$selector} {
+    @content;
+  }
+}
+
 @mixin bem($b, $e: null, $m: null) {
   $b: '.' + vars.$namespace + $b;
 

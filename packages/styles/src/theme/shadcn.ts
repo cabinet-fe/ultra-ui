@@ -12,8 +12,8 @@ export const shadcnLightTheme = lightTheme.new({
   },
   bg: {
     color: {
-      bottom: '#ffffff',
-      middle: '#ffffff',
+      bottom: '#f4f4f5',
+      middle: '#fafafa',
       top: '#ffffff',
       hover: '#f4f4f5',
       black: '#000000'
@@ -42,8 +42,8 @@ export const shadcnDarkTheme = shadcnLightTheme.new({
   bg: {
     color: {
       bottom: '#09090b',
-      middle: '#09090b',
-      top: '#09090b',
+      middle: '#18181b',
+      top: '#27272a',
       hover: '#27272a',
       black: '#000000'
     }

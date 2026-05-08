@@ -53,7 +53,7 @@ export const glassDarkTheme = glassLightTheme.new({
     placeholder: '#64748B',
     assist: '#64748B',
     disabled: '#475569',
-    white: '#000000'
+    white: '#ffffff'
   },
   shadow: { color: 'rgba(0, 0, 0, 0.35)', x: 0, y: 4, blur: 32, spread: 0, emboss: 'none' }
 })

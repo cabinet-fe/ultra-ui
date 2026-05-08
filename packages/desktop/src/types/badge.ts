@@ -3,7 +3,7 @@ import type { ColorType, ComponentProps, DeconstructValue } from '@veltra/utils'
 /** 徽章组件属性 */
 export interface BadgeProps extends ComponentProps {
   /** 显示值 */
-  value?: number
+  value?: number | string
   /** 类别 */
   type?: ColorType
   /** 自定义背景色 */

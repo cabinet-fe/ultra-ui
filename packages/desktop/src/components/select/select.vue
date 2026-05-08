@@ -20,7 +20,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :clearable="clearable"
-        :model-value="selected ? (o(selected).get(labelKey) ?? label) : modelValue"
+        :model-value="displayedValue"
         @clear="handleClear"
         @keydown="handleKeydown"
         native-readonly
@@ -109,7 +109,7 @@
   </u-dropdown>
 
   <template v-else>
-    {{ label || selected?.[labelKey] || FORM_EMPTY_CONTENT }}
+    {{ displayedValue || FORM_EMPTY_CONTENT }}
   </template>
 </template>
 
@@ -171,6 +171,12 @@ const currentIndex = shallowRef(-1)
 const label = defineModel('text')
 const selected = shallowRef<Record<string, any>>()
 
+const displayedValue = computed(() => {
+  if (label.value) return label.value
+
+  return selected.value ? o(selected.value).get(props.labelKey) : String(props.modelValue)
+})
+
 const dropdownRef = shallowRef<DropdownExposed>()
 const scrollRef = shallowRef<ScrollExposed>()
 
@@ -205,6 +211,7 @@ watch(
     if (modelValue !== undefined) {
       const { valueKey } = props
       currentIndex.value = options.findIndex((option) => o(option).get(valueKey) === modelValue)
+
       selected.value = options[currentIndex.value]
     } else {
       currentIndex.value = -1

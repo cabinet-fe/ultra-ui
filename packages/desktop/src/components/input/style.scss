@@ -10,14 +10,18 @@ $root-name: input;
   line-height: 1;
   border: fn.use-var(border);
   box-shadow: fn.use-var(shadow, emboss);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
   overflow: hidden;
   width: 100%;
 
   @include m.flex($display: inline-flex);
 
-  &:hover {
-    border-color: fn.use-var(color, primary);
+  @include m.is-not(disabled) {
+    &:hover {
+      border-color: fn.use-var(color, primary);
+    }
   }
 
   @include m.size using ($size) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" :data-theme-preset="themePreset">
     <u-menu
       :menus="menus"
       class="aside"
@@ -8,36 +8,19 @@
     ></u-menu>
 
     <u-scroll tag="div" class="main">
+      <div class="content-backdrop" aria-hidden="true"></div>
+
       <div class="control-bar">
-        <div class="control-section">
-          <div class="control-group">
-            <span class="control-label">主题包</span>
-            <div class="radio-group">
-              <u-radio value="default" v-model="themePreset">默认</u-radio>
-              <u-radio value="shadcn" v-model="themePreset">Shadcn</u-radio>
-              <u-radio value="hero" v-model="themePreset">Hero</u-radio>
-              <u-radio value="glass" v-model="themePreset">玻璃</u-radio>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <span class="control-label">组件尺寸</span>
-            <div class="radio-group">
-              <u-radio value="small" v-model="size">小</u-radio>
-              <u-radio value="default" v-model="size">中</u-radio>
-              <u-radio value="large" v-model="size">大</u-radio>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <span class="control-label">外观</span>
-            <div class="radio-group">
-              <u-radio value="light" v-model="themeMode">浅色</u-radio>
-              <u-radio value="dark" v-model="themeMode">深色</u-radio>
-              <u-radio value="auto" v-model="themeMode">系统</u-radio>
-            </div>
-          </div>
+        <div class="config-badges">
+          <span class="config-badge">{{ themePresetLabel }}</span>
+          <span class="config-badge">{{ sizeLabel }}</span>
+          <span class="config-badge">{{ themeModeLabel }}</span>
         </div>
+
+        <u-button type="primary" plain class="setting-btn" @click="showDrawer = true">
+          <u-icon><Setting /></u-icon>
+          设置
+        </u-button>
       </div>
 
       <div class="content-container">
@@ -53,23 +36,29 @@
 
     <!-- <u-watermark text="Ultra UI" append-to-body /> -->
 
-    <!-- 内置抽屉组件 -->
-    <u-drawer
-      v-model:visible="showDrawer"
-      title="Theme Studio"
-      direction="right"
-      width="520px"
-      :show-close="true"
-    >
+    <u-drawer v-model="showDrawer" title="设置" direction="right" width="400px" :show-close="true">
       <div class="drawer-content">
-        <div class="drawer-intro">
-          <div>
-            <strong>可视化主题配置器</strong>
-            <p>在这里直接修改 Theme 变量，变更会即时注入当前页面并支持导出。</p>
-          </div>
-          <span class="drawer-intro__badge">{{ themeModeLabel }}</span>
+        <div class="drawer-section">
+          <div class="drawer-section-title">外观</div>
+          <u-radio-group v-model="themeMode" :items="themeModeOptions" block />
         </div>
-        <u-theme />
+
+        <div class="drawer-section">
+          <div class="drawer-section-title">主题包</div>
+          <u-radio-group v-model="themePreset" :items="themePresetOptions" block />
+        </div>
+
+        <div class="drawer-section">
+          <div class="drawer-section-title">组件尺寸</div>
+          <u-radio-group v-model="size" :items="sizeOptions" block />
+        </div>
+
+        <div class="drawer-divider"></div>
+
+        <div class="drawer-section">
+          <div class="drawer-section-title">主题变量</div>
+          <u-theme />
+        </div>
       </div>
     </u-drawer>
   </div>
@@ -78,8 +67,8 @@
 <script lang="tsx" setup>
 import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, MenuItem } from '@veltra/desktop'
+import { Setting } from '@veltra/icons/normal'
 import {
-  currentTheme,
   lightTheme,
   darkTheme,
   shadcnLightTheme,
@@ -87,9 +76,9 @@ import {
   heroLightTheme,
   heroDarkTheme,
   UITheme,
+  currentTheme,
   glassDarkTheme,
-  glassLightTheme,
-  loadTheme
+  glassLightTheme
 } from '@veltra/styles/theme'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -173,22 +162,11 @@ watch([themeMode, themePreset], ([m, p]) => {
 const initial = getThemesByPreset(themePreset.value)
 UITheme.injectBuiltInThemes(initial.light, initial.dark)
 UITheme.setTheme(themeMode.value)
-
-const activeTheme = computed(() => {
-  return currentTheme.value?.theme ?? (effectiveDark.value ? darkTheme.theme : lightTheme.theme)
-})
+currentTheme.value = effectiveDark.value ? initial.dark : initial.light
 
 const themeModeLabel = computed(() => {
   if (themeMode.value === 'auto') return '跟随系统'
   return themeMode.value === 'dark' ? '深色基线' : '浅色基线'
-})
-
-const themeSwatches = computed(() => {
-  return [
-    { label: 'P', value: activeTheme.value.color.primary },
-    { label: 'T', value: activeTheme.value.bg.color.top },
-    { label: 'M', value: activeTheme.value['text-color'].main }
-  ]
 })
 
 function applyThemeWithTransition(mode: SampleThemeMode, preset: string = themePreset.value) {
@@ -206,13 +184,33 @@ function applyThemeWithTransition(mode: SampleThemeMode, preset: string = themeP
 }
 
 const showDrawer = ref(false)
-const handleSetting = () => {
-  showDrawer.value = true
-}
 
-const handleClose = () => {
-  showDrawer.value = false
-}
+const themePresetOptions = [
+  { label: '默认', value: 'default' },
+  { label: 'Shadcn', value: 'shadcn' },
+  { label: 'Hero', value: 'hero' },
+  { label: '玻璃', value: 'glass' }
+]
+
+const sizeOptions = [
+  { label: '小', value: 'small' },
+  { label: '中', value: 'default' },
+  { label: '大', value: 'large' }
+]
+
+const themeModeOptions = [
+  { label: '浅色', value: 'light' },
+  { label: '深色', value: 'dark' },
+  { label: '跟随系统', value: 'auto' }
+]
+
+const themePresetLabel = computed(() => {
+  return themePresetOptions.find((o) => o.value === themePreset.value)?.label ?? '默认'
+})
+
+const sizeLabel = computed(() => {
+  return sizeOptions.find((o) => o.value === size.value)?.label ?? '中'
+})
 </script>
 
 <style lang="scss">
@@ -231,6 +229,7 @@ const handleClose = () => {
   display: flex;
   background-color: use-var(bg-color, bottom);
   overflow: hidden;
+  --playground-grid-color: rgba(15, 23, 42, 0.08);
 }
 
 $width: 240px;
@@ -247,13 +246,85 @@ $width: 240px;
   display: flex;
   flex-direction: column;
   background-color: use-var(bg-color, bottom);
+  position: relative;
+  overflow: hidden;
 
   & > :deep(.u-scroll__container) {
     padding: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
   }
+}
+
+.content-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: use-var(bg-color, bottom);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    background:
+      radial-gradient(ellipse 72% 58% at 15% 22%, rgba(59, 130, 246, 0.34), transparent 58%),
+      radial-gradient(ellipse 64% 54% at 86% 14%, rgba(236, 72, 153, 0.24), transparent 56%),
+      radial-gradient(ellipse 62% 62% at 56% 88%, rgba(6, 182, 212, 0.26), transparent 60%),
+      linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.74));
+  }
+
+  &::after {
+    background-image:
+      linear-gradient(to right, var(--playground-grid-color) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--playground-grid-color) 1px, transparent 1px);
+    background-size: 52px 52px;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.38));
+  }
+}
+
+.container[data-theme-preset='glass'] {
+  --playground-grid-color: rgba(15, 23, 42, 0.1);
+}
+
+.container[data-theme-preset='glass'] .content-backdrop::before {
+  background:
+    radial-gradient(ellipse 74% 60% at 14% 24%, rgba(59, 130, 246, 0.42), transparent 58%),
+    radial-gradient(ellipse 66% 56% at 86% 16%, rgba(236, 72, 153, 0.3), transparent 56%),
+    radial-gradient(ellipse 64% 64% at 54% 88%, rgba(6, 182, 212, 0.34), transparent 60%),
+    linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.7));
+}
+
+html[data-theme='dark'] .container {
+  --playground-grid-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .content-backdrop::before {
+  background:
+    radial-gradient(ellipse 74% 58% at 14% 24%, rgba(99, 102, 241, 0.42), transparent 58%),
+    radial-gradient(ellipse 64% 56% at 86% 18%, rgba(236, 72, 153, 0.3), transparent 56%),
+    radial-gradient(ellipse 62% 62% at 52% 88%, rgba(14, 165, 233, 0.34), transparent 60%),
+    linear-gradient(135deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.86));
+}
+
+html[data-theme='dark'] .container[data-theme-preset='glass'] {
+  --playground-grid-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop::before {
+  background:
+    radial-gradient(ellipse 76% 60% at 14% 24%, rgba(99, 102, 241, 0.5), transparent 58%),
+    radial-gradient(ellipse 66% 58% at 86% 18%, rgba(236, 72, 153, 0.36), transparent 56%),
+    radial-gradient(ellipse 64% 64% at 52% 88%, rgba(14, 165, 233, 0.42), transparent 60%),
+    linear-gradient(135deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.82));
 }
 
 .control-bar {
@@ -270,279 +341,69 @@ $width: 240px;
   z-index: 10;
 }
 
-.control-section {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.control-label {
-  font-size: 13px;
-  color: use-var(text-color, second);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.radio-group {
-  display: flex;
-  gap: 12px;
-
-  :deep(.u-radio) {
-    margin-right: 0;
-  }
-}
-
-.theme-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-
-  .theme-icon {
-    font-size: 16px;
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
-}
-
-.control-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.theme-brief {
-  display: grid;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background:
-    linear-gradient(135deg, rgba(30, 136, 229, 0.08), rgba(15, 23, 42, 0.02)),
-    use-var(bg-color, top);
-}
-
-.theme-brief__label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: use-var(color, primary);
-}
-
-.theme-brief__meta {
+.config-badges {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.theme-brief__mode {
+.config-badge {
   font-size: 12px;
-  color: use-var(text-color, second);
-}
-
-.theme-brief__swatch {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
+  padding: 4px 10px;
   border-radius: 999px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.72),
-    0 6px 14px rgba(15, 23, 42, 0.12);
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.theme-trigger {
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(30, 136, 229, 0.16);
-  background: linear-gradient(135deg, var(--u-color-primary), var(--u-color-primary-light-3));
-  box-shadow: 0 12px 24px rgba(30, 136, 229, 0.22);
-
-  &:hover {
-    transform: translateY(-1px);
-  }
+  background: use-var(bg-color, top);
+  color: use-var(text-color, second);
+  border: 1px solid use-var(border, color);
+  font-weight: 500;
 }
 
 .setting-btn {
   border-radius: 8px;
-  padding: 6px 12px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: use-var(bg-color, hover);
-    transform: translateY(-1px);
-  }
-}
-
-.theme-dock {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background:
-    linear-gradient(135deg, rgba(30, 136, 229, 0.14), rgba(15, 23, 42, 0.04)),
-    use-var(bg-color, top);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
-  backdrop-filter: blur(18px);
-  cursor: pointer;
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 26px 48px rgba(15, 23, 42, 0.22);
-  }
-}
-
-.theme-dock__copy {
-  display: grid;
-  gap: 2px;
-
-  strong {
-    font-size: 13px;
-    color: use-var(text-color, title);
-  }
-
-  p {
-    margin: 0;
-    font-size: 12px;
-    color: use-var(text-color, second);
-  }
-}
-
-.theme-dock__swatches {
-  display: flex;
-  gap: 6px;
-}
-
-.theme-dock__swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-}
-
-.theme-dock__mode {
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  font-size: 11px;
-  font-weight: 700;
-  color: use-var(text-color, title);
 }
 
 .content-container {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background: use-var(bg-color, bottom);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
-// 抽屉内容样式
 .drawer-content {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 20px;
 }
 
-.drawer-intro {
+.drawer-section {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background:
-    linear-gradient(135deg, rgba(30, 136, 229, 0.08), transparent 56%), use-var(bg-color, top);
-
-  strong {
-    display: block;
-    margin-bottom: 4px;
-    color: use-var(text-color, title);
-  }
-
-  p {
-    margin: 0;
-    color: use-var(text-color, second);
-    line-height: 1.5;
-  }
+  flex-direction: column;
+  gap: 10px;
 }
 
-.drawer-intro__badge {
-  flex-shrink: 0;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(30, 136, 229, 0.1);
-  color: use-var(color, primary);
-  font-size: 12px;
-  font-weight: 700;
+.drawer-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: use-var(text-color, title);
+  margin: 0;
+}
+
+.drawer-divider {
+  height: 1px;
+  background: use-var(border, color);
 }
 
 // 响应式设计
 @media (max-width: 768px) {
   .control-bar {
-    flex-direction: column;
-    gap: 16px;
     padding: 12px 16px;
-  }
-
-  .control-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .control-group {
-    width: 100%;
-    justify-content: space-between;
   }
 
   .content-container {
     padding: 16px;
-  }
-
-  .control-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .theme-brief {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .theme-dock {
-    right: 16px;
-    left: 16px;
-    bottom: 16px;
-  }
-
-  .drawer-intro {
-    flex-direction: column;
   }
 }
 
@@ -560,26 +421,8 @@ $width: 240px;
     padding: 8px 12px;
   }
 
-  .drawer {
-    width: 100%;
-  }
-
   .content-container {
     padding: 12px;
-  }
-
-  .theme-brief__meta {
-    flex-wrap: wrap;
-  }
-
-  .theme-trigger,
-  .setting-btn {
-    flex: 1;
-  }
-
-  .theme-dock {
-    align-items: flex-start;
-    flex-direction: column;
   }
 }
 </style>

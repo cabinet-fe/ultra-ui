@@ -19,7 +19,7 @@ export const darkTheme = lightTheme.new({
       hover: '#303030',
       black: '#000000'
     },
-    filter: { blur: 'blur(16px)', saturate: 'saturate(180%)' }
+    filter: { blur: 'none', saturate: 'none' }
   },
 
   'text-color': {

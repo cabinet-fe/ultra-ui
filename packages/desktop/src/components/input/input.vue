@@ -26,17 +26,24 @@
       :disabled="disabled"
       :readonly="nativeReadonly"
     />
-    <UIcon
-      v-if="clearable && !disabled && model"
-      :class="[cls.e('clear'), bem.is('hidden', !hovered)]"
-      title="清除"
-      @click.stop="clearModelValue"
-    >
-      <Close />
-    </UIcon>
-    <span :class="suffixClass" @click="handleSuffixClick" v-if="$slots.suffix || suffix">
-      {{ suffix }}
-      <slot name="suffix"></slot>
+
+    <span :class="suffixClass" v-if="hasSuffix">
+      <Transition name="zoom-in" mode="out-in">
+        <UIcon
+          v-if="showClear"
+          :class="cls.e('clear')"
+          title="清除"
+          @click.stop="clearModelValue"
+          key="clear"
+        >
+          <Close />
+        </UIcon>
+
+        <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
+          {{ suffix }}
+          <slot name="suffix"></slot>
+        </span>
+      </Transition>
     </span>
   </div>
 
@@ -143,6 +150,18 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   hovered.value = false
 }
+
+const showClear = computed(() => {
+  return props.clearable && !disabled.value && !!model.value && hovered.value
+})
+
+const hasSuffixContent = computed(() => {
+  return !!inst?.slots.suffix || !!props.suffix
+})
+
+const hasSuffix = computed(() => {
+  return hasSuffixContent.value || showClear.value
+})
 
 const handleChange = (e: Event) => {
   const target = e.target as HTMLInputElement

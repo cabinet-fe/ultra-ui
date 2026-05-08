@@ -12,13 +12,15 @@ $root-name: expression-editor;
   border-color: fn.use-var(border, color);
   border-radius: fn.use-var(radius, default);
 
-  &:hover:not(.is-disabled):not(.is-readonly) {
-    border-color: fn.use-var(color, primary);
-  }
+  @include m.is-not(disabled, readonly) {
+    &:hover {
+      border-color: fn.use-var(color, primary);
+    }
 
-  &:focus-within:not(.is-disabled):not(.is-readonly) {
-    border-color: fn.use-var(color, primary);
-    outline: none;
+    &:focus-within {
+      border-color: fn.use-var(color, primary);
+      outline: none;
+    }
   }
 
   @include m.is('disabled') {

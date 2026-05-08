@@ -25,6 +25,7 @@ export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
 export interface NumberInputEmits {
   (event: 'update:modelValue', value?: number): void
   (event: 'change', value?: number): void
+  (event: 'clear'): void
 }
 
 /** 数字输入组件暴露的属性和方法 */

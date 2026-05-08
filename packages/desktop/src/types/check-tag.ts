@@ -2,7 +2,7 @@ import type { DeconstructValue } from '@veltra/utils'
 
 /** check-tag组件属性 */
 export interface CheckTagProps {
-  modelValue?: string
+  modelValue?: boolean
 
   checked?: boolean
 }

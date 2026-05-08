@@ -11,6 +11,8 @@ $root-name: context-menu;
   box-shadow: fn.use-var(shadow);
   border-radius: fn.use-var(radius, default);
   padding: fn.use-var(gap, small);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
 
   @include m.e(label) {
     margin-left: fn.use-var(gap, small);
@@ -31,8 +33,10 @@ $root-name: context-menu;
     border-radius: fn.use-var(radius, default);
     @include m.flex;
 
-    &:not(.is-disabled, .is-loading):hover {
-      background-color: fn.use-var(color, primary, light-9);
+    @include m.is-not(disabled, loading) {
+      &:hover {
+        background-color: fn.use-var(color, primary, light-9);
+      }
     }
 
     @include m.is(disabled, loading) {

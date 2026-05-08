@@ -44,7 +44,7 @@ $indent-width: 20px;
 
     // 非虚拟模式通过相邻兄弟间距提供呼吸；
     // 虚拟模式下改由 virtualizer 的 gap 参数统一负责。
-    &:not(.is-virtual) {
+    @include m.is-not(virtual) {
       @include m.bem($root-name, node) {
         & + & {
           margin-top: 2px;
@@ -57,7 +57,7 @@ $indent-width: 20px;
   // 禁用节点不参与 hover 反馈，避免假性交互。
   @include m.is(selectable, checkable) {
     @include m.bem($root-name, node) {
-      &:not(.is-disabled) {
+      @include m.is-not(disabled) {
         @include m.bem($root-name, node-content) {
           &:hover {
             background-color: fn.use-var(bg-color, hover);

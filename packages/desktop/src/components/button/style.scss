@@ -102,7 +102,7 @@ $root-name: button;
           box-shadow: 0px 0px 0px 1px fn.use-var(color, $type);
         }
 
-        &:not(.is-disabled, .is-loading) {
+        @include m.is-not(disabled, loading) {
           &:hover,
           &:focus {
             background-color: fn.use-var(color, $type, 'light-9');

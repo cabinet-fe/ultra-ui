@@ -44,8 +44,10 @@ $root-name: breadcrumb;
     border-radius: fn.use-var(radius, small);
     transition: color 0.15s ease;
 
-    &:hover:not(.is-disabled) {
-      color: fn.use-var(color, primary);
+    @include m.is-not(disabled) {
+      &:hover {
+        color: fn.use-var(color, primary);
+      }
     }
 
     &:focus-visible {
