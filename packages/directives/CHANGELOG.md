@@ -1,13 +1,5 @@
 # @veltra/directives
 
-## 2.0.0
-
-### Patch Changes
-
-- Updated dependencies [ea63520]
-  - @veltra/styles@2.0.0
-  - @veltra/utils@2.0.0
-
 ## 1.0.15
 
 ### Patch Changes
