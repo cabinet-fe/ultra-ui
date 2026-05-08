@@ -54,7 +54,7 @@ $root-name: form-item;
     #{fn.bem(multi-select)},
     #{fn.bem(multi-tree-select)},
     #{fn.bem(auto-complete)},
-    #{fn.bem(textarea--more)}} {
+    #{fn.bem(textarea--more)} {
       border-color: fn.use-var(color, danger);
     }
   }
