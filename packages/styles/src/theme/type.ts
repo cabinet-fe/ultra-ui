@@ -132,6 +132,8 @@ export type Theme = {
     blur: number
     /** 阴影扩散半径 */
     spread: number
+    /** 浮雕阴影：非浮雕主题为 'none'，浮雕主题为完整 box-shadow 值 */
+    emboss: string
   }
   /** 间距 */
   gap: {

@@ -34,5 +34,5 @@ export const darkTheme = lightTheme.new({
 
   border: { color: '#404040' },
 
-  shadow: { color: 'rgba(255, 255, 255, 0.2)', x: 0, y: 2, blur: 8, spread: 0 }
+  shadow: { color: 'rgba(255, 255, 255, 0.2)', x: 0, y: 2, blur: 8, spread: 0, emboss: 'none' }
 })

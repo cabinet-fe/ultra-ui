@@ -50,7 +50,7 @@ export const lightTheme: UITheme = new UITheme(
 
     'font-size-assist': defineBySize({ small: 12, default: 12, large: 14 }),
 
-    shadow: { color: '#0000001a', x: 0, y: 0, blur: 4, spread: 1 },
+    shadow: { color: '#0000001a', x: 0, y: 0, blur: 4, spread: 1, emboss: 'none' },
 
     gap: defineBySize({ small: 6, default: 8, large: 12 }),
 
