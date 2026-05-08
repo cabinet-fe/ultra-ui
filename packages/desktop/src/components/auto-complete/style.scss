@@ -14,7 +14,7 @@ $root-name: auto-complete;
 
   @include m.is(disabled) {
     background-color: fn.use-var(color, disabled);
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
+    box-shadow: none;
     cursor: not-allowed;
 
     @include m.bem($root-name, arrow) {
@@ -68,12 +68,13 @@ $root-name: auto-complete;
 
   @include m.is(multiple) {
     line-height: 1;
-    box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
-    transition: box-shadow 0.25s ease;
+    border: fn.use-var(border);
+    box-shadow: fn.use-var(shadow, emboss);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
     overflow: hidden;
     @include m.flex($display: inline-flex);
     &:hover {
-      box-shadow: inset 0 0 1px 1px fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
     }
   }
 
