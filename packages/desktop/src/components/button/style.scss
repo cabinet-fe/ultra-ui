@@ -19,6 +19,7 @@ $root-name: button;
   -webkit-appearance: none;
   border: none;
   background-color: fn.use-var(color, default);
+  box-shadow: fn.use-var(shadow, emboss);
   transition:
     background-color 0.25s,
     box-shadow 0.2s;
