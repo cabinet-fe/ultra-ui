@@ -476,19 +476,20 @@ const collapseActive = ref('1')
   margin: 0 auto;
   padding: 40px 20px 80px;
   overflow: visible;
-  background-color: #f0f4f8;
+  background-color: #c7d2fe;
   background-image:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.12), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.1), transparent),
-    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(14, 165, 233, 0.08), transparent);
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(79, 70, 229, 0.4), transparent),
+    radial-gradient(ellipse 70% 70% at 90% 10%, rgba(236, 72, 153, 0.35), transparent),
+    radial-gradient(ellipse 60% 60% at 50% 90%, rgba(6, 182, 212, 0.35), transparent),
+    radial-gradient(ellipse 50% 50% at 80% 60%, rgba(139, 92, 246, 0.3), transparent);
 }
 
 :global(html[data-theme='dark'] .showcase) {
-  background-color: #0a0f1e;
+  background-color: #020617;
   background-image:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.18), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.15), transparent),
-    radial-gradient(ellipse 50% 60% at 50% 80%, rgba(14, 165, 233, 0.12), transparent);
+    radial-gradient(ellipse 70% 50% at 15% 30%, rgba(99, 102, 241, 0.35), transparent),
+    radial-gradient(ellipse 60% 60% at 85% 20%, rgba(236, 72, 153, 0.3), transparent),
+    radial-gradient(ellipse 50% 50% at 50% 85%, rgba(14, 165, 233, 0.3), transparent);
 }
 
 /* 网格层 */
@@ -500,8 +501,8 @@ const collapseActive = ref('1')
   right: -50vw;
   height: 800px;
   background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
   background-size: 50px 50px;
   z-index: 0;
   pointer-events: none;
@@ -509,8 +510,8 @@ const collapseActive = ref('1')
 
 :global(html[data-theme='dark'] .showcase::before) {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
 }
 
 .hero {
@@ -600,6 +601,8 @@ const collapseActive = ref('1')
   background: var(--u-bg-color-top);
   border: 1px solid var(--u-border-color);
   border-radius: var(--u-radius-large);
+  backdrop-filter: var(--u-bg-filter);
+  -webkit-backdrop-filter: var(--u-bg-filter);
 }
 
 .bento-card:hover {
@@ -848,7 +851,7 @@ const collapseActive = ref('1')
   height: 400px;
   top: 10%;
   left: 5%;
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(99, 102, 241, 0.15);
   animation-delay: 0s;
 }
 
@@ -857,7 +860,7 @@ const collapseActive = ref('1')
   height: 500px;
   top: 30%;
   right: 5%;
-  background: rgba(139, 92, 246, 0.06);
+  background: rgba(236, 72, 153, 0.12);
   animation-delay: -7s;
 }
 
@@ -866,20 +869,20 @@ const collapseActive = ref('1')
   height: 350px;
   bottom: 15%;
   left: 40%;
-  background: rgba(14, 165, 233, 0.07);
+  background: rgba(14, 165, 233, 0.12);
   animation-delay: -14s;
 }
 
 :global(html[data-theme='dark'] .orb-1) {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(99, 102, 241, 0.25);
 }
 
 :global(html[data-theme='dark'] .orb-2) {
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(236, 72, 153, 0.22);
 }
 
 :global(html[data-theme='dark'] .orb-3) {
-  background: rgba(14, 165, 233, 0.1);
+  background: rgba(14, 165, 233, 0.2);
 }
 
 @keyframes float {

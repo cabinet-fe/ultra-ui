@@ -12,15 +12,15 @@ export const glassLightTheme = lightTheme.new({
   },
   bg: {
     color: {
-      bottom: 'rgba(255, 255, 255, 0.2)',
-      middle: 'rgba(255, 255, 255, 0.3)',
-      top: 'rgba(255, 255, 255, 0.4)',
-      hover: 'rgba(255, 255, 255, 0.55)',
+      bottom: 'rgba(255, 255, 255, 0.45)',
+      middle: 'rgba(255, 255, 255, 0.55)',
+      top: 'rgba(255, 255, 255, 0.6)',
+      hover: 'rgba(255, 255, 255, 0.75)',
       black: '#000000'
     },
     filter: { blur: 'blur(24px)', saturate: 'saturate(180%)' }
   },
-  border: { color: 'rgba(255, 255, 255, 0.35)', width: 1, style: 'solid' },
+  border: { color: 'rgba(255, 255, 255, 0.5)', width: 1, style: 'solid' },
   'text-color': {
     title: '#1E293B',
     main: '#334155',
@@ -37,15 +37,15 @@ export const glassDarkTheme = glassLightTheme.new({
   color: { disabled: '#374151', default: '#1E293B' },
   bg: {
     color: {
-      bottom: 'rgba(10, 15, 30, 0.2)',
-      middle: 'rgba(15, 23, 42, 0.3)',
-      top: 'rgba(15, 23, 42, 0.4)',
-      hover: 'rgba(30, 41, 59, 0.55)',
+      bottom: 'rgba(15, 23, 42, 0.6)',
+      middle: 'rgba(15, 23, 42, 0.7)',
+      top: 'rgba(15, 23, 42, 0.75)',
+      hover: 'rgba(30, 41, 59, 0.85)',
       black: '#000000'
     },
-    filter: { blur: 'blur(32px)', saturate: 'saturate(200%)' }
+    filter: { blur: 'blur(20px)', saturate: 'saturate(200%)' }
   },
-  border: { color: 'rgba(255, 255, 255, 0.08)' },
+  border: { color: 'rgba(255, 255, 255, 0.12)' },
   'text-color': {
     title: '#F8FAFC',
     main: '#F1F5F9',
