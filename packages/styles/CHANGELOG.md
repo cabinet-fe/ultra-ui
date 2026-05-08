@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.1
+
+### Patch Changes
+
+- a9e4a86: 修复 `@veltra/styles` 构建产物导出路径，将 `import` 与 `default` 条件正确指向 `dist/` 目录；新增 `normalize.ts` 与 `anime/index.ts` 入口文件以支持独立导入；更新 `tsdown.config.ts` 构建入口。
+  - @veltra/utils@1.1.1
+  - @veltra/compositions@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes
