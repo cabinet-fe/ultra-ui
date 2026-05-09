@@ -127,9 +127,14 @@ export default defineConfig({
 ```ts
 // main.ts
 import { loadTheme } from '@veltra/styles/theme'
+import { heroLightTheme, glassLightTheme } from '@veltra/styles/theme'
 
 // 加载默认主题（自动支持亮色/暗色切换）
 loadTheme()
+
+// 或加载预设主题
+loadTheme(heroLightTheme)   // HeroUI 风格
+loadTheme(glassLightTheme)  // 玻璃拟态
 
 // 或加载自定义主题
 import { lightTheme } from '@veltra/styles/theme'
@@ -152,7 +157,7 @@ const app = createApp(App)
 // 1. 注册组件库
 app.use(UltraUI)
 
-// 2. 加载主题
+// 2. 加载主题（可替换为 heroLightTheme、glassLightTheme 等）
 loadTheme()
 
 app.mount('#app')

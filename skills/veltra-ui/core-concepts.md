@@ -98,11 +98,16 @@ myCls.e('icon')                // 'my-button__icon'
 ```ts
 import { loadTheme, setTheme, currentTheme } from '@veltra/styles/theme'
 import { lightTheme, darkTheme } from '@veltra/styles/theme'
+import { heroLightTheme, glassLightTheme } from '@veltra/styles/theme'
 
 // 加载主题（默认注入 light + dark 预设）
 loadTheme()
 
-// 切换主题
+// 加载预设主题
+loadTheme(heroLightTheme)   // HeroUI 风格
+loadTheme(glassLightTheme)  // 玻璃拟态风格
+
+// 切换主题（仅 light/dark 双主题模式支持）
 setTheme('dark')
 setTheme('light')
 setTheme('auto')  // 跟随系统 prefers-color-scheme

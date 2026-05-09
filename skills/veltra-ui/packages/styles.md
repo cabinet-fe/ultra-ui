@@ -7,12 +7,12 @@
 | 子路径 | 类型 | 内容 |
 |--------|------|------|
 | `@veltra/styles` | SCSS | normalize + 动画（副作用入口） |
-| `@veltra/styles/mixins` | SCSS | BEM mixins（`b()`, `e()`, `m()`, `is()`, `size`） |
+| `@veltra/styles/mixins` | SCSS | BEM mixins（`b()`, `e()`, `m()`, `is()`, `is-not()`, `size`, `dark`, 断点 mixins） |
 | `@veltra/styles/vars` | SCSS | SCSS 变量（`$color-types` 等） |
 | `@veltra/styles/functions` | SCSS | CSS 变量引用函数（`use-var()`, `component-var()`） |
 | `@veltra/styles/normalize` | SCSS | 全局 normalize |
 | `@veltra/styles/anime/*` | SCSS | 过渡动画（fade, slide, spring, zoom-in） |
-| `@veltra/styles/theme` | TS | 主题运行时（`UITheme`, `loadTheme`, `setTheme` 等） |
+| `@veltra/styles/theme` | TS | 主题运行时（`UITheme`, `loadTheme`, `setTheme`, 预设主题） |
 
 ---
 
@@ -162,14 +162,21 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 | 类别 | 变量模式 | 示例 |
 |------|---------|------|
 | 颜色 | `--u-color-{type}` | `--u-color-primary`、`--u-color-success` |
+| 颜色阶 | `--u-color-{type}-{light\|dark}-{1,3,5,7,9}` | `--u-color-primary-light-3`（自动派生 10 阶） |
 | 背景 | `--u-bg-color-{layer}` | `--u-bg-color-bottom`、`--u-bg-color-hover` |
+| 背景透明度 | `--u-bg-color-{layer}-alpha` | `--u-bg-color-bottom-alpha`（自动叠加 `aa`） |
+| 背景滤镜 | `--u-bg-filter` | `--u-bg-filter: blur(24px) saturate(180%)`（玻璃主题） |
 | 文字色 | `--u-text-color-{role}` | `--u-text-color-main`、`--u-text-color-placeholder` |
 | 圆角 | `--u-radius-{size}` | `--u-radius-small`、`--u-radius-default` |
 | 高度 | `--u-form-component-height-{size}` | `--u-form-component-height-default` |
 | 字号 | `--u-font-size-{role}-{size}` | `--u-font-size-title-default` |
 | 间距 | `--u-gap-{size}` | `--u-gap-small`、`--u-gap-default` |
 | 边框 | `--u-border-color`、`--u-border-width`、`--u-border-style` | 边框相关 |
+| 边框简写 | `--u-border` | `--u-border: var(--u-border-color) var(--u-border-width) var(--u-border-style)` |
 | 阴影 | `--u-shadow-color`、`--u-shadow-x`、`--u-shadow-blur` | 阴影相关 |
+| 阴影简写 | `--u-shadow` | `--u-shadow: var(--u-shadow-x) var(--u-shadow-y) var(--u-shadow-blur) var(--u-shadow-spread) var(--u-shadow-color)` |
+| 浮雕阴影 | `--u-shadow-emboss` | `--u-shadow-emboss: 0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f`（hero 主题） |
+| 断点 | `--u-breakpoint-{point}` | `--u-breakpoint-xs`（600）、`--u-breakpoint-lg`（1920） |
 | 组件 | `--u-{component}-{property}` | `--u-button-bg`、`--u-input-border` |
 
 ### `m.size` 传参机制
@@ -196,6 +203,48 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 
 `$size` 变量只在 `using ($size)` 的 `@content` 块内可用。
 
+### 暗色模式与断点 Mixins
+
+```scss
+@use 'pkg:@veltra/styles/mixins' as m;
+
+// 暗色模式下应用的样式（同时匹配 data-theme 与 prefers-color-scheme）
+@include m.dark {
+  background-color: fn.use-var(bg-color, bottom);
+}
+
+// 非状态选择器 — 等价于 :not(.is-disabled)
+@include m.is-not(disabled) {
+  &:hover { background-color: fn.use-var(bg-color, hover); }
+}
+
+// 断点值引用函数
+@media screen and (max-width: m.breakpoint(sm)) { ... }
+
+// 响应式断点 mixins（基于 CSS 变量 --u-breakpoint-{point}）
+@include m.xs { ... }   // 0 ~ --u-breakpoint-xs
+@include m.sm { ... }   // --u-breakpoint-xs ~ --u-breakpoint-sm
+@include m.md { ... }   // --u-breakpoint-sm ~ --u-breakpoint-md
+@include m.lg { ... }   // --u-breakpoint-md ~ --u-breakpoint-lg
+@include m.xl { ... }   // >= --u-breakpoint-lg
+```
+
+### `css-var` Mixin
+
+批量生成 CSS 变量：
+
+```scss
+@include m.css-var(height, (
+  large: 40px,
+  default: 32px,
+  small: 24px
+));
+// 生成：
+// --u-height-large: 40px;
+// --u-height-default: 32px;
+// --u-height-small: 24px;
+```
+
 ### SCSS 变量
 
 ```scss
@@ -220,26 +269,53 @@ import './style.scss'                      // 自身 SCSS
 
 ## Theme 系统
 
+### 预设主题
+
+`@veltra/styles/theme` 导出以下预设 `UITheme` 实例：
+
+| 导出 | 说明 |
+|------|------|
+| `lightTheme` | 默认亮色主题（`#1E88E5` 主色） |
+| `darkTheme` | 默认暗色主题（派生自 `lightTheme`） |
+| `shadcnLightTheme` | shadcn/ui 风格亮色（zinc 色系，扁平阴影） |
+| `shadcnDarkTheme` | shadcn/ui 风格暗色 |
+| `heroLightTheme` | HeroUI 风格亮色（紫色 `#7828c8` 主色，2px 无颜色边框，大圆角，emboss 阴影） |
+| `heroDarkTheme` | HeroUI 风格暗色 |
+| `glassLightTheme` | 玻璃拟态亮色（半透明背景 + `blur(24px) saturate(180%)`） |
+| `glassDarkTheme` | 玻璃拟态暗色（半透明深色背景 + `blur(20px) saturate(200%)`） |
+
+所有派生主题通过 `lightTheme.new({...})` 链式创建：
+
+```ts
+import { lightTheme, glassLightTheme } from '@veltra/styles/theme'
+
+// glassLightTheme 等价于：
+const glass = lightTheme.new({
+  color: { primary: '#3B82F6', ... },
+  bg: {
+    color: { bottom: 'rgba(255, 255, 255, 0.45)', ... },
+    filter: { blur: 'blur(24px)', saturate: 'saturate(180%)' }
+  },
+  ...
+})
+```
+
 ### `loadTheme(theme?)`
 
 在应用入口调用，注入主题 CSS 变量。
 
 ```ts
 import { loadTheme } from '@veltra/styles/theme'
+import { glassLightTheme } from '@veltra/styles/theme'
 
-// 无参数：注入内置 light/dark 主题，自动响应 prefers-color-scheme
+// 无参数：注入内置 light/dark 主题，自动响应 prefers-color-scheme，支持 setTheme() 切换
 loadTheme()
 
-// 传入自定义主题
-import { lightTheme } from '@veltra/styles/theme'
-const custom = lightTheme.new({
-  color: { primary: '#ff6600' },
-  radius: { default: 8 }
-})
-loadTheme(custom)
+// 传入预设主题（lightTheme / darkTheme / shadcnLightTheme / heroLightTheme / glassLightTheme 等）
+// lightTheme / darkTheme → 仍注入双主题表，支持 setTheme() 切换
+// 其他预设或自定义主题 → 单次 html {} 注入，不支持 setTheme()
+loadTheme(glassLightTheme)
 ```
-
-> **注意**：传入自定义主题后，走的是 `theme.render()` 单层注入逻辑，**不再支持 `setTheme()` 在 light/dark 间切换**。如需深色模式，需从 `darkTheme` 同样派生一份并自行管理切换。
 
 ### `setTheme(mode)`
 
@@ -268,13 +344,8 @@ console.log(currentTheme.value)
 核心主题运行时类。
 
 ```ts
-import { UITheme, lightTheme, darkTheme } from '@veltra/styles/theme'
+import { UITheme } from '@veltra/styles/theme'
 
-// 内置预设
-lightTheme   // UITheme 实例 — 亮色主题
-darkTheme    // UITheme 实例 — 暗色主题
-
-// 创建自定义主题
 const myTheme = new UITheme({
   color: {
     primary: '#1890ff',
@@ -293,7 +364,7 @@ const myTheme = new UITheme({
       hover: '#fafafa',
       black: '#000000'
     },
-    filter: { blur: 0, saturate: 1 }
+    filter: { blur: 'none', saturate: 'none' }
   },
   border: { color: '#d9d9d9', width: 1, style: 'solid' },
   'text-color': {
@@ -311,8 +382,9 @@ const myTheme = new UITheme({
   'font-size-title': { small: 14, default: 16, large: 18 },
   'font-size-main': { small: 12, default: 14, large: 16 },
   'font-size-assist': { small: 10, default: 12, large: 14 },
-  shadow: { color: 'rgba(0,0,0,0.08)', x: 0, y: 2, blur: 8, spread: 0 },
-  gap: { small: 8, default: 12, large: 16 }
+  shadow: { color: 'rgba(0,0,0,0.08)', x: 0, y: 2, blur: 8, spread: 0, emboss: 'none' },
+  gap: { small: 8, default: 12, large: 16 },
+  breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 }
 })
 
 // 基于现有主题合并自定义
@@ -348,10 +420,19 @@ const vars = themeToDeclarationList(myTheme)
 ### Theme 工具函数
 
 ```ts
-import { cssVar, defineBySize, HEXToRGB, mixColor } from '@veltra/styles/theme'
+import {
+  cssVar, defineBySize, HEXToRGB, mixColor,
+  themeTokenVar,
+  componentCssVarsLight, componentCssVarsLightDecls,
+  componentCssVarsDark, componentCssVarsDarkDecls
+} from '@veltra/styles/theme'
 
 // 快速创建 CSS 变量引用
 cssVar('color-primary')  // 'var(--u-color-primary)'
+
+// themeTokenVar 与 SCSS fn.use-var 输出一致
+themeTokenVar('text-color', 'main')          // 'var(--u-text-color-main)'
+themeTokenVar('color', 'primary', 'light', 9) // 'var(--u-color-primary-light-9)'
 
 // 按尺寸定义值
 defineBySize({ small: 20, default: 30, large: 40 })
@@ -359,6 +440,28 @@ defineBySize({ small: 20, default: 30, large: 40 })
 // 颜色转换
 HEXToRGB('#ff6600')  // [255, 102, 0]
 mixColor('#ff0000', '#0000ff', 0.5)  // 混合色
+
+// 组件级 CSS 变量声明（与内置主题一起注入 html）
+componentCssVarsLight       // Record<string, string> — 亮色及公共 token
+componentCssVarsLightDecls  // string[] — 展开为 '--u-xxx: val' 格式
+componentCssVarsDark        // Record<string, string> — 暗色 token
+componentCssVarsDarkDecls   // string[]
+```
+
+### 自定义 Theme 注入流程
+
+```ts
+import { UITheme } from '@veltra/styles/theme'
+import {
+  componentCssVarsLightDecls,
+  componentCssVarsDarkDecls
+} from '@veltra/styles/theme'
+
+// 注入双主题（支持 setTheme 切换）
+UITheme.injectBuiltInThemes(myLightTheme, myDarkTheme)
+
+// 单主题直接渲染（不需要暗色切换）
+myTheme.render()
 ```
 
 ### 主题注入机制
