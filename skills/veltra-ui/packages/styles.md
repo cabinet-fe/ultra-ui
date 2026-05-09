@@ -141,6 +141,7 @@ $root-name: button;
 // use-var(token, sub?...) → var(--u-{token}-{sub})
 fn.use-var(text-color, main)       // var(--u-text-color-main)
 fn.use-var(color, primary)         // var(--u-color-primary)
+fn.use-var(border-muted)           // var(--u-border-muted)
 fn.use-var(radius, default)        // var(--u-radius-default)
 fn.use-var(gap, small)             // var(--u-gap-small)
 
@@ -171,8 +172,8 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 | 高度 | `--u-form-component-height-{size}` | `--u-form-component-height-default` |
 | 字号 | `--u-font-size-{role}-{size}` | `--u-font-size-title-default` |
 | 间距 | `--u-gap-{size}` | `--u-gap-small`、`--u-gap-default` |
-| 边框 | `--u-border-color`、`--u-border-width`、`--u-border-style` | 边框相关 |
-| 边框简写 | `--u-border` | `--u-border: var(--u-border-color) var(--u-border-width) var(--u-border-style)` |
+| 边框 | `--u-border-color`、`--u-border-muted-color`、`--u-border-width`、`--u-border-style` | 边框相关 |
+| 边框简写 | `--u-border`、`--u-border-muted` | `--u-border-muted` 用于表单类组件的弱化边框 |
 | 阴影 | `--u-shadow-color`、`--u-shadow-x`、`--u-shadow-blur` | 阴影相关 |
 | 阴影简写 | `--u-shadow` | `--u-shadow: var(--u-shadow-x) var(--u-shadow-y) var(--u-shadow-blur) var(--u-shadow-spread) var(--u-shadow-color)` |
 | 浮雕阴影 | `--u-shadow-emboss` | `--u-shadow-emboss: 0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f`（hero 主题） |
@@ -279,7 +280,7 @@ import './style.scss'                      // 自身 SCSS
 | `darkTheme` | 默认暗色主题（派生自 `lightTheme`） |
 | `shadcnLightTheme` | shadcn/ui 风格亮色（zinc 色系，扁平阴影） |
 | `shadcnDarkTheme` | shadcn/ui 风格暗色 |
-| `heroLightTheme` | HeroUI 风格亮色（紫色 `#7828c8` 主色，2px 无颜色边框，大圆角，emboss 阴影） |
+| `heroLightTheme` | HeroUI 风格亮色（紫色 `#7828c8` 主色，2px 结构边框，表单弱化边框透明，大圆角，emboss 阴影） |
 | `heroDarkTheme` | HeroUI 风格暗色 |
 | `glassLightTheme` | 玻璃拟态亮色（半透明背景 + `blur(24px) saturate(180%)`） |
 | `glassDarkTheme` | 玻璃拟态暗色（半透明深色背景 + `blur(20px) saturate(200%)`） |
@@ -366,7 +367,12 @@ const myTheme = new UITheme({
     },
     filter: { blur: 'none', saturate: 'none' }
   },
-  border: { color: '#d9d9d9', width: 1, style: 'solid' },
+  border: {
+    color: '#d9d9d9',
+    mutedColor: '#d9d9d9', // 可选；缺省时回退到 color
+    width: 1,
+    style: 'solid'
+  },
   'text-color': {
     title: '#262626',
     main: '#434343',

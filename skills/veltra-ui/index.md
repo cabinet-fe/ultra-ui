@@ -13,7 +13,7 @@
 |------|------|
 | packages/utils.md | `@veltra/utils` — 工具函数、共享类型、常量 |
 | packages/styles.md | `@veltra/styles` — SCSS mixins/functions、Theme 系统 |
-| packages/compositions.md | `@veltra/compositions` — 13 个组合式函数 |
+| packages/compositions.md | `@veltra/compositions` — 12 个组合式函数 |
 | packages/directives.md | `@veltra/directives` — vRipple、vClickOutside、vFocus |
 | packages/icons.md | `@veltra/icons` — SVG 图标组件 |
 | packages/vite.md | `@veltra/vite` — Vite 自动导入插件 |

@@ -60,12 +60,13 @@
 
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
@@ -122,7 +123,7 @@ const model = defineModel<string | number>()
 
 const label = shallowRef<string>()
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

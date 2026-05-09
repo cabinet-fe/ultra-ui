@@ -53,12 +53,13 @@
 </template>
 
 <script lang="tsx" setup>
-import { useFocus, useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 
 import type { InputEmits, InputProps, _InputExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 
 defineOptions({
@@ -80,7 +81,7 @@ const inst = getCurrentInstance()
 
 const cls = bem('input')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

@@ -1,6 +1,6 @@
 display_name: Veltra Ultra UI
 short_description: >
-  Vue 3 组件库完整开发参考——70+ 桌面组件、13个组合式函数、3个自定义指令、SCSS/BEM
+  Vue 3 组件库完整开发参考——70+ 桌面组件、12 个组合式函数、3个自定义指令、SCSS/BEM
   样式体系、主题系统、图标库及 Vite 插件。当需要在项目中安装或使用 @veltra/desktop、
   @veltra/compositions、@veltra/directives、@veltra/utils、@veltra/styles、
   @veltra/icons、@veltra/vite 时使用。

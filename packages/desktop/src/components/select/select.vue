@@ -115,7 +115,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { vFocus } from '@veltra/directives'
 import { ArrowDown, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
@@ -128,6 +128,7 @@ import type {
   DropdownExposed,
   ScrollExposed
 } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'
@@ -160,7 +161,7 @@ const cls = bem('select')
 
 const optionClass = cls.e('option')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
   disabled: false,
@@ -174,7 +175,7 @@ const selected = shallowRef<Record<string, any>>()
 const displayedValue = computed(() => {
   if (label.value) return label.value
 
-  return selected.value ? o(selected.value).get(props.labelKey) : String(props.modelValue)
+  return selected.value ? o(selected.value).get(props.labelKey) : String(props.modelValue ?? '')
 })
 
 const dropdownRef = shallowRef<DropdownExposed>()

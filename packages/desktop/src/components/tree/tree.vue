@@ -31,12 +31,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { bem, nextFrame, scrollIntoContainerView } from '@veltra/utils'
 import { computed, provide, shallowRef, useSlots, watch, watchEffect, type VNode } from 'vue'
 
 import type { TreeProps, TreeEmit, _TreeExposed } from '../../types'
 import type { ScrollExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UEmpty } from '../empty'
 import { UScroll } from '../scroll'
 import { TreeDIKey, type TreeConText, type TreeSlotsScope } from './di'
@@ -63,7 +64,7 @@ const emit = defineEmits<TreeEmit>()
 
 const cls = bem('tree')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'

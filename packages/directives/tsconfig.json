@@ -6,12 +6,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "customConditions": ["development"],
-    "paths": {
-      "@cat-kit/core": ["../../node_modules/@cat-kit/core/dist/index.d.ts"],
-      "@cat-kit/fe": ["../../node_modules/@cat-kit/fe/dist/index.d.ts"]
-    }
+    "skipDefaultLibCheck": true
   },
   "include": ["src/**/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules"]

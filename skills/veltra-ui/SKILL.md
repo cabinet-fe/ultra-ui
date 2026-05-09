@@ -1,7 +1,7 @@
 ---
 name: veltra-ui
 description: >
-  Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件目录、80+ U 组件导出、组合式函数、自定义指令、
+  Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件目录、80+ U 组件导出、12 个组合式函数、自定义指令、
   SCSS/BEM 样式体系、主题系统、图标库及 Vite 插件。当你需要在项目中使用 @veltra/* 生态包时，
   本技能提供精确的 API 签名、类型定义和实际代码示例。
 ---
@@ -44,7 +44,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 | 包名 | 文档入口 | 常用场景 |
 |------|---------|---------|
 | `@veltra/desktop` | packages/desktop/index.md | 组件、Props/Emits/Slots |
-| `@veltra/compositions` | packages/compositions.md | 表单回退、浮框定位、拖拽、虚拟滚动 |
+| `@veltra/compositions` | packages/compositions.md | 属性回退、浮框定位、拖拽、虚拟滚动 |
 | `@veltra/directives` | packages/directives.md | v-ripple、v-click-outside、v-focus |
 | `@veltra/utils` | packages/utils.md | BEM 类名、类型定义、常量 |
 | `@veltra/styles` | packages/styles.md | BEM mixins、CSS 变量函数、主题 |

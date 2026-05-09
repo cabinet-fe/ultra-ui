@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import {
   computed,
@@ -42,6 +42,7 @@ import {
 } from 'vue'
 
 import type { ExpressionEditorProps, VariableItem } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import VariablePicker from './components/variable-picker.vue'
 import { createEditor, type EditorAPI } from './core/editor'
 import { createMention, type MentionAPI } from './core/mention'
@@ -62,7 +63,7 @@ const emit = defineEmits<{
 }>()
 
 const cls = bem('expression-editor')
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const containerRef = useTemplateRef<HTMLDivElement>('container')

@@ -8,7 +8,7 @@ $root-name: input;
 @include m.b($root-name) {
   vertical-align: middle;
   line-height: 1;
-  border: fn.use-var(border);
+  border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, emboss);
   transition:
     border-color 0.25s ease,

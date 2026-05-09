@@ -40,12 +40,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useFocus, useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 import { calcTextareaHeight } from './utils'
 
@@ -64,7 +65,7 @@ const props = withDefaults(defineProps<TextareaProps>(), {
 
 const cls = bem('textarea')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default' as ComponentSize,

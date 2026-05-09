@@ -19,7 +19,7 @@ $root-name: checkbox;
     @include m.is(disabled) {
       @include m.bem($root-name, wrap) {
         background-color: fn.use-var(text-color, disabled);
-        border-color: fn.use-var(border, color);
+        border-color: fn.use-var(border, muted-color);
       }
     }
   }
@@ -72,7 +72,7 @@ $root-name: checkbox;
 
 $button-name: checkbox-button;
 @include m.b($button-name) {
-  border: fn.use-var(border);
+  border: fn.use-var(border-muted);
   vertical-align: middle;
   display: inline-flex;
   align-items: center;

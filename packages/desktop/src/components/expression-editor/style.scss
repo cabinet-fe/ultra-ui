@@ -9,7 +9,7 @@ $root-name: expression-editor;
   background-color: fn.use-var(bg-color, top);
   border-width: fn.use-var(border, width);
   border-style: fn.use-var(border, style);
-  border-color: fn.use-var(border, color);
+  border-color: fn.use-var(border, muted-color);
   border-radius: fn.use-var(radius, default);
 
   @include m.is-not(disabled, readonly) {
@@ -26,21 +26,21 @@ $root-name: expression-editor;
   @include m.is('disabled') {
     background-color: fn.use-var(color, disabled);
     cursor: not-allowed;
-    border-color: fn.use-var(border, color);
+    border-color: fn.use-var(border, muted-color);
 
     &:hover {
-      border-color: fn.use-var(border, color);
+      border-color: fn.use-var(border, muted-color);
     }
   }
 
   @include m.is('readonly') {
     background-color: fn.use-var(bg-color, middle);
     cursor: default;
-    border-color: fn.use-var(border, color);
+    border-color: fn.use-var(border, muted-color);
     user-select: text;
 
     &:hover {
-      border-color: fn.use-var(border, color);
+      border-color: fn.use-var(border, muted-color);
     }
   }
 

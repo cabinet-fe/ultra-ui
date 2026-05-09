@@ -141,7 +141,7 @@ interface ComponentProps {
 ```ts
 interface FormComponentProps extends ComponentProps {
   tips?: string          // 提示文字
-  span?: number          // 栅格跨度
+  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' }) // 栅格跨度
   label?: string         // 标签文字
   field?: string         // 表单字段名
   disabled?: boolean     // 禁用
@@ -196,6 +196,7 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed>
 ```ts
 import {
   withUnit,
+  ExpandTransition,
   getZIndex,
   // ... 更多 DOM 工具
 } from '@veltra/utils'
@@ -210,6 +211,34 @@ withUnit(10)        // '10px'
 withUnit(10, 'rem') // '10rem'
 withUnit('50%')     // '50%'（已是字符串则原样返回）
 ```
+
+### `ExpandTransition`
+
+可复用的高度展开/收起动画工具，当前由 `UCollapse`、`UMenu` 复用。支持两种调用方式：
+
+```ts
+import { ExpandTransition } from '@veltra/utils'
+
+const expandTransition = new ExpandTransition({
+  transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+  opacity: true
+})
+
+// Vue <transition> hooks
+expandTransition.enter(el)
+expandTransition.afterEnter(el)
+expandTransition.beforeLeave(el)
+expandTransition.leave(el)
+expandTransition.afterLeave(el)
+
+// 命令式展开/收起
+expandTransition.setExpanded(el, expanded)
+expandTransition.expand(el)
+expandTransition.collapse(el)
+expandTransition.cancel(el)
+```
+
+`enterTransition` / `leaveTransition` 可分别覆盖进场和离场 transition；命令式 `expand()` 完成后会把高度恢复为 `auto`，`collapse()` 完成后保持 `0px`。
 
 ---
 
@@ -248,4 +277,3 @@ tween.start()
 
 - styles.md — SCSS BEM mixins（对应的 SCSS 端实现）
 - compositions.md — 基于这些类型构建的组合式函数
-

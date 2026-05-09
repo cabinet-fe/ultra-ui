@@ -1,4 +1,4 @@
-import type { BEM } from '@veltra/utils'
+import { type BEM, ExpandTransition } from '@veltra/utils'
 import type { ComputedRef, InjectionKey } from 'vue'
 
 import type { MenuProps, MenuEmits } from '../../types'
@@ -11,6 +11,7 @@ export interface MenuContext {
   menuEmit: MenuEmits
   expandedPath: Set<string>
   size: ComputedRef<ComponentSize>
+  expandTransition: ExpandTransition
 }
 
 export const MenuDIKey: InjectionKey<MenuContext> = Symbol('MenuDIKey')

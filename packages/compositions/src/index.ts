@@ -8,8 +8,6 @@ export * from './use-fallback-props'
 
 export * from './use-focus'
 
-export * from './use-form-component'
-
 export * from './use-user-action'
 
 export * from './use-model'

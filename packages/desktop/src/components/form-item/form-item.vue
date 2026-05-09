@@ -33,11 +33,12 @@
 </template>
 
 <script lang="tsx" setup>
-import { useConfig, useFallbackProps, useFormComponent } from '@veltra/compositions'
+import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed } from 'vue'
 
 import type { FormItemProps, ComponentSize } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 import { formItemCls as cls } from './helper'
@@ -57,7 +58,7 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { config } = useConfig()
 

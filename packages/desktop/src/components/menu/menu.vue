@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
+import { bem, ExpandTransition } from '@veltra/utils'
 import { computed, provide, shallowReactive, watch } from 'vue'
 
 import type { MenuEmits, MenuProps, ComponentSize } from '../../types'
@@ -64,6 +64,14 @@ const collapsedCls = bem('collapsed-menu')
 
 const menuCls = computed(() => {
   return props.collapsed ? collapsedCls : cls
+})
+
+const expandTransition = new ExpandTransition({
+  enterTransition:
+    'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+  leaveTransition:
+    'height 0.2s cubic-bezier(0.4, 0, 1, 1), padding-top 0.2s cubic-bezier(0.4, 0, 1, 1), padding-bottom 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.12s cubic-bezier(0.4, 0, 1, 1)',
+  opacity: true
 })
 
 const { size } = useFallbackProps([props], {
@@ -98,6 +106,7 @@ provide(MenuDIKey, {
   menuProps: props,
   menuEmit: emit,
   expandedPath,
-  size
+  size,
+  expandTransition
 })
 </script>

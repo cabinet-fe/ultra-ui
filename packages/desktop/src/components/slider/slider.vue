@@ -20,11 +20,12 @@
 </template>
 
 <script lang="ts" setup generic="T extends number | [number, number]">
-import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, provide, watch } from 'vue'
 
 import type { SliderProps, SliderEmits } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
 import { useSlider } from './use-slider'
@@ -44,7 +45,7 @@ const emit = defineEmits<SliderEmits<T>>()
 
 const cls = bem('slider')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

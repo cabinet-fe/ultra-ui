@@ -11,12 +11,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { TagEmits, TagProps } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 
 defineOptions({
@@ -29,7 +30,7 @@ const props = defineProps<TagProps>()
 
 const emit = defineEmits<TagEmits>()
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 const { size } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default'
 })

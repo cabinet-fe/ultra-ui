@@ -1,6 +1,6 @@
 # @veltra/compositions
 
-Vue 3 组合式函数，为组件库提供可复用的有状态逻辑。共 13 个 composable。
+Vue 3 组合式函数，为组件库提供可复用的有状态逻辑。共 12 个 composable。
 
 ## 导入
 
@@ -9,7 +9,6 @@ import {
   useConfig,
   useFallbackProps,
   useFormFallbackProps,
-  useFormComponent,
   useModel,
   usePop,
   useDrag,
@@ -134,12 +133,13 @@ useFallbackProps(propsList, { size: 'default', disabled: false, readonly: false 
 
 ```vue
 <script setup lang="ts">
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
+import { injectFormContext } from '../../utils/form-context'
 
 const props = defineProps<InputProps>()
 
-// 注入表单上下文
-const { formProps } = useFormComponent()
+// @veltra/desktop 内部：表单上下文已下沉到 desktop/src/utils/form-context
+const { formProps } = injectFormContext()
 
 // 回退链：props → formProps → config → 默认值
 const { size, disabled, readonly } = useFormFallbackProps([
@@ -149,63 +149,7 @@ const { size, disabled, readonly } = useFormFallbackProps([
 </script>
 ```
 
----
-
-## `useFormComponent()` — 表单上下文
-
-重载函数，实现表单上下文的 provide/inject。
-
-```ts
-// 容器组件（UForm）调用 — provide
-function useFormComponent(props: FormContextInjectProps): void
-
-// 子控件（UInput 等）调用 — inject
-function useFormComponent(): {
-  inForm: boolean
-  formProps?: FormContextInjectProps
-}
-```
-
-### 容器用法
-
-```vue
-<!-- form.vue -->
-<script setup lang="ts">
-import { useFormComponent } from '@veltra/compositions'
-
-const props = defineProps<FormProps>()
-useFormComponent(props) // provide 给子组件
-</script>
-```
-
-### 子控件用法
-
-```vue
-<!-- input.vue -->
-<script setup lang="ts">
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
-
-const props = defineProps<InputProps>()
-
-const { inForm, formProps } = useFormComponent()
-
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
-</script>
-```
-
-### 数据流
-
-```
-UForm -------------------┐
-  useFormComponent(props)  → provide(formProps)
-                          └──→ UFormItem
-                                  └──→ UInput
-                                         useFormComponent() → inject(formProps)
-                                         useFormFallbackProps([formProps, props])
-```
+`useFormComponent` 已不再从 `@veltra/compositions` 导出。对外使用组件时只需要 `<u-form>` + `field`；维护 `@veltra/desktop` 内部表单组件时，使用 `../../utils/form-context` 的 `provideFormContext()` / `injectFormContext()`。
 
 ---
 

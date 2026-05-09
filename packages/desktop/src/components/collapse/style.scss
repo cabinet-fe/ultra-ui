@@ -124,7 +124,7 @@ $header-padding-y: (
   }
 
   // ===== Content wrapper =====
-  // 高度由 collapse-item.vue 的 JS 在 isActive 切换时驱动：
+  // 高度由共享 expand transition hook 在 isActive 切换时驱动：
   //   未挂载前 → CSS 兜底 height: 0
   //   未激活   → 0px（带 transition）
   //   激活中   → 0 → scrollHeight（CSS transition: height）

@@ -26,10 +26,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UCheckbox } from '../checkbox'
 import { UTag } from '../tag'
 
@@ -50,7 +51,7 @@ const model = defineModel<any[]>()
 
 const cls = bem('checkbox-group')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

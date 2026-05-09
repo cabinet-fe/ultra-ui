@@ -49,7 +49,7 @@ defineOptions({
 
 const props = defineProps<CollapseItemProps>()
 
-const context = inject(CollapseDIKey)
+const context = inject(CollapseDIKey)!
 
 const cls = context?.cls ?? bem('collapse')
 
@@ -80,59 +80,21 @@ const handleClick = () => {
 }
 
 const wrapperEl = ref<HTMLElement>()
-let cleanupTransition: (() => void) | null = null
 
-const cancelTransition = () => {
-  cleanupTransition?.()
-  cleanupTransition = null
-}
-
-// 用 height 数值过渡替代 grid-template-rows，避免每帧 grid 重排带来的卡顿。
-const animateHeight = (active: boolean) => {
-  const el = wrapperEl.value
-  if (!el) return
-
-  cancelTransition()
-
-  const startHeight = el.offsetHeight
-  const endHeight = active ? el.scrollHeight : 0
-
-  if (startHeight === endHeight) {
-    el.style.height = active ? 'auto' : '0px'
-    return
-  }
-
-  el.style.height = `${startHeight}px`
-  // 强制 reflow，确保起始高度被采纳，避免 0 → auto 直接跳变。
-  void el.offsetHeight
-  el.style.height = `${endHeight}px`
-
-  const onEnd = (e: TransitionEvent) => {
-    if (e.target !== el || e.propertyName !== 'height') return
-    cleanup()
-    if (active) {
-      // 回归 auto，让后续内容动态变化时不被锁死高度。
-      el.style.height = 'auto'
-    }
-  }
-
-  const cleanup = () => {
-    el.removeEventListener('transitionend', onEnd)
-    el.removeEventListener('transitioncancel', onEnd)
-    cleanupTransition = null
-  }
-
-  el.addEventListener('transitionend', onEnd)
-  el.addEventListener('transitioncancel', onEnd)
-  cleanupTransition = cleanup
-}
+const { expandTransition } = context
 
 onMounted(() => {
   if (!wrapperEl.value) return
-  wrapperEl.value.style.height = isActive.value ? 'auto' : '0px'
+  expandTransition.setExpanded(wrapperEl.value, isActive.value)
 })
 
-watch(isActive, animateHeight)
+watch(isActive, (active) => {
+  if (!wrapperEl.value) return
+  active ? expandTransition.expand(wrapperEl.value) : expandTransition.collapse(wrapperEl.value)
+})
 
-onBeforeUnmount(cancelTransition)
+onBeforeUnmount(() => {
+  if (!wrapperEl.value) return
+  expandTransition.cancel(wrapperEl.value)
+})
 </script>

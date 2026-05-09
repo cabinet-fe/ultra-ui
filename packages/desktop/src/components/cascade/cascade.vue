@@ -105,12 +105,13 @@
 
 <script lang="ts" setup>
 import { Forest, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
 
 import type { CascadeProps, CascadeEmits, DropdownExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'
@@ -145,7 +146,7 @@ const emit = defineEmits<CascadeEmits>()
 
 const cls = bem('cascade')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

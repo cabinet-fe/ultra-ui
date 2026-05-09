@@ -61,12 +61,13 @@
 
 <script lang="ts" setup>
 import { date, type Dater } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Calendar, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { DateRangePickerEmits, DateRangePickerProps, DropdownExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UDatePanel } from '../date-panel'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
@@ -91,7 +92,7 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
 })
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

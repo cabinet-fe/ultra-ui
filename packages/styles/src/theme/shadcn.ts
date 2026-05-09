@@ -19,7 +19,7 @@ export const shadcnLightTheme = lightTheme.new({
       black: '#000000'
     }
   },
-  border: { color: '#e4e4e7' },
+  border: { color: '#e4e4e7', mutedColor: '#e4e4e7' },
   'text-color': {
     title: '#09090b',
     main: '#09090b',
@@ -48,7 +48,7 @@ export const shadcnDarkTheme = shadcnLightTheme.new({
       black: '#000000'
     }
   },
-  border: { color: '#27272a' },
+  border: { color: '#27272a', mutedColor: '#27272a' },
   'text-color': {
     title: '#fafafa',
     main: '#fafafa',

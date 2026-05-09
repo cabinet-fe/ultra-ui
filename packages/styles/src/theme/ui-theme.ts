@@ -61,11 +61,15 @@ export class UITheme {
   }
 
   private renderBorder(theme: Theme): string {
-    const border = Object.keys(theme.border)
-      .map((key) => `var(--u-border-${key})`)
-      .join(' ')
+    const shorthandKeys = (Object.keys(theme.border) as Array<keyof typeof theme.border>).filter(
+      (key) => key !== 'mutedColor'
+    )
+    const border = shorthandKeys.map((key) => `var(--u-border-${key})`).join(' ')
 
-    return `--u-border: ${border}`
+    return [
+      `--u-border: ${border}`,
+      `--u-border-muted: var(--u-border-muted-color) var(--u-border-width) var(--u-border-style)`
+    ].join(';')
   }
 
   private renderTypeColor(theme: Theme): string {

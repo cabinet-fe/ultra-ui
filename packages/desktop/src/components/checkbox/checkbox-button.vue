@@ -13,11 +13,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UTag } from '../tag'
 
 defineOptions({
@@ -41,7 +42,7 @@ const cls = bem('checkbox-button')
 
 const checked = defineModel<boolean>()
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

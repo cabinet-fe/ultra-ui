@@ -140,7 +140,7 @@
 
 <script lang="ts" setup>
 import { o as chainObj } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
@@ -151,6 +151,7 @@ import type {
   ScrollExposed,
   DropdownExposed
 } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
@@ -179,7 +180,7 @@ const emit = defineEmits<MultiSelectEmits>()
 
 const cls = bem('multi-select')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

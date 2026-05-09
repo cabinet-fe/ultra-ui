@@ -63,7 +63,7 @@ $root-name: radio;
     color: fn.use-var(text-color, disabled);
     cursor: not-allowed;
     @include m.bem($root-name, button) {
-      border-color: fn.use-var(border, color);
+      border-color: fn.use-var(border, muted-color);
       background-color: fn.use-var(color, disabled);
     }
 

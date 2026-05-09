@@ -47,8 +47,10 @@ export type Theme = {
   }
 
   border: {
-    /** 边框颜色 */
+    /** 边框颜色（结构性，始终可见） */
     color: string
+    /** 弱化边框颜色（表单类组件用） */
+    mutedColor: string
     /** 边框宽度 */
     width: number
     /** 边框样式 */

@@ -28,11 +28,12 @@
 
 <script lang="ts" setup>
 import { n, $n, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UNumberInput } from '../number-input'
 
 defineOptions({
@@ -58,7 +59,7 @@ function splitBound(): boolean {
   return 'start' in p || 'onUpdate:start' in p || 'end' in p || 'onUpdate:end' in p
 }
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

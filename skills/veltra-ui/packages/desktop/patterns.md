@@ -19,7 +19,7 @@ interface ComponentProps {
 ```ts
 interface FormComponentProps extends ComponentProps {
   tips?: string
-  span?: number
+  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
   label?: string
   field?: string
   disabled?: boolean
@@ -209,6 +209,8 @@ UForm （provide formProps）
 
 无需手动传递 props，嵌套在 `UForm` 内的表单组件自动继承表单上下文。
 
+维护 `@veltra/desktop` 内部表单组件时，使用 `src/utils/form-context.ts` 中的 `provideFormContext()` / `injectFormContext()`；不要再从 `@veltra/compositions` 导入已移除的 `useFormComponent()`。
+
 ## 条件渲染注意事项
 
 某些组件内部的子组件通过 `v-if` 按需渲染，使用时注意：
@@ -224,4 +226,3 @@ UForm （provide formProps）
 | 组件名 | `U` + PascalCase（`UButton`） |
 | 目录名 | kebab-case（`button`） |
 | CSS 类 | `u-` + BEM（`u-button`、`u-button__icon`） |
-

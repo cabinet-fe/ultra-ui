@@ -34,12 +34,13 @@
 </template>
 
 <script lang="ts" setup generic="GroupItem extends Record<string, any>">
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { Minus, Plus } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { GroupInputEmits, GroupInputProps } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UButton } from '../button'
 import { useGroupItems } from './use-group-items'
 
@@ -58,7 +59,7 @@ const emit = defineEmits<GroupInputEmits>()
 
 const cls = bem('group-input')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 const { disabled, size, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
   disabled: false,

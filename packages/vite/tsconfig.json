@@ -6,8 +6,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "customConditions": ["development"]
+    "skipDefaultLibCheck": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

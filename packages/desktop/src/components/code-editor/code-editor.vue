@@ -8,7 +8,7 @@
 import { Compartment, EditorState, type Extension } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, zIndex } from '@veltra/utils'
 import { EditorView, basicSetup } from 'codemirror'
 import {
@@ -21,6 +21,7 @@ import {
 } from 'vue'
 
 import type { CodeEditorLang, CodeEditorProps } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UScroll } from '../scroll'
 
 defineOptions({ name: 'CodeEditor' })
@@ -36,7 +37,7 @@ const model = defineModel<string>()
 
 const cls = bem('code-editor')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   disabled: false,

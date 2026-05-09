@@ -56,6 +56,14 @@ import type { ButtonProps } from '@veltra/desktop'
 
 `field` 的值对应 `FormModel` 构造时的 key。
 
+## 2.1 不要从 @veltra/compositions 导入 useFormComponent
+
+`useFormComponent` 已从 `@veltra/compositions` 公共入口移除。使用者不需要它；维护 `@veltra/desktop` 内部表单组件时，表单上下文来自 `packages/desktop/src/utils/form-context.ts`：
+
+```ts
+import { injectFormContext, provideFormContext } from '../../utils/form-context'
+```
+
 ## 3. 图标从 @veltra/icons/normal 导入
 
 ```ts

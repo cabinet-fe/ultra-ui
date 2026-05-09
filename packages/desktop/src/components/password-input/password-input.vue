@@ -27,12 +27,13 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { Hide, View } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, shallowRef } from 'vue'
 
 import type { PasswordInputProps } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
@@ -41,7 +42,7 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<PasswordInputProps>(), {
-  clearable: true,
+  clearable: false,
   disabled: undefined,
   readonly: undefined
 })
@@ -50,7 +51,7 @@ const slots = defineSlots<{
   prefix?: () => any
 }>()
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

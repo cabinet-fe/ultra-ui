@@ -24,11 +24,11 @@
 
     <!-- @vue-ignore -->
     <transition
-      @enter="enter"
-      @after-enter="afterEnter"
-      @leave="leave"
-      @before-leave="beforeLeave"
-      @after-leave="afterLeave"
+      @enter="(el: Element) => expandTransition.enter(el as HTMLElement)"
+      @after-enter="(el: Element) => expandTransition.afterEnter(el as HTMLElement)"
+      @before-leave="(el: Element) => expandTransition.beforeLeave(el as HTMLElement)"
+      @leave="(el: Element) => expandTransition.leave(el as HTMLElement)"
+      @after-leave="(el: Element) => expandTransition.afterLeave(el as HTMLElement)"
     >
       <ul :class="cls.e('sub-list')" v-show="expanded">
         <template v-for="(child, index) of menu.children!" :key="getKey(index, parentKey)">
@@ -51,15 +51,12 @@ import { MenuDIKey } from './di'
 import { getKey } from './helper'
 import UMenuIcon from './menu-icon.vue'
 import UMenuItem from './menu-item.vue'
-import { useMenuTransition } from './use-menu-transition'
 
 defineOptions({ name: 'MenuSub' })
 
 const props = defineProps<{ menu: MenuItem; parentKey: string; depth: number }>()
 
-const { cls, expandedPath, menuProps } = inject(MenuDIKey)!
-
-const { enter, afterEnter, beforeLeave, leave, afterLeave } = useMenuTransition()
+const { cls, expandedPath, menuProps, expandTransition } = inject(MenuDIKey)!
 
 const expanded = computed(() => expandedPath.has(props.menu.path))
 

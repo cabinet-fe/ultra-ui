@@ -10,7 +10,7 @@ $menu-name: $root-name + '-panel-item';
   width: 100%;
 
   @include m.is(multiple) {
-    border: fn.use-var(border);
+    border: fn.use-var(border-muted);
     box-shadow: fn.use-var(shadow, emboss);
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
     overflow: hidden;

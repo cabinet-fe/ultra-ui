@@ -23,11 +23,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { SwitchEmits, SwitchProps, _SwitchExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 
 defineOptions({
   name: 'Switch'
@@ -44,7 +45,7 @@ const model = defineModel<boolean>()
 
 const cls = bem('switch')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

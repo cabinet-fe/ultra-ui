@@ -6,7 +6,7 @@ $root-name: rich-text-editor;
 
 @include m.b($root-name) {
   width: 100%;
-  border: 1px solid fn.use-var(border-color);
+  border: 1px solid fn.use-var(border, muted-color);
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(color, bg);
   transition: border-color 0.25s ease;
@@ -101,7 +101,7 @@ $root-name: rich-text-editor;
     appearance: none;
     padding: 2px 24px 2px 8px;
     height: 28px;
-    border: 1px solid fn.use-var(border-color);
+    border: 1px solid fn.use-var(border, muted-color);
     border-radius: 4px;
     background-color: transparent;
     color: fn.use-var(text-color);
@@ -171,17 +171,17 @@ $root-name: rich-text-editor;
 
   @include m.is(disabled) {
     background-color: fn.use-var(color, disabled);
-    border-color: fn.use-var(border-color);
+    border-color: fn.use-var(border, muted-color);
     cursor: not-allowed;
 
     &:hover {
-      border-color: fn.use-var(border-color);
+      border-color: fn.use-var(border, muted-color);
     }
   }
 
   @include m.is(readonly) {
     &:hover {
-      border-color: fn.use-var(border-color);
+      border-color: fn.use-var(border, muted-color);
     }
   }
 }

@@ -24,11 +24,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps, useUserAction } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { PaletteProps } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UTip } from '../tip'
 import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 import { PaletteDIKey } from './di'
@@ -47,7 +48,7 @@ const props = withDefaults(defineProps<PaletteProps>(), {
   readonly: undefined
 })
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

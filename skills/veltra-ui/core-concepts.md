@@ -70,6 +70,7 @@ myCls.e('icon')                // 'my-button__icon'
 --u-color-primary        → 主色
 --u-bg-color-bottom      → 背景色
 --u-text-color-main      → 主要文字色
+--u-border-muted         → 弱化边框简写（表单类组件常用）
 --u-radius-default       → 圆角
 --u-form-component-height-default → 表单控件高度
 --u-shadow-color         → 阴影色
@@ -210,7 +211,7 @@ interface ComponentProps {
 
 interface FormComponentProps extends ComponentProps {
   tips?: string
-  span?: number
+  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
   label?: string
   field?: string
   disabled?: boolean
@@ -260,4 +261,3 @@ defineExpose({ el: rootRef })
 - packages/desktop/index.md — 浏览具体组件
 - packages/desktop/patterns.md — 组件 Props/Emits/Slots 通用模式
 - packages/compositions.md — 可复用的组合式函数
-

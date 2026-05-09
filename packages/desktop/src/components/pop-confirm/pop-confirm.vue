@@ -32,12 +32,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { QuestionFilled } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { ref } from 'vue'
 
 import type { PopConfirmProps, PopConfirmEmits } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
@@ -61,7 +62,7 @@ const cls = bem('pop-confirm')
 
 const visible = ref(false)
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size } = useFormFallbackProps([formProps ?? {}], {
   size: 'default'

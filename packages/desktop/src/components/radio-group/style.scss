@@ -32,7 +32,7 @@
     }
 
     &:last-child {
-      border-right: fn.use-var(border) !important;
+      border-right: fn.use-var(border-muted) !important;
       border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0 !important;
     }
   }

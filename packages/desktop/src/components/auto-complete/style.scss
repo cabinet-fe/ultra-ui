@@ -22,7 +22,7 @@ $root-name: auto-complete;
     }
 
     @include m.bem(tag) {
-      border: fn.use-var(border);
+      border: fn.use-var(border-muted);
     }
   }
 
@@ -68,7 +68,7 @@ $root-name: auto-complete;
 
   @include m.is(multiple) {
     line-height: 1;
-    border: fn.use-var(border);
+    border: fn.use-var(border-muted);
     box-shadow: fn.use-var(shadow, emboss);
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
     overflow: hidden;

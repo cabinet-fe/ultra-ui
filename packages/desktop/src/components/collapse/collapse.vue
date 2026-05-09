@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { useFormFallbackProps, useModel } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
+import { bem, ExpandTransition } from '@veltra/utils'
 import { computed, provide } from 'vue'
 
 import type {
@@ -30,6 +30,10 @@ const props = withDefaults(defineProps<CollapseProps>(), {
 const emit = defineEmits<CollapseEmits>()
 
 const cls = bem('collapse')
+
+const expandTransition = new ExpandTransition({
+  transition: 'height 0.24s cubic-bezier(0.4, 0, 0.2, 1)'
+})
 
 const { size } = useFormFallbackProps([props], { size: 'default' })
 
@@ -109,7 +113,8 @@ provide(CollapseDIKey, {
   iconPosition,
   expandIcon,
   activeValues,
-  toggle
+  toggle,
+  expandTransition
 })
 
 defineExpose<_CollapseExposed>({

@@ -25,7 +25,7 @@ export const lightTheme: UITheme = new UITheme(
       filter: { blur: 'none', saturate: 'none' }
     },
 
-    border: { color: '#dcdfe6', width: 1, style: 'solid' },
+    border: { color: '#dcdfe6', mutedColor: '#dcdfe6', width: 1, style: 'solid' },
 
     'text-color': {
       title: '#303133',

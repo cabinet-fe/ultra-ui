@@ -10,7 +10,7 @@ export const heroLightTheme = lightTheme.new({
     disabled: '#f4f4f5',
     default: '#f4f4f5'
   },
-  border: { width: 2, color: '#00000000' },
+  border: { width: 2, color: '#dcdfe6', mutedColor: 'transparent' },
   'text-color': {
     title: '#11181C',
     main: '#11181C',
@@ -42,7 +42,7 @@ export const heroDarkTheme = heroLightTheme.new({
       black: '#000000'
     }
   },
-  border: { color: '#3f3f46' },
+  border: { color: '#3f3f46', mutedColor: 'transparent' },
   'text-color': {
     title: '#ECEDEE',
     main: '#ECEDEE',

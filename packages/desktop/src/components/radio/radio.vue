@@ -23,11 +23,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { RadioProps, RadioEmits } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 
 defineOptions({
   name: 'Radio'
@@ -43,7 +44,7 @@ defineEmits<RadioEmits>()
 
 const cls = bem('radio')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',

@@ -7,7 +7,7 @@ $root-name: textarea;
 @include m.b($root-name) {
   position: relative;
   width: 100%;
-  border: fn.use-var(border);
+  border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, emboss);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
   overflow: hidden;

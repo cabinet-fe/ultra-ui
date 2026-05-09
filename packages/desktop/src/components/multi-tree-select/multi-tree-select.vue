@@ -96,13 +96,14 @@
 
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
 import type { DropdownExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UButton } from '../button'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
@@ -161,7 +162,7 @@ const hovered = shallowRef(false)
 
 const tags = shallowRef<Record<string, any>[]>([])
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 

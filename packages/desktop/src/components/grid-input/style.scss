@@ -12,7 +12,7 @@ $root-name: grid-input;
       width: fn.use-var(form-component-height, $size);
       height: fn.use-var(form-component-height, $size);
       line-height: fn.use-var(form-component-height, $size);
-      border: fn.use-var(border);
+      border: fn.use-var(border-muted);
       border-radius: fn.use-var(gap, $size);
       outline: none;
       text-align: center;

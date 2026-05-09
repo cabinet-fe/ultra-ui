@@ -57,7 +57,7 @@ $root-name: switch;
     align-items: center;
     border-radius: 100px;
     background-color: fn.use-var(bg-color, bottom);
-    border: 1px solid fn.use-var(border, color);
+    border: 1px solid fn.use-var(border, muted-color);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 2px;
     flex-shrink: 0;

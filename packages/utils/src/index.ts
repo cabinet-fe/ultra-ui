@@ -1,5 +1,7 @@
 export * from './dom/class-name'
 
+export * from './dom/expand-transition'
+
 export * from './dom/highlight'
 
 export * from './dom/position'

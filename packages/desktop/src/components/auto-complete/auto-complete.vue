@@ -71,13 +71,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
 import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { AutoCompleteEmits, AutoCompleteProps, _AutoCompleteExposed } from '../../types'
 import type { DropdownExposed, ScrollExposed } from '../../types'
+import { injectFormContext } from '../../utils/form-context'
 import { UDropdown } from '../dropdown'
 import { UInput } from '../input'
 import { UScroll } from '../scroll'
@@ -108,7 +109,7 @@ const cls = bem('auto-complete')
 
 const optionClass = cls.e('option')
 
-const { formProps } = useFormComponent()
+const { formProps } = injectFormContext()
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   size: 'default',
   disabled: false,
