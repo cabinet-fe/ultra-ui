@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.2
+
+### Patch Changes
+
+- ef0ef2d: Refine shared expand transitions and related component/theme behavior.
+- Updated dependencies [ef0ef2d]
+  - @veltra/utils@1.1.2
+  - @veltra/styles@1.1.2
+  - @veltra/compositions@1.1.2
+  - @veltra/directives@1.1.2
+  - @veltra/icons@1.1.2
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.1.2
+
+### Patch Changes
+
+- ef0ef2d: Refine shared expand transitions and related component/theme behavior.
+
 ## 1.1.1
 
 ## 1.1.0
