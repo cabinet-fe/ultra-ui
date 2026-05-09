@@ -23,8 +23,8 @@
     "./normalize": {
       "sass": "./src/normalize.scss",
       "development": "./src/normalize.scss",
-      "import": "./dist/normalize.css",
-      "default": "./dist/normalize.css"
+      "import": "./dist/normalize.js",
+      "default": "./dist/normalize.js"
     },
     "./mixins": {
       "sass": "./src/_mixins.scss",
