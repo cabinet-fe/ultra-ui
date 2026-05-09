@@ -41,7 +41,6 @@ $root-name: dialog;
     overflow: hidden;
     background-color: fn.use-var(bg-color, middle);
     backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   // 弹框头
@@ -66,6 +65,7 @@ $root-name: dialog;
   @include m.e(body) {
     padding: 8px;
     background-color: fn.use-var(bg-color, top);
+    backdrop-filter: fn.use-var(bg-filter);
     flex-grow: 1;
   }
 
