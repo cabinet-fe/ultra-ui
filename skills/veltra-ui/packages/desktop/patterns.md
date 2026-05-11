@@ -209,7 +209,7 @@ UForm （provide formProps）
 
 无需手动传递 props，嵌套在 `UForm` 内的表单组件自动继承表单上下文。
 
-维护 `@veltra/desktop` 内部表单组件时，使用 `src/utils/form-context.ts` 中的 `provideFormContext()` / `injectFormContext()`；不要再从 `@veltra/compositions` 导入已移除的 `useFormComponent()`。
+维护 `@veltra/desktop` 内部表单组件时，使用 `src/utils/form-context.ts` 中的 `provideFormContext()` / `injectFormContext()`。
 
 ## 条件渲染注意事项
 

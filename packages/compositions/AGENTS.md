@@ -11,7 +11,6 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 | `use-drag`            | `useDrag`                                  | 拖拽行为                                           |
 | `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退（组件 → 表单 → 全局配置）             |
 | `use-focus`           | `useFocus`                                 | 焦点管理                                           |
-| `use-form-component`  | `useFormComponent`                         | 表单上下文注入/消费（provide/inject）              |
 | `use-user-action`     | `useUserAction`                            | 用户动作追踪（阻断动作期的 modelValue 回流副作用） |
 | `use-model`           | `useModel`                                 | 双向绑定封装（local/proxy 两种模式）               |
 | `use-pop`             | `usePop`                                   | 浮框定位（基于 `@floating-ui/dom`）                |
@@ -19,21 +18,6 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 | `use-resize-observer` | `useResizeObserver`, `useObserverCallback` | ResizeObserver 封装                                |
 | `use-transition`      | `useTransition`                            | 过渡动画（css/style 两种模式）                     |
 | `use-virtualizer`     | `useVirtualizer`                           | 虚拟滚动低阶适配层（返回 `{ virtualizer, snapshot, items, isScrolling }`；传入 `contentEl` / `beforeEl` / `afterEl` 时尺寸走 DOM 命令式写入，不经 Vue 响应式） |
-
-## 表单组件相关
-
-表单组件通常组合使用以下函数：
-
-```ts
-// 表单组件（如 UForm）—— 提供上下文
-useFormComponent(props)
-
-// 表单内的子组件（如 UInput）—— 消费上下文
-const { inForm, formProps } = useFormComponent()
-
-// 属性回退：组件 props → 表单 props → 全局配置 → 默认值
-const { size, disabled, readonly } = useFormFallbackProps([formProps, props])
-```
 
 ## useModel 模式
 

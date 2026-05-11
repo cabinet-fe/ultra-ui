@@ -149,8 +149,6 @@ const { size, disabled, readonly } = useFormFallbackProps([
 </script>
 ```
 
-`useFormComponent` 已不再从 `@veltra/compositions` 导出。对外使用组件时只需要 `<u-form>` + `field`；维护 `@veltra/desktop` 内部表单组件时，使用 `../../utils/form-context` 的 `provideFormContext()` / `injectFormContext()`。
-
 ---
 
 ## `useModel()` — 双向绑定

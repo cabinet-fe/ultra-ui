@@ -68,27 +68,6 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed> // 导出用
 
 命名规则：`<Name>Props`、`<Name>Emits`、`_<Name>Exposed`（内部）、`<Name>Exposed`（导出）。
 
-## 表单组件模式
-
-表单组件在基础模式上额外使用：
-
-```ts
-import { useFormComponent, useFormFallbackProps } from '@veltra/compositions'
-import { FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
-
-// Props 继承 FormComponentProps
-interface InputProps extends FormComponentProps {
-  /* ... */
-}
-
-// 组件内
-const { inForm, formProps } = useFormComponent()
-const { size, disabled, readonly } = useFormFallbackProps([formProps, props])
-
-// 只读时显示占位符
-// FORM_EMPTY_CONTENT = '-'
-```
-
 ## 依赖注入（di.ts）
 
 部分复杂组件（table、menu、grid、tree、dialog 等 18 个）使用 `di.ts` 定义 `InjectionKey`，在父子组件间共享上下文：
