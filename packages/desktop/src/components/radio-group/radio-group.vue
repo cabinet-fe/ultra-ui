@@ -21,9 +21,9 @@
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 
 import type { RadioGroupProps, RadioGroupEmits } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import URadio from '../radio/radio.vue'
 
 defineOptions({

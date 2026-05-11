@@ -37,10 +37,10 @@
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Minus, Plus } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { GroupInputEmits, GroupInputProps } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UButton } from '../button'
 import { useGroupItems } from './use-group-items'
 

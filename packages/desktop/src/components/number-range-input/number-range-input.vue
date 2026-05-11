@@ -30,10 +30,10 @@
 import { n, $n, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UNumberInput } from '../number-input'
 
 defineOptions({

@@ -43,10 +43,10 @@
 import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 import { calcTextareaHeight } from './utils'
 

@@ -10,6 +10,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, zIndex } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { EditorView, basicSetup } from 'codemirror'
 import {
   computed,
@@ -21,7 +22,6 @@ import {
 } from 'vue'
 
 import type { CodeEditorLang, CodeEditorProps } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UScroll } from '../scroll'
 
 defineOptions({ name: 'CodeEditor' })

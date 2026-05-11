@@ -14,10 +14,10 @@
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { TagEmits, TagProps } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 
 defineOptions({

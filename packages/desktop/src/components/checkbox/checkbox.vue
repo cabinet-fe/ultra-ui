@@ -20,10 +20,10 @@
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'
 
 import type { CheckboxProps, CheckboxEmits } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 
 defineOptions({
   name: 'Checkbox'

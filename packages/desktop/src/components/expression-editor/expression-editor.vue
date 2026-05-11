@@ -31,6 +31,7 @@
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import {
   computed,
   nextTick,
@@ -42,7 +43,6 @@ import {
 } from 'vue'
 
 import type { ExpressionEditorProps, VariableItem } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import VariablePicker from './components/variable-picker.vue'
 import { createEditor, type EditorAPI } from './core/editor'
 import { createMention, type MentionAPI } from './core/mention'

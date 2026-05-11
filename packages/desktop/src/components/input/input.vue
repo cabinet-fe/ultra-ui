@@ -56,10 +56,10 @@
 import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 
 import type { InputEmits, InputProps, _InputExposed } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 
 defineOptions({

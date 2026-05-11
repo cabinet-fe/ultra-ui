@@ -28,9 +28,9 @@
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UCheckbox } from '../checkbox'
 import { UTag } from '../tag'
 

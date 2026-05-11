@@ -26,10 +26,10 @@
 <script lang="ts" setup>
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { PaletteProps } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UTip } from '../tip'
 import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 import { PaletteDIKey } from './di'

@@ -143,6 +143,7 @@ import { o as chainObj } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
 
 import type {
@@ -151,7 +152,6 @@ import type {
   ScrollExposed,
   DropdownExposed
 } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'

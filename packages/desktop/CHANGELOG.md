@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.3
+
+### Patch Changes
+
+- 将表单上下文抽到 `@veltra/utils`，统一 `form` 相关组件的 `provide/inject` 入口。
+- Updated dependencies
+  - @veltra/utils@1.1.3
+  - @veltra/compositions@1.1.3
+  - @veltra/directives@1.1.3
+  - @veltra/styles@1.1.3
+  - @veltra/icons@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

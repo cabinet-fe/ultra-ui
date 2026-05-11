@@ -79,11 +79,11 @@ import { registerRichText } from '@lexical/rich-text'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { createEditor, $getRoot, $createParagraphNode, type LexicalEditor } from 'lexical'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { RichTextEditorProps } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import Toolbar from './toolbar.vue'
 
 const props = withDefaults(defineProps<RichTextEditorProps>(), {

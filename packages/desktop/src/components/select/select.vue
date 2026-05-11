@@ -119,6 +119,7 @@ import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { vFocus } from '@veltra/directives'
 import { ArrowDown, Search } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type {
@@ -128,7 +129,6 @@ import type {
   DropdownExposed,
   ScrollExposed
 } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'

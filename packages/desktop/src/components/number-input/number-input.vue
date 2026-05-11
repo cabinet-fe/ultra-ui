@@ -67,10 +67,10 @@ import { useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
 import { ArrowDown, ArrowUp, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, Tween } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../types'
-import { injectFormContext } from '../../utils/form-context'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
