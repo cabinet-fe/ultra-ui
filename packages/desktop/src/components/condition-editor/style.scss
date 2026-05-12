@@ -2,8 +2,246 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
-// 方便拼接
 $root-name: condition-editor;
 
 @include m.b($root-name) {
+  // ─── 条件分组 ────────────────────────────────────
+  @include m.e(group) {
+    // 外层不需额外边框
+  }
+
+  @include m.e(group-header) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  @include m.e(group-body) {
+    border-left: 2px solid fn.use-var(border, muted-color);
+    margin-left: 8px;
+    padding-left: 10px;
+  }
+
+  @include m.e(group-actions) {
+    display: flex;
+    gap: 10px;
+    padding: 2px 0;
+  }
+
+  @include m.e(group-result) {
+    font-size: 11px;
+    font-weight: 600;
+
+    &--pass {
+      color: fn.use-var(color, success);
+    }
+
+    &--fail {
+      color: fn.use-var(color, danger);
+    }
+  }
+
+  // ─── AND/OR 标签 ──────────────────────────────────
+  @include m.e(logic-tag) {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: fn.use-var(radius, small);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.12s ease;
+
+    &--and {
+      background-color: fn.use-var(color, primary, light-9);
+      color: fn.use-var(color, primary);
+
+      &:hover {
+        background-color: fn.use-var(color, primary, light-8);
+      }
+    }
+
+    &--or {
+      background-color: fn.use-var(color, warning, light-9);
+      color: fn.use-var(color, warning);
+
+      &:hover {
+        background-color: fn.use-var(color, warning, light-8);
+      }
+    }
+  }
+
+  // ─── 条件行 ──────────────────────────────────────
+  @include m.e(row) {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+
+  @include m.e(field) {
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(operator) {
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  @include m.e(value-input) {
+    width: 100%;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    font-size: 12px;
+    color: fn.use-var(text-color, main);
+    background-color: fn.use-var(bg-color, top);
+    outline: none;
+    transition: border-color 0.12s ease;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+
+    &:disabled {
+      background-color: fn.use-var(color, disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(value-empty) {
+    font-size: 12px;
+    color: fn.use-var(text-color, assist);
+  }
+
+  // ─── 变量 chip ──────────────────────────────────
+  @include m.e(value-chip) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    height: 22px;
+    font-size: 12px;
+    color: fn.use-var(color, primary);
+    background-color: fn.use-var(color, primary, light-9);
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color 0.12s ease,
+      box-shadow 0.12s ease;
+
+    &:hover {
+      background-color: fn.use-var(color, primary, light-8);
+
+      .#{vars.$namespace}#{$root-name}__value-chip-close {
+        opacity: 1;
+        max-width: 14px;
+        margin-left: 2px;
+      }
+    }
+  }
+
+  @include m.e(value-chip-label) {
+    pointer-events: none;
+  }
+
+  @include m.e(value-chip-close) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    max-width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1;
+    color: fn.use-var(color, primary);
+    opacity: 0;
+    transition:
+      opacity 0.12s ease,
+      max-width 0.12s ease,
+      margin-left 0.12s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  // ─── 删除按钮 ────────────────────────────────────
+  @include m.e(row-delete) {
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+    font-size: 15px;
+    color: fn.use-var(text-color, assist);
+    cursor: pointer;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: fn.use-var(color, danger);
+    }
+  }
+
+  // ─── 结果指示 ────────────────────────────────────
+  @include m.e(result) {
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+
+    &--pass {
+      color: fn.use-var(color, success);
+    }
+
+    &--fail {
+      color: fn.use-var(color, danger);
+    }
+
+    &--none {
+      color: fn.use-var(text-color, assist);
+    }
+  }
+
+  // ─── 添加按钮 ────────────────────────────────────
+  @include m.e(add-btn) {
+    font-size: 11px;
+    color: fn.use-var(color, primary);
+    cursor: pointer;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary, dark-2);
+    }
+  }
+
+  // ─── 状态 ──────────────────────────────────────
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, logic-tag) {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    @include m.bem($root-name, add-btn) {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
 }
