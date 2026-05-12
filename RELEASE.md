@@ -4,14 +4,13 @@
 
 ## 前置条件
 
-- 在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中配置 `NPM_TOKEN`（需具备发布 `@veltra/*` 的权限）。
 - 发布分支为 `dev`（与 `.changeset/config.json` 中 `baseBranch` 一致）。
 
 ## 角色分工
 
 | 环节     | 触发方式                                  | 说明                                                                                                      |
 | -------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 记录变更 | 本地 `bun run changeset`                  | 生成 `.changeset/*.md`，随开发提交进入 `dev`                                                              |
+| 记录变更 | 本地 `bun run changeset`                  | 生成 `.changeset/*.md`，随开发提交进入，changeset 内容范围包含未提交内容和已提交为推送至远端的内容 `dev`  |
 | 落版本号 | 本地 `bun run release`                    | 在 `dev` 上执行 `changeset version`、`bun install`、提交版本变更并推送                                    |
 | 正式发布 | `dev` 上的 `packages/*/CHANGELOG.md` 变更 | Release workflow 自动完成 `check-types`、`test`、packages build、npm publish 和 GitHub Release notes 创建 |
 

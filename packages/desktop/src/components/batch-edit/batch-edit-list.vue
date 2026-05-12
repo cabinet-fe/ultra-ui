@@ -5,20 +5,37 @@
     :class="[cls.e('table'), bem.is('editing', state.visible)]"
     :columns="columns"
     highlight-current
-    :current-row="state.row"
+    :current="state.row"
     @update:current="handleUpdateCurrentRow"
     @update:checked="emit('update:checked', $event)"
     @update:selected="emit('update:selected', $event)"
     ref="tableRef"
   >
     <template #column:__action__="{ row }">
-      <u-action-group :class="cls.e('row-actions')" hover circle :max="3" @click.stop>
+      <u-action-group :class="cls.e('row-actions')" :max="5" @click.stop circle>
         <u-action
-          v-if="canEdit(row)"
-          :icon="props.readonly ? View : EditPen"
-          :title="props.readonly ? '查看' : '编辑'"
-          @run="handleEdit(row)"
-          v-bind="props.actionsProps?.update"
+          v-if="allowed('create', row)"
+          :icon="InsertToPrev"
+          title="在上方插入"
+          @run="handleInsertToPrev(row)"
+        />
+        <u-action
+          v-if="allowed('create', row)"
+          :icon="InsertToNext"
+          title="在下方插入"
+          @run="handleInsertToNext(row)"
+        />
+        <u-action
+          v-if="!!props.tree && allowed('createChild', row)"
+          :icon="AddChild"
+          title="添加子级"
+          @run="handleInsertChild(row)"
+        />
+        <u-action
+          v-if="allowed('copy', row)"
+          :icon="Copy"
+          title="复制此行"
+          @run="handleCopy(row)"
         />
 
         <u-action
@@ -29,23 +46,6 @@
           @run="handleDelete(row)"
           v-bind="props.actionsProps?.delete"
         />
-
-        <u-action v-if="allowed('create', row)" in-dropdown @run="handleInsertToPrev(row)">
-          在上方插入
-        </u-action>
-        <u-action v-if="allowed('create', row)" in-dropdown @run="handleInsertToNext(row)">
-          在下方插入
-        </u-action>
-        <u-action
-          v-if="!!props.tree && allowed('createChild', row)"
-          in-dropdown
-          @run="handleInsertChild(row)"
-        >
-          添加子级
-        </u-action>
-        <u-action v-if="allowed('copy', row)" in-dropdown @run="handleCopy(row)">
-          复制此行
-        </u-action>
       </u-action-group>
     </template>
 
@@ -60,17 +60,16 @@
       "
     >
       <div :class="cls.e('add')">
-        <button
-          type="button"
-          :class="[cls.e('add-btn'), bem.is('loading', state.loading)]"
-          :disabled="state.loading"
+        <u-button
+          :class="cls.e('add-btn')"
+          :icon="Plus"
+          :loading="state.loading"
+          type="primary"
+          plain
           @click.stop="handleCreate"
         >
-          <u-icon :class="cls.e('add-icon')">
-            <Plus />
-          </u-icon>
-          <span :class="cls.e('add-label')">新增一行</span>
-        </button>
+          新增一行
+        </u-button>
       </div>
     </template>
   </u-table>
@@ -78,13 +77,13 @@
 
 <script setup lang="ts">
 import { o } from '@cat-kit/core'
-import { Delete, EditPen, Plus, View } from '@veltra/icons/normal'
+import { AddChild, Copy, Delete, InsertToNext, InsertToPrev, Plus } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, type Slots } from 'vue'
 
 import type { BatchEditFeature, TableRow } from '../../types'
 import { UAction, UActionGroup } from '../action'
-import { UIcon } from '../icon'
+import { UButton } from '../button'
 import { UTable } from '../table'
 import { BatchEditDIKey } from './di'
 
@@ -105,7 +104,6 @@ const {
   staticFeatures,
   dynamicFeatures,
   handleCreate,
-  handleEdit,
   handleCopy,
   handleDelete,
   handleInsertToNext,
@@ -139,7 +137,7 @@ const columns = computed(() => {
     name: '操作',
     key: '__action__',
     align: 'center',
-    width: 132,
+    width: 180,
     fixed: 'right',
     resizable: false
   })
@@ -150,10 +148,6 @@ function handleUpdateCurrentRow(row?: TableRow) {
     state.row = row
     state.depth = row?.depth
   }
-}
-
-function canEdit(row: TableRow) {
-  return !props.readonly ? allowed('update', row) : true
 }
 
 function canDelete(row: TableRow) {

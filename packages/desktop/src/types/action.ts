@@ -31,17 +31,6 @@ export interface ActionGroupProps {
   max?: number
 
   /**
-   * 紧凑悬浮模式
-   *
-   * @description
-   * - 默认半透明，悬浮在父容器上方时完全显现
-   * - 提供圆角胶囊容器与磨砂背景，更适合表格行内操作栏
-   * - "更多"按钮也会切换为图标态以与其他操作按钮保持一致
-   * @default false
-   */
-  hover?: boolean
-
-  /**
    * 子项默认尺寸
    * @default 'small'
    */
@@ -68,5 +57,11 @@ export interface ActionEmits {
 /** 操作组件暴露的属性和方法(组件内部使用) */
 export interface _ActionExposed {}
 
+export interface _ActionGroupExposed {
+  closeTip: () => void
+}
+
 /** 操作组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type ActionExposed = DeconstructValue<_ActionExposed>
+
+export type ActionGroupExposed = DeconstructValue<_ActionGroupExposed>

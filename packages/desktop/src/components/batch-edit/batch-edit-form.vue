@@ -1,77 +1,75 @@
 <template>
-  <transition name="batch-edit-panel" appear>
-    <aside :class="cls.e('form')" v-if="state.visible && !!props.model">
-      <header :class="cls.e('form-header')">
-        <span :class="[cls.e('form-icon'), bem.is(headerInfo.tone)]">
-          <u-icon>
-            <component :is="headerInfo.icon" />
-          </u-icon>
+  <aside :class="cls.e('form')" v-if="state.visible && !!props.model">
+    <header :class="cls.e('form-header')">
+      <span :class="[cls.e('form-icon'), bem.is(headerInfo.tone)]">
+        <u-icon>
+          <component :is="headerInfo.icon" />
+        </u-icon>
+      </span>
+      <div :class="cls.e('form-title')">
+        <h3 :class="cls.e('form-title-text')">{{ headerInfo.title }}</h3>
+        <span v-if="headerInfo.chip" :class="cls.e('form-chip')">
+          {{ headerInfo.chip }}
         </span>
-        <div :class="cls.e('form-title')">
-          <h3 :class="cls.e('form-title-text')">{{ headerInfo.title }}</h3>
-          <span v-if="headerInfo.chip" :class="cls.e('form-chip')">
-            {{ headerInfo.chip }}
-          </span>
-        </div>
-        <u-button
-          :class="cls.e('form-close')"
-          :icon="Close"
-          text
-          circle
-          size="small"
-          title="关闭"
-          @click="handleClose"
-        />
-      </header>
+      </div>
+      <u-button
+        :class="cls.e('form-close')"
+        :icon="Close"
+        text
+        circle
+        size="small"
+        title="关闭"
+        @click="handleClose"
+      />
+    </header>
 
+    <u-scroll always :class="cls.e('form-body')" :key="bodyKey">
       <transition name="fade" appear mode="out-in">
-        <u-scroll always :class="cls.e('form-body')" :key="bodyKey">
-          <u-form
-            :model="props.model"
-            :readonly="props.readonly"
-            @keyup.enter="handleSave"
-            :label-width="props.labelWidth"
-          >
-            <template #default="{ data, model }">
-              <slot
-                v-bind="{
-                  data,
-                  model,
-                  row: state.row,
-                  depth: state.depth,
-                  indexes: insertIndexes,
-                  index: state.row?.index
-                }"
-              />
-            </template>
-          </u-form>
-        </u-scroll>
+        <u-form
+          :model="props.model"
+          :readonly="props.readonly"
+          @keyup.enter="handleSave"
+          :label-width="props.labelWidth"
+        >
+          <template #default="{ data, model }">
+            <slot
+              v-bind="{
+                data,
+                model,
+                row: state.row,
+                depth: state.depth,
+                indexes: insertIndexes,
+                index: state.row?.index
+              }"
+            />
+          </template>
+        </u-form>
       </transition>
+    </u-scroll>
 
-      <footer :class="cls.e('form-footer')">
-        <span :class="cls.e('form-hint')" v-if="!props.readonly && state.dataUpdated">
-          有未保存改动
-        </span>
-        <span :class="cls.e('form-hint')" v-else-if="!props.readonly">
-          <kbd>Enter</kbd> 保存 · <kbd>Esc</kbd> 关闭
-        </span>
-        <span :class="cls.e('form-hint')" v-else>只读模式</span>
+    <footer :class="cls.e('form-footer')">
+      <span :class="cls.e('form-hint')" v-if="!props.readonly && state.dataUpdated">
+        有未保存改动
+      </span>
+      <span :class="cls.e('form-hint')" v-else-if="!props.readonly">
+        <kbd>Enter</kbd> 保存 · <kbd>Esc</kbd> 关闭
+      </span>
+      <span :class="cls.e('form-hint')" v-else>只读模式</span>
 
-        <div :class="cls.e('form-actions')">
-          <u-button text :loading="state.loading" @click="handleClose"> 取消 </u-button>
-          <u-button
-            v-if="!props.readonly && (creatable || updatable)"
-            :type="state.type === 'create' ? 'success' : 'primary'"
-            :loading="state.loading"
-            :disabled="!state.dataUpdated"
-            @click="handleSave"
-          >
-            {{ state.type === 'create' ? '保存新增' : '保存修改' }}
-          </u-button>
-        </div>
-      </footer>
-    </aside>
-  </transition>
+      <div :class="cls.e('form-actions')">
+        <u-button text :loading="state.loading" @click="handleClose"> 取消 </u-button>
+        <u-button
+          v-if="!props.readonly && (creatable || updatable)"
+          :type="state.type === 'create' ? 'success' : 'primary'"
+          :loading="state.loading"
+          :disabled="!state.dataUpdated"
+          @click="handleSave"
+        >
+          保存
+        </u-button>
+      </div>
+    </footer>
+  </aside>
 </template>
 
 <script lang="ts" setup>
@@ -140,9 +138,6 @@ const headerInfo = computed<HeaderInfo>(() => {
     return {
       icon: Plus,
       title: '新增',
-      chip: insertIndexes.value.length
-        ? `插入到第 ${insertIndexes.value[insertIndexes.value.length - 1]! + 1} 位`
-        : undefined,
       tone: 'create'
     }
   }

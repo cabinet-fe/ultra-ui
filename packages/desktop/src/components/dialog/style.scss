@@ -18,6 +18,19 @@ $root-name: dialog;
     background-color: rgba($color: #000000, $alpha: 0.32);
     pointer-events: auto;
   }
+
+  // 确保遮罩淡入淡出不受外部 fade 样式（如 transform）影响
+  &.fade-enter-active,
+  &.fade-leave-active {
+    transition: opacity 0.25s linear;
+  }
+
+  &.fade-enter-from,
+  &.fade-leave-to {
+    opacity: 0;
+    transform: none;
+    filter: none;
+  }
 }
 
 @include m.b($root-name) {

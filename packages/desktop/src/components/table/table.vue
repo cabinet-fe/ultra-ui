@@ -151,9 +151,7 @@ const columnConfig = useColumns({
 
 const { leafColumns } = columnConfig
 
-const { handleScroll, leftFixed, rightFixed } = useFixedColumns({
-  isScrolling: isScrollingRelay
-})
+const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
 
 const {
   getColumnSlotsNode,

@@ -17,8 +17,8 @@ $root-name: table;
   width: 100%;
   position: relative;
   border: 1px solid var(--u-table-border-color);
-  border-bottom: none;
   overflow: hidden;
+  background-color: fn.use-var(bg-color, top);
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
@@ -171,6 +171,14 @@ $root-name: table;
 
   @include m.e(body) {
     will-change: transform;
+
+    @include m.bem($root-name, row) {
+      &:last-child {
+        @include m.bem($root-name, cell) {
+          border-bottom: none;
+        }
+      }
+    }
   }
 
   @include m.e(empty) {

@@ -17,6 +17,7 @@
 | packages/directives.md | `@veltra/directives` — vRipple、vClickOutside、vFocus |
 | packages/icons.md | `@veltra/icons` — SVG 图标组件 |
 | packages/vite.md | `@veltra/vite` — Vite 自动导入插件 |
+| packages/release.md | 发布流程 — Changesets 版本管理与 CI 发布 |
 
 ## 组件文档（`@veltra/desktop`）
 

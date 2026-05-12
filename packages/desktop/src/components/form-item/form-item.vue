@@ -81,7 +81,7 @@ const labelStyles = computed<CSSProperties>(() => {
 /** 错误提示 */
 const errorTips = computed<string | undefined>(() => {
   if (props.field) {
-    return formProps?.model.errors.get(props.field)?.[0]
+    return formProps?.model?.errors.get(props.field)?.[0]
   }
 })
 

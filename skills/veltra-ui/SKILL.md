@@ -5,7 +5,7 @@ description: >
   SCSS/BEM 样式体系、主题系统、图标库及 Vite 插件。当你需要在项目中使用 @veltra/* 生态包时，
   本技能提供精确的 API 签名、类型定义和实际代码示例。
 metadata:
-  version: 1.1.4
+  version: 1.1.5
 ---
 
 # veltra-ui
@@ -52,6 +52,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 | `@veltra/styles`       | packages/styles.md        | BEM mixins、CSS 变量函数、主题     |
 | `@veltra/icons`        | packages/icons.md         | SVG 图标组件                       |
 | `@veltra/vite`         | packages/vite.md          | 按需导入配置                       |
+| —                       | packages/release.md       | 发布流程与版本管理                 |
 
 ## 关键约定
 
@@ -101,6 +102,7 @@ packages/
   icons.md                          ← 图标
   utils.md                          ← 工具函数
   vite.md                           ← Vite 插件
+  release.md                        ← 发布流程
 core-concepts.md                    ← BEM、主题、尺寸体系
 references/source-discovery.md      ← 源码定位
 ```

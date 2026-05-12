@@ -1,11 +1,15 @@
 <template>
-  <u-table style="height: 500px" :data="students" :columns="columns" v-model:checked="checked">
-    <template #column:action>
-      <u-action-group :max="4">
-        <u-action need-confirm type="danger">删除</u-action>
-      </u-action-group>
-    </template>
-  </u-table>
+  <u-card>
+    <u-card-content>
+      <u-table style="height: 500px" :data="students" :columns="columns" v-model:checked="checked">
+        <template #column:action>
+          <u-action-group :max="4">
+            <u-action need-confirm type="danger">删除</u-action>
+          </u-action-group>
+        </template>
+      </u-table>
+    </u-card-content>
+  </u-card>
 </template>
 
 <script lang="ts" setup>
@@ -28,11 +32,11 @@ const students = Array.from({ length: 200 }).map((_, i) => {
 const checked = shallowRef([])
 
 const columns = defineTableColumns([
-  { key: 'name', name: '姓名' }
-  // { key: 'age', name: '年龄', align: 'center' },
-  // { key: 'grade', name: '年级', align: 'center' },
-  // { key: 'class', name: '班级', align: 'center' },
-  // { key: 'score', name: '分数', align: 'center' },
-  // { key: 'action', name: '操作', align: 'center' }
+  { key: 'name', name: '姓名' },
+  { key: 'age', name: '年龄', align: 'center' },
+  { key: 'grade', name: '年级', align: 'center' },
+  { key: 'class', name: '班级', align: 'center' },
+  { key: 'score', name: '分数', align: 'center' },
+  { key: 'action', name: '操作', align: 'center' }
 ])
 </script>

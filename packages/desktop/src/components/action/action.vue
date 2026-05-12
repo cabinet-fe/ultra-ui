@@ -26,7 +26,7 @@
     :circle
     :propagate="false"
     v-bind="{ ...buttonProps, ...$attrs }"
-    @click="emit('run')"
+    @click="handleRun"
   >
     <slot />
   </u-button>
@@ -97,6 +97,14 @@ const emit = defineEmits<ActionEmits>()
 const cls = bem('action')
 
 function handleConfirm() {
+  handleRun()
+}
+
+function handleRun() {
   emit('run')
+
+  if (props.inDropdown) {
+    ctx?.closeTip()
+  }
 }
 </script>

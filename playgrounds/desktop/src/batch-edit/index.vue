@@ -36,7 +36,6 @@
         </span>
       </template>
       <template #form="{ data, depth }">
-        {{ depth }}
         <!-- 基础信息 -->
         <u-input field="name" label="姓名" placeholder="请输入姓名" />
         <u-number-input field="age" label="年龄" :min="0" :max="120" />

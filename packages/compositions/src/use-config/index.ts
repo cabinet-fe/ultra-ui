@@ -18,7 +18,7 @@ interface State {
 const state = reactive<State>({
   animation: true,
   size: 'default',
-  form: { labelWidth: 80 },
+  form: { labelWidth: 100 },
   paginator: { pageSize: 40, pageSizeOptions: [40, 100, 200, 500, 1000] }
 })
 

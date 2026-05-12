@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
 
 $root-name: action;
 $group-name: action-group;
@@ -8,39 +9,29 @@ $group-name: action-group;
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
-  gap: 6px;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, #{fn.use-var(bg-color, top)} 70%, transparent);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  box-shadow: 0 1px 4px color-mix(in srgb, #{fn.use-var(shadow, color)} 35%, transparent);
 
-  // 下拉触发按钮的占位类（与子项一致的间距处理）
   @include m.e(more) {
     flex-shrink: 0;
   }
 
-  // 紧凑悬浮模式：默认半透明，仅在悬浮 / 当前激活态显现
-  // 适用于行内（表格行、列表项）操作栏，搭配 .u-action-group 子项达到一致的圆形按钮观感
-  @include m.is(hover) {
-    gap: 2px;
-    padding: 2px 4px;
-    border-radius: 999px;
-    opacity: 0.45;
-    transition:
-      opacity 0.18s ease,
-      background-color 0.18s ease,
-      box-shadow 0.18s ease;
-
-    &:hover,
-    &:focus-within {
-      opacity: 1;
-      background-color: color-mix(in srgb, #{fn.use-var(bg-color, top)} 70%, transparent);
-      backdrop-filter: fn.use-var(bg-filter);
-      -webkit-backdrop-filter: fn.use-var(bg-filter);
-      box-shadow: 0 1px 4px color-mix(in srgb, #{fn.use-var(shadow, color)} 35%, transparent);
-    }
+  @include m.e(separator) {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1px;
+    vertical-align: middle;
+    height: 0.8em;
+    margin: 0 4px;
+    background-color: fn.use-var(border-color);
   }
 
-  // 下拉菜单内容容器：模拟菜单项视觉
   @include m.e(dropdown) {
-    padding: 4px;
-    min-width: 140px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -48,14 +39,18 @@ $group-name: action-group;
     @include m.b(button) {
       width: 100%;
       justify-content: flex-start;
-      padding: 0 12px;
+      padding: 0 10px;
 
-      // 下拉项不再使用同级间距，恢复块级布局
       & + & {
         margin-left: 0;
       }
     }
   }
+}
+
+// 覆盖 tip 组件尺寸类（.tip--default）的 padding，下拉菜单需要更紧凑的间距
+.#{vars.$namespace}#{$group-name}__dropdown#{vars.$namespace}tip__content {
+  padding: 4px;
 }
 
 @include m.b($root-name) {
