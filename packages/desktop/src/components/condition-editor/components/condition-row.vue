@@ -10,6 +10,7 @@
       placeholder="字段"
       :size="size"
       :disabled="disabled || readonly"
+      :clearable="false"
       @update:model-value="onFieldChange"
     />
 
@@ -23,6 +24,7 @@
       placeholder="运算符"
       :size="size"
       :disabled="disabled || readonly"
+      :clearable="false"
       @update:model-value="onOperatorChange"
     />
 
@@ -123,7 +125,9 @@ const fieldOptions = computed(() =>
 const currentField = computed(() => props.fields?.find((f) => f.value === props.item.field))
 
 const operatorOptions = computed(() => {
-  if (!currentField.value) return []
+  if (!currentField.value) {
+    return props.item.operator ? [{ label: props.item.operator, value: props.item.operator }] : []
+  }
   return getOperatorsByFieldType(currentField.value.type)
 })
 
