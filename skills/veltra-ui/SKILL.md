@@ -1,10 +1,11 @@
 ---
 name: veltra-ui
-version: 1.1.2
 description: >
   Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件目录、80+ U 组件导出、12 个组合式函数、自定义指令、
   SCSS/BEM 样式体系、主题系统、图标库及 Vite 插件。当你需要在项目中使用 @veltra/* 生态包时，
   本技能提供精确的 API 签名、类型定义和实际代码示例。
+metadata:
+  version: 1.1.4
 ---
 
 # veltra-ui
@@ -30,27 +31,27 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 
 ## 快速决策路由
 
-| 你要做什么 | 先读这个 | 再读这个 |
-|-----------|---------|---------|
-| 用某个具体组件 | `gotchas.md` | `packages/desktop/components/{组件名}.md` |
-| 不知道用什么组件 | `packages/desktop/index.md` | 对应组件文档 |
-| 写表单 | `gotchas.md` | `packages/desktop/components/form.md` |
-| 配置项目（安装/主题/Vite） | `packages/desktop/installation.md` | — |
-| 写自定义 SCSS | `packages/styles.md` | — |
-| 用组合式函数 | `packages/compositions.md` | — |
-| 用图标 | `packages/icons.md` | — |
+| 你要做什么                 | 先读这个                           | 再读这个                                  |
+| -------------------------- | ---------------------------------- | ----------------------------------------- |
+| 用某个具体组件             | `gotchas.md`                       | `packages/desktop/components/{组件名}.md` |
+| 不知道用什么组件           | `packages/desktop/index.md`        | 对应组件文档                              |
+| 写表单                     | `gotchas.md`                       | `packages/desktop/components/form.md`     |
+| 配置项目（安装/主题/Vite） | `packages/desktop/installation.md` | —                                         |
+| 写自定义 SCSS              | `packages/styles.md`               | —                                         |
+| 用组合式函数               | `packages/compositions.md`         | —                                         |
+| 用图标                     | `packages/icons.md`                | —                                         |
 
 ## 包索引
 
-| 包名 | 文档入口 | 常用场景 |
-|------|---------|---------|
-| `@veltra/desktop` | packages/desktop/index.md | 组件、Props/Emits/Slots |
-| `@veltra/compositions` | packages/compositions.md | 属性回退、浮框定位、拖拽、虚拟滚动 |
-| `@veltra/directives` | packages/directives.md | v-ripple、v-click-outside、v-focus |
-| `@veltra/utils` | packages/utils.md | BEM 类名、类型定义、常量 |
-| `@veltra/styles` | packages/styles.md | BEM mixins、CSS 变量函数、主题 |
-| `@veltra/icons` | packages/icons.md | SVG 图标组件 |
-| `@veltra/vite` | packages/vite.md | 按需导入配置 |
+| 包名                   | 文档入口                  | 常用场景                           |
+| ---------------------- | ------------------------- | ---------------------------------- |
+| `@veltra/desktop`      | packages/desktop/index.md | 组件、Props/Emits/Slots            |
+| `@veltra/compositions` | packages/compositions.md  | 属性回退、浮框定位、拖拽、虚拟滚动 |
+| `@veltra/directives`   | packages/directives.md    | v-ripple、v-click-outside、v-focus |
+| `@veltra/utils`        | packages/utils.md         | BEM 类名、类型定义、常量           |
+| `@veltra/styles`       | packages/styles.md        | BEM mixins、CSS 变量函数、主题     |
+| `@veltra/icons`        | packages/icons.md         | SVG 图标组件                       |
+| `@veltra/vite`         | packages/vite.md          | 按需导入配置                       |
 
 ## 关键约定
 
@@ -68,6 +69,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 ```
 
 **仍然需要手动 import 的：**
+
 - 类型：`import type { ButtonProps, TableColumn } from '@veltra/desktop'`
 - 函数式 API：`import { message, Notification, MessageConfirm, FormModel, formField, defineTableColumns } from '@veltra/desktop'`
 - 图标：`import { Search, Plus, Edit } from '@veltra/icons/normal'`
