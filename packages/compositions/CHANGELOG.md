@@ -1,5 +1,12 @@
 # @veltra/compositions
 
+## 1.1.5
+
+### Patch Changes
+
+- 14c03c0: fix(desktop): 重构 action、batch-edit 组件逻辑与样式，简化 table 固定列实现，更新 form-item 与 dialog/drawer 样式
+  - @veltra/utils@1.1.5
+
 ## 1.1.4
 
 ### Patch Changes
