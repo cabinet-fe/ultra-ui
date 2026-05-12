@@ -15,7 +15,14 @@
           :size="size"
           @click="handleRemove(index)"
         />
-        <u-button :icon="Plus" circle :disabled="disabled" :size="size" @click="handleAdd(index)" />
+        <u-button
+          :icon="Plus"
+          circle
+          :disabled="disabled"
+          :size="size"
+          type="primary"
+          @click="handleAdd(index)"
+        />
       </span>
     </li>
   </ul>

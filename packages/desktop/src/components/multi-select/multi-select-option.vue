@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { Ripple } from '@veltra/directives'
-import { inject, onBeforeUnmount } from 'vue'
+import { inject, onBeforeUnmount, shallowRef } from 'vue'
 
 import { UCheckbox } from '../checkbox'
 import { MultiSelectDIKey } from './di'
@@ -43,8 +43,6 @@ const props = defineProps<{
   measureElement?: (index: number, el: Element | null) => void
 }>()
 
-const { disabled = false, checked } = props
-
 function measureRef(el: unknown) {
   if (typeof props.index !== 'number' || !props.measureElement) return
   props.measureElement(props.index, el as Element | null)
@@ -56,33 +54,41 @@ const emit = defineEmits<{
 
 const { optionClass, rippleClass, checkboxClass } = inject(MultiSelectDIKey)!
 
-let ripple: Ripple | null = null
+const rippleRef = shallowRef<Ripple | null>(null)
 
 function handleClick(e) {
-  if (disabled) return
-  emit('check', !checked)
+  if (props.disabled) return
+  emit('check', !props.checked)
 }
 
 function handleMousedown(e: MouseEvent) {
-  if (disabled) return
+  if (props.disabled) return
 
-  ripple = new Ripple(e.currentTarget as HTMLElement, {
+  // 清理旧实例，避免同一元素上多个 Ripple 实例同时修改样式
+  if (rippleRef.value) {
+    rippleRef.value.remove()
+    rippleRef.value = null
+  }
+
+  rippleRef.value = new Ripple(e.currentTarget as HTMLElement, {
     rippleClass
   })
 
-  ripple.showByEvent(e)
+  rippleRef.value.showByEvent(e)
 }
 
 function handleMouseleave() {
-  ripple?.remove()
+  rippleRef.value?.remove()
+  rippleRef.value = null
 }
 
 function handleMouseup() {
-  ripple?.remove()
+  rippleRef.value?.remove()
+  rippleRef.value = null
 }
 
 onBeforeUnmount(() => {
-  ripple?.remove()
-  ripple = null
+  rippleRef.value?.remove()
+  rippleRef.value = null
 })
 </script>

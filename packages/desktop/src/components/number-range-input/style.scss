@@ -4,6 +4,7 @@
 @include m.b(number-range-input) {
   display: inline-flex;
   align-items: center;
+  width: 100%;
   gap: fn.use-var(gap, small);
 
   @include m.e(separator) {

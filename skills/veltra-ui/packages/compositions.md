@@ -134,11 +134,11 @@ useFallbackProps(propsList, { size: 'default', disabled: false, readonly: false 
 ```vue
 <script setup lang="ts">
 import { useFormFallbackProps } from '@veltra/compositions'
-import { injectFormContext } from '../../utils/form-context'
+import { injectFormContext } from '@veltra/utils'
 
 const props = defineProps<InputProps>()
 
-// @veltra/desktop 内部：表单上下文已下沉到 desktop/src/utils/form-context
+// @veltra/desktop 内部：表单上下文由 @veltra/utils 提供
 const { formProps } = injectFormContext()
 
 // 回退链：props → formProps → config → 默认值

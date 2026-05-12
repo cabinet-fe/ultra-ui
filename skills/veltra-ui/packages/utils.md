@@ -158,6 +158,19 @@ interface PropsWithServerQuery {
 }
 ```
 
+### `FormContextProps`
+
+```ts
+interface FormContextProps {
+  labelWidth?: string | number
+  size?: ComponentSize
+  disabled?: boolean
+  readonly?: boolean
+  noTips?: boolean
+  model?: { errors: Map<any, string[] | undefined>; fields: Record<string, { required?: unknown }> }
+}
+```
+
 ### `DeconstructValue` / `RenderReturn`
 
 ```ts

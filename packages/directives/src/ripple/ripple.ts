@@ -1,13 +1,5 @@
-import { bem, nextFrame, removeStyles, setStyles, type BEM } from '@veltra/utils'
+import { bem, nextFrame, setStyles, type BEM } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
-
-function pick<T extends object, K extends keyof T>(obj: T, keys: readonly K[]): Pick<T, K> {
-  const out: Partial<Pick<T, K>> = {}
-  for (const k of keys) {
-    if (k in obj) out[k] = obj[k]
-  }
-  return out as Pick<T, K>
-}
 
 /** 鼠标或触摸事件类型 */
 type MouseOrTouchEvent = MouseEvent | Touch
@@ -30,18 +22,21 @@ interface RippleConfig {
   autoRemove?: boolean
 }
 
-/** 容器样式接口 */
-interface ContainerStyle {
-  /** 定位方式 */
-  position: string
-  /** 溢出处理 */
-  overflow: string
-}
+/** 数据集 key，用于标记 Ripple 修改过的样式 */
+const PositionKey = 'uRipplePosition'
+const OverflowKey = 'uRippleOverflow'
+const CountKey = 'uRippleActiveCount'
 
 /**
  * 波纹效果类
  * 用于在指定容器中创建和管理波纹动画效果
  * 支持鼠标点击和触摸事件触发的波纹动画
+ *
+ * 样式管理策略：
+ * - 只在容器 position 为 static 时设置 relative
+ * - 只在容器 overflow 为 visible 时设置 hidden
+ * - 使用 dataset 做引用计数，多实例可安全协作
+ * - 最后一个波纹移除时，精确恢复到修改前的状态
  */
 export class Ripple {
   /** 波纹样式类名生成器 */
@@ -51,10 +46,6 @@ export class Ripple {
   private container: HTMLElement
   /** 容器矩形区域缓存 */
   private containerRect?: DOMRect
-  /** 容器计算样式缓存 */
-  private containerComputedStyle?: ContainerStyle
-  /** 容器原始样式备份 */
-  private containerStyle?: ContainerStyle
 
   /** 当前活跃的波纹元素 */
   private currentRippleEl?: HTMLElement
@@ -105,7 +96,6 @@ export class Ripple {
    * @returns 容器矩形区域
    */
   private getContainerRect(): DOMRect {
-    // if (this.containerRect) return this.containerRect
     const rect = this.container.getBoundingClientRect()
     this.containerRect = rect
     return this.containerRect
@@ -155,65 +145,53 @@ export class Ripple {
 
   /**
    * 设置容器样式
-   * 确保容器具有正确的定位和溢出隐藏属性以支持波纹效果
+   * 使用引用计数 + dataset 标记，确保多实例协作安全
    */
   private setContainerStyle() {
     const { container } = this
+    const count = Number(container.dataset[CountKey] || 0)
+    container.dataset[CountKey] = String(count + 1)
 
-    // 获取元素原本的内联样式
-    if (this.amount === 0 && !this.containerStyle) {
-      this.containerStyle = {
-        position: container.style.position,
-        overflow: container.style.overflow
-      }
+    // 已经有其他波纹在运行，样式已设置，直接返回
+    if (count > 0) return
+
+    const computed = window.getComputedStyle(container)
+
+    if (computed.position === 'static') {
+      container.dataset[PositionKey] = 'static'
+      container.style.position = 'relative'
     }
 
-    if (!this.containerComputedStyle) {
-      this.containerComputedStyle = pick(window.getComputedStyle(container), [
-        'overflow',
-        'position'
-      ])
+    if (computed.overflow === 'visible') {
+      container.dataset[OverflowKey] = 'visible'
+      container.style.overflow = 'hidden'
     }
-    const { position, overflow } = this.containerComputedStyle
-    const style: CSSProperties = {}
-
-    // 如果是静态定位，改为相对定位以支持绝对定位的波纹元素
-    if (position === 'static') {
-      style.position = 'relative'
-    }
-
-    // 如果溢出不是隐藏，设置为隐藏以裁剪波纹边界
-    if (overflow !== 'hidden') {
-      style.overflow = 'hidden'
-    }
-
-    setStyles(container, style)
   }
 
   /**
    * 重置容器样式
-   * 恢复容器的原始样式设置
+   * 根据 dataset 标记精确恢复，避免误删其他内联样式
    */
   private resetContainerStyle() {
-    const { container, containerStyle } = this
-    if (!containerStyle) {
-      return removeStyles(container, ['overflow', 'position'])
-    }
+    const { container } = this
+    const count = Number(container.dataset[CountKey] || 0)
 
-    const attrsToRemoved: string[] = []
+    if (count <= 1) {
+      // 最后一个波纹，执行恢复
+      if (container.dataset[PositionKey] === 'static') {
+        container.style.position = ''
+        delete container.dataset[PositionKey]
+      }
 
-    if (!containerStyle.overflow) {
-      attrsToRemoved.push('overflow')
-    }
+      if (container.dataset[OverflowKey] === 'visible') {
+        container.style.overflow = ''
+        delete container.dataset[OverflowKey]
+      }
 
-    if (!containerStyle.position) {
-      attrsToRemoved.push('position')
-    }
-
-    removeStyles(container, attrsToRemoved)
-
-    if (!attrsToRemoved.length) {
-      setStyles(container, containerStyle as CSSProperties)
+      delete container.dataset[CountKey]
+    } else {
+      // 还有其他波纹在运行，只减计数
+      container.dataset[CountKey] = String(count - 1)
     }
   }
 

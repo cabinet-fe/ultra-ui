@@ -275,17 +275,17 @@ $width: 240px;
   }
 
   &::before {
-    background:
-      radial-gradient(ellipse 72% 58% at 15% 22%, rgba(59, 130, 246, 0.34), transparent 58%),
-      radial-gradient(ellipse 64% 54% at 86% 14%, rgba(236, 72, 153, 0.24), transparent 56%),
-      radial-gradient(ellipse 62% 62% at 56% 88%, rgba(6, 182, 212, 0.26), transparent 60%),
-      linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.74));
+    // background:
+    //   radial-gradient(ellipse 72% 58% at 15% 22%, rgba(59, 130, 246, 0.34), transparent 58%),
+    //   radial-gradient(ellipse 64% 54% at 86% 14%, rgba(236, 72, 153, 0.24), transparent 56%),
+    //   radial-gradient(ellipse 62% 62% at 56% 88%, rgba(6, 182, 212, 0.26), transparent 60%),
+    //   linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.74));
   }
 
   &::after {
-    background-image:
-      linear-gradient(to right, var(--playground-grid-color) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--playground-grid-color) 1px, transparent 1px);
+    // background-image:
+    //   linear-gradient(to right, var(--playground-grid-color) 1px, transparent 1px),
+    //   linear-gradient(to bottom, var(--playground-grid-color) 1px, transparent 1px);
     background-size: 52px 52px;
     mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.38));
   }

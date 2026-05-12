@@ -17,7 +17,7 @@ src/
 │   ├── index.ts          # 聚合导出
 │   ├── helper.ts         # 辅助类型
 │   ├── component-common.ts # 组件公共类型（Size, FormComponentProps 等）
-│   ├── form-context.ts   # 表单上下文类型
+│   ├── form-context.ts   # 表单上下文 provide/inject
 │   └── utils/            # 工具相关类型
 ```
 

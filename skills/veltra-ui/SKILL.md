@@ -1,5 +1,6 @@
 ---
 name: veltra-ui
+version: 1.1.2
 description: >
   Veltra Ultra UI — Vue 3 组件库完整开发参考。涵盖 70+ 桌面组件目录、80+ U 组件导出、12 个组合式函数、自定义指令、
   SCSS/BEM 样式体系、主题系统、图标库及 Vite 插件。当你需要在项目中使用 @veltra/* 生态包时，

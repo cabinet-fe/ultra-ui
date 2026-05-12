@@ -3,7 +3,7 @@
     <section>
       <h3>基础</h3>
       <p>v-model: {{ range }}</p>
-      <u-number-range-input v-model="range" />
+      <u-number-range-input v-model="range" style="width: 300px" />
     </section>
 
     <section>
@@ -16,18 +16,19 @@
         start-placeholder="最小"
         end-placeholder="最大"
         separator="至"
+        style="width: 300px"
       />
       <p>{{ bounded }}</p>
     </section>
 
     <section>
       <h3>禁用</h3>
-      <u-number-range-input v-model="range" disabled />
+      <u-number-range-input v-model="range" disabled style="width: 300px" />
     </section>
 
     <section>
       <h3>只读</h3>
-      <u-number-range-input v-model="bounded" readonly />
+      <u-number-range-input v-model="bounded" readonly style="width: 300px" />
     </section>
 
     <section>
@@ -39,6 +40,7 @@
         :min="0"
         :max="50"
         separator="至"
+        style="width: 300px"
       />
     </section>
   </div>

@@ -1,7 +1,7 @@
 <template>
   <div>
     {{ items }}
-    <u-group-input v-slot="{ item }" v-model="items">
+    <u-group-input v-slot="{ item }" v-model="items" :item-style="{ display: 'flex', gap: '10px' }">
       <u-input v-model="item.value1" />
       <u-input v-model="item.value2" />
       <u-input v-model="item.value3" />
