@@ -1,5 +1,16 @@
 # @veltra/directives
 
+## 1.1.4
+
+### Patch Changes
+
+- 27aa057: fix(desktop): expression-editor and number-range-input width; group-input add button type; multi-select-option ripple refactor
+
+  fix(directives/ripple): use dataset-based reference counting for safe multi-instance collaboration
+
+  - @veltra/utils@1.1.4
+  - @veltra/styles@1.1.4
+
 ## 1.1.3
 
 ### Patch Changes
