@@ -1,80 +1,96 @@
 # UTree — 树形控件
 
-> `import type { TreeProps, TreeExposed } from '@veltra/desktop'`
+> `import type { TreeProps, TreeEmit, TreeExposed } from '@veltra/desktop'`
 
-支持单选/多选、展开/折叠、过滤搜索、虚拟滚动、自定义节点渲染。
+支持单选/多选、展开/折叠、过滤搜索、虚拟滚动（节点数 > 80 时自动启用）、右键菜单、自定义节点渲染。
 
 ## Import
 
 ```ts
 import { UTree } from '@veltra/desktop'
 // 类型
-import type { TreeExposed } from '@veltra/desktop'
+import type { TreeProps, TreeEmit, TreeExposed } from '@veltra/desktop'
 ```
 
 ## Props
 
 | prop | type | default | 说明 |
 |------|------|---------|------|
-| `data` | `Record[]` | `[]` | 树形数据 |
+| `data` | `Record<string, any>[]` | `() => []` | 树形数据 |
 | `labelKey` | `string` | `'label'` | 标签字段名 |
 | `valueKey` | `string` | `'value'` | 值字段名 |
 | `childrenKey` | `string` | `'children'` | 子节点字段名 |
-| `checkable` | `boolean` | — | 可多选 |
-| `selectable` | `boolean` | — | 可单选 |
-| `checked` | `any[]` | — | 多选值 (v-model:checked) |
-| `selected` | `any` | — | 单选值 (v-model:selected) |
-| `checkStrictly` | `boolean` | `false` | 严格选择（父子不关联） |
-| `expandAll` | `boolean` | — | 展开所有节点 |
-| `expandOnClickNode` | `boolean` | `false` | 点击节点展开 |
-| `disabledNode` | `(item, node) => boolean` | — | 禁用节点判断 |
+| `expandAll` | `boolean` | — | 是否展开所有节点 |
+| `expandOnClickNode` | `boolean` | `false` | 是否在点击节点时展开或折叠节点 |
+| `checkable` | `boolean` | — | 是否可多选 |
+| `selectable` | `boolean` | — | 是否可单选 |
+| `checked` | `any[]` | — | 多选选中项（`v-model:checked`） |
+| `selected` | `any` | — | 单选选中项（`v-model:selected`） |
+| `checkStrictly` | `boolean` | `false` | 严格选择，父子节点勾选状态互不关联 |
+| `disabledNode` | `(item: Record<string, any>, node: TreeNode) => boolean` | — | 禁止单选或多选的节点判断函数 |
+| `slots` | `Record<string, any>` | — | 插槽穿透，支持通过 props 传入自定义渲染函数 |
+| `scrollToView` | `boolean` | — | 使选中项或勾选项自动滚动到可视区域 |
 
 ## Emits
 
-| event | 参数 |
-|-------|------|
-| `update:checked` | `(checked: any[], checkedData: Record[])` |
-| `update:selected` | `(selected?: any, selectedData?: Record, node?: TreeNode)` |
-| `node-click` | `(node: TreeNode)` |
-| `expand` | `(node: TreeNode)` |
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:checked` | `(checked: any[], checkedData: Record<string, any>[])` | 多选选中项变化 |
+| `update:selected` | `(selected?: any, selectedData?: Record<string, any>, node?: TreeNode)` | 单选选中项变化 |
+| `node-click` | `(node: TreeNode)` | 节点点击 |
+| `expand` | `(node: TreeNode)` | 节点展开/折叠 |
+| `node-contextmenu` | `(event: MouseEvent, node: TreeNode)` | 节点右键菜单 |
+| `selected-synced` | `(selected?: Record<string, any>)` | 选中项同步完成（用于异步数据加载后同步选中状态） |
 
 ## Slots
 
 | slot | 作用域 | 说明 |
 |------|--------|------|
-| `default` | `{ data, node }` | 自定义节点内容 |
+| `default` | `{ node: TreeNode, data: Record<string, any> }` | 自定义节点内容，返回 VNode 或字符串；不提供时渲染 `node.label` |
 
-## Exposed (TreeExposed)
+## Exposed
 
-| 方法 | 说明 |
-|------|------|
-| `filter(filter)` | 过滤节点（字符串或函数） |
-| `checkNode(node, check)` | 勾选/取消节点 |
-| `checkAll(check)` | 全选/取消全选 |
-| `selectNode(node)` | 单选选中节点 |
-| `expandAll()` | 展开全部 |
-| `collapseAll()` | 折叠全部 |
-| `scrollTo(index)` | 滚动到指定索引 |
-| `getChecked()` | 获取选中数据 |
-| `getSelected()` | 获取单选数据 |
+```ts
+interface TreeExposed {
+  /** 滤树节点。注意：不要在 watchEffect 中调用！ */
+  filter(filter: string | ((node: TreeNode) => boolean)): void
+  /** 多选勾选/取消勾选节点 */
+  checkNode(node: TreeNode, check: boolean): void
+  /** 单选选中节点 */
+  selectNode(node: TreeNode): void
+  /** 全选/取消全选 */
+  checkAll(check: boolean): void
+  /** 展开全部节点 */
+  expandAll(): void
+  /** 折叠全部节点 */
+  collapseAll(): void
+  /** 滚动到指定索引的节点 */
+  scrollTo(index: number): void
+  /** 获取选中的节点数据 */
+  getSelected(): Record<string, any> | undefined
+  /** 获取所有勾选的节点数据 */
+  getChecked(): Record<string, any>[]
+}
+```
 
 ## Examples
 
-### 基础树
+### 基础用法
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { UTree } from '@veltra/desktop'
 
 const data = [
   {
+    id: 1,
     label: '一级 1',
     children: [
-      { label: '二级 1-1' },
-      { label: '二级 1-2' }
+      { id: 2, label: '二级 1-1' },
+      { id: 3, label: '二级 1-2' }
     ]
   },
-  { label: '一级 2' }
+  { id: 4, label: '一级 2' }
 ]
 </script>
 
@@ -83,24 +99,25 @@ const data = [
 </template>
 ```
 
-### 多选 + 过滤搜索
+### 多选 + 搜索过滤
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue'
+import { UTree } from '@veltra/desktop'
 import type { TreeExposed } from '@veltra/desktop'
 
 const treeRef = shallowRef<TreeExposed>()
-const checked = shallowRef([])
-const qs = shallowRef('')
+const checked = shallowRef<string[]>([])
+const query = shallowRef('')
 
 function onSearch() {
-  treeRef.value?.filter(qs.value)
+  treeRef.value?.filter(query.value)
 }
 </script>
 
 <template>
-  <u-input v-model="qs" placeholder="搜索节点" @input="onSearch" />
+  <u-input v-model="query" placeholder="搜索节点" @input="onSearch" />
   <u-tree
     ref="treeRef"
     :data="data"
@@ -111,32 +128,58 @@ function onSearch() {
 </template>
 ```
 
-### 单选 + 自定义节点
+### 单选 + 自定义节点插槽
 
 ```vue
-<u-tree
-  selectable
-  :data="data"
-  v-model:selected="selected"
-  @update:selected="(val, data, node) => console.log(data)"
->
-  <template #default="{ data }">
-    <span style="margin-left: 8px">
-      <b>{{ data.label }}</b>
-      <span style="color: #999">({{ data.count ?? 0 }})</span>
-    </span>
-  </template>
-</u-tree>
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { UTree } from '@veltra/desktop'
+
+const selected = shallowRef()
+</script>
+
+<template>
+  <u-tree
+    :data="data"
+    selectable
+    v-model:selected="selected"
+    @update:selected="(val, data, node) => console.log('选中:', data)"
+  >
+    <template #default="{ data }">
+      <span class="custom-node">
+        <b>{{ data.label }}</b>
+        <span class="count">({{ data.count ?? 0 }})</span>
+      </span>
+    </template>
+  </u-tree>
+</template>
 ```
 
-### 禁用特定节点 + 严格选择
+### 严格选择 + 禁用节点 + 右键菜单
 
 ```vue
-<u-tree
-  :data="data"
-  checkable
-  check-strictly
-  v-model:checked="checked"
-  :disabled-node="(item) => item.id === '0-1'"
-/>
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { UTree } from '@veltra/desktop'
+
+const checked = shallowRef<string[]>([])
+
+function onContextMenu(e: MouseEvent, node: TreeNode) {
+  e.preventDefault()
+  console.log('右键节点:', node.label)
+  // 在此打开自定义右键菜单
+}
+</script>
+
+<template>
+  <u-tree
+    :data="data"
+    checkable
+    check-strictly
+    v-model:checked="checked"
+    :disabled-node="(item) => item.disabled === true"
+    @node-contextmenu="onContextMenu"
+    style="height: 300px"
+  />
+</template>
 ```

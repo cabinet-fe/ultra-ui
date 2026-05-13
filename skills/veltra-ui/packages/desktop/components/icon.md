@@ -2,21 +2,37 @@
 
 > `import type { IconProps } from '@veltra/desktop'`
 
-包裹 @veltra/icons 提供的 SVG 图标组件，控制其字体大小。
+包裹 `@veltra/icons` 提供的 SVG 图标组件，控制其字体大小。渲染为 `<i class="u-icon">` 元素。
 
 ## Import
 
 ```ts
 import { UIcon } from '@veltra/desktop'
-// 或按需
-import { UIcon } from '@veltra/desktop'
+// 按需
+import { UIcon } from '@veltra/desktop/icon'
+// 类型
+import type { IconProps } from '@veltra/desktop'
 ```
 
 ## Props
 
 | prop | type | default | 说明 |
 |------|------|---------|------|
-| `size` | `number` \| `` `${number}px` `` | — | 图标尺寸，数字自动加 `px` |
+| `size` | `number` \| `` `${number}px` `` | — | 图标尺寸，数字自动追加 `px` |
+
+## Emits
+
+无。
+
+## Slots
+
+| name | 说明 |
+|------|------|
+| `default` | 图标内容，放入 `@veltra/icons` 的 SVG 图标组件 |
+
+## Exposed
+
+无。
 
 ## Examples
 
@@ -34,7 +50,7 @@ import { Check, Loading } from '@veltra/icons/normal'
 </template>
 ```
 
-### 带字符串单位
+### 数字自动追加 px
 
 ```vue
 <script setup>
@@ -42,20 +58,8 @@ import { ArrowLeft } from '@veltra/icons/normal'
 </script>
 
 <template>
-  <u-icon size="16px"><ArrowLeft /></u-icon>
-  <u-icon size="1.5em"><ArrowLeft /></u-icon>
-</template>
-```
-
-### 在按钮内使用
-
-```vue
-<script setup>
-import { Edit } from '@veltra/icons/normal'
-</script>
-
-<template>
-  <u-button type="primary" :icon="Edit" />
+  <u-icon :size="16"><ArrowLeft /></u-icon>
+  <!-- 等价于 size="16px" -->
 </template>
 ```
 

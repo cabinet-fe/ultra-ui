@@ -127,8 +127,6 @@ export interface TableProps {
   virtualThreshold?: number
   /** 是否开启展开行, 只在非树形模式下有效 */
   expandable?: boolean
-  /** 是否开启虚拟列表 */
-  virtual?: boolean
   /**  默认展开全部 */
   defaultExpandAll?: boolean
   /** 文本溢出省略 */

@@ -2,6 +2,8 @@
 
 > `import type { ButtonProps, ButtonExposed } from '@veltra/desktop'`
 
+触发操作的通用按钮组件，支持多种语义类型、尺寸、图标、加载态、朴素/文本模式，内置波纹指令。
+
 ## Import
 
 ```ts
@@ -10,26 +12,32 @@ import { UButton, UButtonGroup } from '@veltra/desktop'
 
 ## Props
 
-| prop           | type                  | default     | 说明                                                                |
-| -------------- | --------------------- | ----------- | ------------------------------------------------------------------- |
-| `type`         | `ColorType`           | —           | `'primary'` \| `'success'` \| `'warning'` \| `'danger'` \| `'info'` |
-| `size`         | `ComponentSize`       | `'default'` | `'small'` \| `'default'` \| `'large'`                               |
-| `text`         | `boolean`             | —           | 文本模式（无背景无边框）                                            |
-| `plain`        | `boolean`             | —           | 朴素模式（边框+文字色为 type 色）                                   |
-| `loading`      | `boolean`             | —           | 加载中                                                              |
-| `loadingIcon`  | `Component`           | `Loading`   | 自定义加载图标                                                      |
-| `circle`       | `boolean`             | —           | 圆形按钮                                                            |
-| `disabled`     | `boolean`             | `false`     | 禁用                                                                |
-| `icon`         | `Component`           | —           | 图标组件                                                            |
-| `iconSize`     | `number`              | —           | 图标大小(px)                                                        |
-| `iconPosition` | `'left'` \| `'right'` | `'left'`    | 图标位置                                                            |
-| `propagate`    | `boolean`             | `true`      | 是否允许事件冒泡                                                    |
+| prop | type | default | 说明 |
+|------|------|---------|------|
+| `type` | `ColorType` | — | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
+| `size` | `ComponentSize` | `'default'` | `'small'` \| `'default'` \| `'large'` |
+| `text` | `boolean` | — | 文本模式（无背景无边框） |
+| `plain` | `boolean` | — | 朴素模式（边框 + 文字使用 type 色） |
+| `loading` | `boolean` | — | 加载中，显示 loadingIcon 并禁用交互 |
+| `loadingIcon` | `Component` | `Loading` | 自定义加载图标组件 |
+| `circle` | `boolean` | — | 圆形按钮 |
+| `disabled` | `boolean` | `false` | 禁用状态，阻止点击与波纹 |
+| `icon` | `Component` | — | 图标组件，按 iconPosition 渲染 |
+| `iconSize` | `number` | — | 图标大小（px） |
+| `iconPosition` | `'left' \| 'right'` | `'left'` | 图标位置 |
+| `propagate` | `boolean` | `true` | `false` 时阻止 click 事件冒泡 |
 
 ## Emits
 
-| event   | 参数                                          |
-| ------- | --------------------------------------------- |
-| `click` | `(e: MouseEvent)` — disabled/loading 时不触发 |
+| event | 参数 | 说明 |
+|-------|------|------|
+| `click` | `(e: MouseEvent)` | 点击事件，`disabled` 或 `loading` 时不触发 |
+
+## Slots
+
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 按钮内文本/内容 |
 
 ## Exposed
 
@@ -56,11 +64,11 @@ interface ButtonExposed {
 
 ```vue
 <u-button size="small" type="primary">小按钮</u-button>
-<u-button type="primary">默认按钮</u-button>
+<u-button size="default" type="primary">默认尺寸</u-button>
 <u-button size="large" type="primary">大按钮</u-button>
 ```
 
-### 朴素、文本、加载、禁用
+### 朴素 / 文本 / 加载 / 禁用
 
 ```vue
 <script setup>
@@ -68,29 +76,21 @@ import { Refresh } from '@veltra/icons/normal'
 </script>
 
 <template>
-  <!-- 朴素模式 -->
   <u-button plain type="primary">朴素按钮</u-button>
-  <u-button plain disabled type="primary">朴素禁用</u-button>
+  <u-button plain type="primary" disabled>朴素禁用</u-button>
 
-  <!-- 文本模式 -->
   <u-button text type="success">文本按钮</u-button>
 
-  <!-- 加载态 -->
   <u-button loading type="primary">加载中</u-button>
   <u-button loading type="primary" :loading-icon="Refresh">自定义加载图标</u-button>
 
-  <!-- 禁用 -->
   <u-button disabled type="danger">禁用</u-button>
 </template>
 ```
 
-### 圆形+图标
+### 圆形 + 图标
 
 ```vue
-<script setup>
-import { Edit } from '@veltra/icons/normal'
-</script>
-
 <template>
   <u-button type="primary" circle :icon="Edit" />
   <u-button type="success" circle :icon="Edit" />
@@ -103,7 +103,9 @@ import { Edit } from '@veltra/icons/normal'
 <script setup>
 import { Search } from '@veltra/icons/normal'
 
-const handleClick = (e: MouseEvent) => console.log('click')
+const handleClick = (e: MouseEvent) => {
+  console.log('clicked', e)
+}
 </script>
 
 <template>
@@ -113,12 +115,12 @@ const handleClick = (e: MouseEvent) => console.log('click')
 </template>
 ```
 
-### 阻止事件冒泡
+### 阻止冒泡
 
 ```vue
 <div @click="handleOuter">
   <u-button type="primary" :propagate="false" @click="handleClick">
-    点击不会冒泡
+    不会冒泡到外层
   </u-button>
 </div>
 ```
@@ -127,15 +129,15 @@ const handleClick = (e: MouseEvent) => console.log('click')
 
 ```vue
 <script setup lang="ts">
+import { useTemplateRef } from 'vue'
 import type { ButtonExposed } from '@veltra/desktop'
-import { shallowRef } from 'vue'
 
-const btnRef = shallowRef<ButtonExposed>()
-// btnRef.value?.el → HTMLButtonElement
+const btnRef = useTemplateRef<ButtonExposed>('btn')
+// btnRef.value?.el → HTMLButtonElement | undefined
 </script>
 
 <template>
-  <u-button ref="btnRef" type="primary">按钮</u-button>
+  <u-button ref="btn" type="primary">按钮</u-button>
 </template>
 ```
 
@@ -143,17 +145,25 @@ const btnRef = shallowRef<ButtonExposed>()
 
 # UButtonGroup — 按钮组
 
+将多个按钮包裹为一个组合，通过 slot 作用域统一透传 props 给子按钮。
+
+> `import type { ButtonProps } from '@veltra/desktop'`
+
 ## Import
 
 ```ts
 import { UButtonGroup } from '@veltra/desktop'
 ```
 
+## Props
+
+与 `UButton` 完全一致的 `ButtonProps`，用于统一控制组内按钮行为。
+
 ## Slots
 
-| slot      | 作用域                   | 说明                          |
-| --------- | ------------------------ | ----------------------------- |
-| `default` | `{ props: ButtonProps }` | `v-bind="props"` 透传给子按钮 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | `{ props: ButtonProps }` | 通过 `v-bind="props"` 将统一 props 透传给每个子按钮 |
 
 ## Examples
 
@@ -203,5 +213,14 @@ const active = shallowRef(0)
   <u-button v-bind="props" type="primary">剪切</u-button>
   <u-button v-bind="props" type="primary">复制</u-button>
   <u-button v-bind="props" type="primary">粘贴</u-button>
+</u-button-group>
+```
+
+### 统一尺寸
+
+```vue
+<u-button-group size="small" v-slot="{ props }">
+  <u-button v-bind="props" type="primary">小</u-button>
+  <u-button v-bind="props" type="primary">小</u-button>
 </u-button-group>
 ```

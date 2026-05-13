@@ -1,57 +1,132 @@
 # UMenu — 菜单
 
-> `import type { MenuProps } from '@veltra/desktop'`
+> `import type { MenuProps, MenuEmits, MenuExposed, MenuItem } from '@veltra/desktop'`
 
-侧边菜单，支持折叠/展开、多级嵌套、图标。
+侧边导航菜单，支持多级嵌套、图标、折叠/展开模式、当前路径高亮。
 
 ## Import
 
 ```ts
-import { UMenu } from '@veltra/desktop'
+import { UMenu, UMenuItem, UMenuSub } from '@veltra/desktop'
 ```
 
 ## MenuItem
 
 ```ts
+import type { DefineComponent } from 'vue'
+
 interface MenuItem {
+  /** 图标：字符串为图片 URL，DefineComponent 为 Vue 组件（如 @veltra/icons/normal 中的图标） */
+  icon?: string | DefineComponent
+  /** 菜单标题 */
   title: string
+  /** 菜单路径，用于匹配 currentPath 激活高亮 */
   path: string
-  icon?: Component      // 来自 @veltra/icons/normal
+  /** 是否禁用 */
   disabled?: boolean
+  /** 子菜单 */
   children?: MenuItem[]
-  [key: string]: any    // 额外透传字段
+  /** 额外透传字段 */
+  [key: string]: any
 }
 ```
 
+# UMenu
+
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
+| prop | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
 | `menus` | `MenuItem[]` | — | 菜单列表 |
-| `currentPath` | `string` | — | 当前激活路径 |
-| `collapsed` | `boolean` | — | 折叠模式 |
-| `uniqueOpened` | `boolean` | — | 仅允许一个菜单展开 |
+| `currentPath` | `string` | — | 当前激活路径，匹配 `MenuItem.path` 高亮对应项并自动展开祖先 |
+| `collapsed` | `boolean` | `false` | 是否折叠模式。折叠后一级菜单仅显示图标，hover 弹出子菜单 |
+| `uniqueOpened` | `boolean` | `false` | 是否仅允许一个子菜单展开 |
 
 ## Emits
 
-| event | 参数 |
-|-------|------|
-| `item-click` | `(item: MenuItem)` |
+| 事件 | 参数 | 说明 |
+|------|------|------|
+| `item-click` | `(item: MenuItem)` | 点击菜单项时触发（disabled 项不触发） |
+
+## Slots
+
+无。菜单项完全由 `menus` 数据驱动渲染。
+
+## Exposed
+
+```ts
+interface MenuExposed {}
+```
+
+无暴露的方法或属性。
+
+## 行为说明
+
+- **不推荐自行组合**：`UMenu` 内部已递归渲染 `MenuItem[]` 树，无需手动拼接 `UMenuItem` / `UMenuSub`。
+- **currentPath 联动**：设置 `currentPath` 后自动展开该路径上的所有祖先节点。
+- **尺寸**：`size` 从全局配置（`useConfig`）继承，可选 `'small'`、`'default'`、`'large'`，默认 `'default'`。
+- **折叠模式**：`collapsed` 为 `true` 时一级菜单仅显示图标（无图标则显示标题首字），通过 `UTip` 弹出完整菜单面板。
+
+---
+
+# UMenuItem
+
+> 内部组件，通常由 `UMenu` 自动渲染。仅在自定义布局时直接使用。
+
+## Props
+
+| prop | 类型 | 说明 |
+|------|------|------|
+| `menu` | `MenuItem` | 菜单项数据 |
+| `depth` | `number` | 嵌套深度（`0` 为顶级） |
+
+## Emits
+
+无。点击通过依赖注入向上传递 `item-click`。
+
+## Slots
+
+无。
+
+---
+
+# UMenuSub
+
+> 内部组件，渲染含有 `children` 的父级菜单项。通常由 `UMenu` 自动渲染。
+
+## Props
+
+| prop | 类型 | 说明 |
+|------|------|------|
+| `menu` | `MenuItem` | 菜单项数据（须含 `children`） |
+| `parentKey` | `string` | 父级 key，用于递归渲染时生成唯一 key |
+| `depth` | `number` | 嵌套深度（`0` 为顶级） |
+
+## Emits
+
+无。展开/折叠通过内部 `expandedPath`（Set）管理。
+
+---
 
 ## Examples
 
 ### 基础菜单
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue'
-import { HouseFilled, UserGroup, Lock } from '@veltra/icons/normal'
+import { HouseFilled, SettingFilled, LockFilled } from '@veltra/icons/normal'
+import type { MenuItem } from '@veltra/desktop'
 
-const menus = shallowRef([
+const currentPath = shallowRef('/')
+
+const menus = shallowRef<MenuItem[]>([
   { title: '首页', icon: HouseFilled, path: '/' },
-  { title: '功能管理', icon: UserGroup, path: '/modules' },
+  { title: '功能管理', icon: SettingFilled, path: '/modules' },
   {
-    title: '系统设置', icon: Lock, path: '/settings',
+    title: '系统设置',
+    icon: LockFilled,
+    path: '/settings',
     children: [
       { title: '角色管理', path: '/settings/role' },
       { title: '用户管理', path: '/settings/user' }
@@ -61,30 +136,44 @@ const menus = shallowRef([
 </script>
 
 <template>
-  <u-menu :menus="menus" :current-path="currentPath" />
+  <u-menu :menus="menus" :current-path="currentPath" @item-click="currentPath = $event.path" />
 </template>
 ```
 
 ### 折叠菜单 + 路由联动
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { computed, reactive } from 'vue'
+import { computed, reactive, shallowRef } from 'vue'
+import type { MenuItem } from '@veltra/desktop'
 
 const route = useRoute()
 const router = useRouter()
 const config = reactive({ collapsed: false })
 
-const currentPath = computed(() => route.query.currentPath as string)
+const currentPath = computed(() => (route.query.menuPath as string) || '/')
 
-function onItemClick(item) {
-  router.replace({ path: route.path, query: { currentPath: item.path } })
+const menus = shallowRef<MenuItem[]>([
+  { title: '首页', path: '/' },
+  { title: '数据看板', path: '/dashboard' },
+  {
+    title: '系统设置',
+    path: '/settings',
+    children: [
+      { title: '角色管理', path: '/settings/role' },
+      { title: '用户管理', path: '/settings/user' }
+    ]
+  }
+])
+
+function onItemClick(item: MenuItem) {
+  router.replace({ path: route.path, query: { menuPath: item.path } })
 }
 </script>
 
 <template>
-  <u-checkbox v-model="config.collapsed">折叠</u-checkbox>
+  <u-checkbox v-model="config.collapsed">折叠菜单</u-checkbox>
 
   <u-menu
     :menus="menus"
@@ -93,5 +182,63 @@ function onItemClick(item) {
     :style="{ width: config.collapsed ? '64px' : '260px' }"
     @item-click="onItemClick"
   />
+</template>
+```
+
+### 禁用项与 uniqueOpened
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { MenuItem } from '@veltra/desktop'
+
+const currentPath = shallowRef('/')
+
+const menus = shallowRef<MenuItem[]>([
+  { title: '可访问页面', path: '/' },
+  { title: '无权限页面', path: '/forbidden', disabled: true },
+  {
+    title: '分组一',
+    path: '/group-1',
+    children: [
+      { title: '子项 A', path: '/group-1/a' },
+      { title: '子项 B', path: '/group-1/b' }
+    ]
+  },
+  {
+    title: '分组二',
+    path: '/group-2',
+    children: [
+      { title: '子项 C', path: '/group-2/c' }
+    ]
+  }
+])
+</script>
+
+<template>
+  <u-menu
+    :menus="menus"
+    :current-path="currentPath"
+    unique-opened
+    @item-click="currentPath = $event.path"
+  />
+</template>
+```
+
+### 自定义图标（图片 URL）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { MenuItem } from '@veltra/desktop'
+
+const menus = shallowRef<MenuItem[]>([
+  { title: '首页', icon: '/assets/home.svg', path: '/' },
+  { title: '设置', icon: '/assets/settings.png', path: '/settings' }
+])
+</script>
+
+<template>
+  <u-menu :menus="menus" current-path="/" />
 </template>
 ```

@@ -1,109 +1,123 @@
-# UCheckbox / UCheckboxGroup / URadioGroup — 选择组件
+# UCheckbox — 复选框
 
-> `import type { CheckboxProps, CheckboxGroupProps, RadioGroupProps } from '@veltra/desktop'`
+> `import type { CheckboxProps, CheckboxEmits, CheckboxExposed } from '@veltra/desktop'`
 
-## UCheckbox — 单个复选框
+单一复选框组件，支持 `v-model` 双向绑定、半选状态（`indeterminate`），可嵌入表单上下文自动继承 `disabled`、`readonly`、`size`。
+
+## Import
 
 ```ts
 import { UCheckbox } from '@veltra/desktop'
 ```
 
+## Props
+
 | prop | type | default | 说明 |
 |------|------|---------|------|
-| `modelValue` | `boolean` | — | 选中状态 |
-| `indeterminate` | `boolean` | — | 半选状态 |
+| `modelValue` | `boolean` | — | 是否选中 |
+| `indeterminate` | `boolean` | — | 部分选中，展示「半选」图标 |
+| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
+| `disabled` | `boolean` | `false` | 是否禁用 |
+| `readonly` | `boolean` | `false` | 是否只读（点击不触发变更） |
+| `tips` | `string` | — | 在表单控件内时的提示文字 |
+| `label` | `string` | — | 表单标签文字 |
+| `field` | `string` | — | 表单项字段，用于表单校验关联 |
+| `span` | `number \| 'full' \| { xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full'; default: number \| 'full' }` | — | 在表单布局中所占列的大小 |
 
-### 示例
+> `size`、`disabled`、`readonly` 默认值由 `useFormFallbackProps` 提供；若组件嵌套在 `<u-form>` 内部，会优先继承表单上下文的对应值。
 
-```vue
-<!-- 基础 -->
-<u-checkbox v-model="agreed">我已阅读并同意</u-checkbox>
+## Emits
 
-<!-- 半选状态（全选场景） -->
-<u-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAll">
-  全选
-</u-checkbox>
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:modelValue` | `checked: boolean` | `v-model` 值变更时触发 |
+| `change` | `checked: boolean`, `e: MouseEvent` | 选中状态改变时触发（含原生鼠标事件） |
 
-<!-- 按钮样式 -->
-<u-checkbox-button v-model="checked" type="success">深度思考</u-checkbox-button>
-```
+## Slots
 
----
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 复选框右侧的标签文本 |
 
-## UCheckboxGroup — 复选框组
+## Exposed
 
 ```ts
-import { UCheckboxGroup } from '@veltra/desktop'
+interface CheckboxExposed {}
 ```
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `any[]` | — | 选中值数组 |
-| `items` | `Record[]` | **必填** | 选项列表 |
-| `labelKey` | `string` | `'label'` | 标签字段 |
-| `valueKey` | `string` | `'value'` | 值字段 |
-| `block` | `boolean` | — | 块级布局（每行一个） |
-| `disabled` | `boolean` | — | 禁用 |
+## Examples
 
-### 示例
+### 基础用法
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { UCheckbox } from '@veltra/desktop'
 
-const hobbies = ref<string[]>([])
-const options = [
-  { label: '篮球', value: 'basketball' },
-  { label: '足球', value: 'football' },
-  { label: '游泳', value: 'swimming' }
-]
+const agreed = ref(false)
 </script>
 
 <template>
-  <u-checkbox-group v-model="hobbies" :items="options" />
-
-  <!-- 块级布局 + 禁用 -->
-  <u-checkbox-group v-model="selected" :items="permissions" block disabled />
+  <u-checkbox v-model="agreed">我已阅读并同意</u-checkbox>
 </template>
 ```
 
----
-
-## URadioGroup — 单选框组
-
-```ts
-import { URadioGroup } from '@veltra/desktop'
-```
-
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `any` | — | 当前选中值 |
-| `items` | `Record[]` | **必填** | 选项列表 |
-| `valueKey` | `string` | `'value'` | 值字段 |
-| `labelKey` | `string` | `'label'` | 标签字段 |
-| `disabled` | `boolean` | — | 全部禁用 |
-| `block` | `boolean` | — | 块级布局 |
-
-### 示例
+### 半选状态（全选场景）
 
 ```vue
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { UCheckbox } from '@veltra/desktop'
 
-const gender = ref('')
-const options = [
-  { label: '男', value: 'male' },
-  { label: '女', value: 'female' }
-]
+const checkedItems = ref<string[]>([])
+const options = ['苹果', '香蕉', '橙子']
+
+const isChecked = computed(() => checkedItems.value.length === options.length)
+const isIndeterminate = computed(
+  () => checkedItems.value.length > 0 && checkedItems.value.length < options.length
+)
+
+function handleCheckAll(checked: boolean) {
+  checkedItems.value = checked ? [...options] : []
+}
 </script>
 
 <template>
-  <u-radio-group v-model="gender" :items="options" @change="handleChange" />
+  <u-checkbox
+    :model-value="isChecked"
+    :indeterminate="isIndeterminate"
+    @change="handleCheckAll"
+  >
+    全选
+  </u-checkbox>
+</template>
+```
 
-  <!-- 按钮样式 -->
-  <u-radio-group v-model="gender" :items="options" radio-type="btn" />
+### 禁用与只读
 
-  <!-- 禁用特定选项 + 块级 -->
-  <u-radio-group v-model="plan" :items="plans" block :disabled-item="(item) => item.disabled" />
+```vue
+<template>
+  <u-checkbox v-model="checked" disabled>禁用状态</u-checkbox>
+  <u-checkbox v-model="checked" readonly>只读状态</u-checkbox>
+</template>
+```
+
+### 在 UForm 中使用
+
+> 参考 [form.md](form.md) 了解 FormModel 的完整用法。表单内不需要手写 `u-form-item` 和 `v-model`。
+
+```vue
+<script setup lang="ts">
+import { UForm, UCheckbox, FormModel, formField } from '@veltra/desktop'
+
+const model = new FormModel({
+  remember: formField({ value: false })
+})
+</script>
+
+<template>
+  <u-form :model="model" disabled>
+    <u-checkbox label="记住登录" field="remember">30 天内免登录</u-checkbox>
+  </u-form>
 </template>
 ```

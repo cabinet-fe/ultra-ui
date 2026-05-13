@@ -1,25 +1,31 @@
 # UTabs — 标签页
 
-> `import type { TabsProps, TabsExposed } from '@veltra/desktop'`
+> `import type { TabsProps, TabsEmits, TabsExposed, TabItem } from '@veltra/desktop'`
 
-组合版标签页（tab 栏 + 内容面板）、独立水平/垂直标签栏。
+组合版标签页（tab 栏 + 内容面板），支持水平/垂直布局、可关闭、保活。同时提供独立的 `UTabsHorizontal`、`UTabsVertical` 子组件用于仅需标签栏的场景。
 
 ## Import
 
 ```ts
 import { UTabs, UTabsHorizontal, UTabsVertical } from '@veltra/desktop'
-// 类型
 import type { TabItem } from '@veltra/desktop'
 ```
 
-## TabItem
+### TabItem 类型
 
 ```ts
 interface TabItem {
-  key: string          // 唯一标识（对应 slot 名）
-  name?: string        // 显示名（不传则以 key 为名）
-  disabled?: boolean   // 禁用
-  closable?: boolean   // 单个标签可关闭
+  /** 标题名称。不传则以 key 为名称 */
+  name?: string
+  /** 标签页唯一标识，同时对应内容面板的 slot 名 */
+  key: string
+  /** 是否禁用 */
+  disabled?: boolean
+  /**
+   * 单个标签是否可关闭
+   * 未显式设置时，沿用组件级 `closable` 属性
+   */
+  closable?: boolean
 }
 ```
 
@@ -29,40 +35,105 @@ interface TabItem {
 |------|------|---------|------|
 | `modelValue` | `string` | — | 当前激活的标签 key |
 | `items` | `TabItem[]` | **必填** | 标签项 |
-| `closable` | `boolean` | `false` | 可关闭 |
-| `block` | `boolean` | `false` | 填充宽度 |
-| `rounded` | `boolean` | `false` | 圆角胶囊风格 |
-| `position` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 位置 |
-| `keepAlive` | `boolean` | `false` | 保活内容面板 |
-| `size` | `ComponentSize` | — | 尺寸 |
+| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
+| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
+| `block` | `boolean` | `false` | 是否填充父容器宽度，仅在 `position` 为 `top` / `bottom` 时生效；开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
+| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
+| `position` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 显示位置 |
+| `keepAlive` | `boolean` | `false` | 是否保活内容面板，切换标签时缓存已渲染面板 |
 
-## Emits
+## UTabs Emits
 
-| event | 参数 |
-|-------|------|
-| `update:modelValue` | `(value: string)` |
-| `click` | `(item: TabItem, index: number)` |
-| `close` | `(item: TabItem, index: number)` |
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
+| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
+| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+
+## UTabs Slots
+
+Tabs 使用**动态命名 slot**：每个 tab item 的 `key` 值即为对应的内容面板 slot 名。组件通过 `slots[key]` 查找并渲染到内容区域。
+
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `[key]` | `{ key: string }` | 每个 tab item 对应一个同名 slot，作为其内容面板；若不提供任何 slot，则不渲染内容区域 |
+
+## UTabs Exposed
+
+```ts
+interface TabsExposed {
+  // 当前无暴露的属性和方法
+}
+```
+
+---
+
+## UTabsHorizontal Props
+
+独立水平标签栏组件。适用于仅需 tab 头部栏、自行管理内容区的场景（如后台系统路由标签栏）。
+
+| prop | type | default | 说明 |
+|------|------|---------|------|
+| `modelValue` | `string` | — | 当前激活的标签 key |
+| `items` | `TabItem[]` | **必填** | 标签项 |
+| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
+| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
+| `block` | `boolean` | `false` | 是否填充父容器宽度，开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
+| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
+| `position` | `'top' \| 'bottom'` | `'top'` | 位置 |
+
+## UTabsHorizontal Emits
+
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
+| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
+| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+
+---
+
+## UTabsVertical Props
+
+独立垂直标签栏组件。
+
+| prop | type | default | 说明 |
+|------|------|---------|------|
+| `modelValue` | `string` | — | 当前激活的标签 key |
+| `items` | `TabItem[]` | **必填** | 标签项 |
+| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
+| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
+| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
+| `position` | `'left' \| 'right'` | `'left'` | 位置 |
+
+## UTabsVertical Emits
+
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
+| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
+| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+
+---
 
 ## Examples
 
 ### 基础标签页
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import type { TabItem } from '@veltra/desktop'
 
 const active = ref('tabA')
 const items: TabItem[] = [
   { key: 'tabA', name: '标签A' },
-  { key: 'tabB', name: '标签B', disabled: true },
-  { key: 'tabC', name: '标签C', closable: true }
+  { key: 'tabB', name: '标签B' },
+  { key: 'tabC', name: '标签C' }
 ]
 </script>
 
 <template>
-  <u-tabs :items="items" v-model="active" keep-alive>
+  <u-tabs :items="items" v-model="active">
     <template #tabA><p>面板 A</p></template>
     <template #tabB><p>面板 B</p></template>
     <template #tabC><p>面板 C</p></template>
@@ -70,33 +141,81 @@ const items: TabItem[] = [
 </template>
 ```
 
-### 不同位置 + 圆角
+### 可关闭标签 + 保活
 
 ```vue
-<u-tabs :items="items" v-model="active" position="left" rounded />
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { TabItem } from '@veltra/desktop'
 
-<u-tabs :items="items" v-model="active" position="bottom" closable @close="onClose" />
+const active = ref('home')
+const items = ref<TabItem[]>([
+  { key: 'home', name: '首页', closable: false },
+  { key: 'user', name: '用户管理' },
+  { key: 'order', name: '订单中心' }
+])
+
+function onClose(item: TabItem, index: number) {
+  items.value.splice(index, 1)
+  if (active.value === item.key) {
+    active.value = items.value[0]?.key ?? ''
+  }
+}
+</script>
+
+<template>
+  <u-tabs
+    :items="items"
+    v-model="active"
+    closable
+    keep-alive
+    rounded
+    @close="onClose"
+  >
+    <template #home>首页内容</template>
+    <template #user>用户管理内容</template>
+    <template #order>订单中心内容</template>
+  </u-tabs>
+</template>
+```
+
+### 垂直标签页
+
+```vue
+<template>
+  <u-tabs :items="items" v-model="active" position="left" rounded>
+    <template #general><p>通用设置</p></template>
+    <template #security><p>安全设置</p></template>
+    <template #notification><p>通知设置</p></template>
+  </u-tabs>
+
+  <u-tabs :items="items" v-model="active" position="right">
+    <template #general><p>通用设置</p></template>
+    <template #security><p>安全设置</p></template>
+    <template #notification><p>通知设置</p></template>
+  </u-tabs>
+</template>
 ```
 
 ### 独立水平标签栏（后台系统路由标签栏）
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { UTabsHorizontal } from '@veltra/desktop'
+import type { TabItem } from '@veltra/desktop'
 
-const barItems = [
+const active = ref('home')
+const barItems = ref<TabItem[]>([
   { key: 'home', name: '首页' },
   { key: 'user', name: '用户管理' },
   { key: 'order', name: '订单中心' }
-]
-const barActive = ref('home')
+])
 
-function onClose(item) {
-  const idx = barItems.findIndex(i => i.key === item.key)
-  if (idx >= 0) {
-    barItems.splice(idx, 1)
-    if (barActive.value === item.key) barActive.value = barItems[0]?.key ?? ''
+function onClose(item: TabItem, index: number) {
+  barItems.value.splice(index, 1)
+  if (active.value === item.key) {
+    active.value = barItems.value[0]?.key ?? ''
   }
 }
 </script>
@@ -104,9 +223,10 @@ function onClose(item) {
 <template>
   <u-tabs-horizontal
     :items="barItems"
-    v-model="barActive"
+    v-model="active"
     rounded
     closable
+    block
     @close="onClose"
   />
 </template>
@@ -115,10 +235,13 @@ function onClose(item) {
 ### 对话框内使用
 
 ```vue
-<u-dialog v-model="visible">
-  <u-tabs :items="tabItems" v-model="active" keep-alive :style="{ height: '240px' }">
-    <template #general><p>通用</p></template>
-    <template #security><p>安全</p></template>
-  </u-tabs>
-</u-dialog>
+<template>
+  <u-dialog v-model="visible" title="设置">
+    <u-tabs :items="tabItems" v-model="active" keep-alive :style="{ height: '240px' }">
+      <template #general><p>通用</p></template>
+      <template #security><p>安全</p></template>
+      <template #about><p>关于</p></template>
+    </u-tabs>
+  </u-dialog>
+</template>
 ```
