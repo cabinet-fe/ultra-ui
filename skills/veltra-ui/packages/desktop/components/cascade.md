@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCascade } from '@veltra/desktop'
+// UCascade 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -37,7 +37,7 @@ import { UCascade } from '@veltra/desktop'
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
+| event | 参数 | 说明 |
 | --- | --- | --- |
 | `update:modelValue` | `(value?: string \| string[])` | `v-model` 值变更 |
 | `change` | `(value: string[], label: string[], data: Record<string, any>[])` | 多选时选中值变更 |
@@ -63,7 +63,6 @@ interface CascadeExposed {}
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCascade } from '@veltra/desktop'
 
 const value = ref<string>()
 const options = [
@@ -96,7 +95,6 @@ const options = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCascade } from '@veltra/desktop'
 
 const value = ref<string[]>([])
 

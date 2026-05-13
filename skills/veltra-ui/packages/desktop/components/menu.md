@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UMenu, UMenuItem, UMenuSub } from '@veltra/desktop'
+// UMenu、UMenuItem、UMenuSub 由 Vite 自动导入，无需手动 import
 ```
 
 ## MenuItem
@@ -59,13 +59,6 @@ interface MenuExposed {}
 ```
 
 无暴露的方法或属性。
-
-## 行为说明
-
-- **不推荐自行组合**：`UMenu` 内部已递归渲染 `MenuItem[]` 树，无需手动拼接 `UMenuItem` / `UMenuSub`。
-- **currentPath 联动**：设置 `currentPath` 后自动展开该路径上的所有祖先节点。
-- **尺寸**：`size` 从全局配置（`useConfig`）继承，可选 `'small'`、`'default'`、`'large'`，默认 `'default'`。
-- **折叠模式**：`collapsed` 为 `true` 时一级菜单仅显示图标（无图标则显示标题首字），通过 `UTip` 弹出完整菜单面板。
 
 ---
 

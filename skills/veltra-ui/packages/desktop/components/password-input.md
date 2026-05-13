@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UPasswordInput } from '@veltra/desktop'
+// UPasswordInput 由 Vite 自动导入，无需手动 import
 import type { PasswordInputProps, PasswordInputEmits, PasswordInputExposed } from '@veltra/desktop'
 ```
 
@@ -52,15 +52,17 @@ type ResponsiveSpan = number | 'full' | ({
 
 ## Slots
 
-| slot | 说明 |
-|------|------|
-| `prefix` | 输入框前缀区域（点击会触发 `prefix:click` 事件） |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `prefix` | — | 输入框前缀区域（点击会触发 `prefix:click` 事件） |
 
 > 后缀插槽已被组件内部占用（显示/隐藏密码图标），不可覆盖。
 
 ## Exposed
 
-无公开暴露的属性或方法。
+```ts
+interface PasswordInputExposed {}
+```
 
 ## Examples
 
@@ -73,7 +75,6 @@ type ResponsiveSpan = number | 'full' | ({
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UPasswordInput } from '@veltra/desktop'
 
 const password = ref('')
 </script>
@@ -88,7 +89,6 @@ const password = ref('')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UPasswordInput } from '@veltra/desktop'
 
 const password = ref('')
 </script>
@@ -104,7 +104,6 @@ const password = ref('')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UPasswordInput } from '@veltra/desktop'
 
 const password = ref('mySecret')
 </script>
@@ -127,7 +126,6 @@ const password = ref('mySecret')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UPasswordInput } from '@veltra/desktop'
 
 const password = ref('')
 </script>

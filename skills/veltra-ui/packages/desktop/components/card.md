@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCard, UCardHeader, UCardCover, UCardContent, UCardAction } from '@veltra/desktop'
+// UCard、UCardHeader、UCardCover、UCardContent、UCardAction 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -28,6 +28,10 @@ import { UCard, UCardHeader, UCardCover, UCardContent, UCardAction } from '@velt
 | `default` | — | 卡片内容，通常放置 `UCardHeader`、`UCardCover`、`UCardContent`、`UCardAction` |
 
 ## Exposed
+
+```ts
+interface CardExposed {}
+```
 
 无暴露成员。
 

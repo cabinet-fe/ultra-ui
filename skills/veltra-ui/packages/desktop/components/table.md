@@ -8,7 +8,8 @@
 ## Import
 
 ```ts
-import { UTable, defineTableColumns } from '@veltra/desktop'
+// UTable 由 Vite 自动导入，无需手动 import
+import { defineTableColumns } from '@veltra/desktop'
 ```
 
 ## TableColumn 类型
@@ -148,13 +149,20 @@ interface TableRow extends TreeNode<Record<string, any>> {
 
 ## Exposed
 
-| 成员 | 类型 | 说明 |
-|------|------|------|
-| `el` | `HTMLElement \| undefined` | 根 DOM 元素引用 |
-| `clearChecked()` | `() => void` | 清除多选的所有已选项 |
-| `clearSelected()` | `() => void` | 清除单选的已选项 |
-| `getRowByData(data)` | `(data: Record<string, any>) => TableRow \| undefined` | 通过行数据获取对应的 `TableRow` 实例 |
-| `getSummaryRow()` | `() => Record<string, any>` | 获取合计行的数据 |
+```ts
+interface TableExposed {
+  /** 根 DOM 元素引用 */
+  el: HTMLElement | undefined
+  /** 清除多选的所有已选项 */
+  clearChecked(): void
+  /** 清除单选的已选项 */
+  clearSelected(): void
+  /** 通过行数据获取对应的 `TableRow` 实例 */
+  getRowByData(data: Record<string, any>): TableRow | undefined
+  /** 获取合计行的数据 */
+  getSummaryRow(): Record<string, any>
+}
+```
 
 ## `defineTableColumns(columns, commonProps?)`
 
@@ -182,7 +190,7 @@ const columns = defineTableColumns([
 
 ```vue
 <script setup lang="ts">
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'name', name: '姓名', width: 120 },
@@ -207,7 +215,6 @@ const data = [
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-import { UTable, UTag } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const columns: TableColumn[] = [
@@ -242,7 +249,7 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { UTable, UAction, UActionGroup, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'name', name: '名称', minWidth: 150 },
@@ -280,7 +287,7 @@ function handleDelete(rowData: Record<string, any>) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const checked = ref<any[]>([])
 const columns = defineTableColumns([
@@ -312,7 +319,7 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'name', name: '名称', minWidth: 200 },
@@ -347,7 +354,7 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'label', name: '部门', minWidth: 200 },
@@ -375,7 +382,7 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'name', name: '商品', minWidth: 150 },
@@ -416,7 +423,7 @@ const data = [
 ```vue
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { UTable, UPaginator, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const allData = ref(
   Array.from({ length: 100 }, (_, i) => ({
@@ -457,7 +464,6 @@ const columns = defineTableColumns([
 
 ```vue
 <script setup lang="ts">
-import { UTable } from '@veltra/desktop'
 import type { TableColumn, TableColumnRenderContext } from '@veltra/desktop'
 
 function mergeCell(ctx: TableColumnRenderContext) {
@@ -492,7 +498,6 @@ const data = [
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-import { UTable, UTag } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const columns: TableColumn[] = [
@@ -541,7 +546,7 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { UTable, defineTableColumns } from '@veltra/desktop'
+import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'index', name: '#', width: 60, align: 'center' },

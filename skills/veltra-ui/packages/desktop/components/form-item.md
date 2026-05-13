@@ -12,7 +12,7 @@
 ## Import
 
 ```ts
-import { UFormItem } from '@veltra/desktop'
+// UFormItem 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -36,14 +36,16 @@ import { UFormItem } from '@veltra/desktop'
 
 ## Slots
 
-| slot | 说明 |
-|------|------|
-| `default` | 表单控件内容 |
-| `label` | 自定义标签内容，替换 `label` prop 的文本渲染 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 表单控件内容 |
+| `label` | — | 自定义标签内容，替换 `label` prop 的文本渲染 |
 
 ## Exposed
 
-无暴露的属性和方法。
+```ts
+interface FormItemExposed {}
+```
 
 ## Examples
 

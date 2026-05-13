@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { USlider } from '@veltra/desktop'
+// USlider 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -105,7 +105,7 @@ const range = ref<[number, number]>([20, 80])
 
 ```vue
 <script setup lang="ts">
-import { UForm, USlider, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   volume: formField({ value: 30 })

@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UGridInput } from '@veltra/desktop'
+// UGridInput 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -19,10 +19,10 @@ import { UGridInput } from '@veltra/desktop'
 
 ## Emits
 
-| event               | 参数                        |
-| ------------------- | --------------------------- |
-| `update:modelValue` | `(value: string)` — 值变化  |
-| `input`             | `(value: string)` — 输入中  |
+| event | 参数 | 说明 |
+|-------|------|------|
+| `update:modelValue` | `(value: string)` | 值变化 |
+| `input` | `(value: string)` | 输入中 |
 
 ## Slots
 
@@ -36,10 +36,6 @@ interface GridInputExposed {
 }
 ```
 
-| 方法    | 说明         |
-| ------- | ------------ |
-| `clear` | 清空所有输入 |
-
 ## Examples
 
 ### 基础用法
@@ -48,7 +44,6 @@ interface GridInputExposed {
 
 ```vue
 <script setup lang="ts">
-import { UGridInput } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const code = ref('')
@@ -63,7 +58,6 @@ const code = ref('')
 
 ```vue
 <script setup lang="ts">
-import { UGridInput } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const pin = ref('')
@@ -87,7 +81,6 @@ const onInput = (val: string) => {
 
 ```vue
 <script setup lang="ts">
-import { UGridInput } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const code = ref('')
@@ -102,7 +95,6 @@ const code = ref('')
 
 ```vue
 <script setup lang="ts">
-import { UGridInput } from '@veltra/desktop'
 import type { GridInputExposed } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 

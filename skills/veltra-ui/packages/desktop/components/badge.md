@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UBadge } from '@veltra/desktop'
+// UBadge 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -24,21 +24,23 @@ import { UBadge } from '@veltra/desktop'
 
 ## Emits
 
-| emit | payload | 说明 |
+| event | payload | 说明 |
 |------|---------|------|
 | `update:modelValue` | `(value: string)` | 当值变化时触发 |
 
 ## Slots
 
-| slot | 说明 |
-|------|------|
-| `default` | 默认插槽，徽标所附着的内容 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 默认插槽，徽标所附着的内容 |
 
 ## Exposed
 
-| 成员 | 类型 | 说明 |
-|------|------|------|
-| — | — | 当前无暴露成员 |
+```ts
+interface BadgeExposed {}
+```
+
+无暴露成员。
 
 ## Examples
 

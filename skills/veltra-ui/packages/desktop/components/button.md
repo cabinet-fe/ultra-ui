@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UButton, UButtonGroup } from '@veltra/desktop'
+// UButton、UButtonGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -152,7 +152,7 @@ const btnRef = useTemplateRef<ButtonExposed>('btn')
 ## Import
 
 ```ts
-import { UButtonGroup } from '@veltra/desktop'
+// UButtonGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UEmpty } from '@veltra/desktop'
+// UEmpty 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -27,7 +27,9 @@ import { UEmpty } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露属性。
+```ts
+interface EmptyExposed {}
+```
 
 ## Examples
 

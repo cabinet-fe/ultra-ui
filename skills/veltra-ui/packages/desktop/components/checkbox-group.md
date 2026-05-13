@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCheckboxGroup } from '@veltra/desktop'
+// UCheckboxGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -33,7 +33,6 @@ import { UCheckboxGroup } from '@veltra/desktop'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCheckboxGroup } from '@veltra/desktop'
 
 const selected = ref([])
 

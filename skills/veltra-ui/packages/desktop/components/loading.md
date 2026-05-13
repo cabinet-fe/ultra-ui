@@ -7,7 +7,8 @@
 ## Import
 
 ```ts
-import { ULoading, vLoading } from '@veltra/desktop'
+// ULoading 由 Vite 自动导入，无需手动 import
+import { vLoading } from '@veltra/desktop'
 ```
 
 ## Props
@@ -20,7 +21,7 @@ import { ULoading, vLoading } from '@veltra/desktop'
 
 ## Emits
 
-| emit | payload | 说明 |
+| event | payload | 说明 |
 |------|---------|------|
 | `update:modelValue` | `(value: string)` | modelValue 更新时触发 |
 
@@ -30,9 +31,9 @@ import { ULoading, vLoading } from '@veltra/desktop'
 
 ## Exposed
 
-| 成员 | 类型 | 说明 |
-|------|------|------|
-| — | — | 无暴露成员 |
+```ts
+interface LoadingExposed {}
+```
 
 ---
 
@@ -66,7 +67,7 @@ import { ULoading, vLoading } from '@veltra/desktop'
 
 ```vue
 <script setup>
-import { UConfig, ULoading } from '@veltra/desktop'
+// UConfig、ULoading 由 Vite 自动导入，无需手动 import
 </script>
 
 <template>

@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UFileViewer } from '@veltra/desktop'
+// UFileViewer 由 Vite 自动导入，无需手动 import
 ```
 
 ### FileViewerItem

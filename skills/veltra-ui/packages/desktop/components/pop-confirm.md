@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UPopConfirm } from '@veltra/desktop'
+// UPopConfirm 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

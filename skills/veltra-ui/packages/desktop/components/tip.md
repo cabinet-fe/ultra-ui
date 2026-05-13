@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTip } from '@veltra/desktop'
+// UTip 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

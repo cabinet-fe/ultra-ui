@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTextarea } from '@veltra/desktop'
+// UTextarea 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

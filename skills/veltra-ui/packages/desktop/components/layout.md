@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { ULayout } from '@veltra/desktop'
+// ULayout 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -140,6 +140,9 @@ const cols = computed(() => Array.from({ length: count.value }, () => '1fr'))
 
 ## Exposed
 
-| 方法 | 说明 |
-|------|------|
-| `update(offset: number)` | 更新分隔条位置偏移量 |
+```ts
+interface ULayoutResizerExposed {
+  /** 更新分隔条位置偏移量 */
+  update(offset: number): void
+}
+```

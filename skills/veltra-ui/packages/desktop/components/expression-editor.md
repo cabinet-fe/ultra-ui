@@ -9,7 +9,7 @@
 ## Import
 
 ```ts
-import { UExpressionEditor } from '@veltra/desktop'
+// UExpressionEditor 由 Vite 自动导入，无需手动 import
 import type { VariableItem, ExpressionSelectableLevels } from '@veltra/desktop'
 ```
 
@@ -46,8 +46,8 @@ type ExpressionSelectableLevels = 'leaf' | 'any'
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
-|------|------|------|
+| event | 参数 | 说明 |
+|-------|------|------|
 | `update:modelValue` | `(value: string) => void` | 表达式内容变更，变量按 `{value}` 格式输出 |
 
 ## Slots
@@ -56,29 +56,9 @@ type ExpressionSelectableLevels = 'leaf' | 'any'
 
 ## Exposed
 
-无暴露属性或方法（`_ExpressionEditorExposed` 为空接口）。
-
-## 交互规则
-
-- 输入 `@` 打开变量选择面板；继续输入字符后进入过滤态，按 `label` 做不区分大小写的子串匹配。
-- `@filter` 过滤态使用扁平列表；`selectableLevels='leaf'` 只包含叶子，`'any'` 包含叶子和分支，并显示路径预览。
-- 未输入过滤词时使用逐级变量树；非根层级显示面包屑。
-- 面板键盘：`ArrowUp` / `ArrowDown` 移动 active 项，`Escape` 关闭，`ArrowLeft` 在逐级模式返回上一级。
-- 逐级模式下 `ArrowRight` 在分支项进入下一级；`Enter` 在 `leaf` 模式遇到分支也进入下一级，在 `any` 模式遇到分支则选中分支本身。
-- mention 激活时按空格、`ArrowLeft` 或 `ArrowRight` 会退出 mention，并保留 `@filter` 为普通文本。
-- 变量 chip 是 `contenteditable=false` 的原子节点；点击 chip 主体会在原位置打开变量面板重选，hover 后点击 `×` 删除。
-- 未在 `variables` 中找到的 `{value}` 仍会渲染为 chip，`label` 回退为 `value`。
-
-## 实现约定
-
-- 当前实现不依赖 Lexical；不要重新引入旧的 `internal/`、`nodes/variable-node.tsx`、`use-editor.ts`、`use-context.ts` 等旧架构。
-- 主组件在 `expression-editor.vue`，核心拆在 `core/model.ts`、`core/editor.ts`、`core/mention.ts`、`core/chip.ts`。
-- `core/model.ts` 负责 `parse` / `serialize` / `normalize`，变量语法是 `/\{([^}]+)\}/g`；未闭合 `{` 保持普通文本。
-- `core/editor.ts` 直接管理 contenteditable DOM，DOM 中每个 text / var segment 对应一个 span；渲染时会在 var 两侧补空 text span，保证光标可停靠。
-- 粘贴只取 `text/plain`；`compositionstart` 到 `compositionend` 期间不触发 DOM 同步和 selection 变更，避免中文 IME 输入时 mention 抖动。
-- `variables` 变化时通过 `createVariableMap` 刷新 chip 的 `label` / `type`，`modelValue` 字符串协议不变。
-- `VariablePicker` 使用 `UTip`，`style.ts` 需要继续导入 `tip`、`icon`、`scroll`、`empty` 相关样式。
-- 相关测试在 `__test__/model.test.ts`、`mention.test.ts`、`chip.test.ts`、`editor.test.ts`。
+```ts
+interface ExpressionEditorExposed {}
+```
 
 ## Examples
 
@@ -87,7 +67,6 @@ type ExpressionSelectableLevels = 'leaf' | 'any'
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UExpressionEditor } from '@veltra/desktop'
 import type { VariableItem } from '@veltra/desktop'
 
 const expression = shallowRef('你好{form.user.name}')
@@ -141,7 +120,6 @@ const variables: VariableItem[] = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UExpressionEditor } from '@veltra/desktop'
 import type { VariableItem } from '@veltra/desktop'
 
 const expression = ref('')

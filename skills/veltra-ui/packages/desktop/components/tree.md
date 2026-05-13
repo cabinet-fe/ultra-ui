@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTree } from '@veltra/desktop'
+// UTree 由 Vite 自动导入，无需手动 import
 // 类型
 import type { TreeProps, TreeEmit, TreeExposed } from '@veltra/desktop'
 ```
@@ -79,8 +79,6 @@ interface TreeExposed {
 
 ```vue
 <script setup lang="ts">
-import { UTree } from '@veltra/desktop'
-
 const data = [
   {
     id: 1,
@@ -104,7 +102,6 @@ const data = [
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UTree } from '@veltra/desktop'
 import type { TreeExposed } from '@veltra/desktop'
 
 const treeRef = shallowRef<TreeExposed>()
@@ -133,7 +130,6 @@ function onSearch() {
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UTree } from '@veltra/desktop'
 
 const selected = shallowRef()
 </script>
@@ -160,7 +156,6 @@ const selected = shallowRef()
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UTree } from '@veltra/desktop'
 
 const checked = shallowRef<string[]>([])
 

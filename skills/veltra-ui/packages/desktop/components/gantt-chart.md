@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UGanttChart } from '@veltra/desktop'
+// UGanttChart 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

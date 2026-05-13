@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTableEditor } from '@veltra/desktop'
+// UTableEditor 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -80,19 +80,9 @@ import { UTableEditor } from '@veltra/desktop'
 
 ## Exposed
 
-组件不暴露任何公开方法或属性。
-
-## 操作列行为
-
-组件在每个数据行末尾追加一个固定操作列（key: `__operation`，width: `120px`），提供三个按钮：
-
-| 按钮 | 图标 | 行为 |
-|------|------|------|
-| 删除 | `Minus` | 移除当前行 |
-| 新增 | `Plus` | 在当前行下方插入一个空对象 `{}` |
-| 复制 | `Copy` | 深拷贝当前行数据并插入到下一行 |
-
-表为空时，`empty` 插槽显示一个「添加」按钮（无图标，`text` 按钮），点击后追加一行空数据。
+```ts
+interface TableEditorExposed {}
+```
 
 ## Examples
 
@@ -101,7 +91,6 @@ import { UTableEditor } from '@veltra/desktop'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTableEditor } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const list = ref<any[]>([
@@ -125,7 +114,6 @@ const columns: TableColumn[] = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTableEditor, UInput } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const list = ref<any[]>([
@@ -165,7 +153,6 @@ const columns: TableColumn[] = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTableEditor } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const treeData = ref<any[]>([
@@ -200,7 +187,6 @@ const columns: TableColumn[] = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTableEditor } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const list = ref<any[]>([

@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UMultiTreeSelect } from '@veltra/desktop'
+// UMultiTreeSelect 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -53,7 +53,7 @@ import { UMultiTreeSelect } from '@veltra/desktop'
 
 ## Emits
 
-| 事件 | 签名 | 说明 |
+| event | 签名 | 说明 |
 |------|------|------|
 | `update:modelValue` | `(value: (string \| number)[]) => void` | `v-model` 更新，选中值变化时触发 |
 | `change` | `(checked: Record<string, any>[]) => void` | 选中的节点数据数组变化时触发 |
@@ -76,10 +76,8 @@ defineSlots<{
 
 ## Exposed
 
-组件当前未暴露任何公开方法与属性。
-
 ```ts
-type MultiTreeSelectExposed = {}
+interface MultiTreeSelectExposed {}
 ```
 
 ## Examples
@@ -89,7 +87,6 @@ type MultiTreeSelectExposed = {}
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UMultiTreeSelect } from '@veltra/desktop'
 
 const selected = ref<(string | number)[]>([])
 

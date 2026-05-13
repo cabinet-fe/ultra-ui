@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UAction, UActionGroup } from '@veltra/desktop'
+// UAction、UActionGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## UAction Props
@@ -58,7 +58,7 @@ interface ActionExposed {}
 ## Import
 
 ```ts
-import { UActionGroup } from '@veltra/desktop'
+// UActionGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -89,10 +89,6 @@ interface ActionGroupExposed {
   closeTip: () => void
 }
 ```
-
-| 方法 | 签名 | 说明 |
-|------|------|------|
-| `closeTip` | `() => void` | 关闭下拉菜单 |
 
 ## Examples
 

@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UInput } from '@veltra/desktop'
+// UInput 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -120,7 +120,7 @@ const phone = shallowRef('')
 
 ```vue
 <script setup>
-import { UForm, UInput, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   username: formField({ value: '', required: true })

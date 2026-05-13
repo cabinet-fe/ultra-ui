@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UDropdown } from '@veltra/desktop'
+// UDropdown 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -65,10 +65,6 @@ interface DropdownExposed {
     </template>
   </UDropdown>
 </template>
-
-<script setup lang="ts">
-import { UDropdown, UButton } from '@veltra/desktop'
-</script>
 ```
 
 ### 点击触发
@@ -84,10 +80,6 @@ import { UDropdown, UButton } from '@veltra/desktop'
     </template>
   </UDropdown>
 </template>
-
-<script setup lang="ts">
-import { UDropdown, UButton } from '@veltra/desktop'
-</script>
 ```
 
 ### 受控模式 + 键盘事件
@@ -111,7 +103,6 @@ import { UDropdown, UButton } from '@veltra/desktop'
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDropdown, UButton } from '@veltra/desktop'
 
 const visible = ref(false)
 
@@ -136,8 +127,4 @@ function handleKeydown(e: KeyboardEvent) {
     </template>
   </UDropdown>
 </template>
-
-<script setup lang="ts">
-import { UDropdown, UButton } from '@veltra/desktop'
-</script>
 ```

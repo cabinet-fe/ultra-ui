@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { USelect } from '@veltra/desktop'
+// USelect 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -179,7 +179,7 @@ const colorOptions = [
 
 ```vue
 <script setup lang="ts">
-import { UForm, USelect, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   grade: formField({ value: '' })

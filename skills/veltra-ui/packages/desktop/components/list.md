@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UList } from '@veltra/desktop'
+// UList 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UConditionEditor } from '@veltra/desktop'
+// UConditionEditor 由 Vite 自动导入，无需手动 import
 import type { ConditionExpression, ConditionField } from '@veltra/desktop'
 ```
 
@@ -92,38 +92,11 @@ type ConditionValue =
 
 ## Exposed
 
-该组件无公开方法或属性（`_ConditionEditorExposed` 为空对象）。
+```ts
+interface ConditionEditorExposed {}
+```
 
-## 运算符映射
-
-运算符根据字段 `type` 自动筛选。`needValue` 为 `false` 的运算符不显示值输入框。
-
-| 字段类型 | 运算符 |
-|----------|--------|
-| `string` | eq（等于）、ne（不等于）、contains（包含）、not_contains（不包含）、empty（为空）、not_empty（不为空） |
-| `number` | eq（等于）、ne（不等于）、gt（大于）、lt（小于）、gte（大于等于）、lte（小于等于） |
-| `boolean` | is_true（是）、is_false（否） |
-| `date` | eq（等于）、ne（不等于）、before（早于）、after（晚于） |
-| `enum` | eq（等于）、ne（不等于）、in（包含于） |
-
-## 交互说明
-
-- **条件行**：每行包含 字段选择 → 运算符选择 → 值输入 → 删除按钮 → 求值结果标记。运算符根据字段类型自动切换可用列表。
-- **AND/OR 标签**：在分组左上角，点击切换逻辑运算符。分组使用左边框 2px solid 指示线表达嵌套层级。
-- **变量注入**：值输入中按 `@` 打开变量选择面板（复用 UExpressionEditor 的 VariablePicker）。选中变量后渲染为 chip，hover 出现 `×` 删除按钮，点击 chip 主体可重新选择变量。
-- **值输入隐藏**：运算符为 `empty` / `not_empty` / `is_true` / `is_false` 时，值输入自动隐藏，显示 `—`。
-- **自动求值**：`data` 传入后自动执行求值：解析变量路径（`.` 分隔），执行运算符比较。行级结果标记为 `✓` / `✗`，分组级 AND/OR 汇总。
-- **切换行为**：切换字段时自动重置运算符为该类型第一个可用选项，值清空；切换运算符时值清空。
-- **序列化清理**：空的子分组在 `v-model` 输出中自动过滤。
-
-## 视觉规范
-
-- 紧凑密度设计：控件高度 28px，行间距 6px，元素间距 4px，字号 12px，圆角 4px
-- 嵌套缩进：左边框 `2px solid var(--u-border-muted-color)` + `padding-left 10px` + `margin-left 8px`
-- AND tag：蓝底 `var(--u-color-primary-light-9)`，文字 `var(--u-color-primary)`
-- OR tag：橙底 `var(--u-color-warning-light-9)`，文字 `var(--u-color-warning)`
-- 变量 chip：`border-radius: 999px`，`var(--u-color-primary-light-9)` 底色
-- 结果 ✓：`var(--u-color-success)` / ✗：`var(--u-color-danger)` / —：`var(--u-text-color-assist)`
+该组件无公开方法或属性。
 
 ## Examples
 

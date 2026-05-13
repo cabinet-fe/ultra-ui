@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UMultiSelect } from '@veltra/desktop'
+// UMultiSelect 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -38,7 +38,7 @@ import { UMultiSelect } from '@veltra/desktop'
 
 ## Slots
 
-| slot | scope | 说明 |
+| slot | 作用域 | 说明 |
 |------|-------|------|
 | `default` | `{ option: Record<string, any>, index: number }` | 自定义选项内容的渲染，默认显示 `option[labelKey]` |
 

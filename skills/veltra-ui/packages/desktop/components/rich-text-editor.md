@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { URichTextEditor } from '@veltra/desktop'
+// URichTextEditor 由 Vite 自动导入，无需手动 import
 // 类型导入
 import type { RichTextEditorProps, RichTextEditorEmits, ToolbarItem } from '@veltra/desktop'
 ```
@@ -66,7 +66,9 @@ type ToolbarItem =
 
 ## Exposed
 
-无暴露的公共方法或属性。
+```ts
+interface RichTextEditorExposed {}
+```
 
 ## Examples
 
@@ -79,7 +81,6 @@ type ToolbarItem =
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { URichTextEditor } from '@veltra/desktop'
 
 const content = ref('<p>Hello World</p>')
 </script>
@@ -94,7 +95,6 @@ const content = ref('<p>Hello World</p>')
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { URichTextEditor } from '@veltra/desktop'
 
 const jsonContent = ref('')
 
@@ -116,7 +116,6 @@ watch(jsonContent, (val) => {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { URichTextEditor } from '@veltra/desktop'
 
 const content = ref('')
 </script>
@@ -134,7 +133,6 @@ const content = ref('')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { URichTextEditor } from '@veltra/desktop'
 
 const content = ref('<p>不可编辑的内容</p>')
 </script>

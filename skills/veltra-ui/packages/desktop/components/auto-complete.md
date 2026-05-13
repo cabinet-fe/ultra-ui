@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UAutoComplete } from '@veltra/desktop'
+// UAutoComplete 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -56,7 +56,6 @@ interface AutoCompleteExposed {}
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UAutoComplete } from '@veltra/desktop'
 
 const query = ref('')
 const fruits = ['Apple', 'Banana', 'Cherry', 'Durian', 'Grape', 'Mango', 'Orange', 'Peach']
@@ -72,7 +71,6 @@ const fruits = ['Apple', 'Banana', 'Cherry', 'Durian', 'Grape', 'Mango', 'Orange
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UAutoComplete } from '@veltra/desktop'
 
 const query = ref('')
 
@@ -93,7 +91,6 @@ async function fetchSuggestions(keyword?: string): Promise<string[]> {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UAutoComplete } from '@veltra/desktop'
 
 const query = ref('')
 const users = ['Alice', 'Bob', 'Charlie', 'Diana']
@@ -113,7 +110,6 @@ const users = ['Alice', 'Bob', 'Charlie', 'Diana']
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UAutoComplete } from '@veltra/desktop'
 
 const query = ref('Apple')
 const fruits = ['Apple', 'Banana', 'Cherry']

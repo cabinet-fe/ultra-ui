@@ -7,7 +7,8 @@
 ## Import
 
 ```ts
-import { MessageConfirm, UMessageConfirm } from '@veltra/desktop'
+import { MessageConfirm } from '@veltra/desktop'
+// UMessageConfirm 由 Vite 自动导入，无需手动 import
 ```
 
 - `MessageConfirm` — 函数式 API，直接调用即可弹出
@@ -153,7 +154,6 @@ if (confirmed) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UMessageConfirm } from '@veltra/desktop'
 
 const visible = ref(false)
 </script>

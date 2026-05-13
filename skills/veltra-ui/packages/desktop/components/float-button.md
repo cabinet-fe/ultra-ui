@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UFloatButton } from '@veltra/desktop'
+// UFloatButton 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -40,7 +40,9 @@ import { UFloatButton } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露属性或方法。
+```ts
+interface FloatButtonExposed {}
+```
 
 ## Examples
 
@@ -48,7 +50,6 @@ import { UFloatButton } from '@veltra/desktop'
 
 ```vue
 <script setup lang="ts">
-import { UFloatButton } from '@veltra/desktop'
 import type { FloatButtonItem } from '@veltra/desktop'
 
 const items: FloatButtonItem[] = [
@@ -71,7 +72,6 @@ const onAction = (key: string) => {
 
 ```vue
 <script setup lang="ts">
-import { UFloatButton } from '@veltra/desktop'
 import { AddIcon, EditIcon, DeleteIcon } from '@veltra/icons'
 
 const items = [
@@ -90,7 +90,6 @@ const items = [
 
 ```vue
 <script setup lang="ts">
-import { UFloatButton } from '@veltra/desktop'
 import { SettingIcon, NotificationIcon } from '@veltra/icons'
 
 const items = [
@@ -109,7 +108,6 @@ const items = [
 ```vue
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { UFloatButton } from '@veltra/desktop'
 import { CreateIcon, SearchIcon } from '@veltra/icons'
 
 const router = useRouter()

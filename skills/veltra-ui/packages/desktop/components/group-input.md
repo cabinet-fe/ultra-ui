@@ -9,7 +9,7 @@
 ## Import
 
 ```ts
-import { UGroupInput } from '@veltra/desktop'
+// UGroupInput 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

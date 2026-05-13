@@ -7,7 +7,8 @@
 ## Import
 
 ```ts
-import { UBatchEdit, FormModel, defineTableColumns } from '@veltra/desktop'
+// UBatchEdit 由 Vite 自动导入，无需手动 import
+import { FormModel, defineTableColumns } from '@veltra/desktop'
 ```
 
 ## Props
@@ -87,7 +88,9 @@ BatchEditEmits 继承 TableEmits 的所有事件，并追加以下专属事件�
 
 ## Exposed
 
-无暴露属性或方法。
+```ts
+interface BatchEditExposed {}
+```
 
 ## 键盘快捷键
 
@@ -105,7 +108,7 @@ BatchEditEmits 继承 TableEmits 的所有事件，并追加以下专属事件�
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UBatchEdit, FormModel, defineTableColumns } from '@veltra/desktop'
+import { FormModel, defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', width: 120 },
@@ -145,7 +148,7 @@ const model = new FormModel({
 ```vue
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
-import { UBatchEdit, FormModel, defineTableColumns } from '@veltra/desktop'
+import { FormModel, defineTableColumns } from '@veltra/desktop'
 import type { BatchEditFeature } from '@veltra/desktop'
 
 const columns = defineTableColumns([
@@ -195,7 +198,7 @@ const dynamicFeatures = computed(() => ({
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UBatchEdit, FormModel, defineTableColumns } from '@veltra/desktop'
+import { FormModel, defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { key: 'name', name: '名称', minWidth: 200 },
@@ -246,7 +249,7 @@ const model = new FormModel({
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UBatchEdit, FormModel, defineTableColumns } from '@veltra/desktop'
+import { FormModel, defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', minWidth: 120 },

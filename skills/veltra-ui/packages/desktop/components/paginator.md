@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UPaginator } from '@veltra/desktop'
+// UPaginator 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -34,9 +34,12 @@ import { UPaginator } from '@veltra/desktop'
 
 ## Exposed
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `el` | `ShallowRef<HTMLElement \| undefined>` | 分页器根 DOM 元素引用 |
+```ts
+interface PaginatorExposed {
+  /** 分页器根 DOM 元素引用 */
+  el: import('vue').ShallowRef<HTMLElement | undefined>
+}
+```
 
 ## Examples
 

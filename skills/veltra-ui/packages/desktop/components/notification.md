@@ -5,12 +5,12 @@
 ## Import
 
 ```ts
-// 声明式组件
-import { UNotification } from '@veltra/desktop'
 // 函数式 API
 import { Notification } from '@veltra/desktop'
 // 类型
 import type { NotificationProps } from '@veltra/desktop/types'
+// 声明式组件
+// UNotification 由 Vite 自动导入，无需手动 import
 ```
 
 ## 函数式 API
@@ -87,17 +87,21 @@ type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
+| event | 参数 | 说明 |
 |------|------|------|
 | `update:modelValue` | `(value: string)` | `modelValue` 变化时触发 |
 | `destroy` | — | 退出动画完成后触发，函数式 API 内部使用 |
 
 ## Exposed
 
-| 方法 | 说明 |
-|------|------|
-| `startTimer()` | 重新开始自动关闭计时 |
-| `clearTimer()` | 清除自动关闭计时器 |
+```ts
+interface NotificationExposed {
+  /** 重新开始自动关闭计时 */
+  startTimer(): void
+  /** 清除自动关闭计时器 */
+  clearTimer(): void
+}
+```
 
 ## 回调
 
@@ -128,8 +132,6 @@ type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UNotification } from '@veltra/desktop'
-
 const visible = ref(false)
 </script>
 ```

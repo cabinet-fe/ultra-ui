@@ -5,8 +5,8 @@
 ## Import
 
 ```ts
-// 声明式组件
-import { UMessage, UNotification } from '@veltra/desktop'
+// UMessage、UNotification 由 Vite 自动导入，无需手动 import
+
 // 函数式 API — 注意大小写
 import { message, Notification } from '@veltra/desktop'
 // 类型
@@ -203,25 +203,27 @@ Notification({
 
 ### Emits（声明式使用）
 
-| 事件 | 参数 | 说明 |
+| event | 参数 | 说明 |
 |------|------|------|
 | `update:modelValue` | `(value: string)` | `modelValue` 变化时 |
 | `destroy` | — | 离开动画完成后，函数式 API 内部使用 |
 
 ### Exposed
 
-| 方法 | 说明 |
-|------|------|
-| `startTimer()` | 重新开始自动关闭计时 |
-| `clearTimer()` | 清除自动关闭计时器（鼠标悬停时调用） |
+```ts
+interface NotificationExposed {
+  /** 重新开始自动关闭计时 */
+  startTimer(): void
+  /** 清除自动关闭计时器（鼠标悬停时调用） */
+  clearTimer(): void
+}
+```
 
 ### 声明式组件示例
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UNotification } from '@veltra/desktop'
-
 const visible = ref(false)
 </script>
 

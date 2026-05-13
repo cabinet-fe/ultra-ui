@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UFilePicker } from '@veltra/desktop'
+// UFilePicker 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -44,7 +44,9 @@ import { UFilePicker } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露属性。
+```ts
+interface FilePickerExposed {}
+```
 
 ## Examples
 

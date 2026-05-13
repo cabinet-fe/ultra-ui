@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UText } from '@veltra/desktop'
+// UText 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -34,19 +34,21 @@ import { UText } from '@veltra/desktop'
 
 ## Emits
 
-| event              | 签名                         | 说明 |
+| event              | 参数                         | 说明 |
 |--------------------|------------------------------|------|
-| `update:modelValue` | `(value: string) => void`    | —    |
+| `update:modelValue` | `(value: string)`    | 文本变化时触发 |
 
 ## Slots
 
-| slot      | 说明                                             |
-|-----------|--------------------------------------------------|
-| `default` | 文本内容。仅文本节点会被渲染，非文本 VNode 被过滤 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 文本内容。仅文本节点会被渲染，非文本 VNode 被过滤 |
 
 ## Exposed
 
-无暴露成员（`TextExposed = {}`）。
+```ts
+interface TextExposed {}
+```
 
 ## Examples
 

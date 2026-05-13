@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UCheckTag } from '@veltra/desktop'
+// UCheckTag 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -23,11 +23,15 @@ import { UCheckTag } from '@veltra/desktop'
 
 ## Slots
 
-| slot | 说明 |
-|------|------|
-| `default` | 标签内容 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 标签内容 |
 
 ## Exposed
+
+```ts
+interface CheckTagExposed {}
+```
 
 无暴露属性或方法。
 
@@ -38,7 +42,6 @@ import { UCheckTag } from '@veltra/desktop'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCheckTag } from '@veltra/desktop'
 
 const checked = ref(false)
 </script>
@@ -53,7 +56,6 @@ const checked = ref(false)
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCheckTag } from '@veltra/desktop'
 
 const checked = ref(true)
 
@@ -74,7 +76,6 @@ function handleChange(value: boolean) {
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { UCheckTag } from '@veltra/desktop'
 
 const tags = reactive([
   { label: 'Vue', checked: false },

@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UDatePanel } from '@veltra/desktop'
+// UDatePanel 由 Vite 自动导入，无需手动 import
 import type { Dater } from '@cat-kit/core'
 ```
 
@@ -35,6 +35,10 @@ import type { Dater } from '@cat-kit/core'
 
 ## Exposed
 
+```ts
+interface DatePanelExposed {}
+```
+
 无暴露属性或方法。
 
 ## Examples
@@ -44,7 +48,6 @@ import type { Dater } from '@cat-kit/core'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDatePanel } from '@veltra/desktop'
 import type { Dater } from '@cat-kit/core'
 
 const date = ref<Dater>()
@@ -64,7 +67,6 @@ const date = ref<Dater>()
 <script setup lang="ts">
 import { ref } from 'vue'
 import { date } from '@cat-kit/core'
-import { UDatePanel } from '@veltra/desktop'
 import type { Dater } from '@cat-kit/core'
 
 const date = ref<Dater>()
@@ -88,7 +90,6 @@ function disabledDate(d: Dater): boolean {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDatePanel } from '@veltra/desktop'
 import type { Dater } from '@cat-kit/core'
 
 const rangeDate = ref<[Dater, Dater]>()
@@ -112,7 +113,6 @@ function onRangeSelect(val?: [Dater, Dater]) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDatePanel } from '@veltra/desktop'
 import type { Dater } from '@cat-kit/core'
 
 const year = ref<Dater>()

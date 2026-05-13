@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTheme } from '@veltra/desktop'
+// UTheme 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -38,20 +38,6 @@ interface ThemeExposed {
   applyDarkPreset: () => void
 }
 ```
-
-## 主题分区
-
-编辑器将变量划分为 5 个面板，合计 49 个可配置项：
-
-| 分区 | key | 说明 | 字段数 |
-|------|-----|------|--------|
-| 综合色板 | `color` | 品牌色与语义状态色 | 7 |
-| 表面层次 | `surface` | 背景、文字、边框与阴影 | 20 |
-| 表单尺度 | `control` | 圆角、表单高度、间距 | 9 |
-| 字体系统 | `typography` | 字体族与层级字号 | 10 |
-| 响应断点 | `responsive` | 响应式布局断点 | 4 |
-
-每个字段对应一个 CSS 变量 `--u-<path>` 和 `theme.<path>` 属性。
 
 ## Examples
 

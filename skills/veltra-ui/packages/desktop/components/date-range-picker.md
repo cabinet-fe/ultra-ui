@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UDateRangePicker } from '@veltra/desktop'
+// UDateRangePicker 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -46,7 +46,9 @@ import { UDateRangePicker } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露属性。
+```ts
+interface DateRangePickerExposed {}
+```
 
 ## Examples
 

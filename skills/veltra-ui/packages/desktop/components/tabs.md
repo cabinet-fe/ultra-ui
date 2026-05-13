@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTabs, UTabsHorizontal, UTabsVertical } from '@veltra/desktop'
+// UTabs、UTabsHorizontal、UTabsVertical 由 Vite 自动导入，无需手动 import
 import type { TabItem } from '@veltra/desktop'
 ```
 
@@ -202,7 +202,6 @@ function onClose(item: TabItem, index: number) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UTabsHorizontal } from '@veltra/desktop'
 import type { TabItem } from '@veltra/desktop'
 
 const active = ref('home')

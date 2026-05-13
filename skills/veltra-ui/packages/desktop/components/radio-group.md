@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { URadioGroup } from '@veltra/desktop'
+// URadioGroup 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -105,7 +105,7 @@ const selected = ref('a')
 
 ```vue
 <script setup>
-import { UForm, URadioGroup, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   choice: formField({ value: '' })

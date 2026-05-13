@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UDrawer } from '@veltra/desktop'
+// UDrawer 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -21,41 +21,23 @@ import { UDrawer } from '@veltra/desktop'
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
-|------|------|------|
+| event | 参数 | 说明 |
+|-------|------|------|
 | `update:modelValue` | `(value: boolean)` | `v-model` 双向绑定更新 |
 | `close` | — | 点击关闭按钮或遮罩层时触发（在滑出动画开始前） |
 | `closed` | — | 抽屉完全关闭且过渡动画结束后触发（类型已声明，当前代码中尚未 emit） |
 
 ## Slots
 
-| 插槽 | 说明 |
-|------|------|
-| `default` | 抽屉主体内容，完全由调用方自定义 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 抽屉主体内容，完全由调用方自定义 |
 
 ## Exposed
 
-无暴露属性或方法。
-
-## 行为说明
-
-- 抽屉通过 `<Teleport to="body">` 挂载到 `document.body`。
-- 开启时先以 `fade` 过渡显示遮罩层，遮罩 `@enter` 后再触发抽屉面板的滑入过渡。
-- 关闭时先滑出面板，`@after-leave` 后再隐藏遮罩层。
-- 遮罩层 `zIndex` 由 `@veltra/utils` 的 `zIndex()` 按调用顺序自动递增管理。
-- 点击遮罩层会触发关闭，面板内点击通过 `@click.stop` 阻止冒泡。
-- `v-bind="$attrs"` 透传至抽屉面板 DOM 元素，`inheritAttrs: false`。
-
-### 过渡动画 CSS 类
-
-遮罩层依赖 `drawer-overlay` BEM 块 + `fade` 过渡类。抽屉面板依赖 `drawer-slide-{direction}` 过渡类：
-
-| 方向 | 过渡类名 |
-|------|----------|
-| `left` | `drawer-slide-left` |
-| `right` | `drawer-slide-right` |
-| `top` | `drawer-slide-top` |
-| `bottom` | `drawer-slide-bottom` |
+```ts
+interface DrawerExposed {}
+```
 
 ## Examples
 
@@ -64,7 +46,6 @@ import { UDrawer } from '@veltra/desktop'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDrawer } from '@veltra/desktop'
 
 const visible = ref(false)
 </script>
@@ -82,7 +63,6 @@ const visible = ref(false)
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDrawer } from '@veltra/desktop'
 
 const menuVisible = ref(false)
 </script>
@@ -106,7 +86,6 @@ const menuVisible = ref(false)
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDrawer } from '@veltra/desktop'
 import type { DrawerEmits } from '@veltra/desktop'
 
 const pickerVisible = ref(false)
@@ -143,7 +122,6 @@ const onClosed: DrawerEmits['closed'] = () => {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UDrawer } from '@veltra/desktop'
 
 const noticeVisible = ref(false)
 </script>

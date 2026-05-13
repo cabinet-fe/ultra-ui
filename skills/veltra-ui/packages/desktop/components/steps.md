@@ -7,13 +7,7 @@
 ## Import
 
 ```ts
-import { USteps } from '@veltra/desktop'
-// 或按需引入
-import USteps from '@veltra/desktop/steps'
-```
-
-```ts
-// 类型
+// USteps 由 Vite 自动导入，无需手动 import
 import type { StepsProps, StepsEmits, StepsExposed, StepsSlotScope } from '@veltra/desktop/types'
 ```
 
@@ -40,7 +34,7 @@ import type { StepsProps, StepsEmits, StepsExposed, StepsSlotScope } from '@velt
 
 ## Slots
 
-| slot | scope | 说明 |
+| slot | 作用域 | 说明 |
 |------|-------|------|
 | `icon` | `{ item: Record<string, any>, index: number }` | 步骤图标。默认：已完成步骤显示对勾图标，未完成步骤显示序号 `index + 1` |
 | `content` | `{ item: Record<string, any>, index: number }` | 步骤内容。默认显示 `item[labelKey]` |
@@ -48,7 +42,9 @@ import type { StepsProps, StepsEmits, StepsExposed, StepsSlotScope } from '@velt
 
 ## Exposed
 
-无暴露成员。
+```ts
+interface StepsExposed {}
+```
 
 ## Examples
 
@@ -57,7 +53,6 @@ import type { StepsProps, StepsEmits, StepsExposed, StepsSlotScope } from '@velt
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { USteps } from '@veltra/desktop'
 
 const current = ref(0)
 const items = [

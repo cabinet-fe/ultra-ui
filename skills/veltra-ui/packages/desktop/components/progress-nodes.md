@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UProgressNodes } from '@veltra/desktop'
+// UProgressNodes 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -29,14 +29,16 @@ import { UProgressNodes } from '@veltra/desktop'
 
 ## Slots
 
-| slot | scope | 说明 |
+| slot | 作用域 | 说明 |
 |------|-------|------|
 | `icon` | `{ node: Record<string, any>, index: number }` | 自定义节点圆点内的图标 |
 | `default` | `{ node: Record<string, any>, index: number }` | 自定义节点标签内容，默认展示 `labelKey` 对应字段 |
 
 ## Exposed
 
-无暴露的公开方法或属性。
+```ts
+interface ProgressNodesExposed {}
+```
 
 ## Examples
 
@@ -45,7 +47,6 @@ import { UProgressNodes } from '@veltra/desktop'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UProgressNodes } from '@veltra/desktop'
 
 const current = ref('step-2')
 const steps = [
@@ -65,7 +66,6 @@ const steps = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UProgressNodes } from '@veltra/desktop'
 
 const current = ref('step-3')
 const finishedSteps = ref(['step-1', 'step-2'])
@@ -93,7 +93,6 @@ function isFinished(node: Record<string, any>, _index: number) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UProgressNodes } from '@veltra/desktop'
 
 const current = ref('done')
 const nodes = [
@@ -124,7 +123,6 @@ const nodes = [
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UProgressNodes } from '@veltra/desktop'
 
 const current = ref(2)
 const nodes = [

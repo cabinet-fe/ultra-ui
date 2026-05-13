@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UPalette } from '@veltra/desktop'
+// UPalette 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

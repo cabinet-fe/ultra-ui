@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCollapse, UCollapseItem } from '@veltra/desktop'
+// UCollapse、UCollapseItem 由 Vite 自动导入，无需手动 import
 import type {
   CollapseProps,
   CollapseItemProps,

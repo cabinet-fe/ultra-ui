@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UNumberInput } from '@veltra/desktop'
+// UNumberInput 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -149,16 +149,16 @@ const amountInCents = ref(12345)
 
 ```vue
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { FormModel } from '@veltra/desktop'
 
-const form = reactive({
+const model = new FormModel({
   quantity: 0,
   price: 0
 })
 </script>
 
 <template>
-  <u-form :model="form">
+  <u-form :model="model">
     <u-number-input field="quantity" label="数量" :min="0" :step="1" />
     <u-number-input field="price" label="单价" currency :precision="2" :step="0.01" />
   </u-form>

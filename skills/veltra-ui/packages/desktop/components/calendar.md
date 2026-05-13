@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UCalendar } from '@veltra/desktop'
+// UCalendar 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -26,6 +26,10 @@ import { UCalendar } from '@veltra/desktop'
 
 ## Exposed
 
+```ts
+interface CalendarExposed {}
+```
+
 无暴露属性或方法。
 
 ## 相关类型
@@ -39,8 +43,6 @@ interface CalendarDay {
 }
 ```
 
-日历面板为 7×6 网格（42 个格子），包含当月全部天数，以及前后月填补格子。`calendar.vue` 内部通过 `getMonthDays(modelValue)` 计算 `CalendarDay[]`，按 `'pre' | 'current' | 'next'` 输出修饰类名 `u-calendar__day--pre`、`u-calendar__day--next`，用于渲染不同透明度的日期。
-
 ## Examples
 
 ### 基础用法
@@ -48,7 +50,6 @@ interface CalendarDay {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCalendar } from '@veltra/desktop'
 
 const date = ref<string>('2026-05-13')
 </script>
@@ -63,7 +64,6 @@ const date = ref<string>('2026-05-13')
 ```vue
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { UCalendar } from '@veltra/desktop'
 
 const date = ref<string>(new Date().toISOString().slice(0, 10))
 
@@ -94,7 +94,6 @@ watch(date, (val) => {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCalendar } from '@veltra/desktop'
 
 const date = ref<string>()
 </script>

@@ -7,9 +7,7 @@
 ## Import
 
 ```ts
-import { UIcon } from '@veltra/desktop'
-// 按需
-import { UIcon } from '@veltra/desktop/icon'
+// UIcon 由 Vite 自动导入，无需手动 import
 // 类型
 import type { IconProps } from '@veltra/desktop'
 ```
@@ -26,13 +24,15 @@ import type { IconProps } from '@veltra/desktop'
 
 ## Slots
 
-| name | 说明 |
-|------|------|
-| `default` | 图标内容，放入 `@veltra/icons` 的 SVG 图标组件 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 图标内容，放入 `@veltra/icons` 的 SVG 图标组件 |
 
 ## Exposed
 
-无。
+```ts
+interface IconExposed {}
+```
 
 ## Examples
 

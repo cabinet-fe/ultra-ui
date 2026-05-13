@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UDatePicker } from '@veltra/desktop'
+// UDatePicker 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -123,7 +123,7 @@ const timestampRef = ref(Date.now())
 
 ```vue
 <script setup>
-import { UForm, UDatePicker, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   birthday: formField({ value: '' }),

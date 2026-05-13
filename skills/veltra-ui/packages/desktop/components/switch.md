@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { USwitch } from '@veltra/desktop'
+// USwitch 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props

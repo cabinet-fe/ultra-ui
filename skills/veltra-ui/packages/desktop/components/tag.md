@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTag } from '@veltra/desktop'
+// UTag 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -34,7 +34,9 @@ import { UTag } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露成员（`TagExposed = {}`）。
+```ts
+interface TagExposed {}
+```
 
 ## Examples
 

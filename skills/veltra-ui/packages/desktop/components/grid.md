@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UGrid, UGridItem } from '@veltra/desktop'
+// UGrid、UGridItem 由 Vite 自动导入，无需手动 import
 ```
 
 ## UGrid Props

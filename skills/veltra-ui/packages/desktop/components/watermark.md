@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UWatermark } from '@veltra/desktop'
+// UWatermark 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -32,9 +32,9 @@ import { UWatermark } from '@veltra/desktop'
 
 ## Exposed
 
-| 成员 | 类型 | 说明 |
-|------|------|------|
-| — | — | 当前无暴露成员 |
+```ts
+interface WatermarkExposed {}
+```
 
 ## Examples
 

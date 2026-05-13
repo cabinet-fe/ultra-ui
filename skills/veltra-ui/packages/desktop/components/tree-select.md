@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UTreeSelect } from '@veltra/desktop'
+// UTreeSelect 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -74,7 +74,6 @@ interface TreeSelectExposed {}
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { UTreeSelect } from '@veltra/desktop'
 
 const selected = shallowRef<string>()
 
@@ -194,7 +193,7 @@ function isDisabledNode(item: Record<string, any>) {
 
 ```vue
 <script setup lang="ts">
-import { UForm, UTreeSelect, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   region: formField({ value: '' })

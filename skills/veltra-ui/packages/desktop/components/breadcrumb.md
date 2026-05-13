@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { UBreadcrumb } from '@veltra/desktop'
+// UBreadcrumb 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -32,12 +32,16 @@ import { UBreadcrumb } from '@veltra/desktop'
 
 ## Slots
 
-| slot | scope | 说明 |
+| slot | 作用域 | 说明 |
 |------|-------|------|
 | `item` | `{ item: BreadcrumbItem, index: number, isLast: boolean }` | 自定义单项渲染，默认根据 `href` 渲染 `<a>` 或 `<span>` |
 | `separator` | — | 自定义分隔符，默认为 `/` |
 
 ## Exposed
+
+```ts
+interface BreadcrumbExposed {}
+```
 
 无暴露属性。
 

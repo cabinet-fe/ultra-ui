@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UContextMenu } from '@veltra/desktop'
+// UContextMenu 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -41,6 +41,10 @@ import { UContextMenu } from '@veltra/desktop'
 
 ## Exposed
 
+```ts
+interface ContextMenuExposed {}
+```
+
 无暴露属性。
 
 ## Examples
@@ -68,7 +72,6 @@ import { UContextMenu } from '@veltra/desktop'
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UContextMenu } from '@veltra/desktop'
 import type { ContextMenuItem } from '@veltra/desktop'
 
 const contextMenuVisible = ref(false)
@@ -108,7 +111,6 @@ function handleContextMenu(e: MouseEvent) {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UContextMenu } from '@veltra/desktop'
 import type { ContextMenuItem } from '@veltra/desktop'
 
 const contextMenuVisible = ref(false)
@@ -150,7 +152,6 @@ function handleContextMenu(e: MouseEvent) {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UContextMenu } from '@veltra/desktop'
 import { Edit, Delete, Copy } from '@veltra/icons/normal'
 import type { ContextMenuItem } from '@veltra/desktop'
 
@@ -209,7 +210,6 @@ function handleContextMenu(e: MouseEvent) {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UContextMenu } from '@veltra/desktop'
 import type { ContextMenuItem } from '@veltra/desktop'
 
 const contextMenuVisible = ref(false)

@@ -8,7 +8,8 @@
 ## Import
 
 ```ts
-import { UForm, FormModel, DynamicFormModel, formField } from '@veltra/desktop'
+// UForm 由 Vite 自动导入，无需手动 import
+import { FormModel, DynamicFormModel, formField } from '@veltra/desktop'
 ```
 
 ## 核心机制：自动 FormItem 包裹与数据绑定
@@ -259,7 +260,7 @@ FormProps<MyModel>  // MyModel extends IFormModel
 
 ```vue
 <script setup lang="ts">
-import { UForm, UInput, UNumberInput, UButton, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   username: formField({ value: '', required: true }),
@@ -289,7 +290,7 @@ async function handleSubmit() {
 
 ```vue
 <script setup lang="ts">
-import { UForm, UInput, UButton, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   username: formField({
@@ -325,7 +326,7 @@ const model = new FormModel({
 
 ```vue
 <script setup lang="ts">
-import { UForm, UInput, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({ name: formField({ value: '张三' }) })
 
@@ -348,7 +349,7 @@ setTimeout(() => model.setData({ name: '李四' }, { validate: false }), 1000)
 
 ```vue
 <script setup lang="ts">
-import { UForm, UFormItem, UInput, UButton, DynamicFormModel, formField } from '@veltra/desktop'
+import { DynamicFormModel, formField } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const model = new DynamicFormModel({ name: formField({ value: '', required: true }) })
@@ -384,7 +385,7 @@ function removeField(field: string) {
 
 ```vue
 <script setup lang="ts">
-import { UForm, UInput, DynamicFormModel, formField } from '@veltra/desktop'
+import { DynamicFormModel, formField } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const externalData = reactive({ keyword: '', category: '' })
@@ -411,7 +412,7 @@ model.data = externalData
 
 ```vue
 <script setup lang="ts">
-import { UForm, UFormItem, UInput, UNumberInput, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   name: formField({ value: '', required: true }),

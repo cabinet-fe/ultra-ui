@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCodeEditor } from '@veltra/desktop'
+// UCodeEditor 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -43,7 +43,11 @@ import { UCodeEditor } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露属性（`CodeEditorExposed` 为空类型）。
+```ts
+interface CodeEditorExposed {}
+```
+
+无暴露属性。
 
 ## Examples
 

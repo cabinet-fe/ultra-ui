@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { URadio } from '@veltra/desktop'
+// URadio 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -109,7 +109,7 @@ const options = [
 
 ```vue
 <script setup>
-import { UForm, URadio, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   gender: formField({ value: '' })
@@ -118,8 +118,8 @@ const model = new FormModel({
 
 <template>
   <u-form :model="model" size="small" disabled>
-    <u-radio v-model="model.data.gender" value="male" label="男" />
-    <u-radio v-model="model.data.gender" value="female" label="女" />
+    <u-radio value="male" label="男" field="gender" />
+    <u-radio value="female" label="女" field="gender" />
   </u-form>
 </template>
 ```

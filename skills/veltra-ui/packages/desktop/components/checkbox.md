@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UCheckbox } from '@veltra/desktop'
+// UCheckbox 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -52,8 +52,6 @@ interface CheckboxExposed {}
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UCheckbox } from '@veltra/desktop'
-
 const agreed = ref(false)
 </script>
 
@@ -67,8 +65,6 @@ const agreed = ref(false)
 ```vue
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { UCheckbox } from '@veltra/desktop'
-
 const checkedItems = ref<string[]>([])
 const options = ['苹果', '香蕉', '橙子']
 
@@ -108,7 +104,7 @@ function handleCheckAll(checked: boolean) {
 
 ```vue
 <script setup lang="ts">
-import { UForm, UCheckbox, FormModel, formField } from '@veltra/desktop'
+import { FormModel, formField } from '@veltra/desktop'
 
 const model = new FormModel({
   remember: formField({ value: false })

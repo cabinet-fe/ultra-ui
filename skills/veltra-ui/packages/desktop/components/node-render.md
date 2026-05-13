@@ -7,9 +7,8 @@
 ## Import
 
 ```ts
-import { UNodeRender } from '@veltra/desktop'
-// 按需
-import { UNodeRender } from '@veltra/desktop/node-render'
+// UNodeRender 由 Vite 自动导入，无需手动 import
+
 // 类型
 import type { NodeRenderProps } from '@veltra/desktop'
 ```
@@ -26,15 +25,15 @@ import type { NodeRenderProps } from '@veltra/desktop'
 
 ## Slots
 
-| name | 说明 |
-|------|------|
-| `default` | 当 `content` 为 `undefined` 时作为回退内容渲染 |
+| slot | 作用域 | 说明 |
+|------|--------|------|
+| `default` | — | 当 `content` 为 `undefined` 时作为回退内容渲染 |
 
 ## Exposed
 
-| 成员 | 类型 | 说明 |
-|------|------|------|
-| — | — | 当前无暴露成员 |
+```ts
+interface NodeRenderExposed {}
+```
 
 ## Examples
 
@@ -43,9 +42,8 @@ import type { NodeRenderProps } from '@veltra/desktop'
 ```vue
 <script setup>
 import { h } from 'vue'
-import { UButton } from '@veltra/desktop'
 
-const vnode = h(UButton, { type: 'primary' }, () => '保存')
+const vnode = h('button', { type: 'primary' }, () => '保存')
 </script>
 
 <template>
@@ -78,18 +76,17 @@ const link = h('a', { class: 'my-link', target: '_blank' }, () => '前往')
 ```vue
 <script setup>
 import { ref, h } from 'vue'
-import { UTag } from '@veltra/desktop'
 
 const tags = ref([
-  h(UTag, () => 'Vue'),
-  h(UTag, { type: 'success' }, () => 'TypeScript'),
-  h(UTag, { type: 'warning' }, () => 'Bun')
+  h('span', { class: 'tag' }, () => 'Vue'),
+  h('span', { class: 'tag', style: 'color: green' }, () => 'TypeScript'),
+  h('span', { class: 'tag', style: 'color: orange' }, () => 'Bun')
 ])
 </script>
 
 <template>
   <u-node-render :content="tags" />
-  <!-- 三个 Tag 并排渲染 -->
+  <!-- 三个标签并排渲染 -->
 </template>
 ```
 

@@ -5,7 +5,8 @@
 ## Import
 
 ```ts
-import { UMessage, message } from '@veltra/desktop'
+import { message } from '@veltra/desktop'
+// UMessage 由 Vite 自动导入，无需手动 import
 ```
 
 > `message` 是函数式 API，通过渲染顶层 DOM 创建消息。`UMessage` 是 SFC 组件，适用于在已存在的组件模板中声明式使用。
@@ -73,12 +74,6 @@ message._context = getCurrentInstance()!.appContext
 - `'info'` — 图标 `QuestionFilled`，颜色 `info`
 - `'error'` — 图标 `CircleClose`，颜色 `danger`
 - `'default'` — 图标 `InfoFilled`，颜色 `default`
-
-## 交互行为
-
-- **自动关闭**：默认 3 秒后自动关闭，`duration: 0` 禁用
-- **悬停暂停**：鼠标移入暂停倒计时，移出继续
-- **手动关闭**：`closable: true` 或 `duration === 0` 时显示关闭按钮
 
 ## UMessage 组件（声明式）
 

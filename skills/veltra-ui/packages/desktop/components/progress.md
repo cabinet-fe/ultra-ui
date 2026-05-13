@@ -7,7 +7,7 @@
 ## Import
 
 ```ts
-import { UProgress } from '@veltra/desktop'
+// UProgress 由 Vite 自动导入，无需手动 import
 ```
 
 ## Props
@@ -31,7 +31,9 @@ import { UProgress } from '@veltra/desktop'
 
 ## Exposed
 
-无暴露的属性和方法。
+```ts
+interface ProgressExposed {}
+```
 
 ## Examples
 
