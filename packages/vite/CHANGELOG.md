@@ -1,5 +1,13 @@
 # @veltra/vite
 
+## 1.1.6
+
+### Patch Changes
+
+- 5fa0397: feat(desktop): 新增 kbd 组件，优化 batch-edit 样式与逻辑
+- Updated dependencies [5fa0397]
+  - @veltra/desktop@1.1.6
+
 ## 1.1.5
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.6
+
+### Patch Changes
+
+- 5fa0397: feat(desktop): 新增 kbd 组件，优化 batch-edit 样式与逻辑
+  - @veltra/utils@1.1.6
+  - @veltra/styles@1.1.6
+  - @veltra/compositions@1.1.6
+  - @veltra/directives@1.1.6
+  - @veltra/icons@1.1.6
+
 ## 1.1.5
 
 ### Patch Changes
