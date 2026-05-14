@@ -87,6 +87,7 @@ const DESKTOP_COMPONENTS = new Set([
   'UGridItem',
   'UGroupInput',
   'UIcon',
+  'UKbd',
   'UInput',
   'ULayout',
   'UList',

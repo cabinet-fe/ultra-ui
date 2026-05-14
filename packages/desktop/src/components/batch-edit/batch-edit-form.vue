@@ -28,7 +28,7 @@
         <u-form
           :model="props.model"
           :readonly="props.readonly"
-          @keyup.enter="handleSave"
+          @keydown="handleFormKeydown"
           :label-width="props.labelWidth"
         >
           <template #default="{ data, model }">
@@ -52,7 +52,7 @@
         有未保存改动
       </span>
       <span :class="cls.e('form-hint')" v-else-if="!props.readonly">
-        <kbd>Enter</kbd> 保存 · <kbd>Esc</kbd> 关闭
+        <u-kbd>Ctrl + Enter</u-kbd> 保存 · <u-kbd>Esc</u-kbd> 关闭
       </span>
       <span :class="cls.e('form-hint')" v-else>只读模式</span>
 
@@ -80,6 +80,7 @@ import { computed, inject, type Component } from 'vue'
 import { UButton } from '../button'
 import { UForm } from '../form'
 import { UIcon } from '../icon'
+import { UKbd } from '../kbd'
 import { UScroll } from '../scroll'
 import { BatchEditDIKey } from './di'
 
@@ -153,4 +154,11 @@ const headerInfo = computed<HeaderInfo>(() => {
 const bodyKey = computed(() => {
   return `${state.type}-${state.row?.uid ?? 'create'}-${state.parentRow?.uid ?? 'root'}`
 })
+
+function handleFormKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault()
+    handleSave()
+  }
+}
 </script>

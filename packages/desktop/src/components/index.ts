@@ -130,6 +130,8 @@ export * from './breadcrumb'
 
 export * from './icon'
 
+export * from './kbd'
+
 export * from './pop-confirm'
 
 export * from './paginator'
