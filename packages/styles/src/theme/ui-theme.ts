@@ -1,4 +1,4 @@
-import { isObj, o, str } from '@cat-kit/core'
+import { isObj, str } from '@cat-kit/core'
 import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
@@ -234,7 +234,23 @@ export class UITheme {
     delEmpty(customTheme as Record<string, unknown>)
 
     const base = JSON.parse(JSON.stringify(toRaw(this.theme))) as Record<string, any>
-    o(base).deepExtend(customTheme as Record<string, any>)
+
+    function deepMerge(target: any, source: any) {
+      if (typeof source !== 'object' || source === null) return
+      Object.keys(source).forEach((key) => {
+        const sourceVal = source[key]
+        if (typeof sourceVal === 'object' && sourceVal !== null && !Array.isArray(sourceVal)) {
+          if (typeof target[key] !== 'object' || target[key] === null) {
+            target[key] = {}
+          }
+          deepMerge(target[key], sourceVal)
+        } else {
+          target[key] = sourceVal
+        }
+      })
+    }
+
+    deepMerge(base, customTheme)
     return new UITheme(base as Theme, { reactive: this.reactiveEnabled })
   }
 }

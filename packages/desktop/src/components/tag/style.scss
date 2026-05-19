@@ -52,13 +52,13 @@ $root-name: tag;
   // 颜色样式
   @each $type in vars.$color-types {
     @include m.m(color-#{$type}) {
-      color: fn.use-var(color, $type);
-      border-color: fn.use-var(color, $type);
-      background-color: fn.use-var(color, $type, light-9);
+      color: fn.component-var(tag, #{$type}-color, fn.use-var(color, $type));
+      border-color: fn.component-var(tag, #{$type}-border, fn.use-var(color, $type));
+      background-color: fn.component-var(tag, #{$type}-bg, fn.use-var(color, $type, light-9));
 
       @include m.is(dark) {
-        color: fn.use-var(text-color, white);
-        background-color: fn.use-var(color, $type);
+        color: fn.component-var(tag, #{$type}-dark-color, fn.use-var(text-color, white));
+        background-color: fn.component-var(tag, #{$type}-dark-bg, fn.use-var(color, $type));
       }
 
       @include m.bem($root-name, icon-close) {

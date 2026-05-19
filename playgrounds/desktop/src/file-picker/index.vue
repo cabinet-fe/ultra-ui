@@ -60,8 +60,8 @@ const files = shallowRef<File[]>([])
 }
 
 .upload-content {
-  background-color: #fafafa;
-  border: 1px dashed #d9d9d9;
+  background-color: var(--u-bg-color-middle);
+  border: 1px dashed var(--u-border-color);
   border-radius: 6px;
   box-sizing: border-box;
   text-align: center;
@@ -76,19 +76,19 @@ const files = shallowRef<File[]>([])
 
 .upload-content:hover,
 .upload-content.is-dragover {
-  border-color: var(--u-primary-color, #409eff);
-  background-color: var(--u-primary-color-light, rgba(64, 158, 255, 0.05));
+  border-color: var(--u-color-primary);
+  background-color: var(--u-file-picker-hover-bg);
 }
 
 .icon {
   font-size: 48px;
-  color: #8c939d;
+  color: var(--u-text-color-second);
   margin-bottom: 16px;
   line-height: 1;
 }
 
 .text {
-  color: #606266;
+  color: var(--u-text-color-main);
   font-size: 14px;
 }
 

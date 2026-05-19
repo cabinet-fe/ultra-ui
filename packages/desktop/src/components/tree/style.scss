@@ -74,8 +74,8 @@ $indent-width: 20px;
 
     @include m.is(selected) {
       @include m.bem($root-name, node-content) {
-        background-color: fn.use-var(color, primary, light-9);
-        color: fn.use-var(color, primary);
+        background-color: fn.component-var(tree, node-selected-bg, fn.use-var(color, primary, light-9));
+        color: fn.component-var(tree, node-selected-color, fn.use-var(color, primary));
         font-weight: 500;
 
         // 左侧 3px 色带，配合淡色背景共同构成选中态；

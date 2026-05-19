@@ -2,11 +2,11 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 
 /** shadcn 风格 TabsList：hover 背景底色容器 + 白底活动态；rounded=true 时水平为胶囊状。 */
-$list-bg: fn.use-var(bg-color, hover);
+$list-bg: fn.component-var(tabs, bar-bg, fn.use-var(bg-color, hover));
 $list-radius: fn.use-var(radius, default);
 $item-radius: calc(fn.use-var(radius, default) - 2px);
 $list-padding: 4px;
-$active-bg: fn.use-var(bg-color, top);
+$active-bg: fn.component-var(tabs, active-bg, fn.use-var(bg-color, top));
 $active-shadow:
   0 1px 2px rgba(15, 23, 42, 0.08),
   0 1px 3px rgba(15, 23, 42, 0.06);

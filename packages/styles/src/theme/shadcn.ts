@@ -30,7 +30,12 @@ export const shadcnLightTheme = lightTheme.new({
     white: '#ffffff'
   },
   radius: { small: 4, default: 6, large: 8 },
-  shadow: { color: 'rgba(0, 0, 0, 0.05)', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' }
+  shadow: { color: 'rgba(0, 0, 0, 0.05)', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' },
+  button: {
+    'primary-text-color': '#ffffff',
+    'primary-hover-bg': '#27272a',
+    'primary-hover-color': '#ffffff'
+  }
 })
 
 export const shadcnDarkTheme = shadcnLightTheme.new({
@@ -48,7 +53,7 @@ export const shadcnDarkTheme = shadcnLightTheme.new({
       black: '#000000'
     }
   },
-  border: { color: '#27272a', mutedColor: '#27272a' },
+  border: { color: '#3f3f46', mutedColor: '#27272a' },
   'text-color': {
     title: '#fafafa',
     main: '#fafafa',
@@ -56,6 +61,15 @@ export const shadcnDarkTheme = shadcnLightTheme.new({
     placeholder: '#71717a',
     assist: '#71717a',
     disabled: '#71717a',
-    white: '#000000'
-  }
+    white: '#ffffff'
+  },
+  shadow: { color: 'rgba(0, 0, 0, 0.4)', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' },
+  button: {
+    'primary-text-color': '#000000',
+    'primary-hover-bg': '#e4e4e7',
+    'primary-hover-color': '#000000',
+    'primary-plain-color': '#fafafa'
+  },
+  checkbox: { color: '#000000' },
+  tag: { 'primary-dark-color': '#000000' }
 })

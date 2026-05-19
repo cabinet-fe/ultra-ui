@@ -157,4 +157,5 @@ export type Theme = {
     /** 大屏幕断点 */
     lg: number
   }
+  [key: string]: any
 }

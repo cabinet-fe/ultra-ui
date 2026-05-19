@@ -39,12 +39,13 @@ $root-name: paginator;
     @include m.flex($justify: center);
 
     &:hover {
-      background-color: fn.use-var(color, primary, 'light-9');
+      background-color: fn.component-var(paginator, btn-hover-bg, fn.use-var(color, primary, 'light-9'));
+      color: fn.component-var(paginator, btn-hover-color, fn.use-var(text, color, title));
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary, 'light-9');
-      color: fn.use-var(color, primary);
+      background-color: fn.component-var(paginator, btn-active-bg, fn.use-var(color, primary, 'light-9'));
+      color: fn.component-var(paginator, btn-active-color, fn.use-var(color, primary));
     }
 
     @include m.is(disabled) {

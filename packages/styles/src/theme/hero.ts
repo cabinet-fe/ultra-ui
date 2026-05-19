@@ -50,7 +50,7 @@ export const heroDarkTheme = heroLightTheme.new({
     placeholder: '#71717A',
     assist: '#71717A',
     disabled: '#71717A',
-    white: '#000000'
+    white: '#FFFFFF'
   },
   shadow: {
     color: 'rgba(0, 0, 0, 0.2)',

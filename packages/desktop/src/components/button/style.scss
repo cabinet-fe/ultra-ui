@@ -6,7 +6,8 @@
 $root-name: button;
 
 @include m.b($root-name) {
-  color: fn.use-var(text-color, main);
+  color: fn.component-var(button, default-color, fn.use-var(text-color, main));
+  box-sizing: border-box;
 
   line-height: 1;
   outline: none;
@@ -17,8 +18,8 @@ $root-name: button;
   cursor: pointer;
   padding: 0 0.8em;
   -webkit-appearance: none;
-  border: none;
-  background-color: fn.use-var(color, default);
+  border: 1px solid fn.component-var(button, default-border, transparent);
+  background-color: fn.component-var(button, default-bg, fn.use-var(color, default));
   box-shadow: fn.use-var(shadow, emboss);
   transition:
     background-color 0.25s,
@@ -28,6 +29,11 @@ $root-name: button;
   gap: fn.use-var(gap-small);
 
   @include m.flex($display: inline-flex, $justify: center);
+
+  &:hover {
+    background-color: fn.component-var(button, default-hover-bg, fn.use-var(color, default, 'dark-1'));
+    border-color: fn.component-var(button, default-hover-border, transparent);
+  }
 
   &:active {
     box-shadow: none;
@@ -80,10 +86,11 @@ $root-name: button;
 
     @include m.m(color-#{$type}) {
       background-color: fn.use-var(color, $type);
-      color: fn.use-var(text-color, white);
+      color: fn.component-var(button, #{$type}-text-color, fn.use-var(text-color, white));
 
       &:hover {
-        background-color: fn.use-var(color, $type, dark-1);
+        background-color: fn.component-var(button, #{$type}-hover-bg, fn.use-var(color, $type, dark-1));
+        color: fn.component-var(button, #{$type}-hover-color, fn.component-var(button, #{$type}-text-color, fn.use-var(text-color, white)));
       }
 
       // 禁用
@@ -105,7 +112,7 @@ $root-name: button;
         @include m.is-not(disabled, loading) {
           &:hover,
           &:focus {
-            background-color: fn.use-var(color, $type, 'light-9');
+            background-color: fn.component-var(button, #{$type}-plain-bg, fn.use-var(color, $type, 'light-9'));
           }
         }
 
@@ -115,9 +122,9 @@ $root-name: button;
       }
 
       @include m.is(plain) {
-        color: fn.use-var(color, $type);
-        background-color: fn.use-var(color, $type, light-9);
-        box-shadow: 0px 0px 2px 1px fn.use-var(color, $type, light-5);
+        color: fn.component-var(button, #{$type}-plain-color, fn.use-var(color, $type));
+        background-color: fn.component-var(button, #{$type}-plain-bg, fn.use-var(color, $type, light-9));
+        box-shadow: 0px 0px 2px 1px fn.component-var(button, #{$type}-plain-shadow, fn.use-var(color, $type, light-5));
 
         &:active {
           box-shadow: none;

@@ -53,7 +53,7 @@ $root-name: checkbox;
     border: fn.use-var(border, width) fn.use-var(border, style)
       #{fn.component-var(checkbox, border, #ccc)};
     border-radius: 6px;
-    color: #fff;
+    color: fn.component-var(checkbox, color, #fff);
     transition: background-color 0.15s ease;
     @include m.flex(inline-flex, center);
   }
@@ -63,7 +63,7 @@ $root-name: checkbox;
   }
 
   @include m.m(indeterminate) {
-    background-color: #fff;
+    background-color: fn.component-var(checkbox, color, #fff);
     width: 10px;
     height: 2px;
     vertical-align: middle;
