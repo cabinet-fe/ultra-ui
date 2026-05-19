@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.7
+
+### Patch Changes
+
+- cc1d822: 优化基础主题配置与组件样式细节，增加并优化按钮、树形控件、级联选择器、表达式编辑器芯片、分页器、标签等组件在亮色/暗色及 Shadcn 主题下的样式表现与 CSS 变量定制支持。
+- Updated dependencies [cc1d822]
+  - @veltra/styles@1.1.7
+  - @veltra/directives@1.1.7
+  - @veltra/utils@1.1.7
+  - @veltra/compositions@1.1.7
+  - @veltra/icons@1.1.7
+
 ## 1.1.6
 
 ### Patch Changes
