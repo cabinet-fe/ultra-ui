@@ -62,7 +62,9 @@ myCls.e('icon')                // 'my-button__icon'
 
 ## 主题系统
 
-主题通过 CSS 自定义属性（CSS Variables）实现，支持亮色/暗色切换。
+主题通过 CSS 自定义属性（CSS Variables）实现，支持多态视觉风格（Standard、Shadcn、Hero、Glass）与亮色/暗色切换。
+
+有关 4 套预设主题完整配置、设计令牌（Design Tokens）映射、SCSS 开发红黑榜，详见 [design-system/design.md](design-system/design.md)。
 
 ### CSS 变量命名
 

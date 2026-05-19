@@ -38,6 +38,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 | 写表单                     | `gotchas.md`                       | `packages/desktop/components/form.md`     |
 | 配置项目（安装/主题/Vite） | `packages/desktop/installation.md` | —                                         |
 | 写自定义 SCSS              | `packages/styles.md`               | —                                         |
+| 理解全局设计系统规范       | `design-system/design.md`          | —                                         |
 | 用组合式函数               | `packages/compositions.md`         | —                                         |
 | 用图标                     | `packages/icons.md`                | —                                         |
 
@@ -90,6 +91,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 
 ```
 gotchas.md                          ← 易错点（每次必读）
+design-system/design.md             ← 全局设计系统规范入口（协同 tokens.css 与 components.vue 构成的 3-file 规范）
 packages/
   desktop/
     index.md                        ← 全部组件目录
