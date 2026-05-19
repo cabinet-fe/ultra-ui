@@ -22,11 +22,11 @@
 
 ```ts
 interface ExpressionEditorProps extends FormComponentProps {
-  modelValue?: string                  // '你好{form.user.name}, ...'
+  modelValue?: string // '你好{form.user.name}, ...'
   placeholder?: string
-  variables?: VariableItem[]           // 树形变量列表
+  variables?: VariableItem[] // 树形变量列表
   /** 新增：是否允许选中任意层级的变量（含中间分支） */
-  selectableLevels?: 'leaf' | 'any'    // 默认 'leaf'
+  selectableLevels?: 'leaf' | 'any' // 默认 'leaf'
 }
 
 interface VariableItem {
@@ -44,12 +44,13 @@ interface VariableItem {
 ```ts
 type Segment =
   | { kind: 'text'; value: string }
-  | { kind: 'var';  value: string; label: string; type?: string }
+  | { kind: 'var'; value: string; label: string; type?: string }
 
-type Doc = Segment[]   // 顺序代表文档顺序，相邻 text segment 不会出现（归一化）
+type Doc = Segment[] // 顺序代表文档顺序，相邻 text segment 不会出现（归一化）
 ```
 
 **约束**
+
 - 相邻 text 段总是合并；空 text 段不保留。
 - 文档边界两端永远存在 text 段（即使是空字符串），用于光标可停靠。即 `Doc` 的形态总是 `(text, var, text, var, ..., text)`。
 - 序列化为字符串：`segments.map(s => s.kind === 'text' ? s.value : `{${s.value}}`).join('')`。
@@ -62,9 +63,13 @@ type Doc = Segment[]   // 顺序代表文档顺序，相邻 text segment 不会�
 ```html
 <div contenteditable="true" class="u-expression-editor__container">
   <span data-seg="text">你好</span>
-  <span data-seg="var" data-value="form.user.name" contenteditable="false" class="...chip">用户姓名</span>
+  <span data-seg="var" data-value="form.user.name" contenteditable="false" class="...chip"
+    >用户姓名</span
+  >
   <span data-seg="text">, 欢迎来到</span>
-  <span data-seg="var" data-value="form.company.name" contenteditable="false" class="...chip">公司名称</span>
+  <span data-seg="var" data-value="form.company.name" contenteditable="false" class="...chip"
+    >公司名称</span
+  >
   ...
 </div>
 ```
@@ -138,6 +143,7 @@ filter !== '' ────► 扁平模式
 │   邮箱                          │
 └─────────────────────────────────┘
 ```
+
 - 键盘：↑↓ 移动焦点；← 返回上一级。
 - → 与 Enter 的语义按 `selectableLevels` 切换：
   - `selectableLevels='leaf'`（默认）：
@@ -158,6 +164,7 @@ filter !== '' ────► 扁平模式
               │   邮箱                  │         │       └─ 公司名称 │← 高亮
               └─────────────────────────┘         └──────────────┘
 ```
+
 - `selectableLevels='leaf'`：扁平结果只列出叶子节点。
 - `selectableLevels='any'`：扁平结果包含所有节点（叶子 + 分支）；分支与叶子在视觉上不区分，统一作为可选项。
 - 不显示面包屑（用户已经在搜索）。
@@ -203,12 +210,14 @@ packages/desktop/src/components/expression-editor/
 ## 依赖变化
 
 **删除（仅对 expression-editor）**
+
 - `lexical` 主包对该组件的引入路径全部移除（rich-text-editor 仍在用）
 - `@lexical/clipboard`：仅 expression-editor 在用，可从 `package.json` 中移除
 - `@lexical/utils`：仅 expression-editor 在用，可从 `package.json` 中移除
 - `@tanstack/vue-virtual`、`@floating-ui/dom`：检查是否仍被其他组件使用；变量选择面板复用现有 `UTip`（floating-ui 已被它用），不新增依赖
 
 **保留**
+
 - `UTip`、`UInput`（搜索框）、`UScroll`、`UEmpty`、`UIcon`、`UTag`（仅作为 chip 视觉参考，不再 Teleport）
 
 ## 错误处理与边界

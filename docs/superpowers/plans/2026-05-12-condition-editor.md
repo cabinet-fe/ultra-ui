@@ -12,23 +12,24 @@
 
 ## 文件变更概览
 
-| 操作 | 文件 |
-|------|------|
-| 修改 | `packages/desktop/src/types/condition-editor.ts` |
-| 创建 | `packages/desktop/src/components/condition-editor/core/operators.ts` |
-| 创建 | `packages/desktop/src/components/condition-editor/core/evaluator.ts` |
-| 创建 | `packages/desktop/src/components/condition-editor/components/condition-row.vue` |
+| 操作 | 文件                                                                              |
+| ---- | --------------------------------------------------------------------------------- |
+| 修改 | `packages/desktop/src/types/condition-editor.ts`                                  |
+| 创建 | `packages/desktop/src/components/condition-editor/core/operators.ts`              |
+| 创建 | `packages/desktop/src/components/condition-editor/core/evaluator.ts`              |
+| 创建 | `packages/desktop/src/components/condition-editor/components/condition-row.vue`   |
 | 创建 | `packages/desktop/src/components/condition-editor/components/condition-group.vue` |
-| 重写 | `packages/desktop/src/components/condition-editor/condition-editor.vue` |
-| 重写 | `packages/desktop/src/components/condition-editor/style.scss` |
-| 修改 | `packages/desktop/src/components/condition-editor/style.ts` |
-| 创建 | `playgrounds/desktop/src/condition-editor/index.vue` |
+| 重写 | `packages/desktop/src/components/condition-editor/condition-editor.vue`           |
+| 重写 | `packages/desktop/src/components/condition-editor/style.scss`                     |
+| 修改 | `packages/desktop/src/components/condition-editor/style.ts`                       |
+| 创建 | `playgrounds/desktop/src/condition-editor/index.vue`                              |
 
 ---
 
 ### Task 1: 更新类型定义
 
 **Files:**
+
 - Modify: `packages/desktop/src/types/condition-editor.ts`
 
 - [ ] **Step 1: 替换类型文件内容**
@@ -97,6 +98,7 @@ cd /Users/whj/codes/ultra-ui && npx tsc --noEmit -p packages/desktop/tsconfig.js
 ### Task 2: 运算符定义
 
 **Files:**
+
 - Create: `packages/desktop/src/components/condition-editor/core/operators.ts`
 
 - [ ] **Step 1: 创建 operators.ts**
@@ -166,6 +168,7 @@ export function getOperatorDef(type: string, operator: string): OperatorDef | un
 ### Task 3: 求值引擎
 
 **Files:**
+
 - Create: `packages/desktop/src/components/condition-editor/core/evaluator.ts`
 
 - [ ] **Step 1: 创建 evaluator.ts**
@@ -240,12 +243,13 @@ function evaluateGroup(group: ConditionGroup, data: Record<string, unknown>): bo
   const allResults = [...conditionsResult, ...groupsResult]
   if (allResults.length === 0) return false
 
-  return group.logic === 'and'
-    ? allResults.every(Boolean)
-    : allResults.some(Boolean)
+  return group.logic === 'and' ? allResults.every(Boolean) : allResults.some(Boolean)
 }
 
-export function evaluate(expression: ConditionExpression, data: Record<string, unknown>): ConditionExpression {
+export function evaluate(
+  expression: ConditionExpression,
+  data: Record<string, unknown>
+): ConditionExpression {
   const cloned = JSON.parse(JSON.stringify(expression)) as ConditionExpression
   evaluateGroup(cloned, data)
   return cloned
@@ -256,11 +260,7 @@ export function createEmptyGroup(): ConditionGroup {
 }
 
 export function createEmptyItem(): ConditionItem {
-  return {
-    field: '',
-    operator: 'eq',
-    value: { kind: 'constant', value: '' }
-  }
+  return { field: '', operator: 'eq', value: { kind: 'constant', value: '' } }
 }
 
 export function serializeConditionValue(val: ConditionValue): string {
@@ -279,6 +279,7 @@ export function deserializeConditionValue(s: string): ConditionValue {
 ### Task 4: ConditionRow 组件
 
 **Files:**
+
 - Create: `packages/desktop/src/components/condition-editor/components/condition-row.vue`
 
 - [ ] **Step 1: 创建 condition-row.vue**
@@ -346,7 +347,10 @@ export function deserializeConditionValue(s: string): ConditionValue {
     <span v-if="!readonly" :class="cls.e('row-delete')" @click="emit('delete')">×</span>
 
     <!-- 结果指示 -->
-    <span v-if="hasResult" :class="[cls.e('result'), cls.em('result', item._result ? 'pass' : 'fail')]">
+    <span
+      v-if="hasResult"
+      :class="[cls.e('result'), cls.em('result', item._result ? 'pass' : 'fail')]"
+    >
       {{ item._result ? '✓' : '✗' }}
     </span>
     <span v-else :class="[cls.e('result'), cls.em('result', 'none')]">—</span>
@@ -394,9 +398,7 @@ const fieldOptions = computed(() =>
   (props.fields ?? []).map((f) => ({ label: f.label, value: f.value }))
 )
 
-const currentField = computed(() =>
-  props.fields?.find((f) => f.value === props.item.field)
-)
+const currentField = computed(() => props.fields?.find((f) => f.value === props.item.field))
 
 const operatorOptions = computed(() => {
   if (!currentField.value) return []
@@ -440,10 +442,7 @@ function onOperatorChange(val: string) {
 
 function onValueInput(e: Event) {
   const val = (e.target as HTMLInputElement).value
-  emit('update:item', {
-    ...props.item,
-    value: { kind: 'constant', value: val }
-  })
+  emit('update:item', { ...props.item, value: { kind: 'constant', value: val } })
 }
 
 function onValueKeydown(e: KeyboardEvent) {
@@ -472,10 +471,7 @@ function onChipClick() {
 }
 
 function onChipDelete() {
-  emit('update:item', {
-    ...props.item,
-    value: { kind: 'constant', value: '' }
-  })
+  emit('update:item', { ...props.item, value: { kind: 'constant', value: '' } })
 }
 </script>
 ```
@@ -487,6 +483,7 @@ function onChipDelete() {
 ### Task 5: ConditionGroup 递归组件
 
 **Files:**
+
 - Create: `packages/desktop/src/components/condition-editor/components/condition-group.vue`
 
 - [ ] **Step 1: 创建 condition-group.vue**
@@ -496,13 +493,13 @@ function onChipDelete() {
   <div :class="cls.e('group')">
     <!-- AND/OR 标签 + 汇总结果 -->
     <div :class="cls.e('group-header')">
-      <span
-        :class="[cls.e('logic-tag'), cls.em('logic-tag', group.logic)]"
-        @click="toggleLogic"
-      >
+      <span :class="[cls.e('logic-tag'), cls.em('logic-tag', group.logic)]" @click="toggleLogic">
         {{ group.logic.toUpperCase() }} ▾
       </span>
-      <span v-if="hasResult" :class="[cls.e('group-result'), cls.em('group-result', group._result ? 'pass' : 'fail')]">
+      <span
+        v-if="hasResult"
+        :class="[cls.e('group-result'), cls.em('group-result', group._result ? 'pass' : 'fail')]"
+      >
         {{ group._result ? '✓ 通过' : '✗ 不通过' }}
       </span>
     </div>
@@ -581,10 +578,7 @@ const hasResult = computed(() => props.group._result !== undefined)
 
 function toggleLogic() {
   if (props.disabled || props.readonly) return
-  emit('update:group', {
-    ...props.group,
-    logic: props.group.logic === 'and' ? 'or' : 'and'
-  })
+  emit('update:group', { ...props.group, logic: props.group.logic === 'and' ? 'or' : 'and' })
 }
 
 function addCondition() {
@@ -607,10 +601,7 @@ function updateCondition(idx: number, item: ConditionItem) {
 }
 
 function addGroup() {
-  emit('update:group', {
-    ...props.group,
-    groups: [...props.group.groups, createEmptyGroup()]
-  })
+  emit('update:group', { ...props.group, groups: [...props.group.groups, createEmptyGroup()] })
 }
 
 function removeSubGroup(idx: number) {
@@ -634,6 +625,7 @@ function updateSubGroup(idx: number, g: ConditionGroup) {
 ### Task 6: 主组件 condition-editor.vue
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/condition-editor/condition-editor.vue`
 
 - [ ] **Step 1: 重写 condition-editor.vue**
@@ -678,9 +670,7 @@ import type { MentionPayload } from './components/condition-row.vue'
 
 defineOptions({ name: 'ConditionEditor' })
 
-const props = withDefaults(defineProps<ConditionEditorProps>(), {
-  fields: () => []
-})
+const props = withDefaults(defineProps<ConditionEditorProps>(), { fields: () => [] })
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: ConditionExpression): void
@@ -802,6 +792,7 @@ function onKeydown(e: KeyboardEvent) {
 ### Task 7: 样式
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/condition-editor/style.scss`
 
 - [ ] **Step 1: 重写 style.scss**
@@ -1066,6 +1057,7 @@ $root-name: condition-editor;
 ### Task 8: 更新 style.ts 依赖
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/condition-editor/style.ts`
 
 - [ ] **Step 1: 更新 style.ts**
@@ -1088,6 +1080,7 @@ Expression-editor style 的引入确保了 VariablePicker 的 CSS（`u-expressio
 ### Task 9: Playground 页面
 
 **Files:**
+
 - Create: `playgrounds/desktop/src/condition-editor/index.vue`
 
 - [ ] **Step 1: 创建 playground 页面**
@@ -1110,12 +1103,18 @@ Expression-editor style 的引入确保了 VariablePicker 的 CSS（`u-expressio
 
     <div style="margin-bottom: 16px;">
       <h4>表达式输出（v-model）：</h4>
-      <pre style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto;">{{ JSON.stringify(expression, null, 2) }}</pre>
+      <pre
+        style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto;"
+        >{{ JSON.stringify(expression, null, 2) }}</pre
+      >
     </div>
 
     <div style="margin-bottom: 16px;">
       <h4>求值结果（evaluate）：</h4>
-      <pre style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto;">{{ JSON.stringify(evalResult, null, 2) }}</pre>
+      <pre
+        style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto;"
+        >{{ JSON.stringify(evalResult, null, 2) }}</pre
+      >
     </div>
 
     <div style="margin-bottom: 24px;">
@@ -1170,11 +1169,16 @@ const fields: ConditionField[] = [
   { label: '负责人', value: 'assignee', type: 'string' },
   { label: '已完成', value: 'completed', type: 'boolean' },
   { label: '截止日期', value: 'deadline', type: 'date' },
-  { label: '类型', value: 'type', type: 'enum', enumOptions: [
-    { label: '需求', value: 'requirement' },
-    { label: '缺陷', value: 'bug' },
-    { label: '任务', value: 'task' }
-  ]}
+  {
+    label: '类型',
+    value: 'type',
+    type: 'enum',
+    enumOptions: [
+      { label: '需求', value: 'requirement' },
+      { label: '缺陷', value: 'bug' },
+      { label: '任务', value: 'task' }
+    ]
+  }
 ]
 
 const variables: VariableItem[] = [
@@ -1217,6 +1221,7 @@ function onEvaluate(result: ConditionExpression) {
 ### Task 10: 构建验证
 
 **Files:**
+
 - None
 
 - [ ] **Step 1: TypeScript 类型检查**
@@ -1242,6 +1247,7 @@ cd /Users/whj/codes/ultra-ui/playgrounds/desktop && bun run dev
 ```
 
 在浏览器中打开 playground，导航到 condition-editor 页面，验证：
+
 - 可视化编辑（添加/删除条件、添加/删除条件组）
 - AND/OR 切换
 - 字段选择联动运算符

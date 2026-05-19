@@ -12,34 +12,34 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `any` | — | 当前选中值（v-model） |
-| `value` | `any` | — | 选项值，当 `modelValue === value` 时选中 |
-| `label` | `string` | — | 显示文本 |
-| `disabled` | `boolean` | `false` | 是否禁用（可从父级 `UForm` 继承） |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 尺寸（可从父级 `UForm` 继承） |
+| prop         | type                              | default     | 说明                                     |
+| ------------ | --------------------------------- | ----------- | ---------------------------------------- |
+| `modelValue` | `any`                             | —           | 当前选中值（v-model）                    |
+| `value`      | `any`                             | —           | 选项值，当 `modelValue === value` 时选中 |
+| `label`      | `string`                          | —           | 显示文本                                 |
+| `disabled`   | `boolean`                         | `false`     | 是否禁用（可从父级 `UForm` 继承）        |
+| `size`       | `'small' \| 'default' \| 'large'` | `'default'` | 尺寸（可从父级 `UForm` 继承）            |
 
 继承自 `FormComponentProps`：
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `tips` | `string` | — | 表单内的提示文字 |
-| `span` | `number \| 'full' \| BreakpointSpan` | — | 所占列宽 |
-| `field` | `string` | — | 表单项字段名 |
-| `readonly` | `boolean` | — | 是否只读 |
+| prop       | type                                 | default | 说明             |
+| ---------- | ------------------------------------ | ------- | ---------------- |
+| `tips`     | `string`                             | —       | 表单内的提示文字 |
+| `span`     | `number \| 'full' \| BreakpointSpan` | —       | 所占列宽         |
+| `field`    | `string`                             | —       | 表单项字段名     |
+| `readonly` | `boolean`                            | —       | 是否只读         |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数           | 说明             |
+| ------------------- | -------------- | ---------------- |
 | `update:modelValue` | `(value: any)` | 选中值变化时触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 自定义标签内容，覆盖 `label` prop |
+| slot      | 作用域 | 说明                              |
+| --------- | ------ | --------------------------------- |
+| `default` | —      | 自定义标签内容，覆盖 `label` prop |
 
 ## Exposed
 
@@ -49,8 +49,8 @@ interface RadioExposed {
 }
 ```
 
-| method | 说明 |
-|--------|------|
+| method              | 说明             |
+| ------------------- | ---------------- |
 | `change(isChecked)` | 手动切换选中状态 |
 
 ## Examples
@@ -111,9 +111,7 @@ const options = [
 <script setup>
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  gender: formField({ value: '' })
-})
+const model = new FormModel({ gender: formField({ value: '' }) })
 </script>
 
 <template>

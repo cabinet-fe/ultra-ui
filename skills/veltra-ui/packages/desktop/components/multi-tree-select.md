@@ -12,52 +12,52 @@
 
 ### 组件专属属性
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `(string \| number)[]` | `[]` | 选中值（`v-model`） |
-| `placeholder` | `string` | `'请选择'` | 占位文字 |
-| `clearable` | `boolean` | `true` | 是否可清空 |
-| `filterable` | `boolean` | `false` | 是否显示搜索过滤输入框 |
-| `visibilityLimit` | `number` | `3` | 触发器中可见标签数量上限，超出显示 `+N` |
-| `minWidth` | `string` | `'280px'` | 下拉面板最小宽度 |
-| `width` | `string` | — | 下拉面板宽度（默认跟随触发器宽度） |
-| `contentStyle` | `CSSProperties \| string` | — | 下拉内容容器样式 |
-| `contentClass` | `unknown` | — | 下拉内容容器类名 |
+| prop              | type                      | default    | 说明                                    |
+| ----------------- | ------------------------- | ---------- | --------------------------------------- |
+| `modelValue`      | `(string \| number)[]`    | `[]`       | 选中值（`v-model`）                     |
+| `placeholder`     | `string`                  | `'请选择'` | 占位文字                                |
+| `clearable`       | `boolean`                 | `true`     | 是否可清空                              |
+| `filterable`      | `boolean`                 | `false`    | 是否显示搜索过滤输入框                  |
+| `visibilityLimit` | `number`                  | `3`        | 触发器中可见标签数量上限，超出显示 `+N` |
+| `minWidth`        | `string`                  | `'280px'`  | 下拉面板最小宽度                        |
+| `width`           | `string`                  | —          | 下拉面板宽度（默认跟随触发器宽度）      |
+| `contentStyle`    | `CSSProperties \| string` | —          | 下拉内容容器样式                        |
+| `contentClass`    | `unknown`                 | —          | 下拉内容容器类名                        |
 
 ### 树数据相关属性（继承自 `TreeProps`，含默认值）
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `data` | `Record<string, any>[]` | — | 树形数据源，每项须包含 `children` 子节点数组 |
-| `labelKey` | `string` | `'label'` | 节点文本字段名 |
-| `valueKey` | `string` | `'value'` | 节点值字段名 |
-| `childrenKey` | `string` | `'children'` | 子节点字段名 |
-| `expandAll` | `boolean` | `false` | 是否默认展开所有节点 |
-| `expandOnClickNode` | `boolean` | — | 点击节点时是否展开/折叠 |
-| `checkStrictly` | `boolean` | `false` | 严格选择：父子节点选中状态互不关联 |
-| `disabledNode` | `(item: Record<string, any>, node: TreeNode) => boolean` | — | 控制节点是否禁止勾选 |
-| `slots` | `Record<string, any>` | — | 树节点渲染插槽穿透（自定义节点内容） |
-| `scrollToView` | `boolean` | — | 选中项是否自动滚动到可视区域 |
+| prop                | type                                                     | default      | 说明                                         |
+| ------------------- | -------------------------------------------------------- | ------------ | -------------------------------------------- |
+| `data`              | `Record<string, any>[]`                                  | —            | 树形数据源，每项须包含 `children` 子节点数组 |
+| `labelKey`          | `string`                                                 | `'label'`    | 节点文本字段名                               |
+| `valueKey`          | `string`                                                 | `'value'`    | 节点值字段名                                 |
+| `childrenKey`       | `string`                                                 | `'children'` | 子节点字段名                                 |
+| `expandAll`         | `boolean`                                                | `false`      | 是否默认展开所有节点                         |
+| `expandOnClickNode` | `boolean`                                                | —            | 点击节点时是否展开/折叠                      |
+| `checkStrictly`     | `boolean`                                                | `false`      | 严格选择：父子节点选中状态互不关联           |
+| `disabledNode`      | `(item: Record<string, any>, node: TreeNode) => boolean` | —            | 控制节点是否禁止勾选                         |
+| `slots`             | `Record<string, any>`                                    | —            | 树节点渲染插槽穿透（自定义节点内容）         |
+| `scrollToView`      | `boolean`                                                | —            | 选中项是否自动滚动到可视区域                 |
 
 ### 表单通用属性（继承自 `FormComponentProps`）
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
-| `disabled` | `boolean` | — | 是否禁用（禁止交互） |
-| `readonly` | `boolean` | — | 是否只读（仅展示已选标签，不可操作） |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段标识 |
-| `tips` | `string` | — | 表单提示信息 |
-| `span` | `number \| 'full' \| { ... }` | — | 表单栅格占比 |
+| prop       | type                              | default | 说明                                 |
+| ---------- | --------------------------------- | ------- | ------------------------------------ |
+| `size`     | `'small' \| 'default' \| 'large'` | —       | 组件尺寸                             |
+| `disabled` | `boolean`                         | —       | 是否禁用（禁止交互）                 |
+| `readonly` | `boolean`                         | —       | 是否只读（仅展示已选标签，不可操作） |
+| `label`    | `string`                          | —       | 表单标签文字                         |
+| `field`    | `string`                          | —       | 表单项字段标识                       |
+| `tips`     | `string`                          | —       | 表单提示信息                         |
+| `span`     | `number \| 'full' \| { ... }`     | —       | 表单栅格占比                         |
 
 ## Emits
 
-| event | 签名 | 说明 |
-|------|------|------|
-| `update:modelValue` | `(value: (string \| number)[]) => void` | `v-model` 更新，选中值变化时触发 |
-| `change` | `(checked: Record<string, any>[]) => void` | 选中的节点数据数组变化时触发 |
-| `clear` | `() => void` | 点击清空按钮时触发 |
+| event               | 签名                                       | 说明                             |
+| ------------------- | ------------------------------------------ | -------------------------------- |
+| `update:modelValue` | `(value: (string \| number)[]) => void`    | `v-model` 更新，选中值变化时触发 |
+| `change`            | `(checked: Record<string, any>[]) => void` | 选中的节点数据数组变化时触发     |
+| `clear`             | `() => void`                               | 点击清空按钮时触发               |
 
 ## Slots
 

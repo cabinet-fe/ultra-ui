@@ -31,31 +31,31 @@ interface TabItem {
 
 ## UTabs Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前激活的标签 key |
-| `items` | `TabItem[]` | **必填** | 标签项 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
-| `block` | `boolean` | `false` | 是否填充父容器宽度，仅在 `position` 为 `top` / `bottom` 时生效；开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
-| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
-| `position` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 显示位置 |
-| `keepAlive` | `boolean` | `false` | 是否保活内容面板，切换标签时缓存已渲染面板 |
+| prop         | type                                     | default     | 说明                                                                                                                        |
+| ------------ | ---------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `string`                                 | —           | 当前激活的标签 key                                                                                                          |
+| `items`      | `TabItem[]`                              | **必填**    | 标签项                                                                                                                      |
+| `size`       | `'small' \| 'default' \| 'large'`        | `'default'` | 组件尺寸                                                                                                                    |
+| `closable`   | `boolean`                                | `false`     | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮                                             |
+| `block`      | `boolean`                                | `false`     | 是否填充父容器宽度，仅在 `position` 为 `top` / `bottom` 时生效；开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
+| `rounded`    | `boolean`                                | `false`     | 是否开启圆角胶囊风格                                                                                                        |
+| `position`   | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     | 显示位置                                                                                                                    |
+| `keepAlive`  | `boolean`                                | `false`     | 是否保活内容面板，切换标签时缓存已渲染面板                                                                                  |
 
 ## UTabs Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
-| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
-| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+| event               | 参数                             | 说明               |
+| ------------------- | -------------------------------- | ------------------ |
+| `update:modelValue` | `(value: string)`                | 切换激活标签时触发 |
+| `click`             | `(item: TabItem, index: number)` | 点击标签项时触发   |
+| `close`             | `(item: TabItem, index: number)` | 关闭标签项时触发   |
 
 ## UTabs Slots
 
 Tabs 使用**动态命名 slot**：每个 tab item 的 `key` 值即为对应的内容面板 slot 名。组件通过 `slots[key]` 查找并渲染到内容区域。
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot    | 作用域            | 说明                                                                                 |
+| ------- | ----------------- | ------------------------------------------------------------------------------------ |
 | `[key]` | `{ key: string }` | 每个 tab item 对应一个同名 slot，作为其内容面板；若不提供任何 slot，则不渲染内容区域 |
 
 ## UTabs Exposed
@@ -72,23 +72,23 @@ interface TabsExposed {
 
 独立水平标签栏组件。适用于仅需 tab 头部栏、自行管理内容区的场景（如后台系统路由标签栏）。
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前激活的标签 key |
-| `items` | `TabItem[]` | **必填** | 标签项 |
-| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
-| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
-| `block` | `boolean` | `false` | 是否填充父容器宽度，开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
-| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
-| `position` | `'top' \| 'bottom'` | `'top'` | 位置 |
+| prop         | type                              | default  | 说明                                                                            |
+| ------------ | --------------------------------- | -------- | ------------------------------------------------------------------------------- |
+| `modelValue` | `string`                          | —        | 当前激活的标签 key                                                              |
+| `items`      | `TabItem[]`                       | **必填** | 标签项                                                                          |
+| `size`       | `'small' \| 'default' \| 'large'` | —        | 组件尺寸                                                                        |
+| `closable`   | `boolean`                         | `false`  | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
+| `block`      | `boolean`                         | `false`  | 是否填充父容器宽度，开启时 header 容器占满父容器宽度，tab-item 自身宽度保持不变 |
+| `rounded`    | `boolean`                         | `false`  | 是否开启圆角胶囊风格                                                            |
+| `position`   | `'top' \| 'bottom'`               | `'top'`  | 位置                                                                            |
 
 ## UTabsHorizontal Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
-| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
-| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+| event               | 参数                             | 说明               |
+| ------------------- | -------------------------------- | ------------------ |
+| `update:modelValue` | `(value: string)`                | 切换激活标签时触发 |
+| `click`             | `(item: TabItem, index: number)` | 点击标签项时触发   |
+| `close`             | `(item: TabItem, index: number)` | 关闭标签项时触发   |
 
 ---
 
@@ -96,22 +96,22 @@ interface TabsExposed {
 
 独立垂直标签栏组件。
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前激活的标签 key |
-| `items` | `TabItem[]` | **必填** | 标签项 |
-| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
-| `closable` | `boolean` | `false` | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
-| `rounded` | `boolean` | `false` | 是否开启圆角胶囊风格 |
-| `position` | `'left' \| 'right'` | `'left'` | 位置 |
+| prop         | type                              | default  | 说明                                                                            |
+| ------------ | --------------------------------- | -------- | ------------------------------------------------------------------------------- |
+| `modelValue` | `string`                          | —        | 当前激活的标签 key                                                              |
+| `items`      | `TabItem[]`                       | **必填** | 标签项                                                                          |
+| `size`       | `'small' \| 'default' \| 'large'` | —        | 组件尺寸                                                                        |
+| `closable`   | `boolean`                         | `false`  | 是否可关闭，作为所有 TabItem 未显式 `closable` 时的默认值；禁用项不显示关闭按钮 |
+| `rounded`    | `boolean`                         | `false`  | 是否开启圆角胶囊风格                                                            |
+| `position`   | `'left' \| 'right'`               | `'left'` | 位置                                                                            |
 
 ## UTabsVertical Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: string)` | 切换激活标签时触发 |
-| `click` | `(item: TabItem, index: number)` | 点击标签项时触发 |
-| `close` | `(item: TabItem, index: number)` | 关闭标签项时触发 |
+| event               | 参数                             | 说明               |
+| ------------------- | -------------------------------- | ------------------ |
+| `update:modelValue` | `(value: string)`                | 切换激活标签时触发 |
+| `click`             | `(item: TabItem, index: number)` | 点击标签项时触发   |
+| `close`             | `(item: TabItem, index: number)` | 关闭标签项时触发   |
 
 ---
 
@@ -164,14 +164,7 @@ function onClose(item: TabItem, index: number) {
 </script>
 
 <template>
-  <u-tabs
-    :items="items"
-    v-model="active"
-    closable
-    keep-alive
-    rounded
-    @close="onClose"
-  >
+  <u-tabs :items="items" v-model="active" closable keep-alive rounded @close="onClose">
     <template #home>首页内容</template>
     <template #user>用户管理内容</template>
     <template #order>订单中心内容</template>
@@ -220,14 +213,7 @@ function onClose(item: TabItem, index: number) {
 </script>
 
 <template>
-  <u-tabs-horizontal
-    :items="barItems"
-    v-model="active"
-    rounded
-    closable
-    block
-    @close="onClose"
-  />
+  <u-tabs-horizontal :items="barItems" v-model="active" rounded closable block @close="onClose" />
 </template>
 ```
 

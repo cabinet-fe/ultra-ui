@@ -14,33 +14,33 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `GroupItem[]` | `[]` | 分组数据，通过 `v-model` 绑定 |
-| `max` | `number` | — | 最大条目数，超出限制后无法新增 |
-| `creatable` | `boolean` | `true` | 是否允许新建条目，关闭后隐藏 `+` 按钮 |
-| `itemDefault` | `Record<string, any>` | — | 新建条目时的默认值，与已有数据合并 |
-| `itemStyle` | `StyleValue` | — | 条目样式，作用于每个 `<li>` 元素，支持 CSS 字符串、CSS 对象、响应式样式 |
-| `size` | `ComponentSize` | `'default'` | 尺寸（回退到表单上下文 → `'default'`） |
-| `disabled` | `boolean` | `false` | 禁用（回退到表单上下文 → `false`），隐藏 `+` / `-` 操作按钮 |
-| `readonly` | `boolean` | `false` | 只读（回退到表单上下文 → `false`），开启后隐藏操作按钮并以纯文本展示 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段 |
-| `tips` | `string` | — | 表单控件内的提示信息 |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列大小 |
+| prop          | type                                                                                                                                                                   | default     | 说明                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+| `modelValue`  | `GroupItem[]`                                                                                                                                                          | `[]`        | 分组数据，通过 `v-model` 绑定                                           |
+| `max`         | `number`                                                                                                                                                               | —           | 最大条目数，超出限制后无法新增                                          |
+| `creatable`   | `boolean`                                                                                                                                                              | `true`      | 是否允许新建条目，关闭后隐藏 `+` 按钮                                   |
+| `itemDefault` | `Record<string, any>`                                                                                                                                                  | —           | 新建条目时的默认值，与已有数据合并                                      |
+| `itemStyle`   | `StyleValue`                                                                                                                                                           | —           | 条目样式，作用于每个 `<li>` 元素，支持 CSS 字符串、CSS 对象、响应式样式 |
+| `size`        | `ComponentSize`                                                                                                                                                        | `'default'` | 尺寸（回退到表单上下文 → `'default'`）                                  |
+| `disabled`    | `boolean`                                                                                                                                                              | `false`     | 禁用（回退到表单上下文 → `false`），隐藏 `+` / `-` 操作按钮             |
+| `readonly`    | `boolean`                                                                                                                                                              | `false`     | 只读（回退到表单上下文 → `false`），开启后隐藏操作按钮并以纯文本展示    |
+| `label`       | `string`                                                                                                                                                               | —           | 表单标签文字                                                            |
+| `field`       | `string`                                                                                                                                                               | —           | 表单项字段                                                              |
+| `tips`        | `string`                                                                                                                                                               | —           | 表单控件内的提示信息                                                    |
+| `span`        | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —           | 所占列大小                                                              |
 
 > `size`、`disabled`、`readonly` 在表单上下文（`UForm`）中会自动继承。`itemDefault` 用于设定新条目的初始字段结构，配合插槽渲染对应字段的输入控件。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数                   | 说明                     |
+| ------------------- | ---------------------- | ------------------------ |
 | `update:modelValue` | `(value: GroupItem[])` | 条目增删或数据变更时触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                               | 说明                                                                      |
+| --------- | ------------------------------------ | ------------------------------------------------------------------------- |
 | `default` | `{ item: GroupItem; index: number }` | 自定义每个条目的渲染内容，`item` 为当前行的数据对象，`index` 为当前行索引 |
 
 > 插槽内通常放置输入组件（如 `UInput`、`USelect` 等），通过 `v-model` 绑定 `item.xxx` 实现双向编辑。不提供插槽时只显示「新增」按钮（`creatable` 模式下）。
@@ -94,11 +94,7 @@ const tags = ref<Tag[]>([])
 </script>
 
 <template>
-  <u-group-input
-    v-model="tags"
-    :max="5"
-    :item-default="{ name: '', color: '#1677ff' }"
-  >
+  <u-group-input v-model="tags" :max="5" :item-default="{ name: '', color: '#1677ff' }">
     <template #default="{ item }">
       <u-input v-model="item.name" placeholder="标签名" />
       <u-color-picker v-model="item.color" />
@@ -149,18 +145,19 @@ interface OrderItem {
   quantity: number
 }
 
-const form = reactive({
-  items: [] as OrderItem[]
-})
+const form = reactive({ items: [] as OrderItem[] })
 
-const rules = {
-  items: [{ required: true, message: '请至少添加一个条目' }]
-}
+const rules = { items: [{ required: true, message: '请至少添加一个条目' }] }
 </script>
 
 <template>
   <u-form :model="form" :rules="rules" label-width="80px">
-    <u-group-input field="items" label="订单明细" :max="10" :item-default="{ name: '', quantity: 1 }">
+    <u-group-input
+      field="items"
+      label="订单明细"
+      :max="10"
+      :item-default="{ name: '', quantity: 1 }"
+    >
       <template #default="{ item }">
         <u-input v-model="item.name" placeholder="商品名称" />
         <u-number-input v-model="item.quantity" :min="1" placeholder="数量" />

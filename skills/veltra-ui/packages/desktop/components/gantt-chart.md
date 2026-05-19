@@ -12,14 +12,14 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前选中的条目 ID |
+| prop         | type     | default | 说明              |
+| ------------ | -------- | ------- | ----------------- |
+| `modelValue` | `string` | —       | 当前选中的条目 ID |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明             |
+| ------------------- | ----------------- | ---------------- |
 | `update:modelValue` | `(value: string)` | 选中项变化时触发 |
 
 ## Examples
@@ -52,10 +52,7 @@ const onSelect = (id: string) => {
 </script>
 
 <template>
-  <u-gantt-chart
-    v-model="taskId"
-    @update:model-value="onSelect"
-  />
+  <u-gantt-chart v-model="taskId" @update:model-value="onSelect" />
 </template>
 ```
 

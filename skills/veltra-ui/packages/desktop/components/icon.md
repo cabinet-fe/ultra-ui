@@ -14,9 +14,9 @@ import type { IconProps } from '@veltra/desktop'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `number` \| `` `${number}px` `` | — | 图标尺寸，数字自动追加 `px` |
+| prop   | type                            | default | 说明                        |
+| ------ | ------------------------------- | ------- | --------------------------- |
+| `size` | `number` \| `` `${number}px` `` | —       | 图标尺寸，数字自动追加 `px` |
 
 ## Emits
 
@@ -24,9 +24,9 @@ import type { IconProps } from '@veltra/desktop'
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 图标内容，放入 `@veltra/icons` 的 SVG 图标组件 |
+| slot      | 作用域 | 说明                                           |
+| --------- | ------ | ---------------------------------------------- |
+| `default` | —      | 图标内容，放入 `@veltra/icons` 的 SVG 图标组件 |
 
 ## Exposed
 

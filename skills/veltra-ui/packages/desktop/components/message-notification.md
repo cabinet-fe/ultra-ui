@@ -37,7 +37,7 @@ message.default('默认消息')
 
 // 返回 MessageInstance
 const instance = message('创建数据...')
-instance.close()        // 手动关闭（触发离开动画）
+instance.close() // 手动关闭（触发离开动画）
 await instance.onClosed // 等待彻底销毁（含动画结束）
 
 // 关闭所有
@@ -52,16 +52,16 @@ type MessageType = 'success' | 'warn' | 'info' | 'error' | 'default'
 interface MessageProps {
   message?: string
   type?: MessageType
-  closable?: boolean          // 是否显示关闭按钮
-  duration?: number           // 持续时间(ms)，默认 3000
-  html?: boolean              // 是否渲染 HTML
-  icon?: DefineComponent      // 自定义图标
+  closable?: boolean // 是否显示关闭按钮
+  duration?: number // 持续时间(ms)，默认 3000
+  html?: boolean // 是否渲染 HTML
+  icon?: DefineComponent // 自定义图标
 }
 
 // 函数式调用时可用，比 MessageProps 多了回调
 type MessageOptions = MessageProps & {
-  onClose?: () => void        // 关闭时触发（过渡开始）
-  onClosed?: () => void       // 关闭结束后触发（过渡结束，DOM 已移除）
+  onClose?: () => void // 关闭时触发（过渡开始）
+  onClosed?: () => void // 关闭结束后触发（过渡结束，DOM 已移除）
 }
 
 interface MessageInstance {
@@ -85,13 +85,13 @@ message.default(msg: string, config?: MsgAliasConf): MessageInstance
 
 ### type ↔ 自动图标
 
-| type | 默认图标 |
-|------|----------|
-| `default` | `InfoFilled` |
-| `info` | `QuestionFilled` |
+| type      | 默认图标            |
+| --------- | ------------------- |
+| `default` | `InfoFilled`        |
+| `info`    | `QuestionFilled`    |
 | `success` | `CircleCheckFilled` |
-| `warn` | `WarningFilled` |
-| `error` | `CircleClose` |
+| `warn`    | `WarningFilled`     |
+| `error`   | `CircleClose`       |
 
 颜色映射：`error` → `danger`，`warn` → `warning`，其余 `type` 原样输出为 `ColorType`。
 
@@ -113,7 +113,7 @@ async function handleSave() {
 function showManualClose() {
   const msg = message({
     message: '你需要手动关闭我',
-    duration: 0,  // 不自动关闭
+    duration: 0, // 不自动关闭
     closable: true,
     onClosed: () => console.log('消息已销毁')
   })
@@ -158,15 +158,17 @@ Notification({
   title: '删除确认',
   message: '确定要删除该数据吗？',
   type: 'danger',
-  duration: 0,          // 0 = 不自动关闭
+  duration: 0, // 0 = 不自动关闭
   closable: true,
   position: 'top-right',
   buttonText: '撤销',
-  icon: CustomIcon,     // 自定义图标组件
-  onClick: (e) => {     // 点击按钮触发，自动关闭通知
+  icon: CustomIcon, // 自定义图标组件
+  onClick: (e) => {
+    // 点击按钮触发，自动关闭通知
     console.log('点击了按钮')
   },
-  onClose: (vm) => {    // 关闭时（before-leave）触发
+  onClose: (vm) => {
+    // 关闭时（before-leave）触发
     console.log('通知已关闭')
   }
 })
@@ -174,39 +176,39 @@ Notification({
 
 ### Props
 
-| prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `title` | `string` | — | 通知标题 |
-| `message` | `string` | — | 通知内容 |
-| `type` | `ColorType` | `'primary'` | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
-| `duration` | `number` | `4500` | 自动关闭时长（ms），`0` 不自动关闭 |
-| `closable` | `boolean` | `false` | 是否显示关闭按钮 |
-| `offset` | `number` | `20` | 距容器边缘偏移量（px），函数式调用时自动管理 |
-| `position` | `string` | `'bottom-right'` | `'top-left'` \| `'top-right'` \| `'bottom-left'` \| `'bottom-right'` |
-| `icon` | `DefineComponent` | — | 自定义图标，不传则按 `type` 自动匹配 |
-| `buttonText` | `string` | `''` | 按钮文字，为空不显示按钮 |
-| `zIndex` | `number` | — | CSS `z-index`，函数式调用时自动递增 |
-| `width` | `number` | — | 通知宽度（px） |
-| `id` | `string` | — | 唯一标识，函数式调用时自动生成 |
-| `onClick` | `(e: MouseEvent) => void` | — | 点击按钮回调，触发后自动关闭通知 |
-| `onClose` | `(vm: RendererElement) => void` | — | 关闭时（before-leave）触发 |
+| prop         | 类型                            | 默认值           | 说明                                                                 |
+| ------------ | ------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| `title`      | `string`                        | —                | 通知标题                                                             |
+| `message`    | `string`                        | —                | 通知内容                                                             |
+| `type`       | `ColorType`                     | `'primary'`      | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`  |
+| `duration`   | `number`                        | `4500`           | 自动关闭时长（ms），`0` 不自动关闭                                   |
+| `closable`   | `boolean`                       | `false`          | 是否显示关闭按钮                                                     |
+| `offset`     | `number`                        | `20`             | 距容器边缘偏移量（px），函数式调用时自动管理                         |
+| `position`   | `string`                        | `'bottom-right'` | `'top-left'` \| `'top-right'` \| `'bottom-left'` \| `'bottom-right'` |
+| `icon`       | `DefineComponent`               | —                | 自定义图标，不传则按 `type` 自动匹配                                 |
+| `buttonText` | `string`                        | `''`             | 按钮文字，为空不显示按钮                                             |
+| `zIndex`     | `number`                        | —                | CSS `z-index`，函数式调用时自动递增                                  |
+| `width`      | `number`                        | —                | 通知宽度（px）                                                       |
+| `id`         | `string`                        | —                | 唯一标识，函数式调用时自动生成                                       |
+| `onClick`    | `(e: MouseEvent) => void`       | —                | 点击按钮回调，触发后自动关闭通知                                     |
+| `onClose`    | `(vm: RendererElement) => void` | —                | 关闭时（before-leave）触发                                           |
 
 ### type ↔ 默认图标
 
-| type | 图标 |
-|------|------|
-| `primary` | `InfoFilled` |
-| `info` | `QuestionFilled` |
+| type      | 图标                |
+| --------- | ------------------- |
+| `primary` | `InfoFilled`        |
+| `info`    | `QuestionFilled`    |
 | `success` | `CircleCheckFilled` |
-| `warning` | `WarningFilled` |
-| `danger` | `CircleClose` |
+| `warning` | `WarningFilled`     |
+| `danger`  | `CircleClose`       |
 
 ### Emits（声明式使用）
 
-| event | 参数 | 说明 |
-|------|------|------|
-| `update:modelValue` | `(value: string)` | `modelValue` 变化时 |
-| `destroy` | — | 离开动画完成后，函数式 API 内部使用 |
+| event               | 参数              | 说明                                |
+| ------------------- | ----------------- | ----------------------------------- |
+| `update:modelValue` | `(value: string)` | `modelValue` 变化时                 |
+| `destroy`           | —                 | 离开动画完成后，函数式 API 内部使用 |
 
 ### Exposed
 
@@ -246,6 +248,7 @@ const visible = ref(false)
 ### 批量调用堆叠行为
 
 同一位置多次调用 `Notification()`：
+
 - 通知自动垂直堆叠，保持间距
 - 鼠标悬停 → 暂停所有定时器，展开堆叠
 - 鼠标移出 → 恢复定时器，收起堆叠

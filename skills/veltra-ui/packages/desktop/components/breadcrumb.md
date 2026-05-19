@@ -10,32 +10,32 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `items` | `BreadcrumbItem[]` | — | 路径项，顺序为从一级到末级 |
-| `size` | `ComponentSize` | `'default'` | 尺寸 |
-| `lastLinked` | `boolean` | `false` | 末级是否作为链接渲染。默认末级为当前页，使用 `aria-current="page"` |
+| prop         | type               | default     | 说明                                                               |
+| ------------ | ------------------ | ----------- | ------------------------------------------------------------------ |
+| `items`      | `BreadcrumbItem[]` | —           | 路径项，顺序为从一级到末级                                         |
+| `size`       | `ComponentSize`    | `'default'` | 尺寸                                                               |
+| `lastLinked` | `boolean`          | `false`     | 末级是否作为链接渲染。默认末级为当前页，使用 `aria-current="page"` |
 
 ### BreadcrumbItem
 
-| prop | type | 说明 |
-|------|------|------|
-| `title` | `string` | 展示文案 |
-| `href` | `string \| undefined` | 存在时渲染为 `<a>`，由浏览器处理导航 |
+| prop       | type                   | 说明                                    |
+| ---------- | ---------------------- | --------------------------------------- |
+| `title`    | `string`               | 展示文案                                |
+| `href`     | `string \| undefined`  | 存在时渲染为 `<a>`，由浏览器处理导航    |
 | `disabled` | `boolean \| undefined` | 为 `true` 时不跳转、不触发 `click` 事件 |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event   | 参数                                               | 说明                                                                               |
+| ------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `click` | `(item: BreadcrumbItem, index: number, ev: Event)` | 可交互项（无 `href` 的链接项）被点击或按键时触发；有 `href` 时不触发（走原生导航） |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|-------|------|
-| `item` | `{ item: BreadcrumbItem, index: number, isLast: boolean }` | 自定义单项渲染，默认根据 `href` 渲染 `<a>` 或 `<span>` |
-| `separator` | — | 自定义分隔符，默认为 `/` |
+| slot        | 作用域                                                     | 说明                                                   |
+| ----------- | ---------------------------------------------------------- | ------------------------------------------------------ |
+| `item`      | `{ item: BreadcrumbItem, index: number, isLast: boolean }` | 自定义单项渲染，默认根据 `href` 渲染 `<a>` 或 `<span>` |
+| `separator` | —                                                          | 自定义分隔符，默认为 `/`                               |
 
 ## Exposed
 
@@ -99,11 +99,7 @@ const handleClick = (item: BreadcrumbItem, index: number, ev: Event) => {
 </template>
 
 <script setup lang="ts">
-const crumbs = [
-  { title: '首页', href: '/' },
-  { title: '设置' },
-  { title: '安全' }
-]
+const crumbs = [{ title: '首页', href: '/' }, { title: '设置' }, { title: '安全' }]
 </script>
 ```
 

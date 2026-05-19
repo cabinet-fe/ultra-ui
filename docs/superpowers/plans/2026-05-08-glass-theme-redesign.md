@@ -12,17 +12,18 @@
 
 ## 文件清单
 
-| 文件 | 变更类型 | 责任 |
-|------|---------|------|
-| `packages/styles/src/theme/glass.ts` | 修改 | 重定义 glassLightTheme / glassDarkTheme 的 bg、filter、border、shadow token |
-| `playgrounds/desktop/App.vue` | 修改 | 修复 `.main`、`.content-container`、`.control-bar` 的硬编码颜色 |
-| `playgrounds/desktop/src/showcase/index.vue` | 修改 | 重写背景层（底色+光斑+网格+装饰球），移除 `.bento-card` 硬编码 `backdrop-filter`，变量化 hover 阴影 |
+| 文件                                         | 变更类型 | 责任                                                                                                |
+| -------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `packages/styles/src/theme/glass.ts`         | 修改     | 重定义 glassLightTheme / glassDarkTheme 的 bg、filter、border、shadow token                         |
+| `playgrounds/desktop/App.vue`                | 修改     | 修复 `.main`、`.content-container`、`.control-bar` 的硬编码颜色                                     |
+| `playgrounds/desktop/src/showcase/index.vue` | 修改     | 重写背景层（底色+光斑+网格+装饰球），移除 `.bento-card` 硬编码 `backdrop-filter`，变量化 hover 阴影 |
 
 ---
 
 ### Task 1: 修改 Glass 主题 Token
 
 **Files:**
+
 - Modify: `packages/styles/src/theme/glass.ts`
 
 - [ ] **Step 1: 替换 light 主题 token**
@@ -108,6 +109,7 @@
 ### Task 2: 修复 App.vue 硬编码颜色
 
 **Files:**
+
 - Modify: `playgrounds/desktop/App.vue`
 
 - [ ] **Step 1: 修复 `.main` 背景色**
@@ -121,15 +123,19 @@
 - [ ] **Step 3: 修复 `.control-bar` 边框**
 
   找到 `.control-bar` 规则（约第 259 行），将：
+
   ```scss
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   ...
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   ```
+
   改为：
+
   ```scss
   border-bottom: 1px solid use-var(border, color);
   ```
+
   并删除 `border-top` 行。
 
 - [ ] **Step 4: 启动 playground 验证**
@@ -149,6 +155,7 @@
 ### Task 3: 重写 Showcase 背景与卡片样式
 
 **Files:**
+
 - Modify: `playgrounds/desktop/src/showcase/index.vue`
 
 - [ ] **Step 1: 在 template 顶部添加浮动装饰球**
@@ -156,10 +163,10 @@
   在 `<div class="showcase">` 内部最前面（Hero Section 之前）插入：
 
   ```vue
-    <!-- Floating Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+  <!-- Floating Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
   ```
 
 - [ ] **Step 2: 移除 `.bento-card` 的硬编码 backdrop-filter**
@@ -167,6 +174,7 @@
   在 `<style scoped>` 中找到 `.bento-card` 规则，删除 `backdrop-filter: blur(20px);` 这一行。
 
   修改后 `.bento-card` 应为：
+
   ```css
   .bento-card {
     height: 100%;
@@ -184,13 +192,16 @@
 - [ ] **Step 3: 变量化 hover 阴影**
 
   在 `<style scoped>` 中找到 `.bento-card:hover` 规则，将：
+
   ```css
   .bento-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
   }
   ```
+
   改为：
+
   ```css
   .bento-card:hover {
     transform: translateY(-4px);
@@ -211,11 +222,11 @@
     background-color: #f0f4f8;
     background-image:
       radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.12), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.10), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.1), transparent),
       radial-gradient(ellipse 50% 60% at 50% 80%, rgba(14, 165, 233, 0.08), transparent);
   }
 
-  :global(html[data-theme="dark"] .showcase) {
+  :global(html[data-theme='dark'] .showcase) {
     background-color: #0a0f1e;
     background-image:
       radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.18), transparent),
@@ -239,7 +250,7 @@
     pointer-events: none;
   }
 
-  :global(html[data-theme="dark"] .showcase::before) {
+  :global(html[data-theme='dark'] .showcase::before) {
     background-image:
       linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
@@ -288,20 +299,21 @@
     animation-delay: -14s;
   }
 
-  :global(html[data-theme="dark"] .orb-1) {
+  :global(html[data-theme='dark'] .orb-1) {
     background: rgba(59, 130, 246, 0.15);
   }
 
-  :global(html[data-theme="dark"] .orb-2) {
+  :global(html[data-theme='dark'] .orb-2) {
     background: rgba(139, 92, 246, 0.12);
   }
 
-  :global(html[data-theme="dark"] .orb-3) {
-    background: rgba(14, 165, 233, 0.10);
+  :global(html[data-theme='dark'] .orb-3) {
+    background: rgba(14, 165, 233, 0.1);
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -339,6 +351,7 @@
 ## Self-Review Checklist
 
 **1. Spec coverage:**
+
 - [x] glass.ts 降低 opacity、提升 blur/saturate、半透明边框 → Task 1
 - [x] glass.ts 阴影加深、弥散加大 → Task 1
 - [x] showcase 背景层（底色+光斑+网格+装饰球）→ Task 3 Step 4, 5
@@ -349,11 +362,13 @@
 - [x] showcase hover 阴影变量化 → Task 3 Step 3
 
 **2. Placeholder scan:**
+
 - [x] 无 "TBD" / "TODO" / "implement later"
 - [x] 所有步骤包含具体代码
 - [x] 所有命令包含预期输出
 
 **3. Type consistency:**
+
 - [x] `glassLightTheme` / `glassDarkTheme` 结构与现有 glass.ts 一致
 - [x] `use-var(bg-color, bottom)` 与 App.vue 中已定义的 SCSS 函数签名一致
 - [x] `:global()` 语法与 Vue 3 scoped CSS 规范一致

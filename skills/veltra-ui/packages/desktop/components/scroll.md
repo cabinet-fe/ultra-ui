@@ -12,23 +12,23 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `tag` | `string` | `'div'` | 内容区域元素标签名 |
-| `height` | `string \| number` | `'100%'` | 容器高度 |
-| `always` | `boolean` | `false` | 是否始终显示滚动条 |
-| `contentStyle` | `string \| CSSProperties` | — | 内容区域行内样式 |
-| `containerStyle` | `string \| CSSProperties` | — | 滚动容器行内样式 |
-| `contentClass` | `unknown` | — | 内容区域额外 class |
-| `containerClass` | `string \| string[]` | — | 滚动容器额外 class |
-| `dragDebounce` | `number` | — | 拖拽滚动条时的防抖延迟（毫秒），默认不防抖 |
+| prop             | type                      | default  | 说明                                       |
+| ---------------- | ------------------------- | -------- | ------------------------------------------ |
+| `tag`            | `string`                  | `'div'`  | 内容区域元素标签名                         |
+| `height`         | `string \| number`        | `'100%'` | 容器高度                                   |
+| `always`         | `boolean`                 | `false`  | 是否始终显示滚动条                         |
+| `contentStyle`   | `string \| CSSProperties` | —        | 内容区域行内样式                           |
+| `containerStyle` | `string \| CSSProperties` | —        | 滚动容器行内样式                           |
+| `contentClass`   | `unknown`                 | —        | 内容区域额外 class                         |
+| `containerClass` | `string \| string[]`      | —        | 滚动容器额外 class                         |
+| `dragDebounce`   | `number`                  | —        | 拖拽滚动条时的防抖延迟（毫秒），默认不防抖 |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `scroll` | `(position: Required<ScrollPosition>)` | 滚动时触发 |
-| `resize` | `(targets: HTMLElement[])` | 容器或内容尺寸变化时触发，`targets` 为变化的 DOM 元素 |
+| event    | 参数                                   | 说明                                                  |
+| -------- | -------------------------------------- | ----------------------------------------------------- |
+| `scroll` | `(position: Required<ScrollPosition>)` | 滚动时触发                                            |
+| `resize` | `(targets: HTMLElement[])`             | 容器或内容尺寸变化时触发，`targets` 为变化的 DOM 元素 |
 
 ### ScrollPosition
 
@@ -53,10 +53,10 @@ interface ScrollPosition {
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 滚动内容区域 |
-| `content` | — | 内容插槽 |
+| slot      | 作用域 | 说明         |
+| --------- | ------ | ------------ |
+| `default` | —      | 滚动内容区域 |
+| `content` | —      | 内容插槽     |
 
 ## Exposed
 
@@ -129,12 +129,7 @@ function handleResize(targets: HTMLElement[]) {
     <u-button size="small" @click="scrollToBottom">滚到底部</u-button>
   </div>
 
-  <u-scroll
-    ref="scrollRef"
-    height="300px"
-    @scroll="handleScroll"
-    @resize="handleResize"
-  >
+  <u-scroll ref="scrollRef" height="300px" @scroll="handleScroll" @resize="handleResize">
     <p v-for="i in 100" :key="i">第 {{ i }} 行</p>
   </u-scroll>
 </template>

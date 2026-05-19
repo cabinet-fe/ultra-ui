@@ -12,13 +12,13 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `text` | `string` | — | 水印文字内容 |
-| `image` | `string` | — | 水印图片 URL，设置后覆盖文字水印 |
-| `fontSize` | `number` | `60` | 水印文字字号（px） |
-| `route` | `number` | `-30` | 水印旋转角度（度，非弧度） |
-| `appendToBody` | `boolean` | — | 通过 `<Teleport>` 将水印传送至 `<body>` 下 |
+| prop           | type      | default | 说明                                       |
+| -------------- | --------- | ------- | ------------------------------------------ |
+| `text`         | `string`  | —       | 水印文字内容                               |
+| `image`        | `string`  | —       | 水印图片 URL，设置后覆盖文字水印           |
+| `fontSize`     | `number`  | `60`    | 水印文字字号（px）                         |
+| `route`        | `number`  | `-30`   | 水印旋转角度（度，非弧度）                 |
+| `appendToBody` | `boolean` | —       | 通过 `<Teleport>` 将水印传送至 `<body>` 下 |
 
 ## Emits
 
@@ -26,8 +26,8 @@
 
 ## Slots
 
-| slot | 说明 |
-|------|------|
+| slot      | 说明                                                      |
+| --------- | --------------------------------------------------------- |
 | `default` | 水印覆盖的内容区域，仅在 `appendToBody` 为 `false` 时渲染 |
 
 ## Exposed

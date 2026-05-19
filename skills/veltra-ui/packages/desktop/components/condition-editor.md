@@ -13,15 +13,15 @@ import type { ConditionExpression, ConditionField } from '@veltra/desktop'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `ConditionExpression` | `undefined` | 条件表达式树（v-model 绑定值） |
-| `fields` | `ConditionField[]` | `[]` | 可用字段列表，决定字段下拉和运算符筛选 |
-| `variables` | `VariableItem[]` | `undefined` | 可用变量列表，`undefined` 时不提供变量注入（纯文本输入） |
-| `data` | `Record<string, unknown>` | `undefined` | 变量实际数据，传入后自动求值并更新 UI 中的行/组结果标记 |
-| `size` | `ComponentSize` | `undefined` | 表单尺寸，`FormComponentProps` 继承，支持 `UForm` 上下文继承 |
-| `disabled` | `boolean` | `undefined` | 禁用状态，禁止所有交互 |
-| `readonly` | `boolean` | `undefined` | 只读状态，禁止编辑但保留查看 |
+| prop         | type                      | default     | 说明                                                         |
+| ------------ | ------------------------- | ----------- | ------------------------------------------------------------ |
+| `modelValue` | `ConditionExpression`     | `undefined` | 条件表达式树（v-model 绑定值）                               |
+| `fields`     | `ConditionField[]`        | `[]`        | 可用字段列表，决定字段下拉和运算符筛选                       |
+| `variables`  | `VariableItem[]`          | `undefined` | 可用变量列表，`undefined` 时不提供变量注入（纯文本输入）     |
+| `data`       | `Record<string, unknown>` | `undefined` | 变量实际数据，传入后自动求值并更新 UI 中的行/组结果标记      |
+| `size`       | `ComponentSize`           | `undefined` | 表单尺寸，`FormComponentProps` 继承，支持 `UForm` 上下文继承 |
+| `disabled`   | `boolean`                 | `undefined` | 禁用状态，禁止所有交互                                       |
+| `readonly`   | `boolean`                 | `undefined` | 只读状态，禁止编辑但保留查看                                 |
 
 ## Types
 
@@ -35,56 +35,54 @@ type ConditionExpression = ConditionGroup
 
 ### ConditionGroup
 
-| prop | type | 说明 |
-|------|------|------|
-| `logic` | `'and' \| 'or'` | 逻辑运算符 |
-| `conditions` | `ConditionItem[]` | 子条件列表 |
-| `groups` | `ConditionGroup[]` | 嵌套子分组 |
-| `_result` | `boolean` | 内部求值结果，序列化时排除 |
+| prop         | type               | 说明                       |
+| ------------ | ------------------ | -------------------------- |
+| `logic`      | `'and' \| 'or'`    | 逻辑运算符                 |
+| `conditions` | `ConditionItem[]`  | 子条件列表                 |
+| `groups`     | `ConditionGroup[]` | 嵌套子分组                 |
+| `_result`    | `boolean`          | 内部求值结果，序列化时排除 |
 
 ### ConditionItem
 
-| prop | type | 说明 |
-|------|------|------|
-| `field` | `string` | 字段 key，对应 `ConditionField.value` |
-| `operator` | `string` | 运算符 key，如 `'eq'`、`'gt'`、`'contains'` |
-| `value` | `ConditionValue` | 条件值（常量或变量引用） |
-| `_result` | `boolean` | 内部求值结果，序列化时排除 |
+| prop       | type             | 说明                                        |
+| ---------- | ---------------- | ------------------------------------------- |
+| `field`    | `string`         | 字段 key，对应 `ConditionField.value`       |
+| `operator` | `string`         | 运算符 key，如 `'eq'`、`'gt'`、`'contains'` |
+| `value`    | `ConditionValue` | 条件值（常量或变量引用）                    |
+| `_result`  | `boolean`        | 内部求值结果，序列化时排除                  |
 
 ### ConditionValue
 
 ```ts
-type ConditionValue =
-  | { kind: 'constant'; value: string }
-  | { kind: 'variable'; name: string }
+type ConditionValue = { kind: 'constant'; value: string } | { kind: 'variable'; name: string }
 ```
 
 ### ConditionField
 
-| prop | type | 说明 |
-|------|------|------|
-| `label` | `string` | 展示名称 |
-| `value` | `string` | 字段 key，与 `ConditionItem.field` 对应 |
-| `type` | `'string' \| 'number' \| 'boolean' \| 'date' \| 'enum'` | 字段类型，决定可用运算符列表 |
-| `enumOptions` | `{ label: string; value: string }[]` | 枚举选项，`type='enum'` 时使用 |
+| prop          | type                                                    | 说明                                    |
+| ------------- | ------------------------------------------------------- | --------------------------------------- |
+| `label`       | `string`                                                | 展示名称                                |
+| `value`       | `string`                                                | 字段 key，与 `ConditionItem.field` 对应 |
+| `type`        | `'string' \| 'number' \| 'boolean' \| 'date' \| 'enum'` | 字段类型，决定可用运算符列表            |
+| `enumOptions` | `{ label: string; value: string }[]`                    | 枚举选项，`type='enum'` 时使用          |
 
 ### VariableItem
 
 定义在 `@veltra/desktop` 的 `expression-editor` 类型中：
 
-| prop | type | 说明 |
-|------|------|------|
-| `label` | `string` | 展示名称 |
-| `value` | `string` | 变量路径，如 `'currentUser.status'` |
-| `type` | `string` | 可选类型标识（如 `string`、`number`） |
-| `children` | `VariableItem[]` | 子级变量，支持树形结构 |
+| prop       | type             | 说明                                  |
+| ---------- | ---------------- | ------------------------------------- |
+| `label`    | `string`         | 展示名称                              |
+| `value`    | `string`         | 变量路径，如 `'currentUser.status'`   |
+| `type`     | `string`         | 可选类型标识（如 `string`、`number`） |
+| `children` | `VariableItem[]` | 子级变量，支持树形结构                |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: ConditionExpression)` | 条件树变化时触发，序列化时排除 `_result` 和空分组 |
-| `evaluate` | `(results: ConditionExpression)` | 求值完成后触发，results 中各节点带 `_result` 标记 |
+| event               | 参数                             | 说明                                              |
+| ------------------- | -------------------------------- | ------------------------------------------------- |
+| `update:modelValue` | `(value: ConditionExpression)`   | 条件树变化时触发，序列化时排除 `_result` 和空分组 |
+| `evaluate`          | `(results: ConditionExpression)` | 求值完成后触发，results 中各节点带 `_result` 标记 |
 
 ## Slots
 
@@ -123,7 +121,9 @@ const fields: ConditionField[] = [
   { label: '已完成', value: 'completed', type: 'boolean' },
   { label: '截止日期', value: 'deadline', type: 'date' },
   {
-    label: '类型', value: 'type', type: 'enum',
+    label: '类型',
+    value: 'type',
+    type: 'enum',
     enumOptions: [
       { label: '需求', value: 'requirement' },
       { label: '缺陷', value: 'bug' },
@@ -180,9 +180,7 @@ const variables: VariableItem[] = [
   }
 ]
 
-const evalData = {
-  currentUser: { name: '李四', role: 'admin', status: 'active' }
-}
+const evalData = { currentUser: { name: '李四', role: 'admin', status: 'active' } }
 
 function onEvaluate(result: ConditionExpression) {
   console.log('求值结果:', result)

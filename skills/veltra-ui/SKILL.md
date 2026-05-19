@@ -53,7 +53,7 @@ peer dependencies（通常自动安装）：`@veltra/utils`、`@veltra/compositi
 | `@veltra/styles`       | packages/styles.md        | BEM mixins、CSS 变量函数、主题     |
 | `@veltra/icons`        | packages/icons.md         | SVG 图标组件                       |
 | `@veltra/vite`         | packages/vite.md          | 按需导入配置                       |
-| —                       | packages/release.md       | 发布流程与版本管理                 |
+| —                      | packages/release.md       | 发布流程与版本管理                 |
 
 ## 关键约定
 

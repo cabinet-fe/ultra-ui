@@ -99,6 +99,7 @@ import UltraUI from '@veltra/desktop/install'
 ## 6. 不存在的组件
 
 以下组件**不存在**，不要凭空使用：
+
 - ~~UAvatar~~ — 没有头像组件
 - ~~UTooltip~~ — 使用 `UTip` 代替
 - ~~UPopover~~ — 使用 `UDropdown` 或 `UTip` 代替
@@ -128,9 +129,9 @@ const columns = [{ key: 'name', name: '姓名' }]
 
 // ✅ 推荐：使用 defineTableColumns 获得类型安全和默认值
 import { defineTableColumns } from '@veltra/desktop'
-const columns = defineTableColumns([
-  { key: 'name', name: '姓名', minWidth: 120 }
-], { align: 'center' })
+const columns = defineTableColumns([{ key: 'name', name: '姓名', minWidth: 120 }], {
+  align: 'center'
+})
 ```
 
 ## 9. 主题加载必须在 app.mount 之前
@@ -139,9 +140,9 @@ const columns = defineTableColumns([
 // ✅ 正确顺序
 import { loadTheme } from '@veltra/styles/theme'
 
-loadTheme()          // 先加载主题
-app.use(UltraUI)    // 再注册组件
-app.mount('#app')   // 最后挂载
+loadTheme() // 先加载主题
+app.use(UltraUI) // 再注册组件
+app.mount('#app') // 最后挂载
 ```
 
 ## 10. SCSS 中用 pkg: 协议引用

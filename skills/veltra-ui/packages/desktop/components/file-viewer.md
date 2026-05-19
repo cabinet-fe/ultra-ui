@@ -39,25 +39,25 @@ type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'text'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `files` | `FileViewerItem[]` | — | 待预览的文件列表 |
-| `modelValue` | `string` | — | 当前激活文件 id，支持 `v-model` |
-| `sidebarWidth` | `string \| number \| false` | `'280px'` | 侧栏宽度。`false` 或 `0` 隐藏侧栏 |
-| `sheetMaxRows` | `number` | `50000` | sheet 单文件最大渲染行数；`0` 不截断 |
-| `downloadable` | `boolean` | `true` | 是否显示下载按钮 |
-| `open` | `boolean` | — | 全屏模态开关，支持 `v-model:open`。缺省为内嵌模式；显式传入后组件 Teleport 到 body 并以模态呈现 |
-| `closeOnClickBackdrop` | `boolean` | `true` | 模态模式下点击背景是否关闭 |
-| `closeOnEsc` | `boolean` | `true` | 模态模式下按 ESC 是否关闭 |
+| prop                   | type                        | default   | 说明                                                                                            |
+| ---------------------- | --------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `files`                | `FileViewerItem[]`          | —         | 待预览的文件列表                                                                                |
+| `modelValue`           | `string`                    | —         | 当前激活文件 id，支持 `v-model`                                                                 |
+| `sidebarWidth`         | `string \| number \| false` | `'280px'` | 侧栏宽度。`false` 或 `0` 隐藏侧栏                                                               |
+| `sheetMaxRows`         | `number`                    | `50000`   | sheet 单文件最大渲染行数；`0` 不截断                                                            |
+| `downloadable`         | `boolean`                   | `true`    | 是否显示下载按钮                                                                                |
+| `open`                 | `boolean`                   | —         | 全屏模态开关，支持 `v-model:open`。缺省为内嵌模式；显式传入后组件 Teleport 到 body 并以模态呈现 |
+| `closeOnClickBackdrop` | `boolean`                   | `true`    | 模态模式下点击背景是否关闭                                                                      |
+| `closeOnEsc`           | `boolean`                   | `true`    | 模态模式下按 ESC 是否关闭                                                                       |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(id: string)` | 当前激活文件 id 变更 |
-| `update:open` | `(value: boolean)` | 模态显隐变更 |
-| `change` | `(file: FileViewerItem)` | 切换文件时触发 |
-| `error` | `(err: { file: FileViewerItem; error: unknown })` | 预览或下载发生错误时触发 |
+| event               | 参数                                              | 说明                     |
+| ------------------- | ------------------------------------------------- | ------------------------ |
+| `update:modelValue` | `(id: string)`                                    | 当前激活文件 id 变更     |
+| `update:open`       | `(value: boolean)`                                | 模态显隐变更             |
+| `change`            | `(file: FileViewerItem)`                          | 切换文件时触发           |
+| `error`             | `(err: { file: FileViewerItem; error: unknown })` | 预览或下载发生错误时触发 |
 
 ## Slots
 
@@ -106,19 +106,13 @@ const files = ref<FileViewerItem[]>([
 import { ref } from 'vue'
 
 const open = ref(false)
-const files = ref([
-  { name: 'photo.jpg', src: '/photos/photo.jpg', size: 512000 }
-])
+const files = ref([{ name: 'photo.jpg', src: '/photos/photo.jpg', size: 512000 }])
 </script>
 
 <template>
   <u-button @click="open = true">预览图片</u-button>
 
-  <u-file-viewer
-    v-model:open="open"
-    :files="files"
-    :downloadable="false"
-  />
+  <u-file-viewer v-model:open="open" :files="files" :downloadable="false" />
 </template>
 ```
 
@@ -166,11 +160,6 @@ function onError({ file, error }: { file: FileViewerItem; error: unknown }) {
 </script>
 
 <template>
-  <u-file-viewer
-    v-model="activeId"
-    :files="files"
-    @change="onChange"
-    @error="onError"
-  />
+  <u-file-viewer v-model="activeId" :files="files" @change="onChange" @error="onError" />
 </template>
 ```

@@ -12,13 +12,13 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `tag` | `string` | `'div'` | 渲染标签 |
-| `gap` | `number \| string` | — | 列间距（`resizable` 时固定为 `10px`） |
-| `cols` | `string[] \| string` | — | 列定义，对应 `grid-template-columns`，支持 `fr`、`px`、`%` 等 |
-| `rows` | `string[] \| string` | — | 行定义，对应 `grid-template-rows` |
-| `resizable` | `boolean` | `false` | 是否可拖拽调节列宽。开启后 `gap` 固定 10px，且需至少有一列为固定像素宽度才能拖拽 |
+| prop        | type                 | default | 说明                                                                             |
+| ----------- | -------------------- | ------- | -------------------------------------------------------------------------------- |
+| `tag`       | `string`             | `'div'` | 渲染标签                                                                         |
+| `gap`       | `number \| string`   | —       | 列间距（`resizable` 时固定为 `10px`）                                            |
+| `cols`      | `string[] \| string` | —       | 列定义，对应 `grid-template-columns`，支持 `fr`、`px`、`%` 等                    |
+| `rows`      | `string[] \| string` | —       | 行定义，对应 `grid-template-rows`                                                |
+| `resizable` | `boolean`            | `false` | 是否可拖拽调节列宽。开启后 `gap` 固定 10px，且需至少有一列为固定像素宽度才能拖拽 |
 
 ## Emits
 
@@ -26,9 +26,9 @@
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 布局内容，每个直接子元素占据一个 cell |
+| slot      | 作用域 | 说明                                  |
+| --------- | ------ | ------------------------------------- |
+| `default` | —      | 布局内容，每个直接子元素占据一个 cell |
 
 ## Exposed
 
@@ -125,18 +125,18 @@ const cols = computed(() => Array.from({ length: count.value }, () => '1fr'))
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `horizontal` | `boolean` | — | 是否横向拖拽（行间），当前仅支持垂直方向 |
-| `offset` | `number` | — | 默认定位偏移量（px） |
+| prop         | type      | default | 说明                                     |
+| ------------ | --------- | ------- | ---------------------------------------- |
+| `horizontal` | `boolean` | —       | 是否横向拖拽（行间），当前仅支持垂直方向 |
+| `offset`     | `number`  | —       | 默认定位偏移量（px）                     |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `resize` | `(offset: number)` | 拖拽距离（相对起点的偏移） |
-| `resize-start` | — | 拖拽开始 |
-| `resize-end` | — | 拖拽结束 |
+| event          | 参数               | 说明                       |
+| -------------- | ------------------ | -------------------------- |
+| `resize`       | `(offset: number)` | 拖拽距离（相对起点的偏移） |
+| `resize-start` | —                  | 拖拽开始                   |
+| `resize-end`   | —                  | 拖拽结束                   |
 
 ## Exposed
 

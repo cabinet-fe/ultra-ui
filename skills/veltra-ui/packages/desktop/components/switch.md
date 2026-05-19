@@ -12,28 +12,28 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `boolean` | — | 开关状态 |
-| `activeText` | `string` | — | 打开时显示的文字（右侧） |
-| `inactiveText` | `string` | — | 关闭时显示的文字（左侧） |
-| `size` | `ComponentSize` | — | 尺寸 |
-| `disabled` | `boolean` | `undefined` | 是否禁用 |
-| `readonly` | `boolean` | `undefined` | 是否只读 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
-| `tips` | `string` | — | 表单内的提示文字 |
-| `span` | `number \| 'full' \| BreakpointSpan` | — | 表单内所占列宽 |
+| prop           | type                                 | default     | 说明                     |
+| -------------- | ------------------------------------ | ----------- | ------------------------ |
+| `modelValue`   | `boolean`                            | —           | 开关状态                 |
+| `activeText`   | `string`                             | —           | 打开时显示的文字（右侧） |
+| `inactiveText` | `string`                             | —           | 关闭时显示的文字（左侧） |
+| `size`         | `ComponentSize`                      | —           | 尺寸                     |
+| `disabled`     | `boolean`                            | `undefined` | 是否禁用                 |
+| `readonly`     | `boolean`                            | `undefined` | 是否只读                 |
+| `label`        | `string`                             | —           | 表单标签文字             |
+| `field`        | `string`                             | —           | 表单项字段名             |
+| `tips`         | `string`                             | —           | 表单内的提示文字         |
+| `span`         | `number \| 'full' \| BreakpointSpan` | —           | 表单内所占列宽           |
 
 > `ComponentSize`: `'small' \| 'default' \| 'large'`
 > `BreakpointSpan`: `{ xs?: 'full' \| number, sm?: 'full' \| number, md?: 'full' \| number, lg?: 'full' \| number, xl?: 'full' \| number, default: number \| 'full' }`
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: boolean)` | v-model 状态变化 |
-| `change` | `(value: boolean)` | 状态变化（与 `update:modelValue` 同时触发） |
+| event               | 参数               | 说明                                        |
+| ------------------- | ------------------ | ------------------------------------------- |
+| `update:modelValue` | `(value: boolean)` | v-model 状态变化                            |
+| `change`            | `(value: boolean)` | 状态变化（与 `update:modelValue` 同时触发） |
 
 ## Slots
 

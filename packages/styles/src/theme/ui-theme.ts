@@ -209,7 +209,10 @@ export class UITheme {
   }
 
   render(): void {
-    const decls = [...this.themeToDeclarationList(toRaw(this.theme)), ...componentCssVarsLightDecls]
+    const isDark =
+      typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark'
+    const componentDecls = isDark ? componentCssVarsDarkDecls : componentCssVarsLightDecls
+    const decls = [...this.themeToDeclarationList(toRaw(this.theme)), ...componentDecls]
     const block = UITheme.declarationBlock(decls)
     const css = `html { ${block} }`
     UITheme.applyGlobalCSS(css)

@@ -23,12 +23,10 @@ interface ConditionItem {
   field: string
   operator: string
   value: ConditionValue
-  _result?: boolean  // 内部计算，不序列化
+  _result?: boolean // 内部计算，不序列化
 }
 
-type ConditionValue =
-  | { kind: 'constant'; value: string }
-  | { kind: 'variable'; name: string }
+type ConditionValue = { kind: 'constant'; value: string } | { kind: 'variable'; name: string }
 
 interface ConditionField {
   label: string
@@ -87,11 +85,11 @@ interface ConditionEditorEmits {
 
 ### 结果展示
 
-| 状态 | 图标 | 颜色 |
-|------|------|------|
-| 通过 | ✓ | `--u-color-success` (#2ba471) |
-| 不通过 | ✗ | `--u-color-danger` (#d54941) |
-| 未计算 | — | `--u-text-color-assist` (#a8abb2) |
+| 状态   | 图标 | 颜色                              |
+| ------ | ---- | --------------------------------- |
+| 通过   | ✓    | `--u-color-success` (#2ba471)     |
+| 不通过 | ✗    | `--u-color-danger` (#d54941)      |
+| 未计算 | —    | `--u-text-color-assist` (#a8abb2) |
 
 行级结果在条件行末尾显示，分组 AND/OR 汇总在 tag 旁显示。
 
@@ -108,13 +106,13 @@ interface ConditionEditorEmits {
 
 ## 运算符映射
 
-| 字段类型 | 运算符 |
-|----------|--------|
-| string | eq(等于), ne(不等于), contains(包含), not_contains(不包含), empty(为空), not_empty(不为空) |
-| number | eq(等于), ne(不等于), gt(大于), lt(小于), gte(大于等于), lte(小于等于) |
-| boolean | is_true(是), is_false(否) |
-| date | eq(等于), ne(不等于), before(早于), after(晚于) |
-| enum | eq(等于), ne(不等于), in(包含于) |
+| 字段类型 | 运算符                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------ |
+| string   | eq(等于), ne(不等于), contains(包含), not_contains(不包含), empty(为空), not_empty(不为空) |
+| number   | eq(等于), ne(不等于), gt(大于), lt(小于), gte(大于等于), lte(小于等于)                     |
+| boolean  | is_true(是), is_false(否)                                                                  |
+| date     | eq(等于), ne(不等于), before(早于), after(晚于)                                            |
+| enum     | eq(等于), ne(不等于), in(包含于)                                                           |
 
 ## 求值引擎
 

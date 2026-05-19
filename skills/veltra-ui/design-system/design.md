@@ -7,6 +7,7 @@
 本文档是 Ultra UI 组件库的核心设计白皮书与 AI-Native 约束协议。它定义了全局的主题规范、BEM 架构规范、CSS 变量映射规则，并为开发新组件与优化现有 UI 提供了完整的设计准则。
 
 为了最大化地在**代理技能 (Agent Skills)** 中实现对 AI 代理的精准赋能与零开销解析，Ultra UI 设计系统拆分为三个高度解耦的文件：
+
 1. [tokens.css](tokens.css) — **零开销机器可读变量定义**。彻底抛弃 YAML frontmatter，使用原生 CSS 标准 `:root` 和 `[data-theme]` 级联，供机器及浏览器直接应用。
 2. [design.md](design.md)（本文档）— **人机共读的核心设计白皮书与 Agent 级规范红黑榜**。
 3. [components.vue](components.vue) — **完美无瑕的 Few-shot SFC 模版**。提供最高水准的 Vue 3 + TS + BEM + SCSS 组件实战参考。
@@ -34,12 +35,12 @@ Ultra UI 是一个专为 Vue 3 开发的高性能、极致体验的桌面端组�
 
 Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主题均由 `UITheme` 实例统一编译并注入 `<html>` 标签，完美兼容 `data-theme` 属性与系统的 `prefers-color-scheme`（暗色偏好）。
 
-| 主题预设 (Theme Presets) | 核心视觉特征 | 适用场景 |
-| :--- | :--- | :--- |
-| **Standard (标准)** | 扁平、高可读性、经典的冷灰基底，主色为深邃蓝 (#1E88E5) | 后台管理、复杂表格、数据分析平台 |
-| **Shadcn (极简)** | 极致硬核黑白、小圆角 (6px)、微细单像素阴影，锌灰 (Zinc) 极简质感 | 开发者工具、现代化文档、AI 产品、SaaS 面板 |
-| **Hero (先锋)** | 绚丽极客紫 (#7828c8)、大圆角 (12px)、层叠模糊大阴影与 `emboss` 浮雕效果 | 创意设计社区、C端活动、潮流后台、仪表盘 |
-| **Glass (拟物玻璃)** | 背景模糊滤波 (`blur(24px) saturate(180%)`)、半透明柔和边框与丰富投影 | 多彩潮流官网、大屏数据可视化、轻量工具套件 |
+| 主题预设 (Theme Presets) | 核心视觉特征                                                            | 适用场景                                   |
+| :----------------------- | :---------------------------------------------------------------------- | :----------------------------------------- |
+| **Standard (标准)**      | 扁平、高可读性、经典的冷灰基底，主色为深邃蓝 (#1E88E5)                  | 后台管理、复杂表格、数据分析平台           |
+| **Shadcn (极简)**        | 极致硬核黑白、小圆角 (6px)、微细单像素阴影，锌灰 (Zinc) 极简质感        | 开发者工具、现代化文档、AI 产品、SaaS 面板 |
+| **Hero (先锋)**          | 绚丽极客紫 (#7828c8)、大圆角 (12px)、层叠模糊大阴影与 `emboss` 浮雕效果 | 创意设计社区、C端活动、潮流后台、仪表盘    |
+| **Glass (拟物玻璃)**     | 背景模糊滤波 (`blur(24px) saturate(180%)`)、半透明柔和边框与丰富投影    | 多彩潮流官网、大屏数据可视化、轻量工具套件 |
 
 ---
 
@@ -64,6 +65,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 ### 3.2 动态混色映射 (Dynamic Tint/Shade Mixing)
 
 `UITheme` 在加载时会读取品牌色 Hex 值，并根据 rates `[1, 3, 5, 7, 9]` 动态生成如下变量：
+
 - **`--u-color-{type}-light-{rate}`**: 主色混合白色生成亮色，常用于 **悬停背景 (Light-9)**、**弱警告条**等。
 - **`--u-color-{type}-dark-{rate}`**: 主色混合黑色生成暗色，常用于 **深色点按激活状态**。
 
@@ -82,6 +84,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 │  └────────────────────────────────────────┘  │
 └──────────────────────────────────────────────┘
 ```
+
 - **`--u-bg-color-hover`**: 列表项、下拉框的滑过背景色。
 - **`--u-bg-color-{type}-alpha`**: 将背景色转化成约 66% 透明度的半透明格式，用于玻璃态滤波层。
 - **`--u-bg-filter`**: 当启用毛玻璃主题时，为顶部元素应用高精度滤波 CSS：`blur(24px) saturate(180%)`。
@@ -105,6 +108,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 ### 4.1 SCSS 变量访问范式
 
 **禁止**在样式表中直接编写 Hex 颜色、硬编码 shadow、或者直接使用 `--u-` 原生语法。应使用辅助函数：
+
 - `fn.use-var($basename, $nodes...)`：用于获取全局主题变量。
 - `fn.component-var($component, $property, $fallback)`：用于组件级定制。
 
@@ -158,6 +162,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 ## 5. 设计规范红黑榜 (Do's & Don'ts)
 
 ### 🔴 黑榜 (Don'ts)
+
 - **不要**在组件的 `style.scss` 里写任何 Hex 色值（如 `#fff`, `#333` 等），必须映射到 `text-color`, `bg-color` 变量上。
 - **不要**混合使用 Tailwind CSS 与 BEM 类。Ultra UI 是纯血 TypeScript + BEM 架构。
 - **不要**随意在组件内手动编写 `transition: all 0.3s`，应使用统一的动画过渡曲线以防卡顿。
@@ -165,6 +170,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 - **不要**跳过 TypeScript 的类型定义去强写组件 CSS 覆盖，所有暴露的局部变量必须有 TS 声明类型支持。
 
 ### 🟢 红榜 (Do's)
+
 - **必须**在使用 `use-var` 获取颜色时，为 Hover/Active 等交互状态准备对应的 Tint 变量（例如 `mixColor` 或 `light-9`）。
 - **必须**在提交代码前使用 `bun run check-types` 保证类型编译自洽。
 - **必须**让组件的边框厚度、边框样式受控于 `--u-border-width` 和 `--u-border-style`，以便一键适配 Hero 等粗无痕边框主题。
@@ -178,14 +184,17 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 > 当你（AI 编码助手）需要在 Ultra UI 组件库中新增或优化任何 UI 组件时，**必须**强制执行本节指南！
 
 ### 6.1 变量访问自动化拦截 (Variables Verification)
+
 - **禁止硬编码字面值**：如果你打算写入诸如 `#333`、`rgba(0,0,0,0.1)`、`12px` 等具体物理字面量，必须立即中断，并在 [tokens.css](tokens.css) 中寻找相对应的语义变量，然后用 `fn.use-var()` 映射它。
 - **边框与阴影自适应**：始终配合 BEM 主题规范使用 `fn.use-var('shadow-emboss')` 和 `fn.use-var('shadow')`，确保在 Hero 主题下能够正确溢出 Emboss（浮雕）质感，而在标准主题下表现为无效果。
 
 ### 6.2 零侵入 Few-shot 实战指引 (SFC Fixture Adaptation)
+
 - **第一步**：在开始编码新组件前，**必须先阅读** [components.vue](components.vue) 中的完整结构。
 - **第二步**：严格复用 `components.vue` 中所展示的 BEM 组合方法 `bem('component-name')` 获得 `cls` 实例。
 - **第三步**：在 Vue 模板中，通过 `:class="[cls.b, cls.m(size)]"` 进行最精确的声明，杜绝在模板内手动拼接带有 `u-` 前缀的字符串。
 
 ### 6.3 规避 Monorepo 循环依赖 (Monorepo Circular Safety)
+
 - **核心红线**：`packages/styles` 里的 `theme` 在运行时依赖 `@veltra/compositions` (`useConfig`)，因此 **`compositions` 绝不能反向导出 `theme`**，否则必将发生包的死锁循环。
 - **如何解决**：在 `compositions` 包开发时，若涉及主题相关的状态提取，请只读取底层的全局配置或通过 InjectionKey，严禁引入 `import ... from '@veltra/styles/theme'`。

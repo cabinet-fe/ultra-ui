@@ -12,34 +12,34 @@
 
 ## UAction Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `needConfirm` | `boolean` | — | 点击时弹出二次确认（`UPopConfirm`），确认后才触发 `run` |
-| `inDropdown` | `boolean` | `false` | 是否始终收纳在下拉菜单中，无视 `max` 限制。下拉内强制非圆形 |
-| `type` | `ColorType` | — | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；未设置时跟随 `UActionGroup` 的 `type` |
-| `size` | `ComponentSize` | `'small'` | `'small'` \| `'default'` \| `'large'`；未设置时跟随 `UActionGroup` 的 `size` |
-| `text` | `boolean` | `true` | 文本模式；未设置时跟随 `UActionGroup` 的 `text` |
-| `circle` | `boolean` | — | 圆形按钮；未设置时跟随 `UActionGroup` 的 `circle` |
-| `loading` | `boolean` | — | 加载中；未设置时跟随 `UActionGroup` 的 `loading` |
-| `plain` | `boolean` | — | 朴素模式 |
-| `loadingIcon` | `Component` | — | 自定义加载图标组件 |
-| `disabled` | `boolean` | `false` | 禁用状态 |
-| `icon` | `Component` | — | 图标组件 |
-| `iconSize` | `number` | — | 图标大小（px） |
-| `iconPosition` | `'left' \| 'right'` | `'left'` | 图标位置 |
-| `propagate` | `boolean` | — | `false` 时阻止 click 事件冒泡 |
+| prop           | type                | default   | 说明                                                                                                       |
+| -------------- | ------------------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| `needConfirm`  | `boolean`           | —         | 点击时弹出二次确认（`UPopConfirm`），确认后才触发 `run`                                                    |
+| `inDropdown`   | `boolean`           | `false`   | 是否始终收纳在下拉菜单中，无视 `max` 限制。下拉内强制非圆形                                                |
+| `type`         | `ColorType`         | —         | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；未设置时跟随 `UActionGroup` 的 `type` |
+| `size`         | `ComponentSize`     | `'small'` | `'small'` \| `'default'` \| `'large'`；未设置时跟随 `UActionGroup` 的 `size`                               |
+| `text`         | `boolean`           | `true`    | 文本模式；未设置时跟随 `UActionGroup` 的 `text`                                                            |
+| `circle`       | `boolean`           | —         | 圆形按钮；未设置时跟随 `UActionGroup` 的 `circle`                                                          |
+| `loading`      | `boolean`           | —         | 加载中；未设置时跟随 `UActionGroup` 的 `loading`                                                           |
+| `plain`        | `boolean`           | —         | 朴素模式                                                                                                   |
+| `loadingIcon`  | `Component`         | —         | 自定义加载图标组件                                                                                         |
+| `disabled`     | `boolean`           | `false`   | 禁用状态                                                                                                   |
+| `icon`         | `Component`         | —         | 图标组件                                                                                                   |
+| `iconSize`     | `number`            | —         | 图标大小（px）                                                                                             |
+| `iconPosition` | `'left' \| 'right'` | `'left'`  | 图标位置                                                                                                   |
+| `propagate`    | `boolean`           | —         | `false` 时阻止 click 事件冒泡                                                                              |
 
 ## Emits
 
-| event | 签名 | 说明 |
-|-------|------|------|
+| event | 签名         | 说明                                               |
+| ----- | ------------ | -------------------------------------------------- |
 | `run` | `() => void` | 点击执行（无需确认时直接触发；需确认时确认后触发） |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 按钮内容 |
+| slot      | 作用域 | 说明     |
+| --------- | ------ | -------- |
+| `default` | —      | 按钮内容 |
 
 ## Exposed
 
@@ -63,14 +63,14 @@ interface ActionExposed {}
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `max` | `number` | `3` | 最大可见操作数，超出部分折叠到下拉菜单 |
-| `type` | `ColorType` | `'primary'` | 子项默认按钮类型 |
-| `size` | `'small' \| 'default' \| 'large'` | `'small'` | 子项默认尺寸 |
-| `text` | `boolean` | `true` | 子项默认是否文本模式 |
-| `circle` | `boolean` | `false` | 子项默认是否圆形 |
-| `loading` | `boolean` | `false` | 子项默认是否加载中 |
+| prop      | type                              | default     | 说明                                   |
+| --------- | --------------------------------- | ----------- | -------------------------------------- |
+| `max`     | `number`                          | `3`         | 最大可见操作数，超出部分折叠到下拉菜单 |
+| `type`    | `ColorType`                       | `'primary'` | 子项默认按钮类型                       |
+| `size`    | `'small' \| 'default' \| 'large'` | `'small'`   | 子项默认尺寸                           |
+| `text`    | `boolean`                         | `true`      | 子项默认是否文本模式                   |
+| `circle`  | `boolean`                         | `false`     | 子项默认是否圆形                       |
+| `loading` | `boolean`                         | `false`     | 子项默认是否加载中                     |
 
 ## Emits
 
@@ -78,9 +78,9 @@ interface ActionExposed {}
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 放置 `UAction` 子项。子项之间自动添加分隔符 |
+| slot      | 作用域 | 说明                                        |
+| --------- | ------ | ------------------------------------------- |
+| `default` | —      | 放置 `UAction` 子项。子项之间自动添加分隔符 |
 
 ## Exposed
 

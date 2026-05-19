@@ -34,21 +34,21 @@ const { config, setConfig } = useConfig()
 
 ### 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `config` | `Readonly<State>` | 响应式只读配置对象 |
-| `setConfig(conf)` | `(conf: Partial<State>) => void` | 局部更新配置 |
+| 属性              | 类型                             | 说明               |
+| ----------------- | -------------------------------- | ------------------ |
+| `config`          | `Readonly<State>`                | 响应式只读配置对象 |
+| `setConfig(conf)` | `(conf: Partial<State>) => void` | 局部更新配置       |
 
 ### `config` 结构
 
 ```ts
 interface State {
-  size: ComponentSize                          // 全局组件尺寸
-  animation: boolean                           // 是否开启动画
-  form: { labelWidth: number }                 // 表单 label 宽度
+  size: ComponentSize // 全局组件尺寸
+  animation: boolean // 是否开启动画
+  form: { labelWidth: number } // 表单 label 宽度
   paginator: {
-    pageSize: number                           // 默认每页条数
-    pageSizeOptions: number[]                  // 每页条数选项
+    pageSize: number // 默认每页条数
+    pageSizeOptions: number[] // 每页条数选项
   }
 }
 ```
@@ -62,8 +62,8 @@ const { config, setConfig } = useConfig()
 setConfig({ size: 'large', animation: false })
 
 // 读取
-console.log(config.size)             // 'large'
-console.log(config.form.labelWidth)  // 100
+console.log(config.size) // 'large'
+console.log(config.form.labelWidth) // 100
 console.log(config.paginator.pageSize) // 20
 ```
 
@@ -99,8 +99,8 @@ import { useFallbackProps } from '@veltra/compositions'
 const props = defineProps<{ size?: ComponentSize; disabled?: boolean }>()
 
 const { size, disabled } = useFallbackProps(
-  [props],                              // propsList
-  { size: 'default', disabled: false }  // 最终默认值
+  [props], // propsList
+  { size: 'default', disabled: false } // 最终默认值
 )
 
 // size: props.size → config.size → 'default'
@@ -119,7 +119,7 @@ const { size, disabled } = useFallbackProps(
 ```ts
 function useFormFallbackProps<P extends Record<string, any>>(
   propsList: (Partial<P> | undefined | null)[],
-  fallbackProps?: P  // 默认 { size: 'default', disabled: false, readonly: false }
+  fallbackProps?: P // 默认 { size: 'default', disabled: false, readonly: false }
 ): { [K in keyof P]: ComputedRef<P[K]> }
 ```
 
@@ -142,10 +142,7 @@ const props = defineProps<InputProps>()
 const { formProps } = injectFormContext()
 
 // 回退链：props → formProps → config → 默认值
-const { size, disabled, readonly } = useFormFallbackProps([
-  formProps ?? {},
-  props
-])
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 </script>
 ```
 
@@ -157,11 +154,11 @@ const { size, disabled, readonly } = useFormFallbackProps([
 function useModel<T>(options: {
   props: Record<string, any>
   emit: (...args: any[]) => void
-  propName?: string              // 默认 'modelValue'
+  propName?: string // 默认 'modelValue'
   local?: boolean | (() => boolean) // 默认 true
   shallow?: boolean
   defaultValue?: T
-}): Ref<T>  // 返回自定义 ref-like 对象，可用于 v-model
+}): Ref<T> // 返回自定义 ref-like 对象，可用于 v-model
 ```
 
 ### `local: true`（默认） — 本地副本模式
@@ -238,10 +235,7 @@ function usePop(options: {
   onAfterUpdate?: (position: ComputePositionReturn) => void
   /** 弹框弹出时回调 */
   onPop?: (position: ComputePositionReturn) => void
-}): {
-  update: () => Promise<void>
-  popperContainerId: string
-}
+}): { update: () => Promise<void>; popperContainerId: string }
 ```
 
 ### 示例
@@ -291,9 +285,7 @@ function useDrag(options: {
   rangeX?: { min: number; max: number }
   rangeY?: { min: number; max: number }
   initial?: { x: number; y: number }
-}): {
-  update: (options?: { offsetX?: number; offsetY?: number }) => void
-}
+}): { update: (options?: { offsetX?: number; offsetY?: number }) => void }
 
 interface DragParams {
   x: number
@@ -403,11 +395,7 @@ const { virtualItems, totalSize, measureElement } = useVirtualizer({
         v-for="virtualRow in virtualItems"
         :key="virtualRow.index"
         :ref="measureElement"
-        :style="{
-          position: 'absolute',
-          top: 0,
-          transform: `translateY(${virtualRow.start}px)`
-        }"
+        :style="{ position: 'absolute', top: 0, transform: `translateY(${virtualRow.start}px)` }"
       >
         {{ items[virtualRow.index] }}
       </div>
@@ -452,9 +440,10 @@ useResizeObserver(el, (entries) => {
 ## `useReactiveSize()` — 响应式尺寸
 
 ```ts
-function useReactiveSize(
-  target: Ref<HTMLElement | undefined>
-): { width: Ref<number>; height: Ref<number> }
+function useReactiveSize(target: Ref<HTMLElement | undefined>): {
+  width: Ref<number>
+  height: Ref<number>
+}
 ```
 
 基于 `useResizeObserver` 的简化封装。
@@ -483,10 +472,7 @@ function useTransition(options: {
   enterClass?: string
   leaveClass?: string
   // ...
-}): {
-  enter: () => Promise<void>
-  leave: () => Promise<void>
-}
+}): { enter: () => Promise<void>; leave: () => Promise<void> }
 ```
 
 ---
@@ -494,7 +480,9 @@ function useTransition(options: {
 ## `useComponentProps()` — 组件属性合并
 
 ```ts
-function useComponentProps<P extends ComponentProps>(props: P): {
+function useComponentProps<P extends ComponentProps>(
+  props: P
+): {
   // 将通用属性合并到 slot 子节点
 }
 ```

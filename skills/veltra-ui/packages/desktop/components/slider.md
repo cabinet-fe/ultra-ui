@@ -12,28 +12,28 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `number \| [number, number]` | — | 绑定值，`range` 时传入 `[min, max]` |
-| `min` | `number` | `0` | 最小值 |
-| `max` | `number` | `100` | 最大值 |
-| `step` | `number` | — | 步长，设置后滑块吸附到步长刻度并显示刻度点 |
-| `range` | `boolean` | — | 是否为范围选择（两个滑块 thumb） |
-| `vertical` | `boolean` | — | 是否为垂直模式 |
-| `size` | `ComponentSize` | `'default'` | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读（只读时显示纯文本当前值） |
-| `tips` | `string` | — | 在表单控件内时的提示 |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列的大小 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段 |
+| prop         | type                                                                                                                                                                   | default     | 说明                                       |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------ |
+| `modelValue` | `number \| [number, number]`                                                                                                                                           | —           | 绑定值，`range` 时传入 `[min, max]`        |
+| `min`        | `number`                                                                                                                                                               | `0`         | 最小值                                     |
+| `max`        | `number`                                                                                                                                                               | `100`       | 最大值                                     |
+| `step`       | `number`                                                                                                                                                               | —           | 步长，设置后滑块吸附到步长刻度并显示刻度点 |
+| `range`      | `boolean`                                                                                                                                                              | —           | 是否为范围选择（两个滑块 thumb）           |
+| `vertical`   | `boolean`                                                                                                                                                              | —           | 是否为垂直模式                             |
+| `size`       | `ComponentSize`                                                                                                                                                        | `'default'` | 组件尺寸                                   |
+| `disabled`   | `boolean`                                                                                                                                                              | `false`     | 是否禁用                                   |
+| `readonly`   | `boolean`                                                                                                                                                              | `false`     | 是否只读（只读时显示纯文本当前值）         |
+| `tips`       | `string`                                                                                                                                                               | —           | 在表单控件内时的提示                       |
+| `span`       | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —           | 所占列的大小                               |
+| `label`      | `string`                                                                                                                                                               | —           | 表单标签文字                               |
+| `field`      | `string`                                                                                                                                                               | —           | 表单项字段                                 |
 
 > `size`、`disabled`、`readonly` 在表单上下文（`UForm`）中会自动继承，运行时 fallback 分别为 `'default'`、`false`、`false`。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数                                  | 说明                                              |
+| ------------------- | ------------------------------------- | ------------------------------------------------- |
 | `update:modelValue` | `(value: number \| [number, number])` | 值变化时触发，`range` 时传出排序后的 `[min, max]` |
 
 ## Exposed
@@ -107,9 +107,7 @@ const range = ref<[number, number]>([20, 80])
 <script setup lang="ts">
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  volume: formField({ value: 30 })
-})
+const model = new FormModel({ volume: formField({ value: 30 }) })
 </script>
 
 <template>

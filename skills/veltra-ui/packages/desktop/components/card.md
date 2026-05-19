@@ -12,10 +12,10 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `width` | `string \| number` | — | 卡片宽度，数字类型默认单位为 `px` |
-| `integrate` | `boolean` | — | 融合样式，去掉卡片阴影，使其与背景融为一体 |
+| prop        | type               | default | 说明                                       |
+| ----------- | ------------------ | ------- | ------------------------------------------ |
+| `width`     | `string \| number` | —       | 卡片宽度，数字类型默认单位为 `px`          |
+| `integrate` | `boolean`          | —       | 融合样式，去掉卡片阴影，使其与背景融为一体 |
 
 ## Emits
 
@@ -23,9 +23,9 @@
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 卡片内容，通常放置 `UCardHeader`、`UCardCover`、`UCardContent`、`UCardAction` |
+| slot      | 作用域 | 说明                                                                          |
+| --------- | ------ | ----------------------------------------------------------------------------- |
+| `default` | —      | 卡片内容，通常放置 `UCardHeader`、`UCardCover`、`UCardContent`、`UCardAction` |
 
 ## Exposed
 
@@ -47,22 +47,22 @@ interface CardExposed {}
 
 ### UCardCover — 卡片封面
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `src` | `string` | — | **必填**。封面图片地址 |
-| `height` | `string \| number` | — | 封面高度，数字类型默认单位为 `px`。未设时图片原始高度 |
+| prop     | type               | default | 说明                                                  |
+| -------- | ------------------ | ------- | ----------------------------------------------------- |
+| `src`    | `string`           | —       | **必填**。封面图片地址                                |
+| `height` | `string \| number` | —       | 封面高度，数字类型默认单位为 `px`。未设时图片原始高度 |
 
 ### UCardContent — 卡片内容
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `cover` | `boolean` | — | 封面模式，去除内边距与字号，适合放置无间距的封面图 |
+| prop    | type      | default | 说明                                               |
+| ------- | --------- | ------- | -------------------------------------------------- |
+| `cover` | `boolean` | —       | 封面模式，去除内边距与字号，适合放置无间距的封面图 |
 
 ### UCardAction — 卡片操作区
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `alignRight` | `boolean` | — | 右对齐操作按钮 |
+| prop         | type      | default | 说明           |
+| ------------ | --------- | ------- | -------------- |
+| `alignRight` | `boolean` | —       | 右对齐操作按钮 |
 
 ---
 

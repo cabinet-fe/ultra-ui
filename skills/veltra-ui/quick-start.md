@@ -37,15 +37,8 @@ import { VeltraDesktopUIResolver } from '@veltra/vite'
 import { NodePackageImporter } from 'sass-embedded'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({ resolvers: [VeltraDesktopUIResolver()] })
-  ],
-  css: {
-    preprocessorOptions: {
-      scss: { importers: [new NodePackageImporter()] }
-    }
-  }
+  plugins: [vue(), Components({ resolvers: [VeltraDesktopUIResolver()] })],
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 })
 ```
 

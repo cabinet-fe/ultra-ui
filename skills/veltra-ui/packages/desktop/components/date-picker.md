@@ -12,33 +12,33 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string \| number \| Date` | — | 选中的日期值 |
-| `type` | `'date'` \| `'month'` \| `'year'` | `'date'` | 日期类型 |
-| `format` | `string` | 见下方说明 | 显示格式，同时作为 `update:modelValue` 的输出格式 |
-| `valueFormat` | `string` | — | 值格式化，未指定时使用 `format`。仅当显示与输出值格式不一致时使用 |
-| `placeholder` | `string` | `'选择日期'` | 输入框占位文本 |
-| `clearable` | `boolean` | `true` | 是否显示清除按钮 |
-| `disabledDate` | `(date: Dater) => boolean` | — | 禁用指定日期的判断函数 |
-| `size` | `ComponentSize` | `'default'` | 尺寸，继承自 `FormComponentProps` |
-| `disabled` | `boolean` | `false` | 是否禁用，继承自 `FormComponentProps` |
-| `readonly` | `boolean` | `false` | 是否只读，继承自 `FormComponentProps` |
+| prop           | type                              | default      | 说明                                                              |
+| -------------- | --------------------------------- | ------------ | ----------------------------------------------------------------- |
+| `modelValue`   | `string \| number \| Date`        | —            | 选中的日期值                                                      |
+| `type`         | `'date'` \| `'month'` \| `'year'` | `'date'`     | 日期类型                                                          |
+| `format`       | `string`                          | 见下方说明   | 显示格式，同时作为 `update:modelValue` 的输出格式                 |
+| `valueFormat`  | `string`                          | —            | 值格式化，未指定时使用 `format`。仅当显示与输出值格式不一致时使用 |
+| `placeholder`  | `string`                          | `'选择日期'` | 输入框占位文本                                                    |
+| `clearable`    | `boolean`                         | `true`       | 是否显示清除按钮                                                  |
+| `disabledDate` | `(date: Dater) => boolean`        | —            | 禁用指定日期的判断函数                                            |
+| `size`         | `ComponentSize`                   | `'default'`  | 尺寸，继承自 `FormComponentProps`                                 |
+| `disabled`     | `boolean`                         | `false`      | 是否禁用，继承自 `FormComponentProps`                             |
+| `readonly`     | `boolean`                         | `false`      | 是否只读，继承自 `FormComponentProps`                             |
 
 `format` 默认值按 `type` 自动推断：
 
-| type | 默认 format |
-|------|------------|
-| `'date'` | `'yyyy-MM-dd'` |
-| `'month'` | `'yyyy-MM'` |
-| `'year'` | `'yyyy'` |
+| type      | 默认 format    |
+| --------- | -------------- |
+| `'date'`  | `'yyyy-MM-dd'` |
+| `'month'` | `'yyyy-MM'`    |
+| `'year'`  | `'yyyy'`       |
 
 另外还继承自 `FormComponentProps` 的 `label`、`field`、`tips`、`span` 等表单通用属性。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数                               | 说明                                       |
+| ------------------- | ---------------------------------- | ------------------------------------------ |
 | `update:modelValue` | `value?: string \| number \| Date` | 选中日期变化时触发，清除时值为 `undefined` |
 
 ## Slots

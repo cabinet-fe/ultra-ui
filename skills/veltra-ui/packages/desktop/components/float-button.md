@@ -12,26 +12,26 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `items` | `FloatButtonItem[]` | — | 按钮菜单项 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 按钮尺寸（继承自 `ComponentProps`） |
+| prop    | type                              | default     | 说明                                |
+| ------- | --------------------------------- | ----------- | ----------------------------------- |
+| `items` | `FloatButtonItem[]`               | —           | 按钮菜单项                          |
+| `size`  | `'small' \| 'default' \| 'large'` | `'default'` | 按钮尺寸（继承自 `ComponentProps`） |
 
 ### FloatButtonItem
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `key` | `string` | **必填** | 唯一标识，点击事件回传 |
-| `icon` | `Component` | — | 图标组件 |
-| `name` | `string` | — | 按钮文本/标题 |
-| `type` | `ButtonType` | `'primary'` | 按钮颜色类别 |
+| prop   | type         | default     | 说明                   |
+| ------ | ------------ | ----------- | ---------------------- |
+| `key`  | `string`     | **必填**    | 唯一标识，点击事件回传 |
+| `icon` | `Component`  | —           | 图标组件               |
+| `name` | `string`     | —           | 按钮文本/标题          |
+| `type` | `ButtonType` | `'primary'` | 按钮颜色类别           |
 
 > `ButtonType = 'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event   | 参数            | 说明                                       |
+| ------- | --------------- | ------------------------------------------ |
 | `click` | `(key: string)` | 点击菜单项时触发，参数为对应 item 的 `key` |
 
 ## Slots
@@ -55,7 +55,7 @@ import type { FloatButtonItem } from '@veltra/desktop'
 const items: FloatButtonItem[] = [
   { key: 'add', name: '新增' },
   { key: 'edit', name: '编辑' },
-  { key: 'delete', name: '删除' },
+  { key: 'delete', name: '删除' }
 ]
 
 const onAction = (key: string) => {
@@ -77,12 +77,12 @@ import { AddIcon, EditIcon, DeleteIcon } from '@veltra/icons'
 const items = [
   { key: 'add', icon: AddIcon, name: '新增' },
   { key: 'edit', icon: EditIcon, name: '编辑', type: 'info' },
-  { key: 'delete', icon: DeleteIcon, name: '删除', type: 'danger' },
+  { key: 'delete', icon: DeleteIcon, name: '删除', type: 'danger' }
 ]
 </script>
 
 <template>
-  <u-float-button :items="items" @click="key => console.log(key)" />
+  <u-float-button :items="items" @click="(key) => console.log(key)" />
 </template>
 ```
 
@@ -94,7 +94,7 @@ import { SettingIcon, NotificationIcon } from '@veltra/icons'
 
 const items = [
   { key: 'settings', icon: SettingIcon },
-  { key: 'notifications', icon: NotificationIcon },
+  { key: 'notifications', icon: NotificationIcon }
 ]
 </script>
 
@@ -114,7 +114,7 @@ const router = useRouter()
 
 const items = [
   { key: '/create', icon: CreateIcon, name: '新建' },
-  { key: '/search', icon: SearchIcon, name: '搜索' },
+  { key: '/search', icon: SearchIcon, name: '搜索' }
 ]
 
 const handleClick = (key: string) => {

@@ -24,7 +24,9 @@ $root-name: code-editor;
   border: 1px solid var(--u-code-editor-border);
   box-shadow: fn.use-var(shadow, emboss);
   overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover,
   &:focus-within {
@@ -36,7 +38,8 @@ $root-name: code-editor;
     color: var(--u-code-editor-fg);
     font-size: var(--u-code-editor-font-size);
     line-height: var(--u-code-editor-line-height);
-    font-family: ui-monospace, 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, Consolas,
+    font-family:
+      ui-monospace, 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Menlo, Consolas,
       'Liberation Mono', monospace;
     outline: none;
 

@@ -9,7 +9,9 @@ $root-name: multi-tree-select;
   width: 100%;
   border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, emboss);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
   overflow: hidden;
   cursor: pointer;
   line-height: 1;

@@ -12,52 +12,52 @@
 
 ## Props
 
-| prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `modelValue` | `string \| number` | — | 双向绑定的选中值 |
-| `text` | `string` | — | 显示文本（`v-model:text`） |
-| `data` | `Record<string, any>[]` | — | 树形数据 |
-| `labelKey` | `string` | `'label'` | 数据项中标签字段名 |
-| `valueKey` | `string` | `'value'` | 数据项中值字段名 |
-| `childrenKey` | `string` | `'children'` | 数据项中子级字段名 |
-| `expandAll` | `boolean` | `false` | 是否展开所有节点 |
-| `expandOnClickNode` | `boolean` | — | 是否在点击节点时展开/收缩节点 |
-| `placeholder` | `string` | `'请选择'` | 占位文本 |
-| `clearable` | `boolean` | `true` | 是否可清空 |
-| `filterable` | `boolean` | `false` | 是否可搜索过滤 |
-| `minWidth` | `string` | `'280px'` | 弹框最小宽度 |
-| `width` | `string` | — | 弹框宽度，默认跟随触发元素宽度 |
-| `checkStrictly` | `boolean` | `false` | 严格选择，选择的内容和父级不会产生关联 |
-| `disabledNode` | `(item: Record<string, any>, node: TreeNode) => boolean` | — | 禁用节点判定函数 |
-| `scrollToView` | `boolean` | — | 使选中项出现在滚动视图内 |
-| `slots` | `Record<string, any>` | — | 向 UTree 穿透插槽 |
-| `contentStyle` | `CSSProperties \| string` | — | 下拉内容容器样式 |
-| `contentClass` | `unknown` | — | 下拉内容容器类名 |
-| `size` | `'small' \| 'default' \| 'large'` | — | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读 |
-| `tips` | `string` | — | 在表单控件内时的提示文字 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列的大小 |
+| prop                | 类型                                                                                                                                                                   | 默认值       | 说明                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------------- |
+| `modelValue`        | `string \| number`                                                                                                                                                     | —            | 双向绑定的选中值                       |
+| `text`              | `string`                                                                                                                                                               | —            | 显示文本（`v-model:text`）             |
+| `data`              | `Record<string, any>[]`                                                                                                                                                | —            | 树形数据                               |
+| `labelKey`          | `string`                                                                                                                                                               | `'label'`    | 数据项中标签字段名                     |
+| `valueKey`          | `string`                                                                                                                                                               | `'value'`    | 数据项中值字段名                       |
+| `childrenKey`       | `string`                                                                                                                                                               | `'children'` | 数据项中子级字段名                     |
+| `expandAll`         | `boolean`                                                                                                                                                              | `false`      | 是否展开所有节点                       |
+| `expandOnClickNode` | `boolean`                                                                                                                                                              | —            | 是否在点击节点时展开/收缩节点          |
+| `placeholder`       | `string`                                                                                                                                                               | `'请选择'`   | 占位文本                               |
+| `clearable`         | `boolean`                                                                                                                                                              | `true`       | 是否可清空                             |
+| `filterable`        | `boolean`                                                                                                                                                              | `false`      | 是否可搜索过滤                         |
+| `minWidth`          | `string`                                                                                                                                                               | `'280px'`    | 弹框最小宽度                           |
+| `width`             | `string`                                                                                                                                                               | —            | 弹框宽度，默认跟随触发元素宽度         |
+| `checkStrictly`     | `boolean`                                                                                                                                                              | `false`      | 严格选择，选择的内容和父级不会产生关联 |
+| `disabledNode`      | `(item: Record<string, any>, node: TreeNode) => boolean`                                                                                                               | —            | 禁用节点判定函数                       |
+| `scrollToView`      | `boolean`                                                                                                                                                              | —            | 使选中项出现在滚动视图内               |
+| `slots`             | `Record<string, any>`                                                                                                                                                  | —            | 向 UTree 穿透插槽                      |
+| `contentStyle`      | `CSSProperties \| string`                                                                                                                                              | —            | 下拉内容容器样式                       |
+| `contentClass`      | `unknown`                                                                                                                                                              | —            | 下拉内容容器类名                       |
+| `size`              | `'small' \| 'default' \| 'large'`                                                                                                                                      | —            | 组件尺寸                               |
+| `disabled`          | `boolean`                                                                                                                                                              | `false`      | 是否禁用                               |
+| `readonly`          | `boolean`                                                                                                                                                              | `false`      | 是否只读                               |
+| `tips`              | `string`                                                                                                                                                               | —            | 在表单控件内时的提示文字               |
+| `label`             | `string`                                                                                                                                                               | —            | 表单标签文字                           |
+| `field`             | `string`                                                                                                                                                               | —            | 表单项字段名                           |
+| `span`              | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —            | 所占列的大小                           |
 
 > `size`、`disabled`、`readonly` 在表单上下文（`UForm`）中会自动继承，运行时 fallback 分别为 `'default'`、`false`、`false`。
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
-|------|------|------|
-| `update:modelValue` | `(value?: string \| number)` | `v-model` 值变更 |
-| `update:text` | `(text?: string)` | 显示文本变更 |
-| `change` | `(value?: string \| number, selectedData?: Record<string, any>)` | 选中值变化，同时返回选中节点原始数据 |
-| `clear` | `()` | 清空选中 |
+| 事件                | 参数                                                             | 说明                                 |
+| ------------------- | ---------------------------------------------------------------- | ------------------------------------ |
+| `update:modelValue` | `(value?: string \| number)`                                     | `v-model` 值变更                     |
+| `update:text`       | `(text?: string)`                                                | 显示文本变更                         |
+| `change`            | `(value?: string \| number, selectedData?: Record<string, any>)` | 选中值变化，同时返回选中节点原始数据 |
+| `clear`             | `()`                                                             | 清空选中                             |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                                          | 说明                            |
+| --------- | ----------------------------------------------- | ------------------------------- |
 | `default` | `{ node: TreeNode; data: Record<string, any> }` | 自定义树节点渲染，向 UTree 穿透 |
-| `prefix` | — | 输入框前缀内容 |
+| `prefix`  | —                                               | 输入框前缀内容                  |
 
 ## Exposed
 
@@ -195,9 +195,7 @@ function isDisabledNode(item: Record<string, any>) {
 <script setup lang="ts">
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  region: formField({ value: '' })
-})
+const model = new FormModel({ region: formField({ value: '' }) })
 
 const regionData = [
   {
@@ -221,12 +219,7 @@ const regionData = [
 
 <template>
   <u-form :model="model">
-    <u-tree-select
-      label="地区"
-      field="region"
-      :data="regionData"
-      placeholder="请选择地区"
-    />
+    <u-tree-select label="地区" field="region" :data="regionData" placeholder="请选择地区" />
   </u-form>
 </template>
 ```

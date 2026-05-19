@@ -12,23 +12,23 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前颜色值，格式为 `#` 开头 HEX(A)，如 `#FF0000`、`#FF000080` |
-| `size` | `ComponentSize` | — | 组件尺寸 |
-| `tips` | `string` | — | 在表单控件内时的提示 |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列的大小 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段 |
-| `disabled` | `boolean` | — | 是否禁用 |
-| `readonly` | `boolean` | — | 是否只读 |
+| prop         | type                                                                                                                                                                   | default | 说明                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------- |
+| `modelValue` | `string`                                                                                                                                                               | —       | 当前颜色值，格式为 `#` 开头 HEX(A)，如 `#FF0000`、`#FF000080` |
+| `size`       | `ComponentSize`                                                                                                                                                        | —       | 组件尺寸                                                      |
+| `tips`       | `string`                                                                                                                                                               | —       | 在表单控件内时的提示                                          |
+| `span`       | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —       | 所占列的大小                                                  |
+| `label`      | `string`                                                                                                                                                               | —       | 表单标签文字                                                  |
+| `field`      | `string`                                                                                                                                                               | —       | 表单项字段                                                    |
+| `disabled`   | `boolean`                                                                                                                                                              | —       | 是否禁用                                                      |
+| `readonly`   | `boolean`                                                                                                                                                              | —       | 是否只读                                                      |
 
 > `size`、`disabled`、`readonly` 在表单上下文（`UForm`）中会自动继承，运行时 fallback 分别为 `'default'`、`false`、`false`。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明             |
+| ------------------- | ----------------- | ---------------- |
 | `update:modelValue` | `(value: string)` | 颜色值变化时触发 |
 
 ## Slots
@@ -81,9 +81,7 @@ const color2 = ref('#67C23A')
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-const model = reactive({
-  themeColor: ''
-})
+const model = reactive({ themeColor: '' })
 </script>
 
 <template>

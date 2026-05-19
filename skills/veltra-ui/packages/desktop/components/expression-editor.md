@@ -15,28 +15,28 @@ import type { VariableItem, ExpressionSelectableLevels } from '@veltra/desktop'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | `undefined` | 表达式字符串，变量使用 `{value}` 占位 |
-| `placeholder` | `string` | `'请输入表达式，输入 @ 可插入变量'` | 空内容占位文案 |
-| `variables` | `VariableItem[]` | `undefined` | 可选变量树 |
-| `selectableLevels` | `ExpressionSelectableLevels` | `'leaf'` | 变量选择范围。`'leaf'`：仅叶子节点可选，分支节点上 Enter / → 进入下一级；`'any'`：分支节点上 Enter 选中分支本身、→ 进入下一级 |
-| `size` | `ComponentSize` | `undefined` | 组件尺寸（`'small'` / `'default'` / `'large'`），继承自 `ComponentProps` |
-| `disabled` | `boolean` | `undefined` | 禁用态，关闭编辑与变量选择面板，继承自 `FormComponentProps` |
-| `readonly` | `boolean` | `undefined` | 只读态，保留文本选择但关闭编辑与变量选择面板，继承自 `FormComponentProps` |
-| `tips` | `string` | `undefined` | 表单控件内提示文字，继承自 `FormComponentProps` |
-| `span` | `number \| 'full' \| { [key in BreakpointName]?: 'full' \| number } & { default: number \| 'full' }` | `undefined` | 所占列大小，继承自 `FormComponentProps` |
-| `label` | `string` | `undefined` | 表单项标签文字，继承自 `FormComponentProps` |
-| `field` | `string` | `undefined` | 表单项字段名，继承自 `FormComponentProps` |
+| prop               | type                                                                                                 | default                             | 说明                                                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`       | `string`                                                                                             | `undefined`                         | 表达式字符串，变量使用 `{value}` 占位                                                                                         |
+| `placeholder`      | `string`                                                                                             | `'请输入表达式，输入 @ 可插入变量'` | 空内容占位文案                                                                                                                |
+| `variables`        | `VariableItem[]`                                                                                     | `undefined`                         | 可选变量树                                                                                                                    |
+| `selectableLevels` | `ExpressionSelectableLevels`                                                                         | `'leaf'`                            | 变量选择范围。`'leaf'`：仅叶子节点可选，分支节点上 Enter / → 进入下一级；`'any'`：分支节点上 Enter 选中分支本身、→ 进入下一级 |
+| `size`             | `ComponentSize`                                                                                      | `undefined`                         | 组件尺寸（`'small'` / `'default'` / `'large'`），继承自 `ComponentProps`                                                      |
+| `disabled`         | `boolean`                                                                                            | `undefined`                         | 禁用态，关闭编辑与变量选择面板，继承自 `FormComponentProps`                                                                   |
+| `readonly`         | `boolean`                                                                                            | `undefined`                         | 只读态，保留文本选择但关闭编辑与变量选择面板，继承自 `FormComponentProps`                                                     |
+| `tips`             | `string`                                                                                             | `undefined`                         | 表单控件内提示文字，继承自 `FormComponentProps`                                                                               |
+| `span`             | `number \| 'full' \| { [key in BreakpointName]?: 'full' \| number } & { default: number \| 'full' }` | `undefined`                         | 所占列大小，继承自 `FormComponentProps`                                                                                       |
+| `label`            | `string`                                                                                             | `undefined`                         | 表单项标签文字，继承自 `FormComponentProps`                                                                                   |
+| `field`            | `string`                                                                                             | `undefined`                         | 表单项字段名，继承自 `FormComponentProps`                                                                                     |
 
 ### VariableItem
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `label` | `string` | 展示名称 |
-| `value` | `string` | 序列化到表达式中的变量值，对应 `{value}` 占位 |
-| `type` | `string`（可选） | 类型标识，chip 展示为 `label (type)` |
-| `children` | `VariableItem[]`（可选） | 子级变量，支持树形结构 |
+| 属性       | 类型                     | 说明                                          |
+| ---------- | ------------------------ | --------------------------------------------- |
+| `label`    | `string`                 | 展示名称                                      |
+| `value`    | `string`                 | 序列化到表达式中的变量值，对应 `{value}` 占位 |
+| `type`     | `string`（可选）         | 类型标识，chip 展示为 `label (type)`          |
+| `children` | `VariableItem[]`（可选） | 子级变量，支持树形结构                        |
 
 ### ExpressionSelectableLevels
 
@@ -46,8 +46,8 @@ type ExpressionSelectableLevels = 'leaf' | 'any'
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数                      | 说明                                      |
+| ------------------- | ------------------------- | ----------------------------------------- |
 | `update:modelValue` | `(value: string) => void` | 表达式内容变更，变量按 `{value}` 格式输出 |
 
 ## Slots
@@ -98,11 +98,7 @@ const variables: VariableItem[] = [
 
 ```vue
 <template>
-  <u-expression-editor
-    v-model="expression"
-    :variables="variables"
-    selectable-levels="any"
-  />
+  <u-expression-editor v-model="expression" :variables="variables" selectable-levels="any" />
 </template>
 ```
 
@@ -133,6 +129,10 @@ const variables: VariableItem[] = [
 </script>
 
 <template>
-  <u-expression-editor v-model="expression" :variables="variables" placeholder="输入表达式，@ 可插入变量" />
+  <u-expression-editor
+    v-model="expression"
+    :variables="variables"
+    placeholder="输入表达式，@ 可插入变量"
+  />
 </template>
 ```

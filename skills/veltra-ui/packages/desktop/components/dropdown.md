@@ -12,30 +12,30 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `trigger` | `'hover' \| 'click' \| 'custom'` | `'hover'` | 触发方式：hover 悬浮、click 点击、custom 手动控制 |
-| `width` | `string` | — | 下拉内容宽度，默认跟随触发元素宽度 |
-| `minWidth` | `string` | — | 下拉内容最小宽度 |
-| `contentTag` | `string` | `'div'` | 下拉内容容器标签 |
-| `contentClass` | `unknown` | — | 下拉内容容器额外的 class |
-| `contentStyle` | `CSSProperties \| string` | — | 下拉内容容器的 style |
-| `visible` | `boolean` | — | 控制下拉框显示/隐藏（受控模式） |
-| `disabled` | `boolean` | — | 禁用下拉框 |
+| prop           | type                             | default   | 说明                                              |
+| -------------- | -------------------------------- | --------- | ------------------------------------------------- |
+| `trigger`      | `'hover' \| 'click' \| 'custom'` | `'hover'` | 触发方式：hover 悬浮、click 点击、custom 手动控制 |
+| `width`        | `string`                         | —         | 下拉内容宽度，默认跟随触发元素宽度                |
+| `minWidth`     | `string`                         | —         | 下拉内容最小宽度                                  |
+| `contentTag`   | `string`                         | `'div'`   | 下拉内容容器标签                                  |
+| `contentClass` | `unknown`                        | —         | 下拉内容容器额外的 class                          |
+| `contentStyle` | `CSSProperties \| string`        | —         | 下拉内容容器的 style                              |
+| `visible`      | `boolean`                        | —         | 控制下拉框显示/隐藏（受控模式）                   |
+| `disabled`     | `boolean`                        | —         | 禁用下拉框                                        |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:visible` | `(visible: boolean)` | 下拉框显示或隐藏时触发 |
-| `keydown` | `(event: KeyboardEvent)` | 下拉内容区域键盘事件 |
+| event            | 参数                     | 说明                   |
+| ---------------- | ------------------------ | ---------------------- |
+| `update:visible` | `(visible: boolean)`     | 下拉框显示或隐藏时触发 |
+| `keydown`        | `(event: KeyboardEvent)` | 下拉内容区域键盘事件   |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `trigger` | — | 触发器内容，会作为触发悬浮/点击的节点 |
-| `content` | — | 下拉菜单内容 |
+| slot      | 作用域 | 说明                                  |
+| --------- | ------ | ------------------------------------- |
+| `trigger` | —      | 触发器内容，会作为触发悬浮/点击的节点 |
+| `content` | —      | 下拉菜单内容                          |
 
 ## Exposed
 

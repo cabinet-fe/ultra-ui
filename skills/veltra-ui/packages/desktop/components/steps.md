@@ -13,32 +13,32 @@ import type { StepsProps, StepsEmits, StepsExposed, StepsSlotScope } from '@velt
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `items` | `Record<string, any>[]` | — | 步骤项列表 |
-| `current` | `string \| number` | — | 当前步骤值。不传时所有步骤均为待处理状态 |
-| `currentKey` | `string` | — | 指定后，`current` 将作为 `items` 中该字段的值来匹配当前步骤项 |
-| `labelKey` | `string` | `'label'` | 步骤项中用作标签文本的字段名 |
-| `size` | `ComponentSize` | `'default'` | 尺寸 |
-| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | 排列方向 |
-| `alignCenter` | `boolean` | — | 是否居中对齐 |
-| `currentStepType` | `ColorType` | — | 当前步骤的颜色类型 |
-| `finishedStepType` | `ColorType` | `'success'` | 已完成步骤的颜色类型 |
+| prop               | type                         | default        | 说明                                                          |
+| ------------------ | ---------------------------- | -------------- | ------------------------------------------------------------- |
+| `items`            | `Record<string, any>[]`      | —              | 步骤项列表                                                    |
+| `current`          | `string \| number`           | —              | 当前步骤值。不传时所有步骤均为待处理状态                      |
+| `currentKey`       | `string`                     | —              | 指定后，`current` 将作为 `items` 中该字段的值来匹配当前步骤项 |
+| `labelKey`         | `string`                     | `'label'`      | 步骤项中用作标签文本的字段名                                  |
+| `size`             | `ComponentSize`              | `'default'`    | 尺寸                                                          |
+| `direction`        | `'horizontal' \| 'vertical'` | `'horizontal'` | 排列方向                                                      |
+| `alignCenter`      | `boolean`                    | —              | 是否居中对齐                                                  |
+| `currentStepType`  | `ColorType`                  | —              | 当前步骤的颜色类型                                            |
+| `finishedStepType` | `ColorType`                  | `'success'`    | 已完成步骤的颜色类型                                          |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:current` | `(value?: string \| number)` | 点击步骤时触发，用于 `v-model:current` |
-| `item-click` | `(item: Record<string, any>, index: number)` | 点击步骤项时触发 |
+| event            | 参数                                         | 说明                                   |
+| ---------------- | -------------------------------------------- | -------------------------------------- |
+| `update:current` | `(value?: string \| number)`                 | 点击步骤时触发，用于 `v-model:current` |
+| `item-click`     | `(item: Record<string, any>, index: number)` | 点击步骤项时触发                       |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|-------|------|
-| `icon` | `{ item: Record<string, any>, index: number }` | 步骤图标。默认：已完成步骤显示对勾图标，未完成步骤显示序号 `index + 1` |
-| `content` | `{ item: Record<string, any>, index: number }` | 步骤内容。默认显示 `item[labelKey]` |
-| `tip` | `{ item: Record<string, any>, index: number }` | 悬停提示。提供此插槽后，鼠标悬停在步骤图标上时会显示 `UTip` 弹出框 |
+| slot      | 作用域                                         | 说明                                                                   |
+| --------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| `icon`    | `{ item: Record<string, any>, index: number }` | 步骤图标。默认：已完成步骤显示对勾图标，未完成步骤显示序号 `index + 1` |
+| `content` | `{ item: Record<string, any>, index: number }` | 步骤内容。默认显示 `item[labelKey]`                                    |
+| `tip`     | `{ item: Record<string, any>, index: number }` | 悬停提示。提供此插槽后，鼠标悬停在步骤图标上时会显示 `UTip` 弹出框     |
 
 ## Exposed
 
@@ -55,11 +55,7 @@ interface StepsExposed {}
 import { ref } from 'vue'
 
 const current = ref(0)
-const items = [
-  { label: '步骤一' },
-  { label: '步骤二' },
-  { label: '步骤三' }
-]
+const items = [{ label: '步骤一' }, { label: '步骤二' }, { label: '步骤三' }]
 </script>
 
 <template>
@@ -94,12 +90,7 @@ const items = [
 </script>
 
 <template>
-  <u-steps
-    v-model:current="current"
-    :items="items"
-    label-key="name"
-    current-key="key"
-  />
+  <u-steps v-model:current="current" :items="items" label-key="name" current-key="key" />
 </template>
 ```
 

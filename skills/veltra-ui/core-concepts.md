@@ -43,12 +43,12 @@ import { bem } from '@veltra/utils'
 
 const cls = bem('button')
 
-cls.b                          // 'u-button'
-cls.e('icon')                  // 'u-button__icon'
-cls.m('primary')               // 'u-button--primary'
-cls.em('icon', 'left')         // 'u-button__icon--left'
-cls.is('disabled', true)       // 'u-button.is-disabled' 或 ''
-cls.create('custom-class')     // 'u-button-custom-class'
+cls.b // 'u-button'
+cls.e('icon') // 'u-button__icon'
+cls.m('primary') // 'u-button--primary'
+cls.em('icon', 'left') // 'u-button__icon--left'
+cls.is('disabled', true) // 'u-button.is-disabled' 或 ''
+cls.create('custom-class') // 'u-button-custom-class'
 ```
 
 `bem` 是 `makeBEM('u-')` 返回的工厂实例。若需要自定义前缀：
@@ -56,8 +56,8 @@ cls.create('custom-class')     // 'u-button-custom-class'
 ```ts
 import { makeBEM } from '@veltra/utils'
 
-const myCls = makeBEM('my-')   // 前缀 'my-'
-myCls.e('icon')                // 'my-button__icon'
+const myCls = makeBEM('my-') // 前缀 'my-'
+myCls.e('icon') // 'my-button__icon'
 ```
 
 ## 主题系统
@@ -84,7 +84,7 @@ myCls.e('icon')                // 'my-button__icon'
 @use 'pkg:@veltra/styles/functions' as fn;
 
 .my-element {
-  color: fn.use-var(text-color, main);        // var(--u-text-color-main)
+  color: fn.use-var(text-color, main); // var(--u-text-color-main)
   font-size: fn.use-var(font-size, main);
   height: fn.use-var(form-component-height, default);
 }
@@ -107,19 +107,16 @@ import { heroLightTheme, glassLightTheme } from '@veltra/styles/theme'
 loadTheme()
 
 // 加载预设主题
-loadTheme(heroLightTheme)   // HeroUI 风格
-loadTheme(glassLightTheme)  // 玻璃拟态风格
+loadTheme(heroLightTheme) // HeroUI 风格
+loadTheme(glassLightTheme) // 玻璃拟态风格
 
 // 切换主题（仅 light/dark 双主题模式支持）
 setTheme('dark')
 setTheme('light')
-setTheme('auto')  // 跟随系统 prefers-color-scheme
+setTheme('auto') // 跟随系统 prefers-color-scheme
 
 // 自定义主题
-const custom = lightTheme.new({
-  color: { primary: '#ff6600' },
-  radius: { default: 8 }
-})
+const custom = lightTheme.new({ color: { primary: '#ff6600' }, radius: { default: 8 } })
 loadTheme(custom)
 ```
 
@@ -148,9 +145,9 @@ const { config, setConfig } = useConfig()
 setConfig({ size: 'large' })
 
 // 读取当前设置
-console.log(config.size)       // 'large'
-console.log(config.animation)  // true（是否开启动画）
-console.log(config.form.labelWidth)  // label 默认宽度
+console.log(config.size) // 'large'
+console.log(config.animation) // true（是否开启动画）
+console.log(config.form.labelWidth) // label 默认宽度
 ```
 
 ### 尺寸回退链
@@ -213,7 +210,10 @@ interface ComponentProps {
 
 interface FormComponentProps extends ComponentProps {
   tips?: string
-  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
+  span?:
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
   label?: string
   field?: string
   disabled?: boolean
@@ -239,19 +239,13 @@ import { computed, shallowRef } from 'vue'
 
 defineOptions({ name: 'ComponentName' })
 
-const props = withDefaults(defineProps<ComponentProps>(), {
-  size: 'default'
-})
+const props = withDefaults(defineProps<ComponentProps>(), { size: 'default' })
 const emit = defineEmits<ComponentEmits>()
 
 const cls = bem('component-name')
 const { size } = useFallbackProps([props], { size: 'default' })
 
-const classList = computed(() => [
-  cls.b,
-  cls.m(size.value),
-  cls.is('disabled', props.disabled)
-])
+const classList = computed(() => [cls.b, cls.m(size.value), cls.is('disabled', props.disabled)])
 
 const rootRef = shallowRef<HTMLElement>()
 defineExpose({ el: rootRef })

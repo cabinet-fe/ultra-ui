@@ -13,10 +13,10 @@ import '@veltra/directives/ripple/style'
 
 ### 子路径
 
-| 子路径 | 内容 |
-|--------|------|
-| `@veltra/directives` | 全部 3 个指令 |
-| `@veltra/directives/ripple/style` | 波纹动画样式 |
+| 子路径                            | 内容          |
+| --------------------------------- | ------------- |
+| `@veltra/directives`              | 全部 3 个指令 |
+| `@veltra/directives/ripple/style` | 波纹动画样式  |
 
 ---
 
@@ -51,10 +51,10 @@ import '@veltra/directives/ripple/style'
 
 ### API
 
-| 绑定 | 类型 | 说明 |
-|------|------|------|
+| 绑定            | 类型                           | 说明                                                                   |
+| --------------- | ------------------------------ | ---------------------------------------------------------------------- |
 | `binding.value` | `string \| false \| undefined` | `string`：自定义波纹元素的 CSS 类名；`false`：禁用波纹；不传：默认样式 |
-| `binding.arg` | `string \| undefined` | 波纹动画持续时间（毫秒），不传则使用默认值 |
+| `binding.arg`   | `string \| undefined`          | 波纹动画持续时间（毫秒），不传则使用默认值                             |
 
 ### 实际组件中的用法
 
@@ -111,9 +111,7 @@ function handleClickOutside(e: MouseEvent) {
 
 <template>
   <!-- value 传入回调函数 -->
-  <div v-click-outside="handleClickOutside">
-    点击这个 div 外部会触发回调
-  </div>
+  <div v-click-outside="handleClickOutside">点击这个 div 外部会触发回调</div>
 </template>
 ```
 
@@ -151,8 +149,8 @@ function close() {
 
 ### API
 
-| 绑定 | 类型 | 说明 |
-|------|------|------|
+| 绑定            | 类型                      | 说明                 |
+| --------------- | ------------------------- | -------------------- |
 | `binding.value` | `(e: MouseEvent) => void` | 点击外部时的回调函数 |
 
 ---

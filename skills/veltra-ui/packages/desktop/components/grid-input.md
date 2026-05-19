@@ -10,19 +10,19 @@
 
 ## Props
 
-| prop         | type      | default | 说明               |
-| ------------ | --------- | ------- | ------------------ |
-| `modelValue` | `string`  | —       | 输入值             |
-| `length`     | `number`  | `6`     | 格子数量           |
-| `zero`       | `boolean` | `false` | 是否允许输入 `0`   |
-| `separator`  | `string`  | `'-'`   | 输入值的分隔符     |
+| prop         | type      | default | 说明             |
+| ------------ | --------- | ------- | ---------------- |
+| `modelValue` | `string`  | —       | 输入值           |
+| `length`     | `number`  | `6`     | 格子数量         |
+| `zero`       | `boolean` | `false` | 是否允许输入 `0` |
+| `separator`  | `string`  | `'-'`   | 输入值的分隔符   |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明   |
+| ------------------- | ----------------- | ------ |
 | `update:modelValue` | `(value: string)` | 值变化 |
-| `input` | `(value: string)` | 输入中 |
+| `input`             | `(value: string)` | 输入中 |
 
 ## Slots
 
@@ -68,12 +68,7 @@ const onInput = (val: string) => {
 </script>
 
 <template>
-  <u-grid-input
-    v-model="pin"
-    :length="4"
-    separator=" "
-    @input="onInput"
-  />
+  <u-grid-input v-model="pin" :length="4" separator=" " @input="onInput" />
 </template>
 ```
 

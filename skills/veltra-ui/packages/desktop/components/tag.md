@@ -12,19 +12,19 @@
 
 ## Props
 
-| prop       | 类型              | 默认值      | 说明         |
-| ---------- | ----------------- | ----------- | ------------ |
-| `type`     | `ColorType`       | —           | 颜色类型     |
-| `closable` | `boolean`         | —           | 是否可移除   |
-| `size`     | `ComponentSize`   | `'default'` | 尺寸大小     |
-| `round`    | `boolean`         | —           | 是否为圆角   |
-| `dark`     | `boolean`         | —           | 深色         |
+| prop       | 类型            | 默认值      | 说明       |
+| ---------- | --------------- | ----------- | ---------- |
+| `type`     | `ColorType`     | —           | 颜色类型   |
+| `closable` | `boolean`       | —           | 是否可移除 |
+| `size`     | `ComponentSize` | `'default'` | 尺寸大小   |
+| `round`    | `boolean`       | —           | 是否为圆角 |
+| `dark`     | `boolean`       | —           | 深色       |
 
 ## Emits
 
-| event   | 签名             | 说明               |
-| ------- | ---------------- | ------------------ |
-| `close` | `() => void`     | 点击关闭图标时触发 |
+| event   | 签名         | 说明               |
+| ------- | ------------ | ------------------ |
+| `close` | `() => void` | 点击关闭图标时触发 |
 
 ## Slots
 

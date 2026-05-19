@@ -31,16 +31,16 @@ message(options: MessageOptions | string): MessageInstance
 
 ### 返回值: MessageInstance
 
-| 属性/方法 | 类型 | 说明 |
-|-----------|------|------|
-| `id` | `string` | 消息唯一标识 |
-| `close()` | `() => void` | 手动关闭消息（触发离开动画） |
+| 属性/方法  | 类型            | 说明                                 |
+| ---------- | --------------- | ------------------------------------ |
+| `id`       | `string`        | 消息唯一标识                         |
+| `close()`  | `() => void`    | 手动关闭消息（触发离开动画）         |
 | `onClosed` | `Promise<void>` | 消息完全销毁后 resolve（含动画结束） |
 
 ### 全局方法
 
 ```ts
-message.closeAll()  // 关闭所有当前显示的消息
+message.closeAll() // 关闭所有当前显示的消息
 ```
 
 ### 设置渲染上下文
@@ -56,16 +56,16 @@ message._context = getCurrentInstance()!.appContext
 
 ### MessageOptions extends MessageProps
 
-| 选项 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `message` | `string` | — | 消息内容 |
-| `type` | `MessageType` | `'default'` | `'success'` \| `'warn'` \| `'info'` \| `'error'` \| `'default'` |
-| `duration` | `number` | `3000` | 自动关闭时长（ms），设为 `0` 则不自动关闭 |
-| `closable` | `boolean` | — | 显示关闭按钮 |
-| `html` | `boolean` | — | 将 `message` 内容作为 HTML 渲染 |
-| `icon` | `DefineComponent` | — | 自定义图标组件，传入则覆盖类型默认图标 |
-| `onClose` | `() => void` | — | 点击关闭时回调（触发离开动画前） |
-| `onClosed` | `() => void` | — | 消息完全销毁后回调（含动画结束） |
+| 选项       | 类型              | 默认        | 说明                                                            |
+| ---------- | ----------------- | ----------- | --------------------------------------------------------------- |
+| `message`  | `string`          | —           | 消息内容                                                        |
+| `type`     | `MessageType`     | `'default'` | `'success'` \| `'warn'` \| `'info'` \| `'error'` \| `'default'` |
+| `duration` | `number`          | `3000`      | 自动关闭时长（ms），设为 `0` 则不自动关闭                       |
+| `closable` | `boolean`         | —           | 显示关闭按钮                                                    |
+| `html`     | `boolean`         | —           | 将 `message` 内容作为 HTML 渲染                                 |
+| `icon`     | `DefineComponent` | —           | 自定义图标组件，传入则覆盖类型默认图标                          |
+| `onClose`  | `() => void`      | —           | 点击关闭时回调（触发离开动画前）                                |
+| `onClosed` | `() => void`      | —           | 消息完全销毁后回调（含动画结束）                                |
 
 ### MessageType
 
@@ -79,20 +79,20 @@ message._context = getCurrentInstance()!.appContext
 
 ### Props (MessageProps)
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `message` | `string` | — | 消息内容 |
-| `type` | `MessageType` | `'default'` | 渲染样式 |
-| `duration` | `number` | `3000` | 自动关闭时长（ms） |
-| `closable` | `boolean` | — | 是否可以关闭 |
-| `html` | `boolean` | — | 渲染 HTML |
-| `icon` | `DefineComponent` | — | 自定义图标 |
-| `offset` | `number` | `20` | 垂直偏移 |
+| prop       | type              | default     | 说明               |
+| ---------- | ----------------- | ----------- | ------------------ |
+| `message`  | `string`          | —           | 消息内容           |
+| `type`     | `MessageType`     | `'default'` | 渲染样式           |
+| `duration` | `number`          | `3000`      | 自动关闭时长（ms） |
+| `closable` | `boolean`         | —           | 是否可以关闭       |
+| `html`     | `boolean`         | —           | 渲染 HTML          |
+| `icon`     | `DefineComponent` | —           | 自定义图标         |
+| `offset`   | `number`          | `20`        | 垂直偏移           |
 
 ### Emits
 
-| event | 参数 |
-|-------|------|
+| event   | 参数       |
+| ------- | ---------- |
 | `close` | — 触发关闭 |
 
 ## Examples
@@ -104,11 +104,7 @@ message._context = getCurrentInstance()!.appContext
 message('这是一条消息')
 
 // 完整选项
-message({
-  message: '操作成功',
-  type: 'success',
-  duration: 5000
-})
+message({ message: '操作成功', type: 'success', duration: 5000 })
 ```
 
 ### 快捷方法

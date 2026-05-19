@@ -12,28 +12,28 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `mousePosition` | `{ x: number; y: number }` | — | 菜单弹出位置（相对于视口） |
-| `menus` | `ContextMenuItem[] \| (() => ContextMenuItem[])` | — | 菜单项列表，支持函数动态生成 |
-| `width` | `number \| string` | `150` | 菜单宽度（px，传入数值自动补单位） |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 菜单尺寸 |
+| prop            | type                                             | default     | 说明                               |
+| --------------- | ------------------------------------------------ | ----------- | ---------------------------------- |
+| `mousePosition` | `{ x: number; y: number }`                       | —           | 菜单弹出位置（相对于视口）         |
+| `menus`         | `ContextMenuItem[] \| (() => ContextMenuItem[])` | —           | 菜单项列表，支持函数动态生成       |
+| `width`         | `number \| string`                               | `150`       | 菜单宽度（px，传入数值自动补单位） |
+| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` | 菜单尺寸                           |
 
 ### ContextMenuItem
 
-| prop | type | 说明 |
-|------|------|------|
-| `label` | `string` | 菜单名称 |
-| `description` | `string` | 可选，菜单描述 |
-| `icon` | `Component` | 可选，菜单图标组件 |
-| `callback` | `() => void \| Promise<void>` | 可选，点击菜单项时执行的回调。支持 async，回调完成前显示 loading 并阻止关闭 |
-| `disabled` | `boolean \| (() => boolean)` | 可选，是否禁用。支持函数动态判断 |
+| prop          | type                          | 说明                                                                        |
+| ------------- | ----------------------------- | --------------------------------------------------------------------------- |
+| `label`       | `string`                      | 菜单名称                                                                    |
+| `description` | `string`                      | 可选，菜单描述                                                              |
+| `icon`        | `Component`                   | 可选，菜单图标组件                                                          |
+| `callback`    | `() => void \| Promise<void>` | 可选，点击菜单项时执行的回调。支持 async，回调完成前显示 loading 并阻止关闭 |
+| `disabled`    | `boolean \| (() => boolean)`  | 可选，是否禁用。支持函数动态判断                                            |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `destroy` | — | 菜单关闭动画完成后触发，父组件应在此事件中移除组件 DOM |
+| event     | 参数 | 说明                                                   |
+| --------- | ---- | ------------------------------------------------------ |
+| `destroy` | —    | 菜单关闭动画完成后触发，父组件应在此事件中移除组件 DOM |
 
 ## Slots
 
@@ -159,22 +159,14 @@ const contextMenuVisible = ref(false)
 const contextMenuPos = ref({ x: 0, y: 0 })
 
 const menus: ContextMenuItem[] = [
-  {
-    label: '编辑',
-    icon: Edit,
-    callback: () => console.log('编辑')
-  },
-  {
-    label: '复制',
-    icon: Copy,
-    callback: () => console.log('复制')
-  },
+  { label: '编辑', icon: Edit, callback: () => console.log('编辑') },
+  { label: '复制', icon: Copy, callback: () => console.log('复制') },
   {
     label: '删除',
     icon: Delete,
     callback: async () => {
       // 异步删除操作，执行期间菜单显示 loading 并阻止关闭
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       console.log('已删除')
     }
   }

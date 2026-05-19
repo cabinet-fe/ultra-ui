@@ -12,19 +12,19 @@ import type { RichTextEditorProps, RichTextEditorEmits, ToolbarItem } from '@vel
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 编辑器内容（v-model） |
-| `format` | `'html' \| 'json'` | `'html'` | 数据输出格式 |
-| `toolbar` | `ToolbarItem[]` | 默认工具栏 | 工具栏配置项 |
-| `placeholder` | `string` | `''` | 占位文本 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段 |
-| `tips` | `string` | — | 表单控件内提示文字 |
-| `span` | `number \| 'full' \| BreakpointSpan` | — | 所占列的大小 |
+| prop          | type                                 | default     | 说明                  |
+| ------------- | ------------------------------------ | ----------- | --------------------- |
+| `modelValue`  | `string`                             | —           | 编辑器内容（v-model） |
+| `format`      | `'html' \| 'json'`                   | `'html'`    | 数据输出格式          |
+| `toolbar`     | `ToolbarItem[]`                      | 默认工具栏  | 工具栏配置项          |
+| `placeholder` | `string`                             | `''`        | 占位文本              |
+| `disabled`    | `boolean`                            | `false`     | 是否禁用              |
+| `readonly`    | `boolean`                            | `false`     | 是否只读              |
+| `size`        | `'small' \| 'default' \| 'large'`    | `'default'` | 组件尺寸              |
+| `label`       | `string`                             | —           | 表单标签文字          |
+| `field`       | `string`                             | —           | 表单项字段            |
+| `tips`        | `string`                             | —           | 表单控件内提示文字    |
+| `span`        | `number \| 'full' \| BreakpointSpan` | —           | 所占列的大小          |
 
 > `size`、`disabled`、`readonly` 可从父级表单上下文注入，`label`、`field`、`tips`、`span` 由表单布局组件消费。
 
@@ -45,19 +45,36 @@ type ToolbarItem =
   | 'link'
   | 'undo'
   | 'redo'
-  | '|'       // 分隔符
+  | '|' // 分隔符
 ```
 
 **默认工具栏**
 
 ```ts
-['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'underline', 'strikethrough', '|', 'bullet-list', 'ordered-list', '|', 'blockquote', '|', 'link']
+;[
+  'undo',
+  'redo',
+  '|',
+  'heading',
+  '|',
+  'bold',
+  'italic',
+  'underline',
+  'strikethrough',
+  '|',
+  'bullet-list',
+  'ordered-list',
+  '|',
+  'blockquote',
+  '|',
+  'link'
+]
 ```
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明           |
+| ------------------- | ----------------- | -------------- |
 | `update:modelValue` | `(value: string)` | 内容变化时触发 |
 
 ## Slots
@@ -108,10 +125,7 @@ watch(jsonContent, (val) => {
 
 ```vue
 <template>
-  <u-rich-text-editor
-    v-model="content"
-    :toolbar="['bold', 'italic', 'underline', '|', 'link']"
-  />
+  <u-rich-text-editor v-model="content" :toolbar="['bold', 'italic', 'underline', '|', 'link']" />
 </template>
 
 <script setup lang="ts">

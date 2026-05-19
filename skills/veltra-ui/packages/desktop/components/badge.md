@@ -12,27 +12,27 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `value` | `number \| string` | — | 显示值 |
-| `type` | `ColorType` | — | 颜色类型：`'primary'` `'info'` `'success'` `'warning'` `'danger'` |
-| `color` | `string` | — | 自定义背景色（CSS 颜色值） |
-| `max` | `number` | `99` | 最大值，超出后显示 `{max}+` |
-| `dot` | `boolean` | — | 仅显示小圆点，不显示数值 |
-| `hidden` | `boolean` | — | 隐藏徽标 |
-| `size` | `ComponentSize` | `'default'` | 组件尺寸：`'small'` `'default'` `'large'` |
+| prop     | type               | default     | 说明                                                              |
+| -------- | ------------------ | ----------- | ----------------------------------------------------------------- |
+| `value`  | `number \| string` | —           | 显示值                                                            |
+| `type`   | `ColorType`        | —           | 颜色类型：`'primary'` `'info'` `'success'` `'warning'` `'danger'` |
+| `color`  | `string`           | —           | 自定义背景色（CSS 颜色值）                                        |
+| `max`    | `number`           | `99`        | 最大值，超出后显示 `{max}+`                                       |
+| `dot`    | `boolean`          | —           | 仅显示小圆点，不显示数值                                          |
+| `hidden` | `boolean`          | —           | 隐藏徽标                                                          |
+| `size`   | `ComponentSize`    | `'default'` | 组件尺寸：`'small'` `'default'` `'large'`                         |
 
 ## Emits
 
-| event | payload | 说明 |
-|------|---------|------|
+| event               | payload           | 说明           |
+| ------------------- | ----------------- | -------------- |
 | `update:modelValue` | `(value: string)` | 当值变化时触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 默认插槽，徽标所附着的内容 |
+| slot      | 作用域 | 说明                       |
+| --------- | ------ | -------------------------- |
+| `default` | —      | 默认插槽，徽标所附着的内容 |
 
 ## Exposed
 

@@ -12,33 +12,33 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `any` | — | 当前选中值，支持 `v-model` |
-| `items` | `Record<string, any>[]` | — | 选项列表 |
-| `valueKey` | `string` | `'value'` | 选项值对应的字段名 |
-| `labelKey` | `string` | `'label'` | 选项标签文本对应的字段名 |
-| `block` | `boolean` | — | 是否块级布局，每个选项独占一行 |
-| `disabledItem` | `(item: Record<string, any>) => boolean` | — | 判断选项是否禁用的函数。禁用优先级高于 `disabled` |
+| prop           | type                                     | default   | 说明                                              |
+| -------------- | ---------------------------------------- | --------- | ------------------------------------------------- |
+| `modelValue`   | `any`                                    | —         | 当前选中值，支持 `v-model`                        |
+| `items`        | `Record<string, any>[]`                  | —         | 选项列表                                          |
+| `valueKey`     | `string`                                 | `'value'` | 选项值对应的字段名                                |
+| `labelKey`     | `string`                                 | `'label'` | 选项标签文本对应的字段名                          |
+| `block`        | `boolean`                                | —         | 是否块级布局，每个选项独占一行                    |
+| `disabledItem` | `(item: Record<string, any>) => boolean` | —         | 判断选项是否禁用的函数。禁用优先级高于 `disabled` |
 
 继承自 `FormComponentProps`，支持以下表单属性（通过 `useFormFallbackProps` 与表单上下文联动，未传入时回退到表单/全局配置）：
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用全部选项 |
-| `readonly` | `boolean` | `false` | 是否只读。只读时显示选中项的标签文本（未选中时显示 `-`） |
-| `tips` | `string` | — | 表单控件内的提示文本 |
-| `span` | `number \| 'full' \| BreakpointObject` | — | 所占列大小 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
+| prop       | type                                   | default     | 说明                                                     |
+| ---------- | -------------------------------------- | ----------- | -------------------------------------------------------- |
+| `size`     | `'small' \| 'default' \| 'large'`      | `'default'` | 组件尺寸                                                 |
+| `disabled` | `boolean`                              | `false`     | 是否禁用全部选项                                         |
+| `readonly` | `boolean`                              | `false`     | 是否只读。只读时显示选中项的标签文本（未选中时显示 `-`） |
+| `tips`     | `string`                               | —           | 表单控件内的提示文本                                     |
+| `span`     | `number \| 'full' \| BreakpointObject` | —           | 所占列大小                                               |
+| `label`    | `string`                               | —           | 表单标签文字                                             |
+| `field`    | `string`                               | —           | 表单项字段名                                             |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(modelValue: any)` | 选中值变化时触发，用于 `v-model` |
-| `change` | `(item: Record<string, any>)` | 选项变更时触发，参数为当前选中的完整选项对象 |
+| event               | 参数                          | 说明                                         |
+| ------------------- | ----------------------------- | -------------------------------------------- |
+| `update:modelValue` | `(modelValue: any)`           | 选中值变化时触发，用于 `v-model`             |
+| `change`            | `(item: Record<string, any>)` | 选项变更时触发，参数为当前选中的完整选项对象 |
 
 ## Slots
 
@@ -61,7 +61,7 @@ interface RadioGroupExposed {}
 const options = [
   { value: 'a', label: '选项 A' },
   { value: 'b', label: '选项 B' },
-  { value: 'c', label: '选项 C' },
+  { value: 'c', label: '选项 C' }
 ]
 const selected = ref('a')
 </script>
@@ -74,11 +74,7 @@ const selected = ref('a')
 禁用部分选项：
 
 ```vue
-<u-radio-group
-  v-model="selected"
-  :items="options"
-  :disabled-item="(item) => item.value === 'c'"
-/>
+<u-radio-group v-model="selected" :items="options" :disabled-item="(item) => item.value === 'c'" />
 ```
 
 块级布局：
@@ -107,9 +103,7 @@ const selected = ref('a')
 <script setup>
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  choice: formField({ value: '' })
-})
+const model = new FormModel({ choice: formField({ value: '' }) })
 
 const options = [
   { value: 'a', label: '选项 A' },

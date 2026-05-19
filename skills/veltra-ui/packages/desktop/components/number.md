@@ -12,16 +12,16 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `value` | `number` | — | 要显示的数值 |
-| `format` | `'currency'` \| `'percent'` \| `'decimal'` | `'decimal'` | 格式化方式：货币（CNY）、百分比、十进制 |
-| `align` | `'left'` \| `'center'` \| `'right'` | — | 文本对齐方式 |
-| `tween` | `boolean` | `false` | 是否启用补间动画过渡 |
-| `duration` | `number` | `800` | 补间动画持续时间（ms），`tween` 为 `true` 时生效 |
-| `precision` | `number` | — | 小数精度（固定小数位数） |
-| `maxPrecision` | `number` | — | 最大小数位数（`Intl.NumberFormat` 的 `maximumFractionDigits`） |
-| `minPrecision` | `number` | — | 最小小数位数（`Intl.NumberFormat` 的 `minimumFractionDigits`） |
+| prop           | type                                       | default     | 说明                                                           |
+| -------------- | ------------------------------------------ | ----------- | -------------------------------------------------------------- |
+| `value`        | `number`                                   | —           | 要显示的数值                                                   |
+| `format`       | `'currency'` \| `'percent'` \| `'decimal'` | `'decimal'` | 格式化方式：货币（CNY）、百分比、十进制                        |
+| `align`        | `'left'` \| `'center'` \| `'right'`        | —           | 文本对齐方式                                                   |
+| `tween`        | `boolean`                                  | `false`     | 是否启用补间动画过渡                                           |
+| `duration`     | `number`                                   | `800`       | 补间动画持续时间（ms），`tween` 为 `true` 时生效               |
+| `precision`    | `number`                                   | —           | 小数精度（固定小数位数）                                       |
+| `maxPrecision` | `number`                                   | —           | 最大小数位数（`Intl.NumberFormat` 的 `maximumFractionDigits`） |
+| `minPrecision` | `number`                                   | —           | 最小小数位数（`Intl.NumberFormat` 的 `minimumFractionDigits`） |
 
 ## Emits
 

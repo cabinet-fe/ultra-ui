@@ -4,11 +4,11 @@ SVG 图标组件库。原始 SVG 文件通过 `scripts/gen-vue-icons.ts` 自动�
 
 ## 子路径
 
-| 子路径 | 内容 |
-|--------|------|
-| `@veltra/icons` | 全部图标（normal + colorful） |
-| `@veltra/icons/normal` | 单色图标（可通过 CSS `color` 控制颜色） |
-| `@veltra/icons/colorful` | 多色图标 |
+| 子路径                   | 内容                                    |
+| ------------------------ | --------------------------------------- |
+| `@veltra/icons`          | 全部图标（normal + colorful）           |
+| `@veltra/icons/normal`   | 单色图标（可通过 CSS `color` 控制颜色） |
+| `@veltra/icons/colorful` | 多色图标                                |
 
 ## 导入
 
@@ -68,6 +68,7 @@ import { Search, Close, ArrowDown } from '@veltra/icons/normal'
 ```
 
 UIcon Props：
+
 - `size?: number | string` — 图标尺寸（px）
 - `color?: ColorType | string` — 图标颜色
 

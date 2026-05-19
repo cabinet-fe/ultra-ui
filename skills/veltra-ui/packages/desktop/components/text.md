@@ -12,37 +12,37 @@
 
 ## Props
 
-| prop        | 类型                   | 默认值      | 说明                                                                 |
-|-------------|------------------------|-------------|----------------------------------------------------------------------|
-| `as`        | `'main-title' \| 'title' \| 'sub-title' \| 'content' \| 'additional'` | `'content'` | 预设文本类型，决定字号、粗细与颜色                                    |
-| `fontSize`  | `string \| number`     | —           | 自定义字号，与 `as` 同时指定时会覆盖预设字号                          |
-| `deleted`   | `boolean`              | —           | 删除线（`text-decoration: line-through`）                             |
-| `underline` | `boolean`              | —           | 下划线（`text-decoration: underline`）。与 `deleted` 同时指定时后者覆盖 |
-| `bold`      | `boolean`              | —           | 粗体，与 `as` 同时指定时覆盖预设字体粗细                              |
-| `italic`    | `boolean`              | —           | 斜体                                                                 |
-| `highlight` | `string \| string[]`   | —           | 高亮关键词，对 slot 文本内容进行匹配，命中的片段包裹 `<mark>` 标签   |
+| prop        | 类型                                                                  | 默认值      | 说明                                                                    |
+| ----------- | --------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+| `as`        | `'main-title' \| 'title' \| 'sub-title' \| 'content' \| 'additional'` | `'content'` | 预设文本类型，决定字号、粗细与颜色                                      |
+| `fontSize`  | `string \| number`                                                    | —           | 自定义字号，与 `as` 同时指定时会覆盖预设字号                            |
+| `deleted`   | `boolean`                                                             | —           | 删除线（`text-decoration: line-through`）                               |
+| `underline` | `boolean`                                                             | —           | 下划线（`text-decoration: underline`）。与 `deleted` 同时指定时后者覆盖 |
+| `bold`      | `boolean`                                                             | —           | 粗体，与 `as` 同时指定时覆盖预设字体粗细                                |
+| `italic`    | `boolean`                                                             | —           | 斜体                                                                    |
+| `highlight` | `string \| string[]`                                                  | —           | 高亮关键词，对 slot 文本内容进行匹配，命中的片段包裹 `<mark>` 标签      |
 
 ### 预设 as 对照
 
-| 值           | 字号   | 粗细 | 颜色   | 用途     |
-|--------------|--------|------|--------|----------|
-| `main-title` | 18px   | 600  | #333   | 主标题   |
-| `title`      | 16px   | 600  | #333   | 标题     |
-| `sub-title`  | 16px   | 500  | #999   | 副标题   |
-| `content`    | 14px   | 300  | #666   | 正文内容 |
-| `additional` | 12px   | 300  | #999   | 附加说明 |
+| 值           | 字号 | 粗细 | 颜色 | 用途     |
+| ------------ | ---- | ---- | ---- | -------- |
+| `main-title` | 18px | 600  | #333 | 主标题   |
+| `title`      | 16px | 600  | #333 | 标题     |
+| `sub-title`  | 16px | 500  | #999 | 副标题   |
+| `content`    | 14px | 300  | #666 | 正文内容 |
+| `additional` | 12px | 300  | #999 | 附加说明 |
 
 ## Emits
 
-| event              | 参数                         | 说明 |
-|--------------------|------------------------------|------|
-| `update:modelValue` | `(value: string)`    | 文本变化时触发 |
+| event               | 参数              | 说明           |
+| ------------------- | ----------------- | -------------- |
+| `update:modelValue` | `(value: string)` | 文本变化时触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 文本内容。仅文本节点会被渲染，非文本 VNode 被过滤 |
+| slot      | 作用域 | 说明                                              |
+| --------- | ------ | ------------------------------------------------- |
+| `default` | —      | 文本内容。仅文本节点会被渲染，非文本 VNode 被过滤 |
 
 ## Exposed
 
@@ -93,21 +93,11 @@ interface TextExposed {}
 ### 组合用法
 
 ```vue
-<u-text
-  as="main-title"
-  bold
-  underline
-  :highlight="['发布']"
-  :font-size="22"
->
+<u-text as="main-title" bold underline :highlight="['发布']" :font-size="22">
   新版本发布公告
 </u-text>
 
-<u-text
-  as="additional"
-  deleted
-  italic
->
+<u-text as="additional" deleted italic>
   该功能已在下个版本中移除
 </u-text>
 ```

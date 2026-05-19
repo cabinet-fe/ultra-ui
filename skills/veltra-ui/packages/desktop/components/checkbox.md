@@ -12,32 +12,32 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `boolean` | — | 是否选中 |
-| `indeterminate` | `boolean` | — | 部分选中，展示「半选」图标 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读（点击不触发变更） |
-| `tips` | `string` | — | 在表单控件内时的提示文字 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段，用于表单校验关联 |
-| `span` | `number \| 'full' \| { xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full'; default: number \| 'full' }` | — | 在表单布局中所占列的大小 |
+| prop            | type                                                                                                                                                                   | default     | 说明                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------- |
+| `modelValue`    | `boolean`                                                                                                                                                              | —           | 是否选中                     |
+| `indeterminate` | `boolean`                                                                                                                                                              | —           | 部分选中，展示「半选」图标   |
+| `size`          | `'small' \| 'default' \| 'large'`                                                                                                                                      | `'default'` | 组件尺寸                     |
+| `disabled`      | `boolean`                                                                                                                                                              | `false`     | 是否禁用                     |
+| `readonly`      | `boolean`                                                                                                                                                              | `false`     | 是否只读（点击不触发变更）   |
+| `tips`          | `string`                                                                                                                                                               | —           | 在表单控件内时的提示文字     |
+| `label`         | `string`                                                                                                                                                               | —           | 表单标签文字                 |
+| `field`         | `string`                                                                                                                                                               | —           | 表单项字段，用于表单校验关联 |
+| `span`          | `number \| 'full' \| { xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full'; default: number \| 'full' }` | —           | 在表单布局中所占列的大小     |
 
 > `size`、`disabled`、`readonly` 默认值由 `useFormFallbackProps` 提供；若组件嵌套在 `<u-form>` 内部，会优先继承表单上下文的对应值。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `checked: boolean` | `v-model` 值变更时触发 |
-| `change` | `checked: boolean`, `e: MouseEvent` | 选中状态改变时触发（含原生鼠标事件） |
+| event               | 参数                                | 说明                                 |
+| ------------------- | ----------------------------------- | ------------------------------------ |
+| `update:modelValue` | `checked: boolean`                  | `v-model` 值变更时触发               |
+| `change`            | `checked: boolean`, `e: MouseEvent` | 选中状态改变时触发（含原生鼠标事件） |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 复选框右侧的标签文本 |
+| slot      | 作用域 | 说明                 |
+| --------- | ------ | -------------------- |
+| `default` | —      | 复选框右侧的标签文本 |
 
 ## Exposed
 
@@ -79,11 +79,7 @@ function handleCheckAll(checked: boolean) {
 </script>
 
 <template>
-  <u-checkbox
-    :model-value="isChecked"
-    :indeterminate="isIndeterminate"
-    @change="handleCheckAll"
-  >
+  <u-checkbox :model-value="isChecked" :indeterminate="isIndeterminate" @change="handleCheckAll">
     全选
   </u-checkbox>
 </template>
@@ -106,9 +102,7 @@ function handleCheckAll(checked: boolean) {
 <script setup lang="ts">
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  remember: formField({ value: false })
-})
+const model = new FormModel({ remember: formField({ value: false }) })
 </script>
 
 <template>

@@ -7,6 +7,7 @@ bun add @veltra/desktop
 ```
 
 `@veltra/desktop` 的 workspace peer dependencies 包括：
+
 - `@veltra/utils`、`@veltra/compositions`、`@veltra/directives`
 - `@veltra/styles`、`@veltra/icons`
 
@@ -28,6 +29,7 @@ app.mount('#app')
 ```
 
 `app.use(UltraUI)` 会：
+
 1. 注册全部 `U*` 组件
 2. 注册全部通用指令（`v-ripple`、`v-click-outside`、`v-focus`、`v-loading`）
 3. 注入全部组件样式
@@ -81,12 +83,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VeltraDesktopUIResolver } from '@veltra/vite'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [VeltraDesktopUIResolver()]
-    })
-  ]
+  plugins: [vue(), Components({ resolvers: [VeltraDesktopUIResolver()] })]
 })
 ```
 
@@ -112,13 +109,7 @@ export default defineConfig({
 import { NodePackageImporter } from 'sass-embedded'
 
 export default defineConfig({
-  css: {
-    preprocessorOptions: {
-      scss: {
-        importers: [new NodePackageImporter()]
-      }
-    }
-  }
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 })
 ```
 
@@ -133,14 +124,12 @@ import { heroLightTheme, glassLightTheme } from '@veltra/styles/theme'
 loadTheme()
 
 // 或加载预设主题
-loadTheme(heroLightTheme)   // HeroUI 风格
-loadTheme(glassLightTheme)  // 玻璃拟态
+loadTheme(heroLightTheme) // HeroUI 风格
+loadTheme(glassLightTheme) // 玻璃拟态
 
 // 或加载自定义主题
 import { lightTheme } from '@veltra/styles/theme'
-const custom = lightTheme.new({
-  color: { primary: '#1890ff' }
-})
+const custom = lightTheme.new({ color: { primary: '#1890ff' } })
 loadTheme(custom)
 ```
 

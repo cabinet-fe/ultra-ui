@@ -12,37 +12,37 @@
 
 ## Props
 
-| prop | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `modelValue` | `string[] \| string` | — | 双向绑定的值 |
-| `data` | `Record<string, any>[]` | `[]` | 级联数据 |
-| `labelKey` | `string` | `'label'` | 数据项中标签字段名 |
-| `valueKey` | `string` | `'value'` | 数据项中值字段名 |
-| `childrenKey` | `string` | `'children'` | 数据项中子级字段名 |
-| `separator` | `string` | `'/'` | 单选展示时的路径分隔符 |
-| `placeholder` | `string` | `'请选择'` | 占位文本 |
-| `clearable` | `boolean` | `true` | 是否可清除 |
-| `strict` | `boolean` | — | 严格模式，仅叶子节点可选中 |
-| `multiple` | `boolean` | — | 是否多选 |
-| `filterable` | `boolean` | `false` | 是否可搜索过滤 |
-| `visibilityLimit` | `number` | `3` | 多选标签最多可见数量，超出显示 `+N` |
-| `disabledNode` | `(item: Record<string, any>) => boolean` | — | 禁用节点判定函数 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读 |
-| `tips` | `string` | — | 表单控件内的提示文字 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
-| `span` | `number \| 'full' \| { [breakpoint]: number \| 'full' }` | — | 所占列的大小 |
+| prop              | 类型                                                     | 默认值       | 说明                                |
+| ----------------- | -------------------------------------------------------- | ------------ | ----------------------------------- |
+| `modelValue`      | `string[] \| string`                                     | —            | 双向绑定的值                        |
+| `data`            | `Record<string, any>[]`                                  | `[]`         | 级联数据                            |
+| `labelKey`        | `string`                                                 | `'label'`    | 数据项中标签字段名                  |
+| `valueKey`        | `string`                                                 | `'value'`    | 数据项中值字段名                    |
+| `childrenKey`     | `string`                                                 | `'children'` | 数据项中子级字段名                  |
+| `separator`       | `string`                                                 | `'/'`        | 单选展示时的路径分隔符              |
+| `placeholder`     | `string`                                                 | `'请选择'`   | 占位文本                            |
+| `clearable`       | `boolean`                                                | `true`       | 是否可清除                          |
+| `strict`          | `boolean`                                                | —            | 严格模式，仅叶子节点可选中          |
+| `multiple`        | `boolean`                                                | —            | 是否多选                            |
+| `filterable`      | `boolean`                                                | `false`      | 是否可搜索过滤                      |
+| `visibilityLimit` | `number`                                                 | `3`          | 多选标签最多可见数量，超出显示 `+N` |
+| `disabledNode`    | `(item: Record<string, any>) => boolean`                 | —            | 禁用节点判定函数                    |
+| `size`            | `'small' \| 'default' \| 'large'`                        | `'default'`  | 组件尺寸                            |
+| `disabled`        | `boolean`                                                | `false`      | 是否禁用                            |
+| `readonly`        | `boolean`                                                | `false`      | 是否只读                            |
+| `tips`            | `string`                                                 | —            | 表单控件内的提示文字                |
+| `label`           | `string`                                                 | —            | 表单标签文字                        |
+| `field`           | `string`                                                 | —            | 表单项字段名                        |
+| `span`            | `number \| 'full' \| { [breakpoint]: number \| 'full' }` | —            | 所占列的大小                        |
 
 ## Emits
 
-| event | 参数 | 说明 |
-| --- | --- | --- |
-| `update:modelValue` | `(value?: string \| string[])` | `v-model` 值变更 |
-| `change` | `(value: string[], label: string[], data: Record<string, any>[])` | 多选时选中值变更 |
-| `change` | `(value?: string, label?: string, item?: Record<string, any>)` | 单选时选中值变更 |
-| `clear` | `()` | 清除选中 |
+| event               | 参数                                                              | 说明             |
+| ------------------- | ----------------------------------------------------------------- | ---------------- |
+| `update:modelValue` | `(value?: string \| string[])`                                    | `v-model` 值变更 |
+| `change`            | `(value: string[], label: string[], data: Record<string, any>[])` | 多选时选中值变更 |
+| `change`            | `(value?: string, label?: string, item?: Record<string, any>)`    | 单选时选中值变更 |
+| `clear`             | `()`                                                              | 清除选中         |
 
 ## Slots
 

@@ -12,18 +12,18 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 编辑器内容 |
-| `language` | `'js' \| 'sql' \| 'java' \| 'json'` | — | 代码语言，切换时异步加载对应 CodeMirror 语言包 |
-| `dark` | `boolean` | `false` | 是否使用暗色主题（基于 `@codemirror/theme-one-dark`） |
-| `defaultLines` | `number` | `8` | 默认显示的行数，用于撑起编辑器最小高度。当实际代码行数少于该值时，通过虚拟行号补齐；超出后出现滚动条 |
-| `disabled` | `boolean` | `false` | 是否禁用（继承自 `FormComponentProps`，回退到表单上下文 → 全局配置 → `false`） |
-| `readonly` | `boolean` | `false` | 是否只读（继承自 `FormComponentProps`，回退到表单上下文 → 全局配置 → `false`） |
-| `label` | `string` | — | 表单标签文字（继承自 `FormComponentProps`） |
-| `field` | `string` | — | 表单项字段（继承自 `FormComponentProps`） |
-| `tips` | `string` | — | 表单控件内的提示信息（继承自 `FormComponentProps`） |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列大小（继承自 `FormComponentProps`） |
+| prop           | type                                                                                                                                                                   | default | 说明                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| `modelValue`   | `string`                                                                                                                                                               | —       | 编辑器内容                                                                                           |
+| `language`     | `'js' \| 'sql' \| 'java' \| 'json'`                                                                                                                                    | —       | 代码语言，切换时异步加载对应 CodeMirror 语言包                                                       |
+| `dark`         | `boolean`                                                                                                                                                              | `false` | 是否使用暗色主题（基于 `@codemirror/theme-one-dark`）                                                |
+| `defaultLines` | `number`                                                                                                                                                               | `8`     | 默认显示的行数，用于撑起编辑器最小高度。当实际代码行数少于该值时，通过虚拟行号补齐；超出后出现滚动条 |
+| `disabled`     | `boolean`                                                                                                                                                              | `false` | 是否禁用（继承自 `FormComponentProps`，回退到表单上下文 → 全局配置 → `false`）                       |
+| `readonly`     | `boolean`                                                                                                                                                              | `false` | 是否只读（继承自 `FormComponentProps`，回退到表单上下文 → 全局配置 → `false`）                       |
+| `label`        | `string`                                                                                                                                                               | —       | 表单标签文字（继承自 `FormComponentProps`）                                                          |
+| `field`        | `string`                                                                                                                                                               | —       | 表单项字段（继承自 `FormComponentProps`）                                                            |
+| `tips`         | `string`                                                                                                                                                               | —       | 表单控件内的提示信息（继承自 `FormComponentProps`）                                                  |
+| `span`         | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —       | 所占列大小（继承自 `FormComponentProps`）                                                            |
 
 > 该组件**不支持** `size` prop（`CodeEditorProps` 显式排除了 `FormComponentProps` 中的 `size`）。
 
@@ -33,8 +33,8 @@
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明                     |
+| ------------------- | ----------------- | ------------------------ |
 | `update:modelValue` | `(value: string)` | 编辑器内容变化时实时更新 |
 
 ## Slots
@@ -103,9 +103,7 @@ ORDER BY created_at DESC`
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-const form = reactive({
-  script: ''
-})
+const form = reactive({ script: '' })
 </script>
 
 <template>

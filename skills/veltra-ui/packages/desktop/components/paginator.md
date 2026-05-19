@@ -10,23 +10,23 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `pageNumber` | `number` | `1` | 当前页码，支持 `v-model:page-number` |
-| `pageSize` | `number` | `10` | 每页显示条数，支持 `v-model:page-size` |
-| `total` | `number` | `0` | 数据总数 |
-| `size` | `'large' \| 'default' \| 'small'` | `'default'` | 尺寸模式（通过 `useFallbackProps` 提供默认值） |
-| `pageSizeOptions` | `number[]` | `config.paginator.pageSizeOptions` | 每页显示条数的可选项，不传时取全局配置 |
-| `simple` | `boolean` | — | 简洁模式，开启后隐藏页码按钮和跳页码输入 |
+| prop              | type                              | default                            | 说明                                           |
+| ----------------- | --------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `pageNumber`      | `number`                          | `1`                                | 当前页码，支持 `v-model:page-number`           |
+| `pageSize`        | `number`                          | `10`                               | 每页显示条数，支持 `v-model:page-size`         |
+| `total`           | `number`                          | `0`                                | 数据总数                                       |
+| `size`            | `'large' \| 'default' \| 'small'` | `'default'`                        | 尺寸模式（通过 `useFallbackProps` 提供默认值） |
+| `pageSizeOptions` | `number[]`                        | `config.paginator.pageSizeOptions` | 每页显示条数的可选项，不传时取全局配置         |
+| `simple`          | `boolean`                         | —                                  | 简洁模式，开启后隐藏页码按钮和跳页码输入       |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:pageNumber` | `(value: number)` | `v-model:page-number` 绑定事件 |
-| `update:pageSize` | `(value: number)` | `v-model:page-size` 绑定事件 |
-| `change:pageNumber` | `(value: number)` | 页码变化后触发（所有场景） |
-| `change:pageSize` | `(value: number)` | 每页条数变化后触发，同时自动将页码重置为 1 |
+| event               | 参数              | 说明                                       |
+| ------------------- | ----------------- | ------------------------------------------ |
+| `update:pageNumber` | `(value: number)` | `v-model:page-number` 绑定事件             |
+| `update:pageSize`   | `(value: number)` | `v-model:page-size` 绑定事件               |
+| `change:pageNumber` | `(value: number)` | 页码变化后触发（所有场景）                 |
+| `change:pageSize`   | `(value: number)` | 每页条数变化后触发，同时自动将页码重置为 1 |
 
 ## Slots
 
@@ -53,11 +53,7 @@ const pageSize = ref(10)
 </script>
 
 <template>
-  <u-paginator
-    v-model:page-number="pageNumber"
-    v-model:page-size="pageSize"
-    :total="256"
-  />
+  <u-paginator v-model:page-number="pageNumber" v-model:page-size="pageSize" :total="256" />
 </template>
 ```
 
@@ -128,10 +124,6 @@ const page = ref(1)
 </script>
 
 <template>
-  <u-paginator
-    v-model:page-number="page"
-    :total="100"
-    simple
-  />
+  <u-paginator v-model:page-number="page" :total="100" simple />
 </template>
 ```

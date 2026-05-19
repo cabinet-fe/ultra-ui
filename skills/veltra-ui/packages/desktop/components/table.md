@@ -98,52 +98,52 @@ interface TableRow extends TreeNode<Record<string, any>> {
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `data` | `Record<string, any>[]` | — | 表格数据 |
-| `columns` | `TableColumn[]` | — | 列定义 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 尺寸 |
-| `rowKey` | `string` | — | 行唯一标识字段名，多选/单选/树形时必须 |
-| `checkable` | `boolean` | — | 开启多选（需 `rowKey`） |
-| `checked` | `Record<string, any>[]` | — | 多选已选项（支持 `v-model:checked`） |
-| `selectable` | `boolean` | — | 开启单选（需 `rowKey`） |
-| `selected` | `Record<string, any>` | — | 单选已选项（支持 `v-model:selected`） |
-| `showIndex` | `boolean` | — | 显示行索引（从 1 开始，固定左侧，列宽 60px） |
-| `tree` | `boolean \| string` | `false` | 树形模式。`true` 时子节点从 `children` 字段读取；传字符串表示自定义子节点字段名 |
-| `expandable` | `boolean` | — | 开启行展开（非树形模式下有效） |
-| `defaultExpandAll` | `boolean` | — | 默认展开全部（树形模式） |
-| `current` | `TableRow` | — | 当前选中/点击的行（支持 `v-model:current`） |
-| `highlightCurrent` | `boolean` | `false` | 高亮当前点击的行（未设置 `current` 时也生效） |
-| `stripe` | `boolean` | `true` | 斑马纹（奇偶行交替底色） |
-| `border` | `boolean` | `false` | 边框 |
-| `textEllipsis` | `boolean` | — | 文本溢出省略 |
-| `virtualThreshold` | `number` | `80` | 虚拟滚动阈值，数据量超过此值时自动开启。设为 `0` 则始终开启虚拟滚动 |
-| `mergeCell` | `(ctx: TableColumnRenderContext) => { rowspan: number; colspan: number } \| undefined` | — | 单元格合并函数 |
-| `slots` | `Readonly<Slots>` | — | 传入外部作用域插槽，用于跨组件传递插槽 |
+| prop               | type                                                                                   | default     | 说明                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `data`             | `Record<string, any>[]`                                                                | —           | 表格数据                                                                        |
+| `columns`          | `TableColumn[]`                                                                        | —           | 列定义                                                                          |
+| `size`             | `'small' \| 'default' \| 'large'`                                                      | `'default'` | 尺寸                                                                            |
+| `rowKey`           | `string`                                                                               | —           | 行唯一标识字段名，多选/单选/树形时必须                                          |
+| `checkable`        | `boolean`                                                                              | —           | 开启多选（需 `rowKey`）                                                         |
+| `checked`          | `Record<string, any>[]`                                                                | —           | 多选已选项（支持 `v-model:checked`）                                            |
+| `selectable`       | `boolean`                                                                              | —           | 开启单选（需 `rowKey`）                                                         |
+| `selected`         | `Record<string, any>`                                                                  | —           | 单选已选项（支持 `v-model:selected`）                                           |
+| `showIndex`        | `boolean`                                                                              | —           | 显示行索引（从 1 开始，固定左侧，列宽 60px）                                    |
+| `tree`             | `boolean \| string`                                                                    | `false`     | 树形模式。`true` 时子节点从 `children` 字段读取；传字符串表示自定义子节点字段名 |
+| `expandable`       | `boolean`                                                                              | —           | 开启行展开（非树形模式下有效）                                                  |
+| `defaultExpandAll` | `boolean`                                                                              | —           | 默认展开全部（树形模式）                                                        |
+| `current`          | `TableRow`                                                                             | —           | 当前选中/点击的行（支持 `v-model:current`）                                     |
+| `highlightCurrent` | `boolean`                                                                              | `false`     | 高亮当前点击的行（未设置 `current` 时也生效）                                   |
+| `stripe`           | `boolean`                                                                              | `true`      | 斑马纹（奇偶行交替底色）                                                        |
+| `border`           | `boolean`                                                                              | `false`     | 边框                                                                            |
+| `textEllipsis`     | `boolean`                                                                              | —           | 文本溢出省略                                                                    |
+| `virtualThreshold` | `number`                                                                               | `80`        | 虚拟滚动阈值，数据量超过此值时自动开启。设为 `0` 则始终开启虚拟滚动             |
+| `mergeCell`        | `(ctx: TableColumnRenderContext) => { rowspan: number; colspan: number } \| undefined` | —           | 单元格合并函数                                                                  |
+| `slots`            | `Readonly<Slots>`                                                                      | —           | 传入外部作用域插槽，用于跨组件传递插槽                                          |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:checked` | `(value: DataItem[])` | 多选项变更 |
-| `update:selected` | `(value: DataItem \| undefined)` | 单选项变更 |
-| `update:current` | `(row?: TableRow)` | 当前行变更 |
-| `update:rows` | `(rows: TableRow[])` | 行数据更新 |
-| `update:forest` | `(rows?: Forest<Record<string, unknown>, any>)` | 树形数据森林结构更新 |
-| `row-click` | `(row: TableRow, ev: MouseEvent)` | 行点击事件 |
-| `cell-click` | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 单元格点击事件 |
+| event             | 参数                                                   | 说明                 |
+| ----------------- | ------------------------------------------------------ | -------------------- |
+| `update:checked`  | `(value: DataItem[])`                                  | 多选项变更           |
+| `update:selected` | `(value: DataItem \| undefined)`                       | 单选项变更           |
+| `update:current`  | `(row?: TableRow)`                                     | 当前行变更           |
+| `update:rows`     | `(rows: TableRow[])`                                   | 行数据更新           |
+| `update:forest`   | `(rows?: Forest<Record<string, unknown>, any>)`        | 树形数据森林结构更新 |
+| `row-click`       | `(row: TableRow, ev: MouseEvent)`                      | 行点击事件           |
+| `cell-click`      | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 单元格点击事件       |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `column:{key}` | `TableColumnSlotsScope` | 动态列插槽，`{key}` 为列定义的 `key` 字段值。作用域含 `model` 双向绑定对象 |
-| `header:{key}` | `{ column: ColumnNode }` | 动态表头插槽，`{key}` 为列定义的 `key` 字段值 |
-| `row:expand` | `TableRowSlotsScope` | 展开行内容（需设置 `expandable` 或 `tree`） |
-| `body` | `{ columns: ColumnNode[]; rows: TableRowNode[] }` | 自定义整个 body 内容 |
-| `foot` | `{ columns: ColumnNode[]; rows: TableRowNode[] }` | 自定义表尾（合计行） |
-| `empty` | — | 空数据状态 |
-| `append` | — | 追加在表格滚动区域之后的内容 |
+| slot           | 作用域                                            | 说明                                                                       |
+| -------------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
+| `column:{key}` | `TableColumnSlotsScope`                           | 动态列插槽，`{key}` 为列定义的 `key` 字段值。作用域含 `model` 双向绑定对象 |
+| `header:{key}` | `{ column: ColumnNode }`                          | 动态表头插槽，`{key}` 为列定义的 `key` 字段值                              |
+| `row:expand`   | `TableRowSlotsScope`                              | 展开行内容（需设置 `expandable` 或 `tree`）                                |
+| `body`         | `{ columns: ColumnNode[]; rows: TableRowNode[] }` | 自定义整个 body 内容                                                       |
+| `foot`         | `{ columns: ColumnNode[]; rows: TableRowNode[] }` | 自定义表尾（合计行）                                                       |
+| `empty`        | —                                                 | 空数据状态                                                                 |
+| `append`       | —                                                 | 追加在表格滚动区域之后的内容                                               |
 
 **列插槽与 `render` 的优先级**：如果同时定义了列插槽 `column:{key}` 和列的 `render` 函数，插槽优先。
 
@@ -176,11 +176,14 @@ function defineTableColumns(
 ```
 
 ```ts
-const columns = defineTableColumns([
-  { key: 'name', name: '姓名' },
-  { key: 'age', name: '年龄', align: 'right' }, // 不会覆盖
-  { key: 'address', name: '地址' }
-], { align: 'center', minWidth: 100 })
+const columns = defineTableColumns(
+  [
+    { key: 'name', name: '姓名' },
+    { key: 'age', name: '年龄', align: 'right' }, // 不会覆盖
+    { key: 'address', name: '地址' }
+  ],
+  { align: 'center', minWidth: 100 }
+)
 // 效果：name 和 address 会应用 align: 'center' 和 minWidth: 100，age 的 align 保持 'right'
 ```
 
@@ -192,11 +195,14 @@ const columns = defineTableColumns([
 <script setup lang="ts">
 import { defineTableColumns } from '@veltra/desktop'
 
-const columns = defineTableColumns([
-  { key: 'name', name: '姓名', width: 120 },
-  { key: 'age', name: '年龄', width: 80, align: 'center' },
-  { key: 'address', name: '地址', minWidth: 200 }
-], { align: 'center' })
+const columns = defineTableColumns(
+  [
+    { key: 'name', name: '姓名', width: 120 },
+    { key: 'age', name: '年龄', width: 80, align: 'center' },
+    { key: 'address', name: '地址', minWidth: 200 }
+  ],
+  { align: 'center' }
+)
 
 const data = [
   { id: 1, name: '张三', age: 28, address: '北京市海淀区' },
@@ -225,8 +231,9 @@ const columns: TableColumn[] = [
     width: 100,
     align: 'center',
     render({ val }) {
-      return h(UTag, { type: val === 1 ? 'success' : 'danger' },
-        () => val === 1 ? '启用' : '禁用')
+      return h(UTag, { type: val === 1 ? 'success' : 'danger' }, () =>
+        val === 1 ? '启用' : '禁用'
+      )
     }
   },
   { key: 'createTime', name: '创建时间', width: 180 }
@@ -388,7 +395,11 @@ const columns = defineTableColumns([
   { key: 'name', name: '商品', minWidth: 150 },
   { key: 'price', name: '单价', width: 100, align: 'right', summary: true },
   { key: 'quantity', name: '数量', width: 80, align: 'center' },
-  { key: 'total', name: '金额', width: 120, align: 'right',
+  {
+    key: 'total',
+    name: '金额',
+    width: 120,
+    align: 'right',
     render({ rowData }) {
       return `¥${(rowData.price * rowData.quantity).toFixed(2)}`
     },
@@ -525,14 +536,21 @@ const columns: TableColumn[] = [
     width: 100,
     align: 'center',
     render({ val }) {
-      return h(UTag, { type: val === 1 ? 'success' : 'default' },
-        () => val === 1 ? '在职' : '离职')
+      return h(UTag, { type: val === 1 ? 'success' : 'default' }, () =>
+        val === 1 ? '在职' : '离职'
+      )
     }
   }
 ]
 
 const data = [
-  { firstName: '三', lastName: '张', email: 'zhangsan@example.com', phone: '13800001111', status: 1 },
+  {
+    firstName: '三',
+    lastName: '张',
+    email: 'zhangsan@example.com',
+    phone: '13800001111',
+    status: 1
+  },
   { firstName: '四', lastName: '李', email: 'lisi@example.com', phone: '13800002222', status: 0 }
 ]
 </script>

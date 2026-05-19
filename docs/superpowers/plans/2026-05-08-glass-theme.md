@@ -13,6 +13,7 @@
 ### Task 1: Create Glass Theme Definitions
 
 **Files:**
+
 - Create: `packages/styles/src/theme/glass.ts`
 
 - [ ] **Step 1: Write the theme implementation**
@@ -56,10 +57,7 @@ export const glassLightTheme = lightTheme.new({
 })
 
 export const glassDarkTheme = glassLightTheme.new({
-  color: {
-    disabled: '#374151',
-    default: '#1E293B'
-  },
+  color: { disabled: '#374151', default: '#1E293B' },
   bg: {
     color: {
       bottom: 'rgba(15, 23, 42, 0.6)',
@@ -93,6 +91,7 @@ git commit -m "feat: add glass theme definitions"
 ### Task 2: Export Glass Theme
 
 **Files:**
+
 - Modify: `packages/styles/src/theme/index.ts`
 
 - [ ] **Step 1: Export the themes from index.ts**
@@ -100,11 +99,13 @@ git commit -m "feat: add glass theme definitions"
 Modify `packages/styles/src/theme/index.ts` to export `glassLightTheme` and `glassDarkTheme`.
 
 Add this line along with the other theme exports (like `shadcn`, `hero`):
+
 ```typescript
 export { glassLightTheme, glassDarkTheme } from './glass'
 ```
 
 For instance, the file should end up looking like:
+
 ```typescript
 export {
   componentCssVarsDark,

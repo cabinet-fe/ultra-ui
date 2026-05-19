@@ -25,14 +25,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VeltraDesktopUIResolver } from '@veltra/vite'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [
-        VeltraDesktopUIResolver()
-      ]
-    })
-  ]
+  plugins: [vue(), Components({ resolvers: [VeltraDesktopUIResolver()] })]
 })
 ```
 
@@ -63,17 +56,13 @@ interface VeltraDesktopUIResolverOptions {
 ### 排除组件示例
 
 ```ts
-VeltraDesktopUIResolver({
-  exclude: ['file-viewer', 'file-picker', 'gantt-chart']
-})
+VeltraDesktopUIResolver({ exclude: ['file-viewer', 'file-picker', 'gantt-chart'] })
 ```
 
 ### 仅引入部分组件
 
 ```ts
-VeltraDesktopUIResolver({
-  include: ['button', 'input', 'select', 'dialog', 'form']
-})
+VeltraDesktopUIResolver({ include: ['button', 'input', 'select', 'dialog', 'form'] })
 ```
 
 ## 工作原理
@@ -106,11 +95,7 @@ export default defineConfig({
     vue(),
     Components({
       // 只自动导入 Veltra 组件，排除大文件组件
-      resolvers: [
-        VeltraDesktopUIResolver({
-          exclude: ['file-viewer', 'gantt-chart']
-        })
-      ],
+      resolvers: [VeltraDesktopUIResolver({ exclude: ['file-viewer', 'gantt-chart'] })],
       // 生成 dts 文件，获得类型提示
       dts: 'src/components.d.ts',
       // 指定组件目录
@@ -130,13 +115,7 @@ export default defineConfig({
 import { NodePackageImporter } from 'sass-embedded'
 
 export default defineConfig({
-  css: {
-    preprocessorOptions: {
-      scss: {
-        importers: [new NodePackageImporter()]
-      }
-    }
-  }
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 })
 ```
 

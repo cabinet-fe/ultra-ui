@@ -31,27 +31,27 @@ type CollapseIconPosition = 'left' | 'right'
 
 ## UCollapse Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `ComponentSize` | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置 |
-| `modelValue` | `CollapseModelValue` | — | 当前展开项（v-model） |
-| `accordion` | `boolean` | `false` | 是否手风琴模式（一次只能展开一项） |
-| `bordered` | `boolean` | `true` | 是否显示外层与项之间的分隔线；设为 `false` 时为 ghost 风格 |
-| `iconPosition` | `CollapseIconPosition` | `'right'` | 展开/收起图标位置 |
-| `expandIcon` | `Component` | — | 自定义展开图标组件，活动态会自动旋转 90° |
+| prop           | type                   | default     | 说明                                                       |
+| -------------- | ---------------------- | ----------- | ---------------------------------------------------------- |
+| `size`         | `ComponentSize`        | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置       |
+| `modelValue`   | `CollapseModelValue`   | —           | 当前展开项（v-model）                                      |
+| `accordion`    | `boolean`              | `false`     | 是否手风琴模式（一次只能展开一项）                         |
+| `bordered`     | `boolean`              | `true`      | 是否显示外层与项之间的分隔线；设为 `false` 时为 ghost 风格 |
+| `iconPosition` | `CollapseIconPosition` | `'right'`   | 展开/收起图标位置                                          |
+| `expandIcon`   | `Component`            | —           | 自定义展开图标组件，活动态会自动旋转 90°                   |
 
 ## UCollapse Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:modelValue` | `(value: CollapseModelValue)` | v-model 更新 |
-| `change` | `(value: CollapseModelValue)` | 展开项变更时触发（在 `update:modelValue` 之后同步触发） |
+| event               | 参数                          | 说明                                                    |
+| ------------------- | ----------------------------- | ------------------------------------------------------- |
+| `update:modelValue` | `(value: CollapseModelValue)` | v-model 更新                                            |
+| `change`            | `(value: CollapseModelValue)` | 展开项变更时触发（在 `update:modelValue` 之后同步触发） |
 
 ## UCollapse Slots
 
-| slot | 参数 | 说明 |
-|------|------|------|
-| default | — | 放置 `UCollapseItem` 的默认插槽 |
+| slot    | 参数 | 说明                            |
+| ------- | ---- | ------------------------------- |
+| default | —    | 放置 `UCollapseItem` 的默认插槽 |
 
 ## UCollapse Exposed
 
@@ -74,20 +74,20 @@ interface CollapseExposed {
 
 ## UCollapseItem Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `value` | `CollapseValue` | — | **必填**，唯一标识 |
-| `title` | `string` | — | 标题文本，可被 `#title` 插槽替代 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `hideIcon` | `boolean` | `false` | 是否隐藏展开图标 |
+| prop       | type            | default | 说明                             |
+| ---------- | --------------- | ------- | -------------------------------- |
+| `value`    | `CollapseValue` | —       | **必填**，唯一标识               |
+| `title`    | `string`        | —       | 标题文本，可被 `#title` 插槽替代 |
+| `disabled` | `boolean`       | `false` | 是否禁用                         |
+| `hideIcon` | `boolean`       | `false` | 是否隐藏展开图标                 |
 
 ## UCollapseItem Slots
 
-| slot | 参数 | 说明 |
-|------|------|------|
-| default | — | 折叠的内容 |
-| `title` | — | 自定义标题区域 |
-| `icon` | `{ isActive: boolean }` | 自定义图标，可按 `isActive` 渲染不同图形 |
+| slot    | 参数                    | 说明                                     |
+| ------- | ----------------------- | ---------------------------------------- |
+| default | —                       | 折叠的内容                               |
+| `title` | —                       | 自定义标题区域                           |
+| `icon`  | `{ isActive: boolean }` | 自定义图标，可按 `isActive` 渲染不同图形 |
 
 ## Examples
 
@@ -177,4 +177,3 @@ const active = ref<CollapseModelValue>([])
   </u-collapse>
 </template>
 ```
-

@@ -10,14 +10,14 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 当前日期字符串，通过 `v-model` 双向绑定。传递给 `getMonthDays()` 确定展示月份的网格 |
+| prop         | type     | default | 说明                                                                                |
+| ------------ | -------- | ------- | ----------------------------------------------------------------------------------- |
+| `modelValue` | `string` | —       | 当前日期字符串，通过 `v-model` 双向绑定。传递给 `getMonthDays()` 确定展示月份的网格 |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明               |
+| ------------------- | ----------------- | ------------------ |
 | `update:modelValue` | `(value: string)` | `v-model` 更新回调 |
 
 ## Slots
@@ -36,10 +36,10 @@ interface CalendarExposed {}
 
 ```ts
 interface CalendarDay {
-  date: Dater           // @cat-kit/core 的 Dater 实例
-  isToday?: boolean      // 是否今日
-  type: 'pre' | 'current' | 'next'  // 日期类型：上月 / 本月 / 下月
-  disabled?: boolean     // 是否禁止选择
+  date: Dater // @cat-kit/core 的 Dater 实例
+  isToday?: boolean // 是否今日
+  type: 'pre' | 'current' | 'next' // 日期类型：上月 / 本月 / 下月
+  disabled?: boolean // 是否禁止选择
 }
 ```
 

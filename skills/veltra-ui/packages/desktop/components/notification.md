@@ -29,17 +29,14 @@ function Notification(options: NotificationProps): void
 import { Notification } from '@veltra/desktop'
 
 // 基础用法
-Notification({
-  title: '操作成功',
-  message: '数据已保存'
-})
+Notification({ title: '操作成功', message: '数据已保存' })
 
 // 完整配置
 Notification({
   title: '删除确认',
   message: '确定要删除该数据吗？',
   type: 'danger',
-  duration: 0,         // 0 则不自动关闭
+  duration: 0, // 0 则不自动关闭
   closable: true,
   buttonText: '撤销',
   position: 'top-right',
@@ -54,20 +51,20 @@ Notification({
 
 ## Props
 
-| prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `title` | `string` | — | 通知标题 |
-| `message` | `string` | — | 通知内容 |
-| `type` | `ColorType` | `'primary'` | 通知类型，影响图标和按钮颜色 |
-| `duration` | `number` | `4500` | 自动关闭时长（ms），设为 `0` 则不自动关闭 |
-| `closable` | `boolean` | `false` | 是否显示关闭按钮 |
-| `offset` | `number` | `20` | 距容器边缘的偏移量（px） |
-| `position` | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置 |
-| `icon` | `DefineComponent` | — | 自定义图标组件，不传则按 `type` 自动匹配 |
-| `buttonText` | `string` | `''` | 按钮文字，为空则不显示按钮 |
-| `zIndex` | `number` | — | CSS `z-index`，函数式调用时自动递增 |
-| `width` | `number` | — | 通知宽度（px） |
-| `id` | `string` | — | 唯一标识，函数式调用时自动生成 |
+| prop         | 类型                                                           | 默认值           | 说明                                      |
+| ------------ | -------------------------------------------------------------- | ---------------- | ----------------------------------------- |
+| `title`      | `string`                                                       | —                | 通知标题                                  |
+| `message`    | `string`                                                       | —                | 通知内容                                  |
+| `type`       | `ColorType`                                                    | `'primary'`      | 通知类型，影响图标和按钮颜色              |
+| `duration`   | `number`                                                       | `4500`           | 自动关闭时长（ms），设为 `0` 则不自动关闭 |
+| `closable`   | `boolean`                                                      | `false`          | 是否显示关闭按钮                          |
+| `offset`     | `number`                                                       | `20`             | 距容器边缘的偏移量（px）                  |
+| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置                                  |
+| `icon`       | `DefineComponent`                                              | —                | 自定义图标组件，不传则按 `type` 自动匹配  |
+| `buttonText` | `string`                                                       | `''`             | 按钮文字，为空则不显示按钮                |
+| `zIndex`     | `number`                                                       | —                | CSS `z-index`，函数式调用时自动递增       |
+| `width`      | `number`                                                       | —                | 通知宽度（px）                            |
+| `id`         | `string`                                                       | —                | 唯一标识，函数式调用时自动生成            |
 
 ### ColorType
 
@@ -77,20 +74,20 @@ type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 
 ### type 对应的默认图标
 
-| type | 图标 |
-|------|------|
-| `primary` | `InfoFilled` |
-| `info` | `QuestionFilled` |
+| type      | 图标                |
+| --------- | ------------------- |
+| `primary` | `InfoFilled`        |
+| `info`    | `QuestionFilled`    |
 | `success` | `CircleCheckFilled` |
-| `warning` | `WarningFilled` |
-| `danger` | `CircleClose` |
+| `warning` | `WarningFilled`     |
+| `danger`  | `CircleClose`       |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|------|------|------|
-| `update:modelValue` | `(value: string)` | `modelValue` 变化时触发 |
-| `destroy` | — | 退出动画完成后触发，函数式 API 内部使用 |
+| event               | 参数              | 说明                                    |
+| ------------------- | ----------------- | --------------------------------------- |
+| `update:modelValue` | `(value: string)` | `modelValue` 变化时触发                 |
+| `destroy`           | —                 | 退出动画完成后触发，函数式 API 内部使用 |
 
 ## Exposed
 
@@ -107,10 +104,10 @@ interface NotificationExposed {
 
 以下回调通过 Props 传入，而非 Emits：
 
-| 回调 | 签名 | 说明 |
-|------|------|------|
-| `onClick` | `(e: MouseEvent) => void` | 点击按钮时触发，触发后自动关闭通知 |
-| `onClose` | `(vm: RendererElement) => void` | 关闭时（before-leave）触发 |
+| 回调      | 签名                            | 说明                               |
+| --------- | ------------------------------- | ---------------------------------- |
+| `onClick` | `(e: MouseEvent) => void`       | 点击按钮时触发，触发后自动关闭通知 |
+| `onClose` | `(vm: RendererElement) => void` | 关闭时（before-leave）触发         |
 
 ## 声明式组件示例
 

@@ -17,15 +17,15 @@ ls node_modules/@veltra/vite/dist/
 
 ## 各包产物结构
 
-| 包 | 产物入口 | 类型声明入口 |
-|---|---|---|
-| `@veltra/desktop` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/compositions` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/utils` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/styles` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/directives` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/icons` | `dist/index.js` | `dist/index.d.ts` |
-| `@veltra/vite` | `dist/index.mjs` | `dist/index.d.mts` |
+| 包                     | 产物入口         | 类型声明入口       |
+| ---------------------- | ---------------- | ------------------ |
+| `@veltra/desktop`      | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/compositions` | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/utils`        | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/styles`       | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/directives`   | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/icons`        | `dist/index.js`  | `dist/index.d.ts`  |
+| `@veltra/vite`         | `dist/index.mjs` | `dist/index.d.mts` |
 
 ## 子路径导出
 
@@ -83,12 +83,6 @@ import type { ComponentSize, ColorType } from '@veltra/utils'
 import { NodePackageImporter } from 'sass-embedded'
 
 export default {
-  css: {
-    preprocessorOptions: {
-      scss: {
-        importers: [new NodePackageImporter()]
-      }
-    }
-  }
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 }
 ```

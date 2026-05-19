@@ -58,21 +58,21 @@ Form 遍历 slot 子节点，通过 VNode 拦截机制：检测每个组件的 `
 
 `FormProps` extends `ComponentProps`（包含 `size?: ComponentSize`）：
 
-| prop | type | default | 说明 |
-| --- | --- | --- | --- |
-| `model` | `FormModel \| DynamicFormModel` | **必填** | 表单数据模型 |
-| `cols` | `number` | — | 列数，不传则根据断点自动排列（xs:1, md:2, lg:3, xl:4） |
-| `showInitialData` | `boolean` | — | 值变更后显示初始数据对比（需要 model 设置了 initialData） |
-| `labelWidth` | `string \| number` | — | 表单项 label 统一宽度 |
-| `noTips` | `boolean` | — | 隐藏错误提示与 tips |
-| `readonly` | `boolean` | — | 全局只读，子组件通过 provide/inject 继承 |
-| `disabled` | `boolean` | — | 全局禁用，子组件通过 provide/inject 继承 |
-| `size` | `'small' \| 'default' \| 'large'` | — | 表单内组件尺寸，子组件通过 provide/inject 继承 |
+| prop              | type                              | default  | 说明                                                      |
+| ----------------- | --------------------------------- | -------- | --------------------------------------------------------- |
+| `model`           | `FormModel \| DynamicFormModel`   | **必填** | 表单数据模型                                              |
+| `cols`            | `number`                          | —        | 列数，不传则根据断点自动排列（xs:1, md:2, lg:3, xl:4）    |
+| `showInitialData` | `boolean`                         | —        | 值变更后显示初始数据对比（需要 model 设置了 initialData） |
+| `labelWidth`      | `string \| number`                | —        | 表单项 label 统一宽度                                     |
+| `noTips`          | `boolean`                         | —        | 隐藏错误提示与 tips                                       |
+| `readonly`        | `boolean`                         | —        | 全局只读，子组件通过 provide/inject 继承                  |
+| `disabled`        | `boolean`                         | —        | 全局禁用，子组件通过 provide/inject 继承                  |
+| `size`            | `'small' \| 'default' \| 'large'` | —        | 表单内组件尺寸，子组件通过 provide/inject 继承            |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-| --- | --- | --- |
+| slot      | 作用域                                  | 说明                                                    |
+| --------- | --------------------------------------- | ------------------------------------------------------- |
 | `default` | `{ data: Model['data']; model: Model }` | 表单内容，`data` 为当前表单数据，`model` 为表单模型实例 |
 
 ```vue
@@ -95,17 +95,18 @@ interface FormExposed {
 
 ## FormModel vs DynamicFormModel
 
-| 特性 | FormModel | DynamicFormModel |
-| --- | --- | --- |
-| 字段定义时机 | 构造时静态定义，不可增删 | 运行时可 `add()` / `delete()` 动态增删 |
-| 类型安全 | 泛型推导，`model.data.xxx` 有完整类型提示 | `Record<string, any>`，无字段级类型推导 |
-| 数据源 | 内部创建 `reactive` data，不可替换 | 可通过 `model.data = externalReactive` 替换为外部 reactive 对象 |
-| `validate()` 失败 | `Promise.reject(false)` | `Promise.resolve(false)` |
-| `setData()` | 返回 `this`，支持链式调用 | 无返回值 |
-| `setInitialData()` | ✅ 有 | ❌ 无（直接操作 `model.initialData`） |
-| `allKeys` | `readonly` 属性 | `get` 访问器 |
+| 特性               | FormModel                                 | DynamicFormModel                                                |
+| ------------------ | ----------------------------------------- | --------------------------------------------------------------- |
+| 字段定义时机       | 构造时静态定义，不可增删                  | 运行时可 `add()` / `delete()` 动态增删                          |
+| 类型安全           | 泛型推导，`model.data.xxx` 有完整类型提示 | `Record<string, any>`，无字段级类型推导                         |
+| 数据源             | 内部创建 `reactive` data，不可替换        | 可通过 `model.data = externalReactive` 替换为外部 reactive 对象 |
+| `validate()` 失败  | `Promise.reject(false)`                   | `Promise.resolve(false)`                                        |
+| `setData()`        | 返回 `this`，支持链式调用                 | 无返回值                                                        |
+| `setInitialData()` | ✅ 有                                     | ❌ 无（直接操作 `model.initialData`）                           |
+| `allKeys`          | `readonly` 属性                           | `get` 访问器                                                    |
 
 **选择依据**：
+
 - 字段在编码时已知且固定 → `FormModel`（推荐，类型安全）
 - 字段需运行时增删（点击「添加条件」、字段配置来自后端接口） → `DynamicFormModel`
 
@@ -129,27 +130,27 @@ const model = new FormModel({
 
 ### 属性
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| `data` | `ModelData<Fields>` | 当前表单数据（响应式），字段类型由泛型推导 |
-| `fields` | `Fields` | 字段校验规则（构造时定义，不可更改） |
-| `allKeys` | `string[]` | 所有字段键 |
-| `errors` | `Map<keyof Fields, string[] \| undefined>` | 校验错误集合（shallowReactive） |
-| `initialData` | `ModelData<Fields>` | 初始数据（用于 resetData 和 showInitialData 对比） |
-| `formKeys` | `Map<number, (keyof Fields)[]>` | 由 Form 组件内部维护，记录当前渲染的表单需要校验的字段 |
+| 属性          | 类型                                       | 说明                                                   |
+| ------------- | ------------------------------------------ | ------------------------------------------------------ |
+| `data`        | `ModelData<Fields>`                        | 当前表单数据（响应式），字段类型由泛型推导             |
+| `fields`      | `Fields`                                   | 字段校验规则（构造时定义，不可更改）                   |
+| `allKeys`     | `string[]`                                 | 所有字段键                                             |
+| `errors`      | `Map<keyof Fields, string[] \| undefined>` | 校验错误集合（shallowReactive）                        |
+| `initialData` | `ModelData<Fields>`                        | 初始数据（用于 resetData 和 showInitialData 对比）     |
+| `formKeys`    | `Map<number, (keyof Fields)[]>`            | 由 Form 组件内部维护，记录当前渲染的表单需要校验的字段 |
 
 ### 方法
 
-| 方法 | 返回值 | 说明 |
-| --- | --- | --- |
-| `validate(fields?)` | `Promise<boolean>` | 校验。成功返回 `true`；失败 `reject(false)`，且全量校验时会自动滚动到第一个错误项 |
-| `resetData(fields?)` | `void` | 重置指定字段到 `initialData`，不传则重置全部。重置时内部会抑制字段变更自动校验 |
-| `setData(data, config?)` | `this` | 设置表单数据。`config.validate`（默认 `true`）控制是否触发校验。返回 `this` 支持链式调用 |
-| `setInitialData(data)` | `this` | 设置初始值（用于重置和变更对比）。返回 `this` 支持链式调用 |
-| `clearValidate()` | `void` | 清除所有校验错误状态 |
-| `onChange(cb)` | `void` | 监听任意字段值变更，`cb: (field, value) => void` |
-| `offChange(cb)` | `void` | 取消监听值变更 |
-| `setProxyData(proxyData)` | `void` | 替换内部 data 为新的 reactive 对象（内部方法，一般不需要手动调用） |
+| 方法                      | 返回值             | 说明                                                                                     |
+| ------------------------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| `validate(fields?)`       | `Promise<boolean>` | 校验。成功返回 `true`；失败 `reject(false)`，且全量校验时会自动滚动到第一个错误项        |
+| `resetData(fields?)`      | `void`             | 重置指定字段到 `initialData`，不传则重置全部。重置时内部会抑制字段变更自动校验           |
+| `setData(data, config?)`  | `this`             | 设置表单数据。`config.validate`（默认 `true`）控制是否触发校验。返回 `this` 支持链式调用 |
+| `setInitialData(data)`    | `this`             | 设置初始值（用于重置和变更对比）。返回 `this` 支持链式调用                               |
+| `clearValidate()`         | `void`             | 清除所有校验错误状态                                                                     |
+| `onChange(cb)`            | `void`             | 监听任意字段值变更，`cb: (field, value) => void`                                         |
+| `offChange(cb)`           | `void`             | 取消监听值变更                                                                           |
+| `setProxyData(proxyData)` | `void`             | 替换内部 data 为新的 reactive 对象（内部方法，一般不需要手动调用）                       |
 
 ---
 
@@ -163,9 +164,7 @@ class DynamicFormModel
 
 ```ts
 // 可选传入初始字段
-const model = new DynamicFormModel({
-  name: formField({ value: '', required: true })
-})
+const model = new DynamicFormModel({ name: formField({ value: '', required: true }) })
 
 // 也可空构造，后续 add
 const model = new DynamicFormModel()
@@ -173,28 +172,28 @@ const model = new DynamicFormModel()
 
 ### 属性
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| `data` | `Record<string, any>` | 当前表单数据（响应式）。**支持 setter**：可替换为外部 `reactive` 对象 |
-| `fields` | `Record<string, FormModelItem>` | 字段校验规则（shallowReactive，可动态增删） |
-| `allKeys` | `string[]` | 所有字段键（get 访问器，实时反映 `fields` 的键） |
-| `errors` | `Map<string, string[] \| undefined>` | 校验错误集合（shallowReactive） |
-| `initialData` | `Record<string, any>` | 初始数据（readonly） |
-| `formKeys` | `Map<number, string[]>` | 由 Form 组件内部维护，记录当前渲染的表单需要校验的字段 |
+| 属性          | 类型                                 | 说明                                                                  |
+| ------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| `data`        | `Record<string, any>`                | 当前表单数据（响应式）。**支持 setter**：可替换为外部 `reactive` 对象 |
+| `fields`      | `Record<string, FormModelItem>`      | 字段校验规则（shallowReactive，可动态增删）                           |
+| `allKeys`     | `string[]`                           | 所有字段键（get 访问器，实时反映 `fields` 的键）                      |
+| `errors`      | `Map<string, string[] \| undefined>` | 校验错误集合（shallowReactive）                                       |
+| `initialData` | `Record<string, any>`                | 初始数据（readonly）                                                  |
+| `formKeys`    | `Map<number, string[]>`              | 由 Form 组件内部维护，记录当前渲染的表单需要校验的字段                |
 
 ### 方法
 
-| 方法 | 返回值 | 说明 |
-| --- | --- | --- |
-| `add(field, item)` | `void` | 运行时添加字段及其校验规则 |
-| `delete(field)` | `void` | 运行时移除字段（从 `fields` 中删除，`data` 与该字段的数据保留） |
-| `append(fields)` | `void` | 批量添加多个字段（内部遍历调用 `add`） |
-| `validate(fields?)` | `Promise<boolean>` | 校验。成功返回 `true`，失败返回 `false`（**不 reject**，与 FormModel 不同） |
-| `resetData(fields?)` | `void` | 重置指定字段到 `initialData` |
-| `setData(data, config?)` | `void` | 设置表单数据。`config.validate`（默认 `true`）控制是否触发校验 |
-| `clearValidate()` | `void` | 清除所有校验错误状态 |
-| `onChange(cb)` | `void` | 监听任意字段值变更，`cb: (field, value) => void` |
-| `offChange(cb)` | `void` | 取消监听值变更 |
+| 方法                     | 返回值             | 说明                                                                        |
+| ------------------------ | ------------------ | --------------------------------------------------------------------------- |
+| `add(field, item)`       | `void`             | 运行时添加字段及其校验规则                                                  |
+| `delete(field)`          | `void`             | 运行时移除字段（从 `fields` 中删除，`data` 与该字段的数据保留）             |
+| `append(fields)`         | `void`             | 批量添加多个字段（内部遍历调用 `add`）                                      |
+| `validate(fields?)`      | `Promise<boolean>` | 校验。成功返回 `true`，失败返回 `false`（**不 reject**，与 FormModel 不同） |
+| `resetData(fields?)`     | `void`             | 重置指定字段到 `initialData`                                                |
+| `setData(data, config?)` | `void`             | 设置表单数据。`config.validate`（默认 `true`）控制是否触发校验              |
+| `clearValidate()`        | `void`             | 清除所有校验错误状态                                                        |
+| `onChange(cb)`           | `void`             | 监听任意字段值变更，`cb: (field, value) => void`                            |
+| `offChange(cb)`          | `void`             | 取消监听值变更                                                              |
 
 ---
 
@@ -217,17 +216,17 @@ interface FormModelItem<Val = any> extends ValidateRule {
 
 ### 校验规则（ValidateRule）
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| `value` | `any` | 初始值（来自 `FormModelItem`，非 `ValidateRule`） |
-| `required` | `boolean \| string` | 必填。`string` 时为自定义错误提示 |
-| `min` | `number \| [number, string]` | 最小值。元组时第二项为自定义错误提示 |
-| `max` | `number \| [number, string]` | 最大值。元组时第二项为自定义错误提示 |
-| `minLen` | `number \| [number, string]` | 最小长度。元组时第二项为自定义错误提示 |
-| `maxLen` | `number \| [number, string]` | 最大长度。元组时第二项为自定义错误提示 |
-| `length` | `number \| [number, string]` | 精确长度。元组时第二项为自定义错误提示 |
-| `match` | `RegExp \| [RegExp, string] \| string` | 正则匹配。元组时第二项为自定义错误提示 |
-| `preset` | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'` | 预设校验规则 |
+| 属性        | 类型                                                    | 说明                                                                             |
+| ----------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `value`     | `any`                                                   | 初始值（来自 `FormModelItem`，非 `ValidateRule`）                                |
+| `required`  | `boolean \| string`                                     | 必填。`string` 时为自定义错误提示                                                |
+| `min`       | `number \| [number, string]`                            | 最小值。元组时第二项为自定义错误提示                                             |
+| `max`       | `number \| [number, string]`                            | 最大值。元组时第二项为自定义错误提示                                             |
+| `minLen`    | `number \| [number, string]`                            | 最小长度。元组时第二项为自定义错误提示                                           |
+| `maxLen`    | `number \| [number, string]`                            | 最大长度。元组时第二项为自定义错误提示                                           |
+| `length`    | `number \| [number, string]`                            | 精确长度。元组时第二项为自定义错误提示                                           |
+| `match`     | `RegExp \| [RegExp, string] \| string`                  | 正则匹配。元组时第二项为自定义错误提示                                           |
+| `preset`    | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'`      | 预设校验规则                                                                     |
 | `validator` | `(value: any, data: Data) => Promise<string> \| string` | 自定义异步/同步校验。返回 `string` 表示错误信息，空字符串或 `undefined` 表示通过 |
 
 ---
@@ -237,19 +236,20 @@ interface FormModelItem<Val = any> extends ValidateRule {
 ```ts
 // 从 @veltra/desktop 可直接导入的类型
 import type {
-  FormProps,           // 表单组件属性
-  FormExposed,         // 表单暴露的方法/属性
-  FormModelItem,       // 表单模型字段项
-  ModelData,           // 从 Fields 推导出的 data 类型
-  ModelRules,          // 从 Fields 推导出的 rules 类型（不含 value）
-  IFormModel,          // 表单模型接口
-  DataSettingConfig    // setData config 类型
+  FormProps, // 表单组件属性
+  FormExposed, // 表单暴露的方法/属性
+  FormModelItem, // 表单模型字段项
+  ModelData, // 从 Fields 推导出的 data 类型
+  ModelRules, // 从 Fields 推导出的 rules 类型（不含 value）
+  IFormModel, // 表单模型接口
+  DataSettingConfig // setData config 类型
 } from '@veltra/desktop'
 ```
 
 `FormProps` 还接受泛型：
+
 ```ts
-FormProps<MyModel>  // MyModel extends IFormModel
+FormProps<MyModel> // MyModel extends IFormModel
 ```
 
 ---
@@ -299,10 +299,7 @@ const model = new FormModel({
     minLen: [2, '至少 2 个字符'],
     maxLen: [20, '最多 20 个字符']
   }),
-  code: formField({
-    value: '',
-    match: [/^[A-Z]{3}-\d{4}$/, '格式：XXX-0000']
-  }),
+  code: formField({ value: '', match: [/^[A-Z]{3}-\d{4}$/, '格式：XXX-0000'] }),
   customField: formField({
     value: '',
     validator: async (val) => {
@@ -372,7 +369,12 @@ function removeField(field: string) {
   <u-form :model="model" label-width="100px" :cols="1">
     <u-input label="名称" field="name" />
 
-    <u-form-item v-for="field in extraFields" :key="field" :label="`扩展字段 ${field}`" :field="field">
+    <u-form-item
+      v-for="field in extraFields"
+      :key="field"
+      :label="`扩展字段 ${field}`"
+      :field="field"
+    >
       <u-input v-model="model.data[field]" />
       <u-button size="small" @click="removeField(field)">删除</u-button>
     </u-form-item>
@@ -457,11 +459,11 @@ model.offChange(cb)
 
 ## 使用决策速查
 
-| 场景 | 写法 |
-| --- | --- |
-| 表单内普通输入 | `<u-input field="xxx" label="标签" />` — 不需要 FormItem、不需要 v-model |
-| 表单内一个项多个组件 | `<u-form-item label="标签"><组件 v-model="model.data.xxx" />...</u-form-item>` |
-| 独立使用输入组件（不在 Form 内） | `<u-input v-model="value" />` |
-| 属性继承（size/disabled/readonly） | 设在 `u-form` 上，所有子组件自动通过 provide/inject 继承 |
-| 固定字段表单 | `new FormModel({...})` |
-| 动态增减字段 | `new DynamicFormModel({...})` + `add()` / `delete()` |
+| 场景                               | 写法                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| 表单内普通输入                     | `<u-input field="xxx" label="标签" />` — 不需要 FormItem、不需要 v-model       |
+| 表单内一个项多个组件               | `<u-form-item label="标签"><组件 v-model="model.data.xxx" />...</u-form-item>` |
+| 独立使用输入组件（不在 Form 内）   | `<u-input v-model="value" />`                                                  |
+| 属性继承（size/disabled/readonly） | 设在 `u-form` 上，所有子组件自动通过 provide/inject 继承                       |
+| 固定字段表单                       | `new FormModel({...})`                                                         |
+| 动态增减字段                       | `new DynamicFormModel({...})` + `add()` / `delete()`                           |

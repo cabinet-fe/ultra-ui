@@ -1,6 +1,7 @@
 # Glass Theme & Showcase 深色模式优化设计
 
 ## 日期：2026-05-08
+
 ## 状态：已批准
 
 ---
@@ -29,35 +30,36 @@
 ## 3. 模块一：Glass 主题 Token 重定义
 
 ### 3.1 文件位置
+
 `packages/styles/src/theme/glass.ts`
 
 ### 3.2 Light Mode 变更
 
-| Token | 旧值 | 新值 |
-|-------|------|------|
-| `bg.color.bottom` | `rgba(255,255,255,0.6)` | `rgba(255,255,255,0.2)` |
-| `bg.color.middle` | `rgba(255,255,255,0.7)` | `rgba(255,255,255,0.3)` |
-| `bg.color.top` | `rgba(255,255,255,0.8)` | `rgba(255,255,255,0.4)` |
-| `bg.color.hover` | `rgba(255,255,255,0.9)` | `rgba(255,255,255,0.55)` |
-| `bg.filter.blur` | `blur(12px)` | `blur(24px)` |
-| `bg.filter.saturate` | `saturate(150%)` | `saturate(180%)` |
-| `border.color` | `#E2E8F0` | `rgba(255,255,255,0.35)` |
-| `shadow.color` | `rgba(0,0,0,0.04)` | `rgba(0,0,0,0.08)` |
-| `shadow.blur` | `16px` | `24px` |
+| Token                | 旧值                    | 新值                     |
+| -------------------- | ----------------------- | ------------------------ |
+| `bg.color.bottom`    | `rgba(255,255,255,0.6)` | `rgba(255,255,255,0.2)`  |
+| `bg.color.middle`    | `rgba(255,255,255,0.7)` | `rgba(255,255,255,0.3)`  |
+| `bg.color.top`       | `rgba(255,255,255,0.8)` | `rgba(255,255,255,0.4)`  |
+| `bg.color.hover`     | `rgba(255,255,255,0.9)` | `rgba(255,255,255,0.55)` |
+| `bg.filter.blur`     | `blur(12px)`            | `blur(24px)`             |
+| `bg.filter.saturate` | `saturate(150%)`        | `saturate(180%)`         |
+| `border.color`       | `#E2E8F0`               | `rgba(255,255,255,0.35)` |
+| `shadow.color`       | `rgba(0,0,0,0.04)`      | `rgba(0,0,0,0.08)`       |
+| `shadow.blur`        | `16px`                  | `24px`                   |
 
 ### 3.3 Dark Mode 变更
 
-| Token | 旧值 | 新值 |
-|-------|------|------|
-| `bg.color.bottom` | `rgba(15,23,42,0.6)` | `rgba(10,15,30,0.2)` |
-| `bg.color.middle` | `rgba(15,23,42,0.7)` | `rgba(15,23,42,0.3)` |
-| `bg.color.top` | `rgba(15,23,42,0.8)` | `rgba(15,23,42,0.4)` |
-| `bg.color.hover` | `rgba(30,41,59,0.8)` | `rgba(30,41,59,0.55)` |
-| `bg.filter.blur` | 继承 `12px` | `blur(32px)` |
-| `bg.filter.saturate` | 继承 `150%` | `saturate(200%)` |
-| `border.color` | `#27272A` | `rgba(255,255,255,0.08)` |
-| `shadow.color` | `rgba(0,0,0,0.2)` | `rgba(0,0,0,0.35)` |
-| `shadow.blur` | `16px` | `32px` |
+| Token                | 旧值                 | 新值                     |
+| -------------------- | -------------------- | ------------------------ |
+| `bg.color.bottom`    | `rgba(15,23,42,0.6)` | `rgba(10,15,30,0.2)`     |
+| `bg.color.middle`    | `rgba(15,23,42,0.7)` | `rgba(15,23,42,0.3)`     |
+| `bg.color.top`       | `rgba(15,23,42,0.8)` | `rgba(15,23,42,0.4)`     |
+| `bg.color.hover`     | `rgba(30,41,59,0.8)` | `rgba(30,41,59,0.55)`    |
+| `bg.filter.blur`     | 继承 `12px`          | `blur(32px)`             |
+| `bg.filter.saturate` | 继承 `150%`          | `saturate(200%)`         |
+| `border.color`       | `#27272A`            | `rgba(255,255,255,0.08)` |
+| `shadow.color`       | `rgba(0,0,0,0.2)`    | `rgba(0,0,0,0.35)`       |
+| `shadow.blur`        | `16px`               | `32px`                   |
 
 ### 3.4 未变更项
 
@@ -70,11 +72,13 @@
 ## 4. 模块二：Showcase 沉浸式背景
 
 ### 4.1 文件位置
+
 `playgrounds/desktop/src/showcase/index.vue`
 
 ### 4.2 背景层架构
 
 从底到顶共四层：
+
 1. **底色层**：`#f0f4f8`（light）/ `#0a0f1e`（dark）
 2. **径向渐变光斑层**：2-3 个大型椭圆渐变，使用蓝/紫/青色低透明度版本
 3. **细网格层**：50px 间距网格线，透明度 `0.06`
@@ -83,15 +87,17 @@
 ### 4.3 背景实现（SCSS 伪元素）
 
 **Light Mode：**
+
 ```css
 background-color: #f0f4f8;
 background-image:
   radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59, 130, 246, 0.12), transparent),
-  radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.10), transparent),
+  radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.1), transparent),
   radial-gradient(ellipse 50% 60% at 50% 80%, rgba(14, 165, 233, 0.08), transparent);
 ```
 
 **Dark Mode：**
+
 ```css
 background-color: #0a0f1e;
 background-image:
@@ -129,17 +135,18 @@ background-image:
 ## 5. 模块三：App.vue 硬编码修复 + Showcase 卡片清理
 
 ### 5.1 文件位置
+
 - `playgrounds/desktop/App.vue`
 - `playgrounds/desktop/src/showcase/index.vue`
 
 ### 5.2 App.vue 修复清单
 
-| 选择器 | 旧值 | 新值 | 理由 |
-|--------|------|------|------|
-| `.main` | `background-color: #fff` | `background-color: use-var(bg-color, bottom)` | 跟随主题 |
-| `.content-container` | `background: #fff` | `background: use-var(bg-color, bottom)` | 跟随主题 |
-| `.control-bar` | `border-bottom: 1px solid rgba(255,255,255,0.1)` | `border-bottom: 1px solid use-var(border, color)` | 跟随主题 |
-| `.control-bar` | `border-top: 1px solid rgba(255,255,255,0.05)` | 移除 | 多余且浅色下不可见 |
+| 选择器               | 旧值                                             | 新值                                              | 理由               |
+| -------------------- | ------------------------------------------------ | ------------------------------------------------- | ------------------ |
+| `.main`              | `background-color: #fff`                         | `background-color: use-var(bg-color, bottom)`     | 跟随主题           |
+| `.content-container` | `background: #fff`                               | `background: use-var(bg-color, bottom)`           | 跟随主题           |
+| `.control-bar`       | `border-bottom: 1px solid rgba(255,255,255,0.1)` | `border-bottom: 1px solid use-var(border, color)` | 跟随主题           |
+| `.control-bar`       | `border-top: 1px solid rgba(255,255,255,0.05)`   | 移除                                              | 多余且浅色下不可见 |
 
 ### 5.3 Showcase 卡片清理
 
@@ -187,11 +194,11 @@ background-image:
 
 ## 8. 变更文件清单
 
-| 文件 | 变更类型 | 说明 |
-|------|---------|------|
-| `packages/styles/src/theme/glass.ts` | 修改 | 重定义 glassLightTheme 和 glassDarkTheme 的 bg/filter/border/shadow token |
-| `playgrounds/desktop/src/showcase/index.vue` | 修改 | 重写背景层（底色+光斑+网格+装饰球），移除卡片硬编码 backdrop-filter，变量化阴影 |
-| `playgrounds/desktop/App.vue` | 修改 | 修复 `.main`、`.content-container`、`.control-bar` 的硬编码颜色 |
+| 文件                                         | 变更类型 | 说明                                                                            |
+| -------------------------------------------- | -------- | ------------------------------------------------------------------------------- |
+| `packages/styles/src/theme/glass.ts`         | 修改     | 重定义 glassLightTheme 和 glassDarkTheme 的 bg/filter/border/shadow token       |
+| `playgrounds/desktop/src/showcase/index.vue` | 修改     | 重写背景层（底色+光斑+网格+装饰球），移除卡片硬编码 backdrop-filter，变量化阴影 |
+| `playgrounds/desktop/App.vue`                | 修改     | 修复 `.main`、`.content-container`、`.control-bar` 的硬编码颜色                 |
 
 ---
 

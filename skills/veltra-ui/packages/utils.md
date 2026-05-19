@@ -4,10 +4,10 @@
 
 ## 子路径
 
-| 子路径 | 内容 |
-|--------|------|
-| `@veltra/utils` | 全部导出（工具 + 类型 + 常量） |
-| `@veltra/utils/shared` | 仅共享常量 |
+| 子路径                 | 内容                           |
+| ---------------------- | ------------------------------ |
+| `@veltra/utils`        | 全部导出（工具 + 类型 + 常量） |
+| `@veltra/utils/shared` | 仅共享常量                     |
 
 ## 导入示例
 
@@ -23,9 +23,9 @@ import type { ComponentProps, ComponentSize, ColorType } from '@veltra/utils'
 ```ts
 import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
 
-NAME_SPACE          // 'U'          — 组件名前缀
-CLS_PREFIX          // 'u-'         — CSS 类名前缀
-FORM_EMPTY_CONTENT  // '-'          — 表单空值占位符
+NAME_SPACE // 'U'          — 组件名前缀
+CLS_PREFIX // 'u-'         — CSS 类名前缀
+FORM_EMPTY_CONTENT // '-'          — 表单空值占位符
 ```
 
 ---
@@ -42,25 +42,25 @@ import { bem } from '@veltra/utils'
 const cls = bem('button')
 
 // Block
-cls.b                           // 'u-button'
+cls.b // 'u-button'
 
 // Element
-cls.e('icon')                   // 'u-button__icon'
-cls.e('text')                   // 'u-button__text'
+cls.e('icon') // 'u-button__icon'
+cls.e('text') // 'u-button__text'
 
 // Modifier
-cls.m('primary')                // 'u-button--primary'
-cls.m('size-small')             // 'u-button--size-small'
+cls.m('primary') // 'u-button--primary'
+cls.m('size-small') // 'u-button--size-small'
 
 // Element + Modifier
-cls.em('icon', 'left')          // 'u-button__icon--left'
+cls.em('icon', 'left') // 'u-button__icon--left'
 
 // State（is-xxx 形式）
-cls.is('disabled', true)        // 'u-button.is-disabled'
-cls.is('disabled', false)       // ''（空字符串）
+cls.is('disabled', true) // 'u-button.is-disabled'
+cls.is('disabled', false) // ''（空字符串）
 
 // 自定义后缀
-cls.create('custom')            // 'u-button-custom'
+cls.create('custom') // 'u-button-custom'
 ```
 
 **典型组件用法：**
@@ -95,11 +95,11 @@ import { makeBEM } from '@veltra/utils'
 
 const cls = makeBEM('my-')
 
-cls.b                           // 'my-'（需配合 name 调用）
+cls.b // 'my-'（需配合 name 调用）
 // 实际用法：不直接调 b，作为工厂创建：
-const btnCls = cls('btn')       // 返回同上结构的 BEM 对象
-btnCls.b                        // 'my-btn'
-btnCls.e('icon')                // 'my-btn__icon'
+const btnCls = cls('btn') // 返回同上结构的 BEM 对象
+btnCls.b // 'my-btn'
+btnCls.e('icon') // 'my-btn__icon'
 ```
 
 ---
@@ -140,12 +140,15 @@ interface ComponentProps {
 
 ```ts
 interface FormComponentProps extends ComponentProps {
-  tips?: string          // 提示文字
-  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' }) // 栅格跨度
-  label?: string         // 标签文字
-  field?: string         // 表单字段名
-  disabled?: boolean     // 禁用
-  readonly?: boolean     // 只读
+  tips?: string // 提示文字
+  span?:
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' }) // 栅格跨度
+  label?: string // 标签文字
+  field?: string // 表单字段名
+  disabled?: boolean // 禁用
+  readonly?: boolean // 只读
 }
 ```
 
@@ -210,7 +213,7 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed>
 import {
   withUnit,
   ExpandTransition,
-  getZIndex,
+  getZIndex
   // ... 更多 DOM 工具
 } from '@veltra/utils'
 ```
@@ -220,9 +223,9 @@ import {
 给数值加单位：
 
 ```ts
-withUnit(10)        // '10px'
+withUnit(10) // '10px'
 withUnit(10, 'rem') // '10rem'
-withUnit('50%')     // '50%'（已是字符串则原样返回）
+withUnit('50%') // '50%'（已是字符串则原样返回）
 ```
 
 ### `ExpandTransition`

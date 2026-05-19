@@ -4,15 +4,15 @@
 
 ## 子路径
 
-| 子路径 | 类型 | 内容 |
-|--------|------|------|
-| `@veltra/styles` | SCSS | normalize + 动画（副作用入口） |
-| `@veltra/styles/mixins` | SCSS | BEM mixins（`b()`, `e()`, `m()`, `is()`, `is-not()`, `size`, `dark`, 断点 mixins） |
-| `@veltra/styles/vars` | SCSS | SCSS 变量（`$color-types` 等） |
-| `@veltra/styles/functions` | SCSS | CSS 变量引用函数（`use-var()`, `component-var()`） |
-| `@veltra/styles/normalize` | SCSS | 全局 normalize |
-| `@veltra/styles/anime/*` | SCSS | 过渡动画（fade, slide, spring, zoom-in） |
-| `@veltra/styles/theme` | TS | 主题运行时（`UITheme`, `loadTheme`, `setTheme`, 预设主题） |
+| 子路径                     | 类型 | 内容                                                                               |
+| -------------------------- | ---- | ---------------------------------------------------------------------------------- |
+| `@veltra/styles`           | SCSS | normalize + 动画（副作用入口）                                                     |
+| `@veltra/styles/mixins`    | SCSS | BEM mixins（`b()`, `e()`, `m()`, `is()`, `is-not()`, `size`, `dark`, 断点 mixins） |
+| `@veltra/styles/vars`      | SCSS | SCSS 变量（`$color-types` 等）                                                     |
+| `@veltra/styles/functions` | SCSS | CSS 变量引用函数（`use-var()`, `component-var()`）                                 |
+| `@veltra/styles/normalize` | SCSS | 全局 normalize                                                                     |
+| `@veltra/styles/anime/*`   | SCSS | 过渡动画（fade, slide, spring, zoom-in）                                           |
+| `@veltra/styles/theme`     | TS   | 主题运行时（`UITheme`, `loadTheme`, `setTheme`, 预设主题）                         |
 
 ---
 
@@ -153,32 +153,32 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 
 **命名空间区分：**
 
-| 函数 | 用途 | 示例 CSS 变量 |
-|------|------|--------------|
-| `fn.use-var(...)` | 全局主题 token（多级层级路径） | `--u-text-color-main`、`--u-color-primary`、`--u-radius-default` |
-| `fn.component-var(...)` | 组件命名空间变量（`组件名-属性`） | `--u-button-bg`、`--u-table-border` |
+| 函数                    | 用途                              | 示例 CSS 变量                                                    |
+| ----------------------- | --------------------------------- | ---------------------------------------------------------------- |
+| `fn.use-var(...)`       | 全局主题 token（多级层级路径）    | `--u-text-color-main`、`--u-color-primary`、`--u-radius-default` |
+| `fn.component-var(...)` | 组件命名空间变量（`组件名-属性`） | `--u-button-bg`、`--u-table-border`                              |
 
 **CSS 变量完整命名规范：**
 
-| 类别 | 变量模式 | 示例 |
-|------|---------|------|
-| 颜色 | `--u-color-{type}` | `--u-color-primary`、`--u-color-success` |
-| 颜色阶 | `--u-color-{type}-{light\|dark}-{1,3,5,7,9}` | `--u-color-primary-light-3`（自动派生 10 阶） |
-| 背景 | `--u-bg-color-{layer}` | `--u-bg-color-bottom`、`--u-bg-color-hover` |
-| 背景透明度 | `--u-bg-color-{layer}-alpha` | `--u-bg-color-bottom-alpha`（自动叠加 `aa`） |
-| 背景滤镜 | `--u-bg-filter` | `--u-bg-filter: blur(24px) saturate(180%)`（玻璃主题） |
-| 文字色 | `--u-text-color-{role}` | `--u-text-color-main`、`--u-text-color-placeholder` |
-| 圆角 | `--u-radius-{size}` | `--u-radius-small`、`--u-radius-default` |
-| 高度 | `--u-form-component-height-{size}` | `--u-form-component-height-default` |
-| 字号 | `--u-font-size-{role}-{size}` | `--u-font-size-title-default` |
-| 间距 | `--u-gap-{size}` | `--u-gap-small`、`--u-gap-default` |
-| 边框 | `--u-border-color`、`--u-border-muted-color`、`--u-border-width`、`--u-border-style` | 边框相关 |
-| 边框简写 | `--u-border`、`--u-border-muted` | `--u-border-muted` 用于表单类组件的弱化边框 |
-| 阴影 | `--u-shadow-color`、`--u-shadow-x`、`--u-shadow-blur` | 阴影相关 |
-| 阴影简写 | `--u-shadow` | `--u-shadow: var(--u-shadow-x) var(--u-shadow-y) var(--u-shadow-blur) var(--u-shadow-spread) var(--u-shadow-color)` |
-| 浮雕阴影 | `--u-shadow-emboss` | `--u-shadow-emboss: 0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f`（hero 主题） |
-| 断点 | `--u-breakpoint-{point}` | `--u-breakpoint-xs`（600）、`--u-breakpoint-lg`（1920） |
-| 组件 | `--u-{component}-{property}` | `--u-button-bg`、`--u-input-border` |
+| 类别       | 变量模式                                                                             | 示例                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| 颜色       | `--u-color-{type}`                                                                   | `--u-color-primary`、`--u-color-success`                                                                            |
+| 颜色阶     | `--u-color-{type}-{light\|dark}-{1,3,5,7,9}`                                         | `--u-color-primary-light-3`（自动派生 10 阶）                                                                       |
+| 背景       | `--u-bg-color-{layer}`                                                               | `--u-bg-color-bottom`、`--u-bg-color-hover`                                                                         |
+| 背景透明度 | `--u-bg-color-{layer}-alpha`                                                         | `--u-bg-color-bottom-alpha`（自动叠加 `aa`）                                                                        |
+| 背景滤镜   | `--u-bg-filter`                                                                      | `--u-bg-filter: blur(24px) saturate(180%)`（玻璃主题）                                                              |
+| 文字色     | `--u-text-color-{role}`                                                              | `--u-text-color-main`、`--u-text-color-placeholder`                                                                 |
+| 圆角       | `--u-radius-{size}`                                                                  | `--u-radius-small`、`--u-radius-default`                                                                            |
+| 高度       | `--u-form-component-height-{size}`                                                   | `--u-form-component-height-default`                                                                                 |
+| 字号       | `--u-font-size-{role}-{size}`                                                        | `--u-font-size-title-default`                                                                                       |
+| 间距       | `--u-gap-{size}`                                                                     | `--u-gap-small`、`--u-gap-default`                                                                                  |
+| 边框       | `--u-border-color`、`--u-border-muted-color`、`--u-border-width`、`--u-border-style` | 边框相关                                                                                                            |
+| 边框简写   | `--u-border`、`--u-border-muted`                                                     | `--u-border-muted` 用于表单类组件的弱化边框                                                                         |
+| 阴影       | `--u-shadow-color`、`--u-shadow-x`、`--u-shadow-blur`                                | 阴影相关                                                                                                            |
+| 阴影简写   | `--u-shadow`                                                                         | `--u-shadow: var(--u-shadow-x) var(--u-shadow-y) var(--u-shadow-blur) var(--u-shadow-spread) var(--u-shadow-color)` |
+| 浮雕阴影   | `--u-shadow-emboss`                                                                  | `--u-shadow-emboss: 0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f`（hero 主题）                                       |
+| 断点       | `--u-breakpoint-{point}`                                                             | `--u-breakpoint-xs`（600）、`--u-breakpoint-lg`（1920）                                                             |
+| 组件       | `--u-{component}-{property}`                                                         | `--u-button-bg`、`--u-input-border`                                                                                 |
 
 ### `m.size` 传参机制
 
@@ -188,7 +188,7 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 // mixin 内部等价于：
 @each $size in (small, default, large) {
   .u-component--size-#{$size} {
-    @content($size);  // 将 $size 传入 @content 块
+    @content ($size); // 将 $size 传入 @content 块
   }
 }
 
@@ -235,11 +235,14 @@ fn.component-var(button, height, $default) // var(--u-button-height, $default)
 批量生成 CSS 变量：
 
 ```scss
-@include m.css-var(height, (
-  large: 40px,
-  default: 32px,
-  small: 24px
-));
+@include m.css-var(
+  height,
+  (
+    large: 40px,
+    default: 32px,
+    small: 24px
+  )
+);
 // 生成：
 // --u-height-large: 40px;
 // --u-height-default: 32px;
@@ -261,9 +264,9 @@ vars.$color-types  // ('primary': ..., 'info': ..., 'success': ..., 'warning': .
 
 ```ts
 // button/style.ts
-import '@veltra/directives/ripple/style'  // 波纹样式
-import '../icon/style'                     // 图标样式
-import './style.scss'                      // 自身 SCSS
+import '@veltra/directives/ripple/style' // 波纹样式
+import '../icon/style' // 图标样式
+import './style.scss' // 自身 SCSS
 ```
 
 ---
@@ -274,16 +277,16 @@ import './style.scss'                      // 自身 SCSS
 
 `@veltra/styles/theme` 导出以下预设 `UITheme` 实例：
 
-| 导出 | 说明 |
-|------|------|
-| `lightTheme` | 默认亮色主题（`#1E88E5` 主色） |
-| `darkTheme` | 默认暗色主题（派生自 `lightTheme`） |
-| `shadcnLightTheme` | shadcn/ui 风格亮色（zinc 色系，扁平阴影） |
-| `shadcnDarkTheme` | shadcn/ui 风格暗色 |
-| `heroLightTheme` | HeroUI 风格亮色（紫色 `#7828c8` 主色，2px 结构边框，表单弱化边框透明，大圆角，emboss 阴影） |
-| `heroDarkTheme` | HeroUI 风格暗色 |
-| `glassLightTheme` | 玻璃拟态亮色（半透明背景 + `blur(24px) saturate(180%)`） |
-| `glassDarkTheme` | 玻璃拟态暗色（半透明深色背景 + `blur(20px) saturate(200%)`） |
+| 导出               | 说明                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------- |
+| `lightTheme`       | 默认亮色主题（`#1E88E5` 主色）                                                              |
+| `darkTheme`        | 默认暗色主题（派生自 `lightTheme`）                                                         |
+| `shadcnLightTheme` | shadcn/ui 风格亮色（zinc 色系，扁平阴影）                                                   |
+| `shadcnDarkTheme`  | shadcn/ui 风格暗色                                                                          |
+| `heroLightTheme`   | HeroUI 风格亮色（紫色 `#7828c8` 主色，2px 结构边框，表单弱化边框透明，大圆角，emboss 阴影） |
+| `heroDarkTheme`    | HeroUI 风格暗色                                                                             |
+| `glassLightTheme`  | 玻璃拟态亮色（半透明背景 + `blur(24px) saturate(180%)`）                                    |
+| `glassDarkTheme`   | 玻璃拟态暗色（半透明深色背景 + `blur(20px) saturate(200%)`）                                |
 
 所有派生主题通过 `lightTheme.new({...})` 链式创建：
 
@@ -325,9 +328,9 @@ loadTheme(glassLightTheme)
 ```ts
 import { setTheme } from '@veltra/styles/theme'
 
-setTheme('dark')   // 强制暗色
-setTheme('light')  // 强制亮色
-setTheme('auto')   // 跟随系统
+setTheme('dark') // 强制暗色
+setTheme('light') // 强制亮色
+setTheme('auto') // 跟随系统
 ```
 
 ### `currentTheme`
@@ -394,9 +397,7 @@ const myTheme = new UITheme({
 })
 
 // 基于现有主题合并自定义
-const custom = lightTheme.new({
-  color: { primary: '#ff6600' }
-})
+const custom = lightTheme.new({ color: { primary: '#ff6600' } })
 
 // 渲染当前主题
 myTheme.render()
@@ -427,41 +428,43 @@ const vars = themeToDeclarationList(myTheme)
 
 ```ts
 import {
-  cssVar, defineBySize, HEXToRGB, mixColor,
+  cssVar,
+  defineBySize,
+  HEXToRGB,
+  mixColor,
   themeTokenVar,
-  componentCssVarsLight, componentCssVarsLightDecls,
-  componentCssVarsDark, componentCssVarsDarkDecls
+  componentCssVarsLight,
+  componentCssVarsLightDecls,
+  componentCssVarsDark,
+  componentCssVarsDarkDecls
 } from '@veltra/styles/theme'
 
 // 快速创建 CSS 变量引用
-cssVar('color-primary')  // 'var(--u-color-primary)'
+cssVar('color-primary') // 'var(--u-color-primary)'
 
 // themeTokenVar 与 SCSS fn.use-var 输出一致
-themeTokenVar('text-color', 'main')          // 'var(--u-text-color-main)'
+themeTokenVar('text-color', 'main') // 'var(--u-text-color-main)'
 themeTokenVar('color', 'primary', 'light', 9) // 'var(--u-color-primary-light-9)'
 
 // 按尺寸定义值
 defineBySize({ small: 20, default: 30, large: 40 })
 
 // 颜色转换
-HEXToRGB('#ff6600')  // [255, 102, 0]
-mixColor('#ff0000', '#0000ff', 0.5)  // 混合色
+HEXToRGB('#ff6600') // [255, 102, 0]
+mixColor('#ff0000', '#0000ff', 0.5) // 混合色
 
 // 组件级 CSS 变量声明（与内置主题一起注入 html）
-componentCssVarsLight       // Record<string, string> — 亮色及公共 token
-componentCssVarsLightDecls  // string[] — 展开为 '--u-xxx: val' 格式
-componentCssVarsDark        // Record<string, string> — 暗色 token
-componentCssVarsDarkDecls   // string[]
+componentCssVarsLight // Record<string, string> — 亮色及公共 token
+componentCssVarsLightDecls // string[] — 展开为 '--u-xxx: val' 格式
+componentCssVarsDark // Record<string, string> — 暗色 token
+componentCssVarsDarkDecls // string[]
 ```
 
 ### 自定义 Theme 注入流程
 
 ```ts
 import { UITheme } from '@veltra/styles/theme'
-import {
-  componentCssVarsLightDecls,
-  componentCssVarsDarkDecls
-} from '@veltra/styles/theme'
+import { componentCssVarsLightDecls, componentCssVarsDarkDecls } from '@veltra/styles/theme'
 
 // 注入双主题（支持 setTheme 切换）
 UITheme.injectBuiltInThemes(myLightTheme, myDarkTheme)
@@ -483,11 +486,11 @@ myTheme.render()
 
 预置 CSS 过渡动画，通过 `@veltra/styles` 副作用入口加载：
 
-| 动画 | 用法 |
-|------|------|
-| fade | 淡入淡出 |
-| slide | 滑入滑出 |
-| spring | 弹性动画 |
+| 动画    | 用法     |
+| ------- | -------- |
+| fade    | 淡入淡出 |
+| slide   | 滑入滑出 |
+| spring  | 弹性动画 |
 | zoom-in | 缩放入场 |
 
 ---

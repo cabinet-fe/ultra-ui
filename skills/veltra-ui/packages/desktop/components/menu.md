@@ -35,17 +35,17 @@ interface MenuItem {
 
 ## Props
 
-| prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `menus` | `MenuItem[]` | — | 菜单列表 |
-| `currentPath` | `string` | — | 当前激活路径，匹配 `MenuItem.path` 高亮对应项并自动展开祖先 |
-| `collapsed` | `boolean` | `false` | 是否折叠模式。折叠后一级菜单仅显示图标，hover 弹出子菜单 |
-| `uniqueOpened` | `boolean` | `false` | 是否仅允许一个子菜单展开 |
+| prop           | 类型         | 默认值  | 说明                                                        |
+| -------------- | ------------ | ------- | ----------------------------------------------------------- |
+| `menus`        | `MenuItem[]` | —       | 菜单列表                                                    |
+| `currentPath`  | `string`     | —       | 当前激活路径，匹配 `MenuItem.path` 高亮对应项并自动展开祖先 |
+| `collapsed`    | `boolean`    | `false` | 是否折叠模式。折叠后一级菜单仅显示图标，hover 弹出子菜单    |
+| `uniqueOpened` | `boolean`    | `false` | 是否仅允许一个子菜单展开                                    |
 
 ## Emits
 
-| 事件 | 参数 | 说明 |
-|------|------|------|
+| 事件         | 参数               | 说明                                  |
+| ------------ | ------------------ | ------------------------------------- |
 | `item-click` | `(item: MenuItem)` | 点击菜单项时触发（disabled 项不触发） |
 
 ## Slots
@@ -68,10 +68,10 @@ interface MenuExposed {}
 
 ## Props
 
-| prop | 类型 | 说明 |
-|------|------|------|
-| `menu` | `MenuItem` | 菜单项数据 |
-| `depth` | `number` | 嵌套深度（`0` 为顶级） |
+| prop    | 类型       | 说明                   |
+| ------- | ---------- | ---------------------- |
+| `menu`  | `MenuItem` | 菜单项数据             |
+| `depth` | `number`   | 嵌套深度（`0` 为顶级） |
 
 ## Emits
 
@@ -89,11 +89,11 @@ interface MenuExposed {}
 
 ## Props
 
-| prop | 类型 | 说明 |
-|------|------|------|
-| `menu` | `MenuItem` | 菜单项数据（须含 `children`） |
-| `parentKey` | `string` | 父级 key，用于递归渲染时生成唯一 key |
-| `depth` | `number` | 嵌套深度（`0` 为顶级） |
+| prop        | 类型       | 说明                                 |
+| ----------- | ---------- | ------------------------------------ |
+| `menu`      | `MenuItem` | 菜单项数据（须含 `children`）        |
+| `parentKey` | `string`   | 父级 key，用于递归渲染时生成唯一 key |
+| `depth`     | `number`   | 嵌套深度（`0` 为顶级）               |
 
 ## Emits
 
@@ -198,13 +198,7 @@ const menus = shallowRef<MenuItem[]>([
       { title: '子项 B', path: '/group-1/b' }
     ]
   },
-  {
-    title: '分组二',
-    path: '/group-2',
-    children: [
-      { title: '子项 C', path: '/group-2/c' }
-    ]
-  }
+  { title: '分组二', path: '/group-2', children: [{ title: '子项 C', path: '/group-2/c' }] }
 ])
 </script>
 

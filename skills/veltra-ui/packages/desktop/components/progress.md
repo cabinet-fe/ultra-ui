@@ -12,12 +12,12 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `type` | `ColorType \| ((percentage: number) => ColorType)` | `'primary'` | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`，或根据百分比动态返回颜色类型的函数 |
-| `size` | `number \| string` | — | 圆形进度条的宽高，条形模式无效 |
-| `percentage` | `number` | — | 当前进度百分比（0 ~ 100），超出部分自动裁剪 |
-| `circle` | `boolean` | `false` | `true` 时显示环形进度条 |
+| prop         | type                                               | default     | 说明                                                                                                    |
+| ------------ | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| `type`       | `ColorType \| ((percentage: number) => ColorType)` | `'primary'` | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`，或根据百分比动态返回颜色类型的函数 |
+| `size`       | `number \| string`                                 | —           | 圆形进度条的宽高，条形模式无效                                                                          |
+| `percentage` | `number`                                           | —           | 当前进度百分比（0 ~ 100），超出部分自动裁剪                                                             |
+| `circle`     | `boolean`                                          | `false`     | `true` 时显示环形进度条                                                                                 |
 
 ## Emits
 
@@ -25,8 +25,8 @@
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                                    | 说明                                         |
+| --------- | ----------------------------------------- | -------------------------------------------- |
 | `default` | `{ percentage: number; type: ColorType }` | 自定义进度指示文本内容，默认为 `percentage%` |
 
 ## Exposed

@@ -36,14 +36,14 @@ MessageConfirm.danger(message: string, onClose?: (action: 'cancel' | 'confirm') 
 
 ## Options
 
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `message` | `string` | — | **必填**，消息内容 |
-| `title` | `string` | `''` | 标题，为空时不显示标题栏 |
-| `confirmButtonText` | `string` | `'确定'` | 确认按钮文字 |
-| `cancelButtonText` | `string` | `''` | 取消按钮文字，为空时不显示取消按钮 |
-| `confirmButtonType` | `ColorType` | `'primary'` | 确认按钮类型：`'primary'` \| `'success'` \| `'info'` \| `'warning'` \| `'danger'` |
-| `onClose` | `(action: 'cancel' \| 'confirm') => void` | — | 关闭回调，`action` 区分用户点击了哪个按钮 |
+| 参数                | 类型                                      | 默认值      | 说明                                                                              |
+| ------------------- | ----------------------------------------- | ----------- | --------------------------------------------------------------------------------- |
+| `message`           | `string`                                  | —           | **必填**，消息内容                                                                |
+| `title`             | `string`                                  | `''`        | 标题，为空时不显示标题栏                                                          |
+| `confirmButtonText` | `string`                                  | `'确定'`    | 确认按钮文字                                                                      |
+| `cancelButtonText`  | `string`                                  | `''`        | 取消按钮文字，为空时不显示取消按钮                                                |
+| `confirmButtonType` | `ColorType`                               | `'primary'` | 确认按钮类型：`'primary'` \| `'success'` \| `'info'` \| `'warning'` \| `'danger'` |
+| `onClose`           | `(action: 'cancel' \| 'confirm') => void` | —           | 关闭回调，`action` 区分用户点击了哪个按钮                                         |
 
 ### MessageConfirmProps
 
@@ -63,10 +63,10 @@ interface MessageConfirmProps extends ComponentProps {
 
 仅 `UMessageConfirm` 组件支持。
 
-| event | 参数 |
-|-------|------|
-| `update:modelValue` | `(value: string)` |
-| `destroy` | — 过渡动画结束后触发，函数式调用中用于销毁 DOM |
+| event               | 参数                                           |
+| ------------------- | ---------------------------------------------- |
+| `update:modelValue` | `(value: string)`                              |
+| `destroy`           | — 过渡动画结束后触发，函数式调用中用于销毁 DOM |
 
 ## Examples
 
@@ -81,10 +81,7 @@ MessageConfirm({ message: '操作成功' })
 ### 带取消按钮
 
 ```ts
-MessageConfirm({
-  message: '确定要删除该项吗？',
-  cancelButtonText: '取消'
-})
+MessageConfirm({ message: '确定要删除该项吗？', cancelButtonText: '取消' })
 ```
 
 ### 带回调

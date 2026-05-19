@@ -11,22 +11,22 @@ import type { PasswordInputProps, PasswordInputEmits, PasswordInputExposed } fro
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `string` | — | 密码值（v-model） |
-| `placeholder` | `string` | — | 占位符 |
-| `clearable` | `boolean` | `false` | 是否显示清除按钮 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `prefix` | `string` | — | 前缀文本 |
-| `suffix` | `string` | — | 后缀文本 |
-| `nativeReadonly` | `boolean` | — | 原生只读 |
-| `pattern` | `RegExp` | — | 输入模式，需保证有一个符合模式的默认值 |
-| `tips` | `string` | — | 在表单控件内时的提示 |
-| `span` | `number \| 'full' \| ResponsiveSpan` | — | 表单中所占列的大小 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
+| prop             | type                                 | default     | 说明                                   |
+| ---------------- | ------------------------------------ | ----------- | -------------------------------------- |
+| `modelValue`     | `string`                             | —           | 密码值（v-model）                      |
+| `placeholder`    | `string`                             | —           | 占位符                                 |
+| `clearable`      | `boolean`                            | `false`     | 是否显示清除按钮                       |
+| `disabled`       | `boolean`                            | `false`     | 是否禁用                               |
+| `readonly`       | `boolean`                            | `false`     | 是否只读                               |
+| `size`           | `'small' \| 'default' \| 'large'`    | `'default'` | 组件尺寸                               |
+| `prefix`         | `string`                             | —           | 前缀文本                               |
+| `suffix`         | `string`                             | —           | 后缀文本                               |
+| `nativeReadonly` | `boolean`                            | —           | 原生只读                               |
+| `pattern`        | `RegExp`                             | —           | 输入模式，需保证有一个符合模式的默认值 |
+| `tips`           | `string`                             | —           | 在表单控件内时的提示                   |
+| `span`           | `number \| 'full' \| ResponsiveSpan` | —           | 表单中所占列的大小                     |
+| `label`          | `string`                             | —           | 表单标签文字                           |
+| `field`          | `string`                             | —           | 表单项字段名                           |
 
 ### 类型扩展
 
@@ -39,22 +39,23 @@ interface PasswordInputProps extends InputProps {
 其中 `ResponsiveSpan` 类型：
 
 ```ts
-type ResponsiveSpan = number | 'full' | ({
-  [key in 'xs' | 'sm' | 'md' | 'lg' | 'xl']?: 'full' | number
-} & { default: number | 'full' })
+type ResponsiveSpan =
+  | number
+  | 'full'
+  | ({ [key in 'xs' | 'sm' | 'md' | 'lg' | 'xl']?: 'full' | number } & { default: number | 'full' })
 ```
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数              | 说明             |
+| ------------------- | ----------------- | ---------------- |
 | `update:modelValue` | `(value: string)` | 输入值变化时触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `prefix` | — | 输入框前缀区域（点击会触发 `prefix:click` 事件） |
+| slot     | 作用域 | 说明                                             |
+| -------- | ------ | ------------------------------------------------ |
+| `prefix` | —      | 输入框前缀区域（点击会触发 `prefix:click` 事件） |
 
 > 后缀插槽已被组件内部占用（显示/隐藏密码图标），不可覆盖。
 

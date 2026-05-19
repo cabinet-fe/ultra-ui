@@ -12,30 +12,30 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `title` | `string` | — | 确认提示文字 |
-| `icon` | `Component` | `QuestionFilled` | 图标组件 |
-| `iconColor` | `string` | `'#ffc107'` | 图标颜色 |
-| `confirmText` | `string` | `'确认'` | 确认按钮文字 |
-| `cancelText` | `string` | `'取消'` | 取消按钮文字 |
-| `trigger` | `'hover' \| 'click'` | `'click'` | 触发方式 |
-| `direction` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'` | 弹出方向 |
-| `alignment` | `'center' \| 'start' \| 'end'` | `'center'` | 对齐方式 |
-| `contentTag` | `string` | — | 浮层内容容器标签名 |
+| prop          | type                                     | default          | 说明               |
+| ------------- | ---------------------------------------- | ---------------- | ------------------ |
+| `title`       | `string`                                 | —                | 确认提示文字       |
+| `icon`        | `Component`                              | `QuestionFilled` | 图标组件           |
+| `iconColor`   | `string`                                 | `'#ffc107'`      | 图标颜色           |
+| `confirmText` | `string`                                 | `'确认'`         | 确认按钮文字       |
+| `cancelText`  | `string`                                 | `'取消'`         | 取消按钮文字       |
+| `trigger`     | `'hover' \| 'click'`                     | `'click'`        | 触发方式           |
+| `direction`   | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'`       | 弹出方向           |
+| `alignment`   | `'center' \| 'start' \| 'end'`           | `'center'`       | 对齐方式           |
+| `contentTag`  | `string`                                 | —                | 浮层内容容器标签名 |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `confirm` | — | 点击确认按钮时触发，触发后浮层自动关闭 |
-| `cancel` | — | 点击取消按钮时触发，触发后浮层自动关闭 |
+| event     | 参数 | 说明                                   |
+| --------- | ---- | -------------------------------------- |
+| `confirm` | —    | 点击确认按钮时触发，触发后浮层自动关闭 |
+| `cancel`  | —    | 点击取消按钮时触发，触发后浮层自动关闭 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `reference` | — | 触发元素，用于唤起确认浮层 |
+| slot        | 作用域 | 说明                       |
+| ----------- | ------ | -------------------------- |
+| `reference` | —      | 触发元素，用于唤起确认浮层 |
 
 ## Exposed
 
@@ -106,12 +106,7 @@ import { WarningFilled } from '@veltra/icons/normal'
 ### hover 触发
 
 ```vue
-<UPopConfirm
-  title="在表格中删除该项？"
-  trigger="hover"
-  alignment="start"
-  @confirm="handleDelete"
->
+<UPopConfirm title="在表格中删除该项？" trigger="hover" alignment="start" @confirm="handleDelete">
   <template #reference>
     <UButton text type="danger" :icon="Delete">删除</UButton>
   </template>

@@ -13,16 +13,16 @@ import { vLoading } from '@veltra/desktop'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
+| prop   | type                                        | default     | 说明         |
+| ------ | ------------------------------------------- | ----------- | ------------ |
 | `type` | `'classic' \| 'line' \| 'dot' \| 'spinner'` | `'spinner'` | 加载动画类型 |
 
 `size` 通过 `useFallbackProps` 从 `UConfig` 继承，默认为 `'default'`，无需手动传入。
 
 ## Emits
 
-| event | payload | 说明 |
-|------|---------|------|
+| event               | payload           | 说明                  |
+| ------------------- | ----------------- | --------------------- |
 | `update:modelValue` | `(value: string)` | modelValue 更新时触发 |
 
 ## Slots
@@ -97,16 +97,13 @@ const loadType = shallowRef<'spinner' | 'line'>('spinner')
 
 const fetchData = async () => {
   loading.value = true
-  await new Promise(r => setTimeout(r, 2000))
+  await new Promise((r) => setTimeout(r, 2000))
   loading.value = false
 }
 </script>
 
 <template>
-  <div
-    v-loading:[loadType]="loading"
-    style="height: 200px; border: 1px solid #eee;"
-  >
+  <div v-loading:[loadType]="loading" style="height: 200px; border: 1px solid #eee;">
     <p>内容区域，加载时显示半透明遮罩</p>
   </div>
   <u-button type="primary" @click="fetchData">重新加载</u-button>
@@ -124,7 +121,7 @@ const fullscreenLoading = shallowRef(false)
 
 const loadAll = async () => {
   fullscreenLoading.value = true
-  await new Promise(r => setTimeout(r, 3000))
+  await new Promise((r) => setTimeout(r, 3000))
   fullscreenLoading.value = false
 }
 </script>

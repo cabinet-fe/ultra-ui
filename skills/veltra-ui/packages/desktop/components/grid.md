@@ -12,21 +12,21 @@
 
 ## UGrid Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `24` | 栅格列数。数字指定固定列数；对象按断点分别配置列数；函数根据断点（含 `name`、`level` 字段）动态返回列数 |
-| `tag` | `string` | `"div"` | 根容器标签 |
-| `gap` | `number \| string` | — | 间隔。数字时同步设置行列间隔（`px`）；字符串 `"<row> <col>"` 可分别指定行间隔和列间隔，如 `"10px 20px"` |
+| prop   | type                                                          | default | 说明                                                                                                    |
+| ------ | ------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `24`    | 栅格列数。数字指定固定列数；对象按断点分别配置列数；函数根据断点（含 `name`、`level` 字段）动态返回列数 |
+| `tag`  | `string`                                                      | `"div"` | 根容器标签                                                                                              |
+| `gap`  | `number \| string`                                            | —       | 间隔。数字时同步设置行列间隔（`px`）；字符串 `"<row> <col>"` 可分别指定行间隔和列间隔，如 `"10px 20px"` |
 
 ### BreakCols 类型
 
 ```ts
 interface BreakCols {
-  xs?: number  // width < 578px
-  sm?: number  // width < 960px
-  md?: number  // width < 1366px
-  lg?: number  // width < 1920px
-  xl?: number  // width >= 1920px
+  xs?: number // width < 578px
+  sm?: number // width < 960px
+  md?: number // width < 1366px
+  lg?: number // width < 1920px
+  xl?: number // width >= 1920px
   default?: number // 默认，当高断点未配置时回退使用
 }
 ```
@@ -35,16 +35,16 @@ interface BreakCols {
 
 ## UGrid Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `resize` | `(rect: DOMRect)` | 容器尺寸变化时触发 |
+| event               | 参数                       | 说明                                                                                                  |
+| ------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `resize`            | `(rect: DOMRect)`          | 容器尺寸变化时触发                                                                                    |
 | `breakpoint-change` | `(breakpoint: Breakpoint)` | 容器宽度跨越断点阈值时触发，`Breakpoint = { name: 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl', level: 1-5 }` |
 
 ## UGrid Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 放置 `UGridItem` 作为栅格子项 |
+| slot      | 作用域 | 说明                          |
+| --------- | ------ | ----------------------------- |
+| `default` | —      | 放置 `UGridItem` 作为栅格子项 |
 
 ## UGrid Exposed
 
@@ -63,16 +63,16 @@ interface GridExposed {
 
 ### UGridItem Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `span` | `number \| 'full' \| { [BreakpointName]?: number \| 'full'; default: number \| 'full' }` | `1` | 所占列数。`0` 表示隐藏该项；`'full'` 表示撑满整行；对象可按断点配置不同跨距，`default` 为回退值 |
-| `tag` | `string` | `"div"` | 根容器标签 |
+| prop   | type                                                                                     | default | 说明                                                                                            |
+| ------ | ---------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `span` | `number \| 'full' \| { [BreakpointName]?: number \| 'full'; default: number \| 'full' }` | `1`     | 所占列数。`0` 表示隐藏该项；`'full'` 表示撑满整行；对象可按断点配置不同跨距，`default` 为回退值 |
+| `tag`  | `string`                                                                                 | `"div"` | 根容器标签                                                                                      |
 
 ### UGridItem Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 子项内容 |
+| slot      | 作用域 | 说明     |
+| --------- | ------ | -------- |
+| `default` | —      | 子项内容 |
 
 ---
 
@@ -106,7 +106,7 @@ interface GridExposed {
 ### 函数动态列数 + 满行跨距
 
 ```vue
-<u-grid :cols="(bp) => bp.level < 3 ? 12 : 24" :gap="16">
+<u-grid :cols="(bp) => (bp.level < 3 ? 12 : 24)" :gap="16">
   <u-grid-item span="full">
     <div style="background: var(--u-color-primary-light); padding: 16px">整行标题</div>
   </u-grid-item>
@@ -122,7 +122,9 @@ interface GridExposed {
 <template>
   <u-grid :cols="{ xs: 6, md: 12, lg: 24 }" @breakpoint-change="onBreakpointChange">
     <u-grid-item :span="{ xs: 6, md: 6, default: 12 }">
-      <div style="background: var(--u-color-primary-light); padding: 12px">当前断点: {{ bp?.name }}({{ bp?.level }})</div>
+      <div style="background: var(--u-color-primary-light); padding: 12px">
+        当前断点: {{ bp?.name }}({{ bp?.level }})
+      </div>
     </u-grid-item>
   </u-grid>
 </template>

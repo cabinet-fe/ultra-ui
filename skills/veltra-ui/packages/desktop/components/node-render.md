@@ -15,9 +15,9 @@ import type { NodeRenderProps } from '@veltra/desktop'
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `content` | `null \| undefined \| VNode \| VNode[] \| string \| number \| boolean` | — | 要渲染的内容。`undefined` 时回退到 `default` 插槽；VNode 时会合并 attrs；数组直接渲染 |
+| prop      | type                                                                   | default | 说明                                                                                  |
+| --------- | ---------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------- |
+| `content` | `null \| undefined \| VNode \| VNode[] \| string \| number \| boolean` | —       | 要渲染的内容。`undefined` 时回退到 `default` 插槽；VNode 时会合并 attrs；数组直接渲染 |
 
 ## Emits
 
@@ -25,9 +25,9 @@ import type { NodeRenderProps } from '@veltra/desktop'
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 当 `content` 为 `undefined` 时作为回退内容渲染 |
+| slot      | 作用域 | 说明                                           |
+| --------- | ------ | ---------------------------------------------- |
+| `default` | —      | 当 `content` 为 `undefined` 时作为回退内容渲染 |
 
 ## Exposed
 
@@ -62,11 +62,7 @@ const link = h('a', { class: 'my-link', target: '_blank' }, () => '前往')
 </script>
 
 <template>
-  <u-node-render
-    :content="link"
-    style="color: red"
-    data-track="nav"
-  />
+  <u-node-render :content="link" style="color: red" data-track="nav" />
   <!-- VNode.props 会合并 style 和 data-track -->
 </template>
 ```

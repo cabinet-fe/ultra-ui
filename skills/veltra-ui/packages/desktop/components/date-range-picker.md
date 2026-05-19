@@ -12,32 +12,32 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `[string, string]` | — | 当前选中的日期范围 |
-| `placeholder` | `[string, string]` | `['起始日期', '结束日期']` | 占位文本，依次为起始、结束输入框 |
-| `type` | `'date' \| 'month' \| 'year'` | `'date'` | 日期选择类型 |
-| `format` | `string` | — | 日期格式化字符串。未指定时根据 `type` 自动推断：`date` → `'yyyy-MM-dd'`，`month` → `'yyyy-MM'`，`year` → `'yyyy'` |
-| `valueFormat` | `string` | — | 日期值格式化。未指定时默认使用 `format`，仅当值与显示内容不一致时使用 |
-| `disabledDate` | `(date: Dater) => boolean` | — | 禁用指定日期的回调，返回 `true` 则禁用 |
-| `clearable` | `boolean` | `true` | 是否显示清除按钮，hover 时出现 |
+| prop           | type                          | default                    | 说明                                                                                                              |
+| -------------- | ----------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `modelValue`   | `[string, string]`            | —                          | 当前选中的日期范围                                                                                                |
+| `placeholder`  | `[string, string]`            | `['起始日期', '结束日期']` | 占位文本，依次为起始、结束输入框                                                                                  |
+| `type`         | `'date' \| 'month' \| 'year'` | `'date'`                   | 日期选择类型                                                                                                      |
+| `format`       | `string`                      | —                          | 日期格式化字符串。未指定时根据 `type` 自动推断：`date` → `'yyyy-MM-dd'`，`month` → `'yyyy-MM'`，`year` → `'yyyy'` |
+| `valueFormat`  | `string`                      | —                          | 日期值格式化。未指定时默认使用 `format`，仅当值与显示内容不一致时使用                                             |
+| `disabledDate` | `(date: Dater) => boolean`    | —                          | 禁用指定日期的回调，返回 `true` 则禁用                                                                            |
+| `clearable`    | `boolean`                     | `true`                     | 是否显示清除按钮，hover 时出现                                                                                    |
 
 ### 继承自 `FormComponentProps`
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `readonly` | `boolean` | `false` | 是否只读（只读模式下渲染为纯文本） |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段名 |
-| `tips` | `string` | — | 表单控件内的提示信息 |
-| `span` | `number \| 'full' \| {...}` | — | 所占列的大小 |
+| prop       | type                              | default     | 说明                               |
+| ---------- | --------------------------------- | ----------- | ---------------------------------- |
+| `size`     | `'small' \| 'default' \| 'large'` | `'default'` | 组件尺寸                           |
+| `disabled` | `boolean`                         | `false`     | 是否禁用                           |
+| `readonly` | `boolean`                         | `false`     | 是否只读（只读模式下渲染为纯文本） |
+| `label`    | `string`                          | —           | 表单标签文字                       |
+| `field`    | `string`                          | —           | 表单项字段名                       |
+| `tips`     | `string`                          | —           | 表单控件内的提示信息               |
+| `span`     | `number \| 'full' \| {...}`       | —           | 所占列的大小                       |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event               | 参数                         | 说明                   |
+| ------------------- | ---------------------------- | ---------------------- |
 | `update:modelValue` | `(value?: [string, string])` | 选中日期范围变化时触发 |
 
 ## Slots

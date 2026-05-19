@@ -12,46 +12,46 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `modelValue` | `any` | — | 绑定值 |
-| `text` | `string` | — | 文本内容（`v-model:text`） |
-| `options` | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | — | 列表选项。如果传入一个函数，那么 filterable 会被强制启用 |
-| `valueKey` | `string` | `'value'` | 值字段 |
-| `labelKey` | `string` | `'label'` | 标签字段 |
-| `clearable` | `boolean` | `true` | 是否可清除 |
-| `placeholder` | `string` | `'请选择'` | 占位符 |
-| `filterable` | `boolean` | — | 是否启用搜索功能 |
-| `contentStyle` | `CSSProperties \| string` | — | 内容容器样式 |
-| `contentClass` | `unknown` | — | 内容容器类名 |
-| `minWidth` | `string` | — | 弹框最小宽度 |
-| `width` | `string` | — | 弹框宽度，默认跟随触发元素的宽度 |
-| `creatable` | `boolean` | — | 是否允许创建新的选项 |
-| `grid` | `{ cols: number; gap?: number }` | — | 配置网格布局。开启网格布局将会导致虚拟滚动失效，因此网格布局不适合大量数据 |
-| `size` | `ComponentSize` | — | 组件尺寸 |
-| `tips` | `string` | — | 在表单控件内时的提示 |
-| `span` | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | — | 所占列的大小 |
-| `label` | `string` | — | 表单标签文字 |
-| `field` | `string` | — | 表单项字段 |
-| `disabled` | `boolean` | — | 是否禁用 |
-| `readonly` | `boolean` | — | 是否只读 |
+| prop           | type                                                                                                                                                                   | default    | 说明                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| `modelValue`   | `any`                                                                                                                                                                  | —          | 绑定值                                                                     |
+| `text`         | `string`                                                                                                                                                               | —          | 文本内容（`v-model:text`）                                                 |
+| `options`      | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])`                                                                   | —          | 列表选项。如果传入一个函数，那么 filterable 会被强制启用                   |
+| `valueKey`     | `string`                                                                                                                                                               | `'value'`  | 值字段                                                                     |
+| `labelKey`     | `string`                                                                                                                                                               | `'label'`  | 标签字段                                                                   |
+| `clearable`    | `boolean`                                                                                                                                                              | `true`     | 是否可清除                                                                 |
+| `placeholder`  | `string`                                                                                                                                                               | `'请选择'` | 占位符                                                                     |
+| `filterable`   | `boolean`                                                                                                                                                              | —          | 是否启用搜索功能                                                           |
+| `contentStyle` | `CSSProperties \| string`                                                                                                                                              | —          | 内容容器样式                                                               |
+| `contentClass` | `unknown`                                                                                                                                                              | —          | 内容容器类名                                                               |
+| `minWidth`     | `string`                                                                                                                                                               | —          | 弹框最小宽度                                                               |
+| `width`        | `string`                                                                                                                                                               | —          | 弹框宽度，默认跟随触发元素的宽度                                           |
+| `creatable`    | `boolean`                                                                                                                                                              | —          | 是否允许创建新的选项                                                       |
+| `grid`         | `{ cols: number; gap?: number }`                                                                                                                                       | —          | 配置网格布局。开启网格布局将会导致虚拟滚动失效，因此网格布局不适合大量数据 |
+| `size`         | `ComponentSize`                                                                                                                                                        | —          | 组件尺寸                                                                   |
+| `tips`         | `string`                                                                                                                                                               | —          | 在表单控件内时的提示                                                       |
+| `span`         | `number \| 'full' \| { default: number \| 'full'; xs?: number \| 'full'; sm?: number \| 'full'; md?: number \| 'full'; lg?: number \| 'full'; xl?: number \| 'full' }` | —          | 所占列的大小                                                               |
+| `label`        | `string`                                                                                                                                                               | —          | 表单标签文字                                                               |
+| `field`        | `string`                                                                                                                                                               | —          | 表单项字段                                                                 |
+| `disabled`     | `boolean`                                                                                                                                                              | —          | 是否禁用                                                                   |
+| `readonly`     | `boolean`                                                                                                                                                              | —          | 是否只读                                                                   |
 
 > `size`、`disabled`、`readonly` 在表单上下文（`UForm`）中会自动继承，运行时 fallback 分别为 `'default'`、`false`、`false`。
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
-| `update:label` | `(label?: string)` | 触发更新 label 事件 |
-| `update:modelValue` | `(modelValue?: any)` | 选中值变化 |
-| `change` | `(option?: Record<string, any>)` | 选中项变化 |
+| event               | 参数                             | 说明                |
+| ------------------- | -------------------------------- | ------------------- |
+| `update:label`      | `(label?: string)`               | 触发更新 label 事件 |
+| `update:modelValue` | `(modelValue?: any)`             | 选中值变化          |
+| `change`            | `(option?: Record<string, any>)` | 选中项变化          |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                                           | 说明                             |
+| --------- | ------------------------------------------------ | -------------------------------- |
 | `default` | `{ option: Record<string, any>; index: number }` | 自定义选项渲染，每个选项渲染一次 |
-| `prefix` | — | 触发框前缀内容 |
+| `prefix`  | —                                                | 触发框前缀内容                   |
 
 ## Exposed
 
@@ -158,14 +158,12 @@ const colorOptions = [
 </script>
 
 <template>
-  <u-select
-    v-model="color"
-    :options="colorOptions"
-    :grid="{ cols: 3, gap: 8 }"
-  >
+  <u-select v-model="color" :options="colorOptions" :grid="{ cols: 3, gap: 8 }">
     <template #default="{ option }">
       <div style="text-align: center">
-        <div :style="{ width: '24px', height: '24px', background: option?.value, margin: '0 auto' }" />
+        <div
+          :style="{ width: '24px', height: '24px', background: option?.value, margin: '0 auto' }"
+        />
         <div>{{ option?.label }}</div>
       </div>
     </template>
@@ -181,9 +179,7 @@ const colorOptions = [
 <script setup lang="ts">
 import { FormModel, formField } from '@veltra/desktop'
 
-const model = new FormModel({
-  grade: formField({ value: '' })
-})
+const model = new FormModel({ grade: formField({ value: '' }) })
 
 const gradeList = [
   { label: '一年级', value: 1 },

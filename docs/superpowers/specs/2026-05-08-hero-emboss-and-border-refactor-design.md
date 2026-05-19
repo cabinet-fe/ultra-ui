@@ -13,19 +13,19 @@
 
 所有主题统一使用 `border: 1px solid var(--u-border-color)` 替代 `box-shadow: inset` 模拟边框。
 
-| 主题 | 边框 | 阴影 |
-|------|------|------|
-| light / shadcn / dark | `border: 1px solid var(--u-border-color)` | `box-shadow: none`（无浮雕） |
-| hero | `border: 1px solid var(--u-border-color)` | `box-shadow: var(--u-shadow-emboss)`（浮雕） |
+| 主题                  | 边框                                      | 阴影                                         |
+| --------------------- | ----------------------------------------- | -------------------------------------------- |
+| light / shadcn / dark | `border: 1px solid var(--u-border-color)` | `box-shadow: none`（无浮雕）                 |
+| hero                  | `border: 1px solid var(--u-border-color)` | `box-shadow: var(--u-shadow-emboss)`（浮雕） |
 
 ### 各状态行为
 
-| 状态 | 以前 | 以后（所有主题） |
-|------|------|------|
-| default | `box-shadow: inset 0 0 1px 1px var(--u-border-color)` | `border: 1px solid var(--u-border-color); box-shadow: var(--u-shadow-emboss)` |
-| hover | `box-shadow: inset 0 0 0px 1px var(--u-color-primary)` | `border-color: var(--u-color-primary)` |
-| focus | `box-shadow: inset 0 0 1px 1px var(--u-color-primary)` | `border-color: var(--u-color-primary)` |
-| disabled | `box-shadow: inset 0 0 1px 1px var(--u-border-color)` | `border-color: var(--u-border-color); box-shadow: none; opacity降低/背景灰` |
+| 状态     | 以前                                                   | 以后（所有主题）                                                              |
+| -------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| default  | `box-shadow: inset 0 0 1px 1px var(--u-border-color)`  | `border: 1px solid var(--u-border-color); box-shadow: var(--u-shadow-emboss)` |
+| hover    | `box-shadow: inset 0 0 0px 1px var(--u-color-primary)` | `border-color: var(--u-color-primary)`                                        |
+| focus    | `box-shadow: inset 0 0 1px 1px var(--u-color-primary)` | `border-color: var(--u-color-primary)`                                        |
+| disabled | `box-shadow: inset 0 0 1px 1px var(--u-border-color)`  | `border-color: var(--u-border-color); box-shadow: none; opacity降低/背景灰`   |
 
 ### 不改动
 
@@ -48,8 +48,8 @@ shadow: {
 
 ### 各主题 emboss 值
 
-| 主题 | light | shadcn | hero (light) | hero (dark) | dark |
-|------|-------|---------|-------------|-------------|------|
+| 主题     | light    | shadcn   | hero (light)                                               | hero (dark)                                               | dark     |
+| -------- | -------- | -------- | ---------------------------------------------------------- | --------------------------------------------------------- | -------- |
 | `emboss` | `'none'` | `'none'` | `'0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06)'` | `'0 2px 8px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.15)'` | `'none'` |
 
 ### UITheme 渲染
@@ -60,17 +60,17 @@ shadow: {
 
 ### 表单组件（核心改造：7 个 + form-item）
 
-| 组件 | 文件 | 改造要点 |
-|------|------|----------|
-| input | `input/style.scss` | default: `border` + `shadow-emboss`; hover/focus: `border-color` 改变; disabled: `shadow: none` |
-| textarea | `textarea/style.scss` | 同上 |
-| multi-select | `multi-select/style.scss` | 同上 |
-| multi-tree-select | `multi-tree-select/style.scss` | 同上 |
-| date-range-picker | `date-range-picker/style.scss` | 同上 |
-| cascade | `cascade/style.scss` | 同上 |
-| auto-complete | `auto-complete/style.scss` | 同上（仅 `.is-multiple` 修饰符） |
-| code-editor | `code-editor/style.scss` | 组件级变量 `--u-code-editor-border` 相关改造 |
-| form-item | `form-item/style.scss` | error 状态的 inset shadow → `border-color: var(--u-color-danger)` |
+| 组件              | 文件                           | 改造要点                                                                                        |
+| ----------------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| input             | `input/style.scss`             | default: `border` + `shadow-emboss`; hover/focus: `border-color` 改变; disabled: `shadow: none` |
+| textarea          | `textarea/style.scss`          | 同上                                                                                            |
+| multi-select      | `multi-select/style.scss`      | 同上                                                                                            |
+| multi-tree-select | `multi-tree-select/style.scss` | 同上                                                                                            |
+| date-range-picker | `date-range-picker/style.scss` | 同上                                                                                            |
+| cascade           | `cascade/style.scss`           | 同上                                                                                            |
+| auto-complete     | `auto-complete/style.scss`     | 同上（仅 `.is-multiple` 修饰符）                                                                |
+| code-editor       | `code-editor/style.scss`       | 组件级变量 `--u-code-editor-border` 相关改造                                                    |
+| form-item         | `form-item/style.scss`         | error 状态的 inset shadow → `border-color: var(--u-color-danger)`                               |
 
 ### Button 组件
 

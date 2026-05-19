@@ -13,6 +13,7 @@
 ### Task 1: Refactor ExpandTransition class
 
 **Files:**
+
 - Modify: `packages/utils/src/dom/expand-transition.ts`
 
 - [ ] **Step 1: Rewrite ExpandTransition class**
@@ -214,6 +215,7 @@ Check `packages/utils/src/index.ts` — it re-exports from `./dom/expand-transit
 ### Task 2: Update ExpandTransition tests
 
 **Files:**
+
 - Modify: `packages/utils/src/dom/__test__/expand-transition.test.ts`
 
 - [ ] **Step 1: Rewrite tests for new API**
@@ -331,6 +333,7 @@ Expected: All tests pass.
 ### Task 3: Update collapse component
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/collapse/di.ts`
 - Modify: `packages/desktop/src/components/collapse/collapse.vue`
 - Modify: `packages/desktop/src/components/collapse/collapse-item.vue`
@@ -392,9 +395,7 @@ import type { CollapseItemProps } from '../../types'
 import { UIcon } from '../icon'
 import { CollapseDIKey } from './di'
 
-defineOptions({
-  name: 'CollapseItem'
-})
+defineOptions({ name: 'CollapseItem' })
 
 const props = defineProps<CollapseItemProps>()
 
@@ -454,6 +455,7 @@ onBeforeUnmount(() => {
 ### Task 4: Update menu component
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/menu/di.ts`
 - Modify: `packages/desktop/src/components/menu/menu.vue`
 - Modify: `packages/desktop/src/components/menu/menu-sub.vue`
@@ -471,6 +473,7 @@ Define transition config and create instance, add to provide object.
 - [ ] **Step 3: Refactor menu-sub.vue to use injected ExpandTransition**
 
 Remove `useMenuTransition` import. Use `expandTransition` from context directly in template:
+
 ```vue
 <transition
   @enter="(el) => expandTransition.enter(el)"

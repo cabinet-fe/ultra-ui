@@ -19,7 +19,10 @@ interface ComponentProps {
 ```ts
 interface FormComponentProps extends ComponentProps {
   tips?: string
-  span?: number | 'full' | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
+  span?:
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
   label?: string
   field?: string
   disabled?: boolean
@@ -100,15 +103,15 @@ emit('close')
 
 常见命名插槽：
 
-| 插槽名 | 出现组件 | 用途 |
-|--------|----------|------|
-| `icon` | Button, Input | 前置图标 |
-| `prefix` | Input, Select | 前缀内容 |
-| `suffix` | Input, Select | 后缀内容 |
-| `header` | Table, Card | 头部 |
-| `footer` | Dialog, Card | 底部 |
-| `empty` | Table, List | 空数据展示 |
-| `default` | 所有 | 主要内容 |
+| 插槽名    | 出现组件      | 用途       |
+| --------- | ------------- | ---------- |
+| `icon`    | Button, Input | 前置图标   |
+| `prefix`  | Input, Select | 前缀内容   |
+| `suffix`  | Input, Select | 后缀内容   |
+| `header`  | Table, Card   | 头部       |
+| `footer`  | Dialog, Card  | 底部       |
+| `empty`   | Table, List   | 空数据展示 |
+| `default` | 所有          | 主要内容   |
 
 ### 示例
 
@@ -169,14 +172,14 @@ function focus() {
 
 ### 常见 Exposed
 
-| 组件 | Exposed | 类型 |
-|------|---------|------|
-| Button | `el` | `HTMLButtonElement` |
-| Input | `el` | `HTMLInputElement` |
-| Select | `el` | `HTMLElement` |
-| Dialog | `el` | `HTMLElement` |
-| Table | `el` | `HTMLElement` |
-| Form | `el` | `HTMLFormElement` |
+| 组件   | Exposed | 类型                |
+| ------ | ------- | ------------------- |
+| Button | `el`    | `HTMLButtonElement` |
+| Input  | `el`    | `HTMLInputElement`  |
+| Select | `el`    | `HTMLElement`       |
+| Dialog | `el`    | `HTMLElement`       |
+| Table  | `el`    | `HTMLElement`       |
+| Form   | `el`    | `HTMLFormElement`   |
 
 ## 事件处理模式
 
@@ -221,8 +224,8 @@ UForm （provide formProps）
 
 ## 组件目录约定
 
-| 约定 | 示例 |
-|------|------|
-| 组件名 | `U` + PascalCase（`UButton`） |
-| 目录名 | kebab-case（`button`） |
+| 约定   | 示例                                       |
+| ------ | ------------------------------------------ |
+| 组件名 | `U` + PascalCase（`UButton`）              |
+| 目录名 | kebab-case（`button`）                     |
 | CSS 类 | `u-` + BEM（`u-button`、`u-button__icon`） |

@@ -12,32 +12,32 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `type` | `ColorType` | — | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
-| `size` | `ComponentSize` | `'default'` | `'small'` \| `'default'` \| `'large'` |
-| `text` | `boolean` | — | 文本模式（无背景无边框） |
-| `plain` | `boolean` | — | 朴素模式（边框 + 文字使用 type 色） |
-| `loading` | `boolean` | — | 加载中，显示 loadingIcon 并禁用交互 |
-| `loadingIcon` | `Component` | `Loading` | 自定义加载图标组件 |
-| `circle` | `boolean` | — | 圆形按钮 |
-| `disabled` | `boolean` | `false` | 禁用状态，阻止点击与波纹 |
-| `icon` | `Component` | — | 图标组件，按 iconPosition 渲染 |
-| `iconSize` | `number` | — | 图标大小（px） |
-| `iconPosition` | `'left' \| 'right'` | `'left'` | 图标位置 |
-| `propagate` | `boolean` | `true` | `false` 时阻止 click 事件冒泡 |
+| prop           | type                | default     | 说明                                                                |
+| -------------- | ------------------- | ----------- | ------------------------------------------------------------------- |
+| `type`         | `ColorType`         | —           | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
+| `size`         | `ComponentSize`     | `'default'` | `'small'` \| `'default'` \| `'large'`                               |
+| `text`         | `boolean`           | —           | 文本模式（无背景无边框）                                            |
+| `plain`        | `boolean`           | —           | 朴素模式（边框 + 文字使用 type 色）                                 |
+| `loading`      | `boolean`           | —           | 加载中，显示 loadingIcon 并禁用交互                                 |
+| `loadingIcon`  | `Component`         | `Loading`   | 自定义加载图标组件                                                  |
+| `circle`       | `boolean`           | —           | 圆形按钮                                                            |
+| `disabled`     | `boolean`           | `false`     | 禁用状态，阻止点击与波纹                                            |
+| `icon`         | `Component`         | —           | 图标组件，按 iconPosition 渲染                                      |
+| `iconSize`     | `number`            | —           | 图标大小（px）                                                      |
+| `iconPosition` | `'left' \| 'right'` | `'left'`    | 图标位置                                                            |
+| `propagate`    | `boolean`           | `true`      | `false` 时阻止 click 事件冒泡                                       |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event   | 参数              | 说明                                       |
+| ------- | ----------------- | ------------------------------------------ |
 | `click` | `(e: MouseEvent)` | 点击事件，`disabled` 或 `loading` 时不触发 |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 按钮内文本/内容 |
+| slot      | 作用域 | 说明            |
+| --------- | ------ | --------------- |
+| `default` | —      | 按钮内文本/内容 |
 
 ## Exposed
 
@@ -161,8 +161,8 @@ const btnRef = useTemplateRef<ButtonExposed>('btn')
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                   | 说明                                                |
+| --------- | ------------------------ | --------------------------------------------------- |
 | `default` | `{ props: ButtonProps }` | 通过 `v-bind="props"` 将统一 props 透传给每个子按钮 |
 
 ## Examples

@@ -12,10 +12,10 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `size` | `ComponentSize` | `'default'` | `'small'` \| `'default'` \| `'large'` |
-| `data` | `Record<string, any>[]` | — | 列表数据 |
+| prop   | type                    | default     | 说明                                  |
+| ------ | ----------------------- | ----------- | ------------------------------------- |
+| `size` | `ComponentSize`         | `'default'` | `'small'` \| `'default'` \| `'large'` |
+| `data` | `Record<string, any>[]` | —           | 列表数据                              |
 
 ## Emits
 
@@ -23,8 +23,8 @@
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
+| slot      | 作用域                                         | 说明                   |
+| --------- | ---------------------------------------------- | ---------------------- |
 | `default` | `{ item: Record<string, any>, index: number }` | 自定义每个列表项的渲染 |
 
 ## Exposed
@@ -42,7 +42,7 @@ import { ref } from 'vue'
 const items = ref([
   { id: 1, name: '张三' },
   { id: 2, name: '李四' },
-  { id: 3, name: '王五' },
+  { id: 3, name: '王五' }
 ])
 </script>
 
@@ -77,11 +77,7 @@ const items = ref([
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const items = ref([
-  { label: '第一项' },
-  { label: '第二项' },
-  { label: '第三项' },
-])
+const items = ref([{ label: '第一项' }, { label: '第二项' }, { label: '第三项' }])
 </script>
 
 <template>

@@ -53,12 +53,12 @@
           <u-radio-group v-model="size" :items="sizeOptions" block />
         </div>
 
-        <div class="drawer-divider"></div>
+        <!-- <div class="drawer-divider"></div>
 
         <div class="drawer-section">
           <div class="drawer-section-title">主题变量</div>
           <u-theme />
-        </div>
+        </div> -->
       </div>
     </u-drawer>
   </div>
@@ -162,7 +162,11 @@ watch([themeMode, themePreset], ([m, p]) => {
 const initial = getThemesByPreset(themePreset.value)
 UITheme.injectBuiltInThemes(initial.light, initial.dark)
 UITheme.setTheme(themeMode.value)
-currentTheme.value = effectiveDark.value ? initial.dark : initial.light
+
+watchEffect(() => {
+  const { light, dark } = getThemesByPreset(themePreset.value)
+  currentTheme.value = effectiveDark.value ? dark : light
+})
 
 const themeModeLabel = computed(() => {
   if (themeMode.value === 'auto') return '跟随系统'

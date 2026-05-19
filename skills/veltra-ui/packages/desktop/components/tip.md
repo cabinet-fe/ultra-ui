@@ -12,32 +12,32 @@
 
 ## Props
 
-| prop | type | default | 说明 |
-|------|------|---------|------|
-| `visible` | `boolean` | `undefined` | 控制显隐 |
-| `content` | `string` | `''` | 提示内容 |
-| `style` | `CSSProperties \| string` | — | 自定义 tip 样式 |
-| `class` | `string \| string[] \| Record<string, boolean>` | — | 自定义 tip 的 class |
-| `trigger` | `'hover' \| 'click'` | `'hover'` | 触发方式 |
-| `triggerDom` | `HTMLElement` | — | 触发元素，指定后弹框将相对于该元素定位 |
-| `direction` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 弹出方向 |
-| `alignment` | `'center' \| 'start' \| 'end'` | `'center'` | 对齐方式 |
-| `hideArrow` | `boolean` | — | 隐藏箭头 |
-| `contentTag` | `string` | `'div'` | tip 内容容器标签 |
-| `disabled` | `boolean` | — | 禁用 tip |
+| prop         | type                                            | default     | 说明                                   |
+| ------------ | ----------------------------------------------- | ----------- | -------------------------------------- |
+| `visible`    | `boolean`                                       | `undefined` | 控制显隐                               |
+| `content`    | `string`                                        | `''`        | 提示内容                               |
+| `style`      | `CSSProperties \| string`                       | —           | 自定义 tip 样式                        |
+| `class`      | `string \| string[] \| Record<string, boolean>` | —           | 自定义 tip 的 class                    |
+| `trigger`    | `'hover' \| 'click'`                            | `'hover'`   | 触发方式                               |
+| `triggerDom` | `HTMLElement`                                   | —           | 触发元素，指定后弹框将相对于该元素定位 |
+| `direction`  | `'top' \| 'bottom' \| 'left' \| 'right'`        | `'top'`     | 弹出方向                               |
+| `alignment`  | `'center' \| 'start' \| 'end'`                  | `'center'`  | 对齐方式                               |
+| `hideArrow`  | `boolean`                                       | —           | 隐藏箭头                               |
+| `contentTag` | `string`                                        | `'div'`     | tip 内容容器标签                       |
+| `disabled`   | `boolean`                                       | —           | 禁用 tip                               |
 
 ## Emits
 
-| event | 参数 | 说明 |
-|-------|------|------|
+| event            | 参数               | 说明                                 |
+| ---------------- | ------------------ | ------------------------------------ |
 | `update:visible` | `(value: boolean)` | 显隐状态变化（`visible` 受控时触发） |
 
 ## Slots
 
-| slot | 作用域 | 说明 |
-|------|--------|------|
-| `default` | — | 触发元素（取第一个合法 VNode） |
-| `content` | — | 提示内容，优先级高于 `content` prop |
+| slot      | 作用域 | 说明                                |
+| --------- | ------ | ----------------------------------- |
+| `default` | —      | 触发元素（取第一个合法 VNode）      |
+| `content` | —      | 提示内容，优先级高于 `content` prop |
 
 ## Exposed
 

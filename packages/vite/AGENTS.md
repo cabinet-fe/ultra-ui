@@ -52,7 +52,7 @@ Resolver 只解析当前 `@veltra/desktop` 真实导出的 `U*` 组件名；未�
 | `grid-item`                        | `grid`     |
 | `list-item`                        | `list`     |
 | `menu-sub/item`                    | `menu`     |
-| `tabs-horizontal/vertical`          | `tabs`     |
+| `tabs-horizontal/vertical`         | `tabs`     |
 
 ## 依赖
 

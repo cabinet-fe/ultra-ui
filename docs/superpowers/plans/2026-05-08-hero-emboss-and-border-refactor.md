@@ -13,6 +13,7 @@
 ## Task 1: Theme 类型 — 新增 `shadow.emboss` 字段
 
 **Files:**
+
 - Modify: `packages/styles/src/theme/type.ts:124-135`（shadow 对象）
 
 - [ ] **Step 1: 在 Theme 类型中 shadow 下新增 `emboss` 字段**
@@ -54,6 +55,7 @@ git commit -m "feat(theme): add shadow.emboss token to Theme type"
 ## Task 2: 各主题文件 — 填充 `emboss` 值
 
 **Files:**
+
 - Modify: `packages/styles/src/theme/light.ts:53`（lightTheme shadow）
 - Modify: `packages/styles/src/theme/hero.ts:35`（heroLightTheme shadow）和 `hero.ts:63`（heroDarkTheme shadow）
 - Modify: `packages/styles/src/theme/dark.ts:37`（darkTheme shadow）
@@ -117,11 +119,13 @@ git commit -m "feat(theme): add emboss shadow values to all theme definitions"
 ## Task 3: UITheme 渲染 — 确保 `--u-shadow-emboss` 正确输出
 
 **Files:**
+
 - Verify: `packages/styles/src/theme/ui-theme.ts`（无需修改，`renderBase` 已能处理 string 类型 leaf）
 
 - [ ] **Step 1: 验证 `renderBase` 对 `emboss` 字段的处理**
 
 `withUnit` 函数的逻辑：如果值是 number 或数字字符串则加 `px`，否则原样返回字符串。`emboss` 值为：
+
 - `'none'` → `withUnit('none', 'px')` → `'none'`（`isNaN(+'none')` 为 true）
 - `'0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06)'` → 原样返回
 
@@ -130,6 +134,7 @@ git commit -m "feat(theme): add emboss shadow values to all theme definitions"
 - [ ] **Step 2: 在 playground 中验证 CSS 变量输出**
 
 启动 playground，在浏览器 DevTools 中检查 `<html>` 元素的 `--u-shadow-emboss` 变量值：
+
 - 默认主题：`none`
 - hero 主题：`0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06)`
 
@@ -142,6 +147,7 @@ Run: `cd playgrounds/desktop && bun dev`，然后浏览器检查。
 ## Task 4: Input — 从 inset shadow 改为 border + emboss
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/input/style.scss`
 
 - [ ] **Step 1: 修改 input 组件样式**
@@ -149,6 +155,7 @@ Run: `cd playgrounds/desktop && bun dev`，然后浏览器检查。
 将整个 `@include m.b($root-name)` 块中的 inset shadow 替换为 border + emboss。
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -168,10 +175,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -192,6 +202,7 @@ transition: border-color 0.25s ease, box-shadow 0.25s ease;
 - [ ] **Step 2: 在 playground 中视觉验证 input 组件**
 
 Run: `cd playgrounds/desktop && bun dev`，检查：
+
 - 默认主题：input 显示 1px 灰色边框，无浮雕阴影
 - hover/focus：边框变 primary 色
 - disabled：边框保持灰色，无阴影
@@ -209,11 +220,13 @@ git commit -m "feat(input): replace inset shadow with real border + emboss shado
 ## Task 5: Textarea — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/textarea/style.scss`
 
 - [ ] **Step 1: 修改 textarea 组件样式**
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -233,10 +246,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -266,11 +282,13 @@ git commit -m "feat(textarea): replace inset shadow with real border + emboss sh
 ## Task 6: Multi-Select — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/multi-select/style.scss`
 
 - [ ] **Step 1: 修改 multi-select 组件样式**
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -286,10 +304,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -315,11 +336,13 @@ git commit -m "feat(multi-select): replace inset shadow with real border + embos
 ## Task 7: Multi-Tree-Select — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/multi-tree-select/style.scss`
 
 - [ ] **Step 1: 修改 multi-tree-select 组件样式**
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -336,10 +359,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -366,11 +392,13 @@ git commit -m "feat(multi-tree-select): replace inset shadow with real border + 
 ## Task 8: Date-Range-Picker — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/date-range-picker/style.scss`
 
 - [ ] **Step 1: 修改 date-range-picker 组件样式**
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -386,10 +414,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -417,11 +448,13 @@ git commit -m "feat(date-range-picker): replace inset shadow with real border + 
 ## Task 9: Cascade (is-multiple) — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/cascade/style.scss`
 
 - [ ] **Step 1: 修改 cascade 组件 `.is-multiple` 修饰符中的 inset shadow**
 
 改前 key lines (在 `@include m.is(multiple)` 块内):
+
 ```scss
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
 transition: box-shadow 0.25s ease;
@@ -432,10 +465,13 @@ transition: box-shadow 0.25s ease;
 ```
 
 改后:
+
 ```scss
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -458,11 +494,13 @@ git commit -m "feat(cascade): replace inset shadow with real border + emboss sha
 ## Task 10: Auto-Complete (is-multiple) — 同上改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/auto-complete/style.scss`
 
 - [ ] **Step 1: 修改 auto-complete 组件的 `.is-multiple` 和 disabled 状态**
 
 `@include m.is(multiple)` 块中：
+
 ```scss
 // 改前
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
@@ -475,7 +513,9 @@ transition: box-shadow 0.25s ease;
 // 改后
 border: fn.use-var(border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.25s ease, box-shadow 0.25s ease;
+transition:
+  border-color 0.25s ease,
+  box-shadow 0.25s ease;
 
 &:hover {
   border-color: fn.use-var(color, primary);
@@ -483,6 +523,7 @@ transition: border-color 0.25s ease, box-shadow 0.25s ease;
 ```
 
 `@include m.is(disabled)` 块中：
+
 ```scss
 // 改前
 box-shadow: inset 0 0 1px 1px fn.use-var(border, color);
@@ -505,6 +546,7 @@ git commit -m "feat(auto-complete): replace inset shadow with real border + embo
 ## Task 11: Code-Editor — 组件级变量 border 改造
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/code-editor/style.scss`
 
 - [ ] **Step 1: 修改 code-editor 的边框模式**
@@ -512,6 +554,7 @@ git commit -m "feat(auto-complete): replace inset shadow with real border + embo
 code-editor 使用组件级变量 `--u-code-editor-border` 控制边框颜色，当前模式为 `box-shadow: inset 0 0 0 1px`。改为真实 border。
 
 改前 key lines:
+
 ```scss
 box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
 transition: box-shadow 0.2s ease;
@@ -523,10 +566,13 @@ transition: box-shadow 0.2s ease;
 ```
 
 改后:
+
 ```scss
 border: 1px solid var(--u-code-editor-border);
 box-shadow: fn.use-var(shadow, emboss);
-transition: border-color 0.2s ease, box-shadow 0.2s ease;
+transition:
+  border-color 0.2s ease,
+  box-shadow 0.2s ease;
 
 &:hover,
 &:focus-within {
@@ -535,6 +581,7 @@ transition: border-color 0.2s ease, box-shadow 0.2s ease;
 ```
 
 disabled 状态改前:
+
 ```scss
 @include m.is(disabled) {
   background-color: fn.use-var(color, disabled);
@@ -549,6 +596,7 @@ disabled 状态改前:
 ```
 
 改后:
+
 ```scss
 @include m.is(disabled) {
   background-color: fn.use-var(color, disabled);
@@ -563,6 +611,7 @@ disabled 状态改前:
 ```
 
 readonly 状态改前:
+
 ```scss
 @include m.is(readonly) {
   box-shadow: inset 0 0 0 1px var(--u-code-editor-border);
@@ -575,6 +624,7 @@ readonly 状态改前:
 ```
 
 改后:
+
 ```scss
 @include m.is(readonly) {
   &:hover,
@@ -600,11 +650,13 @@ git commit -m "feat(code-editor): replace inset shadow with real border + emboss
 ## Task 12: Form-Item error 状态 — 从 inset shadow 改为 border-color
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/form-item/style.scss`
 
 - [ ] **Step 1: 修改 form-item error 状态覆盖**
 
 改前:
+
 ```scss
 @include m.is(error) {
   #{fn.bem(input)},
@@ -618,6 +670,7 @@ git commit -m "feat(code-editor): replace inset shadow with real border + emboss
 ```
 
 改后:
+
 ```scss
 @include m.is(error) {
   #{fn.bem(input)},
@@ -648,6 +701,7 @@ git commit -m "feat(form-item): replace error inset shadow with border-color ove
 ## Task 13: Button — 增加 emboss 阴影
 
 **Files:**
+
 - Modify: `packages/desktop/src/components/button/style.scss`
 
 - [ ] **Step 1: 为 button 默认状态增加 emboss shadow**
@@ -655,6 +709,7 @@ git commit -m "feat(form-item): replace error inset shadow with border-color ove
 在 button 根块中，将 `transition` 和 shadow 相关行修改：
 
 改前:
+
 ```scss
 border: none;
 background-color: fn.use-var(color, default);
@@ -664,6 +719,7 @@ transition:
 ```
 
 改后:
+
 ```scss
 border: none;
 background-color: fn.use-var(color, default);
@@ -682,6 +738,7 @@ transition:
 - [ ] **Step 2: 视觉验证 button**
 
 检查：
+
 - 默认主题：按钮无额外阴影（emboss 为 none）
 - hero 主题：按钮有浮雕浮起阴影
 - 按下时：阴影消失（active）
@@ -699,6 +756,7 @@ git commit -m "feat(button): add emboss shadow to default button"
 ## Task 14: Type Check & Lint & 视觉回归验证
 
 **Files:**
+
 - 无新文件
 
 - [ ] **Step 1: 运行 type check**
@@ -724,6 +782,7 @@ Run: `bun run build`
 Run: `cd playgrounds/desktop && bun dev`
 
 在浏览器中逐个验证所有受影响组件：
+
 - [ ] Input（默认、hover、focus、disabled、error 状态）
 - [ ] Textarea（同上）
 - [ ] Multi-Select（同上）
