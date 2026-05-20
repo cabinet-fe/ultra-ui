@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.9
+
+### Patch Changes
+
+- ca68f74: chore: republish all packages since 1.1.8 was not published
+- Updated dependencies [ca68f74]
+  - @veltra/utils@1.1.9
+  - @veltra/styles@1.1.9
+  - @veltra/compositions@1.1.9
+  - @veltra/directives@1.1.9
+  - @veltra/icons@1.1.9
+
 ## 1.1.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.1.9
+
+### Patch Changes
+
+- ca68f74: chore: republish all packages since 1.1.8 was not published
+
 ## 1.1.8
 
 ## 1.1.7
