@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.8
+
+### Patch Changes
+
+- 7cfd23b: 修复文件预览器问题
+  - @veltra/utils@1.1.8
+  - @veltra/styles@1.1.8
+  - @veltra/compositions@1.1.8
+  - @veltra/directives@1.1.8
+  - @veltra/icons@1.1.8
+
 ## 1.1.7
 
 ### Patch Changes

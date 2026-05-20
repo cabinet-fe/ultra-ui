@@ -1,5 +1,12 @@
 # @veltra/vite
 
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies [7cfd23b]
+  - @veltra/desktop@1.1.8
+
 ## 1.1.7
 
 ### Patch Changes
