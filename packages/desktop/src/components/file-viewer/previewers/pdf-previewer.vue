@@ -39,6 +39,7 @@ import { bem } from '@veltra/utils'
 import { computed, onBeforeUnmount, shallowRef, useAttrs, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
+import { toBlobUrl } from '../helper'
 
 defineOptions({ name: 'FileViewerPdfPreviewer', inheritAttrs: false })
 
@@ -54,9 +55,8 @@ const { engine, isLoading, error } = usePdfiumEngine()
 const pdfUrl = shallowRef<string>('')
 let revoke: (() => void) | undefined
 
-async function load() {
+function load() {
   revoke?.()
-  const { toBlobUrl } = await import('../helper')
   const r = toBlobUrl(props.file.src, props.file.mime ?? 'application/pdf')
   pdfUrl.value = r.url
   revoke = r.revoke

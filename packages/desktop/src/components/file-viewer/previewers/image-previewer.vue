@@ -18,6 +18,7 @@ import { bem } from '@veltra/utils'
 import { onBeforeUnmount, ref, shallowRef, useAttrs, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
+import { toBlobUrl } from '../helper'
 
 defineOptions({ name: 'FileViewerImagePreviewer', inheritAttrs: false })
 
@@ -34,11 +35,10 @@ const failed = ref(false)
 
 let revoke: (() => void) | undefined
 
-async function load() {
+function load() {
   loading.value = true
   failed.value = false
   revoke?.()
-  const { toBlobUrl } = await import('../helper')
   const r = toBlobUrl(props.file.src, props.file.mime)
   url.value = r.url
   revoke = r.revoke

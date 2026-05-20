@@ -18,6 +18,7 @@ import { bem } from '@veltra/utils'
 import { onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
+import { toBlobUrl } from '../helper'
 
 defineOptions({ name: 'FileViewerVideoPreviewer' })
 
@@ -33,9 +34,8 @@ const videoRef = useTemplateRef<HTMLVideoElement>('videoRef')
 let revoke: (() => void) | undefined
 let unmounting = false
 
-async function load() {
+function load() {
   revoke?.()
-  const { toBlobUrl } = await import('../helper')
   const r = toBlobUrl(props.file.src, props.file.mime)
   url.value = r.url
   revoke = r.revoke
