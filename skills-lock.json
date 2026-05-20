@@ -6,6 +6,20 @@
       "ref": "main",
       "sourceType": "github",
       "computedHash": "2073524d332d74b3db1b96432bf52cccaac8c36f0fa1b13bdf43dee398d1d177"
+    },
+    "git-commit": {
+      "source": "cabinet-fe/prompt-engineering",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/git-commit/SKILL.md",
+      "computedHash": "1cc7cac3167a2fe3bdeedb1ef1fd2d11e68d46f57cbe061705643f540c170501"
+    },
+    "vue-best-practices": {
+      "source": "cabinet-fe/prompt-engineering",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/vue-best-practices/SKILL.md",
+      "computedHash": "4eea07ac307004b5b269152cbb7a9eb601407e1ef545d064b3062d92cb06f02e"
     }
   }
 }
