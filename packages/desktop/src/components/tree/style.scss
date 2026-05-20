@@ -74,7 +74,11 @@ $indent-width: 20px;
 
     @include m.is(selected) {
       @include m.bem($root-name, node-content) {
-        background-color: fn.component-var(tree, node-selected-bg, fn.use-var(color, primary, light-9));
+        background-color: fn.component-var(
+          tree,
+          node-selected-bg,
+          fn.use-var(color, primary, light-9)
+        );
         color: fn.component-var(tree, node-selected-color, fn.use-var(color, primary));
         font-weight: 500;
 

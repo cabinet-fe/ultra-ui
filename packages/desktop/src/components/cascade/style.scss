@@ -116,7 +116,11 @@ $menu-name: $root-name + '-panel-item';
     }
 
     @include m.is(active) {
-      background-color: fn.component-var(cascade, node-active-bg, fn.use-var(color, primary, light-9));
+      background-color: fn.component-var(
+        cascade,
+        node-active-bg,
+        fn.use-var(color, primary, light-9)
+      );
       color: fn.component-var(cascade, node-active-color, fn.use-var(color, primary));
       border-radius: fn.use-var(radius, default);
     }
