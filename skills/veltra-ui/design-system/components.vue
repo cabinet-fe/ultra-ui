@@ -2,9 +2,15 @@
   <div :class="classList" ref="rootRef">
     <!-- Card Header -->
     <div :class="cls.e('header')">
-      <slot name="title">
-        <span :class="cls.e('title')">{{ title }}</span>
-      </slot>
+      <div :class="cls.e('header-left')">
+        <!-- Render dynamic icon if provided -->
+        <u-icon v-if="icon" :class="cls.e('header-icon')">
+          <component :is="icon" />
+        </u-icon>
+        <slot name="title">
+          <span :class="cls.e('title')">{{ title }}</span>
+        </slot>
+      </div>
       <div v-if="$slots.extra" :class="cls.e('extra')">
         <slot name="extra" />
       </div>
@@ -26,6 +32,7 @@
 import { useFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'
+import type { Component } from 'vue'
 
 // Define Options for SFC Component Name (U prefix is automatically mapped on consumer side)
 defineOptions({ name: 'UDemoCard' })
@@ -34,6 +41,7 @@ defineOptions({ name: 'UDemoCard' })
 export interface DemoCardProps {
   size?: 'small' | 'default' | 'large'
   title?: string
+  icon?: Component
   bordered?: boolean
   hoverable?: boolean
 }
@@ -116,6 +124,17 @@ defineExpose({
     margin-bottom: fn.use-var('gap', 'default');
     border-bottom: 1px solid fn.use-var('border-color', 'default', #e5e7eb);
     padding-bottom: fn.use-var('gap', 'small');
+  }
+
+  @include e(header-left) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var('gap', 'small');
+  }
+
+  @include e(header-icon) {
+    font-size: 1.2em;
+    color: fn.use-var('color', 'primary');
   }
 
   @include e(title) {

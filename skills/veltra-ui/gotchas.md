@@ -48,13 +48,18 @@ import type { ButtonProps } from '@veltra/desktop'
   <u-input v-model="model.data.name" label="姓名" />
 </u-form>
 
-<!-- ✅ 正确：用 field prop 自动绑定 -->
+<!-- ✅ 正确：用 field prop 自动单向/双向值读取与更新 -->
 <u-form :model="model">
   <u-input label="姓名" field="name" />
 </u-form>
+
+<!-- ✅ 正确：支持深层嵌套对象属性绑定（支持以 lodash 风格 path 如 "profile.name" 绑定） -->
+<u-form :model="model">
+  <u-input label="姓名" field="profile.name" />
+</u-form>
 ```
 
-`field` 的值对应 `FormModel` 构造时的 key。
+`field` 的值对应 `FormModel` 构造时的 key，或者其内部的深层嵌套属性路径。嵌套属性绑定时，`FormModel` 在初始初始化时必须定义完整的结构（如 `{ profile: { name: '' } }`），组件内部底层会自动进行安全读写解析，严禁手动编写复杂的更新监听器。
 
 ## 3. 图标从 @veltra/icons/normal 导入
 
@@ -67,6 +72,27 @@ import { Search } from '@veltra/icons/normal'
 ```
 
 `@veltra/icons` 根入口不直接导出图标组件，图标按分类子路径导出。
+
+### 图标在组件属性（Props）中的声明与渲染范式
+
+- **Props 声明类型**：推荐使用 Vue 导出的 `Component` 类型（或更具体的 `FunctionalComponent`）：
+
+  ```ts
+  import type { Component } from 'vue'
+
+  export interface ComponentProps {
+    icon?: Component
+  }
+  ```
+
+- **Vue 模板动态渲染**：使用 `<component :is="icon" />` 包裹在 `<u-icon>` 组件中以保留统一的尺寸与颜色层叠性：
+  ```vue
+  <template>
+    <u-icon v-if="icon" :size="iconSize">
+      <component :is="icon" />
+    </u-icon>
+  </template>
+  ```
 
 ## 4. USelect 的 options 必须是对象数组
 
