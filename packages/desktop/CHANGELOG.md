@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.11
+
+### Patch Changes
+
+- 3da8564: Collapse 新增 `bordered` 边框模式属性；Tabs 移除无内容时冗余渲染判断，简化内容渲染逻辑
+  - @veltra/utils@1.1.11
+  - @veltra/styles@1.1.11
+  - @veltra/compositions@1.1.11
+  - @veltra/directives@1.1.11
+  - @veltra/icons@1.1.11
+
 ## 1.1.10
 
 ### Patch Changes
