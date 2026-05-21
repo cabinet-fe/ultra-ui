@@ -7,9 +7,6 @@ export type CollapseValue = string | number
 /** Collapse modelValue：手风琴模式为单值，普通模式为数组（也兼容传入单值） */
 export type CollapseModelValue = CollapseValue | CollapseValue[]
 
-/** 展开图标位置 */
-export type CollapseIconPosition = 'left' | 'right'
-
 /** Collapse 组件属性 */
 export interface CollapseProps extends ComponentProps {
   /** 当前展开项的 value（单个或多个） */
@@ -26,12 +23,6 @@ export interface CollapseProps extends ComponentProps {
    * @default true
    */
   bordered?: boolean
-
-  /**
-   * 展开/收起图标位置
-   * @default 'right'
-   */
-  iconPosition?: CollapseIconPosition
 
   /**
    * 自定义展开图标组件，活动态会自动旋转 90°。
@@ -72,7 +63,4 @@ export interface CollapseItemProps {
 
   /** 是否禁用 */
   disabled?: boolean
-
-  /** 是否隐藏展开图标 */
-  hideIcon?: boolean
 }

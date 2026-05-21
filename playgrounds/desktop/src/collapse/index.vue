@@ -79,18 +79,6 @@
       </div>
     </CustomCard>
 
-    <CustomCard title="图标位置">
-      <p class="desc">通过 <code>icon-position="left"</code> 让展开图标显示在标题前方。</p>
-      <u-collapse v-model="iconLeftValue" icon-position="left" :bordered="false">
-        <u-collapse-item value="l1" title="左侧图标 · 适合文档大纲">
-          <p>类似 IDE 文件树的展开样式，便于在层级结构中扫读。</p>
-        </u-collapse-item>
-        <u-collapse-item value="l2" title="左侧图标 · 多级嵌套">
-          <p>嵌套使用时左侧图标可以提供更清晰的层级线索。</p>
-        </u-collapse-item>
-      </u-collapse>
-    </CustomCard>
-
     <CustomCard title="自定义展开图标">
       <p class="desc">通过 <code>:expand-icon</code> 传入图标组件，活动态会自动旋转 90°。</p>
       <u-collapse v-model="customIconValue" :expand-icon="Plus">
@@ -113,16 +101,13 @@
       </u-collapse>
     </CustomCard>
 
-    <CustomCard title="禁用与隐藏图标">
+    <CustomCard title="禁用状态">
       <u-collapse v-model="disabledValue">
         <u-collapse-item value="1" title="正常项">
           <p>该项可以正常展开 / 收起。</p>
         </u-collapse-item>
         <u-collapse-item value="2" title="禁用项" disabled>
           <p>禁用状态下点击与键盘均不会触发切换。</p>
-        </u-collapse-item>
-        <u-collapse-item value="3" title="隐藏图标项" hide-icon>
-          <p>通过 <code>hide-icon</code> 可隐藏箭头图标，让标题更克制。</p>
         </u-collapse-item>
       </u-collapse>
     </CustomCard>
@@ -160,7 +145,7 @@
     <CustomCard title="嵌套使用">
       <u-collapse v-model="nestValue">
         <u-collapse-item value="n1" title="@veltra/desktop">
-          <u-collapse v-model="nestInner1" :bordered="false" icon-position="left">
+          <u-collapse v-model="nestInner1" :bordered="false">
             <u-collapse-item value="n1-1" title="组件目录">
               <p>
                 每个组件位于 <code>src/components/&lt;name&gt;</code>，独立
@@ -173,7 +158,7 @@
           </u-collapse>
         </u-collapse-item>
         <u-collapse-item value="n2" title="@veltra/styles">
-          <u-collapse v-model="nestInner2" :bordered="false" icon-position="left">
+          <u-collapse v-model="nestInner2" :bordered="false">
             <u-collapse-item value="n2-1" title="设计 token">
               <p>颜色、间距、圆角统一通过 CSS 变量提供。</p>
             </u-collapse-item>
@@ -199,7 +184,6 @@ const basicValue = ref<CollapseModelValue>(['design'])
 const accordionValue = ref<CollapseModelValue>('a')
 const ghostValue = ref<CollapseModelValue>(['g1'])
 const sizeValue = ref<CollapseModelValue>(['s1'])
-const iconLeftValue = ref<CollapseModelValue>(['l1', 'l2'])
 const customIconValue = ref<CollapseModelValue>(['c1'])
 const disabledValue = ref<CollapseModelValue>(['1'])
 const programmaticValue = ref<CollapseModelValue>(['p1'])

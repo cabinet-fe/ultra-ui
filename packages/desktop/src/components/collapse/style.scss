@@ -13,14 +13,14 @@ $transition-normal: 0.24s $ease;
 // 各尺寸的水平 / 垂直内边距：决定 header 和 content 的呼吸感
 // 节奏在配置项分组场景下既不过紧、也不过松
 $header-padding-x: (
-  small: 12px,
-  default: 16px,
-  large: 20px
+  small: 10px,
+  default: 12px,
+  large: 16px
 );
 $header-padding-y: (
-  small: 10px,
-  default: 14px,
-  large: 18px
+  small: 6px,
+  default: 10px,
+  large: 14px
 );
 
 @include m.b($root-name) {

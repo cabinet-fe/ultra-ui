@@ -10,17 +10,11 @@
       @keydown.enter.prevent="handleClick"
       @keydown.space.prevent="handleClick"
     >
-      <span v-if="showLeftIcon" :class="cls.e('icon')">
-        <slot name="icon" :is-active="isActive">
-          <UIcon><component :is="iconComponent" /></UIcon>
-        </slot>
-      </span>
-
       <span :class="cls.e('title')">
         <slot name="title">{{ title }}</slot>
       </span>
 
-      <span v-if="showRightIcon" :class="cls.e('icon')">
+      <span :class="cls.e('icon')">
         <slot name="icon" :is-active="isActive">
           <UIcon><component :is="iconComponent" /></UIcon>
         </slot>
@@ -55,12 +49,7 @@ const cls = context?.cls ?? bem('collapse')
 
 const isActive = computed(() => !!context?.activeValues.value.includes(props.value))
 
-const iconPosition = computed(() => context?.iconPosition.value ?? 'right')
-
 const iconComponent = computed(() => context?.expandIcon.value ?? ArrowRight)
-
-const showLeftIcon = computed(() => !props.hideIcon && iconPosition.value === 'left')
-const showRightIcon = computed(() => !props.hideIcon && iconPosition.value === 'right')
 
 const classList = computed(() => [
   cls.e('item'),
