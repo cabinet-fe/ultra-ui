@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.12
+
+### Patch Changes
+
+- df8bd87: 修复 Collapse 标题颜色引用错误，改用组件级 CSS 变量；修正字号令牌引用
+- Updated dependencies [df8bd87]
+  - @veltra/styles@1.1.12
+  - @veltra/directives@1.1.12
+  - @veltra/utils@1.1.12
+  - @veltra/compositions@1.1.12
+  - @veltra/icons@1.1.12
+
 ## 1.1.11
 
 ### Patch Changes

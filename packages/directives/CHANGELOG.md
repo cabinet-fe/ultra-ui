@@ -1,5 +1,13 @@
 # @veltra/directives
 
+## 1.1.12
+
+### Patch Changes
+
+- Updated dependencies [df8bd87]
+  - @veltra/styles@1.1.12
+  - @veltra/utils@1.1.12
+
 ## 1.1.11
 
 ### Patch Changes
