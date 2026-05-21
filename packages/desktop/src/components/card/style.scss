@@ -14,14 +14,11 @@ $root-name: card;
 
   @include m.is(integrate) {
     box-shadow: none;
+    --u-card-header-bg: transparent;
+    --u-card-action-bg: transparent;
     & > {
       @include m.bem($root-name, header) {
-        border-bottom: none;
         padding-bottom: 0;
-      }
-
-      @include m.bem($root-name, action) {
-        border-top: none;
       }
     }
   }
@@ -40,7 +37,7 @@ $root-name: card;
   }
 
   @include m.e(header) {
-    border-bottom: fn.use-var(border);
+    background-color: fn.use-var(header-bg, transparent);
     color: fn.use-var(text-color, title);
   }
 
@@ -66,21 +63,11 @@ $root-name: card;
   }
 
   @include m.e(action) {
-    border-top: fn.use-var(border);
+    background-color: fn.use-var(action-bg, transparent);
 
     #{fn.bem(button)} + #{fn.bem(button)} {
       margin-left: fn.use-var(gap, default);
     }
   }
-
-  // @include m.is(always-shadow) {
-  //   box-shadow: fn.use-var(shadow);
-  // }
-
-  // @include m.is(hover-shadow) {
-  //   transition: box-shadow 0.25s ease;
-  //   &:hover {
-  //     box-shadow: fn.use-var(shadow);
-  //   }
-  // }
 }
+
