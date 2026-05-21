@@ -47,7 +47,6 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-breadcrumb-large': '24px',
 
   // ─── Button (default & plain states) ───
-  '--u-button-default-bg': T('bg-color', 'top'),
   '--u-button-default-border': T('border', 'color'),
   '--u-button-default-color': T('text-color', 'main'),
   '--u-button-default-hover-bg': T('bg-color', 'hover'),
@@ -103,7 +102,9 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-tag-info-border': T('color', 'info'),
 
   // ─── File Picker Colors ───
-  '--u-file-picker-hover-bg': T('color', 'primary', 'light', '9')
+  '--u-file-picker-hover-bg': T('color', 'primary', 'light', '9'),
+  '--u-card-header-bg': 'rgba(0, 0, 0, 0.015)',
+  '--u-card-action-bg': 'rgba(0, 0, 0, 0.015)'
 }
 
 /** 暗色下组件 token（含与亮色相同的尺寸项，保证暗色 html 块自洽） */
@@ -181,7 +182,9 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-tag-info-border': T('color', 'info'),
 
   // ─── File Picker Colors ───
-  '--u-file-picker-hover-bg': T('color', 'primary', 'dark', '9')
+  '--u-file-picker-hover-bg': T('color', 'primary', 'dark', '9'),
+  '--u-card-header-bg': 'rgba(255, 255, 255, 0.015)',
+  '--u-card-action-bg': 'rgba(255, 255, 255, 0.015)'
 }
 
 function recordToDeclList(record: Record<string, string>): string[] {
