@@ -2,13 +2,6 @@
 
 基于 CSS Grid `0fr → 1fr` 行高度过渡实现高度动画，零 JS 测量。
 
-> [!IMPORTANT]
-> **版本更新提醒**：从 `1.1.6` 开始，折叠面板采用全新的**独立胶囊卡片**视觉和交互设计。
->
-> 1. 废弃并移除了外层边框与细线分割模式（即 `:bordered` 属性已失效，请勿使用）。
-> 2. 移除了暴露给外部 `ref` 调用的程序化控制方法（`CollapseExposed` 实例方法，如 `toggle`, `expand`, `collapse` 等均已被移除）。
-> 3. 新增了 `default-collapse-all` 属性以控制未绑定值时的默认折叠/展开行为。
-
 ## Import
 
 ```ts
@@ -35,14 +28,13 @@ type CollapseIconPosition = 'left' | 'right'
 
 ## UCollapse Props
 
-| prop                 | type                   | default     | 说明                                                                                                      |
-| -------------------- | ---------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
-| `size`               | `ComponentSize`        | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置                                                      |
-| `modelValue`         | `CollapseModelValue`   | —           | 当前展开项（v-model）                                                                                     |
-| `accordion`          | `boolean`              | `false`     | 是否手风琴模式（一次只能展开一项）                                                                        |
-| `defaultCollapseAll` | `boolean`              | `false`     | 是否默认折叠全部项。设为 `true` 时初始化默认全部折叠；为 `false` 时（默认）在外部未传绑定值时默认全部展开 |
-| `iconPosition`       | `CollapseIconPosition` | `'right'`   | 展开/收起图标位置                                                                                         |
-| `expandIcon`         | `Component`            | —           | 自定义展开图标组件，活动态会自动旋转 90°                                                                  |
+| prop                 | type                 | default     | 说明                                                                                                      |
+| -------------------- | -------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| `size`               | `ComponentSize`      | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置                                                      |
+| `modelValue`         | `CollapseModelValue` | —           | 当前展开项（v-model）                                                                                     |
+| `accordion`          | `boolean`            | `false`     | 是否手风琴模式（一次只能展开一项）                                                                        |
+| `defaultCollapseAll` | `boolean`            | `false`     | 是否默认折叠全部项。设为 `true` 时初始化默认全部折叠；为 `false` 时（默认）在外部未传绑定值时默认全部展开 |
+| `expandIcon`         | `Component`          | —           | 自定义展开图标组件，活动态会自动旋转 90°                                                                  |
 
 ## UCollapse Emits
 
