@@ -25,6 +25,12 @@ export interface CollapseProps extends ComponentProps {
   defaultCollapseAll?: boolean
 
   /**
+   * 是否使用边框模式
+   * @default false
+   */
+  bordered?: boolean
+
+  /**
    * 自定义展开图标组件，活动态会自动旋转 90°。
    * 接受任意 Vue 组件（SFC、Functional Component 等）。
    */

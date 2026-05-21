@@ -24,14 +24,12 @@
       @close="onClose"
     />
 
-    <div v-if="hasContentSlots" :class="cls.e('content')">
-      <transition name="fade" mode="out-in">
-        <keep-alive v-if="keepAlive">
-          <component :key="model" :is="renderContent()" />
-        </keep-alive>
-        <component v-else :key="model" :is="renderContent()" />
-      </transition>
-    </div>
+    <transition name="fade" mode="out-in">
+      <KeepAlive v-if="keepAlive">
+        <component :key="model" :is="renderSlots()" />
+      </KeepAlive>
+      <component v-else :key="model" :is="renderSlots()" />
+    </transition>
   </div>
 </template>
 
@@ -78,18 +76,15 @@ const verticalPosition = computed<'left' | 'right'>(() =>
   props.position === 'right' ? 'right' : 'left'
 )
 
-/** 是否存在任一内容面板插槽；没有则不渲染内容区域。 */
-const hasContentSlots = computed(() => Object.keys(slots).length > 0)
-
 const onClick = (item: TabItem, index: number) => emit('click', item, index)
 const onClose = (item: TabItem, index: number) => emit('close', item, index)
 
-const renderContent = () => {
+const renderSlots = () => {
   const key = model.value
   if (!key) return null
   const nodes = slots[key]?.({ key })
   if (Array.isArray(nodes)) {
-    return createVNode(UScroll, null, { default: () => nodes })
+    return createVNode(UScroll, { class: cls.e('content') }, { default: () => nodes })
   }
   return nodes
 }

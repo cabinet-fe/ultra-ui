@@ -18,7 +18,8 @@ defineOptions({
 
 const props = withDefaults(defineProps<CollapseProps>(), {
   accordion: false,
-  defaultCollapseAll: false
+  defaultCollapseAll: false,
+  bordered: false
 })
 const emit = defineEmits<CollapseEmits>()
 
@@ -32,7 +33,9 @@ const { size } = useFormFallbackProps([props], { size: 'default' })
 
 const expandIcon = computed(() => props.expandIcon)
 
-const classList = computed(() => [cls.b, cls.m(size.value)])
+const bordered = computed(() => props.bordered)
+
+const classList = computed(() => [cls.b, cls.m(size.value), bem.is('bordered', bordered.value)])
 
 const modelValue = useModel<CollapseProps, 'modelValue'>({
   props,
@@ -107,6 +110,7 @@ const unregister = (value: CollapseValue) => {
 provide(CollapseDIKey, {
   cls,
   size,
+  bordered,
   expandIcon,
   activeValues,
   toggle,

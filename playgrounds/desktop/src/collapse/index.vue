@@ -17,6 +17,23 @@
       </u-collapse>
     </CustomCard>
 
+    <CustomCard title="边框模式">
+      <p class="desc">
+        设置 <code>bordered</code> 属性开启边框模式，适合表单分组等需要清晰边界的场景。
+      </p>
+      <u-collapse v-model="borderedValue" bordered>
+        <u-collapse-item value="b1" title="表单全局">
+          <p>列数、标签宽度等全局表单配置。</p>
+        </u-collapse-item>
+        <u-collapse-item value="b2" title="字段校验">
+          <p>配置各字段的校验规则与错误提示文案。</p>
+        </u-collapse-item>
+        <u-collapse-item value="b3" title="高级选项">
+          <p>联动规则、异步校验与自定义 render。</p>
+        </u-collapse-item>
+      </u-collapse>
+    </CustomCard>
+
     <CustomCard title="手风琴模式">
       <p class="desc">同时只允许展开一项，点击当前项可重新关闭。</p>
       <u-collapse v-model="accordionValue" accordion>
@@ -187,6 +204,7 @@ const nestInner2 = ref<CollapseModelValue>(['n2-1'])
 
 const defaultExpandValue = ref<CollapseModelValue>()
 const defaultCollapseValue = ref<CollapseModelValue>()
+const borderedValue = ref<CollapseModelValue>(['b1'])
 
 const sizes: ComponentSize[] = ['small', 'default', 'large']
 </script>

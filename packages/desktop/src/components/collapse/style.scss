@@ -141,4 +141,25 @@ $transition-normal: 0.24s $ease;
       }
     }
   }
+
+  // ===== Bordered =====
+  @include m.is(bordered) {
+    #{fn.bem($root-name, item)} {
+      background-color: transparent;
+      border: 1px solid vars.$border-color;
+
+      &:hover,
+      &.is-active {
+        background-color: transparent;
+      }
+    }
+
+    #{fn.bem($root-name, header)} {
+      border-radius: 0;
+
+      @include m.is(active) {
+        border-bottom: 1px solid vars.$border-color;
+      }
+    }
+  }
 }

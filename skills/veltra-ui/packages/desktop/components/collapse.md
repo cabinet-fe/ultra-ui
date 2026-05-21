@@ -11,8 +11,7 @@ import type {
   CollapseItemProps,
   CollapseEmits,
   CollapseValue,
-  CollapseModelValue,
-  CollapseIconPosition
+  CollapseModelValue
 } from '@veltra/desktop'
 ```
 
@@ -21,7 +20,6 @@ import type {
 ```ts
 type CollapseValue = string | number
 type CollapseModelValue = CollapseValue | CollapseValue[]
-type CollapseIconPosition = 'left' | 'right'
 ```
 
 `accordion=true` 时 `modelValue` 应为单值，关闭时回写空数组 `[]`；`accordion=false` 时为数组（也兼容传入单值，组件内部自动包装为数组）。
@@ -34,6 +32,7 @@ type CollapseIconPosition = 'left' | 'right'
 | `modelValue`         | `CollapseModelValue` | —           | 当前展开项（v-model）                                                                                     |
 | `accordion`          | `boolean`            | `false`     | 是否手风琴模式（一次只能展开一项）                                                                        |
 | `defaultCollapseAll` | `boolean`            | `false`     | 是否默认折叠全部项。设为 `true` 时初始化默认全部折叠；为 `false` 时（默认）在外部未传绑定值时默认全部展开 |
+| `bordered`           | `boolean`            | `false`     | 边框模式：item 透明背景 + 1px 实线边框，active 时 header 底部有分隔线                                      |
 | `expandIcon`         | `Component`          | —           | 自定义展开图标组件，活动态会自动旋转 90°                                                                  |
 
 ## UCollapse Emits
@@ -60,7 +59,6 @@ type CollapseIconPosition = 'left' | 'right'
 | `value`    | `CollapseValue` | —       | **必填**，唯一标识               |
 | `title`    | `string`        | —       | 标题文本，可被 `#title` 插槽替代 |
 | `disabled` | `boolean`       | `false` | 是否禁用                         |
-| `hideIcon` | `boolean`       | `false` | 是否隐藏展开图标                 |
 
 ## UCollapseItem Slots
 
@@ -112,7 +110,7 @@ import { Star, ArrowDown } from '@veltra/icons/normal'
 </script>
 
 <template>
-  <u-collapse v-model="active" icon-position="left" :expand-icon="ArrowDown">
+  <u-collapse v-model="active" :expand-icon="ArrowDown">
     <u-collapse-item value="1">
       <template #title>
         <span style="display:inline-flex;align-items:center;gap:6px">

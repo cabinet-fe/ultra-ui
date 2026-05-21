@@ -54,7 +54,8 @@ const iconComponent = computed(() => context?.expandIcon.value ?? ArrowRight)
 const classList = computed(() => [
   cls.e('item'),
   bem.is('active', isActive.value),
-  bem.is('disabled', props.disabled)
+  bem.is('disabled', props.disabled),
+  bem.is('bordered', context?.bordered.value)
 ])
 
 const headerClassList = computed(() => [

@@ -32,10 +32,12 @@
         @close="onClose"
       >
         <template #a>
-          <p>面板 A</p>
+          <p v-for="i of 50" :key="i">列表 {{ i }}</p>
         </template>
         <template #c>
           <p>面板 C</p>
+
+          <u-input></u-input>
         </template>
       </u-tabs>
     </section>
@@ -159,6 +161,7 @@ const onBarClose = (item: TabItem) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  background-color: var(--u-bg-color-top);
 }
 .cfg {
   border: 1px dashed var(--u-color-border, #ddd);
