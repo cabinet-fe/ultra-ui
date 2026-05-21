@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { componentCssVarsDark, componentCssVarsLight } from '../component-css-vars'
 import { lightTheme } from '../light'
 import { UITheme } from '../ui-theme'
 
@@ -23,5 +24,10 @@ describe('UITheme', () => {
     expect(el.dataset.theme).toBe('light')
     UITheme.setTheme('auto')
     expect(el.dataset.theme).toBeUndefined()
+  })
+
+  it('includes collapse component title color token in built-in component vars', () => {
+    expect(componentCssVarsLight['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
+    expect(componentCssVarsDark['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
   })
 })

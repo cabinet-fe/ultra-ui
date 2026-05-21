@@ -60,7 +60,7 @@ $transition-normal: 0.24s $ease;
     cursor: pointer;
     font-weight: 500;
     letter-spacing: 0.01em;
-    color: fn.use-var(text-color, title);
+    color: fn.component-var(collapse, title-color, fn.use-var(text-color, main));
     user-select: none;
     outline: none;
     transition:
@@ -125,7 +125,7 @@ $transition-normal: 0.24s $ease;
 
     @include m.bem($root-name, header) {
       padding: calc(fn.use-var(gap, $size) - 2px) fn.use-var(gap, $size);
-      font-size: fn.use-var(font-size-title, $size);
+      font-size: fn.use-var(font-size-main, $size);
     }
 
     @include m.bem($root-name, content) {

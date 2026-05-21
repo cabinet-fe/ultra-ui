@@ -163,5 +163,11 @@ export type Theme = {
     'default-bg'?: string
     [key: string]: any
   }
+  /** 折叠面板组件级变量 */
+  collapse?: {
+    /** 折叠项标题文字颜色 */
+    'title-color'?: string
+    [key: string]: any
+  }
   [key: string]: any
 }

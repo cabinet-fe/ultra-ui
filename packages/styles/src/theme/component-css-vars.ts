@@ -36,6 +36,7 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-menu-bg-blur': 'none',
   '--u-menu-bg-saturate': 'none',
   '--u-menu-bg-image': 'none',
+  '--u-collapse-title-color': T('text-color', 'main'),
   '--u-tag-small': '20px',
   '--u-tag-default': '24px',
   '--u-tag-large': '28px',
