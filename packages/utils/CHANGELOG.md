@@ -1,5 +1,7 @@
 # @veltra/utils
 
+## 1.1.10
+
 ## 1.1.9
 
 ### Patch Changes
