@@ -24,16 +24,16 @@ bun add @cat-kit/vitepress-theme # 文档主题
 
 ## 包索引
 
-| npm 包 | 运行环境 | 文档入口 |
-|--------|----------|----------|
-| `@cat-kit/core` | 通用 | [packages/core/index.md](packages/core/index.md) |
-| `@cat-kit/http` | 通用 | [packages/http/index.md](packages/http/index.md) |
-| `@cat-kit/fe` | 浏览器 | [packages/fe/index.md](packages/fe/index.md) |
-| `@cat-kit/be` | Node.js | [packages/be/index.md](packages/be/index.md) |
-| `@cat-kit/cli` | Node.js | [packages/cli/index.md](packages/cli/index.md) |
-| `@cat-kit/agent-context` | Node.js | [packages/agent-context/index.md](packages/agent-context/index.md) |
-| `@cat-kit/tsconfig` | — | [packages/tsconfig/index.md](packages/tsconfig/index.md) |
-| `@cat-kit/vitepress-theme` | — | [packages/vitepress-theme/index.md](packages/vitepress-theme/index.md) |
+| npm 包                     | 运行环境 | 文档入口                                                               |
+| -------------------------- | -------- | ---------------------------------------------------------------------- |
+| `@cat-kit/core`            | 通用     | [packages/core/index.md](packages/core/index.md)                       |
+| `@cat-kit/http`            | 通用     | [packages/http/index.md](packages/http/index.md)                       |
+| `@cat-kit/fe`              | 浏览器   | [packages/fe/index.md](packages/fe/index.md)                           |
+| `@cat-kit/be`              | Node.js  | [packages/be/index.md](packages/be/index.md)                           |
+| `@cat-kit/cli`             | Node.js  | [packages/cli/index.md](packages/cli/index.md)                         |
+| `@cat-kit/agent-context`   | Node.js  | [packages/agent-context/index.md](packages/agent-context/index.md)     |
+| `@cat-kit/tsconfig`        | —        | [packages/tsconfig/index.md](packages/tsconfig/index.md)               |
+| `@cat-kit/vitepress-theme` | —        | [packages/vitepress-theme/index.md](packages/vitepress-theme/index.md) |
 
 ## 渐进式阅读路径
 
@@ -49,5 +49,6 @@ bun add @cat-kit/vitepress-theme # 文档主题
 ## 维护者
 
 刷新 generated 类型：
+
 - `bun run sync-cat-kit-skills-api` — 仅复制（需各包已构建 dist）
 - `bun run sync-cat-kit-skills-api:build` — 先构建再复制

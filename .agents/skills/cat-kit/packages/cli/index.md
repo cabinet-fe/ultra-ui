@@ -17,28 +17,30 @@ cat-cli verify-commit [file] [-m <message>]
 校验 git commit message 是否符合规范格式。常用作 git hook（`commit-msg` hook）。
 
 **参数**：
+
 - `file`：包含提交信息的文件路径（如 `.git/COMMIT_EDITMSG`）
 
 **选项**：
+
 - `-m, --message <msg>`：直接传入提交信息字符串
 
 **校验规则**：
 提交信息必须匹配格式：`<type>(<scope>)?!?: <subject>`
 
-| type | 说明 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | 修复 |
-| `docs` | 文档 |
-| `style` | 代码风格 |
-| `refactor` | 重构 |
-| `perf` | 性能优化 |
-| `test` | 测试 |
-| `build` | 构建系统 |
-| `ci` | CI/CD |
-| `chore` | 杂项 |
-| `revert` | 回滚 |
-| `release` | 发布 |
+| type       | 说明     |
+| ---------- | -------- |
+| `feat`     | 新功能   |
+| `fix`      | 修复     |
+| `docs`     | 文档     |
+| `style`    | 代码风格 |
+| `refactor` | 重构     |
+| `perf`     | 性能优化 |
+| `test`     | 测试     |
+| `build`    | 构建系统 |
+| `ci`       | CI/CD    |
+| `chore`    | 杂项     |
+| `revert`   | 回滚     |
+| `release`  | 发布     |
 
 ```bash
 # 客户端 hook 用法

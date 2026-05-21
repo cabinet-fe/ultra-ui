@@ -15,20 +15,20 @@ class HTTPClient {
 
 ### `ClientConfig` 选项
 
-| 选项 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `origin` | `string` | — | 请求基础 URL（协议+主机+端口）。若请求 URL 已是完整 URL 则忽略 |
-| `timeout` | `number` | `0` | 超时（ms），0 表示不超时。超时触发 `HTTPError({ code: 'TIMEOUT' })` |
-| `headers` | `Record<string, string>` | — | 默认请求头，与单次请求 header 合并（单次优先） |
-| `credentials` | `boolean` | `true` | 是否发送 Cookie/认证信息（`true` → `include`，`false` → `omit`） |
-| `responseType` | `'json' \| 'text' \| 'blob' \| 'arraybuffer'` | — | 响应解析类型，未设时按 `Content-Type` 推断 |
-| `signal` | `AbortSignal` | — | 默认中止信号 |
-| `onUploadProgress` | `(info: ProgressInfo) => void` | — | 默认上传进度回调 |
-| `onDownloadProgress` | `(info: ProgressInfo) => void` | — | 默认下载进度回调 |
-| `xsrfCookieName` | `string` | `'XSRF-TOKEN'` | XSRF Cookie 名，仅浏览器同域生效 |
-| `xsrfHeaderName` | `string` | `'X-XSRF-TOKEN'` | XSRF Header 名 |
-| `plugins` | `HTTPClientPlugin[]` | — | 插件列表 |
-| `engine` | `HttpEngine` | — | 自定义引擎。未传时自动选择（`fetch` 可用时选 `FetchEngine`，否则 `XHREngine`） |
+| 选项                 | 类型                                          | 默认值           | 说明                                                                           |
+| -------------------- | --------------------------------------------- | ---------------- | ------------------------------------------------------------------------------ |
+| `origin`             | `string`                                      | —                | 请求基础 URL（协议+主机+端口）。若请求 URL 已是完整 URL 则忽略                 |
+| `timeout`            | `number`                                      | `0`              | 超时（ms），0 表示不超时。超时触发 `HTTPError({ code: 'TIMEOUT' })`            |
+| `headers`            | `Record<string, string>`                      | —                | 默认请求头，与单次请求 header 合并（单次优先）                                 |
+| `credentials`        | `boolean`                                     | `true`           | 是否发送 Cookie/认证信息（`true` → `include`，`false` → `omit`）               |
+| `responseType`       | `'json' \| 'text' \| 'blob' \| 'arraybuffer'` | —                | 响应解析类型，未设时按 `Content-Type` 推断                                     |
+| `signal`             | `AbortSignal`                                 | —                | 默认中止信号                                                                   |
+| `onUploadProgress`   | `(info: ProgressInfo) => void`                | —                | 默认上传进度回调                                                               |
+| `onDownloadProgress` | `(info: ProgressInfo) => void`                | —                | 默认下载进度回调                                                               |
+| `xsrfCookieName`     | `string`                                      | `'XSRF-TOKEN'`   | XSRF Cookie 名，仅浏览器同域生效                                               |
+| `xsrfHeaderName`     | `string`                                      | `'X-XSRF-TOKEN'` | XSRF Header 名                                                                 |
+| `plugins`            | `HTTPClientPlugin[]`                          | —                | 插件列表                                                                       |
+| `engine`             | `HttpEngine`                                  | —                | 自定义引擎。未传时自动选择（`fetch` 可用时选 `FetchEngine`，否则 `XHREngine`） |
 
 ```ts
 const http = new HTTPClient('/api', {
@@ -50,17 +50,18 @@ const http = new HTTPClient('/api', {
 
 ### 别名方法
 
-| 方法 | 签名 |
-|------|------|
+| 方法                                       | 签名                        |
+| ------------------------------------------ | --------------------------- |
 | `.get<T>(url, config: AliasRequestConfig)` | GET 请求，不允许传 `method` |
-| `.post<T>(url, body?, config?)` | POST 请求 |
-| `.put<T>(url, body?, config?)` | PUT 请求 |
-| `.patch<T>(url, body?, config?)` | PATCH 请求 |
-| `.delete<T>(url, config?)` | DELETE 请求 |
-| `.head<T>(url, config?)` | HEAD 请求 |
-| `.options<T>(url, config?)` | OPTIONS 请求 |
+| `.post<T>(url, body?, config?)`            | POST 请求                   |
+| `.put<T>(url, body?, config?)`             | PUT 请求                    |
+| `.patch<T>(url, body?, config?)`           | PATCH 请求                  |
+| `.delete<T>(url, config?)`                 | DELETE 请求                 |
+| `.head<T>(url, config?)`                   | HEAD 请求                   |
+| `.options<T>(url, config?)`                | OPTIONS 请求                |
 
 `body` 参数自动处理：
+
 - 对象/数组 → `JSON.stringify`，自动设 `Content-Type: application/json`
 - `URLSearchParams` → 自动设 `Content-Type: application/x-www-form-urlencoded`
 - `FormData` → 不做处理
@@ -68,33 +69,28 @@ const http = new HTTPClient('/api', {
 
 ### `RequestConfig` 选项
 
-| 选项 | 类型 | 说明 |
-|------|------|------|
-| `method` | `RequestMethod` | 请求方法，默认 `'GET'` |
-| `body` | `BodyInit \| Record<string, any> \| URLSearchParams \| FormData` | 请求体 |
-| `query` | `Record<string, any>` | 查询参数 |
-| `headers` | `Record<string, string>` | 单次请求头 |
-| `timeout` | `number` | 单次超时 |
-| `credentials` | `boolean` | 单次凭证配置 |
-| `responseType` | `'json' \| 'text' \| 'blob' \| 'arraybuffer'` | 单次响应类型 |
-| `signal` | `AbortSignal` | 单次中止信号 |
-| `onUploadProgress` / `onDownloadProgress` | `(info: ProgressInfo) => void` | 进度回调 |
-| `xsrfCookieName` / `xsrfHeaderName` | `string` | 单次 XSRF 配置 |
+| 选项                                      | 类型                                                             | 说明                   |
+| ----------------------------------------- | ---------------------------------------------------------------- | ---------------------- |
+| `method`                                  | `RequestMethod`                                                  | 请求方法，默认 `'GET'` |
+| `body`                                    | `BodyInit \| Record<string, any> \| URLSearchParams \| FormData` | 请求体                 |
+| `query`                                   | `Record<string, any>`                                            | 查询参数               |
+| `headers`                                 | `Record<string, string>`                                         | 单次请求头             |
+| `timeout`                                 | `number`                                                         | 单次超时               |
+| `credentials`                             | `boolean`                                                        | 单次凭证配置           |
+| `responseType`                            | `'json' \| 'text' \| 'blob' \| 'arraybuffer'`                    | 单次响应类型           |
+| `signal`                                  | `AbortSignal`                                                    | 单次中止信号           |
+| `onUploadProgress` / `onDownloadProgress` | `(info: ProgressInfo) => void`                                   | 进度回调               |
+| `xsrfCookieName` / `xsrfHeaderName`       | `string`                                                         | 单次 XSRF 配置         |
 
 ```ts
 // GET 请求带查询参数
-const res = await http.get('/users', {
-  query: { page: 1, limit: 10 }
-})
+const res = await http.get('/users', { query: { page: 1, limit: 10 } })
 
 // POST 请求
 await http.post('/users', { name: 'Alice', email: 'alice@example.com' })
 
 // 带自定义 headers
-await http.get('/data', {
-  headers: { 'X-Custom': 'value' },
-  timeout: 5_000
-})
+await http.get('/data', { headers: { 'X-Custom': 'value' }, timeout: 5_000 })
 ```
 
 ## 响应处理
@@ -103,10 +99,10 @@ await http.get('/data', {
 
 ```ts
 interface HTTPResponse<T = any> {
-  data: T                                // 响应体数据
-  code: number                           // HTTP 状态码
+  data: T // 响应体数据
+  code: number // HTTP 状态码
   headers: Record<string, string | string[]> // 响应头（set-cookie 保留数组）
-  raw?: Response | any                   // 原始响应对象
+  raw?: Response | any // 原始响应对象
 }
 ```
 
@@ -116,15 +112,16 @@ interface HTTPResponse<T = any> {
 
 ```ts
 class HTTPError<T = any> extends Error {
-  code: HttpErrorCode       // 错误码
-  url?: string              // 请求 URL
-  config?: RequestConfig    // 请求配置
+  code: HttpErrorCode // 错误码
+  url?: string // 请求 URL
+  config?: RequestConfig // 请求配置
   response?: HTTPResponse<T> // 响应（非 2xx 响应时附在此处）
-  cause?: unknown           // 原始错误
+  cause?: unknown // 原始错误
 }
 ```
 
 **错误码（`HttpErrorCode`）**：
+
 - `'TIMEOUT'` — 请求超时
 - `'ABORTED'` — 请求被中止
 - `'NETWORK'` — 网络错误或非 2xx 响应
@@ -173,8 +170,8 @@ http.abort()
 
 ```ts
 const api = new HTTPClient('/api', { origin: 'https://example.com' })
-const usersApi = api.group('/users')   // prefix: /api/users
-const postsApi = api.group('/posts')   // prefix: /api/posts
+const usersApi = api.group('/users') // prefix: /api/users
+const postsApi = api.group('/posts') // prefix: /api/posts
 ```
 
 > 类型签名：`../../generated/http/client.d.ts`

@@ -9,6 +9,7 @@ function loadEnv(options?: LoadEnvOptions): Promise<EnvRecord>
 ```
 
 按顺序加载 `.env` 系列文件，后面覆盖前面：
+
 1. `.env`
 2. `.env.local`
 3. `.env.${mode}`
@@ -16,10 +17,10 @@ function loadEnv(options?: LoadEnvOptions): Promise<EnvRecord>
 
 ```ts
 interface LoadEnvOptions {
-  cwd?: string             // 工作目录，默认 process.cwd()
-  mode?: string            // 环境模式（如 'production'）
-  files?: string[]         // 自定义文件列表（覆盖默认顺序）
-  override?: boolean       // 是否覆盖已有 process.env，默认 true
+  cwd?: string // 工作目录，默认 process.cwd()
+  mode?: string // 环境模式（如 'production'）
+  files?: string[] // 自定义文件列表（覆盖默认顺序）
+  override?: boolean // 是否覆盖已有 process.env，默认 true
   injectToProcess?: boolean // 是否注入 process.env，默认 true
 }
 ```
@@ -47,12 +48,13 @@ interface EnvDefinition<T> {
   type?: 'string' | 'number' | 'boolean' | 'json' | 'array' | ((v: string) => T)
   default?: T
   required?: boolean
-  delimiter?: string     // array 类型分隔符，默认 ','
-  transform?: (value: T) => T  // 后处理
+  delimiter?: string // array 类型分隔符，默认 ','
+  transform?: (value: T) => T // 后处理
 }
 ```
 
 类型转换规则：
+
 - `string`：原值
 - `number`：`Number()`，NaN 抛错
 - `boolean`：`'true'`、`'1'`、`'yes'`、`'on'` 为 true
@@ -67,7 +69,7 @@ const config = parseEnv({
   HOST: { type: 'string', default: '0.0.0.0' },
   DEBUG: { type: 'boolean', default: false },
   ALLOWED_ORIGINS: { type: 'array', default: ['*'] },
-  REDIS_URL: { type: 'string', required: true },
+  REDIS_URL: { type: 'string', required: true }
 })
 
 // config: { PORT: number; HOST: string; DEBUG: boolean; ALLOWED_ORIGINS: string[]; REDIS_URL: string }
@@ -79,16 +81,17 @@ const config = parseEnv({
 function loadConfig<T>(filePath: string, options?: LoadConfigOptions<T>): Promise<T>
 
 interface LoadConfigOptions<T> {
-  cwd?: string             // 默认 process.cwd()
-  format?: 'json' | 'yaml' | 'toml'  // 默认按扩展名推断
-  defaults?: Partial<T>    // 默认值（与解析结果深度合并）
-  parser?: (content: string) => T  // 自定义解析器
-  validate?: (data: unknown) => data is T  // 自定义校验
-  mergeDefaults?: boolean  // 是否合并 defaults，默认 true
+  cwd?: string // 默认 process.cwd()
+  format?: 'json' | 'yaml' | 'toml' // 默认按扩展名推断
+  defaults?: Partial<T> // 默认值（与解析结果深度合并）
+  parser?: (content: string) => T // 自定义解析器
+  validate?: (data: unknown) => data is T // 自定义校验
+  mergeDefaults?: boolean // 是否合并 defaults，默认 true
 }
 ```
 
 支持格式：
+
 - JSON（内置）
 - YAML（需安装 `js-yaml`）
 - TOML（需安装 `smol-toml`）

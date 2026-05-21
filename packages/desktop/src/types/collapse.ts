@@ -1,4 +1,4 @@
-import type { ComponentProps, DeconstructValue } from '@veltra/utils'
+import type { ComponentProps } from '@veltra/utils'
 import type { Component } from 'vue'
 
 /** Collapse 项的唯一标识 */
@@ -19,10 +19,10 @@ export interface CollapseProps extends ComponentProps {
   accordion?: boolean
 
   /**
-   * 是否显示外层与项之间的分隔线（设为 false 时为 ghost 风格）
-   * @default true
+   * 是否默认折叠全部项。设为 false 时默认全部展开。
+   * @default false
    */
-  bordered?: boolean
+  defaultCollapseAll?: boolean
 
   /**
    * 自定义展开图标组件，活动态会自动旋转 90°。
@@ -36,22 +36,6 @@ export interface CollapseEmits {
   /** 当前展开项变更时触发 */
   (e: 'change', value: CollapseModelValue): void
 }
-
-/** Collapse 暴露的实例方法 */
-export interface _CollapseExposed {
-  /** 切换某项的展开状态 */
-  toggle: (value: CollapseValue) => void
-  /** 展开某项 */
-  expand: (value: CollapseValue) => void
-  /** 收起某项 */
-  collapse: (value: CollapseValue) => void
-  /** 展开全部（accordion 模式下展开第一个传入的 value） */
-  expandAll: (values: CollapseValue[]) => void
-  /** 全部收起 */
-  collapseAll: () => void
-}
-
-export type CollapseExposed = DeconstructValue<_CollapseExposed>
 
 /** CollapseItem 组件属性 */
 export interface CollapseItemProps {

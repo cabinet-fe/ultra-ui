@@ -9,7 +9,7 @@ enum LogLevel {
   DEBUG = 'debug',
   INFO = 'info',
   WARN = 'warn',
-  ERROR = 'error',
+  ERROR = 'error'
 }
 
 class Logger {
@@ -21,35 +21,31 @@ class Logger {
 
 ```ts
 interface LoggerOptions {
-  name?: string                    // 日志器名称
-  level?: LogLevel                 // 最低输出级别，默认 INFO
-  format?: 'text' | 'json'        // 输出格式，默认 text
-  transports?: Transport[]         // 传输器列表，默认 [new ConsoleTransport()]
-  context?: Record<string, any>    // 附加到每条日志的上下文
-  timestampFormat?: string         // 默认 'yyyy-MM-dd HH:mm:ss'
-  utc?: boolean                    // 是否使用 UTC，默认 false
-  textFormat?: string | TextFormatter  // 自定义 text 格式
+  name?: string // 日志器名称
+  level?: LogLevel // 最低输出级别，默认 INFO
+  format?: 'text' | 'json' // 输出格式，默认 text
+  transports?: Transport[] // 传输器列表，默认 [new ConsoleTransport()]
+  context?: Record<string, any> // 附加到每条日志的上下文
+  timestampFormat?: string // 默认 'yyyy-MM-dd HH:mm:ss'
+  utc?: boolean // 是否使用 UTC，默认 false
+  textFormat?: string | TextFormatter // 自定义 text 格式
 }
 ```
 
 ### 日志方法
 
-| 方法 | 说明 |
-|------|------|
-| `.log(level, message, meta?, error?)` | 底层日志入口 |
-| `.debug(message, meta?)` | DEBUG 级别 |
-| `.info(message, meta?)` | INFO 级别 |
-| `.warn(message, meta?)` | WARN 级别 |
+| 方法                                   | 说明                                                                        |
+| -------------------------------------- | --------------------------------------------------------------------------- |
+| `.log(level, message, meta?, error?)`  | 底层日志入口                                                                |
+| `.debug(message, meta?)`               | DEBUG 级别                                                                  |
+| `.info(message, meta?)`                | INFO 级别                                                                   |
+| `.warn(message, meta?)`                | WARN 级别                                                                   |
 | `.error(message, errorOrMeta?, meta?)` | ERROR 级别，智能参数：第二参数若是 Error 实例作为 error 对象，否则作为 meta |
 
 ```ts
 import { Logger, ConsoleTransport } from '@cat-kit/be'
 
-const log = new Logger({
-  name: 'app',
-  level: LogLevel.DEBUG,
-  context: { service: 'api' }
-})
+const log = new Logger({ name: 'app', level: LogLevel.DEBUG, context: { service: 'api' } })
 
 log.info('server started', { port: 3000 })
 log.warn('rate limit approaching', { remaining: 5 })
@@ -98,13 +94,11 @@ class FileTransport implements Transport {
 
 ```ts
 const fileTransport = new FileTransport({
-  path: './logs/',      // 目录模式
-  maxSize: 10 * 1024 * 1024  // 10MB 轮转
+  path: './logs/', // 目录模式
+  maxSize: 10 * 1024 * 1024 // 10MB 轮转
 })
 
-const log = new Logger({
-  transports: [new ConsoleTransport(), fileTransport]
-})
+const log = new Logger({ transports: [new ConsoleTransport(), fileTransport] })
 ```
 
 ### 自定义 Transport
@@ -122,10 +116,7 @@ interface Transport {
 const remoteTransport: Transport = {
   level: LogLevel.ERROR,
   async write(entry) {
-    await fetch('https://log.example.com/ingest', {
-      method: 'POST',
-      body: JSON.stringify(entry)
-    })
+    await fetch('https://log.example.com/ingest', { method: 'POST', body: JSON.stringify(entry) })
   }
 }
 ```

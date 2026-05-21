@@ -1,7 +1,9 @@
 <template>
   <div class="collapse-demo">
     <CustomCard title="基本用法">
-      <p class="desc">默认开启边框模式，可同时展开多个面板。</p>
+      <p class="desc">
+        全新的胶囊卡片设计。默认自带柔和背景色，展开时背景自动加深，并根据组件尺寸自适应间距，可同时展开多个面板。
+      </p>
       <u-collapse v-model="basicValue">
         <u-collapse-item value="design" title="设计原则">
           <p>遵循一致性、反馈性、效率性与可控性，构建用户可信赖的桌面端体验。</p>
@@ -29,32 +31,6 @@
             组件已提供 <code>role="button"</code>、<code>aria-expanded</code> 与键盘 Enter / Space
             控制。
           </p>
-        </u-collapse-item>
-      </u-collapse>
-    </CustomCard>
-
-    <CustomCard title="Ghost · 无边框风格">
-      <p class="desc">
-        通过 <code>:bordered="false"</code> 切换至无边框风格，适合卡片/对话框内嵌使用。
-      </p>
-      <u-collapse v-model="ghostValue" :bordered="false">
-        <u-collapse-item value="g1">
-          <template #title>
-            <span class="title-with-icon">
-              <UIcon><Star /></UIcon>
-              特性概览
-            </span>
-          </template>
-          <p>简洁、轻量、嵌入友好；hover 时浮起轻微背景。</p>
-        </u-collapse-item>
-        <u-collapse-item value="g2">
-          <template #title>
-            <span class="title-with-icon">
-              <UIcon><Setting /></UIcon>
-              使用建议
-            </span>
-          </template>
-          <p>建议在容器有自身边框/分隔线时使用 ghost 风格，避免视觉嵌套。</p>
         </u-collapse-item>
       </u-collapse>
     </CustomCard>
@@ -112,40 +88,60 @@
       </u-collapse>
     </CustomCard>
 
-    <CustomCard title="程序化控制（exposed methods）">
+    <CustomCard title="默认展开控制（default-collapse-all）">
       <p class="desc">
-        通过 ref 调用 <code>toggle</code> / <code>expand</code> / <code>collapse</code> /
-        <code>expandAll</code> / <code>collapseAll</code>。
+        新属性 <code>default-collapse-all</code> 默认为
+        <code>false</code>（即组件默认展开全部）。可显式配置为
+        <code>true</code> 从而实现默认全部折叠。
       </p>
-      <div class="actions">
-        <u-button size="small" @click="collapseRef?.expand('p1')">展开 P1</u-button>
-        <u-button size="small" @click="collapseRef?.collapse('p1')">收起 P1</u-button>
-        <u-button size="small" type="primary" @click="collapseRef?.expandAll(['p1', 'p2', 'p3'])"
-          >展开全部</u-button
-        >
-        <u-button size="small" plain @click="collapseRef?.collapseAll()">全部收起</u-button>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+        <div>
+          <div
+            style="
+              font-weight: 500;
+              font-size: 13px;
+              margin-bottom: 8px;
+              color: var(--u-text-color-second);
+            "
+          >
+            默认情况 (default-collapse-all="false" / 全部展开)
+          </div>
+          <u-collapse v-model="defaultExpandValue">
+            <u-collapse-item value="x1" title="模块 A">
+              <p>默认初始化为全部展开状态。</p>
+            </u-collapse-item>
+            <u-collapse-item value="x2" title="模块 B">
+              <p>在外部未传初始值的情况下，组件将自动激活所有折叠项。</p>
+            </u-collapse-item>
+          </u-collapse>
+        </div>
+        <div>
+          <div
+            style="
+              font-weight: 500;
+              font-size: 13px;
+              margin-bottom: 8px;
+              color: var(--u-text-color-second);
+            "
+          >
+            配置为 true (default-collapse-all="true" / 全部折叠)
+          </div>
+          <u-collapse v-model="defaultCollapseValue" default-collapse-all>
+            <u-collapse-item value="y1" title="模块 A">
+              <p>初始化为折叠（收起）状态。</p>
+            </u-collapse-item>
+            <u-collapse-item value="y2" title="模块 B">
+              <p>只有用户手动点击才会展开对应的折叠项。</p>
+            </u-collapse-item>
+          </u-collapse>
+        </div>
       </div>
-      <u-collapse ref="collapseRef" v-model="programmaticValue" @change="onChange">
-        <u-collapse-item value="p1" title="第一项">
-          <p>
-            当前激活值：<code>{{ JSON.stringify(programmaticValue) }}</code>
-          </p>
-        </u-collapse-item>
-        <u-collapse-item value="p2" title="第二项">
-          <p>
-            change 事件参数：<code>{{ JSON.stringify(lastChange) }}</code>
-          </p>
-        </u-collapse-item>
-        <u-collapse-item value="p3" title="第三项">
-          <p>无需 v-model 也可通过实例方法操作面板。</p>
-        </u-collapse-item>
-      </u-collapse>
     </CustomCard>
 
     <CustomCard title="嵌套使用">
       <u-collapse v-model="nestValue">
         <u-collapse-item value="n1" title="@veltra/desktop">
-          <u-collapse v-model="nestInner1" :bordered="false">
+          <u-collapse v-model="nestInner1">
             <u-collapse-item value="n1-1" title="组件目录">
               <p>
                 每个组件位于 <code>src/components/&lt;name&gt;</code>，独立
@@ -158,7 +154,7 @@
           </u-collapse>
         </u-collapse-item>
         <u-collapse-item value="n2" title="@veltra/styles">
-          <u-collapse v-model="nestInner2" :bordered="false">
+          <u-collapse v-model="nestInner2">
             <u-collapse-item value="n2-1" title="设计 token">
               <p>颜色、间距、圆角统一通过 CSS 变量提供。</p>
             </u-collapse-item>
@@ -173,31 +169,26 @@
 </template>
 
 <script lang="ts" setup>
-import type { CollapseExposed, CollapseModelValue } from '@veltra/desktop'
-import { ArrowDown, ArrowRight, Plus, Setting, Star } from '@veltra/icons/normal'
+import type { CollapseModelValue } from '@veltra/desktop'
+import { ArrowDown, ArrowRight, Plus } from '@veltra/icons/normal'
 import type { ComponentSize } from '@veltra/utils'
-import { ref, shallowRef } from 'vue'
+import { ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
 const basicValue = ref<CollapseModelValue>(['design'])
 const accordionValue = ref<CollapseModelValue>('a')
-const ghostValue = ref<CollapseModelValue>(['g1'])
 const sizeValue = ref<CollapseModelValue>(['s1'])
 const customIconValue = ref<CollapseModelValue>(['c1'])
 const disabledValue = ref<CollapseModelValue>(['1'])
-const programmaticValue = ref<CollapseModelValue>(['p1'])
 const nestValue = ref<CollapseModelValue>(['n1'])
 const nestInner1 = ref<CollapseModelValue>(['n1-1'])
 const nestInner2 = ref<CollapseModelValue>(['n2-1'])
 
-const sizes: ComponentSize[] = ['small', 'default', 'large']
+const defaultExpandValue = ref<CollapseModelValue>()
+const defaultCollapseValue = ref<CollapseModelValue>()
 
-const collapseRef = ref<CollapseExposed>()
-const lastChange = shallowRef<CollapseModelValue>()
-const onChange = (value: CollapseModelValue) => {
-  lastChange.value = value
-}
+const sizes: ComponentSize[] = ['small', 'default', 'large']
 </script>
 
 <style lang="scss" scoped>

@@ -10,23 +10,23 @@ class LRUCache<K, V> {
 }
 
 interface LRUCacheOptions {
-  maxSize?: number   // 最大条目数，默认 100
-  ttl?: number       // 全局 TTL（ms）
+  maxSize?: number // 最大条目数，默认 100
+  ttl?: number // 全局 TTL（ms）
 }
 ```
 
 最近最少使用（LRU）淘汰策略的内存缓存。
 
-| 方法 | 说明 |
-|------|------|
-| `.get(key)` | 获取值，访问时更新 LRU 顺序。过期自动清理返回 undefined |
-| `.has(key)` | 检查键是否存在且未过期 |
-| `.set(key, value, ttl?)` | 设置值，可覆盖全局 TTL。超容量时淘汰最久未用项 |
-| `.delete(key)` | 删除项，返回是否删除成功 |
-| `.clear()` | 清空所有项 |
-| `.keys()` | 返回键迭代器 |
-| `.values()` | 返回值迭代器（跳过过期项） |
-| `.size` | 当前条目数（getter） |
+| 方法                     | 说明                                                    |
+| ------------------------ | ------------------------------------------------------- |
+| `.get(key)`              | 获取值，访问时更新 LRU 顺序。过期自动清理返回 undefined |
+| `.has(key)`              | 检查键是否存在且未过期                                  |
+| `.set(key, value, ttl?)` | 设置值，可覆盖全局 TTL。超容量时淘汰最久未用项          |
+| `.delete(key)`           | 删除项，返回是否删除成功                                |
+| `.clear()`               | 清空所有项                                              |
+| `.keys()`                | 返回键迭代器                                            |
+| `.values()`              | 返回值迭代器（跳过过期项）                              |
+| `.size`                  | 当前条目数（getter）                                    |
 
 ```ts
 import { LRUCache } from '@cat-kit/be'
@@ -47,27 +47,27 @@ class FileCache<V> {
 }
 
 interface FileCacheOptions {
-  dir: string          // 缓存目录
-  ttl?: number         // 全局 TTL（ms）
-  extension?: string   // 文件扩展名，默认 '.json'
+  dir: string // 缓存目录
+  ttl?: number // 全局 TTL（ms）
+  extension?: string // 文件扩展名，默认 '.json'
 }
 ```
 
 基于文件系统的持久化缓存。键通过 `encodeURIComponent` 编码后作为文件名。值为 JSON 序列化存储。
 
-| 方法 | 说明 |
-|------|------|
-| `.get(key)` | 从文件读取值，过期自动删除文件返回 undefined |
-| `.set(key, value, ttl?)` | 写入文件 |
-| `.delete(key)` | 删除文件 |
-| `.clear()` | 删除并重建整个缓存目录 |
+| 方法                     | 说明                                         |
+| ------------------------ | -------------------------------------------- |
+| `.get(key)`              | 从文件读取值，过期自动删除文件返回 undefined |
+| `.set(key, value, ttl?)` | 写入文件                                     |
+| `.delete(key)`           | 删除文件                                     |
+| `.clear()`               | 删除并重建整个缓存目录                       |
 
 ```ts
 import { FileCache } from '@cat-kit/be'
 
 const cache = new FileCache<ApiResponse>({
   dir: './cache/api',
-  ttl: 30 * 60 * 1000  // 30 分钟
+  ttl: 30 * 60 * 1000 // 30 分钟
 })
 
 const cached = await cache.get('users:list')
@@ -86,9 +86,9 @@ function memoize<F extends (...args: any[]) => any>(
 ): F & { cache: CacheAdapter; clear(): void }
 
 interface MemoizeOptions<F> {
-  cache?: CacheAdapter     // 默认 new LRUCache()
-  resolver?: (...args: Parameters<F>) => string  // 自定义缓存键生成器
-  ttl?: number             // TTL（ms）
+  cache?: CacheAdapter // 默认 new LRUCache()
+  resolver?: (...args: Parameters<F>) => string // 自定义缓存键生成器
+  ttl?: number // TTL（ms）
 }
 ```
 
@@ -105,15 +105,18 @@ const fib = memoize((n: number): number => {
 console.log(fib(40)) // 瞬时完成
 
 // 异步函数
-const fetchUser = memoize(async (id: number) => {
-  const res = await fetch(`/api/users/${id}`)
-  return res.json()
-}, { ttl: 60_000 })
+const fetchUser = memoize(
+  async (id: number) => {
+    const res = await fetch(`/api/users/${id}`)
+    return res.json()
+  },
+  { ttl: 60_000 }
+)
 
-await fetchUser(1)  // 网络请求
-await fetchUser(1)  // 命中缓存
+await fetchUser(1) // 网络请求
+await fetchUser(1) // 命中缓存
 
-fetchUser.clear()    // 手动清缓存
+fetchUser.clear() // 手动清缓存
 ```
 
 > 类型签名：`../../generated/be/cache/`

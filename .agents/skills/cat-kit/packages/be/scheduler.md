@@ -29,18 +29,18 @@ class Scheduler {
 
 ### 控制方法
 
-| 方法 | 说明 |
-|------|------|
-| `.start()` | 启动调度器 |
-| `.stop()` | 停止调度器（保留任务，可恢复） |
-| `.cancel(id)` | 取消指定任务 |
+| 方法          | 说明                           |
+| ------------- | ------------------------------ |
+| `.start()`    | 启动调度器                     |
+| `.stop()`     | 停止调度器（保留任务，可恢复） |
+| `.cancel(id)` | 取消指定任务                   |
 
 ### 查询方法
 
-| 方法 | 说明 |
-|------|------|
+| 方法           | 说明                                          |
+| -------------- | --------------------------------------------- |
 | `.getTask(id)` | 返回任务信息（含 id、type、nextRun、running） |
-| `.getTasks()` | 返回所有任务信息列表 |
+| `.getTasks()`  | 返回所有任务信息列表                          |
 
 ```ts
 import { Scheduler } from '@cat-kit/be'
@@ -86,8 +86,8 @@ function parseCron(expression: string): CronExpression
 ```ts
 import { CronExpression } from '@cat-kit/be'
 
-const expr = new CronExpression('0 */2 * * 1-5')  // 工作日每两小时
-const next = expr.getNextDate()  // 下次执行时间
+const expr = new CronExpression('0 */2 * * 1-5') // 工作日每两小时
+const next = expr.getNextDate() // 下次执行时间
 ```
 
 > 类型签名：`../../generated/be/scheduler/`

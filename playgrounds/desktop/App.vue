@@ -25,7 +25,7 @@
 
       <div class="content-container">
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
+          <transition name="page-fade" mode="out-in">
             <div class="router-content">
               <component :is="Component" />
             </div>
@@ -442,21 +442,21 @@ html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop:
 }
 
 // 优化页面过渡动画
-.fade-enter-active {
+.page-fade-enter-active {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.fade-leave-active {
+.page-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fade-enter-from {
+.page-fade-enter-from {
   opacity: 0;
   transform: translateY(20px) scale(0.98);
   filter: blur(2px);
 }
 
-.fade-leave-to {
+.page-fade-leave-to {
   opacity: 0;
   transform: translateY(-20px) scale(0.98);
   filter: blur(1px);
@@ -487,8 +487,8 @@ html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop:
   }
 }
 
-.fade-enter-active .router-content::before,
-.fade-leave-active .router-content::before {
+.page-fade-enter-active .router-content::before,
+.page-fade-leave-active .router-content::before {
   opacity: 1;
 }
 </style>

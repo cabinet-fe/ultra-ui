@@ -4,13 +4,13 @@
 
 ## 预设列表
 
-| 预设 | 适用环境 | 说明 |
-|------|----------|------|
-| `tsconfig.json` | 通用 | 基础配置，通常不直接使用 |
-| `tsconfig.node.json` | Node.js | Node.js 项目配置 |
-| `tsconfig.web.json` | 浏览器 | 浏览器/前端项目配置 |
-| `tsconfig.bun.json` | Bun | Bun 运行时配置 |
-| `tsconfig.vue.json` | Vue | Vue 项目配置 |
+| 预设                 | 适用环境 | 说明                     |
+| -------------------- | -------- | ------------------------ |
+| `tsconfig.json`      | 通用     | 基础配置，通常不直接使用 |
+| `tsconfig.node.json` | Node.js  | Node.js 项目配置         |
+| `tsconfig.web.json`  | 浏览器   | 浏览器/前端项目配置      |
+| `tsconfig.bun.json`  | Bun      | Bun 运行时配置           |
+| `tsconfig.vue.json`  | Vue      | Vue 项目配置             |
 
 ## 使用方式
 

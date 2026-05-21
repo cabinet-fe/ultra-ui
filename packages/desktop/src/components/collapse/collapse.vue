@@ -7,15 +7,9 @@
 <script lang="ts" setup>
 import { useFormFallbackProps, useModel } from '@veltra/compositions'
 import { bem, ExpandTransition } from '@veltra/utils'
-import { computed, provide } from 'vue'
+import { computed, provide, ref } from 'vue'
 
-import type {
-  CollapseEmits,
-  CollapseModelValue,
-  CollapseProps,
-  CollapseValue,
-  _CollapseExposed
-} from '../../types'
+import type { CollapseEmits, CollapseModelValue, CollapseProps, CollapseValue } from '../../types'
 import { CollapseDIKey } from './di'
 
 defineOptions({
@@ -24,7 +18,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<CollapseProps>(), {
   accordion: false,
-  bordered: true
+  defaultCollapseAll: false
 })
 const emit = defineEmits<CollapseEmits>()
 
@@ -38,7 +32,7 @@ const { size } = useFormFallbackProps([props], { size: 'default' })
 
 const expandIcon = computed(() => props.expandIcon)
 
-const classList = computed(() => [cls.b, cls.m(size.value), bem.is('bordered', props.bordered)])
+const classList = computed(() => [cls.b, cls.m(size.value)])
 
 const modelValue = useModel<CollapseProps, 'modelValue'>({
   props,
@@ -70,34 +64,44 @@ const toggle = (value: CollapseValue) => {
   update(values)
 }
 
-const expand = (value: CollapseValue) => {
-  if (activeValues.value.includes(value)) return
-  if (props.accordion) {
-    update(value)
-    return
+// 收集子组件已注册的 values
+const registeredValues = ref<CollapseValue[]>([])
+
+// 初始捕获 modelValue 是否具有有效初值
+const hasInitialValue =
+  modelValue.value !== undefined &&
+  modelValue.value !== null &&
+  (!Array.isArray(modelValue.value) || modelValue.value.length > 0)
+
+const register = (value: CollapseValue) => {
+  if (!registeredValues.value.includes(value)) {
+    registeredValues.value.push(value)
+
+    // 若默认展开全部（defaultCollapseAll 为 false）且外部未指定初始值，则自动展开该子项
+    if (!props.defaultCollapseAll && !hasInitialValue) {
+      if (props.accordion) {
+        if (registeredValues.value.length === 1) {
+          update(value)
+        }
+      } else {
+        const current = Array.isArray(modelValue.value)
+          ? modelValue.value
+          : modelValue.value !== undefined && modelValue.value !== null
+            ? [modelValue.value]
+            : []
+        if (!current.includes(value)) {
+          update([...current, value])
+        }
+      }
+    }
   }
-  update([...activeValues.value, value])
 }
 
-const collapse = (value: CollapseValue) => {
-  if (!activeValues.value.includes(value)) return
-  if (props.accordion) {
-    update([])
-    return
+const unregister = (value: CollapseValue) => {
+  const idx = registeredValues.value.indexOf(value)
+  if (idx > -1) {
+    registeredValues.value.splice(idx, 1)
   }
-  update(activeValues.value.filter((v) => v !== value))
-}
-
-const expandAll = (values: CollapseValue[]) => {
-  if (props.accordion) {
-    update(values[0] ?? [])
-    return
-  }
-  update([...values])
-}
-
-const collapseAll = () => {
-  update([])
 }
 
 provide(CollapseDIKey, {
@@ -106,14 +110,8 @@ provide(CollapseDIKey, {
   expandIcon,
   activeValues,
   toggle,
-  expandTransition
-})
-
-defineExpose<_CollapseExposed>({
-  toggle,
-  expand,
-  collapse,
-  expandAll,
-  collapseAll
+  expandTransition,
+  register,
+  unregister
 })
 </script>

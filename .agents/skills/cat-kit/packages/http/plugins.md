@@ -6,16 +6,24 @@
 
 ```ts
 interface HTTPClientPlugin {
-  name: string  // 必须唯一
+  name: string // 必须唯一
 
-  beforeRequest?(url: string, config: RequestConfig):
-    Promise<PluginHookResult | void> | PluginHookResult | void
+  beforeRequest?(
+    url: string,
+    config: RequestConfig
+  ): Promise<PluginHookResult | void> | PluginHookResult | void
 
-  afterRespond?(response: HTTPResponse, url: string, config: RequestConfig,
-    context?: PluginContext): Promise<HTTPResponse | void> | HTTPResponse | void
+  afterRespond?(
+    response: HTTPResponse,
+    url: string,
+    config: RequestConfig,
+    context?: PluginContext
+  ): Promise<HTTPResponse | void> | HTTPResponse | void
 
-  onError?(error: unknown, context: RequestContext):
-    Promise<HTTPResponse | void> | HTTPResponse | void
+  onError?(
+    error: unknown,
+    context: RequestContext
+  ): Promise<HTTPResponse | void> | HTTPResponse | void
 }
 ```
 
@@ -67,12 +75,14 @@ new TokenPlugin({
 ### 行为
 
 **`beforeRequest`**：
+
 1. 若 `isRefreshExpired?.()` → 调 `onRefreshExpired?.()`，抛 `HTTPError({ code: 'AUTH' })`
 2. 若有正在进行的刷新 → 排队等待
 3. 若 `isExpired?.()` → 执行 `onRefresh()`
 4. 调用 `getter()` 获取 token，按 `authType` 格式写入 headers
 
 **`afterRespond`**：
+
 - 若 `shouldRefresh?.(response)` 且配置了 `onRefresh` → 刷新后通过 `context.retry()` 重试
 
 ### 示例
@@ -89,9 +99,7 @@ const http = new HTTPClient('/api', {
     new TokenPlugin({
       getter: () => accessToken,
       onRefresh: async () => {
-        const res = await fetch('/auth/refresh', {
-          body: JSON.stringify({ refreshToken })
-        })
+        const res = await fetch('/auth/refresh', { body: JSON.stringify({ refreshToken }) })
         const data = await res.json()
         accessToken = data.accessToken
       },
@@ -124,12 +132,14 @@ new RetryPlugin({
 ```
 
 **默认退避**：`Math.min(1000 * 2 ** attempt, 30000)`
+
 - 第 1 次重试：1s
 - 第 2 次重试：2s
 - 第 3 次重试：4s
 - 封顶：30s
 
 **默认重试条件**（未设 `retryOn` 时）：
+
 - 非 2xx 响应且状态码在 `retryOnStatus` 中
 - 网络错误（`code === 'NETWORK'`）
 - 超时（`code === 'TIMEOUT'`）
@@ -174,12 +184,7 @@ new MethodOverridePlugin({
 ```ts
 const http = new HTTPClient('/api', {
   origin: 'https://api.example.com',
-  plugins: [
-    new MethodOverridePlugin({
-      methods: ['DELETE'],
-      overrideMethod: 'POST'
-    })
-  ]
+  plugins: [new MethodOverridePlugin({ methods: ['DELETE'], overrideMethod: 'POST' })]
 })
 
 // DELETE /api/users/1 → POST /api/users/1

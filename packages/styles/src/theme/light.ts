@@ -54,7 +54,9 @@ export const lightTheme: UITheme = new UITheme(
 
     gap: defineBySize({ small: 6, default: 8, large: 12 }),
 
-    breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 }
+    breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 },
+
+    button: { 'default-bg': 'var(--u-bg-color-top)' }
   },
   { reactive: false }
 )

@@ -12,8 +12,8 @@ function getCpuInfo(): CpuInfo
 interface CpuInfo {
   model: string
   cores: number
-  speed: number                           // MHz
-  loadAverage: [number, number, number]   // 1/5/15 分钟负载
+  speed: number // MHz
+  loadAverage: [number, number, number] // 1/5/15 分钟负载
 }
 ```
 
@@ -34,7 +34,7 @@ interface CpuUsage {
   system: number
   idle: number
   total: number
-  percent: number   // 使用率百分比
+  percent: number // 使用率百分比
 }
 ```
 
@@ -62,7 +62,9 @@ interface MemoryInfo {
 import { getMemoryInfo } from '@cat-kit/be'
 
 const mem = getMemoryInfo()
-console.log(`Memory: ${(mem.used / 1024 / 1024 / 1024).toFixed(1)} GB / ${(mem.total / 1024 / 1024 / 1024).toFixed(1)} GB`)
+console.log(
+  `Memory: ${(mem.used / 1024 / 1024 / 1024).toFixed(1)} GB / ${(mem.total / 1024 / 1024 / 1024).toFixed(1)} GB`
+)
 ```
 
 ## Disk
@@ -110,7 +112,7 @@ interface NetworkInterfaceInfo {
 import { getNetworkInterfaces } from '@cat-kit/be'
 
 const interfaces = getNetworkInterfaces()
-interfaces.forEach(iface => {
+interfaces.forEach((iface) => {
   if (!iface.internal) {
     console.log(`${iface.name}: ${iface.address}/${iface.cidr}`)
   }

@@ -1,8 +1,13 @@
 # UCollapse — 折叠面板
 
-> `import type { CollapseProps, CollapseEmits, CollapseExposed, CollapseItemProps } from '@veltra/desktop'`
-
 基于 CSS Grid `0fr → 1fr` 行高度过渡实现高度动画，零 JS 测量。
+
+> [!IMPORTANT]
+> **版本更新提醒**：从 `1.1.6` 开始，折叠面板采用全新的**独立胶囊卡片**视觉和交互设计。
+>
+> 1. 废弃并移除了外层边框与细线分割模式（即 `:bordered` 属性已失效，请勿使用）。
+> 2. 移除了暴露给外部 `ref` 调用的程序化控制方法（`CollapseExposed` 实例方法，如 `toggle`, `expand`, `collapse` 等均已被移除）。
+> 3. 新增了 `default-collapse-all` 属性以控制未绑定值时的默认折叠/展开行为。
 
 ## Import
 
@@ -14,8 +19,7 @@ import type {
   CollapseEmits,
   CollapseValue,
   CollapseModelValue,
-  CollapseIconPosition,
-  CollapseExposed
+  CollapseIconPosition
 } from '@veltra/desktop'
 ```
 
@@ -31,14 +35,14 @@ type CollapseIconPosition = 'left' | 'right'
 
 ## UCollapse Props
 
-| prop           | type                   | default     | 说明                                                       |
-| -------------- | ---------------------- | ----------- | ---------------------------------------------------------- |
-| `size`         | `ComponentSize`        | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置       |
-| `modelValue`   | `CollapseModelValue`   | —           | 当前展开项（v-model）                                      |
-| `accordion`    | `boolean`              | `false`     | 是否手风琴模式（一次只能展开一项）                         |
-| `bordered`     | `boolean`              | `true`      | 是否显示外层与项之间的分隔线；设为 `false` 时为 ghost 风格 |
-| `iconPosition` | `CollapseIconPosition` | `'right'`   | 展开/收起图标位置                                          |
-| `expandIcon`   | `Component`            | —           | 自定义展开图标组件，活动态会自动旋转 90°                   |
+| prop                 | type                   | default     | 说明                                                                                                      |
+| -------------------- | ---------------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| `size`               | `ComponentSize`        | `'default'` | 组件尺寸，通过 `useFormFallbackProps` 回退到全局配置                                                      |
+| `modelValue`         | `CollapseModelValue`   | —           | 当前展开项（v-model）                                                                                     |
+| `accordion`          | `boolean`              | `false`     | 是否手风琴模式（一次只能展开一项）                                                                        |
+| `defaultCollapseAll` | `boolean`              | `false`     | 是否默认折叠全部项。设为 `true` 时初始化默认全部折叠；为 `false` 时（默认）在外部未传绑定值时默认全部展开 |
+| `iconPosition`       | `CollapseIconPosition` | `'right'`   | 展开/收起图标位置                                                                                         |
+| `expandIcon`         | `Component`            | —           | 自定义展开图标组件，活动态会自动旋转 90°                                                                  |
 
 ## UCollapse Emits
 
@@ -53,22 +57,7 @@ type CollapseIconPosition = 'left' | 'right'
 | ------- | ---- | ------------------------------- |
 | default | —    | 放置 `UCollapseItem` 的默认插槽 |
 
-## UCollapse Exposed
-
-```ts
-interface CollapseExposed {
-  /** 切换某项的展开状态 */
-  toggle: (value: CollapseValue) => void
-  /** 展开某项 */
-  expand: (value: CollapseValue) => void
-  /** 收起某项 */
-  collapse: (value: CollapseValue) => void
-  /** 展开全部（accordion 模式下只展开第一个传入的 value） */
-  expandAll: (values: CollapseValue[]) => void
-  /** 全部收起 */
-  collapseAll: () => void
-}
-```
+组件当前仅用于声明式状态展示与绑定，未向外部暴露程序化控制的实例方法与属性。
 
 ---
 
@@ -110,12 +99,12 @@ const active = ref<CollapseModelValue>(['1'])
 </template>
 ```
 
-### 手风琴 + 无边框
+### 手风琴模式
 
 ```vue
 <template>
-  <!-- accordion 模式下 modelValue 为单值 -->
-  <u-collapse v-model="active" accordion :bordered="false">
+  <!-- accordion 模式下 modelValue 为单值。每个折叠项表现为独立的精致胶囊卡片 -->
+  <u-collapse v-model="active" accordion>
     <u-collapse-item value="a" title="常规设置">…</u-collapse-item>
     <u-collapse-item value="b" title="高级配置">…</u-collapse-item>
     <u-collapse-item value="c" title="关于" disabled>…</u-collapse-item>
@@ -154,26 +143,28 @@ import { Star, ArrowDown } from '@veltra/icons/normal'
 </template>
 ```
 
-### 程序化控制
+### 默认展开与全部折叠（default-collapse-all）
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { CollapseExposed, CollapseModelValue } from '@veltra/desktop'
+import type { CollapseModelValue } from '@veltra/desktop'
 
-const collapseRef = ref<CollapseExposed>()
-const active = ref<CollapseModelValue>([])
+const activeExpand = ref<CollapseModelValue>()
+const activeCollapse = ref<CollapseModelValue>()
 </script>
 
 <template>
-  <u-button @click="collapseRef?.expand('a')">展开 A</u-button>
-  <u-button @click="collapseRef?.collapseAll()">全部收起</u-button>
-  <u-button @click="collapseRef?.expandAll(['a', 'b', 'c'])">展开全部</u-button>
+  <!-- default-collapse-all 默认为 false，未传递绑定初始值时默认展开全部折叠项 -->
+  <u-collapse v-model="activeExpand">
+    <u-collapse-item value="x1" title="模块 A">默认全部展开</u-collapse-item>
+    <u-collapse-item value="x2" title="模块 B">默认全部展开</u-collapse-item>
+  </u-collapse>
 
-  <u-collapse ref="collapseRef" v-model="active">
-    <u-collapse-item value="a" title="项目 A">A 的内容</u-collapse-item>
-    <u-collapse-item value="b" title="项目 B">B 的内容</u-collapse-item>
-    <u-collapse-item value="c" title="项目 C">C 的内容</u-collapse-item>
+  <!-- 显式配置 default-collapse-all 后，即使没有初始绑定值，组件也会默认折叠收起所有项 -->
+  <u-collapse v-model="activeCollapse" default-collapse-all>
+    <u-collapse-item value="y1" title="模块 A">初始化默认为折叠收起状态</u-collapse-item>
+    <u-collapse-item value="y2" title="模块 B">只有手动点击头部才会展开</u-collapse-item>
   </u-collapse>
 </template>
 ```

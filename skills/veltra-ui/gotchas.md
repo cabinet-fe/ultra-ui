@@ -207,3 +207,30 @@ app.mount('#app') // 最后挂载
 ```
 
 `need-confirm` 会自动弹出确认气泡。
+
+## 13. UCollapse 实例方法已被移除，bordered 属性已废弃
+
+从 `1.1.6` 开始，折叠面板进行了全面的项级独立胶囊卡片化重构。在此过程中，废弃并移除了 `CollapseExposed`（即不再暴露任何实例方法，如 `toggle`/`expand`/`collapse` 等）以及 `bordered` 属性。
+
+```vue
+<!-- ❌ 错误：使用已失效的 bordered 属性以及通过 ref 试图调用程序化方法 -->
+<script setup>
+const collapseRef = ref()
+const expandFirst = () => {
+  collapseRef.value?.expand('first') // 会抛出运行时异常：expand is not a function
+}
+</script>
+<template>
+  <u-collapse ref="collapseRef" :bordered="false" v-model="active">
+    <u-collapse-item value="first" title="折叠项 A">内容</u-collapse-item>
+  </u-collapse>
+</template>
+
+<!-- ✅ 正确：全部状态均采用声明式绑定，通过 v-model 驱动交互与折叠展开状态；
+     若需要在无初始绑定值时控制默认全部折叠，请使用 default-collapse-all 属性 -->
+<template>
+  <u-collapse v-model="active" default-collapse-all>
+    <u-collapse-item value="first" title="折叠项 A">内容</u-collapse-item>
+  </u-collapse>
+</template>
+```

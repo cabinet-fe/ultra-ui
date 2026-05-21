@@ -4,45 +4,45 @@
 
 ### 构造与生命周期
 
-| API | 签名 | 关键行为 |
-| --- | --- | --- |
-| `new Virtualizer(options?)` | `(options?: VirtualizerOptions) => Virtualizer` | 不挂载 DOM；`initialOffset` / `initialViewport` 仅构造时生效，供 SSR 占位；`estimateSize` 默认 `() => 36` |
-| `.connect(element)` | `(el: HTMLElement \| null) => this` | 绑定滚动容器；传相同元素只 `syncFromElement`、传不同元素先 `disconnect`、传 `null` 等价 `disconnect`。订阅 `scroll`（驱动 `offset`/`isScrolling`）、原生 `scrollend` 或 120ms 兜底计时器、`ResizeObserver`（驱动 `viewportSize`） |
-| `.disconnect()` | `() => this` | 取消 rAF 校准、卸下事件与 RO、清空 `mounted` 与 `ResizeTracker` 观察；**不**清测量缓存与订阅者，实例可复用 |
-| `.destroy()` | `() => void` | `disconnect` + 释放 `ResizeTracker` + 清订阅者。Vue `onBeforeUnmount` / React cleanup 必须调用 |
+| API                         | 签名                                            | 关键行为                                                                                                                                                                                                                          |
+| --------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `new Virtualizer(options?)` | `(options?: VirtualizerOptions) => Virtualizer` | 不挂载 DOM；`initialOffset` / `initialViewport` 仅构造时生效，供 SSR 占位；`estimateSize` 默认 `() => 36`                                                                                                                         |
+| `.connect(element)`         | `(el: HTMLElement \| null) => this`             | 绑定滚动容器；传相同元素只 `syncFromElement`、传不同元素先 `disconnect`、传 `null` 等价 `disconnect`。订阅 `scroll`（驱动 `offset`/`isScrolling`）、原生 `scrollend` 或 120ms 兜底计时器、`ResizeObserver`（驱动 `viewportSize`） |
+| `.disconnect()`             | `() => this`                                    | 取消 rAF 校准、卸下事件与 RO、清空 `mounted` 与 `ResizeTracker` 观察；**不**清测量缓存与订阅者，实例可复用                                                                                                                        |
+| `.destroy()`                | `() => void`                                    | `disconnect` + 释放 `ResizeTracker` + 清订阅者。Vue `onBeforeUnmount` / React cleanup 必须调用                                                                                                                                    |
 
 ### 选项与尺寸更新
 
-| API | 签名 | 关键行为 |
-| --- | --- | --- |
-| `.setOptions(options)` | `(options: VirtualizerOptions) => this` | 部分更新；`getItemKey` 先于 `count` 应用；`initialOffset` / `initialViewport` 在此处无效 |
-| `.setCount(count)` | `(count: number) => this` | 收缩时剪裁测量缓存与 `mounted`（keyed 模式按 `getItemKey` 构造的 alive key 集合剪裁）；扩张时新项走估值；未变化为 no-op |
-| `.setViewport(size)` | `(size: number) => this` | 一般由 `ResizeObserver` 自动同步；SSR / 测试手动调用 |
-| `.setOffset(offset)` | `(offset: number) => this` | 只更新逻辑 offset，**不写 DOM**；要真实跳转请用 `scrollToOffset` |
+| API                    | 签名                                    | 关键行为                                                                                                                |
+| ---------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `.setOptions(options)` | `(options: VirtualizerOptions) => this` | 部分更新；`getItemKey` 先于 `count` 应用；`initialOffset` / `initialViewport` 在此处无效                                |
+| `.setCount(count)`     | `(count: number) => this`               | 收缩时剪裁测量缓存与 `mounted`（keyed 模式按 `getItemKey` 构造的 alive key 集合剪裁）；扩张时新项走估值；未变化为 no-op |
+| `.setViewport(size)`   | `(size: number) => this`                | 一般由 `ResizeObserver` 自动同步；SSR / 测试手动调用                                                                    |
+| `.setOffset(offset)`   | `(offset: number) => this`              | 只更新逻辑 offset，**不写 DOM**；要真实跳转请用 `scrollToOffset`                                                        |
 
 ### 测量
 
-| API | 签名 | 关键行为 |
-| --- | --- | --- |
-| `.measure(index, size)` | `(index: number, size: number) => this` | 单条；越界静默忽略 |
-| `.measureMany(records)` | `(records: Iterable<{index, size}>) => this` | 批量；同批次视口前方项的 scroll 补偿合并为一次 DOM 写入 |
+| API                          | 签名                                           | 关键行为                                                                                                                                                                                                                     |
+| ---------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.measure(index, size)`      | `(index: number, size: number) => this`        | 单条；越界静默忽略                                                                                                                                                                                                           |
+| `.measureMany(records)`      | `(records: Iterable<{index, size}>) => this`   | 批量；同批次视口前方项的 scroll 补偿合并为一次 DOM 写入                                                                                                                                                                      |
 | `.measureElement(index, el)` | `(index: number, el: Element \| null) => void` | fire-and-forget：注册 RO 观察后由异步回调驱动内部测量，调用后**不能立即拿到测量值**；不支持 RO 时回退同步 `getBoundingClientRect`；`el: null` → `unobserve`；keyed 模式下同一 element 迁移 index 时自动清理旧 `mounted` 条目 |
 
 ### 滚动
 
-| API | 签名 | 关键行为 |
-| --- | --- | --- |
-| `.scrollToOffset(offset, options?)` | `(offset: number, { behavior? }) => this` | `align` 对本方法无效；`behavior: 'smooth'` 走 rAF 校准 |
-| `.scrollToIndex(index, options?)` | `(index: number, { align?, behavior? }) => this` | `align` 默认 `'auto'`（仅视口外才滚）；`count === 0` no-op；`behavior: 'smooth'` 时动画期间若测量漂移自动 `behavior: 'auto'` 修正目标 |
+| API                                 | 签名                                             | 关键行为                                                                                                                              |
+| ----------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `.scrollToOffset(offset, options?)` | `(offset: number, { behavior? }) => this`        | `align` 对本方法无效；`behavior: 'smooth'` 走 rAF 校准                                                                                |
+| `.scrollToIndex(index, options?)`   | `(index: number, { align?, behavior? }) => this` | `align` 默认 `'auto'`（仅视口外才滚）；`count === 0` no-op；`behavior: 'smooth'` 时动画期间若测量漂移自动 `behavior: 'auto'` 修正目标 |
 
 ### 快照、订阅、读取
 
-| API | 签名 | 关键行为 |
-| --- | --- | --- |
-| `.getSnapshot()` | `() => VirtualSnapshot` | **同一对象引用在纯 offset 帧保留不变**；禁止用 `===` 判重渲染，应比结构字段或走 `subscribe` |
-| `.subscribe(listener)` | `(listener) => () => void` | 注册时立即同步回调一次；只在结构性变化时推送；纯 offset 不触发；返回取消函数 |
-| `.getItem(index)` | `(index: number) => VirtualItem` | 越界抛 `RangeError`；业务侧可见性计算用 |
-| `.reset()` | `() => this` | 清测量缓存 + 位置缓存 + 取消 rAF + `offset = 0`；**不**解绑容器、**不**清订阅者；仅用于数据源整体替换 |
+| API                    | 签名                             | 关键行为                                                                                              |
+| ---------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `.getSnapshot()`       | `() => VirtualSnapshot`          | **同一对象引用在纯 offset 帧保留不变**；禁止用 `===` 判重渲染，应比结构字段或走 `subscribe`           |
+| `.subscribe(listener)` | `(listener) => () => void`       | 注册时立即同步回调一次；只在结构性变化时推送；纯 offset 不触发；返回取消函数                          |
+| `.getItem(index)`      | `(index: number) => VirtualItem` | 越界抛 `RangeError`；业务侧可见性计算用                                                               |
+| `.reset()`             | `() => this`                     | 清测量缓存 + 位置缓存 + 取消 rAF + `offset = 0`；**不**解绑容器、**不**清订阅者；仅用于数据源整体替换 |
 
 ## 使用备注
 

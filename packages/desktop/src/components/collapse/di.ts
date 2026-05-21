@@ -10,6 +10,8 @@ export interface CollapseContext {
   activeValues: ComputedRef<CollapseValue[]>
   toggle: (value: CollapseValue) => void
   expandTransition: ExpandTransition
+  register: (value: CollapseValue) => void
+  unregister: (value: CollapseValue) => void
 }
 
 export const CollapseDIKey: InjectionKey<CollapseContext> = Symbol('Collapse')

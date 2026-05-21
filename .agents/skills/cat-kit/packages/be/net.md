@@ -8,7 +8,7 @@
 function isPortAvailable(port: number, options?: PortCheckOptions): Promise<boolean>
 
 interface PortCheckOptions {
-  host?: string    // 默认 '127.0.0.1'
+  host?: string // 默认 '127.0.0.1'
   timeout?: number // 超时（ms），默认 1000
 }
 ```
@@ -32,8 +32,8 @@ if (await isPortAvailable(port)) {
 function getLocalIP(options?: GetLocalIPOptions): string | undefined
 
 interface GetLocalIPOptions {
-  family?: 'IPv4' | 'IPv6'    // 默认 'IPv4'
-  includeInternal?: boolean   // 是否包含内部接口，默认 false
+  family?: 'IPv4' | 'IPv6' // 默认 'IPv4'
+  includeInternal?: boolean // 是否包含内部接口，默认 false
 }
 ```
 
@@ -42,7 +42,7 @@ interface GetLocalIPOptions {
 ```ts
 import { getLocalIP } from '@cat-kit/be'
 
-const ip = getLocalIP()                    // '192.168.1.100'
+const ip = getLocalIP() // '192.168.1.100'
 const ip6 = getLocalIP({ family: 'IPv6' }) // 'fe80::...'
 ```
 

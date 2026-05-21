@@ -8,10 +8,10 @@ Node.js 文件系统操作工具，增强原生 `node:fs/promises`。
 
 ```ts
 interface DirEntry {
-  path: string          // 绝对路径
-  relativePath: string  // 相对于根目录的路径
-  name: string          // 文件/目录名
-  depth: number         // 深度（根目录为 0）
+  path: string // 绝对路径
+  relativePath: string // 相对于根目录的路径
+  name: string // 文件/目录名
+  depth: number // 深度（根目录为 0）
   isFile: boolean
   isDirectory: boolean
   isSymbolicLink: boolean
@@ -34,7 +34,7 @@ import { readDir } from '@cat-kit/be'
 const entries = await readDir('./src', { recursive: true })
 
 // 只获取 .ts 文件路径
-const files = await readDir('./src', { onlyFiles: true, filter: e => e.name.endsWith('.ts') })
+const files = await readDir('./src', { onlyFiles: true, filter: (e) => e.name.endsWith('.ts') })
 ```
 
 ### `ensureDir`
@@ -71,7 +71,7 @@ await emptyDir('./temp')
 function removePath(targetPath: string, options?: RemoveOptions): Promise<void>
 
 interface RemoveOptions {
-  force?: boolean  // 为 true 时忽略不存在的路径
+  force?: boolean // 为 true 时忽略不存在的路径
 }
 ```
 
@@ -89,7 +89,7 @@ await removePath('./dist', { force: true })
 function movePath(src: string, dest: string, options?: MoveOptions): Promise<void>
 
 interface MoveOptions {
-  overwrite?: boolean  // 为 true 时覆盖已存在的目标
+  overwrite?: boolean // 为 true 时覆盖已存在的目标
 }
 ```
 
@@ -134,10 +134,10 @@ function readJson<T = Record<string, any>>(filePath: string, options?: ReadJsonO
 function writeJson(filePath: string, data: unknown, options?: WriteJsonOptions): Promise<void>
 
 interface WriteJsonOptions {
-  encoding?: string  // 默认 'utf8'
-  replacer?: (key: string, value: any) => any  // JSON stringify replacer
-  space?: number     // 缩进空格数，默认 2
-  eol?: string       // 行尾符，默认 '\n'
+  encoding?: string // 默认 'utf8'
+  replacer?: (key: string, value: any) => any // JSON stringify replacer
+  space?: number // 缩进空格数，默认 2
+  eol?: string // 行尾符，默认 '\n'
 }
 ```
 

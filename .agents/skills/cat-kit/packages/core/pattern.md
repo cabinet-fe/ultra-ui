@@ -18,8 +18,8 @@ const obs = new Observable({ count: 0, name: 'hello' })
 
 **属性**：
 
-| 属性 | 说明 |
-|------|------|
+| 属性     | 说明                                                    |
+| -------- | ------------------------------------------------------- |
 | `.state` | 被 Proxy 包装的可观察状态对象，直接赋值属性即可触发通知 |
 
 **方法**：
@@ -37,18 +37,23 @@ const obs = new Observable({ count: 0, name: 'hello' })
 观察指定属性的变化。返回取消观察的函数。
 
 Options：
+
 - `immediate?`：注册后立即执行一次回调（以当前值），默认 `false`
 - `once?`：只触发一次，触发后自动取消观察，默认 `false`
 - `sync?`：同步执行回调，默认 `false`（异步通过微任务队列批量执行）
 
 ```ts
-const unsub = obs.observe(['count', 'name'], ({ count, name }) => {
-  console.log(`count: ${count}, name: ${name}`)
-}, { immediate: true })
+const unsub = obs.observe(
+  ['count', 'name'],
+  ({ count, name }) => {
+    console.log(`count: ${count}, name: ${name}`)
+  },
+  { immediate: true }
+)
 
-obs.state.count = 1    // 触发回调: count: 1, name: hello
+obs.state.count = 1 // 触发回调: count: 1, name: hello
 obs.state.name = 'bye' // 触发回调: count: 1, name: bye
-obs.state.count = 2    // 触发回调: count: 2, name: bye
+obs.state.count = 2 // 触发回调: count: 2, name: bye
 
 unsub() // 取消观察
 ```
@@ -88,7 +93,7 @@ const useStore = () => {
 
   useEffect(() => {
     return store.observe(['user', 'loading'], (vals) => {
-      setState(prev => ({ ...prev, ...vals }))
+      setState((prev) => ({ ...prev, ...vals }))
     })
   }, [])
 
@@ -97,6 +102,7 @@ const useStore = () => {
 ```
 
 **注意事项**：
+
 - async callback 通过微任务队列批量执行
 - 仅当被观察属性的值真正变化时才触发（Proxy `set` 拦截比较新旧值）
 - `sync: true` 时立即同步执行回调（不经过微任务队列）

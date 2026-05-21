@@ -10,54 +10,48 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 0.18s $ease;
 $transition-normal: 0.24s $ease;
 
-// 各尺寸的水平 / 垂直内边距：决定 header 和 content 的呼吸感
-// 节奏在配置项分组场景下既不过紧、也不过松
-$header-padding-x: (
-  small: 10px,
-  default: 12px,
-  large: 16px
-);
-$header-padding-y: (
-  small: 6px,
-  default: 10px,
-  large: 14px
-);
-
 @include m.b($root-name) {
   width: 100%;
   font-size: fn.use-var(font-size-main, default);
   color: fn.use-var(text-color, main);
+  background-color: transparent;
 
-  // ===== Bordered（默认）：整体一张卡片，项之间细线分隔 =====
-  // 面向"配置项分组"场景：清晰边界 + 克制反馈，不抢内部控件视觉
-  @include m.is(bordered) {
-    border: 1px solid fn.use-var(border, color);
-    border-radius: calc(fn.use-var(radius, large) + 2px);
-    background-color: fn.use-var(bg-color, top);
-    box-shadow:
-      0 1px 2px rgba(15, 23, 42, 0.04),
-      0 1px 3px rgba(15, 23, 42, 0.04);
-    overflow: hidden;
+  // ===== Item =====
+  @include m.e(item) {
+    border-radius: calc(fn.use-var(radius, default) + 2px);
+    background-color: fn.use-var(bg-color, hover);
+    transition: background-color $transition-fast;
 
-    @include m.e(item) {
-      &:not(:first-child) {
-        border-top: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 60%, transparent);
+    & + #{fn.bem($root-name, item)} {
+      margin-top: fn.use-var(gap, default);
+    }
+
+    @include m.is-not(disabled) {
+      &:hover {
+        // hover 状态与展开状态保持一致的微加深背景（混入 6% 的正文文字色）
+        background-color: color-mix(
+          in srgb,
+          #{fn.use-var(text-color, main)} 6%,
+          #{fn.use-var(bg-color, hover)}
+        );
       }
     }
-  }
 
-  // ===== Item 通用 =====
-  @include m.e(item) {
+    @include m.is(active) {
+      // 展开/活动状态背景（混入 6% 的正文文字色）
+      background-color: color-mix(
+        in srgb,
+        #{fn.use-var(text-color, main)} 6%,
+        #{fn.use-var(bg-color, hover)}
+      );
+    }
+
     @include m.is(disabled) {
       opacity: 0.55;
     }
   }
 
   // ===== Header =====
-  // 反馈策略：
-  //   - hover：仅背景轻微变化（"我可点击"信号）
-  //   - active：仅 font-weight 加重 + 箭头旋转（"我已展开"信号由内容显现承担）
-  //   - 颜色不切换到 primary，避免在大量配置块同时展开时产生视觉嘈杂
   @include m.e(header) {
     position: relative;
     display: flex;
@@ -72,12 +66,7 @@ $header-padding-y: (
     transition:
       color $transition-fast,
       background-color $transition-fast;
-
-    @include m.is-not(disabled) {
-      &:hover {
-        background-color: fn.use-var(bg-color, hover);
-      }
-    }
+    border-radius: inherit;
 
     &:focus-visible {
       box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
@@ -86,11 +75,6 @@ $header-padding-y: (
     @include m.is(disabled) {
       cursor: not-allowed;
       color: fn.use-var(text-color, placeholder);
-
-      &:hover {
-        background-color: transparent;
-        color: fn.use-var(text-color, placeholder);
-      }
     }
 
     @include m.is(active) {
@@ -124,12 +108,6 @@ $header-padding-y: (
   }
 
   // ===== Content wrapper =====
-  // 高度由共享 expand transition hook 在 isActive 切换时驱动：
-  //   未挂载前 → CSS 兜底 height: 0
-  //   未激活   → 0px（带 transition）
-  //   激活中   → 0 → scrollHeight（CSS transition: height）
-  //   已激活   → auto（动画结束后回归，避免锁死内容动态变化）
-  // 比 grid-template-rows: 0fr ↔ 1fr 减少每帧 grid 布局重算，嵌套场景显著更流畅。
   @include m.e(content-wrapper) {
     overflow: hidden;
     height: 0;
@@ -142,50 +120,24 @@ $header-padding-y: (
   }
 
   // ===== Sizes =====
-  // padding-bottom 始终生效；inactive 时由 wrapper height: 0 + overflow: hidden
-  // 自然裁切，scrollHeight 计算因此始终一致，避免动画首帧抖动。
   @include m.size using ($size) {
     font-size: fn.use-var(font-size-main, $size);
 
     @include m.bem($root-name, header) {
-      padding: map.get($header-padding-y, $size) map.get($header-padding-x, $size);
+      padding: calc(fn.use-var(gap, $size) - 2px) fn.use-var(gap, $size);
       font-size: fn.use-var(font-size-title, $size);
     }
 
     @include m.bem($root-name, content) {
       font-size: fn.use-var(font-size-main, $size);
-      padding: 0 map.get($header-padding-x, $size) map.get($header-padding-y, $size);
+      padding: calc(fn.use-var(gap, $size) - 2px) fn.use-var(gap, $size) fn.use-var(gap, $size);
     }
-  }
-
-  // ===== Ghost（无边框）：项级胶囊化，反馈完全由 item hover 承担 =====
-  // 嵌入卡片 / 对话框时使用，不引入额外的容器边界
-  @include m.is-not(bordered) {
-    background-color: transparent;
 
     #{fn.bem($root-name, item)} {
-      border-radius: calc(fn.use-var(radius, default) + 2px);
-      transition: background-color $transition-fast;
+      border-radius: calc(fn.use-var(radius, $size) + 2px);
 
       & + #{fn.bem($root-name, item)} {
-        margin-top: 4px;
-      }
-
-      @include m.is-not(disabled) {
-        &:hover {
-          background-color: fn.use-var(bg-color, hover);
-        }
-      }
-    }
-
-    // ghost 下 header 自身不再单独 hover，由 item 整体承载
-    #{fn.bem($root-name, header)} {
-      border-radius: inherit;
-
-      @include m.is-not(disabled) {
-        &:hover {
-          background-color: transparent;
-        }
+        margin-top: fn.use-var(gap, $size);
       }
     }
   }

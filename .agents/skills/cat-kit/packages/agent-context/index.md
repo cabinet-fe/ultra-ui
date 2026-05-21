@@ -48,6 +48,7 @@ agent-context prompt-gen [--tools <tools>] [--profile <profile>] [--yes] [--chec
 在 `$HOME` 下各 AI 工具全局配置目录生成提示词文件。
 
 支持的工具：`claude`、`codex`、`gemini`、`antigravity`
+
 - `--profile`：提示词模板（`default`、`whj`）
 - `--check`：仅预览不写入
 - `--yes`：文件已存在时直接覆盖

@@ -28,7 +28,8 @@ export const heroLightTheme = lightTheme.new({
     blur: 14,
     spread: 0,
     emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 3px 0px #0000000f'
-  }
+  },
+  button: { 'default-bg': '#ebebec' }
 })
 
 export const heroDarkTheme = heroLightTheme.new({
@@ -59,5 +60,6 @@ export const heroDarkTheme = heroLightTheme.new({
     blur: 14,
     spread: 0,
     emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 1px 0 #0000000f'
-  }
+  },
+  button: { 'default-bg': 'var(--u-bg-color-top)' }
 })

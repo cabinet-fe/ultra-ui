@@ -5,10 +5,7 @@
 ```ts
 import { HTTPClient } from '@cat-kit/http'
 
-const http = new HTTPClient('/api', {
-  origin: 'https://api.example.com',
-  timeout: 30_000
-})
+const http = new HTTPClient('/api', { origin: 'https://api.example.com', timeout: 30_000 })
 
 const res = await http.get('/v1/status')
 console.log(res.data, res.code)
@@ -17,9 +14,7 @@ console.log(res.data, res.code)
 ## 带查询参数
 
 ```ts
-const users = await http.get('/users', {
-  query: { page: 1, limit: 10, search: 'Alice' }
-})
+const users = await http.get('/users', { query: { page: 1, limit: 10, search: 'Alice' } })
 // GET /api/users?page=1&limit=10&search=Alice
 ```
 
@@ -27,10 +22,7 @@ const users = await http.get('/users', {
 
 ```ts
 // 自动 JSON 序列化
-await http.post('/users', {
-  name: 'Alice',
-  email: 'alice@example.com'
-})
+await http.post('/users', { name: 'Alice', email: 'alice@example.com' })
 
 await http.patch('/users/1', { name: 'Bob' })
 ```
@@ -54,7 +46,7 @@ try {
 ```ts
 const ctrl = new AbortController()
 const promise = http.get('/slow', { signal: ctrl.signal })
-ctrl.abort()  // 立即取消
+ctrl.abort() // 立即取消
 // promise 将 reject with HTTPError({ code: 'ABORTED' })
 ```
 
@@ -84,9 +76,7 @@ const http = new HTTPClient('/api', {
     new TokenPlugin({
       getter: () => token,
       onRefresh: async () => {
-        const res = await fetch('/auth/refresh', {
-          body: JSON.stringify({ refreshToken })
-        })
+        const res = await fetch('/auth/refresh', { body: JSON.stringify({ refreshToken }) })
         const data = await res.json()
         token = data.accessToken
       },
@@ -120,10 +110,7 @@ const loggerPlugin: HTTPClientPlugin = {
   }
 }
 
-const http = new HTTPClient('/api', {
-  origin: 'https://api.example.com',
-  plugins: [loggerPlugin]
-})
+const http = new HTTPClient('/api', { origin: 'https://api.example.com', plugins: [loggerPlugin] })
 ```
 
 > 类型参考：`../../generated/http/index.d.ts`

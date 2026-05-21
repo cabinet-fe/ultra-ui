@@ -15,6 +15,7 @@ const clipboard = {
 ### `clipboard.copy`
 
 写入剪贴板。先查询 `clipboard-write` 权限：
+
 - 权限可用时 → 使用 `navigator.clipboard.write()` + `ClipboardItem`
 - 权限不可用且为纯文本时 → 回退到 `document.execCommand('copy')`
 

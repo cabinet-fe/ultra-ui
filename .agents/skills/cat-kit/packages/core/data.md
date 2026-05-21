@@ -63,14 +63,14 @@ function arr<T>(arr: T[]): Arr<T>
 
 创建 `Arr` 实例，支持链式操作：
 
-| 方法 | 说明 |
-|------|------|
-| `.eachRight(cb)` | 从右到左遍历 |
-| `.omit(indexes)` | 丢弃指定索引，返回新 `Arr` |
-| `.find(query)` | 按条件对象匹配查找 |
-| `.move(from, to)` | 移动元素位置 |
-| `.groupBy(cb)` | 按回调分组，返回 `Record<string, T[]>` |
-| `.last` (getter) | 最后一个元素 |
+| 方法              | 说明                                   |
+| ----------------- | -------------------------------------- |
+| `.eachRight(cb)`  | 从右到左遍历                           |
+| `.omit(indexes)`  | 丢弃指定索引，返回新 `Arr`             |
+| `.find(query)`    | 按条件对象匹配查找                     |
+| `.move(from, to)` | 移动元素位置                           |
+| `.groupBy(cb)`    | 按回调分组，返回 `Record<string, T[]>` |
+| `.last` (getter)  | 最后一个元素                           |
 
 ```ts
 arr([1, 2, 3, 4]).omit(0).last // 4
@@ -86,18 +86,18 @@ function o<O extends Record<string, any>>(object: O): CatObject<O>
 
 创建 `CatObject` 实例，支持链式操作：
 
-| 方法 | 说明 |
-|------|------|
-| `.keys()` | 返回键数组 |
-| `.each(cb)` | 遍历每个键值对 |
-| `.pick(keys)` | 选取指定键，返回新 `CatObject` |
-| `.omit(keys)` | 丢弃指定键，返回新 `CatObject` |
-| `.extend(source)` | 浅合并源对象 |
-| `.deepExtend(source)` | 深层合并源对象 |
-| `.copy()` | 浅拷贝 |
-| `.merge(source)` | 合并后返回新 `CatObject`（不修改原对象） |
-| `.get(prop)` | 获取属性值 |
-| `.set(prop, value)` | 设置属性值 |
+| 方法                  | 说明                                     |
+| --------------------- | ---------------------------------------- |
+| `.keys()`             | 返回键数组                               |
+| `.each(cb)`           | 遍历每个键值对                           |
+| `.pick(keys)`         | 选取指定键，返回新 `CatObject`           |
+| `.omit(keys)`         | 丢弃指定键，返回新 `CatObject`           |
+| `.extend(source)`     | 浅合并源对象                             |
+| `.deepExtend(source)` | 深层合并源对象                           |
+| `.copy()`             | 浅拷贝                                   |
+| `.merge(source)`      | 合并后返回新 `CatObject`（不修改原对象） |
+| `.get(prop)`          | 获取属性值                               |
+| `.set(prop, value)`   | 设置属性值                               |
 
 ## 字符串
 
@@ -107,10 +107,10 @@ function o<O extends Record<string, any>>(object: O): CatObject<O>
 function str(str: string): CatString
 ```
 
-| 方法 | 说明 |
-|------|------|
+| 方法                             | 说明                     |
+| -------------------------------- | ------------------------ |
 | `.camelCase('lower' \| 'upper')` | 转为驼峰命名，默认 lower |
-| `.kebabCase()` | 转为 kebab-case |
+| `.kebabCase()`                   | 转为 kebab-case          |
 
 ### `$str.joinUrlPath`
 
@@ -127,21 +127,21 @@ $str.joinUrlPath('https://api.example.com/', '/v1/', '/users')
 
 ## 类型检测
 
-| 函数 | 签名 | 说明 |
-|------|------|------|
-| `getDataType(v)` | `(value: any) => string` | 返回类型字符串：`'object'`、`'array'`、`'string'`、`'number'`、`'function'`、`'boolean'`、`'blob'`、`'date'`、`'file'`、`'formdata'`、`'symbol'`、`'promise'`、`'arraybuffer'`、`'uint8array'`、`'uint16array'`、`'null'`、`'undefined'` |
-| `isObj(v)` | `(value: any) => value is Record<string, any>` | 是否为普通对象 |
-| `isArray(v)` | `(value: any) => value is Array<any>` | 委托 `Array.isArray` |
-| `isString(v)` | `(value: any) => value is string` | |
-| `isNumber(v)` | `(value: any) => value is number` | |
-| `isFunction(v)` | `(value: any) => value is Function` | |
-| `isBool(v)` | `(value: any) => value is boolean` | |
-| `isDate(v)` | `(value: any) => value is Date` | |
-| `isPromise(v)` | `(value: any) => value is Promise<any>` | |
-| `isNull(v)` | `(value: any) => value is null` | |
-| `isUndef(v)` | `(value: any) => value is undefined` | |
-| `isEmpty(v)` | `(value: any) => boolean` | null 或 undefined 为 true |
-| `isBlob(v)` / `isFile(v)` / `isFormData(v)` | | 浏览器类型检测 |
+| 函数                                        | 签名                                           | 说明                                                                                                                                                                                                                                     |
+| ------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getDataType(v)`                            | `(value: any) => string`                       | 返回类型字符串：`'object'`、`'array'`、`'string'`、`'number'`、`'function'`、`'boolean'`、`'blob'`、`'date'`、`'file'`、`'formdata'`、`'symbol'`、`'promise'`、`'arraybuffer'`、`'uint8array'`、`'uint16array'`、`'null'`、`'undefined'` |
+| `isObj(v)`                                  | `(value: any) => value is Record<string, any>` | 是否为普通对象                                                                                                                                                                                                                           |
+| `isArray(v)`                                | `(value: any) => value is Array<any>`          | 委托 `Array.isArray`                                                                                                                                                                                                                     |
+| `isString(v)`                               | `(value: any) => value is string`              |                                                                                                                                                                                                                                          |
+| `isNumber(v)`                               | `(value: any) => value is number`              |                                                                                                                                                                                                                                          |
+| `isFunction(v)`                             | `(value: any) => value is Function`            |                                                                                                                                                                                                                                          |
+| `isBool(v)`                                 | `(value: any) => value is boolean`             |                                                                                                                                                                                                                                          |
+| `isDate(v)`                                 | `(value: any) => value is Date`                |                                                                                                                                                                                                                                          |
+| `isPromise(v)`                              | `(value: any) => value is Promise<any>`        |                                                                                                                                                                                                                                          |
+| `isNull(v)`                                 | `(value: any) => value is null`                |                                                                                                                                                                                                                                          |
+| `isUndef(v)`                                | `(value: any) => value is undefined`           |                                                                                                                                                                                                                                          |
+| `isEmpty(v)`                                | `(value: any) => boolean`                      | null 或 undefined 为 true                                                                                                                                                                                                                |
+| `isBlob(v)` / `isFile(v)` / `isFormData(v)` |                                                | 浏览器类型检测                                                                                                                                                                                                                           |
 
 另有 `isArrayBuffer`、`isUint8Array`、`isUint16Array`、`isUint32Array`、`isInt8Array`、`isInt16Array`、`isInt32Array`、`isSymbol` 的检测函数。
 
@@ -214,9 +214,9 @@ function createValidator<T>(parser: Parser<T>): Validator<T>
 
 ```ts
 function vString(): Parser<string>
-function vNumber(): Parser<number>    // 要求有限数字
+function vNumber(): Parser<number> // 要求有限数字
 function vBoolean(): Parser<boolean>
-function vDate(): Parser<Date>        // 要求有效 Date
+function vDate(): Parser<Date> // 要求有效 Date
 ```
 
 ### 组合 Parser
@@ -224,7 +224,10 @@ function vDate(): Parser<Date>        // 要求有效 Date
 ```ts
 function object<S>(schema: S): Validator<InferObjectSchema<S>>
 function vArray<T>(item: Parser<T>): Parser<T[]>
-function optional<T>(parser: Parser<T>, options?: { default?: T | (() => T) }): Parser<T | undefined>
+function optional<T>(
+  parser: Parser<T>,
+  options?: { default?: T | (() => T) }
+): Parser<T | undefined>
 ```
 
 ```ts
@@ -242,14 +245,14 @@ const result = userSchema.parse({ name: 'Alice', tags: ['admin'] })
 
 ### `$n` 静态工具
 
-| 方法 | 签名 | 说明 |
-|------|------|------|
-| `$n.plus(...numbers)` | `(number\|string)[] => number` | 精确加法 |
-| `$n.minus(...numbers)` | `(number\|string)[] => number` | 精确减法 |
-| `$n.mul(a, b)` | `(number\|string, number\|string) => number` | 精确乘法 |
-| `$n.div(a, b)` | `(number\|string, number\|string) => number` | 精确除法 |
-| `$n.calc(expr)` | `(string) => number` | 表达式计算（双栈法） |
-| `$n.formatter(options)` | `(NumberFormatOptions) => Intl.NumberFormat` | 创建格式化器 |
+| 方法                    | 签名                                         | 说明                 |
+| ----------------------- | -------------------------------------------- | -------------------- |
+| `$n.plus(...numbers)`   | `(number\|string)[] => number`               | 精确加法             |
+| `$n.minus(...numbers)`  | `(number\|string)[] => number`               | 精确减法             |
+| `$n.mul(a, b)`          | `(number\|string, number\|string) => number` | 精确乘法             |
+| `$n.div(a, b)`          | `(number\|string, number\|string) => number` | 精确除法             |
+| `$n.calc(expr)`         | `(string) => number`                         | 表达式计算（双栈法） |
+| `$n.formatter(options)` | `(NumberFormatOptions) => Intl.NumberFormat` | 创建格式化器         |
 
 `$n.plus` 与 `$n.sum` 等价，支持任意个参数。
 
@@ -267,14 +270,14 @@ $n.mul('19.9', 100) // 1990（而非 1989.9999999999998）
 function n(n: number): Num
 ```
 
-| 方法 | 说明 |
-|------|------|
-| `.currency('CNY', config?)` | 人民币格式化（`'9,999.00'`） |
-| `.currency('CNY_HAN', config?)` | 中文大写金额 |
-| `.fixed(precision)` | 精度格式化，支持 `{ minPrecision?, maxPrecision? }` |
-| `.each(fn)` | 从 1 遍历到 n |
-| `.range(min, max)` | 钳制在区间内 |
-| `.max(val)` / `.min(val)` | 限制上下界 |
-| `.toNumber()` | 返回原始数值 |
+| 方法                            | 说明                                                |
+| ------------------------------- | --------------------------------------------------- |
+| `.currency('CNY', config?)`     | 人民币格式化（`'9,999.00'`）                        |
+| `.currency('CNY_HAN', config?)` | 中文大写金额                                        |
+| `.fixed(precision)`             | 精度格式化，支持 `{ minPrecision?, maxPrecision? }` |
+| `.each(fn)`                     | 从 1 遍历到 n                                       |
+| `.range(min, max)`              | 钳制在区间内                                        |
+| `.max(val)` / `.min(val)`       | 限制上下界                                          |
+| `.toNumber()`                   | 返回原始数值                                        |
 
 > 类型签名：`../../generated/core/data/`

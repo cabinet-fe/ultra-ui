@@ -73,6 +73,7 @@ const wrapperEl = ref<HTMLElement>()
 const { expandTransition } = context
 
 onMounted(() => {
+  context?.register(props.value)
   if (!wrapperEl.value) return
   expandTransition.setExpanded(wrapperEl.value, isActive.value)
 })
@@ -83,6 +84,7 @@ watch(isActive, (active) => {
 })
 
 onBeforeUnmount(() => {
+  context?.unregister(props.value)
   if (!wrapperEl.value) return
   expandTransition.cancel(wrapperEl.value)
 })

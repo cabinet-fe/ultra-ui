@@ -6,7 +6,7 @@
 import { readDir, ensureDir, removePath, readJson, writeJson, movePath } from '@cat-kit/be'
 
 // 递归读取目录
-const entries = await readDir('./src', { filter: e => e.isFile && e.name.endsWith('.ts') })
+const entries = await readDir('./src', { filter: (e) => e.isFile && e.name.endsWith('.ts') })
 
 // 确保目录存在
 await ensureDir('./dist/assets')
@@ -54,10 +54,13 @@ const cached = await fileCache.get('list')
 if (cached) return cached
 
 // 函数记忆化
-const getUser = memoize(async (id: number) => {
-  const res = await fetch(`/api/users/${id}`)
-  return res.json()
-}, { ttl: 60_000 })
+const getUser = memoize(
+  async (id: number) => {
+    const res = await fetch(`/api/users/${id}`)
+    return res.json()
+  },
+  { ttl: 60_000 }
+)
 ```
 
 ## 配置管理
@@ -72,13 +75,11 @@ await loadEnv({ mode: 'production' })
 const env = parseEnv({
   PORT: { type: 'number', default: 3000 },
   DATABASE_URL: { type: 'string', required: true },
-  DEBUG: { type: 'boolean', default: false },
+  DEBUG: { type: 'boolean', default: false }
 })
 
 // 加载 YAML/JSON/TOML 配置
-const config = await loadConfig('./config/app.yml', {
-  defaults: { port: 3000 }
-})
+const config = await loadConfig('./config/app.yml', { defaults: { port: 3000 } })
 
 // 深度合并
 const merged = mergeConfig(defaults, userConfig)

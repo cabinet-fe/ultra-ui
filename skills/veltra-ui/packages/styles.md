@@ -392,8 +392,8 @@ const myTheme = new UITheme({
   'font-size-main': { small: 12, default: 14, large: 16 },
   'font-size-assist': { small: 10, default: 12, large: 14 },
   shadow: { color: 'rgba(0,0,0,0.08)', x: 0, y: 2, blur: 8, spread: 0, emboss: 'none' },
-  gap: { small: 8, default: 12, large: 16 },
-  breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 }
+  breakpoint: { xs: 600, sm: 960, md: 1280, lg: 1920 },
+  button: { 'default-bg': 'var(--u-bg-color-top)' }
 })
 
 // 基于现有主题合并自定义

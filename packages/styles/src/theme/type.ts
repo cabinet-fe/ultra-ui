@@ -157,5 +157,11 @@ export type Theme = {
     /** 大屏幕断点 */
     lg: number
   }
+  /** 按钮组件级变量 */
+  button?: {
+    /** 默认按钮背景色 */
+    'default-bg'?: string
+    [key: string]: any
+  }
   [key: string]: any
 }

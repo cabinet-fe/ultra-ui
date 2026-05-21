@@ -61,8 +61,8 @@ const user = storage.local.get(userKey, { name: 'Guest' })
 import { cookie } from '@cat-kit/fe'
 
 cookie.set('theme', 'dark', { expires: 365 * 86400, sameSite: 'Lax' })
-cookie.get('theme')     // 'dark'
-cookie.has('theme')     // true
+cookie.get('theme') // 'dark'
+cookie.has('theme') // true
 ```
 
 ## Tween 动画
