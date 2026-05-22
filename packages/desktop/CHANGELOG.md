@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.1.13
+
+### Patch Changes
+
+- 139b672: Scroll: 新增 scrollbar 始终可见选项，优化滚动性能
+  FileViewer: 新增 PDF 视口滚动同步与缩放桥接组件，改进图像预览
+  - @veltra/utils@1.1.13
+  - @veltra/styles@1.1.13
+  - @veltra/compositions@1.1.13
+  - @veltra/directives@1.1.13
+  - @veltra/icons@1.1.13
+
 ## 1.1.12
 
 ### Patch Changes
