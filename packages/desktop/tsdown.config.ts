@@ -44,6 +44,7 @@ export default defineConfig({
       '@embedpdf/plugin-render',
       '@embedpdf/plugin-scroll',
       '@embedpdf/plugin-viewport',
+      '@embedpdf/plugin-zoom',
       '@cat-kit/excel',
       '@lexical/clipboard',
       '@lexical/history',

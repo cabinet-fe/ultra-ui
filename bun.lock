@@ -68,6 +68,7 @@
         "@embedpdf/plugin-render": "^2.14.1",
         "@embedpdf/plugin-scroll": "^2.14.1",
         "@embedpdf/plugin-viewport": "^2.14.1",
+        "@embedpdf/plugin-zoom": "^2.14.1",
         "@lexical/history": "^0.43.0",
         "@lexical/html": "^0.43.0",
         "@lexical/link": "^0.43.0",
@@ -363,6 +364,8 @@
     "@embedpdf/plugin-scroll": ["@embedpdf/plugin-scroll@2.14.1", "https://mirrors.tencent.com/npm/@embedpdf/plugin-scroll/-/plugin-scroll-2.14.1.tgz", { "dependencies": { "@embedpdf/models": "2.14.1" }, "peerDependencies": { "@embedpdf/core": "2.14.1", "@embedpdf/plugin-viewport": "2.14.1", "preact": "^10.26.4", "react": ">=16.8.0", "react-dom": ">=16.8.0", "svelte": ">=5 <6", "vue": ">=3.2.0" } }, "sha512-ppnP4t43EVNiXr2coEwybQ7BYucbUEpdTGlcEBm38DhLywgseVVySrcIMx7rHdM7ZylsW7uwS84hCFndTpPezg=="],
 
     "@embedpdf/plugin-viewport": ["@embedpdf/plugin-viewport@2.14.1", "https://mirrors.tencent.com/npm/@embedpdf/plugin-viewport/-/plugin-viewport-2.14.1.tgz", { "dependencies": { "@embedpdf/models": "2.14.1" }, "peerDependencies": { "@embedpdf/core": "2.14.1", "preact": "^10.26.4", "react": ">=16.8.0", "react-dom": ">=16.8.0", "svelte": ">=5 <6", "vue": ">=3.2.0" } }, "sha512-U45B46XoaAFxC3yKnVhBO8Z5Wa+ca17UW7esJC/yWneJ2dNfSnvRAR7309KKP/RpZfDmn/lfJDVOFGCDbR3hvw=="],
+
+    "@embedpdf/plugin-zoom": ["@embedpdf/plugin-zoom@2.14.3", "https://mirrors.tencent.com/npm/@embedpdf/plugin-zoom/-/plugin-zoom-2.14.3.tgz", { "dependencies": { "@embedpdf/models": "2.14.3" }, "peerDependencies": { "@embedpdf/core": "2.14.3", "@embedpdf/plugin-scroll": "2.14.3", "@embedpdf/plugin-viewport": "2.14.3", "preact": "^10.26.4", "react": ">=16.8.0", "react-dom": ">=16.8.0", "svelte": ">=5 <6", "vue": ">=3.2.0" } }, "sha512-XJ7xgDzzYLjfzMa6fpu7QLqa00n61MhUqmkIaqYMadQX4kfn1cfPB/UVTP8guPt4WRuGbAYk55i4NY+wC8A9ww=="],
 
     "@emnapi/core": ["@emnapi/core@1.10.0", "https://mirrors.tencent.com/npm/@emnapi/core/-/core-1.10.0.tgz", { "dependencies": { "@emnapi/wasi-threads": "1.2.1", "tslib": "^2.4.0" } }, "sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw=="],
 
@@ -1623,6 +1626,8 @@
     "@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.28.5", "https://registry.npmmirror.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.28.5.tgz", {}, "sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q=="],
 
     "@cat-kit/excel/@cat-kit/core": ["@cat-kit/core@1.0.1", "https://registry.npmmirror.com/@cat-kit/core/-/core-1.0.1.tgz", {}, "sha512-3AryUpesnAnm+MZZd3RRt1p9/dMSJn52hUi3rXkkmGQw8A09wafNRk+RIZbJ78cUCs1rxbxBkiZzskeFEFYI6A=="],
+
+    "@embedpdf/plugin-zoom/@embedpdf/models": ["@embedpdf/models@2.14.3", "https://mirrors.tencent.com/npm/@embedpdf/models/-/models-2.14.3.tgz", {}, "sha512-Gz4rb2beVWFj1w+A9P8NScaK6y2un4INqk8xVWC9LUG3YW4wFumExTRz0m6xRk3lqX344+0BsKa8tUgPEkOTYw=="],
 
     "@inquirer/editor/@inquirer/external-editor": ["@inquirer/external-editor@3.0.0", "https://registry.npmmirror.com/@inquirer/external-editor/-/external-editor-3.0.0.tgz", { "dependencies": { "chardet": "^2.1.1", "iconv-lite": "^0.7.2" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha512-lDSwMgg+M5rq6JKBYaJwSX6T9e/HK2qqZ1oxmOwn4AQoJE5D+7TumsxLGC02PWS//rkIVqbZv3XA3ejsc9FYvg=="],
 

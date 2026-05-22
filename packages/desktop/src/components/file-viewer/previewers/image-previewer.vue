@@ -5,6 +5,7 @@
       :src="url"
       :alt="file.name"
       draggable="false"
+      @dragstart.prevent
       @load="loading = false"
       @error="onImgError"
     />

@@ -1,5 +1,5 @@
 import type { DeconstructValue } from '@veltra/utils'
-import type { CSSProperties, ShallowRef } from 'vue'
+import type { CSSProperties, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type ScrollPosition = {
   /** 横向位置 */
@@ -53,6 +53,12 @@ export interface ScrollProps {
 
   /** 拖拽防抖时间 */
   dragDebounce?: number
+
+  /**
+   * 外部滚动容器（如 EmbedPDF Viewport）。
+   * 提供时仅渲染自定义滚动条并同步该元素的滚动，不创建内部滚动容器。
+   */
+  target?: MaybeRefOrGetter<HTMLElement | null | undefined>
 }
 
 export interface ScrollEmits {

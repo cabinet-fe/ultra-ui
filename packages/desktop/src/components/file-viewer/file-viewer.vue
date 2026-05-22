@@ -78,7 +78,7 @@
                     </u-icon>
                   </button>
                 </span>
-                <span v-if="isTransformable" :class="cls.e('action-group')">
+                <span v-if="isZoomable" :class="cls.e('action-group')">
                   <button
                     :class="[cls.e('action'), cls.em('action', 'icon')]"
                     :disabled="zoomOutDisabled"
@@ -154,19 +154,22 @@
                     bem.is('pannable', canPan),
                     bem.is('dragging', isDragging)
                   ]"
-                  @pointerdown="handleViewportPointerDown"
-                  @pointermove="handleViewportPointerMove"
-                  @pointerup="handleViewportPointerEnd"
-                  @pointercancel="handleViewportPointerEnd"
+                  @pointerdown.capture="handleViewportPointerDown"
+                  @pointermove.capture="handleViewportPointerMove"
+                  @pointerup.capture="handleViewportPointerEnd"
+                  @pointercancel.capture="handleViewportPointerEnd"
+                  @wheel="handleViewportWheel"
                   @dblclick="handleViewportDblclick"
                 >
                   <component
                     :is="PreviewerMap[activeFile.kind]"
+                    ref="previewerRef"
                     :file="activeFile"
                     :max-rows="sheetMaxRows"
                     :class="isTransformable ? cls.e('previewer') : undefined"
                     :style="previewerStyle"
                     @error="handleChildError"
+                    @zoom-change="handlePdfZoomChange"
                   />
                 </div>
                 <div v-else :class="cls.e('empty')">
@@ -236,14 +239,24 @@ const cls = bem('file-viewer')
 
 const MIN_SCALE = 0.5
 const MAX_SCALE = 3
-const SCALE_STEP = 0.25
-const TRANSFORMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf', 'docx'])
+/** 每次缩放固定增减 10% */
+const SCALE_STEP = 0.1
+/** 使用 CSS transform 缩放的类型（PDF 由 EmbedPDF zoom 插件处理） */
+const TRANSFORMABLE_KINDS = new Set<FileViewerKind>(['image'])
+/** 工具栏显示缩放控件的类型 */
+const ZOOMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf'])
 
 const activeId = defineModel<string | undefined>('modelValue', { default: undefined })
 const openModel = defineModel<boolean | undefined>('open', { default: undefined })
 
 const rootRef = shallowRef<HTMLDivElement>()
+const previewerRef = shallowRef<{
+  zoomIn?: () => void
+  zoomOut?: () => void
+  resetZoom?: () => void
+}>()
 const scale = ref(1)
+const pdfZoomLevel = ref(1)
 const offsetX = ref(0)
 const offsetY = ref(0)
 const isDragging = ref(false)
@@ -310,17 +323,26 @@ const isTransformable = computed(
   () => !!activeFile.value && TRANSFORMABLE_KINDS.has(activeFile.value.kind)
 )
 
+const isZoomable = computed(() => !!activeFile.value && ZOOMABLE_KINDS.has(activeFile.value.kind))
+
+const isPdfActive = computed(() => activeFile.value?.kind === 'pdf')
+
 const canPan = computed(() => isTransformable.value && scale.value > 1)
 
-const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
+const displayZoomLevel = computed(() => (isPdfActive.value ? pdfZoomLevel.value : scale.value))
 
-const zoomInDisabled = computed(() => !isTransformable.value || scale.value >= MAX_SCALE)
+const zoomPercent = computed(() => `${Math.round(displayZoomLevel.value * 100)}%`)
 
-const zoomOutDisabled = computed(() => !isTransformable.value || scale.value <= MIN_SCALE)
+const zoomInDisabled = computed(() => !isZoomable.value || displayZoomLevel.value >= MAX_SCALE)
 
-const isTransformReset = computed(
-  () => scale.value === 1 && offsetX.value === 0 && offsetY.value === 0
-)
+const zoomOutDisabled = computed(() => !isZoomable.value || displayZoomLevel.value <= MIN_SCALE)
+
+const isTransformReset = computed(() => {
+  if (isPdfActive.value) {
+    return Math.abs(pdfZoomLevel.value - 1) < 0.02
+  }
+  return scale.value === 1 && offsetX.value === 0 && offsetY.value === 0
+})
 
 const previewerStyle = computed<CSSProperties | undefined>(() => {
   if (!isTransformable.value) return undefined
@@ -368,21 +390,51 @@ function setScale(value: number) {
 }
 
 function zoomIn() {
-  if (!isTransformable.value) return
+  if (!isZoomable.value) return
+  if (isPdfActive.value) {
+    previewerRef.value?.zoomIn?.()
+    return
+  }
   setScale(scale.value + SCALE_STEP)
 }
 
 function zoomOut() {
-  if (!isTransformable.value) return
+  if (!isZoomable.value) return
+  if (isPdfActive.value) {
+    previewerRef.value?.zoomOut?.()
+    return
+  }
   setScale(scale.value - SCALE_STEP)
 }
 
 function resetTransform() {
+  if (isPdfActive.value) {
+    previewerRef.value?.resetZoom?.()
+    pdfZoomLevel.value = 1
+    return
+  }
   scale.value = 1
   offsetX.value = 0
   offsetY.value = 0
   dragState = undefined
   isDragging.value = false
+}
+
+function handlePdfZoomChange(level: number) {
+  pdfZoomLevel.value = level
+}
+
+function isZoomWheel(e: WheelEvent): boolean {
+  return e.ctrlKey || e.metaKey
+}
+
+function handleViewportWheel(e: WheelEvent) {
+  if (!activeFile.value || activeFile.value.kind !== 'image') return
+  if (!isZoomWheel(e)) return
+  if (isInteractiveTarget(e.target)) return
+  e.preventDefault()
+  const delta = e.deltaY > 0 ? -SCALE_STEP : SCALE_STEP
+  setScale(scale.value + delta)
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
@@ -423,6 +475,7 @@ function handleViewportPointerEnd(e: PointerEvent) {
 }
 
 function handleViewportDblclick() {
+  if (isPdfActive.value) return
   if (!isTransformable.value) return
   if (scale.value === 1) {
     setScale(2)
@@ -480,7 +533,11 @@ watch(
 
 watch(
   () => activeFile.value?.id,
-  () => resetTransform()
+  async () => {
+    pdfZoomLevel.value = 1
+    await nextTick()
+    resetTransform()
+  }
 )
 
 // 模态打开时：锁定 body 滚动 + 让容器获得焦点以便接收 ESC

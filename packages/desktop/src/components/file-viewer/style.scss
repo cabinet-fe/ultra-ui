@@ -547,7 +547,6 @@
 
   &__viewport.is-dragging &__previewer {
     transition: none;
-    pointer-events: none;
   }
 
   @include m.e(empty) {
@@ -638,9 +637,25 @@
   }
 
   @include m.e(pdf-viewport) {
+    position: relative;
     width: 100%;
     height: 100%;
     background: transparent;
+    cursor: grab;
+
+    &.is-panning {
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    // 隐藏原生滚动条，由 PdfViewportScroll 通过 u-scroll target 挂载自定义滚动条
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
   }
 
   @include m.e(pdf-page) {
