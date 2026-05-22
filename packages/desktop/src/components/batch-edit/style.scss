@@ -8,15 +8,23 @@ $root-name: batch-edit;
   position: relative;
   overflow: hidden;
   border-radius: fn.use-var(radius, default);
+  min-height: 0;
 
   &:focus,
   &:focus-visible {
     outline: none;
   }
 
+  // 根节点设 max-height 时，列表与侧栏表单均不超出该高度（内部各自滚动）
+  > :not(.u-layout__resizer) {
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
   // ---------- 表格容器 ----------
   @include m.e(table) {
-    flex-grow: 1;
+    height: 100%;
   }
 
   // ---------- 底部"新增一行"按钮 ----------

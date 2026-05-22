@@ -7,6 +7,8 @@
             <u-action need-confirm type="danger">删除</u-action>
           </u-action-group>
         </template>
+
+        <template #empty> 111 </template>
       </u-table>
     </u-card-content>
   </u-card>
@@ -24,7 +26,7 @@ const seeds = [
 
 // 扩展至 200 行以覆盖 u-table 默认 virtualThreshold=80 的虚拟分支，
 // 同时保持原有列的展示含义，便于手动回归。
-const students = Array.from({ length: 200 }).map((_, i) => {
+const students = Array.from({ length: 0 }).map((_, i) => {
   const seed = seeds[i % seeds.length]!
   return { id: i + 1, ...seed, name: `${seed.name}-${i}` }
 })

@@ -2,7 +2,7 @@
   <u-layout
     :class="cls.b"
     :cols="cols"
-    rows="100%"
+    rows="minmax(0, 1fr)"
     gap="8px"
     resizable
     @keydown="handleKeydown"

@@ -161,7 +161,7 @@ setTimeout(() => {
   const genders = ['male', 'female']
   const workTypes = ['fulltime', 'parttime', 'contract']
 
-  data.value = Array.from({ length: 8 }).map((_, i) => ({
+  data.value = Array.from({ length: 2 }).map((_, i) => ({
     name: names[i] || `员工${i}`,
     age: Math.ceil(Math.random() * 40) + 20,
     gender: genders[Math.floor(Math.random() * genders.length)],
