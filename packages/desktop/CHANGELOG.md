@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.14
+
+### Patch Changes
+
+- 429d393: BatchEdit: 修复 layout rows 属性为 minmax(0, 1fr) 避免内容溢出；修正 CSS 高度与溢出规则
+  - @veltra/utils@1.1.14
+  - @veltra/styles@1.1.14
+  - @veltra/compositions@1.1.14
+  - @veltra/directives@1.1.14
+  - @veltra/icons@1.1.14
+
 ## 1.1.13
 
 ### Patch Changes
