@@ -76,14 +76,23 @@ const NORMAL_GROUPS_CONFIG = [
       'Form',
       'Input',
       'Textarea',
-      'Select',
+      'PasswordInput',
       'NumberInput',
+      'NumberRangeInput',
+      'Select',
+      'MultiSelect',
+      'Cascader',
+      'TreeSelect',
+      'MultiTreeSelect',
       'DatePicker',
+      'DateRangePicker',
+      'Slider',
+      'Switch',
       'Checkbox',
       'Radio',
-      'Switch',
-      'Cascader',
-      'Table'
+      'Table',
+      'AutoComplete',
+      'FilePicker'
     ]
   },
   {
