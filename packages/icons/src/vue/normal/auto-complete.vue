@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c327e20fa8f78d23 gen:4 source:src/svg/normal/auto-complete.svg -->
+<!-- @veltra/icons generated sha256:c84f3c7f623345d5 gen:4 source:src/svg/normal/auto-complete.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AutoComplete' })
 </script>
@@ -14,11 +14,6 @@ defineOptions({ name: 'AutoComplete' })
       stroke-width="1.2"
       rx="1.5"
     />
-    <path
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-width="1.2"
-      d="M4 6v4M11 7h2m-1-1v2"
-    />
+    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.2" d="M4 6v4m7-3h2m-1-1v2" />
   </svg>
 </template>
