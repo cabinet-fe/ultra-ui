@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:180d3249bd88824d gen:4 source:src/svg/normal/number-range-input.svg -->
+<!-- @veltra/icons generated sha256:f854bb4a31875425 gen:4 source:src/svg/normal/number-range-input.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'NumberRangeInput' })
 </script>
@@ -24,6 +24,13 @@ defineOptions({ name: 'NumberRangeInput' })
       stroke-width="1.2"
       rx="1.5"
     />
-    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.2" d="M7.5 8h1" />
+    <path
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.2"
+      d="M7.5 8h1m-5.3-.8.8-.7V10m9-2.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0V10"
+    />
   </svg>
 </template>
