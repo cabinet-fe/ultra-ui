@@ -1,0 +1,24 @@
+<!-- @veltra/icons generated sha256:c2686fb6a1b34f86 gen:4 source:src/svg/normal/tree-select.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'TreeSelect' })
+</script>
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-width="1.2"
+      d="M3 2v12m0-8h4m-4 5h4"
+    />
+    <circle cx="9" cy="6" r="1" fill="currentColor" />
+    <circle cx="9" cy="11" r="1" fill="currentColor" />
+    <path
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.2"
+      d="m12 7.5 1 1 1-1"
+    />
+  </svg>
+</template>

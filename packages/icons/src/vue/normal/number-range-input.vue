@@ -1,0 +1,29 @@
+<!-- @veltra/icons generated sha256:180d3249bd88824d gen:4 source:src/svg/normal/number-range-input.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'NumberRangeInput' })
+</script>
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <rect
+      width="6"
+      height="8"
+      x="1"
+      y="4"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      rx="1.5"
+    />
+    <rect
+      width="6"
+      height="8"
+      x="9"
+      y="4"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      rx="1.5"
+    />
+    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.2" d="M7.5 8h1" />
+  </svg>
+</template>

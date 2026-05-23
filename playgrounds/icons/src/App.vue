@@ -65,6 +65,226 @@ async function copyImport(item: IconItem) {
     copiedLine.value = ''
   }
 }
+
+// Normal icons grouping configuration
+const NORMAL_GROUPS_CONFIG = [
+  {
+    name: '表单控件图标',
+    description: '用于表单设计器或低代码平台中，代表各个控件本身的图标',
+    isHot: true,
+    matches: [
+      'Form',
+      'Input',
+      'Textarea',
+      'Select',
+      'NumberInput',
+      'DatePicker',
+      'Checkbox',
+      'Radio',
+      'Switch',
+      'Cascader',
+      'Table'
+    ]
+  },
+  {
+    name: '方向与导航',
+    description: '各种方向指示、箭头、排序、拉伸及位置对齐图标',
+    isHot: false,
+    matches: [
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUpdown',
+      'CaretTop',
+      'CaretBottom',
+      'CaretLeft',
+      'CaretRight',
+      'DArrowLeft',
+      'DArrowRight',
+      'Left',
+      'Right',
+      'Bottom',
+      'Backtop',
+      'PageFirst',
+      'PageLast',
+      'Sort',
+      'SortLeft',
+      'SortRight',
+      'Rollback',
+      'Rollfront',
+      'Move',
+      'MoveHorizontal',
+      'Rotation',
+      'RotateLeft',
+      'RotateRight',
+      'AlignTop',
+      'AlignBottom',
+      'AlignCenter',
+      'VerticalAlignCenter',
+      'VerticalAlignLeft',
+      'VerticalAlignRight'
+    ]
+  },
+  {
+    name: '常规操作与状态',
+    description: '按钮、对话框、提示信息等常用的交互反馈及业务操作图标',
+    isHot: false,
+    matches: [
+      'Search',
+      'Clear',
+      'Close',
+      'Plus',
+      'Minus',
+      'Check',
+      'Remove',
+      'Delete',
+      'Edit',
+      'EditPen',
+      'Save',
+      'Copy',
+      'Download',
+      'Upload',
+      'CloudDownload',
+      'History',
+      'Refresh',
+      'Loading',
+      'ZoomIn',
+      'ZoomOut',
+      'Enter',
+      'Lock',
+      'Unlock',
+      'Login',
+      'Logout',
+      'Poweroff',
+      'Secured',
+      'View',
+      'Hide',
+      'AddChild',
+      'CircleCheck',
+      'CircleCheckFilled',
+      'CircleClose',
+      'CirclePlus',
+      'InfoCircle',
+      'InfoFilled',
+      'Warning',
+      'WarningFilled',
+      'TriangleAlert',
+      'QuestionFilled',
+      'Help',
+      'Dot',
+      'MoreFilled',
+      'MoreVertical'
+    ]
+  },
+  {
+    name: '实体与数据',
+    description: '数据库、多媒体、金融、系统组件、文件管理等数据类型图标',
+    isHot: false,
+    matches: [
+      'Database',
+      'Server',
+      'Variable',
+      'Setting',
+      'Tools',
+      'Monitor',
+      'Mobile',
+      'PictureRounded',
+      'Wallet',
+      'CreditCard',
+      'Discount',
+      'MoneyCircle',
+      'QrCode',
+      'Scan',
+      'ChartPie',
+      'Layers',
+      'Books',
+      'Calendar',
+      'Time',
+      'Folder',
+      'FolderAdd',
+      'FolderOpened',
+      'FileAdd',
+      'Attach',
+      'Link',
+      'Unlink',
+      'List',
+      'Queue',
+      'Printer',
+      'Location',
+      'Empty'
+    ]
+  },
+  {
+    name: '社交与通讯',
+    description: '用户管理、通讯、群组、天气、星级等社交属性图标',
+    isHot: false,
+    matches: [
+      'User',
+      'UserAdd',
+      'UserClear',
+      'UserCircle',
+      'UserGroup',
+      'UserGroupAdd',
+      'UserGroupClear',
+      'Bell',
+      'BellFilled',
+      'Message',
+      'Horn',
+      'Service',
+      'Share',
+      'Call',
+      'Internet',
+      'DeepThinking',
+      'Flag',
+      'Star',
+      'StarFilled',
+      'Sun',
+      'Moon',
+      'Cloudy',
+      'MostlyCloudy'
+    ]
+  }
+]
+
+interface GroupedResult {
+  name: string
+  description?: string
+  isHot?: boolean
+  items: IconItem[]
+}
+
+const groupedNormalIcons = computed<GroupedResult[]>(() => {
+  const list = filtered.value
+  if (activeSet.value !== 'normal') return []
+
+  const categorizedSet = new Set<string>()
+  const groups: GroupedResult[] = NORMAL_GROUPS_CONFIG.map((cfg) => {
+    const items = list.filter((item) => {
+      const isMatched = cfg.matches.includes(item.pascal)
+      if (isMatched) categorizedSet.add(item.pascal)
+      return isMatched
+    })
+    return {
+      name: cfg.name,
+      description: cfg.description,
+      isHot: cfg.isHot,
+      items
+    }
+  }).filter((g) => g.items.length > 0)
+
+  // 兜底：处理可能漏掉或后续新加的 normal 图标
+  const otherItems = list.filter((item) => !categorizedSet.has(item.pascal))
+  if (otherItems.length > 0) {
+    groups.push({
+      name: '其他图标',
+      description: '通用业务与尚未分类的图标组件',
+      items: otherItems
+    })
+  }
+
+  return groups
+})
 </script>
 
 <template>
@@ -134,6 +354,42 @@ async function copyImport(item: IconItem) {
 
     <main class="icons-app__main">
       <div v-if="filtered.length === 0" class="icons-app__empty">没有匹配的图标</div>
+
+      <!-- Normal Icons Grouped Render -->
+      <template v-else-if="activeSet === 'normal'">
+        <div
+          v-for="group in groupedNormalIcons"
+          :key="group.name"
+          class="icons-app__group"
+          :class="{ 'icons-app__group--hot': group.isHot }"
+        >
+          <div class="icons-app__group-header">
+            <div class="icons-app__group-title-row">
+              <span v-if="group.isHot" class="icons-app__group-badge">NEW</span>
+              <h2 class="icons-app__group-title">{{ group.name }}</h2>
+            </div>
+            <p v-if="group.description" class="icons-app__group-desc">{{ group.description }}</p>
+          </div>
+
+          <ul class="icons-app__grid">
+            <li v-for="item in group.items" :key="item.kebab" class="icons-app__cell-wrap">
+              <button
+                type="button"
+                class="icons-app__cell"
+                :title="`复制 ${item.pascal}`"
+                @click="copyImport(item)"
+              >
+                <span class="icons-app__glyph">
+                  <component :is="item.component" class="icons-app__svg" />
+                </span>
+                <span class="icons-app__name">{{ item.kebab }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </template>
+
+      <!-- Colorful Icons Flat Render -->
       <ul v-else class="icons-app__grid">
         <li v-for="item in filtered" :key="item.kebab" class="icons-app__cell-wrap">
           <button
@@ -319,6 +575,57 @@ async function copyImport(item: IconItem) {
   max-width: 72rem;
   margin: 0 auto;
   padding: 0.5rem 1.5rem 3rem;
+}
+
+.icons-app__group {
+  margin-bottom: 2.5rem;
+  padding: 1.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  background: #fff;
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icons-app__group:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+}
+
+.icons-app__group--hot {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: linear-gradient(180deg, #fbfcfd 0%, #ffffff 100%);
+}
+
+.icons-app__group-header {
+  margin-bottom: 1.25rem;
+}
+
+.icons-app__group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icons-app__group-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.icons-app__group-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #171717;
+}
+
+.icons-app__group-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: #737373;
 }
 
 .icons-app__empty {
