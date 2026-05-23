@@ -6,13 +6,13 @@ description: >
   本技能提供精确的 API 签名、类型定义和实际代码示例。
 metadata:
   versions:
-    desktop: 1.1.10
-    compositions: 1.1.10
-    directives: 1.1.10
-    icons: 1.1.10
-    styles: 1.1.10
-    utils: 1.1.10
-    vite: 1.1.10
+    desktop: 1.1.15
+    compositions: 1.1.15
+    directives: 1.1.15
+    icons: 1.1.15
+    styles: 1.1.15
+    utils: 1.1.15
+    vite: 1.1.15
 ---
 
 # veltra-ui

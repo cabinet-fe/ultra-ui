@@ -1,104 +1,59 @@
 # @veltra/icons
 
-SVG 图标组件库。原始 SVG 文件通过 `scripts/gen-vue-icons.ts` 自动转换为 Vue SFC。
-
-## 子路径
-
-| 子路径                   | 内容                                    |
-| ------------------------ | --------------------------------------- |
-| `@veltra/icons`          | 全部图标（normal + colorful）           |
-| `@veltra/icons/normal`   | 单色图标（可通过 CSS `color` 控制颜色） |
-| `@veltra/icons/colorful` | 多色图标                                |
-
 ## 导入
 
 ```ts
-// 按需导入
-import { Search, Close, ArrowDown } from '@veltra/icons/normal'
+import { Search, Close } from '@veltra/icons/normal'
 import { Logo } from '@veltra/icons/colorful'
 ```
 
-## 用法
-
-图标是标准 Vue SFC 组件，使用方式与普通组件一致：
+图标是标准 Vue SFC 组件，单色图标通过 CSS `color` 控制颜色，多色图标保留原始颜色。
 
 ```vue
-<script setup lang="ts">
-import { Search, Close, ArrowDown } from '@veltra/icons/normal'
-</script>
-
-<template>
-  <!-- 直接使用 -->
-  <Search />
-
-  <!-- 通过 CSS 控制颜色（normal 图标） -->
-  <Search style="color: #1890ff; font-size: 20px" />
-
-  <!-- 配合 UIcon 组件使用（推荐） -->
-  <u-icon :size="20">
-    <Search />
-  </u-icon>
-
-  <!-- 在按钮中使用 -->
-  <u-button type="primary">
-    <template #icon>
-      <Search />
-    </template>
-    搜索
-  </u-button>
-
-  <!-- 条件渲染不同图标 -->
-  <component :is="loading ? Loading : Search" />
-</template>
+<Search style="color: #1890ff; font-size: 20px" />
+<u-icon :size="16" color="primary"><Search /></u-icon>
 ```
 
-## 与 UIcon 配合
+## normal 图标
 
-`UIcon` 是 Veltra 的图标容器组件，提供统一尺寸、颜色和可访问性：
+### 表单控件图标
 
-```vue
-<template>
-  <u-icon :size="16" color="primary">
-    <Search />
-  </u-icon>
+用于表单设计器或低代码平台中，代表各个控件本身的图标。
 
-  <!-- 等价于用 style 控制，但更语义化 -->
-  <Search style="color: var(--u-color-primary); width: 16px; height: 16px" />
-</template>
-```
+`Form` `Input` `Textarea` `PasswordInput` `NumberInput` `NumberRangeInput` `Select` `MultiSelect` `Cascader` `TreeSelect` `MultiTreeSelect` `DatePicker` `DateRangePicker` `Slider` `Switch` `Checkbox` `Radio` `Table` `AutoComplete` `FilePicker`
 
-UIcon Props：
+### 方向与导航
 
-- `size?: number | string` — 图标尺寸（px）
-- `color?: ColorType | string` — 图标颜色
+各种方向指示、箭头、排序、拉伸及位置对齐图标。
+
+`ArrowUp` `ArrowDown` `ArrowLeft` `ArrowRight` `ArrowUpdown` `CaretTop` `CaretBottom` `CaretLeft` `CaretRight` `DArrowLeft` `DArrowRight` `Left` `Right` `Bottom` `Backtop` `PageFirst` `PageLast` `Sort` `SortLeft` `SortRight` `Rollback` `Rollfront` `Move` `MoveHorizontal` `Rotation` `RotateLeft` `RotateRight` `AlignTop` `AlignBottom` `AlignCenter` `VerticalAlignCenter` `VerticalAlignLeft` `VerticalAlignRight`
+
+### 常规操作与状态
+
+按钮、对话框、提示信息等常用的交互反馈及业务操作图标。
+
+`Search` `Clear` `Close` `Plus` `Minus` `Check` `Remove` `Delete` `Edit` `EditPen` `Save` `Copy` `Download` `Upload` `CloudDownload` `History` `Refresh` `Loading` `ZoomIn` `ZoomOut` `Enter` `Lock` `Unlock` `Login` `Logout` `Poweroff` `Secured` `View` `Hide` `AddChild` `CircleCheck` `CircleCheckFilled` `CircleClose` `CirclePlus` `InfoCircle` `InfoFilled` `Warning` `WarningFilled` `TriangleAlert` `QuestionFilled` `Help` `Dot` `MoreFilled` `MoreVertical`
+
+### 实体与数据
+
+数据库、多媒体、金融、系统组件、文件管理等数据类型图标。
+
+`Database` `Server` `Variable` `Setting` `Tools` `Monitor` `Mobile` `PictureRounded` `Wallet` `CreditCard` `Discount` `MoneyCircle` `QrCode` `Scan` `ChartPie` `Layers` `Books` `Calendar` `Time` `Folder` `FolderAdd` `FolderOpened` `FileAdd` `Attach` `Link` `Unlink` `List` `Queue` `Printer` `Location` `Empty`
+
+### 社交与通讯
+
+用户管理、通讯、群组、天气、星级等社交属性图标。
+
+`User` `UserAdd` `UserClear` `UserCircle` `UserGroup` `UserGroupAdd` `UserGroupClear` `Bell` `BellFilled` `Message` `Horn` `Service` `Share` `Call` `Internet` `DeepThinking` `Flag` `Star` `StarFilled` `Sun` `Moon` `Cloudy` `MostlyCloudy`
 
 ## colorful 图标
 
-多色图标保留原始 SVG 的颜色信息，不受外部 CSS color 影响：
-
 ```ts
-import { Logo, BrandIcon } from '@veltra/icons/colorful'
+import { Logo } from '@veltra/icons/colorful'
 ```
 
-```vue
-<template>
-  <Logo :style="{ width: '120px', height: '40px' }" />
-</template>
-```
+多色图标保留原始 SVG 颜色，不受外部 CSS `color` 影响，通过 `style` 控制尺寸。
 
 ## Vite 自动导入
 
-`@veltra/vite` 当前只提供 `@veltra/desktop` 的 `U*` 组件 resolver，不解析 `@veltra/icons`。图标默认使用手动 import：
-
-```ts
-import { Search, Close, ArrowDown } from '@veltra/icons/normal'
-```
-
-如果项目希望自动导入图标，需要为 `unplugin-vue-components` 额外配置自定义 resolver。
-
----
-
-## 相关文档
-
-- desktop/components/icon.md — UIcon 组件用法
-- vite.md — `@veltra/desktop` 组件自动导入配置
+`@veltra/vite` 的 resolver 只处理 `@veltra/desktop` 的 `U*` 组件，图标需要手动 import。
