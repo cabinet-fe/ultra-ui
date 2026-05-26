@@ -4,15 +4,24 @@
 
 ---
 
-## 快速上手
+## 子路径
+
+| 子路径                       | 内容                                            |
+| ---------------------------- | ----------------------------------------------- |
+| `@veltra/styles/theme`       | TypeScript 主题运行时（loadTheme/setTheme/预设）|
+| `@veltra/styles/normalize`   | 全局 reset 样式（应用入口导入一次）             |
+| `@veltra/styles/transitions` | Vue `<Transition>` name 注册                    |
+| `pkg:@veltra/styles/mixins`  | SCSS BEM mixins（自动 @forward vars）           |
+| `pkg:@veltra/styles/functions` | SCSS 变量/选择器函数（自动 @forward vars）    |
+| `pkg:@veltra/styles/vars`    | 仅 SCSS 变量                                    |
 
 ```ts
 // main.ts
-import '@veltra/styles/normalize'    // 全局 reset
-import '@veltra/styles/transitions'  // Vue 过渡动画
-import { loadTheme, setTheme } from '@veltra/styles/theme'
+import '@veltra/styles/normalize'
+import '@veltra/styles/transitions'
+import { loadTheme } from '@veltra/styles/theme'
 
-loadTheme()  // 注入内置 light+dark，自动跟随系统偏好
+loadTheme()
 ```
 
 ---

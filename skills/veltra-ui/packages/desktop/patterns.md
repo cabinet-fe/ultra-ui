@@ -1,231 +1,110 @@
-# Desktop — 通用模式
+# Desktop — 通用 Props/Emits/Slots/Exposed
 
-所有 Veltra 组件遵循的统一模式。
+所有 Veltra 组件遵循的统一约定。具体组件文档只列与本文不同的项。
 
-## Props 模式
-
-### 通用 Props
-
-所有组件至少支持 `size`：
+## 公共 Props 接口
 
 ```ts
 interface ComponentProps {
   size?: 'small' | 'default' | 'large'
 }
-```
 
-表单组件额外支持：
-
-```ts
 interface FormComponentProps extends ComponentProps {
+  label?: string
+  field?: string
   tips?: string
+  disabled?: boolean
+  readonly?: boolean
   span?:
     | number
     | 'full'
-    | ({ [key in BreakpointName]?: number | 'full' } & { default: number | 'full' })
-  label?: string
-  field?: string
-  disabled?: boolean
-  readonly?: boolean
+    | ({ [k in BreakpointName]?: number | 'full' } & { default: number | 'full' })
 }
 ```
 
-### 颜色类型
+回退链：`组件 props → Form 上下文（仅 FormComponentProps）→ useConfig 全局 → 默认值`。
 
-支持颜色语义化的组件接受 `type`：
+## 颜色类型
 
 ```ts
 type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
 ```
 
-```vue
-<u-button type="primary">主要</u-button>
-<u-button type="danger">危险</u-button>
-<u-tag type="success">成功</u-tag>
-```
+## 双向绑定
 
-### 双向绑定
+| 写法                            | 含义                                     |
+| ------------------------------- | ---------------------------------------- |
+| `v-model="x"`                   | `modelValue` / `update:modelValue`       |
+| `v-model:visible="x"`           | 命名 v-model（Dialog / Drawer 等浮层）   |
+| `v-model:checked="x"`           | 表格多选                                 |
+| `v-model:selected="x"`          | 表格单选                                 |
+| `v-model:current="x"`           | 表格当前行                               |
 
-使用 Vue 3.4+ 的 `defineModel` 或传统 `v-model`：
+注意：`UDialog` 使用 `v-model`（非 `v-model:visible`），见 `gotchas.md`。
 
-```vue
-<!-- v-model（默认 prop: modelValue, event: update:modelValue） -->
-<u-input v-model="text" />
+## Emits 命名
 
-<!-- 多个 v-model -->
-<u-dialog v-model:visible="show" />
+| 事件                       | 场景                              |
+| -------------------------- | --------------------------------- |
+| `click(e: MouseEvent)`     | 按钮、可点击元素                  |
+| `change(value)`            | 失焦/回车/选中变更                |
+| `update:modelValue(value)` | v-model 实时更新                  |
+| `update:{name}(value)`     | 命名 v-model                      |
+| `close` / `closed`         | 关闭触发 / 关闭动画结束           |
+| `focus` / `blur`           | 表单组件焦点                      |
+| `prefix:click` / `suffix:click` | 输入框前/后缀点击           |
 
-<!-- v-model 数组（多选组件） -->
-<u-select v-model="selected" :options="options" multiple />
-```
+## Slots 命名
 
-### 尺寸回退
+| slot      | 出现组件                  | 说明                                           |
+| --------- | ------------------------- | ---------------------------------------------- |
+| `default` | 所有                      | 主要内容                                       |
+| `prefix`  | Input / Select / 输入类   | 前缀（与 prop 同时渲染）                       |
+| `suffix`  | Input / Select / 输入类   | 后缀（与 prop 同时渲染）                       |
+| `icon`    | Button / Action 等        | 前置图标                                       |
+| `header`  | Card / Dialog             | 头部                                           |
+| `footer`  | Dialog / Drawer / Card    | 底部，常带作用域 `{ close }`                   |
+| `empty`   | Table / List / Tree       | 空状态                                         |
+| `trigger` | Dialog / Dropdown / Tip   | 替代 v-model 的触发节点                        |
 
-所有组件通过 `useFallbackProps` 实现多级回退：
+## Exposed 类型约定
 
-```
-组件 props.size → Form 上下文 → useConfig 全局配置 → 'default'
-```
-
-## Emits 模式
-
-### 命名规范
-
-```ts
-// 标准 emit
-emit('click', event: MouseEvent)
-emit('change', value: T)
-emit('update:modelValue', value: T)
-emit('update:visible', value: boolean)
-emit('close')
-```
-
-### 用法
-
-```vue
-<u-button @click="handleClick">点击</u-button>
-<u-input @change="handleChange" />
-<u-dialog v-model:visible="show" @closed="onClosed" />
-```
-
-## Slots 模式
-
-### 默认插槽
-
-```vue
-<u-button>按钮文字</u-button>
-<u-dialog title="标题">
-  <p>对话框内容</p>
-</u-dialog>
-```
-
-### 命名插槽
-
-常见命名插槽：
-
-| 插槽名    | 出现组件      | 用途       |
-| --------- | ------------- | ---------- |
-| `icon`    | Button, Input | 前置图标   |
-| `prefix`  | Input, Select | 前缀内容   |
-| `suffix`  | Input, Select | 后缀内容   |
-| `header`  | Table, Card   | 头部       |
-| `footer`  | Dialog, Card  | 底部       |
-| `empty`   | Table, List   | 空数据展示 |
-| `default` | 所有          | 主要内容   |
-
-### 示例
-
-```vue
-<u-button type="primary">
-  <template #icon><Search /></template>
-  搜索
-</u-button>
-
-<u-input v-model="text" placeholder="搜索">
-  <template #prefix><Search /></template>
-  <template #suffix><Close @click="text = ''" /></template>
-</u-input>
-
-<u-dialog v-model:visible="show" title="用户信息">
-  <u-form><!-- 表单内容 --></u-form>
-  <template #footer="{ close }">
-    <u-button @click="close">取消</u-button>
-    <u-button type="primary" @click="save(); close()">保存</u-button>
-  </template>
-</u-dialog>
-```
-
-## Exposed 模式
-
-组件通过 `defineExpose` 暴露内部引用：
+组件通过 `defineExpose` 暴露根元素与命令式方法。导出类型解构 ref：
 
 ```ts
-// 内部类型（带下划线前缀）
-interface _ButtonExposed {
-  el: ShallowRef<HTMLButtonElement | undefined>
-}
-
-// 导出类型（解构 ref）
-type ButtonExposed = DeconstructValue<_ButtonExposed>
-// 等价于：{ el: HTMLButtonElement | undefined }
-```
-
-### 使用 Exposed
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
 import type { ButtonExposed } from '@veltra/desktop'
+import { useTemplateRef } from 'vue'
 
-const btnRef = ref<ButtonExposed>()
-
-function focus() {
-  btnRef.value?.el?.focus()
-  // 或 btnRef.value?.el?.click()
-}
-</script>
-
-<template>
-  <u-button ref="btnRef" @click="handleClick">按钮</u-button>
-</template>
+const btnRef = useTemplateRef<ButtonExposed>('btn')
+btnRef.value?.el?.focus()  // 大部分组件暴露 el
 ```
 
-### 常见 Exposed
+常见 Exposed.el 类型：
 
-| 组件   | Exposed | 类型                |
-| ------ | ------- | ------------------- |
-| Button | `el`    | `HTMLButtonElement` |
-| Input  | `el`    | `HTMLInputElement`  |
-| Select | `el`    | `HTMLElement`       |
-| Dialog | `el`    | `HTMLElement`       |
-| Table  | `el`    | `HTMLElement`       |
-| Form   | `el`    | `HTMLFormElement`   |
+| 组件   | el 类型             |
+| ------ | ------------------- |
+| Button | `HTMLButtonElement` |
+| Input  | `HTMLInputElement`  |
+| Form   | `HTMLFormElement`   |
+| 其他   | `HTMLElement`       |
 
-## 事件处理模式
+Dialog / Drawer 额外暴露 `close()`，Table 额外暴露 `clearChecked()` / `clearSelected()` / `getRowByData()` / `getSummaryRow()`。
 
-### 阻止冒泡
-
-```vue
-<u-button @click.stop="handleClick">不冒泡</u-button>
-```
-
-### 事件参数
-
-```ts
-// Button click
-<u-button @click="(e: MouseEvent) => {}" />
-
-// Input change
-<u-input @change="(value: string) => {}" />
-
-// Select change
-<u-select @change="(value: string | string[]) => {}" />
-```
-
-## 表单上下文传递
+## 表单上下文自动继承
 
 ```
-UForm （provide formProps）
-  └── UFormItem
-       └── UInput （inject formProps → 自动继承 size/disabled/readonly）
+UForm（provide formProps）
+  └── UInput / USelect / UDatePicker ...
+       inject formProps → 自动继承 size / disabled / readonly
 ```
 
-无需手动传递 props，嵌套在 `UForm` 内的表单组件自动继承表单上下文。
+子组件**只要嵌套在 UForm 内**就自动继承，无需手动传 props。详见 `components/form.md`。
 
-维护 `@veltra/desktop` 内部表单组件时，使用 `@veltra/utils` 中的 `provideFormContext()` / `injectFormContext()`。
+## 命名约定
 
-## 条件渲染注意事项
-
-某些组件内部的子组件通过 `v-if` 按需渲染，使用时注意：
-
-- `v-if` 内的组件在挂载时才会触发 `mounted`
-- `v-show` 内组件始终挂载，适用于频繁切换的场景
-- 对话框等浮层组件通过 `v-model:visible` 控制，内部使用 `v-if`/`Teleport`
-
-## 组件目录约定
-
-| 约定   | 示例                                       |
-| ------ | ------------------------------------------ |
-| 组件名 | `U` + PascalCase（`UButton`）              |
-| 目录名 | kebab-case（`button`）                     |
-| CSS 类 | `u-` + BEM（`u-button`、`u-button__icon`） |
+| 约定           | 示例                                       |
+| -------------- | ------------------------------------------ |
+| 组件名         | `U` + PascalCase（`UButton`）              |
+| 类型导出       | `<Name>Props` / `<Name>Emits` / `<Name>Exposed` |
+| 内部 Exposed   | `_<Name>Exposed`（带 ShallowRef）          |
+| CSS 类         | `u-` + BEM（`u-button__icon--left`）       |

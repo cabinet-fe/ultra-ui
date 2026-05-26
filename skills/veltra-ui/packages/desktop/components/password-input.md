@@ -1,12 +1,13 @@
 # UPasswordInput — 密码输入框
 
-> 密码输入框，在 `UInput` 基础上封装，提供密码显示/隐藏切换功能。输入时密码以 `●` 遮罩显示。
+> `import type { PasswordInputProps, PasswordInputEmits, PasswordInputExposed } from '@veltra/desktop'`
+
+密码输入框，在 `UInput` 基础上封装，提供密码显示/隐藏切换。输入时密码以 `●` 遮罩显示。
 
 ## Import
 
 ```ts
 // UPasswordInput 由 Vite 自动导入，无需手动 import
-import type { PasswordInputProps, PasswordInputEmits, PasswordInputExposed } from '@veltra/desktop'
 ```
 
 ## Props

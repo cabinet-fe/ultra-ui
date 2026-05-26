@@ -2,7 +2,7 @@
 
 > `import type { ContextMenuProps, ContextMenuEmits, ContextMenuItem } from '@veltra/desktop'`
 
-在指定鼠标位置弹出的上下文菜单。点击菜单外部或执行完菜单项回调后自动关闭并销毁，通过 `destroy` 事件通知父组件移除 DOM。
+在指定鼠标位置弹出的上下文菜单。点击外部或菜单项回调完成后自动关闭，通过 `destroy` 事件通知父组件移除 DOM。
 
 ## Import
 
@@ -10,153 +10,49 @@
 // UContextMenu 由 Vite 自动导入，无需手动 import
 ```
 
+## 关联类型
+
+```ts
+interface ContextMenuItem {
+  label: string                          // 菜单名称
+  description?: string                   // 描述
+  icon?: Component                       // 图标组件
+  callback?: () => void | Promise<void>  // 点击回调（async 期间显示 loading 并阻止关闭）
+  disabled?: boolean | (() => boolean)   // 禁用，支持函数动态判断
+}
+```
+
 ## Props
 
-| prop            | type                                             | default     | 说明                               |
-| --------------- | ------------------------------------------------ | ----------- | ---------------------------------- |
-| `mousePosition` | `{ x: number; y: number }`                       | —           | 菜单弹出位置（相对于视口）         |
-| `menus`         | `ContextMenuItem[] \| (() => ContextMenuItem[])` | —           | 菜单项列表，支持函数动态生成       |
-| `width`         | `number \| string`                               | `150`       | 菜单宽度（px，传入数值自动补单位） |
-| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` | 菜单尺寸                           |
-
-### ContextMenuItem
-
-| prop          | type                          | 说明                                                                        |
-| ------------- | ----------------------------- | --------------------------------------------------------------------------- |
-| `label`       | `string`                      | 菜单名称                                                                    |
-| `description` | `string`                      | 可选，菜单描述                                                              |
-| `icon`        | `Component`                   | 可选，菜单图标组件                                                          |
-| `callback`    | `() => void \| Promise<void>` | 可选，点击菜单项时执行的回调。支持 async，回调完成前显示 loading 并阻止关闭 |
-| `disabled`    | `boolean \| (() => boolean)`  | 可选，是否禁用。支持函数动态判断                                            |
+| prop            | type                                             | default     | 说明                                |
+| --------------- | ------------------------------------------------ | ----------- | ----------------------------------- |
+| `mousePosition` | `{ x: number; y: number }`                       | —           | 弹出位置（相对视口）                |
+| `menus`         | `ContextMenuItem[] \| (() => ContextMenuItem[])` | —           | 菜单项列表（函数形式动态生成）      |
+| `width`         | `number \| string`                               | `150`       | 菜单宽度（数值自动补 px）           |
+| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` | 尺寸                                |
 
 ## Emits
 
-| event     | 参数 | 说明                                                   |
-| --------- | ---- | ------------------------------------------------------ |
-| `destroy` | —    | 菜单关闭动画完成后触发，父组件应在此事件中移除组件 DOM |
+| event     | 参数 | 说明                                                |
+| --------- | ---- | --------------------------------------------------- |
+| `destroy` | —    | 关闭动画完成，父组件应在此事件中移除组件 DOM        |
 
-## Slots
+## Slots / Exposed
 
-无插槽。
-
-## Exposed
-
-```ts
-interface ContextMenuExposed {}
-```
-
-无暴露属性。
+无。
 
 ## Examples
 
-### 基础用法
-
-监听 `contextmenu` 事件，在鼠标位置弹出菜单。
+### 基础 + 图标 + async 回调
 
 ```vue
-<template>
-  <div
-    style="height: 300px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center"
-    @contextmenu.prevent="handleContextMenu"
-  >
-    右键点击此区域
-  </div>
-
-  <UContextMenu
-    v-if="contextMenuVisible"
-    :mouse-position="contextMenuPos"
-    :menus="menus"
-    @destroy="contextMenuVisible = false"
-  />
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Edit, Copy, Delete } from '@veltra/icons/normal'
 import type { ContextMenuItem } from '@veltra/desktop'
 
-const contextMenuVisible = ref(false)
-const contextMenuPos = ref({ x: 0, y: 0 })
-
-const menus: ContextMenuItem[] = [
-  { label: '复制', callback: () => console.log('复制') },
-  { label: '粘贴', callback: () => console.log('粘贴') },
-  { label: '删除', callback: () => console.log('删除') }
-]
-
-function handleContextMenu(e: MouseEvent) {
-  contextMenuPos.value = { x: e.clientX, y: e.clientY }
-  contextMenuVisible.value = true
-}
-</script>
-```
-
-### 动态菜单（函数形式）
-
-```vue
-<template>
-  <div
-    style="height: 300px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center"
-    @contextmenu.prevent="handleContextMenu"
-  >
-    右键点击此区域
-  </div>
-
-  <UContextMenu
-    v-if="contextMenuVisible"
-    :mouse-position="contextMenuPos"
-    :menus="getMenus"
-    @destroy="contextMenuVisible = false"
-  />
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import type { ContextMenuItem } from '@veltra/desktop'
-
-const contextMenuVisible = ref(false)
-const contextMenuPos = ref({ x: 0, y: 0 })
-
-function getMenus(): ContextMenuItem[] {
-  return [
-    { label: '新增', callback: () => console.log('新增') },
-    { label: '编辑', callback: () => console.log('编辑') },
-    { label: '删除', disabled: true }
-  ]
-}
-
-function handleContextMenu(e: MouseEvent) {
-  contextMenuPos.value = { x: e.clientX, y: e.clientY }
-  contextMenuVisible.value = true
-}
-</script>
-```
-
-### 带图标与 async 回调
-
-```vue
-<template>
-  <div
-    style="height: 300px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center"
-    @contextmenu.prevent="handleContextMenu"
-  >
-    右键点击此区域
-  </div>
-
-  <UContextMenu
-    v-if="contextMenuVisible"
-    :mouse-position="contextMenuPos"
-    :menus="menus"
-    @destroy="contextMenuVisible = false"
-  />
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Edit, Delete, Copy } from '@veltra/icons/normal'
-import type { ContextMenuItem } from '@veltra/desktop'
-
-const contextMenuVisible = ref(false)
-const contextMenuPos = ref({ x: 0, y: 0 })
+const visible = ref(false)
+const pos = ref({ x: 0, y: 0 })
 
 const menus: ContextMenuItem[] = [
   { label: '编辑', icon: Edit, callback: () => console.log('编辑') },
@@ -165,58 +61,53 @@ const menus: ContextMenuItem[] = [
     label: '删除',
     icon: Delete,
     callback: async () => {
-      // 异步删除操作，执行期间菜单显示 loading 并阻止关闭
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log('已删除')
+      // 异步执行期间显示 loading，阻止菜单关闭
+      await new Promise(resolve => setTimeout(resolve, 2000))
     }
   }
 ]
 
-function handleContextMenu(e: MouseEvent) {
-  contextMenuPos.value = { x: e.clientX, y: e.clientY }
-  contextMenuVisible.value = true
+function onContextMenu(e: MouseEvent) {
+  pos.value = { x: e.clientX, y: e.clientY }
+  visible.value = true
 }
 </script>
-```
 
-### 自定义宽度与尺寸
-
-```vue
 <template>
-  <div
-    style="height: 300px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center"
-    @contextmenu.prevent="handleContextMenu"
-  >
+  <div style="height: 300px; border: 1px dashed #ccc" @contextmenu.prevent="onContextMenu">
     右键点击此区域
   </div>
 
-  <UContextMenu
-    v-if="contextMenuVisible"
-    :mouse-position="contextMenuPos"
+  <u-context-menu
+    v-if="visible"
+    :mouse-position="pos"
     :menus="menus"
-    :width="240"
-    size="large"
-    @destroy="contextMenuVisible = false"
+    @destroy="visible = false"
   />
 </template>
+```
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import type { ContextMenuItem } from '@veltra/desktop'
+### 动态菜单（函数形式 + 禁用判定）
 
-const contextMenuVisible = ref(false)
-const contextMenuPos = ref({ x: 0, y: 0 })
-
-const menus: ContextMenuItem[] = [
-  { label: '查看详情', callback: () => console.log('查看详情') },
-  { label: '编辑属性', callback: () => console.log('编辑属性') },
-  { label: '复制路径', callback: () => console.log('复制路径') },
-  { label: '删除', disabled: true, callback: () => console.log('删除') }
-]
-
-function handleContextMenu(e: MouseEvent) {
-  contextMenuPos.value = { x: e.clientX, y: e.clientY }
-  contextMenuVisible.value = true
+```ts
+function getMenus(): ContextMenuItem[] {
+  return [
+    { label: '新增', callback: () => console.log('新增') },
+    { label: '编辑', disabled: () => !hasPermission(), callback: () => {} },
+    { label: '删除', disabled: true }
+  ]
 }
-</script>
+```
+
+### 自定义宽度 + 尺寸
+
+```vue
+<u-context-menu
+  v-if="visible"
+  :mouse-position="pos"
+  :menus="menus"
+  :width="240"
+  size="large"
+  @destroy="visible = false"
+/>
 ```

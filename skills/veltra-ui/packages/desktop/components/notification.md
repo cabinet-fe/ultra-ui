@@ -1,140 +1,100 @@
-# Notification 通知
+# UNotification — 通知
 
-悬浮出现在角落的全局通知，支持声明式组件和函数式调用两种方式。
+> `import type { NotificationProps, NotificationExposed } from '@veltra/desktop'`
+
+悬浮在屏幕角落的全局通知。同位置多次调用自动垂直堆叠，鼠标悬停暂停计时并展开，移出恢复。`Notification()` 是函数式 API；`UNotification` 用于声明式占位渲染。
 
 ## Import
 
 ```ts
-// 函数式 API
-import { Notification } from '@veltra/desktop'
-// 类型
-import type { NotificationProps } from '@veltra/desktop/types'
-// 声明式组件
 // UNotification 由 Vite 自动导入，无需手动 import
-```
-
-## 函数式 API
-
-`Notification(options)` — 调用即弹出一条通知，无需在模板中声明。
-
-### 签名
-
-```ts
-function Notification(options: NotificationProps): void
-```
-
-### 示例
-
-```ts
 import { Notification } from '@veltra/desktop'
-
-// 基础用法
-Notification({ title: '操作成功', message: '数据已保存' })
-
-// 完整配置
-Notification({
-  title: '删除确认',
-  message: '确定要删除该数据吗？',
-  type: 'danger',
-  duration: 0, // 0 则不自动关闭
-  closable: true,
-  buttonText: '撤销',
-  position: 'top-right',
-  onClick: (e) => {
-    console.log('点击了按钮')
-  },
-  onClose: () => {
-    console.log('通知已关闭')
-  }
-})
 ```
 
 ## Props
 
-| prop         | 类型                                                           | 默认值           | 说明                                      |
-| ------------ | -------------------------------------------------------------- | ---------------- | ----------------------------------------- |
-| `title`      | `string`                                                       | —                | 通知标题                                  |
-| `message`    | `string`                                                       | —                | 通知内容                                  |
-| `type`       | `ColorType`                                                    | `'primary'`      | 通知类型，影响图标和按钮颜色              |
-| `duration`   | `number`                                                       | `4500`           | 自动关闭时长（ms），设为 `0` 则不自动关闭 |
-| `closable`   | `boolean`                                                      | `false`          | 是否显示关闭按钮                          |
-| `offset`     | `number`                                                       | `20`             | 距容器边缘的偏移量（px）                  |
-| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置                                  |
-| `icon`       | `DefineComponent`                                              | —                | 自定义图标组件，不传则按 `type` 自动匹配  |
-| `buttonText` | `string`                                                       | `''`             | 按钮文字，为空则不显示按钮                |
-| `zIndex`     | `number`                                                       | —                | CSS `z-index`，函数式调用时自动递增       |
-| `width`      | `number`                                                       | —                | 通知宽度（px）                            |
-| `id`         | `string`                                                       | —                | 唯一标识，函数式调用时自动生成            |
+| prop         | type                                                           | default          | 说明                                       |
+| ------------ | -------------------------------------------------------------- | ---------------- | ------------------------------------------ |
+| `title`      | `string`                                                       | —                | 标题                                       |
+| `message`    | `string`                                                       | —                | 内容                                       |
+| `type`       | `ColorType`                                                    | `'primary'`      | 类型，影响图标与按钮颜色                   |
+| `duration`   | `number`                                                       | `4500`           | 自动关闭时长（ms），`0` 不自动关闭         |
+| `closable`   | `boolean`                                                      | `false`          | 是否显示关闭按钮                           |
+| `offset`     | `number`                                                       | `20`             | 距容器边缘偏移（px）                       |
+| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置                                   |
+| `icon`       | `Component`                                                    | —                | 自定义图标，不传则按 `type` 自动匹配       |
+| `buttonText` | `string`                                                       | `''`             | 按钮文字，为空不显示按钮                   |
+| `width`      | `number`                                                       | —                | 宽度（px）                                 |
+| `zIndex`     | `number`                                                       | —                | CSS `z-index`（函数式调用时自动递增）      |
+| `id`         | `string`                                                       | —                | 唯一标识（函数式调用时自动生成）           |
 
-### ColorType
+`type` ↔ 默认图标：`primary→InfoFilled` / `info→QuestionFilled` / `success→CircleCheckFilled` / `warning→WarningFilled` / `danger→CircleClose`。
 
-```ts
-type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
-```
+## 回调（通过 Props 传入，非 Emits）
 
-### type 对应的默认图标
+| 回调      | 签名                            | 说明                                     |
+| --------- | ------------------------------- | ---------------------------------------- |
+| `onClick` | `(e: MouseEvent) => void`       | 点击按钮触发，自动关闭通知               |
+| `onClose` | `(vm: RendererElement) => void` | 关闭（before-leave）触发                 |
 
-| type      | 图标                |
-| --------- | ------------------- |
-| `primary` | `InfoFilled`        |
-| `info`    | `QuestionFilled`    |
-| `success` | `CircleCheckFilled` |
-| `warning` | `WarningFilled`     |
-| `danger`  | `CircleClose`       |
+## Emits（仅声明式组件）
 
-## Emits
-
-| event               | 参数              | 说明                                    |
-| ------------------- | ----------------- | --------------------------------------- |
-| `update:modelValue` | `(value: string)` | `modelValue` 变化时触发                 |
-| `destroy`           | —                 | 退出动画完成后触发，函数式 API 内部使用 |
+| event               | 参数              | 说明                                       |
+| ------------------- | ----------------- | ------------------------------------------ |
+| `update:modelValue` | `(value: string)` | v-model 变化                               |
+| `destroy`           | —                 | 退出动画完成（函数式 API 内部使用）        |
 
 ## Exposed
 
 ```ts
 interface NotificationExposed {
-  /** 重新开始自动关闭计时 */
-  startTimer(): void
-  /** 清除自动关闭计时器 */
-  clearTimer(): void
+  startTimer(): void   // 重新开始自动关闭计时
+  clearTimer(): void   // 清除计时器
 }
 ```
 
-## 回调
+## Examples
 
-以下回调通过 Props 传入，而非 Emits：
+### 函数式调用
 
-| 回调      | 签名                            | 说明                               |
-| --------- | ------------------------------- | ---------------------------------- |
-| `onClick` | `(e: MouseEvent) => void`       | 点击按钮时触发，触发后自动关闭通知 |
-| `onClose` | `(vm: RendererElement) => void` | 关闭时（before-leave）触发         |
+```ts
+import { Notification } from '@veltra/desktop'
 
-## 声明式组件示例
+Notification({ title: '操作成功', message: '数据已保存' })
+
+Notification({
+  title: '删除确认',
+  message: '确定要删除该数据吗？',
+  type: 'danger',
+  duration: 0,
+  closable: true,
+  buttonText: '撤销',
+  position: 'top-right',
+  onClick: () => console.log('点击了按钮'),
+  onClose: () => console.log('通知已关闭')
+})
+```
+
+### 声明式组件
 
 ```vue
-<template>
-  <div>
-    <UButton @click="visible = true">显示通知</UButton>
-    <u-notification
-      v-model="visible"
-      title="提示"
-      message="这是一条消息"
-      type="success"
-      :duration="3000"
-      closable
-      position="top-right"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 const visible = ref(false)
 </script>
+
+<template>
+  <u-button @click="visible = true">显示通知</u-button>
+  <u-notification
+    v-model="visible"
+    title="提示"
+    message="这是一条消息"
+    type="success"
+    :duration="3000"
+    closable
+    position="top-right"
+  />
+</template>
 ```
 
-> **注意**：声明式使用时，通知会占据文档流中的位置。对于全局悬浮通知，推荐使用函数式 API `Notification()`。
-
-## 函数式批量调用
-
-同一位置多次调用 `Notification()` 时，通知会自动垂直堆叠并保持间距；鼠标悬停时暂停自动关闭计时器并展开堆叠，移出后恢复。
+声明式使用时占据文档流位置；全局悬浮通知推荐用函数式 API。

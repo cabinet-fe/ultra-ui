@@ -51,38 +51,26 @@ interface ActionExposed {}
 
 ---
 
-# UActionGroup — 操作组
+## UActionGroup Props
 
-将多个 `UAction` 包裹为行内操作组，超出 `max` 数量的操作自动收纳到 `…` 下拉菜单。通过依赖注入（`provide`/`inject`）统一控制子项默认 `type`/`size`/`text`/`circle`/`loading`，子项可通过同名 prop 单独覆盖。
-
-## Import
-
-```ts
-// UActionGroup 由 Vite 自动导入，无需手动 import
-```
-
-## Props
+将多个 `UAction` 包裹为行内操作组，超出 `max` 的操作自动收纳到 `…` 下拉菜单。通过 provide/inject 统一控制子项默认 `type`/`size`/`text`/`circle`/`loading`，子项可同名 prop 单独覆盖。
 
 | prop      | type                              | default     | 说明                                   |
 | --------- | --------------------------------- | ----------- | -------------------------------------- |
-| `max`     | `number`                          | `3`         | 最大可见操作数，超出部分折叠到下拉菜单 |
-| `type`    | `ColorType`                       | `'primary'` | 子项默认按钮类型                       |
+| `max`     | `number`                          | `3`         | 最大可见操作数，超出收纳到下拉         |
+| `type`    | `ColorType`                       | `'primary'` | 子项默认类型                           |
 | `size`    | `'small' \| 'default' \| 'large'` | `'small'`   | 子项默认尺寸                           |
-| `text`    | `boolean`                         | `true`      | 子项默认是否文本模式                   |
-| `circle`  | `boolean`                         | `false`     | 子项默认是否圆形                       |
-| `loading` | `boolean`                         | `false`     | 子项默认是否加载中                     |
+| `text`    | `boolean`                         | `true`      | 子项默认文本模式                       |
+| `circle`  | `boolean`                         | `false`     | 子项默认圆形                           |
+| `loading` | `boolean`                         | `false`     | 子项默认加载中                         |
 
-## Emits
+### UActionGroup Slots
 
-无。
+| slot      | 说明                                       |
+| --------- | ------------------------------------------ |
+| `default` | 放置 `UAction` 子项，子项间自动添加分隔符  |
 
-## Slots
-
-| slot      | 作用域 | 说明                                        |
-| --------- | ------ | ------------------------------------------- |
-| `default` | —      | 放置 `UAction` 子项。子项之间自动添加分隔符 |
-
-## Exposed
+### UActionGroup Exposed
 
 ```ts
 interface ActionGroupExposed {

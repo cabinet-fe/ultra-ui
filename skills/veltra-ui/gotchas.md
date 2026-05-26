@@ -1,23 +1,18 @@
 # 易错点（Gotchas）
 
-代理在使用 Veltra UI 时最常犯的错误。**写代码前必须检查此清单。**
+代理在使用 Veltra UI 时最常犯的错误。**写代码前必读。**
 
 ## 0. 自动导入下不要 import 组件
 
-项目配置了 `VeltraDesktopUIResolver` 后，组件在模板中直接使用，**不需要 import**：
+项目配置了 `VeltraDesktopUIResolver` 后，组件在模板中直接使用，**不需要 import**。判断规则：模板标签不 import，script 中调用的函数/类型/图标才 import。
 
 ```vue
-<!-- ❌ 错误：多余的 import -->
 <script setup>
-import { UButton, UInput, UDialog } from '@veltra/desktop'
-</script>
-
-<!-- ✅ 正确：直接用，resolver 自动处理 -->
-<script setup>
-// 只 import 函数、类型、图标
+// ❌ import { UButton, UInput, UDialog } from '@veltra/desktop'
+// ✅ 只 import 函数 / 类型 / 图标
 import { message, FormModel, formField } from '@veltra/desktop'
-import { Search } from '@veltra/icons/normal'
 import type { ButtonProps } from '@veltra/desktop'
+import { Search } from '@veltra/icons/normal'
 </script>
 
 <template>
@@ -25,8 +20,6 @@ import type { ButtonProps } from '@veltra/desktop'
   <u-input v-model="text" />
 </template>
 ```
-
-**判断规则：模板标签不 import，script 中调用的函数/类型/图标才 import。**
 
 ## 1. Dialog 使用 v-model 而非 v-model:visible
 

@@ -1,4 +1,6 @@
-# UCollapse — 折叠面板
+# UCollapse / UCollapseItem — 折叠面板
+
+> `import type { CollapseProps, CollapseItemProps, CollapseEmits, CollapseValue, CollapseModelValue } from '@veltra/desktop'`
 
 基于 CSS Grid `0fr → 1fr` 行高度过渡实现高度动画，零 JS 测量。
 
@@ -6,16 +8,9 @@
 
 ```ts
 // UCollapse、UCollapseItem 由 Vite 自动导入，无需手动 import
-import type {
-  CollapseProps,
-  CollapseItemProps,
-  CollapseEmits,
-  CollapseValue,
-  CollapseModelValue
-} from '@veltra/desktop'
 ```
 
-## 类型
+## 关联类型
 
 ```ts
 type CollapseValue = string | number

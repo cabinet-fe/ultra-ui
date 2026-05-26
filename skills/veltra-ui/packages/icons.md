@@ -1,17 +1,36 @@
 # @veltra/icons
 
-## 导入
+## 导入规则
 
 ```ts
-import { Search, Close } from '@veltra/icons/normal'
+// 单色图标（受 CSS color 影响）
+import { Search, Close, Plus, Edit } from '@veltra/icons/normal'
+
+// 多色图标（保留原 SVG 颜色）
 import { Logo } from '@veltra/icons/colorful'
 ```
 
-图标是标准 Vue SFC 组件，单色图标通过 CSS `color` 控制颜色，多色图标保留原始颜色。
+`@veltra/icons` 根入口不导出图标组件，**必须**通过 `/normal` 或 `/colorful` 子路径导入。Vite 自动导入插件**不**处理图标，图标始终需要手动 import。
+
+## 用法
+
+图标是标准 Vue SFC 组件。直接渲染或包裹在 `<u-icon>` 内统一控制尺寸/颜色：
 
 ```vue
 <Search style="color: #1890ff; font-size: 20px" />
+
 <u-icon :size="16" color="primary"><Search /></u-icon>
+```
+
+在组件 props 中接收图标组件用 `Component` 类型，模板用 `<component :is="icon">`：
+
+```ts
+import type { Component } from 'vue'
+interface Props { icon?: Component }
+```
+
+```vue
+<u-icon v-if="icon" :size="iconSize"><component :is="icon" /></u-icon>
 ```
 
 ## normal 图标
@@ -46,7 +65,7 @@ import { Logo } from '@veltra/icons/colorful'
 
 `User` `UserAdd` `UserClear` `UserCircle` `UserGroup` `UserGroupAdd` `UserGroupClear` `Bell` `BellFilled` `Message` `Horn` `Service` `Share` `Call` `Internet` `DeepThinking` `Flag` `Star` `StarFilled` `Sun` `Moon` `Cloudy` `MostlyCloudy`
 
-## colorful 图标
+## 多色图标
 
 ```ts
 import { Logo } from '@veltra/icons/colorful'
