@@ -1,12 +1,6 @@
 import {
   Virtualizer,
-  type EstimateSize,
-  type GetItemKey,
-  type VirtualAlign,
   type VirtualItem,
-  type VirtualMeasurement,
-  type VirtualRange,
-  type VirtualScrollOptions,
   type VirtualSnapshot,
   type VirtualizerOptions
 } from '@cat-kit/fe'
@@ -19,19 +13,6 @@ import {
   type Ref,
   type ShallowRef
 } from 'vue'
-
-export type {
-  EstimateSize,
-  GetItemKey,
-  VirtualAlign,
-  VirtualItem,
-  VirtualMeasurement,
-  VirtualRange,
-  VirtualScrollOptions,
-  VirtualSnapshot,
-  Virtualizer,
-  VirtualizerOptions
-}
 
 type MaybeEl = HTMLElement | null | undefined
 

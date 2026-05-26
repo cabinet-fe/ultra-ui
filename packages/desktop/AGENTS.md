@@ -106,5 +106,5 @@ app.use(UltraUI)
 ## 依赖
 
 - **workspace**：`@veltra/utils`、`@veltra/styles`、`@veltra/compositions`、`@veltra/directives`、`@veltra/icons`
-- **外部**：`@floating-ui/dom`、`@tanstack/vue-virtual`、CodeMirror 系列、Lexical 系列、`@cat-kit/core`
+- **外部**：`@floating-ui/dom`、CodeMirror 系列、Lexical 系列、`@cat-kit/core`
 - **peer**：`vue ^3.5.0`、`@veltra/icons`
