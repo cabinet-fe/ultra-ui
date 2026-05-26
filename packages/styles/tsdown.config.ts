@@ -8,7 +8,7 @@ const dir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(dir, '../..')
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/theme/index.ts', 'src/normalize.ts'],
+  entry: ['src/theme/index.ts', 'src/normalize/index.ts', 'src/transitions/index.ts'],
 
   treeshake: { moduleSideEffects: [{ test: /src\/index\.ts$/, sideEffects: true }] },
   format: ['esm'],
@@ -20,7 +20,7 @@ export default defineConfig({
   outDir: 'dist',
   copy: [
     { from: 'src/*.scss', to: 'dist' },
-    { from: 'src/anime/**/*.scss', to: 'dist/anime' }
+    { from: 'src/transitions/**/*.scss', to: 'dist/transitions' }
   ],
   deps: { neverBundle: ['@veltra/utils', '@cat-kit/core', 'vue', '@veltra/compositions'] },
   css: {
