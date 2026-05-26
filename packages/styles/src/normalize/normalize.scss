@@ -1,9 +1,7 @@
-// 生成css变量
 // 主题主要由色彩, 大小, 圆角, 阴影, 字体, 边框构成
 // 其中色彩又分为文字颜色, 背景颜色
-@use 'mixins' as m;
-@use 'functions' as fn;
-@use 'vars';
+@use '../functions' as fn;
+@use '../vars';
 
 // 初始化
 html {

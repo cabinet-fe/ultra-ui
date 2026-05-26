@@ -10,16 +10,16 @@
     $suffix: $suffix + '-' + $node;
   }
 
-  @return var(--#{$namespace}#{$basename}#{$suffix});
+  @return var(--#{$namespace}-#{$basename}#{$suffix});
 }
 
 // 组件级 token：`var(--u-{component}-{property}[, fallback])`
 @function component-var($component, $property, $fallback: null) {
   @if $fallback == null {
-    @return var(--#{$namespace}#{$component}-#{$property});
+    @return var(--#{$namespace}-#{$component}-#{$property});
   }
 
-  @return var(--#{$namespace}#{$component}-#{$property}, #{$fallback});
+  @return var(--#{$namespace}-#{$component}-#{$property}, #{$fallback});
 }
 
 // 使用多个变量
@@ -37,7 +37,7 @@
 
 // bem的函数
 @function bem($b, $e: null, $m: null) {
-  $b: '.' + $namespace + $b;
+  $b: '.' + $namespace + '-' + $b;
   @if ($e != null) {
     $b: $b + '__' + $e;
   }

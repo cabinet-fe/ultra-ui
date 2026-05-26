@@ -148,7 +148,7 @@ $root-name: condition-editor;
     &:hover {
       background-color: fn.use-var(color, primary, light-8);
 
-      .#{vars.$namespace}#{$root-name}__value-chip-close {
+      .#{vars.$namespace}-#{$root-name}__value-chip-close {
         opacity: 1;
         max-width: 14px;
         margin-left: 2px;

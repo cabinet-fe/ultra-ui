@@ -106,7 +106,7 @@ $root-name: expression-editor;
       );
       box-shadow: 0 1px 4px fn.use-var(shadow, color);
 
-      .#{vars.$namespace}#{$root-name}__chip-close {
+      .#{vars.$namespace}-#{$root-name}__chip-close {
         opacity: 1;
         max-width: 14px;
         margin-left: 2px;

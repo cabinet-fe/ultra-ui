@@ -14,10 +14,10 @@
     "src/theme/index.ts"
   ],
   "exports": {
-    "./anime": {
-      "development": "./src/anime/index.ts",
-      "import": "./dist/anime/index.js",
-      "default": "./dist/anime/index.js"
+    "./transitions": {
+      "development": "./src/transitions/index.ts",
+      "import": "./dist/transitions/index.js",
+      "default": "./dist/transitions/index.js"
     },
     "./normalize": {
       "development": "./src/normalize/index.ts",

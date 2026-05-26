@@ -30,7 +30,7 @@
 
 ### BEM Mixins
 
-命名空间：`$namespace: 'u-'`，分隔符：`__`（元素）、`--`（修饰符）。
+命名空间：`$namespace: 'u'`，分隔符：`__`（元素）、`--`（修饰符）。
 
 ```scss
 @use 'pkg:@veltra/styles/mixins' as m;
