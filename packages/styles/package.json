@@ -14,17 +14,15 @@
     "src/theme/index.ts"
   ],
   "exports": {
-    ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+    "./anime": {
+      "development": "./src/anime/index.ts",
+      "import": "./dist/anime/index.js",
+      "default": "./dist/anime/index.js"
     },
     "./normalize": {
-      "sass": "./src/normalize.scss",
-      "development": "./src/normalize.scss",
-      "import": "./dist/normalize.js",
-      "default": "./dist/normalize.js"
+      "development": "./src/normalize/index.ts",
+      "import": "./dist/normalize/index.js",
+      "default": "./dist/normalize/index.js"
     },
     "./theme": {
       "development": "./src/theme/index.ts",

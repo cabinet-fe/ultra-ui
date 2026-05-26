@@ -1,9 +1,8 @@
 import { useConfig } from '@veltra/compositions'
 import { shallowRef, type ShallowRef } from 'vue'
 
-import { darkTheme } from './theme/dark'
-import { lightTheme } from './theme/light'
-import { UITheme } from './theme/ui-theme'
+import { lightTheme, darkTheme } from './presets'
+import { UITheme } from './ui-theme'
 
 export const currentTheme: ShallowRef<UITheme | undefined> = shallowRef<UITheme>()
 

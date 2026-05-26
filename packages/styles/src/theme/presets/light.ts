@@ -1,5 +1,5 @@
-import { defineBySize } from './helper'
-import { UITheme } from './ui-theme'
+import { defineBySize } from '../helper'
+import { UITheme } from '../ui-theme'
 
 export const lightTheme: UITheme = new UITheme(
   {
