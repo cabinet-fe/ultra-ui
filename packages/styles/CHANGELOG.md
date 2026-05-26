@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.17
+
+### Patch Changes
+
+- 5bd35b3: 修复 tsdown 构建入口路径，将 anime 替换为 transitions 和 normalize
+  - @veltra/utils@1.1.17
+  - @veltra/compositions@1.1.17
+
 ## 1.1.16
 
 ### Patch Changes
