@@ -26,30 +26,6 @@
       "import": "./dist/normalize.js",
       "default": "./dist/normalize.js"
     },
-    "./mixins": {
-      "sass": "./src/_mixins.scss",
-      "development": "./src/_mixins.scss",
-      "import": "./src/_mixins.scss",
-      "default": "./src/_mixins.scss"
-    },
-    "./vars": {
-      "sass": "./src/_vars.scss",
-      "development": "./src/_vars.scss",
-      "import": "./src/_vars.scss",
-      "default": "./src/_vars.scss"
-    },
-    "./functions": {
-      "sass": "./src/_functions.scss",
-      "development": "./src/_functions.scss",
-      "import": "./src/_functions.scss",
-      "default": "./src/_functions.scss"
-    },
-    "./anime/*": {
-      "sass": "./src/anime/*",
-      "development": "./src/anime/*",
-      "import": "./src/anime/*",
-      "default": "./src/anime/*"
-    },
     "./theme": {
       "development": "./src/theme/index.ts",
       "types": "./dist/theme/index.d.ts",

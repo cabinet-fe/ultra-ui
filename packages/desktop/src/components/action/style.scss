@@ -1,6 +1,5 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
 
 $root-name: action;
 $group-name: action-group;
@@ -46,11 +45,6 @@ $group-name: action-group;
       }
     }
   }
-}
-
-// 覆盖 tip 组件尺寸类（.tip--default）的 padding，下拉菜单需要更紧凑的间距
-.#{vars.$namespace}#{$group-name}__dropdown#{vars.$namespace}tip__content {
-  padding: 4px;
 }
 
 @include m.b($root-name) {

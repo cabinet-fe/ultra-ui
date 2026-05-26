@@ -5,7 +5,8 @@
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "customConditions": ["development"]
   },
   "include": ["src/**/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules"]

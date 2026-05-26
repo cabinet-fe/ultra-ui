@@ -1,7 +1,7 @@
 @use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m;
-@use 'pkg:@veltra/styles/vars';
 @use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
 
 $root-name: button;
 

@@ -1,6 +1,7 @@
-@use 'vars';
+@forward 'vars';
 @use 'sass:list';
 @use 'sass:map';
+@use 'vars' as *;
 @use 'functions' as fn;
 
 /** flex布局 */
@@ -12,7 +13,7 @@
 }
 
 @mixin size {
-  @each $size in vars.$sizes {
+  @each $size in $sizes {
     &--#{$size} {
       @content ($size);
     }
@@ -21,7 +22,7 @@
 
 @mixin b($blocks...) {
   @each $block in $blocks {
-    .#{vars.$namespace}#{$block} {
+    .#{$namespace}#{$block} {
       @content;
     }
   }
@@ -87,7 +88,7 @@
 }
 
 @mixin bem($b, $e: null, $m: null) {
-  $b: '.' + vars.$namespace + $b;
+  $b: '.' + $namespace + $b;
 
   @if ($e != null) {
     @each $ei in $e {
@@ -142,7 +143,7 @@
 }
 
 @function breakpoint($point) {
-  @return var(--u-breakpoint-#{$point});
+  @return var(--#{$namespace}breakpoint-#{$point});
 }
 
 /** 暗色：data-theme 与系统偏好，与 UITheme.injectBuiltInThemes 选择器策略一致 */
