@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { componentCssVarsDark, componentCssVarsLight } from '../component-css-vars'
-import { lightTheme } from '../light'
+import { lightTheme } from '../presets'
 import { UITheme } from '../ui-theme'
 
 describe('UITheme', () => {

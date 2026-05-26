@@ -36,7 +36,7 @@ import '@veltra/styles/transitions/fade.css'
 
 ## scss 工具
 
-本包提供了一些常用的 `scss` 工具，包括常用的 `mixins` 与 常用的 `functions`, 你还可以通过覆盖变量（尤指 $namespace 变量）来使用当前库的同一套工具体系，只不过是命名空间不一样。
+本包提供了一些常用的 `scss` 工具，包括常用的 `mixins` 与 常用的 `functions`, 你还可以通过覆盖变量 $namespace 来使用当前库的同一套工具体系，只不过是命名空间不一样。
 
 
 ## 主题加载以及切换

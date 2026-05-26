@@ -1,3 +1,3 @@
-import '@veltra/styles/anime/zoom-in.scss'
+import '@veltra/styles/transitions/zoom-in.scss'
 import '../tag/style'
 import './style.scss'
