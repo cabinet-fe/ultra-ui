@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.16
+
+### Patch Changes
+
+- ab50e27: 移除 `theme` 子路径中不再推荐对外使用的 `component-css-vars` 重导出；修正 `anime` → `transitions` 引用路径
+  - @veltra/utils@1.1.16
+  - @veltra/compositions@1.1.16
+
 ## 1.1.15
 
 ### Patch Changes
