@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-type-assertion */
 // @vitest-environment happy-dom
+import { describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, ref } from 'vue'
 
 import UCollapseItem from '../collapse-item.vue'
@@ -119,7 +121,7 @@ describe('Collapse', () => {
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
       expect(activeItems.length).toBe(1)
-      expect(activeItems[0].querySelector('.u-collapse__title')?.textContent).toBe('Title A')
+      expect(activeItems[0]?.querySelector('.u-collapse__title')?.textContent).toBe('Title A')
     } finally {
       unmount()
     }
@@ -135,7 +137,7 @@ describe('Collapse', () => {
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
       expect(activeItems.length).toBe(1)
-      expect(activeItems[0].querySelector('.u-collapse__title')?.textContent).toBe('Title A')
+      expect(activeItems[0]?.querySelector('.u-collapse__title')?.textContent).toBe('Title A')
     } finally {
       unmount()
     }

@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-type-assertion */
 // @vitest-environment happy-dom
+import { describe, expect, it } from 'vitest'
+
 import { ExpandTransition } from '../expand-transition'
 
 function createPanel() {

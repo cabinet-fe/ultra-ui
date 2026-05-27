@@ -14,7 +14,7 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
     plugins: ['typescript', 'unicorn', 'oxc', 'vue'],
     categories: {
-      correctness: 'warn',
+      correctness: 'error',
       suspicious: 'warn',
       pedantic: 'off',
       perf: 'warn',

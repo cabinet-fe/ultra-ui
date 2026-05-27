@@ -28,7 +28,7 @@ vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
 
 ## 代码验证
 
-完成代码修改后，**必须**运行验证，确认无基本构建错误与类型错误后再宣称完成。
+完成代码修改后，**必须**运行验证，确认无类型/lint 错误、构建失败与测试失败后再宣称完成。
 
 ### 必跑（默认）
 
@@ -37,18 +37,18 @@ vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
 ```bash
 bun run lint      # 类型检查 + lint；不得输出 .d.ts 等文件
 bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未通过
+bun run test      # Vitest 全量测试；Vitest 缓存下未改动的包通常很快跳过
 ```
 
-`bun run lint` 已启用 `typeCheck: true`（tsgolint），覆盖 monorepo 内 TS/Vue 源码的类型错误。
+`bun run lint` 已启用 `typeCheck: true`（tsgolint），覆盖 monorepo 内 TS/Vue 源码的类型错误。默认跑根级 `bun run test` 即可，**不必**再按改动范围单独执行 `vp test -F <pkg>`。
 
-### 按改动范围追加
+### 可选追加（视改动内容）
 
 | 改动范围 | 追加命令 |
 | -------- | -------- |
-| 仅 `@veltra/desktop` 或组件演示 | `cd playgrounds/desktop && vp dev`，浏览器验证 UI |
-| 仅 `@veltra/utils` / `@veltra/styles` | `vp test -F @veltra/utils` 或 `vp test -F @veltra/styles` |
-| 仅 `@veltra/icons` | `vp run -F @veltra/icons build` |
-| 仅 `@veltra/vite` resolver | `cd playgrounds/desktop && vp build` |
+| `@veltra/desktop` 或组件演示 | `cd playgrounds/desktop && vp dev`，浏览器验证 UI |
+| `@veltra/icons` | `vp run -F @veltra/icons build` |
+| `@veltra/vite` resolver | `cd playgrounds/desktop && vp build` |
 
 ### 约束
 
