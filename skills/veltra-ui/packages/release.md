@@ -26,5 +26,5 @@ Veltra Ultra UI 采用 Changesets 管理版本与 changelog。维护者在 `dev`
 
 - CI publish 前失败：修复后在 GitHub Actions 重跑
 - 部分包已发布后失败：确认 npm 实际状态后再重跑，聚合 Release 可能需要人工核对
-- 本地 `.npmrc` 默认用安装镜像，CI 发布时会覆盖为 npmjs registry
+- 本地 `.npmrc` 已 gitignore（常用安装镜像）；CI 发布时临时写入 npmjs registry
 - 不要通过推送 `v*` tag 触发发布

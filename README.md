@@ -99,6 +99,12 @@ cd ultra-ui
 vp install
 ```
 
+`postinstall` 会自动配置 Git 路径大小写敏感（`core.ignorecase=false`）。若 clone 后未安装依赖，请手动执行：
+
+```bash
+git config --local core.ignorecase false
+```
+
 ### 启动开发服务器
 
 ```bash

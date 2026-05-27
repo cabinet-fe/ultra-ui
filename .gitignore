@@ -75,6 +75,9 @@ typings/
 .env
 .env.test
 
+# 本地 npm registry（如安装镜像），勿提交
+.npmrc
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 

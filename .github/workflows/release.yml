@@ -62,7 +62,7 @@ jobs:
       - name: Build packages
         run: vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
 
-      # 仓库 .npmrc 默认指向安装镜像；发布前必须显式切回 npmjs。
+      # .npmrc 不入库；发布前在 CI 写入 npmjs registry 与 token。
       - name: Configure npm registry for publish
         run: |
           printf '%s\n' 'registry=https://registry.npmjs.org/' > .npmrc

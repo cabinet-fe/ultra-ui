@@ -26,6 +26,16 @@ vp test -F @veltra/utils            # 单包测试
 vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
 ```
 
+## 本地 Git 配置
+
+仓库路径**区分大小写**，与 Linux CI 一致。macOS / Windows 默认 `core.ignorecase=true`，clone 后需关闭：
+
+```bash
+git config --local core.ignorecase false
+```
+
+`vp install` / `bun install` 的 `postinstall` 会自动执行 `scripts/setup-git.ts` 写入上述配置；也可手动运行 `bun run scripts/setup-git.ts` 校验。
+
 ## 技术栈
 
 | 类别 | 技术 | 版本 |
@@ -138,7 +148,6 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 
 ## 编码后操作
 
-
 ### 1. 代码验证
 
 完成代码修改后，**必须**运行验证，确认无类型/lint 错误、构建失败与测试失败后再宣称完成。
@@ -157,3 +166,13 @@ bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未�
 - 更新当前文件。如果有重要目录、命令的变更、技术栈和依赖的添加删除，需要更新当前文件。
 - 组件演示。当代理运行浏览器自动化相关能力时需要去 `playgrounds/*` 运行 `vp dev` 命令，很多时候用户会提前运行这些命令，先检查定义的端口进程是否存在，如果不存在再运行。
 - 更新 `skills/veltra-ui` 内容。改动设计各个包的 API 变更时（例如组件的属性变更、组件的新增删除、utils 的新增删除、包增加导出内容、包版本更新等等）需要更新该目录中的技能，同时要引用 `skill-standard.md` 中的指令，如果有编写技能相关的 SKILL(write-skills 等等),尝试使用相关技能编写。
+
+### 提交和发版
+
+### 提交
+
+每次提交前根据当前更改内容自行决定是否运行 `bun run changeset`, 注意，你可以指定 `-m <text>` 参数来直接提供变更信息。
+
+### 发版
+
+如果提及发版，请参考 `release.md` 文件

@@ -15,7 +15,7 @@ export default defineConfig({
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
   resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
 
-  test: { include: ['src/**/*.test.ts'], globals: true },
+  test: { include: ['src/**/*.test.ts'], globals: true, environment: 'happy-dom' },
 
   pack: {
     entry: ['src/index.ts', 'src/install.ts', 'src/style.ts', 'src/components/**/style.ts'],

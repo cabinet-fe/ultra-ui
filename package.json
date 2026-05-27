@@ -23,7 +23,7 @@
     "dev": "vp run -r dev",
     "test": "vp test",
     "update": "bun update",
-    "postinstall": "simple-git-hooks",
+    "postinstall": "simple-git-hooks && bun run scripts/setup-git.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "bun run scripts/release.ts"
