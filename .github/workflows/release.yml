@@ -47,20 +47,20 @@ jobs:
           run-install: |
             args: ['--frozen-lockfile']
 
-      - name: Lint and test
+      # 全量构建一次（vp run 按 workspace 拓扑排序）；lint 与构建并行，测试在构建完成后执行
+      - name: Verify
         run: |
           vp lint &
           lint_pid=$!
+          bun run build:packages
+          build_status=$?
           vp test &
           test_pid=$!
           wait $lint_pid
           lint_status=$?
           wait $test_pid
           test_status=$?
-          exit $((lint_status | test_status))
-
-      - name: Build packages
-        run: vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
+          exit $((build_status | lint_status | test_status))
 
       # .npmrc 不入库；发布前在 CI 写入 npmjs registry 与 token。
       - name: Configure npm registry for publish

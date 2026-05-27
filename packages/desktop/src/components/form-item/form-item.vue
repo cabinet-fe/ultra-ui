@@ -43,13 +43,9 @@ import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 import { formItemCls as cls } from './helper'
 
-defineOptions({
-  name: 'FormItem'
-})
+defineOptions({ name: 'FormItem' })
 
-const props = withDefaults(defineProps<FormItemProps>(), {
-  readonly: undefined
-})
+const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined })
 
 defineSlots<{
   /** 标签插槽 */
@@ -80,9 +76,8 @@ const labelStyles = computed<CSSProperties>(() => {
 
 /** 错误提示 */
 const errorTips = computed<string | undefined>(() => {
-  if (props.field) {
-    return formProps?.model?.errors.get(props.field)?.[0]
-  }
+  if (!props.field) return undefined
+  return formProps?.model?.errors.get(props.field)?.[0]
 })
 
 /** 字段是否必须 */

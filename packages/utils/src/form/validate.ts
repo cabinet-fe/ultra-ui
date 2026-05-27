@@ -148,7 +148,7 @@ export class Validator<
       // 校验字段
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i]!
-        // oxlint-disable-next-line eslint(no-await-in-loop)
+        // oxlint-disable-next-line no-await-in-loop -- 懒校验需按字段顺序短路
         const errors = await this.validateValueLazy(data, field)
         if (errors.length === 0) continue
         fieldErrors[field] = errors
@@ -158,7 +158,7 @@ export class Validator<
       // 校验字段
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i]!
-        // oxlint-disable-next-line eslint(no-await-in-loop)
+        // oxlint-disable-next-line no-await-in-loop -- 按字段顺序校验以便尽早收集错误
         const errors = await this.validateValue(data, field)
         if (errors.length === 0) continue
         fieldErrors[field] = errors
@@ -253,7 +253,7 @@ export class Validator<
     let i = 0
     while (i < data.length) {
       const item = data[i]!
-      // oxlint-disable-next-line eslint(no-await-in-loop)
+      // oxlint-disable-next-line no-await-in-loop -- 多条数据校验命中首条错误即返回
       const fieldErrors = await this.validateSingleData(item, field)
       if (Object.keys(fieldErrors).length > 0) {
         return fieldErrors

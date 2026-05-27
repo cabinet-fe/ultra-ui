@@ -16,6 +16,9 @@
   "scripts": {
     "build": "vp pack"
   },
+  "devDependencies": {
+    "@cat-kit/fe": "^1.1.3"
+  },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6"
   },

@@ -59,12 +59,14 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
     const { modelValue, separator } = props
     const valueNodes =
       modelValue && typeof modelValue === 'string' ? modelValue.split(separator!) : undefined
-    return valueNodes
-      ?.map((v) => {
-        const node = dataMap.value.get(v)
-        return node?.label ?? v
-      })
-      .join(props.separator)
+    return (
+      valueNodes
+        ?.map((v) => {
+          const node = dataMap.value.get(v)
+          return node?.label ?? v
+        })
+        .join(props.separator) ?? ''
+    )
   })
 
   function getPanelItemList(data?: CascadeNode[]) {

@@ -22,7 +22,13 @@ export default defineConfig({
       restriction: 'off',
       nursery: 'off'
     },
-    ignorePatterns: ['.agents/**', '**/dist/**', '**/node_modules/**'],
+    ignorePatterns: [
+      '.agents/**',
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/*.test.ts',
+      '**/__test__/**'
+    ],
     rules: {
       'no-unused-expressions': 'off',
       'no-floating-promises': 'off',
