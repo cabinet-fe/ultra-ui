@@ -5,17 +5,17 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "development": "./src/index.ts",
+      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./normal": {
-      "development": "./src/normal.ts",
+      "veltra-dev": "./src/normal.ts",
       "types": "./dist/normal.d.ts",
       "import": "./dist/normal.js"
     },
     "./colorful": {
-      "development": "./src/colorful.ts",
+      "veltra-dev": "./src/colorful.ts",
       "types": "./dist/colorful.d.ts",
       "import": "./dist/colorful.js"
     }

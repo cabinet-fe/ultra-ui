@@ -6,7 +6,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
-    "customConditions": ["development"]
+    "customConditions": ["veltra-dev"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "*.d.ts", "*.ts", "*.vue"],
   "exclude": ["node_modules", "vite.config.ts"]

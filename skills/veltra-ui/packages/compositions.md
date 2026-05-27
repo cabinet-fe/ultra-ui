@@ -175,7 +175,7 @@ const sizes = useReactiveSize([el1, el2])   // reactive[]
 
 ### `useVirtualizer(options)` — 虚拟滚动
 
-`@cat-kit/fe` 的 `Virtualizer` Vue 适配层（**非 @tanstack/vue-virtual**）。`totalSize`/`beforeSize`/`afterSize` 命令式写 `style.height|width` 落 DOM，避免滚动期 Vue 重渲染。约束：`initialOffset` / `initialViewport` 仅构造时生效。
+`@cat-kit/fe` 的 `Virtualizer` Vue 适配层。`totalSize`/`beforeSize`/`afterSize` 命令式写 `style.height|width` 落 DOM，避免滚动期 Vue 重渲染。约束：`initialOffset` / `initialViewport` 仅构造时生效。
 
 ```ts
 const { virtualizer, items, isScrolling, snapshot } = useVirtualizer({

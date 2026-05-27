@@ -20,7 +20,7 @@ export default defineConfig(() => {
       preprocessorOptions: { scss: { api: 'modern-compiler', importers: [nodePkgImporter] } }
     },
 
-    resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['development'] },
+    resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['veltra-dev'] },
 
     plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraDesktopUIResolver()], dts: true })],
 

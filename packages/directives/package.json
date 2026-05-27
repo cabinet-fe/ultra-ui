@@ -12,12 +12,12 @@
   ],
   "exports": {
     ".": {
-      "development": "./src/index.ts",
+      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./*": {
-      "development": "./src/*",
+      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }

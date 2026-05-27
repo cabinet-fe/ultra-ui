@@ -15,24 +15,24 @@
   ],
   "exports": {
     "./transitions": {
-      "development": "./src/transitions/index.ts",
+      "veltra-dev": "./src/transitions/index.ts",
       "import": "./dist/transitions/index.js",
       "default": "./dist/transitions/index.js"
     },
     "./normalize": {
-      "development": "./src/normalize/index.ts",
+      "veltra-dev": "./src/normalize/index.ts",
       "import": "./dist/normalize/index.js",
       "default": "./dist/normalize/index.js"
     },
     "./theme": {
-      "development": "./src/theme/index.ts",
+      "veltra-dev": "./src/theme/index.ts",
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js",
       "default": "./dist/theme/index.js"
     },
     "./*": {
       "sass": "./src/*",
-      "development": "./src/*",
+      "veltra-dev": "./src/*",
       "import": "./dist/*",
       "default": "./dist/*"
     }

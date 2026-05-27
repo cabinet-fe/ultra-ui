@@ -6,7 +6,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "skipDefaultLibCheck": true,
-    "customConditions": ["development"]
+    "customConditions": ["veltra-dev"]
   },
   "include": ["src/**/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules"]

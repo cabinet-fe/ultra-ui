@@ -1,4 +1,4 @@
-import type { VirtualItem } from '@veltra/compositions'
+import type { VirtualItem } from '@cat-kit/fe'
 import type { BEM } from '@veltra/utils'
 import type { ComputedRef, InjectionKey, ShallowRef, Slots } from 'vue'
 
