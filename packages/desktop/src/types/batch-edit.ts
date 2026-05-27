@@ -37,7 +37,7 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel> extends T
   /** label的宽度 */
   labelWidth?: string | number
   /** 删除方法 */
-  deleteMethod?: (data: Record<string, any>[]) => Promise<any> | any
+  deleteMethod?: (data: Record<string, any>[]) => any
   /**
    * 保存方法
    * @description 这个方法旨在快编时生效
@@ -50,7 +50,7 @@ export interface BatchEditProps<Model extends IFormModel = IFormModel> extends T
     actionType: 'create' | 'update',
     /** 父级数据 */
     parentData?: Record<string, any>
-  ) => Promise<any> | any
+  ) => any
 
   /**
    * 可用功能，不穿则对功能没有任何限制

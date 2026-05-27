@@ -2,6 +2,7 @@ import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 import type { VariableItem } from './expression-editor'
 
+/** 字段定义 */
 export interface ConditionField {
   label: string
   value: string
@@ -9,31 +10,45 @@ export interface ConditionField {
   enumOptions?: { label: string; value: string }[]
 }
 
+/** 条件右侧值：常量或变量引用 */
 export type ConditionValue =
   | { kind: 'constant'; value: string }
   | { kind: 'variable'; name: string }
 
-export interface ConditionItem {
+/** 单行条件叶子节点 */
+export interface ConditionLeaf {
+  type: 'condition'
   field: string
   operator: string
   value: ConditionValue
-  _result?: boolean
 }
 
+/** 行间逻辑连接符 */
+export type ConditionConnector = 'and' | 'or'
+
+/** 条件组节点 —— 与叶子节点通过 children 统一编排 */
 export interface ConditionGroup {
-  logic: 'and' | 'or'
-  conditions: ConditionItem[]
-  groups: ConditionGroup[]
-  _result?: boolean
+  type: 'group'
+  children: ConditionNode[]
+  /**
+   * 子项之间的连接符
+   *
+   * - `connectors[i]` 用于 `children[i]` 与 `children[i + 1]` 之间
+   * - 长度应等于 `children.length - 1`；缺失项默认为 `and`
+   */
+  connectors: ConditionConnector[]
 }
 
+/** 树节点：叶子或分组 */
+export type ConditionNode = ConditionLeaf | ConditionGroup
+
+/** 顶层表达式 = 根分组 */
 export type ConditionExpression = ConditionGroup
 
 export interface ConditionEditorProps {
   modelValue?: ConditionExpression
   fields?: ConditionField[]
   variables?: VariableItem[]
-  data?: Record<string, unknown>
   size?: ComponentSize
   disabled?: boolean
   readonly?: boolean
@@ -41,7 +56,6 @@ export interface ConditionEditorProps {
 
 export interface ConditionEditorEmits {
   (e: 'update:modelValue', value: ConditionExpression): void
-  (e: 'evaluate', results: ConditionExpression): void
 }
 
 export interface _ConditionEditorExposed {}

@@ -27,13 +27,13 @@
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, injectFormContext } from '@veltra/utils'
-import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { ConditionEditorProps, ConditionExpression } from '../../types'
 import VariablePicker from '../expression-editor/components/variable-picker.vue'
 import ConditionGroup from './components/condition-group.vue'
 import type { MentionPayload } from './components/condition-row.vue'
-import { createEmptyGroup, evaluate } from './core/evaluator'
+import { createEmptyGroup } from './core/evaluator'
 
 defineOptions({ name: 'ConditionEditor' })
 
@@ -43,7 +43,6 @@ const props = withDefaults(defineProps<ConditionEditorProps>(), {
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: ConditionExpression): void
-  (e: 'evaluate', results: ConditionExpression): void
 }>()
 
 const cls = bem('condition-editor')
@@ -58,34 +57,29 @@ const className = computed(() => [
 ])
 
 const rootGroup = shallowRef<ConditionExpression>(
-  props.modelValue ? JSON.parse(JSON.stringify(props.modelValue)) : createEmptyGroup()
+  props.modelValue ? clone(props.modelValue) : createEmptyGroup()
 )
 
-function serialize(): ConditionExpression {
-  function clean(group: ConditionExpression): ConditionExpression {
-    return {
-      logic: group.logic,
-      conditions: group.conditions.map((c) => {
-        const { _result, ...rest } = c
-        return rest
-      }),
-      groups: group.groups.map(clean).filter((g) => g.conditions.length > 0 || g.groups.length > 0)
+function clone<T>(v: T): T {
+  return JSON.parse(JSON.stringify(v)) as T
+}
+
+function onGroupUpdate(group: ConditionExpression) {
+  rootGroup.value = group
+  emit('update:modelValue', clone(group))
+}
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (!v) {
+      rootGroup.value = createEmptyGroup()
+      return
     }
+    if (JSON.stringify(v) === JSON.stringify(rootGroup.value)) return
+    rootGroup.value = clone(v)
   }
-  return clean(JSON.parse(JSON.stringify(rootGroup.value)))
-}
-
-function emitUpdate() {
-  emit('update:modelValue', serialize())
-}
-
-function runEvaluate() {
-  if (!props.data) return
-  const cloned = JSON.parse(JSON.stringify(rootGroup.value)) as ConditionExpression
-  const result = evaluate(cloned, props.data)
-  rootGroup.value = result
-  emit('evaluate', serialize())
-}
+)
 
 // ── VariablePicker ──
 
@@ -121,35 +115,12 @@ function onPickerVisibleChange(v: boolean) {
   }
 }
 
-function onGroupUpdate(group: ConditionExpression) {
-  rootGroup.value = group
-  emitUpdate()
-  void nextTick(() => runEvaluate())
-}
-
-watch(
-  () => props.modelValue,
-  (v) => {
-    if (!v) return
-    const current = serialize()
-    if (JSON.stringify(v) === JSON.stringify(current)) return
-    rootGroup.value = JSON.parse(JSON.stringify(v))
-  }
-)
-
-watch(
-  () => props.data,
-  () => runEvaluate(),
-  { deep: true }
-)
-
 function onKeydown(e: KeyboardEvent) {
   if (disabled.value || readonly.value) return
   if (pickerVisible.value) {
     const handled = pickerRef.value?.handleKeydown(e)
     if (handled) {
       e.preventDefault()
-      return
     }
   }
 }

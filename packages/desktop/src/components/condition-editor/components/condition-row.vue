@@ -1,6 +1,5 @@
 <template>
-  <div :class="[cls.e('row'), bem.is('focused', focused)]">
-    <!-- 字段选择 -->
+  <div :class="cls.e('row')">
     <u-select
       :class="cls.e('field')"
       :model-value="item.field"
@@ -11,10 +10,10 @@
       :size="size"
       :disabled="disabled || readonly"
       :clearable="false"
+      filterable
       @update:model-value="onFieldChange"
     />
 
-    <!-- 运算符选择 -->
     <u-select
       :class="cls.e('operator')"
       :model-value="item.operator"
@@ -23,61 +22,95 @@
       label-key="label"
       placeholder="运算符"
       :size="size"
-      :disabled="disabled || readonly"
+      :disabled="disabled || readonly || !currentField"
       :clearable="false"
       @update:model-value="onOperatorChange"
     />
 
-    <!-- 值输入 -->
     <div :class="cls.e('value')">
-      <template v-if="needValue">
+      <template v-if="!needValue">
+        <span :class="cls.e('value-empty')">—</span>
+      </template>
+
+      <template v-else-if="enumValueOptions">
+        <u-select
+          :model-value="constantValue"
+          :options="enumValueOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="选择值"
+          :size="size"
+          :disabled="disabled || readonly"
+          :clearable="false"
+          @update:model-value="onConstantChange"
+        />
+      </template>
+
+      <template v-else-if="booleanValueOptions">
+        <u-select
+          :model-value="constantValue"
+          :options="booleanValueOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="选择值"
+          :size="size"
+          :disabled="disabled || readonly"
+          :clearable="false"
+          @update:model-value="onConstantChange"
+        />
+      </template>
+
+      <template v-else-if="item.value.kind === 'variable'">
+        <span
+          ref="chipRef"
+          :class="cls.e('value-chip')"
+          tabindex="0"
+          :title="`变量：${item.value.name}`"
+          @click="onChipClick"
+          @keydown.delete="onChipDelete"
+        >
+          <span :class="cls.e('value-chip-label')">{{ item.value.name }}</span>
+          <span :class="cls.e('value-chip-close')" @click.stop="onChipDelete">
+            <u-icon><Close /></u-icon>
+          </span>
+        </span>
+      </template>
+
+      <template v-else>
         <input
-          v-if="item.value.kind === 'constant'"
           ref="valueInputRef"
           :class="cls.e('value-input')"
-          :value="item.value.value"
+          :type="inputType"
+          :value="constantValue"
           :placeholder="placeholder"
           :disabled="disabled"
           :readonly="readonly"
           @input="onValueInput"
           @keydown="onValueKeydown"
-          @focus="focused = true"
-          @blur="focused = false"
         />
-        <span
-          v-else
-          :class="cls.e('value-chip')"
-          tabindex="0"
-          @click="onChipClick"
-          @keydown.delete="onChipDelete"
-        >
-          <span :class="cls.e('value-chip-label')">{{ variableLabel }}</span>
-          <span :class="cls.e('value-chip-close')" @click.stop="onChipDelete">×</span>
-        </span>
       </template>
-      <span v-else :class="cls.e('value-empty')">—</span>
     </div>
 
-    <!-- 删除 -->
-    <span v-if="!readonly" :class="cls.e('row-delete')" @click="emit('delete')">×</span>
-
-    <!-- 结果指示 -->
-    <span
-      v-if="hasResult"
-      :class="[cls.e('result'), cls.em('result', item._result ? 'pass' : 'fail')]"
+    <button
+      v-if="!readonly"
+      type="button"
+      :class="cls.e('row-delete')"
+      :disabled="disabled"
+      title="删除条件"
+      @click="emit('delete')"
     >
-      {{ item._result ? '✓' : '✗' }}
-    </span>
-    <span v-else :class="[cls.e('result'), cls.em('result', 'none')]">—</span>
+      <u-icon><Delete /></u-icon>
+    </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useFormFallbackProps } from '@veltra/compositions'
-import { bem, injectFormContext } from '@veltra/utils'
-import { computed, ref, useTemplateRef } from 'vue'
+import { Close, Delete } from '@veltra/icons/normal'
+import { bem } from '@veltra/utils'
+import { computed, useTemplateRef } from 'vue'
 
-import type { ConditionField, ConditionItem, ConditionValue } from '../../../types'
+import type { ConditionField, ConditionLeaf, ConditionValue } from '../../../types'
+import { UIcon } from '../../icon'
 import { USelect } from '../../select'
 import { getOperatorsByFieldType, type OperatorDef } from '../core/operators'
 
@@ -90,25 +123,17 @@ export interface MentionPayload {
 
 const props = withDefaults(
   defineProps<{
-    item: ConditionItem
+    item: ConditionLeaf
     fields?: ConditionField[]
-    size?: string
+    size?: 'small' | 'default' | 'large'
     disabled?: boolean
     readonly?: boolean
   }>(),
-  {}
+  { size: 'default' }
 )
 
-const { formProps } = injectFormContext()
-
-const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default',
-  disabled: false,
-  readonly: false
-})
-
 const emit = defineEmits<{
-  (e: 'update:item', item: ConditionItem): void
+  (e: 'update:item', item: ConditionLeaf): void
   (e: 'delete'): void
   (e: 'mention', payload: MentionPayload): void
 }>()
@@ -116,7 +141,7 @@ const emit = defineEmits<{
 const cls = bem('condition-editor')
 
 const valueInputRef = useTemplateRef<HTMLInputElement>('valueInputRef')
-const focused = ref(false)
+const chipRef = useTemplateRef<HTMLElement>('chipRef')
 
 const fieldOptions = computed(() =>
   (props.fields ?? []).map((f) => ({ label: f.label, value: f.value }))
@@ -124,85 +149,108 @@ const fieldOptions = computed(() =>
 
 const currentField = computed(() => props.fields?.find((f) => f.value === props.item.field))
 
-const operatorOptions = computed(() => {
+const operatorOptions = computed<OperatorDef[]>(() => {
   if (!currentField.value) {
-    return props.item.operator ? [{ label: props.item.operator, value: props.item.operator }] : []
+    return props.item.operator
+      ? [{ label: props.item.operator, value: props.item.operator, needValue: true }]
+      : []
   }
   return getOperatorsByFieldType(currentField.value.type)
 })
 
-const needValue = computed(() => {
-  const ops = operatorOptions.value as OperatorDef[]
-  const op = ops.find((o) => o.value === props.item.operator)
-  return op?.needValue ?? true
+const currentOperator = computed(() =>
+  operatorOptions.value.find((o) => o.value === props.item.operator)
+)
+
+const needValue = computed(() => currentOperator.value?.needValue ?? true)
+
+const constantValue = computed(() =>
+  props.item.value.kind === 'constant' ? props.item.value.value : ''
+)
+
+/** 枚举字段的可选值（仅在非 `in` 等多值运算符下展开为下拉） */
+const enumValueOptions = computed(() => {
+  if (!currentField.value || currentField.value.type !== 'enum') return null
+  if (props.item.operator === 'in') return null
+  return currentField.value.enumOptions ?? []
 })
 
-const hasResult = computed(() => props.item._result !== undefined)
-
-const placeholder = computed(() => (props.fields?.length ? '输入值或 @ 引用变量' : ''))
-
-const variableLabel = computed(() => {
-  if (props.item.value.kind !== 'variable') return ''
-  return props.item.value.name
+const booleanValueOptions = computed(() => {
+  if (!currentField.value || currentField.value.type !== 'boolean') return null
+  if (!needValue.value) return null
+  return [
+    { label: '是', value: 'true' },
+    { label: '否', value: 'false' }
+  ]
 })
+
+const inputType = computed(() => {
+  const type = currentField.value?.type
+  if (type === 'number') return 'number'
+  if (type === 'date') return 'date'
+  return 'text'
+})
+
+const placeholder = computed(() => {
+  if (props.item.operator === 'in') return '多个值用逗号分隔'
+  if (!props.fields?.length) return ''
+  return '输入值或 @ 引用变量'
+})
+
+function emitUpdate(patch: Partial<ConditionLeaf>) {
+  emit('update:item', { ...props.item, ...patch })
+}
 
 function onFieldChange(val: string) {
   const field = props.fields?.find((f) => f.value === val)
-  const newItem: ConditionItem = {
-    ...props.item,
-    field: val,
-    operator: field ? getOperatorsByFieldType(field.type)[0]!.value : 'eq',
-    value: { kind: 'constant', value: '' }
-  }
-  emit('update:item', newItem)
-}
-
-function onOperatorChange(val: string) {
-  const newItem: ConditionItem = {
-    ...props.item,
-    operator: val,
-    value: { kind: 'constant', value: '' }
-  }
-  emit('update:item', newItem)
-}
-
-function onValueInput(e: Event) {
-  const val = (e.target as HTMLInputElement).value
+  const nextOps = field ? getOperatorsByFieldType(field.type) : []
+  const nextOp = nextOps[0]?.value ?? 'eq'
   emit('update:item', {
     ...props.item,
-    value: { kind: 'constant', value: val }
+    field: val,
+    operator: nextOp,
+    value: { kind: 'constant', value: '' }
   })
 }
 
+function onOperatorChange(val: string) {
+  emitUpdate({
+    operator: val,
+    value: { kind: 'constant', value: '' }
+  })
+}
+
+function onValueInput(e: Event) {
+  emitUpdate({ value: { kind: 'constant', value: (e.target as HTMLInputElement).value } })
+}
+
+function onConstantChange(val: string) {
+  emitUpdate({ value: { kind: 'constant', value: val } })
+}
+
 function onValueKeydown(e: KeyboardEvent) {
-  if (disabled.value || readonly.value) return
+  if (props.disabled || props.readonly) return
   if (e.key === '@' && valueInputRef.value) {
     e.preventDefault()
     emit('mention', {
       triggerDom: valueInputRef.value,
-      setValue: (val: ConditionValue) => {
-        emit('update:item', { ...props.item, value: val })
-      }
+      setValue: (val) => emitUpdate({ value: val })
     })
   }
 }
 
 function onChipClick() {
-  if (disabled.value || readonly.value) return
-  if (valueInputRef.value) {
-    emit('mention', {
-      triggerDom: valueInputRef.value,
-      setValue: (val: ConditionValue) => {
-        emit('update:item', { ...props.item, value: val })
-      }
-    })
-  }
+  if (props.disabled || props.readonly) return
+  const dom = chipRef.value
+  if (!dom) return
+  emit('mention', {
+    triggerDom: dom,
+    setValue: (val) => emitUpdate({ value: val })
+  })
 }
 
 function onChipDelete() {
-  emit('update:item', {
-    ...props.item,
-    value: { kind: 'constant', value: '' }
-  })
+  if (props.disabled || props.readonly) return
+  emitUpdate({ value: { kind: 'constant', value: '' } })
 }
 </script>
