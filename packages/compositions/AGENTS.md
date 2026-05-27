@@ -2,35 +2,40 @@
 
 Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 
-## 组合式函数列表
+## 组合式函数
 
-| 模块                  | 主要导出                                   | 用途                                                                                                                                                           |
-| --------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `use-component-props` | `useComponentProps`                        | 组件属性处理                                                                                                                                                   |
-| `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）                                                                                                                                             |
-| `use-drag`            | `useDrag`                                  | 拖拽行为                                                                                                                                                       |
-| `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退（组件 → 表单 → 全局配置）                                                                                                                         |
-| `use-focus`           | `useFocus`                                 | 焦点管理                                                                                                                                                       |
-| `use-user-action`     | `useUserAction`                            | 用户动作追踪（阻断动作期的 modelValue 回流副作用）                                                                                                             |
-| `use-model`           | `useModel`                                 | 双向绑定封装（local/proxy 两种模式）                                                                                                                           |
-| `use-pop`             | `usePop`                                   | 浮框定位（基于 `@floating-ui/dom`）                                                                                                                            |
-| `use-reactive-size`   | `useReactiveSize`                          | 响应式尺寸监听                                                                                                                                                 |
-| `use-resize-observer` | `useResizeObserver`, `useObserverCallback` | ResizeObserver 封装                                                                                                                                            |
-| `use-transition`      | `useTransition`                            | 过渡动画（css/style 两种模式）                                                                                                                                 |
-| `use-virtualizer`     | `useVirtualizer`                           | 虚拟滚动低阶适配层（返回 `{ virtualizer, snapshot, items, isScrolling }`；传入 `contentEl` / `beforeEl` / `afterEl` 时尺寸走 DOM 命令式写入，不经 Vue 响应式） |
+| 模块 | 主要导出 | 用途 |
+| ---- | -------- | ---- |
+| `use-component-props` | `useComponentProps` | 组件属性处理 |
+| `use-config` | `useConfig`, `setDocumentSize` | 全局配置（尺寸等） |
+| `use-drag` | `useDrag` | 拖拽 |
+| `use-fallback-props` | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退 |
+| `use-focus` | `useFocus` | 焦点管理 |
+| `use-user-action` | `useUserAction` | 用户动作期阻断 model 回流 |
+| `use-model` | `useModel` | 双向绑定（local / proxy） |
+| `use-pop` | `usePop` | 浮层定位（`@floating-ui/dom`） |
+| `use-reactive-size` | `useReactiveSize` | 响应式尺寸 |
+| `use-resize-observer` | `useResizeObserver` | ResizeObserver |
+| `use-transition` | `useTransition` | 过渡动画 |
+| `use-virtualizer` | `useVirtualizer` | 虚拟滚动低阶层 |
 
-## useModel 模式
+## useModel
 
 ```ts
-// local 模式（默认）：组件内部维护状态副本，同时 emit 更新
-const model = useModel({ props, emit, local: true })
-
-// proxy 模式：不维护本地状态，完全受控
-const model = useModel({ props, emit, local: false })
+const model = useModel({ props, emit, local: true })   // 内部副本 + emit
+const model = useModel({ props, emit, local: false })  // 完全受控
 ```
 
 ## 依赖
 
-- **依赖**：`@cat-kit/core`、`@veltra/utils`
-- **peer**：`vue ^3.5.0`
-- **被依赖**：`@veltra/desktop`
+- **dependencies**：`@floating-ui/dom`
+- **peer**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/utils`、`vue`
+- **被依赖**：`@veltra/styles`（theme）、`@veltra/desktop`
+
+## 验证
+
+```bash
+bun run lint
+vp pack -F @veltra/compositions
+bun run build    # 下游 styles、desktop 依赖此包
+```

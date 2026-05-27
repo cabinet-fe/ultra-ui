@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.3",
+    "@cat-kit/excel": "^1.0.1",
+    "@cat-kit/fe": "^1.1.3",
     "@veltra/compositions": "workspace:*",
     "@veltra/desktop": "workspace:*",
     "@veltra/directives": "workspace:*",

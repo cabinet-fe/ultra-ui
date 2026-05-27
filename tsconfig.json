@@ -1,7 +1,6 @@
 {
   "files": [],
   "references": [
-    { "path": "./tools/cli/tsconfig.json" },
     { "path": "./packages/utils/tsconfig.json" },
     { "path": "./packages/styles/tsconfig.json" },
     { "path": "./packages/compositions/tsconfig.json" },

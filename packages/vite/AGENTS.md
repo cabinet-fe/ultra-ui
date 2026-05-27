@@ -1,59 +1,47 @@
 # AGENTS.md — @veltra/vite
 
-面向宿主 Vite 的辅助能力（如 `unplugin-vue-components` 的 `VeltraDesktopUIResolver`）。
-
-## 目录结构
-
-```
-src/
-├── index.ts       # 入口，re-export resolver
-└── resolver.ts    # VeltraDesktopUIResolver 实现
-```
+宿主 Vite 辅助：`unplugin-vue-components` 的 `VeltraDesktopUIResolver`。
 
 ## 导出
 
-| 导出                             | 类型     | 说明                                    |
-| -------------------------------- | -------- | --------------------------------------- |
-| `VeltraDesktopUIResolver`        | function | `unplugin-vue-components` 组件 resolver |
-| `VeltraDesktopUIResolverOptions` | type     | resolver 选项                           |
+| 导出 | 说明 |
+| ---- | ---- |
+| `VeltraDesktopUIResolver` | 组件 + 样式副作用 resolver |
+| `VeltraDesktopUIResolverOptions` | resolver 选项 |
 
 ## 用法
 
 ```ts
-// vite.config.ts
 import { VeltraDesktopUIResolver } from '@veltra/vite'
 import Components from 'unplugin-vue-components/vite'
-import { defineConfig } from 'vite'
 
-export default defineConfig({ plugins: [Components({ resolvers: [VeltraDesktopUIResolver()] })] })
+export default defineConfig({
+  plugins: [Components({ resolvers: [VeltraDesktopUIResolver()] })]
+})
 ```
 
-## 开发 / 生产环境差异
+## 样式路径与 condition
 
-Resolver 返回的样式副作用路径 `@veltra/desktop/components/<dir>/style`（无扩展名），依赖 `@veltra/desktop` 的 package exports conditions 自动路由：
+Resolver 返回 `@veltra/desktop/components/<dir>/style`（无扩展名）：
 
-| 环境                 | condition     | 解析目标                         | 说明                     |
-| -------------------- | ------------- | -------------------------------- | ------------------------ |
-| `vite dev`（开发）   | `veltra-dev`  | `src/components/<dir>/style.ts`  | 源码 SCSS 管线，支持 HMR |
-| `vite build`（生产） | `import`      | `dist/components/<dir>/style.js` | 预编译，CSS 由 JS 入口导入 |
+| 环境 | condition | 解析目标 |
+| ---- | --------- | -------- |
+| dev | `veltra-dev` | `src/components/<dir>/style.ts` |
+| build | `import` | `dist/components/<dir>/style.js` |
 
-Resolver 只解析当前 `@veltra/desktop` 真实导出的 `U*` 组件名；未知组件名不会被映射到不存在的导出。`include` / `exclude` 使用样式目录名过滤，`importStyle` 控制是否返回样式副作用。
-
-## 共目录组件映射
-
-部分子组件与父组件共享同一目录和 `style.ts`，resolver 内部维护 `SHARED_STYLE_DIR` 映射表：
-
-| 子组件 kebab 名                    | 样式目录   |
-| ---------------------------------- | ---------- |
-| `button-group`                     | `button`   |
-| `action-group`                     | `action`   |
-| `card-header/cover/content/action` | `card`     |
-| `checkbox-button`                  | `checkbox` |
-| `grid-item`                        | `grid`     |
-| `list-item`                        | `list`     |
-| `menu-sub/item`                    | `menu`     |
-| `tabs-horizontal/vertical`         | `tabs`     |
+共目录组件（如 `button-group` → `button`）见 `resolver.ts` 内 `SHARED_STYLE_DIR`。
 
 ## 依赖
 
+- **devDependencies**：`@veltra/desktop`（本地开发）
 - **peer**：`@veltra/desktop`、`unplugin-vue-components`
+
+宿主项目将 `@veltra/vite` 放在 **devDependencies**。
+
+## 验证
+
+```bash
+bun run lint
+vp pack -F @veltra/vite
+cd playgrounds/desktop && vp build
+```

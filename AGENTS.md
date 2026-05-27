@@ -4,61 +4,107 @@ Vue 3 组件库，完全 TypeScript 开发，BEM + CSS 变量主题系统。
 
 ## 常用命令
 
-> 工具链已切换至 [Vite+](https://viteplus.dev/)，本地需先安装全局 `vp` CLI。
+> 工具链：[Vite+](https://viteplus.dev/)，本地需安装全局 `vp` CLI。
 
 ```bash
-vp install                                   # 安装依赖（自动检测 packageManager → bun）
-cd playgrounds/desktop && vp dev             # 启动开发预览 (端口 7788)
-bun tools/cli/gen-component/index.ts         # 交互式生成新组件
-bun tools/cli/export/index.ts               # 重新导出组件
-bun run build                                # 拓扑构建全部 packages（→ dist/）
-bun run build:packages                       # 发布构建（CI 用，排除 @veltra/mobile）
-bun run lint                                 # lint + 类型检查（根 lint.options.typeCheck）
-bun run fmt                                  # 格式化
-bun run test                                 # Vitest（配置在根 vite.config.ts test 块）
-vp changeset                                 # 记录变更（见 RELEASE.md）
-bun run release                              # dev 分支本地落版本号并推送；CI 自动测试/构建/发布/release notes
+vp install                          # 安装依赖（自动检测 packageManager → bun）
+cd playgrounds/desktop && vp dev    # 组件预览（端口 7788）
+bun run build                       # 拓扑构建全部 packages → dist/
+bun run build:packages              # 发布构建（CI 用，排除 @veltra/mobile）
+bun run lint                        # Oxlint + 类型检查（lint.options.typeCheck）
+bun run fmt                         # Oxfmt 格式化
+bun run test                        # Vitest（根 vite.config.ts test 块）
+vp changeset                        # 记录变更（见 RELEASE.md）
+bun run release                     # dev 分支落版本并推送；CI 负责测试/构建/发布
 ```
+
+按包构建/测试：
+
+```bash
+vp pack -F @veltra/desktop          # 单包 library 构建
+vp test -F @veltra/utils            # 单包测试
+vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
+```
+
+## 代码验证
+
+完成代码修改后，**必须**运行验证，确认无基本构建错误与类型错误后再宣称完成。
+
+### 必跑（默认）
+
+在仓库根目录依次执行：
+
+```bash
+bun run lint      # 类型检查 + lint；不得输出 .d.ts 等文件
+bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未通过
+```
+
+`bun run lint` 已启用 `typeCheck: true`（tsgolint），覆盖 monorepo 内 TS/Vue 源码的类型错误。
+
+### 按改动范围追加
+
+| 改动范围 | 追加命令 |
+| -------- | -------- |
+| 仅 `@veltra/desktop` 或组件演示 | `cd playgrounds/desktop && vp dev`，浏览器验证 UI |
+| 仅 `@veltra/utils` / `@veltra/styles` | `vp test -F @veltra/utils` 或 `vp test -F @veltra/styles` |
+| 仅 `@veltra/icons` | `vp run -F @veltra/icons build` |
+| 仅 `@veltra/vite` resolver | `cd playgrounds/desktop && vp build` |
+
+### 约束
+
+- 不得用 `@ts-ignore`、`skipLibCheck` 等方式绕过类型错误。
+- 不得运行会 emit 声明文件的 tsc 作为「验证」手段。
+- pre-commit 会执行 `vp staged`（lint --fix + fmt），提交前本地应先过 `bun run lint`。
 
 ## 技术栈
 
-| 类别      | 技术                                                                                                      | 版本          |
-| --------- | --------------------------------------------------------------------------------------------------------- | ------------- |
-| 框架      | Vue 3 (Composition API + `<script setup>`)                                                                | ^3.5.32       |
-| 语言      | TypeScript                                                                                                | ^6.0          |
-| 运行时    | Bun                                                                                                       | -             |
-| 工具链    | [Vite+](https://viteplus.dev/)（统一管理 dev/build/test/lint/fmt/pack/run）                               | ^0.1          |
-| 库打包    | `vp pack`（各 `@veltra/*` 包自带 `vite.config.ts` 的 `pack` 块；包内脚本 `vp pack`）                 | -             |
-| 样式      | SCSS + BEM + CSS 变量                                                                                     | sass-embedded |
-| 测试      | Vitest（经 `vp test` 调用）                                                                               | ^4.1          |
-| 校验      | Oxlint + tsgolint（`bun run lint`；根 `lint.options.typeCheck` 已启用）+ Oxfmt（`bun run fmt`）          | -             |
-| Monorepo  | `vp run` 任务编排，workspaces 拓扑由 package.json 依赖图自动派生                                              | -             |
-| Git Hooks | simple-git-hooks (commit-msg + pre-commit → `vp staged`，规则见根 `vite.config.ts` `staged` 块)          | -             |
-| 核心依赖  | `@cat-kit/core`（日期/数值/定时器、树结构等数据结构）、`@cat-kit/fe`（CLI/构建）、`@veltra/icons`（图标） | peer / deps   |
+| 类别 | 技术 | 版本 |
+| ---- | ---- | ---- |
+| 框架 | Vue 3（Composition API + `<script setup>`） | >=3.5.0（peer） |
+| 语言 | TypeScript | ^6.0 |
+| 运行时 | Bun | - |
+| 工具链 | [Vite+](https://viteplus.dev/)（dev/build/test/lint/fmt/pack/run） | ^0.1 |
+| 库打包 | 各包 `vite.config.ts` 的 `pack` 块 + `vp pack` | - |
+| 样式 | SCSS + BEM + CSS 变量 | sass-embedded |
+| 测试 | Vitest（`vp test`） | ^4.1 |
+| 校验 | Oxlint + tsgolint + Oxfmt | - |
+| Monorepo | `vp run` 任务编排，workspaces 拓扑由依赖图派生 | - |
+| Git Hooks | simple-git-hooks（commit-msg + pre-commit → `vp staged`） | - |
+| 核心 peer | `@cat-kit/core`、`@cat-kit/fe`（browser/neutral）；`@veltra/icons` | 宿主安装 |
 
 ## 目录结构
 
 ```
 ultra-ui/
 ├── packages/
-│   ├── utils/           # @veltra/utils — 工具函数、共享类型（→ AGENTS.md）
-│   ├── styles/          # @veltra/styles — 共享 SCSS 与主题 TS（`@veltra/styles/theme`）（→ AGENTS.md）
-│   ├── compositions/    # @veltra/compositions — Vue 组合式函数（→ AGENTS.md）
-│   ├── directives/      # @veltra/directives — Vue 自定义指令（→ AGENTS.md）
-│   ├── desktop/         # @veltra/desktop — 桌面端组件库主包（→ AGENTS.md）
-│   ├── icons/           # @veltra/icons — SVG 图标组件（→ AGENTS.md）
-│   └── mobile/          # @veltra/mobile — 移动端（占位，暂无内容）
-├── tools/
-│   └── cli/             # 开发辅助 CLI 工具（→ AGENTS.md）
+│   ├── utils/           # @veltra/utils — 工具函数、共享类型
+│   ├── styles/          # @veltra/styles — 共享 SCSS 与主题（@veltra/styles/theme）
+│   ├── compositions/    # @veltra/compositions — Vue 组合式函数
+│   ├── directives/      # @veltra/directives — Vue 自定义指令
+│   ├── desktop/         # @veltra/desktop — 桌面端组件库主包
+│   ├── icons/           # @veltra/icons — SVG 图标组件
+│   ├── vite/            # @veltra/vite — Vite 辅助（组件 resolver）
+│   └── mobile/          # @veltra/mobile — 移动端（占位）
 ├── playgrounds/
-│   ├── desktop/         # 组件开发预览应用（→ AGENTS.md）
-│   └── icons/           # 图标预览应用
-├── vite.config.ts       # Vite+ 根配置（monorepo 级 test/lint/fmt/run/staged；单包 test/pack 在各自 vite.config.ts）
-├── package.json         # Monorepo 根 (workspaces: packages/*, playgrounds/*, tools/*)
-└── tsconfig.json        # Solution 风格，仅 project references
+│   ├── desktop/         # 组件开发预览（→ AGENTS.md）
+│   └── icons/           # 图标预览
+├── vite.config.ts       # monorepo 级 test/lint/fmt/run/staged
+├── package.json         # workspaces: packages/*, playgrounds/*
+└── tsconfig.json        # Solution 风格 project references
 ```
 
-> 每个子包含独立 `AGENTS.md`，记录包内专属规范和 API。上方 `→ AGENTS.md` 标记了入口。
+各子包 AGENTS.md 记录包内规范与 API，见下方索引。
+
+| 包 | AGENTS.md |
+| -- | --------- |
+| `@veltra/utils` | `packages/utils/AGENTS.md` |
+| `@veltra/styles` | `packages/styles/AGENTS.md` |
+| `@veltra/compositions` | `packages/compositions/AGENTS.md` |
+| `@veltra/directives` | `packages/directives/AGENTS.md` |
+| `@veltra/desktop` | `packages/desktop/AGENTS.md` |
+| `@veltra/icons` | `packages/icons/AGENTS.md` |
+| `@veltra/vite` | `packages/vite/AGENTS.md` |
+| 预览应用 | `playgrounds/desktop/AGENTS.md` |
 
 ## 包依赖关系
 
@@ -67,7 +113,7 @@ ultra-ui/
     ↑
 @veltra/utils ←── @veltra/directives
     ↑                      ↑
-@veltra/compositions     │
+@veltra/compositions       │
     ↑                      │
     └──────────┬───────────┘
                ↓
@@ -76,32 +122,42 @@ ultra-ui/
      playgrounds/desktop
 ```
 
-`@veltra/styles`（共享 SCSS + `@veltra/styles/theme`）被 `desktop`、`directives`、`playgrounds/desktop` 等依赖；**`theme` 子路径在运行时依赖 `@veltra/compositions`（`useConfig`），`compositions` 不得再导出 `theme`，以免包循环。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需配置 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
+`@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playgrounds 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
+
+browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **peerDependencies**（`>=` 下限版本）；宿主或 playground 在 dependencies 中安装实际版本。
 
 ## 路径别名
 
-| 别名                   | 指向                        |
-| ---------------------- | --------------------------- |
-| `@veltra/utils`        | `packages/utils/src`        |
-| `@veltra/styles`       | `packages/styles/src`       |
-| `@veltra/desktop`      | `packages/desktop/src`      |
+| 别名 | 指向 |
+| ---- | ---- |
+| `@veltra/utils` | `packages/utils/src` |
+| `@veltra/styles` | `packages/styles/src` |
+| `@veltra/desktop` | `packages/desktop/src` |
 | `@veltra/compositions` | `packages/compositions/src` |
-| `@veltra/directives`   | `packages/directives/src`   |
+| `@veltra/directives` | `packages/directives/src` |
 
 ## 全局命名约定
 
-| 对象     | 规则                          | 示例                                                             |
-| -------- | ----------------------------- | ---------------------------------------------------------------- |
-| 组件名   | `U` + PascalCase              | `UButton`、`USelect`                                             |
-| CSS 类   | `u-` + BEM                    | `u-button`、`u-button__icon`                                     |
-| 指令名   | `v` + camelCase               | `vRipple`、`vClickOutside`                                       |
-| 目录名   | kebab-case                    | `date-picker`、`number-input`                                    |
+| 对象 | 规则 | 示例 |
+| ---- | ---- | ---- |
+| 组件名 | `U` + PascalCase | `UButton`、`USelect` |
+| CSS 类 | `u-` + BEM | `u-button`、`u-button__icon` |
+| 指令名 | `v` + camelCase | `vRipple`、`vClickOutside` |
+| 目录名 | kebab-case | `date-picker`、`number-input` |
 | 类型命名 | `<Name>Props` / `<Name>Emits` | `ButtonProps`、`_ButtonExposed`（内部）、`ButtonExposed`（导出） |
+
+## 新增组件（手动）
+
+在 `packages/desktop/src/components/<name>/` 创建：
+
+- `<name>.vue`、`index.ts`（导出 `U<PascalName>`）、`style.scss`、`style.ts`
+- 类型放在 `packages/desktop/src/types/<name>.ts`
+- 在 `components/index.ts` 与 `types/index.ts` 中补充导出
+- 可选：在 `playgrounds/desktop/src/<name>/index.vue` 添加演示页
 
 ## 约束
 
-- Commit message 通过 `simple-git-hooks` + `cat-cli verify-commit` 校验。
-- `sideEffects` 声明：组件 `style.ts`、指令样式、`@veltra/styles` 的 `.scss` 与副作用 TS 入口、`.css`、`.scss`。
-- 使用 `bun run lint`/`tsc` 校验时不得输出任何文件，包括声明文件。
-- 本项目基于 typescript 6.x 版本，并且全部包的 tsconfig.json 配置都基于 `@cat-kit/tsconfig`，不得使用任何方式跳过或者避免类型错误。
-- 各 `@veltra/*` 库自带 `vite.config.ts`，`pack` 块直接定义在包内；包内 `build` 脚本统一为 `vp pack`。根 `vite.config.ts` 只保留 monorepo 级配置（test/lint/fmt/run/staged）。
+- Commit message 经 `simple-git-hooks` + `cat-cli verify-commit` 校验。
+- `sideEffects`：组件 `style.ts`、指令样式、`@veltra/styles` 的 `.scss` 与副作用 TS 入口、`.css`、`.scss`。
+- TypeScript 6.x，各包 tsconfig 基于 `@cat-kit/tsconfig`；禁止跳过类型错误。
+- 各 `@veltra/*` 库自带 `vite.config.ts`（含 `pack` 块）；根 `vite.config.ts` 仅 monorepo 级配置。

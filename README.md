@@ -112,12 +112,6 @@ vp dev
 bun run build
 ```
 
-### 生成新组件
-
-```bash
-bun tools/cli/gen-component/index.ts
-```
-
 ## 📁 项目结构
 
 ```
@@ -131,13 +125,10 @@ ultra-ui/
 │   └── utils/        # @veltra/utils 工具函数与共享类型
 ├── playgrounds/
 │   └── desktop/      # 桌面端组件开发预览
-└── tools/cli/        # 开发辅助 CLI
 ```
 
 ## 💻 脚本命令
 
-- `bun tools/cli/gen-component/index.ts` - 生成新组件
-- `bun tools/cli/export/index.ts` - 重新导出组件
 - `bun run lint` - lint + 类型检查
 - `bun run fmt` - 格式化
 - `bun run build` - 构建各包（库包内为 `vp pack`）
@@ -149,7 +140,7 @@ ultra-ui/
 - **Vue 3.5** - 渐进式 JavaScript 框架
 - **TypeScript 6** - JavaScript 的超集
 - **[Vite+](https://viteplus.dev/)** - 统一前端工具链（dev/build/test/lint/fmt/pack/run）
-- **`vp pack`** - 库制品构建（unbundle 1:1 输出；配置在根 `vite/pack.ts`）
+- **`vp pack`** - 库制品构建（unbundle 1:1 输出；配置在各包 `vite.config.ts` 的 `pack` 块）
 - **SCSS** - CSS 预处理器
 - **Vitest** - 单元测试框架（经 `vp test` 调用）
 - **Oxlint + Oxfmt** - 校验与格式化（`bun run lint` / `bun run fmt`）

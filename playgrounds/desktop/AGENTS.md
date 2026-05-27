@@ -1,57 +1,51 @@
 # AGENTS.md — playgrounds/desktop
 
-组件开发预览应用，用于调试和演示 Ultra UI 组件。
+组件开发预览，调试与演示 Ultra UI。
 
 ## 启动
 
 ```bash
 cd playgrounds/desktop
-bun dev    # Vite 开发服务器，端口 7788
+vp dev    # 端口 7788，host: true
 ```
 
-## 路由约定
+## 路由
 
-`src/<component-name>/index.vue` 自动注册为路由：
+`src/<component-name>/index.vue` → `/<component-name>/index`，由 `import.meta.glob('./src/**/index.vue')` 自动生成。
 
-```
-src/button/index.vue  → /button/index
-src/table/index.vue   → /table/index
-```
+## Vite 要点
 
-基于 `import.meta.glob('./src/**/index.vue')` 动态生成，无需手动维护路由表。
+- SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
+- `VeltraDesktopUIResolver`（`@veltra/vite`）：`U*` 组件 + 对应 `style.ts`
+- `@veltra/vite` 为本 playground 的 devDependency
 
-## 新增演示页
-
-在 `src/` 下创建 `<component-name>/index.vue` 即可，自动被路由发现。
-
-## Vite 配置要点
-
-- **SCSS**：`sass-embedded` 现代 API + `NodePackageImporter`（入口目录为仓库根），解析 `pkg:@veltra/styles/...`
-- **unplugin-components**：`U` 前缀组件自动从 `@veltra/desktop` 解析，同时自动引入对应 `style.ts`
-- **端口**：7788，`host: true`
-
-## 项目结构
+## 结构
 
 ```
-├── App.vue               # 应用根组件
-├── main.ts               # 入口（引入 normalize 样式，挂载 router）
-├── router.ts             # 自动路由生成
-├── vite.config.ts        # Vite 配置
-├── index.html
-└── src/                  # 演示页（~61 个组件演示）
-    ├── button/index.vue
-    ├── table/index.vue
-    ├── form/index.vue
-    └── ...
+App.vue
+main.ts           # normalize + router
+router.ts
+vite.config.ts
+src/<name>/index.vue
 ```
 
-## 浏览器连接调试
+## 浏览器调试
 
-- 在大部分情况下，你应该尝试调用浏览器连接工具来调试页面验证页面效果是否达到预期，如果不能达到预期则需要重新更改代码确保能够按预期交付
-- 有时候开发服务已经启动，你应该先尝试请求该服务看是否在线，再尝试是否需要自行启动开发服务器
+改 UI 后优先用浏览器工具验证；若 dev server 已在跑，先探测 7788 再决定是否启动。
 
 ## 依赖
 
-- `@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/styles`、`@veltra/utils`
-- `vue`、`vue-router`
-- `sass-embedded`、`unocss`、`vite-plugin-vue-devtools`
+- **dependencies**：`@veltra/*`、`@cat-kit/core`、`@cat-kit/fe`、`@cat-kit/excel`、`vue`、`vue-router`
+- **devDependencies**：`@veltra/vite`、`vite-plugin-vue-devtools`
+
+## 验证
+
+```bash
+# 仓库根
+bun run lint
+bun run build
+
+# 本 playground
+cd playgrounds/desktop && vp dev      # 交互验证
+cd playgrounds/desktop && vp build    # 生产构建
+```

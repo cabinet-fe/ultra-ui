@@ -26,7 +26,7 @@ jobs:
       SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -37,34 +37,30 @@ jobs:
             exit 1
           fi
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.11
-
+      # setup-vp 统一装载 Vite+、Node.js 与 Bun（读取 packageManager），并缓存 bun.lock。
+      # run-install 合并原「Setup Bun + Setup Node + vp install」三步，避免重复安装。
       - name: Setup Vite+
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.10.0
         with:
-          node-version: '22'
+          node-version: '24'
           cache: true
+          run-install: |
+            args: ['--frozen-lockfile']
 
-      - name: Setup Node.js for npm publish
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Lint
-        run: bun run lint
-
-      - name: Run tests
-        run: bun run test
+      - name: Lint and test
+        run: |
+          vp lint &
+          lint_pid=$!
+          vp test &
+          test_pid=$!
+          wait $lint_pid
+          lint_status=$?
+          wait $test_pid
+          test_status=$?
+          exit $((lint_status | test_status))
 
       - name: Build packages
-        run: bun run build:packages
+        run: vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
 
       # 仓库 .npmrc 默认指向安装镜像；发布前必须显式切回 npmjs。
       - name: Configure npm registry for publish
@@ -79,7 +75,7 @@ jobs:
 
       - name: Publish to npm and collect release data
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v1.8.0
         with:
           publish: bun run changeset publish
           createGithubReleases: false
