@@ -5,8 +5,6 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { basename, dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import fg from 'fast-glob'
-
 import { kebabBasenameToComponentName } from './icon-naming'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -75,7 +73,11 @@ let written = 0
 let skipped = 0
 
 for (const { glob, outDir, mono } of SOURCES) {
-  const files = await fg(glob, { cwd: PKG_ROOT, absolute: true })
+  const matcher = new Bun.Glob(glob)
+  const files: string[] = []
+  for await (const rel of matcher.scan({ cwd: PKG_ROOT })) {
+    files.push(join(PKG_ROOT, rel))
+  }
   for (const abs of files.toSorted()) {
     const svgRaw = readFileSync(abs, 'utf8')
     const hash = shortHash(svgRaw)

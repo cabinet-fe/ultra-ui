@@ -143,10 +143,10 @@ function pascalToKebab(str: string): string {
  * components and their style side effects.
  *
  * Style resolution relies on `@veltra/desktop` package exports conditions:
- * - **development** (Vite dev): resolves to `src/components/<dir>/style.ts`
+ * - **veltra-dev** (Vite dev): resolves to `src/components/<dir>/style.ts`
  *   (source SCSS pipeline, full HMR)
  * - **production** (Vite build): resolves to `dist/components/<dir>/style.js`
- *   (pre-compiled, CSS already injected)
+ *   (pre-compiled, CSS imported by the JS entry)
  */
 export function VeltraDesktopUIResolver(
   options: VeltraDesktopUIResolverOptions = {}

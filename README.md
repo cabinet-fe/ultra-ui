@@ -82,8 +82,9 @@ const handleClick = () => {
 
 ### 环境准备
 
-- Node.js 18+
+- Node.js 20.19+ 或 22.12+
 - Bun 1.0+
+- [Vite+](https://viteplus.dev/) (`vp` 全局 CLI)
 
 ### 克隆项目
 
@@ -95,14 +96,14 @@ cd ultra-ui
 ### 安装依赖
 
 ```bash
-bun install
+vp install
 ```
 
 ### 启动开发服务器
 
 ```bash
 cd playgrounds/desktop
-bun dev
+vp dev
 ```
 
 ### 构建组件库
@@ -137,17 +138,21 @@ ultra-ui/
 
 - `bun tools/cli/gen-component/index.ts` - 生成新组件
 - `bun tools/cli/export/index.ts` - 重新导出组件
-- `bun run check-types` - 类型检查
-- `bun run build` - 构建各包
-- `bun update` - 更新依赖
+- `bun run lint` - lint + 类型检查
+- `bun run fmt` - 格式化
+- `bun run build` - 构建各包（库包内为 `vp pack`）
+- `bun run test` - 运行测试
+- `vp update` - 更新依赖
 
 ## 🛠️ 技术栈
 
 - **Vue 3.5** - 渐进式 JavaScript 框架
 - **TypeScript 6** - JavaScript 的超集
-- **tsdown + Rolldown** - 组件库构建
+- **[Vite+](https://viteplus.dev/)** - 统一前端工具链（dev/build/test/lint/fmt/pack/run）
+- **`vp pack`** - 库制品构建（unbundle 1:1 输出；配置在根 `vite/pack.ts`）
 - **SCSS** - CSS 预处理器
-- **Vitest** - 单元测试框架
+- **Vitest** - 单元测试框架（经 `vp test` 调用）
+- **Oxlint + Oxfmt** - 校验与格式化（`bun run lint` / `bun run fmt`）
 - **Bun** - 快速的 JavaScript 运行时
 
 ## 📝 代码规范

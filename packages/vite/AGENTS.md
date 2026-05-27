@@ -34,8 +34,8 @@ Resolver 返回的样式副作用路径 `@veltra/desktop/components/<dir>/style`
 
 | 环境                 | condition     | 解析目标                         | 说明                     |
 | -------------------- | ------------- | -------------------------------- | ------------------------ |
-| `vite dev`（开发）   | `development` | `src/components/<dir>/style.ts`  | 源码 SCSS 管线，支持 HMR |
-| `vite build`（生产） | `import`      | `dist/components/<dir>/style.js` | 预编译，CSS 已 inject    |
+| `vite dev`（开发）   | `veltra-dev`  | `src/components/<dir>/style.ts`  | 源码 SCSS 管线，支持 HMR |
+| `vite build`（生产） | `import`      | `dist/components/<dir>/style.js` | 预编译，CSS 由 JS 入口导入 |
 
 Resolver 只解析当前 `@veltra/desktop` 真实导出的 `U*` 组件名；未知组件名不会被映射到不存在的导出。`include` / `exclude` 使用样式目录名过滤，`importStyle` 控制是否返回样式副作用。
 

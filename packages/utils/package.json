@@ -11,19 +11,18 @@
   ],
   "exports": {
     ".": {
-      "development": "./src/index.ts",
+      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./*": {
-      "development": "./src/*",
+      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }
   },
   "scripts": {
-    "build": "tsdown",
-    "check-types": "tsc -p tsconfig.json --noEmit"
+    "build": "vp pack"
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.3"

@@ -6,24 +6,20 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { NodePackageImporter } from 'sass-embedded'
 import Components from 'unplugin-vue-components/vite'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite-plus'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '../..')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
-export default defineConfig(() => {
-  return {
-    base: '/',
+export default defineConfig({
+  base: '/',
 
-    css: {
-      preprocessorOptions: { scss: { api: 'modern-compiler', importers: [nodePkgImporter] } }
-    },
+  css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
 
-    resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['veltra-dev'] },
+  resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['veltra-dev'] },
 
-    plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraDesktopUIResolver()], dts: true })],
+  plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraDesktopUIResolver()], dts: true })],
 
-    server: { port: 7788, host: true }
-  }
+  server: { port: 7788, host: true }
 })

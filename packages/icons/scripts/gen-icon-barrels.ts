@@ -4,8 +4,6 @@ import { writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import fg from 'fast-glob'
-
 import { kebabBasenameToComponentName } from './icon-naming'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -15,7 +13,12 @@ const BANNER =
   '/**\n * 代码生成：bun run icons:gen（gen-icon-barrels.ts）\n * 勿手改；增删图标后重新执行 icons:gen。\n */\n'
 
 function buildBarrel(sub: 'normal' | 'colorful'): string {
-  const files = fg.sync(`src/vue/${sub}/*.vue`, { cwd: PKG_ROOT, absolute: true }).toSorted()
+  const matcher = new Bun.Glob(`src/vue/${sub}/*.vue`)
+  const files: string[] = []
+  for (const rel of matcher.scanSync({ cwd: PKG_ROOT })) {
+    files.push(join(PKG_ROOT, rel))
+  }
+  files.sort()
   const rows: { exportName: string; base: string }[] = []
   for (const abs of files) {
     const base = basename(abs, '.vue')

@@ -1,2 +1,2 @@
-import '@veltra/styles/anime/fade.scss'
+import '@veltra/styles/transitions/fade.scss'
 import './style.scss'

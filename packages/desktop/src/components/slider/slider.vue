@@ -119,7 +119,7 @@ watch(
   [offset1, offset2],
   userAction((v) => {
     if (props.range) {
-      emit('update:modelValue', v.map(sliderOffset2Value).sort() as T)
+      emit('update:modelValue', v.map(sliderOffset2Value).toSorted() as T)
     } else {
       emit('update:modelValue', sliderOffset2Value(v[0]) as T)
     }

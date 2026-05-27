@@ -217,17 +217,17 @@ async function main(): Promise<void> {
 
   printPackages(packages)
 
-  console.log('[release] 阶段 2/4：执行 changeset version 和 bun install')
+  console.log('[release] 阶段 2/4：执行 changeset version 和 vp install')
   const versionCode = runInherit('bun', ['run', 'version-packages'])
 
   if (versionCode !== 0) {
     fatal('changeset version 失败')
   }
 
-  const installCode = runInherit('bun', ['install'])
+  const installCode = runInherit('vp', ['install'])
 
   if (installCode !== 0) {
-    fatal('bun install 失败')
+    fatal('vp install 失败')
   }
 
   if (args.dryRun) {

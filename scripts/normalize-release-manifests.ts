@@ -81,7 +81,9 @@ function resolveWorkspaceRange(spec: string, version: string): string {
   return raw
 }
 
-function stripDevelopmentExportConditions(node: unknown): boolean {
+const INTERNAL_EXPORT_CONDITIONS = ['development', 'veltra-dev'] as const
+
+function stripInternalExportConditions(node: unknown): boolean {
   if (node === null || typeof node !== 'object') {
     return false
   }
@@ -90,7 +92,7 @@ function stripDevelopmentExportConditions(node: unknown): boolean {
     let changed = false
 
     for (const item of node) {
-      changed = stripDevelopmentExportConditions(item) || changed
+      changed = stripInternalExportConditions(item) || changed
     }
 
     return changed
@@ -99,13 +101,15 @@ function stripDevelopmentExportConditions(node: unknown): boolean {
   const object = node as Record<string, unknown>
   let changed = false
 
-  if (Object.hasOwn(object, 'development')) {
-    delete object.development
-    changed = true
+  for (const condition of INTERNAL_EXPORT_CONDITIONS) {
+    if (Object.hasOwn(object, condition)) {
+      delete object[condition]
+      changed = true
+    }
   }
 
   for (const value of Object.values(object)) {
-    changed = stripDevelopmentExportConditions(value) || changed
+    changed = stripInternalExportConditions(value) || changed
   }
 
   return changed
@@ -178,17 +182,12 @@ async function main(): Promise<void> {
 
     const changesByField: string[] = []
 
-    if (json.exports !== undefined && stripDevelopmentExportConditions(json.exports)) {
-      changesByField.push('exports: removed development conditions')
+    if (json.exports !== undefined && stripInternalExportConditions(json.exports)) {
+      changesByField.push('exports: removed internal development conditions')
     }
 
     for (const field of DEPENDENCY_FIELDS) {
-      const changes = rewriteDependencyField(
-        json.name,
-        field,
-        json[field] as PackageJson[DependencyField],
-        versionMap
-      )
+      const changes = rewriteDependencyField(json.name, field, json[field], versionMap)
 
       if (changes.length > 0) {
         changesByField.push(`${field}: ${changes.join(', ')}`)
@@ -196,7 +195,7 @@ async function main(): Promise<void> {
     }
 
     for (const field of DEPENDENCY_FIELDS) {
-      assertNoWorkspaceRanges(json.name, field, json[field] as PackageJson[DependencyField])
+      assertNoWorkspaceRanges(json.name, field, json[field])
     }
 
     if (changesByField.length === 0) {

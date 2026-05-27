@@ -74,6 +74,7 @@ import { FormModel, formField } from '@veltra/desktop'
 **示例数据**：label 用中文，选项数据用 `label`/`value` 默认字段名，2-3 条即可，不显式声明 `value-key="value" label-key="label"`。
 
 **表单类组件**必须包含「在 UForm 中使用」示例，除非：
+
 - 不是表单控件（Button、Dialog、Menu 等）
 - 已通过 group 形式覆盖（radio-group 等）
 
@@ -94,6 +95,7 @@ const model = new FormModel({ fieldName: '默认值' })
 ```
 
 关键约束：
+
 - model 必须是 `FormModel` 或 `DynamicFormModel`，禁止 `reactive({})`
 - 不写 `<u-form-item>`（UForm 自动包裹有 `field` 属性的子组件）
 - 不写 `v-model`（UForm 自动绑定 `model.data[field]`）
@@ -145,7 +147,8 @@ AI 不阅读源码即可：正确导入、调用核心 API、推导文档未显�
 
 ```scss
 // 而非文字解释 "b mixin 生成 BEM block 选择器"
-@include m.b(button) { }  // .u-button
+@include m.b(button) {
+} // .u-button
 ```
 
 ### 不要写的内容

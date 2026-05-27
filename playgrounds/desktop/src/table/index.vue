@@ -28,7 +28,7 @@ const seeds = [
 // 同时保持原有列的展示含义，便于手动回归。
 const students = Array.from({ length: 0 }).map((_, i) => {
   const seed = seeds[i % seeds.length]!
-  return { id: i + 1, ...seed, name: `${seed.name}-${i}` }
+  return Object.assign({ id: i + 1 }, seed, { name: `${seed.name}-${i}` })
 })
 
 const checked = shallowRef([])

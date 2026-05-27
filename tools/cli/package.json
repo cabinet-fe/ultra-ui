@@ -6,8 +6,7 @@
   "author": "whj",
   "type": "module",
   "scripts": {
-    "build": "bun -e 'void 0'",
-    "check-types": "tsc -p tsconfig.json --noEmit"
+    "build": "bun -e 'void 0'"
   },
   "devDependencies": {
     "@cat-kit/be": "^1.1.3",

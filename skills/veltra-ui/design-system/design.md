@@ -172,7 +172,7 @@ Ultra UI 在 `theme` 目录下集成了 4 套系统级视觉规范。所有主�
 ### 🟢 红榜 (Do's)
 
 - **必须**在使用 `use-var` 获取颜色时，为 Hover/Active 等交互状态准备对应的 Tint 变量（例如 `mixColor` 或 `light-9`）。
-- **必须**在提交代码前使用 `bun run check-types` 保证类型编译自洽。
+- **必须**在提交代码前使用 `bun run lint` 保证类型编译自洽。
 - **必须**让组件的边框厚度、边框样式受控于 `--u-border-width` 和 `--u-border-style`，以便一键适配 Hero 等粗无痕边框主题。
 - **必须**让所有交互按键自带微弱动效与微交互，充分匹配 Ultra UI 的极致流畅体验。
 

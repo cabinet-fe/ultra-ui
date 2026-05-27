@@ -8,9 +8,6 @@
       "import": "./src/index.ts"
     }
   },
-  "scripts": {
-    "check-types": "tsc -p tsconfig.json --noEmit"
-  },
   "peerDependencies": {
     "vue": "^3.5.33"
   }

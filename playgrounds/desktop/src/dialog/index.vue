@@ -108,7 +108,7 @@ watch(visible2, (v) => {
 </script>
 
 <style lang="scss" scoped>
-@use 'pkg:@veltra/styles/anime/slide.scss' as *;
+@use 'pkg:@veltra/styles/transitions/slide.scss' as *;
 .box {
   display: flex;
   flex-direction: column;

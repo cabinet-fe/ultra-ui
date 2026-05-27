@@ -3,8 +3,6 @@ import { spawnSync } from 'node:child_process'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import fg from 'fast-glob'
-
 import { suggestBasename } from './icon-naming'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -12,7 +10,12 @@ const PKG_ROOT = join(__dirname, '..')
 const SVG_GLOB = 'src/svg/**/*.svg'
 const apply = process.argv.includes('--apply')
 
-const paths = await fg(SVG_GLOB, { cwd: PKG_ROOT, absolute: true }).then((p) => p.sort())
+const matcher = new Bun.Glob(SVG_GLOB)
+const paths: string[] = []
+for await (const rel of matcher.scan({ cwd: PKG_ROOT })) {
+  paths.push(join(PKG_ROOT, rel))
+}
+paths.sort()
 
 type Row = { rel: string; fromBase: string; toBase: string; dir: string }
 

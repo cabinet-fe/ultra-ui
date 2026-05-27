@@ -25,7 +25,7 @@ ls node_modules/@veltra/vite/dist/
 | `@veltra/styles`       | `dist/index.js`  | `dist/index.d.ts`  |
 | `@veltra/directives`   | `dist/index.js`  | `dist/index.d.ts`  |
 | `@veltra/icons`        | `dist/index.js`  | `dist/index.d.ts`  |
-| `@veltra/vite`         | `dist/index.mjs` | `dist/index.d.mts` |
+| `@veltra/vite`         | `dist/index.js`  | `dist/index.d.ts`  |
 
 ## 子路径导出
 

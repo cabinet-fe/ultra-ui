@@ -8,7 +8,7 @@ Veltra Ultra UI 采用 Changesets 管理版本与 changelog。维护者在 `dev`
 | -------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | 记录变更 | `bun run changeset`                      | 生成 `.changeset/*.md`，随开发提交进入 `dev`，内容范围包含未提交内容和已提交但未推送至远端的内容 |
 | 落版本号 | `bun run release`                        | 执行 `changeset version`、`bun install`、提交版本变更并推送                                      |
-| 正式发布 | `packages/*/CHANGELOG.md` 变更进入 `dev` | CI 自动完成 check-types、test、build、npm publish、GitHub Release                                |
+| 正式发布 | `packages/*/CHANGELOG.md` 变更进入 `dev` | CI 自动完成 lint、test、build、npm publish、GitHub Release                                |
 
 ## 操作步骤
 

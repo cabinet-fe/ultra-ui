@@ -2,6 +2,8 @@
 
 发布采用 **Changesets 管理版本与 changelog**。维护者在 `dev` 分支开发并提交 changeset 后，运行 `bun run release` 即可落版本号并推送版本提交；该提交进入 `dev` 后，`.github/workflows/release.yml` 会自动执行类型检查、测试、构建、`npm publish`，并自动编写 **GitHub Release notes**。
 
+> 工具链为 **[Vite+](https://viteplus.dev/)**：本地与 CI 均通过 `vp` 调用；CI 使用 `voidzero-dev/setup-vp@v1` 装载。库包用 `vp pack` 构建，monorepo 编排用 `vp run`。
+
 ## 前置条件
 
 - 发布分支为 `dev`（与 `.changeset/config.json` 中 `baseBranch` 一致）。
@@ -12,17 +14,18 @@
 | -------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | 记录变更 | 本地 `bun run changeset`                  | 生成 `.changeset/*.md`，随开发提交进入，changeset 内容范围包含未提交内容和已提交为推送至远端的内容 `dev`  |
 | 落版本号 | 本地 `bun run release`                    | 在 `dev` 上执行 `changeset version`、`bun install`、提交版本变更并推送                                    |
-| 正式发布 | `dev` 上的 `packages/*/CHANGELOG.md` 变更 | Release workflow 自动完成 `check-types`、`test`、packages build、npm publish 和 GitHub Release notes 创建 |
+| 正式发布 | `dev` 上的 `packages/*/CHANGELOG.md` 变更 | Release workflow 自动完成 lint、test、packages build、npm publish 和 GitHub Release notes 创建 |
 
 ## 推荐操作步骤（维护者）
 
 1. **日常**：在 `dev` 分支开发。改动用户可见行为前执行 `bun run changeset`，把生成的 changeset 文件一并提交。
 2. **准备发版**：在最新且干净的 `dev` 上执行 `bun run release`。该命令会执行 `changeset version`、`bun install`、提交版本变更并推送；远端 CI 负责真正发布。可用 `bun run release --dry-run` 预览版本变更后自动回滚本地改动。
 3. **CI 发布**：`packages/*/CHANGELOG.md` 变更进入 `dev` 后，工作流 **Release** 会：
-   - 安装依赖，并运行 `bun run check-types`、`bun run test`；
-   - 执行 `bun run build:packages`，构建除 `@veltra/mobile` 外的 packages；
+   - 通过 `voidzero-dev/setup-vp@v1` 装载 Vite+，`vp install --frozen-lockfile` 安装依赖；
+   - 运行 `bun run lint`、`bun run test`；
+   - 执行 `bun run build:packages`，按拓扑构建除 `@veltra/mobile` 外的 packages；
    - 发布前把 CI 内的 `.npmrc` 切到 npmjs；
-   - 执行 `scripts/normalize-release-manifests.ts`，将内部 `workspace:` 依赖解析为当前包版本，并从发布清单的 `exports` 中移除仅供仓库内联调用的 `development` 条件；
+   - 执行 `scripts/normalize-release-manifests.ts`，将内部 `workspace:` 依赖解析为当前包版本，并从发布清单的 `exports` 中移除仅供仓库内联调用的开发条件；
    - 通过 `changesets/action` 执行 `changeset publish`；
    - 根据发布结果运行 `scripts/create-github-releases.ts` 创建或更新 GitHub Release。
 

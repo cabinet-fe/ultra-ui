@@ -1,2 +1,2 @@
-import '@veltra/styles/anime/slide.scss'
+import '@veltra/styles/transitions/slide.scss'
 import './style.scss'

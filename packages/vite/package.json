@@ -9,14 +9,13 @@
   "type": "module",
   "exports": {
     ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "veltra-dev": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
-    "build": "tsdown",
-    "check-types": "tsc -p tsconfig.json --noEmit"
+    "build": "vp pack"
   },
   "devDependencies": {
     "@veltra/desktop": "workspace:*"

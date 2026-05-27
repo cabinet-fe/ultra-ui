@@ -1,5 +1,5 @@
 import '../icon/style'
 import '../scroll/style'
-import '@veltra/styles/anime/fade.scss'
-import '@veltra/styles/anime/spring.scss'
+import '@veltra/styles/transitions/fade.scss'
+import '@veltra/styles/transitions/spring.scss'
 import './style.scss'

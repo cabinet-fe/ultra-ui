@@ -30,7 +30,6 @@ import { Logo } from '@veltra/icons/colorful'
 │   ├── format-svg.ts         # SVG 格式化（svgo）
 │   ├── gen-vue-icons.ts      # SVG → Vue SFC 生成
 │   ├── gen-icon-barrels.ts   # 生成 normal.ts / colorful.ts barrel 文件
-│   ├── build-vue-icons.ts    # tsdown 构建 Vue 图标到 dist/
 │   └── icon-naming.ts        # 命名规则工具
 └── package.json
 ```
@@ -41,7 +40,7 @@ import { Logo } from '@veltra/icons/colorful'
 bun run icons:rename     # 1. 重命名 SVG 文件
 bun run icons:format     # 2. svgo 格式化 SVG
 bun run icons:gen        # 3. SVG → Vue SFC + 生成 barrel 文件
-bun run icons:build-vue  # 4. tsdown 构建到 dist/
+bun run icons:build-vue  # 4. `vp pack` 构建 Vue 图标到 dist/
 bun run build            # 快捷：icons:gen + icons:build-vue
 ```
 
@@ -50,8 +49,9 @@ bun run build            # 快捷：icons:gen + icons:build-vue
 - `src/normal.ts`、`src/colorful.ts`、`src/vue/` 均为脚本自动生成，**不要手动编辑**
 - 新增图标：将 SVG 文件放入对应目录，运行 `bun run build` 即可
 - `sideEffects: false` — 支持 tree-shaking
+- 内置 SVG 扫描使用 `Bun.Glob`（无需 fast-glob 依赖）
 
 ## 依赖
 
 - **peer**：`vue ^3.5.0`
-- **devDependencies**：`svgo`、`tsdown`、`unplugin-vue`
+- **devDependencies**：`svgo`（pack 见根 `vite/pack.ts`，`vp pack -F @veltra/icons`）

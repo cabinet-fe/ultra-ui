@@ -39,8 +39,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown",
-    "check-types": "tsc -p tsconfig.json --noEmit"
+    "build": "vp pack"
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.3",
