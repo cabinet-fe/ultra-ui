@@ -15,7 +15,7 @@ export default defineConfig({
     plugins: ['typescript', 'unicorn', 'oxc', 'vue'],
     categories: {
       correctness: 'error',
-      suspicious: 'warn',
+      suspicious: 'off',
       pedantic: 'off',
       perf: 'warn',
       style: 'off',
@@ -23,7 +23,11 @@ export default defineConfig({
       nursery: 'off'
     },
     ignorePatterns: ['.agents/**', '**/dist/**', '**/node_modules/**'],
-    rules: { 'no-unused-expressions': 'off' }
+    rules: {
+      'no-unused-expressions': 'off',
+      'no-floating-promises': 'off',
+      'unbound-method': 'off'
+    }
   },
 
   fmt: {

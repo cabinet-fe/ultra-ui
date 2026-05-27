@@ -8,13 +8,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG_ROOT = join(__dirname, '..')
 const GLOBS = ['src/svg/normal/**/*.svg', 'src/svg/colorful/**/*.svg'] as const
 
-let changed = 0
-for (const pattern of GLOBS) {
+async function collectGlobFiles(pattern: string): Promise<string[]> {
   const matcher = new Bun.Glob(pattern)
-  const files: string[] = []
-  for await (const rel of matcher.scan({ cwd: PKG_ROOT })) {
-    files.push(join(PKG_ROOT, rel))
-  }
+  const rels = await Array.fromAsync(matcher.scan({ cwd: PKG_ROOT }))
+  return rels.map((rel) => join(PKG_ROOT, rel))
+}
+
+let changed = 0
+const fileGroups = await Promise.all(GLOBS.map(collectGlobFiles))
+for (const files of fileGroups) {
   for (const file of files.toSorted()) {
     let input: string
     try {

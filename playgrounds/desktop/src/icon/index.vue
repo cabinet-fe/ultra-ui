@@ -284,7 +284,7 @@ const filteredGroups = computed(() => {
   return groups
     .map((group) => {
       const matchedIcons = group.icons.filter((icon) => icon.toLowerCase().includes(query))
-      return { ...group, icons: matchedIcons }
+      return Object.assign({}, group, { icons: matchedIcons })
     })
     .filter((group) => group.icons.length > 0)
 })

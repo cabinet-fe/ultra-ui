@@ -50,7 +50,7 @@ const setPosition = () => {
     const { width, height } = supRef.value.getBoundingClientRect()
     setStyles(supRef.value, {
       transform: `translate(-${width / 2}px, -${height / 2}px)`,
-      backgroundColor: props.color && props.color,
+      backgroundColor: props.color,
       zIndex: zIndex()
     })
   }

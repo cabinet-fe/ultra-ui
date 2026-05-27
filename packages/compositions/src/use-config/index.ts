@@ -10,7 +10,7 @@ interface State {
   /** 表单 */
   form: {
     /** 标签宽度 */
-    labelWidth?: number | number
+    labelWidth?: number | string
   }
   paginator: { pageSize: number; pageSizeOptions: number[] }
 }

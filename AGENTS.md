@@ -26,36 +26,6 @@ vp test -F @veltra/utils            # 单包测试
 vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
 ```
 
-## 代码验证
-
-完成代码修改后，**必须**运行验证，确认无类型/lint 错误、构建失败与测试失败后再宣称完成。
-
-### 必跑（默认）
-
-在仓库根目录依次执行：
-
-```bash
-bun run lint      # 类型检查 + lint；不得输出 .d.ts 等文件
-bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未通过
-bun run test      # Vitest 全量测试；Vitest 缓存下未改动的包通常很快跳过
-```
-
-`bun run lint` 已启用 `typeCheck: true`（tsgolint），覆盖 monorepo 内 TS/Vue 源码的类型错误。默认跑根级 `bun run test` 即可，**不必**再按改动范围单独执行 `vp test -F <pkg>`。
-
-### 可选追加（视改动内容）
-
-| 改动范围 | 追加命令 |
-| -------- | -------- |
-| `@veltra/desktop` 或组件演示 | `cd playgrounds/desktop && vp dev`，浏览器验证 UI |
-| `@veltra/icons` | `vp run -F @veltra/icons build` |
-| `@veltra/vite` resolver | `cd playgrounds/desktop && vp build` |
-
-### 约束
-
-- 不得用 `@ts-ignore`、`skipLibCheck` 等方式绕过类型错误。
-- 不得运行会 emit 声明文件的 tsc 作为「验证」手段。
-- pre-commit 会执行 `vp staged`（lint --fix + fmt），提交前本地应先过 `bun run lint`。
-
 ## 技术栈
 
 | 类别 | 技术 | 版本 |
@@ -161,3 +131,28 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 - `sideEffects`：组件 `style.ts`、指令样式、`@veltra/styles` 的 `.scss` 与副作用 TS 入口、`.css`、`.scss`。
 - TypeScript 6.x，各包 tsconfig 基于 `@cat-kit/tsconfig`；禁止跳过类型错误。
 - 各 `@veltra/*` 库自带 `vite.config.ts`（含 `pack` 块）；根 `vite.config.ts` 仅 monorepo 级配置。
+- 不得用 `@ts-ignore`、`skipLibCheck` 等方式绕过类型错误。
+- pre-commit 会执行 `vp staged`（lint --fix + fmt），提交前本地应先过 `bun run lint`。
+
+
+## 编码后操作
+
+
+### 1. 代码验证
+
+完成代码修改后，**必须**运行验证，确认无类型/lint 错误、构建失败与测试失败后再宣称完成。
+
+在仓库根目录依次执行：
+
+```bash
+bun run lint      # 该命令包含所有的类型检查 和 lint；
+bun run test      # Vitest 全量测试；Vitest 缓存下未改动的包通常很快跳过
+bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未通过
+```
+
+
+### 2. 可选追加（视改动内容）
+
+- 更新当前文件。如果有重要目录、命令的变更、技术栈和依赖的添加删除，需要更新当前文件。
+- 组件演示。当代理运行浏览器自动化相关能力时需要去 `playgrounds/*` 运行 `vp dev` 命令，很多时候用户会提前运行这些命令，先检查定义的端口进程是否存在，如果不存在再运行。
+- 更新 `skills/veltra-ui` 内容。改动设计各个包的 API 变更时（例如组件的属性变更、组件的新增删除、utils 的新增删除、包增加导出内容、包版本更新等等）需要更新该目录中的技能，同时要引用 `skill-standard.md` 中的指令，如果有编写技能相关的 SKILL(write-skills 等等),尝试使用相关技能编写。

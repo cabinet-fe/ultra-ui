@@ -69,16 +69,25 @@ function serializeSvgAttrs(attrs: Record<string, string>): string {
   return parts.join('\n    ')
 }
 
+async function collectGlobFiles(pattern: string): Promise<string[]> {
+  const matcher = new Bun.Glob(pattern)
+  const rels = await Array.fromAsync(matcher.scan({ cwd: PKG_ROOT }))
+  return rels.map((rel) => join(PKG_ROOT, rel))
+}
+
 let written = 0
 let skipped = 0
 
-for (const { glob, outDir, mono } of SOURCES) {
-  const matcher = new Bun.Glob(glob)
-  const files: string[] = []
-  for await (const rel of matcher.scan({ cwd: PKG_ROOT })) {
-    files.push(join(PKG_ROOT, rel))
-  }
-  for (const abs of files.toSorted()) {
+const sourceFiles = await Promise.all(
+  SOURCES.map(async ({ glob, outDir, mono }) => ({
+    outDir,
+    mono,
+    files: (await collectGlobFiles(glob)).toSorted()
+  }))
+)
+
+for (const { outDir, mono, files } of sourceFiles) {
+  for (const abs of files) {
     const svgRaw = readFileSync(abs, 'utf8')
     const hash = shortHash(svgRaw)
     const baseName = basename(abs, '.svg')
