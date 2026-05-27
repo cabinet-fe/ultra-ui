@@ -1,5 +1,14 @@
 # @veltra/directives
 
+## 1.1.18
+
+### Patch Changes
+
+- 503ad2b: 重构条件编辑器数据模型与求值机制；@cat-kit/\* 依赖结构调整为 peerDependencies；各类构建配置与类型修复
+- Updated dependencies [503ad2b]
+  - @veltra/utils@1.1.18
+  - @veltra/styles@1.1.18
+
 ## 1.1.17
 
 ### Patch Changes

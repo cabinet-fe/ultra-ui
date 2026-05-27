@@ -1,5 +1,11 @@
 # @veltra/icons
 
+## 1.1.18
+
+### Patch Changes
+
+- 503ad2b: 重构条件编辑器数据模型与求值机制；@cat-kit/\* 依赖结构调整为 peerDependencies；各类构建配置与类型修复
+
 ## 1.1.17
 
 ## 1.1.16
