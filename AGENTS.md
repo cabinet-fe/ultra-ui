@@ -133,6 +133,7 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 - 各 `@veltra/*` 库自带 `vite.config.ts`（含 `pack` 块）；根 `vite.config.ts` 仅 monorepo 级配置。
 - 不得用 `@ts-ignore`、`skipLibCheck` 等方式绕过类型错误。
 - pre-commit 会执行 `vp staged`（lint --fix + fmt），提交前本地应先过 `bun run lint`。
+- 不得添加 `// eslint-disable-next-line` 之类的命令用于跳过 lint 错误检查
 
 
 ## 编码后操作

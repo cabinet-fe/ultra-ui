@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-type-assertion */
-// @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, ref } from 'vue'
 
