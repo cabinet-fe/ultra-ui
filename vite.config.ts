@@ -52,5 +52,5 @@ export default defineConfig({
 
   run: { cache: { scripts: true, tasks: true } },
 
-  staged: { '*.{ts,tsx,vue,js,jsx}': ['vp lint --fix', 'vp fmt'] }
+  staged: { '*.{ts,tsx,vue,js}': 'vp check --fix' }
 })
