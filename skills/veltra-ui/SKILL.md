@@ -5,13 +5,13 @@ description: >
   3 个指令、SCSS/BEM 主题体系、图标库与 Vite 自动导入插件。AI 在项目中写组件代码前必读对应组件文档。
 metadata:
   versions:
-    desktop: 1.1.15
-    compositions: 1.1.15
-    directives: 1.1.15
-    icons: 1.1.15
-    styles: 1.1.15
-    utils: 1.1.15
-    vite: 1.1.15
+    desktop: 1.1.18
+    compositions: 1.1.18
+    directives: 1.1.18
+    icons: 1.1.18
+    styles: 1.1.18
+    utils: 1.1.18
+    vite: 1.1.18
 ---
 
 # veltra-ui

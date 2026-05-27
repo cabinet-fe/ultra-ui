@@ -18,7 +18,7 @@
   "scripts": {
     "build": "vp run -r build",
     "build:packages": "vp run --filter '@veltra/*' --filter '!@veltra/mobile' build",
-    "ci:verify": "vp lint && bun run build:packages && vp test",
+    "ci:verify": "vp lint && vp run --filter '@veltra/*' --filter '!@veltra/mobile' build && vp test",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "dev": "vp run -r dev",

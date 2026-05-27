@@ -37,8 +37,11 @@ jobs:
             exit 1
           fi
 
-      # setup-vp 统一装载 Vite+、Node.js 与 Bun（读取 packageManager），并缓存 bun.lock。
-      # run-install 合并原「Setup Bun + Setup Node + vp install」三步，避免重复安装。
+      # Bun 运行时（读取 package.json packageManager）；发布脚本与 changeset 依赖 bun 命令。
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      # setup-vp 装载 Vite+、Node.js，并通过 vp install 安装依赖。
       - name: Setup Vite+
         uses: voidzero-dev/setup-vp@v1.10.0
         with:
@@ -52,7 +55,7 @@ jobs:
         run: |
           vp lint &
           lint_pid=$!
-          bun run build:packages
+          vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
           build_status=$?
           vp test &
           test_pid=$!
