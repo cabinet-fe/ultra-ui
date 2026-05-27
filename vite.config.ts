@@ -32,13 +32,7 @@ export default defineConfig({
 
   fmt: {
     // 仅格式化代码文件，文档/CHANGELOG/auto-generated 不参与
-    ignorePatterns: [
-      '**/dist/**',
-      '**/CHANGELOG.md',
-      '**/*.md',
-      '.changeset/**',
-      '**/components.d.ts'
-    ],
+    ignorePatterns: ['**/dist/**', '**/CHANGELOG.md', '.changeset/**', '**/components.d.ts'],
     semi: false,
     singleQuote: true,
     bracketSpacing: true,
