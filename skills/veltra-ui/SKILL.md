@@ -39,7 +39,6 @@ Vue 3 桌面端组件库 `@veltra/*` 的使用文档。
 | 用指令              | `packages/directives.md`                  |
 | 用图标              | `packages/icons.md`                       |
 | 工具函数 / 共享类型 | `packages/utils.md`                       |
-| 发布流程            | `packages/release.md`                     |
 
 ## 安装（最短路径）
 
@@ -111,5 +110,4 @@ packages/
   icons.md                          ← 图标
   utils.md                          ← 工具函数 / 共享类型
   vite.md                           ← Vite 自动导入插件
-  release.md                        ← 发布流程
 ```
