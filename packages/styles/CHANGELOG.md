@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.19
+
+### Patch Changes
+
+- e63faf1: normalize 为 ul、li 补充 box-sizing: border-box
+  - @veltra/utils@1.1.19
+  - @veltra/compositions@1.1.19
+
 ## 1.1.18
 
 ### Patch Changes
