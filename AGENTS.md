@@ -38,19 +38,19 @@ git config --local core.ignorecase false
 
 ## 技术栈
 
-| 类别 | 技术 | 版本 |
-| ---- | ---- | ---- |
-| 框架 | Vue 3（Composition API + `<script setup>`） | >=3.5.0（peer） |
-| 语言 | TypeScript | ^6.0 |
-| 运行时 | Bun | - |
-| 工具链 | [Vite+](https://viteplus.dev/)（dev/build/test/lint/fmt/pack/run） | ^0.1 |
-| 库打包 | 各包 `vite.config.ts` 的 `pack` 块 + `vp pack` | - |
-| 样式 | SCSS + BEM + CSS 变量 | sass-embedded |
-| 测试 | Vitest（`vp test`） | ^4.1 |
-| 校验 | Oxlint + tsgolint + Oxfmt | - |
-| Monorepo | `vp run` 任务编排，workspaces 拓扑由依赖图派生 | - |
-| Git Hooks | simple-git-hooks（commit-msg + pre-commit → `vp staged`） | - |
-| 核心 peer | `@cat-kit/core`、`@cat-kit/fe`（browser/neutral）；`@veltra/icons` | 宿主安装 |
+| 类别      | 技术                                                               | 版本            |
+| --------- | ------------------------------------------------------------------ | --------------- |
+| 框架      | Vue 3（Composition API + `<script setup>`）                        | >=3.5.0（peer） |
+| 语言      | TypeScript                                                         | ^6.0            |
+| 运行时    | Bun                                                                | -               |
+| 工具链    | [Vite+](https://viteplus.dev/)（dev/build/test/lint/fmt/pack/run） | ^0.1            |
+| 库打包    | 各包 `vite.config.ts` 的 `pack` 块 + `vp pack`                     | -               |
+| 样式      | SCSS + BEM + CSS 变量                                              | sass-embedded   |
+| 测试      | Vitest（`vp test`）                                                | ^4.1            |
+| 校验      | Oxlint + tsgolint + Oxfmt                                          | -               |
+| Monorepo  | `vp run` 任务编排，workspaces 拓扑由依赖图派生                     | -               |
+| Git Hooks | simple-git-hooks（commit-msg + pre-commit → `vp staged`）          | -               |
+| 核心 peer | `@cat-kit/core`、`@cat-kit/fe`（browser/neutral）；`@veltra/icons` | 宿主安装        |
 
 ## 目录结构
 
@@ -75,16 +75,16 @@ ultra-ui/
 
 各子包 AGENTS.md 记录包内规范与 API，见下方索引。
 
-| 包 | AGENTS.md |
-| -- | --------- |
-| `@veltra/utils` | `packages/utils/AGENTS.md` |
-| `@veltra/styles` | `packages/styles/AGENTS.md` |
+| 包                     | AGENTS.md                         |
+| ---------------------- | --------------------------------- |
+| `@veltra/utils`        | `packages/utils/AGENTS.md`        |
+| `@veltra/styles`       | `packages/styles/AGENTS.md`       |
 | `@veltra/compositions` | `packages/compositions/AGENTS.md` |
-| `@veltra/directives` | `packages/directives/AGENTS.md` |
-| `@veltra/desktop` | `packages/desktop/AGENTS.md` |
-| `@veltra/icons` | `packages/icons/AGENTS.md` |
-| `@veltra/vite` | `packages/vite/AGENTS.md` |
-| 预览应用 | `playgrounds/desktop/AGENTS.md` |
+| `@veltra/directives`   | `packages/directives/AGENTS.md`   |
+| `@veltra/desktop`      | `packages/desktop/AGENTS.md`      |
+| `@veltra/icons`        | `packages/icons/AGENTS.md`        |
+| `@veltra/vite`         | `packages/vite/AGENTS.md`         |
+| 预览应用               | `playgrounds/desktop/AGENTS.md`   |
 
 ## 包依赖关系
 
@@ -108,22 +108,22 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 
 ## 路径别名
 
-| 别名 | 指向 |
-| ---- | ---- |
-| `@veltra/utils` | `packages/utils/src` |
-| `@veltra/styles` | `packages/styles/src` |
-| `@veltra/desktop` | `packages/desktop/src` |
+| 别名                   | 指向                        |
+| ---------------------- | --------------------------- |
+| `@veltra/utils`        | `packages/utils/src`        |
+| `@veltra/styles`       | `packages/styles/src`       |
+| `@veltra/desktop`      | `packages/desktop/src`      |
 | `@veltra/compositions` | `packages/compositions/src` |
-| `@veltra/directives` | `packages/directives/src` |
+| `@veltra/directives`   | `packages/directives/src`   |
 
 ## 全局命名约定
 
-| 对象 | 规则 | 示例 |
-| ---- | ---- | ---- |
-| 组件名 | `U` + PascalCase | `UButton`、`USelect` |
-| CSS 类 | `u-` + BEM | `u-button`、`u-button__icon` |
-| 指令名 | `v` + camelCase | `vRipple`、`vClickOutside` |
-| 目录名 | kebab-case | `date-picker`、`number-input` |
+| 对象     | 规则                          | 示例                                                             |
+| -------- | ----------------------------- | ---------------------------------------------------------------- |
+| 组件名   | `U` + PascalCase              | `UButton`、`USelect`                                             |
+| CSS 类   | `u-` + BEM                    | `u-button`、`u-button__icon`                                     |
+| 指令名   | `v` + camelCase               | `vRipple`、`vClickOutside`                                       |
+| 目录名   | kebab-case                    | `date-picker`、`number-input`                                    |
 | 类型命名 | `<Name>Props` / `<Name>Emits` | `ButtonProps`、`_ButtonExposed`（内部）、`ButtonExposed`（导出） |
 
 ## 新增组件（手动）
@@ -145,7 +145,6 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 - pre-commit 会执行 `vp staged`（lint --fix + fmt），提交前本地应先过 `bun run lint`。
 - 不得添加 `// eslint-disable-next-line` 之类的命令用于跳过 lint 错误检查
 
-
 ## 编码后操作
 
 ### 1. 代码验证
@@ -159,7 +158,6 @@ bun run lint      # 该命令包含所有的类型检查 和 lint；
 bun run test      # Vitest 全量测试；Vitest 缓存下未改动的包通常很快跳过
 bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未通过
 ```
-
 
 ### 2. 可选追加（视改动内容）
 
