@@ -13,43 +13,43 @@ import { Notification } from '@veltra/desktop'
 
 ## Props
 
-| prop         | type                                                           | default          | 说明                                       |
-| ------------ | -------------------------------------------------------------- | ---------------- | ------------------------------------------ |
-| `title`      | `string`                                                       | —                | 标题                                       |
-| `message`    | `string`                                                       | —                | 内容                                       |
-| `type`       | `ColorType`                                                    | `'primary'`      | 类型，影响图标与按钮颜色                   |
-| `duration`   | `number`                                                       | `4500`           | 自动关闭时长（ms），`0` 不自动关闭         |
-| `closable`   | `boolean`                                                      | `false`          | 是否显示关闭按钮                           |
-| `offset`     | `number`                                                       | `20`             | 距容器边缘偏移（px）                       |
-| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置                                   |
-| `icon`       | `Component`                                                    | —                | 自定义图标，不传则按 `type` 自动匹配       |
-| `buttonText` | `string`                                                       | `''`             | 按钮文字，为空不显示按钮                   |
-| `width`      | `number`                                                       | —                | 宽度（px）                                 |
-| `zIndex`     | `number`                                                       | —                | CSS `z-index`（函数式调用时自动递增）      |
-| `id`         | `string`                                                       | —                | 唯一标识（函数式调用时自动生成）           |
+| prop         | type                                                           | default          | 说明                                  |
+| ------------ | -------------------------------------------------------------- | ---------------- | ------------------------------------- |
+| `title`      | `string`                                                       | —                | 标题                                  |
+| `message`    | `string`                                                       | —                | 内容                                  |
+| `type`       | `ColorType`                                                    | `'primary'`      | 类型，影响图标与按钮颜色              |
+| `duration`   | `number`                                                       | `4500`           | 自动关闭时长（ms），`0` 不自动关闭    |
+| `closable`   | `boolean`                                                      | `false`          | 是否显示关闭按钮                      |
+| `offset`     | `number`                                                       | `20`             | 距容器边缘偏移（px）                  |
+| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 弹出位置                              |
+| `icon`       | `Component`                                                    | —                | 自定义图标，不传则按 `type` 自动匹配  |
+| `buttonText` | `string`                                                       | `''`             | 按钮文字，为空不显示按钮              |
+| `width`      | `number`                                                       | —                | 宽度（px）                            |
+| `zIndex`     | `number`                                                       | —                | CSS `z-index`（函数式调用时自动递增） |
+| `id`         | `string`                                                       | —                | 唯一标识（函数式调用时自动生成）      |
 
 `type` ↔ 默认图标：`primary→InfoFilled` / `info→QuestionFilled` / `success→CircleCheckFilled` / `warning→WarningFilled` / `danger→CircleClose`。
 
 ## 回调（通过 Props 传入，非 Emits）
 
-| 回调      | 签名                            | 说明                                     |
-| --------- | ------------------------------- | ---------------------------------------- |
-| `onClick` | `(e: MouseEvent) => void`       | 点击按钮触发，自动关闭通知               |
-| `onClose` | `(vm: RendererElement) => void` | 关闭（before-leave）触发                 |
+| 回调      | 签名                            | 说明                       |
+| --------- | ------------------------------- | -------------------------- |
+| `onClick` | `(e: MouseEvent) => void`       | 点击按钮触发，自动关闭通知 |
+| `onClose` | `(vm: RendererElement) => void` | 关闭（before-leave）触发   |
 
 ## Emits（仅声明式组件）
 
-| event               | 参数              | 说明                                       |
-| ------------------- | ----------------- | ------------------------------------------ |
-| `update:modelValue` | `(value: string)` | v-model 变化                               |
-| `destroy`           | —                 | 退出动画完成（函数式 API 内部使用）        |
+| event               | 参数              | 说明                                |
+| ------------------- | ----------------- | ----------------------------------- |
+| `update:modelValue` | `(value: string)` | v-model 变化                        |
+| `destroy`           | —                 | 退出动画完成（函数式 API 内部使用） |
 
 ## Exposed
 
 ```ts
 interface NotificationExposed {
-  startTimer(): void   // 重新开始自动关闭计时
-  clearTimer(): void   // 清除计时器
+  startTimer(): void // 重新开始自动关闭计时
+  clearTimer(): void // 清除计时器
 }
 ```
 

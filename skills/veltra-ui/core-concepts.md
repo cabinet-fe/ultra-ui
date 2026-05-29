@@ -21,12 +21,12 @@ CSS 类前缀 `u-`，遵循 `.u-{block}__{element}--{modifier}`，状态用 `.is
 import { bem } from '@veltra/utils'
 const cls = bem('button')
 
-cls.b                        // 'u-button'
-cls.e('icon')                // 'u-button__icon'
-cls.m('primary')             // 'u-button--primary'
-cls.em('icon', 'left')       // 'u-button__icon--left'
-cls.is('disabled', true)     // 'is-disabled'（false 返回空字符串）
-cls.create('custom')         // 'u-button-custom'
+cls.b // 'u-button'
+cls.e('icon') // 'u-button__icon'
+cls.m('primary') // 'u-button--primary'
+cls.em('icon', 'left') // 'u-button__icon--left'
+cls.is('disabled', true) // 'is-disabled'（false 返回空字符串）
+cls.create('custom') // 'u-button-custom'
 ```
 
 ## 主题系统
@@ -37,10 +37,10 @@ CSS 变量驱动，支持多态视觉风格（Standard / Shadcn / Hero / Glass�
 import { loadTheme, setTheme } from '@veltra/styles/theme'
 import { heroLightTheme, glassLightTheme, lightTheme } from '@veltra/styles/theme'
 
-loadTheme()                                                   // 默认 light + dark，跟随系统
-loadTheme(heroLightTheme)                                     // 单主题（不支持 setTheme）
+loadTheme() // 默认 light + dark，跟随系统
+loadTheme(heroLightTheme) // 单主题（不支持 setTheme）
 loadTheme(lightTheme.new({ color: { primary: '#ff6600' } })) // 派生
-setTheme('dark' | 'light' | 'auto')                           // 仅默认双主题模式可切换
+setTheme('dark' | 'light' | 'auto') // 仅默认双主题模式可切换
 ```
 
 ### CSS 变量命名
@@ -69,9 +69,9 @@ import { useConfig } from '@veltra/compositions'
 const { config, setConfig } = useConfig()
 
 setConfig({ size: 'large', animation: false })
-config.size                  // 'large'
-config.form.labelWidth       // 表单 label 默认宽度
-config.paginator.pageSize    // 默认每页条数
+config.size // 'large'
+config.form.labelWidth // 表单 label 默认宽度
+config.paginator.pageSize // 默认每页条数
 ```
 
 ## 颜色类型

@@ -15,17 +15,17 @@ import { FormModel, defineTableColumns } from '@veltra/desktop'
 
 继承 `TableProps`（详见 `table.md`），追加：
 
-| prop           | type                                                                                                                       | default            | 说明                                                                  |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------ | --------------------------------------------------------------------- |
-| `model`        | `FormModel \| DynamicFormModel`                                                                                            | —                  | 表单模型（优先级 > 列的 `rules`）                                     |
-| `title`        | `string`                                                                                                                   | —                  | 表格标题                                                              |
-| `cols`         | `string \| [string, string]`                                                                                               | `['1fr', '420px']` | 左右分栏列宽                                                          |
-| `readonly`     | `boolean`                                                                                                                  | —                  | 只读：禁用编辑                                                        |
-| `labelWidth`   | `string \| number`                                                                                                         | —                  | 表单 label 宽度                                                       |
-| `deleteMethod` | `(data: Record<string, any>[]) => Promise<any> \| any`                                                                     | —                  | 删除回调（异步校验/远程删除）                                         |
-| `saveMethod`   | `(data: Record<string, any>, actionType: 'create' \| 'update', parentData?: Record<string, any>) => Promise<any> \| any`   | —                  | 保存回调，返回值替代表单数据写入 `data`                               |
-| `features`     | `BatchEditFeature[] \| { [key in BatchEditFeature]?: boolean \| ((row: TableRow) => boolean) }`                            | —                  | 功能控制：数组=白名单；对象 `false`/函数=按行动态关闭                 |
-| `actionsProps` | `Partial<Record<BatchEditFeature, ActionProps>>`                                                                           | —                  | 操作按钮属性（如 `{ delete: { needConfirm: true } }`）                |
+| prop           | type                                                                                                                     | default            | 说明                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------ |
+| `model`        | `FormModel \| DynamicFormModel`                                                                                          | —                  | 表单模型（优先级 > 列的 `rules`）                      |
+| `title`        | `string`                                                                                                                 | —                  | 表格标题                                               |
+| `cols`         | `string \| [string, string]`                                                                                             | `['1fr', '420px']` | 左右分栏列宽                                           |
+| `readonly`     | `boolean`                                                                                                                | —                  | 只读：禁用编辑                                         |
+| `labelWidth`   | `string \| number`                                                                                                       | —                  | 表单 label 宽度                                        |
+| `deleteMethod` | `(data: Record<string, any>[]) => Promise<any> \| any`                                                                   | —                  | 删除回调（异步校验/远程删除）                          |
+| `saveMethod`   | `(data: Record<string, any>, actionType: 'create' \| 'update', parentData?: Record<string, any>) => Promise<any> \| any` | —                  | 保存回调，返回值替代表单数据写入 `data`                |
+| `features`     | `BatchEditFeature[] \| { [key in BatchEditFeature]?: boolean \| ((row: TableRow) => boolean) }`                          | —                  | 功能控制：数组=白名单；对象 `false`/函数=按行动态关闭  |
+| `actionsProps` | `Partial<Record<BatchEditFeature, ActionProps>>`                                                                         | —                  | 操作按钮属性（如 `{ delete: { needConfirm: true } }`） |
 
 `BatchEditFeature` = `'create' | 'update' | 'copy' | 'delete' | 'view' | 'createChild'`
 
@@ -39,11 +39,11 @@ import { FormModel, defineTableColumns } from '@veltra/desktop'
 
 ## Slots
 
-| slot           | 作用域                                                                                                      | 说明                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `form`         | `{ data: Model['data']; model: Model; depth?: number; row?: TableRow; index?: number; indexes?: number[] }` | 表单内容，放置带 `field` 的输入控件                                                   |
-| `header`       | —                                                                                                           | 自定义表单头部                                                                        |
-| `column:{key}` | `TableColumnSlotsScope`                                                                                     | 动态列插槽（与 UTable 一致）                                                          |
+| slot           | 作用域                                                                                                      | 说明                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `form`         | `{ data: Model['data']; model: Model; depth?: number; row?: TableRow; index?: number; indexes?: number[] }` | 表单内容，放置带 `field` 的输入控件 |
+| `header`       | —                                                                                                           | 自定义表单头部                      |
+| `column:{key}` | `TableColumnSlotsScope`                                                                                     | 动态列插槽（与 UTable 一致）        |
 
 ## Exposed
 
@@ -112,8 +112,8 @@ const features: BatchEditFeature[] = ['create', 'update']
 const dynamicFeatures = computed(() => ({
   create: true,
   update: true,
-  copy: row => row.depth < 2,
-  delete: row => row.data.age > 0
+  copy: (row) => row.depth < 2,
+  delete: (row) => row.data.age > 0
 }))
 </script>
 
@@ -140,7 +140,9 @@ const columns = defineTableColumns([
 
 const data = shallowRef([
   {
-    id: 1, name: '技术部', count: 30,
+    id: 1,
+    name: '技术部',
+    count: 30,
     children: [
       { id: 2, name: '前端组', count: 12 },
       { id: 3, name: '后端组', count: 18 }
@@ -155,7 +157,7 @@ async function saveMethod(formData, actionType: 'create' | 'update') {
     method: 'POST',
     body: JSON.stringify({ ...formData, actionType })
   })
-  return res.json()  // 返回的新值会替换写入
+  return res.json() // 返回的新值会替换写入
 }
 
 async function deleteMethod(rows) {

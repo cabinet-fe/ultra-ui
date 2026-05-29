@@ -4,9 +4,19 @@ Vue 3 组合式函数。前置依赖 `vue@^3.5`、`@floating-ui/dom`、`@cat-kit
 
 ```ts
 import {
-  useConfig, useFallbackProps, useFormFallbackProps, useModel, usePop,
-  useDrag, useFocus, useUserAction, useTransition,
-  useResizeObserver, useReactiveSize, useVirtualizer, useComponentProps
+  useConfig,
+  useFallbackProps,
+  useFormFallbackProps,
+  useModel,
+  usePop,
+  useDrag,
+  useFocus,
+  useUserAction,
+  useTransition,
+  useResizeObserver,
+  useReactiveSize,
+  useVirtualizer,
+  useComponentProps
 } from '@veltra/compositions'
 ```
 
@@ -19,13 +29,13 @@ import {
 ```ts
 const { config, setConfig } = useConfig()
 setConfig({ size: 'large', animation: false })
-setConfig({ form: { labelWidth: 120 } })  // 深合并
+setConfig({ form: { labelWidth: 120 } }) // 深合并
 
-config.size                       // ComponentSize
-config.animation                  // boolean
-config.form.labelWidth            // number
-config.paginator.pageSize         // number
-config.paginator.pageSizeOptions  // number[]
+config.size // ComponentSize
+config.animation // boolean
+config.form.labelWidth // number
+config.paginator.pageSize // number
+config.paginator.pageSizeOptions // number[]
 ```
 
 `config` 只读；`config.size` 变化自动同步 `<html>` size 类名。完整 `State` 见 `packages/compositions/src/use-config/index.ts`。
@@ -34,7 +44,8 @@ config.paginator.pageSizeOptions  // number[]
 
 ```ts
 function useFallbackProps<F extends Record<string, any>>(
-  propsList: Record<string, any>[], fallbackProps: F
+  propsList: Record<string, any>[],
+  fallbackProps: F
 ): { [K in keyof F]: ComputedRef<F[K]> }
 ```
 
@@ -59,17 +70,18 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 
 ```ts
 function useModel<P, N extends keyof P = 'modelValue'>(options: {
-  props: P; emit: (...args: any[]) => void
-  propName?: N                       // 默认 'modelValue'
-  local?: boolean | (() => boolean)  // 默认 true
+  props: P
+  emit: (...args: any[]) => void
+  propName?: N // 默认 'modelValue'
+  local?: boolean | (() => boolean) // 默认 true
   shallow?: boolean
   defaultValue?: P[N]
 }): Ref<P[N] | undefined>
 
-useModel({ props, emit })                                              // 本地副本（默认）
-useModel({ props, emit, local: false })                                // 纯代理：set 仅 emit
+useModel({ props, emit }) // 本地副本（默认）
+useModel({ props, emit, local: false }) // 纯代理：set 仅 emit
 useModel({ props, emit, local: () => props.modelValue === undefined }) // 受控自动切换
-useModel({ props, emit, propName: 'visible' })                         // 自定义 prop
+useModel({ props, emit, propName: 'visible' }) // 自定义 prop
 ```
 
 ### `usePop()` — 浮框定位
@@ -80,20 +92,25 @@ useModel({ props, emit, propName: 'visible' })                         // 自定
 function usePop(options: {
   triggerRef: ShallowRef<HTMLElement | undefined>
   contentRef: ShallowRef<HTMLElement | undefined>
-  arrowRef?:  ShallowRef<HTMLElement | undefined>
-  direction?: ShallowRef<'top'|'bottom'|'left'|'right'> | 'top'|'bottom'|'left'|'right'
-  alignment?: ShallowRef<'center'|'start'|'end'> | 'center'|'start'|'end'
-  arrowSize?: number  // 默认 10
-  onTriggerPositionChange?: () => void  // 仅注册监听，回调内自行调用 update
+  arrowRef?: ShallowRef<HTMLElement | undefined>
+  direction?: ShallowRef<'top' | 'bottom' | 'left' | 'right'> | 'top' | 'bottom' | 'left' | 'right'
+  alignment?: ShallowRef<'center' | 'start' | 'end'> | 'center' | 'start' | 'end'
+  arrowSize?: number // 默认 10
+  onTriggerPositionChange?: () => void // 仅注册监听，回调内自行调用 update
   onBeforeUpdate?: (triggerEl: HTMLElement, contentEl: HTMLElement) => void
   onAfterUpdate?: (pos: ComputePositionReturn) => void
-  onPop?:         (pos: ComputePositionReturn) => void
+  onPop?: (pos: ComputePositionReturn) => void
 }): { update: () => Promise<void>; popperContainerId: string }
 
 const { update } = usePop({
-  triggerRef, contentRef, direction: 'bottom', alignment: 'center',
+  triggerRef,
+  contentRef,
+  direction: 'bottom',
+  alignment: 'center',
   onTriggerPositionChange: () => update(),
-  onBeforeUpdate: (t, c) => { c.style.minWidth = t.offsetWidth + 'px' }
+  onBeforeUpdate: (t, c) => {
+    c.style.minWidth = t.offsetWidth + 'px'
+  }
 })
 ```
 
@@ -106,12 +123,13 @@ const { update } = usePop({
 ```ts
 useDrag({
   target: shallowRef<HTMLElement>(),
-  rangeX: [0, 500], rangeY: [0, 300],         // [number, number]，可省略
+  rangeX: [0, 500],
+  rangeY: [0, 300], // [number, number]，可省略
   initial: { offsetX: 0, offsetY: 0 },
-  onDragStart: (e) => { },
-  onDrag:    ({ x, y, offsetX, offsetY, e }) => { },
-  onDragEnd: ({ offsetX, offsetY }) => { }
-})  // 返回 { update: ({ offsetX?, offsetY? }) => void }
+  onDragStart: (e) => {},
+  onDrag: ({ x, y, offsetX, offsetY, e }) => {},
+  onDragEnd: ({ offsetX, offsetY }) => {}
+}) // 返回 { update: ({ offsetX?, offsetY? }) => void }
 ```
 
 仅响应左键。`x/y` 为本次累计偏移；`offsetX/offsetY` 为 range 钳制后最终偏移。
@@ -119,7 +137,7 @@ useDrag({
 ### `useFocus(cb?)`
 
 ```ts
-const { focus, handleFocus, handleBlur } = useFocus(focused => { })  // @focus / @blur
+const { focus, handleFocus, handleBlur } = useFocus((focused) => {}) // @focus / @blur
 ```
 
 ### `useUserAction()` — 区分用户动作 / 程序回流
@@ -128,11 +146,17 @@ const { focus, handleFocus, handleBlur } = useFocus(focused => { })  // @focus /
 
 ```ts
 const { userAction, isUserActive } = useUserAction()
-const handleSelect = userAction((d: Date) => { current.value = d; emit('update:modelValue', d) })
-watch(() => props.modelValue, (v) => {
-  if (isUserActive()) return                  // 用户动作期间跳过回显
-  current.value = v
+const handleSelect = userAction((d: Date) => {
+  current.value = d
+  emit('update:modelValue', d)
 })
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (isUserActive()) return // 用户动作期间跳过回显
+    current.value = v
+  }
+)
 ```
 
 ### `useTransition(type, options)` — 命令式过渡
@@ -143,13 +167,16 @@ watch(() => props.modelValue, (v) => {
 // CSS 类：生成 `${name}-enter-from|active|to` 与 `${name}-leave-from|active|to`
 useTransition('css', {
   target: shallowRef<HTMLElement>(),
-  name: 'fade', keepEnterTo: false,             // name: string | Ref<string>
-  afterEnter: () => { }, afterLeave: () => { }
+  name: 'fade',
+  keepEnterTo: false, // name: string | Ref<string>
+  afterEnter: () => {},
+  afterLeave: () => {}
 })
 // 内联 style
 useTransition('style', {
   target: shallowRef<HTMLElement>(),
-  enterTo: { opacity: '1' }, enterActive: { transition: 'opacity .3s' },
+  enterTo: { opacity: '1' },
+  enterActive: { transition: 'opacity .3s' },
   leaveActive: { transition: 'opacity .3s' }
 })
 ```
@@ -158,9 +185,10 @@ useTransition('style', {
 
 ```ts
 useResizeObserver({
-  targets: elRef,                   // 单 ref 或 ref 数组
-  onResize: (entries) => { }, when: () => true   // when 可选
-})  // 返回 { disconnect: () => void }
+  targets: elRef, // 单 ref 或 ref 数组
+  onResize: (entries) => {},
+  when: () => true // when 可选
+}) // 返回 { disconnect: () => void }
 ```
 
 派生 `useObserverCallback()` 返回 `{ observeEl, unobserveEl }`，按元素维度注册回调。
@@ -168,8 +196,8 @@ useResizeObserver({
 ### `useReactiveSize(target | targets)`
 
 ```ts
-const size = useReactiveSize(elRef)         // reactive { width, height }
-const sizes = useReactiveSize([el1, el2])   // reactive[]
+const size = useReactiveSize(elRef) // reactive { width, height }
+const sizes = useReactiveSize([el1, el2]) // reactive[]
 // 模板直接 size.width（非 ref，无需 .value）
 ```
 
@@ -179,9 +207,11 @@ const sizes = useReactiveSize([el1, el2])   // reactive[]
 
 ```ts
 const { virtualizer, items, isScrolling, snapshot } = useVirtualizer({
-  count: countRef,                  // Ref<number>
+  count: countRef, // Ref<number>
   scrollEl: scrollRef,
-  contentEl, beforeEl, afterEl,     // 可选，自动写对应尺寸
+  contentEl,
+  beforeEl,
+  afterEl, // 可选，自动写对应尺寸
   estimateSize: () => 40,
   getItemKey: (i) => list.value[i].id
   // 其他 VirtualizerOptions 字段（不含 count）

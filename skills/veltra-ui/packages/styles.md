@@ -6,14 +6,14 @@
 
 ## 子路径
 
-| 子路径                       | 内容                                            |
-| ---------------------------- | ----------------------------------------------- |
-| `@veltra/styles/theme`       | TypeScript 主题运行时（loadTheme/setTheme/预设）|
-| `@veltra/styles/normalize`   | 全局 reset 样式（应用入口导入一次）             |
-| `@veltra/styles/transitions` | Vue `<Transition>` name 注册                    |
-| `pkg:@veltra/styles/mixins`  | SCSS BEM mixins（自动 @forward vars）           |
-| `pkg:@veltra/styles/functions` | SCSS 变量/选择器函数（自动 @forward vars）    |
-| `pkg:@veltra/styles/vars`    | 仅 SCSS 变量                                    |
+| 子路径                         | 内容                                             |
+| ------------------------------ | ------------------------------------------------ |
+| `@veltra/styles/theme`         | TypeScript 主题运行时（loadTheme/setTheme/预设） |
+| `@veltra/styles/normalize`     | 全局 reset 样式（应用入口导入一次）              |
+| `@veltra/styles/transitions`   | Vue `<Transition>` name 注册                     |
+| `pkg:@veltra/styles/mixins`    | SCSS BEM mixins（自动 @forward vars）            |
+| `pkg:@veltra/styles/functions` | SCSS 变量/选择器函数（自动 @forward vars）       |
+| `pkg:@veltra/styles/vars`      | 仅 SCSS 变量                                     |
 
 ```ts
 // main.ts
@@ -30,12 +30,12 @@ loadTheme()
 
 ### 预设主题（从 `@veltra/styles/theme` 导入）
 
-| 导出 | 风格 |
-|------|------|
-| `lightTheme` / `darkTheme` | 默认（`#1E88E5` 主色） |
-| `shadcnLightTheme` / `shadcnDarkTheme` | shadcn/ui（zinc 色系） |
-| `heroLightTheme` / `heroDarkTheme` | HeroUI（紫色，emboss 阴影） |
-| `glassLightTheme` / `glassDarkTheme` | 玻璃拟态（半透明 + blur） |
+| 导出                                   | 风格                        |
+| -------------------------------------- | --------------------------- |
+| `lightTheme` / `darkTheme`             | 默认（`#1E88E5` 主色）      |
+| `shadcnLightTheme` / `shadcnDarkTheme` | shadcn/ui（zinc 色系）      |
+| `heroLightTheme` / `heroDarkTheme`     | HeroUI（紫色，emboss 阴影） |
+| `glassLightTheme` / `glassDarkTheme`   | 玻璃拟态（半透明 + blur）   |
 
 ### 加载与切换
 
@@ -55,8 +55,8 @@ loadTheme(glassLightTheme)
 loadTheme(lightTheme.new({ color: { primary: '#ff6600' } }))
 
 // 运行时切换（仅双主题模式）
-setTheme('dark')   // html[data-theme="dark"]
-setTheme('auto')   // 移除 data-theme，跟随系统
+setTheme('dark') // html[data-theme="dark"]
+setTheme('auto') // 移除 data-theme，跟随系统
 ```
 
 ### 从零创建主题
@@ -70,39 +70,46 @@ setTheme('auto')   // 移除 data-theme，跟随系统
 ### 导入方式
 
 ```scss
-@use 'pkg:@veltra/styles/mixins' as m;      // mixins（自动 @forward vars）
-@use 'pkg:@veltra/styles/functions' as fn;  // functions（自动 @forward vars）
-@use 'pkg:@veltra/styles/vars';             // 仅 vars
+@use 'pkg:@veltra/styles/mixins' as m; // mixins（自动 @forward vars）
+@use 'pkg:@veltra/styles/functions' as fn; // functions（自动 @forward vars）
+@use 'pkg:@veltra/styles/vars'; // 仅 vars
 ```
 
 三个入口共享同一个 `$namespace`（默认 `'u'`），覆盖后 mixins 和 functions 生成的选择器/变量名同步变更：
 
 ```scss
-@use 'pkg:@veltra/styles/mixins' as m with ($namespace: 'my-app');
+@use 'pkg:@veltra/styles/mixins' as m with (
+  $namespace: 'my-app'
+);
 // .my-app-button, var(--my-app-color-primary) ...
 ```
 
 ### Variables
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `$namespace` | `'u'` | BEM 前缀 + CSS 变量前缀 |
-| `$sizes` | `(small, default, large)` | `m.size` 遍历列表 |
-| `$color-types` | `(primary, success, warning, danger, info, disabled, default)` | 颜色语义枚举 |
-| `$color-primary` | `var(--u-color-primary)` | 语义别名 |
-| `$text-color-main` | `var(--u-text-color-main)` | 语义别名 |
-| `$border-color` | `var(--u-border-color)` | 语义别名 |
-| `$bg-color-top` | `var(--u-bg-color-top)` | 语义别名 |
+| 变量               | 默认值                                                         | 说明                    |
+| ------------------ | -------------------------------------------------------------- | ----------------------- |
+| `$namespace`       | `'u'`                                                          | BEM 前缀 + CSS 变量前缀 |
+| `$sizes`           | `(small, default, large)`                                      | `m.size` 遍历列表       |
+| `$color-types`     | `(primary, success, warning, danger, info, disabled, default)` | 颜色语义枚举            |
+| `$color-primary`   | `var(--u-color-primary)`                                       | 语义别名                |
+| `$text-color-main` | `var(--u-text-color-main)`                                     | 语义别名                |
+| `$border-color`    | `var(--u-border-color)`                                        | 语义别名                |
+| `$bg-color-top`    | `var(--u-bg-color-top)`                                        | 语义别名                |
 
 ### Mixins
 
 ```scss
 // BEM 选择器
-@include m.b(button) { }                // .u-button
-@include m.e(icon) { }                  // &__icon（需嵌套在 b 内）
-@include m.m(primary) { }              // &--primary
-@include m.em(icon, left) { }           // &__icon--left
-@include m.bem(button, icon, left) { }  // .u-button__icon--left
+@include m.b(button) {
+} // .u-button
+@include m.e(icon) {
+} // &__icon（需嵌套在 b 内）
+@include m.m(primary) {
+} // &--primary
+@include m.em(icon, left) {
+} // &__icon--left
+@include m.bem(button, icon, left) {
+} // .u-button__icon--left
 
 // 尺寸变体
 @include m.size using ($size) {
@@ -111,25 +118,41 @@ setTheme('auto')   // 移除 data-theme，跟随系统
 // → .u-button--small { height: var(--u-form-component-height-small) } ...
 
 // 状态
-@include m.is(disabled) { }      // &.is-disabled
-@include m.is-not(disabled) { }  // &:not(.is-disabled)
+@include m.is(disabled) {
+} // &.is-disabled
+@include m.is-not(disabled) {
+} // &:not(.is-disabled)
 
 // 布局
 @include m.flex($display, $justify, $align, $wrap);
 @include m.ellipsis;
 
 // CSS 变量批量生成
-@include m.css-var(height, (large: 40px, default: 32px, small: 24px));
+@include m.css-var(
+  height,
+  (
+    large: 40px,
+    default: 32px,
+    small: 24px
+  )
+);
 
 // 暗色模式（匹配 data-theme + prefers-color-scheme）
-@include m.dark { background: fn.use-var(bg-color, bottom); }
+@include m.dark {
+  background: fn.use-var(bg-color, bottom);
+}
 
 // 响应式断点
-@include m.xs { }  // 0 ~ breakpoint-xs
-@include m.sm { }  // xs ~ sm
-@include m.md { }  // sm ~ md
-@include m.lg { }  // md ~ lg
-@include m.xl { }  // >= lg
+@include m.xs {
+} // 0 ~ breakpoint-xs
+@include m.sm {
+} // xs ~ sm
+@include m.md {
+} // sm ~ md
+@include m.lg {
+} // md ~ lg
+@include m.xl {
+} // >= lg
 ```
 
 ### Functions
@@ -168,14 +191,14 @@ fn.bem(button, icon, left)              // '.u-button__icon--left' — BEM 选�
 
 `import '@veltra/styles/transitions'` 注册以下 Vue `<Transition>` name：
 
-| name | 效果 |
-|------|------|
-| `fade` | 淡入淡出 |
-| `slide-down` / `slide-up` | 垂直滑入（10px） |
-| `spring` | 弹性缩放入场 |
-| `zoom-in` | 中心缩放（0.8→1） |
-| `zoom-in-left` / `zoom-in-right` | 水平方向缩放 |
-| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放 |
+| name                             | 效果              |
+| -------------------------------- | ----------------- |
+| `fade`                           | 淡入淡出          |
+| `slide-down` / `slide-up`        | 垂直滑入（10px）  |
+| `spring`                         | 弹性缩放入场      |
+| `zoom-in`                        | 中心缩放（0.8→1） |
+| `zoom-in-left` / `zoom-in-right` | 水平方向缩放      |
+| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放      |
 
 ```vue
 <Transition name="fade" mode="out-in">

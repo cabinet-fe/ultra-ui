@@ -19,10 +19,10 @@
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
     "vue": "^3.5.33",
-    "vue-router": "^5.0.6"
+    "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@veltra/vite": "workspace:*",
-    "vite-plugin-vue-devtools": "^8.1.1"
+    "vite-plugin-vue-devtools": "^8.1.2"
   }
 }

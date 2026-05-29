@@ -34,25 +34,23 @@ type ConditionNode = ConditionLeaf | ConditionGroup
 
 interface ConditionLeaf {
   type: 'condition'
-  field: string                                                            // 字段 key
-  operator: string                                                         // 'eq' / 'gt' / 'contains' / ...
+  field: string // 字段 key
+  operator: string // 'eq' / 'gt' / 'contains' / ...
   value: ConditionValue
 }
 
-type ConditionValue =
-  | { kind: 'constant'; value: string }
-  | { kind: 'variable'; name: string }
+type ConditionValue = { kind: 'constant'; value: string } | { kind: 'variable'; name: string }
 
 interface ConditionField {
   label: string
-  value: string                                                            // 字段 key
-  type: 'string' | 'number' | 'boolean' | 'date' | 'enum'                  // 决定可用运算符与值控件
-  enumOptions?: { label: string; value: string }[]                         // type='enum' 时用
+  value: string // 字段 key
+  type: 'string' | 'number' | 'boolean' | 'date' | 'enum' // 决定可用运算符与值控件
+  enumOptions?: { label: string; value: string }[] // type='enum' 时用
 }
 
 interface VariableItem {
   label: string
-  value: string                                                            // 变量路径，如 'currentUser.status'
+  value: string // 变量路径，如 'currentUser.status'
   type?: string
   children?: VariableItem[]
 }
@@ -70,9 +68,9 @@ interface VariableItem {
 
 ## Emits
 
-| event               | 参数                           | 说明           |
-| ------------------- | ------------------------------ | -------------- |
-| `update:modelValue` | `(value: ConditionExpression)` | 条件树变化     |
+| event               | 参数                           | 说明       |
+| ------------------- | ------------------------------ | ---------- |
+| `update:modelValue` | `(value: ConditionExpression)` | 条件树变化 |
 
 ## 求值
 
@@ -80,8 +78,8 @@ interface VariableItem {
 import { evaluateConditionExpression } from '@veltra/desktop'
 
 const ok = evaluateConditionExpression(expression, {
-  fields,             // 提供字段定义可启用类型感知比较（number/boolean/date）
-  data                // 上下文数据，用于解析 kind: 'variable' 引用
+  fields, // 提供字段定义可启用类型感知比较（number/boolean/date）
+  data // 上下文数据，用于解析 kind: 'variable' 引用
 })
 ```
 
@@ -96,7 +94,7 @@ const ok = evaluateConditionExpression(expression, {
 import { createEmptyGroup, createEmptyLeaf } from '@veltra/desktop'
 
 createEmptyGroup() // → { type: 'group', children: [], connectors: [] }
-createEmptyLeaf()  // → { type: 'condition', field: '', operator: 'eq', value: { kind: 'constant', value: '' } }
+createEmptyLeaf() // → { type: 'condition', field: '', operator: 'eq', value: { kind: 'constant', value: '' } }
 ```
 
 ## Examples

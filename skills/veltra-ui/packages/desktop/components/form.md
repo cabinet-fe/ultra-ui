@@ -40,14 +40,14 @@ import { FormModel, DynamicFormModel, formField } from '@veltra/desktop'
 
 ### `FormModel<Fields>` vs `DynamicFormModel`
 
-| 特性             | `FormModel`                              | `DynamicFormModel`                                   |
-| ---------------- | ---------------------------------------- | ---------------------------------------------------- |
-| 字段定义时机     | 构造时静态，不可增删                     | 运行时 `add()` / `delete()` 增删                     |
-| 类型安全         | 泛型推导，`model.data.xxx` 有类型提示    | `Record<string, any>`，无字段级类型                  |
-| `data` 数据源    | 内部 reactive，不可替换                  | 可 `model.data = externalReactive` 替换为外部对象    |
-| `validate()` 失败 | `Promise.reject(false)`                  | `Promise.resolve(false)`                             |
-| `setData()`      | 返回 `this`（链式）                      | 返回 `void`                                          |
-| `setInitialData()`| ✅ 提供                                 | ❌ 直接操作 `model.initialData`                     |
+| 特性               | `FormModel`                           | `DynamicFormModel`                                |
+| ------------------ | ------------------------------------- | ------------------------------------------------- |
+| 字段定义时机       | 构造时静态，不可增删                  | 运行时 `add()` / `delete()` 增删                  |
+| 类型安全           | 泛型推导，`model.data.xxx` 有类型提示 | `Record<string, any>`，无字段级类型               |
+| `data` 数据源      | 内部 reactive，不可替换               | 可 `model.data = externalReactive` 替换为外部对象 |
+| `validate()` 失败  | `Promise.reject(false)`               | `Promise.resolve(false)`                          |
+| `setData()`        | 返回 `this`（链式）                   | 返回 `void`                                       |
+| `setInitialData()` | ✅ 提供                               | ❌ 直接操作 `model.initialData`                   |
 
 选择：字段编码时已知 → `FormModel`；字段需运行时增删 → `DynamicFormModel`。
 
@@ -71,7 +71,7 @@ class FormModel<Fields extends Record<string, FormModelItem>> {
 }
 
 class DynamicFormModel {
-  data: Record<string, any>          // 支持 setter，可替换
+  data: Record<string, any> // 支持 setter，可替换
   readonly fields: Record<string, FormModelItem>
   get allKeys(): string[]
   // 同上的 errors / initialData / clearValidate / onChange / offChange / resetData / setData
@@ -79,7 +79,7 @@ class DynamicFormModel {
   add(field: string, item: FormModelItem): void
   delete(field: string): void
   append(fields: Record<string, FormModelItem>): void
-  validate(fields?: string[]): Promise<boolean>  // 失败 resolve(false)，不 reject
+  validate(fields?: string[]): Promise<boolean> // 失败 resolve(false)，不 reject
 }
 ```
 
@@ -87,18 +87,18 @@ class DynamicFormModel {
 
 类型辅助函数，定义字段值与校验规则。`FormModelItem` 继承 `ValidateRule`：
 
-| 属性        | 类型                                                    | 说明                                                          |
-| ----------- | ------------------------------------------------------- | ------------------------------------------------------------- |
-| `value`     | `any`                                                   | 初始值                                                        |
-| `required`  | `boolean \| string`                                     | 必填（string 为自定义错误提示）                               |
-| `min`       | `number \| [number, string]`                            | 最小值                                                        |
-| `max`       | `number \| [number, string]`                            | 最大值                                                        |
-| `minLen`    | `number \| [number, string]`                            | 最小长度                                                      |
-| `maxLen`    | `number \| [number, string]`                            | 最大长度                                                      |
-| `length`    | `number \| [number, string]`                            | 精确长度                                                      |
-| `match`     | `RegExp \| [RegExp, string] \| string`                  | 正则匹配                                                      |
-| `preset`    | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'`      | 预设规则                                                      |
-| `validator` | `(value, data) => Promise<string> \| string`            | 自定义校验，返回非空字符串=错误，空/`undefined`=通过          |
+| 属性        | 类型                                               | 说明                                                 |
+| ----------- | -------------------------------------------------- | ---------------------------------------------------- |
+| `value`     | `any`                                              | 初始值                                               |
+| `required`  | `boolean \| string`                                | 必填（string 为自定义错误提示）                      |
+| `min`       | `number \| [number, string]`                       | 最小值                                               |
+| `max`       | `number \| [number, string]`                       | 最大值                                               |
+| `minLen`    | `number \| [number, string]`                       | 最小长度                                             |
+| `maxLen`    | `number \| [number, string]`                       | 最大长度                                             |
+| `length`    | `number \| [number, string]`                       | 精确长度                                             |
+| `match`     | `RegExp \| [RegExp, string] \| string`             | 正则匹配                                             |
+| `preset`    | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'` | 预设规则                                             |
+| `validator` | `(value, data) => Promise<string> \| string`       | 自定义校验，返回非空字符串=错误，空/`undefined`=通过 |
 
 元组形式 `[规则值, 错误提示]` 用于自定义错误信息。
 
@@ -106,30 +106,30 @@ class DynamicFormModel {
 
 `FormProps` 继承 `ComponentProps`：
 
-| prop              | type                              | default | 说明                                                       |
-| ----------------- | --------------------------------- | ------- | ---------------------------------------------------------- |
-| `model`           | `FormModel \| DynamicFormModel`   | **必填** | 表单数据模型                                              |
-| `cols`            | `number`                          | —       | 列数（默认按断点 xs:1 / md:2 / lg:3 / xl:4 自适应）        |
-| `labelWidth`      | `string \| number`                | —       | 表单项 label 统一宽度                                      |
-| `showInitialData` | `boolean`                         | —       | 显示初始数据对比（需设置 `setInitialData`）                |
-| `noTips`          | `boolean`                         | —       | 隐藏错误提示与 tips                                        |
-| `readonly`        | `boolean`                         | —       | 全局只读，子组件 provide/inject 继承                       |
-| `disabled`        | `boolean`                         | —       | 全局禁用，子组件 provide/inject 继承                       |
-| `size`            | `'small' \| 'default' \| 'large'` | —       | 表单内组件尺寸                                             |
+| prop              | type                              | default  | 说明                                                |
+| ----------------- | --------------------------------- | -------- | --------------------------------------------------- |
+| `model`           | `FormModel \| DynamicFormModel`   | **必填** | 表单数据模型                                        |
+| `cols`            | `number`                          | —        | 列数（默认按断点 xs:1 / md:2 / lg:3 / xl:4 自适应） |
+| `labelWidth`      | `string \| number`                | —        | 表单项 label 统一宽度                               |
+| `showInitialData` | `boolean`                         | —        | 显示初始数据对比（需设置 `setInitialData`）         |
+| `noTips`          | `boolean`                         | —        | 隐藏错误提示与 tips                                 |
+| `readonly`        | `boolean`                         | —        | 全局只读，子组件 provide/inject 继承                |
+| `disabled`        | `boolean`                         | —        | 全局禁用，子组件 provide/inject 继承                |
+| `size`            | `'small' \| 'default' \| 'large'` | —        | 表单内组件尺寸                                      |
 
 `FormProps<MyModel>` 接受泛型，`MyModel extends IFormModel`。
 
 ## Slots
 
-| slot      | 作用域                                  | 说明                                |
-| --------- | --------------------------------------- | ----------------------------------- |
-| `default` | `{ data: Model['data']; model: Model }` | 表单内容，`data` 用于条件渲染        |
+| slot      | 作用域                                  | 说明                          |
+| --------- | --------------------------------------- | ----------------------------- |
+| `default` | `{ data: Model['data']; model: Model }` | 表单内容，`data` 用于条件渲染 |
 
 ## Exposed
 
 ```ts
 interface FormExposed {
-  el: HTMLElement | null | undefined  // UGrid 根元素
+  el: HTMLElement | null | undefined // UGrid 根元素
 }
 ```
 
@@ -152,7 +152,7 @@ const model = new FormModel({
   age: formField({ value: 18, min: 0, max: 150 }),
   customField: formField({
     value: '',
-    validator: async val => val === 'admin' ? '该值已被占用' : undefined
+    validator: async (val) => (val === 'admin' ? '该值已被占用' : undefined)
   })
 })
 
@@ -217,7 +217,14 @@ function addField() {
 
     <u-form-item v-for="f in extras" :key="f" :label="`扩展 ${f}`" :field="f">
       <u-input v-model="model.data[f]" />
-      <u-button size="small" @click="model.delete(f); extras = extras.filter(x => x !== f)">删除</u-button>
+      <u-button
+        size="small"
+        @click="
+          model.delete(f)
+          extras = extras.filter((x) => x !== f)
+        "
+        >删除</u-button
+      >
     </u-form-item>
   </u-form>
   <u-button @click="addField">添加字段</u-button>
@@ -287,5 +294,5 @@ const model = new DynamicFormModel({
   keyword: formField({ value: '', required: true }),
   category: formField({ value: '' })
 })
-model.data = externalData  // 之后修改 externalData 同步反映到表单
+model.data = externalData // 之后修改 externalData 同步反映到表单
 ```

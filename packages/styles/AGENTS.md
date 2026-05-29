@@ -20,13 +20,13 @@ src/
 
 ## 导出子路径
 
-| 子路径 | 用途 |
-| ------ | ---- |
-| `@veltra/styles/normalize` | 规范化 CSS |
-| `@veltra/styles/transitions` | 全部过渡样式 |
-| `@veltra/styles/transitions/*` | 单个过渡 |
-| `@veltra/styles/theme` | 主题 preset 与 `loadTheme` |
-| `@veltra/styles/*` | SCSS partial（sass export） |
+| 子路径                         | 用途                        |
+| ------------------------------ | --------------------------- |
+| `@veltra/styles/normalize`     | 规范化 CSS                  |
+| `@veltra/styles/transitions`   | 全部过渡样式                |
+| `@veltra/styles/transitions/*` | 单个过渡                    |
+| `@veltra/styles/theme`         | 主题 preset 与 `loadTheme`  |
+| `@veltra/styles/*`             | SCSS partial（sass export） |
 
 ## Sass 用法
 

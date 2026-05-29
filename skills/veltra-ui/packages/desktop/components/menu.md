@@ -15,29 +15,29 @@ import type { MenuItem } from '@veltra/desktop'
 
 ```ts
 interface MenuItem {
-  title: string                          // 菜单标题
-  path: string                           // 路径，匹配 currentPath 高亮
-  icon?: string | DefineComponent        // 图片 URL 或图标组件
+  title: string // 菜单标题
+  path: string // 路径，匹配 currentPath 高亮
+  icon?: string | DefineComponent // 图片 URL 或图标组件
   disabled?: boolean
-  children?: MenuItem[]                  // 子菜单
-  [key: string]: any                     // 透传字段
+  children?: MenuItem[] // 子菜单
+  [key: string]: any // 透传字段
 }
 ```
 
 ## Props
 
-| prop           | type         | default | 说明                                                              |
-| -------------- | ------------ | ------- | ----------------------------------------------------------------- |
-| `menus`        | `MenuItem[]` | —       | 菜单数据                                                          |
-| `currentPath`  | `string`     | —       | 当前激活路径，匹配 `MenuItem.path` 高亮并自动展开祖先             |
-| `collapsed`    | `boolean`    | `false` | 折叠模式：一级菜单仅显示图标，hover 弹出子菜单                    |
-| `uniqueOpened` | `boolean`    | `false` | 同级仅允许一个子菜单展开                                          |
+| prop           | type         | default | 说明                                                  |
+| -------------- | ------------ | ------- | ----------------------------------------------------- |
+| `menus`        | `MenuItem[]` | —       | 菜单数据                                              |
+| `currentPath`  | `string`     | —       | 当前激活路径，匹配 `MenuItem.path` 高亮并自动展开祖先 |
+| `collapsed`    | `boolean`    | `false` | 折叠模式：一级菜单仅显示图标，hover 弹出子菜单        |
+| `uniqueOpened` | `boolean`    | `false` | 同级仅允许一个子菜单展开                              |
 
 ## Emits
 
-| event        | 参数               | 说明                                |
-| ------------ | ------------------ | ----------------------------------- |
-| `item-click` | `(item: MenuItem)` | 点击菜单项（disabled 项不触发）     |
+| event        | 参数               | 说明                            |
+| ------------ | ------------------ | ------------------------------- |
+| `item-click` | `(item: MenuItem)` | 点击菜单项（disabled 项不触发） |
 
 ## Slots / Exposed
 
@@ -65,7 +65,9 @@ const menus = shallowRef<MenuItem[]>([
   { title: '首页', icon: HouseFilled, path: '/' },
   { title: '功能管理', icon: SettingFilled, path: '/modules' },
   {
-    title: '系统设置', icon: LockFilled, path: '/settings',
+    title: '系统设置',
+    icon: LockFilled,
+    path: '/settings',
     children: [
       { title: '角色管理', path: '/settings/role' },
       { title: '用户管理', path: '/settings/user' }
@@ -118,10 +120,7 @@ import type { MenuItem } from '@veltra/desktop'
 const menus: MenuItem[] = [
   { title: '首页', icon: '/assets/home.svg', path: '/' },
   { title: '无权限页面', path: '/forbidden', disabled: true },
-  {
-    title: '分组一', path: '/group-1',
-    children: [{ title: '子项 A', path: '/group-1/a' }]
-  }
+  { title: '分组一', path: '/group-1', children: [{ title: '子项 A', path: '/group-1/a' }] }
 ]
 </script>
 

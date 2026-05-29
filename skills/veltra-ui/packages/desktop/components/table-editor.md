@@ -14,9 +14,9 @@
 
 继承 `Omit<TableProps, 'data'>`（详见 `table.md`），新增：
 
-| prop         | type    | default | 说明                                              |
-| ------------ | ------- | ------- | ------------------------------------------------- |
-| `modelValue` | `any[]` | `[]`    | 表格数据，`v-model:modelValue` 双向绑定           |
+| prop         | type    | default | 说明                                    |
+| ------------ | ------- | ------- | --------------------------------------- |
+| `modelValue` | `any[]` | `[]`    | 表格数据，`v-model:modelValue` 双向绑定 |
 
 **强制覆盖**：`showIndex`（始终 `true`）、`stripe`（始终 `false`），传入会被忽略。
 **保留 key**：组件内置 `__operation` 操作列，列定义不要使用此 key。
@@ -25,9 +25,9 @@
 
 继承 `TableEmits`，追加：
 
-| event               | 参数             | 说明                               |
-| ------------------- | ---------------- | ---------------------------------- |
-| `update:modelValue` | `(value: any[])` | 数据变更（新增/复制/删除时触发）   |
+| event               | 参数             | 说明                             |
+| ------------------- | ---------------- | -------------------------------- |
+| `update:modelValue` | `(value: any[])` | 数据变更（新增/复制/删除时触发） |
 
 ## Slots
 
@@ -112,8 +112,13 @@ import { ref } from 'vue'
 import type { TableColumn } from '@veltra/desktop'
 
 const list = ref<any[]>([
-  { id: 1, name: '商品 A', price: 99, desc: '优质商品',
-    children: [{ id: 11, name: '规格 A1', price: 99 }] }
+  {
+    id: 1,
+    name: '商品 A',
+    price: 99,
+    desc: '优质商品',
+    children: [{ id: 11, name: '规格 A1', price: 99 }]
+  }
 ])
 
 const columns: TableColumn[] = [
@@ -123,11 +128,7 @@ const columns: TableColumn[] = [
 </script>
 
 <template>
-  <u-table-editor
-    v-model:modelValue="list"
-    :columns="columns"
-    tree expandable row-key="id" border
-  >
+  <u-table-editor v-model:modelValue="list" :columns="columns" tree expandable row-key="id" border>
     <template #row:expand="{ rowData }">
       <div style="padding: 12px 24px">描述：{{ rowData.desc }}</div>
     </template>

@@ -26,7 +26,9 @@ import { Logo } from '@veltra/icons/colorful'
 
 ```ts
 import type { Component } from 'vue'
-interface Props { icon?: Component }
+interface Props {
+  icon?: Component
+}
 ```
 
 ```vue

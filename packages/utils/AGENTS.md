@@ -18,10 +18,10 @@ src/
 
 ## 导出子路径
 
-| 子路径 | 用途 |
-| ------ | ---- |
-| `@veltra/utils` | 工具函数 + 共享 + 类型聚合 |
-| `@veltra/utils/shared` | 共享常量 |
+| 子路径                 | 用途                       |
+| ---------------------- | -------------------------- |
+| `@veltra/utils`        | 工具函数 + 共享 + 类型聚合 |
+| `@veltra/utils/shared` | 共享常量                   |
 
 ## BEM + SCSS
 
@@ -38,13 +38,13 @@ src/
 
 ## 关键工具
 
-| 模块 | 导出 | 用途 |
-| ---- | ---- | ---- |
-| `helper/make-bem` | `bem()` | BEM 类名 |
-| `helper/tween` | `Tween` | 补间动画 |
-| `helper/frame` | `frame` | rAF 封装 |
-| `dom/z-index` | — | z-index 管理 |
-| `form/validate` | — | 表单校验 |
+| 模块              | 导出    | 用途         |
+| ----------------- | ------- | ------------ |
+| `helper/make-bem` | `bem()` | BEM 类名     |
+| `helper/tween`    | `Tween` | 补间动画     |
+| `helper/frame`    | `frame` | rAF 封装     |
+| `dom/z-index`     | —       | z-index 管理 |
+| `form/validate`   | —       | 表单校验     |
 
 ## 依赖
 

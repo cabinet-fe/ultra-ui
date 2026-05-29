@@ -23,7 +23,7 @@ export default defineConfig({
     vue(),
     Components({
       resolvers: [VeltraDesktopUIResolver()],
-      dts: 'src/components.d.ts'  // 自动生成全局组件类型声明
+      dts: 'src/components.d.ts' // 自动生成全局组件类型声明
     })
   ],
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
@@ -38,9 +38,9 @@ export default defineConfig({
 import type { VeltraDesktopUIResolverOptions } from '@veltra/vite'
 
 interface VeltraDesktopUIResolverOptions {
-  exclude?: string[]      // 排除组件目录名，如 ['file-viewer', 'gantt-chart']
-  include?: string[]      // 仅包含组件目录名
-  importStyle?: boolean   // 默认 true，自动加载样式副作用
+  exclude?: string[] // 排除组件目录名，如 ['file-viewer', 'gantt-chart']
+  include?: string[] // 仅包含组件目录名
+  importStyle?: boolean // 默认 true，自动加载样式副作用
 }
 ```
 

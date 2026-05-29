@@ -14,28 +14,28 @@
 
 ```ts
 interface ContextMenuItem {
-  label: string                          // 菜单名称
-  description?: string                   // 描述
-  icon?: Component                       // 图标组件
-  callback?: () => void | Promise<void>  // 点击回调（async 期间显示 loading 并阻止关闭）
-  disabled?: boolean | (() => boolean)   // 禁用，支持函数动态判断
+  label: string // 菜单名称
+  description?: string // 描述
+  icon?: Component // 图标组件
+  callback?: () => void | Promise<void> // 点击回调（async 期间显示 loading 并阻止关闭）
+  disabled?: boolean | (() => boolean) // 禁用，支持函数动态判断
 }
 ```
 
 ## Props
 
-| prop            | type                                             | default     | 说明                                |
-| --------------- | ------------------------------------------------ | ----------- | ----------------------------------- |
-| `mousePosition` | `{ x: number; y: number }`                       | —           | 弹出位置（相对视口）                |
-| `menus`         | `ContextMenuItem[] \| (() => ContextMenuItem[])` | —           | 菜单项列表（函数形式动态生成）      |
-| `width`         | `number \| string`                               | `150`       | 菜单宽度（数值自动补 px）           |
-| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` | 尺寸                                |
+| prop            | type                                             | default     | 说明                           |
+| --------------- | ------------------------------------------------ | ----------- | ------------------------------ |
+| `mousePosition` | `{ x: number; y: number }`                       | —           | 弹出位置（相对视口）           |
+| `menus`         | `ContextMenuItem[] \| (() => ContextMenuItem[])` | —           | 菜单项列表（函数形式动态生成） |
+| `width`         | `number \| string`                               | `150`       | 菜单宽度（数值自动补 px）      |
+| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` | 尺寸                           |
 
 ## Emits
 
-| event     | 参数 | 说明                                                |
-| --------- | ---- | --------------------------------------------------- |
-| `destroy` | —    | 关闭动画完成，父组件应在此事件中移除组件 DOM        |
+| event     | 参数 | 说明                                         |
+| --------- | ---- | -------------------------------------------- |
+| `destroy` | —    | 关闭动画完成，父组件应在此事件中移除组件 DOM |
 
 ## Slots / Exposed
 
@@ -62,7 +62,7 @@ const menus: ContextMenuItem[] = [
     icon: Delete,
     callback: async () => {
       // 异步执行期间显示 loading，阻止菜单关闭
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
   }
 ]
@@ -78,12 +78,7 @@ function onContextMenu(e: MouseEvent) {
     右键点击此区域
   </div>
 
-  <u-context-menu
-    v-if="visible"
-    :mouse-position="pos"
-    :menus="menus"
-    @destroy="visible = false"
-  />
+  <u-context-menu v-if="visible" :mouse-position="pos" :menus="menus" @destroy="visible = false" />
 </template>
 ```
 

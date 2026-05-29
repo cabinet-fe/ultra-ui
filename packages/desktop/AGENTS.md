@@ -54,12 +54,12 @@ table、menu、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `Injection
 
 ## 导出子路径
 
-| 子路径 | 用途 |
-| ------ | ---- |
-| `@veltra/desktop` | 组件 + 类型 |
+| 子路径                    | 用途               |
+| ------------------------- | ------------------ |
+| `@veltra/desktop`         | 组件 + 类型        |
 | `@veltra/desktop/install` | `UltraUI` 全局注册 |
-| `@veltra/desktop/style` | 全量样式 |
-| `@veltra/desktop/*` | 深度子路径 |
+| `@veltra/desktop/style`   | 全量样式           |
+| `@veltra/desktop/*`       | 深度子路径         |
 
 ## 依赖
 

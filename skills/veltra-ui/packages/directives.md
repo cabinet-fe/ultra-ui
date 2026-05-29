@@ -6,7 +6,7 @@ Vue 3 自定义指令，共 3 个：`vRipple` / `vClickOutside` / `vFocus`。`v-
 
 ```ts
 import { vRipple, vClickOutside, vFocus } from '@veltra/directives'
-import '@veltra/directives/ripple/style'  // vRipple 需要的样式副作用
+import '@veltra/directives/ripple/style' // vRipple 需要的样式副作用
 ```
 
 `app.use(UltraUI)` 已自动注册以上指令；按需使用时手动 import 并在模板使用即可。
@@ -23,10 +23,10 @@ import '@veltra/directives/ripple/style'  // vRipple 需要的样式副作用
 <button v-ripple:500="'primary-ripple'">500ms + 自定义类</button>
 ```
 
-| 绑定            | 类型                           | 说明                                          |
-| --------------- | ------------------------------ | --------------------------------------------- |
-| `binding.value` | `string \| false \| undefined` | 自定义类名 / `false` 禁用 / 不传用默认        |
-| `binding.arg`   | `string \| undefined`          | 持续时间（毫秒），不传用默认                  |
+| 绑定            | 类型                           | 说明                                   |
+| --------------- | ------------------------------ | -------------------------------------- |
+| `binding.value` | `string \| false \| undefined` | 自定义类名 / `false` 禁用 / 不传用默认 |
+| `binding.arg`   | `string \| undefined`          | 持续时间（毫秒），不传用默认           |
 
 `UButton` 内部已内置 `v-ripple`，无需手动添加。
 
@@ -45,16 +45,16 @@ const visible = ref(false)
 <template>
   <div>
     <button @click="visible = !visible">菜单</button>
-    <ul v-if="visible" v-click-outside="() => visible = false">
+    <ul v-if="visible" v-click-outside="() => (visible = false)">
       <li>选项 1</li>
     </ul>
   </div>
 </template>
 ```
 
-| 绑定            | 类型                      | 说明                 |
-| --------------- | ------------------------- | -------------------- |
-| `binding.value` | `(e: MouseEvent) => void` | 点击外部时的回调     |
+| 绑定            | 类型                      | 说明             |
+| --------------- | ------------------------- | ---------------- |
+| `binding.value` | `(e: MouseEvent) => void` | 点击外部时的回调 |
 
 ## `vFocus` — 自动聚焦
 

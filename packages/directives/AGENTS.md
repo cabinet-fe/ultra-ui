@@ -4,11 +4,11 @@ Vue 自定义指令集合。
 
 ## 指令
 
-| 指令 | 用途 | 要点 |
-| ---- | ---- | ---- |
-| `vFocus` | 挂载时聚焦 input | 支持容器内查找 input |
-| `vClickOutside` | 点击外部回调 | mousedown + click 协调 |
-| `vRipple` | 水波纹 | `binding.value` / `binding.arg` 控制 |
+| 指令            | 用途             | 要点                                 |
+| --------------- | ---------------- | ------------------------------------ |
+| `vFocus`        | 挂载时聚焦 input | 支持容器内查找 input                 |
+| `vClickOutside` | 点击外部回调     | mousedown + click 协调               |
+| `vRipple`       | 水波纹           | `binding.value` / `binding.arg` 控制 |
 
 ## 目录结构
 

@@ -15,33 +15,33 @@ import type { TabItem } from '@veltra/desktop'
 
 ```ts
 interface TabItem {
-  key: string         // 唯一标识，同时是内容面板 slot 名
-  name?: string       // 标题，不传则用 key
+  key: string // 唯一标识，同时是内容面板 slot 名
+  name?: string // 标题，不传则用 key
   disabled?: boolean
-  closable?: boolean  // 单项级覆盖，未设置时沿用组件级 closable
+  closable?: boolean // 单项级覆盖，未设置时沿用组件级 closable
 }
 ```
 
 ## UTabs Props
 
-| prop         | type                                     | default     | 说明                                                                           |
-| ------------ | ---------------------------------------- | ----------- | ------------------------------------------------------------------------------ |
-| `modelValue` | `string`                                 | —           | 当前激活的 tab key                                                             |
-| `items`      | `TabItem[]`                              | **必填**    | 标签项                                                                         |
-| `size`       | `'small' \| 'default' \| 'large'`        | `'default'` | 尺寸                                                                           |
-| `closable`   | `boolean`                                | `false`     | 默认所有项可关闭（被 item 级 `closable` 覆盖）                                 |
-| `block`      | `boolean`                                | `false`     | 填充父容器宽度（仅 `position` 为 `top`/`bottom` 生效）                         |
-| `rounded`    | `boolean`                                | `false`     | 圆角胶囊风格                                                                   |
-| `position`   | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     | 显示位置                                                                       |
-| `keepAlive`  | `boolean`                                | `false`     | 切换时缓存已渲染面板                                                           |
+| prop         | type                                     | default     | 说明                                                   |
+| ------------ | ---------------------------------------- | ----------- | ------------------------------------------------------ |
+| `modelValue` | `string`                                 | —           | 当前激活的 tab key                                     |
+| `items`      | `TabItem[]`                              | **必填**    | 标签项                                                 |
+| `size`       | `'small' \| 'default' \| 'large'`        | `'default'` | 尺寸                                                   |
+| `closable`   | `boolean`                                | `false`     | 默认所有项可关闭（被 item 级 `closable` 覆盖）         |
+| `block`      | `boolean`                                | `false`     | 填充父容器宽度（仅 `position` 为 `top`/`bottom` 生效） |
+| `rounded`    | `boolean`                                | `false`     | 圆角胶囊风格                                           |
+| `position`   | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     | 显示位置                                               |
+| `keepAlive`  | `boolean`                                | `false`     | 切换时缓存已渲染面板                                   |
 
 ## UTabs Emits
 
-| event               | 参数                             | 说明           |
-| ------------------- | -------------------------------- | -------------- |
-| `update:modelValue` | `(value: string)`                | 激活变更       |
-| `click`             | `(item: TabItem, index: number)` | 点击标签       |
-| `close`             | `(item: TabItem, index: number)` | 关闭标签       |
+| event               | 参数                             | 说明     |
+| ------------------- | -------------------------------- | -------- |
+| `update:modelValue` | `(value: string)`                | 激活变更 |
+| `click`             | `(item: TabItem, index: number)` | 点击标签 |
+| `close`             | `(item: TabItem, index: number)` | 关闭标签 |
 
 ## UTabs Slots
 

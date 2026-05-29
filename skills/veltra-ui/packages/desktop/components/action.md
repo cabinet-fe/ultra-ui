@@ -55,20 +55,20 @@ interface ActionExposed {}
 
 将多个 `UAction` 包裹为行内操作组，超出 `max` 的操作自动收纳到 `…` 下拉菜单。通过 provide/inject 统一控制子项默认 `type`/`size`/`text`/`circle`/`loading`，子项可同名 prop 单独覆盖。
 
-| prop      | type                              | default     | 说明                                   |
-| --------- | --------------------------------- | ----------- | -------------------------------------- |
-| `max`     | `number`                          | `3`         | 最大可见操作数，超出收纳到下拉         |
-| `type`    | `ColorType`                       | `'primary'` | 子项默认类型                           |
-| `size`    | `'small' \| 'default' \| 'large'` | `'small'`   | 子项默认尺寸                           |
-| `text`    | `boolean`                         | `true`      | 子项默认文本模式                       |
-| `circle`  | `boolean`                         | `false`     | 子项默认圆形                           |
-| `loading` | `boolean`                         | `false`     | 子项默认加载中                         |
+| prop      | type                              | default     | 说明                           |
+| --------- | --------------------------------- | ----------- | ------------------------------ |
+| `max`     | `number`                          | `3`         | 最大可见操作数，超出收纳到下拉 |
+| `type`    | `ColorType`                       | `'primary'` | 子项默认类型                   |
+| `size`    | `'small' \| 'default' \| 'large'` | `'small'`   | 子项默认尺寸                   |
+| `text`    | `boolean`                         | `true`      | 子项默认文本模式               |
+| `circle`  | `boolean`                         | `false`     | 子项默认圆形                   |
+| `loading` | `boolean`                         | `false`     | 子项默认加载中                 |
 
 ### UActionGroup Slots
 
-| slot      | 说明                                       |
-| --------- | ------------------------------------------ |
-| `default` | 放置 `UAction` 子项，子项间自动添加分隔符  |
+| slot      | 说明                                      |
+| --------- | ----------------------------------------- |
+| `default` | 放置 `UAction` 子项，子项间自动添加分隔符 |
 
 ### UActionGroup Exposed
 

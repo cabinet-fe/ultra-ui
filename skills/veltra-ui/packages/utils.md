@@ -5,23 +5,38 @@
 ## 导入
 
 ```ts
-import { bem, makeBEM, withUnit, ExpandTransition, Tween, extractNormalVNodes, getZIndex } from '@veltra/utils'
+import {
+  bem,
+  makeBEM,
+  withUnit,
+  ExpandTransition,
+  Tween,
+  extractNormalVNodes,
+  getZIndex
+} from '@veltra/utils'
 import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
-import type { ComponentProps, ComponentSize, ColorType, BreakpointName, FormComponentProps, DeconstructValue } from '@veltra/utils'
+import type {
+  ComponentProps,
+  ComponentSize,
+  ColorType,
+  BreakpointName,
+  FormComponentProps,
+  DeconstructValue
+} from '@veltra/utils'
 ```
 
 ## 共享类型
 
-| 类型                  | 含义                                                                     |
-| --------------------- | ------------------------------------------------------------------------ |
-| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                        |
-| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`              |
-| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                   |
-| `ComponentProps`      | `{ size?: ComponentSize }`                                               |
-| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span`    |
-| `FormContextProps`    | UForm 通过 provide 下发的上下文形状                                      |
-| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）             |
-| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）               |
+| 类型                  | 含义                                                                  |
+| --------------------- | --------------------------------------------------------------------- |
+| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                     |
+| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`           |
+| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                |
+| `ComponentProps`      | `{ size?: ComponentSize }`                                            |
+| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span` |
+| `FormContextProps`    | UForm 通过 provide 下发的上下文形状                                   |
+| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）          |
+| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）            |
 
 详细字段见 `node_modules/@veltra/utils/dist/index.d.ts`。
 
@@ -39,9 +54,9 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed>  // { el: HTMLButto
 ```ts
 import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
 
-NAME_SPACE          // 'U'   — 组件名前缀
-CLS_PREFIX          // 'u-'  — CSS 类名前缀
-FORM_EMPTY_CONTENT  // '-'   — 表单空值占位符
+NAME_SPACE // 'U'   — 组件名前缀
+CLS_PREFIX // 'u-'  — CSS 类名前缀
+FORM_EMPTY_CONTENT // '-'   — 表单空值占位符
 ```
 
 ## BEM 类名工厂
@@ -52,12 +67,12 @@ FORM_EMPTY_CONTENT  // '-'   — 表单空值占位符
 import { bem } from '@veltra/utils'
 const cls = bem('button')
 
-cls.b                       // 'u-button'
-cls.e('icon')               // 'u-button__icon'
-cls.m('primary')            // 'u-button--primary'
-cls.em('icon', 'left')      // 'u-button__icon--left'
-cls.is('disabled', true)    // 'is-disabled'（false 返回 ''）
-cls.create('custom')        // 'u-button-custom'
+cls.b // 'u-button'
+cls.e('icon') // 'u-button__icon'
+cls.m('primary') // 'u-button--primary'
+cls.em('icon', 'left') // 'u-button__icon--left'
+cls.is('disabled', true) // 'is-disabled'（false 返回 ''）
+cls.create('custom') // 'u-button-custom'
 ```
 
 模板里：
@@ -76,18 +91,18 @@ cls.create('custom')        // 'u-button-custom'
 低频 API，签名详见类型定义。
 
 ```ts
-withUnit(10)                 // '10px'
-withUnit(10, 'rem')          // '10rem'
-withUnit('50%')              // '50%' — 已是字符串原样返回
+withUnit(10) // '10px'
+withUnit(10, 'rem') // '10rem'
+withUnit('50%') // '50%' — 已是字符串原样返回
 
-getZIndex()                  // 自增 z-index，浮层组件用
+getZIndex() // 自增 z-index，浮层组件用
 
-extractNormalVNodes(slots.default?.())  // 过滤注释/文本，返回真实组件 VNode
+extractNormalVNodes(slots.default?.()) // 过滤注释/文本，返回真实组件 VNode
 
 new ExpandTransition({ transition: 'height 0.25s ease', opacity: true })
 // .enter / .leave / .setExpanded(el, expanded) — Collapse、Menu 复用的高度展开动画
 
-new Tween({ from, to, duration, easing, onUpdate })  // 简易补间
+new Tween({ from, to, duration, easing, onUpdate }) // 简易补间
 ```
 
 ## 相关

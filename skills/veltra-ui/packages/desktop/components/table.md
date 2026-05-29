@@ -15,19 +15,19 @@ import { defineTableColumns } from '@veltra/desktop'
 
 ```ts
 interface TableColumn {
-  key: string                                           // 列唯一键 = 数据字段名 = 列插槽匹配名
-  name: string                                          // 表头文本（优先级低于 nameRender）
-  nameRender?: (ctx: { column: TableColumnNode }) => RenderReturn  // 自定义表头渲染
-  width?: number                                        // 列最大宽度（px）
-  minWidth?: number                                     // 列最小宽度（px）
-  fixed?: 'left' | 'right'                              // 列固定（嵌套表头时无效）
-  align?: 'left' | 'center' | 'right'                   // 列对齐，默认 'left'
-  headerAlign?: 'left' | 'center' | 'right'             // 表头对齐，默认跟随 align
-  render?: (scope: TableColumnRenderContext) => RenderReturn  // 自定义单元格渲染
-  children?: TableColumn[]                              // 多级表头
-  summary?: boolean | ((ctx: TableSummaryContext) => RenderReturn)  // 表尾合计
-  resizable?: boolean                                   // 列宽可拖拽
-  [key: string]: any                                    // 透传到列插槽的额外属性
+  key: string // 列唯一键 = 数据字段名 = 列插槽匹配名
+  name: string // 表头文本（优先级低于 nameRender）
+  nameRender?: (ctx: { column: TableColumnNode }) => RenderReturn // 自定义表头渲染
+  width?: number // 列最大宽度（px）
+  minWidth?: number // 列最小宽度（px）
+  fixed?: 'left' | 'right' // 列固定（嵌套表头时无效）
+  align?: 'left' | 'center' | 'right' // 列对齐，默认 'left'
+  headerAlign?: 'left' | 'center' | 'right' // 表头对齐，默认跟随 align
+  render?: (scope: TableColumnRenderContext) => RenderReturn // 自定义单元格渲染
+  children?: TableColumn[] // 多级表头
+  summary?: boolean | ((ctx: TableSummaryContext) => RenderReturn) // 表尾合计
+  resizable?: boolean // 列宽可拖拽
+  [key: string]: any // 透传到列插槽的额外属性
 }
 
 interface TableColumnRenderContext {
@@ -38,7 +38,7 @@ interface TableColumnRenderContext {
 }
 
 interface TableColumnSlotsScope extends TableColumnRenderContext {
-  model: { modelValue: any; 'onUpdate:modelValue': (val: any) => void }  // 行内编辑用
+  model: { modelValue: any; 'onUpdate:modelValue': (val: any) => void } // 行内编辑用
 }
 
 interface TableRowSlotsScope {
@@ -76,7 +76,7 @@ interface TableRow extends TreeNode<Record<string, any>> {
 const columns = defineTableColumns(
   [
     { key: 'name', name: '姓名' },
-    { key: 'age', name: '年龄', align: 'right' },  // align 不被覆盖
+    { key: 'age', name: '年龄', align: 'right' }, // align 不被覆盖
     { key: 'address', name: '地址' }
   ],
   { align: 'center', minWidth: 100 }
@@ -85,38 +85,38 @@ const columns = defineTableColumns(
 
 ## Props
 
-| prop               | type                                                                              | default     | 说明                                                                            |
-| ------------------ | --------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
-| `data`             | `Record<string, any>[]`                                                           | —           | 表格数据                                                                        |
-| `columns`          | `TableColumn[]`                                                                   | —           | 列定义                                                                          |
-| `rowKey`           | `string`                                                                          | —           | 行唯一标识字段名（多选/单选/树形必须）                                          |
-| `size`             | `ComponentSize`                                                                   | `'default'` | 尺寸                                                                            |
-| `checkable`        | `boolean`                                                                         | —           | 多选（需 `rowKey`），配合 `v-model:checked`                                     |
-| `selectable`       | `boolean`                                                                         | —           | 单选（需 `rowKey`），配合 `v-model:selected`                                    |
-| `current`          | `TableRow`                                                                        | —           | 当前行（`v-model:current`）                                                     |
-| `highlightCurrent` | `boolean`                                                                         | `false`     | 高亮当前点击行                                                                  |
-| `showIndex`        | `boolean`                                                                         | —           | 显示行索引（左侧固定列，60px）                                                  |
-| `tree`             | `boolean \| string`                                                               | `false`     | 树形：`true` 用 `children` 字段；传字符串自定义子节点字段名                     |
-| `expandable`       | `boolean`                                                                         | —           | 行展开（非树形模式下有效）                                                      |
-| `defaultExpandAll` | `boolean`                                                                         | —           | 默认展开全部（树形）                                                            |
-| `stripe`           | `boolean`                                                                         | `true`      | 斑马纹                                                                          |
-| `border`           | `boolean`                                                                         | `false`     | 边框                                                                            |
-| `textEllipsis`     | `boolean`                                                                         | —           | 文本溢出省略                                                                    |
-| `virtualThreshold` | `number`                                                                          | `80`        | 虚拟滚动阈值，超过此值自动开启；`0` 强制开启                                    |
-| `mergeCell`        | `(ctx: TableColumnRenderContext) => { rowspan: number; colspan: number } \| undefined` | —     | 单元格合并函数                                                                  |
-| `slots`            | `Readonly<Slots>`                                                                 | —           | 跨组件传入外部作用域插槽                                                        |
+| prop               | type                                                                                   | default     | 说明                                                        |
+| ------------------ | -------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------- |
+| `data`             | `Record<string, any>[]`                                                                | —           | 表格数据                                                    |
+| `columns`          | `TableColumn[]`                                                                        | —           | 列定义                                                      |
+| `rowKey`           | `string`                                                                               | —           | 行唯一标识字段名（多选/单选/树形必须）                      |
+| `size`             | `ComponentSize`                                                                        | `'default'` | 尺寸                                                        |
+| `checkable`        | `boolean`                                                                              | —           | 多选（需 `rowKey`），配合 `v-model:checked`                 |
+| `selectable`       | `boolean`                                                                              | —           | 单选（需 `rowKey`），配合 `v-model:selected`                |
+| `current`          | `TableRow`                                                                             | —           | 当前行（`v-model:current`）                                 |
+| `highlightCurrent` | `boolean`                                                                              | `false`     | 高亮当前点击行                                              |
+| `showIndex`        | `boolean`                                                                              | —           | 显示行索引（左侧固定列，60px）                              |
+| `tree`             | `boolean \| string`                                                                    | `false`     | 树形：`true` 用 `children` 字段；传字符串自定义子节点字段名 |
+| `expandable`       | `boolean`                                                                              | —           | 行展开（非树形模式下有效）                                  |
+| `defaultExpandAll` | `boolean`                                                                              | —           | 默认展开全部（树形）                                        |
+| `stripe`           | `boolean`                                                                              | `true`      | 斑马纹                                                      |
+| `border`           | `boolean`                                                                              | `false`     | 边框                                                        |
+| `textEllipsis`     | `boolean`                                                                              | —           | 文本溢出省略                                                |
+| `virtualThreshold` | `number`                                                                               | `80`        | 虚拟滚动阈值，超过此值自动开启；`0` 强制开启                |
+| `mergeCell`        | `(ctx: TableColumnRenderContext) => { rowspan: number; colspan: number } \| undefined` | —           | 单元格合并函数                                              |
+| `slots`            | `Readonly<Slots>`                                                                      | —           | 跨组件传入外部作用域插槽                                    |
 
 ## Emits
 
-| event             | 参数                                                   | 说明                  |
-| ----------------- | ------------------------------------------------------ | --------------------- |
-| `update:checked`  | `(value: DataItem[])`                                  | 多选项变更            |
-| `update:selected` | `(value: DataItem \| undefined)`                       | 单选项变更            |
-| `update:current`  | `(row?: TableRow)`                                     | 当前行变更            |
-| `update:rows`     | `(rows: TableRow[])`                                   | 行数据更新            |
-| `update:forest`   | `(rows?: Forest<Record<string, unknown>, any>)`        | 树形森林结构更新      |
-| `row-click`       | `(row: TableRow, ev: MouseEvent)`                      | 行点击                |
-| `cell-click`      | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 单元格点击            |
+| event             | 参数                                                   | 说明             |
+| ----------------- | ------------------------------------------------------ | ---------------- |
+| `update:checked`  | `(value: DataItem[])`                                  | 多选项变更       |
+| `update:selected` | `(value: DataItem \| undefined)`                       | 单选项变更       |
+| `update:current`  | `(row?: TableRow)`                                     | 当前行变更       |
+| `update:rows`     | `(rows: TableRow[])`                                   | 行数据更新       |
+| `update:forest`   | `(rows?: Forest<Record<string, unknown>, any>)`        | 树形森林结构更新 |
+| `row-click`       | `(row: TableRow, ev: MouseEvent)`                      | 行点击           |
+| `cell-click`      | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 单元格点击       |
 
 ## Slots
 
@@ -249,10 +249,10 @@ const columns = defineTableColumns([
 // tree=true 用 children；tree="subItems" 自定义子节点字段名
 const data = [
   {
-    id: 1, name: 'src',
+    id: 1,
+    name: 'src',
     children: [
-      { id: 2, name: 'components',
-        children: [{ id: 3, name: 'Button.vue', size: '3.2 KB' }] }
+      { id: 2, name: 'components', children: [{ id: 3, name: 'Button.vue', size: '3.2 KB' }] }
     ]
   }
 ]
@@ -274,9 +274,12 @@ const columns = defineTableColumns([
   { key: 'price', name: '单价', width: 100, align: 'right', summary: true },
   { key: 'quantity', name: '数量', width: 80, align: 'center' },
   {
-    key: 'total', name: '金额', width: 120, align: 'right',
+    key: 'total',
+    name: '金额',
+    width: 120,
+    align: 'right',
     render: ({ rowData }) => `¥${(rowData.price * rowData.quantity).toFixed(2)}`,
-    summary: ctx => {
+    summary: (ctx) => {
       const sum = ctx.rows.reduce((s, r) => s + (r.data as any).price * (r.data as any).quantity, 0)
       return `¥${sum.toFixed(2)}`
     }
@@ -304,14 +307,18 @@ import type { TableColumn, TableColumnRenderContext } from '@veltra/desktop'
 // 多级表头：用 children 嵌套
 const columns: TableColumn[] = [
   {
-    key: 'name', name: '基本信息', align: 'center',
+    key: 'name',
+    name: '基本信息',
+    align: 'center',
     children: [
       { key: 'firstName', name: '名', minWidth: 100 },
       { key: 'lastName', name: '姓', minWidth: 100 }
     ]
   },
   {
-    key: 'contact', name: '联系方式', align: 'center',
+    key: 'contact',
+    name: '联系方式',
+    align: 'center',
     children: [
       { key: 'email', name: '邮箱', minWidth: 200 },
       { key: 'phone', name: '电话', width: 140 }
@@ -374,7 +381,8 @@ const data = Array.from({ length: 10000 }, (_, i) => ({ id: i + 1, name: `行 ${
     :data="data"
     row-key="id"
     :virtual-threshold="50"
-    border stripe
+    border
+    stripe
     style="height: 500px"
   />
 </template>
