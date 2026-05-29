@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.21
+
+### Patch Changes
+
+- 312a212: fix(desktop): remove redundant u-scroll container in pdf-previewer that breaks page panning and virtual scrolling
+  - @veltra/utils@1.1.21
+  - @veltra/styles@1.1.21
+  - @veltra/compositions@1.1.21
+  - @veltra/directives@1.1.21
+  - @veltra/icons@1.1.21
+
 ## 1.1.20
 
 ### Patch Changes
