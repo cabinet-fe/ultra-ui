@@ -1,6 +1,6 @@
 <template>
   <!-- EmbedPDF Viewport 自带滚动；u-scroll 仅同步自定义滚动条 -->
-  <u-scroll :target="viewportEl">
+  <u-scroll>
     <slot />
   </u-scroll>
 </template>

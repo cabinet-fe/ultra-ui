@@ -12,28 +12,6 @@ $root-name: scroll;
   overflow: hidden;
   scroll-behavior: auto;
 
-  @include m.is(external) {
-    display: contents;
-  }
-
-  @include m.e(overlay) {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 2;
-
-    @include m.bem($root-name, (bar-x, bar-y)) {
-      pointer-events: auto;
-    }
-
-    &:hover > {
-      @include m.bem($root-name, (bar-x, bar-y)) {
-        opacity: 1;
-      }
-    }
-  }
-
   // 滚动容器
   @include m.e(container) {
     overflow: auto;
