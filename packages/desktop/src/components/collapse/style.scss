@@ -1,6 +1,4 @@
-@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m;
-@use 'pkg:@veltra/styles/vars';
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: collapse;
@@ -9,6 +7,32 @@ $root-name: collapse;
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 0.18s $ease;
 $transition-normal: 0.24s $ease;
+$item-bg: fn.component-var(
+  collapse,
+  item-bg,
+  color-mix(in srgb, #{fn.use-var(bg-color, hover)} 72%, #{fn.use-var(bg-color, top)})
+);
+$item-hover-bg: fn.component-var(
+  collapse,
+  item-hover-bg,
+  color-mix(in srgb, #{fn.use-var(color, primary)} 4%, #{$item-bg})
+);
+$item-active-bg: fn.component-var(
+  collapse,
+  item-active-bg,
+  color-mix(in srgb, #{fn.use-var(color, primary)} 5%, #{$item-bg})
+);
+$header-active-bg: fn.component-var(
+  collapse,
+  header-active-bg,
+  color-mix(in srgb, #{fn.use-var(color, primary)} 8%, #{$item-bg})
+);
+$content-bg: fn.component-var(
+  collapse,
+  content-bg,
+  color-mix(in srgb, #{$item-active-bg} 42%, #{fn.use-var(bg-color, top)})
+);
+$active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(color, primary));
 
 @include m.b($root-name) {
   width: 100%;
@@ -18,9 +42,25 @@ $transition-normal: 0.24s $ease;
 
   // ===== Item =====
   @include m.e(item) {
+    position: relative;
     border-radius: calc(fn.use-var(radius, default) + 2px);
-    background-color: fn.use-var(bg-color, hover);
+    overflow: hidden;
+    background-color: $item-bg;
     transition: background-color $transition-fast;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      background-color: fn.use-var(color, primary);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity $transition-fast;
+      z-index: 1;
+    }
 
     & + #{fn.bem($root-name, item)} {
       margin-top: fn.use-var(gap, default);
@@ -28,22 +68,16 @@ $transition-normal: 0.24s $ease;
 
     @include m.is-not(disabled) {
       &:hover {
-        // hover 状态与展开状态保持一致的微加深背景（混入 6% 的正文文字色）
-        background-color: color-mix(
-          in srgb,
-          #{fn.use-var(text-color, main)} 6%,
-          #{fn.use-var(bg-color, hover)}
-        );
+        background-color: $item-hover-bg;
       }
     }
 
     @include m.is(active) {
-      // 展开/活动状态背景（混入 6% 的正文文字色）
-      background-color: color-mix(
-        in srgb,
-        #{fn.use-var(text-color, main)} 6%,
-        #{fn.use-var(bg-color, hover)}
-      );
+      background-color: $item-active-bg;
+
+      &::before {
+        opacity: 1;
+      }
     }
 
     @include m.is(disabled) {
@@ -79,10 +113,14 @@ $transition-normal: 0.24s $ease;
 
     @include m.is(active) {
       font-weight: 600;
+      color: $active-title-color;
+      background-color: $header-active-bg;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
 
       #{fn.bem($root-name, icon)} {
         transform: rotate(90deg);
-        color: fn.use-var(text-color, second);
+        color: $active-title-color;
       }
     }
   }
@@ -111,6 +149,9 @@ $transition-normal: 0.24s $ease;
   @include m.e(content-wrapper) {
     overflow: hidden;
     height: 0;
+    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: inherit;
+    background-color: $content-bg;
     transition: height $transition-normal;
   }
 
@@ -138,27 +179,6 @@ $transition-normal: 0.24s $ease;
 
       & + #{fn.bem($root-name, item)} {
         margin-top: fn.use-var(gap, $size);
-      }
-    }
-  }
-
-  // ===== Bordered =====
-  @include m.is(bordered) {
-    #{fn.bem($root-name, item)} {
-      background-color: transparent;
-      border: 1px solid vars.$border-color;
-
-      &:hover,
-      &.is-active {
-        background-color: transparent;
-      }
-    }
-
-    #{fn.bem($root-name, header)} {
-      border-radius: 0;
-
-      @include m.is(active) {
-        border-bottom: 1px solid vars.$border-color;
       }
     }
   }

@@ -17,11 +17,9 @@
       </u-collapse>
     </CustomCard>
 
-    <CustomCard title="边框模式">
-      <p class="desc">
-        设置 <code>bordered</code> 属性开启边框模式，适合表单分组等需要清晰边界的场景。
-      </p>
-      <u-collapse v-model="borderedValue" bordered>
+    <CustomCard title="内容区背景">
+      <p class="desc">展开后的内容区域使用 hover 背景色，与标题区域形成更清晰的层次。</p>
+      <u-collapse v-model="contentBgValue">
         <u-collapse-item value="b1" title="表单全局">
           <p>列数、标签宽度等全局表单配置。</p>
         </u-collapse-item>
@@ -204,7 +202,7 @@ const nestInner2 = ref<CollapseModelValue>(['n2-1'])
 
 const defaultExpandValue = ref<CollapseModelValue>()
 const defaultCollapseValue = ref<CollapseModelValue>()
-const borderedValue = ref<CollapseModelValue>(['b1'])
+const contentBgValue = ref<CollapseModelValue>(['b1'])
 
 const sizes: ComponentSize[] = ['small', 'default', 'large']
 </script>

@@ -3,7 +3,7 @@
 ## 发布之前
 
 
-确保在与 `origin/dev` 同步的 `dev` 分支上，并且工作区干净。
+确保在与 `origin/dev` 同步的 `dev` 分支上，并且工作区干净，有未提交的代码先提交代码。
 
 确保 `.changeset/` 中至少存在一个非 `README.md` 的 changeset 文件。
 

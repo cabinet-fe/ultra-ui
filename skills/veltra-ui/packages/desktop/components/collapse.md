@@ -2,8 +2,6 @@
 
 > `import type { CollapseProps, CollapseItemProps, CollapseEmits, CollapseValue, CollapseModelValue } from '@veltra/desktop'`
 
-基于 CSS Grid `0fr → 1fr` 行高度过渡实现高度动画，零 JS 测量。
-
 ## Import
 
 ```ts
@@ -27,7 +25,6 @@ type CollapseModelValue = CollapseValue | CollapseValue[]
 | `modelValue`         | `CollapseModelValue` | —           | 当前展开项（v-model）                                                                                     |
 | `accordion`          | `boolean`            | `false`     | 是否手风琴模式（一次只能展开一项）                                                                        |
 | `defaultCollapseAll` | `boolean`            | `false`     | 是否默认折叠全部项。设为 `true` 时初始化默认全部折叠；为 `false` 时（默认）在外部未传绑定值时默认全部展开 |
-| `bordered`           | `boolean`            | `false`     | 边框模式：item 透明背景 + 1px 实线边框，active 时 header 底部有分隔线                                      |
 | `expandIcon`         | `Component`          | —           | 自定义展开图标组件，活动态会自动旋转 90°                                                                  |
 
 ## UCollapse Emits

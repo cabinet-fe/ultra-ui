@@ -121,6 +121,45 @@
       </template>
     </u-batch-edit>
 
+    <div style="margin-top: 24px">
+      <u-collapse v-model="collapseValue" default-collapse-all>
+        <u-collapse-item value="data" title="数据状态 (data)">
+          <pre
+            style="
+              background: var(--u-bg-color-hover);
+              padding: 12px;
+              border-radius: 6px;
+              overflow: auto;
+              max-height: 400px;
+              font-size: 12px;
+              margin: 0;
+              font-family: monospace;
+              white-space: pre-wrap;
+              word-break: break-all;
+            "
+            >{{ JSON.stringify(data, null, 2) }}</pre
+          >
+        </u-collapse-item>
+        <u-collapse-item value="checked" title="选中项 (checked)">
+          <pre
+            style="
+              background: var(--u-bg-color-hover);
+              padding: 12px;
+              border-radius: 6px;
+              overflow: auto;
+              max-height: 200px;
+              font-size: 12px;
+              margin: 0;
+              font-family: monospace;
+              white-space: pre-wrap;
+              word-break: break-all;
+            "
+            >{{ JSON.stringify(checked, null, 2) }}</pre
+          >
+        </u-collapse-item>
+      </u-collapse>
+    </div>
+
     <u-dialog v-model="dialogVisible" style="width: 1000px"> </u-dialog>
   </div>
 </template>
@@ -128,13 +167,14 @@
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
 import { FormModel, defineTableColumns, message } from '@veltra/desktop'
-import type { BatchEditFeature } from '@veltra/desktop'
-import { computed, shallowRef } from 'vue'
+import type { BatchEditFeature, CollapseModelValue } from '@veltra/desktop'
+import { computed, ref, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
 const dialogVisible = shallowRef(false)
+const collapseValue = ref<CollapseModelValue>([])
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', rules: { required: true }, width: 120 },
@@ -151,7 +191,7 @@ const columns = defineTableColumns([
   { name: '单选级联选择器', key: 'cascade', width: 150 }
 ])
 
-const data = shallowRef()
+const data = ref()
 const checked = shallowRef([])
 
 setTimeout(() => {

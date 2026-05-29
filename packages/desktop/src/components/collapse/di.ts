@@ -6,7 +6,6 @@ import type { CollapseValue } from '../../types'
 export interface CollapseContext {
   cls: BEM<'collapse'>
   size: ComputedRef<ComponentSize>
-  bordered: ComputedRef<boolean>
   expandIcon: ComputedRef<Component | undefined>
   activeValues: ComputedRef<CollapseValue[]>
   toggle: (value: CollapseValue) => void
