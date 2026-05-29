@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.20
+
+### Patch Changes
+
+- f5dc83c: fix(desktop): 修复 scroll 组件滚动条无法滚动到底部的 bug，重构并精简了滚动计算逻辑。
+  - @veltra/utils@1.1.20
+  - @veltra/styles@1.1.20
+  - @veltra/compositions@1.1.20
+  - @veltra/directives@1.1.20
+  - @veltra/icons@1.1.20
+
 ## 1.1.19
 
 ### Patch Changes
