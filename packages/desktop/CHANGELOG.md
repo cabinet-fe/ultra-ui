@@ -1,5 +1,18 @@
 # @veltra/desktop
 
+## 1.1.22
+
+### Patch Changes
+
+- cdb5a75: - Collapse：移除 `bordered` 模式，优化默认视觉样式
+  - Table：避免对已 reactive 的列配置重复 shallowReactive 包裹
+  - 提升 `@cat-kit/core`、`@cat-kit/fe` peer 最低版本至 1.1.5
+  - @veltra/utils@1.1.22
+  - @veltra/styles@1.1.22
+  - @veltra/compositions@1.1.22
+  - @veltra/directives@1.1.22
+  - @veltra/icons@1.1.22
+
 ## 1.1.21
 
 ### Patch Changes
