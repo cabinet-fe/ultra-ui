@@ -1,14 +1,9 @@
 <template>
-  <!-- EmbedPDF Viewport 自带滚动；u-scroll 仅同步自定义滚动条 -->
-  <u-scroll>
-    <slot />
-  </u-scroll>
+  <slot />
 </template>
 
 <script lang="ts" setup>
 import { computed, inject, onBeforeUnmount, type Ref, watch } from 'vue'
-
-import { UScroll } from '../../scroll'
 
 defineOptions({ name: 'FileViewerPdfViewportScroll' })
 
