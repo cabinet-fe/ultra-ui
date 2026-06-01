@@ -48,8 +48,7 @@ jobs:
           version: '0.1.22'
           node-version: '24'
           cache: true
-          run-install: |
-            args: ['--frozen-lockfile']
+          run-install: true
 
       # 全量构建一次（vp run 按 workspace 拓扑排序）；lint 与构建并行，测试在构建完成后执行
       - name: Verify
