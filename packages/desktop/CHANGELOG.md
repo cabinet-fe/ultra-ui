@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.25
+
+### Patch Changes
+
+- 9231b2c: 优化 FormModel 泛型定义，支持嵌套属性类型推导，并更新相关 Playground 演示与技能文档。
+  - @veltra/utils@1.1.25
+  - @veltra/styles@1.1.25
+  - @veltra/compositions@1.1.25
+  - @veltra/directives@1.1.25
+  - @veltra/icons@1.1.25
+
 ## 1.1.24
 
 ### Patch Changes
