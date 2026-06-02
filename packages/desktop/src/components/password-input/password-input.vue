@@ -6,17 +6,22 @@
     :size="size"
     :readonly="readonly"
     :disabled="disabled"
+    :clearable="false"
     @native:input="handleUpdatePwd"
     @update:model-value="!$event && handleClear()"
-    @suffix:click="toggleVisible"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
     <template #suffix>
-      <Transition name="fade">
-        <UIcon :class="cls.e('visibility-toggle')" :size="18">
+      <span :class="cls.e('suffix')">
+        <UIcon v-if="showClear" :class="cls.e('clear')" title="清除" @click.stop="handleClear">
+          <Close />
+        </UIcon>
+        <UIcon :class="cls.e('visibility-toggle')" :size="18" @click.stop="toggleVisible">
           <Hide v-if="pwdVisible" />
           <View v-else />
         </UIcon>
-      </Transition>
+      </span>
     </template>
 
     <template #prefix v-if="slots.prefix">
@@ -28,18 +33,16 @@
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
-import { Hide, View } from '@veltra/icons/normal'
+import { Close, Hide, View } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, nextTick, shallowRef } from 'vue'
+import { computed, nextTick, ref, shallowRef } from 'vue'
 
 import type { PasswordInputProps } from '../../types'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({
-  name: 'PasswordInput'
-})
+defineOptions({ name: 'PasswordInput' })
 
 const props = withDefaults(defineProps<PasswordInputProps>(), {
   clearable: false,
@@ -47,9 +50,7 @@ const props = withDefaults(defineProps<PasswordInputProps>(), {
   readonly: undefined
 })
 
-const slots = defineSlots<{
-  prefix?: () => any
-}>()
+const slots = defineSlots<{ prefix?: () => any }>()
 
 const { formProps } = injectFormContext()
 
@@ -60,12 +61,26 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 })
 
 const inputProps = computed(() => {
-  return o(props).pick(['clearable', 'disabled', 'placeholder', 'size'])
+  return o(props).pick(['disabled', 'placeholder', 'size'])
 })
 
 const cls = bem('password-input')
 
 const model = defineModel<string>()
+
+const hovered = ref(false)
+
+const handleMouseEnter = (): void => {
+  hovered.value = true
+}
+
+const handleMouseLeave = (): void => {
+  hovered.value = false
+}
+
+const showClear = computed(() => {
+  return props.clearable && !disabled.value && !!model.value && hovered.value
+})
 
 const passwordChar = '●'
 

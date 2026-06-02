@@ -28,15 +28,12 @@ $root-name: input;
     height: fn.use-var(form-component-height, $size);
     border-radius: fn.use-var(radius, $size);
     padding: 0 calc(fn.use-var(gap, $size) / 2);
+    font-size: fn.use-var(font-size-main, $size);
 
     @include m.bem($root-name, native) {
       height: fn.use-var(form-component-height, $size);
       line-height: fn.use-var(form-component-height, $size);
     }
-
-    // @include m.bem($root-name, clear) {
-    //   font-size: fn.use-var(font-size-main, $size);
-    // }
   }
 
   @include m.is(focus) {
@@ -51,7 +48,7 @@ $root-name: input;
     width: 100%;
     flex-grow: 1;
     color: fn.use-var(text-color, main);
-    font-size: 1em;
+    font-size: inherit;
     padding: 0;
     font-family: fn.use-var(font-family);
 
@@ -66,7 +63,7 @@ $root-name: input;
   }
 
   @include m.e(prefix, suffix) {
-    font-size: 14px;
+    font-size: inherit;
     color: fn.use-var(text-color, main);
     flex-shrink: 0;
     min-width: 20px;

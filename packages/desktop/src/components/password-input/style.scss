@@ -5,7 +5,28 @@
 $root-name: password-input;
 
 @include m.b($root-name) {
+  @include m.e(suffix) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 2px;
+  }
+
+  @include m.e(clear) {
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 20px;
+    border-radius: fn.use-var(radius, default);
+    transition: color 0.25s;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
   @include m.e(visibility-toggle) {
-    // cursor: pointer;
+    cursor: pointer;
+    flex-shrink: 0;
   }
 }
