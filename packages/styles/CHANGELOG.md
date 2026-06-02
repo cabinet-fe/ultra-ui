@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.24
+
+### Patch Changes
+
+- 767edb6: 修正 `sideEffects` 声明，避免 normalize/transitions 等按需样式在打包时被 tree-shake 掉。
+  - @veltra/utils@1.1.24
+  - @veltra/compositions@1.1.24
+
 ## 1.1.23
 
 ### Patch Changes
