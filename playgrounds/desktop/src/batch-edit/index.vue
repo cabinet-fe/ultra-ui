@@ -166,7 +166,7 @@
 
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
-import { FormModel, defineTableColumns, message } from '@veltra/desktop'
+import { FormModel, defineTableColumns, message, nestField } from '@veltra/desktop'
 import type { BatchEditFeature, CollapseModelValue } from '@veltra/desktop'
 import { computed, ref, shallowRef } from 'vue'
 
@@ -259,10 +259,11 @@ const model = new FormModel({
   experience: { min: 0, max: 20 },
   emergencyContact: { required: true, value: 'asd' },
   programmingLanguage: {},
-  'props.field': {},
-  'props.label': {},
-  'contact.qq': {},
-  'contact.wechat': {},
+
+  props: nestField({ field: {}, label: {} }),
+
+  contact: nestField({ qq: {}, wechat: {} }),
+
   cascade: {},
   code: {},
   unit: {}

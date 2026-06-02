@@ -2,7 +2,21 @@ import { o } from '@cat-kit/core'
 import { Validator } from '@veltra/utils'
 import { isReactive, reactive, shallowReactive, watch } from 'vue'
 
-import type { FormModelItem, DataSettingConfig } from '../../types'
+import type { FormModelField, FormModelItem, DataSettingConfig } from '../../types'
+
+function flattenFields(fields: Record<string, any>, prefix = ''): Record<string, FormModelItem> {
+  const result: Record<string, FormModelItem> = {}
+  for (const key in fields) {
+    const item = fields[key]
+    const fullPath = prefix ? `${prefix}.${key}` : key
+    if (item && typeof item === 'object' && '__isNested' in item && item.__isNested) {
+      Object.assign(result, flattenFields((item as any).fields, fullPath))
+    } else {
+      result[fullPath] = item
+    }
+  }
+  return result
+}
 
 /**
  * 动态表单模型
@@ -25,9 +39,11 @@ export class DynamicFormModel {
   }
 
   /** 表单规则 */
-  readonly fields: Record<string, FormModelItem> = shallowReactive(
-    {} as Record<string, FormModelItem>
+  readonly fields: Record<string, FormModelField> = shallowReactive(
+    {} as Record<string, FormModelField>
   )
+
+  private flatFields: Record<string, FormModelItem>
 
   private validator: Validator
 
@@ -52,8 +68,17 @@ export class DynamicFormModel {
     return this._allKeys
   }
 
+  private updateFlatFields(): void {
+    for (const key in this.flatFields) {
+      delete this.flatFields[key]
+    }
+    const flatted = flattenFields(this.fields)
+    Object.assign(this.flatFields, flatted)
+    this.getAllKeys()
+  }
+
   private getAllKeys(): void {
-    this._allKeys = Object.keys(this.fields)
+    this._allKeys = Object.keys(this.flatFields)
   }
 
   /** 初始数据 */
@@ -64,10 +89,10 @@ export class DynamicFormModel {
    */
   private readonly oldData: Record<string, any> = {}
 
-  constructor(fields?: Record<string, FormModelItem>) {
+  constructor(fields?: Record<string, FormModelField>) {
+    this.flatFields = shallowReactive({} as Record<string, FormModelItem>)
+    this.validator = new Validator(this.flatFields)
     this.append(fields ?? {})
-    this.validator = new Validator(this.fields)
-    this.getAllKeys()
     this.watchData()
   }
 
@@ -94,9 +119,9 @@ export class DynamicFormModel {
     })
   }
 
-  append(fields: Record<string, FormModelItem>): void {
+  append(fields: Record<string, FormModelField>): void {
     for (const key in fields) {
-      this.add(key, fields[key] ?? {})
+      this.add(key, fields[key]!)
     }
   }
 
@@ -105,17 +130,20 @@ export class DynamicFormModel {
    * @param field 字段
    * @param item 字段配置项
    */
-  add(field: string, item: FormModelItem): void {
+  add(field: string, item: FormModelField): void {
     this.fields[field] = item
-    const { value } = item
-    const v = typeof value === 'function' ? value() : value
-    /** 这是有bug的 */
-    if (v !== undefined) {
-      this.initialData[field] = JSON.parse(JSON.stringify(v))
+    const flatItem = flattenFields({ [field]: item })
+    for (const key in flatItem) {
+      const fieldItem = flatItem[key]!
+      const { value } = fieldItem
+      const v = typeof value === 'function' ? value() : value
+      if (v !== undefined) {
+        o(this.initialData).set(key, JSON.parse(JSON.stringify(v)))
+      }
+      o(this.data).set(key, v)
+      o(this.oldData).set(key, v)
     }
-    o(this.data).set(field, v)
-    o(this.oldData).set(field, v)
-    this.getAllKeys()
+    this.updateFlatFields()
   }
 
   /**
@@ -124,7 +152,7 @@ export class DynamicFormModel {
    */
   delete(field: string): void {
     delete this.fields[field]
-    this.getAllKeys()
+    this.updateFlatFields()
   }
 
   /**

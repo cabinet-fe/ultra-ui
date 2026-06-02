@@ -4,8 +4,8 @@
       <u-tabs v-model="activeTab" :items="tabItems" keep-alive>
         <template #basic>
           <u-form :model="model" label-width="100px" style="margin-top: 16px">
-            <u-input label="姓名" field="name" placeholder="请输入姓名" />
-            <u-password-input label="密码" field="password" placeholder="请输入密码" />
+            <u-input label="用户名" field="account.username" placeholder="请输入用户名" />
+            <u-password-input label="密码" field="account.password" placeholder="请输入密码" />
             <u-textarea label="简介" field="description" :rows="3" placeholder="请输入简介" />
             <u-select
               label="年级"
@@ -150,7 +150,8 @@
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@veltra/desktop'
+import { o } from '@cat-kit/core'
+import { FormModel, nestField } from '@veltra/desktop'
 import { computed, shallowRef } from 'vue'
 
 // --------------- Tab ---------------
@@ -169,8 +170,7 @@ const treeSelected = shallowRef()
 // --------------- 模型定义 ---------------
 
 const model = new FormModel({
-  name: { value: '' },
-  password: { value: '' },
+  account: nestField({ username: { value: '' }, password: { value: '' } }),
   description: { value: '' },
   grade: { value: '' },
   city: { value: '' },
@@ -362,14 +362,13 @@ function handleClearValidate() {
 
 function handleClearData() {
   model.allKeys.forEach((key) => {
-    ;(model.data as Record<string, any>)[key] = undefined
+    o(model.data).set(key, undefined)
   })
 }
 
 function handleLoadInitialData() {
   model.setData({
-    name: '张三',
-    password: 'abc123',
+    account: { username: '张三', password: 'abc123' },
     description: '这是一段简介文字',
     grade: '3',
     city: '杭州',

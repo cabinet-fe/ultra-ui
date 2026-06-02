@@ -2,19 +2,30 @@ import { o } from '@cat-kit/core'
 import { middleProxy, Validator } from '@veltra/utils'
 import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
 
-import type {
-  FormModelItem,
-  ModelData,
-  ModelRules,
-  DataSettingConfig,
-  IFormModel
-} from '../../types'
+import type { ModelData, DataSettingConfig, IFormModel, AllKeys, FormModelItem } from '../../types'
+
+/**
+ * 递归展平字段逻辑
+ */
+function flattenFields(fields: Record<string, any>, prefix = ''): Record<string, FormModelItem> {
+  const result: Record<string, FormModelItem> = {}
+  for (const key in fields) {
+    const item = fields[key]
+    const fullPath = prefix ? `${prefix}.${key}` : key
+    if (item && typeof item === 'object' && '__isNested' in item && item.__isNested) {
+      Object.assign(result, flattenFields((item as any).fields, fullPath))
+    } else {
+      result[fullPath] = item
+    }
+  }
+  return result
+}
 
 /**
  * 表单模型
  */
 export class FormModel<
-  Fields extends Record<string, FormModelItem> = Record<string, FormModelItem>
+  Fields extends Record<string, any> = Record<string, any>
 > implements IFormModel<Fields> {
   /** 表单数据 */
   data!: ModelData<Fields>
@@ -30,14 +41,14 @@ export class FormModel<
    * @description
    * 这个值会在表单组件渲染时由表单设置，因为只有真正渲染的组件才应该被校验
    */
-  formKeys: Map<number, (keyof Fields)[]> = new Map()
+  formKeys: Map<number, AllKeys<Fields>[]> = new Map()
 
   /** 初始数据 */
   readonly initialData: ModelData<Fields>
 
-  readonly errors: Map<keyof Fields, string[] | undefined> = shallowReactive(new Map())
+  readonly errors: Map<AllKeys<Fields>, string[] | undefined> = shallowReactive(new Map())
 
-  private validator: Validator<ModelRules<Fields>>
+  private validator: Validator<Record<string, FormModelItem>>
 
   /**
    * 是否在表单值更新时校验
@@ -48,11 +59,12 @@ export class FormModel<
 
   constructor(fields: Fields) {
     this.fields = fields
+    const flatFields = flattenFields(fields)
     const rawData = {} as ModelData<Fields>
     const allKeys: string[] = []
 
-    for (const key in fields) {
-      const fieldItem = fields[key]!
+    for (const key in flatFields) {
+      const fieldItem = flatFields[key]!
       allKeys.push(key)
       const { value } = fieldItem
       let v = value
@@ -72,7 +84,7 @@ export class FormModel<
 
     this.setProxyData(reactive(rawData))
 
-    this.validator = new Validator(this.fields)
+    this.validator = new Validator(flatFields)
 
     return shallowReactive(this)
   }
@@ -93,23 +105,23 @@ export class FormModel<
           this.validateOnFieldChange = true
           return
         }
-        this.validate(fields)
+        this.validate(fields as any)
       }
     })
 
     this.data = data as ModelData<Fields>
   }
 
-  private getValidateFields(fields?: keyof Fields | (keyof Fields)[]) {
+  private getValidateFields(fields?: AllKeys<Fields> | AllKeys<Fields>[]) {
     if (!fields) {
       if (this.formKeys.size) {
-        let _fields: (keyof Fields)[] = []
+        let _fields: AllKeys<Fields>[] = []
         this.formKeys.forEach((fields) => {
           _fields = _fields.concat(fields)
         })
         return _fields
       } else {
-        return this.allKeys
+        return this.allKeys as AllKeys<Fields>[]
       }
     }
 
@@ -124,23 +136,23 @@ export class FormModel<
    * @param fields 需要校验的字段, 不传则校验所有字段
    * @returns
    */
-  async validate(fields?: keyof Fields | (keyof Fields)[]): Promise<boolean> {
+  async validate(fields?: AllKeys<Fields> | AllKeys<Fields>[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(data, this.getValidateFields(fields))
+    const results = await validator.validate(data, this.getValidateFields(fields) as any)
 
     // 全量校验
     if (!fields) {
       errors.clear()
 
       for (const field in results) {
-        errors.set(field, results[field])
+        errors.set(field as any, results[field])
       }
     }
     // 局部校验
     else {
       ~(Array.isArray(fields) ? fields : [fields]).forEach((field) => {
-        const errs = results[field]
+        const errs = results[field as string]
         if (errs?.length) {
           errors.set(field, errs)
         } else {
@@ -165,12 +177,12 @@ export class FormModel<
    * 重置数据
    * @param fields 需要重置的字段
    */
-  resetData(keys?: keyof Fields | (keyof Fields)[]): void {
+  resetData(keys?: AllKeys<Fields> | AllKeys<Fields>[]): void {
     if (typeof keys === 'string') {
       keys = [keys]
     } else if (Array.isArray(keys)) {
     } else {
-      keys = this.allKeys
+      keys = this.allKeys as AllKeys<Fields>[]
     }
 
     this.clearValidate()
@@ -229,12 +241,12 @@ export class FormModel<
    * 监听值变更
    * @param cb 回调
    */
-  onChange(cb: (field: keyof Fields, val: any) => void): void {
-    this.modelChangeCallback.add(cb)
+  onChange(cb: (field: AllKeys<Fields>, val: any) => void): void {
+    this.modelChangeCallback.add(cb as any)
   }
 
   /** 关闭监听值变更 */
-  offChange(cb: (field: keyof Fields, val: any) => void): void {
-    this.modelChangeCallback.delete(cb)
+  offChange(cb: (field: AllKeys<Fields>, val: any) => void): void {
+    this.modelChangeCallback.delete(cb as any)
   }
 }

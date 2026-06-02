@@ -12,3 +12,12 @@ export function formField<Val = unknown>(item?: FormModelItem<Val>): FormModelIt
 
   return item
 }
+
+export interface NestedFieldMarker<T extends Record<string, any> = Record<string, any>> {
+  __isNested: true
+  fields: T
+}
+
+export function nestField<T extends Record<string, any>>(fields: T): NestedFieldMarker<T> {
+  return { __isNested: true, fields }
+}

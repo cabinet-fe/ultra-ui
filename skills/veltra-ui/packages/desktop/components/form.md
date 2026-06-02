@@ -17,23 +17,26 @@
 <u-input v-model="keyword" placeholder="搜索" />
 ```
 
-`field` 支持 lodash 风格嵌套路径（`profile.name`），但 `FormModel` 构造时必须包含完整结构。
+`field` 支持 lodash 风格嵌套路径（`profile.name`），但在 `FormModel` 中定义嵌套结构时，必须使用 `nestField` 包裹子字段，以便进行正确的类型推导和值映射。
 
 只有「一个表单项内有多个组件」才需要手写 `<u-form-item>`：
 
 ```vue
-<u-form-item label="价格区间">
-  <u-number-input v-model="model.data.minPrice" placeholder="最低" />
-  <span> — </span>
-  <u-number-input v-model="model.data.maxPrice" placeholder="最高" />
-</u-form-item>
+<u-form :model="model" #default="{ data }">
+    <u-form-item label="价格区间">
+        <u-number-input v-model="data.minPrice" placeholder="最低" />
+        <span> — </span>
+        <u-number-input v-model="data.maxPrice" placeholder="最高" />
+    </u-form-item>
+</u-form>
+
 ```
 
 ## Import
 
 ```ts
 // UForm、UFormItem 由 Vite 自动导入，无需手动 import
-import { FormModel, DynamicFormModel, formField } from '@veltra/desktop'
+import { FormModel, DynamicFormModel, formField, nestField } from '@veltra/desktop'
 ```
 
 ## 关联类型
@@ -85,7 +88,12 @@ class DynamicFormModel {
 
 ### `formField<Val>(item?: FormModelItem<Val>)`
 
-类型辅助函数，定义字段值与校验规则。`FormModelItem` 继承 `ValidateRule`：
+类型辅助函数，定义字段值与校验规则。
+
+> [!NOTE]
+> 在大部分情况下，如果字段定义中包含了 `value` 初始值，TypeScript 可以通过泛型自动推导出 `model.data` 的字段类型，**不需要**使用 `formField` 包裹，直接使用字面量对象即可。只有在**没有指定 `value` 初始值**，或者需要显式通过泛型指定类型时，才必须使用 `formField<Type>` 包裹。
+
+`FormModelItem` 继承 `ValidateRule`：
 
 | 属性        | 类型                                               | 说明                                                 |
 | ----------- | -------------------------------------------------- | ---------------------------------------------------- |
@@ -101,6 +109,25 @@ class DynamicFormModel {
 | `validator` | `(value, data) => Promise<string> \| string`       | 自定义校验，返回非空字符串=错误，空/`undefined`=通过 |
 
 元组形式 `[规则值, 错误提示]` 用于自定义错误信息。
+
+### `nestField<T>(fields: T)`
+
+类型辅助函数，定义嵌套对象的表单字段。
+
+当表单数据包含深层嵌套结构（如 `model.data.profile.name`）时，**必须**使用 `nestField` 来包裹嵌套的子字段。
+
+> [!NOTE]
+> 在嵌套的子字段内部，同样遵循类型推导规则：如果指定了 `value`，则**不需要**使用 `formField` 包裹，直接使用字面量对象定义子字段即可。
+
+```ts
+const model = new FormModel({
+  name: { value: 'Alice' },
+  contact: nestField({
+    email: { value: 'alice@example.com' }, // 自动推导为 string
+    phone: { value: '12345678901' }        // 自动推导为 string
+  })
+})
+```
 
 ## Props
 
@@ -139,22 +166,29 @@ interface FormExposed {
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { FormModel } from '@veltra/desktop'
 
+// 带有 value 初始值时，无需使用 formField 包裹，自动推导类型
 const model = new FormModel({
-  username: formField({
+  username: {
     value: '',
     required: '用户名不能为空',
     minLen: [2, '至少 2 个字符'],
     maxLen: [20, '最多 20 个字符']
-  }),
-  email: formField({ value: '', required: true, preset: 'email' }),
-  age: formField({ value: 18, min: 0, max: 150 }),
-  customField: formField({
+  },
+  email: { value: '', required: true, preset: 'email' },
+  age: { value: 18, min: 0, max: 150 },
+  customField: {
     value: '',
     validator: async (val) => (val === 'admin' ? '该值已被占用' : undefined)
-  })
+  }
 })
+
+// 💡 只有在没有指定 value 初始值时，才需要使用 formField<Type> 来显式指定类型：
+// import { formField } from '@veltra/desktop'
+// const model = new FormModel({
+//   username: formField<string>({ required: '用户名不能为空' })
+// })
 
 async function handleSubmit() {
   const valid = await model.validate().catch(() => false)
@@ -173,13 +207,43 @@ async function handleSubmit() {
 </template>
 ```
 
+### 嵌套字段 + 校验
+
+```vue
+<script setup lang="ts">
+import { FormModel, nestField } from '@veltra/desktop'
+
+const model = new FormModel({
+  name: { value: '', required: true },
+  contact: nestField({
+    email: { value: '', required: true, preset: 'email' },
+    phone: { value: '', required: true }
+  })
+})
+
+async function handleSubmit() {
+  const valid = await model.validate().catch(() => false)
+  if (valid) console.log('提交:', model.data.contact.email)
+}
+</script>
+
+<template>
+  <u-form :model="model" label-width="100px" :cols="1">
+    <u-input label="姓名" field="name" />
+    <u-input label="邮箱" field="contact.email" />
+    <u-input label="电话" field="contact.phone" />
+  </u-form>
+  <u-button type="primary" @click="handleSubmit">提交</u-button>
+</template>
+```
+
 ### 设置数据 + 初始值对比
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { FormModel } from '@veltra/desktop'
 
-const model = new FormModel({ name: formField({ value: '张三' }) })
+const model = new FormModel({ name: { value: '张三' } })
 model.setInitialData({ name: '张三' })
 
 // 异步加载，不触发校验
@@ -198,10 +262,10 @@ setTimeout(() => model.setData({ name: '李四' }, { validate: false }), 1000)
 
 ```vue
 <script setup lang="ts">
-import { DynamicFormModel, formField } from '@veltra/desktop'
+import { DynamicFormModel } from '@veltra/desktop'
 import { ref } from 'vue'
 
-const model = new DynamicFormModel({ name: formField({ value: '', required: true }) })
+const model = new DynamicFormModel({ name: { value: '', required: true } })
 const extras = ref<string[]>([])
 
 function addField() {
@@ -235,12 +299,12 @@ function addField() {
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { FormModel } from '@veltra/desktop'
 
 const model = new FormModel({
-  name: formField({ value: '', required: true }),
-  minPrice: formField({ value: 0 }),
-  maxPrice: formField({ value: 100 })
+  name: { value: '', required: true },
+  minPrice: { value: 0 },
+  maxPrice: { value: 100 }
 })
 </script>
 
@@ -291,8 +355,8 @@ model.offChange(cb)
 ```ts
 const externalData = reactive({ keyword: '', category: '' })
 const model = new DynamicFormModel({
-  keyword: formField({ value: '', required: true }),
-  category: formField({ value: '' })
+  keyword: { value: '', required: true },
+  category: { value: '' }
 })
 model.data = externalData // 之后修改 externalData 同步反映到表单
 ```
