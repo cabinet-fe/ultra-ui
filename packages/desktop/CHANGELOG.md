@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.23
+
+### Patch Changes
+
+- 7244329: feat(password-input): 悬停显示清除按钮并与明文切换共存
+  - @veltra/utils@1.1.23
+  - @veltra/styles@1.1.23
+  - @veltra/compositions@1.1.23
+  - @veltra/directives@1.1.23
+  - @veltra/icons@1.1.23
+
 ## 1.1.22
 
 ### Patch Changes
