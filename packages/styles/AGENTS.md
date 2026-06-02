@@ -49,6 +49,15 @@ src/
 - **peer**：`@cat-kit/core`、`@veltra/compositions`、`@veltra/utils`、`vue`
 - **被依赖**：`@veltra/directives`、`@veltra/desktop`、`playgrounds/desktop`
 
+## sideEffects
+
+`package.json` 中声明：
+
+- `**/*.css`、`**/*.scss`：样式文件本体（含按需 `import '@veltra/styles/transitions/fade.scss'`）
+- `src|dist` 下 `normalize/index`、`transitions/index`：仅副作用的聚合入口（内部 `import` 对应 CSS）
+
+`theme` 子路径为可 tree-shake 的 TS，不列入 sideEffects。
+
 ## 验证
 
 ```bash

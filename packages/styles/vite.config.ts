@@ -15,7 +15,7 @@ export default defineConfig({
     unbundle: true,
     sourcemap: true,
     clean: true,
-    treeshake: { moduleSideEffects: [{ test: /src\/index\.ts$/, sideEffects: true }] },
+    treeshake: true,
     deps: { neverBundle: ['@veltra/utils', '@cat-kit/core', 'vue', '@veltra/compositions'] },
     dts: true,
     css: {

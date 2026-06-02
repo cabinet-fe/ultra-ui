@@ -7,11 +7,12 @@
   ],
   "type": "module",
   "sideEffects": [
-    "*.scss",
-    "*.css",
-    "src/index.ts",
-    "src/load-theme.ts",
-    "src/theme/index.ts"
+    "**/*.css",
+    "**/*.scss",
+    "src/normalize/index.ts",
+    "dist/normalize/index.js",
+    "src/transitions/index.ts",
+    "dist/transitions/index.js"
   ],
   "exports": {
     "./transitions": {
