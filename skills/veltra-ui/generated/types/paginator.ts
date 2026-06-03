@@ -1,0 +1,34 @@
+import type { DeconstructValue } from '@veltra/utils'
+import type { ShallowRef } from 'vue'
+
+/** 分页器组件组件属性 */
+export interface PaginatorProps {
+  /** 当前处于第几页 */
+  pageNumber?: number
+  /** 每页显示的数量 */
+  pageSize?: number
+  /** 大小模式 */
+  size?: 'large' | 'default' | 'small'
+  /** 数据总数 */
+  total?: number
+  /** 每页显示数量选项 */
+  pageSizeOptions?: Array<number>
+  /** 简洁模式 */
+  simple?: boolean
+}
+
+/** 分页器组件组件定义的事件 */
+export interface PaginatorEmits {
+  (e: 'update:pageNumber', value: number): void
+  (e: 'change:pageNumber', value: number): void
+  (e: 'update:pageSize', value: number): void
+  (e: 'change:pageSize', value: number): void
+}
+
+/** 分页器组件组件暴露的属性和方法(组件内部使用) */
+export interface _PaginatorExposed {
+  el: ShallowRef<HTMLElement | undefined>
+}
+
+/** 分页器组件组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export type PaginatorExposed = DeconstructValue<_PaginatorExposed>

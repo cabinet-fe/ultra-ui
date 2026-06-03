@@ -227,4 +227,4 @@ const { virtualizer, items, isScrolling, snapshot } = useVirtualizer({
 
 ## 相关
 
-- `core-concepts.md`、`desktop/components/form.md`（`useFormFallbackProps` 实战）、`desktop/patterns.md`
+- `core-concepts.md`、`desktop/components/form/api.md`（`useFormFallbackProps` 实战）、`generated/types/*.ts`

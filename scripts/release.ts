@@ -230,6 +230,13 @@ async function main(): Promise<void> {
     fatal('vp install 失败')
   }
 
+  console.log('[release] 阶段 2.5/4：生成 veltra-ui skill 索引')
+  const skillGenCode = runInherit('bun', ['run', 'skill:gen'])
+
+  if (skillGenCode !== 0) {
+    fatal('skill:gen 失败')
+  }
+
   if (args.dryRun) {
     console.log('[release] dry-run：跳过 commit/push，并回滚本地变更')
     const restoreCode = runInherit('git', ['restore', '--', '.'])
@@ -242,7 +249,14 @@ async function main(): Promise<void> {
   }
 
   console.log('[release] 阶段 3/4：提交版本变更')
-  const addCode = runInherit('git', ['add', '.changeset', 'packages', 'package.json', 'bun.lock'])
+  const addCode = runInherit('git', [
+    'add',
+    '.changeset',
+    'packages',
+    'package.json',
+    'bun.lock',
+    'skills'
+  ])
 
   if (addCode !== 0) {
     fatal('git add 失败')

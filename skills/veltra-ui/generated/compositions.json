@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-06-03T05:41:06.924Z",
+  "version": "1.1.25",
+  "exports": [
+    "setDocumentSize",
+    "useComponentProps",
+    "useConfig",
+    "useDrag",
+    "useFallbackProps",
+    "useFocus",
+    "useFormFallbackProps",
+    "useModel",
+    "useObserverCallback",
+    "usePop",
+    "useReactiveSize",
+    "useResizeObserver",
+    "useTransition",
+    "useUserAction",
+    "useVirtualizer"
+  ]
+}

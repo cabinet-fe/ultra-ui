@@ -27,7 +27,8 @@
     "postinstall": "simple-git-hooks && bun run scripts/setup-git.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "bun run scripts/release.ts"
+    "release": "bun run scripts/release.ts",
+    "skill:gen": "bun run scripts/gen-veltra-skill.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.6",

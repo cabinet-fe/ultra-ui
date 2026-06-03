@@ -1,0 +1,749 @@
+{
+  "generatedAt": "2026-06-03T05:41:06.924Z",
+  "version": "1.1.25",
+  "examples": [
+    {
+      "file": "packages/desktop/components/condition-editor/examples.md",
+      "component": "UConditionEditor",
+      "titles": [
+        "基础使用",
+        "嵌套分组 + 混合逻辑",
+        "变量注入 + 运行期求值",
+        "禁用 / 只读"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/tabs/examples.md",
+      "component": "UTabs",
+      "titles": [
+        "基础 + 可关闭 + 保活",
+        "垂直标签页",
+        "独立水平栏（后台路由栏）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/tree/examples.md",
+      "component": "UTree",
+      "titles": [
+        "基础用法",
+        "多选 + 搜索过滤",
+        "单选 + 自定义节点插槽",
+        "严格选择 + 禁用节点 + 右键菜单"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/tree-select/examples.md",
+      "component": "UTreeSelect",
+      "titles": [
+        "基础",
+        "可搜索 + 自定义字段名 + 禁用节点",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/code-editor/examples.md",
+      "component": "UCodeEditor",
+      "titles": [
+        "基础用法",
+        "暗色主题 + JSON 编辑",
+        "只读代码展示 + 自定义行数",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/dropdown/examples.md",
+      "component": "UDropdown",
+      "titles": [
+        "悬浮触发",
+        "点击触发",
+        "受控模式 + 键盘事件",
+        "禁用状态"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/drawer/examples.md",
+      "component": "UDrawer",
+      "titles": [
+        "基础用法 — 右侧抽屉",
+        "左侧导航抽屉",
+        "底部抽屉 + 监听事件",
+        "顶部提示抽屉"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/form/examples.md",
+      "component": "UForm",
+      "titles": [
+        "基础 + 校验",
+        "嵌套字段 + 校验",
+        "设置数据 + 初始值对比",
+        "DynamicFormModel — 动态增减字段",
+        "复杂场景：一个 FormItem 内组合多个组件",
+        "全局禁用/只读 + 尺寸继承",
+        "监听字段变更",
+        "默认插槽作用域（条件渲染）",
+        "DynamicFormModel — 接管外部 reactive 数据"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/message-confirm/examples.md",
+      "component": "UComponent",
+      "titles": [
+        "基础确认（仅确认按钮）",
+        "带取消按钮",
+        "带回调",
+        "快捷方法",
+        "封装为 Promise",
+        "声明式使用（组件形式）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/calendar/examples.md",
+      "component": "UCalendar",
+      "titles": [
+        "基础用法",
+        "监听日期变化",
+        "自定义选中日期样式",
+        "配合其他组件使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/radio/examples.md",
+      "component": "URadio",
+      "titles": [
+        "基础用法",
+        "禁用",
+        "不同尺寸",
+        "配合 URadioGroup 使用",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/card/examples.md",
+      "component": "UCard",
+      "titles": [
+        "基础卡片",
+        "带封面的卡片",
+        "融合样式卡片",
+        "封面模式内容"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/date-range-picker/examples.md",
+      "component": "UDateRangePicker",
+      "titles": [
+        "基础用法",
+        "限制可选日期",
+        "月份范围选择",
+        "只读模式"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/loading/examples.md",
+      "component": "ULoading",
+      "titles": [
+        "四种动画类型",
+        "通过 UConfig 统一控制尺寸",
+        "指令遮罩用法",
+        "全屏加载"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/scroll/examples.md",
+      "component": "UScroll",
+      "titles": [
+        "基础滚动",
+        "始终显示滚动条",
+        "控制滚动位置与监听事件",
+        "自定义样式与标签"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/progress-nodes/examples.md",
+      "component": "UProgressNodes",
+      "titles": [
+        "基础用法"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/empty/examples.md",
+      "component": "UEmpty",
+      "titles": [
+        "基础用法",
+        "自定义文案与大小",
+        "条件渲染",
+        "搭配其他组件"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/auto-complete/examples.md",
+      "component": "UAutoComplete",
+      "titles": [
+        "基础用法",
+        "异步建议",
+        "自定义选项模板",
+        "只读模式"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/progress/examples.md",
+      "component": "UProgress",
+      "titles": [
+        "基础条形进度",
+        "动态着色",
+        "环形进度条",
+        "自定义插槽内容"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/input/examples.md",
+      "component": "UInput",
+      "titles": [
+        "基础用法",
+        "前后缀图标",
+        "输入防呆（pattern）",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/notification/examples.md",
+      "component": "UNotification",
+      "titles": [
+        "函数式调用",
+        "声明式组件"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/layout/examples.md",
+      "component": "ULayout",
+      "titles": [
+        "基础列布局",
+        "相等分栏",
+        "行布局",
+        "可拖拽调整列宽",
+        "行列组合",
+        "自定义标签",
+        "动态列数",
+        "动态列数（续）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/multi-select/examples.md",
+      "component": "UMultiSelect",
+      "titles": [
+        "基础多选",
+        "带搜索、限制数量、自定义选项内容",
+        "远程搜索 + 可创建",
+        "禁用 / 只读状态"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/checkbox/examples.md",
+      "component": "UCheckbox",
+      "titles": [
+        "基础用法",
+        "半选状态（全选场景）",
+        "禁用与只读",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/slider/examples.md",
+      "component": "USlider",
+      "titles": [
+        "基础用法",
+        "范围选择",
+        "设置步长",
+        "垂直模式",
+        "禁用 / 只读",
+        "在 UForm 中使用",
+        "点击滑轨调整"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/gantt-chart/examples.md",
+      "component": "UGanttChart",
+      "titles": [
+        "基础用法",
+        "监听选中变化",
+        "传入初始值"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/message/examples.md",
+      "component": "UComponent",
+      "titles": [
+        "基础用法",
+        "快捷方法",
+        "带配置的快捷方法",
+        "不自动关闭",
+        "HTML 内容",
+        "自定义图标",
+        "手动控制关闭",
+        "使用 onClosed 链式操作",
+        "关闭所有消息",
+        "设置全局上下文",
+        "UMessage 声明式使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/file-picker/examples.md",
+      "component": "UFilePicker",
+      "titles": [
+        "基础点击选择",
+        "限制类型 & 多选",
+        "拖拽上传 + 拖拽高亮",
+        "自定义渲染标签"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/number-range-input/examples.md",
+      "component": "UNumberRangeInput",
+      "titles": [
+        "基础用法",
+        "分别绑定 start / end",
+        "货币模式 + 倍数",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/number-input/examples.md",
+      "component": "UNumberInput",
+      "titles": [
+        "基础用法",
+        "货币模式",
+        "步进按钮",
+        "精度控制",
+        "倍数模式（分↔元）",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/collapse/examples.md",
+      "component": "UCollapse",
+      "titles": [
+        "基础用法",
+        "手风琴模式",
+        "自定义图标与标题",
+        "默认展开与全部折叠（default-collapse-all）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/date-panel/examples.md",
+      "component": "UDatePanel",
+      "titles": [
+        "基础日期选择",
+        "禁用日期（禁用过去日期）",
+        "日期范围选择",
+        "年份选择（type=\"year\"）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/table-editor/examples.md",
+      "component": "UTableEditor",
+      "titles": [
+        "基础",
+        "列插槽行内编辑 + 多选",
+        "树形 + 行展开 + 表尾合计"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/check-tag/examples.md",
+      "component": "UCheckTag",
+      "titles": [
+        "基础用法",
+        "受控用法",
+        "多选标签组"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/context-menu/examples.md",
+      "component": "UContextMenu",
+      "titles": [
+        "基础 + 图标 + async 回调",
+        "动态菜单（函数形式 + 禁用判定）",
+        "自定义宽度 + 尺寸"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/password-input/examples.md",
+      "component": "UPasswordInput",
+      "titles": [
+        "基础用法",
+        "带清除按钮",
+        "禁用与只读",
+        "表单场景"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/number/examples.md",
+      "component": "UNumber",
+      "titles": [
+        "格式化",
+        "补间动画",
+        "精度控制",
+        "对齐方式"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/dialog/examples.md",
+      "component": "UDialog",
+      "titles": [
+        "基础对话框",
+        "使用 trigger 插槽",
+        "非模态对话框",
+        "最大化与默认插槽作用域",
+        "表单对话框"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/node-render/examples.md",
+      "component": "UNodeRender",
+      "titles": [
+        "基础使用",
+        "VNode 自动合并 attrs",
+        "渲染 VNode 数组",
+        "回退到插槽"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/expression-editor/examples.md",
+      "component": "UExpressionEditor",
+      "titles": [
+        "基础使用",
+        "允许选择分支变量",
+        "禁用与只读",
+        "平坦变量列表"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/watermark/examples.md",
+      "component": "UWatermark",
+      "titles": [
+        "基础文字水印",
+        "自定义旋转角度与字号",
+        "传送至 body 全屏水印",
+        "图片水印"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/batch-edit/examples.md",
+      "component": "UBatchEdit",
+      "titles": [
+        "基础用法",
+        "功能限制（白名单 / 按行动态控制）",
+        "树形 + 异步保存/删除"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/action/examples.md",
+      "component": "UAction",
+      "titles": [
+        "基础操作组",
+        "统一默认样式 + 单独覆盖",
+        "在表格操作列中使用",
+        "始终在下拉菜单 + 圆形图标（`@veltra/icons`）",
+        "手动关闭下拉菜单"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/tip/examples.md",
+      "component": "UTip",
+      "titles": [
+        "hover 触发",
+        "click 触发",
+        "自定义触发元素",
+        "自定义方向和对齐",
+        "隐藏箭头",
+        "受控显隐",
+        "禁用状态"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/textarea/examples.md",
+      "component": "UTextarea",
+      "titles": [
+        "基础用法",
+        "字数统计与限制",
+        "自适应高度",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/button/examples.md",
+      "component": "UButton",
+      "titles": [
+        "颜色 / 尺寸 / 模式",
+        "图标 / 圆形 / 自定义加载图标",
+        "阻止冒泡 / 获取 DOM",
+        "UButtonGroup — 统一 props 透传",
+        "UButtonGroup — 统一 props 透传（续）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/cascade/examples.md",
+      "component": "UCascade",
+      "titles": [
+        "基础单选",
+        "多选模式",
+        "搜索过滤",
+        "严格模式 + 自定义字段"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/steps/examples.md",
+      "component": "USteps",
+      "titles": [
+        "基础用法",
+        "垂直方向 + 自定义颜色",
+        "通过 currentKey 匹配步骤",
+        "自定义插槽"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/date-picker/examples.md",
+      "component": "UDatePicker",
+      "titles": [
+        "基础日期选择",
+        "禁用日期",
+        "modelValue 传入 Date / number",
+        "自定义格式",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/theme/examples.md",
+      "component": "UTheme",
+      "titles": [
+        "基础用法",
+        "编辑指定主题",
+        "通过 Exposed 方法控制"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/table/examples.md",
+      "component": "UTable",
+      "titles": [
+        "基础 + 多选",
+        "自定义列渲染（render 函数）",
+        "操作列（列插槽 + UAction）",
+        "树形表格",
+        "行展开 + 表尾合计",
+        "多级表头 + 单元格合并",
+        "配合 UPaginator 分页",
+        "虚拟滚动（大数据）"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/multi-tree-select/examples.md",
+      "component": "UMultiTreeSelect",
+      "titles": [
+        "基础用法",
+        "带搜索与清空",
+        "严格选择模式",
+        "禁用与只读"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/group-input/examples.md",
+      "component": "UGroupInput",
+      "titles": [
+        "基础用法",
+        "设置默认值与最大数量",
+        "自定义条目样式",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/list/examples.md",
+      "component": "UList",
+      "titles": [
+        "基础用法",
+        "不同尺寸",
+        "使用 index 控制样式"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/rich-text-editor/examples.md",
+      "component": "URichTextEditor",
+      "titles": [
+        "基础用法",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/menu/examples.md",
+      "component": "UMenu",
+      "titles": [
+        "基础",
+        "折叠 + 路由联动",
+        "禁用项 + uniqueOpened + 图片图标"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/grid-input/examples.md",
+      "component": "UGridInput",
+      "titles": [
+        "基础用法",
+        "自定义长度与分隔符",
+        "允许输入零",
+        "调用 clear 清空"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/switch/examples.md",
+      "component": "USwitch",
+      "titles": [
+        "基础用法",
+        "带文字提示",
+        "禁用与只读",
+        "在表单中"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/form-item/examples.md",
+      "component": "UFormItem",
+      "titles": [
+        "多组件组合",
+        "自定义 label",
+        "覆盖标签宽度与添加提示",
+        "响应式栅格布局"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/radio-group/examples.md",
+      "component": "URadioGroup",
+      "titles": [
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/checkbox-group/examples.md",
+      "component": "UCheckboxGroup",
+      "titles": [
+        "基础用法",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/file-viewer/examples.md",
+      "component": "UFileViewer",
+      "titles": [
+        "基础内嵌预览",
+        "全屏模态",
+        "二进制数据预览",
+        "监听切换与错误"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/text/examples.md",
+      "component": "UText",
+      "titles": [
+        "预设层级",
+        "自定义字号与字体样式",
+        "关键词高亮",
+        "组合用法"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/select/examples.md",
+      "component": "USelect",
+      "titles": [
+        "基础用法",
+        "可搜索 + 可创建 + 自定义字段",
+        "异步远程搜索",
+        "网格布局 + 自定义渲染",
+        "在 UForm 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/breadcrumb/examples.md",
+      "component": "UBreadcrumb",
+      "titles": [
+        "基础用法",
+        "禁用项与点击事件",
+        "自定义分隔符与项渲染",
+        "末级作为链接"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/icon/examples.md",
+      "component": "UIcon",
+      "titles": [
+        "基础使用",
+        "数字自动追加 px",
+        "在 Input suffix 中使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/pop-confirm/examples.md",
+      "component": "UPopConfirm",
+      "titles": [
+        "基础用法",
+        "自定义文字与方向",
+        "自定义图标",
+        "hover 触发"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/paginator/examples.md",
+      "component": "UPaginator",
+      "titles": [
+        "基础分页",
+        "配合表格",
+        "监听变化事件",
+        "简洁模式"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/tag/examples.md",
+      "component": "UTag",
+      "titles": [
+        "基础颜色与深色",
+        "圆角与尺寸",
+        "可移除标签",
+        "组合使用"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/float-button/examples.md",
+      "component": "UFloatButton",
+      "titles": [
+        "基础用法",
+        "带图标与不同颜色",
+        "纯图标（无 name）",
+        "结合路由跳转"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/palette/examples.md",
+      "component": "UPalette",
+      "titles": [
+        "基础用法",
+        "禁用与只读",
+        "在 UForm 中使用",
+        "带透明度的颜色"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/grid/examples.md",
+      "component": "UGrid",
+      "titles": [
+        "固定列数",
+        "响应式断点列数 + 响应式跨距",
+        "函数动态列数 + 满行跨距",
+        "监听断点变化"
+      ]
+    },
+    {
+      "file": "packages/desktop/components/badge/examples.md",
+      "component": "UBadge",
+      "titles": [
+        "基础使用",
+        "超出最大值",
+        "圆点模式 + 自定义颜色",
+        "文本值 + 隐藏"
+      ]
+    }
+  ]
+}

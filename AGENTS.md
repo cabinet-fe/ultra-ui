@@ -14,6 +14,7 @@ bun run build:packages              # 发布构建（CI 用，排除 @veltra/mob
 bun run lint                        # Oxlint + 类型检查（lint.options.typeCheck）
 bun run fmt                         # Oxfmt 格式化
 bun run test                        # Vitest（根 vite.config.ts test 块）
+bun run skill:gen                   # 生成 skills/veltra-ui/generated 索引与类型镜像
 vp changeset                        # 记录变更（见 RELEASE.md）
 bun run release                     # dev 分支落版本并推送；CI 负责测试/构建/发布
 ```

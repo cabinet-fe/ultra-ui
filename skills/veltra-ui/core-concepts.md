@@ -1,6 +1,6 @@
 # 核心概念
 
-Veltra Ultra UI 的架构基础参考。`packages/desktop/patterns.md` 是更具体的组件 Props/Emits/Slots 规则，本文件聚焦跨包概念。
+Veltra Ultra UI 的架构基础参考。组件 Props/Emits/Slots/Exposed 以 `generated/types/{组件名}.ts` 为准。
 
 ## BEM 类名
 
@@ -89,4 +89,4 @@ Veltra 组件用 `provide` / `inject` 共享父子上下文，不依赖全局状
 - **表单上下文**：`UForm` provide → `UInput` / `USelect` 等自动继承 `size` / `disabled` / `readonly`
 - **复杂组件 DI**：Table / Menu / Tree 通过 `InjectionKey` 共享行/节点状态
 
-公共 Props 接口与命名约定见 `packages/desktop/patterns.md`。
+公共 Props 接口（`size`、`FormComponentProps` 等）与各组件差异见 `generated/types/{组件名}.ts`；易错 v-model / 表单用法见 `gotchas.md`。

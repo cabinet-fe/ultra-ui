@@ -27,7 +27,8 @@ export default defineConfig({
       '**/dist/**',
       '**/node_modules/**',
       '**/*.test.ts',
-      '**/__test__/**'
+      '**/__test__/**',
+      'skills/veltra-ui/generated/types/**'
     ],
     rules: {
       'no-unused-expressions': 'off',
