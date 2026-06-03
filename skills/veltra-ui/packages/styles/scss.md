@@ -80,14 +80,27 @@ defineConfig({
 
 ## 自定义命名空间
 
-你可以在下游项目中扩展自己的 mixins 和 functions，以便于复用它们，只需要简单地覆盖即可。
+你可以在下游项目中转发 veltra-ui 的 mixins 和 functions，并通过简单地覆盖命名空间来扩展出自己的 mixins 和 functions。
 
-`$namespace` 默认是 `u`。覆盖后 BEM 类名和 CSS 变量前缀同步变化。
+命名空间变量名为 `$namespace`，默认值为 `u`。覆盖后 BEM 类名和 CSS 变量前缀同步变化。
+
+推荐使用转发来定义一个独立的 `_mixins.scss`/`_functions.scss_` 文件，使用时直接引用即可。
 
 ```scss
-@use 'pkg:@veltra/styles/mixins' as m with (
+// my-app/.../_mixins.scss
+@forward 'pkg:@veltra/styles/mixins' with (
   $namespace: 'my-app'
 );
 
-// .my-app-button, var(--my-app-color-primary)
+// 使用
+@use 'pkg:@veltra/styles/mixins' as m;
+@use '../.../_mixins.scss' as m2;
+
+@include m.b(button) {
+}
+// 编译成 .u-button
+
+@include m2.b(button) {
+}
+// 编译成 .my-app-button
 ```
