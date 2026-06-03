@@ -149,7 +149,7 @@ $collapsed-menu: collapsed-menu;
     border-left: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 52%, transparent);
 
     @supports selector(:has(*)) {
-      &:has(.#{vars.$namespace}-menu__item.is-active) {
+      &:has(#{fn.bem($root-name, item)}.is-active) {
         border-left-color: fn.use-var(color, primary);
       }
     }
