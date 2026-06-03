@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url'
 
 import {
   HELPERS_BY_KEBAB,
-  INTRO_BY_KEBAB,
   parseApiTitleLine,
   renderComponentApiMd
 } from './veltra-component-skill-meta'
@@ -154,16 +153,10 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
           throw new Error(`无法解析标题: ${kebab}`)
         }
 
-        const intro = INTRO_BY_KEBAB[kebab]
-
-        if (!intro) {
-          throw new Error(`缺少组件简介: ${kebab}`)
-        }
-
         const helpers = HELPERS_BY_KEBAB[kebab] ?? []
         await writeFile(
           apiPath,
-          renderComponentApiMd(parsed.names, parsed.chinese, intro, helpers),
+          renderComponentApiMd(parsed.names, parsed.chinese, helpers),
           'utf8'
         )
         count += 1
