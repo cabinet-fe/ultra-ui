@@ -1,5 +1,9 @@
 # UForm - 表单容器
 
+## 简介
+
+用于承载 FormModel/DynamicFormModel 并自动绑定带 field 的表单控件。
+
 ## 类型文件
 
 见 `./types.d.ts`

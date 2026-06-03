@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.1.26
+
+### Patch Changes
+
+- 7ef551a: 重构 SCSS 模块中 $namespace 变量的定义位置，将其从 \_vars.scss 移至 \_functions.scss 和 \_mixins.scss，消除潜在的循环依赖问题
+  - @veltra/utils@1.1.26
+  - @veltra/compositions@1.1.26
+
 ## 1.1.25
 
 ### Patch Changes
