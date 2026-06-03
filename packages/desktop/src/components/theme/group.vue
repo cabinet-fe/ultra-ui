@@ -15,9 +15,7 @@ import { inject } from 'vue'
 
 import { ThemeDIKey } from './di'
 
-defineProps<{
-  title: string
-}>()
+defineProps<{ title: string }>()
 
 const { cls } = inject(ThemeDIKey)!
 </script>

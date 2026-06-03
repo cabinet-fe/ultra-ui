@@ -20,13 +20,9 @@ import { bem } from '@veltra/utils'
 
 import type { VariableItem } from '../../../types'
 
-defineOptions({
-  name: 'ExpressionPathPreview'
-})
+defineOptions({ name: 'ExpressionPathPreview' })
 
-defineProps<{
-  path: VariableItem[]
-}>()
+defineProps<{ path: VariableItem[] }>()
 
 const cls = bem('expression-editor')
 </script>

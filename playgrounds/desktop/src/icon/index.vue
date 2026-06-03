@@ -81,10 +81,7 @@ import { ref, computed } from 'vue'
 const searchQuery = ref('')
 
 // Toast state
-const toast = ref({
-  visible: false,
-  name: ''
-})
+const toast = ref({ visible: false, name: '' })
 
 // Groups configurations
 const groups = [

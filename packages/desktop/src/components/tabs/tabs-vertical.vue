@@ -51,9 +51,7 @@ const props = withDefaults(defineProps<TabsVerticalProps>(), {
 
 const emit = defineEmits<TabsVerticalEmits>()
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('tabs-bar')
 

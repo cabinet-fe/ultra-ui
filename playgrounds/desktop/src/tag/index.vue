@@ -42,12 +42,7 @@ import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
-const tags = shallowRef<
-  Array<{
-    name: string
-    type?: ColorType
-  }>
->([
+const tags = shallowRef<Array<{ name: string; type?: ColorType }>>([
   { name: '默认' },
   { name: 'Tag 1', type: 'primary' },
   { name: 'Tag 2', type: 'success' },

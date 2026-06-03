@@ -41,18 +41,9 @@ import { shallowRef, useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
-const directions = ['top', 'bottom', 'left', 'right'].map((d) => ({
-  label: d,
-  value: d
-}))
-const aligns = ['start', 'center', 'end'].map((d) => ({
-  label: d,
-  value: d
-}))
-const triggers = ['hover', 'click'].map((d) => ({
-  label: d,
-  value: d
-}))
+const directions = ['top', 'bottom', 'left', 'right'].map((d) => ({ label: d, value: d }))
+const aligns = ['start', 'center', 'end'].map((d) => ({ label: d, value: d }))
+const triggers = ['hover', 'click'].map((d) => ({ label: d, value: d }))
 
 const content = shallowRef(
   '提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容'

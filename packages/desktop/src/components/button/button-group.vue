@@ -9,15 +9,11 @@ import { bem } from '@veltra/utils'
 
 import type { ButtonProps } from '../../types'
 
-defineOptions({
-  name: 'ButtonGroup'
-})
+defineOptions({ name: 'ButtonGroup' })
 
 const props = defineProps<ButtonProps>()
 
 const cls = bem('button-group')
 
-defineSlots<{
-  default: (props: { props: ButtonProps }) => any
-}>()
+defineSlots<{ default: (props: { props: ButtonProps }) => any }>()
 </script>

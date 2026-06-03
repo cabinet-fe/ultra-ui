@@ -12,9 +12,7 @@ import { computed, provide } from 'vue'
 import type { CardProps } from '../../types'
 import { CardDIKey } from './di'
 
-defineOptions({
-  name: 'Card'
-})
+defineOptions({ name: 'Card' })
 
 const props = defineProps<CardProps>()
 
@@ -27,9 +25,7 @@ const classList = computed(() => {
 })
 
 const styles = computed(() => {
-  return {
-    width: withUnit(props.width, 'px')
-  }
+  return { width: withUnit(props.width, 'px') }
 })
 
 provide(CardDIKey, { cls, cardProps: props })

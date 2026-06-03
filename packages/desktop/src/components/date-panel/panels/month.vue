@@ -22,9 +22,7 @@ import type { CalendarMonth } from '../../../types'
 import { getYearMonths } from '../../calendar/utils'
 import { DatePanelDIKey } from '../di'
 
-defineOptions({
-  name: 'DatePanelMonth'
-})
+defineOptions({ name: 'DatePanelMonth' })
 
 const { cls, panelDate, rangeDate, panelProps, handleDateSelect, handleDateRangeHover } =
   inject(DatePanelDIKey)!

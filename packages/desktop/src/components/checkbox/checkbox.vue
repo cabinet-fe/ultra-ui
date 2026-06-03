@@ -25,9 +25,7 @@ import { computed } from 'vue'
 
 import type { CheckboxProps, CheckboxEmits } from '../../types'
 
-defineOptions({
-  name: 'Checkbox'
-})
+defineOptions({ name: 'Checkbox' })
 const props = withDefaults(defineProps<CheckboxProps>(), {
   disabled: undefined,
   readonly: undefined

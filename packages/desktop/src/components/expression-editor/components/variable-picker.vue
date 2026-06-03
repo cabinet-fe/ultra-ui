@@ -78,9 +78,7 @@ import { UScroll } from '../../scroll'
 import { UTip } from '../../tip'
 import PathPreview from './path-preview.vue'
 
-defineOptions({
-  name: 'VariablePicker'
-})
+defineOptions({ name: 'VariablePicker' })
 
 interface FlatItem extends VariableItem {
   /** 仅扁平模式使用：从根到当前节点的路径 */

@@ -62,9 +62,7 @@ import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 import type { InputEmits, InputProps, _InputExposed } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Input'
-})
+defineOptions({ name: 'Input' })
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',
@@ -186,7 +184,5 @@ const generateModel = computed(() => {
   return `${props.prefix ?? ''}${model.value}${props.suffix ?? ''}`
 })
 
-defineExpose<_InputExposed>({
-  el
-})
+defineExpose<_InputExposed>({ el })
 </script>

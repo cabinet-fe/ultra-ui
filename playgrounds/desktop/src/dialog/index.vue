@@ -72,32 +72,21 @@ const buttonDom = computed(() => {
 
 const transition = useTransition('style', {
   target: buttonDom,
-  enterTo: {
-    transform: 'translate(100px, 0)'
-  },
-  enterActive: {
-    transition: 'transform 0.3s'
-  },
-  leaveActive: {
-    transition: 'transform 0.3s'
-  }
+  enterTo: { transform: 'translate(100px, 0)' },
+  enterActive: { transition: 'transform 0.3s' },
+  leaveActive: { transition: 'transform 0.3s' }
 })
 
 const visible2 = shallowRef(false)
 
 const boxRef = shallowRef<HTMLDivElement>()
 
-const transition2 = useTransition('css', {
-  name: 'slide-down',
-  target: boxRef
-})
+const transition2 = useTransition('css', { name: 'slide-down', target: boxRef })
 
 watch(visible2, (v) => {
   if (v) {
     nextTick(() => {
-      setStyles(boxRef.value!, {
-        marginTop: '100px'
-      })
+      setStyles(boxRef.value!, { marginTop: '100px' })
 
       transition2.enter()
     })

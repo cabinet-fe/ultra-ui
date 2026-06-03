@@ -37,15 +37,11 @@ import { shallowRef } from 'vue'
 const scrollbarRef = shallowRef<ScrollExposed>()
 
 function scrollToTop() {
-  scrollbarRef.value?.scrollTo({
-    y: 0
-  })
+  scrollbarRef.value?.scrollTo({ y: 0 })
 }
 
 function scrollToLeft() {
-  scrollbarRef.value?.scrollTo({
-    x: 0
-  })
+  scrollbarRef.value?.scrollTo({ x: 0 })
 }
 </script>
 

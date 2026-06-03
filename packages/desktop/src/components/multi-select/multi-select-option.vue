@@ -26,9 +26,7 @@ import { inject, onBeforeUnmount, shallowRef } from 'vue'
 import { UCheckbox } from '../checkbox'
 import { MultiSelectDIKey } from './di'
 
-defineOptions({
-  name: 'MultiSelectOption'
-})
+defineOptions({ name: 'MultiSelectOption' })
 
 const props = defineProps<{
   option: Record<string, any>
@@ -48,9 +46,7 @@ function measureRef(el: unknown) {
   props.measureElement(props.index, el as Element | null)
 }
 
-const emit = defineEmits<{
-  (e: 'check', checked: boolean): void
-}>()
+const emit = defineEmits<{ (e: 'check', checked: boolean): void }>()
 
 const { optionClass, rippleClass, checkboxClass } = inject(MultiSelectDIKey)!
 
@@ -70,9 +66,7 @@ function handleMousedown(e: MouseEvent) {
     rippleRef.value = null
   }
 
-  rippleRef.value = new Ripple(e.currentTarget as HTMLElement, {
-    rippleClass
-  })
+  rippleRef.value = new Ripple(e.currentTarget as HTMLElement, { rippleClass })
 
   rippleRef.value.showByEvent(e)
 }

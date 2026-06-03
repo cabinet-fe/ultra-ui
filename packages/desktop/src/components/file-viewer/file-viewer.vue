@@ -218,10 +218,7 @@ import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { FILE_VIEWER_KIND_LABEL, downloadFile, formatBytes, inferKind } from './helper'
 
-defineOptions({
-  name: 'FileViewer',
-  inheritAttrs: false
-})
+defineOptions({ name: 'FileViewer', inheritAttrs: false })
 
 const props = withDefaults(defineProps<FileViewerProps>(), {
   modelValue: undefined,
@@ -262,13 +259,7 @@ const offsetY = ref(0)
 const isDragging = ref(false)
 
 let dragState:
-  | {
-      pointerId: number
-      startX: number
-      startY: number
-      originX: number
-      originY: number
-    }
+  | { pointerId: number; startX: number; startY: number; originX: number; originY: number }
   | undefined
 
 const PreviewerMap: Record<FileViewerKind, ReturnType<typeof defineAsyncComponent>> = {
@@ -286,11 +277,7 @@ interface NormalizedFile extends FileViewerItem {
 }
 
 const normalizedFiles = computed<NormalizedFile[]>(() =>
-  props.files.map((f, i) => ({
-    ...f,
-    id: f.id ?? `file-${i}`,
-    kind: inferKind(f.name, f.kind)
-  }))
+  props.files.map((f, i) => ({ ...f, id: f.id ?? `file-${i}`, kind: inferKind(f.name, f.kind) }))
 )
 
 const activeFile = computed<NormalizedFile | undefined>(() =>
@@ -585,10 +572,5 @@ onBeforeUnmount(() => {
   }
 })
 
-defineExpose<_FileViewerExposed>({
-  activeId,
-  activate,
-  next,
-  prev
-})
+defineExpose<_FileViewerExposed>({ activeId, activate, next, prev })
 </script>

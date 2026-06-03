@@ -58,8 +58,5 @@ const basicSwitch = ref(false)
 const textSwitch = ref(true)
 const trueSwitch = ref(true)
 
-const formModel = new FormModel({
-  enabled: { value: true },
-  notification: { value: false }
-})
+const formModel = new FormModel({ enabled: { value: true }, notification: { value: false } })
 </script>

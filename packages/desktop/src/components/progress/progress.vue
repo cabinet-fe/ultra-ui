@@ -43,14 +43,9 @@ import { computed } from 'vue'
 
 import type { ProgressProps, ColorType } from '../../types'
 
-defineOptions({
-  name: 'Progress'
-})
+defineOptions({ name: 'Progress' })
 
-const props = withDefaults(defineProps<ProgressProps>(), {
-  type: 'primary',
-  circle: false
-})
+const props = withDefaults(defineProps<ProgressProps>(), { type: 'primary', circle: false })
 
 defineSlots<{
   default: (props: {

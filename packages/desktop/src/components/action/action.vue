@@ -42,10 +42,7 @@ import { UButton } from '../button'
 import { UPopConfirm } from '../pop-confirm'
 import { ActionDIKey } from './di'
 
-defineOptions({
-  name: 'Action',
-  inheritAttrs: false
-})
+defineOptions({ name: 'Action', inheritAttrs: false })
 
 // 这里所有可继承自 `<u-action-group>` 的默认值都强制为 `undefined`，
 // 否则 Vue 对 Boolean 类型 prop 的默认值（false）会让 `??` 兜底始终失效

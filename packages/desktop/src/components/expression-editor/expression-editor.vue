@@ -49,18 +49,14 @@ import { createMention, type MentionAPI } from './core/mention'
 import { parse, type Doc } from './core/model'
 import { createVariableMap } from './di'
 
-defineOptions({
-  name: 'ExpressionEditor'
-})
+defineOptions({ name: 'ExpressionEditor' })
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
   placeholder: '请输入表达式，输入 @ 可插入变量',
   selectableLevels: 'leaf'
 })
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
 
 const cls = bem('expression-editor')
 const { formProps } = injectFormContext()

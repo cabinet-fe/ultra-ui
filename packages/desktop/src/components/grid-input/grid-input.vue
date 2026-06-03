@@ -26,9 +26,7 @@ import { computed, ref, getCurrentInstance } from 'vue'
 
 import type { GridInputProps, GridInputEmits, GridInputExposed } from '../../types'
 
-defineOptions({
-  name: 'GridInput'
-})
+defineOptions({ name: 'GridInput' })
 
 const emit = defineEmits<GridInputEmits>()
 
@@ -38,9 +36,7 @@ const props = withDefaults(defineProps<GridInputProps>(), {
   separator: '-'
 })
 
-const { size } = useFallbackProps([props], {
-  size: 'default'
-})
+const { size } = useFallbackProps([props], { size: 'default' })
 
 const cls = bem('grid-input')
 

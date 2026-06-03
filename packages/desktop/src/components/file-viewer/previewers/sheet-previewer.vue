@@ -26,13 +26,9 @@ import type { FileViewerItem } from '../../../types/file-viewer'
 
 defineOptions({ name: 'FileViewerSheetPreviewer' })
 
-const props = withDefaults(
-  defineProps<{
-    file: FileViewerItem
-    maxRows?: number
-  }>(),
-  { maxRows: 50_000 }
-)
+const props = withDefaults(defineProps<{ file: FileViewerItem; maxRows?: number }>(), {
+  maxRows: 50_000
+})
 
 const emit = defineEmits<{ (e: 'error', err: unknown): void }>()
 
@@ -166,9 +162,7 @@ async function renderActive() {
     autoFillWidth: true,
     frozenColCount: 0,
     theme: (VTable.themes.ARCO ?? VTable.themes.DEFAULT).extends({
-      defaultStyle: {
-        borderLineWidth: 1
-      }
+      defaultStyle: { borderLineWidth: 1 }
     })
   })
 }

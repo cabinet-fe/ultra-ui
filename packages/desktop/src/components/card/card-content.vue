@@ -15,12 +15,7 @@ defineOptions({ name: 'CardContent' })
 const props = defineProps<CardContentProps>()
 
 const style = computed<CSSProperties | undefined>(() => {
-  return props.cover
-    ? {
-        padding: 0,
-        fontSize: 0
-      }
-    : undefined
+  return props.cover ? { padding: 0, fontSize: 0 } : undefined
 })
 
 const injected = inject(CardDIKey)

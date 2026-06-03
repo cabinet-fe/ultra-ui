@@ -15,9 +15,7 @@ defineOptions({ name: 'CardAction' })
 const props = defineProps<CardActionProps>()
 
 const style = computed<CSSProperties>(() => {
-  return {
-    textAlign: props.alignRight ? 'right' : undefined
-  }
+  return { textAlign: props.alignRight ? 'right' : undefined }
 })
 
 const injected = inject(CardDIKey)

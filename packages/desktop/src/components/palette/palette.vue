@@ -39,9 +39,7 @@ import PaletteHue from './palette-hue.vue'
 import PaletteSV from './palette-sv.vue'
 import { useHSV } from './use-hsv'
 
-defineOptions({
-  name: 'Palette'
-})
+defineOptions({ name: 'Palette' })
 
 const props = withDefaults(defineProps<PaletteProps>(), {
   disabled: undefined,
@@ -109,13 +107,5 @@ watch(
   { immediate: true }
 )
 
-provide(PaletteDIKey, {
-  cls,
-  HSV,
-  RGB,
-  alpha,
-  userAction,
-  isUserActive,
-  ...rest
-})
+provide(PaletteDIKey, { cls, HSV, RGB, alpha, userAction, isUserActive, ...rest })
 </script>

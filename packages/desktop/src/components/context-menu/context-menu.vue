@@ -33,19 +33,13 @@ import type {
 import UContextMenuItem from './context-menu-item.vue'
 import { ContextMenuDIKey } from './di'
 
-defineOptions({
-  name: 'ContextMenu'
-})
+defineOptions({ name: 'ContextMenu' })
 
-const props = withDefaults(defineProps<ContextMenuProps>(), {
-  width: 150
-})
+const props = withDefaults(defineProps<ContextMenuProps>(), { width: 150 })
 
 const emit = defineEmits<ContextMenuEmits>()
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('context-menu')
 
@@ -85,11 +79,7 @@ const computePosition = () => {
 }
 
 const style = computed<CSSProperties>(() => {
-  return {
-    width: withUnit(props.width, 'px'),
-    ...computePosition(),
-    zIndex: zIndex()
-  }
+  return { width: withUnit(props.width, 'px'), ...computePosition(), zIndex: zIndex() }
 })
 
 const menus = computed(() => {
@@ -123,7 +113,5 @@ function handleClickOutside() {
   close()
 }
 
-provide(ContextMenuDIKey, {
-  cls
-})
+provide(ContextMenuDIKey, { cls })
 </script>

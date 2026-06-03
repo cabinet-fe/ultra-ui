@@ -26,9 +26,7 @@ import { UEmpty } from '../empty'
 import { TableDIKey } from './di'
 import { UTableRow, UExpandTableRow } from './table-row'
 
-defineOptions({
-  name: 'TableBody'
-})
+defineOptions({ name: 'TableBody' })
 
 const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } = inject(TableDIKey)!
 const { leafColumns } = columnConfig
@@ -57,11 +55,7 @@ const getStripeCls = (index: number): string => stripeTable.value[index & 1]!
 const tableRows = computed(() => {
   if (!virtualEnabled.value) {
     return rows.value.map((row, index) => {
-      return {
-        row,
-        stripeIndex: row.index,
-        index
-      }
+      return { row, stripeIndex: row.index, index }
     })
   }
 

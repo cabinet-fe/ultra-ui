@@ -91,31 +91,21 @@ import { UIcon } from '../icon'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 
-defineOptions({
-  name: 'Paginator'
-})
+defineOptions({ name: 'Paginator' })
 
 const { config } = useConfig()
 
-const props = withDefaults(defineProps<PaginatorProps>(), {
-  total: 0
-})
+const props = withDefaults(defineProps<PaginatorProps>(), { total: 0 })
 
 const emit = defineEmits<PaginatorEmits>()
 
 const cls = bem('paginator')
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
-const pageNumber = defineModel<number>('pageNumber', {
-  default: 1
-})
+const pageNumber = defineModel<number>('pageNumber', { default: 1 })
 
-const pageSize = defineModel<number>('pageSize', {
-  default: 10
-})
+const pageSize = defineModel<number>('pageSize', { default: 10 })
 
 function emitPageSize(value: number) {
   emit('change:pageSize', value)
@@ -199,14 +189,9 @@ function handleKeyEnter(e: KeyboardEvent) {
 }
 
 /** 鼠标停留位置 */
-const hovered = reactive({
-  first: false,
-  last: false
-})
+const hovered = reactive({ first: false, last: false })
 
 const paginatorRef = shallowRef<HTMLElement>()
 
-defineExpose<_PaginatorExposed>({
-  el: paginatorRef
-})
+defineExpose<_PaginatorExposed>({ el: paginatorRef })
 </script>

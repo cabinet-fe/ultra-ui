@@ -12,19 +12,13 @@ import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 
 import type { BadgeProps, ComponentSize } from '../../types'
 
-defineOptions({
-  name: 'Badge'
-})
+defineOptions({ name: 'Badge' })
 
 const cls = bem('badge')
 
-const props = withDefaults(defineProps<BadgeProps>(), {
-  max: 99
-})
+const props = withDefaults(defineProps<BadgeProps>(), { max: 99 })
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const badgeValue = computed(() => {
   if (props.dot) return ''

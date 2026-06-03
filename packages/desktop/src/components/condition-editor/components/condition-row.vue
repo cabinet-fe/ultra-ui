@@ -214,10 +214,7 @@ function onFieldChange(val: string) {
 }
 
 function onOperatorChange(val: string) {
-  emitUpdate({
-    operator: val,
-    value: { kind: 'constant', value: '' }
-  })
+  emitUpdate({ operator: val, value: { kind: 'constant', value: '' } })
 }
 
 function onValueInput(e: Event) {
@@ -243,10 +240,7 @@ function onChipClick() {
   if (props.disabled || props.readonly) return
   const dom = chipRef.value
   if (!dom) return
-  emit('mention', {
-    triggerDom: dom,
-    setValue: (val) => emitUpdate({ value: val })
-  })
+  emit('mention', { triggerDom: dom, setValue: (val) => emitUpdate({ value: val }) })
 }
 
 function onChipDelete() {

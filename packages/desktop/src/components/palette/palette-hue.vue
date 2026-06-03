@@ -11,9 +11,7 @@ import { shallowRef, computed } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({
-  name: 'PaletteHue'
-})
+defineOptions({ name: 'PaletteHue' })
 
 const { cls, updateHue, HSV, userAction } = inject(PaletteDIKey)!
 
@@ -62,7 +60,5 @@ onMounted(() => {
   init()
 })
 
-defineExpose({
-  init
-})
+defineExpose({ init })
 </script>

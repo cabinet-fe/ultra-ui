@@ -40,9 +40,7 @@
 import { FormModel } from '@veltra/desktop'
 import { ref } from 'vue'
 
-const model = new FormModel({
-  code: { required: true }
-})
+const model = new FormModel({ code: { required: true } })
 
 const disabled = ref(false)
 const readonly = ref(false)

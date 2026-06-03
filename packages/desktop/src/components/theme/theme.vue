@@ -195,9 +195,7 @@ import { USelect } from '../select'
 import { THEME_SECTIONS } from './schema'
 import type { ThemeField } from './schema'
 
-defineOptions({
-  name: 'UTheme'
-})
+defineOptions({ name: 'UTheme' })
 
 const props = defineProps<ThemeProps>()
 
@@ -213,10 +211,7 @@ const colorVarOptions = computed(() => {
     section.fields.forEach((field) => {
       if (field.kind === 'palette') {
         const varName = `var(${getCssVarName(field.path)})`
-        options.push({
-          label: `${field.label}`,
-          value: varName
-        })
+        options.push({ label: `${field.label}`, value: varName })
       }
     })
   })
@@ -305,11 +300,7 @@ const sectionStates = computed(() => {
       return changedFieldKeys.value.has(field.key)
     }).length
 
-    return {
-      ...section,
-      visibleFields,
-      changedCount
-    }
+    return { ...section, visibleFields, changedCount }
   })
 })
 
@@ -382,22 +373,11 @@ function getFieldValue(field: ThemeField) {
 function getFieldProps(field: ThemeField) {
   switch (field.kind) {
     case 'number':
-      return {
-        min: field.min,
-        max: field.max,
-        step: field.step,
-        suffix: field.suffix
-      }
+      return { min: field.min, max: field.max, step: field.step, suffix: field.suffix }
     case 'select':
-      return {
-        options: field.options,
-        clearable: false,
-        placeholder: '请选择'
-      }
+      return { options: field.options, clearable: false, placeholder: '请选择' }
     case 'input':
-      return {
-        placeholder: field.placeholder
-      }
+      return { placeholder: field.placeholder }
     default:
       return {}
   }

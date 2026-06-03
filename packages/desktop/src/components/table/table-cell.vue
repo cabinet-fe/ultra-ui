@@ -14,9 +14,7 @@
 import { withUnit } from '@veltra/utils'
 import { computed } from 'vue'
 
-defineOptions({
-  name: 'TableCell'
-})
+defineOptions({ name: 'TableCell' })
 
 /**
  * B2: TableCell 去 inject 化。
@@ -34,8 +32,5 @@ const { left, right } = defineProps<{
   colspan?: number
 }>()
 
-const style = computed(() => ({
-  left: withUnit(left, 'px'),
-  right: withUnit(right, 'px')
-}))
+const style = computed(() => ({ left: withUnit(left, 'px'), right: withUnit(right, 'px') }))
 </script>

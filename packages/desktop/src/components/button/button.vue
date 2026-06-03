@@ -36,9 +36,7 @@ import { computed, shallowRef } from 'vue'
 import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Button'
-})
+defineOptions({ name: 'Button' })
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   iconPosition: 'left',
@@ -47,9 +45,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
   propagate: true
 })
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const emit = defineEmits<ButtonEmits>()
 
@@ -89,9 +85,7 @@ const handleClick = (e: MouseEvent) => {
 
 const buttonRef = shallowRef<HTMLButtonElement>()
 
-const exposed: _ButtonExposed = {
-  el: buttonRef
-}
+const exposed: _ButtonExposed = { el: buttonRef }
 
 defineExpose(exposed)
 </script>

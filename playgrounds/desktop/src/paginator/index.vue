@@ -33,16 +33,9 @@
 <script lang="ts" setup>
 import { reactive } from 'vue'
 
-const pageState = reactive({
-  current: 3,
-  size: 40
-})
+const pageState = reactive({ current: 3, size: 40 })
 
-const config = reactive({
-  size: 'default' as any,
-  simple: false,
-  disabled: false
-})
+const config = reactive({ size: 'default' as any, simple: false, disabled: false })
 
 const handleFirstClick = (val: number) => {
   console.log(val)

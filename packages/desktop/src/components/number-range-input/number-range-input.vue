@@ -36,9 +36,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
 import { UNumberInput } from '../number-input'
 
-defineOptions({
-  name: 'NumberRangeInput'
-})
+defineOptions({ name: 'NumberRangeInput' })
 
 const props = withDefaults(defineProps<NumberRangeInputProps>(), {
   startPlaceholder: '请输入',
@@ -73,9 +71,7 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-const model = defineModel<NumberRangeTuple>({
-  default: () => [undefined, undefined]
-})
+const model = defineModel<NumberRangeTuple>({ default: () => [undefined, undefined] })
 
 const startRef = defineModel<number | undefined>('start')
 const endRef = defineModel<number | undefined>('end')
@@ -184,17 +180,8 @@ function formatNumberPart(num: number): string {
   const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
-    ? n(displayValue).currency('CNY', {
-        precision,
-        minPrecision,
-        maxPrecision
-      })
-    : n(displayValue).fixed(
-        precision ?? {
-          minPrecision,
-          maxPrecision
-        }
-      )
+    ? n(displayValue).currency('CNY', { precision, minPrecision, maxPrecision })
+    : n(displayValue).fixed(precision ?? { minPrecision, maxPrecision })
 }
 
 const readonlyText = computed(() => {

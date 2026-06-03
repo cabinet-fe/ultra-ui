@@ -31,10 +31,7 @@ import type { CalendarDay } from '../../../types'
 import { getMonthDays, weekDays } from '../../calendar/utils'
 import { DatePanelDIKey } from '../di'
 
-defineOptions({
-  name: 'DatePanelDay',
-  inheritAttrs: false
-})
+defineOptions({ name: 'DatePanelDay', inheritAttrs: false })
 
 const { panelDate, rangeDate, panelProps, cls, handleDateSelect, handleDateRangeHover } =
   inject(DatePanelDIKey)!

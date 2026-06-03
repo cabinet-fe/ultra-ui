@@ -11,13 +11,9 @@ import { computed, inject, type CSSProperties, watch } from 'vue'
 import type { GridItemProps } from '../../types'
 import { GridDIKey } from './di'
 
-defineOptions({
-  name: 'GridItem'
-})
+defineOptions({ name: 'GridItem' })
 
-const props = withDefaults(defineProps<GridItemProps>(), {
-  tag: 'div'
-})
+const props = withDefaults(defineProps<GridItemProps>(), { tag: 'div' })
 
 const cls = bem('grid-item')
 
@@ -41,9 +37,7 @@ const span = computed<number | 'full'>(() => {
 })
 
 const style = computed<CSSProperties>(() => {
-  return {
-    gridColumn: span.value === 'full' ? '1 / -1' : `span ${span.value}`
-  }
+  return { gridColumn: span.value === 'full' ? '1 / -1' : `span ${span.value}` }
 })
 
 watch(

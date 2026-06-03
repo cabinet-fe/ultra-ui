@@ -14,13 +14,7 @@ const viewportRef = inject<Ref<HTMLDivElement | null>>(VIEWPORT_ELEMENT_KEY)
 const viewportEl = computed(() => viewportRef?.value ?? null)
 
 let panState:
-  | {
-      pointerId: number
-      startX: number
-      startY: number
-      scrollLeft: number
-      scrollTop: number
-    }
+  | { pointerId: number; startX: number; startY: number; scrollLeft: number; scrollTop: number }
   | undefined
 
 function isInteractiveTarget(target: EventTarget | null): boolean {

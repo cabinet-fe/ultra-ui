@@ -43,9 +43,7 @@ import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
 
-defineOptions({
-  name: 'PopConfirm'
-})
+defineOptions({ name: 'PopConfirm' })
 
 const emit = defineEmits<PopConfirmEmits>()
 
@@ -64,9 +62,7 @@ const visible = ref(false)
 
 const { formProps } = injectFormContext()
 
-const { size } = useFormFallbackProps([formProps ?? {}], {
-  size: 'default'
-})
+const { size } = useFormFallbackProps([formProps ?? {}], { size: 'default' })
 
 const confirm = () => {
   emit('confirm')

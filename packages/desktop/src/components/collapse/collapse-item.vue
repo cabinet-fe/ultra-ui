@@ -37,9 +37,7 @@ import type { CollapseItemProps } from '../../types'
 import { UIcon } from '../icon'
 import { CollapseDIKey } from './di'
 
-defineOptions({
-  name: 'CollapseItem'
-})
+defineOptions({ name: 'CollapseItem' })
 
 const props = defineProps<CollapseItemProps>()
 

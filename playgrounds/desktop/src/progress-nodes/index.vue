@@ -56,10 +56,7 @@ const nodes: ProgressNodeItem[] = Array.from({ length: 6 }, (_, index) => ({
   label: `节点 ${index + 1}`
 }))
 
-const checkboxItems = nodes.map((node, index) => ({
-  label: node.label,
-  value: index
-}))
+const checkboxItems = nodes.map((node, index) => ({ label: node.label, value: index }))
 
 const longNodes: ProgressNodeItem[] = Array.from({ length: 18 }, (_, index) => ({
   value: `long-node-${index + 1}`,

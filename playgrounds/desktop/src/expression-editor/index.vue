@@ -126,11 +126,7 @@ const data = {
     position: '前端工程师',
     date: '2025-01-01'
   },
-  system: {
-    currentTime: '2025-11-22 10:30:00',
-    currentUser: 'admin',
-    version: 'v2.0.0'
-  }
+  system: { currentTime: '2025-11-22 10:30:00', currentUser: 'admin', version: 'v2.0.0' }
 }
 
 function getValue(expr: string, source: any) {

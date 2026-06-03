@@ -33,18 +33,11 @@ import type { ContextMenuItem } from '../../types'
 import { UIcon } from '../icon'
 import { ContextMenuDIKey } from './di'
 
-defineOptions({
-  name: 'ContextMenuItem'
-})
+defineOptions({ name: 'ContextMenuItem' })
 
-const { menu } = defineProps<{
-  menu: ContextMenuItem
-}>()
+const { menu } = defineProps<{ menu: ContextMenuItem }>()
 
-const emit = defineEmits<{
-  (e: 'click-start'): void
-  (e: 'click-end'): void
-}>()
+const emit = defineEmits<{ (e: 'click-start'): void; (e: 'click-end'): void }>()
 
 const { cls } = inject(ContextMenuDIKey)!
 

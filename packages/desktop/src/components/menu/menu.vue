@@ -46,9 +46,7 @@ import UMenuSubCollapsed from './menu-sub-collapsed.vue'
 import UMenuSub from './menu-sub.vue'
 import { walkMenuWithPath } from './walk-menu-path'
 
-defineOptions({
-  name: 'Menu'
-})
+defineOptions({ name: 'Menu' })
 
 const props = withDefaults(defineProps<MenuProps>(), {
   expand: false,
@@ -74,9 +72,7 @@ const expandTransition = new ExpandTransition({
   opacity: true
 })
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const expandedPath = shallowReactive(new Set<string>())
 
@@ -95,9 +91,7 @@ watch(
       })
     })
   },
-  {
-    immediate: true
-  }
+  { immediate: true }
 )
 
 provide(MenuDIKey, {

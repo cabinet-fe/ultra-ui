@@ -30,15 +30,11 @@ import { computed } from 'vue'
 
 import type { RadioProps, RadioEmits } from '../../types'
 
-defineOptions({
-  name: 'Radio'
-})
+defineOptions({ name: 'Radio' })
 
 const model = defineModel<any>()
 
-const props = withDefaults(defineProps<RadioProps>(), {
-  disabled: undefined
-})
+const props = withDefaults(defineProps<RadioProps>(), { disabled: undefined })
 
 defineEmits<RadioEmits>()
 

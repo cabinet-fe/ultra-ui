@@ -36,11 +36,7 @@ const data = shallowRef<any[]>([])
 
 setTimeout(() => {
   data.value = Array.from({ length: 10 }).map((item, i) => {
-    return {
-      col1: 'col1-' + i,
-      col2: 'col2-' + i,
-      col3: 'col3-' + i
-    }
+    return { col1: 'col1-' + i, col2: 'col2-' + i, col3: 'col3-' + i }
   })
 }, 200)
 

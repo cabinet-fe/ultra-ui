@@ -15,23 +15,14 @@ import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 
 import type { WatermarkProps, WatermarkEmits } from '../../types'
 
-defineOptions({
-  name: 'Watermark'
-})
+defineOptions({ name: 'Watermark' })
 const cls = bem('watermark')
-const props = withDefaults(defineProps<WatermarkProps>(), {
-  route: -30,
-  fontSize: 60
-})
+const props = withDefaults(defineProps<WatermarkProps>(), { route: -30, fontSize: 60 })
 defineEmits<WatermarkEmits>()
 
 const watermarkRef = useTemplateRef('watermark')
 
-const styles = reactive({
-  fontColor: 'rgba(0,0,0,.1)',
-  fontFamily: 'Arial',
-  image: props.image
-})
+const styles = reactive({ fontColor: 'rgba(0,0,0,.1)', fontFamily: 'Arial', image: props.image })
 
 const setWatermark = debounce(async () => {
   const str = props.text
@@ -69,9 +60,7 @@ const setWatermark = debounce(async () => {
   // 编制文字
   ctx.fillText(str, 0, (textWidth - props.fontSize) / 2)
 
-  setStyles(container, {
-    background: `url(${canvas.toDataURL('image/png')}) repeat`
-  })
+  setStyles(container, { background: `url(${canvas.toDataURL('image/png')}) repeat` })
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   canvas = null

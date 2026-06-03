@@ -7,13 +7,9 @@ import { computed, inject, useTemplateRef, watch } from 'vue'
 
 import { sliderContextKey } from './di'
 
-const props = defineProps<{
-  modelValue: number
-}>()
+const props = defineProps<{ modelValue: number }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: number): void
-}>()
+const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>()
 
 const { cls, range, disabled, sliderProps, getOffsetByStep } = inject(sliderContextKey)!
 
@@ -21,13 +17,9 @@ const thumbRef = useTemplateRef('thumb')
 
 const style = computed(() => {
   if (sliderProps.vertical) {
-    return {
-      transform: `translate(0, ${props.modelValue}px)`
-    }
+    return { transform: `translate(0, ${props.modelValue}px)` }
   }
-  return {
-    transform: `translate(${props.modelValue}px, 0)`
-  }
+  return { transform: `translate(${props.modelValue}px, 0)` }
 })
 
 const { userAction, isUserActive } = useUserAction()

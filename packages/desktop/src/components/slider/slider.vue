@@ -30,9 +30,7 @@ import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
 import { useSlider } from './use-slider'
 
-defineOptions({
-  name: 'Slider'
-})
+defineOptions({ name: 'Slider' })
 
 const props = withDefaults(defineProps<SliderProps<T>>(), {
   min: 0,
@@ -77,10 +75,7 @@ const barStyles = computed(() => {
   const sizeProp = vertical ? 'height' : 'width'
 
   if (!props.range) {
-    return {
-      [offsetProp]: 0,
-      [sizeProp]: `${Math.abs(offset1.value)}px`
-    }
+    return { [offsetProp]: 0, [sizeProp]: `${Math.abs(offset1.value)}px` }
   }
   return {
     [offsetProp]: `${Math.min(Math.abs(offset1.value), Math.abs(offset2.value))}px`,
@@ -135,11 +130,5 @@ function handleClickSlider(e: MouseEvent) {
   offset1.value = getOffsetByStep(e.clientX - rect.left)
 }
 
-provide(sliderContextKey, {
-  sliderProps: props,
-  disabled,
-  range: slideRange,
-  cls,
-  getOffsetByStep
-})
+provide(sliderContextKey, { sliderProps: props, disabled, range: slideRange, cls, getOffsetByStep })
 </script>

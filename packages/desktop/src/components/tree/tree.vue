@@ -47,9 +47,7 @@ import { useFilter } from './use-filter'
 import { useSelect } from './use-select'
 import { useTreeNodes } from './use-tree-nodes'
 
-defineOptions({
-  name: 'Tree'
-})
+defineOptions({ name: 'Tree' })
 
 const props = withDefaults(defineProps<TreeProps>(), {
   labelKey: 'label',
@@ -66,9 +64,7 @@ const cls = bem('tree')
 
 const { formProps } = injectFormContext()
 
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default'
-})
+const { size } = useFormFallbackProps([formProps ?? {}, props], { size: 'default' })
 
 const scrollRef = shallowRef<ScrollExposed>()
 
@@ -81,9 +77,7 @@ const className = computed(() => {
   ]
 })
 
-defineSlots<{
-  default: (props: TreeSlotsScope) => any
-}>()
+defineSlots<{ default: (props: TreeSlotsScope) => any }>()
 
 const slots = useSlots()
 
@@ -91,9 +85,7 @@ function getTreeSlotsNode(ctx: TreeSlotsScope): VNode[] | string | undefined {
   return (props.slots?.default ?? slots.default)?.(ctx) ?? ctx.node.label
 }
 
-const { nodes, forest, getFlattedNodes, nodeDict } = useTreeNodes({
-  props
-})
+const { nodes, forest, getFlattedNodes, nodeDict } = useTreeNodes({ props })
 
 watch(
   [() => props.selectable, () => props.checkable, forest],
@@ -107,19 +99,9 @@ watch(
 
 const { filter } = useFilter({ forest, getFlattedNodes })
 
-const { handleSelect, selectedData } = useSelect({
-  props,
-  emit,
-  nodeDict,
-  getFlattedNodes
-})
+const { handleSelect, selectedData } = useSelect({ props, emit, nodeDict, getFlattedNodes })
 
-const { checkedData, toggleCheck } = useCheck({
-  props,
-  emit,
-  nodeDict,
-  getFlattedNodes
-})
+const { checkedData, toggleCheck } = useCheck({ props, emit, nodeDict, getFlattedNodes })
 
 const estimateSize = (): number => {
   // 基于 style.scss 中节点稳态高度推算的默认值；
@@ -156,12 +138,7 @@ const virtualNodes = computed(() => {
   const _nodes = nodes.value
   return items.value.map((item) => {
     const node = _nodes[item.index]!
-    return {
-      node,
-      key: node?.key ?? item.index,
-      offset: item.start,
-      index: item.index
-    }
+    return { node, key: node?.key ?? item.index, offset: item.start, index: item.index }
   })
 })
 

@@ -274,12 +274,7 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
       if (isMatched) categorizedSet.add(item.pascal)
       return isMatched
     })
-    return {
-      name: cfg.name,
-      description: cfg.description,
-      isHot: cfg.isHot,
-      items
-    }
+    return { name: cfg.name, description: cfg.description, isHot: cfg.isHot, items }
   }).filter((g) => g.items.length > 0)
 
   // 兜底：处理可能漏掉或后续新加的 normal 图标

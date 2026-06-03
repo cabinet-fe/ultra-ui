@@ -36,9 +36,7 @@ import { UNodeRender } from '../node-render'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './node/col'
 
-defineOptions({
-  name: 'TableFoot'
-})
+defineOptions({ name: 'TableFoot' })
 
 const { cls, columnConfig, rows, checkedRows, tableSlots, getCellClass } = inject(TableDIKey)!
 
@@ -78,12 +76,7 @@ function getColumnSummaryNode(column: ColumnNode): RenderReturn {
   let total = summaryRow.value[column.key]
 
   if (typeof summary === 'function') {
-    return summary({
-      total,
-      rows: rows.value,
-      checkedRows: checkedRows.value,
-      column
-    })
+    return summary({ total, rows: rows.value, checkedRows: checkedRows.value, column })
   }
   return total
 }

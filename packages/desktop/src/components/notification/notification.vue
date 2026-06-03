@@ -45,9 +45,7 @@ import type { NotificationProps, NotificationExposed, ColorType } from '../../ty
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Notification'
-})
+defineOptions({ name: 'Notification' })
 
 const props = withDefaults(defineProps<NotificationProps>(), {
   closable: false,
@@ -57,10 +55,7 @@ const props = withDefaults(defineProps<NotificationProps>(), {
   position: 'bottom-right'
 })
 
-const { type, size } = useFallbackProps([props], {
-  type: 'primary' as ColorType,
-  size: 'default'
-})
+const { type, size } = useFallbackProps([props], { type: 'primary' as ColorType, size: 'default' })
 
 const typeIcon = computed(() => {
   return (
@@ -99,10 +94,7 @@ const customStyle = computed<CSSProperties>(() => {
             : `translateY(${props.offset}px)`,
         transition: `opacity 0.3s, transform 0.4s, top 0.4s`
       }
-    : {
-        [`${props.position.split('-')[0]}`]: `${props.offset}px`,
-        zIndex: props.zIndex
-      }
+    : { [`${props.position.split('-')[0]}`]: `${props.offset}px`, zIndex: props.zIndex }
 })
 
 let timer = 0

@@ -47,26 +47,17 @@ import type {
   ComponentSize
 } from '../../types'
 
-defineOptions({
-  name: 'Breadcrumb'
-})
+defineOptions({ name: 'Breadcrumb' })
 
-const props = withDefaults(defineProps<BreadcrumbProps>(), {
-  lastLinked: false
-})
+const props = withDefaults(defineProps<BreadcrumbProps>(), { lastLinked: false })
 
 const emit = defineEmits<BreadcrumbEmits>()
 
-defineSlots<{
-  item?: (scope: BreadcrumbSlotScope) => unknown
-  separator?: () => unknown
-}>()
+defineSlots<{ item?: (scope: BreadcrumbSlotScope) => unknown; separator?: () => unknown }>()
 
 const cls = bem('breadcrumb')
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const isLast = (index: number) => index === props.items.length - 1
 

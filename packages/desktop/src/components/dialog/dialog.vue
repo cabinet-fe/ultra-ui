@@ -86,10 +86,7 @@ import { UScroll } from '../scroll'
 import { DialogDIKey } from './di'
 import { useMaximum } from './use-maximum'
 
-defineOptions({
-  name: 'Dialog',
-  inheritAttrs: false
-})
+defineOptions({ name: 'Dialog', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,
@@ -128,9 +125,7 @@ const bodyRef = shallowRef<ScrollExposed>()
 /** 弹框footer模板引用 */
 const footerRef = shallowRef<HTMLDivElement>()
 
-const visible = defineModel<boolean>({
-  default: false
-})
+const visible = defineModel<boolean>({ default: false })
 
 const overlayVisible = shallowRef(false)
 const dialogVisible = shallowRef(false)
@@ -159,10 +154,7 @@ function onAfterDialogLeave() {
   overlayVisible.value = false
 }
 
-const { toggleMaximize, maximized } = useMaximum({
-  dialogRef,
-  cls
-})
+const { toggleMaximize, maximized } = useMaximum({ dialogRef, cls })
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]
@@ -188,10 +180,7 @@ watch(visible, (v) => {
 })
 
 /** dialog位移的位置 */
-const translated = {
-  x: 0,
-  y: 0
-}
+const translated = { x: 0, y: 0 }
 
 /**
  * 更新弹框位置
@@ -201,9 +190,7 @@ const translated = {
 const updateDialogTransform = (x: number, y: number) => {
   const dom = dialogRef.value
   if (!dom) return
-  setStyles(dom, {
-    translate: `${x}px ${y}px`
-  })
+  setStyles(dom, { translate: `${x}px ${y}px` })
 }
 
 // 运用拖拽
@@ -245,11 +232,7 @@ const close = () => {
   visible.value = false
 }
 
-provide(DialogDIKey, {
-  visible
-})
+provide(DialogDIKey, { visible })
 
-defineExpose<DialogExposed>({
-  close
-})
+defineExpose<DialogExposed>({ close })
 </script>

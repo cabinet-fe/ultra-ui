@@ -136,11 +136,7 @@ const headerInfo = computed<HeaderInfo>(() => {
     }
   }
   if (state.type === 'create') {
-    return {
-      icon: Plus,
-      title: '新增',
-      tone: 'create'
-    }
+    return { icon: Plus, title: '新增', tone: 'create' }
   }
   return {
     icon: EditPen,

@@ -47,9 +47,7 @@ import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
 import { TreeDIKey } from './di'
 
-defineOptions({
-  name: 'TreeNode'
-})
+defineOptions({ name: 'TreeNode' })
 
 const props = defineProps<TreeNodeProps>()
 

@@ -136,9 +136,5 @@ onBeforeUnmount(() => {
   zoomScope = null
 })
 
-defineExpose({
-  zoomIn,
-  zoomOut,
-  resetZoom
-})
+defineExpose({ zoomIn, zoomOut, resetZoom })
 </script>

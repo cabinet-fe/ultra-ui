@@ -57,9 +57,7 @@ const emit = defineEmits<TabsEmits>()
 
 const slots = useSlots() as Record<string, ((props?: any) => any) | undefined>
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('tabs')
 

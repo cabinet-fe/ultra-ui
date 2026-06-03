@@ -13,13 +13,9 @@ import { getBreakpointCols } from './breakpoint'
 import { GridDIKey } from './di'
 import { useResponsive } from './use-responsive'
 
-defineOptions({
-  name: 'Grid'
-})
+defineOptions({ name: 'Grid' })
 
-const props = withDefaults(defineProps<GridProps>(), {
-  tag: 'div'
-})
+const props = withDefaults(defineProps<GridProps>(), { tag: 'div' })
 
 const emit = defineEmits<GridEmits>()
 
@@ -27,11 +23,7 @@ const cls = bem('grid')
 
 const gridRef = useTemplateRef<HTMLElement>('grid')
 
-const { currentBreakpoint, gridItemsProps } = useResponsive({
-  props,
-  emit,
-  gridRef
-})
+const { currentBreakpoint, gridItemsProps } = useResponsive({ props, emit, gridRef })
 
 const styles = computed(() => {
   const { gap, cols } = props
@@ -77,12 +69,7 @@ watch([styles, gridRef], ([styles, dom]) => {
   setStyles(dom, styles)
 })
 
-provide(GridDIKey, {
-  currentBreakpoint,
-  gridItemsProps
-})
+provide(GridDIKey, { currentBreakpoint, gridItemsProps })
 
-defineExpose<_GridExposed>({
-  el: gridRef
-})
+defineExpose<_GridExposed>({ el: gridRef })
 </script>

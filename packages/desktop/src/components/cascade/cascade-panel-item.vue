@@ -41,15 +41,9 @@ import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { CascadeDIKey } from './di'
 
-defineOptions({
-  name: 'UCascadePanelItem'
-})
+defineOptions({ name: 'UCascadePanelItem' })
 
-const props = defineProps<{
-  data: CascadeNode[]
-  value?: string
-  panelIndex: number
-}>()
+const props = defineProps<{ data: CascadeNode[]; value?: string; panelIndex: number }>()
 
 const emit = defineEmits<{
   (e: 'click', panelIndex: number, item: CascadeNode): void

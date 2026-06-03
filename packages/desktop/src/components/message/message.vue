@@ -29,9 +29,7 @@ import type { MessageProps } from '../../types'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'
 
-defineOptions({
-  name: 'Message'
-})
+defineOptions({ name: 'Message' })
 
 const props = withDefaults(defineProps<MessageProps>(), {
   type: 'default',
@@ -39,13 +37,9 @@ const props = withDefaults(defineProps<MessageProps>(), {
   offset: 20
 })
 
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
+const emit = defineEmits<{ (e: 'close'): void }>()
 
-const { size } = useFallbackProps([props], {
-  size: 'default'
-})
+const { size } = useFallbackProps([props], { size: 'default' })
 
 const cls = bem('message')
 

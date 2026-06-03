@@ -37,13 +37,9 @@ import { createEmptyGroup } from './core/evaluator'
 
 defineOptions({ name: 'ConditionEditor' })
 
-const props = withDefaults(defineProps<ConditionEditorProps>(), {
-  fields: () => []
-})
+const props = withDefaults(defineProps<ConditionEditorProps>(), { fields: () => [] })
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: ConditionExpression): void
-}>()
+const emit = defineEmits<{ (e: 'update:modelValue', value: ConditionExpression): void }>()
 
 const cls = bem('condition-editor')
 const { formProps } = injectFormContext()

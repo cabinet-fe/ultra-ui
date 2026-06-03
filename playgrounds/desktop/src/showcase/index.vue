@@ -453,11 +453,7 @@ const treeData = [
       { id: 'utils', name: 'utils' }
     ]
   },
-  {
-    id: 'public',
-    name: 'public',
-    children: [{ id: 'favicon.ico', name: 'favicon.ico' }]
-  },
+  { id: 'public', name: 'public', children: [{ id: 'favicon.ico', name: 'favicon.ico' }] },
   { id: 'package.json', name: 'package.json' }
 ]
 

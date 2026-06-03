@@ -29,24 +29,16 @@ import { computed, shallowRef } from 'vue'
 import type { DrawerProps, DrawerEmits } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Drawer',
-  inheritAttrs: false
-})
+defineOptions({ name: 'Drawer', inheritAttrs: false })
 
-const props = withDefaults(defineProps<DrawerProps>(), {
-  direction: 'right',
-  closable: true
-})
+const props = withDefaults(defineProps<DrawerProps>(), { direction: 'right', closable: true })
 
 const emit = defineEmits<DrawerEmits>()
 
 const cls = bem('drawer')
 const overlayCls = bem('drawer-overlay')
 
-const overlayVisible = defineModel<boolean>({
-  default: false
-})
+const overlayVisible = defineModel<boolean>({ default: false })
 
 const drawerVisible = shallowRef(false)
 

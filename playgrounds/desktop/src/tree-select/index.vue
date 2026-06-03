@@ -92,10 +92,7 @@ const data = shallowRef<any[]>([
 ])
 
 setTimeout(() => {
-  data.value = Array.from({ length: 3000 }, (_, index) => ({
-    name: `烤冷面${index}`,
-    id: index
-  }))
+  data.value = Array.from({ length: 3000 }, (_, index) => ({ name: `烤冷面${index}`, id: index }))
 }, 1000)
 
 const handleChange = (val, selected) => {

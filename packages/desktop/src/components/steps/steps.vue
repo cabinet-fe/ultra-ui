@@ -62,9 +62,7 @@ import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
 import { UTip } from '../tip'
 
-defineOptions({
-  name: 'Steps'
-})
+defineOptions({ name: 'Steps' })
 
 const props = withDefaults(defineProps<StepsProps>(), {
   direction: 'horizontal',
@@ -82,9 +80,7 @@ const slots = defineSlots<{
 
 const cls = bem('steps')
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const className = computed(() => {
   const { direction, currentStepType, finishedStepType } = props
@@ -130,10 +126,7 @@ watch(currentIndex, (index) => {
   if (index === undefined || props.direction === 'vertical') return
   const step = stepsRef.value?.children[index]
   if (step) {
-    step.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    })
+    step.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 })
 

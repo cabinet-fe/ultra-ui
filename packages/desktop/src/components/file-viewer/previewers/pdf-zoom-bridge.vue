@@ -19,15 +19,10 @@ const { provides: zoom, state } = useZoom(() => props.documentId)
 watch(
   [zoom, () => state.value.currentZoomLevel],
   () => {
-    emit('zoom-change', {
-      level: state.value.currentZoomLevel,
-      scope: zoom.value
-    })
+    emit('zoom-change', { level: state.value.currentZoomLevel, scope: zoom.value })
   },
   { immediate: true }
 )
 
-defineExpose({
-  resetZoom: () => zoom.value?.requestZoom(ZoomMode.FitPage)
-})
+defineExpose({ resetZoom: () => zoom.value?.requestZoom(ZoomMode.FitPage) })
 </script>

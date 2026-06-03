@@ -124,9 +124,7 @@ import { useCheck } from './use-check'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 
-defineOptions({
-  name: 'Cascade'
-})
+defineOptions({ name: 'Cascade' })
 
 const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: 'label',
@@ -162,14 +160,7 @@ const forest = computed(() => {
     childrenKey: props.childrenKey,
     createNode: (data, index, depth, _forest, parent) => {
       if (!data) {
-        return new CascadeNode({
-          data,
-          index,
-          depth,
-          value: '',
-          label: '',
-          parent
-        })
+        return new CascadeNode({ data, index, depth, value: '', label: '', parent })
       }
 
       return new CascadeNode({
@@ -196,26 +187,10 @@ const {
   getPanelItemList,
   createPanelItem,
   selectedNodeKeys
-} = useSelect({
-  props,
-  emit,
-  dataMap,
-  forest,
-  isUserActive,
-  dropdownRef
-})
+} = useSelect({ props, emit, dataMap, forest, isUserActive, dropdownRef })
 
 const { hovered, tags, restTag, updateMultipleValue, handleCloseTag, checkItem, checkedSet } =
-  useCheck({
-    props,
-    forest,
-    getPanelItemList,
-    emit,
-    dataMap,
-    isUserActive,
-    disabled,
-    readonly
-  })
+  useCheck({ props, forest, getPanelItemList, emit, dataMap, isUserActive, disabled, readonly })
 
 const commitSingleSelect = userAction((item: CascadeNode) => {
   if (!props.strict) {
@@ -282,12 +257,5 @@ watch([qs, forest], ([qs, forest]) => {
   panelItemList.value = [createPanelItem(forest.roots)]
 })
 
-provide(CascadeDIKey, {
-  cls,
-  size,
-  disabled,
-  readonly,
-  cascadeProps: props,
-  checkedSet
-})
+provide(CascadeDIKey, { cls, size, disabled, readonly, cascadeProps: props, checkedSet })
 </script>

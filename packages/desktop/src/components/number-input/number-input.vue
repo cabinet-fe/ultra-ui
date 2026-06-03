@@ -74,9 +74,7 @@ import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../typ
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({
-  name: 'NumberInput'
-})
+defineOptions({ name: 'NumberInput' })
 
 const props = withDefaults(defineProps<NumberInputProps>(), {
   placeholder: '请输入',
@@ -86,10 +84,7 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
 })
 const emit = defineEmits<NumberInputEmits>()
 
-const slots = defineSlots<{
-  prefix?: () => any
-  suffix?: () => any
-}>()
+const slots = defineSlots<{ prefix?: () => any; suffix?: () => any }>()
 
 const { formProps } = injectFormContext()
 
@@ -195,17 +190,8 @@ function getDisplayed(num?: number): string {
   const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
-    ? n(displayValue).currency('CNY', {
-        precision,
-        minPrecision,
-        maxPrecision
-      })
-    : n(displayValue).fixed(
-        precision ?? {
-          minPrecision,
-          maxPrecision
-        }
-      )
+    ? n(displayValue).currency('CNY', { precision, minPrecision, maxPrecision })
+    : n(displayValue).fixed(precision ?? { minPrecision, maxPrecision })
 }
 
 watch(
@@ -242,12 +228,7 @@ function parseDisplayed(str: string): number | undefined {
 
   const { precision, maxPrecision, minPrecision } = props
 
-  const fixedResult = +n(result).fixed(
-    precision ?? {
-      minPrecision,
-      maxPrecision
-    }
-  )
+  const fixedResult = +n(result).fixed(precision ?? { minPrecision, maxPrecision })
 
   // 如果存在倍数，将原始值乘以倍数返回实际值
   return multiple ? $n.mul(fixedResult, multiple) : fixedResult
@@ -391,20 +372,10 @@ function handleFocus(): void {
   if (multiple) {
     // 如果存在倍数，先除以倍数得到原始值进行精度修正，再乘以倍数
     const rawVal = $n.div(model.value, multiple)
-    const fixedRawVal = +n(rawVal).fixed(
-      precision ?? {
-        maxPrecision,
-        minPrecision
-      }
-    )
+    const fixedRawVal = +n(rawVal).fixed(precision ?? { maxPrecision, minPrecision })
     model.value = $n.mul(fixedRawVal, multiple)
   } else {
-    model.value = +n(model.value).fixed(
-      precision ?? {
-        maxPrecision,
-        minPrecision
-      }
-    )
+    model.value = +n(model.value).fixed(precision ?? { maxPrecision, minPrecision })
   }
 }
 

@@ -20,9 +20,7 @@ import { computed } from 'vue'
 import type { TagEmits, TagProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Tag'
-})
+defineOptions({ name: 'Tag' })
 
 const cls = bem('tag')
 
@@ -31,9 +29,7 @@ const props = defineProps<TagProps>()
 const emit = defineEmits<TagEmits>()
 
 const { formProps } = injectFormContext()
-const { size } = useFormFallbackProps([formProps ?? {}, props], {
-  size: 'default'
-})
+const { size } = useFormFallbackProps([formProps ?? {}, props], { size: 'default' })
 
 const handleClose = () => {
   emit('close')

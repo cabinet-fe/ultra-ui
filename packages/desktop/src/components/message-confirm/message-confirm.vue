@@ -34,9 +34,7 @@ import { ref, onMounted } from 'vue'
 import type { MessageConfirmProps, ColorType, ComponentSize } from '../../types'
 import { UButton } from '../button'
 
-defineOptions({
-  name: 'MessageConfirm'
-})
+defineOptions({ name: 'MessageConfirm' })
 
 const props = withDefaults(defineProps<MessageConfirmProps>(), {
   title: '',
@@ -46,9 +44,7 @@ const props = withDefaults(defineProps<MessageConfirmProps>(), {
   cancelButtonText: ''
 })
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('message-confirm')
 

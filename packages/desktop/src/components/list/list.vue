@@ -12,15 +12,11 @@ import type { ListProps } from '../../types'
 import type { ComponentSize } from '../../types'
 import { UScroll } from '../scroll'
 
-defineOptions({
-  name: 'List'
-})
+defineOptions({ name: 'List' })
 
 const props = withDefaults(defineProps<ListProps>(), {})
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('list')
 </script>

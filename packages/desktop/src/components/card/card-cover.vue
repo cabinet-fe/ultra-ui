@@ -29,8 +29,6 @@ if (!injected) {
 }
 
 const style = computed(() => {
-  return {
-    height: withUnit(props.height, 'px')
-  }
+  return { height: withUnit(props.height, 'px') }
 })
 </script>

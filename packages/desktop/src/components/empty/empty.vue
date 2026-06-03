@@ -12,14 +12,9 @@ import { bem } from '@veltra/utils'
 import type { EmptyProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({
-  name: 'Empty'
-})
+defineOptions({ name: 'Empty' })
 
-withDefaults(defineProps<EmptyProps>(), {
-  size: 48,
-  text: '暂无数据'
-})
+withDefaults(defineProps<EmptyProps>(), { size: 48, text: '暂无数据' })
 
 const cls = bem('empty')
 </script>

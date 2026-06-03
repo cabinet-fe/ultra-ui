@@ -63,17 +63,10 @@ import { shallowReactive } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
-const config = shallowReactive({
-  percentage: 0,
-  type: 'primary' as ColorType,
-  size: 100
-})
+const config = shallowReactive({ percentage: 0, type: 'primary' as ColorType, size: 100 })
 
 const types = ['primary', 'info', 'success', 'warning', 'danger'].map((t) => {
-  return {
-    label: t,
-    value: t
-  }
+  return { label: t, value: t }
 })
 
 const getType = (percentage: number) => {

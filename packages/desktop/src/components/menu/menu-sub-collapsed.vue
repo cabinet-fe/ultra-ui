@@ -60,15 +60,9 @@ import { getKey } from './helper'
 import MenuIcon from './menu-icon.vue'
 import UMenuItemCollapsed from './menu-item-collapsed.vue'
 
-defineOptions({
-  name: 'MenuSubCollapsed'
-})
+defineOptions({ name: 'MenuSubCollapsed' })
 
-defineProps<{
-  menu: MenuItem
-  parentKey: string
-  depth: number
-}>()
+defineProps<{ menu: MenuItem; parentKey: string; depth: number }>()
 
 const visible = ref(false)
 

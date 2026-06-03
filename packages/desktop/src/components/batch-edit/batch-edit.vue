@@ -113,9 +113,7 @@ const slots = defineSlots<
     }) => any
 
     header?: () => any
-  } & Partial<{
-    [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
-  }>
+  } & Partial<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>
 >()
 
 const cls = bem('batch-edit')
@@ -126,15 +124,7 @@ const editCtx = useEdit({ props, emit, tableRef })
 
 const { state, handleClose, handleSave, handleDelete, handleCreate } = editCtx
 
-provide(BatchEditDIKey, {
-  cls,
-  props,
-  emit,
-  tableRef,
-  staticFeatures,
-  dynamicFeatures,
-  ...editCtx
-})
+provide(BatchEditDIKey, { cls, props, emit, tableRef, staticFeatures, dynamicFeatures, ...editCtx })
 
 const dialogCtx = inject(DialogDIKey, undefined)
 

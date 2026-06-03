@@ -144,9 +144,7 @@ function buildExtensions(): Extension[] {
   return [
     basicSetup,
     tooltips({ parent: document.body }),
-    EditorView.theme({
-      '.cm-tooltip': { zIndex: zIndex() }
-    }),
+    EditorView.theme({ '.cm-tooltip': { zIndex: zIndex() } }),
     themeCompartment.of(props.dark ? oneDark : []),
     editableCompartment.of(EditorView.editable.of(!disabled.value)),
     readOnlyCompartment.of(EditorState.readOnly.of(readonly.value)),
@@ -218,22 +216,16 @@ watch(() => props.language, applyLanguage)
 watch(
   () => props.dark,
   (dark) => {
-    editor.value?.dispatch({
-      effects: themeCompartment.reconfigure(dark ? oneDark : [])
-    })
+    editor.value?.dispatch({ effects: themeCompartment.reconfigure(dark ? oneDark : []) })
   }
 )
 
 watch(disabled, (v) => {
-  editor.value?.dispatch({
-    effects: editableCompartment.reconfigure(EditorView.editable.of(!v))
-  })
+  editor.value?.dispatch({ effects: editableCompartment.reconfigure(EditorView.editable.of(!v)) })
 })
 
 watch(readonly, (v) => {
-  editor.value?.dispatch({
-    effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(v))
-  })
+  editor.value?.dispatch({ effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(v)) })
 })
 
 watch(() => props.defaultLines, syncPhantomLineNumbers)

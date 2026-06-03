@@ -51,9 +51,7 @@ import type { GroupInputEmits, GroupInputProps } from '../../types'
 import { UButton } from '../button'
 import { useGroupItems } from './use-group-items'
 
-defineOptions({
-  name: 'GroupInput'
-})
+defineOptions({ name: 'GroupInput' })
 
 const props = withDefaults(defineProps<GroupInputProps<GroupItem>>(), {
   modelValue: () => [],
@@ -73,10 +71,7 @@ const { disabled, size, readonly } = useFormFallbackProps([formProps ?? {}, prop
   readonly: false
 })
 
-const { items, createItem, runByEvent } = useGroupItems({
-  props,
-  emit
-})
+const { items, createItem, runByEvent } = useGroupItems({ props, emit })
 
 const isEmpty = computed(() => {
   return !items.value.length

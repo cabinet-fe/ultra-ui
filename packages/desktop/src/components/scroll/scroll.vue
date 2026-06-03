@@ -31,13 +31,9 @@ import type { ScrollPosition, _ScrollExposed, ScrollProps, ScrollEmits } from '.
 import { ScrollDIKey } from './di'
 import UScrollBar from './scroll-bar.vue'
 
-defineOptions({
-  name: 'Scroll'
-})
+defineOptions({ name: 'Scroll' })
 
-const props = withDefaults(defineProps<ScrollProps>(), {
-  tag: 'div'
-})
+const props = withDefaults(defineProps<ScrollProps>(), { tag: 'div' })
 
 const emit = defineEmits<ScrollEmits>()
 
@@ -55,9 +51,7 @@ const className = computed(() => {
 })
 
 const style = computed<CSSProperties>(() => {
-  return {
-    height: withUnit(props.height, 'px')
-  }
+  return { height: withUnit(props.height, 'px') }
 })
 
 const contentRef = shallowRef<HTMLElement>()
@@ -67,10 +61,7 @@ const barX = shallowRef<InstanceType<typeof UScrollBar>>()
 const barY = shallowRef<InstanceType<typeof UScrollBar>>()
 const minSize = 20
 
-const trackSize = {
-  width: 0,
-  height: 0
-}
+const trackSize = { width: 0, height: 0 }
 
 const updateBar = () => {
   const container = containerRef.value
@@ -167,9 +158,7 @@ const scrollTo = (position: ScrollPosition) => {
   if (position.y !== undefined) scrollToTop(position.y)
 }
 
-provide(ScrollDIKey, {
-  cls
-})
+provide(ScrollDIKey, { cls })
 
 const exposed: _ScrollExposed = {
   el: scrollRef,

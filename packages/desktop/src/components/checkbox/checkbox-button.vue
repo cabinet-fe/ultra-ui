@@ -21,9 +21,7 @@ import { computed } from 'vue'
 import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
 import { UTag } from '../tag'
 
-defineOptions({
-  name: 'CheckboxButton'
-})
+defineOptions({ name: 'CheckboxButton' })
 
 const props = withDefaults(defineProps<CheckboxButtonProps>(), {
   disabled: undefined,
@@ -34,9 +32,7 @@ const props = withDefaults(defineProps<CheckboxButtonProps>(), {
 
 const emit = defineEmits<CheckboxButtonEmits>()
 
-const slot = defineSlots<{
-  default(): any
-}>()
+const slot = defineSlots<{ default(): any }>()
 
 const cls = bem('checkbox-button')
 

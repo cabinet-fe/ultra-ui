@@ -10,17 +10,13 @@ import { type CSSProperties, computed } from 'vue'
 
 import type { IconProps } from '../../types'
 
-defineOptions({
-  name: 'Icon'
-})
+defineOptions({ name: 'Icon' })
 
 const props = defineProps<IconProps>()
 
 const cls = bem('icon')
 
 const style = computed<CSSProperties>(() => {
-  return {
-    fontSize: withUnit(props.size, 'px')
-  }
+  return { fontSize: withUnit(props.size, 'px') }
 })
 </script>

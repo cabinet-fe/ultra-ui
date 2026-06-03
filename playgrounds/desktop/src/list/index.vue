@@ -17,9 +17,7 @@
 <script lang="ts" setup>
 import CustomCard from '../card/custom-card.vue'
 
-const listData = Array.from({ length: 50 }).map((_, i) => ({
-  title: `列表项${i}`
-}))
+const listData = Array.from({ length: 50 }).map((_, i) => ({ title: `列表项${i}` }))
 </script>
 
 <style lang="scss" scoped></style>

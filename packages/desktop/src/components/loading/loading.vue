@@ -13,17 +13,11 @@ import { computed } from 'vue'
 
 import type { LoadingProps, ComponentSize } from '../../types'
 
-defineOptions({
-  name: 'Loading'
-})
+defineOptions({ name: 'Loading' })
 
-const props = withDefaults(defineProps<LoadingProps>(), {
-  type: 'spinner'
-})
+const props = withDefaults(defineProps<LoadingProps>(), { type: 'spinner' })
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('loading')
 

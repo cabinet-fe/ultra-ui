@@ -178,13 +178,7 @@ const evalExpr = shallowRef<ConditionExpression>({
 
 const dataText = ref(
   JSON.stringify(
-    {
-      status: 'open',
-      priority: 5,
-      tag: '紧急修复',
-      completed: false,
-      assignee: '张三'
-    },
+    { status: 'open', priority: 5, tag: '紧急修复', completed: false, assignee: '张三' },
     null,
     2
   )

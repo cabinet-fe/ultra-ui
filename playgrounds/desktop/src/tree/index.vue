@@ -65,10 +65,7 @@ const treeRef1 = shallowRef<TreeExposed>()
 const data = shallowRef<any[]>([])
 const data1 = shallowRef<any[]>([])
 const flatData = shallowRef<any[]>(
-  Array.from({ length: 8 }).map((_, i) => ({
-    name: `叶子节点 ${i}`,
-    id: `leaf-${i}`
-  }))
+  Array.from({ length: 8 }).map((_, i) => ({ name: `叶子节点 ${i}`, id: `leaf-${i}` }))
 )
 
 const checked = shallowRef<any[]>()

@@ -19,9 +19,7 @@ import { computed } from 'vue'
 import type { CalendarProps } from '../../types'
 import { getMonthDays } from './utils'
 
-defineOptions({
-  name: 'Calendar'
-})
+defineOptions({ name: 'Calendar' })
 
 defineProps<CalendarProps>()
 

@@ -102,18 +102,8 @@ const sampleFiles: FileViewerItem[] = [
     src: 'https://snippet.embedpdf.com/ebook.pdf',
     kind: 'pdf'
   },
-  {
-    id: 'sample-csv',
-    name: 'sales-summary.csv',
-    src: sampleCsv,
-    kind: 'sheet'
-  },
-  {
-    id: 'sample-txt',
-    name: 'readme.txt',
-    src: sampleTxt,
-    kind: 'text'
-  }
+  { id: 'sample-csv', name: 'sales-summary.csv', src: sampleCsv, kind: 'sheet' },
+  { id: 'sample-txt', name: 'readme.txt', src: sampleTxt, kind: 'text' }
 ]
 
 const localFiles = shallowRef<FileViewerItem[]>([])

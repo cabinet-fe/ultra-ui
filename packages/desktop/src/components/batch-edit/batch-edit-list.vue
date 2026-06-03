@@ -87,13 +87,9 @@ import { UButton } from '../button'
 import { UTable } from '../table'
 import { BatchEditDIKey } from './di'
 
-defineOptions({
-  name: 'BatchEditList'
-})
+defineOptions({ name: 'BatchEditList' })
 
-defineProps<{
-  slots: Slots
-}>()
+defineProps<{ slots: Slots }>()
 
 const {
   cls,

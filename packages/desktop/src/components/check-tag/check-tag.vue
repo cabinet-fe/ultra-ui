@@ -10,9 +10,7 @@ import { computed } from 'vue'
 
 import type { CheckTagEmits, CheckTagProps } from '../../types'
 
-defineOptions({
-  name: 'CheckTag'
-})
+defineOptions({ name: 'CheckTag' })
 
 const cls = bem('check-tag')
 

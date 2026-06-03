@@ -12,9 +12,7 @@ import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({
-  name: 'PaletteAlpha'
-})
+defineOptions({ name: 'PaletteAlpha' })
 
 const { cls, updateAlpha, hueRGB, alpha, userAction, isUserActive } = inject(PaletteDIKey)!
 
@@ -77,7 +75,5 @@ watch(
   { flush: 'post' }
 )
 
-defineExpose({
-  init
-})
+defineExpose({ init })
 </script>

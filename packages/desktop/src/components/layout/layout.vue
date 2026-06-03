@@ -41,13 +41,9 @@ import type { LayoutProps } from '../../types'
 import { LayoutDIKey } from './di'
 import ULayoutResizer from './layout-resizer.vue'
 
-defineOptions({
-  name: 'Layout'
-})
+defineOptions({ name: 'Layout' })
 
-const props = withDefaults(defineProps<LayoutProps>(), {
-  tag: 'div'
-})
+const props = withDefaults(defineProps<LayoutProps>(), { tag: 'div' })
 
 const cls = bem('layout')
 
@@ -130,7 +126,5 @@ const handleResize = (offset: number, index: number) => {
   templateCols.value[index + 1] = `${nextSize - clamped}px`
 }
 
-provide(LayoutDIKey, {
-  cls
-})
+provide(LayoutDIKey, { cls })
 </script>

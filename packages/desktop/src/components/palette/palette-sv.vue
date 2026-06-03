@@ -20,18 +20,13 @@ import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({
-  name: 'PaletteSV'
-})
+defineOptions({ name: 'PaletteSV' })
 
 const { cls, hueRGB, HSV, updateSV, userAction } = inject(PaletteDIKey)!
 
 const svRef = shallowRef<HTMLDivElement>()
 
-const canvasSize = {
-  width: 0,
-  height: 0
-}
+const canvasSize = { width: 0, height: 0 }
 
 const rangeX = [0, 0] as [number, number]
 const rangeY = [0, 0] as [number, number]
@@ -47,15 +42,10 @@ const getCanvasSize = () => {
   rangeY[1] = offsetHeight
 }
 
-const transform = reactive({
-  x: 0,
-  y: 0
-})
+const transform = reactive({ x: 0, y: 0 })
 
 const svThumbStyle = computed(() => {
-  return {
-    transform: `translate(${transform.x}px, ${transform.y}px)`
-  }
+  return { transform: `translate(${transform.x}px, ${transform.y}px)` }
 })
 
 const updateThumb = userAction((offsetX: number, offsetY: number) => {
@@ -106,7 +96,5 @@ onMounted(() => {
   init()
 })
 
-defineExpose({
-  init
-})
+defineExpose({ init })
 </script>

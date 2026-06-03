@@ -86,13 +86,9 @@ const props = withDefaults(defineProps<TabsHorizontalProps>(), {
 
 const emit = defineEmits<TabsHorizontalEmits>()
 
-defineSlots<{
-  [key: `name:${string}`]: (props: { item: TabItem }) => any
-}>()
+defineSlots<{ [key: `name:${string}`]: (props: { item: TabItem }) => any }>()
 
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('tabs-bar')
 

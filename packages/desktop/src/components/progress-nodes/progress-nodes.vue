@@ -39,9 +39,7 @@ import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'v
 
 import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'
 
-defineOptions({
-  name: 'ProgressNodes'
-})
+defineOptions({ name: 'ProgressNodes' })
 
 const props = withDefaults(defineProps<ProgressNodesProps>(), {
   colorType: 'primary',
@@ -98,10 +96,7 @@ useDrag({
   }
 })
 
-useResizeObserver({
-  targets: containerRef,
-  onResize: checkScroll
-})
+useResizeObserver({ targets: containerRef, onResize: checkScroll })
 
 watch(
   nodes,

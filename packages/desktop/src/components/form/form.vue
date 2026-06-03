@@ -42,9 +42,7 @@ import type { DynamicFormModel } from './dynamic-form-model'
 import type { FormModel } from './form-model'
 import { useNodeInterceptor } from './use-node-interceptor'
 
-defineOptions({
-  name: 'Form'
-})
+defineOptions({ name: 'Form' })
 
 const props = defineProps<FormProps<Model>>()
 
@@ -59,13 +57,7 @@ defineSlots<{
 
 const cls = bem('form')
 
-const breakpointCols: BreakCols = {
-  xs: 1,
-  md: 2,
-  lg: 3,
-  xl: 4,
-  default: 4
-}
+const breakpointCols: BreakCols = { xs: 1, md: 2, lg: 3, xl: 4, default: 4 }
 
 provideFormContext(props)
 
@@ -89,7 +81,5 @@ function showInitialNode(field: string) {
 
 const gridRef = shallowRef<GridExposed>()
 
-defineExpose<_FormExposed>({
-  el: toRef(() => gridRef.value?.el)
-})
+defineExpose<_FormExposed>({ el: toRef(() => gridRef.value?.el) })
 </script>

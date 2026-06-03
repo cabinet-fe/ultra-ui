@@ -23,9 +23,7 @@ import { UButton } from '../button'
 import { UInput } from '../input'
 import { PaletteDIKey } from './di'
 
-defineProps<{
-  color?: string
-}>()
+defineProps<{ color?: string }>()
 
 const emit = defineEmits(['clear', 'update:color'])
 

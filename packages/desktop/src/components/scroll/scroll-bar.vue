@@ -9,17 +9,11 @@ import { computed, inject, shallowRef } from 'vue'
 
 import { ScrollDIKey } from './di'
 
-defineOptions({
-  name: 'ScrollBar'
-})
+defineOptions({ name: 'ScrollBar' })
 
-const props = defineProps<{
-  type: 'x' | 'y'
-}>()
+const props = defineProps<{ type: 'x' | 'y' }>()
 
-const emit = defineEmits<{
-  drag: [offset: number, size: number]
-}>()
+const emit = defineEmits<{ drag: [offset: number, size: number] }>()
 
 /** 滚动条高度(type为x时为宽度) */
 const size = shallowRef(0)
@@ -41,16 +35,10 @@ const className = computed(() => {
 const style =
   props.type === 'x'
     ? computed(() => {
-        return {
-          width: size.value + 'px',
-          transform: `translateX(${offset.value}px)`
-        }
+        return { width: size.value + 'px', transform: `translateX(${offset.value}px)` }
       })
     : computed(() => {
-        return {
-          height: size.value + 'px',
-          transform: `translateY(${offset.value}px)`
-        }
+        return { height: size.value + 'px', transform: `translateY(${offset.value}px)` }
       })
 
 const domRef = shallowRef<HTMLElement>()

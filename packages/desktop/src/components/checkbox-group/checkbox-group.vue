@@ -34,9 +34,7 @@ import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'
 import { UTag } from '../tag'
 
-defineOptions({
-  name: 'CheckboxGroup'
-})
+defineOptions({ name: 'CheckboxGroup' })
 
 const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   labelKey: 'label',

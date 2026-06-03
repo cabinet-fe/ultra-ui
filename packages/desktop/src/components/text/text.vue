@@ -11,13 +11,9 @@ import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode 
 import type { TextProps } from '../../types'
 import { UNodeRender } from '../node-render'
 
-defineOptions({
-  name: 'Text'
-})
+defineOptions({ name: 'Text' })
 
-const props = withDefaults(defineProps<TextProps>(), {
-  as: 'content'
-})
+const props = withDefaults(defineProps<TextProps>(), { as: 'content' })
 
 const cls = bem('text')
 
@@ -26,9 +22,7 @@ const classList = computed(() => {
 })
 
 const style = computed(() => {
-  const style: CSSProperties = {
-    fontSize: withUnit(props.fontSize, 'px')
-  }
+  const style: CSSProperties = { fontSize: withUnit(props.fontSize, 'px') }
   const { deleted, underline } = props
   if (deleted) {
     style.textDecoration = 'line-through'

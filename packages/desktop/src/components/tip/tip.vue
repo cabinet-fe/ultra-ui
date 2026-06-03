@@ -51,9 +51,7 @@ const emit = defineEmits<TipEmits>()
 
 const cls = bem('tip')
 const slots = useSlots()
-const { size } = useFallbackProps([props], {
-  size: 'default' as ComponentSize
-})
+const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const contentClass = computed(() => {
   const fixed = [cls.e('content'), cls.m(size.value)]

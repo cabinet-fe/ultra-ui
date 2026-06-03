@@ -9,25 +9,15 @@ import { computed, reactive, watch } from 'vue'
 
 import type { NumberProps } from '../../types'
 
-defineOptions({
-  name: 'Number'
-})
+defineOptions({ name: 'Number' })
 
-const props = withDefaults(defineProps<NumberProps>(), {
-  duration: 800,
-  format: 'decimal'
-})
+const props = withDefaults(defineProps<NumberProps>(), { duration: 800, format: 'decimal' })
 
-const number = reactive({
-  value: 0
-})
+const number = reactive({ value: 0 })
 
 const tween = computed(() =>
   props.tween
-    ? new Tween(number, {
-        duration: props.duration,
-        easingFunction: Tween.easing.easeInOutQuad
-      })
+    ? new Tween(number, { duration: props.duration, easingFunction: Tween.easing.easeInOutQuad })
     : null
 )
 

@@ -13,18 +13,11 @@
 import type { MessageOptions } from '../../types'
 import UMessage from './message.vue'
 
-defineOptions({
-  name: 'MessageBox'
-})
+defineOptions({ name: 'MessageBox' })
 
-defineProps<{
-  messages: Array<Omit<MessageOptions & { key: string }, 'onClosed'>>
-}>()
+defineProps<{ messages: Array<Omit<MessageOptions & { key: string }, 'onClosed'>> }>()
 
-const emit = defineEmits<{
-  (e: 'closed', id: string): void
-  (e: 'close', index: number): void
-}>()
+const emit = defineEmits<{ (e: 'closed', id: string): void; (e: 'close', index: number): void }>()
 
 function handleAfterLeave(el: Element) {
   emit('closed', (el as HTMLElement).dataset.id as string)

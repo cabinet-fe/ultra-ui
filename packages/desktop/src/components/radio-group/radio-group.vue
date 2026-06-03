@@ -26,9 +26,7 @@ import { injectFormContext } from '@veltra/utils'
 import type { RadioGroupProps, RadioGroupEmits } from '../../types'
 import URadio from '../radio/radio.vue'
 
-defineOptions({
-  name: 'RadioGroup'
-})
+defineOptions({ name: 'RadioGroup' })
 
 const props = withDefaults(defineProps<RadioGroupProps>(), {
   labelKey: 'label',
