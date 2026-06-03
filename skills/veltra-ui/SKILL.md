@@ -29,12 +29,6 @@ veltra-ui 是一个基于 Vue 3 的 UI 库。它由下面的包组成:
 
 ```
 SKILL.md                            ← 本文件（决策路由 + 关键约定）
-generated/                          ← 机器可读索引（版本/组件/图标/示例标题/token）
-  manifest.json                     ← 各包版本与计数
-  components.json                   ← 组件权威清单
-  examples.json                     ← 各组件示例标题索引
-  icons.json / directives.json / …  ← 导出枚举
-  types/*.ts                        ← 组件类型镜像（Props/Emits/Exposed）
 packages/
   desktop/
     index.md                        ← 组件目录（按字母序）

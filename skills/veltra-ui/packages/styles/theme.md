@@ -46,11 +46,7 @@ import {
 ```ts
 import { loadTheme, lightTheme } from '@veltra/styles/theme'
 
-loadTheme(
-  lightTheme.new({
-    color: { primary: '#ff6600' }
-  })
-)
+loadTheme(lightTheme.new({ color: { primary: '#ff6600' } }))
 ```
 
 ## 自定义主题
@@ -60,10 +56,7 @@ import { loadTheme, UITheme, lightTheme, type Theme } from '@veltra/styles/theme
 
 const theme: Theme = {
   ...lightTheme.theme,
-  color: {
-    ...lightTheme.theme.color,
-    primary: '#ff6600'
-  }
+  color: { ...lightTheme.theme.color, primary: '#ff6600' }
 }
 
 loadTheme(new UITheme(theme))
@@ -71,11 +64,11 @@ loadTheme(new UITheme(theme))
 
 ## 用法差异
 
-| 用法                             | 效果                                      |
-| -------------------------------- | ----------------------------------------- |
-| `loadTheme()`                    | 注入内置 light/dark，支持 `setTheme`      |
-| `loadTheme(lightTheme)`          | 注入内置 light/dark，并切到 light         |
-| `loadTheme(darkTheme)`           | 注入内置 light/dark，并切到 dark          |
-| `loadTheme(glassLightTheme)`     | 单主题注入，不支持 `setTheme` 切换        |
-| `lightTheme.new(partialTheme)`   | 基于现有主题派生                          |
-| `new UITheme(completeTheme)`     | 从完整 `Theme` 对象创建主题               |
+| 用法                           | 效果                                 |
+| ------------------------------ | ------------------------------------ |
+| `loadTheme()`                  | 注入内置 light/dark，支持 `setTheme` |
+| `loadTheme(lightTheme)`        | 注入内置 light/dark，并切到 light    |
+| `loadTheme(darkTheme)`         | 注入内置 light/dark，并切到 dark     |
+| `loadTheme(glassLightTheme)`   | 单主题注入，不支持 `setTheme` 切换   |
+| `lightTheme.new(partialTheme)` | 基于现有主题派生                     |
+| `new UITheme(completeTheme)`   | 从完整 `Theme` 对象创建主题          |

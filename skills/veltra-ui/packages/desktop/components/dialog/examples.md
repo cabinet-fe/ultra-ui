@@ -53,6 +53,7 @@ const visible = ref(false)
 <template>
   <u-dialog v-model="visible" title="详情">
     <template #default="{ maximized }">
+      <!-- 可以利用 maximized 来做一些操作，比如设置高度 100% 来让内容也跟着全屏 -->
       <p v-if="maximized">对话框已最大化</p>
       <p v-else>对话框处于正常尺寸</p>
     </template>

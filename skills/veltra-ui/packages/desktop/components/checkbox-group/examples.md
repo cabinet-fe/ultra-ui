@@ -25,9 +25,7 @@ const items = [
 <script setup lang="ts">
 import { FormModel } from '@veltra/desktop'
 
-const model = new FormModel({
-  hobbies: ['reading']
-})
+const model = new FormModel({ hobbies: ['reading'] })
 
 const hobbyList = [
   { label: '阅读', value: 'reading' },

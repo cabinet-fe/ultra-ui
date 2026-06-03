@@ -52,20 +52,20 @@ fn.use-var(bg-filter) // --u-bg-filter
 
 ## 常用路径
 
-| 语义     | 路径                                                     |
-| -------- | -------------------------------------------------------- |
-| 颜色     | `color.primary` / `color.success` / `color.default`      |
-| 色阶     | `color.primary.light.9` / `color.primary.dark.1`         |
-| 背景     | `bg.color.bottom` / `bg.color.middle` / `bg.color.top`   |
-| 文字     | `text-color.title` / `text-color.main` / `text-color.assist` |
-| 边框     | `border.color` / `border.width` / `border.style`         |
-| 圆角     | `radius.small` / `radius.default` / `radius.large`       |
-| 表单高度 | `form-component-height.small/default/large`              |
+| 语义     | 路径                                                            |
+| -------- | --------------------------------------------------------------- |
+| 颜色     | `color.primary` / `color.success` / `color.default`             |
+| 色阶     | `color.primary.light.9` / `color.primary.dark.1`                |
+| 背景     | `bg.color.bottom` / `bg.color.middle` / `bg.color.top`          |
+| 文字     | `text-color.title` / `text-color.main` / `text-color.assist`    |
+| 边框     | `border.color` / `border.width` / `border.style`                |
+| 圆角     | `radius.small` / `radius.default` / `radius.large`              |
+| 表单高度 | `form-component-height.small/default/large`                     |
 | 字号     | `font-size-title.*` / `font-size-main.*` / `font-size-assist.*` |
-| 阴影     | `shadow` / `shadow.emboss`                               |
-| 间距     | `gap.small` / `gap.default` / `gap.large`                |
-| 断点     | `breakpoint.xs/sm/md/lg`                                 |
-| 组件级   | `component.property`，例如 `button.default-bg`           |
+| 阴影     | `shadow` / `shadow.emboss`                                      |
+| 间距     | `gap.small` / `gap.default` / `gap.large`                       |
+| 断点     | `breakpoint.xs/sm/md/lg`                                        |
+| 组件级   | `component.property`，例如 `button.default-bg`                  |
 
 常用真实 token：
 
