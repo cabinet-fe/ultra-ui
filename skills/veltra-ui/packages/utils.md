@@ -107,6 +107,5 @@ new Tween({ from, to, duration, easing, onUpdate }) // 简易补间
 
 ## 相关
 
-- `core-concepts.md` — BEM 概念
-- `styles.md` — SCSS BEM mixins（与 `bem()` 对应的 SCSS 端实现）
-- `compositions.md` — 基于这些类型的组合式函数
+- `styles.md` — SCSS BEM mixins（与 `bem()` 对应的 SCSS 端实现）、主题运行时
+- `compositions.md` — 基于这些类型的组合式函数（含 `useConfig`）

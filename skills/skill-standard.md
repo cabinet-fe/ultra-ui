@@ -8,16 +8,15 @@
 2. **规则 > 枚举** — 当参数有规律时，描述生成规则和映射关系；AI 能从规则推导出未列举的用法，但无法可靠遵循长枚举列表
 3. **约束前置** — 把"不能做什么"放在"能做什么"前面；AI 更容易遵循显式禁令
 4. **最小信息量** — 只写 AI 生成正确代码所需的信息。实现细节、内部架构、构建产物结构一律不写
-5. **篇幅硬限** — 单文件 `api.md` 不超过 200 行
+5. **篇幅硬限** — 单文件 `api.md` 保持模板化，不写长散文与重复类型
 
 ## 判断标准
 
 写完后用以下问题自检：
 
-- AI 能否仅凭此文档（不看源码）生成正确的组件使用代码？
-- 是否存在"看起来全面但 AI 无法据此行动"的内容？删掉它
-- 是否存在手动枚举而非规则描述的地方？改为规则 + 典型示例
-- Props/Emits/Slots/Exposed 是否与 `generated/types/` 重复？删掉表格，改指向类型文件
+- AI 能否仅凭 `types.d.ts` + `examples.md` + `api.md` 辅助工具节生成正确代码？
+- `api.md` 是否仍重复 Props/Emits 表格？删掉，改读 `./types.d.ts`
+- 伴生工具是否只在有手动 import 需求时出现？
 
 ---
 
@@ -29,63 +28,42 @@
 
 ```
 components/{name}/
-  api.md        ← 用法约定 + 伴生 API + 关联类型（不重复 Props 表格）
-  examples.md   ← 可复制的示例代码
+  api.md        ← 固定模板：索引 + 辅助工具（由 bun run skill:gen 生成）
+  types.d.ts    ← 镜像 packages/desktop/src/types/{name}.ts（skill:gen 生成）
+  examples.md   ← 可复制的示例代码（手写维护）
 ```
 
-### api.md 章节顺序
+### api.md 模板（固定）
 
-```
-# UComponentName — 一句话描述
-> 类型：`../../../generated/types/{name}.ts`
-> `import type { ... } from '@veltra/desktop'`
-
-## Import
-## {伴生 API 名称} 函数式 API   ← 如有 message / Notification / FormModel 等
-## 关联类型                      ← 如有 TableColumn、ContextMenuItem 等复杂类型
-## {子组件名}                     ← 仅保留 slot/用法说明，不写 Props 表格
-```
-
-**禁止的章节**：与 `generated/types/{name}.ts` 重复的 Props/Emits/Slots/Exposed 表格、`## Examples`。
-
-主文档末尾：
+由 `scripts/gen-veltra-skill.ts` 根据标题行与 `scripts/veltra-component-skill-meta.ts` 生成，**不要手写其它章节**：
 
 ```md
-> 示例见 [examples.md](./examples.md)
+# {组件名称} - {组件中文名}
+
+## 类型文件
+
+见 `./types.d.ts`
+
+## 示例
+
+见 `./examples.md`
+
+## 辅助工具
+
+本组件通常配合以下工具来使用。
+
+### {工具名}
+{一句话用途}
+
+使用示例:
+
+​```ts
+import { ... } from '@veltra/desktop'
+​```
 ```
 
-### 类型导入
-
-放在标题下方的 `>` 引用块中，不占 Import 章节位置：
-
-```md
-> `import type { XxxProps, XxxEmits, XxxExposed } from '@veltra/desktop'`
-> 类型：`../../../generated/types/button.ts`
-```
-
-### Import 章节
-
-组件由 `VeltraDesktopUIResolver` 自动导入，Import 章节只列需要手动 import 的函数、类型、图标：
-
-```ts
-// UComponentName 由 Vite 自动导入，无需手动 import
-import { FormModel, formField } from '@veltra/desktop'
-```
-
-### 伴生 API（必须单独成节）
-
-以下模式必须在 `api.md` 用独立 `##` 章节说明，不可只写在示例里：
-
-| 组件目录        | 伴生 API                                              |
-| --------------- | ----------------------------------------------------- |
-| `message`       | `message()` 函数式 API                                |
-| `message-confirm` | `MessageConfirm()` 及快捷方法                       |
-| `notification`  | `Notification()` 函数式 API                           |
-| `context-menu`  | `contextmenu.pop()`                                   |
-| `form`          | `FormModel` / `DynamicFormModel` / `formField` 等   |
-| `table`         | `defineTableColumns()`                                |
-
-继承/扩展其他组件 Props 时（如 `batch-edit`），用 `## Props（专属）` / `## Emits（专属）` 只写**增量**字段，并指向被继承组件的 `api.md`。
+- 无伴生工具时**省略**整个 `## 辅助工具` 节
+- 伴生工具清单维护在 `scripts/veltra-component-skill-meta.ts` 的 `HELPERS_BY_KEBAB`
 
 ### 示例文件（`examples.md`）
 
@@ -180,5 +158,5 @@ AI 不阅读源码即可：正确导入、调用核心 API、推导文档未显�
 
 - 包的内部文件结构或目录组织
 - 某功能"具体包含哪些规则"（如 normalize 包含哪些 reset）
-- 可从 `generated/types/` 或类型定义直接获取的完整 Props 字段列表
+- 可从 `components/{name}/types.d.ts` 直接获取的完整 Props 字段列表
 - CSS 变量的完整枚举表

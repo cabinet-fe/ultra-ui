@@ -1,9 +1,15 @@
 #!/usr/bin/env bun
 
 import { constants } from 'node:fs'
-import { access, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import {
+  HELPERS_BY_KEBAB,
+  parseApiTitleLine,
+  renderComponentApiMd
+} from './veltra-component-skill-meta'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..')
@@ -311,17 +317,85 @@ async function collectExamplesIndex(): Promise<{
   return { entries: exampleEntries, invalid: exampleEntries.filter((entry) => !entry.valid) }
 }
 
-async function mirrorTypeFiles(): Promise<number> {
-  const targetDir = join(GENERATED_DIR, 'types')
-  await mkdir(targetDir, { recursive: true })
-  const files = await readdir(TYPES_SRC_DIR)
-  const typeFiles = files.filter((fileName) => fileName.endsWith('.ts') && fileName !== 'index.ts')
+function prepareTypeMirrorContent(content: string): string {
+  return content
+    .replace(
+      /import type \{ NestedFieldMarker \} from '\.\.\/components\/form\/helper'\n\n/,
+      `export interface NestedFieldMarker<T extends Record<string, any> = Record<string, any>> {
+  __isNested: true
+  fields: T
+}
+
+`
+    )
+    .trimEnd()
+}
+
+async function listComponentDocKebabs(): Promise<string[]> {
+  const entries = await readdir(COMPONENTS_DOC_DIR, { withFileTypes: true })
+  return entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .toSorted()
+}
+
+async function mirrorComponentTypeFiles(componentKebabs: string[]): Promise<number> {
+  let count = 0
 
   await Promise.all(
-    typeFiles.map((fileName) => cp(join(TYPES_SRC_DIR, fileName), join(targetDir, fileName)))
+    componentKebabs.map(async (kebab) => {
+      const srcPath = join(TYPES_SRC_DIR, `${kebab}.ts`)
+      const targetPath = join(COMPONENTS_DOC_DIR, kebab, 'types.d.ts')
+
+      try {
+        const raw = await readFile(srcPath, 'utf8')
+        await mkdir(dirname(targetPath), { recursive: true })
+        await writeFile(targetPath, `${prepareTypeMirrorContent(raw)}\n`, 'utf8')
+        count += 1
+      } catch {
+        // 无对应类型文件的组件目录跳过
+      }
+    })
   )
 
-  return typeFiles.length
+  const legacyTypesDir = join(GENERATED_DIR, 'types')
+  await rm(legacyTypesDir, { recursive: true, force: true })
+
+  return count
+}
+
+async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<number> {
+  let count = 0
+
+  await Promise.all(
+    componentKebabs.map(async (kebab) => {
+      const apiPath = join(COMPONENTS_DOC_DIR, kebab, 'api.md')
+
+      try {
+        const existing = await readFile(apiPath, 'utf8')
+        const titleLine =
+          existing.split('\n').find((line) => /^#{1,2}\s+\S.+\s+-\s+.+$/.test(line.trim())) ?? ''
+        const parsed = parseApiTitleLine(titleLine)
+
+        if (!parsed) {
+          throw new Error(`无法解析标题: ${kebab}`)
+        }
+
+        const helpers = HELPERS_BY_KEBAB[kebab] ?? []
+        await writeFile(
+          apiPath,
+          renderComponentApiMd(parsed.names, parsed.chinese, helpers),
+          'utf8'
+        )
+        count += 1
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.warn(`[gen-veltra-skill] 跳过 api.md: ${kebab} (${message})`)
+      }
+    })
+  )
+
+  return count
 }
 
 async function updateSkillFrontmatter(versions: Record<PackageName, string>): Promise<void> {
@@ -363,7 +437,9 @@ async function main(): Promise<void> {
   const utils = await collectModuleExports(PACKAGE_DIRS.utils, 'src/index.ts')
   const tokens = await collectTokens()
   const { entries: exampleEntries, invalid: invalidExamples } = await collectExamplesIndex()
-  const typeCount = await mirrorTypeFiles()
+  const componentDocKebabs = await listComponentDocKebabs()
+  const typeCount = await mirrorComponentTypeFiles(componentDocKebabs)
+  const apiDocCount = await regenerateComponentApiDocs(componentDocKebabs)
 
   if (invalidExamples.length > 0) {
     for (const entry of invalidExamples) {
@@ -380,14 +456,13 @@ async function main(): Promise<void> {
   await mkdir(GENERATED_DIR, { recursive: true })
 
   const generatedAt = new Date().toISOString()
-  const uniqueKebab = [...new Set(components.map((item) => item.kebab))]
 
   await writeJson(join(GENERATED_DIR, 'manifest.json'), {
     generatedAt,
     versions,
     counts: {
       components: components.length,
-      componentDocs: uniqueKebab.length,
+      componentDocs: componentDocKebabs.length,
       exampleFiles: exampleEntries.length,
       icons: icons.normal.length + icons.colorful.length,
       directives: directives.length,
@@ -444,7 +519,7 @@ async function main(): Promise<void> {
 
   console.log('[gen-veltra-skill] generated skill indexes')
   console.log(
-    `  components=${components.length} examples=${exampleEntries.length} types=${typeCount}`
+    `  components=${components.length} examples=${exampleEntries.length} types=${typeCount} apiDocs=${apiDocCount}`
   )
   console.log(`  icons=${icons.normal.length + icons.colorful.length} tokens=${tokens.length}`)
 }

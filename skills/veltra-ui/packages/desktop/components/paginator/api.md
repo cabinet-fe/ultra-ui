@@ -1,13 +1,9 @@
-# UPaginator — 分页器
+# UPaginator - 分页器
 
-> `import type { PaginatorProps, PaginatorEmits, PaginatorExposed } from '@veltra/desktop'`
+## 类型文件
 
-> 类型：`../../../generated/types/paginator.ts`
+见 `./types.d.ts`
 
-## Import
+## 示例
 
-```ts
-// UPaginator 由 Vite 自动导入，无需手动 import
-```
-
-> 示例见 [examples.md](./examples.md)
+见 `./examples.md`

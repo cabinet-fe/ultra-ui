@@ -6,7 +6,7 @@
 | --------------- | -------------------- |
 | installation.md | 安装、注册、按需引入 |
 
-组件 Props/Emits/Slots/Exposed 以 `generated/types/{组件名}.ts` 为准。
+组件 Props/Emits/Slots/Exposed 以 `components/{组件名}/types.d.ts` 为准；用法示例见同目录 `examples.md`，伴生工具见 `api.md`。
 
 ## 导出事实
 

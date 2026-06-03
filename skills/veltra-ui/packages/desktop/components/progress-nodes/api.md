@@ -1,13 +1,9 @@
-# UProgressNodes — 进度节点
+# UProgressNodes - 进度节点
 
-> `import type { ProgressNodesProps, ProgressNodesEmits, ProgressNodesExposed } from '@veltra/desktop'`
+## 类型文件
 
-> 类型：`../../../generated/types/progress-nodes.ts`
+见 `./types.d.ts`
 
-## Import
+## 示例
 
-```ts
-// UProgressNodes 由 Vite 自动导入，无需手动 import
-```
-
-> 示例见 [examples.md](./examples.md)
+见 `./examples.md`

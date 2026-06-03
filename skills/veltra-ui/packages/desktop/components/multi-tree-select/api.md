@@ -1,13 +1,9 @@
-# UMultiTreeSelect — 多选树形选择器
+# UMultiTreeSelect - 多选树形选择器
 
-> `import type { MultiTreeSelectProps, MultiTreeSelectEmits, MultiTreeSelectExposed } from '@veltra/desktop'`
+## 类型文件
 
-> 类型：`../../../generated/types/multi-tree-select.ts`
+见 `./types.d.ts`
 
-## Import
+## 示例
 
-```ts
-// UMultiTreeSelect 由 Vite 自动导入，无需手动 import
-```
-
-> 示例见 [examples.md](./examples.md)
+见 `./examples.md`

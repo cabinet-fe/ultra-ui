@@ -154,30 +154,9 @@ async function hasTypeFile(kebab: string): Promise<boolean> {
   }
 }
 
-function injectTypeReference(content: string, kebab: string, hasTypes: boolean): string {
-  if (!hasTypes || content.includes('generated/types/')) {
-    return content
-  }
-
-  const lines = content.split('\n')
-  const titleIndex = lines.findIndex((line) => line.startsWith('# '))
-
-  if (titleIndex === -1) {
-    return content
-  }
-
-  let insertAt = titleIndex + 1
-
-  while (
-    insertAt < lines.length &&
-    (lines[insertAt]?.startsWith('>') || lines[insertAt]?.trim() === '')
-  ) {
-    insertAt += 1
-  }
-
-  lines.splice(insertAt, 0, `> 类型：\`../../../generated/types/${kebab}.ts\``, '')
-
-  return lines.join('\n')
+function injectTypeReference(content: string, _kebab: string, _hasTypes: boolean): string {
+  // 类型索引由 bun run skill:gen 写入各组件目录的 types.d.ts + api.md 模板
+  return content
 }
 
 function injectCompanionApi(content: string, kebab: string): string {
@@ -187,19 +166,13 @@ function injectCompanionApi(content: string, kebab: string): string {
     return content
   }
 
-  const importIndex = content.indexOf('\n## Import\n')
+  const firstSection = content.search(/\n## /)
 
-  if (importIndex === -1) {
+  if (firstSection === -1) {
     return `${content.trimEnd()}\n\n${section}`
   }
 
-  const afterImport = content.indexOf('\n## ', importIndex + 1)
-
-  if (afterImport === -1) {
-    return `${content.trimEnd()}\n\n${section}`
-  }
-
-  return `${content.slice(0, afterImport).trimEnd()}\n\n${section}${content.slice(afterImport)}`
+  return `${content.slice(0, firstSection).trimEnd()}\n\n${section}${content.slice(firstSection)}`
 }
 
 function ensureExamplesLink(content: string): string {

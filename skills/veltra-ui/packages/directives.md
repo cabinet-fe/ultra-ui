@@ -1,47 +1,52 @@
 # @veltra/directives
 
-Vue 3 自定义指令，共 3 个：`vRipple` / `vClickOutside` / `vFocus`。`v-loading` 由 `@veltra/desktop` 提供（见 `desktop/components/loading.md`）。
+Vue 3 自定义指令。
 
-## 导入
+## vRipple
 
-```ts
-import { vRipple, vClickOutside, vFocus } from '@veltra/directives'
-import '@veltra/directives/ripple/style' // vRipple 需要的样式副作用
-```
+波纹指令。点击时可在绑定的元素内产生波纹扩散效果。
 
-`app.use(UltraUI)` 已自动注册以上指令；按需使用时手动 import 并在模板使用即可。
+### 定义
 
-## `vRipple` — 水波纹
+| 绑定            | 类型                             | 说明                           |
+| --------------- | -------------------------------- | ------------------------------ |
+| `binding.value` | `string \| boolean \| undefined` | 自定义类名 / 指定 `false` 禁用 |
+| `binding.arg`   | `string \| undefined`            | 持续时间（毫秒），不传用默认   |
 
-点击产生扩散效果。
-
-```vue
-<button v-ripple>默认波纹</button>
-<button v-ripple="'custom-ripple-class'">自定义类名</button>
-<button v-ripple="false">禁用</button>
-<button v-ripple:300>300ms 持续时间</button>
-<button v-ripple:500="'primary-ripple'">500ms + 自定义类</button>
-```
-
-| 绑定            | 类型                           | 说明                                   |
-| --------------- | ------------------------------ | -------------------------------------- |
-| `binding.value` | `string \| false \| undefined` | 自定义类名 / `false` 禁用 / 不传用默认 |
-| `binding.arg`   | `string \| undefined`          | 持续时间（毫秒），不传用默认           |
-
-`UButton` 内部已内置 `v-ripple`，无需手动添加。
-
-## `vClickOutside` — 点击外部
-
-监听元素外部 `mousedown` + `click`（同 target 时才触发，防拖拽误触）。
+### 使用示例
 
 ```vue
-<script setup lang="ts">
-import { vClickOutside } from '@veltra/directives'
-import { ref } from 'vue'
+<template>
+  <div v-ripple>默认波纹</div>
+  <div v-ripple="false">禁用</div>
+  <div v-ripple="'my-ripple'">自定义波纹 CSS 类</div>
+  <div v-ripple:1000>自定义波纹持续时间（毫秒）</div>
+</template>
 
-const visible = ref(false)
+<script setup>
+import { vRipple } from '@veltra/directives'
+import '@veltra/directives/ripple/style.js'
 </script>
+```
 
+### 注意
+
+- 按需使用指令时必须单独引入 `@veltra/directives/ripple/style.js`（或组件 `style` 入口已带入）。
+- `UButton` 组件内部已内置 `v-ripple`，无需手动添加。
+
+## vClickOutside
+
+点击外部指令。在 document 上协调 `mousedown` 与 `click`：仅当二者 `target` 一致时才触发回调，避免拖拽松手误触。
+
+### 定义
+
+| 绑定            | 类型                                   | 说明                                  |
+| --------------- | -------------------------------------- | ------------------------------------- |
+| `binding.value` | `(e: MouseEvent) => void \| undefined` | 点击外部时的回调；传 falsy 时注销监听 |
+
+### 使用示例
+
+```vue
 <template>
   <div>
     <button @click="visible = !visible">菜单</button>
@@ -50,33 +55,61 @@ const visible = ref(false)
     </ul>
   </div>
 </template>
+
+<script setup>
+import { vClickOutside } from '@veltra/directives'
+import { ref } from 'vue'
+
+const visible = ref(false)
+</script>
 ```
 
-| 绑定            | 类型                      | 说明             |
-| --------------- | ------------------------- | ---------------- |
-| `binding.value` | `(e: MouseEvent) => void` | 点击外部时的回调 |
+### 注意
 
-## `vFocus` — 自动聚焦
+- 指令应绑在需要判定“内部区域”的根节点上（如浮层容器），参考 `UTip` 的 `v-click-outside` 用法。
 
-`mounted` 时调用 `el.focus()`，无参数。
+## vFocus
+
+自动聚焦指令。`mounted` 时：元素自身为 `input` 则 `focus()`，否则在子树中查找第一个 `input` 并聚焦。
+
+### 定义
+
+| 绑定            | 类型 | 说明               |
+| --------------- | ---- | ------------------ |
+| `binding.value` | —    | 无参数，挂载即聚焦 |
+
+### 使用示例
 
 ```vue
-<input v-focus placeholder="自动聚焦" />
+<template>
+  <input v-focus placeholder="自动聚焦" />
 
-<u-dialog v-model="visible" title="新建">
-  <u-input v-focus v-model="name" />
-</u-dialog>
+  <u-dialog v-model="visible" title="新建">
+    <u-input v-focus v-model="name" />
+  </u-dialog>
+</template>
+
+<script setup>
+import { vFocus } from '@veltra/directives'
+import { ref } from 'vue'
+
+const visible = ref(false)
+const name = ref('')
+</script>
 ```
+
+### 注意
+
+- 容器内必须存在可聚焦的 `input`；否则控制台输出 `v-focus 指令需要一个 input 元素`。
+- `UInput` 等复合控件可在其根节点上使用，指令会聚焦内部原生 `input`。
 
 ## 全局注册
 
 ```ts
 import { vRipple, vClickOutside, vFocus } from '@veltra/directives'
-import '@veltra/directives/ripple/style'
+import '@veltra/directives/ripple/style.js'
 
 app.directive('ripple', vRipple)
 app.directive('click-outside', vClickOutside)
 app.directive('focus', vFocus)
 ```
-
-`@veltra/desktop/install` 的 `app.use(UltraUI)` 会一次性注册这 3 个指令以及 `v-loading`。

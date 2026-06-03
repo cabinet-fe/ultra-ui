@@ -1,7 +1,10 @@
 import type { ComponentProps, DeconstructValue, ValidateRule } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
-import type { NestedFieldMarker } from '../components/form/helper'
+export interface NestedFieldMarker<T extends Record<string, any> = Record<string, any>> {
+  __isNested: true
+  fields: T
+}
 
 export interface FormModelItem<Val = any> extends ValidateRule {
   /** 模型值 */

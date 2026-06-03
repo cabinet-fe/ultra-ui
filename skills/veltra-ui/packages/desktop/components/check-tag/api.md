@@ -1,13 +1,9 @@
-# UCheckTag — 可选标签
+# UCheckTag - 可选标签
 
-> `import type { CheckTagProps, CheckTagEmits, CheckTagExposed } from '@veltra/desktop'`
+## 类型文件
 
-> 类型：`../../../generated/types/check-tag.ts`
+见 `./types.d.ts`
 
-## Import
+## 示例
 
-```ts
-// UCheckTag 由 Vite 自动导入，无需手动 import
-```
-
-> 示例见 [examples.md](./examples.md)
+见 `./examples.md`
