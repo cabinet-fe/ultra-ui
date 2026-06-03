@@ -17,37 +17,12 @@ const SKILL_ROOT = join(REPO_ROOT, 'skills/veltra-ui')
 const GENERATED_DIR = join(SKILL_ROOT, 'generated')
 const COMPONENTS_DOC_DIR = join(SKILL_ROOT, 'packages/desktop/components')
 const TYPES_SRC_DIR = join(REPO_ROOT, 'packages/desktop/src/types')
-const SKILL_MD = join(SKILL_ROOT, 'SKILL.md')
-
-const PACKAGE_DIRS = {
-  desktop: join(REPO_ROOT, 'packages/desktop'),
-  compositions: join(REPO_ROOT, 'packages/compositions'),
-  directives: join(REPO_ROOT, 'packages/directives'),
-  icons: join(REPO_ROOT, 'packages/icons'),
-  styles: join(REPO_ROOT, 'packages/styles'),
-  utils: join(REPO_ROOT, 'packages/utils'),
-  vite: join(REPO_ROOT, 'packages/vite')
-} as const
-
-type PackageName = keyof typeof PACKAGE_DIRS
-
 type ExampleEntry = {
   file: string
   component: string
   titles: string[]
   valid: boolean
   errors: string[]
-}
-
-async function readPackageVersion(name: PackageName): Promise<string> {
-  const raw = await readFile(join(PACKAGE_DIRS[name], 'package.json'), 'utf8')
-  const json = JSON.parse(raw) as { version?: string }
-
-  if (!json.version) {
-    throw new Error(`缺少 version: ${name}`)
-  }
-
-  return json.version
 }
 
 function validateExamplesFile(relativePath: string, content: string): ExampleEntry {
@@ -202,32 +177,7 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
   return count
 }
 
-async function updateSkillFrontmatter(versions: Record<PackageName, string>): Promise<void> {
-  const content = await readFile(SKILL_MD, 'utf8')
-  const pattern = /(metadata:\s*\n\s*versions:\s*\n)([\s\S]*?)(\n+---)/
-
-  if (!pattern.test(content)) {
-    throw new Error('未能定位 SKILL.md frontmatter 中的 metadata.versions')
-  }
-
-  const versionLines = Object.entries(versions)
-    .map(([name, version]) => `    ${name}: ${version}`)
-    .join('\n')
-  const updated = content.replace(pattern, `$1${versionLines}$3`)
-
-  if (updated !== content) {
-    await writeFile(SKILL_MD, updated, 'utf8')
-  }
-}
-
 async function main(): Promise<void> {
-  const versionEntries = await Promise.all(
-    (Object.keys(PACKAGE_DIRS) as PackageName[]).map(
-      async (name) => [name, await readPackageVersion(name)] as const
-    )
-  )
-  const versions = Object.fromEntries(versionEntries) as Record<PackageName, string>
-
   const { entries: exampleEntries, invalid: invalidExamples } = await collectExamplesIndex()
   const componentDocKebabs = await listComponentDocKebabs()
   const typeCount = await mirrorComponentTypeFiles(componentDocKebabs)
@@ -246,7 +196,6 @@ async function main(): Promise<void> {
   }
 
   await rm(GENERATED_DIR, { recursive: true, force: true })
-  await updateSkillFrontmatter(versions)
 
   console.log('[gen-veltra-skill] generated skill docs')
   console.log(
