@@ -1,6 +1,15 @@
 ---
 name: veltra-ui
 description: 当使用 Vue 3 作为前端框架开发时必须使用。
+metadata:
+  versions:
+    desktop: 1.1.25
+    compositions: 1.1.25
+    directives: 1.1.25
+    icons: 1.1.25
+    styles: 1.1.25
+    utils: 1.1.25
+    vite: 1.1.25
 ---
 
 # veltra-ui
@@ -10,7 +19,7 @@ veltra-ui 是一个基于 Vue 3 的 UI 库。它由下面的包组成:
 - `@veltra/desktop`: 桌面组件。
 - `@veltra/directives`: 内置的、同时下游项目可导入使用的指令。
 - `@veltra/compositions`: 内置的、同时下游项目可导入使用的组合式函数。
-- `@veltra/icon`: 图标库。
+- `@veltra/icons`: 图标库。
 - `@veltra/utils`: 内置的、同时下游项目可导入使用的工具。
 - `@veltra/mobile`: 移动端组件。**未实现**
 - `@veltra/vite`: vite 工具包。
@@ -20,8 +29,6 @@ veltra-ui 是一个基于 Vue 3 的 UI 库。它由下面的包组成:
 
 ```
 SKILL.md                            ← 本文件（决策路由 + 关键约定）
-design-system/design.md             ← 全局设计系统规范（仅二次开发参考）
-design-system/tokens.css            ← 设计 token 变量定义
 generated/                          ← 机器可读索引（版本/组件/图标/示例标题/token）
   manifest.json                     ← 各包版本与计数
   components.json                   ← 组件权威清单
@@ -37,7 +44,12 @@ packages/
       examples.md                     ← 用法示例（H2=示例标题+代码）
   compositions.md                   ← 组合式函数
   directives.md                     ← 自定义指令
-  styles.md                         ← SCSS mixins/functions + 主题运行时
+  styles/
+    index.md                        ← @veltra/styles 入口与子路径
+    tokens.md                       ← Design Tokens 命名规则
+    scss.md                         ← SCSS mixins/functions
+    theme.md                        ← 主题运行时
+    base-styles.md                  ← normalize 与 transitions
   icons.md                          ← 图标
   utils.md                          ← 工具函数 / 共享类型
   vite.md                           ← Vite 自动导入插件

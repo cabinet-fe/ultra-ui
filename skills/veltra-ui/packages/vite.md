@@ -13,20 +13,12 @@ bun add @veltra/vite unplugin-vue-components -D
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { VeltraDesktopUIResolver } from '@veltra/vite'
-import { NodePackageImporter } from 'sass-embedded'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [VeltraDesktopUIResolver()],
-      dts: 'src/components.d.ts' // 自动生成全局组件类型声明
-    })
-  ],
-  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
+  // ...其它配置
+  plugins: [Components({ resolvers: [VeltraDesktopUIResolver()] })]
 })
 ```
 
@@ -59,9 +51,4 @@ VeltraDesktopUIResolver({ importStyle: false })
 
 - 仅解析 `@veltra/desktop` 真实导出的 `U*` 组件；`UAvatar` 等不存在的名字不会处理
 - `defineAsyncComponent` 包装的异步组件需手动 import
-- 指令（`v-ripple` 等）需手动注册或通过 `@veltra/desktop/install`
-
-## 相关
-
-- `desktop/installation.md` — 完整项目初始化
-- `icons.md` — 图标手动导入
+- 指令（`v-ripple` 等）需手动引入使用

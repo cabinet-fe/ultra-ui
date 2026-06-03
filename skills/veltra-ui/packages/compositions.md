@@ -227,4 +227,4 @@ const { virtualizer, items, isScrolling, snapshot } = useVirtualizer({
 
 ## 相关
 
-- `desktop/components/form/api.md`（`FormModel` 等辅助工具）、`desktop/components/form/types.d.ts`、`styles.md`（主题）
+- `desktop/components/form/api.md`（`FormModel` 等辅助工具）、`desktop/components/form/types.d.ts`、`styles/index.md`（主题）

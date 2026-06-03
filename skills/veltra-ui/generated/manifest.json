@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T07:21:14.988Z",
+  "generatedAt": "2026-06-03T08:23:59.319Z",
   "versions": {
     "desktop": "1.1.25",
     "compositions": "1.1.25",
@@ -17,7 +17,7 @@
     "directives": 3,
     "compositions": 15,
     "utils": 30,
-    "tokens": 24,
+    "tokens": 55,
     "types": 73
   }
 }

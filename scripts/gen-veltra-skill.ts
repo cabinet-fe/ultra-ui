@@ -18,7 +18,7 @@ const GENERATED_DIR = join(SKILL_ROOT, 'generated')
 const COMPONENTS_DOC_DIR = join(SKILL_ROOT, 'packages/desktop/components')
 const COMPONENTS_SRC_DIR = join(REPO_ROOT, 'packages/desktop/src/components')
 const TYPES_SRC_DIR = join(REPO_ROOT, 'packages/desktop/src/types')
-const TOKENS_FILE = join(SKILL_ROOT, 'design-system/tokens.css')
+const TOKENS_FILE = join(SKILL_ROOT, 'packages/styles/tokens.md')
 const SKILL_MD = join(SKILL_ROOT, 'SKILL.md')
 
 const PACKAGE_DIRS = {

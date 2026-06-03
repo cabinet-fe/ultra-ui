@@ -6,15 +6,6 @@
 bun add @veltra/desktop
 ```
 
-`@veltra/desktop` 的 workspace peer dependencies 包括：
-
-- `@veltra/utils`、`@veltra/compositions`、`@veltra/directives`
-- `@veltra/styles`、`@veltra/icons`
-
-运行时 dependencies 包括 `@cat-kit/core`、`@cat-kit/excel`、CodeMirror、Lexical、EmbedPDF、VTable 等组件内部依赖。
-
-大多数包管理器会自动安装 peer dependencies。
-
 ## 全局注册
 
 ```ts
@@ -99,55 +90,3 @@ export default defineConfig({
 ```
 
 无需任何 import 语句，构建时自动按需加载组件和样式。
-
-## SCSS 配置
-
-项目中使用 Veltra 的 SCSS mixins 需要配置 `NodePackageImporter`：
-
-```ts
-// vite.config.ts
-import { NodePackageImporter } from 'sass-embedded'
-
-export default defineConfig({
-  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
-})
-```
-
-## 主题初始化
-
-```ts
-// main.ts
-import { loadTheme } from '@veltra/styles/theme'
-import { heroLightTheme, glassLightTheme } from '@veltra/styles/theme'
-
-// 加载默认主题（自动支持亮色/暗色切换）
-loadTheme()
-
-// 或加载预设主题
-loadTheme(heroLightTheme) // HeroUI 风格
-loadTheme(glassLightTheme) // 玻璃拟态
-
-// 或加载自定义主题
-import { lightTheme } from '@veltra/styles/theme'
-const custom = lightTheme.new({ color: { primary: '#1890ff' } })
-loadTheme(custom)
-```
-
-## 完整 main.ts 示例
-
-```ts
-import { createApp } from 'vue'
-import App from './App.vue'
-import UltraUI from '@veltra/desktop/install'
-import { loadTheme } from '@veltra/styles/theme'
-
-const app = createApp(App)
-
-// 1. 注册组件库
-app.use(UltraUI)
-
-// 2. 加载主题（可替换为 heroLightTheme、glassLightTheme 等）
-loadTheme()
-
-app.mount('#app')
-```
