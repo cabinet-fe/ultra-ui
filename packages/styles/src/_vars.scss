@@ -1,7 +1,5 @@
 @use 'sass:map';
 
-$namespace: 'u' !default;
-
 // 与全局 CSS 变量对齐的语义化别名（便于 SCSS 中直接引用）
 $color-primary: var(--u-color-primary);
 $text-color-main: var(--u-text-color-main);

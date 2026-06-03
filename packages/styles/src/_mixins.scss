@@ -1,8 +1,8 @@
-@forward 'vars';
 @use 'sass:list';
 @use 'sass:map';
 @use 'vars' as *;
-@use 'functions' as fn;
+
+$namespace: 'u' !default;
 
 /** flex布局 */
 @mixin flex($display: flex, $justify: flex-start, $align: center, $wrap: nowrap) {

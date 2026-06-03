@@ -1,6 +1,7 @@
-@forward 'vars';
 @use 'sass:list';
 @use 'vars' as *;
+
+$namespace: 'u' !default;
 
 // 使用单个变量（全局主题 token，`--u-*`）
 @function use-var($basename, $nodes...) {
