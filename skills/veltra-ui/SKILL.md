@@ -1,15 +1,6 @@
 ---
 name: veltra-ui
 description: 当使用 Vue 3 作为前端框架开发时必须使用。
-metadata:
-  versions:
-    desktop: 1.1.25
-    compositions: 1.1.25
-    directives: 1.1.25
-    icons: 1.1.25
-    styles: 1.1.25
-    utils: 1.1.25
-    vite: 1.1.25
 ---
 
 # veltra-ui
