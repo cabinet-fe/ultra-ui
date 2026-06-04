@@ -19,7 +19,7 @@
   </u-layout>
 </template>
 
-<script lang="ts" setup generic="Model extends FormModel">
+<script lang="ts" setup generic="Model extends IFormModel">
 import { bem } from '@veltra/utils'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
 
@@ -27,12 +27,12 @@ import type {
   BatchEditEmits,
   BatchEditFeature,
   BatchEditProps,
+  IFormModel,
   TableColumnSlotsScope,
   TableExposed,
   TableRow
 } from '../../types'
 import { DialogDIKey } from '../dialog/di'
-import type { FormModel } from '../form'
 import { ULayout } from '../layout'
 import BatchEditForm from './batch-edit-form.vue'
 import BatchEditList from './batch-edit-list.vue'

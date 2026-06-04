@@ -6,7 +6,6 @@ import type {
   ModelData,
   DataSettingConfig,
   IFormModel,
-  AllKeys,
   FormModelItem,
   FormModelField
 } from '../../types'
@@ -48,12 +47,12 @@ export class FormModel<
    * @description
    * 这个值会在表单组件渲染时由表单设置，因为只有真正渲染的组件才应该被校验
    */
-  formKeys: Map<number, AllKeys<Fields>[]> = new Map()
+  formKeys: Map<number, string[]> = new Map()
 
   /** 初始数据 */
   readonly initialData: ModelData<Fields>
 
-  readonly errors: Map<AllKeys<Fields>, string[] | undefined> = shallowReactive(new Map())
+  readonly errors: Map<string, string[] | undefined> = shallowReactive(new Map())
 
   private validator: Validator<Record<string, FormModelItem>>
 
@@ -119,16 +118,16 @@ export class FormModel<
     this.data = data as ModelData<Fields>
   }
 
-  private getValidateFields(fields?: AllKeys<Fields> | AllKeys<Fields>[]) {
+  private getValidateFields(fields?: string | string[]) {
     if (!fields) {
       if (this.formKeys.size) {
-        let _fields: AllKeys<Fields>[] = []
-        this.formKeys.forEach((fields) => {
-          _fields = _fields.concat(fields)
+        let _fields: string[] = []
+        this.formKeys.forEach((keys) => {
+          _fields = _fields.concat(keys)
         })
         return _fields
       } else {
-        return this.allKeys as AllKeys<Fields>[]
+        return this.allKeys
       }
     }
 
@@ -143,10 +142,10 @@ export class FormModel<
    * @param fields 需要校验的字段, 不传则校验所有字段
    * @returns
    */
-  async validate(fields?: AllKeys<Fields> | AllKeys<Fields>[]): Promise<boolean> {
+  async validate(fields?: string | string[]): Promise<boolean> {
     const { errors, validator, data } = this
 
-    const results = await validator.validate(data, this.getValidateFields(fields) as any)
+    const results = await validator.validate(data, this.getValidateFields(fields))
 
     // 全量校验
     if (!fields) {
@@ -184,12 +183,12 @@ export class FormModel<
    * 重置数据
    * @param fields 需要重置的字段
    */
-  resetData(keys?: AllKeys<Fields> | AllKeys<Fields>[]): void {
+  resetData(keys?: string | string[]): void {
     if (typeof keys === 'string') {
       keys = [keys]
     } else if (Array.isArray(keys)) {
     } else {
-      keys = this.allKeys as AllKeys<Fields>[]
+      keys = this.allKeys
     }
 
     this.clearValidate()
@@ -206,10 +205,7 @@ export class FormModel<
    * @param formData 表单值
    * @param options 配置
    */
-  setData(
-    formData: Partial<ModelData<Fields> & Record<string, any>>,
-    config?: DataSettingConfig
-  ): FormModel<Fields> {
+  setData(formData: Partial<Record<string, any>>, config?: DataSettingConfig): FormModel<Fields> {
     const { validate = true } = config || {}
 
     if (!validate) {
@@ -248,12 +244,12 @@ export class FormModel<
    * 监听值变更
    * @param cb 回调
    */
-  onChange(cb: (field: AllKeys<Fields>, val: any) => void): void {
-    this.modelChangeCallback.add(cb as any)
+  onChange(cb: (field: string, val: any) => void): void {
+    this.modelChangeCallback.add(cb)
   }
 
   /** 关闭监听值变更 */
-  offChange(cb: (field: AllKeys<Fields>, val: any) => void): void {
-    this.modelChangeCallback.delete(cb as any)
+  offChange(cb: (field: string, val: any) => void): void {
+    this.modelChangeCallback.delete(cb)
   }
 }

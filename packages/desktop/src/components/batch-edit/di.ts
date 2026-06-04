@@ -5,15 +5,15 @@ import type {
   BatchEditEmits,
   BatchEditFeature,
   BatchEditProps,
+  IFormModel,
   TableExposed,
   TableRow
 } from '../../types'
-import type { FormModel } from '../form'
 import type { EditReturned } from './use-edit'
 export const BatchEditDIKey: InjectionKey<
   {
     cls: BEM<'batch-edit', 'u-'>
-    props: BatchEditProps<FormModel>
+    props: BatchEditProps<IFormModel>
     emit: BatchEditEmits
     tableRef: ShallowRef<TableExposed | undefined>
     staticFeatures: ComputedRef<Set<BatchEditFeature>>
