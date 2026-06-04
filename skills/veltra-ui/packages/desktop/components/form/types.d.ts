@@ -55,29 +55,29 @@ export type IFormModel<Fields extends Record<string, any> = Record<string, any>>
    */
   readonly allKeys: string[]
   /** 需要校验的key */
-  formKeys: Map<number, AllKeys<Fields>[]>
+  formKeys: Map<number, string[]>
   /** 错误 */
-  readonly errors: Map<AllKeys<Fields>, string[] | undefined>
+  readonly errors: Map<string, string[] | undefined>
   /**
    * 字段校验
    * @param fields 字段， 如果不传入时将会使用keyFields来进行校验
    */
-  validate: (fields?: AllKeys<Fields> | AllKeys<Fields>[]) => Promise<boolean>
+  validate: (fields?: string | string[]) => Promise<boolean>
   /** 重置数据 */
-  resetData(fields?: AllKeys<Fields> | AllKeys<Fields>[]): void
+  resetData(fields?: string | string[]): void
 
   /**
    * 设置数据
    * @param formData 表单值
    * @param options 配置
    */
-  setData(formData: Partial<ModelData<Fields>>, config?: DataSettingConfig): void
+  setData(formData: Partial<Record<string, any>>, config?: DataSettingConfig): void
   /** 清除校验 */
   clearValidate(): void
   /** 监听值变更 */
-  onChange(cb: (field: AllKeys<Fields>, val: any) => void): void
+  onChange(cb: (field: string, val: any) => void): void
   /** 关闭监听值变更 */
-  offChange(cb: (field: AllKeys<Fields>, val: any) => void): void
+  offChange(cb: (field: string, val: any) => void): void
 }
 
 /** 表单组件属性 */

@@ -1,6 +1,6 @@
 {
   "name": "@veltra/directives",
-  "version": "1.1.27",
+  "version": "1.1.28",
   "files": [
     "dist",
     "src"
