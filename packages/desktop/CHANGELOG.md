@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.27
+
+### Patch Changes
+
+- eb09b60: 收紧 FormModel 泛型约束为 FormModelField
+  - @veltra/utils@1.1.27
+  - @veltra/styles@1.1.27
+  - @veltra/compositions@1.1.27
+  - @veltra/directives@1.1.27
+  - @veltra/icons@1.1.27
+
 ## 1.1.26
 
 ### Patch Changes
