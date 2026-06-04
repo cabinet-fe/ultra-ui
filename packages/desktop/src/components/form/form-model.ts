@@ -2,7 +2,14 @@ import { o } from '@cat-kit/core'
 import { middleProxy, Validator } from '@veltra/utils'
 import { nextTick, reactive, shallowReactive, watch, type Reactive } from 'vue'
 
-import type { ModelData, DataSettingConfig, IFormModel, AllKeys, FormModelItem } from '../../types'
+import type {
+  ModelData,
+  DataSettingConfig,
+  IFormModel,
+  AllKeys,
+  FormModelItem,
+  FormModelField
+} from '../../types'
 
 /**
  * 递归展平字段逻辑
@@ -25,7 +32,7 @@ function flattenFields(fields: Record<string, any>, prefix = ''): Record<string,
  * 表单模型
  */
 export class FormModel<
-  Fields extends Record<string, any> = Record<string, any>
+  Fields extends Record<string, FormModelField> = Record<string, FormModelField>
 > implements IFormModel<Fields> {
   /** 表单数据 */
   data!: ModelData<Fields>
