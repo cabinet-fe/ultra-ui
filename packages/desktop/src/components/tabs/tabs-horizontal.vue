@@ -86,7 +86,7 @@ const props = withDefaults(defineProps<TabsHorizontalProps>(), {
 
 const emit = defineEmits<TabsHorizontalEmits>()
 
-defineSlots<{ default: (props: { item: TabItem }) => any }>()
+defineSlots<{ default: (props: { item: TabItem; index: number }) => any }>()
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
