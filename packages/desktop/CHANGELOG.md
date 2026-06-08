@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.29
+
+### Patch Changes
+
+- 79170a5: tabs 组件 item 插槽从动态具名插槽改为默认插槽，slot props 为 { item, index }
+  - @veltra/utils@1.1.29
+  - @veltra/styles@1.1.29
+  - @veltra/compositions@1.1.29
+  - @veltra/directives@1.1.29
+  - @veltra/icons@1.1.29
+
 ## 1.1.28
 
 ### Patch Changes
