@@ -1,21 +1,23 @@
 <template>
-  <transition name="zoom-in" appear @after-leave="emit('destroy')">
-    <ul
-      :class="[cls.b, cls.m(size)]"
-      :style="style"
-      ref="contextMenuRef"
-      v-if="visible"
-      v-click-outside="handleClickOutside"
-    >
-      <UContextMenuItem
-        v-for="menu of menus"
-        :menu="menu"
-        :disabled="getMenuDisabled(menu)"
-        @click-start="handleClickStart"
-        @click-end="handleClickEnd"
-      />
-    </ul>
-  </transition>
+  <Teleport to="body">
+    <transition name="zoom-in" appear @after-leave="emit('destroy')">
+      <ul
+        :class="[cls.b, cls.m(size)]"
+        :style="style"
+        ref="contextMenuRef"
+        v-if="visible"
+        v-click-outside="handleClickOutside"
+      >
+        <UContextMenuItem
+          v-for="menu of menus"
+          :menu="menu"
+          :disabled="getMenuDisabled(menu)"
+          @click-start="handleClickStart"
+          @click-end="handleClickEnd"
+        />
+      </ul>
+    </transition>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
