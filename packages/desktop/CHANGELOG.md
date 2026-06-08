@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.30
+
+### Patch Changes
+
+- 8f2a4fc: 补全 tabs 默认插槽 defineSlots 类型声明及 slot props index 属性
+  - @veltra/utils@1.1.30
+  - @veltra/styles@1.1.30
+  - @veltra/compositions@1.1.30
+  - @veltra/directives@1.1.30
+  - @veltra/icons@1.1.30
+
 ## 1.1.29
 
 ### Patch Changes
