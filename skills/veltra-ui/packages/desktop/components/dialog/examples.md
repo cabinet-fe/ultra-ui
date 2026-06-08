@@ -12,7 +12,7 @@ const visible = ref(false)
 <template>
   <u-button @click="visible = true">打开对话框</u-button>
 
-  <u-dialog v-model="visible" title="提示">
+  <u-dialog v-model="visible" title="提示" style="width: 680px">
     <p>这是对话框内容</p>
 
     <template #footer="{ close }">

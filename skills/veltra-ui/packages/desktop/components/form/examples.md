@@ -1,5 +1,7 @@
 # UForm 示例
 
+> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model.data`。常规单字段控件不需要手写 `u-form-item` 或 `v-model="model.data.xxx"`；只有自动值绑定无法满足时才使用 `UFormItem`。
+
 ## 基础 + 校验
 
 ```vue
@@ -75,6 +77,39 @@ async function handleSubmit() {
 </template>
 ```
 
+## 默认作用域插槽：读取 data / model
+
+默认插槽暴露 `{ data, model }`，插槽内带 `field` 的组件仍会自动包裹为 `UFormItem` 并自动绑定值。
+
+```vue
+<script setup lang="ts">
+import { FormModel } from '@veltra/desktop'
+
+const model = new FormModel({
+  type: { value: 'normal', required: true },
+  customValue: { value: '' },
+  remark: { value: '' }
+})
+
+const typeOptions = [
+  { label: '普通', value: 'normal' },
+  { label: '自定义', value: 'custom' }
+]
+</script>
+
+<template>
+  <u-form :model="model" label-width="100px" :cols="1">
+    <template #default="{ data, model: formModel }">
+      <u-select label="类型" field="type" :options="typeOptions" />
+      <u-input v-if="data.type === 'custom'" label="自定义值" field="customValue" />
+      <u-textarea label="备注" field="remark" />
+
+      <u-button @click="formModel.resetData()">重置</u-button>
+    </template>
+  </u-form>
+</template>
+```
+
 ## 设置数据 + 初始值对比
 
 ```vue
@@ -111,29 +146,27 @@ function addField() {
   extras.value.push(f)
   model.add(f, { value: '', required: true })
 }
+
+function deleteLastField() {
+  const f = extras.value.pop()
+  if (!f) return
+  model.delete(f)
+}
 </script>
 
 <template>
   <u-form :model="model" :cols="1">
     <u-input label="名称" field="name" />
 
-    <u-form-item v-for="f in extras" :key="f" :label="`扩展 ${f}`" :field="f">
-      <u-input v-model="model.data[f]" />
-      <u-button
-        size="small"
-        @click="
-          model.delete(f)
-          extras = extras.filter((x) => x !== f)
-        "
-        >删除</u-button
-      >
-    </u-form-item>
+    <u-input v-for="f in extras" :key="f" :label="`扩展 ${f}`" :field="f" />
   </u-form>
+
   <u-button @click="addField">添加字段</u-button>
+  <u-button @click="deleteLastField">删除最后一项</u-button>
 </template>
 ```
 
-## 复杂场景：一个 FormItem 内组合多个组件
+## 需要 FormItem：自定义值更新
 
 ```vue
 <script setup lang="ts">
@@ -141,19 +174,36 @@ import { FormModel } from '@veltra/desktop'
 
 const model = new FormModel({
   name: { value: '', required: true },
-  minPrice: { value: 0 },
-  maxPrice: { value: 100 }
+  priceRange: {
+    value: { min: 0, max: 100 },
+    validator: (value) => (value.min > value.max ? '最低价不能高于最高价' : undefined)
+  }
 })
+
+function updatePriceRange(value: Partial<typeof model.data.priceRange>) {
+  model.data.priceRange = {
+    ...model.data.priceRange,
+    ...value
+  }
+}
 </script>
 
 <template>
   <u-form :model="model" label-width="100px" :cols="1">
     <u-input label="商品名" field="name" />
 
-    <u-form-item label="价格区间">
-      <u-number-input v-model="model.data.minPrice" placeholder="最低" />
+    <u-form-item label="价格区间" field="priceRange">
+      <u-number-input
+        :model-value="model.data.priceRange.min"
+        placeholder="最低"
+        @update:model-value="updatePriceRange({ min: $event })"
+      />
       <span style="margin: 0 8px">—</span>
-      <u-number-input v-model="model.data.maxPrice" placeholder="最高" />
+      <u-number-input
+        :model-value="model.data.priceRange.max"
+        placeholder="最高"
+        @update:model-value="updatePriceRange({ max: $event })"
+      />
     </u-form-item>
   </u-form>
 </template>
@@ -175,17 +225,6 @@ const model = new FormModel({
 model.onChange((field, val) => console.log(field, val))
 // 卸载时清理
 model.offChange(cb)
-```
-
-## 默认插槽作用域（条件渲染）
-
-```vue
-<u-form :model="model">
-  <template #default="{ data }">
-    <u-input label="类型" field="type" />
-    <u-input v-if="data.type === 'custom'" label="自定义值" field="customValue" />
-  </template>
-</u-form>
 ```
 
 ## DynamicFormModel — 接管外部 reactive 数据
