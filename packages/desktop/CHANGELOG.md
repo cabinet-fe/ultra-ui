@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.31
+
+### Patch Changes
+
+- c6da8e9: context-menu 组件外层包裹 Teleport to body，确保菜单不受父容器 overflow/z-index 影响
+  - @veltra/utils@1.1.31
+  - @veltra/styles@1.1.31
+  - @veltra/compositions@1.1.31
+  - @veltra/directives@1.1.31
+  - @veltra/icons@1.1.31
+
 ## 1.1.30
 
 ### Patch Changes
