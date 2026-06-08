@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
-import { computed, createVNode, useSlots } from 'vue'
+import { computed, createVNode } from 'vue'
 
 import type { ComponentSize, TabItem, TabsEmits, TabsProps } from '../../types'
 import { UScroll } from '../scroll'
@@ -55,7 +55,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
 
 const emit = defineEmits<TabsEmits>()
 
-const slots = useSlots() as Record<string, ((props?: any) => any) | undefined>
+const slots = defineSlots<Record<string, (props: any) => any>>()
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 

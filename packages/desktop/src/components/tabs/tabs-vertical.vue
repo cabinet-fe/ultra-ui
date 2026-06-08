@@ -14,7 +14,7 @@
       ]"
       @click.stop="handleClick(item, index)"
     >
-      <slot :name="`name:${item.key}`" :item="item">
+      <slot v-bind="{ item, index }">
         <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
       </slot>
       <span

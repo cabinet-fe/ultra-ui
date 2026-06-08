@@ -33,7 +33,7 @@
           ]"
           @click.stop="handleClick(item, index)"
         >
-          <slot :name="`name:${item.key}`" :item="item">
+          <slot v-bind="{ item, index }">
             <span :class="cls.e('item-label')">{{ item.name ?? item.key }}</span>
           </slot>
 
@@ -86,7 +86,7 @@ const props = withDefaults(defineProps<TabsHorizontalProps>(), {
 
 const emit = defineEmits<TabsHorizontalEmits>()
 
-defineSlots<{ [key: `name:${string}`]: (props: { item: TabItem }) => any }>()
+defineSlots<{ default: (props: { item: TabItem }) => any }>()
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 

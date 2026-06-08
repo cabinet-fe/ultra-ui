@@ -38,8 +38,24 @@ function onClose(item: TabItem, index: number) {
 </u-tabs>
 ```
 
-## 独立水平栏（后台路由栏）
+## 独立水平/垂直标签页组件
+
+我们可以独立使用 `u-tabs-horizontal` 和 `u-tabs-vertical` 组件来实现轻量级的标签页功能：它们们不包含标签页内容，仅负责标签的展示和切换，适合需要自定义内容区域的场景。
 
 ```vue
 <u-tabs-horizontal :items="barItems" v-model="active" rounded closable block @close="onClose" />
+<u-tabs-vertical :items="barItems" v-model="active" rounded closable block @close="onClose" />
+```
+
+## 自定义标签内容（默认插槽）
+
+`u-tabs-horizontal` / `u-tabs-vertical` 可以使用默认插槽统一渲染每个标签内容，作用域为 `{ item, index }`。
+
+```vue
+<u-tabs-horizontal :items="barItems" v-model="active">
+  <template #default="{ item, index }">
+    <u-icon><Star /></u-icon>
+    <span>{{ index + 1 }}. {{ item.name ?? item.key }}</span>
+  </template>
+</u-tabs-horizontal>
 ```
