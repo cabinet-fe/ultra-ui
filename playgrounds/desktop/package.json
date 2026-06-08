@@ -9,9 +9,9 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.1.5",
+    "@cat-kit/core": "^1.1.6",
     "@cat-kit/excel": "^1.0.1",
-    "@cat-kit/fe": "^1.1.5",
+    "@cat-kit/fe": "^1.1.6",
     "@veltra/compositions": "workspace:*",
     "@veltra/desktop": "workspace:*",
     "@veltra/directives": "workspace:*",

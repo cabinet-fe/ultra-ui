@@ -69,9 +69,9 @@
     "lexical": "^0.45.0"
   },
   "peerDependencies": {
-    "@cat-kit/core": ">=1.1.5",
+    "@cat-kit/core": ">=1.1.6",
     "@cat-kit/excel": ">=1.0.0",
-    "@cat-kit/fe": "^1.1.5",
+    "@cat-kit/fe": "^1.1.6",
     "@veltra/compositions": "workspace:*",
     "@veltra/directives": "workspace:*",
     "@veltra/icons": "workspace:*",
