@@ -37,7 +37,33 @@ const data = [
 </template>
 ```
 
-## 自定义列渲染（render 函数）
+## 列插槽
+
+列插槽统一命名为 `#column:{key}`，可以拿到当前行数据进行自定义渲染。和自定义列渲染函数相比，跟推荐使用列插槽，因为更匹配 Vue 单文件的开发习惯，同时还能应用组件自动导入插件，减少引入其它组件的麻烦。
+
+```vue
+<script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+
+const columns = defineTableColumns([
+  { key: 'name', name: '名称', minWidth: 150 },
+  { key: 'action', name: '操作', width: 200, align: 'center' }
+])
+</script>
+
+<template>
+  <u-table :columns="columns" :data="data" row-key="id" border>
+    <template #column:action="{ rowData }">
+      <u-action-group :max="4">
+        <u-action @run="handleEdit(rowData)">编辑</u-action>
+        <u-action need-confirm type="danger" @run="handleDelete(rowData)">删除</u-action>
+      </u-action-group>
+    </template>
+  </u-table>
+</template>
+```
+
+## 自定义列渲染函数
 
 ```vue
 <script setup lang="ts">
@@ -60,30 +86,6 @@ const columns: TableColumn[] = [
 
 <template>
   <u-table :columns="columns" :data="data" border />
-</template>
-```
-
-## 操作列（列插槽 + UAction）
-
-```vue
-<script setup lang="ts">
-import { defineTableColumns } from '@veltra/desktop'
-
-const columns = defineTableColumns([
-  { key: 'name', name: '名称', minWidth: 150 },
-  { key: 'action', name: '操作', width: 200, align: 'center' }
-])
-</script>
-
-<template>
-  <u-table :columns="columns" :data="data" row-key="id" border>
-    <template #column:action="{ rowData }">
-      <u-action-group :max="4">
-        <u-action @run="handleEdit(rowData)">编辑</u-action>
-        <u-action need-confirm type="danger" @run="handleDelete(rowData)">删除</u-action>
-      </u-action-group>
-    </template>
-  </u-table>
 </template>
 ```
 
