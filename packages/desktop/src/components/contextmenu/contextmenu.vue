@@ -4,11 +4,10 @@
       <ul
         :class="[cls.b, cls.m(size)]"
         :style="style"
-        ref="contextMenuRef"
         v-if="visible"
         v-click-outside="handleClickOutside"
       >
-        <UContextMenuItem
+        <UContextmenuItem
           v-for="menu of menus"
           :menu="menu"
           :disabled="getMenuDisabled(menu)"
@@ -27,25 +26,23 @@ import { bem, withUnit, zIndex } from '@veltra/utils'
 import { computed, provide, shallowRef, type CSSProperties } from 'vue'
 
 import type {
-  ContextMenuEmits,
-  ContextMenuItem,
-  ContextMenuProps,
+  ContextmenuEmits,
+  ContextmenuItem,
+  ContextmenuProps,
   ComponentSize
 } from '../../types'
-import UContextMenuItem from './context-menu-item.vue'
-import { ContextMenuDIKey } from './di'
+import UContextmenuItem from './contextmenu-item.vue'
+import { ContextmenuDIKey } from './di'
 
-defineOptions({ name: 'ContextMenu' })
+defineOptions({ name: 'Contextmenu' })
 
-const props = withDefaults(defineProps<ContextMenuProps>(), { width: 150 })
+const props = withDefaults(defineProps<ContextmenuProps>(), { width: 150 })
 
-const emit = defineEmits<ContextMenuEmits>()
+const emit = defineEmits<ContextmenuEmits>()
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
-const cls = bem('context-menu')
-
-const contextMenuRef = shallowRef<HTMLElement>()
+const cls = bem('contextmenu')
 
 const visible = shallowRef(true)
 
@@ -92,7 +89,7 @@ const menus = computed(() => {
   return menus
 })
 
-const getMenuDisabled = (menu: ContextMenuItem) => {
+const getMenuDisabled = (menu: ContextmenuItem) => {
   return typeof menu.disabled === 'function' ? menu.disabled() : menu.disabled
 }
 
@@ -115,5 +112,5 @@ function handleClickOutside() {
   close()
 }
 
-provide(ContextMenuDIKey, { cls })
+provide(ContextmenuDIKey, { cls })
 </script>

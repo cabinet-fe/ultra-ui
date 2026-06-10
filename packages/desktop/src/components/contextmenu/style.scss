@@ -1,0 +1,73 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+// 方便拼接
+$root-name: contextmenu;
+
+@include m.b($root-name) {
+  position: fixed;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  user-select: none;
+  color: fn.use-var(text-color, main);
+  background-color: fn.use-var(bg-color, top);
+  border: 1px solid fn.use-var(border, color);
+  border-radius: calc(fn.use-var(radius, default) + 2px);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 8px 20px rgba(15, 23, 42, 0.08);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
+
+  @include m.e(label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(item) {
+    cursor: pointer;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 28px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    color: inherit;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+    @include m.flex($align: center);
+
+    @include m.is-not(disabled, loading) {
+      &:hover {
+        background-color: var(--u-menu-hover-bg);
+        color: var(--u-menu-hover-color);
+      }
+    }
+
+    @include m.is(disabled, loading) {
+      opacity: 0.55;
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(icon-place) {
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.e(item) {
+      padding: 0 fn.use-var(gap, $size);
+      min-height: calc(var(--u-menu-height-#{$size}) - 8px);
+      border-radius: calc(fn.use-var(radius, $size) + 1px);
+    }
+  }
+}

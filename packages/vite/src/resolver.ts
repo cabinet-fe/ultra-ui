@@ -67,7 +67,7 @@ const DESKTOP_COMPONENTS = new Set([
   'UCheckboxGroup',
   'UCodeEditor',
   'UConditionEditor',
-  'UContextMenu',
+  'UContextmenu',
   'UDatePanel',
   'UDatePicker',
   'UDateRangePicker',

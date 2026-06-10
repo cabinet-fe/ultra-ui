@@ -23,7 +23,7 @@
 - `UCodeEditor - 代码编辑器`。用于编辑代码或结构化文本内容。
 - `UCollapse / UCollapseItem - 折叠面板`。用于将多段内容折叠展开，减少页面纵向占用。
 - `UConditionEditor - 条件编辑器`。用于可视化编辑条件分组和条件表达式。
-- `UContextMenu - 右键菜单`。用于在右键或指定位置弹出操作菜单。
+- `UContextmenu - 右键菜单`。用于在右键或指定位置弹出操作菜单。
 - `UDatePanel - 日期面板`。用于直接嵌入日期选择面板，不提供输入框外壳。
 - `UDatePicker - 日期选择器`。用于通过输入框和弹层选择单个日期。
 - `UDateRangePicker - 日期范围选择器`。用于通过输入框和弹层选择开始、结束日期。

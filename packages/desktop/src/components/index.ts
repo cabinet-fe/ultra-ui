@@ -66,7 +66,7 @@ export * from './table-editor'
 
 export * from './check-tag'
 
-export * from './context-menu'
+export * from './contextmenu'
 
 export * from './password-input'
 

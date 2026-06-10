@@ -6,7 +6,7 @@
         在此区域右键打开菜单
       </div>
 
-      <u-context-menu
+      <u-contextmenu
         v-if="componentVisible"
         :mouse-position="componentPos"
         :menus="componentMenus"
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <u-context-menu
+      <u-contextmenu
         v-if="overflowVisible"
         :mouse-position="overflowPos"
         :menus="overflowMenus"
@@ -56,7 +56,7 @@
         右键查看动态菜单
       </div>
 
-      <u-context-menu
+      <u-contextmenu
         v-if="dynamicVisible"
         :mouse-position="dynamicPos"
         :menus="getDynamicMenus"
@@ -69,8 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { contextmenu, message } from '@veltra/desktop'
-import type { ContextMenuItem } from '@veltra/desktop'
+import { contextmenu, message, type ContextmenuItem } from '@veltra/desktop'
 import { Copy, Delete, Edit } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 
@@ -86,7 +85,7 @@ const dynamicVisible = shallowRef(false)
 const dynamicPos = shallowRef({ x: 0, y: 0 })
 const canEdit = shallowRef(false)
 
-const componentMenus: ContextMenuItem[] = [
+const componentMenus: ContextmenuItem[] = [
   { label: '编辑', icon: Edit, callback: () => message({ message: '编辑', type: 'info' }) },
   { label: '复制', icon: Copy, callback: () => message({ message: '已复制', type: 'success' }) },
   {
@@ -99,12 +98,12 @@ const componentMenus: ContextMenuItem[] = [
   }
 ]
 
-const overflowMenus: ContextMenuItem[] = [
+const overflowMenus: ContextmenuItem[] = [
   { label: '刷新', callback: () => message({ message: '已刷新' }) },
   { label: '导出', callback: () => message({ message: '导出中...', type: 'info' }) }
 ]
 
-function getDynamicMenus(): ContextMenuItem[] {
+function getDynamicMenus(): ContextmenuItem[] {
   return [
     { label: '新增', callback: () => message({ message: '新增' }) },
     {

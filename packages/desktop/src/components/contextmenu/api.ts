@@ -1,17 +1,17 @@
 import { createVNode, render, type VNode } from 'vue'
 
-import type { ContextMenuProps } from '../../types'
-import MContextMenu from './context-menu.vue'
+import type { ContextmenuProps } from '../../types'
+import UContextmenu from './contextmenu.vue'
 
 let node: VNode
 
 export const contextmenu = {
-  pop(options: ContextMenuProps): void {
+  pop(options: ContextmenuProps): void {
     if (node) {
       render(null, document.body)
     }
 
-    node = createVNode(MContextMenu, {
+    node = createVNode(UContextmenu, {
       ...options,
       onDestroy() {
         render(null, document.body)

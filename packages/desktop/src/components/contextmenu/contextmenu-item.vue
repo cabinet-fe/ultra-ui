@@ -29,17 +29,17 @@ import { Loading } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, shallowRef } from 'vue'
 
-import type { ContextMenuItem } from '../../types'
+import type { ContextmenuItem } from '../../types'
 import { UIcon } from '../icon'
-import { ContextMenuDIKey } from './di'
+import { ContextmenuDIKey } from './di'
 
-defineOptions({ name: 'ContextMenuItem' })
+defineOptions({ name: 'ContextmenuItem' })
 
-const { menu } = defineProps<{ menu: ContextMenuItem }>()
+const { menu } = defineProps<{ menu: ContextmenuItem }>()
 
 const emit = defineEmits<{ (e: 'click-start'): void; (e: 'click-end'): void }>()
 
-const { cls } = inject(ContextMenuDIKey)!
+const { cls } = inject(ContextmenuDIKey)!
 
 const loading = shallowRef(false)
 
