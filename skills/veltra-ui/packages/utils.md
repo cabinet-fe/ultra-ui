@@ -71,7 +71,7 @@ cls.b // 'u-button'
 cls.e('icon') // 'u-button__icon'
 cls.m('primary') // 'u-button--primary'
 cls.em('icon', 'left') // 'u-button__icon--left'
-cls.is('disabled', true) // 'is-disabled'（false 返回 ''）
+bem.is('disabled', true) // 'is-disabled'（false 返回 ''）
 cls.create('custom') // 'u-button-custom'
 ```
 
@@ -79,7 +79,7 @@ cls.create('custom') // 'u-button-custom'
 
 ```vue
 <template>
-  <button :class="[cls.b, cls.m(size), cls.is('disabled', disabled)]">
+  <button :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]">
     <span :class="cls.e('icon')"><u-icon /></span>
     <span :class="cls.e('text')"><slot /></span>
   </button>
