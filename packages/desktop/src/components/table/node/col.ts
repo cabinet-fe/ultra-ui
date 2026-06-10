@@ -94,9 +94,16 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     return this.data.resizable ?? true
   }
 
+  /**
+   * 是否在列配置上显式指定了 width，或经表头拖拽锁定。
+   * 此类列不参与剩余宽度的均分。
+   */
+  explicitWidth: boolean
+
   style: Record<string, number> = reactive({})
 
   constructor(val: TableColumn, index: number, depth: number, parent?: ColumnNode) {
     super(isReactive(val) ? val : shallowReactive(val), index, depth, parent)
+    this.explicitWidth = val.width !== undefined
   }
 }

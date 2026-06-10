@@ -34,22 +34,23 @@ export function useColResize(options: Options): UseColResizeReturned {
 
     if (!containerWidth || !leafColumns.value.length) return
 
-    // 如果每个列都设置了宽度， 有两种情况
-    // 1. 表格容器宽度大于所有列宽度之和，则将剩下的宽度均匀分布到所有列中
-    // 2. 表格容器宽度小于所有列宽度之和，则什么也不管
-    const allColumnsWidth = leafColumns.value.reduce((acc, cur) => {
-      return acc + (cur.width ?? cur.minWidth!)
-    }, 0)
+    const flexColumns = leafColumns.value.filter((column) => !column.explicitWidth)
+    const fixedWidthTotal = leafColumns.value
+      .filter((column) => column.explicitWidth)
+      .reduce((acc, cur) => acc + (cur.width ?? cur.minWidth!), 0)
+    const flexBaseTotal = flexColumns.reduce((acc, cur) => acc + cur.minWidth!, 0)
+    const totalBase = fixedWidthTotal + flexBaseTotal
 
-    if (allColumnsWidth < containerWidth) {
-      const freeWidth = containerWidth - allColumnsWidth
+    // 仅未显式指定 width 的列参与剩余宽度均分；指定了 width 的列保持该宽度。
+    if (flexColumns.length > 0 && totalBase < containerWidth) {
+      const allocatedWidth = (containerWidth - totalBase) / flexColumns.length
 
-      const allocatableColumns = leafColumns.value.filter((column) => column.resizable !== false)
-
-      const allocatedWidth = freeWidth / allocatableColumns.length
-
-      allocatableColumns.forEach((column) => {
-        column.width = (column.width ?? column.minWidth!) + allocatedWidth
+      flexColumns.forEach((column) => {
+        column.width = column.minWidth! + allocatedWidth
+      })
+    } else {
+      flexColumns.forEach((column) => {
+        column.data.width = undefined
       })
     }
 
@@ -110,6 +111,7 @@ export function useColResize(options: Options): UseColResizeReturned {
       originWidth + e.pageX - originX,
       currentResizeColumn!.minWidth!
     )
+    currentResizeColumn!.explicitWidth = true
 
     showResizeLine.value = false
     currentResizeColumn = null

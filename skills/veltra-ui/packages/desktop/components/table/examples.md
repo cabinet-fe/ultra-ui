@@ -1,5 +1,9 @@
 # UTable 示例
 
+## 列宽
+
+叶子列未设置 `minWidth` 时，默认最小宽度为 **100**。`width` 不能小于 `minWidth`；若需要 **100 以下**的列宽，请同时指定 `minWidth`，例如 `{ width: 60, minWidth: 60 }`。只写 `width: 60` 会被抬到 100，看起来就像宽度未生效。
+
 ## 基础 + 多选
 
 ```vue
@@ -11,7 +15,7 @@ const checked = ref<any[]>([])
 const columns = defineTableColumns(
   [
     { key: 'name', name: '姓名', width: 120 },
-    { key: 'age', name: '年龄', width: 80, align: 'center' },
+    { key: 'age', name: '年龄', width: 80, minWidth: 80, align: 'center' },
     { key: 'address', name: '地址', minWidth: 200 }
   ],
   { align: 'center' }
@@ -96,7 +100,7 @@ const columns: TableColumn[] = [
 import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
-  { key: 'name', name: '名称', minWidth: 200 },
+  { key: 'name', name: '名称' },
   { key: 'size', name: '大小', width: 100, align: 'right' }
 ])
 
@@ -126,7 +130,7 @@ import { defineTableColumns } from '@veltra/desktop'
 const columns = defineTableColumns([
   { key: 'name', name: '商品', minWidth: 150 },
   { key: 'price', name: '单价', width: 100, align: 'right', summary: true },
-  { key: 'quantity', name: '数量', width: 80, align: 'center' },
+  { key: 'quantity', name: '数量', width: 80, minWidth: 80, align: 'center' },
   {
     key: 'total',
     name: '金额',
