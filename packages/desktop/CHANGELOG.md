@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.32
+
+### Patch Changes
+
+- 003cc7b: contextmenu 支持子菜单嵌套与图标列对齐
+  - @veltra/utils@1.1.32
+  - @veltra/styles@1.1.32
+  - @veltra/compositions@1.1.32
+  - @veltra/directives@1.1.32
+  - @veltra/icons@1.1.32
+
 ## 1.1.31
 
 ### Patch Changes
