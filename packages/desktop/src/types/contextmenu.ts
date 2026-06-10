@@ -11,6 +11,8 @@ export interface ContextmenuItem {
   description?: string
   /** 菜单图标 */
   icon?: Component
+  /** 子菜单 */
+  children?: ContextmenuItem[]
   /** 菜单点击时的回调 */
   callback?: () => any
   /** 是否禁用 */

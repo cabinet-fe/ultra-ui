@@ -46,6 +46,35 @@
       />
     </CustomCard>
 
+    <CustomCard title="混合图标">
+      <p class="desc">
+        同级菜单项中只要有一项带图标，该层会统一预留图标列；若全部无图标则不占空白。
+      </p>
+      <div class="context-area" @contextmenu.prevent="onMixedIconContextMenu">
+        右键查看混合图标菜单
+      </div>
+
+      <u-contextmenu
+        v-if="mixedIconVisible"
+        :mouse-position="mixedIconPos"
+        :menus="mixedIconMenus"
+        @destroy="mixedIconVisible = false"
+      />
+    </CustomCard>
+
+    <CustomCard title="多级子菜单">
+      <p class="desc">支持无限层级嵌套，子菜单在右侧弹出，贴边时自动向左展开。</p>
+      <div class="context-area" @contextmenu.prevent="onNestedContextMenu">右键查看多级子菜单</div>
+
+      <u-contextmenu
+        v-if="nestedVisible"
+        :mouse-position="nestedPos"
+        :menus="nestedMenus"
+        :width="140"
+        @destroy="nestedVisible = false"
+      />
+    </CustomCard>
+
     <CustomCard title="动态菜单">
       <u-checkbox v-model="canEdit">允许编辑（控制「编辑」项禁用状态）</u-checkbox>
       <div
@@ -83,6 +112,10 @@ const overflowPos = shallowRef({ x: 0, y: 0 })
 
 const dynamicVisible = shallowRef(false)
 const dynamicPos = shallowRef({ x: 0, y: 0 })
+const mixedIconVisible = shallowRef(false)
+const mixedIconPos = shallowRef({ x: 0, y: 0 })
+const nestedVisible = shallowRef(false)
+const nestedPos = shallowRef({ x: 0, y: 0 })
 const canEdit = shallowRef(false)
 
 const componentMenus: ContextmenuItem[] = [
@@ -101,6 +134,39 @@ const componentMenus: ContextmenuItem[] = [
 const overflowMenus: ContextmenuItem[] = [
   { label: '刷新', callback: () => message({ message: '已刷新' }) },
   { label: '导出', callback: () => message({ message: '导出中...', type: 'info' }) }
+]
+
+const mixedIconMenus: ContextmenuItem[] = [
+  { label: '编辑', icon: Edit, callback: () => message({ message: '编辑', type: 'info' }) },
+  { label: '复制', callback: () => message({ message: '已复制', type: 'success' }) },
+  { label: '删除', icon: Delete, callback: () => message({ message: '已删除', type: 'warn' }) }
+]
+
+const nestedMenus: ContextmenuItem[] = [
+  {
+    label: '新建',
+    icon: Edit,
+    children: [
+      { label: '文档', callback: () => message({ message: '新建文档' }) },
+      { label: '表格', callback: () => message({ message: '新建表格' }) },
+      {
+        label: '更多',
+
+        children: [
+          { label: '幻灯片', callback: () => message({ message: '新建幻灯片' }) },
+          {
+            label: '高级',
+            children: [
+              { label: '宏', callback: () => message({ message: '新建宏' }) },
+              { label: '插件', callback: () => message({ message: '新建插件' }) }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  { label: '复制', icon: Copy, callback: () => message({ message: '已复制', type: 'success' }) },
+  { label: '删除', icon: Delete, callback: () => message({ message: '已删除', type: 'warn' }) }
 ]
 
 function getDynamicMenus(): ContextmenuItem[] {
@@ -134,6 +200,16 @@ function onPopContextMenu(e: MouseEvent) {
 function onOverflowContextMenu(e: MouseEvent) {
   overflowPos.value = { x: e.clientX, y: e.clientY }
   overflowVisible.value = true
+}
+
+function onMixedIconContextMenu(e: MouseEvent) {
+  mixedIconPos.value = { x: e.clientX, y: e.clientY }
+  mixedIconVisible.value = true
+}
+
+function onNestedContextMenu(e: MouseEvent) {
+  nestedPos.value = { x: e.clientX, y: e.clientY }
+  nestedVisible.value = true
 }
 
 function onDynamicContextMenu(e: MouseEvent) {

@@ -1,25 +1,24 @@
 <template>
   <li
-    :class="[
-      cls.e('item'),
-      bem.is('disabled', disabled),
-      bem.is('loading', loading),
-      cls.em('item', 'menu')
-    ]"
+    :class="[cls.e('item'), bem.is('disabled', disabled), bem.is('loading', loading)]"
     v-ripple="!disabled && !loading"
     @click="handleClickMenu"
   >
-    <u-icon v-if="loading" :class="bem.is('loading')">
-      <Loading />
-    </u-icon>
-    <template v-else>
-      <u-icon v-if="menu.icon">
-        <component :is="menu.icon" />
-      </u-icon>
-      <i v-else :class="cls.e('icon-place')"></i>
-    </template>
+    <div :class="cls.e('item-content')">
+      <template v-if="showIconColumn">
+        <u-icon v-if="loading" :class="bem.is('loading')">
+          <Loading />
+        </u-icon>
+        <u-icon v-else-if="menu.icon">
+          <component :is="menu.icon" />
+        </u-icon>
+        <i v-else :class="cls.e('icon-place')"></i>
+      </template>
 
-    <span :class="cls.e('label')">{{ menu.label }}</span>
+      <span :class="cls.e('label')">{{ menu.label }}</span>
+
+      <i v-if="showArrowColumn" :class="cls.e('arrow-place')"></i>
+    </div>
   </li>
 </template>
 
@@ -31,37 +30,34 @@ import { computed, inject, shallowRef } from 'vue'
 
 import type { ContextmenuItem } from '../../types'
 import { UIcon } from '../icon'
-import { ContextmenuDIKey } from './di'
+import { ContextmenuPanelDIKey, ContextmenuRootDIKey } from './di'
+import { getMenuDisabled } from './helper'
 
 defineOptions({ name: 'ContextmenuItem' })
 
 const { menu } = defineProps<{ menu: ContextmenuItem }>()
 
-const emit = defineEmits<{ (e: 'click-start'): void; (e: 'click-end'): void }>()
-
-const { cls } = inject(ContextmenuDIKey)!
+const { cls, onItemClickStart, onItemClickEnd } = inject(ContextmenuRootDIKey)!
+const { showIconColumn, showArrowColumn } = inject(ContextmenuPanelDIKey)!
 
 const loading = shallowRef(false)
-
-const disabled = computed(() => {
-  return (typeof menu.disabled === 'function' ? menu.disabled() : menu.disabled) ?? false
-})
+const disabled = computed(() => getMenuDisabled(menu))
 
 function handleClickMenu() {
   if (disabled.value || loading.value) return
-  emit('click-start')
+  onItemClickStart()
   loading.value = true
-  const result = menu.callback?.()
 
-  if (result instanceof Promise) {
-    return result
-      .then(() => {})
-      .finally(() => {
-        emit('click-end')
-        loading.value = false
-      })
+  const done = () => {
+    onItemClickEnd()
+    loading.value = false
   }
-  loading.value = false
-  emit('click-end')
+
+  const result = menu.callback?.()
+  if (result instanceof Promise) {
+    result.finally(done)
+  } else {
+    done()
+  }
 }
 </script>

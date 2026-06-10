@@ -1,5 +1,13 @@
 import type { BEM } from '@veltra/utils'
-import type { InjectionKey } from 'vue'
+import type { ComputedRef, InjectionKey } from 'vue'
 
-export const ContextmenuDIKey: InjectionKey<{ cls: BEM<'contextmenu'> }> =
-  Symbol('ContextmenuDIKey')
+export const ContextmenuRootDIKey: InjectionKey<{
+  cls: BEM<'contextmenu'>
+  onItemClickStart: () => void
+  onItemClickEnd: () => void
+}> = Symbol('ContextmenuRootDIKey')
+
+export const ContextmenuPanelDIKey: InjectionKey<{
+  showIconColumn: ComputedRef<boolean>
+  showArrowColumn: ComputedRef<boolean>
+}> = Symbol('ContextmenuPanelDIKey')

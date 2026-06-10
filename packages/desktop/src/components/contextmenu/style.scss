@@ -1,12 +1,10 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
 
-// 方便拼接
 $root-name: contextmenu;
+$arrow-size: 12px;
 
-@include m.b($root-name) {
-  position: fixed;
+@mixin panel-surface {
   margin: 0;
   padding: 4px;
   list-style: none;
@@ -23,6 +21,13 @@ $root-name: contextmenu;
     0 8px 20px rgba(15, 23, 42, 0.08);
   backdrop-filter: fn.use-var(bg-filter);
   -webkit-backdrop-filter: fn.use-var(bg-filter);
+}
+
+@include m.b($root-name) {
+  $b: &;
+
+  position: fixed;
+  @include panel-surface;
 
   @include m.e(label) {
     flex: 1;
@@ -31,40 +36,97 @@ $root-name: contextmenu;
   }
 
   @include m.e(item) {
+    position: relative;
     cursor: pointer;
-    gap: 8px;
-    padding: 0 8px;
-    min-height: 28px;
-    border-radius: calc(fn.use-var(radius, default) + 1px);
-    color: inherit;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
-    @include m.flex($align: center);
-
-    @include m.is-not(disabled, loading) {
-      &:hover {
-        background-color: var(--u-menu-hover-bg);
-        color: var(--u-menu-hover-color);
-      }
-    }
+    padding: 0;
 
     @include m.is(disabled, loading) {
       opacity: 0.55;
       cursor: not-allowed;
       color: fn.use-var(text-color, disabled);
     }
+
+    @include m.is(open) {
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 100%;
+        width: 6px;
+        height: 100%;
+      }
+
+      @include m.is(flip-x) {
+        &::after {
+          left: auto;
+          right: 100%;
+        }
+      }
+    }
+  }
+
+  @include m.e(item-content) {
+    gap: 8px;
+    width: 100%;
+    padding: 0 8px;
+    min-height: 28px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+    @include m.flex($align: center);
+
+    #{$b}__item:not(.is-disabled):not(.is-loading) > & {
+      &:hover {
+        background-color: var(--u-menu-hover-bg);
+        color: var(--u-menu-hover-color);
+      }
+    }
+  }
+
+  #{$b}__item.is-open:not(.is-disabled) > #{$b}__item-content {
+    background-color: var(--u-menu-hover-bg);
+    color: var(--u-menu-hover-color);
   }
 
   @include m.e(icon-place) {
-    width: 16px;
+    width: 1em;
     flex-shrink: 0;
+  }
+
+  @include m.e(arrow) {
+    width: $arrow-size;
+    flex-shrink: 0;
+    font-size: $arrow-size;
+    opacity: 0.65;
+  }
+
+  @include m.e(arrow-place) {
+    width: $arrow-size;
+    flex-shrink: 0;
+  }
+
+  @include m.e(sub) {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: -4px;
+    min-width: 120px;
+    width: max-content;
+    @include panel-surface;
+
+    @include m.is(flip-x) {
+      left: auto;
+      right: 100%;
+      margin-left: 0;
+      margin-right: -4px;
+    }
   }
 
   @include m.size using ($size) {
     font-size: fn.use-var(font-size-main, $size);
 
-    @include m.e(item) {
+    @include m.e(item-content) {
       padding: 0 fn.use-var(gap, $size);
       min-height: calc(var(--u-menu-height-#{$size}) - 8px);
       border-radius: calc(fn.use-var(radius, $size) + 1px);
