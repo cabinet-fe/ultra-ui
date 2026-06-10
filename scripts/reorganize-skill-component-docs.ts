@@ -11,7 +11,7 @@ const COMPONENTS_DOC_DIR = join(REPO_ROOT, 'skills/veltra-ui/packages/desktop/co
 const TYPES_SRC_DIR = join(REPO_ROOT, 'packages/desktop/src/types')
 
 const COMPANION_API_SECTIONS: Record<string, string> = {
-  'context-menu': `## contextmenu 函数式 API
+  contextmenu: `## contextmenu 函数式 API
 
 \`\`\`ts
 import { contextmenu } from '@veltra/desktop'

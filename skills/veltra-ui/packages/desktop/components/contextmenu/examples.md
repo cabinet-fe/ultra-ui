@@ -35,7 +35,7 @@ function onContextMenu(e: MouseEvent) {
     右键点击此区域
   </div>
 
-  <u-context-menu v-if="visible" :mouse-position="pos" :menus="menus" @destroy="visible = false" />
+  <u-contextmenu v-if="visible" :mouse-position="pos" :menus="menus" @destroy="visible = false" />
 </template>
 ```
 
@@ -54,7 +54,7 @@ function getMenus(): ContextMenuItem[] {
 ## 自定义宽度 + 尺寸
 
 ```vue
-<u-context-menu
+<u-contextmenu
   v-if="visible"
   :mouse-position="pos"
   :menus="menus"

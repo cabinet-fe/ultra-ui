@@ -26,7 +26,7 @@ export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
       importLine: "import { createEmptyGroup, createEmptyLeaf } from '@veltra/desktop'"
     }
   ],
-  'context-menu': [
+  contextmenu: [
     {
       name: 'contextmenu',
       purpose: '在鼠标位置弹出右键菜单（函数式 API）。',
