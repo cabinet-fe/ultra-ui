@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.33
+
+### Patch Changes
+
+- b029d8b: fix(desktop): 表格列宽分配逻辑，显式指定 width 的列不参与剩余宽度均分
+  - @veltra/utils@1.1.33
+  - @veltra/styles@1.1.33
+  - @veltra/compositions@1.1.33
+  - @veltra/directives@1.1.33
+  - @veltra/icons@1.1.33
+
 ## 1.1.32
 
 ### Patch Changes
