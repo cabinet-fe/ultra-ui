@@ -93,7 +93,7 @@ export const UTableRow: DefineComponent<{ row: ITableRow; index: number }> = def
         const cellSpan = tableProps.mergeCell?.(expandCtx)
 
         if (!cellSpan || (cellSpan.colspan && cellSpan.rowspan)) {
-          const marginLeft = tableProps.tree ? (row.depth - 1) * 14 : 0
+          const marginLeft = tableProps.tree ? row.depth * 14 : 0
           expandCell = (
             <UTabelCell
               cellClass={getCellClass(_expandColumn)}
