@@ -24,11 +24,12 @@
           v-for="option of tags"
           :key="option[valueKey]"
           :closable="!disabled"
+          size="small"
           @close="handleClose(option)"
         >
           {{ option[labelKey] }}
         </u-tag>
-        <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
+        <u-tag v-if="restTag" size="small"> {{ restTag }}+ </u-tag>
       </div>
 
       <transition name="zoom-in" mode="out-in">
@@ -127,7 +128,7 @@
 
   <div v-else-if="model?.length" :class="[cls.m(size), cls.e('readonly-tags')]">
     <div :class="cls.e('tags')">
-      <u-tag v-for="option of tags" :key="option[valueKey]">
+      <u-tag v-for="option of tags" :key="option[valueKey]" size="small">
         {{ option[labelKey] }}
       </u-tag>
     </div>
@@ -330,12 +331,12 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
       createdOptions.value = [...createdOptions.value, created]
       checkedSet.add(created)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(created).get(valueKey)]
+      model.value = [...(model.value ?? []), chainObj(created).get(valueKey)!]
       queryString.value = ''
     } else if (!checkedSet.has(option)) {
       checkedSet.add(option)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(option).get(valueKey)]
+      model.value = [...(model.value ?? []), chainObj(option).get(valueKey)!]
     }
   } else {
     checkedSet.delete(option)
@@ -357,7 +358,7 @@ const handleCheckAll = (checked: boolean) => {
       if (!option.__isTemp) checkedSet.add(option)
     })
     internalChange = true
-    model.value = Array.from(checkedSet).map((o) => chainObj(o).get(valueKey))
+    model.value = Array.from(checkedSet).map((o) => chainObj(o).get(valueKey)!)
   } else {
     checkedSet.clear()
     internalChange = true
@@ -410,7 +411,7 @@ const handleCreateByEnter = () => {
     if (!checkedSet.has(existingCreated)) {
       checkedSet.add(existingCreated)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(existingCreated).get(valueKey)]
+      model.value = [...(model.value ?? []), chainObj(existingCreated).get(valueKey)!]
     }
     queryString.value = ''
     emitChange()
@@ -423,7 +424,7 @@ const handleCreateByEnter = () => {
     if (!checkedSet.has(exactMatch)) {
       checkedSet.add(exactMatch)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(exactMatch).get(valueKey)]
+      model.value = [...(model.value ?? []), chainObj(exactMatch).get(valueKey)!]
     }
     queryString.value = ''
     emitChange()
