@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.34
+
+### Patch Changes
+
+- ec5375a: fix(table): 修复 tree 模式下行缩进计算错误
+  - @veltra/utils@1.1.34
+  - @veltra/styles@1.1.34
+  - @veltra/compositions@1.1.34
+  - @veltra/directives@1.1.34
+  - @veltra/icons@1.1.34
+
 ## 1.1.33
 
 ### Patch Changes
