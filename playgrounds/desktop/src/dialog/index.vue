@@ -29,7 +29,7 @@
       :modal="modal"
       :transition="dialogTransition"
       :auto-scroll="false"
-      style="width: 80%"
+      style="width: 80%; height: 96vh"
       title="对话框标题"
     >
       <div style="height: 100%">height: 100%, 在全屏时生效</div>

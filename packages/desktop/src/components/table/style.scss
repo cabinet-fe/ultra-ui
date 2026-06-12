@@ -145,7 +145,7 @@ $root-name: table;
   @include m.e(head) {
     @include m.bem($root-name, cell) {
       background-color: var(--u-table-header-bg);
-      font-weight: normal;
+      font-weight: 500;
       color: var(--u-table-header-color);
     }
   }

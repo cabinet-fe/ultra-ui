@@ -4,6 +4,7 @@ import App from './App.vue'
 import { router } from './router'
 
 import '@veltra/styles/normalize'
+import '@veltra/desktop/components/loading/style.js'
 import '@veltra/desktop/components/message/style.js'
 import '@veltra/desktop/components/message-confirm/style.js'
 import '@veltra/desktop/components/notification/style.js'

@@ -24,11 +24,15 @@ export function useMaximum(options: Options): Returned {
 
   const maximized = shallowRef(false)
 
+  let needRmoveHeight = false
+
   const maximizeTransition = useTransition('css', {
     target: dialogRef,
     name: 'dialog-maximize',
     keepEnterTo: true,
     afterLeave() {
+      if (!maximized.value || !needRmoveHeight) return
+      needRmoveHeight = false
       dialogRef.value && removeStyles(dialogRef.value, ['height'])
     }
   })
@@ -40,7 +44,10 @@ export function useMaximum(options: Options): Returned {
     if (!dom) return
     if (maxim) {
       // 先设置一个高度才会有过渡动画
-      setStyles(dom, { height: `${dom.offsetHeight}px` })
+      if (!dom.style.height) {
+        needRmoveHeight = true
+        setStyles(dom, { height: `${dom.offsetHeight}px` })
+      }
       maximizeTransition.enter()
     } else {
       maximizeTransition.leave()
