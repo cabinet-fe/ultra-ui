@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.1.36
+
+### Patch Changes
+
+- 25259dd: 修复 Dialog 最大化过渡时的临时高度清除逻辑，并在 Loading 组件中新增 morph 动画类型并重构部分动画效果。
+  - @veltra/utils@1.1.36
+  - @veltra/styles@1.1.36
+  - @veltra/compositions@1.1.36
+  - @veltra/directives@1.1.36
+  - @veltra/icons@1.1.36
+
 ## 1.1.35
 
 ### Patch Changes
