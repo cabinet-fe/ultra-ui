@@ -1,6 +1,4 @@
-import './dialog-fade-scale.scss'
-import './dialog-pop.scss'
-import './dialog-scale.scss'
+import './fade-scale.scss'
 import './fade.scss'
 import './slide.scss'
 import './spring.scss'
