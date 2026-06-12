@@ -124,12 +124,10 @@ $root-name: table;
     z-index: 1;
     user-select: none;
 
-    &:hover {
-      @include m.bem($root-name, cell) {
-        box-shadow:
-          -1px 0px var(--u-table-border-color) inset,
-          0px -1px var(--u-table-border-color) inset;
-      }
+    @include m.bem($root-name, cell) {
+      background-color: var(--u-table-header-bg);
+      font-weight: 500;
+      color: var(--u-table-header-color);
     }
 
     @include m.is(multistage) {
@@ -139,14 +137,6 @@ $root-name: table;
         border-bottom: 1px solid var(--u-table-border-color);
         margin-bottom: -1px;
       }
-    }
-  }
-
-  @include m.e(head) {
-    @include m.bem($root-name, cell) {
-      background-color: var(--u-table-header-bg);
-      font-weight: 500;
-      color: var(--u-table-header-color);
     }
   }
 
