@@ -1,0 +1,26 @@
+// 平滑缩放 — 简洁专业，类似 macOS 风格
+// 仅使用 scale/opacity，不与拖拽 translate 冲突
+
+.fade-scale-enter-active {
+  will-change: scale, opacity;
+  transition:
+    scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.25s ease;
+}
+
+.fade-scale-leave-active {
+  will-change: scale, opacity;
+  transition:
+    scale 0.2s ease-in,
+    opacity 0.15s ease-in;
+}
+
+.fade-scale-enter-from {
+  scale: 0.8;
+  opacity: 0;
+}
+
+.fade-scale-leave-to {
+  scale: 0.9;
+  opacity: 0;
+}

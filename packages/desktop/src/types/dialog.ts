@@ -1,5 +1,8 @@
 import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
+/** 对话框过渡动画名称 */
+export type DialogTransition = 'fade-scale'
+
 /** 对话框组件属性 */
 export interface DialogProps {
   /** 显示或隐藏 */
@@ -14,6 +17,8 @@ export interface DialogProps {
   modal?: boolean
   /** 全屏 */
   fullscreen?: boolean
+  /** 弹框过渡动画，默认为 spring */
+  transition?: DialogTransition
 }
 
 /** 对话框组件定义的事件 */

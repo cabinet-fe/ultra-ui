@@ -1,5 +1,4 @@
 import '../icon/style'
 import '../scroll/style'
-import '@veltra/styles/transitions/fade.scss'
-import '@veltra/styles/transitions/spring.scss'
+import '@veltra/styles/transitions/fade-scale.scss'
 import './style.scss'

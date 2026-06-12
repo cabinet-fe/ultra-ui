@@ -10,7 +10,7 @@
         @keyup.esc="close"
         tabindex="0"
       >
-        <transition name="spring" @after-leave="onAfterDialogLeave">
+        <transition :name="transition" @after-leave="onAfterDialogLeave">
           <div
             v-if="dialogVisible"
             v-bind="$attrs"
@@ -51,7 +51,6 @@
             <u-scroll
               tag="section"
               :class="cls.e('body')"
-              ref="bodyRef"
               :content-style="{ height: maximized ? '100%' : undefined }"
               @transitionend.stop
               @transitioncancel.stop
@@ -59,7 +58,7 @@
               <slot v-bind="{ maximized }" />
             </u-scroll>
 
-            <section ref="footerRef" :class="footerCls" v-if="$slots.footer">
+            <section :class="footerCls" v-if="$slots.footer">
               <slot name="footer" v-bind="{ close }" />
             </section>
           </div>
@@ -79,7 +78,6 @@ import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'
 import { shallowRef, watch, computed, provide, nextTick } from 'vue'
 
 import type { DialogProps, DialogEmits, DialogExposed, ComponentSize } from '../../types'
-import type { ScrollExposed } from '../../types'
 import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
 import { UScroll } from '../scroll'
@@ -91,7 +89,8 @@ defineOptions({ name: 'Dialog', inheritAttrs: false })
 const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,
   modelValue: true,
-  autoScroll: true
+  autoScroll: true,
+  transition: 'fade-scale'
 })
 const emit = defineEmits<DialogEmits>()
 
@@ -118,12 +117,6 @@ const dialogRef = shallowRef<HTMLDivElement>()
 
 /** 弹框头部模板引用 */
 const headerRef = shallowRef<HTMLDivElement>()
-
-/** 弹框body模板引用 */
-const bodyRef = shallowRef<ScrollExposed>()
-
-/** 弹框footer模板引用 */
-const footerRef = shallowRef<HTMLDivElement>()
 
 const visible = defineModel<boolean>({ default: false })
 

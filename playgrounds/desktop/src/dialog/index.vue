@@ -17,11 +17,17 @@
       <u-checkbox v-model="modal">模态</u-checkbox>
     </div>
 
+    <div style="margin: 12px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+      <span>动画：</span>
+      <u-radio-group v-model="dialogTransition" :items="transitions" type="button" />
+    </div>
+
     <u-button @click="visible = true">打开</u-button>
 
     <u-dialog
       v-model="visible"
       :modal="modal"
+      :transition="dialogTransition"
       :auto-scroll="false"
       style="width: 80%"
       title="对话框标题"
@@ -58,12 +64,15 @@
 
 <script lang="ts" setup>
 import { useTransition } from '@veltra/compositions'
-import type { ButtonExposed } from '@veltra/desktop'
+import type { ButtonExposed, DialogTransition } from '@veltra/desktop'
 import { setStyles } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
 const visible = shallowRef(false)
 const modal = shallowRef(true)
+
+const transitions = ['fade-scale'].map((n) => ({ label: n, value: n }))
+const dialogTransition = shallowRef<DialogTransition>('fade-scale')
 
 const buttonRef = shallowRef<ButtonExposed>()
 const buttonDom = computed(() => {
