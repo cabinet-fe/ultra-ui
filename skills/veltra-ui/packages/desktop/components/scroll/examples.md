@@ -24,10 +24,10 @@
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { ScrollExposed, ScrollPosition } from '@veltra/desktop'
+import { useTemplateRef } from 'vue'
+import type { ScrollPosition } from '@veltra/desktop'
 
-const scrollRef = ref<ScrollExposed>()
+const scrollRef = useTemplateRef('scroll')
 
 function scrollToBottom() {
   scrollRef.value?.scrollTo({ y: 9999 })
@@ -52,7 +52,7 @@ function handleResize(targets: HTMLElement[]) {
     <u-button size="small" @click="scrollToBottom">滚到底部</u-button>
   </div>
 
-  <u-scroll ref="scrollRef" height="300px" @scroll="handleScroll" @resize="handleResize">
+  <u-scroll ref="scroll" height="300px" @scroll="handleScroll" @resize="handleResize">
     <p v-for="i in 100" :key="i">第 {{ i }} 行</p>
   </u-scroll>
 </template>

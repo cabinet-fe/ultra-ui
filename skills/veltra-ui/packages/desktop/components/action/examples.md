@@ -64,9 +64,8 @@ const columns = defineTableColumns([
 ```vue
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import type { ActionGroupExposed } from '@veltra/desktop'
 
-const groupRef = useTemplateRef<ActionGroupExposed>('group')
+const groupRef = useTemplateRef('group')
 
 const handleRun = () => {
   // ... 执行操作后关闭下拉

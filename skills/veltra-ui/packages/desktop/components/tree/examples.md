@@ -26,10 +26,9 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import type { TreeExposed } from '@veltra/desktop'
+import { shallowRef, useTemplateRef } from 'vue'
 
-const treeRef = shallowRef<TreeExposed>()
+const treeRef = useTemplateRef('tree')
 const checked = shallowRef<string[]>([])
 const query = shallowRef('')
 
@@ -40,7 +39,7 @@ function onSearch() {
 
 <template>
   <u-input v-model="query" placeholder="搜索节点" @input="onSearch" />
-  <u-tree ref="treeRef" :data="data" checkable v-model:checked="checked" style="height: 300px" />
+  <u-tree ref="tree" :data="data" checkable v-model:checked="checked" style="height: 300px" />
 </template>
 ```
 

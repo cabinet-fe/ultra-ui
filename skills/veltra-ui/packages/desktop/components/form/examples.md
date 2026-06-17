@@ -1,17 +1,16 @@
 # UForm 示例
 
-> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径的值。校验规则通过控件或 `UFormItem` 的 `rules` 属性声明；调用 `formRef.validate()` 触发校验。
+> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径的值。校验规则通过控件或 `UFormItem` 的 `rules` 属性声明；调用 `formRef.validate()` 触发全部字段校验，或传入 `keys` 仅校验指定字段。字段值变化时会自动重新校验（`reset()` 期间会抑制）。
 >
-> 完整 playground 见 `playgrounds/desktop/src/form/index.vue`：单页综合示例，涵盖常用表单控件及验证 / 清空验证 / 重置。
+> 下方示例涵盖常用表单控件及验证、按字段校验、清除校验与重置。
 
 ## 基础 + 校验
 
 ```vue
 <script setup lang="ts">
-import type { FormExposed } from '@veltra/desktop'
-import { reactive, shallowRef } from 'vue'
+import { reactive, useTemplateRef } from 'vue'
 
-const formRef = shallowRef<FormExposed>()
+const formRef = useTemplateRef('form')
 
 const formData = reactive({ username: '', email: '', age: 18, customField: '' })
 
@@ -22,7 +21,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <u-form ref="formRef" :model="formData" label-width="100px" :cols="1">
+  <u-form ref="form" :model="formData" label-width="100px" :cols="1">
     <u-input
       label="用户名"
       field="username"
@@ -62,6 +61,37 @@ const formData = reactive({ name: '', contact: { email: '', phone: '' } })
 </template>
 ```
 
+## 按字段校验
+
+```vue
+<script setup lang="ts">
+import { reactive, useTemplateRef } from 'vue'
+
+const formRef = useTemplateRef('form')
+const formData = reactive({ username: '', email: '' })
+
+async function handleSubmit() {
+  // 校验全部
+  const valid = await formRef.value?.validate()
+  if (valid) console.log('提交:', formData)
+}
+
+async function saveDraft() {
+  const valid = await formRef.value?.validate(['username'])
+  if (valid) console.log('存草稿:', formData)
+}
+</script>
+
+<template>
+  <u-form ref="form" :model="formData" :cols="1">
+    <u-input label="用户名" field="username" :rules="{ required: true }" />
+    <u-input label="邮箱" field="email" :rules="{ required: true, preset: 'email' }" />
+  </u-form>
+  <u-button type="primary" @click="saveDraft">存草稿</u-button>
+  <u-button type="primary" @click="handleSubmit">提交</u-button>
+</template>
+```
+
 ## 清除校验和重置
 
 ```vue
@@ -76,7 +106,7 @@ const formData = reactive({ name: '' })
   <u-form ref="form" :model="formData" :cols="1">
     <u-input label="姓名" field="name" :rules="{ required: true }" />
   </u-form>
-  <u-button @click="formRef?.clearValidate()">清除校验</u-button>
-  <u-button @click="formRef?.reset()">重置</u-button>
+  <u-button @click="formRef.value?.clearValidate()">清除校验</u-button>
+  <u-button @click="formRef.value?.reset()">重置</u-button>
 </template>
 ```

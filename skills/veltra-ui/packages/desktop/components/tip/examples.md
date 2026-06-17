@@ -23,17 +23,18 @@
 ## 自定义触发元素
 
 ```vue
+<script setup lang="ts">
+import { useTemplateRef } from 'vue'
+
+const customEl = useTemplateRef('customEl')
+</script>
+
 <template>
   <UTip content="提示文本" :trigger-dom="customEl">
     <span>这段文本不会作为定位基准</span>
   </UTip>
   <div ref="customEl">实际定位基准元素</div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-const customEl = ref<HTMLElement>()
-</script>
 ```
 
 ## 自定义方向和对齐

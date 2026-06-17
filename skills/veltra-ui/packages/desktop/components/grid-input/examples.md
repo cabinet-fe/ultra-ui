@@ -50,10 +50,9 @@ const code = ref('')
 
 ```vue
 <script setup lang="ts">
-import type { GridInputExposed } from '@veltra/desktop'
-import { shallowRef } from 'vue'
+import { useTemplateRef } from 'vue'
 
-const inputRef = shallowRef<GridInputExposed>()
+const inputRef = useTemplateRef('input')
 
 const handleClear = () => {
   inputRef.value?.clear()
@@ -61,7 +60,7 @@ const handleClear = () => {
 </script>
 
 <template>
-  <u-grid-input ref="inputRef" />
+  <u-grid-input ref="input" />
   <u-button @click="handleClear">清空</u-button>
 </template>
 ```

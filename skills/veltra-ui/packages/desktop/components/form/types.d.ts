@@ -23,7 +23,8 @@ export interface FormProps extends ComponentProps {
 
 export interface _FormExposed {
   el: ShallowRef<HTMLElement | null | undefined>
-  validate: () => Promise<boolean>
+  /** 校验全部已注册字段；传入 keys 时仅校验指定字段 */
+  validate: (keys?: string[]) => Promise<boolean>
   clearValidate: () => void
   /** 将 model 恢复为最近一次 props.model 引用变更时的快照，并清除校验 */
   reset: () => void

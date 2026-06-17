@@ -12,18 +12,17 @@ veltra-ui 是一套 Vue 3 UI 体系。
 ## 使用方式
 
 - 先按需求检索下方包文档入口，不要把完整 API 预加载到上下文。
-- 组件相关先看 `packages/desktop/`，再按组件名检索具体 API、示例和类型。
-- 样式、主题与 Design Tokens 看 `packages/styles/`；工具、组合式方法、指令、图标、Vite 集成分别看对应入口。
+- 组件相关先看 `desktop/` 文档目录，再按组件名检索具体 API、示例和类型。
+- 样式、主题与 Design Tokens 看 `styles/`；工具、组合式方法、指令、图标、Vite 集成分别看对应入口。
 
 ## 文档结构
 
 ```
-packages/
-  desktop/          ← 桌面组件
-  styles/           ← 样式、主题、Design Tokens
-  compositions.md   ← 组合式方法
-  directives.md     ← 指令
-  icons.md          ← 图标
-  utils.md          ← 工具函数 / 共享类型
-  vite.md           ← Vite 工具
+desktop/            ← 桌面组件
+styles/             ← 样式、主题、Design Tokens
+compositions.md     ← 组合式方法
+directives.md       ← 指令
+icons.md            ← 图标
+utils.md            ← 工具函数 / 共享类型
+vite.md             ← Vite 工具
 ```

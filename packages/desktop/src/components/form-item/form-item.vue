@@ -66,6 +66,10 @@ const { size, readonly } = useFallbackProps([formProps ?? {}, props], {
 })
 
 const errorTip = shallowRef<string>()
+/** 递增序号，丢弃过期的异步校验结果 */
+let validateSeq = 0
+/** 最近一次 validate 的 Promise，供过期调用等待最新结果 */
+let latestValidatePromise: Promise<boolean> = Promise.resolve(true)
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value), bem.is('error', !!errorTip.value)].join(' ')
@@ -85,9 +89,17 @@ const fieldItem = defineField({
   async validate() {
     if (!props.field || !formProps?.model || !props.rules || !shouldValidate?.()) return true
 
-    errorTip.value = await validateField(formProps.model, props.field, props.rules)
+    const seq = ++validateSeq
 
-    return !errorTip.value
+    latestValidatePromise = validateField(formProps.model!, props.field!, props.rules!).then(
+      (tip) => {
+        if (seq !== validateSeq) return latestValidatePromise
+
+        errorTip.value = tip
+        return !errorTip.value
+      }
+    )
+    return latestValidatePromise
   }
 })
 

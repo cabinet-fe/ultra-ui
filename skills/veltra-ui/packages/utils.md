@@ -34,7 +34,8 @@ import type {
 | `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                |
 | `ComponentProps`      | `{ size?: ComponentSize }`                                            |
 | `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span` |
-| `FormContextProps`    | UForm 通过 provide 下发的上下文形状                                   |
+| `FormContextProps`    | UForm 通过 provide 下发的上下文形状（`model`、`labelWidth`、`readonly` 等） |
+| `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                               |
 | `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）          |
 | `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）            |
 

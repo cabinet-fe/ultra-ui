@@ -38,7 +38,16 @@ config.paginator.pageSize // number
 config.paginator.pageSizeOptions // number[]
 ```
 
-`config` 只读；`config.size` 变化自动同步 `<html>` size 类名。完整 `State` 见 `packages/compositions/src/use-config/index.ts`。
+`config` 只读；`config.size` 变化自动同步 `<html>` size 类名。`State` 形状：
+
+```ts
+interface State {
+  animation: boolean
+  size: ComponentSize
+  form: { labelWidth?: number | string }
+  paginator: { pageSize: number; pageSizeOptions: number[] }
+}
+```
 
 ### `useFallbackProps()` — 多级属性回退
 

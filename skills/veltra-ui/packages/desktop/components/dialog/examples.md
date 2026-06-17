@@ -65,11 +65,10 @@ const visible = ref(false)
 
 ```vue
 <script setup lang="ts">
-import type { FormExposed } from '@veltra/desktop'
-import { reactive, ref, shallowRef } from 'vue'
+import { reactive, ref, useTemplateRef } from 'vue'
 
 const visible = ref(false)
-const formRef = shallowRef<FormExposed>()
+const formRef = useTemplateRef('form')
 const formData = reactive({ name: '' })
 
 async function handleConfirm(close: () => void) {
@@ -83,7 +82,7 @@ async function handleConfirm(close: () => void) {
 
 <template>
   <u-dialog v-model="visible" title="新建">
-    <u-form ref="formRef" :model="formData">
+    <u-form ref="form" :model="formData">
       <u-input label="名称" field="name" :rules="{ required: true }" />
     </u-form>
 

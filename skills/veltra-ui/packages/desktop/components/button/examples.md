@@ -38,9 +38,8 @@ import { Search, Edit, Refresh } from '@veltra/icons/normal'
 ```vue
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import type { ButtonExposed } from '@veltra/desktop'
 
-const btnRef = useTemplateRef<ButtonExposed>('btn')
+const btnRef = useTemplateRef('btn')
 // btnRef.value?.el → HTMLButtonElement
 </script>
 
