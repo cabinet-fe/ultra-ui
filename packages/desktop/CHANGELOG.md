@@ -1,5 +1,20 @@
 # @veltra/desktop
 
+## 1.2.0
+
+### Minor Changes
+
+- a9b9eff: 重构表单体系：移除 `IFormModel` / `dynamic-form-model`，`UForm` 改为使用 `Record` 数据模型；校验逻辑下沉至 `form-item` 与各表单控件 `rules` 属性；从 `@veltra/utils` 移除 `validate` 导出及相关类型。
+
+### Patch Changes
+
+- Updated dependencies [a9b9eff]
+  - @veltra/utils@2.0.0
+  - @veltra/compositions@2.0.0
+  - @veltra/directives@2.0.0
+  - @veltra/styles@2.0.0
+  - @veltra/icons@2.0.0
+
 ## 1.1.36
 
 ### Patch Changes
