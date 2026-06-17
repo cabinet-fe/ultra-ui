@@ -1,7 +1,7 @@
-import type { FormFieldComponentProps } from './form-field'
+import type { FormComponentProps } from '@veltra/utils'
 
 /** 复选框组, 用来选择一组数据组件属性 */
-export interface CheckboxGroupProps extends FormFieldComponentProps {
+export interface CheckboxGroupProps extends FormComponentProps {
   /** 值 */
   modelValue?: Array<any>
   /** 复选框项 */

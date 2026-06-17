@@ -1,16 +1,14 @@
-import type { ColorType } from '@veltra/utils'
-
-import type { FormFieldComponentProps } from './form-field'
+import type { ColorType, FormComponentProps } from '@veltra/utils'
 
 /** 复选框组件属性 */
-export interface CheckboxProps extends FormFieldComponentProps {
+export interface CheckboxProps extends FormComponentProps {
   /** 部分选中 */
   indeterminate?: boolean
   /** 是否选中  */
   modelValue?: boolean
 }
 
-export interface CheckboxButtonProps extends FormFieldComponentProps {
+export interface CheckboxButtonProps extends FormComponentProps {
   /** 是否选中  */
   modelValue?: boolean
   /** 是否圆角 */

@@ -1,10 +1,8 @@
-import type { DeconstructValue } from '@veltra/utils'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
-import type { FormFieldComponentProps } from './form-field'
-
 /** multi-select组件属性 */
-export interface MultiSelectProps extends FormFieldComponentProps {
+export interface MultiSelectProps extends FormComponentProps {
   /** 绑定值 */
   modelValue?: Array<any>
   /** 列表选项 */

@@ -1,7 +1,5 @@
 import type { TreeNode } from '@cat-kit/core'
-import type { DeconstructValue } from '@veltra/utils'
-
-import type { FormFieldComponentProps } from './form-field'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 export interface CascadeNode<
   Data extends Record<string, any> = Record<string, any>
@@ -12,7 +10,7 @@ export interface CascadeNode<
 }
 
 /** 级联选择器组件属性 */
-export interface CascadeProps extends FormFieldComponentProps {
+export interface CascadeProps extends FormComponentProps {
   /**
    * 分隔符
    * @default '/'

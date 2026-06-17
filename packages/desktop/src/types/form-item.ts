@@ -1,7 +1,7 @@
-import type { FormFieldComponentProps } from './form-field'
+import type { FormComponentProps } from '@veltra/utils'
 
 /** 组件项组件属性 */
-export interface FormItemProps extends FormFieldComponentProps {
+export interface FormItemProps extends FormComponentProps {
   /** 标签宽度 */
   labelWidth?: string | number
 }

@@ -1,6 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils'
-
-import type { FormFieldComponentProps } from './form-field'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 export interface VariableItem {
   label: string
@@ -15,7 +13,7 @@ export interface VariableItem {
 export type ExpressionSelectableLevels = 'leaf' | 'any'
 
 /** 表达式编辑器组件属性 */
-export interface ExpressionEditorProps extends FormFieldComponentProps {
+export interface ExpressionEditorProps extends FormComponentProps {
   modelValue?: string
   placeholder?: string
   /** 变量列表 */

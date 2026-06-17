@@ -8,9 +8,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-const formData = reactive({
-  dateRange: { startDate: '', endDate: '' }
-})
+const formData = reactive({ dateRange: { startDate: '', endDate: '' } })
 </script>
 
 <template>

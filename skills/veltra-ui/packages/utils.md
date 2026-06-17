@@ -27,17 +27,17 @@ import type {
 
 ## 共享类型
 
-| 类型                  | 含义                                                                  |
-| --------------------- | --------------------------------------------------------------------- |
-| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                     |
-| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`           |
-| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                |
-| `ComponentProps`      | `{ size?: ComponentSize }`                                            |
-| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span` |
+| 类型                  | 含义                                                                        |
+| --------------------- | --------------------------------------------------------------------------- |
+| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                           |
+| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`                 |
+| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                      |
+| `ComponentProps`      | `{ size?: ComponentSize }`                                                  |
+| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span`       |
 | `FormContextProps`    | UForm 通过 provide 下发的上下文形状（`model`、`labelWidth`、`readonly` 等） |
-| `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                               |
-| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）          |
-| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）            |
+| `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                                |
+| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）                |
+| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）                  |
 
 详细字段见 `node_modules/@veltra/utils/dist/index.d.ts`。
 

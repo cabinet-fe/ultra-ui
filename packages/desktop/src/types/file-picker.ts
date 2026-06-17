@@ -1,9 +1,7 @@
-import type { DeconstructValue } from '@veltra/utils'
-
-import type { FormFieldComponentProps } from './form-field'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 文件上传器组件属性 */
-export interface UploaderProps extends FormFieldComponentProps {
+export interface UploaderProps extends FormComponentProps {
   /** 渲染标签 */
   tag?: string
   /** 允许上传的文件类型 */

@@ -1,6 +1,4 @@
-import type { DeconstructValue } from '@veltra/utils'
-
-import type { FormFieldComponentProps } from './form-field'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
 /** 富文本数据格式 */
 export type RichTextFormat = 'html' | 'json'
@@ -23,7 +21,7 @@ export type ToolbarItem =
   | '|'
 
 /** 富文本编辑器组件属性 */
-export interface RichTextEditorProps extends FormFieldComponentProps {
+export interface RichTextEditorProps extends FormComponentProps {
   modelValue?: string
   /** 数据格式：html 或 json */
   format?: RichTextFormat
