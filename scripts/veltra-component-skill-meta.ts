@@ -4,11 +4,6 @@ export type ComponentSkillHelper = { name: string; purpose: string; importLine: 
 export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
   'batch-edit': [
     {
-      name: 'FormModel',
-      purpose: '批量编辑右侧表单的数据与校验模型。',
-      importLine: "import { FormModel } from '@veltra/desktop'"
-    },
-    {
       name: 'defineTableColumns',
       purpose: '与 UTable 相同，为左侧表格列批量设置公共列属性。',
       importLine: "import { defineTableColumns } from '@veltra/desktop'"
@@ -33,29 +28,7 @@ export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
       importLine: "import { contextmenu } from '@veltra/desktop'"
     }
   ],
-  form: [
-    {
-      name: 'FormModel',
-      purpose:
-        '静态字段表单：构造时定义全部字段；`model.data` 与带 `field` 的子组件自动双向绑定（勿手写 v-model / u-form-item）。',
-      importLine: "import { FormModel, formField, nestField } from '@veltra/desktop'"
-    },
-    {
-      name: 'DynamicFormModel',
-      purpose: '运行时 `add` / `delete` 增删字段；`data` 可替换为外部 reactive 对象。',
-      importLine: "import { DynamicFormModel } from '@veltra/desktop'"
-    },
-    {
-      name: 'formField',
-      purpose: '字段无 `value` 初始值或需显式泛型时包装表单项定义。',
-      importLine: "import { formField } from '@veltra/desktop'"
-    },
-    {
-      name: 'nestField',
-      purpose: '嵌套对象字段（如 `profile.name`）必须用其包裹子字段。',
-      importLine: "import { nestField } from '@veltra/desktop'"
-    }
-  ],
+  form: [],
   loading: [
     {
       name: 'vLoading',

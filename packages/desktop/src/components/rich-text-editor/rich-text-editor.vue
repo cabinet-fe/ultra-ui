@@ -152,30 +152,33 @@ function initEditor() {
   // Listen for content changes
   cleanupFns.push(
     editorInstance.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        const root = $getRoot()
-        const textContent = root.getTextContent()
-        showPlaceholder.value = textContent.trim().length === 0
+      editorState.read(
+        () => {
+          const root = $getRoot()
+          const textContent = root.getTextContent()
+          showPlaceholder.value = textContent.trim().length === 0
 
-        if (isComposing) return
+          if (isComposing) return
 
-        let value: string
-        if (props.format === 'json') {
-          value = JSON.stringify(editorState.toJSON())
-        } else {
-          value = $generateHtmlFromNodes(editorInstance)
-        }
+          let value: string
+          if (props.format === 'json') {
+            value = JSON.stringify(editorState.toJSON())
+          } else {
+            value = $generateHtmlFromNodes(editorInstance)
+          }
 
-        // Avoid circular updates: only emit if content really changed
-        if (value !== model.value) {
-          isComposing = true
-          model.value = value
-          // Use microtask to reset after Vue processes the update
-          queueMicrotask(() => {
-            isComposing = false
-          })
-        }
-      })
+          // Avoid circular updates: only emit if content really changed
+          if (value !== model.value) {
+            isComposing = true
+            model.value = value
+            // Use microtask to reset after Vue processes the update
+            queueMicrotask(() => {
+              isComposing = false
+            })
+          }
+        },
+        { editor: editorInstance }
+      )
     })
   )
 
@@ -229,7 +232,7 @@ watch(model, (newVal) => {
   const editorInstance = editor.value
 
   // Compare current content to avoid circular updates
-  editorInstance.getEditorState().read(() => {
+  editorInstance.read(() => {
     let currentValue: string
     if (props.format === 'json') {
       currentValue = JSON.stringify(editorInstance.getEditorState().toJSON())

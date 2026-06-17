@@ -1,10 +1,12 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
 import type { StyleValue } from 'vue'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** 分组输入组件属性 */
 export interface GroupInputProps<
   GroupItem extends Record<string, any> = Record<string, any>
-> extends FormComponentProps {
+> extends FormFieldComponentProps {
   modelValue?: GroupItem[]
   /** 最大数量 */
   max?: number

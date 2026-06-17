@@ -84,12 +84,15 @@ let cleanupListener: (() => void) | null = null
 function setupListener(editorInstance: LexicalEditor) {
   cleanupListener?.()
   cleanupListener = editorInstance.registerUpdateListener(({ editorState }) => {
-    editorState.read(() => {
-      const selection = $getSelection()
-      if (!$isRangeSelection(selection)) return
+    editorState.read(
+      () => {
+        const selection = $getSelection()
+        if (!$isRangeSelection(selection)) return
 
-      updateToolbarState(selection)
-    })
+        updateToolbarState(selection)
+      },
+      { editor: editorInstance }
+    )
   })
 }
 
@@ -235,24 +238,25 @@ function onHeadingChange(event: Event) {
 }
 
 function toggleLink(editorInstance: LexicalEditor) {
-  editorInstance.getEditorState().read(() => {
+  let shouldRemoveLink = false
+
+  editorInstance.read(() => {
     const selection = $getSelection()
     if (!$isRangeSelection(selection)) return
 
-    const anchorNode = selection.anchor.getNode()
-    const parent = anchorNode.getParent()
-
-    if ($isLinkNode(parent)) {
-      // Remove link
-      editorInstance.dispatchCommand(TOGGLE_LINK_COMMAND, null)
-    } else {
-      // Insert link with prompt
-      const url = prompt('请输入链接地址:', 'https://')
-      if (url && url !== 'https://') {
-        editorInstance.dispatchCommand(TOGGLE_LINK_COMMAND, url)
-      }
-    }
+    const parent = selection.anchor.getNode().getParent()
+    shouldRemoveLink = $isLinkNode(parent)
   })
+
+  if (shouldRemoveLink) {
+    editorInstance.dispatchCommand(TOGGLE_LINK_COMMAND, null)
+    return
+  }
+
+  const url = prompt('请输入链接地址:', 'https://')
+  if (url && url !== 'https://') {
+    editorInstance.dispatchCommand(TOGGLE_LINK_COMMAND, url)
+  }
 }
 
 function getTitle(item: ToolbarItem): string {

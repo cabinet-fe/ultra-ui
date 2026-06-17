@@ -1,7 +1,9 @@
-import type { FormComponentProps, DeconstructValue } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** 自动补全组件组件属性 */
-export interface AutoCompleteProps extends FormComponentProps {
+export interface AutoCompleteProps extends FormFieldComponentProps {
   modelValue?: string
   /** 占位符 */
   placeholder?: string

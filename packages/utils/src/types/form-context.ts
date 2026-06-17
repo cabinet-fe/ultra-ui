@@ -18,23 +18,30 @@ export interface FormContextProps {
   readonly?: boolean
   /** 是否隐藏提示 */
   noTips?: boolean
-  /** 表单数据模型 */
-  model?: FormContextModel
+  /** 表单数据 */
+  model?: Record<string, any>
 }
 
 type FormPropsLike = Partial<FormContextProps> & Record<string, any>
 
+export interface FormFieldItem {
+  validate: () => Promise<boolean>
+  clearValidate?: () => void
+}
+
 type DIContext = {
   /** 表单属性 */
   formProps: FormPropsLike
+  /** 注册表单字段 */
+  registerField: (field: string, item: FormFieldItem) => void
+  /** 注销表单字段 */
+  unregisterField: (field: string) => void
 }
 
 const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')
 
-export function provideFormContext<T extends FormPropsLike>(props: T): void {
-  if (props) {
-    provide(FormComponentDIKey, { formProps: props })
-  }
+export function provideFormContext(context: DIContext): void {
+  provide(FormComponentDIKey, context)
 }
 
 export function injectFormContext(): {

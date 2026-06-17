@@ -1,7 +1,6 @@
 import type { DeconstructValue } from '@veltra/utils'
 
 import type { ActionProps } from './action'
-import type { IFormModel } from './form'
 import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
 
 /** 批量编辑列 */
@@ -20,12 +19,12 @@ export interface BatchEditColumn extends TableColumn {
 export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete' | 'view' | 'createChild'
 
 /** 批量编辑组件属性 */
-export interface BatchEditProps<Model extends IFormModel = IFormModel> extends TableProps {
+export interface BatchEditProps extends TableProps {
   /**
-   * 表单模型
-   * @description 该模型优先级要大于列配置
+   * 表单数据
+   * @description 与右侧 UForm 绑定的 reactive 对象
    */
-  model?: Model
+  model?: Record<string, any>
   /** 表格标题 */
   title?: string
   /**

@@ -2,6 +2,7 @@ import { last, o, safeRun } from '@cat-kit/core'
 import { computed, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
 import type { TableRow, BatchEditEmits, BatchEditProps, TableExposed } from '../../types'
+import type { FormExposed } from '../../types/form'
 
 /** 按索引路径在原始数据树中定位节点（等价于历史 Forest.visit 路径访问） */
 function visitDataByIndexPath<T extends Record<string, unknown>>(
@@ -29,6 +30,7 @@ interface Options {
   props: BatchEditProps
   emit: BatchEditEmits
   tableRef: ShallowRef<TableExposed | undefined>
+  formRef: ShallowRef<FormExposed | undefined>
 }
 
 export interface BatchEditStates {
@@ -58,8 +60,19 @@ export interface EditReturned {
   handleInsertChild: (row: TableRow) => void
 }
 
+function snapshotData(data?: Record<string, any>) {
+  return safeRun(() => JSON.parse(JSON.stringify(data ?? {})), {})
+}
+
+function replaceModelData(model: Record<string, any>, data: Record<string, any>) {
+  for (const key of Object.keys(model)) {
+    delete model[key]
+  }
+  Object.assign(model, data)
+}
+
 export function useEdit(options: Options): EditReturned {
-  const { props, emit, tableRef } = options
+  const { props, emit, tableRef, formRef } = options
 
   /** 组件状态 */
   const state = shallowReactive<BatchEditStates>({
@@ -88,19 +101,39 @@ export function useEdit(options: Options): EditReturned {
    * 阶段把规范化后的值再写回模型时被误判为「用户已修改」
    */
   let baselineSnapshot: Record<string, any> | undefined
+  let emptySnapshot: Record<string, any> | undefined
 
   function snapshotModelData() {
-    return safeRun(() => JSON.parse(JSON.stringify(props.model?.data ?? {})), {})
+    return snapshotData(props.model)
   }
+
+  function resetFormData(data?: Record<string, any>) {
+    if (!props.model) return
+    replaceModelData(props.model, snapshotData(data ?? emptySnapshot))
+    formRef.value?.clearValidate()
+  }
+
+  function setFormData(formData: Record<string, any>) {
+    if (!props.model) return
+    replaceModelData(props.model, snapshotData(formData))
+  }
+
+  watch(
+    () => props.model,
+    (model) => {
+      emptySnapshot = snapshotData(model)
+    },
+    { immediate: true }
+  )
 
   watch(
     () => state.row,
     (row) => {
-      props.model?.resetData()
+      resetFormData()
       if (row) {
         state.type = 'update'
         state.visible = true
-        props.model?.setData(row.data)
+        setFormData(row.data)
       } else {
         state.visible = false
       }
@@ -111,16 +144,14 @@ export function useEdit(options: Options): EditReturned {
     { flush: 'sync' }
   )
 
-  const changeCb = (field: string, val: any) => {
-    // 与基线比较 — 同值（如组件 mount 时把当前值再写一次）不算"用户修改"
-    if (baselineSnapshot) {
-      const baseVal = o(baselineSnapshot).get(field)
-      if (isSameValue(baseVal, val)) {
-        return
-      }
-    }
-    state.dataUpdated = true
-  }
+  watch(
+    () => props.model,
+    () => {
+      if (!baselineSnapshot || !state.visible) return
+      state.dataUpdated = !isSameValue(baselineSnapshot, snapshotModelData())
+    },
+    { deep: true }
+  )
 
   function isSameValue(a: any, b: any) {
     if (a === b) return true
@@ -135,19 +166,6 @@ export function useEdit(options: Options): EditReturned {
     }
     return false
   }
-
-  watch(
-    () => props.model,
-    (model, oldModel) => {
-      if (oldModel) {
-        oldModel.offChange(changeCb)
-      }
-      if (model) {
-        model.onChange(changeCb)
-      }
-    },
-    { immediate: true }
-  )
 
   const childrenKey = computed(() => {
     return typeof props.tree === 'string' ? props.tree : 'children'
@@ -183,7 +201,7 @@ export function useEdit(options: Options): EditReturned {
   }
 
   function getInsertData(): Record<string, any> {
-    return safeRun(() => JSON.parse(JSON.stringify(props.model?.data ?? {})), {})
+    return snapshotModelData()
   }
 
   async function runCreate(cb: () => void) {
@@ -193,7 +211,7 @@ export function useEdit(options: Options): EditReturned {
     }
     state.row = undefined
     state.type = 'create'
-    props.model?.resetData()
+    resetFormData()
     cb()
 
     let item: Record<string, any> | undefined = undefined
@@ -201,6 +219,8 @@ export function useEdit(options: Options): EditReturned {
     await nextTick()
 
     state.visible = true
+    baselineSnapshot = snapshotModelData()
+    state.dataUpdated = false
 
     if (item) {
       const row = tableRef.value?.getRowByData(item)
@@ -256,8 +276,9 @@ export function useEdit(options: Options): EditReturned {
     runCreate(() => {
       state.depth = row.depth
       insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
-      const cloned = safeRun(() => JSON.parse(JSON.stringify(row.data ?? {})), {})
-      props.model?.setData(cloned)
+      setFormData(row.data)
+      baselineSnapshot = snapshotModelData()
+      state.dataUpdated = false
     })
   }
 
@@ -285,8 +306,8 @@ export function useEdit(options: Options): EditReturned {
 
     if (!model) return
 
-    model.clearValidate()
-    const valid = await model.validate()
+    formRef.value?.clearValidate()
+    const valid = await formRef.value?.validate()
 
     if (!valid) return
 
@@ -304,13 +325,14 @@ export function useEdit(options: Options): EditReturned {
     if (state.type === 'create') {
       insert(item)
 
-      return model?.resetData()
+      resetFormData()
+      return
     }
     // 更新
     if (state.type === 'update') {
       const { row } = state
       row &&
-        model.allKeys.forEach((key) => {
+        Object.keys(item).forEach((key) => {
           o(row.data).set(key, o(item).get(key))
         })
     }
@@ -354,7 +376,7 @@ export function useEdit(options: Options): EditReturned {
     state.row = undefined
     state.parentRow = undefined
     state.depth = undefined
-    props.model?.resetData()
+    resetFormData()
     insertIndexes.value = []
   }
 

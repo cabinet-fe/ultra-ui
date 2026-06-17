@@ -1,9 +1,11 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json'
 
 /** 代码编辑器组件属性（不支持 `size`） */
-export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
+export interface CodeEditorProps extends Omit<FormFieldComponentProps, 'size'> {
   modelValue?: string
   /** 定义语言 */
   language?: CodeEditorLang

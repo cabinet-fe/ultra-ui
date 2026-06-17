@@ -1,8 +1,10 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
+import type { FormFieldComponentProps } from './form-field'
+
 /** 输入框组件属性 */
-export interface InputProps extends FormComponentProps {
+export interface InputProps extends FormFieldComponentProps {
   /** modelValue */
   modelValue?: string
   /** 占位符 */

@@ -1,201 +1,218 @@
 <template>
   <u-card>
+    <u-card-header>表单综合示例</u-card-header>
+
     <u-card-content>
-      <u-tabs v-model="activeTab" :items="tabItems" keep-alive>
-        <template #basic>
-          <u-form :model="model" label-width="100px" style="margin-top: 16px">
-            <u-input label="用户名" field="account.username" placeholder="请输入用户名" />
-            <u-password-input label="密码" field="account.password" placeholder="请输入密码" />
-            <u-textarea label="简介" field="description" :rows="3" placeholder="请输入简介" />
-            <u-select
-              label="年级"
-              field="grade"
-              :options="gradeList"
-              clearable
-              placeholder="请选择年级"
-            />
-            <u-auto-complete
-              label="城市"
-              field="city"
-              :suggestions="citySuggestions"
-              clearable
-              placeholder="请输入城市"
-            />
-            <u-number-input label="年龄" field="age" :min="0" :max="150" :step="1" />
-            <u-slider label="进度" field="progress" />
-            <u-switch label="启用" field="active" active-text="开" inactive-text="关" />
-            <u-checkbox label="同意协议" field="agree" />
-            <u-date-picker label="生日" field="birthday" clearable placeholder="请选择日期" />
-            <u-palette label="颜色" field="color" />
-          </u-form>
-        </template>
+      <u-form ref="formRef" :model="formData" label-width="110px">
+        <div class="form-section">账号信息</div>
+        <u-input
+          label="用户名"
+          field="account.username"
+          :rules="{ required: true, minLen: [2, '至少 2 个字符'] }"
+          placeholder="请输入用户名"
+        />
 
-        <template #advanced>
-          <u-form :model="model" label-width="120px" style="margin-top: 16px">
-            <u-checkbox-group label="爱好" field="hobbies" :items="hobbyList" />
-            <u-radio-group label="性别" field="gender" :items="genderList" />
-            <u-multi-select
-              label="选修课程"
-              field="courses"
-              :options="courseList"
-              clearable
-              filterable
-              placeholder="请选择课程"
-            />
-            <u-date-range-picker
-              label="假期"
-              field="vacation"
-              clearable
-              :placeholder="['开始日期', '结束日期']"
-            />
-            <u-number-range-input
-              label="分数区间"
-              field="scoreRange"
-              :min="0"
-              :max="100"
-              start-placeholder="最低分"
-              end-placeholder="最高分"
-            />
-            <u-tree-select
-              label="地区"
-              field="region"
-              :data="regionTree"
-              clearable
-              placeholder="请选择地区"
-            />
-            <u-multi-tree-select
-              label="多选地区"
-              field="regionsMulti"
-              :data="regionTree"
-              clearable
-              placeholder="请选择多个地区"
-            />
-            <u-cascade
-              label="地址"
-              field="address"
-              :data="addressTree"
-              clearable
-              placeholder="请选择地址"
-            />
+        <u-form-item label="密码" field="account.password" :rules="{ required: true, minLen: 6 }">
+          <u-password-input v-model="formData.account.password" placeholder="请输入密码" />
+        </u-form-item>
 
-            <u-rich-text-editor label="内容" field="content" placeholder="请输入富文本内容" />
-            <u-code-editor label="代码" field="code" language="js" :default-lines="6" />
-            <u-expression-editor
-              label="表达式"
-              field="expression"
-              :variables="exprVariables"
-              placeholder="请输入表达式，@ 可插入变量"
-            />
-            <u-group-input label="联系人" field="contacts" :max="5" creatable>
-              <template #default="{ item }">
-                <span style="display: flex; gap: 8px; align-items: center">
-                  <u-input v-model="item.name" placeholder="姓名" style="flex: 1" />
-                  <u-input v-model="item.phone" placeholder="电话" style="flex: 1" />
-                </span>
-              </template>
-            </u-group-input>
-          </u-form>
-        </template>
+        <div class="form-section">基础输入</div>
+        <u-textarea
+          label="简介"
+          field="description"
+          :rows="3"
+          span="full"
+          placeholder="请输入简介"
+        />
+        <u-select
+          label="年级"
+          field="grade"
+          :options="gradeList"
+          :rules="{ required: true }"
+          clearable
+          placeholder="请选择年级"
+        />
+        <u-auto-complete
+          label="城市"
+          field="city"
+          :suggestions="citySuggestions"
+          clearable
+          placeholder="请输入城市"
+        />
+        <u-number-input
+          label="年龄"
+          field="age"
+          :min="0"
+          :max="150"
+          :step="1"
+          :rules="{ min: 0, max: 150 }"
+        />
 
-        <template #display>
-          <div style="margin-top: 16px">
-            <div style="margin-bottom: 16px">
-              <strong>表单数据</strong>
-              <pre
-                style="
-                  background: #f5f5f5;
-                  padding: 12px;
-                  border-radius: 4px;
-                  font-size: 13px;
-                  overflow: auto;
-                "
-                >{{ JSON.stringify(dataDisplay, null, 2) }}</pre
-              >
-            </div>
+        <div class="form-section">选择与开关</div>
+        <u-slider label="进度" field="progress" :min="0" :max="100" />
+        <u-switch label="启用" field="active" active-text="开" inactive-text="关" />
+        <u-checkbox
+          label="同意协议"
+          field="agree"
+          :rules="{ validator: (val) => (!val ? '请先同意协议' : '') }"
+        />
+        <u-palette label="主题色" field="color" />
 
-            <div style="margin-bottom: 16px">
-              <strong>校验错误</strong>
-              <pre
-                style="
-                  background: #f5f5f5;
-                  padding: 12px;
-                  border-radius: 4px;
-                  font-size: 13px;
-                  overflow: auto;
-                "
-                >{{ errorsDisplay.length ? JSON.stringify(errorsDisplay, null, 2) : '无' }}</pre
-              >
-            </div>
+        <div class="form-section">日期</div>
+        <u-date-picker
+          label="生日"
+          field="birthday"
+          :rules="{ required: true }"
+          clearable
+          placeholder="请选择日期"
+        />
+        <u-date-range-picker
+          label="假期"
+          field="vacation"
+          clearable
+          :placeholder="['开始日期', '结束日期']"
+        />
 
-            <div style="display: flex; gap: 12px; flex-wrap: wrap">
-              <u-button type="primary" @click="handleValidate">校验表单</u-button>
-              <u-button @click="handleReset">重置表单</u-button>
-              <u-button @click="handleClearValidate">清除校验</u-button>
-              <u-pop-confirm title="确定要清空所有数据吗？" @confirm="handleClearData">
-                <template #reference>
-                  <u-button type="danger">清空数据</u-button>
-                </template>
-              </u-pop-confirm>
-              <u-pop-confirm title="确定要恢复初始数据吗？" @confirm="handleLoadInitialData">
-                <template #reference>
-                  <u-button>加载示例数据</u-button>
-                </template>
-              </u-pop-confirm>
-            </div>
-          </div>
-        </template>
-      </u-tabs>
+        <div class="form-section">多选与单选</div>
+        <u-checkbox-group
+          label="爱好"
+          field="hobbies"
+          :items="hobbyList"
+          :rules="{ required: true }"
+          span="full"
+        />
+        <u-radio-group
+          label="性别"
+          field="gender"
+          :items="genderList"
+          :rules="{ required: true }"
+        />
+        <u-multi-select
+          label="选修课程"
+          field="courses"
+          :options="courseList"
+          clearable
+          filterable
+          placeholder="请选择课程"
+        />
+
+        <div class="form-section">树形与级联</div>
+        <u-tree-select
+          label="地区"
+          field="region"
+          :data="regionTree"
+          :rules="{ required: true }"
+          clearable
+          placeholder="请选择地区"
+        />
+        <u-multi-tree-select
+          label="多选地区"
+          field="regionsMulti"
+          :data="regionTree"
+          clearable
+          placeholder="请选择多个地区"
+        />
+        <u-cascade
+          label="地址"
+          field="address"
+          :data="addressTree"
+          :rules="{ required: true }"
+          clearable
+          placeholder="请选择地址"
+        />
+
+        <div class="form-section">数值区间</div>
+        <u-number-range-input
+          label="分数区间"
+          field="scoreRange"
+          :min="0"
+          :max="100"
+          :rules="{ validator: validateScoreRange }"
+          start-placeholder="最低分"
+          end-placeholder="最高分"
+        />
+
+        <div class="form-section">高级编辑</div>
+        <u-rich-text-editor
+          label="富文本"
+          field="content"
+          span="full"
+          placeholder="请输入富文本内容"
+        />
+        <u-code-editor
+          label="代码"
+          field="code"
+          language="js"
+          span="full"
+          :default-lines="6"
+          :rules="{ required: true }"
+        />
+        <u-expression-editor
+          label="表达式"
+          field="expression"
+          span="full"
+          :variables="exprVariables"
+          placeholder="请输入表达式，@ 可插入变量"
+        />
+        <u-group-input label="联系人" field="contacts" :max="5" creatable span="full">
+          <template #default="{ item }">
+            <span class="contact-row">
+              <u-input v-model="item.name" placeholder="姓名" />
+              <u-input v-model="item.phone" placeholder="电话" />
+            </span>
+          </template>
+        </u-group-input>
+      </u-form>
+
+      <!-- 实时数据预览 -->
+      <div class="form-preview">
+        <strong>表单数据</strong>
+        <pre>{{ JSON.stringify(formData, null, 2) }}</pre>
+      </div>
+    </u-card-content>
+
+    <u-card-content>
+      <!-- 操作按钮 -->
+      <div class="form-actions">
+        <u-button type="primary" @click="handleValidate">验证</u-button>
+        <u-button @click="handleClearValidate">清空验证</u-button>
+        <u-button @click="handleReset">重置</u-button>
+        <u-button @click="handleFillSample">填充示例</u-button>
+      </div>
     </u-card-content>
   </u-card>
 </template>
 
 <script lang="ts" setup>
-import { o } from '@cat-kit/core'
-import { FormModel, nestField } from '@veltra/desktop'
-import { computed, shallowRef } from 'vue'
+import type { FormExposed } from '@veltra/desktop'
+import { reactive, shallowRef } from 'vue'
 
-// --------------- Tab ---------------
+const formRef = shallowRef<FormExposed>()
 
-const activeTab = shallowRef('basic')
-const tabItems = [
-  { key: 'basic', name: '基础控件' },
-  { key: 'advanced', name: '高级控件' },
-  { key: 'display', name: '展示数据' }
-]
-
-// --------------- 独立 Tree 选中（不通过 form field 绑定） ---------------
-
-const treeSelected = shallowRef()
-
-// --------------- 模型定义 ---------------
-
-const model = new FormModel({
-  account: nestField({ username: { value: '' }, password: { value: '' } }),
-  description: { value: '' },
-  grade: { value: '' },
-  city: { value: '' },
-  age: { value: 18 },
-  progress: { value: 50 },
-  active: { value: true },
-  agree: { value: false },
-  birthday: { value: '' },
-  color: { value: '#1890ff' },
-
-  hobbies: { value: [] as string[] },
-  gender: { value: '' },
-  courses: { value: [] as string[] },
-  vacation: { value: undefined as [string, string] | undefined },
-  scoreRange: { value: [0, 100] as [number | undefined, number | undefined] },
-  region: { value: '' },
-  regionsMulti: { value: [] as string[] },
-  address: { value: [] as string[] },
-  content: { value: '' },
-  code: { value: 'console.log("Hello Ultra UI")' },
-  expression: { value: '' },
-  contacts: { value: [] as Record<string, any>[] }
+const formData = reactive({
+  account: { username: '', password: '' },
+  description: '',
+  grade: '',
+  city: '',
+  age: 18,
+  progress: 50,
+  active: true,
+  agree: false,
+  birthday: '',
+  color: '#1890ff',
+  hobbies: [] as string[],
+  gender: '',
+  courses: [] as string[],
+  vacation: undefined as [string, string] | undefined,
+  scoreRange: [0, 100] as [number, number],
+  region: '',
+  regionsMulti: [] as string[],
+  address: [] as string[],
+  content: '',
+  code: 'console.log("Hello Ultra UI")',
+  expression: '',
+  contacts: [] as Record<string, any>[]
 })
-
-// --------------- 静态数据 ---------------
 
 const gradeList = [
   { label: '一年级', value: '1' },
@@ -322,52 +339,30 @@ const exprVariables = [
   { label: '邮箱', value: 'user.email' }
 ]
 
-// --------------- 数据展示 ---------------
-
-const dataDisplay = computed(() => {
-  const d: Record<string, any> = {}
-  model.allKeys.forEach((key) => {
-    d[key] = (model.data as Record<string, any>)[key]
-  })
-  return d
-})
-
-const errorsDisplay = computed(() => {
-  const errs: Record<string, any> = {}
-  model.errors.forEach((val, key) => {
-    errs[key] = val
-  })
-  return errs
-})
-
-// --------------- 操作 ---------------
+/** 分数区间自定义校验：最低分不能高于最高分 */
+function validateScoreRange(val: [number, number] | undefined) {
+  if (!val?.length) return ''
+  const [min, max] = val
+  if (min != null && max != null && min > max) return '最低分不能高于最高分'
+  return ''
+}
 
 async function handleValidate() {
-  try {
-    await model.validate()
-    console.log('校验通过')
-  } catch {
-    console.log('校验失败', [...model.errors.entries()])
-  }
+  const valid = await formRef.value?.validate()
+  console.log(valid ? '校验通过' : '校验失败', formData)
 }
 
 function handleReset() {
-  model.resetData()
-  model.clearValidate()
+  formRef.value?.reset()
 }
 
 function handleClearValidate() {
-  model.clearValidate()
+  formRef.value?.clearValidate()
 }
 
-function handleClearData() {
-  model.allKeys.forEach((key) => {
-    o(model.data).set(key, undefined)
-  })
-}
-
-function handleLoadInitialData() {
-  model.setData({
+/** 填充示例数据，便于快速体验校验与展示 */
+function handleFillSample() {
+  Object.assign(formData, {
     account: { username: '张三', password: 'abc123' },
     description: '这是一段简介文字',
     grade: '3',
@@ -386,11 +381,61 @@ function handleLoadInitialData() {
     region: 'shenzhen',
     regionsMulti: ['guangzhou', 'shenzhen'],
     address: ['guangdong', 'shenzhen', 'nanshan'],
+    content: '<p>示例富文本</p>',
     code: 'const sum = (a, b) => a + b',
+    expression: '@user.name',
     contacts: [
       { name: '联系人一', phone: '13800138000' },
       { name: '联系人二', phone: '13900139000' }
     ]
   })
+  formRef.value?.clearValidate()
 }
 </script>
+
+<style scoped>
+.form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.form-section {
+  grid-column: 1 / -1;
+  margin: 8px 0 4px;
+  padding-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--u-text-color-secondary, #666);
+  border-bottom: 1px solid var(--u-border-color, #eee);
+}
+
+.form-section:first-child {
+  margin-top: 0;
+}
+
+.form-preview {
+  margin-top: 24px;
+}
+
+.form-preview pre {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--u-bg-color-hover, #f5f5f5);
+  border-radius: 4px;
+  font-size: 13px;
+  overflow: auto;
+}
+
+.contact-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.contact-row > :deep(.u-input) {
+  flex: 1;
+}
+</style>

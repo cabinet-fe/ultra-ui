@@ -1,4 +1,6 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** text-editor组件属性 */
 export interface BarType {
@@ -6,7 +8,7 @@ export interface BarType {
   bar: string
 }
 
-export interface TextEditorProps extends FormComponentProps {
+export interface TextEditorProps extends FormFieldComponentProps {
   modelValue?: string
   placeholder?: string
   toolbar?: BarType[]

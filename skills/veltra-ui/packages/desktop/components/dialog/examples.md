@@ -65,16 +65,17 @@ const visible = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-import { FormModel, formField } from '@veltra/desktop'
+import type { FormExposed } from '@veltra/desktop'
+import { reactive, ref, shallowRef } from 'vue'
 
 const visible = ref(false)
-const model = new FormModel({ name: formField({ value: '', required: true }) })
+const formRef = shallowRef<FormExposed>()
+const formData = reactive({ name: '' })
 
 async function handleConfirm(close: () => void) {
-  const valid = await model.validate()
+  const valid = await formRef.value?.validate()
   if (valid) {
-    console.log(model.data)
+    console.log(formData)
     close()
   }
 }
@@ -82,8 +83,8 @@ async function handleConfirm(close: () => void) {
 
 <template>
   <u-dialog v-model="visible" title="新建">
-    <u-form :model="model">
-      <u-input label="名称" field="name" />
+    <u-form ref="formRef" :model="formData">
+      <u-input label="名称" field="name" :rules="{ required: true }" />
     </u-form>
 
     <template #footer="{ close }">

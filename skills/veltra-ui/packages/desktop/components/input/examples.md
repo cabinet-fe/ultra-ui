@@ -52,14 +52,19 @@ const phone = shallowRef('')
 
 ```vue
 <script setup>
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ username: formField({ value: '', required: true }) })
+const formData = reactive({ username: '' })
 </script>
 
 <template>
-  <u-form :model="model">
-    <u-input label="用户名" field="username" placeholder="请输入用户名" />
+  <u-form :model="formData">
+    <u-input
+      label="用户名"
+      field="username"
+      placeholder="请输入用户名"
+      :rules="{ required: true }"
+    />
   </u-form>
 </template>
 ```

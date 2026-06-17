@@ -62,9 +62,9 @@ const departments = [
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ region: formField({ value: '' }) })
+const formData = reactive({ region: '' })
 const regionData = [
   { label: '华东', value: 'east', children: [{ label: '上海', value: 'sh' }] },
   { label: '华南', value: 'south', children: [{ label: '广州', value: 'gz' }] }
@@ -72,7 +72,7 @@ const regionData = [
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-tree-select label="地区" field="region" :data="regionData" />
   </u-form>
 </template>

@@ -4,9 +4,9 @@
 
 ```vue
 <script setup>
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ choice: formField({ value: '' }) })
+const formData = reactive({ choice: '' })
 
 const options = [
   { value: 'a', label: '选项 A' },
@@ -16,7 +16,7 @@ const options = [
 </script>
 
 <template>
-  <u-form :model="model" size="small">
+  <u-form :model="formData" size="small">
     <u-radio-group label="选择" field="choice" :items="options" />
   </u-form>
 </template>

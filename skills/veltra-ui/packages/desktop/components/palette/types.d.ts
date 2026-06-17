@@ -1,4 +1,6 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** 色调 */
 export interface PaletteRGB {
@@ -18,7 +20,7 @@ export interface PaletteHSV {
 export type PaletteColorType = 'HEX' | 'RGB'
 
 /** 调色盘组件属性 */
-export interface PaletteProps extends FormComponentProps {
+export interface PaletteProps extends FormFieldComponentProps {
   modelValue?: string
   disabled?: boolean
   readonly?: boolean

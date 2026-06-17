@@ -21,7 +21,7 @@
       </label>
     </div>
 
-    <u-form :model="model" :disabled="disabled" :readonly="readonly">
+    <u-form :model="formData" :disabled="disabled" :readonly="readonly">
       <u-code-editor
         field="code"
         :language="language"
@@ -29,18 +29,18 @@
         :default-lines="defaultLines"
         label="代码"
         span="full"
+        :rules="{ required: true }"
       ></u-code-editor>
     </u-form>
 
-    <pre class="preview">{{ model.data.code }}</pre>
+    <pre class="preview">{{ formData.code }}</pre>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@veltra/desktop'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
-const model = new FormModel({ code: { required: true } })
+const formData = reactive({ code: '' })
 
 const disabled = ref(false)
 const readonly = ref(false)

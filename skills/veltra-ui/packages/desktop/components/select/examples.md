@@ -109,9 +109,9 @@ const colorOptions = [
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ grade: formField({ value: '' }) })
+const formData = reactive({ grade: '' })
 
 const gradeList = [
   { label: '一年级', value: 1 },
@@ -121,7 +121,7 @@ const gradeList = [
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-select label="年级" field="grade" :options="gradeList" />
   </u-form>
 </template>

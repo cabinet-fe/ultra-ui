@@ -1,7 +1,9 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** 开关组件属性 */
-export interface SwitchProps extends FormComponentProps {
+export interface SwitchProps extends FormFieldComponentProps {
   /** 开关状态 */
   modelValue?: boolean
   /** 打开时显示的文字 */

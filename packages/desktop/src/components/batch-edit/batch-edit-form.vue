@@ -26,23 +26,20 @@
     <u-scroll always :class="cls.e('form-body')" :key="bodyKey">
       <transition name="fade" appear mode="out-in">
         <u-form
+          ref="formComponentRef"
           :model="props.model"
           :readonly="props.readonly"
           @keydown="handleFormKeydown"
           :label-width="props.labelWidth"
         >
-          <template #default="{ data, model }">
-            <slot
-              v-bind="{
-                data,
-                model,
-                row: state.row,
-                depth: state.depth,
-                indexes: insertIndexes,
-                index: state.row?.index
-              }"
-            />
-          </template>
+          <slot
+            v-bind="{
+              row: state.row,
+              depth: state.depth,
+              indexes: insertIndexes,
+              index: state.row?.index
+            }"
+          />
         </u-form>
       </transition>
     </u-scroll>
@@ -75,8 +72,9 @@
 <script lang="ts" setup>
 import { AddChild, Close, EditPen, Plus, View } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, type Component } from 'vue'
+import { computed, inject, shallowRef, toRef, type Component } from 'vue'
 
+import type { _FormExposed, FormExposed } from '../../types/form'
 import { UButton } from '../button'
 import { UForm } from '../form'
 import { UIcon } from '../icon'
@@ -96,6 +94,15 @@ const {
   staticFeatures,
   dynamicFeatures
 } = inject(BatchEditDIKey)!
+
+const formComponentRef = shallowRef<FormExposed>()
+
+defineExpose<_FormExposed>({
+  el: toRef(() => formComponentRef.value?.el),
+  validate: () => formComponentRef.value?.validate() ?? Promise.resolve(true),
+  clearValidate: () => formComponentRef.value?.clearValidate(),
+  reset: () => formComponentRef.value?.reset()
+})
 
 const creatable = computed(() => {
   return (

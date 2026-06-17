@@ -66,16 +66,13 @@ const timestampRef = ref(Date.now())
 
 ```vue
 <script setup>
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({
-  birthday: formField({ value: '' }),
-  joinDate: formField({ value: '' })
-})
+const formData = reactive({ birthday: '', joinDate: '' })
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-date-picker label="生日" field="birthday" />
     <u-date-picker label="入职日期" field="joinDate" />
   </u-form>

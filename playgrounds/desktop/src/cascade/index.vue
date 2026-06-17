@@ -1,7 +1,7 @@
 <template>
   <div>
     <CustomCard title="完全演示">
-      {{ propsModel.data }}
+      {{ propsModel }}
       <u-form style="display: flex; gap: 12px" :model="propsModel">
         <u-checkbox label="多选" field="multiple" @change="value = undefined" />
         <u-checkbox label="严格模式" field="strict" />
@@ -18,7 +18,7 @@
 
       <u-cascade
         v-model="value"
-        v-bind="propsModel.data"
+        v-bind="propsModel"
         :data="data"
         label-key="name"
         value-key="code"
@@ -31,21 +31,20 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { FormModel } from '@veltra/desktop'
-import { shallowRef } from 'vue'
+import { reactive, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 import { area } from './area.js'
 
 const value = shallowRef()
 
-const propsModel = new FormModel({
-  multiple: { value: false },
-  strict: { value: false },
-  filterable: { value: false },
-  separator: { value: '/' },
-  readonly: { value: false },
-  disabled: { value: false }
+const propsModel = reactive({
+  multiple: false,
+  strict: false,
+  filterable: false,
+  separator: '/',
+  readonly: false,
+  disabled: false
 })
 
 const data = shallowRef<any[]>([])

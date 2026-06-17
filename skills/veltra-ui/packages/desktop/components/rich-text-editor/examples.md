@@ -18,13 +18,13 @@ const content = ref('<p>Hello</p>')
 
 ```vue
 <script setup lang="ts">
-import { FormModel } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ content: '' })
+const formData = reactive({ content: '' })
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-rich-text-editor label="内容" field="content" placeholder="请输入富文本内容" />
   </u-form>
 </template>

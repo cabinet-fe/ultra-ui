@@ -1,7 +1,9 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** textarea组件属性 */
-export interface TextareaProps extends FormComponentProps {
+export interface TextareaProps extends FormFieldComponentProps {
   /**
    * 文本域的值
    */

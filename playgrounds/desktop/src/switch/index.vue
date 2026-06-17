@@ -33,7 +33,7 @@
     </CustomCard>
 
     <CustomCard title="在表单中使用">
-      <u-form :model="formModel">
+      <u-form :model="formData">
         <u-switch
           field="enabled"
           label="启用状态"
@@ -43,14 +43,13 @@
         />
         <u-switch field="notification" label="推送通知" />
       </u-form>
-      <div style="margin-top: 16px">表单数据: {{ formModel.data }}</div>
+      <div style="margin-top: 16px">表单数据: {{ formData }}</div>
     </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { FormModel } from '@veltra/desktop'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
 
@@ -58,5 +57,5 @@ const basicSwitch = ref(false)
 const textSwitch = ref(true)
 const trueSwitch = ref(true)
 
-const formModel = new FormModel({ enabled: { value: true }, notification: { value: false } })
+const formData = reactive({ enabled: true, notification: false })
 </script>

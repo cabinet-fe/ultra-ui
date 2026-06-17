@@ -54,13 +54,13 @@ const priceRange = ref<[number | undefined, number | undefined]>([10000, 50000])
 
 ```vue
 <script setup lang="ts">
-import { FormModel } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ priceRange: [0, 1000] as [number | undefined, number | undefined] })
+const formData = reactive({ priceRange: [0, 1000] as [number | undefined, number | undefined] })
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-number-range-input field="priceRange" label="价格区间" currency :precision="2" />
   </u-form>
 </template>

@@ -35,7 +35,7 @@
 - `UFilePicker - 文件选择器`。用于选择或上传本地文件并展示文件列表。
 - `UFileViewer - 文件查看器`。用于预览图片、PDF、视频等文件内容。
 - `UFloatButton - 浮动按钮`。用于在页面固定位置提供高频快捷操作。
-- `UForm - 表单容器`。用于承载 FormModel/DynamicFormModel 并自动绑定带 field 的表单控件。
+- `UForm - 表单容器`。传入 `model`（reactive 数据对象），带 `field` 的控件自动双向绑定；校验通过 `rules` 声明，调用 `formRef.validate()` 触发。
 - `UFormItem - 表单项`。用于在表单中单独控制字段标签、校验和反馈。
 - `UGanttChart - 甘特图`。用于以时间轴形式展示任务跨度和进度。
 - `UGrid - 栅格布局`。用于按列数和间距组织响应式栅格布局。

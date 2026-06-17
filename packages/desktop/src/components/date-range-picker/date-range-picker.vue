@@ -127,6 +127,8 @@ watch(
     if (isUserActive()) return
     if (val?.length === 2) {
       currentRangeDate.value = [date(val[0]), date(val[1])]
+    } else {
+      currentRangeDate.value = undefined
     }
   },
   { immediate: true }

@@ -209,14 +209,16 @@ watch(
 
     if (!options?.length) return
 
-    if (modelValue !== undefined) {
-      const { valueKey } = props
-      currentIndex.value = options.findIndex((option) => o(option).get(valueKey) === modelValue)
+    const { valueKey, labelKey } = props
 
-      selected.value = options[currentIndex.value]
+    if (modelValue !== undefined && modelValue !== null && modelValue !== '') {
+      currentIndex.value = options.findIndex((option) => o(option).get(valueKey) === modelValue)
+      selected.value = currentIndex.value >= 0 ? options[currentIndex.value] : undefined
+      label.value = selected.value ? o(selected.value).get(labelKey) : undefined
     } else {
       currentIndex.value = -1
       selected.value = undefined
+      label.value = undefined
     }
   },
   { immediate: true }

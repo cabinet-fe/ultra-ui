@@ -12,14 +12,14 @@
     <BatchEditList :slots="slots" />
 
     <!-- 编辑表单 -->
-    <BatchEditForm v-slot="scoped">
+    <BatchEditForm ref="formRef" v-slot="scoped">
       <!-- @vue-ignore -->
       <slot name="form" v-bind="scoped" />
     </BatchEditForm>
   </u-layout>
 </template>
 
-<script lang="ts" setup generic="Model extends IFormModel">
+<script lang="ts" setup>
 import { bem } from '@veltra/utils'
 import { computed, inject, provide, shallowRef, watch } from 'vue'
 
@@ -27,11 +27,11 @@ import type {
   BatchEditEmits,
   BatchEditFeature,
   BatchEditProps,
-  IFormModel,
   TableColumnSlotsScope,
   TableExposed,
   TableRow
 } from '../../types'
+import type { FormExposed } from '../../types/form'
 import { DialogDIKey } from '../dialog/di'
 import { ULayout } from '../layout'
 import BatchEditForm from './batch-edit-form.vue'
@@ -41,7 +41,7 @@ import { useEdit } from './use-edit'
 
 defineOptions({ name: 'BatchEdit' })
 
-const props = withDefaults(defineProps<BatchEditProps<Model>>(), {
+const props = withDefaults(defineProps<BatchEditProps>(), {
   cols: () => ['1fr', '420px'],
   mode: 'normal'
 })
@@ -99,9 +99,7 @@ const slots = defineSlots<
   {
     form?: (props: {
       /** 表单数据 */
-      data: Model['data']
-      /** 表单模型 */
-      model: Model
+      data: Record<string, any> | undefined
       /** 当前编辑的层级 */
       depth?: number
       /** 当前编辑的行 */
@@ -119,8 +117,9 @@ const slots = defineSlots<
 const cls = bem('batch-edit')
 
 const tableRef = shallowRef<TableExposed>()
+const formRef = shallowRef<FormExposed>()
 
-const editCtx = useEdit({ props, emit, tableRef })
+const editCtx = useEdit({ props, emit, tableRef, formRef })
 
 const { state, handleClose, handleSave, handleDelete, handleCreate } = editCtx
 

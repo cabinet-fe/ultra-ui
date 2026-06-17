@@ -28,19 +28,35 @@
       style="max-height: 500px"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
-      @created="model.setData({ age: 666 })"
+      @created="handleCreated"
     >
       <template #column:name="{ row }">
         <span :style="`padding-left: ${row.depth * 20}px;`">
           {{ row.depth }} {{ row.data.name }}
         </span>
       </template>
-      <template #form="{ data }">
+      <template #form>
         <!-- 基础信息 -->
-        <u-input field="name" label="姓名" placeholder="请输入姓名" />
-        <u-number-input field="age" label="年龄" :min="0" :max="120" />
-        <u-input field="email" label="邮箱" placeholder="请输入邮箱地址" />
-        <u-input field="phone" label="电话" placeholder="请输入电话号码" />
+        <u-input field="name" label="姓名" placeholder="请输入姓名" :rules="{ required: true }" />
+        <u-number-input
+          field="age"
+          label="年龄"
+          :min="0"
+          :max="120"
+          :rules="{ max: 120, min: 0 }"
+        />
+        <u-input
+          field="email"
+          label="邮箱"
+          placeholder="请输入邮箱地址"
+          :rules="{ required: true, match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址'] }"
+        />
+        <u-input
+          field="phone"
+          label="电话"
+          placeholder="请输入电话号码"
+          :rules="{ match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码'] }"
+        />
 
         <!-- 选择器类型 -->
         <u-select
@@ -50,6 +66,7 @@
           label-key="label"
           value-key="value"
           placeholder="请选择性别"
+          :rules="{ required: true }"
         />
         <u-select
           field="department"
@@ -58,6 +75,7 @@
           label-key="label"
           value-key="value"
           placeholder="请选择部门"
+          :rules="{ required: true }"
         />
         <u-select
           field="position"
@@ -66,6 +84,7 @@
           label-key="label"
           value-key="value"
           placeholder="请选择职位"
+          :rules="{ required: true }"
         />
         <u-select
           field="unit"
@@ -78,11 +97,23 @@
 
         <!-- 日期时间 -->
         <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
-        <u-date-picker field="joinDate" label="入职日期" placeholder="请选择入职日期" />
+        <u-date-picker
+          field="joinDate"
+          label="入职日期"
+          placeholder="请选择入职日期"
+          :rules="{ required: true }"
+        />
 
         <!-- 数值输入 -->
-        <u-number-input field="salary" label="薪资" :min="0" :step="100" />
-        <u-number-input field="score" label="评分" :min="0" :max="100" :step="0.1" />
+        <u-number-input field="salary" label="薪资" :min="0" :step="100" :rules="{ min: 0 }" />
+        <u-number-input
+          field="score"
+          label="评分"
+          :min="0"
+          :max="100"
+          :step="0.1"
+          :rules="{ min: 0, max: 100 }"
+        />
 
         <!-- 多行文本 -->
         <u-textarea field="address" label="地址" placeholder="请输入详细地址" span="full" />
@@ -90,14 +121,30 @@
 
         <!-- 复选框和单选框 -->
         <u-checkbox-group field="skills" label="技能" :items="skillOptions" span="full" />
-        <u-radio-group field="workType" label="工作类型" :items="workTypeOptions" />
+        <u-radio-group
+          field="workType"
+          label="工作类型"
+          :items="workTypeOptions"
+          :rules="{ required: true }"
+        />
 
         <!-- 高级组件 -->
         <u-code-editor field="code" label="代码片段" language="json" span="full" />
-        <u-slider field="experience" label="工作经验(年)" :min="0" :max="20" />
+        <u-slider
+          field="experience"
+          label="工作经验(年)"
+          :min="0"
+          :max="20"
+          :rules="{ min: 0, max: 20 }"
+        />
 
         <!-- 条件显示字段 -->
-        <u-input v-if="!data.age || data.age < 25" field="emergencyContact" label="紧急联系人" />
+        <u-input
+          v-if="!data?.age || data.age < 25"
+          field="emergencyContact"
+          label="紧急联系人"
+          :rules="{ required: true }"
+        />
         <u-input
           v-if="data.department === 'tech'"
           field="programmingLanguage"
@@ -166,9 +213,9 @@
 
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
-import { FormModel, defineTableColumns, message, nestField } from '@veltra/desktop'
+import { defineTableColumns, message } from '@veltra/desktop'
 import type { BatchEditFeature, CollapseModelValue } from '@veltra/desktop'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, reactive, ref, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
@@ -236,38 +283,35 @@ setTimeout(() => {
   }))
 }, 500)
 
-const model = new FormModel({
-  name: { required: true, value: () => '张三' + Math.random().toFixed(2) },
-  age: { max: 120, min: 0, value: () => Math.floor(Math.random() * 40) + 20 },
-  email: {
-    required: true,
-    value: () => `user${Math.random().toFixed(2)}@company.com`,
-    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '请输入有效的邮箱地址']
-  },
-  phone: { match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码'] },
-  gender: { required: true, value: 'male' },
-  department: { required: true, value: 'tech' },
-  position: { required: true, value: 'engineer' },
-  salary: { min: 0 },
-  score: { min: 0, max: 100 },
-  workType: { required: true, value: 'fulltime' },
-  joinDate: { required: true, value: date().format() },
-  birthday: {},
-  address: {},
-  description: {},
-  skills: {},
-  experience: { min: 0, max: 20 },
-  emergencyContact: { required: true, value: 'asd' },
-  programmingLanguage: {},
-
-  props: nestField({ field: {}, label: {} }),
-
-  contact: nestField({ qq: {}, wechat: {} }),
-
-  cascade: {},
-  code: {},
-  unit: {}
+const model = reactive({
+  name: '',
+  age: undefined as number | undefined,
+  email: '',
+  phone: '',
+  gender: 'male',
+  department: 'tech',
+  position: 'engineer',
+  salary: undefined as number | undefined,
+  score: undefined as number | undefined,
+  workType: 'fulltime',
+  joinDate: date().format(),
+  birthday: '',
+  address: '',
+  description: '',
+  skills: [] as string[],
+  experience: undefined as number | undefined,
+  emergencyContact: 'asd',
+  programmingLanguage: '',
+  props: { label: '', field: '' },
+  contact: { qq: '', wechat: '' },
+  cascade: '',
+  code: '',
+  unit: ''
 })
+
+function handleCreated() {
+  model.age = 666
+}
 
 const featureList: BatchEditFeature[] = ['update', 'copy', 'delete', 'view'] as const
 
@@ -346,8 +390,6 @@ const workTypeOptions = [
   { label: '兼职', value: 'parttime' },
   { label: '合同工', value: 'contract' }
 ]
-
-model.onChange((f) => {})
 </script>
 
 <style lang="scss" scoped></style>

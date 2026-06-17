@@ -79,13 +79,13 @@ const amountInCents = ref(12345)
 
 ```vue
 <script setup lang="ts">
-import { FormModel } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ quantity: 0, price: 0 })
+const formData = reactive({ quantity: 0, price: 0 })
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-number-input field="quantity" label="数量" :min="0" :step="1" />
     <u-number-input field="price" label="单价" currency :precision="2" :step="0.01" />
   </u-form>

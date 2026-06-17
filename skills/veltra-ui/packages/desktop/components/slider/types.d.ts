@@ -1,7 +1,9 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** 滑块组件属性 */
-export interface SliderProps<T extends number | [number, number]> extends FormComponentProps {
+export interface SliderProps<T extends number | [number, number]> extends FormFieldComponentProps {
   modelValue?: T
   /**
    * 最小值

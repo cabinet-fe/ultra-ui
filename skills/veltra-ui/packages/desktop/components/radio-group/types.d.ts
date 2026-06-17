@@ -1,6 +1,8 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 /** 单选框默认父组件组件属性 */
-export interface RadioGroupProps extends FormComponentProps {
+export interface RadioGroupProps extends FormFieldComponentProps {
   /** 值 */
   modelValue?: any
   /** 单选框项 */

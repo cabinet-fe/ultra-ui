@@ -1,8 +1,10 @@
 import type { Dater } from '@cat-kit/core'
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from './form-field'
 
 /** date-range-picker组件属性 */
-export interface DateRangePickerProps extends FormComponentProps {
+export interface DateRangePickerProps extends FormFieldComponentProps {
   modelValue?: [string, string]
   /** 占位 */
   placeholder?: [string, string]

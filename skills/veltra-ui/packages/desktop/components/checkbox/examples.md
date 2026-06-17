@@ -51,13 +51,13 @@ function handleCheckAll(checked: boolean) {
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ remember: formField({ value: false }) })
+const formData = reactive({ remember: false })
 </script>
 
 <template>
-  <u-form :model="model" disabled>
+  <u-form :model="formData" disabled>
     <u-checkbox label="记住登录" field="remember">30 天内免登录</u-checkbox>
   </u-form>
 </template>

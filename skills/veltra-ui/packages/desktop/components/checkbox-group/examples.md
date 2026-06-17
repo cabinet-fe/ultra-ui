@@ -23,9 +23,9 @@ const items = [
 
 ```vue
 <script setup lang="ts">
-import { FormModel } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ hobbies: ['reading'] })
+const formData = reactive({ hobbies: ['reading'] as string[] })
 
 const hobbyList = [
   { label: '阅读', value: 'reading' },
@@ -34,7 +34,7 @@ const hobbyList = [
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-checkbox-group label="爱好" field="hobbies" :items="hobbyList" />
   </u-form>
 </template>

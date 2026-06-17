@@ -40,8 +40,6 @@
 
 <script lang="ts" setup>
 import { sleep } from '@cat-kit/core'
-import { FormModel } from '@veltra/desktop'
-import { Monitor } from '@veltra/icons/normal'
 import { shallowRef, watchEffect } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
@@ -56,38 +54,6 @@ watchEffect(() => {
     value: i + ''
   }))
 })
-
-const model = new FormModel({
-  select: { value: 12 },
-  options: {
-    value: '40,100',
-    validator(value, data) {
-      if (value.includes('，')) {
-        return '请使用英文标点分隔'
-      }
-      return ''
-    }
-  }
-})
-
-const options1 = shallowRef(
-  model.data.options
-    ?.split(',')
-    .map((i) => {
-      const n = +i
-      return { label: i, value: n }
-    })
-    .filter((i) => !isNaN(i.value))
-)
-
-model.onChange((field, val) => {
-  field === 'select' && console.log(field, val)
-})
-
-setTimeout(() => {
-  model.setData({ options: '10', select: 10 })
-  options1.value = [{ value: 10, label: '10' }]
-}, 500)
 
 const selected = shallowRef()
 

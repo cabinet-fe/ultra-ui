@@ -52,13 +52,13 @@ const options = [
 
 ```vue
 <script setup>
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ gender: formField({ value: '' }) })
+const formData = reactive({ gender: '' })
 </script>
 
 <template>
-  <u-form :model="model" size="small" disabled>
+  <u-form :model="formData" size="small" disabled>
     <u-radio value="male" label="男" field="gender" />
     <u-radio value="female" label="女" field="gender" />
   </u-form>

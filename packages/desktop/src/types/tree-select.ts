@@ -1,11 +1,14 @@
-import type { FormComponentProps, DeconstructValue } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
+import type { FormFieldComponentProps } from './form-field'
 import type { TreeProps } from './tree'
 
 /** 树形选择器组件属性 */
 export interface TreeSelectProps
-  extends FormComponentProps, Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+  extends
+    FormFieldComponentProps,
+    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
   modelValue?: string | number
 
   /** 自定义占位文字 */

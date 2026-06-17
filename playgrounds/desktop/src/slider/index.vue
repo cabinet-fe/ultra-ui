@@ -9,7 +9,7 @@
           <u-number-input
             field="min"
             :min="0"
-            :max="config.data.max"
+            :max="config.max"
             :step="10"
             label="最小值"
             :clearable="false"
@@ -17,7 +17,7 @@
           />
           <u-number-input
             field="max"
-            :min="config.data.min"
+            :min="config.min"
             label="最大值"
             :step="10"
             :clearable="false"
@@ -27,7 +27,7 @@
             field="step"
             label="步长"
             :min="0"
-            :max="config.data.max"
+            :max="config.max"
             :step="5"
             :clearable="false"
             placeholder="设置步长"
@@ -47,8 +47,8 @@
       <u-card-content>
         <u-slider
           v-model="sliderValue"
-          v-bind="config.data"
-          :style="{ height: config.data.vertical ? '300px' : undefined }"
+          v-bind="config"
+          :style="{ height: config.vertical ? '300px' : undefined }"
         />
 
         {{ sliderValue }}
@@ -58,17 +58,16 @@
 </template>
 
 <script lang="tsx" setup>
-import { FormModel } from '@veltra/desktop'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
-const config = new FormModel({
-  min: { value: 0 },
-  max: { value: 100 },
-  step: { value: 0 },
-  vertical: { value: false },
-  range: { value: false },
-  disabled: { value: false },
-  readonly: { value: false }
+const config = reactive({
+  min: 0,
+  max: 100,
+  step: 0,
+  vertical: false,
+  range: false,
+  disabled: false,
+  readonly: false
 })
 
 const sliderValue = ref(20)

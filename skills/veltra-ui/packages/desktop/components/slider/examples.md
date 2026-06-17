@@ -57,13 +57,13 @@ const range = ref<[number, number]>([20, 80])
 
 ```vue
 <script setup lang="ts">
-import { FormModel, formField } from '@veltra/desktop'
+import { reactive } from 'vue'
 
-const model = new FormModel({ volume: formField({ value: 30 }) })
+const formData = reactive({ volume: 30 })
 </script>
 
 <template>
-  <u-form :model="model">
+  <u-form :model="formData">
     <u-slider field="volume" label="音量" />
   </u-form>
 </template>

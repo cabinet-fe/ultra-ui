@@ -2,7 +2,7 @@
   <u-grid-item :span="span" :class="className">
     <label
       v-if="props.label || $slots.label"
-      :class="[cls.e('label'), bem.is('required', fieldRequired)]"
+      :class="[cls.e('label'), bem.is('required', !!rules?.required)]"
       :style="labelStyles"
     >
       <u-tip v-if="tips" :content="tips" :class="cls.e('tips')">
@@ -21,10 +21,10 @@
       </div>
 
       <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
-      <section :class="cls.e('error')" v-if="!formProps?.readonly && !formProps?.noTips">
+      <section :class="cls.e('error')" v-if="!readonly && !formProps?.noTips">
         <transition name="form-item-tips" mode="out-in">
-          <span :class="cls.e('error-text')" v-if="!!errorTips">
-            {{ errorTips }}
+          <span :class="cls.e('error-text')" v-if="!!errorTip">
+            {{ errorTip }}
           </span>
         </transition>
       </section>
@@ -36,12 +36,13 @@
 import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { type CSSProperties, computed } from 'vue'
+import { type CSSProperties, computed, onBeforeUnmount, shallowRef } from 'vue'
 
 import type { FormItemProps, ComponentSize } from '../../types'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
-import { formItemCls as cls } from './helper'
+import { formItemCls as cls, defineField } from './helper'
+import { validateField } from './validate'
 
 defineOptions({ name: 'FormItem' })
 
@@ -54,7 +55,7 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const { formProps } = injectFormContext()
+const { formProps, registerField, unregisterField } = injectFormContext()
 
 const { config } = useConfig()
 
@@ -63,8 +64,10 @@ const { size, readonly } = useFallbackProps([formProps ?? {}, props], {
   readonly: false
 })
 
+const errorTip = shallowRef<string>()
+
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('error', !!errorTips.value)].join(' ')
+  return [cls.b, cls.m(size.value), bem.is('error', !!errorTip.value)].join(' ')
 })
 
 /** label样式 */
@@ -74,17 +77,23 @@ const labelStyles = computed<CSSProperties>(() => {
   }
 })
 
-/** 错误提示 */
-const errorTips = computed<string | undefined>(() => {
-  if (!props.field) return undefined
-  return formProps?.model?.errors.get(props.field)?.[0]
-})
+if (props.field) {
+  const fieldItem = defineField({
+    clearValidate() {
+      errorTip.value = ''
+    },
+    async validate() {
+      if (!props.field || !formProps?.model || !props.rules) return true
 
-/** 字段是否必须 */
-const fieldRequired = computed<boolean>(() => {
-  const { field } = props
-  if (!field || readonly.value) return false
-  const required = formProps?.model?.fields[field]?.required
-  return Boolean(required)
+      errorTip.value = await validateField(formProps.model, props.field, props.rules)
+
+      return !errorTip.value
+    }
+  })
+  registerField?.(props.field, fieldItem)
+}
+
+onBeforeUnmount(() => {
+  props.field && unregisterField?.(props.field)
 })
 </script>

@@ -1,8 +1,10 @@
-import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { DeconstructValue } from '@veltra/utils'
 import type { CSSProperties, ShallowRef } from 'vue'
 
+import type { FormFieldComponentProps } from './form-field'
+
 /** 选择器组件属性 */
-export interface SelectProps extends FormComponentProps {
+export interface SelectProps extends FormFieldComponentProps {
   /** 绑定值 */
   modelValue?: any
   /** 文本内容 */

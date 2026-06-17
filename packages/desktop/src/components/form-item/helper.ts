@@ -1,5 +1,7 @@
 import { o } from '@cat-kit/core'
-import { bem, type BEM, type FormComponentProps } from '@veltra/utils'
+import { bem, type BEM, type FormFieldItem } from '@veltra/utils'
+
+import type { FormFieldComponentProps } from '../../types/form-field'
 
 /**
  * 获取表单项的属性
@@ -7,12 +9,16 @@ import { bem, type BEM, type FormComponentProps } from '@veltra/utils'
  * @returns
  */
 export function getFormItemProps(
-  props: FormComponentProps
-): Pick<FormComponentProps, 'label' | 'field' | 'readonly' | 'span' | 'tips'> {
+  props: FormFieldComponentProps
+): Pick<FormFieldComponentProps, 'label' | 'field' | 'readonly' | 'span' | 'tips'> {
   return o(props).pick(['label', 'field', 'readonly', 'span', 'tips']) as Pick<
-    FormComponentProps,
+    FormFieldComponentProps,
     'label' | 'field' | 'readonly' | 'span' | 'tips'
   >
 }
 
 export const formItemCls: BEM<'form-item'> = bem('form-item')
+
+export function defineField(field: FormFieldItem) {
+  return field
+}

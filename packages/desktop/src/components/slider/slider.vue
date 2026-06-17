@@ -113,10 +113,20 @@ const ticks = computed(() => {
 watch(
   [offset1, offset2],
   userAction((v) => {
+    if (sliderSize.value === 0) return
+
     if (props.range) {
-      emit('update:modelValue', v.map(sliderOffset2Value).toSorted() as T)
+      const next = v.map(sliderOffset2Value).toSorted((a, b) => a - b) as [number, number]
+      const current = props.modelValue as [number, number] | undefined
+      if (current) {
+        const [a, b] = [...current].sort((x, y) => x - y)
+        if (next[0] === a && next[1] === b) return
+      }
+      emit('update:modelValue', next as T)
     } else {
-      emit('update:modelValue', sliderOffset2Value(v[0]) as T)
+      const next = sliderOffset2Value(v[0])
+      if (next === props.modelValue) return
+      emit('update:modelValue', next as T)
     }
   })
 )
