@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process'
-import { readdir, readFile } from 'node:fs/promises'
+import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -18,7 +18,11 @@ const HELP_FOOTER = `
 
 type CliArgs = { dryRun: boolean; force: boolean; help: boolean }
 
+type BumpType = 'patch' | 'minor' | 'major'
+
 type RunResult = { code: number; stdout: string; stderr: string }
+
+const BUMP_RANK: Record<BumpType, number> = { patch: 0, minor: 1, major: 2 }
 
 function parseArgs(argv: readonly string[]): CliArgs {
   const args: CliArgs = { dryRun: false, force: false, help: false }
@@ -89,29 +93,211 @@ async function listChangesetFiles(): Promise<string[]> {
     .toSorted()
 }
 
-async function collectChangesetPackages(files: readonly string[]): Promise<string[]> {
-  const packages = new Set<string>()
-  const contents = await Promise.all(files.map((file) => readFile(file, 'utf8')))
+function parseChangesetFrontmatter(raw: string): { packageName: string; bump: BumpType }[] {
+  const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/)
+
+  if (!match) {
+    return []
+  }
+
+  const entries: { packageName: string; bump: BumpType }[] = []
+
+  for (const line of (match[1] ?? '').split(/\r?\n/)) {
+    const packageMatch = line
+      .trim()
+      .match(/^['"]?(@[^'":\s]+\/[^'":\s]+)['"]?\s*:\s*(patch|minor|major)\s*$/)
+
+    if (packageMatch?.[1] && packageMatch[2]) {
+      entries.push({ packageName: packageMatch[1], bump: packageMatch[2] as BumpType })
+    }
+  }
+
+  return entries
+}
+
+async function collectChangesetBumpTypesFromContents(
+  contents: readonly string[]
+): Promise<Map<string, BumpType>> {
+  const bumpTypes = new Map<string, BumpType>()
 
   for (const raw of contents) {
-    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/)
+    for (const { packageName, bump } of parseChangesetFrontmatter(raw)) {
+      const current = bumpTypes.get(packageName)
 
-    if (!match) {
-      continue
-    }
-
-    for (const line of (match[1] ?? '').split(/\r?\n/)) {
-      const packageMatch = line
-        .trim()
-        .match(/^['"]?(@[^'":\s]+\/[^'":\s]+)['"]?\s*:\s*(patch|minor|major)\s*$/)
-
-      if (packageMatch?.[1]) {
-        packages.add(packageMatch[1])
+      if (!current || BUMP_RANK[bump] > BUMP_RANK[current]) {
+        bumpTypes.set(packageName, bump)
       }
     }
   }
 
-  return [...packages].toSorted()
+  return bumpTypes
+}
+
+function maxBumpType(types: Iterable<BumpType>): BumpType {
+  let max: BumpType = 'patch'
+
+  for (const type of types) {
+    if (BUMP_RANK[type] > BUMP_RANK[max]) {
+      max = type
+    }
+  }
+
+  return max
+}
+
+function parseSemver(version: string): [number, number, number] {
+  const match = /^(\d+)\.(\d+)\.(\d+)/.exec(version)
+
+  if (!match) {
+    throw new Error(`无效版本号: ${version}`)
+  }
+
+  return [Number(match[1]), Number(match[2]), Number(match[3])]
+}
+
+function bumpSemver(version: string, type: BumpType): string {
+  const [major, minor, patch] = parseSemver(version)
+
+  switch (type) {
+    case 'major':
+      return `${major + 1}.0.0`
+    case 'minor':
+      return `${major}.${minor + 1}.0`
+    case 'patch':
+      return `${major}.${minor}.${patch + 1}`
+  }
+}
+
+function compareSemver(a: string, b: string): number {
+  const av = parseSemver(a)
+  const bv = parseSemver(b)
+
+  for (let index = 0; index < 3; index += 1) {
+    if (av[index]! > bv[index]!) {
+      return 1
+    }
+
+    if (av[index]! < bv[index]!) {
+      return -1
+    }
+  }
+
+  return 0
+}
+
+function packageJsonPath(packageName: string): string {
+  const shortName = packageName.replace(/^@veltra\//, '')
+
+  return join(REPO_ROOT, 'packages', shortName, 'package.json')
+}
+
+function changelogPath(packageName: string): string {
+  const shortName = packageName.replace(/^@veltra\//, '')
+
+  return join(REPO_ROOT, 'packages', shortName, 'CHANGELOG.md')
+}
+
+function readPackageVersionFromGit(packageName: string): string {
+  const relativePath = packageJsonPath(packageName).slice(REPO_ROOT.length + 1)
+  const result = run('git', ['show', `HEAD:${relativePath}`])
+
+  if (result.code !== 0) {
+    fatal(`读取 ${packageName} 发版前版本失败`, result.stderr)
+  }
+
+  const versionMatch = result.stdout.match(/"version"\s*:\s*"([^"]+)"/)
+
+  if (!versionMatch?.[1]) {
+    fatal(`无法解析 ${packageName} 的版本号`)
+  }
+
+  return versionMatch[1]
+}
+
+async function readFixedGroups(): Promise<string[][]> {
+  const config = JSON.parse(await readFile(join(CHANGESET_DIR, 'config.json'), 'utf8')) as {
+    fixed?: string[][]
+  }
+
+  return config.fixed ?? []
+}
+
+async function correctFixedGroupPeerMajorBumps(
+  bumpTypes: ReadonlyMap<string, BumpType>
+): Promise<void> {
+  const fixedGroups = await readFixedGroups()
+
+  if (fixedGroups.length === 0) {
+    return
+  }
+
+  const intendedBump = maxBumpType(bumpTypes.values())
+
+  if (intendedBump === 'major') {
+    return
+  }
+
+  const correctedGroups = await Promise.all(
+    fixedGroups.map(async (group) => {
+      const groupAffected = group.some((packageName) => bumpTypes.has(packageName))
+
+      if (!groupAffected) {
+        return []
+      }
+
+      const anchorPackage = group.find((packageName) => bumpTypes.has(packageName))!
+      const expectedVersion = bumpSemver(readPackageVersionFromGit(anchorPackage), intendedBump)
+      const corrected = await Promise.all(
+        group.map(async (packageName) => {
+          const pkgJsonPath = packageJsonPath(packageName)
+          const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf8')) as { version: string }
+
+          if (compareSemver(pkgJson.version, expectedVersion) <= 0) {
+            return null
+          }
+
+          const wrongVersion = pkgJson.version
+          pkgJson.version = expectedVersion
+          await writeFile(pkgJsonPath, `${JSON.stringify(pkgJson, null, 2)}\n`)
+
+          const logPath = changelogPath(packageName)
+
+          try {
+            let changelog = await readFile(logPath, 'utf8')
+            changelog = changelog.replace(`## ${wrongVersion}\n`, `## ${expectedVersion}\n`)
+
+            for (const dep of group) {
+              changelog = changelog.replaceAll(
+                `@${dep}@${wrongVersion}`,
+                `@${dep}@${expectedVersion}`
+              )
+            }
+
+            await writeFile(logPath, changelog)
+          } catch {
+            // 部分包可能没有 CHANGELOG
+          }
+
+          return `${packageName} ${wrongVersion} → ${expectedVersion}`
+        })
+      )
+
+      return corrected.filter((line): line is string => line !== null)
+    })
+  )
+
+  const correctedLines = correctedGroups.flat()
+
+  if (correctedLines.length > 0) {
+    console.log(
+      '[release] 已修正 fixed 组因 peer 依赖被误抬的 major 版本（changeset 意图为 %s）：',
+      intendedBump
+    )
+
+    for (const line of correctedLines) {
+      console.log(`  - ${line}`)
+    }
+  }
 }
 
 async function ensureCleanWorkTree(): Promise<void> {
@@ -209,7 +395,9 @@ async function main(): Promise<void> {
     fatal('未发现待消费的 changeset（.changeset/*.md）；请先执行 bun run changeset')
   }
 
-  const packages = await collectChangesetPackages(changesetFiles)
+  const changesetContents = await Promise.all(changesetFiles.map((file) => readFile(file, 'utf8')))
+  const bumpTypes = await collectChangesetBumpTypesFromContents(changesetContents)
+  const packages = [...bumpTypes.keys()].toSorted()
 
   if (packages.length === 0) {
     fatal('解析 changeset 未得到任何包，请检查 changeset frontmatter')
@@ -223,6 +411,8 @@ async function main(): Promise<void> {
   if (versionCode !== 0) {
     fatal('changeset version 失败')
   }
+
+  await correctFixedGroupPeerMajorBumps(bumpTypes)
 
   const installCode = runInherit('vp', ['install'])
 
