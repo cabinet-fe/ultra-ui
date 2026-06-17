@@ -27,7 +27,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "dependencies": {
         "@floating-ui/dom": "^1.7.6",
       },
@@ -43,7 +43,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "dependencies": {
         "@codemirror/lang-java": "^6.0.2",
         "@codemirror/lang-javascript": "^6.2.5",
@@ -85,7 +85,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "peerDependencies": {
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
@@ -94,7 +94,7 @@
     },
     "packages/icons": {
       "name": "@veltra/icons",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "devDependencies": {
         "svgo": "^4.0.1",
       },
@@ -111,7 +111,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.6",
         "@veltra/compositions": "workspace:*",
@@ -121,7 +121,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.6",
         "vue": ">=3.5.0",
@@ -129,7 +129,7 @@
     },
     "packages/vite": {
       "name": "@veltra/vite",
-      "version": "2.0.0",
+      "version": "1.1.36",
       "devDependencies": {
         "@veltra/desktop": "workspace:*",
       },
