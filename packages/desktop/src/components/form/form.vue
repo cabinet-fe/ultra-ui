@@ -45,9 +45,16 @@ const cls = bem('form')
 
 const breakpointCols: BreakCols = { xs: 1, md: 2, lg: 3, xl: 4, default: 4 }
 
-const { validate, clearValidate, reset, registerField, unregisterField } = useFormFields({ props })
+const { validate, clearValidate, reset, registerField, unregisterField, shouldValidate } =
+  useFormFields({ props })
 
-provideFormContext({ formProps: props, registerField, unregisterField })
+provideFormContext({
+  formProps: props,
+  registerField,
+  unregisterField,
+  validateFields: validate,
+  shouldValidate
+})
 
 const { getSlotsNodes } = useNodeInterceptor()
 

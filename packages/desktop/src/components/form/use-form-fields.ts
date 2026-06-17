@@ -1,6 +1,6 @@
 import { o } from '@cat-kit/core'
 import type { FormFieldItem } from '@veltra/utils'
-import { watch } from 'vue'
+import { nextTick, watch } from 'vue'
 
 import type { FormProps } from '../../types/form'
 
@@ -64,8 +64,22 @@ export function useFormFields(options: Options) {
   const { props } = options
   const fields: Record<string, FormFieldItem> = {}
 
+  let willValidate = true
+
   /** model 初始快照，供 reset 恢复 */
   let initialSnapshot: Record<string, any> | undefined
+
+  function runWithoutChangeValidate(fn: () => void) {
+    willValidate = false
+    fn()
+    nextTick(() => {
+      willValidate = true
+    })
+  }
+
+  function shouldValidate() {
+    return willValidate
+  }
 
   watch(
     () => props.model,
@@ -102,9 +116,11 @@ export function useFormFields(options: Options) {
   function reset() {
     if (!props.model || !initialSnapshot) return
 
-    applySnapshot(props.model, initialSnapshot)
-    clearValidate()
+    runWithoutChangeValidate(() => {
+      applySnapshot(props.model!, initialSnapshot!)
+      Object.values(fields).forEach((item) => item.clearValidate?.())
+    })
   }
 
-  return { fields, registerField, validate, unregisterField, clearValidate, reset }
+  return { fields, registerField, validate, unregisterField, clearValidate, reset, shouldValidate }
 }

@@ -62,70 +62,21 @@ const formData = reactive({ name: '', contact: { email: '', phone: '' } })
 </template>
 ```
 
-## 默认作用域插槽：读取 data
-
-默认插槽暴露 `{ data }`，插槽内带 `field` 的组件仍会自动包裹为 `UFormItem` 并绑定值。
+## 清除校验和重置
 
 ```vue
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, useTemplateRef } from 'vue'
 
-const formData = reactive({ type: 'normal', customValue: '', remark: '' })
-
-const typeOptions = [
-  { label: '普通', value: 'normal' },
-  { label: '自定义', value: 'custom' }
-]
-</script>
-
-<template>
-  <u-form :model="formData" label-width="100px" :cols="1">
-    <template #default="{ data }">
-      <u-select label="类型" field="type" :options="typeOptions" :rules="{ required: true }" />
-      <u-input v-if="data?.type === 'custom'" label="自定义值" field="customValue" />
-      <u-textarea label="备注" field="remark" />
-    </template>
-  </u-form>
-</template>
-```
-
-## 清除校验
-
-```vue
-<script setup lang="ts">
-import type { FormExposed } from '@veltra/desktop'
-import { reactive, shallowRef } from 'vue'
-
-const formRef = shallowRef<FormExposed>()
+const formRef = useTemplateRef('form')
 const formData = reactive({ name: '' })
 </script>
 
 <template>
-  <u-form ref="formRef" :model="formData" :cols="1">
+  <u-form ref="form" :model="formData" :cols="1">
     <u-input label="姓名" field="name" :rules="{ required: true }" />
   </u-form>
   <u-button @click="formRef?.clearValidate()">清除校验</u-button>
-</template>
-```
-
-## 重置
-
-`UForm` 在挂载及 `model` 引用变更时会对 `model` 做 `structuredClone` 快照；调用 `formRef.reset()` 即可恢复初始值并清除校验，无需在外部维护初始数据副本。
-
-```vue
-<script setup lang="ts">
-import type { FormExposed } from '@veltra/desktop'
-import { reactive, shallowRef } from 'vue'
-
-const formRef = shallowRef<FormExposed>()
-const formData = reactive({ name: '', age: 18 })
-</script>
-
-<template>
-  <u-form ref="formRef" :model="formData" :cols="1">
-    <u-input label="姓名" field="name" :rules="{ required: true }" />
-    <u-number-input label="年龄" field="age" />
-  </u-form>
   <u-button @click="formRef?.reset()">重置</u-button>
 </template>
 ```

@@ -33,10 +33,11 @@
 </template>
 
 <script lang="tsx" setup>
+import { o } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { type CSSProperties, computed, onBeforeUnmount, shallowRef } from 'vue'
+import { type CSSProperties, computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 
 import type { FormItemProps, ComponentSize } from '../../types'
 import { UGridItem } from '../grid'
@@ -55,7 +56,7 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const { formProps, registerField, unregisterField } = injectFormContext()
+const { formProps, registerField, unregisterField, shouldValidate } = injectFormContext()
 
 const { config } = useConfig()
 
@@ -77,21 +78,50 @@ const labelStyles = computed<CSSProperties>(() => {
   }
 })
 
-if (props.field) {
-  const fieldItem = defineField({
-    clearValidate() {
-      errorTip.value = ''
-    },
-    async validate() {
-      if (!props.field || !formProps?.model || !props.rules) return true
+const fieldItem = defineField({
+  clearValidate() {
+    errorTip.value = ''
+  },
+  async validate() {
+    if (!props.field || !formProps?.model || !props.rules || !shouldValidate?.()) return true
 
-      errorTip.value = await validateField(formProps.model, props.field, props.rules)
+    errorTip.value = await validateField(formProps.model, props.field, props.rules)
 
-      return !errorTip.value
+    return !errorTip.value
+  }
+})
+
+watch(
+  () => props.field,
+  (field, oldField) => {
+    if (oldField) {
+      unregisterField?.(oldField)
     }
-  })
-  registerField?.(props.field, fieldItem)
-}
+    if (field) {
+      registerField?.(field, fieldItem)
+    }
+  },
+  { immediate: true }
+)
+
+let stopWatchFieldValue: (() => void) | undefined
+
+watch(
+  [() => formProps?.model, () => props.field],
+  ([model, field]) => {
+    stopWatchFieldValue?.()
+
+    if (!field || !model) return
+
+    stopWatchFieldValue = watch(
+      () => o(model).get(field),
+      () => {
+        fieldItem.validate()
+      }
+    )
+  },
+  { immediate: true }
+)
 
 onBeforeUnmount(() => {
   props.field && unregisterField?.(props.field)

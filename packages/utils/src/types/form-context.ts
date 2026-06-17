@@ -36,6 +36,10 @@ type DIContext = {
   registerField: (field: string, item: FormFieldItem) => void
   /** 注销表单字段 */
   unregisterField: (field: string) => void
+  /** 校验指定字段，未传 keys 时校验全部已注册字段 */
+  validateFields?: (keys?: string[]) => Promise<boolean>
+  /** 是否需要校验 */
+  shouldValidate?: () => boolean
 }
 
 const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')
