@@ -1,5 +1,12 @@
 # @veltra/compositions
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [b12bf64]
+  - @veltra/utils@2.0.0
+
 ## 1.1.36
 
 ### Patch Changes
