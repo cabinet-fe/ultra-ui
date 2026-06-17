@@ -5,8 +5,8 @@
 ### Patch Changes
 
 - Updated dependencies [a9b9eff]
-  - @veltra/utils@2.0.0
-  - @veltra/styles@2.0.0
+  - @veltra/utils@1.2.0
+  - @veltra/styles@1.2.0
 
 ## 1.1.36
 

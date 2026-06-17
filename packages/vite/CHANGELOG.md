@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Updated dependencies [a9b9eff]
-  - @veltra/desktop@2.0.0
+  - @veltra/desktop@1.2.0
 
 ## 1.1.36
 

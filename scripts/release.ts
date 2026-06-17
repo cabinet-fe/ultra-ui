@@ -268,8 +268,8 @@ async function correctFixedGroupPeerMajorBumps(
 
             for (const dep of group) {
               changelog = changelog.replaceAll(
-                `@${dep}@${wrongVersion}`,
-                `@${dep}@${expectedVersion}`
+                `${dep}@${wrongVersion}`,
+                `${dep}@${expectedVersion}`
               )
             }
 
