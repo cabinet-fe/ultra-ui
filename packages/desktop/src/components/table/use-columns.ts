@@ -134,26 +134,29 @@ export function useColumns(options: Options): ColumnConfig {
       }
 
       const sortedColumns = [...fixedOnLeft, ...unfixed, ...fixedOnRight]
-      // 操作时避免改变原数据
-      const firstColumn = { ...sortedColumns[0] } as TableColumn
-      sortedColumns[0] = firstColumn
 
-      // 树形表格需要给第一列添加展开按钮
-      // 因此要重新设置第一列的宽度和对齐方式
-      if ((!!tree || expandable) && firstColumn) {
-        firstColumn.align = 'left'
-        firstColumn.width = firstColumn.width ? firstColumn.width + 60 : undefined
+      if (sortedColumns.length > 0) {
+        // 操作时避免改变原数据
+        const firstColumn = { ...sortedColumns[0] } as TableColumn
+        sortedColumns[0] = firstColumn
 
-        const oldNameRender = firstColumn.nameRender
+        // 树形表格需要给第一列添加展开按钮
+        // 因此要重新设置第一列的宽度和对齐方式
+        if (tree || expandable) {
+          firstColumn.align = 'left'
+          firstColumn.width = firstColumn.width ? firstColumn.width + 60 : undefined
 
-        firstColumn.nameRender = oldNameRender
-          ? (ctx) => {
-              const oldNodes = oldNameRender!(ctx)
-              return [renderExpandAll(), ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])]
-            }
-          : () => {
-              return [renderExpandAll(), firstColumn.name]
-            }
+          const oldNameRender = firstColumn.nameRender
+
+          firstColumn.nameRender = oldNameRender
+            ? (ctx) => {
+                const oldNodes = oldNameRender!(ctx)
+                return [renderExpandAll(), ...(Array.isArray(oldNodes) ? oldNodes : [oldNodes])]
+              }
+            : () => {
+                return [renderExpandAll(), firstColumn.name]
+              }
+        }
       }
 
       const result = new Forest<TableColumn, any>({
