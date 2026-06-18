@@ -1,11 +1,12 @@
-<!-- @veltra/icons generated sha256:77551d3e9ede4543 gen:4 source:src/svg/normal/caret-right.svg -->
+<!-- @veltra/icons generated sha256:f17cffff01bac6ba gen:4 source:src/svg/normal/caret-right.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CaretRight' })
 </script>
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1024 1024">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <path
-      d="M715.8 493.5 335 165.1c-14.2-12.2-35-1.2-35 18.5v656.8c0 19.7 20.8 30.7 35 18.5l380.8-328.4c10.9-9.4 10.9-27.6 0-37"
+      fill="currentColor"
+      d="M11.81 7.65 4.65 1.48c-.27-.23-.66-.02-.66.35v12.34c0 .37.39.58.66.35l7.16-6.17c.2-.18.2-.52 0-.7"
     />
   </svg>
 </template>
