@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.2
+
+### Patch Changes
+
+- 1f8fbd7: `UForm.validate` 校验失败后自动滚动到首个错误项的 `error-text` 元素。
+  - @veltra/utils@1.2.2
+  - @veltra/styles@1.2.2
+  - @veltra/compositions@1.2.2
+  - @veltra/directives@1.2.2
+  - @veltra/icons@1.2.2
+
 ## 1.2.1
 
 ### Patch Changes
