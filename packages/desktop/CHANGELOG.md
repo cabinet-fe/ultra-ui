@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.4
+
+### Patch Changes
+
+- 1f8785d: 修复表格 `columns` 为空时注入占位列导致 cell key 为 NaN 的 Vue 警告。
+  - @veltra/utils@1.2.4
+  - @veltra/styles@1.2.4
+  - @veltra/compositions@1.2.4
+  - @veltra/directives@1.2.4
+  - @veltra/icons@1.2.4
+
 ## 1.2.3
 
 ### Patch Changes
