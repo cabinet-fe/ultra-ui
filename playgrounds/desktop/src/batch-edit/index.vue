@@ -238,7 +238,7 @@ const columns = defineTableColumns([
   { name: '单选级联选择器', key: 'cascade', width: 150 }
 ])
 
-const data = ref()
+const data = shallowRef()
 const checked = shallowRef([])
 
 setTimeout(() => {

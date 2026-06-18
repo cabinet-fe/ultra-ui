@@ -1,6 +1,6 @@
 # UForm 示例
 
-> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径的值。校验规则通过控件或 `UFormItem` 的 `rules` 属性声明；调用 `formRef.validate()` 触发全部字段校验，或传入 `keys` 仅校验指定字段。字段值变化时会自动重新校验（`reset()` 期间会抑制）。
+> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径的值。校验规则通过控件或 `UFormItem` 的 `rules` 属性声明；调用 `formRef.validate()` 触发全部字段校验，或传入 `keys` 仅校验指定字段。校验失败时会自动滚动到第一个错误项。字段值变化时会自动重新校验（`reset()` 期间会抑制）。
 >
 > 下方示例涵盖常用表单控件及验证、按字段校验、清除校验与重置。
 
