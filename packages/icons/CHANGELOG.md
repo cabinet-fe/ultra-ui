@@ -1,5 +1,11 @@
 # @veltra/icons
 
+## 1.2.3
+
+### Patch Changes
+
+- 141a90b: 统一 caret 方向图标为 16×16 viewBox，与其他 normal 图标尺寸一致。
+
 ## 1.2.2
 
 ## 1.2.1
