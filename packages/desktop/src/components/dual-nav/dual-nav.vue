@@ -68,7 +68,7 @@ import { UNav } from '../nav'
 import { collectNavBranchPaths } from '../nav/helper'
 import { UTip } from '../tip'
 import DualNavApp from './dual-nav-app.vue'
-import { findRootApp } from './helper'
+import { findFirstLeaf, findRootApp } from './helper'
 
 defineOptions({ name: 'DualNav' })
 
@@ -138,9 +138,7 @@ function handleAppClick(app: NavItem) {
 
   panelAppPath.value = app.path
 
-  if (!app.children?.length) {
-    emit('item-click', app)
-  }
+  emit('item-click', findFirstLeaf(app))
 }
 
 function handleToggleExpandAll() {
