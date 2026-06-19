@@ -1,6 +1,6 @@
 import type { DeconstructValue } from '@veltra/utils'
 
-export type LoadingType = 'classic' | 'line' | 'dot' | 'spinner' | 'morph'
+export type LoadingType = 'dual-ring' | 'dot' | 'ring' | 'bars'
 
 /** loading组件属性 */
 export interface LoadingProps {

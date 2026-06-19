@@ -6,11 +6,12 @@
         :key="app.path"
         :app="app"
         :active="isAppActive(app)"
+        :selected="isAppSelected(app)"
         @click="handleAppClick(app)"
       />
     </div>
 
-    <div :class="cls.e('divider')" aria-hidden="true" />
+    <!-- <div :class="cls.e('divider')" aria-hidden="true" /> -->
 
     <div :class="cls.e('panel')">
       <template v-if="panelApp">
@@ -122,9 +123,14 @@ watch(panelAppPath, () => {
   allExpanded.value = false
 })
 
-/** 左轨高亮：仅当 currentPath 落在该应用下时激活 */
+/** 左轨高亮：currentPath 落在该应用下时为激活态 */
 function isAppActive(app: NavItem): boolean {
   return findRootApp(props.menus, props.currentPath)?.path === app.path
+}
+
+/** 左轨选中：已切换右栏但尚未导航到该应用下任一菜单时，使用 hover 风格 */
+function isAppSelected(app: NavItem): boolean {
+  return panelAppPath.value === app.path && !isAppActive(app)
 }
 
 function handleAppClick(app: NavItem) {

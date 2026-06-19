@@ -10,7 +10,7 @@ export interface NavItem {
   /** 导航路径 */
   path: string
   /**
-   * 应用描述；仅根级导航项有效，且仅 UDualNav 右栏顶部展示
+   * 应用描述；仅根级导航项有效，在 UDualNav 左轨 tooltip 与右栏顶部展示
    * @see DualNavRootItem
    */
   description?: string

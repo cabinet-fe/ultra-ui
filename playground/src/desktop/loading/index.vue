@@ -1,7 +1,7 @@
 <template>
   <div class="loading-demo">
     <!-- ======== 全量展示：5 种加载动画一览 ======== -->
-    <CustomCard title="五种加载动画">
+    <CustomCard title="四种加载动画">
       <div class="loading-demo__grid">
         <div
           v-for="t in items"
@@ -32,11 +32,10 @@ import { shallowRef } from 'vue'
 import CustomCard from '../card/custom-card.vue'
 
 const items = [
-  { label: 'spinner', value: 'spinner' },
+  { label: 'dual-ring', value: 'dual-ring' },
   { label: 'dot', value: 'dot' },
-  { label: 'line', value: 'line' },
-  { label: 'classic', value: 'classic' },
-  { label: 'morph', value: 'morph' }
+  { label: 'ring', value: 'ring' },
+  { label: 'bars', value: 'bars' }
 ]
 
 const type = shallowRef('spinner')
@@ -117,7 +116,7 @@ const toggle = () => {
 <style scoped>
 .loading-demo__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 

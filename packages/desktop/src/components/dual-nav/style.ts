@@ -1,3 +1,4 @@
+import '@veltra/directives/ripple/style.js'
 import '../icon/style'
 import '../nav/style'
 import '../tip/style'

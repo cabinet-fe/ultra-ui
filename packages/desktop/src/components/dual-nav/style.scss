@@ -127,9 +127,24 @@
       color: var(--u-nav-hover-color);
     }
 
+    @include m.is(selected) {
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
+
+      &:hover:not(:disabled) {
+        background-color: var(--u-nav-hover-bg);
+        color: var(--u-nav-hover-color);
+      }
+    }
+
     @include m.is(active) {
       background-color: var(--u-nav-active-bg);
       color: var(--u-nav-active-color);
+
+      &:hover:not(:disabled) {
+        background-color: var(--u-nav-active-bg);
+        color: var(--u-nav-active-color);
+      }
     }
 
     @include m.is(disabled) {
@@ -149,5 +164,25 @@
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
+  }
+
+  @include m.e(app-tip) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 200px;
+  }
+
+  @include m.e(app-tip-title) {
+    font-weight: 600;
+    line-height: 1.4;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(app-tip-description) {
+    margin: 0;
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.5;
+    color: fn.use-var(text-color, second);
   }
 }

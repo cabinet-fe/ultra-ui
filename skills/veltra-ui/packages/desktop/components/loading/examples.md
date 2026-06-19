@@ -4,10 +4,10 @@
 
 ```vue
 <template>
-  <u-loading type="classic" />
-  <u-loading type="line" />
+  <u-loading type="dual-ring" />
   <u-loading type="dot" />
-  <u-loading type="spinner" />
+  <u-loading type="ring" />
+  <u-loading type="bars" />
 </template>
 ```
 
@@ -41,7 +41,7 @@ import { shallowRef } from 'vue'
 import { vLoading } from '@veltra/desktop'
 
 const loading = shallowRef(false)
-const loadType = shallowRef<'spinner' | 'line'>('spinner')
+const loadType = shallowRef<'dual-ring' | 'ring'>('dual-ring')
 
 const fetchData = async () => {
   loading.value = true
@@ -77,7 +77,7 @@ const loadAll = async () => {
 <template>
   <u-button type="primary" @click="loadAll">全屏加载</u-button>
   <div
-    v-loading:spinner="fullscreenLoading"
+    v-loading:dual-ring="fullscreenLoading"
     style="position: fixed; inset: 0; z-index: 2000; pointer-events: none;"
   />
 </template>

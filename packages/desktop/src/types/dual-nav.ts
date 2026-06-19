@@ -2,7 +2,7 @@ import type { DeconstructValue } from '@veltra/utils'
 
 import type { NavItem } from './nav'
 
-/** 双栏导航根级应用项；`description` 仅在此层级生效，且仅在双栏导航右栏展示 */
+/** 双栏导航根级应用项；`description` 在左轨 tooltip 与右栏顶部展示 */
 export interface DualNavRootItem extends NavItem {
   /** 子导航 */
   children?: NavItem[]

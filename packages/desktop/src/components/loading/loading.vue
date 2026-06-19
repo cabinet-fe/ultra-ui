@@ -15,7 +15,7 @@ import type { LoadingProps, ComponentSize } from '../../types'
 
 defineOptions({ name: 'Loading' })
 
-const props = withDefaults(defineProps<LoadingProps>(), { type: 'spinner' })
+const props = withDefaults(defineProps<LoadingProps>(), { type: 'dual-ring' })
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 

@@ -9,7 +9,7 @@ $root-name: loading;
   width: 100%;
   height: 100%;
   background-color: fn.use-var(bg-color, top, alpha);
-  color: fn.use-var(text-color, main);
+  color: fn.use-var(color, primary);
   @include m.flex($justify: center, $align: center);
 
   @include m.e(container) {
@@ -17,123 +17,118 @@ $root-name: loading;
   }
 
   // ============================================================
-  // spinner — 渐变圆弧旋转
-  // 使用 conic-gradient + mask 实现缺口圆环旋转
+  // dual-ring — 双环反向旋转（经典 loader）
+  // 外环顺时针，内嵌小环逆时针，border + linear 旋转无缝循环
   // ============================================================
-  @include m.e(spinner) {
+  @include m.e(dual-ring) {
     @include m.bem($root-name, loader) {
-      width: 42px;
+      width: 36px;
       aspect-ratio: 1;
       border-radius: 50%;
-      background: conic-gradient(from 0deg, transparent 25%, currentColor 70%, transparent 100%);
-      mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
-      animation: loading-spin 0.85s linear infinite;
+      border: 3px solid color-mix(in srgb, currentColor 22%, transparent);
+      border-top-color: currentColor;
+      position: relative;
+      animation: loading-spin 0.8s linear infinite;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border-radius: 50%;
+        border: 2px solid color-mix(in srgb, currentColor 22%, transparent);
+        border-bottom-color: currentColor;
+        animation: loading-spin 1.2s linear infinite reverse;
+      }
     }
   }
 
   // ============================================================
-  // dot — 三点波浪弹跳
-  // 元素自身 + 两个伪元素，交错弹跳
+  // dot — 三点呼吸弹跳
+  // 元素自身 + 两个伪元素，交错起伏
   // ============================================================
   @include m.e(dot) {
     @include m.bem($root-name, loader) {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: currentColor;
       position: relative;
-      animation: loading-dot 1.4s ease-in-out infinite;
+      animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 
       &::before,
       &::after {
         content: '';
         position: absolute;
         top: 0;
-        width: 10px;
-        height: 10px;
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
         background: currentColor;
       }
 
       &::before {
-        left: -20px;
-        animation: loading-dot 1.4s ease-in-out infinite;
-        animation-delay: 0.2s;
+        left: -16px;
+        animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        animation-delay: 0.18s;
       }
 
       &::after {
-        right: -20px;
-        animation: loading-dot 1.4s ease-in-out infinite;
-        animation-delay: 0.4s;
+        right: -16px;
+        animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        animation-delay: 0.36s;
       }
     }
   }
 
   // ============================================================
-  // line — 流光扫过
-  // 半透明底轨 + 渐变光条水平扫过
+  // ring — 单环旋转
   // ============================================================
-  @include m.e(line) {
+  @include m.e(ring) {
     @include m.bem($root-name, loader) {
-      width: 160px;
-      height: 3px;
-      border-radius: 1.5px;
-      background: fn.use-var(bg-color, hover);
-      overflow: hidden;
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          currentColor 40%,
-          currentColor 60%,
-          transparent 100%
-        );
-        animation: loading-shimmer 1.4s ease-in-out infinite;
-      }
-    }
-  }
-
-  // ============================================================
-  // classic — 雷达波纹扩散
-  // 两个同心圆环交替向外扩散并淡出
-  // ============================================================
-  @include m.e(classic) {
-    @include m.bem($root-name, loader) {
-      width: 44px;
+      width: 36px;
       aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid color-mix(in srgb, currentColor 22%, transparent);
+      border-top-color: currentColor;
+      animation: loading-spin 0.9s linear infinite;
+    }
+  }
+
+  // ============================================================
+  // bars — 三条音频跳动
+  // 三根竖条以容器中心为基准上下对称伸缩
+  // ============================================================
+  @include m.e(bars) {
+    @include m.bem($root-name, loader) {
+      width: 6px;
+      height: 26px;
+      background: currentColor;
+      border-radius: 3px;
       position: relative;
+      animation: loading-bars 1s ease-in-out infinite;
+      animation-delay: 0.15s;
 
       &::before,
       &::after {
         content: '';
         position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        border: 3px solid currentColor;
-        animation: loading-pulse 1.6s ease-out infinite;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 26px;
+        background: currentColor;
+        border-radius: 3px;
+        animation: loading-bars 1s ease-in-out infinite;
+      }
+
+      &::before {
+        left: -12px;
       }
 
       &::after {
-        animation-delay: 0.8s;
+        right: -12px;
+        animation-delay: 0.3s;
       }
-    }
-  }
-
-  // ============================================================
-  // morph — 形态变换
-  // 方块 ⟷ 圆形 来回变换，配合旋转
-  // ============================================================
-  @include m.e(morph) {
-    @include m.bem($root-name, loader) {
-      width: 34px;
-      aspect-ratio: 1;
-      background: currentColor;
-      animation: loading-morph 2.4s ease-in-out infinite;
     }
   }
 }
@@ -150,53 +145,22 @@ $root-name: loading;
 
 @keyframes loading-dot {
   0%,
-  80%,
   100% {
-    transform: scale(0.4);
-    opacity: 0.25;
+    transform: scale(0.5);
+    opacity: 0.3;
   }
-  40% {
+  50% {
     transform: scale(1);
     opacity: 1;
   }
 }
 
-@keyframes loading-shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes loading-pulse {
-  0% {
-    transform: scale(0.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.35);
-    opacity: 0;
-  }
-}
-
-@keyframes loading-morph {
+@keyframes loading-bars {
   0%,
   100% {
-    border-radius: 50%;
-    transform: rotate(0deg) scale(1);
-  }
-  25% {
-    border-radius: 8px;
-    transform: rotate(45deg) scale(0.7);
+    height: 10px;
   }
   50% {
-    border-radius: 2px;
-    transform: rotate(90deg) scale(1);
-  }
-  75% {
-    border-radius: 8px;
-    transform: rotate(135deg) scale(0.7);
+    height: 26px;
   }
 }
