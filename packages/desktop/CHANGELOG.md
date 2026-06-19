@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.2.7
+
+### Patch Changes
+
+- 2829efc: - UDualNav: 点击左轨应用时默认跳转该应用下首个叶子节点路径
+  - UDualNav: 移除导航默认外边框线条与右栏 header 下方分隔线
+  - @veltra/utils@1.2.7
+  - @veltra/styles@1.2.7
+  - @veltra/compositions@1.2.7
+  - @veltra/directives@1.2.7
+  - @veltra/icons@1.2.7
+
 ## 1.2.6
 
 ### Patch Changes
