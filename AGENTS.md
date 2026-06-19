@@ -8,7 +8,7 @@ Vue 3 组件库，完全 TypeScript 开发，BEM + CSS 变量主题系统。
 
 ```bash
 vp install                          # 安装依赖（自动检测 packageManager → bun）
-cd playgrounds/desktop && vp dev    # 组件预览（端口 7788）
+cd playground && vp dev    # 组件预览（端口 7788）
 bun run build                       # 拓扑构建全部 packages → dist/
 bun run build:packages              # 发布构建（CI 用，排除 @veltra/mobile）
 bun run lint                        # Oxlint + 类型检查（lint.options.typeCheck）
@@ -66,11 +66,12 @@ ultra-ui/
 │   ├── icons/           # @veltra/icons — SVG 图标组件
 │   ├── vite/            # @veltra/vite — Vite 辅助（组件 resolver）
 │   └── mobile/          # @veltra/mobile — 移动端（占位）
-├── playgrounds/
-│   ├── desktop/         # 组件开发预览（→ AGENTS.md）
-│   └── icons/           # 图标预览
+├── playground/          # 统一预览（Desktop 组件 + Icons）
+│   ├── AGENTS.md
+│   ├── nav-config.ts
+│   └── src/
 ├── vite.config.ts       # monorepo 级 test/lint/fmt/run/staged
-├── package.json         # workspaces: packages/*, playgrounds/*
+├── package.json         # workspaces: packages/*, playground
 └── tsconfig.json        # Solution 风格 project references
 ```
 
@@ -85,7 +86,7 @@ ultra-ui/
 | `@veltra/desktop`      | `packages/desktop/AGENTS.md`      |
 | `@veltra/icons`        | `packages/icons/AGENTS.md`        |
 | `@veltra/vite`         | `packages/vite/AGENTS.md`         |
-| 预览应用               | `playgrounds/desktop/AGENTS.md`   |
+| 预览应用               | `playground/AGENTS.md`            |
 
 ## 包依赖关系
 
@@ -100,10 +101,10 @@ ultra-ui/
                ↓
         @veltra/desktop ←── (peer) @veltra/icons
                ↑
-     playgrounds/desktop
+     playground
 ```
 
-`@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playgrounds 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
+`@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playground 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
 
 browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **peerDependencies**（`>=` 下限版本）；宿主或 playground 在 dependencies 中安装实际版本。
 
@@ -134,7 +135,7 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 - `<name>.vue`、`index.ts`（导出 `U<PascalName>`）、`style.scss`、`style.ts`
 - 类型放在 `packages/desktop/src/types/<name>.ts`
 - 在 `components/index.ts` 与 `types/index.ts` 中补充导出
-- 可选：在 `playgrounds/desktop/src/<name>/index.vue` 添加演示页
+- 可选：在 `playground/src/<name>/index.vue` 添加演示页
 
 ## 约束
 
@@ -163,7 +164,7 @@ bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未�
 ### 2. 可选追加（视改动内容）
 
 - 更新当前文件。如果有重要目录、命令的变更、技术栈和依赖的添加删除，需要更新当前文件。
-- 组件演示。当代理运行浏览器自动化相关能力时需要去 `playgrounds/*` 运行 `vp dev` 命令，很多时候用户会提前运行这些命令，先检查定义的端口进程是否存在，如果不存在再运行。
+- 组件演示。当代理运行浏览器自动化相关能力时需要去 `playground` 运行 `vp dev` 命令，很多时候用户会提前运行这些命令，先检查定义的端口进程是否存在，如果不存在再运行。
 - 更新 `skills/veltra-ui` 内容。改动涉及各个包的 API 变更时（例如组件的属性变更、组件的新增删除、utils 的新增删除、包增加导出内容、包版本更新等等）需要更新该目录中的技能。
 
 ### 提交和发版

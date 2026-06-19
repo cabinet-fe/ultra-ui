@@ -108,7 +108,7 @@ git config --local core.ignorecase false
 ### 启动开发服务器
 
 ```bash
-cd playgrounds/desktop
+cd playground
 vp dev
 ```
 
@@ -129,8 +129,7 @@ ultra-ui/
 │   ├── styles/       # @veltra/styles 样式与主题
 │   ├── icons/        # @veltra/icons SVG 图标组件
 │   └── utils/        # @veltra/utils 工具函数与共享类型
-├── playgrounds/
-│   └── desktop/      # 桌面端组件开发预览
+├── playground/       # 统一预览（Desktop 组件 + Icons）
 ```
 
 ## 💻 脚本命令

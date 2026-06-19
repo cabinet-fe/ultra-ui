@@ -41,5 +41,5 @@ Resolver 返回 `@veltra/desktop/components/<dir>/style`（无扩展名）：
 ```bash
 bun run lint
 vp pack -F @veltra/vite
-cd playgrounds/desktop && vp build
+cd playground && vp build
 ```

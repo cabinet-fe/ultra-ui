@@ -115,7 +115,9 @@ const tableProps = computed(() => {
     'readonly',
     'deleteMethod',
     'saveMethod',
-    'features'
+    'features',
+    'mode',
+    'beforeCreate'
   ])
 })
 
@@ -141,6 +143,9 @@ const columns = computed(() => {
 
 function handleUpdateCurrentRow(row?: TableRow) {
   if (allowed('update', row)) {
+    if (row) {
+      state.type = 'update'
+    }
     state.row = row
     state.depth = row?.depth
   }

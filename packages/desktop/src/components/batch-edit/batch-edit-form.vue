@@ -1,5 +1,5 @@
 <template>
-  <aside :class="cls.e('form')" v-if="state.visible && !!props.model">
+  <aside :class="cls.e('form')" v-if="state.visible && formModel">
     <header :class="cls.e('form-header')">
       <span :class="[cls.e('form-icon'), bem.is(headerInfo.tone)]">
         <u-icon>
@@ -27,9 +27,8 @@
       <transition name="fade" appear mode="out-in">
         <u-form
           ref="formComponentRef"
-          :model="props.model"
+          :model="formModel"
           :readonly="props.readonly"
-          @keydown="handleFormKeydown"
           :label-width="props.labelWidth"
         >
           <slot
@@ -45,21 +44,25 @@
     </u-scroll>
 
     <footer :class="cls.e('form-footer')">
-      <span :class="cls.e('form-hint')" v-if="!props.readonly && state.dataUpdated">
-        有未保存改动
+      <span :class="cls.e('form-hint')" v-if="props.readonly">只读模式</span>
+      <span :class="cls.e('form-hint')" v-else-if="isQuickUpdate">
+        实时编辑
+        <span :class="{ [bem.is('concealed')]: !focused }"> · <u-kbd>Esc</u-kbd> 关闭</span>
       </span>
-      <span :class="cls.e('form-hint')" v-else-if="!props.readonly">
-        <u-kbd>Ctrl + Enter</u-kbd> 保存 · <u-kbd>Esc</u-kbd> 关闭
+      <span :class="cls.e('form-hint')" v-else>
+        <span :class="{ [bem.is('concealed')]: !focused }">
+          <u-kbd>Ctrl + S</u-kbd> 保存 · <u-kbd>Esc</u-kbd> 关闭
+        </span>
       </span>
-      <span :class="cls.e('form-hint')" v-else>只读模式</span>
 
       <div :class="cls.e('form-actions')">
         <u-button text :loading="state.loading" @click="handleClose"> 取消 </u-button>
         <u-button
-          v-if="!props.readonly && (creatable || updatable)"
+          v-if="
+            !props.readonly && ((isNormal && (creatable || updatable)) || (isQuick && creatable))
+          "
           :type="state.type === 'create' ? 'success' : 'primary'"
           :loading="state.loading"
-          :disabled="!state.dataUpdated"
           @click="handleSave"
         >
           保存
@@ -84,6 +87,8 @@ import { BatchEditDIKey } from './di'
 
 defineOptions({ name: 'BatchEditForm' })
 
+const batchEditCtx = inject(BatchEditDIKey)!
+
 const {
   cls,
   props,
@@ -93,7 +98,9 @@ const {
   handleClose,
   staticFeatures,
   dynamicFeatures
-} = inject(BatchEditDIKey)!
+} = batchEditCtx
+
+const focused = toRef(batchEditCtx, 'focused')
 
 const formComponentRef = shallowRef<FormExposed>()
 
@@ -116,6 +123,17 @@ const updatable = computed(() => {
     state.type === 'update' &&
     (staticFeatures.value.has('update') || dynamicFeatures.value.update?.(state.row))
   )
+})
+
+const isQuick = computed(() => props.mode === 'quick')
+const isNormal = computed(() => props.mode !== 'quick')
+const isQuickUpdate = computed(() => isQuick.value && state.type === 'update')
+
+const formModel = computed(() => {
+  if (isQuick.value && state.type === 'update' && state.row) {
+    return state.row.data
+  }
+  return props.model
 })
 
 interface HeaderInfo {
@@ -157,11 +175,4 @@ const headerInfo = computed<HeaderInfo>(() => {
 const bodyKey = computed(() => {
   return `${state.type}-${state.row?.uid ?? 'create'}-${state.parentRow?.uid ?? 'root'}`
 })
-
-function handleFormKeydown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-    e.preventDefault()
-    handleSave()
-  }
-}
 </script>

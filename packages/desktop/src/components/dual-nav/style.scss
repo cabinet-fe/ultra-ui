@@ -1,0 +1,153 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+@include m.b(dual-nav) {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  background-color: var(--u-nav-bg-color);
+  border: 1px solid fn.use-var(border, color);
+  border-radius: calc(fn.use-var(radius, large) + 6px);
+  overflow: hidden;
+
+  @include m.e(rail) {
+    flex-shrink: 0;
+    width: var(--u-nav-rail-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    background-color: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(divider) {
+    flex-shrink: 0;
+    width: 1px;
+    background-color: fn.use-var(border, color);
+  }
+
+  @include m.e(panel) {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(panel-header) {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid fn.use-var(border, color);
+  }
+
+  @include m.e(panel-header-main) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  @include m.e(panel-title) {
+    margin: 0;
+    font-size: fn.use-var(font-size, default);
+    font-weight: 600;
+    line-height: 1.4;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(description) {
+    margin: 0;
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.5;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(toggle-expand) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
+    }
+  }
+
+  @include m.e(panel-body) {
+    flex: 1;
+    min-height: 0;
+
+    .u-nav {
+      height: 100%;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      background-color: transparent;
+    }
+  }
+
+  @include m.e(app) {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: calc(var(--u-nav-rail-width) - 12px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: calc(fn.use-var(radius, default) + 2px);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
+    }
+
+    @include m.is(active) {
+      background-color: var(--u-nav-active-bg);
+      color: var(--u-nav-active-color);
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(app-icon) {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    object-fit: contain;
+  }
+
+  @include m.e(app-fallback) {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+  }
+}

@@ -1,7 +1,7 @@
 import { last, o, safeRun } from '@cat-kit/core'
 import { computed, nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
-import type { TableRow, BatchEditEmits, BatchEditProps, TableExposed } from '../../types'
+import type { TableRow, BatchEditEmits, BatchEditProps } from '../../types'
 import type { FormExposed } from '../../types/form'
 
 /** 按索引路径在原始数据树中定位节点（等价于历史 Forest.visit 路径访问） */
@@ -29,7 +29,6 @@ function visitDataByIndexPath<T extends Record<string, unknown>>(
 interface Options {
   props: BatchEditProps
   emit: BatchEditEmits
-  tableRef: ShallowRef<TableExposed | undefined>
   formRef: ShallowRef<FormExposed | undefined>
 }
 
@@ -42,8 +41,6 @@ export interface BatchEditStates {
   row?: TableRow
   /** 父级，只在添加子级时会有值 */
   parentRow?: TableRow
-  /** 数据是否已更新 */
-  dataUpdated: boolean
 }
 
 export interface EditReturned {
@@ -51,13 +48,13 @@ export interface EditReturned {
   insertIndexes: ShallowRef<number[]>
   handleSave: () => Promise<void>
   handleClose: () => void
-  handleCreate: () => void
+  handleCreate: () => Promise<void>
   handleEdit: (row: TableRow) => void
-  handleCopy: (row: TableRow) => void
+  handleCopy: (row: TableRow) => Promise<void>
   handleDelete: (row: TableRow) => Promise<void>
-  handleInsertToNext: (row: TableRow) => void
-  handleInsertToPrev: (row: TableRow) => void
-  handleInsertChild: (row: TableRow) => void
+  handleInsertToNext: (row: TableRow) => Promise<void>
+  handleInsertToPrev: (row: TableRow) => Promise<void>
+  handleInsertChild: (row: TableRow) => Promise<void>
 }
 
 function snapshotData(data?: Record<string, any>) {
@@ -72,100 +69,48 @@ function replaceModelData(model: Record<string, any>, data: Record<string, any>)
 }
 
 export function useEdit(options: Options): EditReturned {
-  const { props, emit, tableRef, formRef } = options
+  const { props, emit, formRef } = options
 
   /** 组件状态 */
   const state = shallowReactive<BatchEditStates>({
     depth: undefined,
     visible: false,
     type: 'create',
-    loading: false,
-    dataUpdated: false
+    loading: false
   })
 
   const insertIndexes = shallowRef<number[]>([])
-
-  watch(
-    () => state.visible,
-    (v) => {
-      if (!v) {
-        state.dataUpdated = false
-      }
-    }
-  )
-
-  /**
-   * 「打开行 / 切换 type」时记录的基线快照
-   * @description
-   * 用于 changeCb 内部比对 — 若新值与基线相等（深比较）视为无改动，避免某些组件在 mount
-   * 阶段把规范化后的值再写回模型时被误判为「用户已修改」
-   */
-  let baselineSnapshot: Record<string, any> | undefined
-  let emptySnapshot: Record<string, any> | undefined
 
   function snapshotModelData() {
     return snapshotData(props.model)
   }
 
-  function resetFormData(data?: Record<string, any>) {
-    if (!props.model) return
-    replaceModelData(props.model, snapshotData(data ?? emptySnapshot))
-    formRef.value?.clearValidate()
-  }
-
-  function setFormData(formData: Record<string, any>) {
+  function setFormData(formData?: Record<string, any>) {
     if (!props.model) return
     replaceModelData(props.model, snapshotData(formData))
   }
 
-  watch(
-    () => props.model,
-    (model) => {
-      emptySnapshot = snapshotData(model)
-    },
-    { immediate: true }
-  )
+  const isQuickMode = () => props.mode === 'quick'
+
+  async function runBeforeCreate(data: Record<string, any>) {
+    await props.beforeCreate?.(data, state.parentRow?.data)
+  }
 
   watch(
     () => state.row,
     (row) => {
-      resetFormData()
       if (row) {
         state.type = 'update'
         state.visible = true
-        setFormData(row.data)
+        if (!isQuickMode()) {
+          setFormData(row.data)
+        }
       } else {
         state.visible = false
       }
-      baselineSnapshot = snapshotModelData()
-      state.dataUpdated = false
     },
-    // sync 保证 setData 完成后立刻取快照，避免 mount 期间组件回写值时丢基线
     { flush: 'sync' }
   )
-
-  watch(
-    () => props.model,
-    () => {
-      if (!baselineSnapshot || !state.visible) return
-      state.dataUpdated = !isSameValue(baselineSnapshot, snapshotModelData())
-    },
-    { deep: true }
-  )
-
-  function isSameValue(a: any, b: any) {
-    if (a === b) return true
-    if (a == null && b == null) return true
-    if (typeof a !== typeof b) return false
-    if (typeof a === 'object') {
-      try {
-        return JSON.stringify(a) === JSON.stringify(b)
-      } catch {
-        return false
-      }
-    }
-    return false
-  }
 
   const childrenKey = computed(() => {
     return typeof props.tree === 'string' ? props.tree : 'children'
@@ -204,59 +149,53 @@ export function useEdit(options: Options): EditReturned {
     return snapshotModelData()
   }
 
-  async function runCreate(cb: () => void) {
+  async function runCreate(cb: () => void, initialData?: Record<string, any>) {
     state.parentRow = undefined
     if (state.row) {
       state.row.isCurrent = false
     }
     state.row = undefined
     state.type = 'create'
-    resetFormData()
     cb()
-
-    let item: Record<string, any> | undefined = undefined
 
     await nextTick()
 
-    state.visible = true
-    baselineSnapshot = snapshotModelData()
-    state.dataUpdated = false
+    setFormData(initialData)
 
-    if (item) {
-      const row = tableRef.value?.getRowByData(item)
-      if (row) {
-        state.row = row
-      }
+    if (isQuickMode() && props.model) {
+      await runBeforeCreate(props.model)
     }
+
+    state.visible = true
   }
 
   /**
    * 点击新增按钮
    */
-  function handleCreate() {
+  async function handleCreate() {
     const { data } = props
-    runCreate(() => {
+    await runCreate(() => {
       state.depth = 1
       insertIndexes.value = [data?.length ?? 0]
     })
   }
 
-  function handleInsertToPrev(row: TableRow) {
-    runCreate(() => {
+  async function handleInsertToPrev(row: TableRow) {
+    await runCreate(() => {
       state.depth = row.depth
       insertIndexes.value = [...row.indexes]
     })
   }
 
-  function handleInsertToNext(row: TableRow) {
-    runCreate(() => {
+  async function handleInsertToNext(row: TableRow) {
+    await runCreate(() => {
       state.depth = row.depth
       insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
     })
   }
 
-  function handleInsertChild(row: TableRow) {
-    runCreate(() => {
+  async function handleInsertChild(row: TableRow) {
+    await runCreate(() => {
       state.parentRow = row
       state.depth = row.depth + 1
       row.expanded = true
@@ -267,19 +206,17 @@ export function useEdit(options: Options): EditReturned {
 
   /** 编辑指定行（等同于点击行） */
   function handleEdit(row: TableRow) {
+    state.type = 'update'
     state.row = row
     state.depth = row.depth
   }
 
   /** 复制指定行：在其下方以 create 模式打开表单，并预填副本数据 */
-  function handleCopy(row: TableRow) {
-    runCreate(() => {
+  async function handleCopy(row: TableRow) {
+    await runCreate(() => {
       state.depth = row.depth
       insertIndexes.value = [...row.indexes.slice(0, -1), row.index + 1]
-      setFormData(row.data)
-      baselineSnapshot = snapshotModelData()
-      state.dataUpdated = false
-    })
+    }, row.data)
   }
 
   function runWithLoading<Arg extends any[]>(fn: (...args: Arg) => Promise<void> | void) {
@@ -306,36 +243,47 @@ export function useEdit(options: Options): EditReturned {
 
     if (!model) return
 
+    if (isQuickMode() && state.type === 'update') return
+
     formRef.value?.clearValidate()
     const valid = await formRef.value?.validate()
 
     if (!valid) return
 
+    // quick + create：仅校验 + insert
+    if (isQuickMode() && state.type === 'create') {
+      insert(getInsertData())
+      return
+    }
+
     let item = getInsertData()
+
+    // normal + create：beforeCreate → saveMethod → insert
+    if (state.type === 'create') {
+      await runBeforeCreate(item)
+      if (saveMethod) {
+        const result = await saveMethod(item, state.type, state.parentRow?.data)
+        if (result) {
+          item = result
+        }
+      }
+      insert(item)
+      return
+    }
+
+    // normal + update
     if (saveMethod) {
-      const result = await saveMethod(item, state.type, state.parentRow)
+      const result = await saveMethod(item, state.type, state.parentRow?.data)
       if (result) {
         item = result
       }
     }
 
-    state.dataUpdated = false
-
-    // 新增
-    if (state.type === 'create') {
-      insert(item)
-
-      resetFormData()
-      return
-    }
-    // 更新
-    if (state.type === 'update') {
-      const { row } = state
-      row &&
-        Object.keys(item).forEach((key) => {
-          o(row.data).set(key, o(item).get(key))
-        })
-    }
+    const { row } = state
+    row &&
+      Object.keys(item).forEach((key) => {
+        o(row.data).set(key, o(item).get(key))
+      })
   })
 
   const handleDelete = runWithLoading(async (row: TableRow) => {
@@ -376,7 +324,6 @@ export function useEdit(options: Options): EditReturned {
     state.row = undefined
     state.parentRow = undefined
     state.depth = undefined
-    resetFormData()
     insertIndexes.value = []
   }
 

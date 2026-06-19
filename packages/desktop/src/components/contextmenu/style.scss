@@ -78,15 +78,15 @@ $arrow-size: 12px;
 
     #{$b}__item:not(.is-disabled):not(.is-loading) > & {
       &:hover {
-        background-color: var(--u-menu-hover-bg);
-        color: var(--u-menu-hover-color);
+        background-color: var(--u-nav-hover-bg);
+        color: var(--u-nav-hover-color);
       }
     }
   }
 
   #{$b}__item.is-open:not(.is-disabled) > #{$b}__item-content {
-    background-color: var(--u-menu-hover-bg);
-    color: var(--u-menu-hover-color);
+    background-color: var(--u-nav-hover-bg);
+    color: var(--u-nav-hover-color);
   }
 
   @include m.e(icon-place) {
@@ -128,7 +128,7 @@ $arrow-size: 12px;
 
     @include m.e(item-content) {
       padding: 0 fn.use-var(gap, $size);
-      min-height: calc(var(--u-menu-height-#{$size}) - 8px);
+      min-height: calc(var(--u-nav-height-#{$size}) - 8px);
       border-radius: calc(fn.use-var(radius, $size) + 1px);
     }
   }

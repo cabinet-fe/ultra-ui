@@ -47,7 +47,7 @@ src/
 ## 依赖
 
 - **peer**：`@cat-kit/core`、`@veltra/compositions`、`@veltra/utils`、`vue`
-- **被依赖**：`@veltra/directives`、`@veltra/desktop`、`playgrounds/desktop`
+- **被依赖**：`@veltra/directives`、`@veltra/desktop`、`playground`
 
 ## sideEffects
 

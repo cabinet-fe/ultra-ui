@@ -68,14 +68,14 @@ $root-name: select;
     @include m.ellipsis;
 
     &:hover {
-      background-color: var(--u-menu-hover-bg);
-      color: var(--u-menu-hover-color);
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
     }
 
     @include m.is(selected) {
       position: relative;
-      background-color: var(--u-menu-active-bg);
-      color: var(--u-menu-active-color);
+      background-color: var(--u-nav-active-bg);
+      color: var(--u-nav-active-color);
       font-weight: 600;
 
       &::before {

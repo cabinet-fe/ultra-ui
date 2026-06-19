@@ -46,11 +46,11 @@ const cls = bem('xxx')
 
 1. `components/<name>/`：`*.vue`、`index.ts`、`style.scss`、`style.ts`
 2. `types/<name>.ts`，并在 `types/index.ts`、`components/index.ts` 导出
-3. `playgrounds/desktop/src/<name>/index.vue` 演示页（自动路由）
+3. `playground/src/<name>/index.vue` 演示页（自动路由，需在 `nav-config.ts` 登记）
 
 ## 依赖注入
 
-table、menu、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionKey`，父子 `provide` / `inject`。
+table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionKey`，父子 `provide` / `inject`。
 
 ## 导出子路径
 
@@ -71,6 +71,6 @@ table、menu、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `Injection
 ```bash
 bun run lint
 vp pack -F @veltra/desktop
-cd playgrounds/desktop && vp dev    # UI 与按需样式
+cd playground && vp dev    # UI 与按需样式
 bun run build                       # 全量拓扑
 ```

@@ -5,15 +5,16 @@
     rows="minmax(0, 1fr)"
     gap="8px"
     resizable
-    @keydown="handleKeydown"
     tabindex="-1"
+    @focusin="handleFocusIn"
+    @focusout="handleFocusOut"
+    @keydown.capture="handleKeydown"
   >
     <!-- 编辑列表 -->
-    <BatchEditList :slots="slots" />
+    <BatchEditList :slots="slots" ref="tableRef" />
 
     <!-- 编辑表单 -->
     <BatchEditForm ref="formRef" v-slot="scoped">
-      <!-- @vue-ignore -->
       <slot name="form" v-bind="scoped" />
     </BatchEditForm>
   </u-layout>
@@ -25,7 +26,6 @@ import { computed, inject, provide, shallowRef, watch } from 'vue'
 
 import type {
   BatchEditEmits,
-  BatchEditFeature,
   BatchEditProps,
   TableColumnSlotsScope,
   TableExposed,
@@ -38,6 +38,7 @@ import BatchEditForm from './batch-edit-form.vue'
 import BatchEditList from './batch-edit-list.vue'
 import { BatchEditDIKey } from './di'
 import { useEdit } from './use-edit'
+import { useFeatures } from './use-features'
 
 defineOptions({ name: 'BatchEdit' })
 
@@ -48,58 +49,9 @@ const props = withDefaults(defineProps<BatchEditProps>(), {
 
 const emit = defineEmits<BatchEditEmits>()
 
-const staticFeatures = computed(() => {
-  const { features } = props
-
-  if (Array.isArray(features)) {
-    return new Set(features)
-  }
-
-  const defaultFeatures = new Set<BatchEditFeature>(['create', 'delete', 'update', 'createChild'])
-
-  if (!features) {
-    return defaultFeatures
-  }
-
-  // 函数与 false 的特性视为关闭；显式 true 视为开启（即便不在默认集合内）
-  Object.entries(features).forEach(([key, value]) => {
-    const k = key as BatchEditFeature
-    if (typeof value === 'function' || value === false) {
-      defaultFeatures.delete(k)
-    } else if (value === true) {
-      defaultFeatures.add(k)
-    }
-  })
-  return defaultFeatures
-})
-
-const dynamicFeatures = computed<
-  Record<BatchEditFeature, ((row?: TableRow) => boolean) | undefined>
->(() => {
-  const { features } = props
-  if (!Array.isArray(features) && typeof features === 'object') {
-    const ret = Object.entries(features)
-      .filter(([_, value]) => {
-        return typeof value === 'function'
-      })
-      .reduce(
-        (acc, [key, value]) => {
-          acc[key] = value
-          return acc
-        },
-        {} as Record<BatchEditFeature, (row?: TableRow) => boolean>
-      )
-    return ret
-  }
-
-  return {} as Record<BatchEditFeature, ((row?: TableRow) => boolean) | undefined>
-})
-
 const slots = defineSlots<
   {
     form?: (props: {
-      /** 表单数据 */
-      data: Record<string, any> | undefined
       /** 当前编辑的层级 */
       depth?: number
       /** 当前编辑的行 */
@@ -118,12 +70,24 @@ const cls = bem('batch-edit')
 
 const tableRef = shallowRef<TableExposed>()
 const formRef = shallowRef<FormExposed>()
+const focused = shallowRef(false)
 
-const editCtx = useEdit({ props, emit, tableRef, formRef })
+const { staticFeatures, dynamicFeatures } = useFeatures({ props })
 
-const { state, handleClose, handleSave, handleDelete, handleCreate } = editCtx
+const editCtx = useEdit({ props, emit, formRef })
 
-provide(BatchEditDIKey, { cls, props, emit, tableRef, staticFeatures, dynamicFeatures, ...editCtx })
+const { state, handleClose, handleSave } = editCtx
+
+provide(BatchEditDIKey, {
+  cls,
+  props,
+  emit,
+  tableRef,
+  staticFeatures,
+  dynamicFeatures,
+  focused,
+  ...editCtx
+})
 
 const dialogCtx = inject(DialogDIKey, undefined)
 
@@ -136,14 +100,24 @@ const cols = computed(() => {
   return !!state.row || state.visible ? props.cols : undefined
 })
 
+function handleFocusIn() {
+  focused.value = true
+}
+
+function handleFocusOut(e: FocusEvent) {
+  const root = e.currentTarget as HTMLElement
+  if (!root.contains(e.relatedTarget as Node | null)) {
+    focused.value = false
+  }
+}
+
 /**
- * 键盘快捷键：
- * - Esc        关闭表单
- * - ⌘/Ctrl + S   保存
- * - ⌘/Ctrl + Backspace 删除当前编辑行
- * - ⌘/Ctrl + N   新增（仅在不在表单中时）
+ * 键盘快捷键（仅组件获焦时生效）：
+ * - Esc          关闭表单
+ * - ⌘/Ctrl + S   保存（快速编辑模式下编辑行时除外）
  */
 function handleKeydown(e: KeyboardEvent) {
+  if (!focused.value) return
   if (props.readonly && e.key !== 'Escape') return
 
   if (e.key === 'Escape') {
@@ -160,20 +134,9 @@ function handleKeydown(e: KeyboardEvent) {
   const key = e.key.toLowerCase()
 
   if (key === 's' && state.visible) {
+    if (props.mode === 'quick' && state.type === 'update') return
     e.preventDefault()
     handleSave()
-    return
-  }
-
-  if (e.key === 'Backspace' && state.row && state.type === 'update') {
-    e.preventDefault()
-    handleDelete(state.row)
-    return
-  }
-
-  if (key === 'n' && !state.visible) {
-    e.preventDefault()
-    handleCreate()
   }
 }
 </script>

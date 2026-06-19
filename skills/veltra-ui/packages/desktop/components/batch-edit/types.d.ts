@@ -18,6 +18,9 @@ export interface BatchEditColumn extends TableColumn {
 
 export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete' | 'view' | 'createChild'
 
+/** 批量编辑模式 */
+export type BatchEditMode = 'normal' | 'quick'
+
 /** 批量编辑组件属性 */
 export interface BatchEditProps extends TableProps {
   /**
@@ -33,13 +36,27 @@ export interface BatchEditProps extends TableProps {
   cols?: string | [string, string]
   /** 只读模式 */
   readonly?: boolean
+  /**
+   * 编辑模式
+   * @default 'normal'
+   * @description `quick` 模式下编辑行时表单直接绑定 `row.data` 实时更新，且不调用 `saveMethod`
+   */
+  mode?: BatchEditMode
+  /**
+   * 新增前的钩子
+   * @description 仅作用于 create 类操作。`normal` 模式在保存时调用；`quick` 模式在点击新增类按钮时立即调用。可直接修改传入的 draft 对象
+   */
+  beforeCreate?: (
+    data: Record<string, any>,
+    parentData?: Record<string, any>
+  ) => void | Promise<void>
   /** label的宽度 */
   labelWidth?: string | number
   /** 删除方法 */
   deleteMethod?: (data: Record<string, any>[]) => any
   /**
    * 保存方法
-   * @description 这个方法旨在快编时生效
+   * @description 仅在 `normal` 模式下、保存时调用（create / update）
    * @returns 如果返回一个值，那么这个值会被插入，否则插入的为表单值
    */
   saveMethod?: (

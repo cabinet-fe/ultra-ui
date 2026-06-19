@@ -1,5 +1,0 @@
-{
-  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
-  "compilerOptions": { "noEmit": true, "skipLibCheck": true, "skipDefaultLibCheck": true },
-  "include": ["src/**/*.ts", "src/**/*.vue"]
-}

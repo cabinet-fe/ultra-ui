@@ -16,5 +16,5 @@
   "access": "public",
   "baseBranch": "dev",
   "updateInternalDependencies": "patch",
-  "ignore": ["@veltra/mobile", "play-desktop", "play-icons"]
+  "ignore": ["@veltra/mobile", "playground"]
 }

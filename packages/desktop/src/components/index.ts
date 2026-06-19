@@ -108,7 +108,9 @@ export * from './list'
 
 export * from './rich-text-editor'
 
-export * from './menu'
+export * from './nav'
+
+export * from './dual-nav'
 
 export * from './grid-input'
 

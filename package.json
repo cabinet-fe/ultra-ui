@@ -12,7 +12,7 @@
   "author": "cabinet-fe",
   "workspaces": [
     "packages/*",
-    "playgrounds/*"
+    "playground"
   ],
   "type": "module",
   "scripts": {

@@ -11,8 +11,7 @@
   "include": [
     "vite.config.ts",
     "packages/*/vite.config.ts",
-    "playgrounds/desktop/vite.config.ts",
-    "playgrounds/icons/vite.config.ts",
+    "playground/vite.config.ts",
     "scripts/*.ts",
     "packages/icons/scripts/*.ts"
   ]

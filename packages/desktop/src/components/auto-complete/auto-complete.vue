@@ -33,15 +33,15 @@
     <template #content>
       <u-scroll tag="ul" :class="cls.e('options')" ref="scrollRef">
         <li
-          v-if="cachedSuggestion"
+          v-if="displayCachedSuggestion"
           :class="[optionClass, bem.is('active', isCachedActive)]"
-          @click="handleSelectCachedOption(cachedSuggestion)"
+          @click="handleSelectCachedOption(displayCachedSuggestion)"
           v-ripple="cls.e('ripple')"
-          :data-key="cachedSuggestion"
-          :key="cachedSuggestion"
+          :data-key="displayCachedSuggestion"
+          :key="displayCachedSuggestion"
         >
-          <slot v-bind="{ option: cachedSuggestion, index: -1 }">
-            {{ cachedSuggestion }}
+          <slot v-bind="{ option: displayCachedSuggestion, index: -1 }">
+            {{ displayCachedSuggestion }}
           </slot>
         </li>
 
@@ -90,6 +90,7 @@ defineOptions({ name: 'AutoComplete', inheritAttrs: false })
 const props = withDefaults(defineProps<AutoCompleteProps>(), {
   placeholder: '请输入',
   clearable: true,
+  allowCustom: true,
   disabled: undefined,
   readonly: undefined
 })
@@ -129,10 +130,15 @@ watch(scrollRef, (scroll) => {
 
 const { suggestions, appendedSuggestions, cachedSuggestion } = useSuggestions({ props, model })
 
+const displayCachedSuggestion = computed(() => {
+  if (!props.allowCustom) return undefined
+  return cachedSuggestion.value
+})
+
 const keyboardOptions = computed(() => {
   const currentSuggestions = suggestions.value
-  return cachedSuggestion.value
-    ? [cachedSuggestion.value, ...currentSuggestions]
+  return displayCachedSuggestion.value
+    ? [displayCachedSuggestion.value, ...currentSuggestions]
     : currentSuggestions
 })
 
@@ -148,7 +154,7 @@ const { point, handleKeydown } = useKeyboard({
     return 0
   },
   onSelect: (option, index) => {
-    if (cachedSuggestion.value && index === 0) {
+    if (displayCachedSuggestion.value && index === 0) {
       handleSelectCachedOption(option)
       return
     }
@@ -156,18 +162,18 @@ const { point, handleKeydown } = useKeyboard({
   }
 })
 
-const isCachedActive = computed(() => !!cachedSuggestion.value && point.value === 0)
+const isCachedActive = computed(() => !!displayCachedSuggestion.value && point.value === 0)
 
 const isActiveOption = (index: number) => {
-  const offset = cachedSuggestion.value ? 1 : 0
+  const offset = displayCachedSuggestion.value ? 1 : 0
   return point.value === index + offset
 }
 
 const handleInputKeydown = (event: KeyboardEvent) => {
-  if (!dropdownVisible.value && event.key === 'Enter' && cachedSuggestion.value) {
+  if (!dropdownVisible.value && event.key === 'Enter' && displayCachedSuggestion.value) {
     event.preventDefault()
     event.stopPropagation()
-    handleSelectCachedOption(cachedSuggestion.value)
+    handleSelectCachedOption(displayCachedSuggestion.value)
     return
   }
   handleKeydown(event)
@@ -202,4 +208,9 @@ const handleSelectCachedOption = (cachedOption: string) => {
   appendedSuggestions.value = [...appendedSuggestions.value, cachedOption]
   dropdownRef.value?.close()
 }
+
+defineExpose<_AutoCompleteExposed>({
+  open: () => dropdownRef.value?.open(),
+  close: () => dropdownRef.value?.close()
+})
 </script>
