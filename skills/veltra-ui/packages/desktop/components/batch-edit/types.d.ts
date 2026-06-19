@@ -39,7 +39,7 @@ export interface BatchEditProps extends TableProps {
   /**
    * 编辑模式
    * @default 'normal'
-   * @description `quick` 模式下编辑行时表单直接绑定 `row.data` 实时更新，且不调用 `saveMethod`
+   * @description `quick` 模式下编辑行时表单实时写回 `row.data`（经 `model` 中转），且不调用 `saveMethod`
    */
   mode?: BatchEditMode
   /**

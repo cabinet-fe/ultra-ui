@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.8
+
+### Patch Changes
+
+- 92edbbe: 修复 batch-edit quick 模式下表单条件字段无法响应当前编辑行的问题：表单改由 `model` 中转实时写回 `row.data`，所有模式均回填 model。
+  - @veltra/utils@1.2.8
+  - @veltra/styles@1.2.8
+  - @veltra/compositions@1.2.8
+  - @veltra/directives@1.2.8
+  - @veltra/icons@1.2.8
+
 ## 1.2.7
 
 ### Patch Changes
