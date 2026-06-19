@@ -138,13 +138,13 @@
 
         <!-- 条件显示字段 -->
         <u-input
-          v-if="!data?.age || data.age < 25"
+          v-if="!model.age || model.age < 25"
           field="emergencyContact"
           label="紧急联系人"
           :rules="{ required: true }"
         />
         <u-input
-          v-if="data.department === 'tech'"
+          v-if="model.department === 'tech'"
           field="programmingLanguage"
           label="主要编程语言"
         />

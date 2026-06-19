@@ -102,14 +102,36 @@ export function useEdit(options: Options): EditReturned {
       if (row) {
         state.type = 'update'
         state.visible = true
-        if (!isQuickMode()) {
-          setFormData(row.data)
-        }
+        // 所有模式下都回填 model，保证表单内条件字段（依赖 model）能响应当前编辑行
+        setFormData(row.data)
       } else {
         state.visible = false
       }
     },
     { flush: 'sync' }
+  )
+
+  /**
+   * quick + update：model 实时写回 row.data，让表格显示同步更新。
+   * normal 模式不写回，需等待保存。
+   *
+   * 监听源仅限 props.model（deep 遍历仅作用于 model，不触及 row 树）；
+   * mode/type/row 在回调中读取但不作为依赖，避免行切换等场景误触发。
+   */
+  watch(
+    () => props.model,
+    (model) => {
+      const { row, type } = state
+      if (props.mode !== 'quick' || type !== 'update' || !row || !model) return
+      const data = row.data
+      Object.keys(model).forEach((key) => {
+        const next = o(model).get(key)
+        if (o(data).get(key) !== next) {
+          o(data).set(key, next)
+        }
+      })
+    },
+    { deep: true }
   )
 
   const childrenKey = computed(() => {

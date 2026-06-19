@@ -1,5 +1,5 @@
 <template>
-  <aside :class="cls.e('form')" v-if="state.visible && formModel">
+  <aside :class="cls.e('form')" v-if="state.visible && props.model">
     <header :class="cls.e('form-header')">
       <span :class="[cls.e('form-icon'), bem.is(headerInfo.tone)]">
         <u-icon>
@@ -27,7 +27,7 @@
       <transition name="fade" appear mode="out-in">
         <u-form
           ref="formComponentRef"
-          :model="formModel"
+          :model="props.model"
           :readonly="props.readonly"
           :label-width="props.labelWidth"
         >
@@ -128,13 +128,6 @@ const updatable = computed(() => {
 const isQuick = computed(() => props.mode === 'quick')
 const isNormal = computed(() => props.mode !== 'quick')
 const isQuickUpdate = computed(() => isQuick.value && state.type === 'update')
-
-const formModel = computed(() => {
-  if (isQuick.value && state.type === 'update' && state.row) {
-    return state.row.data
-  }
-  return props.model
-})
 
 interface HeaderInfo {
   icon: Component
