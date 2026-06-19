@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.2.6
+
+### Patch Changes
+
+- c41e665: - ULoading: 重构加载类型枚举为 `dual-ring` / `dot` / `ring` / `bars`，默认值改为 `dual-ring`（breaking：移除 `classic` / `line` / `spinner` / `morph`）
+  - UDualNav: 左轨应用项增加 tooltip 展示描述、`selected` 选中态样式，并接入 ripple 指令
+  - @veltra/utils@1.2.6
+  - @veltra/styles@1.2.6
+  - @veltra/compositions@1.2.6
+  - @veltra/directives@1.2.6
+  - @veltra/icons@1.2.6
+
 ## 1.2.5
 
 ### Patch Changes
