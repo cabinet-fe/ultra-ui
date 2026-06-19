@@ -1,5 +1,16 @@
 # @veltra/vite
 
+## 1.2.5
+
+### Patch Changes
+
+- 53d024d: - 将 UMenu 重命名为 UNav，新增 UDualNav 双栏导航组件
+  - 优化 UBatchEdit 功能特性与交互
+  - 更新 VeltraDesktopUIResolver 以支持导航组件重命名
+  - 合并 playground 为统一预览应用
+- Updated dependencies [53d024d]
+  - @veltra/desktop@1.2.5
+
 ## 1.2.4
 
 ### Patch Changes

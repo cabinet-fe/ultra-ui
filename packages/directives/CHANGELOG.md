@@ -1,5 +1,12 @@
 # @veltra/directives
 
+## 1.2.5
+
+### Patch Changes
+
+- @veltra/utils@1.2.5
+- @veltra/styles@1.2.5
+
 ## 1.2.4
 
 ### Patch Changes
