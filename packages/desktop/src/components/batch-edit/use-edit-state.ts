@@ -35,7 +35,6 @@ export function useEditState(options: Options) {
   watch(
     () => state.row,
     (row) => {
-      resetState()
       if (row) {
         if (props.model) {
           o(props.model).deepExtend(row.data)
@@ -47,6 +46,8 @@ export function useEditState(options: Options) {
 
         return
       }
+
+      resetState()
     }
   )
 

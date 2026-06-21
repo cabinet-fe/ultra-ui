@@ -14,7 +14,9 @@
     <BatchEditList :slots="slots" />
 
     <!-- 编辑表单 -->
-    <BatchEditForm :slots="slots" ref="form" />
+    <BatchEditForm ref="form" v-slot="scoped">
+      <slot name="form" v-bind="scoped" />
+    </BatchEditForm>
   </u-layout>
 </template>
 

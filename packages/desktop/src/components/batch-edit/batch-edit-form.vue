@@ -29,14 +29,13 @@
           :label-width="props.labelWidth"
           @field:change="handleFieldChange"
         >
-          <component
-            v-for="value of slots.form?.({
+          <slot
+            v-bind="{
               row: state.row,
               depth: state.depth,
               indexes: state.indexPath,
               index: state.row?.index
-            })"
-            :is="value"
+            }"
           />
         </u-form>
       </transition>
@@ -81,8 +80,6 @@ import { BatchEditDIKey } from './di'
 import { FORM_ACTION_HEADER_MAP } from './form-action-header'
 
 defineOptions({ name: 'BatchEditForm' })
-
-defineProps<{ slots: BatchEditSlots }>()
 
 const batchEditCtx = inject(BatchEditDIKey)!
 

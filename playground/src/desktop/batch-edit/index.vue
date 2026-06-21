@@ -34,9 +34,6 @@
         </span>
       </template>
       <template #form="{ row }">
-        <u-tip v-if="row" type="info" style="margin-bottom: 8px">
-          正在编辑：{{ row.data.name ?? '未命名' }}
-        </u-tip>
         <!-- 基础信息；快速编辑模式下编辑行会实时写回 row.data -->
         <u-input field="name" label="姓名" placeholder="请输入姓名" :rules="{ required: true }" />
         <u-number-input
