@@ -40,6 +40,8 @@ type DIContext = {
   validateFields?: (keys?: string[]) => Promise<boolean>
   /** 是否需要校验 */
   shouldValidate?: () => boolean
+  /** 处理字段值变化 */
+  handleFieldChange: (field: string, value: any) => void
 }
 
 const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')

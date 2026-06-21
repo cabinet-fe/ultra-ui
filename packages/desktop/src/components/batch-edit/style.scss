@@ -121,20 +121,6 @@ $root-name: batch-edit;
     }
   }
 
-  @include m.e(form-chip) {
-    display: inline-block;
-    padding: 1px 8px;
-    font-size: 12px;
-    line-height: 18px;
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, default);
-    color: fn.use-var(text-color, second);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 60%;
-  }
-
   @include m.e(form-close) {
     flex-shrink: 0;
   }

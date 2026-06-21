@@ -56,7 +56,8 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const { formProps, registerField, unregisterField, shouldValidate } = injectFormContext()
+const { formProps, registerField, unregisterField, shouldValidate, handleFieldChange } =
+  injectFormContext()
 
 const { config } = useConfig()
 
@@ -127,7 +128,8 @@ watch(
 
     stopWatchFieldValue = watch(
       () => o(model).get(field),
-      () => {
+      (value) => {
+        handleFieldChange?.(field, value)
         fieldItem.validate()
       }
     )

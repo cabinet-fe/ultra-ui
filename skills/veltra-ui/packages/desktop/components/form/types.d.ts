@@ -21,6 +21,10 @@ export interface FormProps extends ComponentProps {
   disabled?: boolean
 }
 
+export interface FormEmits {
+  (e: 'field:change', field: string, value: any): void
+}
+
 export interface _FormExposed {
   el: ShallowRef<HTMLElement | null | undefined>
   validate: (keys?: string[]) => Promise<boolean>

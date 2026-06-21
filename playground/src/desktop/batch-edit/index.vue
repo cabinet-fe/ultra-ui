@@ -4,8 +4,8 @@
       <div class="flex gap-4">
         <u-checkbox v-model="readonly">只读</u-checkbox>
         <u-checkbox v-model="tree">树形</u-checkbox>
+        <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
         <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
-        <u-radio-group v-model="mode" :items="modeOptions" />
       </div>
 
       <u-checkbox-group :items="items" v-model="features"></u-checkbox-group>
@@ -19,7 +19,7 @@
       v-model:checked="checked"
       checkable
       :model="model"
-      :mode="mode"
+      :quick-edit="quickEdit"
       :before-create="beforeCreate"
       :actions-props="{ delete: { needConfirm: true } }"
       :features="dynamicFeatures"
@@ -33,8 +33,11 @@
           {{ row.depth }} {{ row.data.name }}
         </span>
       </template>
-      <template #form>
-        <!-- 基础信息 -->
+      <template #form="{ row }">
+        <u-tip v-if="row" type="info" style="margin-bottom: 8px">
+          正在编辑：{{ row.data.name ?? '未命名' }}
+        </u-tip>
+        <!-- 基础信息；快速编辑模式下编辑行会实时写回 row.data -->
         <u-input field="name" label="姓名" placeholder="请输入姓名" :rules="{ required: true }" />
         <u-number-input
           field="age"
@@ -204,28 +207,20 @@
         </u-collapse-item>
       </u-collapse>
     </div>
-
-    <u-dialog v-model="dialogVisible" style="width: 1000px"> </u-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
 import { defineTableColumns, message } from '@veltra/desktop'
-import type { BatchEditFeature, BatchEditMode, CollapseModelValue } from '@veltra/desktop'
+import type { BatchEditFeature, CollapseModelValue } from '@veltra/desktop'
 import { computed, reactive, ref, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
 const tree = shallowRef(false)
 const resizable = shallowRef(true)
-const mode = shallowRef<BatchEditMode>('normal')
-const dialogVisible = shallowRef(false)
+const quickEdit = shallowRef(false)
 const collapseValue = ref<CollapseModelValue>([])
-
-const modeOptions = [
-  { label: '普通模式', value: 'normal' },
-  { label: '快速编辑', value: 'quick' }
-]
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', rules: { required: true }, width: 120 },
@@ -313,7 +308,7 @@ const model = reactive({
   unit: ''
 })
 
-const featureList: BatchEditFeature[] = ['update', 'copy', 'delete', 'view'] as const
+const featureList: BatchEditFeature[] = ['update', 'delete', 'view'] as const
 
 const features = shallowRef(featureList)
 
@@ -330,7 +325,6 @@ const dynamicFeatures = computed(() => {
 
 const items = [
   { label: '更新', value: 'update' },
-  { label: '复制', value: 'copy' },
   { label: '删除', value: 'delete' },
   { label: '查看', value: 'view' }
 ]
@@ -351,9 +345,7 @@ const saveMethod = async (data, type) => {
 const beforeCreate = (draft: Record<string, any>) => {
   draft.id = Math.random()
   draft.joinDate = date().format()
-  message.info(
-    mode.value === 'quick' ? 'beforeCreate：点击新增时立即触发' : 'beforeCreate：保存时触发'
-  )
+  message.info('beforeCreate：保存时触发')
 }
 
 // 选项数据

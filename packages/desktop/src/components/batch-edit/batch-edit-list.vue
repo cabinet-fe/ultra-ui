@@ -2,14 +2,13 @@
   <u-table
     v-bind="tableProps"
     :slots="slots"
-    :class="[cls.e('table'), bem.is('editing', state.visible)]"
+    :class="[cls.e('table')]"
     :columns="columns"
     highlight-current
     :current="state.row"
     @update:current="handleUpdateCurrentRow"
     @update:checked="emit('update:checked', $event)"
     @update:selected="emit('update:selected', $event)"
-    ref="tableRef"
   >
     <template #column:__action__="{ row }">
       <u-action-group :class="cls.e('row-actions')" :max="5" @click.stop circle>
@@ -32,13 +31,6 @@
           @run="handleInsertChild(row)"
         />
         <u-action
-          v-if="allowed('copy', row)"
-          :icon="Copy"
-          title="复制此行"
-          @run="handleCopy(row)"
-        />
-
-        <u-action
           v-if="canDelete(row)"
           :icon="Delete"
           type="danger"
@@ -49,16 +41,8 @@
       </u-action-group>
     </template>
 
-    <template #empty v-if="!props.readonly"> {{ null }} </template>
-
-    <template
-      #append
-      v-if="
-        !props.readonly &&
-        (staticFeatures.has('create') || dynamicFeatures.create?.()) &&
-        ((state.type === 'create' && !state.visible) || state.type === 'update')
-      "
-    >
+    <!-- 新增按钮 -->
+    <template #append v-if="showCreateBtn">
       <div :class="cls.e('add')">
         <u-button
           :class="cls.e('add-btn')"
@@ -77,8 +61,7 @@
 
 <script setup lang="ts">
 import { o } from '@cat-kit/core'
-import { AddChild, Copy, Delete, InsertToNext, InsertToPrev, Plus } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
+import { AddChild, Delete, InsertToNext, InsertToPrev, Plus } from '@veltra/icons/normal'
 import { computed, inject, type Slots } from 'vue'
 
 import type { BatchEditFeature, TableRow } from '../../types'
@@ -94,13 +77,11 @@ defineProps<{ slots: Slots }>()
 const {
   cls,
   state,
-  tableRef,
   props,
   emit,
   staticFeatures,
   dynamicFeatures,
   handleCreate,
-  handleCopy,
   handleDelete,
   handleInsertToNext,
   handleInsertToPrev,
@@ -128,8 +109,7 @@ const allowed = (feature: BatchEditFeature, row?: TableRow) => {
 }
 
 const columns = computed(() => {
-  if (props.readonly || hasNot(['create', 'delete', 'createChild', 'update', 'copy']))
-    return props.columns
+  if (props.readonly || hasNot(['create', 'delete', 'createChild', 'update'])) return props.columns
 
   return (props.columns ?? []).concat({
     name: '操作',
@@ -143,15 +123,19 @@ const columns = computed(() => {
 
 function handleUpdateCurrentRow(row?: TableRow) {
   if (allowed('update', row)) {
-    if (row) {
-      state.type = 'update'
-    }
     state.row = row
-    state.depth = row?.depth
   }
 }
 
 function canDelete(row: TableRow) {
   return !props.readonly && allowed('delete', row)
 }
+
+const showCreateBtn = computed(() => {
+  if (props.readonly) return false
+
+  const hasFeature = staticFeatures.value.has('create') || dynamicFeatures.value.create?.()
+  const createActionVisible = state.formActionType === 'create' && state.formVisible
+  return hasFeature && !createActionVisible
+})
 </script>

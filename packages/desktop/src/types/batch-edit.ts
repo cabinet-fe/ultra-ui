@@ -1,25 +1,32 @@
 import type { DeconstructValue } from '@veltra/utils'
 
 import type { ActionProps } from './action'
-import type { TableColumn, TableEmits, TableProps, TableRow } from './table'
+import type { TableColumn, TableColumnSlotsScope, TableEmits, TableProps, TableRow } from './table'
 
 /** 批量编辑列 */
-export interface BatchEditColumn extends TableColumn {
-  // /**
-  //  * 是否在列中显示
-  //  * @default true
-  //  */
-  // visible?: boolean
-  // /** 校验规则 */
-  // rules?: ValidateRule
-  // /** 默认值 */
-  // defaultValue?: any | (() => any)
+export interface BatchEditColumn extends TableColumn {}
+
+export type BatchEditFeature = 'create' | 'update' | 'delete' | 'view' | 'createChild'
+
+export type BatchEditFormStatus = 'hidden'
+
+/** 批量编辑状态 */
+export interface BatchEditStates {
+  /** 层级 */
+  depth: number
+  /** 表单可见性 */
+  formVisible: boolean
+  /** 表单操作类型 */
+  formActionType: 'create' | 'update' | 'view' | 'createChild'
+  /** 加载状态 */
+  loading: boolean
+  /** 当前编辑行 */
+  row?: TableRow
+  /** 当前编辑或者新增的父级行 */
+  parentRow?: TableRow
+  /** 行索引路径， */
+  indexPath: number[]
 }
-
-export type BatchEditFeature = 'create' | 'update' | 'copy' | 'delete' | 'view' | 'createChild'
-
-/** 批量编辑模式 */
-export type BatchEditMode = 'normal' | 'quick'
 
 /** 批量编辑组件属性 */
 export interface BatchEditProps extends TableProps {
@@ -37,14 +44,13 @@ export interface BatchEditProps extends TableProps {
   /** 只读模式 */
   readonly?: boolean
   /**
-   * 编辑模式
-   * @default 'normal'
-   * @description `quick` 模式下编辑行时表单实时写回 `row.data`（经 `model` 中转），且不调用 `saveMethod`
+   * 开启快速编辑
+   * @description 开启后，编辑行时表单实时写回 `row.data`（经 `model` 中转），且不调用 `saveMethod`
    */
-  mode?: BatchEditMode
+  quickEdit?: boolean
   /**
    * 新增前的钩子
-   * @description 仅作用于 create 类操作。`normal` 模式在保存时调用；`quick` 模式在点击新增类按钮时立即调用。可直接修改传入的 draft 对象
+   * @description 仅作用于 create 类操作，在保存时调用。可直接修改传入的 draft 对象
    */
   beforeCreate?: (
     data: Record<string, any>,
@@ -56,14 +62,14 @@ export interface BatchEditProps extends TableProps {
   deleteMethod?: (data: Record<string, any>[]) => any
   /**
    * 保存方法
-   * @description 仅在 `normal` 模式下、保存时调用（create / update）
+   * @description 保存时调用。`quick` 模式下编辑行时实时写回，不调用此方法；新增时与 `normal` 模式一致
    * @returns 如果返回一个值，那么这个值会被插入，否则插入的为表单值
    */
   saveMethod?: (
     /** 表单数据 */
     data: Record<string, any>,
     /** 操作类型 */
-    actionType: 'create' | 'update',
+    actionType: BatchEditStates['formActionType'],
     /** 父级数据 */
     parentData?: Record<string, any>
   ) => any
@@ -108,6 +114,21 @@ export interface BatchEditEmits extends TableEmits {
   /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
 }
+
+export type BatchEditSlots = {
+  form?: (props: {
+    /** 当前编辑的层级 */
+    depth?: number
+    /** 当前编辑的行 */
+    row?: TableRow
+    /** 当前编辑的行索引 */
+    index?: number
+    /** 操作的目标行索引路径 */
+    indexes?: number[]
+  }) => any
+
+  header?: () => any
+} & Partial<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>
 
 /** 批量编辑组件暴露的属性和方法(组件内部使用) */
 export interface _BatchEditExposed {}

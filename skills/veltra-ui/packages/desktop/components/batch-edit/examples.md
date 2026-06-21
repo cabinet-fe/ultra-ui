@@ -56,3 +56,68 @@ const model = reactive({ name: '', count: 0 })
   </u-batch-edit>
 </template>
 ```
+
+## 快速编辑
+
+开启 `quick-edit` 后，编辑行时表单会实时写回 `row.data`（经 `model` 中转），且不调用 `saveMethod`；新增仍走保存流程。
+
+```vue
+<script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+import { reactive, ref } from 'vue'
+
+const columns = defineTableColumns([
+  { name: '姓名', key: 'name', width: 120 },
+  { name: '年龄', key: 'age', width: 80 }
+])
+
+const data = ref([{ name: '张三', age: 28 }])
+const model = reactive({ name: '', age: undefined as number | undefined })
+</script>
+
+<template>
+  <u-batch-edit v-model:data="data" :columns="columns" :model="model" quick-edit>
+    <template #form="{ row }">
+      <u-input field="name" label="姓名" />
+      <u-number-input field="age" label="年龄" :min="0" />
+    </template>
+  </u-batch-edit>
+</template>
+```
+
+## 功能限制
+
+通过 `features` 控制可用操作；支持数组或对象（`false` / 函数动态禁用）。
+
+```vue
+<script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+import type { BatchEditFeature } from '@veltra/desktop'
+import { reactive, ref } from 'vue'
+
+const columns = defineTableColumns([
+  { name: '姓名', key: 'name', width: 120 },
+  { name: '年龄', key: 'age', width: 80 }
+])
+
+const data = ref([{ name: '张三', age: 28 }])
+const model = reactive({ name: '', age: undefined as number | undefined })
+
+const features: BatchEditFeature[] = ['create', 'update']
+</script>
+
+<template>
+  <u-batch-edit
+    v-model:data="data"
+    :columns="columns"
+    :model="model"
+    :features="features"
+    :actions-props="{ delete: { needConfirm: true } }"
+  >
+    <template #form>
+      <u-input field="name" label="姓名" />
+      <u-number-input field="age" label="年龄" :min="0" />
+    </template>
+  </u-batch-edit>
+</template>
+```

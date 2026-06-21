@@ -27,9 +27,9 @@
 import { o } from '@cat-kit/core'
 import { bem } from '@veltra/utils'
 import { provideFormContext } from '@veltra/utils'
-import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
+import { nextTick, toRef, useTemplateRef } from 'vue'
 
-import type { BreakCols, GridExposed, FormProps, _FormExposed } from '../../types'
+import type { BreakCols, FormProps, _FormExposed, FormEmits } from '../../types'
 import { UFormItem } from '../form-item'
 import { UGrid } from '../grid'
 import { useFormFields } from './use-form-fields'
@@ -38,6 +38,8 @@ import { useNodeInterceptor } from './use-node-interceptor'
 defineOptions({ name: 'Form' })
 
 const props = defineProps<FormProps>()
+
+const emit = defineEmits<FormEmits>()
 
 defineSlots<{ default(props?: { data: Record<string, any> | undefined }): any }>()
 
@@ -68,12 +70,17 @@ async function validate(keys?: string[]) {
   return valid
 }
 
+function handleFieldChange(field: string, value: any) {
+  emit('field:change', field, value)
+}
+
 provideFormContext({
   formProps: props,
   registerField,
   unregisterField,
   validateFields: validate,
-  shouldValidate
+  shouldValidate,
+  handleFieldChange
 })
 
 const { getSlotsNodes } = useNodeInterceptor()
