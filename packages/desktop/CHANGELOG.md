@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.10
+
+### Patch Changes
+
+- 82c85d7: 修复 batch-edit 切换编辑行时表单未正确重置、model 同步时机过早导致初始状态丢失的问题。
+  - @veltra/utils@1.2.10
+  - @veltra/styles@1.2.10
+  - @veltra/compositions@1.2.10
+  - @veltra/directives@1.2.10
+  - @veltra/icons@1.2.10
+
 ## 1.2.9
 
 ### Patch Changes
