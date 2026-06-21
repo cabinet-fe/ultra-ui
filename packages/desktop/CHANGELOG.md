@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.9
+
+### Patch Changes
+
+- 50be447: 修复 batch-edit 切换编辑行时表单状态被提前重置的问题；form 插槽改为标准 slot 透传。
+  - @veltra/utils@1.2.9
+  - @veltra/styles@1.2.9
+  - @veltra/compositions@1.2.9
+  - @veltra/directives@1.2.9
+  - @veltra/icons@1.2.9
+
 ## 1.2.8
 
 ### Patch Changes
