@@ -1,14 +1,15 @@
 import { o } from '@cat-kit/core'
-import { shallowReactive, watch } from 'vue'
+import { nextTick, shallowReactive, watch, type ShallowRef } from 'vue'
 
-import type { BatchEditProps, BatchEditStates } from '../../types'
+import type { BatchEditProps, BatchEditStates, FormExposed } from '../../types'
 
 interface Options {
   props: BatchEditProps
+  formRef: ShallowRef<FormExposed | null>
 }
 
 export function useEditState(options: Options) {
-  const { props } = options
+  const { props, formRef } = options
 
   const defaultState: BatchEditStates = {
     depth: -1,
@@ -35,10 +36,15 @@ export function useEditState(options: Options) {
   watch(
     () => state.row,
     (row) => {
+      formRef.value?.reset()
+
       if (row) {
-        if (props.model) {
-          o(props.model).deepExtend(row.data)
-        }
+        /** 延迟设置 model，防止表单初始状态丢失 */
+        nextTick(() => {
+          if (props.model) {
+            o(props.model).deepExtend(row.data)
+          }
+        })
         state.formActionType = props.readonly ? 'view' : 'update'
         state.formVisible = true
         state.depth = row.depth

@@ -46,7 +46,7 @@ const cls = bem('batch-edit')
 
 const formRef = useTemplateRef<FormExposed>('form')
 
-const { state, resetState } = useEditState({ props })
+const { state, resetState } = useEditState({ props, formRef })
 
 const { staticFeatures, dynamicFeatures } = useFeatures({ props })
 

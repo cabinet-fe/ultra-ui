@@ -69,7 +69,6 @@ import { Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, shallowRef, toRef } from 'vue'
 
-import type { BatchEditSlots } from '../../types'
 import type { _FormExposed, FormExposed } from '../../types/form'
 import { UButton } from '../button'
 import { UForm } from '../form'
