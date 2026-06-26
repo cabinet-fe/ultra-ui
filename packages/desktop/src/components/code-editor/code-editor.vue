@@ -7,11 +7,10 @@
 <script lang="ts" setup>
 import { Compartment, EditorState, type Extension } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
+import { EditorView, ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, zIndex } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { EditorView, basicSetup } from 'codemirror'
 import {
   computed,
   onBeforeUnmount,
@@ -23,6 +22,7 @@ import {
 
 import type { CodeEditorLang, CodeEditorProps } from '../../types'
 import { UScroll } from '../scroll'
+import { basicSetup } from './basic-setup'
 
 defineOptions({ name: 'CodeEditor' })
 
