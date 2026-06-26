@@ -20,12 +20,12 @@
     "@floating-ui/dom": "^1.7.6"
   },
   "devDependencies": {
-    "@cat-kit/fe": "^1.1.6"
+    "@cat-kit/fe": "^1.1.7"
   },
   "peerDependencies": {
-    "@cat-kit/core": ">=1.1.6",
-    "@cat-kit/fe": ">=1.1.6",
+    "@cat-kit/core": ">=1.1.7",
+    "@cat-kit/fe": ">=1.1.7",
     "@veltra/utils": "workspace:*",
-    "vue": ">=3.5.0"
+    "vue": ">=3.5.39"
   }
 }

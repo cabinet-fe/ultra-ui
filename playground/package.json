@@ -9,20 +9,20 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@cat-kit/core": "^1.1.6",
+    "@cat-kit/core": "^1.1.7",
     "@cat-kit/excel": "^1.0.1",
-    "@cat-kit/fe": "^1.1.6",
+    "@cat-kit/fe": "^1.1.7",
     "@veltra/compositions": "workspace:*",
     "@veltra/desktop": "workspace:*",
     "@veltra/directives": "workspace:*",
     "@veltra/icons": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
-    "vue": "^3.5.33",
+    "vue": "^3.5.39",
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@veltra/vite": "workspace:*",
-    "vite-plugin-vue-devtools": "^8.1.2"
+    "vite-plugin-vue-devtools": "^8.1.4"
   }
 }
