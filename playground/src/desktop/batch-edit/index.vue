@@ -33,7 +33,7 @@
           {{ row.depth }} {{ row.data.name }}
         </span>
       </template>
-      <template #form="{ row }">
+      <template #form>
         <!-- 基础信息；快速编辑模式下编辑行会实时写回 row.data -->
         <u-input field="name" label="姓名" placeholder="请输入姓名" :rules="{ required: true }" />
         <u-number-input

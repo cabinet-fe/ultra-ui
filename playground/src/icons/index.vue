@@ -4,13 +4,10 @@ import * as NormalIcons from '@veltra/icons/normal'
 import { computed, ref, shallowRef, watch } from 'vue'
 import type { Component } from 'vue'
 
-type SetKey = 'normal' | 'colorful'
+import IconCell from './icon-cell.vue'
+import type { IconItem, IconSetKey } from './icon-cell.vue'
 
-interface IconItem {
-  pascal: string
-  kebab: string
-  component: Component
-}
+type SetKey = IconSetKey
 
 function pascalToKebab(name: string): string {
   return name
@@ -37,9 +34,10 @@ const sets: Record<SetKey, IconItem[]> = {
 
 const activeSet = ref<SetKey>('normal')
 const query = ref('')
-const copiedLine = shallowRef('')
+const toastMessage = shallowRef('')
+const toastDetail = shallowRef('')
 
-let copyTimer: ReturnType<typeof setTimeout> | undefined
+let toastTimer: ReturnType<typeof setTimeout> | undefined
 
 const filtered = computed(() => {
   const q = query.value.trim().toLowerCase()
@@ -52,18 +50,14 @@ watch(activeSet, () => {
   query.value = ''
 })
 
-async function copyImport(item: IconItem) {
-  const line = `import { ${item.pascal} } from '@veltra/icons/${activeSet.value}'`
-  try {
-    await navigator.clipboard.writeText(line)
-    copiedLine.value = line
-    if (copyTimer) clearTimeout(copyTimer)
-    copyTimer = setTimeout(() => {
-      copiedLine.value = ''
-    }, 2200)
-  } catch {
-    copiedLine.value = ''
-  }
+function showToast(message: string, detail?: string) {
+  toastMessage.value = message
+  toastDetail.value = detail ?? ''
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toastMessage.value = ''
+    toastDetail.value = ''
+  }, 2600)
 }
 
 // Normal icons grouping configuration
@@ -297,7 +291,8 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
         <div class="icons-demo__brand">
           <h1 class="icons-demo__title">Ultra Icons</h1>
           <p class="icons-demo__subtitle">
-            来自 <code>@veltra/icons</code> 的 Vue 图标组件，点击卡片复制 import 语句。
+            来自 <code>@veltra/icons</code> 的 Vue
+            图标组件，点击卡片或复制按钮获取组件代码，悬停可下载 SVG。
           </p>
         </div>
         <div class="icons-demo__tabs" role="tablist">
@@ -374,44 +369,32 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
           </div>
 
           <ul class="icons-demo__grid">
-            <li v-for="item in group.items" :key="item.kebab" class="icons-demo__cell-wrap">
-              <button
-                type="button"
-                class="icons-demo__cell"
-                :title="`复制 ${item.pascal}`"
-                @click="copyImport(item)"
-              >
-                <span class="icons-demo__glyph">
-                  <component :is="item.component" class="icons-demo__svg" />
-                </span>
-                <span class="icons-demo__name">{{ item.kebab }}</span>
-              </button>
-            </li>
+            <IconCell
+              v-for="item in group.items"
+              :key="item.kebab"
+              :item="item"
+              :active-set="activeSet"
+              @toast="showToast"
+            />
           </ul>
         </div>
       </template>
 
       <ul v-else class="icons-demo__grid">
-        <li v-for="item in filtered" :key="item.kebab" class="icons-demo__cell-wrap">
-          <button
-            type="button"
-            class="icons-demo__cell"
-            :title="`复制 ${item.pascal}`"
-            @click="copyImport(item)"
-          >
-            <span class="icons-demo__glyph">
-              <component :is="item.component" class="icons-demo__svg" />
-            </span>
-            <span class="icons-demo__name">{{ item.kebab }}</span>
-          </button>
-        </li>
+        <IconCell
+          v-for="item in filtered"
+          :key="item.kebab"
+          :item="item"
+          :active-set="activeSet"
+          @toast="showToast"
+        />
       </ul>
     </main>
 
     <Transition name="icons-demo-toast">
-      <div v-if="copiedLine" class="icons-demo__toast" role="status">
-        已复制
-        <code class="icons-demo__toast-code">{{ copiedLine }}</code>
+      <div v-if="toastMessage" class="icons-demo__toast" role="status">
+        {{ toastMessage }}
+        <code v-if="toastDetail" class="icons-demo__toast-code">{{ toastDetail }}</code>
       </div>
     </Transition>
   </div>
@@ -631,63 +614,6 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
   gap: 0.5rem;
 }
 
-.icons-demo__cell-wrap {
-  margin: 0;
-}
-
-.icons-demo__cell {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 0.4rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  font-family: inherit;
-  color: inherit;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.12s ease;
-}
-
-.icons-demo__cell:hover {
-  border-color: #d4d4d4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-
-.icons-demo__cell:active {
-  transform: translateY(0);
-}
-
-.icons-demo__glyph {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.125rem;
-  height: 2.125rem;
-  color: #171717;
-}
-
-.icons-demo__svg {
-  display: block;
-  font-size: 30px;
-}
-
-.icons-demo__name {
-  font-size: 0.6875rem;
-  line-height: 1.3;
-  color: #737373;
-  text-align: center;
-  word-break: break-all;
-  max-width: 100%;
-  font-variant-ligatures: none;
-}
-
 .icons-demo__toast {
   position: fixed;
   bottom: 1.5rem;
@@ -711,6 +637,7 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
   font-size: 0.7rem;
   opacity: 0.92;
   word-break: break-all;
+  white-space: pre-wrap;
 }
 
 .icons-demo-toast-enter-active,
