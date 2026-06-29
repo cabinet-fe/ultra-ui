@@ -6,6 +6,8 @@ import { defineConfig } from 'vite-plus'
 const repoRoot = resolve(import.meta.dirname, '../..')
 
 export default defineConfig({
+  resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
+
   test: { include: ['src/**/*.test.ts'], globals: true },
 
   pack: {
