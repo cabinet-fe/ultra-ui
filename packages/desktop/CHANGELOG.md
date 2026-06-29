@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.2.12
+
+### Patch Changes
+
+- aaf1ee4: - 表单相关图标重命名为 `form-*` 前缀，避免与通用图标命名冲突
+  - 同步更新 desktop 组件与 playground 图标引用
+  - @veltra/utils@1.2.12
+  - @veltra/styles@1.2.12
+  - @veltra/compositions@1.2.12
+  - @veltra/directives@1.2.12
+  - @veltra/icons@1.2.12
+
 ## 1.2.11
 
 ### Patch Changes
