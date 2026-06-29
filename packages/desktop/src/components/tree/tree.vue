@@ -47,7 +47,7 @@ import { useFilter } from './use-filter'
 import { useSelect } from './use-select'
 import { useTreeNodes } from './use-tree-nodes'
 
-defineOptions({ name: 'Tree' })
+defineOptions({ name: 'UTree' })
 
 const props = withDefaults(defineProps<TreeProps>(), {
   labelKey: 'label',

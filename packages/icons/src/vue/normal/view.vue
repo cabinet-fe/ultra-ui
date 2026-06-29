@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:f707afa83a08f314 gen:4 source:src/svg/normal/view.svg -->
+<!-- @veltra/icons generated sha256:f707afa83a08f314 gen:7 source:src/svg/normal/view.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'View' })
+defineOptions({ name: 'UView' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

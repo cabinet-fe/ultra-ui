@@ -12,7 +12,7 @@ import { computed, provide, ref } from 'vue'
 import type { CollapseEmits, CollapseModelValue, CollapseProps, CollapseValue } from '../../types'
 import { CollapseDIKey } from './di'
 
-defineOptions({ name: 'Collapse' })
+defineOptions({ name: 'UCollapse' })
 
 const props = withDefaults(defineProps<CollapseProps>(), {
   accordion: false,

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0a42b9fcf3a20fd4 gen:4 source:src/svg/normal/delete.svg -->
+<!-- @veltra/icons generated sha256:0a42b9fcf3a20fd4 gen:7 source:src/svg/normal/delete.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Delete' })
 </script>

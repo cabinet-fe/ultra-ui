@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5137d2fa2f966102 gen:4 source:src/svg/normal/move-horizontal.svg -->
+<!-- @veltra/icons generated sha256:5137d2fa2f966102 gen:7 source:src/svg/normal/move-horizontal.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MoveHorizontal' })
 </script>

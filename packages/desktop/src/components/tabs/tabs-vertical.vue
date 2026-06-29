@@ -41,7 +41,7 @@ import { bem } from '@veltra/utils'
 import type { ComponentSize, TabItem, TabsVerticalEmits, TabsVerticalProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'TabsVertical' })
+defineOptions({ name: 'UTabsVertical' })
 
 const props = withDefaults(defineProps<TabsVerticalProps>(), {
   position: 'left',

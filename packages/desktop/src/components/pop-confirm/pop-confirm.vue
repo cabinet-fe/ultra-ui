@@ -43,7 +43,7 @@ import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { UTip } from '../tip'
 
-defineOptions({ name: 'PopConfirm' })
+defineOptions({ name: 'UPopConfirm' })
 
 const emit = defineEmits<PopConfirmEmits>()
 

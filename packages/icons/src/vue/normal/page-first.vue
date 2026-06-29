@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:43729bdad5993cfc gen:4 source:src/svg/normal/page-first.svg -->
+<!-- @veltra/icons generated sha256:43729bdad5993cfc gen:7 source:src/svg/normal/page-first.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PageFirst' })
 </script>

@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
 
-defineOptions({ name: 'Kbd' })
+defineOptions({ name: 'UKbd' })
 
 const cls = bem('kbd')
 </script>

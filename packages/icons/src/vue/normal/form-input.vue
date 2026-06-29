@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:f1c7a278d1335bcc gen:4 source:src/svg/normal/switch.svg -->
+<!-- @veltra/icons generated sha256:e44db37b1da5de90 gen:7 source:src/svg/normal/form-input.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Switch' })
+defineOptions({ name: 'FormInput' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
@@ -12,8 +12,8 @@ defineOptions({ name: 'Switch' })
       fill="none"
       stroke="currentColor"
       stroke-width="1.2"
-      rx="4"
+      rx="1.5"
     />
-    <circle cx="11" cy="8" r="2.2" fill="currentColor" />
+    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.2" d="M4 6v4" />
   </svg>
 </template>

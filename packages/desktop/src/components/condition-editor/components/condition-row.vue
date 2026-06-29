@@ -114,7 +114,7 @@ import { UIcon } from '../../icon'
 import { USelect } from '../../select'
 import { getOperatorsByFieldType, type OperatorDef } from '../core/operators'
 
-defineOptions({ name: 'ConditionRow' })
+defineOptions({ name: 'UConditionRow' })
 
 export interface MentionPayload {
   triggerDom: HTMLElement

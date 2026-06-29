@@ -34,7 +34,7 @@ import { useFeatures } from './use-features'
 import { useHandlers } from './use-handlers'
 import { useShortcutKey } from './use-shortcut-key'
 
-defineOptions({ name: 'BatchEdit' })
+defineOptions({ name: 'UBatchEdit' })
 
 const props = withDefaults(defineProps<BatchEditProps>(), { cols: () => ['1fr', '420px'] })
 

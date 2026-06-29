@@ -36,7 +36,7 @@ import { UNodeRender } from '../node-render'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './node/col'
 
-defineOptions({ name: 'TableFoot' })
+defineOptions({ name: 'UTableFoot' })
 
 const { cls, columnConfig, rows, checkedRows, tableSlots, getCellClass } = inject(TableDIKey)!
 

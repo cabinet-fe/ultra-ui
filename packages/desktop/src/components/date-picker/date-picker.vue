@@ -49,7 +49,7 @@ import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'DatePicker' })
+defineOptions({ name: 'UDatePicker' })
 
 const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期',

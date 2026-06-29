@@ -70,7 +70,7 @@ import { UButton } from '../button'
 import { UTable } from '../table'
 import { BatchEditDIKey } from './di'
 
-defineOptions({ name: 'BatchEditList' })
+defineOptions({ name: 'UBatchEditList' })
 
 defineProps<{ slots: Slots }>()
 

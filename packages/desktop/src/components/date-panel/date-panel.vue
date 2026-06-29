@@ -27,7 +27,7 @@ import MonthPanel from './panels/month.vue'
 import YearPanel from './panels/year.vue'
 import { usePanel } from './use-panel'
 
-defineOptions({ name: 'DatePanel' })
+defineOptions({ name: 'UDatePanel' })
 
 const props = withDefaults(defineProps<DatePanelProps>(), { size: 'default', type: 'date' })
 

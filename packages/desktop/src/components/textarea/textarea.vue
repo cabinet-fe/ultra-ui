@@ -50,7 +50,7 @@ import type { TextareaProps, TextareaEmits, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 import { calcTextareaHeight } from './utils'
 
-defineOptions({ name: 'Textarea' })
+defineOptions({ name: 'UTextarea' })
 
 const props = withDefaults(defineProps<TextareaProps>(), {
   placeholder: '请输入',

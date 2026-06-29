@@ -49,7 +49,7 @@ import { UTip } from '../tip'
 import UNavIcon from './nav-icon.vue'
 import { useNavItem } from './use-nav-item'
 
-defineOptions({ name: 'NavItemCollapsed' })
+defineOptions({ name: 'UNavItemCollapsed' })
 
 const props = defineProps<{ item: NavItem; depth: number }>()
 

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:58a491c67e35255f gen:4 source:src/svg/normal/bottom.svg -->
+<!-- @veltra/icons generated sha256:58a491c67e35255f gen:7 source:src/svg/normal/bottom.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Bottom' })
 </script>

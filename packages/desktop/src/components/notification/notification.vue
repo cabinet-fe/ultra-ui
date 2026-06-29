@@ -45,7 +45,7 @@ import type { NotificationProps, NotificationExposed, ColorType } from '../../ty
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Notification' })
+defineOptions({ name: 'UNotification' })
 
 const props = withDefaults(defineProps<NotificationProps>(), {
   closable: false,

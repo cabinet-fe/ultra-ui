@@ -34,7 +34,7 @@ import { ref, onMounted } from 'vue'
 import type { MessageConfirmProps, ColorType, ComponentSize } from '../../types'
 import { UButton } from '../button'
 
-defineOptions({ name: 'MessageConfirm' })
+defineOptions({ name: 'UMessageConfirm' })
 
 const props = withDefaults(defineProps<MessageConfirmProps>(), {
   title: '',

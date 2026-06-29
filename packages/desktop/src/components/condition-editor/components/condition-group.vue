@@ -86,7 +86,7 @@ import { UIcon } from '../../icon'
 import { createEmptyGroup, createEmptyLeaf } from '../core/evaluator'
 import ConditionRow, { type MentionPayload } from './condition-row.vue'
 
-defineOptions({ name: 'ConditionGroup' })
+defineOptions({ name: 'UConditionGroup' })
 
 const props = withDefaults(
   defineProps<{

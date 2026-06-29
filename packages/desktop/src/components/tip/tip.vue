@@ -36,7 +36,7 @@ import type { TipProps, ComponentSize, TipEmits } from '../../types'
 import { UNodeRender } from '../node-render'
 import { useNest } from './use-nest'
 
-defineOptions({ name: 'Tip' })
+defineOptions({ name: 'UTip' })
 
 const props = withDefaults(defineProps<TipProps>(), {
   content: '',

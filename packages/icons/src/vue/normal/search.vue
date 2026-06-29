@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:1e4d8cb061fab16c gen:4 source:src/svg/normal/search.svg -->
+<!-- @veltra/icons generated sha256:1e4d8cb061fab16c gen:7 source:src/svg/normal/search.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Search' })
+defineOptions({ name: 'USearch' })
 </script>
 <template>
   <svg

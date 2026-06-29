@@ -29,7 +29,7 @@ import { shallowRef, ref } from 'vue'
 import type { UploaderProps, UploaderEmits } from '../../types'
 import { matchAccept } from './helper'
 
-defineOptions({ name: 'FilePicker' })
+defineOptions({ name: 'UFilePicker' })
 
 const props = withDefaults(defineProps<UploaderProps>(), { tag: 'div', multiple: false })
 

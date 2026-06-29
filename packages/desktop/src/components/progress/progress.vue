@@ -43,7 +43,7 @@ import { computed } from 'vue'
 
 import type { ProgressProps, ColorType } from '../../types'
 
-defineOptions({ name: 'Progress' })
+defineOptions({ name: 'UProgress' })
 
 const props = withDefaults(defineProps<ProgressProps>(), { type: 'primary', circle: false })
 

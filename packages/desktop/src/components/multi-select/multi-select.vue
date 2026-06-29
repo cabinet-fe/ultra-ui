@@ -164,7 +164,7 @@ import { UTag } from '../tag'
 import { MultiSelectDIKey } from './di'
 import UMultiSelectOption from './multi-select-option.vue'
 
-defineOptions({ name: 'MultiSelect' })
+defineOptions({ name: 'UMultiSelect' })
 
 const props = withDefaults(defineProps<MultiSelectProps>(), {
   labelKey: 'label',

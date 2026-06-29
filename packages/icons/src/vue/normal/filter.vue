@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:45c65efff6d001b0 gen:4 source:src/svg/normal/filter.svg -->
+<!-- @veltra/icons generated sha256:45c65efff6d001b0 gen:7 source:src/svg/normal/filter.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Filter' })
+defineOptions({ name: 'UFilter' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

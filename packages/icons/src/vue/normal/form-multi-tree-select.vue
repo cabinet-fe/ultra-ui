@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:64979963b9c5fe7a gen:4 source:src/svg/normal/multi-tree-select.svg -->
+<!-- @veltra/icons generated sha256:64979963b9c5fe7a gen:7 source:src/svg/normal/form-multi-tree-select.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'MultiTreeSelect' })
+defineOptions({ name: 'FormMultiTreeSelect' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

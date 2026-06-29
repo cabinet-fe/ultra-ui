@@ -30,7 +30,7 @@ import { computed } from 'vue'
 
 import type { SwitchEmits, SwitchProps, _SwitchExposed } from '../../types'
 
-defineOptions({ name: 'Switch' })
+defineOptions({ name: 'USwitch' })
 
 const props = withDefaults(defineProps<SwitchProps>(), { disabled: undefined, readonly: undefined })
 

@@ -20,7 +20,7 @@ import { computed } from 'vue'
 import type { TagEmits, TagProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Tag' })
+defineOptions({ name: 'UTag' })
 
 const cls = bem('tag')
 

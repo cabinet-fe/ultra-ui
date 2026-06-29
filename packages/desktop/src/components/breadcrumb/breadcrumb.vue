@@ -47,7 +47,7 @@ import type {
   ComponentSize
 } from '../../types'
 
-defineOptions({ name: 'Breadcrumb' })
+defineOptions({ name: 'UBreadcrumb' })
 
 const props = withDefaults(defineProps<BreadcrumbProps>(), { lastLinked: false })
 

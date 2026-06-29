@@ -9,7 +9,7 @@ import { computed, reactive, watch } from 'vue'
 
 import type { NumberProps } from '../../types'
 
-defineOptions({ name: 'Number' })
+defineOptions({ name: 'UNumber' })
 
 const props = withDefaults(defineProps<NumberProps>(), { duration: 800, format: 'decimal' })
 

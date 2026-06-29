@@ -12,7 +12,7 @@ import { computed, inject, shallowRef, onMounted, watch } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({ name: 'PaletteAlpha' })
+defineOptions({ name: 'UPaletteAlpha' })
 
 const { cls, updateAlpha, hueRGB, alpha, userAction, isUserActive } = inject(PaletteDIKey)!
 

@@ -13,7 +13,7 @@ import { computed } from 'vue'
 
 import type { LoadingProps, ComponentSize } from '../../types'
 
-defineOptions({ name: 'Loading' })
+defineOptions({ name: 'ULoading' })
 
 const props = withDefaults(defineProps<LoadingProps>(), { type: 'dual-ring' })
 

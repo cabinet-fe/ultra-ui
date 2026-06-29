@@ -75,7 +75,7 @@ import type { ComponentSize, TabItem, TabsHorizontalEmits, TabsHorizontalProps }
 import { UIcon } from '../icon'
 import { useTabsBar } from './use-tabs-bar'
 
-defineOptions({ name: 'TabsHorizontal' })
+defineOptions({ name: 'UTabsHorizontal' })
 
 const props = withDefaults(defineProps<TabsHorizontalProps>(), {
   position: 'top',

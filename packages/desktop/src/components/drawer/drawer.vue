@@ -29,7 +29,7 @@ import { computed, shallowRef } from 'vue'
 import type { DrawerProps, DrawerEmits } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Drawer', inheritAttrs: false })
+defineOptions({ name: 'UDrawer', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DrawerProps>(), { direction: 'right', closable: true })
 

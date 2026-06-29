@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:d040b45ebd1f271c gen:4 source:src/svg/normal/attach.svg -->
+<!-- @veltra/icons generated sha256:d040b45ebd1f271c gen:7 source:src/svg/normal/attach.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Attach' })
 </script>

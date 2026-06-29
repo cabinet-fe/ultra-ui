@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:070d8b245d388d2b gen:4 source:src/svg/normal/info-filled.svg -->
+<!-- @veltra/icons generated sha256:070d8b245d388d2b gen:7 source:src/svg/normal/info-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'InfoFilled' })
 </script>

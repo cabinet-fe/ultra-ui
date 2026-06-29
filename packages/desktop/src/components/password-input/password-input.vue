@@ -42,7 +42,7 @@ import type { PasswordInputProps } from '../../types'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'PasswordInput' })
+defineOptions({ name: 'UPasswordInput' })
 
 const props = withDefaults(defineProps<PasswordInputProps>(), {
   clearable: false,

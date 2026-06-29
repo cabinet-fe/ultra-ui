@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:df7559b50c9287ca gen:4 source:src/svg/normal/time.svg -->
+<!-- @veltra/icons generated sha256:df7559b50c9287ca gen:7 source:src/svg/normal/time.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Time' })
+defineOptions({ name: 'UTime' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

@@ -26,7 +26,7 @@ import type { NavItem } from '../../types'
 import NavIcon from './nav-icon.vue'
 import { useNavItem } from './use-nav-item'
 
-defineOptions({ name: 'NavItem' })
+defineOptions({ name: 'UNavItem' })
 
 const props = defineProps<{ item: NavItem; depth: number }>()
 

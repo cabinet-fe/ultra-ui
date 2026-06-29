@@ -26,7 +26,7 @@ import { inject, onBeforeUnmount, shallowRef } from 'vue'
 import { UCheckbox } from '../checkbox'
 import { MultiSelectDIKey } from './di'
 
-defineOptions({ name: 'MultiSelectOption' })
+defineOptions({ name: 'UMultiSelectOption' })
 
 const props = defineProps<{
   option: Record<string, any>

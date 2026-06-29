@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:74d9cb6c1f3ee4b8 gen:4 source:src/svg/normal/more-vertical.svg -->
+<!-- @veltra/icons generated sha256:74d9cb6c1f3ee4b8 gen:7 source:src/svg/normal/more-vertical.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MoreVertical' })
 </script>

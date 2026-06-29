@@ -17,7 +17,7 @@ import { computed, inject } from 'vue'
 import type { CardCoverProps } from '../../types'
 import { CardDIKey } from './di'
 
-defineOptions({ name: 'CardCover' })
+defineOptions({ name: 'UCardCover' })
 
 const props = defineProps<CardCoverProps>()
 

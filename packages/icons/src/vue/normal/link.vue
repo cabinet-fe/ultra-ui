@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:6c88dba3aa6d734d gen:4 source:src/svg/normal/link.svg -->
+<!-- @veltra/icons generated sha256:6c88dba3aa6d734d gen:7 source:src/svg/normal/link.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Link' })
+defineOptions({ name: 'ULink' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

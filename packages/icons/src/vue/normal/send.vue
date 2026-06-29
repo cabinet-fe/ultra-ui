@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:b21ec474526463d1 gen:4 source:src/svg/normal/send.svg -->
+<!-- @veltra/icons generated sha256:b21ec474526463d1 gen:7 source:src/svg/normal/send.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Send' })
 </script>

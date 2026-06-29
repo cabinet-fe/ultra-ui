@@ -30,7 +30,7 @@ import { sliderContextKey } from './di'
 import SliderThumb from './slider-thumb.vue'
 import { useSlider } from './use-slider'
 
-defineOptions({ name: 'Slider' })
+defineOptions({ name: 'USlider' })
 
 const props = withDefaults(defineProps<SliderProps<T>>(), {
   min: 0,

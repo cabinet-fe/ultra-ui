@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:c2686fb6a1b34f86 gen:4 source:src/svg/normal/tree-select.svg -->
+<!-- @veltra/icons generated sha256:c2686fb6a1b34f86 gen:7 source:src/svg/normal/form-tree-select.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'TreeSelect' })
+defineOptions({ name: 'FormTreeSelect' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

@@ -22,7 +22,7 @@ import type { ContextmenuEmits, ContextmenuProps, ComponentSize } from '../../ty
 import UContextmenuPanel from './contextmenu-panel.vue'
 import { ContextmenuRootDIKey } from './di'
 
-defineOptions({ name: 'Contextmenu' })
+defineOptions({ name: 'UContextmenu' })
 
 const props = withDefaults(defineProps<ContextmenuProps>(), { width: 150 })
 

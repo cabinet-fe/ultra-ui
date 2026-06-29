@@ -49,7 +49,7 @@ import { createMention, type MentionAPI } from './core/mention'
 import { parse, type Doc } from './core/model'
 import { createVariableMap } from './di'
 
-defineOptions({ name: 'ExpressionEditor' })
+defineOptions({ name: 'UExpressionEditor' })
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
   placeholder: '请输入表达式，输入 @ 可插入变量',

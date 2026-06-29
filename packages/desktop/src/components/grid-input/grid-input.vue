@@ -26,7 +26,7 @@ import { computed, ref, getCurrentInstance } from 'vue'
 
 import type { GridInputProps, GridInputEmits, GridInputExposed } from '../../types'
 
-defineOptions({ name: 'GridInput' })
+defineOptions({ name: 'UGridInput' })
 
 const emit = defineEmits<GridInputEmits>()
 

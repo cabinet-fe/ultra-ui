@@ -12,7 +12,7 @@ import { computed, provide } from 'vue'
 import type { CardProps } from '../../types'
 import { CardDIKey } from './di'
 
-defineOptions({ name: 'Card' })
+defineOptions({ name: 'UCard' })
 
 const props = defineProps<CardProps>()
 

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c3da175ea27c3627 gen:4 source:src/svg/normal/cloudy.svg -->
+<!-- @veltra/icons generated sha256:c3da175ea27c3627 gen:7 source:src/svg/normal/cloudy.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Cloudy' })
 </script>

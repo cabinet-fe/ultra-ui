@@ -39,7 +39,7 @@ import UNavSubCollapsed from './nav-sub-collapsed.vue'
 import UNavSub from './nav-sub.vue'
 import { walkNavWithPath } from './walk-nav-path'
 
-defineOptions({ name: 'Nav' })
+defineOptions({ name: 'UNav' })
 
 const props = withDefaults(defineProps<NavProps>(), { collapsed: false })
 

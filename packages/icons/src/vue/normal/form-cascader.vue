@@ -1,14 +1,24 @@
-<!-- @veltra/icons generated sha256:4d8d6103d6221efb gen:4 source:src/svg/normal/select.svg -->
+<!-- @veltra/icons generated sha256:57ecc5816a32b162 gen:7 source:src/svg/normal/form-cascader.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Select' })
+defineOptions({ name: 'FormCascader' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
     <rect
-      width="14"
-      height="8"
+      width="6"
+      height="12"
       x="1"
-      y="4"
+      y="2"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      rx="1.5"
+    />
+    <rect
+      width="6"
+      height="12"
+      x="9"
+      y="2"
       fill="none"
       stroke="currentColor"
       stroke-width="1.2"
@@ -20,7 +30,7 @@ defineOptions({ name: 'Select' })
       stroke-linecap="round"
       stroke-linejoin="round"
       stroke-width="1.2"
-      d="M10.5 7.5 12 9l1.5-1.5"
+      d="m4 7.5 1 1-1 1"
     />
   </svg>
 </template>

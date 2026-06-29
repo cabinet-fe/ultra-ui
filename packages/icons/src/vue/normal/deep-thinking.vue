@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f8660fd061db43db gen:4 source:src/svg/normal/deep-thinking.svg -->
+<!-- @veltra/icons generated sha256:f8660fd061db43db gen:7 source:src/svg/normal/deep-thinking.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'DeepThinking' })
 </script>

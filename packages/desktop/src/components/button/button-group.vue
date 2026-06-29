@@ -9,7 +9,7 @@ import { bem } from '@veltra/utils'
 
 import type { ButtonProps } from '../../types'
 
-defineOptions({ name: 'ButtonGroup' })
+defineOptions({ name: 'UButtonGroup' })
 
 const props = defineProps<ButtonProps>()
 

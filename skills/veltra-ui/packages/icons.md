@@ -29,7 +29,7 @@ import { Search, Close, Plus, Edit } from '@veltra/icons'
 
 用于表单设计器或低代码平台中，代表各个控件本身的图标。包括：
 
-`Form`、`Input`、`Textarea`、`PasswordInput`、`NumberInput`、`NumberRangeInput`、`Select`、`MultiSelect`、`Cascader`、`TreeSelect`、`MultiTreeSelect`、`DatePicker`、`DateRangePicker`、`Slider`、`Switch`、`Checkbox`、`Radio`、`Table`、`AutoComplete`、`FilePicker`
+`FormContainer`、`FormInput`、`FormTextarea`、`FormPasswordInput`、`FormNumberInput`、`FormNumberRangeInput`、`FormSelect`、`FormMultiSelect`、`FormCascader`、`FormTreeSelect`、`FormMultiTreeSelect`、`FormDatePicker`、`FormDateRangePicker`、`FormSlider`、`FormSwitch`、`FormCheckbox`、`FormRadio`、`FormTable`、`FormAutoComplete`、`FormFilePicker`
 
 ### 方向与导航
 

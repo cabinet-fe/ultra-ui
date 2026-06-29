@@ -20,7 +20,7 @@ import { onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { toBlobUrl } from '../helper'
 
-defineOptions({ name: 'FileViewerVideoPreviewer' })
+defineOptions({ name: 'UFileViewerVideoPreviewer' })
 
 const props = defineProps<{ file: FileViewerItem }>()
 

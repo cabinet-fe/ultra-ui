@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:cc5a4e6f7a0adaea gen:4 source:src/svg/normal/sun.svg -->
+<!-- @veltra/icons generated sha256:cc5a4e6f7a0adaea gen:7 source:src/svg/normal/sun.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Sun' })
 </script>

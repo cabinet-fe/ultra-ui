@@ -43,7 +43,7 @@ import { UScroll } from '../scroll'
 import UTabsHorizontal from './tabs-horizontal.vue'
 import UTabsVertical from './tabs-vertical.vue'
 
-defineOptions({ name: 'Tabs' })
+defineOptions({ name: 'UTabs' })
 
 const props = withDefaults(defineProps<TabsProps>(), {
   position: 'top',

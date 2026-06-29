@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:54ac61c889aa1277 gen:4 source:src/svg/normal/video-play.svg -->
+<!-- @veltra/icons generated sha256:54ac61c889aa1277 gen:7 source:src/svg/normal/video-play.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'VideoPlay' })
 </script>

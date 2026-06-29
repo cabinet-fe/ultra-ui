@@ -26,7 +26,7 @@ import { onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { parseSheetFile, type SheetPreview } from '../sheet-parser'
 
-defineOptions({ name: 'FileViewerSheetPreviewer' })
+defineOptions({ name: 'UFileViewerSheetPreviewer' })
 
 const props = withDefaults(defineProps<{ file: FileViewerItem; maxRows?: number }>(), {
   maxRows: 50_000

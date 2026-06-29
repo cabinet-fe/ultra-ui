@@ -52,7 +52,7 @@ import { getKey } from './helper'
 import UNavIcon from './nav-icon.vue'
 import UNavItem from './nav-item.vue'
 
-defineOptions({ name: 'NavSub' })
+defineOptions({ name: 'UNavSub' })
 
 const props = defineProps<{ item: NavItem; parentKey: string; depth: number }>()
 

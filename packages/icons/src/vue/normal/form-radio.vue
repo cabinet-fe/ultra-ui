@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:319c6022d6eb6d16 gen:4 source:src/svg/normal/radio.svg -->
+<!-- @veltra/icons generated sha256:319c6022d6eb6d16 gen:7 source:src/svg/normal/form-radio.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Radio' })
+defineOptions({ name: 'FormRadio' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

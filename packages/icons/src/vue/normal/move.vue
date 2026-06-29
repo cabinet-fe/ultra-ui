@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9b2a38771821fe67 gen:4 source:src/svg/normal/move.svg -->
+<!-- @veltra/icons generated sha256:9b2a38771821fe67 gen:7 source:src/svg/normal/move.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Move' })
 </script>

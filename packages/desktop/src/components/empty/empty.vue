@@ -12,7 +12,7 @@ import { bem } from '@veltra/utils'
 import type { EmptyProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Empty' })
+defineOptions({ name: 'UEmpty' })
 
 withDefaults(defineProps<EmptyProps>(), { size: 48, text: '暂无数据' })
 

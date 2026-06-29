@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
 
-defineOptions({ name: 'ListItem' })
+defineOptions({ name: 'UListItem' })
 
 const cls = bem('list-item')
 </script>

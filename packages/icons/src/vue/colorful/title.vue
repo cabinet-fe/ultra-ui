@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:9a1d975dd790b811 gen:4 source:src/svg/colorful/title.svg -->
+<!-- @veltra/icons generated sha256:9a1d975dd790b811 gen:7 source:src/svg/colorful/title.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Title' })
+defineOptions({ name: 'UTitle' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

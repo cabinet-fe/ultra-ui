@@ -11,7 +11,7 @@ import { shallowRef, computed } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({ name: 'PaletteHue' })
+defineOptions({ name: 'UPaletteHue' })
 
 const { cls, updateHue, HSV, userAction } = inject(PaletteDIKey)!
 

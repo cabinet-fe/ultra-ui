@@ -5,22 +5,18 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { basename, dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { kebabBasenameToComponentName } from './icon-naming'
+import { resolveDefineOptionsName } from './icon-naming'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG_ROOT = join(__dirname, '..')
 
 /** 与模板约定同步递增；变更生成模板时必须 bump，否则 mtime/hash 跳过会漏更新 */
-const GEN_TAG = 'gen:4'
+const GEN_TAG = 'gen:7'
 
 const SOURCES = [
   { glob: 'src/svg/normal/**/*.svg', outDir: 'src/vue/normal', mono: true },
   { glob: 'src/svg/colorful/**/*.svg', outDir: 'src/vue/colorful', mono: false }
 ] as const
-
-function fileBasenameToComponentName(fileBase: string): string {
-  return kebabBasenameToComponentName(fileBase.replace(/\.svg$/i, ''))
-}
 
 function shortHash(content: string): string {
   return createHash('sha256').update(content).digest('hex').slice(0, 16)
@@ -91,7 +87,7 @@ for (const { outDir, mono, files } of sourceFiles) {
     const svgRaw = readFileSync(abs, 'utf8')
     const hash = shortHash(svgRaw)
     const baseName = basename(abs, '.svg')
-    const name = fileBasenameToComponentName(baseName)
+    const optionsName = resolveDefineOptionsName(baseName)
     const relSvg = relative(PKG_ROOT, abs).replaceAll('\\', '/')
     const outAbs = join(PKG_ROOT, outDir, `${baseName}.vue`)
 
@@ -109,7 +105,7 @@ for (const { outDir, mono, files } of sourceFiles) {
 
     const vue = `<!-- @veltra/icons generated sha256:${hash} ${GEN_TAG} source:${relSvg} -->
 <script setup lang="ts">
-defineOptions({ name: '${name}' })
+defineOptions({ name: '${optionsName}' })
 </script>
 <template>
 ${svgOpen}

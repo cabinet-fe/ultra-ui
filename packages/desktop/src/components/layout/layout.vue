@@ -41,7 +41,7 @@ import type { LayoutProps } from '../../types'
 import { LayoutDIKey } from './di'
 import ULayoutResizer from './layout-resizer.vue'
 
-defineOptions({ name: 'Layout' })
+defineOptions({ name: 'ULayout' })
 
 const props = withDefaults(defineProps<LayoutProps>(), { tag: 'div' })
 

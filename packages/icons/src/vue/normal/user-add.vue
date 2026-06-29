@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:354c2c8818d1f22f gen:4 source:src/svg/normal/user-add.svg -->
+<!-- @veltra/icons generated sha256:354c2c8818d1f22f gen:7 source:src/svg/normal/user-add.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserAdd' })
 </script>

@@ -13,7 +13,7 @@ import { getBreakpointCols } from './breakpoint'
 import { GridDIKey } from './di'
 import { useResponsive } from './use-responsive'
 
-defineOptions({ name: 'Grid' })
+defineOptions({ name: 'UGrid' })
 
 const props = withDefaults(defineProps<GridProps>(), { tag: 'div' })
 

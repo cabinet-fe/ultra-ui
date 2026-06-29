@@ -11,7 +11,7 @@ import { computed, inject, type CSSProperties, watch } from 'vue'
 import type { GridItemProps } from '../../types'
 import { GridDIKey } from './di'
 
-defineOptions({ name: 'GridItem' })
+defineOptions({ name: 'UGridItem' })
 
 const props = withDefaults(defineProps<GridItemProps>(), { tag: 'div' })
 

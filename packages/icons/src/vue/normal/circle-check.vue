@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f21c5621439c11f4 gen:4 source:src/svg/normal/circle-check.svg -->
+<!-- @veltra/icons generated sha256:f21c5621439c11f4 gen:7 source:src/svg/normal/circle-check.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CircleCheck' })
 </script>

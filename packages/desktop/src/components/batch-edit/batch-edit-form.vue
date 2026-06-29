@@ -78,7 +78,7 @@ import { UScroll } from '../scroll'
 import { BatchEditDIKey } from './di'
 import { FORM_ACTION_HEADER_MAP } from './form-action-header'
 
-defineOptions({ name: 'BatchEditForm' })
+defineOptions({ name: 'UBatchEditForm' })
 
 const batchEditCtx = inject(BatchEditDIKey)!
 

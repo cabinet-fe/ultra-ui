@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:4f2ddc6bd4e5f2c2 gen:4 source:src/svg/normal/hourglass.svg -->
+<!-- @veltra/icons generated sha256:4f2ddc6bd4e5f2c2 gen:7 source:src/svg/normal/hourglass.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Hourglass' })
 </script>

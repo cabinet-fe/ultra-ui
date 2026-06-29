@@ -10,7 +10,7 @@ import { computed, inject, type CSSProperties } from 'vue'
 import type { CardContentProps } from '../../types'
 import { CardDIKey } from './di'
 
-defineOptions({ name: 'CardContent' })
+defineOptions({ name: 'UCardContent' })
 
 const props = defineProps<CardContentProps>()
 

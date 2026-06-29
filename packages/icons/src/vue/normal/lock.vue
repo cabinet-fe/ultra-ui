@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:8e4737550e4571ce gen:4 source:src/svg/normal/lock.svg -->
+<!-- @veltra/icons generated sha256:8e4737550e4571ce gen:7 source:src/svg/normal/lock.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Lock' })
 </script>

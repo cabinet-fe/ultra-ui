@@ -15,7 +15,7 @@ import UContextmenuItem from './contextmenu-item.vue'
 import UContextmenuSub from './contextmenu-sub.vue'
 import { ContextmenuPanelDIKey, ContextmenuRootDIKey } from './di'
 
-defineOptions({ name: 'ContextmenuPanel', inheritAttrs: false })
+defineOptions({ name: 'UContextmenuPanel', inheritAttrs: false })
 
 const { menus } = defineProps<{ menus: ContextmenuItem[] }>()
 

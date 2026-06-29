@@ -91,7 +91,7 @@ import { UIcon } from '../icon'
 import { UNumberInput } from '../number-input'
 import { USelect } from '../select'
 
-defineOptions({ name: 'Paginator' })
+defineOptions({ name: 'UPaginator' })
 
 const { config } = useConfig()
 

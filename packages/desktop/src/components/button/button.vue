@@ -36,7 +36,7 @@ import { computed, shallowRef } from 'vue'
 import type { ButtonEmits, ButtonProps, _ButtonExposed, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Button' })
+defineOptions({ name: 'UButton' })
 
 const props = withDefaults(defineProps<ButtonProps>(), {
   iconPosition: 'left',

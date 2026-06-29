@@ -36,7 +36,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
 import { UNumberInput } from '../number-input'
 
-defineOptions({ name: 'NumberRangeInput' })
+defineOptions({ name: 'UNumberRangeInput' })
 
 const props = withDefaults(defineProps<NumberRangeInputProps>(), {
   startPlaceholder: '请输入',

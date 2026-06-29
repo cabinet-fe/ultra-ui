@@ -41,7 +41,7 @@ import {
   type NavSearchItem
 } from './nav-config'
 
-defineOptions({ name: 'NavSearch' })
+defineOptions({ name: 'UNavSearch' })
 
 const props = defineProps<{ menus: NavItem[] }>()
 

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0d4f476421108800 gen:4 source:src/svg/normal/user-clear.svg -->
+<!-- @veltra/icons generated sha256:0d4f476421108800 gen:7 source:src/svg/normal/user-clear.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserClear' })
 </script>

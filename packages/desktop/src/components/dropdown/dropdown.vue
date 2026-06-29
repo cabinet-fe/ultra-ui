@@ -28,7 +28,7 @@ import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'
 import { UNodeRender } from '../node-render'
 import { useNest } from '../tip/use-nest'
 
-defineOptions({ name: 'Dropdown', inheritAttrs: false })
+defineOptions({ name: 'UDropdown', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DropdownProps>(), { trigger: 'hover', contentTag: 'div' })
 

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:01acf45fd926ae12 gen:4 source:src/svg/normal/fork.svg -->
+<!-- @veltra/icons generated sha256:01acf45fd926ae12 gen:7 source:src/svg/normal/fork.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Fork' })
 </script>

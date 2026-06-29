@@ -21,7 +21,7 @@ import { onBeforeUnmount, ref, shallowRef, useAttrs, watch } from 'vue'
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { toBlobUrl } from '../helper'
 
-defineOptions({ name: 'FileViewerImagePreviewer', inheritAttrs: false })
+defineOptions({ name: 'UFileViewerImagePreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 

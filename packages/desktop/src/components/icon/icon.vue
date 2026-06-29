@@ -10,7 +10,7 @@ import { type CSSProperties, computed } from 'vue'
 
 import type { IconProps } from '../../types'
 
-defineOptions({ name: 'Icon' })
+defineOptions({ name: 'UIcon' })
 
 const props = defineProps<IconProps>()
 

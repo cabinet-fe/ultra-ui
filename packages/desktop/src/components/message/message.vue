@@ -29,7 +29,7 @@ import type { MessageProps } from '../../types'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'
 
-defineOptions({ name: 'Message' })
+defineOptions({ name: 'UMessage' })
 
 const props = withDefaults(defineProps<MessageProps>(), {
   type: 'default',

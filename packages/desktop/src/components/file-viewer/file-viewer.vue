@@ -218,7 +218,7 @@ import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { FILE_VIEWER_KIND_LABEL, downloadFile, formatBytes, inferKind } from './helper'
 
-defineOptions({ name: 'FileViewer', inheritAttrs: false })
+defineOptions({ name: 'UFileViewer', inheritAttrs: false })
 
 const props = withDefaults(defineProps<FileViewerProps>(), {
   modelValue: undefined,

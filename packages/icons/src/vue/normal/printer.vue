@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:400a1774c63082ac gen:4 source:src/svg/normal/printer.svg -->
+<!-- @veltra/icons generated sha256:400a1774c63082ac gen:7 source:src/svg/normal/printer.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Printer' })
 </script>

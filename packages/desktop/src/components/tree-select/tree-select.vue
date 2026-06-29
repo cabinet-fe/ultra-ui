@@ -73,7 +73,7 @@ import { UInput } from '../input'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
 
-defineOptions({ name: 'TreeSelect' })
+defineOptions({ name: 'UTreeSelect' })
 
 const props = withDefaults(defineProps<TreeSelectProps>(), {
   labelKey: 'label',

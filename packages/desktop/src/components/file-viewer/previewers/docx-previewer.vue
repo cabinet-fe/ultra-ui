@@ -12,7 +12,7 @@ import { onBeforeUnmount, ref, useAttrs, useTemplateRef, watch } from 'vue'
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { UScroll } from '../../scroll'
 
-defineOptions({ name: 'FileViewerDocxPreviewer', inheritAttrs: false })
+defineOptions({ name: 'UFileViewerDocxPreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 

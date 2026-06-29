@@ -46,7 +46,7 @@ import UContextmenuPanel from './contextmenu-panel.vue'
 import { ContextmenuPanelDIKey, ContextmenuRootDIKey } from './di'
 import { getMenuDisabled } from './helper'
 
-defineOptions({ name: 'ContextmenuSub' })
+defineOptions({ name: 'UContextmenuSub' })
 
 const { menu } = defineProps<{ menu: ContextmenuItem }>()
 

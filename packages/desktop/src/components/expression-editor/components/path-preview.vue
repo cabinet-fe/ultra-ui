@@ -20,7 +20,7 @@ import { bem } from '@veltra/utils'
 
 import type { VariableItem } from '../../../types'
 
-defineOptions({ name: 'ExpressionPathPreview' })
+defineOptions({ name: 'UExpressionPathPreview' })
 
 defineProps<{ path: VariableItem[] }>()
 

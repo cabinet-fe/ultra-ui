@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0064280ef041a0ae gen:4 source:src/svg/normal/remove-rectangle.svg -->
+<!-- @veltra/icons generated sha256:0064280ef041a0ae gen:7 source:src/svg/normal/remove-rectangle.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'RemoveRectangle' })
 </script>

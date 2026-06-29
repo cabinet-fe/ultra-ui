@@ -20,7 +20,7 @@ import { computed, inject, reactive, shallowRef, onMounted } from 'vue'
 
 import { PaletteDIKey } from './di'
 
-defineOptions({ name: 'PaletteSV' })
+defineOptions({ name: 'UPaletteSV' })
 
 const { cls, hueRGB, HSV, updateSV, userAction } = inject(PaletteDIKey)!
 

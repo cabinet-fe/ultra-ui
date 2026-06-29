@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:0730f96aed9042e8 gen:4 source:src/svg/colorful/image.svg -->
+<!-- @veltra/icons generated sha256:0730f96aed9042e8 gen:7 source:src/svg/colorful/image.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Image' })
+defineOptions({ name: 'UImage' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

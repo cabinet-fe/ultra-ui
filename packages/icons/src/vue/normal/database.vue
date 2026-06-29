@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:e4b7449a3cd04906 gen:4 source:src/svg/normal/database.svg -->
+<!-- @veltra/icons generated sha256:e4b7449a3cd04906 gen:7 source:src/svg/normal/database.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Database' })
 </script>

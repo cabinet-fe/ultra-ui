@@ -45,7 +45,7 @@ import { UTip } from '../tip'
 import { formItemCls as cls, defineField } from './helper'
 import { validateField } from './validate'
 
-defineOptions({ name: 'FormItem' })
+defineOptions({ name: 'UFormItem' })
 
 const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined })
 

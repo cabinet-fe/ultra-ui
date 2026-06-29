@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:3ad2054e1a65727c gen:4 source:src/svg/normal/cart.svg -->
+<!-- @veltra/icons generated sha256:3ad2054e1a65727c gen:7 source:src/svg/normal/cart.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Cart' })
 </script>

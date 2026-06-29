@@ -124,7 +124,7 @@ import { useCheck } from './use-check'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 
-defineOptions({ name: 'Cascade' })
+defineOptions({ name: 'UCascade' })
 
 const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: 'label',

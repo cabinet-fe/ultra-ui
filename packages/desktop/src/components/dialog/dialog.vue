@@ -84,7 +84,7 @@ import { UScroll } from '../scroll'
 import { DialogDIKey } from './di'
 import { useMaximum } from './use-maximum'
 
-defineOptions({ name: 'Dialog', inheritAttrs: false })
+defineOptions({ name: 'UDialog', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,

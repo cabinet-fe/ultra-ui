@@ -15,7 +15,7 @@ import { onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { UScroll } from '../../scroll'
 
-defineOptions({ name: 'FileViewerTextPreviewer' })
+defineOptions({ name: 'UFileViewerTextPreviewer' })
 
 const props = withDefaults(
   defineProps<{

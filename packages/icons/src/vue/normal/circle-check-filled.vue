@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:8aa7e19a3971f845 gen:4 source:src/svg/normal/circle-check-filled.svg -->
+<!-- @veltra/icons generated sha256:8aa7e19a3971f845 gen:7 source:src/svg/normal/circle-check-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CircleCheckFilled' })
 </script>

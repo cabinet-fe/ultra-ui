@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:8c048a3a9f3075d1 gen:4 source:src/svg/normal/hide.svg -->
+<!-- @veltra/icons generated sha256:8c048a3a9f3075d1 gen:7 source:src/svg/normal/hide.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Hide' })
 </script>

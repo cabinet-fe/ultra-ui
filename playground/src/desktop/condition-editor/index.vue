@@ -184,17 +184,16 @@ const dataText = ref(
   )
 )
 
-const dataError = ref('')
-
-const evalData = computed<Record<string, unknown>>(() => {
+const parsedEvalData = computed(() => {
   try {
-    dataError.value = ''
-    return JSON.parse(dataText.value)
+    return { data: JSON.parse(dataText.value) as Record<string, unknown>, error: '' }
   } catch (err) {
-    dataError.value = (err as Error).message
-    return {}
+    return { data: {} as Record<string, unknown>, error: (err as Error).message }
   }
 })
+
+const evalData = computed(() => parsedEvalData.value.data)
+const dataError = computed(() => parsedEvalData.value.error)
 
 const evalResult = computed(() =>
   evaluateConditionExpression(evalExpr.value, { fields, data: evalData.value })

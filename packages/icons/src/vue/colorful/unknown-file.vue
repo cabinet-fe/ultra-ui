@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:a7b62697ba964d90 gen:4 source:src/svg/colorful/unknown-file.svg -->
+<!-- @veltra/icons generated sha256:a7b62697ba964d90 gen:7 source:src/svg/colorful/unknown-file.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UnknownFile' })
 </script>

@@ -62,7 +62,7 @@ import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
 import { UTip } from '../tip'
 
-defineOptions({ name: 'Steps' })
+defineOptions({ name: 'USteps' })
 
 const props = withDefaults(defineProps<StepsProps>(), {
   direction: 'horizontal',

@@ -39,7 +39,7 @@ import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'v
 
 import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'
 
-defineOptions({ name: 'ProgressNodes' })
+defineOptions({ name: 'UProgressNodes' })
 
 const props = withDefaults(defineProps<ProgressNodesProps>(), {
   colorType: 'primary',

@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
-export default defineConfig({
+const config = {
   base: '/',
 
   css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
@@ -22,4 +22,6 @@ export default defineConfig({
   plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraDesktopUIResolver()], dts: true })],
 
   server: { port: 7788, host: true }
-})
+}
+
+export default defineConfig(config as Parameters<typeof defineConfig>[0])

@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:114c772c658f8671 gen:4 source:src/svg/normal/textarea.svg -->
+<!-- @veltra/icons generated sha256:114c772c658f8671 gen:7 source:src/svg/normal/form-textarea.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Textarea' })
+defineOptions({ name: 'FormTextarea' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

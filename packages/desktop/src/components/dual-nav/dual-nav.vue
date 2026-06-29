@@ -70,7 +70,7 @@ import { UTip } from '../tip'
 import DualNavApp from './dual-nav-app.vue'
 import { findFirstLeaf, findRootApp } from './helper'
 
-defineOptions({ name: 'DualNav' })
+defineOptions({ name: 'UDualNav' })
 
 const props = defineProps<DualNavProps>()
 const emit = defineEmits<DualNavEmits>()

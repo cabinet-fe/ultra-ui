@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { computed, inject, onBeforeUnmount, type Ref, watch } from 'vue'
 
-defineOptions({ name: 'FileViewerPdfViewportScroll' })
+defineOptions({ name: 'UFileViewerPdfViewportScroll' })
 
 /** EmbedPDF Viewport 向子树注入的滚动容器 ref */
 const VIEWPORT_ELEMENT_KEY = 'viewport-element'

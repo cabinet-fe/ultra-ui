@@ -85,7 +85,7 @@ import { UScroll } from '../scroll'
 import { useKeyboard } from './use-keyboard'
 import { useSuggestions } from './use-suggestions'
 
-defineOptions({ name: 'AutoComplete', inheritAttrs: false })
+defineOptions({ name: 'UAutoComplete', inheritAttrs: false })
 
 const props = withDefaults(defineProps<AutoCompleteProps>(), {
   placeholder: '请输入',

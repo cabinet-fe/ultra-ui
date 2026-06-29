@@ -74,7 +74,7 @@ import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../typ
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'NumberInput' })
+defineOptions({ name: 'UNumberInput' })
 
 const props = withDefaults(defineProps<NumberInputProps>(), {
   placeholder: '请输入',

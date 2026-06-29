@@ -12,7 +12,7 @@ import type { ListProps } from '../../types'
 import type { ComponentSize } from '../../types'
 import { UScroll } from '../scroll'
 
-defineOptions({ name: 'List' })
+defineOptions({ name: 'UList' })
 
 const props = withDefaults(defineProps<ListProps>(), {})
 

@@ -37,7 +37,7 @@ import type { DualNavRootItem } from '../../types'
 import UNavIcon from '../nav/nav-icon.vue'
 import { UTip } from '../tip'
 
-defineOptions({ name: 'DualNavApp' })
+defineOptions({ name: 'UDualNavApp' })
 
 const cls = bem('dual-nav')
 

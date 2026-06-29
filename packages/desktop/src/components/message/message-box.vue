@@ -13,7 +13,7 @@
 import type { MessageOptions } from '../../types'
 import UMessage from './message.vue'
 
-defineOptions({ name: 'MessageBox' })
+defineOptions({ name: 'UMessageBox' })
 
 defineProps<{ messages: Array<Omit<MessageOptions & { key: string }, 'onClosed'>> }>()
 

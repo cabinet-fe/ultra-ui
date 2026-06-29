@@ -12,7 +12,7 @@ import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 
 import type { BadgeProps, ComponentSize } from '../../types'
 
-defineOptions({ name: 'Badge' })
+defineOptions({ name: 'UBadge' })
 
 const cls = bem('badge')
 

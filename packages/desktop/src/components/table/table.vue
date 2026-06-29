@@ -93,7 +93,7 @@ import { useFixedColumns } from './use-fixed-columns'
 import { useRows } from './use-rows'
 import { useTable } from './use-table'
 
-defineOptions({ name: 'Table' })
+defineOptions({ name: 'UTable' })
 
 const props = withDefaults(defineProps<TableProps>(), {
   tree: false,

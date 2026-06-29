@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:026d8a99c0407e1f gen:4 source:src/svg/normal/secured.svg -->
+<!-- @veltra/icons generated sha256:026d8a99c0407e1f gen:7 source:src/svg/normal/secured.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Secured' })
 </script>

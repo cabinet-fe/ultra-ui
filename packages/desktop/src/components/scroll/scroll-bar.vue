@@ -9,7 +9,7 @@ import { computed, inject, shallowRef } from 'vue'
 
 import { ScrollDIKey } from './di'
 
-defineOptions({ name: 'ScrollBar' })
+defineOptions({ name: 'UScrollBar' })
 
 const props = defineProps<{ type: 'x' | 'y' }>()
 

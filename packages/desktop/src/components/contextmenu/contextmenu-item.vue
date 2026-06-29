@@ -33,7 +33,7 @@ import { UIcon } from '../icon'
 import { ContextmenuPanelDIKey, ContextmenuRootDIKey } from './di'
 import { getMenuDisabled } from './helper'
 
-defineOptions({ name: 'ContextmenuItem' })
+defineOptions({ name: 'UContextmenuItem' })
 
 const { menu } = defineProps<{ menu: ContextmenuItem }>()
 

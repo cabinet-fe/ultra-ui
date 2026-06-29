@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:1fc711637f6db902 gen:4 source:src/svg/normal/date-range-picker.svg -->
+<!-- @veltra/icons generated sha256:1fc711637f6db902 gen:7 source:src/svg/normal/form-date-range-picker.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'DateRangePicker' })
+defineOptions({ name: 'FormDateRangePicker' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

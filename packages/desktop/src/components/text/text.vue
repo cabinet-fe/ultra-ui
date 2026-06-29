@@ -11,7 +11,7 @@ import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode 
 import type { TextProps } from '../../types'
 import { UNodeRender } from '../node-render'
 
-defineOptions({ name: 'Text' })
+defineOptions({ name: 'UText' })
 
 const props = withDefaults(defineProps<TextProps>(), { as: 'content' })
 

@@ -44,7 +44,7 @@ import { UButton } from '../button'
 import { UTable } from '../table'
 import type { TableRowNode } from '../table/node/row'
 
-defineOptions({ name: 'TableEditor' })
+defineOptions({ name: 'UTableEditor' })
 
 const { columns = [], modelValue = [] } = defineProps<TableEditorProps>()
 const emit = defineEmits<TableEditorEmits>()

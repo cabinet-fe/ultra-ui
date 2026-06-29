@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:fc11e5a88a6d8b20 gen:4 source:src/svg/normal/chart-pie.svg -->
+<!-- @veltra/icons generated sha256:fc11e5a88a6d8b20 gen:7 source:src/svg/normal/chart-pie.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ChartPie' })
 </script>

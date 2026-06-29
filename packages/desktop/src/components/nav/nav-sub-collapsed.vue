@@ -60,7 +60,7 @@ import { getKey } from './helper'
 import NavIcon from './nav-icon.vue'
 import UNavItemCollapsed from './nav-item-collapsed.vue'
 
-defineOptions({ name: 'NavSubCollapsed' })
+defineOptions({ name: 'UNavSubCollapsed' })
 
 defineProps<{ item: NavItem; parentKey: string; depth: number }>()
 

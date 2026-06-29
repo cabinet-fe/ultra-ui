@@ -9,7 +9,7 @@ import { computed, inject } from 'vue'
 
 import { CardDIKey } from './di'
 
-defineOptions({ name: 'CardHeader' })
+defineOptions({ name: 'UCardHeader' })
 
 const injected = inject(CardDIKey)
 const { cls } = injected || {}

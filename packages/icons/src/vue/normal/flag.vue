@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0333fa18528e33be gen:4 source:src/svg/normal/flag.svg -->
+<!-- @veltra/icons generated sha256:0333fa18528e33be gen:7 source:src/svg/normal/flag.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Flag' })
 </script>

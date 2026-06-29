@@ -30,7 +30,7 @@ import { computed } from 'vue'
 
 import type { RadioProps, RadioEmits } from '../../types'
 
-defineOptions({ name: 'Radio' })
+defineOptions({ name: 'URadio' })
 
 const model = defineModel<any>()
 

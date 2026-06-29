@@ -13,7 +13,7 @@ import { UTip } from '../tip'
 import { ActionDIKey } from './di'
 
 defineOptions({
-  name: 'ActionGroup',
+  name: 'UActionGroup',
   inheritAttrs: false
 })
 

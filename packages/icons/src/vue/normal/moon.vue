@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9e319ad968f0873e gen:4 source:src/svg/normal/moon.svg -->
+<!-- @veltra/icons generated sha256:9e319ad968f0873e gen:7 source:src/svg/normal/moon.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Moon' })
 </script>

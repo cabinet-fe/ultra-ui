@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:58b7bf8d9828b3ad gen:4 source:src/svg/normal/align-center.svg -->
+<!-- @veltra/icons generated sha256:58b7bf8d9828b3ad gen:7 source:src/svg/normal/align-center.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AlignCenter' })
 </script>

@@ -14,7 +14,7 @@
 import { withUnit } from '@veltra/utils'
 import { computed } from 'vue'
 
-defineOptions({ name: 'TableCell' })
+defineOptions({ name: 'UTableCell' })
 
 /**
  * B2: TableCell 去 inject 化。

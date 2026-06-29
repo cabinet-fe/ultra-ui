@@ -34,7 +34,7 @@ import type { FloatButtonProps, FloatButtonEmits, ButtonExposed } from '../../ty
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'FloatButton' })
+defineOptions({ name: 'UFloatButton' })
 
 defineProps<FloatButtonProps>()
 

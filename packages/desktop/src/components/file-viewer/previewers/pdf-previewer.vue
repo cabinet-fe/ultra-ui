@@ -58,7 +58,7 @@ import { toBlobUrl } from '../helper'
 import PdfViewportScroll from './pdf-viewport-scroll.vue'
 import PdfZoomBridge from './pdf-zoom-bridge.vue'
 
-defineOptions({ name: 'FileViewerPdfPreviewer', inheritAttrs: false })
+defineOptions({ name: 'UFileViewerPdfPreviewer', inheritAttrs: false })
 
 const props = defineProps<{ file: FileViewerItem }>()
 

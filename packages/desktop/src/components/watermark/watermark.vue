@@ -15,7 +15,7 @@ import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 
 import type { WatermarkProps, WatermarkEmits } from '../../types'
 
-defineOptions({ name: 'Watermark' })
+defineOptions({ name: 'UWatermark' })
 const cls = bem('watermark')
 const props = withDefaults(defineProps<WatermarkProps>(), { route: -30, fontSize: 60 })
 defineEmits<WatermarkEmits>()

@@ -21,7 +21,7 @@ import { computed } from 'vue'
 import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
 import { UTag } from '../tag'
 
-defineOptions({ name: 'CheckboxButton' })
+defineOptions({ name: 'UCheckboxButton' })
 
 const props = withDefaults(defineProps<CheckboxButtonProps>(), {
   disabled: undefined,

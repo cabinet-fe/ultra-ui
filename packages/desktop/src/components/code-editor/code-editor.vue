@@ -24,7 +24,7 @@ import type { CodeEditorLang, CodeEditorProps } from '../../types'
 import { UScroll } from '../scroll'
 import { basicSetup } from './basic-setup'
 
-defineOptions({ name: 'CodeEditor' })
+defineOptions({ name: 'UCodeEditor' })
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   disabled: undefined,

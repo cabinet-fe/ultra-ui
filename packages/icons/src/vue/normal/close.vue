@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:fa11df81a42e4778 gen:4 source:src/svg/normal/close.svg -->
+<!-- @veltra/icons generated sha256:fa11df81a42e4778 gen:7 source:src/svg/normal/close.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Close' })
 </script>

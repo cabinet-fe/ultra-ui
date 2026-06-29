@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:7e3fc8da8ac04f05 gen:4 source:src/svg/normal/slider.svg -->
+<!-- @veltra/icons generated sha256:7e3fc8da8ac04f05 gen:7 source:src/svg/normal/form-slider.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Slider' })
+defineOptions({ name: 'FormSlider' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

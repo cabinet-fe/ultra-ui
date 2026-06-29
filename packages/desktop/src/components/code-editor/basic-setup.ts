@@ -25,7 +25,8 @@ import {
   rectangularSelection,
   crosshairCursor,
   highlightActiveLine,
-  keymap
+  keymap,
+  type KeyBinding
 } from '@codemirror/view'
 
 /**
@@ -58,5 +59,5 @@ export const basicSetup: Extension = (() => [
     ...foldKeymap,
     ...completionKeymap,
     ...lintKeymap
-  ])
+  ] as readonly KeyBinding[])
 ])()

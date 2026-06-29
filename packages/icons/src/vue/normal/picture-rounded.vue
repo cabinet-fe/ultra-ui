@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:d13417ece0752084 gen:4 source:src/svg/normal/picture-rounded.svg -->
+<!-- @veltra/icons generated sha256:d13417ece0752084 gen:7 source:src/svg/normal/picture-rounded.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PictureRounded' })
 </script>

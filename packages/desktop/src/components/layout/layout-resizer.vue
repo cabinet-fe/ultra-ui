@@ -17,7 +17,7 @@ import { computed, inject, shallowReactive, shallowRef } from 'vue'
 import { UIcon } from '../icon'
 import { LayoutDIKey } from './di'
 
-defineOptions({ name: 'LayoutResizer' })
+defineOptions({ name: 'ULayoutResizer' })
 
 const props = defineProps<{
   /** 是否横向 */

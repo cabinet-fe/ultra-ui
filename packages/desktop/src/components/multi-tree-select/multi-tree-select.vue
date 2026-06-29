@@ -113,7 +113,7 @@ import { UTag } from '../tag'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
 
-defineOptions({ name: 'MultiTreeSelect' })
+defineOptions({ name: 'UMultiTreeSelect' })
 
 const cls = bem('multi-tree-select')
 

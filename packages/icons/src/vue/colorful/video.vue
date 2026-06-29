@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:6a5928b29fbf060c gen:4 source:src/svg/colorful/video.svg -->
+<!-- @veltra/icons generated sha256:6a5928b29fbf060c gen:7 source:src/svg/colorful/video.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Video' })
+defineOptions({ name: 'UVideo' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">

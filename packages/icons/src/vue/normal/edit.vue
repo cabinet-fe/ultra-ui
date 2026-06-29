@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:a3ff703b998d41bc gen:4 source:src/svg/normal/edit.svg -->
+<!-- @veltra/icons generated sha256:a3ff703b998d41bc gen:7 source:src/svg/normal/edit.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Edit' })
 </script>

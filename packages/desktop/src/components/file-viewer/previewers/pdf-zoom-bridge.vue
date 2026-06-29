@@ -6,7 +6,7 @@
 import { useZoom, ZoomMode, type ZoomScope } from '@embedpdf/plugin-zoom/vue'
 import { watch } from 'vue'
 
-defineOptions({ name: 'FileViewerPdfZoomBridge' })
+defineOptions({ name: 'UFileViewerPdfZoomBridge' })
 
 const props = defineProps<{ documentId: string }>()
 

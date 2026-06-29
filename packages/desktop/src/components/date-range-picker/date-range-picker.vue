@@ -72,7 +72,7 @@ import { UDatePanel } from '../date-panel'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'DateRangePicker' })
+defineOptions({ name: 'UDateRangePicker' })
 
 const props = withDefaults(defineProps<DateRangePickerProps>(), {
   placeholder: () => ['起始日期', '结束日期'],

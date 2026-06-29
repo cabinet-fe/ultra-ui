@@ -26,7 +26,7 @@ import { UEmpty } from '../empty'
 import { TableDIKey } from './di'
 import { UTableRow, UExpandTableRow } from './table-row'
 
-defineOptions({ name: 'TableBody' })
+defineOptions({ name: 'UTableBody' })
 
 const { cls, rows, virtualList, columnConfig, tableProps, virtualEnabled } = inject(TableDIKey)!
 const { leafColumns } = columnConfig

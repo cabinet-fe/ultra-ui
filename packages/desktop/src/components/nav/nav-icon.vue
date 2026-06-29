@@ -11,7 +11,7 @@ import type { DefineComponent } from 'vue'
 
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'NavIcon' })
+defineOptions({ name: 'UNavIcon' })
 
 defineProps<{ icon: string | DefineComponent }>()
 </script>

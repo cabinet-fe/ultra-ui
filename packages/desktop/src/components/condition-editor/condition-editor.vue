@@ -35,7 +35,7 @@ import ConditionGroup from './components/condition-group.vue'
 import type { MentionPayload } from './components/condition-row.vue'
 import { createEmptyGroup } from './core/evaluator'
 
-defineOptions({ name: 'ConditionEditor' })
+defineOptions({ name: 'UConditionEditor' })
 
 const props = withDefaults(defineProps<ConditionEditorProps>(), { fields: () => [] })
 

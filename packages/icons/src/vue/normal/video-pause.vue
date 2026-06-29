@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:b86cb51d670d8453 gen:4 source:src/svg/normal/video-pause.svg -->
+<!-- @veltra/icons generated sha256:b86cb51d670d8453 gen:7 source:src/svg/normal/video-pause.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'VideoPause' })
 </script>

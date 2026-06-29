@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5737044d6cc566cd gen:4 source:src/svg/colorful/excel.svg -->
+<!-- @veltra/icons generated sha256:5737044d6cc566cd gen:7 source:src/svg/colorful/excel.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Excel' })
 </script>

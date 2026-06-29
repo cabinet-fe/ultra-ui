@@ -31,7 +31,7 @@ import type { ScrollPosition, _ScrollExposed, ScrollProps, ScrollEmits } from '.
 import { ScrollDIKey } from './di'
 import UScrollBar from './scroll-bar.vue'
 
-defineOptions({ name: 'Scroll' })
+defineOptions({ name: 'UScroll' })
 
 const props = withDefaults(defineProps<ScrollProps>(), { tag: 'div' })
 

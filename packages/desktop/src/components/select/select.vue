@@ -137,7 +137,7 @@ import { UScroll } from '../scroll'
 import { useKeyboard } from './use-keyboard'
 import { useOptions } from './use-options'
 
-defineOptions({ name: 'Select' })
+defineOptions({ name: 'USelect' })
 
 const props = withDefaults(defineProps<SelectProps>(), {
   labelKey: 'label',

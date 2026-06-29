@@ -62,7 +62,7 @@ import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 import type { InputEmits, InputProps, _InputExposed } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Input' })
+defineOptions({ name: 'UInput' })
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',

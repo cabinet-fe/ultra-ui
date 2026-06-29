@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f290ca6bfc9429b0 gen:4 source:src/svg/normal/plus.svg -->
+<!-- @veltra/icons generated sha256:f290ca6bfc9429b0 gen:7 source:src/svg/normal/plus.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Plus' })
 </script>

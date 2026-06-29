@@ -36,7 +36,7 @@ import { inject } from 'vue'
 import { UIcon } from '../../icon'
 import { DatePanelDIKey } from '../di'
 
-defineOptions({ name: 'DatePanelDayHeader' })
+defineOptions({ name: 'UDatePanelDayHeader' })
 
 const { panelDate, panelType, cls, toPrevMonth, toNextMonth, toPrevYear, toNextYear } =
   inject(DatePanelDIKey)!

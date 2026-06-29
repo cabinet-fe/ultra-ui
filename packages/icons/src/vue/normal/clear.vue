@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:2877c290ad63269a gen:4 source:src/svg/normal/clear.svg -->
+<!-- @veltra/icons generated sha256:2877c290ad63269a gen:7 source:src/svg/normal/clear.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Clear' })
 </script>

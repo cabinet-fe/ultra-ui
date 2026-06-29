@@ -39,7 +39,7 @@ import PaletteHue from './palette-hue.vue'
 import PaletteSV from './palette-sv.vue'
 import { useHSV } from './use-hsv'
 
-defineOptions({ name: 'Palette' })
+defineOptions({ name: 'UPalette' })
 
 const props = withDefaults(defineProps<PaletteProps>(), {
   disabled: undefined,
