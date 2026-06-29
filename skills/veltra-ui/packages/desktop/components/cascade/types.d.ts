@@ -33,7 +33,7 @@ export interface CascadeProps extends FormComponentProps {
   /**
    * 是否展示/提交完整路径
    * @default true
-   * false 时显示、modelValue、change label 均只体现选中叶子节点
+   * false 时显示、modelValue、update:label 均只体现选中叶子节点
    */
   showFullPath?: boolean
   /**
@@ -59,9 +59,11 @@ export interface PanelItem {
 
 /** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
+  /** 触发更新 label 事件 */
+  (e: 'update:label', label?: string | string[]): void
   (e: 'update:modelValue', value?: string | string[]): void
-  (e: 'change', value: string[], label: string[], data: Record<string, any>[]): void
-  (e: 'change', value?: string, label?: string, item?: Record<string, any>): void
+  (e: 'change', items: Record<string, any>[]): void
+  (e: 'change', item?: Record<string, any>): void
   (e: 'clear'): void
 }
 

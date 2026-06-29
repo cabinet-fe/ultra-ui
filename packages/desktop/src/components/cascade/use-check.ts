@@ -68,8 +68,10 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
     const checkedArr = Array.from(checkedSet.value)
     const targetValues = checkedArr.map((item) => item.value)
     const targetLabels = checkedArr.map((item) => item.label)
+    const targetItems = checkedArr.map((item) => item.data as Record<string, any>)
     emit('update:modelValue', targetValues)
-    emit('change', targetValues, targetLabels, checkedArr)
+    emit('update:label', targetLabels.length ? targetLabels : undefined)
+    emit('change', targetItems)
   }
 
   const restTag = computed(() => {

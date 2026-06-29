@@ -13,6 +13,7 @@
     "packages/*/vite.config.ts",
     "playground/vite.config.ts",
     "scripts/*.ts",
-    "packages/icons/scripts/*.ts"
+    "packages/icons/scripts/*.ts",
+    "packages/vite/src/resolver.ts"
   ]
 }

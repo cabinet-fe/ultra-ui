@@ -136,7 +136,7 @@ const handleClear = () => {
   model.value = ''
   label.value = undefined
   emit('clear')
-  emit('change', '', undefined)
+  emit('change', undefined)
   emit('update:text', '')
 }
 
@@ -186,7 +186,7 @@ const handleSelect = (selected?: string | number, selectedData?: Record<string, 
     label.value = ''
   }
 
-  emit('change', selected, selectedData)
+  emit('change', selectedData)
   emit('update:text', label.value)
   dropdownRef.value?.close()
 }

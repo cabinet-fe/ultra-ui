@@ -1,6 +1,7 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// 相对路径：vp run 加载配置时会打包 vite.config，@veltra/vite 的 import 条件指向 dist，拓扑构建前尚不存在
 import { VeltraDesktopUIResolver } from '@veltra/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'

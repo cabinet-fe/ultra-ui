@@ -42,7 +42,8 @@ export interface TreeSelectProps
 /** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
   (e: 'clear'): void
-  (e: 'change', value?: string | number, selectedData?: Record<string, any>): void
+  (e: 'update:modelValue', value?: string | number): void
+  (e: 'change', selectedData?: Record<string, any>): void
   (e: 'update:text', text?: string): void
 }
 

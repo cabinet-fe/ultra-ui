@@ -56,8 +56,6 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   /** 选中的节点key */
   const selectedNodeKeys = shallowRef<string[]>([])
 
-  const currentItem = shallowRef<Record<string, any>>()
-
   /** 面板数据 */
   const panelItemList = shallowRef<PanelItem[]>([])
   const uid = createIncrease()
@@ -116,8 +114,11 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
           .join(separator!)
       : leafLabel
 
+    const leafNode = leafKey ? dataMap.value.get(leafKey) : undefined
+
     emit('update:modelValue', targetValue)
-    emit('change', targetValue, targetLabel, currentItem.value!)
+    emit('update:label', targetLabel)
+    emit('change', leafNode?.data as Record<string, any> | undefined)
   }
 
   /**
@@ -128,7 +129,6 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
    */
   function selectItem(panelIndex: number, item: CascadeNode) {
     // 设置选中的节点
-    currentItem.value = item
     selectedNodeKeys.value[panelIndex] = item.value
     selectedNodeKeys.value.splice(panelIndex + 1)
     triggerRef(selectedNodeKeys)
