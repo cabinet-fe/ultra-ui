@@ -1,5 +1,18 @@
 # @veltra/desktop
 
+## 1.2.11
+
+### Patch Changes
+
+- 629843e: - Cascade 新增 `showFullPath` 属性，支持仅展示/提交叶子节点
+  - 修正 UForm 组件注册名称
+  - 升级 @cat-kit peer 依赖至 1.1.8
+  - @veltra/utils@1.2.11
+  - @veltra/styles@1.2.11
+  - @veltra/compositions@1.2.11
+  - @veltra/directives@1.2.11
+  - @veltra/icons@1.2.11
+
 ## 1.2.10
 
 ### Patch Changes
