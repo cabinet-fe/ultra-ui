@@ -137,7 +137,8 @@ const props = withDefaults(defineProps<CascadeProps>(), {
   childrenKey: 'children',
   filterable: false,
   data: () => [],
-  visibilityLimit: 3
+  visibilityLimit: 3,
+  showFullPath: true
 })
 
 const emit = defineEmits<CascadeEmits>()

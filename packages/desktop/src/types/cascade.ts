@@ -31,14 +31,16 @@ export interface CascadeProps extends FormComponentProps {
   /** 严格模式 */
   strict?: boolean
   /**
+   * 是否展示/提交完整路径
+   * @default true
+   * false 时显示、modelValue、change label 均只体现选中叶子节点
+   */
+  showFullPath?: boolean
+  /**
    * 数据项
    */
   data?: Record<string, any>[]
 
-  /**
-   * 禁用项
-   */
-  disabledNode?: (item: Record<string, any>) => boolean
   /**
    * 多选
    */

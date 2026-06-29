@@ -35,7 +35,7 @@ import { UGrid } from '../grid'
 import { useFormFields } from './use-form-fields'
 import { useNodeInterceptor } from './use-node-interceptor'
 
-defineOptions({ name: 'Form' })
+defineOptions({ name: 'UForm' })
 
 const props = defineProps<FormProps>()
 

@@ -28,6 +28,16 @@ interface SelectOptions {
   dropdownRef: Ref<DropdownExposed | undefined>
 }
 
+function buildPathKeys(leaf: CascadeNode): string[] {
+  const keys: string[] = []
+  let node: CascadeNode | undefined = leaf
+  while (node) {
+    keys.unshift(node.value)
+    node = node.parent
+  }
+  return keys
+}
+
 interface UseSelectReturned {
   displayedValue: ComputedRef<string | undefined>
   selectItem: (panelIndex: number, item: CascadeNode) => void
@@ -56,17 +66,16 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   }
 
   const displayedValue = computed(() => {
-    const { modelValue, separator } = props
-    const valueNodes =
-      modelValue && typeof modelValue === 'string' ? modelValue.split(separator!) : undefined
-    return (
-      valueNodes
-        ?.map((v) => {
-          const node = dataMap.value.get(v)
-          return node?.label ?? v
-        })
-        .join(props.separator) ?? ''
-    )
+    const { modelValue, separator, showFullPath } = props
+    if (!modelValue || typeof modelValue !== 'string') return ''
+
+    if (showFullPath) {
+      return modelValue
+        .split(separator!)
+        .map((v) => dataMap.value.get(v)?.label ?? v)
+        .join(separator)
+    }
+    return dataMap.value.get(modelValue)?.label ?? modelValue
   })
 
   function getPanelItemList(data?: CascadeNode[]) {
@@ -94,19 +103,18 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   }
 
   function updateSingleValue() {
-    const { separator } = props
+    const { separator, showFullPath } = props
+    const keys = selectedNodeKeys.value
+    const leafKey = keys.length ? keys[keys.length - 1] : undefined
+    const leafLabel = leafKey ? dataMap.value.get(leafKey)?.label : undefined
 
-    const targetValue = selectedNodeKeys.value.length
-      ? selectedNodeKeys.value.join(separator!)
-      : undefined
-
-    const targetLabel = selectedNodeKeys.value
-      .map((key) => {
-        const node = dataMap.value.get(key)
-        return node?.label
-      })
-      .filter(Boolean)
-      .join(separator!)
+    const targetValue = showFullPath ? (keys.length ? keys.join(separator!) : undefined) : leafKey
+    const targetLabel = showFullPath
+      ? keys
+          .map((key) => dataMap.value.get(key)?.label)
+          .filter(Boolean)
+          .join(separator!)
+      : leafLabel
 
     emit('update:modelValue', targetValue)
     emit('change', targetValue, targetLabel, currentItem.value!)
@@ -138,11 +146,17 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
   }
 
   function initSingleSelect() {
-    const { modelValue, separator } = props
+    const { modelValue, separator, showFullPath } = props
 
     if (modelValue && typeof modelValue === 'string') {
-      const nodes = modelValue.split(separator!)
-      selectedNodeKeys.value = nodes
+      let keys: string[]
+      if (showFullPath) {
+        keys = modelValue.split(separator!)
+      } else {
+        const leaf = dataMap.value.get(modelValue)
+        keys = leaf ? buildPathKeys(leaf) : [modelValue]
+      }
+      selectedNodeKeys.value = keys
       getPanelItemList(forest.value.roots)
     } else {
       selectedNodeKeys.value = []

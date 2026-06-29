@@ -6,6 +6,7 @@
         <u-checkbox label="多选" field="multiple" @change="value = undefined" />
         <u-checkbox label="严格模式" field="strict" />
         <u-checkbox label="过滤" field="filterable" />
+        <u-checkbox label="完整路径" field="showFullPath" @change="value = undefined" />
         <u-checkbox label="只读" field="readonly" />
         <u-checkbox label="禁用" field="disabled" />
         <u-input
@@ -42,16 +43,13 @@ const propsModel = reactive({
   multiple: false,
   strict: false,
   filterable: false,
+  showFullPath: true,
   separator: '/',
   readonly: false,
   disabled: false
 })
 
 const data = shallowRef<any[]>([])
-
-const disabledNode = (data) => {
-  return data.code % 2 === 0
-}
 
 // 模拟回显
 setTimeout(() => {}, 300)
