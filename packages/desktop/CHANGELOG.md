@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.18
+
+### Patch Changes
+
+- b721a2a: 修复 UCodeEditor 切换语言后无语法高亮与补全
+  - @veltra/utils@1.2.18
+  - @veltra/styles@1.2.18
+  - @veltra/compositions@1.2.18
+  - @veltra/directives@1.2.18
+  - @veltra/icons@1.2.18
+
 ## 1.2.17
 
 ### Patch Changes
