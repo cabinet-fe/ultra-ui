@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.13
+
+### Patch Changes
+
+- 1994c46: 修正 Action、FormItem 组件名称引用，将 build 脚本从 package.json 迁移至 vite.config.ts
+  - @veltra/utils@1.2.13
+  - @veltra/styles@1.2.13
+  - @veltra/compositions@1.2.13
+  - @veltra/directives@1.2.13
+  - @veltra/icons@1.2.13
+
 ## 1.2.12
 
 ### Patch Changes
