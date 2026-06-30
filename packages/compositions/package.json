@@ -1,6 +1,6 @@
 {
   "name": "@veltra/compositions",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "files": [
     "dist",
     "src"

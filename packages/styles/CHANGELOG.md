@@ -1,5 +1,12 @@
 # @veltra/styles
 
+## 1.2.16
+
+### Patch Changes
+
+- @veltra/utils@1.2.16
+- @veltra/compositions@1.2.16
+
 ## 1.2.15
 
 ### Patch Changes

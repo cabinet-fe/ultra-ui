@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.16
+
+### Patch Changes
+
+- 77e1e10: 隐藏 layout 组件分割条的背景色
+  - @veltra/utils@1.2.16
+  - @veltra/styles@1.2.16
+  - @veltra/compositions@1.2.16
+  - @veltra/directives@1.2.16
+  - @veltra/icons@1.2.16
+
 ## 1.2.15
 
 ### Patch Changes
