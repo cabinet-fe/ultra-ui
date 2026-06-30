@@ -1,5 +1,11 @@
 # @veltra/vite
 
+## 1.2.14
+
+### Patch Changes
+
+- @veltra/desktop@1.2.14
+
 ## 1.2.13
 
 ### Patch Changes

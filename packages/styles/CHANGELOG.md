@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.2.14
+
+### Patch Changes
+
+- 457b117: 从 @veltra/styles/theme 导出主题工具函数（HEXToRGB、mixColor、defineBySize、cssVar）
+  - @veltra/utils@1.2.14
+  - @veltra/compositions@1.2.14
+
 ## 1.2.13
 
 ### Patch Changes
