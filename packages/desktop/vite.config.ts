@@ -30,6 +30,8 @@ const config = {
       moduleSideEffects: [{ test: /\/components\/[^/]+\/style\.ts$/, sideEffects: true }]
     },
     deps: {
+      alwaysBundle: [/^@codemirror\//, /^@lezer\//, 'style-mod'],
+      onlyBundle: false,
       neverBundle: [
         'vue',
         '@veltra/utils',
@@ -38,12 +40,6 @@ const config = {
         '@veltra/styles',
         '@veltra/icons',
         '@cat-kit/core',
-        '@codemirror/lang-java',
-        '@codemirror/lang-javascript',
-        '@codemirror/lang-json',
-        '@codemirror/lang-sql',
-        '@codemirror/state',
-        '@codemirror/view',
         '@embedpdf/core',
         '@embedpdf/engines',
         '@embedpdf/plugin-document-manager',

@@ -63,9 +63,9 @@ table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionK
 
 ## 依赖
 
-- **dependencies**：CodeMirror、Lexical、EmbedPDF、VTable 等运行时库
+- **dependencies**：Lexical、EmbedPDF、VTable 等运行时库
 - **peer**：`@cat-kit/core`、`@cat-kit/excel`、`@veltra/utils`、`@veltra/styles`、`@veltra/compositions`、`@veltra/directives`、`@veltra/icons`、`vue`
-- **`@codemirror/*` 必须使用精确版本**（不带 `^`/`~`），避免下游项目因版本漂移引入不兼容的 codemirror 子包导致运行时错误。升级时手动指定具体版本号。
+- **`@codemirror/*` 打包进产物**（声明在 `devDependencies` + `pack.deps.alwaysBundle`），下游无需安装 codemirror，从根本上避免多实例版本冲突。仍需保持精确版本号（不带 `^`/`~`），升级时手动指定具体版本号。
 
 ## 验证
 
