@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.15
+
+### Patch Changes
+
+- b8b8b22: 将 @codemirror/\* 依赖锁定为精确版本，避免下游项目版本漂移导致运行时错误。
+  - @veltra/utils@1.2.15
+  - @veltra/styles@1.2.15
+  - @veltra/compositions@1.2.15
+  - @veltra/directives@1.2.15
+  - @veltra/icons@1.2.15
+
 ## 1.2.14
 
 ### Patch Changes
