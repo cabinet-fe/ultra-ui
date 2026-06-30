@@ -72,3 +72,58 @@ loadTheme(new UITheme(theme))
 | `loadTheme(glassLightTheme)`   | 单主题注入，不支持 `setTheme` 切换   |
 | `lightTheme.new(partialTheme)` | 基于现有主题派生                     |
 | `new UITheme(completeTheme)`   | 从完整 `Theme` 对象创建主题          |
+
+## 主题工具函数
+
+从 `@veltra/styles/theme` 一并导出，用于自定义/派生主题或在 TS 中引用主题 CSS 变量。
+
+```ts
+import {
+  HEXToRGB,
+  mixColor,
+  defineBySize,
+  cssVar,
+  type RGBColor
+} from '@veltra/styles/theme'
+```
+
+### `HEXToRGB(color)`
+
+将十六进制颜色转为 RGB 元组 `[r, g, b]`。支持 `#RGB` 与 `#RRGGBB`。
+
+```ts
+HEXToRGB('#f60') // [255, 102, 0]
+HEXToRGB('#ff6600') // [255, 102, 0]
+```
+
+### `mixColor(color1, color2, ratio)`
+
+按 `ratio`（0–1）混合两个 `#RRGGBB` 颜色，返回混合后的十六进制颜色。`ratio > 1` 时抛错。
+
+```ts
+mixColor('#ffffff', '#000000', 0.5) // '#808080'
+```
+
+内置主题在生成 `primary/success/...` 的 light/dark 色阶时会用到。
+
+### `defineBySize(variable)`
+
+为 `small` / `default` / `large` 三档尺寸声明主题数值，用于 `Theme` 中带尺寸语义的 token（如 `radius`、`form-component-height`、`font-size-main`）。
+
+```ts
+defineBySize({ small: 24, default: 32, large: 40 })
+// => { small: 24, default: 32, large: 40 }
+```
+
+类型上约束三档键必须齐全；自定义 preset 时与内置 `lightTheme` 写法一致。
+
+### `cssVar(prop)`
+
+生成全局主题 CSS 变量引用（`--u-*` 命名空间）。`prop` 为与 `Theme` 结构对应的连字符路径。
+
+```ts
+cssVar('text-color-title') // 'var(--u-text-color-title)'
+cssVar('bg-color-hover') // 'var(--u-bg-color-hover)'
+```
+
+在 TS/内联样式中引用主题 token；SCSS 中优先用 `fn.use-var()`（见 `./scss.md`）。
