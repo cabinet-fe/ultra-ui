@@ -14,9 +14,6 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "scripts": {
-    "build": "vp pack"
-  },
   "devDependencies": {
     "@veltra/desktop": "workspace:*"
   },

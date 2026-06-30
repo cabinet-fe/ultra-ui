@@ -13,9 +13,6 @@
       "import": "./dist/index.js"
     }
   },
-  "scripts": {
-    "build": "vp pack"
-  },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6"
   },

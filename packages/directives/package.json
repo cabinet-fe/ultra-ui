@@ -22,9 +22,6 @@
       "import": "./dist/*"
     }
   },
-  "scripts": {
-    "build": "vp pack"
-  },
   "peerDependencies": {
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",

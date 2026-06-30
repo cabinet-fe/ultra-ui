@@ -38,9 +38,6 @@
       "import": "./dist/*"
     }
   },
-  "scripts": {
-    "build": "vp pack"
-  },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.2",
     "@codemirror/commands": "^6.10.3",

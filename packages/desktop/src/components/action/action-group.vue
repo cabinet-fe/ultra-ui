@@ -65,7 +65,7 @@ function getSlotsNodes() {
   if (!nodes) return []
 
   const extracted = extractNormalVNodes(nodes).filter(
-    (node) => (node.type as { name?: string } | null | undefined)?.name === 'Action'
+    (node) => (node.type as { name?: string } | null | undefined)?.name === 'UAction'
   )
 
   const visible: VNode[] = []

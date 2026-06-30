@@ -15,6 +15,8 @@ const config = {
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
   resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
 
+  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+
   test: { include: ['src/**/*.test.ts'], globals: true, environment: 'happy-dom' },
 
   pack: {

@@ -32,7 +32,8 @@ export function useNodeInterceptor(): { getSlotsNodes: () => SlotRenderItem[] | 
 
       const { props, type } = node
       const field = props?.field as string | undefined
-      const isFormItem = (type as any)?.name === 'FormItem'
+      const isFormItem = (type as any)?.name === 'UFormItem'
+
       const formItemProps = o((props ?? {}) as Record<string, any>).pick([
         'label',
         'rules',

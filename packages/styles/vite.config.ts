@@ -7,6 +7,9 @@ const repoRoot = resolve(import.meta.dirname, '../..')
 
 export default defineConfig({
   resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
+  ssr: { resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] } },
+
+  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
 
   test: { include: ['src/**/*.test.ts'], globals: true },
 
