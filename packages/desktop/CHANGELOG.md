@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.17
+
+### Patch Changes
+
+- ebfeb42: 将 @codemirror/\* 打包进 @veltra/desktop 产物，下游无需安装 codemirror，避免多实例版本冲突
+  - @veltra/utils@1.2.17
+  - @veltra/styles@1.2.17
+  - @veltra/compositions@1.2.17
+  - @veltra/directives@1.2.17
+  - @veltra/icons@1.2.17
+
 ## 1.2.16
 
 ### Patch Changes
