@@ -1,6 +1,6 @@
 {
   "name": "@veltra/desktop",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "files": [
     "dist",
     "src"

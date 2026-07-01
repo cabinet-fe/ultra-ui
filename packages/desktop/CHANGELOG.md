@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.19
+
+### Patch Changes
+
+- 12b276a: UCodeEditor 语言包改为按需加载
+  - @veltra/utils@1.2.19
+  - @veltra/styles@1.2.19
+  - @veltra/compositions@1.2.19
+  - @veltra/directives@1.2.19
+  - @veltra/icons@1.2.19
+
 ## 1.2.18
 
 ### Patch Changes
