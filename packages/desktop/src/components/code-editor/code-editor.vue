@@ -5,10 +5,6 @@
 </template>
 
 <script lang="ts" setup>
-import { java } from '@codemirror/lang-java'
-import { javascript } from '@codemirror/lang-javascript'
-import { json } from '@codemirror/lang-json'
-import { sql } from '@codemirror/lang-sql'
 import { Compartment, EditorState, type Extension } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
@@ -24,9 +20,10 @@ import {
   type CSSProperties
 } from 'vue'
 
-import type { CodeEditorLang, CodeEditorProps } from '../../types'
+import type { CodeEditorProps } from '../../types'
 import { UScroll } from '../scroll'
 import { basicSetup } from './basic-setup'
+import { loadLanguage } from './lang-loaders'
 
 defineOptions({ name: 'UCodeEditor' })
 
@@ -61,14 +58,6 @@ const rootStyle = computed<CSSProperties>(() => ({
 
 const containerRef = useTemplateRef('container')
 const editor = shallowRef<EditorView | null>(null)
-
-/** 静态导入语言包，避免动态 import 在打包/Vite 预构建下产生多份 @codemirror/* 实例 */
-const langExtensions: Record<CodeEditorLang, Extension> = {
-  js: javascript({ typescript: true }),
-  sql: sql(),
-  java: java(),
-  json: json()
-}
 
 const themeCompartment = new Compartment()
 const editableCompartment = new Compartment()
@@ -161,12 +150,19 @@ function buildExtensions(): Extension[] {
 let editorToken = 0
 let langToken = 0
 
-function applyLanguage() {
+async function applyLanguage() {
   const view = editor.value
   if (!view) return
   const myToken = ++langToken
   const { language } = props
-  const ext = language ? langExtensions[language] : []
+
+  if (!language) {
+    if (myToken !== langToken || editor.value !== view) return
+    view.dispatch({ effects: langCompartment.reconfigure([]) })
+    return
+  }
+
+  const ext = await loadLanguage(language)
   if (myToken !== langToken || editor.value !== view) return
   view.dispatch({ effects: langCompartment.reconfigure(ext) })
 }
