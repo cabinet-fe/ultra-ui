@@ -30,4 +30,18 @@ describe('UITheme', () => {
     expect(componentCssVarsLight['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
     expect(componentCssVarsDark['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
   })
+
+  it('renderAlphaTokens emits semantic color alpha vars', () => {
+    const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
+    expect(decls.some((d) => d.startsWith('--u-color-primary-a-8:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-border-color-a-52:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-text-color-second-a-28:'))).toBe(true)
+  })
+
+  it('renderComponentMixTokens emits collapse and kbd vars', () => {
+    const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
+    expect(decls.some((d) => d.startsWith('--u-collapse-item-bg:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-kbd-inset-shadow:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-batch-edit-form-header-bg:'))).toBe(true)
+  })
 })

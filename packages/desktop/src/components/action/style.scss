@@ -5,17 +5,6 @@ $root-name: action;
 $group-name: action-group;
 
 @include m.b($group-name) {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  gap: 2px;
-  padding: 2px 4px;
-  border-radius: 999px;
-  background-color: color-mix(in srgb, #{fn.use-var(bg-color, top)} 70%, transparent);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
-  box-shadow: 0 1px 4px color-mix(in srgb, #{fn.use-var(shadow, color)} 35%, transparent);
-
   @include m.e(more) {
     flex-shrink: 0;
   }

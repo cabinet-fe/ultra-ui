@@ -30,8 +30,7 @@
    * Multi-layer box-shadow simulates a 3D keycap appearance.
    */
   box-shadow:
-    inset 0 0.05em
-      color-mix(in srgb, #{fn.use-var(bg-color, top)} 75%, #{fn.use-var(bg-color, black)}),
-    0 0 0 0.05em color-mix(in srgb, #{fn.use-var(border, color)} 50%, transparent),
-    0 0.08em 0.17em color-mix(in srgb, #{fn.use-var(shadow, color)} 60%, transparent);
+    inset 0 0.05em fn.component-var(kbd, inset-shadow),
+    0 0 0 0.05em fn.component-var(kbd, border-shadow),
+    0 0.08em 0.17em fn.component-var(kbd, drop-shadow);
 }

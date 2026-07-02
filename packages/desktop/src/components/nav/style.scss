@@ -148,12 +148,10 @@ $collapsed-nav: collapsed-nav;
     overflow: hidden;
     margin: 2px 0 0 12px;
     padding: 2px 0 2px 8px;
-    border-left: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 52%, transparent);
+    border-left: 1px solid fn.color-a(border, 52, color);
 
-    @supports selector(:has(*)) {
-      &:has(#{fn.bem($root-name, item)}.is-active) {
-        border-left-color: fn.use-var(color, primary);
-      }
+    @include m.is(has-active) {
+      border-left-color: fn.use-var(color, primary);
     }
   }
 

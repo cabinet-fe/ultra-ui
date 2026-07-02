@@ -7,31 +7,11 @@ $root-name: collapse;
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 0.18s $ease;
 $transition-normal: 0.24s $ease;
-$item-bg: fn.component-var(
-  collapse,
-  item-bg,
-  color-mix(in srgb, #{fn.use-var(bg-color, hover)} 72%, #{fn.use-var(bg-color, top)})
-);
-$item-hover-bg: fn.component-var(
-  collapse,
-  item-hover-bg,
-  color-mix(in srgb, #{fn.use-var(color, primary)} 4%, #{$item-bg})
-);
-$item-active-bg: fn.component-var(
-  collapse,
-  item-active-bg,
-  color-mix(in srgb, #{fn.use-var(color, primary)} 5%, #{$item-bg})
-);
-$header-active-bg: fn.component-var(
-  collapse,
-  header-active-bg,
-  color-mix(in srgb, #{fn.use-var(color, primary)} 8%, #{$item-bg})
-);
-$content-bg: fn.component-var(
-  collapse,
-  content-bg,
-  color-mix(in srgb, #{$item-active-bg} 42%, #{fn.use-var(bg-color, top)})
-);
+$item-bg: fn.component-var(collapse, item-bg);
+$item-hover-bg: fn.component-var(collapse, item-hover-bg);
+$item-active-bg: fn.component-var(collapse, item-active-bg);
+$header-active-bg: fn.component-var(collapse, header-active-bg);
+$content-bg: fn.component-var(collapse, content-bg);
 $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(color, primary));
 
 @include m.b($root-name) {

@@ -4,6 +4,7 @@
 @include m.b(file-viewer) {
   --u-file-viewer-canvas: #101114;
   --u-file-viewer-canvas-soft: #17191f;
+  --u-file-viewer-canvas-overlay: rgba(16, 17, 20, 0.74);
   --u-file-viewer-page-shadow: 0 24px 72px rgba(0, 0, 0, 0.34);
 
   position: relative;
@@ -174,7 +175,7 @@
     }
 
     @include m.is(active) {
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 8%, transparent);
+      background: fn.color-a(color, 8, primary);
 
       &::before {
         opacity: 1;
@@ -247,6 +248,8 @@
 
   @include m.e(badge) {
     --u-file-viewer-kind: #{fn.use-var(text-color, second)};
+    --u-file-viewer-kind-border: fn.color-a(text-color, 28, second);
+    --u-file-viewer-kind-bg: fn.color-a(text-color, 10, second);
 
     display: inline-flex;
     align-items: center;
@@ -254,10 +257,10 @@
     flex-shrink: 0;
     width: 40px;
     height: 26px;
-    border: 1px solid color-mix(in srgb, var(--u-file-viewer-kind) 28%, transparent);
+    border: 1px solid var(--u-file-viewer-kind-border);
     border-radius: 7px;
     color: var(--u-file-viewer-kind);
-    background: color-mix(in srgb, var(--u-file-viewer-kind) 10%, transparent);
+    background: var(--u-file-viewer-kind-bg);
     font-size: 10px;
     font-weight: 760;
     line-height: 1;
@@ -265,26 +268,38 @@
 
   @include m.em(badge, image) {
     --u-file-viewer-kind: #0891b2;
+    --u-file-viewer-kind-border: rgba(8, 145, 178, 0.28);
+    --u-file-viewer-kind-bg: rgba(8, 145, 178, 0.1);
   }
 
   @include m.em(badge, video) {
     --u-file-viewer-kind: #db2777;
+    --u-file-viewer-kind-border: rgba(219, 39, 119, 0.28);
+    --u-file-viewer-kind-bg: rgba(219, 39, 119, 0.1);
   }
 
   @include m.em(badge, pdf) {
     --u-file-viewer-kind: #dc2626;
+    --u-file-viewer-kind-border: rgba(220, 38, 38, 0.28);
+    --u-file-viewer-kind-bg: rgba(220, 38, 38, 0.1);
   }
 
   @include m.em(badge, sheet) {
     --u-file-viewer-kind: #15803d;
+    --u-file-viewer-kind-border: rgba(21, 128, 61, 0.28);
+    --u-file-viewer-kind-bg: rgba(21, 128, 61, 0.1);
   }
 
   @include m.em(badge, docx) {
     --u-file-viewer-kind: #2563eb;
+    --u-file-viewer-kind-border: rgba(37, 99, 235, 0.28);
+    --u-file-viewer-kind-bg: rgba(37, 99, 235, 0.1);
   }
 
   @include m.em(badge, text) {
     --u-file-viewer-kind: #64748b;
+    --u-file-viewer-kind-border: rgba(100, 116, 139, 0.28);
+    --u-file-viewer-kind-bg: rgba(100, 116, 139, 0.1);
   }
 
   @include m.e(stage) {
@@ -404,7 +419,7 @@
     gap: 2px;
     height: 34px;
     padding: 2px;
-    border: 1px solid color-mix(in srgb, #{fn.use-var(border, color)} 86%, transparent);
+    border: 1px solid fn.color-a(border, 86, color);
     border-radius: 8px;
     background: fn.use-var(bg-color, middle);
   }
@@ -436,7 +451,7 @@
 
     &:not(:disabled):hover {
       color: fn.use-var(color, primary);
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 10%, transparent);
+      background: fn.color-a(color, 10, primary);
     }
 
     &:not(:disabled):active {
@@ -470,7 +485,7 @@
 
     &:not(:disabled):hover {
       color: #fff;
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 88%, #fff);
+      background: fn.use-var(color, primary, light, 1);
     }
   }
 
@@ -760,8 +775,8 @@
 
     @include m.is(active) {
       color: fn.use-var(color, primary);
-      background: color-mix(in srgb, #{fn.use-var(color, primary)} 11%, transparent);
-      border-color: color-mix(in srgb, #{fn.use-var(color, primary)} 22%, transparent);
+      background: fn.color-a(color, 11, primary);
+      border-color: fn.color-a(color, 22, primary);
     }
   }
 
@@ -793,7 +808,7 @@
     align-items: center;
     justify-content: center;
     color: rgba(255, 255, 255, 0.72);
-    background: color-mix(in srgb, var(--u-file-viewer-canvas) 74%, transparent);
+    background: var(--u-file-viewer-canvas-overlay);
     font-size: 13px;
     pointer-events: none;
   }

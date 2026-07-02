@@ -43,6 +43,27 @@ export function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: numb
   )
 }
 
+/** 将 `#RRGGBB` 转为指定不透明度百分比的 `rgba()`（等价于 color-mix N% + transparent） */
+export function hexWithAlpha(hex: `#${string}`, alphaPercent: number): string {
+  const [r, g, b] = HEXToRGB(hex)
+  const alpha = Math.round((alphaPercent / 100) * 1000) / 1000
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+/** 别名：`ratio` 为 0–1 时不透明度（0.08 → 8%） */
+export function mixColorWithAlpha(color: `#${string}`, ratio: number): string {
+  return hexWithAlpha(color, ratio * 100)
+}
+
+/** 剥离 `#RRGGBBAA` 的 alpha 通道，返回 `#RRGGBB` */
+export function hexRgbOnly(hex: string): `#${string}` {
+  const normalized = hex.replace(/^#/, '')
+  if (normalized.length === 8) {
+    return `#${normalized.slice(0, 6)}` as `#${string}`
+  }
+  return hex as `#${string}`
+}
+
 export function defineBySize(
   variable: Record<'small' | 'default' | 'large', number>
 ): Record<'small' | 'default' | 'large', number> {

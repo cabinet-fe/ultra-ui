@@ -30,7 +30,7 @@
       @leave="(el: Element) => expandTransition.leave(el as HTMLElement)"
       @after-leave="(el: Element) => expandTransition.afterLeave(el as HTMLElement)"
     >
-      <ul :class="cls.e('sub-list')" v-show="expanded">
+      <ul :class="[cls.e('sub-list'), bem.is('has-active', branchActive)]" v-show="expanded">
         <template v-for="(child, index) of item.children!" :key="getKey(index, parentKey)">
           <UNavItem v-if="!child.children?.length" :item="child" :depth="depth + 1" />
           <NavSub v-else :item="child" :parent-key="getKey(index, parentKey)" :depth="depth + 1" />

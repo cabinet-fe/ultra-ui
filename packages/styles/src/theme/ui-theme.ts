@@ -3,7 +3,7 @@ import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
 import { componentCssVarsDarkDecls, componentCssVarsLightDecls } from './component-css-vars'
-import { mixColor } from './helper'
+import { hexRgbOnly, hexWithAlpha, mixColor } from './helper'
 import type { Theme } from './type'
 
 type RecursivePartial<T> = {
@@ -111,9 +111,87 @@ export class UITheme {
 
   private renderBGColorAlpha(theme: Theme): string {
     const { color } = theme.bg
-    return Object.keys(color)
-      .map((type) => `--u-bg-color-${type}-alpha: ${color[type as keyof typeof color]}aa`)
-      .join(';')
+    const alphas = [70]
+    const lines: string[] = Object.keys(color).map(
+      (type) => `--u-bg-color-${type}-alpha: ${color[type as keyof typeof color]}aa`
+    )
+    for (const type of Object.keys(color)) {
+      const hex = color[type as keyof typeof color] as `#${string}`
+      for (const a of alphas) {
+        lines.push(`--u-bg-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
+      }
+    }
+    return lines.join(';')
+  }
+
+  /** 语义色 / 边框 / 阴影 / 文本色的 alpha token（替代 color-mix + transparent） */
+  private renderAlphaTokens(theme: Theme): string {
+    const alphas = [4, 5, 8, 10, 11, 16, 22, 28, 35, 40, 50, 52, 60, 70, 86]
+    const lines: string[] = []
+
+    for (const type of Object.keys(theme.color)) {
+      const hex = theme.color[type as keyof typeof theme.color] as `#${string}`
+      for (const a of alphas) {
+        lines.push(`--u-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
+      }
+    }
+
+    const borderHex = theme.border.color as `#${string}`
+    for (const a of alphas) {
+      lines.push(`--u-border-color-a-${a}: ${hexWithAlpha(borderHex, a)}`)
+    }
+
+    const shadowHex = hexRgbOnly(theme.shadow.color)
+    for (const a of alphas) {
+      lines.push(`--u-shadow-color-a-${a}: ${hexWithAlpha(shadowHex, a)}`)
+    }
+
+    const textColor = theme['text-color']
+    for (const type of Object.keys(textColor)) {
+      const value = textColor[type as keyof typeof textColor]
+      if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+        const hex = value as `#${string}`
+        for (const a of alphas) {
+          lines.push(`--u-text-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
+        }
+      }
+    }
+
+    return lines.join(';')
+  }
+
+  /** 组件级两色混合 token（collapse / batch-edit / kbd） */
+  private renderComponentMixTokens(theme: Theme): string {
+    const hover = theme.bg.color.hover as `#${string}`
+    const top = theme.bg.color.top as `#${string}`
+    const black = theme.bg.color.black as `#${string}`
+    const primary = theme.color.primary as `#${string}`
+    const borderColor = theme.border.color as `#${string}`
+    const shadowColor = hexRgbOnly(theme.shadow.color)
+
+    const itemBg = mixColor(hover, top, 0.28)
+    const itemHoverBg = mixColor(primary, itemBg as `#${string}`, 0.96)
+    const itemActiveBg = mixColor(primary, itemBg as `#${string}`, 0.95)
+    const headerActiveBg = mixColor(primary, itemBg as `#${string}`, 0.92)
+    const contentBg = mixColor(itemActiveBg as `#${string}`, top, 0.58)
+
+    const formHeaderBg = mixColor(top, hover, 0.04)
+
+    const kbdInset = mixColor(top, black, 0.25)
+
+    const lines = [
+      `--u-collapse-item-bg: ${itemBg}`,
+      `--u-collapse-item-hover-bg: ${itemHoverBg}`,
+      `--u-collapse-item-active-bg: ${itemActiveBg}`,
+      `--u-collapse-header-active-bg: ${headerActiveBg}`,
+      `--u-collapse-content-bg: ${contentBg}`,
+      `--u-batch-edit-form-header-bg: ${formHeaderBg}`,
+      `--u-kbd-inset-shadow: ${kbdInset}`,
+      `--u-kbd-border-shadow: ${hexWithAlpha(borderColor, 50)}`,
+      `--u-kbd-drop-shadow: ${hexWithAlpha(shadowColor, 60)}`
+    ]
+
+    return lines.join(';')
   }
 
   private renderBGFilter(theme: Theme): string {
@@ -130,6 +208,8 @@ export class UITheme {
       this.renderTypeColor(theme),
       this.renderShadow(theme),
       this.renderBGColorAlpha(theme),
+      this.renderAlphaTokens(theme),
+      this.renderComponentMixTokens(theme),
       this.renderBGFilter(theme),
       this.renderBorder(theme)
     ]

@@ -3,6 +3,17 @@
 
 $namespace: 'u' !default;
 
+// 引用主题注入的 alpha token，如 color-a(color, 8, primary) → var(--u-color-primary-a-8)
+@function color-a($basename, $alpha, $nodes...) {
+  $suffix: '';
+
+  @each $node in $nodes {
+    $suffix: $suffix + '-' + $node;
+  }
+
+  @return var(--#{$namespace}-#{$basename}#{$suffix}-a-#{$alpha});
+}
+
 // 使用单个变量（全局主题 token，`--u-*`）
 @function use-var($basename, $nodes...) {
   $suffix: '';

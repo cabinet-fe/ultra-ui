@@ -8,7 +8,7 @@
 src/
 ├── _mixins.scss          # BEM、暗色、布局等 mixins
 ├── _vars.scss            # 命名空间、分隔符等 SCSS 变量
-├── _functions.scss       # use-var、component-var 等
+├── _functions.scss       # use-var、component-var、color-a 等
 ├── normalize/            # 规范化样式（@veltra/styles/normalize）
 ├── transitions/          # Vue 过渡预设（fade、slide、zoom-in、spring）
 └── theme/                # 主题 TS（presets、load-theme、ui-theme）

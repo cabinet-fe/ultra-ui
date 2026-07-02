@@ -25,7 +25,7 @@ $root-name: loading;
       width: 36px;
       aspect-ratio: 1;
       border-radius: 50%;
-      border: 3px solid color-mix(in srgb, currentColor 22%, transparent);
+      border: 3px solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
       position: relative;
       animation: loading-spin 0.8s linear infinite;
@@ -35,7 +35,7 @@ $root-name: loading;
         position: absolute;
         inset: 5px;
         border-radius: 50%;
-        border: 2px solid color-mix(in srgb, currentColor 22%, transparent);
+        border: 2px solid fn.color-a(color, 22, primary);
         border-bottom-color: currentColor;
         animation: loading-spin 1.2s linear infinite reverse;
       }
@@ -88,7 +88,7 @@ $root-name: loading;
       width: 36px;
       aspect-ratio: 1;
       border-radius: 50%;
-      border: 3px solid color-mix(in srgb, currentColor 22%, transparent);
+      border: 3px solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
       animation: loading-spin 0.9s linear infinite;
     }
