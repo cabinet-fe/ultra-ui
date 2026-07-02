@@ -97,6 +97,21 @@ $root-name: form-item;
     border-bottom: 1px dashed fn.use-var(color, info);
     color: fn.use-var(color, info);
   }
+
+  @include m.is(label-top) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    @include m.bem($root-name, label) {
+      min-height: auto;
+      padding-right: 0;
+      padding-bottom: 4px;
+      text-align: left;
+      justify-content: flex-start;
+    }
+  }
 }
 
 .#{$root-name}-tips-enter-from,

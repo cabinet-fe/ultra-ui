@@ -10,6 +10,8 @@ export interface FormContextModel {
 export interface FormContextProps {
   /** 表单列宽 */
   labelWidth?: string | number
+  /** 表单项 label 位置 */
+  labelPosition?: 'top' | 'left'
   /** 表单尺寸 */
   size?: ComponentSize
   /** 是否禁用 */

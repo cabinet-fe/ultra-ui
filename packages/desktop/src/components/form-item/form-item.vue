@@ -72,12 +72,20 @@ let validateSeq = 0
 /** 最近一次 validate 的 Promise，供过期调用等待最新结果 */
 let latestValidatePromise: Promise<boolean> = Promise.resolve(true)
 
+const labelPosition = computed(() => props.labelPosition ?? formProps?.labelPosition ?? 'left')
+
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('error', !!errorTip.value)].join(' ')
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('error', !!errorTip.value),
+    bem.is('label-top', labelPosition.value === 'top')
+  ].join(' ')
 })
 
 /** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
+  if (labelPosition.value === 'top') return {}
   return {
     width: withUnit(props.labelWidth ?? formProps?.labelWidth ?? config.form.labelWidth, 'px')
   }

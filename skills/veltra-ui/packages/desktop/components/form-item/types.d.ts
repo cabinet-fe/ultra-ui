@@ -4,6 +4,8 @@ import type { FormComponentProps } from '@veltra/utils'
 export interface FormItemProps extends FormComponentProps {
   /** 标签宽度 */
   labelWidth?: string | number
+  /** 标签位置 */
+  labelPosition?: 'top' | 'left'
 }
 
 /** 组件项组件定义的事件 */

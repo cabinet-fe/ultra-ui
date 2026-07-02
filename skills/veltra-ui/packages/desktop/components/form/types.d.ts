@@ -13,6 +13,8 @@ export interface FormProps extends ComponentProps {
   // showModified?: boolean
   /** 表单项label宽度 */
   labelWidth?: string | number
+  /** 表单项 label 位置 */
+  labelPosition?: 'top' | 'left'
   /** 是否不显示tips */
   noTips?: boolean
   /** 是否只读 */

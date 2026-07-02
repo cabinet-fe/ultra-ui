@@ -3,7 +3,12 @@
     <u-card-header>表单综合示例</u-card-header>
 
     <u-card-content>
-      <u-form ref="formRef" :model="formData" label-width="110px">
+      <div class="label-position-toolbar">
+        <span>Label 位置</span>
+        <u-radio-group v-model="labelPosition" :items="labelPositionOptions" />
+      </div>
+
+      <u-form ref="formRef" :model="formData" :label-position="labelPosition" label-width="110px">
         <div class="form-section">账号信息</div>
         <u-input
           label="用户名"
@@ -186,6 +191,13 @@
 <script lang="ts" setup>
 import type { FormExposed } from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
+
+const labelPosition = shallowRef<'left' | 'top'>('left')
+
+const labelPositionOptions = [
+  { label: '左侧 (left)', value: 'left' },
+  { label: '顶部 (top)', value: 'top' }
+]
 
 const formRef = shallowRef<FormExposed>()
 
@@ -394,6 +406,15 @@ function handleFillSample() {
 </script>
 
 <style scoped>
+.label-position-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--u-text-color-secondary, #666);
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
