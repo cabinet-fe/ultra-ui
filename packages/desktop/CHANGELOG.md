@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.23
+
+### Patch Changes
+
+- 56355a2: 主题系统新增 color-a alpha token 与组件混合色 token，统一替换组件内 color-mix；导航子菜单改用 has-active 类替代 :has 选择器
+  - @veltra/utils@1.2.23
+  - @veltra/styles@1.2.23
+  - @veltra/compositions@1.2.23
+  - @veltra/directives@1.2.23
+  - @veltra/icons@1.2.23
+
 ## 1.2.22
 
 ### Patch Changes
