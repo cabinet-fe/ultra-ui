@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.22
+
+### Patch Changes
+
+- b9ee60a: 表单控件正确透传 attrs（inheritAttrs: false + v-bind="$attrs"），并移除 UFormItem viewer 冗余样式
+  - @veltra/utils@1.2.22
+  - @veltra/styles@1.2.22
+  - @veltra/compositions@1.2.22
+  - @veltra/directives@1.2.22
+  - @veltra/icons@1.2.22
+
 ## 1.2.21
 
 ### Patch Changes
