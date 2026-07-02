@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.21
+
+### Patch Changes
+
+- 0761b2c: UForm 默认栅格间距设为 0 12px；UFormItem 必填星号增加右侧间距
+  - @veltra/utils@1.2.21
+  - @veltra/styles@1.2.21
+  - @veltra/compositions@1.2.21
+  - @veltra/directives@1.2.21
+  - @veltra/icons@1.2.21
+
 ## 1.2.20
 
 ### Patch Changes
