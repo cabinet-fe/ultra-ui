@@ -39,6 +39,7 @@ $root-name: form-item;
     @include m.is(required) {
       &::before {
         content: '*';
+        padding-right: 2px;
         color: fn.use-var(color, danger);
       }
     }
