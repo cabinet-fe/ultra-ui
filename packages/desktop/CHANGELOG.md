@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.20
+
+### Patch Changes
+
+- f028c42: UForm / UFormItem 支持 labelPosition 属性，可设置标签在顶部或左侧显示
+  - @veltra/utils@1.2.20
+  - @veltra/styles@1.2.20
+  - @veltra/compositions@1.2.20
+  - @veltra/directives@1.2.20
+  - @veltra/icons@1.2.20
+
 ## 1.2.19
 
 ### Patch Changes
