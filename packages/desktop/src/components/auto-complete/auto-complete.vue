@@ -1,6 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
+    v-bind="$attrs"
     trigger="click"
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     ref="dropdownRef"

@@ -1,9 +1,10 @@
 <template>
   <div
+    v-if="!readonly"
+    v-bind="$attrs"
     :class="inputClass"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
-    v-if="!readonly"
   >
     <span v-if="$slots.prefix || prefix" :class="prefixClass" @click="handlePrefixClick">
       {{ prefix }}
@@ -62,7 +63,7 @@ import { computed, getCurrentInstance, ref, shallowRef, nextTick } from 'vue'
 import type { InputEmits, InputProps, _InputExposed } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'UInput' })
+defineOptions({ name: 'UInput', inheritAttrs: false })
 
 const props = withDefaults(defineProps<InputProps>(), {
   placeholder: '请输入',

@@ -1,5 +1,7 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
+    v-bind="$attrs"
     :class="className"
     trigger="click"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
@@ -8,7 +10,6 @@
     :disabled="disabled"
     @mouseenter.native="hovered = true"
     @mouseleave.native="hovered = false"
-    v-if="!readonly"
   >
     <template #trigger>
       <input
@@ -72,7 +73,7 @@ import { UDatePanel } from '../date-panel'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'UDateRangePicker' })
+defineOptions({ name: 'UDateRangePicker', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DateRangePickerProps>(), {
   placeholder: () => ['起始日期', '结束日期'],

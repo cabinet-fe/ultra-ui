@@ -1,6 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
+    v-bind="$attrs"
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
     trigger="click"
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
@@ -113,7 +114,7 @@ import { UTag } from '../tag'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
 
-defineOptions({ name: 'UMultiTreeSelect' })
+defineOptions({ name: 'UMultiTreeSelect', inheritAttrs: false })
 
 const cls = bem('multi-tree-select')
 

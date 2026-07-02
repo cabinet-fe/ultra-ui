@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" :class="className">
+  <div v-if="!readonly" v-bind="$attrs" :class="className">
     <u-number-input
       v-model="startModel"
       :placeholder="startPlaceholder"
@@ -36,7 +36,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, watch } from 'vue'
 import type { NumberRangeInputEmits, NumberRangeInputProps, NumberRangeTuple } from '../../types'
 import { UNumberInput } from '../number-input'
 
-defineOptions({ name: 'UNumberRangeInput' })
+defineOptions({ name: 'UNumberRangeInput', inheritAttrs: false })
 
 const props = withDefaults(defineProps<NumberRangeInputProps>(), {
   startPlaceholder: '请输入',

@@ -1,6 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
+    v-bind="$attrs"
     trigger="click"
     ref="dropdownRef"
     :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
@@ -164,7 +165,7 @@ import { UTag } from '../tag'
 import { MultiSelectDIKey } from './di'
 import UMultiSelectOption from './multi-select-option.vue'
 
-defineOptions({ name: 'UMultiSelect' })
+defineOptions({ name: 'UMultiSelect', inheritAttrs: false })
 
 const props = withDefaults(defineProps<MultiSelectProps>(), {
   labelKey: 'label',

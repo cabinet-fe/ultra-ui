@@ -1,5 +1,5 @@
 <template>
-  <ul :class="[cls.b, cls.m(size)]" v-if="!readonly">
+  <ul v-if="!readonly" v-bind="$attrs" :class="[cls.b, cls.m(size)]">
     <li v-if="isEmpty && creatable">
       <u-button style="width: 100%" :icon="Plus" @click="handleAdd(0)" :size="size">
         新增
@@ -51,7 +51,7 @@ import type { GroupInputEmits, GroupInputProps } from '../../types'
 import { UButton } from '../button'
 import { useGroupItems } from './use-group-items'
 
-defineOptions({ name: 'UGroupInput' })
+defineOptions({ name: 'UGroupInput', inheritAttrs: false })
 
 const props = withDefaults(defineProps<GroupInputProps<GroupItem>>(), {
   modelValue: () => [],

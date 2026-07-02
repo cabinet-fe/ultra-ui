@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" :class="className" @click="handleInput">
+  <div v-if="!readonly" v-bind="$attrs" :class="className" @click="handleInput">
     <slot />
   </div>
 
@@ -21,7 +21,7 @@ import { computed } from 'vue'
 import type { CheckboxButtonProps, CheckboxButtonEmits } from '../../types'
 import { UTag } from '../tag'
 
-defineOptions({ name: 'UCheckboxButton' })
+defineOptions({ name: 'UCheckboxButton', inheritAttrs: false })
 
 const props = withDefaults(defineProps<CheckboxButtonProps>(), {
   disabled: undefined,

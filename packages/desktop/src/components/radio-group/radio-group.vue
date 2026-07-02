@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, bem.is('block', block), cls.m(size)]" v-if="!readonly">
+  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, bem.is('block', block), cls.m(size)]">
     <u-radio
       v-for="item of items"
       :key="item[valueKey]"
@@ -26,7 +26,7 @@ import { injectFormContext } from '@veltra/utils'
 import type { RadioGroupProps, RadioGroupEmits } from '../../types'
 import URadio from '../radio/radio.vue'
 
-defineOptions({ name: 'URadioGroup' })
+defineOptions({ name: 'URadioGroup', inheritAttrs: false })
 
 const props = withDefaults(defineProps<RadioGroupProps>(), {
   labelKey: 'label',

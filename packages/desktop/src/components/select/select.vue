@@ -1,6 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
+    v-bind="$attrs"
     trigger="click"
     :class="[cls.b, bem.is('disabled', disabled)]"
     ref="dropdownRef"
@@ -137,7 +138,7 @@ import { UScroll } from '../scroll'
 import { useKeyboard } from './use-keyboard'
 import { useOptions } from './use-options'
 
-defineOptions({ name: 'USelect' })
+defineOptions({ name: 'USelect', inheritAttrs: false })
 
 const props = withDefaults(defineProps<SelectProps>(), {
   labelKey: 'label',

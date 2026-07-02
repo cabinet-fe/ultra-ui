@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.b, cls.m(size), bem.is('block', block)]" v-if="!readonly">
+  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, cls.m(size), bem.is('block', block)]">
     <u-checkbox
       v-for="item of items"
       :key="item[valueKey]"
@@ -34,7 +34,7 @@ import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'
 import { UTag } from '../tag'
 
-defineOptions({ name: 'UCheckboxGroup' })
+defineOptions({ name: 'UCheckboxGroup', inheritAttrs: false })
 
 const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   labelKey: 'label',

@@ -1,6 +1,7 @@
 <template>
   <u-dropdown
     v-if="!readonly"
+    v-bind="$attrs"
     :class="[cls.b, bem.is('disabled', disabled), bem.is('multiple', multiple), cls.m(size)]"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
@@ -124,7 +125,7 @@ import { useCheck } from './use-check'
 import { useDataMap } from './use-data-map'
 import { useSelect } from './use-select'
 
-defineOptions({ name: 'UCascade' })
+defineOptions({ name: 'UCascade', inheritAttrs: false })
 
 const props = withDefaults(defineProps<CascadeProps>(), {
   labelKey: 'label',

@@ -1,12 +1,13 @@
 <template>
   <u-dropdown
+    v-if="!readonly"
+    v-bind="$attrs"
     :class="className"
     trigger="click"
     width="auto"
     ref="dropdownRef"
     @update:visible=""
     :disabled="disabled"
-    v-if="!readonly"
   >
     <template #trigger>
       <u-input
@@ -49,7 +50,7 @@ import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'UDatePicker' })
+defineOptions({ name: 'UDatePicker', inheritAttrs: false })
 
 const props = withDefaults(defineProps<DatePickerProps>(), {
   placeholder: '选择日期',

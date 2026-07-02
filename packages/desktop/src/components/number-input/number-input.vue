@@ -68,13 +68,13 @@ import { vRipple } from '@veltra/directives'
 import { ArrowDown, ArrowUp, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, Tween } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, shallowRef, watch } from 'vue'
+import { computed, shallowRef, useAttrs, watch } from 'vue'
 
 import type { NumberInputEmits, NumberInputProps, InputExposed } from '../../types'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'UNumberInput' })
+defineOptions({ name: 'UNumberInput', inheritAttrs: false })
 
 const props = withDefaults(defineProps<NumberInputProps>(), {
   placeholder: '请输入',
@@ -94,9 +94,12 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
   readonly: false
 })
 
-const inputProps = computed(() => {
-  return o(props).pick(['disabled', 'placeholder', 'size', 'prefix'])
-})
+const attrs = useAttrs()
+
+const inputProps = computed(() => ({
+  ...attrs,
+  ...o(props).pick(['disabled', 'placeholder', 'size', 'prefix'])
+}))
 
 const inputRef = shallowRef<InputExposed>()
 
