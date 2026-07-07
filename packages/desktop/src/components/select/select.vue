@@ -308,6 +308,8 @@ const handleSelect = (option: Record<string, any>, index: number) => {
 const handleClear = () => {
   lock()
   selected.value = undefined
+  currentIndex.value = -1
+  label.value = undefined
   clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)
