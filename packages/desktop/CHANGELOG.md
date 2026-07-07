@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.24
+
+### Patch Changes
+
+- 08ea34b: 修复 Select 清空时未重置选中索引和显示标签的问题
+  - @veltra/utils@1.2.24
+  - @veltra/styles@1.2.24
+  - @veltra/compositions@1.2.24
+  - @veltra/directives@1.2.24
+  - @veltra/icons@1.2.24
+
 ## 1.2.23
 
 ### Patch Changes
