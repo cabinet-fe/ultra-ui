@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.26
+
+### Patch Changes
+
+- b8b9816: fix(table): fixed 列未设 width 时不再参与剩余宽度均分
+  - @veltra/utils@1.2.26
+  - @veltra/styles@1.2.26
+  - @veltra/compositions@1.2.26
+  - @veltra/directives@1.2.26
+  - @veltra/icons@1.2.26
+
 ## 1.2.25
 
 ### Patch Changes
