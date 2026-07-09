@@ -54,10 +54,16 @@
       </span>
 
       <div :class="cls.e('form-actions')">
-        <u-button text :loading="state.loading" @click="handleClose"> 取消 </u-button>
-        <u-button v-if="showSaveBtn" type="primary" :loading="state.loading" @click="handleSave">
-          保存
-        </u-button>
+        <u-button size="small" text :loading="state.loading" @click="handleClose"> 取消 </u-button>
+        <u-button
+          v-if="showSaveBtn"
+          type="primary"
+          size="small"
+          title="保存"
+          :icon="Save"
+          :loading="state.loading"
+          @click="handleSave"
+        />
       </div>
     </footer>
   </aside>
@@ -65,7 +71,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { Close } from '@veltra/icons/normal'
+import { Close, Save } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, shallowRef, toRef } from 'vue'
 

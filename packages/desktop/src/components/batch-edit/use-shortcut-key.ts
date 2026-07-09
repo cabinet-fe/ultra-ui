@@ -24,7 +24,9 @@ export function useShortcutKey(options: Options) {
   }
 
   function runEscape(e: KeyboardEvent) {
+    if (!state.formVisible) return
     e.preventDefault()
+    e.stopPropagation()
     onClose()
   }
 

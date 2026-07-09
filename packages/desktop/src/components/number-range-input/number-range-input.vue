@@ -7,7 +7,7 @@
       :readonly="readonly"
       :size="size"
       v-bind="numberInputBind"
-      @change="emitChange"
+      @change="handleStartChange"
     />
     <span :class="cls.e('separator')">{{ separator }}</span>
     <u-number-input
@@ -17,7 +17,7 @@
       :readonly="readonly"
       :size="size"
       v-bind="numberInputBind"
-      @change="emitChange"
+      @change="handleEndChange"
     />
   </div>
 
@@ -79,10 +79,9 @@ const endRef = defineModel<number | undefined>('end')
 let syncGuard = false
 
 function normalizeFromSplit(s: number | undefined, e: number | undefined): NumberRangeTuple {
-  let nextS = s
-  let nextE = e
-  if (nextS !== undefined && nextE !== undefined && nextS > nextE) nextE = nextS
-  return [nextS, nextE]
+  // 外部 split 写入无法区分哪一侧后改，统一将越界的 end 抬到 start
+  if (s !== undefined && e !== undefined && s > e) return [s, s]
+  return [s, e]
 }
 
 watch(
@@ -153,11 +152,9 @@ const startModel = computed({
     return model.value?.[0]
   },
   set(v: number | undefined) {
+    // 输入过程只更新单侧，交叉约束放到 change（失焦）时处理
     const cur = model.value ?? [undefined, undefined]
-    const end = cur[1]
-    let nextEnd = end
-    if (v !== undefined && end !== undefined && v > end) nextEnd = v
-    model.value = [v, nextEnd]
+    model.value = [v, cur[1]]
   }
 })
 
@@ -167,10 +164,7 @@ const endModel = computed({
   },
   set(v: number | undefined) {
     const cur = model.value ?? [undefined, undefined]
-    const start = cur[0]
-    let nextStart = start
-    if (v !== undefined && start !== undefined && v < start) nextStart = v
-    model.value = [nextStart, v]
+    model.value = [cur[0], v]
   }
 })
 
@@ -195,7 +189,25 @@ const readonlyText = computed(() => {
   return `${p}${a} ${sep} ${b}${sfx}`
 })
 
-function emitChange(): void {
-  emit('change', model.value ?? [undefined, undefined])
+function handleStartChange(): void {
+  const [start, end] = model.value ?? [undefined, undefined]
+  // 失焦时只校正刚改的一侧：start > end 时把 start 压回 end
+  let next: NumberRangeTuple = [start, end]
+  if (start !== undefined && end !== undefined && start > end) {
+    next = [end, end]
+    model.value = next
+  }
+  emit('change', next)
+}
+
+function handleEndChange(): void {
+  const [start, end] = model.value ?? [undefined, undefined]
+  // 失焦时只校正刚改的一侧：end < start 时把 end 抬回 start
+  let next: NumberRangeTuple = [start, end]
+  if (start !== undefined && end !== undefined && end < start) {
+    next = [start, start]
+    model.value = next
+  }
+  emit('change', next)
 }
 </script>

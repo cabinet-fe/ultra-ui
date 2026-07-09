@@ -163,6 +163,11 @@ export function useHandlers(options: Options): EditReturned {
         }
       }
       insert(item)
+
+      // 推进插入点，便于连续新增；并重置表单到初始默认值
+      const next = last(state.indexPath) + 1
+      state.indexPath = [...state.indexPath.slice(0, -1), next]
+      formRef.value?.reset()
       return
     }
 

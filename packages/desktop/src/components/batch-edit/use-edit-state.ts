@@ -22,6 +22,9 @@ export function useEditState(options: Options) {
   const state = shallowReactive({ ...defaultState })
 
   function resetState() {
+    // 销毁表单前先重置，避免下次 v-if 重挂载时 Form 拍到脏 model
+    formRef.value?.reset()
+
     if (state.row) {
       state.row.isCurrent = false
     }
