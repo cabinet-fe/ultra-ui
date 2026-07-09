@@ -1,4 +1,5 @@
 import { dfs, o } from '@cat-kit/core'
+import { fieldKey } from '@veltra/utils'
 import { nextTick, watch, type ComputedRef } from 'vue'
 
 import type { TreeEmit, TreeProps } from '../../types'
@@ -188,7 +189,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
     const checkedArr = Array.from(checkedData)
 
-    const valueKey = props.valueKey!
+    const valueKey = fieldKey(props.valueKey, 'value')
     const nextValues = checkedArr.map((item) => o(item).get(valueKey) as unknown)
 
     // 与外部 checked 保持差集缓存同步，避免下一次 watch 回调把刚勾选的值又误判为“新增”。

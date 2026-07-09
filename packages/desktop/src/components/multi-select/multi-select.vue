@@ -144,7 +144,7 @@
 import { o as chainObj } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
 
@@ -182,6 +182,9 @@ const emit = defineEmits<MultiSelectEmits>()
 
 const cls = bem('multi-select')
 
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
 const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
@@ -202,11 +205,14 @@ const options = computed(() => {
   const base = rawOptions.value
   if (!props.creatable || !createdOptions.value.length) return base
 
-  const { valueKey } = props
-  const createdValues = new Set(createdOptions.value.map((o) => chainObj(o).get(valueKey)))
-  const deduped = base.filter((o) => !(o.__isTemp && createdValues.has(chainObj(o).get(valueKey))))
-  const dedupedValues = new Set(deduped.map((o) => chainObj(o).get(valueKey)))
-  const toAdd = createdOptions.value.filter((o) => !dedupedValues.has(chainObj(o).get(valueKey)))
+  const createdValues = new Set(createdOptions.value.map((o) => chainObj(o).get(valueKey.value)))
+  const deduped = base.filter(
+    (o) => !(o.__isTemp && createdValues.has(chainObj(o).get(valueKey.value)))
+  )
+  const dedupedValues = new Set(deduped.map((o) => chainObj(o).get(valueKey.value)))
+  const toAdd = createdOptions.value.filter(
+    (o) => !dedupedValues.has(chainObj(o).get(valueKey.value))
+  )
   return [...toAdd, ...deduped]
 })
 
@@ -225,18 +231,17 @@ const { virtualizer, items } = useVirtualizer({
 })
 
 const virtualOptions = computed(() => {
-  const { valueKey, labelKey } = props
   const _options = options.value
   return items.value.map((v) => {
     const option = _options[v.index]!
-    const val = chainObj(option).get(valueKey)
+    const val = chainObj(option).get(valueKey.value)
     return {
       option,
       index: v.index,
       val,
       key: v.index,
       offset: v.start,
-      label: chainObj(option).get(labelKey)
+      label: chainObj(option).get(labelKey.value)
     }
   })
 })
@@ -259,9 +264,8 @@ const indeterminate = computed(() => {
 })
 
 const optionsMap = computed(() => {
-  const { valueKey } = props
   return new Map<string | number, Record<string, any>>(
-    allOptions.value.map((option) => [option[valueKey], option])
+    allOptions.value.map((option) => [option[valueKey.value], option])
   )
 })
 
@@ -322,26 +326,25 @@ const handleDropdownVisible = (visible: boolean) => {
 }
 
 const handleCheck = (option: Record<string, any>, checked: boolean) => {
-  const { valueKey, labelKey } = props
   if (checked) {
     if (option.__isTemp && props.creatable) {
       const created: Record<string, any> = {
-        [labelKey]: chainObj(option).get(labelKey),
-        [valueKey]: chainObj(option).get(valueKey)
+        [labelKey.value]: chainObj(option).get(labelKey.value),
+        [valueKey.value]: chainObj(option).get(valueKey.value)
       }
       createdOptions.value = [...createdOptions.value, created]
       checkedSet.add(created)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(created).get(valueKey)!]
+      model.value = [...(model.value ?? []), chainObj(created).get(valueKey.value)!]
       queryString.value = ''
     } else if (!checkedSet.has(option)) {
       checkedSet.add(option)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(option).get(valueKey)!]
+      model.value = [...(model.value ?? []), chainObj(option).get(valueKey.value)!]
     }
   } else {
     checkedSet.delete(option)
-    const val = chainObj(option).get(valueKey)
+    const val = chainObj(option).get(valueKey.value)
     internalChange = true
     model.value = (model.value ?? []).filter((v) => v !== val)
     removeCreatedOption(option)
@@ -353,13 +356,12 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
 
 /** 全选 */
 const handleCheckAll = (checked: boolean) => {
-  const { valueKey } = props
   if (checked) {
     options.value.forEach((option) => {
       if (!option.__isTemp) checkedSet.add(option)
     })
     internalChange = true
-    model.value = Array.from(checkedSet).map((o) => chainObj(o).get(valueKey)!)
+    model.value = Array.from(checkedSet).map((o) => chainObj(o).get(valueKey.value)!)
   } else {
     checkedSet.clear()
     internalChange = true
@@ -386,7 +388,7 @@ const handleClear = () => {
 
 const handleClose = (option: Record<string, any>) => {
   checkedSet.delete(option)
-  const val = chainObj(option).get(props.valueKey)
+  const val = chainObj(option).get(valueKey.value)
   internalChange = true
   model.value = (model.value ?? []).filter((v) => v !== val)
   removeCreatedOption(option)
@@ -395,9 +397,8 @@ const handleClose = (option: Record<string, any>) => {
 
 const removeCreatedOption = (option: Record<string, any>) => {
   if (!props.creatable || !createdOptions.value.length) return
-  const { valueKey } = props
-  const val = chainObj(option).get(valueKey)
-  createdOptions.value = createdOptions.value.filter((o) => chainObj(o).get(valueKey) !== val)
+  const val = chainObj(option).get(valueKey.value)
+  createdOptions.value = createdOptions.value.filter((o) => chainObj(o).get(valueKey.value) !== val)
 }
 
 const handleCreateByEnter = () => {
@@ -405,14 +406,12 @@ const handleCreateByEnter = () => {
   const qs = queryString.value?.trim()
   if (!qs) return
 
-  const { labelKey, valueKey } = props
-
-  const existingCreated = createdOptions.value.find((o) => chainObj(o).get(valueKey) === qs)
+  const existingCreated = createdOptions.value.find((o) => chainObj(o).get(valueKey.value) === qs)
   if (existingCreated) {
     if (!checkedSet.has(existingCreated)) {
       checkedSet.add(existingCreated)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(existingCreated).get(valueKey)!]
+      model.value = [...(model.value ?? []), chainObj(existingCreated).get(valueKey.value)!]
     }
     queryString.value = ''
     emitChange()
@@ -420,12 +419,14 @@ const handleCreateByEnter = () => {
     return
   }
 
-  const exactMatch = rawOptions.value.find((o) => !o.__isTemp && chainObj(o).get(labelKey) === qs)
+  const exactMatch = rawOptions.value.find(
+    (o) => !o.__isTemp && chainObj(o).get(labelKey.value) === qs
+  )
   if (exactMatch) {
     if (!checkedSet.has(exactMatch)) {
       checkedSet.add(exactMatch)
       internalChange = true
-      model.value = [...(model.value ?? []), chainObj(exactMatch).get(valueKey)!]
+      model.value = [...(model.value ?? []), chainObj(exactMatch).get(valueKey.value)!]
     }
     queryString.value = ''
     emitChange()
@@ -433,7 +434,7 @@ const handleCreateByEnter = () => {
     return
   }
 
-  const created: Record<string, any> = { [labelKey]: qs, [valueKey]: qs }
+  const created: Record<string, any> = { [labelKey.value]: qs, [valueKey.value]: qs }
   createdOptions.value = [...createdOptions.value, created]
   checkedSet.add(created)
   internalChange = true

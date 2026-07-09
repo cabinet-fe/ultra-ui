@@ -147,7 +147,7 @@
         <u-code-editor
           label="代码"
           field="code"
-          language="js"
+          :langs="['js']"
           span="full"
           :default-lines="6"
           :rules="{ required: true }"

@@ -108,7 +108,7 @@
 import { Forest, o } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, provide, shallowRef, triggerRef, watch } from 'vue'
 
@@ -146,6 +146,9 @@ const emit = defineEmits<CascadeEmits>()
 
 const cls = bem('cascade')
 
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
 const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
@@ -169,8 +172,8 @@ const forest = computed(() => {
         data,
         index,
         depth,
-        value: o(data).get(props.valueKey) ?? '',
-        label: o(data).get(props.labelKey) ?? '',
+        value: o(data).get(valueKey.value) ?? '',
+        label: o(data).get(labelKey.value) ?? '',
         parent
       })
     }

@@ -119,7 +119,7 @@ import { o } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { vFocus } from '@veltra/directives'
 import { ArrowDown, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
@@ -160,6 +160,9 @@ defineSlots<{
 
 const cls = bem('select')
 
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
 const optionClass = cls.e('option')
 
 const { formProps } = injectFormContext()
@@ -176,7 +179,7 @@ const selected = shallowRef<Record<string, any>>()
 const displayedValue = computed(() => {
   if (label.value) return label.value
 
-  return selected.value ? o(selected.value).get(props.labelKey) : String(props.modelValue ?? '')
+  return selected.value ? o(selected.value).get(labelKey.value) : String(props.modelValue ?? '')
 })
 
 const dropdownRef = shallowRef<DropdownExposed>()
@@ -210,12 +213,12 @@ watch(
 
     if (!options?.length) return
 
-    const { valueKey, labelKey } = props
-
     if (modelValue !== undefined && modelValue !== null && modelValue !== '') {
-      currentIndex.value = options.findIndex((option) => o(option).get(valueKey) === modelValue)
+      currentIndex.value = options.findIndex(
+        (option) => o(option).get(valueKey.value) === modelValue
+      )
       selected.value = currentIndex.value >= 0 ? options[currentIndex.value] : undefined
-      label.value = selected.value ? o(selected.value).get(labelKey) : undefined
+      label.value = selected.value ? o(selected.value).get(labelKey.value) : undefined
     } else {
       currentIndex.value = -1
       selected.value = undefined
@@ -238,14 +241,13 @@ const { virtualizer, items } = useVirtualizer({
 
 const virtualOptions = computed(() => {
   const _options = options.value
-  const { labelKey, valueKey } = props
   return items.value.map((item) => {
     const option = _options[item.index]!
     return {
       option,
       index: item.index,
-      label: o(option).get(labelKey),
-      val: o(option).get(valueKey),
+      label: o(option).get(labelKey.value),
+      val: o(option).get(valueKey.value),
       key: item.index,
       offset: item.start
     }
@@ -292,8 +294,8 @@ const handleSelect = (option: Record<string, any>, index: number) => {
   lock()
   selected.value = option
 
-  emit('update:modelValue', option?.[props.valueKey])
-  label.value = option?.[props.labelKey]
+  emit('update:modelValue', option?.[valueKey.value])
+  label.value = option?.[labelKey.value]
   emit('change', option)
   if (option.__isTemp) {
     temOptionsToCreatedOptions()

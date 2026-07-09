@@ -20,8 +20,9 @@
 
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
+import { computed } from 'vue'
 
 import type { RadioGroupProps, RadioGroupEmits } from '../../types'
 import URadio from '../radio/radio.vue'
@@ -48,6 +49,9 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 })
 
 const cls = bem('radio-group')
+
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
 const handleUpdate = (value: any, item: Record<string, any>) => {
   model.value = value

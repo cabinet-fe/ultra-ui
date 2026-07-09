@@ -99,7 +99,7 @@
 import { dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
@@ -130,6 +130,9 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
   visibilityLimit: 3,
   minWidth: '280px'
 })
+
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
 const treeProps = computed(() => {
   return o(props as Record<string, any>).omit([
@@ -239,7 +242,7 @@ watch(
         dfs(
           item,
           (v) => {
-            newDict.set(v[props.valueKey], v)
+            newDict.set(v[valueKey.value], v)
           },
           props.childrenKey
         )

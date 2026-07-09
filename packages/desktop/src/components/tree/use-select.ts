@@ -1,3 +1,4 @@
+import { fieldKey } from '@veltra/utils'
 import { nextTick, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { TreeEmit, TreeProps } from '../../types'
@@ -55,7 +56,8 @@ export function useSelect(options: Options): UseSelectReturned {
     if (node.disabled) return
     selectedData.value = node.data === selectedData.value ? undefined : node.data
 
-    emit('update:selected', selectedData.value?.[props.valueKey!], selectedData.value, node)
+    const valueKey = fieldKey(props.valueKey, 'value')
+    emit('update:selected', selectedData.value?.[valueKey], selectedData.value, node)
 
     nextTick(() => {
       selectByEvent = false

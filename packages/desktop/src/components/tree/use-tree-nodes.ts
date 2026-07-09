@@ -1,4 +1,5 @@
 import { Forest } from '@cat-kit/core'
+import { fieldKey } from '@veltra/utils'
 import { computed, shallowRef, triggerRef, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { TreeProps } from '../../types'
@@ -36,8 +37,10 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const nodes = shallowRef<TreeNode[]>([])
 
   function buildForest(): Forest<Record<string, unknown>, any> {
-    const { disabledNode, expandAll = false, valueKey, labelKey } = props
+    const { disabledNode, expandAll = false } = props
     const childrenKey = props.childrenKey ?? 'children'
+    const valueKey = fieldKey(props.valueKey, 'value')
+    const labelKey = fieldKey(props.labelKey, 'label')
 
     function createNode(
       data: Record<string, any>,
@@ -45,14 +48,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
       depth: number,
       parent?: TreeNode
     ): TreeNode {
-      const node = new TreeNode({
-        data,
-        index,
-        depth,
-        parent,
-        valueKey: valueKey!,
-        labelKey: labelKey!
-      })
+      const node = new TreeNode({ data, index, depth, parent, valueKey, labelKey })
       node.expanded = expandAll
       return node
     }

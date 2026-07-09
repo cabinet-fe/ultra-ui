@@ -1,4 +1,5 @@
 import { debounce, o as chainObj } from '@cat-kit/core'
+import { fieldKey } from '@veltra/utils'
 import { computed, shallowRef, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { SelectProps } from '../../types'
@@ -53,14 +54,16 @@ export function useOptions(o: Options): UseOptionsReturned {
       tempOptions.value = []
       return
     }
+    const labelKey = fieldKey(props.labelKey, 'label')
+    const valueKey = fieldKey(props.valueKey, 'value')
     const exactMatch = options
       ? options.some((option) => {
-          return chainObj(option).get(props.labelKey!) === qs
+          return chainObj(option).get(labelKey) === qs
         })
       : false
 
     if (!exactMatch) {
-      tempOptions.value = [{ [props.labelKey!]: qs, [props.valueKey!]: qs, __isTemp: true }]
+      tempOptions.value = [{ [labelKey]: qs, [valueKey]: qs, __isTemp: true }]
     }
   }
 
@@ -95,7 +98,7 @@ export function useOptions(o: Options): UseOptionsReturned {
         setTempOption(qs, options)
       } else {
         // 当选项不是函数时，可以创建选项
-        const { labelKey } = props
+        const labelKey = fieldKey(props.labelKey, 'label')
 
         if (!qs) {
           filteredOptions.value = propsOptions ?? []
@@ -105,7 +108,7 @@ export function useOptions(o: Options): UseOptionsReturned {
 
         const _filteredOptions =
           propsOptions?.filter((item) => {
-            return chainObj(item).get(labelKey!)?.includes(qs) ?? false
+            return chainObj(item).get(labelKey)?.includes(qs) ?? false
           }) ?? []
 
         setTempOption(qs, _filteredOptions)

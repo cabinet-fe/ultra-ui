@@ -63,7 +63,7 @@
 import { dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Search } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 
@@ -114,6 +114,9 @@ const treeProps = computed(() => {
 
 const cls = bem('tree-select')
 
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
 /**过滤 */
 const qs = shallowRef('')
 watch(qs, (qs) => {
@@ -158,8 +161,8 @@ watch(
       dfs(
         item,
         (v) => {
-          if (v[props.valueKey] === model) {
-            label.value = v[props.labelKey]
+          if (v[valueKey.value] === model) {
+            label.value = v[labelKey.value]
             founded = true
             return true
           }
@@ -182,7 +185,7 @@ const handleSelect = (selected?: string | number, selectedData?: Record<string, 
   model.value = selected ?? ''
 
   if (selectedData) {
-    label.value = o(selectedData).get(props.labelKey)
+    label.value = o(selectedData).get(labelKey.value)
   } else {
     label.value = ''
   }

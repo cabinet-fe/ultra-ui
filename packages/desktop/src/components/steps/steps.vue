@@ -54,7 +54,7 @@
 import { n, o } from '@cat-kit/core'
 import { useFallbackProps } from '@veltra/compositions'
 import { Check } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
+import { bem, fieldKey } from '@veltra/utils'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { StepsProps, StepsEmits, ComponentSize, StepsSlotScope } from '../../types'
@@ -79,6 +79,8 @@ const slots = defineSlots<{
 }>()
 
 const cls = bem('steps')
+
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 

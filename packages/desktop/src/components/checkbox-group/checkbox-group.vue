@@ -27,8 +27,9 @@
 
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
-import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
+import { computed } from 'vue'
 
 import type { CheckboxGroupProps, CheckboxGroupEmits } from '../../types'
 import { UCheckbox } from '../checkbox'
@@ -49,6 +50,9 @@ const model = defineModel<any[]>()
 
 const cls = bem('checkbox-group')
 
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
 const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
@@ -63,8 +67,7 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
  * @returns 模型值是否存在于model.value中
  */
 const getCheckStatus = (item: Record<string, string | number>): boolean => {
-  const { valueKey } = props
-  const value = item[valueKey]
+  const value = item[valueKey.value]
   if (!value || !model.value) return false
   return model.value.includes(value)
 }
@@ -75,8 +78,7 @@ const getCheckStatus = (item: Record<string, string | number>): boolean => {
  * @param item - 更新的项
  */
 const handleUpdate = (checked: boolean, item: Record<string, string | number>) => {
-  const { valueKey } = props
-  const value = item[valueKey]
+  const value = item[valueKey.value]
   if (!value) return
   if (checked) {
     model.value = [...(model.value ?? []), value]
@@ -86,8 +88,8 @@ const handleUpdate = (checked: boolean, item: Record<string, string | number>) =
 }
 
 const getLabel = (value: string | number) => {
-  const { items, valueKey, labelKey } = props
-  const item = items.find((item) => item[valueKey] === value)
-  return item?.[labelKey]
+  const { items } = props
+  const item = items.find((item) => item[valueKey.value] === value)
+  return item?.[labelKey.value]
 }
 </script>

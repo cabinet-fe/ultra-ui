@@ -127,7 +127,7 @@
         />
 
         <!-- 高级组件 -->
-        <u-code-editor field="code" label="代码片段" language="json" span="full" />
+        <u-code-editor field="code" label="代码片段" :langs="['json']" span="full" />
         <u-slider
           field="experience"
           label="工作经验(年)"

@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
 import { useDrag, useResizeObserver } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
+import { bem, fieldKey } from '@veltra/utils'
 import { computed, shallowRef, toRefs, useTemplateRef, watch, nextTick } from 'vue'
 
 import type { ProgressNodesProps, ProgressNodesEmits } from '../../types'
@@ -48,6 +48,9 @@ const props = withDefaults(defineProps<ProgressNodesProps>(), {
 })
 
 const emit = defineEmits<ProgressNodesEmits>()
+
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
 const { nodes } = toRefs(props)
 
@@ -121,16 +124,16 @@ function isChecked(node: Record<string, any>, index: number) {
 }
 
 function isActive(node: Record<string, any>) {
-  const value = o(node).get(props.valueKey)
+  const value = o(node).get(valueKey.value)
   return props.modelValue === value
 }
 
 function getLabel(node: Record<string, any>) {
-  return o(node).get(props.labelKey)
+  return o(node).get(labelKey.value)
 }
 
 function handleClick(node: Record<string, any>, index: number) {
-  const value = o(node).get(props.valueKey)
+  const value = o(node).get(valueKey.value)
   emit('update:modelValue', value)
   emit('click', node, index)
 }

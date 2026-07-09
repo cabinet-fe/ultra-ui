@@ -78,6 +78,11 @@ export function extractNormalVNodes(nodes: VNodeArrayChildren, results: VNode[] 
   return results
 }
 
+/** 字段名：空串 / null / undefined 时回退默认值 */
+export function fieldKey(key: string | null | undefined, fallback: string): string {
+  return key ? key : fallback
+}
+
 export function shallowComputed<T>(getter: () => T): ShallowRef<T> {
   const result = shallowRef<T>(getter())
   watch(getter, (value) => {

@@ -1,4 +1,5 @@
 import { Forest, o } from '@cat-kit/core'
+import { fieldKey } from '@veltra/utils'
 import { shallowRef, triggerRef, watchEffect, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { CascadeNode, CascadeProps } from '../../types'
@@ -18,12 +19,12 @@ export function useDataMap(options: DataMapOptions): UseDataMapReturned {
   const dataMap = shallowRef(new Map<string, CascadeNode>())
 
   watchEffect(() => {
-    const { valueKey } = props
+    const valueKey = fieldKey(props.valueKey, 'value')
 
     dataMap.value.clear()
 
     forest.value.dfs((node) => {
-      const value = o(node.data).get(valueKey!)
+      const value = o(node.data).get(valueKey)
       if (value !== null && value !== undefined) {
         dataMap.value.set(value, node)
       }
