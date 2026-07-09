@@ -1,6 +1,7 @@
 import { nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
 
 import type { ScrollExposed } from '../../types'
+import { allocateLeafColumnWidths } from './allocate-column-widths'
 import { TableResizeKey } from './di'
 import type { ColumnNode } from './node/col'
 
@@ -34,25 +35,7 @@ export function useColResize(options: Options): UseColResizeReturned {
 
     if (!containerWidth || !leafColumns.value.length) return
 
-    const flexColumns = leafColumns.value.filter((column) => !column.explicitWidth)
-    const fixedWidthTotal = leafColumns.value
-      .filter((column) => column.explicitWidth)
-      .reduce((acc, cur) => acc + (cur.width ?? cur.minWidth!), 0)
-    const flexBaseTotal = flexColumns.reduce((acc, cur) => acc + cur.minWidth!, 0)
-    const totalBase = fixedWidthTotal + flexBaseTotal
-
-    // 仅未显式指定 width 的列参与剩余宽度均分；指定了 width 的列保持该宽度。
-    if (flexColumns.length > 0 && totalBase < containerWidth) {
-      const allocatedWidth = (containerWidth - totalBase) / flexColumns.length
-
-      flexColumns.forEach((column) => {
-        column.width = column.minWidth! + allocatedWidth
-      })
-    } else {
-      flexColumns.forEach((column) => {
-        column.data.width = undefined
-      })
-    }
+    allocateLeafColumnWidths(leafColumns.value, containerWidth)
 
     const fixedLeft = leafColumns.value.filter((column) => column.fixed === 'left')
     const fixedRight = leafColumns.value.filter((column) => column.fixed === 'right')
