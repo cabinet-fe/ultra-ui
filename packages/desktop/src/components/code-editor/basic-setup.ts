@@ -4,7 +4,7 @@ import {
   closeBracketsKeymap,
   completionKeymap
 } from '@codemirror/autocomplete'
-import { history, defaultKeymap, historyKeymap } from '@codemirror/commands'
+import { history, defaultKeymap, historyKeymap, indentWithTab } from '@codemirror/commands'
 import {
   foldGutter,
   indentOnInput,
@@ -52,6 +52,8 @@ export const basicSetup: Extension = (() => [
   highlightActiveLine(),
   highlightSelectionMatches(),
   keymap.of([
+    // Tab 默认留给浏览器焦点导航；代码编辑器需显式绑定缩进，否则焦点会跳到语言选择等控件
+    indentWithTab,
     ...closeBracketsKeymap,
     ...defaultKeymap,
     ...searchKeymap,

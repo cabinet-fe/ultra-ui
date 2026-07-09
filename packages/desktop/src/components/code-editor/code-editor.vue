@@ -1,16 +1,25 @@
 <template>
   <u-scroll :class="className" :style="rootStyle" @keyup.enter.stop>
     <div ref="container"></div>
+
+    <u-select
+      v-if="showLangSelect"
+      :class="cls.e('lang-select')"
+      v-model="lang"
+      size="small"
+      :options="langOptions"
+      :clearable="false"
+      :disabled="disabled"
+    />
   </u-scroll>
 </template>
 
 <script lang="ts" setup>
-import { Compartment, EditorState, type Extension } from '@codemirror/state'
+import { Compartment, EditorState, type Extension, type Text } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView, ViewPlugin, tooltips, type ViewUpdate } from '@codemirror/view'
+import { EditorView, tooltips } from '@codemirror/view'
 import { useFormFallbackProps } from '@veltra/compositions'
-import { bem, zIndex } from '@veltra/utils'
-import { injectFormContext } from '@veltra/utils'
+import { bem, injectFormContext, zIndex } from '@veltra/utils'
 import {
   computed,
   onBeforeUnmount,
@@ -20,10 +29,20 @@ import {
   type CSSProperties
 } from 'vue'
 
-import type { CodeEditorProps } from '../../types'
+import type { CodeEditorEmits, CodeEditorLang, CodeEditorProps } from '../../types'
 import { UScroll } from '../scroll'
+import { USelect } from '../select'
 import { basicSetup } from './basic-setup'
 import { loadLanguage } from './lang-loaders'
+import {
+  buildFullDoc,
+  extractBodyFromText,
+  getShellRanges,
+  mapSelectionToBody,
+  shellExtension,
+  textEqualsShellDoc,
+  type ShellConfig
+} from './shell-extension'
 
 defineOptions({ name: 'UCodeEditor' })
 
@@ -34,7 +53,10 @@ const props = withDefaults(defineProps<CodeEditorProps>(), {
   defaultLines: 8
 })
 
+const emit = defineEmits<CodeEditorEmits>()
+
 const model = defineModel<string>()
+const lang = defineModel<CodeEditorLang>('lang')
 
 const cls = bem('code-editor')
 
@@ -56,6 +78,22 @@ const rootStyle = computed<CSSProperties>(() => ({
   '--u-code-editor-default-lines': Math.max(1, props.defaultLines)
 }))
 
+const langs = computed(() => props.langs ?? [])
+
+const showLangSelect = computed(() => langs.value.length > 1)
+
+const langOptions = computed(() =>
+  langs.value.map((value) => ({ label: value.toUpperCase(), value }))
+)
+
+/** 实际生效的语言：优先 lang model，否则回落 langs[0] */
+const activeLang = computed<CodeEditorLang | undefined>(() => lang.value ?? langs.value[0])
+
+const shellConfig = computed<ShellConfig>(() => ({
+  prefix: props.prefix ?? '',
+  suffix: props.suffix ?? ''
+}))
+
 const containerRef = useTemplateRef('container')
 const editor = shallowRef<EditorView | null>(null)
 
@@ -63,76 +101,27 @@ const themeCompartment = new Compartment()
 const editableCompartment = new Compartment()
 const readOnlyCompartment = new Compartment()
 const langCompartment = new Compartment()
+const shellCompartment = new Compartment()
 
-let phantomGutter: HTMLElement | null = null
-let phantomContainer: HTMLElement | null = null
-let lastPhantomKey = ''
-
-function resetPhantomCache() {
-  phantomGutter = null
-  phantomContainer = null
-  lastPhantomKey = ''
-}
+/** 聚焦时的正文快照，用于失焦时判断是否触发 change */
+let focusSnapshot = ''
 
 /**
- * 在 .cm-lineNumbers 末尾追加占位行号 DOM，使可视行号数量补齐到 defaultLines。
- * CodeMirror 的 lineNumbers() 仅为真实文档行渲染行号，超出部分由本逻辑补全。
+ * 编辑器最近一次写出的正文引用。
+ * 用于短路 model → doc 同步，避免每次按键对整篇文档做 O(n) 相等比较。
  */
-function syncPhantomLineNumbers() {
-  const view = editor.value
-  if (!view) return
+let lastEditorBody: string | undefined
 
-  if (!phantomGutter || !phantomGutter.isConnected) {
-    phantomGutter = view.dom.querySelector<HTMLElement>('.cm-gutter.cm-lineNumbers')
-  }
-  if (!phantomGutter) return
+/** 上一帧是否处于 IME composition，用于在 composition 结束时补一次 model 同步 */
+let wasComposing = false
 
-  if (!phantomContainer) {
-    phantomContainer = document.createElement('div')
-    phantomContainer.className = 'cm-phantom-lines'
-  }
-  if (
-    phantomContainer.parentElement !== phantomGutter ||
-    phantomContainer !== phantomGutter.lastElementChild
-  ) {
-    phantomGutter.appendChild(phantomContainer)
-  }
-
-  const realLines = view.state.doc.lines
-  const target = Math.max(0, Math.max(1, props.defaultLines) - realLines)
-  const lineHeight = view.defaultLineHeight
-
-  const key = `${realLines}|${target}|${lineHeight}`
-  if (key === lastPhantomKey) return
-  lastPhantomKey = key
-
-  while (phantomContainer.children.length > target) {
-    phantomContainer.lastElementChild!.remove()
-  }
-  while (phantomContainer.children.length < target) {
-    const el = document.createElement('div')
-    el.className = 'cm-gutterElement cm-gutterElement-phantom'
-    phantomContainer.appendChild(el)
-  }
-  for (let i = 0; i < target; i++) {
-    const el = phantomContainer.children[i] as HTMLElement
-    const num = String(realLines + i + 1)
-    if (el.textContent !== num) el.textContent = num
-    if (lineHeight && el.style.height !== `${lineHeight}px`) {
-      el.style.height = `${lineHeight}px`
-    }
-  }
+/** 将编辑器正文写回 v-model（跳过与上次相同的值，避免多余更新） */
+function writeModelFromDoc(doc: Text) {
+  const nextBody = extractBodyFromText(doc, shellConfig.value)
+  if (nextBody === lastEditorBody && nextBody === model.value) return
+  lastEditorBody = nextBody
+  model.value = nextBody
 }
-
-const phantomLineNumbersPlugin = ViewPlugin.fromClass(
-  class {
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.geometryChanged) {
-        syncPhantomLineNumbers()
-      }
-    }
-  }
-)
 
 function buildExtensions(): Extension[] {
   return [
@@ -143,7 +132,28 @@ function buildExtensions(): Extension[] {
     editableCompartment.of(EditorView.editable.of(!disabled.value)),
     readOnlyCompartment.of(EditorState.readOnly.of(readonly.value)),
     langCompartment.of([]),
-    phantomLineNumbersPlugin
+    shellCompartment.of(shellExtension(shellConfig.value)),
+    EditorView.updateListener.of((update) => {
+      const composing = update.view.composing
+
+      // IME 进行中不写回，避免中间态触发父级重渲染；结束后再统一同步
+      if (update.docChanged && !composing) {
+        writeModelFromDoc(update.state.doc)
+      } else if (wasComposing && !composing) {
+        writeModelFromDoc(update.state.doc)
+      }
+      wasComposing = composing
+
+      if (!update.focusChanged) return
+      if (update.view.hasFocus) {
+        focusSnapshot = extractBodyFromText(update.state.doc, shellConfig.value)
+        return
+      }
+      const current = extractBodyFromText(update.state.doc, shellConfig.value)
+      if (current !== focusSnapshot) {
+        emit('change', current)
+      }
+    })
   ]
 }
 
@@ -154,7 +164,7 @@ async function applyLanguage() {
   const view = editor.value
   if (!view) return
   const myToken = ++langToken
-  const { language } = props
+  const language = activeLang.value
 
   if (!language) {
     if (myToken !== langToken || editor.value !== view) return
@@ -172,7 +182,8 @@ function destroyEditor() {
   ++langToken
   editor.value?.destroy()
   editor.value = null
-  resetPhantomCache()
+  lastEditorBody = undefined
+  wasComposing = false
 }
 
 function createEditor() {
@@ -181,16 +192,17 @@ function createEditor() {
   const parent = containerRef.value
   if (!parent) return
 
+  const config = shellConfig.value
+  const body = model.value ?? ''
+  const doc = buildFullDoc(body, config)
+  const { bodyStart } = getShellRanges(doc.length, config)
+  lastEditorBody = body
+
   const view = new EditorView({
-    doc: model.value,
+    doc,
+    selection: { anchor: bodyStart, head: bodyStart },
     extensions: buildExtensions(),
-    parent,
-    dispatch(tr) {
-      view.update([tr])
-      if (tr.docChanged) {
-        model.value = tr.state.doc.toString()
-      }
-    }
+    parent
   })
 
   if (myToken !== editorToken) {
@@ -199,8 +211,44 @@ function createEditor() {
   }
 
   editor.value = view
-  syncPhantomLineNumbers()
   applyLanguage()
+}
+
+/**
+ * 将 model 正文同步为完整文档；可选同时 reconfigure shell，
+ * 避免 prefix/suffix 变更时「先改扩展、后改文档」导致选区越界。
+ */
+function syncDocFromModel(
+  view: EditorView,
+  body: string,
+  config: ShellConfig,
+  options?: { reconfigureShell?: boolean; prevShell?: ShellConfig }
+) {
+  const current = view.state.doc
+  const docChanged = !textEqualsShellDoc(current, body, config)
+  const reconfigureShell = options?.reconfigureShell ?? false
+
+  if (!docChanged && !reconfigureShell) return
+
+  const nextDoc = buildFullDoc(body, config)
+  const prevShell = options?.prevShell ?? config
+  const prevRanges = getShellRanges(current.length, prevShell)
+  const nextRanges = getShellRanges(nextDoc.length, config)
+  const selection = mapSelectionToBody(view.state.selection, prevRanges, nextRanges, nextDoc.length)
+
+  view.dispatch({
+    ...(docChanged
+      ? {
+          changes: { from: 0, to: current.length, insert: nextDoc },
+          selection,
+          // 仅外壳变更时滚入视口；外部 model 回写不应打断用户滚动位置
+          ...(reconfigureShell ? { scrollIntoView: true } : {})
+        }
+      : { selection }),
+    ...(reconfigureShell ? { effects: shellCompartment.reconfigure(shellExtension(config)) } : {}),
+    // 绕过 shell 的 change/transactionFilter，避免全量替换被拦截或选区被错误钳制
+    filter: false
+  })
 }
 
 watch(
@@ -212,7 +260,19 @@ watch(
   { immediate: true, flush: 'post' }
 )
 
-watch(() => props.language, applyLanguage)
+watch(activeLang, applyLanguage)
+
+/** langs 变化时，若当前 lang 未设或不在列表中则纠正为 langs[0] */
+watch(
+  langs,
+  (list) => {
+    if (!list.length) return
+    if (!lang.value || !list.includes(lang.value)) {
+      lang.value = list[0]
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => props.dark,
@@ -229,25 +289,23 @@ watch(readonly, (v) => {
   editor.value?.dispatch({ effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(v)) })
 })
 
-watch(() => props.defaultLines, syncPhantomLineNumbers)
-
 watch(
-  [() => props.modelValue, editor],
-  ([v, e]) => {
+  [model, editor, shellConfig],
+  ([v, e], [, , prevShell]) => {
     if (!e) return
+    // IME 组字中不接受外部回写，避免打断输入
     if (e.composing) return
-    const next = v ?? ''
-    if (e.state.doc.toString() === next) return
-
-    const valueLength = next.length
-    const inRange = e.state.selection.ranges.every(
-      (range) => range.anchor <= valueLength && range.head <= valueLength
-    )
-    e.dispatch({
-      changes: { from: 0, to: e.state.doc.length, insert: next },
-      selection: inRange ? e.state.selection : { anchor: 0, head: 0 },
-      scrollIntoView: true
+    const config = shellConfig.value
+    const shellChanged =
+      !prevShell || prevShell.prefix !== config.prefix || prevShell.suffix !== config.suffix
+    // 编辑器自身写出的 model 无需回写文档
+    if (!shellChanged && v === lastEditorBody) return
+    const body = v ?? ''
+    syncDocFromModel(e, body, config, {
+      reconfigureShell: shellChanged,
+      prevShell: prevShell ?? config
     })
+    lastEditorBody = body
   },
   { immediate: true }
 )

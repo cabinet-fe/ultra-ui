@@ -10,7 +10,46 @@ const code = shallowRef('console.log("Hello, World!")')
 </script>
 
 <template>
-  <u-code-editor v-model="code" language="js" />
+  <u-code-editor v-model="code" :langs="['js']" />
+</template>
+```
+
+## 多语言切换（内置选择器）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { CodeEditorLang } from '@veltra/desktop/types'
+
+const code = shallowRef('SELECT 1')
+const lang = shallowRef<CodeEditorLang>('sql')
+</script>
+
+<template>
+  <u-code-editor v-model="code" v-model:lang="lang" :langs="['js', 'sql', 'json']" />
+</template>
+```
+
+## 函数体外壳（prefix / suffix）
+
+`v-model` 仅绑定可编辑正文，前后缀只展示不可编辑：
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const body = shallowRef('  return a + b')
+const prefix = 'function handle(a, b) {\n'
+const suffix = '\n}'
+</script>
+
+<template>
+  <u-code-editor
+    v-model="body"
+    :langs="['js']"
+    :prefix="prefix"
+    :suffix="suffix"
+  />
 </template>
 ```
 
@@ -27,7 +66,7 @@ const jsonCode = shallowRef(`{
 </script>
 
 <template>
-  <u-code-editor v-model="jsonCode" language="json" dark :default-lines="6" />
+  <u-code-editor v-model="jsonCode" :langs="['json']" dark :default-lines="6" />
 </template>
 ```
 
@@ -42,7 +81,7 @@ ORDER BY created_at DESC`
 </script>
 
 <template>
-  <u-code-editor :model-value="snippet" language="sql" readonly :default-lines="5" />
+  <u-code-editor :model-value="snippet" :langs="['sql']" readonly :default-lines="5" />
 </template>
 ```
 
@@ -60,7 +99,7 @@ const form = reactive({ script: '' })
     <u-code-editor
       label="自定义脚本"
       field="script"
-      language="js"
+      :langs="['js']"
       :default-lines="12"
       tips="请输入合法的 JavaScript 代码"
     />

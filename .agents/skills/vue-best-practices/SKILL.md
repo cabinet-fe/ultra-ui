@@ -75,3 +75,7 @@ description: Vue 3 开发最佳实践，适用于任何 Vue 3 项目。在编辑
 - **防止内存泄露**。
   - 在组件销毁时清理定时器、事件监听器和其他副作用。
   - 使用 `onUnmounted`、`onBeforeUnmount`、`onScopeDispose`等生命周期钩子来执行清理逻辑。
+
+## 偏好
+
+- 使用 `useTemplateRef` 替代 `ref` 来获取模板引用。

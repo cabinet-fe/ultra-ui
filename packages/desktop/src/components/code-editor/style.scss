@@ -1,6 +1,5 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
 
 $root-name: code-editor;
 
@@ -31,6 +30,19 @@ $root-name: code-editor;
   &:hover,
   &:focus-within {
     border-color: fn.use-var(color, primary);
+  }
+
+  @include m.e(lang-select) {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 2;
+    width: 88px;
+    border: none;
+
+    input {
+      text-align: right;
+    }
   }
 
   .cm-editor {
@@ -69,19 +81,10 @@ $root-name: code-editor;
     .cm-gutters {
       background-color: transparent;
       color: var(--u-code-editor-gutter-fg);
-      border-right: 1px solid var(--u-code-editor-border);
+      // CodeMirror 默认 gutter 高度只跟文档行数走，min-height 只加在 content 上时
+      // border-right 会在高编辑器里半途断开；官方主题示例也推荐去掉这条边框
+      border: none;
       user-select: none;
-    }
-
-    .cm-gutterElement-phantom {
-      color: var(--u-code-editor-gutter-fg);
-      opacity: 0.45;
-      padding: 0 3px 0 5px;
-      text-align: right;
-      white-space: nowrap;
-      min-width: 1ch;
-      box-sizing: border-box;
-      pointer-events: none;
     }
 
     .cm-activeLineGutter,
@@ -96,6 +99,10 @@ $root-name: code-editor;
 
     .cm-cursor {
       border-left-color: fn.use-var(color, primary);
+    }
+
+    .cm-shell {
+      color: var(--u-code-editor-gutter-fg);
     }
   }
 
