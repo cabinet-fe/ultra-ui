@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.2.25
+
+### Patch Changes
+
+- Updated dependencies [e6a0721]
+  - @veltra/utils@1.2.25
+  - @veltra/compositions@1.2.25
+
 ## 1.2.24
 
 ### Patch Changes

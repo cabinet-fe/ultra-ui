@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.2.25
+
+### Patch Changes
+
+- e6a0721: UCodeEditor：`language` 改为 `langs` + `v-model:lang`，新增 prefix/suffix 外壳；表单组件统一用 `fieldKey` 处理 label/value 字段名
+- Updated dependencies [e6a0721]
+  - @veltra/utils@1.2.25
+  - @veltra/compositions@1.2.25
+  - @veltra/directives@1.2.25
+  - @veltra/styles@1.2.25
+  - @veltra/icons@1.2.25
+
 ## 1.2.24
 
 ### Patch Changes
