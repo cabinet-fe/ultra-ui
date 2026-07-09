@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.27
+
+### Patch Changes
+
+- 42d2014: 修复 NumberRangeInput 输入过程中交叉约束过早改写另一侧；优化 BatchEdit 保存按钮、新增后表单重置与 Escape 关闭行为
+  - @veltra/utils@1.2.27
+  - @veltra/styles@1.2.27
+  - @veltra/compositions@1.2.27
+  - @veltra/directives@1.2.27
+  - @veltra/icons@1.2.27
+
 ## 1.2.26
 
 ### Patch Changes
