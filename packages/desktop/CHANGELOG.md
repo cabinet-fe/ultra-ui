@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.30
+
+### Patch Changes
+
+- 1b6fe3d: 修复 GridInput 设置分隔符后 modelValue 回显不显示的问题
+  - @veltra/utils@1.2.30
+  - @veltra/styles@1.2.30
+  - @veltra/compositions@1.2.30
+  - @veltra/directives@1.2.30
+  - @veltra/icons@1.2.30
+
 ## 1.2.29
 
 ### Patch Changes
