@@ -196,7 +196,10 @@ export function useHandlers(options: Options): EditReturned {
     const { deleteMethod } = props
 
     if (deleteMethod) {
-      await deleteMethod([row.data])
+      const result = await deleteMethod([row.data])
+      if (result === false) {
+        return
+      }
     }
 
     const data = [...(props.data ?? [])]

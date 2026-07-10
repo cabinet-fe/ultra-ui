@@ -58,7 +58,11 @@ export interface BatchEditProps extends TableProps {
   ) => void | Promise<void>
   /** label的宽度 */
   labelWidth?: string | number
-  /** 删除方法 */
+  /**
+   * 删除方法
+   * @description 删除时调用。如果返回 false，则不删除
+   * @returns 如果返回 false，则不删除
+   */
   deleteMethod?: (data: Record<string, any>[]) => any
   /**
    * 保存方法
