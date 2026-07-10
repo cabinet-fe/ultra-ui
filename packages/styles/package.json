@@ -1,6 +1,6 @@
 {
   "name": "@veltra/styles",
-  "version": "1.2.28",
+  "version": "1.2.29",
   "files": [
     "dist",
     "src"

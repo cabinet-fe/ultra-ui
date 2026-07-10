@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.29
+
+### Patch Changes
+
+- d78f26d: UCodeEditor 新增 SpEL 语言支持（语法高亮与基础补全），单语言时右上角展示语言名称标签
+  - @veltra/utils@1.2.29
+  - @veltra/styles@1.2.29
+  - @veltra/compositions@1.2.29
+  - @veltra/directives@1.2.29
+  - @veltra/icons@1.2.29
+
 ## 1.2.28
 
 ### Patch Changes
