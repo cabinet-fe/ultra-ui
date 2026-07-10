@@ -87,7 +87,7 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 
 ## 树形新增子级（写入 parentCode）
 
-开启 `tree` 后可插入子级。点击「添加子级」时触发 `@create-child`，参数为父级行，可据此初始化表单：
+`@create-child` 传入父级行，可据此初始化表单（另有 create / create-prev / create-next）。
 
 ```vue
 <script setup lang="ts">
@@ -130,8 +130,7 @@ function onCreateChild(row: TableRow) {
 </template>
 ```
 
-相关事件：`create`（底部新增）、`create-prev` / `create-next`（上下插入）、`create-child`（添加子级）。
-
+## 功能限制
 
 通过 `features` 控制可用操作；支持数组或对象（`false` / 函数动态禁用）。
 
