@@ -98,6 +98,7 @@ export function useHandlers(options: Options): EditReturned {
       state.formVisible = true
       state.depth = 1
       state.indexPath = [data?.length ?? 0]
+      emit('create')
     })
   }
 
@@ -105,16 +106,20 @@ export function useHandlers(options: Options): EditReturned {
     resetState()
     state.formActionType = 'create'
     state.formVisible = true
+    state.parentRow = row.parent
     state.depth = row.depth
     state.indexPath = [...row.indexes]
+    emit('create-prev', row)
   }
 
   function handleInsertToNext(row: TableRow) {
     resetState()
     state.formActionType = 'create'
     state.formVisible = true
+    state.parentRow = row.parent
     state.depth = row.depth
     state.indexPath = [...row.indexes.slice(0, -1), row.index + 1]
+    emit('create-next', row)
   }
 
   function handleInsertChild(row: TableRow) {
@@ -125,6 +130,7 @@ export function useHandlers(options: Options): EditReturned {
     state.depth = row.depth + 1
     row.expanded = true
     state.indexPath = [...row.indexes, row.children?.length ?? 0]
+    emit('create-child', row)
   }
 
   function runWithLoading<Arg extends any[]>(fn: (...args: Arg) => Promise<void> | void) {

@@ -113,6 +113,14 @@ export interface BatchEditProps extends TableProps {
 export interface BatchEditEmits extends TableEmits {
   /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
+  /** 点击底部「新增一行」 */
+  (e: 'create'): void
+  /** 点击「在上方插入」 */
+  (e: 'create-prev', row: TableRow): void
+  /** 点击「在下方插入」 */
+  (e: 'create-next', row: TableRow): void
+  /** 点击「添加子级」，参数为父级行 */
+  (e: 'create-child', row: TableRow): void
 }
 
 export type BatchEditSlots = {
@@ -121,6 +129,10 @@ export type BatchEditSlots = {
     depth?: number
     /** 当前编辑的行 */
     row?: TableRow
+    /** 新增时的父级行（createChild / 非根同级插入） */
+    parentRow?: TableRow
+    /** 当前表单操作类型 */
+    formActionType?: BatchEditStates['formActionType']
     /** 当前编辑的行索引 */
     index?: number
     /** 操作的目标行索引路径 */

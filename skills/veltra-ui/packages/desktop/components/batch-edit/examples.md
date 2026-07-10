@@ -85,7 +85,53 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 </template>
 ```
 
-## 功能限制
+## 树形新增子级（写入 parentCode）
+
+开启 `tree` 后可插入子级。点击「添加子级」时触发 `@create-child`，参数为父级行，可据此初始化表单：
+
+```vue
+<script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+import type { TableRow } from '@veltra/desktop'
+import { reactive, ref } from 'vue'
+
+const columns = defineTableColumns([
+  { name: '编码', key: 'code', width: 120 },
+  { name: '名称', key: 'name', width: 160 },
+  { name: '父级编码', key: 'parentCode', width: 120 }
+])
+
+const data = ref([
+  { code: 'A', name: '根节点', parentCode: '' },
+  { code: 'A-1', name: '子节点', parentCode: 'A' }
+])
+
+const model = reactive({ code: '', name: '', parentCode: '' })
+
+function onCreateChild(row: TableRow) {
+  model.parentCode = row.data.code
+}
+</script>
+
+<template>
+  <u-batch-edit
+    v-model:data="data"
+    :columns="columns"
+    :model="model"
+    tree
+    @create-child="onCreateChild"
+  >
+    <template #form>
+      <u-input field="code" label="编码" :rules="{ required: true }" />
+      <u-input field="name" label="名称" />
+      <u-input field="parentCode" label="父级编码" readonly />
+    </template>
+  </u-batch-edit>
+</template>
+```
+
+相关事件：`create`（底部新增）、`create-prev` / `create-next`（上下插入）、`create-child`（添加子级）。
+
 
 通过 `features` 控制可用操作；支持数组或对象（`false` / 函数动态禁用）。
 

@@ -27,6 +27,7 @@
       style="height: 500px"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
+      @create-child="onCreateChild"
     >
       <template #column:name="{ row }">
         <span :style="`padding-left: ${row.depth * 20}px;`">
@@ -210,7 +211,7 @@
 <script lang="ts" setup>
 import { date, sleep } from '@cat-kit/core'
 import { defineTableColumns, message } from '@veltra/desktop'
-import type { BatchEditFeature, CollapseModelValue } from '@veltra/desktop'
+import type { BatchEditFeature, CollapseModelValue, TableRow } from '@veltra/desktop'
 import { computed, reactive, ref, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)
@@ -302,7 +303,8 @@ const model = reactive({
   contact: { qq: '', wechat: '' },
   cascade: '',
   code: '',
-  unit: ''
+  unit: '',
+  parentId: undefined as number | undefined
 })
 
 const featureList: BatchEditFeature[] = ['update', 'delete', 'view'] as const
@@ -343,6 +345,12 @@ const beforeCreate = (draft: Record<string, any>) => {
   draft.id = Math.random()
   draft.joinDate = date().format()
   message.info('beforeCreate：保存时触发')
+}
+
+function onCreateChild(row: TableRow) {
+  // 点击「添加子级」时拿到父级行，可据此初始化表单
+  model.parentId = row.data.id
+  message.info(`create-child：父级 ${row.data.name}`)
 }
 
 // 选项数据

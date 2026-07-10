@@ -32,6 +32,8 @@
           <slot
             v-bind="{
               row: state.row,
+              parentRow: state.parentRow,
+              formActionType: state.formActionType,
               depth: state.depth,
               indexes: state.indexPath,
               index: state.row?.index
@@ -114,7 +116,9 @@ const creatable = computed(() => {
 
 const creatableChild = computed(() => {
   if (state.formActionType !== 'createChild') return false
-  return staticFeatures.value.has('createChild') || dynamicFeatures.value.createChild?.(state.row)
+  return (
+    staticFeatures.value.has('createChild') || dynamicFeatures.value.createChild?.(state.parentRow)
+  )
 })
 
 const updatable = computed(() => {
