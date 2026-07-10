@@ -45,6 +45,18 @@ $root-name: code-editor;
     }
   }
 
+  @include m.e(lang-label) {
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    z-index: 2;
+    font-size: 12px;
+    line-height: 24px;
+    color: var(--u-code-editor-gutter-fg);
+    pointer-events: none;
+    user-select: none;
+  }
+
   .cm-editor {
     background: transparent;
     color: var(--u-code-editor-fg);

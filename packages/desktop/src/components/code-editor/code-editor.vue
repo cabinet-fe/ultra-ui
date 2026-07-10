@@ -11,6 +11,7 @@
       :clearable="false"
       :disabled="disabled"
     />
+    <span v-else-if="langLabel" :class="cls.e('lang-label')">{{ langLabel }}</span>
   </u-scroll>
 </template>
 
@@ -88,6 +89,11 @@ const langOptions = computed(() =>
 
 /** 实际生效的语言：优先 lang model，否则回落 langs[0] */
 const activeLang = computed<CodeEditorLang | undefined>(() => lang.value ?? langs.value[0])
+
+/** 仅一种语言时，在选择器位置展示名称 */
+const langLabel = computed(() =>
+  langs.value.length === 1 && activeLang.value ? activeLang.value.toUpperCase() : undefined
+)
 
 const shellConfig = computed<ShellConfig>(() => ({
   prefix: props.prefix ?? '',

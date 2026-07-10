@@ -7,7 +7,8 @@ const LANG_LOADERS: Record<CodeEditorLang, () => Promise<Extension>> = {
   js: () => import('@codemirror/lang-javascript').then((m) => m.javascript({ typescript: true })),
   sql: () => import('@codemirror/lang-sql').then((m) => m.sql()),
   java: () => import('@codemirror/lang-java').then((m) => m.java()),
-  json: () => import('@codemirror/lang-json').then((m) => m.json())
+  json: () => import('@codemirror/lang-json').then((m) => m.json()),
+  spel: () => import('./langs/spel').then((m) => m.spel())
 }
 
 /** 按需加载语言扩展；模块缓存由运行时保证，重复切换同一语言不会重复下载 */

@@ -1,57 +1,138 @@
 <template>
   <div class="page">
-    <div class="toolbar">
-      <u-checkbox v-model="disabled">禁用</u-checkbox>
-      <u-checkbox v-model="readonly">只读</u-checkbox>
-      <u-checkbox v-model="dark">暗色</u-checkbox>
-      <u-checkbox v-model="showShell">函数体外壳</u-checkbox>
+    <section class="section">
+      <h3>JS 示例</h3>
+      <u-code-editor v-model="jsCode" lang="js" :langs="['js']" :default-lines="10" />
+    </section>
 
-      <label class="lines-control">
-        <span>默认行数</span>
-        <u-number-input v-model="defaultLines" :min="1" :max="40" style="width: 120px" />
-      </label>
-    </div>
+    <section class="section">
+      <h3>SQL 示例</h3>
+      <u-code-editor v-model="sqlCode" lang="sql" :langs="['sql']" :default-lines="10" />
+    </section>
 
-    <u-form :model="formData" :disabled="disabled" :readonly="readonly">
-      <u-code-editor
-        field="code"
-        v-model:lang="lang"
-        :langs="['js', 'sql', 'java', 'json']"
-        :prefix="showShell ? functionPrefix : undefined"
-        :suffix="showShell ? functionSuffix : undefined"
-        :dark="dark"
-        :default-lines="defaultLines"
-        label="代码"
-        span="full"
-        :rules="{ required: true }"
-        @change="handleChange"
-      ></u-code-editor>
-    </u-form>
+    <section class="section">
+      <h3>Java 示例</h3>
+      <u-code-editor v-model="javaCode" lang="java" :langs="['java']" :default-lines="12" />
+    </section>
 
-    <div class="previews">
-      <div>
-        <div class="preview-label">v-model（仅正文，实时）</div>
-        <pre class="preview">{{ formData.code }}</pre>
+    <section class="section">
+      <h3>JSON 示例</h3>
+      <u-code-editor v-model="jsonCode" lang="json" :langs="['json']" :default-lines="10" />
+    </section>
+
+    <section class="section">
+      <h3>SpEL 示例</h3>
+      <u-code-editor v-model="spelCode" lang="spel" :langs="['spel']" :default-lines="6" />
+    </section>
+
+    <section class="section">
+      <h3>完整示例</h3>
+      <p class="hint">可切换语言、配置默认行数，以及禁用 / 只读 / 暗色 / 函数体外壳。</p>
+
+      <div class="toolbar">
+        <u-checkbox v-model="disabled">禁用</u-checkbox>
+        <u-checkbox v-model="readonly">只读</u-checkbox>
+        <u-checkbox v-model="dark">暗色</u-checkbox>
+        <u-checkbox v-model="showShell">函数体外壳</u-checkbox>
+
+        <label class="control">
+          <span>默认行数</span>
+          <u-number-input v-model="defaultLines" :min="1" :max="40" style="width: 120px" />
+        </label>
+
+        <label class="control">
+          <span>可选语言</span>
+          <u-checkbox-group v-model="langs" :items="langOptions" />
+        </label>
       </div>
-      <div>
-        <div class="preview-label">@change（失焦且有变更）</div>
-        <pre class="preview">{{ lastChange ?? '（尚未触发）' }}</pre>
+
+      <u-form :model="formData" :disabled="disabled" :readonly="readonly">
+        <u-code-editor
+          field="code"
+          v-model:lang="lang"
+          :langs="langs"
+          :prefix="showShell ? functionPrefix : undefined"
+          :suffix="showShell ? functionSuffix : undefined"
+          :dark="dark"
+          :default-lines="defaultLines"
+          label="代码"
+          span="full"
+          :rules="{ required: true }"
+          @change="handleChange"
+        />
+      </u-form>
+
+      <div class="previews">
+        <div>
+          <div class="preview-label">v-model（仅正文，实时）</div>
+          <pre class="preview">{{ formData.code }}</pre>
+        </div>
+        <div>
+          <div class="preview-label">@change（失焦且有变更）</div>
+          <pre class="preview">{{ lastChange ?? '（尚未触发）' }}</pre>
+        </div>
+        <div v-if="showShell">
+          <div class="preview-label">完整函数（prefix + body + suffix）</div>
+          <pre class="preview">{{ fullFunction }}</pre>
+        </div>
+        <div>
+          <div class="preview-label">当前语言（v-model:lang）</div>
+          <pre class="preview">{{ lang }}</pre>
+        </div>
       </div>
-      <div v-if="showShell">
-        <div class="preview-label">完整函数（prefix + body + suffix）</div>
-        <pre class="preview">{{ fullFunction }}</pre>
-      </div>
-      <div>
-        <div class="preview-label">当前语言（v-model:lang）</div>
-        <pre class="preview">{{ lang }}</pre>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { CodeEditorLang } from '@veltra/desktop/types'
 import { computed, reactive, ref } from 'vue'
+
+const jsCode = ref(`function sum(a, b) {
+  // 返回两数之和
+  return a + b
+}
+
+const result = sum(1, 2)
+console.log(result)
+`)
+
+const sqlCode = ref(`SELECT u.id, u.name, o.total
+FROM users u
+LEFT JOIN orders o ON o.user_id = u.id
+WHERE u.status = 'active'
+  AND o.created_at >= '2026-01-01'
+ORDER BY o.total DESC
+LIMIT 20;
+`)
+
+const javaCode = ref(`public class Hello {
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(add(1, 2));
+  }
+}
+`)
+
+const jsonCode = ref(`{
+  "name": "ultra-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp pack"
+  },
+  "dependencies": {
+    "vue": ">=3.5.0"
+  }
+}
+`)
+
+const spelCode = ref(
+  `#user?.name matches 'A.*' and T(Math).abs(-1) > 0 or #root.status eq 'ACTIVE'`
+)
 
 const formData = reactive({ code: '  return a + b' })
 
@@ -62,6 +143,16 @@ const showShell = ref(true)
 const defaultLines = ref(8)
 const lastChange = ref<string>()
 const lang = ref<CodeEditorLang>('js')
+
+const langOptions: { label: string; value: CodeEditorLang }[] = [
+  { label: 'JS', value: 'js' },
+  { label: 'SQL', value: 'sql' },
+  { label: 'Java', value: 'java' },
+  { label: 'JSON', value: 'json' },
+  { label: 'SpEL', value: 'spel' }
+]
+
+const langs = ref<CodeEditorLang[]>(['js', 'sql', 'java', 'json', 'spel'])
 
 const functionPrefix = 'function handle(a, b) {\n'
 const functionSuffix = '\n}'
@@ -78,7 +169,25 @@ function handleChange(value: string) {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: #606266;
 }
 
 .toolbar {
@@ -88,7 +197,7 @@ function handleChange(value: string) {
   gap: 16px;
 }
 
-.lines-control {
+.control {
   display: inline-flex;
   align-items: center;
   gap: 8px;

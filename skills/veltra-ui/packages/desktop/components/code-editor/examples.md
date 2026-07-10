@@ -53,6 +53,20 @@ const suffix = '\n}'
 </template>
 ```
 
+## SpEL 表达式
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const expr = shallowRef('#root.name == \'admin\' and T(Math).abs(-1) > 0')
+</script>
+
+<template>
+  <u-code-editor v-model="expr" :langs="['spel']" :default-lines="4" />
+</template>
+```
+
 ## 暗色主题 + JSON 编辑
 
 ```vue

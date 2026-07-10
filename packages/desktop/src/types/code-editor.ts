@@ -1,12 +1,13 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
-export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json'
+export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json' | 'spel'
 
 /** 代码编辑器组件属性（不支持 `size`） */
 export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   modelValue?: string
   /**
-   * 可选语言列表。长度大于 1 时在编辑器右上角显示内置语言选择器
+   * 可选语言列表。长度大于 1 时在编辑器右上角显示内置语言选择器；
+   * 仅一种语言时显示语言名称标签
    */
   langs?: CodeEditorLang[]
   /** 当前语言，配合 `v-model:lang` 使用 */
