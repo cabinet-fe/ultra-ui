@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.28
+
+### Patch Changes
+
+- 8382acd: 修复 GridInput 无法输入 0 的问题，并正确实现 zero 开关（验证码可开、组织编码结构可关）
+  - @veltra/utils@1.2.28
+  - @veltra/styles@1.2.28
+  - @veltra/compositions@1.2.28
+  - @veltra/directives@1.2.28
+  - @veltra/icons@1.2.28
+
 ## 1.2.27
 
 ### Patch Changes
