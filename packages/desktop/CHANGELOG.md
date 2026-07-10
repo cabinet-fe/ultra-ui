@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.31
+
+### Patch Changes
+
+- cb56cd2: BatchEdit 新增 create / create-prev / create-next / create-child 事件，表单插槽暴露 parentRow 与 formActionType；修复 createChild 动态权限判断应基于父级行
+  - @veltra/utils@1.2.31
+  - @veltra/styles@1.2.31
+  - @veltra/compositions@1.2.31
+  - @veltra/directives@1.2.31
+  - @veltra/icons@1.2.31
+
 ## 1.2.30
 
 ### Patch Changes
