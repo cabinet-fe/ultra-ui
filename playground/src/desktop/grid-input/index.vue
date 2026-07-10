@@ -8,6 +8,14 @@
     </section>
 
     <section>
+      <h3>数据回显</h3>
+      <p class="hint">带分隔符的初始值应正确拆分到各格</p>
+      <u-grid-input v-model="echo" :length="6" separator="-" />
+      <u-grid-input v-model="echoJoined" :length="6" separator="" :zero="true" />
+      <p class="value">带分隔：{{ echo || '（空）' }}　无分隔：{{ echoJoined || '（空）' }}</p>
+    </section>
+
+    <section>
       <h3>自定义长度</h3>
       <p class="hint">4 位短码</p>
       <u-grid-input v-model="shortCode" :length="4" separator="" />
@@ -65,6 +73,8 @@ import type { GridInputExposed } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 const basic = shallowRef('')
+const echo = shallowRef('1-2-3-4-5-6')
+const echoJoined = shallowRef('102030')
 const shortCode = shallowRef('')
 const spaced = shallowRef('')
 const joined = shallowRef('')

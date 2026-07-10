@@ -16,6 +16,24 @@ const code = ref('')
 </template>
 ```
 
+## 数据回显
+
+`modelValue` 需与 `separator` 拼装格式一致：有分隔符时为 `1-2-3-4-5-6`，无分隔符时为 `123456`。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const withSep = ref('1-2-3-4-5-6')
+const joined = ref('102030')
+</script>
+
+<template>
+  <u-grid-input v-model="withSep" separator="-" />
+  <u-grid-input v-model="joined" separator="" :zero="true" />
+</template>
+```
+
 ## 自定义长度
 
 ```vue

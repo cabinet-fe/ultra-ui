@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
-import { computed, ref, getCurrentInstance } from 'vue'
+import { computed, ref, getCurrentInstance, watch } from 'vue'
 
 import type { GridInputProps, GridInputEmits, GridInputExposed } from '../../types'
 
@@ -50,8 +50,30 @@ const blur = ref<boolean>(false)
 
 const instance = getCurrentInstance()
 
+/** 将格子数组拼成对外 modelValue */
+const joinValue = (cells: string[]) => cells.join(props.separator)
+
+/** 按分隔符解析 modelValue 为格子内容 */
+const parseValue = (value?: string): string[] => {
+  if (!value) return []
+  const sep = props.separator
+  const parts = sep === '' ? Array.from(value) : value.split(sep)
+  return parts.filter((part) => part !== '').slice(0, props.length)
+}
+
+// 外部 modelValue / 分隔符变化时回填格子（支持初始值与回显）
+watch(
+  () => [props.modelValue, props.separator, props.length] as const,
+  () => {
+    const next = parseValue(props.modelValue)
+    if (joinValue(next) === joinValue(valueArray.value)) return
+    valueArray.value = next
+  },
+  { immediate: true }
+)
+
 const emitValue = () => {
-  const value = valueArray.value.join(props.separator)
+  const value = joinValue(valueArray.value)
   emit('input', value)
   emit('update:modelValue', value)
 }
