@@ -10,7 +10,7 @@
       ref="items"
       :class="[cls.e('item'), bem.is('focus', index === position && !blur)]"
     >
-      <span :class="cls.em('item', 'text')" v-if="valueArray[index]">
+      <span :class="cls.em('item', 'text')" v-if="index < valueArray.length">
         {{ valueArray[index] }}
       </span>
 
@@ -40,7 +40,7 @@ const { size } = useFallbackProps([props], { size: 'default' })
 
 const cls = bem('grid-input')
 
-const _numberReg = computed(() => (props.zero ? /^[0-9]$/ : /^[1-9]$/))
+const numberReg = computed(() => (props.zero ? /^[0-9]$/ : /^[1-9]$/))
 
 const valueArray = ref<string[]>([])
 
@@ -49,6 +49,12 @@ const position = ref<number>(-1)
 const blur = ref<boolean>(false)
 
 const instance = getCurrentInstance()
+
+const emitValue = () => {
+  const value = valueArray.value.join(props.separator)
+  emit('input', value)
+  emit('update:modelValue', value)
+}
 
 const focus = async (index?: number) => {
   if (index === undefined) {
@@ -67,9 +73,8 @@ const focus = async (index?: number) => {
 
 const changeValue = (value: string, index: number) => {
   if (position.value === props.length) return
-  const currentValue = valueArray.value[index]
 
-  if (currentValue) {
+  if (index < valueArray.value.length) {
     valueArray.value.splice(index, 1, value)
   } else if (index === valueArray.value.length) {
     valueArray.value.push(value)
@@ -79,12 +84,12 @@ const changeValue = (value: string, index: number) => {
   position.value++
   focus()
 
-  emit('input', valueArray.value.filter((v) => v).join(props.separator))
+  emitValue()
 }
 
-const baseOperation = {
-  Backspace: (value: string, index: number) => {
-    if (value) {
+const baseOperation: Record<string, (value: string, index: number) => void> = {
+  Backspace: (_value: string, index: number) => {
+    if (index < valueArray.value.length) {
       valueArray.value.splice(index, 1)
     } else if (index - 1 >= 0) {
       valueArray.value.splice(index - 1, 1)
@@ -92,30 +97,29 @@ const baseOperation = {
     if (index !== 0) {
       focus(index - 1)
     }
-    emit('input', valueArray.value.filter((v) => v).join(props.separator))
+    emitValue()
   },
-  ArrowLeft: (value: string, index: number) => {
+  ArrowLeft: (_value: string, index: number) => {
     if (index === 0) return
     focus(index - 1)
   },
-  ArrowRight: (value: string, index: number) => {
+  ArrowRight: (_value: string, index: number) => {
     if (index === valueArray.value.length) return
     focus(index + 1)
   }
 }
 
-const onKeydown = (e: any, value: string, index: number) => {
-  if (_numberReg.value.test(e.key)) {
+const onKeydown = (e: KeyboardEvent, value: string, index: number) => {
+  if (numberReg.value.test(e.key)) {
     changeValue(e.key, index)
     return
   }
-  baseOperation[e.key](value, index)
+  baseOperation[e.key]?.(value, index)
 }
 
 const clear = () => {
-  while (valueArray.value.length) {
-    valueArray.value.pop()
-  }
+  valueArray.value = []
+  position.value = -1
 }
 
 defineExpose<GridInputExposed>({ clear })
