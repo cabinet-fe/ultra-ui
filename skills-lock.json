@@ -1,11 +1,19 @@
 {
   "version": 1,
   "skills": {
+    "build-lib-skill": {
+      "source": "cabinet-fe/prompt-engineering",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/build-lib-skill/SKILL.md",
+      "computedHash": "d58b318b9cbea075cd91baa5fb5a13bc6652a411c5f1cf991bc7d31db19f5f2b"
+    },
     "cat-kit": {
       "source": "cabinet-fe/cat-kit",
       "ref": "main",
       "sourceType": "github",
-      "computedHash": "2073524d332d74b3db1b96432bf52cccaac8c36f0fa1b13bdf43dee398d1d177"
+      "skillPath": "skills/cat-kit/SKILL.md",
+      "computedHash": "23ef4e1e5ac2dd8072ffe34c81188191456715c32c7430fc6c98d1bb30a67d3e"
     },
     "git-commit": {
       "source": "cabinet-fe/prompt-engineering",
@@ -19,7 +27,7 @@
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/vue-best-practices/SKILL.md",
-      "computedHash": "0f4a97002eadf497c4fc9e84c772cc3ccef8ec1a618252b6d426b20e9d5b3e19"
+      "computedHash": "cee824892a1d576ea7cea2ee8c42e762df3b844433abc4b6da29b008e034a542"
     }
   }
 }

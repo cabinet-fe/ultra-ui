@@ -53,11 +53,11 @@ declare class CatObject<O extends Record<string, any>, K extends keyof O = keyof
   /**
    * 获取对象的值
    *
-   * @param prop 需要获取的属性, 可以是链式的属性
+   * @param prop 需要获取的属性, 可以是链式的属性或字符串数组
    *
    * @returns 值
    */
-  get<T extends any = any>(prop: string): T | undefined
+  get<T extends any = any>(prop: string | string[]): T | undefined
   /**
    * 设置对象的值
    * @param prop 需要设置的属性

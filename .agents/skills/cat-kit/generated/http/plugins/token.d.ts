@@ -40,11 +40,13 @@ interface HTTPTokenPluginOptions {
   isRefreshExpired?: () => boolean
   /**
    * 基于业务响应判断是否需要刷新（如 401）
-   * - 为 true 且需重试时须同时配置 {@link TokenPluginOptions.onRefresh}，否则不会发起 `retry`
+   * - 为 true 且需重试时须同时配置 {@link TokenPluginOptions.onRefresh}，否则不会发起重试
    */
   shouldRefresh?: (response: HTTPResponse) => boolean
   /** refresh_token 过期时回调（如登出） */
   onRefreshExpired?: () => void
+  /** 最大重试次数，默认 2 次，0 为不重试 */
+  maxRetries?: number
 }
 type TokenPluginOptions = HTTPTokenPluginOptions
 /**

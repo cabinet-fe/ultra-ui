@@ -1,12 +1,32 @@
-# @cat-kit/vitepress-theme 示例
+# @cat-kit/vitepress-theme — 组合示例
 
-```ts
-import { defineConfig } from 'vitepress'
-import catKitTheme from '@cat-kit/vitepress-theme'
-
-export default defineConfig({ theme: catKitTheme })
+```bash
+bun add @cat-kit/vitepress-theme
+# peers: vitepress ^2、vue ^3.5.31
 ```
 
-`default` 导出形状见类型声明（含 `Layout` / `enhanceApp` 等）。
+```ts
+// .vitepress/theme/index.ts
+import theme from '@cat-kit/vitepress-theme'
+export default theme
+```
 
-> 类型参考：`../../generated/vitepress-theme/index.d.ts`
+```ts
+// .vitepress/config.ts
+import { defineThemeConfig } from '@cat-kit/vitepress-theme/config'
+import { fileURLToPath } from 'node:url'
+
+const examplesDir = fileURLToPath(new URL('../../examples', import.meta.url))
+
+export default {
+  title: 'Docs',
+  ...defineThemeConfig({ examplesDir })
+}
+```
+
+Markdown 中：
+
+```md
+::: demo my-pkg/demo.vue
+:::
+```

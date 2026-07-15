@@ -1,21 +1,23 @@
 # @cat-kit/fe
 
-浏览器专用工具包，提供虚拟列表、文件读取、客户端存储、剪贴板等 Web API 封装。
+浏览器专用工具包：虚拟列表、数值补间、文件处理、客户端存储与剪贴板。
 
-## 运行环境
+**版本**：1.1.8  
+**导入**：`import { ... } from '@cat-kit/fe'`（仅包根）
 
-仅浏览器（依赖 Web API）。
+依赖 DOM / 浏览器 Web API，不适用于 Node.js 服务端逻辑。
 
-## API 分类
+## 主题
 
-| 分类       | 文档                             | 说明                                             |
-| ---------- | -------------------------------- | ------------------------------------------------ |
-| 虚拟列表   | [virtualizer.md](virtualizer.md) | Virtualizer 虚拟滚动核心 API 与最佳实践          |
-| Tween 动画 | [tween.md](tween.md)             | 补间动画（缓动、帧调度）                         |
-| 文件操作   | [file.md](file.md)               | 文件分块读取（readChunks）、保存下载（saveBlob） |
-| 客户端存储 | [storage.md](storage.md)         | localStorage/sessionStorage 封装                 |
-| Web API    | [web-api.md](web-api.md)         | clipboard 等 Web API 封装                        |
+| 主题 | 说明 |
+| --- | --- |
+| [virtualizer](virtualizer/index.md) | 虚拟滚动、动态尺寸、滚动到指定项 |
+| [tween](tween/index.md) | 数值补间、缓动、暂停/恢复 |
+| [file](file/index.md) | 分块读取、保存 Blob |
+| [storage](storage/index.md) | localStorage、sessionStorage、Cookie |
+| [web-api](web-api/index.md) | 剪贴板、权限预查 |
+| [组合示例](examples.md) | 跨主题组合 |
 
-## 类型签名
+## 类型入口
 
-> 详见 `../../generated/fe/index.d.ts`
+[generated/fe/index.d.ts](../../generated/fe/index.d.ts)

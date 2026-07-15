@@ -1,23 +1,21 @@
 # @cat-kit/be
 
-Node.js 专用工具包，提供文件系统、日志、缓存、配置、网络、系统信息等后端通用工具。
+仅用于 Node.js（及兼容 `node:` 的 Bun）。所有 API 从 `@cat-kit/be` 包根导入。
 
-## 运行环境
+**版本**：1.1.8  
+**导入**：`import { ... } from '@cat-kit/be'`
 
-仅 Node.js（依赖 `node:` 内置模块）。
+## 主题
 
-## API 分类
+| 主题 | 说明 |
+| --- | --- |
+| [fs](fs/index.md) | 遍历、读写、移动、清理 |
+| [config](config/index.md) | `.env`、环境变量校验、配置加载合并 |
+| [cache](cache/index.md) | LRU、文件缓存、memoize |
+| [logger](logger/index.md) | 控制台 / 文件日志 |
+| [net](net/index.md) | 端口可用性、本机地址 |
+| [scheduler](scheduler/index.md) | Cron、延迟、周期任务 |
+| [system](system/index.md) | CPU、内存、磁盘、网卡 |
+| [组合示例](examples.md) | 跨主题组合 |
 
-| 分类     | 文档                         | 说明                               |
-| -------- | ---------------------------- | ---------------------------------- |
-| 文件系统 | [fs.md](fs.md)               | 目录遍历/创建/删除、文件读写       |
-| 日志系统 | [logger.md](logger.md)       | Logger 日志器、ConsoleTransport 等 |
-| 缓存     | [cache.md](cache.md)         | LRU 缓存、TTL 缓存等               |
-| 配置管理 | [config.md](config.md)       | env 变量、配置文件读取             |
-| 网络工具 | [net.md](net.md)             | IP 地址、可用端口等                |
-| 系统信息 | [system.md](system.md)       | CPU、内存、磁盘等信息              |
-| 调度器   | [scheduler.md](scheduler.md) | 定时任务、cron 等                  |
-
-## 类型签名
-
-> 详见 `../../generated/be/index.d.ts`
+不要在浏览器代码中使用。精确签名见各主题 `apis.md` 与 [generated/be/index.d.ts](../../generated/be/index.d.ts)。

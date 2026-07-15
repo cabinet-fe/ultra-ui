@@ -1,14 +1,14 @@
+import { HttpEngine } from './engine/engine.js'
 import {
   AliasRequestConfig,
   ClientConfig,
   HTTPClientPlugin,
   HTTPResponse,
+  IHTTPClient,
   RequestConfig
 } from './types.js'
 
 //#region src/client.d.ts
-/** 插件触发的单次请求最多允许的重试次数（retryCount 0 为首次，共最多 11 次尝试） */
-declare const MAX_PLUGIN_RETRIES = 10
 /**
  * 合并请求配置：headers / query 做对象级合并；标量类字段仅在 patch 显式传入且非 undefined 时覆盖。
  * `undefined` 不用于清空已有配置。
@@ -40,7 +40,7 @@ declare function mergeRequestConfig(base: RequestConfig, patch: RequestConfig): 
  * })
  * ```
  */
-declare class HTTPClient {
+declare class HTTPClient implements IHTTPClient {
   /** 请求前缀 */
   private prefix
   /** 客户端配置 */
@@ -61,24 +61,50 @@ declare class HTTPClient {
    * 计算当前 client 在运行时生效的插件列表：父链在前、子在后
    */
   private getEffectivePlugins
+  getEngine(): HttpEngine
   /**
    * 注册插件（运行时动态装配）
    * - 插件必须拥有非空字符串 `name`，否则抛 HTTPError({ code: 'PLUGIN' })
    * - 插件名在 client 自身及其父链范围内必须唯一，冲突时抛 HTTPError({ code: 'PLUGIN' })
    */
   registerPlugin(plugin: HTTPClientPlugin): void
+  /**
+   * 内部注册插件（不做 name 有效性校验，调用方保证已校验通过）
+   * - 校验插件名在整个生效链（父链+自身）中的唯一性，冲突时抛 HTTPError
+   */
   private registerPluginInternal
+  /**
+   * 为同域请求自动附加 XSRF Token（通过 Cookie → Header 注入）
+   * - 不同域请求直接跳过
+   * - Cookie 不存在时跳过
+   */
   private applyXsrfHeader
+  /**
+   * 拼接完整请求 URL：前缀 + origin + query 参数
+   * - 若 url 已是完整 URL 则跳过拼接，仅追加 query 参数
+   */
   private getRequestUrl
+  /** 判断是否为完整 URL（含协议头或以 // 开头） */
   private isAbsoluteUrl
+  /**
+   * 将 config.query 序列化并拼接到 URL
+   * - 支持数组值（多 key 追加）、对象值（JSON 序列化）、null/undefined
+   */
   private appendQueryParams
   /**
-   * 获取请求配置
+   * 获取请求配置, 合并 HTTPClient 实例配置和当前配置
    * @param config 当前请求配置
    * @returns 合并后的请求配置
    */
   private getRequestConfig
+  /**
+   * 依次执行插件 onError 钩子，取首个有效的恢复响应
+   * - 只有返回 HTTPResponse 时才视为恢复；后续插件仍会执行（用于副作用）
+   */
   private runOnErrorPlugins
+  /**
+   * 执行单次请求的核心流程（含插件管道）
+   */
   private _executeRequest
   /**
    * 发送 HTTP 请求
@@ -182,4 +208,4 @@ declare class HTTPClient {
   group(prefix: string): HTTPClient
 }
 //#endregion
-export { HTTPClient, MAX_PLUGIN_RETRIES, mergeRequestConfig }
+export { HTTPClient, mergeRequestConfig }

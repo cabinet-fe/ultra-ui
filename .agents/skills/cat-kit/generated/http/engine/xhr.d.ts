@@ -9,10 +9,11 @@ declare class XHREngine extends HttpEngine {
   /**
    * 解析响应头
    * @param headerStr 响应头字符串
-   * @returns 解析后的响应头对象（同名多值以数组保留）
+   * @returns 解析后的响应头对象（同名多值以逗号+空格合并；set-cookie 以换行分隔）
    */
   private parseHeaders
-  sendHeaders(xhr: XMLHttpRequest, headers: Record<string, string | string[]>): void
+  /** 将 headers 设置到 XMLHttpRequest 实例 */
+  sendHeaders(xhr: XMLHttpRequest, headers: Record<string, string>): void
   abort(): void
 }
 //#endregion

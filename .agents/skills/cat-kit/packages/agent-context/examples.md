@@ -1,35 +1,32 @@
-# @cat-kit/agent-context 示例
-
-本包以 CLI 为主；若需在代码中引用常量，请使用发布目录下的模块路径：
-
-```ts
-import { AC_ROOT_DIR, PLAN_FILE_NAME } from '@cat-kit/agent-context/dist/constants.js'
-```
-
-## CLI
+# @cat-kit/agent-context — 组合示例
 
 ```bash
-npx agent-context --help
+npm install -g @cat-kit/agent-context
+cd /path/to/project
+agent-context install --tools cursor
+agent-context init
+agent-context validate
+agent-context status
 ```
 
-## 同步已安装的 ac-workflow Skill
+随后对已发现 Skill 的智能体：
+
+```text
+初始化这个项目的 agent context
+为“新增导出功能”出计划
+按当前计划开始实现
+```
+
+完成后：
 
 ```bash
-agent-context sync --check
+agent-context done --yes
+agent-context context
+```
+
+升级 Skill 内容：
+
+```bash
+agent-context sync --check   # CI 可用
 agent-context sync
 ```
-
-## 评估 description 触发样例
-
-```bash
-agent-context skill-eval
-```
-
-## 生成本机全局提示词模板
-
-```bash
-agent-context prompt-gen --check
-agent-context prompt-gen --profile whj --tools codex
-```
-
-> 类型参考：`../../generated/agent-context/cli.d.ts`

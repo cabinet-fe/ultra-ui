@@ -1,16 +1,22 @@
 # @cat-kit/vitepress-theme
 
-VitePress 文档站主题（水墨丹青风格），通过 `defineConfig` 注册使用。
+VitePress 文档主题：默认主题、布局、Demo/Mermaid 与配置助手。
 
-## 使用方式
+**版本**：1.0.2  
+**Peers**：`vitepress ^2.0.0`、`vue ^3.5.31`
 
-```ts
-import { defineConfig } from 'vitepress'
-import catKitTheme from '@cat-kit/vitepress-theme'
+## 主题
 
-export default defineConfig({ theme: catKitTheme })
+| 主题 | 说明 |
+| --- | --- |
+| [theme](theme/index.md) | 默认主题、布局、composable |
+| [config](config/index.md) | `defineThemeConfig` 与 markdown/vite 插件 |
+| [组合示例](examples.md) | 接入主题 + demo 容器 |
+
+## 安装
+
+```bash
+bun add @cat-kit/vitepress-theme
 ```
 
-## 类型签名
-
-> 详见 `../../generated/vitepress-theme/index.d.ts`
+`defineThemeConfig`、`demoContainer`、`mermaidPlugin`、`importExamples` 从 **`@cat-kit/vitepress-theme/config`** 导入，不要从包根导入这些助手。

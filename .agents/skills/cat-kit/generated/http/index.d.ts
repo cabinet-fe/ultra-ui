@@ -1,4 +1,4 @@
-import { HTTPClient, MAX_PLUGIN_RETRIES, mergeRequestConfig } from './client.js'
+import { HTTPClient, mergeRequestConfig } from './client.js'
 import { HttpEngine } from './engine/engine.js'
 import { FetchEngine } from './engine/fetch.js'
 import { XHREngine } from './engine/xhr.js'
@@ -8,7 +8,6 @@ import {
   MethodOverridePlugin,
   MethodOverridePluginOptions
 } from './plugins/method-override.js'
-import { RetryPlugin, RetryPluginOptions } from './plugins/retry.js'
 import {
   HTTPTokenPlugin,
   HTTPTokenPluginOptions,
@@ -24,7 +23,7 @@ import {
   HTTPErrorOptions,
   HTTPResponse,
   HttpErrorCode,
-  PluginContext,
+  IHTTPClient,
   PluginHookResult,
   ProgressInfo,
   RequestConfig,
@@ -47,17 +46,14 @@ export {
   HTTPTokenPluginOptions,
   HttpEngine,
   HttpErrorCode,
-  MAX_PLUGIN_RETRIES,
+  IHTTPClient,
   MethodOverridePlugin,
   MethodOverridePluginOptions,
-  PluginContext,
   PluginHookResult,
   ProgressInfo,
   RequestConfig,
   RequestContext,
   RequestMethod,
-  RetryPlugin,
-  RetryPluginOptions,
   TokenPlugin,
   TokenPluginOptions,
   XHREngine,

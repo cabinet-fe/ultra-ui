@@ -1,18 +1,27 @@
 # @cat-kit/http
 
-插件化 HTTP 客户端，支持中间件、认证、重试、请求/响应转换等。
+可用于浏览器与 Node.js 的 HTTP 客户端：统一 URL、配置、响应与错误，支持可替换引擎与请求插件。
 
-## 运行环境
+**版本**：1.1.8  
+**导入**：`import { ... } from '@cat-kit/http'`（仅包根）
 
-通用（浏览器与 Node.js 均可）。
+## 适用场景
 
-## API 分类
+- 复用 `origin`、路径前缀、请求头、超时与响应类型
+- 类型化响应、请求取消、传输进度或同域 XSRF Header
+- 按业务域创建子客户端，或注入自定义传输引擎
+- Token 注入/刷新、HTTP 方法覆盖或自定义插件
 
-| 分类       | 文档                     | 说明                                |
-| ---------- | ------------------------ | ----------------------------------- |
-| 客户端核心 | [client.md](client.md)   | HTTPClient 构造、请求方法、引擎配置 |
-| 插件体系   | [plugins.md](plugins.md) | 认证插件、重试插件、转换插件等      |
+仅需一次简单请求且原生 `fetch` 已足够时，不必引入本包。
 
-## 类型签名
+## 主题
 
-> 详见 `../../generated/http/index.d.ts`
+| 主题 | 说明 |
+| --- | --- |
+| [client](client/index.md) | 创建客户端、请求、响应/错误、引擎、配置合并 |
+| [plugins](plugins/index.md) | Token、方法覆盖、自定义插件 |
+| [组合示例](examples.md) | 客户端 + 插件组合 |
+
+## 类型入口
+
+[generated/http/index.d.ts](../../generated/http/index.d.ts)

@@ -1,23 +1,31 @@
 # @cat-kit/core
 
-零依赖核心工具包，提供数组、对象、树、日期、环境检测、检测模式、性能优化等通用工具。浏览器与 Node.js 均可使用。
+通用基础工具包（零外部依赖），提供数据处理、日期、环境探测、树结构与执行控制等公开能力。
 
-## 运行环境
+**版本**：1.1.8  
+**导入**：`import { ... } from '@cat-kit/core'`（仅包根）
 
-通用（浏览器与 Node.js 均可，无内置 Node 专用 API 依赖）。
+## 如何选择
 
-## API 分类
+- 数组、对象、字符串、数值等通用数据任务优先使用本包。
+- LRU / 文件缓存 / 记忆化 → [`@cat-kit/be` 缓存](../be/cache/index.md)
+- 安全随机 ID → [`@cat-kit/crypto`](../crypto/nanoid/index.md)
 
-| 分类       | 文档                                   | 说明                                            |
-| ---------- | -------------------------------------- | ----------------------------------------------- |
-| 数据处理   | [data.md](data.md)                     | 数组并集/交集/去重、对象合并/深层合并、集合操作 |
-| 数据结构   | [data-structure.md](data-structure.md) | TreeManager 树管理器、LRU 缓存等                |
-| 日期工具   | [date.md](date.md)                     | 日期格式化、相对时间、时间戳转换                |
-| 环境检测   | [env.md](env.md)                       | 运行时环境检测（浏览器/Node.js/Bun 等）         |
-| 性能优化   | [optimize.md](optimize.md)             | 节流/防抖、惰性求值、记忆化                     |
-| 设计模式   | [pattern.md](pattern.md)               | Observer 观察者模式等常用设计模式实现           |
-| 高精度运算 | [examples.md](examples.md)             | `$n` 高精度数学运算示例                         |
+## 主题
 
-## 类型签名
+| 主题 | 说明 |
+| --- | --- |
+| [array-object](array-object/index.md) | 合并去重、尾元素、挑选、忽略、对象更新 |
+| [string-type](string-type/index.md) | 命名转换、URL 路径、类型守卫 |
+| [transform-validation](transform-validation/index.md) | 字节编码、查询串、转换链、schema 校验 |
+| [number](number/index.md) | 小数运算、表达式、格式化、范围 |
+| [date](date/index.md) | 解析、格式化、加减、对齐、比较、区间 |
+| [env](env/index.md) | 运行时、系统、浏览器、设备 |
+| [data-structure](data-structure/index.md) | 树/森林遍历与节点关系 |
+| [optimize](optimize/index.md) | 防抖、节流、延时、限并发、safeRun |
+| [pattern](pattern/index.md) | 浅层状态订阅 |
+| [组合示例](examples.md) | 仅跨主题组合时再读 |
 
-> 详见 `../../generated/core/index.d.ts`
+## 边界
+
+浏览器专属类型守卫与环境信息依赖对应全局能力。精确导出总表见 [generated/core/index.d.ts](../../generated/core/index.d.ts)。
