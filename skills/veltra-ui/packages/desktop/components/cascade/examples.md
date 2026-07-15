@@ -87,3 +87,29 @@ const options = [
   />
 </template>
 ```
+
+## 仅绑定叶子节点
+
+默认 `show-full-path` 为 `true`（显示与 `modelValue` 均为完整路径，用 `separator` 拼接）；设为 `false` 时显示、`modelValue`、`update:label` 均只体现叶子节点。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const leaf = ref<string>()
+const options = [
+  {
+    value: '1',
+    label: '北京',
+    children: [
+      { value: '11', label: '朝阳区' },
+      { value: '12', label: '海淀区' }
+    ]
+  }
+]
+</script>
+
+<template>
+  <u-cascade v-model="leaf" :data="options" :show-full-path="false" />
+</template>
+```

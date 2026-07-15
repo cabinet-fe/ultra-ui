@@ -2,12 +2,13 @@
 
 ## 列宽
 
-叶子列未设置 `minWidth` 时，默认最小宽度为 **100**。`width` 不能小于 `minWidth`；若需要 **100 以下**的列宽，请同时指定 `minWidth`，例如 `{ width: 60, minWidth: 60 }`。只写 `width: 60` 会被抬到 100，看起来就像宽度未生效。
+叶子列默认 `minWidth` 为 100；`width` 不能小于 `minWidth`。`fixed` 且未设 `width` 的列只按 `minWidth` 占位、不参与剩余宽度均分。
 
 ```ts
 import { defineTableColumns } from '@veltra/desktop'
 
 const columns = defineTableColumns([
+  // 窄列需同时设 minWidth；fixed 列建议显式 width
   { key: 'name', name: '姓名', width: 60, minWidth: 60, fixed: 'left' },
   { key: 'age', name: '年龄', width: 80, minWidth: 80, align: 'center' },
   { key: 'address', name: '地址', minWidth: 200 }

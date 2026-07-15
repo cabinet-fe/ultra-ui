@@ -19,7 +19,3 @@ UI共享样式包：主题运行时、SCSS BEM 工具、基础样式、Design To
 | `pkg:@veltra/styles/mixins`    | SCSS BEM mixins              |
 | `pkg:@veltra/styles/functions` | SCSS CSS 变量函数            |
 | `pkg:@veltra/styles/vars`      | SCSS 变量                    |
-
-```
-
-```

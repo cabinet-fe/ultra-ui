@@ -16,6 +16,8 @@ const range = ref<[number | undefined, number | undefined]>([10, 50])
 
 ## 分别绑定 start / end
 
+交叉约束：任一侧越界时会校正（改 start 且 `start > end` 时压回 end；改 end 且 `end < start` 时抬到 start）。
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'

@@ -142,6 +142,7 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
   await Promise.all(
     componentKebabs.map(async (kebab) => {
       const apiPath = join(COMPONENTS_DOC_DIR, kebab, 'api.md')
+      const typesPath = join(COMPONENTS_DOC_DIR, kebab, 'types.d.ts')
 
       try {
         const existing = await readFile(apiPath, 'utf8')
@@ -154,9 +155,17 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
         }
 
         const helpers = HELPERS_BY_KEBAB[kebab] ?? []
+        let hasTypes = false
+        try {
+          await readFile(typesPath, 'utf8')
+          hasTypes = true
+        } catch {
+          hasTypes = false
+        }
+
         await writeFile(
           apiPath,
-          renderComponentApiMd(parsed.names, parsed.chinese, helpers),
+          renderComponentApiMd(parsed.names, parsed.chinese, helpers, { hasTypes }),
           'utf8'
         )
         count += 1

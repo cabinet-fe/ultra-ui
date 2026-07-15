@@ -110,3 +110,25 @@ const formData = reactive({ name: '' })
   <u-button @click="formRef.value?.reset()">重置</u-button>
 </template>
 ```
+
+## 顶部标签布局
+
+`label-position="top"` 时 label 在控件上方；默认为 `left`。`UFormItem` 可单独覆盖。
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+const formData = reactive({ name: '', email: '', note: '' })
+</script>
+
+<template>
+  <u-form :model="formData" label-position="top" :cols="1">
+    <u-input label="姓名" field="name" :rules="{ required: true }" />
+    <u-input label="邮箱" field="email" :rules="{ required: true, preset: 'email' }" />
+    <u-form-item label="备注" label-position="left" label-width="80px">
+      <u-textarea field="note" />
+    </u-form-item>
+  </u-form>
+</template>
+```

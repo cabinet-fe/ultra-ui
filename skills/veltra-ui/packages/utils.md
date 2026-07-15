@@ -12,7 +12,10 @@ import {
   ExpandTransition,
   Tween,
   extractNormalVNodes,
-  getZIndex
+  fieldKey,
+  zIndex,
+  provideFormContext,
+  injectFormContext
 } from '@veltra/utils'
 import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
 import type {
@@ -21,6 +24,7 @@ import type {
   ColorType,
   BreakpointName,
   FormComponentProps,
+  FormContextProps,
   DeconstructValue
 } from '@veltra/utils'
 ```
@@ -33,13 +37,30 @@ import type {
 | `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`                 |
 | `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                      |
 | `ComponentProps`      | `{ size?: ComponentSize }`                                                  |
-| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span`       |
-| `FormContextProps`    | UForm 通过 provide 下发的上下文形状（`model`、`labelWidth`、`readonly` 等） |
+| `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span/rules` |
+| `FormContextProps`    | 见下方「表单上下文」                                                        |
 | `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                                |
 | `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）                |
 | `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）                  |
 
-详细字段见 `node_modules/@veltra/utils/dist/index.d.ts`。
+### 表单上下文
+
+```ts
+interface FormContextProps {
+  labelWidth?: string | number
+  labelPosition?: 'top' | 'left' // 由 UForm provide，子项可继承
+  size?: ComponentSize
+  disabled?: boolean
+  readonly?: boolean
+  noTips?: boolean
+  model?: Record<string, any>
+}
+
+provideFormContext(context)
+injectFormContext() // { inForm, formProps, registerField, unregisterField, ... }
+```
+
+`labelPosition` 不在 `useConfig().config.form` 中，只走表单 DI。
 
 ### 命名约定
 
@@ -87,16 +108,27 @@ cls.create('custom') // 'u-button-custom'
 </template>
 ```
 
+## 字段名回退
+
+选择类组件统一用 `fieldKey` 处理 `labelKey` / `valueKey` 等空值回退：
+
+```ts
+fieldKey(key, fallback) // key 为 '' / null / undefined 时返回 fallback
+fieldKey(props.labelKey, 'label')
+fieldKey(props.valueKey, 'value')
+```
+
 ## DOM / Vue 工具
 
 低频 API，签名详见类型定义。
 
 ```ts
-withUnit(10) // '10px'
+withUnit(10, 'px') // '10px' — unit 必填
 withUnit(10, 'rem') // '10rem'
-withUnit('50%') // '50%' — 已是字符串原样返回
+withUnit('50%', 'px') // '50%' — 已是带单位字符串则原样返回
+withUnit(undefined, 'px') // undefined
 
-getZIndex() // 自增 z-index，浮层组件用
+zIndex() // 自增 z-index（起始 1000），浮层组件用
 
 extractNormalVNodes(slots.default?.()) // 过滤注释/文本，返回真实组件 VNode
 

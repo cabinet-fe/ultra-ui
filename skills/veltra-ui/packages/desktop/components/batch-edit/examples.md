@@ -87,7 +87,7 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 
 ## 树形新增子级（写入 parentCode）
 
-`@create-child` 传入父级行，可据此初始化表单（另有 create / create-prev / create-next）。
+`#form` 的 `parentRow` 与 `@create-child` 均可拿到父级行；另有 `create` / `create-prev` / `create-next`。
 
 ```vue
 <script setup lang="ts">
@@ -121,10 +121,44 @@ function onCreateChild(row: TableRow) {
     tree
     @create-child="onCreateChild"
   >
-    <template #form>
+    <template #form="{ parentRow, formActionType }">
       <u-input field="code" label="编码" :rules="{ required: true }" />
       <u-input field="name" label="名称" />
       <u-input field="parentCode" label="父级编码" readonly />
+      <!-- parentRow / formActionType 可用于条件渲染或初始化 -->
+      <span v-if="formActionType === 'createChild'">父级：{{ parentRow?.data.name }}</span>
+    </template>
+  </u-batch-edit>
+</template>
+```
+
+## 删除方法返回 false 阻止删除
+
+`deleteMethod` 返回 `false` 时不删除行。
+
+```vue
+<script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+import { reactive, ref } from 'vue'
+
+const columns = defineTableColumns([{ name: '姓名', key: 'name', width: 120 }])
+const data = ref([{ name: '张三' }, { name: '系统项' }])
+const model = reactive({ name: '' })
+
+async function deleteMethod(rows: Record<string, any>[]) {
+  if (rows.some((row) => row.name === '系统项')) return false
+}
+</script>
+
+<template>
+  <u-batch-edit
+    v-model:data="data"
+    :columns="columns"
+    :model="model"
+    :delete-method="deleteMethod"
+  >
+    <template #form>
+      <u-input field="name" label="姓名" />
     </template>
   </u-batch-edit>
 </template>

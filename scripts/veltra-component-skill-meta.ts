@@ -90,20 +90,19 @@ export function parseApiTitleLine(line: string): { names: string; chinese: strin
 export function renderComponentApiMd(
   names: string,
   chinese: string,
-  helpers: ComponentSkillHelper[]
+  helpers: ComponentSkillHelper[],
+  options: { hasTypes?: boolean } = {}
 ): string {
-  const lines = [
-    `# ${names} - ${chinese}`,
-    '',
-    '## 类型文件',
-    '',
-    '见 `./types.d.ts`',
-    '',
-    '## 示例',
-    '',
-    '见 `./examples.md`',
-    ''
-  ]
+  const { hasTypes = true } = options
+  const lines = [`# ${names} - ${chinese}`, '']
+
+  if (hasTypes) {
+    lines.push('## 类型文件', '', '见 `./types.d.ts`', '')
+  } else {
+    lines.push('无独立 Props / Emits；通过默认插槽使用。', '')
+  }
+
+  lines.push('## 示例', '', '见 `./examples.md`', '')
 
   if (helpers.length > 0) {
     lines.push('## 辅助工具', '', '本组件通常配合以下工具来使用。', '')

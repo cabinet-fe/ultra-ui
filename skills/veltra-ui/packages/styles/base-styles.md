@@ -19,7 +19,7 @@ import '@veltra/styles/transitions'
 也可以在组件中按需导入。
 
 ```ts
-import '@veltra/styles/transitions/fade.css'
+import '@veltra/styles/transitions/fade.scss'
 ```
 
 在 `Transition` 组件中使用。
@@ -35,6 +35,7 @@ import '@veltra/styles/transitions/fade.css'
 | name                             | 用途         |
 | -------------------------------- | ------------ |
 | `fade`                           | 淡入淡出     |
+| `fade-scale`                     | 淡入 + 缩放（Dialog 默认） |
 | `slide-down` / `slide-up`        | 垂直滑入     |
 | `spring`                         | 弹性缩放     |
 | `zoom-in`                        | 中心缩放     |

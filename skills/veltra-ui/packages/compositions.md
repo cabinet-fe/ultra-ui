@@ -5,6 +5,7 @@ Vue 3 组合式函数。前置依赖 `vue@^3.5`、`@floating-ui/dom`、`@cat-kit
 ```ts
 import {
   useConfig,
+  setDocumentSize,
   useFallbackProps,
   useFormFallbackProps,
   useModel,
@@ -38,7 +39,15 @@ config.paginator.pageSize // number
 config.paginator.pageSizeOptions // number[]
 ```
 
-`config` 只读；`config.size` 变化自动同步 `<html>` size 类名。`State` 形状：
+`config` 只读；`config.size` 变化自动同步 `<html>` size 类名（内部调用 `setDocumentSize`）。也可直接：
+
+```ts
+setDocumentSize('large', 'default') // 切换 <html> 上的 size 类
+```
+
+`labelPosition` **不在** `config.form` 中，由 `UForm` 经 `@veltra/utils` 的 `FormContextProps` provide。
+
+`State` 形状：
 
 ```ts
 interface State {

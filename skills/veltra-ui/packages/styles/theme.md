@@ -81,9 +81,14 @@ loadTheme(new UITheme(theme))
 import {
   HEXToRGB,
   mixColor,
+  hexWithAlpha,
+  mixColorWithAlpha,
+  hexRgbOnly,
   defineBySize,
   cssVar,
-  type RGBColor
+  currentTheme,
+  type RGBColor,
+  type Theme
 } from '@veltra/styles/theme'
 ```
 
@@ -106,6 +111,23 @@ mixColor('#ffffff', '#000000', 0.5) // '#808080'
 
 内置主题在生成 `primary/success/...` 的 light/dark 色阶时会用到。
 
+### `hexWithAlpha(hex, alphaPercent)` / `mixColorWithAlpha(color, ratio)`
+
+`#RRGGBB` + 不透明度 → `rgba()`。`hexWithAlpha` 的 `alphaPercent` 为 0–100；`mixColorWithAlpha` 的 `ratio` 为 0–1（等价于百分比）。
+
+```ts
+hexWithAlpha('#ff6600', 8) // 'rgba(255, 102, 0, 0.08)'
+mixColorWithAlpha('#ff6600', 0.08) // 同上
+```
+
+### `hexRgbOnly(hex)`
+
+剥离 `#RRGGBBAA` 的 alpha，返回 `#RRGGBB`。
+
+```ts
+hexRgbOnly('#ff660080') // '#ff6600'
+```
+
 ### `defineBySize(variable)`
 
 为 `small` / `default` / `large` 三档尺寸声明主题数值，用于 `Theme` 中带尺寸语义的 token（如 `radius`、`form-component-height`、`font-size-main`）。
@@ -127,3 +149,7 @@ cssVar('bg-color-hover') // 'var(--u-bg-color-hover)'
 ```
 
 在 TS/内联样式中引用主题 token；SCSS 中优先用 `fn.use-var()`（见 `./scss.md`）。
+
+### `currentTheme`
+
+`ShallowRef<UITheme | undefined>`，指向当前已加载主题实例。
