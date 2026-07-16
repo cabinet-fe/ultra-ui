@@ -67,6 +67,39 @@ const expr = shallowRef('#root.name == \'admin\' and T(Math).abs(-1) > 0')
 </template>
 ```
 
+## Bash 脚本
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const script = shallowRef(`#!/usr/bin/env bash
+set -euo pipefail
+echo "Hello, \${1:-world}!"
+`)
+</script>
+
+<template>
+  <u-code-editor v-model="script" :langs="['bash']" :default-lines="6" />
+</template>
+```
+
+## PowerShell 脚本
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const script = shallowRef(`param([string]$Name = "world")
+Write-Host "Hello, $Name!"
+`)
+</script>
+
+<template>
+  <u-code-editor v-model="script" :langs="['powershell']" :default-lines="4" />
+</template>
+```
+
 ## 暗色主题 + JSON 编辑
 
 ```vue

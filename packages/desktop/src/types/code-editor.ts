@@ -1,6 +1,6 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
-export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json' | 'spel'
+export type CodeEditorLang = 'js' | 'sql' | 'java' | 'json' | 'spel' | 'bash' | 'powershell'
 
 /** 代码编辑器组件属性（不支持 `size`） */
 export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {

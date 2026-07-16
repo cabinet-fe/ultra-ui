@@ -68,6 +68,7 @@ table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionK
 - **`@codemirror/*` 打包进产物**（声明在 `devDependencies` + `pack.deps.alwaysBundle`），下游无需安装 codemirror，从根本上避免多实例版本冲突。仍需保持精确版本号（不带 `^`/`~`），升级时手动指定具体版本号。
 - **UCodeEditor 语言包按需加载**：`components/code-editor/lang-loaders.ts` 注册各语言的 `import()` loader，切换 `lang`（`v-model:lang` / `langs`）时动态加载；`alwaysBundle` 确保 chunk 仍内联进 dist。
   - 官方语言包：① `devDependencies` + 根 `overrides` 添加 `@codemirror/lang-xxx`（精确版本）② `types/code-editor.ts` 扩展 `CodeEditorLang` ③ `lang-loaders.ts` 添加一条 loader。
+  - legacy-modes（如 bash / powershell）：① `devDependencies` 添加 `@codemirror/legacy-modes`（精确版本）② `langs/<name>/` 用 `StreamLanguage.define` 包装对应 mode ③ `CodeEditorLang` + `lang-loaders.ts` 注册。
   - 自定义语言：放在 `components/code-editor/langs/<name>/`（如 SpEL 用 `StreamLanguage`），在 `CodeEditorLang` + `lang-loaders.ts` 注册即可，无需改 `package.json` / `overrides`。
 
 ## 验证

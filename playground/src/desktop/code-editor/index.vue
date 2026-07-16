@@ -26,6 +26,21 @@
     </section>
 
     <section class="section">
+      <h3>Bash 示例</h3>
+      <u-code-editor v-model="bashCode" lang="bash" :langs="['bash']" :default-lines="10" />
+    </section>
+
+    <section class="section">
+      <h3>PowerShell 示例</h3>
+      <u-code-editor
+        v-model="powershellCode"
+        lang="powershell"
+        :langs="['powershell']"
+        :default-lines="10"
+      />
+    </section>
+
+    <section class="section">
       <h3>完整示例</h3>
       <p class="hint">可切换语言、配置默认行数，以及禁用 / 只读 / 暗色 / 函数体外壳。</p>
 
@@ -134,6 +149,28 @@ const spelCode = ref(
   `#user?.name matches 'A.*' and T(Math).abs(-1) > 0 or #root.status eq 'ACTIVE'`
 )
 
+const bashCode = ref(`#!/usr/bin/env bash
+set -euo pipefail
+
+NAME="\${1:-world}"
+echo "Hello, \${NAME}!"
+
+if [[ -d "./dist" ]]; then
+  ls -la ./dist
+fi
+`)
+
+const powershellCode = ref(`param(
+  [string]$Name = "world"
+)
+
+Write-Host "Hello, $Name!"
+
+if (Test-Path "./dist") {
+  Get-ChildItem ./dist
+}
+`)
+
 const formData = reactive({ code: '  return a + b' })
 
 const disabled = ref(false)
@@ -149,10 +186,12 @@ const langOptions: { label: string; value: CodeEditorLang }[] = [
   { label: 'SQL', value: 'sql' },
   { label: 'Java', value: 'java' },
   { label: 'JSON', value: 'json' },
-  { label: 'SpEL', value: 'spel' }
+  { label: 'SpEL', value: 'spel' },
+  { label: 'Bash', value: 'bash' },
+  { label: 'PowerShell', value: 'powershell' }
 ]
 
-const langs = ref<CodeEditorLang[]>(['js', 'sql', 'java', 'json', 'spel'])
+const langs = ref<CodeEditorLang[]>(['js', 'sql', 'java', 'json', 'spel', 'bash', 'powershell'])
 
 const functionPrefix = 'function handle(a, b) {\n'
 const functionSuffix = '\n}'
