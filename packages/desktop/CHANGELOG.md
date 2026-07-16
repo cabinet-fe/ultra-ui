@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.32
+
+### Patch Changes
+
+- 1f2fed5: UCodeEditor 新增 bash / powershell 语言支持
+  - @veltra/utils@1.2.32
+  - @veltra/styles@1.2.32
+  - @veltra/compositions@1.2.32
+  - @veltra/directives@1.2.32
+  - @veltra/icons@1.2.32
+
 ## 1.2.31
 
 ### Patch Changes
