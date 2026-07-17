@@ -40,6 +40,7 @@ const SHARED_STYLE_DIR: Record<string, string> = {
   'nav-sub': 'nav',
   'nav-item': 'nav',
   'dual-nav-app': 'dual-nav',
+  'group-nav-item': 'group-nav',
   'tabs-horizontal': 'tabs',
   'tabs-vertical': 'tabs'
 }
@@ -95,6 +96,8 @@ const DESKTOP_COMPONENTS = new Set([
   'UListItem',
   'ULoading',
   'UDualNav',
+  'UGroupNav',
+  'UGroupNavItem',
   'UNav',
   'UNavItem',
   'UNavSub',

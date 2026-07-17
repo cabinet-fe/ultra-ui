@@ -1,0 +1,121 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+@include m.b(group-nav) {
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  color: var(--u-nav-color);
+  background-color: var(--u-nav-bg-color);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  background-image: var(--u-nav-bg-image);
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 1px solid fn.use-var(border, color);
+  border-radius: calc(fn.use-var(radius, large) + 6px);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 12px 28px rgba(15, 23, 42, 0.08);
+
+  @include m.e(container) {
+    padding: 8px;
+  }
+
+  @include m.e(group, group-list, item) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // 组与组之间统一间距（仅 groups，无独立叶子）
+  @include m.e(group) {
+    & + & {
+      margin-top: 16px;
+    }
+  }
+
+  @include m.e(group-label) {
+    padding: 0 8px 6px;
+    font-size: fn.use-var(font-size-assist, default);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(group-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  @include m.e(item) {
+    width: 100%;
+    min-height: var(--u-nav-height-default);
+    margin: 0;
+    padding: 0 8px;
+    gap: 8px;
+    cursor: pointer;
+    color: inherit;
+    border-radius: calc(fn.use-var(radius, default) + 4px);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    @include m.flex;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
+    }
+
+    @include m.is(active) {
+      position: relative;
+      background-color: var(--u-nav-active-bg);
+      color: var(--u-nav-active-color);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 3px;
+        height: 56%;
+        min-height: 10px;
+        border-radius: 9999px;
+        background-color: fn.use-var(color, primary);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(icon) {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    flex-shrink: 0;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: calc(fn.use-var(radius, small) + 2px);
+    color: inherit;
+    object-fit: contain;
+  }
+
+  @include m.e(item-title) {
+    flex: 1;
+    min-width: 0;
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    @include m.ellipsis;
+  }
+}

@@ -2,12 +2,17 @@
   <div class="demo">
     <div class="demo-info">
       <div>当前路径：{{ currentPath || '（未选择）' }}</div>
+      <label class="demo-toggle">
+        <input v-model="labeled" type="checkbox" />
+        labeled 左轨（图标 + 名称）
+      </label>
     </div>
 
     <u-dual-nav
       class="dual-nav-wrapper"
       :menus="menus"
       :current-path="currentPath"
+      :rail-variant="labeled ? 'labeled' : 'icon'"
       @item-click="handleItemClick"
     />
   </div>
@@ -23,6 +28,7 @@ const route = useRoute()
 const router = useRouter()
 
 const currentPath = computed(() => route.query.currentPath as string | undefined)
+const labeled = shallowRef(false)
 
 const menus = shallowRef<DualNavRootItem[]>([
   {
@@ -76,8 +82,20 @@ function handleItemClick(item: DualNavRootItem | NavItem) {
 }
 
 .demo-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
   margin-bottom: 12px;
   color: fn.use-var(text-color, second);
+}
+
+.demo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .dual-nav-wrapper {

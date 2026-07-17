@@ -38,6 +38,42 @@ const menus = shallowRef<NavItem[]>([
 </template>
 ```
 
+## 左轨显示菜单名称（labeled）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { HouseFilled, SettingFilled, UserGroup } from '@veltra/icons/normal'
+import type { DualNavRootItem } from '@veltra/desktop'
+
+const currentPath = shallowRef('/apps/home')
+const menus = shallowRef<DualNavRootItem[]>([
+  { title: '工作台', icon: HouseFilled, path: '/apps/home' },
+  {
+    title: '业务中心',
+    icon: UserGroup,
+    path: '/apps/business',
+    children: [{ title: '模块管理', path: '/apps/business/modules' }]
+  },
+  {
+    title: '系统设置',
+    icon: SettingFilled,
+    path: '/apps/settings',
+    children: [{ title: '基础设置', path: '/apps/settings/basic' }]
+  }
+])
+</script>
+
+<template>
+  <u-dual-nav
+    rail-variant="labeled"
+    :menus="menus"
+    :current-path="currentPath"
+    @item-click="currentPath = $event.path"
+  />
+</template>
+```
+
 ## 无子菜单应用直接跳转
 
 ```vue

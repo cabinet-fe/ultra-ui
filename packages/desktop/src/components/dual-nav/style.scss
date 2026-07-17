@@ -2,7 +2,9 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
-@include m.b(dual-nav) {
+$root-name: dual-nav;
+
+@include m.b($root-name) {
   display: flex;
   height: 100%;
   min-height: 0;
@@ -19,6 +21,23 @@
     gap: 4px;
     padding: 8px 6px;
     background-color: fn.use-var(bg-color, middle);
+  }
+
+  @include m.m(labeled) {
+    @include m.bem($root-name, rail) {
+      width: var(--u-nav-rail-labeled-width);
+      padding: 8px 4px;
+      gap: 2px;
+    }
+
+    @include m.bem($root-name, app) {
+      aspect-ratio: auto;
+      max-width: none;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px 2px;
+      min-height: 0;
+    }
   }
 
   @include m.e(divider) {
@@ -162,6 +181,16 @@
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
+  }
+
+  @include m.e(app-label) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.2;
+    text-align: center;
   }
 
   @include m.e(app-tip) {

@@ -49,6 +49,7 @@
 - `ULoading - 加载`。用于组件或区域处于异步处理中时显示加载状态或遮罩。
 - `UNav - 导航`。用于展示侧边导航、子导航和导航项。
 - `UDualNav - 双栏导航`。左栏根级应用图标，右栏复用 UNav 渲染选中应用的子导航。
+- `UGroupNav - 分组导航`。侧栏按 `groups` 分组展示；每组有标题与叶子 children，更深嵌套舍弃。
 - `UMultiSelect - 多选选择器`。用于从下拉选项中选择多个值。
 - `UMultiTreeSelect - 多选树形选择器`。用于从树形数据中选择多个节点值。
 - `UNodeRender - 节点渲染`。用于把 render 函数或 VNode 渲染进模板占位。

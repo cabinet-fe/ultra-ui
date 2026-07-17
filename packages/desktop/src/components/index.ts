@@ -112,6 +112,8 @@ export * from './nav'
 
 export * from './dual-nav'
 
+export * from './group-nav'
+
 export * from './grid-input'
 
 export * from './switch'

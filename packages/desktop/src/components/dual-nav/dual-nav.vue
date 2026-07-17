@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.b">
+  <div :class="[cls.b, railVariant === 'labeled' && cls.m('labeled')]">
     <div :class="cls.e('rail')">
       <DualNavApp
         v-for="app in menus"
@@ -7,6 +7,7 @@
         :app="app"
         :active="isAppActive(app)"
         :selected="isAppSelected(app)"
+        :labeled="railVariant === 'labeled'"
         @click="handleAppClick(app)"
       />
     </div>
@@ -72,7 +73,7 @@ import { findFirstLeaf, findRootApp } from './helper'
 
 defineOptions({ name: 'UDualNav' })
 
-const props = defineProps<DualNavProps>()
+const props = withDefaults(defineProps<DualNavProps>(), { railVariant: 'icon' })
 const emit = defineEmits<DualNavEmits>()
 
 const cls = bem('dual-nav')

@@ -65,6 +65,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   grid: { zh: '栅格布局', en: 'Grid', category: 'layout' },
   'grid-input': { zh: '网格输入框', en: 'GridInput', category: 'form' },
   'group-input': { zh: '分组输入', en: 'GroupInput', category: 'form' },
+  'group-nav': { zh: '分组导航', en: 'GroupNav', category: 'nav' },
   icon: { zh: '图标容器', en: 'Icon', category: 'basic' },
   input: { zh: '输入框', en: 'Input', category: 'form' },
   kbd: { zh: '键盘', en: 'Kbd', category: 'basic' },
