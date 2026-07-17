@@ -1,5 +1,13 @@
 # @veltra/vite
 
+## 1.2.33
+
+### Patch Changes
+
+- edc77de: 新增 UGroupNav 分组导航组件；UDualNav 支持 labeled 左轨变体
+- Updated dependencies [edc77de]
+  - @veltra/desktop@1.2.33
+
 ## 1.2.32
 
 ### Patch Changes

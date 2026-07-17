@@ -1,6 +1,6 @@
 {
   "name": "@veltra/icons",
-  "version": "1.2.32",
+  "version": "1.2.33",
   "type": "module",
   "sideEffects": false,
   "exports": {
