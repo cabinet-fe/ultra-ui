@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:ed21268d54077f36 gen:7 source:src/svg/normal/female.svg -->
+<!-- @veltra/icons generated sha256:ed21268d54077f36 gen:8 source:src/svg/normal/female.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Female' })
 </script>

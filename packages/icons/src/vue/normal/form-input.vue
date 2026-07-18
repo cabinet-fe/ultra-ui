@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:e44db37b1da5de90 gen:7 source:src/svg/normal/form-input.svg -->
+<!-- @veltra/icons generated sha256:e44db37b1da5de90 gen:8 source:src/svg/normal/form-input.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormInput' })
 </script>

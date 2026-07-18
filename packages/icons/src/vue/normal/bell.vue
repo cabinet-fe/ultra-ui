@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0213412b84d00bb5 gen:7 source:src/svg/normal/bell.svg -->
+<!-- @veltra/icons generated sha256:0213412b84d00bb5 gen:8 source:src/svg/normal/bell.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Bell' })
 </script>

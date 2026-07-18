@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0ec29ee8312ee6f5 gen:7 source:src/svg/normal/rotation.svg -->
+<!-- @veltra/icons generated sha256:0ec29ee8312ee6f5 gen:8 source:src/svg/normal/rotation.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Rotation' })
 </script>

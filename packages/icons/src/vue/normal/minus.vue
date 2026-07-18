@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5498e59c9df47b92 gen:7 source:src/svg/normal/minus.svg -->
+<!-- @veltra/icons generated sha256:5498e59c9df47b92 gen:8 source:src/svg/normal/minus.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Minus' })
 </script>

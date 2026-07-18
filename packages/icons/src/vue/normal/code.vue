@@ -1,0 +1,17 @@
+<!-- @veltra/icons generated sha256:a3befeba1a9b979d gen:8 source:src/svg/normal/code.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'UCode' })
+</script>
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+  >
+    <path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16" />
+  </svg>
+</template>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:68b112d42af5f61d gen:7 source:src/svg/normal/form-checkbox.svg -->
+<!-- @veltra/icons generated sha256:68b112d42af5f61d gen:8 source:src/svg/normal/form-checkbox.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormCheckbox' })
 </script>

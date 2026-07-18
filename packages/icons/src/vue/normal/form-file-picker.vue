@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:4a04ae7666ad8aba gen:7 source:src/svg/normal/form-file-picker.svg -->
+<!-- @veltra/icons generated sha256:4a04ae7666ad8aba gen:8 source:src/svg/normal/form-file-picker.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormFilePicker' })
 </script>

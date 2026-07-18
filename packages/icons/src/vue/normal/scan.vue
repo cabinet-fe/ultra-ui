@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c4703ae04db741c1 gen:7 source:src/svg/normal/scan.svg -->
+<!-- @veltra/icons generated sha256:c4703ae04db741c1 gen:8 source:src/svg/normal/scan.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Scan' })
 </script>

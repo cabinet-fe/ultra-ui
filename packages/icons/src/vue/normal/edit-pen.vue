@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:53edbfa00229f3a3 gen:7 source:src/svg/normal/edit-pen.svg -->
+<!-- @veltra/icons generated sha256:53edbfa00229f3a3 gen:8 source:src/svg/normal/edit-pen.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'EditPen' })
 </script>

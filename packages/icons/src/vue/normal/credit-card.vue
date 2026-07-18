@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:e71916af138d1c83 gen:7 source:src/svg/normal/credit-card.svg -->
+<!-- @veltra/icons generated sha256:e71916af138d1c83 gen:8 source:src/svg/normal/credit-card.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CreditCard' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:8e6c758edd7e1f9c gen:7 source:src/svg/normal/circle-close.svg -->
+<!-- @veltra/icons generated sha256:8e6c758edd7e1f9c gen:8 source:src/svg/normal/circle-close.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CircleClose' })
 </script>

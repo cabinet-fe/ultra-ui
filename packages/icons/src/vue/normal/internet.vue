@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:352739cd5465d701 gen:7 source:src/svg/normal/internet.svg -->
+<!-- @veltra/icons generated sha256:352739cd5465d701 gen:8 source:src/svg/normal/internet.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Internet' })
 </script>

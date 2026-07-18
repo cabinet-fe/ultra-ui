@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:5d4b348f262b59f6 gen:7 source:src/svg/normal/cloud-download.svg -->
+<!-- @veltra/icons generated sha256:5d4b348f262b59f6 gen:8 source:src/svg/normal/cloud-download.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CloudDownload' })
 </script>

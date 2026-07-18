@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:893ce8b761967275 gen:7 source:src/svg/normal/backtop.svg -->
+<!-- @veltra/icons generated sha256:893ce8b761967275 gen:8 source:src/svg/normal/backtop.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Backtop' })
 </script>

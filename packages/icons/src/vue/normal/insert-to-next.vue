@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:6e683d3a47689cb0 gen:7 source:src/svg/normal/insert-to-next.svg -->
+<!-- @veltra/icons generated sha256:6e683d3a47689cb0 gen:8 source:src/svg/normal/insert-to-next.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'InsertToNext' })
 </script>

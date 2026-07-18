@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:6f191e3005232311 gen:7 source:src/svg/normal/form-multi-select.svg -->
+<!-- @veltra/icons generated sha256:6f191e3005232311 gen:8 source:src/svg/normal/form-multi-select.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormMultiSelect' })
 </script>

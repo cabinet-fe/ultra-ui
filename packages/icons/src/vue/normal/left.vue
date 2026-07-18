@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:8db69dd3895d5358 gen:7 source:src/svg/normal/left.svg -->
+<!-- @veltra/icons generated sha256:8db69dd3895d5358 gen:8 source:src/svg/normal/left.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Left' })
 </script>

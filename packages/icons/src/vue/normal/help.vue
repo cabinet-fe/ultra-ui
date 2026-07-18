@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:ceda10f261067b07 gen:7 source:src/svg/normal/help.svg -->
+<!-- @veltra/icons generated sha256:ceda10f261067b07 gen:8 source:src/svg/normal/help.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Help' })
 </script>

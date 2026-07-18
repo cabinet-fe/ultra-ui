@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:1080ca0f4a331a8f gen:7 source:src/svg/normal/page-last.svg -->
+<!-- @veltra/icons generated sha256:1080ca0f4a331a8f gen:8 source:src/svg/normal/page-last.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'PageLast' })
 </script>

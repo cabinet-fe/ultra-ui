@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:d22ba972ad80f4fd gen:7 source:src/svg/normal/location.svg -->
+<!-- @veltra/icons generated sha256:d22ba972ad80f4fd gen:8 source:src/svg/normal/location.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Location' })
 </script>

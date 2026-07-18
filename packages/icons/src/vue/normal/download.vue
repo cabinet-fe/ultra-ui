@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:0694b8cc7c11de8b gen:7 source:src/svg/normal/download.svg -->
+<!-- @veltra/icons generated sha256:0694b8cc7c11de8b gen:8 source:src/svg/normal/download.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Download' })
 </script>

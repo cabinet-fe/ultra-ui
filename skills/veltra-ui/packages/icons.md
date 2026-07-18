@@ -52,13 +52,19 @@ import { Search, Excel } from '@veltra/icons'
 
 数据库、多媒体、金融、系统组件、文件管理等数据类型图标。包括：
 
-`Database`、`Server`、`Variable`、`Setting`、`Tools`、`Monitor`、`Mobile`、`PictureRounded`、`Wallet`、`CreditCard`、`Discount`、`MoneyCircle`、`QrCode`、`Scan`、`ChartPie`、`Layers`、`Books`、`Calendar`、`Time`、`Hourglass`、`Folder`、`FolderAdd`、`FolderOpened`、`FileAdd`、`Attach`、`Link`、`Unlink`、`List`、`Queue`、`Printer`、`Location`、`Empty`、`Camera`、`Cart`、`VideoPlay`、`VideoPause`、`ViewModule`
+`Database`、`Server`、`Variable`、`Setting`、`Tools`、`Monitor`、`Mobile`、`PictureRounded`、`Wallet`、`CreditCard`、`Discount`、`MoneyCircle`、`QrCode`、`Scan`、`ChartPie`、`Layers`、`Books`、`Calendar`、`Time`、`Hourglass`、`Folder`、`FolderAdd`、`FolderOpened`、`FileAdd`、`Attach`、`Link`、`Unlink`、`List`、`Queue`、`Printer`、`Location`、`Empty`、`Camera`、`Cart`、`VideoPlay`、`VideoPause`、`ViewModule`、`Process`、`Code`、`GitBranch`、`Key`、`Terminal`、`Token`、`Build`、`Checklist`、`Role`
+
+### AI
+
+智能体、技能、模型、提示词等 AI 相关图标。包括：
+
+`Agent`、`Skill`、`Sparkles`、`AiChat`、`Model`、`Prompt`、`Brain`、`DeepThinking`
 
 ### 社交与通讯
 
 用户管理、通讯、群组、天气、星级等社交属性图标。包括：
 
-`User`、`UserAdd`、`UserClear`、`UserCircle`、`UserGroup`、`UserGroupAdd`、`UserGroupClear`、`Male`、`Female`、`Bell`、`BellFilled`、`Message`、`Horn`、`Service`、`Share`、`Call`、`Internet`、`DeepThinking`、`Flag`、`Star`、`StarFilled`、`Sun`、`Moon`、`Cloudy`、`MostlyCloudy`
+`User`、`UserAdd`、`UserClear`、`UserCircle`、`UserGroup`、`UserGroupAdd`、`UserGroupClear`、`Male`、`Female`、`Bell`、`BellFilled`、`Message`、`Horn`、`Service`、`Share`、`Call`、`Internet`、`Flag`、`Star`、`StarFilled`、`Sun`、`Moon`、`Cloudy`、`MostlyCloudy`
 
 ### 彩色图标
 

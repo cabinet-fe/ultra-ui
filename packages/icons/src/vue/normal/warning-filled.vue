@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:e7e0d42a1b288701 gen:7 source:src/svg/normal/warning-filled.svg -->
+<!-- @veltra/icons generated sha256:e7e0d42a1b288701 gen:8 source:src/svg/normal/warning-filled.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'WarningFilled' })
 </script>

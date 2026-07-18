@@ -215,8 +215,23 @@ const NORMAL_GROUPS_CONFIG = [
       'Queue',
       'Printer',
       'Location',
-      'Empty'
+      'Empty',
+      'Process',
+      'Code',
+      'GitBranch',
+      'Key',
+      'Terminal',
+      'Token',
+      'Build',
+      'Checklist',
+      'Role'
     ]
+  },
+  {
+    name: 'AI',
+    description: '智能体、技能、模型、提示词等 AI 相关图标',
+    isHot: true,
+    matches: ['Agent', 'Skill', 'Sparkles', 'AiChat', 'Model', 'Prompt', 'Brain', 'DeepThinking']
   },
   {
     name: '社交与通讯',
@@ -238,7 +253,6 @@ const NORMAL_GROUPS_CONFIG = [
       'Share',
       'Call',
       'Internet',
-      'DeepThinking',
       'Flag',
       'Star',
       'StarFilled',

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:060a9fb4049065ce gen:7 source:src/svg/normal/form-table.svg -->
+<!-- @veltra/icons generated sha256:060a9fb4049065ce gen:8 source:src/svg/normal/form-table.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormTable' })
 </script>

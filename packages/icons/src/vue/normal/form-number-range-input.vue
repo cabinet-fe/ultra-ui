@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f854bb4a31875425 gen:7 source:src/svg/normal/form-number-range-input.svg -->
+<!-- @veltra/icons generated sha256:f854bb4a31875425 gen:8 source:src/svg/normal/form-number-range-input.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormNumberRangeInput' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:90e899028fd99a97 gen:7 source:src/svg/colorful/word.svg -->
+<!-- @veltra/icons generated sha256:90e899028fd99a97 gen:8 source:src/svg/colorful/word.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Word' })
 </script>

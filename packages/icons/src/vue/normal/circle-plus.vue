@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:3119b869323f6eb0 gen:7 source:src/svg/normal/circle-plus.svg -->
+<!-- @veltra/icons generated sha256:3119b869323f6eb0 gen:8 source:src/svg/normal/circle-plus.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'CirclePlus' })
 </script>

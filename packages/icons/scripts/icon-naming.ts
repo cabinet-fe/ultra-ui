@@ -74,6 +74,7 @@ export function kebabBasenameToComponentName(kebabBase: string): string {
  * 表单控件已重命名为 `Form*` 的不再加 `U`。
  */
 const DEFINE_OPTIONS_U_PREFIX = new Set([
+  'Code',
   'Filter',
   'Image',
   'Link',

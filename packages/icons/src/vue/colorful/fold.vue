@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:fc45d101f3f57c3c gen:7 source:src/svg/colorful/fold.svg -->
+<!-- @veltra/icons generated sha256:fc45d101f3f57c3c gen:8 source:src/svg/colorful/fold.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Fold' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:114c772c658f8671 gen:7 source:src/svg/normal/form-textarea.svg -->
+<!-- @veltra/icons generated sha256:114c772c658f8671 gen:8 source:src/svg/normal/form-textarea.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormTextarea' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f707afa83a08f314 gen:7 source:src/svg/normal/view.svg -->
+<!-- @veltra/icons generated sha256:f707afa83a08f314 gen:8 source:src/svg/normal/view.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UView' })
 </script>

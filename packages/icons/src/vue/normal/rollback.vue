@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:2be3617a1e31d5db gen:7 source:src/svg/normal/rollback.svg -->
+<!-- @veltra/icons generated sha256:2be3617a1e31d5db gen:8 source:src/svg/normal/rollback.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Rollback' })
 </script>

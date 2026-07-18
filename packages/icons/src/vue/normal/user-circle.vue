@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:1e31b6f71575ad30 gen:7 source:src/svg/normal/user-circle.svg -->
+<!-- @veltra/icons generated sha256:1e31b6f71575ad30 gen:8 source:src/svg/normal/user-circle.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UserCircle' })
 </script>

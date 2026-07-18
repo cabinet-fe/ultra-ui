@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:978ea273353befa9 gen:7 source:src/svg/normal/copy.svg -->
+<!-- @veltra/icons generated sha256:978ea273353befa9 gen:8 source:src/svg/normal/copy.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Copy' })
 </script>

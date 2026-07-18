@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:6c88dba3aa6d734d gen:7 source:src/svg/normal/link.svg -->
+<!-- @veltra/icons generated sha256:6c88dba3aa6d734d gen:8 source:src/svg/normal/link.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ULink' })
 </script>

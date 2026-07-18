@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:41617f568a8a3953 gen:7 source:src/svg/normal/dot.svg -->
+<!-- @veltra/icons generated sha256:41617f568a8a3953 gen:8 source:src/svg/normal/dot.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Dot' })
 </script>

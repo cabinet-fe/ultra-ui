@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9a8aaf8aae19ce1e gen:7 source:src/svg/normal/wallet.svg -->
+<!-- @veltra/icons generated sha256:9a8aaf8aae19ce1e gen:8 source:src/svg/normal/wallet.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Wallet' })
 </script>

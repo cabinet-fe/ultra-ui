@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:a42f689be3ccfa94 gen:7 source:src/svg/normal/camera.svg -->
+<!-- @veltra/icons generated sha256:a42f689be3ccfa94 gen:8 source:src/svg/normal/camera.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Camera' })
 </script>

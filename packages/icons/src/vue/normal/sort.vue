@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:46f0754efd3ccfa6 gen:7 source:src/svg/normal/sort.svg -->
+<!-- @veltra/icons generated sha256:46f0754efd3ccfa6 gen:8 source:src/svg/normal/sort.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Sort' })
 </script>

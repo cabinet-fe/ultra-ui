@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:546f1ab79d425b6f gen:7 source:src/svg/normal/d-arrow-right.svg -->
+<!-- @veltra/icons generated sha256:546f1ab79d425b6f gen:8 source:src/svg/normal/d-arrow-right.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'DArrowRight' })
 </script>

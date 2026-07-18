@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:e16134adc311e2b0 gen:7 source:src/svg/colorful/archive.svg -->
+<!-- @veltra/icons generated sha256:e16134adc311e2b0 gen:8 source:src/svg/colorful/archive.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Archive' })
 </script>

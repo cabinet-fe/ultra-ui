@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:d5e5b547fcd1fa57 gen:7 source:src/svg/normal/pin.svg -->
+<!-- @veltra/icons generated sha256:d5e5b547fcd1fa57 gen:8 source:src/svg/normal/pin.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Pin' })
 </script>

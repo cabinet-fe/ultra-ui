@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:96cb4179777db6d8 gen:7 source:src/svg/normal/vertical-align-left.svg -->
+<!-- @veltra/icons generated sha256:96cb4179777db6d8 gen:8 source:src/svg/normal/vertical-align-left.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'VerticalAlignLeft' })
 </script>

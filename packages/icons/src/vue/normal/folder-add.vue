@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f096fce26f70e4fb gen:7 source:src/svg/normal/folder-add.svg -->
+<!-- @veltra/icons generated sha256:f096fce26f70e4fb gen:8 source:src/svg/normal/folder-add.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FolderAdd' })
 </script>

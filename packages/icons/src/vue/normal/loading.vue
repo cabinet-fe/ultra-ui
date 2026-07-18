@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:4aac8cf70d34c322 gen:7 source:src/svg/normal/loading.svg -->
+<!-- @veltra/icons generated sha256:4aac8cf70d34c322 gen:8 source:src/svg/normal/loading.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Loading' })
 </script>

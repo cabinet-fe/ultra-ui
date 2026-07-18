@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:089af0b5ff3e4765 gen:7 source:src/svg/normal/insert-to-prev.svg -->
+<!-- @veltra/icons generated sha256:089af0b5ff3e4765 gen:8 source:src/svg/normal/insert-to-prev.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'InsertToPrev' })
 </script>

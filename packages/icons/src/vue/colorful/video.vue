@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:6a5928b29fbf060c gen:7 source:src/svg/colorful/video.svg -->
+<!-- @veltra/icons generated sha256:6a5928b29fbf060c gen:8 source:src/svg/colorful/video.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UVideo' })
 </script>

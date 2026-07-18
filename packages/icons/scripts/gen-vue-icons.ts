@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG_ROOT = join(__dirname, '..')
 
 /** 与模板约定同步递增；变更生成模板时必须 bump，否则 mtime/hash 跳过会漏更新 */
-const GEN_TAG = 'gen:7'
+const GEN_TAG = 'gen:8'
 
 const SOURCES = [
   { glob: 'src/svg/normal/**/*.svg', outDir: 'src/vue/normal', mono: true },

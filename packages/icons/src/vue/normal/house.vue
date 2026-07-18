@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:6ea601a870613316 gen:7 source:src/svg/normal/house.svg -->
+<!-- @veltra/icons generated sha256:6ea601a870613316 gen:8 source:src/svg/normal/house.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'House' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:1fdeef2ccaed632b gen:7 source:src/svg/normal/rollfront.svg -->
+<!-- @veltra/icons generated sha256:1fdeef2ccaed632b gen:8 source:src/svg/normal/rollfront.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Rollfront' })
 </script>

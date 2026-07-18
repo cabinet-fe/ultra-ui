@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:7873be5667bf804c gen:7 source:src/svg/normal/relativity.svg -->
+<!-- @veltra/icons generated sha256:7873be5667bf804c gen:8 source:src/svg/normal/relativity.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Relativity' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c244824e656863d2 gen:7 source:src/svg/normal/sort-left.svg -->
+<!-- @veltra/icons generated sha256:c244824e656863d2 gen:8 source:src/svg/normal/sort-left.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'SortLeft' })
 </script>

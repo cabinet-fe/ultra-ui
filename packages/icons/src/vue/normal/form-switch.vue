@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:f1c7a278d1335bcc gen:7 source:src/svg/normal/form-switch.svg -->
+<!-- @veltra/icons generated sha256:f1c7a278d1335bcc gen:8 source:src/svg/normal/form-switch.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormSwitch' })
 </script>

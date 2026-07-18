@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:d80afd641f98eb64 gen:7 source:src/svg/normal/arrow-down.svg -->
+<!-- @veltra/icons generated sha256:d80afd641f98eb64 gen:8 source:src/svg/normal/arrow-down.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ArrowDown' })
 </script>

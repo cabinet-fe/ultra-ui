@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c8159059a27036f2 gen:7 source:src/svg/normal/view-module.svg -->
+<!-- @veltra/icons generated sha256:c8159059a27036f2 gen:8 source:src/svg/normal/view-module.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'ViewModule' })
 </script>

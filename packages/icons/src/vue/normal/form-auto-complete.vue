@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:c84f3c7f623345d5 gen:7 source:src/svg/normal/form-auto-complete.svg -->
+<!-- @veltra/icons generated sha256:c84f3c7f623345d5 gen:8 source:src/svg/normal/form-auto-complete.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormAutoComplete' })
 </script>

@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:2eec55651a9b9a13 gen:7 source:src/svg/normal/money-circle.svg -->
+<!-- @veltra/icons generated sha256:2eec55651a9b9a13 gen:8 source:src/svg/normal/money-circle.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'MoneyCircle' })
 </script>

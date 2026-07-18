@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:26fbc60c392e90d3 gen:7 source:src/svg/normal/form-password-input.svg -->
+<!-- @veltra/icons generated sha256:26fbc60c392e90d3 gen:8 source:src/svg/normal/form-password-input.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormPasswordInput' })
 </script>

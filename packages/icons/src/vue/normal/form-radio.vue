@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:319c6022d6eb6d16 gen:7 source:src/svg/normal/form-radio.svg -->
+<!-- @veltra/icons generated sha256:319c6022d6eb6d16 gen:8 source:src/svg/normal/form-radio.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FormRadio' })
 </script>

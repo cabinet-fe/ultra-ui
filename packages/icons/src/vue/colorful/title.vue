@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9a1d975dd790b811 gen:7 source:src/svg/colorful/title.svg -->
+<!-- @veltra/icons generated sha256:9a1d975dd790b811 gen:8 source:src/svg/colorful/title.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UTitle' })
 </script>

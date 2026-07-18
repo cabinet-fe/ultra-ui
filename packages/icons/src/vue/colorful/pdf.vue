@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:3db6e25345308437 gen:7 source:src/svg/colorful/pdf.svg -->
+<!-- @veltra/icons generated sha256:3db6e25345308437 gen:8 source:src/svg/colorful/pdf.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Pdf' })
 </script>

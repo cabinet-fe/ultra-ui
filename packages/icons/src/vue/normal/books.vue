@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:66526f3a716c34ab gen:7 source:src/svg/normal/books.svg -->
+<!-- @veltra/icons generated sha256:66526f3a716c34ab gen:8 source:src/svg/normal/books.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Books' })
 </script>

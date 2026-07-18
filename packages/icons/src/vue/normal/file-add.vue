@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:07bfdd500e7fc1db gen:7 source:src/svg/normal/file-add.svg -->
+<!-- @veltra/icons generated sha256:07bfdd500e7fc1db gen:8 source:src/svg/normal/file-add.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'FileAdd' })
 </script>
