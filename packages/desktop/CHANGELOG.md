@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.2.34
+
+### Patch Changes
+
+- Updated dependencies [24c7801]
+  - @veltra/icons@1.2.34
+  - @veltra/utils@1.2.34
+  - @veltra/styles@1.2.34
+  - @veltra/compositions@1.2.34
+  - @veltra/directives@1.2.34
+
 ## 1.2.33
 
 ### Patch Changes
