@@ -11,7 +11,7 @@ $root-name: tip;
     position: absolute;
     left: 0;
     top: 0;
-    box-shadow: fn.use-var(shadow);
+    box-shadow: fn.use-var(shadow, lg);
     border-radius: fn.use-var(radius, default);
     color: fn.use-var(text-color, main);
 
@@ -31,7 +31,7 @@ $root-name: tip;
   @include m.e(arrow) {
     position: absolute;
     z-index: -1;
-    box-shadow: fn.use-var(shadow);
+    box-shadow: fn.use-var(shadow, lg);
     background-color: fn.use-var(bg-color, top);
     transform: rotate(45deg);
   }

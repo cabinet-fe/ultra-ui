@@ -39,7 +39,7 @@ $root-name: dialog;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  box-shadow: fn.use-var(shadow-x) fn.use-var(shadow-y) 10px 2px fn.use-var(shadow-color);
+  box-shadow: fn.use-var(shadow, lg);
   flex-wrap: nowrap;
   overflow: hidden;
   @include m.size using ($size) {
@@ -60,7 +60,7 @@ $root-name: dialog;
   @include m.e(header) {
     height: 49px;
     border-bottom: fn.use-var(border);
-    border-radius: fn.use-var(gap, default) fn.use-var(gap, default) 0 0;
+    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
     @include m.flex($justify: space-between);
 
     &:active {
@@ -86,7 +86,7 @@ $root-name: dialog;
     border-top: fn.use-var(border);
     padding: 8px;
     text-align: right;
-    border-radius: 0 0 fn.use-var(gap, default) fn.use-var(gap, default);
+    border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
 
     #{fn.bem(button)} + #{fn.bem(button)} {
       margin-left: fn.use-var(gap, default);

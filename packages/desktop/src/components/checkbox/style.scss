@@ -49,13 +49,38 @@ $root-name: checkbox;
     }
   }
 
+  @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
   @include m.e(wrap) {
     border: fn.use-var(border, width) fn.use-var(border, style)
-      #{fn.component-var(checkbox, border, #ccc)};
-    border-radius: 6px;
+      #{fn.component-var(checkbox, border, fn.use-var(text-color, assist))};
+    border-radius: fn.use-var(radius, small);
     color: fn.component-var(checkbox, color, #fff);
-    transition: background-color 0.15s ease;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
     @include m.flex(inline-flex, center);
+  }
+
+  @include m.is-not(disabled, readonly) {
+    &:hover {
+      @include m.bem($root-name, wrap) {
+        border-color: fn.use-var(color, primary);
+      }
+    }
+
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
+    #{fn.bem($root-name, native)}:focus-visible + #{fn.bem($root-name, wrap)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   @include m.e(label) {
@@ -79,6 +104,10 @@ $button-name: checkbox-button;
   cursor: pointer;
   user-select: none;
   padding: 0 0.8em;
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
 
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);

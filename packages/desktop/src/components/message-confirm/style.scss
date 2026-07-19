@@ -21,7 +21,7 @@ $root-name: message-confirm;
     width: 420px;
     background-color: fn.use-var(bg-color, top);
     border: fn.use-var(border);
-    box-shadow: fn.use-var(shadow);
+    box-shadow: fn.use-var(shadow, lg);
     transition:
       opacity 0.3s,
       transform 0.4s;

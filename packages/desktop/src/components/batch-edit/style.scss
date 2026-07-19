@@ -10,11 +10,6 @@ $root-name: batch-edit;
   border-radius: fn.use-var(radius, default);
   min-height: 0;
 
-  &:focus,
-  &:focus-visible {
-    outline: none;
-  }
-
   // 根节点设 max-height 时，列表与侧栏表单均不超出该高度（内部各自滚动）
   > :not(.u-layout__resizer) {
     min-height: 0;

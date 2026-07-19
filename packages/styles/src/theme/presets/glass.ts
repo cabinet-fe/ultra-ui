@@ -35,7 +35,7 @@ export const glassLightTheme = lightTheme.new({
     disabled: '#94A3B8',
     white: '#FFFFFF'
   },
-  shadow: { color: 'rgba(0, 0, 0, 0.08)', x: 0, y: 4, blur: 24, spread: 0, emboss: 'none' }
+  shadow: { color: '#00000014', x: 0, y: 4, blur: 24, spread: 0, emboss: 'none' }
 })
 
 export const glassDarkTheme = glassLightTheme.new({
@@ -60,5 +60,14 @@ export const glassDarkTheme = glassLightTheme.new({
     disabled: '#475569',
     white: '#ffffff'
   },
-  shadow: { color: 'rgba(0, 0, 0, 0.35)', x: 0, y: 4, blur: 32, spread: 0, emboss: 'none' }
+  shadow: {
+    color: '#00000059',
+    x: 0,
+    y: 4,
+    blur: 32,
+    spread: 0,
+    emboss: 'none',
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.4)',
+    lg: '0 8px 24px 0 rgba(0, 0, 0, 0.55), 0 2px 6px 0 rgba(0, 0, 0, 0.35)'
+  }
 })

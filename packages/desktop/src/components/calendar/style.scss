@@ -27,6 +27,10 @@ $root-name: calendar;
     position: relative;
     @include m.flex($justify: center, $align: center);
 
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
     @include m.m(pre, next) {
       color: fn.use-var(text-color, disabled);
     }

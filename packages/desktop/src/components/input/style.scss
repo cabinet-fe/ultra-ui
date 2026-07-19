@@ -11,8 +11,8 @@ $root-name: input;
   border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, emboss);
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
   overflow: hidden;
   width: 100%;
 
@@ -27,7 +27,7 @@ $root-name: input;
   @include m.size using ($size) {
     height: fn.use-var(form-component-height, $size);
     border-radius: fn.use-var(radius, $size);
-    padding: 0 calc(fn.use-var(gap, $size) / 2);
+    padding: 0 fn.use-var(gap, $size);
     font-size: fn.use-var(font-size-main, $size);
 
     @include m.bem($root-name, native) {
@@ -38,6 +38,7 @@ $root-name: input;
 
   @include m.is(focus) {
     border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
   }
 
   @include m.e(native) {

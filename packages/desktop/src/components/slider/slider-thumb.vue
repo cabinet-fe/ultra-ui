@@ -1,5 +1,5 @@
 <template>
-  <div ref="thumb" :class="cls.e('thumb')" :style></div>
+  <div ref="thumb" :class="cls.e('thumb')" :style :tabindex="disabled ? -1 : 0"></div>
 </template>
 <script lang="ts" setup>
 import { useDrag, useUserAction } from '@veltra/compositions'

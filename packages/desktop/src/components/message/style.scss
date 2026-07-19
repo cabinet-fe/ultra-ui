@@ -55,13 +55,13 @@ $root-name: message;
       @include m.m(color-#{$type}) {
         background-color: fn.use-var(color, $type);
         color: fn.use-var(text-color, main);
-        box-shadow: 0 0 4px 0px fn.use-var(color, $type);
+        box-shadow: fn.use-var(shadow, lg);
       }
     } @else {
       @include m.m(color-#{$type}) {
         background-color: fn.use-var(color, $type, 'light-9');
         color: fn.use-var(color, $type);
-        box-shadow: 0 0 4px 0px fn.use-var(color, $type, 'light-5');
+        box-shadow: fn.use-var(shadow, lg);
       }
     }
   }

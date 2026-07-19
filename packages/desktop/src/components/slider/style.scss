@@ -136,9 +136,19 @@ $track-size: (
     cursor: grab;
     z-index: 1;
     border: 4px solid fn.use-var(color, primary);
+    transition: box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 位置由行内 transform 控制，hover 用浅色 ring 而非缩放
+    &:hover {
+      box-shadow: 0 0 0 3px fn.color-a(color, 8, primary);
+    }
 
     &:active {
       cursor: grabbing;
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
     }
   }
 }

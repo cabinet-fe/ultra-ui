@@ -22,7 +22,7 @@ export const heroLightTheme = lightTheme.new({
   },
   radius: { small: 8, default: 12, large: 14 },
   shadow: {
-    color: 'rgba(0, 0, 0, 0.08)',
+    color: '#00000014',
     x: 0,
     y: 4,
     blur: 14,
@@ -54,12 +54,14 @@ export const heroDarkTheme = heroLightTheme.new({
     white: '#FFFFFF'
   },
   shadow: {
-    color: 'rgba(0, 0, 0, 0.2)',
+    color: '#00000033',
     x: 0,
     y: 4,
     blur: 14,
     spread: 0,
-    emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 1px 0 #0000000f'
+    emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 1px 0 #0000000f',
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.4)',
+    lg: '0 8px 24px 0 rgba(0, 0, 0, 0.5), 0 2px 6px 0 rgba(0, 0, 0, 0.35)'
   },
   button: { 'default-bg': 'var(--u-bg-color-top)' }
 })

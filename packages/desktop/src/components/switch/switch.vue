@@ -3,7 +3,6 @@
     <input
       type="checkbox"
       :class="cls.e('native')"
-      hidden
       :checked="model"
       :disabled="disabled"
       @input="handleInput"

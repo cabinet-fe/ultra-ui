@@ -46,8 +46,14 @@ fn.use-var(color, primary, dark, 1) // --u-color-primary-dark-1
 fn.use-var(border) // --u-border
 fn.use-var(border, muted) // --u-border-muted
 fn.use-var(shadow) // --u-shadow
+fn.use-var(shadow, sm) // --u-shadow-sm（低层级：卡片等贴面元素）
+fn.use-var(shadow, lg) // --u-shadow-lg（高层级：弹窗、下拉等浮层）
 fn.use-var(shadow, emboss) // --u-shadow-emboss
 fn.use-var(bg-filter) // --u-bg-filter
+fn.use-var(transition, fast) // --u-transition-fast（微交互时长）
+fn.use-var(transition, normal) // --u-transition-normal
+fn.use-var(transition, ease) // --u-transition-ease（标准缓动）
+fn.use-var(focus-ring) // --u-focus-ring（键盘 :focus-visible 指示，box-shadow 形式）
 ```
 
 ## 常用路径
@@ -62,7 +68,9 @@ fn.use-var(bg-filter) // --u-bg-filter
 | 圆角     | `radius.small` / `radius.default` / `radius.large`              |
 | 表单高度 | `form-component-height.small/default/large`                     |
 | 字号     | `font-size-title.*` / `font-size-main.*` / `font-size-assist.*` |
-| 阴影     | `shadow` / `shadow.emboss`                                      |
+| 阴影     | `shadow` / `shadow.sm` / `shadow.lg` / `shadow.emboss`          |
+| 动效     | `transition.fast` / `transition.normal` / `transition.ease`     |
+| 焦点     | `--u-focus-ring`（组件级 token，配 `:focus-visible` 使用）      |
 | 间距     | `gap.small` / `gap.default` / `gap.large`                       |
 | 断点     | `breakpoint.xs/sm/md/lg`                                        |
 | 组件级   | `component.property`，例如 `button.default-bg`                  |
@@ -116,7 +124,15 @@ fn.use-var(bg-filter) // --u-bg-filter
 --u-font-size-assist-default
 --u-font-size-assist-large
 --u-shadow
+--u-shadow-sm
+--u-shadow-lg
 --u-shadow-emboss
+--u-transition-fast
+--u-transition-normal
+--u-transition-slow
+--u-transition-ease
+--u-transition-ease-out
+--u-focus-ring
 --u-gap-small
 --u-gap-default
 --u-gap-large

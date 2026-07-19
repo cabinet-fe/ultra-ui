@@ -1,5 +1,13 @@
 <template>
   <label :class="className">
+    <input
+      type="checkbox"
+      :class="cls.e('native')"
+      :checked="checked"
+      :disabled="disabled"
+      @click="handleInput"
+    />
+
     <span :class="cls.e('wrap')">
       <transition name="zoom-in" mode="out-in">
         <svg viewBox="0 0 64 64" v-if="checked" fill="currentColor">
@@ -10,8 +18,6 @@
         <span v-else-if="indeterminate" :class="cls.m('indeterminate')"></span>
       </transition>
     </span>
-
-    <input type="checkbox" :checked="checked" :disabled="disabled" hidden @click="handleInput" />
 
     <span :class="cls.e('label')" v-if="$slots.default"><slot /> </span>
   </label>

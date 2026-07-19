@@ -48,6 +48,15 @@ const cls = bem('xxx')
 2. `types/<name>.ts`，并在 `types/index.ts`、`components/index.ts` 导出
 3. `playground/src/<name>/index.vue` 演示页（自动路由，需在 `nav-config.ts` 登记）
 
+## 样式约定
+
+组件 `style.scss` 通过 `@use 'pkg:@veltra/styles/functions' as fn` 引用 token，不写硬编码颜色/阴影（暗色完全由 token 切换，组件内不写 `[data-theme]` 分支）：
+
+- 阴影分级：`fn.use-var(shadow, sm)` 贴面（卡片）、`fn.use-var(shadow)` 基础、`fn.use-var(shadow, lg)` 浮层（弹窗/下拉/通知）。
+- 过渡：`fn.use-var(transition, fast|normal|slow)`（时长）+ `fn.use-var(transition, ease|ease-out)`（缓动）。
+- 焦点指示：可交互元素统一 `:focus-visible { box-shadow: fn.use-var(focus-ring) }`；checkbox/radio/switch 用"原生 input 视觉隐藏但可聚焦 + 兄弟选择器 ring"模式（见 checkbox）。
+- 透明度色：`fn.color-a(color, N, primary)` 等，N 取白名单 `4 5 8 10 11 16 22 28 35 40 50 52 60 70 86`。
+
 ## 依赖注入
 
 table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionKey`，父子 `provide` / `inject`。

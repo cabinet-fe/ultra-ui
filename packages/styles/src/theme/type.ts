@@ -136,6 +136,23 @@ export type Theme = {
     spread: number
     /** 浮雕阴影：非浮雕主题为 'none'，浮雕主题为完整 box-shadow 值 */
     emboss: string
+    /** 低层级阴影（卡片等贴面元素），完整 box-shadow 值 */
+    sm: string
+    /** 高层级阴影（弹窗、下拉等浮层），完整 box-shadow 值 */
+    lg: string
+  }
+  /** 动效：时长与缓动（值须带单位或为合法 CSS 字符串，数字会被补 px） */
+  transition: {
+    /** 快速过渡时长（微交互：hover、焦点） */
+    fast: string
+    /** 常规过渡时长 */
+    normal: string
+    /** 慢速过渡时长（浮层进出、展开收起） */
+    slow: string
+    /** 标准缓动曲线 */
+    ease: string
+    /** 入场缓动曲线 */
+    easeOut: string
   }
   /** 间距 */
   gap: {

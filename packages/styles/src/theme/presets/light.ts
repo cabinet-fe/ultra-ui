@@ -4,36 +4,36 @@ import { UITheme } from '../ui-theme'
 export const lightTheme: UITheme = new UITheme(
   {
     color: {
-      primary: '#1E88E5',
-      success: '#2ba471',
-      warning: '#e37318',
-      danger: '#d54941',
-      info: '#009688',
-      disabled: '#f5f7fa',
-      default: '#f1f5f9'
+      primary: '#2563eb',
+      success: '#16a34a',
+      warning: '#d97706',
+      danger: '#dc2626',
+      info: '#0891b2',
+      disabled: '#f4f4f5',
+      default: '#f4f4f5'
     },
 
     bg: {
       color: {
-        bottom: '#f5f5f5',
+        bottom: '#f4f4f5',
         middle: '#fafafa',
         top: '#ffffff',
-        hover: '#f5f7fa',
+        hover: '#f4f4f5',
         black: '#000000'
       },
 
       filter: { blur: 'none', saturate: 'none' }
     },
 
-    border: { color: '#dcdfe6', mutedColor: '#dcdfe6', width: 1, style: 'solid' },
+    border: { color: '#e4e4e7', mutedColor: '#e4e4e7', width: 1, style: 'solid' },
 
     'text-color': {
-      title: '#303133',
-      main: '#606266',
-      placeholder: '#a8abb2',
-      second: '#979797',
-      assist: '#c0c4cc',
-      disabled: '#a8abb2',
+      title: '#18181b',
+      main: '#3f3f46',
+      placeholder: '#a1a1aa',
+      second: '#71717a',
+      assist: '#d4d4d8',
+      disabled: '#a1a1aa',
       white: '#fff'
     },
 
@@ -44,13 +44,30 @@ export const lightTheme: UITheme = new UITheme(
     'font-family':
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
 
-    'font-size-title': defineBySize({ small: 16, default: 16, large: 18 }),
+    'font-size-title': defineBySize({ small: 14, default: 16, large: 18 }),
 
     'font-size-main': defineBySize({ small: 12, default: 14, large: 16 }),
 
     'font-size-assist': defineBySize({ small: 12, default: 12, large: 14 }),
 
-    shadow: { color: '#0000001a', x: 0, y: 0, blur: 4, spread: 1, emboss: 'none' },
+    shadow: {
+      color: '#00000014',
+      x: 0,
+      y: 1,
+      blur: 3,
+      spread: 0,
+      emboss: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      lg: '0 8px 24px 0 rgba(0, 0, 0, 0.12), 0 2px 6px 0 rgba(0, 0, 0, 0.06)'
+    },
+
+    transition: {
+      fast: '0.15s',
+      normal: '0.25s',
+      slow: '0.35s',
+      ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      easeOut: 'cubic-bezier(0, 0, 0.2, 1)'
+    },
 
     gap: defineBySize({ small: 6, default: 8, large: 12 }),
 

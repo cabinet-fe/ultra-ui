@@ -13,10 +13,11 @@ const T = themeTokenVar
 
 /** 亮色（及与暗色相同的尺寸类）下组件 token */
 export const componentCssVarsLight: Record<string, string> = {
-  '--u-table-border-color': '#e9e9e9',
-  '--u-table-header-bg': '#f4f5f7',
+  '--u-focus-ring': `0 0 0 3px ${T('color', 'primary', 'a', '22')}`,
+  '--u-table-border-color': T('border', 'color'),
+  '--u-table-header-bg': T('bg-color', 'hover'),
   '--u-table-header-color': T('text-color', 'title'),
-  '--u-table-stripe-bg': '#f8fafc',
+  '--u-table-stripe-bg': T('bg-color', 'middle'),
   '--u-table-stripe-color': 'inherit',
   '--u-table-hover-bg': T('bg-color', 'hover'),
   '--u-table-hover-color': 'inherit',
@@ -24,10 +25,10 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-table-current-color': 'inherit',
   '--u-table-checked-bg': T('color', 'primary', 'light-9'),
   '--u-table-checked-color': 'inherit',
-  '--u-nav-color': '#0f172a',
-  '--u-nav-hover-bg': 'rgba(148, 163, 184, 0.12)',
+  '--u-nav-color': T('text-color', 'title'),
+  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
   '--u-nav-hover-color': T('text-color', 'title'),
-  '--u-nav-active-bg': 'rgba(59, 130, 246, 0.12)',
+  '--u-nav-active-bg': T('color', 'primary', 'a', '10'),
   '--u-nav-active-color': T('color', 'primary', 'dark', '1'),
   '--u-nav-height-small': '32px',
   '--u-nav-height-default': '36px',
@@ -106,27 +107,31 @@ export const componentCssVarsLight: Record<string, string> = {
   // ─── File Picker Colors ───
   '--u-file-picker-hover-bg': T('color', 'primary', 'light', '9'),
   '--u-card-header-bg': 'rgba(0, 0, 0, 0.015)',
-  '--u-card-action-bg': 'rgba(0, 0, 0, 0.015)'
+  '--u-card-action-bg': 'rgba(0, 0, 0, 0.015)',
+  '--u-card-padding-small': '8px',
+  '--u-card-padding-default': '16px',
+  '--u-card-padding-large': '20px'
 }
 
 /** 暗色下组件 token（含与亮色相同的尺寸项，保证暗色 html 块自洽） */
 export const componentCssVarsDark: Record<string, string> = {
   ...componentCssVarsLight,
-  '--u-table-border-color': '#404040',
-  '--u-table-header-bg': '#2a2a2a',
+  '--u-focus-ring': `0 0 0 3px ${T('color', 'primary', 'a', '28')}`,
+  '--u-table-border-color': T('border', 'color'),
+  '--u-table-header-bg': T('bg-color', 'hover'),
   '--u-table-header-color': T('text-color', 'main'),
-  '--u-table-stripe-bg': '#2a2a2a',
+  '--u-table-stripe-bg': T('bg-color', 'middle'),
   '--u-table-stripe-color': T('text-color', 'main'),
-  '--u-table-hover-bg': '#333333',
+  '--u-table-hover-bg': T('text-color', 'title', 'a', '5'),
   '--u-table-hover-color': T('text-color', 'title'),
   '--u-table-current-bg': T('bg-color', 'hover'),
   '--u-table-current-color': 'inherit',
   '--u-table-checked-bg': T('color', 'primary', 'dark', '1'),
   '--u-table-checked-color': 'inherit',
   '--u-nav-color': T('text-color', 'main'),
-  '--u-nav-hover-bg': 'rgba(148, 163, 184, 0.14)',
+  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
   '--u-nav-hover-color': T('text-color', 'title'),
-  '--u-nav-active-bg': 'rgba(96, 165, 250, 0.2)',
+  '--u-nav-active-bg': T('color', 'primary', 'a', '16'),
   '--u-nav-active-color': T('text-color', 'white'),
   '--u-nav-bg-color': T('bg-color', 'middle'),
   '--u-radio-border': '#595959',

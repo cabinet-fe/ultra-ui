@@ -3,7 +3,7 @@ import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
 import { componentCssVarsDarkDecls, componentCssVarsLightDecls } from './component-css-vars'
-import { hexRgbOnly, hexWithAlpha, mixColor } from './helper'
+import { hexRgbOnly, hexWithAlpha, isHexColor, mixColor } from './helper'
 import type { Theme } from './type'
 
 type RecursivePartial<T> = {
@@ -112,11 +112,13 @@ export class UITheme {
   private renderBGColorAlpha(theme: Theme): string {
     const { color } = theme.bg
     const alphas = [70]
-    const lines: string[] = Object.keys(color).map(
-      (type) => `--u-bg-color-${type}-alpha: ${color[type as keyof typeof color]}aa`
-    )
+    const lines: string[] = []
     for (const type of Object.keys(color)) {
-      const hex = color[type as keyof typeof color] as `#${string}`
+      const value = color[type as keyof typeof color]
+      // 非 hex 颜色（如 glass 主题的 rgba()）无法推导 alpha token，跳过避免生成 NaN 声明
+      if (typeof value !== 'string' || !isHexColor(value)) continue
+      const hex = value as `#${string}`
+      lines.push(`--u-bg-color-${type}-alpha: ${hex}aa`)
       for (const a of alphas) {
         lines.push(`--u-bg-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
       }
@@ -130,26 +132,33 @@ export class UITheme {
     const lines: string[] = []
 
     for (const type of Object.keys(theme.color)) {
-      const hex = theme.color[type as keyof typeof theme.color] as `#${string}`
+      const value = theme.color[type as keyof typeof theme.color]
+      if (typeof value !== 'string' || !isHexColor(value)) continue
+      const hex = value as `#${string}`
       for (const a of alphas) {
         lines.push(`--u-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
       }
     }
 
     const borderHex = theme.border.color as `#${string}`
-    for (const a of alphas) {
-      lines.push(`--u-border-color-a-${a}: ${hexWithAlpha(borderHex, a)}`)
+    if (isHexColor(borderHex)) {
+      for (const a of alphas) {
+        lines.push(`--u-border-color-a-${a}: ${hexWithAlpha(borderHex, a)}`)
+      }
     }
 
     const shadowHex = hexRgbOnly(theme.shadow.color)
-    for (const a of alphas) {
-      lines.push(`--u-shadow-color-a-${a}: ${hexWithAlpha(shadowHex, a)}`)
+    // 阴影色非 hex（如 rgba()）时无法推导 alpha token，跳过避免生成 NaN 声明
+    if (isHexColor(shadowHex)) {
+      for (const a of alphas) {
+        lines.push(`--u-shadow-color-a-${a}: ${hexWithAlpha(shadowHex, a)}`)
+      }
     }
 
     const textColor = theme['text-color']
     for (const type of Object.keys(textColor)) {
       const value = textColor[type as keyof typeof textColor]
-      if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+      if (typeof value === 'string' && isHexColor(value)) {
         const hex = value as `#${string}`
         for (const a of alphas) {
           lines.push(`--u-text-color-${type}-a-${a}: ${hexWithAlpha(hex, a)}`)
@@ -169,6 +178,10 @@ export class UITheme {
     const borderColor = theme.border.color as `#${string}`
     const shadowColor = hexRgbOnly(theme.shadow.color)
 
+    // 依赖色含非 hex 值（如 glass 主题的 rgba()）时整体跳过，避免生成 NaN 声明；
+    // 组件侧 var() fallback 会接管，行为等同于此前的无效声明
+    if (![hover, top, black, primary, borderColor].every(isHexColor)) return ''
+
     const itemBg = mixColor(hover, top, 0.28)
     const itemHoverBg = mixColor(primary, itemBg as `#${string}`, 0.96)
     const itemActiveBg = mixColor(primary, itemBg as `#${string}`, 0.95)
@@ -178,6 +191,9 @@ export class UITheme {
     const formHeaderBg = mixColor(top, hover, 0.04)
 
     const kbdInset = mixColor(top, black, 0.25)
+    const kbdDropShadow = isHexColor(shadowColor)
+      ? hexWithAlpha(shadowColor, 60)
+      : 'rgba(0, 0, 0, 0.6)'
 
     const lines = [
       `--u-collapse-item-bg: ${itemBg}`,
@@ -188,7 +204,7 @@ export class UITheme {
       `--u-batch-edit-form-header-bg: ${formHeaderBg}`,
       `--u-kbd-inset-shadow: ${kbdInset}`,
       `--u-kbd-border-shadow: ${hexWithAlpha(borderColor, 50)}`,
-      `--u-kbd-drop-shadow: ${hexWithAlpha(shadowColor, 60)}`
+      `--u-kbd-drop-shadow: ${kbdDropShadow}`
     ]
 
     return lines.join(';')

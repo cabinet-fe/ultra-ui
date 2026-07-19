@@ -30,7 +30,7 @@ export const shadcnLightTheme = lightTheme.new({
     white: '#ffffff'
   },
   radius: { small: 4, default: 6, large: 8 },
-  shadow: { color: 'rgba(0, 0, 0, 0.05)', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' },
+  shadow: { color: '#0000000d', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' },
   button: {
     'primary-text-color': '#ffffff',
     'primary-hover-bg': '#27272a',
@@ -63,7 +63,16 @@ export const shadcnDarkTheme = shadcnLightTheme.new({
     disabled: '#71717a',
     white: '#ffffff'
   },
-  shadow: { color: 'rgba(0, 0, 0, 0.4)', x: 0, y: 1, blur: 2, spread: 0, emboss: 'none' },
+  shadow: {
+    color: '#00000066',
+    x: 0,
+    y: 1,
+    blur: 2,
+    spread: 0,
+    emboss: 'none',
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.4)',
+    lg: '0 8px 24px 0 rgba(0, 0, 0, 0.5), 0 2px 6px 0 rgba(0, 0, 0, 0.35)'
+  },
   button: {
     'primary-text-color': '#000000',
     'primary-hover-bg': '#e4e4e7',

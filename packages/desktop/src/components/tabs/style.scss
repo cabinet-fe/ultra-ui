@@ -7,9 +7,7 @@ $list-radius: fn.use-var(radius, default);
 $item-radius: calc(fn.use-var(radius, default) - 2px);
 $list-padding: 4px;
 $active-bg: fn.component-var(tabs, active-bg, fn.use-var(bg-color, top));
-$active-shadow:
-  0 1px 2px rgba(15, 23, 42, 0.08),
-  0 1px 3px rgba(15, 23, 42, 0.06);
+$active-shadow: fn.use-var(shadow, sm);
 
 /* ===== 复合标签页：bar + content 布局容器 ===== */
 @include m.b(tabs) {
@@ -136,6 +134,10 @@ $active-shadow:
       background-color: $active-bg;
       box-shadow: $active-shadow;
     }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   @include m.e(item-label) {
@@ -172,11 +174,11 @@ $active-shadow:
 
     &:hover {
       color: fn.use-var(text-color, title);
-      background-color: rgba(15, 23, 42, 0.08);
+      background-color: fn.color-a(text-color, 8, title);
     }
 
     &:active {
-      background-color: rgba(15, 23, 42, 0.14);
+      background-color: fn.color-a(text-color, 11, title);
     }
   }
 

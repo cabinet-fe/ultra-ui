@@ -14,7 +14,7 @@ $root-name: 'float-button';
   flex-wrap: nowrap;
 
   @include m.e(item) {
-    box-shadow: 0 0 5px 1px #{fn.use-var(color, primary, light-3)};
+    box-shadow: fn.use-var(shadow, lg);
     transition-property: transform, opacity;
     transition-duration: 0.2s;
     transform: scale(0.4);

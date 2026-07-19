@@ -44,7 +44,7 @@ $root-name: scroll;
   }
 
   // 滚动条背景色
-  $bar-color: #999;
+  $bar-color: fn.use-var(text-color, assist);
 
   // 滚动条默认尺寸(宽度)
   $bar-size: 6px;
@@ -57,7 +57,7 @@ $root-name: scroll;
     cursor: default;
     position: absolute;
     border-radius: $bar-size;
-    background-color: rgba($color: $bar-color, $alpha: 0.4);
+    background-color: fn.color-a(text-color, 40, assist);
     will-change: transform;
     transition:
       opacity 0.3s ease-in,
@@ -68,7 +68,7 @@ $root-name: scroll;
     z-index: 1;
 
     &:hover {
-      background-color: rgba($color: $bar-color, $alpha: 0.6);
+      background-color: fn.color-a(text-color, 60, assist);
       border-radius: $bar-active-size;
     }
 

@@ -6,27 +6,27 @@ $role-size: (
   main-title: (
     font-size: 18px,
     font-weight: 600,
-    color: #333
+    color: fn.use-var(text-color, title)
   ),
   title: (
     font-size: 16px,
     font-weight: 600,
-    color: #333
+    color: fn.use-var(text-color, main)
   ),
   sub-title: (
     font-size: 16px,
     font-weight: 500,
-    color: #999
+    color: fn.use-var(text-color, placeholder)
   ),
   content: (
     font-size: 14px,
     font-weight: 300,
-    color: #666
+    color: fn.use-var(text-color, second)
   ),
   additional: (
     font-size: 12px,
     font-weight: 300,
-    color: #999
+    color: fn.use-var(text-color, assist)
   )
 );
 

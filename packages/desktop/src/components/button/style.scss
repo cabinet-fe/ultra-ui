@@ -8,7 +8,6 @@ $root-name: button;
 @include m.b($root-name) {
   color: fn.component-var(button, default-color, fn.use-var(text-color, main));
   box-sizing: border-box;
-  border-radius: 9999px;
   line-height: 1;
   outline: none;
   text-decoration: none;
@@ -21,9 +20,10 @@ $root-name: button;
   background-color: fn.component-var(button, default-bg, fn.use-var(color, default));
   box-shadow: fn.use-var(shadow, emboss);
   transition:
-    background-color 0.25s,
-    box-shadow 0.2s;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
   gap: fn.use-var(gap-small);
 
@@ -40,6 +40,10 @@ $root-name: button;
 
   &:active {
     box-shadow: none;
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
   }
 
   @include m.is(disabled, loading) {
@@ -65,6 +69,7 @@ $root-name: button;
     height: fn.use-var(form-component-height, $size);
     line-height: fn.use-var(form-component-height, $size);
     font-size: fn.use-var(font-size-main, $size);
+    border-radius: fn.use-var(radius, $size);
 
     @include m.is(circle) {
       width: fn.use-var(form-component-height, $size);
@@ -197,11 +202,13 @@ $root-name: button;
   @include m.b($root-name) {
     border-radius: 0;
 
-    &:first-child {
-      border-radius: 9999px 0 0 9999px;
-    }
-    &:last-child {
-      border-radius: 0 9999px 9999px 0;
+    @include m.size using ($size) {
+      &:first-child {
+        border-radius: fn.use-var(radius, $size) 0 0 fn.use-var(radius, $size);
+      }
+      &:last-child {
+        border-radius: 0 fn.use-var(radius, $size) fn.use-var(radius, $size) 0;
+      }
     }
   }
 }

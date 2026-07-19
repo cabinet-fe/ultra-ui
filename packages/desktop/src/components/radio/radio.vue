@@ -1,16 +1,15 @@
 <template>
   <label :class="classList">
+    <input
+      type="radio"
+      :class="cls.e('native')"
+      :value="value"
+      v-model="model"
+      :disabled="disabled"
+    />
+
     <!-- radio框 -->
     <section :class="cls.e('button')">
-      <input
-        type="radio"
-        :class="cls.e('native')"
-        :value="value"
-        v-model="model"
-        :disabled="disabled"
-        hidden
-      />
-
       <transition name="zoom-in">
         <span :class="cls.e('inner')" v-if="radioChecked"></span>
       </transition>

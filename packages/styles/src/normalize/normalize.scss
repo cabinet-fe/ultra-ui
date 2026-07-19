@@ -8,7 +8,7 @@ html {
   font-family: fn.use-var(font-family);
   font-weight: normal;
   color: fn.use-var(text-color, main);
-  line-height: 1.4;
+  line-height: 1.5;
 
   @each $size in vars.$sizes {
     &.#{$size} {

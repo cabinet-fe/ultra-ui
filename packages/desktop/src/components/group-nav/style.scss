@@ -15,9 +15,7 @@
   background-repeat: no-repeat;
   border: 1px solid fn.use-var(border, color);
   border-radius: calc(fn.use-var(radius, large) + 6px);
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 12px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: fn.use-var(shadow, lg);
 
   @include m.e(container) {
     padding: 8px;

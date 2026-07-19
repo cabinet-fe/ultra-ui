@@ -36,6 +36,9 @@ $root-name: radio;
     border: fn.use-var(border, width) fn.use-var(border, style)
       #{fn.component-var(radio, border, #ccc)};
     overflow: hidden;
+    transition:
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
   }
 
   @include m.is(checked) {
@@ -45,7 +48,12 @@ $root-name: radio;
   }
 
   @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
+    margin: 0;
+    pointer-events: none;
   }
 
   @include m.e(label) {
@@ -57,6 +65,19 @@ $root-name: radio;
     border-radius: 50%;
     display: block;
     height: 100%;
+  }
+
+  @include m.is-not(disabled) {
+    &:hover {
+      @include m.bem($root-name, button) {
+        border-color: fn.use-var(color, primary);
+      }
+    }
+
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
+    #{fn.bem($root-name, native)}:focus-visible + #{fn.bem($root-name, button)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   @include m.is(disabled) {

@@ -17,7 +17,7 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
     top 0.4s;
   border: fn.use-var(border);
   background-color: fn.use-var(bg-color, top);
-  box-shadow: fn.use-var(shadow);
+  box-shadow: fn.use-var(shadow, lg);
   margin: 4px;
   overflow: hidden;
 

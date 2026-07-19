@@ -7,12 +7,14 @@ $root-name: card;
 @include m.b($root-name) {
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
-  box-shadow: fn.use-var(shadow);
+  border: fn.use-var(border-muted);
+  box-shadow: fn.use-var(shadow, sm);
   backdrop-filter: fn.use-var(bg-filter);
   -webkit-backdrop-filter: fn.use-var(bg-filter);
   overflow: hidden;
 
   @include m.is(integrate) {
+    border: none;
     box-shadow: none;
     --u-card-header-bg: transparent;
     --u-card-action-bg: transparent;
@@ -27,7 +29,7 @@ $root-name: card;
     font-size: fn.use-var(font-size-main, $size);
 
     @include m.b(card__header, card__content, card__action) {
-      padding: fn.use-var(gap, $size);
+      padding: fn.component-var(card, padding-#{$size}, fn.use-var(gap, $size));
     }
 
     @include m.bem($root-name, header) {

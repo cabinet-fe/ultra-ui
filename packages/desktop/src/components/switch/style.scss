@@ -34,6 +34,26 @@ $root-name: switch;
     cursor: default;
   }
 
+  @include m.is-not(disabled, readonly) {
+    &:hover {
+      @include m.bem($root-name, button) {
+        background-color: fn.use-var(color, primary, light-7);
+        border-color: fn.use-var(color, primary, light-5);
+      }
+
+      @include m.is(checked) {
+        @include m.bem($root-name, button) {
+          background-color: fn.use-var(color, primary, dark-1);
+        }
+      }
+    }
+
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
+    #{fn.bem($root-name, native)}:focus-visible ~ #{fn.bem($root-name, button)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
   // 尺寸样式
   @include m.size using ($size) {
     @include m.bem($root-name, button) {
@@ -48,8 +68,12 @@ $root-name: switch;
   }
 
   @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
     opacity: 0;
-    visibility: hidden;
+    margin: 0;
+    pointer-events: none;
   }
 
   @include m.e(button) {

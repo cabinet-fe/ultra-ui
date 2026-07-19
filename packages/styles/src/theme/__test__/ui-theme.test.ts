@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { componentCssVarsDark, componentCssVarsLight } from '../component-css-vars'
-import { lightTheme } from '../presets'
+import {
+  darkTheme,
+  glassLightTheme,
+  heroLightTheme,
+  lightTheme,
+  shadcnLightTheme
+} from '../presets'
 import { UITheme } from '../ui-theme'
 
 describe('UITheme', () => {
@@ -43,5 +49,28 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-collapse-item-bg:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-kbd-inset-shadow:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-batch-edit-form-header-bg:'))).toBe(true)
+  })
+
+  it('emits elevation and motion tokens', () => {
+    const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
+    expect(decls.some((d) => d.startsWith('--u-shadow-sm:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-shadow-lg:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-transition-fast:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-transition-ease-out:'))).toBe(true)
+  })
+
+  it('emits focus ring component var', () => {
+    expect(componentCssVarsLight['--u-focus-ring']).toContain('--u-color-primary-a-')
+    expect(componentCssVarsDark['--u-focus-ring']).toContain('--u-color-primary-a-')
+  })
+
+  it('no preset emits invalid NaN declarations', () => {
+    const themes = [lightTheme, darkTheme, shadcnLightTheme, heroLightTheme, glassLightTheme]
+    for (const t of themes) {
+      const decls = t.themeToDeclarationList(t.theme)
+      for (const d of decls) {
+        expect(d).not.toContain('NaN')
+      }
+    }
   })
 })
