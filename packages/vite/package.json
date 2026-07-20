@@ -1,6 +1,6 @@
 {
   "name": "@veltra/vite",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop)",
   "files": [
     "dist",
