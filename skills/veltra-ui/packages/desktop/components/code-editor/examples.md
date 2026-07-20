@@ -53,6 +53,27 @@ const suffix = '\n}'
 </template>
 ```
 
+## Markdown 编辑
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const md = shallowRef(`# Title
+
+Write **bold** and *italic* text.
+
+\`\`\`js
+console.log('hello')
+\`\`\`
+`)
+</script>
+
+<template>
+  <u-code-editor v-model="md" :langs="['markdown']" :default-lines="10" />
+</template>
+```
+
 ## SpEL 表达式
 
 ```vue

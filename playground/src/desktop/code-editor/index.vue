@@ -21,6 +21,16 @@
     </section>
 
     <section class="section">
+      <h3>Markdown 示例</h3>
+      <u-code-editor
+        v-model="markdownCode"
+        lang="markdown"
+        :langs="['markdown']"
+        :default-lines="12"
+      />
+    </section>
+
+    <section class="section">
       <h3>SpEL 示例</h3>
       <u-code-editor v-model="spelCode" lang="spel" :langs="['spel']" :default-lines="6" />
     </section>
@@ -145,6 +155,25 @@ const jsonCode = ref(`{
 }
 `)
 
+const markdownCode = ref(`# Ultra UI
+
+A **Vue 3** component library with *BEM* + CSS variables.
+
+## Features
+
+- Code editor with syntax highlighting
+- Form components
+- Theme system
+
+\`\`\`js
+console.log('hello markdown')
+\`\`\`
+
+> Tip: switch languages via \`langs\` / \`v-model:lang\`.
+
+[Docs](https://example.com) · ![logo](./logo.svg)
+`)
+
 const spelCode = ref(
   `#user?.name matches 'A.*' and T(Math).abs(-1) > 0 or #root.status eq 'ACTIVE'`
 )
@@ -186,12 +215,22 @@ const langOptions: { label: string; value: CodeEditorLang }[] = [
   { label: 'SQL', value: 'sql' },
   { label: 'Java', value: 'java' },
   { label: 'JSON', value: 'json' },
+  { label: 'Markdown', value: 'markdown' },
   { label: 'SpEL', value: 'spel' },
   { label: 'Bash', value: 'bash' },
   { label: 'PowerShell', value: 'powershell' }
 ]
 
-const langs = ref<CodeEditorLang[]>(['js', 'sql', 'java', 'json', 'spel', 'bash', 'powershell'])
+const langs = ref<CodeEditorLang[]>([
+  'js',
+  'sql',
+  'java',
+  'json',
+  'markdown',
+  'spel',
+  'bash',
+  'powershell'
+])
 
 const functionPrefix = 'function handle(a, b) {\n'
 const functionSuffix = '\n}'
