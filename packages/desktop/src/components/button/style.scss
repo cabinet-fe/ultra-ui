@@ -42,10 +42,6 @@ $root-name: button;
     box-shadow: none;
   }
 
-  &:focus-visible {
-    box-shadow: fn.use-var(focus-ring);
-  }
-
   @include m.is(disabled, loading) {
     box-shadow: none !important;
   }
@@ -193,6 +189,12 @@ $root-name: button;
     background-color: transparent;
     border: none;
     box-shadow: none;
+  }
+
+  // 焦点环放在块尾并提升优先级，确保不被 plain/text 等变体的
+  // box-shadow: none 覆盖（焦点指示必须始终可见）
+  &:focus-visible:not(.is-disabled):not(.is-loading) {
+    box-shadow: fn.use-var(focus-ring);
   }
 }
 

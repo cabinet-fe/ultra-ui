@@ -25,7 +25,8 @@ export const lightTheme: UITheme = new UITheme(
       filter: { blur: 'none', saturate: 'none' }
     },
 
-    border: { color: '#e4e4e7', mutedColor: '#e4e4e7', width: 1, style: 'solid' },
+    // color 用于结构分隔线（保持安静）；mutedColor 用于表单控件/卡片描边（需要清晰的 affordance）
+    border: { color: '#e4e4e7', mutedColor: '#d4d4d8', width: 1, style: 'solid' },
 
     'text-color': {
       title: '#18181b',
@@ -37,7 +38,8 @@ export const lightTheme: UITheme = new UITheme(
       white: '#fff'
     },
 
-    radius: defineBySize({ small: 4, default: 6, large: 8 }),
+    // 对齐 Tailwind rounded-md / rounded-lg / rounded-xl
+    radius: defineBySize({ small: 6, default: 8, large: 12 }),
 
     'form-component-height': defineBySize({ small: 24, default: 32, large: 40 }),
 

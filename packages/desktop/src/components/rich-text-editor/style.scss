@@ -20,7 +20,7 @@ $root-name: rich-text-editor;
 
   &:focus-within {
     border-color: fn.use-var(color, primary);
-    box-shadow: 0 0 0 2px fn.color-a(color, 22, primary);
+    box-shadow: fn.use-var(focus-ring);
   }
 
   @include m.size using ($size) {

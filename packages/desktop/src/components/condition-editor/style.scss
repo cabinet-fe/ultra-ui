@@ -98,8 +98,7 @@ $connector-width: 56px;
     }
 
     &:focus-visible {
-      outline: 2px solid fn.use-var(color, primary);
-      outline-offset: 1px;
+      box-shadow: fn.use-var(focus-ring);
     }
   }
 
@@ -249,8 +248,7 @@ $connector-width: 56px;
     }
 
     &:focus-visible {
-      outline: 2px solid fn.use-var(color, primary);
-      outline-offset: 1px;
+      box-shadow: fn.use-var(focus-ring);
     }
   }
 

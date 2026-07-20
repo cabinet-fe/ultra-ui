@@ -32,7 +32,7 @@ export const darkTheme = lightTheme.new({
     white: '#ffffff'
   },
 
-  border: { color: '#2e2e36', mutedColor: '#2e2e36' },
+  border: { color: '#37373f', mutedColor: '#42424c' },
 
   shadow: {
     color: '#00000066',

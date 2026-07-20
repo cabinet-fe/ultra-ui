@@ -21,8 +21,8 @@ export const glassLightTheme = lightTheme.new({
     filter: { blur: 'blur(24px)', saturate: 'saturate(180%)' }
   },
   border: {
-    color: 'rgba(255, 255, 255, 0.5)',
-    mutedColor: 'rgba(255, 255, 255, 0.5)',
+    color: 'rgba(15, 23, 42, 0.14)',
+    mutedColor: 'rgba(15, 23, 42, 0.08)',
     width: 1,
     style: 'solid'
   },
@@ -50,7 +50,7 @@ export const glassDarkTheme = glassLightTheme.new({
     },
     filter: { blur: 'blur(20px)', saturate: 'saturate(200%)' }
   },
-  border: { color: 'rgba(255, 255, 255, 0.12)', mutedColor: 'rgba(255, 255, 255, 0.12)' },
+  border: { color: 'rgba(255, 255, 255, 0.18)', mutedColor: 'rgba(255, 255, 255, 0.1)' },
   'text-color': {
     title: '#F8FAFC',
     main: '#F1F5F9',

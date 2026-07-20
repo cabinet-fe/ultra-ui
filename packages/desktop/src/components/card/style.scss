@@ -5,7 +5,7 @@
 
 $root-name: card;
 @include m.b($root-name) {
-  border-radius: fn.use-var(radius, default);
+  border-radius: fn.component-var(card, radius, fn.use-var(radius, large));
   background-color: fn.use-var(bg-color, top);
   border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, sm);
