@@ -81,3 +81,13 @@ const visible = ref(false)
   </UTip>
 </template>
 ```
+
+## 弹出延时
+
+```vue
+<template>
+  <UTip content="悬停 500ms 后弹出" :show-delay="500">
+    <UButton>延迟弹出</UButton>
+  </UTip>
+</template>
+```

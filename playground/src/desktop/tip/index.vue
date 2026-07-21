@@ -9,6 +9,7 @@
       触发方式:
       <u-radio-group :items="triggers" v-model="trigger"> </u-radio-group>
     </div>
+    <div>弹出延时(ms): <u-number-input v-model="showDelay" :min="0" /></div>
     <div>内容: <u-textarea v-model="content" /></div>
     <CustomCard title="基础用法">
       <div style="text-align: right">
@@ -17,11 +18,18 @@
           :alignment="alignment"
           :trigger="trigger"
           :content="content"
+          :show-delay="showDelay"
           style="max-width: 300px"
         >
           <u-button type="primary" text style="margin-right: 10px">触发</u-button>
         </u-tip>
       </div>
+    </CustomCard>
+
+    <CustomCard title="弹出延时">
+      <u-tip content="悬停 500ms 后弹出" :show-delay="500">
+        <u-button type="primary" text>延迟 500ms</u-button>
+      </u-tip>
     </CustomCard>
 
     <CustomCard title="虚拟触发">
@@ -51,6 +59,7 @@ const content = shallowRef(
 const direction = shallowRef<TipDirection>('top')
 const alignment = shallowRef<TipAlign>('center')
 const trigger = shallowRef<'hover' | 'click'>('hover')
+const showDelay = shallowRef(0)
 
 const triggerDom = shallowRef()
 

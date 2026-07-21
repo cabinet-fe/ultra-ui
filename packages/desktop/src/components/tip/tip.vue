@@ -44,7 +44,8 @@ const props = withDefaults(defineProps<TipProps>(), {
   direction: 'top',
   alignment: 'center',
   contentTag: 'div',
-  visible: undefined
+  visible: undefined,
+  showDelay: 0
 })
 
 const emit = defineEmits<TipEmits>()
@@ -115,19 +116,48 @@ const handleClickOutside = (e: MouseEvent) => {
   close()
 }
 
-let closeTimer: number | undefined = undefined
+let openTimer: ReturnType<typeof setTimeout> | undefined
+let closeTimer: ReturnType<typeof setTimeout> | undefined
+
+function clearOpenTimer() {
+  if (openTimer !== undefined) {
+    clearTimeout(openTimer)
+    openTimer = undefined
+  }
+}
+
+function clearCloseTimer() {
+  if (closeTimer !== undefined) {
+    clearTimeout(closeTimer)
+    closeTimer = undefined
+  }
+}
 
 /** 弹出 */
 const open = (e?: PointerEvent) => {
   e?.stopPropagation()
-  closeTimer !== undefined && clearTimeout(closeTimer)
+  clearCloseTimer()
 
-  updateVisible(true)
+  const delay = props.trigger === 'hover' ? props.showDelay : 0
+  if (delay <= 0) {
+    clearOpenTimer()
+    updateVisible(true)
+    return
+  }
+
+  clearOpenTimer()
+  openTimer = setTimeout(() => {
+    openTimer = undefined
+    updateVisible(true)
+  }, delay)
 }
 /** 关闭 */
 const close = () => {
+  clearOpenTimer()
+
   if (props.trigger === 'hover') {
     closeTimer = setTimeout(() => {
+      closeTimer = undefined
       updateVisible(false)
     }, 250)
   } else {
@@ -163,6 +193,7 @@ watch(triggerDom, (dom) => {
 const externalNode = shallowRef<any>()
 
 onBeforeUnmount(() => {
-  clearTimeout(closeTimer)
+  clearOpenTimer()
+  clearCloseTimer()
 })
 </script>

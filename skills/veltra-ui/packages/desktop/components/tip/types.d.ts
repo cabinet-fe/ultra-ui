@@ -44,6 +44,12 @@ export interface TipProps {
 
   /** 禁用tip */
   disabled?: boolean
+
+  /**
+   * 弹出延时（毫秒），仅 `trigger="hover"` 时生效
+   * @default 0
+   */
+  showDelay?: number
 }
 
 /** tip提示组件组件定义的事件 */

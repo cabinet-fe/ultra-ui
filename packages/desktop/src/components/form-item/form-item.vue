@@ -5,7 +5,7 @@
       :class="[cls.e('label'), bem.is('required', !!rules?.required)]"
       :style="labelStyles"
     >
-      <u-tip v-if="tips" :content="tips" :class="cls.e('tips')">
+      <u-tip v-if="tips" :content="tips" :class="cls.e('tips')" :show-delay="500">
         <span :class="cls.e('tip-label')">
           <slot name="label">{{ label }}:</slot>
         </span>
