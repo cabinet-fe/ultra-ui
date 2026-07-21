@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.3.2
+
+### Patch Changes
+
+- 8c8c459: UTip 新增 showDelay 弹出延时配置；UFormItem tips 默认延迟 500ms 弹出
+  - @veltra/utils@1.3.2
+  - @veltra/styles@1.3.2
+  - @veltra/compositions@1.3.2
+  - @veltra/directives@1.3.2
+  - @veltra/icons@1.3.2
+
 ## 1.3.1
 
 ### Patch Changes

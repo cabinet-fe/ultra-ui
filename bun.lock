@@ -27,7 +27,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "dependencies": {
         "@floating-ui/dom": "^1.7.6",
       },
@@ -43,7 +43,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "dependencies": {
         "@embedpdf/core": "^2.14.4",
         "@embedpdf/engines": "^2.14.4",
@@ -93,7 +93,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "peerDependencies": {
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
@@ -102,7 +102,7 @@
     },
     "packages/icons": {
       "name": "@veltra/icons",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "devDependencies": {
         "svgo": "^4.0.1",
       },
@@ -119,7 +119,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "@veltra/compositions": "workspace:*",
@@ -129,7 +129,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "vue": ">=3.5.39",
@@ -137,7 +137,7 @@
     },
     "packages/vite": {
       "name": "@veltra/vite",
-      "version": "2.0.1",
+      "version": "2.0.2",
       "devDependencies": {
         "@veltra/desktop": "workspace:*",
       },
