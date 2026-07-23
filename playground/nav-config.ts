@@ -53,6 +53,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'date-picker': { zh: '日期选择器', en: 'DatePicker', category: 'form' },
   'date-range-picker': { zh: '日期范围选择器', en: 'DateRangePicker', category: 'form' },
   dialog: { zh: '对话框', en: 'Dialog', category: 'feedback' },
+  dnd: { zh: '拖拽排序', en: 'DnD', category: 'other' },
   drawer: { zh: '抽屉', en: 'Drawer', category: 'feedback' },
   dropdown: { zh: '下拉菜单', en: 'Dropdown', category: 'nav' },
   'dual-nav': { zh: '双栏导航', en: 'DualNav', category: 'nav' },

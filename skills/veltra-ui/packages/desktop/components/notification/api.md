@@ -14,7 +14,7 @@
 
 ### notification
 
-函数式通知条，命令式弹出；另有 `success` / `warning` / `danger` 等快捷方法。
+函数式通知条；另有 `primary` / `success` / `info` / `warning` / `danger` 快捷方法与按方位 `closeAll(position?)`。
 
 使用示例:
 

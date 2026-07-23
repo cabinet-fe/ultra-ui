@@ -46,14 +46,16 @@ export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
   'message-confirm': [
     {
       name: 'messageConfirm',
-      purpose: '函数式确认框；另有 `primary` / `success` / `warning` / `danger` 等快捷方法。',
+      purpose:
+        '函数式确认框；另有 `primary` / `success` / `info` / `warning` / `danger` 快捷方法与 `closeAll()`。',
       importLine: "import { messageConfirm } from '@veltra/desktop'"
     }
   ],
   notification: [
     {
       name: 'notification',
-      purpose: '函数式通知条，命令式弹出；另有 `success` / `warning` / `danger` 等快捷方法。',
+      purpose:
+        '函数式通知条；另有 `primary` / `success` / `info` / `warning` / `danger` 快捷方法与按方位 `closeAll(position?)`。',
       importLine: "import { notification } from '@veltra/desktop'"
     }
   ],

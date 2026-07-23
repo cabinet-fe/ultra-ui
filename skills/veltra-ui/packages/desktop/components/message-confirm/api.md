@@ -14,7 +14,7 @@
 
 ### messageConfirm
 
-函数式确认框；另有 `primary` / `success` / `warning` / `danger` 等快捷方法。
+函数式确认框；另有 `primary` / `success` / `info` / `warning` / `danger` 快捷方法与 `closeAll()`。
 
 使用示例:
 

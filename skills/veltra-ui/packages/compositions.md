@@ -1,6 +1,6 @@
 # @veltra/compositions
 
-Vue 3 组合式函数。前置依赖 `vue@^3.5`、`@floating-ui/dom`、`@cat-kit/fe`、`@veltra/utils`。
+Vue 3 组合式函数。前置依赖 `vue@^3.5`、`@floating-ui/dom`、`@formkit/drag-and-drop`、`@cat-kit/fe`、`@veltra/utils`。
 
 ```ts
 import {
@@ -11,6 +11,7 @@ import {
   useModel,
   usePop,
   useDrag,
+  useDnD,
   useFocus,
   useUserAction,
   useTransition,
@@ -151,6 +152,42 @@ useDrag({
 ```
 
 仅响应左键。`x/y` 为本次累计偏移；`offsetX/offsetY` 为 range 钳制后最终偏移。
+
+### `useDnD(options)` — 列表拖拽排序
+
+基于 `@formkit/drag-and-drop`（Vue 适配层）封装；options 对象传参、命名返回，组件卸载自动 `tearDown`。该库的核心 API 与类型已从本包重导出，**下游不要再安装 `@formkit/drag-and-drop`**，统一从 `@veltra/compositions` 导入（避免版本不一致）。
+
+```ts
+function useDnD<T>(options: UseDnDOptions<T> = {}): {
+  parentRef: Ref<HTMLElement | undefined> // ref 绑定到列表容器
+  values: Ref<T[]> // 排序/转移后自动更新
+  updateConfig: (config?: VueParentConfig<T>) => void // 整体替换配置
+}
+
+interface UseDnDOptions<T> extends VueParentConfig<T> {
+  values?: T[] | Ref<T[]> // 传 ref 则与外部共享引用，拖拽直接写回
+}
+```
+
+```vue
+<script setup lang="ts">
+const list = ref([{ id: 1, label: 'A' }, { id: 2, label: 'B' }])
+const { parentRef, values } = useDnD({
+  values: list, // 与 list 是同一引用
+  plugins: [animations()], // 重导出的官方插件：animations / dropOrSwap / insert
+  dragHandle: '.handle',
+  onSort: ({ previousValues, values }) => {}
+})
+</script>
+
+<template>
+  <ul ref="parentRef">
+    <li v-for="item in values" :key="item.id">{{ item.label }}</li>
+  </ul>
+</template>
+```
+
+重导出的常用 API：`useDragAndDrop`（官方元组版）、`dragAndDrop`（命令式，支持传元素/ref）、插件 `animations` / `dropOrSwap` / `insert`，工具 `performSort` / `performTransfer` / `remapNodes` / `updateConfig` / `setParentValues` / `dragValues` / `isDragState` / `isSynthDragState` / `tearDown`，以及 `ParentConfig`、`VueParentConfig`、`DragState`、`SortEvent`、`TransferEvent` 等全套配置/事件类型。多容器互拖给各容器配置相同 `group` 即可。
 
 ### `useFocus(cb?)`
 

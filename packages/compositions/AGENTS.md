@@ -8,6 +8,7 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 | --------------------- | ------------------------------------------ | ------------------------------ |
 | `use-component-props` | `useComponentProps`                        | 组件属性处理                   |
 | `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）             |
+| `use-dnd`             | `useDnD`（重导出 drag-and-drop 生态）      | 拖拽排序（`@formkit/drag-and-drop`） |
 | `use-drag`            | `useDrag`                                  | 拖拽                           |
 | `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退                   |
 | `use-focus`           | `useFocus`                                 | 焦点管理                       |
@@ -28,7 +29,7 @@ const model = useModel({ props, emit, local: false }) // 完全受控
 
 ## 依赖
 
-- **dependencies**：`@floating-ui/dom`
+- **dependencies**：`@floating-ui/dom`、`@formkit/drag-and-drop`（`use-dnd` 重导出其 Vue 适配层与核心 API，下游应统一从本包导入，不要自行安装 `@formkit/drag-and-drop`）
 - **peer**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/utils`、`vue`
 - **被依赖**：`@veltra/styles`（theme）、`@veltra/desktop`
 

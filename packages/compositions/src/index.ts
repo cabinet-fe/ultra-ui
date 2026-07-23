@@ -4,6 +4,8 @@ export * from './use-config'
 
 export * from './use-drag'
 
+export * from './use-dnd'
+
 export * from './use-fallback-props'
 
 export * from './use-focus'

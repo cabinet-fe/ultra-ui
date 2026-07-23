@@ -12,7 +12,14 @@ export default defineConfig({
     clean: true,
     treeshake: true,
     deps: {
-      neverBundle: ['@veltra/utils', '@cat-kit/core', '@cat-kit/fe', 'vue', '@floating-ui/dom']
+      neverBundle: [
+        '@veltra/utils',
+        '@cat-kit/core',
+        '@cat-kit/fe',
+        'vue',
+        '@floating-ui/dom',
+        '@formkit/drag-and-drop'
+      ]
     },
     dts: true
   }

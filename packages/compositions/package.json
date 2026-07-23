@@ -14,7 +14,8 @@
     }
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.8.0"
+    "@floating-ui/dom": "^1.8.0",
+    "@formkit/drag-and-drop": "^0.6.1"
   },
   "devDependencies": {
     "@cat-kit/fe": "^1.1.8"
