@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.3.3
+
+### Patch Changes
+
+- 4d301d3: 重构 messageConfirm / notification 命令式 API：统一容器渲染与实例生命周期，导出由 MessageConfirm / Notification 调整为 camelCase
+  - @veltra/utils@1.3.3
+  - @veltra/styles@1.3.3
+  - @veltra/compositions@1.3.3
+  - @veltra/directives@1.3.3
+  - @veltra/icons@1.3.3
+
 ## 1.3.2
 
 ### Patch Changes
