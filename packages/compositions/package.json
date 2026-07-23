@@ -14,7 +14,7 @@
     }
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.6"
+    "@floating-ui/dom": "^1.8.0"
   },
   "devDependencies": {
     "@cat-kit/fe": "^1.1.8"
@@ -23,6 +23,6 @@
     "@cat-kit/core": ">=1.1.8",
     "@cat-kit/fe": ">=1.1.8",
     "@veltra/utils": "workspace:*",
-    "vue": ">=3.5.39"
+    "vue": ">=3.5.40"
   }
 }
