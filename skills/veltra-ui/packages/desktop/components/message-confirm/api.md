@@ -12,12 +12,12 @@
 
 本组件通常配合以下工具来使用。
 
-### MessageConfirm
+### messageConfirm
 
 函数式确认框；另有 `primary` / `success` / `warning` / `danger` 等快捷方法。
 
 使用示例:
 
 ```ts
-import { MessageConfirm } from '@veltra/desktop'
+import { messageConfirm } from '@veltra/desktop'
 ```

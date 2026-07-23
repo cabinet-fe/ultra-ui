@@ -18,13 +18,14 @@
       ></u-radio-group>
     </div>
     <div class="btn">
-      <u-button type="primary" @click="showMsg">showMessage</u-button>
+      <u-button type="primary" @click="showMsg">showMessageConfirm</u-button>
+      <u-button type="danger" @click="showDanger">messageConfirm.danger</u-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MessageConfirm } from '@veltra/desktop'
+import { messageConfirm } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const config = reactive({
@@ -32,22 +33,41 @@ const config = reactive({
   title: 'this is a title',
   message: 'this is a message',
   confirmButtonText: '确定',
-  cancelButtonText: ''
+  cancelButtonText: '取消'
 })
 
 const showMsg = () => {
-  MessageConfirm({
+  messageConfirm({
     title: config.title,
     message: config.message,
     confirmButtonType: config.confirmButtonType,
     confirmButtonText: config.confirmButtonText,
     cancelButtonText: config.cancelButtonText,
     onClose: (action) => {
-      console.log(action)
+      console.log('onClose:', action)
     }
+  }).onClosed.then((action) => {
+    console.log('onClosed:', action)
   })
-  // MessageConfirm.danger('hahha', (action) => {
-  //   console.log(action)
-  // })
+}
+
+const showDanger = () => {
+  messageConfirm
+    .danger('确认删除该文件吗？此操作不可撤销', { cancelButtonText: '取消' })
+    .onClosed.then((action) => {
+      console.log('danger closed:', action)
+    })
 }
 </script>
+
+<style lang="scss" scoped>
+.config {
+  display: flex;
+  flex-direction: column;
+}
+.btn {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+</style>

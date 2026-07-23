@@ -28,19 +28,21 @@
     </div>
     <div class="btn">
       <u-button type="primary" @click="showMsg">showNotification</u-button>
+      <u-button type="success" @click="showSuccess">notification.success</u-button>
+      <u-button plain @click="closeAll">closeAll</u-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Notification } from '@veltra/desktop'
+import { notification, type NotificationPosition } from '@veltra/desktop'
 import { reactive, ref } from 'vue'
 
 const config = reactive({
   type: 'primary' as any,
-  duration: 0,
+  duration: 4500,
   closable: false,
-  position: 'bottom-right',
+  position: 'bottom-right' as NotificationPosition,
   buttonText: ''
 })
 
@@ -48,18 +50,30 @@ let count = ref(0)
 
 const showMsg = () => {
   count.value++
-  Notification({
+  notification({
     title: `${count.value}-Event has been created`,
-    message:
-      'Sunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AMSunday, December 03, 2023 at 9:00 AM',
+    message: 'Sunday, December 03, 2023 at 9:00 AM, your event has been scheduled successfully.',
     type: config.type,
     duration: config.duration,
     closable: config.closable,
-    onClose: (vm) => {},
     buttonText: config.buttonText,
-    onClick: (vm) => {},
-    position: config.position as any
+    position: config.position,
+    onClick: () => console.log('action clicked'),
+    onClosed: () => console.log('closed')
   })
+}
+
+const showSuccess = () => {
+  count.value++
+  notification.success(`保存成功 (${count.value})`, {
+    title: 'Success',
+    position: config.position,
+    duration: config.duration
+  })
+}
+
+const closeAll = () => {
+  notification.closeAll(config.position)
 }
 </script>
 
@@ -71,5 +85,6 @@ const showMsg = () => {
 .btn {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 </style>

@@ -1,48 +1,53 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
-@use 'sass:map';
+@use 'pkg:@veltra/styles/vars' as vars;
+@use 'sass:list';
 
 // 方便拼接
 $root-name: notification;
-$positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
+// 方位 => (垂直锚边, 水平锚边)
+$stack-positions: (
+  'bottom-right': (bottom, right),
+  'bottom-left': (bottom, left),
+  'top-right': (top, right),
+  'top-left': (top, left)
+);
 
 @include m.b($root-name) {
   display: flex;
-  min-width: 380px;
-  position: absolute;
-  transition:
-    opacity 0.3s,
-    transform 0.4s,
-    top 0.4s;
+  position: relative;
+  width: 380px;
+  max-width: calc(100vw - 40px);
   border: fn.use-var(border);
   background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, lg);
-  margin: 4px;
+  color: fn.use-var(text-color, main);
   overflow: hidden;
+  transition:
+    transform fn.use-var(transition, normal) fn.use-var(transition, ease),
+    opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
     padding: calc(fn.use-var(gap, $size) * 1.2);
 
-    @include m.bem($root-name, icon) {
-    }
-
     @include m.bem($root-name, content) {
-      max-width: 400px;
       word-wrap: break-word;
       margin-left: fn.use-var(gap, $size);
       text-align: left;
+
       &--title {
         font-size: fn.use-var('font-size', title, $size);
         font-weight: bold;
       }
+
       &--message {
         font-size: fn.use-var('font-size', main, $size);
       }
+
       &--button {
         text-align: right;
-        margin-top: fn.use-var(gap, size);
+        margin-top: fn.use-var(gap, $size);
       }
     }
 
@@ -51,45 +56,67 @@ $positions: ('top-left', 'top-right', 'bottom-left', 'bottom-right');
       position: absolute;
       right: fn.use-var(gap, $size);
       top: fn.use-var(gap, $size);
+
       &:hover {
         color: fn.use-var(color, primary, 'dark-9');
       }
     }
   }
 
+  // 类型色仅作用于图标
   @each $type, $_ in vars.$color-types {
     @include m.e($type) {
-      // background-color: fn.use-var(color, $type, 'light-7');
-      color: fn.use-var(color, $type);
-    }
-  }
-
-  @each $position in $positions {
-    @include m.e($position) {
-      @if $position == 'bottom-right' {
-        right: 0;
-        bottom: 0;
-      } @else if ($position == 'bottom-left') {
-        left: 0;
-        bottom: 0;
-      } @else if ($position == 'top-right') {
-        right: 0;
-        top: 0;
-      } @else {
-        left: 0;
-        top: 0;
+      @include m.bem($root-name, icon) {
+        color: fn.use-var(color, $type);
       }
     }
   }
+
+  // 堆叠容器
+  @include m.e(stack) {
+    position: relative;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    transition: height fn.use-var(transition, normal) fn.use-var(transition, ease);
+  }
+
+  // 卡片定位层
+  @include m.e(item) {
+    position: absolute;
+  }
 }
 
-.#{$root-name}-fade-bottom-enter-from,
-.#{$root-name}-fade-bottom-leave-to {
-  opacity: 0;
-  transform: translate(0, 100%);
+// 各方位锚定与堆叠缩放原点
+@each $position, $edges in $stack-positions {
+  @include m.bem($root-name, stack, $position) {
+    @include m.bem($root-name, item) {
+      #{list.nth($edges, 1)}: 0;
+      #{list.nth($edges, 2)}: 0;
+    }
+
+    @include m.bem($root-name) {
+      transform-origin: center #{list.nth($edges, 1)};
+    }
+  }
 }
-.#{$root-name}-fade-top-enter-from,
-.#{$root-name}-fade-top-leave-to {
+
+.#{$root-name}-bottom-enter-active,
+.#{$root-name}-bottom-leave-active,
+.#{$root-name}-top-enter-active,
+.#{$root-name}-top-leave-active {
+  transition:
+    opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+    transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+}
+
+.#{$root-name}-bottom-enter-from,
+.#{$root-name}-bottom-leave-to {
   opacity: 0;
-  transform: translate(0, -100%);
+  transform: translateY(100%);
+}
+
+.#{$root-name}-top-enter-from,
+.#{$root-name}-top-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
 }

@@ -12,12 +12,12 @@
 
 本组件通常配合以下工具来使用。
 
-### Notification
+### notification
 
-函数式通知条，命令式弹出。
+函数式通知条，命令式弹出；另有 `success` / `warning` / `danger` 等快捷方法。
 
 使用示例:
 
 ```ts
-import { Notification } from '@veltra/desktop'
+import { notification } from '@veltra/desktop'
 ```

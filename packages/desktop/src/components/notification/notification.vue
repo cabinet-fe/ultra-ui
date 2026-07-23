@@ -1,31 +1,25 @@
 <template>
-  <transition
-    :name="`notification-fade-${position.split('-')[0]}`"
-    @before-leave="onClose"
-    @after-leave="$emit('destroy')"
+  <div
+    :class="[cls.b, cls.m(size), cls.e(type)]"
+    @mouseenter="suspendTimer"
+    @mouseleave="startTimer"
   >
-    <div
-      :class="[cls.b, cls.m(size), cls.e(type), cls.e(position)]"
-      v-show="visible"
-      :style="customStyle"
-    >
-      <div :class="cls.e('icon')">
-        <UIcon>
-          <component :is="typeIcon" />
-        </UIcon>
-      </div>
-      <div :class="cls.e('content')">
-        <div :class="cls.em('content', 'title')">{{ title }}</div>
-        <div :class="cls.em('content', 'message')">{{ message }}</div>
-        <div :class="cls.em('content', 'button')" v-if="buttonText">
-          <UButton :type="type" plain @click="handleClick">{{ buttonText }}</UButton>
-        </div>
-      </div>
-      <div :class="cls.e('close')" v-if="closable" @click.stop="close">
-        <UIcon><Close /></UIcon>
+    <div :class="cls.e('icon')">
+      <UIcon>
+        <component :is="typeIcon" />
+      </UIcon>
+    </div>
+    <div :class="cls.e('content')">
+      <div :class="cls.em('content', 'title')" v-if="title">{{ title }}</div>
+      <div :class="cls.em('content', 'message')" v-if="message">{{ message }}</div>
+      <div :class="cls.em('content', 'button')" v-if="buttonText">
+        <UButton :type="type" plain @click="(e) => emit('action', e)">{{ buttonText }}</UButton>
       </div>
     </div>
-  </transition>
+    <div :class="cls.e('close')" v-if="closable || duration === 0" @click.stop="emit('close')">
+      <UIcon><Close /></UIcon>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -39,9 +33,9 @@ import {
   WarningFilled
 } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { ref, computed, onMounted, type CSSProperties } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 
-import type { NotificationProps, NotificationExposed, ColorType } from '../../types'
+import type { NotificationEmits, NotificationProps, ColorType } from '../../types'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 
@@ -50,10 +44,10 @@ defineOptions({ name: 'UNotification' })
 const props = withDefaults(defineProps<NotificationProps>(), {
   closable: false,
   duration: 4500,
-  offset: 20,
-  buttonText: '',
-  position: 'bottom-right'
+  buttonText: ''
 })
+
+const emit = defineEmits<NotificationEmits>()
 
 const { type, size } = useFallbackProps([props], { type: 'primary' as ColorType, size: 'default' })
 
@@ -72,47 +66,27 @@ const typeIcon = computed(() => {
 
 const cls = bem('notification')
 
-const visible = ref<boolean>(false)
+/** 剩余时长制的自动关闭计时器, 悬停暂停 */
+let startTime = 0
+let timer = 0
+let restDuration = 0
+
+function startTimer() {
+  if (!props.duration) return
+  startTime = Date.now()
+  timer = setTimeout(() => emit('close'), restDuration)
+}
+
+function suspendTimer() {
+  if (!props.duration) return
+  clearTimeout(timer)
+  restDuration -= Date.now() - startTime
+}
 
 onMounted(() => {
-  visible.value = true
+  restDuration = props.duration
   startTimer()
 })
 
-const close = () => {
-  visible.value = false
-}
-
-const customStyle = computed<CSSProperties>(() => {
-  return props.offset > 0
-    ? {
-        [`${props.position.split('-')[0]}`]: `${props.offset}px`,
-        zIndex: props.zIndex,
-        transform:
-          props.position.split('-')[0] === 'bottom'
-            ? `translateY(-${props.offset}px)`
-            : `translateY(${props.offset}px)`,
-        transition: `opacity 0.3s, transform 0.4s, top 0.4s`
-      }
-    : { [`${props.position.split('-')[0]}`]: `${props.offset}px`, zIndex: props.zIndex }
-})
-
-let timer = 0
-
-const startTimer = () => {
-  if (props.duration) {
-    timer = setTimeout(() => {
-      close()
-    }, props.duration)
-  }
-}
-
-const clearTimer = () => clearTimeout(timer)
-
-const handleClick = (e: MouseEvent) => {
-  if (props.onClick) props.onClick(e)
-  close()
-}
-
-defineExpose<NotificationExposed>({ startTimer, clearTimer })
+onBeforeUnmount(() => clearTimeout(timer))
 </script>

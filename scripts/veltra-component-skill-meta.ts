@@ -45,16 +45,16 @@ export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
   ],
   'message-confirm': [
     {
-      name: 'MessageConfirm',
+      name: 'messageConfirm',
       purpose: '函数式确认框；另有 `primary` / `success` / `warning` / `danger` 等快捷方法。',
-      importLine: "import { MessageConfirm } from '@veltra/desktop'"
+      importLine: "import { messageConfirm } from '@veltra/desktop'"
     }
   ],
   notification: [
     {
-      name: 'Notification',
-      purpose: '函数式通知条，命令式弹出。',
-      importLine: "import { Notification } from '@veltra/desktop'"
+      name: 'notification',
+      purpose: '函数式通知条，命令式弹出；另有 `success` / `warning` / `danger` 等快捷方法。',
+      importLine: "import { notification } from '@veltra/desktop'"
     }
   ],
   table: [
