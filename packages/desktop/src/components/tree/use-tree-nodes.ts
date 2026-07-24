@@ -37,45 +37,40 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   const nodes = shallowRef<TreeNode[]>([])
 
   function buildForest(): Forest<Record<string, unknown>, any> {
-    const { disabledNode, expandAll = false } = props
+    const { expandAll = false } = props
     const childrenKey = props.childrenKey ?? 'children'
     const valueKey = fieldKey(props.valueKey, 'value')
     const labelKey = fieldKey(props.labelKey, 'label')
 
-    function createNode(
-      data: Record<string, any>,
-      index: number,
-      depth: number,
-      parent?: TreeNode
-    ): TreeNode {
-      const node = new TreeNode({ data, index, depth, parent, valueKey, labelKey })
-      node.expanded = expandAll
-      return node
-    }
-
     return new Forest<Record<string, unknown>, any>({
       data: (props.data ?? []) as Record<string, unknown>[],
       childrenKey,
-      createNode: disabledNode
-        ? (data, index, depth, _f, parent) => {
-            const node = createNode(data as Record<string, any>, index, depth, parent as TreeNode)
-            if (data) {
-              node.disabled = disabledNode(data as Record<string, any>, node) ?? false
-            }
-            return node
-          }
-        : (data, index, depth, _f, parent) =>
-            createNode(data as Record<string, any>, index, depth, parent as TreeNode)
+      createNode: (data, index, depth, _f, parent) => {
+        const node = new TreeNode({
+          data: data as Record<string, any>,
+          index,
+          depth,
+          parent: parent as TreeNode | undefined,
+          valueKey,
+          labelKey
+        })
+        node.expanded = expandAll
+        return node
+      }
     })
   }
 
   function rebuildForest(): void {
     const nextForest = buildForest()
     const nextDict = new Map<string | number, TreeNode>()
+    const { disabledNode } = props
 
-    // 构建森林的同时一次 DFS 同步填充字典，
-    // 避免旧版 “forest computed → nodeDict computed” 两次完整遍历。
+    // Forest 的 createNode 返回时 children 尚未挂载，因此 disabledNode 必须在
+    // 整棵树构建完成后再调用，才能安全访问 node.children / node.isLeaf。
     nextForest.dfs((node) => {
+      if (disabledNode && node.data) {
+        node.disabled = disabledNode(node.data as Record<string, any>, node) ?? false
+      }
       nextDict.set(node.key, node)
     })
 

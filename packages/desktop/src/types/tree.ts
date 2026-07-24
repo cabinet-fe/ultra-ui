@@ -38,7 +38,10 @@ export interface TreeProps {
   childrenKey?: string
   /** 数据 */
   data?: Record<string, any>[]
-  /** 禁止单选或多选的节点 */
+  /**
+   * 禁止单选或多选的节点。
+   * 在整棵树构建完成后调用，可安全访问 `node.children` / `node.isLeaf`。
+   */
   disabledNode?: (item: Record<string, any>, node: TreeNode) => boolean
   /** 可多选 */
   checkable?: boolean
