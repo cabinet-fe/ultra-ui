@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.3.5
+
+### Patch Changes
+
+- e9b830d: 修复 Tree `disabledNode` 在节点 `children` 未挂载时调用的问题，改为整棵树构建完成后再判定 disabled
+  - @veltra/utils@1.3.5
+  - @veltra/styles@1.3.5
+  - @veltra/compositions@1.3.5
+  - @veltra/directives@1.3.5
+  - @veltra/icons@1.3.5
+
 ## 1.3.4
 
 ### Patch Changes
