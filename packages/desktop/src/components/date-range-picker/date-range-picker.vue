@@ -10,6 +10,7 @@
     :disabled="disabled"
     @mouseenter.native="hovered = true"
     @mouseleave.native="hovered = false"
+    @update:visible="dropdownVisible = $event"
   >
     <template #trigger>
       <input
@@ -87,8 +88,15 @@ const emit = defineEmits<DateRangePickerEmits>()
 
 const cls = bem('date-range-picker')
 
+const dropdownVisible = shallowRef(false)
+
 const className = computed(() => {
-  return [cls.b, cls.m(size.value), bem.is('disabled', disabled.value)]
+  return [
+    cls.b,
+    cls.m(size.value),
+    bem.is('disabled', disabled.value),
+    bem.is('focus', dropdownVisible.value)
+  ]
 })
 
 const { formProps } = injectFormContext()

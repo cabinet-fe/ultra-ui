@@ -5,11 +5,11 @@ export interface TransitionBase {
   target: ShallowRef<HTMLElement | undefined> | HTMLElement
   /** 进入动画结束回调 */
   afterEnter?: () => void
-  /** 进入动画被取消回调 */
+  /** 进入动画被取消回调（css 实现中阶段被打断时由新阶段直接接管，不会触发） */
   enterCanceled?: () => void
   /** 离开动画结束回调 */
   afterLeave?: () => void
-  /** 离开动画被取消回调 */
+  /** 离开动画被取消回调（css 实现中阶段被打断时由新阶段直接接管，不会触发） */
   leaveCanceled?: () => void
 }
 

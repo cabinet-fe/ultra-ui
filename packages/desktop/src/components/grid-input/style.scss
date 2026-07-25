@@ -26,6 +26,7 @@ $root-name: grid-input;
 
       @include m.is(focus) {
         border-color: fn.use-var(color, primary);
+        box-shadow: fn.use-var(focus-ring);
 
         @keyframes fade {
           0% {

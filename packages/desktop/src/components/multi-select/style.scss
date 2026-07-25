@@ -36,6 +36,11 @@ $root-name: multi-select;
     border-color: fn.use-var(color, primary);
   }
 
+  @include m.is(focus) {
+    border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
+  }
+
   @include m.e(ripple) {
     background-color: fn.use-var(color, primary, light-7);
     opacity: 0.5;

@@ -7,11 +7,11 @@
     >
       <u-tip v-if="tips" :content="tips" :class="cls.e('tips')" :show-delay="500">
         <span :class="cls.e('tip-label')">
-          <slot name="label">{{ label }}:</slot>
+          <slot name="label">{{ label }}{{ labelPosition === 'top' ? '' : ':' }}</slot>
         </span>
       </u-tip>
       <template v-else>
-        <slot name="label">{{ label }}:</slot>
+        <slot name="label">{{ label }}{{ labelPosition === 'top' ? '' : ':' }}</slot>
       </template>
     </label>
 

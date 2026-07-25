@@ -2,7 +2,7 @@
   <u-dropdown
     v-if="!readonly"
     v-bind="$attrs"
-    :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled), bem.is('focus', dropdownVisible)]"
     trigger="click"
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
     :content-style="contentStyle"
@@ -306,7 +306,10 @@ const hiddenCount = computed(() => {
   return 0
 })
 
+const dropdownVisible = shallowRef(false)
+
 const handleDropdownVisible = (visible: boolean) => {
+  dropdownVisible.value = visible
   if (!visible) {
     qs.value = ''
   }

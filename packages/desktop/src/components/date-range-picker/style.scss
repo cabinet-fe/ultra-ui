@@ -32,6 +32,11 @@ $root-name: date-range-picker;
     border-color: fn.use-var(color, primary);
   }
 
+  @include m.is(focus) {
+    border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
+  }
+
   @include m.e(input) {
     outline: none;
     border: none;

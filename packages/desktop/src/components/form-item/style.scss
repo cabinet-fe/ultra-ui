@@ -28,7 +28,7 @@ $root-name: form-item;
     color: fn.use-var(text-color, main);
     text-align: right;
     line-height: 1.3;
-    font-weight: 300;
+    font-weight: 400;
 
     @include m.flex($justify: flex-end);
 
@@ -99,6 +99,7 @@ $root-name: form-item;
       padding-right: 0;
       padding-bottom: 4px;
       text-align: left;
+      color: fn.use-var(text-color, second);
       justify-content: flex-start;
     }
   }

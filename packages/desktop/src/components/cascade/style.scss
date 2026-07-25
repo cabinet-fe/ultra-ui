@@ -23,6 +23,11 @@ $menu-name: $root-name + '-panel-item';
     &:hover {
       border-color: fn.use-var(color, primary);
     }
+
+    @include m.is(focus) {
+      border-color: fn.use-var(color, primary);
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   @include m.size using ($size) {

@@ -57,6 +57,7 @@ $root-name: textarea;
 
   @include m.is(focus) {
     border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
   }
 
   @include m.is(disabled) {

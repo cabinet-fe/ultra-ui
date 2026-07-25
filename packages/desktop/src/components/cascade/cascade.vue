@@ -2,7 +2,13 @@
   <u-dropdown
     v-if="!readonly"
     v-bind="$attrs"
-    :class="[cls.b, bem.is('disabled', disabled), bem.is('multiple', multiple), cls.m(size)]"
+    :class="[
+      cls.b,
+      bem.is('disabled', disabled),
+      bem.is('multiple', multiple),
+      cls.m(size),
+      bem.is('focus', multiple && dropdownVisible)
+    ]"
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     trigger="click"
     ref="dropdownRef"
@@ -10,7 +16,7 @@
     width="auto"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
-    @update:visible="!$event && (qs = '')"
+    @update:visible="handleDropdownVisible"
   >
     <template #trigger>
       <!-- 单选展示 -->
@@ -232,6 +238,13 @@ function handleClear() {
 
 // 过滤
 const qs = shallowRef<string>('')
+
+const dropdownVisible = shallowRef(false)
+
+const handleDropdownVisible = (visible: boolean) => {
+  dropdownVisible.value = visible
+  if (!visible) qs.value = ''
+}
 
 watch([qs, forest], ([qs, forest]) => {
   const { filterable } = props

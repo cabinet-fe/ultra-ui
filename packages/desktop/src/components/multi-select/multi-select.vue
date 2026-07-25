@@ -4,7 +4,7 @@
     v-bind="$attrs"
     trigger="click"
     ref="dropdownRef"
-    :class="[cls.b, cls.m(size), bem.is('disabled', disabled)]"
+    :class="[cls.b, cls.m(size), bem.is('disabled', disabled), bem.is('focus', dropdownVisible)]"
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
     :content-style="contentStyle"
     :min-width="minWidth"
@@ -319,7 +319,10 @@ const restTag = computed(() => {
   return (model.value?.length ?? 0) - tags.value.length
 })
 
+const dropdownVisible = shallowRef(false)
+
 const handleDropdownVisible = (visible: boolean) => {
+  dropdownVisible.value = visible
   if (!visible) {
     queryString.value = ''
   }
