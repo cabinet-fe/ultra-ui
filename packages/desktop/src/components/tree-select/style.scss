@@ -30,8 +30,8 @@ $root-name: tree-select;
     background: none;
   }
 
-  @include m.e(filter) {
-    margin-bottom: 4px;
+  @include m.e(clear) {
+    cursor: pointer;
   }
 
   @include m.e(content-header) {
@@ -42,17 +42,13 @@ $root-name: tree-select;
   }
 
   @include m.e(content-tree) {
-    max-height: 200px;
+    max-height: 240px;
   }
 
   @include m.e(panel) {
     @include m.size using ($size) {
-      @include m.bem($root-name, content-filter) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
-
       @include m.bem($root-name, content-tree) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+        padding: fn.use-var(gap, $size);
       }
 
       @include m.bem($root-name, empty) {

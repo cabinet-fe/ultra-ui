@@ -16,11 +16,11 @@
   >
     <!-- 触发 -->
     <template #trigger>
-      <span :class="cls.e('placeholder')" v-show="!model?.length">
+      <span :class="cls.e('placeholder')" v-if="!filterable && !model?.length">
         {{ placeholder }}
       </span>
 
-      <div v-if="model?.length" :class="cls.e('tags')">
+      <div v-if="model?.length || filterable" :class="cls.e('tags')">
         <u-tag
           v-for="option of tags"
           :key="option[valueKey]"
@@ -31,6 +31,19 @@
           {{ option[labelKey] }}
         </u-tag>
         <u-tag v-if="restTag" size="small"> {{ restTag }}+ </u-tag>
+
+        <!-- 内嵌查询输入框：承载过滤与回车创建 -->
+        <input
+          v-if="filterable"
+          ref="inputRef"
+          :class="cls.e('input')"
+          v-model="queryString"
+          :placeholder="model?.length ? '' : placeholder"
+          :disabled="disabled"
+          @click.stop="handleInputClick"
+          @focus="handleInputFocus"
+          @keydown.enter.prevent="handleCreateByEnter"
+        />
       </div>
 
       <transition name="zoom-in" mode="out-in">
@@ -60,19 +73,6 @@
         </u-checkbox>
 
         <span> 已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }} </span>
-      </div>
-
-      <!-- 过滤器 -->
-      <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input
-          placeholder="输入关键字进行过滤"
-          v-model="queryString"
-          @keydown.enter.prevent="handleCreateByEnter"
-        >
-          <template #suffix>
-            <u-icon><Search /></u-icon>
-          </template>
-        </u-input>
       </div>
 
       <!-- 多选列表 -->
@@ -143,10 +143,18 @@
 <script lang="ts" setup>
 import { o as chainObj } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
-import { ArrowDown, Close, Search } from '@veltra/icons/normal'
+import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, shallowRef, shallowReactive, watch, provide } from 'vue'
+import {
+  computed,
+  nextTick,
+  shallowRef,
+  shallowReactive,
+  watch,
+  provide,
+  useTemplateRef
+} from 'vue'
 
 import type {
   MultiSelectEmits,
@@ -158,7 +166,6 @@ import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'
-import { UInput } from '../input'
 import { UScroll } from '../scroll'
 import { useOptions } from '../select/use-options'
 import { UTag } from '../tag'
@@ -321,11 +328,31 @@ const restTag = computed(() => {
 
 const dropdownVisible = shallowRef(false)
 
+const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
+
 const handleDropdownVisible = (visible: boolean) => {
   dropdownVisible.value = visible
   if (!visible) {
     queryString.value = ''
   }
+}
+
+/**
+ * 拦截输入区域的点击（@click.stop）：阻止 dropdown 的 trigger 开合切换，
+ * 保持面板展开以不中断输入。
+ */
+const handleInputClick = () => {
+  if (!dropdownVisible.value) dropdownRef.value?.open()
+}
+
+const handleInputFocus = () => {
+  if (!dropdownVisible.value) dropdownRef.value?.open()
+}
+
+/** 勾选后把焦点还给输入框，便于连续输入过滤 */
+const refocusInput = () => {
+  if (!filterable.value) return
+  nextTick(() => inputRef.value?.focus())
 }
 
 const handleCheck = (option: Record<string, any>, checked: boolean) => {
@@ -355,6 +382,7 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
 
   emitChange()
   dropdownRef.value?.updateDropdown()
+  refocusInput()
 }
 
 /** 全选 */

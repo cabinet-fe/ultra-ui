@@ -7,38 +7,46 @@
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"
     :content-style="contentStyle"
     ref="dropdownRef"
+    v-model:visible="dropdownVisible"
     :min-width="minWidth"
     :width="width"
     :disabled="disabled"
     @update:visible="handleDropdownVisible"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
   >
     <template #trigger>
       <u-input
+        ref="inputRef"
         :size="size"
         :disabled="disabled"
-        :placeholder="placeholder"
-        :clearable="clearable"
-        :model-value="text ?? (model ? label : undefined)"
-        @clear="handleClear"
-        native-readonly
+        :placeholder="inputPlaceholder"
+        :clearable="false"
+        :model-value="inputValue"
+        @update:model-value="handleQueryInput"
+        :native-readonly="!filterable || !querying"
+        @click.capture="handleTriggerClickCapture"
       >
         <template #prefix v-if="$slots.prefix">
           <slot name="prefix" />
         </template>
         <template #suffix>
-          <u-icon :class="cls.e('arrow')"><ArrowDown /></u-icon>
+          <transition name="zoom-in" mode="out-in">
+            <u-icon
+              v-if="showClear"
+              :class="cls.e('clear')"
+              title="清除"
+              key="clear"
+              @click.stop="handleClear"
+            >
+              <Close />
+            </u-icon>
+            <u-icon v-else :class="cls.e('arrow')" key="arrow"><ArrowDown /></u-icon>
+          </transition>
         </template>
       </u-input>
     </template>
     <template #content>
-      <!-- 过滤器 -->
-      <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
-        <u-input placeholder="输入关键字进行过滤" v-model="qs">
-          <template #suffix>
-            <u-icon><Search /></u-icon>
-          </template>
-        </u-input>
-      </div>
       <!-- 菜单列表 -->
 
       <u-tree
@@ -62,12 +70,12 @@
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
-import { ArrowDown, Search } from '@veltra/icons/normal'
+import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
-import type { TreeSelectProps, TreeSelectEmits, TreeExposed } from '../../types'
+import type { TreeSelectProps, TreeSelectEmits, TreeExposed, InputExposed } from '../../types'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
@@ -126,6 +134,68 @@ watch(qs, (qs) => {
 const model = defineModel<string | number>()
 
 const label = shallowRef<string>()
+
+const dropdownVisible = shallowRef(false)
+
+/**
+ * 是否处于查询态：决定触发输入框显示查询串还是选中标签。
+ * 与面板可见状态解耦 —— 选择后立即退出查询态，
+ * 不等面板关闭动画结束（否则显示值会延迟一个动画时长才恢复）。
+ */
+const querying = shallowRef(false)
+
+const inputRef = useTemplateRef<InputExposed>('inputRef')
+
+/** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
+const inputValue = computed(() => {
+  if (props.filterable && querying.value) return qs.value
+  return props.text ?? (model.value ? label.value : undefined)
+})
+
+/** 查询态下已选标签降级为占位提示 */
+const inputPlaceholder = computed(() => {
+  const display = props.text ?? (model.value ? label.value : undefined)
+  if (props.filterable && querying.value && display) {
+    return display
+  }
+  return props.placeholder
+})
+
+function handleQueryInput(value: string) {
+  if (!props.filterable) return
+  qs.value = value
+}
+
+const hovered = shallowRef(false)
+
+/** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
+const showClear = computed(() => {
+  if (!props.clearable || disabled.value || !hovered.value) return false
+  return !!(props.text ?? (model.value ? label.value : undefined))
+})
+
+/**
+ * 过滤模式下拦截输入区域的点击：
+ * 阻止 dropdown 的 trigger 开合切换，保持面板展开以不中断输入。
+ * 非输入区域（箭头、留白）放行，维持原开合行为。
+ */
+function handleTriggerClickCapture(e: MouseEvent) {
+  if (!props.filterable || disabled.value) return
+  if (!(e.target instanceof HTMLInputElement)) return
+
+  e.stopPropagation()
+  if (!dropdownVisible.value) dropdownRef.value?.open()
+}
+
+watch(dropdownVisible, (visible) => {
+  if (visible && props.filterable) {
+    // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
+    querying.value = true
+    nextTick(() => inputRef.value?.el?.focus())
+  } else if (!visible) {
+    querying.value = false
+  }
+})
 
 const { formProps } = injectFormContext()
 
@@ -192,6 +262,9 @@ const handleSelect = (selected?: string | number, selectedData?: Record<string, 
 
   emit('change', selectedData)
   emit('update:text', label.value)
+  // 立即退出查询态，输入框同步恢复显示选中标签
+  querying.value = false
+  qs.value = ''
   dropdownRef.value?.close()
 }
 

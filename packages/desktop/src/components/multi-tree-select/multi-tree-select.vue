@@ -16,12 +16,12 @@
   >
     <template #trigger>
       <!-- 默认展示 -->
-      <span :class="cls.e('placeholder')" v-show="!tags.length">
+      <span :class="cls.e('placeholder')" v-if="!filterable && !tags.length">
         {{ placeholder }}
       </span>
 
       <!-- 选择的数据项 -->
-      <div v-if="tags.length" :class="cls.e('tags')">
+      <div v-if="tags.length || filterable" :class="cls.e('tags')">
         <u-tag
           v-for="(tag, index) in visibleTags"
           :key="tag[valueKey]"
@@ -31,6 +31,18 @@
           {{ tag[labelKey] }}
         </u-tag>
         <u-tag v-if="hiddenCount > 0">+{{ hiddenCount }}</u-tag>
+
+        <!-- 内嵌查询输入框：承载过滤 -->
+        <input
+          v-if="filterable"
+          ref="inputRef"
+          :class="cls.e('input')"
+          v-model="qs"
+          :placeholder="tags.length ? '' : placeholder"
+          :disabled="disabled"
+          @click.stop="handleInputClick"
+          @focus="handleInputFocus"
+        />
       </div>
       <!-- 清空 icon -->
       <transition name="zoom-in" mode="out-in">
@@ -58,14 +70,6 @@
         <u-button size="small" text type="primary" @click="handleToggleExpandAll">
           {{ allExpanded ? '收起全部' : '展开全部' }}
         </u-button>
-      </div>
-      <!-- 过滤器 -->
-      <div v-if="filterable" :class="[cls.e('content-filter'), cls.m(size)]">
-        <u-input placeholder="输入关键字进行过滤" v-model="qs">
-          <template #suffix>
-            <u-icon><Search /></u-icon>
-          </template>
-        </u-input>
       </div>
       <!-- 菜单列表 -->
       <u-tree
@@ -98,10 +102,10 @@
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
-import { ArrowDown, Close, Search } from '@veltra/icons/normal'
+import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
 import type { DropdownExposed } from '../../types'
@@ -109,7 +113,6 @@ import { UButton } from '../button'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
-import { UInput } from '../input'
 import { UTag } from '../tag'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
@@ -308,10 +311,24 @@ const hiddenCount = computed(() => {
 
 const dropdownVisible = shallowRef(false)
 
+const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
+
 const handleDropdownVisible = (visible: boolean) => {
   dropdownVisible.value = visible
   if (!visible) {
     qs.value = ''
   }
+}
+
+/**
+ * 拦截输入区域的点击（@click.stop）：阻止 dropdown 的 trigger 开合切换，
+ * 保持面板展开以不中断输入。
+ */
+const handleInputClick = () => {
+  if (!dropdownVisible.value) dropdownRef.value?.open()
+}
+
+const handleInputFocus = () => {
+  if (!dropdownVisible.value) dropdownRef.value?.open()
 }
 </script>

@@ -63,14 +63,31 @@ $root-name: multi-tree-select;
     color: fn.use-var(text-color, placeholder);
   }
 
-  @include m.e(filter) {
-    margin-bottom: 4px;
-  }
-
   @include m.e(tags) {
     flex-grow: 1;
     overflow: hidden;
     @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
+  }
+
+  @include m.e(input) {
+    flex: 1;
+    min-width: 60px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: fn.use-var(text-color, main);
+    cursor: text;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   @include m.e(readonly-tags) {
@@ -95,21 +112,18 @@ $root-name: multi-tree-select;
 
   @include m.e(panel) {
     @include m.size using ($size) {
-      @include m.bem($root-name, content-filter) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
       @include m.bem($root-name, content-header) {
         padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
         border-bottom: fn.use-var(border);
       }
 
       @include m.bem($root-name, content-tree) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
+        padding: fn.use-var(gap, $size);
       }
     }
   }
 
   @include m.e(content-tree) {
-    max-height: 272px;
+    max-height: 240px;
   }
 }

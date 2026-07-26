@@ -47,7 +47,7 @@ $root-name: multi-select;
   }
 
   @include m.e(options) {
-    max-height: 180px;
+    max-height: 240px;
   }
 
   @include m.e(options-wrap) {
@@ -84,6 +84,27 @@ $root-name: multi-select;
     @include m.flex($justify: flex-start, $align: center, $wrap: wrap);
   }
 
+  @include m.e(input) {
+    flex: 1;
+    min-width: 60px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: fn.use-var(text-color, main);
+    cursor: text;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
   @include m.e(readonly-tags) {
     padding-left: 0;
     padding-right: 0;
@@ -109,9 +130,6 @@ $root-name: multi-select;
 
   @include m.e(panel) {
     @include m.size using ($size) {
-      @include m.bem($root-name, content-filter) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
       @include m.bem($root-name, content-header) {
         padding: calc(fn.use-var(gap, $size) / 2) calc(fn.use-var(gap, $size) * 2);
         border-bottom: fn.use-var(border);

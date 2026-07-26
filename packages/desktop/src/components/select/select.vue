@@ -13,44 +13,48 @@
     :width="width"
     @keydown="handleKeydown"
     @update:visible="handleDropdownVisible"
+    @mouseenter="hovered = true"
+    @mouseleave="hovered = false"
   >
     <!-- 触发 -->
     <template #trigger>
       <u-input
+        ref="inputRef"
         :size="size"
         :disabled="disabled"
-        :placeholder="placeholder"
-        :clearable="clearable"
-        :model-value="displayedValue"
-        @clear="handleClear"
+        :placeholder="inputPlaceholder"
+        :clearable="false"
+        :model-value="inputValue"
+        @update:model-value="handleQueryInput"
         @keydown="handleKeydown"
-        native-readonly
+        :native-readonly="!filterable || !querying"
+        @click.capture="handleTriggerClickCapture"
       >
         <template #prefix v-if="$slots.prefix">
           <slot name="prefix" />
         </template>
 
         <template #suffix>
-          <u-icon :class="cls.e('arrow')">
-            <ArrowDown />
-          </u-icon>
+          <transition name="zoom-in" mode="out-in">
+            <u-icon
+              v-if="showClear"
+              :class="cls.e('clear')"
+              title="清除"
+              key="clear"
+              @click.stop="handleClear"
+            >
+              <Close />
+            </u-icon>
+            <u-icon v-else :class="cls.e('arrow')" key="arrow">
+              <ArrowDown />
+            </u-icon>
+          </transition>
         </template>
       </u-input>
     </template>
 
     <!-- 下拉内容 -->
     <template #content>
-      <!-- 过滤器 -->
-      <div v-if="filterable" :class="cls.e('content-filter')">
-        <u-input placeholder="输入关键字进行搜索" tabindex="0" v-focus v-model="queryString">
-          <template #suffix>
-            <u-icon>
-              <Search />
-            </u-icon>
-          </template>
-        </u-input>
-      </div>
-
       <!--
         单选列表。虚拟化启用时，内容容器 height 由 useVirtualizer 命令式写入；
         此处 content-style 仅承担 grid 相关样式，避免 height 变化触发模板重渲染。
@@ -117,17 +121,17 @@
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
-import { vFocus } from '@veltra/directives'
-import { ArrowDown, Search } from '@veltra/icons/normal'
+import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type {
   SelectEmits,
   SelectProps,
   _SelectExposed,
   DropdownExposed,
+  InputExposed,
   ScrollExposed
 } from '../../types'
 import { UDropdown } from '../dropdown'
@@ -184,6 +188,7 @@ const displayedValue = computed(() => {
 
 const dropdownRef = shallowRef<DropdownExposed>()
 const scrollRef = shallowRef<ScrollExposed>()
+const inputRef = useTemplateRef<InputExposed>('inputRef')
 
 const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
@@ -193,16 +198,93 @@ const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } 
   props
 })
 
+const dropdownVisible = shallowRef(false)
+
+/**
+ * 是否处于查询态：决定触发输入框显示查询串还是选中标签。
+ * 与面板可见状态解耦 —— 选择后立即退出查询态，
+ * 不等面板关闭动画结束（否则显示值会延迟一个动画时长才恢复）。
+ */
+const querying = shallowRef(false)
+
+/** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
+const inputValue = computed(() => {
+  if (filterable.value && querying.value) return queryString.value
+  return displayedValue.value
+})
+
+/** 查询态下已选标签降级为占位提示 */
+const inputPlaceholder = computed(() => {
+  if (filterable.value && querying.value && displayedValue.value) {
+    return displayedValue.value
+  }
+  return props.placeholder
+})
+
+function handleQueryInput(value: string) {
+  if (!filterable.value) return
+  queryString.value = value
+}
+
+const hovered = shallowRef(false)
+
+/** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
+const showClear = computed(() => {
+  return props.clearable && !disabled.value && hovered.value && !!displayedValue.value
+})
+
+/**
+ * 过滤模式下拦截输入区域的点击：
+ * 阻止 dropdown 的 trigger 开合切换，保持面板展开以不中断输入。
+ * 非输入区域（箭头、留白）放行，维持原开合行为。
+ */
+function handleTriggerClickCapture(e: MouseEvent) {
+  if (!filterable.value || disabled.value) return
+  if (!(e.target instanceof HTMLInputElement)) return
+
+  e.stopPropagation()
+  if (!dropdownVisible.value) dropdownRef.value?.open()
+}
+
 // TODO: 优化
 let userSelecting = false
 function lock() {
   userSelecting = true
 }
 
-function unlock() {
+/**
+ * @param preferredValue 选择时传入刚提交的值，避免 nextTick 时 props.modelValue 尚未回传而用旧值覆盖高亮/标签
+ */
+function unlock(preferredValue?: any) {
   nextTick(() => {
     userSelecting = false
+    // 选择/清除会同步重建选项列表（临时项转正、查询串清空），
+    // 重建触发的回显在锁定期间被跳过，解锁后按最新列表重同步一次，
+    // 避免高亮停留在选择前的旧索引上
+    const value = preferredValue !== undefined ? preferredValue : props.modelValue
+    syncSelected(value, options.value)
   })
+}
+
+/** 按 modelValue 与选项列表同步高亮索引、选中项与显示标签 */
+function syncSelected(modelValue: any, options: Record<string, any>[] | undefined) {
+  // 查询输入期间高亮第一项（创建模式下通常是临时项，便于回车创建）
+  if (queryString.value) {
+    currentIndex.value = options?.length ? 0 : -1
+    return
+  }
+
+  if (!options?.length) return
+
+  if (modelValue !== undefined && modelValue !== null && modelValue !== '') {
+    currentIndex.value = options.findIndex((option) => o(option).get(valueKey.value) === modelValue)
+    selected.value = currentIndex.value >= 0 ? options[currentIndex.value] : undefined
+    label.value = selected.value ? o(selected.value).get(labelKey.value) : undefined
+  } else {
+    currentIndex.value = -1
+    selected.value = undefined
+    label.value = undefined
+  }
 }
 
 // 回显
@@ -210,20 +292,7 @@ watch(
   [() => props.modelValue, options],
   ([modelValue, options]) => {
     if (userSelecting) return
-
-    if (!options?.length) return
-
-    if (modelValue !== undefined && modelValue !== null && modelValue !== '') {
-      currentIndex.value = options.findIndex(
-        (option) => o(option).get(valueKey.value) === modelValue
-      )
-      selected.value = currentIndex.value >= 0 ? options[currentIndex.value] : undefined
-      label.value = selected.value ? o(selected.value).get(labelKey.value) : undefined
-    } else {
-      currentIndex.value = -1
-      selected.value = undefined
-      label.value = undefined
-    }
+    syncSelected(modelValue, options)
   },
   { immediate: true }
 )
@@ -275,10 +344,16 @@ watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
   }
 })
 
-const dropdownVisible = shallowRef(false)
-
-watch(dropdownVisible, (v) => {
-  if (!v) {
+watch(dropdownVisible, (visible) => {
+  if (visible) {
+    // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
+    if (filterable.value) {
+      queryString.value = ''
+      querying.value = true
+      nextTick(() => inputRef.value?.el?.focus())
+    }
+  } else {
+    querying.value = false
     queryString.value = ''
   }
 })
@@ -290,20 +365,29 @@ const handleDropdownVisible = (visible: boolean) => {
 }
 
 /** 单选 */
-const handleSelect = (option: Record<string, any>, index: number) => {
+const handleSelect = (option: Record<string, any>, _index: number) => {
   lock()
+  const value = option?.[valueKey.value]
   selected.value = option
 
-  emit('update:modelValue', option?.[valueKey.value])
+  emit('update:modelValue', value)
   label.value = option?.[labelKey.value]
   emit('change', option)
   if (option.__isTemp) {
+    // 转正后列表同步重建为完整源（临时项置顶索引失效），必须按 value 重定位
     temOptionsToCreatedOptions()
   }
-  currentIndex.value = index
+  // 立即退出查询态，输入框同步恢复显示选中标签
+  querying.value = false
+  queryString.value = ''
+  // 按当前列表定位高亮，避免创建项转正后仍停留在点击时的临时索引（通常为 0）
+  currentIndex.value = options.value.findIndex((item) => o(item).get(valueKey.value) === value)
+  if (currentIndex.value >= 0) {
+    selected.value = options.value[currentIndex.value]
+  }
   dropdownRef.value?.close()
 
-  unlock()
+  unlock(value)
 }
 
 /** 清除选项 */
@@ -315,7 +399,7 @@ const handleClear = () => {
   clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)
-  unlock()
+  unlock(null)
 }
 
 function getCurrentEl() {

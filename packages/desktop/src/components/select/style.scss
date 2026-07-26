@@ -5,23 +5,18 @@ $root-name: select;
 @include m.b($root-name) {
   width: 100%;
 
-  @include m.e(content-filter) {
-    border-bottom: 1px solid fn.use-var(border, color);
-    background-color: fn.use-var(bg-color, middle);
-
-    @include m.bem(input) {
-      box-shadow: none;
-    }
-  }
-
   @include m.e(options) {
-    max-height: 180px;
+    max-height: 240px;
   }
 
   @include m.is(disabled) {
     @include m.bem($root-name, arrow) {
       color: fn.use-var(text-color, disabled);
     }
+  }
+
+  @include m.e(clear) {
+    cursor: pointer;
   }
 
   @include m.e(options-wrap) {
@@ -100,10 +95,6 @@ $root-name: select;
 
   @include m.e(panel) {
     @include m.size using ($size) {
-      @include m.bem($root-name, content-filter) {
-        padding: calc(fn.use-var(gap, $size) / 2) fn.use-var(gap, $size);
-      }
-
       @include m.bem($root-name, options) {
         padding: fn.use-var(gap, $size);
       }

@@ -23,8 +23,8 @@ interface UseOptionsReturned {
 
 // 允许创建的实现
 // 1. 在过滤时将选项加入待选列表中
-// 2. 如果选择了改临时选项，则取消该选项的临时标记
-// 3. 如果第二次重新选择
+// 2. 如果选择了该临时选项，则取消该选项的临时标记并并入已创建列表
+// 3. 多次创建累计保留，已创建项参与后续过滤匹配
 
 export function useOptions(o: Options): UseOptionsReturned {
   const { props } = o
@@ -39,14 +39,38 @@ export function useOptions(o: Options): UseOptionsReturned {
   // 创建的选项
   const createdOptions = shallowRef<({ __isTemp: false } & Record<string, any>)[]>([])
 
+  function getSourceOptions(propsOptions: SelectProps['options']) {
+    if (typeof propsOptions === 'function') return remoteOptions.value
+    return [...createdOptions.value, ...(propsOptions ?? [])]
+  }
+
+  /** 无查询时同步展示完整列表（含已创建项），避免选择后等高亮索引错位 */
+  function resetToSourceOptions() {
+    const sourceOptions = getSourceOptions(props.options)
+    if (typeof props.options === 'function') {
+      setTempOption('', remoteOptions.value)
+      return
+    }
+    filteredOptions.value = sourceOptions
+    tempOptions.value = []
+  }
+
   function temOptionsToCreatedOptions() {
-    createdOptions.value = tempOptions.value.map((item) => {
-      return { ...item, __isTemp: false }
-    })
+    if (!tempOptions.value.length) return
+
+    createdOptions.value = [
+      ...createdOptions.value,
+      ...tempOptions.value.map((item) => {
+        return { ...item, __isTemp: false as const }
+      })
+    ]
+    // 立即清掉临时项并回到完整列表，不等待过滤防抖
+    resetToSourceOptions()
   }
 
   function clearCreatedOptions() {
     createdOptions.value = []
+    resetToSourceOptions()
   }
 
   const setTempOption = (qs: string, options?: Record<string, any>[]) => {
@@ -62,59 +86,79 @@ export function useOptions(o: Options): UseOptionsReturned {
         })
       : false
 
-    if (!exactMatch) {
-      tempOptions.value = [{ [labelKey]: qs, [valueKey]: qs, __isTemp: true }]
-    }
+    tempOptions.value = exactMatch ? [] : [{ [labelKey]: qs, [valueKey]: qs, __isTemp: true }]
   }
 
   const allOptions = computed(() => {
     const { options } = props
     if (typeof options === 'function') return remoteOptions.value
-    return options ?? []
+    return [...createdOptions.value, ...(options ?? [])]
   })
 
-  /** 展示的选项 */
+  /**
+   * 展示的选项
+   * @description 已创建选项并入过滤数据源参与匹配；临时选项（待创建）固定置顶
+   */
   const options = computed(() => {
     const { options } = props
 
     if (typeof options === 'function') return remoteOptions.value
 
-    const prependOptions = tempOptions.value?.length ? tempOptions.value : createdOptions.value
-
-    if (!options) {
-      return prependOptions
-    }
-
-    return [...prependOptions, ...filteredOptions.value]
+    return [...tempOptions.value, ...filteredOptions.value]
   })
 
-  // TODO: 如有性能问题可以考虑优化
-  watch(
-    [queryString, () => props.options],
-    debounce(async ([qs, propsOptions]) => {
-      if (typeof propsOptions === 'function') {
-        const options = await propsOptions(qs)
-        remoteOptions.value = options
-        setTempOption(qs, options)
-      } else {
-        // 当选项不是函数时，可以创建选项
-        const labelKey = fieldKey(props.labelKey, 'label')
+  const applyLocalFilter = (qs: string, propsOptions: Record<string, any>[] | undefined) => {
+    const labelKey = fieldKey(props.labelKey, 'label')
+    const sourceOptions = [...createdOptions.value, ...(propsOptions ?? [])]
 
-        if (!qs) {
-          filteredOptions.value = propsOptions ?? []
-          setTempOption(qs, filteredOptions.value)
-          return
-        }
+    if (!qs) {
+      filteredOptions.value = sourceOptions
+      setTempOption(qs, filteredOptions.value)
+      return
+    }
 
-        const _filteredOptions =
-          propsOptions?.filter((item) => {
-            return chainObj(item).get(labelKey)?.includes(qs) ?? false
-          }) ?? []
+    const _filteredOptions = sourceOptions.filter((item) => {
+      return chainObj(item).get(labelKey)?.includes(qs) ?? false
+    })
 
-        setTempOption(qs, _filteredOptions)
-        filteredOptions.value = _filteredOptions
+    setTempOption(qs, _filteredOptions)
+    filteredOptions.value = _filteredOptions
+  }
+
+  // 仅对「有查询词」的本地过滤做防抖；清空查询同步生效，避免选中后列表延迟重建
+  const debouncedLocalFilter = debounce(
+    (qs: string, propsOptions: Record<string, any>[] | undefined) => {
+      // 防抖回调可能晚于清空查询到达，以当前 queryString 为准
+      if (!queryString.value) {
+        applyLocalFilter('', propsOptions)
+        return
       }
-    }, 200),
+      applyLocalFilter(qs, propsOptions)
+    },
+    200
+  )
+
+  const debouncedRemoteFilter = debounce(async (qs: string, propsOptions: Function) => {
+    const options = await propsOptions(queryString.value)
+    remoteOptions.value = options
+    setTempOption(queryString.value, options)
+  }, 200)
+
+  watch(
+    [queryString, () => props.options, createdOptions],
+    ([qs, propsOptions]) => {
+      if (typeof propsOptions === 'function') {
+        debouncedRemoteFilter(qs, propsOptions)
+        return
+      }
+
+      if (!qs) {
+        applyLocalFilter('', propsOptions)
+        return
+      }
+
+      debouncedLocalFilter(qs, propsOptions)
+    },
     { immediate: true }
   )
 
