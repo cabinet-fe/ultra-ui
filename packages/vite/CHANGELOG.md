@@ -1,5 +1,12 @@
 # @veltra/vite
 
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [dc550a4]
+  - @veltra/desktop@1.3.6
+
 ## 2.0.5
 
 ### Patch Changes
