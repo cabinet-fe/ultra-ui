@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.3.7
+
+### Patch Changes
+
+- afd1656: 将 normalize 中 `list-style: none` 从独立 `li` 规则合并到 `ul`
+  - @veltra/utils@1.3.7
+  - @veltra/compositions@1.3.7
+
 ## 1.3.6
 
 ### Patch Changes
