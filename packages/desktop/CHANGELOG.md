@@ -1,5 +1,19 @@
 # @veltra/desktop
 
+## 1.3.8
+
+### Patch Changes
+
+- a80a9b3: `USelect` / `UTreeSelect` 移除 `text` prop 与 `v-model:text`。展示文案仅由选项/`data` 推导，并通过单向 `@update:text` 通知父级同步冗余字段。
+
+  迁移：`v-model:text="form.text"` → `@update:text="form.text = $event"`。
+
+  - @veltra/utils@1.3.8
+  - @veltra/styles@1.3.8
+  - @veltra/compositions@1.3.8
+  - @veltra/directives@1.3.8
+  - @veltra/icons@1.3.8
+
 ## 1.3.7
 
 ### Patch Changes
