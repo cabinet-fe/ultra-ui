@@ -1,22 +1,29 @@
 import { describe, expect, it } from 'vitest'
-import { createApp, h, nextTick, ref } from 'vue'
+import { createApp, h, nextTick, ref, type Ref } from 'vue'
 
 import USelect from '../select.vue'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-function mountSelect(props: Record<string, unknown>) {
+function mountSelect(props: Record<string, unknown> = {}) {
   const host = document.createElement('div')
   document.body.appendChild(host)
 
   const model = ref(props.modelValue)
+  const options = ref(props.options) as Ref<unknown>
+  const texts: (string | undefined)[] = []
+
   const app = createApp({
     render() {
       return h(USelect, {
         ...props,
         modelValue: model.value,
+        options: options.value as any,
         'onUpdate:modelValue': (value: unknown) => {
           model.value = value
+        },
+        'onUpdate:text': (text?: string) => {
+          texts.push(text)
         }
       })
     }
@@ -27,6 +34,8 @@ function mountSelect(props: Record<string, unknown>) {
   return {
     host,
     model,
+    options,
+    texts,
     unmount() {
       app.unmount()
       host.remove()
@@ -103,6 +112,72 @@ describe('USelect', () => {
       const selected = queryOptions().filter((el) => el.classList.contains('is-selected'))
       expect(selected).toHaveLength(1)
       expect(selected[0]!.textContent).toBe('新B')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits update:text with option label when modelValue echoes against options', async () => {
+    const { host, texts, unmount } = mountSelect({
+      modelValue: 'beijing',
+      options: [
+        { label: '北京（最新）', value: 'beijing' },
+        { label: '上海（最新）', value: 'shanghai' }
+      ]
+    })
+
+    try {
+      await nextTick()
+      expect(texts.at(-1)).toBe('北京（最新）')
+      expect(host.querySelector('input')!.value).toBe('北京（最新）')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits update:text on user select and clear', async () => {
+    const { host, model, texts, unmount } = mountSelect({
+      filterable: true,
+      options: [
+        { label: '北京', value: 'beijing' },
+        { label: '上海', value: 'shanghai' }
+      ]
+    })
+
+    try {
+      await openDropdown(host)
+      await clickOption(queryOptions().find((el) => el.textContent === '上海')!)
+      expect(model.value).toBe('shanghai')
+      expect(texts.at(-1)).toBe('上海')
+
+      // 清除：父级清空值时回显同步发出 update:text
+      model.value = undefined
+      await nextTick()
+      await nextTick()
+      expect(texts.at(-1)).toBeUndefined()
+      expect(host.querySelector('input')!.value).toBe('')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits update:text after async options arrive for an existing modelValue', async () => {
+    const { host, options, texts, unmount } = mountSelect({ modelValue: 'shanghai', options: [] })
+
+    try {
+      await nextTick()
+      expect(texts).toHaveLength(0)
+      expect(host.querySelector('input')!.value).toBe('shanghai')
+
+      options.value = [
+        { label: '北京（最新）', value: 'beijing' },
+        { label: '上海（最新）', value: 'shanghai' }
+      ]
+      await nextTick()
+      await nextTick()
+
+      expect(texts.at(-1)).toBe('上海（最新）')
+      expect(host.querySelector('input')!.value).toBe('上海（最新）')
     } finally {
       unmount()
     }

@@ -126,3 +126,27 @@ const gradeList = [
   </u-form>
 </template>
 ```
+
+## 同步冗余文案（@update:text）
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+// 展示由 options 推导；父级用事件写冗余 text，勿再 v-model:text
+const form = reactive({ code: 'beijing', text: '旧文案' })
+
+const dictOptions = [
+  { label: '北京（最新）', value: 'beijing' },
+  { label: '上海（最新）', value: 'shanghai' }
+]
+</script>
+
+<template>
+  <u-select
+    v-model="form.code"
+    :options="dictOptions"
+    @update:text="form.text = $event"
+  />
+</template>
+```

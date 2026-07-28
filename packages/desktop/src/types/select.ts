@@ -5,8 +5,6 @@ import type { CSSProperties, ShallowRef } from 'vue'
 export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
   modelValue?: any
-  /** 文本内容 */
-  text?: string
   /**
    * 列表选项
    * @description 如果传入一个函数，那么filterable会被强制启用
@@ -55,8 +53,11 @@ export interface SelectProps extends FormComponentProps {
 }
 
 export interface SelectEmits {
-  /** 触发更新label事件 */
-  (e: 'update:label', label?: string): void
+  /**
+   * 选中项文案变化（单向通知，用于同步父级冗余字段）
+   * @description 展示始终由 options 推导，请用 `@update:text` 而非 `v-model:text`
+   */
+  (e: 'update:text', text?: string): void
   (e: 'update:modelValue', modelValue?: any): void
   (e: 'change', option?: Record<string, any>): void
 }

@@ -120,7 +120,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
@@ -177,7 +177,8 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 })
 
 const currentIndex = shallowRef(-1)
-const label = defineModel('text')
+/** 内部展示文案，仅由选项推导；通过 update:text 单向通知父级 */
+const label = shallowRef<string>()
 const selected = shallowRef<Record<string, any>>()
 
 const displayedValue = computed(() => {
@@ -194,9 +195,8 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, temOptionsToCreatedOptions, clearCreatedOptions } = useOptions({
-  props
-})
+const { queryString, options, allOptions, temOptionsToCreatedOptions, clearCreatedOptions } =
+  useOptions({ props })
 
 const dropdownVisible = shallowRef(false)
 
@@ -246,56 +246,53 @@ function handleTriggerClickCapture(e: MouseEvent) {
   if (!dropdownVisible.value) dropdownRef.value?.open()
 }
 
-// TODO: 优化
-let userSelecting = false
-function lock() {
-  userSelecting = true
+const { userAction, isUserActive } = useUserAction()
+
+/** 更新内部文案；值变化时单向 emit update:text */
+function setLabel(next?: string) {
+  if (label.value === next) return
+  label.value = next
+  emit('update:text', next)
 }
 
-/**
- * @param preferredValue 选择时传入刚提交的值，避免 nextTick 时 props.modelValue 尚未回传而用旧值覆盖高亮/标签
- */
-function unlock(preferredValue?: any) {
-  nextTick(() => {
-    userSelecting = false
-    // 选择/清除会同步重建选项列表（临时项转正、查询串清空），
-    // 重建触发的回显在锁定期间被跳过，解锁后按最新列表重同步一次，
-    // 避免高亮停留在选择前的旧索引上
-    const value = preferredValue !== undefined ? preferredValue : props.modelValue
-    syncSelected(value, options.value)
-  })
-}
-
-/** 按 modelValue 与选项列表同步高亮索引、选中项与显示标签 */
-function syncSelected(modelValue: any, options: Record<string, any>[] | undefined) {
+/** 按 modelValue 与完整选项列表同步高亮索引、选中项与显示标签（外部回显用，O(n)） */
+function syncSelected(modelValue: any, sourceOptions: Record<string, any>[] | undefined) {
   // 查询输入期间高亮第一项（创建模式下通常是临时项，便于回车创建）
   if (queryString.value) {
-    currentIndex.value = options?.length ? 0 : -1
+    currentIndex.value = options.value.length ? 0 : -1
     return
   }
 
-  if (!options?.length) return
+  if (!sourceOptions?.length) return
 
   if (modelValue !== undefined && modelValue !== null && modelValue !== '') {
-    currentIndex.value = options.findIndex((option) => o(option).get(valueKey.value) === modelValue)
-    selected.value = currentIndex.value >= 0 ? options[currentIndex.value] : undefined
-    label.value = selected.value ? o(selected.value).get(labelKey.value) : undefined
+    currentIndex.value = sourceOptions.findIndex(
+      (option) => o(option).get(valueKey.value) === modelValue
+    )
+    selected.value = currentIndex.value >= 0 ? sourceOptions[currentIndex.value] : undefined
+    setLabel(selected.value ? o(selected.value).get(labelKey.value) : undefined)
   } else {
     currentIndex.value = -1
     selected.value = undefined
-    label.value = undefined
+    setLabel(undefined)
   }
 }
 
-// 回显
+// 回显：以 allOptions 匹配，避免过滤列表缺项时清掉已选文案；用户动作期内跳过
 watch(
-  [() => props.modelValue, options],
-  ([modelValue, options]) => {
-    if (userSelecting) return
-    syncSelected(modelValue, options)
+  [() => props.modelValue, allOptions],
+  ([modelValue]) => {
+    if (isUserActive()) return
+    syncSelected(modelValue, allOptions.value)
   },
   { immediate: true }
 )
+
+// 过滤时单独同步高亮（allOptions 不变，不会触发上方回显 watch）
+watch([queryString, options], () => {
+  if (!queryString.value) return
+  currentIndex.value = options.value.length ? 0 : -1
+})
 
 const baseVirtualEnabled = computed(() => options.value.length > 80)
 const virtualEnabled = computed(() => baseVirtualEnabled.value && !props.grid)
@@ -364,14 +361,13 @@ const handleDropdownVisible = (visible: boolean) => {
   }
 }
 
-/** 单选 */
-const handleSelect = (option: Record<string, any>, _index: number) => {
-  lock()
+/** 单选：用户动作内 O(1) 写入值与文案，跳过 modelValue 回显的 O(n) 查找 */
+const handleSelect = userAction((option: Record<string, any>, _index: number) => {
   const value = option?.[valueKey.value]
   selected.value = option
 
   emit('update:modelValue', value)
-  label.value = option?.[labelKey.value]
+  setLabel(option?.[labelKey.value])
   emit('change', option)
   if (option.__isTemp) {
     // 转正后列表同步重建为完整源（临时项置顶索引失效），必须按 value 重定位
@@ -386,21 +382,17 @@ const handleSelect = (option: Record<string, any>, _index: number) => {
     selected.value = options.value[currentIndex.value]
   }
   dropdownRef.value?.close()
-
-  unlock(value)
-}
+})
 
 /** 清除选项 */
-const handleClear = () => {
-  lock()
+const handleClear = userAction(() => {
   selected.value = undefined
   currentIndex.value = -1
-  label.value = undefined
+  setLabel(undefined)
   clearCreatedOptions()
   emit('update:modelValue', undefined)
   emit('change', undefined)
-  unlock(null)
-}
+})
 
 function getCurrentEl() {
   return scrollRef.value?.contentRef?.querySelector('li.is-selected') as HTMLElement | undefined

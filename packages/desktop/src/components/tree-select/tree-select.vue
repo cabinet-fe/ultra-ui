@@ -63,13 +63,13 @@
   </u-dropdown>
 
   <template v-else>
-    {{ text || label || FORM_EMPTY_CONTENT }}
+    {{ label || FORM_EMPTY_CONTENT }}
   </template>
 </template>
 
 <script lang="ts" setup>
 import { dfs, o } from '@cat-kit/core'
-import { useFormFallbackProps } from '@veltra/compositions'
+import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
@@ -133,6 +133,7 @@ watch(qs, (qs) => {
 
 const model = defineModel<string | number>()
 
+/** 内部展示文案，仅由 data 推导；通过 update:text 单向通知父级 */
 const label = shallowRef<string>()
 
 const dropdownVisible = shallowRef(false)
@@ -146,15 +147,22 @@ const querying = shallowRef(false)
 
 const inputRef = useTemplateRef<InputExposed>('inputRef')
 
+/** 更新内部文案；值变化时单向 emit update:text */
+function setLabel(next?: string) {
+  if (label.value === next) return
+  label.value = next
+  emit('update:text', next)
+}
+
 /** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
 const inputValue = computed(() => {
   if (props.filterable && querying.value) return qs.value
-  return props.text ?? (model.value ? label.value : undefined)
+  return model.value || model.value === 0 ? label.value : undefined
 })
 
 /** 查询态下已选标签降级为占位提示 */
 const inputPlaceholder = computed(() => {
-  const display = props.text ?? (model.value ? label.value : undefined)
+  const display = model.value || model.value === 0 ? label.value : undefined
   if (props.filterable && querying.value && display) {
     return display
   }
@@ -171,7 +179,7 @@ const hovered = shallowRef(false)
 /** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
 const showClear = computed(() => {
   if (!props.clearable || disabled.value || !hovered.value) return false
-  return !!(props.text ?? (model.value ? label.value : undefined))
+  return !!(model.value || model.value === 0 ? label.value : undefined)
 })
 
 /**
@@ -205,34 +213,35 @@ const treeRef = shallowRef<TreeExposed>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
-/**清空 */
-const handleClear = () => {
+const { userAction, isUserActive } = useUserAction()
+
+/** 清空 */
+const handleClear = userAction(() => {
   model.value = ''
-  label.value = undefined
+  setLabel(undefined)
   emit('clear')
   emit('change', undefined)
-  emit('update:text', '')
-}
+})
 
-let changedByEvent = false
+/** 外部回显：按 data 查找 label（O(n)）；用户动作期内跳过 */
 watch(
   [() => props.data, model],
-  ([data, model]) => {
-    if (changedByEvent) return
-    if (!data?.length || model === undefined) {
-      label.value = undefined
-      model = undefined
+  ([data, modelVal]) => {
+    if (isUserActive()) return
+    if (!data?.length || modelVal === undefined || modelVal === null || modelVal === '') {
+      setLabel(undefined)
       return
     }
 
-    let founded = false
+    let nextLabel: string | undefined
     const childrenKey = props.childrenKey ?? 'children'
     data.some((item) => {
+      let founded = false
       dfs(
         item,
         (v) => {
-          if (v[valueKey.value] === model) {
-            label.value = v[labelKey.value]
+          if (v[valueKey.value] === modelVal) {
+            nextLabel = v[labelKey.value]
             founded = true
             return true
           }
@@ -242,32 +251,29 @@ watch(
 
       return founded
     })
+    setLabel(nextLabel)
   },
   { immediate: true }
 )
 
-const handleSelect = (selected?: string | number, selectedData?: Record<string, any>) => {
-  changedByEvent = true
-  nextTick(() => {
-    changedByEvent = false
-  })
+/** 用户选择：O(1) 写入值与文案，跳过 data 回显查找 */
+const handleSelect = userAction(
+  (selected?: string | number, selectedData?: Record<string, any>) => {
+    model.value = selected ?? ''
 
-  model.value = selected ?? ''
+    if (selectedData) {
+      setLabel(o(selectedData).get(labelKey.value))
+    } else {
+      setLabel(undefined)
+    }
 
-  if (selectedData) {
-    label.value = o(selectedData).get(labelKey.value)
-  } else {
-    label.value = ''
+    emit('change', selectedData)
+    // 立即退出查询态，输入框同步恢复显示选中标签
+    querying.value = false
+    qs.value = ''
+    dropdownRef.value?.close()
   }
-
-  emit('change', selectedData)
-  emit('update:text', label.value)
-  // 立即退出查询态，输入框同步恢复显示选中标签
-  querying.value = false
-  qs.value = ''
-  dropdownRef.value?.close()
-}
-
+)
 const handleDropdownVisible = (visible: boolean) => {
   if (!visible) {
     qs.value = ''

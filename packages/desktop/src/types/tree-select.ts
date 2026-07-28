@@ -29,9 +29,6 @@ export interface TreeSelectProps
    */
   width?: string
 
-  /** 显示文本 */
-  text?: string
-
   /** 内容容器样式 */
   contentStyle?: CSSProperties | string
 
@@ -44,6 +41,10 @@ export interface TreeSelectEmits {
   (e: 'clear'): void
   (e: 'update:modelValue', value?: string | number): void
   (e: 'change', selectedData?: Record<string, any>): void
+  /**
+   * 选中项文案变化（单向通知，用于同步父级冗余字段）
+   * @description 展示始终由 data 推导，请用 `@update:text` 而非 `v-model:text`
+   */
   (e: 'update:text', text?: string): void
 }
 
