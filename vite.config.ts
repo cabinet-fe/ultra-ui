@@ -8,7 +8,9 @@ import { defineConfig } from 'vite-plus'
 //
 // 各 `@veltra/*` 库的 pack / 单包 test 配置位于包内 vite.config.ts。
 export default defineConfig({
-  test: { projects: ['packages/desktop', 'packages/styles', 'packages/utils'] },
+  test: {
+    projects: ['packages/desktop', 'packages/styles', 'packages/utils', 'packages/compositions']
+  },
 
   lint: {
     options: { typeAware: true, typeCheck: true },

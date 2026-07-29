@@ -8,7 +8,7 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 | --------------------- | ------------------------------------------ | ------------------------------ |
 | `use-component-props` | `useComponentProps`                        | 组件属性处理                   |
 | `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）             |
-| `use-dnd`             | `useDnD`（重导出 drag-and-drop 生态）      | 拖拽排序（`@formkit/drag-and-drop`） |
+| `use-dnd`             | `useDnD`（重导出 drag-and-drop 生态）      | 拖拽排序，排序/转移自动写回数据（`@formkit/drag-and-drop`） |
 | `use-drag`            | `useDrag`                                  | 拖拽                           |
 | `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退                   |
 | `use-focus`           | `useFocus`                                 | 焦点管理                       |
@@ -25,6 +25,20 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 ```ts
 const model = useModel({ props, emit, local: true }) // 内部副本 + emit
 const model = useModel({ props, emit, local: false }) // 完全受控
+```
+
+## useDnD
+
+```ts
+// 排序/转移结果自动写回 list，无需 onSort 手动 splice
+const { parentRef, values } = useDnD({ values: list, plugins: [animations()] })
+
+// 可见子集排序 + 动态容器：filter 命中的项参与拖拽，结果自动合并回原数组
+useDnD({
+  values: props.items, // ref 写回 .value；数组原地 splice；getter 走 onReorder
+  filter: (i) => i.visible,
+  parent: () => addBtnRef.value?.parentElement ?? undefined
+})
 ```
 
 ## 依赖

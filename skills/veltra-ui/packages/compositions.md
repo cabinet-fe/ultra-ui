@@ -157,15 +157,23 @@ useDrag({
 
 基于 `@formkit/drag-and-drop`（Vue 适配层）封装；options 对象传参、命名返回，组件卸载自动 `tearDown`。该库的核心 API 与类型已从本包重导出，**下游不要再安装 `@formkit/drag-and-drop`**，统一从 `@veltra/compositions` 导入（避免版本不一致）。
 
+排序/跨容器转移结果**自动写回数据**，无需手动处理 `onSort`；`filter` 支持只对数据的可见子集排序并自动合并回原数组；`parent` 支持动态容器（元素出现/替换/移除时自动初始化/重建/销毁）。
+
 ```ts
 function useDnD<T>(options: UseDnDOptions<T> = {}): {
-  parentRef: Ref<HTMLElement | undefined> // ref 绑定到列表容器
-  values: Ref<T[]> // 排序/转移后自动更新
+  parentRef: Ref<HTMLElement | undefined> // 未传 parent 选项时 ref 绑定到列表容器
+  values: Ref<T[]> // 拖拽数据（filter 模式下为参与拖拽的视图），排序/转移后自动更新
   updateConfig: (config?: VueParentConfig<T>) => void // 整体替换配置
 }
 
 interface UseDnDOptions<T> extends VueParentConfig<T> {
-  values?: T[] | Ref<T[]> // 传 ref 则与外部共享引用，拖拽直接写回
+  // ref：直接写回 .value；响应式数组（如 props 上的数组）：原地 splice 写回；
+  // 非响应式纯数组：作为初始值由内部副本持有并同步原数组；
+  // getter / 只读 computed：只读数据源，经 onReorder 接收合并后的完整数组
+  values?: MaybeRefOrGetter<T[]>
+  filter?: (item: T) => boolean // 仅命中的项参与拖拽（须与 DOM 中可拖拽项一一对应），未命中项保持相对顺序
+  parent?: MaybeRefOrGetter<HTMLElement | undefined> // 动态容器，如 () => btnRef.value?.parentElement
+  onReorder?: (values: T[]) => void // 只读数据源的写回回调
 }
 ```
 
@@ -173,10 +181,9 @@ interface UseDnDOptions<T> extends VueParentConfig<T> {
 <script setup lang="ts">
 const list = ref([{ id: 1, label: 'A' }, { id: 2, label: 'B' }])
 const { parentRef, values } = useDnD({
-  values: list, // 与 list 是同一引用
+  values: list, // 排序结果直接写回 list
   plugins: [animations()], // 重导出的官方插件：animations / dropOrSwap / insert
-  dragHandle: '.handle',
-  onSort: ({ previousValues, values }) => {}
+  dragHandle: '.handle'
 })
 </script>
 
@@ -185,6 +192,19 @@ const { parentRef, values } = useDnD({
     <li v-for="item in values" :key="item.id">{{ item.label }}</li>
   </ul>
 </template>
+```
+
+可见子集排序 + 动态容器（隐藏项不参与拖拽，排序自动合并回原数组）：
+
+```ts
+useDnD({
+  values: props.items, // 完整数据（含隐藏项），原地写回
+  filter: (item) => item.visible,
+  parent: () => addBtnRef.value?.parentElement ?? undefined,
+  dragHandle: '.u-form-item__label',
+  draggable: (el) => el.classList.contains('setting-trigger'), // 排除“新增”按钮
+  plugins: [animations()]
+})
 ```
 
 重导出的常用 API：`useDragAndDrop`（官方元组版）、`dragAndDrop`（命令式，支持传元素/ref）、插件 `animations` / `dropOrSwap` / `insert`，工具 `performSort` / `performTransfer` / `remapNodes` / `updateConfig` / `setParentValues` / `dragValues` / `isDragState` / `isSynthDragState` / `tearDown`，以及 `ParentConfig`、`VueParentConfig`、`DragState`、`SortEvent`、`TransferEvent` 等全套配置/事件类型。多容器互拖给各容器配置相同 `group` 即可。

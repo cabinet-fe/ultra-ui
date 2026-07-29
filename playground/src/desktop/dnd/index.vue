@@ -38,6 +38,30 @@
         </div>
       </div>
     </CustomCard>
+
+    <CustomCard title="可见子集排序（filter + 动态容器）">
+      <div class="dnd-fields">
+        <div v-for="item in visibleFields" :key="item.id" class="dnd-item dnd-item--field">
+          <span class="dnd-handle">≡</span>
+          {{ item.label }}
+        </div>
+        <button ref="addBtn" class="dnd-add">+ 添加字段</button>
+      </div>
+      <p class="dnd-order">完整顺序（含隐藏项）：{{ fullOrder }}</p>
+      <p class="dnd-tip">“字段 3”处于隐藏状态不参与拖拽；拖拽可见项，顺序自动合并回完整数组</p>
+    </CustomCard>
+
+    <CustomCard title="占位不可见（dragPlaceholderClass）">
+      <ul ref="phParent" class="dnd-list">
+        <li v-for="item in phValues" :key="item.id" class="dnd-item">
+          {{ item.label }}
+        </li>
+      </ul>
+      <p class="dnd-tip">
+        拖拽时库会把 dragPlaceholderClass
+        加到留在原位的元素上；将其设为透明后原位置直接收拢，不留下残影
+      </p>
+    </CustomCard>
   </div>
 </template>
 
@@ -85,6 +109,45 @@ const { parentRef: doneParent, values: doneValues } = useDnD<DndItem>({
   values: ref(createItems('任务', 2, 4)),
   group: 'demo',
   plugins: [animations()]
+})
+
+// 可见子集排序：filter 命中的项参与拖拽，排序结果自动合并回完整数组；
+// parent 动态取按钮的父元素作为容器，“添加字段”按钮由 draggable 排除
+interface FieldItem extends DndItem {
+  hidden?: boolean
+}
+
+const fields = ref<FieldItem[]>([
+  { id: 1, label: '字段 1' },
+  { id: 2, label: '字段 2' },
+  { id: 3, label: '字段 3', hidden: true },
+  { id: 4, label: '字段 4' },
+  { id: 5, label: '字段 5' }
+])
+
+const addBtn = ref<HTMLElement>()
+
+const visibleFields = computed(() => fields.value.filter((item) => !item.hidden))
+const fullOrder = computed(() =>
+  fields.value.map((item) => (item.hidden ? `${item.label}(隐)` : item.label)).join(' → ')
+)
+
+useDnD<FieldItem>({
+  values: fields,
+  filter: (item) => !item.hidden,
+  parent: () => addBtn.value?.parentElement ?? undefined,
+  dragHandle: '.dnd-handle',
+  draggable: (el) => el.classList.contains('dnd-item--field'),
+  plugins: [animations()]
+})
+
+// 占位不可见：库在拖拽时把占位 class 加到留在原位的元素上，
+// 将其隐藏后原位置直接收拢（配合 animations 平滑过渡）
+const { parentRef: phParent, values: phValues } = useDnD<DndItem>({
+  values: createItems('项目', 5),
+  plugins: [animations()],
+  dragPlaceholderClass: 'dnd-placeholder-hidden',
+  synthDragPlaceholderClass: 'dnd-placeholder-hidden'
 })
 </script>
 
@@ -140,6 +203,32 @@ const { parentRef: doneParent, values: doneValues } = useDnD<DndItem>({
     padding: 8px;
     border: 1px dashed var(--u-border-color);
     border-radius: 4px;
+  }
+
+  .dnd-fields {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dnd-add {
+    align-self: flex-start;
+    padding: 8px 12px;
+    border: 1px dashed var(--u-border-color);
+    border-radius: 4px;
+    background: none;
+    color: var(--u-text-color-secondary);
+    cursor: pointer;
+  }
+
+  .dnd-tip {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--u-text-color-secondary);
+    opacity: 0.8;
+  }
+
+  .dnd-placeholder-hidden {
+    opacity: 0;
   }
 }
 </style>

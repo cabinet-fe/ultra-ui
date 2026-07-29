@@ -82,7 +82,8 @@ import {
   UITheme,
   currentTheme,
   glassDarkTheme,
-  glassLightTheme
+  glassLightTheme,
+  ancientLightTheme
 } from '@veltra/styles/theme'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -147,6 +148,7 @@ const themePreset = ref(localStorage.getItem('themePreset') || 'default')
 watch(themePreset, (v) => localStorage.setItem('themePreset', v))
 
 const getThemesByPreset = (preset: string) => {
+  if (preset === 'ancient') return { light: ancientLightTheme, dark: darkTheme }
   if (preset === 'shadcn') return { light: shadcnLightTheme, dark: shadcnDarkTheme }
   if (preset === 'hero') return { light: heroLightTheme, dark: heroDarkTheme }
   if (preset === 'glass') return { light: glassLightTheme, dark: glassDarkTheme }
@@ -199,7 +201,8 @@ const themePresetOptions = [
   { label: '默认', value: 'default' },
   { label: 'Shadcn', value: 'shadcn' },
   { label: 'Hero', value: 'hero' },
-  { label: '玻璃', value: 'glass' }
+  { label: '玻璃', value: 'glass' },
+  { label: '古风', value: 'ancient' }
 ]
 
 const sizeOptions = [
