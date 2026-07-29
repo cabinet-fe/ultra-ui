@@ -1,5 +1,11 @@
 # @veltra/vite
 
+## 2.0.9
+
+### Patch Changes
+
+- @veltra/desktop@1.3.9
+
 ## 2.0.8
 
 ### Patch Changes

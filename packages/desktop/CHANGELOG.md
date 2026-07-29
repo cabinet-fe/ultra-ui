@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.3.9
+
+### Patch Changes
+
+- Updated dependencies [b7fe083]
+  - @veltra/compositions@1.3.9
+  - @veltra/styles@1.3.9
+  - @veltra/directives@1.3.9
+  - @veltra/utils@1.3.9
+  - @veltra/icons@1.3.9
+
 ## 1.3.8
 
 ### Patch Changes
