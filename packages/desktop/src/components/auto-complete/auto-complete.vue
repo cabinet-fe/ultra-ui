@@ -19,6 +19,7 @@
         :clearable="clearable"
         v-model="model"
         @keydown="handleInputKeydown"
+        @native:input="handleNativeInput"
       >
         <template #suffix v-if="slots.suffix">
           <slot name="suffix" />
@@ -178,6 +179,13 @@ const handleInputKeydown = (event: KeyboardEvent) => {
     return
   }
   handleKeydown(event)
+}
+
+/** 用户输入时展开建议面板（选中项不会触发原生 input 事件，因此不会误展开） */
+const handleNativeInput = () => {
+  if (!dropdownVisible.value) {
+    dropdownVisible.value = true
+  }
 }
 
 watch([point, keyboardOptions], ([currentPoint, options]) => {

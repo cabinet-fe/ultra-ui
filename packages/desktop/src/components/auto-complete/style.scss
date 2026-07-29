@@ -32,16 +32,18 @@ $root-name: auto-complete;
     @include m.ellipsis;
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: var(--u-nav-hover-bg);
+      color: var(--u-nav-hover-color);
     }
 
     @include m.is(selected) {
-      background-color: fn.use-var(color, primary, light-3);
-      color: fn.use-var(text-color, white);
+      background-color: var(--u-nav-active-bg);
+      color: var(--u-nav-active-color);
     }
   }
 

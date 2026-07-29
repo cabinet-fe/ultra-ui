@@ -181,16 +181,6 @@ onUnmounted(() => {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  :deep(.u-auto-complete__options) {
-    max-height: 320px;
-  }
-
-  :deep(.u-auto-complete__option) {
-    height: auto;
-    line-height: 1.4;
-    border-radius: 6px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -200,6 +190,29 @@ onUnmounted(() => {
 
     &__kbd {
       display: none;
+    }
+  }
+}
+</style>
+
+<!-- 下拉面板被 Teleport 到 body，scoped 样式无法到达，这里用全局样式并通过 :has 限定仅作用于本搜索框的选项 -->
+<style lang="scss">
+.u-auto-complete__options:has(.playground-nav-search__option) {
+  max-height: 320px;
+}
+
+.u-auto-complete__option:has(.playground-nav-search__option) {
+  height: auto;
+  line-height: 1.4;
+  border-radius: 6px;
+
+  // 交互态下让插槽文本继承选项颜色，避免覆盖 hover/active/selected 的前景色
+  &:hover,
+  &.is-active,
+  &.is-selected {
+    .playground-nav-search__option-title,
+    .playground-nav-search__option-meta {
+      color: inherit;
     }
   }
 }
