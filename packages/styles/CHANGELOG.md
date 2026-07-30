@@ -1,5 +1,13 @@
 # @veltra/styles
 
+## 1.3.10
+
+### Patch Changes
+
+- 6308e5b: normalize 重置样式同步移除 `ol` 的默认 padding 与 list-style，与 `ul` 保持一致。
+  - @veltra/utils@1.3.10
+  - @veltra/compositions@1.3.10
+
 ## 1.3.9
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @veltra/vite
 
+## 2.0.10
+
+### Patch Changes
+
+- Updated dependencies [ffb6756]
+  - @veltra/desktop@1.3.10
+
 ## 2.0.9
 
 ### Patch Changes
