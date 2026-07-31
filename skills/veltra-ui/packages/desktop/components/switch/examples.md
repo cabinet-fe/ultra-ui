@@ -27,10 +27,19 @@ const enabled = ref(false)
 <u-switch v-model="enabled" readonly />
 ```
 
-## 在表单中
+## 在 UForm 中使用
+
+> 表单内用 `field` 绑 `model`，勿再写 `v-model`；无 `field` 时 `label` 不生效。
 
 ```vue
-<u-form :model="model">
-  <u-switch label="开启通知" field="notification" />
-</u-form>
+<script setup>
+import { reactive } from 'vue'
+const model = reactive({ notification: false })
+</script>
+
+<template>
+  <u-form :model="model">
+    <u-switch label="开启通知" field="notification" />
+  </u-form>
+</template>
 ```

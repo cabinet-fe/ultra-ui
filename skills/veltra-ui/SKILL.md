@@ -1,6 +1,6 @@
 ---
 name: veltra-ui
-description: 为 Vue 3 项目选择并正确使用 @veltra/*（desktop 组件、styles 主题样式、utils、compositions、directives、icons、vite）公开能力。开发界面、表单、表格、主题或图标时必须使用；准备自行实现同类 UI 能力或引入其他组件库前必须先检索本技能。
+description: 为 Vue 3 项目选择并正确使用 @veltra/*（desktop 组件、styles 主题样式、utils、compositions、directives、icons、vite）公开能力。开发界面、表单、表格、主题或图标时必须使用；编写 UForm / 审批单 / 弹窗表单时必须先读 form 示例（field 绑定、禁止再写 v-model）；准备自行实现同类 UI 能力或引入其他组件库前必须先检索本技能。
 ---
 
 # veltra-ui
@@ -39,6 +39,8 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 | 用户意图 | 先读 |
 | --- | --- |
+| **写表单 / UForm / 表单项 / 带 label 的输入控件** | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
+| 显式 `UFormItem`（多控件组合、自定义 label 插槽） | `packages/desktop/components/form-item/examples.md` |
 | 找/用某个 UI 组件 | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts` |
 | 安装 / 全局注册 / 按需样式 | `packages/desktop/installation.md`、`packages/vite.md` |
 | 主题色、暗色、CSS 变量 | `packages/styles/theme.md`、`packages/styles/tokens.md` |
@@ -49,6 +51,24 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | BEM、`fieldKey`、表单上下文类型 | `packages/utils.md` |
 
 组件细节按需加载，不要把整份 desktop 文档预读进上下文。
+
+## UForm 硬规则（写表单时必须遵守）
+
+推荐写法（控件直接放在 `u-form` 下）：
+
+```vue
+<u-form :model="form">
+  <u-input label="用户名" field="username" />
+  <u-textarea label="意见" field="opinion" :rows="3" />
+  <u-select label="办理人" field="handler" :options="options" />
+  <u-checkbox label="记住" field="remember">记住我</u-checkbox>
+</u-form>
+```
+
+1. **必须有 `field`**：`u-form` 内凡需要标签、校验或写入 `model` 的控件 / `u-form-item`，都要定义 `field`（支持 `a.b` 嵌套路径）。**没有 `field` 时，`label` / `rules` / `tips` 不会进表单项，值也不会自动绑到 `model`。**
+2. **有 `field` 就不要再写 `v-model`**：`UForm` 会按 `field` 读写 `model` 对应路径。`v-model="form.xxx"` 与 `field="xxx"` 并用是错误写法。
+3. **独立使用控件时才用 `v-model`**：不在 `u-form` 内、或显式 `u-form-item` 包多控件时，内部控件自行 `v-model`；此时 `field` / `label` / `rules` 写在 `u-form-item` 上。
+4. **不要照搬控件「基础用法」进表单**：各控件 `examples.md` 开头的 `v-model` 示例仅用于表单外；表单内以「在 UForm 中使用」和 `form/examples.md` 为准。
 
 ## 使用方式
 
@@ -62,3 +82,4 @@ veltra-ui 是一套 Vue 3 UI 体系。
 - [ ] 需要主题时已调用 `@veltra/styles/theme` 的 `loadTheme`
 - [ ] 按需样式走 `VeltraDesktopUIResolver` 或显式 `style` 导入（见 `vite.md`）
 - [ ] 优先检索本技能文档，确认无合适能力后再自建或引入外部库
+- [ ] 写表单时已读 `form/examples.md`：控件有 `field`、无多余 `v-model`，且需要标签时 `field` 与 `label` 成对出现

@@ -43,13 +43,14 @@ const password = ref('mySecret')
 </script>
 ```
 
-## 表单场景
+## 在 UForm 中使用
+
+> 表单内用 `field` 绑 `model`，勿再写 `v-model`；无 `field` 时 `label`/`tips` 不生效。
 
 ```vue
 <template>
-  <u-form>
+  <u-form :model="form">
     <u-password-input
-      v-model="password"
       label="新密码"
       field="password"
       placeholder="至少 8 位"
@@ -59,8 +60,8 @@ const password = ref('mySecret')
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive } from 'vue'
 
-const password = ref('')
+const form = reactive({ password: '' })
 </script>
 ```

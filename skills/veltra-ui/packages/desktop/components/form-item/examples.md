@@ -1,6 +1,8 @@
 # UFormItem 示例
 
-> 显式使用 `UFormItem` 时，需在内部控件上自行 `v-model` 绑定 `model` 对应路径；`field` 与 `rules` 仍写在 `UFormItem` 上用于注册校验。
+> **优先**把控件直接放在 `u-form` 下用 `field`（见 `form/examples.md`），一般不必手写 `UFormItem`。
+>
+> 仅在多控件组合、自定义 label 插槽等场景显式使用：`field` / `label` / `rules` 写在 `UFormItem` 上（**Item 也必须有 `field`，否则 label/校验不挂表单**）；内部控件自行 `v-model` 绑 `model` 路径，控件上不要再写 `field`。
 
 ## 多组件组合
 

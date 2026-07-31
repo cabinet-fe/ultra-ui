@@ -50,17 +50,22 @@ const options = [
 
 ## 在 UForm 中使用
 
+> 表单内单选请用 `u-radio-group` + `field`，勿给多个 `u-radio` 各写同一 `field`，也勿再写 `v-model`。
+
 ```vue
 <script setup>
 import { reactive } from 'vue'
 
 const formData = reactive({ gender: '' })
+const options = [
+  { value: 'male', label: '男' },
+  { value: 'female', label: '女' }
+]
 </script>
 
 <template>
   <u-form :model="formData" size="small" disabled>
-    <u-radio value="male" label="男" field="gender" />
-    <u-radio value="female" label="女" field="gender" />
+    <u-radio-group label="性别" field="gender" :items="options" />
   </u-form>
 </template>
 ```

@@ -32,6 +32,8 @@ const color2 = ref('#67C23A')
 
 ## 在 UForm 中使用
 
+> 表单内用 `field` 绑 `model`，勿再写 `v-model`；无 `field` 时 `label` 不生效。
+
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'
@@ -41,11 +43,10 @@ const model = reactive({ themeColor: '' })
 
 <template>
   <u-form :model="model">
-    <u-palette label="主题色" field="themeColor" v-model="model.themeColor" />
+    <u-palette label="主题色" field="themeColor" />
   </u-form>
 </template>
 ```
-
 ## 带透明度的颜色
 
 ```vue

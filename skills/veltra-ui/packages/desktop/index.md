@@ -35,8 +35,8 @@
 - `UFilePicker - 文件选择器`。用于选择或上传本地文件并展示文件列表。
 - `UFileViewer - 文件查看器`。用于预览图片、PDF、视频等文件内容。
 - `UFloatButton - 浮动按钮`。用于在页面固定位置提供高频快捷操作。
-- `UForm - 表单容器`。传入 `model`（reactive 数据对象），带 `field` 的控件自动双向绑定；校验通过 `rules` 声明，调用 `formRef.validate()` 或 `formRef.validate(['field'])` 触发；`reset()` 恢复 model 初始快照。
-- `UFormItem - 表单项`。用于在表单中单独控制字段标签、校验和反馈。
+- `UForm - 表单容器`。传入 `model`（reactive）；子控件用 `field`（勿再 `v-model`）自动绑定路径，`label`/`rules`/`tips` 随 `field` 生成表单项。无 `field` 则标签与绑定均不生效。校验见 `formRef.validate()` / `validate(['field'])`；`reset()` 恢复快照。**写表单必读 `components/form/examples.md`。**
+- `UFormItem - 表单项`。显式包一项时：`field`/`label`/`rules` 写在 Item 上，内部控件自行 `v-model`（见 `form-item/examples.md`）。
 - `UGanttChart - 甘特图`。用于以时间轴形式展示任务跨度和进度。
 - `UGrid - 栅格布局`。用于按列数和间距组织响应式栅格布局。
 - `UGridInput - 网格输入框`。用于输入固定长度的分格验证码或短码。

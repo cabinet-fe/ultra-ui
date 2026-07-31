@@ -79,6 +79,8 @@ const itemStyle = computed(() => ({
 
 ## 在 UForm 中使用
 
+> 外层 `u-group-input` 用 `field` 绑数组；条目内控件对 `item` 用 `v-model`（不是 form.field）。
+
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'

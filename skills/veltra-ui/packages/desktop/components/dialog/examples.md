@@ -63,6 +63,8 @@ const visible = ref(false)
 
 ## 表单对话框
 
+> 弹窗内表单同样：控件用 `field`，勿再 `v-model`。
+
 ```vue
 <script setup lang="ts">
 import { reactive, ref, useTemplateRef } from 'vue'

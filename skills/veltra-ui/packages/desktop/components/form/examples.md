@@ -1,8 +1,12 @@
 # UForm 示例
 
-> `UForm` 会拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径的值。校验规则通过控件或 `UFormItem` 的 `rules` 属性声明；调用 `formRef.validate()` 触发全部字段校验，或传入 `keys` 仅校验指定字段。校验失败时会自动滚动到第一个错误项。字段值变化时会自动重新校验（`reset()` 期间会抑制）。
+> **硬规则**：`u-form` 内控件用 `field` 绑定 `model`，**禁止**再写 `v-model`。需要标签 / 校验时必须写 `field`，否则 `label` / `rules` / `tips` 不生效。
 >
-> 下方示例涵盖常用表单控件及验证、按字段校验、清除校验与重置。
+> `UForm` 拦截默认插槽中带 `field` 的子组件，自动生成 `UFormItem` 并绑定 `model` 对应路径。校验写在控件或 `UFormItem` 的 `rules`；`formRef.validate()` 全量校验，`validate(['field'])` 按字段校验；失败自动滚到首个错误项；字段变化会重校验（`reset()` 期间抑制）。
+>
+> ❌ 错误：`<u-input v-model="form.name" label="姓名" field="name" />`（多写了 v-model）  
+> ❌ 错误：`<u-checkbox v-model="save">保存</u-checkbox>`（在 form 内无 field，label 也不会挂到表单项）  
+> ✅ 正确：`<u-input label="姓名" field="name" />`
 
 ## 基础 + 校验
 
@@ -40,6 +44,53 @@ async function handleSubmit() {
     />
   </u-form>
   <u-button type="primary" @click="handleSubmit">提交</u-button>
+</template>
+```
+
+## 常用控件合集（field，无 v-model）
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+const form = reactive({
+  opinion: '',
+  saveAsCommon: false,
+  handler: '',
+  grade: undefined as number | undefined
+})
+
+const userOptions = [
+  { username: 'zhang', realName: '张三' },
+  { username: 'li', realName: '李四' }
+]
+const gradeList = [
+  { label: '一年级', value: 1 },
+  { label: '二年级', value: 2 }
+]
+</script>
+
+<template>
+  <u-form :model="form" label-width="100px" :cols="1">
+    <u-textarea
+      label="审批意见"
+      field="opinion"
+      :rows="3"
+      placeholder="请输入审批意见"
+    />
+    <u-checkbox label="常用意见" field="saveAsCommon">保存为常用意见</u-checkbox>
+    <u-select
+      label="办理人"
+      field="handler"
+      :options="userOptions"
+      value-key="username"
+      label-key="realName"
+      filterable
+      clearable
+      placeholder="可不填，覆盖当前节点办理人"
+    />
+    <u-select label="年级" field="grade" :options="gradeList" />
+  </u-form>
 </template>
 ```
 
@@ -113,7 +164,7 @@ const formData = reactive({ name: '' })
 
 ## 顶部标签布局
 
-`label-position="top"` 时 label 在控件上方；默认为 `left`。`UFormItem` 可单独覆盖。
+`label-position="top"` 时 label 在上方；Item 可单独覆盖，且 Item 也必须写 `field`。
 
 ```vue
 <script setup lang="ts">
@@ -126,8 +177,8 @@ const formData = reactive({ name: '', email: '', note: '' })
   <u-form :model="formData" label-position="top" :cols="1">
     <u-input label="姓名" field="name" :rules="{ required: true }" />
     <u-input label="邮箱" field="email" :rules="{ required: true, preset: 'email' }" />
-    <u-form-item label="备注" label-position="left" label-width="80px">
-      <u-textarea field="note" />
+    <u-form-item label="备注" field="note" label-position="left" label-width="80px">
+      <u-textarea v-model="formData.note" />
     </u-form-item>
   </u-form>
 </template>

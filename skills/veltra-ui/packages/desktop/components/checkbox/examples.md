@@ -49,6 +49,8 @@ function handleCheckAll(checked: boolean) {
 
 ## 在 UForm 中使用
 
+> 表单内必须写 `field`（并配 `label` 若需要表单项标签），勿再写 `v-model`。
+
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'

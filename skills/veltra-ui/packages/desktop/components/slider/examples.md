@@ -55,6 +55,8 @@ const range = ref<[number, number]>([20, 80])
 
 ## 在 UForm 中使用
 
+> 表单内用 `field` 绑 `model`，勿再写 `v-model`；无 `field` 时 `label` 不生效。
+
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'
