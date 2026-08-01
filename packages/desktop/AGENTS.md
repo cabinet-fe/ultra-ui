@@ -46,7 +46,8 @@ const cls = bem('xxx')
 
 1. `components/<name>/`：`*.vue`、`index.ts`、`style.scss`、`style.ts`
 2. `types/<name>.ts`，并在 `types/index.ts`、`components/index.ts` 导出
-3. `playground/src/<name>/index.vue` 演示页（自动路由，需在 `nav-config.ts` 登记）
+3. 在 `packages/vite/src/resolver.ts` 的 `DESKTOP_COMPONENTS` 登记 `U<PascalName>`（否则 playground/宿主无法按需解析 `<u-xxx>`）
+4. `playground/src/desktop/<name>/index.vue` 演示页（自动路由，需在 `nav-config.ts` 登记）
 
 ## 样式约定
 

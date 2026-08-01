@@ -1,5 +1,5 @@
 import type { NavItem } from '@veltra/desktop'
-import { Monitor, PictureRounded } from '@veltra/icons/normal'
+import { AiChat, FormTable, Monitor, PictureRounded } from '@veltra/icons/normal'
 import type { DefineComponent } from 'vue'
 
 export type DemoCategory =
@@ -37,6 +37,8 @@ const DESKTOP_ROOT = '/desktop'
 export const demoMeta: Record<string, DemoMeta> = {
   icons: { zh: '图标', en: 'Icons', category: 'other' },
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
+  'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
+  sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'auto-complete': { zh: '自动补全', en: 'AutoComplete', category: 'form' },
   badge: { zh: '徽标', en: 'Badge', category: 'basic' },
   'batch-edit': { zh: '批量编辑', en: 'BatchEdit', category: 'other' },
@@ -109,9 +111,12 @@ export const demoMeta: Record<string, DemoMeta> = {
   watermark: { zh: '水印', en: 'Watermark', category: 'other' }
 }
 
+/** 顶层独立入口（不挂在 Desktop 分类下） */
+const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet'])
+
 function demosInCategory(category: DemoCategory) {
   return Object.entries(demoMeta)
-    .filter(([key, meta]) => key !== 'icons' && meta.category === category)
+    .filter(([key, meta]) => !TOP_LEVEL_DEMO_KEYS.has(key) && meta.category === category)
     .map(([key, meta]) => ({ key, zh: meta.zh, en: meta.en }))
     .sort((a, b) => a.zh.localeCompare(b.zh, 'zh-CN'))
 }
@@ -137,6 +142,18 @@ export function buildPlaygroundMenus(): NavItem[] {
           path: `${DESKTOP_ROOT}/${d.key}/index`
         }))
       }))
+    },
+    {
+      title: 'AI Chat',
+      description: '预览 @veltra/ai 对话组件，含工具调用与 mock transport',
+      icon: AiChat as DefineComponent,
+      path: '/ai-chat/index'
+    },
+    {
+      title: 'Sheet 电子表格',
+      description: '预览 @veltra/sheet 电子表格（VTable 渲染，自持有数据模型）',
+      icon: FormTable as DefineComponent,
+      path: '/sheet/index'
     }
   ]
 }
@@ -151,7 +168,7 @@ export function isNavGroupPath(path: string): boolean {
 export interface NavSearchItem {
   path: string
   title: string
-  /** 顶层分区，如 Icons / Desktop */
+  /** 顶层分区，如 Icons / Desktop / AI Chat */
   section: string
   /** Desktop 分类名，如「基础」 */
   category?: string

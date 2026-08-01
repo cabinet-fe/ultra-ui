@@ -9,7 +9,14 @@ import { defineConfig } from 'vite-plus'
 // 各 `@veltra/*` 库的 pack / 单包 test 配置位于包内 vite.config.ts。
 export default defineConfig({
   test: {
-    projects: ['packages/desktop', 'packages/styles', 'packages/utils', 'packages/compositions']
+    projects: [
+      'packages/desktop',
+      'packages/ai',
+      'packages/styles',
+      'packages/utils',
+      'packages/compositions',
+      'packages/sheet'
+    ]
   },
 
   lint: {
@@ -30,7 +37,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/*.test.ts',
       '**/__test__/**',
-      'skills/veltra-ui/packages/desktop/components/**/types.d.ts'
+      'skills/veltra-ui/packages/**/types.d.ts'
     ],
     rules: {
       'no-unused-expressions': 'off',

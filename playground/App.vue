@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :data-theme-preset="themePreset">
+  <div class="container1" :data-theme-preset="themePreset">
     <u-dual-nav
       :menus="menus"
       class="aside"
@@ -237,7 +237,8 @@ const sizeLabel = computed(() => {
   @return var(--u-#{$basename}#{$suffix});
 }
 
-.container {
+.container1 {
+  width: 100%;
   height: 100vh;
   display: flex;
   background-color: use-var(bg-color, bottom);
@@ -256,7 +257,9 @@ $width: 320px;
 }
 
 .main {
-  width: calc(100% - $width);
+  flex: 1;
+  min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   background-color: use-var(bg-color, bottom);
@@ -305,11 +308,11 @@ $width: 320px;
   }
 }
 
-.container[data-theme-preset='glass'] {
+.container1[data-theme-preset='glass'] {
   --playground-grid-color: rgba(15, 23, 42, 0.1);
 }
 
-.container[data-theme-preset='glass'] .content-backdrop::before {
+.container1[data-theme-preset='glass'] .content-backdrop::before {
   background:
     radial-gradient(ellipse 74% 60% at 14% 24%, rgba(59, 130, 246, 0.42), transparent 58%),
     radial-gradient(ellipse 66% 56% at 86% 16%, rgba(236, 72, 153, 0.3), transparent 56%),
@@ -317,7 +320,7 @@ $width: 320px;
     linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.7));
 }
 
-html[data-theme='dark'] .container {
+html[data-theme='dark'] .container1 {
   --playground-grid-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -329,11 +332,11 @@ html[data-theme='dark'] .content-backdrop::before {
     linear-gradient(135deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.86));
 }
 
-html[data-theme='dark'] .container[data-theme-preset='glass'] {
+html[data-theme='dark'] .container1[data-theme-preset='glass'] {
   --playground-grid-color: rgba(255, 255, 255, 0.1);
 }
 
-html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop::before {
+html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop::before {
   background:
     radial-gradient(ellipse 76% 60% at 14% 24%, rgba(99, 102, 241, 0.5), transparent 58%),
     radial-gradient(ellipse 66% 58% at 86% 18%, rgba(236, 72, 153, 0.36), transparent 56%),
@@ -390,6 +393,7 @@ html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop:
 
 .content-container {
   flex: 1;
+  width: 100%;
   padding: 24px;
   overflow-y: auto;
   background: transparent;
@@ -420,36 +424,6 @@ html[data-theme='dark'] .container[data-theme-preset='glass'] .content-backdrop:
 .drawer-divider {
   height: 1px;
   background: use-var(border, color);
-}
-
-// 响应式设计
-@media (max-width: 768px) {
-  .control-bar {
-    padding: 12px 16px;
-  }
-
-  .content-container {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  $width: 280px;
-  .aside {
-    width: $width;
-  }
-
-  .main {
-    width: calc(100% - $width);
-  }
-
-  .control-bar {
-    padding: 8px 12px;
-  }
-
-  .content-container {
-    padding: 12px;
-  }
 }
 </style>
 

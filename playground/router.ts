@@ -10,8 +10,10 @@ import { DEFAULT_ROUTE, demoMeta } from './nav-config'
 
 const desktopModules = import.meta.glob<{ default: RouteComponent }>('./src/desktop/**/index.vue')
 const iconsModules = import.meta.glob<{ default: RouteComponent }>('./src/icons/**/index.vue')
+const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-chat/**/index.vue')
+const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
 
-const modules = { ...desktopModules, ...iconsModules }
+const modules = { ...desktopModules, ...iconsModules, ...aiChatModules, ...sheetModules }
 const paths = Object.keys(modules)
 
 const DEMO_KEY_RE = /src\/(?:desktop\/)?([^/]+)\/index\.vue$/
