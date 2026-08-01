@@ -1,0 +1,5 @@
+import '@veltra/desktop/components/button/style'
+import '@veltra/desktop/components/icon/style'
+import '@veltra/desktop/components/scroll/style'
+import 'markstream-vue/index.css'
+import './style.scss'

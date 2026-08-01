@@ -1,0 +1,237 @@
+import type {
+  ChatMessage,
+  ChatTool,
+  ChatTransport,
+  ChatTransportHandlers,
+  ChatTransportRequest
+} from '../types'
+
+/** createOpenAITransport 的配置项 */
+export interface OpenAITransportOptions {
+  /** chat completions 端点，如 https://api.openai.com/v1/chat/completions */
+  endpoint: string
+  /** API Key（Bearer 鉴权） */
+  apiKey?: string
+  /** 模型名 */
+  model: string
+  /** 额外请求头 */
+  headers?: Record<string, string>
+  /** 额外请求体字段，如 temperature、top_p */
+  body?: Record<string, unknown>
+}
+
+interface OpenAIMessage {
+  role: string
+  content?: unknown
+  tool_calls?: unknown[]
+  tool_call_id?: string
+}
+
+function toOpenAIMessages(messages: ChatMessage[], systemPrompt?: string): OpenAIMessage[] {
+  const result: OpenAIMessage[] = []
+
+  if (systemPrompt) {
+    result.push({ role: 'system', content: systemPrompt })
+  }
+
+  for (const msg of messages) {
+    if (msg.role === 'user') {
+      if (msg.attachments?.length) {
+        const parts: unknown[] = []
+        if (msg.content) parts.push({ type: 'text', text: msg.content })
+        for (const att of msg.attachments) {
+          parts.push({ type: 'image_url', image_url: { url: att.dataUrl } })
+        }
+        result.push({ role: 'user', content: parts })
+      } else {
+        result.push({ role: 'user', content: msg.content })
+      }
+    } else if (msg.role === 'assistant') {
+      const item: OpenAIMessage = { role: 'assistant', content: msg.content || '' }
+      if (msg.toolCalls?.length) {
+        item.tool_calls = msg.toolCalls.map((call) => ({
+          id: call.id,
+          type: 'function',
+          function: { name: call.name, arguments: call.arguments }
+        }))
+      }
+      result.push(item)
+    } else if (msg.role === 'tool') {
+      result.push({ role: 'tool', tool_call_id: msg.toolCallId, content: msg.content })
+    }
+  }
+
+  return result
+}
+
+function toOpenAITools(tools: ChatTool[]): unknown[] {
+  return tools.map((tool) => ({
+    type: 'function',
+    function: { name: tool.name, description: tool.description, parameters: tool.parameters }
+  }))
+}
+
+interface AccumulatedToolCall {
+  id: string
+  name: string
+  arguments: string
+}
+
+/**
+ * 逐行解析 SSE 流。
+ * 兼容 OpenAI 及 DeepSeek 等 reasoning_content 风格的兼容端点。
+ */
+async function parseSSE(
+  body: ReadableStream<Uint8Array>,
+  signal: AbortSignal,
+  handlers: ChatTransportHandlers
+): Promise<void> {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  // 按 OpenAI 流式协议中 tool_calls 的 index 累积参数片段
+  const accumulated = new Map<number, AccumulatedToolCall>()
+  let lastIndex = -1
+
+  const flushToolCalls = () => {
+    if (!handlers.onToolCall) return
+    for (const call of accumulated.values()) {
+      if (call.id && call.name) {
+        handlers.onToolCall({ id: call.id, name: call.name, arguments: call.arguments })
+      }
+    }
+    accumulated.clear()
+  }
+
+  const handleData = (data: string) => {
+    if (data === '[DONE]') return
+
+    let chunk: any
+    try {
+      chunk = JSON.parse(data)
+    } catch {
+      return
+    }
+
+    const delta = chunk.choices?.[0]?.delta
+    if (!delta) return
+
+    if (typeof delta.content === 'string' && delta.content) {
+      handlers.onTextDelta(delta.content)
+    }
+
+    // 兼容 reasoning_content（DeepSeek）与 reasoning（部分 OpenAI 兼容端点）
+    const reasoning = delta.reasoning_content ?? delta.reasoning
+    if (typeof reasoning === 'string' && reasoning) {
+      handlers.onReasoningDelta?.(reasoning)
+    }
+
+    if (Array.isArray(delta.tool_calls)) {
+      for (const tc of delta.tool_calls) {
+        const index: number = tc.index ?? 0
+        // index 回退说明新的一轮 tool_calls 开始，先把已累积的抛出去
+        if (index <= lastIndex && accumulated.size > 0) flushToolCalls()
+        lastIndex = Math.max(lastIndex, index)
+
+        let call = accumulated.get(index)
+        if (!call) {
+          call = { id: '', name: '', arguments: '' }
+          accumulated.set(index, call)
+        }
+        if (tc.id) call.id = tc.id
+        if (tc.function?.name) call.name += tc.function.name
+        if (tc.function?.arguments) call.arguments += tc.function.arguments
+      }
+    }
+  }
+
+  try {
+    // 递归泵取代替 while 循环，避免 await-in-loop
+    const pump = async (): Promise<void> => {
+      const { done, value } = await reader.read()
+      if (done || signal.aborted) return
+
+      buffer += decoder.decode(value, { stream: true })
+
+      let newlineIndex: number
+      while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+        const line = buffer.slice(0, newlineIndex).trim()
+        buffer = buffer.slice(newlineIndex + 1)
+        if (line.startsWith('data:')) {
+          handleData(line.slice(5).trim())
+        }
+      }
+
+      return pump()
+    }
+
+    await pump()
+
+    if (buffer.trim().startsWith('data:')) {
+      handleData(buffer.trim().slice(5).trim())
+    }
+  } finally {
+    reader.releaseLock()
+  }
+
+  flushToolCalls()
+}
+
+/**
+ * 创建 OpenAI 兼容协议的传输层（chat/completions SSE）。
+ * 手写 fetch + SSE 解析，无任何第三方依赖。
+ */
+export function createOpenAITransport(options: OpenAITransportOptions): ChatTransport {
+  const { endpoint, apiKey, model, headers, body } = options
+
+  return async (request: ChatTransportRequest, handlers: ChatTransportHandlers) => {
+    const { messages, systemPrompt, tools, signal } = request
+
+    let response: Response
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+          ...headers
+        },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          ...body,
+          messages: toOpenAIMessages(messages, systemPrompt),
+          ...(tools?.length ? { tools: toOpenAITools(tools) } : {})
+        })
+      })
+    } catch (error) {
+      if (!signal.aborted) {
+        handlers.onError?.(error instanceof Error ? error : new Error(String(error)))
+      }
+      return
+    }
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => '')
+      handlers.onError?.(
+        new Error(`请求失败（${response.status}）：${text || response.statusText}`)
+      )
+      return
+    }
+
+    if (!response.body) {
+      handlers.onError?.(new Error('响应不包含可读取的流'))
+      return
+    }
+
+    try {
+      await parseSSE(response.body, signal, handlers)
+    } catch (error) {
+      if (!signal.aborted) {
+        handlers.onError?.(error instanceof Error ? error : new Error(String(error)))
+      }
+    }
+  }
+}

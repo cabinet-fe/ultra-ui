@@ -9,6 +9,7 @@
       "@veltra/compositions",
       "@veltra/directives",
       "@veltra/desktop",
+      "@veltra/ai",
       "@veltra/icons"
     ]
   ],

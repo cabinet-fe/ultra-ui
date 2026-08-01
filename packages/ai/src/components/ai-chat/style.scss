@@ -1,0 +1,315 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+$root-name: ai-chat;
+
+@include m.b($root-name) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-size: fn.use-var(font-size-main, default);
+  color: fn.use-var(text-color, main);
+
+  @include m.e(list) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.e(welcome) {
+    height: 100%;
+    @include m.flex(flex, center, center);
+    color: fn.use-var(text-color, assist);
+    padding: fn.use-var(gap, default);
+    text-align: center;
+  }
+
+  @include m.e(message) {
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+
+    @include m.m(user) {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+
+  @include m.e(message-bubble) {
+    max-width: 80%;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(color, primary, 'light-9');
+    color: fn.use-var(text-color, main);
+    overflow: hidden;
+  }
+
+  @include m.e(message-text) {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  @include m.e(message-attachments) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: fn.use-var(gap, small);
+    margin-bottom: fn.use-var(gap, small);
+  }
+
+  @include m.e(message-attachment) {
+    max-width: 160px;
+    max-height: 160px;
+    border-radius: fn.use-var(radius, default);
+    display: block;
+  }
+
+  @include m.e(message-content) {
+    line-height: 1.7;
+  }
+
+  @include m.e(message-status) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(message-actions) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, assist);
+    cursor: pointer;
+    display: inline-flex;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  // 思考过程
+  @include m.e(reasoning) {
+    margin-bottom: fn.use-var(gap, small);
+    color: fn.use-var(text-color, assist);
+
+    @include m.is(expanded) {
+      @include m.bem($root-name, 'reasoning-chevron') {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  @include m.e(reasoning-header) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    cursor: pointer;
+    user-select: none;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(reasoning-chevron) {
+    transition: transform 0.2s;
+  }
+
+  @include m.e(reasoning-content) {
+    margin-top: fn.use-var(gap, small);
+    padding-left: fn.use-var(gap, default);
+    border-left: fn.use-var(border-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.6;
+  }
+
+  // 工具调用卡片
+  @include m.e(tool-call) {
+    margin: fn.use-var(gap, small) 0;
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
+    overflow: hidden;
+
+    @include m.is(expanded) {
+      @include m.bem($root-name, 'tool-call-chevron') {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  @include m.e(tool-call-header) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(tool-call-status) {
+    flex-shrink: 0;
+
+    @include m.is(loading) {
+      color: fn.use-var(color, primary);
+      animation: u-ai-chat-rotate 1s linear infinite;
+    }
+
+    @include m.is(warning) {
+      color: fn.use-var(color, warning);
+    }
+
+    @include m.is(success) {
+      color: fn.use-var(color, success);
+    }
+
+    @include m.is(danger) {
+      color: fn.use-var(color, danger);
+    }
+  }
+
+  @include m.e(tool-call-name) {
+    font-family: fn.use-var(font-family, code);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, title);
+    flex-shrink: 0;
+  }
+
+  @include m.e(tool-call-summary) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(tool-call-confirm) {
+    flex-shrink: 0;
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(tool-call-chevron) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, assist);
+    transition: transform 0.2s;
+  }
+
+  @include m.e(tool-call-body) {
+    padding: 0 fn.use-var(gap, default) fn.use-var(gap, small);
+  }
+
+  @include m.e(tool-call-section) {
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, assist);
+    margin: fn.use-var(gap, small) 0;
+  }
+
+  @include m.e(tool-call-code) {
+    margin: 0;
+    padding: fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
+    font-family: fn.use-var(font-family, code);
+    font-size: fn.use-var(font-size-main, small);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 240px;
+    overflow: auto;
+  }
+
+  // 输入区
+  @include m.e(input-area) {
+    flex-shrink: 0;
+    margin: fn.use-var(gap, default);
+    margin-top: fn.use-var(gap, small);
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    padding: fn.use-var(gap, small);
+
+    &:focus-within {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(input) {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    font-family: inherit;
+    line-height: 1.6;
+    padding: fn.use-var(gap, small);
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(input-toolbar) {
+    @include m.flex(flex, space-between, center);
+    padding: 0 fn.use-var(gap, small);
+  }
+
+  @include m.e(input-attach) {
+    color: fn.use-var(text-color, assist);
+    cursor: pointer;
+    font-size: 18px;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(input-stop) {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: currentColor;
+  }
+
+  @include m.e(input-attachments) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small);
+  }
+
+  @include m.e(input-attachment) {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: fn.use-var(radius, default);
+    overflow: hidden;
+    border: fn.use-var(border-muted);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  @include m.e(input-attachment-remove) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: fn.color-a(shadow, 52, color);
+    color: fn.use-var(text-color, white);
+    cursor: pointer;
+    font-size: 12px;
+  }
+}
+
+@keyframes u-ai-chat-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
