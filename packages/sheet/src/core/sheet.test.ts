@@ -1,0 +1,142 @@
+import { describe, expect, it, vi } from 'vitest'
+
+import { parseRange } from './address'
+import { Sheet } from './sheet'
+import { Workbook } from './workbook'
+
+const B2 = { row: 1, col: 1 }
+const C3 = { row: 2, col: 2 }
+
+describe('Sheet 合并值语义', () => {
+  it('B2、C3 各有值 → 合并后仅 B2 值保留；getCellData(C3) = undefined；getDisplayValue(C3) = B2 的值', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 'keep')
+    sheet.setCellValue(C3, 'drop')
+
+    sheet.mergeCells(parseRange('B2:C3')!)
+
+    expect(sheet.getDisplayValue(B2)).toBe('keep')
+    expect(sheet.getCellData(C3)).toBeUndefined()
+    expect(sheet.getDisplayValue(C3)).toBe('keep')
+  })
+
+  it('嵌套合并：已有 B2:C3，再 merge C3:D4 → 包围盒 B2:D4，数据按保留规则落 B2', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 'v-b2')
+    sheet.mergeCells(parseRange('B2:C3')!)
+    sheet.setCellValue({ row: 3, col: 3 }, 'v-d4')
+
+    const finalRange = sheet.mergeCells(parseRange('C3:D4')!)
+
+    expect(finalRange).toEqual(parseRange('B2:D4'))
+    expect(sheet.getCellInfo(B2).kind).toBe('merged-anchor')
+    expect(sheet.getDisplayValue(B2)).toBe('v-b2')
+    expect(sheet.getDisplayValue({ row: 3, col: 3 })).toBe('v-b2')
+    expect(sheet.getCellData({ row: 3, col: 3 })).toBeUndefined()
+  })
+
+  it('左上方向第一个有值格优先：锚点无值时取行主序首个有值格', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(C3, 'first-valued')
+
+    sheet.mergeCells(parseRange('B2:C3')!)
+
+    expect(sheet.getDisplayValue(B2)).toBe('first-valued')
+    expect(sheet.getCellData(C3)).toBeUndefined()
+  })
+
+  it('unmerge 后仅锚点留值', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 'keep')
+    sheet.setCellValue(C3, 'drop')
+    sheet.mergeCells(parseRange('B2:C3')!)
+
+    sheet.unmergeCells(parseRange('B2:C3')!)
+
+    expect(sheet.getCellInfo(B2)).toEqual({ kind: 'normal', anchor: B2 })
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 'keep' })
+    expect(sheet.getCellData(C3)).toBeUndefined()
+  })
+
+  it('merge-change 事件', () => {
+    const sheet = new Sheet()
+    const handler = vi.fn()
+    sheet.on('merge-change', handler)
+
+    sheet.mergeCells(parseRange('B2:C3')!)
+    expect(handler).toHaveBeenCalledWith({ range: parseRange('B2:C3') })
+  })
+})
+
+describe('Sheet 数据与选区', () => {
+  it('setCellValue / getCellData / cell-change 事件', () => {
+    const sheet = new Sheet()
+    const handler = vi.fn()
+    sheet.on('cell-change', handler)
+
+    sheet.setCellValue(B2, 42)
+    expect(sheet.getCellData(B2)).toEqual({ v: 42, t: 'n' })
+    expect(handler).toHaveBeenCalledWith({ addr: B2 })
+
+    sheet.setCellValue(B2, null)
+    expect(sheet.getCellData(B2)).toBeUndefined()
+  })
+
+  it('selectCell(C3)（被覆盖）→ activeCell = B2', () => {
+    const sheet = new Sheet()
+    sheet.mergeCells(parseRange('B2:C3')!)
+
+    sheet.selectCell(C3)
+
+    expect(sheet.getSelection().activeCell).toEqual(B2)
+  })
+
+  it('selection-change 事件', () => {
+    const sheet = new Sheet()
+    const handler = vi.fn()
+    sheet.on('selection-change', handler)
+
+    sheet.selectCell(B2)
+    expect(handler).toHaveBeenCalledWith({ activeCell: B2, ranges: [{ start: B2, end: B2 }] })
+  })
+
+  it('对被覆盖格写入 → 落到锚点', () => {
+    const sheet = new Sheet()
+    sheet.mergeCells(parseRange('B2:C3')!)
+
+    sheet.setCellValue(C3, 'via-covered')
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 'via-covered' })
+    expect(sheet.getCellData(C3)).toBeUndefined()
+  })
+})
+
+describe('Workbook', () => {
+  it('默认一个 sheet，可增删激活', () => {
+    const wb = new Workbook()
+    expect(wb.sheetCount).toBe(1)
+    expect(wb.activeSheet.name).toBe('Sheet1')
+
+    const s2 = wb.addSheet()
+    expect(s2.name).toBe('Sheet2')
+    expect(wb.activeSheet.name).toBe('Sheet1')
+
+    expect(wb.activateSheet('Sheet2')).toBe(true)
+    expect(wb.activeSheet).toBe(s2)
+
+    expect(wb.removeSheet('Sheet2')).toBe(true)
+    expect(wb.activeSheet.name).toBe('Sheet1')
+
+    // 至少保留一个
+    expect(wb.removeSheet('Sheet1')).toBe(false)
+  })
+
+  it('激活切换事件', () => {
+    const wb = new Workbook()
+    wb.addSheet('Data')
+    const handler = vi.fn()
+    wb.on('active-sheet-change', handler)
+
+    wb.activateSheet('Data')
+    expect(handler).toHaveBeenCalledWith({ sheet: wb.getSheet('Data'), index: 1 })
+  })
+})
