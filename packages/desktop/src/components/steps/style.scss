@@ -12,14 +12,14 @@ $root-name: steps;
 
   @each $type in vars.$color-types {
     @include m.em(finished, $type) {
-      @include m.e(item) {
+      @include m.bem($root-name, item) {
         @include m.is(finished) {
           color: fn.use-var(color, $type);
         }
       }
     }
     @include m.em(current, $type) {
-      @include m.e(item) {
+      @include m.bem($root-name, item) {
         @include m.is(current) {
           color: fn.use-var(color, $type);
         }
