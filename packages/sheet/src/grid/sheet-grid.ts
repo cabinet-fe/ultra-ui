@@ -1,9 +1,10 @@
 import { ListTable, register } from '@visactor/vtable'
 import type { ListTableConstructorOptions } from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
+import type { EditContext } from '@visactor/vtable-editors'
 
 import type { CellAddress } from '../core/address'
-import { colIndexToName } from '../core/address'
+import { cellKey, colIndexToName } from '../core/address'
 import type { CellValue } from '../core/cell-store'
 import type { Sheet } from '../core/sheet'
 
@@ -13,11 +14,28 @@ import type { Sheet } from '../core/sheet'
  * - 模型 → VTable：records 由 store 行视图桥接；customMergeCell 闭包直读 MergeManager
  *   （VTable 逐格动态求值、无缓存，合并变更后 setRecords 重建场景树即生效）
  * - VTable → 模型：change_cell_value 回写 store；selected_cell 经 resolveAnchor 更新选区
+ * - 公式：公式格 record 存计算缓存（显示值）；进入编辑时编辑器显示公式原文（'=f'）。
+ *   编辑提交期间模型变更（含公式重算派生格）先入待同步队列，提交结束统一回推表格——
+ *   VTable 自己只更新了被编辑格的 record（还是输入文本），派生格它不知道
  * - 键盘：容器 keydown 绑定 undo/redo（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y），
  *   编辑器 input 打开时不拦截
  * - 坐标换算：行号列不计入 rowHeaderLevelCount，偏移量在首个表格实例上
  *   用 columnHeaderLevelCount + isSeriesNumber 实测并缓存（见 getOffsets）
  */
+
+/** 公式感知编辑器：进入编辑时公式格显示原文（同 Excel），其余格显示当前值 */
+class FormulaAwareInputEditor extends InputEditor {
+  /** 由 SheetGrid 注入：返回进入编辑时应显示的文本；undefined = 用 VTable 默认值 */
+  resolveEditText?: (col: number, row: number) => string | undefined
+
+  override onStart(context: EditContext<string>): void {
+    const text = this.resolveEditText?.(context.col, context.row)
+    super.onStart(text === undefined ? context : { ...context, value: text })
+  }
+}
+
+/** 编辑器按 grid 实例注册（hook 闭包各自 sheet），名称递增防冲突 */
+let editorSeq = 0
 
 export interface SheetGridOptions {
   container: HTMLElement
@@ -28,33 +46,35 @@ export interface SheetGridOptions {
   cols?: number
 }
 
-const EDITOR_NAME = 'veltra-sheet-input'
-let editorRegistered = false
-
-function ensureEditorRegistered(): void {
-  if (editorRegistered) return
-  register.editor(EDITOR_NAME, new InputEditor())
-  editorRegistered = true
-}
-
 export class SheetGrid {
   private readonly sheet: Sheet
   private readonly table: ListTable
   private readonly container: HTMLElement
   private readonly rows: number
   private readonly cols: number
+  private readonly editorName: string
   private readonly disposers: (() => void)[] = []
-  /** 表格事件正在回写模型，阻断模型事件回流造成的循环 */
-  private syncingFromTable = false
+  /** 编辑提交期间累积的模型变更（提交结束统一回推表格，覆盖公式派生格） */
+  private pendingTableSync: Map<number, CellAddress> | null = null
   /** 实测坐标偏移（行号列数 / 列头行数），首次使用时测量 */
   private offsets?: { colOffset: number; rowOffset: number }
 
   constructor(options: SheetGridOptions) {
-    ensureEditorRegistered()
     this.sheet = options.sheet
     this.container = options.container
     this.rows = options.rows ?? 100
     this.cols = options.cols ?? 26
+
+    // 每个 grid 实例注册自己的编辑器（hook 闭包本实例的 sheet 与坐标换算）
+    this.editorName = `veltra-sheet-input-${editorSeq++}`
+    const editor = new FormulaAwareInputEditor()
+    editor.resolveEditText = (col, row) => {
+      const addr = this.toSheetAddr(this.table, col, row)
+      if (!addr) return undefined
+      const data = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
+      return data?.f ? `=${data.f}` : undefined
+    }
+    register.editor(this.editorName, editor)
 
     this.table = new ListTable(options.container, this.buildOptions())
     this.bindTableEvents()
@@ -144,7 +164,7 @@ export class SheetGrid {
       columns: this.buildColumns(),
       widthMode: 'standard',
       rowSeriesNumber: { width: 46 },
-      editor: EDITOR_NAME,
+      editor: this.editorName,
       editCellTrigger: 'doubleclick',
       keyboardOptions: {
         moveFocusCellOnTab: true,
@@ -183,11 +203,17 @@ export class SheetGrid {
     this.table.on(ListTable.EVENT_TYPE.CHANGE_CELL_VALUE, (args) => {
       const addr = this.toSheetAddr(this.table, args.col, args.row)
       if (addr == null) return
-      this.syncingFromTable = true
+      // 编辑提交期间模型变更（含公式重算派生格）先入队列，提交结束统一回推。
+      // 被编辑格自身也入队：VTable 已把输入文本写进 record，公式格需回推计算值
+      this.pendingTableSync = new Map([[cellKey(addr), addr]])
       try {
         this.sheet.setCellValue(addr, args.changedValue ?? null)
       } finally {
-        this.syncingFromTable = false
+        const pending = this.pendingTableSync
+        this.pendingTableSync = null
+        if (pending) {
+          for (const pendingAddr of pending.values()) this.pushCellToTable(pendingAddr)
+        }
       }
     })
 
@@ -201,10 +227,11 @@ export class SheetGrid {
   private bindSheetEvents(): void {
     this.disposers.push(
       this.sheet.on('cell-change', ({ addr }) => {
-        if (this.syncingFromTable) return
-        const { col, row } = this.toTableCoord(this.table, addr)
-        const value = this.sheet.getDisplayValue(addr)
-        this.table.changeCellValue(col, row, value as string | number | null, false, false)
+        if (this.pendingTableSync) {
+          this.pendingTableSync.set(cellKey(addr), addr)
+          return
+        }
+        this.pushCellToTable(addr)
       })
     )
 
@@ -213,6 +240,13 @@ export class SheetGrid {
         this.refresh()
       })
     )
+  }
+
+  /** 模型格 → 表格 record（显示值；公式格为计算缓存） */
+  private pushCellToTable(addr: CellAddress): void {
+    const { col, row } = this.toTableCoord(this.table, addr)
+    const value = this.sheet.getDisplayValue(addr)
+    this.table.changeCellValue(col, row, value as string | number | null, false, false)
   }
 
   /**

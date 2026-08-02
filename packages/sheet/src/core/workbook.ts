@@ -1,9 +1,10 @@
 import { TypedEventEmitter } from './events'
+import { DependencyGraph } from './formula/dependency-graph'
 import { Sheet } from './sheet'
 
 /**
  * Workbook：多 Sheet 管理。
- * 本阶段只要数据结构（公式跨表引用的载体），不含公式联动。
+ * 所有 sheet 共享一个公式依赖图（跨表引用与增量重算的中枢）。
  */
 
 export type WorkbookEvents = {
@@ -17,6 +18,8 @@ export class Workbook {
   private sheets: Sheet[] = []
   private activeIndex = 0
   private emitter = new TypedEventEmitter<WorkbookEvents>()
+  /** 工作簿级公式依赖图（全部 sheet 共享） */
+  readonly formulaGraph = new DependencyGraph()
 
   constructor() {
     this.addSheet()
@@ -44,7 +47,7 @@ export class Workbook {
 
   /** 新增 sheet，名称缺省为 Sheet{n}（保证唯一） */
   addSheet(name?: string): Sheet {
-    const sheet = new Sheet(name ?? this.nextDefaultName())
+    const sheet = new Sheet(name ?? this.nextDefaultName(), this.formulaGraph)
     this.sheets.push(sheet)
     this.emitter.emit('sheets-change', { sheets: this.getSheets() })
     return sheet
@@ -55,7 +58,8 @@ export class Workbook {
     if (this.sheets.length <= 1) return false
     const index = this.sheets.findIndex((sheet) => sheet.name === name)
     if (index < 0) return false
-    this.sheets.splice(index, 1)
+    const [removed] = this.sheets.splice(index, 1)
+    this.formulaGraph.unregisterSheet(removed!)
     if (this.activeIndex >= this.sheets.length) {
       this.activeIndex = this.sheets.length - 1
     }

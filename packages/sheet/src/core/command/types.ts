@@ -17,6 +17,11 @@ export type PatchDirection = 'undo' | 'redo'
 export interface CellPatch {
   kind: 'cell'
   addr: CellAddress
+  /**
+   * 目标 sheet（跨表公式重算的派生补丁会落在其它 sheet 上）；
+   * 缺省 = 命令所在 sheet。回放时按此字段路由到目标 sheet 的变更通道。
+   */
+  sheet?: Sheet
   /** 变更前的数据（undefined = 原本为空格） */
   before?: CellData
   /** 变更后的数据（undefined = 变更后为空格） */

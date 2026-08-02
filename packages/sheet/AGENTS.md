@@ -14,15 +14,24 @@ src/
 │   ├── merge-manager.ts  # 合并单元格（只管几何，不管数据）
 │   ├── selection.ts      # 选区模型（activeCell 恒为锚点）
 │   ├── sheet.ts          # Sheet = store + merge + selection + history，统一操作入口
-│   ├── workbook.ts       # Workbook = 多 Sheet（公式跨表引用的载体）
+│   ├── workbook.ts       # Workbook = 多 Sheet（共享公式依赖图）
 │   ├── events.ts         # 包内轻量类型化事件发射器（内部基建）
-│   └── command/          # 命令系统（undo/redo）
-│       ├── types.ts          # Command / Mutation / Patch（CellPatch | MergePatch，before/after 差量）
-│       ├── registry.ts       # CommandRegistry（register / execute）
-│       ├── history.ts        # HistoryManager（undo/redo 栈 + 事务 + 容量上限 200）
-│       ├── set-cell-value.ts # SetCellValueCommand（批量，供粘贴/填充复用）
-│       ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
-│       └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
+│   ├── command/          # 命令系统（undo/redo）
+│   │   ├── types.ts          # Command / Mutation / Patch（CellPatch | MergePatch，before/after 差量）
+│   │   ├── registry.ts       # CommandRegistry（register / execute）
+│   │   ├── history.ts        # HistoryManager（undo/redo 栈 + 事务 + 容量上限 200）
+│   │   ├── set-cell-value.ts # SetCellValueCommand（批量，供粘贴/填充复用）
+│   │   ├── set-cell-formula.ts # SetCellFormulaCommand（只写 f，缓存由重算派生补丁填充）
+│   │   ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
+│   │   └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
+│   └── formula/          # 公式引擎（纯 TS，可无头运行）
+│       ├── errors.ts         # 错误值体系（#DIV/0! #VALUE! #NAME? #REF! #ERROR! #CYCLE!）
+│       ├── ast.ts            # AST 节点 + collectReferences
+│       ├── tokenizer.ts      # 分词器（FormulaParseError）
+│       ├── parser.ts         # Pratt parser（优先级同 Excel）
+│       ├── evaluator.ts      # AST 求值 + 强转规则（纯函数，读取经 FormulaEvalContext 注入）
+│       ├── functions.ts      # 函数注册表（registerFormulaFunction 可扩展）+ 13 个基础函数
+│       └── dependency-graph.ts # DependencyGraph（工作簿级：sheet 注册表 + 双向索引 + 增量重算）
 └── grid/
     ├── __test__/         # SheetGrid smoke + canvas mock（vp test setupFiles）
     └── sheet-grid.ts     # VTable 适配层（ListTable 封装、编辑器接入、事件回写、键盘绑定）
@@ -30,7 +39,7 @@ src/
 
 ## 命令系统（undo/redo）
 
-- **一切写操作都是命令**：`Sheet.setCellValue / setCell / setCells / mergeCells / unmergeCells`
+- **一切写操作都是命令**：`Sheet.setCellValue / setCell / setCells / setCellFormula / mergeCells / unmergeCells`
   全部经 `defaultCommandRegistry` 执行并推入 `sheet.history`，没有绕过入口；
   `Sheet.applyPatch` 是命令执行与 undo/redo 回放共用的唯一变更通道。
 - Patch 是 before/after 差量（非全量快照）；同一批补丁双向回放（redo 应用 after，undo 应用 before），
@@ -44,6 +53,30 @@ src/
 - **选区不进历史**：undo/redo 不改变 selection（与 Excel 不同，有意为之）。
 - 低层接口：`MergeManager.addMerge / removeMerge`（精确增删，不做包围盒）与 `computeMerge`
   （纯查询）供命令回放使用，业务代码不应直接调用。
+
+## 公式引擎
+
+- **入口**：`Sheet.setCellFormula(addr, '=SUM(A1:B2)')`（`'='` 前缀可省；空白公式 = 清除单元格）；
+  `setCellValue` 识别 `'='` 前缀自动走公式路径（grid 编辑回写由此获得公式能力）。
+  `setCell` 写带 `f` 的 CellData 同样触发重算。
+- **存储**：`f` 存公式原文（不含 `=`），`v / t` 存计算缓存；解析失败 → `v='#ERROR!', t='e'`（f 保留）。
+- **重算编排**：`Sheet.executeCommand` 执行命令后从 mutation 提取变更格 →
+  `DependencyGraph.recalc` 标脏（向上 BFS）+ 拓扑序重算（递归向下，memo）→
+  派生补丁立即应用并作为附加 mutation **并入同一 undo 单元**。
+  undo/redo 纯补丁回放（不重算），依赖图状态由 `applyPatch → syncCell` 双向维持。
+- **跨表**：`DependencyGraph` 是工作簿级单例（`new Sheet()` 自建、`Workbook` 注入共享）；
+  `CellPatch.sheet` 标记跨表派生补丁的目标 sheet，回放经源 sheet 历史按此路由。
+  引用按表名解析，不存在 → `#REF!`。
+- **循环检测是求值期动态检测**（在途栈回边 → 环上格 #CYCLE!）：`IF` 未选分支中的
+  静态自引用不算环；打破循环（编辑/删除环上格）后标脏重算自动恢复。
+- **引用语义 = 原始存储**（同 Excel）：被合并覆盖的格按空（0/''）；区域展开只迭代
+  稀疏存在的格（`CellStore.entriesInRange`）。
+- **聚合函数区分参数来源**（Excel 语义）：区域内的文本/布尔被 SUM/COUNT 等忽略，
+  直接参数则强转（`SUM("abc")` → #VALUE!）；IF 为 lazy 函数（未选分支不求值）。
+- 运算符集：`+ - * / ^`（右结合）、一元 `+ -`（紧于幂次：-2^2=4）、`%` 后缀、`&`、
+  比较 `= <> < <= > >=`；优先级同 Excel。函数注册表可经 `registerFormulaFunction` 扩展。
+- 合并与公式：合并按值保留规则搬迁 CellData（含公式原文，引用不随位置调整）；
+  被覆盖格上的公式随清空从依赖图移除。
 
 ## 核心语义约定
 
@@ -59,13 +92,17 @@ src/
 - **`CustomMerge` 必须携带 `text`，且 `text` 要读 VTable records（`table.getCellOriginValue(锚点坐标)`）而非模型**：
   - `BaseTable.getCellRange` 仅在 `text`/`customLayout`/`customRender` 有效时才返回自定义合并区域。缺了 `text` 会导致：合并格渲染为空；选区/编辑不扩展为整个合并区域（能点到被覆盖格）；编辑提交不写锚点。带上 `text` 后选区扩展、编辑器矩形、`doExit` 提交锚点（`changeCellValue(range.start, …)`）全部自动成立。
   - 编辑提交的顺序是：先更新 record → 重绘（重读 `customMerge.text`）→ 最后才发 `change_cell_value` 回写模型。若 `text` 闭包读模型，重绘拿到的是回写前的旧值——表现为「编辑后点击其它单元格，输入内容消失」（实际模型已提交，是渲染了旧文本）。读 records 则与 VTable 的更新次序天然一致（records 本就是模型的镜像：构造/setRecords/changeCellValue 三处同步）。
-- 编辑器：`register.editor` 注册一次 `@visactor/vtable-editors` 的 `InputEditor`，配置 `editor` + `editCellTrigger: 'doubleclick'`。
-- 双击编辑走 vrender Gesture 的 `doubletap` 识别（非原生 dblclick），Playwright 合成的 dblclick 无法触发——浏览器自动化验证编辑链路时改用 `getCellRange` + `changeCellValue` 走同一提交路径。
+- 编辑器：每个 grid 实例注册自己的 `FormulaAwareInputEditor`（InputEditor 子类，hook 闭包
+  本实例 sheet），`onStart` 把公式格的初始文本替换为公式原文（'=f'，同 Excel）；
+  名称按 `veltra-sheet-input-N` 递增（register.editor 无注销 API）。
+- **编辑提交回写（change_cell_value）**：提交期间模型变更（含公式重算派生格）先入
+  `pendingTableSync` 队列，提交结束统一 `changeCellValue(…, false, false)` 回推——
+  VTable 自己只把被编辑格的 record 改成输入文本，公式格必须回推计算值、派生格它不知道。
+- 双击编辑走 vrender Gesture 的 `doubletap` 识别（非原生 dblclick），Playwright 合成的 dblclick 无法触发——浏览器自动化验证编辑链路时改用 `getCellRange` + `changeCellValue` 走同一提交路径，或 `startEditCell(col, row)` + `completeEditCell()` 程序化编辑（此时容器里有两个 input：VTable 内部键盘 input（`input-container`）与编辑器 input（`vtable`），取后者，可用 `editorManager.editingEditor.getInputElement()`）。
 - Enter 键行为由 `keyboardOptions` 决定：`moveFocusCellOnEnter: true` 时 Enter 是下移选区而非进入编辑（VTable 内部分支优先级如此），自动化不要指望 Enter 打开编辑器。
 - 键盘 undo/redo 绑定在 grid 容器的 keydown 上（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y）；事件来自编辑器 input/textarea 时不拦截（保留文本编辑自身的撤销）。演示页按钮置灰读 `is-disabled` class（UButton 不写原生 disabled 属性）。
 - 事件用 `ListTable.EVENT_TYPE` 静态访问器（`core.EVENT_TYPE` 在 d.ts 是 `import type` 重导出，运行时为 undefined）。
 - **坐标偏移**：`rowSeriesNumber` 行号列**不计入** `rowHeaderLevelCount`；偏移量在首个表格实例上用 `columnHeaderLevelCount` + `isSeriesNumber` 逐列探测并缓存（`getOffsets`）。
-- 表格事件回写模型时置 `syncingFromTable` 标志，阻断模型事件回流循环。
 - 无头测试：happy-dom 不实现 canvas 2d，`src/grid/__test__/canvas-mock.ts` 用 Proxy mock 了 `getContext('2d')`（vp test setupFiles 注入）。
 
 ## 依赖
@@ -76,9 +113,16 @@ src/
 
 ## 已知限制
 
-- sheet 重命名/删除对公式引用的联动未实现（公式引擎落地时处理）。
+- **sheet 重命名**：name 是公开可变字段，依赖图注册表按名索引——改名后旧名引用缓存保持
+  旧值、下次重算变 `#REF!`（引用不跟随改名）。
+- **sheet 删除**：`removeSheet` 清理该表公式节点但不触发其它表重算——引用它的公式缓存
+  保持旧值，直到任意变更触发重算后变 `#REF!`。
+- **跨表交错撤销**：undo 历史按 sheet 分栈，跨表重算的派生补丁跟随源 sheet 的条目。
+  若「改 Sheet2 → 再改 Sheet1 被联动的格 → 在 Sheet2 上 undo」，源 sheet 的 undo 会把
+  Sheet1 的格还原到源条目记录的旧状态，Sheet1 自己的那条历史仍在栈中（继续 undo 可能
+  短暂显示过期缓存，任意重算触发后自愈）。Excel 的单一工作簿撤销栈无此问题。
+- 编辑提交回写的是输入文本（数字文本以字符串存储；公式求值按 Excel 规则强转）。
 - 行列插入删除、单元格样式系统、图表、协同编辑：本期不做，模型层预留扩展点。
-- `change_cell_value` 回写的是编辑后的展示值，公式文本（`f`）写入走 `Sheet.setCell`，不经过编辑器。
 
 ## 验证
 

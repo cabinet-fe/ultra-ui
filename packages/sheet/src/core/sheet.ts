@@ -3,9 +3,11 @@ import { inferCellType, CellStore, type CellData, type CellValue } from './cell-
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
 import { MergeCellsCommand, UnmergeCellsCommand } from './command/merge-cells'
+import { SetCellFormulaCommand } from './command/set-cell-formula'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
-import type { Patch, PatchDirection } from './command/types'
+import type { Mutation, Patch, PatchDirection } from './command/types'
 import { TypedEventEmitter } from './events'
+import { DependencyGraph } from './formula/dependency-graph'
 import { MergeManager, type CellInfo } from './merge-manager'
 import { SelectionModel, type SelectionState } from './selection'
 
@@ -16,8 +18,10 @@ import { SelectionModel, type SelectionState } from './selection'
  * - `getCellData`：原始存储语义，被合并覆盖的非锚点格 → undefined
  * - `getDisplayValue`：锚点解析语义，被覆盖格返回锚点的值
  * - `setCellValue` / `selectCell`：内部先 resolveAnchor（用户操作永远落锚点）
- * - 一切写操作（setCellValue / setCell / setCells / mergeCells / unmergeCells）
+ * - 一切写操作（setCellValue / setCell / setCells / setCellFormula / mergeCells / unmergeCells）
  *   都经命令系统执行（applyPatch 是唯一变更通道），天然获得 undo/redo 能力
+ * - 公式：`setCellValue` 识别 '=' 前缀走 `setCellFormula`；命令执行后自动增量重算，
+ *   重算派生变更（含跨表）并入同一 undo 单元
  */
 
 export type SheetEvents = {
@@ -37,17 +41,21 @@ export class Sheet {
   readonly selection: SelectionModel
   /**  undo/redo 历史（命令系统） */
   readonly history: HistoryManager
+  /** 公式依赖图（工作簿内多 sheet 共享；独立 Sheet 自建） */
+  readonly formulaGraph: DependencyGraph
 
   name: string
 
   private emitter = new TypedEventEmitter<SheetEvents>()
 
-  constructor(name = 'Sheet1') {
+  constructor(name = 'Sheet1', formulaGraph?: DependencyGraph) {
     this.name = name
     this.selection = new SelectionModel((addr) => this.merges.resolveAnchor(addr))
     this.selection.on((state) => this.emitter.emit('selection-change', state))
     this.history = new HistoryManager(this.boundApplyPatch)
     this.history.onChange((state) => this.emitter.emit('history-change', state))
+    this.formulaGraph = formulaGraph ?? new DependencyGraph()
+    this.formulaGraph.registerSheet(this)
   }
 
   get rowCount(): number {
@@ -71,8 +79,12 @@ export class Sheet {
     return this.store.getCell(anchor)?.v ?? undefined
   }
 
-  /** 写入原始值（解析到锚点；空值 = 清除）；经命令执行，可撤销 */
+  /** 写入原始值（解析到锚点；空值 = 清除）；'=' 前缀按公式处理；经命令执行，可撤销 */
   setCellValue(addr: CellAddress, value: CellValue): void {
+    if (typeof value === 'string' && value.startsWith('=')) {
+      this.setCellFormula(addr, value)
+      return
+    }
     const data = value == null || value === '' ? undefined : { v: value, t: inferCellType(value) }
     this.setCells([{ addr, data }])
   }
@@ -80,6 +92,19 @@ export class Sheet {
   /** 写入完整 CellData（解析到锚点；空数据 = 清除）；经命令执行，可撤销 */
   setCell(addr: CellAddress, data?: CellData): void {
     this.setCells([{ addr, data }])
+  }
+
+  /**
+   * 写入公式（可带 '=' 前缀；空白公式 = 清除）；经命令执行，可撤销。
+   * 公式原文存 CellData.f，计算缓存（v/t）由增量重算填充；解析失败 → #ERROR!。
+   */
+  setCellFormula(addr: CellAddress, formula: string): void {
+    const text = formula.startsWith('=') ? formula.slice(1) : formula
+    if (text.trim() === '') {
+      this.setCells([{ addr, data: undefined }])
+      return
+    }
+    this.executeCommand(SetCellFormulaCommand.id, { addr, formula: text })
   }
 
   /** 批量写入（一次调用 = 一个 undo 单元，供粘贴/填充复用） */
@@ -110,7 +135,7 @@ export class Sheet {
 
   // ─── 命令与历史 ──────────────────────────────────────────
 
-  /** 经默认注册表执行命令；产生的 mutation 推入历史 */
+  /** 经默认注册表执行命令；产生的 mutation 与公式重算派生 mutation 一并推入历史 */
   executeCommand<R = void>(commandId: string, params: unknown): R | undefined {
     const result = defaultCommandRegistry.execute<R>(
       { sheet: this, applyPatch: this.boundApplyPatch },
@@ -118,7 +143,10 @@ export class Sheet {
       params
     )
     if (result && result.mutations.length > 0) {
-      this.history.push(result.mutations)
+      const mutations = [...result.mutations]
+      const recalcMutation = this.recalcAfterCommand(result.mutations)
+      if (recalcMutation) mutations.push(recalcMutation)
+      this.history.push(mutations)
     }
     return result?.result
   }
@@ -184,14 +212,19 @@ export class Sheet {
   // ─── 内部 ────────────────────────────────────────────────
 
   private readonly boundApplyPatch = (patch: Patch, direction: PatchDirection): void => {
-    this.applyPatch(patch, direction)
+    // 跨表重算的派生补丁路由到目标 sheet（回放经源 sheet 历史时同样按此路由）
+    const target = patch.kind === 'cell' ? (patch.sheet ?? this) : this
+    target.applyPatch(patch, direction)
   }
 
   /** 应用补丁：命令执行与 undo/redo 回放共用的唯一变更通道 */
   private applyPatch(patch: Patch, direction: PatchDirection): void {
     if (patch.kind === 'cell') {
       const data = direction === 'redo' ? patch.after : patch.before
+      const previous = direction === 'redo' ? patch.before : patch.after
       this.store.setCell(patch.addr, data)
+      // 公式依赖图同步（f 增/删/改 → 节点增/删/重建；undo/redo 回放同样覆盖）
+      this.formulaGraph.syncCell(this, patch.addr, previous, data)
       this.emitter.emit('cell-change', { addr: patch.addr })
       return
     }
@@ -202,5 +235,23 @@ export class Sheet {
       this.merges.removeMerge(patch.range)
     }
     this.emitter.emit('merge-change', { range: patch.range })
+  }
+
+  /**
+   * 命令执行后的公式增量重算：从命令 mutation 提取变更格 → 依赖图标脏 +
+   * 拓扑序重算 → 派生补丁立即应用，作为附加 mutation 并入同一 undo 单元。
+   * undo/redo 纯补丁回放（不重算），图状态由 applyPatch 内的 syncCell 维持。
+   */
+  private recalcAfterCommand(mutations: Mutation[]): Mutation | undefined {
+    const changed: { sheet: Sheet; addr: CellAddress }[] = []
+    for (const mutation of mutations) {
+      for (const patch of mutation.redo) {
+        if (patch.kind === 'cell') changed.push({ sheet: patch.sheet ?? this, addr: patch.addr })
+      }
+    }
+    const derived = this.formulaGraph.recalc(changed)
+    if (derived.length === 0) return undefined
+    for (const patch of derived) this.boundApplyPatch(patch, 'redo')
+    return { redo: derived, undo: [...derived].reverse() }
   }
 }

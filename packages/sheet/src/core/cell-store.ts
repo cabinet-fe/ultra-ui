@@ -1,4 +1,4 @@
-import type { CellAddress } from './address'
+import type { CellAddress, CellRange } from './address'
 
 /**
  * 稀疏矩阵存储：`Map<row, Map<col, CellData>>`。
@@ -123,6 +123,18 @@ export class CellStore {
     for (const [row, rowMap] of this.cells) {
       for (const [col, data] of rowMap) {
         yield [{ row, col }, { ...data }]
+      }
+    }
+  }
+
+  /** 只遍历区域内真实存在的单元格（行主序；公式区域展开用，空行/空格不分配不访问） */
+  *entriesInRange(range: CellRange): Generator<[CellAddress, CellData], void, undefined> {
+    for (let row = range.start.row; row <= range.end.row; row++) {
+      const rowMap = this.cells.get(row)
+      if (!rowMap) continue
+      for (let col = range.start.col; col <= range.end.col; col++) {
+        const data = rowMap.get(col)
+        if (data) yield [{ row, col }, { ...data }]
       }
     }
   }
