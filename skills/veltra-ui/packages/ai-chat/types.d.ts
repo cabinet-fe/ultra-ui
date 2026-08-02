@@ -1,5 +1,5 @@
 import type { DeconstructValue } from '@veltra/utils'
-import type { Ref } from 'vue'
+import type { Component, Ref } from 'vue'
 
 /** 聊天附件（首版仅支持图片） */
 export interface ChatAttachment {
@@ -79,8 +79,25 @@ export interface ChatTool<A = any> {
   parameters: Record<string, unknown>
   /** 执行前是否需要用户在 UI 中确认 */
   needsConfirm?: boolean
+  /** 工具图标组件，缺省用内置状态图标（状态颜色/加载旋转仍作用于图标容器） */
+  icon?: Component
+  /** 工具显示名，缺省取 name */
+  label?: string
+  /**
+   * 自定义工具卡片内容渲染（组件或渲染函数），props 为 ChatToolRenderProps。
+   * 设置后替换卡片 body 的默认参数/结果展示；优先级高于 tool-<name> 插槽。
+   */
+  render?: Component
+  /** 执行完成后是否自动折叠。缺省：设置了 render 时为 false，否则为 true */
+  autoCollapse?: boolean
   /** 工具实现，返回值（或 Promise 返回值）会被 JSON 序列化后回灌给模型 */
   execute: (args: A, ctx: ChatToolContext) => unknown
+}
+
+/** 工具自定义渲染组件 / 渲染函数的 props */
+export interface ChatToolRenderProps {
+  /** 本次工具调用（含 status/arguments/result/error，可自行渲染进度与错误） */
+  toolCall: ChatToolCall
 }
 
 /** transport 请求参数 */
@@ -192,3 +209,51 @@ export declare function useChat(options: UseChatOptions): {
   /** 响应 needsConfirm 工具的用户确认 */
   respondToolCall: (toolCallId: string, approved: boolean) => void
 }
+
+/** 单个提问项（createAskQuestionTool 的模型输出） */
+export interface AskQuestionItem {
+  /** 问题文案 */
+  question: string
+  /** 预设选项（单选）；缺省为纯文本题 */
+  options?: string[]
+  /** 自定义输入占位文案 */
+  placeholder?: string
+}
+
+/** 一条问答结果 */
+export interface AskQuestionAnswer {
+  /** 问题文案 */
+  question: string
+  /** 用户回答（选中的选项或自定义输入） */
+  answer: string
+}
+
+/** 提问工具参数（模型输出） */
+export interface AskQuestionArgs {
+  questions: AskQuestionItem[]
+}
+
+/** 提问工具结果（序列化后回灌模型，渲染层据此展示问答摘要） */
+export interface AskQuestionResult {
+  answers: AskQuestionAnswer[]
+}
+
+export interface CreateAskQuestionToolOptions {
+  /** 工具名（传给模型），默认 askQuestion */
+  name?: string
+  /** 工具描述（传给模型） */
+  description?: string
+  /** 工具显示名，默认「提问」 */
+  label?: string
+  /** 工具图标，默认 QuestionFilled */
+  icon?: Component
+}
+
+/**
+ * 创建内置提问工具：需求不明确或存在歧义时由模型发起提问，
+ * execute 挂起等待用户在分页表单中作答（选项 + 自定义输入），
+ * 提交后结果回灌模型，卡片展示问答摘要且不自动折叠。
+ */
+export declare function createAskQuestionTool(
+  options?: CreateAskQuestionToolOptions
+): ChatTool<AskQuestionArgs>

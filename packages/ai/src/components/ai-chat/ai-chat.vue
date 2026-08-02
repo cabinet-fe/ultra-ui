@@ -25,9 +25,9 @@
 
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
-import { provide, useSlots } from 'vue'
+import { computed, provide, useSlots } from 'vue'
 
-import type { ChatToolCall } from '../../chat/types'
+import type { ChatTool, ChatToolCall } from '../../chat/types'
 import { useChat } from '../../chat/use-chat'
 import type { _AiChatExposed, AiChatEmits, AiChatProps } from '../../types'
 import ChatInput from './chat-input.vue'
@@ -51,7 +51,12 @@ const cls = bem('ai-chat')
 
 const slots = useSlots()
 
-provide(AiChatDIKey, { cls, slots })
+/** 按 name 索引的工具定义，供工具卡片解析 icon/label/render/autoCollapse */
+const toolMap = computed<Record<string, ChatTool | undefined>>(() => {
+  return Object.fromEntries((props.tools ?? []).map((tool) => [tool.name, tool]))
+})
+
+provide(AiChatDIKey, { cls, slots, tools: toolMap })
 
 const { messages, running, send, abort, regenerate, clear, respondToolCall } = useChat({
   props,

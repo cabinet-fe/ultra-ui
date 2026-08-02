@@ -1,3 +1,5 @@
+import type { Component } from 'vue'
+
 /** 聊天附件（首版仅支持图片） */
 export interface ChatAttachment {
   /** 文件名 */
@@ -76,8 +78,25 @@ export interface ChatTool<A = any> {
   parameters: Record<string, unknown>
   /** 执行前是否需要用户在 UI 中确认 */
   needsConfirm?: boolean
+  /** 工具图标组件，缺省用内置状态图标（状态颜色/加载旋转仍作用于图标容器） */
+  icon?: Component
+  /** 工具显示名，缺省取 name */
+  label?: string
+  /**
+   * 自定义工具卡片内容渲染（组件或渲染函数），props 为 ChatToolRenderProps。
+   * 设置后替换卡片 body 的默认参数/结果展示；优先级高于 tool-<name> 插槽。
+   */
+  render?: Component
+  /** 执行完成后是否自动折叠。缺省：设置了 render 时为 false，否则为 true */
+  autoCollapse?: boolean
   /** 工具实现，返回值（或 Promise 返回值）会被 JSON 序列化后回灌给模型 */
   execute: (args: A, ctx: ChatToolContext) => unknown
+}
+
+/** 工具自定义渲染组件 / 渲染函数的 props */
+export interface ChatToolRenderProps {
+  /** 本次工具调用（含 status/arguments/result/error，可自行渲染进度与错误） */
+  toolCall: ChatToolCall
 }
 
 /** transport 请求参数 */

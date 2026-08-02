@@ -5,7 +5,7 @@
         <u-ai-chat
           :transport="transport"
           :tools="tools"
-          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」"
+          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」「帮我做个活动页面」"
         >
           <template #tool-getWeather="{ toolCall }">
             <div class="weather-result">🌤️ {{ toolCall.result }}</div>
@@ -17,8 +17,9 @@
 </template>
 
 <script lang="ts" setup>
-import { UAiChat, type ChatTool, type ChatTransport } from '@veltra/ai'
+import { UAiChat, createAskQuestionTool, type ChatTool, type ChatTransport } from '@veltra/ai'
 import '@veltra/ai/style'
+import { Delete, Sun } from '@veltra/icons/normal'
 
 import CustomCard from '../desktop/card/custom-card.vue'
 
@@ -56,8 +57,31 @@ const transport: ChatTransport = async (req, handlers) => {
   // 上一轮是工具结果时，输出总结文本
   const lastMessage = req.messages[req.messages.length - 1]
   if (lastMessage?.role === 'tool') {
-    const answer = `工具执行完毕，结果如下：\n\n\`\`\`json\n${JSON.stringify(JSON.parse(lastMessage.content), null, 2)}\n\`\`\``
+    let answer: string
+    try {
+      const parsed = JSON.parse(lastMessage.content)
+      answer = Array.isArray(parsed?.answers)
+        ? `好的，我记下了：\n\n${parsed.answers.map((item: { question: string; answer: string }) => `- **${item.question}** ${item.answer}`).join('\n')}\n\n这就为你准备方案。`
+        : `工具执行完毕，结果如下：\n\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``
+    } catch {
+      answer = lastMessage.content
+    }
     await streamText(answer, req.signal, (ch) => handlers.onTextDelta(ch), 8)
+    return
+  }
+
+  if (question.includes('页面')) {
+    handlers.onToolCall?.({
+      id: `call-${Date.now()}`,
+      name: 'askQuestion',
+      arguments: JSON.stringify({
+        questions: [
+          { question: '页面给谁用？', options: ['内部团队', '外部客户', '两者都有'] },
+          { question: '偏好什么风格？', options: ['简洁', '炫酷', '商务'] },
+          { question: '还有什么补充要求？', placeholder: '例如：需要深色模式' }
+        ]
+      })
+    })
     return
   }
 
@@ -97,6 +121,7 @@ const tools: ChatTool[] = [
   {
     name: 'calculate',
     description: '计算数学表达式',
+    label: '计算器',
     parameters: {
       type: 'object',
       properties: { expression: { type: 'string', description: '数学表达式' } },
@@ -111,6 +136,8 @@ const tools: ChatTool[] = [
   {
     name: 'getWeather',
     description: '查询城市天气',
+    label: '查天气',
+    icon: Sun,
     parameters: {
       type: 'object',
       properties: { city: { type: 'string', description: '城市名' } },
@@ -124,6 +151,8 @@ const tools: ChatTool[] = [
   {
     name: 'deleteFile',
     description: '删除指定路径的文件',
+    label: '删除文件',
+    icon: Delete,
     needsConfirm: true,
     parameters: {
       type: 'object',
@@ -134,7 +163,9 @@ const tools: ChatTool[] = [
       await sleep(800)
       return { deleted: path }
     }
-  }
+  },
+  // 内置提问工具：需求不明确时由代理发起提问，分页作答后结果回灌模型
+  createAskQuestionTool()
 ]
 </script>
 

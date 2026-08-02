@@ -74,9 +74,38 @@ const tools: ChatTool[] = [
 ]
 ```
 
-## 自定义工具结果展示
+## 自定义工具卡片（icon / label / render / autoCollapse）
 
-通过 `tool-<name>` 插槽自定义某个工具的结果渲染。
+工具定义上的 UI 元信息只影响展示，不会传给模型。render 接收 `{ toolCall }`，替换卡片 body 的默认参数/结果展示。
+
+```ts
+import { Sunny } from '@veltra/icons/normal'
+
+const tools: ChatTool[] = [
+  {
+    name: 'getWeather',
+    label: '查天气', // 卡片显示名，缺省取 name
+    icon: Sunny, // 卡片图标，缺省用内置状态图标
+    description: '查询城市天气',
+    parameters: {
+      type: 'object',
+      properties: { city: { type: 'string', description: '城市名' } },
+      required: ['city']
+    },
+    // 自定义渲染（组件或渲染函数），props: { toolCall }；设置后默认完成后不折叠
+    render: WeatherCard,
+    autoCollapse: false, // 完成后是否折叠；缺省：有 render 时为 false，否则为 true
+    execute: async ({ city }: { city: string }) => {
+      const res = await fetch(`/api/weather?city=${city}`)
+      return res.json()
+    }
+  }
+]
+```
+
+## 自定义工具结果展示（插槽）
+
+通过 `tool-<name>` 插槽自定义某个工具的卡片内容（有结果时替换整个 body）；工具定义了 render 时 render 优先。
 
 ```vue
 <template>
@@ -86,6 +115,19 @@ const tools: ChatTool[] = [
     </template>
   </u-ai-chat>
 </template>
+```
+
+## 内置提问工具
+
+`createAskQuestionTool()`：模型可在需求不明确时发起提问，用户在分页表单中逐题作答（选项或自定义输入），提交后回答回灌模型。
+
+```ts
+import { createAskQuestionTool } from '@veltra/ai'
+
+const tools: ChatTool[] = [
+  createAskQuestionTool(), // 可传 { name, description, label, icon } 覆盖默认值
+  // ...其他工具
+]
 ```
 
 ## 自定义 transport 接入任意后端

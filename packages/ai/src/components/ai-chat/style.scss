@@ -215,6 +215,162 @@ $root-name: ai-chat;
     overflow: auto;
   }
 
+  // 提问工具（分页向导）
+  @include m.e(ask-question) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(ask-question-progress) {
+    @include m.flex(flex, space-between, center);
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(ask-question-dots) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+  }
+
+  @include m.e(ask-question-dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: fn.use-var(text-color, placeholder);
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      box-shadow 0.2s;
+
+    @include m.is(answered) {
+      background-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(current) {
+      box-shadow: 0 0 0 3px fn.use-var(color, primary, 'light-7');
+    }
+  }
+
+  @include m.e(ask-question-q) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    color: fn.use-var(text-color, title);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  @include m.e(ask-question-no) {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    @include m.flex(flex, center, center);
+    background-color: fn.use-var(color, primary, 'light-9');
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+  }
+
+  @include m.e(ask-question-options) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(ask-question-opt) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    color: fn.use-var(text-color, main);
+    font-size: inherit;
+    font-family: inherit;
+    line-height: 1.5;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+
+    &:hover {
+      border-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(selected) {
+      border-color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary, 'light-9');
+    }
+  }
+
+  @include m.e(ask-question-glyph) {
+    flex-shrink: 0;
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: fn.use-var(border-muted);
+    transition: border-color 0.2s;
+
+    @include m.is(selected) {
+      border-color: fn.use-var(color, primary);
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        border-radius: 50%;
+        background-color: fn.use-var(color, primary);
+      }
+    }
+  }
+
+  @include m.e(ask-question-actions) {
+    @include m.flex(flex, flex-end, center);
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(ask-question-result) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  @include m.e(ask-question-result-q) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(ask-question-result-no) {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    @include m.flex(flex, center, center);
+    background-color: fn.use-var(color, primary, 'light-9');
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+  }
+
+  @include m.e(ask-question-result-a) {
+    color: fn.use-var(text-color, main);
+    line-height: 1.5;
+  }
+
+  @include m.e(ask-question-chip) {
+    display: inline-block;
+    padding: 2px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(color, primary, 'light-9');
+    color: fn.use-var(color, primary);
+  }
+
+  @include m.e(ask-question-status) {
+    color: fn.use-var(text-color, assist);
+  }
+
   // 输入区
   @include m.e(input-area) {
     flex-shrink: 0;

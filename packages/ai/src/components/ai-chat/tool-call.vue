@@ -2,9 +2,9 @@
   <div :class="[cls.e('tool-call'), bem.is('expanded', expanded), bem.is(toolCall.status)]">
     <div :class="cls.e('tool-call-header')" @click="handleToggle">
       <UIcon :class="[cls.e('tool-call-status'), statusClass]">
-        <component :is="statusIcon" />
+        <component :is="headerIcon" />
       </UIcon>
-      <span :class="cls.e('tool-call-name')">{{ toolCall.name }}</span>
+      <span :class="cls.e('tool-call-name')">{{ tool?.label ?? toolCall.name }}</span>
       <span v-if="summary" :class="cls.e('tool-call-summary')">{{ summary }}</span>
 
       <span
@@ -20,17 +20,21 @@
     </div>
 
     <div v-if="expanded" :class="cls.e('tool-call-body')">
-      <template v-if="prettyArguments">
-        <div :class="cls.e('tool-call-section')">参数</div>
-        <pre :class="cls.e('tool-call-code')">{{ prettyArguments }}</pre>
-      </template>
+      <!-- 自定义渲染：工具定义的 render 优先于 tool-<name> 插槽，均替换整个 body -->
+      <component :is="tool?.render" v-if="tool?.render" :tool-call="toolCall" />
+      <component :is="slotBody" v-else-if="slotBody && hasResult" />
+      <template v-else>
+        <template v-if="prettyArguments">
+          <div :class="cls.e('tool-call-section')">参数</div>
+          <pre :class="cls.e('tool-call-code')">{{ prettyArguments }}</pre>
+        </template>
 
-      <template v-if="hasResult">
-        <div :class="cls.e('tool-call-section')">
-          {{ toolCall.status === 'error' ? '错误' : '结果' }}
-        </div>
-        <component :is="customResult" v-if="customResult" />
-        <pre v-else :class="cls.e('tool-call-code')">{{ displayResult }}</pre>
+        <template v-if="hasResult">
+          <div :class="cls.e('tool-call-section')">
+            {{ toolCall.status === 'error' ? '错误' : '结果' }}
+          </div>
+          <pre :class="cls.e('tool-call-code')">{{ displayResult }}</pre>
+        </template>
       </template>
     </div>
   </div>
@@ -61,6 +65,9 @@ const emit = defineEmits<{ (e: 'respond', approved: boolean): void }>()
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
+/** 当前调用对应的工具定义（解析 icon/label/render/autoCollapse） */
+const tool = computed(() => di?.tools.value[props.toolCall.name])
+
 /** 用户手动切换后不再跟随状态自动展开/折叠 */
 const expanded = ref(false)
 let userToggled = false
@@ -70,11 +77,18 @@ const handleToggle = () => {
   expanded.value = !expanded.value
 }
 
+/** 完成后是否自动折叠：缺省有 render 时不折叠，否则折叠 */
+const autoCollapse = computed(() => tool.value?.autoCollapse ?? !tool.value?.render)
+
 watch(
   () => props.toolCall.status,
   (status) => {
     if (userToggled) return
-    expanded.value = status === 'running' || status === 'awaiting-confirm'
+    if (status === 'running' || status === 'awaiting-confirm') {
+      expanded.value = true
+    } else {
+      expanded.value = !autoCollapse.value
+    }
   },
   { immediate: true }
 )
@@ -90,6 +104,9 @@ const STATUS_META: Record<string, { icon: Component; class: string }> = {
 
 const statusIcon = computed(() => STATUS_META[props.toolCall.status]?.icon ?? Loading)
 const statusClass = computed(() => STATUS_META[props.toolCall.status]?.class ?? '')
+
+/** 头部图标：工具自定义图标优先，缺省用状态图标 */
+const headerIcon = computed(() => tool.value?.icon ?? statusIcon.value)
 
 const parsedArguments = computed<Record<string, unknown> | null>(() => {
   if (!props.toolCall.arguments) return null
@@ -131,8 +148,8 @@ const displayResult = computed(() => {
   }
 })
 
-/** 使用方通过 tool-<name> 插槽自定义该工具的结果展示 */
-const customResult = computed(() => {
+/** 使用方通过 tool-<name> 插槽自定义该工具的展示（有结果时替换整个 body） */
+const slotBody = computed(() => {
   const slot = di?.slots[`tool-${props.toolCall.name}`]
   return slot ? () => slot({ toolCall: props.toolCall }) : undefined
 })

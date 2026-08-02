@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createApp, defineComponent, h, nextTick, ref } from 'vue'
+import { createApp, defineComponent, h, nextTick, ref, type PropType } from 'vue'
 
-import type { ChatTool, ChatTransport } from '../../../chat/types'
+import type { ChatTool, ChatToolCall, ChatTransport } from '../../../chat/types'
 import type { AiChatExposed } from '../../../types'
 import UAiChat from '../ai-chat.vue'
 
@@ -15,7 +15,12 @@ vi.mock('markstream-vue', () => ({
   })
 }))
 
-function mountAiChat(options: { transport: ChatTransport; tools?: ChatTool[]; welcome?: string }) {
+function mountAiChat(options: {
+  transport: ChatTransport
+  tools?: ChatTool[]
+  welcome?: string
+  slots?: Record<string, (scope: any) => any>
+}) {
   const host = document.createElement('div')
   document.body.appendChild(host)
 
@@ -23,12 +28,16 @@ function mountAiChat(options: { transport: ChatTransport; tools?: ChatTool[]; we
 
   const app = createApp({
     render() {
-      return h(UAiChat, {
-        ref: chatRef,
-        transport: options.transport,
-        tools: options.tools,
-        welcome: options.welcome
-      })
+      return h(
+        UAiChat,
+        {
+          ref: chatRef,
+          transport: options.transport,
+          tools: options.tools,
+          welcome: options.welcome
+        },
+        options.slots
+      )
     }
   })
 
@@ -131,6 +140,154 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(execute).toHaveBeenCalled()
     })
+    unmount()
+  })
+
+  it('工具支持自定义 icon 与 label', async () => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'search', arguments: '{"q":"vue"}' })
+      } else {
+        handlers.onTextDelta('搜到了')
+      }
+    }
+    const CustomIcon = defineComponent({
+      setup: () => () => h('svg', { class: 'custom-tool-icon' })
+    })
+    const tools: ChatTool[] = [
+      {
+        name: 'search',
+        label: '搜索',
+        icon: CustomIcon,
+        description: '搜索',
+        parameters: {},
+        execute: () => ({ hits: 3 })
+      }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('搜一下 vue')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('搜索')
+      expect(host.querySelector('.custom-tool-icon')).toBeTruthy()
+    })
+    unmount()
+  })
+
+  /** 渲染 toolCall.result 的自定义视图桩 */
+  const createResultView = (className: string) =>
+    defineComponent({
+      props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+      setup(props) {
+        return () => h('div', { class: className }, `result:${props.toolCall.result ?? ''}`)
+      }
+    })
+
+  /** 第一轮发起 getWeather 工具调用，第二轮输出文本 */
+  const createWeatherTransport = () => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'getWeather', arguments: '{"city":"北京"}' })
+      } else {
+        handlers.onTextDelta('查好了')
+      }
+    }
+    return transport
+  }
+
+  const weatherTool = (extra: Partial<ChatTool> = {}): ChatTool => ({
+    name: 'getWeather',
+    description: '查天气',
+    parameters: {},
+    execute: () => ({ temperature: 26 }),
+    ...extra
+  })
+
+  it('render 自定义渲染替换卡片 body，完成后保持展开', async () => {
+    const tools = [weatherTool({ render: createResultView('weather-view') })]
+    const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
+
+    chat.value?.send('北京天气')
+
+    // running 时 render 即渲染（render 工具默认不折叠）
+    await vi.waitFor(() => {
+      expect(host.querySelector('.weather-view')).toBeTruthy()
+    })
+
+    // 完成后保持展开，默认参数/结果区被替换
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
+    })
+    expect(host.querySelector('.weather-view')?.textContent).toContain('{"temperature":26}')
+    expect(host.querySelector('.u-ai-chat__tool-call-code')).toBeFalsy()
+    unmount()
+  })
+
+  it('autoCollapse: false 的普通工具完成后保持展开', async () => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'calculate', arguments: '{"expression":"1+1"}' })
+      } else {
+        handlers.onTextDelta('算好了')
+      }
+    }
+    const tools: ChatTool[] = [
+      {
+        name: 'calculate',
+        description: '计算',
+        parameters: {},
+        autoCollapse: false,
+        execute: () => ({ value: 2 })
+      }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('1+1')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
+    })
+    expect(host.querySelector('.u-ai-chat__tool-call-body')?.textContent).toContain('"value": 2')
+    unmount()
+  })
+
+  it('render 工具设置 autoCollapse: true 后完成即折叠', async () => {
+    const tools = [weatherTool({ render: createResultView('weather-view'), autoCollapse: true })]
+    const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
+
+    chat.value?.send('北京天气')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+    })
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__tool-call.is-expanded')).toBeFalsy()
+    expect(host.querySelector('.weather-view')).toBeFalsy()
+    unmount()
+  })
+
+  it('render 优先于 tool-<name> 插槽', async () => {
+    const tools = [weatherTool({ render: createResultView('weather-view') })]
+    const { host, chat, unmount } = mountAiChat({
+      transport: createWeatherTransport(),
+      tools,
+      slots: { 'tool-getWeather': () => h('div', { class: 'slot-view' }, 'slot') }
+    })
+
+    chat.value?.send('北京天气')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+    })
+    expect(host.querySelector('.weather-view')).toBeTruthy()
+    expect(host.querySelector('.slot-view')).toBeFalsy()
     unmount()
   })
 
