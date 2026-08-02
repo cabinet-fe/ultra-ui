@@ -45,7 +45,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | **写表单 / UForm / 表单项 / 带 label 的输入控件** | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
 | 显式 `UFormItem`（多控件组合、自定义 label 插槽） | `packages/desktop/components/form-item/examples.md` |
 | 找/用某个 UI 组件 | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts` |
-| AI 对话 / 工具调用助手 | `packages/ai.md` → `ai-chat/api.md` + `examples.md` |
+| AI 对话 / 工具调用助手 | `packages/ai.md` → `ai/api.md` + `examples.md` |
 | 电子表格 / 单元格编辑 / 公式 / 表格工具栏扩展 | `packages/sheet.md` |
 | 安装 / 全局注册 / 按需样式 | `packages/desktop/installation.md`、`packages/vite.md` |
 | 主题色、暗色、CSS 变量 | `packages/styles/theme.md`、`packages/styles/tokens.md` |

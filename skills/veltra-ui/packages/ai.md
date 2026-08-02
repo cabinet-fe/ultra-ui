@@ -12,9 +12,9 @@ import '@veltra/ai/style'
 
 ## 详细文档
 
-- API 与辅助工具（createOpenAITransport / useChat）：`./ai-chat/api.md`
-- 示例（基础对话 / 工具定义 / needsConfirm 确认 / 自定义结果插槽 / 自定义 transport / 受控消息）：`./ai-chat/examples.md`
-- 类型：`./ai-chat/types.d.ts`
+- API 与辅助工具（createOpenAITransport / useChat）：`./ai/api.md`
+- 示例（基础对话 / 工具定义 / needsConfirm 确认 / 自定义结果插槽 / 自定义 transport / 受控消息）：`./ai/examples.md`
+- 类型：`./ai/types.d.ts`
 
 ## 核心概念
 
