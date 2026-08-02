@@ -1,13 +1,13 @@
 {
-  "extends": "@cat-kit/tsconfig/tsconfig.web.json",
+  "extends": "@cat-kit/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "customConditions": ["veltra-dev"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],
   "exclude": ["node_modules"]
 }

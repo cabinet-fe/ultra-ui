@@ -1,6 +1,20 @@
+import { resolve } from 'node:path'
+
+import vue from '@vitejs/plugin-vue'
+import { NodePackageImporter } from 'sass-embedded'
+import unpluginVue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite-plus'
 
-export default defineConfig({
+const repoRoot = resolve(import.meta.dirname, '../..')
+
+const config = {
+  // 仅供 Vitest 编译 SFC；`vp pack` 使用下方 pack.plugins。
+  plugins: [vue()],
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
+  resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
+
+  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+
   test: {
     include: ['src/**/*.test.ts'],
     setupFiles: ['src/grid/__test__/setup.ts'],
@@ -8,16 +22,35 @@ export default defineConfig({
     environment: 'happy-dom'
   },
 
-  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
-
   pack: {
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/vue/style.ts'],
     platform: 'browser',
     unbundle: true,
     sourcemap: true,
     clean: true,
-    treeshake: true,
-    deps: { neverBundle: ['@cat-kit/core', 'vue', '@visactor/vtable', '@visactor/vtable-editors'] },
-    dts: true
+    treeshake: {
+      moduleSideEffects: [
+        { test: /\/vue\/style\.ts$/, sideEffects: true },
+        { test: /\/tools\/builtin\.ts$/, sideEffects: true }
+      ]
+    },
+    deps: {
+      neverBundle: [
+        '@cat-kit/core',
+        'vue',
+        '@veltra/styles',
+        '@veltra/utils',
+        '@visactor/vtable',
+        '@visactor/vtable-editors'
+      ]
+    },
+    dts: { vue: true },
+    css: {
+      inject: true,
+      preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } }
+    },
+    plugins: [unpluginVue({ isProduction: true })]
   }
-})
+}
+
+export default defineConfig(config as Parameters<typeof defineConfig>[0])

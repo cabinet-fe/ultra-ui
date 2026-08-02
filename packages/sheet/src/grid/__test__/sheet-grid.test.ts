@@ -1,3 +1,4 @@
+import { ListTable } from '@visactor/vtable'
 import { describe, expect, it } from 'vitest'
 
 import { Sheet } from '../../core/sheet'
@@ -114,6 +115,22 @@ describe('SheetGrid（happy-dom smoke）', () => {
 
       expect(sheet.redo()).toBe(true)
       expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'edited', t: 's' })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('拖选结束 → 模型选区同步为区域（合并工具的前提）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      // 模拟 VTable 拖选结果（表格坐标含偏移：行号列 1 + 列头行 1）
+      table.getSelectedCellRanges = () => [{ start: { col: 1, row: 1 }, end: { col: 3, row: 2 } }]
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_SELECT_END, {})
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 0, col: 0 },
+        end: { row: 1, col: 2 }
+      })
+      expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
     } finally {
       grid.release()
     }

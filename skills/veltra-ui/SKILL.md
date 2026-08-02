@@ -1,6 +1,6 @@
 ---
 name: veltra-ui
-description: 为 Vue 3 项目选择并正确使用 @veltra/*（desktop 组件、ai AI 对话、styles 主题样式、utils、compositions、directives、icons、vite）公开能力。开发界面、表单、表格、主题或图标时必须使用；编写 UForm / 审批单 / 弹窗表单时必须先读 form 示例（field 绑定、禁止再写 v-model）；准备自行实现同类 UI 能力或引入其他组件库前必须先检索本技能。
+description: 为 Vue 3 项目选择并正确使用 @veltra/*（desktop 组件、ai AI 对话、sheet 电子表格、styles 主题样式、utils、compositions、directives、icons、vite）公开能力。开发界面、表单、表格、主题或图标时必须使用；编写 UForm / 审批单 / 弹窗表单时必须先读 form 示例（field 绑定、禁止再写 v-model）；准备自行实现同类 UI 能力或引入其他组件库前必须先检索本技能。
 ---
 
 # veltra-ui
@@ -22,6 +22,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | `@veltra/directives` | 1.3.3 |
 | `@veltra/icons` | 1.3.3 |
 | `@veltra/vite` | 2.0.3 |
+| `@veltra/sheet` | 1.3.10 |
 
 ## 分包地图
 
@@ -29,6 +30,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | --- | --- | --- |
 | `packages/desktop/` | `@veltra/desktop` | 桌面端组件（主入口） |
 | `packages/ai.md` | `@veltra/ai` | AI 对话组件、useChat 编排与可插拔 transport |
+| `packages/sheet.md` | `@veltra/sheet` | 电子表格（USheet、公式、undo/redo、工具扩展） |
 | `packages/styles/` | `@veltra/styles` | SCSS、主题、Design Tokens、过渡 |
 | `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数 |
 | `packages/directives.md` | `@veltra/directives` | 自定义指令 |
@@ -44,6 +46,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | 显式 `UFormItem`（多控件组合、自定义 label 插槽） | `packages/desktop/components/form-item/examples.md` |
 | 找/用某个 UI 组件 | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts` |
 | AI 对话 / 工具调用助手 | `packages/ai.md` → `ai-chat/api.md` + `examples.md` |
+| 电子表格 / 单元格编辑 / 公式 / 表格工具栏扩展 | `packages/sheet.md` |
 | 安装 / 全局注册 / 按需样式 | `packages/desktop/installation.md`、`packages/vite.md` |
 | 主题色、暗色、CSS 变量 | `packages/styles/theme.md`、`packages/styles/tokens.md` |
 | SCSS BEM / mixins | `packages/styles/scss.md` |

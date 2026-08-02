@@ -4,7 +4,7 @@ import { InputEditor } from '@visactor/vtable-editors'
 import type { EditContext } from '@visactor/vtable-editors'
 
 import type { CellAddress } from '../core/address'
-import { cellKey, colIndexToName } from '../core/address'
+import { cellKey, colIndexToName, createRange } from '../core/address'
 import type { CellValue } from '../core/cell-store'
 import type { Sheet } from '../core/sheet'
 
@@ -221,6 +221,16 @@ export class SheetGrid {
       const addr = this.toSheetAddr(this.table, args.col, args.row)
       if (addr == null) return
       this.sheet.selectCell(addr)
+    })
+
+    // 拖选结束 → 选区同步为区域（合并等区域操作的前提）
+    this.table.on(ListTable.EVENT_TYPE.DRAG_SELECT_END, () => {
+      const range = this.table.getSelectedCellRanges()[0]
+      if (!range) return
+      const start = this.toSheetAddr(this.table, range.start.col, range.start.row)
+      const end = this.toSheetAddr(this.table, range.end.col, range.end.row)
+      if (!start || !end) return
+      this.sheet.selectRange(createRange(start, end))
     })
   }
 

@@ -22,8 +22,8 @@ bun run release                     # dev 分支落版本并推送；CI 负责�
 按包构建/测试：
 
 ```bash
-vp pack -F @veltra/desktop          # 单包 library 构建
-vp test -F @veltra/utils            # 单包测试
+vp run -F @veltra/desktop build     # 单包 library 构建（vp pack 无包过滤器，等价于进包目录执行 vp pack）
+cd packages/utils && vp test        # 单包测试（vp test 无包过滤器）
 vp run -F @veltra/icons build       # 单包脚本（如图标生成 + pack）
 ```
 
@@ -107,7 +107,7 @@ ultra-ui/
                ↑  ↑
                │  └── @veltra/ai（peer: desktop/icons/compositions/utils/styles）
                ↓
-     playground ←── @veltra/sheet（独立分支，deps: @visactor/vtable(-editors)）
+     playground ←── @veltra/sheet（独立分支，deps: @visactor/vtable(-editors)；peer: utils/styles）
 ```
 
 `@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playground 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
