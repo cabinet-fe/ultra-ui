@@ -39,22 +39,39 @@ export class MergeManager {
   private coverIndex = new Map<number, number>()
 
   /**
-   * 合并区域：
-   * 1. 解除所有与 range 相交的既有合并
+   * 计算合并结果（纯查询，不修改状态）：
+   * 1. 所有与 range 相交的既有合并将被解除
    * 2. 新区域 = range 与被解除合并的包围盒
-   * 3. 锚点 = 包围盒左上角
    */
-  merge(range: CellRange): MergeResult {
+  computeMerge(range: CellRange): MergeResult {
     const removed: CellRange[] = []
     for (const existing of this.merges.values()) {
       if (rangesIntersect(existing, range)) removed.push(existing)
     }
-    for (const item of removed) this.unregister(item)
-
     const finalRange =
       removed.length > 0 ? boundingBox([range, ...removed]) : createRange(range.start, range.end)
-    this.register(finalRange)
     return { range: finalRange, removed }
+  }
+
+  /** 合并区域（解除相交既有合并 + 包围盒，见 computeMerge） */
+  merge(range: CellRange): MergeResult {
+    const result = this.computeMerge(range)
+    for (const item of result.removed) this.unregister(item)
+    this.register(result.range)
+    return result
+  }
+
+  /**
+   * 精确登记一个合并区域（不做相交解除与包围盒）。
+   * 低层接口，供命令系统回放补丁使用；调用方需保证不与既有合并相交。
+   */
+  addMerge(range: CellRange): void {
+    this.register(range)
+  }
+
+  /** 精确移除一个合并区域（按锚点匹配）；不存在时为空操作 */
+  removeMerge(range: CellRange): void {
+    this.unregister(range)
   }
 
   /** 解除所有与 range 相交的合并，返回被解除的区域 */

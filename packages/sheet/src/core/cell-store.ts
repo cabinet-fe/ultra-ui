@@ -50,6 +50,13 @@ export function isEmptyCellData(data: CellData | undefined): boolean {
   return data.v == null || data.v === ''
 }
 
+/** CellData 相等（v/t/f 三字段逐一比较；命令系统据此跳过无实际变更的补丁） */
+export function cellDataEqual(a: CellData | undefined, b: CellData | undefined): boolean {
+  if (a === b) return true
+  if (!a || !b) return false
+  return a.v === b.v && a.t === b.t && a.f === b.f
+}
+
 export class CellStore {
   private cells = new Map<number, Map<number, CellData>>()
   private _rowCount = 0

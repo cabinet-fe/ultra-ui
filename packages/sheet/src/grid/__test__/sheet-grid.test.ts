@@ -102,4 +102,59 @@ describe('SheetGrid（happy-dom smoke）', () => {
       grid.release()
     }
   })
+
+  it('编辑回写走命令系统：change_cell_value 后可 undo/redo', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      table.changeCellValue(1, 1, 'edited', false, true)
+      expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'edited', t: 's' })
+
+      expect(sheet.undo()).toBe(true)
+      expect(sheet.getCellData({ row: 0, col: 0 })).toBeUndefined()
+
+      expect(sheet.redo()).toBe(true)
+      expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'edited', t: 's' })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('键盘绑定：Ctrl+Z undo、Ctrl+Shift+Z / Ctrl+Y redo；编辑器 input 不拦截', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+    try {
+      sheet.setCellValue({ row: 0, col: 0 }, 'x')
+
+      // Ctrl+Z → undo
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+      )
+      expect(sheet.getCellData({ row: 0, col: 0 })).toBeUndefined()
+
+      // Ctrl+Shift+Z → redo
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })
+      )
+      expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'x' })
+
+      // Ctrl+Z → undo；Ctrl+Y → redo
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+      )
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'y', ctrlKey: true, bubbles: true })
+      )
+      expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'x' })
+
+      // 事件来自编辑器 input（编辑中）→ 不拦截
+      const input = document.createElement('input')
+      container.appendChild(input)
+      sheet.setCellValue({ row: 0, col: 1 }, 'y')
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }))
+      expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'y' })
+    } finally {
+      grid.release()
+    }
+  })
 })

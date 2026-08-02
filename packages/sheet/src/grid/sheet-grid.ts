@@ -13,6 +13,8 @@ import type { Sheet } from '../core/sheet'
  * - 模型 → VTable：records 由 store 行视图桥接；customMergeCell 闭包直读 MergeManager
  *   （VTable 逐格动态求值、无缓存，合并变更后 setRecords 重建场景树即生效）
  * - VTable → 模型：change_cell_value 回写 store；selected_cell 经 resolveAnchor 更新选区
+ * - 键盘：容器 keydown 绑定 undo/redo（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y），
+ *   编辑器 input 打开时不拦截
  * - 坐标换算：行号列不计入 rowHeaderLevelCount，偏移量在首个表格实例上
  *   用 columnHeaderLevelCount + isSeriesNumber 实测并缓存（见 getOffsets）
  */
@@ -38,6 +40,7 @@ function ensureEditorRegistered(): void {
 export class SheetGrid {
   private readonly sheet: Sheet
   private readonly table: ListTable
+  private readonly container: HTMLElement
   private readonly rows: number
   private readonly cols: number
   private readonly disposers: (() => void)[] = []
@@ -49,12 +52,14 @@ export class SheetGrid {
   constructor(options: SheetGridOptions) {
     ensureEditorRegistered()
     this.sheet = options.sheet
+    this.container = options.container
     this.rows = options.rows ?? 100
     this.cols = options.cols ?? 26
 
     this.table = new ListTable(options.container, this.buildOptions())
     this.bindTableEvents()
     this.bindSheetEvents()
+    this.bindKeyboard()
   }
 
   /** 底层 ListTable 实例（调试与测试用） */
@@ -65,6 +70,16 @@ export class SheetGrid {
   /** 全量刷新（合并结构变化、批量数据变更后调用） */
   refresh(): void {
     this.table.setRecords(this.buildRecords())
+  }
+
+  /** 撤销一步（模型命令历史） */
+  undo(): boolean {
+    return this.sheet.undo()
+  }
+
+  /** 重做一步（模型命令历史） */
+  redo(): boolean {
+    return this.sheet.redo()
   }
 
   release(): void {
@@ -198,5 +213,27 @@ export class SheetGrid {
         this.refresh()
       })
     )
+  }
+
+  /**
+   * 键盘绑定：Cmd/Ctrl+Z undo，Cmd/Ctrl+Shift+Z 与 Ctrl+Y redo。
+   * 编辑器打开时（事件来自编辑器 input）不拦截，保留文本编辑自身的撤销行为。
+   */
+  private bindKeyboard(): void {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return
+      }
+      const mod = event.metaKey || event.ctrlKey
+      if (!mod) return
+      const key = event.key.toLowerCase()
+      if (key === 'z' && !event.shiftKey) {
+        if (this.undo()) event.preventDefault()
+      } else if ((key === 'z' && event.shiftKey) || (key === 'y' && event.ctrlKey)) {
+        if (this.redo()) event.preventDefault()
+      }
+    }
+    this.container.addEventListener('keydown', onKeyDown)
+    this.disposers.push(() => this.container.removeEventListener('keydown', onKeyDown))
   }
 }

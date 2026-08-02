@@ -1,0 +1,6 @@
+export * from './types'
+export * from './registry'
+export * from './history'
+export * from './set-cell-value'
+export * from './merge-cells'
+export * from './default-registry'

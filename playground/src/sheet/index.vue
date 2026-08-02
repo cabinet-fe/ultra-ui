@@ -1,9 +1,12 @@
 <template>
   <div class="sheet-demo">
     <div class="sheet-demo__toolbar">
+      <u-button :disabled="!canUndo" @click="undo">撤销</u-button>
+      <u-button :disabled="!canRedo" @click="redo">重做</u-button>
       <u-button type="primary" @click="mergeAtActive">合并当前格 2×2</u-button>
       <u-button @click="unmergeAtActive">取消当前格合并</u-button>
       <span class="sheet-demo__active">活动格：{{ activeCellText }}</span>
+      <span class="sheet-demo__hint">快捷键：Ctrl/Cmd+Z 撤销，Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做</span>
     </div>
 
     <div ref="containerRef" class="sheet-demo__grid" />
@@ -26,6 +29,8 @@ let grid: SheetGrid | undefined
 
 const activeCellText = ref('-')
 const cellInfo = ref<CellInfo | null>(null)
+const canUndo = ref(false)
+const canRedo = ref(false)
 
 const cellInfoJson = computed(() =>
   cellInfo.value ? JSON.stringify(cellInfo.value, null, 2) : '点击表格选择单元格'
@@ -40,6 +45,14 @@ function syncSelectionInfo() {
   }
   activeCellText.value = formatAddress(activeCell)
   cellInfo.value = sheet.getCellInfo(activeCell)
+}
+
+function undo() {
+  sheet.undo()
+}
+
+function redo() {
+  sheet.redo()
 }
 
 /** 以活动格（锚点）为左上合并 2×2；若活动格已在合并内则合并其所在区域 */
@@ -72,13 +85,25 @@ onMounted(() => {
   sheet.setCellValue({ row: 1, col: 1 }, 42)
   sheet.mergeCells({ start: { row: 3, col: 1 }, end: { row: 4, col: 2 } })
   sheet.setCellValue({ row: 3, col: 1 }, '已合并(B4:C5)')
+  // 预置数据作为初始状态，不进入 undo 历史
+  sheet.history.clear()
 
   grid = new SheetGrid({ container: containerRef.value!, sheet, rows: 50, cols: 12 })
   sheet.on('selection-change', syncSelectionInfo)
+  // undo/redo 引起的合并结构变化也同步刷新信息面板
+  sheet.on('merge-change', syncSelectionInfo)
+  sheet.on('history-change', (state) => {
+    canUndo.value = state.canUndo
+    canRedo.value = state.canRedo
+  })
+
+  // 调试句柄：浏览器控制台/自动化可直接读取模型与表格实例
+  ;(window as unknown as Record<string, unknown>).__sheetDemo = { sheet, grid }
 })
 
 onBeforeUnmount(() => {
   grid?.release()
+  delete (window as unknown as Record<string, unknown>).__sheetDemo
 })
 </script>
 
@@ -94,6 +119,12 @@ onBeforeUnmount(() => {
   margin-left: 8px;
   font-size: 13px;
   color: var(--u-text-secondary-color, #666);
+}
+
+.sheet-demo__hint {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--u-text-secondary-color, #999);
 }
 
 .sheet-demo__grid {

@@ -13,13 +13,37 @@ src/
 │   ├── cell-store.ts     # 稀疏矩阵存储（Map<row, Map<col, CellData>>）
 │   ├── merge-manager.ts  # 合并单元格（只管几何，不管数据）
 │   ├── selection.ts      # 选区模型（activeCell 恒为锚点）
-│   ├── sheet.ts          # Sheet = store + merge + selection，统一操作入口
+│   ├── sheet.ts          # Sheet = store + merge + selection + history，统一操作入口
 │   ├── workbook.ts       # Workbook = 多 Sheet（公式跨表引用的载体）
-│   └── events.ts         # 包内轻量类型化事件发射器（内部基建）
+│   ├── events.ts         # 包内轻量类型化事件发射器（内部基建）
+│   └── command/          # 命令系统（undo/redo）
+│       ├── types.ts          # Command / Mutation / Patch（CellPatch | MergePatch，before/after 差量）
+│       ├── registry.ts       # CommandRegistry（register / execute）
+│       ├── history.ts        # HistoryManager（undo/redo 栈 + 事务 + 容量上限 200）
+│       ├── set-cell-value.ts # SetCellValueCommand（批量，供粘贴/填充复用）
+│       ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
+│       └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
 └── grid/
     ├── __test__/         # SheetGrid smoke + canvas mock（vp test setupFiles）
-    └── sheet-grid.ts     # VTable 适配层（ListTable 封装、编辑器接入、事件回写）
+    └── sheet-grid.ts     # VTable 适配层（ListTable 封装、编辑器接入、事件回写、键盘绑定）
 ```
+
+## 命令系统（undo/redo）
+
+- **一切写操作都是命令**：`Sheet.setCellValue / setCell / setCells / mergeCells / unmergeCells`
+  全部经 `defaultCommandRegistry` 执行并推入 `sheet.history`，没有绕过入口；
+  `Sheet.applyPatch` 是命令执行与 undo/redo 回放共用的唯一变更通道。
+- Patch 是 before/after 差量（非全量快照）；同一批补丁双向回放（redo 应用 after，undo 应用 before），
+  mutation 的 undo 列表为 redo 的逆序（如 undo 合并时先移除新合并再恢复旧合并）。
+- `MergeCellsCommand` 的 Patch 捕获完整 before 状态：被解除的旧合并记录 + 包围盒内每格原数据，
+  undo 连被清空的值一起还原。
+- 事务：`sheet.beginTransaction() / commit()`（可嵌套，拍平到最外层）= 一个 undo 单元；
+  `rollback()` 回滚缓冲中的变更并放弃事务；事务进行中 undo/redo 返回 false。
+- 容量上限默认 200（`DEFAULT_HISTORY_CAPACITY`），超出淘汰最旧条目。
+- `history-change` 事件携带 `{ canUndo, canRedo }`，供工具栏按钮置灰。
+- **选区不进历史**：undo/redo 不改变 selection（与 Excel 不同，有意为之）。
+- 低层接口：`MergeManager.addMerge / removeMerge`（精确增删，不做包围盒）与 `computeMerge`
+  （纯查询）供命令回放使用，业务代码不应直接调用。
 
 ## 核心语义约定
 
@@ -37,6 +61,8 @@ src/
   - 编辑提交的顺序是：先更新 record → 重绘（重读 `customMerge.text`）→ 最后才发 `change_cell_value` 回写模型。若 `text` 闭包读模型，重绘拿到的是回写前的旧值——表现为「编辑后点击其它单元格，输入内容消失」（实际模型已提交，是渲染了旧文本）。读 records 则与 VTable 的更新次序天然一致（records 本就是模型的镜像：构造/setRecords/changeCellValue 三处同步）。
 - 编辑器：`register.editor` 注册一次 `@visactor/vtable-editors` 的 `InputEditor`，配置 `editor` + `editCellTrigger: 'doubleclick'`。
 - 双击编辑走 vrender Gesture 的 `doubletap` 识别（非原生 dblclick），Playwright 合成的 dblclick 无法触发——浏览器自动化验证编辑链路时改用 `getCellRange` + `changeCellValue` 走同一提交路径。
+- Enter 键行为由 `keyboardOptions` 决定：`moveFocusCellOnEnter: true` 时 Enter 是下移选区而非进入编辑（VTable 内部分支优先级如此），自动化不要指望 Enter 打开编辑器。
+- 键盘 undo/redo 绑定在 grid 容器的 keydown 上（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y）；事件来自编辑器 input/textarea 时不拦截（保留文本编辑自身的撤销）。演示页按钮置灰读 `is-disabled` class（UButton 不写原生 disabled 属性）。
 - 事件用 `ListTable.EVENT_TYPE` 静态访问器（`core.EVENT_TYPE` 在 d.ts 是 `import type` 重导出，运行时为 undefined）。
 - **坐标偏移**：`rowSeriesNumber` 行号列**不计入** `rowHeaderLevelCount`；偏移量在首个表格实例上用 `columnHeaderLevelCount` + `isSeriesNumber` 逐列探测并缓存（`getOffsets`）。
 - 表格事件回写模型时置 `syncingFromTable` 标志，阻断模型事件回流循环。
