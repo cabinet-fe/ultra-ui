@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref } from 'vue'
 
 import UCollapseItem from '../collapse-item.vue'
@@ -173,6 +173,183 @@ describe('Collapse', () => {
       expect(host.querySelectorAll('.u-collapse__item.is-active').length).toBe(1)
     } finally {
       unmount()
+    }
+  })
+})
+
+function mountStandaloneItem(props: Record<string, unknown> = {}) {
+  const host = document.createElement('div')
+  document.body.appendChild(host)
+
+  const model = ref(props.modelValue ?? false)
+  const onChange = vi.fn()
+
+  const app = createApp({
+    render() {
+      return h(
+        UCollapseItem,
+        {
+          ...props,
+          modelValue: model.value,
+          'onUpdate:modelValue': (value: boolean) => {
+            model.value = value
+          },
+          onChange
+        },
+        () => 'Standalone content'
+      )
+    }
+  })
+
+  app.mount(host)
+
+  return {
+    host,
+    model,
+    onChange,
+    unmount() {
+      app.unmount()
+      host.remove()
+    }
+  }
+}
+
+describe('CollapseItem standalone', () => {
+  it('renders bordered card styles without UCollapse parent', async () => {
+    const { host, unmount } = mountStandaloneItem({ title: 'Standalone' })
+
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-collapse__item')).toBeTruthy()
+      expect(host.querySelector('.u-collapse__header')).toBeTruthy()
+      expect(host.querySelector('.u-collapse__title')?.textContent).toBe('Standalone')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('defaults to collapsed when no v-model is provided', async () => {
+    const { host, model, unmount } = mountStandaloneItem({ title: 'Standalone' })
+
+    try {
+      await nextTick()
+      expect(model.value).toBe(false)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeFalsy()
+      expect(host.querySelector('.u-collapse__content-wrapper')?.getAttribute('aria-hidden')).toBe(
+        'true'
+      )
+    } finally {
+      unmount()
+    }
+  })
+
+  it('respects v-model initial expanded state', async () => {
+    const { host, model, unmount } = mountStandaloneItem({ title: 'Standalone', modelValue: true })
+
+    try {
+      await nextTick()
+      expect(model.value).toBe(true)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeTruthy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('toggles via header click and emits update:modelValue / change', async () => {
+    const { host, model, onChange, unmount } = mountStandaloneItem({ title: 'Standalone' })
+
+    try {
+      await nextTick()
+      const header = host.querySelector('.u-collapse__header') as HTMLElement
+
+      header.click()
+      await nextTick()
+
+      expect(model.value).toBe(true)
+      expect(onChange).toHaveBeenCalledWith(true)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeTruthy()
+
+      header.click()
+      await nextTick()
+
+      expect(model.value).toBe(false)
+      expect(onChange).toHaveBeenLastCalledWith(false)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeFalsy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('does not toggle when disabled', async () => {
+    const { host, model, onChange, unmount } = mountStandaloneItem({
+      title: 'Standalone',
+      disabled: true
+    })
+
+    try {
+      await nextTick()
+      ;(host.querySelector('.u-collapse__header') as HTMLElement).click()
+      await nextTick()
+
+      expect(model.value).toBe(false)
+      expect(onChange).not.toHaveBeenCalled()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('ignores v-model when nested inside UCollapse', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const standaloneModel = ref(true)
+    const collapseModel = ref<string[] | undefined>()
+
+    const app = createApp({
+      render() {
+        return h(
+          UCollapse,
+          {
+            modelValue: collapseModel.value,
+            defaultCollapseAll: true,
+            'onUpdate:modelValue': (value: string[] | undefined) => {
+              collapseModel.value = value
+            }
+          },
+          () =>
+            h(
+              UCollapseItem,
+              {
+                value: 'a',
+                title: 'Nested',
+                modelValue: standaloneModel.value,
+                'onUpdate:modelValue': (value: boolean) => {
+                  standaloneModel.value = value
+                }
+              },
+              () => 'Nested content'
+            )
+        )
+      }
+    })
+
+    app.mount(host)
+
+    try {
+      await nextTick()
+      expect(collapseModel.value).toBeUndefined()
+      expect(standaloneModel.value).toBe(true)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeFalsy()
+
+      ;(host.querySelector('.u-collapse__header') as HTMLElement).click()
+      await nextTick()
+
+      expect(collapseModel.value).toEqual(['a'])
+      expect(standaloneModel.value).toBe(true)
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeTruthy()
+    } finally {
+      app.unmount()
+      host.remove()
     }
   })
 })

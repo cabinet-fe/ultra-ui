@@ -23,7 +23,7 @@ const active = ref<CollapseModelValue>(['1'])
 
 ```vue
 <template>
-  <!-- accordion 模式下 modelValue 为单值。每个折叠项表现为独立的精致胶囊卡片 -->
+  <!-- accordion 模式下 modelValue 为单值。每项为独立边框卡片 -->
   <u-collapse v-model="active" accordion>
     <u-collapse-item value="a" title="常规设置">…</u-collapse-item>
     <u-collapse-item value="b" title="高级配置">…</u-collapse-item>
@@ -86,5 +86,23 @@ const activeCollapse = ref<CollapseModelValue>()
     <u-collapse-item value="y1" title="模块 A">初始化默认为折叠收起状态</u-collapse-item>
     <u-collapse-item value="y2" title="模块 B">只有手动点击头部才会展开</u-collapse-item>
   </u-collapse>
+</template>
+```
+
+## 独立使用（v-model）
+
+不包裹在 `UCollapse` 内时，可用 `v-model`（boolean）控制单项展开；`value` 无需填写，样式与动画与组合用法一致。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const expanded = ref(false)
+</script>
+
+<template>
+  <u-collapse-item v-model="expanded" title="独立折叠项">
+    展开后的内容
+  </u-collapse-item>
 </template>
 ```

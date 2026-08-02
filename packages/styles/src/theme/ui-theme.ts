@@ -169,24 +169,17 @@ export class UITheme {
     return lines.join(';')
   }
 
-  /** 组件级两色混合 token（collapse / batch-edit / kbd） */
+  /** 组件级两色混合 token（batch-edit / kbd） */
   private renderComponentMixTokens(theme: Theme): string {
     const hover = theme.bg.color.hover as `#${string}`
     const top = theme.bg.color.top as `#${string}`
     const black = theme.bg.color.black as `#${string}`
-    const primary = theme.color.primary as `#${string}`
     const borderColor = theme.border.color as `#${string}`
     const shadowColor = hexRgbOnly(theme.shadow.color)
 
     // 依赖色含非 hex 值（如 glass 主题的 rgba()）时整体跳过，避免生成 NaN 声明；
     // 组件侧 var() fallback 会接管，行为等同于此前的无效声明
-    if (![hover, top, black, primary, borderColor].every(isHexColor)) return ''
-
-    const itemBg = mixColor(hover, top, 0.28)
-    const itemHoverBg = mixColor(primary, itemBg as `#${string}`, 0.96)
-    const itemActiveBg = mixColor(primary, itemBg as `#${string}`, 0.95)
-    const headerActiveBg = mixColor(primary, itemBg as `#${string}`, 0.92)
-    const contentBg = mixColor(itemActiveBg as `#${string}`, top, 0.58)
+    if (![hover, top, black, borderColor].every(isHexColor)) return ''
 
     const formHeaderBg = mixColor(top, hover, 0.04)
 
@@ -196,11 +189,6 @@ export class UITheme {
       : 'rgba(0, 0, 0, 0.6)'
 
     const lines = [
-      `--u-collapse-item-bg: ${itemBg}`,
-      `--u-collapse-item-hover-bg: ${itemHoverBg}`,
-      `--u-collapse-item-active-bg: ${itemActiveBg}`,
-      `--u-collapse-header-active-bg: ${headerActiveBg}`,
-      `--u-collapse-content-bg: ${contentBg}`,
       `--u-batch-edit-form-header-bg: ${formHeaderBg}`,
       `--u-kbd-inset-shadow: ${kbdInset}`,
       `--u-kbd-border-shadow: ${hexWithAlpha(borderColor, 50)}`,

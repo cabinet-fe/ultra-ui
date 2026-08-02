@@ -2,7 +2,7 @@
   <div class="collapse-demo">
     <CustomCard title="基本用法">
       <p class="desc">
-        全新的胶囊卡片设计。默认自带柔和背景色，展开时背景自动加深，并根据组件尺寸自适应间距，可同时展开多个面板。
+        边框卡片风格，每项独立圆角边框；展开时 chevron 旋转 180°，可同时展开多个面板。
       </p>
       <u-collapse v-model="basicValue">
         <u-collapse-item value="design" title="设计原则">
@@ -17,8 +17,8 @@
       </u-collapse>
     </CustomCard>
 
-    <CustomCard title="内容区背景">
-      <p class="desc">展开后的内容区域使用 hover 背景色，与标题区域形成更清晰的层次。</p>
+    <CustomCard title="内容区">
+      <p class="desc">展开后的内容区域继承卡片背景，与标题区通过间距区分层次。</p>
       <u-collapse v-model="contentBgValue">
         <u-collapse-item value="b1" title="表单全局">
           <p>列数、标签宽度等全局表单配置。</p>
@@ -28,6 +28,42 @@
         </u-collapse-item>
         <u-collapse-item value="b3" title="高级选项">
           <p>联动规则、异步校验与自定义 render。</p>
+        </u-collapse-item>
+      </u-collapse>
+    </CustomCard>
+
+    <CustomCard title="标题图标">
+      <p class="desc">
+        通过 <code>#title</code> 插槽在标题前放置业务图标，右侧仍保留默认展开
+        chevron；适合设置面板、FAQ 等需要语义图标的场景。
+      </p>
+      <u-collapse v-model="titleIconValue">
+        <u-collapse-item value="account">
+          <template #title>
+            <span class="title-with-icon">
+              <UIcon><User /></UIcon>
+              账户信息
+            </span>
+          </template>
+          <p>头像、昵称、绑定手机等基础资料。</p>
+        </u-collapse-item>
+        <u-collapse-item value="notify">
+          <template #title>
+            <span class="title-with-icon">
+              <UIcon><Bell /></UIcon>
+              通知偏好
+            </span>
+          </template>
+          <p>邮件、站内信与推送渠道的开关与频率。</p>
+        </u-collapse-item>
+        <u-collapse-item value="security">
+          <template #title>
+            <span class="title-with-icon">
+              <UIcon><Setting /></UIcon>
+              安全设置
+            </span>
+          </template>
+          <p>登录密码、二次验证与设备管理。</p>
         </u-collapse-item>
       </u-collapse>
     </CustomCard>
@@ -71,7 +107,7 @@
     </CustomCard>
 
     <CustomCard title="自定义展开图标">
-      <p class="desc">通过 <code>:expand-icon</code> 传入图标组件，活动态会自动旋转 90°。</p>
+      <p class="desc">通过 <code>:expand-icon</code> 传入图标组件，活动态会自动旋转 180°。</p>
       <u-collapse v-model="customIconValue" :expand-icon="Plus">
         <u-collapse-item value="c1" title="点击展开 / 收起">
           <p>展开图标使用 <code>Plus</code>，旋转后呈“×”视觉，无需额外动画代码。</p>
@@ -153,6 +189,22 @@
       </div>
     </CustomCard>
 
+    <CustomCard title="独立使用（v-model）">
+      <p class="desc">
+        不包裹在 <code>UCollapse</code> 内时，可通过 <code>v-model</code>（boolean）单独控制展开 /
+        收起；边框卡片样式与动画与组合用法一致。
+      </p>
+      <div class="actions">
+        <u-button size="small" @click="standaloneExpanded = true">展开</u-button>
+        <u-button size="small" @click="standaloneExpanded = false">收起</u-button>
+      </div>
+      <u-collapse-item v-model="standaloneExpanded" title="独立折叠项">
+        <p>
+          当前状态：{{ standaloneExpanded ? '已展开' : '已收起' }}。点击标题或使用上方按钮均可切换。
+        </p>
+      </u-collapse-item>
+    </CustomCard>
+
     <CustomCard title="嵌套使用">
       <u-collapse v-model="nestValue">
         <u-collapse-item value="n1" title="@veltra/desktop">
@@ -185,7 +237,7 @@
 
 <script lang="ts" setup>
 import type { CollapseModelValue } from '@veltra/desktop'
-import { ArrowDown, ArrowRight, Plus } from '@veltra/icons/normal'
+import { ArrowDown, ArrowRight, Bell, Plus, Setting, User } from '@veltra/icons/normal'
 import type { ComponentSize } from '@veltra/utils'
 import { ref } from 'vue'
 
@@ -203,6 +255,8 @@ const nestInner2 = ref<CollapseModelValue>(['n2-1'])
 const defaultExpandValue = ref<CollapseModelValue>()
 const defaultCollapseValue = ref<CollapseModelValue>()
 const contentBgValue = ref<CollapseModelValue>(['b1'])
+const titleIconValue = ref<CollapseModelValue>(['account'])
+const standaloneExpanded = ref(false)
 
 const sizes: ComponentSize[] = ['small', 'default', 'large']
 </script>

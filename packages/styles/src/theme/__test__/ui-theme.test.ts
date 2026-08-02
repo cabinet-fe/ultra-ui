@@ -32,11 +32,6 @@ describe('UITheme', () => {
     expect(el.dataset.theme).toBeUndefined()
   })
 
-  it('includes collapse component title color token in built-in component vars', () => {
-    expect(componentCssVarsLight['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
-    expect(componentCssVarsDark['--u-collapse-title-color']).toBe('var(--u-text-color-main)')
-  })
-
   it('renderAlphaTokens emits semantic color alpha vars', () => {
     const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
     expect(decls.some((d) => d.startsWith('--u-color-primary-a-8:'))).toBe(true)
@@ -44,11 +39,11 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-text-color-second-a-28:'))).toBe(true)
   })
 
-  it('renderComponentMixTokens emits collapse and kbd vars', () => {
+  it('renderComponentMixTokens emits batch-edit and kbd vars', () => {
     const decls = lightTheme.themeToDeclarationList(lightTheme.theme)
-    expect(decls.some((d) => d.startsWith('--u-collapse-item-bg:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-kbd-inset-shadow:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-batch-edit-form-header-bg:'))).toBe(true)
+    expect(decls.some((d) => d.startsWith('--u-collapse-item-bg:'))).toBe(false)
   })
 
   it('emits elevation and motion tokens', () => {

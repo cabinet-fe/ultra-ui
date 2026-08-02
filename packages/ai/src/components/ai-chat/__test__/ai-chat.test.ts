@@ -105,11 +105,11 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     })
 
-    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call-header')!
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
     header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
 
-    const body = host.querySelector('.u-ai-chat__tool-call-body')
+    const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content')
     expect(body?.textContent).toContain('"expression": "1+1"')
     expect(body?.textContent).toContain('"value": 2')
     unmount()
@@ -254,7 +254,9 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
     })
-    expect(host.querySelector('.u-ai-chat__tool-call-body')?.textContent).toContain('"value": 2')
+    expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')?.textContent).toContain(
+      '"value": 2'
+    )
     unmount()
   })
 
@@ -269,7 +271,8 @@ describe('UAiChat', () => {
     })
     await nextTick()
     expect(host.querySelector('.u-ai-chat__tool-call.is-expanded')).toBeFalsy()
-    expect(host.querySelector('.weather-view')).toBeFalsy()
+    const contentWrapper = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
+    expect(contentWrapper?.getAttribute('aria-hidden')).toBe('true')
     unmount()
   })
 

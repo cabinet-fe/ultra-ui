@@ -25,7 +25,7 @@ export interface CollapseProps extends ComponentProps {
   defaultCollapseAll?: boolean
 
   /**
-   * 自定义展开图标组件，活动态会自动旋转 90°。
+   * 自定义展开图标组件，活动态会自动旋转 180°。
    * 接受任意 Vue 组件（SFC、Functional Component 等）。
    */
   expandIcon?: Component
@@ -39,12 +39,34 @@ export interface CollapseEmits {
 
 /** CollapseItem 组件属性 */
 export interface CollapseItemProps {
-  /** 唯一标识 */
-  value: CollapseValue
+  /**
+   * 唯一标识；在 `UCollapse` 内使用时必填。
+   * 独立使用时可选。
+   */
+  value?: CollapseValue
+
+  /**
+   * 独立使用时的展开状态（`v-model`）。
+   * 在 `UCollapse` 内由父组件 `modelValue` 管理，此属性无效。
+   * @default false
+   */
+  modelValue?: boolean
 
   /** 标题文本（也可使用 #title 插槽） */
   title?: string
 
   /** 是否禁用 */
   disabled?: boolean
+
+  /**
+   * 独立使用时的自定义展开图标，活动态会自动旋转 180°。
+   * 在 `UCollapse` 内由父组件 `expandIcon` 统一管理。
+   */
+  expandIcon?: Component
+}
+
+export interface CollapseItemEmits {
+  (e: 'update:modelValue', value: boolean): void
+  /** 展开状态变更时触发（仅独立使用） */
+  (e: 'change', value: boolean): void
 }

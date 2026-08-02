@@ -120,28 +120,6 @@ $root-name: ai-chat;
   // 工具调用卡片
   @include m.e(tool-call) {
     margin: fn.use-var(gap, small) 0;
-    border: fn.use-var(border-muted);
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, middle);
-    overflow: hidden;
-
-    @include m.is(expanded) {
-      @include m.bem($root-name, 'tool-call-chevron') {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  @include m.e(tool-call-header) {
-    @include m.flex(flex, flex-start, center);
-    gap: fn.use-var(gap, small);
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
-    cursor: pointer;
-    user-select: none;
-
-    &:hover {
-      background-color: fn.use-var(bg-color, hover);
-    }
   }
 
   @include m.e(tool-call-status) {
@@ -184,16 +162,6 @@ $root-name: ai-chat;
     flex-shrink: 0;
     @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, small);
-  }
-
-  @include m.e(tool-call-chevron) {
-    flex-shrink: 0;
-    color: fn.use-var(text-color, assist);
-    transition: transform 0.2s;
-  }
-
-  @include m.e(tool-call-body) {
-    padding: 0 fn.use-var(gap, default) fn.use-var(gap, small);
   }
 
   @include m.e(tool-call-section) {

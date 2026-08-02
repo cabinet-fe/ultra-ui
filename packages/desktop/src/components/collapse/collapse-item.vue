@@ -29,25 +29,38 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowRight } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
+import { useModel } from '@veltra/compositions'
+import { ArrowDown } from '@veltra/icons/normal'
+import { bem, ExpandTransition } from '@veltra/utils'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import type { CollapseItemProps } from '../../types'
+import type { CollapseItemEmits, CollapseItemProps } from '../../types'
 import { UIcon } from '../icon'
 import { CollapseDIKey } from './di'
 
 defineOptions({ name: 'UCollapseItem' })
 
-const props = defineProps<CollapseItemProps>()
+const props = withDefaults(defineProps<CollapseItemProps>(), { modelValue: false })
+const emit = defineEmits<CollapseItemEmits>()
 
-const context = inject(CollapseDIKey)!
+const context = inject(CollapseDIKey, undefined)
 
 const cls = context?.cls ?? bem('collapse')
 
-const isActive = computed(() => !!context?.activeValues.value.includes(props.value))
+const standaloneModel = useModel<CollapseItemProps, 'modelValue'>({
+  props,
+  emit,
+  defaultValue: false
+})
 
-const iconComponent = computed(() => context?.expandIcon.value ?? ArrowRight)
+const isActive = computed(() => {
+  if (context) {
+    return props.value !== undefined && context.activeValues.value.includes(props.value)
+  }
+  return !!standaloneModel.value
+})
+
+const iconComponent = computed(() => context?.expandIcon.value ?? props.expandIcon ?? ArrowDown)
 
 const classList = computed(() => [
   cls.e('item'),
@@ -61,17 +74,30 @@ const headerClassList = computed(() => [
   bem.is('active', isActive.value)
 ])
 
+const expandTransition =
+  context?.expandTransition ??
+  new ExpandTransition({ transition: 'height 0.24s cubic-bezier(0.4, 0, 0.2, 1)' })
+
 const handleClick = () => {
   if (props.disabled) return
-  context?.toggle(props.value)
+
+  if (context) {
+    if (props.value === undefined) return
+    context.toggle(props.value)
+    return
+  }
+
+  const next = !standaloneModel.value
+  standaloneModel.value = next
+  emit('change', next)
 }
 
 const wrapperEl = ref<HTMLElement>()
 
-const { expandTransition } = context
-
 onMounted(() => {
-  context?.register(props.value)
+  if (context && props.value !== undefined) {
+    context.register(props.value)
+  }
   if (!wrapperEl.value) return
   expandTransition.setExpanded(wrapperEl.value, isActive.value)
 })
@@ -82,7 +108,9 @@ watch(isActive, (active) => {
 })
 
 onBeforeUnmount(() => {
-  context?.unregister(props.value)
+  if (context && props.value !== undefined) {
+    context.unregister(props.value)
+  }
   if (!wrapperEl.value) return
   expandTransition.cancel(wrapperEl.value)
 })

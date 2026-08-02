@@ -3,16 +3,9 @@
 
 $root-name: collapse;
 
-// 与 tabs/menu 一致的 Material standard 缓动
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 0.18s $ease;
 $transition-normal: 0.24s $ease;
-$item-bg: fn.component-var(collapse, item-bg);
-$item-hover-bg: fn.component-var(collapse, item-hover-bg);
-$item-active-bg: fn.component-var(collapse, item-active-bg);
-$header-active-bg: fn.component-var(collapse, header-active-bg);
-$content-bg: fn.component-var(collapse, content-bg);
-$active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(color, primary));
 
 @include m.b($root-name) {
   width: 100%;
@@ -22,42 +15,13 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
 
   // ===== Item =====
   @include m.e(item) {
-    position: relative;
-    border-radius: calc(fn.use-var(radius, default) + 2px);
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
     overflow: hidden;
-    background-color: $item-bg;
-    transition: background-color $transition-fast;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 3px;
-      background-color: fn.use-var(color, primary);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity $transition-fast;
-      z-index: 1;
-    }
 
     & + #{fn.bem($root-name, item)} {
       margin-top: fn.use-var(gap, default);
-    }
-
-    @include m.is-not(disabled) {
-      &:hover {
-        background-color: $item-hover-bg;
-      }
-    }
-
-    @include m.is(active) {
-      background-color: $item-active-bg;
-
-      &::before {
-        opacity: 1;
-      }
     }
 
     @include m.is(disabled) {
@@ -70,20 +34,25 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
     position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
     cursor: pointer;
     font-weight: 500;
     letter-spacing: 0.01em;
-    color: fn.component-var(collapse, title-color, fn.use-var(text-color, main));
+    color: fn.use-var(text-color, main);
     user-select: none;
     outline: none;
-    transition:
-      color $transition-fast,
-      background-color $transition-fast;
-    border-radius: inherit;
+    transition: background-color $transition-fast;
+    border-radius: 0;
 
     &:focus-visible {
       box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
+    }
+
+    @include m.is-not(disabled) {
+      &:hover {
+        background-color: fn.use-var(bg-color, hover);
+      }
     }
 
     @include m.is(disabled) {
@@ -92,21 +61,19 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
     }
 
     @include m.is(active) {
-      font-weight: 600;
-      color: $active-title-color;
-      background-color: $header-active-bg;
-      border-bottom-right-radius: 0;
-      border-bottom-left-radius: 0;
+      background-color: fn.use-var(bg-color, hover);
 
       #{fn.bem($root-name, icon)} {
-        transform: rotate(90deg);
-        color: $active-title-color;
+        transform: rotate(180deg);
       }
     }
   }
 
   // ===== Title =====
   @include m.e(title) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
     flex: 1 1 auto;
     min-width: 0;
     line-height: 1.5;
@@ -118,10 +85,8 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    color: fn.use-var(text-color, placeholder);
-    transition:
-      transform $transition-normal,
-      color $transition-fast;
+    color: fn.use-var(text-color, assist);
+    transition: transform 0.2s $ease;
     will-change: transform;
   }
 
@@ -129,15 +94,14 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
   @include m.e(content-wrapper) {
     overflow: hidden;
     height: 0;
-    border-bottom-right-radius: inherit;
-    border-bottom-left-radius: inherit;
-    background-color: $content-bg;
+    background-color: transparent;
     transition: height $transition-normal;
   }
 
   @include m.e(content) {
     color: fn.use-var(text-color, main);
     line-height: 1.7;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
   }
 
   // ===== Sizes =====
@@ -145,17 +109,17 @@ $active-title-color: fn.component-var(collapse, active-title-color, fn.use-var(c
     font-size: fn.use-var(font-size-main, $size);
 
     @include m.bem($root-name, header) {
-      padding: calc(fn.use-var(gap, $size) - 2px) fn.use-var(gap, $size);
+      padding: fn.use-var(gap, $size) fn.use-var(gap, $size);
       font-size: fn.use-var(font-size-main, $size);
     }
 
     @include m.bem($root-name, content) {
       font-size: fn.use-var(font-size-main, $size);
-      padding: calc(fn.use-var(gap, $size) - 2px) fn.use-var(gap, $size) fn.use-var(gap, $size);
+      padding: fn.use-var(gap, $size);
     }
 
     #{fn.bem($root-name, item)} {
-      border-radius: calc(fn.use-var(radius, $size) + 2px);
+      border-radius: fn.use-var(radius, $size);
 
       & + #{fn.bem($root-name, item)} {
         margin-top: fn.use-var(gap, $size);
