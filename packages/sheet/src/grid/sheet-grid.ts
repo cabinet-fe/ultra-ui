@@ -143,16 +143,20 @@ export class SheetGrid {
         if (!addr) return undefined
         const merge = this.sheet.merges.getMergeAt(addr)
         if (!merge) return undefined
-        const value = this.sheet.getDisplayValue(merge.start)
+        const anchorCoord = this.toTableCoord(table as ListTable, merge.start)
+        const recordValue = (table as ListTable).getCellOriginValue(
+          anchorCoord.col,
+          anchorCoord.row
+        )
         return {
-          range: {
-            start: this.toTableCoord(table as ListTable, merge.start),
-            end: this.toTableCoord(table as ListTable, merge.end)
-          },
-          // 关键：必须携带 text（锚点显示值）。VTable 的 getCellRange 仅在
-          // text/customLayout/customRender 有效时才认这个自定义合并——没有 text
-          // 时选区与编辑不会扩展为整个合并区域，且合并格渲染为空。
-          text: value == null ? '' : String(value)
+          range: { start: anchorCoord, end: this.toTableCoord(table as ListTable, merge.end) },
+          // 关键 1：必须携带 text。VTable 的 getCellRange 仅在 text/customLayout/
+          // customRender 有效时才认这个自定义合并——没有 text 时选区与编辑不会
+          // 扩展为整个合并区域，且合并格渲染为空。
+          // 关键 2：text 必须读 VTable records 而非模型。编辑提交的顺序是
+          // 先更新 record → 重绘 → 最后才发 change_cell_value 回写模型；
+          // 若此时读模型，拿到的还是回写前的旧值（合并格显示旧文本）。
+          text: recordValue == null ? '' : String(recordValue)
         }
       }
     }

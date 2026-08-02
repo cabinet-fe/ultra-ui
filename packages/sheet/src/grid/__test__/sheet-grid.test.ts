@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { Sheet } from '../core/sheet'
-import { SheetGrid } from './sheet-grid'
+import { Sheet } from '../../core/sheet'
+import { SheetGrid } from '../sheet-grid'
 
 function createContainer(): HTMLElement {
   const el = document.createElement('div')
@@ -80,6 +80,24 @@ describe('SheetGrid（happy-dom smoke）', () => {
       // 合并格文本 = 锚点显示值（否则渲染为空）
       expect(table.getCustomMerge(3, 3)?.text).toBe('anchor-value')
       expect(table.getCustomMerge(2, 2)?.text).toBe('anchor-value')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('编辑提交后合并格文本立即刷新（text 读 records，与 VTable 更新次序一致）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.setCellValue({ row: 1, col: 1 }, 'old')
+      sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 2, col: 2 } })
+
+      // 模拟编辑提交：doExit 的 isCustom 分支 → changeCellValue(锚点, 新值)
+      const range = table.getCellRange(3, 3)
+      table.changeCellValue(range.start.col, range.start.row, 'new')
+
+      // 模型已回写；且重绘发生在 change_cell_value 之前，text 必须已是新值
+      expect(sheet.getCellData({ row: 1, col: 1 })).toMatchObject({ v: 'new' })
+      expect(table.getCustomMerge(3, 3)?.text).toBe('new')
     } finally {
       grid.release()
     }

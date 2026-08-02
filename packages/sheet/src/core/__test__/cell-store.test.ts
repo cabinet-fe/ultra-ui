@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { CellStore, inferCellType, isEmptyCellData } from './cell-store'
+import { CellStore, inferCellType, isEmptyCellData } from '../cell-store'
 
 describe('CellData 类型判别', () => {
   it('按值推断类型', () => {

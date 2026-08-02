@@ -8,6 +8,7 @@
 src/
 ├── index.ts              # 聚合导出
 ├── core/                 # 框架无关纯 TS，可单测、可无头运行（不 import vue / vtable）
+│   ├── __test__/         # core 单测
 │   ├── address.ts        # A1 地址系统（0-based CellAddress / 闭区间规范化 CellRange）
 │   ├── cell-store.ts     # 稀疏矩阵存储（Map<row, Map<col, CellData>>）
 │   ├── merge-manager.ts  # 合并单元格（只管几何，不管数据）
@@ -16,6 +17,7 @@ src/
 │   ├── workbook.ts       # Workbook = 多 Sheet（公式跨表引用的载体）
 │   └── events.ts         # 包内轻量类型化事件发射器（内部基建）
 └── grid/
+    ├── __test__/         # SheetGrid smoke + canvas mock（vp test setupFiles）
     └── sheet-grid.ts     # VTable 适配层（ListTable 封装、编辑器接入、事件回写）
 ```
 
@@ -30,7 +32,9 @@ src/
 ## VTable 适配层要点（1.26.5 spike 结论）
 
 - `customMergeCell` 函数式配置**逐格动态求值、无缓存**；闭包直读 `MergeManager`，合并变更后 `setRecords` 重建场景树即生效，无需 `updateOption`。
-- **`CustomMerge` 必须携带 `text`（锚点显示值）**：`BaseTable.getCellRange` 仅在 `text`/`customLayout`/`customRender` 有效时才返回自定义合并区域。缺了 `text` 会导致：合并格渲染为空；选区/编辑不扩展为整个合并区域（能点到被覆盖格）；编辑提交不写锚点。带上 `text` 后 `getCellRange` 返回 `isCustom: true` 的范围，选区扩展、编辑器矩形、`doExit` 提交锚点（`changeCellValue(range.start, …)`）全部自动成立。
+- **`CustomMerge` 必须携带 `text`，且 `text` 要读 VTable records（`table.getCellOriginValue(锚点坐标)`）而非模型**：
+  - `BaseTable.getCellRange` 仅在 `text`/`customLayout`/`customRender` 有效时才返回自定义合并区域。缺了 `text` 会导致：合并格渲染为空；选区/编辑不扩展为整个合并区域（能点到被覆盖格）；编辑提交不写锚点。带上 `text` 后选区扩展、编辑器矩形、`doExit` 提交锚点（`changeCellValue(range.start, …)`）全部自动成立。
+  - 编辑提交的顺序是：先更新 record → 重绘（重读 `customMerge.text`）→ 最后才发 `change_cell_value` 回写模型。若 `text` 闭包读模型，重绘拿到的是回写前的旧值——表现为「编辑后点击其它单元格，输入内容消失」（实际模型已提交，是渲染了旧文本）。读 records 则与 VTable 的更新次序天然一致（records 本就是模型的镜像：构造/setRecords/changeCellValue 三处同步）。
 - 编辑器：`register.editor` 注册一次 `@visactor/vtable-editors` 的 `InputEditor`，配置 `editor` + `editCellTrigger: 'doubleclick'`。
 - 双击编辑走 vrender Gesture 的 `doubletap` 识别（非原生 dblclick），Playwright 合成的 dblclick 无法触发——浏览器自动化验证编辑链路时改用 `getCellRange` + `changeCellValue` 走同一提交路径。
 - 事件用 `ListTable.EVENT_TYPE` 静态访问器（`core.EVENT_TYPE` 在 d.ts 是 `import type` 重导出，运行时为 undefined）。

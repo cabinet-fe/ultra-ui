@@ -12,7 +12,7 @@ import {
   rangeContainsAddress,
   rangeContainsRange,
   rangesIntersect
-} from './address'
+} from '../address'
 
 describe('colIndexToName / colNameToIndex', () => {
   it('单列名', () => {

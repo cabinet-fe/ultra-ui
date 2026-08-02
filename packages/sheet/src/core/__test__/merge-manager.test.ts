@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseRange } from './address'
-import { MergeManager } from './merge-manager'
+import { parseRange } from '../address'
+import { MergeManager } from '../merge-manager'
 
 const B2 = { row: 1, col: 1 }
 const C3 = { row: 2, col: 2 }

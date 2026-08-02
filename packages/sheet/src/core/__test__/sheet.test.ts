@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { parseRange } from './address'
-import { Sheet } from './sheet'
-import { Workbook } from './workbook'
+import { parseRange } from '../address'
+import { Sheet } from '../sheet'
+import { Workbook } from '../workbook'
 
 const B2 = { row: 1, col: 1 }
 const C3 = { row: 2, col: 2 }
