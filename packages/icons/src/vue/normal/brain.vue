@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9da10d26f7e40dea gen:8 source:src/svg/normal/brain.svg -->
+<!-- @veltra/icons generated sha256:772feb5c36dc3ad3 gen:8 source:src/svg/normal/brain.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Brain' })
 </script>
@@ -13,7 +13,7 @@ defineOptions({ name: 'Brain' })
     viewBox="0 0 24 24"
   >
     <path
-      d="M12 18V5M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"
+      d="M12 18V5m3 8a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4m8.598-6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"
     />
     <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
     <path d="M18 18a4 4 0 0 0 2-7.464" />

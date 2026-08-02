@@ -16,11 +16,25 @@ const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/
 const modules = { ...desktopModules, ...iconsModules, ...aiChatModules, ...sheetModules }
 const paths = Object.keys(modules)
 
-const DEMO_KEY_RE = /src\/(?:desktop\/)?([^/]+)\/index\.vue$/
+/** 从模块路径提取 demo key（用于 route name / demoMeta 校验） */
+function demoKeyFromModulePath(path: string): string {
+  const desktop = path.match(/src\/desktop\/([^/]+)\/index\.vue$/)
+  if (desktop) return desktop[1]!
+
+  const iconsNested = path.match(/src\/icons\/(.+)\/index\.vue$/)
+  if (iconsNested) return `icons-${iconsNested[1]!.replace(/\//g, '-')}`
+
+  const top = path.match(/src\/([^/]+)\/index\.vue$/)
+  if (top) return top[1]!
+
+  throw new Error(`[playground] 无法解析演示页 key: ${path}`)
+}
 
 if (import.meta.env.DEV) {
   for (const path of paths) {
-    const key = path.match(DEMO_KEY_RE)![1]!
+    const key = demoKeyFromModulePath(path)
+    // icons 子页（如 icons-combo）走 Icons 顶层菜单，不必进 demoMeta
+    if (key.startsWith('icons-')) continue
     if (!(key in demoMeta)) {
       console.warn(`[playground] 演示页 "${key}" 未在 nav-config demoMeta 中配置`)
     }
@@ -28,7 +42,7 @@ if (import.meta.env.DEV) {
 }
 
 export const routes: RouteRecordRaw[] = paths.map((path) => {
-  const name = path.match(DEMO_KEY_RE)![1]!
+  const name = demoKeyFromModulePath(path)
 
   return { name, component: modules[path]!, path: path.replace(/^\.\/src([\s\S]+)\.vue$/g, '$1') }
 })

@@ -114,6 +114,8 @@ export const demoMeta: Record<string, DemoMeta> = {
 /** 顶层独立入口（不挂在 Desktop 分类下） */
 const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet'])
 
+const ICONS_ROOT = '/icons'
+
 function demosInCategory(category: DemoCategory) {
   return Object.entries(demoMeta)
     .filter(([key, meta]) => !TOP_LEVEL_DEMO_KEYS.has(key) && meta.category === category)
@@ -125,9 +127,13 @@ export function buildPlaygroundMenus(): NavItem[] {
   return [
     {
       title: 'Icons 图标',
-      description: '浏览 @veltra/icons 图标库，支持搜索、分组与复制 import 语句',
+      description: '浏览 @veltra/icons 图标库，支持搜索、分组与图标组合预览',
       icon: PictureRounded as DefineComponent,
-      path: '/icons/index'
+      path: ICONS_ROOT,
+      children: [
+        { title: '图标库', path: '/icons/index' },
+        { title: '图标组合', path: '/icons/combo/index' }
+      ]
     },
     {
       title: 'Desktop 组件',
@@ -160,8 +166,9 @@ export function buildPlaygroundMenus(): NavItem[] {
 
 /** 分组导航路径（非叶子页），不应触发 router 跳转 */
 export function isNavGroupPath(path: string): boolean {
-  if (path === DESKTOP_ROOT) return true
-  return path.startsWith(`${DESKTOP_ROOT}/`) && !path.endsWith('/index')
+  if (path === DESKTOP_ROOT || path === ICONS_ROOT) return true
+  if (path.startsWith(`${DESKTOP_ROOT}/`) && !path.endsWith('/index')) return true
+  return false
 }
 
 /** 扁平化后的可搜索导航项 */

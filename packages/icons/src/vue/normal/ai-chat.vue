@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:b48875f9db449bad gen:8 source:src/svg/normal/ai-chat.svg -->
+<!-- @veltra/icons generated sha256:2952c328a2facc9c gen:8 source:src/svg/normal/ai-chat.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'AiChat' })
 </script>
@@ -13,7 +13,7 @@ defineOptions({ name: 'AiChat' })
     viewBox="0 0 24 24"
   >
     <path
-      d="M12 6V2H8M15 11v2M2 12h2M20 12h2M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2zM9 11v2"
+      d="M12 6V2H8m7 9v2M2 12h2m16 0h2m-2 4a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2zM9 11v2"
     />
   </svg>
 </template>

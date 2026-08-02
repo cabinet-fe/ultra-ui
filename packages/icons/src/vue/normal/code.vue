@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:a3befeba1a9b979d gen:8 source:src/svg/normal/code.svg -->
+<!-- @veltra/icons generated sha256:2080723f363368fb gen:8 source:src/svg/normal/code.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'UCode' })
 </script>
@@ -12,6 +12,6 @@ defineOptions({ name: 'UCode' })
     stroke-width="2"
     viewBox="0 0 24 24"
   >
-    <path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16" />
+    <path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16" />
   </svg>
 </template>

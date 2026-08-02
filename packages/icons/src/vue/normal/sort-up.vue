@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:eabb8c224334f614 gen:8 source:src/svg/normal/sort-left.svg -->
+<!-- @veltra/icons generated sha256:27ba7c4f8a256127 gen:8 source:src/svg/normal/sort-up.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'SortLeft' })
+defineOptions({ name: 'SortUp' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
@@ -9,7 +9,7 @@ defineOptions({ name: 'SortLeft' })
       stroke-linecap="round"
       stroke-linejoin="round"
       stroke-width="1.1"
-      d="M14.5 9.5h-13m0 0L6 13.25"
+      d="M6.5 14.5v-13m0 0L2.75 6"
     />
   </svg>
 </template>

@@ -40,7 +40,7 @@ import { Search, Excel } from '@veltra/icons'
 
 各种方向指示、箭头、排序、拉伸及位置对齐图标。包括：
 
-`ArrowUp`、`ArrowDown`、`ArrowLeft`、`ArrowRight`、`ArrowUpdown`、`CaretTop`、`CaretBottom`、`CaretLeft`、`CaretRight`、`DArrowLeft`、`DArrowRight`、`Left`、`Right`、`Bottom`、`Backtop`、`PageFirst`、`PageLast`、`Sort`、`SortLeft`、`SortRight`、`Rollback`、`Rollfront`、`Move`、`MoveHorizontal`、`Rotation`、`RotateLeft`、`RotateRight`、`AlignTop`、`AlignBottom`、`AlignCenter`、`VerticalAlignCenter`、`VerticalAlignLeft`、`VerticalAlignRight`、`InsertToNext`、`InsertToPrev`、`Maximum`、`House`、`HouseFilled`
+`ArrowUp`、`ArrowDown`、`ArrowLeft`、`ArrowRight`、`ArrowUpdown`、`CaretTop`、`CaretBottom`、`CaretLeft`、`CaretRight`、`DArrowLeft`、`DArrowRight`、`Left`、`Right`、`Up`、`Down`、`Backtop`、`PageFirst`、`PageLast`、`Sort`、`SortLeft`、`SortRight`、`SortUp`、`SortDown`、`Rollback`、`Rollfront`、`Move`、`MoveHorizontal`、`Rotation`、`RotateLeft`、`RotateRight`、`AlignTop`、`AlignBottom`、`AlignCenter`、`VerticalAlignCenter`、`VerticalAlignLeft`、`VerticalAlignRight`、`InsertToNext`、`InsertToPrev`、`Maximum`、`House`、`HouseFilled`
 
 ### 常规操作与状态
 

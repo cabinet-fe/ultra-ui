@@ -1,6 +1,6 @@
-<!-- @veltra/icons generated sha256:58a491c67e35255f gen:8 source:src/svg/normal/bottom.svg -->
+<!-- @veltra/icons generated sha256:58a491c67e35255f gen:8 source:src/svg/normal/down.svg -->
 <script setup lang="ts">
-defineOptions({ name: 'Bottom' })
+defineOptions({ name: 'Down' })
 </script>
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">

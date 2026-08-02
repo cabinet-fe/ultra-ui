@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:eaf84e2659e08ecb gen:8 source:src/svg/normal/agent.svg -->
+<!-- @veltra/icons generated sha256:622ba7f85f5313cc gen:8 source:src/svg/normal/agent.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Agent' })
 </script>
@@ -14,6 +14,6 @@ defineOptions({ name: 'Agent' })
   >
     <path d="M12 8V4H8" />
     <rect width="16" height="12" x="4" y="8" rx="2" />
-    <path d="M2 14h2M20 14h2M15 13v2M9 13v2" />
+    <path d="M2 14h2m16 0h2m-7-1v2m-6-2v2" />
   </svg>
 </template>

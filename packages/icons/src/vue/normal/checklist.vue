@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9bc4d5490a0af43f gen:8 source:src/svg/normal/checklist.svg -->
+<!-- @veltra/icons generated sha256:2143018d7c29513a gen:8 source:src/svg/normal/checklist.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Checklist' })
 </script>
@@ -12,6 +12,6 @@ defineOptions({ name: 'Checklist' })
     stroke-width="2"
     viewBox="0 0 24 24"
   >
-    <path d="M13 5h8M13 12h8M13 19h8M3 17l2 2 4-4M3 7l2 2 4-4" />
+    <path d="M13 5h8m-8 7h8m-8 7h8M3 17l2 2 4-4M3 7l2 2 4-4" />
   </svg>
 </template>
