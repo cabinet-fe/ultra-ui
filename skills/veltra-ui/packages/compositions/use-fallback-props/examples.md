@@ -36,8 +36,5 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 ```ts
 import { useFormFallbackProps } from '@veltra/compositions'
 
-const { size, disabled } = useFormFallbackProps([props], {
-  size: 'small',
-  disabled: true
-})
+const { size, disabled } = useFormFallbackProps([props], { size: 'small', disabled: true })
 ```

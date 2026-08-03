@@ -9,9 +9,7 @@
 ```ts
 import type { Ref, ShallowRef } from 'vue'
 
-type RefElement =
-  | ShallowRef<HTMLElement | undefined | null>
-  | Ref<HTMLElement | undefined | null>
+type RefElement = ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
 
 interface ElementSize {
   width: number

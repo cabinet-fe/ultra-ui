@@ -62,7 +62,7 @@ import '@veltra/sheet/vue/style'
   options：`caseSensitive`、`wholeCell`（整格）、`searchIn: 'value' | 'formula'`
   （value 匹配显示值 `getDisplayValue`，formula 匹配公式原文 `f`）。
 - **查找条**（USheet 内）：关键词 + 上一个/下一个 + 命中计数 + 关闭（Enter=下一个、Shift+Enter=上一个）
-  + 替换/全部替换（写入走 `ctx.setCells`，全部替换 = 单 undo 单元）；Ctrl/Cmd+F 开合。
+  - 替换/全部替换（写入走 `ctx.setCells`，全部替换 = 单 undo 单元）；Ctrl/Cmd+F 开合。
 - **选区回驱**：模型 `selectCell`/`selectRange` → VTable 高亮（`selectCells`）+ `scrollToCell` 滚动可见
   （查找跳转依赖；回驱期间 VTable 事件不回写模型，无递归）。
 
@@ -101,9 +101,9 @@ import '@veltra/sheet/vue/style'
 registerTool({
   id: 'insert-date',
   title: '插入当前日期',
-  icon: Calendar,            // 可选，Vue 组件
-  group: 'demo',             // 分组渲染，组间分隔符
-  order: 0,                  // 组内排序
+  icon: Calendar, // 可选，Vue 组件
+  group: 'demo', // 分组渲染，组间分隔符
+  order: 0, // 组内排序
   disabled: (ctx) => !ctx.getSelection().activeCell,
   onClick: (ctx) => {
     const active = ctx.getSelection().activeCell
@@ -129,9 +129,9 @@ registerTool({
 import { exportWorkbookXlsx, exportSheetCsv, importXlsx, importCsv } from '@veltra/sheet'
 
 const buffer = await exportWorkbookXlsx(workbook) // Uint8Array（多 sheet）
-const csv = exportSheetCsv(sheet)                 // CSV 字符串（UTF-8 BOM，公式导计算值）
-const wb = await importXlsx(buffer)               // 新 Workbook
-importCsv(text, sheet)                            // 写入既有活动表（事务 = 单 undo 单元）
+const csv = exportSheetCsv(sheet) // CSV 字符串（UTF-8 BOM，公式导计算值）
+const wb = await importXlsx(buffer) // 新 Workbook
+importCsv(text, sheet) // 写入既有活动表（事务 = 单 undo 单元）
 ```
 
 - **导出保真**：值（数字/字符串/布尔/错误/日期序列）、公式（`f` 不带 `=`，缓存值 → formulaResult）、

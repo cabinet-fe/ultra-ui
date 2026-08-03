@@ -54,8 +54,23 @@ src/
 │   └── builtin.ts        # 内置工具（undo/redo/合并/取消合并/填充颜色/边框/冻结×4/查找/导出×2/导入），经包入口注册
 ├── vue/                  # USheet 组件（Vue 依赖只在这一层）
 │   ├── __test__/         # 组件测试（happy-dom + canvas mock）
-│   ├── sheet.vue         # toolbar + formula-bar + grid + 查找条（弹层）+ 底部 sheet tabs
+│   ├── sheet.vue         # 精简编排层：组合状态源 / 弹层 / 网格，拼装各区块（无业务逻辑）
+│   ├── sheet-toolbar.vue # 工具栏（纯展示：分组视图模型渲染，点击上交宿主编排）
+│   ├── sheet-tabs.vue    # 底部 sheet tabs（切换 / 添加 / 行内重命名 / 右键删除，直调 Workbook）
 │   ├── formula-bar.vue   # 公式栏（名称框 + fx 输入栏；双向同步 + 编辑态锁 + 网格编辑镜像）
+│   ├── popups/           # 弹层型工具面板（v-if 挂载即全新状态；交互走 SheetContext 命令入口）
+│   │   ├── fill-color-popup.vue   # 填充颜色（UPalette）
+│   │   ├── border-popup.vue       # 边框（预设 / 线型 / 颜色）
+│   │   ├── find-popup.vue         # 查找替换条
+│   │   ├── import-popup.vue       # 导入（UFilePicker）
+│   │   └── insert-cells-popup.vue # 插入行 / 列数量
+│   ├── use-sheet-state.ts    # 状态源：workbook / sheetList / activeIndex / context / 事件绑定 / stateTick
+│   ├── use-tool-popup.ts     # 弹层编排：popupTool / 开关 / 面板事务 / window click / Ctrl+F
+│   ├── use-tool-groups.ts    # 工具栏分组视图模型（visible/disabled/active 随 stateTick 重算）
+│   ├── use-sheet-grid.ts     # SheetGrid 生命周期 + 网格右键菜单
+│   ├── use-find-replace.ts   # 查找替换逻辑（find-popup 使用）
+│   ├── popup-helpers.ts      # 无状态工具：currentRange / 边框常量 / 预设 items 构建
+│   ├── use-sheet-tabs-bar.ts # tabs 视口溢出滚动（showNav / canPrev / canNext / scrollByStep）
 │   ├── index.ts          # 导出 USheet
 │   ├── style.scss        # pkg:@veltra/styles token（m.e 元素、m.is 状态，不写硬编码颜色）
 │   └── style.ts          # 样式入口（sideEffects）
@@ -128,11 +143,11 @@ src/
   此时回驱 `selectCells` 内部 `updateSelectPos` 会走「拖拽扩展」分支而非「清空重建」分支，两种表现：
   1. 旧选区组件残留为孤儿（组件 Map 清不到）→ 画布叠加多个选区框（视觉上多区域同时高亮）；
   2. 反向拖选（从右往左 / 从下往上）时选区被错误收缩/畸形（如 D1→A1 变成 D1:D1 单格）。
-  **规避**（`SheetGrid.pushSelectionToTable`）：回驱前临时把 `eventManager.isDraging` 置 false
-  （让 `selectCells` 走标准清空-重建路径，`finally` 还原），并调 `clearSelectionOverlays()`
-  显式清空 9 个 SelectGroup 子节点 + `selected/selecting/customSelectedRangeComponents` 索引
-  （孤儿组件不在组件 Map，`deleteAllSelectBorder` 清不到，必须从绘制层 `removeAllChild` 清除）。
-  已用 Playwright（chromium 真实浏览器事件）复现验证：正/反向拖选均单区域、无组件残留。
+     **规避**（`SheetGrid.pushSelectionToTable`）：回驱前临时把 `eventManager.isDraging` 置 false
+     （让 `selectCells` 走标准清空-重建路径，`finally` 还原），并调 `clearSelectionOverlays()`
+     显式清空 9 个 SelectGroup 子节点 + `selected/selecting/customSelectedRangeComponents` 索引
+     （孤儿组件不在组件 Map，`deleteAllSelectBorder` 清不到，必须从绘制层 `removeAllChild` 清除）。
+     已用 Playwright（chromium 真实浏览器事件）复现验证：正/反向拖选均单区域、无组件残留。
 
 ## 样式系统（Phase 1：背景填充 + 边框）
 
@@ -259,7 +274,14 @@ src/
 
 ## USheet 组件（vue/）
 
-- 结构：toolbar（渲染 `defaultToolRegistry` 分组工具 + 分隔符）+ formula-bar（公式栏，可选）+ grid（SheetGrid）+ 底部 sheet tabs。
+- 结构：`sheet.vue` 为精简编排层（组合各可组合函数 + 拼装区块），区块拆分为
+  `sheet-toolbar.vue`（渲染 `defaultToolRegistry` 分组工具 + 分隔符，纯展示）+
+  `formula-bar.vue`（公式栏，可选）+ grid（SheetGrid，`use-sheet-grid.ts` 管生命周期）+
+  `sheet-tabs.vue`（底部 tabs）+ `popups/`（弹层型工具面板，v-if 挂载即全新状态）。
+  编排逻辑按职责入可组合函数：`use-sheet-state.ts`（状态源 + 事件绑定）、
+  `use-tool-popup.ts`（弹层开关 + 面板事务）、`use-tool-groups.ts`（工具栏视图模型）、
+  `use-sheet-grid.ts`（网格重建 + 右键菜单）、`use-find-replace.ts`（查找替换）；
+  无状态辅助入 `popup-helpers.ts`。
 - Props：`workbook?`（缺省内部自建单 sheet 工作簿）、`rows?`(100)、`cols?`(26)、
   `showToolbar?`(true)、`showFormulaBar?`(true)、`showTabs?`(true)；Emits：`active-sheet-change`；
   Exposed（`SheetExposed`）：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`。
@@ -268,29 +290,32 @@ src/
   `queueMicrotask(openPopup)` 会在**同一 click 事件冒泡到 window 之前**执行：面板刚渲染，
   冒泡到 window 的 `onWindowClick` 就把它关闭（面板闪开即关，表现为「点击弹层工具没反应」）。
   工具栏按钮、右键菜单（`openToolPopup`）、Ctrl+F（`onGlobalKeydown`）三个入口统一用
-  `setTimeout(() => openPopup(tool), 0)`。happy-dom 的 microtask 时序与真实浏览器不同
-  （dispatchEvent 同步返回后才执行 microtask），组件测试测不出此问题，改动弹层打开方式后
-  必须用 Playwright 真实浏览器验证（断言 popup 打开后稳定存在，而非只跑组件测试）。
+  `setTimeout(() => openPopup(tool), 0)`（均在 `use-tool-popup.ts`）。happy-dom 的 microtask
+  时序与真实浏览器不同（dispatchEvent 同步返回后才执行 microtask），组件测试测不出此问题，
+  改动弹层打开方式后必须用 Playwright 真实浏览器验证（断言 popup 打开后稳定存在，而非只跑组件测试）。
 - **弹层定位约束（2026-08 修复）**：`popup` 是 `toolbar-wrap`（`position: relative`）的子元素，
   `top: calc(100% + 4px)` 相对工具栏——**不能**直接挂在 `.u-sheet` 下（`overflow: hidden` 会把
   sheet 底部之外的弹层裁剪掉，表现为「面板打开了但看不到输入框」；组件测试查 DOM 存在性
   查不出，必须真实浏览器验证 boundingBox 落在 sheet 内 + elementFromPoint 命中面板内容）。
   弹层打开后的视觉验证请复用 Playwright 断言「popup rect 在 sheet rect 内」。
-- 工具栏状态刷新：订阅注册表 change / workbook（active-sheet-change、sheets-change）/
-  活动 sheet（selection/history/cell/merge-change）→ bump 版本号 → computed 重算
-  `visible`/`disabled`。tab 切换 = 重建 SheetGrid（旧实例 release）+ 重绑 sheet 事件。
-- **右键菜单**：VTable `CONTEXTMENU_CELL`（`rightdown` 派发）→ `contextmenu.pop()`
+- 工具栏状态刷新：`use-sheet-state.ts` 订阅注册表 change / workbook（active-sheet-change、
+  sheets-change）/ 活动 sheet（selection/history/cell/merge-change）→ bump 版本号 →
+  `use-tool-groups.ts` 的 computed 重算 `visible`/`disabled`。tab 切换 = 重建 SheetGrid
+  （旧实例 release）+ 重绑 sheet 事件。
+- **右键菜单**（`use-sheet-grid.ts`）：VTable `CONTEXTMENU_CELL`（`rightdown` 派发）→ `contextmenu.pop()`
   （从 `@veltra/desktop` 主入口导入，勿深导入 `components/contextmenu`——dist 无 index.js），
   固定六项「合并单元格 / 取消合并单元格 / 插入行 / 插入列 / 删除行 / 删除列」，
   `disabled`/`callback` 对齐内置工具（插入行/列经 `openToolPopup` 打开数量输入面板）；
   落在选区外的 body 格先选中该格，行号/列头保留当前选区。
   `eventOptions.preventDefaultContextMenu: true` 禁浏览器默认菜单。不暴露自定义 `menus` prop。
-- **底部 sheet tabs 交互（Phase 3）**：tab 点击切换（同前）；末尾「+」按钮 `addSheet` +
+- **底部 sheet tabs 交互（Phase 3，`sheet-tabs.vue`）**：tab 点击切换（同前）；末尾「+」按钮 `addSheet` +
   `activateSheet` 自动激活新表；tab 右键（原生 `contextmenu`，与单元格右键互不干扰）弹出
   菜单「重命名 / 删除」——重命名进入行内输入（Enter 提交、Esc 取消、失焦提交；冲突
   `message.warn` 提示且不写入），删除走 `messageConfirm.danger` 二次确认，最后一个 sheet
   的删除项 disabled（`confirmRemoveSheet` 再兜底）。tab 键用 sheet 对象引用（改名不重建
   DOM、行内输入状态保留）；改名后经 `sheet-rename` 事件换新数组引用刷新 tab 文本。
+  重命名输入框在 v-for 内渲染：`useTemplateRef` 收集为**数组**（Vue 3.5 v-for ref 语义），
+  聚焦全选取 `renameInputRef.value?.[0]?.select()`。
 - 组件高度由宿主控制（`.u-sheet` flex 列布局，grid 区 `flex:1; min-height:0`，宿主需给高度）。
 - 样式：`vue/style.scss` 走 `pkg:@veltra/styles` token；**元素类用 `m.e(name)`（`&__x`），
   `m.bem(单参)` 是后代组件选择器（如 `.u-button .u-icon`）不是 BEM 元素**（用错会导致
@@ -362,9 +387,9 @@ src/
   不桥接 CSS 变量。
 - **行列尺寸拖拽**：`resize.columnResizeMode: 'header'`（仅列头 A/B/C…）；行高不能用
   `rowResizeMode: 'header'`（VTable `isHeader` 不含行号列 body），故 `rowResizeMode: 'all'`
-  + 包装 `_canResizeRow` 限制到 `isSeriesNumber`。`defaultRowHeight: 28`；`Sheet` 稀疏
-  `rowHeights`（`getRowHeight` / `setRowHeight`，**不进 undo**）；`RESIZE_ROW_END` 同步，
-  tab 重建时还原。
+  - 包装 `_canResizeRow` 限制到 `isSeriesNumber`。`defaultRowHeight: 28`；`Sheet` 稀疏
+    `rowHeights`（`getRowHeight` / `setRowHeight`，**不进 undo**）；`RESIZE_ROW_END` 同步，
+    tab 重建时还原。
 - **填充柄**：`excelOptions.fillHandle: true`；`MOUSEDOWN_FILL_HANDLE` 记源选区，
   `DRAG_FILL_HANDLE_END` → `core/fill.generateFill` → `sheet.setCells`（单 undo 单元）。
   规则：公式格字符串级位移（尊重 `$`）；数字/日期等差（单格步长 1）；否则 tile（空格覆盖清空）。
@@ -377,8 +402,9 @@ src/
 
 - **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`（同 desktop 先例，随包发布）、
   `hucre`（^0.6.2，XLSX/CSV 读写，零依赖纯 TS）
-- **peer**：`@cat-kit/core`、`vue`、`@veltra/desktop`（右键 `contextmenu.pop` + 导入 `UFilePicker`）、
-  `@veltra/utils`（bem / DeconstructValue）、`@veltra/styles`（SCSS token）
+- **peer**：`@cat-kit/core`、`vue`、`@veltra/desktop`（右键 `contextmenu.pop` + 导入 `UFilePicker` /
+  `UIcon`）、`@veltra/icons`（tabs 左右箭头）、`@veltra/utils`（bem / DeconstructValue）、
+  `@veltra/styles`（SCSS token）
 - **被依赖**：playground
 
 ## 大数据量（Phase 6：演示 + 性能基线）
@@ -411,14 +437,14 @@ src/
 - **实测基线（2026-08 Playwright / chromium 真实浏览器，10 万行 × 12 列 = 120 万单元格，
   seeded 数据、批量写入后挂载）**：
 
-  | 指标 | 实测 | 目标 |
-  | --- | --- | --- |
-  | 数据生成 | 226 ms | — |
-  | 批量写入（`setCells` 单事务） | **505 ms** | <10s ✅ |
-  | 首次渲染（挂载到首帧） | 569 ms | 流畅 ✅ |
-  | 查找（关键词命中） | **440 ms** | <2s ✅ |
-  | 导出 xlsx | **5.9 s**（含 ZIP 构造） | 文件可打开 ✅ |
-  | 样式池条目 / 去重率 | 20 条 / ×60,000 | 池条目数十级 ✅ |
+  | 指标                          | 实测                     | 目标            |
+  | ----------------------------- | ------------------------ | --------------- |
+  | 数据生成                      | 226 ms                   | —               |
+  | 批量写入（`setCells` 单事务） | **505 ms**               | <10s ✅         |
+  | 首次渲染（挂载到首帧）        | 569 ms                   | 流畅 ✅         |
+  | 查找（关键词命中）            | **440 ms**               | <2s ✅          |
+  | 导出 xlsx                     | **5.9 s**（含 ZIP 构造） | 文件可打开 ✅   |
+  | 样式池条目 / 去重率           | 20 条 / ×60,000          | 池条目数十级 ✅ |
 
   冻结首行在 120 万格下生效（`setFrozen(1,0)` → VTable `frozenRowCount=2`）。
 

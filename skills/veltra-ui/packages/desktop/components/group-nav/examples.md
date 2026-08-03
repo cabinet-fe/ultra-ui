@@ -12,10 +12,7 @@ import type { GroupNavGroup } from '@veltra/desktop'
 
 const currentPath = shallowRef('/home')
 const groups = shallowRef<GroupNavGroup[]>([
-  {
-    title: '概览',
-    children: [{ title: '首页', icon: HouseFilled, path: '/home' }]
-  },
+  { title: '概览', children: [{ title: '首页', icon: HouseFilled, path: '/home' }] },
   {
     title: '业务中心',
     children: [
@@ -33,10 +30,7 @@ const groups = shallowRef<GroupNavGroup[]>([
       }
     ]
   },
-  {
-    title: '帮助',
-    children: [{ title: '使用帮助', icon: Cart, path: '/help' }]
-  },
+  { title: '帮助', children: [{ title: '使用帮助', icon: Cart, path: '/help' }] },
   {
     title: '系统设置',
     children: [
@@ -68,10 +62,7 @@ const route = useRoute()
 const router = useRouter()
 const currentPath = computed(() => route.query.currentPath as string | undefined)
 const groups = shallowRef<GroupNavGroup[]>([
-  {
-    title: '概览',
-    children: [{ title: '首页', path: '/home' }]
-  },
+  { title: '概览', children: [{ title: '首页', path: '/home' }] },
   {
     title: '业务中心',
     children: [
@@ -79,10 +70,7 @@ const groups = shallowRef<GroupNavGroup[]>([
       { title: '数据字典', path: '/business/dict' }
     ]
   },
-  {
-    title: '帮助',
-    children: [{ title: '使用帮助', path: '/help' }]
-  },
+  { title: '帮助', children: [{ title: '使用帮助', path: '/help' }] },
   {
     title: '系统设置',
     children: [

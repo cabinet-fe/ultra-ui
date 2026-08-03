@@ -183,8 +183,7 @@
               white-space: pre-wrap;
               word-break: break-all;
             "
-            >{{ JSON.stringify(data, null, 2) }}</pre
-          >
+            >{{ JSON.stringify(data, null, 2) }}</pre>
         </u-collapse-item>
         <u-collapse-item value="checked" title="选中项 (checked)">
           <pre
@@ -200,8 +199,7 @@
               white-space: pre-wrap;
               word-break: break-all;
             "
-            >{{ JSON.stringify(checked, null, 2) }}</pre
-          >
+            >{{ JSON.stringify(checked, null, 2) }}</pre>
         </u-collapse-item>
       </u-collapse>
     </div>

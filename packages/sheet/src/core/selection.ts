@@ -35,10 +35,20 @@ export class SelectionModel {
     this.setState({ activeCell: anchor, ranges: [createRange(anchor, anchor)] })
   }
 
-  /** 选中区域；activeCell 取区域起点的锚点 */
-  selectRange(range: CellRange): void {
-    const anchor = this.resolveAnchor(range.start)
-    this.setState({ activeCell: anchor, ranges: [range] })
+  /**
+   * 选中区域。
+   * `active` 缺省为区域起点锚点；整行/整列头点击可传入视口边缘格作为活动格
+   * （与 Excel 一致：选区仍为整行/列，锚点落在当前可见边缘）。
+   */
+  selectRange(range: CellRange, active?: CellAddress): void {
+    const normalized = createRange(range.start, range.end)
+    let anchor = this.resolveAnchor(active ?? normalized.start)
+    anchor = {
+      row: Math.min(Math.max(anchor.row, normalized.start.row), normalized.end.row),
+      col: Math.min(Math.max(anchor.col, normalized.start.col), normalized.end.col)
+    }
+    anchor = this.resolveAnchor(anchor)
+    this.setState({ activeCell: anchor, ranges: [normalized] })
   }
 
   getState(): SelectionState {

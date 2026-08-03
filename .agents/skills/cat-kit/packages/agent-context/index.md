@@ -7,11 +7,11 @@ Node.js CLI：安装 `ac-workflow` Skill，并管理 `.agent-context/` 中的计
 
 ## 主题
 
-| 主题 | 说明 |
-| --- | --- |
-| [cli](cli/index.md) | 安装、同步、init、状态与归档命令 |
+| 主题                            | 说明                                  |
+| ------------------------------- | ------------------------------------- |
+| [cli](cli/index.md)             | 安装、同步、init、状态与归档命令      |
 | [protocols](protocols/index.md) | Skill 协议动作（plan / implement 等） |
-| [组合示例](examples.md) | 端到端协作流程 |
+| [组合示例](examples.md)         | 端到端协作流程                        |
 
 ## 快速开始
 

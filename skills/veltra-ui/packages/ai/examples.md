@@ -64,11 +64,7 @@ const tools: ChatTool[] = [
     name: 'deleteFile',
     description: '删除指定路径的文件',
     needsConfirm: true,
-    parameters: {
-      type: 'object',
-      properties: { path: { type: 'string' } },
-      required: ['path']
-    },
+    parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
     execute: ({ path }: { path: string }) => deleteFile(path)
   }
 ]
@@ -125,7 +121,7 @@ const tools: ChatTool[] = [
 import { createAskQuestionTool } from '@veltra/ai'
 
 const tools: ChatTool[] = [
-  createAskQuestionTool(), // 可传 { name, description, label, icon } 覆盖默认值
+  createAskQuestionTool() // 可传 { name, description, label, icon } 覆盖默认值
   // ...其他工具
 ]
 ```

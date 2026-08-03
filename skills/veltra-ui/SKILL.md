@@ -13,47 +13,47 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 当前文档对应包版本（monorepo 对齐）：
 
-| 包 | 版本 |
-| --- | --- |
-| `@veltra/desktop` | 1.3.3 |
-| `@veltra/utils` | 1.3.3 |
-| `@veltra/styles` | 1.3.3 |
-| `@veltra/compositions` | 1.3.3 |
-| `@veltra/directives` | 1.3.3 |
-| `@veltra/icons` | 1.3.3 |
-| `@veltra/vite` | 2.0.3 |
-| `@veltra/sheet` | 1.3.10 |
+| 包                     | 版本   |
+| ---------------------- | ------ |
+| `@veltra/desktop`      | 1.3.3  |
+| `@veltra/utils`        | 1.3.3  |
+| `@veltra/styles`       | 1.3.3  |
+| `@veltra/compositions` | 1.3.3  |
+| `@veltra/directives`   | 1.3.3  |
+| `@veltra/icons`        | 1.3.3  |
+| `@veltra/vite`         | 2.0.3  |
+| `@veltra/sheet`        | 1.3.10 |
 
 ## 分包地图
 
-| 入口 | 包 | 用途 |
-| --- | --- | --- |
-| `packages/desktop/` | `@veltra/desktop` | 桌面端组件（主入口） |
-| `packages/ai.md` | `@veltra/ai` | AI 对话组件、useChat 编排与可插拔 transport |
-| `packages/sheet.md` | `@veltra/sheet` | 电子表格（USheet、公式、undo/redo、工具扩展） |
-| `packages/styles/` | `@veltra/styles` | SCSS、主题、Design Tokens、过渡 |
-| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数 |
-| `packages/directives.md` | `@veltra/directives` | 自定义指令 |
-| `packages/icons.md` | `@veltra/icons` | SVG 图标组件 |
-| `packages/utils.md` | `@veltra/utils` | 工具函数与共享类型 |
-| `packages/vite.md` | `@veltra/vite` | Vite 按需解析器 |
+| 入口                       | 包                     | 用途                                          |
+| -------------------------- | ---------------------- | --------------------------------------------- |
+| `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                          |
+| `packages/ai.md`           | `@veltra/ai`           | AI 对话组件、useChat 编排与可插拔 transport   |
+| `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、公式、undo/redo、工具扩展） |
+| `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡               |
+| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                |
+| `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                    |
+| `packages/icons.md`        | `@veltra/icons`        | SVG 图标组件                                  |
+| `packages/utils.md`        | `@veltra/utils`        | 工具函数与共享类型                            |
+| `packages/vite.md`         | `@veltra/vite`         | Vite 按需解析器                               |
 
 ## 路由决策
 
-| 用户意图 | 先读 |
-| --- | --- |
+| 用户意图                                          | 先读                                                                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | **写表单 / UForm / 表单项 / 带 label 的输入控件** | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
-| 显式 `UFormItem`（多控件组合、自定义 label 插槽） | `packages/desktop/components/form-item/examples.md` |
-| 找/用某个 UI 组件 | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts` |
-| AI 对话 / 工具调用助手 | `packages/ai.md` → `ai/api.md` + `examples.md` |
-| 电子表格 / 单元格编辑 / 公式 / 表格工具栏扩展 | `packages/sheet.md` |
-| 安装 / 全局注册 / 按需样式 | `packages/desktop/installation.md`、`packages/vite.md` |
-| 主题色、暗色、CSS 变量 | `packages/styles/theme.md`、`packages/styles/tokens.md` |
-| SCSS BEM / mixins | `packages/styles/scss.md` |
-| 全局尺寸、表单回退、浮层、虚拟列表 | `packages/compositions.md` |
-| 波纹、点击外部、焦点指令 | `packages/directives.md` |
-| 图标名与导入路径 | `packages/icons.md` |
-| BEM、`fieldKey`、表单上下文类型 | `packages/utils.md` |
+| 显式 `UFormItem`（多控件组合、自定义 label 插槽） | `packages/desktop/components/form-item/examples.md`                                                         |
+| 找/用某个 UI 组件                                 | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts`                    |
+| AI 对话 / 工具调用助手                            | `packages/ai.md` → `ai/api.md` + `examples.md`                                                              |
+| 电子表格 / 单元格编辑 / 公式 / 表格工具栏扩展     | `packages/sheet.md`                                                                                         |
+| 安装 / 全局注册 / 按需样式                        | `packages/desktop/installation.md`、`packages/vite.md`                                                      |
+| 主题色、暗色、CSS 变量                            | `packages/styles/theme.md`、`packages/styles/tokens.md`                                                     |
+| SCSS BEM / mixins                                 | `packages/styles/scss.md`                                                                                   |
+| 全局尺寸、表单回退、浮层、虚拟列表                | `packages/compositions.md`                                                                                  |
+| 波纹、点击外部、焦点指令                          | `packages/directives.md`                                                                                    |
+| 图标名与导入路径                                  | `packages/icons.md`                                                                                         |
+| BEM、`fieldKey`、表单上下文类型                   | `packages/utils.md`                                                                                         |
 
 组件细节按需加载，不要把整份 desktop 文档预读进上下文。
 

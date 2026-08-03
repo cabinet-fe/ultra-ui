@@ -20,31 +20,31 @@ description: 为 JS/TS 项目选择并正确使用 @cat-kit/* 公开能力。在
 
 ## 版本
 
-| 包 | 版本 |
-| --- | --- |
-| `@cat-kit/core` | 1.1.8 |
-| `@cat-kit/http` | 1.1.8 |
-| `@cat-kit/crypto` | 1.0.0 |
-| `@cat-kit/fe` | 1.1.8 |
-| `@cat-kit/be` | 1.1.8 |
-| `@cat-kit/cli` | 1.0.6 |
-| `@cat-kit/agent-context` | 2.0.3 |
-| `@cat-kit/tsconfig` | 2.0.1 |
+| 包                         | 版本  |
+| -------------------------- | ----- |
+| `@cat-kit/core`            | 1.1.8 |
+| `@cat-kit/http`            | 1.1.8 |
+| `@cat-kit/crypto`          | 1.0.0 |
+| `@cat-kit/fe`              | 1.1.8 |
+| `@cat-kit/be`              | 1.1.8 |
+| `@cat-kit/cli`             | 1.0.6 |
+| `@cat-kit/agent-context`   | 2.0.3 |
+| `@cat-kit/tsconfig`        | 2.0.1 |
 | `@cat-kit/vitepress-theme` | 1.0.2 |
 
 ## 分包地图
 
-| 包 | 场景 |
-| --- | --- |
-| [core](packages/core/index.md) | 通用数据、日期、环境、树、执行控制（零依赖） |
-| [http](packages/http/index.md) | HTTP 客户端与插件 |
-| [crypto](packages/crypto/index.md) | 安全随机 ID / 字节 |
-| [fe](packages/fe/index.md) | 浏览器：虚拟列表、补间、文件、存储、剪贴板 |
-| [be](packages/be/index.md) | Node.js：FS、配置、日志、缓存、网络、系统、调度 |
-| [cli](packages/cli/index.md) | `cat-cli verify-commit` |
-| [agent-context](packages/agent-context/index.md) | Agent 协作 CLI 与协议 |
-| [tsconfig](packages/tsconfig/index.md) | TypeScript 预设 |
-| [vitepress-theme](packages/vitepress-theme/index.md) | VitePress 主题 |
+| 包                                                   | 场景                                            |
+| ---------------------------------------------------- | ----------------------------------------------- |
+| [core](packages/core/index.md)                       | 通用数据、日期、环境、树、执行控制（零依赖）    |
+| [http](packages/http/index.md)                       | HTTP 客户端与插件                               |
+| [crypto](packages/crypto/index.md)                   | 安全随机 ID / 字节                              |
+| [fe](packages/fe/index.md)                           | 浏览器：虚拟列表、补间、文件、存储、剪贴板      |
+| [be](packages/be/index.md)                           | Node.js：FS、配置、日志、缓存、网络、系统、调度 |
+| [cli](packages/cli/index.md)                         | `cat-cli verify-commit`                         |
+| [agent-context](packages/agent-context/index.md)     | Agent 协作 CLI 与协议                           |
+| [tsconfig](packages/tsconfig/index.md)               | TypeScript 预设                                 |
+| [vitepress-theme](packages/vitepress-theme/index.md) | VitePress 主题                                  |
 
 ## 路由决策
 

@@ -179,7 +179,10 @@ interface UseDnDOptions<T> extends VueParentConfig<T> {
 
 ```vue
 <script setup lang="ts">
-const list = ref([{ id: 1, label: 'A' }, { id: 2, label: 'B' }])
+const list = ref([
+  { id: 1, label: 'A' },
+  { id: 2, label: 'B' }
+])
 const { parentRef, values } = useDnD({
   values: list, // 排序结果直接写回 list
   plugins: [animations()], // 重导出的官方插件：animations / dropOrSwap / insert

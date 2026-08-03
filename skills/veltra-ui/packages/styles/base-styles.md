@@ -32,12 +32,12 @@ import '@veltra/styles/transitions/fade.scss'
 
 可用 name：
 
-| name                             | 用途         |
-| -------------------------------- | ------------ |
-| `fade`                           | 淡入淡出     |
+| name                             | 用途                       |
+| -------------------------------- | -------------------------- |
+| `fade`                           | 淡入淡出                   |
 | `fade-scale`                     | 淡入 + 缩放（Dialog 默认） |
-| `slide-down` / `slide-up`        | 垂直滑入     |
-| `spring`                         | 弹性缩放     |
-| `zoom-in`                        | 中心缩放     |
-| `zoom-in-left` / `zoom-in-right` | 水平方向缩放 |
-| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放 |
+| `slide-down` / `slide-up`        | 垂直滑入                   |
+| `spring`                         | 弹性缩放                   |
+| `zoom-in`                        | 中心缩放                   |
+| `zoom-in-left` / `zoom-in-right` | 水平方向缩放               |
+| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放               |

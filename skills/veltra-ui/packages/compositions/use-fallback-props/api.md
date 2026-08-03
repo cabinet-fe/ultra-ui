@@ -15,24 +15,16 @@ function useFallbackProps<F extends Record<string, any>>(
   fallbackProps: F
 ): { [K in keyof F]: ComputedRef<F[K]> }
 
-type FormFallbackProps = {
-  size: ComponentSize
-  disabled: boolean
-  readonly: boolean
-}
+type FormFallbackProps = { size: ComponentSize; disabled: boolean; readonly: boolean }
 
-function useFormFallbackProps(
-  propsList: Record<string, any>[]
-): { [K in keyof FormFallbackProps]: ComputedRef<FormFallbackProps[K]> }
+function useFormFallbackProps(propsList: Record<string, any>[]): {
+  [K in keyof FormFallbackProps]: ComputedRef<FormFallbackProps[K]>
+}
 
 function useFormFallbackProps<F extends Partial<FormFallbackProps>>(
   propsList: Record<string, any>[],
   fallbackProps: F
-): {
-  [K in keyof F]: K extends keyof FormFallbackProps
-    ? ComputedRef<FormFallbackProps[K]>
-    : never
-}
+): { [K in keyof F]: K extends keyof FormFallbackProps ? ComputedRef<FormFallbackProps[K]> : never }
 ```
 
 ## 说明

@@ -198,6 +198,17 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
     expect(sheet.history.undoSize).toBe(0)
     expect(sheet.canUndo).toBe(false)
   })
+
+  it('宽表导入：sheet.rows / sheet.cols ≥ 源表几何（含空行宽行）', async () => {
+    // 3 行 × 15 列（末行宽、中间空行）——列数须按 maxRowWidth，不能只看有值格
+    const wideRow = Array.from({ length: 15 }, (_, i) => (i === 14 ? '尾' : null))
+    xlsxMock.readXlsx.mockResolvedValue({ sheets: [{ name: 'Wide', rows: [['a'], [], wideRow] }] })
+    const workbook = await importXlsx(new Uint8Array())
+    const sheet = workbook.activeSheet
+    expect(sheet.rows).toBeGreaterThanOrEqual(3)
+    expect(sheet.cols).toBeGreaterThanOrEqual(15)
+    expect(sheet.getCellData({ row: 2, col: 14 })).toMatchObject({ v: '尾' })
+  })
 })
 
 describe('importCsv（写入既有活动表）', () => {
@@ -225,6 +236,14 @@ describe('importCsv（写入既有活动表）', () => {
     expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
     expect(sheet.getCellData({ row: 1, col: 2 })).toEqual({ v: 'old', t: 's' })
   })
+
+  it('宽 CSV：按解析行列扩张 sheet.rows / sheet.cols', () => {
+    csvMock.parseCsv.mockReturnValue([Array.from({ length: 20 }, (_, i) => `c${i}`), ['only']])
+    const sheet = new Sheet()
+    importCsv('', sheet)
+    expect(sheet.rows).toBeGreaterThanOrEqual(2)
+    expect(sheet.cols).toBeGreaterThanOrEqual(20)
+  })
 })
 
 describe('copySheetContent / replaceWorkbook', () => {
@@ -247,6 +266,9 @@ describe('copySheetContent / replaceWorkbook', () => {
     expect(target.frozen).toEqual({ rows: 1, cols: 0 })
     expect(target.getRowHeight(2)).toBe(40)
     expect(target.history.undoSize).toBe(2) // setCellValue('old') 1 条 + copySheetContent 事务 1 条
+    // 拷贝后目标渲染尺寸覆盖源表高水位（合并触及 C3 → colCount ≥ 3）
+    expect(target.rows).toBeGreaterThanOrEqual(Math.max(source.rows, source.rowCount))
+    expect(target.cols).toBeGreaterThanOrEqual(Math.max(source.cols, source.colCount))
 
     target.undo()
     expect(target.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old' })

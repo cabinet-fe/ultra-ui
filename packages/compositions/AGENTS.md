@@ -4,21 +4,21 @@ Vue 3 组合式函数集合，为组件库提供可复用的有状态逻辑。
 
 ## 组合式函数
 
-| 模块                  | 主要导出                                   | 用途                           |
-| --------------------- | ------------------------------------------ | ------------------------------ |
-| `use-component-props` | `useComponentProps`                        | 组件属性处理                   |
-| `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）             |
+| 模块                  | 主要导出                                   | 用途                                                        |
+| --------------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| `use-component-props` | `useComponentProps`                        | 组件属性处理                                                |
+| `use-config`          | `useConfig`, `setDocumentSize`             | 全局配置（尺寸等）                                          |
 | `use-dnd`             | `useDnD`（重导出 drag-and-drop 生态）      | 拖拽排序，排序/转移自动写回数据（`@formkit/drag-and-drop`） |
-| `use-drag`            | `useDrag`                                  | 拖拽                           |
-| `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退                   |
-| `use-focus`           | `useFocus`                                 | 焦点管理                       |
-| `use-user-action`     | `useUserAction`                            | 用户动作期阻断 model 回流      |
-| `use-model`           | `useModel`                                 | 双向绑定（local / proxy）      |
-| `use-pop`             | `usePop`                                   | 浮层定位（`@floating-ui/dom`） |
-| `use-reactive-size`   | `useReactiveSize`                          | 响应式尺寸                     |
-| `use-resize-observer` | `useResizeObserver`                        | ResizeObserver                 |
-| `use-transition`      | `useTransition`                            | 过渡动画                       |
-| `use-virtualizer`     | `useVirtualizer`                           | 虚拟滚动低阶层                 |
+| `use-drag`            | `useDrag`                                  | 拖拽                                                        |
+| `use-fallback-props`  | `useFallbackProps`, `useFormFallbackProps` | 多级属性回退                                                |
+| `use-focus`           | `useFocus`                                 | 焦点管理                                                    |
+| `use-user-action`     | `useUserAction`                            | 用户动作期阻断 model 回流                                   |
+| `use-model`           | `useModel`                                 | 双向绑定（local / proxy）                                   |
+| `use-pop`             | `usePop`                                   | 浮层定位（`@floating-ui/dom`）                              |
+| `use-reactive-size`   | `useReactiveSize`                          | 响应式尺寸                                                  |
+| `use-resize-observer` | `useResizeObserver`                        | ResizeObserver                                              |
+| `use-transition`      | `useTransition`                            | 过渡动画                                                    |
+| `use-virtualizer`     | `useVirtualizer`                           | 虚拟滚动低阶层                                              |
 
 ## useModel
 

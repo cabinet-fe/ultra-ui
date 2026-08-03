@@ -28,10 +28,7 @@ interface UsePopOptions {
   onPop?: (position: ComputePositionReturn) => void
 }
 
-function usePop(options: UsePopOptions): {
-  update: () => Promise<void>
-  popperContainerId: string
-}
+function usePop(options: UsePopOptions): { update: () => Promise<void>; popperContainerId: string }
 ```
 
 ## 说明

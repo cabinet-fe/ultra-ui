@@ -44,12 +44,7 @@ const suffix = '\n}'
 </script>
 
 <template>
-  <u-code-editor
-    v-model="body"
-    :langs="['js']"
-    :prefix="prefix"
-    :suffix="suffix"
-  />
+  <u-code-editor v-model="body" :langs="['js']" :prefix="prefix" :suffix="suffix" />
 </template>
 ```
 
@@ -80,7 +75,7 @@ console.log('hello')
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 
-const expr = shallowRef('#root.name == \'admin\' and T(Math).abs(-1) > 0')
+const expr = shallowRef("#root.name == 'admin' and T(Math).abs(-1) > 0")
 </script>
 
 <template>

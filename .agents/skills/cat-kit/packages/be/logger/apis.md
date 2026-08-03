@@ -10,11 +10,7 @@ declare enum LogLevel {
 
 declare class Logger {
   constructor(options?: LoggerOptions)
-  log(
-    level: LogLevel,
-    message: string,
-    meta?: Record<string, unknown>
-  ): Promise<void>
+  log(level: LogLevel, message: string, meta?: Record<string, unknown>): Promise<void>
   debug(message: string, meta?: Record<string, unknown>): Promise<void>
   info(message: string, meta?: Record<string, unknown>): Promise<void>
   warn(message: string, meta?: Record<string, unknown>): Promise<void>

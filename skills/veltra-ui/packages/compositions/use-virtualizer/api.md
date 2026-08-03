@@ -7,12 +7,7 @@
 ## 类型
 
 ```ts
-import type {
-  Virtualizer,
-  VirtualItem,
-  VirtualSnapshot,
-  VirtualizerOptions
-} from '@cat-kit/fe'
+import type { Virtualizer, VirtualItem, VirtualSnapshot, VirtualizerOptions } from '@cat-kit/fe'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 type MaybeEl = HTMLElement | null | undefined

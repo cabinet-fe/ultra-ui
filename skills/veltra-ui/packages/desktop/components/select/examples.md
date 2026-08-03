@@ -145,10 +145,6 @@ const dictOptions = [
 </script>
 
 <template>
-  <u-select
-    v-model="form.code"
-    :options="dictOptions"
-    @update:text="form.text = $event"
-  />
+  <u-select v-model="form.code" :options="dictOptions" @update:text="form.text = $event" />
 </template>
 ```

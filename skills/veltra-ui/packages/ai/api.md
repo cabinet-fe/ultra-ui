@@ -31,7 +31,7 @@ import { createOpenAITransport } from '@veltra/ai'
 ```ts
 import { createAskQuestionTool } from '@veltra/ai'
 
-const tools = [createAskQuestionTool(), /* ...其他工具 */]
+const tools = [createAskQuestionTool() /* ...其他工具 */]
 ```
 
 ### useChat

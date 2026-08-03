@@ -359,13 +359,61 @@
     display: flex;
     align-items: center;
     gap: 2px;
+    min-width: 0;
     padding: 2px fn.use-var(gap, small);
     border-top: 1px solid fn.use-var(border, muted-color);
     background-color: fn.use-var(bg-color, middle);
   }
 
+  @include m.e(tabs-nav) {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(color, primary);
+    }
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  // grow:0 使少量 tab 时「+」紧跟内容；shrink + min-width:0 溢出时收缩横滚
+  @include m.e(tabs-viewport) {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  @include m.e(tabs-list) {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 2px;
+    width: max-content;
+  }
+
   @include m.e(tab) {
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     padding: 4px 12px;
     border: none;
@@ -373,6 +421,7 @@
     background: transparent;
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
+    white-space: nowrap;
     cursor: pointer;
     user-select: none;
     transition:
@@ -402,6 +451,7 @@
 
   @include m.e(tab-add) {
     display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
     width: 24px;

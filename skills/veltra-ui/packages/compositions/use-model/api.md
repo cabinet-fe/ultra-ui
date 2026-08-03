@@ -21,10 +21,7 @@ interface ModelOptions<Props extends Record<string, unknown>, Name extends keyof
   shallow?: boolean
 }
 
-function useModel<
-  Props extends Record<string, any>,
-  Name extends keyof Props = 'modelValue'
->(
+function useModel<Props extends Record<string, any>, Name extends keyof Props = 'modelValue'>(
   options: ModelOptions<Props, Name>
 ): Ref<Props[Name] | undefined>
 ```

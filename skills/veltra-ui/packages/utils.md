@@ -31,17 +31,17 @@ import type {
 
 ## 共享类型
 
-| 类型                  | 含义                                                                        |
-| --------------------- | --------------------------------------------------------------------------- |
-| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                           |
-| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`                 |
-| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                      |
-| `ComponentProps`      | `{ size?: ComponentSize }`                                                  |
+| 类型                  | 含义                                                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ComponentSize`       | `'small' \| 'default' \| 'large'`                                                                                                                                      |
+| `ColorType`           | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`                                                                                                            |
+| `BreakpointName`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                                                                                                                 |
+| `ComponentProps`      | `{ size?: ComponentSize }`                                                                                                                                             |
 | `FormComponentProps`  | 继承 `ComponentProps`，增加 `label/field/tips/disabled/readonly/span/rules`。在 `UForm` 内必须提供 `field` 才会生成表单项并绑定 `model`；有 `field` 时不要再 `v-model` |
-| `FormContextProps`    | 见下方「表单上下文」                                                        |
-| `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                                |
-| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）                |
-| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）                  |
+| `FormContextProps`    | 见下方「表单上下文」                                                                                                                                                   |
+| `FormFieldItem`       | 字段注册项：`validate()`、`clearValidate?()`                                                                                                                           |
+| `DeconstructValue<E>` | 把 `_XxxExposed`（含 ShallowRef）解为 `XxxExposed`（值类型）                                                                                                           |
+| `RenderReturn`        | 渲染函数允许的返回类型联合（VNode / string / null / 数组）                                                                                                             |
 
 ### 表单上下文
 

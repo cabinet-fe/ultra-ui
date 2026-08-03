@@ -87,7 +87,7 @@ $track-size: (
     }
   }
 
-  @include m.size using($size) {
+  @include m.size using ($size) {
     $slider-size: map.get($slider-size, $size);
     $track-size: map.get($track-size, $size);
     $padding-y: math.div($slider-size - $track-size, 2);

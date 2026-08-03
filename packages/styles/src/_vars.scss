@@ -11,18 +11,11 @@ $sizes: (small, default, large);
 
 // 颜色类别
 $color-types: (
-  // 品牌色
   primary,
-  // 成功色
   success,
-  // 警告色
   warning,
-  // 危险色
   danger,
-  // 信息
   info,
-  // 禁用色
   disabled,
-  // 默认色
-  default
+  default // 品牌色 // 成功色 // 警告色 // 危险色 // 信息 // 禁用色 // 默认色
 );

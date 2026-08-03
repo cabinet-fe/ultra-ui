@@ -47,6 +47,7 @@ const model = reactive({ themeColor: '' })
   </u-form>
 </template>
 ```
+
 ## 带透明度的颜色
 
 ```vue

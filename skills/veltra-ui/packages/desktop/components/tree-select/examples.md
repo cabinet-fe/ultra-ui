@@ -102,10 +102,6 @@ const treeData = [
 </script>
 
 <template>
-  <u-tree-select
-    v-model="form.code"
-    :data="treeData"
-    @update:text="form.text = $event"
-  />
+  <u-tree-select v-model="form.code" :data="treeData" @update:text="form.text = $event" />
 </template>
 ```

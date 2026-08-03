@@ -7,10 +7,22 @@
 $root-name: notification;
 // 方位 => (垂直锚边, 水平锚边)
 $stack-positions: (
-  'bottom-right': (bottom, right),
-  'bottom-left': (bottom, left),
-  'top-right': (top, right),
-  'top-left': (top, left)
+  'bottom-right': (
+    bottom,
+    right
+  ),
+  'bottom-left': (
+    bottom,
+    left
+  ),
+  'top-right': (
+    top,
+    right
+  ),
+  'top-left': (
+    top,
+    left
+  )
 );
 
 @include m.b($root-name) {

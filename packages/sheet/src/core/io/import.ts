@@ -209,6 +209,12 @@ function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readon
       if (def?.height) target.setRowHeight(row, Math.round((def.height * 4) / 3))
     }
   }
+  // 按源表几何扩张渲染尺寸（空行/宽行也算进列数；不进 undo）
+  let maxRowWidth = 0
+  for (const row of source.rows) {
+    if (row) maxRowWidth = Math.max(maxRowWidth, row.length)
+  }
+  target.ensureTableSize(source.rows.length, maxRowWidth)
 }
 
 /** 唯一化 sheet 名（大小写不敏感；冲突追加序号） */
@@ -286,6 +292,12 @@ export function importCsv(text: string, sheet: Sheet): void {
     sheet.rollback()
     throw error
   }
+  // 按解析结果扩张渲染尺寸（空行/宽行也算进列数；不进 undo）
+  let maxCols = 0
+  for (const row of rows) {
+    if (row) maxCols = Math.max(maxCols, row.length)
+  }
+  sheet.ensureTableSize(rows.length, maxCols)
 }
 
 /**
@@ -355,4 +367,9 @@ export function copySheetContent(target: Sheet, source: Sheet): void {
   }
   target.setFrozen(source.frozen.rows, source.frozen.cols)
   for (const [row, height] of source.getRowHeights()) target.setRowHeight(row, height)
+  // 按源表声明尺寸与数据高水位扩张（不进 undo）
+  target.ensureTableSize(
+    Math.max(source.rows, source.rowCount),
+    Math.max(source.cols, source.colCount)
+  )
 }

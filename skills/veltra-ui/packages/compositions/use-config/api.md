@@ -17,10 +17,7 @@ interface State {
   paginator: { pageSize: number; pageSizeOptions: number[] }
 }
 
-function useConfig(): {
-  config: Readonly<State>
-  setConfig: (conf: Partial<State>) => void
-}
+function useConfig(): { config: Readonly<State>; setConfig: (conf: Partial<State>) => void }
 
 function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize): void
 ```

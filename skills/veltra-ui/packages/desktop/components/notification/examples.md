@@ -27,11 +27,7 @@ notification({
 ## 快捷方法
 
 ```ts
-notification.success('保存成功', {
-  title: 'Success',
-  position: 'bottom-right',
-  duration: 4500
-})
+notification.success('保存成功', { title: 'Success', position: 'bottom-right', duration: 4500 })
 
 notification.primary('主要通知')
 notification.info('一条信息')

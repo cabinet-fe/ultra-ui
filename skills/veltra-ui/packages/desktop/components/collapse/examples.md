@@ -101,8 +101,6 @@ const expanded = ref(false)
 </script>
 
 <template>
-  <u-collapse-item v-model="expanded" title="独立折叠项">
-    展开后的内容
-  </u-collapse-item>
+  <u-collapse-item v-model="expanded" title="独立折叠项"> 展开后的内容 </u-collapse-item>
 </template>
 ```

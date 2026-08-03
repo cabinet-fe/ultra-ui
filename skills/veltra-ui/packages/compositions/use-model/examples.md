@@ -26,11 +26,7 @@ const model = useModel({ props, emit, local: false })
 ```ts
 import { useModel } from '@veltra/compositions'
 
-const model = useModel({
-  props,
-  emit,
-  local: () => props.modelValue === undefined
-})
+const model = useModel({ props, emit, local: () => props.modelValue === undefined })
 ```
 
 ## 自定义 prop 名

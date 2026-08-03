@@ -30,11 +30,7 @@ const menus = shallowRef<NavItem[]>([
 </script>
 
 <template>
-  <u-dual-nav
-    :menus="menus"
-    :current-path="currentPath"
-    @item-click="currentPath = $event.path"
-  />
+  <u-dual-nav :menus="menus" :current-path="currentPath" @item-click="currentPath = $event.path" />
 </template>
 ```
 
@@ -81,11 +77,7 @@ const menus = shallowRef<DualNavRootItem[]>([
 import type { NavItem } from '@veltra/desktop'
 
 const menus: NavItem[] = [
-  {
-    title: '文档中心',
-    path: '/docs',
-    children: [{ title: '快速开始', path: '/docs/start' }]
-  },
+  { title: '文档中心', path: '/docs', children: [{ title: '快速开始', path: '/docs/start' }] },
   { title: '帮助', path: '/help' }
 ]
 </script>

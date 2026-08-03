@@ -62,10 +62,8 @@ messageConfirm.warning('配置尚未保存，确认离开？', { cancelButtonTex
 ## 使用 onClosed 等待结果
 
 ```ts
-const action = await messageConfirm({
-  message: '确定要提交吗？',
-  cancelButtonText: '取消'
-}).onClosed
+const action = await messageConfirm({ message: '确定要提交吗？', cancelButtonText: '取消' })
+  .onClosed
 
 if (action === 'confirm') {
   // 提交

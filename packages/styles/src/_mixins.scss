@@ -178,7 +178,7 @@ $namespace: 'u' !default;
 }
 
 @mixin lg {
-  @media screen and (min-width: breakpoint( md)) and (max-width: breakpoint(lg)) {
+  @media screen and (min-width: breakpoint(md)) and (max-width: breakpoint(lg)) {
     @content;
   }
 }

@@ -698,4 +698,118 @@ describe('插入数量面板', () => {
     await nextTick()
     expect(exposed.value!.getActiveSheet().rows).toBe(16) // 10 + 5 + 1
   })
+
+  it('少量 sheet：「+」在视口外且紧随 viewport（nav 隐藏，不占位）', async () => {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const tabsBar = el.querySelector<HTMLElement>('.u-sheet__tabs')!
+    const viewport = el.querySelector<HTMLElement>('.u-sheet__tabs-viewport')!
+    const addButton = el.querySelector<HTMLButtonElement>('.u-sheet__tab-add')!
+    const navButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tabs-nav')]
+
+    // 「+」仍是 tabs 直接子级，不在滚动 list 内
+    expect(tabsBar.contains(addButton)).toBe(true)
+    expect(viewport.contains(addButton)).toBe(false)
+    expect(el.querySelector('.u-sheet__tabs-list .u-sheet__tab-add')).toBeNull()
+
+    // 未溢出：nav 隐藏；DOM 顺序 viewport → next-nav →「+」，布局上「+」紧跟 tab 区
+    expect(navButtons).toHaveLength(2)
+    expect(navButtons[0]!.style.display).toBe('none')
+    expect(navButtons[1]!.style.display).toBe('none')
+    expect(viewport.nextElementSibling).toBe(navButtons[1]!)
+    expect(navButtons[1]!.nextElementSibling).toBe(addButton)
+  })
+
+  it('多 sheet 溢出：viewport 可横滚，nav 出现；next/prev 改变 scrollLeft；活动 tab 滚入视野', async () => {
+    const workbook = new Workbook()
+    for (let i = 2; i <= 16; i++) workbook.addSheet(`Sheet${i}`)
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const viewport = el.querySelector<HTMLElement>('.u-sheet__tabs-viewport')!
+    const list = el.querySelector<HTMLElement>('.u-sheet__tabs-list')!
+    expect(viewport).not.toBeNull()
+    expect(list).not.toBeNull()
+    expect(list.children.length).toBe(16)
+    // 「+」钉在视口外（tabs 直接子级，不在 list 内）
+    expect(el.querySelector('.u-sheet__tabs > .u-sheet__tab-add')).not.toBeNull()
+    expect(list.querySelector('.u-sheet__tab-add')).toBeNull()
+
+    // happy-dom 无真实布局：伪造溢出几何，触发导航显隐
+    let scrollLeft = 0
+    Object.defineProperty(viewport, 'clientWidth', { configurable: true, get: () => 100 })
+    Object.defineProperty(viewport, 'scrollWidth', { configurable: true, get: () => 800 })
+    Object.defineProperty(viewport, 'scrollLeft', {
+      configurable: true,
+      get: () => scrollLeft,
+      set: (value: number) => {
+        scrollLeft = value
+      }
+    })
+    viewport.scrollTo = ((options?: ScrollToOptions | number) => {
+      if (typeof options === 'number') {
+        scrollLeft = options
+      } else if (options && typeof options.left === 'number') {
+        scrollLeft = options.left
+      }
+      viewport.dispatchEvent(new Event('scroll'))
+    }) as typeof viewport.scrollTo
+    viewport.getBoundingClientRect = () =>
+      ({
+        left: 0,
+        right: 100,
+        top: 0,
+        bottom: 24,
+        width: 100,
+        height: 24,
+        x: 0,
+        y: 0,
+        toJSON: () => ({})
+      }) as DOMRect
+
+    viewport.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    expect(viewport.scrollWidth).toBeGreaterThan(viewport.clientWidth)
+    const navButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tabs-nav')]
+    expect(navButtons).toHaveLength(2)
+    // v-show：溢出时显示；初始 scrollLeft=0 → prev 禁用、next 可用
+    expect(navButtons[0]!.style.display).not.toBe('none')
+    expect(navButtons[1]!.style.display).not.toBe('none')
+    expect(navButtons[0]!.disabled).toBe(true)
+    expect(navButtons[1]!.disabled).toBe(false)
+
+    navButtons[1]!.click()
+    await nextTick()
+    expect(scrollLeft).toBeGreaterThan(0)
+    expect(navButtons[0]!.disabled).toBe(false)
+
+    const beforePrev = scrollLeft
+    navButtons[0]!.click()
+    await nextTick()
+    expect(scrollLeft).toBeLessThan(beforePrev)
+
+    // 切换到末尾 sheet：活动 tab 在视口右侧外 → ensureActiveVisible 滚入
+    const lastTab = tabs(el)[15]!
+    lastTab.getBoundingClientRect = () =>
+      ({
+        left: 700,
+        right: 780,
+        top: 0,
+        bottom: 24,
+        width: 80,
+        height: 24,
+        x: 700,
+        y: 0,
+        toJSON: () => ({})
+      }) as DOMRect
+    scrollLeft = 0
+    lastTab.click()
+    await nextTick()
+    await nextTick()
+    expect(workbook.activeSheet.name).toBe('Sheet16')
+    expect(scrollLeft).toBeGreaterThan(0)
+  })
 })

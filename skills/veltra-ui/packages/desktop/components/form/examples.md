@@ -72,12 +72,7 @@ const gradeList = [
 
 <template>
   <u-form :model="form" label-width="100px" :cols="1">
-    <u-textarea
-      label="审批意见"
-      field="opinion"
-      :rows="3"
-      placeholder="请输入审批意见"
-    />
+    <u-textarea label="审批意见" field="opinion" :rows="3" placeholder="请输入审批意见" />
     <u-checkbox label="常用意见" field="saveAsCommon">保存为常用意见</u-checkbox>
     <u-select
       label="办理人"

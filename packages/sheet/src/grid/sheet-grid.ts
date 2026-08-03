@@ -164,7 +164,9 @@ export class SheetGrid {
     // 否则 _rows 从 0 起步、插入点小于 props 时 max(props, sheet.rows) 恒取 props，
     // 数据平移但渲染窗口不扩大（表现为插入后行/列数不变）
     this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
-    // 渲染尺寸 = max(视图层 props, 模型表格尺寸)；模型 rows/cols 随行列插入/删除增长
+    // 数据高水位（导入/粘贴写入 store 后 rowCount/colCount 升高）也并入渲染尺寸
+    this.sheet.ensureTableSize(this.sheet.rowCount, this.sheet.colCount)
+    // 渲染尺寸 = max(视图层 props, 模型表格尺寸)；模型 rows/cols 随行列插入/删除/导入增长
     // （ensureTableSize 后 sheet.rows/cols ≥ props，max 恒取模型值，保留作兜底）
     this.rows = Math.max(options.rows ?? 100, this.sheet.rows)
     this.cols = Math.max(options.cols ?? 26, this.sheet.cols)
@@ -300,7 +302,8 @@ export class SheetGrid {
    * 模型选区 → VTable 高亮 + 滚动可见。
    * selectCells 自身会触发 SELECTED_CELL 事件（stateManager 同步派发），
    * 用 syncingSelection 拦截回写，避免 VTable ↔ 模型无限循环。
-   * 目标格已完整可见时不滚动（scrollToCell 会把目标滚到视口左/上缘，避免点击跳动）。
+   * 滚动目标优先 activeCell（整行/列头点击的视口边缘锚点），已完整可见时不滚动
+   * （scrollToCell 会把目标滚到视口左/上缘，避免点击跳动）。
    */
   private pushSelectionToTable(state: SelectionState): void {
     const range =
@@ -309,6 +312,8 @@ export class SheetGrid {
     if (!range) return
     const start = this.toTableCoord(this.table, range.start)
     const end = this.toTableCoord(this.table, range.end)
+    const scrollAddr = state.activeCell ?? range.start
+    const scrollTarget = this.toTableCoord(this.table, scrollAddr)
     // 结构变更（行列删除）后模型选区可能越界：钳制到当前渲染范围
     const clamp = (v: { col: number; row: number }): { col: number; row: number } => ({
       col: Math.min(Math.max(v.col, 1), this.cols),
@@ -316,6 +321,7 @@ export class SheetGrid {
     })
     const startClamped = clamp(start)
     const endClamped = clamp(end)
+    const scrollClamped = clamp(scrollTarget)
     // VTable 时序缺陷兜底：mouseup 事件流中 SELECTED_CELL 派发时 eventManager.isDraging
     // 尚未重置（window 级 pointerup 在后）。此时 selectCells 内部的 updateSelectPos 会走
     // 「拖拽扩展」分支：不清空旧选区（旧组件残留成孤儿 → 画布多区域高亮），且对反向
@@ -330,8 +336,8 @@ export class SheetGrid {
     try {
       this.clearSelectionOverlays()
       this.table.selectCells([{ start: startClamped, end: endClamped }])
-      if (!this.isCellVisible(startClamped.col, startClamped.row)) {
-        this.table.scrollToCell({ col: startClamped.col, row: startClamped.row })
+      if (!this.isCellVisible(scrollClamped.col, scrollClamped.row)) {
+        this.table.scrollToCell({ col: scrollClamped.col, row: scrollClamped.row })
       }
     } finally {
       // window 级 pointerup 稍后会把 isDraging 复位为 false；这里还原现场避免
@@ -511,23 +517,24 @@ export class SheetGrid {
     this.table.on(ListTable.EVENT_TYPE.SELECTED_CELL, (args) => {
       // 回驱期间的 SELECTED_CELL（selectCells 同步派发）不写回模型，防递归
       if (this.syncingSelection) return
-      const addr = this.toSheetAddr(this.table, args.col, args.row)
-      if (addr == null) return
       // 以 VTable 当前完整选区为准同步模型：拖选结束的 SELECTED_CELL 携带整个
-      // 区域，若只同步 args 单格会把拖选区域收缩成单格；单击时选区即单格，等价
+      // 区域，若只同步 args 单格会把拖选区域收缩成单格；单击时选区即单格，等价。
+      // 行号/列头选区的 start 落在 header（toSheetAddr 为 null），必须先读完整选区
+      // 再钳制，不能因 args 是 header 或 end 格而提前 return / selectCell(末格)。
       const range = this.readSelectedModelRange()
       if (range) {
-        this.sheet.selectRange(range)
+        this.sheet.selectRange(range, this.resolveSelectionActive(range))
         return
       }
-      this.sheet.selectCell(addr)
+      const addr = this.toSheetAddr(this.table, args.col, args.row)
+      if (addr) this.sheet.selectCell(addr)
     })
 
     // 拖选结束 → 选区同步为区域（合并等区域操作的前提）
     this.table.on(ListTable.EVENT_TYPE.DRAG_SELECT_END, () => {
       const range = this.readSelectedModelRange()
       if (!range) return
-      this.sheet.selectRange(range)
+      this.sheet.selectRange(range, this.resolveSelectionActive(range))
     })
 
     // 行高拖拽结束 → 写入模型稀疏表（不进 undo）
@@ -582,16 +589,65 @@ export class SheetGrid {
     })
   }
 
-  /** 当前 VTable 选区 → 规范化模型区域；无有效 body 选区返回 null。
-   *  取最后一个 range（用户最新操作）；多选区残留时回驱 selectCells 会收敛为单选 */
+  /**
+   * 当前 VTable 选区 → 规范化模型区域；无有效 body 选区返回 null。
+   * 取最后一个 range（用户最新操作）；多选区残留时回驱 selectCells 会收敛为单选。
+   *
+   * 行号列 / 列头上的角点钳制进 body：VTable 整行选区 start.col 常为行号列、
+   * 整列选区 start.row 常为列头，直接 toSheetAddr 会得到 null 并丢掉整段选区。
+   */
   private readSelectedModelRange(): CellRange | null {
     const ranges = this.table.getSelectedCellRanges()
     const range = ranges[ranges.length - 1]
     if (!range) return null
-    const start = this.toSheetAddr(this.table, range.start.col, range.start.row)
-    const end = this.toSheetAddr(this.table, range.end.col, range.end.row)
+    const { colOffset, rowOffset } = this.getOffsets(this.table)
+    const minCol = Math.min(range.start.col, range.end.col)
+    const maxCol = Math.max(range.start.col, range.end.col)
+    const minRow = Math.min(range.start.row, range.end.row)
+    const maxRow = Math.max(range.start.row, range.end.row)
+    const startCol = Math.max(minCol, colOffset)
+    const startRow = Math.max(minRow, rowOffset)
+    const endCol = Math.max(maxCol, colOffset)
+    const endRow = Math.max(maxRow, rowOffset)
+    const start = this.toSheetAddr(this.table, startCol, startRow)
+    const end = this.toSheetAddr(this.table, endCol, endRow)
     if (!start || !end) return null
     return createRange(start, end)
+  }
+
+  /**
+   * 整行 / 整列选区的活动格：取当前视口可见边缘（含部分可见），与 Excel 一致。
+   * 非整行/整列时返回 undefined，由 selectRange 回落区域起点。
+   */
+  private resolveSelectionActive(range: CellRange): CellAddress | undefined {
+    const spansAllCols = range.start.col === 0 && range.end.col >= this.cols - 1
+    const spansAllRows = range.start.row === 0 && range.end.row >= this.rows - 1
+    if (!spansAllCols && !spansAllRows) return undefined
+    return this.visibleEdgeInRange(range, spansAllCols, spansAllRows)
+  }
+
+  /** 视口左上可见边缘（模型坐标），钳制到选区内；冻结行/列恒视为从 0 可见 */
+  private visibleEdgeInRange(
+    range: CellRange,
+    useVisibleCol: boolean,
+    useVisibleRow: boolean
+  ): CellAddress {
+    const { colOffset, rowOffset } = this.getOffsets(this.table)
+    const visible = this.table.getBodyVisibleCellRange()
+    let leftCol = range.start.col
+    let topRow = range.start.row
+    if (visible) {
+      if (useVisibleCol) {
+        leftCol = this.sheet.frozen.cols > 0 ? 0 : Math.max(0, visible.colStart - colOffset)
+      }
+      if (useVisibleRow) {
+        topRow = this.sheet.frozen.rows > 0 ? 0 : Math.max(0, visible.rowStart - rowOffset)
+      }
+    }
+    return {
+      row: Math.min(Math.max(topRow, range.start.row), range.end.row),
+      col: Math.min(Math.max(leftCol, range.start.col), range.end.col)
+    }
   }
 
   private bindSheetEvents(): void {

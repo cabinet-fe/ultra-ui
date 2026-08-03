@@ -520,8 +520,8 @@ export class Sheet {
     this.selection.selectCell(addr)
   }
 
-  selectRange(range: CellRange): void {
-    this.selection.selectRange(range)
+  selectRange(range: CellRange, active?: CellAddress): void {
+    this.selection.selectRange(range, active)
   }
 
   // ─── 快照 ────────────────────────────────────────────────

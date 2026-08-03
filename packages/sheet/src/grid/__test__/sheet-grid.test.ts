@@ -327,4 +327,20 @@ describe('SheetGrid（happy-dom smoke）', () => {
       grid.release()
     }
   })
+
+  it('窄 props + 宽数据高水位：构造时列数扩到 store 覆盖列', () => {
+    const sheet = new Sheet()
+    // 写入第 15 列（0-based 14）→ colCount = 15；props.cols=6 不应卡住渲染
+    sheet.setCellValue({ row: 0, col: 14 }, 'far')
+    const grid = new SheetGrid({ container: createContainer(), sheet, rows: 10, cols: 6 })
+    try {
+      const table = grid.getTable()
+      // 列头：行号列 + A..O（15 列）→ 表格列索引 15 为 O
+      expect(table.getCellValue(15, 0)).toBe('O')
+      expect(table.getCellValue(15, 1)).toBe('far')
+      expect(sheet.cols).toBeGreaterThanOrEqual(15)
+    } finally {
+      grid.release()
+    }
+  })
 })

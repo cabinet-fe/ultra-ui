@@ -9,9 +9,7 @@
 ```ts
 import type { Ref, ShallowRef } from 'vue'
 
-type RefElement =
-  | ShallowRef<HTMLElement | undefined | null>
-  | Ref<HTMLElement | undefined | null>
+type RefElement = ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
 
 interface ResizeObserverOptions {
   targets: RefElement | RefElement[]
@@ -19,9 +17,7 @@ interface ResizeObserverOptions {
   when?: () => boolean
 }
 
-function useResizeObserver(options: ResizeObserverOptions): {
-  disconnect: () => void
-}
+function useResizeObserver(options: ResizeObserverOptions): { disconnect: () => void }
 
 function useObserverCallback(): {
   observeEl: <El extends HTMLElement>(

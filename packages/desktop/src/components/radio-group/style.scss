@@ -10,7 +10,7 @@
     margin: 0;
   }
 
-  @include m.size using($size) {
+  @include m.size using ($size) {
     gap: 0 calc(fn.use-var(gap, $size) * 2);
   }
 

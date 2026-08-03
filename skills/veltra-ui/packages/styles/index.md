@@ -11,11 +11,11 @@ UI共享样式包：主题运行时、SCSS BEM 工具、基础样式、Design To
 
 ## 包导出路径
 
-| 子路径                         | 用途                         |
-| ------------------------------ | ---------------------------- |
+| 子路径                         | 用途                           |
+| ------------------------------ | ------------------------------ |
 | `@veltra/styles/theme`         | 主题运行时、预设主题与工具函数 |
-| `@veltra/styles/normalize`     | 全局 reset，入口导入一次     |
-| `@veltra/styles/transitions`   | Vue `<Transition>` name 样式 |
-| `pkg:@veltra/styles/mixins`    | SCSS BEM mixins              |
-| `pkg:@veltra/styles/functions` | SCSS CSS 变量函数            |
-| `pkg:@veltra/styles/vars`      | SCSS 变量                    |
+| `@veltra/styles/normalize`     | 全局 reset，入口导入一次       |
+| `@veltra/styles/transitions`   | Vue `<Transition>` name 样式   |
+| `pkg:@veltra/styles/mixins`    | SCSS BEM mixins                |
+| `pkg:@veltra/styles/functions` | SCSS CSS 变量函数              |
+| `pkg:@veltra/styles/vars`      | SCSS 变量                      |

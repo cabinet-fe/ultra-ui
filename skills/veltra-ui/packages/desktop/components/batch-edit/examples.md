@@ -151,12 +151,7 @@ async function deleteMethod(rows: Record<string, any>[]) {
 </script>
 
 <template>
-  <u-batch-edit
-    v-model:data="data"
-    :columns="columns"
-    :model="model"
-    :delete-method="deleteMethod"
-  >
+  <u-batch-edit v-model:data="data" :columns="columns" :model="model" :delete-method="deleteMethod">
     <template #form>
       <u-input field="name" label="姓名" />
     </template>

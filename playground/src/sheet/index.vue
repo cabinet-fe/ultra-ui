@@ -6,7 +6,7 @@
       单元格右下角拖填充柄可复制/数字序列/公式相对引用；行边界可拖行高。快捷键：Ctrl/Cmd+Z 撤销，
       Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。
     </div>
-    <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" :cols="10" class="sheet-demo__sheet" />
+    <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" class="sheet-demo__sheet" />
   </div>
 </template>
 

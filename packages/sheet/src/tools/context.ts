@@ -30,7 +30,7 @@ export interface SheetContext {
   getSelection(): SelectionState
   /** 选中单格（被覆盖格自动定位锚点） */
   selectCell(addr: CellAddress): void
-  selectRange(range: CellRange): void
+  selectRange(range: CellRange, active?: CellAddress): void
 
   // ─── 读取 ────────────────────────────────────────────────
   /** 原始存储语义读取（被合并覆盖格 → undefined） */
@@ -110,7 +110,7 @@ export function createSheetContext(
 
     getSelection: () => sheet().getSelection(),
     selectCell: (addr) => sheet().selectCell(addr),
-    selectRange: (range) => sheet().selectRange(range),
+    selectRange: (range, active) => sheet().selectRange(range, active),
 
     getCellData: (addr) => sheet().getCellData(addr),
     getDisplayValue: (addr) => sheet().getDisplayValue(addr),
