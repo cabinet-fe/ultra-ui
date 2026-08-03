@@ -182,7 +182,7 @@ describe('跨表引用', () => {
     expect(sheet1.getCellData(A1)).toMatchObject({ v: 13 })
   })
 
-  it('删除被引用的 sheet：缓存仍旧值，下次重算 → #REF!（已知限制行为）', () => {
+  it('删除被引用的 sheet：引用方立即重算为 #REF!（Phase 3 联动）', () => {
     const workbook = new Workbook()
     const sheet1 = workbook.activeSheet
     const sheet2 = workbook.addSheet('Sheet2')
@@ -193,10 +193,7 @@ describe('跨表引用', () => {
 
     workbook.removeSheet('Sheet2')
     expect(workbook.formulaGraph.getSheet('Sheet2')).toBeUndefined()
-    // 删除本身不触发重算（已知限制）：缓存仍旧值
-    expect(sheet1.getCellData(B1)).toMatchObject({ v: 11 })
-    // 任意触发源变更 → 重算时表已不存在 → #REF!
-    sheet1.setCellValue(D1, 2)
+    // 删除即触发引用方重算 → 立即 #REF!
     expect(sheet1.getCellData(B1)).toMatchObject({ v: '#REF!', t: 'e' })
   })
 })

@@ -1,15 +1,25 @@
 import type { CellAddress, CellRange } from './address'
-import { inferCellType, CellStore, type CellData, type CellValue } from './cell-store'
+import { iterateRange } from './address'
+import {
+  inferCellType,
+  CellStore,
+  type CellData,
+  type CellSnapshotItem,
+  type CellValue
+} from './cell-store'
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
 import { MergeCellsCommand, UnmergeCellsCommand } from './command/merge-cells'
 import { SetCellFormulaCommand } from './command/set-cell-formula'
+import { SetCellStyleCommand, type SetCellStyleItem } from './command/set-cell-style'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
-import type { Mutation, Patch, PatchDirection } from './command/types'
+import type { Mutation, Patch, PatchDirection, CellPatch } from './command/types'
 import { TypedEventEmitter } from './events'
 import { DependencyGraph } from './formula/dependency-graph'
 import { MergeManager, type CellInfo } from './merge-manager'
 import { SelectionModel, type SelectionState } from './selection'
+import { StylePool } from './style/style-pool'
+import type { CellStyle, CellStylePatch } from './style/types'
 
 /**
  * Sheet = cell-store + merge-manager + selection + history 的组合，统一操作入口。
@@ -24,6 +34,20 @@ import { SelectionModel, type SelectionState } from './selection'
  *   重算派生变更（含跨表）并入同一 undo 单元
  */
 
+/** 冻结状态（Excel 语义：rows = 冻结顶部行数，cols = 冻结左侧列数） */
+export interface FrozenState {
+  rows: number
+  cols: number
+}
+
+/** Sheet 全量快照（宿主序列化持久化用；frozen 随快照保存/还原） */
+export interface SheetSnapshot {
+  cells: CellSnapshotItem[]
+  styles: CellStyle[]
+  merges: CellRange[]
+  frozen: FrozenState
+}
+
 export type SheetEvents = {
   /** 单元格数据变化（含删除） */
   'cell-change': { addr: CellAddress }
@@ -33,6 +57,8 @@ export type SheetEvents = {
   'selection-change': SelectionState
   /** 历史栈变化（undo/redo 可用状态，供工具栏按钮置灰） */
   'history-change': HistoryState
+  /** 冻结状态变化（不进 undo；grid 层据此更新冻结布局） */
+  'frozen-change': FrozenState
 }
 
 export class Sheet {
@@ -43,18 +69,23 @@ export class Sheet {
   readonly history: HistoryManager
   /** 公式依赖图（工作簿内多 sheet 共享；独立 Sheet 自建） */
   readonly formulaGraph: DependencyGraph
+  /** 样式池：样式定义集中存储，单元格只持 StyleId（相同样式共享一份定义） */
+  readonly stylePool = new StylePool()
   /**
    * 稀疏行高（模型行号 → 像素高度）。
    * 供 SheetGrid 在 tab 切换重建时还原；本期不进 undo。
    */
   private readonly rowHeights = new Map<number, number>()
+  /** 冻结状态（模型持有；不进 undo，随快照序列化/还原，grid 重建时还原） */
+  private frozenState: FrozenState = { rows: 0, cols: 0 }
 
-  name: string
+  /** sheet 名（受控：只读 getter，改名必须经 Workbook.renameSheet 校验后调用 setName） */
+  private _name: string
 
   private emitter = new TypedEventEmitter<SheetEvents>()
 
   constructor(name = 'Sheet1', formulaGraph?: DependencyGraph) {
-    this.name = name
+    this._name = name
     this.selection = new SelectionModel((addr) => this.merges.resolveAnchor(addr))
     this.selection.on((state) => this.emitter.emit('selection-change', state))
     this.history = new HistoryManager(this.boundApplyPatch)
@@ -65,6 +96,20 @@ export class Sheet {
 
   get rowCount(): number {
     return this.store.rowCount
+  }
+
+  /** sheet 名（只读；改名必须经 Workbook.renameSheet，直接赋值被类型系统拒绝） */
+  get name(): string {
+    return this._name
+  }
+
+  /**
+   * 改名（仅供 Workbook.renameSheet 调用——重名/空名校验与依赖图索引同步由 Workbook 编排；
+   * 业务代码不得直接调用，请使用 Workbook.renameSheet）。
+   * @internal
+   */
+  setName(next: string): void {
+    this._name = next
   }
 
   get colCount(): number {
@@ -89,6 +134,28 @@ export class Sheet {
   /** 遍历已设置的自定义行高（SheetGrid 重建还原用） */
   getRowHeights(): ReadonlyMap<number, number> {
     return this.rowHeights
+  }
+
+  // ─── 冻结 ────────────────────────────────────────────────
+
+  /** 读取冻结状态（返回副本，外部修改不影响模型） */
+  get frozen(): FrozenState {
+    return { rows: this.frozenState.rows, cols: this.frozenState.cols }
+  }
+
+  /**
+   * 设置冻结行列数（Excel 语义：rows = 冻结顶部行数，cols = 冻结左侧列数）。
+   * 值规范化到非负整数；与当前值相同不触发事件。
+   * 不进 undo（同 rowHeights 先例），随快照序列化/还原。
+   */
+  setFrozen(rows: number, cols: number): void {
+    const next: FrozenState = {
+      rows: Number.isFinite(rows) && rows > 0 ? Math.floor(rows) : 0,
+      cols: Number.isFinite(cols) && cols > 0 ? Math.floor(cols) : 0
+    }
+    if (next.rows === this.frozenState.rows && next.cols === this.frozenState.cols) return
+    this.frozenState = next
+    this.emitter.emit('frozen-change', { ...next })
   }
 
   // ─── 单元格数据 ────────────────────────────────────────────
@@ -135,6 +202,37 @@ export class Sheet {
   /** 批量写入（一次调用 = 一个 undo 单元，供粘贴/填充复用） */
   setCells(items: SetCellValueItem[]): void {
     this.executeCommand(SetCellValueCommand.id, { items })
+  }
+
+  // ─── 样式 ────────────────────────────────────────────────
+
+  /**
+   * 设置区域样式（部分合并语义：只给 fill 保留既有 border，反之亦然；
+   * 见 CellStylePatch）。空样式 = 删除 s 字段（不破坏空单元格不占存储原则）。
+   * 样式只存锚点格（被覆盖格不占数据位）。
+   */
+  setCellStyle(range: CellRange, partial: CellStylePatch): void {
+    const items: SetCellStyleItem[] = []
+    for (const addr of iterateRange(range)) items.push({ addr, partial })
+    this.executeCommand(SetCellStyleCommand.id, { items })
+  }
+
+  /** 批量设置样式（按格不同 partial / clear；一次调用 = 一个 undo 单元） */
+  setCellStyles(items: SetCellStyleItem[]): void {
+    this.executeCommand(SetCellStyleCommand.id, { items })
+  }
+
+  /** 清除区域样式（保留值 / 公式；纯样式格被整体删除） */
+  clearCellStyle(range: CellRange): void {
+    const items: SetCellStyleItem[] = []
+    for (const addr of iterateRange(range)) items.push({ addr, clear: true })
+    this.executeCommand(SetCellStyleCommand.id, { items })
+  }
+
+  /** 读取单元格样式（原始存储语义：被覆盖格 → undefined） */
+  getCellStyle(addr: CellAddress): CellStyle | undefined {
+    const data = this.store.getCell(addr)
+    return data?.s != null ? this.stylePool.get(data.s) : undefined
   }
 
   // ─── 合并 ────────────────────────────────────────────────
@@ -209,6 +307,15 @@ export class Sheet {
     return this.history.canRedo
   }
 
+  /**
+   * 应用依赖图重算的派生补丁（删除 sheet 联动等不入 undo 的场景）。
+   * 与 recalcAfterCommand 走同一变更通道（boundApplyPatch）；不推入历史。
+   * @internal
+   */
+  applyDerivedPatches(patches: CellPatch[]): void {
+    for (const patch of patches) this.boundApplyPatch(patch, 'redo')
+  }
+
   // ─── 选区 ────────────────────────────────────────────────
 
   getSelection(): SelectionState {
@@ -222,6 +329,30 @@ export class Sheet {
 
   selectRange(range: CellRange): void {
     this.selection.selectRange(range)
+  }
+
+  // ─── 快照 ────────────────────────────────────────────────
+
+  /** 全量快照：单元格 + 样式池 + 合并 + 冻结状态（宿主序列化持久化用） */
+  snapshot(): SheetSnapshot {
+    return {
+      cells: this.store.snapshot(),
+      styles: this.stylePool.snapshot(),
+      merges: this.merges.getMerges(),
+      frozen: this.frozen
+    }
+  }
+
+  /**
+   * 从快照还原。单元格 / 样式 / 合并静默恢复（与 cell-store.restore 先例一致，不发事件）；
+   * 冻结状态变化时发 frozen-change（grid 层据此更新冻结布局）。
+   */
+  restore(snapshot: SheetSnapshot): void {
+    this.store.restore(snapshot.cells)
+    this.stylePool.restore(snapshot.styles)
+    this.merges.clear()
+    for (const range of snapshot.merges) this.merges.addMerge(range)
+    this.setFrozen(snapshot.frozen.rows, snapshot.frozen.cols)
   }
 
   // ─── 事件 ────────────────────────────────────────────────
@@ -271,7 +402,16 @@ export class Sheet {
     const changed: { sheet: Sheet; addr: CellAddress }[] = []
     for (const mutation of mutations) {
       for (const patch of mutation.redo) {
-        if (patch.kind === 'cell') changed.push({ sheet: patch.sheet ?? this, addr: patch.addr })
+        if (patch.kind !== 'cell') continue
+        // 仅样式变化的补丁（v/t/f 相同）不触发公式重算——样式与公式值无关
+        if (
+          patch.before?.v === patch.after?.v &&
+          patch.before?.t === patch.after?.t &&
+          patch.before?.f === patch.after?.f
+        ) {
+          continue
+        }
+        changed.push({ sheet: patch.sheet ?? this, addr: patch.addr })
       }
     }
     const derived = this.formulaGraph.recalc(changed)

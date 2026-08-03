@@ -21,7 +21,9 @@ export const SetCellFormulaCommand: Command<SetCellFormulaParams> = {
     const before = ctx.sheet.store.getCell(anchor)
     // 同公式重复输入 = 无实际变更，不入历史
     if (before?.f === params.formula) return { mutations: [] }
-    const after: CellData = { f: params.formula }
+    // 只写公式原文（f）；v/t 由重算派生补丁填充；既有样式保留
+    const after: CellData =
+      before?.s != null ? { f: params.formula, s: before.s } : { f: params.formula }
     const patch: CellPatch = { kind: 'cell', addr: anchor, before, after }
     ctx.applyPatch(patch, 'redo')
     return { mutations: [{ redo: [patch], undo: [patch] }] }

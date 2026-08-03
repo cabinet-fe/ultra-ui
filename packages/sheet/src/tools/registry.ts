@@ -12,6 +12,9 @@ import type { SheetContext } from './context'
  *   （与 defaultCommandRegistry 同语义；每个实例的 SheetContext 各自绑定当前 sheet）
  */
 
+/** 弹层型工具类型：vue 层按类型渲染弹层面板（面板交互走 SheetContext 命令入口） */
+export type SheetToolPopupType = 'fill-color' | 'border' | 'find' | 'import'
+
 /** 工具定义 */
 export interface SheetTool {
   /** 唯一 id；同 id 重复注册视为替换（保留原位置） */
@@ -30,6 +33,10 @@ export interface SheetTool {
   visible?(ctx: SheetContext): boolean
   /** 是否禁用（工具栏状态刷新时求值）；缺省可用 */
   disabled?(ctx: SheetContext): boolean
+  /** 是否处于激活/高亮状态（工具栏状态刷新时求值，vue 层渲染 is-active）；缺省 false */
+  active?(ctx: SheetContext): boolean
+  /** 弹层型工具：vue 层渲染弹层面板，onClick 不执行（面板交互走 SheetContext） */
+  popup?: SheetToolPopupType
   /** 点击执行；ctx 是唯一操作入口（写操作全走命令系统，天然可撤销） */
   onClick(ctx: SheetContext): void
 }

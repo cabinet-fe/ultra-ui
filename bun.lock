@@ -10,7 +10,7 @@
         "@changesets/cli": "^2.31.1",
         "@tsdown/css": "0.22.13",
         "@types/bun": "^1.3.14",
-        "@types/node": "^26.1.1",
+        "@types/node": "^26.1.2",
         "@vitejs/plugin-vue": "^6.0.8",
         "@vitejs/plugin-vue-jsx": "^5.1.6",
         "happy-dom": "^20.11.1",
@@ -22,7 +22,7 @@
         "unplugin-vue-jsx": "^0.10.0",
         "vite-plus": "0.2.5",
         "vue": "^3.5.40",
-        "vue-tsc": "^3.3.8",
+        "vue-tsc": "^3.3.9",
       },
     },
     "packages/ai": {
@@ -139,6 +139,7 @@
       "dependencies": {
         "@visactor/vtable": "^1.26.5",
         "@visactor/vtable-editors": "^1.26.5",
+        "hucre": "^0.6.2",
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
@@ -1083,6 +1084,8 @@
     "has-flag": ["has-flag@4.0.0", "https://mirrors.tencent.com/npm/has-flag/-/has-flag-4.0.0.tgz", {}, "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ=="],
 
     "hookable": ["hookable@6.1.1", "https://mirrors.tencent.com/npm/hookable/-/hookable-6.1.1.tgz", {}, "sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ=="],
+
+    "hucre": ["hucre@0.6.2", "https://registry.npmmirror.com/hucre/-/hucre-0.6.2.tgz", { "bin": { "hucre": "./dist/cli.mjs" } }, "sha512-o1PqTiKfx37tFmiiPElwpEfFvlXcXn5CEgDbt1uYk1bVvzDNEIAIKnxrKhfcHLZx6jc5PdofOy8PuwJcIZsqUg=="],
 
     "human-id": ["human-id@4.2.0", "https://mirrors.tencent.com/npm/human-id/-/human-id-4.2.0.tgz", { "bin": { "human-id": "dist/cli.js" } }, "sha512-K3GbkIWqyvvlpfhBPlbEvD97TtqBpAYA4kt+cn2lD2x2HuohzZCibcA2nOlnJT6exqvJLggoB5nv2dNf192nEA=="],
 

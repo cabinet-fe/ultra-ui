@@ -1,4 +1,5 @@
 import type { CellAddress, CellRange } from './address'
+import type { StyleId } from './style/types'
 
 /**
  * 稀疏矩阵存储：`Map<row, Map<col, CellData>>`。
@@ -20,7 +21,8 @@ export interface CellData {
   t?: CellType
   /** 公式文本（不含 '='），如 'SUM(A1:B2)+Sheet2!C3' */
   f?: string
-  // s?: StyleId —— 预留样式位，本期不实现
+  /** 样式池引用（样式定义集中存储在 StylePool，相同样式共享同一 id） */
+  s?: StyleId
 }
 
 /** 序列化条目（snapshot/restore 用） */
@@ -43,18 +45,19 @@ export function inferCellType(v: CellValue): CellType | undefined {
   }
 }
 
-/** 判定为空：无公式且值为 null/undefined/'' */
+/** 判定为空：无公式、无样式且值为 null/undefined/''（只有样式的格不算空） */
 export function isEmptyCellData(data: CellData | undefined): boolean {
   if (!data) return true
+  if (data.s != null) return false
   if (data.f != null && data.f !== '') return false
   return data.v == null || data.v === ''
 }
 
-/** CellData 相等（v/t/f 三字段逐一比较；命令系统据此跳过无实际变更的补丁） */
+/** CellData 相等（v/t/f/s 四字段逐一比较；命令系统据此跳过无实际变更的补丁） */
 export function cellDataEqual(a: CellData | undefined, b: CellData | undefined): boolean {
   if (a === b) return true
   if (!a || !b) return false
-  return a.v === b.v && a.t === b.t && a.f === b.f
+  return a.v === b.v && a.t === b.t && a.f === b.f && a.s === b.s
 }
 
 export class CellStore {

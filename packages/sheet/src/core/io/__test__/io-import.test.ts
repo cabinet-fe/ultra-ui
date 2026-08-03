@@ -1,0 +1,282 @@
+import type { Workbook as HucreWorkbook } from 'hucre'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { parseRange } from '../../address'
+import { Sheet } from '../../sheet'
+import { Workbook } from '../../workbook'
+import {
+  copySheetContent,
+  dateToSerial1900,
+  hucreStyleToModel,
+  importCsv,
+  importXlsx,
+  replaceWorkbook
+} from '../import'
+
+/**
+ * 导入映射测试：hucre 读取结果（mock）→ 模型正确性。
+ * 真实 XLSX 字节的 round-trip 见 io-roundtrip.test.ts。
+ */
+
+const xlsxMock = vi.hoisted(() => ({ readXlsx: vi.fn() }))
+const csvMock = vi.hoisted(() => ({ parseCsv: vi.fn() }))
+vi.mock('hucre/xlsx', () => ({ readXlsx: xlsxMock.readXlsx }))
+vi.mock('hucre/csv', () => ({ parseCsv: csvMock.parseCsv }))
+
+beforeEach(() => {
+  xlsxMock.readXlsx.mockReset()
+  csvMock.parseCsv.mockReset()
+})
+
+/** 构造 hucre 形态的 Workbook（值 / 公式 / 样式 / 合并 / 冻结 / 行高 / 主题色） */
+function hucreWorkbook(): HucreWorkbook {
+  return {
+    sheets: [
+      {
+        name: '数据表',
+        rows: [
+          [1, 'x', null],
+          [null, null, null]
+        ],
+        cells: new Map([
+          // 普通格带样式（两格同样式 → 池中一份，见「样式池去重」断言）
+          [
+            '0,0',
+            {
+              value: 1,
+              type: 'number',
+              style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FF0000' } } }
+            }
+          ],
+          // 合并区域外的同样式格（纯样式格：值 null 仅样式）→ intern 去重
+          [
+            '1,2',
+            {
+              value: null,
+              type: 'empty',
+              style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FF0000' } } }
+            }
+          ],
+          // 公式格（缓存 84 会被本地引擎重算覆盖为 2）
+          ['0,2', { value: 84, type: 'number', formula: 'A1*2', formulaResult: 84 }],
+          // theme 色边框（themeColors[1] = #FF0000）
+          [
+            '0,1',
+            {
+              value: 'x',
+              type: 'string',
+              style: { border: { top: { style: 'thin', color: { theme: 1 } } } }
+            }
+          ]
+        ]),
+        merges: [{ startRow: 0, startCol: 1, endRow: 1, endCol: 1 }],
+        freezePane: { rows: 1, columns: 1 },
+        rowDefs: new Map([[0, { height: 21 }]])
+      },
+      { name: 'Sheet2', rows: [['b']] }
+    ],
+    activeSheet: 1,
+    themeColors: ['#FFFFFF', '#FF0000']
+  }
+}
+
+describe('hucreStyleToModel / dateToSerial1900', () => {
+  it('fill（solid fgColor / 渐变首色）与 border（线型收敛、theme 色解析、缺省黑）', () => {
+    expect(
+      hucreStyleToModel({ fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FF0000' } } })
+    ).toEqual({ fill: { color: '#FF0000' } })
+    // 条纹 pattern 取 fgColor；none/gray125 无视觉 → 忽略
+    expect(
+      hucreStyleToModel({
+        fill: { type: 'pattern', pattern: 'darkDown', fgColor: { rgb: '00FF00' } }
+      })
+    ).toEqual({ fill: { color: '#00FF00' } })
+    expect(
+      hucreStyleToModel({ fill: { type: 'pattern', pattern: 'none', fgColor: { rgb: '000000' } } })
+    ).toBeUndefined()
+    // 渐变取首色
+    expect(
+      hucreStyleToModel({
+        fill: {
+          type: 'gradient',
+          stops: [
+            { position: 0, color: { rgb: '112233' } },
+            { position: 1, color: { rgb: 'FFFFFF' } }
+          ]
+        }
+      })
+    ).toEqual({ fill: { color: '#112233' } })
+    // border：theme 色经调色板解析；无颜色缺省黑；线型收敛
+    expect(
+      hucreStyleToModel(
+        {
+          border: {
+            top: { style: 'thin', color: { theme: 1 } },
+            bottom: { style: 'double', color: { rgb: '0000FF' } },
+            left: { style: 'hair' }
+          }
+        },
+        ['#FFFFFF', '#FF0000']
+      )
+    ).toEqual({
+      border: {
+        top: { style: 'thin', width: 1, color: '#FF0000' },
+        bottom: { style: 'medium', width: 2, color: '#0000FF' },
+        left: { style: 'thin', width: 1, color: '#000000' }
+      }
+    })
+  })
+
+  it('dateToSerial1900：Date（UTC）→ 1900 系统序列数（含伪闰日修正）', () => {
+    expect(dateToSerial1900(new Date('1900-01-01T00:00:00Z'))).toBe(1)
+    expect(dateToSerial1900(new Date('1900-02-28T00:00:00Z'))).toBe(59)
+    expect(dateToSerial1900(new Date('1900-03-01T00:00:00Z'))).toBe(61)
+    expect(dateToSerial1900(new Date('2021-01-01T00:00:00Z'))).toBe(44197)
+  })
+})
+
+describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
+  it('建表 / 值 / 公式（本地重算）/ 合并 / 样式池去重 / theme 色 / 冻结 / 行高 / 活动表', async () => {
+    xlsxMock.readXlsx.mockResolvedValue(hucreWorkbook())
+    const workbook = await importXlsx(new Uint8Array())
+
+    // 多 sheet + 名称 + 活动表
+    expect(workbook.sheetCount).toBe(2)
+    expect(workbook.getSheets()[0]!.name).toBe('数据表')
+    expect(workbook.getSheets()[1]!.name).toBe('Sheet2')
+    expect(workbook.activeSheet.name).toBe('Sheet2')
+
+    const s1 = workbook.getSheet('数据表')!
+    // 值
+    expect(s1.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 1, t: 'n' })
+    expect(s1.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'x', t: 's' })
+    // 公式：原文 + 本地引擎计算缓存（Excel 缓存 84 被重算为 2）
+    expect(s1.getCellData({ row: 0, col: 2 })).toMatchObject({ f: 'A1*2', v: 2, t: 'n' })
+    // 合并（覆盖格 B2 被跳过写入）
+    expect(s1.getCellInfo({ row: 1, col: 1 }).kind).toBe('merged-covered')
+    expect(s1.getCellData({ row: 1, col: 1 })).toBeUndefined()
+    // 样式池去重：两格同样式 → 只 intern 一份（同一 id）
+    expect(s1.stylePool.size).toBe(2) // fill 红 + theme 边框
+    expect(s1.getCellStyle({ row: 0, col: 0 })).toEqual({ fill: { color: '#FF0000' } })
+    expect(s1.getCellData({ row: 0, col: 0 })!.s).toBe(s1.getCellData({ row: 1, col: 2 })!.s)
+    expect(s1.getCellStyle({ row: 0, col: 1 })).toEqual({
+      border: { top: { style: 'thin', width: 1, color: '#FF0000' } }
+    })
+    // 冻结 / 行高（21pt → 28px）
+    expect(s1.frozen).toEqual({ rows: 1, cols: 1 })
+    expect(s1.getRowHeight(0)).toBe(28)
+
+    // Sheet2
+    expect(workbook.getSheet('Sheet2')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b' })
+  })
+
+  it('导入为单 undo 单元；undo 恢复导入前状态（空表）', async () => {
+    xlsxMock.readXlsx.mockResolvedValue(hucreWorkbook())
+    const workbook = await importXlsx(new Uint8Array())
+    const s1 = workbook.getSheet('数据表')!
+
+    // 清空 + 写入 + 合并 全部合并为一个事务
+    expect(s1.history.undoSize).toBe(1)
+
+    expect(s1.undo()).toBe(true)
+    expect(s1.store.size).toBe(0)
+    expect(s1.merges.size).toBe(0)
+    // 冻结与行高是模型状态，不进 undo（同 rowHeights 先例）
+    expect(s1.frozen).toEqual({ rows: 1, cols: 1 })
+    expect(s1.getRowHeight(0)).toBe(28)
+
+    expect(s1.redo()).toBe(true)
+    expect(s1.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 1 })
+    expect(s1.merges.size).toBe(1)
+  })
+
+  it('空 sheet / 无合并 / 无样式：无操作不入历史', async () => {
+    xlsxMock.readXlsx.mockResolvedValue({ sheets: [{ name: 'Empty', rows: [] }] })
+    const workbook = await importXlsx(new Uint8Array())
+    const sheet = workbook.activeSheet
+    expect(sheet.name).toBe('Empty')
+    expect(sheet.history.undoSize).toBe(0)
+    expect(sheet.canUndo).toBe(false)
+  })
+})
+
+describe('importCsv（写入既有活动表）', () => {
+  it('数字 / 字符串 / 布尔写入；空串清除；空格跳过；单 undo 单元', () => {
+    csvMock.parseCsv.mockReturnValue([
+      [1, 'abc', true],
+      ['', 'x', null]
+    ])
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 1, col: 2 }, 'old') // 空格（null）不覆盖既有格
+
+    importCsv('', sheet)
+
+    expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 1, t: 'n' })
+    expect(sheet.getCellData({ row: 0, col: 1 })).toEqual({ v: 'abc', t: 's' })
+    expect(sheet.getCellData({ row: 0, col: 2 })).toEqual({ v: true, t: 'b' })
+    expect(sheet.getCellData({ row: 1, col: 0 })).toBeUndefined() // '' → 清除
+    expect(sheet.getCellData({ row: 1, col: 1 })).toEqual({ v: 'x', t: 's' })
+    expect(sheet.getCellData({ row: 1, col: 2 })).toEqual({ v: 'old', t: 's' }) // null 跳过
+
+    expect(sheet.history.undoSize).toBe(2) // setCellValue('old') 1 条 + importCsv 事务 1 条
+    sheet.undo()
+    // 事务撤销：导入内容全部还原；事务前的 'old' 不受影响
+    expect(sheet.getCellData({ row: 0, col: 0 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 1, col: 2 })).toEqual({ v: 'old', t: 's' })
+  })
+})
+
+describe('copySheetContent / replaceWorkbook', () => {
+  it('copySheetContent：样式重新 intern、合并 / 冻结 / 行高拷贝；undo 恢复目标原状态', () => {
+    const target = new Sheet('Target')
+    target.setCellValue({ row: 0, col: 0 }, 'old')
+
+    const source = new Sheet('Source')
+    source.setCellValue({ row: 0, col: 0 }, 'new')
+    source.setCellStyle(parseRange('A1')!, { fill: { color: '#FF0000' } })
+    source.mergeCells(parseRange('B2:C3')!)
+    source.setFrozen(1, 0)
+    source.setRowHeight(2, 40)
+
+    copySheetContent(target, source)
+
+    expect(target.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'new' })
+    expect(target.getCellStyle({ row: 0, col: 0 })).toEqual({ fill: { color: '#FF0000' } })
+    expect(target.merges.size).toBe(1)
+    expect(target.frozen).toEqual({ rows: 1, cols: 0 })
+    expect(target.getRowHeight(2)).toBe(40)
+    expect(target.history.undoSize).toBe(2) // setCellValue('old') 1 条 + copySheetContent 事务 1 条
+
+    target.undo()
+    expect(target.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old' })
+    expect(target.merges.size).toBe(0)
+  })
+
+  it('replaceWorkbook：结构（多 sheet）+ 数据整体替换，活动表对齐', () => {
+    const target = new Workbook()
+    target.activeSheet.setCellValue({ row: 0, col: 0 }, 'old1')
+    target.addSheet('Old2')
+
+    const source = new Workbook()
+    source.activeSheet.setCellValue({ row: 0, col: 0 }, 'a1')
+    source.addSheet('B').setCellValue({ row: 0, col: 0 }, 'b1')
+    source.addSheet('C').setCellValue({ row: 0, col: 0 }, 'c1')
+    source.activateSheet('C')
+
+    replaceWorkbook(target, source)
+
+    expect(target.sheetCount).toBe(3)
+    expect(target.getSheets().map((s) => s.name)).toEqual(['Sheet1', 'B', 'C'])
+    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'a1' })
+    expect(target.getSheet('B')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b1' })
+    expect(target.getSheet('C')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'c1' })
+    expect(target.activeSheet.name).toBe('C')
+    // 旧数据不在目标中
+    expect(target.getSheet('Old2')).toBeUndefined()
+
+    // 第一个 sheet 的数据写入可 undo（恢复导入前数据）
+    expect(target.getSheet('Sheet1')!.undo()).toBe(true)
+    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
+  })
+})

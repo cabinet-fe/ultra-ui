@@ -2,6 +2,7 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 
 @include m.b(sheet) {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -46,6 +47,11 @@
       background-color: fn.use-var(bg-color, hover);
     }
 
+    @include m.is(active) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(color, primary);
+    }
+
     &:disabled {
       color: fn.use-var(text-color, disabled);
       cursor: not-allowed;
@@ -54,6 +60,266 @@
 
   @include m.e(tool-icon) {
     font-size: calc(fn.use-var(font-size-main, small) + 2px);
+  }
+
+  @include m.e(formula-bar) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small);
+    border-bottom: 1px solid fn.use-var(border, muted-color);
+  }
+
+  @include m.e(name-box) {
+    width: 110px;
+    height: fn.use-var(form-component-height, small);
+    flex-shrink: 0;
+    padding: 0 6px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    outline: none;
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(fx-label) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    font-style: italic;
+    user-select: none;
+  }
+
+  @include m.e(fx-input) {
+    flex: 1;
+    min-width: 0;
+    min-height: fn.use-var(form-component-height, small);
+    padding: 2px 6px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.4;
+    resize: none;
+    overflow: hidden;
+    outline: none;
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(fx-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(popup) {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 8px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small);
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(popup-row) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @include m.e(popup-label) {
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(popup-line) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 20px;
+    padding: 0 4px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    cursor: pointer;
+
+    @include m.is(active) {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(popup-line-swatch) {
+    width: 100%;
+    height: 4px;
+  }
+
+  @include m.e(popup-preset) {
+    padding: 3px 10px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(find-row) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @include m.e(find-input) {
+    width: 140px;
+  }
+
+  @include m.e(find-count) {
+    min-width: 44px;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  @include m.e(find-nav) {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(find-close) {
+    width: 22px;
+    height: 22px;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, main);
+    }
+  }
+
+  @include m.e(find-btn) {
+    padding: 3px 10px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(find-option) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  @include m.e(find-select) {
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(import-picker) {
+    min-width: 220px;
+    cursor: pointer;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(import-hint) {
+    padding: 8px 10px;
+    border: 1px dashed fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    text-align: center;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(import-sub) {
+    margin-top: 4px;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-assist, small);
   }
 
   @include m.e(grid) {
@@ -71,6 +337,8 @@
   }
 
   @include m.e(tab) {
+    display: inline-flex;
+    align-items: center;
     padding: 4px 12px;
     border: none;
     border-radius: fn.use-var(radius, small);
@@ -78,6 +346,7 @@
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
     cursor: pointer;
+    user-select: none;
     transition:
       background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
       color fn.use-var(transition, fast) fn.use-var(transition, ease);
@@ -88,6 +357,42 @@
 
     @include m.is(active) {
       background-color: fn.use-var(bg-color, top);
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(tab-rename-input) {
+    width: 96px;
+    height: 20px;
+    padding: 0 4px;
+    border: 1px solid fn.use-var(color, primary);
+    border-radius: fn.use-var(radius, small);
+    outline: none;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(tab-add) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: 2px;
+    padding: 0;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
       color: fn.use-var(color, primary);
     }
   }

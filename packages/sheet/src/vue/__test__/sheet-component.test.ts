@@ -61,9 +61,24 @@ describe('USheet 组件', () => {
     const tools = [...el.querySelectorAll('.u-sheet__tool')].map((button) =>
       button.textContent?.trim()
     )
-    expect(tools).toEqual(['撤销', '重做', '合并', '取消合并'])
-    // history 与 cell 两组之间一个分隔符
-    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(1)
+    expect(tools).toEqual([
+      '撤销',
+      '重做',
+      '合并',
+      '取消合并',
+      '填充颜色',
+      '边框',
+      '冻结到当前行列',
+      '冻结首行',
+      '冻结首列',
+      '取消冻结',
+      '查找',
+      '导出 xlsx',
+      '导出 csv',
+      '导入'
+    ])
+    // history / cell / freeze / default / file 五组之间四个分隔符
+    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(4)
 
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2'])
     expect(tabs(el)[0]!.classList.contains('is-active')).toBe(true)
@@ -192,6 +207,37 @@ describe('USheet 组件', () => {
     expect(el.querySelector('.u-sheet__grid canvas')).not.toBeNull()
   })
 
+  it('tab「+」按钮：添加 sheet 并自动激活新表', async () => {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const addButton = el.querySelector<HTMLButtonElement>('.u-sheet__tab-add')!
+    addButton.click()
+    await nextTick()
+
+    expect(workbook.sheetCount).toBe(3)
+    expect(workbook.activeSheet.name).toBe('Sheet3')
+    expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2', 'Sheet3'])
+    // 新表自动激活：active 样式落在新 tab 上
+    expect(tabs(el)[2]!.classList.contains('is-active')).toBe(true)
+  })
+
+  it('renameSheet 后 tab 文本跟随更新', async () => {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    expect(workbook.renameSheet('Sheet2', '数据表')).toBe(true)
+    await nextTick()
+    expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', '数据表'])
+
+    // 重名（大小写不敏感）被拒绝：tab 文本不变
+    expect(workbook.renameSheet('Sheet1', '数据表')).toBe(false)
+    await nextTick()
+    expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', '数据表'])
+  })
+
   it('多实例并存：共享注册表，工具点击只作用于各自实例的活动 sheet', async () => {
     const workbook1 = new Workbook()
     const workbook2 = new Workbook()
@@ -263,5 +309,266 @@ describe('USheet 组件', () => {
 
     sheet.undo()
     expect(sheet.getCellInfo({ row: 1, col: 1 }).kind).toBe('merged-covered')
+  })
+
+  it('弹层工具：点击打开面板（UPalette 渲染），点击面板外关闭并提交事务', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    // 无选区禁用
+    const fillButton = toolButton(el, '填充颜色')!
+    expect(fillButton.disabled).toBe(true)
+
+    sheet.selectCell({ row: 0, col: 0 })
+    await nextTick()
+    expect(fillButton.disabled).toBe(false)
+
+    fillButton.click()
+    await nextTick()
+    await nextTick()
+    // 面板已渲染（含 UPalette 取色器）
+    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
+    expect(el.querySelector('.u-sheet__popup .u-palette')).not.toBeNull()
+
+    // 点击面板外（grid 区）→ 关闭；空事务不入历史
+    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(sheet.history.undoSize).toBe(0)
+  })
+
+  it('边框面板：预设应用 + 关闭提交为一个 undo 单元', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    sheet.selectRange({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
+    await nextTick()
+    toolButton(el, '边框')!.click()
+    await nextTick()
+    await nextTick()
+
+    const presetButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
+    expect(presetButtons.map((button) => button.textContent?.trim())).toEqual([
+      '全边框',
+      '外边框',
+      '下边框',
+      '无边框'
+    ])
+
+    presetButtons.find((button) => button.textContent === '全边框')!.click()
+    await nextTick()
+    // 选区内每格四边都有边框
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.border?.top).toBeDefined()
+    expect(sheet.getCellStyle({ row: 1, col: 1 })?.border?.bottom).toBeDefined()
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.border?.left).toBeDefined()
+
+    // 无边框 → 清除边框
+    presetButtons.find((button) => button.textContent === '无边框')!.click()
+    await nextTick()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.border).toBeUndefined()
+
+    // 点击外部关闭 → 面板期间所有写入合并为一个 undo 单元
+    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(sheet.history.undoSize).toBe(1)
+
+    sheet.undo()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+  })
+
+  it('冻结工具：点击生效、按钮 is-active、VTable 冻结布局联动、可取消', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+
+    const freezeRowButton = toolButton(el, '冻结首行')!
+    const unfreezeButton = toolButton(el, '取消冻结')!
+    // 初始：无冻结，取消冻结禁用，首行未激活
+    expect(freezeRowButton.classList.contains('is-active')).toBe(false)
+    expect(unfreezeButton.disabled).toBe(true)
+
+    // 选中活动格后「冻结到当前行列」可用
+    sheet.selectCell({ row: 2, col: 1 })
+    await nextTick()
+    expect(toolButton(el, '冻结到当前行列')!.disabled).toBe(false)
+
+    freezeRowButton.click()
+    await nextTick()
+    expect(sheet.frozen).toEqual({ rows: 1, cols: 0 })
+    // 按钮高亮 + 取消冻结可用
+    expect(toolButton(el, '冻结首行')!.classList.contains('is-active')).toBe(true)
+    expect(unfreezeButton.disabled).toBe(false)
+    // VTable 冻结布局联动（模型 1 行 → frozenRowCount = 2：列头行 + 首行；列保持 1：行号列）
+    expect(exposed.value?.getGrid()?.getTable().frozenRowCount).toBe(2)
+    expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(1)
+
+    // 冻结首列：保留冻结行
+    toolButton(el, '冻结首列')!.click()
+    await nextTick()
+    expect(sheet.frozen).toEqual({ rows: 1, cols: 1 })
+    expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(2)
+
+    // 取消冻结
+    unfreezeButton.click()
+    await nextTick()
+    expect(sheet.frozen).toEqual({ rows: 0, cols: 0 })
+    expect(toolButton(el, '冻结首行')!.classList.contains('is-active')).toBe(false)
+    expect(unfreezeButton.disabled).toBe(true)
+  })
+
+  it('导入弹层：点击打开（UFilePicker 渲染），点击外部关闭且不产生历史条目', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, '导入')!.click()
+    await nextTick()
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
+    expect(el.querySelector('.u-file-picker')).not.toBeNull()
+
+    // 导入面板不参与事务：关闭不产生历史条目
+    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(sheet.history.undoSize).toBe(0)
+  })
+
+  it('查找条：打开 → 关键词定位命中 → Enter 下一个 / Shift+Enter 上一个 → 关闭', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'hello')
+    sheet.setCellValue({ row: 0, col: 1 }, 'world')
+    sheet.setCellValue({ row: 1, col: 0 }, 'hello again')
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, '查找')!.click()
+    await nextTick()
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
+    expect(el.querySelector('.u-sheet__find-input')).not.toBeNull()
+
+    // 输入关键词 → 定位第一个命中（A1）
+    const input = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    input.value = 'hello'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 2')
+
+    // Enter → 下一个命中（A3）
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getSelection().activeCell).toEqual({ row: 1, col: 0 })
+    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('2 / 2')
+
+    // Enter 循环回第一个
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+
+    // Shift+Enter → 上一个（循环回最后一个）
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true })
+    )
+    await nextTick()
+    expect(sheet.getSelection().activeCell).toEqual({ row: 1, col: 0 })
+
+    // 无命中 → 计数 0 / 0，导航禁用
+    input.value = '不存在'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('0 / 0')
+    expect(el.querySelector<HTMLButtonElement>('.u-sheet__find-nav')!.disabled).toBe(true)
+
+    // 关闭
+    el.querySelector<HTMLButtonElement>('.u-sheet__find-close')!.click()
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+  })
+
+  it('替换：单个替换可 undo；全部替换 = 单 undo 单元，undo 一次全部还原', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'foo')
+    sheet.setCellValue({ row: 0, col: 1 }, 'foo')
+    sheet.setCellValue({ row: 1, col: 0 }, 'foo')
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, '查找')!.click()
+    await nextTick()
+    await nextTick()
+
+    const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    queryInput.value = 'foo'
+    queryInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 3')
+
+    // 全部替换：3 格一次写入
+    const replaceInputs = [
+      ...el.querySelectorAll<HTMLInputElement>('.u-sheet__find-input .u-input__native')
+    ]
+    replaceInputs[1]!.value = 'bar'
+    replaceInputs[1]!.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__find-btn')[1]!.click()
+    await nextTick()
+
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'bar' })
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'bar' })
+    expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ v: 'bar' })
+    // 全部替换 = 单 undo 单元（3 次 setCellValue 初始 + 1 次替换）
+    expect(sheet.history.undoSize).toBe(4)
+
+    // undo 一次 → 全部还原
+    sheet.undo()
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'foo' })
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'foo' })
+    expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ v: 'foo' })
+  })
+
+  it('全部替换跳过公式格（不覆盖公式原文）', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'foo')
+    sheet.setCellFormula({ row: 1, col: 0 }, '=A1&"!"') // 公式格显示值 foo!
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, '查找')!.click()
+    await nextTick()
+    await nextTick()
+
+    const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    queryInput.value = 'foo'
+    queryInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    // 普通格 + 公式格显示值都命中
+    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 2')
+
+    const replaceInputs = [
+      ...el.querySelectorAll<HTMLInputElement>('.u-sheet__find-input .u-input__native')
+    ]
+    replaceInputs[1]!.value = 'bar'
+    replaceInputs[1]!.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__find-btn')[1]!.click()
+    await nextTick()
+
+    // 普通格被替换，公式格保留公式（显示值也因依赖 A1 变化为 bar!）
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'bar' })
+    expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ f: 'A1&"!"' })
+    expect(sheet.getCellData({ row: 1, col: 0 })?.v).toBe('bar!')
   })
 })

@@ -2,12 +2,16 @@ import { ListTable, register } from '@visactor/vtable'
 import type { ListTableConstructorOptions } from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
 import type { EditContext } from '@visactor/vtable-editors'
+import type { ITextStyleOption } from '@visactor/vtable/es/ts-types/column/style'
+import type { StylePropertyFunctionArg } from '@visactor/vtable/es/ts-types/style-define'
 
 import type { CellAddress, CellRange } from '../core/address'
 import { cellKey, colIndexToName, createRange } from '../core/address'
 import type { CellValue } from '../core/cell-store'
 import { computeFillTargetRange, generateFill, type FillDirection } from '../core/fill'
-import type { Sheet } from '../core/sheet'
+import type { SelectionState } from '../core/selection'
+import type { FrozenState, Sheet } from '../core/sheet'
+import { BORDER_SIDES, type BorderLineStyle, type CellStyle } from '../core/style/types'
 import {
   SHEET_DEFAULT_ROW_HEIGHT,
   sheetRowSeriesNumberStyle,
@@ -28,6 +32,10 @@ import {
  * - 填充柄：excelOptions.fillHandle + mousedown/drag_end → core/fill → setCells
  * - 行列尺寸：列宽仅列头；行高仅行号列（包装 _canResizeRow）。稀疏存 Sheet.rowHeights，
  *   RESIZE_ROW_END 同步，重建时还原
+ * - 冻结：模型 Sheet.frozen（rows/cols）→ VTable frozenRowCount/frozenColCount
+ *   （+1 偏移：列头行 / 行号列；frozen-change 即时生效，tab 重建时从构造选项还原）
+ * - 选区回驱：模型 selectCell/selectRange → selection-change → VTable selectCells 高亮 +
+ *   scrollToCell 滚动可见（补足「选区单向同步」限制；回驱期间 SELECTED_CELL 不写回模型，防递归）
  * - 坐标换算：行号列不计入 rowHeaderLevelCount，偏移量在首个表格实例上
  *   用 columnHeaderLevelCount + isSeriesNumber 实测并缓存（见 getOffsets）
  */
@@ -36,10 +44,21 @@ import {
 class FormulaAwareInputEditor extends InputEditor {
   /** 由 SheetGrid 注入：返回进入编辑时应显示的文本；undefined = 用 VTable 默认值 */
   resolveEditText?: (col: number, row: number) => string | undefined
+  /** 由 SheetGrid 注入：进入编辑（onStart）时通知，供公式栏镜像实时文本 */
+  notifyEditStart?: (col: number, row: number) => void
+  /** 由 SheetGrid 注入：编辑结束（onEnd，提交/取消）时通知，供公式栏退出镜像 */
+  notifyEditEnd?: () => void
 
   override onStart(context: EditContext<string>): void {
+    this.notifyEditStart?.(context.col, context.row)
     const text = this.resolveEditText?.(context.col, context.row)
     super.onStart(text === undefined ? context : { ...context, value: text })
+  }
+
+  override onEnd(): void {
+    // 编辑结束即通知（先于 super：happy-dom 下 element 未挂载时 super 直接 return）
+    this.notifyEditEnd?.()
+    super.onEnd()
   }
 }
 
@@ -52,6 +71,40 @@ export interface SheetGridContextMenuInfo {
   y: number
   /** body 格地址；行号/列头为 null */
   addr: CellAddress | null
+}
+
+/** 线型 → VTable borderLineDash（null = 实线，回落主题） */
+const BORDER_STYLE_DASH: Record<BorderLineStyle, number[] | null> = {
+  thin: null,
+  medium: null,
+  thick: null,
+  dashed: [4, 2],
+  dotted: [1, 2]
+}
+
+/**
+ * 模型样式 → VTable ITextStyleOption。
+ * 四边数组顺序 [top, right, bottom, left]（与 VTable ColorsPropertyDefine 一致）；
+ * 未设置的边 = null（回落主题默认边框，即网格线）。
+ */
+function cellStyleToVTableStyle(style: CellStyle): ITextStyleOption {
+  const borderColor: (string | null)[] = [null, null, null, null]
+  const borderLineWidth: (number | null)[] = [null, null, null, null]
+  const borderLineDash: (number[] | null)[] = [null, null, null, null]
+  for (let i = 0; i < BORDER_SIDES.length; i++) {
+    const side = BORDER_SIDES[i]
+    const edge = side ? style.border?.[side] : undefined
+    if (!edge) continue
+    borderColor[i] = edge.color
+    borderLineWidth[i] = edge.width
+    borderLineDash[i] = BORDER_STYLE_DASH[edge.style]
+  }
+  return {
+    ...(style.fill ? { bgColor: style.fill.color } : {}),
+    borderColor,
+    borderLineWidth,
+    borderLineDash
+  }
 }
 
 /** 从 VTable 事件载荷提取 viewport 坐标（兼容 nativeEvent 嵌套） */
@@ -76,6 +129,10 @@ export interface SheetGridOptions {
   cols?: number
   /** 单元格右键（已 preventDefault）；由 vue 层弹出菜单 */
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
+  /** 进入单元格编辑（双击 / 程序化）时通知（模型地址）；公式栏镜像实时文本用 */
+  onEditStart?: (addr: CellAddress) => void
+  /** 编辑结束（提交/取消）时通知（模型地址）；公式栏退出镜像用 */
+  onEditEnd?: (addr: CellAddress) => void
 }
 
 export class SheetGrid {
@@ -86,6 +143,10 @@ export class SheetGrid {
   private readonly cols: number
   private readonly editorName: string
   private readonly onContextMenu?: (info: SheetGridContextMenuInfo) => void
+  private readonly onEditStart?: (addr: CellAddress) => void
+  private readonly onEditEnd?: (addr: CellAddress) => void
+  /** 当前编辑格（模型地址；编辑器 onStart → onEnd 期间非空） */
+  private editingAddr: CellAddress | null = null
   private readonly disposers: (() => void)[] = []
   /** 编辑提交期间累积的模型变更（提交结束统一回推表格，覆盖公式派生格） */
   private pendingTableSync: Map<number, CellAddress> | null = null
@@ -93,6 +154,8 @@ export class SheetGrid {
   private offsets?: { colOffset: number; rowOffset: number }
   /** 填充柄：mousedown 时的源选区（模型坐标） */
   private fillSourceRange: CellRange | null = null
+  /** 选区回驱进行中：VTable 侧 SELECTED_CELL 不回写模型（防递归） */
+  private syncingSelection = false
 
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
@@ -100,6 +163,8 @@ export class SheetGrid {
     this.rows = options.rows ?? 100
     this.cols = options.cols ?? 26
     this.onContextMenu = options.onContextMenu
+    this.onEditStart = options.onEditStart
+    this.onEditEnd = options.onEditEnd
 
     // 每个 grid 实例注册自己的编辑器（hook 闭包本实例的 sheet 与坐标换算）
     this.editorName = `veltra-sheet-input-${editorSeq++}`
@@ -110,6 +175,18 @@ export class SheetGrid {
       const data = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
       return data?.f ? `=${data.f}` : undefined
     }
+    editor.notifyEditStart = (col, row) => {
+      const addr = this.toSheetAddr(this.table, col, row)
+      if (addr) {
+        this.editingAddr = addr
+        this.onEditStart?.(addr)
+      }
+    }
+    editor.notifyEditEnd = () => {
+      const addr = this.editingAddr
+      this.editingAddr = null
+      if (addr) this.onEditEnd?.(addr)
+    }
     register.editor(this.editorName, editor)
 
     this.table = new ListTable(options.container, this.buildOptions())
@@ -118,6 +195,10 @@ export class SheetGrid {
     this.bindTableEvents()
     this.bindSheetEvents()
     this.bindKeyboard()
+    // 构造后按模型冻结值校正一次（构造选项已含偏移，此处覆盖外部在构造前的变更）
+    this.applyFrozen()
+    // 模型已有选区（如 tab 切换重建）→ 回驱 VTable 高亮
+    this.pushSelectionToTable(this.sheet.getSelection())
   }
 
   /** 底层 ListTable 实例（调试与测试用） */
@@ -177,13 +258,134 @@ export class SheetGrid {
     return { col: addr.col + colOffset, row: addr.row + rowOffset }
   }
 
+  // ─── 冻结映射 ────────────────────────────────────────────
+
+  /**
+   * 模型冻结值 → VTable frozenRowCount/frozenColCount。
+   * 偏移：非转置 ListTable 中列头行（row 0）与行号列（col 0）恒冻结，
+   * 且列头列与数据列共享同一表格列——冻结 body N 行/列 = frozen N + 1。
+   * 钳制上限：冻结行数 ≤ 渲染行数（总行数 - 列头行），冻结列数 ≤ 渲染列数。
+   */
+  private static frozenToVTableCounts(
+    frozen: FrozenState,
+    rows: number,
+    cols: number
+  ): { frozenRowCount: number; frozenColCount: number } {
+    return {
+      frozenRowCount: Math.min(frozen.rows + 1, Math.max(rows, 1)),
+      frozenColCount: Math.min(frozen.cols + 1, Math.max(cols, 1))
+    }
+  }
+
+  /** 按当前模型冻结值刷新 VTable 冻结布局（frozen-change 即时生效） */
+  private applyFrozen(): void {
+    const { frozenRowCount, frozenColCount } = SheetGrid.frozenToVTableCounts(
+      this.sheet.frozen,
+      this.rows,
+      this.cols
+    )
+    if (this.table.frozenRowCount !== frozenRowCount) this.table.frozenRowCount = frozenRowCount
+    if (this.table.frozenColCount !== frozenColCount) this.table.frozenColCount = frozenColCount
+  }
+
+  // ─── 选区回驱（模型 → VTable）─────────────────────────────
+
+  /**
+   * 模型选区 → VTable 高亮 + 滚动可见。
+   * selectCells 自身会触发 SELECTED_CELL 事件（stateManager 同步派发），
+   * 用 syncingSelection 拦截回写，避免 VTable ↔ 模型无限循环。
+   * 目标格已完整可见时不滚动（scrollToCell 会把目标滚到视口左/上缘，避免点击跳动）。
+   */
+  private pushSelectionToTable(state: SelectionState): void {
+    const range =
+      state.ranges[0] ??
+      (state.activeCell ? { start: state.activeCell, end: state.activeCell } : null)
+    if (!range) return
+    const start = this.toTableCoord(this.table, range.start)
+    const end = this.toTableCoord(this.table, range.end)
+    // VTable 时序缺陷兜底：mouseup 事件流中 SELECTED_CELL 派发时 eventManager.isDraging
+    // 尚未重置（window 级 pointerup 在后）。此时 selectCells 内部的 updateSelectPos 会走
+    // 「拖拽扩展」分支：不清空旧选区（旧组件残留成孤儿 → 画布多区域高亮），且对反向
+    // 选区（从右往左 / 从下往上拖选）扩展错乱（选区收缩/畸形）。
+    // 兜底：回驱前临时复位 isDraging，让 selectCells 走标准「清空-重建」路径；并显式
+    // 清空全部选区绘制层 + 组件索引，保证画布只剩当前选区一个框。
+    const eventManager = (this.table as unknown as { eventManager?: { isDraging: boolean } })
+      .eventManager
+    const wasDraging = eventManager?.isDraging === true
+    if (wasDraging) eventManager!.isDraging = false
+    this.syncingSelection = true
+    try {
+      this.clearSelectionOverlays()
+      this.table.selectCells([{ start, end }])
+      if (!this.isCellVisible(start.col, start.row)) {
+        this.table.scrollToCell({ col: start.col, row: start.row })
+      }
+    } finally {
+      // window 级 pointerup 稍后会把 isDraging 复位为 false；这里还原现场避免
+      // 破坏 VTable 自身的事件流状态
+      if (wasDraging) eventManager!.isDraging = true
+      this.syncingSelection = false
+    }
+  }
+
+  /** 清空 VTable 全部选区绘制层（SelectGroup 子节点 + 组件索引 Map） */
+  private clearSelectionOverlays(): void {
+    const scene = (this.table as unknown as { scenegraph?: { [k: string]: unknown } }).scenegraph
+    if (!scene) return
+    const groups = [
+      'bodySelectGroup',
+      'rowHeaderSelectGroup',
+      'colHeaderSelectGroup',
+      'cornerHeaderSelectGroup',
+      'rightFrozenSelectGroup',
+      'bottomFrozenSelectGroup',
+      'rightTopCornerSelectGroup',
+      'leftBottomCornerSelectGroup',
+      'rightBottomCornerSelectGroup'
+    ]
+    for (const name of groups) {
+      const group = scene[name] as { removeAllChild?: (deep?: boolean) => void } | undefined
+      group?.removeAllChild?.()
+    }
+    scene.selectedRangeComponents = new Map()
+    scene.selectingRangeComponents = new Map()
+    scene.customSelectedRangeComponents = new Map()
+  }
+
+  /** 目标格（表格坐标）是否完整落在可视区内（冻结区内恒视为可见） */
+  private isCellVisible(col: number, row: number): boolean {
+    const rect = this.table.getCellRelativeRect(col, row)
+    const drawRange = this.table.getDrawRange()
+    return (
+      rect.left >= drawRange.left &&
+      rect.top >= drawRange.top &&
+      rect.right <= drawRange.right &&
+      rect.bottom <= drawRange.bottom
+    )
+  }
+
   // ─── 模型 → VTable ────────────────────────────────────────
 
   private buildColumns() {
     return Array.from({ length: this.cols }, (_, col) => ({
       field: String(col),
-      title: colIndexToName(col)
+      title: colIndexToName(col),
+      // 列级 style 函数回调：按 StyleId 从样式池解析 VTable 样式（逐格动态求值）
+      style: (styleArg: StylePropertyFunctionArg) => this.resolveCellStyle(styleArg)
     }))
+  }
+
+  /** 模型样式 → VTable 样式（合并格读锚点；无样式回落主题默认） */
+  private resolveCellStyle(styleArg: StylePropertyFunctionArg): ITextStyleOption {
+    // StylePropertyFunctionArg.table 是 BaseTableAPI 接口；运行时必为 ListTable
+    // 实例（本类自建），按既有先例（customMergeCell）断言
+    const table = styleArg.table as ListTable
+    const addr = this.toSheetAddr(table, styleArg.col, styleArg.row)
+    if (!addr) return {}
+    const anchor = this.sheet.merges.resolveAnchor(addr)
+    const data = this.sheet.store.getCell(anchor)
+    const style = data?.s != null ? this.sheet.stylePool.get(data.s) : undefined
+    return style ? cellStyleToVTableStyle(style) : {}
   }
 
   private buildRecords(): Record<string, CellValue>[] {
@@ -213,13 +415,20 @@ export class SheetGrid {
       eventOptions: { preventDefaultContextMenu: true },
       editor: this.editorName,
       editCellTrigger: 'doubleclick',
+      // 冻结：模型 rows/cols + 偏移 1（列头行 / 行号列；与 frozenToVTableCounts 一致，
+      // 此处无法调用需 table 实例的 getOffsets，当前配置偏移恒为 1）
+      frozenRowCount: Math.min(this.sheet.frozen.rows + 1, Math.max(this.rows, 1)),
+      frozenColCount: Math.min(this.sheet.frozen.cols + 1, Math.max(this.cols, 1)),
       keyboardOptions: {
         moveFocusCellOnTab: true,
         editCellOnEnter: true,
         moveFocusCellOnEnter: true,
         // 编辑中方向键只移输入光标；未编辑时选区导航不受影响
         moveEditCellOnArrowKeys: false,
-        selectAllOnCtrlA: true
+        selectAllOnCtrlA: true,
+        // 始终单选高亮：禁用 Ctrl 追加选区（VTable 默认允许，会与旧区域并存；
+        // 模型层本就单选区，回驱 selectCells 会替换收敛，这里从交互源头掐掉）
+        ctrlMultiSelect: false
       },
       customMergeCell: (col, row, table) => {
         const addr = this.toSheetAddr(table as ListTable, col, row)
@@ -278,14 +487,26 @@ export class SheetGrid {
         const pending = this.pendingTableSync
         this.pendingTableSync = null
         if (pending) {
-          for (const pendingAddr of pending.values()) this.pushCellToTable(pendingAddr)
+          for (const pendingAddr of pending.values()) {
+            this.pushCellToTable(pendingAddr)
+            this.refreshCellStyle(pendingAddr)
+          }
         }
       }
     })
 
     this.table.on(ListTable.EVENT_TYPE.SELECTED_CELL, (args) => {
+      // 回驱期间的 SELECTED_CELL（selectCells 同步派发）不写回模型，防递归
+      if (this.syncingSelection) return
       const addr = this.toSheetAddr(this.table, args.col, args.row)
       if (addr == null) return
+      // 以 VTable 当前完整选区为准同步模型：拖选结束的 SELECTED_CELL 携带整个
+      // 区域，若只同步 args 单格会把拖选区域收缩成单格；单击时选区即单格，等价
+      const range = this.readSelectedModelRange()
+      if (range) {
+        this.sheet.selectRange(range)
+        return
+      }
       this.sheet.selectCell(addr)
     })
 
@@ -348,9 +569,11 @@ export class SheetGrid {
     })
   }
 
-  /** 当前 VTable 选区 → 规范化模型区域；无有效 body 选区返回 null */
+  /** 当前 VTable 选区 → 规范化模型区域；无有效 body 选区返回 null。
+   *  取最后一个 range（用户最新操作）；多选区残留时回驱 selectCells 会收敛为单选 */
   private readSelectedModelRange(): CellRange | null {
-    const range = this.table.getSelectedCellRanges()[0]
+    const ranges = this.table.getSelectedCellRanges()
+    const range = ranges[ranges.length - 1]
     if (!range) return null
     const start = this.toSheetAddr(this.table, range.start.col, range.start.row)
     const end = this.toSheetAddr(this.table, range.end.col, range.end.row)
@@ -366,12 +589,28 @@ export class SheetGrid {
           return
         }
         this.pushCellToTable(addr)
+        // 样式随模型变化（style 回调实时解析），复用 cell-change 触发该格重绘
+        this.refreshCellStyle(addr)
       })
     )
 
     this.disposers.push(
       this.sheet.on('merge-change', () => {
         this.refresh()
+      })
+    )
+
+    // 冻结变更 → 即时更新 VTable 冻结布局
+    this.disposers.push(
+      this.sheet.on('frozen-change', () => {
+        this.applyFrozen()
+      })
+    )
+
+    // 模型选区变更 → 回驱 VTable 高亮 + 滚动可见（查找跳转依赖）
+    this.disposers.push(
+      this.sheet.on('selection-change', (state) => {
+        this.pushSelectionToTable(state)
       })
     )
   }
@@ -381,6 +620,12 @@ export class SheetGrid {
     const { col, row } = this.toTableCoord(this.table, addr)
     const value = this.sheet.getDisplayValue(addr)
     this.table.changeCellValue(col, row, value as string | number | null, false, false)
+  }
+
+  /** 重绘单格（updateCellContent 清除该格样式缓存；样式/值变化后调用） */
+  private refreshCellStyle(addr: CellAddress): void {
+    const { col, row } = this.toTableCoord(this.table, addr)
+    this.table.updateCellContent(col, row)
   }
 
   /**

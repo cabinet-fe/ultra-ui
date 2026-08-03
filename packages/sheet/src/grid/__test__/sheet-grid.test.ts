@@ -139,6 +139,61 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('列 style 回调：按 StyleId 从样式池解析 VTable 样式（bgColor / 四边边框）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        {
+          fill: { color: '#FF0000' },
+          border: {
+            top: { style: 'thin', width: 1, color: '#000000' },
+            left: { style: 'dotted', width: 2, color: '#00FF00' }
+          }
+        }
+      )
+      // 从列定义取 style 回调（表格坐标 (1,1) = 模型 A1；行号列/列头各偏移 1）
+      const column = table.getBodyColumnDefine(1, 1) as { style?: unknown }
+      const styleFn = column.style as (arg: {
+        row: number
+        col: number
+        table: unknown
+      }) => Record<string, unknown>
+      const result = styleFn({ row: 1, col: 1, table })
+      expect(result.bgColor).toBe('#FF0000')
+      // 四边数组顺序 [top, right, bottom, left]
+      expect(result.borderColor).toEqual(['#000000', null, null, '#00FF00'])
+      expect(result.borderLineWidth).toEqual([1, null, null, 2])
+      expect(result.borderLineDash).toEqual([null, null, null, [1, 2]])
+
+      // 无样式格 → 空对象（回落主题默认）
+      expect(styleFn({ row: 2, col: 2, table })).toEqual({})
+
+      // 合并格：被覆盖格解析到锚点样式
+      sheet.mergeCells({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
+      expect(styleFn({ row: 2, col: 2, table }).bgColor).toBe('#FF0000')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('样式变化复用 cell-change → updateCellContent 重绘；undo 同步回退', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      const spy = vi.spyOn(table, 'updateCellContent')
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { fill: { color: '#FF0000' } }
+      )
+      expect(spy).toHaveBeenCalledWith(1, 1)
+
+      sheet.undo()
+      expect(spy).toHaveBeenCalledTimes(2)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('表格 → 模型：change_cell_value 回写 store', () => {
     const { sheet, grid, table } = createGrid()
     try {

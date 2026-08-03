@@ -16,6 +16,8 @@ export interface SheetProps {
   cols?: number
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
+  /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */
+  showFormulaBar?: boolean
   /** 是否显示底部 sheet 标签栏，默认 true */
   showTabs?: boolean
 }

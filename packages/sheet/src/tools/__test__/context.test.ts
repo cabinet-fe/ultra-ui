@@ -91,6 +91,31 @@ describe('SheetContext', () => {
     expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
   })
 
+  it('样式门面：setCellStyle / clearCellStyle / getCellStyle，经命令可 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+
+    const range = createRange({ row: 0, col: 0 }, { row: 1, col: 1 })
+    ctx.setCellStyle(range, { fill: { color: '#FF0000' } })
+    expect(ctx.getCellStyle({ row: 0, col: 0 })).toEqual({ fill: { color: '#FF0000' } })
+    expect(sheet.stylePool.size).toBe(1)
+
+    // 部分合并：只设边框保留填充
+    ctx.setCellStyle(range, { border: { top: { style: 'thin', width: 1, color: '#000000' } } })
+    expect(ctx.getCellStyle({ row: 1, col: 1 })).toEqual({
+      fill: { color: '#FF0000' },
+      border: { top: { style: 'thin', width: 1, color: '#000000' } }
+    })
+
+    ctx.clearCellStyle(range)
+    expect(ctx.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+
+    // 一次 undo 回退到带边框填充状态
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellStyle({ row: 0, col: 0 })?.border).toBeDefined()
+    expect(ctx.getCellStyle({ row: 0, col: 0 })?.fill?.color).toBe('#FF0000')
+  })
+
   it('动态解析器：tab 切换后同一上下文指向新的活动 sheet', () => {
     const sheet1 = new Sheet('Sheet1')
     const sheet2 = new Sheet('Sheet2')

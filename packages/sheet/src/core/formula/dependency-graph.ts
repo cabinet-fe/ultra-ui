@@ -41,14 +41,24 @@ export interface FormulaNode {
   readonly cleanups: (() => void)[]
 }
 
+/** 内部可变节点（sheetName / deps 在 renameSheet 时原地更新；对外仍按 FormulaNode 只读暴露） */
+type InternalNode = Omit<FormulaNode, 'sheetName' | 'deps' | 'cleanups'> & {
+  sheetName: string
+  deps: FormulaDependency[]
+  cleanups: (() => void)[]
+}
+
 export class DependencyGraph {
   private readonly sheets = new Map<string, Sheet>()
+  /** 表改名后的旧名 → 新名别名（求值解析层：AST 仍引用旧名，经别名解析到新名；
+   *  公式文本不重写，与「引用跟随改名」语义一致；删除时随表清理） */
+  private readonly aliases = new Map<string, string>()
   /** 正向索引宿主：sheetName → cellKey → 公式节点 */
-  private readonly nodes = new Map<string, Map<number, FormulaNode>>()
+  private readonly nodes = new Map<string, Map<number, InternalNode>>()
   /** 反向索引（单格引用）：sheetName → cellKey → 依赖者集合 */
-  private readonly exact = new Map<string, Map<number, Set<FormulaNode>>>()
+  private readonly exact = new Map<string, Map<number, Set<InternalNode>>>()
   /** 反向索引（区域引用）：sheetName → { 区域, 依赖者 } 集合（线性扫描） */
-  private readonly ranged = new Map<string, Set<{ range: CellRange; node: FormulaNode }>>()
+  private readonly ranged = new Map<string, Set<{ range: CellRange; node: InternalNode }>>()
 
   // ─── sheet 注册表 ─────────────────────────────────────────
 
@@ -56,13 +66,79 @@ export class DependencyGraph {
     this.sheets.set(sheet.name, sheet)
   }
 
-  /** 注销 sheet 并移除其全部公式节点（引用它的公式在下次重算时得 #REF!） */
-  unregisterSheet(sheet: Sheet): void {
-    if (this.sheets.get(sheet.name) !== sheet) return
+  /**
+   * 注销 sheet 并移除其全部公式节点；随后重算所有引用该表的公式节点并返回
+   * 派生补丁（未应用）——引用方立即变 #REF!（调用方负责应用补丁，不入 undo）。
+   * 返回空数组 = 无引用方（或表未注册）。
+   */
+  unregisterSheet(sheet: Sheet): CellPatch[] {
+    if (this.sheets.get(sheet.name) !== sheet) return []
+    // 注销前收集引用该表的节点（exact/ranged 反向索引仍有效）
+    const sources: InternalNode[] = []
+    const exactSet = this.exact.get(sheet.name)
+    if (exactSet) {
+      for (const set of exactSet.values()) for (const node of set) sources.push(node)
+    }
+    const rangedSet = this.ranged.get(sheet.name)
+    if (rangedSet) {
+      for (const entry of rangedSet) sources.push(entry.node)
+    }
     this.sheets.delete(sheet.name)
+    // 清理指向该表的全部别名（旧名引用随之失效 → #REF!，与删除语义一致）
+    for (const [old, next] of this.aliases) {
+      if (next === sheet.name) this.aliases.delete(old)
+    }
     const sheetNodes = this.nodes.get(sheet.name)
     if (sheetNodes) {
       for (const node of sheetNodes.values()) this.removeNode(node)
+    }
+    // 引用方重算：readCell/readRange 查不到该表 → #REF!
+    return this.recalcFrom(sources)
+  }
+
+  /**
+   * 表改名后的索引重排：sheet 注册表、被改名表自身节点、以及所有引用该表的
+   * 公式节点（跨表公式引用跟随改名）全部切到新名。既有引用在改名后保持有效。
+   * 必须在 Sheet.setName 之后调用（节点内部 sheetName 取自 sheet.name 的地方已统一）。
+   */
+  renameSheet(oldName: string, newName: string): void {
+    const sheet = this.sheets.get(oldName)
+    if (!sheet) return
+    // 1. 收集受影响节点：被改名表自身的公式节点 + 所有引用该表的节点
+    const affected = new Set<InternalNode>()
+    const ownNodes = this.nodes.get(oldName)
+    if (ownNodes) {
+      for (const node of ownNodes.values()) affected.add(node)
+    }
+    const exactSet = this.exact.get(oldName)
+    if (exactSet) {
+      for (const set of exactSet.values()) for (const node of set) affected.add(node)
+    }
+    const rangedSet = this.ranged.get(oldName)
+    if (rangedSet) {
+      for (const entry of rangedSet) affected.add(entry.node)
+    }
+    // 2. 先全部移出索引（反向索引条目随 removeNode 清理）
+    for (const node of affected) this.removeNode(node)
+    // 3. 更新 sheet 注册表 + 别名（求值层：AST 旧名引用经别名解析到新名）
+    this.sheets.delete(oldName)
+    this.sheets.set(newName, sheet)
+    // 拍平别名链：所有指向 oldName 的条目改指 newName（连续改名 A→B→C 后引用 A 仍有效）；
+    // 删除键为 newName 的残留条目（新名是真实表名，别名不得覆盖真实名——改名回改 A→B→A 场景）
+    const toUpdate: [string, string][] = []
+    for (const [key, next] of this.aliases) {
+      if (next === oldName) toUpdate.push([key, newName])
+    }
+    for (const [key, next] of toUpdate) this.aliases.set(key, next)
+    this.aliases.delete(newName)
+    this.aliases.set(oldName, newName)
+    // 4. 原地更新节点内部字段并按新名重新注册
+    for (const node of affected) {
+      if (node.sheetName === oldName) node.sheetName = newName
+      for (const dep of node.deps) {
+        if (dep.sheetName === oldName) dep.sheetName = newName
+      }
+      this.registerNode(node)
     }
   }
 
@@ -105,7 +181,21 @@ export class DependencyGraph {
    * 调用方（Sheet.executeCommand）负责应用补丁并并入同一 undo 单元。
    */
   recalc(changed: readonly { sheet: Sheet; addr: CellAddress }[]): CellPatch[] {
-    // 1. 标脏：变更格自身（若是公式）+ 向上 BFS 全部传递依赖者
+    const sources: InternalNode[] = []
+    for (const { sheet, addr } of changed) {
+      const node = this.getNode(sheet.name, addr)
+      if (node) sources.push(node)
+      for (const dep of this.dependentsOf(sheet.name, addr)) sources.push(dep)
+    }
+    return this.recalcFrom(sources)
+  }
+
+  /**
+   * 从指定标脏源集合重算（删除 sheet 联动：引用方立即 #REF!）。
+   * 源节点 + 其传递依赖者全部重算；派生补丁未应用。
+   */
+  private recalcFrom(sources: Iterable<FormulaNode>): CellPatch[] {
+    // 1. 标脏：源节点自身（若是公式）+ 向上 BFS 全部传递依赖者
     const dirty = new Set<FormulaNode>()
     const queue: FormulaNode[] = []
     const mark = (node: FormulaNode | undefined): void => {
@@ -114,10 +204,7 @@ export class DependencyGraph {
         queue.push(node)
       }
     }
-    for (const { sheet, addr } of changed) {
-      mark(this.getNode(sheet.name, addr))
-      for (const dep of this.dependentsOf(sheet.name, addr)) mark(dep)
-    }
+    for (const node of sources) mark(node)
     for (let i = 0; i < queue.length; i++) {
       const node = queue[i]!
       for (const dep of this.dependentsOf(node.sheetName, node.addr)) mark(dep)
@@ -169,9 +256,10 @@ export class DependencyGraph {
     }
 
     const readCell = (sheetName: string, addr: CellAddress): ScalarValue | FormulaError => {
-      const sheet = this.sheets.get(sheetName)
+      const resolved = this.aliases.get(sheetName) ?? sheetName
+      const sheet = this.sheets.get(resolved)
       if (!sheet) return formulaError('#REF!')
-      const dep = this.getNode(sheetName, addr)
+      const dep = this.getNode(resolved, addr)
       if (dep && dirty.has(dep)) return evaluateNode(dep)
       return cellDataToScalar(sheet.store.getCell(addr))
     }
@@ -180,12 +268,13 @@ export class DependencyGraph {
       sheetName: string,
       range: CellRange
     ): (ScalarValue | FormulaError)[] | FormulaError => {
-      const sheet = this.sheets.get(sheetName)
+      const resolved = this.aliases.get(sheetName) ?? sheetName
+      const sheet = this.sheets.get(resolved)
       if (!sheet) return formulaError('#REF!')
       const values: (ScalarValue | FormulaError)[] = []
       // 只迭代稀疏存在的格
       for (const [addr, data] of sheet.store.entriesInRange(range)) {
-        const dep = this.getNode(sheetName, addr)
+        const dep = this.getNode(resolved, addr)
         values.push(dep && dirty.has(dep) ? evaluateNode(dep) : cellDataToScalar(data))
       }
       return values
@@ -207,7 +296,9 @@ export class DependencyGraph {
         sheet,
         addr: node.addr,
         before,
-        after: { f: node.formula, v, t }
+        // 只写缓存值（v/t），保留既有样式（s）——重算不得丢失格式
+        after:
+          before?.s != null ? { f: node.formula, v, t, s: before.s } : { f: node.formula, v, t }
       })
     }
     return patches
@@ -235,7 +326,7 @@ export class DependencyGraph {
         deps.push({ sheetName, range: ref.range })
       }
     }
-    const node: FormulaNode = {
+    const node: InternalNode = {
       sheetName: sheet.name,
       addr: { ...addr },
       formula,
@@ -243,14 +334,19 @@ export class DependencyGraph {
       deps,
       cleanups: []
     }
-    let sheetNodes = this.nodes.get(sheet.name)
+    this.registerNode(node)
+  }
+
+  /** 注册节点到正向索引（nodes）与反向索引（exact/ranged）；renameSheet 重排后复用 */
+  private registerNode(node: InternalNode): void {
+    let sheetNodes = this.nodes.get(node.sheetName)
     if (!sheetNodes) {
       sheetNodes = new Map()
-      this.nodes.set(sheet.name, sheetNodes)
+      this.nodes.set(node.sheetName, sheetNodes)
     }
-    sheetNodes.set(cellKey(addr), node)
+    sheetNodes.set(cellKey(node.addr), node)
 
-    for (const dep of deps) {
+    for (const dep of node.deps) {
       const isSingleCell =
         dep.range.start.row === dep.range.end.row && dep.range.start.col === dep.range.end.col
       if (isSingleCell) {
@@ -283,16 +379,18 @@ export class DependencyGraph {
     }
   }
 
-  private removeNode(node: FormulaNode): void {
+  private removeNode(node: InternalNode): void {
     for (const cleanup of node.cleanups) cleanup()
+    // 清空清理器：renameSheet 会原地复用节点并重新注册，避免旧清理器累积
+    node.cleanups.length = 0
     const sheetNodes = this.nodes.get(node.sheetName)
     if (!sheetNodes) return
     sheetNodes.delete(cellKey(node.addr))
     if (sheetNodes.size === 0) this.nodes.delete(node.sheetName)
   }
 
-  private dependentsOf(sheetName: string, addr: CellAddress): Set<FormulaNode> {
-    const result = new Set<FormulaNode>()
+  private dependentsOf(sheetName: string, addr: CellAddress): Set<InternalNode> {
+    const result = new Set<InternalNode>()
     const exactSet = this.exact.get(sheetName)?.get(cellKey(addr))
     if (exactSet) for (const node of exactSet) result.add(node)
     const rangedSet = this.ranged.get(sheetName)

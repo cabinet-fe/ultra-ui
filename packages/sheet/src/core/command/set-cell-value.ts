@@ -26,7 +26,12 @@ export const SetCellValueCommand: Command<SetCellValueParams> = {
     for (const item of params.items) {
       const anchor = ctx.sheet.merges.resolveAnchor(item.addr)
       const before = ctx.sheet.store.getCell(anchor)
-      const after = isEmptyCellData(item.data) ? undefined : item.data
+      const target = item.data
+      let after: CellData | undefined
+      if (target && !isEmptyCellData(target)) {
+        // 编辑值保留既有样式（样式属于单元格，不随值写入丢失；item.data 显式带 s 时优先）
+        after = { ...target, s: target.s ?? before?.s }
+      }
       if (cellDataEqual(before, after)) continue
       const patch: CellPatch = { kind: 'cell', addr: anchor, before, after }
       ctx.applyPatch(patch, 'redo')

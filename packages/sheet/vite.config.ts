@@ -43,7 +43,8 @@ const config = {
         '@veltra/styles',
         '@veltra/utils',
         '@visactor/vtable',
-        '@visactor/vtable-editors'
+        '@visactor/vtable-editors',
+        'hucre'
       ]
     },
     dts: { vue: true },

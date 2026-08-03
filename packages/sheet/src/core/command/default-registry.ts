@@ -1,6 +1,7 @@
 import { MergeCellsCommand, UnmergeCellsCommand } from './merge-cells'
 import { CommandRegistry } from './registry'
 import { SetCellFormulaCommand } from './set-cell-formula'
+import { SetCellStyleCommand } from './set-cell-style'
 import { SetCellValueCommand } from './set-cell-value'
 
 /**
@@ -11,5 +12,6 @@ export const defaultCommandRegistry = new CommandRegistry()
 
 defaultCommandRegistry.register(SetCellValueCommand)
 defaultCommandRegistry.register(SetCellFormulaCommand)
+defaultCommandRegistry.register(SetCellStyleCommand)
 defaultCommandRegistry.register(MergeCellsCommand)
 defaultCommandRegistry.register(UnmergeCellsCommand)
