@@ -39,6 +39,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
+  'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
   'auto-complete': { zh: '自动补全', en: 'AutoComplete', category: 'form' },
   badge: { zh: '徽标', en: 'Badge', category: 'basic' },
   'batch-edit': { zh: '批量编辑', en: 'BatchEdit', category: 'other' },
@@ -112,7 +113,7 @@ export const demoMeta: Record<string, DemoMeta> = {
 }
 
 /** 顶层独立入口（不挂在 Desktop 分类下） */
-const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet'])
+const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet', 'sheet-big-data'])
 
 const ICONS_ROOT = '/icons'
 
@@ -159,14 +160,18 @@ export function buildPlaygroundMenus(): NavItem[] {
       title: 'Sheet 电子表格',
       description: '预览 @veltra/sheet 电子表格（VTable 渲染，自持有数据模型）',
       icon: FormTable as DefineComponent,
-      path: '/sheet/index'
+      path: '/sheet',
+      children: [
+        { title: '基础演示', path: '/sheet/index' },
+        { title: '大数据量演示', path: '/sheet-big-data/index' }
+      ]
     }
   ]
 }
 
 /** 分组导航路径（非叶子页），不应触发 router 跳转 */
 export function isNavGroupPath(path: string): boolean {
-  if (path === DESKTOP_ROOT || path === ICONS_ROOT) return true
+  if (path === DESKTOP_ROOT || path === ICONS_ROOT || path === '/sheet') return true
   if (path.startsWith(`${DESKTOP_ROOT}/`) && !path.endsWith('/index')) return true
   return false
 }

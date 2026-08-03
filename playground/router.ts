@@ -12,8 +12,18 @@ const desktopModules = import.meta.glob<{ default: RouteComponent }>('./src/desk
 const iconsModules = import.meta.glob<{ default: RouteComponent }>('./src/icons/**/index.vue')
 const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-chat/**/index.vue')
 const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
+// 顶层独立演示页（glob 首段是字面段，`./src/sheet/**` 不匹配 `sheet-big-data`）
+const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
+  './src/sheet-big-data/index.vue'
+)
 
-const modules = { ...desktopModules, ...iconsModules, ...aiChatModules, ...sheetModules }
+const modules = {
+  ...desktopModules,
+  ...iconsModules,
+  ...aiChatModules,
+  ...sheetModules,
+  ...sheetBigDataModules
+}
 const paths = Object.keys(modules)
 
 /** 从模块路径提取 demo key（用于 route name / demoMeta 校验） */
