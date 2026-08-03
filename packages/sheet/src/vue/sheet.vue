@@ -35,12 +35,14 @@
 </template>
 
 <script lang="ts" setup>
+import { contextmenu } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
+import { rangeContainsAddress } from '../core/address'
 import type { Sheet } from '../core/sheet'
 import { Workbook } from '../core/workbook'
-import { SheetGrid } from '../grid/sheet-grid'
+import { SheetGrid, type SheetGridContextMenuInfo } from '../grid/sheet-grid'
 import { createSheetContext } from '../tools/context'
 import { defaultToolRegistry, type SheetTool } from '../tools/registry'
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
@@ -146,13 +148,51 @@ function handleTabClick(index: number): void {
   if (sheet) workbook.value.activateSheet(sheet.name)
 }
 
+// ─── 右键菜单（合并 / 取消合并，语义对齐内置工具）────────────
+
+function handleContextMenu(info: SheetGridContextMenuInfo): void {
+  // body 格：若点击落在当前选区外则先选中该格；行号/列头保留当前选区
+  if (info.addr) {
+    const inSelection = context
+      .getSelection()
+      .ranges.some((range) => rangeContainsAddress(range, info.addr!))
+    if (!inSelection) context.selectCell(info.addr)
+  }
+
+  const mergeTool = defaultToolRegistry.get('merge')
+  const unmergeTool = defaultToolRegistry.get('unmerge')
+
+  contextmenu.pop({
+    mousePosition: { x: info.x, y: info.y },
+    width: 180,
+    menus: [
+      {
+        label: '合并单元格',
+        disabled: mergeTool?.disabled?.(context) ?? true,
+        callback: () => mergeTool?.onClick(context)
+      },
+      {
+        label: '取消合并单元格',
+        disabled: unmergeTool?.disabled?.(context) ?? true,
+        callback: () => unmergeTool?.onClick(context)
+      }
+    ]
+  })
+}
+
 // ─── grid 生命周期 ──────────────────────────────────────────
 
 function rebuildGrid(): void {
   const container = gridRef.value
   if (!container) return
   grid?.release()
-  grid = new SheetGrid({ container, sheet: activeSheet.value, rows: props.rows, cols: props.cols })
+  grid = new SheetGrid({
+    container,
+    sheet: activeSheet.value,
+    rows: props.rows,
+    cols: props.cols,
+    onContextMenu: handleContextMenu
+  })
 }
 
 onMounted(() => {

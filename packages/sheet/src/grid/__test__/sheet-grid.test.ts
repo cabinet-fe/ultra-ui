@@ -31,6 +31,104 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('主题与交互选项：fillHandle / rowResize / clip / 编辑态方向键不换格', () => {
+    const { grid, table } = createGrid()
+    try {
+      const options = table.options
+      expect(options.excelOptions?.fillHandle).toBe(true)
+      expect(options.resize?.columnResizeMode).toBe('header')
+      expect(options.resize?.rowResizeMode).toBe('all')
+      // 列宽：仅列头；行高：仅行号列（body 格不可拖，避免干扰选区/编辑）
+      expect(table._canResizeColumn(1, 0)).toBe(true) // 列头 A
+      expect(table._canResizeColumn(1, 1)).toBe(false) // body
+      expect(table.isSeriesNumber(0, 1)).toBe(true)
+      expect(table._canResizeRow(0, 1)).toBe(true) // 行号列
+      expect(table._canResizeRow(1, 1)).toBe(false) // body
+      expect(options.keyboardOptions?.moveEditCellOnArrowKeys).toBe(false)
+      expect(options.defaultRowHeight).toBe(28)
+      expect(options.eventOptions?.preventDefaultContextMenu).toBe(true)
+      // theme 为 TableTheme 实例（DEFAULT.extends），读运行时解析值
+      const theme = table.theme
+      expect(theme.bodyStyle?.bgColor).toBe('#FFF')
+      expect(theme.bodyStyle?.textOverflow).toBe('clip')
+      expect(theme.defaultStyle?.textOverflow).toBe('clip')
+      expect(theme.defaultStyle?.borderColor).toBe('#E1E4E8')
+      // VTable DEFAULT 为 [10,16,10,16]；收紧后贴近 Excel
+      expect(theme.defaultStyle?.padding).toEqual([2, 6, 2, 6])
+      expect(theme.bodyStyle?.padding).toEqual([2, 6, 2, 6])
+      expect(theme.frameStyle?.borderColor).toBe('#E1E4E8')
+      expect(theme.selectionStyle?.cellBorderColor).toBe('#2170E7')
+      expect(theme.selectionStyle?.cellBorderColor).not.toBe('#000')
+      expect(options.rowSeriesNumber).toMatchObject({
+        width: 46,
+        style: { bgColor: '#F5F5F5', padding: [2, 6, 2, 6], textOverflow: 'clip' }
+      })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('右键 CONTEXTMENU_CELL → onContextMenu（client 坐标 + 模型地址）', async () => {
+    const sheet = new Sheet()
+    const container = createContainer()
+    const calls: Array<{ x: number; y: number; addr: { row: number; col: number } | null }> = []
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 6,
+      onContextMenu: (info) => calls.push(info)
+    })
+    try {
+      const table = grid.getTable()
+      // 表格坐标 (2,3) → 模型 B3（colOffset/rowOffset 各 1）
+      table.fireListeners(ListTable.EVENT_TYPE.CONTEXTMENU_CELL, {
+        col: 2,
+        row: 3,
+        event: { clientX: 120, clientY: 80, preventDefault() {} }
+      })
+      await Promise.resolve() // queueMicrotask
+      expect(calls).toHaveLength(1)
+      expect(calls[0]).toMatchObject({ x: 120, y: 80, addr: { row: 2, col: 1 } })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('行高：RESIZE_ROW_END 写入 Sheet，重建后还原', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    let grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+    try {
+      grid.getTable().fireListeners(ListTable.EVENT_TYPE.RESIZE_ROW_END, { row: 2, rowHeight: 48 })
+      expect(sheet.getRowHeight(1)).toBe(48)
+
+      grid.release()
+      grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+      expect(grid.getTable().getRowHeight(2)).toBe(48)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('填充柄：DRAG_FILL_HANDLE_END 数字序列写入模型', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.setCellValue({ row: 0, col: 0 }, 1)
+      sheet.selectRange({ start: { row: 0, col: 0 }, end: { row: 0, col: 0 } })
+      // 模拟源选区（表格坐标含偏移）
+      table.getSelectedCellRanges = () => [{ start: { col: 1, row: 1 }, end: { col: 1, row: 1 } }]
+      table.fireListeners(ListTable.EVENT_TYPE.MOUSEDOWN_FILL_HANDLE, {})
+      // 拖到底部扩展至 A1:A3
+      table.getSelectedCellRanges = () => [{ start: { col: 1, row: 1 }, end: { col: 1, row: 3 } }]
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_FILL_HANDLE_END, { direction: 'bottom' })
+      expect(sheet.getCellData({ row: 1, col: 0 })?.v).toBe(2)
+      expect(sheet.getCellData({ row: 2, col: 0 })?.v).toBe(3)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('模型 → 表格：setCellValue 后表格可见', () => {
     const { sheet, grid, table } = createGrid()
     try {

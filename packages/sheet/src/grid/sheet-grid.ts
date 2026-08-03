@@ -3,10 +3,16 @@ import type { ListTableConstructorOptions } from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
 import type { EditContext } from '@visactor/vtable-editors'
 
-import type { CellAddress } from '../core/address'
+import type { CellAddress, CellRange } from '../core/address'
 import { cellKey, colIndexToName, createRange } from '../core/address'
 import type { CellValue } from '../core/cell-store'
+import { computeFillTargetRange, generateFill, type FillDirection } from '../core/fill'
 import type { Sheet } from '../core/sheet'
+import {
+  SHEET_DEFAULT_ROW_HEIGHT,
+  sheetRowSeriesNumberStyle,
+  sheetVTableTheme
+} from './vtable-theme'
 
 /**
  * VTable 适配层：数据模型完全自持有，ListTable 只做渲染与输入。
@@ -18,7 +24,10 @@ import type { Sheet } from '../core/sheet'
  *   编辑提交期间模型变更（含公式重算派生格）先入待同步队列，提交结束统一回推表格——
  *   VTable 自己只更新了被编辑格的 record（还是输入文本），派生格它不知道
  * - 键盘：容器 keydown 绑定 undo/redo（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y），
- *   编辑器 input 打开时不拦截
+ *   编辑器 input 打开时不拦截；编辑态方向键不换格（moveEditCellOnArrowKeys: false）
+ * - 填充柄：excelOptions.fillHandle + mousedown/drag_end → core/fill → setCells
+ * - 行列尺寸：列宽仅列头；行高仅行号列（包装 _canResizeRow）。稀疏存 Sheet.rowHeights，
+ *   RESIZE_ROW_END 同步，重建时还原
  * - 坐标换算：行号列不计入 rowHeaderLevelCount，偏移量在首个表格实例上
  *   用 columnHeaderLevelCount + isSeriesNumber 实测并缓存（见 getOffsets）
  */
@@ -37,6 +46,27 @@ class FormulaAwareInputEditor extends InputEditor {
 /** 编辑器按 grid 实例注册（hook 闭包各自 sheet），名称递增防冲突 */
 let editorSeq = 0
 
+/** 右键菜单回调参数（vue 层弹 UContextmenu；grid 不依赖 desktop） */
+export interface SheetGridContextMenuInfo {
+  x: number
+  y: number
+  /** body 格地址；行号/列头为 null */
+  addr: CellAddress | null
+}
+
+/** 从 VTable 事件载荷提取 viewport 坐标（兼容 nativeEvent 嵌套） */
+function clientPointFromEvent(event: unknown): { x: number; y: number } | null {
+  let current: unknown = event
+  for (let i = 0; i < 3 && current && typeof current === 'object'; i++) {
+    if ('clientX' in current && typeof (current as { clientX: unknown }).clientX === 'number') {
+      const { clientX, clientY } = current as { clientX: number; clientY: number }
+      return { x: clientX, y: clientY }
+    }
+    current = 'nativeEvent' in current ? (current as { nativeEvent: unknown }).nativeEvent : null
+  }
+  return null
+}
+
 export interface SheetGridOptions {
   container: HTMLElement
   sheet: Sheet
@@ -44,6 +74,8 @@ export interface SheetGridOptions {
   rows?: number
   /** 渲染列数，默认 26（A..Z） */
   cols?: number
+  /** 单元格右键（已 preventDefault）；由 vue 层弹出菜单 */
+  onContextMenu?: (info: SheetGridContextMenuInfo) => void
 }
 
 export class SheetGrid {
@@ -53,17 +85,21 @@ export class SheetGrid {
   private readonly rows: number
   private readonly cols: number
   private readonly editorName: string
+  private readonly onContextMenu?: (info: SheetGridContextMenuInfo) => void
   private readonly disposers: (() => void)[] = []
   /** 编辑提交期间累积的模型变更（提交结束统一回推表格，覆盖公式派生格） */
   private pendingTableSync: Map<number, CellAddress> | null = null
   /** 实测坐标偏移（行号列数 / 列头行数），首次使用时测量 */
   private offsets?: { colOffset: number; rowOffset: number }
+  /** 填充柄：mousedown 时的源选区（模型坐标） */
+  private fillSourceRange: CellRange | null = null
 
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
     this.container = options.container
     this.rows = options.rows ?? 100
     this.cols = options.cols ?? 26
+    this.onContextMenu = options.onContextMenu
 
     // 每个 grid 实例注册自己的编辑器（hook 闭包本实例的 sheet 与坐标换算）
     this.editorName = `veltra-sheet-input-${editorSeq++}`
@@ -77,6 +113,8 @@ export class SheetGrid {
     register.editor(this.editorName, editor)
 
     this.table = new ListTable(options.container, this.buildOptions())
+    this.restrictRowResizeToSeriesNumber()
+    this.applyStoredRowHeights()
     this.bindTableEvents()
     this.bindSheetEvents()
     this.bindKeyboard()
@@ -163,14 +201,24 @@ export class SheetGrid {
       records: this.buildRecords(),
       columns: this.buildColumns(),
       widthMode: 'standard',
-      rowSeriesNumber: { width: 46 },
+      defaultRowHeight: SHEET_DEFAULT_ROW_HEIGHT,
+      // 列宽只在列头（A/B/C…）。行高：VTable rowResizeMode:'header' 以 isHeader()
+      // 判定，而行号列 body 格不是 header——设 'header' 会禁用行号列调行高。
+      // 因此 row 用 'all'，构造后限制到行号列（见 restrictRowResizeToSeriesNumber）。
+      resize: { columnResizeMode: 'header', rowResizeMode: 'all' },
+      theme: sheetVTableTheme,
+      rowSeriesNumber: { width: 46, style: sheetRowSeriesNumberStyle },
+      excelOptions: { fillHandle: true },
+      // 禁止浏览器默认右键菜单，改由 CONTEXTMENU_CELL → UContextmenu
+      eventOptions: { preventDefaultContextMenu: true },
       editor: this.editorName,
       editCellTrigger: 'doubleclick',
       keyboardOptions: {
         moveFocusCellOnTab: true,
         editCellOnEnter: true,
         moveFocusCellOnEnter: true,
-        moveEditCellOnArrowKeys: true,
+        // 编辑中方向键只移输入光标；未编辑时选区导航不受影响
+        moveEditCellOnArrowKeys: false,
         selectAllOnCtrlA: true
       },
       customMergeCell: (col, row, table) => {
@@ -194,6 +242,24 @@ export class SheetGrid {
           text: recordValue == null ? '' : String(recordValue)
         }
       }
+    }
+  }
+
+  /**
+   * 行高只允许在行号列拖拽（Excel 语义）。
+   * VTable 无 canResizeRow，且 'header' 不含 rowSeriesNumber body，故包装 _canResizeRow。
+   */
+  private restrictRowResizeToSeriesNumber(): void {
+    const table = this.table
+    const base = table._canResizeRow.bind(table)
+    table._canResizeRow = (col, row) => table.isSeriesNumber(col, row) && base(col, row)
+  }
+
+  /** 按 Sheet 稀疏行高还原到 VTable（tab 切换重建后保留） */
+  private applyStoredRowHeights(): void {
+    for (const [row, height] of this.sheet.getRowHeights()) {
+      const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
+      this.table.setRowHeight(tableRow, height)
     }
   }
 
@@ -225,13 +291,71 @@ export class SheetGrid {
 
     // 拖选结束 → 选区同步为区域（合并等区域操作的前提）
     this.table.on(ListTable.EVENT_TYPE.DRAG_SELECT_END, () => {
-      const range = this.table.getSelectedCellRanges()[0]
+      const range = this.readSelectedModelRange()
       if (!range) return
-      const start = this.toSheetAddr(this.table, range.start.col, range.start.row)
-      const end = this.toSheetAddr(this.table, range.end.col, range.end.row)
-      if (!start || !end) return
-      this.sheet.selectRange(createRange(start, end))
+      this.sheet.selectRange(range)
     })
+
+    // 行高拖拽结束 → 写入模型稀疏表（不进 undo）
+    this.table.on(ListTable.EVENT_TYPE.RESIZE_ROW_END, (args) => {
+      const addr = this.toSheetAddr(this.table, this.getOffsets(this.table).colOffset, args.row)
+      if (!addr) return
+      this.sheet.setRowHeight(addr.row, args.rowHeight)
+    })
+
+    // 填充柄：记下源选区
+    this.table.on(ListTable.EVENT_TYPE.MOUSEDOWN_FILL_HANDLE, () => {
+      this.fillSourceRange = this.readSelectedModelRange()
+    })
+
+    // 填充柄拖拽结束 → generateFill → setCells
+    this.table.on(ListTable.EVENT_TYPE.DRAG_FILL_HANDLE_END, (args) => {
+      const source = this.fillSourceRange
+      this.fillSourceRange = null
+      const direction = args.direction as FillDirection | undefined
+      if (!source || !direction) return
+      const expanded = this.readSelectedModelRange()
+      if (!expanded) return
+      const target = computeFillTargetRange(source, direction, expanded)
+      if (!target) return
+      const items = generateFill({
+        source,
+        target,
+        direction,
+        getCellData: (addr) => this.sheet.getCellData(addr)
+      })
+      if (items.length === 0) return
+      this.sheet.setCells(items)
+      this.sheet.selectRange(createRange(source.start, expanded.end))
+    })
+
+    // 右键 → vue 层 UContextmenu（grid 不依赖 desktop）
+    // VTable 在 rightdown 上派发 CONTEXTMENU_CELL（非原生 contextmenu）
+    this.table.on(ListTable.EVENT_TYPE.CONTEXTMENU_CELL, (args) => {
+      const event = args.event
+      if (event && typeof event === 'object' && 'preventDefault' in event) {
+        ;(event as { preventDefault: () => void }).preventDefault()
+      }
+      if (!this.onContextMenu) return
+      const point = clientPointFromEvent(event)
+      // 延后一帧：避开 VTable rightdown 同步阶段，保证菜单挂载后不被同轮指针事件干扰
+      const info: SheetGridContextMenuInfo = {
+        x: point?.x ?? 0,
+        y: point?.y ?? 0,
+        addr: this.toSheetAddr(this.table, args.col, args.row)
+      }
+      queueMicrotask(() => this.onContextMenu?.(info))
+    })
+  }
+
+  /** 当前 VTable 选区 → 规范化模型区域；无有效 body 选区返回 null */
+  private readSelectedModelRange(): CellRange | null {
+    const range = this.table.getSelectedCellRanges()[0]
+    if (!range) return null
+    const start = this.toSheetAddr(this.table, range.start.col, range.start.row)
+    const end = this.toSheetAddr(this.table, range.end.col, range.end.row)
+    if (!start || !end) return null
+    return createRange(start, end)
   }
 
   private bindSheetEvents(): void {

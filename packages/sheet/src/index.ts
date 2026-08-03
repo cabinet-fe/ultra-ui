@@ -4,6 +4,7 @@ import './tools/builtin'
 
 export * from './core/address'
 export * from './core/cell-store'
+export * from './core/fill'
 export * from './core/merge-manager'
 export * from './core/selection'
 export * from './core/sheet'

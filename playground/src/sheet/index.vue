@@ -1,9 +1,10 @@
 <template>
   <div class="sheet-demo">
     <div class="sheet-demo__hint">
-      USheet 组件：工具栏为内置工具（撤销/重做/合并/取消合并）+ 演示注册的两个自定义工具
-      （插入当前日期 / 清空选区，均走命令系统可撤销）。输入 = 开头文本即公式； 拖选区域后可合并；
-      快捷键：Ctrl/Cmd+Z 撤销，Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做
+      USheet：工具栏内置撤销/重做/合并/取消合并 + 演示自定义工具。输入 =
+      开头即公式；拖选后可合并或右键菜单；
+      单元格右下角拖填充柄可复制/数字序列/公式相对引用；行边界可拖行高。快捷键：Ctrl/Cmd+Z 撤销，
+      Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。
     </div>
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" :cols="10" class="sheet-demo__sheet" />
   </div>
@@ -47,6 +48,13 @@ sheet1.setCellValue({ row: 2, col: 0 }, '本表 B1÷2')
 sheet1.setCellFormula({ row: 2, col: 1 }, '=B1/2')
 sheet1.mergeCells({ start: { row: 4, col: 1 }, end: { row: 5, col: 2 } })
 sheet1.setCellValue({ row: 4, col: 1 }, '合并区(B5:C6)')
+// 填充柄演示：数字序列 / 文本 tile
+sheet1.setCellValue({ row: 0, col: 3 }, '序列')
+sheet1.setCellValue({ row: 1, col: 3 }, 1)
+sheet1.setCellValue({ row: 2, col: 3 }, 2)
+sheet1.setCellValue({ row: 0, col: 4 }, 'tile')
+sheet1.setCellValue({ row: 1, col: 4 }, 'a')
+sheet1.setCellValue({ row: 2, col: 4 }, 'b')
 // 预置数据作为初始状态，不进入 undo 历史
 sheet1.history.clear()
 sheet2.history.clear()

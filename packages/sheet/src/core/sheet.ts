@@ -43,6 +43,11 @@ export class Sheet {
   readonly history: HistoryManager
   /** 公式依赖图（工作簿内多 sheet 共享；独立 Sheet 自建） */
   readonly formulaGraph: DependencyGraph
+  /**
+   * 稀疏行高（模型行号 → 像素高度）。
+   * 供 SheetGrid 在 tab 切换重建时还原；本期不进 undo。
+   */
+  private readonly rowHeights = new Map<number, number>()
 
   name: string
 
@@ -64,6 +69,26 @@ export class Sheet {
 
   get colCount(): number {
     return this.store.colCount
+  }
+
+  /** 读取自定义行高；未设置返回 undefined（由视图层用默认行高） */
+  getRowHeight(row: number): number | undefined {
+    return this.rowHeights.get(row)
+  }
+
+  /** 设置自定义行高（不进 undo）；height ≤ 0 时清除自定义高度 */
+  setRowHeight(row: number, height: number): void {
+    if (!Number.isInteger(row) || row < 0) return
+    if (!Number.isFinite(height) || height <= 0) {
+      this.rowHeights.delete(row)
+      return
+    }
+    this.rowHeights.set(row, height)
+  }
+
+  /** 遍历已设置的自定义行高（SheetGrid 重建还原用） */
+  getRowHeights(): ReadonlyMap<number, number> {
+    return this.rowHeights
   }
 
   // ─── 单元格数据 ────────────────────────────────────────────

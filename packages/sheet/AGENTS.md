@@ -12,6 +12,7 @@ src/
 │   ├── __test__/         # core 单测
 │   ├── address.ts        # A1 地址系统（0-based CellAddress / 闭区间规范化 CellRange）
 │   ├── cell-store.ts     # 稀疏矩阵存储（Map<row, Map<col, CellData>>）
+│   ├── fill.ts           # 填充柄纯逻辑（tile / 数字日期等差 / 公式 $ 感知位移）
 │   ├── merge-manager.ts  # 合并单元格（只管几何，不管数据）
 │   ├── selection.ts      # 选区模型（activeCell 恒为锚点）
 │   ├── sheet.ts          # Sheet = store + merge + selection + history，统一操作入口
@@ -35,7 +36,8 @@ src/
 │       └── dependency-graph.ts # DependencyGraph（工作簿级：sheet 注册表 + 双向索引 + 增量重算）
 ├── grid/
 │   ├── __test__/         # SheetGrid smoke + canvas mock（vp test setupFiles）
-│   └── sheet-grid.ts     # VTable 适配层（ListTable 封装、编辑器接入、事件回写、键盘绑定、拖选接入）
+│   ├── vtable-theme.ts   # Sheet 默认 VTable 主题（body 白底、行号/列头浅底、textOverflow clip）
+│   └── sheet-grid.ts     # VTable 适配层（主题/行高/填充柄/右键回调、编辑器、事件回写、键盘）
 ├── tools/                # 工具扩展机制（不 import vue）
 │   ├── __test__/         # registry / context / builtin 单测
 │   ├── registry.ts       # ToolRegistry + defaultToolRegistry（registerTool / unregisterTool）
@@ -122,11 +124,17 @@ src/
 - 工具栏状态刷新：订阅注册表 change / workbook（active-sheet-change、sheets-change）/
   活动 sheet（selection/history/cell/merge-change）→ bump 版本号 → computed 重算
   `visible`/`disabled`。tab 切换 = 重建 SheetGrid（旧实例 release）+ 重绑 sheet 事件。
+- **右键菜单**：VTable `CONTEXTMENU_CELL`（`rightdown` 派发）→ `contextmenu.pop()`
+  （从 `@veltra/desktop` 主入口导入，勿深导入 `components/contextmenu`——dist 无 index.js），
+  固定两项「合并单元格 / 取消合并单元格」，`disabled`/`onClick` 对齐内置工具；落在选区外的
+  body 格先选中该格，行号/列头保留当前选区。`eventOptions.preventDefaultContextMenu: true`
+  禁浏览器默认菜单。不暴露自定义 `menus` prop。
 - 组件高度由宿主控制（`.u-sheet` flex 列布局，grid 区 `flex:1; min-height:0`，宿主需给高度）。
 - 样式：`vue/style.scss` 走 `pkg:@veltra/styles` token；**元素类用 `m.e(name)`（`&__x`），
   `m.bem(单参)` 是后代组件选择器（如 `.u-button .u-icon`）不是 BEM 元素**（用错会导致
   `.u-sheet__grid` 等规则缺失、grid 高度塌陷为 0）。
-- 样式入口 `vue/style.ts`（宿主 `import '@veltra/sheet/vue/style'`）；`sideEffects` 含
+- 样式入口 `vue/style.ts`（宿主 `import '@veltra/sheet/vue/style'`，并副作用引入
+  `@veltra/desktop/components/contextmenu/style`）；`sideEffects` 含
   `src/**/style.ts`、`src/**/*.scss`、`src/tools/builtin.ts` 及对应 dist 产物。
 
 ## 核心语义约定
@@ -151,9 +159,25 @@ src/
   VTable 自己只把被编辑格的 record 改成输入文本，公式格必须回推计算值、派生格它不知道。
 - 双击编辑走 vrender Gesture 的 `doubletap` 识别（非原生 dblclick），Playwright 合成的 dblclick 无法触发——浏览器自动化验证编辑链路时改用 `getCellRange` + `changeCellValue` 走同一提交路径，或 `startEditCell(col, row)` + `completeEditCell()` 程序化编辑（此时容器里有两个 input：VTable 内部键盘 input（`input-container`）与编辑器 input（`vtable`），取后者，可用 `editorManager.editingEditor.getInputElement()`）。
 - Enter 键行为由 `keyboardOptions` 决定：`moveFocusCellOnEnter: true` 时 Enter 是下移选区而非进入编辑（VTable 内部分支优先级如此），自动化不要指望 Enter 打开编辑器。
+- **编辑态方向键**：`moveEditCellOnArrowKeys: false`——双击进入编辑后方向键只移动输入框光标；
+  未编辑时 VTable 自身的选区方向键导航不受影响。
 - 键盘 undo/redo 绑定在 grid 容器的 keydown 上（Cmd/Ctrl+Z、Cmd/Ctrl+Shift+Z、Ctrl+Y）；事件来自编辑器 input/textarea 时不拦截（保留文本编辑自身的撤销）。点击单元格后焦点落在 `.vtable` 容器 div（tabindex=0），keydown 可冒泡到容器；编辑提交完成后焦点回 BODY，快捷键需重新点击网格聚焦。
 - **拖选接入**：`DRAG_SELECT_END` → `table.getSelectedCellRanges()[0]`（表格坐标）→ 坐标换算 +
   `createRange` 规范化 → `sheet.selectRange`（合并等区域操作的前提；单格点击走 `SELECTED_CELL`）。
+- **主题**：`grid/vtable-theme.ts` 必须用 `themes.DEFAULT.extends(...)`——裸对象主题不会
+  继承 DEFAULT，缺省 `borderColor` 回落内部 `#000`（刺眼黑线）。body `#FFF`、行号/列头
+  `#F5F5F5`、网格/外框 `#E1E4E8`、选区边框 `#2170E7`、`textOverflow: 'clip'`、
+  `padding: [2, 6, 2, 6]`（覆盖 DEFAULT `[10, 16, 10, 16]`）；canvas 主题用固定色，
+  不桥接 CSS 变量。
+- **行列尺寸拖拽**：`resize.columnResizeMode: 'header'`（仅列头 A/B/C…）；行高不能用
+  `rowResizeMode: 'header'`（VTable `isHeader` 不含行号列 body），故 `rowResizeMode: 'all'`
+  + 包装 `_canResizeRow` 限制到 `isSeriesNumber`。`defaultRowHeight: 28`；`Sheet` 稀疏
+  `rowHeights`（`getRowHeight` / `setRowHeight`，**不进 undo**）；`RESIZE_ROW_END` 同步，
+  tab 重建时还原。
+- **填充柄**：`excelOptions.fillHandle: true`；`MOUSEDOWN_FILL_HANDLE` 记源选区，
+  `DRAG_FILL_HANDLE_END` → `core/fill.generateFill` → `sheet.setCells`（单 undo 单元）。
+  规则：公式格字符串级位移（尊重 `$`）；数字/日期等差（单格步长 1）；否则 tile（空格覆盖清空）。
+  双击填充柄本期不做。
 - 事件用 `ListTable.EVENT_TYPE` 静态访问器（`core.EVENT_TYPE` 在 d.ts 是 `import type` 重导出，运行时为 undefined）。
 - **坐标偏移**：`rowSeriesNumber` 行号列**不计入** `rowHeaderLevelCount`；偏移量在首个表格实例上用 `columnHeaderLevelCount` + `isSeriesNumber` 逐列探测并缓存（`getOffsets`）。
 - 无头测试：happy-dom 不实现 canvas 2d，`src/grid/__test__/canvas-mock.ts` 用 Proxy mock 了 `getContext('2d')`（vp test setupFiles 注入）。
@@ -161,7 +185,8 @@ src/
 ## 依赖
 
 - **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`（同 desktop 先例，随包发布）
-- **peer**：`@cat-kit/core`、`vue`、`@veltra/utils`（bem / DeconstructValue）、`@veltra/styles`（SCSS token）
+- **peer**：`@cat-kit/core`、`vue`、`@veltra/desktop`（右键 `contextmenu.pop`）、
+  `@veltra/utils`（bem / DeconstructValue）、`@veltra/styles`（SCSS token）
 - **被依赖**：playground
 
 ## 已知限制
@@ -177,7 +202,8 @@ src/
 - 编辑提交回写的是输入文本（数字文本以字符串存储；公式求值按 Excel 规则强转）。
 - **选区单向同步**：VTable → 模型（点击 `SELECTED_CELL` / 拖选 `DRAG_SELECT_END`）；
   模型 API（`selectCell` / `selectRange` / SheetContext）改选区不回驱 VTable 高亮。
-- sheet tab 切换 = 重建 SheetGrid（release + new），VTable 侧的视觉选区/滚动位置不保留（模型选区保留）。
+- sheet tab 切换 = 重建 SheetGrid（release + new），VTable 侧的视觉选区/滚动位置不保留（模型选区与行高保留）。
+- 行高不进 undo；列宽未持久化到模型。
 - 行列插入删除、单元格样式系统、图表、协同编辑：本期不做，模型层预留扩展点。
 
 ## 验证

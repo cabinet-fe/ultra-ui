@@ -1,6 +1,6 @@
 # @veltra/sheet
 
-电子表格包：基于 `@visactor/vtable`（ListTable）渲染，**数据模型完全自持有，VTable 只做视图层**。单元格读写、合并单元格、公式（含跨表引用）、undo/redo（命令系统）、工具栏扩展机制、`USheet` 组件。
+电子表格包：基于 `@visactor/vtable`（ListTable）渲染，**数据模型完全自持有，VTable 只做视图层**。单元格读写、合并单元格、公式（含跨表引用）、undo/redo（命令系统）、填充柄、行高、右键合并菜单、工具栏扩展机制、`USheet` 组件。
 
 ```ts
 import { USheet, Workbook, registerTool } from '@veltra/sheet'
@@ -8,12 +8,16 @@ import type { SheetProps, SheetExposed, SheetTool, SheetContext } from '@veltra/
 import '@veltra/sheet/vue/style'
 ```
 
+宿主需安装 peer `@veltra/desktop`（右键菜单）。
+
 ## 分层与入口选择
 
 - **`USheet` 组件**（多数场景）：toolbar（工具注册表）+ grid + 底部 sheet tabs，一个组件即用。
 - **无头 / 自组 UI**：`Workbook`（多 sheet + 共享公式依赖图）→ `Sheet`（统一操作入口）；
-  `SheetGrid`（VTable 适配层，自行挂载到容器）。core 不依赖 vue，可单独测试与复用。
+  `SheetGrid`（VTable 适配层，自行挂载到容器）。core 不依赖 vue/desktop，可单独测试与复用。
 - 组件高度由宿主控制（grid 区 `flex:1`），需给 `.u-sheet` 一个高度。
+- 交互：填充柄（复制 / 数字日期等差 / 公式 `$` 感知位移）、行高拖拽（稀疏存模型、不进 undo）、
+  右键合并/取消合并、编辑中方向键只移光标。
 
 ## 核心约定
 
