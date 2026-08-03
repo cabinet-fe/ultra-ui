@@ -146,6 +146,15 @@ export class DependencyGraph {
     return this.sheets.get(name)
   }
 
+  /** 遍历全部公式节点（行列平移等批量操作用）：[sheet, 节点] */
+  *allNodes(): Generator<[Sheet, FormulaNode], void, undefined> {
+    for (const [name, map] of this.nodes) {
+      const sheet = this.sheets.get(name)
+      if (!sheet) continue
+      for (const node of map.values()) yield [sheet, node]
+    }
+  }
+
   // ─── 节点查询 ─────────────────────────────────────────────
 
   getNode(sheetName: string, addr: CellAddress): FormulaNode | undefined {

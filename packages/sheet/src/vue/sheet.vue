@@ -1,144 +1,170 @@
 <template>
   <div ref="rootRef" :class="cls.b">
-    <div v-if="showToolbar" :class="cls.e('toolbar')">
-      <template v-for="(group, groupIndex) in toolGroups" :key="group.name">
-        <span v-if="groupIndex > 0" :class="cls.e('toolbar-divider')" />
-        <button
-          v-for="item in group.tools"
-          :key="item.tool.id"
-          type="button"
-          :class="[cls.e('tool'), bem.is('active', item.active)]"
-          :disabled="item.disabled"
-          :title="item.tool.tooltip ?? item.tool.title"
-          @click="handleToolClick(item.tool)"
-        >
-          <component :is="item.tool.icon" v-if="item.tool.icon" :class="cls.e('tool-icon')" />
-          <span>{{ item.tool.title }}</span>
-        </button>
-      </template>
-    </div>
+    <!-- toolbar-wrap：弹层面板（popup）的定位参照系——相对工具栏而非整个 sheet，
+         否则 popup 的 top: calc(100% + 4px) 落在 sheet 底部之外被 overflow:hidden 裁剪 -->
+    <div :class="cls.e('toolbar-wrap')">
+      <div v-if="showToolbar" :class="cls.e('toolbar')">
+        <template v-for="(group, groupIndex) in toolGroups" :key="group.name">
+          <span v-if="groupIndex > 0" :class="cls.e('toolbar-divider')" />
+          <button
+            v-for="item in group.tools"
+            :key="item.tool.id"
+            type="button"
+            :class="[cls.e('tool'), bem.is('active', item.active)]"
+            :disabled="item.disabled"
+            :title="item.tool.tooltip ?? item.tool.title"
+            @click="handleToolClick(item.tool)"
+          >
+            <component :is="item.tool.icon" v-if="item.tool.icon" :class="cls.e('tool-icon')" />
+            <span>{{ item.tool.title }}</span>
+          </button>
+        </template>
+      </div>
 
-    <!-- 弹层型工具面板（填充颜色 / 边框）：面板交互走 SheetContext 命令入口 -->
-    <div v-if="popupTool" :class="cls.e('popup')" @click.stop>
-      <template v-if="popupTool.popup === 'fill-color'">
-        <u-palette :model-value="fillColor" @update:model-value="applyFillColor" />
-      </template>
-      <template v-else-if="popupTool.popup === 'border'">
-        <div :class="cls.e('popup-row')">
-          <span :class="cls.e('popup-label')">线型</span>
-          <button
-            v-for="line in BORDER_LINE_STYLES"
-            :key="line"
-            type="button"
-            :class="[cls.e('popup-line'), bem.is('active', borderLineStyle === line)]"
-            :title="BORDER_LINE_TITLES[line]"
-            @click="borderLineStyle = line"
-          >
-            <span :class="cls.e('popup-line-swatch')" :style="lineSwatchStyle(line)" />
-          </button>
-        </div>
-        <div :class="cls.e('popup-row')">
-          <span :class="cls.e('popup-label')">颜色</span>
-          <u-palette
-            :model-value="borderColor"
-            @update:model-value="(value) => (borderColor = value || borderColor)"
-          />
-        </div>
-        <div :class="cls.e('popup-row')">
-          <button
-            v-for="preset in BORDER_PRESETS"
-            :key="preset.id"
-            type="button"
-            :class="cls.e('popup-preset')"
-            @click="applyBorderPreset(preset.id)"
-          >
-            {{ preset.title }}
-          </button>
-        </div>
-      </template>
-      <template v-else-if="popupTool.popup === 'find'">
-        <div :class="cls.e('find-row')">
-          <u-input
-            v-model="findQuery"
-            :placeholder="'查找内容'"
-            size="small"
-            :class="cls.e('find-input')"
-            @keydown="handleFindKeydown"
-          />
-          <span :class="cls.e('find-count')">{{ findCountText }}</span>
-          <button
-            type="button"
-            :class="cls.e('find-nav')"
-            :disabled="!canFind"
-            title="上一个（Shift+Enter）"
-            @click="findPrevious"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            :class="cls.e('find-nav')"
-            :disabled="!canFind"
-            title="下一个（Enter）"
-            @click="findForward"
-          >
-            ↓
-          </button>
-          <button type="button" :class="cls.e('find-close')" title="关闭" @click="closePopup">
-            ✕
-          </button>
-        </div>
-        <div :class="cls.e('find-row')">
-          <u-input
-            v-model="findReplace"
-            placeholder="替换为"
-            size="small"
-            :class="cls.e('find-input')"
-            @keydown="handleFindKeydown"
-          />
-          <button
-            type="button"
-            :class="cls.e('find-btn')"
-            :disabled="!canReplace"
-            @click="replaceCurrent"
-          >
-            替换
-          </button>
-          <button
-            type="button"
-            :class="cls.e('find-btn')"
-            :disabled="!canReplace"
-            @click="replaceAll"
-          >
-            全部替换
-          </button>
-        </div>
-        <div :class="cls.e('find-row')">
-          <label :class="cls.e('find-option')">
-            <input v-model="caseSensitive" type="checkbox" />区分大小写
-          </label>
-          <label :class="cls.e('find-option')">
-            <input v-model="wholeCell" type="checkbox" />整格匹配
-          </label>
-          <label :class="cls.e('find-option')">
-            查找
-            <select v-model="searchIn" :class="cls.e('find-select')">
-              <option value="value">按显示值</option>
-              <option value="formula">按公式</option>
-            </select>
-          </label>
-        </div>
-      </template>
-      <template v-else-if="popupTool.popup === 'import'">
-        <u-file-picker accept=".xlsx,.csv" :class="cls.e('import-picker')" @pick="handleImportPick">
-          <div :class="cls.e('import-hint')">
-            选择 .xlsx / .csv 文件
-            <div :class="cls.e('import-sub')">
-              xlsx 将替换当前工作簿（需确认），csv 写入当前工作表
-            </div>
+      <!-- 弹层型工具面板（填充颜色 / 边框 / 插入行列等）：面板交互走 SheetContext 命令入口 -->
+      <div v-if="popupTool" :class="cls.e('popup')" @click.stop>
+        <template v-if="popupTool.popup === 'fill-color'">
+          <u-palette :model-value="fillColor" @update:model-value="applyFillColor" />
+        </template>
+        <template v-else-if="popupTool.popup === 'border'">
+          <div :class="cls.e('popup-row')">
+            <span :class="cls.e('popup-label')">线型</span>
+            <button
+              v-for="line in BORDER_LINE_STYLES"
+              :key="line"
+              type="button"
+              :class="[cls.e('popup-line'), bem.is('active', borderLineStyle === line)]"
+              :title="BORDER_LINE_TITLES[line]"
+              @click="borderLineStyle = line"
+            >
+              <span :class="cls.e('popup-line-swatch')" :style="lineSwatchStyle(line)" />
+            </button>
           </div>
-        </u-file-picker>
-      </template>
+          <div :class="cls.e('popup-row')">
+            <span :class="cls.e('popup-label')">颜色</span>
+            <u-palette
+              :model-value="borderColor"
+              @update:model-value="(value) => (borderColor = value || borderColor)"
+            />
+          </div>
+          <div :class="cls.e('popup-row')">
+            <button
+              v-for="preset in BORDER_PRESETS"
+              :key="preset.id"
+              type="button"
+              :class="cls.e('popup-preset')"
+              @click="applyBorderPreset(preset.id)"
+            >
+              {{ preset.title }}
+            </button>
+          </div>
+        </template>
+        <template v-else-if="popupTool.popup === 'find'">
+          <div :class="cls.e('find-row')">
+            <u-input
+              v-model="findQuery"
+              :placeholder="'查找内容'"
+              size="small"
+              :class="cls.e('find-input')"
+              @keydown="handleFindKeydown"
+            />
+            <span :class="cls.e('find-count')">{{ findCountText }}</span>
+            <button
+              type="button"
+              :class="cls.e('find-nav')"
+              :disabled="!canFind"
+              title="上一个（Shift+Enter）"
+              @click="findPrevious"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              :class="cls.e('find-nav')"
+              :disabled="!canFind"
+              title="下一个（Enter）"
+              @click="findForward"
+            >
+              ↓
+            </button>
+            <button type="button" :class="cls.e('find-close')" title="关闭" @click="closePopup">
+              ✕
+            </button>
+          </div>
+          <div :class="cls.e('find-row')">
+            <u-input
+              v-model="findReplace"
+              placeholder="替换为"
+              size="small"
+              :class="cls.e('find-input')"
+              @keydown="handleFindKeydown"
+            />
+            <button
+              type="button"
+              :class="cls.e('find-btn')"
+              :disabled="!canReplace"
+              @click="replaceCurrent"
+            >
+              替换
+            </button>
+            <button
+              type="button"
+              :class="cls.e('find-btn')"
+              :disabled="!canReplace"
+              @click="replaceAll"
+            >
+              全部替换
+            </button>
+          </div>
+          <div :class="cls.e('find-row')">
+            <label :class="cls.e('find-option')">
+              <input v-model="caseSensitive" type="checkbox" />区分大小写
+            </label>
+            <label :class="cls.e('find-option')">
+              <input v-model="wholeCell" type="checkbox" />整格匹配
+            </label>
+            <label :class="cls.e('find-option')">
+              查找
+              <select v-model="searchIn" :class="cls.e('find-select')">
+                <option value="value">按显示值</option>
+                <option value="formula">按公式</option>
+              </select>
+            </label>
+          </div>
+        </template>
+        <template v-else-if="popupTool.popup === 'import'">
+          <u-file-picker
+            accept=".xlsx,.csv"
+            :class="cls.e('import-picker')"
+            @pick="handleImportPick"
+          >
+            <div :class="cls.e('import-hint')">
+              选择 .xlsx / .csv 文件
+              <div :class="cls.e('import-sub')">
+                xlsx 将替换当前工作簿（需确认），csv 写入当前工作表
+              </div>
+            </div>
+          </u-file-picker>
+        </template>
+        <template
+          v-else-if="popupTool.popup === 'insert-rows' || popupTool.popup === 'insert-cols'"
+        >
+          <div :class="cls.e('insert-row')">
+            <span :class="cls.e('popup-label')">
+              {{ popupTool.popup === 'insert-rows' ? '插入行数' : '插入列数' }}
+            </span>
+            <u-input
+              v-model="insertCount"
+              size="small"
+              :class="cls.e('insert-input')"
+              placeholder="1-100"
+              @keydown.enter.prevent="applyInsert"
+            />
+            <button type="button" :class="cls.e('insert-btn')" @click="applyInsert">插入</button>
+            <button type="button" :class="cls.e('insert-btn')" @click="closePopup">取消</button>
+          </div>
+        </template>
+      </div>
     </div>
 
     <u-formula-bar
@@ -258,7 +284,10 @@ function bindSheetEvents(sheet: Sheet): void {
     sheet.on('history-change', bump),
     sheet.on('cell-change', bump),
     sheet.on('merge-change', bump),
-    sheet.on('frozen-change', bump)
+    sheet.on('frozen-change', bump),
+    // 行列插入/删除 → 重建网格（渲染行列数 = max(props, sheet.rows/cols)，
+    // 数据/选区/冻结/行高随重建恢复；低频操作直接重建）
+    sheet.on('structure-change', rebuildGrid)
   ]
 }
 
@@ -311,12 +340,14 @@ const toolGroups = computed(() => {
 function handleToolClick(tool: SheetTool): void {
   if (tool.disabled?.(context)) return
   if (tool.popup) {
-    // 弹层工具：同 id 再点 = 关闭；否则异步打开（避开本次 click 冒泡到 window）
+    // 弹层工具：同 id 再点 = 关闭；否则延迟打开（setTimeout 宏任务，避开
+    // 本次点击冒泡到 window 时 onWindowClick 误关——queueMicrotask 会在
+    // 事件传播中途的 microtask checkpoint 执行，面板会被同一 click 关闭）
     if (popupTool.value?.id === tool.id) {
       closePopup()
       return
     }
-    queueMicrotask(() => openPopup(tool))
+    setTimeout(() => openPopup(tool), 0)
     return
   }
   tool.onClick(context)
@@ -349,6 +380,8 @@ const fillColor = ref('')
 /** 边框面板：当前线型 / 颜色 */
 const borderLineStyle = ref<BorderLineStyle>('thin')
 const borderColor = ref('#000000')
+/** 插入行/列面板：数量（字符串，提交时钳制） */
+const insertCount = ref('1')
 
 /** 当前选区（ranges[0] 优先；无区域选区时用活动格单格） */
 function currentRange(): CellRange | null {
@@ -368,6 +401,11 @@ function openPopup(tool: SheetTool): void {
     // 导入面板不参与事务：xlsx 替换走 replaceWorkbook，csv 写入自身是单 undo 单元
     return
   }
+  if (tool.popup === 'insert-rows' || tool.popup === 'insert-cols') {
+    // 插入面板不参与事务：一次插入 = 单 undo 单元；打开时重置数量为 1
+    insertCount.value = '1'
+    return
+  }
   // 面板打开期间的所有写入合并为一个 undo 单元（关闭时提交）
   context.beginTransaction()
   const active = context.getSelection().activeCell
@@ -382,13 +420,40 @@ function closePopup(): void {
   if (!popupTool.value) return
   const isFind = popupTool.value.popup === 'find'
   const isImport = popupTool.value.popup === 'import'
+  const isInsert =
+    popupTool.value.popup === 'insert-rows' || popupTool.value.popup === 'insert-cols'
   popupTool.value = null
-  if (isFind || isImport) return
+  if (isFind || isImport || isInsert) return
   try {
     context.commit()
   } catch {
     context.rollback()
   }
+}
+
+/**
+ * 打开弹层型工具（右键菜单等非工具栏入口；与 handleToolClick 一致用 setTimeout
+ * 延迟到本次点击事件流结束后，避免 onWindowClick 误关）。
+ */
+function openToolPopup(tool: SheetTool | undefined): void {
+  if (!tool || tool.disabled?.(context)) return
+  setTimeout(() => openPopup(tool), 0)
+}
+
+/**
+ * 插入数量面板确认：数量钳制到 [1, 100] 整数（非法输入按 1），
+ * 以活动格为锚点插入（一次命令 = 单 undo 单元），随后关闭面板。
+ */
+function applyInsert(): void {
+  const tool = popupTool.value
+  if (!tool) return
+  const n = Math.min(100, Math.max(1, Math.floor(Number(insertCount.value)) || 1))
+  const active = context.getSelection().activeCell
+  if (active) {
+    if (tool.popup === 'insert-rows') context.insertRows(active.row, n)
+    else if (tool.popup === 'insert-cols') context.insertCols(active.col, n)
+  }
+  closePopup()
 }
 
 /** 填充颜色变化（'' = 无填充：清除 fill 保留边框） */
@@ -622,7 +687,7 @@ function onGlobalKeydown(event: KeyboardEvent): void {
     closePopup()
     return
   }
-  queueMicrotask(() => openPopup(findTool))
+  setTimeout(() => openPopup(findTool), 0)
 }
 
 // ─── sheet tabs ─────────────────────────────────────────────
@@ -713,6 +778,10 @@ function handleContextMenu(info: SheetGridContextMenuInfo): void {
 
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
+  const insertRowsTool = defaultToolRegistry.get('insert-rows')
+  const insertColsTool = defaultToolRegistry.get('insert-cols')
+  const deleteRowsTool = defaultToolRegistry.get('delete-rows')
+  const deleteColsTool = defaultToolRegistry.get('delete-cols')
 
   contextmenu.pop({
     mousePosition: { x: info.x, y: info.y },
@@ -727,6 +796,26 @@ function handleContextMenu(info: SheetGridContextMenuInfo): void {
         label: '取消合并单元格',
         disabled: unmergeTool?.disabled?.(context) ?? true,
         callback: () => unmergeTool?.onClick(context)
+      },
+      {
+        label: '插入行',
+        disabled: insertRowsTool?.disabled?.(context) ?? true,
+        callback: () => openToolPopup(insertRowsTool)
+      },
+      {
+        label: '插入列',
+        disabled: insertColsTool?.disabled?.(context) ?? true,
+        callback: () => openToolPopup(insertColsTool)
+      },
+      {
+        label: '删除行',
+        disabled: deleteRowsTool?.disabled?.(context) ?? true,
+        callback: () => deleteRowsTool?.onClick(context)
+      },
+      {
+        label: '删除列',
+        disabled: deleteColsTool?.disabled?.(context) ?? true,
+        callback: () => deleteColsTool?.onClick(context)
       }
     ]
   })

@@ -10,6 +10,10 @@
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
 
+  @include m.e(toolbar-wrap) {
+    position: relative;
+  }
+
   @include m.e(toolbar) {
     display: flex;
     align-items: center;
@@ -191,6 +195,30 @@
   }
 
   @include m.e(popup-preset) {
+    padding: 3px 10px;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(insert-row) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @include m.e(insert-input) {
+    width: 88px;
+  }
+
+  @include m.e(insert-btn) {
     padding: 3px 10px;
     border: 1px solid fn.use-var(border, muted-color);
     border-radius: fn.use-var(radius, small);

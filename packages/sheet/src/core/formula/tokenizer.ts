@@ -34,7 +34,7 @@ export type FormulaOperator =
   | '>='
 
 export type FormulaToken =
-  | { type: 'number'; value: number }
+  | { type: 'number'; value: number; raw: string }
   | { type: 'string'; value: string }
   /** 标识符：函数名 / 单元格引用形态 / 裸表名（含 $ 绝对引用写法）；TRUE/FALSE 由 parser 归约为布尔 */
   | { type: 'ident'; name: string }
@@ -88,7 +88,7 @@ export function tokenizeFormula(text: string): FormulaToken[] {
     if ((ch >= '0' && ch <= '9') || (ch === '.' && text[i + 1]! >= '0' && text[i + 1]! <= '9')) {
       const match = NUMBER_RE.exec(text.slice(i))
       if (!match) throw new FormulaParseError(`非法数字（位置 ${i + 1}）`)
-      tokens.push({ type: 'number', value: Number.parseFloat(match[0]) })
+      tokens.push({ type: 'number', value: Number.parseFloat(match[0]), raw: match[0] })
       i += match[0].length
       continue
     }

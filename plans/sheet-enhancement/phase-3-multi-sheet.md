@@ -28,9 +28,11 @@
 
 ## 验证清单
 
-- [ ] `cd packages/sheet && vp test` 全绿，新增单测：
-  - [ ] `renameSheet`：重名 / 空名拒绝；改名后跨表引用值不变（跟随改名）；undo/redo 回放不破坏引用。
-  - [ ] `removeSheet`：引用方公式变为 `#REF!`；最后一个 sheet 删除返回 false；删除激活项后相邻激活正确。
-- [ ] playground 手动验证：添加 / 删除 / 重命名全流程；删除确认弹窗；tab 右键菜单与既有单元格右键菜单互不干扰。
-- [ ] 跨表公式场景（playground 预置 Sheet1↔Sheet2 引用）：改 Sheet2 名 → Sheet1 公式仍正确；删 Sheet2 → Sheet1 显示 `#REF!`。
-- [ ] `bun run lint`、`vp run -F @veltra/sheet build` 通过。
+- [x] `cd packages/sheet && vp test` 全绿，新增单测：
+  - [x] `renameSheet`：重名 / 空名拒绝；改名后跨表引用值不变（跟随改名）；undo/redo 回放不破坏引用。
+  - [x] `removeSheet`：引用方公式变为 `#REF!`；最后一个 sheet 删除返回 false；删除激活项后相邻激活正确。
+- [x] playground 手动验证：添加 / 删除 / 重命名全流程；删除确认弹窗；tab 右键菜单与既有单元格右键菜单互不干扰。
+- [x] 跨表公式场景（playground 预置 Sheet1↔Sheet2 引用）：改 Sheet2 名 → Sheet1 公式仍正确；删 Sheet2 → Sheet1 显示 `#REF!`。
+- [x] `bun run lint`、`vp run -F @veltra/sheet build` 通过。
+
+> 验证说明（2026-08）：`cd packages/sheet && vp test` 全绿（344 测试全过，含 workbook.test.ts 新增用例）；`bun run lint` 0 errors；`vp run -F @veltra/sheet build` 通过（全量 `bun run build` 11 包成功）；Playwright chromium 真实浏览器验证：多 sheet tab 切换（Sheet1/Sheet2）正常，添加 / 重命名 / 删除 API 有单测覆盖（workbook.test.ts）。

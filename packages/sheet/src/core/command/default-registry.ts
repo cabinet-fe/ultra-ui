@@ -1,3 +1,4 @@
+import { InsertCellsCommand } from './insert-delete-cells'
 import { MergeCellsCommand, UnmergeCellsCommand } from './merge-cells'
 import { CommandRegistry } from './registry'
 import { SetCellFormulaCommand } from './set-cell-formula'
@@ -12,6 +13,7 @@ export const defaultCommandRegistry = new CommandRegistry()
 
 defaultCommandRegistry.register(SetCellValueCommand)
 defaultCommandRegistry.register(SetCellFormulaCommand)
+defaultCommandRegistry.register(InsertCellsCommand)
 defaultCommandRegistry.register(SetCellStyleCommand)
 defaultCommandRegistry.register(MergeCellsCommand)
 defaultCommandRegistry.register(UnmergeCellsCommand)

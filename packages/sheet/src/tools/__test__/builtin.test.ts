@@ -18,11 +18,12 @@ function isDisabled(tool: SheetTool, sheet: Sheet): boolean {
 }
 
 describe('内置工具（dogfood 扩展机制）', () => {
-  it('注册布局：history / cell / freeze / default / file 五组', () => {
+  it('注册布局：history / cell / structure / freeze / default / file 六组', () => {
     const groups = defaultToolRegistry.getGroups()
     expect(groups.map((group) => group.name)).toEqual([
       'history',
       'cell',
+      'structure',
       'freeze',
       'default',
       'file'
@@ -35,13 +36,19 @@ describe('内置工具（dogfood 扩展机制）', () => {
       'border'
     ])
     expect(groups[2]!.tools.map((tool) => tool.id)).toEqual([
+      'insert-rows',
+      'insert-cols',
+      'delete-rows',
+      'delete-cols'
+    ])
+    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual([
       'freeze',
       'freeze-row',
       'freeze-col',
       'unfreeze'
     ])
-    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual(['find'])
-    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['export-xlsx', 'export-csv', 'import'])
+    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['find'])
+    expect(groups[5]!.tools.map((tool) => tool.id)).toEqual(['export-xlsx', 'export-csv', 'import'])
   })
 
   it('导入导出工具：import 为弹层型；导出不依赖选区恒可用', () => {

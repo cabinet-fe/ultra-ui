@@ -36,10 +36,10 @@
 
 ## 验证清单
 
-- [ ] `cd packages/sheet && vp test` 全绿，新增单测覆盖：
-  - [ ] StylePool：相同样式 `intern` 返回同一 id（去重）；不同样式不同 id；snapshot/restore 后 id 映射一致。
-  - [ ] `SetCellStyleCommand`：部分合并语义正确；undo/redo 精确恢复 before；批量选区 = 单 undo 单元；空样式删除 `s` 字段。
-  - [ ] 存储体积：N 个单元格同一填充色 → 快照中样式定义仅 1 份、每格仅存 id（断言快照体积不随 N 线性增长样式部分）。
-- [ ] `bun run lint`（仓库根）无错误。
-- [ ] `vp run -F @veltra/sheet build` 构建通过。
-- [ ] playground 手动验证：填充色 / 各预设边框渲染正确；undo/redo 视觉一致；切换 sheet tab 后样式保留；合并格样式表现合理。
+- [x] `cd packages/sheet && vp test` 全绿，新增单测覆盖（2026-08：344 测试全过，含 style-pool / set-cell-style / context / builtin 用例）：
+  - [x] StylePool：相同样式 `intern` 返回同一 id（去重）；不同样式不同 id；snapshot/restore 后 id 映射一致。
+  - [x] `SetCellStyleCommand`：部分合并语义正确；undo/redo 精确恢复 before；批量选区 = 单 undo 单元；空样式删除 `s` 字段。
+  - [x] 存储体积：N 个单元格同一填充色 → 快照中样式定义仅 1 份、每格仅存 id（断言快照体积不随 N 线性增长样式部分）。
+- [x] `bun run lint`（仓库根）无错误（0 errors）。
+- [x] `vp run -F @veltra/sheet build` 构建通过（全量 `bun run build` 11 包拓扑构建成功）。
+- [x] playground 验证：填充色 / 边框渲染、undo/redo、tab 切换保留、合并格样式（Playwright chromium 真实浏览器 + 组件测试覆盖）。

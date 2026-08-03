@@ -173,4 +173,80 @@ export class CellStore {
     this._rowCount = 0
     this._colCount = 0
   }
+
+  // ─── 行列插入/删除（坐标平移）─────────────────────────
+
+  /**
+   * 插入 count 行：所有 row >= at 的行整体下移 count。
+   * 仅平移坐标，不产生新数据；高水位按真实数据重算。
+   */
+  insertRows(at: number, count: number): void {
+    if (count <= 0) return
+    const shifted: Array<[number, Map<number, CellData>]> = []
+    for (const [row, rowMap] of this.cells) {
+      if (row >= at) shifted.push([row, rowMap])
+    }
+    // 两阶段：先全部删除再写入，避免目标键覆盖未处理的源键
+    for (const [row] of shifted) this.cells.delete(row)
+    for (const [row, rowMap] of shifted) this.cells.set(row + count, rowMap)
+    this.recomputeExtent()
+  }
+
+  /** 删除 [at, at+count) 行：区间内行移除，之后的行整体上移 count */
+  deleteRows(at: number, count: number): void {
+    if (count <= 0) return
+    const end = at + count
+    for (const row of Array.from(this.cells.keys())) {
+      if (row >= at && row < end) this.cells.delete(row)
+    }
+    const shifted: Array<[number, Map<number, CellData>]> = []
+    for (const [row, rowMap] of this.cells) {
+      if (row >= end) shifted.push([row, rowMap])
+    }
+    for (const [row] of shifted) this.cells.delete(row)
+    for (const [row, rowMap] of shifted) this.cells.set(row - count, rowMap)
+    this.recomputeExtent()
+  }
+
+  /** 插入 count 列：所有 col >= at 的列整体右移 count */
+  insertCols(at: number, count: number): void {
+    if (count <= 0) return
+    for (const [row, rowMap] of this.cells) {
+      const newMap = new Map<number, CellData>()
+      for (const [col, data] of rowMap) {
+        newMap.set(col >= at ? col + count : col, data)
+      }
+      this.cells.set(row, newMap)
+    }
+    this.recomputeExtent()
+  }
+
+  /** 删除 [at, at+count) 列：区间内列移除，之后的列整体左移 count */
+  deleteCols(at: number, count: number): void {
+    if (count <= 0) return
+    const end = at + count
+    for (const [row, rowMap] of this.cells) {
+      const newMap = new Map<number, CellData>()
+      for (const [col, data] of rowMap) {
+        if (col >= at && col < end) continue
+        newMap.set(col >= end ? col - count : col, data)
+      }
+      this.cells.set(row, newMap)
+    }
+    this.recomputeExtent()
+  }
+
+  /** 重算行/列高水位（行列平移后真实数据范围可能收缩） */
+  private recomputeExtent(): void {
+    let maxRow = -1
+    let maxCol = -1
+    for (const [row, rowMap] of this.cells) {
+      if (row > maxRow) maxRow = row
+      for (const col of rowMap.keys()) {
+        if (col > maxCol) maxCol = col
+      }
+    }
+    this._rowCount = maxRow + 1
+    this._colCount = maxCol + 1
+  }
 }

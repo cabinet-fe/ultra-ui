@@ -75,6 +75,16 @@ export interface SheetContext {
   /** 设置冻结行列数（不进 undo，同 rowHeights 先例） */
   setFrozen(rows: number, cols: number): void
 
+  // ─── 行列插入/删除（结构变更，可 undo） ──────────────────
+  /** 插入 count 行到 at 行之前 */
+  insertRows(at: number, count?: number): void
+  /** 插入 count 列到 at 列之前 */
+  insertCols(at: number, count?: number): void
+  /** 删除 [at, at+count) 行 */
+  deleteRows(at: number, count?: number): void
+  /** 删除 [at, at+count) 列 */
+  deleteCols(at: number, count?: number): void
+
   // ─── 事件订阅（订阅时绑定到当前活动 sheet；tab 切换后需重新订阅） ──
   onSelectionChange(handler: (state: SelectionState) => void): () => void
   onHistoryChange(handler: (state: HistoryState) => void): () => void
@@ -122,6 +132,10 @@ export function createSheetContext(
       return sheet().frozen
     },
     setFrozen: (rows, cols) => sheet().setFrozen(rows, cols),
+    insertRows: (at, count) => sheet().insertRows(at, count),
+    insertCols: (at, count) => sheet().insertCols(at, count),
+    deleteRows: (at, count) => sheet().deleteRows(at, count),
+    deleteCols: (at, count) => sheet().deleteCols(at, count),
 
     beginTransaction: () => sheet().beginTransaction(),
     commit: () => sheet().commit(),

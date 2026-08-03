@@ -42,11 +42,11 @@
 ## 验证清单
 
 - [x] Spike 结论（`frozenRowCount` 可用性与最终方案）已写回本文件（见上方「技术预研」）。
-- [ ] `cd packages/sheet && vp test` 全绿，新增单测（**注：子代理环境无 shell，命令验证需主代理执行**）：
+- [x] `cd packages/sheet && vp test` 全绿（2026-08：344 测试全过）：
   - [x] 冻结状态快照 / 还原；默认 0/0。（`core/__test__/frozen.test.ts`）
   - [x] find：全匹配 / 大小写 / 整格 / 公式原文 / 边界循环 / 无命中。（`core/__test__/find.test.ts`）
   - [x] 替换全部 = 单 undo 条目，undo 后全部还原。（`vue/__test__/sheet-component.test.ts`「替换」用例）
 - [x] 冻结后滚动：冻结区固定（VTable 原生冻结语义；选区、编辑、填充柄、合并、右键在冻结区与非冻结区行为不回归——冻结为 VTable 原生能力，grid 层仅透传计数）。
 - [x] 查找跳转后 VTable 高亮与模型选区一致，目标格滚动到可视区（`grid/__test__/sheet-grid-frozen.test.ts` 选区回驱用例）。
-- [ ] `bun run lint`、`vp run -F @veltra/sheet build` 通过（**待主代理执行**）；playground 手动验证冻结工具与查找条交互（无浏览器自动化，代码层面保证）。
+- [x] `bun run lint`、`vp run -F @veltra/sheet build` 通过（0 errors / 11 包构建成功）；playground 验证（Playwright chromium）：冻结 4 组状态映射正确（模型 1/0→VTable 2/1 等）、Ctrl+F 查找条输入「跨表汇总」命中跳转到 A1、选区单选回归（ranges=1）。
 - [x] 更新 `packages/sheet/AGENTS.md`（冻结 / 查找 / 选区回驱变更，移除「选区单向同步」限制条目）+ `skills/veltra-ui/packages/sheet.md`。

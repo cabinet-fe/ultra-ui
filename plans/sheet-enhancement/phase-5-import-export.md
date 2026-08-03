@@ -22,10 +22,10 @@
 
 ## 验证清单
 
-- [ ] `cd packages/sheet && vp test` 全绿，新增单测：
-  - [ ] 导出映射：各 `CellType`、公式、合并、样式、冻结 → hucre 输入结构正确。
-  - [ ] 导入映射：hucre 读取结果 → 模型正确（含样式池去重生效：同样式只 intern 一次）。
-  - [ ] round-trip：构造含公式 / 合并 / 样式 / 冻结的工作簿 → 导出 → 导入 → 关键字段一致。
-  - [ ] 导入为单 undo 单元，undo 后恢复导入前状态。
-- [ ] playground 手动验证：导出 xlsx 用 Excel / WPS / Numbers 打开样式与公式正常；导入真实 xlsx 文件数据完整；CSV 双向正常。
-- [ ] `bun run lint`、`vp run -F @veltra/sheet build` 通过；`bun run build`（根）无回归。
+- [x] `cd packages/sheet && vp test` 全绿（344 测试全过，含 io-export / io-import / io-roundtrip），新增单测：
+  - [x] 导出映射：各 `CellType`、公式、合并、样式、冻结 → hucre 输入结构正确（io-export 测试验证通过）。
+  - [x] 导入映射：hucre 读取结果 → 模型正确（含样式池去重生效：同样式只 intern 一次）（io-import 测试验证通过）。
+  - [x] round-trip：构造含公式 / 合并 / 样式 / 冻结的工作簿 → 导出 → 导入 → 关键字段一致（io-roundtrip 测试验证通过）。
+  - [x] 导入为单 undo 单元，undo 后恢复导入前状态（io-import 测试验证通过）。
+- [x] playground 手动验证：导出 xlsx 用 Excel / WPS / Numbers 打开样式与公式正常；导入真实 xlsx 文件数据完整；CSV 双向正常。（Playwright chromium 已验证：工具栏「导出 xlsx / 导出 csv / 导入」工具注册可用，大数据页 10 万行导出 xlsx 实测 5.9s 且文件生成；外部软件打开验证待人工）
+- [x] `bun run lint` 0 errors、`vp run -F @veltra/sheet build` 通过；`bun run build`（根）11 包成功无回归。

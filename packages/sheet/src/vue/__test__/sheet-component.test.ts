@@ -44,6 +44,13 @@ function toolButton(el: HTMLElement, title: string): HTMLButtonElement | undefin
   )
 }
 
+/** 等待弹层打开：openPopup 走 setTimeout 宏任务（避免真实浏览器中同次 click 冒泡关闭面板） */
+async function flushPopup(): Promise<void> {
+  await nextTick()
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  await nextTick()
+}
+
 function tabs(el: HTMLElement): HTMLButtonElement[] {
   return [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tab')]
 }
@@ -68,6 +75,10 @@ describe('USheet 组件', () => {
       '取消合并',
       '填充颜色',
       '边框',
+      '插入行',
+      '插入列',
+      '删除行',
+      '删除列',
       '冻结到当前行列',
       '冻结首行',
       '冻结首列',
@@ -77,8 +88,8 @@ describe('USheet 组件', () => {
       '导出 csv',
       '导入'
     ])
-    // history / cell / freeze / default / file 五组之间四个分隔符
-    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(4)
+    // history / cell / structure / freeze / default / file 六组之间五个分隔符
+    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(5)
 
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2'])
     expect(tabs(el)[0]!.classList.contains('is-active')).toBe(true)
@@ -326,8 +337,7 @@ describe('USheet 组件', () => {
     expect(fillButton.disabled).toBe(false)
 
     fillButton.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
     // 面板已渲染（含 UPalette 取色器）
     expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
     expect(el.querySelector('.u-sheet__popup .u-palette')).not.toBeNull()
@@ -348,8 +358,7 @@ describe('USheet 组件', () => {
     sheet.selectRange({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
     await nextTick()
     toolButton(el, '边框')!.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
 
     const presetButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
     expect(presetButtons.map((button) => button.textContent?.trim())).toEqual([
@@ -430,8 +439,7 @@ describe('USheet 组件', () => {
     await nextTick()
 
     toolButton(el, '导入')!.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
     expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
     expect(el.querySelector('.u-file-picker')).not.toBeNull()
 
@@ -452,8 +460,7 @@ describe('USheet 组件', () => {
     await nextTick()
 
     toolButton(el, '查找')!.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
     expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
     expect(el.querySelector('.u-sheet__find-input')).not.toBeNull()
 
@@ -506,8 +513,7 @@ describe('USheet 组件', () => {
     await nextTick()
 
     toolButton(el, '查找')!.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
 
     const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
     queryInput.value = 'foo'
@@ -547,8 +553,7 @@ describe('USheet 组件', () => {
     await nextTick()
 
     toolButton(el, '查找')!.click()
-    await nextTick()
-    await nextTick()
+    await flushPopup()
 
     const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
     queryInput.value = 'foo'
@@ -570,5 +575,127 @@ describe('USheet 组件', () => {
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'bar' })
     expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ f: 'A1&"!"' })
     expect(sheet.getCellData({ row: 1, col: 0 })?.v).toBe('bar!')
+  })
+})
+
+describe('插入数量面板', () => {
+  it('工具栏「插入行」：输入数量插入多行 = 单 undo 单元，面板自动关闭', async () => {
+    const workbook = new Workbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
+    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    toolButton(el, '插入行')!.click()
+    await flushPopup()
+    expect(el.querySelector('.u-sheet__insert-row')).not.toBeNull()
+
+    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
+    input.value = '3'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
+    await nextTick()
+
+    const sheet = exposed.value!.getActiveSheet()
+    expect(sheet.rows).toBe(13) // 视图声明 10 行 + 插入 3
+    expect(el.querySelector('.u-sheet__popup')).toBeNull() // 插入后面板关闭
+
+    // 一次 undo 全部还原（单 undo 单元）
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.rows).toBe(10)
+  })
+
+  it('工具栏「插入列」：输入数量插入多列；Enter 提交', async () => {
+    const workbook = new Workbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
+    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    toolButton(el, '插入列')!.click()
+    await flushPopup()
+    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
+    input.value = '2'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+
+    const sheet = exposed.value!.getActiveSheet()
+    expect(sheet.cols).toBe(8) // 视图声明 6 列 + 插入 2
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+  })
+
+  it('取消按钮：不插入且面板关闭', async () => {
+    const workbook = new Workbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
+    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    toolButton(el, '插入行')!.click()
+    await flushPopup()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[1]!.click()
+    await nextTick()
+
+    expect(exposed.value!.getActiveSheet().rows).toBe(10)
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+  })
+
+  it('非法数量（空 / 0 / 非数字）按 1 插入', async () => {
+    const workbook = new Workbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
+    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    toolButton(el, '插入行')!.click()
+    await flushPopup()
+    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
+    input.value = 'abc'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
+    await nextTick()
+
+    expect(exposed.value!.getActiveSheet().rows).toBe(11) // 非法 → 1 行
+  })
+
+  it('面板重复打开：数量重置为 1', async () => {
+    const workbook = new Workbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
+    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    toolButton(el, '插入行')!.click()
+    await flushPopup()
+    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
+    input.value = '5'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
+    await nextTick()
+
+    // 再次打开 → 数量重置为 1
+    toolButton(el, '插入行')!.click()
+    await flushPopup()
+    expect(
+      el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!.value
+    ).toBe('1')
+    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
+    await nextTick()
+    expect(exposed.value!.getActiveSheet().rows).toBe(16) // 10 + 5 + 1
   })
 })

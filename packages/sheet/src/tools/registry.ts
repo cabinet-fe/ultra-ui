@@ -13,7 +13,13 @@ import type { SheetContext } from './context'
  */
 
 /** 弹层型工具类型：vue 层按类型渲染弹层面板（面板交互走 SheetContext 命令入口） */
-export type SheetToolPopupType = 'fill-color' | 'border' | 'find' | 'import'
+export type SheetToolPopupType =
+  | 'fill-color'
+  | 'border'
+  | 'find'
+  | 'import'
+  | 'insert-rows'
+  | 'insert-cols'
 
 /** 工具定义 */
 export interface SheetTool {

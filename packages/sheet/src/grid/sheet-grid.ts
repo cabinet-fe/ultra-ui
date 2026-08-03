@@ -160,8 +160,14 @@ export class SheetGrid {
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
     this.container = options.container
-    this.rows = options.rows ?? 100
-    this.cols = options.cols ?? 26
+    // 视图声明尺寸写入模型（扩张语义）——插入行/列以「渲染尺寸」为基准增长：
+    // 否则 _rows 从 0 起步、插入点小于 props 时 max(props, sheet.rows) 恒取 props，
+    // 数据平移但渲染窗口不扩大（表现为插入后行/列数不变）
+    this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
+    // 渲染尺寸 = max(视图层 props, 模型表格尺寸)；模型 rows/cols 随行列插入/删除增长
+    // （ensureTableSize 后 sheet.rows/cols ≥ props，max 恒取模型值，保留作兜底）
+    this.rows = Math.max(options.rows ?? 100, this.sheet.rows)
+    this.cols = Math.max(options.cols ?? 26, this.sheet.cols)
     this.onContextMenu = options.onContextMenu
     this.onEditStart = options.onEditStart
     this.onEditEnd = options.onEditEnd
@@ -303,6 +309,13 @@ export class SheetGrid {
     if (!range) return
     const start = this.toTableCoord(this.table, range.start)
     const end = this.toTableCoord(this.table, range.end)
+    // 结构变更（行列删除）后模型选区可能越界：钳制到当前渲染范围
+    const clamp = (v: { col: number; row: number }): { col: number; row: number } => ({
+      col: Math.min(Math.max(v.col, 1), this.cols),
+      row: Math.min(Math.max(v.row, 1), this.rows)
+    })
+    const startClamped = clamp(start)
+    const endClamped = clamp(end)
     // VTable 时序缺陷兜底：mouseup 事件流中 SELECTED_CELL 派发时 eventManager.isDraging
     // 尚未重置（window 级 pointerup 在后）。此时 selectCells 内部的 updateSelectPos 会走
     // 「拖拽扩展」分支：不清空旧选区（旧组件残留成孤儿 → 画布多区域高亮），且对反向
@@ -316,9 +329,9 @@ export class SheetGrid {
     this.syncingSelection = true
     try {
       this.clearSelectionOverlays()
-      this.table.selectCells([{ start, end }])
-      if (!this.isCellVisible(start.col, start.row)) {
-        this.table.scrollToCell({ col: start.col, row: start.row })
+      this.table.selectCells([{ start: startClamped, end: endClamped }])
+      if (!this.isCellVisible(startClamped.col, startClamped.row)) {
+        this.table.scrollToCell({ col: startClamped.col, row: startClamped.row })
       }
     } finally {
       // window 级 pointerup 稍后会把 isDraging 复位为 false；这里还原现场避免

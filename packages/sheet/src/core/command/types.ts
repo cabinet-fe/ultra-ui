@@ -36,7 +36,23 @@ export interface MergePatch {
   after: boolean
 }
 
-export type Patch = CellPatch | MergePatch
+/** 结构变更（行列插入/删除；undo = 反向结构操作，见 Sheet.reverseStructureChange） */
+export type StructureChange =
+  | { kind: 'insert-rows'; at: number; count: number }
+  | { kind: 'delete-rows'; at: number; count: number }
+  | { kind: 'insert-cols'; at: number; count: number }
+  | { kind: 'delete-cols'; at: number; count: number }
+
+/** 结构变更补丁（redo = 正向结构操作；undo = 反向结构操作） */
+export interface StructurePatch {
+  kind: 'structure'
+  change: StructureChange
+  /** 结构操作前的表格尺寸（undo 时精确还原；insert/delete 的尺寸计算不可逆） */
+  beforeRows: number
+  beforeCols: number
+}
+
+export type Patch = CellPatch | MergePatch | StructurePatch
 
 /**
  * 一次命令执行产生的变更单元。

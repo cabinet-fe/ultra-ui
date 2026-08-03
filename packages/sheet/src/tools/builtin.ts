@@ -75,6 +75,64 @@ registerTool({
   }
 })
 
+// ─── 行列插入/删除（结构工具） ────────────────────────────
+
+registerTool({
+  id: 'insert-rows',
+  title: '插入行',
+  tooltip: '在活动行上方插入行（可指定数量）',
+  group: 'structure',
+  order: 0,
+  popup: 'insert-rows',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  // 弹层型：vue 层渲染数量输入面板；onClick 保留默认插入 1 行（无弹层宿主回退）
+  onClick: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    if (active) ctx.insertRows(active.row, 1)
+  }
+})
+
+registerTool({
+  id: 'insert-cols',
+  title: '插入列',
+  tooltip: '在活动列左侧插入列（可指定数量）',
+  group: 'structure',
+  order: 1,
+  popup: 'insert-cols',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  // 弹层型：vue 层渲染数量输入面板；onClick 保留默认插入 1 列（无弹层宿主回退）
+  onClick: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    if (active) ctx.insertCols(active.col, 1)
+  }
+})
+
+registerTool({
+  id: 'delete-rows',
+  title: '删除行',
+  tooltip: '删除活动行',
+  group: 'structure',
+  order: 2,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    if (active) ctx.deleteRows(active.row)
+  }
+})
+
+registerTool({
+  id: 'delete-cols',
+  title: '删除列',
+  tooltip: '删除活动列',
+  group: 'structure',
+  order: 3,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    if (active) ctx.deleteCols(active.col)
+  }
+})
+
 // ─── 样式工具（弹层型：vue 层渲染面板，面板交互走 SheetContext 命令入口） ───
 
 registerTool({

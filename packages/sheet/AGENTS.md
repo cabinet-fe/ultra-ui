@@ -263,14 +263,28 @@ src/
 - Props：`workbook?`（缺省内部自建单 sheet 工作簿）、`rows?`(100)、`cols?`(26)、
   `showToolbar?`(true)、`showFormulaBar?`(true)、`showTabs?`(true)；Emits：`active-sheet-change`；
   Exposed（`SheetExposed`）：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`。
+- **弹层打开时序（真实浏览器必读）**：`openPopup` 的调用**必须经 `setTimeout(0)` 宏任务延迟**，
+  不能用 `queueMicrotask`——真实浏览器中每个事件监听器执行完都会触发 microtask checkpoint，
+  `queueMicrotask(openPopup)` 会在**同一 click 事件冒泡到 window 之前**执行：面板刚渲染，
+  冒泡到 window 的 `onWindowClick` 就把它关闭（面板闪开即关，表现为「点击弹层工具没反应」）。
+  工具栏按钮、右键菜单（`openToolPopup`）、Ctrl+F（`onGlobalKeydown`）三个入口统一用
+  `setTimeout(() => openPopup(tool), 0)`。happy-dom 的 microtask 时序与真实浏览器不同
+  （dispatchEvent 同步返回后才执行 microtask），组件测试测不出此问题，改动弹层打开方式后
+  必须用 Playwright 真实浏览器验证（断言 popup 打开后稳定存在，而非只跑组件测试）。
+- **弹层定位约束（2026-08 修复）**：`popup` 是 `toolbar-wrap`（`position: relative`）的子元素，
+  `top: calc(100% + 4px)` 相对工具栏——**不能**直接挂在 `.u-sheet` 下（`overflow: hidden` 会把
+  sheet 底部之外的弹层裁剪掉，表现为「面板打开了但看不到输入框」；组件测试查 DOM 存在性
+  查不出，必须真实浏览器验证 boundingBox 落在 sheet 内 + elementFromPoint 命中面板内容）。
+  弹层打开后的视觉验证请复用 Playwright 断言「popup rect 在 sheet rect 内」。
 - 工具栏状态刷新：订阅注册表 change / workbook（active-sheet-change、sheets-change）/
   活动 sheet（selection/history/cell/merge-change）→ bump 版本号 → computed 重算
   `visible`/`disabled`。tab 切换 = 重建 SheetGrid（旧实例 release）+ 重绑 sheet 事件。
 - **右键菜单**：VTable `CONTEXTMENU_CELL`（`rightdown` 派发）→ `contextmenu.pop()`
   （从 `@veltra/desktop` 主入口导入，勿深导入 `components/contextmenu`——dist 无 index.js），
-  固定两项「合并单元格 / 取消合并单元格」，`disabled`/`onClick` 对齐内置工具；落在选区外的
-  body 格先选中该格，行号/列头保留当前选区。`eventOptions.preventDefaultContextMenu: true`
-  禁浏览器默认菜单。不暴露自定义 `menus` prop。
+  固定六项「合并单元格 / 取消合并单元格 / 插入行 / 插入列 / 删除行 / 删除列」，
+  `disabled`/`callback` 对齐内置工具（插入行/列经 `openToolPopup` 打开数量输入面板）；
+  落在选区外的 body 格先选中该格，行号/列头保留当前选区。
+  `eventOptions.preventDefaultContextMenu: true` 禁浏览器默认菜单。不暴露自定义 `menus` prop。
 - **底部 sheet tabs 交互（Phase 3）**：tab 点击切换（同前）；末尾「+」按钮 `addSheet` +
   `activateSheet` 自动激活新表；tab 右键（原生 `contextmenu`，与单元格右键互不干扰）弹出
   菜单「重命名 / 删除」——重命名进入行内输入（Enter 提交、Esc 取消、失焦提交；冲突
@@ -394,9 +408,56 @@ src/
     数百 MB 级（写入后 `history.clear()` 释放）；生成器 + 写入为同步阻塞。
   - `exportWorkbookXlsx` 构造 `rows × cols` 稠密数组 + ZIP，120 万格内存峰值与耗时
     显著（流式备选见上）。
-- **实测基线（待浏览器实测占位）**：验证清单目标「10 万行写入 <10s、查找 <2s、
-  冻结首行生效、导出文件可打开」——本环境无浏览器自动化，页面已保证计时面板展示与
-  上述实现路径；真实数字待 `vp dev` 浏览器实测后回填本节。
+- **实测基线（2026-08 Playwright / chromium 真实浏览器，10 万行 × 12 列 = 120 万单元格，
+  seeded 数据、批量写入后挂载）**：
+
+  | 指标 | 实测 | 目标 |
+  | --- | --- | --- |
+  | 数据生成 | 226 ms | — |
+  | 批量写入（`setCells` 单事务） | **505 ms** | <10s ✅ |
+  | 首次渲染（挂载到首帧） | 569 ms | 流畅 ✅ |
+  | 查找（关键词命中） | **440 ms** | <2s ✅ |
+  | 导出 xlsx | **5.9 s**（含 ZIP 构造） | 文件可打开 ✅ |
+  | 样式池条目 / 去重率 | 20 条 / ×60,000 | 池条目数十级 ✅ |
+
+  冻结首行在 120 万格下生效（`setFrozen(1,0)` → VTable `frozenRowCount=2`）。
+
+## 行列插入/删除（Phase 7）
+
+- **入口**：`Sheet.insertRows(at, count=1)` / `insertCols` / `deleteRows` / `deleteCols`；
+  `SheetToolContext` 同签名暴露；内置工具 `insert-rows/insert-cols/delete-rows/delete-cols`
+  （组 `structure`）+ 单元格右键菜单「插入行/插入列/删除行/删除列」（以活动格坐标为锚点）。
+  **插入行/插入列是弹层型工具**（`popup: 'insert-rows' / 'insert-cols'`）：vue 层渲染数量输入
+  面板（默认 1、钳制到 [1,100]、Enter 提交；一次插入 = 单 undo 单元），工具栏与右键菜单
+  （`openToolPopup` 打开同一面板）共用；工具 `onClick` 保留默认插入 1 的回退（无弹层宿主）。
+  面板不参与事务（同 find/import 先例），插入即提交。
+- **结构变更 = 命令**（`InsertCellsCommand`，单 undo 单元）：redo = 结构操作 + 公式引用平移
+  CellPatch；undo = 先恢复公式 CellPatch 的 before（原公式文本/数据），再执行**反向结构操作**
+  （数据随坐标移动回原位，公式无需反向平移）。`StructurePatch` 携带 `beforeRows/beforeCols`
+  精确还原表格尺寸（insert/delete 的尺寸计算不可逆）。
+- **平移范围（Excel 语义）**：数据、合并区、稀疏行高、公式引用全部平移；**表格尺寸**
+  `Sheet.rows/cols`（随快照持久化，0 = 未声明由视图 props 决定）同步增减。
+  - **视图声明尺寸**：`Sheet.ensureTableSize(rows, cols)`（`@internal`，扩张语义 max 合并、
+    不进 undo、不发事件）由 SheetGrid 构造时调用，把渲染 props 写入模型——否则 `_rows` 从 0
+    起步、插入点小于 props 时 `max(props, sheet.rows)` 恒取 props，渲染窗口不增长
+    （表现为插入行/列后数据平移但行/列数不变）。删除行后模型尺寸可低于 props，
+    视图由 `max` 兜底保持 props 行数（Excel 语义）。
+  - 插入：`start >= at` 整体平移；`start < at <= end` 区域**扩展**（合并与公式区域同）。
+  - 删除 [at, at+count)：完全在区间内 → 移除；相交 → 按保留行/列**裁剪**（锚点被删时新锚点取区间起点，下方上移填补）；区间下方整体上移。
+  - **公式引用**（`core/formula/shift.ts`，token 级保真）：引用被删 → 公式格转 `#REF!`
+    （清 f + v/t=错误，可 undo 恢复）；`$1` 行绝对不随行平移、`$A` 列绝对不随列平移；
+    跨表引用（共享公式图）同步平移，**其他 sheet 的公式格坐标不动、仅引用文本平移**。
+- **Grid 联动**：`SheetGrid` 渲染尺寸 = `max(props, sheet.rows/cols)`；
+  `structure-change` 事件（vue 层）→ 重建网格（数据/选区/冻结/行高随重建恢复）；
+  选区回驱钳制越界坐标（行列删除后收敛）。
+- **验证**：`core/__test__/row-col-shift.test.ts`（21，CellStore/MergeManager 平移与裁剪）、
+  `formula-shift.test.ts`（20，引用平移含绝对/跨表/#REF!）、`structure-change.test.ts`
+  （13，Sheet 端到端：undo/redo 往返、跨表、快照、尺寸还原）；Playwright 端到端 6 项
+  （插入/删除/undo/右键菜单/表尾插入）。
+- **后续优化（2026-08 记录）**：Excel 原生**行号/列头右键插入**未实现——右键行号/列头 →
+  「插入行/插入列/删除行/删除列」直接执行（选中几行插几行，不进数量面板）。实现要点：
+  `SheetGridContextMenuInfo` 增加 header 识别（行号列/列头行 + 模型行列号），vue 层按
+  header 渲染独立菜单，插入数量取选区覆盖行/列数（≥1），未覆盖时先选中整行/整列。
 
 ## 已知限制
 
@@ -417,8 +478,8 @@ src/
   均为体验简化，非数据正确性问题。
 - 冻结列数 = 渲染列数（或行数）时 VTable 的 `frozenColCount`/`frozenRowCount` 归 0
   （VTable 原生行为：冻结区上限受 `maxFrozenWidth`/视口约束），极端场景表现为冻结失效。
-- 行列插入删除、字体/数字格式样式扩展、图表、协同编辑：本期不做，模型层预留扩展点。
-  单元格样式系统已落地（Phase 1：填充 + 边框）。
+- 字体/数字格式样式扩展、图表、协同编辑：本期不做，模型层预留扩展点。
+  单元格样式系统已落地（Phase 1：填充 + 边框）；行列插入删除已落地（Phase 7）。
 
 ## 验证
 

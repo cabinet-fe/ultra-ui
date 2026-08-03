@@ -9,13 +9,15 @@ import {
 } from './cell-store'
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
+import { InsertCellsCommand } from './command/insert-delete-cells'
 import { MergeCellsCommand, UnmergeCellsCommand } from './command/merge-cells'
 import { SetCellFormulaCommand } from './command/set-cell-formula'
 import { SetCellStyleCommand, type SetCellStyleItem } from './command/set-cell-style'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
-import type { Mutation, Patch, PatchDirection, CellPatch } from './command/types'
+import type { Mutation, Patch, PatchDirection, CellPatch, StructureChange } from './command/types'
 import { TypedEventEmitter } from './events'
 import { DependencyGraph } from './formula/dependency-graph'
+import { shiftFormulaText } from './formula/shift'
 import { MergeManager, type CellInfo } from './merge-manager'
 import { SelectionModel, type SelectionState } from './selection'
 import { StylePool } from './style/style-pool'
@@ -46,6 +48,9 @@ export interface SheetSnapshot {
   styles: CellStyle[]
   merges: CellRange[]
   frozen: FrozenState
+  /** 表格尺寸（行列插入/删除后的行列数；0 = 未声明，由视图层 props 决定） */
+  rows: number
+  cols: number
 }
 
 export type SheetEvents = {
@@ -59,6 +64,8 @@ export type SheetEvents = {
   'history-change': HistoryState
   /** 冻结状态变化（不进 undo；grid 层据此更新冻结布局） */
   'frozen-change': FrozenState
+  /** 结构变化（行列插入/删除；grid 层据此调整渲染行列数） */
+  'structure-change': StructureChange
 }
 
 export class Sheet {
@@ -78,6 +85,9 @@ export class Sheet {
   private readonly rowHeights = new Map<number, number>()
   /** 冻结状态（模型持有；不进 undo，随快照序列化/还原，grid 重建时还原） */
   private frozenState: FrozenState = { rows: 0, cols: 0 }
+  /** 表格尺寸（0 = 未声明，grid 用渲染 props；行列操作后增长，随快照持久化） */
+  private _rows = 0
+  private _cols = 0
 
   /** sheet 名（受控：只读 getter，改名必须经 Workbook.renameSheet 校验后调用 setName） */
   private _name: string
@@ -114,6 +124,29 @@ export class Sheet {
 
   get colCount(): number {
     return this.store.colCount
+  }
+
+  /** 表格行数（0 = 未声明，由视图层渲染 props 决定；行列操作后增长） */
+  get rows(): number {
+    return this._rows
+  }
+
+  /** 表格列数（0 = 未声明，由视图层渲染 props 决定；行列操作后增长） */
+  get cols(): number {
+    return this._cols
+  }
+
+  /**
+   * 声明表格尺寸（视图层初始化调用：把渲染 props 写入模型）。
+   * 扩张语义：只增大不缩小（max 合并）——插入行/列以「渲染尺寸」为基准增长，
+   * 否则 _rows 从 0 起步、插入点小于 props 时 max(props, sheet.rows) 恒取 props，
+   * 渲染窗口永不扩大（表现为插入后数据平移但行/列数不变）。
+   * 不进 undo、不发事件（仅初始化声明）；restore 后由视图层再次声明兜底。
+   * @internal 视图层（SheetGrid 构造）调用；无头场景不需要
+   */
+  ensureTableSize(rows: number, cols: number): void {
+    if (Number.isFinite(rows) && rows > this._rows) this._rows = Math.floor(rows)
+    if (Number.isFinite(cols) && cols > this._cols) this._cols = Math.floor(cols)
   }
 
   /** 读取自定义行高；未设置返回 undefined（由视图层用默认行高） */
@@ -316,6 +349,166 @@ export class Sheet {
     for (const patch of patches) this.boundApplyPatch(patch, 'redo')
   }
 
+  // ─── 行列插入/删除（结构变更）────────────────────────────
+
+  /** 插入 count 行到 at 行之前（数据/合并/行高/公式引用平移；可 undo） */
+  insertRows(at: number, count = 1): void {
+    this.executeCommand(InsertCellsCommand.id, { change: { kind: 'insert-rows', at, count } })
+  }
+
+  /** 插入 count 列到 at 列之前（数据/合并/公式引用平移；可 undo） */
+  insertCols(at: number, count = 1): void {
+    this.executeCommand(InsertCellsCommand.id, { change: { kind: 'insert-cols', at, count } })
+  }
+
+  /** 删除 [at, at+count) 行（数据/合并/行高/公式引用裁剪；可 undo） */
+  deleteRows(at: number, count = 1): void {
+    this.executeCommand(InsertCellsCommand.id, { change: { kind: 'delete-rows', at, count } })
+  }
+
+  /** 删除 [at, at+count) 列（数据/合并/公式引用裁剪；可 undo） */
+  deleteCols(at: number, count = 1): void {
+    this.executeCommand(InsertCellsCommand.id, { change: { kind: 'delete-cols', at, count } })
+  }
+
+  /** 结构变更的反向操作（undo 回放用） */
+  static reverseStructureChange(change: StructureChange): StructureChange {
+    switch (change.kind) {
+      case 'insert-rows':
+        return { kind: 'delete-rows', at: change.at, count: change.count }
+      case 'delete-rows':
+        return { kind: 'insert-rows', at: change.at, count: change.count }
+      case 'insert-cols':
+        return { kind: 'delete-cols', at: change.at, count: change.count }
+      case 'delete-cols':
+        return { kind: 'insert-cols', at: change.at, count: change.count }
+    }
+  }
+
+  /**
+   * 应用结构变更（数据/合并/行高/表格尺寸/事件）。
+   * 公式引用的平移由 prepareFormulaShift 生成 CellPatch 后经 applyPatch 应用
+   * （依赖图同步与 undo 恢复统一走补丁通道）。
+   * @param restoreDims undo 回放时传入操作前尺寸（精确还原，插入/删除计算不可逆）
+   * @internal 命令与 undo/redo 回放调用
+   */
+  applyStructureChange(
+    change: StructureChange,
+    restoreDims?: { rows: number; cols: number }
+  ): void {
+    const axis = change.kind.endsWith('rows') ? 'rows' : 'cols'
+    const isInsert = change.kind.startsWith('insert')
+    const { at, count } = change
+
+    if (axis === 'rows') {
+      if (isInsert) this.store.insertRows(at, count)
+      else this.store.deleteRows(at, count)
+      this.shiftRowHeights(at, count, isInsert ? 1 : -1)
+      this._rows = restoreDims
+        ? restoreDims.rows
+        : isInsert
+          ? Math.max(this._rows, at) + count
+          : Math.max(0, this._rows - count)
+    } else {
+      if (isInsert) this.store.insertCols(at, count)
+      else this.store.deleteCols(at, count)
+      this._cols = restoreDims
+        ? restoreDims.cols
+        : isInsert
+          ? Math.max(this._cols, at) + count
+          : Math.max(0, this._cols - count)
+    }
+
+    if (isInsert) {
+      if (axis === 'rows') this.merges.shiftRowsInsert(at, count)
+      else this.merges.shiftColsInsert(at, count)
+    } else {
+      if (axis === 'rows') this.merges.shiftRowsDelete(at, count)
+      else this.merges.shiftColsDelete(at, count)
+    }
+
+    this.emitter.emit('structure-change', change)
+  }
+
+  /**
+   * 计算结构变更引起的公式引用平移补丁（在 applyStructureChange 之前调用——
+   * 需要读取平移前的公式原文；patch.addr 为平移后坐标，before 为平移前数据）。
+   * 引用被删除区间覆盖的公式格 → after=undefined（公式死亡，显示 #REF!）。
+   * @internal 结构命令 handler 使用
+   */
+  prepareFormulaShift(change: StructureChange): CellPatch[] {
+    const axis = change.kind.endsWith('rows') ? 'rows' : 'cols'
+    const isInsert = change.kind.startsWith('insert')
+    const { at, count } = change
+    const end = at + count
+    const patches: CellPatch[] = []
+
+    for (const [formulaSheet, node] of this.formulaGraph.allNodes()) {
+      const before = formulaSheet.store.getCell(node.addr)
+      if (!before?.f) continue
+      // 公式格坐标只随「其所在 sheet」的结构操作平移；其他 sheet 的公式格仅平移引用文本
+      const ownSheet = formulaSheet === this
+      let addr = { ...node.addr }
+      let removed = false
+      if (ownSheet) {
+        if (axis === 'rows') {
+          if (isInsert) {
+            if (addr.row >= at) addr.row += count
+          } else if (addr.row >= at && addr.row < end) {
+            removed = true
+          } else if (addr.row >= end) {
+            addr.row -= count
+          }
+        } else if (isInsert) {
+          if (addr.col >= at) addr.col += count
+        } else if (addr.col >= at && addr.col < end) {
+          removed = true
+        } else if (addr.col >= end) {
+          addr.col -= count
+        }
+      }
+
+      if (removed) {
+        patches.push({
+          kind: 'cell',
+          sheet: formulaSheet,
+          addr: node.addr,
+          before,
+          after: undefined
+        })
+        continue
+      }
+      const result = shiftFormulaText(before.f, axis, at, count, isInsert ? 'insert' : 'delete')
+      if (!result.broken && result.text === before.f) continue
+      const after: CellData = result.broken ? { v: '#REF!', t: 'e' } : { ...before, f: result.text }
+      patches.push({ kind: 'cell', sheet: formulaSheet, addr, before, after })
+    }
+    return patches
+  }
+
+  /** 行高稀疏表随行平移（插入 +count / 删除 -count，区间内删除） */
+  private shiftRowHeights(at: number, count: number, delta: 1 | -1): void {
+    if (delta === 1) {
+      const shifted: Array<[number, number]> = []
+      for (const [row, height] of this.rowHeights) {
+        if (row >= at) shifted.push([row, height])
+      }
+      for (const [row] of shifted) this.rowHeights.delete(row)
+      for (const [row, height] of shifted) this.rowHeights.set(row + count, height)
+      return
+    }
+    const end = at + count
+    for (const row of Array.from(this.rowHeights.keys())) {
+      if (row >= at && row < end) this.rowHeights.delete(row)
+    }
+    const shifted: Array<[number, number]> = []
+    for (const [row, height] of this.rowHeights) {
+      if (row >= end) shifted.push([row, height])
+    }
+    for (const [row] of shifted) this.rowHeights.delete(row)
+    for (const [row, height] of shifted) this.rowHeights.set(row - count, height)
+  }
+
   // ─── 选区 ────────────────────────────────────────────────
 
   getSelection(): SelectionState {
@@ -339,7 +532,9 @@ export class Sheet {
       cells: this.store.snapshot(),
       styles: this.stylePool.snapshot(),
       merges: this.merges.getMerges(),
-      frozen: this.frozen
+      frozen: this.frozen,
+      rows: this._rows,
+      cols: this._cols
     }
   }
 
@@ -353,6 +548,8 @@ export class Sheet {
     this.merges.clear()
     for (const range of snapshot.merges) this.merges.addMerge(range)
     this.setFrozen(snapshot.frozen.rows, snapshot.frozen.cols)
+    this._rows = snapshot.rows ?? 0
+    this._cols = snapshot.cols ?? 0
   }
 
   // ─── 事件 ────────────────────────────────────────────────
@@ -384,13 +581,22 @@ export class Sheet {
       this.emitter.emit('cell-change', { addr: patch.addr })
       return
     }
-    const exists = direction === 'redo' ? patch.after : patch.before
-    if (exists) {
-      this.merges.addMerge(patch.range)
-    } else {
-      this.merges.removeMerge(patch.range)
+    if (patch.kind === 'merge') {
+      const exists = direction === 'redo' ? patch.after : patch.before
+      if (exists) {
+        this.merges.addMerge(patch.range)
+      } else {
+        this.merges.removeMerge(patch.range)
+      }
+      this.emitter.emit('merge-change', { range: patch.range })
+      return
     }
-    this.emitter.emit('merge-change', { range: patch.range })
+    // 结构变更：redo = 正向结构操作；undo = 反向结构操作（公式平移经 CellPatch 恢复），
+    // undo 同时精确还原操作前表格尺寸
+    this.applyStructureChange(
+      direction === 'redo' ? patch.change : Sheet.reverseStructureChange(patch.change),
+      direction === 'undo' ? { rows: patch.beforeRows, cols: patch.beforeCols } : undefined
+    )
   }
 
   /**

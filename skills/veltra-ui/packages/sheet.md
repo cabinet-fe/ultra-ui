@@ -66,6 +66,20 @@ import '@veltra/sheet/vue/style'
 - **选区回驱**：模型 `selectCell`/`selectRange` → VTable 高亮（`selectCells`）+ `scrollToCell` 滚动可见
   （查找跳转依赖；回驱期间 VTable 事件不回写模型，无递归）。
 
+## 行列插入/删除（结构变更）
+
+- **Sheet 方法**：`insertRows(at, count = 1)` / `insertCols(at, count = 1)` /
+  `deleteRows(at, count = 1)` / `deleteCols(at, count = 1)`（at 之前插入、删除 `[at, at + count)`
+  区间），全部可 undo/redo；数据、合并（锚点平移/裁剪）、行高、公式引用
+  （含跨表引用、`$` 绝对引用；引用目标被删 → `#REF!`）按 Excel 语义平移。
+- `Sheet.rows` / `Sheet.cols` 表格尺寸随操作增长，随快照（`snapshot` / `restore`）持久化；
+  结构变化发 `structure-change` 事件（grid 层据此调整渲染行列数）。
+- **SheetContext 方法**：同签名 `insertRows` / `insertCols` / `deleteRows` / `deleteCols`
+  （工具门面，走同一命令系统，可 undo）。
+- **内置工具**（工具栏 structure 组）：`insert-rows`（插入行）/ `insert-cols`（插入列）/
+  `delete-rows`（删除行）/ `delete-cols`（删除列），以活动格坐标为准（插入到活动行上方/活动列左侧、
+  删除活动行/列），无活动格时禁用；单元格右键菜单含这四项。
+
 ## 单元格样式（填充 / 边框）
 
 - **样式池**：样式定义集中存储、按内容去重；单元格只存 `CellData.s: StyleId`
@@ -140,5 +154,5 @@ importCsv(text, sheet)                            // 写入既有活动表（事
 
 ## 已知限制
 
-跨表 undo 历史按 sheet 分栈；无行列插入删除 UI、字体 / 数字格式等样式扩展（模型层预留）。
+跨表 undo 历史按 sheet 分栈；字体 / 数字格式等样式扩展（模型层预留）。
 详见 `packages/sheet/AGENTS.md`。
