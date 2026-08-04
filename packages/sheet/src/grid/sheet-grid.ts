@@ -21,6 +21,7 @@ import {
 import {
   GRID_BORDER,
   SHEET_CELL_PADDING,
+  SHEET_DEFAULT_COL_WIDTH,
   SHEET_DEFAULT_ROW_HEIGHT,
   sheetRowSeriesNumberStyle,
   sheetVTableTheme
@@ -323,9 +324,6 @@ export class SheetGrid {
 
     this.table = new ListTable(options.container, this.buildOptions())
     this.restrictRowResizeToSeriesNumber()
-    this.applyStoredRowHeights()
-    // 含 wrap 的行按内容估算行高（稀疏写入模型，与拖拽行高同语义、不进 undo）
-    this.syncWrapRowHeights()
     this.bindTableEvents()
     this.bindSheetEvents()
     this.bindKeyboard()
@@ -343,6 +341,16 @@ export class SheetGrid {
   /** 全量刷新（合并结构变化、批量数据变更后调用） */
   refresh(): void {
     this.table.setRecords(this.buildRecords())
+  }
+
+  /**
+   * 缓存实例切回激活时同步模型状态：冻结校正 + 选区回驱。
+   * 数据/样式/行高由常驻的 sheet 事件订阅持续同步，此处只需补齐
+   * 构造期一次性状态（冻结可能在隐藏期间变更；选区回驱保证高亮/滚动一致）。
+   */
+  syncFromModel(): void {
+    this.applyFrozen()
+    this.pushSelectionToTable(this.sheet.getSelection())
   }
 
   /** 撤销一步（模型命令历史） */
@@ -600,6 +608,13 @@ export class SheetGrid {
       columns: this.buildColumns(),
       widthMode: 'standard',
       defaultRowHeight: SHEET_DEFAULT_ROW_HEIGHT,
+      // 构造期批量行高（模型 rowHeights + wrap 估算，全行覆盖）：
+      // 逐条 table.setRowHeight 会触发 scenegraph 逐行 y 重排 + 渲染帧（O(可见格)），
+      // 几百条行高可达秒级（大文件导入实测 2-3s/表）。rowHeightConfig 使
+      // isAutoRowHeight 生效，构造时 computeRowsHeight 在首屏构建前一次性消费，
+      // 惰性写入 rowHeightsMap（零重排）。必须覆盖所有行：未命中 config 的行
+      // 会走文本高度测量路径（行高变自适应），全行覆盖保持 defaultRowHeight 语义。
+      rowHeightConfig: this.buildRowHeightConfig(),
       // 列宽只在列头（A/B/C…）。行高：VTable rowResizeMode:'header' 以 isHeader()
       // 判定，而行号列 body 格不是 header——设 'header' 会禁用行号列调行高。
       // 因此 row 用 'all'，构造后限制到行号列（见 restrictRowResizeToSeriesNumber）。
@@ -660,35 +675,60 @@ export class SheetGrid {
     table._canResizeRow = (col, row) => table.isSeriesNumber(col, row) && base(col, row)
   }
 
-  /** 按 Sheet 稀疏行高还原到 VTable（tab 切换重建后保留） */
-  private applyStoredRowHeights(): void {
-    for (const [row, height] of this.sheet.getRowHeights()) {
-      const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
-      this.table.setRowHeight(tableRow, height)
-    }
-  }
-
   /**
-   * 同步含 wrap 格的行高：扫描行内 wrap 格，按列宽估算折行高度取 max，
-   * 写入 `table.setRowHeight` + `Sheet.setRowHeight`（不进 undo）。
-   * @param row 指定行；缺省扫描全部有数据的行
+   * 构造期行高配置（rowHeightConfig，全行覆盖）：
+   * - 模型稀疏 rowHeights（导入 / 拖拽 / 历史 wrap 估算）优先；
+   * - wrap 格按默认列宽估算（列宽不持久化，重建后恒为默认值，见 SHEET_DEFAULT_COL_WIDTH）；
+   * - 未命中行走默认行高——**必须覆盖所有行**：rowHeightConfig 使 isAutoRowHeight
+   *   生效后，未覆盖的行会走文本高度测量路径（行高变自适应）。
+   * wrap 估算结果写入模型（与构造后 syncWrapRowHeight 同语义：不进 undo、随快照持久化）。
+   * key = 表格行号（模型行 + 1：列头行偏移）。
    */
-  private syncWrapRowHeights(row?: number): void {
-    if (row !== undefined) {
-      this.syncWrapRowHeight(row)
-      return
-    }
-    const seen = new Set<number>()
+  private buildRowHeightConfig(): { key: number; height: number }[] {
+    // 列头行（表格行 0）固定默认行高：rowHeightConfig 使 isAutoRowHeight 生效后
+    // 列头行也走 computeRowHeight（文本高度测量），不覆盖会从 28 缩成 ~17px
+    const config: { key: number; height: number }[] = [{ key: 0, height: SHEET_DEFAULT_ROW_HEIGHT }]
+    // wrap 估算只需扫描 store 中真实存在的行（稀疏大表 rows 远大于有数据的行数，
+    // 全行 × 全列扫描是 O(rows×cols) 的空转）
+    const dataRows = new Set<number>()
     for (const [addr] of this.sheet.store.entries()) {
-      if (addr.row >= this.rows || seen.has(addr.row)) continue
-      seen.add(addr.row)
-      this.syncWrapRowHeight(addr.row)
+      if (addr.row < this.rows) dataRows.add(addr.row)
     }
+    for (let row = 0; row < this.rows; row++) {
+      let height = this.sheet.getRowHeight(row) ?? SHEET_DEFAULT_ROW_HEIGHT
+      if (dataRows.has(row)) {
+        const estimated = this.estimateWrapRowHeightForRow(row, SHEET_DEFAULT_COL_WIDTH)
+        if (estimated != null) {
+          height = Math.max(height, estimated)
+          if (height !== this.sheet.getRowHeight(row)) this.sheet.setRowHeight(row, height)
+        }
+      }
+      config.push({ key: row + 1, height })
+    }
+    return config
+  }
+
+  /** 构造前单行 wrap 行高估算（不依赖 table：列宽以常量传入）；行内无 wrap 格返回 undefined */
+  private estimateWrapRowHeightForRow(row: number, colWidth: number): number | undefined {
+    if (row < 0 || row >= this.rows) return undefined
+    let maxHeight = 0
+    let hasWrap = false
+    for (let col = 0; col < this.cols; col++) {
+      const addr = { row, col }
+      const style = this.getStoredStyle(addr)
+      if (!style?.align?.wrap) continue
+      hasWrap = true
+      const text = String(this.sheet.getDisplayValue(addr) ?? '')
+      const height = estimateWrapRowHeight({ text, colWidth, fontSizePt: style.font?.size })
+      if (height > maxHeight) maxHeight = height
+    }
+    return hasWrap ? Math.max(SHEET_DEFAULT_ROW_HEIGHT, maxHeight) : undefined
   }
 
   /**
-   * 单行 wrap 行高估算；行内无 wrap 格则跳过（保留手动/默认行高）。
-   * 只升不降：已有自定义行高（导入 / 拖拽）不低于估算时保留，避免压矮。
+   * 单行 wrap 行高估算（动态：cell-change / wrap 切换 / 列宽拖拽后）；
+   * 行内无 wrap 格则跳过（保留手动/默认行高）。只升不降：
+   * 已有自定义行高（导入 / 拖拽）不低于估算时保留，避免压矮。
    */
   private syncWrapRowHeight(row: number): void {
     if (row < 0 || row >= this.rows) return
@@ -711,14 +751,33 @@ export class SheetGrid {
     // 已有更高的自定义行高（xlsx 导入 / 用户拖拽）不得被估算压矮
     const next = current != null ? Math.max(current, estimated) : estimated
     if (current === next) {
-      // 模型已是目标高度时仍确保 VTable 同步（重建后 applyStored 可能已写过）
+      // 模型已是目标高度时仍确保 VTable 同步（重建后 rowHeightConfig 可能已写过）
       const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
-      if (this.table.getRowHeight(tableRow) !== next) this.table.setRowHeight(tableRow, next)
+      if (this.table.getRowHeight(tableRow) !== next) this.setTableRowHeight(tableRow, next)
       return
     }
     this.sheet.setRowHeight(row, next)
     const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
-    this.table.setRowHeight(tableRow, next)
+    this.setTableRowHeight(tableRow, next)
+  }
+
+  /**
+   * table.setRowHeight + rowHeightConfig 同步。
+   * rowHeightConfig 使 isAutoRowHeight 恒 true，滚动增量重算（computeRowsHeight）
+   * 会按 config 值回写 rowHeightsMap——动态行高（拖拽 / wrap 更新）必须同步
+   * config 数组内容，否则滚动后行高被旧 config 值覆盖（视觉跳动）。
+   */
+  private setTableRowHeight(tableRow: number, height: number): void {
+    this.table.setRowHeight(tableRow, height)
+    const config = (
+      this.table as unknown as {
+        internalProps?: { rowHeightConfig?: { key: number; height: number }[] }
+      }
+    ).internalProps?.rowHeightConfig
+    if (!config) return
+    const item = config.find((c) => c.key === tableRow)
+    if (item) item.height = height
+    else config.push({ key: tableRow, height })
   }
 
   // ─── 事件桥接 ─────────────────────────────────────────────
@@ -801,11 +860,12 @@ export class SheetGrid {
       this.sheet.selectRange(range, this.resolveSelectionActive(range))
     })
 
-    // 行高拖拽结束 → 写入模型稀疏表（不进 undo）
+    // 行高拖拽结束 → 写入模型稀疏表（不进 undo）；同步 config 防滚动增量覆盖
     this.table.on(ListTable.EVENT_TYPE.RESIZE_ROW_END, (args) => {
       const addr = this.toSheetAddr(this.table, this.getOffsets(this.table).colOffset, args.row)
       if (!addr) return
       this.sheet.setRowHeight(addr.row, args.rowHeight)
+      this.setTableRowHeight(this.toTableCoord(this.table, addr).row, args.rowHeight)
     })
 
     // 列宽拖拽结束 → 重算该列相关行的 wrap 行高

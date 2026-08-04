@@ -7,6 +7,12 @@
 $root-name: message-confirm;
 
 @include m.b($root-name) {
+  // 根元素必须「平时」就有 transition：Vue transition-group 的 hasTransition 在
+  // 添加 leave-active 类之前检查元素当前 computed 样式，只在类上声明 transition
+  // 读不到 → 判定无过渡 → after-leave 同步触发（onClosed 在点击事件内同步执行，
+  // replaceWorkbook 长任务阻塞弹窗关闭）。与 message 组件对称（mask/box 同此）。
+  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+
   @include m.e(mask) {
     background-color: rgba(0, 0, 0, 0.32);
     position: fixed;
@@ -57,8 +63,21 @@ $root-name: message-confirm;
   }
 }
 
+/* 根元素必须声明 transition：Vue transition-group 通过「被过渡元素自身」的
+   computed transition 判定是否走动画。此前动画只写在子元素 mask/box 上，
+   根元素无 transition → Vue 判定无过渡 → after-leave 同步触发（onClosed 在
+   点击事件内同步执行，长任务阻塞弹窗关闭）。与 message 组件对称。 */
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
+  transition-duration: fn.use-var(transition, normal);
+  transition-timing-function: fn.use-var(transition, ease);
+  transition-property: opacity;
+}
+
 .#{$root-name}-enter-from,
 .#{$root-name}-leave-to {
+  opacity: 0;
+
   @include m.bem($root-name, mask) {
     opacity: 0;
   }

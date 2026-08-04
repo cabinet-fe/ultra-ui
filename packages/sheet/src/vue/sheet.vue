@@ -38,6 +38,7 @@
               @close="closePopup"
               @csv-imported="rebuildGrid"
               @workbook-replaced="syncFromWorkbook"
+              @parsing="parsing = $event"
             />
             <u-sheet-export-popup
               v-else-if="popupTool.popup === 'export'"
@@ -56,7 +57,7 @@
       :context="context"
     />
 
-    <div ref="gridRef" :class="cls.e('grid')" />
+    <div ref="gridRef" :class="cls.e('grid')" v-loading="parsing" />
 
     <u-sheet-tabs
       v-if="showTabs"
@@ -68,12 +69,13 @@
 </template>
 
 <script lang="ts" setup>
-import { UDropdown } from '@veltra/desktop'
+import { UDropdown, vLoading } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { useTemplateRef, watch } from 'vue'
+import { provide, ref, useTemplateRef, watch } from 'vue'
 
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
 import UFormulaBar from './formula-bar.vue'
+import { SHEET_PARSING_KEY } from './parsing'
 import USheetBorderPopup from './popups/border-popup.vue'
 import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
@@ -109,12 +111,17 @@ const cls = bem('sheet')
 const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncFromWorkbook } =
   useSheetState(props, emit, {
     onBeforeSheetChange: () => closePopup(),
-    rebuildGrid: () => rebuildGrid()
+    rebuildGrid: () => rebuildGrid(),
+    activateGrid: () => activateGrid(),
+    pruneCache: (sheets) => pruneCache(sheets)
   })
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
 const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context)
+// xlsx 解析中（worker）：grid 容器挂 v-loading（import-popup 经 provide/inject 写入）
+const parsing = ref(false)
+provide(SHEET_PARSING_KEY, parsing)
 
 // ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────
 
@@ -148,7 +155,7 @@ const toolGroups = useToolGroups(context, stateTick)
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
 const formulaBarRef = useTemplateRef<InstanceType<typeof UFormulaBar>>('formulaBarRef')
 
-const { rebuildGrid, getGrid } = useSheetGrid({
+const { rebuildGrid, activateGrid, pruneCache, getGrid } = useSheetGrid({
   props,
   gridRef,
   getActiveSheet: () => activeSheet.value,

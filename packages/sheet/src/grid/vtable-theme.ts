@@ -64,3 +64,11 @@ export const sheetRowSeriesNumberStyle = {
 
 /** 默认行高（比 VTable 默认 40 更接近表格密度；与 SHEET_CELL_PADDING 搭配） */
 export const SHEET_DEFAULT_ROW_HEIGHT = 28
+
+/**
+ * 默认列宽（px），对齐 VTable 默认 `defaultColWidth = 80`。
+ * 列宽未持久化到模型，网格重建后恒为默认值——wrap 行高估算在构造前
+ * （rowHeightConfig 批量注入）用此常量，与构造后 `table.getColWidth` 等价。
+ * 宿主若显式配置 defaultColWidth 需同步调整此常量。
+ */
+export const SHEET_DEFAULT_COL_WIDTH = 80

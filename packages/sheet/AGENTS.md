@@ -217,11 +217,24 @@ src/
   `wrap` → `autoWrapText`）。合并格读锚点样式。
 - **自动换行行高**：不用全局 `heightMode: 'autoHeight'`（与固定 28 + 稀疏 rowHeights
   冲突，且十万行级不可行）。grid 层按需估算：含 wrap 格的行按内容估算折行数
-  （列宽 ÷ 字宽近似）× 行距，经 `table.setRowHeight` / `Sheet.setRowHeight` 写入
-  （稀疏、不进 undo，与拖拽行高同语义）。触发：wrap 切换 / 单元格内容变更 /
-  列宽拖拽结束。只升不降：已有更高自定义行高（导入 / 拖拽）不被估算压矮。
+  （列宽 ÷ 字宽近似）× 行距，经 `Sheet.setRowHeight` 写入（稀疏、不进 undo，
+  与拖拽行高同语义）。**构造期批量注入（性能关键）**：逐条 `table.setRowHeight`
+  会触发 scenegraph 逐行 y 重排 + 渲染帧（O(可见格)，几十条即秒级，大文件导入
+  实测 2-3s/表）——重建时模型 rowHeights + wrap 估算经构造选项 `rowHeightConfig`
+  全行覆盖注入（`buildRowHeightConfig`，含列头行 key 0；该配置使 VTable
+  `isAutoRowHeight` 生效 → 构造时 `computeRowsHeight` 在首屏构建前一次性消费、
+  惰性写入 rowHeightsMap，零重排）。wrap 估算在构造前完成（列宽用
+  `SHEET_DEFAULT_COL_WIDTH` 常量 = VTable 默认 80：列宽不持久化，重建后恒为
+  默认值，与构造后 `getColWidth` 等价）。触发（动态路径，仍走
+  `setRowHeight` + config 同步）：wrap 切换 / 单元格内容变更 / 列宽拖拽结束。
+  **`setTableRowHeight` 必须同步 rowHeightConfig 数组内容**（`table.internalProps
+  .rowHeightConfig`）：config 使 isAutoRowHeight 恒 true，滚动增量重算会按 config
+  旧值回写 rowHeightsMap——不同步则动态行高（拖拽 / wrap 更新）滚动后跳回旧值。
+  只升不降：已有更高自定义行高（导入 / 拖拽）不被估算压矮。
   **已知边界**：估算偏差（非精确测字）；合并格 wrap 按锚点文本 +
-  单列宽估算，未按合并跨度加宽；关闭 wrap / 内容变短后不自动压回默认行高。
+  单列宽估算，未按合并跨度加宽；关闭 wrap / 内容变短后不自动压回默认行高；
+  rowHeightConfig 依赖 VTable `isAutoRowHeight` 含 config 检查（1.26.5 行为，
+  升级需复验）；视口外行高为滚动时惰性生效（滚动前 `getRowHeight` 仍默认值）。
   - **网格线回落（根因 A 修复）**：VTable 的 `style.borderColor ?? bodyStyle.borderColor`
     是整体替换而非逐边合并，未设置的边写 `null` 该边即不画（网格线丢失）——回调
     必须对未自定义的边显式给出主题网格线（`GRID_BORDER` / 1px / 实线，常量从
@@ -260,6 +273,17 @@ src/
   - `importXlsx(buffer): Promise<Workbook>`：`readXlsx(buf, { readStyles: true })` → 新工作簿
     （sheet 名冲突唯一化；活动表对齐）。每个 sheet：清空 + 批量 `setCells`（值/公式/样式
     一次命令 = 单 undo 单元 + 单次重算编排）→ 合并 → `setFrozen` → 行高（pt → px ×4/3 取整）。
+    **导入性能铁律**（实测预算套表：196 sheet / 75 万格 / 某表 13328 行 × 16384 列）：
+    - **空槽快速跳过**：hucre 的 `rows` 是稠密数组（行数组长度 = 该行最大列 + 1，Excel 极限
+      16384），迭代必须先 `value == null` 跳过再做 `covered.has` / `cells.get` / 样式转换
+      ——否则 2.18 亿空槽迭代 = 110s 卡死（跳过 = 3.5s）。
+    - **补漏遍历**：`cells` Map 是稀疏的，但只含「有详情」格（样式/公式）；纯值格只在
+      `rows` 里 → 主循环（有值格）+ 补漏（cells 中值 null 的格）双遍历，缺一丢数据。
+    - **尺寸收敛**：表格尺寸按「有值格 ∪ 公式格 ∪ 合并 ∪ 行高定义」+ **扩展带 100 行/列**
+      内的样式格计算，**不用** hucre 稠密行数组几何——「全选设边框」残留（整表 13327 行 ×
+      16384 列 16~20 万空白格式格）会把 `rowCount/colCount` 高水位撑到 Excel 极限 →
+      VTable 构造 16384 列实测 15~30s（切表卡死）。带外样式格丢弃（渲染区外不可见）。
+      收敛后 `copySheetContent` 的 `ensureTableSize(max(rows, rowCount))` 自然取收敛值。
   - `importCsv(text, sheet)`：`parseCsv(text, { typeInference: true })` → 从 A1 覆盖写入既有
     活动表（事务；空格不覆盖既有格、空串清除、Date → 1900 序列 t='d'）。
   - `replaceWorkbook(target, source)`：导入 UI 的「替换当前工作簿」——结构变更（删表/加表）
@@ -284,6 +308,34 @@ src/
   `tools/download.ts` 的 `downloadBlob` + `exportWorkbookFile` / `exportSheetCsvFile`；
   面板不参与事务）。`SheetContext.workbook` 只读引用供工作簿级导出；
   `createSheetContext(sheet, workbook?)` 第二参传入工作簿（无头/单 sheet 可省略，导出空操作）。
+- **导入确认交互**（`popups/import-popup.vue` onClosed）：弹窗关闭动画（0.25s）
+  **完成后**才执行 `replaceWorkbook`——前提是 message-confirm 根元素带基础
+  `transition`（desktop 侧修复：Vue transition-group 的 hasTransition 在加
+  leave-active 类前检查元素当前样式，根元素无 transition → after-leave 同步
+  触发 → onClosed 阻塞弹窗关闭，实测点击后卡 1.6s 才关）。执行前先
+  `message({ message: '正在导入…', duration: 0 })`（常驻反馈，阻塞期可见），
+  `try/catch/finally` 兜底：成功 `message.success`，失败 `message.error`（
+  replaceWorkbook 失败会留半替换状态，无法回滚——至少明确报错不误报成功），
+  `finally` 关 loading。**replaceWorkbook 后等 2 帧再 success**（vrender 重建后
+  首次渲染是同步阻塞任务，rAF 被其阻塞——等 2 帧后渲染必完成，用户看到
+  「导入完成」后立即交互不再撞渲染任务，实测 5s → 16ms）。
+- **xlsx 解析在 Web Worker**（`popups/import.worker.ts`）：importXlsx 是同步重活
+  （hucre 解析 + 模型构建，196 sheet / 75 万格实测 3~5s），主线程直接跑会冻结
+  UI（选文件后 3~4s 无反馈才弹确认框）。worker 返回纯数据快照（结构化克隆），
+  主线程 `restore` 重建 Workbook（无 undo 历史——替换语义由 replaceWorkbook
+  负责）；worker 不可用（构造抛错/onerror）降级主线程解析。解析期反馈：选文件后
+  import-popup 经 **provide/inject 写入解析中状态**（`vue/parsing.ts` 的
+  `SHEET_PARSING_KEY`），sheet.vue 在 grid 容器挂 **desktop 的 `v-loading`
+  指令**（`v-loading="parsing"`，加载动画正常转）。**用 provide/inject 而非
+  emit**：选文件后面板关闭（v-if 卸载 import-popup），卸载组件的 emit 无法送达
+  父组件（实测 parsing 收不到）；inject 拿到的是父作用域 ref 对象，卸载后修改
+  `ref.value` 仍驱动父组件响应式更新。**实现注意**：① worker 内用运行时动态
+  `import()`（顶层静态
+  import 在 vite dev 的 worker 上下文会 `Workbook is not defined`）；② 用
+  `new Worker(new URL('./import.worker.ts', import.meta.url))` 而非 `?worker`
+  虚拟导入（vp pack/rolldown 报 UNLOADABLE_DEPENDENCY）；③ URL 按
+  `import.meta.env?.DEV` 区分 .ts/.js，且 worker 必须显式列入 pack entry
+  （unbundle 模式只编译 entry 可达模块）才会进 dist。
 - **已知边界**：模型专有错误码 `#ERROR!`/`#CYCLE!` 不在 Excel 错误集内，导出为普通字符串
   （类型丢失）；Excel 共享公式（拖拽填充产生）非主格读回 `formula=''`，导入为静态缓存值
   （公式语义丢失）；导入按表序处理，反向跨表引用遇空表时缓存 `#REF!`（任一后续写入触发
@@ -402,8 +454,27 @@ src/
     左缘对齐 / offset 6px / 位置跟随 / 窄容器 flip-shift / 滚动关闭 / 点外关闭 / toggle）。
 - 工具栏状态刷新：`use-sheet-state.ts` 订阅注册表 change / workbook（active-sheet-change、
   sheets-change）/ 活动 sheet（selection/history/cell/merge-change）→ bump 版本号 →
-  `use-tool-groups.ts` 的 computed 重算 `visible`/`disabled`。tab 切换 = 重建 SheetGrid
-  （旧实例 release）+ 重绑 sheet 事件。
+  `use-tool-groups.ts` 的 computed 重算 `visible`/`disabled`。tab 切换走 **LRU 实例缓存**
+  （见下方「SheetGrid 实例缓存」）+ 重绑 sheet 事件。
+- **SheetGrid 实例缓存（LRU，性能关键）**：`use-sheet-grid.ts` 维护
+  `Map<Sheet, { grid, el, lastUsed, rows, cols }>`（容量 3），每个实例独立容器 div
+  （`.u-sheet__grid-instance`，absolute 堆叠于 `.u-sheet__grid` 内），非激活容器
+  `visibility:hidden`（保持尺寸、不触发 VTable resize，切回仅翻转可见性 + `syncFromModel`
+  选区回驱/冻结校正 ≈ 10ms，大文件 30 sheet 来回切换不再重建）。实测：未命中重建
+  ~300ms（行高优化后）/ 命中 ~10ms。
+  - **失效路径**：`structure-change` / `props.rows·cols` 变化 / workbook 切换 / 导入替换 →
+    `rebuildGrid`（`invalidateAll` 清缓存 + 重建激活）；删除 sheet → `sheets-change` →
+    `pruneCache` 释放已删除实例（条件注意：存活或激活的保留，其余释放）；卸载 →
+    `invalidateAll`。
+  - **隐藏实例过期校验**：`createGrid` 时为实例自持 `structure-change` 订阅（vue 层
+    只绑定激活 sheet 的 structure-change），隐藏期间**任何**程序化行列变更（插入/删除/
+    undo，含净零尺寸变化）置 dirty 标记——`activateGrid` 命中缓存时 dirty 即释放重建，
+    否则切回显示旧结构。删除激活 sheet 的联动：`active-sheet-change` handler 在
+    `activateGrid` 后补一次 `pruneCache`（sheets-change 先派发时旧实例仍是 active 被
+    保留，需切换完成后清理）。
+  - 数据/样式/行高由实例常驻的 sheet 事件订阅持续同步（隐藏期间跨表重算不丢）；
+    交互（键盘/pointerdown/右键）只绑定激活实例容器，隐藏容器不可聚焦无冲突。
+  - 内存：每实例 = canvas + scenegraph（容量即上限）；sheet 列表变化及时 prune。
 - **右键菜单**（`use-sheet-grid.ts` + `sheet-context-menu.ts`）：VTable `CONTEXTMENU_CELL`
   （`rightdown` 派发）→ `contextmenu.pop()`（从 `@veltra/desktop` 主入口导入，勿深导入
   `components/contextmenu`——dist 无 index.js）。`SheetGridContextMenuInfo` 带
@@ -615,7 +686,7 @@ src/
 - **选区双向同步**：VTable → 模型（点击 `SELECTED_CELL` / 拖选 `DRAG_SELECT_END`）与
   模型 → VTable（`selection-change` → `selectCells` 高亮 + `scrollToCell` 滚动）双向打通；
   回驱期间 VTable 事件不回写模型（`syncingSelection` 防递归）。
-- sheet tab 切换 = 重建 SheetGrid（release + new），VTable 侧的滚动位置不保留
+- sheet tab 切换 = LRU 实例缓存命中（零重建，滚动位置/视口保留）或未命中时新建实例
   （模型选区 / 行高 / 冻结状态保留：模型选区经回驱恢复高亮，行高与冻结经构造还原）。
 - 行高不进 undo；列宽未持久化到模型。
 - **替换为整格覆盖语义**（非 Excel 子串替换）：命中格整格替换为替换文本；**公式格不参与替换**

@@ -533,8 +533,18 @@
   }
 
   @include m.e(grid) {
+    position: relative;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
+  }
+
+  /* LRU 缓存实例容器：absolute 堆叠于 grid 区，非激活实例 visibility:hidden
+     （保持尺寸不触发 VTable resize，切回仅翻转可见性 + 选区回驱） */
+  @include m.e(grid-instance) {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
   }
 
   @include m.e(tabs) {

@@ -37,15 +37,40 @@ interface UseSheetGridOptions {
   formulaBarRef: ElRef<FormulaBarMirror>
 }
 
+/** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
+interface CachedGrid {
+  sheet: Sheet
+  grid: SheetGrid
+  el: HTMLDivElement
+  lastUsed: number
+  /** 释放实例：取消 structure-change 订阅 + grid.release + 移除容器 */
+  release: () => void
+  /** 隐藏期间发生 structure-change（程序化行列变更）→ 切回时需重建 */
+  dirty: boolean
+}
+
 /**
- * SheetGrid 生命周期与网格右键菜单：
- * - rebuildGrid：释放旧实例并按当前活动 sheet 重建
+ * 缓存容量：最近 N 个 sheet 的 SheetGrid 实例常驻（tab 来回切换零重建）。
+ * 大文件多 sheet 场景下切换卡顿的主因是每次重建 VTable（实例创建 + scenegraph
+ * 首屏构建 ~300ms）；缓存命中时仅切换容器可见性 + 选区回驱（≈0）。
+ * 每实例持有一个 canvas + scenegraph，容量即内存上限（含隐藏实例的渲染开销）。
+ */
+const GRID_CACHE_CAPACITY = 3
+
+/**
+ * SheetGrid 生命周期与网格右键菜单（LRU 实例缓存）：
+ * - activateGrid：tab 切换入口——命中缓存 → 显示 + 模型同步（零重建）；
+ *   未命中 → 新建实例入缓存，超容量淘汰最久未用（release + 移除容器）
+ * - rebuildGrid：强制重建激活实例并清空缓存（structure-change / props 尺寸
+ *   变化 / 工作簿切换 / 导入替换——这些场景下缓存实例的 columns / 数据源失效）
  * - 右键菜单：body / 行号 / 列头
  * - 公式栏引用选择：interceptSelection 拦截选区回写 + pointerdown 挂起 blur
  */
 export function useSheetGrid(options: UseSheetGridOptions) {
   const { props, gridRef, getActiveSheet, context, formulaBarRef } = options
-  let grid: SheetGrid | undefined
+  const cache = new Map<Sheet, CachedGrid>()
+  let active: CachedGrid | undefined
+  let seq = 0
   let detachPointerDown: (() => void) | undefined
 
   function handleContextMenu(info: SheetGridContextMenuInfo): void {
@@ -76,14 +101,16 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     }
   }
 
-  function rebuildGrid(): void {
-    const container = gridRef.value
-    if (!container) return
-    detachPointerDown?.()
-    grid?.release()
-    grid = new SheetGrid({
-      container,
-      sheet: getActiveSheet(),
+  /** 新建实例：创建独立容器 div（absolute 堆叠于 grid 区内）并构造 SheetGrid */
+  function createGrid(sheet: Sheet): CachedGrid {
+    const host = gridRef.value
+    if (!host) throw new Error('useSheetGrid: grid 容器未挂载')
+    const el = document.createElement('div')
+    el.className = 'u-sheet__grid-instance'
+    host.appendChild(el)
+    const grid = new SheetGrid({
+      container: el,
+      sheet,
       rows: props.rows,
       cols: props.cols,
       onContextMenu: handleContextMenu,
@@ -93,18 +120,120 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       interceptSelection: () => formulaBarRef.value?.isRefSelecting() ?? false,
       onSelectionIntercept: (range) => formulaBarRef.value?.handleRefSelect(range)
     })
-    bindGridPointerDown(container)
+    // 结构变更订阅（vue 层只绑定激活 sheet；隐藏实例必须自持标记，切回时判定过期）
+    let dirty = false
+    const offStructureChange = sheet.on('structure-change', () => {
+      dirty = true
+    })
+    const release = (): void => {
+      offStructureChange()
+      grid.release()
+      el.remove()
+    }
+    return {
+      sheet,
+      grid,
+      el,
+      lastUsed: ++seq,
+      release,
+      get dirty() {
+        return dirty
+      }
+    }
   }
 
-  onMounted(rebuildGrid)
+  /** 切换激活实例：显示目标、隐藏其余（visibility:hidden 保持尺寸，canvas 不重建） */
+  function showOnly(target: CachedGrid): void {
+    for (const item of cache.values()) {
+      item.el.style.visibility = item === target ? 'visible' : 'hidden'
+    }
+  }
+
+  /** 淘汰最久未用的缓存实例（保留激活实例） */
+  function evict(): void {
+    while (cache.size > GRID_CACHE_CAPACITY) {
+      let oldest: CachedGrid | undefined
+      for (const item of cache.values()) {
+        if (item === active) continue
+        if (!oldest || item.lastUsed < oldest.lastUsed) oldest = item
+      }
+      if (!oldest) break
+      cache.delete(oldest.sheet)
+      oldest.release()
+    }
+  }
+
+  /** 清空全部缓存实例（workbook 切换 / 导入替换 / 渲染尺寸变化 / 结构变更） */
+  function invalidateAll(): void {
+    for (const item of cache.values()) {
+      item.release()
+    }
+    cache.clear()
+    active = undefined
+    detachPointerDown?.()
+  }
+
+  /**
+   * tab 切换：优先复用缓存实例（零重建）。
+   * 命中时校验实例是否过期（隐藏期间程序化 structure-change——插入/删除/undo
+   * 行列——vue 层只绑定激活 sheet 的 structure-change，隐藏实例靠自持订阅标记
+   * dirty）；过期则释放重建，否则同步模型状态（选区回驱 + 冻结校正；数据/样式/
+   * 行高由实例常驻的 sheet 事件订阅持续同步，隐藏期间跨表重算等模型变更不丢）。
+   */
+  function activateGrid(): void {
+    const sheet = getActiveSheet()
+    const host = gridRef.value
+    if (!host) return
+    const cached = cache.get(sheet)
+    if (cached && !cached.dirty) {
+      cached.lastUsed = ++seq
+      cached.grid.syncFromModel()
+      showOnly(cached)
+      active = cached
+      bindGridPointerDown(cached.el)
+      return
+    }
+    if (cached) {
+      // 隐藏期间结构变更：实例过期，释放后重建（走下方新建路径）
+      cache.delete(sheet)
+      cached.release()
+    }
+    const created = createGrid(sheet)
+    cache.set(sheet, created)
+    created.lastUsed = ++seq
+    showOnly(created)
+    active = created
+    bindGridPointerDown(created.el)
+    evict()
+  }
+
+  /**
+   * 清理已不存在的 sheet 的缓存实例（workbook 删除 sheet 后及时释放，
+   * 避免条目与事件订阅残留到容量淘汰）。
+   */
+  function pruneCache(sheets: ReadonlyArray<Sheet>): void {
+    const alive = new Set(sheets)
+    for (const [sheet, item] of cache) {
+      // 存活或激活的实例保留；已删除的 sheet 释放（含事件订阅）
+      if (alive.has(sheet) || item === active) continue
+      cache.delete(sheet)
+      item.release()
+    }
+  }
+
+  /** 强制重建激活实例并清空缓存（structure-change / props / 工作簿替换） */
+  function rebuildGrid(): void {
+    invalidateAll()
+    activateGrid()
+  }
+
+  onMounted(activateGrid)
 
   watch(() => [props.rows, props.cols], rebuildGrid)
 
   onBeforeUnmount(() => {
-    detachPointerDown?.()
-    grid?.release()
-    grid = undefined
+    invalidateAll()
   })
 
-  return { rebuildGrid, getGrid: () => grid }
+  return { rebuildGrid, activateGrid, pruneCache, getGrid: () => active?.grid }
 }

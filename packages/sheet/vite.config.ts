@@ -24,7 +24,9 @@ const config = {
   },
 
   pack: {
-    entry: ['src/index.ts', 'src/vue/style.ts'],
+    // import.worker.ts：xlsx 解析 worker（import-popup 经 new Worker(new URL()) 引用，
+    // 非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
+    entry: ['src/index.ts', 'src/vue/style.ts', 'src/vue/popups/import.worker.ts'],
     platform: 'browser',
     unbundle: true,
     sourcemap: true,

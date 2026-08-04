@@ -213,6 +213,10 @@ function hucreMergeToRange(m: {
  * 清空与写入同在一个事务 = 单 undo 单元（undo 恢复导入前状态）。
  */
 function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readonly string[]): void {
+  // 实际使用范围（有值格 ∪ 合并 ∪ 行高定义）：渲染尺寸据此收敛，避免稠密
+  // 行数组几何（Excel 最大 16384 列 → VTable 构造 16384 列实测 ~15s 卡死）
+  let maxUsedRow = 0
+  let maxUsedCol = 0
   target.beginTransaction()
   try {
     // 清空：先解除既有合并（结构），再批量清除数据（空数据删除整格，样式一并移除）
@@ -232,42 +236,78 @@ function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readon
     }
 
     // 批量写入（一次 setCells = 单命令 = 单次重算编排）
+    // 性能关键：hucre 的 rows 是稠密数组（Excel 最大列 16384），空槽占绝大多数
+    // （实测 2.18 亿次迭代中 99.97% 为 null）——必须先跳过空槽再做
+    // covered/cells.get/样式转换，否则单文件导入可达分钟级。
     const items: SetCellValueItem[] = []
     const cells = source.cells ?? new Map<string, HucreCell>()
     for (let r = 0; r < source.rows.length; r++) {
       const row = source.rows[r]
       if (!row) continue
       for (let c = 0; c < row.length; c++) {
+        const value = row[c]
+        if (value == null) continue
         const key = `${r},${c}`
         if (covered.has(key)) continue
-        const data = hucreCellToData(cells.get(key), row[c], target, themeColors)
-        if (data === undefined && row[c] == null) continue
+        const data = hucreCellToData(cells.get(key), value, target, themeColors)
+        if (data === undefined && value == null) continue
         items.push({ addr: { row: r, col: c }, data })
+        if (r > maxUsedRow) maxUsedRow = r
+        if (c > maxUsedCol) maxUsedCol = c
       }
+    }
+    // 补漏：值 null/空但 cell 有详情（纯样式格 / 公式缓存空）的格——主循环的空槽
+    // 快速跳过会漏掉它们。
+    // 保留策略：有值范围外扩 100 行/列的「紧邻带」内的样式格保留（表头/边框
+    // 等紧邻格式），带外丢弃——预算套表常有「全选设边框」残留（整表 13327 行 ×
+    // 16384 列 16~20 万个空白格式格），写入它们会把 rowCount/colCount 高水位撑到
+    // Excel 极限 → VTable 构造 16384 列实测 ~15-30s（切表卡死）。带外的格式格
+    // 渲染区外不可见（用户也滚动不到），丢弃无感知损失。
+    const KEEP_MARGIN = 100
+    for (const [key, cell] of cells) {
+      const comma = key.indexOf(',')
+      const r = Number(key.slice(0, comma))
+      const c = Number(key.slice(comma + 1))
+      // 公式格是真实内容：保留并计入尺寸（即使值缓存为空）
+      const isFormula = Boolean(cell?.formula)
+      if (!isFormula && (r > maxUsedRow + KEEP_MARGIN || c > maxUsedCol + KEEP_MARGIN)) continue
+      if (isFormula) {
+        if (r > maxUsedRow) maxUsedRow = r
+        if (c > maxUsedCol) maxUsedCol = c
+      }
+      const value = source.rows[r]?.[c]
+      if (value != null) continue
+      if (covered.has(key)) continue
+      const data = hucreCellToData(cell, value, target, themeColors)
+      if (data === undefined) continue
+      items.push({ addr: { row: r, col: c }, data })
     }
     if (items.length > 0) target.setCells(items)
 
-    // 合并（相交自动包围盒；锚点值保留规则对空覆盖格无副作用）
-    for (const m of source.merges ?? []) target.mergeCells(hucreMergeToRange(m))
+    // 合并（相交自动包围盒；锚点值保留规则对空覆盖格无副作用）；合并区计入尺寸
+    for (const m of source.merges ?? []) {
+      target.mergeCells(hucreMergeToRange(m))
+      if (m.endRow > maxUsedRow) maxUsedRow = m.endRow
+      if (m.endCol > maxUsedCol) maxUsedCol = m.endCol
+    }
     target.commit()
   } catch (error) {
     // 失败回滚：还原事务缓冲中的变更并放弃事务（不留半导入状态）
     target.rollback()
     throw error
   }
-  // 冻结与行高：模型状态，不进 undo
+  // 冻结与行高：模型状态，不进 undo（行高定义的行计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
   if (source.rowDefs) {
     for (const [row, def] of source.rowDefs) {
       if (def?.height) target.setRowHeight(row, Math.round((def.height * 4) / 3))
+      if (row > maxUsedRow) maxUsedRow = row
     }
   }
-  // 按源表几何扩张渲染尺寸（空行/宽行也算进列数；不进 undo）
-  let maxRowWidth = 0
-  for (const row of source.rows) {
-    if (row) maxRowWidth = Math.max(maxRowWidth, row.length)
-  }
-  target.ensureTableSize(source.rows.length, maxRowWidth)
+  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高定义），不进 undo。
+  // 不做「稠密行数组几何扩张」：XML 里空格式行/列（如 16384 列宽行）会让
+  // VTable 构造超大表格（实测附表33-2 16384 列 × 13328 行重建 ~15s）。
+  target.ensureTableSize(Math.max(1, maxUsedRow + 1), Math.max(1, maxUsedCol + 1))
 }
 
 /** 唯一化 sheet 名（大小写不敏感；冲突追加序号） */

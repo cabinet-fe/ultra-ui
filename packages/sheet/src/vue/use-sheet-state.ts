@@ -14,8 +14,12 @@ import type { SheetProps } from '../types'
 export interface SheetStateHooks {
   /** 活动 sheet 或工作簿切换前调用（关闭弹层并提交面板事务） */
   onBeforeSheetChange: () => void
-  /** 需要重建网格（tab 切换 / structure-change / 工作簿切换 / 导入替换） */
+  /** 需要重建网格（structure-change / 工作簿切换 / 导入替换）：清缓存 + 重建激活实例 */
   rebuildGrid: () => void
+  /** tab 切换：优先复用 LRU 缓存实例（零重建），未命中才新建 */
+  activateGrid: () => void
+  /** sheet 列表变化（增删）后清理已删除 sheet 的缓存实例 */
+  pruneCache?: (sheets: ReadonlyArray<Sheet>) => void
 }
 
 type Emit = (event: 'active-sheet-change', payload: { sheet: Sheet; index: number }) => void
@@ -71,6 +75,8 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
     disposeWorkbookEvents = [
       wb.on('sheets-change', ({ sheets }) => {
         sheetList.value = sheets
+        // 删除的 sheet 不在列表中 → 及时释放其缓存实例（含事件订阅）
+        hooks.pruneCache?.(sheets)
         bump()
       }),
       wb.on('sheet-rename', () => {
@@ -82,7 +88,12 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
         hooks.onBeforeSheetChange() // tab 切换：关闭弹层并提交面板事务
         activeIndex.value = index
         bindSheetEvents(sheet)
-        hooks.rebuildGrid()
+        // tab 切换走实例缓存（命中零重建）；structure-change / 工作簿替换走 rebuildGrid
+        hooks.activateGrid()
+        // 删除激活 sheet 的联动：activateGrid 已切到新实例，此刻 prune 可释放
+        // 刚被替换的旧激活实例（sheets-change 先于 active-sheet-change 派发，
+        // 彼时旧实例仍是 active 被保留）
+        hooks.pruneCache?.(workbook.value.getSheets())
         bump()
         emit('active-sheet-change', { sheet, index })
       })

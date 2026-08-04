@@ -384,8 +384,8 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     const input = setFxText(el, '=SUM(')
     await nextTick()
 
-    // pointerdown on grid → blur 不提交（引用选择）
-    const gridEl = el.querySelector('.u-sheet__grid')!
+    // pointerdown on grid → blur 不提交（引用选择）；监听绑定在实例容器（LRU 缓存）
+    const gridEl = el.querySelector('.u-sheet__grid-instance')!
     gridEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
     input.dispatchEvent(new FocusEvent('blur'))
     await nextTick()

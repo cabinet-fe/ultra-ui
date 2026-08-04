@@ -195,8 +195,12 @@ describe('USheet 组件', () => {
     await nextTick()
 
     expect(tabs(el)[1]!.classList.contains('is-active')).toBe(true)
-    // grid 重建：旧 VTable 已 release，容器内只有一个 canvas
-    expect(el.querySelectorAll('.u-sheet__grid canvas')).toHaveLength(1)
+    // grid 实例缓存：切换后旧实例保留（LRU，visibility:hidden），容器内有 2 个 canvas
+    expect(el.querySelectorAll('.u-sheet__grid canvas')).toHaveLength(2)
+    // 激活实例可见、旧实例隐藏
+    const instances = el.querySelectorAll<HTMLElement>('.u-sheet__grid-instance')
+    expect(instances[0]!.style.visibility).toBe('hidden')
+    expect(instances[1]!.style.visibility).toBe('visible')
     expect(exposed.value?.getActiveSheet().name).toBe('Sheet2')
     // 工具上下文（与工具按钮同一门面）指向切换后的 sheet
     expect(exposed.value?.getContext().sheetName).toBe('Sheet2')
