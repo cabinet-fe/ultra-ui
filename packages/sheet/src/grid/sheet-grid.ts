@@ -312,7 +312,12 @@ export class SheetGrid {
     editor.notifyEditEnd = () => {
       const addr = this.editingAddr
       this.editingAddr = null
-      if (addr) this.onEditEnd?.(addr)
+      if (addr) {
+        // 无内容变更时可能不触发 CHANGE_CELL_VALUE；仍刷新本格与共享边邻居，避免视觉残留
+        this.refreshCellStyle(addr)
+        this.refreshFacingConsumers(addr)
+        this.onEditEnd?.(addr)
+      }
     }
     register.editor(this.editorName, editor)
 
@@ -722,11 +727,21 @@ export class SheetGrid {
     this.table.on(ListTable.EVENT_TYPE.CHANGE_CELL_VALUE, (args) => {
       const addr = this.toSheetAddr(this.table, args.col, args.row)
       if (addr == null) return
+      // 空提交且原格无内容（纯样式格 / 空格）：跳过 setCellValue，避免被当成清除值删掉 s
+      // 有值/公式格显式清空仍走 setCellValue(null)（删整格含样式，符合约定）
+      const next = args.changedValue ?? null
+      const before = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
+      const isEmptyCommit = next == null || next === ''
+      const hadContent =
+        before != null &&
+        ((before.v != null && before.v !== '') || (before.f != null && before.f !== ''))
       // 编辑提交期间模型变更（含公式重算派生格）先入队列，提交结束统一回推。
       // 被编辑格自身也入队：VTable 已把输入文本写进 record，公式格需回推计算值
       this.pendingTableSync = new Map([[cellKey(addr), addr]])
       try {
-        this.sheet.setCellValue(addr, args.changedValue ?? null)
+        if (!(isEmptyCommit && !hadContent)) {
+          this.sheet.setCellValue(addr, next)
+        }
       } finally {
         const pending = this.pendingTableSync
         this.pendingTableSync = null
@@ -735,6 +750,7 @@ export class SheetGrid {
           for (const pendingAddr of pending.values()) {
             this.pushCellToTable(pendingAddr)
             this.refreshCellStyle(pendingAddr)
+            this.refreshFacingConsumers(pendingAddr)
             wrapRows.add(pendingAddr.row)
           }
           for (const row of wrapRows) this.syncWrapRowHeight(row)

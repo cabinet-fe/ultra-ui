@@ -23,6 +23,25 @@ function createGrid() {
   return { sheet, grid, table: grid.getTable() }
 }
 
+/** 当前编辑器 input（容器里另有 VTable 内部 input，不能靠 querySelector 取） */
+function editorInput(table: ListTable): HTMLInputElement | undefined {
+  const manager = (
+    table as unknown as {
+      editorManager?: { editingEditor?: { getInputElement?: () => HTMLInputElement } }
+    }
+  ).editorManager
+  return manager?.editingEditor?.getInputElement?.()
+}
+
+function columnStyleFn(table: ListTable) {
+  const column = table.getBodyColumnDefine(1, 1) as { style?: unknown }
+  return column.style as (arg: {
+    row: number
+    col: number
+    table: unknown
+  }) => Record<string, unknown>
+}
+
 describe('SheetGrid（happy-dom smoke）', () => {
   it('能挂载：列头 A..F + 行号列，坐标带偏移', () => {
     const { grid, table } = createGrid()
@@ -618,6 +637,85 @@ describe('SheetGrid（happy-dom smoke）', () => {
       )
       expect(sheet.getRowHeight(0)).toBe(120)
       expect(table.getRowHeight(1)).toBe(120)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('纯样式格进入编辑后无改动退出：保留 fill/border（不删 s）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      const addr = { row: 0, col: 0 }
+      sheet.setCellStyle(
+        { start: addr, end: addr },
+        {
+          fill: { color: '#FF0000' },
+          border: {
+            top: { style: 'thin', width: 1, color: '#0000FF' },
+            right: { style: 'thin', width: 1, color: '#0000FF' },
+            bottom: { style: 'thin', width: 1, color: '#0000FF' },
+            left: { style: 'thin', width: 1, color: '#0000FF' }
+          }
+        }
+      )
+      const styleId = sheet.getCellData(addr)?.s
+      expect(styleId).toBeDefined()
+
+      // 程序化编辑退出（等价双击进编辑再点出）：提交空串，不得当成清除值
+      table.startEditCell(1, 1)
+      expect(editorInput(table)!.value).toBe('')
+      table.completeEditCell()
+
+      expect(sheet.getCellData(addr)?.s).toBe(styleId)
+      expect(sheet.getCellStyle(addr)).toMatchObject({
+        fill: { color: '#FF0000' },
+        border: {
+          top: expect.objectContaining({ color: '#0000FF' }),
+          left: expect.objectContaining({ color: '#0000FF' })
+        }
+      })
+      const rendered = columnStyleFn(table)({ row: 1, col: 1, table })
+      expect(rendered.bgColor).toBe('#FF0000')
+      expect((rendered.borderColor as string[])[0]).toBe('#0000FF')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('有值+样式格编辑改值后：样式保留', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      const addr = { row: 0, col: 0 }
+      sheet.setCellValue(addr, 'hello')
+      sheet.setCellStyle({ start: addr, end: addr }, { fill: { color: '#00FF00' } })
+      const styleId = sheet.getCellData(addr)?.s
+
+      table.startEditCell(1, 1)
+      editorInput(table)!.value = 'world'
+      table.completeEditCell()
+
+      expect(sheet.getCellData(addr)).toMatchObject({ v: 'world', s: styleId })
+      expect(sheet.getCellStyle(addr)?.fill?.color).toBe('#00FF00')
+      expect(columnStyleFn(table)({ row: 1, col: 1, table }).bgColor).toBe('#00FF00')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('有值+样式格编辑清空后提交：整格删除（含样式）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      const addr = { row: 0, col: 0 }
+      sheet.setCellValue(addr, 'hello')
+      sheet.setCellStyle({ start: addr, end: addr }, { fill: { color: '#00FF00' } })
+
+      table.startEditCell(1, 1)
+      editorInput(table)!.value = ''
+      table.completeEditCell()
+
+      expect(sheet.getCellData(addr)).toBeUndefined()
+      expect(sheet.getCellStyle(addr)).toBeUndefined()
+      expect(columnStyleFn(table)({ row: 1, col: 1, table }).bgColor).toBeUndefined()
     } finally {
       grid.release()
     }
