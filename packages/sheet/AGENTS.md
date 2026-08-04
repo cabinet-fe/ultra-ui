@@ -58,7 +58,7 @@ src/
 ├── vue/                  # USheet 组件（Vue 依赖只在这一层）
 │   ├── __test__/         # 组件测试（happy-dom + canvas mock）
 │   ├── sheet.vue         # 精简编排层：组合状态源 / 弹层 / 网格，拼装各区块（无业务逻辑）
-│   ├── sheet-toolbar.vue # 工具栏（图标 + UTip tooltip；分组视图模型，点击上交宿主编排）
+│   ├── sheet-toolbar.vue # 工具栏（单行溢出滚动 + 箭头导航；图标 + UTip tooltip；点击上交宿主编排）
 │   ├── sheet-tabs.vue    # 底部 sheet tabs（切换 / 添加 / 行内重命名 / 右键删除，直调 Workbook）
 │   ├── formula-bar.vue   # 公式栏（名称框 + fx；补全 / 引用选择 / 双向同步 / 镜像）
 │   ├── formula-suggest-list.vue # fx 函数候选列表（绝对定位，mousedown.prevent）
@@ -81,6 +81,7 @@ src/
 │   ├── use-find-replace.ts   # 查找替换逻辑（find-popup 使用）
 │   ├── popup-helpers.ts      # 无状态工具：currentRange / 边框面板常量（预设补丁生成已迁 core/style/border-presets）
 │   ├── use-sheet-tabs-bar.ts # tabs 视口溢出滚动（showNav / canPrev / canNext / scrollByStep）
+│   ├── use-toolbar-scroll.ts  # 工具栏单行溢出滚动（箭头导航 + 滚轮横滚；对齐 tabs 交互模式）
 │   ├── index.ts          # 导出 USheet
 │   ├── style.scss        # pkg:@veltra/styles token（m.e 元素、m.is 状态，不写硬编码颜色）
 │   └── style.ts          # 样式入口（sideEffects；含 tip/contextmenu/palette/number-input）
@@ -361,6 +362,15 @@ src/
   `use-tool-popup.ts`（弹层开关 + 面板事务）、`use-tool-groups.ts`（工具栏视图模型 + 组序）、
   `use-sheet-grid.ts`（网格重建 + 右键菜单）、`use-find-replace.ts`（查找替换）；
   无状态辅助入 `popup-helpers.ts`。
+- **工具栏单行溢出滚动**：`use-toolbar-scroll.ts`（对齐 `use-sheet-tabs-bar` 交互模式）——
+  工具内容超出视口时显示左右箭头（`ArrowLeft`/`ArrowRight`），点击按视口宽 80% 步进滚动、
+  纵向滚轮转横滚；**不再 `flex-wrap` 换行**（换行会挤压 grid 高度）。结构三层：
+  `.toolbar`（外层 flex）> `.toolbar-scroll`（`flex:1; overflow-x:auto`，隐藏滚动条）+
+  箭头 > `.toolbar-list`（`inline-flex` 内容自适应宽度）。判定基于容器宽度
+  （ResizeObserver + scroll 事件 + 内容源 watch），与视口无关——playground 页面非窄屏
+  响应式，e2e 用「强制 `.sheet-demo__sheet` 宽度 320px」触发溢出
+  （`scripts/phase7-toolbar-overflow-e2e.mjs`，12 项断言：箭头显隐 / 单行高度 / 步进 /
+  滚轮 / 滚到底最右工具可见）。
 - Props：`workbook?`（缺省内部自建单 sheet 工作簿）、`rows?`(100)、`cols?`(26)、
   `showToolbar?`(true)、`showFormulaBar?`(true)、`showTabs?`(true)；Emits：`active-sheet-change`；
   Exposed（`SheetExposed`）：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`。

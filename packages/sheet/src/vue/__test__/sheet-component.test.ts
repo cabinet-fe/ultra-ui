@@ -137,6 +137,22 @@ describe('USheet 组件', () => {
 
     // VTable 已挂载到 grid 容器
     expect(el.querySelector('.u-sheet__grid canvas')).not.toBeNull()
+
+    // 单行滚动结构：工具按钮全部位于滚动视口内的 list 容器
+    const scroll = el.querySelector('.u-sheet__toolbar-scroll')
+    const list = el.querySelector('.u-sheet__toolbar-list')
+    expect(scroll).not.toBeNull()
+    expect(list).not.toBeNull()
+    expect(scroll!.querySelectorAll('.u-sheet__tool').length).toBeGreaterThan(0)
+    expect(list!.querySelectorAll('.u-sheet__tool').length).toBeGreaterThan(0)
+  })
+
+  it('工具栏无溢出时不渲染导航箭头（happy-dom 无布局 → 判定不溢出）', async () => {
+    const { el } = mount(() => ({ workbook: createWorkbook(), rows: 10, cols: 6 }))
+    await nextTick()
+
+    // happy-dom 下 clientWidth/scrollWidth 均为 0 → overflowing = false → 箭头不渲染
+    expect(el.querySelectorAll('.u-sheet__toolbar-nav')).toHaveLength(0)
   })
 
   it('内置 undo/redo 按钮随 history-change 置灰，点击等效快捷键', async () => {
