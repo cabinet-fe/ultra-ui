@@ -37,10 +37,15 @@
           <section class="sheet-demo__inspector-block">
             <h4
               class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--selection"
+              title="点击展开 / 折叠（懒渲染：大数据 JSON 仅在展开时挂载 DOM）"
+              @click="toggleInspectorBlock('selection')"
             >
+              <span class="sheet-demo__inspector-block-caret">{{
+                inspectorExpanded.selection ? '▾' : '▸'
+              }}</span>
               选区 selection · activeCell 恒为锚点
             </h4>
-            <div class="sheet-demo__inspector-code">
+            <div v-if="inspectorExpanded.selection" class="sheet-demo__inspector-code">
               <div class="sheet-demo__inspector-code-bar">
                 <span class="sheet-demo__inspector-code-lang">json</span>
                 <span class="sheet-demo__inspector-code-source">sheet.getSelection()</span>
@@ -65,10 +70,17 @@
             </div>
           </section>
           <section class="sheet-demo__inspector-block">
-            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--cells">
+            <h4
+              class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--cells"
+              title="点击展开 / 折叠（懒渲染：大数据 JSON 仅在展开时挂载 DOM）"
+              @click="toggleInspectorBlock('cells')"
+            >
+              <span class="sheet-demo__inspector-block-caret">{{
+                inspectorExpanded.cells ? '▾' : '▸'
+              }}</span>
               单元格存储 cell-store · 稀疏 Map，空格不占位
             </h4>
-            <div class="sheet-demo__inspector-code">
+            <div v-if="inspectorExpanded.cells" class="sheet-demo__inspector-code">
               <div class="sheet-demo__inspector-code-bar">
                 <span class="sheet-demo__inspector-code-lang">json</span>
                 <span class="sheet-demo__inspector-code-source">sheet.store.entries()</span>
@@ -93,10 +105,17 @@
             </div>
           </section>
           <section class="sheet-demo__inspector-block">
-            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--styles">
+            <h4
+              class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--styles"
+              title="点击展开 / 折叠（懒渲染：大数据 JSON 仅在展开时挂载 DOM）"
+              @click="toggleInspectorBlock('styles')"
+            >
+              <span class="sheet-demo__inspector-block-caret">{{
+                inspectorExpanded.styles ? '▾' : '▸'
+              }}</span>
               样式池 style-pool · 单元格只持 StyleId
             </h4>
-            <div class="sheet-demo__inspector-code">
+            <div v-if="inspectorExpanded.styles" class="sheet-demo__inspector-code">
               <div class="sheet-demo__inspector-code-bar">
                 <span class="sheet-demo__inspector-code-lang">json</span>
                 <span class="sheet-demo__inspector-code-source">sheet.stylePool.snapshot()</span>
@@ -121,10 +140,17 @@
             </div>
           </section>
           <section class="sheet-demo__inspector-block">
-            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--meta">
+            <h4
+              class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--meta"
+              title="点击展开 / 折叠（懒渲染：大数据 JSON 仅在展开时挂载 DOM）"
+              @click="toggleInspectorBlock('meta')"
+            >
+              <span class="sheet-demo__inspector-block-caret">{{
+                inspectorExpanded.meta ? '▾' : '▸'
+              }}</span>
               合并 / 冻结 / 行高 / 历史 / 公式节点
             </h4>
-            <div class="sheet-demo__inspector-code">
+            <div v-if="inspectorExpanded.meta" class="sheet-demo__inspector-code">
               <div class="sheet-demo__inspector-code-bar">
                 <span class="sheet-demo__inspector-code-lang">json</span>
                 <span class="sheet-demo__inspector-code-source"
@@ -151,10 +177,17 @@
             </div>
           </section>
           <section class="sheet-demo__inspector-block sheet-demo__inspector-block--wide">
-            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--api">
+            <h4
+              class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--api"
+              title="点击展开 / 折叠（懒渲染：大数据 JSON 仅在展开时挂载 DOM）"
+              @click="toggleInspectorBlock('api')"
+            >
+              <span class="sheet-demo__inspector-block-caret">{{
+                inspectorExpanded.api ? '▾' : '▸'
+              }}</span>
               提交给后端 / 后端返回 · workbook 级 JSON（sheet.snapshot() 拼装）
             </h4>
-            <div class="sheet-demo__inspector-api">
+            <div v-if="inspectorExpanded.api" class="sheet-demo__inspector-api">
               <div class="sheet-demo__inspector-api-col">
                 <span class="sheet-demo__inspector-api-tag sheet-demo__inspector-api-tag--req">
                   请求体（提交）
@@ -311,6 +344,18 @@ const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 // 观察区默认收起，点击头部展开/收起
 const collapsed = ref(true)
 
+/**
+ * inspector 各 JSON 区块展开状态（懒渲染）：大数据快照（cells / styles /
+ * payload / response 展开时可达数十万 DOM span）只在用户点开区块时挂载，
+ * 避免刷新/切换 sheet 后整页布局重排秒级卡顿（实测 22 万节点 Layout 2s）。
+ * meta 信息密度高且体积小，默认展开。
+ */
+const inspectorExpanded = ref<Record<string, boolean>>({ meta: true })
+
+function toggleInspectorBlock(key: string): void {
+  inspectorExpanded.value = { ...inspectorExpanded.value, [key]: !inspectorExpanded.value[key] }
+}
+
 // 代码块复制反馈：记录最近复制的区块 key，1.5s 后恢复
 const copied = ref('')
 let copyTimer: number | undefined
@@ -414,12 +459,22 @@ function buildWorkbookPayload(): unknown {
  * 只给 key 包 span（值还原纯文本）——每个 token 一个 span 在数据量大时
  * 渲染开销明显（实测 600+ span / 30ms），仅 key 高亮可将 DOM 节点减 2/3。
  */
+/**
+ * 大 JSON 高亮渲染的行数阈值：超过后截断展示（仅保留前 N 行 + 提示），
+ * 避免 payload / response（30 sheet 全量快照）展开时挂载 65 万 span、
+ * Layout 近 2 秒（实测）。完整数据不受影响：复制/放大走原始 value。
+ */
+const HIGHLIGHT_MAX_LINES = 10000
+
 function highlight(value: unknown): string {
-  const escaped = JSON.stringify(value, null, 2).replace(
-    /[&<>]/g,
-    (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]!
-  )
-  return escaped.replace(
+  const raw = JSON.stringify(value, null, 2) ?? String(value)
+  const lines = raw.split('\n')
+  const truncated = lines.length > HIGHLIGHT_MAX_LINES
+  const shown = truncated ? lines.slice(0, HIGHLIGHT_MAX_LINES) : lines
+  const escaped = shown
+    .join('\n')
+    .replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]!)
+  let html = escaped.replace(
     /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*")(\s*:)?/g,
     (match, str, colon) => {
       // 带冒号的字符串 = key → 包 span 高亮；值（字符串/数字/布尔）保持纯文本
@@ -427,6 +482,10 @@ function highlight(value: unknown): string {
       return match
     }
   )
+  if (truncated) {
+    html += `\n<span class="sheet-demo__inspector-truncated">… 已截断（共 ${lines.length.toLocaleString()} 行），完整数据请「复制」或「放大」</span>`
+  }
+  return html
 }
 
 // 调试句柄：浏览器控制台/自动化可直接读取模型与组件暴露
@@ -569,6 +628,23 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 600;
   color: var(--u-text-color-main);
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.sheet-demo__inspector-block-title:hover {
+  background: var(--u-bg-color-hover);
+}
+
+/* 展开 / 折叠指示箭头 */
+.sheet-demo__inspector-block-caret {
+  flex: none;
+  width: 14px;
+  color: var(--u-text-color-second);
+  font-size: 10px;
+  line-height: 1;
 }
 
 /* 区块标题前的彩色小竖条 */
@@ -669,6 +745,18 @@ onBeforeUnmount(() => {
   font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--u-text-color-second) 30%, transparent) transparent;
+}
+
+/* 大 JSON 截断提示（highlight 超 HIGHLIGHT_MAX_LINES 行时追加） */
+.sheet-demo__inspector-truncated {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--u-color-warning) 12%, transparent);
+  color: var(--u-color-warning);
+  font-size: 11px;
+  font-style: italic;
 }
 
 /* ─── 代码块（markdown 风格：语言标签 + 来源方法 + 复制按钮） ─── */
