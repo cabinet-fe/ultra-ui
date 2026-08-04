@@ -53,6 +53,32 @@ describe('styleToHucre / rangeToHucre（样式与合并映射）', () => {
       endCol: 3
     })
   })
+
+  it('font / align → hucre font + alignment（middle↔center、wrap↔wrapText）', () => {
+    expect(
+      styleToHucre({
+        font: {
+          color: '#FF0000',
+          bold: true,
+          italic: true,
+          underline: true,
+          strikethrough: true,
+          size: 14
+        },
+        align: { horizontal: 'center', vertical: 'middle', wrap: true }
+      })
+    ).toEqual({
+      font: {
+        color: { rgb: 'FF0000' },
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true,
+        size: 14
+      },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
+    })
+  })
 })
 
 describe('exportWorkbookXlsx 映射（hucre 输入结构）', () => {

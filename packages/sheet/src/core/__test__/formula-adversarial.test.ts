@@ -197,7 +197,8 @@ describe('对抗：其它边界', () => {
 
   it('数字文本参与算术（Excel 强转）', () => {
     const sheet = new Sheet()
-    sheet.setCellValue(A1, '5')
+    // 显式 t:'s'（绕过 setCellValue 规范化）——公式算术仍强转数字文本
+    sheet.setCell(A1, { v: '5', t: 's' })
     sheet.setCellFormula(B1, '=A1+1')
     expect(sheet.getCellData(B1)).toMatchObject({ v: 6 })
   })

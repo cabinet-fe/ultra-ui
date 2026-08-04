@@ -127,6 +127,44 @@ describe('hucreStyleToModel / dateToSerial1900', () => {
     })
   })
 
+  it('font / alignment 映射（underline 非 false、vertical center↔middle、wrapText）', () => {
+    expect(
+      hucreStyleToModel({
+        font: {
+          color: { rgb: 'FF0000' },
+          bold: true,
+          italic: true,
+          underline: 'single',
+          strikethrough: true,
+          size: 14,
+          name: 'Arial' // 本期不取
+        },
+        alignment: {
+          horizontal: 'center',
+          vertical: 'center',
+          wrapText: true,
+          shrinkToFit: true // 本期不取
+        }
+      })
+    ).toEqual({
+      font: {
+        color: '#FF0000',
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true,
+        size: 14
+      },
+      align: { horizontal: 'center', vertical: 'middle', wrap: true }
+    })
+    // general / justify 等非左中右 → 不设置；vertical justify → 不设置
+    expect(
+      hucreStyleToModel({
+        alignment: { horizontal: 'general', vertical: 'justify', wrapText: false }
+      })
+    ).toBeUndefined()
+  })
+
   it('dateToSerial1900：Date（UTC）→ 1900 系统序列数（含伪闰日修正）', () => {
     expect(dateToSerial1900(new Date('1900-01-01T00:00:00Z'))).toBe(1)
     expect(dateToSerial1900(new Date('1900-02-28T00:00:00Z'))).toBe(59)
@@ -145,6 +183,9 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
     expect(workbook.getSheets()[0]!.name).toBe('数据表')
     expect(workbook.getSheets()[1]!.name).toBe('Sheet2')
     expect(workbook.activeSheet.name).toBe('Sheet2')
+    // hucre 不解析 OOXML <selection> → 导入后各表默认 A1
+    expect(workbook.activeSheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+    expect(workbook.getSheets()[0]!.getSelection().activeCell).toEqual({ row: 0, col: 0 })
 
     const s1 = workbook.getSheet('数据表')!
     // 值
@@ -300,5 +341,29 @@ describe('copySheetContent / replaceWorkbook', () => {
     // 第一个 sheet 的数据写入可 undo（恢复导入前数据）
     expect(target.getSheet('Sheet1')!.undo()).toBe(true)
     expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
+  })
+
+  it('replaceWorkbook / copySheetContent：选区对齐源表（导入默认 A1，不残留目标旧选区）', () => {
+    const A1 = { row: 0, col: 0 }
+    const C3 = { row: 2, col: 2 }
+
+    const target = new Workbook()
+    target.activeSheet.selectCell(C3)
+    expect(target.activeSheet.getSelection().activeCell).toEqual(C3)
+
+    const source = new Workbook()
+    source.activeSheet.setCellValue(A1, 'imported')
+    // importXlsx 路径下源表构造默认即为 A1；此处显式保证
+    expect(source.activeSheet.getSelection().activeCell).toEqual(A1)
+
+    replaceWorkbook(target, source)
+    expect(target.activeSheet.getSelection()).toEqual({
+      activeCell: A1,
+      ranges: [{ start: A1, end: A1 }]
+    })
+
+    // 选区不进 undo：撤销内容后选区仍为导入后的 A1
+    expect(target.activeSheet.undo()).toBe(true)
+    expect(target.activeSheet.getSelection().activeCell).toEqual(A1)
   })
 })

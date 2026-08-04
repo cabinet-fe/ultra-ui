@@ -1,7 +1,8 @@
 import type { CellAddress, CellRange } from './address'
-import { iterateRange } from './address'
+import { createRange, iterateRange } from './address'
 import {
   inferCellType,
+  normalizeInputValue,
   CellStore,
   type CellData,
   type CellSnapshotItem,
@@ -42,7 +43,10 @@ export interface FrozenState {
   cols: number
 }
 
-/** Sheet 全量快照（宿主序列化持久化用；frozen 随快照保存/还原） */
+/** 默认选区 A1（新建 / 旧快照无 selection 时回落） */
+const DEFAULT_SELECTION_CELL: CellAddress = { row: 0, col: 0 }
+
+/** Sheet 全量快照（宿主序列化持久化用；frozen / selection 随快照保存/还原） */
 export interface SheetSnapshot {
   cells: CellSnapshotItem[]
   styles: CellStyle[]
@@ -51,6 +55,11 @@ export interface SheetSnapshot {
   /** 表格尺寸（行列插入/删除后的行列数；0 = 未声明，由视图层 props 决定） */
   rows: number
   cols: number
+  /**
+   * 选区（可选，向后兼容）。
+   * 有则还原；旧快照缺省 → 回落 A1。不进 undo 历史（与 Excel 不同，有意为之）。
+   */
+  selection?: { activeCell: CellAddress; ranges: CellRange[] }
 }
 
 export type SheetEvents = {
@@ -102,6 +111,8 @@ export class Sheet {
     this.history.onChange((state) => this.emitter.emit('history-change', state))
     this.formulaGraph = formulaGraph ?? new DependencyGraph()
     this.formulaGraph.registerSheet(this)
+    // 新建默认选中 A1（名称框 / 画布高亮 / fx 输入栏联动；构造期无订阅者无害）
+    this.selectCell(DEFAULT_SELECTION_CELL)
   }
 
   get rowCount(): number {
@@ -210,8 +221,12 @@ export class Sheet {
       this.setCellFormula(addr, value)
       return
     }
-    const data = value == null || value === '' ? undefined : { v: value, t: inferCellType(value) }
-    this.setCells([{ addr, data }])
+    if (value == null || value === '') {
+      this.setCells([{ addr, data: undefined }])
+      return
+    }
+    const normalized = normalizeInputValue(value)
+    this.setCells([{ addr, data: { v: normalized, t: inferCellType(normalized) } }])
   }
 
   /** 写入完整 CellData（解析到锚点；空数据 = 清除）；经命令执行，可撤销 */
@@ -431,9 +446,30 @@ export class Sheet {
   }
 
   /**
+   * 捕获删除区间内所有单元格（值/公式/样式），供 undo 在反向结构之后精确还原。
+   * 插入操作返回空数组。
+   * @internal 结构命令 handler 使用
+   */
+  prepareDeletedCellPatches(change: StructureChange): CellPatch[] {
+    if (!change.kind.startsWith('delete')) return []
+    const { at, count } = change
+    const end = at + count
+    const axis = change.kind === 'delete-rows' ? 'rows' : 'cols'
+    const patches: CellPatch[] = []
+    for (const [addr, data] of this.store.entries()) {
+      const hit =
+        axis === 'rows' ? addr.row >= at && addr.row < end : addr.col >= at && addr.col < end
+      if (!hit) continue
+      patches.push({ kind: 'cell', addr: { ...addr }, before: { ...data }, after: undefined })
+    }
+    return patches
+  }
+
+  /**
    * 计算结构变更引起的公式引用平移补丁（在 applyStructureChange 之前调用——
    * 需要读取平移前的公式原文；patch.addr 为平移后坐标，before 为平移前数据）。
-   * 引用被删除区间覆盖的公式格 → after=undefined（公式死亡，显示 #REF!）。
+   * 引用被删除区间覆盖的公式格 → after=#REF!（公式死亡）；
+   * 公式格本身落在删除区间内 → 跳过（由 prepareDeletedCellPatches 覆盖）。
    * @internal 结构命令 handler 使用
    */
   prepareFormulaShift(change: StructureChange): CellPatch[] {
@@ -468,16 +504,9 @@ export class Sheet {
         }
       }
 
-      if (removed) {
-        patches.push({
-          kind: 'cell',
-          sheet: formulaSheet,
-          addr: node.addr,
-          before,
-          after: undefined
-        })
-        continue
-      }
+      // 删除区间内的公式格由 prepareDeletedCellPatches 捕获（undo 在反向结构之后恢复）；
+      // 此处若再发 after:undefined 补丁，redo 会在结构删除后误清上移到该坐标的幸存者。
+      if (removed) continue
       const result = shiftFormulaText(before.f, axis, at, count, isInsert ? 'insert' : 'delete')
       if (!result.broken && result.text === before.f) continue
       const after: CellData = result.broken ? { v: '#REF!', t: 'e' } : { ...before, f: result.text }
@@ -526,21 +555,27 @@ export class Sheet {
 
   // ─── 快照 ────────────────────────────────────────────────
 
-  /** 全量快照：单元格 + 样式池 + 合并 + 冻结状态（宿主序列化持久化用） */
+  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸（宿主序列化持久化用） */
   snapshot(): SheetSnapshot {
+    const selection = this.selection.getState()
     return {
       cells: this.store.snapshot(),
       styles: this.stylePool.snapshot(),
       merges: this.merges.getMerges(),
       frozen: this.frozen,
       rows: this._rows,
-      cols: this._cols
+      cols: this._cols,
+      // 仅在有活动格时写入（空选区不序列化；restore 缺省回落 A1）
+      ...(selection.activeCell
+        ? { selection: { activeCell: selection.activeCell, ranges: selection.ranges } }
+        : {})
     }
   }
 
   /**
-   * 从快照还原。单元格 / 样式 / 合并静默恢复（与 cell-store.restore 先例一致，不发事件）；
+   * 从快照还原。单元格 / 样式 / 合并 / 选区静默恢复（与 cell-store.restore 先例一致，不发事件）；
    * 冻结状态变化时发 frozen-change（grid 层据此更新冻结布局）。
+   * 旧快照无 selection → 回落默认 A1。
    */
   restore(snapshot: SheetSnapshot): void {
     this.store.restore(snapshot.cells)
@@ -550,6 +585,35 @@ export class Sheet {
     this.setFrozen(snapshot.frozen.rows, snapshot.frozen.cols)
     this._rows = snapshot.rows ?? 0
     this._cols = snapshot.cols ?? 0
+    this.restoreSelection(snapshot.selection)
+  }
+
+  /**
+   * 静默还原选区：有快照且含合法 activeCell → 解析锚点后写入；否则回落 A1。
+   * 不发 selection-change（调用方重建 grid 时按模型选区回驱）。
+   */
+  private restoreSelection(selection: SheetSnapshot['selection'] | undefined): void {
+    if (selection?.activeCell) {
+      const active = this.merges.resolveAnchor(selection.activeCell)
+      // ranges 缺省（畸形/手写 JSON）视为空 → 回落单格活动区
+      const rawRanges = selection.ranges ?? []
+      const ranges =
+        rawRanges.length > 0
+          ? rawRanges.map((range) => createRange(range.start, range.end))
+          : [createRange(active, active)]
+      // 活动格钳入首个选区（防御畸形快照）
+      const primary = ranges[0]!
+      const clamped: CellAddress = {
+        row: Math.min(Math.max(active.row, primary.start.row), primary.end.row),
+        col: Math.min(Math.max(active.col, primary.start.col), primary.end.col)
+      }
+      this.selection.restoreState({ activeCell: this.merges.resolveAnchor(clamped), ranges })
+      return
+    }
+    this.selection.restoreState({
+      activeCell: { ...DEFAULT_SELECTION_CELL },
+      ranges: [createRange(DEFAULT_SELECTION_CELL, DEFAULT_SELECTION_CELL)]
+    })
   }
 
   // ─── 事件 ────────────────────────────────────────────────

@@ -1,11 +1,11 @@
 <template>
   <li
     :class="[cls.e('item'), bem.is('disabled', disabled), bem.is('loading', loading)]"
-    v-ripple="!disabled && !loading"
+    v-ripple="!disabled && !loading && !menu.keepOpen"
     @click="handleClickMenu"
   >
     <div :class="cls.e('item-content')">
-      <template v-if="showIconColumn">
+      <template v-if="showIconColumn && !menu.render">
         <u-icon v-if="loading" :class="bem.is('loading')">
           <Loading />
         </u-icon>
@@ -15,7 +15,10 @@
         <i v-else :class="cls.e('icon-place')"></i>
       </template>
 
-      <span :class="cls.e('label')">{{ menu.label }}</span>
+      <div v-if="menu.render" :class="cls.e('custom')" @click.stop>
+        <component :is="menu.render" />
+      </div>
+      <span v-else :class="cls.e('label')">{{ menu.label }}</span>
 
       <i v-if="showArrowColumn" :class="cls.e('arrow-place')"></i>
     </div>
@@ -44,7 +47,7 @@ const loading = shallowRef(false)
 const disabled = computed(() => getMenuDisabled(menu))
 
 function handleClickMenu() {
-  if (disabled.value || loading.value) return
+  if (disabled.value || loading.value || menu.keepOpen) return
   onItemClickStart()
   loading.value = true
 

@@ -61,6 +61,17 @@ export class SelectionModel {
     }
   }
 
+  /**
+   * 静默写入选区（`Sheet.restore` 用）。
+   * 不发 change——restore 语义是全量重置后由调用方重建 grid，选区由构造回驱接管。
+   */
+  restoreState(state: SelectionState): void {
+    this.state = {
+      activeCell: state.activeCell ? { ...state.activeCell } : null,
+      ranges: state.ranges.map((range) => ({ start: { ...range.start }, end: { ...range.end } }))
+    }
+  }
+
   clear(): void {
     this.setState({ activeCell: null, ranges: [] })
   }

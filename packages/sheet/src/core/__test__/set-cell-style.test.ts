@@ -98,6 +98,31 @@ describe('mergeCellStyle 部分合并语义', () => {
     expect(mergeCellStyle(base, {})).toEqual(base)
     expect(mergeCellStyle(undefined, {})).toBeUndefined()
   })
+
+  it('font/align 逐字段浅合并；font:{} / align:{} 清除该类；null 删字段', () => {
+    const base = {
+      fill: { color: '#FF0000' },
+      font: { color: '#0000FF', bold: true, size: 12 },
+      align: { horizontal: 'center' as const, wrap: true }
+    }
+    expect(mergeCellStyle(base, { font: { italic: true } })).toEqual({
+      fill: base.fill,
+      font: { color: '#0000FF', bold: true, italic: true, size: 12 },
+      align: base.align
+    })
+    expect(mergeCellStyle(base, { font: { color: null } })).toEqual({
+      fill: base.fill,
+      font: { bold: true, size: 12 },
+      align: base.align
+    })
+    expect(mergeCellStyle(base, { font: {} })).toEqual({ fill: base.fill, align: base.align })
+    expect(mergeCellStyle(base, { align: { horizontal: null, vertical: 'top' } })).toEqual({
+      fill: base.fill,
+      font: base.font,
+      align: { wrap: true, vertical: 'top' }
+    })
+    expect(mergeCellStyle(base, { align: {} })).toEqual({ fill: base.fill, font: base.font })
+  })
 })
 
 describe('SetCellStyleCommand（经 Sheet）', () => {
@@ -107,6 +132,31 @@ describe('SetCellStyleCommand（经 Sheet）', () => {
     expect(sheet.getCellData(B2)!.s).toBe(sheet.getCellData(C3)!.s)
     expect(sheet.stylePool.size).toBe(1)
     expect(sheet.getCellStyle(B2)).toEqual({ fill: { color: '#FF0000' } })
+  })
+
+  it('font/align 写入 + undo/redo 还原', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(B2C3, {
+      font: { color: '#FF0000', bold: true, size: 14 },
+      align: { horizontal: 'center', wrap: true }
+    })
+    expect(sheet.getCellStyle(B2)).toEqual({
+      font: { color: '#FF0000', bold: true, size: 14 },
+      align: { horizontal: 'center', wrap: true }
+    })
+    sheet.setCellStyle(B2C3, { font: { italic: true } })
+    expect(sheet.getCellStyle(B2)?.font).toEqual({
+      color: '#FF0000',
+      bold: true,
+      italic: true,
+      size: 14
+    })
+    sheet.undo()
+    expect(sheet.getCellStyle(B2)?.font?.italic).toBeUndefined()
+    sheet.undo()
+    expect(sheet.getCellStyle(B2)).toBeUndefined()
+    sheet.redo()
+    expect(sheet.getCellStyle(B2)?.font?.bold).toBe(true)
   })
 
   it('部分合并：先设 fill+border，再只改 fill → border 保留', () => {

@@ -29,6 +29,16 @@ describe('函数集：SUM / AVERAGE / MAX / MIN', () => {
     expect(calcValue(sheet, '=SUM(C1:C9)')).toMatchObject({ v: 0 })
   })
 
+  it('SUM：UI 数字文本经 setCellValue 规范化后可被区域求和', () => {
+    const sheet = new Sheet()
+    // 网格/公式栏回写是字符串；setCellValue 应落为 number，否则 SUM 区域忽略文本得 0
+    sheet.setCellValue(A1, '1')
+    sheet.setCellValue({ row: 0, col: 1 }, '2')
+    sheet.setCellValue({ row: 0, col: 2 }, '3')
+    expect(sheet.getCellData(A1)).toEqual({ v: 1, t: 'n' })
+    expect(calcValue(sheet, '=SUM(A1:C1)')).toMatchObject({ v: 6, t: 'n' })
+  })
+
   it('AVERAGE：均值；无数字 → #DIV/0!', () => {
     const sheet = new Sheet()
     expect(calcValue(sheet, '=AVERAGE(2,4)')).toMatchObject({ v: 3 })

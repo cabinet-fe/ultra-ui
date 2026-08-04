@@ -2,7 +2,12 @@ import { ListTable } from '@visactor/vtable'
 import { describe, expect, it } from 'vitest'
 
 import { Sheet } from '../../core/sheet'
-import { SheetGrid } from '../sheet-grid'
+import {
+  SheetGrid,
+  cellStyleToVTableStyle,
+  estimateWrapRowHeight,
+  fontSizePtToPx
+} from '../sheet-grid'
 
 function createContainer(): HTMLElement {
   const el = document.createElement('div')
@@ -73,7 +78,14 @@ describe('SheetGrid（happy-dom smoke）', () => {
   it('右键 CONTEXTMENU_CELL → onContextMenu（client 坐标 + 模型地址）', async () => {
     const sheet = new Sheet()
     const container = createContainer()
-    const calls: Array<{ x: number; y: number; addr: { row: number; col: number } | null }> = []
+    const calls: Array<{
+      x: number
+      y: number
+      kind: string
+      addr: { row: number; col: number } | null
+      row?: number
+      col?: number
+    }> = []
     const grid = new SheetGrid({
       container,
       sheet,
@@ -91,7 +103,36 @@ describe('SheetGrid（happy-dom smoke）', () => {
       })
       await Promise.resolve() // queueMicrotask
       expect(calls).toHaveLength(1)
-      expect(calls[0]).toMatchObject({ x: 120, y: 80, addr: { row: 2, col: 1 } })
+      expect(calls[0]).toMatchObject({ x: 120, y: 80, kind: 'body', addr: { row: 2, col: 1 } })
+
+      // 行号列 (0, 4) → row-header 模型行 3
+      table.fireListeners(ListTable.EVENT_TYPE.CONTEXTMENU_CELL, {
+        col: 0,
+        row: 4,
+        event: { clientX: 10, clientY: 100, preventDefault() {} }
+      })
+      await Promise.resolve()
+      expect(calls[1]).toMatchObject({ kind: 'row-header', addr: null, row: 3 })
+
+      // 列头 (3, 0) → col-header 模型列 2
+      table.fireListeners(ListTable.EVENT_TYPE.CONTEXTMENU_CELL, {
+        col: 3,
+        row: 0,
+        event: { clientX: 200, clientY: 5, preventDefault() {} }
+      })
+      await Promise.resolve()
+      expect(calls[2]).toMatchObject({ kind: 'col-header', addr: null, col: 2 })
+
+      // 角点 (0, 0) = 行号列 × 列头 → body（addr null），保留当前选区语义
+      table.fireListeners(ListTable.EVENT_TYPE.CONTEXTMENU_CELL, {
+        col: 0,
+        row: 0,
+        event: { clientX: 5, clientY: 5, preventDefault() {} }
+      })
+      await Promise.resolve()
+      expect(calls[3]).toMatchObject({ kind: 'body', addr: null })
+      expect(calls[3]).not.toHaveProperty('row')
+      expect(calls[3]).not.toHaveProperty('col')
     } finally {
       grid.release()
     }
@@ -509,6 +550,74 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(table.getCellValue(15, 0)).toBe('O')
       expect(table.getCellValue(15, 1)).toBe('far')
       expect(sheet.cols).toBeGreaterThanOrEqual(15)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('cellStyleToVTableStyle：font/align 映射 + 字号 pt→px；wrap 行高估算', () => {
+    expect(fontSizePtToPx(12)).toBe(16)
+    expect(
+      cellStyleToVTableStyle({
+        font: {
+          color: '#FF0000',
+          bold: true,
+          italic: true,
+          underline: true,
+          strikethrough: true,
+          size: 12
+        },
+        align: { horizontal: 'center', vertical: 'middle', wrap: true }
+      })
+    ).toMatchObject({
+      color: '#FF0000',
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+      underline: true,
+      lineThrough: true,
+      fontSize: 16,
+      textAlign: 'center',
+      textBaseline: 'middle',
+      autoWrapText: true
+    })
+
+    const short = estimateWrapRowHeight({ text: 'hi', colWidth: 100, fontSizePt: 11 })
+    expect(short).toBe(28) // 默认行高
+    const tall = estimateWrapRowHeight({
+      text: '一二三四五六七八九十'.repeat(8),
+      colWidth: 80,
+      fontSizePt: 11
+    })
+    expect(tall).toBeGreaterThan(28)
+  })
+
+  it('wrap 样式写入后行高随估算升高', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.setCellValue({ row: 0, col: 0 }, '一二三四五六七八九十'.repeat(6))
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { align: { wrap: true } }
+      )
+      const height = sheet.getRowHeight(0)
+      expect(height).toBeGreaterThan(28)
+      expect(table.getRowHeight(1)).toBe(height)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('wrap 行高只升不降：保留更高的导入/拖拽行高', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.setRowHeight(0, 120)
+      sheet.setCellValue({ row: 0, col: 0 }, '短')
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { align: { wrap: true } }
+      )
+      expect(sheet.getRowHeight(0)).toBe(120)
+      expect(table.getRowHeight(1)).toBe(120)
     } finally {
       grid.release()
     }

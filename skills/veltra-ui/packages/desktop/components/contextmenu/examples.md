@@ -63,3 +63,24 @@ function getMenus(): ContextMenuItem[] {
   @destroy="visible = false"
 />
 ```
+
+## 分割线 + 自定义渲染 + keepOpen
+
+```ts
+import { defineComponent, h, inject } from 'vue'
+import { ContextmenuRootDIKey, type ContextmenuItem } from '@veltra/desktop'
+
+const CountItem = defineComponent({
+  setup() {
+    const root = inject(ContextmenuRootDIKey)
+    return () =>
+      h('button', { type: 'button', onClick: () => root?.onItemClickEnd() }, '确认并关闭')
+  }
+})
+
+const menus: ContextmenuItem[] = [
+  { label: '普通项', callback: () => {} },
+  { divider: true },
+  { label: '内嵌交互', keepOpen: true, render: CountItem }
+]
+```

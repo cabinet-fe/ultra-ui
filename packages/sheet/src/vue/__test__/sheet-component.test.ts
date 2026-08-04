@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref, type App } from 'vue'
 
 import { Workbook } from '../../core/workbook'
@@ -38,9 +38,13 @@ function createWorkbook() {
   return workbook
 }
 
-function toolButton(el: HTMLElement, title: string): HTMLButtonElement | undefined {
-  return [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')].find((button) =>
-    button.textContent?.includes(title)
+/** 按 data-tool-id / title 文本 / 原生 title 定位工具按钮（图标化后 textContent 可能为空） */
+function toolButton(el: HTMLElement, idOrTitle: string): HTMLButtonElement | undefined {
+  return [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')].find(
+    (button) =>
+      button.dataset.toolId === idOrTitle ||
+      button.textContent?.includes(idOrTitle) ||
+      button.title.includes(idOrTitle)
   )
 }
 
@@ -61,35 +65,72 @@ afterEach(() => {
 })
 
 describe('USheet 组件', () => {
-  it('挂载：工具栏渲染内置工具（分组 + 分隔符），tabs 显示 sheet 列表，grid 挂载', async () => {
+  it('挂载后默认选区 A1：名称框显示 A1、fx 输入栏可用', async () => {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const nameBox = el.querySelector<HTMLInputElement>('.u-sheet__name-box')!
+    const fxInput = el.querySelector<HTMLTextAreaElement>('.u-sheet__fx-input')!
+    expect(nameBox.value).toBe('A1')
+    expect(fxInput.disabled).toBe(false)
+    expect(workbook.activeSheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+  })
+
+  it('挂载：工具栏图标化分组（history｜cell｜text｜edit｜file），tabs 与 grid 挂载', async () => {
     const { el } = mount(() => ({ workbook: createWorkbook(), rows: 10, cols: 6 }))
     await nextTick()
 
-    const tools = [...el.querySelectorAll('.u-sheet__tool')].map((button) =>
-      button.textContent?.trim()
+    const tools = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')].map(
+      (button) => button.dataset.toolId
     )
     expect(tools).toEqual([
-      '撤销',
-      '重做',
-      '合并',
-      '取消合并',
-      '填充颜色',
-      '边框',
-      '插入行',
-      '插入列',
-      '删除行',
-      '删除列',
-      '冻结到当前行列',
-      '冻结首行',
-      '冻结首列',
-      '取消冻结',
-      '查找',
-      '导出 xlsx',
-      '导出 csv',
-      '导入'
+      'undo',
+      'redo',
+      'border',
+      'fill-color',
+      'merge',
+      'unmerge',
+      'bold',
+      'italic',
+      'underline',
+      'strikethrough',
+      'font-color',
+      'font-size',
+      'align-left',
+      'align-center',
+      'align-right',
+      'valign-top',
+      'valign-middle',
+      'valign-bottom',
+      'wrap-text',
+      'find',
+      'import',
+      'export'
     ])
-    // history / cell / structure / freeze / default / file 六组之间五个分隔符
-    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(5)
+    // 五组之间四个分隔符
+    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(4)
+    // 图标化：每个内置工具有 icon，按钮无可见文字
+    for (const button of el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')) {
+      expect(button.querySelector('.u-sheet__tool-icon')).not.toBeNull()
+      expect(button.textContent?.trim()).toBe('')
+      expect(button.title.length).toBeGreaterThan(0)
+    }
+    // 已移除的工具不再出现
+    for (const id of [
+      'insert-rows',
+      'insert-cols',
+      'delete-rows',
+      'delete-cols',
+      'freeze',
+      'freeze-row',
+      'freeze-col',
+      'unfreeze',
+      'export-xlsx',
+      'export-csv'
+    ]) {
+      expect(toolButton(el, id)).toBeUndefined()
+    }
 
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2'])
     expect(tabs(el)[0]!.classList.contains('is-active')).toBe(true)
@@ -104,8 +145,8 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    const undoButton = toolButton(el, '撤销')!
-    const redoButton = toolButton(el, '重做')!
+    const undoButton = toolButton(el, 'undo')!
+    const redoButton = toolButton(el, 'redo')!
     expect(undoButton.disabled).toBe(true)
     expect(redoButton.disabled).toBe(true)
 
@@ -199,15 +240,17 @@ describe('USheet 组件', () => {
   it('注册表联动：运行时 register/unregister 工具即时增删按钮', async () => {
     const { el } = mount(() => ({ workbook: createWorkbook(), rows: 10, cols: 6 }))
     await nextTick()
-    expect(toolButton(el, '临时工具')).toBeUndefined()
+    expect(toolButton(el, 'temp-tool')).toBeUndefined()
 
     registerTool({ id: 'temp-tool', title: '临时工具', onClick: () => {} })
     await nextTick()
-    expect(toolButton(el, '临时工具')).toBeDefined()
+    expect(toolButton(el, 'temp-tool')).toBeDefined()
+    // 无 icon 时回落文字按钮
+    expect(toolButton(el, 'temp-tool')!.textContent?.trim()).toBe('临时工具')
 
     expect(unregisterTool('temp-tool')).toBe(true)
     await nextTick()
-    expect(toolButton(el, '临时工具')).toBeUndefined()
+    expect(toolButton(el, 'temp-tool')).toBeUndefined()
   })
 
   it('无 props 默认挂载：内部自建工作簿（单 sheet），工具栏/tabs 正常', async () => {
@@ -267,8 +310,8 @@ describe('USheet 组件', () => {
     await nextTick()
 
     // 两个实例都渲染该工具（注册表全局共享）
-    const button1 = toolButton(first.el, '标记当前格')
-    const button2 = toolButton(second.el, '标记当前格')
+    const button1 = toolButton(first.el, 'mark-active')
+    const button2 = toolButton(second.el, 'mark-active')
     expect(button1).toBeDefined()
     expect(button2).toBeDefined()
 
@@ -294,9 +337,9 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    const mergeButton = toolButton(el, '合并')!
-    const unmergeButton = toolButton(el, '取消合并')!
-    // 无选区：两者禁用
+    const mergeButton = toolButton(el, 'merge')!
+    const unmergeButton = toolButton(el, 'unmerge')!
+    // 默认单格 A1：合并禁用；无合并 → 取消合并禁用
     expect(mergeButton.disabled).toBe(true)
     expect(unmergeButton.disabled).toBe(true)
 
@@ -328,12 +371,8 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    // 无选区禁用
-    const fillButton = toolButton(el, '填充颜色')!
-    expect(fillButton.disabled).toBe(true)
-
-    sheet.selectCell({ row: 0, col: 0 })
-    await nextTick()
+    // 默认选区 A1：填充可用
+    const fillButton = toolButton(el, 'fill-color')!
     expect(fillButton.disabled).toBe(false)
 
     fillButton.click()
@@ -349,6 +388,53 @@ describe('USheet 组件', () => {
     expect(sheet.history.undoSize).toBe(0)
   })
 
+  it('文本工具：加粗 toggle + active 高亮；字体颜色弹层可打开', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const boldButton = toolButton(el, 'bold')!
+    expect(boldButton.classList.contains('is-active')).toBe(false)
+    boldButton.click()
+    await nextTick()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
+    expect(boldButton.classList.contains('is-active')).toBe(true)
+    boldButton.click()
+    await nextTick()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+    expect(boldButton.classList.contains('is-active')).toBe(false)
+
+    toolButton(el, 'font-color')!.click()
+    await flushPopup()
+    expect(el.querySelector('.u-sheet__popup .u-palette')).not.toBeNull()
+    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+  })
+
+  it('字号弹层：预设写入 + 关闭提交为一个 undo 单元', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, 'font-size')!.click()
+    await flushPopup()
+    const sizeButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
+    expect(sizeButtons.map((button) => button.textContent?.trim())).toContain('14')
+    sizeButtons.find((button) => button.textContent?.trim() === '14')!.click()
+    await nextTick()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.size).toBe(14)
+
+    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(sheet.history.undoSize).toBe(1)
+    sheet.undo()
+    expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+  })
+
   it('边框面板：预设应用 + 关闭提交为一个 undo 单元', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet
@@ -357,7 +443,7 @@ describe('USheet 组件', () => {
 
     sheet.selectRange({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
     await nextTick()
-    toolButton(el, '边框')!.click()
+    toolButton(el, 'border')!.click()
     await flushPopup()
 
     const presetButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
@@ -368,7 +454,7 @@ describe('USheet 组件', () => {
       '无边框'
     ])
 
-    presetButtons.find((button) => button.textContent === '全边框')!.click()
+    presetButtons.find((button) => button.textContent?.trim() === '全边框')!.click()
     await nextTick()
     // 选区内每格四边都有边框
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border?.top).toBeDefined()
@@ -376,7 +462,7 @@ describe('USheet 组件', () => {
     expect(sheet.getCellStyle({ row: 0, col: 1 })?.border?.left).toBeDefined()
 
     // 无边框 → 清除边框
-    presetButtons.find((button) => button.textContent === '无边框')!.click()
+    presetButtons.find((button) => button.textContent?.trim() === '无边框')!.click()
     await nextTick()
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border).toBeUndefined()
 
@@ -390,46 +476,27 @@ describe('USheet 组件', () => {
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
   })
 
-  it('冻结工具：点击生效、按钮 is-active、VTable 冻结布局联动、可取消', async () => {
+  it('冻结：模型 setFrozen 驱动 VTable 冻结布局联动（工具栏入口已迁至右键菜单）', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet
     const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
     await nextTick()
 
-    const freezeRowButton = toolButton(el, '冻结首行')!
-    const unfreezeButton = toolButton(el, '取消冻结')!
-    // 初始：无冻结，取消冻结禁用，首行未激活
-    expect(freezeRowButton.classList.contains('is-active')).toBe(false)
-    expect(unfreezeButton.disabled).toBe(true)
-
-    // 选中活动格后「冻结到当前行列」可用
-    sheet.selectCell({ row: 2, col: 1 })
-    await nextTick()
-    expect(toolButton(el, '冻结到当前行列')!.disabled).toBe(false)
-
-    freezeRowButton.click()
+    sheet.setFrozen(1, 0)
     await nextTick()
     expect(sheet.frozen).toEqual({ rows: 1, cols: 0 })
-    // 按钮高亮 + 取消冻结可用
-    expect(toolButton(el, '冻结首行')!.classList.contains('is-active')).toBe(true)
-    expect(unfreezeButton.disabled).toBe(false)
-    // VTable 冻结布局联动（模型 1 行 → frozenRowCount = 2：列头行 + 首行；列保持 1：行号列）
+    // 模型 1 行 → frozenRowCount = 2：列头行 + 首行；列保持 1：行号列
     expect(exposed.value?.getGrid()?.getTable().frozenRowCount).toBe(2)
     expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(1)
 
-    // 冻结首列：保留冻结行
-    toolButton(el, '冻结首列')!.click()
+    sheet.setFrozen(1, 1)
     await nextTick()
-    expect(sheet.frozen).toEqual({ rows: 1, cols: 1 })
     expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(2)
 
-    // 取消冻结
-    unfreezeButton.click()
+    sheet.setFrozen(0, 0)
     await nextTick()
     expect(sheet.frozen).toEqual({ rows: 0, cols: 0 })
-    expect(toolButton(el, '冻结首行')!.classList.contains('is-active')).toBe(false)
-    expect(unfreezeButton.disabled).toBe(true)
   })
 
   it('导入弹层：点击打开（UFilePicker 渲染），点击外部关闭且不产生历史条目', async () => {
@@ -438,7 +505,7 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    toolButton(el, '导入')!.click()
+    toolButton(el, 'import')!.click()
     await flushPopup()
     expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
     expect(el.querySelector('.u-file-picker')).not.toBeNull()
@@ -450,6 +517,48 @@ describe('USheet 组件', () => {
     expect(sheet.history.undoSize).toBe(0)
   })
 
+  it('导出弹层：单按钮打开两选项；点击选项触发下载并关闭，不产生历史', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    const originalCreate = URL.createObjectURL
+    const originalRevoke = URL.revokeObjectURL
+    const createObjectURL = vi.fn(() => 'blob:mock')
+    URL.createObjectURL = createObjectURL as typeof URL.createObjectURL
+    URL.revokeObjectURL = vi.fn() as typeof URL.revokeObjectURL
+    try {
+      toolButton(el, 'export')!.click()
+      await flushPopup()
+      const options = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__export-option')]
+      expect(options.map((button) => button.textContent?.trim())).toEqual([
+        '导出 Excel (.xlsx)',
+        '导出 CSV (.csv)'
+      ])
+
+      options[0]!.click()
+      await nextTick()
+      await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
+      expect(el.querySelector('.u-sheet__popup')).toBeNull()
+      expect(sheet.history.undoSize).toBe(1) // 预置 setCellValue；导出本身不写模型
+
+      toolButton(el, 'export')!.click()
+      await flushPopup()
+      createObjectURL.mockClear()
+      el.querySelectorAll<HTMLButtonElement>('.u-sheet__export-option')[1]!.click()
+      await nextTick()
+      await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
+      const csvBlob = createObjectURL.mock.calls[0]![0] as Blob
+      expect(csvBlob.type).toContain('text/csv')
+      expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    } finally {
+      URL.createObjectURL = originalCreate
+      URL.revokeObjectURL = originalRevoke
+    }
+  })
+
   it('查找条：打开 → 关键词定位命中 → Enter 下一个 / Shift+Enter 上一个 → 关闭', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet
@@ -459,7 +568,7 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    toolButton(el, '查找')!.click()
+    toolButton(el, 'find')!.click()
     await flushPopup()
     expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
     expect(el.querySelector('.u-sheet__find-input')).not.toBeNull()
@@ -512,7 +621,7 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    toolButton(el, '查找')!.click()
+    toolButton(el, 'find')!.click()
     await flushPopup()
 
     const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
@@ -552,7 +661,7 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    toolButton(el, '查找')!.click()
+    toolButton(el, 'find')!.click()
     await flushPopup()
 
     const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
@@ -578,127 +687,7 @@ describe('USheet 组件', () => {
   })
 })
 
-describe('插入数量面板', () => {
-  it('工具栏「插入行」：输入数量插入多行 = 单 undo 单元，面板自动关闭', async () => {
-    const workbook = new Workbook()
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
-    await nextTick()
-    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
-    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
-    await nextTick()
-
-    toolButton(el, '插入行')!.click()
-    await flushPopup()
-    expect(el.querySelector('.u-sheet__insert-row')).not.toBeNull()
-
-    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
-    input.value = '3'
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
-    await nextTick()
-
-    const sheet = exposed.value!.getActiveSheet()
-    expect(sheet.rows).toBe(13) // 视图声明 10 行 + 插入 3
-    expect(el.querySelector('.u-sheet__popup')).toBeNull() // 插入后面板关闭
-
-    // 一次 undo 全部还原（单 undo 单元）
-    expect(sheet.undo()).toBe(true)
-    expect(sheet.rows).toBe(10)
-  })
-
-  it('工具栏「插入列」：输入数量插入多列；Enter 提交', async () => {
-    const workbook = new Workbook()
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
-    await nextTick()
-    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
-    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
-    await nextTick()
-
-    toolButton(el, '插入列')!.click()
-    await flushPopup()
-    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
-    input.value = '2'
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-    await nextTick()
-
-    const sheet = exposed.value!.getActiveSheet()
-    expect(sheet.cols).toBe(8) // 视图声明 6 列 + 插入 2
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
-  })
-
-  it('取消按钮：不插入且面板关闭', async () => {
-    const workbook = new Workbook()
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
-    await nextTick()
-    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
-    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
-    await nextTick()
-
-    toolButton(el, '插入行')!.click()
-    await flushPopup()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[1]!.click()
-    await nextTick()
-
-    expect(exposed.value!.getActiveSheet().rows).toBe(10)
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
-  })
-
-  it('非法数量（空 / 0 / 非数字）按 1 插入', async () => {
-    const workbook = new Workbook()
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
-    await nextTick()
-    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
-    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
-    await nextTick()
-
-    toolButton(el, '插入行')!.click()
-    await flushPopup()
-    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
-    input.value = 'abc'
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
-    await nextTick()
-
-    expect(exposed.value!.getActiveSheet().rows).toBe(11) // 非法 → 1 行
-  })
-
-  it('面板重复打开：数量重置为 1', async () => {
-    const workbook = new Workbook()
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
-    await nextTick()
-    // 插入行/列工具 disabled 依赖选区（无选区置灰），先建立选区
-    exposed.value!.getActiveSheet().selectCell({ row: 0, col: 0 })
-    await nextTick()
-
-    toolButton(el, '插入行')!.click()
-    await flushPopup()
-    const input = el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!
-    input.value = '5'
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
-    await nextTick()
-
-    // 再次打开 → 数量重置为 1
-    toolButton(el, '插入行')!.click()
-    await flushPopup()
-    expect(
-      el.querySelector<HTMLInputElement>('.u-sheet__insert-input .u-input__native')!.value
-    ).toBe('1')
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__insert-btn')[0]!.click()
-    await nextTick()
-    expect(exposed.value!.getActiveSheet().rows).toBe(16) // 10 + 5 + 1
-  })
-
+describe('tabs 栏', () => {
   it('少量 sheet：「+」在视口外且紧随 viewport（nav 隐藏，不占位）', async () => {
     const workbook = createWorkbook()
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))

@@ -22,8 +22,9 @@ import type { Workbook } from '../workbook'
  * - 日期 t='d'：模型存 1900 系统序列数，导出为数字 + 日期 numFmt（hucre 读回判为 Date，
  *   导入端再转回序列数——round-trip 保真）
  * - 合并：模型 CellRange（闭区间 start/end）→ hucre MergeRange（startRow/startCol/endRow/endCol）
- * - 样式：模型 { fill, border } → hucre CellStyle（fill=solid pattern + fgColor（去 '#'），
- *   四边 border { style, color }；hucre 无边宽字段，width 丢弃）
+ * - 样式：模型 { fill, border, font, align } → hucre CellStyle（fill=solid pattern +
+ *   fgColor（去 '#'），四边 border { style, color }；hucre 无边宽字段，width 丢弃；
+ *   font.size pt 直存；align.vertical middle ↔ hucre center；wrap ↔ wrapText）
  * - 冻结：Sheet.frozen → freezePane { rows, columns }
  * - 行高：模型像素 → hucre RowDef.height（points，×0.75）
  * - CSV：活动表从 A1 到最后一个有值行/列的矩形，公式格导计算缓存值（getDisplayValue），
@@ -35,7 +36,7 @@ function pxToPt(px: number): number {
   return px * 0.75
 }
 
-/** 模型样式 → hucre 单元格样式（fill solid + 四边 border；无宽度字段） */
+/** 模型样式 → hucre 单元格样式（fill / border / font / alignment；无边宽字段） */
 export function styleToHucre(style: CellStyle): HucreCellStyle {
   const hucre: HucreCellStyle = {}
   if (style.fill?.color) {
@@ -48,6 +49,26 @@ export function styleToHucre(style: CellStyle): HucreCellStyle {
     border[side] = { style: edge.style, color: { rgb: edge.color.slice(1) } }
   }
   if (Object.keys(border).length > 0) hucre.border = border
+  if (style.font) {
+    const font: NonNullable<HucreCellStyle['font']> = {}
+    if (style.font.color) font.color = { rgb: style.font.color.slice(1) }
+    if (style.font.bold) font.bold = true
+    if (style.font.italic) font.italic = true
+    if (style.font.underline) font.underline = true
+    if (style.font.strikethrough) font.strikethrough = true
+    if (typeof style.font.size === 'number') font.size = style.font.size
+    if (Object.keys(font).length > 0) hucre.font = font
+  }
+  if (style.align) {
+    const alignment: NonNullable<HucreCellStyle['alignment']> = {}
+    if (style.align.horizontal) alignment.horizontal = style.align.horizontal
+    if (style.align.vertical) {
+      // 模型 middle ↔ hucre/Excel center
+      alignment.vertical = style.align.vertical === 'middle' ? 'center' : style.align.vertical
+    }
+    if (style.align.wrap) alignment.wrapText = true
+    if (Object.keys(alignment).length > 0) hucre.alignment = alignment
+  }
   return hucre
 }
 

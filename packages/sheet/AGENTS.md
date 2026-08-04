@@ -18,6 +18,7 @@ src/
 │   ├── selection.ts      # 选区模型（activeCell 恒为锚点）
 │   ├── sheet.ts          # Sheet = store + merge + selection + history，统一操作入口
 │   │                     #   + frozen（冻结，不进 undo，随快照序列化）
+│   │                     #   + 默认选区 A1；snapshot.selection? 往返（旧快照缺省回落 A1）
 │   ├── workbook.ts       # Workbook = 多 Sheet（共享公式依赖图；增删/重命名/激活 + 事件）
 │   ├── events.ts         # 包内轻量类型化事件发射器（内部基建）
 │   ├── command/          # 命令系统（undo/redo）
@@ -30,8 +31,8 @@ src/
 │   │   ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
 │   │   └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
 │   ├── style/            # 单元格样式系统（纯 TS）
-│   │   ├── types.ts          # CellStyle / CellStylePatch（边级合并，null 删边）/ StyleId / BorderLineStyle
-│   │   ├── style-pool.ts     # StylePool（按内容去重、intern/get、snapshot/restore）
+│   │   ├── types.ts          # CellStyle / CellStylePatch（font/align 逐字段合并，null 删字段；边级合并）/ StyleId
+│   │   ├── style-pool.ts     # StylePool（按内容去重、intern/get、snapshot/restore；key 含 font/align）
 │   │   └── border-presets.ts # 边框预设生成（all/outer/bottom/none + 邻居共享边同步，纯函数）
 │   ├── io/               # 导入导出（纯 TS，基于 hucre；不 import vue/vtable）
 │   │   ├── export.ts         # exportWorkbookXlsx / exportSheetCsv（模型 → hucre）
@@ -42,7 +43,7 @@ src/
 │       ├── tokenizer.ts      # 分词器（FormulaParseError）
 │       ├── parser.ts         # Pratt parser（优先级同 Excel）
 │       ├── evaluator.ts      # AST 求值 + 强转规则（纯函数，读取经 FormulaEvalContext 注入）
-│       ├── functions.ts      # 函数注册表（registerFormulaFunction 可扩展）+ 13 个基础函数
+│       ├── functions.ts      # 函数注册表 + meta / listFormulaFunctions + 13 个基础函数
 │       └── dependency-graph.ts # DependencyGraph（工作簿级：sheet 注册表 + 双向索引 + 增量重算）
 ├── grid/
 │   ├── __test__/         # SheetGrid smoke + canvas mock（vp test setupFiles）
@@ -52,29 +53,37 @@ src/
 │   ├── __test__/         # registry / context / builtin 单测
 │   ├── registry.ts       # ToolRegistry + defaultToolRegistry（registerTool / unregisterTool；active 高亮字段）
 │   ├── context.ts        # SheetContext 门面（工具的唯一操作入口，含冻结读写 + workbook 只读）+ createSheetContext
-│   └── builtin.ts        # 内置工具（undo/redo/合并/取消合并/填充颜色/边框/冻结×4/查找/导出×2/导入），经包入口注册
+│   ├── download.ts       # 浏览器 Blob 下载 + exportWorkbookFile / exportSheetCsvFile
+│   └── builtin.ts        # 内置工具（history/cell/text/edit/file），经包入口注册
 ├── vue/                  # USheet 组件（Vue 依赖只在这一层）
 │   ├── __test__/         # 组件测试（happy-dom + canvas mock）
 │   ├── sheet.vue         # 精简编排层：组合状态源 / 弹层 / 网格，拼装各区块（无业务逻辑）
-│   ├── sheet-toolbar.vue # 工具栏（纯展示：分组视图模型渲染，点击上交宿主编排）
+│   ├── sheet-toolbar.vue # 工具栏（图标 + UTip tooltip；分组视图模型，点击上交宿主编排）
 │   ├── sheet-tabs.vue    # 底部 sheet tabs（切换 / 添加 / 行内重命名 / 右键删除，直调 Workbook）
-│   ├── formula-bar.vue   # 公式栏（名称框 + fx 输入栏；双向同步 + 编辑态锁 + 网格编辑镜像）
+│   ├── formula-bar.vue   # 公式栏（名称框 + fx；补全 / 引用选择 / 双向同步 / 镜像）
+│   ├── formula-suggest-list.vue # fx 函数候选列表（绝对定位，mousedown.prevent）
 │   ├── popups/           # 弹层型工具面板（v-if 挂载即全新状态；交互走 SheetContext 命令入口）
 │   │   ├── fill-color-popup.vue   # 填充颜色（UPalette）
 │   │   ├── border-popup.vue       # 边框（预设 / 线型 / 颜色）
+│   │   ├── font-color-popup.vue   # 字体颜色（UPalette；空 = 清除 color）
+│   │   ├── font-size-popup.vue    # 字号预设（pt）
 │   │   ├── find-popup.vue         # 查找替换条
 │   │   ├── import-popup.vue       # 导入（UFilePicker）
-│   │   └── insert-cells-popup.vue # 插入行 / 列数量
+│   │   └── export-popup.vue       # 导出选择（xlsx / csv）
 │   ├── use-sheet-state.ts    # 状态源：workbook / sheetList / activeIndex / context / 事件绑定 / stateTick
 │   ├── use-tool-popup.ts     # 弹层编排：popupTool / 开关 / 面板事务 / window click / Ctrl+F
-│   ├── use-tool-groups.ts    # 工具栏分组视图模型（visible/disabled/active 随 stateTick 重算）
-│   ├── use-sheet-grid.ts     # SheetGrid 生命周期 + 网格右键菜单
+│   ├── use-tool-groups.ts    # 工具栏分组视图模型（组序 history｜cell｜text｜edit｜file）
+│   ├── use-sheet-grid.ts     # SheetGrid 生命周期 + 网格右键菜单 + 引用选择拦截
+│   ├── use-formula-suggest.ts # fx 函数补全纯逻辑（上下文 / 过滤 / 替换 / 导航）
+│   ├── use-formula-ref-select.ts # fx 引用选择纯逻辑（上下文判定 / 插入文本）
+│   ├── sheet-context-menu.ts # 右键菜单纯函数（header/body 菜单构建、整行整列选区、默认 N）
+│   ├── insert-count-menu-item.vue # 菜单内嵌数量输入（UNumberInput + 确认 / Enter / Esc）
 │   ├── use-find-replace.ts   # 查找替换逻辑（find-popup 使用）
 │   ├── popup-helpers.ts      # 无状态工具：currentRange / 边框面板常量（预设补丁生成已迁 core/style/border-presets）
 │   ├── use-sheet-tabs-bar.ts # tabs 视口溢出滚动（showNav / canPrev / canNext / scrollByStep）
 │   ├── index.ts          # 导出 USheet
 │   ├── style.scss        # pkg:@veltra/styles token（m.e 元素、m.is 状态，不写硬编码颜色）
-│   └── style.ts          # 样式入口（sideEffects）
+│   └── style.ts          # 样式入口（sideEffects；含 tip/contextmenu/palette/number-input）
 └── types/                # 对外类型（<Name>Props 约定）
     └── sheet.ts          # SheetProps / SheetEmits / _SheetExposed / SheetExposed
 ```
@@ -95,6 +104,16 @@ src/
 - **选区不进历史**：undo/redo 不改变 selection（与 Excel 不同，有意为之）。
 - 低层接口：`MergeManager.addMerge / removeMerge`（精确增删，不做包围盒）与 `computeMerge`
   （纯查询）供命令回放使用，业务代码不应直接调用。
+
+## 默认选区与快照序列化
+
+- **新建默认 A1**：`Sheet` 构造末尾 `selectCell({ row: 0, col: 0 })`——新工作簿 / `Workbook.addSheet`
+  自然继承；名称框显示 `A1`、画布高亮、fx 输入栏可用（视图层零改动，靠既有选区回驱）。
+- **快照字段**：`SheetSnapshot.selection?`（`{ activeCell, ranges }`，可选，向后兼容）。
+  `snapshot()` 有活动格时写入；`restore()` 有则静默还原（不发 `selection-change`，由调用方
+  重建 grid 回驱），旧快照缺省 → 回落 A1。活动格经合并锚点解析，畸形范围钳入首选区。
+- **选区仍不进 undo**（快照序列化 ≠ undo 历史）。
+- **不做**：滚动位置（`topLeftCell`）持久化；多选区 / 冻结 pane 多 selection 互操作。
 
 ## 多 Sheet 管理（Phase 3：添加 / 删除 / 重命名）
 
@@ -123,9 +142,8 @@ src/
 - **冻结是模型状态**：`Sheet.frozen`（读副本）/ `setFrozen(rows, cols)`（规范化到非负整数，
   相同值不触发事件）；`frozen-change` 事件。**不进 undo**（同 `rowHeights` 先例），
   随 `Sheet.snapshot()` 序列化、`restore()` 还原（冻结变化时发事件，grid 自动刷新）。
-- **冻结工具**（`tools/builtin.ts`，组 `freeze`）：冻结到当前行列（活动格下方/右方分界）、
-  冻结首行 / 冻结首列（保留另一维冻结值）、取消冻结（无冻结时 disabled）；
-  `active?(ctx)` 高亮读当前冻结值（工具定义新增字段，vue 层渲染 `is-active`）。
+- **冻结入口**（工具栏无 freeze 组；经行列头右键菜单）：冻结到当前行/列、取消冻结
+  （无冻结时 disabled）；模型 `setFrozen` / `frozen` 仍是唯一状态源。
 - **VTable 冻结映射**（Spike 结论，见下方适配层要点）：模型 `rows` → `frozenRowCount = rows + 1`（列头行），
   `cols` → `frozenColCount = cols + 1`（行号列）；钳制到渲染行/列数。构造选项 + `frozen-change` 即时生效，
   tab 重建还原。
@@ -150,22 +168,31 @@ src/
      （孤儿组件不在组件 Map，`deleteAllSelectBorder` 清不到，必须从绘制层 `removeAllChild` 清除）。
      已用 Playwright（chromium 真实浏览器事件）复现验证：正/反向拖选均单区域、无组件残留。
 
-## 样式系统（Phase 1：背景填充 + 边框）
+## 样式系统（Phase 1：填充 + 边框；Phase 4：字体 / 对齐 / 换行）
 
 - **样式池（StylePool）**：样式定义全表集中存储、按内容去重（稳定序列化 key，
-  与书写顺序无关）。单元格只持 `CellData.s: StyleId`——相同样式无论多少格共享
-  一份定义，降低内存与序列化体积（N 格同一填充色 → 池中仅 1 份定义、每格只存 id）。
+  与书写顺序无关；固定序 fill → border 四边 → font → align）。单元格只持
+  `CellData.s: StyleId`——相同样式无论多少格共享一份定义，降低内存与序列化体积
+  （N 格同一填充色 → 池中仅 1 份定义、每格只存 id）。
   池只增不减（undo 回放不回收定义），被引用的 id 永远可解析。
 - **入口**：`Sheet.setCellStyle(range, partial)`（部分合并语义，见 `CellStylePatch`）/
   `setCellStyles(items)`（按格不同 partial，一次调用 = 一个 undo 单元，供工具用）/
   `clearCellStyle(range)`（删除 s 字段）/ `getCellStyle(addr)`（原始存储语义）。
   全部经 `SetCellStyleCommand`（`sheet.command.set-cell-style`）走命令系统，可 undo/redo。
-- **部分合并语义**：顶层浅合并——只给 fill 保留既有 border，反之亦然；
-  `fill` 字段存在即覆盖填充（`{}` = 清除填充保留边框）；`border` 字段存在即
+- **部分合并语义**：顶层浅合并——只给 fill 保留既有 border/font/align，反之亦然；
+  `fill` 字段存在即覆盖填充（`{}` = 清除填充保留其余）；`border` 字段存在即
   **边级合并**：边值为对象 → 与既有边合并（缺失字段保留既有边值，无既有边时
   用默认值补全：thin / 1px / #000000）；边值为 `null` → 删除该边（其余边保留）；
   未列出的边 → 保留（`border: {}` = 无边变化）。要表达「重定义整个边集合」
   （如无边框预设）需显式给出四边（含 `null`）。
+  `font` / `align` 存在即**逐字段浅合并**（缺失字段保留既有值）；
+  `font: {}` / `align: {}` = 清除该类全部字段；字段值为 `null` = 删除该字段
+  （如 `{ font: { color: null } }` 只清颜色保留加粗）。
+- **文本样式字段**：
+  - `font`：`color`（`#RRGGBB`）、`bold` / `italic` / `underline` / `strikethrough`、
+    `size`（pt，与 Excel 一致；渲染 ×4/3 → px）
+  - `align`：`horizontal`（left/center/right）、`vertical`（top/middle/bottom；
+    hucre/Excel 导出为 center）、`wrap`（自动换行）
 - **边框预设邻居同步（Excel/univer 语义）**：`core/style/border-presets.ts` 的
   `buildBorderPresetItems(range, preset, edge, getStyle)` 把预设展开为逐格补丁——
   全边框 = 每格四边（共享边双写一致）；外边框 = 边缘格写对应边 + 选区外一圈邻居
@@ -183,7 +210,17 @@ src/
 - **渲染（grid 层）**：列定义挂 `style` 函数回调，逐格动态求值——按 StyleId
   从样式池解析为 VTable 样式（`bgColor`、四边 `borderColor` / `borderLineWidth` /
   `borderLineDash`，数组顺序 [top, right, bottom, left]；线型 → dash：thin/medium/thick
-  实线、dashed [4,2]、dotted [1,2]）。合并格读锚点样式。
+  实线、dashed [4,2]、dotted [1,2]；`font.color` → `color`、`bold` → `fontWeight`、
+  `italic` → `fontStyle`、`underline` / `strikethrough` → `underline` / `lineThrough`、
+  `size` pt→px、`align.horizontal/vertical` → `textAlign` / `textBaseline`、
+  `wrap` → `autoWrapText`）。合并格读锚点样式。
+- **自动换行行高**：不用全局 `heightMode: 'autoHeight'`（与固定 28 + 稀疏 rowHeights
+  冲突，且十万行级不可行）。grid 层按需估算：含 wrap 格的行按内容估算折行数
+  （列宽 ÷ 字宽近似）× 行距，经 `table.setRowHeight` / `Sheet.setRowHeight` 写入
+  （稀疏、不进 undo，与拖拽行高同语义）。触发：wrap 切换 / 单元格内容变更 /
+  列宽拖拽结束。只升不降：已有更高自定义行高（导入 / 拖拽）不被估算压矮。
+  **已知边界**：估算偏差（非精确测字）；合并格 wrap 按锚点文本 +
+  单列宽估算，未按合并跨度加宽；关闭 wrap / 内容变短后不自动压回默认行高。
   - **网格线回落（根因 A 修复）**：VTable 的 `style.borderColor ?? bodyStyle.borderColor`
     是整体替换而非逐边合并，未设置的边写 `null` 该边即不画（网格线丢失）——回调
     必须对未自定义的边显式给出主题网格线（`GRID_BORDER` / 1px / 实线，常量从
@@ -199,13 +236,11 @@ src/
     短路），但邻居格的场景节点不会自动重建——`cell-change` → `updateCellContent`
     重建本格及四侧消费方（同样跳过合并跨度、目标解析锚点）。
   模型不感知视图：样式回调读样式池与 store，undo/redo/tab 切换自动一致。
-- **内置工具**（`tools/builtin.ts`，弹层型 `popup` 字段声明，vue 层渲染面板）：
-  填充颜色（UPalette 调色板 + 无填充 = 清除 fill 保留边框）；边框（全边框 / 外边框 /
-  下边框 / 无边框预设 + 线型 / 颜色子选项；预设补丁由 `core/style/border-presets`
-  生成，含邻居共享边同步，与 Excel 视觉一致）。面板打开期间写入经事务包裹为
-  一个 undo 单元，关闭时提交。
-  冻结（freeze 组 4 个，`active` 高亮）与查找（`find` 弹层，见「冻结 / 查找 / 选区回驱」）。
-- 预留扩展位（本期不实现）：`font`（字体）、`numFmt`（数字格式）。
+- **内置工具**（`tools/builtin.ts`，全面图标化，见下方「内置工具清单」）：
+  cell 组填充/边框弹层；text 组 B/I/U/S、对齐×6、换行 toggle、字体颜色/字号弹层。
+  填充/边框/字体色/字号面板打开期间写入经事务包裹为一个 undo 单元，关闭时提交。
+- 预留扩展位（本期不实现）：`fontFamily`（字体族）、`numFmt`（数字格式）、
+  缩小字体填充、文字旋转、上下标。
 
 ## 导入导出（Phase 5：XLSX / CSV，基于 hucre）
 
@@ -217,7 +252,8 @@ src/
     （`t='e'` 错误格、`t='d'` 日期序列 + `yyyy-mm-dd` numFmt）；`f` → formula（不带 '='，
     缓存 `v` → formulaResult）；合并 → `MergeRange`（0-based 闭区间）；样式池 →
     hucre CellStyle（fill=solid pattern + fgColor 去 '#'；四边 border { style, color }，
-    无宽度字段丢弃）；冻结 → `freezePane { rows, columns }`；行高 px → points（×0.75）。
+    无宽度字段丢弃）；冻结 → `freezePane { rows, columns }`；行高 px → points（×0.75）；
+    `activeSheet` → hucre `activeTab`（打开时定位活动表）。
   - `exportSheetCsv(sheet): string`：活动表 A1..最后一个有值格（裁剪高水位空行空列），
     公式格导计算缓存值（getCellData 原始存储语义），合并覆盖格为空（同 Excel），UTF-8 BOM。
   - `importXlsx(buffer): Promise<Workbook>`：`readXlsx(buf, { readStyles: true })` → 新工作簿
@@ -227,26 +263,34 @@ src/
     活动表（事务；空格不覆盖既有格、空串清除、Date → 1900 序列 t='d'）。
   - `replaceWorkbook(target, source)`：导入 UI 的「替换当前工作簿」——结构变更（删表/加表）
     不走 undo（Phase 3 门面边界），每个 sheet 数据写入 = 单 undo 单元；
-    `copySheetContent(target, source)`：样式按内容重新 intern 到目标池。
+    `copySheetContent(target, source)`：样式按内容重新 intern 到目标池；选区对齐源表
+    （importXlsx 源表默认 A1 → UI 导入后活动表为 A1，不残留目标旧选区；选区不进 undo）。
 - **映射细节**：
   - 日期：模型存 1900 系统序列数（`t='d'`）；导出 = 数字 + 日期 numFmt，hucre 读回 Date
     （UTC），导入端 `dateToSerial1900` 转回序列（含 Lotus 伪闰日修正；serial 60 边界 ±1 天
     误差与 Excel 一致，round-trip 用远离边界的日期验证）。
   - 样式导入：fill 只取 solid/条纹 pattern 的 fgColor 与渐变首色（none/gray125 忽略）；
     border 线型 12 种收敛到模型 5 种（`HUCRE_BORDER_STYLE_MAP`），颜色缺省黑，theme 色经
-    `wb.themeColors` 调色板解析；样式一律经 `StylePool.intern` 内容去重（同样式只 intern 一次）。
+    `wb.themeColors` 调色板解析；**font**（color/bold/italic/underline 非 false /
+    strikethrough/size；name 等忽略）、**alignment**（left/center/right；vertical
+    center↔middle；wrapText↔wrap；其余水平/垂直值不设）；样式一律经 `StylePool.intern`
+    内容去重（同样式只 intern 一次）。导出反向映射（font.size pt 直存）。
   - 合并区域内的非锚点格（模型不支持覆盖格数据）导入时跳过不写。
   - 公式导入后缓存值由本地引擎重算（Excel 不支持的函数 → #ERROR!，与模型求值语义一致）。
-- **UI 入口**（`tools/builtin.ts`，file 组）：导出 xlsx / 导出 csv（Blob 下载，
-  `downloadBlob` 工具层私有；`SheetContext.workbook` 只读引用供工作簿级导出）、导入
-  （弹层型 `popup: 'import'`，vue 层渲染 `UFilePicker`（@veltra/desktop，accept
-  .xlsx/.csv）：csv 直接写活动表，xlsx 经 `messageConfirm.danger` 确认后
-  `replaceWorkbook`；面板不参与事务）。`createSheetContext(sheet, workbook?)` 第二参传入
-  工作簿（无头/单 sheet 场景可省略，导出工具空操作）。
+- **UI 入口**（`tools/builtin.ts`，file 组）：**导入**（`popup: 'import'`，`UFilePicker`
+  accept .xlsx/.csv：csv 写活动表，xlsx 经 `messageConfirm.danger` 后 `replaceWorkbook`）/
+  **导出**（单按钮 `popup: 'export'` → 面板选 Excel(.xlsx) / CSV(.csv)，
+  `tools/download.ts` 的 `downloadBlob` + `exportWorkbookFile` / `exportSheetCsvFile`；
+  面板不参与事务）。`SheetContext.workbook` 只读引用供工作簿级导出；
+  `createSheetContext(sheet, workbook?)` 第二参传入工作簿（无头/单 sheet 可省略，导出空操作）。
 - **已知边界**：模型专有错误码 `#ERROR!`/`#CYCLE!` 不在 Excel 错误集内，导出为普通字符串
   （类型丢失）；Excel 共享公式（拖拽填充产生）非主格读回 `formula=''`，导入为静态缓存值
   （公式语义丢失）；导入按表序处理，反向跨表引用遇空表时缓存 `#REF!`（任一后续写入触发
   重算即自愈）；CSV 日期导出为 1900 序列数字。
+  **OOXML `<selection>` 元数据（hucre ^0.6.2）**：读侧 sheetView 不解析
+  `activeCell`/`sqref`，写侧 `SheetView` 类型无 selection 字段——导入 xlsx **一律默认 A1**
+  （无法恢复文件中的选中格）；导出仅写 `activeTab`（活动表索引）。未来 hucre 支持或
+  自行补丁 XML 时再开选区互操作。
 
 ## 公式引擎
 
@@ -268,7 +312,8 @@ src/
 - **聚合函数区分参数来源**（Excel 语义）：区域内的文本/布尔被 SUM/COUNT 等忽略，
   直接参数则强转（`SUM("abc")` → #VALUE!）；IF 为 lazy 函数（未选分支不求值）。
 - 运算符集：`+ - * / ^`（右结合）、一元 `+ -`（紧于幂次：-2^2=4）、`%` 后缀、`&`、
-  比较 `= <> < <= > >=`；优先级同 Excel。函数注册表可经 `registerFormulaFunction` 扩展。
+  比较 `= <> < <= > >=`；优先级同 Excel。函数注册表可经 `registerFormulaFunction` 扩展；
+  `listFormulaFunctions()` 枚举名称 + 可选 `meta`（params / 中文 description）供补全 UI。
 - 合并与公式：合并按值保留规则搬迁 CellData（含公式原文，引用不随位置调整）；
   被覆盖格上的公式随清空从依赖图移除。
 
@@ -285,25 +330,35 @@ src/
   不暴露 Sheet 实例，写方法全走命令系统——扩展天然可 undo，无法绕过命令系统。
   传入动态解析器时 tab 切换后同一上下文自动指向当前 sheet；事件订阅在调用时绑定当前 sheet，
   切换后需重新订阅（USheet 内部已处理）。
-- **内置工具**（`tools/builtin.ts`）：undo/redo（`disabled` 读 `ctx.canUndo/canRedo`，随
-  history-change 置灰）、合并（单格选区禁用；选区恰等于既有合并时禁用，避免空操作历史条目）、
-  取消合并（活动格不在合并内禁用）、填充颜色 / 边框（弹层型 `popup` 字段，vue 层渲染面板；
-  面板交互走 SheetContext 命令入口，事务包裹为一个 undo 单元）。与第三方工具同通道，
-  可 unregister 或同 id 覆盖。
+- **内置工具清单**（`tools/builtin.ts`，全部带 `@veltra/icons/normal` 图标；组序固定
+  `history ｜ cell ｜ text ｜ edit ｜ file`，见 `use-tool-groups.ts` 的 `BUILTIN_GROUP_ORDER`）：
+
+  | 组 | 工具 id | 说明 |
+  | --- | --- | --- |
+  | history | `undo` / `redo` | `disabled` 读 `canUndo/canRedo` |
+  | cell | `border` / `fill-color` / `merge` / `unmerge` | 边框/填充弹层；合并禁用规则见上 |
+  | text | `bold`/`italic`/`underline`/`strikethrough`/`font-color`/`font-size`/`align-*`/`valign-*`/`wrap-text` | toggle + 弹层；`active` 高亮 |
+  | edit | `find` | 查找替换条（Ctrl/Cmd+F） |
+  | file | `import` / `export` | 导入面板；导出单按钮 → xlsx/csv 选择面板 |
+
+  已移除（入口在行列头/body 右键菜单）：structure（插入/删除行列）、freeze（冻结×4）、
+  分立的 `export-xlsx`/`export-csv`。与第三方工具同通道，可 unregister 或同 id 覆盖。
 - **注册时机**：`src/index.ts` 顶层 `import './tools/builtin'`（与 default-registry 同构；
   经包入口导入即注册，深导入 core 子路径的无头场景不涉及）。注册表全局共享——
   所有 USheet 实例渲染同一组工具，各自 SheetContext 绑定各自工作簿（多实例互不影响）。
   曾因放在 vue 层注册被 pack treeshake 丢弃，教训：副作用注册必须挂在包入口模块。
-- `tools/` 不 import vue；`icon` 类型为 unknown（由 vue 层 `<component :is>` 渲染）。
+- `tools/` 不 import `vue` 运行时；`icon` 类型为 unknown（值为 `@veltra/icons` 组件，
+  vue 层 `<component :is>` 渲染）。下载辅助在 `tools/download.ts`。
 
 ## USheet 组件（vue/）
 
 - 结构：`sheet.vue` 为精简编排层（组合各可组合函数 + 拼装区块），区块拆分为
-  `sheet-toolbar.vue`（渲染 `defaultToolRegistry` 分组工具 + 分隔符，纯展示）+
-  `formula-bar.vue`（公式栏，可选）+ grid（SheetGrid，`use-sheet-grid.ts` 管生命周期）+
-  `sheet-tabs.vue`（底部 tabs）+ `popups/`（弹层型工具面板，v-if 挂载即全新状态）。
+  `sheet-toolbar.vue`（图标按钮 + `UTip` tooltip，有 icon 时不显示文字；无 icon 回落文字；
+  原生 `title` 兜底 disabled 悬停）+ `formula-bar.vue`（公式栏，可选）+ grid
+  （SheetGrid，`use-sheet-grid.ts` 管生命周期）+ `sheet-tabs.vue`（底部 tabs）+
+  `popups/`（弹层型工具面板，v-if 挂载即全新状态）。
   编排逻辑按职责入可组合函数：`use-sheet-state.ts`（状态源 + 事件绑定）、
-  `use-tool-popup.ts`（弹层开关 + 面板事务）、`use-tool-groups.ts`（工具栏视图模型）、
+  `use-tool-popup.ts`（弹层开关 + 面板事务）、`use-tool-groups.ts`（工具栏视图模型 + 组序）、
   `use-sheet-grid.ts`（网格重建 + 右键菜单）、`use-find-replace.ts`（查找替换）；
   无状态辅助入 `popup-helpers.ts`。
 - Props：`workbook?`（缺省内部自建单 sheet 工作簿）、`rows?`(100)、`cols?`(26)、
@@ -313,7 +368,7 @@ src/
   不能用 `queueMicrotask`——真实浏览器中每个事件监听器执行完都会触发 microtask checkpoint，
   `queueMicrotask(openPopup)` 会在**同一 click 事件冒泡到 window 之前**执行：面板刚渲染，
   冒泡到 window 的 `onWindowClick` 就把它关闭（面板闪开即关，表现为「点击弹层工具没反应」）。
-  工具栏按钮、右键菜单（`openToolPopup`）、Ctrl+F（`onGlobalKeydown`）三个入口统一用
+  工具栏按钮与 Ctrl+F（`onGlobalKeydown`）入口统一用
   `setTimeout(() => openPopup(tool), 0)`（均在 `use-tool-popup.ts`）。happy-dom 的 microtask
   时序与真实浏览器不同（dispatchEvent 同步返回后才执行 microtask），组件测试测不出此问题，
   改动弹层打开方式后必须用 Playwright 真实浏览器验证（断言 popup 打开后稳定存在，而非只跑组件测试）。
@@ -326,11 +381,19 @@ src/
   sheets-change）/ 活动 sheet（selection/history/cell/merge-change）→ bump 版本号 →
   `use-tool-groups.ts` 的 computed 重算 `visible`/`disabled`。tab 切换 = 重建 SheetGrid
   （旧实例 release）+ 重绑 sheet 事件。
-- **右键菜单**（`use-sheet-grid.ts`）：VTable `CONTEXTMENU_CELL`（`rightdown` 派发）→ `contextmenu.pop()`
-  （从 `@veltra/desktop` 主入口导入，勿深导入 `components/contextmenu`——dist 无 index.js），
-  固定六项「合并单元格 / 取消合并单元格 / 插入行 / 插入列 / 删除行 / 删除列」，
-  `disabled`/`callback` 对齐内置工具（插入行/列经 `openToolPopup` 打开数量输入面板）；
-  落在选区外的 body 格先选中该格，行号/列头保留当前选区。
+- **右键菜单**（`use-sheet-grid.ts` + `sheet-context-menu.ts`）：VTable `CONTEXTMENU_CELL`
+  （`rightdown` 派发）→ `contextmenu.pop()`（从 `@veltra/desktop` 主入口导入，勿深导入
+  `components/contextmenu`——dist 无 index.js）。`SheetGridContextMenuInfo` 带
+  `kind: 'body' | 'row-header' | 'col-header'`（及 header 的 `row`/`col`）。
+  - **body**：六项「合并 / 取消合并 / 插入行 / 插入列 / 删除行 / 删除列」；插入行/列改为
+    菜单内嵌 `insert-count-menu-item.vue`（`UNumberInput` + 确认 / Enter；`keepOpen` +
+    `render`，提交后 `inject(ContextmenuRootDIKey).onItemClickEnd()` 关闭），不再经
+    `openToolPopup` 打开独立面板。落在选区外的 body 格先选中该格。
+  - **行号**：在上方/下方插入 [N] 行（N 默认 = 选区覆盖行数，1..1000）/ 删除行 /
+    冻结到当前行 / 取消冻结（无冻结时 disabled）；落点不在选区 → 先选中整行
+    （列跨渲染宽度 `max(props.cols, sheet.cols)`）。
+  - **列头**：左侧/右侧插入列 / 删除列 / 冻结到当前列 / 取消冻结（对称）。
+  - 插入/删除相对**选区**首末行（列），非右键单行；冻结读 `ctx.frozen`，不进 undo。
   `eventOptions.preventDefaultContextMenu: true` 禁浏览器默认菜单。不暴露自定义 `menus` prop。
 - **底部 sheet tabs 交互（Phase 3，`sheet-tabs.vue`）**：tab 点击切换（同前）；末尾「+」按钮 `addSheet` +
   `activateSheet` 自动激活新表；tab 右键（原生 `contextmenu`，与单元格右键互不干扰）弹出
@@ -348,24 +411,35 @@ src/
   `@veltra/desktop/components/contextmenu/style`）；`sideEffects` 含
   `src/**/style.ts`、`src/**/*.scss`、`src/tools/builtin.ts` 及对应 dist 产物。
 
-## 公式栏（Phase 4：名称框 + fx 输入栏）
+## 公式栏（Phase 4：名称框 + fx；Phase 6：补全 + 引用选择）
 
 - **布局**：`vue/formula-bar.vue`，位于 toolbar 与 grid 之间；`showFormulaBar?` prop（默认 true）控制显隐。
-  样式走 `pkg:@veltra/styles` token，元素类 `u-sheet__formula-bar / name-box / fx-input / fx-btn`。
+  样式走 `pkg:@veltra/styles` token，元素类 `u-sheet__formula-bar / name-box / fx-editor / fx-input / fx-btn / fx-suggest*`。
 - **名称框**（左）：显示当前选区（单格 = `A1`，区域 = `A1:B2`，复用 `core/address.ts` 序列化；
   点合并被覆盖格显示锚点地址）。输入合法地址/区域回车 → `selectCell`/`selectRange` 跳转
   （Phase 2 选区回驱自动滚动可见）；非法输入 `message.warn` 提示、不写入并还原显示；Esc 还原。
 - **fx 输入栏**（右）：显示活动格内容——公式格 = `'=' + f` 原文（对齐 `FormulaAwareInputEditor`
   先例）、普通格 = 原始值文本、空格 = 空；无选区时禁用。聚焦进入编辑态：Enter / ✓ 提交
   （`ctx.setCellValue`，`'='` 前缀自动公式路径；提交写进入编辑时的活动格并保持当前选区，同 Excel）、
-  Esc / ✗ 取消还原、失焦提交（✓/✗ 按钮 `mousedown.prevent` 拦截失焦竞态）；Shift+Enter 换行。
+  Esc / ✗ 取消还原、失焦提交（✓/✗ / 候选列表 `mousedown.prevent` 拦截失焦竞态）；Shift+Enter 换行。
+- **函数补全**（Phase 6）：`=` 开头且光标在函数名 token 上（或紧跟 `=` 的空前缀）时弹出候选
+  （`listFormulaFunctions` 前缀过滤，上限 10；显示签名 + 中文说明）。↑↓ 导航，Tab / Enter / 点击
+  确认为 `NAME(` 且光标入括号；Esc 先关候选再按才取消编辑。候选列表在 `fx-editor`
+  （`position: relative`）内绝对定位，避免被 `.u-sheet` overflow 裁剪。镜像只读期不弹补全。
+- **引用选择**（Phase 6）：光标前非空字符 ∈ `{=, (, ,, +, -, *, /, ^, &, <, >}` 时进入引用选择——
+  画布点选插入 `A1`、拖选插入 `A1:B2`（不回写模型选区）。核心：grid `pointerdown` capture 挂起
+  blur 提交 + `SheetGridOptions.interceptSelection` / `onSelectionIntercept`（编排层驱动，grid 不感知公式）。
+  插入后 re-focus textarea，可连续框选（如 `=SUM(A1:B2)+C1`）。非引用选择场景失焦仍正常提交。
+- **函数元数据**：`FormulaFunctionMeta { params, description }`；`listFormulaFunctions()` 枚举注册表
+  （无 meta 时仅名称）。13 个内置函数均带中文说明。
 - **双向同步与编辑态锁**：订阅活动 sheet 的 `selection-change` / `cell-change`——网格侧变化即时
   刷新名称框与输入栏；公式栏编辑期间忽略网格回写事件（编辑态锁，输入不被覆盖）；
   网格双击编辑提交后公式栏同步显示。
 - **tab 切换适配**：`sheet` prop 变化 → watch 重绑订阅并刷新（USheet 已有重建/重绑模式）。
-- **网格编辑镜像**（选做 7）：`SheetGridOptions.onEditStart`（编辑器 onStart 通知，模型地址）→
-  公式栏只读镜像显示公式原文/当前文本；网格提交（cell-change 活动格）/ 取消（选区变化）后退出镜像。
+- **网格编辑镜像**：`SheetGridOptions.onEditStart` → 公式栏只读镜像；提交/取消后退出镜像。
   多行输入自动增高（textarea scrollHeight，CSS min-height 兜底）。
+- **后续项（未做）**：网格内编辑器同等补全与框选；公式内引用 token 彩色高亮与画布选区联动；
+  拖动调整已插入的引用区域；参数级高亮（当前第 N 个参数）；跨 sheet 引用辅助。
 
 ## 核心语义约定
 
@@ -429,8 +503,8 @@ src/
 - **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`（同 desktop 先例，随包发布）、
   `hucre`（^0.6.2，XLSX/CSV 读写，零依赖纯 TS）
 - **peer**：`@cat-kit/core`、`vue`、`@veltra/desktop`（右键 `contextmenu.pop` + 导入 `UFilePicker` /
-  `UIcon`）、`@veltra/icons`（tabs 左右箭头）、`@veltra/utils`（bem / DeconstructValue）、
-  `@veltra/styles`（SCSS token）
+  `UIcon` / 工具栏 `UTip`）、`@veltra/icons`（工具栏图标 + tabs 箭头）、`@veltra/utils`
+  （bem / DeconstructValue）、`@veltra/styles`（SCSS token）
 - **被依赖**：playground
 
 ## 大数据量（Phase 6：演示 + 性能基线）
@@ -477,16 +551,14 @@ src/
 ## 行列插入/删除（Phase 7）
 
 - **入口**：`Sheet.insertRows(at, count=1)` / `insertCols` / `deleteRows` / `deleteCols`；
-  `SheetToolContext` 同签名暴露；内置工具 `insert-rows/insert-cols/delete-rows/delete-cols`
-  （组 `structure`）+ 单元格右键菜单「插入行/插入列/删除行/删除列」（以活动格坐标为锚点）。
-  **插入行/插入列是弹层型工具**（`popup: 'insert-rows' / 'insert-cols'`）：vue 层渲染数量输入
-  面板（默认 1、钳制到 [1,100]、Enter 提交；一次插入 = 单 undo 单元），工具栏与右键菜单
-  （`openToolPopup` 打开同一面板）共用；工具 `onClick` 保留默认插入 1 的回退（无弹层宿主）。
-  面板不参与事务（同 find/import 先例），插入即提交。
+  `SheetContext` 同签名暴露。工具栏**不再**提供 structure 组按钮——入口仅右键菜单：
+  body「插入行/插入列」（内嵌 `insert-count-menu-item`，默认 N = 选区覆盖行/列数）/
+  「删除行/删除列」；行号/列头菜单对称提供在上方/下方（左侧/右侧）插入与删除。
+  一次插入 = 单 undo 单元。
 - **结构变更 = 命令**（`InsertCellsCommand`，单 undo 单元）：redo = 结构操作 + 公式引用平移
-  CellPatch；undo = 先恢复公式 CellPatch 的 before（原公式文本/数据），再执行**反向结构操作**
-  （数据随坐标移动回原位，公式无需反向平移）。`StructurePatch` 携带 `beforeRows/beforeCols`
-  精确还原表格尺寸（insert/delete 的尺寸计算不可逆）。
+  CellPatch；undo = 先恢复「仍在表内」公式 before → **反向结构操作** → 再恢复删除区间内
+  单元格（`prepareDeletedCellPatches`，含普通值与公式格）。`StructurePatch` 携带
+  `beforeRows/beforeCols` 精确还原表格尺寸（insert/delete 的尺寸计算不可逆）。
 - **平移范围（Excel 语义）**：数据、合并区、稀疏行高、公式引用全部平移；**表格尺寸**
   `Sheet.rows/cols`（随快照持久化，0 = 未声明由视图 props 决定）同步增减。
   - **视图声明尺寸**：`Sheet.ensureTableSize(rows, cols)`（`@internal`，扩张语义 max 合并、
@@ -506,18 +578,17 @@ src/
   `formula-shift.test.ts`（20，引用平移含绝对/跨表/#REF!）、`structure-change.test.ts`
   （13，Sheet 端到端：undo/redo 往返、跨表、快照、尺寸还原）；Playwright 端到端 6 项
   （插入/删除/undo/右键菜单/表尾插入）。
-- **后续优化（2026-08 记录）**：Excel 原生**行号/列头右键插入**未实现——右键行号/列头 →
-  「插入行/插入列/删除行/删除列」直接执行（选中几行插几行，不进数量面板）。实现要点：
-  `SheetGridContextMenuInfo` 增加 header 识别（行号列/列头行 + 模型行列号），vue 层按
-  header 渲染独立菜单，插入数量取选区覆盖行/列数（≥1），未覆盖时先选中整行/整列。
-
 ## 已知限制
 
 - **跨表交错撤销**：undo 历史按 sheet 分栈，跨表重算的派生补丁跟随源 sheet 的条目。
   若「改 Sheet2 → 再改 Sheet1 被联动的格 → 在 Sheet2 上 undo」，源 sheet 的 undo 会把
   Sheet1 的格还原到源条目记录的旧状态，Sheet1 自己的那条历史仍在栈中（继续 undo 可能
   短暂显示过期缓存，任意重算触发后自愈）。Excel 的单一工作簿撤销栈无此问题。
-- 编辑提交回写的是输入文本（数字文本以字符串存储；公式求值按 Excel 规则强转）。
+- 编辑提交回写的是输入文本；`Sheet.setCellValue` / `CellStore.setCellValue` 经
+  `normalizeInputValue` 把数字文本 / TRUE·FALSE 规范化为 number/boolean（对齐 Excel
+  键入语义，保证 `SUM(A1:C1)` 等区域聚合可计入）。前导 `'` 强制为文本；显式
+  `setCell`/`setCells` 带 `t:'s'` 的路径不受影响。公式求值对直接参数仍按 Excel
+  规则强转数字文本。
 - **选区双向同步**：VTable → 模型（点击 `SELECTED_CELL` / 拖选 `DRAG_SELECT_END`）与
   模型 → VTable（`selection-change` → `selectCells` 高亮 + `scrollToCell` 滚动）双向打通；
   回驱期间 VTable 事件不回写模型（`syncingSelection` 防递归）。
@@ -530,8 +601,14 @@ src/
   均为体验简化，非数据正确性问题。
 - 冻结列数 = 渲染列数（或行数）时 VTable 的 `frozenColCount`/`frozenRowCount` 归 0
   （VTable 原生行为：冻结区上限受 `maxFrozenWidth`/视口约束），极端场景表现为冻结失效。
-- 字体/数字格式样式扩展、图表、协同编辑：本期不做，模型层预留扩展点。
-  单元格样式系统已落地（Phase 1：填充 + 边框）；行列插入删除已落地（Phase 7）。
+- 字体族 / 数字格式 / 图表 / 协同编辑：本期不做，模型层预留扩展点。
+  单元格样式已落地（Phase 1 填充+边框；Phase 4 字体/对齐/换行）；行列插入删除已落地（Phase 7）。
+- **自动换行行高估算偏差**：字宽按字号 × 系数近似，非 canvas 精确测字；合并格 wrap
+  未按合并跨度加宽列宽；估算只升不降——关闭 wrap / 内容变短后不自动压回默认行高
+  （保留已写入的稀疏行高，含导入与拖拽）。
+- **公式栏基础版边界**（Phase 6）：补全 / 引用选择仅 fx 输入栏（网格内编辑器无同等能力）；
+  无引用彩色高亮联动、无拖动调整已插入引用、无参数级高亮、无跨 sheet 引用辅助；
+  `-` 一元/二元歧义不区分（`A1-` 后框选 → `A1-B2`，合法且误判无害）。
 
 ## 验证
 

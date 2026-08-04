@@ -1,26 +1,17 @@
 <template>
   <div class="sheet-demo">
     <div class="sheet-demo__hint">
-      USheet：工具栏内置撤销/重做/合并/取消合并 + 演示自定义工具。输入 =
+      USheet：工具栏图标化（history / cell / text / edit / file）。输入 =
       开头即公式；拖选后可合并或右键菜单；
       单元格右下角拖填充柄可复制/数字序列/公式相对引用；行边界可拖行高。快捷键：Ctrl/Cmd+Z 撤销，
-      Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。
+      Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。行列插入/删除与冻结见行列头右键菜单。
     </div>
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" class="sheet-demo__sheet" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Calendar, Clear } from '@veltra/icons'
-import {
-  iterateRange,
-  registerTool,
-  unregisterTool,
-  USheet,
-  Workbook,
-  type SetCellValueItem,
-  type SheetExposed
-} from '@veltra/sheet'
+import { USheet, Workbook, type SheetExposed } from '@veltra/sheet'
 import '@veltra/sheet/vue/style'
 import { onBeforeUnmount, useTemplateRef } from 'vue'
 
@@ -61,39 +52,6 @@ sheet2.history.clear()
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
-// 两个示例自定义工具：与内置工具同一注册通道（dogfood 扩展机制）
-registerTool({
-  id: 'demo-insert-date',
-  title: '插入当前日期',
-  icon: Calendar,
-  tooltip: '插入当前日期到选中格',
-  group: 'demo',
-  order: 0,
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (!active) return
-    ctx.setCellValue(active, new Date().toLocaleDateString('sv-SE'))
-  }
-})
-
-registerTool({
-  id: 'demo-clear-selection',
-  title: '清空选区',
-  icon: Clear,
-  tooltip: '清空选区全部单元格（批量写入，一个 undo 单元）',
-  group: 'demo',
-  order: 1,
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: (ctx) => {
-    const range = ctx.getSelection().ranges[0]
-    if (!range) return
-    const items: SetCellValueItem[] = []
-    for (const addr of iterateRange(range)) items.push({ addr, data: undefined })
-    ctx.setCells(items)
-  }
-})
-
 // 调试句柄：浏览器控制台/自动化可直接读取模型与组件暴露
 ;(window as unknown as Record<string, unknown>).__sheetDemo = {
   workbook,
@@ -103,8 +61,6 @@ registerTool({
 }
 
 onBeforeUnmount(() => {
-  unregisterTool('demo-insert-date')
-  unregisterTool('demo-clear-selection')
   delete (window as unknown as Record<string, unknown>).__sheetDemo
 })
 </script>

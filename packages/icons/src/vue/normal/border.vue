@@ -1,0 +1,13 @@
+<!-- @veltra/icons generated sha256:fcb76fd505b8cb73 gen:8 source:src/svg/normal/border.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'Border' })
+</script>
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <path
+      fill="currentColor"
+      fill-rule="evenodd"
+      d="M2 2h12v12H2zm1.2 1.2v9.6h9.6V3.2zm3.2 0v9.6h1.2V3.2zm5.2 3.2H3.2v1.2h9.6z"
+    />
+  </svg>
+</template>

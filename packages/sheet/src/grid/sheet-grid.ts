@@ -20,10 +20,25 @@ import {
 } from '../core/style/types'
 import {
   GRID_BORDER,
+  SHEET_CELL_PADDING,
   SHEET_DEFAULT_ROW_HEIGHT,
   sheetRowSeriesNumberStyle,
   sheetVTableTheme
 } from './vtable-theme'
+
+/** Excel pt → CSS px（96dpi / 72pt = 4/3） */
+export function fontSizePtToPx(pt: number): number {
+  return Math.round((pt * 4) / 3)
+}
+
+/** 默认字号（pt，对齐 Excel 常见默认） */
+const DEFAULT_FONT_SIZE_PT = 11
+
+/** 字宽近似系数（相对字号 px；混合中西文折中） */
+const CHAR_WIDTH_RATIO = 0.6
+
+/** 行高相对字号的行距系数 */
+const LINE_HEIGHT_RATIO = 1.25
 
 /**
  * VTable 适配层：数据模型完全自持有，ListTable 只做渲染与输入。
@@ -72,12 +87,21 @@ class FormulaAwareInputEditor extends InputEditor {
 /** 编辑器按 grid 实例注册（hook 闭包各自 sheet），名称递增防冲突 */
 let editorSeq = 0
 
+/** 右键落点区域：body 格 / 行号列 / 列头行（角点归 body，addr 为 null） */
+export type SheetGridContextMenuKind = 'body' | 'row-header' | 'col-header'
+
 /** 右键菜单回调参数（vue 层弹 UContextmenu；grid 不依赖 desktop） */
 export interface SheetGridContextMenuInfo {
   x: number
   y: number
-  /** body 格地址；行号/列头为 null */
+  /** 落点区域 */
+  kind: SheetGridContextMenuKind
+  /** body 格为模型地址；header / 角点为 null */
   addr: CellAddress | null
+  /** row-header：模型行号 */
+  row?: number
+  /** col-header：模型列号 */
+  col?: number
 }
 
 /** 线型 → VTable borderLineDash（null = 实线） */
@@ -90,9 +114,10 @@ const BORDER_STYLE_DASH: Record<BorderLineStyle, number[] | null> = {
 }
 
 /**
- * 模型样式 → VTable ITextStyleOption。
- * 四边数组顺序 [top, right, bottom, left]（与 VTable ColorsPropertyDefine 一致）。
+ * 模型样式 → VTable ITextStyleOption（fill/border/font/align）。
+ * 导出供单测直接断言映射；grid 渲染经 resolveCellStyle 调用。
  *
+ * 四边数组顺序 [top, right, bottom, left]（与 VTable ColorsPropertyDefine 一致）。
  * 未自定义的边显式回落主题网格线（GRID_BORDER / 1px / 实线）：VTable 的
  * `style.borderColor ?? bodyStyle.borderColor` 是整体替换而非逐边合并，回调一旦
  * 给出数组主题网格线即被整个丢弃，边为 null 则该边不画（只设填充或部分边时
@@ -109,12 +134,13 @@ const BORDER_STYLE_DASH: Record<BorderLineStyle, number[] | null> = {
  * @param style 本格样式（合并格读锚点）
  * @param facing 四侧邻居的对侧边（left = 左邻居的 right 边，以此类推；越界侧为 undefined）
  */
-function cellStyleToVTableStyle(
+export function cellStyleToVTableStyle(
   style: CellStyle | undefined,
-  facing: Partial<Record<BorderSide, BorderEdge | undefined>>
+  facing: Partial<Record<BorderSide, BorderEdge | undefined>> = {}
 ): ITextStyleOption {
   // 无样式且四侧邻居均无对侧自定义边 → 空对象（主题统一网格线，避免逐格 split 描边）
   if (!style && BORDER_SIDES.every((side) => facing[side] == null)) return {}
+
   const borderColor: (string | null)[] = [null, null, null, null]
   const borderLineWidth: (number | null)[] = [null, null, null, null]
   const borderLineDash: (number[] | null)[] = [null, null, null, null]
@@ -131,12 +157,56 @@ function cellStyleToVTableStyle(
       borderLineDash[i] = null
     }
   }
-  return {
+
+  const result: ITextStyleOption = {
     ...(style?.fill ? { bgColor: style.fill.color } : {}),
     borderColor,
     borderLineWidth,
     borderLineDash
   }
+
+  const font = style?.font
+  if (font) {
+    if (font.color) result.color = font.color
+    if (font.bold) result.fontWeight = 'bold'
+    if (font.italic) result.fontStyle = 'italic'
+    if (font.underline) result.underline = true
+    if (font.strikethrough) result.lineThrough = true
+    if (typeof font.size === 'number') result.fontSize = fontSizePtToPx(font.size)
+  }
+
+  const align = style?.align
+  if (align) {
+    if (align.horizontal) result.textAlign = align.horizontal
+    if (align.vertical) result.textBaseline = align.vertical
+    if (align.wrap) result.autoWrapText = true
+  }
+
+  return result
+}
+
+/**
+ * 估算含 wrap 格的行高（px）：按列宽 ÷ 字宽近似折行数 × 行距。
+ * 估算偏差与合并格 wrap 为已知边界（见 AGENTS.md）。
+ */
+export function estimateWrapRowHeight(params: {
+  text: string
+  colWidth: number
+  fontSizePt?: number
+}): number {
+  const fontPx = fontSizePtToPx(params.fontSizePt ?? DEFAULT_FONT_SIZE_PT)
+  const padX = SHEET_CELL_PADDING[1] + SHEET_CELL_PADDING[3]
+  const padY = SHEET_CELL_PADDING[0] + SHEET_CELL_PADDING[2]
+  const available = Math.max(fontPx, params.colWidth - padX)
+  const charWidth = fontPx * CHAR_WIDTH_RATIO
+  const lineHeight = fontPx * LINE_HEIGHT_RATIO
+  let lines = 0
+  for (const paragraph of params.text.split('\n')) {
+    const chars = paragraph.length || 1
+    lines += Math.max(1, Math.ceil((chars * charWidth) / available))
+  }
+  if (lines === 0) lines = 1
+  return Math.max(SHEET_DEFAULT_ROW_HEIGHT, Math.ceil(lines * lineHeight + padY))
 }
 
 /** 从 VTable 事件载荷提取 viewport 坐标（兼容 nativeEvent 嵌套） */
@@ -165,6 +235,14 @@ export interface SheetGridOptions {
   onEditStart?: (addr: CellAddress) => void
   /** 编辑结束（提交/取消）时通知（模型地址）；公式栏退出镜像用 */
   onEditEnd?: (addr: CellAddress) => void
+  /**
+   * 选区拦截（编排层：公式栏引用选择模式）。
+   * 返回 true 时 SELECTED_CELL / DRAG_SELECT_END 不回写模型选区。
+   * grid 层不感知公式概念，仅提供通用钩子。
+   */
+  interceptSelection?: () => boolean
+  /** 拦截时回调当前 VTable 选区（模型坐标，已规范化） */
+  onSelectionIntercept?: (range: CellRange) => void
 }
 
 export class SheetGrid {
@@ -177,6 +255,8 @@ export class SheetGrid {
   private readonly onContextMenu?: (info: SheetGridContextMenuInfo) => void
   private readonly onEditStart?: (addr: CellAddress) => void
   private readonly onEditEnd?: (addr: CellAddress) => void
+  private readonly interceptSelection?: () => boolean
+  private readonly onSelectionIntercept?: (range: CellRange) => void
   /** 当前编辑格（模型地址；编辑器 onStart → onEnd 期间非空） */
   private editingAddr: CellAddress | null = null
   private readonly disposers: (() => void)[] = []
@@ -188,6 +268,11 @@ export class SheetGrid {
   private fillSourceRange: CellRange | null = null
   /** 选区回驱进行中：VTable 侧 SELECTED_CELL 不回写模型（防递归） */
   private syncingSelection = false
+  /**
+   * SELECTED_CELL 已拦截插入引用：随后的 DRAG_SELECT_END 不得再判 intercept
+   * （插入后光标移到引用后，isRefSelecting 会变 false，否则会误写模型选区）。
+   */
+  private selectionIntercepted = false
 
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
@@ -205,6 +290,8 @@ export class SheetGrid {
     this.onContextMenu = options.onContextMenu
     this.onEditStart = options.onEditStart
     this.onEditEnd = options.onEditEnd
+    this.interceptSelection = options.interceptSelection
+    this.onSelectionIntercept = options.onSelectionIntercept
 
     // 每个 grid 实例注册自己的编辑器（hook 闭包本实例的 sheet 与坐标换算）
     this.editorName = `veltra-sheet-input-${editorSeq++}`
@@ -232,6 +319,8 @@ export class SheetGrid {
     this.table = new ListTable(options.container, this.buildOptions())
     this.restrictRowResizeToSeriesNumber()
     this.applyStoredRowHeights()
+    // 含 wrap 的行按内容估算行高（稀疏写入模型，与拖拽行高同语义、不进 undo）
+    this.syncWrapRowHeights()
     this.bindTableEvents()
     this.bindSheetEvents()
     this.bindKeyboard()
@@ -265,6 +354,13 @@ export class SheetGrid {
     for (const dispose of this.disposers) dispose()
     this.disposers.length = 0
     this.table.release()
+  }
+
+  /** 引用选择等编排层拦截：命中则回调且不回写模型 */
+  private tryInterceptSelection(range: CellRange): boolean {
+    if (!this.interceptSelection?.()) return false
+    this.onSelectionIntercept?.(range)
+    return true
   }
 
   // ─── 坐标换算 ─────────────────────────────────────────────
@@ -567,6 +663,59 @@ export class SheetGrid {
     }
   }
 
+  /**
+   * 同步含 wrap 格的行高：扫描行内 wrap 格，按列宽估算折行高度取 max，
+   * 写入 `table.setRowHeight` + `Sheet.setRowHeight`（不进 undo）。
+   * @param row 指定行；缺省扫描全部有数据的行
+   */
+  private syncWrapRowHeights(row?: number): void {
+    if (row !== undefined) {
+      this.syncWrapRowHeight(row)
+      return
+    }
+    const seen = new Set<number>()
+    for (const [addr] of this.sheet.store.entries()) {
+      if (addr.row >= this.rows || seen.has(addr.row)) continue
+      seen.add(addr.row)
+      this.syncWrapRowHeight(addr.row)
+    }
+  }
+
+  /**
+   * 单行 wrap 行高估算；行内无 wrap 格则跳过（保留手动/默认行高）。
+   * 只升不降：已有自定义行高（导入 / 拖拽）不低于估算时保留，避免压矮。
+   */
+  private syncWrapRowHeight(row: number): void {
+    if (row < 0 || row >= this.rows) return
+    let maxHeight = 0
+    let hasWrap = false
+    for (let col = 0; col < this.cols; col++) {
+      const addr = { row, col }
+      const style = this.getStoredStyle(addr)
+      if (!style?.align?.wrap) continue
+      hasWrap = true
+      const text = String(this.sheet.getDisplayValue(addr) ?? '')
+      const tableCol = this.toTableCoord(this.table, addr).col
+      const colWidth = this.table.getColWidth(tableCol)
+      const height = estimateWrapRowHeight({ text, colWidth, fontSizePt: style.font?.size })
+      if (height > maxHeight) maxHeight = height
+    }
+    if (!hasWrap) return
+    const estimated = Math.max(SHEET_DEFAULT_ROW_HEIGHT, maxHeight)
+    const current = this.sheet.getRowHeight(row)
+    // 已有更高的自定义行高（xlsx 导入 / 用户拖拽）不得被估算压矮
+    const next = current != null ? Math.max(current, estimated) : estimated
+    if (current === next) {
+      // 模型已是目标高度时仍确保 VTable 同步（重建后 applyStored 可能已写过）
+      const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
+      if (this.table.getRowHeight(tableRow) !== next) this.table.setRowHeight(tableRow, next)
+      return
+    }
+    this.sheet.setRowHeight(row, next)
+    const tableRow = this.toTableCoord(this.table, { row, col: 0 }).row
+    this.table.setRowHeight(tableRow, next)
+  }
+
   // ─── 事件桥接 ─────────────────────────────────────────────
 
   private bindTableEvents(): void {
@@ -582,10 +731,13 @@ export class SheetGrid {
         const pending = this.pendingTableSync
         this.pendingTableSync = null
         if (pending) {
+          const wrapRows = new Set<number>()
           for (const pendingAddr of pending.values()) {
             this.pushCellToTable(pendingAddr)
             this.refreshCellStyle(pendingAddr)
+            wrapRows.add(pendingAddr.row)
           }
+          for (const row of wrapRows) this.syncWrapRowHeight(row)
         }
       }
     })
@@ -593,23 +745,43 @@ export class SheetGrid {
     this.table.on(ListTable.EVENT_TYPE.SELECTED_CELL, (args) => {
       // 回驱期间的 SELECTED_CELL（selectCells 同步派发）不写回模型，防递归
       if (this.syncingSelection) return
+      this.selectionIntercepted = false
       // 以 VTable 当前完整选区为准同步模型：拖选结束的 SELECTED_CELL 携带整个
       // 区域，若只同步 args 单格会把拖选区域收缩成单格；单击时选区即单格，等价。
       // 行号/列头选区的 start 落在 header（toSheetAddr 为 null），必须先读完整选区
       // 再钳制，不能因 args 是 header 或 end 格而提前 return / selectCell(末格)。
       const range = this.readSelectedModelRange()
       if (range) {
+        // 公式栏引用选择：不回写模型，交给编排层插入引用文本（单击与拖选结束均走此路径）
+        if (this.tryInterceptSelection(range)) {
+          this.selectionIntercepted = true
+          return
+        }
         this.sheet.selectRange(range, this.resolveSelectionActive(range))
         return
       }
       const addr = this.toSheetAddr(this.table, args.col, args.row)
-      if (addr) this.sheet.selectCell(addr)
+      if (addr) {
+        const single = createRange(addr, addr)
+        if (this.tryInterceptSelection(single)) {
+          this.selectionIntercepted = true
+          return
+        }
+        this.sheet.selectCell(addr)
+      }
     })
 
     // 拖选结束 → 选区同步为区域（合并等区域操作的前提）
     this.table.on(ListTable.EVENT_TYPE.DRAG_SELECT_END, () => {
       const range = this.readSelectedModelRange()
       if (!range) return
+      // SELECTED_CELL 已拦截：插入后 isRefSelecting 可能已变 false，用粘性标志跳过
+      if (this.selectionIntercepted) {
+        this.selectionIntercepted = false
+        return
+      }
+      // 兜底：若 SELECTED_CELL 未走到拦截（少见时序），仍插入引用且不写模型
+      if (this.tryInterceptSelection(range)) return
       this.sheet.selectRange(range, this.resolveSelectionActive(range))
     })
 
@@ -618,6 +790,19 @@ export class SheetGrid {
       const addr = this.toSheetAddr(this.table, this.getOffsets(this.table).colOffset, args.row)
       if (!addr) return
       this.sheet.setRowHeight(addr.row, args.rowHeight)
+    })
+
+    // 列宽拖拽结束 → 重算该列相关行的 wrap 行高
+    this.table.on(ListTable.EVENT_TYPE.RESIZE_COLUMN_END, (args) => {
+      const col = args.col
+      const addr = this.toSheetAddr(this.table, col, this.getOffsets(this.table).rowOffset)
+      if (!addr) return
+      const seen = new Set<number>()
+      for (const [cell] of this.sheet.store.entries()) {
+        if (cell.col !== addr.col || seen.has(cell.row)) continue
+        seen.add(cell.row)
+        this.syncWrapRowHeight(cell.row)
+      }
     })
 
     // 填充柄：记下源选区
@@ -656,13 +841,34 @@ export class SheetGrid {
       if (!this.onContextMenu) return
       const point = clientPointFromEvent(event)
       // 延后一帧：避开 VTable rightdown 同步阶段，保证菜单挂载后不被同轮指针事件干扰
-      const info: SheetGridContextMenuInfo = {
-        x: point?.x ?? 0,
-        y: point?.y ?? 0,
-        addr: this.toSheetAddr(this.table, args.col, args.row)
-      }
+      const info = this.buildContextMenuInfo(args.col, args.row, point?.x ?? 0, point?.y ?? 0)
       queueMicrotask(() => this.onContextMenu?.(info))
     })
+  }
+
+  /**
+   * 右键坐标 → ContextMenuInfo：行号列 / 列头行 / body 分流。
+   * 角点（行号×列头）归 body（addr null），与「保留当前选区」语义一致。
+   */
+  private buildContextMenuInfo(
+    tableCol: number,
+    tableRow: number,
+    x: number,
+    y: number
+  ): SheetGridContextMenuInfo {
+    const { colOffset, rowOffset } = this.getOffsets(this.table)
+    const modelRow = tableRow - rowOffset
+    const modelCol = tableCol - colOffset
+    const isSeries = this.table.isSeriesNumber(tableCol, tableRow)
+    const isColHeader = tableRow < rowOffset
+
+    if (isSeries && modelRow >= 0) {
+      return { x, y, kind: 'row-header', addr: null, row: modelRow }
+    }
+    if (isColHeader && modelCol >= 0) {
+      return { x, y, kind: 'col-header', addr: null, col: modelCol }
+    }
+    return { x, y, kind: 'body', addr: this.toSheetAddr(this.table, tableCol, tableRow) }
   }
 
   /**
@@ -740,6 +946,8 @@ export class SheetGrid {
         // 溯源到本格边）。函数式 style 每次求值、无缓存，但邻居格的场景节点
         // 不会自动重建，需一并触发重绘
         this.refreshFacingConsumers(addr)
+        // wrap / 内容变更 → 按需重算该行高
+        this.syncWrapRowHeight(addr.row)
       })
     )
 

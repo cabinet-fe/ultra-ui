@@ -1,7 +1,9 @@
 import type {
+  AlignmentStyle as HucreAlignment,
   Cell as HucreCell,
   CellStyle as HucreCellStyle,
   CellValue as HucreCellValue,
+  FontStyle as HucreFont,
   Sheet as HucreSheet,
   Workbook as HucreWorkbook
 } from 'hucre'
@@ -16,7 +18,11 @@ import {
   BORDER_STYLE_WIDTH,
   BORDER_SIDES,
   type BorderLineStyle,
-  type CellStyle
+  type CellAlign,
+  type CellFont,
+  type CellStyle,
+  type HorizontalAlign,
+  type VerticalAlign
 } from '../style/types'
 import { Workbook } from '../workbook'
 
@@ -28,9 +34,10 @@ import { Workbook } from '../workbook'
  * - 公式：cell.formula（不带 '='）→ CellData.f；计算缓存由本地引擎重算填充
  *   （一次 setCells 批量 = 单命令 = 单次重算编排 + 单 undo 单元）
  * - 日期：hucre 读回 Date 对象 → 转 1900 系统序列数存 t='d'（round-trip 保真）
- * - 样式：hucre CellStyle → 模型 { fill, border }，经 StylePool.intern 内容去重
+ * - 样式：hucre CellStyle → 模型 { fill, border, font, align }，经 StylePool.intern 内容去重
  *   （同样式只 intern 一次；fill 只取 solid/条纹 fgColor 与渐变首色，border 线型收敛到
- *   模型 5 种，颜色缺省黑，theme 色经工作簿主题调色板解析）
+ *   模型 5 种，颜色缺省黑，theme 色经工作簿主题调色板解析；font/alignment 映射见
+ *   hucreStyleToModel）
  * - 合并：MergeRange（0-based 闭区间）→ mergeCells（相交自动包围盒）
  * - 冻结：freezePane → setFrozen；行高：points → 像素（×4/3 取整）
  * - CSV：parseCsv（typeInference 开，前导零保留）→ 从 A1 覆盖写入既有活动表
@@ -66,7 +73,45 @@ function resolveColor(
   return undefined
 }
 
-/** hucre 单元格样式 → 模型样式（只取 fill + border；numFmt/font/alignment 等本期不支持，忽略） */
+/** hucre 水平对齐 → 模型（仅 left/center/right；其余不设置） */
+const HUCRE_HORIZONTAL_MAP: Partial<
+  Record<NonNullable<HucreAlignment['horizontal']>, HorizontalAlign>
+> = { left: 'left', center: 'center', right: 'right' }
+
+/** hucre 垂直对齐 → 模型（center ↔ middle） */
+const HUCRE_VERTICAL_MAP: Partial<Record<NonNullable<HucreAlignment['vertical']>, VerticalAlign>> =
+  { top: 'top', center: 'middle', bottom: 'bottom' }
+
+/** hucre FontStyle → 模型 font（name/vertAlign/family/charset/scheme 本期不取） */
+function hucreFontToModel(font: HucreFont, themeColors?: readonly string[]): CellFont | undefined {
+  const model: CellFont = {}
+  const color = resolveColor(font.color, themeColors)
+  if (color) model.color = color
+  if (font.bold === true) model.bold = true
+  if (font.italic === true) model.italic = true
+  // underline 非 false 即视为 true（含 "single" / "double" 等）
+  if (font.underline !== undefined && font.underline !== false) model.underline = true
+  if (font.strikethrough === true) model.strikethrough = true
+  if (typeof font.size === 'number' && font.size > 0) model.size = font.size
+  return Object.keys(model).length > 0 ? model : undefined
+}
+
+/** hucre AlignmentStyle → 模型 align */
+function hucreAlignToModel(alignment: HucreAlignment): CellAlign | undefined {
+  const model: CellAlign = {}
+  if (alignment.horizontal) {
+    const h = HUCRE_HORIZONTAL_MAP[alignment.horizontal]
+    if (h) model.horizontal = h
+  }
+  if (alignment.vertical) {
+    const v = HUCRE_VERTICAL_MAP[alignment.vertical]
+    if (v) model.vertical = v
+  }
+  if (alignment.wrapText === true) model.wrap = true
+  return Object.keys(model).length > 0 ? model : undefined
+}
+
+/** hucre 单元格样式 → 模型样式（fill + border + font + align；numFmt 本期忽略） */
 export function hucreStyleToModel(
   style: HucreCellStyle,
   themeColors?: readonly string[]
@@ -98,6 +143,14 @@ export function hucreStyleToModel(
     }
   }
   if (Object.keys(border).length > 0) model.border = border
+  if (style.font) {
+    const font = hucreFontToModel(style.font, themeColors)
+    if (font) model.font = font
+  }
+  if (style.alignment) {
+    const align = hucreAlignToModel(style.alignment)
+    if (align) model.align = align
+  }
   return Object.keys(model).length > 0 ? model : undefined
 }
 
@@ -372,4 +425,12 @@ export function copySheetContent(target: Sheet, source: Sheet): void {
     Math.max(source.rows, source.rowCount),
     Math.max(source.cols, source.colCount)
   )
+  // 选区对齐源表（hucre 不解析 OOXML selection → importXlsx 源表恒为 A1；
+  // 不复制则 replaceWorkbook 会残留目标表导入前选区，与「导入默认 A1」不符）
+  const srcSel = source.getSelection()
+  if (srcSel.activeCell && srcSel.ranges[0]) {
+    target.selectRange(srcSel.ranges[0], srcSel.activeCell)
+  } else {
+    target.selectCell({ row: 0, col: 0 })
+  }
 }

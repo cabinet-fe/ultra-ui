@@ -1,11 +1,20 @@
-import { BORDER_SIDES, type BorderEdge, type CellStyle, type StyleId } from './types'
+import {
+  ALIGN_STYLE_KEYS,
+  BORDER_SIDES,
+  FONT_STYLE_KEYS,
+  type BorderEdge,
+  type CellAlign,
+  type CellFont,
+  type CellStyle,
+  type StyleId
+} from './types'
 
 /**
  * 样式池：样式定义全表集中存储、按内容去重。
  *
- * - `intern(style)`：规范化（剔除空 fill/border/空边）→ 稳定序列化 key →
+ * - `intern(style)`：规范化（剔除空 fill/border/font/align/空边）→ 稳定序列化 key →
  *   相同内容返回同一 id；单元格只存 id，共享定义
- * - 序列化 key 按固定字段顺序输出（fill → border 四边固定序），与写入顺序无关
+ * - 序列化 key 按固定字段顺序输出（fill → border 四边 → font → align），与写入顺序无关
  * - `snapshot/restore`：按 id 升序导出定义数组，还原后 id 映射一致
  *   （单元格 s 引用在 restore 后仍然有效）
  * - 池只增不减（undo 回放不回收定义）：被引用的 id 永远可解析
@@ -21,8 +30,31 @@ function isEdgeEmpty(edge: BorderEdge | undefined): boolean {
   )
 }
 
+/** 规范化字体：剔除空/假值字段；全空 → undefined */
+function normalizeFont(font: CellFont | undefined): CellFont | undefined {
+  if (!font) return undefined
+  const out: CellFont = {}
+  if (font.color) out.color = font.color
+  if (font.bold === true) out.bold = true
+  if (font.italic === true) out.italic = true
+  if (font.underline === true) out.underline = true
+  if (font.strikethrough === true) out.strikethrough = true
+  if (typeof font.size === 'number' && font.size > 0) out.size = font.size
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
+/** 规范化对齐：剔除空字段；全空 → undefined */
+function normalizeAlign(align: CellAlign | undefined): CellAlign | undefined {
+  if (!align) return undefined
+  const out: CellAlign = {}
+  if (align.horizontal) out.horizontal = align.horizontal
+  if (align.vertical) out.vertical = align.vertical
+  if (align.wrap === true) out.wrap = true
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
 /**
- * 规范化样式：剔除空 fill / 空 border / 空边，返回不可变语义的副本；
+ * 规范化样式：剔除空 fill / 空 border / 空边 / 空 font / 空 align，返回不可变语义的副本；
  * 全部为空时返回 undefined（调用方据此删除 s 字段，保持空单元格不占存储）。
  */
 export function normalizeStyle(style: CellStyle): CellStyle | undefined {
@@ -35,10 +67,14 @@ export function normalizeStyle(style: CellStyle): CellStyle | undefined {
     border[side] = { style: edge.style, width: edge.width, color: edge.color }
   }
   if (Object.keys(border).length > 0) normalized.border = border
+  const font = normalizeFont(style.font)
+  if (font) normalized.font = font
+  const align = normalizeAlign(style.align)
+  if (align) normalized.align = align
   return Object.keys(normalized).length > 0 ? normalized : undefined
 }
 
-/** 样式副本（深拷贝一层：fill 与各边独立对象，外部修改不影响池内定义） */
+/** 样式副本（深拷贝一层：fill / 各边 / font / align 独立对象，外部修改不影响池内定义） */
 export function cloneStyle(style: CellStyle): CellStyle {
   const border: NonNullable<CellStyle['border']> = {}
   for (const side of BORDER_SIDES) {
@@ -47,12 +83,14 @@ export function cloneStyle(style: CellStyle): CellStyle {
   }
   return {
     ...(style.fill ? { fill: { ...style.fill } } : {}),
-    ...(Object.keys(border).length > 0 ? { border } : {})
+    ...(Object.keys(border).length > 0 ? { border } : {}),
+    ...(style.font ? { font: { ...style.font } } : {}),
+    ...(style.align ? { align: { ...style.align } } : {})
   }
 }
 
 /**
- * 稳定序列化：fill → border 按固定边序，字段固定顺序，输出与书写顺序无关。
+ * 稳定序列化：fill → border 按固定边序 → font → align，字段固定顺序，输出与书写顺序无关。
  * 调用方需先 normalize（本函数对空字段做同样剔除，保证 key 最小化）。
  */
 export function serializeStyleKey(style: CellStyle): string {
@@ -62,9 +100,27 @@ export function serializeStyleKey(style: CellStyle): string {
     if (!edge || isEdgeEmpty(edge)) continue
     border[side] = { style: edge.style, width: edge.width, color: edge.color }
   }
+  const font: Record<string, unknown> = {}
+  if (style.font) {
+    for (const key of FONT_STYLE_KEYS) {
+      const value = style.font[key]
+      if (value === undefined || value === false || value === '') continue
+      font[key] = value
+    }
+  }
+  const align: Record<string, unknown> = {}
+  if (style.align) {
+    for (const key of ALIGN_STYLE_KEYS) {
+      const value = style.align[key]
+      if (value === undefined || value === false) continue
+      align[key] = value
+    }
+  }
   return JSON.stringify({
     fill: style.fill ? { color: style.fill.color } : undefined,
-    border: Object.keys(border).length > 0 ? border : undefined
+    border: Object.keys(border).length > 0 ? border : undefined,
+    font: Object.keys(font).length > 0 ? font : undefined,
+    align: Object.keys(align).length > 0 ? align : undefined
   })
 }
 
@@ -80,7 +136,7 @@ export class StylePool {
 
   /**
    * 内部化样式：相同内容返回同一 id（内容去重）。
-   * 空样式（无 fill 无 border）抛错——空样式不应入库，调用方应先删 s 字段。
+   * 空样式（无有效字段）抛错——空样式不应入库，调用方应先删 s 字段。
    */
   intern(style: CellStyle): StyleId {
     const normalized = normalizeStyle(style)

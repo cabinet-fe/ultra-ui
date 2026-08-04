@@ -83,4 +83,68 @@ describe('选区交互时序', () => {
       grid.release()
     }
   })
+
+  it('interceptSelection：SELECTED_CELL 不写模型；粘性标志阻止 DRAG_SELECT_END 误写', () => {
+    const sheet = new Sheet()
+    sheet.selectCell({ row: 5, col: 5 })
+    const intercepted: string[] = []
+    let refMode = true
+    const container = createContainer()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 6,
+      interceptSelection: () => refMode,
+      onSelectionIntercept: (range) => {
+        intercepted.push(`${range.start.row},${range.start.col}:${range.end.row},${range.end.col}`)
+        // 模拟公式栏插入后 isRefSelecting 变 false
+        refMode = false
+      }
+    })
+    const table = grid.getTable()
+    try {
+      table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 2, row: 2 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 2 })
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_SELECT_END, {})
+
+      expect(intercepted).toEqual(['0,0:1,1'])
+      // 模型选区保持编辑格，未被拖选覆盖
+      expect(sheet.getSelection().activeCell).toEqual({ row: 5, col: 5 })
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 5, col: 5 },
+        end: { row: 5, col: 5 }
+      })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('interceptSelection：仅 DRAG_SELECT_END 时仍插入且不写模型', () => {
+    const sheet = new Sheet()
+    sheet.selectCell({ row: 3, col: 3 })
+    const intercepted: string[] = []
+    const container = createContainer()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 6,
+      interceptSelection: () => true,
+      onSelectionIntercept: (range) => {
+        intercepted.push(`${range.start.col}-${range.end.col}`)
+      }
+    })
+    const table = grid.getTable()
+    try {
+      table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 3, row: 1 } }])
+      // 模拟 SELECTED_CELL 未走到拦截、仅 DRAG_SELECT_END 的兜底路径
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_SELECT_END, {})
+
+      expect(intercepted).toEqual(['0-2'])
+      expect(sheet.getSelection().activeCell).toEqual({ row: 3, col: 3 })
+    } finally {
+      grid.release()
+    }
+  })
 })

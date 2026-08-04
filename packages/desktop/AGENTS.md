@@ -62,6 +62,18 @@ const cls = bem('xxx')
 
 table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionKey`，父子 `provide` / `inject`。
 
+## UContextmenu（右键菜单）
+
+- 函数式 API：`contextmenu.pop({ mousePosition, menus, width? })`（从 `@veltra/desktop` 主入口导入）。
+- `ContextmenuItem` 字段：
+  - `label?` / `icon?` / `children?` / `callback?` / `disabled?`（原有）
+  - `divider?: boolean` — 渲染分割线（忽略其余字段）
+  - `render?: Component` — 自定义内容（替代 label；点击 `@click.stop`，不冒泡到关闭流程）
+  - `keepOpen?: boolean` — 点击本项不关闭菜单（供内嵌交互组件）
+- 内嵌组件可 `inject(ContextmenuRootDIKey)`（已从 `@veltra/desktop` 导出）调用
+  `onItemClickEnd()` 主动关闭；确认/Esc 场景常用。
+- 组件测试：`components/contextmenu/__test__/contextmenu.test.ts`。
+
 ## 导出子路径
 
 | 子路径                    | 用途               |

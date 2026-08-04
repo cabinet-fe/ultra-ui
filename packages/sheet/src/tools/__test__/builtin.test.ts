@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import '../builtin'
 import { createRange } from '../../core/address'
 import { Sheet } from '../../core/sheet'
 import { Workbook } from '../../core/workbook'
 import { createSheetContext } from '../context'
+import { exportSheetCsvFile, exportWorkbookFile } from '../download'
 import { defaultToolRegistry, type SheetTool } from '../registry'
 
 function mustGet(id: string): SheetTool {
@@ -18,53 +19,69 @@ function isDisabled(tool: SheetTool, sheet: Sheet): boolean {
 }
 
 describe('内置工具（dogfood 扩展机制）', () => {
-  it('注册布局：history / cell / structure / freeze / default / file 六组', () => {
+  it('注册布局：history / cell / text / edit / file 五组；structure/freeze 已移除', () => {
     const groups = defaultToolRegistry.getGroups()
-    expect(groups.map((group) => group.name)).toEqual([
-      'history',
-      'cell',
-      'structure',
-      'freeze',
-      'default',
-      'file'
-    ])
+    expect(groups.map((group) => group.name)).toEqual(['history', 'cell', 'text', 'edit', 'file'])
     expect(groups[0]!.tools.map((tool) => tool.id)).toEqual(['undo', 'redo'])
     expect(groups[1]!.tools.map((tool) => tool.id)).toEqual([
-      'merge',
-      'unmerge',
+      'border',
       'fill-color',
-      'border'
+      'merge',
+      'unmerge'
     ])
     expect(groups[2]!.tools.map((tool) => tool.id)).toEqual([
+      'bold',
+      'italic',
+      'underline',
+      'strikethrough',
+      'font-color',
+      'font-size',
+      'align-left',
+      'align-center',
+      'align-right',
+      'valign-top',
+      'valign-middle',
+      'valign-bottom',
+      'wrap-text'
+    ])
+    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual(['find'])
+    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['import', 'export'])
+
+    for (const id of [
       'insert-rows',
       'insert-cols',
       'delete-rows',
-      'delete-cols'
-    ])
-    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual([
+      'delete-cols',
       'freeze',
       'freeze-row',
       'freeze-col',
-      'unfreeze'
-    ])
-    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['find'])
-    expect(groups[5]!.tools.map((tool) => tool.id)).toEqual(['export-xlsx', 'export-csv', 'import'])
+      'unfreeze',
+      'export-xlsx',
+      'export-csv'
+    ]) {
+      expect(defaultToolRegistry.has(id)).toBe(false)
+    }
   })
 
-  it('导入导出工具：import 为弹层型；导出不依赖选区恒可用', () => {
+  it('全部保留工具带 icon', () => {
+    for (const group of defaultToolRegistry.getGroups()) {
+      for (const tool of group.tools) {
+        expect(tool.icon, `${tool.id} 缺少 icon`).toBeTruthy()
+      }
+    }
+  })
+
+  it('导入导出工具：import / export 为弹层型；导出下载辅助不依赖选区', async () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    const exportXlsx = mustGet('export-xlsx')
-    const exportCsv = mustGet('export-csv')
+    const exportTool = mustGet('export')
     const importTool = mustGet('import')
 
     expect(importTool.popup).toBe('import')
-    // 导出整个工作簿 / 活动表：无选区也可用
-    expect(exportXlsx.disabled?.(ctx)).toBeUndefined()
-    expect(exportCsv.disabled?.(ctx)).toBeUndefined()
-    // 无 workbook 的上下文：导出 onClick 空操作（不抛错）
-    expect(() => exportXlsx.onClick(ctx)).not.toThrow()
-    expect(() => exportCsv.onClick(ctx)).not.toThrow()
+    expect(exportTool.popup).toBe('export')
+    // 无 workbook 的上下文：导出辅助空操作（不抛错）
+    expect(() => exportWorkbookFile(ctx)).not.toThrow()
+    expect(() => exportSheetCsvFile(ctx)).not.toThrow()
   })
 
   it('导出 xlsx / csv：生成 Blob 下载（workbook 传入时）', async () => {
@@ -80,13 +97,13 @@ describe('内置工具（dogfood 扩展机制）', () => {
     URL.createObjectURL = createObjectURL as typeof URL.createObjectURL
     URL.revokeObjectURL = revokeObjectURL as typeof URL.revokeObjectURL
     try {
-      mustGet('export-xlsx').onClick(ctx)
+      exportWorkbookFile(ctx)
       await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
       const blob = createObjectURL.mock.calls[0]![0] as Blob
       expect(blob.type).toContain('spreadsheetml')
 
       createObjectURL.mockClear()
-      mustGet('export-csv').onClick(ctx)
+      exportSheetCsvFile(ctx)
       await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
       const csvBlob = createObjectURL.mock.calls[0]![0] as Blob
       expect(csvBlob.type).toContain('text/csv')
@@ -104,93 +121,50 @@ describe('内置工具（dogfood 扩展机制）', () => {
 
     expect(fill.popup).toBe('fill-color')
     expect(border.popup).toBe('border')
-
-    // 无选区：禁用
+    // 默认 A1 有选区 → 可用
+    expect(fill.disabled?.(ctx)).toBe(false)
+    sheet.selection.clear()
     expect(fill.disabled?.(ctx)).toBe(true)
     expect(border.disabled?.(ctx)).toBe(true)
-
-    ctx.selectCell({ row: 0, col: 0 })
-    expect(fill.disabled?.(ctx)).toBe(false)
-    expect(border.disabled?.(ctx)).toBe(false)
   })
 
-  it('undo/redo 的 disabled 随 history 状态联动', () => {
+  it('合并：单格禁用；选区恰等于既有合并时禁用；可合并时执行', () => {
+    const sheet = new Sheet()
+    const merge = mustGet('merge')
+    const unmerge = mustGet('unmerge')
+
+    // 默认 A1 单格 → 合并禁用、取消合并禁用
+    expect(isDisabled(merge, sheet)).toBe(true)
+    expect(isDisabled(unmerge, sheet)).toBe(true)
+
+    sheet.selectRange(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }))
+    expect(isDisabled(merge, sheet)).toBe(false)
+    merge.onClick(createSheetContext(sheet))
+    expect(sheet.getCellInfo({ row: 0, col: 0 }).mergeRange).toEqual(
+      createRange({ row: 0, col: 0 }, { row: 1, col: 1 })
+    )
+    // 选区恰等于合并 → 合并禁用；取消合并可用
+    expect(isDisabled(merge, sheet)).toBe(true)
+    expect(isDisabled(unmerge, sheet)).toBe(false)
+    unmerge.onClick(createSheetContext(sheet))
+    expect(sheet.getCellInfo({ row: 0, col: 0 }).mergeRange).toBeUndefined()
+  })
+
+  it('undo/redo：disabled 读 canUndo/canRedo', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     const undo = mustGet('undo')
     const redo = mustGet('redo')
 
-    // 空历史：两者禁用
     expect(undo.disabled?.(ctx)).toBe(true)
     expect(redo.disabled?.(ctx)).toBe(true)
-
-    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    sheet.setCellValue({ row: 0, col: 0 }, 'x')
     expect(undo.disabled?.(ctx)).toBe(false)
-    expect(redo.disabled?.(ctx)).toBe(true)
-
     undo.onClick(ctx)
     expect(sheet.getCellData({ row: 0, col: 0 })).toBeUndefined()
-    expect(undo.disabled?.(ctx)).toBe(true)
     expect(redo.disabled?.(ctx)).toBe(false)
-
     redo.onClick(ctx)
-    expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 1, t: 'n' })
-  })
-
-  it('merge：无选区/单格禁用，拖选区域可用，合并已有合并区域时禁用', () => {
-    const sheet = new Sheet()
-    const ctx = createSheetContext(sheet)
-    const merge = mustGet('merge')
-
-    // 无选区
-    expect(merge.disabled?.(ctx)).toBe(true)
-
-    // 单格选区
-    ctx.selectCell({ row: 0, col: 0 })
-    expect(merge.disabled?.(ctx)).toBe(true)
-
-    // 区域选区 → 可用
-    const range = createRange({ row: 0, col: 0 }, { row: 1, col: 1 })
-    ctx.selectRange(range)
-    expect(merge.disabled?.(ctx)).toBe(false)
-
-    merge.onClick(ctx)
-    expect(sheet.merges.getMergeAt({ row: 0, col: 0 })).toEqual(range)
-
-    // 选区恰好等于既有合并区域 → 禁用（避免空操作历史条目）
-    expect(merge.disabled?.(ctx)).toBe(true)
-
-    // 合并可 undo
-    ctx.undo()
-    expect(sheet.merges.getMergeAt({ row: 0, col: 0 })).toBeUndefined()
-  })
-
-  it('unmerge：活动格不在合并内禁用，在合并内可用且可 undo', () => {
-    const sheet = new Sheet()
-    const ctx = createSheetContext(sheet)
-    const unmerge = mustGet('unmerge')
-
-    const range = createRange({ row: 0, col: 0 }, { row: 1, col: 2 })
-    sheet.mergeCells(range)
-    sheet.history.clear()
-
-    // 无选区
-    expect(unmerge.disabled?.(ctx)).toBe(true)
-
-    // 普通格
-    ctx.selectCell({ row: 5, col: 5 })
-    expect(unmerge.disabled?.(ctx)).toBe(true)
-
-    // 被覆盖格 → 解析锚点后在合并内
-    ctx.selectCell({ row: 1, col: 2 })
-    expect(ctx.getSelection().activeCell).toEqual({ row: 0, col: 0 })
-    expect(unmerge.disabled?.(ctx)).toBe(false)
-
-    unmerge.onClick(ctx)
-    expect(sheet.merges.getMergeAt({ row: 0, col: 0 })).toBeUndefined()
-
-    ctx.undo()
-    expect(sheet.merges.getMergeAt({ row: 0, col: 0 })).toEqual(range)
+    expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'x', t: 's' })
   })
 
   it('visible 随选区联动（自定义工具）', () => {
@@ -209,67 +183,61 @@ describe('内置工具（dogfood 扩展机制）', () => {
       onClick: () => {}
     }
 
-    expect(tool.visible?.(ctx)).toBe(false)
-    ctx.selectCell({ row: 1, col: 1 })
+    // 默认 A1 落在合并内 → 可见；移出后不可见；再点覆盖格仍可见
     expect(tool.visible?.(ctx)).toBe(true)
     ctx.selectCell({ row: 3, col: 3 })
     expect(tool.visible?.(ctx)).toBe(false)
-  })
-
-  it('冻结工具：无选区禁用 freeze；active 高亮读当前冻结值', () => {
-    const sheet = new Sheet()
-    const ctx = createSheetContext(sheet)
-    const freeze = mustGet('freeze')
-    const freezeRow = mustGet('freeze-row')
-    const freezeCol = mustGet('freeze-col')
-    const unfreeze = mustGet('unfreeze')
-
-    // 初始：freeze 无选区禁用；unfreeze 无冻结禁用；首行/首列未激活
-    expect(freeze.disabled?.(ctx)).toBe(true)
-    expect(unfreeze.disabled?.(ctx)).toBe(true)
-    expect(freezeRow.active?.(ctx)).toBe(false)
-    expect(freezeCol.active?.(ctx)).toBe(false)
-
-    ctx.selectCell({ row: 2, col: 3 })
-    expect(freeze.disabled?.(ctx)).toBe(false)
-    // 冻结到当前行列：D3 → rows = 3, cols = 4
-    freeze.onClick(ctx)
-    expect(ctx.frozen).toEqual({ rows: 3, cols: 4 })
-    expect(freeze.active?.(ctx)).toBe(true)
-    expect(freezeRow.active?.(ctx)).toBe(true)
-    expect(freezeCol.active?.(ctx)).toBe(true)
-    expect(unfreeze.disabled?.(ctx)).toBe(false)
-
-    // 冻结首行：保留冻结列，行改为 1
-    freezeRow.onClick(ctx)
-    expect(ctx.frozen).toEqual({ rows: 1, cols: 4 })
-    expect(freezeRow.active?.(ctx)).toBe(true)
-    expect(freeze.active?.(ctx)).toBe(false) // 不再是「当前行列」状态
-
-    // 冻结首列：保留冻结行，列改为 1
-    freezeCol.onClick(ctx)
-    expect(ctx.frozen).toEqual({ rows: 1, cols: 1 })
-
-    // 取消冻结
-    unfreeze.onClick(ctx)
-    expect(ctx.frozen).toEqual({ rows: 0, cols: 0 })
-    expect(freezeRow.active?.(ctx)).toBe(false)
-    expect(freezeCol.active?.(ctx)).toBe(false)
-    expect(unfreeze.disabled?.(ctx)).toBe(true)
-  })
-
-  it('冻结不产生历史条目（同 rowHeights 先例）', () => {
-    const sheet = new Sheet()
-    const ctx = createSheetContext(sheet)
     ctx.selectCell({ row: 1, col: 1 })
-    mustGet('freeze').onClick(ctx)
-    expect(sheet.history.undoSize).toBe(0)
-    expect(ctx.canUndo).toBe(false)
+    expect(tool.visible?.(ctx)).toBe(true)
   })
 
-  it('查找工具：弹层型声明（popup: find），onClick 为空', () => {
+  it('查找工具：弹层型声明（popup: find），组 edit', () => {
     const find = mustGet('find')
     expect(find.popup).toBe('find')
+    expect(find.group).toBe('edit')
     expect(find.disabled).toBeUndefined()
+  })
+
+  it('文本工具：toggle 以活动格为基准统一翻转；active 高亮；对齐互斥取反', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const bold = mustGet('bold')
+    const alignCenter = mustGet('align-center')
+    const wrap = mustGet('wrap-text')
+
+    expect(mustGet('font-color').popup).toBe('font-color')
+    expect(mustGet('font-size').popup).toBe('font-size')
+
+    // 默认 A1：active 假；点 B → 加粗 + active
+    expect(bold.active?.(ctx)).toBe(false)
+    bold.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
+    expect(bold.active?.(ctx)).toBe(true)
+    // 再点 → 取消
+    bold.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+    expect(bold.active?.(ctx)).toBe(false)
+
+    // 混合选区：活动格未加粗 → 全加粗
+    sheet.setCellStyle(createRange({ row: 0, col: 0 }, { row: 0, col: 0 }), {
+      font: { bold: true }
+    })
+    sheet.setCellValue({ row: 0, col: 1 }, 'x')
+    ctx.selectRange(createRange({ row: 0, col: 0 }, { row: 0, col: 1 }), { row: 0, col: 1 })
+    expect(bold.active?.(ctx)).toBe(false) // 活动格 B1 未加粗
+    bold.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.font?.bold).toBe(true)
+
+    // 对齐：点居中 → 再点清除
+    alignCenter.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.align?.horizontal).toBe('center')
+    expect(alignCenter.active?.(ctx)).toBe(true)
+    alignCenter.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.align?.horizontal).toBeUndefined()
+
+    wrap.onClick(ctx)
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.align?.wrap).toBe(true)
+    expect(wrap.active?.(ctx)).toBe(true)
   })
 })

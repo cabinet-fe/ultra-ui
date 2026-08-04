@@ -38,6 +38,19 @@ function buildWorkbook(): Workbook {
       bottom: { style: 'dashed', width: 1, color: '#00FF00' }
     }
   }) // 与 A1 完全相同 → 共享一份样式定义
+  // 文本样式组合：红字 + 加粗斜体下划线删除线 + 字号 + 居中 + 换行
+  s1.setCellValue({ row: 5, col: 0 }, 'styled')
+  s1.setCellStyle(parseRange('A6')!, {
+    font: {
+      color: '#FF0000',
+      bold: true,
+      italic: true,
+      underline: true,
+      strikethrough: true,
+      size: 16
+    },
+    align: { horizontal: 'center', vertical: 'middle', wrap: true }
+  })
   s1.setFrozen(1, 2)
   s1.setRowHeight(1, 40)
   s1.setRowHeight(5, 24)
@@ -84,6 +97,19 @@ describe('XLSX round-trip（导出 → 导入）', () => {
     })
     expect(s1.getCellStyle({ row: 0, col: 1 })).toEqual(s1.getCellStyle({ row: 0, col: 0 }))
     expect(s1.getCellData({ row: 0, col: 0 })!.s).toBe(s1.getCellData({ row: 0, col: 1 })!.s)
+    // 文本样式 round-trip（红字/B/I/U/S/字号/对齐/换行）
+    expect(s1.getCellData({ row: 5, col: 0 })).toMatchObject({ v: 'styled', t: 's' })
+    expect(s1.getCellStyle({ row: 5, col: 0 })).toEqual({
+      font: {
+        color: '#FF0000',
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true,
+        size: 16
+      },
+      align: { horizontal: 'center', vertical: 'middle', wrap: true }
+    })
     // 冻结 / 行高（40px → 30pt → 40px；24px → 18pt → 24px）
     expect(s1.frozen).toEqual({ rows: 1, cols: 2 })
     expect(s1.getRowHeight(1)).toBe(40)

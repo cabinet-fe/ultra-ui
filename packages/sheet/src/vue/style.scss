@@ -33,9 +33,11 @@
   @include m.e(tool) {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
+    min-width: fn.use-var(form-component-height, small);
     height: fn.use-var(form-component-height, small);
-    padding: 0 8px;
+    padding: 0 6px;
     border: none;
     border-radius: fn.use-var(radius, small);
     background: transparent;
@@ -63,7 +65,33 @@
   }
 
   @include m.e(tool-icon) {
-    font-size: calc(fn.use-var(font-size-main, small) + 2px);
+    display: block;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  @include m.e(export-menu) {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    padding: 4px 0;
+  }
+
+  @include m.e(export-option) {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
   }
 
   @include m.e(formula-bar) {
@@ -72,6 +100,59 @@
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
     border-bottom: 1px solid fn.use-var(border, muted-color);
+    // 候选列表绝对定位参照；勿依赖 .u-sheet（overflow:hidden 会裁剪）
+    position: relative;
+  }
+
+  @include m.e(fx-editor) {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+  }
+
+  @include m.e(fx-suggest) {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    z-index: 20;
+    max-height: 240px;
+    min-width: 280px;
+    margin: 0;
+    padding: 4px 0;
+    overflow: auto;
+    list-style: none;
+    border: 1px solid fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+  }
+
+  @include m.e(fx-suggest-item) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 10px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(fx-suggest-sig) {
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  @include m.e(fx-suggest-desc) {
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
   }
 
   @include m.e(name-box) {
@@ -101,6 +182,7 @@
 
   @include m.e(fx-input) {
     flex: 1;
+    width: 100%;
     min-width: 0;
     min-height: fn.use-var(form-component-height, small);
     padding: 2px 6px;
@@ -163,8 +245,10 @@
 
   @include m.e(popup-row) {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
+    max-width: 360px;
   }
 
   @include m.e(popup-label) {
@@ -206,6 +290,10 @@
     &:hover {
       background-color: fn.use-var(bg-color, hover);
     }
+
+    @include m.is(active) {
+      border-color: fn.use-var(color, primary);
+    }
   }
 
   @include m.e(insert-row) {
@@ -218,6 +306,26 @@
     width: 88px;
   }
 
+  @include m.e(insert-count-menu) {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+    user-select: none;
+  }
+
+  @include m.e(insert-count-prefix, insert-count-suffix) {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(insert-count-input) {
+    width: 72px;
+    flex-shrink: 0;
+  }
+
   @include m.e(insert-btn) {
     padding: 3px 10px;
     border: 1px solid fn.use-var(border, muted-color);
@@ -226,6 +334,7 @@
     color: fn.use-var(text-color, main);
     font-size: fn.use-var(font-size-main, small);
     cursor: pointer;
+    flex-shrink: 0;
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);

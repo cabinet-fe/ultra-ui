@@ -16,10 +16,11 @@ import type { SheetContext } from './context'
 export type SheetToolPopupType =
   | 'fill-color'
   | 'border'
+  | 'font-color'
+  | 'font-size'
   | 'find'
   | 'import'
-  | 'insert-rows'
-  | 'insert-cols'
+  | 'export'
 
 /** 工具定义 */
 export interface SheetTool {

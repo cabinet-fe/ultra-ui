@@ -31,6 +31,31 @@ export interface CellSnapshotItem extends CellData {
   col: number
 }
 
+/** 数字文本（与公式引擎 `coerceToNumber` 对齐，不含 TRUE/FALSE） */
+const NUMERIC_TEXT_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
+
+/**
+ * 规范化用户输入值（对齐 Excel 键入语义）：
+ * - 数字文本 → number（`SUM` 等聚合才能计入区域）
+ * - `TRUE`/`FALSE`（忽略大小写）→ boolean
+ * - 前导 `'` → 强制文本（去掉撇号，保留其余）
+ * - 其余字符串 / 非字符串原样返回
+ */
+export function normalizeInputValue(value: CellValue): CellValue {
+  if (typeof value !== 'string') return value
+  if (value.startsWith("'")) return value.slice(1)
+  const text = value.trim()
+  if (text === '') return value
+  const upper = text.toUpperCase()
+  if (upper === 'TRUE') return true
+  if (upper === 'FALSE') return false
+  if (NUMERIC_TEXT_RE.test(text)) {
+    const n = Number.parseFloat(text)
+    if (Number.isFinite(n)) return n
+  }
+  return value
+}
+
 /** 按原始值推断类型 */
 export function inferCellType(v: CellValue): CellType | undefined {
   switch (typeof v) {
@@ -110,7 +135,8 @@ export class CellStore {
       this.deleteCell(addr)
       return
     }
-    this.setCell(addr, { v: value, t: inferCellType(value) })
+    const normalized = normalizeInputValue(value)
+    this.setCell(addr, { v: normalized, t: inferCellType(normalized) })
   }
 
   deleteCell(addr: CellAddress): boolean {

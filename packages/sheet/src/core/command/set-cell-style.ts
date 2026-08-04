@@ -2,13 +2,31 @@ import { cellKey, type CellAddress } from '../address'
 import { cellDataEqual, isEmptyCellData, type CellData } from '../cell-store'
 import { normalizeStyle } from '../style/style-pool'
 import {
+  ALIGN_STYLE_KEYS,
   BORDER_EDGE_DEFAULTS,
   BORDER_SIDES,
+  FONT_STYLE_KEYS,
   type BorderEdge,
+  type CellAlign,
+  type CellFont,
   type CellStyle,
   type CellStylePatch
 } from '../style/types'
 import type { CellPatch, Command, CommandResult } from './types'
+
+/** 逐字段合并：null/false = 删除该字段；其余非 undefined 值写入 */
+function mergeNullableFields<T extends object>(
+  target: T,
+  patch: { [K in keyof T]?: T[K] | null },
+  keys: readonly (keyof T)[]
+): void {
+  for (const key of keys) {
+    const value = patch[key]
+    if (value === undefined) continue
+    if (value === null || value === false) delete target[key]
+    else target[key] = value as T[typeof key]
+  }
+}
 
 /** SetCellStyleCommand 的批量项（一次调用 = 一个 undo 单元） */
 export interface SetCellStyleItem {
@@ -26,12 +44,14 @@ export interface SetCellStyleParams {
 /**
  * 部分合并：将 partial 合并到既有样式（before）。
  *
- * - 顶层浅合并：只给 fill 时保留既有 border（反之亦然）
- * - fill 存在即覆盖填充（`{}` = 清除填充，保留边框）
+ * - 顶层浅合并：只给 fill 时保留既有 border/font/align（反之亦然）
+ * - fill 存在即覆盖填充（`{}` = 清除填充，保留其余）
  * - border 存在即**边级合并**：边值为对象 → 与既有边合并（缺失字段保留既有
  *   边值；无既有边时用默认值补全：thin / 1px / #000000）；边值为 `null` →
  *   删除该边（其余边保留）；未列出的边 → 保留（`border: {}` = 无边变化）
- * - 合并结果为空（无 fill 无 border）→ undefined（调用方删除 s 字段）
+ * - font / align 存在即**逐字段浅合并**（缺失字段保留既有值）；
+ *   `font: {}` / `align: {}` = 清除该类全部；字段值为 `null` = 删除该字段
+ * - 合并结果为空 → undefined（调用方删除 s 字段）
  */
 export function mergeCellStyle(
   before: CellStyle | undefined,
@@ -68,6 +88,26 @@ export function mergeCellStyle(
     if (Object.keys(border).length > 0) merged.border = border
   } else if (before?.border) {
     merged.border = { ...before.border }
+  }
+  if (partial.font !== undefined) {
+    if (Object.keys(partial.font).length > 0) {
+      const font: CellFont = { ...before?.font }
+      mergeNullableFields(font, partial.font, FONT_STYLE_KEYS)
+      if (Object.keys(font).length > 0) merged.font = font
+    }
+    // font: {} = 清除全部字体字段（不写 merged.font）
+  } else if (before?.font) {
+    merged.font = { ...before.font }
+  }
+  if (partial.align !== undefined) {
+    if (Object.keys(partial.align).length > 0) {
+      const align: CellAlign = { ...before?.align }
+      mergeNullableFields(align, partial.align, ALIGN_STYLE_KEYS)
+      if (Object.keys(align).length > 0) merged.align = align
+    }
+    // align: {} = 清除全部对齐字段
+  } else if (before?.align) {
+    merged.align = { ...before.align }
   }
   return normalizeStyle(merged)
 }

@@ -5,10 +5,12 @@
     <div :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
-      <!-- 弹层型工具面板（填充颜色 / 边框 / 查找 / 导入 / 插入行列）：面板交互走 SheetContext 命令入口 -->
+      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/导入/导出）：面板交互走 SheetContext 命令入口 -->
       <div v-if="popupTool" :class="cls.e('popup')" @click.stop>
         <u-sheet-fill-color-popup v-if="popupTool.popup === 'fill-color'" :context="context" />
         <u-sheet-border-popup v-else-if="popupTool.popup === 'border'" :context="context" />
+        <u-sheet-font-color-popup v-else-if="popupTool.popup === 'font-color'" :context="context" />
+        <u-sheet-font-size-popup v-else-if="popupTool.popup === 'font-size'" :context="context" />
         <u-sheet-find-popup
           v-else-if="popupTool.popup === 'find'"
           :sheet="activeSheet"
@@ -23,9 +25,8 @@
           @csv-imported="rebuildGrid"
           @workbook-replaced="syncFromWorkbook"
         />
-        <u-sheet-insert-cells-popup
-          v-else-if="popupTool.popup === 'insert-rows' || popupTool.popup === 'insert-cols'"
-          :mode="popupTool.popup === 'insert-rows' ? 'rows' : 'cols'"
+        <u-sheet-export-popup
+          v-else-if="popupTool.popup === 'export'"
           :context="context"
           @close="closePopup"
         />
@@ -57,10 +58,12 @@ import { useTemplateRef } from 'vue'
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
 import UFormulaBar from './formula-bar.vue'
 import USheetBorderPopup from './popups/border-popup.vue'
+import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
 import USheetFindPopup from './popups/find-popup.vue'
+import USheetFontColorPopup from './popups/font-color-popup.vue'
+import USheetFontSizePopup from './popups/font-size-popup.vue'
 import USheetImportPopup from './popups/import-popup.vue'
-import USheetInsertCellsPopup from './popups/insert-cells-popup.vue'
 import USheetTabs from './sheet-tabs.vue'
 import USheetToolbar from './sheet-toolbar.vue'
 import { useSheetGrid } from './use-sheet-grid'
@@ -94,7 +97,7 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
-const { popupTool, closePopup, handleToolClick, openToolPopup } = useToolPopup(context)
+const { popupTool, closePopup, handleToolClick } = useToolPopup(context)
 
 // ─── 工具栏分组视图模型 ────────────────────────────────────────
 
@@ -110,7 +113,6 @@ const { rebuildGrid, getGrid } = useSheetGrid({
   gridRef,
   getActiveSheet: () => activeSheet.value,
   context,
-  openToolPopup,
   formulaBarRef
 })
 

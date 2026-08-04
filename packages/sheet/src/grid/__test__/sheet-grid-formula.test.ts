@@ -66,10 +66,10 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
       expect(table.getCellValue(3, 1)).toBe(3)
 
       // 编辑 A1 → B1/C1 派生重算，两格都要同步到表格
-      // （编辑提交回写的是输入文本，A1 落为字符串 '10'；公式按数字文本强转）
+      // （编辑提交回写的是输入文本，setCellValue 规范化为 number）
       table.changeCellValue(1, 1, '10', false, true)
-      expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: '10' })
-      expect(table.getCellValue(1, 1)).toBe('10')
+      expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 10, t: 'n' })
+      expect(table.getCellValue(1, 1)).toBe(10)
       expect(table.getCellValue(2, 1)).toBe(20)
       expect(table.getCellValue(3, 1)).toBe(21)
     } finally {

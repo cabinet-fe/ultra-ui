@@ -1,6 +1,6 @@
 import { computed, ref, shallowRef, watch } from 'vue'
 
-import { inferCellType, type CellData } from '../core/cell-store'
+import { inferCellType, normalizeInputValue, type CellData } from '../core/cell-store'
 import { findAll, findNext, findPrev, type FindMatch, type FindOptions } from '../core/find'
 import type { Sheet } from '../core/sheet'
 import type { SheetContext } from '../tools/context'
@@ -104,11 +104,12 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     }
   }
 
-  /** 替换文本 → CellData（空字符串 = 清除单元格；类型自动推断） */
+  /** 替换文本 → CellData（空字符串 = 清除单元格；数字/布尔文本规范化后推断类型） */
   function replaceData(): CellData | undefined {
     if (findReplace.value === '') return undefined
-    const t = inferCellType(findReplace.value)
-    return t ? { v: findReplace.value, t } : { v: findReplace.value }
+    const normalized = normalizeInputValue(findReplace.value)
+    const t = inferCellType(normalized)
+    return t ? { v: normalized, t } : { v: normalized }
   }
 
   /** 公式格不参与替换（写入 {v,t} 会覆盖公式原文 f，导致公式丢失） */

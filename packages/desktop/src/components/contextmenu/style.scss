@@ -33,6 +33,20 @@ $arrow-size: 12px;
     @include m.ellipsis;
   }
 
+  @include m.e(custom) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(divider) {
+    height: 0;
+    margin: 4px 8px;
+    border: 0;
+    border-top: 1px solid fn.use-var(border, color);
+    list-style: none;
+    pointer-events: none;
+  }
+
   @include m.e(item) {
     position: relative;
     cursor: pointer;

@@ -104,4 +104,34 @@ describe('StylePool', () => {
     expect(pool.intern({ fill: { color: '#FF0000' } })).toBe(1)
     expect(pool.intern({ fill: { color: '#00FF00' } })).toBe(2)
   })
+
+  it('font/align：不同样式不撞 key；同内容同 id；字段顺序无关', () => {
+    const pool = new StylePool()
+    const a = pool.intern({
+      font: { color: '#FF0000', bold: true, size: 14 },
+      align: { horizontal: 'center', wrap: true }
+    })
+    const b = pool.intern({
+      align: { wrap: true, horizontal: 'center' },
+      font: { size: 14, bold: true, color: '#FF0000' }
+    })
+    expect(a).toBe(b)
+    expect(pool.size).toBe(1)
+
+    const c = pool.intern({ font: { color: '#FF0000', bold: true, size: 14 } })
+    expect(c).not.toBe(a)
+    const d = pool.intern({
+      font: { color: '#FF0000', bold: true, size: 14 },
+      align: { horizontal: 'left', wrap: true }
+    })
+    expect(d).not.toBe(a)
+    expect(pool.size).toBe(3)
+  })
+
+  it('归一化：空 font/align / 假值字段被剔除', () => {
+    expect(normalizeStyle({ font: {} })).toBeUndefined()
+    expect(normalizeStyle({ font: { bold: false, color: '' } })).toBeUndefined()
+    expect(normalizeStyle({ align: { wrap: false } })).toBeUndefined()
+    expect(normalizeStyle({ font: { bold: true }, align: {} })).toEqual({ font: { bold: true } })
+  })
 })

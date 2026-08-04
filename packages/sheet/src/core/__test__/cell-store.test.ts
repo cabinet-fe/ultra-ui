@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { CellStore, inferCellType, isEmptyCellData } from '../cell-store'
+import { CellStore, inferCellType, isEmptyCellData, normalizeInputValue } from '../cell-store'
 
 describe('CellData 类型判别', () => {
   it('按值推断类型', () => {
@@ -10,15 +10,28 @@ describe('CellData 类型判别', () => {
     expect(inferCellType(null)).toBeUndefined()
   })
 
-  it('写入读出保持类型', () => {
+  it('normalizeInputValue：数字/布尔文本规范化，撇号强制文本', () => {
+    expect(normalizeInputValue('10')).toBe(10)
+    expect(normalizeInputValue('  -3.5  ')).toBe(-3.5)
+    expect(normalizeInputValue('1e2')).toBe(100)
+    expect(normalizeInputValue('TRUE')).toBe(true)
+    expect(normalizeInputValue('false')).toBe(false)
+    expect(normalizeInputValue("'10")).toBe('10')
+    expect(normalizeInputValue('hello')).toBe('hello')
+    expect(normalizeInputValue(42)).toBe(42)
+  })
+
+  it('写入读出保持类型；数字文本写入为 number', () => {
     const store = new CellStore()
     store.setCellValue({ row: 0, col: 0 }, 42)
     store.setCellValue({ row: 0, col: 1 }, 'hello')
     store.setCellValue({ row: 0, col: 2 }, true)
+    store.setCellValue({ row: 0, col: 3 }, '10')
 
     expect(store.getCell({ row: 0, col: 0 })).toEqual({ v: 42, t: 'n' })
     expect(store.getCell({ row: 0, col: 1 })).toEqual({ v: 'hello', t: 's' })
     expect(store.getCell({ row: 0, col: 2 })).toEqual({ v: true, t: 'b' })
+    expect(store.getCell({ row: 0, col: 3 })).toEqual({ v: 10, t: 'n' })
   })
 
   it('空数据判定', () => {

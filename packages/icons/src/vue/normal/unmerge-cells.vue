@@ -1,0 +1,12 @@
+<!-- @veltra/icons generated sha256:db13a443fc6dd570 gen:8 source:src/svg/normal/unmerge-cells.svg -->
+<script setup lang="ts">
+defineOptions({ name: 'UnmergeCells' })
+</script>
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <path
+      fill="currentColor"
+      d="M2 3h5.2v1.3H3.3v7.4h3.9V13H2zm6.8 0H14v1.3h-3.9v7.4H14V13H8.8zM6.2 7.1h1.5L6.2 5.6h1.2l1.5 1.5V5.6H10v4.8H8.9V8.9l-1.5 1.5H6.2l1.5-1.5H6.2z"
+    />
+  </svg>
+</template>

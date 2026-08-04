@@ -1,18 +1,84 @@
+import {
+  AlignBottom,
+  AlignCenter,
+  AlignTop,
+  Bold,
+  Border,
+  Download,
+  Fill,
+  FontColor,
+  FontSize,
+  Italic,
+  MergeCells,
+  Rollback,
+  Rollfront,
+  Search,
+  Strikethrough,
+  Underline,
+  UnmergeCells,
+  Upload,
+  VerticalAlignCenter,
+  VerticalAlignLeft,
+  VerticalAlignRight,
+  Wrap
+} from '@veltra/icons/normal'
+
 import { rangesEqual } from '../core/address'
-import { exportSheetCsv, exportWorkbookXlsx } from '../core/io/export'
+import type { HorizontalAlign, VerticalAlign } from '../core/style/types'
+import type { SheetContext } from './context'
 import { registerTool } from './registry'
 
+export { downloadBlob, exportSheetCsvFile, exportWorkbookFile } from './download'
+
+/** 取活动格所在首选区；无选区返回 null */
+function selectionRange(ctx: SheetContext) {
+  const { activeCell, ranges } = ctx.getSelection()
+  const range = ranges[0]
+  if (!activeCell || !range) return null
+  return { activeCell, range }
+}
+
+/** 字体 toggle：以活动格当前值为基准，对选区统一翻转（Excel 语义） */
+function toggleFontFlag(
+  ctx: SheetContext,
+  field: 'bold' | 'italic' | 'underline' | 'strikethrough'
+): void {
+  const sel = selectionRange(ctx)
+  if (!sel) return
+  const on = ctx.getCellStyle(sel.activeCell)?.font?.[field] === true
+  ctx.setCellStyle(sel.range, { font: { [field]: on ? null : true } })
+}
+
+/** 对齐 toggle：点当前档 = 清除，点其它档 = 切换 */
+function toggleAlign(
+  ctx: SheetContext,
+  axis: 'horizontal' | 'vertical',
+  value: HorizontalAlign | VerticalAlign
+): void {
+  const sel = selectionRange(ctx)
+  if (!sel) return
+  const current = ctx.getCellStyle(sel.activeCell)?.align?.[axis]
+  if (current === value) {
+    ctx.setCellStyle(sel.range, { align: { [axis]: null } })
+  } else {
+    ctx.setCellStyle(sel.range, { align: { [axis]: value } })
+  }
+}
+
 /**
- * 内置工具（dogfood 扩展机制）：undo/redo + 合并/取消合并。
+ * 内置工具（dogfood 扩展机制）。
  *
+ * 分组：history ｜ cell ｜ text ｜ edit ｜ file。
  * 与第三方工具走同一注册通道，可由宿主 unregisterTool 移除或同 id 覆盖。
- * 本模块由 tools/index.ts 引入（与 core/command 的 default-registry 同构）：
- * 经包入口导入即完成注册，无头使用 core 深导入不涉及此全局副作用。
+ * 本模块由包入口引入：经包入口导入即完成注册。
  */
+
+// ─── history ───────────────────────────────────────────────
 
 registerTool({
   id: 'undo',
   title: '撤销',
+  icon: Rollback,
   tooltip: '撤销（Ctrl/Cmd+Z）',
   group: 'history',
   order: 0,
@@ -25,6 +91,7 @@ registerTool({
 registerTool({
   id: 'redo',
   title: '重做',
+  icon: Rollfront,
   tooltip: '重做（Ctrl/Cmd+Shift+Z 或 Ctrl+Y）',
   group: 'history',
   order: 1,
@@ -34,12 +101,39 @@ registerTool({
   }
 })
 
+// ─── cell（边框 / 填充颜色 / 合并 / 取消合并）────────────────
+
+registerTool({
+  id: 'border',
+  title: '边框',
+  icon: Border,
+  tooltip: '设置单元格边框',
+  group: 'cell',
+  order: 0,
+  popup: 'border',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: () => {}
+})
+
+registerTool({
+  id: 'fill-color',
+  title: '填充颜色',
+  icon: Fill,
+  tooltip: '设置单元格背景填充',
+  group: 'cell',
+  order: 1,
+  popup: 'fill-color',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: () => {}
+})
+
 registerTool({
   id: 'merge',
   title: '合并',
+  icon: MergeCells,
   tooltip: '合并选中区域',
   group: 'cell',
-  order: 0,
+  order: 2,
   disabled: (ctx) => {
     const { activeCell, ranges } = ctx.getSelection()
     const range = ranges[0]
@@ -60,9 +154,10 @@ registerTool({
 registerTool({
   id: 'unmerge',
   title: '取消合并',
+  icon: UnmergeCells,
   tooltip: '取消活动格所在合并',
   group: 'cell',
-  order: 1,
+  order: 3,
   disabled: (ctx) => {
     const { activeCell } = ctx.getSelection()
     if (!activeCell) return true
@@ -75,215 +170,237 @@ registerTool({
   }
 })
 
-// ─── 行列插入/删除（结构工具） ────────────────────────────
+// ─── text（B/I/U/S / 字体颜色 / 字号 / 对齐×6 / 自动换行）────
 
 registerTool({
-  id: 'insert-rows',
-  title: '插入行',
-  tooltip: '在活动行上方插入行（可指定数量）',
-  group: 'structure',
-  order: 0,
-  popup: 'insert-rows',
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  // 弹层型：vue 层渲染数量输入面板；onClick 保留默认插入 1 行（无弹层宿主回退）
-  onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (active) ctx.insertRows(active.row, 1)
-  }
-})
-
-registerTool({
-  id: 'insert-cols',
-  title: '插入列',
-  tooltip: '在活动列左侧插入列（可指定数量）',
-  group: 'structure',
-  order: 1,
-  popup: 'insert-cols',
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  // 弹层型：vue 层渲染数量输入面板；onClick 保留默认插入 1 列（无弹层宿主回退）
-  onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (active) ctx.insertCols(active.col, 1)
-  }
-})
-
-registerTool({
-  id: 'delete-rows',
-  title: '删除行',
-  tooltip: '删除活动行',
-  group: 'structure',
-  order: 2,
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (active) ctx.deleteRows(active.row)
-  }
-})
-
-registerTool({
-  id: 'delete-cols',
-  title: '删除列',
-  tooltip: '删除活动列',
-  group: 'structure',
-  order: 3,
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (active) ctx.deleteCols(active.col)
-  }
-})
-
-// ─── 样式工具（弹层型：vue 层渲染面板，面板交互走 SheetContext 命令入口） ───
-
-registerTool({
-  id: 'fill-color',
-  title: '填充颜色',
-  tooltip: '设置单元格背景填充',
-  group: 'cell',
-  order: 2,
-  popup: 'fill-color',
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: () => {}
-})
-
-registerTool({
-  id: 'border',
-  title: '边框',
-  tooltip: '设置单元格边框',
-  group: 'cell',
-  order: 3,
-  popup: 'border',
-  disabled: (ctx) => !ctx.getSelection().activeCell,
-  onClick: () => {}
-})
-
-// ─── 冻结工具（模型状态，不进 undo；active 高亮读当前冻结值） ───
-
-registerTool({
-  id: 'freeze',
-  title: '冻结到当前行列',
-  tooltip: '冻结活动单元格上方行与左侧列',
-  group: 'freeze',
+  id: 'bold',
+  title: '加粗',
+  icon: Bold,
+  tooltip: '加粗',
+  group: 'text',
   order: 0,
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    if (!active) return false
-    const frozen = ctx.frozen
-    return frozen.rows === active.row + 1 && frozen.cols === active.col + 1
+    return !!active && ctx.getCellStyle(active)?.font?.bold === true
+  },
+  onClick: (ctx) => toggleFontFlag(ctx, 'bold')
+})
+
+registerTool({
+  id: 'italic',
+  title: '斜体',
+  icon: Italic,
+  tooltip: '斜体',
+  group: 'text',
+  order: 1,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.font?.italic === true
+  },
+  onClick: (ctx) => toggleFontFlag(ctx, 'italic')
+})
+
+registerTool({
+  id: 'underline',
+  title: '下划线',
+  icon: Underline,
+  tooltip: '下划线',
+  group: 'text',
+  order: 2,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.font?.underline === true
+  },
+  onClick: (ctx) => toggleFontFlag(ctx, 'underline')
+})
+
+registerTool({
+  id: 'strikethrough',
+  title: '删除线',
+  icon: Strikethrough,
+  tooltip: '删除线',
+  group: 'text',
+  order: 3,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.font?.strikethrough === true
+  },
+  onClick: (ctx) => toggleFontFlag(ctx, 'strikethrough')
+})
+
+registerTool({
+  id: 'font-color',
+  title: '字体颜色',
+  icon: FontColor,
+  tooltip: '设置字体颜色',
+  group: 'text',
+  order: 4,
+  popup: 'font-color',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: () => {}
+})
+
+registerTool({
+  id: 'font-size',
+  title: '字号',
+  icon: FontSize,
+  tooltip: '设置字体大小',
+  group: 'text',
+  order: 5,
+  popup: 'font-size',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: () => {}
+})
+
+registerTool({
+  id: 'align-left',
+  title: '左对齐',
+  icon: VerticalAlignLeft,
+  tooltip: '水平左对齐',
+  group: 'text',
+  order: 6,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'left'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'left')
+})
+
+registerTool({
+  id: 'align-center',
+  title: '居中',
+  icon: VerticalAlignCenter,
+  tooltip: '水平居中',
+  group: 'text',
+  order: 7,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'center'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'center')
+})
+
+registerTool({
+  id: 'align-right',
+  title: '右对齐',
+  icon: VerticalAlignRight,
+  tooltip: '水平右对齐',
+  group: 'text',
+  order: 8,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'right'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'right')
+})
+
+registerTool({
+  id: 'valign-top',
+  title: '顶端对齐',
+  icon: AlignTop,
+  tooltip: '垂直顶端对齐',
+  group: 'text',
+  order: 9,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'top'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'vertical', 'top')
+})
+
+registerTool({
+  id: 'valign-middle',
+  title: '垂直居中',
+  icon: AlignCenter,
+  tooltip: '垂直居中对齐',
+  group: 'text',
+  order: 10,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'middle'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'vertical', 'middle')
+})
+
+registerTool({
+  id: 'valign-bottom',
+  title: '底端对齐',
+  icon: AlignBottom,
+  tooltip: '垂直底端对齐',
+  group: 'text',
+  order: 11,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'bottom'
+  },
+  onClick: (ctx) => toggleAlign(ctx, 'vertical', 'bottom')
+})
+
+registerTool({
+  id: 'wrap-text',
+  title: '自动换行',
+  icon: Wrap,
+  tooltip: '自动换行',
+  group: 'text',
+  order: 12,
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  active: (ctx) => {
+    const active = ctx.getSelection().activeCell
+    return !!active && ctx.getCellStyle(active)?.align?.wrap === true
   },
   onClick: (ctx) => {
-    const active = ctx.getSelection().activeCell
-    if (!active) return
-    ctx.setFrozen(active.row + 1, active.col + 1)
+    const sel = selectionRange(ctx)
+    if (!sel) return
+    const on = ctx.getCellStyle(sel.activeCell)?.align?.wrap === true
+    ctx.setCellStyle(sel.range, { align: { wrap: on ? null : true } })
   }
 })
 
-registerTool({
-  id: 'freeze-row',
-  title: '冻结首行',
-  tooltip: '冻结第一行',
-  group: 'freeze',
-  order: 1,
-  active: (ctx) => ctx.frozen.rows >= 1,
-  onClick: (ctx) => {
-    ctx.setFrozen(1, ctx.frozen.cols)
-  }
-})
-
-registerTool({
-  id: 'freeze-col',
-  title: '冻结首列',
-  tooltip: '冻结第一列',
-  group: 'freeze',
-  order: 2,
-  active: (ctx) => ctx.frozen.cols >= 1,
-  onClick: (ctx) => {
-    ctx.setFrozen(ctx.frozen.rows, 1)
-  }
-})
-
-registerTool({
-  id: 'unfreeze',
-  title: '取消冻结',
-  tooltip: '取消全部冻结',
-  group: 'freeze',
-  order: 3,
-  disabled: (ctx) => ctx.frozen.rows === 0 && ctx.frozen.cols === 0,
-  onClick: (ctx) => {
-    ctx.setFrozen(0, 0)
-  }
-})
-
-// ─── 查找（弹层型：vue 层渲染查找条，交互走 SheetContext + core/find） ───
+// ─── edit（查找）───────────────────────────────────────────
 
 registerTool({
   id: 'find',
   title: '查找',
+  icon: Search,
   tooltip: '查找与替换（Ctrl/Cmd+F）',
-  group: 'default',
+  group: 'edit',
   order: 0,
   popup: 'find',
   onClick: () => {}
 })
 
-// ─── 导入导出工具（file 组：导出 xlsx / 导出 csv / 导入） ───
-// 导出 = 生成 Blob 下载（浏览器 API 仅在此工具层使用，core/io 保持纯 TS 无头可测）；
-// 导入 = 弹层型工具（vue 层渲染 UFilePicker 文件选择 + 替换工作簿确认提示）。
-
-/** 生成浏览器下载（Blob → 临时 URL → a.click） */
-export function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = filename
-  anchor.click()
-  URL.revokeObjectURL(url)
-}
-
-registerTool({
-  id: 'export-xlsx',
-  title: '导出 xlsx',
-  tooltip: '导出当前工作簿为 .xlsx 文件（多 sheet / 公式 / 合并 / 样式 / 冻结 / 行高）',
-  group: 'file',
-  order: 0,
-  onClick: (ctx) => {
-    const workbook = ctx.workbook
-    if (!workbook) return
-    void exportWorkbookXlsx(workbook).then((buffer) => {
-      downloadBlob(
-        new Blob([buffer as unknown as BlobPart], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        }),
-        `${workbook.activeSheet.name || 'workbook'}.xlsx`
-      )
-    })
-  }
-})
-
-registerTool({
-  id: 'export-csv',
-  title: '导出 csv',
-  tooltip: '导出当前工作表为 .csv 文件（公式导计算值）',
-  group: 'file',
-  order: 1,
-  onClick: (ctx) => {
-    const workbook = ctx.workbook
-    if (!workbook) return
-    const csv = exportSheetCsv(workbook.activeSheet)
-    downloadBlob(
-      new Blob([csv], { type: 'text/csv;charset=utf-8' }),
-      `${workbook.activeSheet.name || 'sheet'}.csv`
-    )
-  }
-})
+// ─── file（导入 / 导出）────────────────────────────────────
+// 导出 = 弹层选 xlsx / csv；导入 = 弹层型 UFilePicker。
+// 下载逻辑见 tools/download.ts（core/io 保持纯 TS 无头可测）。
 
 registerTool({
   id: 'import',
   title: '导入',
+  icon: Upload,
   tooltip: '从 .xlsx / .csv 文件导入',
   group: 'file',
-  order: 2,
+  order: 0,
   popup: 'import',
+  onClick: () => {}
+})
+
+registerTool({
+  id: 'export',
+  title: '导出',
+  icon: Download,
+  tooltip: '导出为 Excel 或 CSV',
+  group: 'file',
+  order: 1,
+  popup: 'export',
   onClick: () => {}
 })

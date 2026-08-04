@@ -115,9 +115,11 @@ describe('Workbook', () => {
     const wb = new Workbook()
     expect(wb.sheetCount).toBe(1)
     expect(wb.activeSheet.name).toBe('Sheet1')
+    expect(wb.activeSheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
 
     const s2 = wb.addSheet()
     expect(s2.name).toBe('Sheet2')
+    expect(s2.getSelection().activeCell).toEqual({ row: 0, col: 0 })
     expect(wb.activeSheet.name).toBe('Sheet1')
 
     expect(wb.activateSheet('Sheet2')).toBe(true)

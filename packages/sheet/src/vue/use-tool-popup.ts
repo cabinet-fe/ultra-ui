@@ -5,15 +5,20 @@ import { defaultToolRegistry, type SheetTool } from '../tools/registry'
 
 /**
  * 面板打开期间的写入是否合并为一个 undo 单元（关闭时提交）：
- * 填充颜色 / 边框参与事务；查找（每次替换独立 undo）、导入（replaceWorkbook 结构操作 /
- * csv 自身单 undo 单元）、插入行列（一次插入 = 单 undo 单元）不参与。
+ * 填充颜色 / 边框 / 字体颜色 / 字号参与事务；查找（每次替换独立 undo）、导入 /
+ * 导出（下载侧效应，无模型写入）不参与。
  */
 function joinsTransaction(tool: SheetTool): boolean {
-  return tool.popup === 'fill-color' || tool.popup === 'border'
+  return (
+    tool.popup === 'fill-color' ||
+    tool.popup === 'border' ||
+    tool.popup === 'font-color' ||
+    tool.popup === 'font-size'
+  )
 }
 
 /**
- * 弹层型工具编排（填充颜色 / 边框 / 查找 / 导入 / 插入行列）：
+ * 弹层型工具编排（填充颜色 / 边框 / 查找 / 导入 / 导出）：
  * - popupTool：当前打开的弹层工具（null = 未打开）
  * - 打开 / 关闭时的事务包裹（面板期间写入合并为一个 undo 单元，关闭时提交）
  * - 点击面板外关闭（面板内 @click.stop 不冒泡到 window）

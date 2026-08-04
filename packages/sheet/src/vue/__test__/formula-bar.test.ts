@@ -74,12 +74,7 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
 
-    // 无选区：输入栏禁用，名称框空
-    expect(fxInput(el).disabled).toBe(true)
-    expect(nameBox(el).value).toBe('')
-
-    sheet.selectCell({ row: 0, col: 0 })
-    await nextTick()
+    // 默认选区 A1：名称框显示 A1，fx 输入栏可用
     expect(nameBox(el).value).toBe('A1')
     expect(fxInput(el).disabled).toBe(false)
     expect(fxInput(el).value).toBe('')
@@ -256,9 +251,7 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const sheet2 = workbook.getSheet('Sheet2')!
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
-    // 给 Sheet1 预置选区（默认无选区）
-    sheet1.selectCell({ row: 0, col: 0 })
-    await nextTick()
+    // Sheet1 默认选区 A1
     expect(nameBox(el).value).toBe('A1')
 
     // Sheet2 的选区不影响公式栏（订阅的是 Sheet1）
@@ -312,5 +305,148 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const { el } = mount(() => ({ showFormulaBar: false }))
     await nextTick()
     expect(el.querySelector('.u-sheet__formula-bar')).toBeNull()
+  })
+})
+
+/** 设置 fx 文本并同步光标到末尾（触发补全 / 引用选择上下文） */
+function setFxText(el: HTMLElement, text: string): HTMLTextAreaElement {
+  const input = fxInput(el)
+  input.dispatchEvent(new FocusEvent('focus'))
+  input.value = text
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+  input.setSelectionRange(text.length, text.length)
+  input.dispatchEvent(new Event('keyup', { bubbles: true }))
+  return input
+}
+
+function suggestList(el: HTMLElement): HTMLElement | null {
+  return el.querySelector('.u-sheet__fx-suggest')
+}
+
+describe('USheet 公式栏：函数补全与引用选择', () => {
+  it('输入 = 弹出候选；SU 过滤到 SUM；↓+Enter 替换为 =SUM( 且光标在括号内', async () => {
+    const workbook = new Workbook()
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
+    await nextTick()
+
+    setFxText(el, '=')
+    await nextTick()
+    expect(suggestList(el)).not.toBeNull()
+    expect(el.querySelectorAll('.u-sheet__fx-suggest-item').length).toBeGreaterThan(0)
+
+    setFxText(el, '=SU')
+    await nextTick()
+    const items = [...el.querySelectorAll('.u-sheet__fx-suggest-item')].map(
+      (n) => n.querySelector('.u-sheet__fx-suggest-sig')!.textContent
+    )
+    expect(items.some((t) => t?.startsWith('SUM('))).toBe(true)
+
+    const input = fxInput(el)
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(input.value).toBe('=SUM(')
+    expect(input.selectionStart).toBe(5)
+    expect(suggestList(el)).toBeNull()
+  })
+
+  it('Esc 分层：先关候选再取消编辑；候选开着时 Enter 确认而非提交', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'keep')
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
+    await nextTick()
+
+    const input = setFxText(el, '=S')
+    await nextTick()
+    expect(suggestList(el)).not.toBeNull()
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(suggestList(el)).toBeNull()
+    expect(input.value).toBe('=S') // 仍在编辑
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(input.value).toBe('keep') // 取消还原
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'keep' })
+  })
+
+  it('引用插入文本与光标位置；blur 抑制；非引用选择失焦仍提交', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    const input = setFxText(el, '=SUM(')
+    await nextTick()
+
+    // pointerdown on grid → blur 不提交（引用选择）
+    const gridEl = el.querySelector('.u-sheet__grid')!
+    gridEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    input.dispatchEvent(new FocusEvent('blur'))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(input.value).toBe('=SUM(')
+
+    // 与 grid 选区测试同路径：selectCells 设视觉选区 + fire SELECTED_CELL
+    const table = exposed.value!.getGrid()!.getTable()
+    const { ListTable } = await import('@visactor/vtable')
+    table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 2, row: 2 } }])
+    table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 2 })
+    await nextTick()
+    expect(input.value).toBe('=SUM(A1:B2')
+    expect(input.selectionStart).toBe('=SUM(A1:B2'.length)
+    // intercept 不写模型选区
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+
+    // 非引用选择场景失焦提交
+    setFxText(el, 'plain')
+    await nextTick()
+    fxInput(el).dispatchEvent(new FocusEvent('blur'))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ v: 'plain' })
+  })
+
+  it('网格镜像期不弹补全', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    sheet.setCellFormula({ row: 0, col: 0 }, '=SUM(1,2)')
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    exposed.value?.getGrid()?.getTable().startEditCell(1, 1)
+    await nextTick()
+    expect(fxInput(el).readOnly).toBe(true)
+    expect(fxInput(el).value).toBe('=SUM(1,2)')
+    expect(suggestList(el)).toBeNull()
+
+    exposed.value?.getGrid()?.getTable().completeEditCell()
+    await nextTick()
+  })
+
+  it('连续引用选择：=A1+ 后再插入 B1', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    setFxText(el, '=A1+')
+    await nextTick()
+    const table = exposed.value!.getGrid()!.getTable()
+    const { ListTable } = await import('@visactor/vtable')
+    table.selectCells([{ start: { col: 2, row: 1 }, end: { col: 2, row: 1 } }])
+    table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 1 })
+    await nextTick()
+    expect(fxInput(el).value).toBe('=A1+B1')
   })
 })
