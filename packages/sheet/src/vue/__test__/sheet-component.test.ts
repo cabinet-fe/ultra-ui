@@ -394,13 +394,16 @@ describe('USheet 组件', () => {
     fillButton.click()
     await flushPopup()
     // 面板已渲染（含 UPalette 取色器）
-    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
-    expect(el.querySelector('.u-sheet__popup .u-palette')).not.toBeNull()
+    const popupEl = document.querySelector<HTMLElement>('#pop-container .u-sheet__popup')
+    expect(popupEl).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup .u-palette')).not.toBeNull()
+    // 面板 Teleport 到 body 级 #pop-container（不在 mount 容器内，定位由 usePop 接管）
+    expect(el.querySelector('.u-sheet__popup')).toBeNull()
 
     // 点击面板外（grid 区）→ 关闭；空事务不入历史
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
     expect(sheet.history.undoSize).toBe(0)
   })
 
@@ -423,10 +426,10 @@ describe('USheet 组件', () => {
 
     toolButton(el, 'font-color')!.click()
     await flushPopup()
-    expect(el.querySelector('.u-sheet__popup .u-palette')).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup .u-palette')).not.toBeNull()
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
   })
 
   it('字号弹层：预设写入 + 关闭提交为一个 undo 单元', async () => {
@@ -437,7 +440,9 @@ describe('USheet 组件', () => {
 
     toolButton(el, 'font-size')!.click()
     await flushPopup()
-    const sizeButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
+    const sizeButtons = [
+      ...document.querySelectorAll<HTMLButtonElement>('#pop-container .u-sheet__popup-size-item')
+    ]
     expect(sizeButtons.map((button) => button.textContent?.trim())).toContain('14')
     sizeButtons.find((button) => button.textContent?.trim() === '14')!.click()
     await nextTick()
@@ -445,7 +450,7 @@ describe('USheet 组件', () => {
 
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
     expect(sheet.history.undoSize).toBe(1)
     sheet.undo()
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
@@ -462,7 +467,7 @@ describe('USheet 组件', () => {
     toolButton(el, 'border')!.click()
     await flushPopup()
 
-    const presetButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__popup-preset')]
+    const presetButtons = [...document.querySelectorAll('#pop-container .u-sheet__popup-preset')]
     expect(presetButtons.map((button) => button.textContent?.trim())).toEqual([
       '全边框',
       '外边框',
@@ -485,7 +490,7 @@ describe('USheet 组件', () => {
     // 点击外部关闭 → 面板期间所有写入合并为一个 undo 单元
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
     expect(sheet.history.undoSize).toBe(1)
 
     sheet.undo()
@@ -523,13 +528,13 @@ describe('USheet 组件', () => {
 
     toolButton(el, 'import')!.click()
     await flushPopup()
-    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
-    expect(el.querySelector('.u-file-picker')).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-file-picker')).not.toBeNull()
 
     // 导入面板不参与事务：关闭不产生历史条目
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
     expect(sheet.history.undoSize).toBe(0)
   })
 
@@ -548,7 +553,9 @@ describe('USheet 组件', () => {
     try {
       toolButton(el, 'export')!.click()
       await flushPopup()
-      const options = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__export-option')]
+      const options = [
+        ...document.querySelectorAll<HTMLButtonElement>('#pop-container .u-sheet__export-option')
+      ]
       expect(options.map((button) => button.textContent?.trim())).toEqual([
         '导出 Excel (.xlsx)',
         '导出 CSV (.csv)'
@@ -557,18 +564,20 @@ describe('USheet 组件', () => {
       options[0]!.click()
       await nextTick()
       await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
-      expect(el.querySelector('.u-sheet__popup')).toBeNull()
+      expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
       expect(sheet.history.undoSize).toBe(1) // 预置 setCellValue；导出本身不写模型
 
       toolButton(el, 'export')!.click()
       await flushPopup()
       createObjectURL.mockClear()
-      el.querySelectorAll<HTMLButtonElement>('.u-sheet__export-option')[1]!.click()
+      document
+        .querySelectorAll<HTMLButtonElement>('#pop-container .u-sheet__export-option')[1]!
+        .click()
       await nextTick()
       await vi.waitFor(() => expect(createObjectURL).toHaveBeenCalled(), { timeout: 2000 })
       const csvBlob = createObjectURL.mock.calls[0]![0] as Blob
       expect(csvBlob.type).toContain('text/csv')
-      expect(el.querySelector('.u-sheet__popup')).toBeNull()
+      expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
     } finally {
       URL.createObjectURL = originalCreate
       URL.revokeObjectURL = originalRevoke
@@ -586,22 +595,28 @@ describe('USheet 组件', () => {
 
     toolButton(el, 'find')!.click()
     await flushPopup()
-    expect(el.querySelector('.u-sheet__popup')).not.toBeNull()
-    expect(el.querySelector('.u-sheet__find-input')).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).not.toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__find-input')).not.toBeNull()
 
     // 输入关键词 → 定位第一个命中（A1）
-    const input = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    const input = document.querySelector<HTMLInputElement>(
+      '#pop-container .u-sheet__find-input .u-input__native'
+    )!
     input.value = 'hello'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
-    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 2')
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '1 / 2'
+    )
 
     // Enter → 下一个命中（A3）
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 1, col: 0 })
-    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('2 / 2')
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '2 / 2'
+    )
 
     // Enter 循环回第一个
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
@@ -619,13 +634,17 @@ describe('USheet 组件', () => {
     input.value = '不存在'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('0 / 0')
-    expect(el.querySelector<HTMLButtonElement>('.u-sheet__find-nav')!.disabled).toBe(true)
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '0 / 0'
+    )
+    expect(
+      document.querySelector<HTMLButtonElement>('#pop-container .u-sheet__find-nav')!.disabled
+    ).toBe(true)
 
     // 关闭
-    el.querySelector<HTMLButtonElement>('.u-sheet__find-close')!.click()
+    document.querySelector<HTMLButtonElement>('#pop-container .u-sheet__find-close')!.click()
     await nextTick()
-    expect(el.querySelector('.u-sheet__popup')).toBeNull()
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
   })
 
   it('替换：单个替换可 undo；全部替换 = 单 undo 单元，undo 一次全部还原', async () => {
@@ -640,20 +659,24 @@ describe('USheet 组件', () => {
     toolButton(el, 'find')!.click()
     await flushPopup()
 
-    const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    const queryInput = document.querySelector<HTMLInputElement>(
+      '#pop-container .u-sheet__find-input .u-input__native'
+    )!
     queryInput.value = 'foo'
     queryInput.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
-    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 3')
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '1 / 3'
+    )
 
     // 全部替换：3 格一次写入
     const replaceInputs = [
-      ...el.querySelectorAll<HTMLInputElement>('.u-sheet__find-input .u-input__native')
+      ...document.querySelectorAll('#pop-container .u-sheet__find-input .u-input__native')
     ]
     replaceInputs[1]!.value = 'bar'
     replaceInputs[1]!.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__find-btn')[1]!.click()
+    document.querySelectorAll('#pop-container .u-sheet__find-btn')[1]!.click()
     await nextTick()
 
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'bar' })
@@ -680,20 +703,24 @@ describe('USheet 组件', () => {
     toolButton(el, 'find')!.click()
     await flushPopup()
 
-    const queryInput = el.querySelector<HTMLInputElement>('.u-sheet__find-input .u-input__native')!
+    const queryInput = document.querySelector<HTMLInputElement>(
+      '#pop-container .u-sheet__find-input .u-input__native'
+    )!
     queryInput.value = 'foo'
     queryInput.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
     // 普通格 + 公式格显示值都命中
-    expect(el.querySelector('.u-sheet__find-count')!.textContent?.trim()).toBe('1 / 2')
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '1 / 2'
+    )
 
     const replaceInputs = [
-      ...el.querySelectorAll<HTMLInputElement>('.u-sheet__find-input .u-input__native')
+      ...document.querySelectorAll('#pop-container .u-sheet__find-input .u-input__native')
     ]
     replaceInputs[1]!.value = 'bar'
     replaceInputs[1]!.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
-    el.querySelectorAll<HTMLButtonElement>('.u-sheet__find-btn')[1]!.click()
+    document.querySelectorAll('#pop-container .u-sheet__find-btn')[1]!.click()
     await nextTick()
 
     // 普通格被替换，公式格保留公式（显示值也因依赖 A1 变化为 bar!）

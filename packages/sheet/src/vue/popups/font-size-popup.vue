@@ -1,19 +1,22 @@
 <template>
-  <div :class="cls.e('popup-row')">
-    <span :class="cls.e('popup-label')">字号</span>
-    <button
-      v-for="size in FONT_SIZES"
-      :key="size"
-      type="button"
-      :class="[cls.e('popup-preset'), bem.is('active', currentSize === size)]"
-      @click="applyFontSize(size)"
-    >
-      {{ size }}
-    </button>
-  </div>
+  <!-- 下拉排列：每行一个字号；滚动用 desktop UScroll（自定义滚动条） -->
+  <u-scroll :height="280" :class="cls.e('popup-size-scroll')">
+    <div :class="cls.e('popup-size-list')">
+      <button
+        v-for="size in FONT_SIZES"
+        :key="size"
+        type="button"
+        :class="[cls.e('popup-size-item'), bem.is('active', currentSize === size)]"
+        @click="applyFontSize(size)"
+      >
+        {{ size }}
+      </button>
+    </div>
+  </u-scroll>
 </template>
 
 <script lang="ts" setup>
+import { UScroll } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { onMounted, ref } from 'vue'
 

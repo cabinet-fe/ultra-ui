@@ -1,36 +1,52 @@
 <template>
   <div :class="cls.b">
-    <!-- toolbar-wrap：弹层面板（popup）的定位参照系——相对工具栏而非整个 sheet，
-         否则 popup 的 top: calc(100% + 4px) 落在 sheet 底部之外被 overflow:hidden 裁剪 -->
     <div :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
-      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/导入/导出）：面板交互走 SheetContext 命令入口 -->
-      <div v-if="popupTool" :class="cls.e('popup')" @click.stop>
-        <u-sheet-fill-color-popup v-if="popupTool.popup === 'fill-color'" :context="context" />
-        <u-sheet-border-popup v-else-if="popupTool.popup === 'border'" :context="context" />
-        <u-sheet-font-color-popup v-else-if="popupTool.popup === 'font-color'" :context="context" />
-        <u-sheet-font-size-popup v-else-if="popupTool.popup === 'font-size'" :context="context" />
-        <u-sheet-find-popup
-          v-else-if="popupTool.popup === 'find'"
-          :sheet="activeSheet"
-          :context="context"
-          @close="closePopup"
-        />
-        <u-sheet-import-popup
-          v-else-if="popupTool.popup === 'import'"
-          :workbook="workbook"
-          :active-sheet="activeSheet"
-          @close="closePopup"
-          @csv-imported="rebuildGrid"
-          @workbook-replaced="syncFromWorkbook"
-        />
-        <u-sheet-export-popup
-          v-else-if="popupTool.popup === 'export'"
-          :context="context"
-          @close="closePopup"
-        />
-      </div>
+      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/导入/导出）：UDropdown（Teleport 到
+           #pop-container + floating-ui 定位：锚点跟随触发按钮、自动翻转/边界位移；
+           触发元素滚动/窗口缩放时自动关闭）。面板交互走 SheetContext 命令入口 -->
+      <u-dropdown
+        ref="popupDropdownRef"
+        trigger="custom"
+        :visible="popupTool !== null"
+        width="auto"
+        @update:visible="handlePopupVisible"
+      >
+        <template #content>
+          <div v-if="popupTool" :class="cls.e('popup')" @click.stop>
+            <u-sheet-fill-color-popup v-if="popupTool.popup === 'fill-color'" :context="context" />
+            <u-sheet-border-popup v-else-if="popupTool.popup === 'border'" :context="context" />
+            <u-sheet-font-color-popup
+              v-else-if="popupTool.popup === 'font-color'"
+              :context="context"
+            />
+            <u-sheet-font-size-popup
+              v-else-if="popupTool.popup === 'font-size'"
+              :context="context"
+            />
+            <u-sheet-find-popup
+              v-else-if="popupTool.popup === 'find'"
+              :sheet="activeSheet"
+              :context="context"
+              @close="closePopup"
+            />
+            <u-sheet-import-popup
+              v-else-if="popupTool.popup === 'import'"
+              :workbook="workbook"
+              :active-sheet="activeSheet"
+              @close="closePopup"
+              @csv-imported="rebuildGrid"
+              @workbook-replaced="syncFromWorkbook"
+            />
+            <u-sheet-export-popup
+              v-else-if="popupTool.popup === 'export'"
+              :context="context"
+              @close="closePopup"
+            />
+          </div>
+        </template>
+      </u-dropdown>
     </div>
 
     <u-formula-bar
@@ -52,8 +68,9 @@
 </template>
 
 <script lang="ts" setup>
+import { UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, watch } from 'vue'
 
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
 import UFormulaBar from './formula-bar.vue'
@@ -97,7 +114,30 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
-const { popupTool, closePopup, handleToolClick } = useToolPopup(context)
+const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context)
+
+// ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────
+
+const popupDropdownRef = useTemplateRef<InstanceType<typeof UDropdown>>('popupDropdownRef')
+
+// popupTool 变化 → 打开（传触发按钮作锚点）/ 关闭。
+// 必须同步调用 open()：usePop 在 content 挂载时执行定位与滚动监听，
+// 若等 nextTick 后再设 customTriggerRef，usePop 首次 update 时锚点缺失 → 面板不定位。
+watch(popupTool, () => {
+  const dropdown = popupDropdownRef.value
+  if (!dropdown) return
+  if (popupTool.value) {
+    // 触发元素移动（工具栏滚动 / 窗口缩放）由 usePop 监听 → UDropdown 自动关闭
+    dropdown.open({ trigger: popupAnchor.value ?? undefined })
+  } else {
+    dropdown.close()
+  }
+})
+
+/** UDropdown 内部关闭（滚动 / resize / transition 结束）→ 同步状态并提交面板事务 */
+function handlePopupVisible(visible: boolean): void {
+  if (!visible) closePopup()
+}
 
 // ─── 工具栏分组视图模型 ────────────────────────────────────────
 

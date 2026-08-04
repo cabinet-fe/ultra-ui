@@ -1,5 +1,7 @@
 import '@veltra/desktop/components/contextmenu/style'
+import '@veltra/desktop/components/dropdown/style'
 import '@veltra/desktop/components/number-input/style'
 import '@veltra/desktop/components/palette/style'
+import '@veltra/desktop/components/scroll/style'
 import '@veltra/desktop/components/tip/style'
 import './style.scss'

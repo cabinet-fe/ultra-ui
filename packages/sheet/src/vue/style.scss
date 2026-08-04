@@ -277,17 +277,11 @@
   }
 
   @include m.e(popup) {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 8px;
-    z-index: 10;
+    /* UDropdown content 内层内容容器：定位/边框/背景/阴影由 dropdown 弹层提供 */
     display: flex;
     flex-direction: column;
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
-    border: 1px solid fn.use-var(border, muted-color);
-    border-radius: fn.use-var(radius, small);
-    background-color: fn.use-var(bg-color, top);
   }
 
   @include m.e(popup-row) {
@@ -340,6 +334,38 @@
 
     @include m.is(active) {
       border-color: fn.use-var(color, primary);
+    }
+  }
+
+  /* UScroll 容器：滚动条/滚动由 desktop scroll 组件承担（popup-size-list 不再自滚） */
+  @include m.e(popup-size-scroll) {
+    width: 48px;
+  }
+
+  @include m.e(popup-size-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @include m.e(popup-size-item) {
+    padding: 5px 12px;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(color, primary);
     }
   }
 

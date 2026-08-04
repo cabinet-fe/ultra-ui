@@ -20,6 +20,7 @@ function joinsTransaction(tool: SheetTool): boolean {
 /**
  * 弹层型工具编排（填充颜色 / 边框 / 查找 / 导入 / 导出）：
  * - popupTool：当前打开的弹层工具（null = 未打开）
+ * - popupAnchor：触发按钮元素（面板定位参照，见 sheet.vue 的 left 计算）
  * - 打开 / 关闭时的事务包裹（面板期间写入合并为一个 undo 单元，关闭时提交）
  * - 点击面板外关闭（面板内 @click.stop 不冒泡到 window）
  * - Ctrl/Cmd+F 开合查找条（与工具按钮同一 toggle 逻辑）
@@ -27,10 +28,13 @@ function joinsTransaction(tool: SheetTool): boolean {
 export function useToolPopup(context: SheetContext) {
   /** 当前打开的弹层工具（null = 未打开） */
   const popupTool = shallowRef<SheetTool | null>(null)
+  /** 触发按钮元素（打开时的 currentTarget；用于面板 left 对齐按钮） */
+  const popupAnchor = shallowRef<HTMLElement | null>(null)
 
-  function openPopup(tool: SheetTool): void {
+  function openPopup(tool: SheetTool, anchor?: HTMLElement | null): void {
     closePopup()
     popupTool.value = tool
+    popupAnchor.value = anchor ?? null
     // 面板打开期间的所有写入合并为一个 undo 单元（关闭时提交）
     if (joinsTransaction(tool)) context.beginTransaction()
   }
@@ -40,6 +44,7 @@ export function useToolPopup(context: SheetContext) {
     const tool = popupTool.value
     if (!tool) return
     popupTool.value = null
+    popupAnchor.value = null
     if (!joinsTransaction(tool)) return
     try {
       context.commit()
@@ -48,7 +53,7 @@ export function useToolPopup(context: SheetContext) {
     }
   }
 
-  function handleToolClick(tool: SheetTool): void {
+  function handleToolClick(tool: SheetTool, event?: MouseEvent): void {
     if (tool.disabled?.(context)) return
     if (tool.popup) {
       // 弹层工具：同 id 再点 = 关闭；否则延迟打开（setTimeout 宏任务，避开
@@ -58,7 +63,9 @@ export function useToolPopup(context: SheetContext) {
         closePopup()
         return
       }
-      setTimeout(() => openPopup(tool), 0)
+      const anchor =
+        event?.currentTarget instanceof HTMLElement ? (event.currentTarget as HTMLElement) : null
+      setTimeout(() => openPopup(tool, anchor), 0)
       return
     }
     tool.onClick(context)
@@ -107,5 +114,5 @@ export function useToolPopup(context: SheetContext) {
     window.removeEventListener('keydown', onGlobalKeydown)
   })
 
-  return { popupTool, openPopup, closePopup, handleToolClick, openToolPopup }
+  return { popupTool, popupAnchor, openPopup, closePopup, handleToolClick, openToolPopup }
 }

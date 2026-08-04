@@ -71,7 +71,7 @@ src/
 │   │   ├── import-popup.vue       # 导入（UFilePicker）
 │   │   └── export-popup.vue       # 导出选择（xlsx / csv）
 │   ├── use-sheet-state.ts    # 状态源：workbook / sheetList / activeIndex / context / 事件绑定 / stateTick
-│   ├── use-tool-popup.ts     # 弹层编排：popupTool / 开关 / 面板事务 / window click / Ctrl+F
+│   ├── use-tool-popup.ts     # 弹层编排：popupTool / popupAnchor（触发按钮锚点）/ 开关 / 面板事务 / window click / Ctrl+F
 │   ├── use-tool-groups.ts    # 工具栏分组视图模型（组序 history｜cell｜text｜edit｜file）
 │   ├── use-sheet-grid.ts     # SheetGrid 生命周期 + 网格右键菜单 + 引用选择拦截
 │   ├── use-formula-suggest.ts # fx 函数补全纯逻辑（上下文 / 过滤 / 替换 / 导航）
@@ -382,11 +382,24 @@ src/
   `setTimeout(() => openPopup(tool), 0)`（均在 `use-tool-popup.ts`）。happy-dom 的 microtask
   时序与真实浏览器不同（dispatchEvent 同步返回后才执行 microtask），组件测试测不出此问题，
   改动弹层打开方式后必须用 Playwright 真实浏览器验证（断言 popup 打开后稳定存在，而非只跑组件测试）。
-- **弹层定位约束（2026-08 修复）**：`popup` 是 `toolbar-wrap`（`position: relative`）的子元素，
-  `top: calc(100% + 4px)` 相对工具栏——**不能**直接挂在 `.u-sheet` 下（`overflow: hidden` 会把
-  sheet 底部之外的弹层裁剪掉，表现为「面板打开了但看不到输入框」；组件测试查 DOM 存在性
-  查不出，必须真实浏览器验证 boundingBox 落在 sheet 内 + elementFromPoint 命中面板内容）。
-  弹层打开后的视觉验证请复用 Playwright 断言「popup rect 在 sheet rect 内」。
+- **弹层定位（UDropdown 锚点跟随，2026-08）**：弹层型工具面板 = `UDropdown`（`trigger: 'custom'`，
+  从 `@veltra/desktop` **主入口**导入），**Teleport 到 `#pop-container`**（body 级，彻底绕开
+  `.u-sheet` overflow 裁剪——不再挂在 `toolbar-wrap` 下手写 absolute 定位）。定位由
+  floating-ui（`usePop`：`offset(6)` + `flip()` + `shift()`）承担：面板左缘对齐触发按钮
+  （`alignment: 'start'`）、自动翻转、边界移位。
+  - **锚点传递**：`handleToolClick` 同步读 `event.currentTarget` → `popupAnchor`（use-tool-popup）→
+    sheet.vue `watch(popupTool)` 里 `dropdown.open({ trigger: popupAnchor.value })`。
+  - **⚠️ open() 必须同步调用（时序坑）**：不能 `await nextTick` 后再 open——`usePop` 在
+    content 挂载时执行**首次定位 + 滚动监听绑定**（`addScrollEvents`），若 `customTriggerRef`
+    晚于 content 挂载才设置，首次 `update` 时 trigger 缺失 → 面板停在 (0,0) 且滚动监听未绑定
+    （表现为「面板出现但不在按钮下方、滚工具栏不关闭」）。watch 回调内直接同步调 `open()`。
+  - **滚动自动关闭**：工具栏滚动 / 窗口 resize → `usePop.onTriggerPositionChange` →
+    UDropdown 自动 `close()` → `update:visible(false)` → `closePopup()` 提交面板事务。
+    依赖 `@veltra/utils` 的 `getScrollParents` **横向可滚动父级也计入**
+    （`scrollWidth > clientWidth`）——`.toolbar-scroll` 是横向滚动容器，否则横滚不触发关闭。
+  - **测试注意**：面板 Teleport 后不在 mount 容器内，组件测试断言需 `#pop-container` 前缀；
+    视觉/交互验证用 Playwright（`scripts/phase8-popup-anchor-e2e.mjs`，9 项断言：
+    左缘对齐 / offset 6px / 位置跟随 / 窄容器 flip-shift / 滚动关闭 / 点外关闭 / toggle）。
 - 工具栏状态刷新：`use-sheet-state.ts` 订阅注册表 change / workbook（active-sheet-change、
   sheets-change）/ 活动 sheet（selection/history/cell/merge-change）→ bump 版本号 →
   `use-tool-groups.ts` 的 computed 重算 `visible`/`disabled`。tab 切换 = 重建 SheetGrid

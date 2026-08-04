@@ -1,5 +1,6 @@
 /**
- * 获取可滚动的父级
+ * 获取可滚动的父级（纵向或横向可滚动均计入：overflow-x 容器如横向滚动条
+ * 也是滚动父级，弹层需监听其 scroll 事件）
  * @param el 元素
  * @returns
  */
@@ -7,7 +8,7 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
   const parents: HTMLElement[] = []
   let parent = el.parentElement
   while (parent) {
-    if (parent.scrollHeight > parent.clientHeight) {
+    if (parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) {
       parents.push(parent)
     }
 
@@ -17,14 +18,14 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
 }
 
 /**
- * 获取最近的可滚动父级
+ * 获取最近的可滚动父级（纵向或横向可滚动均计入）
  * @param el 元素
  * @returns 最近的可滚动父级
  */
 export function getNearestScrollParent(el: HTMLElement): HTMLElement | null {
   let parent = el.parentElement
   while (parent) {
-    if (parent.scrollHeight > parent.clientHeight) {
+    if (parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) {
       return parent
     }
     parent = parent.parentElement

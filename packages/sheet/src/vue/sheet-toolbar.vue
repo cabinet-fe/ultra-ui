@@ -21,7 +21,8 @@
             :key="item.tool.id"
             :content="item.tool.tooltip ?? item.tool.title"
             trigger="hover"
-            direction="bottom"
+            direction="top"
+            alignment="center"
             :show-delay="400"
             :disabled="item.disabled"
           >
@@ -31,7 +32,7 @@
               :data-tool-id="item.tool.id"
               :disabled="item.disabled"
               :title="item.tool.tooltip ?? item.tool.title"
-              @click="emit('toolClick', item.tool)"
+              @click="emit('toolClick', item.tool, $event)"
             >
               <component :is="item.tool.icon" v-if="item.tool.icon" :class="cls.e('tool-icon')" />
               <span v-else>{{ item.tool.title }}</span>
@@ -74,7 +75,7 @@ defineOptions({ name: 'USheetToolbar' })
  */
 const props = defineProps<{ groups: ToolGroupView[] }>()
 
-const emit = defineEmits<{ toolClick: [tool: SheetTool] }>()
+const emit = defineEmits<{ toolClick: [tool: SheetTool, event: MouseEvent] }>()
 
 const cls = bem('sheet')
 
