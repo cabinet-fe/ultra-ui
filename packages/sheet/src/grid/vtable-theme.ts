@@ -4,8 +4,8 @@ import { themes } from '@visactor/vtable'
 const CHROME_BG = '#F5F5F5'
 /** body 纯白，覆盖 DEFAULT 斑马底色 */
 const BODY_BG = '#FFF'
-/** 网格线 / 外框：浅灰（勿用 DEFAULTBORDERCOLOR #000） */
-const GRID_BORDER = '#E1E4E8'
+/** 网格线 / 外框：浅灰（勿用 DEFAULTBORDERCOLOR #000）；sheet-grid 样式回调的网格线回落共用此常量 */
+export const GRID_BORDER = '#E1E4E8'
 /** 选区边框：清晰蓝（覆盖 DEFAULT 的 #0000ff） */
 const SELECTION_BORDER = '#2170E7'
 /** 选区填充 */
@@ -23,9 +23,14 @@ export const SHEET_CELL_PADDING = [2, 6, 2, 6] as const
  *
  * 必须基于 `themes.DEFAULT.extends`：传入裸对象时 VTable 不会继承 DEFAULT，
  * 缺省 `borderColor` 会回落到内部 `DEFAULTBORDERCOLOR = '#000'`，出现刺眼黑线。
+ *
+ * `cellBorderClipDirection: 'bottom-right'`：右/下边框 1px 描边收入本格格内
+ * （默认 'top-left' 会落在右/下邻居格的第 1 个像素内，被邻居后画的不透明填充
+ * 完全盖住——外边框右边/下边「不生效」的根因 B）。
  */
 export const sheetVTableTheme = themes.DEFAULT.extends({
   underlayBackgroundColor: BODY_BG,
+  cellBorderClipDirection: 'bottom-right',
   defaultStyle: {
     bgColor: CHROME_BG,
     borderColor: GRID_BORDER,

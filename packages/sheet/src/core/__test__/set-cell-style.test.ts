@@ -22,31 +22,57 @@ describe('mergeCellStyle 部分合并语义', () => {
       mergeCellStyle(base, { border: { bottom: { style: 'thick', width: 3, color: '#111111' } } })
     ).toEqual({
       fill: base.fill,
-      border: { bottom: { style: 'thick', width: 3, color: '#111111' } }
+      border: {
+        top: { style: 'thin', width: 1, color: '#000000' },
+        bottom: { style: 'thick', width: 3, color: '#111111' }
+      }
     })
   })
 
-  it('border 字段存在 = 重定义边框集合（未给出边清除）；给出边与既有边合并', () => {
+  it('border 字段存在 = 边级合并：未给出边保留，给出边与既有边合并', () => {
     const base = {
       border: {
         top: { style: 'thin', width: 1, color: '#000000' },
         bottom: { style: 'thick', width: 3, color: '#111111' }
       }
     }
-    // 只改 top 的颜色/线型 → 其余边（bottom）被清除
+    // 只改 top 的颜色/线型 → 其余边（bottom）保留
     expect(
       mergeCellStyle(base, { border: { top: { style: 'dashed', color: '#FF0000' } } })
-    ).toEqual({ border: { top: { style: 'dashed', width: 1, color: '#FF0000' } } })
+    ).toEqual({
+      border: {
+        top: { style: 'dashed', width: 1, color: '#FF0000' },
+        bottom: { style: 'thick', width: 3, color: '#111111' }
+      }
+    })
   })
 
-  it('border: {} 清除全部边框（保留 fill）；fill: {} 清除填充（保留边框）', () => {
+  it('边值为 null = 删除该边（其余边保留）；四边全 null = 清除全部边框', () => {
+    const base = {
+      border: {
+        top: { style: 'thin', width: 1, color: '#000000' },
+        bottom: { style: 'thick', width: 3, color: '#111111' }
+      }
+    }
+    expect(mergeCellStyle(base, { border: { bottom: null } })).toEqual({
+      border: { top: { style: 'thin', width: 1, color: '#000000' } }
+    })
+    // 显式四边 null = 重定义为空集合（无边框预设的表达）
+    expect(
+      mergeCellStyle(base, { border: { top: null, right: null, bottom: null, left: null } })
+    ).toBeUndefined()
+    // 无既有边时 null 为无操作
+    expect(mergeCellStyle(undefined, { border: { left: null } })).toBeUndefined()
+  })
+
+  it('border: {} 无边变化（未列出边保留）；fill: {} 清除填充（保留边框）', () => {
     const base = {
       fill: { color: '#FF0000' },
       border: { top: { style: 'thin', width: 1, color: '#000000' } }
     }
-    expect(mergeCellStyle(base, { border: {} })).toEqual({ fill: base.fill })
+    expect(mergeCellStyle(base, { border: {} })).toEqual(base)
     expect(mergeCellStyle(base, { fill: {} })).toEqual({ border: base.border })
-    expect(mergeCellStyle(base, { fill: {}, border: {} })).toBeUndefined()
+    expect(mergeCellStyle(base, { fill: {}, border: {} })).toEqual({ border: base.border })
   })
 
   it('无既有边时缺失边字段用默认值补全（thin / 1px / #000000）', () => {
@@ -145,7 +171,7 @@ describe('SetCellStyleCommand（经 Sheet）', () => {
     expect(sheet.getCellData(C3)).toMatchObject({ s: 1 })
   })
 
-  it('无填充（fill: {}）保留边框；无边框（border: {}）保留填充', () => {
+  it('无填充（fill: {}）保留边框；四边 null 清除全部边框（保留填充）', () => {
     const sheet = new Sheet()
     sheet.setCellStyle(B2C3, {
       fill: { color: '#FF0000' },
@@ -155,7 +181,7 @@ describe('SetCellStyleCommand（经 Sheet）', () => {
     expect(sheet.getCellStyle(B2)).toEqual({
       border: { top: { style: 'thin', width: 1, color: '#000000' } }
     })
-    sheet.setCellStyle(B2C3, { border: {} })
+    sheet.setCellStyle(B2C3, { border: { top: null, right: null, bottom: null, left: null } })
     expect(sheet.getCellData(B2)).toBeUndefined()
   })
 

@@ -59,6 +59,8 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(theme.frameStyle?.borderColor).toBe('#E1E4E8')
       expect(theme.selectionStyle?.cellBorderColor).toBe('#2170E7')
       expect(theme.selectionStyle?.cellBorderColor).not.toBe('#000')
+      // 右/下边框描边收入本格格内（修「外边框右边/下边被邻居填充盖住」）
+      expect(theme.cellBorderClipDirection).toBe('bottom-right')
       expect(options.rowSeriesNumber).toMatchObject({
         width: 46,
         style: { bgColor: '#F5F5F5', padding: [2, 6, 2, 6], textOverflow: 'clip' }
@@ -139,7 +141,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
-  it('列 style 回调：按 StyleId 从样式池解析 VTable 样式（bgColor / 四边边框）', () => {
+  it('列 style 回调：按 StyleId 从样式池解析 VTable 样式（bgColor / 四边边框 / 网格线回落）', () => {
     const { sheet, grid, table } = createGrid()
     try {
       sheet.setCellStyle(
@@ -161,12 +163,12 @@ describe('SheetGrid（happy-dom smoke）', () => {
       }) => Record<string, unknown>
       const result = styleFn({ row: 1, col: 1, table })
       expect(result.bgColor).toBe('#FF0000')
-      // 四边数组顺序 [top, right, bottom, left]
-      expect(result.borderColor).toEqual(['#000000', null, null, '#00FF00'])
-      expect(result.borderLineWidth).toEqual([1, null, null, 2])
+      // 四边数组顺序 [top, right, bottom, left]；未自定义的边回落网格线（#E1E4E8 / 1px）
+      expect(result.borderColor).toEqual(['#000000', '#E1E4E8', '#E1E4E8', '#00FF00'])
+      expect(result.borderLineWidth).toEqual([1, 1, 1, 2])
       expect(result.borderLineDash).toEqual([null, null, null, [1, 2]])
 
-      // 无样式格 → 空对象（回落主题默认）
+      // 无样式格（邻居无自定义对侧边）→ 空对象（回落主题统一网格线）
       expect(styleFn({ row: 2, col: 2, table })).toEqual({})
 
       // 合并格：被覆盖格解析到锚点样式
@@ -177,7 +179,109 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
-  it('样式变化复用 cell-change → updateCellContent 重绘；undo 同步回退', () => {
+  it('列 style 回调：仅填充色网格线不丢失；共享边双向溯源（邻居对侧边补位）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      // A1 仅填充 → 四边回落网格线（根因 A：只设填充色时网格线丢失）
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { fill: { color: '#FF0000' } }
+      )
+      // C1 自定义右边（共享边权威数据在 C1.right）
+      sheet.setCellStyle(
+        { start: { row: 0, col: 2 }, end: { row: 0, col: 2 } },
+        { border: { right: { style: 'thin', width: 1, color: '#000000' } } }
+      )
+      // B1 自定义左边（验证对向溯源：A1.right 未设时应取 B1.left）
+      sheet.setCellStyle(
+        { start: { row: 0, col: 1 }, end: { row: 0, col: 1 } },
+        { border: { left: { style: 'dashed', width: 1, color: '#111111' } } }
+      )
+      const column = table.getBodyColumnDefine(1, 1) as { style?: unknown }
+      const styleFn = column.style as (arg: {
+        row: number
+        col: number
+        table: unknown
+      }) => Record<string, unknown>
+
+      const filled = styleFn({ row: 1, col: 1, table })
+      expect(filled.bgColor).toBe('#FF0000')
+      // A1：上/下网格线；右边溯源 B1.left（dashed #111111）；左边网格线（越界无邻居）
+      expect(filled.borderColor).toEqual(['#E1E4E8', '#111111', '#E1E4E8', '#E1E4E8'])
+      expect(filled.borderLineWidth).toEqual([1, 1, 1, 1])
+      expect(filled.borderLineDash).toEqual([null, [4, 2], null, null])
+
+      // C1 自身：right 自定义，其余边回落网格线（左邻居 B1 无自定义 right）
+      const custom = styleFn({ row: 1, col: 3, table })
+      expect(custom.borderColor).toEqual(['#E1E4E8', '#000000', '#E1E4E8', '#E1E4E8'])
+
+      // D1（无样式）：左边溯源左邻居 C1 的自定义 right；其余边回落网格线
+      const neighbor = styleFn({ row: 1, col: 4, table })
+      expect(neighbor.bgColor).toBeUndefined()
+      expect(neighbor.borderColor).toEqual(['#E1E4E8', '#E1E4E8', '#E1E4E8', '#000000'])
+      expect(neighbor.borderLineWidth).toEqual([1, 1, 1, 1])
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('合并锚点 facing 跳过合并跨度：右/下外缘不镜像左/上边框', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      // 横向合并 A1:B1 + 锚点仅左边红框 → 右外缘（B1|C1 边界）不得镜像红色
+      sheet.mergeCells({ start: { row: 0, col: 0 }, end: { row: 0, col: 1 } })
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { border: { left: { style: 'thin', width: 1, color: '#FF0000' } } }
+      )
+      const column = table.getBodyColumnDefine(1, 1) as { style?: unknown }
+      const styleFn = column.style as (arg: {
+        row: number
+        col: number
+        table: unknown
+      }) => Record<string, unknown>
+
+      const anchor = styleFn({ row: 1, col: 1, table })
+      expect(anchor.borderColor).toEqual(['#E1E4E8', '#E1E4E8', '#E1E4E8', '#FF0000'])
+
+      // 合并区外邻居 C1 有自定义左边 → 锚点右外缘溯源到它（而非镜像或网格线）
+      sheet.setCellStyle(
+        { start: { row: 0, col: 2 }, end: { row: 0, col: 2 } },
+        { border: { left: { style: 'thin', width: 1, color: '#00FF00' } } }
+      )
+      expect(styleFn({ row: 1, col: 1, table }).borderColor).toEqual([
+        '#E1E4E8',
+        '#00FF00',
+        '#E1E4E8',
+        '#FF0000'
+      ])
+
+      // 纵向合并 A3:A4 + 锚点仅上边红框 → 下外缘（A4|A5 边界）不得镜像红色
+      sheet.mergeCells({ start: { row: 2, col: 0 }, end: { row: 3, col: 0 } })
+      sheet.setCellStyle(
+        { start: { row: 2, col: 0 }, end: { row: 2, col: 0 } },
+        { border: { top: { style: 'thin', width: 1, color: '#FF0000' } } }
+      )
+      const vAnchor = styleFn({ row: 3, col: 1, table })
+      expect(vAnchor.borderColor).toEqual(['#FF0000', '#E1E4E8', '#E1E4E8', '#E1E4E8'])
+
+      // 合并区外邻居 A5 有自定义上边 → 锚点下外缘溯源到它
+      sheet.setCellStyle(
+        { start: { row: 4, col: 0 }, end: { row: 4, col: 0 } },
+        { border: { top: { style: 'thin', width: 1, color: '#0000FF' } } }
+      )
+      expect(styleFn({ row: 3, col: 1, table }).borderColor).toEqual([
+        '#FF0000',
+        '#E1E4E8',
+        '#0000FF',
+        '#E1E4E8'
+      ])
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('样式变化复用 cell-change → updateCellContent 重绘（含四邻共享边刷新）；undo 同步回退', () => {
     const { sheet, grid, table } = createGrid()
     try {
       const spy = vi.spyOn(table, 'updateCellContent')
@@ -185,10 +289,76 @@ describe('SheetGrid（happy-dom smoke）', () => {
         { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
         { fill: { color: '#FF0000' } }
       )
+      // 本格 (1,1) + 四邻（共享边双向溯源：邻居渲染依赖本格边框）
       expect(spy).toHaveBeenCalledWith(1, 1)
+      expect(spy).toHaveBeenCalledWith(2, 1)
+      expect(spy).toHaveBeenCalledWith(1, 2)
+      // A1 在边角：左/上越界，只刷新右/下邻居，共 3 次
+      expect(spy).toHaveBeenCalledTimes(3)
 
+      spy.mockClear()
       sheet.undo()
-      expect(spy).toHaveBeenCalledTimes(2)
+      expect(spy).toHaveBeenCalledTimes(3)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('合并格样式变化：重绘覆盖合并区全部底层位置（含被覆盖格场景节点）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 1, col: 2 } })
+      const spy = vi.spyOn(table, 'updateCellContent')
+      spy.mockClear()
+      sheet.setCellStyle(
+        { start: { row: 1, col: 1 }, end: { row: 1, col: 1 } },
+        { border: { left: { style: 'thin', width: 1, color: '#FF0000' } } }
+      )
+      // 锚点 (2,2) 与被覆盖格 (3,2) 都重建（合并区每位置各持一个场景分组）
+      expect(spy).toHaveBeenCalledWith(2, 2)
+      expect(spy).toHaveBeenCalledWith(3, 2)
+      // 四侧消费方（覆盖合并跨度）：左 (1,2)、右跳过合并跨度到 (4,2)、
+      // 上按列跨度 (2,1)/(3,1)、下按列跨度 (2,3)/(3,3)
+      expect(spy).toHaveBeenCalledWith(1, 2)
+      expect(spy).toHaveBeenCalledWith(4, 2)
+      expect(spy).toHaveBeenCalledWith(2, 1)
+      expect(spy).toHaveBeenCalledWith(3, 1)
+      expect(spy).toHaveBeenCalledWith(2, 3)
+      expect(spy).toHaveBeenCalledWith(3, 3)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('2x2 合并格样式变化：消费方按行/列跨度完整枚举（覆盖段邻居也重绘）', () => {
+    const { sheet, grid, table } = createGrid()
+    try {
+      sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 2, col: 2 } })
+      const spy = vi.spyOn(table, 'updateCellContent')
+      spy.mockClear()
+      sheet.setCellStyle(
+        { start: { row: 1, col: 1 }, end: { row: 1, col: 1 } },
+        { border: { left: { style: 'thin', width: 1, color: '#FF0000' } } }
+      )
+      // 合并区 2x2 全部底层位置重建
+      for (const [col, row] of [
+        [2, 2],
+        [3, 2],
+        [2, 3],
+        [3, 3]
+      ]) {
+        expect(spy).toHaveBeenCalledWith(col, row)
+      }
+      // 左/右消费方按行跨度（row 1..2 → 表格行 2..3）：(1,2)/(1,3)、(4,2)/(4,3)
+      expect(spy).toHaveBeenCalledWith(1, 2)
+      expect(spy).toHaveBeenCalledWith(1, 3)
+      expect(spy).toHaveBeenCalledWith(4, 2)
+      expect(spy).toHaveBeenCalledWith(4, 3)
+      // 上/下消费方按列跨度（col 1..2 → 表格列 2..3）：(2,1)/(3,1)、(2,4)/(3,4)
+      expect(spy).toHaveBeenCalledWith(2, 1)
+      expect(spy).toHaveBeenCalledWith(3, 1)
+      expect(spy).toHaveBeenCalledWith(2, 4)
+      expect(spy).toHaveBeenCalledWith(3, 4)
     } finally {
       grid.release()
     }

@@ -85,9 +85,14 @@ import '@veltra/sheet/vue/style'
 - **样式池**：样式定义集中存储、按内容去重；单元格只存 `CellData.s: StyleId`
   （相同样式无论多少格共享一份定义，序列化体积小）。`Sheet.stylePool` 可 `intern/get/snapshot/restore`。
 - **API**：`sheet.setCellStyle(range, partial)`（部分合并：只给 fill 保留既有 border，反之亦然；
-  `fill: {}` = 清除填充保留边框；`border: {}` = 清除边框保留填充；`border` 给出边即重定义边框集合，
-  边内部与既有边合并（缺失字段保留既有边值，无既有边时补全 thin/1px/#000000））、`clearCellStyle(range)`（删除样式保留值）、
+  `fill: {}` = 清除填充保留边框；`border` 字段存在即**边级合并**——边值为对象与既有边合并
+  （缺失字段保留，无既有边补全 thin/1px/#000000），边值为 `null` 删除该边，未列出的边保留；
+  清除全部边框需显式给出四边 `null`）、`clearCellStyle(range)`（删除样式保留值）、
   `getCellStyle(addr)`（原始存储语义）。样式写入全部可 undo/redo，批量选区 = 单 undo 单元。
+- **边框预设**（`buildBorderPresetItems(range, preset, edge, getStyle)`，core 纯函数）：
+  `'all' | 'outer' | 'bottom' | 'none'` 四预设展开为逐格补丁并**同步邻居共享边**
+  （外边框/无边框清选区外一圈邻居的对侧边，下边框清下一行邻居 top），一次应用 = 单 undo
+  单元（undo 自动还原邻居）。边框工具面板即基于此函数。
 - **内置工具**（工具栏）：填充颜色（调色板 + 无填充）、边框（全边框/外边框/下边框/无边框 + 线型/颜色）；
   均为弹层型工具（`popup` 字段），面板打开期间的写入合并为一个 undo 单元。
 - 编辑值 / 写公式 / 公式重算不丢失样式；`CellStyle` 预留 `font` / `numFmt` 扩展位（本期未实现）。

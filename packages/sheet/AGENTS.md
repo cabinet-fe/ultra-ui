@@ -30,8 +30,9 @@ src/
 │   │   ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
 │   │   └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
 │   ├── style/            # 单元格样式系统（纯 TS）
-│   │   ├── types.ts          # CellStyle / CellStylePatch / StyleId / BorderLineStyle
-│   │   └── style-pool.ts     # StylePool（按内容去重、intern/get、snapshot/restore）
+│   │   ├── types.ts          # CellStyle / CellStylePatch（边级合并，null 删边）/ StyleId / BorderLineStyle
+│   │   ├── style-pool.ts     # StylePool（按内容去重、intern/get、snapshot/restore）
+│   │   └── border-presets.ts # 边框预设生成（all/outer/bottom/none + 邻居共享边同步，纯函数）
 │   ├── io/               # 导入导出（纯 TS，基于 hucre；不 import vue/vtable）
 │   │   ├── export.ts         # exportWorkbookXlsx / exportSheetCsv（模型 → hucre）
 │   │   └── import.ts         # importXlsx / importCsv / replaceWorkbook / copySheetContent
@@ -69,7 +70,7 @@ src/
 │   ├── use-tool-groups.ts    # 工具栏分组视图模型（visible/disabled/active 随 stateTick 重算）
 │   ├── use-sheet-grid.ts     # SheetGrid 生命周期 + 网格右键菜单
 │   ├── use-find-replace.ts   # 查找替换逻辑（find-popup 使用）
-│   ├── popup-helpers.ts      # 无状态工具：currentRange / 边框常量 / 预设 items 构建
+│   ├── popup-helpers.ts      # 无状态工具：currentRange / 边框面板常量（预设补丁生成已迁 core/style/border-presets）
 │   ├── use-sheet-tabs-bar.ts # tabs 视口溢出滚动（showNav / canPrev / canNext / scrollByStep）
 │   ├── index.ts          # 导出 USheet
 │   ├── style.scss        # pkg:@veltra/styles token（m.e 元素、m.is 状态，不写硬编码颜色）
@@ -161,8 +162,17 @@ src/
   全部经 `SetCellStyleCommand`（`sheet.command.set-cell-style`）走命令系统，可 undo/redo。
 - **部分合并语义**：顶层浅合并——只给 fill 保留既有 border，反之亦然；
   `fill` 字段存在即覆盖填充（`{}` = 清除填充保留边框）；`border` 字段存在即
-  重定义边框集合（未给出的边清除）、各边内部与既有边合并（缺失字段保留既有
-  边值，无既有边时用默认值补全：thin / 1px / #000000）；`border: {}` = 清除全部边框保留填充。
+  **边级合并**：边值为对象 → 与既有边合并（缺失字段保留既有边值，无既有边时
+  用默认值补全：thin / 1px / #000000）；边值为 `null` → 删除该边（其余边保留）；
+  未列出的边 → 保留（`border: {}` = 无边变化）。要表达「重定义整个边集合」
+  （如无边框预设）需显式给出四边（含 `null`）。
+- **边框预设邻居同步（Excel/univer 语义）**：`core/style/border-presets.ts` 的
+  `buildBorderPresetItems(range, preset, edge, getStyle)` 把预设展开为逐格补丁——
+  全边框 = 每格四边（共享边双写一致）；外边框 = 边缘格写对应边 + 选区外一圈邻居
+  的对侧边写 `null`（一条共享边只一份权威数据）；下边框 = 底行 bottom + 下一行
+  邻居 top 写 `null`；无边框 = 每格四边 `null` + 邻居对侧边 `null`（防残留边画到
+  本格边界）。邻居 `null` 边只在邻居确有该边时生成。一次预设应用 = 一次
+  `sheet.command.set-cell-style`（items 含邻居补丁）= 单 undo 单元，undo 自动还原邻居。
 - **空样式 = 删除 s 字段**：不破坏「空单元格不占存储」原则——有值格保留值，
   纯样式格（只有 s）整体删除。样式只存锚点格（被覆盖格不占数据位）。
 - **样式不随值丢失**：`SetCellValueCommand` / `SetCellFormulaCommand` / 公式重算
@@ -172,14 +182,28 @@ src/
   仅样式变化的命令（如 SetCellStyleCommand）不触发公式重算。
 - **渲染（grid 层）**：列定义挂 `style` 函数回调，逐格动态求值——按 StyleId
   从样式池解析为 VTable 样式（`bgColor`、四边 `borderColor` / `borderLineWidth` /
-  `borderLineDash`，数组顺序 [top, right, bottom, left]，未设置边 = null 回落主题
-  网格线；线型 → dash：thin/medium/thick 实线、dashed [4,2]、dotted [1,2]）。
-  合并格读锚点样式。样式变化复用 `cell-change` 事件 → `updateCellContent` 重绘。
+  `borderLineDash`，数组顺序 [top, right, bottom, left]；线型 → dash：thin/medium/thick
+  实线、dashed [4,2]、dotted [1,2]）。合并格读锚点样式。
+  - **网格线回落（根因 A 修复）**：VTable 的 `style.borderColor ?? bodyStyle.borderColor`
+    是整体替换而非逐边合并，未设置的边写 `null` 该边即不画（网格线丢失）——回调
+    必须对未自定义的边显式给出主题网格线（`GRID_BORDER` / 1px / 实线，常量从
+    `vtable-theme.ts` 导出共享）。
+  - **共享边双向溯源**：`cellBorderClipDirection: 'bottom-right'` 下本格左/上边与
+    左/上邻居的对侧边画在同一像素（全量重绘时由左上格的右/下边承载；局部重绘
+    时覆盖次序不作保证，但写入同步/双写已保证共享边数据唯一或同色，次序无关
+    结果），故每边取值 = 本格自定义边 ?? 邻居对侧边 ?? 网格线（选区左/上缘的
+    自定义边经左/上邻居的右/下边像素渲染）；渲染层只做忠实呈现，不做样式仲裁。
+    facing 读取**跳过本格合并跨度**（右/下邻居落在合并区内会解析回本格锚点，
+    导致外缘镜像左/上边框色）；与本格同锚点的 facing 视为无。
+  - **重绘联动**：函数式 style 每次求值、VTable 不做样式缓存（`isFunction(style)`
+    短路），但邻居格的场景节点不会自动重建——`cell-change` → `updateCellContent`
+    重建本格及四侧消费方（同样跳过合并跨度、目标解析锚点）。
   模型不感知视图：样式回调读样式池与 store，undo/redo/tab 切换自动一致。
 - **内置工具**（`tools/builtin.ts`，弹层型 `popup` 字段声明，vue 层渲染面板）：
   填充颜色（UPalette 调色板 + 无填充 = 清除 fill 保留边框）；边框（全边框 / 外边框 /
-  下边框 / 无边框预设 + 线型 / 颜色子选项；外边框 / 下边框按包围盒边缘逐格表达，
-  与 Excel 视觉一致）。面板打开期间写入经事务包裹为一个 undo 单元，关闭时提交。
+  下边框 / 无边框预设 + 线型 / 颜色子选项；预设补丁由 `core/style/border-presets`
+  生成，含邻居共享边同步，与 Excel 视觉一致）。面板打开期间写入经事务包裹为
+  一个 undo 单元，关闭时提交。
   冻结（freeze 组 4 个，`active` 高亮）与查找（`find` 弹层，见「冻结 / 查找 / 选区回驱」）。
 - 预留扩展位（本期不实现）：`font`（字体）、`numFmt`（数字格式）。
 
@@ -382,9 +406,11 @@ src/
   `createRange` 规范化 → `sheet.selectRange`（合并等区域操作的前提；单格点击走 `SELECTED_CELL`）。
 - **主题**：`grid/vtable-theme.ts` 必须用 `themes.DEFAULT.extends(...)`——裸对象主题不会
   继承 DEFAULT，缺省 `borderColor` 回落内部 `#000`（刺眼黑线）。body `#FFF`、行号/列头
-  `#F5F5F5`、网格/外框 `#E1E4E8`、选区边框 `#2170E7`、`textOverflow: 'clip'`、
-  `padding: [2, 6, 2, 6]`（覆盖 DEFAULT `[10, 16, 10, 16]`）；canvas 主题用固定色，
-  不桥接 CSS 变量。
+  `#F5F5F5`、网格/外框 `#E1E4E8`（导出常量 `GRID_BORDER`，sheet-grid 网格线回落共用）、
+  选区边框 `#2170E7`、`textOverflow: 'clip'`、`padding: [2, 6, 2, 6]`（覆盖 DEFAULT
+  `[10, 16, 10, 16]`）；`cellBorderClipDirection: 'bottom-right'`——右/下边框 1px 描边收入
+  本格格内（默认 `'top-left'` 落在右/下邻居第 1 像素内，被邻居后画的填充盖住，
+  外边框右边/下边「不生效」的根因 B）。canvas 主题用固定色，不桥接 CSS 变量。
 - **行列尺寸拖拽**：`resize.columnResizeMode: 'header'`（仅列头 A/B/C…）；行高不能用
   `rowResizeMode: 'header'`（VTable `isHeader` 不含行号列 body），故 `rowResizeMode: 'all'`
   - 包装 `_canResizeRow` 限制到 `isSeriesNumber`。`defaultRowHeight: 28`；`Sheet` 稀疏

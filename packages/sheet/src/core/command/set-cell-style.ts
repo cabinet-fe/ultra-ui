@@ -28,9 +28,9 @@ export interface SetCellStyleParams {
  *
  * - 顶层浅合并：只给 fill 时保留既有 border（反之亦然）
  * - fill 存在即覆盖填充（`{}` = 清除填充，保留边框）
- * - border 存在即重定义边框集合（未给出的边清除），各边内部与既有边合并
- *   （缺失字段保留既有边值；无既有边时用默认值补全：thin / 1px / #000000）
- * - border: {} = 清除全部边框（保留填充）
+ * - border 存在即**边级合并**：边值为对象 → 与既有边合并（缺失字段保留既有
+ *   边值；无既有边时用默认值补全：thin / 1px / #000000）；边值为 `null` →
+ *   删除该边（其余边保留）；未列出的边 → 保留（`border: {}` = 无边变化）
  * - 合并结果为空（无 fill 无 border）→ undefined（调用方删除 s 字段）
  */
 export function mergeCellStyle(
@@ -45,13 +45,23 @@ export function mergeCellStyle(
   }
   if (partial.border !== undefined) {
     const border: NonNullable<CellStyle['border']> = {}
+    // 未列出的边保留既有值（边级合并，不再是重定义整个边集合）
+    for (const side of BORDER_SIDES) {
+      const existing = before?.border?.[side]
+      if (existing) border[side] = { ...existing }
+    }
     for (const side of BORDER_SIDES) {
       const patchEdge = partial.border[side]
       if (patchEdge === undefined) continue
+      // null = 删除该边（共享边写入时同步邻居用），其余边不受影响
+      if (patchEdge === null) {
+        delete border[side]
+        continue
+      }
       const edge: BorderEdge = {
-        style: patchEdge.style ?? before?.border?.[side]?.style ?? BORDER_EDGE_DEFAULTS.style,
-        width: patchEdge.width ?? before?.border?.[side]?.width ?? BORDER_EDGE_DEFAULTS.width,
-        color: patchEdge.color ?? before?.border?.[side]?.color ?? BORDER_EDGE_DEFAULTS.color
+        style: patchEdge.style ?? border[side]?.style ?? BORDER_EDGE_DEFAULTS.style,
+        width: patchEdge.width ?? border[side]?.width ?? BORDER_EDGE_DEFAULTS.width,
+        color: patchEdge.color ?? border[side]?.color ?? BORDER_EDGE_DEFAULTS.color
       }
       border[side] = edge
     }

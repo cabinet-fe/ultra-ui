@@ -37,13 +37,14 @@ import { UPalette } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { ref } from 'vue'
 
-import type { BorderLineStyle } from '../../core/style/types'
+import type { SetCellStyleItem } from '../../core/command/set-cell-style'
+import { buildBorderPresetItems } from '../../core/style/border-presets'
+import { BORDER_STYLE_WIDTH, type BorderEdge, type BorderLineStyle } from '../../core/style/types'
 import type { SheetContext } from '../../tools/context'
 import {
   BORDER_LINE_STYLES,
   BORDER_LINE_TITLES,
   BORDER_PRESETS,
-  buildBorderPresetItems,
   currentRange,
   lineSwatchStyle,
   type BorderPresetId
@@ -53,7 +54,8 @@ defineOptions({ name: 'USheetBorderPopup' })
 
 /**
  * 边框面板（全边框 / 外边框 / 下边框 / 无边框预设 + 线型 / 颜色子选项）。
- * 预设按包围盒边缘逐格表达（与 Excel 视觉一致）；面板打开期间的写入由
+ * 预设补丁由 core/style/border-presets 生成（含邻居格共享边同步，对齐
+ * Excel「写入时同步、最近设置生效」）；面板打开期间的写入由
  * use-tool-popup 事务包裹为一个 undo 单元。
  */
 const props = defineProps<{
@@ -67,11 +69,18 @@ const cls = bem('sheet')
 const borderLineStyle = ref<BorderLineStyle>('thin')
 const borderColor = ref('#000000')
 
-/** 应用边框预设：一次 executeCommand（items 批量）= 一个 undo 单元 */
+/** 应用边框预设：一次 executeCommand（items 批量，含邻居同步补丁）= 一个 undo 单元 */
 function applyBorderPreset(preset: BorderPresetId): void {
   const range = currentRange(props.context)
   if (!range) return
-  const items = buildBorderPresetItems(range, preset, borderLineStyle.value, borderColor.value)
+  const edge: BorderEdge = {
+    style: borderLineStyle.value,
+    width: BORDER_STYLE_WIDTH[borderLineStyle.value],
+    color: borderColor.value
+  }
+  const items: SetCellStyleItem[] = buildBorderPresetItems(range, preset, edge, (addr) =>
+    props.context.getCellStyle(addr)
+  ).map(({ addr, patch }) => ({ addr, partial: patch }))
   if (items.length === 0) return
   props.context.executeCommand('sheet.command.set-cell-style', { items })
 }

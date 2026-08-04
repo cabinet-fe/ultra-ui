@@ -41,13 +41,15 @@ export type StyleId = number
  * 部分样式补丁（SetCellStyleCommand 的部分合并语义）：
  * - 顶层浅合并：只给 fill 时保留既有 border，反之亦然
  * - `fill` 字段存在即覆盖填充（`{}` / `{ color: undefined }` = 清除填充，保留边框）
- * - `border` 字段存在即重定义边框集合（未给出的边清除），各边内部与既有边
- *   合并（缺失字段保留既有边值，无既有边时用默认值补全）
- * - `border: {}` = 清除全部边框（保留填充）
+ * - `border` 字段存在即**边级合并**：
+ *   - 边值为对象 → 与既有边合并（缺失字段保留既有边值，无既有边时用默认值补全）
+ *   - 边值为 `null` → 删除该边（其余边保留），用于共享边写入时同步邻居
+ *   - 未列出的边 → 保留（`border: {}` = 无边变化）
+ * - 要表达「重定义整个边集合」（如无边框预设），需显式给出四边（含 `null`）
  */
 export interface CellStylePatch {
   fill?: { color?: string }
-  border?: Partial<Record<BorderSide, Partial<BorderEdge>>>
+  border?: Partial<Record<BorderSide, Partial<BorderEdge> | null>>
 }
 
 /** 线型 → 默认线宽（px）；工具预设与缺失字段补全用 */

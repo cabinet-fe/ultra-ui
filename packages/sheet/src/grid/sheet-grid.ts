@@ -6,13 +6,20 @@ import type { ITextStyleOption } from '@visactor/vtable/es/ts-types/column/style
 import type { StylePropertyFunctionArg } from '@visactor/vtable/es/ts-types/style-define'
 
 import type { CellAddress, CellRange } from '../core/address'
-import { cellKey, colIndexToName, createRange } from '../core/address'
+import { cellKey, colIndexToName, createRange, iterateRange } from '../core/address'
 import type { CellValue } from '../core/cell-store'
 import { computeFillTargetRange, generateFill, type FillDirection } from '../core/fill'
 import type { SelectionState } from '../core/selection'
 import type { FrozenState, Sheet } from '../core/sheet'
-import { BORDER_SIDES, type BorderLineStyle, type CellStyle } from '../core/style/types'
 import {
+  BORDER_SIDES,
+  type BorderEdge,
+  type BorderLineStyle,
+  type BorderSide,
+  type CellStyle
+} from '../core/style/types'
+import {
+  GRID_BORDER,
   SHEET_DEFAULT_ROW_HEIGHT,
   sheetRowSeriesNumberStyle,
   sheetVTableTheme
@@ -73,7 +80,7 @@ export interface SheetGridContextMenuInfo {
   addr: CellAddress | null
 }
 
-/** 线型 → VTable borderLineDash（null = 实线，回落主题） */
+/** 线型 → VTable borderLineDash（null = 实线） */
 const BORDER_STYLE_DASH: Record<BorderLineStyle, number[] | null> = {
   thin: null,
   medium: null,
@@ -84,23 +91,48 @@ const BORDER_STYLE_DASH: Record<BorderLineStyle, number[] | null> = {
 
 /**
  * 模型样式 → VTable ITextStyleOption。
- * 四边数组顺序 [top, right, bottom, left]（与 VTable ColorsPropertyDefine 一致）；
- * 未设置的边 = null（回落主题默认边框，即网格线）。
+ * 四边数组顺序 [top, right, bottom, left]（与 VTable ColorsPropertyDefine 一致）。
+ *
+ * 未自定义的边显式回落主题网格线（GRID_BORDER / 1px / 实线）：VTable 的
+ * `style.borderColor ?? bodyStyle.borderColor` 是整体替换而非逐边合并，回调一旦
+ * 给出数组主题网格线即被整个丢弃，边为 null 则该边不画（只设填充或部分边时
+ * 网格线丢失，根因 A），因此必须逐边给出。
+ *
+ * 共享边协调（非仲裁）：`cellBorderClipDirection: 'bottom-right'` 下，本格左/上边
+ * 与左/上邻居的对侧边画在同一像素；全量重绘时该共享像素由左上格的右/下边
+ * 承载，局部（dirty-region）重绘时最终覆盖次序取决于当次重绘顺序，不作保证。
+ * 但写入时邻居同步 / 双写已保证一条共享边只有一份权威数据（或两侧同色），
+ * 覆盖次序不影响结果——此处每边取值 = 本格自定义边 ?? 邻居对侧边 ?? 网格线，
+ * 仅为把该权威数据忠实呈现出来（选区左/上缘的自定义边会经左/上邻居的
+ * 右/下边像素渲染）。
+ *
+ * @param style 本格样式（合并格读锚点）
+ * @param facing 四侧邻居的对侧边（left = 左邻居的 right 边，以此类推；越界侧为 undefined）
  */
-function cellStyleToVTableStyle(style: CellStyle): ITextStyleOption {
+function cellStyleToVTableStyle(
+  style: CellStyle | undefined,
+  facing: Partial<Record<BorderSide, BorderEdge | undefined>>
+): ITextStyleOption {
+  // 无样式且四侧邻居均无对侧自定义边 → 空对象（主题统一网格线，避免逐格 split 描边）
+  if (!style && BORDER_SIDES.every((side) => facing[side] == null)) return {}
   const borderColor: (string | null)[] = [null, null, null, null]
   const borderLineWidth: (number | null)[] = [null, null, null, null]
   const borderLineDash: (number[] | null)[] = [null, null, null, null]
   for (let i = 0; i < BORDER_SIDES.length; i++) {
-    const side = BORDER_SIDES[i]
-    const edge = side ? style.border?.[side] : undefined
-    if (!edge) continue
-    borderColor[i] = edge.color
-    borderLineWidth[i] = edge.width
-    borderLineDash[i] = BORDER_STYLE_DASH[edge.style]
+    const side = BORDER_SIDES[i]!
+    const edge = style?.border?.[side] ?? facing[side]
+    if (edge) {
+      borderColor[i] = edge.color
+      borderLineWidth[i] = edge.width
+      borderLineDash[i] = BORDER_STYLE_DASH[edge.style]
+    } else {
+      borderColor[i] = GRID_BORDER
+      borderLineWidth[i] = 1
+      borderLineDash[i] = null
+    }
   }
   return {
-    ...(style.fill ? { bgColor: style.fill.color } : {}),
+    ...(style?.fill ? { bgColor: style.fill.color } : {}),
     borderColor,
     borderLineWidth,
     borderLineDash
@@ -394,17 +426,61 @@ export class SheetGrid {
     }))
   }
 
-  /** 模型样式 → VTable 样式（合并格读锚点；无样式回落主题默认） */
+  /**
+   * 模型样式 → VTable 样式（逐格动态求值）。
+   * 合并格读锚点样式；无样式格回落主题默认（空对象）。四侧邻居的对侧边
+   * 一并读取（共享边双向溯源，见 cellStyleToVTableStyle）。
+   */
   private resolveCellStyle(styleArg: StylePropertyFunctionArg): ITextStyleOption {
     // StylePropertyFunctionArg.table 是 BaseTableAPI 接口；运行时必为 ListTable
     // 实例（本类自建），按既有先例（customMergeCell）断言
     const table = styleArg.table as ListTable
     const addr = this.toSheetAddr(table, styleArg.col, styleArg.row)
     if (!addr) return {}
+    const style = this.getStoredStyle(addr)
+    // facing 读取跳过本格合并跨度：右/下邻居落在合并区内时会解析回本格锚点，
+    // 导致合并格右/下外缘镜像其左/上边框——应读合并区外的首个格
+    const merge = this.sheet.merges.getMergeAt(addr)
+    const rightCol = (merge?.end.col ?? addr.col) + 1
+    const bottomRow = (merge?.end.row ?? addr.row) + 1
+    const facing: Partial<Record<BorderSide, BorderEdge | undefined>> = {}
+    if (addr.col > 0) {
+      facing.left = this.getFacingEdge({ row: addr.row, col: addr.col - 1 }, 'right', addr)
+    }
+    if (rightCol < this.cols) {
+      facing.right = this.getFacingEdge({ row: addr.row, col: rightCol }, 'left', addr)
+    }
+    if (addr.row > 0) {
+      facing.top = this.getFacingEdge({ row: addr.row - 1, col: addr.col }, 'bottom', addr)
+    }
+    if (bottomRow < this.rows) {
+      facing.bottom = this.getFacingEdge({ row: bottomRow, col: addr.col }, 'top', addr)
+    }
+    return cellStyleToVTableStyle(style, facing)
+  }
+
+  /**
+   * 读取邻居格的对侧边（共享边溯源）；邻居与本格同属一个合并锚点
+   * （合并区内部）→ undefined（同一条边不与自己互为 facing）。
+   */
+  private getFacingEdge(
+    addr: CellAddress,
+    side: BorderSide,
+    self: CellAddress
+  ): BorderEdge | undefined {
+    const selfAnchor = this.sheet.merges.resolveAnchor(self)
     const anchor = this.sheet.merges.resolveAnchor(addr)
+    if (anchor.row === selfAnchor.row && anchor.col === selfAnchor.col) return undefined
     const data = this.sheet.store.getCell(anchor)
     const style = data?.s != null ? this.sheet.stylePool.get(data.s) : undefined
-    return style ? cellStyleToVTableStyle(style) : {}
+    return style?.border?.[side]
+  }
+
+  /** 读取格样式（合并格读锚点；无样式 → undefined） */
+  private getStoredStyle(addr: CellAddress): CellStyle | undefined {
+    const anchor = this.sheet.merges.resolveAnchor(addr)
+    const data = this.sheet.store.getCell(anchor)
+    return data?.s != null ? this.sheet.stylePool.get(data.s) : undefined
   }
 
   private buildRecords(): Record<string, CellValue>[] {
@@ -660,6 +736,10 @@ export class SheetGrid {
         this.pushCellToTable(addr)
         // 样式随模型变化（style 回调实时解析），复用 cell-change 触发该格重绘
         this.refreshCellStyle(addr)
+        // 共享边双向溯源：本格边框变化会改变四侧消费方的渲染（邻居的对侧边
+        // 溯源到本格边）。函数式 style 每次求值、无缓存，但邻居格的场景节点
+        // 不会自动重建，需一并触发重绘
+        this.refreshFacingConsumers(addr)
       })
     )
 
@@ -691,10 +771,54 @@ export class SheetGrid {
     this.table.changeCellValue(col, row, value as string | number | null, false, false)
   }
 
-  /** 重绘单格（updateCellContent 清除该格样式缓存；样式/值变化后调用） */
+  /**
+   * 重绘单格（updateCellContent 重建该格场景节点——函数式 style 随之重新求值——并触发重绘）。
+   * 自定义合并在 VTable 侧为合并区每个底层位置各持一个 cell 分组（各自求值、
+   * 各自描边），样式重绘必须覆盖整个合并区，否则被覆盖位置的分组停留旧描边。
+   */
   private refreshCellStyle(addr: CellAddress): void {
+    const merge = this.sheet.merges.getMergeAt(addr)
+    if (merge) {
+      for (const pos of iterateRange(merge)) {
+        const { col, row } = this.toTableCoord(this.table, pos)
+        this.table.updateCellContent(col, row)
+      }
+      return
+    }
     const { col, row } = this.toTableCoord(this.table, addr)
     this.table.updateCellContent(col, row)
+  }
+
+  /**
+   * 重绘本格边框的四侧消费方（facing 溯源到本格边的格）。
+   * bottom-right clip 下本格左/上描边外向（落在邻居像素内），局部 dirty-region
+   * 重绘时被脏矩形裁剪——共享像素实际由邻居的右/下内向描边承载，故消费方必须
+   * 覆盖合并跨度：左/右按行跨度枚举（合并区每一行的邻居），上/下按列跨度枚举
+   * （合并区每一列的邻居）；目标落在他人合并区内时重绘其整个合并区。
+   */
+  private refreshFacingConsumers(addr: CellAddress): void {
+    const merge = this.sheet.merges.getMergeAt(addr)
+    const endRow = merge?.end.row ?? addr.row
+    const endCol = merge?.end.col ?? addr.col
+    const targets: CellAddress[] = []
+    // 左/右消费方：合并区每一行的行外邻居
+    for (let row = addr.row; row <= endRow; row++) {
+      if (addr.col > 0) targets.push({ row, col: addr.col - 1 })
+      if (endCol + 1 < this.cols) targets.push({ row, col: endCol + 1 })
+    }
+    // 上/下消费方：合并区每一列的列外邻居
+    for (let col = addr.col; col <= endCol; col++) {
+      if (addr.row > 0) targets.push({ row: addr.row - 1, col })
+      if (endRow + 1 < this.rows) targets.push({ row: endRow + 1, col })
+    }
+    const seen = new Set<number>()
+    for (const target of targets) {
+      const anchor = this.sheet.merges.resolveAnchor(target)
+      const key = cellKey(anchor)
+      if ((anchor.row === addr.row && anchor.col === addr.col) || seen.has(key)) continue
+      seen.add(key)
+      this.refreshCellStyle(anchor)
+    }
   }
 
   /**
