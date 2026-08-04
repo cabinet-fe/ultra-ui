@@ -14,197 +14,216 @@
         <strong class="sheet-demo__inspector-title">
           <span class="sheet-demo__inspector-arrow">{{ collapsed ? '▸' : '▾' }}</span>
           <span class="sheet-demo__inspector-dot" />
-          数据结构观察（实时）
+          数据结构观察（手动刷新）
         </strong>
-        <span class="sheet-demo__inspector-meta">
-          活动表：{{ activeSheetName }} · 存储 {{ inspect.storeCount }} 格 / 高水位
-          {{ inspect.rowCount }}×{{ inspect.colCount }} · 样式池 {{ inspect.styleCount }} 条
-        </span>
+        <div class="sheet-demo__inspector-head-right">
+          <span class="sheet-demo__inspector-meta">
+            活动表：{{ inspectData?.sheetName ?? '—' }} · 存储 {{ inspectData?.storeCount ?? 0 }} 格
+            / 高水位 {{ inspectData?.rowCount ?? 0 }}×{{ inspectData?.colCount ?? 0 }} · 样式池
+            {{ inspectData?.styleCount ?? 0 }} 条
+          </span>
+          <button
+            type="button"
+            class="sheet-demo__inspector-refresh"
+            title="获取当前活动表数据（非实时，点击才刷新）"
+            @click.stop="refreshInspect"
+          >
+            刷新数据
+          </button>
+        </div>
       </div>
       <div v-show="!collapsed" class="sheet-demo__inspector-grid">
-        <section class="sheet-demo__inspector-block">
-          <h4
-            class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--selection"
-          >
-            选区 selection · activeCell 恒为锚点
-          </h4>
-          <div class="sheet-demo__inspector-code">
-            <div class="sheet-demo__inspector-code-bar">
-              <span class="sheet-demo__inspector-code-lang">json</span>
-              <span class="sheet-demo__inspector-code-source">sheet.getSelection()</span>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-copy"
-                :class="{ 'is-copied': copied === 'selection' }"
-                @click="copyJson('selection', inspect.selection)"
-              >
-                {{ copied === 'selection' ? '已复制' : '复制' }}
-              </button>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-zoom"
-                title="放大展示"
-                @click="enlarge('selection', '选区 selection · sheet.getSelection()')"
-              >
-                放大
-              </button>
+        <template v-if="inspectData">
+          <section class="sheet-demo__inspector-block">
+            <h4
+              class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--selection"
+            >
+              选区 selection · activeCell 恒为锚点
+            </h4>
+            <div class="sheet-demo__inspector-code">
+              <div class="sheet-demo__inspector-code-bar">
+                <span class="sheet-demo__inspector-code-lang">json</span>
+                <span class="sheet-demo__inspector-code-source">sheet.getSelection()</span>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-copy"
+                  :class="{ 'is-copied': copied === 'selection' }"
+                  @click="copyJson('selection', inspectData?.selection)"
+                >
+                  {{ copied === 'selection' ? '已复制' : '复制' }}
+                </button>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-zoom"
+                  title="放大展示"
+                  @click="enlarge('selection', '选区 selection · sheet.getSelection()')"
+                >
+                  放大
+                </button>
+              </div>
+              <pre class="sheet-demo__inspector-pre" v-html="highlight(inspectData?.selection)" />
             </div>
-            <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.selection)" />
-          </div>
-        </section>
-        <section class="sheet-demo__inspector-block">
-          <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--cells">
-            单元格存储 cell-store · 稀疏 Map，空格不占位
-          </h4>
-          <div class="sheet-demo__inspector-code">
-            <div class="sheet-demo__inspector-code-bar">
-              <span class="sheet-demo__inspector-code-lang">json</span>
-              <span class="sheet-demo__inspector-code-source">sheet.store.entries()</span>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-copy"
-                :class="{ 'is-copied': copied === 'cells' }"
-                @click="copyJson('cells', inspect.cells)"
-              >
-                {{ copied === 'cells' ? '已复制' : '复制' }}
-              </button>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-zoom"
-                title="放大展示"
-                @click="enlarge('cells', '单元格存储 cell-store · sheet.store.entries()')"
-              >
-                放大
-              </button>
+          </section>
+          <section class="sheet-demo__inspector-block">
+            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--cells">
+              单元格存储 cell-store · 稀疏 Map，空格不占位
+            </h4>
+            <div class="sheet-demo__inspector-code">
+              <div class="sheet-demo__inspector-code-bar">
+                <span class="sheet-demo__inspector-code-lang">json</span>
+                <span class="sheet-demo__inspector-code-source">sheet.store.entries()</span>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-copy"
+                  :class="{ 'is-copied': copied === 'cells' }"
+                  @click="copyJson('cells', inspectData?.cells)"
+                >
+                  {{ copied === 'cells' ? '已复制' : '复制' }}
+                </button>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-zoom"
+                  title="放大展示"
+                  @click="enlarge('cells', '单元格存储 cell-store · sheet.store.entries()')"
+                >
+                  放大
+                </button>
+              </div>
+              <pre class="sheet-demo__inspector-pre" v-html="highlight(inspectData?.cells)" />
             </div>
-            <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.cells)" />
-          </div>
-        </section>
-        <section class="sheet-demo__inspector-block">
-          <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--styles">
-            样式池 style-pool · 单元格只持 StyleId
-          </h4>
-          <div class="sheet-demo__inspector-code">
-            <div class="sheet-demo__inspector-code-bar">
-              <span class="sheet-demo__inspector-code-lang">json</span>
-              <span class="sheet-demo__inspector-code-source">sheet.stylePool.snapshot()</span>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-copy"
-                :class="{ 'is-copied': copied === 'styles' }"
-                @click="copyJson('styles', inspect.styles)"
-              >
-                {{ copied === 'styles' ? '已复制' : '复制' }}
-              </button>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-zoom"
-                title="放大展示"
-                @click="enlarge('styles', '样式池 style-pool · sheet.stylePool.snapshot()')"
-              >
-                放大
-              </button>
+          </section>
+          <section class="sheet-demo__inspector-block">
+            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--styles">
+              样式池 style-pool · 单元格只持 StyleId
+            </h4>
+            <div class="sheet-demo__inspector-code">
+              <div class="sheet-demo__inspector-code-bar">
+                <span class="sheet-demo__inspector-code-lang">json</span>
+                <span class="sheet-demo__inspector-code-source">sheet.stylePool.snapshot()</span>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-copy"
+                  :class="{ 'is-copied': copied === 'styles' }"
+                  @click="copyJson('styles', inspectData?.styles)"
+                >
+                  {{ copied === 'styles' ? '已复制' : '复制' }}
+                </button>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-zoom"
+                  title="放大展示"
+                  @click="enlarge('styles', '样式池 style-pool · sheet.stylePool.snapshot()')"
+                >
+                  放大
+                </button>
+              </div>
+              <pre class="sheet-demo__inspector-pre" v-html="highlight(inspectData?.styles)" />
             </div>
-            <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.styles)" />
-          </div>
-        </section>
-        <section class="sheet-demo__inspector-block">
-          <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--meta">
-            合并 / 冻结 / 行高 / 历史 / 公式节点
-          </h4>
-          <div class="sheet-demo__inspector-code">
-            <div class="sheet-demo__inspector-code-bar">
-              <span class="sheet-demo__inspector-code-lang">json</span>
-              <span class="sheet-demo__inspector-code-source"
-                >merges / frozen / getRowHeights() / history</span
-              >
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-copy"
-                :class="{ 'is-copied': copied === 'meta' }"
-                @click="copyJson('meta', inspect.meta)"
-              >
-                {{ copied === 'meta' ? '已复制' : '复制' }}
-              </button>
-              <button
-                type="button"
-                class="sheet-demo__inspector-code-zoom"
-                title="放大展示"
-                @click="enlarge('meta', '合并 / 冻结 / 行高 / 历史 / 公式节点')"
-              >
-                放大
-              </button>
+          </section>
+          <section class="sheet-demo__inspector-block">
+            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--meta">
+              合并 / 冻结 / 行高 / 历史 / 公式节点
+            </h4>
+            <div class="sheet-demo__inspector-code">
+              <div class="sheet-demo__inspector-code-bar">
+                <span class="sheet-demo__inspector-code-lang">json</span>
+                <span class="sheet-demo__inspector-code-source"
+                  >merges / frozen / getRowHeights() / history</span
+                >
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-copy"
+                  :class="{ 'is-copied': copied === 'meta' }"
+                  @click="copyJson('meta', inspectData?.meta)"
+                >
+                  {{ copied === 'meta' ? '已复制' : '复制' }}
+                </button>
+                <button
+                  type="button"
+                  class="sheet-demo__inspector-code-zoom"
+                  title="放大展示"
+                  @click="enlarge('meta', '合并 / 冻结 / 行高 / 历史 / 公式节点')"
+                >
+                  放大
+                </button>
+              </div>
+              <pre class="sheet-demo__inspector-pre" v-html="highlight(inspectData?.meta)" />
             </div>
-            <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.meta)" />
-          </div>
-        </section>
-        <section class="sheet-demo__inspector-block sheet-demo__inspector-block--wide">
-          <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--api">
-            提交给后端 / 后端返回 · workbook 级 JSON（sheet.snapshot() 拼装）
-          </h4>
-          <div class="sheet-demo__inspector-api">
-            <div class="sheet-demo__inspector-api-col">
-              <span class="sheet-demo__inspector-api-tag sheet-demo__inspector-api-tag--req">
-                请求体（提交）
-              </span>
-              <div class="sheet-demo__inspector-code">
-                <div class="sheet-demo__inspector-code-bar">
-                  <span class="sheet-demo__inspector-code-lang">json</span>
-                  <span class="sheet-demo__inspector-code-source">
-                    workbook.getSheets().map(s =&gt; s.snapshot())
-                  </span>
-                  <button
-                    type="button"
-                    class="sheet-demo__inspector-code-copy"
-                    :class="{ 'is-copied': copied === 'payload' }"
-                    @click="copyJson('payload', inspect.payload)"
-                  >
-                    {{ copied === 'payload' ? '已复制' : '复制' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="sheet-demo__inspector-code-zoom"
-                    title="放大展示"
-                    @click="enlarge('payload', '请求体（提交）· workbook JSON')"
-                  >
-                    放大
-                  </button>
+          </section>
+          <section class="sheet-demo__inspector-block sheet-demo__inspector-block--wide">
+            <h4 class="sheet-demo__inspector-block-title sheet-demo__inspector-block-title--api">
+              提交给后端 / 后端返回 · workbook 级 JSON（sheet.snapshot() 拼装）
+            </h4>
+            <div class="sheet-demo__inspector-api">
+              <div class="sheet-demo__inspector-api-col">
+                <span class="sheet-demo__inspector-api-tag sheet-demo__inspector-api-tag--req">
+                  请求体（提交）
+                </span>
+                <div class="sheet-demo__inspector-code">
+                  <div class="sheet-demo__inspector-code-bar">
+                    <span class="sheet-demo__inspector-code-lang">json</span>
+                    <span class="sheet-demo__inspector-code-source">
+                      workbook.getSheets().map(s =&gt; s.snapshot())
+                    </span>
+                    <button
+                      type="button"
+                      class="sheet-demo__inspector-code-copy"
+                      :class="{ 'is-copied': copied === 'payload' }"
+                      @click="copyJson('payload', inspectData?.payload)"
+                    >
+                      {{ copied === 'payload' ? '已复制' : '复制' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="sheet-demo__inspector-code-zoom"
+                      title="放大展示"
+                      @click="enlarge('payload', '请求体（提交）· workbook JSON')"
+                    >
+                      放大
+                    </button>
+                  </div>
+                  <pre class="sheet-demo__inspector-pre" v-html="highlight(inspectData?.payload)" />
                 </div>
-                <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.payload)" />
+              </div>
+              <div class="sheet-demo__inspector-api-col">
+                <span class="sheet-demo__inspector-api-tag sheet-demo__inspector-api-tag--res">
+                  响应体（返回，与请求同构）
+                </span>
+                <div class="sheet-demo__inspector-code">
+                  <div class="sheet-demo__inspector-code-bar">
+                    <span class="sheet-demo__inspector-code-lang">json</span>
+                    <span class="sheet-demo__inspector-code-source"
+                      >sheet.restore(snapshot) 恢复</span
+                    >
+                    <button
+                      type="button"
+                      class="sheet-demo__inspector-code-copy"
+                      :class="{ 'is-copied': copied === 'response' }"
+                      @click="copyJson('response', inspectData?.response)"
+                    >
+                      {{ copied === 'response' ? '已复制' : '复制' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="sheet-demo__inspector-code-zoom"
+                      title="放大展示"
+                      @click="enlarge('response', '响应体（返回）· sheet.restore(snapshot) 恢复')"
+                    >
+                      放大
+                    </button>
+                  </div>
+                  <pre
+                    class="sheet-demo__inspector-pre"
+                    v-html="highlight(inspectData?.response)"
+                  />
+                </div>
               </div>
             </div>
-            <div class="sheet-demo__inspector-api-col">
-              <span class="sheet-demo__inspector-api-tag sheet-demo__inspector-api-tag--res">
-                响应体（返回，与请求同构）
-              </span>
-              <div class="sheet-demo__inspector-code">
-                <div class="sheet-demo__inspector-code-bar">
-                  <span class="sheet-demo__inspector-code-lang">json</span>
-                  <span class="sheet-demo__inspector-code-source"
-                    >sheet.restore(snapshot) 恢复</span
-                  >
-                  <button
-                    type="button"
-                    class="sheet-demo__inspector-code-copy"
-                    :class="{ 'is-copied': copied === 'response' }"
-                    @click="copyJson('response', inspect.response)"
-                  >
-                    {{ copied === 'response' ? '已复制' : '复制' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="sheet-demo__inspector-code-zoom"
-                    title="放大展示"
-                    @click="enlarge('response', '响应体（返回）· sheet.restore(snapshot) 恢复')"
-                  >
-                    放大
-                  </button>
-                </div>
-                <pre class="sheet-demo__inspector-pre" v-html="highlight(inspect.response)" />
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+        </template>
+        <div v-else class="sheet-demo__inspector-empty">
+          尚未获取数据——点击头部「刷新数据」按钮获取当前活动表快照（非实时，不影响表格操作性能）
+        </div>
       </div>
     </div>
 
@@ -250,7 +269,7 @@ import {
 } from '@veltra/sheet'
 import '@veltra/desktop/components/dialog/style'
 import '@veltra/sheet/vue/style'
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
 // 工作簿：两个 sheet 共享公式依赖图（跨表引用与联动重算的中枢）
 const workbook = new Workbook()
@@ -314,47 +333,35 @@ const enlargedVisible = computed({
 })
 const enlargedValue = computed(() => {
   const key = enlarged.value?.key
-  return key ? (inspect.value as Record<string, unknown>)[key] : null
+  return key ? (inspectData.value as unknown as Record<string, unknown> | null)?.[key] : null
 })
 function enlarge(key: string, title: string): void {
   enlarged.value = { key, title }
 }
 
-// ─── 数据结构观察区（演示页调试用）：订阅活动表事件实时刷新 ──────
+// ─── 数据结构观察区（演示页调试用）：手动刷新，无实时订阅 / 无响应式依赖 ──
+// 点击头部「刷新数据」按钮时快照一次当前活动表；大表场景避免每次单元格
+// 变更都序列化 JSON（曾因订阅全部模型事件导致页面卡死）。
 
-const activeSheet = shallowRef<Sheet>(workbook.activeSheet)
-const tick = ref(0)
-let unsubs: Array<() => void> = []
-const bump = () => tick.value++
-
-/** 订阅 sheet 全部模型事件（任一变化 → 观察区刷新） */
-function subscribeSheet(sheet: Sheet): void {
-  unsubs.forEach((fn) => fn())
-  unsubs = [
-    sheet.on('selection-change', bump),
-    sheet.on('history-change', bump),
-    sheet.on('cell-change', bump),
-    sheet.on('merge-change', bump),
-    sheet.on('frozen-change', bump),
-    sheet.on('structure-change', bump)
-  ]
-  bump()
+interface InspectSnapshot {
+  sheetName: string
+  selection: unknown
+  cells: Record<string, unknown>
+  styles: unknown[]
+  meta: unknown
+  payload: unknown
+  response: unknown
+  storeCount: number
+  styleCount: number
+  rowCount: number
+  colCount: number
 }
 
-// tab 切换 → 观察区跟随活动表；增删表 → 提交体刷新
-const unsubActive = workbook.on('active-sheet-change', (event) => {
-  activeSheet.value = event.sheet
-  subscribeSheet(event.sheet)
-})
-const unsubSheets = workbook.on('sheets-change', bump)
+const inspectData = shallowRef<InspectSnapshot | null>(null)
 
-onMounted(() => subscribeSheet(activeSheet.value))
-
-const activeSheetName = computed(() => activeSheet.value.name)
-
-const inspect = computed(() => {
-  void tick.value
-  const sheet = activeSheet.value
+/** 手动收集当前活动表数据（一次性快照） */
+function refreshInspect(): void {
+  const sheet = workbook.activeSheet
 
   // 存储：稀疏 entries → { 'A1': CellData, ... }
   const cells: Record<string, unknown> = {}
@@ -379,7 +386,8 @@ const inspect = computed(() => {
   // 提交给后端：所有 sheet 快照合并为一个 workbook JSON；返回体 data 同构
   const payload = buildWorkbookPayload()
 
-  return {
+  inspectData.value = {
+    sheetName: sheet.name,
     selection: sheet.getSelection(),
     cells,
     styles,
@@ -391,7 +399,7 @@ const inspect = computed(() => {
     rowCount: sheet.store.rowCount,
     colCount: sheet.store.colCount
   }
-})
+}
 
 /** 工作簿 → 提交体：{ sheets: [{ name, ...SheetSnapshot }], activeIndex } */
 function buildWorkbookPayload(): unknown {
@@ -403,7 +411,8 @@ function buildWorkbookPayload(): unknown {
 
 /**
  * JSON 语法高亮（仅演示页）：先转义 HTML 再着色，避免模型内容注入标签。
- * key → 蓝、字符串值 → 绿、数字 → 橙、true/false/null → 紫。
+ * 只给 key 包 span（值还原纯文本）——每个 token 一个 span 在数据量大时
+ * 渲染开销明显（实测 600+ span / 30ms），仅 key 高亮可将 DOM 节点减 2/3。
  */
 function highlight(value: unknown): string {
   const escaped = JSON.stringify(value, null, 2).replace(
@@ -411,15 +420,11 @@ function highlight(value: unknown): string {
     (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]!
   )
   return escaped.replace(
-    /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g,
-    (match, str, colon, keyword) => {
-      if (str) {
-        return colon
-          ? `<span class="j-key">${str}</span>${colon}`
-          : `<span class="j-str">${str}</span>`
-      }
-      if (keyword) return `<span class="j-kw">${keyword}</span>`
-      return `<span class="j-num">${match}</span>`
+    /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*")(\s*:)?/g,
+    (match, str, colon) => {
+      // 带冒号的字符串 = key → 包 span 高亮；值（字符串/数字/布尔）保持纯文本
+      if (colon) return `<span class="j-key">${str}</span>${colon}`
+      return match
     }
   )
 }
@@ -433,9 +438,6 @@ function highlight(value: unknown): string {
 }
 
 onBeforeUnmount(() => {
-  unsubs.forEach((fn) => fn())
-  unsubActive()
-  unsubSheets()
   delete (window as unknown as Record<string, unknown>).__sheetDemo
 })
 </script>
@@ -477,6 +479,31 @@ onBeforeUnmount(() => {
 
 .sheet-demo__inspector-head:hover {
   background: var(--u-bg-color-hover);
+}
+
+.sheet-demo__inspector-head-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sheet-demo__inspector-refresh {
+  flex: none;
+  padding: 3px 12px;
+  border: 1px solid var(--u-border-muted-color);
+  border-radius: 4px;
+  background: var(--u-bg-color-top);
+  color: var(--u-color-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.sheet-demo__inspector-refresh:hover {
+  border-color: var(--u-color-primary);
+  background: color-mix(in srgb, var(--u-color-primary) 8%, var(--u-bg-color-top));
 }
 
 .sheet-demo__inspector-arrow {
@@ -622,6 +649,13 @@ onBeforeUnmount(() => {
   background: var(--u-color-success);
 }
 
+.sheet-demo__inspector-empty {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--u-text-color-second);
+}
+
 .sheet-demo__inspector-pre {
   margin: 0;
   max-height: 280px;
@@ -754,21 +788,9 @@ onBeforeUnmount(() => {
   border: 1px solid var(--u-border-muted-color);
 }
 
-/* JSON 语法高亮 */
+/* JSON 语法高亮（仅 key） */
 .sheet-demo__inspector-pre :deep(.j-key) {
   color: var(--u-color-primary);
-}
-
-.sheet-demo__inspector-pre :deep(.j-str) {
-  color: var(--u-color-success);
-}
-
-.sheet-demo__inspector-pre :deep(.j-num) {
-  color: var(--u-color-warning);
-}
-
-.sheet-demo__inspector-pre :deep(.j-kw) {
-  color: var(--u-color-info);
 }
 </style>
 
