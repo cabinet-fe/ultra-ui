@@ -37,9 +37,30 @@ export const sheetVTableTheme = themes.DEFAULT.extends({
     padding: [...SHEET_CELL_PADDING],
     textOverflow: 'clip'
   },
-  headerStyle: { bgColor: CHROME_BG, borderColor: GRID_BORDER, textOverflow: 'clip' },
-  cornerHeaderStyle: { bgColor: CHROME_BG, borderColor: GRID_BORDER, textOverflow: 'clip' },
-  rowHeaderStyle: { bgColor: CHROME_BG, borderColor: GRID_BORDER, textOverflow: 'clip' },
+  // DEFAULT 列头/行头为 bold + fontSize 16，视觉偏重；贴 Excel 用常规字重 + 略小字号
+  headerStyle: {
+    bgColor: CHROME_BG,
+    borderColor: GRID_BORDER,
+    textOverflow: 'clip',
+    textAlign: 'center',
+    fontWeight: 'normal',
+    fontSize: 12
+  },
+  cornerHeaderStyle: {
+    bgColor: CHROME_BG,
+    borderColor: GRID_BORDER,
+    textOverflow: 'clip',
+    fontWeight: 'normal',
+    fontSize: 12
+  },
+  rowHeaderStyle: {
+    bgColor: CHROME_BG,
+    borderColor: GRID_BORDER,
+    textOverflow: 'clip',
+    textAlign: 'center',
+    fontWeight: 'normal',
+    fontSize: 12
+  },
   bodyStyle: { bgColor: BODY_BG, borderColor: GRID_BORDER, textOverflow: 'clip' },
   frameStyle: {
     borderColor: GRID_BORDER,
@@ -54,12 +75,15 @@ export const sheetVTableTheme = themes.DEFAULT.extends({
   }
 })
 
-/** 行号列默认样式（与主题 chrome 对齐） */
+/** 行号列默认样式（与主题 chrome 对齐；居中 + 常规字重） */
 export const sheetRowSeriesNumberStyle = {
   bgColor: CHROME_BG,
   borderColor: GRID_BORDER,
   padding: [...SHEET_CELL_PADDING],
-  textOverflow: 'clip' as const
+  textOverflow: 'clip' as const,
+  textAlign: 'center' as const,
+  fontWeight: 'normal' as const,
+  fontSize: 12
 }
 
 /** 默认行高（比 VTable 默认 40 更接近表格密度；与 SHEET_CELL_PADDING 搭配） */

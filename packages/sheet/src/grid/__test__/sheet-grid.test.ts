@@ -87,9 +87,22 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(theme.selectionStyle?.cellBorderColor).not.toBe('#000')
       // 右/下边框描边收入本格格内（修「外边框右边/下边被邻居填充盖住」）
       expect(theme.cellBorderClipDirection).toBe('bottom-right')
+      expect(theme.headerStyle?.textAlign).toBe('center')
+      expect(theme.headerStyle?.fontWeight).toBe('normal')
+      expect(theme.headerStyle?.fontSize).toBe(12)
+      expect(theme.rowHeaderStyle?.textAlign).toBe('center')
+      expect(theme.rowHeaderStyle?.fontWeight).toBe('normal')
+      expect(theme.cornerHeaderStyle?.fontWeight).toBe('normal')
       expect(options.rowSeriesNumber).toMatchObject({
         width: 46,
-        style: { bgColor: '#F5F5F5', padding: [2, 6, 2, 6], textOverflow: 'clip' }
+        style: {
+          bgColor: '#F5F5F5',
+          padding: [2, 6, 2, 6],
+          textOverflow: 'clip',
+          textAlign: 'center',
+          fontWeight: 'normal',
+          fontSize: 12
+        }
       })
     } finally {
       grid.release()

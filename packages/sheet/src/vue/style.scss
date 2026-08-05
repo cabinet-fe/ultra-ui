@@ -405,8 +405,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    width: 100%;
-    min-width: 0;
+    // 菜单为 max-content 时由内容撑开，勿 width:100% 形成循环依赖
+    flex-shrink: 0;
     user-select: none;
   }
 

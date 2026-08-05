@@ -85,7 +85,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
           ? buildColHeaderMenus(context)
           : buildBodyMenus(context)
 
-    contextmenu.pop({ mousePosition: { x: info.x, y: info.y }, width: 240, menus })
+    // 最小宽度兜底；实际宽度由最长菜单项撑开（勿固定 240 导致空白过大）
+    contextmenu.pop({ mousePosition: { x: info.x, y: info.y }, width: 'max-content', menus })
   }
 
   function bindGridPointerDown(container: HTMLElement): void {

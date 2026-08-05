@@ -25,6 +25,8 @@ $arrow-size: 12px;
   $b: &;
 
   position: fixed;
+  // 与子菜单一致：最小宽度兜底，调用方可用 width: max-content 让内容撑开
+  min-width: 120px;
   @include panel-surface;
 
   @include m.e(label) {
