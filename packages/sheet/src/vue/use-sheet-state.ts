@@ -63,6 +63,9 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
       sheet.on('cell-change', bump),
       sheet.on('merge-change', bump),
       sheet.on('frozen-change', bump),
+      // 整表内容替换（导入 / undo/redo 回放）：restore 静默不发 cell-change，
+      // 状态源需 bump（grid 层自行订阅 content-reset 全量刷新，此处不重建）
+      sheet.on('content-reset', bump),
       // 行列插入/删除 → 重建网格（渲染行列数 = max(props, sheet.rows/cols)，
       // 数据/选区/冻结/行高随重建恢复；低频操作直接重建）
       sheet.on('structure-change', hooks.rebuildGrid)

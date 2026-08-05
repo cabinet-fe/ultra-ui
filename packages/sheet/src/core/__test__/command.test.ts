@@ -186,6 +186,51 @@ describe('MergeCellsCommand undo/redo', () => {
   })
 })
 
+describe('MergeCellsBatchCommand（批量合并）', () => {
+  it('批量合并 = 单 undo 单元；undo 一次全部还原（合并记录 + 被清空值）', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 'v-b2')
+    sheet.setCellValue({ row: 3, col: 3 }, 'v-d4')
+
+    sheet.mergeCellsBatch([parseRange('B2:C3')!, parseRange('D4:E5')!])
+
+    expect(sheet.merges.size).toBe(2)
+    expect(sheet.getCellInfo(C3).kind).toBe('merged-covered')
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 'v-b2' }) // 锚点值保留
+    expect(sheet.getCellData({ row: 4, col: 4 })).toBeUndefined()
+    expect(sheet.history.undoSize).toBe(3) // 2 次 setCellValue + 1 次批量合并
+
+    sheet.undo()
+    expect(sheet.merges.size).toBe(0)
+    expect(sheet.getCellData(B2)).toEqual({ v: 'v-b2', t: 's' })
+    expect(sheet.getCellData({ row: 3, col: 3 })).toEqual({ v: 'v-d4', t: 's' })
+
+    sheet.redo()
+    expect(sheet.merges.size).toBe(2)
+    expect(sheet.getCellInfo(C3).kind).toBe('merged-covered')
+  })
+
+  it('批量内相交：包围盒合并 + 逆序 undo 自洽（与逐条语义一致）', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 'v-b2')
+
+    // 逐条语义对照：B2:C3 再合并 C3:D4 → 包围盒 B2:D4
+    sheet.mergeCellsBatch([parseRange('B2:C3')!, parseRange('C3:D4')!])
+    expect(sheet.merges.size).toBe(1)
+    expect(sheet.merges.getMerges()[0]).toEqual(parseRange('B2:D4'))
+
+    sheet.undo()
+    expect(sheet.merges.size).toBe(0)
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 'v-b2' })
+  })
+
+  it('空 ranges 不产生历史条目', () => {
+    const sheet = new Sheet()
+    sheet.mergeCellsBatch([])
+    expect(sheet.history.undoSize).toBe(0)
+  })
+})
+
 describe('UnmergeCellsCommand undo/redo', () => {
   it('unmerge → undo 恢复合并记录 → redo 再解除', () => {
     const sheet = new Sheet()

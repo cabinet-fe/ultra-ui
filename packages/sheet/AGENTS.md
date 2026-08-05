@@ -28,7 +28,7 @@ src/
 │   │   ├── set-cell-value.ts # SetCellValueCommand（批量，供粘贴/填充复用）
 │   │   ├── set-cell-formula.ts # SetCellFormulaCommand（只写 f，缓存由重算派生补丁填充）
 │   │   ├── set-cell-style.ts # SetCellStyleCommand（批量 + 部分合并语义，样式写入）
-│   │   ├── merge-cells.ts    # MergeCellsCommand / UnmergeCellsCommand
+│   │   ├── merge-cells.ts    # MergeCellsCommand / MergeCellsBatchCommand（批量合并）/ UnmergeCellsCommand
 │   │   └── default-registry.ts # 默认注册表（内置命令在此注册，全局共享）
 │   ├── style/            # 单元格样式系统（纯 TS）
 │   │   ├── types.ts          # CellStyle / CellStylePatch（font/align 逐字段合并，null 删字段；边级合并）/ StyleId
@@ -36,7 +36,7 @@ src/
 │   │   └── border-presets.ts # 边框预设生成（all/outer/bottom/none + 邻居共享边同步，纯函数）
 │   ├── io/               # 导入导出（纯 TS，基于 hucre；不 import vue/vtable）
 │   │   ├── export.ts         # exportWorkbookXlsx / exportSheetCsv（模型 → hucre）
-│   │   └── import.ts         # importXlsx / importCsv / replaceWorkbook / copySheetContent
+│   │   └── import.ts         # importXlsx / importCsv / replaceWorkbook(WithSnapshots) / copySheetContent
 │   └── formula/          # 公式引擎（纯 TS，可无头运行）
 │       ├── errors.ts         # 错误值体系（#DIV/0! #VALUE! #NAME? #REF! #ERROR! #CYCLE!）
 │       ├── ast.ts            # AST 节点 + collectReferences
@@ -91,11 +91,15 @@ src/
 
 ## 命令系统（undo/redo）
 
-- **一切写操作都是命令**：`Sheet.setCellValue / setCell / setCells / setCellFormula / setCellStyle / setCellStyles / clearCellStyle / mergeCells / unmergeCells`
+- **一切写操作都是命令**：`Sheet.setCellValue / setCell / setCells / setCellFormula / setCellStyle / setCellStyles / clearCellStyle / mergeCells / mergeCellsBatch / unmergeCells`
   全部经 `defaultCommandRegistry` 执行并推入 `sheet.history`，没有绕过入口；
   `Sheet.applyPatch` 是命令执行与 undo/redo 回放共用的唯一变更通道。
 - Patch 是 before/after 差量（非全量快照）；同一批补丁双向回放（redo 应用 after，undo 应用 before），
   mutation 的 undo 列表为 redo 的逆序（如 undo 合并时先移除新合并再恢复旧合并）。
+  **例外：`SnapshotPatch`（kind: 'snapshot'）**——整表快照替换（导入 replaceWorkbook /
+  undo/redo 回放），mutation.redo 放目标快照、mutation.undo 放操作前快照；应用走
+  `Sheet.restoreContent`（静默整表替换 + 公式图重建 + 发 `content-reset`，不发逐格
+  cell-change——避免十万级视图同步；grid 层 setRecords 全量刷新、状态源 bump）。
 - `MergeCellsCommand` 的 Patch 捕获完整 before 状态：被解除的旧合并记录 + 包围盒内每格原数据，
   undo 连被清空的值一起还原。
 - 事务：`sheet.beginTransaction() / commit()`（可嵌套，拍平到最外层）= 一个 undo 单元；
@@ -137,6 +141,12 @@ src/
 - **门面边界（结论）**：`SheetContext` **不暴露** sheet 增删改名——增删改是工作簿级
   结构操作（非单元格写操作），**不走 undo**（undo 栈按 sheet 分栈，结构变更入栈语义不清）。
   宿主经 `Workbook` 直接操作；USheet 内部 tabs UI 直接调用 Workbook（不经 SheetContext）。
+- **批量结构变更**（`Workbook.beginBatch()/endBatch()`，可嵌套）：batch 中 addSheet /
+  removeSheet / renameSheet / activateSheet 的结构事件抑制，endBatch 合并补发一次
+  （sheets-change → sheet-rename → active-sheet-change，各自仅在确有变化时补发；
+  removeSheet 的激活修正/公式联动在 batch 中照常生效）。`replaceWorkbookWithSnapshots`
+  整体包 batch——196 sheet 导入避免 195 次 sheets-change 事件风暴（vue 层反复
+  重渲染 tabs / pruneCache / bump）。endBatch 无进行中批量抛错。
 
 ## 冻结 / 查找 / 选区回驱（Phase 2）
 
@@ -279,6 +289,12 @@ src/
       ——否则 2.18 亿空槽迭代 = 110s 卡死（跳过 = 3.5s）。
     - **补漏遍历**：`cells` Map 是稀疏的，但只含「有详情」格（样式/公式）；纯值格只在
       `rows` 里 → 主循环（有值格）+ 补漏（cells 中值 null 的格）双遍历，缺一丢数据。
+    - **样式 memo（P1）**：hucre 的 `cell.style` 外层对象每次新建，但其内部
+      font/fill/border/alignment **子对象来自共享样式池**（同一 styleIndex 引用一致）——
+      `internStyleMemoized` 按四个子对象引用的分配 id 组合做 key（WeakMap 递增 id），
+      命中直接复用 StyleId，**跳过 hucreStyleToModel 解析 + intern 序列化**；
+      memo 跨 sheet 共享（工作簿样式表全局）。covered 用整数 key（行 × 2^20 + 列）
+      替代字符串拼接（主循环每格一次）。
     - **尺寸收敛**：表格尺寸按「有值格 ∪ 公式格 ∪ 合并 ∪ 行高定义」+ **扩展带 100 行/列**
       内的样式格计算，**不用** hucre 稠密行数组几何——「全选设边框」残留（整表 13327 行 ×
       16384 列 16~20 万空白格式格）会把 `rowCount/colCount` 高水位撑到 Excel 极限 →
@@ -287,9 +303,23 @@ src/
   - `importCsv(text, sheet)`：`parseCsv(text, { typeInference: true })` → 从 A1 覆盖写入既有
     活动表（事务；空格不覆盖既有格、空串清除、Date → 1900 序列 t='d'）。
   - `replaceWorkbook(target, source)`：导入 UI 的「替换当前工作簿」——结构变更（删表/加表）
-    不走 undo（Phase 3 门面边界），每个 sheet 数据写入 = 单 undo 单元；
-    `copySheetContent(target, source)`：样式按内容重新 intern 到目标池；选区对齐源表
-    （importXlsx 源表默认 A1 → UI 导入后活动表为 A1，不残留目标旧选区；选区不进 undo）。
+    不走 undo（Phase 3 门面边界），每个 sheet 内容替换 = 单 undo 单元；
+    `replaceWorkbookWithSnapshots(target, items, activeIndex)`：快照数组直替换
+    （worker 链路入口，`SheetReplaceItem = { name, snapshot, rowHeights? }`——
+    行高不在 SheetSnapshot 字段内，Workbook 版经 rowHeights 单独传输，快照数组
+    路径不传 → 目标行高保持现状）。
+    **快照整表替换（P0 优化）**：内容替换走 `RestoreSheetCommand`（`sheet.restore-sheet`）
+    整表 `SnapshotPatch`——不发逐格 cell-change（替换执行期间不再触发十万级视图
+    同步白干），发 `content-reset` 事件（grid 层 setRecords 全量刷新一次、状态源
+    bump）；undo/redo 回放整表快照（undo 恢复导入前内容）。**只替换
+    cells/styles/merges**（含公式依赖图整体重建 `DependencyGraph.rebuildSheet`）；
+    选区 / 冻结 / 行高 / 尺寸不进 undo（对齐既有约定：undo 导入后保持替换后状态，
+    同现状逐格回放行为）；redo 侧命令 handler 应用快照冻结 + ensureTableSize 扩张
+    尺寸；选区经 replaceSheetFromSnapshot 显式对齐快照（导入默认 A1）。
+    快照全部格视为变更格触发跨表公式联动重算（派生补丁并入同一 undo 单元）。
+    `copySheetContent(target, source)`：保留的通用逐格拷贝 API（样式按内容重新
+    intern 到目标池；选区对齐源表；importXlsx 源表默认 A1 → UI 导入后活动表为
+    A1，不残留目标旧选区；选区不进 undo）。
 - **映射细节**：
   - 日期：模型存 1900 系统序列数（`t='d'`）；导出 = 数字 + 日期 numFmt，hucre 读回 Date
     （UTC），导入端 `dateToSerial1900` 转回序列（含 Lotus 伪闰日修正；serial 60 边界 ±1 天
@@ -309,7 +339,7 @@ src/
   面板不参与事务）。`SheetContext.workbook` 只读引用供工作簿级导出；
   `createSheetContext(sheet, workbook?)` 第二参传入工作簿（无头/单 sheet 可省略，导出空操作）。
 - **导入确认交互**（`popups/import-popup.vue` onClosed）：弹窗关闭动画（0.25s）
-  **完成后**才执行 `replaceWorkbook`——前提是 message-confirm 根元素带基础
+  **完成后**才执行 `replaceWorkbookWithSnapshots`——前提是 message-confirm 根元素带基础
   `transition`（desktop 侧修复：Vue transition-group 的 hasTransition 在加
   leave-active 类前检查元素当前样式，根元素无 transition → after-leave 同步
   触发 → onClosed 阻塞弹窗关闭，实测点击后卡 1.6s 才关）。执行前先
@@ -322,11 +352,18 @@ src/
 - **xlsx 解析在 Web Worker**（`popups/import.worker.ts`）：importXlsx 是同步重活
   （hucre 解析 + 模型构建，196 sheet / 75 万格实测 3~5s），主线程直接跑会冻结
   UI（选文件后 3~4s 无反馈才弹确认框）。worker 返回纯数据快照（结构化克隆），
-  主线程 `restore` 重建 Workbook（无 undo 历史——替换语义由 replaceWorkbook
-  负责）；worker 不可用（构造抛错/onerror）降级主线程解析。解析期反馈：选文件后
+  主线程**不再 restore 重建临时 Workbook**——确认后快照数组直接经
+  `replaceWorkbookWithSnapshots` 替换进目标（省一次全量构建 + 一次逐格拷贝；
+  无 undo 历史——替换语义由替换命令负责）；worker 不可用（构造抛错/onerror）
+  降级主线程解析（`toSnapshotArray` 统一转快照数组）。解析期反馈：选文件后
   import-popup 经 **provide/inject 写入解析中状态**（`vue/parsing.ts` 的
-  `SHEET_PARSING_KEY`），sheet.vue 在 grid 容器挂 **desktop 的 `v-loading`
-  指令**（`v-loading="parsing"`，加载动画正常转）。**用 provide/inject 而非
+  `SHEET_PARSING_KEY`），sheet.vue 在 grid 容器显示**自绘覆盖层**
+  （`.u-sheet__loading-mask`：遮罩 + 旋转圈动画 + 文字同一层——动画在上、
+  文字在下，层级高于 grid 实例不被掩盖；不依赖 desktop Loading 组件的 text
+  能力）。文字经 `SHEET_PARSE_PROGRESS_KEY` 驱动：readXlsx 同步段显示
+  「正在读取文件结构…」、`buildWorkbookFromHucre` 分片构建段按 **10% 粒度**
+  显示「正在解析… X/Y」（worker 每跨过 10% 报一次 `{ type: 'progress', done,
+  total }`——避免 196 条/秒的消息风暴与文字跳变过快）。**用 provide/inject 而非
   emit**：选文件后面板关闭（v-if 卸载 import-popup），卸载组件的 emit 无法送达
   父组件（实测 parsing 收不到）；inject 拿到的是父作用域 ref 对象，卸载后修改
   `ref.value` 仍驱动父组件响应式更新。**实现注意**：① worker 内用运行时动态
@@ -336,6 +373,14 @@ src/
   虚拟导入（vp pack/rolldown 报 UNLOADABLE_DEPENDENCY）；③ URL 按
   `import.meta.env?.DEV` 区分 .ts/.js，且 worker 必须显式列入 pack entry
   （unbundle 模式只编译 entry 可达模块）才会进 dist。
+- **导入耗时分解（benchmark 实测，196 sheet / 76.7 万 hucre cells / 3.1MB）**：
+  hucre `readXlsx` 解析 **~3.0-3.3s（75-85%）**——ZIP + 196 个 sheet XML 串行
+  parseSax + sharedStrings/styles，依赖库内部不可优化（换库/自写解析是大工程，
+  暂不投入）；模型构建 `buildWorkbookFromHucre` **~1.0s**——主循环 2.18 亿空槽
+  快速跳过 + 补漏 76 万 key 解析（先解析行号、带外行直接跳过省列解析）+
+  `setCells` 单命令 + **`mergeCellsBatch` 批量合并**（1016 区域 = 1 次命令 =
+  单 undo 单元，替代逐区域命令的重复重算编排；批量内相交边收集边应用与逐条
+  语义一致）。worker 链路总 ~4s 等待属预期（loading + 进度反馈覆盖）。
 - **已知边界**：模型专有错误码 `#ERROR!`/`#CYCLE!` 不在 Excel 错误集内，导出为普通字符串
   （类型丢失）；Excel 共享公式（拖拽填充产生）非主格读回 `formula=''`，导入为静态缓存值
   （公式语义丢失）；导入按表序处理，反向跨表引用遇空表时缓存 `#REF!`（任一后续写入触发

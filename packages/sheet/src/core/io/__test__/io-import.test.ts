@@ -10,7 +10,8 @@ import {
   hucreStyleToModel,
   importCsv,
   importXlsx,
-  replaceWorkbook
+  replaceWorkbook,
+  replaceWorkbookWithSnapshots
 } from '../import'
 
 /**
@@ -323,6 +324,7 @@ describe('copySheetContent / replaceWorkbook', () => {
 
     const source = new Workbook()
     source.activeSheet.setCellValue({ row: 0, col: 0 }, 'a1')
+    source.activeSheet.setRowHeight(3, 77)
     source.addSheet('B').setCellValue({ row: 0, col: 0 }, 'b1')
     source.addSheet('C').setCellValue({ row: 0, col: 0 }, 'c1')
     source.activateSheet('C')
@@ -337,10 +339,14 @@ describe('copySheetContent / replaceWorkbook', () => {
     expect(target.activeSheet.name).toBe('C')
     // 旧数据不在目标中
     expect(target.getSheet('Old2')).toBeUndefined()
+    // 行高随替换条目传输（SheetSnapshot 无行高字段，Workbook 版单独携带）
+    expect(target.getSheet('Sheet1')!.getRowHeight(3)).toBe(77)
 
     // 第一个 sheet 的数据写入可 undo（恢复导入前数据）
     expect(target.getSheet('Sheet1')!.undo()).toBe(true)
     expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
+    // 行高不进 undo（同 rowHeights 先例）
+    expect(target.getSheet('Sheet1')!.getRowHeight(3)).toBe(77)
   })
 
   it('replaceWorkbook / copySheetContent：选区对齐源表（导入默认 A1，不残留目标旧选区）', () => {
@@ -365,5 +371,54 @@ describe('copySheetContent / replaceWorkbook', () => {
     // 选区不进 undo：撤销内容后选区仍为导入后的 A1
     expect(target.activeSheet.undo()).toBe(true)
     expect(target.activeSheet.getSelection().activeCell).toEqual(A1)
+  })
+
+  it('replaceWorkbookWithSnapshots：快照数组直接替换（worker 链路入口）', () => {
+    const target = new Workbook()
+    target.activeSheet.setCellValue({ row: 0, col: 0 }, 'old1')
+    target.addSheet('Old2')
+    target.activeSheet.setFrozen(2, 1)
+
+    const make = (): Workbook => {
+      const wb = new Workbook()
+      wb.activeSheet.setCellValue({ row: 0, col: 0 }, 'a1')
+      wb.activeSheet.setFrozen(1, 0)
+      wb.activeSheet.setRowHeight(4, 66)
+      wb.addSheet('B').setCellValue({ row: 0, col: 0 }, 'b1')
+      wb.addSheet('C').setCellValue({ row: 0, col: 0 }, 'c1')
+      wb.activateSheet('C')
+      return wb
+    }
+    const source = make()
+    const snapshots = source.getSheets().map((s) => ({ name: s.name, snapshot: s.snapshot() }))
+
+    replaceWorkbookWithSnapshots(target, snapshots, source.activeSheetIndex)
+
+    expect(target.sheetCount).toBe(3)
+    expect(target.getSheets().map((s) => s.name)).toEqual(['Sheet1', 'B', 'C'])
+    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'a1' })
+    expect(target.getSheet('B')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b1' })
+    expect(target.getSheet('C')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'c1' })
+    expect(target.activeSheet.name).toBe('C')
+    // 冻结还原到目标 sheet（模型状态，随替换写入）；快照数组不传行高 → 目标行高保持现状
+    expect(target.getSheet('Sheet1')!.frozen).toEqual({ rows: 1, cols: 0 })
+    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBeUndefined()
+    expect(target.getSheet('Old2')).toBeUndefined()
+
+    // 每个 sheet 内容替换 = 单 undo 单元（第一个 sheet 的替换可 undo）
+    expect(target.getSheet('Sheet1')!.undo()).toBe(true)
+    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
+    // 选区 / 冻结不进 undo；行高未传输（快照数组路径不携带行高）
+    expect(target.getSheet('Sheet1')!.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+    expect(target.getSheet('Sheet1')!.frozen).toEqual({ rows: 1, cols: 0 })
+    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBeUndefined()
+  })
+
+  it('replaceWorkbookWithSnapshots：空快照数组保留单个空 sheet', () => {
+    const target = new Workbook()
+    target.activeSheet.setCellValue({ row: 0, col: 0 }, 'x')
+    replaceWorkbookWithSnapshots(target, [], 0)
+    expect(target.sheetCount).toBe(1)
+    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toBeUndefined()
   })
 })

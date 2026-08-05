@@ -1,5 +1,5 @@
 import { cellKey, rangeContainsAddress, type CellAddress, type CellRange } from '../address'
-import type { CellData, CellType, CellValue } from '../cell-store'
+import type { CellData, CellSnapshotItem, CellType, CellValue } from '../cell-store'
 import type { CellPatch } from '../command/types'
 import type { Sheet } from '../sheet'
 import { collectReferences, type AstNode } from './ast'
@@ -181,6 +181,21 @@ export class DependencyGraph {
     const existing = this.getNode(sheet.name, addr)
     if (existing) this.removeNode(existing)
     if (afterF != null && afterF !== '') this.addNode(sheet, addr, afterF)
+  }
+
+  /**
+   * 整表内容替换后的图重建（SnapshotPatch 应用）：移除本 sheet 全部公式节点，
+   * 按快照数据重新注册公式节点——restore 不走逐格 syncCell，图必须整体重建，
+   * 否则旧节点残留（引用旧公式/旧坐标）污染后续重算。
+   */
+  rebuildSheet(sheet: Sheet, cells: readonly CellSnapshotItem[]): void {
+    const sheetNodes = this.nodes.get(sheet.name)
+    if (sheetNodes) {
+      for (const node of Array.from(sheetNodes.values())) this.removeNode(node)
+    }
+    for (const item of cells) {
+      if (item.f) this.addNode(sheet, { row: item.row, col: item.col }, item.f)
+    }
   }
 
   // ─── 增量重算 ─────────────────────────────────────────────

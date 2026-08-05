@@ -16,10 +16,27 @@ const mocks = vi.hoisted(() => {
     message,
     messageConfirm: { danger: vi.fn() },
     importCsv: vi.fn(),
-    importXlsx: vi.fn(() => Promise.resolve({ sheetCount: 2 })),
-    replaceWorkbook: vi.fn()
+    // worker 不可用（测试环境）降级主线程解析：importXlsx 需返回 Workbook 形态
+    // （toSnapshotArray 读 getSheets / activeSheetIndex 转快照数组）
+    importXlsx: vi.fn(() =>
+      Promise.resolve({
+        getSheets: () => [{ name: 'S1', snapshot: () => EMPTY_SNAPSHOT }],
+        activeSheetIndex: 0
+      })
+    ),
+    replaceWorkbookWithSnapshots: vi.fn()
   }
 })
+
+/** 空表快照（快照数组路径的源数据） */
+const EMPTY_SNAPSHOT = {
+  cells: [],
+  styles: [],
+  merges: [],
+  frozen: { rows: 0, cols: 0 },
+  rows: 0,
+  cols: 0
+}
 
 vi.mock('@veltra/desktop', async () => {
   const { defineComponent, h } = await import('vue')
@@ -54,7 +71,7 @@ vi.mock('@veltra/desktop', async () => {
 vi.mock('../../core/io/import', () => ({
   importCsv: mocks.importCsv,
   importXlsx: mocks.importXlsx,
-  replaceWorkbook: mocks.replaceWorkbook
+  replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots
 }))
 
 const apps: App[] = []
@@ -97,11 +114,10 @@ afterEach(() => {
   apps.splice(0).forEach((app) => app.unmount())
   containers.splice(0).forEach((el) => el.remove())
   vi.clearAllMocks()
-  mocks.importXlsx.mockResolvedValue({ sheetCount: 2 })
 })
 
 describe('USheetImportPopup 导入确认兜底', () => {
-  it('确认后：loading 提示 → replaceWorkbook → 成功提示', async () => {
+  it('确认后：loading 提示 → replaceWorkbookWithSnapshots → 成功提示', async () => {
     const replaced = vi.fn()
     const parsingRef = ref(false)
     const el = mountPopup(replaced, parsingRef)
@@ -115,7 +131,13 @@ describe('USheetImportPopup 导入确认兜底', () => {
     expect(mocks.message).toHaveBeenCalledWith(
       expect.objectContaining({ message: '正在导入…', duration: 0 })
     )
-    expect(mocks.replaceWorkbook).toHaveBeenCalledTimes(1)
+    expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
+    // 快照数组直接替换（主线程不再 restore 重建临时 Workbook）
+    expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledWith(
+      expect.anything(),
+      [{ name: 'S1', snapshot: EMPTY_SNAPSHOT }],
+      0
+    )
     expect(replaced).toHaveBeenCalledTimes(1)
     // 「导入完成」在 2 帧后（等首帧渲染完成）才报：flush 两帧
     await new Promise((resolve) =>
@@ -124,7 +146,7 @@ describe('USheetImportPopup 导入确认兜底', () => {
     expect(mocks.message.success).toHaveBeenCalledWith('导入完成')
   })
 
-  it('replaceWorkbook 抛错：报错提示 + 不误报成功 + 不通知宿主', async () => {
+  it('replaceWorkbookWithSnapshots 抛错：报错提示 + 不误报成功 + 不通知宿主', async () => {
     const replaced = vi.fn()
     const el = mountPopup(replaced, ref(false))
     await triggerPickAndAwait(el)
@@ -134,14 +156,14 @@ describe('USheetImportPopup 导入确认兜底', () => {
       id: 'loading',
       onClosed: Promise.resolve()
     })
-    mocks.replaceWorkbook.mockImplementationOnce(() => {
+    mocks.replaceWorkbookWithSnapshots.mockImplementationOnce(() => {
       throw new Error('内存不足 boom')
     })
 
     const onClosed = getOnClosed()
     await onClosed('confirm')
 
-    expect(mocks.replaceWorkbook).toHaveBeenCalledTimes(1)
+    expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
     expect(replaced).not.toHaveBeenCalled()
     expect(mocks.message.error).toHaveBeenCalledWith('导入失败：内存不足 boom')
     // 失败时不出现「导入完成」
@@ -155,7 +177,7 @@ describe('USheetImportPopup 导入确认兜底', () => {
     await triggerPickAndAwait(el)
     const onClosed = getOnClosed()
     await onClosed('cancel')
-    expect(mocks.replaceWorkbook).not.toHaveBeenCalled()
+    expect(mocks.replaceWorkbookWithSnapshots).not.toHaveBeenCalled()
     // 解析前的「正在解析文件…」loading 是预期反馈；取消后不应出现导入/成功/失败提示
     expect(mocks.message.success).not.toHaveBeenCalled()
     expect(mocks.message.error).not.toHaveBeenCalled()

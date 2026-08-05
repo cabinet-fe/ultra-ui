@@ -1033,6 +1033,14 @@ export class SheetGrid {
       })
     )
 
+    // 整表内容替换（导入 replaceWorkbook / undo/redo 回放）：restore 静默、
+    // 不发逐格 cell-change——setRecords 全量刷新一次（数据 + 样式回调 + 合并）
+    this.disposers.push(
+      this.sheet.on('content-reset', () => {
+        this.refresh()
+      })
+    )
+
     // 冻结变更 → 即时更新 VTable 冻结布局
     this.disposers.push(
       this.sheet.on('frozen-change', () => {

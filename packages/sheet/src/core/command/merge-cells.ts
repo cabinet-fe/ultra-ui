@@ -72,3 +72,59 @@ export const UnmergeCellsCommand: Command<UnmergeCellsParams> = {
     return { mutations: [{ redo: removed, undo: [...removed].reverse() }] }
   }
 }
+
+export interface MergeCellsBatchParams {
+  ranges: CellRange[]
+}
+
+/**
+ * 批量合并命令（导入等批量场景：1016 个合并区域 = 1 次命令 = 单 undo 单元，
+ * 替代逐区域 MergeCellsCommand 的命令/历史/重算编排开销）。
+ * 每个区域与 MergeCellsCommand 同语义（相交包围盒 + 锚点值保留）；undo 逆序
+ * 回放（后合并的先撤销，相交依赖自洽）。源 Excel 合并区域互不相交——批量
+ * 收集时各区域独立 computeMerge，行为与逐条一致。
+ */
+export const MergeCellsBatchCommand: Command<MergeCellsBatchParams> = {
+  id: 'sheet.command.merge-cells-batch',
+
+  handler(ctx, params): CommandResult {
+    const { sheet } = ctx
+    const patches: Patch[] = []
+    for (const range of params.ranges) {
+      const { range: finalRange, removed } = sheet.merges.computeMerge(range)
+
+      // 捕获包围盒内各格 before；同时按行主序找出第一个有值格
+      const cellPatches: CellPatch[] = []
+      let retained: CellData | undefined
+      let anchorPatch: CellPatch | undefined
+      for (const addr of iterateRange(finalRange)) {
+        const before = sheet.store.getCell(addr)
+        if (before && !retained && !isEmptyCellData(before)) retained = before
+        const patch: CellPatch = { kind: 'cell', addr, before, after: undefined }
+        if (addr.row === finalRange.start.row && addr.col === finalRange.start.col) {
+          anchorPatch = patch
+        }
+        cellPatches.push(patch)
+      }
+      if (retained && anchorPatch) {
+        anchorPatch.after = { ...retained }
+      }
+
+      // 立即应用本区域的补丁后再处理下一个：批量内相交时 computeMerge 能看到
+      // 前一个合并（与逐条 mergeCells 语义一致：相交 → 包围盒）；undo 逆序回放
+      // 仍自洽（后应用的先撤销）
+      const rangePatches: Patch[] = [
+        ...removed.map(
+          (range): MergePatch => ({ kind: 'merge', range, before: true, after: false })
+        ),
+        { kind: 'merge', range: finalRange, before: false, after: true },
+        // 过滤无实际变化的 cell 补丁（如被覆盖格本就为空）
+        ...cellPatches.filter((patch) => !cellDataEqual(patch.before, patch.after))
+      ]
+      for (const patch of rangePatches) ctx.applyPatch(patch, 'redo')
+      patches.push(...rangePatches)
+    }
+    if (patches.length === 0) return { mutations: [] }
+    return { mutations: [{ redo: patches, undo: [...patches].reverse() }] }
+  }
+}

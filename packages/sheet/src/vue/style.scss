@@ -539,6 +539,53 @@
     overflow: hidden;
   }
 
+  /* 导入解析覆盖层（自绘：遮罩 + 动画 + 文字同一层，不依赖 desktop Loading 的
+     text 能力；层级高于 v-loading 遮罩与 grid 实例，文字不被掩盖） */
+  @include m.e(loading-mask) {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background-color: fn.use-var(bg-color, top, alpha);
+    @include m.flex($justify: center, $align: center);
+    flex-direction: column;
+  }
+
+  /* 旋转圈动画（与 desktop dual-ring 同风格：border 圆环 + 顶部高亮 + 旋转） */
+  @include m.e(loading-spinner) {
+    width: 36px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid fn.color-a(color, 22, primary);
+    border-top-color: currentColor;
+    color: fn.use-var(color, primary);
+    animation: u-sheet-loading-spin 0.8s linear infinite;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      border: 2px solid fn.color-a(color, 22, primary);
+      border-bottom-color: currentColor;
+      animation: u-sheet-loading-spin 1.2s linear infinite reverse;
+    }
+  }
+
+  @include m.e(loading-text) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, secondary);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  @keyframes u-sheet-loading-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   /* LRU 缓存实例容器：absolute 堆叠于 grid 区，非激活实例 visibility:hidden
      （保持尺寸不触发 VTable resize，切回仅翻转可见性 + 选区回驱） */
   @include m.e(grid-instance) {

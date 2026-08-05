@@ -57,7 +57,14 @@
       :context="context"
     />
 
-    <div ref="gridRef" :class="cls.e('grid')" v-loading="parsing" />
+    <div ref="gridRef" :class="cls.e('grid')">
+      <!-- 导入解析覆盖层（自绘，不动 desktop Loading 组件）：遮罩 + 动画 + 文字
+           同一层，动画在上、文字在下，不存在被遮罩掩盖的问题 -->
+      <div v-if="parsing" :class="cls.e('loading-mask')">
+        <div :class="cls.e('loading-spinner')"></div>
+        <div :class="cls.e('loading-text')">{{ parseText }}</div>
+      </div>
+    </div>
 
     <u-sheet-tabs
       v-if="showTabs"
@@ -69,13 +76,13 @@
 </template>
 
 <script lang="ts" setup>
-import { UDropdown, vLoading } from '@veltra/desktop'
+import { UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { provide, ref, useTemplateRef, watch } from 'vue'
+import { computed, provide, ref, useTemplateRef, watch } from 'vue'
 
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
 import UFormulaBar from './formula-bar.vue'
-import { SHEET_PARSING_KEY } from './parsing'
+import { SHEET_PARSE_PROGRESS_KEY, SHEET_PARSING_KEY } from './parsing'
 import USheetBorderPopup from './popups/border-popup.vue'
 import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
@@ -119,9 +126,19 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
 const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context)
-// xlsx 解析中（worker）：grid 容器挂 v-loading（import-popup 经 provide/inject 写入）
+// xlsx 解析中（worker）：grid 容器显示自绘覆盖层（import-popup 经 provide/inject
+// 写入；遮罩 + 动画 + 文字同层展示——动画在上、文字在下）
 const parsing = ref(false)
 provide(SHEET_PARSING_KEY, parsing)
+// 解析进度（worker 分片构建期间 done/total；total=0 表示 readXlsx 同步解析段）
+const parseProgress = ref({ done: 0, total: 0 })
+provide(SHEET_PARSE_PROGRESS_KEY, parseProgress)
+// 覆盖层说明文字：readXlsx 段文案 / 分片构建段计数
+const parseText = computed(() =>
+  parseProgress.value.total > 0
+    ? `正在解析… ${parseProgress.value.done}/${parseProgress.value.total}`
+    : '正在读取文件结构…'
+)
 
 // ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────
 

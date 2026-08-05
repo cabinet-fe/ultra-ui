@@ -1,6 +1,6 @@
 import type { CellAddress, CellRange } from '../address'
 import type { CellData } from '../cell-store'
-import type { Sheet } from '../sheet'
+import type { Sheet, SheetSnapshot } from '../sheet'
 
 /**
  * 命令系统类型定义（决策 5：命令 + 逆操作补丁）。
@@ -52,7 +52,20 @@ export interface StructurePatch {
   beforeCols: number
 }
 
-export type Patch = CellPatch | MergePatch | StructurePatch
+/**
+ * 整表快照替换补丁（导入 replaceWorkbook / undo/redo 回放）。
+ * 与 cell/merge 差量补丁不同：整表内容一次替换，静默（不发逐格 cell-change），
+ * 由调用方按 content-reset 事件全量刷新视图——避免十万级逐格视图同步。
+ * 只替换 cells/styles/merges（含公式图重建）；冻结/行高/尺寸/选区保持当前
+ * （对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」约定）。
+ */
+export interface SnapshotPatch {
+  kind: 'snapshot'
+  /** 目标快照：redo 应用；mutation.undo 列表里放操作前快照（before） */
+  snapshot: SheetSnapshot
+}
+
+export type Patch = CellPatch | MergePatch | StructurePatch | SnapshotPatch
 
 /**
  * 一次命令执行产生的变更单元。

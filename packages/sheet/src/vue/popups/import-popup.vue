@@ -12,10 +12,10 @@ import { message, messageConfirm, UFilePicker } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { inject } from 'vue'
 
-import { importCsv, importXlsx, replaceWorkbook } from '../../core/io/import'
+import { importCsv, importXlsx, replaceWorkbookWithSnapshots } from '../../core/io/import'
 import type { Sheet, SheetSnapshot } from '../../core/sheet'
-import { Workbook } from '../../core/workbook'
-import { SHEET_PARSING_KEY } from '../parsing'
+import type { Workbook } from '../../core/workbook'
+import { SHEET_PARSE_PROGRESS_KEY, SHEET_PARSING_KEY } from '../parsing'
 import type { ImportWorkerResponse } from './import.worker'
 
 defineOptions({ name: 'USheetImportPopup' })
@@ -23,7 +23,7 @@ defineOptions({ name: 'USheetImportPopup' })
 /**
  * 导入面板（UFilePicker 文件选择）。不参与面板事务：
  * - .csv → importCsv 直接写入当前活动表（事务 = 单 undo 单元）
- * - .xlsx → importXlsx 解析后经 messageConfirm 确认「替换当前工作簿」再 replaceWorkbook
+ * - .xlsx → 解析后经 messageConfirm 确认「替换当前工作簿」再 replaceWorkbookWithSnapshots
  */
 const props = defineProps<{
   /** 当前工作簿（xlsx 替换目标） */
@@ -42,6 +42,7 @@ const emit = defineEmits<{
 
 // xlsx 解析中状态：provide/inject（面板关闭卸载组件后 emit 失效，ref 引用不受影响）
 const parsing = inject(SHEET_PARSING_KEY, null)
+const parseProgress = inject(SHEET_PARSE_PROGRESS_KEY, null)
 
 const cls = bem('sheet')
 
@@ -49,12 +50,14 @@ const cls = bem('sheet')
  * xlsx 解析（worker 优先）：importXlsx 是同步重活（hucre 解析 + 模型构建，
  * 196 sheet / 75 万格实测 3~4s），主线程直接跑会冻结 UI（选完文件后
  * 「3~4s 无反馈才弹确认框」）。移入 Web Worker 后主线程空闲（loading 动画
- * 正常转）；worker 返回纯数据快照（结构化克隆），主线程 restore 重建
- * Workbook（worker 内已做名字唯一化与活动表对齐，重建无 undo 历史——
- * 替换语义由确认后的 replaceWorkbook 负责）。worker 不可用（极端环境）
- * 回退主线程解析。
+ * 正常转）；worker 返回纯数据快照（结构化克隆），主线程**不再 restore 重建
+ * 临时 Workbook**——确认后快照直接经 replaceWorkbookWithSnapshots 替换进目标
+ * （省一次全量构建 + 一次逐格拷贝）。worker 不可用（极端环境）回退主线程
+ * 解析（同样转快照数组，统一入口）。
  */
-async function parseXlsxAsync(buffer: ArrayBuffer): Promise<Workbook> {
+type ParsedXlsx = { sheets: { name: string; snapshot: SheetSnapshot }[]; activeIndex: number }
+
+async function parseXlsxAsync(buffer: ArrayBuffer): Promise<ParsedXlsx> {
   let worker: Worker | undefined
   try {
     // new URL 模式：dev（vite）与 build（rolldown）都支持把 worker 提为独立
@@ -66,40 +69,47 @@ async function parseXlsxAsync(buffer: ArrayBuffer): Promise<Workbook> {
       : new URL('./import.worker.js', import.meta.url)
     worker = new Worker(url, { type: 'module' })
   } catch {
-    return importXlsx(new Uint8Array(buffer))
+    return toSnapshotArray(await importXlsx(new Uint8Array(buffer)))
   }
-  return await new Promise<Workbook>((resolve, reject) => {
+  return await new Promise<ParsedXlsx>((resolve, reject) => {
     let settled = false
     // worker 加载/启动失败（如打包产物缺文件）→ 降级主线程解析
-    const fallback = () => {
+    const fallback = (): void => {
       if (settled) return
       settled = true
       worker!.terminate()
-      resolve(importXlsx(new Uint8Array(buffer)))
+      void importXlsx(new Uint8Array(buffer))
+        .then((wb) => resolve(toSnapshotArray(wb)))
+        .catch((err: unknown) => reject(err))
     }
     worker!.onmessage = (e: MessageEvent<ImportWorkerResponse>) => {
+      const data = e.data
+      if (data.type === 'progress') {
+        // 分片构建进度：面板已卸载，经父作用域 ref 驱动 loading 浮层文案
+        if (parseProgress) parseProgress.value = { done: data.done, total: data.total }
+        return
+      }
       if (settled) return
       settled = true
-      const data = e.data
       if (!data.ok) {
         worker!.terminate()
         reject(new Error(data.error ?? 'worker 解析失败'))
         return
       }
       worker!.terminate()
-      const sheets = data.sheets ?? []
-      const wb = new Workbook()
-      for (let i = 0; i < sheets.length; i++) {
-        const { name, snapshot } = sheets[i]!
-        const sheet = i === 0 ? wb.activeSheet : wb.addSheet(name)
-        sheet.restore(snapshot as SheetSnapshot)
-      }
-      wb.activateSheet(wb.getSheets()[Math.min(data.activeIndex ?? 0, wb.sheetCount - 1)]!.name)
-      resolve(wb)
+      resolve({ sheets: data.sheets ?? [], activeIndex: data.activeIndex ?? 0 })
     }
     worker!.onerror = () => fallback()
     worker!.postMessage({ buffer })
   })
+}
+
+/** Workbook → 快照数组（worker 不可用降级路径；worker 内已做名字唯一化与活动表对齐） */
+function toSnapshotArray(wb: Workbook): ParsedXlsx {
+  return {
+    sheets: wb.getSheets().map((s) => ({ name: s.name, snapshot: s.snapshot() })),
+    activeIndex: wb.activeSheetIndex
+  }
 }
 
 function handleImportPick(files: File[]): void {
@@ -119,23 +129,25 @@ function handleImportPick(files: File[]): void {
     // 解析（3~5s）在 worker 进行：主线程空闲，宿主 grid 容器挂 v-loading 反馈
     // （loading 动画正常转）；解析完成/失败即移除
     if (parsing) parsing.value = true
+    if (parseProgress) parseProgress.value = { done: 0, total: 0 }
     void parseXlsxAsync(buffer)
       .then((imported) => {
         if (parsing) parsing.value = false
         messageConfirm.danger(
-          `导入将替换当前工作簿（共 ${imported.sheetCount} 个工作表），确定吗？`,
+          `导入将替换当前工作簿（共 ${imported.sheets.length} 个工作表），确定吗？`,
           {
             confirmButtonText: '导入',
             onClosed: (action) => {
               if (action !== 'confirm') return
-              // 弹窗关闭动画（0.25s）完成后才执行 replaceWorkbook：根元素基础
+              // 弹窗关闭动画（0.25s）完成后才执行替换：根元素基础
               // transition 修复后 Vue transition-group 检测到过渡，after-leave 在
-              // 动画结束触发，onClosed 不再阻塞弹窗关闭。先给常驻反馈：replaceWorkbook
-              // 是同步重活（52.8MB / 30 sheet 实测 ~1.6s 主线程阻塞），无提示会
-              // 表现为「页面冻结无反馈」；duration: 0 = 不自动关闭。
+              // 动画结束触发，onClosed 不再阻塞弹窗关闭。先给常驻反馈：
+              // replaceWorkbookWithSnapshots 是同步重活（52.8MB / 30 sheet 实测
+              // ~1.6s 主线程阻塞），无提示会表现为「页面冻结无反馈」；
+              // duration: 0 = 不自动关闭。
               const loading = message({ message: '正在导入…', duration: 0 })
               try {
-                replaceWorkbook(props.workbook, imported)
+                replaceWorkbookWithSnapshots(props.workbook, imported.sheets, imported.activeIndex)
                 // replaceWorkbook 未必触发 active-sheet-change（同 index）：通知宿主显式同步
                 emit('workbookReplaced')
                 // 等首帧渲染完成再报「导入完成」：vrender 重建后的首次渲染是同步

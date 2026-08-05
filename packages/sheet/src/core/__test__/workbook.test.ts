@@ -269,3 +269,71 @@ describe('Sheet.name 受控', () => {
     expect(sheet.name).toBe('A')
   })
 })
+
+describe('Workbook.beginBatch / endBatch（批量结构变更事件抑制）', () => {
+  it('批量内结构事件抑制，endBatch 合并补发一次（sheets-change / sheet-rename / active-sheet-change）', () => {
+    const wb = new Workbook()
+    wb.activeSheet.setCellValue({ row: 0, col: 0 }, 'x')
+    wb.addSheet('Old2')
+
+    const events: string[] = []
+    wb.on('sheets-change', () => events.push('sheets-change'))
+    wb.on('sheet-rename', ({ oldName, newName }) => events.push(`rename:${oldName}->${newName}`))
+    wb.on('active-sheet-change', ({ index }) => events.push(`active:${index}`))
+
+    wb.beginBatch()
+    wb.removeSheet('Old2')
+    wb.renameSheet('Sheet1', 'First')
+    wb.addSheet('B')
+    wb.addSheet('C')
+    wb.activateSheet('C')
+    expect(events).toEqual([]) // 批量中全部抑制
+    wb.endBatch()
+
+    // 合并补发：sheets-change（最终列表）→ rename → active（激活项变了）
+    expect(events).toEqual(['sheets-change', 'rename:Sheet1->First', 'active:2'])
+    expect(wb.getSheets().map((s) => s.name)).toEqual(['First', 'B', 'C'])
+    expect(wb.activeSheet.name).toBe('C')
+  })
+
+  it('激活项未变的批量不补发 active-sheet-change；嵌套批量拍平', () => {
+    const wb = new Workbook()
+    wb.addSheet('Old2')
+
+    const events: string[] = []
+    wb.on('sheets-change', () => events.push('sheets-change'))
+    wb.on('active-sheet-change', () => events.push('active'))
+
+    wb.beginBatch()
+    wb.beginBatch() // 嵌套
+    wb.removeSheet('Old2')
+    wb.addSheet('B')
+    wb.endBatch() // 内层结束不补发
+    expect(events).toEqual([])
+    wb.endBatch()
+    expect(events).toEqual(['sheets-change']) // 激活项未变（Sheet1 仍是激活）→ 无 active
+  })
+
+  it('endBatch 无进行中的批量抛错', () => {
+    const wb = new Workbook()
+    expect(() => wb.endBatch()).toThrow()
+  })
+
+  it('批量中异常：finally endBatch 仍补发事件，模型状态正确', () => {
+    const wb = new Workbook()
+    const events: string[] = []
+    wb.on('sheets-change', () => events.push('sheets-change'))
+
+    wb.beginBatch()
+    wb.addSheet('B')
+    try {
+      throw new Error('boom')
+    } catch {
+      // 异常被调用方捕获；finally 保证收尾
+    } finally {
+      wb.endBatch()
+    }
+    expect(events).toEqual(['sheets-change'])
+    expect(wb.getSheets().map((s) => s.name)).toEqual(['Sheet1', 'B'])
+  })
+})

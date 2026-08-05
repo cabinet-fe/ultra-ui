@@ -11,7 +11,11 @@ import {
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
 import { InsertCellsCommand } from './command/insert-delete-cells'
-import { MergeCellsCommand, UnmergeCellsCommand } from './command/merge-cells'
+import {
+  MergeCellsBatchCommand,
+  MergeCellsCommand,
+  UnmergeCellsCommand
+} from './command/merge-cells'
 import { SetCellFormulaCommand } from './command/set-cell-formula'
 import { SetCellStyleCommand, type SetCellStyleItem } from './command/set-cell-style'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
@@ -75,6 +79,12 @@ export type SheetEvents = {
   'frozen-change': FrozenState
   /** 结构变化（行列插入/删除；grid 层据此调整渲染行列数） */
   'structure-change': StructureChange
+  /**
+   * 整表内容替换（SnapshotPatch 应用：导入 replaceWorkbook / undo/redo 回放）。
+   * 不发逐格 cell-change（避免十万级视图同步）；grid 层全量刷新（setRecords）、
+   * 状态源 bump 都以此为信号。
+   */
+  'content-reset': undefined
 }
 
 export class Sheet {
@@ -297,6 +307,16 @@ export class Sheet {
    */
   mergeCells(range: CellRange): CellRange {
     return this.executeCommand<CellRange>(MergeCellsCommand.id, { range })!
+  }
+
+  /**
+   * 批量合并（一次调用 = 一个 undo 单元；导入等批量场景用，避免逐区域命令
+   * 的命令/历史/重算编排开销）。与逐条 mergeCells 同语义（相交包围盒 +
+   * 锚点值保留；源 Excel 合并区域互不相交，批量收集行为一致）。
+   */
+  mergeCellsBatch(ranges: CellRange[]): void {
+    if (ranges.length === 0) return
+    this.executeCommand(MergeCellsBatchCommand.id, { ranges })
   }
 
   /** 解除与 range 相交的所有合并；仅原锚点保留值（被覆盖格本就无值） */
@@ -589,6 +609,23 @@ export class Sheet {
   }
 
   /**
+   * 整表内容替换（SnapshotPatch 应用：RestoreSheetCommand 执行 / undo/redo 回放）。
+   * 只替换 cells/styles/merges（含公式依赖图重建）；冻结 / 行高 / 尺寸 / 选区
+   * 保持当前——对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」
+   * 既有约定（undo 导入后冻结/行高/尺寸保留导入后状态，同现状逐格补丁回放行为）。
+   * 静默（不发 cell-change / merge-change），发 content-reset 供视图层全量刷新。
+   * @internal 命令与 undo/redo 回放调用
+   */
+  restoreContent(snapshot: SheetSnapshot): void {
+    this.store.restore(snapshot.cells)
+    this.stylePool.restore(snapshot.styles)
+    this.merges.clear()
+    for (const range of snapshot.merges) this.merges.addMerge(range)
+    this.formulaGraph.rebuildSheet(this, snapshot.cells)
+    this.emitter.emit('content-reset', undefined)
+  }
+
+  /**
    * 静默还原选区：有快照且含合法 activeCell → 解析锚点后写入；否则回落 A1。
    * 不发 selection-change（调用方重建 grid 时按模型选区回驱）。
    */
@@ -655,12 +692,20 @@ export class Sheet {
       this.emitter.emit('merge-change', { range: patch.range })
       return
     }
+    if (patch.kind === 'snapshot') {
+      // 整表内容替换（导入执行 / undo/redo 回放）：restore 静默 + 发 content-reset。
+      // 不还原冻结/行高/尺寸/选区（对齐「不进 undo」约定；redo 侧尺寸由命令
+      // handler 在首次执行时 ensureTableSize，回放不重复）
+      this.restoreContent(patch.snapshot)
+      return
+    }
     // 结构变更：redo = 正向结构操作；undo = 反向结构操作（公式平移经 CellPatch 恢复），
     // undo 同时精确还原操作前表格尺寸
     this.applyStructureChange(
       direction === 'redo' ? patch.change : Sheet.reverseStructureChange(patch.change),
       direction === 'undo' ? { rows: patch.beforeRows, cols: patch.beforeCols } : undefined
     )
+    return
   }
 
   /**
@@ -672,16 +717,37 @@ export class Sheet {
     const changed: { sheet: Sheet; addr: CellAddress }[] = []
     for (const mutation of mutations) {
       for (const patch of mutation.redo) {
-        if (patch.kind !== 'cell') continue
-        // 仅样式变化的补丁（v/t/f 相同）不触发公式重算——样式与公式值无关
-        if (
-          patch.before?.v === patch.after?.v &&
-          patch.before?.t === patch.after?.t &&
-          patch.before?.f === patch.after?.f
-        ) {
+        if (patch.kind === 'cell') {
+          // 仅样式变化的补丁（v/t/f 相同）不触发公式重算——样式与公式值无关
+          if (
+            patch.before?.v === patch.after?.v &&
+            patch.before?.t === patch.after?.t &&
+            patch.before?.f === patch.after?.f
+          ) {
+            continue
+          }
+          changed.push({ sheet: patch.sheet ?? this, addr: patch.addr })
           continue
         }
-        changed.push({ sheet: patch.sheet ?? this, addr: patch.addr })
+        if (patch.kind === 'snapshot') {
+          // 整表替换：快照全部格都是变更格（值/公式被替换，跨表引用方需联动重算）。
+          // 被清空的旧格（旧快照有、新快照无）同样标脏——否则引用它们的跨表公式
+          // 缓存 stale（旧实现 copySheetContent 先逐格 clear 会标脏全部旧格）
+          for (const item of patch.snapshot.cells) {
+            changed.push({ sheet: this, addr: { row: item.row, col: item.col } })
+          }
+          const beforeSnapshot = mutation.undo.find(
+            (p): p is Extract<Patch, { kind: 'snapshot' }> => p.kind === 'snapshot'
+          )?.snapshot
+          if (beforeSnapshot) {
+            const afterKeys = new Set(patch.snapshot.cells.map((item) => `${item.row},${item.col}`))
+            for (const item of beforeSnapshot.cells) {
+              if (!afterKeys.has(`${item.row},${item.col}`)) {
+                changed.push({ sheet: this, addr: { row: item.row, col: item.col } })
+              }
+            }
+          }
+        }
       }
     }
     const derived = this.formulaGraph.recalc(changed)

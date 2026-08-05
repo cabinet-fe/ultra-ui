@@ -12,8 +12,9 @@ import { readXlsx } from 'hucre/xlsx'
 
 import type { CellData } from '../cell-store'
 import { inferCellType } from '../cell-store'
+import { RestoreSheetCommand } from '../command/restore-sheet'
 import type { SetCellValueItem } from '../command/set-cell-value'
-import type { Sheet } from '../sheet'
+import type { Sheet, SheetSnapshot } from '../sheet'
 import {
   BORDER_STYLE_WIDTH,
   BORDER_SIDES,
@@ -161,17 +162,67 @@ export function dateToSerial1900(date: Date): number {
   return days >= 61 ? days : days - 1
 }
 
+/**
+ * hucre 样式 memo（导入性能关键）：Excel 样式表全局共享——同一 styleIndex 的格
+ * 解析出相同的 font/fill/border/alignment **子对象引用**（hucre 的 styles 池），
+ * 而 resolveStyle 每次新建外层对象。按四个子对象引用的分配 id 组合做 key：
+ * 命中直接复用 StyleId，跳过 hucreStyleToModel 解析 + StylePool.intern
+ * （normalize + 稳定序列化）——样式密集文件（几十万样式格）收益显著。
+ */
+type StyleMemo = {
+  /** 子对象 → 全局递增 id（WeakMap 不持有引用，随解析生命周期回收） */
+  objIds: WeakMap<object, number>
+  nextObjId: number
+  /** 组合 key → StyleId（内容经 hucreStyleToModel + intern 后记录） */
+  ids: Map<string, number>
+}
+
+function createStyleMemo(): StyleMemo {
+  return { objIds: new WeakMap(), nextObjId: 1, ids: new Map() }
+}
+
+function styleIdOf(memo: StyleMemo, obj: object | undefined): number {
+  if (!obj) return 0
+  let id = memo.objIds.get(obj)
+  if (id === undefined) {
+    id = memo.nextObjId++
+    memo.objIds.set(obj, id)
+  }
+  return id
+}
+
+/** 样式经 memo 内部化：命中返回既有 StyleId；未命中解析 + intern 后记录 */
+function internStyleMemoized(
+  style: HucreCellStyle,
+  sheet: Sheet,
+  themeColors: readonly string[] | undefined,
+  memo: StyleMemo
+): number | undefined {
+  // key 只由影响 hucreStyleToModel 输出的四个共享子对象决定（numFmt 被忽略）
+  const key = `${styleIdOf(memo, style.font)}|${styleIdOf(memo, style.fill)}|${styleIdOf(
+    memo,
+    style.border
+  )}|${styleIdOf(memo, style.alignment)}`
+  const hit = memo.ids.get(key)
+  if (hit !== undefined) return hit
+  const model = hucreStyleToModel(style, themeColors)
+  if (!model) return undefined
+  const id = sheet.stylePool.intern(model)
+  memo.ids.set(key, id)
+  return id
+}
+
 /** hucre 单元格 + 行网格值 → 模型 CellData（样式经目标池 intern；空值且无样式 → undefined） */
 function hucreCellToData(
   cell: HucreCell | undefined,
   value: HucreCellValue | undefined,
   sheet: Sheet,
-  themeColors?: readonly string[]
+  themeColors: readonly string[] | undefined,
+  styleMemo: StyleMemo
 ): CellData | undefined {
   let styleId: number | undefined
   if (cell?.style) {
-    const style = hucreStyleToModel(cell.style, themeColors)
-    if (style) styleId = sheet.stylePool.intern(style)
+    styleId = internStyleMemoized(cell.style, sheet, themeColors, styleMemo)
   }
   if (cell?.formula) {
     // 只写公式原文（f）；计算缓存由命令后重算填充
@@ -212,7 +263,12 @@ function hucreMergeToRange(m: {
  * 清空既有内容 + 批量写入（值/公式/样式）→ 合并 → 冻结 → 行高。
  * 清空与写入同在一个事务 = 单 undo 单元（undo 恢复导入前状态）。
  */
-function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readonly string[]): void {
+function applyHucreSheet(
+  target: Sheet,
+  source: HucreSheet,
+  themeColors: readonly string[] | undefined,
+  styleMemo: StyleMemo
+): void {
   // 实际使用范围（有值格 ∪ 合并 ∪ 行高定义）：渲染尺寸据此收敛，避免稠密
   // 行数组几何（Excel 最大 16384 列 → VTable 构造 16384 列实测 ~15s 卡死）
   let maxUsedRow = 0
@@ -225,12 +281,14 @@ function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readon
     for (const [addr] of target.store.entries()) clearItems.push({ addr, data: undefined })
     if (clearItems.length > 0) target.setCells(clearItems)
 
-    // 合并区域内的非锚点格：模型不支持覆盖格数据（锚点语义），跳过不写
-    const covered = new Set<string>()
+    // 合并区域内的非锚点格：模型不支持覆盖格数据（锚点语义），跳过不写。
+    // 整数 key（行 × 2^20 + 列）替代字符串拼接（主循环每格一次，75 万格量级）
+    const COVERED_STRIDE = 1048576
+    const covered = new Set<number>()
     for (const m of source.merges ?? []) {
       for (let r = m.startRow; r <= m.endRow; r++) {
         for (let c = m.startCol; c <= m.endCol; c++) {
-          if (r !== m.startRow || c !== m.startCol) covered.add(`${r},${c}`)
+          if (r !== m.startRow || c !== m.startCol) covered.add(r * COVERED_STRIDE + c)
         }
       }
     }
@@ -247,9 +305,8 @@ function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readon
       for (let c = 0; c < row.length; c++) {
         const value = row[c]
         if (value == null) continue
-        const key = `${r},${c}`
-        if (covered.has(key)) continue
-        const data = hucreCellToData(cells.get(key), value, target, themeColors)
+        if (covered.has(r * COVERED_STRIDE + c)) continue
+        const data = hucreCellToData(cells.get(`${r},${c}`), value, target, themeColors, styleMemo)
         if (data === undefined && value == null) continue
         items.push({ addr: { row: r, col: c }, data })
         if (r > maxUsedRow) maxUsedRow = r
@@ -265,28 +322,35 @@ function applyHucreSheet(target: Sheet, source: HucreSheet, themeColors?: readon
     // 渲染区外不可见（用户也滚动不到），丢弃无感知损失。
     const KEEP_MARGIN = 100
     for (const [key, cell] of cells) {
+      // 先解析行号：带外行（占绝大多数）直接跳过，省列解析（slice 分配是
+      // 主成本，76 万格量级收益可观）
       const comma = key.indexOf(',')
       const r = Number(key.slice(0, comma))
-      const c = Number(key.slice(comma + 1))
       // 公式格是真实内容：保留并计入尺寸（即使值缓存为空）
       const isFormula = Boolean(cell?.formula)
-      if (!isFormula && (r > maxUsedRow + KEEP_MARGIN || c > maxUsedCol + KEEP_MARGIN)) continue
+      if (!isFormula && r > maxUsedRow + KEEP_MARGIN) continue
+      const c = Number(key.slice(comma + 1))
+      if (!isFormula && c > maxUsedCol + KEEP_MARGIN) continue
       if (isFormula) {
         if (r > maxUsedRow) maxUsedRow = r
         if (c > maxUsedCol) maxUsedCol = c
       }
       const value = source.rows[r]?.[c]
       if (value != null) continue
-      if (covered.has(key)) continue
-      const data = hucreCellToData(cell, value, target, themeColors)
+      if (covered.has(r * COVERED_STRIDE + c)) continue
+      const data = hucreCellToData(cell, value, target, themeColors, styleMemo)
       if (data === undefined) continue
       items.push({ addr: { row: r, col: c }, data })
     }
     if (items.length > 0) target.setCells(items)
 
-    // 合并（相交自动包围盒；锚点值保留规则对空覆盖格无副作用）；合并区计入尺寸
-    for (const m of source.merges ?? []) {
-      target.mergeCells(hucreMergeToRange(m))
+    // 合并（相交自动包围盒；锚点值保留规则对空覆盖格无副作用）；合并区计入尺寸。
+    // 批量一次命令 = 单 undo 单元（1016 个合并区域避免 1016 次命令/重算编排）
+    const sourceMerges = source.merges ?? []
+    if (sourceMerges.length > 0) {
+      target.mergeCellsBatch(sourceMerges.map((m) => hucreMergeToRange(m)))
+    }
+    for (const m of sourceMerges) {
       if (m.endRow > maxUsedRow) maxUsedRow = m.endRow
       if (m.endCol > maxUsedCol) maxUsedCol = m.endCol
     }
@@ -325,11 +389,26 @@ function uniqueName(name: string, used: Set<string>): string {
  */
 export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Workbook> {
   const hucreWb: HucreWorkbook = await readXlsx(buffer, { readStyles: true })
+  return buildWorkbookFromHucre(hucreWb)
+}
+
+/**
+ * hucre 解析结果 → 新工作簿（importXlsx 与 worker 分片构建共用）。
+ * @internal onProgress：每完成一个 sheet 回调（worker 导入进度反馈；
+ * 无头调用不传——回调为同步调用，不影响模型语义）
+ */
+export function buildWorkbookFromHucre(
+  hucreWb: HucreWorkbook,
+  onProgress?: (done: number, total: number) => void
+): Workbook {
   const workbook = new Workbook()
   const themeColors = hucreWb.themeColors
   const used = new Set<string>()
+  // 样式 memo 跨 sheet 共享（Excel 工作簿样式表全局共享，同 styleIndex 子对象引用一致）
+  const styleMemo = createStyleMemo()
 
   const sheets = hucreWb.sheets
+  const total = sheets.length
   const first = workbook.activeSheet
   if (sheets.length > 0) {
     const name = sheets[0]!.name
@@ -338,13 +417,15 @@ export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Work
     } else {
       used.add('sheet1')
     }
-    applyHucreSheet(first, sheets[0]!, themeColors)
+    applyHucreSheet(first, sheets[0]!, themeColors, styleMemo)
+    onProgress?.(1, total)
   }
   for (let i = 1; i < sheets.length; i++) {
     const name = uniqueName(sheets[i]!.name, used)
     used.add(name.toLowerCase())
     workbook.addSheet(name)
-    applyHucreSheet(workbook.getSheet(name)!, sheets[i]!, themeColors)
+    applyHucreSheet(workbook.getSheet(name)!, sheets[i]!, themeColors, styleMemo)
+    onProgress?.(i + 1, total)
   }
   const active = hucreWb.activeSheet ?? 0
   const target = workbook.getSheets()[active]
@@ -395,35 +476,131 @@ export function importCsv(text: string, sheet: Sheet): void {
 
 /**
  * 把源工作簿内容整体替换到目标工作簿（导入 UI 的「替换当前工作簿」策略）。
- * 结构变更（sheet 增删）不走 undo（Phase 3 门面边界结论）；每个 sheet 的数据
- * 写入 = 单 undo 单元，undo 恢复该 sheet 导入前数据。
+ * 结构变更（sheet 增删）不走 undo（Phase 3 门面边界结论）；每个 sheet 的
+ * 内容替换 = 单 undo 单元（RestoreSheetCommand 整表快照替换，undo 恢复该
+ * sheet 导入前数据）。
+ *
+ * 快照整表替换（P0 优化）：不逐格 setCells——导入执行期间不发逐格
+ * cell-change（避免主线程十万级视图同步白干）；数据只搬一次（源快照直接
+ * restore 进目标，不再经「restore 重建 → copySheetContent 逐格拷贝」三拷贝）。
+ * 行高不在快照字段内，单独随条目传输（快照数组路径不传 → 保持现状行为）。
  */
 export function replaceWorkbook(target: Workbook, source: Workbook): void {
-  // 1. 结构：删除多余 sheet（从后往前，至少保留一个）
-  const existing = target.getSheets()
-  for (let i = existing.length - 1; i > 0; i--) target.removeSheet(existing[i]!.name)
+  replaceWorkbookWithSnapshots(
+    target,
+    source
+      .getSheets()
+      .map((s) => ({ name: s.name, snapshot: s.snapshot(), rowHeights: s.getRowHeights() })),
+    source.activeSheetIndex
+  )
+}
 
-  // 2. 第一个 sheet：改名（失败保持原名）+ 内容替换
-  const first = target.activeSheet
-  const sourceFirst = source.getSheets()[0]!
-  if (first.name !== sourceFirst.name && sourceFirst.name.trim() !== '') {
-    target.renameSheet(first.name, sourceFirst.name)
+/** 快照替换条目（行高不在 SheetSnapshot 字段内，单独随条目传输） */
+export interface SheetReplaceItem {
+  name: string
+  snapshot: SheetSnapshot
+  /** 行高（不进 undo；快照数组路径不传 → 目标行高保持现状） */
+  rowHeights?: ReadonlyMap<number, number>
+}
+
+/**
+ * 以快照数组替换目标工作簿内容（worker 导入链路：主线程不再 restore 重建临时
+ * Workbook，worker 返回的快照直接替换进目标）。
+ * 结构变更（删多余 / 改名 / 新增）不走 undo；每个 sheet 内容替换 = 单 undo 单元。
+ */
+export function replaceWorkbookWithSnapshots(
+  target: Workbook,
+  snapshots: readonly SheetReplaceItem[],
+  activeIndex: number
+): void {
+  // 批量结构变更：196 sheet 的删表/加表/改名事件合并为一次补发（避免 vue 层
+  // 反复重渲染 tabs / pruneCache / bump 的事件风暴）
+  target.beginBatch()
+  try {
+    // 1. 结构：删除多余 sheet（从后往前，至少保留一个）
+    const existing = target.getSheets()
+    for (let i = existing.length - 1; i > 0; i--) target.removeSheet(existing[i]!.name)
+
+    // 2. 第一个 sheet：改名（失败保持原名）+ 内容替换
+    const first = target.activeSheet
+    const sourceFirst = snapshots[0]
+    if (sourceFirst) {
+      if (first.name !== sourceFirst.name && sourceFirst.name.trim() !== '') {
+        target.renameSheet(first.name, sourceFirst.name)
+      }
+      replaceSheetFromSnapshot(first, sourceFirst)
+    } else {
+      // 防御：空快照数组 → 清空第一个 sheet（等价于替换为空表）
+      replaceSheetFromSnapshot(first, { name: 'Sheet1', snapshot: EMPTY_SHEET_SNAPSHOT })
+    }
+
+    // 3. 其余 sheet：新增 + 内容替换
+    const used = new Set(target.getSheets().map((s) => s.name.toLowerCase()))
+    for (let i = 1; i < snapshots.length; i++) {
+      const src = snapshots[i]!
+      const name = uniqueName(src.name, used)
+      used.add(name.toLowerCase())
+      replaceSheetFromSnapshot(target.addSheet(name), src)
+    }
+
+    // 4. 激活项对齐源工作簿
+    const targetActive = target.getSheets()[Math.min(activeIndex, target.sheetCount - 1)]!
+    if (targetActive !== target.activeSheet) target.activateSheet(targetActive.name)
+  } finally {
+    target.endBatch()
   }
-  copySheetContent(first, sourceFirst)
+}
 
-  // 3. 其余 sheet：新增 + 内容拷贝
-  const used = new Set(target.getSheets().map((s) => s.name.toLowerCase()))
-  for (let i = 1; i < source.sheetCount; i++) {
-    const src = source.getSheets()[i]!
-    const name = uniqueName(src.name, used)
-    used.add(name.toLowerCase())
-    target.addSheet(name)
-    copySheetContent(target.getSheet(name)!, src)
+/** 空表快照（空快照数组替换时清空第一个 sheet 用） */
+const EMPTY_SHEET_SNAPSHOT: SheetSnapshot = {
+  cells: [],
+  styles: [],
+  merges: [],
+  frozen: { rows: 0, cols: 0 },
+  rows: 0,
+  cols: 0
+}
+
+/**
+ * 单个 sheet 的快照整表替换（RestoreSheetCommand，事务保护 = 单 undo 单元）。
+ * 替换 cells/styles/merges（+ 公式图重建）；行高随条目应用（不进 undo）；
+ * 选区对齐快照（导入默认 A1——hucre 不解析 OOXML selection；不复制则替换后
+ * 残留目标旧选区，与「导入默认 A1」不符）。选区写入不进 undo（同
+ * copySheetContent 先例）。
+ */
+function replaceSheetFromSnapshot(sheet: Sheet, item: SheetReplaceItem): void {
+  const { snapshot } = item
+  sheet.beginTransaction()
+  try {
+    sheet.executeCommand(RestoreSheetCommand.id, { snapshot })
+    sheet.commit()
+  } catch (error) {
+    // 失败回滚：还原事务缓冲中的变更并放弃事务（不留半替换状态）
+    sheet.rollback()
+    throw error
   }
-
-  // 4. 激活项对齐源工作簿
-  const targetActive = target.getSheets()[Math.min(source.activeSheetIndex, target.sheetCount - 1)]!
-  if (targetActive !== target.activeSheet) target.activateSheet(targetActive.name)
+  if (item.rowHeights) {
+    for (const [row, height] of item.rowHeights) sheet.setRowHeight(row, height)
+  }
+  // 选区静默对齐快照（导入默认 A1——hucre 不解析 OOXML selection；不复制则替换后
+  // 残留目标旧选区）。用 selection.restoreState 而非 selectCell/selectRange：
+  // 不发 selection-change——批量替换 196 sheet 时避免 196 次事件 + vue bump +
+  // grid 回驱（视图刷新由调用方重建 grid 时经模型选区回驱接管）。选区不进 undo。
+  const sel = snapshot.selection
+  if (sel?.activeCell) {
+    const active = sheet.merges.resolveAnchor(sel.activeCell)
+    sheet.selection.restoreState({
+      activeCell: active,
+      ranges: sel.ranges?.length
+        ? sel.ranges.map((r) => ({ start: { ...r.start }, end: { ...r.end } }))
+        : [{ start: { ...active }, end: { ...active } }]
+    })
+  } else {
+    sheet.selection.restoreState({
+      activeCell: { row: 0, col: 0 },
+      ranges: [{ start: { row: 0, col: 0 }, end: { row: 0, col: 0 } }]
+    })
+  }
 }
 
 /**

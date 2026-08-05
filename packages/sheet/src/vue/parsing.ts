@@ -9,3 +9,7 @@ import type { InjectionKey, Ref } from 'vue'
  * 父作用域 ref 对象，卸载后修改 ref.value 仍驱动父组件响应式更新。
  */
 export const SHEET_PARSING_KEY: InjectionKey<Ref<boolean>> = Symbol('sheet-parsing')
+
+/** 解析进度（worker 分片构建期间 done/total；readXlsx 同步解析段无进度） */
+export const SHEET_PARSE_PROGRESS_KEY: InjectionKey<Ref<{ done: number; total: number }>> =
+  Symbol('sheet-parse-progress')

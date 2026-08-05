@@ -24,6 +24,13 @@ export class Workbook {
   /** 工作簿级公式依赖图（全部 sheet 共享） */
   readonly formulaGraph = new DependencyGraph()
 
+  /** 批量结构变更深度（beginBatch/endBatch；>0 时结构事件抑制，endBatch 合并补发） */
+  private batchDepth = 0
+  private batchSheetsChanged = false
+  private batchRenamed: WorkbookEvents['sheet-rename'] | null = null
+  /** batch 开始时的激活项（endBatch 时对比补发 active-sheet-change） */
+  private batchActive: { sheet: Sheet; index: number } | null = null
+
   constructor() {
     this.addSheet()
   }
@@ -44,6 +51,45 @@ export class Workbook {
     return [...this.sheets]
   }
 
+  /**
+   * 批量结构变更（可嵌套）：beginBatch 后 addSheet / removeSheet / renameSheet /
+   * activateSheet 的事件抑制，endBatch 合并补发一次（sheets-change → sheet-rename
+   * → active-sheet-change，各自仅在确有变化时补发）。模型状态在 batch 中照常
+   * 生效（列表/激活修正/公式联动），只是事件收尾——导入替换 196 sheet 时避免
+   * 195 次 sheets-change 事件风暴（vue 层反复重渲染 tabs / pruneCache / bump）。
+   */
+  beginBatch(): void {
+    if (this.batchDepth === 0) {
+      this.batchActive = { sheet: this.activeSheet, index: this.activeIndex }
+      this.batchSheetsChanged = false
+      this.batchRenamed = null
+    }
+    this.batchDepth++
+  }
+
+  endBatch(): void {
+    if (this.batchDepth === 0) {
+      throw new Error('Workbook.endBatch：没有进行中的批量')
+    }
+    this.batchDepth--
+    if (this.batchDepth > 0) return
+    if (this.batchSheetsChanged) {
+      this.emitter.emit('sheets-change', { sheets: this.getSheets() })
+    }
+    if (this.batchRenamed) {
+      this.emitter.emit('sheet-rename', this.batchRenamed)
+    }
+    if (this.batchActive && this.batchActive.sheet !== this.activeSheet) {
+      this.emitter.emit('active-sheet-change', { sheet: this.activeSheet, index: this.activeIndex })
+    }
+    this.batchActive = null
+  }
+
+  /** 批量结构变更是否进行中（内部事件抑制判断） */
+  private get inBatch(): boolean {
+    return this.batchDepth > 0
+  }
+
   getSheet(name: string): Sheet | undefined {
     return this.sheets.find((sheet) => sheet.name === name)
   }
@@ -52,7 +98,11 @@ export class Workbook {
   addSheet(name?: string): Sheet {
     const sheet = new Sheet(name ?? this.nextDefaultName(), this.formulaGraph)
     this.sheets.push(sheet)
-    this.emitter.emit('sheets-change', { sheets: this.getSheets() })
+    if (this.inBatch) {
+      this.batchSheetsChanged = true
+    } else {
+      this.emitter.emit('sheets-change', { sheets: this.getSheets() })
+    }
     return sheet
   }
 
@@ -85,8 +135,12 @@ export class Workbook {
     } else if (this.activeIndex >= this.sheets.length) {
       this.activeIndex = this.sheets.length - 1
     }
-    this.emitter.emit('sheets-change', { sheets: this.getSheets() })
-    this.emitter.emit('active-sheet-change', { sheet: this.activeSheet, index: this.activeIndex })
+    if (this.inBatch) {
+      this.batchSheetsChanged = true
+    } else {
+      this.emitter.emit('sheets-change', { sheets: this.getSheets() })
+      this.emitter.emit('active-sheet-change', { sheet: this.activeSheet, index: this.activeIndex })
+    }
     return true
   }
 
@@ -106,7 +160,12 @@ export class Workbook {
     if (this.sheets.some((s) => s.name.toLowerCase() === lower)) return false
     sheet.setName(next)
     this.formulaGraph.renameSheet(oldName, next)
-    this.emitter.emit('sheet-rename', { sheet, oldName, newName: next })
+    const payload: WorkbookEvents['sheet-rename'] = { sheet, oldName, newName: next }
+    if (this.inBatch) {
+      this.batchRenamed = payload
+    } else {
+      this.emitter.emit('sheet-rename', payload)
+    }
     return true
   }
 
@@ -115,7 +174,9 @@ export class Workbook {
     const index = this.sheets.findIndex((sheet) => sheet.name === name)
     if (index < 0 || index === this.activeIndex) return false
     this.activeIndex = index
-    this.emitter.emit('active-sheet-change', { sheet: this.activeSheet, index })
+    if (!this.inBatch) {
+      this.emitter.emit('active-sheet-change', { sheet: this.activeSheet, index })
+    }
     return true
   }
 
