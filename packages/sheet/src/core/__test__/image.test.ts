@@ -131,6 +131,16 @@ describe('Sheet 图片：undo / redo', () => {
     sheet.updateImage('missing', { anchor: { from: { row: 0, col: 0 } } })
     expect(sheet.getImage(id)?.anchor).toEqual(beforeMissing)
   })
+  it('updateImage 写入格内偏移；undo 还原；仅 offset 变化也入历史', () => {
+    const sheet = new Sheet()
+    const id = sheet.insertImage(makeInput({ anchor: { from: { row: 1, col: 1 } } }))
+
+    sheet.updateImage(id, { anchor: { from: { row: 1, col: 1, offsetX: 10, offsetY: 5 } } })
+    expect(sheet.getImage(id)?.anchor.from).toEqual({ row: 1, col: 1, offsetX: 10, offsetY: 5 })
+
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getImage(id)?.anchor.from).toEqual({ row: 1, col: 1 })
+  })
 })
 
 describe('Sheet 图片：快照 roundtrip', () => {
@@ -150,6 +160,20 @@ describe('Sheet 图片：快照 roundtrip', () => {
       title: 'snap',
       anchor: { from: { row: 0, col: 0 }, to: { row: 2, col: 3 } }
     })
+  })
+
+  it('snapshot / restore 保留锚点格内偏移 offsetX/offsetY（含 JSON 序列化）', () => {
+    const sheet = new Sheet()
+    const id = sheet.insertImage(
+      makeInput({ anchor: { from: { row: 0, col: 0, offsetX: 12, offsetY: 6 } } })
+    )
+
+    // 经 JSON roundtrip（普通数字字段，无特殊序列化）
+    const snap = JSON.parse(JSON.stringify(sheet.snapshot())) as SheetSnapshot
+
+    const restored = new Sheet('R')
+    restored.restore(snap)
+    expect(restored.getImage(id)?.anchor.from).toEqual({ row: 0, col: 0, offsetX: 12, offsetY: 6 })
   })
 
   it('空 sheet 序列化兼容：无 images 字段', () => {
@@ -226,6 +250,22 @@ describe('Sheet 图片：restoreContent', () => {
 })
 
 describe('Sheet 图片：行列插入/删除平移与移除', () => {
+  it('结构平移保留格内偏移；undo/redo 不丢 offset', () => {
+    const sheet = new Sheet()
+    const id = sheet.insertImage(
+      makeInput({ anchor: { from: { row: 3, col: 1, offsetX: 8, offsetY: 4 } } })
+    )
+
+    sheet.insertRows(1, 2)
+    expect(sheet.getImage(id)?.anchor.from).toEqual({ row: 5, col: 1, offsetX: 8, offsetY: 4 })
+
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getImage(id)?.anchor.from).toEqual({ row: 3, col: 1, offsetX: 8, offsetY: 4 })
+
+    expect(sheet.redo()).toBe(true)
+    expect(sheet.getImage(id)?.anchor.from).toEqual({ row: 5, col: 1, offsetX: 8, offsetY: 4 })
+  })
+
   it('插入行：from/to 在插入点及以下下移', () => {
     const sheet = new Sheet()
     const id = sheet.insertImage(

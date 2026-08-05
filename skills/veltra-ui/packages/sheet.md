@@ -33,8 +33,8 @@ import '@veltra/sheet/vue/style'
 - 交互：填充柄（复制 / 数字日期等差 / 公式 `$` 感知位移）、行高拖拽（稀疏存模型、不进 undo）、
   冻结行列（模型持有、不进 undo）、查找/替换（Ctrl/Cmd+F 或工具栏「查找」）、
   右键菜单（body 合并/插入图片；行号/列头插入删除与冻结）、编辑中方向键只移光标。
-  浮动图片：工具栏「插入图片」或右键选文件，锚定活动格；叠层渲染（有 `to` 时按 from→to 跨度）；
-  选中后可拖动平移锚点；Delete 删除。
+  浮动图片：工具栏「插入图片」或右键选文件，锚定活动格；叠层渲染（宽高优先 width/height，
+  缺失且有 `to` 时按 from→to 跨度兜底）；选中后可拖动平移锚点（含格内像素偏移）；Delete 删除。
 - **公式栏**：名称框显示/输入选区地址（回车跳转、非法提示不写入）；fx 输入栏显示活动格内容
   （公式格显示原文 `=f`），聚焦编辑后 Enter/✓ 提交（`'='` 前缀自动公式路径）、Esc/✗ 取消；
   与网格双向同步（网格侧变化即时刷新，公式栏编辑期间网格事件不打断输入）；
@@ -118,7 +118,7 @@ import '@veltra/sheet/vue/style'
 type SheetImageType = 'png' | 'jpeg' | 'gif' | 'svg' | 'webp'
 
 interface SheetImageAnchor {
-  from: CellAddress
+  from: CellAddress & { offsetX?: number; offsetY?: number } // 格内像素偏移（px，缺省 0）
   to?: CellAddress
 }
 
@@ -155,11 +155,11 @@ ctx.getImages(): readonly SheetImage[]
 ctx.onImageChange(handler: (payload: { id?: string }) => void): () => void
 ```
 
-- 渲染：grid 容器 DOM 叠层；`from` 定左上；有 `to` 时宽高 = from→to 跨度（覆盖固定
-  width/height，Excel `twoCellAnchor`）；无 `to` 时用 width/height（缺省自然尺寸）。
-  随滚动/冻结/行高重排。
+- 渲染：grid 容器 DOM 叠层；`from` 定左上并叠加格内像素偏移 `offsetX/offsetY`；宽高优先取
+  width/height（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel
+  `twoCellAnchor`），都缺失时取自然尺寸。随滚动/冻结/行高重排。
 - 拖动：选中后 pointer 拖动，落点反查单元格经 `updateImage` 平移 `from`（有 `to` 则同
-  delta，保持跨度/宽高）；可 undo。
+  delta，保持跨度/宽高），格内像素余量写回 `offsetX/offsetY`（自由定位不吸附）；可 undo。
 - 结构联动：插入/删除行列时锚点平移；锚点区间被完整删除时图片移除。
 - **内置工具** `insert-image`：组 `insert`，`popup: 'insert-image'`（UFilePicker，
   accept `.png,.jpg,.jpeg,.gif,.svg,.webp`）；无活动格时禁用。

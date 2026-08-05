@@ -50,10 +50,11 @@ interface DragSession {
 /**
  * 浮动图片 DOM 叠层：绝对定位于 grid 容器内，按锚点单元格实时布置。
  *
- * - 定位：`computeImageRect`——from 左上；有 `to` 时用 from→to 跨度作宽高（Excel 拉伸）
+ * - 定位：`computeImageRect`——from 左上 + 格内像素偏移（offsetX/offsetY）；
+ *   宽高优先取 `image.width/height`，缺失且有 `to` 时按 from→to 跨度兜底
  * - 数据：`Map<id, objectURL>` 缓存，dispose 时 revoke
  * - LRU：隐藏只置脏，激活时一次性重排
- * - 交互：点击选中；选中后拖动经 `sheet.updateImage` 平移锚点（可 undo）；
+ * - 交互：点击选中；选中后拖动经 `sheet.updateImage` 平移锚点（含格内余量，可 undo）；
  *   Delete/Backspace 经 `sheet.removeImage` 删除
  */
 export class ImageLayer {
@@ -287,6 +288,7 @@ export class ImageLayer {
 
   /**
    * 落点：以图片左上角视口坐标反查单元格，平移 from（有 to 则同 delta），
+   * 落点相对该格左上的像素余量写回 offsetX/offsetY（负值 clamp 到 0），
    * 保持宽高与行列跨度。
    */
   private commitDrag(id: string, wrap: HTMLDivElement | undefined): void {
@@ -307,16 +309,27 @@ export class ImageLayer {
       return
     }
 
+    // 格内像素余量 = 落点 − 目标格左上；越出左上边界时 clamp 到 0
+    const cellRect = this.table.getCellRelativeRect(cell.col, cell.row)
+    const offsetX = Math.max(0, Math.round(left - cellRect.left))
+    const offsetY = Math.max(0, Math.round(top - cellRect.top))
+
     const oldFrom = image.anchor.from
     const dRow = newFrom.row - oldFrom.row
     const dCol = newFrom.col - oldFrom.col
-    if (dRow === 0 && dCol === 0) {
+    const sameOffset = (oldFrom.offsetX ?? 0) === offsetX && (oldFrom.offsetY ?? 0) === offsetY
+    if (dRow === 0 && dCol === 0 && sameOffset) {
       this.layoutOne(id, image)
       return
     }
 
     const anchor = cloneImageAnchor(image.anchor)
-    anchor.from = { row: oldFrom.row + dRow, col: oldFrom.col + dCol }
+    anchor.from = {
+      row: oldFrom.row + dRow,
+      col: oldFrom.col + dCol,
+      ...(offsetX > 0 ? { offsetX } : {}),
+      ...(offsetY > 0 ? { offsetY } : {})
+    }
     if (anchor.to) {
       anchor.to = { row: anchor.to.row + dRow, col: anchor.to.col + dCol }
     }
@@ -452,14 +465,19 @@ export class ImageLayer {
   }
 
   /**
-   * Excel twoCellAnchor 语义：left/top = from 左上；有 to 时宽高 = to 右下 − from 左上
-   * （覆盖固定 width/height）；无 to 时用 width/height ?? 自然尺寸。
+   * 定位：left/top = from 格左上 + 格内像素偏移（offsetX/offsetY）。
+   * 宽高优先取 image.width/height（xlsx 导入的精确 px 尺寸）；宽高缺失且有 to 时
+   * 按 from→to 跨度兜底（Excel twoCellAnchor 拉伸语义）；都缺失时取自然尺寸。
    */
   private computeImageRect(image: SheetImage, img?: HTMLImageElement | null): ImageRect {
     const fromCoord = this.toTableCoord(image.anchor.from)
     const fromRect = this.table.getCellRelativeRect(fromCoord.col, fromCoord.row)
-    const left = fromRect.left
-    const top = fromRect.top
+    const left = fromRect.left + (image.anchor.from.offsetX ?? 0)
+    const top = fromRect.top + (image.anchor.from.offsetY ?? 0)
+
+    if (image.width != null && image.height != null) {
+      return { left, top, width: image.width, height: image.height }
+    }
 
     if (image.anchor.to) {
       const toCoord = this.toTableCoord(image.anchor.to)
@@ -467,8 +485,8 @@ export class ImageLayer {
       return {
         left,
         top,
-        width: Math.max(0, toRect.right - left),
-        height: Math.max(0, toRect.bottom - top)
+        width: Math.max(0, toRect.right - fromRect.left),
+        height: Math.max(0, toRect.bottom - fromRect.top)
       }
     }
 

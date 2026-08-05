@@ -87,7 +87,7 @@ describe('ImageLayer（canvas-mock）', () => {
     }
   })
 
-  it('有 to 锚点时宽高取 from→to 跨度，覆盖固定 width/height', () => {
+  it('有 to 锚点且带 width/height 时按 width/height 布置（宽高优先于跨度）', () => {
     const { sheet, grid, table, container, layer } = createGrid()
     track(container)
     try {
@@ -105,8 +105,7 @@ describe('ImageLayer（canvas-mock）', () => {
         } as ReturnType<ListTable['getCellRelativeRect']>
       })
 
-      // from (0,0) → table (1,1)；to (2,3) → table (4,3)
-      // left/top = (100,40)；width = 500-100=400；height = 160-40=120
+      // from (0,0) → table (1,1)；有 to 但 width/height 优先（xlsx 导入的精确 px）
       sheet.insertImage(
         makeInput({
           id: 'img-to',
@@ -120,8 +119,75 @@ describe('ImageLayer（canvas-mock）', () => {
       const node = imageNodes(container)[0]!
       expect(node.style.left).toBe('100px')
       expect(node.style.top).toBe('40px')
+      expect(node.style.width).toBe('10px')
+      expect(node.style.height).toBe('10px')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('有 to 锚点但缺 width/height 时宽高取 from→to 跨度兜底', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 100
+        const top = row * 40
+        return {
+          left,
+          top,
+          width: 100,
+          height: 40,
+          right: left + 100,
+          bottom: top + 40
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+
+      // from (0,0) → table (1,1)；to (2,3) → table (4,3)
+      // left/top = (100,40)；width = 500-100=400；height = 160-40=120
+      sheet.insertImage(
+        makeInput({
+          id: 'img-span',
+          anchor: { from: { row: 0, col: 0 }, to: { row: 2, col: 3 } },
+          width: undefined,
+          height: undefined
+        })
+      )
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      expect(node.style.left).toBe('100px')
+      expect(node.style.top).toBe('40px')
       expect(node.style.width).toBe('400px')
       expect(node.style.height).toBe('120px')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('from 带格内偏移 offsetX/offsetY 时叠加到 left/top', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      vi.spyOn(table, 'getCellRelativeRect').mockReturnValue({
+        left: 120,
+        top: 60,
+        width: 80,
+        height: 28,
+        right: 200,
+        bottom: 88
+      } as ReturnType<ListTable['getCellRelativeRect']>)
+
+      sheet.insertImage(
+        makeInput({ id: 'img-off', anchor: { from: { row: 0, col: 0, offsetX: 15, offsetY: 7 } } })
+      )
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      expect(node.style.left).toBe('135px')
+      expect(node.style.top).toBe('67px')
+      expect(node.style.width).toBe('100px')
+      expect(node.style.height).toBe('80px')
     } finally {
       grid.release()
     }
@@ -273,7 +339,7 @@ describe('ImageLayer（canvas-mock）', () => {
     }
   })
 
-  it('拖动落点反查单元格，经 updateImage 平移 from/to；可 undo', () => {
+  it('拖动落点反查单元格，余量写回 offsetX/offsetY；经 updateImage 平移 from/to；可 undo', () => {
     const { sheet, grid, table, container, layer } = createGrid()
     track(container)
     try {
@@ -306,10 +372,13 @@ describe('ImageLayer（canvas-mock）', () => {
       expect(node.style.left).toBe('160px')
       expect(node.style.top).toBe('56px')
 
-      // 落点落在 table (col=4, row=3) → 模型 (row=2, col=3)；delta = (+1 row, +2 col)
-      vi.spyOn(table, 'getCellAtRelativePosition').mockReturnValue({ col: 4, row: 3 } as ReturnType<
-        ListTable['getCellAtRelativePosition']
-      >)
+      // 按坐标反查：80px 列宽 / 28px 行高
+      vi.spyOn(table, 'getCellAtRelativePosition').mockImplementation(
+        (x, y) =>
+          ({ col: Math.floor(x / 80), row: Math.floor(y / 28) }) as ReturnType<
+            ListTable['getCellAtRelativePosition']
+          >
+      )
 
       node.dispatchEvent(
         new PointerEvent('pointerdown', {
@@ -322,7 +391,8 @@ describe('ImageLayer（canvas-mock）', () => {
       )
       expect(layer.getSelectedId()).toBe('img-drag')
 
-      // 超过阈值的移动
+      // 超过阈值的移动：dx=20, dy=30 → 落点 left=180, top=86
+      // → table (2,3) → 模型 (row=2, col=1)；余量 offsetX=180-160=20, offsetY=86-84=2
       window.dispatchEvent(
         new PointerEvent('pointermove', {
           bubbles: true,
@@ -343,8 +413,8 @@ describe('ImageLayer（canvas-mock）', () => {
       )
 
       expect(sheet.getImage('img-drag')!.anchor).toEqual({
-        from: { row: 2, col: 3 },
-        to: { row: 3, col: 4 }
+        from: { row: 2, col: 1, offsetX: 20, offsetY: 2 },
+        to: { row: 3, col: 2 }
       })
 
       expect(sheet.undo()).toBe(true)
@@ -352,6 +422,70 @@ describe('ImageLayer（canvas-mock）', () => {
         from: { row: 1, col: 1 },
         to: { row: 2, col: 2 }
       })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('拖动落点越出目标格左上时余量 clamp 到 0', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      sheet.insertImage(
+        makeInput({ id: 'img-clamp', anchor: { from: { row: 1, col: 1 } }, width: 50, height: 40 })
+      )
+
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 80
+        const top = row * 28
+        return {
+          left,
+          top,
+          width: 80,
+          height: 28,
+          right: left + 80,
+          bottom: top + 28
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      // 落点固定在 table (3,3)（left=240, top=84）
+      vi.spyOn(table, 'getCellAtRelativePosition').mockReturnValue({ col: 3, row: 3 } as ReturnType<
+        ListTable['getCellAtRelativePosition']
+      >)
+
+      node.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 100,
+          clientY: 100,
+          pointerId: 1
+        })
+      )
+      // dx=40, dy=14 → 落点 left=200, top=70，在目标格 (240,84) 左上之外 → clamp (0,0)
+      window.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 140,
+          clientY: 114,
+          pointerId: 1
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 140,
+          clientY: 114,
+          pointerId: 1
+        })
+      )
+
+      // 模型 (2,2)；余量为负 → 不写 offset 字段
+      expect(sheet.getImage('img-clamp')!.anchor.from).toEqual({ row: 2, col: 2 })
     } finally {
       grid.release()
     }
