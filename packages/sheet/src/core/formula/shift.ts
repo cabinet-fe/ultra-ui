@@ -25,14 +25,14 @@ export interface FormulaShiftResult {
   broken: boolean
 }
 
-/** 带绝对标志的引用坐标 */
-interface RefParts {
+/** 带绝对标志的引用坐标（导出供 fill.ts 的 delta 位移复用同一判定/格式化，#18） */
+export interface RefParts {
   colAbs: boolean
   rowAbs: boolean
   addr: CellAddress
 }
 
-function parseRefParts(text: string): RefParts | null {
+export function parseRefParts(text: string): RefParts | null {
   const match = /^\$?([A-Za-z]+)\$?([1-9]\d*)$/.exec(text.trim())
   if (!match) return null
   const colAbs = text.trim().startsWith('$')
@@ -44,7 +44,7 @@ function parseRefParts(text: string): RefParts | null {
   }
 }
 
-function formatRef(parts: RefParts, addr: CellAddress): string {
+export function formatRef(parts: RefParts, addr: CellAddress): string {
   const col = parts.colAbs ? `$${colIndexToName(addr.col)}` : colIndexToName(addr.col)
   const row = parts.rowAbs ? `$${addr.row + 1}` : `${addr.row + 1}`
   return `${col}${row}`
@@ -249,7 +249,7 @@ export function shiftFormulaText(
   return { text: out.join(''), broken }
 }
 
-function tokenText(tok: FormulaToken): string {
+export function tokenText(tok: FormulaToken): string {
   switch (tok.type) {
     case 'number':
       return tok.raw

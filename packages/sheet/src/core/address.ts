@@ -22,16 +22,11 @@ export interface CellRange {
  * key = row * COL_KEY_BASE + col，要求 col < COL_KEY_BASE；
  * JS 安全整数范围内可容纳约 8.5e9 行，远超实际使用。
  */
-export const COL_KEY_BASE = 2 ** 20
+const COL_KEY_BASE = 2 ** 20
 
 /** 地址 → 数值 key（Map 索引用） */
 export function cellKey(addr: CellAddress): number {
   return addr.row * COL_KEY_BASE + addr.col
-}
-
-/** 数值 key → 地址 */
-export function addressFromKey(key: number): CellAddress {
-  return { row: Math.floor(key / COL_KEY_BASE), col: key % COL_KEY_BASE }
 }
 
 /** 列号（0-based）→ 列名：0 → 'A'，25 → 'Z'，26 → 'AA' */
@@ -102,7 +97,7 @@ export function formatRange(range: CellRange): string {
 }
 
 /** 地址相等 */
-export function addressesEqual(a: CellAddress, b: CellAddress): boolean {
+function addressesEqual(a: CellAddress, b: CellAddress): boolean {
   return a.row === b.row && a.col === b.col
 }
 
@@ -158,9 +153,4 @@ export function* iterateRange(range: CellRange): Generator<CellAddress, void, un
       yield { row, col }
     }
   }
-}
-
-/** 区域内的单元格数量 */
-export function rangeSize(range: CellRange): number {
-  return (range.end.row - range.start.row + 1) * (range.end.col - range.start.col + 1)
 }

@@ -195,6 +195,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
     const { sheet, grid, table } = createGrid()
     try {
       sheet.setCellValue({ row: 0, col: 0 }, 'hello')
+      grid.flushPending()
       expect(table.getCellValue(1, 1)).toBe('hello')
     } finally {
       grid.release()
@@ -349,6 +350,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
         { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
         { fill: { color: '#FF0000' } }
       )
+      grid.flushPending()
       // 本格 (1,1) + 四邻（共享边双向溯源：邻居渲染依赖本格边框）
       expect(spy).toHaveBeenCalledWith(1, 1)
       expect(spy).toHaveBeenCalledWith(2, 1)
@@ -358,6 +360,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
 
       spy.mockClear()
       sheet.undo()
+      grid.flushPending()
       expect(spy).toHaveBeenCalledTimes(3)
     } finally {
       grid.release()
@@ -374,6 +377,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
         { start: { row: 1, col: 1 }, end: { row: 1, col: 1 } },
         { border: { left: { style: 'thin', width: 1, color: '#FF0000' } } }
       )
+      grid.flushPending()
       // 锚点 (2,2) 与被覆盖格 (3,2) 都重建（合并区每位置各持一个场景分组）
       expect(spy).toHaveBeenCalledWith(2, 2)
       expect(spy).toHaveBeenCalledWith(3, 2)
@@ -394,12 +398,14 @@ describe('SheetGrid（happy-dom smoke）', () => {
     const { sheet, grid, table } = createGrid()
     try {
       sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 2, col: 2 } })
+      grid.flushPending()
       const spy = vi.spyOn(table, 'updateCellContent')
       spy.mockClear()
       sheet.setCellStyle(
         { start: { row: 1, col: 1 }, end: { row: 1, col: 1 } },
         { border: { left: { style: 'thin', width: 1, color: '#FF0000' } } }
       )
+      grid.flushPending()
       // 合并区 2x2 全部底层位置重建
       for (const [col, row] of [
         [2, 2],
@@ -452,6 +458,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
     try {
       sheet.setCellValue({ row: 1, col: 1 }, 'anchor-value')
       sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 2, col: 2 } })
+      grid.flushPending()
 
       // 点击被覆盖格（表格坐标 3,3）→ 选区/编辑范围 = 整个合并区域
       const range = table.getCellRange(3, 3)
@@ -618,6 +625,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
         { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
         { align: { wrap: true } }
       )
+      grid.flushPending()
       const height = sheet.getRowHeight(0)
       expect(height).toBeGreaterThan(28)
       expect(table.getRowHeight(1)).toBe(height)
@@ -636,6 +644,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
         { align: { wrap: true } }
       )
       expect(sheet.getRowHeight(0)).toBe(120)
+      grid.flushPending()
       expect(table.getRowHeight(1)).toBe(120)
     } finally {
       grid.release()

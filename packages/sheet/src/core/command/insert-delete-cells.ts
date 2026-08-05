@@ -39,7 +39,7 @@ function buildMutation(
 }
 
 export const InsertCellsCommand: Command<InsertCellsParams> = {
-  id: 'insert-cells',
+  id: 'sheet.command.insert-cells',
   handler(ctx, params): CommandResult | undefined {
     const { sheet } = ctx
     const { change } = params

@@ -75,8 +75,22 @@ src/
 ## 依赖
 
 - **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`、`hucre`
-- **peer**：`@cat-kit/core`、`vue`、`@veltra/desktop`、`@veltra/icons`、`@veltra/utils`、`@veltra/styles`
+- **peer**：`@cat-kit/core`（查找防抖 `debounce`）、`@cat-kit/fe`（`saveBlob` 下载）、`vue`、`@veltra/desktop`、`@veltra/icons`、`@veltra/utils`、`@veltra/styles`
 - **被依赖**：playground
+
+## 性能要点（百万格 / 数百 sheet 规模）
+
+- **批量同步**：grid 的 `cell-change` / `merge-change` **不逐补丁同步**——排入微任务合并为
+  一次 flush（同步执行块内 N 补丁 = 1 次视图同步；超过 64 格走一次 `setRecords` 全量重建
+  替代逐格增量）。LRU 隐藏实例只保留脏标记，激活时一次性同步。
+- **编辑器单例**：`veltra-sheet-input` 全局只注册一次，hook 经 `editorTarget` 动态路由到
+  激活实例（VTable 全局编辑器注册表无单条注销 API，旧实现每实例注册一个会永久累积）。
+- **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；
+  `entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描。
+- **公式重算**：依赖图反向索引按表批量标脏（变更格按行区间合并判定），非逐格全表扫描。
+- `Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口
+  （生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用
+  `setCells` / `setCellStyle`。
 
 ## 已知限制
 

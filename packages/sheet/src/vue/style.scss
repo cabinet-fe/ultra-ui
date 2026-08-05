@@ -369,16 +369,6 @@
     }
   }
 
-  @include m.e(insert-row) {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  @include m.e(insert-input) {
-    width: 88px;
-  }
-
   @include m.e(insert-count-menu) {
     display: flex;
     align-items: center;

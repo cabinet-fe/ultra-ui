@@ -12,7 +12,7 @@ import type { Mutation, Patch, PatchDirection } from './types'
  */
 
 /** 历史栈容量默认值 */
-export const DEFAULT_HISTORY_CAPACITY = 200
+const DEFAULT_HISTORY_CAPACITY = 200
 
 /** 历史状态（history-change 事件负载） */
 export interface HistoryState {

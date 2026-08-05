@@ -145,7 +145,11 @@ export function useSheetGrid(options: UseSheetGridOptions) {
   /** 切换激活实例：显示目标、隐藏其余（visibility:hidden 保持尺寸，canvas 不重建） */
   function showOnly(target: CachedGrid): void {
     for (const item of cache.values()) {
-      item.el.style.visibility = item === target ? 'visible' : 'hidden'
+      const on = item === target
+      item.el.style.visibility = on ? 'visible' : 'hidden'
+      // 隐藏实例停用视图同步（只置脏），激活实例立即接管编辑器目标（#1/#12）
+      item.grid.setVisible(on)
+      if (on) item.grid.attachEditor()
     }
   }
 

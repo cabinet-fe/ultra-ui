@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { message, messageConfirm, UFilePicker } from '@veltra/desktop'
-import { bem } from '@veltra/utils'
+import { bem, nextFrame } from '@veltra/utils'
 import { inject } from 'vue'
 
 import { importCsv, importXlsx, replaceWorkbook } from '../../core/io/import'
@@ -98,7 +98,10 @@ async function parseXlsxAsync(buffer: ArrayBuffer): Promise<Workbook> {
       resolve(wb)
     }
     worker!.onerror = () => fallback()
-    worker!.postMessage({ buffer })
+    // transfer 一份拷贝给 worker（零结构化克隆开销）；主线程保留原 buffer 供
+    // worker 加载失败时降级主线程解析（transfer 后原 buffer 会被 detach，见 #27）
+    const transfer = buffer.slice(0)
+    worker!.postMessage({ buffer: transfer }, [transfer])
   })
 }
 
@@ -143,11 +146,9 @@ function handleImportPick(files: File[]): void {
                 // 它阻塞——等 2 帧后渲染必然已完成。此时才提示成功，用户看到
                 // 「导入完成」后立即交互（点单元格/滚动）不再撞上渲染任务
                 // （实测未等待时导入后立即点击卡 3~5s，等待后 <50ms）。
-                requestAnimationFrame(() => {
-                  requestAnimationFrame(() => {
-                    message.success('导入完成')
-                    loading.close()
-                  })
+                nextFrame(() => {
+                  message.success('导入完成')
+                  loading.close()
                 })
               } catch (err) {
                 // 兜底：replaceWorkbook 为同步重活（结构变更 + 逐 sheet 写入），

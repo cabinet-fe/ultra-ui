@@ -95,15 +95,22 @@ export interface SheetContext {
  * 创建工具上下文。
  * @param resolveSheet 活动 sheet 解析器（USheet 传 `() => activeSheet`，
  *   tab 切换后上下文自动指向当前 sheet）；也可直接传 Sheet 实例（无头 / 测试场景）
- * @param workbook 当前工作簿（导入导出等工具需要；无头 / 单 sheet 场景可省略）
+ * @param workbook 当前工作簿（导入导出等工具需要；无头 / 单 sheet 场景可省略）。
+ *   支持传解析函数 `() => Workbook`——USheet 在 props.workbook 动态切换后，
+ *   上下文始终解析到**当前**工作簿（#2：旧实现取构造时值快照，宿主切换
+ *   workbook prop 后导出工具仍导出旧工作簿）
  */
 export function createSheetContext(
   resolveSheet: Sheet | (() => Sheet),
-  workbook?: Workbook
+  workbook?: Workbook | (() => Workbook)
 ): SheetContext {
   const sheet = typeof resolveSheet === 'function' ? resolveSheet : () => resolveSheet
+  const resolveWorkbook =
+    typeof workbook === 'function' ? workbook : workbook != null ? () => workbook : undefined
   return {
-    workbook,
+    get workbook() {
+      return resolveWorkbook?.()
+    },
     get sheetName() {
       return sheet().name
     },

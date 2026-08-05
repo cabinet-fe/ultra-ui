@@ -20,6 +20,8 @@ export * from './helper/frame'
 
 export * from './helper/make-bem'
 
+export * from './helper/overflow-nav'
+
 export * from './helper/vue'
 
 export * from './reactive/proxy'

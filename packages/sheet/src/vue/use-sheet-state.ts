@@ -44,8 +44,11 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
     () => sheetList.value[activeIndex.value] ?? workbook.value.activeSheet
   )
 
-  /** 工具上下文：动态解析活动 sheet，tab 切换后自动指向当前 sheet */
-  const context = createSheetContext(() => activeSheet.value, workbook.value)
+  /** 工具上下文：动态解析活动 sheet 与当前工作簿，tab 切换 / workbook prop 切换后自动指向最新值 */
+  const context = createSheetContext(
+    () => activeSheet.value,
+    () => workbook.value
+  )
 
   /** 工具栏状态版本号：visible/disabled/active 是 (ctx) => boolean 纯函数，状态源变化时 bump 触发重算 */
   const stateTick = ref(0)
@@ -57,12 +60,23 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
   /** 订阅活动 sheet 的状态源（tab 切换 / 工作簿变更时重绑） */
   function bindSheetEvents(sheet: Sheet): void {
     for (const dispose of disposeSheetEvents) dispose()
+    // 高频变更（选区移动 / 批量写入逐补丁 cell-change）的 bump 合并到微任务：
+    // N 补丁 → 1 次 bump，工具栏 visible/disabled/active 整树重算每帧最多一次（#25）
+    let tickScheduled = false
+    const scheduleBump = (): void => {
+      if (tickScheduled) return
+      tickScheduled = true
+      queueMicrotask(() => {
+        tickScheduled = false
+        bump()
+      })
+    }
     disposeSheetEvents = [
-      sheet.on('selection-change', bump),
-      sheet.on('history-change', bump),
-      sheet.on('cell-change', bump),
-      sheet.on('merge-change', bump),
-      sheet.on('frozen-change', bump),
+      sheet.on('selection-change', scheduleBump),
+      sheet.on('history-change', scheduleBump),
+      sheet.on('cell-change', scheduleBump),
+      sheet.on('merge-change', scheduleBump),
+      sheet.on('frozen-change', scheduleBump),
       // 行列插入/删除 → 重建网格（渲染行列数 = max(props, sheet.rows/cols)，
       // 数据/选区/冻结/行高随重建恢复；低频操作直接重建）
       sheet.on('structure-change', hooks.rebuildGrid)

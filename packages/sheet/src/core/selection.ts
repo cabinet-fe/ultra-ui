@@ -81,7 +81,32 @@ export class SelectionModel {
   }
 
   private setState(state: SelectionState): void {
+    // 相等性去重：重复点击同一格/同区域不 emit（#24）——grid 全量选区回驱、
+    // 公式栏刷新、工具栏 stateTick 都是重活，无变化时全部跳过
+    if (selectionEqual(this.state, state)) return
     this.state = state
     this.emitter.emit('change', this.getState())
   }
+}
+
+/** 选区状态相等（activeCell + ranges 深比较） */
+function selectionEqual(a: SelectionState, b: SelectionState): boolean {
+  if (a.activeCell == null || b.activeCell == null) {
+    return a.activeCell === b.activeCell
+  }
+  if (a.activeCell.row !== b.activeCell.row || a.activeCell.col !== b.activeCell.col) return false
+  if (a.ranges.length !== b.ranges.length) return false
+  for (let i = 0; i < a.ranges.length; i++) {
+    const ra = a.ranges[i]!
+    const rb = b.ranges[i]!
+    if (
+      ra.start.row !== rb.start.row ||
+      ra.start.col !== rb.start.col ||
+      ra.end.row !== rb.end.row ||
+      ra.end.col !== rb.end.col
+    ) {
+      return false
+    }
+  }
+  return true
 }

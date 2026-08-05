@@ -46,10 +46,9 @@ function cellText(
   return value == null ? undefined : String(value)
 }
 
-/** 文本匹配判定（大小写 / 整格） */
-function textMatches(text: string, query: string, options: FindOptions): boolean {
+/** 文本匹配判定（大小写 / 整格）；target 已由调用方预计算（避免每格重复 toLowerCase，#9） */
+function textMatches(text: string, target: string, options: FindOptions): boolean {
   const subject = options.caseSensitive ? text : text.toLowerCase()
-  const target = options.caseSensitive ? query : query.toLowerCase()
   return options.wholeCell ? subject === target : subject.includes(target)
 }
 
@@ -57,10 +56,12 @@ function textMatches(text: string, query: string, options: FindOptions): boolean
 export function findAll(sheet: Sheet, query: string, options: FindOptions = {}): FindMatch[] {
   if (query === '') return []
   const searchIn = options.searchIn ?? 'value'
+  // target 只计算一次：原实现每格重复 query.toLowerCase()，百万格 = 百万次重复分配（#9）
+  const target = options.caseSensitive ? query : query.toLowerCase()
   const result: FindMatch[] = []
   for (const [addr] of sheet.store.entries()) {
     const text = cellText(sheet, addr, searchIn)
-    if (text !== undefined && textMatches(text, query, options)) {
+    if (text !== undefined && textMatches(text, target, options)) {
       result.push({ addr: { ...addr }, text })
     }
   }
@@ -68,6 +69,51 @@ export function findAll(sheet: Sheet, query: string, options: FindOptions = {}):
   // findNext/findPrev 的「行主序、到边界循环」语义与文档一致
   result.sort((a, b) => cellKey(a.addr) - cellKey(b.addr))
   return result
+}
+
+/**
+ * 在已按行主序排序的命中数组上定位下一个命中（二分查找，O(log n)）。
+ * 供缓存命中导航使用——原 findNext 每次重跑 findAll 全表扫描（#9）。
+ */
+export function findNextFrom(matches: FindMatch[], from: CellAddress): FindMatch | null {
+  if (matches.length === 0) return null
+  const fromKey = cellKey(from)
+  let lo = 0
+  let hi = matches.length - 1
+  let first = -1
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1
+    if (cellKey(matches[mid]!.addr) > fromKey) {
+      first = mid
+      hi = mid - 1
+    } else {
+      lo = mid + 1
+    }
+  }
+  // 到边界循环：末尾之后回绕到第一个
+  return first >= 0 ? matches[first]! : matches[0]!
+}
+
+/**
+ * 在已按行主序排序的命中数组上定位上一个命中（二分查找，O(log n)）。
+ */
+export function findPrevFrom(matches: FindMatch[], from: CellAddress): FindMatch | null {
+  if (matches.length === 0) return null
+  const fromKey = cellKey(from)
+  let lo = 0
+  let hi = matches.length - 1
+  let last = -1
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1
+    if (cellKey(matches[mid]!.addr) < fromKey) {
+      last = mid
+      lo = mid + 1
+    } else {
+      hi = mid - 1
+    }
+  }
+  // 到边界循环：开头之前回绕到最后一个
+  return last >= 0 ? matches[last]! : matches[matches.length - 1]!
 }
 
 /**
@@ -80,14 +126,7 @@ export function findNext(
   from: CellAddress,
   options: FindOptions = {}
 ): FindMatch | null {
-  const all = findAll(sheet, query, options)
-  if (all.length === 0) return null
-  const fromKey = cellKey(from)
-  for (const match of all) {
-    if (cellKey(match.addr) > fromKey) return match
-  }
-  // 到边界循环：回绕到第一个
-  return all[0]!
+  return findNextFrom(findAll(sheet, query, options), from)
 }
 
 /**
@@ -100,12 +139,5 @@ export function findPrev(
   from: CellAddress,
   options: FindOptions = {}
 ): FindMatch | null {
-  const all = findAll(sheet, query, options)
-  if (all.length === 0) return null
-  const fromKey = cellKey(from)
-  for (let i = all.length - 1; i >= 0; i--) {
-    if (cellKey(all[i]!.addr) < fromKey) return all[i]!
-  }
-  // 到边界循环：回绕到最后一个
-  return all[all.length - 1]!
+  return findPrevFrom(findAll(sheet, query, options), from)
 }

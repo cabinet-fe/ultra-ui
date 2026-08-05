@@ -61,6 +61,12 @@ const LINE_HEIGHT_RATIO = 1.25
  *   scrollToCell 滚动可见（补足「选区单向同步」限制；回驱期间 SELECTED_CELL 不写回模型，防递归）
  * - 坐标换算：行号列不计入 rowHeaderLevelCount，偏移量在首个表格实例上
  *   用 columnHeaderLevelCount + isSeriesNumber 实测并缓存（见 getOffsets）
+ * - 批量同步（性能核心）：cell-change / merge-change 不逐补丁同步，而是排入微任务
+ *   在同步执行块结束后合并为一次 flush——批量写入（粘贴/填充/导入/undo）只产生
+ *   一次视图同步；超过阈值用一次 setRecords 全量重建替代逐格增量。隐藏实例
+ *   （LRU 缓存非激活）只保留脏标记，激活时一次性同步（见 setVisible / syncFromModel）。
+ * - 编辑器：全局单例 + 动态目标（见 EDITOR_NAME / editorTarget），不随实例注册，
+ *   消除 VTable 全局编辑器注册表随 grid 创建永久累积的泄露。
  */
 
 /** 公式感知编辑器：进入编辑时公式格显示原文（同 Excel），其余格显示当前值 */
@@ -85,8 +91,37 @@ class FormulaAwareInputEditor extends InputEditor {
   }
 }
 
-/** 编辑器按 grid 实例注册（hook 闭包各自 sheet），名称递增防冲突 */
-let editorSeq = 0
+/**
+ * 编辑器全局单例（#1 泄露修复）：VTable 的 `register.editor` 写入模块级全局
+ * `editors = {}` 且只有 `clearAll()` 全清（连带 themes）、无单条注销 API。
+ * 旧实现每个 grid 实例注册一个名称单调递增的编辑器（`veltra-sheet-input-N`），
+ * 3 个 hook 闭包捕获实例 → 拖住 sheet（整个模型）与 table.options 永久无法 GC。
+ * 现改为：全局只注册一个固定名编辑器，hook 经模块级 `editorTarget` 动态读取
+ * 「当前激活实例」——实例 attach（激活/构造）时写入、release 时清理，编辑器
+ * 注册表不再随实例增长，被释放实例的模型可被 GC。
+ */
+const EDITOR_NAME = 'veltra-sheet-input'
+
+/**
+ * 批量同步阈值：同一批 cell-change 格数超过该值 → 一次 setRecords 全量重建
+ * （逐格 changeCellValue + updateCellContent 的增量路径在大量格时总代价更高）。
+ */
+const BATCH_FULL_REBUILD_THRESHOLD = 64
+
+/** 编辑器当前目标实例（交互中的激活 grid；编辑器 hook 经此动态解析） */
+let editorTarget: SheetGrid | null = null
+
+/** 设置/清除编辑器目标（独立函数避免 this 别名 lint；见 #1） */
+function setEditorTarget(grid: SheetGrid | null): void {
+  editorTarget = grid
+}
+
+/** 单例编辑器：所有 SheetGrid 共享；hook 只调用目标的 @internal 路由方法 */
+const formulaAwareEditor = new FormulaAwareInputEditor()
+formulaAwareEditor.resolveEditText = (col, row) => editorTarget?.resolveEditTextForEditor(col, row)
+formulaAwareEditor.notifyEditStart = (col, row) => editorTarget?.notifyEditorEditStart(col, row)
+formulaAwareEditor.notifyEditEnd = () => editorTarget?.notifyEditorEditEnd()
+register.editor(EDITOR_NAME, formulaAwareEditor)
 
 /** 右键落点区域：body 格 / 行号列 / 列头行（角点归 body，addr 为 null） */
 export type SheetGridContextMenuKind = 'body' | 'row-header' | 'col-header'
@@ -258,6 +293,18 @@ export class SheetGrid {
   private readonly onEditEnd?: (addr: CellAddress) => void
   private readonly interceptSelection?: () => boolean
   private readonly onSelectionIntercept?: (range: CellRange) => void
+  /** 是否已释放（release 后拒绝一切视图同步，微任务 flush 直接跳过） */
+  private released = false
+  /** 是否可见（LRU 缓存非激活实例 = false；隐藏期间批量变更只置脏，激活时一次性同步） */
+  private visible = true
+  /** 批量同步：cell-change 挂起的脏格（cellKey → addr），微任务合并后统一 flush */
+  private batchDirty: Map<number, CellAddress> | null = null
+  /** 批量同步 flush 已排队（微任务） */
+  private batchScheduled = false
+  /** merge-change 全量刷新已排队（微任务合并，避免每个 merge 补丁一次全表重建） */
+  private mergeRefreshScheduled = false
+  /** 隐藏期间发生 merge-change：激活时一次性 refresh（#12） */
+  private mergeDirty = false
   /** 当前编辑格（模型地址；编辑器 onStart → onEnd 期间非空） */
   private editingAddr: CellAddress | null = null
   private readonly disposers: (() => void)[] = []
@@ -294,33 +341,9 @@ export class SheetGrid {
     this.interceptSelection = options.interceptSelection
     this.onSelectionIntercept = options.onSelectionIntercept
 
-    // 每个 grid 实例注册自己的编辑器（hook 闭包本实例的 sheet 与坐标换算）
-    this.editorName = `veltra-sheet-input-${editorSeq++}`
-    const editor = new FormulaAwareInputEditor()
-    editor.resolveEditText = (col, row) => {
-      const addr = this.toSheetAddr(this.table, col, row)
-      if (!addr) return undefined
-      const data = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
-      return data?.f ? `=${data.f}` : undefined
-    }
-    editor.notifyEditStart = (col, row) => {
-      const addr = this.toSheetAddr(this.table, col, row)
-      if (addr) {
-        this.editingAddr = addr
-        this.onEditStart?.(addr)
-      }
-    }
-    editor.notifyEditEnd = () => {
-      const addr = this.editingAddr
-      this.editingAddr = null
-      if (addr) {
-        // 无内容变更时可能不触发 CHANGE_CELL_VALUE；仍刷新本格与共享边邻居，避免视觉残留
-        this.refreshCellStyle(addr)
-        this.refreshFacingConsumers(addr)
-        this.onEditEnd?.(addr)
-      }
-    }
-    register.editor(this.editorName, editor)
+    // 编辑器为全局单例（hook 读 editorTarget 动态目标）；本实例接管目标
+    this.editorName = EDITOR_NAME
+    setEditorTarget(this)
 
     this.table = new ListTable(options.container, this.buildOptions())
     this.restrictRowResizeToSeriesNumber()
@@ -344,13 +367,93 @@ export class SheetGrid {
   }
 
   /**
-   * 缓存实例切回激活时同步模型状态：冻结校正 + 选区回驱。
+   * 同步执行挂起的批量视图同步（cell-change flush + merge-change refresh）。
+   * 生产环境无需调用：微任务 flush 在浏览器渲染前自动执行；此方法供测试
+   * 与需要「调用后立即可见」同步语义的宿主使用。
+   */
+  flushPending(): void {
+    if (this.released) return
+    if (this.batchScheduled) {
+      this.batchScheduled = false
+      this.flushCellBatch()
+    }
+    if (this.mergeRefreshScheduled) {
+      this.mergeRefreshScheduled = false
+      if (!this.released) this.refresh()
+    }
+    if (this.mergeDirty) {
+      this.mergeDirty = false
+      if (!this.released) this.refresh()
+    }
+  }
+
+  /**
+   * 缓存实例切回激活时同步模型状态：冻结校正 + 选区回驱 + 挂起的批量变更一次性同步。
    * 数据/样式/行高由常驻的 sheet 事件订阅持续同步，此处只需补齐
    * 构造期一次性状态（冻结可能在隐藏期间变更；选区回驱保证高亮/滚动一致）。
+   * 隐藏期间（不可见）积累的 cell-change 只置脏未同步（#12），激活时一次 flush。
    */
   syncFromModel(): void {
+    if (this.released) return
+    this.visible = true
     this.applyFrozen()
     this.pushSelectionToTable(this.sheet.getSelection())
+    this.flushPendingBatch(true)
+    // 隐藏期间积累的 merge-change → 激活时一次全量刷新（#12）
+    if (this.mergeDirty) {
+      this.mergeDirty = false
+      this.refresh()
+    }
+  }
+
+  /** 激活/停用（LRU 缓存可见性）：激活时接管编辑器目标；隐藏时停用 */
+  setVisible(on: boolean): void {
+    this.visible = on
+    if (on && !this.released) {
+      setEditorTarget(this)
+      // 隐藏期间挂起的批量变更（微任务可能已被跳过）→ 立即一次性同步
+      this.flushPendingBatch(true)
+      if (this.mergeDirty) {
+        this.mergeDirty = false
+        this.refresh()
+      }
+    }
+  }
+
+  /** 编辑器单例接管本实例（激活实例的编辑事件经 editorTarget 路由到本实例） */
+  attachEditor(): void {
+    if (!this.released) setEditorTarget(this)
+  }
+
+  // ─── 编辑器单例路由（@internal：仅供模块级 formulaAwareEditor 经 editorTarget 调用）───
+
+  /** @internal 进入编辑时应显示的文本（公式格显示原文；undefined = VTable 默认值） */
+  resolveEditTextForEditor(col: number, row: number): string | undefined {
+    const addr = this.toSheetAddr(this.table, col, row)
+    if (!addr) return undefined
+    const data = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
+    return data?.f ? `=${data.f}` : undefined
+  }
+
+  /** @internal 进入编辑（onStart）通知：记录编辑格 + 公式栏镜像 */
+  notifyEditorEditStart(col: number, row: number): void {
+    const addr = this.toSheetAddr(this.table, col, row)
+    if (addr) {
+      this.editingAddr = addr
+      this.onEditStart?.(addr)
+    }
+  }
+
+  /** @internal 编辑结束（onEnd，提交/取消）通知：刷新本格与共享边邻居 + 公式栏退出镜像 */
+  notifyEditorEditEnd(): void {
+    const addr = this.editingAddr
+    this.editingAddr = null
+    if (addr) {
+      // 无内容变更时可能不触发 CHANGE_CELL_VALUE；仍刷新本格与共享边邻居，避免视觉残留
+      this.refreshCellStyle(addr)
+      this.refreshFacingConsumers(addr)
+      this.onEditEnd?.(addr)
+    }
   }
 
   /** 撤销一步（模型命令历史） */
@@ -364,8 +467,12 @@ export class SheetGrid {
   }
 
   release(): void {
+    if (this.released) return
+    this.released = true
     for (const dispose of this.disposers) dispose()
     this.disposers.length = 0
+    this.batchDirty = null
+    if (editorTarget === this) setEditorTarget(null)
     this.table.release()
   }
 
@@ -571,6 +678,7 @@ export class SheetGrid {
   /**
    * 读取邻居格的对侧边（共享边溯源）；邻居与本格同属一个合并锚点
    * （合并区内部）→ undefined（同一条边不与自己互为 facing）。
+   * 渲染热路径用只读访问器（peekCell / stylePool.peek），避免逐格拷贝分配（#11）。
    */
   private getFacingEdge(
     addr: CellAddress,
@@ -580,16 +688,16 @@ export class SheetGrid {
     const selfAnchor = this.sheet.merges.resolveAnchor(self)
     const anchor = this.sheet.merges.resolveAnchor(addr)
     if (anchor.row === selfAnchor.row && anchor.col === selfAnchor.col) return undefined
-    const data = this.sheet.store.getCell(anchor)
-    const style = data?.s != null ? this.sheet.stylePool.get(data.s) : undefined
+    const data = this.sheet.store.peekCell(anchor)
+    const style = data?.s != null ? this.sheet.stylePool.peek(data.s) : undefined
     return style?.border?.[side]
   }
 
-  /** 读取格样式（合并格读锚点；无样式 → undefined） */
+  /** 读取格样式（合并格读锚点；无样式 → undefined）；渲染热路径走 peek（#11） */
   private getStoredStyle(addr: CellAddress): CellStyle | undefined {
     const anchor = this.sheet.merges.resolveAnchor(addr)
-    const data = this.sheet.store.getCell(anchor)
-    return data?.s != null ? this.sheet.stylePool.get(data.s) : undefined
+    const data = this.sheet.store.peekCell(anchor)
+    return data?.s != null ? this.sheet.stylePool.peek(data.s) : undefined
   }
 
   private buildRecords(): Record<string, CellValue>[] {
@@ -710,6 +818,19 @@ export class SheetGrid {
 
   /** 构造前单行 wrap 行高估算（不依赖 table：列宽以常量传入）；行内无 wrap 格返回 undefined */
   private estimateWrapRowHeightForRow(row: number, colWidth: number): number | undefined {
+    const scanned = this.scanWrapRowHeight(row, () => colWidth)
+    return scanned?.hasWrap ? Math.max(SHEET_DEFAULT_ROW_HEIGHT, scanned.maxHeight) : undefined
+  }
+
+  /**
+   * 扫描单行全部 wrap 格并求最大估算行高（共享扫描，列宽来源由调用方注入：
+   * 构造期用默认列宽常量、动态期用 VTable 实测列宽——见 #32）。
+   * 行内无 wrap 格返回 undefined。
+   */
+  private scanWrapRowHeight(
+    row: number,
+    getColWidth: (col: number) => number
+  ): { maxHeight: number; hasWrap: boolean } | undefined {
     if (row < 0 || row >= this.rows) return undefined
     let maxHeight = 0
     let hasWrap = false
@@ -719,10 +840,14 @@ export class SheetGrid {
       if (!style?.align?.wrap) continue
       hasWrap = true
       const text = String(this.sheet.getDisplayValue(addr) ?? '')
-      const height = estimateWrapRowHeight({ text, colWidth, fontSizePt: style.font?.size })
+      const height = estimateWrapRowHeight({
+        text,
+        colWidth: getColWidth(col),
+        fontSizePt: style.font?.size
+      })
       if (height > maxHeight) maxHeight = height
     }
-    return hasWrap ? Math.max(SHEET_DEFAULT_ROW_HEIGHT, maxHeight) : undefined
+    return hasWrap ? { maxHeight, hasWrap } : undefined
   }
 
   /**
@@ -731,22 +856,11 @@ export class SheetGrid {
    * 已有自定义行高（导入 / 拖拽）不低于估算时保留，避免压矮。
    */
   private syncWrapRowHeight(row: number): void {
-    if (row < 0 || row >= this.rows) return
-    let maxHeight = 0
-    let hasWrap = false
-    for (let col = 0; col < this.cols; col++) {
-      const addr = { row, col }
-      const style = this.getStoredStyle(addr)
-      if (!style?.align?.wrap) continue
-      hasWrap = true
-      const text = String(this.sheet.getDisplayValue(addr) ?? '')
-      const tableCol = this.toTableCoord(this.table, addr).col
-      const colWidth = this.table.getColWidth(tableCol)
-      const height = estimateWrapRowHeight({ text, colWidth, fontSizePt: style.font?.size })
-      if (height > maxHeight) maxHeight = height
-    }
-    if (!hasWrap) return
-    const estimated = Math.max(SHEET_DEFAULT_ROW_HEIGHT, maxHeight)
+    const scanned = this.scanWrapRowHeight(row, (col) =>
+      this.table.getColWidth(this.toTableCoord(this.table, { row, col }).col)
+    )
+    if (!scanned?.hasWrap) return
+    const estimated = Math.max(SHEET_DEFAULT_ROW_HEIGHT, scanned.maxHeight)
     const current = this.sheet.getRowHeight(row)
     // 已有更高的自定义行高（xlsx 导入 / 用户拖拽）不得被估算压矮
     const next = current != null ? Math.max(current, estimated) : estimated
@@ -873,11 +987,9 @@ export class SheetGrid {
       const col = args.col
       const addr = this.toSheetAddr(this.table, col, this.getOffsets(this.table).rowOffset)
       if (!addr) return
-      const seen = new Set<number>()
-      for (const [cell] of this.sheet.store.entries()) {
-        if (cell.col !== addr.col || seen.has(cell.row)) continue
-        seen.add(cell.row)
-        this.syncWrapRowHeight(cell.row)
+      // 只遍历该列有数据的行（稀疏行 Map），不再全表 entries() 扫描（#10）
+      for (const row of this.sheet.store.rowsForColumn(addr.col)) {
+        this.syncWrapRowHeight(row)
       }
     })
 
@@ -1015,37 +1127,100 @@ export class SheetGrid {
           this.pendingTableSync.set(cellKey(addr), addr)
           return
         }
-        this.pushCellToTable(addr)
-        // 样式随模型变化（style 回调实时解析），复用 cell-change 触发该格重绘
-        this.refreshCellStyle(addr)
-        // 共享边双向溯源：本格边框变化会改变四侧消费方的渲染（邻居的对侧边
-        // 溯源到本格边）。函数式 style 每次求值、无缓存，但邻居格的场景节点
-        // 不会自动重建，需一并触发重绘
-        this.refreshFacingConsumers(addr)
-        // wrap / 内容变更 → 按需重算该行高
-        this.syncWrapRowHeight(addr.row)
+        // 批量同步：排入微任务合并 flush（#4）——批量写入/导入/undo 只产生一次视图同步
+        this.enqueueCellSync(addr)
       })
     )
 
     this.disposers.push(
       this.sheet.on('merge-change', () => {
-        this.refresh()
+        // 每个 merge 补丁都会触发一次 merge-change（含单命令解 K 个相交合并）；
+        // 微任务合并为一次全量 refresh，避免每次全表重建（#3）；隐藏实例只置脏
+        if (this.released || this.mergeRefreshScheduled) return
+        this.mergeRefreshScheduled = true
+        queueMicrotask(() => {
+          this.mergeRefreshScheduled = false
+          if (this.released) return
+          if (!this.visible) {
+            this.mergeDirty = true
+            return
+          }
+          this.refresh()
+        })
       })
     )
 
     // 冻结变更 → 即时更新 VTable 冻结布局
     this.disposers.push(
       this.sheet.on('frozen-change', () => {
-        this.applyFrozen()
+        if (!this.released) this.applyFrozen()
       })
     )
 
     // 模型选区变更 → 回驱 VTable 高亮 + 滚动可见（查找跳转依赖）
     this.disposers.push(
       this.sheet.on('selection-change', (state) => {
-        this.pushSelectionToTable(state)
+        if (!this.released) this.pushSelectionToTable(state)
       })
     )
+  }
+
+  // ─── 批量同步（#4 / #12）─────────────────────────────────
+
+  /**
+   * cell-change → 批量队列：同一同步执行块内连续到达的变更合并为一个微任务 flush。
+   * 每补丁只做一次 Map set（O(1)），把「逐补丁 changeCellValue + updateCellContent +
+   * O(cols) 行扫描」降为「每批一次」。
+   */
+  private enqueueCellSync(addr: CellAddress): void {
+    if (this.released) return
+    if (!this.batchDirty) this.batchDirty = new Map()
+    this.batchDirty.set(cellKey(addr), addr)
+    if (this.batchScheduled) return
+    this.batchScheduled = true
+    queueMicrotask(() => this.flushCellBatch())
+  }
+
+  /**
+   * flush 批量变更。隐藏实例不实际同步（保留脏标记，激活时 syncFromModel /
+   * setVisible 一次性 flush）；释放实例直接丢弃。
+   * 格数超过阈值 → 一次 setRecords 全量重建替代逐格增量（大批量时增量路径的
+   * 逐格 updateCellContent 总代价更高）；否则走增量路径（pushCellToTable 只更新
+   * record、refreshCellStyle 只重建单格场景节点，避免全表重建）。
+   */
+  private flushCellBatch(): void {
+    this.batchScheduled = false
+    const dirty = this.batchDirty
+    if (!dirty || dirty.size === 0) return
+    if (this.released || !this.visible) return // 隐藏实例保留脏标记
+    this.batchDirty = null
+    const rows = new Set<number>()
+    for (const addr of dirty.values()) rows.add(addr.row)
+    if (dirty.size > BATCH_FULL_REBUILD_THRESHOLD) {
+      this.refresh()
+      for (const row of rows) this.syncWrapRowHeight(row)
+      return
+    }
+    for (const addr of dirty.values()) {
+      this.pushCellToTable(addr)
+      this.refreshCellStyle(addr)
+      this.refreshFacingConsumers(addr)
+    }
+    for (const row of rows) this.syncWrapRowHeight(row)
+  }
+
+  /** 强制 flush 挂起的批量变更（激活/同步时调用；force = 无视可见性标志） */
+  private flushPendingBatch(force: boolean): void {
+    if (this.released || this.batchScheduled) return
+    const dirty = this.batchDirty
+    if (!dirty || dirty.size === 0) return
+    if (!force && !this.visible) return
+    this.batchDirty = null
+    // 隐藏期间积累的变更（可能跨多次隐藏）按全量重建一次同步，行高按脏行估算
+    this.refresh()
+    const rows = new Set<number>()
+    for (const addr of dirty.values()) rows.add(addr.row)
+    for (const row of rows) this.syncWrapRowHeight(row)
   }
 
   /** 模型格 → 表格 record（显示值；公式格为计算缓存） */

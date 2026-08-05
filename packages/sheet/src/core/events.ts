@@ -30,8 +30,4 @@ export class TypedEventEmitter<EventMap extends Record<string, unknown>> {
       ;(handler as EventHandler<EventMap[K]>)(payload)
     }
   }
-
-  clear(): void {
-    this.handlers.clear()
-  }
 }

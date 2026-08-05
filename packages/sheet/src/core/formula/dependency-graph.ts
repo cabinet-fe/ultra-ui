@@ -1,4 +1,4 @@
-import { cellKey, rangeContainsAddress, type CellAddress, type CellRange } from '../address'
+import { cellKey, type CellAddress, type CellRange } from '../address'
 import type { CellData, CellType, CellValue } from '../cell-store'
 import type { CellPatch } from '../command/types'
 import type { Sheet } from '../sheet'
@@ -92,6 +92,9 @@ export class DependencyGraph {
     if (sheetNodes) {
       for (const node of sheetNodes.values()) this.removeNode(node)
     }
+    // 回收反向索引外层空壳（节点已全部移除；#26）
+    this.exact.delete(sheet.name)
+    this.ranged.delete(sheet.name)
     // 引用方重算：readCell/readRange 查不到该表 → #REF!
     return this.recalcFrom(sources)
   }
@@ -120,6 +123,9 @@ export class DependencyGraph {
     }
     // 2. 先全部移出索引（反向索引条目随 removeNode 清理）
     for (const node of affected) this.removeNode(node)
+    // 回收旧名反向索引外层空壳（#26）；节点随后按新名重新注册
+    this.exact.delete(oldName)
+    this.ranged.delete(oldName)
     // 3. 更新 sheet 注册表 + 别名（求值层：AST 旧名引用经别名解析到新名）
     this.sheets.delete(oldName)
     this.sheets.set(newName, sheet)
@@ -188,14 +194,29 @@ export class DependencyGraph {
   /**
    * 变更集 → 标脏 + 拓扑序重算 → 派生补丁（未应用）。
    * 调用方（Sheet.executeCommand）负责应用补丁并并入同一 undo 单元。
+   * 批量优化（#8）：同一表多个变更格合并为一次 ranged 反向索引扫描
+   * （原实现对每个变更格各扫一遍全部区域引用 → O(N×R) 放大）。
    */
   recalc(changed: readonly { sheet: Sheet; addr: CellAddress }[]): CellPatch[] {
     const sources: InternalNode[] = []
-    for (const { sheet, addr } of changed) {
-      const node = this.getNode(sheet.name, addr)
-      if (node) sources.push(node)
-      for (const dep of this.dependentsOf(sheet.name, addr)) sources.push(dep)
+    const seen = new Set<InternalNode>()
+    const mark = (node: FormulaNode | undefined): void => {
+      if (node && !seen.has(node as InternalNode)) {
+        seen.add(node as InternalNode)
+        sources.push(node as InternalNode)
+      }
     }
+    const bySheet = new Map<string, CellAddress[]>()
+    for (const { sheet, addr } of changed) {
+      mark(this.getNode(sheet.name, addr))
+      let list = bySheet.get(sheet.name)
+      if (!list) {
+        list = []
+        bySheet.set(sheet.name, list)
+      }
+      list.push(addr)
+    }
+    for (const [sheetName, addrs] of bySheet) this.markDependents(sheetName, addrs, mark)
     return this.recalcFrom(sources)
   }
 
@@ -214,9 +235,21 @@ export class DependencyGraph {
       }
     }
     for (const node of sources) mark(node)
-    for (let i = 0; i < queue.length; i++) {
-      const node = queue[i]!
-      for (const dep of this.dependentsOf(node.sheetName, node.addr)) mark(dep)
+    // BFS 逐层处理：同层节点按表合并 ranged 扫描（每表每层一次，而非每节点一次，#8）
+    let head = 0
+    while (head < queue.length) {
+      const tail = queue.length
+      const bySheet = new Map<string, CellAddress[]>()
+      for (; head < tail; head++) {
+        const node = queue[head]!
+        let list = bySheet.get(node.sheetName)
+        if (!list) {
+          list = []
+          bySheet.set(node.sheetName, list)
+        }
+        list.push(node.addr)
+      }
+      for (const [sheetName, addrs] of bySheet) this.markDependents(sheetName, addrs, mark)
     }
     if (dirty.size === 0) return []
 
@@ -398,18 +431,80 @@ export class DependencyGraph {
     if (sheetNodes.size === 0) this.nodes.delete(node.sheetName)
   }
 
-  private dependentsOf(sheetName: string, addr: CellAddress): Set<InternalNode> {
-    const result = new Set<InternalNode>()
-    const exactSet = this.exact.get(sheetName)?.get(cellKey(addr))
-    if (exactSet) for (const node of exactSet) result.add(node)
-    const rangedSet = this.ranged.get(sheetName)
-    if (rangedSet) {
-      for (const entry of rangedSet) {
-        if (rangeContainsAddress(entry.range, addr)) result.add(entry.node)
+  /**
+   * 收集指定表的反向依赖者（批量）：exact 每格 O(1)；ranged 每表一次扫描，
+   * 变更格按行合并为列区间（连续矩形变更 → 区间数 ≪ 格数）加速相交判定（#8）。
+   * @param mark 命中节点回调（去重由调用方负责）
+   */
+  private markDependents(
+    sheetName: string,
+    addrs: readonly CellAddress[],
+    mark: (node: FormulaNode | undefined) => void
+  ): void {
+    const exactSet = this.exact.get(sheetName)
+    if (exactSet) {
+      for (const addr of addrs) {
+        const set = exactSet.get(cellKey(addr))
+        if (set) for (const node of set) mark(node)
       }
     }
-    return result
+    const rangedSet = this.ranged.get(sheetName)
+    if (rangedSet && rangedSet.size > 0) {
+      const spans = mergeAddrsIntoRowSpans(addrs)
+      for (const entry of rangedSet) {
+        if (spansOverlap(entry.range, spans)) mark(entry.node)
+      }
+    }
   }
+}
+
+/**
+ * 地址数组 → 按行分组的列闭区间（相邻列合并）。
+ * 批量粘贴/填充的变更格通常呈连续矩形，区间数 ≪ 格数；
+ * 随机分散时区间数 ≈ 格数（退化到与逐格判定同阶，不更差）。
+ */
+function mergeAddrsIntoRowSpans(
+  addrs: readonly CellAddress[]
+): Map<number, Array<[number, number]>> {
+  const byRow = new Map<number, number[]>()
+  for (const addr of addrs) {
+    let cols = byRow.get(addr.row)
+    if (!cols) {
+      cols = []
+      byRow.set(addr.row, cols)
+    }
+    cols.push(addr.col)
+  }
+  const spans = new Map<number, Array<[number, number]>>()
+  for (const [row, cols] of byRow) {
+    cols.sort((a, b) => a - b)
+    const rowSpans: Array<[number, number]> = []
+    let start = cols[0]!
+    let end = cols[0]!
+    for (let i = 1; i < cols.length; i++) {
+      if (cols[i] === end + 1) {
+        end = cols[i]!
+      } else {
+        rowSpans.push([start, end])
+        start = cols[i]!
+        end = cols[i]!
+      }
+    }
+    rowSpans.push([start, end])
+    spans.set(row, rowSpans)
+  }
+  return spans
+}
+
+/** 区域与按行分组的列区间是否有交集（任一命中行的 span 与区域列区间相交） */
+function spansOverlap(range: CellRange, spans: Map<number, Array<[number, number]>>): boolean {
+  for (const [row, rowSpans] of spans) {
+    if (row < range.start.row || row > range.end.row) continue
+    for (const [colStart, colEnd] of rowSpans) {
+      if (colEnd >= range.start.col && colStart <= range.end.col) return true
+    }
+  }
+  return false
 }
 
 /** 单元格存储 → 求值标量（t='e' 还原为错误标记；空 → null） */

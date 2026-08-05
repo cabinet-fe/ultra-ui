@@ -28,8 +28,6 @@ import type { HorizontalAlign, VerticalAlign } from '../core/style/types'
 import type { SheetContext } from './context'
 import { registerTool } from './registry'
 
-export { downloadBlob, exportSheetCsvFile, exportWorkbookFile } from './download'
-
 /** 取活动格所在首选区；无选区返回 null */
 function selectionRange(ctx: SheetContext) {
   const { activeCell, ranges } = ctx.getSelection()
