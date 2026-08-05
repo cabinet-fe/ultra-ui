@@ -147,15 +147,31 @@
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
     border-bottom: 1px solid fn.use-var(border, muted-color);
-    // 候选列表绝对定位参照；勿依赖 .u-sheet（overflow:hidden 会裁剪）
+    // 浮起的 fx 输入面板需盖住下方 grid；候选列表也挂在此层
     position: relative;
+    z-index: 2;
   }
 
+  // 文档流只占单行高度；真正的输入区在 fx-input-panel 内绝对定位浮出
   @include m.e(fx-editor) {
     position: relative;
     flex: 1;
     min-width: 0;
-    display: flex;
+    height: fn.use-var(form-component-height, small);
+  }
+
+  @include m.e(fx-input-panel) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    // 高度随 textarea（suggest 绝对定位不撑高）；浮出时投影盖住下方 grid
+    border-radius: fn.use-var(radius, small);
+
+    @include m.is(expanded) {
+      box-shadow: fn.use-var(shadow, sm);
+    }
   }
 
   @include m.e(fx-suggest) {
@@ -220,7 +236,10 @@
   }
 
   @include m.e(fx-label) {
+    display: inline-flex;
     flex-shrink: 0;
+    align-items: center;
+    height: fn.use-var(form-component-height, small);
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
     font-style: italic;
@@ -228,19 +247,23 @@
   }
 
   @include m.e(fx-input) {
-    flex: 1;
+    display: block;
+    box-sizing: border-box;
     width: 100%;
-    min-width: 0;
     min-height: fn.use-var(form-component-height, small);
+    // 浮出后可多展几行；再长在面板内滚动
+    max-height: calc(fn.use-var(form-component-height, small) * 8);
     padding: 2px 6px;
     border: 1px solid fn.use-var(border, muted-color);
     border-radius: fn.use-var(radius, small);
-    background: transparent;
+    // 必须不透明，否则浮在 grid 上会透出单元格
+    background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, main);
     font-size: fn.use-var(font-size-main, small);
     line-height: 1.4;
     resize: none;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     outline: none;
 
     &:focus {
@@ -624,18 +647,26 @@
   }
 
   // grow:0 使少量 tab 时「+」紧跟内容；shrink + min-width:0 溢出时收缩横滚
+  // 隐藏原生滚动条：溢出靠左右 nav 步进，否则滚动条占高会把 tab 顶偏，与 nav 不对齐
   @include m.e(tabs-viewport) {
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none; /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   @include m.e(tabs-list) {
     display: inline-flex;
     flex-wrap: nowrap;
     flex-shrink: 0;
+    align-items: center;
     gap: 2px;
     width: max-content;
   }

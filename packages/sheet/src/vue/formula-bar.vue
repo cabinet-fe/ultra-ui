@@ -12,30 +12,33 @@
     />
     <span :class="cls.e('fx-label')">fx</span>
     <div :class="cls.e('fx-editor')">
-      <textarea
-        ref="fxRef"
-        v-model="fxDraft"
-        :class="cls.e('fx-input')"
-        :disabled="fxDisabled"
-        :readonly="mirroring"
-        rows="1"
-        spellcheck="false"
-        autocomplete="off"
-        title="活动单元格内容（'=' 开头为公式）；Enter 提交，Esc 取消"
-        @focus="handleFxFocus"
-        @blur="handleFxBlur"
-        @keydown="handleFxKeydown"
-        @input="handleFxInput"
-        @click="syncFxCursor"
-        @keyup="syncFxCursor"
-        @select="syncFxCursor"
-      />
-      <u-formula-suggest-list
-        :items="suggestItems"
-        :active-index="suggestIndex"
-        @select="confirmSuggest"
-        @hover="(i) => (suggestIndex = i)"
-      />
+      <!-- 文档流只占单行；面板绝对定位向下浮起，不撑开公式栏 -->
+      <div :class="[cls.e('fx-input-panel'), bem.is('expanded', fxExpanded)]">
+        <textarea
+          ref="fxRef"
+          v-model="fxDraft"
+          :class="cls.e('fx-input')"
+          :disabled="fxDisabled"
+          :readonly="mirroring"
+          rows="1"
+          spellcheck="false"
+          autocomplete="off"
+          title="活动单元格内容（'=' 开头为公式）；Enter 提交，Esc 取消"
+          @focus="handleFxFocus"
+          @blur="handleFxBlur"
+          @keydown="handleFxKeydown"
+          @input="handleFxInput"
+          @click="syncFxCursor"
+          @keyup="syncFxCursor"
+          @select="syncFxCursor"
+        />
+        <u-formula-suggest-list
+          :items="suggestItems"
+          :active-index="suggestIndex"
+          @select="confirmSuggest"
+          @hover="(i) => (suggestIndex = i)"
+        />
+      </div>
     </div>
     <button
       v-if="editing"
@@ -119,6 +122,8 @@ let editAddr: CellAddress | null = null
 const mirroring = ref(false)
 let mirrorAddr: CellAddress | null = null
 const fxDraft = ref('')
+/** 输入面板是否因内容增高而浮出（文档流仍保持单行） */
+const fxExpanded = ref(false)
 /** textarea 光标（selectionStart）；输入/点击/方向键后同步 */
 const fxCursor = ref(0)
 
@@ -199,11 +204,21 @@ function scheduleAutosize(): void {
   })
 }
 
+/**
+ * 按内容增高浮出面板，不超过 CSS max-height。
+ * 增高走绝对定位，公式栏文档流高度始终单行。
+ */
 function autosizeFx(): void {
   const el = fxRef.value
   if (!el) return
   el.style.height = '0px'
-  el.style.height = `${el.scrollHeight}px`
+  const styles = getComputedStyle(el)
+  const max = Number.parseFloat(styles.maxHeight)
+  const min = Number.parseFloat(styles.minHeight)
+  const content = el.scrollHeight
+  const next = Number.isFinite(max) && max > 0 ? Math.min(content, max) : content
+  el.style.height = `${next}px`
+  fxExpanded.value = Number.isFinite(min) ? next > min + 1 : next > 1
 }
 
 function syncFxCursor(): void {
