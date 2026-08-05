@@ -35,13 +35,13 @@ export const sheetVTableTheme = themes.DEFAULT.extends({
     bgColor: CHROME_BG,
     borderColor: GRID_BORDER,
     padding: [...SHEET_CELL_PADDING],
-    textOverflow: 'clip'
+    textOverflow: 'ellipsis'
   },
   // DEFAULT 列头/行头为 bold + fontSize 16，视觉偏重；贴 Excel 用常规字重 + 略小字号
   headerStyle: {
     bgColor: CHROME_BG,
     borderColor: GRID_BORDER,
-    textOverflow: 'clip',
+    textOverflow: 'ellipsis',
     textAlign: 'center',
     fontWeight: 'normal',
     fontSize: 12
@@ -49,19 +49,19 @@ export const sheetVTableTheme = themes.DEFAULT.extends({
   cornerHeaderStyle: {
     bgColor: CHROME_BG,
     borderColor: GRID_BORDER,
-    textOverflow: 'clip',
+    textOverflow: 'ellipsis',
     fontWeight: 'normal',
     fontSize: 12
   },
   rowHeaderStyle: {
     bgColor: CHROME_BG,
     borderColor: GRID_BORDER,
-    textOverflow: 'clip',
+    textOverflow: 'ellipsis',
     textAlign: 'center',
     fontWeight: 'normal',
     fontSize: 12
   },
-  bodyStyle: { bgColor: BODY_BG, borderColor: GRID_BORDER, textOverflow: 'clip' },
+  bodyStyle: { bgColor: BODY_BG, borderColor: GRID_BORDER, textOverflow: 'ellipsis' },
   frameStyle: {
     borderColor: GRID_BORDER,
     borderLineWidth: 1,
@@ -80,7 +80,7 @@ export const sheetRowSeriesNumberStyle = {
   bgColor: CHROME_BG,
   borderColor: GRID_BORDER,
   padding: [...SHEET_CELL_PADDING],
-  textOverflow: 'clip' as const,
+  textOverflow: 'ellipsis' as const,
   textAlign: 'center' as const,
   fontWeight: 'normal' as const,
   fontSize: 12

@@ -76,8 +76,8 @@ describe('SheetGrid（happy-dom smoke）', () => {
       // theme 为 TableTheme 实例（DEFAULT.extends），读运行时解析值
       const theme = table.theme
       expect(theme.bodyStyle?.bgColor).toBe('#FFF')
-      expect(theme.bodyStyle?.textOverflow).toBe('clip')
-      expect(theme.defaultStyle?.textOverflow).toBe('clip')
+      expect(theme.bodyStyle?.textOverflow).toBe('ellipsis')
+      expect(theme.defaultStyle?.textOverflow).toBe('ellipsis')
       expect(theme.defaultStyle?.borderColor).toBe('#E1E4E8')
       // VTable DEFAULT 为 [10,16,10,16]；收紧后贴近 Excel
       expect(theme.defaultStyle?.padding).toEqual([2, 6, 2, 6])
@@ -98,7 +98,7 @@ describe('SheetGrid（happy-dom smoke）', () => {
         style: {
           bgColor: '#F5F5F5',
           padding: [2, 6, 2, 6],
-          textOverflow: 'clip',
+          textOverflow: 'ellipsis',
           textAlign: 'center',
           fontWeight: 'normal',
           fontSize: 12
